@@ -1027,13 +1027,13 @@ const UserDetailNormalized = getUser.extend({
 这些便捷访问器会为常见的 [Collection](./Collection.md) 操作创建新的 endpoint。
 只有当 `RestEndpoint` 的 schema 中包含 [Collection](./Collection.md) 时，它们才能使用。
 
+<CollectionLists />
+
 ### push {#push}
 
 创建一个 POST endpoint，将新创建的 Entity 放到 [Collection](./Collection.md) 的*末尾*。
 
 返回一个新的 RestEndpoint，其 [method](#method) 为 'POST'，schema 为 [Collection.push](./Collection.md#push)
-
-<CollectionLists op="push" />
 
 ```tsx
 import { RestEndpoint, Collection } from '@data-client/rest';
@@ -1086,8 +1086,6 @@ await ctrl.fetch(
 创建一个 POST endpoint，将新创建的 Entity 放到 [Collection](./Collection.md) 的*开头*。
 
 返回一个新的 RestEndpoint，其 [method](#method) 为 'POST'，schema 为 [Collection.unshift](./Collection.md#unshift)
-
-<CollectionLists op="unshift" />
 
 ```tsx
 import { RestEndpoint, Collection } from '@data-client/rest';
@@ -1181,8 +1179,6 @@ await ctrl.fetch(StatsResource.getList.assign, {
 
 返回一个新的 RestEndpoint，其 [method](#method) 为 'PATCH'，schema 为 [Collection.remove](./Collection.md#remove)
 
-<CollectionLists op="remove" />
-
 ```tsx
 import { RestEndpoint, Collection } from '@data-client/rest';
 import { useController } from '@data-client/react';
@@ -1233,8 +1229,6 @@ const deleteAndRemove = MyResource.delete.extend({
 匹配的 collection 中。
 
 返回一个新的 RestEndpoint，其 [method](#method) 为 'PATCH'，schema 为 [Collection.move](./Collection.md#move)
-
-<CollectionLists op="move" />
 
 import { kanbanFixtures, getInitialInterceptorData } from '@site/src/fixtures/kanban';
 

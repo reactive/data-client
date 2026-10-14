@@ -1028,13 +1028,13 @@ const UserDetailNormalized = getUser.extend({
 Estes acessores de conveniência criam novos endpoints para operações comuns de [Collection](./Collection.md).
 Só funcionam quando o schema do `RestEndpoint` contém uma [Collection](./Collection.md).
 
+<CollectionLists />
+
 ### push {#push}
 
 Cria um endpoint POST que coloca as Entities recém-criadas no _fim_ de uma [Collection](./Collection.md).
 
 Retorna um novo RestEndpoint com [method](#method): 'POST' e schema: [Collection.push](./Collection.md#push)
-
-<CollectionLists op="push" />
 
 ```tsx
 import { RestEndpoint, Collection } from '@data-client/rest';
@@ -1087,8 +1087,6 @@ await ctrl.fetch(
 Cria um endpoint POST que coloca as Entities recém-criadas no _início_ de uma [Collection](./Collection.md).
 
 Retorna um novo RestEndpoint com [method](#method): 'POST' e schema: [Collection.unshift](./Collection.md#unshift)
-
-<CollectionLists op="unshift" />
 
 ```tsx
 import { RestEndpoint, Collection } from '@data-client/rest';
@@ -1182,8 +1180,6 @@ Cria um endpoint PATCH que remove Entities de uma [Collection](./Collection.md) 
 
 Retorna um novo RestEndpoint com [method](#method): 'PATCH' e schema: [Collection.remove](./Collection.md#remove)
 
-<CollectionLists op="remove" />
-
 ```tsx
 import { RestEndpoint, Collection } from '@data-client/rest';
 import { useController } from '@data-client/react';
@@ -1234,8 +1230,6 @@ collections que correspondem ao estado existente da entidade e adiciona às coll
 (do body/último argumento).
 
 Retorna um novo RestEndpoint com [method](#method): 'PATCH' e schema: [Collection.move](./Collection.md#move)
-
-<CollectionLists op="move" />
 
 import { kanbanFixtures, getInitialInterceptorData } from '@site/src/fixtures/kanban';
 

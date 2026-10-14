@@ -860,22 +860,6 @@
     "message": "Tres listas guardadas en el store a partir de getTodos({ userId: 1 }), getTodos({ userId: 2 }) y getTodos(). Un todo con userId 1 creado por push o unshift entra en la lista de userId 1 y en la lista sin filtro, al final o al principio, y nunca en la lista de userId 2, porque una lista solo recibe un elemento cuando todos los argumentos con los que se obtuvo aparecen en la llamada. remove lo saca de esas mismas listas; move lo saca de la lista de userId 1 y lo mete en la de userId 2, y la lista sin filtro lo conserva",
     "description": "Accessible label of the collection lists diagram on the Collection page"
   },
-  "collectionLists.labelPush": {
-    "message": "Tres listas guardadas en el store a partir de getTodos({ userId: 1 }), getTodos({ userId: 2 }) y getTodos(). push crea un todo con userId 1, que entra al final de la lista de userId 1 y de la lista sin filtro, pero no en la lista de userId 2, porque una lista solo recibe un elemento cuando todos los argumentos con los que se obtuvo aparecen en la llamada",
-    "description": "Accessible label of the collection lists diagram showing only push, in its section of the RestEndpoint and resource pages"
-  },
-  "collectionLists.labelUnshift": {
-    "message": "Tres listas guardadas en el store a partir de getTodos({ userId: 1 }), getTodos({ userId: 2 }) y getTodos(). unshift crea un todo con userId 1, que entra al principio de la lista de userId 1 y de la lista sin filtro, pero no en la lista de userId 2, porque una lista solo recibe un elemento cuando todos los argumentos con los que se obtuvo aparecen en la llamada",
-    "description": "Accessible label of the collection lists diagram showing only unshift, in its section of the RestEndpoint and resource pages"
-  },
-  "collectionLists.labelRemove": {
-    "message": "Tres listas guardadas en el store a partir de getTodos({ userId: 1 }), getTodos({ userId: 2 }) y getTodos(). remove saca un todo con userId 1 de la lista de userId 1 y de la lista sin filtro, y deja intacta la lista de userId 2, porque una lista solo cambia cuando todos los argumentos con los que se obtuvo aparecen en la llamada",
-    "description": "Accessible label of the collection lists diagram showing only remove, in its section of the RestEndpoint and resource pages"
-  },
-  "collectionLists.labelMove": {
-    "message": "Tres listas guardadas en el store a partir de getTodos({ userId: 1 }), getTodos({ userId: 2 }) y getTodos(). move cambia un todo de userId 1 a userId 2: sale de la lista de userId 1, entra al final de la lista de userId 2 y se queda en la lista sin filtro",
-    "description": "Accessible label of the collection lists diagram showing only move, in its section of the RestEndpoint and resource pages"
-  },
   "collectionLists.operation": {
     "message": "Operación",
     "description": "Label of the push / unshift / remove / move switch on the collection lists diagram"

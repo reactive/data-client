@@ -860,22 +860,6 @@
     "message": "store 中缓存了三个列表，分别来自 getTodos({ userId: 1 })、getTodos({ userId: 2 }) 和 getTodos()。push 或 unshift 创建的 userId 为 1 的 todo 会加入 userId 1 列表和无筛选列表（加到末尾或开头），但绝不会加入 userId 2 列表，因为只有列表获取时的每个参数都出现在调用中，该列表才会收到这个条目。remove 会把它从同样这些列表中移除；move 会把它从 userId 1 列表移到 userId 2 列表，无筛选列表则保留它",
     "description": "Accessible label of the collection lists diagram on the Collection page"
   },
-  "collectionLists.labelPush": {
-    "message": "store 中缓存了三个列表，分别来自 getTodos({ userId: 1 })、getTodos({ userId: 2 }) 和 getTodos()。push 创建一个 userId 为 1 的 todo，它会加入 userId 1 列表和无过滤列表的末尾，但不会加入 userId 2 列表，因为只有当列表获取时使用的每个参数都出现在调用中时，该列表才会收到这一项",
-    "description": "Accessible label of the collection lists diagram showing only push, in its section of the RestEndpoint and resource pages"
-  },
-  "collectionLists.labelUnshift": {
-    "message": "store 中缓存了三个列表，分别来自 getTodos({ userId: 1 })、getTodos({ userId: 2 }) 和 getTodos()。unshift 创建一个 userId 为 1 的 todo，它会加入 userId 1 列表和无过滤列表的开头，但不会加入 userId 2 列表，因为只有当列表获取时使用的每个参数都出现在调用中时，该列表才会收到这一项",
-    "description": "Accessible label of the collection lists diagram showing only unshift, in its section of the RestEndpoint and resource pages"
-  },
-  "collectionLists.labelRemove": {
-    "message": "store 中缓存了三个列表，分别来自 getTodos({ userId: 1 })、getTodos({ userId: 2 }) 和 getTodos()。remove 将一个 userId 为 1 的 todo 从 userId 1 列表和无过滤列表中移除，userId 2 列表保持不变，因为只有当列表获取时使用的每个参数都出现在调用中时，该列表才会改变",
-    "description": "Accessible label of the collection lists diagram showing only remove, in its section of the RestEndpoint and resource pages"
-  },
-  "collectionLists.labelMove": {
-    "message": "store 中缓存了三个列表，分别来自 getTodos({ userId: 1 })、getTodos({ userId: 2 }) 和 getTodos()。move 将一个 todo 的 userId 从 1 改为 2：它离开 userId 1 列表，加入 userId 2 列表的末尾，并保留在无过滤列表中",
-    "description": "Accessible label of the collection lists diagram showing only move, in its section of the RestEndpoint and resource pages"
-  },
   "collectionLists.operation": {
     "message": "操作",
     "description": "Label of the push / unshift / remove / move switch on the collection lists diagram"

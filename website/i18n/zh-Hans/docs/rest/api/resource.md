@@ -15,7 +15,6 @@ import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import DeleteProcess from './\_DeleteProcess.mdx';
 import CollectionLists from '@site/src/components/CollectionLists';
-import Grid from '@site/src/components/Grid';
 
 # Resource
 
@@ -392,6 +391,8 @@ resource({ path: '/:owner/*path' }).getList.path === '/:owner';
 
 通常与 [useSuspense()](/docs/api/useSuspense)、[Controller.invalidate](/docs/api/Controller#invalidate)、[Controller.expireAll](/docs/api/Controller#expireAll) 一起使用
 
+<CollectionLists />
+
 ### getList.push {#push}
 
 [RestEndpoint.push](./RestEndpoint.md#push) 会创建一个新的 Entity，并将其添加到 getList 的末尾。如果想放在开头，
@@ -431,8 +432,6 @@ PostResource.getList.push(
 
 </EndpointPlayground>
 
-<Grid>
-
 |    字段     | 值                                       |
 | :----------: | ------------------------------------------- |
 |    method    | 'POST'                                      |
@@ -440,10 +439,6 @@ PostResource.getList.push(
 | searchParams | [searchParams](#searchparams)               |
 |     body     | [body](#body)                               |
 |    schema    | getList.[schema.push](./Collection.md#push) |
-
-<CollectionLists op="push" />
-
-</Grid>
 
 通常与 [Controller.fetch](/docs/api/Controller#fetch) 一起使用
 
@@ -485,8 +480,6 @@ PostResource.getList.unshift(
 
 </EndpointPlayground>
 
-<Grid>
-
 |    字段     | 值                                             |
 | :----------: | ------------------------------------------------- |
 |    method    | 'POST'                                            |
@@ -494,10 +487,6 @@ PostResource.getList.unshift(
 | searchParams | [searchParams](#searchparams)                     |
 |     body     | [body](#body)                                     |
 |    schema    | getList.[schema.unshift](./Collection.md#unshift) |
-
-<CollectionLists op="unshift" />
-
-</Grid>
 
 通常与 [Controller.fetch](/docs/api/Controller#fetch) 一起使用
 
@@ -594,18 +583,12 @@ PostResource.getList.move(
 
 </EndpointPlayground>
 
-<Grid>
-
 |    字段     | 值                                       |
 | :----------: | ------------------------------------------- |
 |    method    | 'PATCH'                                     |
 |     path     | [path](#path)                               |
 |     body     | [body](#body)                               |
 |    schema    | getList.[schema.move](./Collection.md#move) |
-
-<CollectionLists op="move" />
-
-</Grid>
 
 通常与 [Controller.fetch](/docs/api/Controller#fetch) 一起使用
 

@@ -122,23 +122,27 @@ function scene(op: Op) {
   return { match, chips, shifts: op === 'unshift' ? match : [] };
 }
 
-/** With `op`, shows only that operation, for its own section of the docs */
-export default function CollectionLists({ op: only }: { op?: Op }) {
-  const [chosen, setOp] = useState<Op>('push');
-  const op = only ?? chosen;
+export default function CollectionLists() {
+  const [op, setOp] = useState<Op>('push');
   const { match, chips, shifts } = scene(op);
   const [params, body] = CALLS[op];
 
   return (
     <div className={styles.frame}>
-      {!only && <Tabs op={op} onChange={setOp} />}
+      <Tabs op={op} onChange={setOp} />
       <div className={styles.stage}>
         <svg
           className={styles.diagram}
           style={{ '--period': `${PERIOD}s` } as React.CSSProperties}
           viewBox={`0 ${TOP} ${WIDTH} ${HEIGHT - TOP}`}
           role="img"
-          aria-label={label(only)}
+          aria-label={translate({
+            id: 'collectionLists.label',
+            message:
+              'Three lists cached in the store from getTodos({ userId: 1 }), getTodos({ userId: 2 }) and getTodos(). A todo with userId 1 that push or unshift creates joins the userId 1 list and the unfiltered list, at the end or the start, and never the userId 2 list, because a list gets an item only when every argument it was fetched with appears in the call. remove takes it out of the same lists; move takes it out of the userId 1 list and into the userId 2 list, and the unfiltered list keeps it',
+            description:
+              'Accessible label of the collection lists diagram on the Collection page',
+          })}
         >
           {/* eslint-disable @docusaurus/no-untranslated-text -- API names and arguments */}
           {/* each run starts over, so a chosen operation plays right away */}
@@ -273,52 +277,6 @@ export default function CollectionLists({ op: only }: { op?: Op }) {
       </div>
     </div>
   );
-}
-
-/** What the diagram shows, for screen readers: one operation, or all four */
-function label(op?: Op) {
-  switch (op) {
-    case 'push':
-      return translate({
-        id: 'collectionLists.labelPush',
-        message:
-          'Three lists cached in the store from getTodos({ userId: 1 }), getTodos({ userId: 2 }) and getTodos(). push creates a todo with userId 1, which joins the end of the userId 1 list and of the unfiltered list, but not the userId 2 list, because a list gets an item only when every argument it was fetched with appears in the call',
-        description:
-          'Accessible label of the collection lists diagram showing only push, in its section of the RestEndpoint and resource pages',
-      });
-    case 'unshift':
-      return translate({
-        id: 'collectionLists.labelUnshift',
-        message:
-          'Three lists cached in the store from getTodos({ userId: 1 }), getTodos({ userId: 2 }) and getTodos(). unshift creates a todo with userId 1, which joins the start of the userId 1 list and of the unfiltered list, but not the userId 2 list, because a list gets an item only when every argument it was fetched with appears in the call',
-        description:
-          'Accessible label of the collection lists diagram showing only unshift, in its section of the RestEndpoint and resource pages',
-      });
-    case 'remove':
-      return translate({
-        id: 'collectionLists.labelRemove',
-        message:
-          'Three lists cached in the store from getTodos({ userId: 1 }), getTodos({ userId: 2 }) and getTodos(). remove takes a todo with userId 1 out of the userId 1 list and the unfiltered list, and leaves the userId 2 list alone, because a list is changed only when every argument it was fetched with appears in the call',
-        description:
-          'Accessible label of the collection lists diagram showing only remove, in its section of the RestEndpoint and resource pages',
-      });
-    case 'move':
-      return translate({
-        id: 'collectionLists.labelMove',
-        message:
-          'Three lists cached in the store from getTodos({ userId: 1 }), getTodos({ userId: 2 }) and getTodos(). move changes a todo from userId 1 to userId 2: it leaves the userId 1 list, joins the end of the userId 2 list, and stays in the unfiltered list',
-        description:
-          'Accessible label of the collection lists diagram showing only move, in its section of the RestEndpoint and resource pages',
-      });
-    default:
-      return translate({
-        id: 'collectionLists.label',
-        message:
-          'Three lists cached in the store from getTodos({ userId: 1 }), getTodos({ userId: 2 }) and getTodos(). A todo with userId 1 that push or unshift creates joins the userId 1 list and the unfiltered list, at the end or the start, and never the userId 2 list, because a list gets an item only when every argument it was fetched with appears in the call. remove takes it out of the same lists; move takes it out of the userId 1 list and into the userId 2 list, and the unfiltered list keeps it',
-        description:
-          'Accessible label of the collection lists diagram on the Collection page',
-      });
-  }
 }
 
 /** `{ userId: 1 }`, with the values in their user's color */
