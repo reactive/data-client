@@ -1271,6 +1271,21 @@ div.fixtureJson + div.fixtureJson {
   background: #ff5f56;
   box-shadow: 0 0 0 3px rgba(255, 95, 86, 0.2);
 }
+/* With a demo's navigation in the header, a tight header keeps only the
+   label's dot (still named for screen readers), so the path gets the room */
+.previewHeader {
+  container: previewHeader / inline-size;
+}
+@container previewHeader (max-width: 36rem) {
+  .previewHeader:has(.routerControls) .liveLabelText {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
 /* A playground with a demo (autorun/DemoLabel): the label replays it, and
    its dot breathes while it plays */
 .demoLabel {

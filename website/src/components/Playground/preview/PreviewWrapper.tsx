@@ -22,7 +22,11 @@ export default function PreviewWrapper({
   return (
     <div className={styles.previewWrapper} ref={ref}>
       <Header className={styles.previewHeader}>
-        {label ?? <span className={styles.liveLabel}>{liveLabel()}</span>}
+        {label ?? (
+          <span className={styles.liveLabel}>
+            <span className={styles.liveLabelText}>{liveLabel()}</span>
+          </span>
+        )}
         <span className={styles.routerSlot} ref={setRouterSlot} />
         <span className={styles.previewControls}>
           {fixtures != null ?

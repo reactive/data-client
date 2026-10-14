@@ -37,7 +37,7 @@ export default function DemoLabel({
       data-autorun-control
       onClick={onPlay}
     >
-      {label}
+      <span className={styles.liveLabelText}>{label}</span>
     </button>
   );
 }
