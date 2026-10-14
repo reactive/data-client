@@ -42,14 +42,3 @@ export function usePreferredDocs(ids: readonly string[]): string {
   }, [current, storage]);
   return current ?? (stored && ids.includes(stored) ? stored : ids[0]);
 }
-
-const frameworkIds = FRAMEWORK_INSTANCES.map(d => d.id);
-
-/**
- * Framework of the current docs page; elsewhere (REST, blog, ...) the one whose
- * docs were viewed last, so the navbar keeps the reader's framework. Page
- * content uses useFramework(), as REST and GraphQL pages render React.
- */
-export function usePreferredFramework(): Framework {
-  return frameworkOf(usePreferredDocs(frameworkIds))!;
-}

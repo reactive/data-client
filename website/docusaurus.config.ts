@@ -29,6 +29,7 @@ const {
   frameworkInstance,
 } = require('./framework-docs/docsInstances.js');
 const frameworkDocs = require('./framework-docs/index.js');
+const frameworkDocsIds = FRAMEWORK_INSTANCES.map(d => d.id);
 const remarkFramework = require('./framework-docs/remarkFramework.js');
 // Non-Vue instances render React; :::vue reaches Vue agents via skill references
 const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
@@ -630,12 +631,13 @@ const config: Config = {
         {
           // React/Vue menu showing the framework being read
           type: 'custom-docsDropdown',
-          docsPluginIds: FRAMEWORK_INSTANCES.map(d => d.id),
+          docsPluginIds: frameworkDocsIds,
           position: 'left',
         },
         {
           // links to the React or Vue API: the docs being viewed, else the last ones read
-          type: 'custom-frameworkDocSidebar',
+          type: 'custom-preferredDocSidebar',
+          docsPluginIds: frameworkDocsIds,
           position: 'left',
           sidebarId: 'api',
           label: 'API',
