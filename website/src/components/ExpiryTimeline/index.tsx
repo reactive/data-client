@@ -123,88 +123,88 @@ export default function ExpiryTimeline({
       className={clsx(styles.frame, invalidIfStale && styles.invalidIfStale)}
     >
       <div className={styles.board}>
-        {ZONES.map((zone, i) => (
-          <React.Fragment key={zone}>
-            {/* the row over the panels: the switch, over Stale */}
-            <div className={styles.above}>
-              {zone === 'stale' && (
-                <Tip
-                  tips={tips}
-                  index={SWITCH_TIP}
-                  tip={switchTip}
-                  href="#endpointinvalidifstale"
-                  align={styles.center}
-                >
-                  {(control, tapped) => (
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={invalidIfStale}
-                      className={clsx(styles.control, styles.switch)}
-                      {...control}
-                      onClick={e => {
-                        setInvalidIfStale(on => !on);
-                        // a finger can't hover, so a tap also explains
-                        tips.setOpen(tapped(e) ? SWITCH_TIP : null);
-                      }}
-                    >
-                      <span className={styles.track}>
-                        <span className={styles.knob} />
-                      </span>
-                      {/* eslint-disable-next-line @docusaurus/no-untranslated-text -- API name */}
-                      <code>invalidIfStale</code>
-                    </button>
-                  )}
-                </Tip>
-              )}
-            </div>
-            <div
-              className={clsx(
-                styles.panel,
-                styles[zone],
-                styles[`band${i}`],
-                zone === 'stale' && invalidIfStale && styles.invalid,
-              )}
-            >
-              <div className={styles.head}>
-                <Tip
-                  tips={tips}
-                  index={i}
-                  tip={when[i].tip}
-                  href={when[i].href}
-                  align={zone === 'invalid' ? styles.right : styles.left}
-                >
-                  {(control, tapped) => (
-                    <a
-                      href={when[i].href}
-                      className={clsx(styles.control, styles.when)}
-                      {...control}
-                      onClick={e => {
-                        // a first tap explains; the link in the tooltip, or
-                        // a second tap, follows through
-                        if (tapped(e) && tips.open !== i) {
-                          e.preventDefault();
-                          tips.setOpen(i);
-                        } else tips.setOpen(null);
-                      }}
-                    >
-                      <span className={styles.prefix}>{when[i].prefix}</span>{' '}
-                      <code>{when[i].name}</code>
-                    </a>
-                  )}
-                </Tip>
+        {ZONES.map((zone, i) => {
+          // the switch turns the Stale panel into Invalid's story
+          const shown = zone === 'stale' && invalidIfStale ? 'invalid' : zone;
+          return (
+            <React.Fragment key={zone}>
+              {/* the row over the panels: the switch, over Stale */}
+              <div className={styles.above}>
+                {zone === 'stale' && (
+                  <Tip
+                    tips={tips}
+                    index={SWITCH_TIP}
+                    tip={switchTip}
+                    href="#endpointinvalidifstale"
+                    align={styles.center}
+                  >
+                    {(control, tapped) => (
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={invalidIfStale}
+                        className={clsx(styles.control, styles.switch)}
+                        {...control}
+                        onClick={e => {
+                          setInvalidIfStale(on => !on);
+                          // a finger can't hover, so a tap also explains
+                          tips.setOpen(tapped(e) ? SWITCH_TIP : null);
+                        }}
+                      >
+                        <span className={styles.track}>
+                          <span className={styles.knob} />
+                        </span>
+                        {/* eslint-disable-next-line @docusaurus/no-untranslated-text -- API name */}
+                        <code>invalidIfStale</code>
+                      </button>
+                    )}
+                  </Tip>
+                )}
               </div>
-              <Story
-                label={
-                  stories[zone === 'stale' && invalidIfStale ? 'invalid' : zone]
-                }
-              />
-            </div>
-            <section className={clsx(styles.text, styles[`band${i}`])}>
-              {columns[i]}
-            </section>
-          </React.Fragment>
-        ))}
+              <div
+                className={clsx(
+                  styles.panel,
+                  styles[zone],
+                  styles[`band${i}`],
+                  shown !== zone && styles.invalid,
+                )}
+              >
+                <div className={styles.head}>
+                  <Tip
+                    tips={tips}
+                    index={i}
+                    tip={when[i].tip}
+                    href={when[i].href}
+                    align={zone === 'invalid' ? styles.right : styles.left}
+                  >
+                    {(control, tapped) => (
+                      <a
+                        href={when[i].href}
+                        className={clsx(styles.control, styles.when)}
+                        {...control}
+                        onClick={e => {
+                          // a first tap explains; the link in the tooltip, or
+                          // a second tap, follows through
+                          if (tapped(e) && tips.open !== i) {
+                            e.preventDefault();
+                            tips.setOpen(i);
+                          } else tips.setOpen(null);
+                        }}
+                      >
+                        <span className={styles.prefix}>{when[i].prefix}</span>{' '}
+                        <code>{when[i].name}</code>
+                      </a>
+                    )}
+                  </Tip>
+                </div>
+                <Story label={stories[shown]} />
+              </div>
+              <section className={clsx(styles.text, styles[`band${i}`])}>
+                {columns[i]}
+              </section>
+            </React.Fragment>
+          );
+        })}
       </div>
     </div>
   );
