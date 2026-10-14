@@ -52,7 +52,7 @@ world\`;
     },
   },
   { endpoint: E, response(this: Data, a: number) {
-      return (<any>a).b + <any>(a + 1);
+      return (<any>a).b + <any>(a + 1) + ( <any>a ).b + (a as any /* c */).b + (a + 1) as any;
     } },
   {
     endpoint: E,
@@ -77,7 +77,7 @@ world\`;
         '(a) => {\n  return a;\n}',
         '(a) => a',
         'response() {\n  return `hello\nworld`;\n}',
-        'response(a) {\n  return a.b + (a + 1);\n}',
+        'response(a) {\n  return a.b + (a + 1) + a.b + a.b + (a + 1);\n}',
         '(a) =>\nfetchFoo(a)\n  .then(r => r.json())',
         'response() {\n  return `a\n  b\n        c`;\n}',
       ],

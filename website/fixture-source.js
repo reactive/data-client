@@ -73,10 +73,13 @@ function babelPlugin({ types: t, template }) {
           child.isTSTypeAssertion()
         ) {
           const { expression, extra } = child.node;
+          // A node's range leaves out its own parens; space or comments can
+          // sit before the closing one
+          const closeParen = node => code.indexOf(')', node.end) + 1;
           // `(post as any).author` and `(<any>post).author` read as `post.author`
           if (extra?.parenthesized && t.isIdentifier(expression)) {
             cuts.push([extra.parenStart, expression.start]);
-            cuts.push([expression.end, child.node.end + 1]);
+            cuts.push([expression.end, closeParen(child.node)]);
           } else if (child.isTSTypeAssertion()) {
             // `<any>(a + 1)` keeps its parens
             cuts.push([
@@ -84,7 +87,12 @@ function babelPlugin({ types: t, template }) {
               expression.extra?.parenStart ?? expression.start,
             ]);
           } else {
-            cuts.push([expression.end, child.node.end]);
+            // `(a + 1) as any` keeps its parens
+            const exprEnd =
+              expression.extra?.parenthesized ?
+                closeParen(expression)
+              : expression.end;
+            cuts.push([exprEnd, child.node.end]);
           }
         } else if (child.isIdentifier({ optional: true })) {
           // `init?: RequestInit` reads as `init`; TS allows space or comments
