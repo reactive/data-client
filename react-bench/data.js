@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791945682330,
+  "lastUpdate": 1791946278419,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -9587,6 +9587,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 277.78,
             "range": "± 7.8%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ed7de64c3c5ecde940d0ae9c3198ec55ab31abfc",
+          "message": "pkg(website): Update react-live to v5 and adopt its fixes (#4366)\n\n* pkg: Update `react-live` to v5\n\n* pkg(website): Adopt react-live v5 cleanups\n\nreact-live v5 gives its error boundary getDerivedStateFromError and stops\nemitting __self from sucrase, so the playground no longer needs to demote\nthose two console messages.\n\nDrop @docusaurus/theme-live-codeblock: no docs use live code blocks, and it\nbundled a second copy of react-live (v4) into every page with a code block.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_019RCvGPJXB1cCWsppCh9yQE\n\n* internal(website): Tidy playground console demotion after react-live v5\n\nMatch React's caught-error log on its stable line (the 'component:' pattern\nno longer matched React 19's text), explain why a console patch is used, drop\nthe stale translate lock key, and cover the hook with a test.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_019RCvGPJXB1cCWsppCh9yQE\n\n* internal(website): Test console demotion against React's real caught-error log\n\nThrow inside a real error boundary instead of copying React's text, cover\noverlapping previews, and match the single remaining pattern directly.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_019RCvGPJXB1cCWsppCh9yQE\n\n* internal(website): Reuse ErrorBoundary in console demotion test\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_019RCvGPJXB1cCWsppCh9yQE\n\n---------\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-14T02:44:35Z",
+          "tree_id": "a10d3d532df4a38c655b4367166ae3a581f4c520",
+          "url": "https://github.com/reactive/data-client/commit/ed7de64c3c5ecde940d0ae9c3198ec55ab31abfc"
+        },
+        "date": 1791946275759,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 136.99,
+            "range": "± 4.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 42.64,
+            "range": "± 4.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 357.14,
+            "range": "± 10.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 350.99,
+            "range": "± 8.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 40.82,
+            "range": "± 8.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 333.33,
+            "range": "± 7.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 327.96,
+            "range": "± 9.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 9.48,
+            "range": "± 11.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 78.74,
+            "range": "± 14.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 35.91,
+            "range": "± 5.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 212.77,
+            "range": "± 5.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 285.71,
+            "range": "± 5.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 172.41,
+            "range": "± 10.4%",
             "unit": "ops/s"
           }
         ]
