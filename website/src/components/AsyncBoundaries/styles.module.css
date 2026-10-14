@@ -262,6 +262,10 @@
   stroke-dasharray: 6 4;
   opacity: 1;
 }
+/* the chosen position, pointed at or focused: the route's focus cue */
+.active.preview .outline {
+  stroke-dasharray: none;
+}
 .tag {
   fill: var(--boundary);
   font-family: var(--ifm-font-family-monospace);
