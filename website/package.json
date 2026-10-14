@@ -72,7 +72,6 @@
     "@docusaurus/plugin-content-docs": "^3.0.1",
     "@docusaurus/plugin-pwa": "^3.10.2",
     "@docusaurus/preset-classic": "^3.0.1",
-    "@docusaurus/theme-live-codeblock": "^3.0.1",
     "@docusaurus/theme-mermaid": "^3.0.1",
     "@docusaurus/utils": "^3.0.1",
     "@mdx-js/react": "^3.1.0",
