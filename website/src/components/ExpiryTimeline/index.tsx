@@ -58,7 +58,7 @@ export default function ExpiryTimeline({
   const [design, setDesign] = useState<Design>('timeline');
   useEffect(() => {
     const d = new URLSearchParams(window.location.search).get('design');
-    if (d && d in DESIGNS) setDesign(d as Design);
+    if (d && Object.hasOwn(DESIGNS, d)) setDesign(d as Design);
   }, []);
   const choose = (d: Design) => {
     setDesign(d);
