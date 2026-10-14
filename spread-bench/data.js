@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791945589586,
+  "lastUpdate": 1791946146048,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -496,6 +496,37 @@ window.BENCHMARK_DATA = {
             "range": "±0.79%",
             "unit": "ops/sec",
             "extra": "87 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ed7de64c3c5ecde940d0ae9c3198ec55ab31abfc",
+          "message": "pkg(website): Update react-live to v5 and adopt its fixes (#4366)\n\n* pkg: Update `react-live` to v5\n\n* pkg(website): Adopt react-live v5 cleanups\n\nreact-live v5 gives its error boundary getDerivedStateFromError and stops\nemitting __self from sucrase, so the playground no longer needs to demote\nthose two console messages.\n\nDrop @docusaurus/theme-live-codeblock: no docs use live code blocks, and it\nbundled a second copy of react-live (v4) into every page with a code block.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_019RCvGPJXB1cCWsppCh9yQE\n\n* internal(website): Tidy playground console demotion after react-live v5\n\nMatch React's caught-error log on its stable line (the 'component:' pattern\nno longer matched React 19's text), explain why a console patch is used, drop\nthe stale translate lock key, and cover the hook with a test.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_019RCvGPJXB1cCWsppCh9yQE\n\n* internal(website): Test console demotion against React's real caught-error log\n\nThrow inside a real error boundary instead of copying React's text, cover\noverlapping previews, and match the single remaining pattern directly.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_019RCvGPJXB1cCWsppCh9yQE\n\n* internal(website): Reuse ErrorBoundary in console demotion test\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_019RCvGPJXB1cCWsppCh9yQE\n\n---------\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-14T02:44:35Z",
+          "tree_id": "a10d3d532df4a38c655b4367166ae3a581f4c520",
+          "url": "https://github.com/reactive/data-client/commit/ed7de64c3c5ecde940d0ae9c3198ec55ab31abfc"
+        },
+        "date": 1791946143153,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 151,
+            "range": "±0.99%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
           }
         ]
       }
