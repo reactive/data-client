@@ -160,6 +160,8 @@
 .chip {
   opacity: 0;
   animation: var(--cycle) linear infinite;
+  /* even while faded out, it would catch taps meant for what it rests on */
+  pointer-events: none;
 }
 .fetch {
   animation-name: fetch;
