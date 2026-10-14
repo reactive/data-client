@@ -23,7 +23,9 @@
 }
 
 /* each todo changes in turn, every 2s of a 6s cycle; a change completes it
-   or uncompletes it, so each one toggles back 6s later (a 12s cycle) */
+   or uncompletes it, so each one toggles back 6s later (a 12s cycle). The
+   endpoint is optimistic: the store changes as ctrl.fetch() is called, the
+   components right after, and the PATCH's response then confirms it */
 .U1 {
   --c: var(--user);
   --delay: 0s;
@@ -66,7 +68,7 @@
   opacity: 0.45;
   animation:
     flow 0.8s linear infinite,
-    send 6s calc(var(--delay) + 0.5s - 6s) infinite;
+    send 6s calc(var(--delay) + 0.1s - 6s) infinite;
 }
 @keyframes flow {
   from {
@@ -90,7 +92,8 @@
 .binding.U1 {
   animation: flow 0.8s linear infinite;
 }
-/* the request and response carry every todo's change: a pulse per slot */
+/* the request goes out as the call is made, its response comes back after
+   the store and components have changed: a pulse per slot */
 .request {
   animation:
     flow 0.8s linear infinite,
@@ -99,7 +102,7 @@
 .response {
   animation:
     flow 0.8s linear infinite,
-    send3 6s 0.2s infinite;
+    send3 6s 0.6s infinite;
 }
 @keyframes send3 {
   0%,
@@ -119,21 +122,21 @@
 }
 
 /* the entity changing, then the components re-rendering for it, like
-   React DevTools' highlight */
+   React DevTools' highlight; the pill flashes when the response confirms */
 .diagram .flash {
   fill: none;
   stroke: var(--c);
   stroke-width: 8;
   opacity: 0;
-  animation: render 6s calc(var(--delay) + 0.3s - 6s) infinite;
+  animation: render 6s calc(var(--delay) - 6s) infinite;
 }
 .diagram .render {
-  animation-delay: calc(var(--delay) + 0.6s - 6s);
+  animation-delay: calc(var(--delay) + 0.1s - 6s);
 }
 .diagram .pillFlash {
   stroke-width: 6;
   rx: 10px;
-  animation: render3 6s 0.1s infinite;
+  animation: render3 6s 0.5s infinite;
 }
 /* and nothing of User 1's flashes */
 .diagram .U1 .flash {
@@ -187,7 +190,8 @@
   opacity: 0;
   animation: slot 6s calc(var(--delay) - 6s) infinite;
 }
-.T1.slot {
+/* the still frame shows Todo 2 completed, so its request is the one out */
+.T2.slot {
   opacity: 1;
 }
 @keyframes slot {
@@ -201,14 +205,14 @@
   }
 }
 
-/* the checkbox completes when its todo's change lands: in the store first,
+/* the checkbox completes as its todo's change is made: in the store first,
    then in every component that renders it */
 .check {
   opacity: 0;
-  animation: check 12s calc(var(--delay) + var(--phase) + 0.5s - 12s) infinite;
+  animation: check 12s calc(var(--delay) + var(--phase) + 0.1s - 12s) infinite;
 }
 .view .check {
-  animation-delay: calc(var(--delay) + var(--phase) + 0.8s - 12s);
+  animation-delay: calc(var(--delay) + var(--phase) + 0.2s - 12s);
 }
 .T2 .check {
   opacity: 1;
@@ -381,6 +385,7 @@
 @media (prefers-reduced-motion: reduce) {
   .binding,
   .binding.on,
+  .binding.U1,
   .diagram .flash,
   .slot,
   .check {

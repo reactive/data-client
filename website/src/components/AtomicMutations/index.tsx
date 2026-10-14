@@ -95,11 +95,19 @@ function Checkbox({ x, y, size }: { x: number; y: number; size: number }) {
 }
 
 export default function AtomicMutations() {
-  const [active, setActive] = useState<Target | null>(null);
+  // what the pointer is over, and what has keyboard focus or was tapped;
+  // the pointer wins while it is over something, and leaving gives focus back
+  const [hovered, setHovered] = useState<Target | null>(null);
+  const [focused, setFocused] = useState<Target | null>(null);
+  const active = hovered ?? focused;
+  const clear = () => {
+    setHovered(null);
+    setFocused(null);
+  };
   useEffect(() => {
     if (!active) return;
     const dismiss = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setActive(null);
+      if (e.key === 'Escape') clear();
     };
     document.addEventListener('keydown', dismiss);
     return () => document.removeEventListener('keydown', dismiss);
@@ -142,16 +150,16 @@ export default function AtomicMutations() {
   // a hover on desktop, a tap on touch screens; tapping the background clears
   const target = (key: Target) => ({
     onPointerEnter: (e: React.PointerEvent) => {
-      if (e.pointerType !== 'touch') setActive(key);
+      if (e.pointerType !== 'touch') setHovered(key);
     },
     onPointerLeave: (e: React.PointerEvent) => {
-      if (e.pointerType !== 'touch') setActive(null);
+      if (e.pointerType !== 'touch') setHovered(null);
     },
-    onFocus: () => setActive(key),
-    onBlur: () => setActive(null),
+    onFocus: () => setFocused(key),
+    onBlur: () => setFocused(null),
     onClick: (e: React.MouseEvent) => {
       e.stopPropagation();
-      setActive(key);
+      setFocused(key);
     },
   });
   const pct = (x: number, y: number, w: number, h: number) => ({
@@ -168,7 +176,7 @@ export default function AtomicMutations() {
         // a single todo pointed at: the request shown is its own
         active && active !== 'TodoList' && styles.single,
       )}
-      onClick={() => setActive(null)}
+      onClick={clear}
     >
       <svg
         className={styles.diagram}
@@ -177,7 +185,7 @@ export default function AtomicMutations() {
         aria-label={translate({
           id: 'atomicMutations.label',
           message:
-            'A Todo app under its store. TodoList calls ctrl.fetch(partialUpdate), one PATCH response enters the store and changes one Todo, and the new data flows along the bindings to only the components that render that Todo: its row in TodoList and, for Todo 1, TodoDetail. CurrentUser and the rest of the tree keep the same data, and nothing is refetched',
+            'A Todo app under its store. A row in TodoList calls ctrl.fetch(partialUpdate): the store changes that Todo at once, optimistically, and the new data flows along the bindings to only the components that render it, its row in TodoList and, for Todo 1, TodoDetail, while the PATCH goes out and its response confirms the change. CurrentUser and the rest of the tree keep the same data, and nothing is refetched',
           description:
             'Accessible label of the atomic mutations diagram on the Mutate Data page',
         })}
@@ -343,7 +351,6 @@ export default function AtomicMutations() {
             className={clsx(styles.target, styles.chipTarget)}
             style={pct(x, 27, w, 22)}
             aria-label={entity(name)}
-            aria-pressed={active === e}
             {...target(e)}
           />
         ))}
@@ -354,7 +361,6 @@ export default function AtomicMutations() {
             className={styles.target}
             style={pct(BOXES[c].x, BOXES[c].y, BOXES[c].width, BOXES[c].height)}
             aria-label={label[c]}
-            aria-pressed={active === c}
             {...target(c)}
           />
         ))}

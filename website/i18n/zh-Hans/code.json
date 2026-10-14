@@ -857,7 +857,7 @@
     "description": "Accessible label of the data co-location diagram on the Render Data page"
   },
   "atomicMutations.label": {
-    "message": "一个待办应用及其上方的 store。TodoList 调用 ctrl.fetch(partialUpdate)，一条 PATCH 响应进入 store 并改变一个 Todo，新数据沿着绑定只流向渲染该 Todo 的组件：它在 TodoList 中的那一行，以及（对 Todo 1 而言）TodoDetail。CurrentUser 和树中其余部分保持原有数据，没有任何内容被重新获取",
+    "message": "一个待办应用及其上方的 store。TodoList 中的一行调用 ctrl.fetch(partialUpdate)：store 立即乐观地改变该 Todo，新数据沿着绑定只流向渲染它的组件，即它在 TodoList 中的那一行，以及（对 Todo 1 而言）TodoDetail；与此同时 PATCH 发出，其响应确认这次改变。CurrentUser 和树中其余部分保持原有数据，没有任何内容被重新获取",
     "description": "Accessible label of the atomic mutations diagram on the Mutate Data page"
   },
   "atomicMutations.entity": {

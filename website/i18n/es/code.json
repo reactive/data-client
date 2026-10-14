@@ -857,7 +857,7 @@
     "description": "Accessible label of the data co-location diagram on the Render Data page"
   },
   "atomicMutations.label": {
-    "message": "Una app de tareas bajo su store. TodoList llama a ctrl.fetch(partialUpdate), una sola respuesta PATCH entra en el store y cambia un Todo, y los datos nuevos fluyen por los enlaces solo hacia los componentes que renderizan ese Todo: su fila en TodoList y, para Todo 1, TodoDetail. CurrentUser y el resto del árbol conservan los mismos datos, y nada se vuelve a obtener",
+    "message": "Una app de tareas bajo su store. Una fila de TodoList llama a ctrl.fetch(partialUpdate): el store cambia ese Todo al instante, de forma optimista, y los datos nuevos fluyen por los enlaces solo hacia los componentes que lo renderizan, su fila en TodoList y, para Todo 1, TodoDetail, mientras el PATCH sale y su respuesta confirma el cambio. CurrentUser y el resto del árbol conservan los mismos datos, y nada se vuelve a obtener",
     "description": "Accessible label of the atomic mutations diagram on the Mutate Data page"
   },
   "atomicMutations.entity": {

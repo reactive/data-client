@@ -378,7 +378,7 @@
       "atomicMutations.currentUser": "CurrentUser renders User 1",
       "atomicMutations.todoList": "TodoList renders Todo 1, Todo 2 and Todo 3",
       "atomicMutations.todoDetail": "TodoDetail renders Todo 1",
-      "atomicMutations.label": "A Todo app under its store. TodoList calls ctrl.fetch(partialUpdate), one PATCH response enters the store and changes one Todo, and the new data flows along the bindings to only the components that render that Todo: its row in TodoList and, for Todo 1, TodoDetail. CurrentUser and the rest of the tree keep the same data, and nothing is refetched",
+      "atomicMutations.label": "A Todo app under its store. A row in TodoList calls ctrl.fetch(partialUpdate): the store changes that Todo at once, optimistically, and the new data flows along the bindings to only the components that render it, its row in TodoList and, for Todo 1, TodoDetail, while the PATCH goes out and its response confirms the change. CurrentUser and the rest of the tree keep the same data, and nothing is refetched",
       "playground.router.back": "Back",
       "playground.router.home": "Home",
       "playground.router.pages": "Preview pages",
