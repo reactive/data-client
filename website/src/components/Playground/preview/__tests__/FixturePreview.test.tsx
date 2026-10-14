@@ -151,28 +151,29 @@ describe('summarize', () => {
       fnName: 'response',
       hint: undefined,
       error: false,
-      delay: true,
+      delay: 'varies',
       delayFn: true,
     });
   });
 
-  test('delay labels: pinned numbers, none for zero, else true', () => {
+  test('delay labels: pinned numbers, none for zero, else varies', () => {
     const labelFor = (delay: unknown) =>
       summarize({ endpoint: getArticle, response: 1, delay } as any).delay;
     const pinned = (returnedSource?: string) =>
       Object.defineProperty(() => 0, 'returnedSource', {
         value: returnedSource,
       });
-    expect(labelFor(150)).toBe('150 ms');
+    expect(labelFor(150)).toBe(150);
     expect(labelFor(0)).toBeUndefined();
-    expect(labelFor(pinned('1_000'))).toBe('1000 ms');
+    expect(labelFor(NaN)).toBe('varies');
+    expect(labelFor(pinned('1_000'))).toBe(1000);
     expect(labelFor(pinned('0'))).toBeUndefined();
-    expect(labelFor(pinned('_150'))).toBe(true);
-    expect(labelFor(pinned('1e3'))).toBe('1000 ms');
-    expect(labelFor(pinned('.5'))).toBe('0.5 ms');
-    expect(labelFor(pinned('1e400'))).toBe(true);
-    expect(labelFor(pinned('500 + Math.random() * 4500'))).toBe(true);
-    expect(labelFor(pinned())).toBe(true);
+    expect(labelFor(pinned('_150'))).toBe('varies');
+    expect(labelFor(pinned('1e3'))).toBe(1000);
+    expect(labelFor(pinned('.5'))).toBe(0.5);
+    expect(labelFor(pinned('1e400'))).toBe('varies');
+    expect(labelFor(pinned('500 + Math.random() * 4500'))).toBe('varies');
+    expect(labelFor(pinned())).toBe('varies');
   });
 
   test('fetch interceptors name fetchResponse', () => {

@@ -68,9 +68,9 @@ function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
             title={delayFn && isBrowser ? `${fixture.delay}` : undefined}
           >
             {delayFn ? fnMark : null}
-            {delay === true ?
+            {delay === 'varies' ?
               <Translate id="playground.fixtures.delay">delay</Translate>
-            : delay}
+            : `${delay} ms`}
           </span>
         : null}
       </button>
@@ -111,21 +111,20 @@ export function summarize(fixture: FixtureOrInterceptor) {
     : (JSON.stringify(response.data) ?? String(response.data))
     )?.slice(0, HINT_CHARS),
     error: 'error' in fixture && fixture.error === true,
-    delay: delayLabel(delay),
+    delay: delayMs(delay),
     delayFn: typeof delay === 'function',
   };
 }
 
-/** `150 ms`, also for a function that always returns 150 (as pinned by
- * fixture-source.js), and nothing for no delay; true for any other delay
- * function, which the pill labels `delay` */
-function delayLabel(delay: FixtureOrInterceptor['delay']) {
+/** 150, also for a function that always returns 150 (as pinned by
+ * fixture-source.js), and nothing for no delay; any other delay `'varies'` */
+function delayMs(delay: FixtureOrInterceptor['delay']) {
   const ms =
     typeof delay === 'function' ?
       numberLiteral((delay as Pinned).returnedSource)
     : delay;
   if (typeof ms === 'number' && ms !== 0) {
-    return !Number.isFinite(ms) || `${ms} ms`;
+    return Number.isFinite(ms) ? ms : 'varies';
   }
 }
 
@@ -206,4 +205,4 @@ function FunctionSource({
 
 /** `delay() {` or `async delay() {`, but not `delayMs => 150` */
 const isMethod = (source: string, name: string) =>
-  new RegExp(`^(async\\s+)?${name}\\s*\\(`).test(source);
+  source.replace(/^async\s+/, '').startsWith(`${name}(`);
