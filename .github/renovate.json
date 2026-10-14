@@ -15,10 +15,6 @@
   ],
   "timezone": "America/Chicago",
   "postUpdateOptions": ["yarnDedupeHighest"],
-  "vulnerabilityAlerts": {
-    "description": "security updates otherwise skip minimumReleaseAge, but yarn still rejects releases under a day old. This overrides packageRules, so preapproved scopes wait a day here too",
-    "minimumReleaseAge": "1 day"
-  },
   "packageRules": [
     {
       "description": "yarn's default 1-day npmMinimalAgeGate rejects fresher releases, so proposing them leaves the PR without a yarn.lock update",
