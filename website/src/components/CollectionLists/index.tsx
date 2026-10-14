@@ -16,8 +16,9 @@ const OPS = ['push', 'unshift', 'remove', 'move'] as const;
 type Op = (typeof OPS)[number];
 type User = '1' | '2';
 
-/** The call line's baseline */
+/** The call line's baseline, and its box: room for the longest call, unshift's */
 const CALL_Y = 40;
+const CALL_W = 392;
 
 // the cached lists in the store, one per set of arguments getTodos was called with
 const CARD = { y: 80, w: 124, h: 132 };
@@ -149,9 +150,9 @@ export default function CollectionLists() {
             <g className={styles.call}>
               <rect
                 className={clsx(styles.anim, styles.flash)}
-                x={WIDTH / 2 - 172}
+                x={WIDTH / 2 - CALL_W / 2}
                 y={CALL_Y - 12}
-                width="344"
+                width={CALL_W}
                 height="18"
               />
               <text x={WIDTH / 2} y={CALL_Y}>
