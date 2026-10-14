@@ -94,7 +94,9 @@ world\`;
     assert.equal(arg, 'a');
   });
 
-  it('keeps the default toString() when the cut source would not parse', () => {
+  it('keeps the default toString() when the cut source would not parse', t => {
+    const warn = t.mock.method(console, 'warn', () => {});
+    // a `)` in a comment, or doubled parens, defeat the closing-paren search
     const code = compile(
       `module.exports = [
   { endpoint: E, response: (a: any) => ((a as any)).b },
@@ -103,6 +105,15 @@ world\`;
 ];`,
     );
     assert.doesNotMatch(code, /toString/);
+    assert.deepEqual(
+      warn.mock.calls.map(({ arguments: [message] }) =>
+        message.replace(/(?<=minified): .*/, ''),
+      ),
+      [2, 3, 4].map(
+        line =>
+          `${path.resolve('src/fixtures/test.ts')}:${line}: Fixtures panel shows this fixture minified`,
+      ),
+    );
   });
 
   it('leaves non-fixture objects alone', () => {
@@ -144,7 +155,8 @@ id,
     ]);
   });
 
-  it('never fails the build over a fixture it cannot format', async () => {
+  it('never fails the build over a fixture it cannot format', async t => {
+    const warn = t.mock.method(console, 'warn', () => {});
     const { compile } = await import(mdxPath);
     const out = String(
       await compile(
@@ -158,5 +170,6 @@ id,
       ),
     );
     assert.doesNotMatch(out, /toString/);
+    assert.equal(warn.mock.callCount(), 1);
   });
 });

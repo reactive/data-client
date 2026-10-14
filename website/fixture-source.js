@@ -54,12 +54,23 @@ const withSourceEstree = (fn, source) => ({
   ],
 });
 
+/** Only the panel's text is at stake, so a fixture that can't be shown as
+ * authored keeps its minified `toString()` rather than failing the build
+ */
+const warnMinified = (file, node, error) =>
+  console.warn(
+    `${file}:${node.loc?.start.line}: Fixtures panel shows this fixture minified: ${error.message.split('\n')[0]}`,
+  );
+
 function babelPlugin({ types: t, template }) {
   function authoredSource(path) {
     const code = path.hub.getCode();
     const { start, end } = path.node;
     const cuts = [];
     const quasis = [];
+    // A node's range leaves out its own parens; space or comments can sit
+    // before the closing one
+    const closeParen = node => code.indexOf(')', node.end) + 1;
     path.traverse({
       enter(child) {
         if (child.isTemplateElement()) {
@@ -73,9 +84,6 @@ function babelPlugin({ types: t, template }) {
           child.isTSTypeAssertion()
         ) {
           const { expression, extra } = child.node;
-          // A node's range leaves out its own parens; space or comments can
-          // sit before the closing one
-          const closeParen = node => code.indexOf(')', node.end) + 1;
           // `(post as any).author` and `(<any>post).author` read as `post.author`
           if (extra?.parenthesized && t.isIdentifier(expression)) {
             cuts.push([extra.parenStart, expression.start]);
@@ -121,12 +129,16 @@ function babelPlugin({ types: t, template }) {
       nl = code.indexOf('\n', line);
       if (quasis.some(q => q.start < line && line <= q.end)) continue;
       const indent = /^ */.exec(code.slice(line, nl === -1 ? end : nl))[0];
-      indents.push([line, indent.length, line + indent.length === nl]);
+      indents.push({
+        line,
+        length: indent.length,
+        blank: line + indent.length === nl,
+      });
     }
     const base = Math.min(
-      ...indents.filter(([, , blank]) => !blank).map(([, length]) => length),
+      ...indents.filter(({ blank }) => !blank).map(({ length }) => length),
     );
-    for (const [line, length] of indents) {
+    for (const { line, length } of indents) {
       cuts.push([line, line + Math.min(length, base)]);
     }
     let source = '';
@@ -145,16 +157,12 @@ function babelPlugin({ types: t, template }) {
     })`;
 
   // Text cuts can miss shapes no fixture uses yet, like `((a as any)).b`,
-  // so keep the default toString() over showing source that doesn't parse
-  const parses = (expression, filename) => {
+  // so source that doesn't parse is never shown
+  const parseError = expression => {
     try {
       template.expression.ast(expression);
-      return true;
     } catch (error) {
-      console.warn(
-        `${filename}: Fixtures panel shows this fixture minified: ${error.message}`,
-      );
-      return false;
+      return error;
     }
   };
 
@@ -169,7 +177,8 @@ function babelPlugin({ types: t, template }) {
           let fn, source;
           if (t.isObjectMethod(prop, { kind: 'method' })) {
             source = authoredSource(propPath);
-            if (!parses(`({ ${source} })`, filename)) return;
+            const error = parseError(`({ ${source} })`);
+            if (error) return warnMinified(filename, prop, error);
             fn = t.functionExpression(
               null,
               prop.params,
@@ -179,7 +188,8 @@ function babelPlugin({ types: t, template }) {
             );
           } else if (t.isObjectProperty(prop) && t.isFunction(prop.value)) {
             source = authoredSource(propPath.get('value'));
-            if (!parses(source, filename)) return;
+            const error = parseError(source);
+            if (error) return warnMinified(filename, prop, error);
             fn = prop.value;
           } else {
             return;
@@ -221,12 +231,9 @@ function recmaPlugin() {
     const config = await (prettierConfig ??=
       prettier.resolveConfig(__filename));
     for (const prop of matches) {
-      // Only the panel's text is at stake, so never fail the page's build
-      // (e.g. a fixture in a blockquote keeps its `> ` prefixes)
+      // e.g. a fixture in a blockquote keeps its `> ` prefixes
       await format(prop, code, config).catch(error =>
-        console.warn(
-          `${file.path}: Fixtures panel shows this fixture minified: ${error.message}`,
-        ),
+        warnMinified(file.path, prop, error),
       );
     }
   };
