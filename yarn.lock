@@ -19208,7 +19208,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:^10.3.10, glob@npm:^10.4.1":
+"glob@npm:^10.4.1":
   version: 10.5.0
   resolution: "glob@npm:10.5.0"
   dependencies:
@@ -27891,15 +27891,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prism-react-renderer@npm:^2.3.0, prism-react-renderer@npm:^2.4.0":
-  version: 2.4.0
-  resolution: "prism-react-renderer@npm:2.4.0"
+"prism-react-renderer@npm:^2.3.0, prism-react-renderer@npm:^2.4.0, prism-react-renderer@npm:^2.4.1":
+  version: 2.4.1
+  resolution: "prism-react-renderer@npm:2.4.1"
   dependencies:
     "@types/prismjs": "npm:^1.26.0"
     clsx: "npm:^2.0.0"
   peerDependencies:
     react: ">=16.0.0"
-  checksum: 10c0/3d6969b057da0efe39e3e637bf93601cd5757de5919180e8df16daf1d1b8eedc39b70c7f6f28724fba0a01bc857c6b78312ab027f4e913159d1165c5aba235bb
+  checksum: 10c0/ebbe8feb975224344bbdd046b3a937d121592dbe4b8f22ba0be31f5af37b9a8219f441138ef6cab1c5b96f2aa6b529015200959f7e5e85b60ca69c81d35edcd4
   languageName: node
   linkType: hard
 
@@ -28281,7 +28281,7 @@ __metadata:
     raw-loader: "npm:^4.0.2"
     react: "npm:^19.0.0"
     react-dom: "npm:^19.0.0"
-    react-live: "npm:^4.0.0"
+    react-live: "npm:^5.0.0"
     react-redux: "npm:^9.2.0"
     redux: "npm:^5.0.1"
     remark-directive: "npm:^3.0.0"
@@ -28469,7 +28469,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-live@npm:^4.0.0, react-live@npm:^4.1.6":
+"react-live@npm:^4.1.6":
   version: 4.1.8
   resolution: "react-live@npm:4.1.8"
   dependencies:
@@ -28480,6 +28480,20 @@ __metadata:
     react: ">=18.0.0"
     react-dom: ">=18.0.0"
   checksum: 10c0/fa96ca176bc9074e4892d6a079b94488ba74e95907ea187678afb17e4a23cc7760c3774ef17f4429d2ba562f1fda852a822e18a161ef386676371c56a7585970
+  languageName: node
+  linkType: hard
+
+"react-live@npm:^5.0.0":
+  version: 5.0.1
+  resolution: "react-live@npm:5.0.1"
+  dependencies:
+    prism-react-renderer: "npm:^2.4.1"
+    sucrase: "npm:^3.35.1"
+    use-editable: "npm:^2.3.3"
+  peerDependencies:
+    react: ">=18.0.0"
+    react-dom: ">=18.0.0"
+  checksum: 10c0/9e7a85c8fe3ec364b19ff0ad43f7c931bc811d75b7eaa8583b7a2051b77600a6bd67a5d311e9379cd343ec84961cbc096d16aba871a8c0e5d971a41d04ccba47
   languageName: node
   linkType: hard
 
@@ -29674,7 +29688,7 @@ __metadata:
     prettier: "npm:3.9.10"
     react: "npm:19.3.0"
     react-dom: "npm:19.3.0"
-    react-live: "npm:^4.0.0"
+    react-live: "npm:^5.0.0"
     react-native: "npm:0.87.1"
     react-native-safe-area-context: "npm:^5.0.0"
     react-native-screens: "npm:^4.1.0"
@@ -31208,21 +31222,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sucrase@npm:^3.35.0":
-  version: 3.35.0
-  resolution: "sucrase@npm:3.35.0"
+"sucrase@npm:^3.35.0, sucrase@npm:^3.35.1":
+  version: 3.35.1
+  resolution: "sucrase@npm:3.35.1"
   dependencies:
     "@jridgewell/gen-mapping": "npm:^0.3.2"
     commander: "npm:^4.0.0"
-    glob: "npm:^10.3.10"
     lines-and-columns: "npm:^1.1.6"
     mz: "npm:^2.7.0"
     pirates: "npm:^4.0.1"
+    tinyglobby: "npm:^0.2.11"
     ts-interface-checker: "npm:^0.1.9"
   bin:
     sucrase: bin/sucrase
     sucrase-node: bin/sucrase-node
-  checksum: 10c0/ac85f3359d2c2ecbf5febca6a24ae9bf96c931f05fde533c22a94f59c6a74895e5d5f0e871878dfd59c2697a75ebb04e4b2224ef0bfc24ca1210735c2ec191ef
+  checksum: 10c0/6fa22329c261371feb9560630d961ad0d0b9c87dce21ea74557c5f3ffbe5c1ee970ea8bcce9962ae9c90c3c47165ffa7dd41865c7414f5d8ea7a40755d612c5c
   languageName: node
   linkType: hard
 
@@ -31668,13 +31682,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tinyglobby@npm:^0.2.12, tinyglobby@npm:^0.2.14, tinyglobby@npm:^0.2.15":
-  version: 0.2.15
-  resolution: "tinyglobby@npm:0.2.15"
+"tinyglobby@npm:^0.2.11, tinyglobby@npm:^0.2.12, tinyglobby@npm:^0.2.14, tinyglobby@npm:^0.2.15":
+  version: 0.2.17
+  resolution: "tinyglobby@npm:0.2.17"
   dependencies:
     fdir: "npm:^6.5.0"
-    picomatch: "npm:^4.0.3"
-  checksum: 10c0/869c31490d0d88eedb8305d178d4c75e7463e820df5a9b9d388291daf93e8b1eb5de1dad1c1e139767e4269fe75f3b10d5009b2cc14db96ff98986920a186844
+    picomatch: "npm:^4.0.4"
+  checksum: 10c0/7f7bb0f197c88bc4b20c231e0deca4240ca3bf313a88f5a7fee93a872b84966a4d50220947c0455ad07a60b3b360961c5b7fd979222aeb716a9f99b412002e4c
   languageName: node
   linkType: hard
 
