@@ -1,6 +1,7 @@
 import React from 'react';
 
-/** A globe: the network the fixtures stand in for (StoreIcon's stroke) */
+/** Up/down arrows, devtools' network mark: the requests and responses the
+ * fixtures stand in for (StoreIcon's stroke) */
 export default function NetworkIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -15,9 +16,10 @@ export default function NetworkIcon(props: React.SVGProps<SVGSVGElement>) {
       aria-hidden="true"
       {...props}
     >
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 2a14.5 14.5 0 0 0 0 20a14.5 14.5 0 0 0 0-20" />
-      <path d="M2 12h20" />
+      <path d="M7 20V4" />
+      <path d="m3 8 4-4 4 4" />
+      <path d="M17 4v16" />
+      <path d="m21 16-4 4-4-4" />
     </svg>
   );
 }
