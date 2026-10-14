@@ -280,7 +280,6 @@
       "theme.SearchModal.startScreen.removeRecentConversationButtonTitle": "Remove this conversation from history",
       "theme.SearchModal.askAiScreen.likeButtonTitle": "Like",
       "theme.SearchModal.askAiScreen.dislikeButtonTitle": "Dislike",
-      "theme.Playground.buttons.reset": "Reset",
       "theme.SearchModal.searchBox.enterKeyHintAskAi": "enter",
       "theme.blog.author.pageTitle": "{authorName} - {nPosts}",
       "homepage.githubStars.star": "Star",
