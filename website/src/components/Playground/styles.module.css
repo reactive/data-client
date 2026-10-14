@@ -377,6 +377,10 @@ div.playgroundTextEdit > .playgroundHeader,
 .editorBody > * {
   grid-area: 1 / 1;
 }
+/* what floats over the code (the fixtures) stays under the Store's layer */
+.editorDocs {
+  isolation: isolate;
+}
 /* room to inspect even when the code is short (the Store's own minimum),
    held while visible, including while it slides out pinned out of flow
    (until its <Activity> hides it) */
