@@ -2,7 +2,7 @@
 /**
  * Creates GitHub releases for published packages.
  * Scans all packages, checks if a release already exists for the current version,
- * and creates one if not. Gated in CI by `hasChangesets == 'false'` so it only
+ * and creates one if not. Gated in CI by `has-changesets == 'false'` so it only
  * runs after the Version Packages PR is merged and publish executes.
  */
 import { execSync } from 'child_process';
