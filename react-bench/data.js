@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791947340118,
+  "lastUpdate": 1791964340389,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -9791,6 +9791,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 243.9,
             "range": "± 9.5%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "5b1c7b8bd385f87e2d5e91a72dfa9b4d3eb4fd53",
+          "message": "fix: Managers without middleware, React Native focus refetch, fetchIfStale docs (#4378)\n\n* fix(core): Managers without middleware pass actions through\n\napplyManager called manager.middleware() unconditionally, though Manager\ntypes middleware as optional, so a Manager with only init/cleanup threw.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_018H8V1uRUssFCPyAjSupYgi\n\n* fix(react): Native focus refetch uses current expiry and args\n\nThe useFocusEffect in the native useSuspense/useFetch/useDLE had [] deps,\nso it compared against the first render's expiresAt and args, refetching\nfresh data on every refocus. Also refetch Invalid data, like the render path.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_018H8V1uRUssFCPyAjSupYgi\n\n* docs(core): fetchIfStale returns cached data when fresh\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_018H8V1uRUssFCPyAjSupYgi\n\n* chore: regenerate skill references\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_018H8V1uRUssFCPyAjSupYgi\n\n* docs(blog): note Manager and native focus fixes\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_018H8V1uRUssFCPyAjSupYgi\n\n* fix(core): Managers must define middleware\n\nReplace the pass-through with a clear development error naming the\nManager, and plan making middleware required in the type. Also cover\nuseDLE and useFetch in the native refocus test.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_018H8V1uRUssFCPyAjSupYgi\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-14T07:46:17Z",
+          "tree_id": "920022ca5ba447d99cf3648f295ad1c6be779013",
+          "url": "https://github.com/reactive/data-client/commit/5b1c7b8bd385f87e2d5e91a72dfa9b4d3eb4fd53"
+        },
+        "date": 1791964336787,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 161.29,
+            "range": "± 5.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 53.06,
+            "range": "± 2.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 384.62,
+            "range": "± 7.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 344.83,
+            "range": "± 6.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 52.22,
+            "range": "± 7.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 322.58,
+            "range": "± 4.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 333.33,
+            "range": "± 6.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 12.33,
+            "range": "± 10.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 86.58,
+            "range": "± 10.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 41.58,
+            "range": "± 5.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 227.27,
+            "range": "± 6.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 317.54,
+            "range": "± 5.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 190.49,
+            "range": "± 8.1%",
             "unit": "ops/s"
           }
         ]
