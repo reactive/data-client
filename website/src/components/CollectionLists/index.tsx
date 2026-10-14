@@ -6,6 +6,8 @@ import styles from './styles.module.css';
 import StoreIcon from '../Playground/StoreIcon';
 
 const WIDTH = 420;
+/** Where the drawing starts: the call line's box */
+const TOP = 22;
 const HEIGHT = 226;
 /** Seconds one run of the chosen operation takes (the CSS animations' duration) */
 const PERIOD = 5;
@@ -13,24 +15,6 @@ const PERIOD = 5;
 const OPS = ['push', 'unshift', 'remove', 'move'] as const;
 type Op = (typeof OPS)[number];
 type User = '1' | '2';
-
-// the segmented control, drawn in the SVG with the real buttons over it
-const TAB_WIDTHS: Record<Op, number> = {
-  push: 44,
-  unshift: 60,
-  remove: 58,
-  move: 44,
-};
-const TABS_WIDTH = Object.values(TAB_WIDTHS).reduce((a, b) => a + b);
-const TABS = { x: (WIDTH - TABS_WIDTH) / 2, y: 2, h: 18 };
-const TAB_X = Object.fromEntries(
-  OPS.map((op, i) => [
-    op,
-    TABS.x + OPS.slice(0, i).reduce((x, o) => x + TAB_WIDTHS[o], 0),
-  ]),
-) as Record<Op, number>;
-/** The buttons reach above and below the drawn tabs, so a finger can hit them */
-const HIT = { y: -6, h: 32 };
 
 /** The call line's baseline */
 const CALL_Y = 40;
@@ -64,8 +48,10 @@ const CALLS: Record<Op, [Record<string, string>, Record<string, string>]> = {
 };
 
 /**
- * Collection's default createCollectionFilter: a list gets the operation when
- * every member of its key appears in the call's params or body
+ * A copy of Collection's default createCollectionFilter, kept in step by hand:
+ * a list gets the operation when every member of its key appears in the
+ * call's params or body. It leaves out the nonFilterArgumentKeys exception
+ * (order* keys), which these lists' keys never use.
  */
 function matches(key: Record<string, string>, args: Record<string, string>[]) {
   return Object.entries(key).every(
@@ -88,7 +74,7 @@ function slot(list: number, index: number): [number, number] {
   return [CARD_X[list] + ROW.x, CARD.y + ROW.y + ROW.pitch * index];
 }
 
-/** Everything a run of one operation shows, from the real filter rule */
+/** Everything a run of one operation shows, from the filter rule above */
 function scene(op: Op) {
   const args = CALLS[op];
   const match = LISTS.map(list => matches(list.key, args));
@@ -141,11 +127,12 @@ export default function CollectionLists() {
 
   return (
     <div className={styles.frame}>
+      <Tabs op={op} onChange={setOp} />
       <div className={styles.stage}>
         <svg
           className={styles.diagram}
           style={{ '--period': `${PERIOD}s` } as React.CSSProperties}
-          viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+          viewBox={`0 ${TOP} ${WIDTH} ${HEIGHT - TOP}`}
           role="img"
           aria-label={translate({
             id: 'collectionLists.label',
@@ -156,33 +143,6 @@ export default function CollectionLists() {
           })}
         >
           {/* eslint-disable @docusaurus/no-untranslated-text -- API names and arguments */}
-          <g className={styles.tabs}>
-            <rect
-              x={TABS.x}
-              y={TABS.y}
-              width={TABS_WIDTH}
-              height={TABS.h}
-              rx="9"
-            />
-            {OPS.map(o => (
-              <g
-                key={o}
-                className={clsx(styles.tab, o === op && styles.active)}
-              >
-                <rect
-                  x={TAB_X[o] + 1}
-                  y={TABS.y + 1}
-                  width={TAB_WIDTHS[o] - 2}
-                  height={TABS.h - 2}
-                  rx="8"
-                />
-                <text x={TAB_X[o] + TAB_WIDTHS[o] / 2} y={TABS.y + 12.5}>
-                  {o}
-                </text>
-              </g>
-            ))}
-          </g>
-
           {/* each run starts over, so a chosen operation plays right away */}
           <g key={op}>
             {/* the call: the operation, then its params and body */}
@@ -312,7 +272,6 @@ export default function CollectionLists() {
           </g>
           {/* eslint-enable @docusaurus/no-untranslated-text */}
         </svg>
-        <Tabs op={op} onChange={setOp} />
       </div>
     </div>
   );
@@ -350,7 +309,7 @@ function Todo({ user, className }: { user: User; className?: string }) {
     </g>
   );
 }
-/** The real buttons over the drawn tabs. The SVG is an image, so these stay HTML. */
+/** Picks the operation; outside the SVG, which is an image */
 function Tabs({ op, onChange }: { op: Op; onChange: (op: Op) => void }) {
   return (
     <div
@@ -362,27 +321,16 @@ function Tabs({ op, onChange }: { op: Op; onChange: (op: Op) => void }) {
         description:
           'Label of the push / unshift / remove / move switch on the collection lists diagram',
       })}
-      style={
-        {
-          left: `${(TABS.x / WIDTH) * 100}%`,
-          top: `${(HIT.y / HEIGHT) * 100}%`,
-          width: `${(TABS_WIDTH / WIDTH) * 100}%`,
-          height: `${(HIT.h / HEIGHT) * 100}%`,
-          // where the drawn tab sits inside each button, for its focus ring
-          '--tab-top': `${((TABS.y - HIT.y) / HIT.h) * 100}%`,
-          '--tab-bottom': `${((HIT.y + HIT.h - TABS.y - TABS.h) / HIT.h) * 100}%`,
-        } as React.CSSProperties
-      }
     >
       {OPS.map(o => (
         <button
           key={o}
           type="button"
           aria-pressed={o === op}
-          aria-label={o}
-          style={{ flex: TAB_WIDTHS[o] }}
           onClick={() => onChange(o)}
-        />
+        >
+          {o}
+        </button>
       ))}
     </div>
   );

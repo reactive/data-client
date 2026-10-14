@@ -1,4 +1,4 @@
-/* the diagram and the operation switch laid over it */
+/* the operation switch, and the diagram under it */
 .frame {
   --line: var(--ifm-color-emphasis-300);
   --user1: hsl(262, 52%, 48%);
@@ -11,9 +11,7 @@
   --user2: hsl(165, 55%, 55%);
   --on-chip: hsl(220, 20%, 12%);
 }
-/* the switch is placed in % of the diagram's box */
 .stage {
-  position: relative;
   max-width: 520px;
   margin: 0 auto;
 }
@@ -42,56 +40,40 @@ text .user2 {
 }
 
 /* the segmented control: push / unshift / remove / move */
-.tabs > rect {
-  fill: var(--ifm-background-surface-color);
-  stroke: var(--line);
-  stroke-width: 1;
-}
-.tab rect {
-  fill: var(--ifm-color-primary);
-  opacity: 0;
-  transition: opacity var(--motion-snappy);
-}
-.tab text {
-  fill: var(--ifm-color-emphasis-700);
-  font-weight: 600;
-  transition: fill var(--motion-snappy);
-}
-.tab.active rect {
-  opacity: 1;
-}
-.tab.active text {
-  fill: var(--on-chip);
-}
-
-/* the real buttons, one over each drawn tab */
 .controls {
-  position: absolute;
   display: flex;
+  width: fit-content;
+  margin: 0 auto 4px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--ifm-background-surface-color);
 }
 .controls button {
-  position: relative;
-  display: block;
-  height: 100%;
-  padding: 0;
+  padding: 4px 12px;
   border: 0;
-  background: none;
-  cursor: pointer;
-}
-/* the ring goes round the drawn tab, not the taller button */
-.controls button:focus-visible {
-  outline: none;
-}
-.controls button:focus-visible::after {
-  content: '';
-  position: absolute;
-  top: var(--tab-top);
-  right: 0;
-  bottom: var(--tab-bottom);
-  left: 0;
   border-radius: 999px;
+  background: none;
+  color: var(--ifm-color-emphasis-700);
+  font: 600 0.8rem var(--ifm-font-family-monospace);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-snappy),
+    color var(--motion-snappy);
+}
+.controls button[aria-pressed='true'] {
+  background: var(--ifm-color-primary);
+  color: var(--on-chip);
+}
+.controls button:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
   outline-offset: 1px;
+}
+/* taller for a finger */
+@media (pointer: coarse) {
+  .controls button {
+    padding: 8px 14px;
+  }
 }
 
 .call text {
@@ -375,8 +357,7 @@ text .user2 {
     --play: paused;
     --seek: calc(var(--period) * -0.7);
   }
-  .tab rect,
-  .tab text {
+  .controls button {
     transition: none;
   }
 }
