@@ -122,14 +122,16 @@ function scene(op: Op) {
   return { match, chips, shifts: op === 'unshift' ? match : [] };
 }
 
-export default function CollectionLists() {
-  const [op, setOp] = useState<Op>('push');
+/** With `op`, shows only that operation, for its own section of the docs */
+export default function CollectionLists({ op: only }: { op?: Op }) {
+  const [chosen, setOp] = useState<Op>('push');
+  const op = only ?? chosen;
   const { match, chips, shifts } = scene(op);
   const [params, body] = CALLS[op];
 
   return (
     <div className={styles.frame}>
-      <Tabs op={op} onChange={setOp} />
+      {!only && <Tabs op={op} onChange={setOp} />}
       <div className={styles.stage}>
         <svg
           className={styles.diagram}

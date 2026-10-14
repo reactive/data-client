@@ -15,6 +15,7 @@ import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import Grid from '@site/src/components/Grid';
 import Link from '@docusaurus/Link';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import CollectionLists from '@site/src/components/CollectionLists';
 
 # RestEndpoint
 
@@ -1032,6 +1033,8 @@ const UserDetailNormalized = getUser.extend({
 
 返回一个新的 RestEndpoint，其 [method](#method) 为 'POST'，schema 为 [Collection.push](./Collection.md#push)
 
+<CollectionLists op="push" />
+
 ```tsx
 import { RestEndpoint, Collection } from '@data-client/rest';
 import { useController } from '@data-client/react';
@@ -1083,6 +1086,8 @@ await ctrl.fetch(
 创建一个 POST endpoint，将新创建的 Entity 放到 [Collection](./Collection.md) 的*开头*。
 
 返回一个新的 RestEndpoint，其 [method](#method) 为 'POST'，schema 为 [Collection.unshift](./Collection.md#unshift)
+
+<CollectionLists op="unshift" />
 
 ```tsx
 import { RestEndpoint, Collection } from '@data-client/rest';
@@ -1176,6 +1181,8 @@ await ctrl.fetch(StatsResource.getList.assign, {
 
 返回一个新的 RestEndpoint，其 [method](#method) 为 'PATCH'，schema 为 [Collection.remove](./Collection.md#remove)
 
+<CollectionLists op="remove" />
+
 ```tsx
 import { RestEndpoint, Collection } from '@data-client/rest';
 import { useController } from '@data-client/react';
@@ -1226,6 +1233,8 @@ const deleteAndRemove = MyResource.delete.extend({
 匹配的 collection 中。
 
 返回一个新的 RestEndpoint，其 [method](#method) 为 'PATCH'，schema 为 [Collection.move](./Collection.md#move)
+
+<CollectionLists op="move" />
 
 import { kanbanFixtures, getInitialInterceptorData } from '@site/src/fixtures/kanban';
 

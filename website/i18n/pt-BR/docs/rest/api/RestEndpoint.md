@@ -15,6 +15,7 @@ import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import Grid from '@site/src/components/Grid';
 import Link from '@docusaurus/Link';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import CollectionLists from '@site/src/components/CollectionLists';
 
 # RestEndpoint
 
@@ -1033,6 +1034,8 @@ Cria um endpoint POST que coloca as Entities recém-criadas no _fim_ de uma [Col
 
 Retorna um novo RestEndpoint com [method](#method): 'POST' e schema: [Collection.push](./Collection.md#push)
 
+<CollectionLists op="push" />
+
 ```tsx
 import { RestEndpoint, Collection } from '@data-client/rest';
 import { useController } from '@data-client/react';
@@ -1084,6 +1087,8 @@ await ctrl.fetch(
 Cria um endpoint POST que coloca as Entities recém-criadas no _início_ de uma [Collection](./Collection.md).
 
 Retorna um novo RestEndpoint com [method](#method): 'POST' e schema: [Collection.unshift](./Collection.md#unshift)
+
+<CollectionLists op="unshift" />
 
 ```tsx
 import { RestEndpoint, Collection } from '@data-client/rest';
@@ -1177,6 +1182,8 @@ Cria um endpoint PATCH que remove Entities de uma [Collection](./Collection.md) 
 
 Retorna um novo RestEndpoint com [method](#method): 'PATCH' e schema: [Collection.remove](./Collection.md#remove)
 
+<CollectionLists op="remove" />
+
 ```tsx
 import { RestEndpoint, Collection } from '@data-client/rest';
 import { useController } from '@data-client/react';
@@ -1227,6 +1234,8 @@ collections que correspondem ao estado existente da entidade e adiciona às coll
 (do body/último argumento).
 
 Retorna um novo RestEndpoint com [method](#method): 'PATCH' e schema: [Collection.move](./Collection.md#move)
+
+<CollectionLists op="move" />
 
 import { kanbanFixtures, getInitialInterceptorData } from '@site/src/fixtures/kanban';
 

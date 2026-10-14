@@ -14,6 +14,7 @@ import StackBlitz from '@site/src/components/StackBlitz';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import DeleteProcess from './\_DeleteProcess.mdx';
+import CollectionLists from '@site/src/components/CollectionLists';
 
 # Resource
 
@@ -395,6 +396,8 @@ resource({ path: '/:owner/*path' }).getList.path === '/:owner';
 [RestEndpoint.push](./RestEndpoint.md#push) 会创建一个新的 Entity，并将其添加到 getList 的末尾。如果想放在开头，
 请改用 [getList.unshift](#unshift)。将数组作为 body 传入即可一次创建多个。
 
+<CollectionLists op="push" />
+
 <EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'},body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
 
 ```typescript title="Post" collapsed
@@ -442,6 +445,8 @@ PostResource.getList.push(
 ### getList.unshift {#unshift}
 
 [RestEndpoint.unshift](./RestEndpoint.md#unshift) 会创建一个新的 Entity，并将其添加到 getList 的开头。
+
+<CollectionLists op="unshift" />
 
 <EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
 
@@ -545,6 +550,8 @@ args: `PathToArgs(shortenPath(path)) & searchParams & \{ [paginationField]: stri
 
 [RestEndpoint.move](./RestEndpoint.md#move) 会在 [Collections](./Collection.md) 之间移动 Entity：将其从
 与旧状态匹配的 collection 中移除，并添加到与 body 中新值相匹配的 collection 中。
+
+<CollectionLists op="move" />
 
 <EndpointPlayground input="/react/posts/1" init={{method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "group": "vue" })}} status={200} response={{  "id": "1","group": "vue","title": "this post",author: 'clara',}}>
 
