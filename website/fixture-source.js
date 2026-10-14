@@ -49,8 +49,8 @@ function returnedKey(fn) {
     : undefined;
 }
 
-// The Babel Docusaurus builds with (its own dependencies, so they resolve
-// under any linker), to reprint returned expressions
+// Reprints returned expressions with the Babel Docusaurus builds with,
+// required through @docusaurus/babel so it resolves under any linker
 const docusaurusRequire = createRequire(require.resolve('@docusaurus/babel'));
 const { default: generate } = docusaurusRequire('@babel/generator');
 const { parseExpression } = createRequire(

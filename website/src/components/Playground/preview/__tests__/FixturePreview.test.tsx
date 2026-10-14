@@ -133,6 +133,8 @@ describe('summarize', () => {
     expect(labelFor(pinned('1_000'))).toBe('1000 ms');
     expect(labelFor(pinned('0'))).toBeUndefined();
     expect(labelFor(pinned('_150'))).toBe('delay');
+    expect(labelFor(pinned('1e3'))).toBe('1000 ms');
+    expect(labelFor(pinned('.5'))).toBe('0.5 ms');
     expect(labelFor(pinned('500 + Math.random() * 4500'))).toBe('delay');
     expect(labelFor(pinned())).toBe('delay');
   });

@@ -106,9 +106,10 @@ function delayLabel(delay: FixtureOrInterceptor['delay']) {
   }
 }
 
-/** `1_000` → 1000; NaN, which reads `delay`, for anything but a number */
+/** `1_000` → 1000, `1e3` → 1000; NaN, which reads `delay`, for anything but
+ * a number literal (which starts with a digit or `.`, unlike `_150`) */
 const numberLiteral = (text = '') =>
-  /^\d[\d_]*(\.\d+)?$/.test(text) ? Number(text.replaceAll('_', '')) : NaN;
+  /^[\d.]/.test(text) ? Number(text.replaceAll('_', '')) : NaN;
 
 /** What fixture-source.js pins on fixture functions, besides `toString()` */
 type Pinned = { returnedSource?: string };
