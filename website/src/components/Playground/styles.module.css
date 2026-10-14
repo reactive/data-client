@@ -552,19 +552,25 @@ div.playgroundTextEdit > .playgroundHeader,
 .small .tab {
   padding: 0.4rem 0.75rem;
 }
-/* Row's fixtures toggle: a ƒ at the file tabs' end (the fixtures are part
-   of the code, not a file of it), lit while they show */
+/* Row's fixtures toggle: a network icon (they mock its calls) at the file
+   tabs' end (the fixtures are part of the code, not a file of it), lit
+   while they show */
 .fixturesToggle {
   flex: none;
+  display: inline-flex;
+  align-items: center;
   padding: 0 0.75rem;
-  font: inherit;
-  transition: background-color var(--ifm-transition-fast) ease;
+  font-size: 1rem;
+  transition:
+    background-color var(--ifm-transition-fast) ease,
+    color var(--ifm-transition-fast) ease;
 }
 .fixturesToggle[aria-expanded='true'],
 .tabControls:has(+ .fixturesAnchor > .fixturesPopover:hover) .fixturesToggle {
   /* a selected tab whose panel is the card hung below it */
   background-color: var(--pg-tab-selected-bg);
   box-shadow: inset 0 2px 0 var(--ifm-color-primary);
+  color: var(--pg-tab-selected);
 }
 .fixturesToggle:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
@@ -587,7 +593,7 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .fixturesPopover {
   position: absolute;
-  /* hangs from the ƒ at the bar's end, in the code's own color as a
+  /* hangs from the toggle at the bar's end, in the code's own color as a
      selected tab's panel is, lifted off the code by its edge and shadow */
   inset: 0 0 auto 0.75rem;
   max-height: min(20rem, 60svh);
@@ -618,8 +624,9 @@ div.playgroundTextEdit > .playgroundHeader,
   .fixturesToggle:hover {
     background-color: var(--pg-tab-selected-bg);
     box-shadow: inset 0 2px 0 var(--ifm-color-primary);
+    color: var(--pg-tab-selected);
   }
-  /* a preview while the pointer is on the ƒ or the fixtures */
+  /* a preview while the pointer is on the toggle or the fixtures */
   .tabControls:has(.fixturesToggle:hover) + .fixturesAnchor > .fixturesPopover,
   .fixturesPopover:hover {
     visibility: visible;

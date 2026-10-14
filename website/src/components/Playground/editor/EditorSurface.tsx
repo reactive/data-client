@@ -7,6 +7,7 @@ import React, { useCallback, useId, useMemo, useRef, useState } from 'react';
 
 import Header from '../Header';
 import { modelPath, useModelId } from '../monaco/modelPath';
+import NetworkIcon from '../NetworkIcon';
 import { createMissingModels } from '../monaco/models';
 import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
@@ -90,7 +91,7 @@ export default function EditorSurface({
   const createModels = useCreateModels(id, documents);
 
   // fixtures belong to the code, not to any one file: row (kept compact)
-  // floats them over the code from a ƒ at the file tabs' end, previewed on
+  // floats them over the code from a network icon at the file tabs' end, previewed on
   // hover and pinned open by a click or tap
   const rowFixtures = row && documents.length > 1 ? fixtureContent : undefined;
   const [fixturesOpen, setFixturesOpen] = useState(false);
@@ -334,9 +335,7 @@ function FixturesToggle({
       aria-controls={controls}
       onClick={onClick}
     >
-      <span className={styles.fixtureFn} aria-hidden>
-        ƒ
-      </span>
+      <NetworkIcon />
       <span className={styles.visuallyHidden}>
         <Translate id="playground.fixtures">Fixtures</Translate>
       </span>
