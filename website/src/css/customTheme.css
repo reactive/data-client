@@ -67,11 +67,10 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
     white-space: nowrap;
   }
 }
-/* so the mobile side menu doesn't list them a second time */
+/* so the mobile side menu doesn't list it a second time */
 .navbar-sidebar
   .menu__list-item:has(
-    > .menu__list-item-collapsible
-      > :is(.header-locale-dropdown, .header-framework-dropdown)
+    > .menu__list-item-collapsible > .header-locale-dropdown
   ) {
   display: none;
 }
@@ -128,7 +127,8 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
 .navbar .navbar__brand .navbar__title {
   display: none;
 }
-@media only screen and (max-width: 996px) {
+/* narrower phones need the room for the framework menu */
+@media only screen and (min-width: 375px) and (max-width: 996px) {
   .navbar .navbar__brand .navbar__logo:after {
     /* font-family: 'Alternox','Avenir Next', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; */
     font-size: 20px;
@@ -140,12 +140,6 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
     margin-top: -40px;
     margin-left: 32px;
     padding-left: 0.5rem;
-  }
-}
-/* phones narrower than this need the room for the framework menu */
-@media only screen and (max-width: 374px) {
-  .navbar .navbar__brand .navbar__logo:after {
-    display: none;
   }
 }
 .navbar .navbar__brand img {

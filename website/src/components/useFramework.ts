@@ -18,9 +18,12 @@ export const frameworkPluginId = Object.fromEntries(
 export const frameworkOf = (pluginId: string | undefined) =>
   docsInstance(pluginId)?.framework as Framework | undefined;
 
+/** Framework of the current page, if it is a framework's docs */
+export const useDocsFramework = () => frameworkOf(useActivePlugin()?.pluginId);
+
 /** Which framework the current docs page is rendered for */
 export default function useFramework(): Framework {
-  return frameworkOf(useActivePlugin()?.pluginId) ?? 'react';
+  return useDocsFramework() ?? 'react';
 }
 
 /**
@@ -28,10 +31,10 @@ export default function useFramework(): Framework {
  * docs were viewed last, so the navbar keeps the reader's framework.
  */
 export function usePreferredFramework(): Framework {
-  const framework = frameworkOf(useActivePlugin()?.pluginId);
+  const framework = useDocsFramework();
   const [stored, storage] = useStorageSlot('docusaurus.framework');
   useEffect(() => {
-    if (framework) storage.set(framework);
-  }, [framework, storage]);
+    if (framework && framework !== stored) storage.set(framework);
+  }, [framework, stored, storage]);
   return framework ?? (stored === 'vue' ? 'vue' : 'react');
 }

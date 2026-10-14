@@ -1,6 +1,5 @@
 import {
   useActiveDocContext,
-  useActivePlugin,
   useAllDocsData,
 } from '@docusaurus/plugin-content-docs/client';
 import { useLocation } from '@docusaurus/router';
@@ -10,14 +9,13 @@ import type { Props } from '@theme/NavbarItem/DropdownNavbarItem';
 import clsx from 'clsx';
 import React from 'react';
 
-import useFramework, {
+import { FRAMEWORK_INSTANCES } from '../../../framework-docs/docsInstances.js';
+import {
   type Framework,
-  frameworkOf,
   frameworkPluginId,
+  useDocsFramework,
   usePreferredFramework,
 } from '../../components/useFramework';
-
-const labels: Record<Framework, string> = { react: 'React', vue: 'Vue' };
 
 /** `framework_equivalent:` front matter, both directions (framework-docs/index.js) */
 type Equivalents = Record<Framework, Record<string, string>>;
@@ -27,47 +25,54 @@ type Equivalents = Record<Framework, Record<string, string>>;
  * (the same doc id, or its `framework_equivalent`), else its docs root. The
  * hash only carries over to the same doc.
  */
-function useFrameworkLinks(): Record<Framework, string> {
+function useFrameworkLinks(
+  current: Framework | undefined,
+): Record<Framework, string> {
   const allDocs = useAllDocsData();
   const equivalents = useDocusaurusContext().siteConfig.customFields
     ?.frameworkEquivalents as Equivalents;
-  const framework = useFramework();
-  const { activeDoc } = useActiveDocContext(frameworkPluginId[framework]);
+  const { activeDoc } = useActiveDocContext(
+    current && frameworkPluginId[current],
+  );
   const { hash } = useLocation();
   const link = (fw: Framework) => {
     const { docs, path } = allDocs[frameworkPluginId[fw]].versions[0];
     const find = (id: string | undefined) =>
       docs.find(doc => doc.id === id)?.path;
-    if (!activeDoc) return path;
+    if (!current || !activeDoc) return path;
     const same = find(activeDoc.id);
     return same ?
         same + hash
-      : (find(equivalents[framework][activeDoc.id]) ?? path);
+      : (find(equivalents[current][activeDoc.id]) ?? path);
   };
   return { react: link('react'), vue: link('vue') };
 }
 
-/** React/Vue menu labeled with the reader's framework; picking one opens this page in it */
-export default function FrameworkDropdownNavbarItem({
-  mobile,
-  className,
-  ...props
-}: Omit<Props, 'items' | 'label'>): React.JSX.Element {
+type ItemProps = Omit<Props, 'items' | 'label'>;
+
+/**
+ * React/Vue menu labeled with the reader's framework; picking one opens this
+ * page in it. Phones keep it in the navbar (customTheme.css), so the side menu
+ * gets none.
+ */
+export default function FrameworkDropdownNavbarItem(
+  props: ItemProps,
+): React.JSX.Element | null {
+  return props.mobile ? null : <FrameworkDropdown {...props} />;
+}
+
+function FrameworkDropdown(props: ItemProps): React.JSX.Element {
+  const current = useDocsFramework();
   const framework = usePreferredFramework();
-  const links = useFrameworkLinks();
-  const inFrameworkDocs = !!frameworkOf(useActivePlugin()?.pluginId);
+  const links = useFrameworkLinks(current);
   return (
     <DropdownNavbarItem
       {...props}
-      mobile={mobile}
-      className={clsx(
-        className,
-        !mobile && inFrameworkDocs && 'navbar__link--active',
-      )}
-      label={labels[framework]}
-      items={(Object.keys(labels) as Framework[]).map(fw => ({
-        label: labels[fw],
-        to: links[fw],
+      className={clsx(props.className, current && 'navbar__link--active')}
+      label={FRAMEWORK_INSTANCES.find(d => d.framework === framework)!.name}
+      items={FRAMEWORK_INSTANCES.map(({ framework: fw, name }) => ({
+        label: name,
+        to: links[fw as Framework],
         isActive: () => fw === framework,
       }))}
     />
