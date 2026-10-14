@@ -70,7 +70,7 @@ jobs:
         run: echo "sha=$(git -C release rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       # No dependency cache: this job runs the release's third-party code,
       # which must not leave anything later runs restore
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: '26'
       - run: corepack enable

@@ -69,7 +69,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           [ ! -f website/versionCurrent.json ] || echo "next=1" >> "$GITHUB_OUTPUT"
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: '26'
           cache: 'yarn'
@@ -252,7 +252,7 @@ jobs:
           filter: blob:none
       # No dependency cache, like an archive build: the branch has its own lockfile
       - if: steps.current.outputs.sha && !steps.cache.outputs.cache-hit
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '26'
       - name: Build
@@ -342,7 +342,7 @@ jobs:
             { echo "::error::vercel.json has no /next/:path* redirect to drop"; exit 1; }
           jq '.redirects |= map(select(.source != "/next/:path*"))' website/vercel.json > vercel.json.tmp
           mv vercel.json.tmp website/vercel.json
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: '26'
       - run: npm install --global "vercel@$VERCEL_CLI_VERSION"
