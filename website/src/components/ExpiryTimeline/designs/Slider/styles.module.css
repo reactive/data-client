@@ -1,0 +1,460 @@
+/* the control panel: two cards, the age slider under them with its options,
+   and (from ../../styles.module.css) a column per section below */
+.panel {
+  --thumb: 14px;
+  display: grid;
+  gap: 1.25rem;
+  max-width: 640px;
+  margin: 0 auto 1.5rem;
+}
+
+/* what a component mounting now finds: cached data it may show (--cached),
+   a fetch to make (--requests), a fallback meanwhile (--fallback) */
+.fresh {
+  --zone: var(--fresh);
+  --cached: 1;
+  --requests: 0;
+  --fallback: 0;
+}
+.stale {
+  --zone: var(--stale);
+  --cached: 1;
+  --requests: 1;
+  --fallback: 0;
+}
+.invalid {
+  --zone: var(--invalid);
+  --cached: 0;
+  --requests: 1;
+  --fallback: 1;
+}
+
+/* the store entry, the read into the component, the component */
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr;
+  gap: 0.5rem;
+  align-items: center;
+}
+.card {
+  padding: 10px 12px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: var(--ifm-background-surface-color);
+}
+.store {
+  border-color: var(--ifm-color-primary);
+}
+.comp {
+  border-color: var(--ifm-color-emphasis-600);
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 22px;
+  margin-bottom: 10px;
+}
+.db {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  color: var(--ifm-color-primary);
+}
+.status {
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--zone);
+  background: color-mix(in srgb, var(--zone) 14%, transparent);
+  transition:
+    color var(--motion-snappy),
+    background-color var(--motion-snappy);
+}
+.hook {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 11px;
+  color: var(--ifm-color-emphasis-700);
+}
+
+/* lines of data, colored by how fresh they are */
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--zone);
+  transition: background-color var(--motion-snappy);
+}
+/* the store keeps invalid data, but nothing may show it */
+.kept {
+  opacity: calc(0.35 + 0.65 * var(--cached));
+  transition: opacity var(--motion-snappy);
+}
+
+/* the read from the store: only when cached data may render */
+.read {
+  width: 40px;
+  height: 16px;
+  fill: none;
+  stroke: var(--ifm-color-primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: calc(0.25 + 0.75 * var(--cached));
+  transition: opacity var(--motion-snappy);
+}
+
+/* what the component renders: the data, or its fallback over the same box */
+.body {
+  position: relative;
+  height: 36px;
+}
+.shown {
+  opacity: var(--cached);
+  transition: opacity var(--motion-snappy);
+}
+.fallback {
+  position: absolute;
+  inset: -5px -6px;
+  display: grid;
+  place-items: center;
+  border: 1.5px dashed var(--ifm-color-emphasis-500);
+  border-radius: 8px;
+  opacity: var(--fallback);
+  transition: opacity var(--motion-snappy);
+}
+.spin {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid var(--ifm-color-emphasis-500);
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* the fetch the mount sends, if any */
+.request {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 20px;
+  margin-top: 12px;
+  opacity: var(--requests);
+  transform: translateX(calc((var(--requests) - 1) * 8px));
+  transition:
+    opacity var(--motion-snappy),
+    transform var(--motion-snappy);
+}
+.chip {
+  padding: 0 8px;
+  border: 1.5px solid var(--ifm-color-primary);
+  border-radius: 999px;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 17px;
+  color: var(--ifm-color-primary);
+  animation: send 1.2s ease-in-out infinite alternate;
+}
+@keyframes send {
+  to {
+    transform: translateX(4px);
+  }
+}
+.api {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--ifm-color-emphasis-500);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+/* the slider: options over the track, the axis and ctrl.invalidate() under it */
+.timeline {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 8px;
+  /* the thumb's center reaches the track's ends, so it overhangs by half */
+  padding: 0 calc(var(--thumb) / 2);
+}
+.option {
+  position: relative;
+  align-self: end;
+  padding-bottom: 10px;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--ifm-color-emphasis-700);
+}
+/* a bracket under each option, over the half of the track it governs */
+.option::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 6px;
+  border: 1.5px solid var(--ifm-color-emphasis-500);
+  border-bottom: 0;
+  pointer-events: none;
+}
+.option a {
+  color: inherit;
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+.expiry {
+  text-align: center;
+}
+.ifStale {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 8px;
+}
+
+/* the invalidIfStale switch: on turns Stale into Invalid */
+.switch {
+  position: relative;
+  flex: none;
+  width: 28px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: var(--ifm-color-emphasis-400);
+  cursor: pointer;
+  transition: background-color var(--motion-snappy);
+}
+.switch[aria-checked='true'] {
+  background: var(--invalid);
+}
+.knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--on-chip);
+  transition: transform var(--motion-snappy);
+}
+.switch[aria-checked='true'] .knob {
+  transform: translateX(12px);
+}
+
+/* the track: Fresh until dataExpiryLength, then Stale (or Invalid) */
+.track {
+  position: relative;
+  grid-column: 1 / -1;
+  height: 28px;
+  border: 1.5px solid var(--line);
+  border-radius: 7px;
+}
+.band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: grid;
+  place-items: center;
+  width: 50%;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c);
+  background: color-mix(
+    in srgb,
+    var(--c) 14%,
+    var(--ifm-background-surface-color)
+  );
+  transition:
+    color var(--motion-snappy),
+    background-color var(--motion-snappy);
+}
+.band0 {
+  --c: var(--fresh);
+  left: 0;
+  border-radius: 5px 0 0 5px;
+}
+.band1 {
+  --c: var(--stale);
+  left: 50%;
+  border-radius: 0 5px 5px 0;
+}
+.ifStaleOn .band1 {
+  --c: var(--invalid);
+}
+/* the time passed so far, in the colors it passed through */
+.elapsed {
+  position: absolute;
+  inset: 0;
+  border-radius: 5px;
+  background: linear-gradient(to right, var(--fresh) 50%, var(--stale) 50%);
+  opacity: 0.22;
+  clip-path: inset(0 calc((100 - var(--age)) * 1%) 0 0);
+  pointer-events: none;
+}
+.ifStaleOn .elapsed {
+  background: linear-gradient(to right, var(--fresh) 50%, var(--invalid) 50%);
+}
+.invalidated .elapsed {
+  background: var(--invalid);
+}
+/* the moment the response arrived */
+.arrival {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid var(--ifm-background-surface-color);
+  border-radius: 50%;
+  background: var(--ifm-color-primary);
+  translate: -50% -50%;
+}
+
+/* the native range over the track; only its thumb is drawn */
+.range {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: calc(var(--thumb) / -2 - 1.5px);
+  width: calc(100% + var(--thumb) + 3px);
+  height: 36px;
+  margin: 0;
+  translate: 0 -50%;
+  appearance: none;
+  background: transparent;
+  cursor: ew-resize;
+  /* horizontal drags scrub; vertical swipes still scroll the page */
+  touch-action: pan-y;
+}
+.range::-webkit-slider-runnable-track {
+  height: 36px;
+  background: transparent;
+}
+.range::-moz-range-track {
+  height: 36px;
+  background: transparent;
+}
+.range::-webkit-slider-thumb {
+  appearance: none;
+  box-sizing: border-box;
+  width: var(--thumb);
+  height: 36px;
+  border: 2px solid var(--ifm-background-surface-color);
+  border-radius: 7px;
+  background: var(--zone);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  transition: background-color var(--motion-snappy);
+}
+.range::-moz-range-thumb {
+  box-sizing: border-box;
+  width: var(--thumb);
+  height: 36px;
+  border: 2px solid var(--ifm-background-surface-color);
+  border-radius: 7px;
+  background: var(--zone);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  transition: background-color var(--motion-snappy);
+}
+.range:focus-visible {
+  outline: none;
+}
+.range:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+.range:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.axis {
+  align-self: center;
+  padding-left: 2px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.invalidate {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  justify-self: end;
+}
+/* ctrl.invalidate(): pressed, the entry is Invalid whatever its age */
+.call {
+  padding: 3px 10px;
+  border: 1.5px solid var(--ifm-color-emphasis-500);
+  border-radius: 999px;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--ifm-color-emphasis-800);
+  background: var(--ifm-background-surface-color);
+  cursor: pointer;
+  transition:
+    color var(--motion-snappy),
+    background-color var(--motion-snappy),
+    border-color var(--motion-snappy);
+}
+.call[aria-pressed='true'] {
+  border-color: var(--invalid);
+  color: var(--on-chip);
+  background: var(--invalid);
+}
+.docs {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--ifm-color-emphasis-400);
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ifm-color-emphasis-700);
+  text-decoration: none;
+  transition:
+    color var(--motion-snappy),
+    border-color var(--motion-snappy);
+}
+@media (hover: hover) {
+  .option a:hover {
+    color: var(--ifm-color-primary);
+    text-decoration: underline;
+  }
+  .call:not([aria-pressed='true']):hover {
+    border-color: var(--invalid);
+    color: var(--invalid);
+  }
+  .docs:hover {
+    border-color: var(--ifm-color-primary);
+    color: var(--ifm-color-primary);
+  }
+}
+.slider :is(a, button):focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+/* the section that applies keeps its color; the others go grey */
+.slider .inactive {
+  --c: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin,
+  .chip {
+    animation: none;
+  }
+}
