@@ -85,10 +85,10 @@ export function summarize(fixture: FixtureOrInterceptor) {
     fn,
     // String() covers what JSON.stringify can't, like undefined
     hint:
-      fn ? undefined : (
-        (JSON.stringify(fixture.response)?.slice(0, HINT_CHARS) ??
-        String(fixture.response))
-      ),
+      fn || 'fetchResponse' in fixture ?
+        undefined
+      : (JSON.stringify(fixture.response)?.slice(0, HINT_CHARS) ??
+        String(fixture.response)),
     error: 'error' in fixture && fixture.error === true,
     delay:
       typeof delay === 'number' ? `${delay} ms`
