@@ -703,7 +703,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
         update?: EndpointUpdateFunction<E>;
     }>(endpoint: E, ...args: readonly [...Parameters<E>]) => E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize$1<E['schema']>>;
     /**
-     * Fetches only if endpoint is considered 'stale'; otherwise returns undefined
+     * Fetches only if endpoint is considered 'stale'; otherwise returns the cached data synchronously
      * @see https://dataclient.io/docs/api/Controller#fetchIfStale
      */
     fetchIfStale: <E extends EndpointInterface$1 & {
