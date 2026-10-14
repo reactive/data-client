@@ -20,6 +20,17 @@ const TYPE_KEYS = new Set([
   'typeArguments',
 ]);
 
+/** Calls `fn` on each child node (Babel or ESTree), skipping positions and
+ * comments */
+function forEachChild(node, fn) {
+  for (const key in node) {
+    if (key === 'loc' || key.endsWith('Comments')) continue;
+    for (const child of [node[key]].flat()) {
+      if (typeof child?.type === 'string') fn(child);
+    }
+  }
+}
+
 const keyName = prop =>
   !prop.computed && prop.key && (prop.key.name ?? prop.key.value);
 const isFixture = props => props.some(prop => keyName(prop) === 'endpoint');
@@ -32,16 +43,12 @@ function returnedKey(fn) {
   if (fn.body.type !== 'BlockStatement') return 'body';
   let returns = 0;
   const count = node => {
-    if (!node || typeof node.type !== 'string') return;
     // a nested function's returns are its own
     if (/Function|Method/.test(node.type)) return;
     if (node.type === 'ReturnStatement') returns++;
-    for (const key in node) {
-      if (key === 'loc' || key.endsWith('Comments')) continue;
-      [node[key]].flat().forEach(count);
-    }
+    forEachChild(node, count);
   };
-  fn.body.body.forEach(count);
+  forEachChild(fn.body, count);
   const lastIndex = fn.body.body.length - 1;
   const last = fn.body.body[lastIndex];
   return returns === 1 && last?.type === 'ReturnStatement' && last.argument ?
@@ -72,50 +79,30 @@ function oneLine(text) {
   }
 }
 
-const estreeProperty = (name, value) => ({
-  type: 'Property',
-  kind: 'init',
-  method: false,
-  shorthand: false,
-  computed: false,
-  key: { type: 'Identifier', name },
-  value,
-});
 /** In ESTree: `Object.defineProperties(fn, {
  *   toString: { value: () => source },
  *   returnedSource: { value: returned },
  * })` */
-const withSourceEstree = (fn, source, returned) => ({
-  type: 'CallExpression',
-  callee: {
-    type: 'MemberExpression',
-    computed: false,
-    object: { type: 'Identifier', name: 'Object' },
-    property: { type: 'Identifier', name: 'defineProperties' },
-  },
-  arguments: [
-    fn,
-    {
-      type: 'ObjectExpression',
-      properties: Object.entries({
-        toString: {
-          type: 'ArrowFunctionExpression',
-          params: [],
-          body: { type: 'Literal', value: source },
-        },
-        returnedSource:
-          returned ?
-            { type: 'Literal', value: returned }
-          : { type: 'Identifier', name: 'undefined' },
-      }).map(([name, value]) =>
-        estreeProperty(name, {
-          type: 'ObjectExpression',
-          properties: [estreeProperty('value', value)],
-        }),
-      ),
-    },
-  ],
-});
+function withSourceEstree(fn, source, returned) {
+  const call = parseExpression(
+    `Object.defineProperties(_, {
+      toString: { value: () => ${JSON.stringify(source)} },
+      returnedSource: { value: ${JSON.stringify(returned) ?? 'undefined'} },
+    })`,
+    { plugins: ['estree'] },
+  );
+  // positions in this snippet would point into the wrong file
+  const strip = node => {
+    delete node.loc;
+    delete node.range;
+    delete node.start;
+    delete node.end;
+    forEachChild(node, strip);
+  };
+  strip(call);
+  call.arguments[0] = fn;
+  return call;
+}
 
 /** Only the panel's text is at stake, so a fixture that can't be shown as
  * authored keeps its minified `toString()` rather than failing the build
@@ -255,29 +242,29 @@ function babelPlugin({ types: t, template }) {
         if (!isFixture(props)) return;
         props.forEach((prop, i) => {
           if (!FN_KEYS.has(keyName(prop))) return;
-          const propPath = path.get(`properties.${i}`);
-          let fn, source, returned;
-          if (t.isObjectMethod(prop, { kind: 'method' })) {
-            source = authoredSource(propPath);
-            returned = returnedSource(propPath);
-            const error = parseError(`({ ${source} })`);
-            if (error) return warnMinified(filename, prop, error);
-            fn = t.functionExpression(
-              null,
-              prop.params,
-              prop.body,
-              prop.generator,
-              prop.async,
-            );
-          } else if (t.isObjectProperty(prop) && t.isFunction(prop.value)) {
-            source = authoredSource(propPath.get('value'));
-            returned = returnedSource(propPath.get('value'));
-            const error = parseError(source);
-            if (error) return warnMinified(filename, prop, error);
-            fn = prop.value;
-          } else {
+          const isMethod = t.isObjectMethod(prop, { kind: 'method' });
+          if (
+            !isMethod &&
+            !(t.isObjectProperty(prop) && t.isFunction(prop.value))
+          )
             return;
-          }
+          const propPath = path.get(`properties.${i}`);
+          const fnPath = isMethod ? propPath : propPath.get('value');
+          const source = authoredSource(fnPath);
+          const returned = returnedSource(fnPath);
+          // Methods only parse inside an object
+          const error = parseError(isMethod ? `({ ${source} })` : source);
+          if (error) return warnMinified(filename, prop, error);
+          const fn =
+            isMethod ?
+              t.functionExpression(
+                null,
+                prop.params,
+                prop.body,
+                prop.generator,
+                prop.async,
+              )
+            : prop.value;
           propPath.replaceWith(
             t.objectProperty(prop.key, withSourceBabel(fn, source, returned)),
           );
@@ -295,8 +282,6 @@ function recmaPlugin() {
   return async (tree, file) => {
     const matches = [];
     const walk = node => {
-      if (Array.isArray(node)) return node.forEach(walk);
-      if (!node || typeof node.type !== 'string') return;
       if (node.type === 'ObjectExpression' && isFixture(node.properties)) {
         matches.push(
           ...node.properties.filter(
@@ -307,7 +292,7 @@ function recmaPlugin() {
           ),
         );
       }
-      for (const key in node) if (key !== 'loc') walk(node[key]);
+      forEachChild(node, walk);
     };
     walk(tree);
     if (!matches.length) return;
@@ -353,4 +338,4 @@ async function format(prop, code, config) {
   prop.method = false;
 }
 
-module.exports = { babelPlugin, recmaPlugin };
+module.exports = { babelPlugin, recmaPlugin, docusaurusRequire };

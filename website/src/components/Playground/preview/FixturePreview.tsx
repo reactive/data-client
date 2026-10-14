@@ -100,12 +100,12 @@ export function summarize(fixture: FixtureOrInterceptor) {
   const response = responseOf(fixture);
   const { delay } = fixture;
   return {
-    ...splitKey(keyOf(fixture)),
+    ...endpointOf(fixture),
     fnName: 'fn' in response ? response.name : undefined,
     // what a function returns is pinned at build time (fixture-source.js);
     // String() covers what JSON.stringify can't, like undefined
     hint: ('fn' in response ?
-      (response.fn as Pinned).returnedSource
+      response.fn.returnedSource
     : (JSON.stringify(response.data) ?? String(response.data))
     )?.slice(0, HINT_CHARS),
     error: 'error' in fixture && fixture.error === true,
@@ -114,7 +114,8 @@ export function summarize(fixture: FixtureOrInterceptor) {
 }
 
 /** 150, also for a function that always returns 150 (as pinned by
- * fixture-source.js), and nothing for no delay; a delay that isn't one number is `'varies'` */
+ * fixture-source.js), and nothing for no delay; a delay that isn't one
+ * number is `'varies'` */
 function delayMs(delay: FixtureOrInterceptor['delay']) {
   const ms =
     typeof delay === 'function' ?
@@ -134,10 +135,11 @@ const numberLiteral = (text = '') =>
 type Pinned = { returnedSource?: string };
 
 /** The fixture's response: a function that makes it, or the data itself */
-function responseOf(
-  fixture: FixtureOrInterceptor,
-):
-  | { fn: (...args: any) => unknown; name: 'response' | 'fetchResponse' }
+function responseOf(fixture: FixtureOrInterceptor):
+  | {
+      fn: ((...args: any) => unknown) & Pinned;
+      name: 'response' | 'fetchResponse';
+    }
   | { data: unknown } {
   if ('fetchResponse' in fixture) {
     return { fn: fixture.fetchResponse, name: 'fetchResponse' };
@@ -147,18 +149,20 @@ function responseOf(
     : { data: fixture.response };
 }
 
-/** `GET /article/1`, as the Store keys it; interceptors have no args, so
- * theirs is the endpoint's own method and path */
-function keyOf(fixture: FixtureOrInterceptor): string {
-  if ('args' in fixture) return fixture.endpoint.key(...fixture.args);
+/** `GET /article/1`, split from the key the Store uses; interceptors have
+ * no args, so theirs is the endpoint's own method and path */
+function endpointOf(fixture: FixtureOrInterceptor) {
+  if ('args' in fixture) return splitKey(fixture.endpoint.key(...fixture.args));
   // Interceptor endpoints don't declare these, but RestEndpoints provide them
   const endpoint = fixture.endpoint as {
     method?: string;
     path?: string;
     name?: string;
   };
-  const path = endpoint.path ?? endpoint.name ?? '';
-  return endpoint.method ? `${endpoint.method} ${path}` : path;
+  return {
+    method: endpoint.method ?? '',
+    path: endpoint.path ?? endpoint.name ?? '',
+  };
 }
 
 function FixtureResponse({

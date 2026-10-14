@@ -4,9 +4,13 @@ import path from 'node:path';
 import { describe, it } from 'node:test';
 
 const require = createRequire(import.meta.url);
-const { babelPlugin, recmaPlugin } = require('./fixture-source.js');
-// The Babel Docusaurus builds with (the root @babel/core is another major)
-const docusaurusRequire = createRequire(require.resolve('@docusaurus/babel'));
+// docusaurusRequire loads the Babel Docusaurus builds with (the root
+// @babel/core is another major)
+const {
+  babelPlugin,
+  recmaPlugin,
+  docusaurusRequire,
+} = require('./fixture-source.js');
 const babel = docusaurusRequire('@babel/core');
 
 // The source each pinned fixture function shows

@@ -938,13 +938,16 @@ div.playgroundTextEdit > .playgroundHeader,
 .fixtureBlock {
   background-color: var(--prism-background-color);
   color: var(--store-fg);
-  font: 13px / 19px var(--ifm-font-family-monospace);
+  font: var(--ifm-code-font-size) / var(--ifm-pre-line-height)
+    var(--ifm-font-family-monospace);
   /* the response's CodeBlock sits flat in its row, in the row's type */
   --ifm-global-shadow-lw: none;
   --ifm-code-border-radius: 0;
   --ifm-pre-padding: 0;
   --ifm-code-font-size: 13px;
   --ifm-pre-line-height: 19px;
+  /* the row's arrow and the gap after it, so text lines up past it */
+  --fixture-indent: calc(12px + 0.5rem);
 }
 .fixture + .fixture {
   box-shadow: inset 0 1px 0 var(--store-line);
@@ -1011,7 +1014,7 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 /* the response, aligned under the method */
 .fixtureBody {
-  padding: 0 0.75rem 10px calc(0.75rem + 12px + 0.5rem);
+  padding: 0 0.75rem 10px calc(0.75rem + var(--fixture-indent));
 }
 div.fixtureJson {
   margin-bottom: 0;
@@ -1338,7 +1341,7 @@ div.fixtureJson + div.fixtureJson {
   .fixtureHint {
     order: 1;
     flex-basis: 100%;
-    padding-left: calc(12px + 0.5rem);
+    padding-left: var(--fixture-indent);
   }
   .fixtureToggle[aria-expanded='true'] .fixtureHint {
     display: none;
