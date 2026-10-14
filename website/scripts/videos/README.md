@@ -83,7 +83,7 @@ import PosterVideo from '@site/src/components/PosterVideo';
 
 <PosterVideo
   poster={useBaseUrl('/videos/docs/<name>-poster.jpg')}
-  duration="1:47"
+  duration="<m:ss>"
   alt="What the clip shows, step by step"
 >
   <source

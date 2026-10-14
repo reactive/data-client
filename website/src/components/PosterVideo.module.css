@@ -32,9 +32,9 @@
   border-radius: 50%;
   background: rgb(0 0 0 / 0.55);
   box-shadow: 0 0 0 2px rgb(255 255 255 / 0.85);
-  transform: translate(-50%, -50%);
+  translate: -50% -50%;
   transition:
-    transform var(--motion-snappy),
+    scale var(--motion-snappy),
     background-color var(--motion-snappy);
 }
 
@@ -53,18 +53,13 @@
 @media (hover: hover) {
   .play:hover .icon {
     background: var(--ifm-color-primary);
-    transform: translate(-50%, -50%) scale(1.08);
+    scale: 1.08;
   }
 }
 
 .play:focus-visible {
-  outline: none;
-}
-
-.play:focus-visible .icon {
-  box-shadow:
-    0 0 0 2px #fff,
-    0 0 0 5px var(--ifm-color-primary);
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
 }
 
 .duration {
