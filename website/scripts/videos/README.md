@@ -66,12 +66,24 @@ ffmpeg -i source.mp4 -c:v libx264 -preset slower -crf 28 -tune animation -level:
   -pix_fmt yuv420p -movflags +faststart -c:a aac -b:a 80k <name>.mp4
 ```
 
-Check text stays sharp on a few frame crops before lowering quality further. Embed both with `<source>` children, AV1
-first with its codecs string, so browsers that can't decode AV1 skip to the MP4:
+Check text stays sharp on a few frame crops before lowering quality further. Grab a 16:9 poster from a frame that
+shows what the clip covers:
+
+```bash
+ffmpeg -ss <seconds> -i source.mp4 -frames:v 1 -vf scale=1280:720 -q:v 3 <name>-poster.jpg
+```
+
+Narrated clips use [`<PosterVideo>`](../../src/components/PosterVideo.tsx): the poster with a play button, so the reader
+starts it with sound. List the AV1 source first with its codecs string, so browsers that can't decode AV1 skip to the
+MP4:
 
 ```mdx
-<AutoPlayVideo
-  style={{ width: '100%', aspectRatio: '16 / 9' }}
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import PosterVideo from '@site/src/components/PosterVideo';
+
+<PosterVideo
+  poster={useBaseUrl('/videos/docs/<name>-poster.jpg')}
+  duration="1:47"
   alt="What the clip shows, step by step"
 >
   <source
@@ -79,5 +91,5 @@ first with its codecs string, so browsers that can't decode AV1 skip to the MP4:
     type='video/webm; codecs="av01.0.08M.10, opus"'
   />
   <source src={useBaseUrl('/videos/docs/<name>.mp4')} type="video/mp4" />
-</AutoPlayVideo>
+</PosterVideo>
 ```

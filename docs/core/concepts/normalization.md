@@ -13,15 +13,16 @@ import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import Link from '@docusaurus/Link';
 import SchemaTable from '../shared/\_schema_table.mdx';
-import AutoPlayVideo from '@site/src/components/AutoPlayVideo';
+import PosterVideo from '@site/src/components/PosterVideo';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 [Entities](/rest/api/Entity) have a primary key. This enables easy access via a lookup table.
 This makes it easy to find, update, create, or delete the same data - no matter what
 endpoint it was used in.
 
-<AutoPlayVideo
-  style={{ width: '100%', aspectRatio: '16 / 9' }}
+<PosterVideo
+  poster={useBaseUrl('/videos/docs/normalization-poster.jpg')}
+  duration="1:47"
   volume={0.5}
   alt="Two endpoints return three copies of the same user. Normalization stores each entity once in a table keyed by id, denormalization follows the ids to rebuild each response, and one rename updates every view. Renaming one user with 10,000 rows on screen rebuilds 30 objects instead of 10,000."
 >
@@ -30,7 +31,7 @@ endpoint it was used in.
     type='video/webm; codecs="av01.0.08M.10, opus"'
   />
   <source src={useBaseUrl('/videos/docs/normalization.mp4')} type="video/mp4" />
-</AutoPlayVideo>
+</PosterVideo>
 
 <!--
 <LanguageTabs>
