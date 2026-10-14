@@ -43,7 +43,7 @@
     "docs/core/concepts/reactivity.md": "1f3f4c5c445db48d04de10966da56a9946d246f8",
     "docs/core/concepts/validation.md": "29d58207abf2606269613cdbfd2ff3209c6e0e71",
     "docs/core/getting-started/agent-skills.md": "a3e67cb45cda75362ea902dba34e3c72489e941e",
-    "docs/core/getting-started/data-dependency.md": "25bc7847ca7d53937ec02f7e7839ad8e68cfaff8",
+    "docs/core/getting-started/data-dependency.md": "98de688f41da9e9ae5df1df225aa61cfcd8361be",
     "docs/core/getting-started/debugging.md": "d2b5c1e8e5faec00320384a359facc15532129d3",
     "docs/core/getting-started/installation.md": "fadd92df97f5259c6aa716916c9a67088dc97097",
     "docs/core/getting-started/mutations.md": "2dbc68d4c23d8fdf068f423f05a30b954d11a17b",
@@ -390,7 +390,12 @@
       "expiryTimeline.afterInvalidIfStale": "With invalidIfStale, once dataExpiryLength (in milliseconds) has passed, the cached response is invalid: it must refetch before it can render.",
       "expiryTimeline.storyFresh": "A component mounting with useSuspense() renders the fresh data in the store, with no request",
       "expiryTimeline.storyStale": "A component mounting with useSuspense() renders the stale data in the store and refetches it in the background",
-      "expiryTimeline.storyInvalid": "A component mounting with useSuspense() shows its fallback until the fetch of the invalid data resolves"
+      "expiryTimeline.storyInvalid": "A component mounting with useSuspense() shows its fallback until the fetch of the invalid data resolves",
+      "asyncBoundaries.app": "around the whole app",
+      "asyncBoundaries.page": "around the PostPage route",
+      "asyncBoundaries.component": "around each component that reads data",
+      "asyncBoundaries.label": "The component tree under its store, with one {boundary} {where}. Opening a post mounts Avatar, PostBody and CommentList, which suspend until their data arrives: everything inside the boundary shows its loading fallback until the last of them does, while the rest of the page keeps rendering. The higher the boundary, the fewer loading indicators and the more of the page they replace; one around each component shows three that resolve one by one",
+      "asyncBoundaries.where": "Where the boundary goes"
     },
     "docusaurus-plugin-content-blog/options.json": {
       "title": "Blog",

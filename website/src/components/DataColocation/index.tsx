@@ -5,16 +5,16 @@ import React, { useState } from 'react';
 import styles from './styles.module.css';
 import StoreIcon from '../Playground/StoreIcon';
 
-type Entity = 'User' | 'Post' | 'Comment';
+export type Entity = 'User' | 'Post' | 'Comment';
 
-const CHIPS: { entity: Entity; x: number; w: number }[] = [
+export const CHIPS: { entity: Entity; x: number; w: number }[] = [
   { entity: 'User', x: 141, w: 52 },
   { entity: 'Post', x: 201, w: 52 },
   { entity: 'Comment', x: 261, w: 56 },
 ];
 
 // components that render no data, so they never re-render for it
-const PLAIN = [
+export const PLAIN = [
   { name: 'App', cx: 104, y: 66, w: 56 },
   { name: 'Header', cx: 60, y: 106, w: 64 },
   { name: 'PostPage', cx: 300, y: 106, w: 72 },
@@ -24,7 +24,7 @@ const PLAIN = [
   { name: 'Share', cx: 360, y: 206, w: 52 },
 ];
 // the rest of the app, which is usually most of it
-const REST = [
+export const REST = [
   { cx: 18, y: 188 },
   { cx: 42, y: 188 },
   { cx: 386, y: 150 },
@@ -32,14 +32,15 @@ const REST = [
 ];
 
 // leaves, since children re-render with their parent
-const BOUND: { name: string; entity: Entity; cx: number; y: number }[] = [
-  { name: 'CurrentUser', entity: 'User', cx: 110, y: 148 },
-  { name: 'CommentList', entity: 'Comment', cx: 322, y: 148 },
-  { name: 'Avatar', entity: 'User', cx: 180, y: 206 },
-  { name: 'PostBody', entity: 'Post', cx: 278, y: 206 },
-];
+export const BOUND: { name: string; entity: Entity; cx: number; y: number }[] =
+  [
+    { name: 'CurrentUser', entity: 'User', cx: 110, y: 148 },
+    { name: 'CommentList', entity: 'Comment', cx: 322, y: 148 },
+    { name: 'Avatar', entity: 'User', cx: 180, y: 206 },
+    { name: 'PostBody', entity: 'Post', cx: 278, y: 206 },
+  ];
 
-const TREE =
+export const TREE =
   'M104 88V97M60 97H400M60 97V106M300 97V106M400 97V106' +
   'M60 128V138M30 138H110M30 138V148M110 138V148' +
   'M300 128V138M220 138H322M220 138V148M322 138V148' +
@@ -48,7 +49,7 @@ const TREE =
   'M220 170V194M180 194H360M180 194V206M278 194V206M360 194V206';
 
 // from the store straight to each component that renders the data
-const BINDINGS: { entity: Entity; d: string }[] = [
+export const BINDINGS: { entity: Entity; d: string }[] = [
   { entity: 'User', d: 'M159 41C159 100 138 100 138 148' },
   {
     entity: 'User',

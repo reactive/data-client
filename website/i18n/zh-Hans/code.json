@@ -907,5 +907,25 @@
   "expiryTimeline.afterInvalidIfStale": {
     "message": "设置 invalidIfStale 后，超过 dataExpiryLength（毫秒）时缓存的响应即为无效：必须重新获取后才能渲染。",
     "description": "Tooltip on the Stale story’s dataExpiryLength label of the expiry diagram, while its invalidIfStale switch is on"
+  },
+  "asyncBoundaries.app": {
+    "message": "包住整个应用",
+    "description": "Where the boundary goes, on the async boundaries diagram; completes \"<AsyncBoundary> around the whole app\""
+  },
+  "asyncBoundaries.page": {
+    "message": "包住 PostPage 路由",
+    "description": "Where the boundary goes, on the async boundaries diagram; completes \"<AsyncBoundary> around the PostPage route\""
+  },
+  "asyncBoundaries.component": {
+    "message": "包住每个读取数据的组件",
+    "description": "Where the boundary goes, on the async boundaries diagram; completes \"<AsyncBoundary> around each component that reads data\""
+  },
+  "asyncBoundaries.label": {
+    "message": "store 之下的组件树，带有一个 {boundary}，{where}。打开一篇文章会挂载 Avatar、PostBody 和 CommentList，它们会挂起直到各自的数据到达：边界内的一切都显示它的加载 fallback，直到最后一份数据到达，而页面的其余部分继续正常渲染。边界越高，加载指示器越少，但它们替换掉的页面越多；每个组件各有一个边界时，会显示三个指示器，逐个完成",
+    "description": "Accessible label of the async boundaries diagram on the Render Data page; {boundary} is AsyncBoundary or Suspense, {where} one of the asyncBoundaries.app/page/component strings"
+  },
+  "asyncBoundaries.where": {
+    "message": "边界放在哪里",
+    "description": "Label of the group of positions the boundary can be moved to on the async boundaries diagram"
   }
 }

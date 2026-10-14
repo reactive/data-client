@@ -1,0 +1,364 @@
+/* the diagram, with the boundary positions laid over it in % of its box */
+.stage {
+  --line: var(--ifm-color-emphasis-300);
+  --user: hsl(262, 52%, 48%);
+  --post: hsl(206, 69%, 40%);
+  --comment: hsl(165, 70%, 26%);
+  --on-chip: #fff;
+  /* the boundary and its fallback: darker in light mode, so the tag reads */
+  --boundary: var(--ifm-color-primary-darker);
+  /* one run: a post opens, its data arrives, the page is complete */
+  --period: 6s;
+  --play: running;
+  --seek: 0s;
+  position: relative;
+  max-width: 440px;
+  margin: 0 auto 1.5rem;
+}
+[data-theme='dark'] .stage {
+  --user: hsl(262, 75%, 74%);
+  --post: var(--ifm-color-primary-light);
+  --comment: hsl(165, 55%, 55%);
+  --on-chip: hsl(220, 20%, 12%);
+  --boundary: var(--ifm-color-primary-light);
+}
+.diagram {
+  display: block;
+  width: 100%;
+  font-size: 11.5px;
+  text-anchor: middle;
+  user-select: none;
+}
+
+/* opening a post suspends Avatar, PostBody and CommentList at 0s; their data
+   arrives in turn: Post at 1.5s (25%), User at 2.1s (35%), Comment at 3s (50%) */
+.User {
+  --c: var(--user);
+  --arrive: 2.1s;
+}
+.Post {
+  --c: var(--post);
+  --arrive: 1.5s;
+}
+.Comment {
+  --c: var(--comment);
+  --arrive: 3s;
+}
+
+.tree {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+
+/* from the store straight to each component that renders the data; a pulse
+   when the entity's data arrives */
+.binding {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 2 6;
+  opacity: 0.35;
+  animation:
+    flow 0.8s linear infinite,
+    send var(--period) var(--arrive) infinite;
+}
+@keyframes flow {
+  from {
+    stroke-dashoffset: 8;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes send {
+  0%,
+  25%,
+  100% {
+    opacity: 0.35;
+  }
+  3% {
+    opacity: 1;
+  }
+}
+
+/* the entity arriving in the store, like React DevTools' highlight */
+.diagram .flash {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 8;
+  opacity: 0;
+  animation: render var(--period) var(--arrive) infinite;
+}
+@keyframes render {
+  0%,
+  20%,
+  100% {
+    opacity: 0;
+  }
+  3% {
+    opacity: 0.6;
+  }
+}
+
+.store {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--ifm-color-primary);
+  stroke-width: 1.5;
+  rx: 12px;
+}
+.db {
+  color: var(--ifm-color-primary);
+}
+
+.chip rect {
+  fill: var(--c);
+  rx: 11px;
+}
+.chip text {
+  fill: var(--on-chip);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.plain rect,
+.bound rect,
+.rest {
+  stroke-width: 1.5;
+  rx: 7px;
+}
+.plain rect,
+.rest {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--line);
+}
+.plain text {
+  fill: var(--ifm-color-emphasis-600);
+}
+.rest {
+  rx: 4px;
+}
+.bound rect {
+  fill: color-mix(in srgb, var(--c) 12%, var(--ifm-background-surface-color));
+  stroke: var(--c);
+}
+.bound text {
+  fill: var(--ifm-font-color-base);
+  font-weight: 500;
+}
+.bound .hook {
+  fill: var(--c);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 10px;
+  font-weight: 400;
+}
+
+/* one run: the components inside the boundary give way to its fallback until
+   the data they wait for arrives, then show again */
+.anim {
+  animation-duration: var(--period);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-delay: var(--seek);
+  animation-play-state: var(--play);
+}
+.ghost.waitPost {
+  animation-name: contentPost;
+}
+.ghost.waitUser {
+  animation-name: contentUser;
+}
+.ghost.waitComment {
+  animation-name: contentComment;
+}
+@keyframes contentPost {
+  0% {
+    opacity: 1;
+  }
+  3%,
+  25% {
+    opacity: 0.15;
+  }
+  29%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes contentUser {
+  0% {
+    opacity: 1;
+  }
+  3%,
+  35% {
+    opacity: 0.15;
+  }
+  39%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes contentComment {
+  0% {
+    opacity: 1;
+  }
+  3%,
+  50% {
+    opacity: 0.15;
+  }
+  54%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* the fallback: a tint over what the boundary wraps, and a spinner */
+.fallback.waitPost {
+  animation-name: fallbackPost;
+}
+.fallback.waitUser {
+  animation-name: fallbackUser;
+}
+.fallback.waitComment {
+  animation-name: fallbackComment;
+}
+@keyframes fallbackPost {
+  0% {
+    opacity: 0;
+  }
+  3%,
+  25% {
+    opacity: 1;
+  }
+  29%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes fallbackUser {
+  0% {
+    opacity: 0;
+  }
+  3%,
+  35% {
+    opacity: 1;
+  }
+  39%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes fallbackComment {
+  0% {
+    opacity: 0;
+  }
+  3%,
+  50% {
+    opacity: 1;
+  }
+  54%,
+  100% {
+    opacity: 0;
+  }
+}
+.tint {
+  fill: var(--boundary);
+  fill-opacity: 0.07;
+}
+.spinner {
+  fill: none;
+  stroke: var(--boundary);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  /* three quarters of the circle: pathLength is 100 */
+  stroke-dasharray: 75 25;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* the boundary's outline and tag, at the position chosen; the other positions
+   stay faint, and light up when pointed at or focused */
+.outline {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+  transition:
+    opacity var(--motion-snappy),
+    stroke var(--motion-snappy);
+}
+/* a component's boundary is its own border, so nothing shows until it is chosen */
+.leaf .outline {
+  opacity: 0;
+}
+.preview .outline {
+  stroke: var(--boundary);
+  opacity: 1;
+}
+.active .outline {
+  stroke: var(--boundary);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  opacity: 1;
+}
+.tag {
+  fill: var(--boundary);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 9px;
+  font-weight: 600;
+  text-anchor: start;
+  /* knocks the outline out behind the text */
+  paint-order: stroke;
+  stroke: var(--ifm-background-surface-color);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  opacity: 0;
+  transition: opacity var(--motion-snappy);
+}
+.active .tag {
+  opacity: 1;
+}
+
+/* the positions: transparent buttons over the outlines */
+.targets {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.target {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+/* the route's target is clipped to its outline, which hides a ring: its
+   outline in the SVG lights up instead */
+.target:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
+}
+
+/* a still of a run at 1.8s: inside the boundary, Post has arrived and User
+   and Comment are still loading */
+@media (prefers-reduced-motion: reduce) {
+  .stage {
+    --play: paused;
+    --seek: calc(var(--period) * -0.3);
+  }
+  .binding,
+  .diagram .flash,
+  .spinner {
+    animation: none;
+  }
+}

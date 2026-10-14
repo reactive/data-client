@@ -907,5 +907,25 @@
   "expiryTimeline.afterInvalidIfStale": {
     "message": "Con invalidIfStale, una vez pasado dataExpiryLength (en milisegundos), la respuesta en caché es inválida: debe volver a obtenerse antes de poder renderizarse.",
     "description": "Tooltip on the Stale story’s dataExpiryLength label of the expiry diagram, while its invalidIfStale switch is on"
+  },
+  "asyncBoundaries.app": {
+    "message": "alrededor de toda la app",
+    "description": "Where the boundary goes, on the async boundaries diagram; completes \"<AsyncBoundary> around the whole app\""
+  },
+  "asyncBoundaries.page": {
+    "message": "alrededor de la ruta PostPage",
+    "description": "Where the boundary goes, on the async boundaries diagram; completes \"<AsyncBoundary> around the PostPage route\""
+  },
+  "asyncBoundaries.component": {
+    "message": "alrededor de cada componente que lee datos",
+    "description": "Where the boundary goes, on the async boundaries diagram; completes \"<AsyncBoundary> around each component that reads data\""
+  },
+  "asyncBoundaries.label": {
+    "message": "El árbol de componentes bajo su store, con un {boundary} {where}. Abrir un post monta Avatar, PostBody y CommentList, que se suspenden hasta que llegan sus datos: todo lo que está dentro del límite muestra su fallback de carga hasta que llega el último, mientras el resto de la página sigue renderizándose. Cuanto más arriba esté el límite, menos indicadores de carga hay y más parte de la página reemplazan; uno alrededor de cada componente muestra tres que se resuelven uno a uno",
+    "description": "Accessible label of the async boundaries diagram on the Render Data page; {boundary} is AsyncBoundary or Suspense, {where} one of the asyncBoundaries.app/page/component strings"
+  },
+  "asyncBoundaries.where": {
+    "message": "Dónde va el límite",
+    "description": "Label of the group of positions the boundary can be moved to on the async boundaries diagram"
   }
 }
