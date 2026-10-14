@@ -201,6 +201,6 @@
     "react-test-renderer": "^19.0.0",
     "redux": "^5.0.1",
     "rollup-plugins": "workspace:*",
-    "temporal-polyfill": "^0.3.0"
+    "temporal-polyfill": "^1.0.0"
   }
 }

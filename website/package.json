@@ -87,7 +87,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-live": "^4.0.0",
-    "temporal-polyfill": "^0.3.0",
+    "temporal-polyfill": "^1.0.0",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "uuid": "^14.0.0"
   },

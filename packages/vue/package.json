@@ -135,7 +135,7 @@
     "jest-mock": "^30.0.0",
     "nock": "13.3.1",
     "rollup-plugins": "workspace:*",
-    "temporal-polyfill": "^0.3.0",
+    "temporal-polyfill": "^1.0.0",
     "vue": "^3.4.0"
   }
 }
