@@ -49,8 +49,7 @@ const withSourceEstree = (fn, source) => ({
 });
 
 function babelPlugin({ types: t, template }) {
-  /** `indent`: the property's column, which its later lines are nested under */
-  function authoredSource(path, indent) {
+  function authoredSource(path) {
     const cuts = [];
     path.traverse({
       enter(child) {
@@ -83,6 +82,9 @@ function babelPlugin({ types: t, template }) {
       at = Math.max(at, to);
     }
     source += code.slice(at, path.node.end);
+    // Later lines keep the file's indentation: strip that of the first line
+    const lineStart = code.lastIndexOf('\n', path.node.start) + 1;
+    const indent = /^ */.exec(code.slice(lineStart))[0].length;
     return source.replace(new RegExp(`^ {0,${indent}}`, 'gm'), '');
   }
 
@@ -101,7 +103,7 @@ function babelPlugin({ types: t, template }) {
           const propPath = path.get(`properties.${i}`);
           let fn, source;
           if (t.isObjectMethod(prop, { kind: 'method' })) {
-            source = authoredSource(propPath, prop.loc.start.column);
+            source = authoredSource(propPath);
             fn = t.functionExpression(
               null,
               prop.params,
@@ -110,10 +112,7 @@ function babelPlugin({ types: t, template }) {
               prop.async,
             );
           } else if (t.isObjectProperty(prop) && t.isFunction(prop.value)) {
-            source = authoredSource(
-              propPath.get('value'),
-              prop.loc.start.column,
-            );
+            source = authoredSource(propPath.get('value'));
             fn = prop.value;
           } else {
             return;
@@ -127,10 +126,10 @@ function babelPlugin({ types: t, template }) {
   };
 }
 
+let prettierConfig;
 /** MDX keeps the author's (often unindented) text, so it's run through
  * Prettier, as the repo formats its own fixture modules.
  */
-let prettierConfig;
 function recmaPlugin() {
   return async (tree, file) => {
     const matches = [];
@@ -161,6 +160,7 @@ function recmaPlugin() {
 async function format(prop, code, config) {
   // Methods only parse inside an object
   const [open, close] = prop.method ? ['_ = {', '}'] : ['_ = ', ''];
+  // A parenthesized value's own range leaves out its parens
   const node = prop.method ? prop : prop.value;
   const formatted = await prettier.format(
     open + code.slice(node.start, node.end) + close,
