@@ -12,6 +12,7 @@ import type {
   EndpointRecord,
   default as SchemaRegistry,
 } from './schemaRegistry';
+import { splitKey } from '../../splitKey';
 
 /** An optimistic update awaiting its response */
 export interface PendingOptimistic {
@@ -348,25 +349,6 @@ function tableKind(table: any, first: unknown): EntityTable['kind'] {
   if (table instanceof s.Scalar) return 'scalar';
   // Unknown schema (e.g. state seeded without an action): guess from the rows
   return Array.isArray(first) ? 'collection' : 'unknown';
-}
-
-const splitCache = new Map<string, { method: string; path: string }>();
-/** `GET https://host/posts?x=1` → method and path (host dropped) */
-export function splitKey(key: string) {
-  let split = splitCache.get(key);
-  if (!split) splitCache.set(key, (split = parseKey(key)));
-  return split;
-}
-function parseKey(key: string) {
-  const match = /^([A-Z]+) (\S+)(.*)$/.exec(key);
-  if (!match) return { method: '', path: key };
-  const [, method, url, rest] = match;
-  try {
-    const parsed = new URL(url);
-    return { method, path: `${parsed.pathname}${parsed.search}${rest}` };
-  } catch {
-    return { method, path: `${url}${rest}` };
-  }
 }
 
 /** Collection pks are serialized args: `{"userId":"1"}` → `userId: 1` */

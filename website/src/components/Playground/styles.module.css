@@ -11,6 +11,26 @@
      takes when its own content sets the height */
   --store-min: min(24rem, 70svh);
   --store-cap: min(32rem, 70svh);
+  /* The Store's palette, shared with the Fixtures panel (both code-colored
+     in either theme); the light timeline re-declares it (store.module.css) */
+  --store-fg: rgb(191, 199, 213);
+  --store-dim: rgb(105, 112, 152);
+  /* secondary text that stays AA on the code background */
+  --store-muted: rgb(146, 154, 186);
+  --store-key: rgb(130, 170, 255);
+  --store-string: rgb(195, 232, 141);
+  --store-number: rgb(247, 140, 108);
+  --store-null: rgb(255, 88, 116);
+  --store-type: #c792ea;
+  --store-fresh: #7fd1a0;
+  --store-stale: #ffcb6b;
+  --store-line: rgba(255, 255, 255, 0.07);
+  --store-line-strong: rgba(255, 255, 255, 0.12);
+  --store-hover: rgba(255, 255, 255, 0.045);
+  --store-selected: rgba(130, 170, 255, 0.16);
+  --store-record: rgba(130, 170, 255, 0.07);
+  --store-tip: #3a4057;
+  --store-bg: var(--monoco-code-background);
   border-radius: var(--ifm-global-radius);
   box-shadow: var(--ifm-global-shadow-lw);
   overflow: visible;
@@ -447,8 +467,7 @@ div.playgroundTextEdit > .playgroundHeader,
   width: 0.45rem;
   height: 0.45rem;
   border-radius: 50%;
-  /* the Store's fresh color */
-  color: #7fd1a0;
+  color: var(--store-fresh);
   background: currentColor;
   box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 18%, transparent);
 }
@@ -860,34 +879,153 @@ div.playgroundTextEdit > .playgroundHeader,
   line-height: var(--ifm-heading-line-height);
 }
 
+/* Endpoint chips shared by the Store inspector (store.module.css composes
+   them) and the Fixtures panel: the method before a path, and a status pill */
+.method {
+  flex: none;
+  font: 600 10px var(--ifm-font-family-base);
+  letter-spacing: 0.04em;
+  color: var(--store-fresh);
+}
+.pill {
+  flex: none;
+  padding: 0 0.5em;
+  border: 1px solid;
+  border-radius: 999px;
+  font: 500 10px / 1.6 var(--ifm-font-family-base);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.danger {
+  color: var(--store-null);
+  border-color: rgba(255, 88, 116, 0.4);
+}
+
+/* `Unfold`: the Store's lanes and a fixture's response slide open and shut:
+   the row grows from nothing as their content rises into place (instant under reduced
+   motion, as the tokens are). `data-open` is set a frame after it mounts
+   (see `Unfold`), so these transitions run both ways and reverse midway */
+.unfold {
+  flex: none;
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  transition: grid-template-rows var(--motion-smooth);
+}
+.unfold[data-open] {
+  grid-template-rows: 1fr;
+}
+.unfoldBody {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* a wide Timeline scrolls inside, not widen the panel */
+  min-width: 0;
+  opacity: 0;
+  translate: 0 -6px;
+  transition:
+    opacity var(--motion-smooth),
+    translate var(--motion-smooth);
+}
+.unfold[data-open] > .unfoldBody {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* Fixtures: the demo's mocked responses, one collapsed row each over the
+   code's dark ground in both themes (the code is dark in both). A row reads
+   `GET /path  …what it returns…  pills`; opening it unfolds the response. */
 .fixtureBlock {
   background-color: var(--prism-background-color);
+  color: var(--store-fg);
   font: var(--ifm-code-font-size) / var(--ifm-pre-line-height)
     var(--ifm-font-family-monospace);
-  color: rgb(191, 199, 213);
-  padding: 8px;
+  /* the response's CodeBlock sits flat in its row, in the row's type */
+  --ifm-global-shadow-lw: none;
+  --ifm-code-border-radius: 0;
+  --ifm-pre-padding: 0;
+  --ifm-code-font-size: 13px;
+  --ifm-pre-line-height: 19px;
+  /* the row's arrow and the gap after it, so text lines up past it */
+  --fixture-indent: calc(12px + 0.5rem);
 }
-.fixtureItem {
+.fixture + .fixture {
+  box-shadow: inset 0 1px 0 var(--store-line);
+}
+.fixtureToggle {
   display: flex;
-  flex-direction: row;
-  gap: 1rem;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 0.75rem;
+  font: inherit;
+  text-align: left;
+  transition: background-color var(--motion-snappy);
 }
-.fixtureHeader {
-  color: rgb(195, 232, 141);
-  font: var(--ifm-code-font-size) / var(--ifm-pre-line-height)
-    var(--ifm-font-family-monospace);
-  flex: 0 1 auto;
+@media (hover: hover) {
+  .fixtureToggle:hover {
+    background-color: var(--store-hover);
+  }
+}
+.fixtureToggle:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
+}
+.fixtureToggle > .arrow {
+  margin: 0;
+  color: var(--store-dim);
+}
+.fixturePath {
+  min-width: 0;
+  color: var(--pg-tab-selected);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* opened, a long path wraps rather than hiding behind an ellipsis */
+.fixtureToggle[aria-expanded='true'] .fixturePath {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+/* takes the width the path leaves, fading out at the end; nothing is
+   lost, the row opens to all of it */
+.fixtureHint {
+  flex: 1 1 0;
+  min-width: 0;
+  color: var(--store-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* marks a hint read from a function's source rather than data */
+.fixtureFn {
+  color: var(--store-type);
+  font-style: italic;
+  /* the italic ƒ leans into what follows */
+  margin-right: 1px;
+}
+.fixtureToggle[aria-expanded='true'] .fixtureHint {
+  visibility: hidden;
+}
+.fixtureDelay {
+  color: var(--store-muted);
+  border-color: var(--store-line-strong);
+}
+/* the response, aligned under the method */
+.fixtureBody {
+  padding: 0 0.75rem 10px calc(0.75rem + var(--fixture-indent));
 }
 div.fixtureJson {
   margin-bottom: 0;
-  flex: 1 4 auto;
-  min-width: 200px;
+}
+/* a delay function follows the response */
+div.fixtureJson + div.fixtureJson {
+  margin-top: 6px;
 }
 .fixtureJson code {
-  padding: 0;
-  margin: 0;
   white-space: pre-wrap;
-  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .playgroundEditor :global(.monaco-editor) {
@@ -1190,5 +1328,22 @@ div.fixtureJson {
   }
   .playgroundContainer .headerButton.storeHeaderToggle {
     display: inline-flex;
+  }
+  /* the response hint takes a line of its own under the path, so the path
+     keeps the row's width */
+  .fixtureToggle {
+    flex-wrap: wrap;
+    row-gap: 0;
+  }
+  .fixturePath {
+    flex: 1 1 0;
+  }
+  .fixtureHint {
+    order: 1;
+    flex-basis: 100%;
+    padding-left: var(--fixture-indent);
+  }
+  .fixtureToggle[aria-expanded='true'] .fixtureHint {
+    display: none;
   }
 }

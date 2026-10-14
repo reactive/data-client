@@ -5,6 +5,12 @@ const siteSrc = path.join(__dirname, 'src') + path.sep;
 
 module.exports = api => ({
   presets: [require.resolve('@docusaurus/core/lib/babel/preset')],
+  overrides: [
+    {
+      test: siteSrc,
+      plugins: [require('./fixture-source.js').babelPlugin],
+    },
+  ],
   // SSR renders each component once, so memoizing only pays off in the client bundle
   plugins:
     api.caller(caller => caller?.name) === 'client' ?
