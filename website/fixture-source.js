@@ -56,6 +56,7 @@ const withSourceEstree = (fn, source) => ({
 
 function babelPlugin({ types: t, template }) {
   function authoredSource(path) {
+    const code = path.hub.getCode();
     const cuts = [];
     path.traverse({
       enter(child) {
@@ -76,14 +77,13 @@ function babelPlugin({ types: t, template }) {
           }
         } else if (child.isIdentifier({ optional: true })) {
           // `init?: RequestInit` reads as `init`
-          const end = child.node.start + child.node.name.length;
-          cuts.push([end, end + 1]);
+          const nameEnd = child.node.start + child.node.name.length;
+          cuts.push([nameEnd, code.indexOf('?', nameEnd) + 1]);
         } else if (child.isTSNonNullExpression()) {
           cuts.push([child.node.end - 1, child.node.end]);
         }
       },
     });
-    const code = path.hub.getCode();
     let source = '';
     let at = path.node.start;
     for (const [from, to] of cuts.sort((a, b) => a[0] - b[0])) {

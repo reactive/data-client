@@ -35,7 +35,7 @@ describe('babelPlugin', () => {
   },
   {
     endpoint: E,
-    response: (a: number, init?: RequestInit): number => {
+    response: (a: number, init ?: RequestInit): number => {
       const b = new Map<string, number>().get(String(a)) ?? a + 1;
       return b;
     },
