@@ -206,10 +206,6 @@ export default class StreamManager implements Manager {
     this.flushTimeout = undefined;
     this.buffer = {};
   }
-
-  getMiddleware() {
-    return this.middleware;
-  }
 }
 /*
  * TODO:

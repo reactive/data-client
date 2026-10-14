@@ -17,6 +17,17 @@
   "postUpdateOptions": ["yarnDedupeHighest"],
   "packageRules": [
     {
+      "description": "yarn's default 1-day npmMinimalAgeGate rejects fresher releases, so proposing them leaves the PR without a yarn.lock update. Security updates skip this on purpose; if one lands without a lockfile, tick its retry box once the release is a day old",
+      "matchManagers": ["npm"],
+      "minimumReleaseAge": "1 day"
+    },
+    {
+      "description": "mirrors npmPreapprovedPackages in .yarnrc.yml; must stay after the 1-day rule, since later rules win",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["@anansi/*", "@data-client/*", "@pojo-router/*"],
+      "minimumReleaseAge": "0 days"
+    },
+    {
       "description": "overrides keep their range form (so >= floors are left alone) while exact pins get bumped together with the matching dependencies entry, avoiding EOVERRIDE",
       "matchDepTypes": ["overrides"],
       "rangeStrategy": "replace"

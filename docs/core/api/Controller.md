@@ -31,7 +31,7 @@ and retrieval performance.
 class Controller {
   /*************** Action Dispatchers ***************/
   fetch(endpoint, ...args): ReturnType<E>;
-  fetchIfStale(endpoint, ...args): ReturnType<E> | undefined;
+  fetchIfStale(endpoint, ...args): ReturnType<E> | Denormalize<E['schema']>;
   expireAll({ testKey }): Promise<void>;
   invalidate(endpoint, ...args): Promise<void>;
   invalidateAll({ testKey }): Promise<void>;
@@ -265,7 +265,8 @@ post.pk();
 
 ### fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
-Fetches only if endpoint is considered '[stale](../concepts/expiry-policy.md#stale)'.
+Fetches only if endpoint is considered '[stale](../concepts/expiry-policy.md#stale)' or [invalid](../concepts/expiry-policy.md#invalid),
+returning the same Promise as [fetch()](#fetch). Otherwise returns the cached data synchronously, without fetching.
 
 This can be useful when prefetching data, as it avoids overfetching fresh data.
 

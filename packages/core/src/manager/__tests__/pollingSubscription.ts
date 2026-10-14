@@ -88,9 +88,9 @@ describe('PollingSubscription', () => {
     it('should wait to call for fresh data', () => {
       const dispatch = jest.fn();
       const controller = new Controller({ dispatch });
-      (controller as any).getState = makeState('test.com', Date.now());
-
+      // fake timers first, so the fetch time shares their clock
       jest.useFakeTimers();
+      (controller as any).getState = makeState('test.com', Date.now());
       const sub2 = new PollingSubscription(
         createSubscription(endpoint, { args: [] }),
         controller,

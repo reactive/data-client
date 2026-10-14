@@ -44,11 +44,11 @@ it('applyManagers should not console.warn() when NetworkManager is provided', ()
     warnspy.mockRestore();
   }
 });
-it('applyManagers should handle legacy Manager.getMiddleware()', () => {
+it('applyManagers should apply Manager.middleware', () => {
   let initCount = 0;
   let actionCount = 0;
   class MyManager implements Manager {
-    getMiddleware = (): Middleware => ctrl => {
+    middleware: Middleware = ctrl => {
       initCount++;
       return next => action => {
         actionCount++;
@@ -78,6 +78,18 @@ it('applyManagers should handle legacy Manager.getMiddleware()', () => {
   expect(initCount).toBe(1);
   expect(actionCount).toBe(1);
   expect(rootDispatch.mock.calls.length).toBe(1);
+});
+it('applyManagers should throw a clear error for Managers without middleware', () => {
+  class MyManager {
+    cleanup() {}
+  }
+  expect(() =>
+    applyManager(
+      // @ts-expect-error Managers must define middleware
+      [new MyManager(), new NetworkManager()],
+      new Controller(),
+    ),
+  ).toThrow('MyManager has no middleware');
 });
 
 function middlewareDispatch(
