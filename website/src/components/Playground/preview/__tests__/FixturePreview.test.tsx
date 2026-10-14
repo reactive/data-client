@@ -97,6 +97,26 @@ describe('FixturePreview', () => {
     expect(screen.getByText(`delay: ${delay}`)).toBeTruthy();
   });
 
+  test('labels delay sources unless they are a delay() method', () => {
+    const fixtures = [
+      { endpoint: getArticle, response: 1, delay: (delayMs: any) => delayMs },
+      {
+        endpoint: getArticle,
+        response: 1,
+        delay() {
+          return 150;
+        },
+      },
+    ] as any;
+    const { container } = render(<FixturePreview fixtures={fixtures} />);
+    for (const toggle of screen.getAllByRole('button')) fireEvent.click(toggle);
+    const sources = [...container.querySelectorAll('code')].map(
+      code => code.textContent,
+    );
+    expect(sources).toContain(`delay: ${fixtures[0].delay}`);
+    expect(sources).toContain(`${fixtures[1].delay}`);
+  });
+
   test('shows function responses once open', () => {
     render(
       <FixturePreview
@@ -131,12 +151,12 @@ describe('summarize', () => {
       fnName: 'response',
       hint: undefined,
       error: false,
-      delay: 'delay',
+      delay: true,
       delayFn: true,
     });
   });
 
-  test('delay labels: pinned numbers, none for zero, else "delay"', () => {
+  test('delay labels: pinned numbers, none for zero, else true', () => {
     const labelFor = (delay: unknown) =>
       summarize({ endpoint: getArticle, response: 1, delay } as any).delay;
     const pinned = (returnedSource?: string) =>
@@ -147,11 +167,12 @@ describe('summarize', () => {
     expect(labelFor(0)).toBeUndefined();
     expect(labelFor(pinned('1_000'))).toBe('1000 ms');
     expect(labelFor(pinned('0'))).toBeUndefined();
-    expect(labelFor(pinned('_150'))).toBe('delay');
+    expect(labelFor(pinned('_150'))).toBe(true);
     expect(labelFor(pinned('1e3'))).toBe('1000 ms');
     expect(labelFor(pinned('.5'))).toBe('0.5 ms');
-    expect(labelFor(pinned('500 + Math.random() * 4500'))).toBe('delay');
-    expect(labelFor(pinned())).toBe('delay');
+    expect(labelFor(pinned('1e400'))).toBe(true);
+    expect(labelFor(pinned('500 + Math.random() * 4500'))).toBe(true);
+    expect(labelFor(pinned())).toBe(true);
   });
 
   test('fetch interceptors name fetchResponse', () => {

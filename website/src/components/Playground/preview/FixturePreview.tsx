@@ -49,7 +49,7 @@ function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
         <span className={styles.fixtureHint} aria-hidden>
           {fnName ?
             <>
-              <span className={styles.fixtureFn}>ƒ</span>{' '}
+              {fnMark}
               {hint ? `→ ${hint}` : fnName}
             </>
           : hint}
@@ -64,12 +64,10 @@ function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
             className={clsx(styles.pill, styles.fixtureDelay)}
             title={delayFn && isBrowser ? `${fixture.delay}` : undefined}
           >
-            {delayFn ?
-              <>
-                <span className={styles.fixtureFn}>ƒ</span>{' '}
-              </>
-            : null}
-            {delay}
+            {delayFn ? fnMark : null}
+            {delay === true ?
+              <Translate id="playground.fixtures.delay">delay</Translate>
+            : delay}
           </span>
         : null}
       </button>
@@ -86,6 +84,12 @@ function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
     </div>
   );
 }
+
+const fnMark = (
+  <>
+    <span className={styles.fixtureFn}>ƒ</span>{' '}
+  </>
+);
 
 const HINT_CHARS = 160;
 
@@ -110,19 +114,19 @@ export function summarize(fixture: FixtureOrInterceptor) {
 }
 
 /** `150 ms`, also for a function that always returns 150 (as pinned by
- * fixture-source.js), and nothing for no delay; any other delay function
- * reads `delay` */
+ * fixture-source.js), and nothing for no delay; true for any other delay
+ * function, which the pill labels `delay` */
 function delayLabel(delay: FixtureOrInterceptor['delay']) {
   const ms =
     typeof delay === 'function' ?
       numberLiteral((delay as Pinned).returnedSource)
     : delay;
   if (typeof ms === 'number' && ms !== 0) {
-    return Number.isNaN(ms) ? 'delay' : `${ms} ms`;
+    return !Number.isFinite(ms) || `${ms} ms`;
   }
 }
 
-/** `1_000` → 1000, `1e3` → 1000; NaN, which reads `delay`, for anything but
+/** `1_000` → 1000, `1e3` → 1000; NaN for anything but
  * a number literal (which starts with a digit or `.`, unlike `_150`) */
 const numberLiteral = (text = '') =>
   /^[\d.]/.test(text) ? Number(text.replaceAll('_', '')) : NaN;
@@ -173,7 +177,7 @@ function FixtureResponse({
 }
 
 /** A fixture function's source, named when it doesn't say its own name
- * (`delay: () => 150`) */
+ * (`delay: () => 150`, unlike `delay() { ... }`) */
 function FunctionSource({
   fn,
   name,
@@ -189,10 +193,14 @@ function FunctionSource({
         const source = `${fn}`;
         return (
           <CodeBlock language="javascript" className={styles.fixtureJson}>
-            {name && !source.startsWith(name) ? `${name}: ${source}` : source}
+            {name && !isMethod(source, name) ? `${name}: ${source}` : source}
           </CodeBlock>
         );
       }}
     </BrowserOnly>
   );
 }
+
+/** `delay() {` or `async delay() {`, but not `delayMs => 150` */
+const isMethod = (source: string, name: string) =>
+  new RegExp(`^(async\\s+)?${name}\\s*\\(`).test(source);
