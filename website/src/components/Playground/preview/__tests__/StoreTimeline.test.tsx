@@ -23,7 +23,7 @@ import {
   still,
   timeScale,
 } from '../store/Timeline';
-import { UNFOLD_CLOSE_MS } from '../store/Unfold';
+import { UNFOLD_CLOSE_MS } from '../../Unfold';
 
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),

@@ -93,6 +93,10 @@ const projects = [
         '<rootDir>/website/src/components/Playground/testing/docusaurusTranslate.tsx',
       '^@docusaurus/theme-common$':
         '<rootDir>/website/src/components/Playground/testing/docusaurusThemeCommon.ts',
+      '^@docusaurus/BrowserOnly$':
+        '<rootDir>/website/src/components/Playground/testing/docusaurusBrowserOnly.tsx',
+      '^@theme/CodeBlock$':
+        '<rootDir>/website/src/components/Playground/testing/themeCodeBlock.tsx',
     },
     setupFiles: ['<rootDir>/scripts/testSetup.js'],
     testEnvironment: 'jsdom',

@@ -6,8 +6,8 @@ import React, {
   useState,
 } from 'react';
 
-import styles from './store.module.css';
-import { prefersReducedMotion, springEasing, springs } from '../../../motion';
+import { prefersReducedMotion, springEasing, springs } from '../motion';
+import styles from './styles.module.css';
 
 /** By when an `Unfold`'s slide shut (`--motion-smooth`) is over */
 export const UNFOLD_CLOSE_MS = springEasing(springs.smooth).duration + 100;

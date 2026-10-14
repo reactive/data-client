@@ -1,6 +1,7 @@
 import { schema as s } from '@data-client/endpoint';
 import { actionTypes, type State } from '@data-client/react';
 
+import { splitKey } from '../../splitKey';
 import {
   INVALIDATED,
   forEachRef,
@@ -350,24 +351,7 @@ function tableKind(table: any, first: unknown): EntityTable['kind'] {
   return Array.isArray(first) ? 'collection' : 'unknown';
 }
 
-const splitCache = new Map<string, { method: string; path: string }>();
-/** `GET https://host/posts?x=1` → method and path (host dropped) */
-export function splitKey(key: string) {
-  let split = splitCache.get(key);
-  if (!split) splitCache.set(key, (split = parseKey(key)));
-  return split;
-}
-function parseKey(key: string) {
-  const match = /^([A-Z]+) (\S+)(.*)$/.exec(key);
-  if (!match) return { method: '', path: key };
-  const [, method, url, rest] = match;
-  try {
-    const parsed = new URL(url);
-    return { method, path: `${parsed.pathname}${parsed.search}${rest}` };
-  } catch {
-    return { method, path: `${url}${rest}` };
-  }
-}
+export { splitKey };
 
 /** Collection pks are serialized args: `{"userId":"1"}` → `userId: 1` */
 export function prettyPk(pk: string) {
