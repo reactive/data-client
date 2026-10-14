@@ -107,6 +107,14 @@ describe('FixturePreview', () => {
           return 150;
         },
       },
+      // unformatted source, as authored
+      {
+        endpoint: getArticle,
+        response: 1,
+        delay: Object.assign(() => 150, {
+          toString: () => 'delay () { return 150; }',
+        }),
+      },
     ] as any;
     const { container } = render(<FixturePreview fixtures={fixtures} />);
     for (const toggle of screen.getAllByRole('button')) fireEvent.click(toggle);
@@ -115,6 +123,7 @@ describe('FixturePreview', () => {
     );
     expect(sources).toContain(`delay: ${fixtures[0].delay}`);
     expect(sources).toContain(`${fixtures[1].delay}`);
+    expect(sources).toContain('delay () { return 150; }');
   });
 
   test('shows function responses once open', () => {

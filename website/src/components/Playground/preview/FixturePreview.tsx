@@ -117,7 +117,7 @@ export function summarize(fixture: FixtureOrInterceptor) {
 }
 
 /** 150, also for a function that always returns 150 (as pinned by
- * fixture-source.js), and nothing for no delay; any other delay is `'varies'` */
+ * fixture-source.js), and nothing for no delay; a delay that isn't one number is `'varies'` */
 function delayMs(delay: FixtureOrInterceptor['delay']) {
   const ms =
     typeof delay === 'function' ?
@@ -203,7 +203,7 @@ function FunctionSource({
   );
 }
 
-/** `delay() {` or `async delay() {`, but not `delayMs => 150` */
+/** `delay() {`, `delay () {` or `async delay() {`, but not `delayMs => 150` */
 const isMethod = (source: string, name: string) =>
   source
     .replace(/^async\s+/, '')
