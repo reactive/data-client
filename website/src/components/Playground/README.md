@@ -61,9 +61,9 @@ DesignSystem/       components injected into preview scope
   hidden by CSS, for crawlers.
 - The preview renders `PreviewLoading` (empty frame + Store toggle) on the
   server, while loading, for bots, and while `hidden`.
-- Fixtures render server-side as JSON `CodeBlock`s; function responses are
-  BrowserOnly (a stringified function differs between server and client
-  bundles).
+- Fixtures render server-side as JSON `CodeBlock`s; function sources and
+  titles wait for `useIsBrowser` (a stringified function differs between
+  server and client bundles).
 - Never branch on `navigator`/user agent during render outside `BrowserOnly`
   (hydration mismatch). `isBot` is module-level and only read in the
   `lazy()` factory (and in StackBlitz after intersection); `isMobileOrBot()`

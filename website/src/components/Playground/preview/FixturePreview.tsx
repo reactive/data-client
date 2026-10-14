@@ -186,7 +186,8 @@ function FunctionSource({
 }) {
   // The source is pinned at build time (fixture-source.js), but only the
   // browser's bundle is sure to carry it
-  if (!useIsBrowser()) return null;
+  const isBrowser = useIsBrowser();
+  if (!isBrowser) return null;
   const source = `${fn}`;
   return (
     <CodeBlock language="javascript" className={styles.fixtureJson}>
