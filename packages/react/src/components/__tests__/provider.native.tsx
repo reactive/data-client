@@ -66,6 +66,7 @@ describe('<DataProvider />', () => {
         </MockResolver>
       </DataProvider>
     );
+    // RNTL 14's render() flushes the resolved fixture, so the fallback is never observable
     await render(tree);
     expect(warnspy).not.toHaveBeenCalled();
     const articleOutput = await screen.findByTestId('article');
