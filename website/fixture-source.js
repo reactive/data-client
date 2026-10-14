@@ -160,6 +160,8 @@ function babelPlugin({ types: t, template }) {
   // so source that doesn't parse is never shown
   const parseError = expression => {
     try {
+      // Builds only to parse: with JSX for .tsx fixtures, and without
+      // placeholders, which would claim ALL_CAPS names
       template.expression(expression, {
         plugins: ['jsx'],
         placeholderPattern: false,

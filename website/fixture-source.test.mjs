@@ -16,9 +16,9 @@ const run = code => {
 };
 
 describe('babelPlugin', () => {
-  const compile = src =>
+  const compile = (src, file = 'test.ts') =>
     babel.transformSync(src, {
-      filename: path.resolve('src/fixtures/test.ts'),
+      filename: path.resolve('src/fixtures', file),
       babelrc: false,
       configFile: false,
       presets: [docusaurusRequire.resolve('@babel/preset-typescript')],
@@ -116,23 +116,12 @@ world\`;
     );
   });
 
-  it('shows JSX as authored', () => {
-    const code = babel.transformSync(
-      `module.exports = [{ endpoint: E, response: (a: string) => <b>{a}</b> }];`,
-      {
-        filename: path.resolve('src/fixtures/test.tsx'),
-        babelrc: false,
-        configFile: false,
-        presets: [
-          [
-            docusaurusRequire.resolve('@babel/preset-typescript'),
-            { isTSX: true, allExtensions: true },
-          ],
-        ],
-        plugins: [babelPlugin],
-      },
-    ).code;
-    assert.match(code, /value: \(\) => "\(a\) => <b>\{a\}<\/b>"/);
+  it('shows JSX and ALL_CAPS names as authored', () => {
+    const code = compile(
+      `module.exports = [{ endpoint: E, response: (a: string) => <b>{BASE + a}</b> }];`,
+      'test.tsx',
+    );
+    assert.match(code, /value: \(\) => "\(a\) => <b>\{BASE \+ a\}<\/b>"/);
   });
 
   it('leaves non-fixture objects alone', () => {
