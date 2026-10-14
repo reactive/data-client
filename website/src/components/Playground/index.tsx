@@ -28,7 +28,11 @@ export interface PlaygroundProps<T = any> {
   groupId?: string;
   /** Store inspector open by default */
   defaultOpen?: 'y' | 'n';
-  /** Tabs for files + editor beside preview (when wide enough) */
+  /** Tabs for files + editor beside preview (when wide enough).
+   * Use when the code is one tall open file and the preview is short. Stay
+   * stacked when the Store opens by default or the fixtures are the lesson
+   * (row hides Fixtures and slides the Store over the code), or when the
+   * preview is tall. */
   row?: boolean;
   /** Inactive (e.g. unselected Demo tab): no Monaco until first shown, no preview */
   hidden?: boolean;
