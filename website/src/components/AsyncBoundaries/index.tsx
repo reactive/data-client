@@ -68,8 +68,23 @@ const box = (x: number, y: number, w: number, h: number): Point[] => [
   [x, y + h],
 ];
 
-/** The pointer target: the outline's box, clipped to the outline */
-function hit(points: Point[]) {
+/**
+ * The pointer target: the outline plus a tab for its tag, which sits on the
+ * top edge (`points[0]` to `points[1]`) and mostly above it, so a click on
+ * the tag picks its own position, not the one behind
+ */
+function hit([start, ...rest]: Point[], [tx, ty]: Point, tag: string) {
+  const top = start[1];
+  // monospace glyphs are about 0.6em wide
+  const end = tx + tag.length * 5.4 + 2;
+  const points: Point[] = [
+    start,
+    [tx - 2, top],
+    [tx - 2, ty - 8],
+    [end, ty - 8],
+    [end, top],
+    ...rest,
+  ];
   const xs = points.map(([x]) => x);
   const ys = points.map(([, y]) => y);
   const x = Math.min(...xs);
@@ -321,14 +336,19 @@ export default function AsyncBoundaries() {
         })}
       >
         {LEVELS.map(l =>
-          REGIONS[l].map(({ points }, i) => (
+          REGIONS[l].map(({ points, tag }, i) => (
             <button
               key={points.join()}
               type="button"
               className={styles.target}
-              style={hit(points)}
+              style={hit(points, tag, `<${boundary}>`)}
               {...target(l)}
-              {...(i > 0 && { tabIndex: -1, 'aria-hidden': true })}
+              {...(i > 0 && {
+                tabIndex: -1,
+                'aria-hidden': true,
+                // a click would still focus it, outside the accessibility tree
+                onMouseDown: (e: React.MouseEvent) => e.preventDefault(),
+              })}
             />
           )),
         )}
