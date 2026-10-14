@@ -29,7 +29,8 @@ cd "$tree"
 # has it, and builds a site preview for its PRs. The first `- master` in each
 # is its pull_request (site-preview.yml) or push (release.yml) branch.
 sed -i "s/\"baseBranch\": \"master\"/\"baseBranch\": \"$branch\"/" .changeset/config.json
-# publish: before changesets/action v2, publish-script: since
+# The ref may predate changesets/action v2, whose input is publish-script:
+# instead of publish:, so match either spelling
 sed -Ei 's#(publish(-script)?): yarn changeset:publish$#\1: bash scripts/maintenance/publish.sh#' \
   .github/workflows/release.yml
 for workflow in release site-preview; do
