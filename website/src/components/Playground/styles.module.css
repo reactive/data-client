@@ -388,11 +388,16 @@ div.playgroundTextEdit > .playgroundHeader,
   display: flex;
   flex-direction: column;
   position: relative;
-  z-index: 1;
+  /* over the code, and over the fixtures that float across it */
+  z-index: 2;
   overflow: hidden;
   pointer-events: none;
   /* the code alone sets the cell's height, so the Store scrolls within it */
   contain: size;
+}
+/* the code's own layers (Monaco's) stay under the fixtures floating over it */
+.editorDocs {
+  isolation: isolate;
 }
 /* under the header, the file tabs are no longer the top corner */
 .playgroundContainer .editorBody:not(:first-child) .editorDocs > .tabControls {
@@ -432,7 +437,7 @@ div.playgroundTextEdit > .playgroundHeader,
 .storeBadge {
   --swap-in: 0 110%;
   --swap-out: 0 -110%;
-  z-index: 2;
+  z-index: 3;
   align-self: end;
   justify-self: end;
   margin: 0.75rem;
@@ -576,7 +581,7 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .fixturesPopover {
   position: absolute;
-  z-index: 3;
+  z-index: 1;
   inset: auto 0;
   max-height: min(20rem, 60svh);
   overflow: auto;
@@ -1202,10 +1207,13 @@ div.fixtureJson + div.fixtureJson {
   .playgroundContainer.row .storeHeaderToggle {
     display: inline-flex;
   }
-  /* pinned, they get room to unfold a response even over a short result
-     (the preview clips them) */
+  /* pinned, they get room to unfold a response even over a short result;
+     the preview clips them, so they scroll within that same height */
   .fixturesAnchor:has(> [data-open]) + .playgroundResult {
     min-height: min(14rem, 50svh);
+  }
+  .fixturesPopover {
+    max-height: min(14rem, 50svh);
   }
 }
 
