@@ -1,5 +1,6 @@
 import {
   useActiveDocContext,
+  useActivePlugin,
   useAllDocsData,
 } from '@docusaurus/plugin-content-docs/client';
 import { useHistory, useLocation } from '@docusaurus/router';
@@ -8,10 +9,8 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import React, { useState, useRef, useEffect } from 'react';
 
 import styles from './FrameworkSelector.module.css';
-import useFramework, {
-  type Framework,
-  frameworkPluginId,
-} from './useFramework';
+import useFramework, { type Framework } from './useFramework';
+import { frameworkVariants } from '../../framework-docs/docsInstances.js';
 
 const ReactLogo = () => (
   <svg viewBox="0 0 24 24" className={styles.logo}>
@@ -40,19 +39,27 @@ const frameworks: { value: Framework; label: string; Logo: React.FC }[] = [
 type Equivalents = Record<Framework, Record<string, string>>;
 
 /**
- * Same page in each framework's docs, if it exists: the same doc id, or its
- * `framework_equivalent`. The hash only carries over to the same doc.
+ * Same page in each framework's variant of the current docs, if it exists: the
+ * same doc id, or its `framework_equivalent`. The hash only carries over to the
+ * same doc.
  */
 function useCounterparts(): Record<Framework, string | undefined> {
   const allDocs = useAllDocsData();
   const equivalents = useDocusaurusContext().siteConfig.customFields
     ?.frameworkEquivalents as Equivalents;
   const framework = useFramework();
-  const { activeDoc } = useActiveDocContext(frameworkPluginId[framework]);
+  // only rendered on framework docs (DocBreadcrumbs)
+  const { pluginId } = useActivePlugin()!;
+  const { activeDoc } = useActiveDocContext(pluginId);
   const { hash } = useLocation();
-  const find = (fw: Framework, id: string | undefined) =>
-    allDocs[frameworkPluginId[fw]].versions[0].docs.find(doc => doc.id === id)
-      ?.path;
+  const variants = frameworkVariants(pluginId);
+  const find = (fw: Framework, id: string | undefined) => {
+    const variant = variants.find(d => d.framework === fw);
+    return (
+      variant &&
+      allDocs[variant.id].versions[0].docs.find(doc => doc.id === id)?.path
+    );
+  };
   const counterpart = (fw: Framework) => {
     if (!activeDoc) return;
     const same = find(fw, activeDoc.id);
