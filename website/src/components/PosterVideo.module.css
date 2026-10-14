@@ -25,9 +25,9 @@
 
 .icon {
   position: absolute;
-  top: 50%;
+  top: var(--play-y, 50%);
   left: 50%;
-  width: clamp(3.5rem, 12%, 5.5rem);
+  width: clamp(2.5rem, 11%, 5.5rem);
   aspect-ratio: 1;
   border-radius: 50%;
   background: rgb(0 0 0 / 0.55);

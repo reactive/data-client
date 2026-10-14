@@ -8,6 +8,7 @@ export default function PosterVideo({
   alt,
   duration,
   volume = 1,
+  playY,
   children,
 }: {
   /** 16:9 image of what the video shows */
@@ -18,6 +19,8 @@ export default function PosterVideo({
   duration?: string;
   /** Playback volume (0-1); iOS ignores it and uses the device volume */
   volume?: number;
+  /** Vertical center of the play button, like "89%", to keep it off the poster's key content */
+  playY?: string;
   /** `<source>` elements in preference order */
   children: React.ReactNode;
 }) {
@@ -39,7 +42,10 @@ export default function PosterVideo({
   }, [started]);
 
   return (
-    <div className={styles.frame}>
+    <div
+      className={styles.frame}
+      style={playY ? ({ '--play-y': playY } as React.CSSProperties) : undefined}
+    >
       <video
         ref={videoRef}
         className={styles.video}
