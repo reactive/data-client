@@ -4,10 +4,6 @@
   --post: hsl(206, 69%, 40%);
   --comment: hsl(165, 70%, 26%);
   --on-chip: #fff;
-  float: right;
-  width: 440px;
-  max-width: 100%;
-  margin: 0 0 1rem 1.25rem;
   font-size: 11.5px;
   text-anchor: middle;
   user-select: none;
@@ -17,14 +13,6 @@
   --post: var(--ifm-color-primary-light);
   --comment: hsl(165, 55%, 55%);
   --on-chip: hsl(220, 20%, 12%);
-}
-/* full width under the text instead of squeezing it */
-@container doc (max-width: 700px) {
-  .diagram {
-    float: none;
-    display: block;
-    margin: 0 auto 1rem;
-  }
 }
 
 /* each entity changes in turn, every 2s of a 6s cycle */

@@ -173,6 +173,7 @@ export default function AtomicMutations() {
     <div
       className={clsx(
         styles.stage,
+        'doc-float',
         // a single todo pointed at: the request shown is its own
         active && active !== 'TodoList' && styles.single,
       )}
@@ -229,7 +230,15 @@ export default function AtomicMutations() {
         {CHIPS.map(({ entity: e, name, x, w }) => (
           <g key={e} className={clsx(styles.chip, styles[e], state(LIT[e]))}>
             {/* pulses when the entity changes */}
-            <rect className={styles.flash} x={x} y="27" width={w} height="22" />
+            {e !== 'U1' && (
+              <rect
+                className={styles.flash}
+                x={x}
+                y="27"
+                width={w}
+                height="22"
+              />
+            )}
             <rect x={x} y="27" width={w} height="22" />
             <text x={e === 'U1' ? x + w / 2 : x + 21} y="42">
               {name}
@@ -259,7 +268,6 @@ export default function AtomicMutations() {
 
         {/* CurrentUser: bound to User 1, which never changes here */}
         <g className={clsx(styles.bound, styles.U1, state(LIT.CurrentUser))}>
-          <rect className={styles.flash} {...BOXES.CurrentUser} />
           <rect {...BOXES.CurrentUser} />
           {/* eslint-disable-next-line @docusaurus/no-untranslated-text -- component name */}
           <text x="98" y="192">

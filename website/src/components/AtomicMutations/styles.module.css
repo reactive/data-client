@@ -5,17 +5,6 @@
   --todo: hsl(206, 69%, 40%);
   --on-chip: #fff;
   position: relative;
-  float: right;
-  width: 440px;
-  max-width: 100%;
-  margin: 0 0 1rem 1.25rem;
-}
-/* full width under the text instead of squeezing it */
-@container doc (max-width: 700px) {
-  .stage {
-    float: none;
-    margin: 0 auto 1.5rem;
-  }
 }
 [data-theme='dark'] .stage {
   --user: hsl(262, 75%, 74%);
@@ -23,6 +12,7 @@
   --on-chip: hsl(220, 20%, 12%);
 }
 .diagram {
+  --phase: 0s;
   display: block;
   width: 100%;
   font-size: 11.5px;
@@ -36,8 +26,6 @@
    components right after, and the PATCH's response then confirms it */
 .U1 {
   --c: var(--user);
-  --delay: 0s;
-  --phase: 0s;
 }
 .Todo,
 .T1,
@@ -47,7 +35,6 @@
 }
 .T1 {
   --delay: 0s;
-  --phase: 0s;
 }
 .T2 {
   --delay: 2s;
@@ -56,7 +43,6 @@
 }
 .T3 {
   --delay: 4s;
-  --phase: 0s;
 }
 
 .tree {
@@ -145,10 +131,6 @@
   stroke-width: 6;
   rx: 10px;
   animation: render3 6s 0.5s infinite;
-}
-/* and nothing of User 1's flashes */
-.diagram .U1 .flash {
-  animation: none;
 }
 @keyframes render {
   0%,
