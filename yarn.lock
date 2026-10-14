@@ -5221,6 +5221,7 @@ __metadata:
     redux: "npm:^5.0.1"
     rollup-plugins: "workspace:*"
     temporal-polyfill: "npm:^1.0.0"
+    test-renderer: "npm:^1.3.0"
   peerDependencies:
     "@react-navigation/native": ^6.0.0 || ^7.0.0
     "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0
@@ -5271,10 +5272,11 @@ __metadata:
     react-native: "npm:0.87.1"
     react-test-renderer: "npm:*"
     rollup-plugins: "workspace:*"
+    test-renderer: "npm:^1.3.0"
   peerDependencies:
     "@data-client/react": ^0.12.15 || ^0.13.0 || ^0.14.0 || ^0.15.0 || ^0.16.0 || ^0.17.0 || ^0.18.0
     "@testing-library/react-hooks": ^8.0.0
-    "@testing-library/react-native": ^13.0.0
+    "@testing-library/react-native": ^13.0.0 || ^14.0.0
     "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0
     "@types/react-dom": "*"
     jest: "*"
@@ -5282,6 +5284,7 @@ __metadata:
     react-dom: "*"
     react-native: "*"
     react-test-renderer: "*"
+    test-renderer: ^1.0.0
   peerDependenciesMeta:
     "@testing-library/react-hooks":
       optional: true
@@ -5298,6 +5301,8 @@ __metadata:
     react-native:
       optional: true
     react-test-renderer:
+      optional: true
+    test-renderer:
       optional: true
   languageName: unknown
   linkType: soft
@@ -11489,6 +11494,15 @@ __metadata:
   dependencies:
     "@types/react": "npm:*"
   checksum: 10c0/f7b3bb2151d992a108ae46fed876fb9c8119108397d9a01d150c5642782997542c8b3c52e742b56e8689b7dbfa62ca9cfc76aa7e05dec4e60c652f7ef53fa783
+  languageName: node
+  linkType: hard
+
+"@types/react-reconciler@npm:~0.34.0":
+  version: 0.34.0
+  resolution: "@types/react-reconciler@npm:0.34.0"
+  peerDependencies:
+    "@types/react": "*"
+  checksum: 10c0/4216eef57f1c6bbde544930c3fa5ff7278968b123c4232266463232603696e3d08a734022d79d47507d2cfcf3457b45ff18d2eea182508549a2333fd842e83d5
   languageName: node
   linkType: hard
 
@@ -28196,6 +28210,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-reconciler@npm:~0.34.0":
+  version: 0.34.0
+  resolution: "react-reconciler@npm:0.34.0"
+  dependencies:
+    scheduler: "npm:^0.28.0"
+  peerDependencies:
+    react: ^19.3.0
+  checksum: 10c0/9a73a044a1909e63687a8edc3f8b4e7cd236374061dd4c931427fc88c3e6efc3b2fd990376dba4bd955125c5c0563df891fb196ff9906a6bc2c63d0e93e26d36
+  languageName: node
+  linkType: hard
+
 "react-redux@npm:^9.2.0":
   version: 9.3.0
   resolution: "react-redux@npm:9.3.0"
@@ -29172,6 +29197,7 @@ __metadata:
     rimraf: "npm:^6.0.0"
     rollup: "npm:4.64.5"
     temporal-polyfill: "npm:^1.0.0"
+    test-renderer: "npm:1.3.1"
     typescript: "npm:@typescript/typescript6@6.0.2"
     whatwg-fetch: "npm:3.0.0"
   languageName: unknown
@@ -31040,6 +31066,18 @@ __metadata:
     glob: "npm:^10.4.1"
     minimatch: "npm:^10.2.2"
   checksum: 10c0/b79b855af9168c6a362146015ccf40f5e3a25e307304ba9bea930818507f6319d230380d5d7b5baa659c981ccc11f1bd21b6f012f85606353dec07e02dee67c9
+  languageName: node
+  linkType: hard
+
+"test-renderer@npm:1.3.1, test-renderer@npm:^1.3.0":
+  version: 1.3.1
+  resolution: "test-renderer@npm:1.3.1"
+  dependencies:
+    "@types/react-reconciler": "npm:~0.34.0"
+    react-reconciler: "npm:~0.34.0"
+  peerDependencies:
+    react: ^19.0.0
+  checksum: 10c0/fc99655e43ab3877de82b32f19937db600e9e846bc1d2126a32d815b68c1b6f27b9a54a46caf02dd4708e0100919f69b6f340baa8877c50e4bc8fb692dbc1367
   languageName: node
   linkType: hard
 

@@ -291,7 +291,8 @@ jobs:
             # This job also covers the previous React minor for the ReactDOM suites below.
             V=19.2.3
             npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
-            yarn up react@$V react-dom@$V react-test-renderer@$V
+            # test-renderer's minor tracks React's (1.2 pairs with React 19.2)
+            yarn up react@$V react-dom@$V react-test-renderer@$V test-renderer@~1.2.0
             V=$V node -e "for (const p of ['react','react-dom','react-test-renderer']) { const v=require(p+'/package.json').version; if (v !== process.env.V) throw new Error(p+' resolved to '+v) }"
             fi
       - run:

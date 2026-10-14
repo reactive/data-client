@@ -41,7 +41,7 @@ async function testDispatchFetch(
       </Suspense>
     </ControllerContext.Provider>
   );
-  render(tree);
+  await render(tree);
   expect(dispatch).toHaveBeenCalled();
   expect(dispatch.mock.calls.length).toBe(payloads.length);
   const i = 0;
@@ -261,9 +261,9 @@ describe('useDLE', () => {
         </ControllerContext.Provider>
       </StateContext.Provider>
     );
-    it('should NOT enter loading state even when result is stale and options.invalidIfStale is false', () => {
+    it('should NOT enter loading state even when result is stale and options.invalidIfStale is false', async () => {
       dispatch.mockClear();
-      const { getByText, getByTestId } = render(tree);
+      const { getByText, getByTestId } = await render(tree);
       expect(fbmock).not.toHaveBeenCalled();
       const title = getByText(payload.title);
       expect(title).toBeDefined();
@@ -274,7 +274,7 @@ describe('useDLE', () => {
       await import('@react-navigation/native');
       dispatch.mockClear();
 
-      const { getByText, getByTestId } = render(tree);
+      const { getByText, getByTestId } = await render(tree);
       expect(fbmock).not.toHaveBeenCalled();
       await new Promise(resolve =>
         requestIdleCallback(() => {
@@ -283,10 +283,10 @@ describe('useDLE', () => {
       );
       // still should revalidate
       expect(dispatch.mock.calls.length).toBe(1);
-      act(() => thenavigation.navigate('Home'));
+      await act(() => thenavigation.navigate('Home'));
       expect(getByText('Home')).toBeDefined();
 
-      act(() => thenavigation.goBack());
+      await act(() => thenavigation.goBack());
       await new Promise(resolve =>
         requestIdleCallback(() => {
           resolve(null);
@@ -298,7 +298,7 @@ describe('useDLE', () => {
     });
   });
 
-  it('should enter loading state if result stale in cache and options.invalidIfStale is true and no schema', () => {
+  it('should enter loading state if result stale in cache and options.invalidIfStale is true and no schema', async () => {
     const endpoint = ArticleResource.get.extend({
       schema: undefined,
       invalidIfStale: true,
@@ -332,7 +332,7 @@ describe('useDLE', () => {
         </ControllerContext.Provider>
       </StateContext.Provider>
     );
-    const { getByTestId } = render(tree);
+    const { getByTestId } = await render(tree);
     // started loading
     expect(getByTestId('loading')).toBeDefined();
   });
