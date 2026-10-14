@@ -112,6 +112,8 @@ export default function OptimisticRace() {
   const svg = useRef<SVGSVGElement>(null);
   /** the svg's box while held, so a move needs no layout */
   const box = useRef<DOMRect>(undefined);
+  /** where a finger came down on a held moment: lifting it there lets go */
+  const tap = useRef<number | null>(null);
 
   const seek = (e: React.PointerEvent) => {
     if (!box.current || !svg.current) return;
@@ -148,14 +150,22 @@ export default function OptimisticRace() {
         }
         // a mouse holds the moment under it; a finger, while it drags
         onPointerMove={e => {
-          if (!touch(e) || e.buttons) (hold.held ? seek : grab)(e);
+          if (!touch(e)) (hold.held ? seek : grab)(e);
+          else if (e.buttons && hold.held) seek(e);
         }}
         onPointerLeave={e => {
           if (!touch(e)) release();
         }}
-        // a tap holds; the next one lets go
+        // a tap holds; the next one lets go, unless it drags
         onPointerDown={e => {
-          if (touch(e)) (hold.held ? release : grab)(e);
+          if (!touch(e)) return;
+          tap.current = hold.held ? e.clientX : null;
+          grab(e);
+        }}
+        onPointerUp={e => {
+          if (tap.current !== null && Math.abs(e.clientX - tap.current) < 8)
+            release();
+          tap.current = null;
         }}
         onPointerCancel={e => {
           if (touch(e)) release();
