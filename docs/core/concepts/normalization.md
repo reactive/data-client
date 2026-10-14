@@ -21,6 +21,7 @@ endpoint it was used in.
 
 <AutoPlayVideo
   style={{ width: '100%', aspectRatio: '16 / 9' }}
+  volume={0.5}
   alt="Two endpoints return three copies of the same user. Normalization stores each entity once in a table keyed by id, denormalization follows the ids to rebuild each response, and one rename updates every view. Renaming one user with 10,000 rows on screen rebuilds 30 objects instead of 10,000."
 >
   <source

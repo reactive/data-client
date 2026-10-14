@@ -5,6 +5,7 @@ const AutoPlayVideo = ({
   type = 'video/mp4',
   alt,
   children,
+  volume,
   ...props
 }: React.VideoHTMLAttributes<HTMLVideoElement> & {
   type?: string;
@@ -12,17 +13,28 @@ const AutoPlayVideo = ({
   children?: React.ReactNode;
   /** Describes what the video shows, for screen readers and as fallback text */
   alt: string;
+  /** Plays with sound at this volume (0-1) when the browser allows it, otherwise muted */
+  volume?: number;
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const videoElement = videoRef.current;
     if (!videoElement) return;
+    if (volume !== undefined) videoElement.volume = volume;
+
+    // Browsers block autoplay with sound until the user interacts with the page
+    const play = () =>
+      videoElement.play().catch((error: DOMException) => {
+        if (error.name !== 'NotAllowedError' || videoElement.muted) return;
+        videoElement.muted = true;
+        return videoElement.play();
+      });
 
     // Ensure IntersectionObserver is supported
     if (!('IntersectionObserver' in window)) {
       // Fallback to always play if not supported
-      videoElement.play();
+      play();
       return;
     }
 
@@ -35,7 +47,7 @@ const AutoPlayVideo = ({
     const handleIntersect = (entries: IntersectionObserverEntry[]) => {
       entries.forEach((entry: IntersectionObserverEntry) => {
         if (entry.isIntersecting) {
-          videoElement.play();
+          play();
         } else {
           videoElement.pause();
         }
@@ -49,7 +61,7 @@ const AutoPlayVideo = ({
     return () => {
       observer.unobserve(videoElement);
     };
-  }, []);
+  }, [volume]);
 
   return (
     <center>
@@ -57,7 +69,7 @@ const AutoPlayVideo = ({
         ref={videoRef}
         width="600"
         controls
-        muted
+        muted={volume === undefined}
         playsInline
         loop
         aria-label={alt}
