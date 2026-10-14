@@ -552,8 +552,7 @@ div.playgroundTextEdit > .playgroundHeader,
    Store's in the preview header, where readers inspect what the demo did;
    lit while the fixtures show */
 .fixturesToggle[aria-expanded='true'],
-.previewHeader:has(+ .playgroundResult > .fixturesPopover:hover)
-  .fixturesToggle {
+.previewHeader:has(+ .fixturesAnchor > .fixturesPopover:hover) .fixturesToggle {
   background-color: var(--pg-tab-hover-bg);
   color: var(--ifm-color-primary);
 }
@@ -565,13 +564,21 @@ div.playgroundTextEdit > .playgroundHeader,
   clip-path: inset(50%);
   white-space: nowrap;
 }
-/* the fixtures float over the result from the header's bottom edge, so the
-   preview never moves */
+/* the fixtures float from the header's bottom edge, so the preview never
+   moves: over the result, and in side-by-side row over the code too, for
+   width (see @container below). The anchor is a no-height block (not
+   positioned) that gives them that static top. */
+.previewWrapper {
+  position: relative;
+}
+.fixturesAnchor {
+  height: 0;
+}
 .fixturesPopover {
   position: absolute;
   z-index: 3;
-  inset: 0 0 auto 0;
-  max-height: 100%;
+  inset: auto 0;
+  max-height: min(20rem, 60svh);
   overflow: auto;
   background: var(--pg-tab-selected-bg);
   border-bottom: 1px solid rgba(255, 255, 255, 0.14);
@@ -593,14 +600,10 @@ div.playgroundTextEdit > .playgroundHeader,
   translate: 0 0;
   transition-delay: 0s;
 }
-/* pinned, they get room to unfold a response even over a short result */
-.playgroundResult:has(> .fixturesPopover[data-open]) {
-  min-height: min(14rem, 50svh);
-}
 @media (hover: hover) {
   /* a preview while the pointer is on the toggle or the fixtures */
   .previewHeader:has(.fixturesToggle:hover)
-    + .playgroundResult
+    + .fixturesAnchor
     > .fixturesPopover,
   .fixturesPopover:hover {
     visibility: visible;
@@ -1165,6 +1168,14 @@ div.fixtureJson + div.fixtureJson {
   .editorBody:first-child .storeHost {
     border-top-right-radius: 0;
   }
+  /* the fixtures span the whole playground: the preview column is too thin
+     for a response. Unpositioned, the preview's clip doesn't reach them */
+  .playgroundContainer.row {
+    position: relative;
+  }
+  .playgroundContainer.row > .previewWrapper {
+    position: static;
+  }
 }
 /* Stacked row layout: the Store opens upward over the code */
 @container playground (max-width: 719px) {
@@ -1190,6 +1201,11 @@ div.fixtureJson + div.fixtureJson {
   }
   .playgroundContainer.row .storeHeaderToggle {
     display: inline-flex;
+  }
+  /* pinned, they get room to unfold a response even over a short result
+     (the preview clips them) */
+  .fixturesAnchor:has(> [data-open]) + .playgroundResult {
+    min-height: min(14rem, 50svh);
   }
 }
 

@@ -46,19 +46,19 @@ export default function PreviewWrapper({
           {headerControls}
         </span>
       </Header>
-      <RouterControlsSlot value={routerSlot}>
-        <div className={styles.playgroundResult}>
-          {fixtures != null ?
-            <div
-              id={fixturesId}
-              className={styles.fixturesPopover}
-              data-open={fixturesOpen || undefined}
-            >
-              {fixtures}
-            </div>
-          : null}
-          {children}
+      {fixtures != null ?
+        <div className={styles.fixturesAnchor}>
+          <div
+            id={fixturesId}
+            className={styles.fixturesPopover}
+            data-open={fixturesOpen || undefined}
+          >
+            {fixtures}
+          </div>
         </div>
+      : null}
+      <RouterControlsSlot value={routerSlot}>
+        <div className={styles.playgroundResult}>{children}</div>
       </RouterControlsSlot>
     </div>
   );
