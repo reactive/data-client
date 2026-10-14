@@ -91,41 +91,42 @@ export default function EditorSurface({
   const createModels = useCreateModels(id, documents);
 
   // fixtures belong to the code, not to any one file: row (kept compact)
-  // floats them over the code from a network icon at the file tabs' end, previewed on
-  // hover and pinned open by a click or tap
+  // floats them over the code from a network icon at the file tabs' end,
+  // previewed on hover and pinned open by a click or tap
   const rowFixtures = row && documents.length > 1 ? fixtureContent : undefined;
   const [fixturesOpen, setFixturesOpen] = useState(false);
   // useId, unlike the models' id, matches between SSR and hydration
   const fixturesId = useId();
   const tabs =
     row && documents.length > 1 ?
-      <EditorTabs
-        documents={documents}
-        closedList={closedList}
-        onClick={handleTabSwitch}
-        compact={variant === 'standalone'}
-        hasHeaderControls={headerControls != null}
-      >
-        {rowFixtures != null ?
-          <FixturesToggle
-            open={fixturesOpen}
-            controls={fixturesId}
-            onClick={() => setFixturesOpen(open => !open)}
-          />
-        : null}
-      </EditorTabs>
-    : null;
-  const fixtures =
-    rowFixtures != null ?
-      <div className={styles.fixturesAnchor}>
-        <div
-          id={fixturesId}
-          className={styles.fixturesPopover}
-          data-open={fixturesOpen || undefined}
+      <>
+        <EditorTabs
+          documents={documents}
+          closedList={closedList}
+          onClick={handleTabSwitch}
+          compact={variant === 'standalone'}
+          hasHeaderControls={headerControls != null}
         >
-          {rowFixtures}
-        </div>
-      </div>
+          {rowFixtures != null ?
+            <FixturesToggle
+              open={fixturesOpen}
+              controls={fixturesId}
+              onClick={() => setFixturesOpen(open => !open)}
+            />
+          : null}
+        </EditorTabs>
+        {rowFixtures != null ?
+          <div className={styles.fixturesAnchor}>
+            <div
+              id={fixturesId}
+              className={styles.fixturesPopover}
+              data-open={fixturesOpen || undefined}
+            >
+              {rowFixtures}
+            </div>
+          </div>
+        : null}
+      </>
     : null;
   // the file tabs (and the fixtures they float) only go with the files, so
   // they go under the cover with them
@@ -177,13 +178,11 @@ export default function EditorSurface({
       {cover == null ?
         <>
           {tabs}
-          {fixtures}
           {code}
         </>
       : <div className={styles.editorBody}>
           <div className={styles.editorDocs} inert={covered}>
             {tabs}
-            {fixtures}
             {code}
           </div>
           {cover}
