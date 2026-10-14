@@ -470,7 +470,7 @@ ctrl.set(getTodos.schema.remove, { userId: '1' }, { id: '123' });
 ```
 
 ```ts
-// Remove from all collections (empty args matches all)
+// Empty args only match collections fetched with no filter args, like getTodos({})
 ctrl.set(getTodos.schema.remove, {}, { id: '123' });
 ```
 
