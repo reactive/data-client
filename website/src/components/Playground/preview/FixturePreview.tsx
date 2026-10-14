@@ -1,4 +1,3 @@
-import BrowserOnly from '@docusaurus/BrowserOnly';
 import Translate from '@docusaurus/Translate';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 import CodeBlock from '@theme/CodeBlock';
@@ -25,8 +24,9 @@ export default memo(FixturePreview);
  * mounts while open */
 function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
   const [open, setOpen] = useState(false);
-  const { method, path, fnName, hint, error, delay, delayFn } =
-    summarize(fixture);
+  const { method, path, fnName, hint, error, delay } = summarize(fixture);
+  const delayFn =
+    typeof fixture.delay === 'function' ? fixture.delay : undefined;
   // a function's source can differ between the server and browser bundles
   const isBrowser = useIsBrowser();
   return (
@@ -65,7 +65,7 @@ function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
         {delay ?
           <span
             className={clsx(styles.pill, styles.fixtureDelay)}
-            title={delayFn && isBrowser ? `${fixture.delay}` : undefined}
+            title={delayFn && isBrowser ? `${delayFn}` : undefined}
           >
             {delayFn ? fnMark : null}
             {delay === 'varies' ?
@@ -78,9 +78,7 @@ function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
         {open && (
           <div className={styles.fixtureBody}>
             <FixtureResponse fixture={fixture} />
-            {typeof fixture.delay === 'function' && (
-              <FunctionSource fn={fixture.delay} name="delay" />
-            )}
+            {delayFn && <FunctionSource fn={delayFn} name="delay" />}
           </div>
         )}
       </Unfold>
@@ -112,7 +110,6 @@ export function summarize(fixture: FixtureOrInterceptor) {
     )?.slice(0, HINT_CHARS),
     error: 'error' in fixture && fixture.error === true,
     delay: delayMs(delay),
-    delayFn: typeof delay === 'function',
   };
 }
 
@@ -189,17 +186,12 @@ function FunctionSource({
 }) {
   // The source is pinned at build time (fixture-source.js), but only the
   // browser's bundle is sure to carry it
+  if (!useIsBrowser()) return null;
+  const source = `${fn}`;
   return (
-    <BrowserOnly>
-      {() => {
-        const source = `${fn}`;
-        return (
-          <CodeBlock language="javascript" className={styles.fixtureJson}>
-            {name && !isMethod(source, name) ? `${name}: ${source}` : source}
-          </CodeBlock>
-        );
-      }}
-    </BrowserOnly>
+    <CodeBlock language="javascript" className={styles.fixtureJson}>
+      {name && !isMethod(source, name) ? `${name}: ${source}` : source}
+    </CodeBlock>
   );
 }
 

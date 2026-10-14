@@ -161,7 +161,6 @@ describe('summarize', () => {
       hint: undefined,
       error: false,
       delay: 'varies',
-      delayFn: true,
     });
   });
 
