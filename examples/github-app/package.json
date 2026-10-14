@@ -30,7 +30,7 @@
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
-    "@anansi/cli": "3.1.107",
+    "@anansi/cli": "4.0.0",
     "@anansi/babel-preset": "7.0.0",
     "@anansi/browserslist-config": "1.7.5",
     "@anansi/webpack-config": "22.0.0",
