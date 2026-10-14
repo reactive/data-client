@@ -85,7 +85,7 @@ export function summarize(fixture: FixtureOrInterceptor) {
     // what a function returns is pinned at build time (fixture-source.js);
     // String() covers what JSON.stringify can't, like undefined
     hint: ('fn' in response ?
-      (response.fn as { returnedSource?: string }).returnedSource
+      (response.fn as Pinned).returnedSource
     : (JSON.stringify(response.data) ?? String(response.data))
     )?.slice(0, HINT_CHARS),
     error: 'error' in fixture && fixture.error === true,
@@ -99,12 +99,16 @@ export function summarize(fixture: FixtureOrInterceptor) {
 function delayLabel(delay: FixtureOrInterceptor['delay']) {
   const ms =
     typeof delay === 'function' ?
-      Number((delay as { returnedSource?: string }).returnedSource)
+      // NaN, which reads `delay`, when it isn't a number literal
+      Number((delay as Pinned).returnedSource?.replaceAll('_', ''))
     : delay;
-  if (ms !== 0 && ms !== undefined) {
+  if (typeof ms === 'number' && ms !== 0) {
     return Number.isNaN(ms) ? 'delay' : `${ms} ms`;
   }
 }
+
+/** What fixture-source.js pins on fixture functions, besides `toString()` */
+type Pinned = { returnedSource?: string };
 
 /** The fixture's response: a function that makes it, or the data itself */
 function responseOf(

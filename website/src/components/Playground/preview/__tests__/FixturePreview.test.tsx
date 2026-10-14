@@ -121,20 +121,19 @@ describe('summarize', () => {
     });
   });
 
-  test('a delay function that always returns a number shows it', () => {
-    const delay = (returnedSource?: string) =>
-      summarize({
-        endpoint: getArticle,
-        args: [{ id: 1 }],
-        response: 1,
-        delay: Object.defineProperty(() => 0, 'returnedSource', {
-          value: returnedSource,
-        }),
-      } as any).delay;
-    expect(delay('150')).toBe('150 ms');
-    expect(delay('0')).toBeUndefined();
-    expect(delay('500 + Math.random() * 4500')).toBe('delay');
-    expect(delay()).toBe('delay');
+  test('delay labels: pinned numbers, none for zero, else "delay"', () => {
+    const labelFor = (delay: unknown) =>
+      summarize({ endpoint: getArticle, response: 1, delay } as any).delay;
+    const pinned = (returnedSource?: string) =>
+      Object.defineProperty(() => 0, 'returnedSource', {
+        value: returnedSource,
+      });
+    expect(labelFor(150)).toBe('150 ms');
+    expect(labelFor(0)).toBeUndefined();
+    expect(labelFor(pinned('1_000'))).toBe('1000 ms');
+    expect(labelFor(pinned('0'))).toBeUndefined();
+    expect(labelFor(pinned('500 + Math.random() * 4500'))).toBe('delay');
+    expect(labelFor(pinned())).toBe('delay');
   });
 
   test('fetch interceptors name fetchResponse', () => {

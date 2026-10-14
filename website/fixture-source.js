@@ -6,6 +6,7 @@
  * panel's collapsed rows: `babelPlugin` for fixtures in JS/TS modules (minus
  * their types), `recmaPlugin` for fixtures written inline in MDX.
  */
+const { createRequire } = require('module');
 const prettier = require('prettier');
 
 // `delay` too, so the panel can show a function's fixed delay
@@ -24,23 +25,49 @@ const keyName = prop =>
 const isFixture = props => props.some(prop => keyName(prop) === 'endpoint');
 
 /** Where in a function (Babel or ESTree) the node it returns sits: an
- * arrow's expression body, or the argument of its body's last top-level
- * `return` */
+ * arrow's expression body, or the argument of its body's only `return`
+ * (with several, it has no one value to show) */
 function returnedKey(fn) {
   if (fn.body.type !== 'BlockStatement') return 'body';
-  const i = fn.body.body.findLastIndex(
-    node => node.type === 'ReturnStatement' && node.argument,
-  );
-  return i === -1 ? undefined : `body.body.${i}.argument`;
+  let returns = 0;
+  const count = node => {
+    if (!node || typeof node.type !== 'string') return;
+    // a nested function's returns are its own
+    if (/Function|Method/.test(node.type)) return;
+    if (node.type === 'ReturnStatement') returns++;
+    for (const key in node) {
+      if (key === 'loc' || key.endsWith('Comments')) continue;
+      [node[key]].flat().forEach(count);
+    }
+  };
+  fn.body.body.forEach(count);
+  const i = fn.body.body.length - 1;
+  const last = fn.body.body[i];
+  return returns === 1 && last?.type === 'ReturnStatement' && last.argument ?
+      `body.body.${i}.argument`
+    : undefined;
 }
 
-/** A glance at an expression: its text on one line */
-const oneLine = text =>
-  text
-    .replace(/\s+/g, ' ')
-    // a multi-line literal's trailing comma reads as clutter on one line
-    .replace(/,\s*([}\])])/g, ' $1')
-    .trim();
+// The Babel Docusaurus builds with, to reprint returned expressions
+const docusaurusRequire = createRequire(require.resolve('@docusaurus/babel'));
+const { default: generate } = docusaurusRequire('@babel/generator');
+const { parseExpression } = createRequire(
+  docusaurusRequire.resolve('@babel/core'),
+)('@babel/parser');
+
+/** A glance at an expression's text: reprinted on one line, without
+ * comments; undefined for text that doesn't parse alone (like `yield`) */
+function oneLine(text) {
+  try {
+    const expression = parseExpression(text, {
+      plugins: ['jsx'],
+      allowAwaitOutsideFunction: true,
+    });
+    return generate(expression, { concise: true, comments: false }).code;
+  } catch {
+    return undefined;
+  }
+}
 
 const estreeProperty = (name, value) => ({
   type: 'Property',

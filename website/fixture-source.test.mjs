@@ -95,20 +95,56 @@ world\`;
   {
     endpoint: E,
     async response(...args: any[]) {
-      if (!args.length) return [];
       const list = (await getList(...args)) as Post[];
       return {
         ...list[0],
         id: args[0]!.id,
       };
     },
+    delay: () => 150,
+  },
+  {
+    endpoint: E,
+    response(a: number) {
+      if (!a) return [];
+      return [a].map(b => {
+        return b;
+      });
+    },
+    delay: (n: number) => {
+      if (n) return 0;
+      return 150;
+    },
   },
   { endpoint: E, response: (a: number) => ({ a }) },
   { endpoint: E, response() { log(); } },
+  {
+    endpoint: E,
+    response() {
+      return {
+        id: 1, // the id
+        title: 'a,}  b',
+      };
+    },
+  },
 ];`);
     assert.deepEqual(
       run(code).map(fixture => fixture.response.returnedSource),
-      ['{ ...list[0], id: args[0].id }', '{ a }', undefined],
+      [
+        '{ ...list[0], id: args[0].id }',
+        // with more than one return, none is what it returns
+        undefined,
+        '{ a }',
+        undefined,
+        // comments go, literals stay as written
+        "{ id: 1, title: 'a,}  b' }",
+      ],
+    );
+    assert.deepEqual(
+      run(code)
+        .slice(0, 2)
+        .map(fixture => fixture.delay.returnedSource),
+      ['150', undefined],
     );
   });
 
