@@ -151,9 +151,12 @@ export default class ManagerHost {
     guarded.cleanup = attempt(() => manager.cleanup(), skip);
     guarded.middleware = attempt(
       controller => {
-        // playground code may skip the required middleware; applyManager() would throw
         const { middleware } = manager;
-        if (!middleware) return next => next;
+        // untyped playground code can leave out the required middleware
+        if (!middleware)
+          throw new Error(
+            `${manager.constructor.name} has no middleware. Managers must define middleware.`,
+          );
         // may be a prototype method that reads `this`
         const withController = middleware.call(manager, controller);
         return attempt(
