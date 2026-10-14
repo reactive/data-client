@@ -18,11 +18,9 @@ const isFixture = props => props.some(prop => keyName(prop) === 'endpoint');
 /** `Object.defineProperty(fn, 'toString', { value: () => source })` in ESTree */
 const withSourceEstree = (fn, source) => ({
   type: 'CallExpression',
-  optional: false,
   callee: {
     type: 'MemberExpression',
     computed: false,
-    optional: false,
     object: { type: 'Identifier', name: 'Object' },
     property: { type: 'Identifier', name: 'defineProperty' },
   },
@@ -42,7 +40,6 @@ const withSourceEstree = (fn, source) => ({
           value: {
             type: 'ArrowFunctionExpression',
             params: [],
-            expression: true,
             body: { type: 'Literal', value: source },
           },
         },
@@ -51,7 +48,7 @@ const withSourceEstree = (fn, source) => ({
   ],
 });
 
-function babelPlugin({ types: t }) {
+function babelPlugin({ types: t, template }) {
   function authoredSource(path) {
     const cuts = [];
     path.traverse({
@@ -90,24 +87,10 @@ function babelPlugin({ types: t }) {
     return source.replace(indent, '');
   }
 
-  // Object.defineProperty(fn, 'toString', { value: () => source })
   const withSourceBabel = (fn, source) =>
-    t.callExpression(
-      t.memberExpression(
-        t.identifier('Object'),
-        t.identifier('defineProperty'),
-      ),
-      [
-        fn,
-        t.stringLiteral('toString'),
-        t.objectExpression([
-          t.objectProperty(
-            t.identifier('value'),
-            t.arrowFunctionExpression([], t.stringLiteral(source)),
-          ),
-        ]),
-      ],
-    );
+    template.expression.ast`Object.defineProperty(${fn}, 'toString', {
+      value: () => ${t.stringLiteral(source)},
+    })`;
 
   return {
     visitor: {
@@ -147,29 +130,31 @@ function babelPlugin({ types: t }) {
  */
 function recmaPlugin() {
   return async (tree, file) => {
-    const code = String(file.value);
-    const config = await prettier.resolveConfig(__filename);
-    const pending = [];
+    const matches = [];
     const walk = node => {
       if (Array.isArray(node)) return node.forEach(walk);
       if (!node || typeof node.type !== 'string') return;
       if (node.type === 'ObjectExpression' && isFixture(node.properties)) {
-        for (const prop of node.properties) {
-          if (
-            prop.type === 'Property' &&
-            FN_KEYS.has(keyName(prop)) &&
-            /^(Arrow)?FunctionExpression$/.test(prop.value.type)
-          ) {
-            pending.push(format(prop, code, config));
-          }
-        }
+        matches.push(
+          ...node.properties.filter(
+            prop =>
+              prop.type === 'Property' &&
+              FN_KEYS.has(keyName(prop)) &&
+              /^(Arrow)?FunctionExpression$/.test(prop.value.type),
+          ),
+        );
       }
       for (const key in node) if (key !== 'loc') walk(node[key]);
     };
     walk(tree);
-    await Promise.all(pending);
+    if (!matches.length) return;
+    const code = String(file.value);
+    const config = await (prettierConfig ??=
+      prettier.resolveConfig(__filename));
+    for (const prop of matches) await format(prop, code, config);
   };
 }
+let prettierConfig;
 
 async function format(prop, code, config) {
   // Methods only parse inside an object
