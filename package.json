@@ -117,7 +117,7 @@
     "react-native-screens": "^4.1.0",
     "react-test-renderer": "19.3.0",
     "rimraf": "^6.0.0",
-    "rollup": "4.64.6",
+    "rollup": "4.64.5",
     "temporal-polyfill": "^0.3.0",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "whatwg-fetch": "3.0.0"
