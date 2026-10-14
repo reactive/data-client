@@ -144,6 +144,17 @@ function babelPlugin({ types: t, template }) {
       value: () => ${t.stringLiteral(source)},
     })`;
 
+  // Text cuts can miss shapes no fixture uses yet, like `((a as any)).b`,
+  // so keep the default toString() over showing source that doesn't parse
+  const parses = expression => {
+    try {
+      template.expression.ast(expression);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   return {
     visitor: {
       ObjectExpression(path) {
@@ -155,6 +166,7 @@ function babelPlugin({ types: t, template }) {
           let fn, source;
           if (t.isObjectMethod(prop, { kind: 'method' })) {
             source = authoredSource(propPath);
+            if (!parses(`({ ${source} })`)) return;
             fn = t.functionExpression(
               null,
               prop.params,
@@ -164,6 +176,7 @@ function babelPlugin({ types: t, template }) {
             );
           } else if (t.isObjectProperty(prop) && t.isFunction(prop.value)) {
             source = authoredSource(propPath.get('value'));
+            if (!parses(source)) return;
             fn = prop.value;
           } else {
             return;

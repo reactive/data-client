@@ -52,7 +52,7 @@ world\`;
     },
   },
   { endpoint: E, response(this: Data, a: number) {
-      return (<any>a).b + <any>(a + 1) + ( <any>a ).b + (a as any /* c */).b + (a + 1) as any;
+      return (<any>a).b + <any>(a + 1) + ( <any>a ).b + (a as any /* c */).b + [(a + 1) as any][0];
     } },
   {
     endpoint: E,
@@ -77,7 +77,7 @@ world\`;
         '(a) => {\n  return a;\n}',
         '(a) => a',
         'response() {\n  return `hello\nworld`;\n}',
-        'response(a) {\n  return a.b + (a + 1) + a.b + a.b + (a + 1);\n}',
+        'response(a) {\n  return a.b + (a + 1) + a.b + a.b + [(a + 1)][0];\n}',
         '(a) =>\nfetchFoo(a)\n  .then(r => r.json())',
         'response() {\n  return `a\n  b\n        c`;\n}',
       ],
@@ -92,6 +92,13 @@ world\`;
     const [self, arg] = run(code)[0].response.call(data, 'a');
     assert.equal(self, data);
     assert.equal(arg, 'a');
+  });
+
+  it('keeps the default toString() when the cut source would not parse', () => {
+    const code = compile(
+      `module.exports = [{ endpoint: E, response: (a: any) => ((a as any)).b }];`,
+    );
+    assert.doesNotMatch(code, /toString/);
   });
 
   it('leaves non-fixture objects alone', () => {
