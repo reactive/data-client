@@ -15,15 +15,19 @@
   ],
   "timezone": "America/Chicago",
   "postUpdateOptions": ["yarnDedupeHighest"],
+  "vulnerabilityAlerts": {
+    "description": "security updates otherwise skip minimumReleaseAge, but yarn still rejects releases under a day old",
+    "minimumReleaseAge": "1 day"
+  },
   "packageRules": [
     {
       "description": "yarn's default 1-day npmMinimalAgeGate rejects fresher releases, so proposing them leaves the PR without a yarn.lock update",
-      "matchDatasources": ["npm"],
+      "matchManagers": ["npm"],
       "minimumReleaseAge": "1 day"
     },
     {
       "description": "mirrors npmPreapprovedPackages in .yarnrc.yml; must stay after the 1-day rule, since later rules win",
-      "matchDatasources": ["npm"],
+      "matchManagers": ["npm"],
       "matchPackageNames": ["@anansi/*", "@data-client/*", "@pojo-router/*"],
       "minimumReleaseAge": "0 days"
     },
