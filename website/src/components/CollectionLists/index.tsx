@@ -9,8 +9,6 @@ const WIDTH = 420;
 /** The viewBox starts here, just above the call highlight's stroke */
 const TOP = 22;
 const HEIGHT = 226;
-/** Seconds one run of the chosen operation takes (the CSS animations' duration) */
-const PERIOD = 5;
 
 const OPS = ['push', 'unshift', 'remove', 'move'] as const;
 type Op = (typeof OPS)[number];
@@ -41,13 +39,18 @@ const LISTS: List[] = [
 
 /** The todo each operation creates, removes or moves */
 const TODO = { id: '9', userId: '1' as User };
+/** push and unshift's arguments */
+const CREATE: Record<string, string>[] = [
+  { userId: TODO.userId },
+  { title: "'…'" },
+];
 /**
  * Each operation's arguments: search params, then the body. move drops
  * searchParams and getTodos' path has no params, so its body is its only one.
  */
 const CALLS: Record<Op, Record<string, string>[]> = {
-  push: [{ userId: TODO.userId }, { title: "'…'" }],
-  unshift: [{ userId: TODO.userId }, { title: "'…'" }],
+  push: CREATE,
+  unshift: CREATE,
   remove: [{ userId: TODO.userId }, { id: TODO.id }],
   move: [{ id: TODO.id, userId: '2' }],
 };
@@ -67,8 +70,8 @@ function matches(key: Record<string, string>, args: Record<string, string>[]) {
 /** A copy of the todo's chip: where it starts and ends up during a run */
 interface Chip {
   user: User;
-  /** in from the call, out of the list, from one list to another, or kept */
-  motion: 'arrive' | 'leave' | 'travel' | 'stay';
+  /** in from the call, out of the list, or to a list (the same one, if kept) */
+  motion: 'arrive' | 'leave' | 'travel';
   from: [number, number];
   to: [number, number];
   /** the user it belongs to after the run, when that changes */
@@ -87,36 +90,30 @@ function scene(op: Op) {
   const existing = LISTS.map(list => matches(list.key, [TODO]));
   const fromCall: [number, number] = [WIDTH / 2 - ROW.w / 2, CALL_Y + 6];
   const chips: Chip[] = [];
+  const { userId: user } = TODO;
   LISTS.forEach((list, i) => {
     const end = slot(i, list.rows.length);
-    const { userId: user } = TODO;
     switch (op) {
       case 'push':
-        if (match[i])
-          chips.push({ user, motion: 'arrive', from: fromCall, to: end });
-        break;
       case 'unshift':
-        if (match[i])
-          chips.push({
-            user,
-            motion: 'arrive',
-            from: fromCall,
-            to: slot(i, 0),
-          });
+        if (match[i]) {
+          const to = op === 'push' ? end : slot(i, 0);
+          chips.push({ user, motion: 'arrive', from: fromCall, to });
+        }
         break;
       case 'remove':
         if (existing[i] && match[i])
           chips.push({ user, motion: 'leave', from: end, to: end });
         break;
       case 'move': {
-        const becomes = args[args.length - 1].userId as User;
+        const becomes = args[0].userId as User;
         if (existing[i] && !match[i]) {
           // out of this list, to the end of the list its new values match
           const dest = LISTS.findIndex((_, j) => match[j] && !existing[j]);
           const to = slot(dest, LISTS[dest].rows.length);
           chips.push({ user, motion: 'travel', from: end, to, becomes });
         } else if (existing[i] && match[i]) {
-          chips.push({ user, motion: 'stay', from: end, to: end, becomes });
+          chips.push({ user, motion: 'travel', from: end, to: end, becomes });
         }
         break;
       }
@@ -131,12 +128,11 @@ export default function CollectionLists({ float }: { float?: boolean }) {
   const { match, chips, shifts } = scene(op);
 
   return (
-    <div className={clsx(styles.frame, float && styles.float)}>
+    <div className={clsx(styles.frame, float && 'doc-float')}>
       <Tabs op={op} onChange={setOp} />
       <div className={styles.stage}>
         <svg
           className={styles.diagram}
-          style={{ '--period': `${PERIOD}s` } as React.CSSProperties}
           viewBox={`0 ${TOP} ${WIDTH} ${HEIGHT - TOP}`}
           role="img"
           aria-label={translate({
