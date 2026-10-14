@@ -2,6 +2,7 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 import CodeBlock from '@theme/CodeBlock';
 import { memo, type ReactElement } from 'react';
 
+import FixtureRow from './FixtureRow';
 import styles from '../styles.module.css';
 import type { FixtureOrInterceptor } from '../types';
 
@@ -9,7 +10,9 @@ function FixturePreview({ fixtures }: { fixtures: FixtureOrInterceptor[] }) {
   return (
     <div className={styles.fixtureBlock}>
       {fixtures.map((fixture, i) => (
-        <FixtureOrInterceptor key={i} fixture={fixture} />
+        <FixtureRow key={i} fixture={fixture}>
+          <FixtureResponse fixture={fixture} />
+        </FixtureRow>
       ))}
     </div>
   );
@@ -24,6 +27,8 @@ function FixtureResponse({
   if ('fetchResponse' in fixture || typeof fixture.response === 'function') {
     const fn =
       'fetchResponse' in fixture ? fixture.fetchResponse : fixture.response;
+    // The function's source is pinned at build time (fixture-source.js), but
+    // only the browser's bundle is sure to carry it
     return (
       <BrowserOnly>
         {() => (
@@ -36,37 +41,7 @@ function FixtureResponse({
   }
   return (
     <CodeBlock language="json" className={styles.fixtureJson}>
-      {JSON.stringify(fixture.response)}
+      {JSON.stringify(fixture.response, null, 2)}
     </CodeBlock>
-  );
-}
-
-function FixtureOrInterceptor({
-  fixture,
-}: {
-  fixture: FixtureOrInterceptor;
-}): ReactElement {
-  if ('args' in fixture) {
-    return (
-      <div
-        key={fixture.endpoint.key(...fixture.args)}
-        className={styles.fixtureItem}
-      >
-        <div className={styles.fixtureHeader}>
-          {fixture.endpoint.key(...fixture.args)}
-        </div>
-        <FixtureResponse fixture={fixture} />
-      </div>
-    );
-  }
-  // Interceptor endpoints don't declare these, but RestEndpoints provide them
-  const endpoint = fixture.endpoint as { method?: string; path?: string };
-  return (
-    <div className={styles.fixtureItem}>
-      <div className={styles.fixtureHeader}>
-        {endpoint.method} {endpoint.path}
-      </div>
-      <FixtureResponse fixture={fixture} />
-    </div>
   );
 }

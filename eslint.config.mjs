@@ -8,6 +8,7 @@ import globals from 'globals';
 // may be imported.
 const EAGER_PREVIEW = [
   'FixturePreview',
+  'FixtureRow',
   'PreviewWrapper',
   'routerSlot',
   'StoreToggle',

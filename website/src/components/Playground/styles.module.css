@@ -860,38 +860,133 @@ div.playgroundTextEdit > .playgroundHeader,
   line-height: var(--ifm-heading-line-height);
 }
 
+/* Fixtures: the demo's mocked responses, one collapsed row each over the
+   code's dark ground in both themes (the code is dark in both). A row reads
+   `GET /path  …what it returns…  tags`; opening it shows the response. */
 .fixtureBlock {
+  --fx-text: rgb(191, 199, 213);
+  --fx-bright: #e3e8f2;
+  --fx-muted: rgba(191, 199, 213, 0.55);
+  /* palenight's string green, the response's own color */
+  --fx-ok: rgb(195, 232, 141);
+  --fx-danger: #ff7a85;
+  --fx-rule: rgba(255, 255, 255, 0.06);
   background-color: var(--prism-background-color);
-  font: var(--ifm-code-font-size) / var(--ifm-pre-line-height)
-    var(--ifm-font-family-monospace);
-  color: rgb(191, 199, 213);
-  padding: 8px;
+  color: var(--fx-text);
+  font: 13px / 19px var(--ifm-font-family-monospace);
 }
-.fixtureItem {
+.fixture + .fixture {
+  box-shadow: inset 0 1px 0 var(--fx-rule);
+}
+.fixtureToggle {
   display: flex;
-  flex-direction: row;
-  /* phones: the response drops below its endpoint instead of overflowing */
-  flex-wrap: wrap;
-  column-gap: 1rem;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 0.75rem;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--motion-snappy);
 }
-.fixtureHeader {
-  color: rgb(195, 232, 141);
-  font: var(--ifm-code-font-size) / var(--ifm-pre-line-height)
-    var(--ifm-font-family-monospace);
+@media (hover: hover) {
+  .fixtureToggle:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+}
+.fixtureToggle:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
+}
+.fixtureChevron {
+  flex: none;
+  font-size: 12px;
+  color: var(--fx-muted);
+  transition: transform var(--motion-snappy);
+}
+.fixture[data-open] .fixtureChevron {
+  transform: rotate(90deg);
+}
+.fixtureMethod {
+  flex: none;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  color: var(--fx-ok);
+  font: 600 10.5px / 15px var(--ifm-font-family-base);
+  letter-spacing: 0.06em;
+}
+.fixturePath {
   flex: 0 1 auto;
   min-width: 0;
+  color: var(--fx-bright);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* opened, a long path wraps rather than hiding behind an ellipsis */
+.fixture[data-open] .fixturePath {
+  white-space: normal;
   overflow-wrap: anywhere;
+}
+/* takes the width the path leaves, fading out at the end; nothing is
+   lost, the row opens to all of it */
+.fixtureHint {
+  flex: 1 1 0;
+  min-width: 0;
+  color: var(--fx-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fixtureFn::before {
+  content: 'ƒ ';
+  font-style: italic;
+}
+.fixture[data-open] .fixtureHint {
+  visibility: hidden;
+}
+/* a narrow playground has no room for a glance worth reading */
+@container playground (max-width: 479px) {
+  .fixtureHint {
+    display: none;
+  }
+}
+.fixtureTag {
+  flex: none;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--fx-muted);
+  font: 500 10.5px / 15px var(--ifm-font-family-base);
+  letter-spacing: 0.02em;
+}
+.fixtureError {
+  color: var(--fx-danger);
+}
+.fixtureTag.fixtureError {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+}
+/* the response, aligned under the method */
+.fixtureBody {
+  padding: 0 0.75rem 10px calc(0.75rem + 12px + 0.5rem);
 }
 div.fixtureJson {
   margin-bottom: 0;
-  /* basis 0 so only a header too wide for 200px of code wraps it below */
-  flex: 1 1 0;
-  min-width: min(200px, 100%);
+  border-radius: 0;
+  box-shadow: none;
+}
+.fixtureJson pre {
+  padding: 0;
+  font: inherit;
 }
 .fixtureJson code {
   padding: 0;
   margin: 0;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
   max-width: 100%;
 }
 
