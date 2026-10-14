@@ -5127,7 +5127,7 @@ __metadata:
     immutable: "npm:5.1.9"
     nock: "npm:13.3.1"
     rollup-plugins: "workspace:*"
-    temporal-polyfill: "npm:^0.3.0"
+    temporal-polyfill: "npm:^1.0.0"
   languageName: unknown
   linkType: soft
 
@@ -5183,7 +5183,7 @@ __metadata:
     "@types/node": "npm:^26.0.0"
     immutable: "npm:5.1.9"
     rollup-plugins: "workspace:*"
-    temporal-polyfill: "npm:^0.3.0"
+    temporal-polyfill: "npm:^1.0.0"
   languageName: unknown
   linkType: soft
 
@@ -5220,7 +5220,7 @@ __metadata:
     react-test-renderer: "npm:^19.0.0"
     redux: "npm:^5.0.1"
     rollup-plugins: "workspace:*"
-    temporal-polyfill: "npm:^0.3.0"
+    temporal-polyfill: "npm:^1.0.0"
   peerDependencies:
     "@react-navigation/native": ^6.0.0 || ^7.0.0
     "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0
@@ -5338,7 +5338,7 @@ __metadata:
     jest-mock: "npm:^30.0.0"
     nock: "npm:13.3.1"
     rollup-plugins: "workspace:*"
-    temporal-polyfill: "npm:^0.3.0"
+    temporal-polyfill: "npm:^1.0.0"
     vue: "npm:^3.4.0"
   peerDependencies:
     "@types/vue": ^3.0.0
@@ -28096,7 +28096,7 @@ __metadata:
     remark-parse: "npm:^11.0.0"
     remark-stringify: "npm:^11.0.0"
     serve: "npm:14.2.6"
-    temporal-polyfill: "npm:^0.3.0"
+    temporal-polyfill: "npm:^1.0.0"
     typescript: "npm:@typescript/typescript6@6.0.2"
     unified: "npm:^11.0.4"
     unist-util-visit: "npm:^5.0.0"
@@ -29445,7 +29445,7 @@ __metadata:
     react-test-renderer: "npm:19.3.0"
     rimraf: "npm:^6.0.0"
     rollup: "npm:4.62.2"
-    temporal-polyfill: "npm:^0.3.0"
+    temporal-polyfill: "npm:^1.0.0"
     typescript: "npm:@typescript/typescript6@6.0.2"
     whatwg-fetch: "npm:3.0.0"
   languageName: unknown
@@ -31181,19 +31181,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"temporal-polyfill@npm:^0.3.0":
-  version: 0.3.2
-  resolution: "temporal-polyfill@npm:0.3.2"
+"temporal-polyfill@npm:^1.0.0":
+  version: 1.0.5
+  resolution: "temporal-polyfill@npm:1.0.5"
   dependencies:
-    temporal-spec: "npm:0.3.1"
-  checksum: 10c0/762795c94e1b6cb0574541d0b09f805ff23b0a2c9d0356ab3fc0205e390a3bce73e047de2fdc54c7d149d6e6d781aa1d95aa62afa5de4c83cb79c129b0e502da
+    temporal-spec: "npm:1.0.1"
+    temporal-utils: "npm:1.0.3"
+  checksum: 10c0/88928e40e60d0da0c998af2b8da09768ee2c8784fec7526317fde83f55eb69926209a6bbc4360792cac7ace7371949718bc1f12edac1df0fe42eba5d55a43451
   languageName: node
   linkType: hard
 
-"temporal-spec@npm:0.3.1":
-  version: 0.3.1
-  resolution: "temporal-spec@npm:0.3.1"
-  checksum: 10c0/e38eae391bd59ae675f1925a65c8ef302933cf9ce98efedaf2e69269e8c36f2b5d486cd3084367f04a6c1ea0289b925690c0df20a73f0c4629b531775924e850
+"temporal-spec@npm:1.0.1":
+  version: 1.0.1
+  resolution: "temporal-spec@npm:1.0.1"
+  checksum: 10c0/99f6bfe4a8e59cd0664d0e97706798a1e10d42b1b682da9b60778a4cb9a23362da01ea3d83a674ef426ed743bbab835e2e3d1acea5d2d4a9eabe33863237b014
+  languageName: node
+  linkType: hard
+
+"temporal-utils@npm:1.0.3":
+  version: 1.0.3
+  resolution: "temporal-utils@npm:1.0.3"
+  checksum: 10c0/185928a75aba0496ebbbdecbbbbd55cc817756bc39e099424e86477da01042a84ed27482bfc2168b6802fed2f01f004739f174f907e2e125b2fa060a978024b6
   languageName: node
   linkType: hard
 

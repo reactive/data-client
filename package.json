@@ -118,7 +118,7 @@
     "react-test-renderer": "19.3.0",
     "rimraf": "^6.0.0",
     "rollup": "4.62.2",
-    "temporal-polyfill": "^0.3.0",
+    "temporal-polyfill": "^1.0.0",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "whatwg-fetch": "3.0.0"
   },
