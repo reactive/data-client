@@ -29,9 +29,9 @@ const BOXES: Record<
   Component,
   { x: number; y: number; width: number; height: number }
 > = {
-  CurrentUser: { x: 58, y: 178, width: 92, height: 34 },
-  TodoDetail: { x: 144, y: 178, width: 92, height: 60 },
-  TodoList: { x: 244, y: 178, width: 92, height: 76 },
+  CurrentUser: { x: 52, y: 178, width: 92, height: 34 },
+  TodoDetail: { x: 152, y: 178, width: 92, height: 60 },
+  TodoList: { x: 252, y: 178, width: 92, height: 76 },
 };
 
 /** Which pointer targets light each part up: itself, and what it is bound to */
@@ -52,30 +52,30 @@ const PLAIN = [
   { name: 'App', cx: 200, y: 96, w: 56 },
   { name: 'Header', cx: 70, y: 136, w: 64 },
   { name: 'TodoPage', cx: 240, y: 136, w: 72 },
-  { name: 'Nav', cx: 28, y: 178, w: 44 },
+  { name: 'Nav', cx: 26, y: 178, w: 40 },
 ];
 // the rest of the app, which is usually most of it
 const REST = [
-  { cx: 16, y: 218 },
-  { cx: 40, y: 218 },
+  { cx: 14, y: 218 },
+  { cx: 38, y: 218 },
 ];
 
 const TREE =
   'M200 118V127M70 127H240M70 127V136M240 127V136' +
-  'M70 158V169M28 169H104M28 169V178M104 169V178' +
-  'M240 158V169M190 169H290M190 169V178M290 169V178' +
-  'M28 200V210M16 210H40M16 210V218M40 210V218';
+  'M70 158V169M26 169H98M26 169V178M98 169V178' +
+  'M240 158V169M198 169H298M198 169V178M298 169V178' +
+  'M26 200V210M14 210H38M14 210V218M38 210V218';
 
 // from each entity straight to each component that renders it
 const BINDINGS: { entity: Entity; to: Component; d: string }[] = [
-  { entity: 'U1', to: 'CurrentUser', d: 'M71 49C71 110 120 120 120 178' },
-  { entity: 'T1', to: 'TodoDetail', d: 'M118 49C118 120 176 110 176 178' },
-  { entity: 'T1', to: 'TodoList', d: 'M132 49C132 75 300 60 290 178' },
-  { entity: 'T2', to: 'TodoList', d: 'M196 49C196 80 304 70 304 178' },
-  { entity: 'T3', to: 'TodoList', d: 'M260 49C260 90 318 80 318 178' },
+  { entity: 'U1', to: 'CurrentUser', d: 'M71 49C71 105 118 115 116 178' },
+  { entity: 'T1', to: 'TodoDetail', d: 'M118 49C118 120 184 110 184 178' },
+  { entity: 'T1', to: 'TodoList', d: 'M132 49C132 75 308 60 298 178' },
+  { entity: 'T2', to: 'TodoList', d: 'M196 49C196 80 312 70 312 178' },
+  { entity: 'T3', to: 'TodoList', d: 'M260 49C260 90 326 80 326 178' },
 ];
 // the mutation: TodoList calls ctrl.fetch(), the response lands in the store
-const REQUEST = 'M336 216H420V48';
+const REQUEST = 'M344 216H428V48';
 const RESPONSE = 'M330 38H300';
 const PILL = { x: 330, y: 28, width: 102, height: 20 };
 
@@ -199,7 +199,7 @@ export default function AtomicMutations() {
             d={RESPONSE}
           />
           {/* eslint-disable-next-line @docusaurus/no-untranslated-text -- API name */}
-          <text className={styles.call} x="344" y="211">
+          <text className={styles.call} x="350" y="211">
             ctrl.fetch()
           </text>
           <rect className={clsx(styles.flash, styles.pillFlash)} {...PILL} />
@@ -254,11 +254,11 @@ export default function AtomicMutations() {
           <rect className={styles.flash} {...BOXES.CurrentUser} />
           <rect {...BOXES.CurrentUser} />
           {/* eslint-disable-next-line @docusaurus/no-untranslated-text -- component name */}
-          <text x="104" y="192">
+          <text x="98" y="192">
             CurrentUser
           </text>
           {/* eslint-disable-next-line @docusaurus/no-untranslated-text -- API name */}
-          <text className={styles.hook} x="104" y="205">
+          <text className={styles.hook} x="98" y="205">
             useSuspense()
           </text>
         </g>
@@ -272,28 +272,28 @@ export default function AtomicMutations() {
           />
           <rect {...BOXES.TodoDetail} />
           {/* eslint-disable-next-line @docusaurus/no-untranslated-text -- component name */}
-          <text x="190" y="191">
+          <text x="198" y="191">
             TodoDetail
           </text>
           <g className={styles.view}>
-            <Checkbox x={156} y={199} size={12} />
+            <Checkbox x={164} y={199} size={12} />
             <rect
               className={styles.bar}
-              x="174"
+              x="182"
               y="202"
               width="52"
               height="6"
             />
             <rect
               className={styles.bar}
-              x="156"
+              x="164"
               y="217"
               width="58"
               height="4"
             />
           </g>
           {/* eslint-disable-next-line @docusaurus/no-untranslated-text -- API name */}
-          <text className={styles.hook} x="190" y="233">
+          <text className={styles.hook} x="198" y="233">
             useSuspense()
           </text>
         </g>
@@ -309,7 +309,7 @@ export default function AtomicMutations() {
           ))}
           <rect {...BOXES.TodoList} />
           {/* eslint-disable-next-line @docusaurus/no-untranslated-text -- component name */}
-          <text x="290" y="191">
+          <text x="298" y="191">
             TodoList
           </text>
           {TODOS.map((todo, i) => (
@@ -317,10 +317,10 @@ export default function AtomicMutations() {
               key={todo}
               className={clsx(styles.view, styles[todo], state(LIT[todo]))}
             >
-              <Checkbox x={254} y={198 + i * 14} size={10} />
+              <Checkbox x={262} y={198 + i * 14} size={10} />
               <rect
                 className={styles.bar}
-                x="270"
+                x="278"
                 y={200.5 + i * 14}
                 width={[46, 36, 52][i]}
                 height="5"
@@ -328,7 +328,7 @@ export default function AtomicMutations() {
             </g>
           ))}
           {/* eslint-disable-next-line @docusaurus/no-untranslated-text -- API name */}
-          <text className={styles.hook} x="290" y="249">
+          <text className={styles.hook} x="298" y="249">
             useSuspense()
           </text>
         </g>

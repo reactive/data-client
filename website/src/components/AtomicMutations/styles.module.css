@@ -132,6 +132,7 @@
 }
 .diagram .pillFlash {
   stroke-width: 6;
+  rx: 10px;
   animation: render3 6s 0.1s infinite;
 }
 /* and nothing of User 1's flashes */
