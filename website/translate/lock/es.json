@@ -469,8 +469,6 @@
     "docusaurus-theme-classic/navbar.json": {
       "title": "Reactive Data Client",
       "logo.alt": "Reactive Data Client",
-      "item.label.React": "React",
-      "item.label.Vue": "Vue",
       "item.label.API": "API",
       "item.label.REST": "REST",
       "item.label.GraphQL": "GraphQL",

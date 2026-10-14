@@ -24,10 +24,12 @@ const isDev = process.env.NODE_ENV === 'development';
 
 // docs/core is shared by React (/docs) and Vue (/vue); see framework-docs/
 const {
+  FRAMEWORK_INSTANCES,
   docsInstance,
   frameworkInstance,
 } = require('./framework-docs/docsInstances.js');
 const frameworkDocs = require('./framework-docs/index.js');
+const frameworkDocsIds = FRAMEWORK_INSTANCES.map(d => d.id);
 const remarkFramework = require('./framework-docs/remarkFramework.js');
 // Non-Vue instances render React; :::vue reaches Vue agents via skill references
 const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
@@ -631,21 +633,15 @@ const config: Config = {
       hideOnScroll: true,
       items: [
         {
-          type: 'doc',
+          // React/Vue menu showing the framework being read
+          type: 'custom-docsDropdown',
+          docsPluginIds: frameworkDocsIds,
           position: 'left',
-          docId: 'introduction',
-          label: 'React',
         },
         {
-          type: 'doc',
-          position: 'left',
-          docId: 'introduction',
-          docsPluginId: 'vue',
-          label: 'Vue',
-        },
-        {
-          // links to the React or Vue API, based on the docs being viewed
-          type: 'custom-frameworkDocSidebar',
+          // links to the React or Vue API: the docs being viewed, else the last ones read
+          type: 'custom-preferredDocSidebar',
+          docsPluginIds: frameworkDocsIds,
           position: 'left',
           sidebarId: 'api',
           label: 'API',
