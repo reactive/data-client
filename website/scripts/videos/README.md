@@ -27,9 +27,10 @@ connection with the extension's Inspector monitor (`@redux-devtools/inspector-mo
 
 ## Clips
 
-| Clip                 | Shows                                                                                  | Embedded in                          |
-| -------------------- | -------------------------------------------------------------------------------------- | ------------------------------------ |
-| `batch-set-devtools` | Coin app `StreamManager` bursts of 500 ticker messages: per-message `set()` vs batched | `blog/2026-10-03-v0.19-batch-set.md` |
+| Clip                                      | Shows                                                                                                        | Embedded in                           |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------- |
+| `batch-set-devtools`                      | Coin app `StreamManager` bursts of 500 ticker messages: per-message `set()` vs batched                       | `blog/2026-10-03-v0.19-batch-set.md`  |
+| `normalization` (pre-rendered, see below) | Explainer: duplicate copies, one entity per id, denormalize, one write updates every view, 10k-row benchmark | `docs/core/concepts/normalization.md` |
 
 ## Adding a clip
 
@@ -80,7 +81,3 @@ first with its codecs string, so browsers that can't decode AV1 skip to the MP4:
   <source src={useBaseUrl('/videos/docs/<name>.mp4')} type="video/mp4" />
 </AutoPlayVideo>
 ```
-
-| Clip            | Source                         | Embedded in                           |
-| --------------- | ------------------------------ | ------------------------------------- |
-| `normalization` | Explainer rendered by @ntucker | `docs/core/concepts/normalization.md` |
