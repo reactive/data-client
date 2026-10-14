@@ -5,9 +5,17 @@
   --todo: hsl(206, 69%, 40%);
   --on-chip: #fff;
   position: relative;
+  float: right;
   width: 440px;
   max-width: 100%;
-  margin: 0 auto 1.5rem;
+  margin: 0 0 1rem 1.25rem;
+}
+/* full width under the text instead of squeezing it */
+@container doc (max-width: 700px) {
+  .stage {
+    float: none;
+    margin: 0 auto 1.5rem;
+  }
 }
 [data-theme='dark'] .stage {
   --user: hsl(262, 75%, 74%);

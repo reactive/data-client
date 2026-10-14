@@ -20,14 +20,16 @@ import AtomicMutations from '@site/src/components/AtomicMutations';
 
 # 数据变更
 
+<AtomicMutations />
+
 将我们的[创建、更新和删除](/docs/concepts/atomic-mutations) endpoint 与
 [Controller.fetch()](../api/Controller.md#fetch) 配合使用，会以响应式的方式原子地（同时）更新_所有_相关组件。
 
 [useController()](../api/useController.md) 让组件可以使用这个全局的、功能增强版的 [setState()](https://react.dev/reference/react/useState#setstate)。
 
-<AtomicMutations />
-
 [//]: # 'TODO: Add create, and delete examples as well (in tabs)'
+
+<div style={{clear: 'both'}} />
 
 <FrameworkPlayground defaultOpen="n" row fixtures={todoFixtures}>
 

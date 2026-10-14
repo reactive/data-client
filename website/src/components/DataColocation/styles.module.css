@@ -19,7 +19,7 @@
   --on-chip: hsl(220, 20%, 12%);
 }
 /* full width under the text instead of squeezing it */
-@media (max-width: 768px) {
+@container doc (max-width: 700px) {
   .diagram {
     float: none;
     display: block;

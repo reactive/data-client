@@ -20,14 +20,16 @@ import AtomicMutations from '@site/src/components/AtomicMutations';
 
 # Mutações de dados
 
+<AtomicMutations />
+
 Usar nossos endpoints de [Create, Update e Delete](/docs/concepts/atomic-mutations) com
 [Controller.fetch()](../api/Controller.md#fetch) atualiza de forma reativa _todos_ os componentes apropriados de maneira atômica (ao mesmo tempo).
 
 [useController()](../api/useController.md) dá aos componentes acesso a este [setState()](https://react.dev/reference/react/useState#setstate) global turbinado.
 
-<AtomicMutations />
-
 [//]: # 'TODO: Add create, and delete examples as well (in tabs)'
+
+<div style={{clear: 'both'}} />
 
 <FrameworkPlayground defaultOpen="n" row fixtures={todoFixtures}>
 
