@@ -43,13 +43,17 @@ describe('babelPlugin', () => {
   { endpoint: E, response: (a: number) => {
       return a;
     } },
+  { endpoint: E, response(a: number) {
+      return a;
+    } },
 ];`);
     assert.deepEqual(
       run(code).map(fixture => String(fixture.response)),
       [
         'async response({ id }) {\n  return { id, post: (this.posts)[id] };\n}',
         '(a, init) => {\n  const b = new Map().get(String(a)) ?? a + 1;\n  return b;\n}',
-        '(a) => {\n    return a;\n  }',
+        '(a) => {\n  return a;\n}',
+        'response(a) {\n  return a;\n}',
       ],
     );
   });
@@ -72,7 +76,12 @@ describe('babelPlugin', () => {
 
 describe('recmaPlugin', () => {
   it('formats inline MDX fixtures, parenthesized ones included', async () => {
-    const { compile } = await import('@mdx-js/mdx');
+    // The MDX compiler Docusaurus builds with
+    const { compile } = await import(
+      createRequire(require.resolve('@docusaurus/mdx-loader')).resolve(
+        '@mdx-js/mdx',
+      )
+    );
     const out = String(
       await compile(
         `<P fixtures={[

@@ -92,10 +92,16 @@ function babelPlugin({ types: t, template }) {
       at = Math.max(at, to);
     }
     source += code.slice(at, path.node.end);
-    // Later lines keep the file's indentation: strip that of the first line
-    const lineStart = code.lastIndexOf('\n', path.node.start) + 1;
-    const indent = /^ */.exec(code.slice(lineStart))[0].length;
-    return source.replace(new RegExp(`^ {0,${indent}}`, 'gm'), '');
+    // The first line starts at the fixture; later ones keep the file's
+    // nesting, so dedent them by their shallowest line
+    const later = source
+      .split('\n')
+      .slice(1)
+      .filter(line => line.trim());
+    const indent = Math.min(...later.map(line => /^ */.exec(line)[0].length));
+    return later.length ?
+        source.replace(new RegExp(`^ {0,${indent}}`, 'gm'), '')
+      : source;
   }
 
   const withSourceBabel = (fn, source) =>
