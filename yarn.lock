@@ -5202,7 +5202,7 @@ __metadata:
     "@react-navigation/native-stack": "npm:^7.2.0"
     "@testing-library/dom": "npm:^10.4.0"
     "@testing-library/react": "npm:^16.1.0"
-    "@testing-library/react-native": "npm:^13.3.3"
+    "@testing-library/react-native": "npm:^14.0.0"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^26.0.0"
     "@types/qs": "npm:^6"
@@ -5259,7 +5259,7 @@ __metadata:
     "@data-client/react": "workspace:*"
     "@testing-library/dom": "npm:^10.1.0"
     "@testing-library/react": "npm:^16.0.0"
-    "@testing-library/react-native": "npm:^13.0.0"
+    "@testing-library/react-native": "npm:^14.0.0"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^26.0.0"
     "@types/react": "npm:19.3.0"
@@ -10606,9 +10606,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/jest-dom@npm:^6.6.3":
-  version: 6.9.1
-  resolution: "@testing-library/jest-dom@npm:6.9.1"
+"@testing-library/jest-dom@npm:^7.0.0":
+  version: 7.0.1
+  resolution: "@testing-library/jest-dom@npm:7.0.1"
   dependencies:
     "@adobe/css-tools": "npm:^4.4.0"
     aria-query: "npm:^5.0.0"
@@ -10616,7 +10616,13 @@ __metadata:
     dom-accessibility-api: "npm:^0.6.3"
     picocolors: "npm:^1.1.1"
     redent: "npm:^3.0.0"
-  checksum: 10c0/4291ebd2f0f38d14cefac142c56c337941775a5807e2a3d6f1a14c2fbd6be76a18e498ed189e95bedc97d9e8cf1738049bc76c85b5bc5e23fae7c9e10f7b3a12
+  peerDependencies:
+    "@testing-library/dom": ">=10 <11"
+    vitest: ">= 0.32"
+  peerDependenciesMeta:
+    vitest:
+      optional: true
+  checksum: 10c0/4450af11d3580749949c6eee749077267c70d18f794952b9e24839f8f66afe28c6f83dd3d93b135cfd9aae8401b9861260cc309dee4ad4f2845b52b94e5c5e11
   languageName: node
   linkType: hard
 
@@ -10642,23 +10648,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-native@npm:13.3.3, @testing-library/react-native@npm:^13.0.0, @testing-library/react-native@npm:^13.3.3":
-  version: 13.3.3
-  resolution: "@testing-library/react-native@npm:13.3.3"
+"@testing-library/react-native@npm:14.1.0, @testing-library/react-native@npm:^14.0.0":
+  version: 14.1.0
+  resolution: "@testing-library/react-native@npm:14.1.0"
   dependencies:
-    jest-matcher-utils: "npm:^30.0.5"
+    jest-matcher-utils: "npm:^30.4.1"
     picocolors: "npm:^1.1.1"
-    pretty-format: "npm:^30.0.5"
+    pretty-format: "npm:^30.4.1"
     redent: "npm:^3.0.0"
   peerDependencies:
     jest: ">=29.0.0"
-    react: ">=18.2.0"
-    react-native: ">=0.71"
-    react-test-renderer: ">=18.2.0"
+    react: ">=19.0.0"
+    react-native: ">=0.78"
+    test-renderer: ^1.0.0
   peerDependenciesMeta:
     jest:
       optional: true
-  checksum: 10c0/ba13066536d5b2c0b625220d4320c6ad1e390c3df4f4b614d859ef467c4974ad52aa79269ae98efdba8f5a074644e3d11583a5485312df5a64387976ecf4225a
+  checksum: 10c0/620129d24659d306d9fc7f3d8bf2674dfd7b25ace530b7f83408a268cbd78108a097d557db9474a7b1ea5a7ac2319e21078486826d9cde9a0560971b5e399ce2
   languageName: node
   linkType: hard
 
@@ -21240,7 +21246,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-matcher-utils@npm:30.5.2, jest-matcher-utils@npm:^30.0.5":
+"jest-matcher-utils@npm:30.5.2, jest-matcher-utils@npm:^30.4.1":
   version: 30.5.2
   resolution: "jest-matcher-utils@npm:30.5.2"
   dependencies:
@@ -25369,14 +25375,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"package-manager-detector@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "package-manager-detector@npm:1.3.0"
-  checksum: 10c0/b4b54a81a3230edd66564a59ff6a2233086961e36ba91a28a0f6d6932a8dec36618ace50e8efec9c4d8c6aa9828e98814557a39fb6b106c161434ccb44a80e1c
-  languageName: node
-  linkType: hard
-
-"package-manager-detector@npm:^1.6.0, package-manager-detector@npm:^1.8.0":
+"package-manager-detector@npm:^1.3.0, package-manager-detector@npm:^1.6.0, package-manager-detector@npm:^1.8.0":
   version: 1.9.0
   resolution: "package-manager-detector@npm:1.9.0"
   checksum: 10c0/c901b08e9d284e9b517d27be1783fc279f3e814fac9de4c30441129a3a4b1475b16314ff95b98268daf49e20d5076478c50bc7b1b3ff8a591eb39f03f02dbb16
@@ -27464,7 +27463,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pretty-format@npm:30.5.1, pretty-format@npm:^30.0.0, pretty-format@npm:^30.0.5":
+"pretty-format@npm:30.5.1, pretty-format@npm:^30.0.0, pretty-format@npm:^30.4.1":
   version: 30.5.1
   resolution: "pretty-format@npm:30.5.1"
   dependencies:
@@ -29139,10 +29138,10 @@ __metadata:
     "@react-navigation/native": "npm:^7.0.0"
     "@react-navigation/native-stack": "npm:^7.0.0"
     "@testing-library/dom": "npm:^10.4.0"
-    "@testing-library/jest-dom": "npm:^6.6.3"
+    "@testing-library/jest-dom": "npm:^7.0.0"
     "@testing-library/react": "npm:16.3.3"
     "@testing-library/react-hooks": "npm:8.0.1"
-    "@testing-library/react-native": "npm:13.3.3"
+    "@testing-library/react-native": "npm:14.1.0"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:26.6.5"
     "@types/react": "npm:19.3.0"
@@ -31143,14 +31142,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tinyexec@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "tinyexec@npm:1.0.1"
-  checksum: 10c0/e1ec3c8194a0427ce001ba69fd933d0c957e2b8994808189ed8020d3e0c01299aea8ecf0083cc514ecbf90754695895f2b5c0eac07eb2d0c406f7d4fbb8feade
-  languageName: node
-  linkType: hard
-
-"tinyexec@npm:^1.3.0, tinyexec@npm:^1.3.1":
+"tinyexec@npm:^1.0.1, tinyexec@npm:^1.3.0, tinyexec@npm:^1.3.1":
   version: 1.3.1
   resolution: "tinyexec@npm:1.3.1"
   checksum: 10c0/c590369cb3fa73cc18a3998caec8a00f9712d91309c881be3ac52b160fb2f80c7b1fbf3591858ab6abab47ad55385b0c86ec19982e32441a01f55298dab9ccd2

@@ -149,7 +149,7 @@
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
     "@data-client/react": "workspace:*",
-    "@testing-library/react-native": "^13.0.0",
+    "@testing-library/react-native": "^14.0.0",
     "@types/jest": "30.0.0",
     "@types/node": "^26.0.0",
     "@types/react": "19.3.0",
