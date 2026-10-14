@@ -556,8 +556,11 @@ div.playgroundTextEdit > .playgroundHeader,
   font: inherit;
   transition: background-color var(--ifm-transition-fast) ease;
 }
-.fixturesToggle[aria-expanded='true'] {
-  background-color: var(--pg-tab-hover-bg);
+.fixturesToggle[aria-expanded='true'],
+.tabControls:has(+ .fixturesAnchor > .fixturesPopover:hover) .fixturesToggle {
+  /* a selected tab whose panel is the card hung below it */
+  background-color: var(--pg-tab-selected-bg);
+  box-shadow: inset 0 2px 0 var(--ifm-color-primary);
 }
 .fixturesToggle:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
@@ -580,18 +583,18 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .fixturesPopover {
   position: absolute;
-  /* a raised card, inset from the code's sides, hung from the bar */
-  inset: 0 0.5rem auto;
+  /* hangs from the ƒ at the bar's end, in the code's own color as a
+     selected tab's panel is, lifted off the code by its edge and shadow */
+  inset: 0 0 auto 0.75rem;
   max-height: min(20rem, 60svh);
   overflow: auto;
-  /* lighter than the code and opaque, so it reads as a layer above it */
-  background: color-mix(in srgb, var(--monoco-code-background) 86%, #fff);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-top: none;
-  border-radius: 0 0 var(--ifm-global-radius) var(--ifm-global-radius);
+  background: var(--pg-tab-selected-bg);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-width: 0 0 1px 1px;
+  border-bottom-left-radius: var(--ifm-global-radius);
   box-shadow:
-    0 12px 32px rgba(0, 0, 0, 0.55),
-    0 2px 6px rgba(0, 0, 0, 0.35);
+    -6px 12px 28px rgba(0, 0, 0, 0.5),
+    0 2px 6px rgba(0, 0, 0, 0.3);
   visibility: hidden;
   opacity: 0;
   translate: 0 -4px;
@@ -609,7 +612,8 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 @media (hover: hover) {
   .fixturesToggle:hover {
-    background-color: var(--pg-tab-hover-bg);
+    background-color: var(--pg-tab-selected-bg);
+    box-shadow: inset 0 2px 0 var(--ifm-color-primary);
   }
   /* a preview while the pointer is on the ƒ or the fixtures */
   .tabControls:has(.fixturesToggle:hover) + .fixturesAnchor > .fixturesPopover,
