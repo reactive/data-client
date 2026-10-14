@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import styles from './PosterVideo.module.css';
 
@@ -29,9 +29,14 @@ export default function PosterVideo({
     if (!video) return;
     video.volume = volume;
     setStarted(true);
-    video.play();
-    video.focus();
+    // a source that fails to load leaves the controls to show it
+    video.play().catch(() => undefined);
   };
+
+  // the button unmounts on play, so keep keyboard focus on the video's controls
+  useEffect(() => {
+    if (started) videoRef.current?.focus();
+  }, [started]);
 
   return (
     <div className={styles.frame}>
@@ -52,7 +57,7 @@ export default function PosterVideo({
           type="button"
           className={styles.play}
           onClick={play}
-          aria-label={`Play video: ${alt}`}
+          aria-label={duration ? `Play video (${duration})` : 'Play video'}
         >
           <span className={styles.icon} aria-hidden="true" />
           {duration ?
