@@ -37,7 +37,10 @@ function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
         aria-expanded={open}
         onClick={() => setOpen(o => !o)}
       >
-        <span className={clsx(styles.arrow, open ? styles.down : styles.right)}>
+        <span
+          className={clsx(styles.arrow, open ? styles.down : styles.right)}
+          aria-hidden
+        >
           ▶
         </span>
         {method ?
