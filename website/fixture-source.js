@@ -54,6 +54,18 @@ const withSourceEstree = (fn, source) => ({
   ],
 });
 
+/** The first line starts at the fixture; later ones keep the file's nesting.
+ * The closing line sits at that nesting's base, so strip its indent (lines
+ * inside a template literal may sit shallower, and keep their text).
+ */
+function dedent(source) {
+  const lastLine = source.slice(source.lastIndexOf('\n') + 1);
+  const indent = /^ */.exec(lastLine)[0].length;
+  return indent ?
+      source.replace(new RegExp(`^ {0,${indent}}`, 'gm'), '')
+    : source;
+}
+
 function babelPlugin({ types: t, template }) {
   function authoredSource(path) {
     const code = path.hub.getCode();
@@ -103,16 +115,7 @@ function babelPlugin({ types: t, template }) {
       at = Math.max(at, to);
     }
     source += code.slice(at, path.node.end);
-    // The first line starts at the fixture; later ones keep the file's
-    // nesting, so dedent them by their shallowest line
-    const later = source
-      .split('\n')
-      .slice(1)
-      .filter(line => line.trim());
-    const indent = Math.min(...later.map(line => /^ */.exec(line)[0].length));
-    return later.length ?
-        source.replace(new RegExp(`^ {0,${indent}}`, 'gm'), '')
-      : source;
+    return dedent(source);
   }
 
   const withSourceBabel = (fn, source) =>
