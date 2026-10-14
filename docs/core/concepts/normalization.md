@@ -24,7 +24,6 @@ endpoint it was used in.
   poster={useBaseUrl('/videos/docs/normalization-poster.jpg')}
   duration="1:47"
   volume={0.5}
-  playY="89%"
   alt="Two endpoints return three copies of the same user. Normalization stores each entity once in a table keyed by id, denormalization follows the ids to rebuild each response, and one rename updates every view. Renaming one user with 10,000 rows on screen rebuilds 30 objects instead of 10,000."
 >
   <source
