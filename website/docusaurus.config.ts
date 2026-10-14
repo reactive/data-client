@@ -292,7 +292,7 @@ const config: Config = {
     : []),
   ],
   //favicon: '/favicon.ico', we declare our own headers for this above
-  themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
+  themes: ['@docusaurus/theme-mermaid'],
   customFields: {
     repoUrl: 'https://github.com/reactive/data-client',
     // read by FrameworkSelector to switch between differently named pages
