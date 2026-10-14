@@ -15,6 +15,7 @@ import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import Grid from '@site/src/components/Grid';
 import Link from '@docusaurus/Link';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import CollectionLists from '@site/src/components/CollectionLists';
 
 # RestEndpoint
 
@@ -1025,6 +1026,8 @@ const UserDetailNormalized = getUser.extend({
 
 这些便捷访问器会为常见的 [Collection](./Collection.md) 操作创建新的 endpoint。
 只有当 `RestEndpoint` 的 schema 中包含 [Collection](./Collection.md) 时，它们才能使用。
+
+<CollectionLists />
 
 ### push {#push}
 
