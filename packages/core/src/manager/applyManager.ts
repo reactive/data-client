@@ -17,7 +17,6 @@ export default function applyManager(
     );
   }
   return managers.map((manager, i) => {
-    if (!manager.middleware) manager.middleware = manager.getMiddleware?.();
     if (process.env.NODE_ENV !== 'production' && !manager.middleware) {
       throw new Error(
         `${manager.constructor.name} has no middleware. Managers must define middleware: https://dataclient.io/docs/api/Manager#middleware`,
@@ -28,9 +27,7 @@ export default function applyManager(
         controller.bindMiddleware(api);
       }
       // controller is a superset of the middleware API
-      return (manager as Manager & { middleware: ReduxMiddleware }).middleware(
-        controller as any,
-      );
+      return manager.middleware(controller as any);
     };
   });
 }
