@@ -157,6 +157,7 @@ function getManagers() { return [new MethodManager(), ...getDefaultManagers()]; 
 it('swaps managers when a Manager class in its own document changes', async () => {
   const managerClass = (label: string) => `
 export class LogManager implements Manager {
+  middleware = () => next => next;
   init() { managerLog.push('init ${label}'); }
   cleanup() { managerLog.push('cleanup ${label}'); }
 }`;
