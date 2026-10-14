@@ -84,6 +84,8 @@ const prismPalenight = {
 
 const gitVcs = getVcsPreset('default-v1');
 const editRoot = 'https://github.com/reactive/data-client/edit/master';
+// Playground fixtures show readable functions in production (fixture-source.js)
+const recmaPlugins = [require('./fixture-source.js').recmaPlugin];
 // In Chinese, joins lines split inside a paragraph (translate/README.md)
 const localeRemarkPlugins =
   currentLocale === DEFAULT_LOCALE ? [] : [remarkJoinCjkLines];
@@ -99,6 +101,7 @@ const docsLocation = (id: string) => {
     editUrl: ({ docPath }: { docPath: string }) =>
       `${editRoot}/${docsPath}/${docPath}`,
     remarkPlugins: localeRemarkPlugins,
+    recmaPlugins,
   };
 };
 
@@ -336,6 +339,7 @@ const config: Config = {
         },
         blog: {
           remarkPlugins: localeRemarkPlugins,
+          recmaPlugins,
           showReadingTime: true,
           blogSidebarTitle: 'All posts',
           blogSidebarCount: 'ALL',

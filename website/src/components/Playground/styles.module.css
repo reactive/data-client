@@ -870,18 +870,23 @@ div.playgroundTextEdit > .playgroundHeader,
 .fixtureItem {
   display: flex;
   flex-direction: row;
-  gap: 1rem;
+  /* phones: the response drops below its endpoint instead of overflowing */
+  flex-wrap: wrap;
+  column-gap: 1rem;
 }
 .fixtureHeader {
   color: rgb(195, 232, 141);
   font: var(--ifm-code-font-size) / var(--ifm-pre-line-height)
     var(--ifm-font-family-monospace);
   flex: 0 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 div.fixtureJson {
   margin-bottom: 0;
-  flex: 1 4 auto;
-  min-width: 200px;
+  /* basis 0 so only a header too wide for 200px of code wraps it below */
+  flex: 1 1 0;
+  min-width: min(200px, 100%);
 }
 .fixtureJson code {
   padding: 0;
