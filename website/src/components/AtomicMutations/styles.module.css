@@ -301,7 +301,8 @@
   fill: var(--ifm-color-emphasis-400);
   rx: 2.5px;
 }
-.bound .box {
+/* as specific as the .view rule above, so its outline still draws */
+.bound .view .box {
   fill: var(--ifm-background-surface-color);
   stroke: var(--c);
   stroke-width: 1.25;
