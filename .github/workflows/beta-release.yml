@@ -41,7 +41,7 @@ jobs:
 
       - name: Create Beta Release Pull Request or Publish to npm
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v2.1.2
         with:
           version: yarn changeset:version:beta
           publish: yarn changeset:publish:beta
