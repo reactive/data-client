@@ -580,13 +580,18 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .fixturesPopover {
   position: absolute;
-  inset: 0 0 auto;
+  /* a raised card, inset from the code's sides, hung from the bar */
+  inset: 0 0.5rem auto;
   max-height: min(20rem, 60svh);
   overflow: auto;
-  /* opaque: the code it floats over never shows through */
-  background: var(--monoco-code-background);
-  border-bottom: 1px solid var(--store-line-strong);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  /* lighter than the code and opaque, so it reads as a layer above it */
+  background: color-mix(in srgb, var(--monoco-code-background) 86%, #fff);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-top: none;
+  border-radius: 0 0 var(--ifm-global-radius) var(--ifm-global-radius);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.55),
+    0 2px 6px rgba(0, 0, 0, 0.35);
   visibility: hidden;
   opacity: 0;
   translate: 0 -4px;
