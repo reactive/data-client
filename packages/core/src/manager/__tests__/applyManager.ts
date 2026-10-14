@@ -79,6 +79,14 @@ it('applyManagers should handle legacy Manager.getMiddleware()', () => {
   expect(actionCount).toBe(1);
   expect(rootDispatch.mock.calls.length).toBe(1);
 });
+it('applyManagers should throw a clear error for Managers without middleware', () => {
+  class MyManager implements Manager {
+    cleanup() {}
+  }
+  expect(() =>
+    applyManager([new MyManager(), new NetworkManager()], new Controller()),
+  ).toThrow('MyManager has no middleware');
+});
 
 function middlewareDispatch(
   middlewares: ReduxMiddleware[],

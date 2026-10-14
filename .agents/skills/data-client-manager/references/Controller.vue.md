@@ -16,7 +16,7 @@ and retrieval performance.
 class Controller {
   /*************** Action Dispatchers ***************/
   fetch(endpoint, ...args): ReturnType<E>;
-  fetchIfStale(endpoint, ...args): ReturnType<E> | undefined;
+  fetchIfStale(endpoint, ...args): ReturnType<E> | Denormalize<E['schema']>;
   expireAll({ testKey }): Promise<void>;
   invalidate(endpoint, ...args): Promise<void>;
   invalidateAll({ testKey }): Promise<void>;
@@ -147,7 +147,8 @@ the response or error upon completion.
 
 ### fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
-Fetches only if endpoint is considered '[stale](https://dataclient.io/vue/concepts/expiry-policy#stale)'.
+Fetches only if endpoint is considered '[stale](https://dataclient.io/vue/concepts/expiry-policy#stale)' or [invalid](https://dataclient.io/vue/concepts/expiry-policy#invalid),
+returning the same Promise as [fetch()](#fetch). Otherwise returns the cached data synchronously, without fetching.
 
 This can be useful when prefetching data, as it avoids overfetching fresh data.
 

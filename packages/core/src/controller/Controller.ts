@@ -166,7 +166,7 @@ export default class Controller<
   };
 
   /**
-   * Fetches only if endpoint is considered 'stale'; otherwise returns undefined
+   * Fetches only if endpoint is considered 'stale'; otherwise returns the cached data synchronously
    * @see https://dataclient.io/docs/api/Controller#fetchIfStale
    */
   fetchIfStale = <
