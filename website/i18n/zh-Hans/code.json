@@ -855,5 +855,53 @@
   "dataColocation.label": {
     "message": "组件树：每个渲染数据的组件都通过 useSuspense() 直接从 store 读取数据：CurrentUser 和 Avatar 读取 User，PostBody 读取 Post，CommentList 读取 Comment。数据变化只会让这些组件重新渲染，树中其余部分都不会",
     "description": "Accessible label of the data co-location diagram on the Render Data page"
+  },
+  "expiryTimeline.within": {
+    "message": "未超过",
+    "description": "Before the dataExpiryLength option name, over the Fresh story: a mount within that time finds fresh data"
+  },
+  "expiryTimeline.dataExpiryLength": {
+    "message": "响应在变为过时之前保持新鲜的时长（毫秒）。",
+    "description": "Tooltip on the dataExpiryLength label of the expiry diagram"
+  },
+  "expiryTimeline.after": {
+    "message": "超过",
+    "description": "Before the dataExpiryLength option name, over the Stale story: a mount after that time finds stale data"
+  },
+  "expiryTimeline.afterDataExpiryLength": {
+    "message": "超过 dataExpiryLength（毫秒）后，缓存的响应变为过时：仍会显示，但会重新获取。",
+    "description": "Tooltip on the Stale story’s dataExpiryLength label of the expiry diagram"
+  },
+  "expiryTimeline.afterCall": {
+    "message": "调用了",
+    "description": "Before ctrl.invalidate(), over the Invalid story: a mount after that call finds invalid data"
+  },
+  "expiryTimeline.invalidate": {
+    "message": "立即将数据标记为无效（即使仍然新鲜），需要它的组件会重新获取。",
+    "description": "Tooltip on the ctrl.invalidate() label of the expiry diagram"
+  },
+  "expiryTimeline.invalidIfStale": {
+    "message": "开启后，数据一过期就跳过过时状态直接变为无效，必须重新获取后才能渲染。",
+    "description": "Tooltip on the invalidIfStale switch of the expiry diagram"
+  },
+  "expiryTimeline.learnMore": {
+    "message": "了解更多",
+    "description": "Link in each tooltip of the expiry diagram, to the section explaining that option"
+  },
+  "expiryTimeline.storyFresh": {
+    "message": "使用 useSuspense() 挂载的组件直接渲染 store 中的新鲜数据，不发请求",
+    "description": "Accessible label of the Fresh story in the expiry diagram"
+  },
+  "expiryTimeline.storyStale": {
+    "message": "使用 useSuspense() 挂载的组件先渲染 store 中的过时数据，再在后台重新获取",
+    "description": "Accessible label of the Stale story in the expiry diagram"
+  },
+  "expiryTimeline.storyInvalid": {
+    "message": "使用 useSuspense() 挂载的组件显示 fallback，直到无效数据的请求完成",
+    "description": "Accessible label of the Invalid story in the expiry diagram"
+  },
+  "expiryTimeline.afterInvalidIfStale": {
+    "message": "设置 invalidIfStale 后，超过 dataExpiryLength（毫秒）时缓存的响应即为无效：必须重新获取后才能渲染。",
+    "description": "Tooltip on the Stale story’s dataExpiryLength label of the expiry diagram, while its invalidIfStale switch is on"
   }
 }

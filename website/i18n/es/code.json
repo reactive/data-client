@@ -855,5 +855,53 @@
   "dataColocation.label": {
     "message": "Árbol de componentes donde cada componente que renderiza datos los lee directamente del store con useSuspense(): User para CurrentUser y Avatar, Post para PostBody y Comment para CommentList. Un cambio vuelve a renderizar solo esos componentes y nada más del árbol",
     "description": "Accessible label of the data co-location diagram on the Render Data page"
+  },
+  "expiryTimeline.within": {
+    "message": "dentro de",
+    "description": "Before the dataExpiryLength option name, over the Fresh story: a mount within that time finds fresh data"
+  },
+  "expiryTimeline.dataExpiryLength": {
+    "message": "Cuánto tiempo (en milisegundos) una respuesta se mantiene fresca antes de volverse obsoleta.",
+    "description": "Tooltip on the dataExpiryLength label of the expiry diagram"
+  },
+  "expiryTimeline.after": {
+    "message": "después de",
+    "description": "Before the dataExpiryLength option name, over the Stale story: a mount after that time finds stale data"
+  },
+  "expiryTimeline.afterDataExpiryLength": {
+    "message": "Una vez pasado dataExpiryLength (en milisegundos), la respuesta en caché está obsoleta: se sigue mostrando, pero se vuelve a obtener.",
+    "description": "Tooltip on the Stale story’s dataExpiryLength label of the expiry diagram"
+  },
+  "expiryTimeline.afterCall": {
+    "message": "después de",
+    "description": "Before ctrl.invalidate(), over the Invalid story: a mount after that call finds invalid data"
+  },
+  "expiryTimeline.invalidate": {
+    "message": "Marca los datos como inválidos de inmediato, incluso si siguen frescos, para que los componentes que los necesiten vuelvan a obtenerlos.",
+    "description": "Tooltip on the ctrl.invalidate() label of the expiry diagram"
+  },
+  "expiryTimeline.invalidIfStale": {
+    "message": "Si está activado, los datos se saltan Stale y pasan a ser inválidos en cuanto caducan, así que deben volver a obtenerse antes de poder renderizarse.",
+    "description": "Tooltip on the invalidIfStale switch of the expiry diagram"
+  },
+  "expiryTimeline.learnMore": {
+    "message": "Más información",
+    "description": "Link in each tooltip of the expiry diagram, to the section explaining that option"
+  },
+  "expiryTimeline.storyFresh": {
+    "message": "Un componente que se monta con useSuspense() renderiza los datos frescos del store, sin ninguna petición",
+    "description": "Accessible label of the Fresh story in the expiry diagram"
+  },
+  "expiryTimeline.storyStale": {
+    "message": "Un componente que se monta con useSuspense() renderiza los datos obsoletos del store y los vuelve a obtener en segundo plano",
+    "description": "Accessible label of the Stale story in the expiry diagram"
+  },
+  "expiryTimeline.storyInvalid": {
+    "message": "Un componente que se monta con useSuspense() muestra su fallback hasta que se resuelve la petición de los datos inválidos",
+    "description": "Accessible label of the Invalid story in the expiry diagram"
+  },
+  "expiryTimeline.afterInvalidIfStale": {
+    "message": "Con invalidIfStale, una vez pasado dataExpiryLength (en milisegundos), la respuesta en caché es inválida: debe volver a obtenerse antes de poder renderizarse.",
+    "description": "Tooltip on the Stale story’s dataExpiryLength label of the expiry diagram, while its invalidIfStale switch is on"
   }
 }

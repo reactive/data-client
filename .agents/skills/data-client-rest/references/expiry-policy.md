@@ -16,17 +16,17 @@ Data in this state is considered new enough that it doesn't need to fetch.
 
 Data is still allowed to be shown, however Reactive Data Client might attempt to revalidate by fetching again.
 
+### Invalid
+
+Data should not be shown. Any components needing this data will trigger fetch and suspense. If no components care about this
+data no action will be taken.
+
 [useSuspense()](https://dataclient.io/docs/api/useSuspense) considers fetching on mount as well as when its parameters change.
 In these cases it will fetch if the data is considered stale.
 
 > **Info: React Native**
 >
 > When using React Navigation, [focus events](https://reactnavigation.org/docs/use-focus-effect/) also trigger fetches for stale data.
-
-### Invalid
-
-Data should not be shown. Any components needing this data will trigger fetch and suspense. If no components care about this
-data no action will be taken.
 
 ## Expiry Time
 

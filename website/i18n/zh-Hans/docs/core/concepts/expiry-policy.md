@@ -8,6 +8,7 @@ description: 数据何时被视为新鲜、过时或无效，以及这些状态�
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
+import ExpiryTimeline from '@site/src/components/ExpiryTimeline';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import {RestEndpoint} from '@data-client/rest';
 
@@ -19,6 +20,8 @@ import {RestEndpoint} from '@data-client/rest';
 
 ## 过期状态 {#expiry-status}
 
+<ExpiryTimeline>
+
 ### 新鲜（Fresh） {#fresh}
 
 处于这种状态的数据被认为足够新，无需获取。
@@ -26,6 +29,14 @@ import {RestEndpoint} from '@data-client/rest';
 ### 过时（Stale） {#stale}
 
 数据仍然可以展示，但 Reactive Data Client 可能会尝试重新获取以重新验证。
+
+### 无效（Invalid） {#invalid}
+
+数据不应展示。任何需要这些数据的组件都会触发获取:react[并挂起]:vue[
+（在获取完成之前，[已挂载的组件会保留其数据](#invalidate)）]。如果没有组件关心这些
+数据，则不会执行任何操作。
+
+</ExpiryTimeline>
 
 [useSuspense()](../api/useSuspense.md) 会在挂载时以及参数变化时考虑是否获取。
 在这些情况下，如果数据被视为过时，它就会发起获取。
@@ -39,12 +50,6 @@ import {RestEndpoint} from '@data-client/rest';
 :::
 
 ::::
-
-### 无效（Invalid） {#invalid}
-
-数据不应展示。任何需要这些数据的组件都会触发获取:react[并挂起]:vue[
-（在获取完成之前，[已挂载的组件会保留其数据](#invalidate)）]。如果没有组件关心这些
-数据，则不会执行任何操作。
 
 ## 过期时间 {#expiry-time}
 
