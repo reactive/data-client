@@ -7,6 +7,8 @@
   --on-chip: #fff;
   /* a mid grey, readable on either theme's background */
   --muted: var(--ifm-color-gray-700);
+  /* one pass of every story */
+  --period: 4s;
   margin: 0 0 1.5rem;
 }
 [data-theme='dark'] .frame {
@@ -92,9 +94,6 @@
   align-items: center;
   min-height: 30px;
   padding: 4px 10px 0;
-}
-.panel .head {
-  justify-content: flex-start;
 }
 .band2 .head {
   justify-content: flex-end;
@@ -611,7 +610,7 @@
     z-index: 1;
     order: 1;
     justify-content: flex-end;
-    margin: 8px 0 -20px;
+    margin: 8px 0 -14px;
     padding: 0 10px 0 0;
   }
   .above .tip {

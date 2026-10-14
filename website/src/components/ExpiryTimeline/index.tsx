@@ -7,8 +7,8 @@ import styles from './styles.module.css';
 import StoreIcon from '../Playground/StoreIcon';
 
 const ZONES = ['fresh', 'stale', 'invalid'] as const;
-/** Seconds one pass of every story takes (the CSS animations' duration) */
-const PERIOD = 4;
+/** The invalidIfStale switch's tooltip, after the three columns' */
+const SWITCH_TIP = 3;
 
 /**
  * Three stories side by side, one per status, in sync: a component mounts
@@ -23,15 +23,9 @@ export default function ExpiryTimeline({
   children?: React.ReactNode;
 }) {
   const [invalidIfStale, setInvalidIfStale] = useState(false);
-  const columns = children ? splitAtHeadings(children) : [];
+  const columns = splitAtHeadings(children);
   const tips = useTips();
 
-  const learnMore = translate({
-    id: 'expiryTimeline.learnMore',
-    message: 'Learn more',
-    description:
-      'Link in each tooltip of the expiry diagram, to the section explaining that option',
-  });
   // how each status comes about, over its story
   const when = [
     {
@@ -60,13 +54,22 @@ export default function ExpiryTimeline({
       }),
       name: 'dataExpiryLength',
       href: '#endpointdataexpirylength',
-      tip: translate({
-        id: 'expiryTimeline.afterDataExpiryLength',
-        message:
-          'Once dataExpiryLength (in milliseconds) has passed, the cached response is stale: still shown, but refetched.',
-        description:
-          'Tooltip on the Stale story’s dataExpiryLength label of the expiry diagram',
-      }),
+      tip:
+        invalidIfStale ?
+          translate({
+            id: 'expiryTimeline.afterInvalidIfStale',
+            message:
+              'With invalidIfStale, once dataExpiryLength (in milliseconds) has passed, the cached response is invalid: it must refetch before it can render.',
+            description:
+              'Tooltip on the Stale story’s dataExpiryLength label of the expiry diagram, while its invalidIfStale switch is on',
+          })
+        : translate({
+            id: 'expiryTimeline.afterDataExpiryLength',
+            message:
+              'Once dataExpiryLength (in milliseconds) has passed, the cached response is stale: still shown, but refetched.',
+            description:
+              'Tooltip on the Stale story’s dataExpiryLength label of the expiry diagram',
+          }),
     },
     {
       prefix: translate({
@@ -86,6 +89,28 @@ export default function ExpiryTimeline({
       }),
     },
   ];
+  // what each story shows, for screen readers
+  const stories = {
+    fresh: translate({
+      id: 'expiryTimeline.storyFresh',
+      message:
+        'A component mounting with useSuspense() renders the fresh data in the store, with no request',
+      description: 'Accessible label of the Fresh story in the expiry diagram',
+    }),
+    stale: translate({
+      id: 'expiryTimeline.storyStale',
+      message:
+        'A component mounting with useSuspense() renders the stale data in the store and refetches it in the background',
+      description: 'Accessible label of the Stale story in the expiry diagram',
+    }),
+    invalid: translate({
+      id: 'expiryTimeline.storyInvalid',
+      message:
+        'A component mounting with useSuspense() shows its fallback until the fetch of the invalid data resolves',
+      description:
+        'Accessible label of the Invalid story in the expiry diagram',
+    }),
+  };
   const switchTip = translate({
     id: 'expiryTimeline.invalidIfStale',
     message:
@@ -96,20 +121,18 @@ export default function ExpiryTimeline({
   return (
     <div
       className={clsx(styles.frame, invalidIfStale && styles.invalidIfStale)}
-      style={{ '--period': `${PERIOD}s` } as React.CSSProperties}
     >
       <div className={styles.board}>
         {ZONES.map((zone, i) => (
           <React.Fragment key={zone}>
             {/* the row over the panels: the switch, over Stale */}
             <div className={styles.above}>
-              {i === 1 && (
+              {zone === 'stale' && (
                 <Tip
                   tips={tips}
-                  index={3}
+                  index={SWITCH_TIP}
                   tip={switchTip}
                   href="#endpointinvalidifstale"
-                  learnMore={learnMore}
                   align={styles.center}
                 >
                   {(control, tapped) => (
@@ -122,7 +145,7 @@ export default function ExpiryTimeline({
                       onClick={e => {
                         setInvalidIfStale(on => !on);
                         // a finger can't hover, so a tap also explains
-                        tips.setOpen(tapped(e) ? 3 : null);
+                        tips.setOpen(tapped(e) ? SWITCH_TIP : null);
                       }}
                     >
                       <span className={styles.track}>
@@ -140,7 +163,7 @@ export default function ExpiryTimeline({
                 styles.panel,
                 styles[zone],
                 styles[`band${i}`],
-                i === 1 && invalidIfStale && styles.invalid,
+                zone === 'stale' && invalidIfStale && styles.invalid,
               )}
             >
               <div className={styles.head}>
@@ -149,8 +172,7 @@ export default function ExpiryTimeline({
                   index={i}
                   tip={when[i].tip}
                   href={when[i].href}
-                  learnMore={learnMore}
-                  align={i === 2 ? styles.right : styles.left}
+                  align={zone === 'invalid' ? styles.right : styles.left}
                 >
                   {(control, tapped) => (
                     <a
@@ -172,7 +194,11 @@ export default function ExpiryTimeline({
                   )}
                 </Tip>
               </div>
-              <Story />
+              <Story
+                label={
+                  stories[zone === 'stale' && invalidIfStale ? 'invalid' : zone]
+                }
+              />
             </div>
             <section className={clsx(styles.text, styles[`band${i}`])}>
               {columns[i]}
@@ -188,19 +214,13 @@ export default function ExpiryTimeline({
  * One mount story: the store, a component mounting with useSuspense(), and
  * the API; what it shows and whether it requests come from the panel's zone.
  */
-function Story() {
+function Story({ label }: { label: string }) {
   return (
     <svg
       className={styles.story}
       viewBox="0 0 180 100"
       role="img"
-      aria-label={translate({
-        id: 'expiryTimeline.label',
-        message:
-          'A component mounting with useSuspense() reads the store: fresh data renders with no request; stale data renders and refetches in the background; invalid data shows the fallback until the fetch resolves',
-        description:
-          'Accessible label of the expiry diagram on the Expiry Policy page',
-      })}
+      aria-label={label}
     >
       {/* the cached response; dims while nothing may show it */}
       <g className={styles.store}>
@@ -347,7 +367,6 @@ function Tip({
   index,
   tip,
   href,
-  learnMore,
   align,
   children,
 }: {
@@ -355,7 +374,6 @@ function Tip({
   index: number;
   tip: string;
   href: string;
-  learnMore: string;
   align: string;
   children: (control: ControlProps, tapped: Tapped) => React.ReactNode;
 }) {
@@ -387,7 +405,15 @@ function Tip({
       {children(control, tapped)}
       <span className={styles.tip} id={id}>
         <span className={styles.bubble}>
-          {tip} <a href={href}>{learnMore}</a>
+          {tip}{' '}
+          <a href={href}>
+            {translate({
+              id: 'expiryTimeline.learnMore',
+              message: 'Learn more',
+              description:
+                'Link in each tooltip of the expiry diagram, to the section explaining that option',
+            })}
+          </a>
         </span>
       </span>
     </span>
