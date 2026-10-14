@@ -17,7 +17,7 @@ import { useEffect } from 'react';
  */
 
 /** React's report of an error a preview's ErrorBoundary caught. → warn */
-const DEMOTE_ERROR = [/React will try to recreate this component tree/];
+const DEMOTE_ERROR = /React will try to recreate this component tree/;
 
 let refCount = 0;
 let originalError: typeof console.error | undefined;
@@ -36,7 +36,7 @@ function consoleMessage(args: unknown[]): string {
 
 function demotedConsoleError(...args: unknown[]) {
   const message = consoleMessage(args);
-  if (message && DEMOTE_ERROR.some(pattern => pattern.test(message))) {
+  if (DEMOTE_ERROR.test(message)) {
     console.warn(...args);
     return;
   }
