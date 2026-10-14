@@ -1,13 +1,11 @@
 import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
-import React, {
-  isValidElement,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-} from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 
+import Sequence from './designs/Sequence';
+import Slider from './designs/Slider';
+import Storyboard from './designs/Storyboard';
+import splitAtHeadings from './splitAtHeadings';
 import styles from './styles.module.css';
 import StoreIcon from '../Playground/StoreIcon';
 
@@ -42,15 +40,57 @@ interface Playback {
   run: number;
 }
 
-/**
- * The expiry timeline, with the page's Fresh / Stale / Invalid sections laid
- * out below it in band order: `children` is split into a column at each heading.
- */
+// TEMPORARY while choosing a design: ?design= picks one, and the picker
+// above it switches; keep only the chosen one before merging
+const DESIGNS = {
+  timeline: Timeline,
+  slider: Slider,
+  storyboard: Storyboard,
+  sequence: Sequence,
+};
+type Design = keyof typeof DESIGNS;
+
 export default function ExpiryTimeline({
   children,
 }: {
   children?: React.ReactNode;
 }) {
+  const [design, setDesign] = useState<Design>('timeline');
+  useEffect(() => {
+    const d = new URLSearchParams(window.location.search).get('design');
+    if (d && d in DESIGNS) setDesign(d as Design);
+  }, []);
+  const choose = (d: Design) => {
+    setDesign(d);
+    const url = new URL(window.location.href);
+    url.searchParams.set('design', d);
+    window.history.replaceState(window.history.state, '', url);
+  };
+  const Chosen = DESIGNS[design];
+  return (
+    <>
+      <div className={styles.picker} role="group" aria-label="Design">
+        {(Object.keys(DESIGNS) as Design[]).map(d => (
+          <button
+            key={d}
+            type="button"
+            aria-pressed={d === design}
+            onClick={() => choose(d)}
+          >
+            {d}
+          </button>
+        ))}
+      </div>
+      <Chosen>{children}</Chosen>
+    </>
+  );
+}
+
+/**
+ * The expiry timeline, with the page's Fresh / Stale / Invalid sections laid
+ * out below it in band order: `children` is split into a column at each heading.
+ */
+function Timeline({ children }: { children?: React.ReactNode }) {
   const [invalidIfStale, setInvalidIfStale] = useState(false);
   const [play, setPlay] = useState<Playback>({
     zone: 0,
@@ -254,20 +294,6 @@ function bracket(x0: number, x1: number) {
   return `M${x0} ${BRACKET_Y - 3}v6M${x0} ${BRACKET_Y}H${x1}M${x1} ${
     BRACKET_Y - 3
   }v6`;
-}
-
-/** MDX children grouped from each heading (the elements with an id) to the next */
-function splitAtHeadings(children: React.ReactNode): React.ReactNode[][] {
-  const groups: React.ReactNode[][] = [];
-  for (const child of React.Children.toArray(children)) {
-    if (
-      (isValidElement<{ id?: string }>(child) && child.props.id) ||
-      !groups.length
-    )
-      groups.push([]);
-    groups[groups.length - 1].push(child);
-  }
-  return groups;
 }
 
 /**

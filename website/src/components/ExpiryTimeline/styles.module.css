@@ -575,3 +575,27 @@
     margin-top: 1.25rem;
   }
 }
+
+/* TEMPORARY design picker, while choosing a design */
+.picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: center;
+  margin: 0 0 1rem;
+}
+.picker button {
+  padding: 0.2rem 0.7rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-800);
+  background: none;
+  cursor: pointer;
+}
+.picker button[aria-pressed='true'] {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-background-color);
+  background: var(--ifm-color-primary);
+}
