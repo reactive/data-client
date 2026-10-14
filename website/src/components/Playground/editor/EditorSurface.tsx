@@ -11,6 +11,7 @@ import { createMissingModels } from '../monaco/models';
 import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
 import TabList from '../TabList';
+import Unfold from '../Unfold';
 import type { CodeDocument, CodeModel } from './codeModel';
 import type { InteractiveEditorProps } from './InteractiveEditor';
 import StaticEditor from './StaticEditor';
@@ -89,15 +90,31 @@ export default function EditorSurface({
 
   const createModels = useCreateModels(id, documents);
 
+  // Row is compact: the fixtures fold away under the file tabs, opened from
+  // their end, as part of the code's definition
+  const rowFixtures = row ? fixtureContent : undefined;
+  const [fixturesOpen, setFixturesOpen] = useState(false);
   const tabs =
-    row && documents.length > 1 ?
-      <EditorTabs
-        documents={documents}
-        closedList={closedList}
-        onClick={handleTabSwitch}
-        compact={variant === 'standalone'}
-        hasHeaderControls={headerControls != null}
-      />
+    row && (documents.length > 1 || rowFixtures != null) ?
+      <>
+        <EditorTabs
+          documents={documents}
+          closedList={closedList}
+          onClick={handleTabSwitch}
+          compact={variant === 'standalone'}
+          hasHeaderControls={headerControls != null}
+        >
+          {rowFixtures != null ?
+            <FixturesToggle
+              open={fixturesOpen}
+              onClick={() => setFixturesOpen(open => !open)}
+            />
+          : null}
+        </EditorTabs>
+        {rowFixtures != null ?
+          <Unfold open={fixturesOpen}>{rowFixtures}</Unfold>
+        : null}
+      </>
     : null;
   // the file tabs only pick which file shows, so they go under the cover
   // with the files
@@ -140,7 +157,11 @@ export default function EditorSurface({
     >
       <EditorHeader
         fixtureContent={!row ? fixtureContent : undefined}
-        title={row && documents.length === 1 ? documents[0].title : undefined}
+        title={
+          row && documents.length === 1 && rowFixtures == null ?
+            documents[0].title
+          : undefined
+        }
         covered={covered}
         coverTitle={coverTitle}
         controls={headerControls}
@@ -251,12 +272,15 @@ function EditorTabs({
   onClick,
   compact,
   hasHeaderControls,
+  children,
 }: {
   documents: readonly CodeDocument[];
   closedList: readonly boolean[];
   onClick: (index: number) => void;
   compact: boolean;
   hasHeaderControls: boolean;
+  /** Controls at the bar's end */
+  children?: React.ReactNode;
 }) {
   const tabs = documents
     .map((document, index) => ({ document, index }))
@@ -279,7 +303,32 @@ function EditorTabs({
           onSelect: () => onClick(index),
         }))}
       />
+      {children}
     </Header>
+  );
+}
+
+function FixturesToggle({
+  open,
+  onClick,
+}: {
+  open: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={styles.fixturesToggle}
+      aria-expanded={open}
+      onClick={onClick}
+    >
+      <span className={styles.fixturesToggleFn} aria-hidden>
+        ƒ
+      </span>
+      <span className={styles.fixturesToggleLabel}>
+        <Translate id="playground.fixtures">Fixtures</Translate>
+      </span>
+    </button>
   );
 }
 
