@@ -189,7 +189,10 @@ export default function AsyncBoundaries() {
     'aria-label': `<${boundary}> ${where[l]}`,
     onPointerEnter: () => setHovered(l),
     onPointerLeave: () => setHovered(null),
-    onFocus: () => setFocused(l),
+    // only keyboard focus: a click's would outlast the click, outlining a
+    // position next to the one chosen
+    onFocus: (e: React.FocusEvent<HTMLButtonElement>) =>
+      setFocused(e.currentTarget.matches(':focus-visible') ? l : null),
     onBlur: () => setFocused(null),
     onClick: () => setLevel(l),
   });
