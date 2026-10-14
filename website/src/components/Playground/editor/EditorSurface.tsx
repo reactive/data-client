@@ -7,8 +7,8 @@ import React, { useCallback, useId, useMemo, useRef, useState } from 'react';
 
 import Header from '../Header';
 import { modelPath, useModelId } from '../monaco/modelPath';
-import NetworkIcon from '../NetworkIcon';
 import { createMissingModels } from '../monaco/models';
+import NetworkIcon from '../NetworkIcon';
 import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
 import TabList from '../TabList';
