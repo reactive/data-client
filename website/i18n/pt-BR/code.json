@@ -856,6 +856,26 @@
     "message": "Árvore de componentes em que cada componente que renderiza dados os lê diretamente do store com useSuspense(): User para CurrentUser e Avatar, Post para PostBody e Comment para CommentList. Uma mudança renderiza de novo apenas esses componentes e nada mais da árvore",
     "description": "Accessible label of the data co-location diagram on the Render Data page"
   },
+  "atomicMutations.label": {
+    "message": "Um app de tarefas sob o seu store. TodoList chama ctrl.fetch(partialUpdate), uma única resposta PATCH entra no store e altera um Todo, e os novos dados fluem pelos vínculos apenas até os componentes que renderizam esse Todo: a sua linha em TodoList e, para o Todo 1, TodoDetail. CurrentUser e o resto da árvore mantêm os mesmos dados, e nada é buscado de novo",
+    "description": "Accessible label of the atomic mutations diagram on the Mutate Data page"
+  },
+  "atomicMutations.entity": {
+    "message": "{entity} no store",
+    "description": "Label of an entity chip in the atomic mutations diagram; pointing at it highlights the components bound to it"
+  },
+  "atomicMutations.currentUser": {
+    "message": "CurrentUser renderiza User 1",
+    "description": "Label of the CurrentUser component in the atomic mutations diagram; pointing at it highlights the entity it is bound to"
+  },
+  "atomicMutations.todoList": {
+    "message": "TodoList renderiza Todo 1, Todo 2 e Todo 3",
+    "description": "Label of the TodoList component in the atomic mutations diagram; pointing at it highlights the entities it is bound to"
+  },
+  "atomicMutations.todoDetail": {
+    "message": "TodoDetail renderiza Todo 1",
+    "description": "Label of the TodoDetail component in the atomic mutations diagram; pointing at it highlights the entity it is bound to"
+  },
   "expiryTimeline.within": {
     "message": "dentro de",
     "description": "Before the dataExpiryLength option name, over the Fresh story: a mount within that time finds fresh data"

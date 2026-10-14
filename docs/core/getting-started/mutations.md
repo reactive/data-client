@@ -12,6 +12,7 @@ import { todoFixtures } from '@site/src/fixtures/todos';
 import { RestEndpoint } from '@data-client/rest';
 import UseLoading from '../shared/\_useLoading.mdx';
 import VoteDemo from '../shared/\_VoteDemo.mdx';
+import AtomicMutations from '@site/src/components/AtomicMutations';
 
 <head>
   <meta name="docsearch:pagerank" content="40"/>
@@ -23,6 +24,8 @@ Using our [Create, Update, and Delete](/docs/concepts/atomic-mutations) endpoint
 [Controller.fetch()](../api/Controller.md#fetch) reactively updates _all_ appropriate components atomically (at the same time).
 
 [useController()](../api/useController.md) gives components access to this global supercharged [setState()](https://react.dev/reference/react/useState#setstate).
+
+<AtomicMutations />
 
 [//]: # 'TODO: Add create, and delete examples as well (in tabs)'
 
