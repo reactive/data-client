@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791942656383,
+  "lastUpdate": 1791942854258,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -9179,6 +9179,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 168.08,
             "range": "± 9.6%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f454bb428a84cfd0d9e624484a8110eaaddce865",
+          "message": "pkg: Update `@anansi/eslint-plugin` to v2 (#4357)\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+          "timestamp": "2026-10-14T01:46:51Z",
+          "tree_id": "86259b4752e1889cdfd28173eef9f2bfd3aea15e",
+          "url": "https://github.com/reactive/data-client/commit/f454bb428a84cfd0d9e624484a8110eaaddce865"
+        },
+        "date": 1791942850155,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 144.93,
+            "range": "± 4.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 45.25,
+            "range": "± 4.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 416.67,
+            "range": "± 9.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 392.31,
+            "range": "± 8.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 47.96,
+            "range": "± 7.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 357.14,
+            "range": "± 7.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 377.49,
+            "range": "± 8.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 9.67,
+            "range": "± 9.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 95.7,
+            "range": "± 13.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 40,
+            "range": "± 7.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 243.9,
+            "range": "± 4.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 322.58,
+            "range": "± 5.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 186.93,
+            "range": "± 10.7%",
             "unit": "ops/s"
           }
         ]
