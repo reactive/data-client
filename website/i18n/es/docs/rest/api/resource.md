@@ -15,6 +15,7 @@ import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import DeleteProcess from './\_DeleteProcess.mdx';
 import CollectionLists from '@site/src/components/CollectionLists';
+import Grid from '@site/src/components/Grid';
 
 # Resource
 
@@ -396,8 +397,6 @@ Se usa comúnmente con [useSuspense()](/docs/api/useSuspense), [Controller.inval
 [RestEndpoint.push](./RestEndpoint.md#push) crea una nueva entidad y la agrega al final de getList. Usa [getList.unshift](#unshift)
 para colocarla al principio. Pasa un array como cuerpo para crear varias a la vez.
 
-<CollectionLists op="push" />
-
 <EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'},body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
 
 ```typescript title="Post" collapsed
@@ -432,6 +431,8 @@ PostResource.getList.push(
 
 </EndpointPlayground>
 
+<Grid>
+
 | Campo | Valor                                       |
 | :----------: | ------------------------------------------- |
 |    method    | 'POST'                                      |
@@ -440,13 +441,15 @@ PostResource.getList.push(
 |     body     | [body](#body)                               |
 |    schema    | getList.[schema.push](./Collection.md#push) |
 
+<CollectionLists op="push" />
+
+</Grid>
+
 Se usa comúnmente con [Controller.fetch](/docs/api/Controller#fetch)
 
 ### getList.unshift {#unshift}
 
 [RestEndpoint.unshift](./RestEndpoint.md#unshift) crea una nueva entidad y la agrega al principio de getList.
-
-<CollectionLists op="unshift" />
 
 <EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
 
@@ -482,6 +485,8 @@ PostResource.getList.unshift(
 
 </EndpointPlayground>
 
+<Grid>
+
 | Campo | Valor                                             |
 | :----------: | ------------------------------------------------- |
 |    method    | 'POST'                                            |
@@ -489,6 +494,10 @@ PostResource.getList.unshift(
 | searchParams | [searchParams](#searchparams)                     |
 |     body     | [body](#body)                                     |
 |    schema    | getList.[schema.unshift](./Collection.md#unshift) |
+
+<CollectionLists op="unshift" />
+
+</Grid>
 
 Se usa comúnmente con [Controller.fetch](/docs/api/Controller#fetch)
 
@@ -551,8 +560,6 @@ Se usa comúnmente con [Controller.fetch](/docs/api/Controller#fetch)
 [RestEndpoint.move](./RestEndpoint.md#move) mueve una entidad entre [Collections](./Collection.md): la elimina de
 las colecciones que coinciden con su estado anterior y la agrega a las colecciones que coinciden con los nuevos valores del cuerpo.
 
-<CollectionLists op="move" />
-
 <EndpointPlayground input="/react/posts/1" init={{method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "group": "vue" })}} status={200} response={{  "id": "1","group": "vue","title": "this post",author: 'clara',}}>
 
 ```typescript title="Post" collapsed
@@ -587,12 +594,18 @@ PostResource.getList.move(
 
 </EndpointPlayground>
 
+<Grid>
+
 | Campo | Valor                                       |
 | :----------: | ------------------------------------------- |
 |    method    | 'PATCH'                                     |
 |     path     | [path](#path)                               |
 |     body     | [body](#body)                               |
 |    schema    | getList.[schema.move](./Collection.md#move) |
+
+<CollectionLists op="move" />
+
+</Grid>
 
 Se usa comúnmente con [Controller.fetch](/docs/api/Controller#fetch)
 

@@ -15,6 +15,7 @@ import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import DeleteProcess from './\_DeleteProcess.mdx';
 import CollectionLists from '@site/src/components/CollectionLists';
+import Grid from '@site/src/components/Grid';
 
 # Resource
 
@@ -396,8 +397,6 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 [RestEndpoint.push](./RestEndpoint.md#push) creates a new entity and pushes it to the end of getList. Use [getList.unshift](#unshift)
 to place at the beginning instead. Pass an array as the body to create several at once.
 
-<CollectionLists op="push" />
-
 <EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'},body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
 
 ```typescript title="Post" collapsed
@@ -432,6 +431,8 @@ PostResource.getList.push(
 
 </EndpointPlayground>
 
+<Grid>
+
 |    Field     | Value                                       |
 | :----------: | ------------------------------------------- |
 |    method    | 'POST'                                      |
@@ -440,13 +441,15 @@ PostResource.getList.push(
 |     body     | [body](#body)                               |
 |    schema    | getList.[schema.push](./Collection.md#push) |
 
+<CollectionLists op="push" />
+
+</Grid>
+
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### getList.unshift {#unshift}
 
 [RestEndpoint.unshift](./RestEndpoint.md#unshift) creates a new entity and pushes it to the beginning of getList.
-
-<CollectionLists op="unshift" />
 
 <EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
 
@@ -482,6 +485,8 @@ PostResource.getList.unshift(
 
 </EndpointPlayground>
 
+<Grid>
+
 |    Field     | Value                                             |
 | :----------: | ------------------------------------------------- |
 |    method    | 'POST'                                            |
@@ -489,6 +494,10 @@ PostResource.getList.unshift(
 | searchParams | [searchParams](#searchparams)                     |
 |     body     | [body](#body)                                     |
 |    schema    | getList.[schema.unshift](./Collection.md#unshift) |
+
+<CollectionLists op="unshift" />
+
+</Grid>
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
@@ -551,8 +560,6 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 [RestEndpoint.move](./RestEndpoint.md#move) moves an entity between [Collections](./Collection.md) by removing it from
 collections matching its old state and adding it to collections matching the new values from the body.
 
-<CollectionLists op="move" />
-
 <EndpointPlayground input="/react/posts/1" init={{method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "group": "vue" })}} status={200} response={{  "id": "1","group": "vue","title": "this post",author: 'clara',}}>
 
 ```typescript title="Post" collapsed
@@ -587,12 +594,18 @@ PostResource.getList.move(
 
 </EndpointPlayground>
 
+<Grid>
+
 |    Field     | Value                                       |
 | :----------: | ------------------------------------------- |
 |    method    | 'PATCH'                                     |
 |     path     | [path](#path)                               |
 |     body     | [body](#body)                               |
 |    schema    | getList.[schema.move](./Collection.md#move) |
+
+<CollectionLists op="move" />
+
+</Grid>
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
