@@ -67,14 +67,14 @@ function babelPlugin({ types: t, template }) {
     const code = path.hub.getCode();
     const { start, end } = path.node;
     const cuts = [];
-    const quasis = [];
+    const literals = [];
     // A node's range leaves out its own parens; space or comments can sit
     // before the closing one
     const closeParen = node => code.indexOf(')', node.end) + 1;
     path.traverse({
       enter(child) {
-        if (child.isTemplateElement()) {
-          quasis.push(child.node);
+        if (child.isTemplateElement() || child.isStringLiteral()) {
+          literals.push(child.node);
         } else if (TYPE_KEYS.has(child.key)) {
           cuts.push([child.node.start, child.node.end]);
           child.skip();
@@ -122,12 +122,13 @@ function babelPlugin({ types: t, template }) {
     });
     // The first line starts at the fixture; later ones keep the file's
     // nesting, so cut their shared indent (text inside template literals
-    // is the fixture's data, so it's neither measured nor cut)
+    // and JSX attribute strings is the fixture's data, so it's neither
+    // measured nor cut)
     const indents = [];
     for (let nl = code.indexOf('\n', start); nl !== -1 && nl < end;) {
       const line = nl + 1;
       nl = code.indexOf('\n', line);
-      if (quasis.some(q => q.start < line && line <= q.end)) continue;
+      if (literals.some(l => l.start < line && line <= l.end)) continue;
       const indent = /^ */.exec(code.slice(line, nl === -1 ? end : nl))[0];
       indents.push({
         line,
@@ -160,8 +161,8 @@ function babelPlugin({ types: t, template }) {
   // so source that doesn't parse is never shown
   const parseError = expression => {
     try {
-      // Builds only to parse: with JSX for .tsx fixtures, and without
-      // placeholders, which would claim ALL_CAPS names
+      // Parse-only check: enables JSX (fixtures may be .tsx) and turns off
+      // placeholders, which would otherwise claim ALL_CAPS names
       template.expression(expression, {
         plugins: ['jsx'],
         placeholderPattern: false,
@@ -236,7 +237,8 @@ function recmaPlugin() {
     const config = await (prettierConfig ??=
       prettier.resolveConfig(__filename));
     for (const prop of matches) {
-      // e.g. a fixture in a blockquote keeps its `> ` prefixes
+      // Prettier can't parse a fixture in a blockquote, which keeps its `> `
+      // prefixes
       await format(prop, code, config).catch(error =>
         warnMinified(file.path, prop, error),
       );

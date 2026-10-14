@@ -118,10 +118,22 @@ world\`;
 
   it('shows JSX and ALL_CAPS names as authored', () => {
     const code = compile(
-      `module.exports = [{ endpoint: E, response: (a: string) => <b>{BASE + a}</b> }];`,
+      `module.exports = [
+  {
+    endpoint: E,
+    response: (a: string) => (
+      <b title="multi
+          line">{BASE + a}</b>
+    ),
+  },
+];`,
       'test.tsx',
     );
-    assert.match(code, /value: \(\) => "\(a\) => <b>\{BASE \+ a\}<\/b>"/);
+    const [, literal] = /value: \(\) => ("(?:[^"\\]|\\.)*")/.exec(code);
+    assert.equal(
+      JSON.parse(literal),
+      '(a) => (\n  <b title="multi\n          line">{BASE + a}</b>\n)',
+    );
   });
 
   it('leaves non-fixture objects alone', () => {
