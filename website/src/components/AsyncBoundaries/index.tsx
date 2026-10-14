@@ -68,15 +68,14 @@ const box = (x: number, y: number, w: number, h: number): Point[] => [
   [x, y + h],
 ];
 
-/** The pointer target: the outline's box, a little bigger for a finger */
-const HIT_PAD = 4;
+/** The pointer target: the outline's box, clipped to the outline */
 function hit(points: Point[]) {
   const xs = points.map(([x]) => x);
   const ys = points.map(([, y]) => y);
-  const x = Math.min(...xs) - HIT_PAD;
-  const y = Math.min(...ys) - HIT_PAD;
-  const w = Math.max(...xs) + HIT_PAD - x;
-  const h = Math.max(...ys) + HIT_PAD - y;
+  const x = Math.min(...xs);
+  const y = Math.min(...ys);
+  const w = Math.max(...xs) - x;
+  const h = Math.max(...ys) - y;
   return {
     left: `${(x / WIDTH) * 100}%`,
     top: `${(y / HEIGHT) * 100}%`,
