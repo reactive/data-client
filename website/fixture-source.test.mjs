@@ -246,6 +246,7 @@ id,
 },
 },
 { endpoint: E, response: ((a) => a.b) },
+{ endpoint: E, response(a) { if (a) return 1; return 2; } },
 ]} />`,
         { recmaPlugins: [recmaPlugin] },
       ),
@@ -253,12 +254,14 @@ id,
     assert.deepEqual(shownSources(out), [
       'response({ id }) {\n  return {\n    id,\n  };\n}',
       'a => a.b',
+      'response(a) {\n  if (a) return 1;\n  return 2;\n}',
     ]);
+    // with two returns there's no one value to show
     assert.deepEqual(
-      [...out.matchAll(/returnedSource: \{\s*value: ("[^"]*")/g)].map(
-        ([, literal]) => JSON.parse(literal),
+      [...out.matchAll(/returnedSource: \{\s*value: ("[^"]*"|undefined)/g)].map(
+        ([, value]) => (value === 'undefined' ? undefined : JSON.parse(value)),
       ),
-      ['{ id }', 'a.b'],
+      ['{ id }', 'a.b', undefined],
     );
   });
 

@@ -159,10 +159,9 @@ function endpointOf(fixture: FixtureOrInterceptor) {
     path?: string;
     name?: string;
   };
-  return {
-    method: endpoint.method ?? '',
-    path: endpoint.path ?? endpoint.name ?? '',
-  };
+  const path = endpoint.path ?? endpoint.name ?? '';
+  // through splitKey too, which drops an absolute path's host
+  return splitKey(endpoint.method ? `${endpoint.method} ${path}` : path);
 }
 
 function FixtureResponse({

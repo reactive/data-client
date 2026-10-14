@@ -184,6 +184,14 @@ describe('summarize', () => {
     expect(labelFor(pinned())).toBe('varies');
   });
 
+  test('interceptor paths drop their host, as the Store does', () => {
+    const endpoint = { method: 'GET', path: 'https://api.test/x' };
+    expect(summarize({ endpoint, response: 1 } as any)).toMatchObject({
+      method: 'GET',
+      path: '/x',
+    });
+  });
+
   test('fetch interceptors name fetchResponse', () => {
     expect(
       summarize({
