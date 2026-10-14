@@ -3,6 +3,7 @@ import { useStorageSlot } from '@docusaurus/theme-common';
 import { useEffect } from 'react';
 
 import {
+  FRAMEWORKS,
   FRAMEWORK_INSTANCES,
   docsInstance,
 } from '../../framework-docs/docsInstances.js';
@@ -28,13 +29,18 @@ export default function useFramework(): Framework {
 
 /**
  * Framework of the current docs page; elsewhere (REST, blog, ...) the one whose
- * docs were viewed last, so the navbar keeps the reader's framework.
+ * docs were viewed last, so the navbar keeps the reader's framework. Page
+ * content uses useFramework(), as REST and GraphQL pages render React.
  */
 export function usePreferredFramework(): Framework {
   const framework = useDocsFramework();
   const [stored, storage] = useStorageSlot('docusaurus.framework');
+  // not keyed on `stored`, so tabs on different frameworks don't overwrite each other back and forth
   useEffect(() => {
-    if (framework && framework !== stored) storage.set(framework);
-  }, [framework, stored, storage]);
-  return framework ?? (stored === 'vue' ? 'vue' : 'react');
+    if (framework && framework !== storage.get()) storage.set(framework);
+  }, [framework, storage]);
+  if (framework) return framework;
+  return stored && FRAMEWORKS.includes(stored) ?
+      (stored as Framework)
+    : 'react';
 }

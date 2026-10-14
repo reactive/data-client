@@ -127,7 +127,7 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
 .navbar .navbar__brand .navbar__title {
   display: none;
 }
-/* narrower phones need the room for the framework menu */
+/* below 375px the wordmark is left out, to make room for the framework menu */
 @media only screen and (min-width: 375px) and (max-width: 996px) {
   .navbar .navbar__brand .navbar__logo:after {
     /* font-family: 'Alternox','Avenir Next', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; */

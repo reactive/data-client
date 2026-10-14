@@ -6,10 +6,12 @@ import { useLocation } from '@docusaurus/router';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import DropdownNavbarItem from '@theme/NavbarItem/DropdownNavbarItem';
 import type { Props } from '@theme/NavbarItem/DropdownNavbarItem';
-import clsx from 'clsx';
 import React from 'react';
 
-import { FRAMEWORK_INSTANCES } from '../../../framework-docs/docsInstances.js';
+import {
+  FRAMEWORK_INSTANCES,
+  frameworkInstance,
+} from '../../../framework-docs/docsInstances.js';
 import {
   type Framework,
   frameworkPluginId,
@@ -25,9 +27,9 @@ type Equivalents = Record<Framework, Record<string, string>>;
  * (the same doc id, or its `framework_equivalent`), else its docs root. The
  * hash only carries over to the same doc.
  */
-function useFrameworkLinks(
+function useFrameworkLink(
   current: Framework | undefined,
-): Record<Framework, string> {
+): (framework: Framework) => string {
   const allDocs = useAllDocsData();
   const equivalents = useDocusaurusContext().siteConfig.customFields
     ?.frameworkEquivalents as Equivalents;
@@ -35,7 +37,7 @@ function useFrameworkLinks(
     current && frameworkPluginId[current],
   );
   const { hash } = useLocation();
-  const link = (fw: Framework) => {
+  return (fw: Framework) => {
     const { docs, path } = allDocs[frameworkPluginId[fw]].versions[0];
     const find = (id: string | undefined) =>
       docs.find(doc => doc.id === id)?.path;
@@ -45,7 +47,6 @@ function useFrameworkLinks(
         same + hash
       : (find(equivalents[current][activeDoc.id]) ?? path);
   };
-  return { react: link('react'), vue: link('vue') };
 }
 
 type ItemProps = Omit<Props, 'items' | 'label'>;
@@ -64,15 +65,14 @@ export default function FrameworkDropdownNavbarItem(
 function FrameworkDropdown(props: ItemProps): React.JSX.Element {
   const current = useDocsFramework();
   const framework = usePreferredFramework();
-  const links = useFrameworkLinks(current);
+  const link = useFrameworkLink(current);
   return (
     <DropdownNavbarItem
       {...props}
-      className={clsx(props.className, current && 'navbar__link--active')}
-      label={FRAMEWORK_INSTANCES.find(d => d.framework === framework)!.name}
+      label={frameworkInstance(framework)!.name}
       items={FRAMEWORK_INSTANCES.map(({ framework: fw, name }) => ({
         label: name,
-        to: links[fw as Framework],
+        to: link(fw as Framework),
         isActive: () => fw === framework,
       }))}
     />
