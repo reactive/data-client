@@ -4,9 +4,12 @@ const AutoPlayVideo = ({
   src,
   type = 'video/mp4',
   alt,
+  children,
   ...props
 }: React.VideoHTMLAttributes<HTMLVideoElement> & {
   type?: string;
+  /** `<source>` elements in preference order; replaces `src` and `type` */
+  children?: React.ReactNode;
   /** Describes what the video shows, for screen readers and as fallback text */
   alt: string;
 }) => {
@@ -60,7 +63,7 @@ const AutoPlayVideo = ({
         aria-label={alt}
         {...props}
       >
-        <source src={src} type={type} />
+        {children ?? <source src={src} type={type} />}
         {alt}
       </video>
     </center>
