@@ -32,7 +32,7 @@
   "devDependencies": {
     "@anansi/cli": "4.0.0",
     "@anansi/babel-preset": "7.0.0",
-    "@anansi/browserslist-config": "1.7.5",
+    "@anansi/browserslist-config": "1.7.6",
     "@anansi/webpack-config": "22.0.0",
     "@babel/core": "8.0.7",
     "@linaria/core": "8.2.0",
@@ -43,7 +43,7 @@
     "@types/react-dom": "19.3.0",
     "react-refresh": "0.19.0",
     "serve": "14.2.6",
-    "webpack": "5.108.4",
+    "webpack": "5.111.1",
     "webpack-cli": "7.2.3",
     "webpack-dev-server": "6.0.0"
   },
