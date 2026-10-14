@@ -123,6 +123,6 @@
     "@types/node": "^26.0.0",
     "immutable": "5.1.9",
     "rollup-plugins": "workspace:*",
-    "temporal-polyfill": "^0.3.0"
+    "temporal-polyfill": "^1.0.0"
   }
 }
