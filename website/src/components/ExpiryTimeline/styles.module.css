@@ -608,7 +608,7 @@
     position: relative;
     z-index: 1;
     justify-content: flex-end;
-    margin: 1.5rem 0 -14px;
+    margin-bottom: -14px;
     padding: 0 10px 0 0;
   }
   .above .tip {
@@ -616,23 +616,18 @@
     right: 0;
     translate: none;
   }
-  .panel {
-    margin-top: 1.5rem;
-  }
-  .board > .panel:nth-child(2) {
-    margin-top: 0;
-  }
-  /* the switch above already spaces the Stale strip */
-  .above:not(:empty) + .panel {
-    margin-top: 8px;
-  }
+  /* short enough that a story and its explanation fit on screen together */
   .story {
     height: 160px;
   }
+  /* each explanation ends its status, spacing it from the next */
   .text {
-    margin-top: 0.75rem;
+    margin: 0.75rem 0 1.5rem;
     padding: 0 0 0 0.8rem;
     border-left: 3px solid var(--c);
     transition: border-color var(--motion-snappy);
+  }
+  .text:last-child {
+    margin-bottom: 0;
   }
 }
