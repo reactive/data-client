@@ -5,7 +5,14 @@ process.env.ANANSI_JEST_TSCONFIG = 'tsconfig.test.json';
 const fs = require('fs');
 const path = require('path');
 
+// ESM-only dependencies tests import; Jest must compile them to CommonJS
+const esmModules = 'temporal-polyfill|temporal-spec|temporal-utils';
+
 const baseConfig = {
+  transformIgnorePatterns: [
+    `/node_modules/(?!@babel/runtime|${esmModules})`,
+    '\\.pnp\\.[^\\/]+$',
+  ],
   testEnvironmentOptions: {
     globalsCleanup: 'on',
     url: 'http://localhost',
@@ -108,8 +115,7 @@ const projects = [
       ],
     },
     transformIgnorePatterns: [
-      '/node_modules/(?!@babel/runtime)',
-      '\\.pnp\\.[^\\/]+$',
+      ...baseConfig.transformIgnorePatterns,
       '<rootDir>/.*__tests__/[^/]+\\.(web|native)\\.(j|t)sx?$',
     ],
     testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.node\\.(j|t)sx?$',
@@ -136,7 +142,7 @@ const projects = [
     testEnvironment:
       require.resolve('@react-native/jest-preset/jest/react-native-env.js'),
     transformIgnorePatterns: [
-      'node_modules\\/(?!(((jest-)?react-native)|@react-native(-community)?|@react-navigation))',
+      `node_modules\\/(?!(((jest-)?react-native)|@react-native(-community)?|@react-navigation|${esmModules}))`,
       '<rootDir>/.*__tests__/[^/]+\\.(web|node)\\.(j|t)sx?$',
       '<rootDir>/scripts',
     ],
