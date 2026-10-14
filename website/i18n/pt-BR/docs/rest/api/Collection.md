@@ -23,9 +23,9 @@ e mover entre collections com [.move](#move).
 [RestEndpoint](./RestEndpoint.md) fornece os extenders [.push](./RestEndpoint.md#push), [.unshift](./RestEndpoint.md#unshift), [.assign](./RestEndpoint.md#assign), [.remove](./RestEndpoint.md#remove), [.move](./RestEndpoint.md#move)
 e [.getPage](./RestEndpoint.md#getpage)/ [.paginated()](./RestEndpoint.md#paginated) ao usar `Collections`
 
-## Uso {#usage}
-
 <CollectionLists />
+
+## Uso {#usage}
 
 <FrameworkPlayground row fixtures={[
 {

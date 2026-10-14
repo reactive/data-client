@@ -23,9 +23,9 @@ import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts
 使用 `Collections` 时，[RestEndpoint](./RestEndpoint.md) 提供了 [.push](./RestEndpoint.md#push), [.unshift](./RestEndpoint.md#unshift), [.assign](./RestEndpoint.md#assign), [.remove](./RestEndpoint.md#remove), [.move](./RestEndpoint.md#move)
 和 [.getPage](./RestEndpoint.md#getpage)/ [.paginated()](./RestEndpoint.md#paginated) 扩展器
 
-## 用法 {#usage}
-
 <CollectionLists />
+
+## 用法 {#usage}
 
 <FrameworkPlayground row fixtures={[
 {
