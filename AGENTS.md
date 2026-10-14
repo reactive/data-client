@@ -21,7 +21,7 @@ Monorepo for `@data-client` high performance npm packages.
 - `yarn check:doc-examples [react|vue]` - Type-checks the React and Vue code examples in `docs/` (CI `regenerate` check). See "Code examples" in `website/framework-docs/README.md`
 - Website: `yarn workspace rdc-website typecheck` / `yarn lint --quiet 'website/{src,api}/**/*.{js,ts,tsx}'` / `yarn workspace rdc-website build`; dev: `cd website && yarn start:vscode`
 
-**Test naming**: `*.node.test.ts[x]` (Node), `*.native.test.ts[x]` (RN), `*.test.ts[x]` (regular)
+**Test naming**: in `__tests__/`, `*.node.ts[x]` (Node), `*.native.ts[x]` (RN), any other `*.ts[x]` (regular); elsewhere `*.test.node.ts[x]`, `*.test.native.ts[x]`, `*.test.ts[x]`
 
 **Targeted tests**: `yarn test --selectProjects ReactDOM --testPathPatterns packages/react` (project names: `ReactDOM`, `Node`, `ReactNative`)
 
