@@ -111,14 +111,15 @@
   "peerDependencies": {
     "@data-client/react": "^0.12.15 || ^0.13.0 || ^0.14.0 || ^0.15.0 || ^0.16.0 || ^0.17.0 || ^0.18.0",
     "@testing-library/react-hooks": "^8.0.0",
-    "@testing-library/react-native": "^13.0.0",
+    "@testing-library/react-native": "^13.0.0 || ^14.0.0",
     "@types/react": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0",
     "@types/react-dom": "*",
     "jest": "*",
     "react": "^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0",
     "react-dom": "*",
     "react-native": "*",
-    "react-test-renderer": "*"
+    "react-test-renderer": "*",
+    "test-renderer": "^1.0.0"
   },
   "peerDependenciesMeta": {
     "@testing-library/react-hooks": {
@@ -144,12 +145,15 @@
     },
     "react-test-renderer": {
       "optional": true
+    },
+    "test-renderer": {
+      "optional": true
     }
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
     "@data-client/react": "workspace:*",
-    "@testing-library/react-native": "^13.0.0",
+    "@testing-library/react-native": "^14.0.0",
     "@types/jest": "30.0.0",
     "@types/node": "^26.0.0",
     "@types/react": "19.3.0",
@@ -160,6 +164,7 @@
     "react-dom": "19.3.0",
     "react-native": "0.87.1",
     "react-test-renderer": "*",
-    "rollup-plugins": "workspace:*"
+    "rollup-plugins": "workspace:*",
+    "test-renderer": "^1.3.0"
   }
 }

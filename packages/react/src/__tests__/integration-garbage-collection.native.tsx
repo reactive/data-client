@@ -104,7 +104,7 @@ describe('Integration Garbage Collection React Native', () => {
       content: 'Content 1',
     });
 
-    render(<TestComponent />);
+    await render(<TestComponent />);
 
     await act(async () => {
       jest.advanceTimersByTime(1000);
@@ -115,30 +115,24 @@ describe('Integration Garbage Collection React Native', () => {
     expect(await screen.findByText('Article 1')).toBeTruthy();
 
     // Switch to detail view
-    act(() => {
-      fireEvent.press(screen.getByText('Article 1'));
-    });
+    await fireEvent.press(screen.getByText('Article 1'));
 
     // Detail view should render
     expect(await screen.findByText('Content 1')).toBeTruthy();
 
     // Jest time pass to trigger sweep but not expired
-    act(() => {
+    await act(() => {
       jest.advanceTimersByTime(GC_INTERVAL);
     });
 
     // Switch back to list view
-    act(() => {
-      fireEvent.press(screen.getByText('Home'));
-    });
+    await fireEvent.press(screen.getByText('Home'));
 
     // List view should instantly render
     expect(await screen.findByText('Article 1')).toBeTruthy();
 
     // Switch back to detail view
-    act(() => {
-      fireEvent.press(screen.getByText('Article 1'));
-    });
+    await fireEvent.press(screen.getByText('Article 1'));
 
     // Jest time pass to expiry
     await act(async () => {
@@ -154,16 +148,12 @@ describe('Integration Garbage Collection React Native', () => {
     expect(await screen.findByText('Content 1')).toBeTruthy();
 
     // Re-render detail view to make sure it still renders
-    act(() => {
-      fireEvent.press(screen.getByText('Toggle Re-render'));
-    });
+    await fireEvent.press(screen.getByText('Toggle Re-render'));
     expect(await screen.findByText('Toggle state: true')).toBeTruthy();
     expect(await screen.findByText('Content 1')).toBeTruthy();
 
     // Visit list view and see suspense fallback
-    act(() => {
-      fireEvent.press(screen.getByText('Home'));
-    });
+    await fireEvent.press(screen.getByText('Home'));
 
     expect(screen.getByText('Loading...')).toBeTruthy();
     await jest.runOnlyPendingTimersAsync();
