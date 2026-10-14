@@ -1315,7 +1315,7 @@ div.fixtureJson {
   .playgroundContainer .headerButton.storeHeaderToggle {
     display: inline-flex;
   }
-  /* no room for a glance at a fixture's response worth reading */
+  /* drop the response hint so the path keeps the row's width */
   .fixtureHint {
     display: none;
   }

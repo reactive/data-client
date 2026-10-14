@@ -17,13 +17,6 @@ jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
 }));
 jest.mock(
-  '@docusaurus/BrowserOnly',
-  () =>
-    ({ children }: { children: () => React.ReactNode }) =>
-      children(),
-  { virtual: true },
-);
-jest.mock(
   '@docusaurus/theme-common/internal',
   () => ({
     useScrollPositionBlocker: () => ({

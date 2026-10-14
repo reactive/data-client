@@ -79,6 +79,7 @@ export function summarize(fixture: FixtureOrInterceptor) {
     hint:
       isFetch ? 'ƒ fetchResponse'
       : typeof fixture.response === 'function' ? 'ƒ response'
+        // JSON.stringify(undefined) is undefined
       : (JSON.stringify(fixture.response)?.slice(0, HINT_CHARS) ??
         String(fixture.response)),
     error: 'error' in fixture && fixture.error === true,

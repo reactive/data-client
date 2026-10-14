@@ -5,7 +5,6 @@ import { EntityDetail } from './Details';
 import { byData, offsetIn, toggled, type Scroller } from './dom';
 import {
   optimisticId,
-  splitKey,
   type EntityRow,
   type EntityTable,
   type StoreModel,
@@ -28,6 +27,7 @@ import {
   type Column,
 } from './Table';
 import { EndpointKey, Inline, Primitive } from './Value';
+import { splitKey } from '../../splitKey';
 
 /** Rows a table shows before "N more"; tables this short show them all */
 const PREVIEW_ROWS = 5;

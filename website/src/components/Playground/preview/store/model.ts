@@ -1,7 +1,6 @@
 import { schema as s } from '@data-client/endpoint';
 import { actionTypes, type State } from '@data-client/react';
 
-import { splitKey } from '../../splitKey';
 import {
   INVALIDATED,
   forEachRef,
@@ -13,6 +12,7 @@ import type {
   EndpointRecord,
   default as SchemaRegistry,
 } from './schemaRegistry';
+import { splitKey } from '../../splitKey';
 
 /** An optimistic update awaiting its response */
 export interface PendingOptimistic {
@@ -350,8 +350,6 @@ function tableKind(table: any, first: unknown): EntityTable['kind'] {
   // Unknown schema (e.g. state seeded without an action): guess from the rows
   return Array.isArray(first) ? 'collection' : 'unknown';
 }
-
-export { splitKey };
 
 /** Collection pks are serialized args: `{"userId":"1"}` → `userId: 1` */
 export function prettyPk(pk: string) {

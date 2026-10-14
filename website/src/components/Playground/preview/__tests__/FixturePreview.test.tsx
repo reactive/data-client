@@ -119,6 +119,15 @@ describe('summarize', () => {
     expect(path).toBe('custom [1]');
   });
 
+  test('interceptors without a method or path are named by the endpoint', () => {
+    const { method, path } = summarize({
+      endpoint: { name: 'search' },
+      response: 5,
+    } as any);
+    expect(method).toBe('');
+    expect(path).toBe('search');
+  });
+
   test('the hint is the response, capped', () => {
     expect(
       summarize({ endpoint: getArticle, args: [{ id: 9 }], response: 5 }).hint,

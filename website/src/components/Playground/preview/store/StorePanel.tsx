@@ -84,9 +84,9 @@ import styles from './store.module.css';
 import { StoreUIProvider } from './StoreUI';
 import Timeline, { Scrubber } from './Timeline';
 import TreeView from './TreeView';
-import Unfold from '../../Unfold';
 import { RowKey } from './Value';
 import { useTabStorage } from '../../../../utils/tabStorage';
+import Unfold from '../../Unfold';
 
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;

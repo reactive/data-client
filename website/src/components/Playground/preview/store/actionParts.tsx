@@ -23,13 +23,6 @@ import {
 import type ActionLog from './actionLog';
 import { isRecordChange, type History, type LogEntry } from './actionLog';
 import { kindColor } from './dom';
-import { splitKey } from './model';
-import {
-  prefersReducedMotion,
-  springAt,
-  springEasing,
-  springs,
-} from '../../../motion';
 import {
   ActionSpanContext,
   type ActionSpan,
@@ -38,6 +31,13 @@ import {
 } from './nav';
 import styles from './store.module.css';
 import { CountChip, EndpointKey, EntityKey, RefChip } from './Value';
+import {
+  prefersReducedMotion,
+  springAt,
+  springEasing,
+  springs,
+} from '../../../motion';
+import { splitKey } from '../../splitKey';
 
 export interface Actions {
   readonly log: ActionLog;
