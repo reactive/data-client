@@ -177,6 +177,13 @@
       "groupName": "react-navigation monorepo"
     },
     {
+      "description": "changesets/action requires a matching Changesets CLI (action v2 refuses CLI v2), so every update of either lands in one PR",
+      "matchPackageNames": ["changesets/action", "@changesets/cli"],
+      "separateMajorMinor": false,
+      "groupName": "changesets",
+      "groupSlug": "changesets"
+    },
+    {
       "matchPackageNames": ["node", "@types/node", "cimg/node"],
       "matchUpdateTypes": ["major"],
       "groupName": "node",
