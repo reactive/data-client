@@ -848,35 +848,39 @@
     "description": "Accessible label of the data co-location diagram on the Render Data page"
   },
   "expiryTimeline.label": {
-    "message": "缓存响应的时间线：在 dataExpiryLength 内为 Fresh（新鲜），之后为 Stale（过时），调用 ctrl.invalidate() 后为 Invalid（无效）（设置 invalidIfStale 时则在 Fresh 之后直接无效）。使用 useSuspense() 挂载的组件：数据新鲜时直接渲染、不发请求；数据过时时先渲染再在后台重新获取；数据无效时显示 fallback，直到请求完成",
-    "description": "Accessible label of the expiry timeline diagram on the Expiry Policy page"
+    "message": "使用 useSuspense() 挂载的组件会读取 store：数据新鲜时直接渲染、不发请求；数据过时时先渲染再在后台重新获取；数据无效时显示 fallback，直到请求完成",
+    "description": "Accessible label of the expiry diagram on the Expiry Policy page"
   },
-  "expiryTimeline.fresh": {
-    "message": "新鲜",
-    "description": "Band label on the expiry timeline diagram: data new enough to render without fetching"
-  },
-  "expiryTimeline.stale": {
-    "message": "过时",
-    "description": "Band label on the expiry timeline diagram: data rendered while it refetches"
-  },
-  "expiryTimeline.invalid": {
-    "message": "无效",
-    "description": "Band label on the expiry timeline diagram: data that must not render"
-  },
-  "expiryTimeline.learnMore": {
-    "message": "了解更多",
-    "description": "Link in each tooltip of the expiry timeline diagram, to the section explaining that option"
+  "expiryTimeline.within": {
+    "message": "未超过",
+    "description": "Before the dataExpiryLength option name, over the Fresh story: a mount within that time finds fresh data"
   },
   "expiryTimeline.dataExpiryLength": {
     "message": "响应在变为过时之前保持新鲜的时长（毫秒）。",
-    "description": "Tooltip on the dataExpiryLength annotation of the expiry timeline diagram"
+    "description": "Tooltip on the dataExpiryLength label of the expiry diagram"
   },
-  "expiryTimeline.invalidIfStale": {
-    "message": "开启后，数据一过期就跳过过时状态直接变为无效，必须重新获取后才能渲染。",
-    "description": "Tooltip on the invalidIfStale switch of the expiry timeline diagram"
+  "expiryTimeline.after": {
+    "message": "超过",
+    "description": "Before the dataExpiryLength option name, over the Stale story: a mount after that time finds stale data"
+  },
+  "expiryTimeline.afterDataExpiryLength": {
+    "message": "超过 dataExpiryLength（毫秒）后，缓存的响应变为过时：仍会显示，但会重新获取。",
+    "description": "Tooltip on the Stale story’s dataExpiryLength label of the expiry diagram"
+  },
+  "expiryTimeline.afterCall": {
+    "message": "调用了",
+    "description": "Before ctrl.invalidate(), over the Invalid story: a mount after that call finds invalid data"
   },
   "expiryTimeline.invalidate": {
     "message": "立即将数据标记为无效（即使仍然新鲜），需要它的组件会重新获取。",
-    "description": "Tooltip on the ctrl.invalidate() annotation of the expiry timeline diagram"
+    "description": "Tooltip on the ctrl.invalidate() label of the expiry diagram"
+  },
+  "expiryTimeline.invalidIfStale": {
+    "message": "开启后，数据一过期就跳过过时状态直接变为无效，必须重新获取后才能渲染。",
+    "description": "Tooltip on the invalidIfStale switch of the expiry diagram"
+  },
+  "expiryTimeline.learnMore": {
+    "message": "了解更多",
+    "description": "Link in each tooltip of the expiry diagram, to the section explaining that option"
   }
 }

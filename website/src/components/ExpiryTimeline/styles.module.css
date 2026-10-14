@@ -1,4 +1,4 @@
-/* the diagram, the annotations laid over it and a column per band below it */
+/* three mount stories side by side, each over its section's text */
 .frame {
   --line: var(--ifm-color-emphasis-300);
   --fresh: hsl(150, 55%, 34%);
@@ -9,21 +9,6 @@
   --muted: var(--ifm-color-gray-700);
   margin: 0 0 1.5rem;
 }
-/* the annotations are placed in % of the diagram's box */
-.stage {
-  position: relative;
-  max-width: 640px;
-  margin: 0 auto;
-}
-.diagram {
-  --play: running;
-  --seek: var(--at);
-  display: block;
-  width: 100%;
-  font-size: 12px;
-  text-anchor: middle;
-  user-select: none;
-}
 [data-theme='dark'] .frame {
   --fresh: hsl(150, 50%, 60%);
   --stale: hsl(40, 85%, 62%);
@@ -32,7 +17,7 @@
   --muted: var(--ifm-color-gray-600);
 }
 
-/* what a component mounting in each zone finds: cached data it may show
+/* what a component mounting in each status finds: cached data it may show
    (--cached), a fetch to make (--requests), a fallback meanwhile (--fallback) */
 .fresh {
   --zone: var(--fresh);
@@ -46,15 +31,14 @@
   --requests: 1;
   --fallback: 0;
 }
-.invalid,
-.invalidIfStale .stale {
+.invalid {
   --zone: var(--invalid);
   --cached: 0;
   --requests: 1;
   --fallback: 1;
 }
 
-/* the timeline */
+/* each column's color */
 .band0 {
   --c: var(--fresh);
 }
@@ -62,83 +46,148 @@
   --c: var(--stale);
 }
 .band2,
-.invalidIfStale .diagram .band1 {
+.invalidIfStale .panel.band1 {
   --c: var(--invalid);
 }
-.band rect {
-  fill: color-mix(in srgb, var(--c) 14%, var(--ifm-background-surface-color));
-  transition: fill var(--motion-snappy);
-}
-.band text {
-  fill: var(--c);
-  font-weight: 600;
-  transition: fill var(--motion-snappy);
-}
-.track {
-  fill: none;
-  stroke: var(--line);
-  stroke-width: 1.5;
-}
-.arrival {
-  fill: var(--ifm-color-primary);
-  stroke: var(--ifm-background-surface-color);
-  stroke-width: 1.5;
-}
-.option path {
-  fill: none;
-  stroke: var(--ifm-color-emphasis-500);
-  stroke-width: 1.5;
-}
-.option text,
-.hook,
-.request text {
-  font-family: var(--ifm-font-family-monospace);
-  font-size: 10.5px;
-}
-.option text,
-.hook {
-  fill: var(--ifm-color-emphasis-700);
+/* with invalidIfStale there is no Stale: its story is Invalid's, and its
+   heading greys out */
+.invalidIfStale .text.band1 {
+  --c: var(--muted);
 }
 
-/* the invalidIfStale switch, text-height, before its label */
-.switch {
-  fill: var(--ifm-color-emphasis-400);
-  rx: 4.5px;
-  transition: fill var(--motion-snappy);
+/* a column per status, filled top to bottom: the row over the panels (the
+   switch, over Stale), the panel, its text; rows align across columns */
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: auto auto auto;
+  grid-auto-flow: column;
+  column-gap: 1.25rem;
 }
-.knob {
-  fill: var(--on-chip);
-  transition: transform var(--motion-snappy);
-}
-.on .switch {
-  fill: var(--invalid);
-}
-.on .knob {
-  transform: translateX(7px);
+.above {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 6px;
 }
 
-/* the real controls, over the drawn annotations: a box per band */
-.annotation {
-  position: absolute;
-  top: 0;
+.panel {
+  position: relative;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--c);
+  border-radius: 10px;
+  padding-bottom: 4px;
+  background: color-mix(
+    in srgb,
+    var(--c) 6%,
+    var(--ifm-background-surface-color)
+  );
+  transition:
+    border-color var(--motion-snappy),
+    background-color var(--motion-snappy);
 }
+.head {
+  display: flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 4px 10px 0;
+}
+.panel .head {
+  justify-content: flex-start;
+}
+.band2 .head {
+  justify-content: flex-end;
+}
+
+/* the controls: how each status comes about, and the invalidIfStale switch */
 .control {
-  display: block;
-  box-sizing: border-box;
-  width: 100%;
-  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 2px 6px;
+  border: 0;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 0.78rem;
+  line-height: 1.3;
+  color: var(--ifm-color-emphasis-800);
+  background: none;
+  text-decoration: none;
+  cursor: pointer;
+}
+.control code {
   padding: 0;
   border: 0;
-  border-radius: 4px;
+  font-size: inherit;
+  color: inherit;
   background: none;
-  cursor: pointer;
+  white-space: nowrap;
 }
 .control:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
-  outline-offset: -2px;
+  outline-offset: 0;
 }
-/* what each annotation does, above its label; the pad keeps the mouse's
-   path from the label into the bubble hovered */
+.when {
+  margin: 0 -6px;
+}
+.when:focus-visible,
+.when:hover {
+  color: var(--ifm-color-primary);
+}
+.prefix {
+  color: var(--muted);
+}
+@media (hover: hover) {
+  .when:hover code {
+    text-decoration: underline;
+  }
+}
+
+/* the switch: a pill over the Stale panel, red when on */
+.switch {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 10px 3px 5px;
+  background: var(--ifm-background-surface-color);
+  transition: border-color var(--motion-snappy);
+}
+.switch[aria-checked='true'] {
+  border-color: var(--invalid);
+}
+.track {
+  position: relative;
+  display: inline-block;
+  width: 26px;
+  height: 14px;
+  border-radius: 7px;
+  background: var(--ifm-color-emphasis-400);
+  transition: background-color var(--motion-snappy);
+}
+.knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--on-chip);
+  transition: transform var(--motion-snappy);
+}
+.switch[aria-checked='true'] .track {
+  background: var(--invalid);
+}
+.switch[aria-checked='true'] .knob {
+  transform: translateX(12px);
+}
+
+/* what each control does, in a bubble above it; the pad keeps the mouse's
+   path from the control into the bubble hovered */
+.note {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
 .tip {
   position: absolute;
   z-index: 2;
@@ -167,7 +216,7 @@
 .bubble {
   display: block;
   padding: 0.4rem 0.6rem;
-  border: 1px solid var(--ifm-color-emphasis-300);
+  border: 1px solid var(--line);
   border-radius: var(--ifm-global-radius);
   font-size: 0.8rem;
   line-height: 1.4;
@@ -188,73 +237,64 @@
 }
 /* and on hover, where there is one; a tap stands in for it on touch */
 @media (hover: hover) {
-  .annotation:hover .tip {
+  .note:hover .tip {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
   }
 }
-/* after Escape (see Annotations); must follow the hover rule it overrides */
-.annotation.dismissed .tip {
+/* after Escape (see useTips); must follow the hover rule it overrides */
+.note.dismissed .tip {
   opacity: 0;
   pointer-events: none;
 }
 
-.scrubber {
-  fill: transparent;
-  cursor: col-resize;
-  /* horizontal drags scrub; vertical swipes still scroll the page */
-  touch-action: pan-y;
+/* the story: store, component and API, drawn small */
+.story {
+  display: block;
+  width: 100%;
+  margin-top: 2px;
+  font-size: 7px;
+  text-anchor: middle;
+  user-select: none;
 }
-
-/* one pass over a zone: mount, render, request, response, re-render */
-.anim {
-  animation-duration: var(--period);
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-delay: var(--seek);
-  animation-play-state: var(--play);
-}
-.paused {
-  --play: paused;
-}
-
-.playhead {
-  pointer-events: none;
-  stroke: var(--ifm-font-color-base);
-  fill: var(--ifm-font-color-base);
-  stroke-width: 1.5;
-  animation-name: sweep;
-}
-@keyframes sweep {
-  from {
-    transform: translateX(var(--x0));
-  }
-  to {
-    transform: translateX(var(--x1));
-  }
-}
-
-.panel {
+.box {
   fill: var(--ifm-background-surface-color);
-  stroke-width: 1.5;
-  rx: 10px;
+  stroke: var(--ifm-color-emphasis-500);
+  stroke-width: 1.2;
+  rx: 6px;
 }
-.store .panel {
+.store .box {
   stroke: var(--ifm-color-primary);
 }
 .db {
   color: var(--ifm-color-primary);
 }
+.hook,
+.request text {
+  font-family: var(--ifm-font-family-monospace);
+}
+.hook {
+  font-size: 7.5px;
+  fill: var(--ifm-color-emphasis-700);
+}
 .api {
   fill: none;
   stroke: var(--ifm-color-emphasis-500);
-  stroke-width: 0.6;
+  stroke-width: 1;
   stroke-linejoin: round;
 }
 
+/* one pass over the story: mount, render, request, response, re-render;
+   every panel's animations start together, so they stay in step */
+.anim {
+  animation-duration: var(--period);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
 .bar {
-  rx: 4px;
+  rx: 3px;
   animation-name: age;
 }
 /* stale or invalid until the response lands, fresh after */
@@ -286,7 +326,7 @@
 .read {
   fill: none;
   stroke: var(--ifm-color-primary);
-  stroke-width: 2;
+  stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
   animation-name: read;
@@ -321,7 +361,8 @@
     opacity: 1;
   }
 }
-.box {
+/* the component's outline: dashed while it shows its fallback */
+.outline {
   stroke: var(--ifm-color-emphasis-600);
   animation-name: solid;
 }
@@ -364,16 +405,16 @@
 .fallback rect {
   fill: none;
   stroke: var(--ifm-color-emphasis-500);
-  stroke-width: 1.5;
-  stroke-dasharray: 5 4;
-  rx: 10px;
+  stroke-width: 1.2;
+  stroke-dasharray: 4 3;
+  rx: 6px;
 }
 .spin {
   fill: none;
   stroke: var(--ifm-color-emphasis-500);
-  stroke-width: 2.5;
+  stroke-width: 2;
   stroke-linecap: round;
-  stroke-dasharray: 40 30;
+  stroke-dasharray: 30 20;
   transform-box: fill-box;
   transform-origin: center;
   animation: spin 1s linear infinite;
@@ -387,8 +428,8 @@
 /* re-renders, like React DevTools' highlight */
 .flash {
   fill: none;
-  stroke-width: 8;
-  rx: 10px;
+  stroke-width: 5;
+  rx: 7px;
   opacity: 0;
 }
 .render {
@@ -427,66 +468,68 @@
   }
 }
 
-/* out the bottom of the component to the API, back over the top into the store */
+/* the request: out the bottom of the component to the API, back over the
+   top into the store; only where the status calls for one */
 .chip {
   animation-name: travel;
 }
 @keyframes travel {
   0%,
   10% {
-    transform: translate(220px, 190px);
+    transform: translate(109px, 80px);
     opacity: 0;
   }
   12% {
-    transform: translate(220px, 190px);
+    transform: translate(109px, 80px);
     opacity: var(--requests);
   }
   15% {
-    transform: translate(220px, 214px);
+    transform: translate(109px, 92px);
   }
   30% {
-    transform: translate(370px, 214px);
+    transform: translate(160px, 92px);
   }
   34% {
-    transform: translate(370px, 188px);
+    transform: translate(160px, 68px);
     opacity: var(--requests);
   }
   36% {
-    transform: translate(370px, 188px);
+    transform: translate(160px, 68px);
     opacity: 0;
   }
   44% {
-    transform: translate(370px, 126px);
+    transform: translate(160px, 36px);
     opacity: 0;
   }
   46% {
-    transform: translate(370px, 126px);
+    transform: translate(160px, 36px);
     opacity: var(--requests);
   }
   49% {
-    transform: translate(370px, 84px);
+    transform: translate(160px, 8px);
   }
   62% {
-    transform: translate(66px, 84px);
+    transform: translate(32px, 8px);
   }
   66% {
-    transform: translate(66px, 116px);
+    transform: translate(32px, 24px);
     opacity: var(--requests);
   }
   68%,
   100% {
-    transform: translate(66px, 116px);
+    transform: translate(32px, 24px);
     opacity: 0;
   }
 }
 .request rect {
   fill: var(--ifm-background-surface-color);
   stroke: var(--ifm-color-primary);
-  stroke-width: 1.5;
+  stroke-width: 1.2;
 }
 .request text {
-  fill: var(--ifm-color-primary);
+  font-size: 7px;
   font-weight: 600;
+  fill: var(--ifm-color-primary);
 }
 .request {
   animation-name: out;
@@ -521,81 +564,77 @@
   }
 }
 
-/* nothing moves on its own: hold the component rendered, 3/4 into Fresh,
-   until the reader scrubs; then hold wherever they left it */
+/* nothing moves: hold every story a fifth of the way in, with the component
+   rendered (data, or the fallback) and the request, where there is one, on
+   its way to the API; the switch still swaps the Stale frame for Invalid's */
 @media (prefers-reduced-motion: reduce) {
-  .diagram {
-    --play: paused;
-  }
-  .diagram.unseeked {
-    --seek: calc(var(--period) * -0.75);
+  .anim {
+    animation-play-state: paused;
+    animation-delay: calc(var(--period) * -0.2);
   }
   .spin {
     animation: none;
   }
 }
 
-/* the sections under the timeline, one per band in its color, across the page */
-.columns {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  column-gap: 1.5rem;
+/* the sections, one under each panel in its color */
+.text {
+  min-width: 0;
+  padding: 0.75rem 0 0;
   font-size: 0.9rem;
 }
-.column {
-  min-width: 0;
-  padding: 0.5rem 0 0;
-  border-top: 3px solid var(--c);
-  transition: border-color var(--motion-snappy);
-}
-.column > :first-child {
+.text > :first-child {
   margin-top: 0;
   font-size: 1.1rem;
   color: var(--c);
   transition: color var(--motion-snappy);
 }
-/* with invalidIfStale there is no Stale: grey out its heading and marker */
-.invalidIfStale .column.band1 {
-  --c: var(--muted);
-}
-.column > :last-child {
+.text > :last-child {
   margin-bottom: 0;
 }
-/* stacked, each still marked with its band's color */
-@media (max-width: 640px) {
-  .columns {
-    display: block;
-  }
-  .column {
-    padding: 0 0 0 0.8rem;
-    border-top: 0;
-    border-left: 3px solid var(--c);
-  }
-  .column + .column {
-    margin-top: 1.25rem;
-  }
-}
 
-/* TEMPORARY design picker, while choosing a design */
-.picker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  justify-content: center;
-  margin: 0 0 1rem;
-}
-.picker button {
-  padding: 0.2rem 0.7rem;
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 999px;
-  font: inherit;
-  font-size: 0.8rem;
-  color: var(--ifm-color-emphasis-800);
-  background: none;
-  cursor: pointer;
-}
-.picker button[aria-pressed='true'] {
-  border-color: var(--ifm-color-primary);
-  color: var(--ifm-background-color);
-  background: var(--ifm-color-primary);
+/* on a phone the three stories stay together, as strips the reader compares
+   at a glance, with the switch tagging the Stale strip; the sections stack
+   below, each marked with its color */
+@media (max-width: 640px) {
+  .board {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-auto-flow: row;
+  }
+  .above:empty {
+    display: none;
+  }
+  /* the switch straddles the top right corner of the Stale strip */
+  .above {
+    position: relative;
+    z-index: 1;
+    order: 1;
+    justify-content: flex-end;
+    margin: 8px 0 -20px;
+    padding: 0 10px 0 0;
+  }
+  .above .tip {
+    left: auto;
+    right: 0;
+    translate: none;
+  }
+  .panel {
+    order: 1;
+    margin-top: 8px;
+  }
+  /* held to a height three strips fit together, still legible */
+  .story {
+    height: 160px;
+  }
+  .text {
+    order: 2;
+    margin-top: 1.25rem;
+    padding: 0 0 0 0.8rem;
+    border-left: 3px solid var(--c);
+    transition: border-color var(--motion-snappy);
+  }
+  .text.band0 {
+    margin-top: 1.5rem;
+  }
 }

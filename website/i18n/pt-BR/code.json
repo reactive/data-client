@@ -848,35 +848,39 @@
     "description": "Accessible label of the data co-location diagram on the Render Data page"
   },
   "expiryTimeline.label": {
-    "message": "Linha do tempo de uma resposta em cache: Fresh durante dataExpiryLength, depois Stale e depois Invalid após ctrl.invalidate() (ou logo depois de Fresh com invalidIfStale). Um componente que monta com useSuspense() renderiza dados frescos sem nenhuma requisição, renderiza dados desatualizados e os busca de novo em segundo plano, e com dados inválidos mostra seu fallback até a requisição resolver",
-    "description": "Accessible label of the expiry timeline diagram on the Expiry Policy page"
+    "message": "Um componente que monta com useSuspense() lê o store: dados frescos renderizam sem nenhuma requisição; dados desatualizados renderizam e são buscados de novo em segundo plano; com dados inválidos mostra o fallback até a requisição resolver",
+    "description": "Accessible label of the expiry diagram on the Expiry Policy page"
   },
-  "expiryTimeline.fresh": {
-    "message": "Fresh",
-    "description": "Band label on the expiry timeline diagram: data new enough to render without fetching"
-  },
-  "expiryTimeline.stale": {
-    "message": "Stale",
-    "description": "Band label on the expiry timeline diagram: data rendered while it refetches"
-  },
-  "expiryTimeline.invalid": {
-    "message": "Invalid",
-    "description": "Band label on the expiry timeline diagram: data that must not render"
-  },
-  "expiryTimeline.learnMore": {
-    "message": "Saiba mais",
-    "description": "Link in each tooltip of the expiry timeline diagram, to the section explaining that option"
+  "expiryTimeline.within": {
+    "message": "dentro de",
+    "description": "Before the dataExpiryLength option name, over the Fresh story: a mount within that time finds fresh data"
   },
   "expiryTimeline.dataExpiryLength": {
     "message": "Por quanto tempo (em milissegundos) uma resposta se mantém fresca antes de ficar desatualizada.",
-    "description": "Tooltip on the dataExpiryLength annotation of the expiry timeline diagram"
+    "description": "Tooltip on the dataExpiryLength label of the expiry diagram"
   },
-  "expiryTimeline.invalidIfStale": {
-    "message": "Quando ligado, os dados pulam Stale e passam a ser inválidos assim que expiram, então precisam ser buscados de novo antes de poderem renderizar.",
-    "description": "Tooltip on the invalidIfStale switch of the expiry timeline diagram"
+  "expiryTimeline.after": {
+    "message": "depois de",
+    "description": "Before the dataExpiryLength option name, over the Stale story: a mount after that time finds stale data"
+  },
+  "expiryTimeline.afterDataExpiryLength": {
+    "message": "Depois que dataExpiryLength (em milissegundos) passa, a resposta em cache fica desatualizada: ainda é mostrada, mas é buscada de novo.",
+    "description": "Tooltip on the Stale story’s dataExpiryLength label of the expiry diagram"
+  },
+  "expiryTimeline.afterCall": {
+    "message": "depois de",
+    "description": "Before ctrl.invalidate(), over the Invalid story: a mount after that call finds invalid data"
   },
   "expiryTimeline.invalidate": {
     "message": "Marca os dados como inválidos na hora, mesmo que ainda estejam frescos, para que os componentes que precisam deles os busquem de novo.",
-    "description": "Tooltip on the ctrl.invalidate() annotation of the expiry timeline diagram"
+    "description": "Tooltip on the ctrl.invalidate() label of the expiry diagram"
+  },
+  "expiryTimeline.invalidIfStale": {
+    "message": "Quando ligado, os dados pulam Stale e passam a ser inválidos assim que expiram, então precisam ser buscados de novo antes de poderem renderizar.",
+    "description": "Tooltip on the invalidIfStale switch of the expiry diagram"
+  },
+  "expiryTimeline.learnMore": {
+    "message": "Saiba mais",
+    "description": "Link in each tooltip of the expiry diagram, to the section explaining that option"
   }
 }

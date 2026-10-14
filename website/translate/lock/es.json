@@ -374,15 +374,16 @@
       "playground.errorMessage.status": "Request failed ({status})",
       "playground.errorMessage.reset": "Reset",
       "dataColocation.label": "Component tree where each component that renders data reads it straight from the store with useSuspense(): User for CurrentUser and Avatar, Post for PostBody, and Comment for CommentList. A change re-renders just those components, and none of the rest of the tree",
-      "expiryTimeline.label": "Timeline of a cached response: Fresh for dataExpiryLength, then Stale, then Invalid after ctrl.invalidate() (or straight after Fresh with invalidIfStale). A component mounting with useSuspense() renders fresh data with no request, renders stale data and refetches in the background, and on invalid data shows its fallback until the fetch resolves",
+      "expiryTimeline.label": "A component mounting with useSuspense() reads the store: fresh data renders with no request; stale data renders and refetches in the background; invalid data shows the fallback until the fetch resolves",
       "playground.demo.replay": "Replay demo",
-      "expiryTimeline.fresh": "Fresh",
-      "expiryTimeline.invalid": "Invalid",
-      "expiryTimeline.stale": "Stale",
       "expiryTimeline.learnMore": "Learn more",
       "expiryTimeline.dataExpiryLength": "How long (in milliseconds) a response stays fresh before it becomes stale.",
       "expiryTimeline.invalidIfStale": "When on, data skips Stale and becomes invalid as soon as it expires, so it must refetch before it can render.",
-      "expiryTimeline.invalidate": "Marks the data invalid right away, even while fresh, so components that need it fetch again."
+      "expiryTimeline.invalidate": "Marks the data invalid right away, even while fresh, so components that need it fetch again.",
+      "expiryTimeline.within": "within",
+      "expiryTimeline.after": "after",
+      "expiryTimeline.afterDataExpiryLength": "Once dataExpiryLength (in milliseconds) has passed, the cached response is stale: still shown, but refetched.",
+      "expiryTimeline.afterCall": "after"
     },
     "docusaurus-plugin-content-blog/options.json": {
       "title": "Blog",
