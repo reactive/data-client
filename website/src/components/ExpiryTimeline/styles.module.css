@@ -592,9 +592,8 @@
   margin-bottom: 0;
 }
 
-/* on a phone the three stories stay together, as strips the reader compares
-   at a glance, with the switch tagging the Stale strip; the sections stack
-   below, each marked with its color */
+/* on a phone each story stacks over its own explanation, marked with its
+   color, with the switch tagging the Stale strip */
 @media (max-width: 640px) {
   .board {
     grid-template-columns: minmax(0, 1fr);
@@ -608,9 +607,8 @@
   .above {
     position: relative;
     z-index: 1;
-    order: 1;
     justify-content: flex-end;
-    margin: 8px 0 -14px;
+    margin: 1.5rem 0 -14px;
     padding: 0 10px 0 0;
   }
   .above .tip {
@@ -619,21 +617,22 @@
     translate: none;
   }
   .panel {
-    order: 1;
+    margin-top: 1.5rem;
+  }
+  .board > .panel:nth-child(2) {
+    margin-top: 0;
+  }
+  /* the switch above already spaces the Stale strip */
+  .above:not(:empty) + .panel {
     margin-top: 8px;
   }
-  /* held to a height three strips fit together, still legible */
   .story {
     height: 160px;
   }
   .text {
-    order: 2;
-    margin-top: 1.25rem;
+    margin-top: 0.75rem;
     padding: 0 0 0 0.8rem;
     border-left: 3px solid var(--c);
     transition: border-color var(--motion-snappy);
-  }
-  .text.band0 {
-    margin-top: 1.5rem;
   }
 }
