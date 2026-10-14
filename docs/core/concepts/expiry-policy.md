@@ -807,7 +807,7 @@ render(<Demo />);
 Using the [Invalidate schema](/rest/api/Invalidate) allows us to invalidate _any_ endpoint that includes that relies on that [entity](/rest/api/Entity) in their
 response. If the endpoint uses the entity in an [Array](/rest/api/Array), it will simply be removed from that [Array](/rest/api/Array).
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
