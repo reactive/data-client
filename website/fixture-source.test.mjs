@@ -90,6 +90,28 @@ world\`;
     );
   });
 
+  it('pins what each function returns, on one line', () => {
+    const code = compile(`module.exports = [
+  {
+    endpoint: E,
+    async response(...args: any[]) {
+      if (!args.length) return [];
+      const list = (await getList(...args)) as Post[];
+      return {
+        ...list[0],
+        id: args[0]!.id,
+      };
+    },
+  },
+  { endpoint: E, response: (a: number) => ({ a }) },
+  { endpoint: E, response() { log(); } },
+];`);
+    assert.deepEqual(
+      run(code).map(fixture => fixture.response.returnedSource),
+      ['{ ...list[0], id: args[0].id }', '{ a }', undefined],
+    );
+  });
+
   it('still runs the functions, with this', () => {
     const code = compile(
       `module.exports = [{ endpoint: E, response(a) { return [this, a]; } }];`,
@@ -174,6 +196,12 @@ id,
       'response({ id }) {\n  return {\n    id,\n  };\n}',
       'a => a.b',
     ]);
+    assert.deepEqual(
+      [...out.matchAll(/returnedSource: \{\s*value: ("[^"]*")/g)].map(
+        ([, literal]) => JSON.parse(literal),
+      ),
+      ['{ id }', 'a.b'],
+    );
   });
 
   it('never fails the build over a fixture it cannot format', async t => {

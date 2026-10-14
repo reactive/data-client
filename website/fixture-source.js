@@ -2,8 +2,9 @@
 /** The Playground's Fixtures panel prints `response`/`fetchResponse`
  * functions with `${fn}`, which shows minified code in production builds.
  * These plugins pin each fixture function's `toString()` to its authored
- * source: `babelPlugin` for fixtures in JS/TS modules (minus their types),
- * `recmaPlugin` for fixtures written inline in MDX.
+ * source, and its `returnedSource` to what it returns, on one line, for the
+ * panel's collapsed rows: `babelPlugin` for fixtures in JS/TS modules (minus
+ * their types), `recmaPlugin` for fixtures written inline in MDX.
  */
 const prettier = require('prettier');
 
@@ -21,35 +22,66 @@ const keyName = prop =>
   !prop.computed && prop.key && (prop.key.name ?? prop.key.value);
 const isFixture = props => props.some(prop => keyName(prop) === 'endpoint');
 
-/** `Object.defineProperty(fn, 'toString', { value: () => source })` in ESTree */
-const withSourceEstree = (fn, source) => ({
+/** Where in a function (Babel or ESTree) the node it returns sits: an
+ * arrow's expression body, or the argument of its body's last top-level
+ * `return` */
+function returnedKey(fn) {
+  if (fn.body.type !== 'BlockStatement') return 'body';
+  const i = fn.body.body.findLastIndex(
+    node => node.type === 'ReturnStatement' && node.argument,
+  );
+  return i === -1 ? undefined : `body.body.${i}.argument`;
+}
+
+/** A glance at an expression: its text on one line */
+const oneLine = text =>
+  text
+    .replace(/\s+/g, ' ')
+    // a multi-line literal's trailing comma reads as clutter on one line
+    .replace(/,\s*([}\])])/g, ' $1')
+    .trim();
+
+const estreeProperty = (name, value) => ({
+  type: 'Property',
+  kind: 'init',
+  method: false,
+  shorthand: false,
+  computed: false,
+  key: { type: 'Identifier', name },
+  value,
+});
+/** In ESTree: `Object.defineProperties(fn, {
+ *   toString: { value: () => source },
+ *   returnedSource: { value: returned },
+ * })` */
+const withSourceEstree = (fn, source, returned) => ({
   type: 'CallExpression',
   callee: {
     type: 'MemberExpression',
     computed: false,
     object: { type: 'Identifier', name: 'Object' },
-    property: { type: 'Identifier', name: 'defineProperty' },
+    property: { type: 'Identifier', name: 'defineProperties' },
   },
   arguments: [
     fn,
-    { type: 'Literal', value: 'toString' },
     {
       type: 'ObjectExpression',
-      properties: [
-        {
-          type: 'Property',
-          kind: 'init',
-          method: false,
-          shorthand: false,
-          computed: false,
-          key: { type: 'Identifier', name: 'value' },
-          value: {
-            type: 'ArrowFunctionExpression',
-            params: [],
-            body: { type: 'Literal', value: source },
-          },
+      properties: Object.entries({
+        toString: {
+          type: 'ArrowFunctionExpression',
+          params: [],
+          body: { type: 'Literal', value: source },
         },
-      ],
+        returnedSource:
+          returned ?
+            { type: 'Literal', value: returned }
+          : { type: 'Identifier', name: 'undefined' },
+      }).map(([name, value]) =>
+        estreeProperty(name, {
+          type: 'ObjectExpression',
+          properties: [estreeProperty('value', value)],
+        }),
+      ),
     },
   ],
 });
@@ -157,10 +189,18 @@ function babelPlugin({ types: t, template }) {
     return source + code.slice(at, end);
   }
 
-  const withSourceBabel = (fn, source) =>
-    template.expression.ast`Object.defineProperty(${fn}, 'toString', {
-      value: () => ${t.stringLiteral(source)},
+  const withSourceBabel = (fn, source, returned) =>
+    template.expression.ast`Object.defineProperties(${fn}, {
+      toString: { value: () => ${t.stringLiteral(source)} },
+      returnedSource: {
+        value: ${returned ? t.stringLiteral(returned) : t.identifier('undefined')},
+      },
     })`;
+
+  const returnedSource = fnPath => {
+    const key = returnedKey(fnPath.node);
+    return key && oneLine(authoredSource(fnPath.get(key)));
+  };
 
   // Text cuts can miss shapes no fixture uses yet, like `((a as any)).b`,
   // so source that doesn't parse is never shown
@@ -185,9 +225,10 @@ function babelPlugin({ types: t, template }) {
         props.forEach((prop, i) => {
           if (!FN_KEYS.has(keyName(prop))) return;
           const propPath = path.get(`properties.${i}`);
-          let fn, source;
+          let fn, source, returned;
           if (t.isObjectMethod(prop, { kind: 'method' })) {
             source = authoredSource(propPath);
+            returned = returnedSource(propPath);
             const error = parseError(`({ ${source} })`);
             if (error) return warnMinified(filename, prop, error);
             fn = t.functionExpression(
@@ -199,6 +240,7 @@ function babelPlugin({ types: t, template }) {
             );
           } else if (t.isObjectProperty(prop) && t.isFunction(prop.value)) {
             source = authoredSource(propPath.get('value'));
+            returned = returnedSource(propPath.get('value'));
             const error = parseError(source);
             if (error) return warnMinified(filename, prop, error);
             fn = prop.value;
@@ -206,7 +248,7 @@ function babelPlugin({ types: t, template }) {
             return;
           }
           propPath.replaceWith(
-            t.objectProperty(prop.key, withSourceBabel(fn, source)),
+            t.objectProperty(prop.key, withSourceBabel(fn, source, returned)),
           );
         });
       },
@@ -269,7 +311,14 @@ async function format(prop, code, config) {
       .replace(/,$/, '')
       .replace(/^ {2}/gm, '');
   }
-  prop.value = withSourceEstree(prop.value, source);
+  const key = returnedKey(prop.value);
+  const returned =
+    key && key.split('.').reduce((parent, k) => parent[k], prop.value);
+  prop.value = withSourceEstree(
+    prop.value,
+    source,
+    returned && oneLine(code.slice(returned.start, returned.end)),
+  );
   prop.method = false;
 }
 

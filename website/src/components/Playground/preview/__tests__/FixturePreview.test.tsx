@@ -63,6 +63,26 @@ describe('FixturePreview', () => {
     expect(toggle.textContent).toContain('150 ms');
   });
 
+  test('function rows show what the function returns, once pinned', () => {
+    const response = () => ({ id: 1 });
+    const { container } = render(
+      <FixturePreview
+        fixtures={[
+          { endpoint: getArticle, response },
+          {
+            endpoint: getArticle,
+            response: Object.defineProperty(() => 2, 'returnedSource', {
+              value: '{ id: 1 }',
+            }),
+          },
+        ]}
+      />,
+    );
+    const [unpinned, pinned] = container.querySelectorAll('button');
+    expect(unpinned.textContent).toContain('ƒ response');
+    expect(pinned.textContent).toContain('ƒ → { id: 1 }');
+  });
+
   test('shows function responses once open', () => {
     render(
       <FixturePreview
@@ -76,10 +96,7 @@ describe('FixturePreview', () => {
         ]}
       />,
     );
-    const toggle = screen.getByRole('button');
-    // collapsed, the row shows what the function returns
-    expect(toggle.textContent).toContain('ƒ → { id }');
-    fireEvent.click(toggle);
+    fireEvent.click(screen.getByRole('button'));
     expect(screen.getByText(/return \{ id \}/)).toBeTruthy();
   });
 });
@@ -97,7 +114,7 @@ describe('summarize', () => {
     ).toEqual({
       method: 'GET',
       path: '/article/:id',
-      fn: 'response',
+      fnName: 'response',
       hint: undefined,
       error: false,
       delay: 'delay',
@@ -109,7 +126,7 @@ describe('summarize', () => {
       summarize({
         endpoint: getArticle,
         fetchResponse: () => ({ id: 1 }),
-      } as any).fn,
+      } as any).fnName,
     ).toBe('fetchResponse');
   });
 

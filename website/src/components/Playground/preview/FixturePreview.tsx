@@ -4,7 +4,6 @@ import CodeBlock from '@theme/CodeBlock';
 import clsx from 'clsx';
 import { memo, type ReactElement, useState } from 'react';
 
-import { returnedSource } from '../returnedSource';
 import { splitKey } from '../splitKey';
 import styles from '../styles.module.css';
 import type { FixtureOrInterceptor } from '../types';
@@ -25,7 +24,7 @@ export default memo(FixturePreview);
  * mounts while open */
 function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
   const [open, setOpen] = useState(false);
-  const { method, path, hint, fn, error, delay } = summarize(fixture);
+  const { method, path, fnName, hint, error, delay } = summarize(fixture);
   return (
     <div className={styles.fixture}>
       <button
@@ -44,8 +43,11 @@ function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
         : null}
         <span className={styles.fixturePath}>{path}</span>
         <span className={styles.fixtureHint} aria-hidden>
-          {fn ?
-            <FunctionHint name={fn} fixture={fixture} />
+          {fnName ?
+            <>
+              <span className={styles.fixtureFn}>ƒ</span>{' '}
+              {hint ? `→ ${hint}` : fnName}
+            </>
           : hint}
         </span>
         {error ?
@@ -75,26 +77,37 @@ const HINT_CHARS = 160;
 /** The row's line: the endpoint as the Store names it, a glance at the
  * response, and what else the fixture does */
 export function summarize(fixture: FixtureOrInterceptor) {
-  const fn =
-    'fetchResponse' in fixture ? ('fetchResponse' as const)
-    : typeof fixture.response === 'function' ? ('response' as const)
-    : undefined;
+  const response = responseOf(fixture);
   const { delay } = fixture;
   return {
     ...splitKey(keyOf(fixture)),
-    fn,
+    fnName: 'fn' in response ? response.name : undefined,
+    // what a function returns is pinned at build time (fixture-source.js);
     // String() covers what JSON.stringify can't, like undefined
-    hint:
-      fn || 'fetchResponse' in fixture ?
-        undefined
-      : (JSON.stringify(fixture.response)?.slice(0, HINT_CHARS) ??
-        String(fixture.response)),
+    hint: ('fn' in response ?
+      (response.fn as { returnedSource?: string }).returnedSource
+    : (JSON.stringify(response.data) ?? String(response.data))
+    )?.slice(0, HINT_CHARS),
     error: 'error' in fixture && fixture.error === true,
     delay:
       typeof delay === 'number' ? `${delay} ms`
       : delay ? 'delay'
       : undefined,
   };
+}
+
+/** The fixture's response: a function that makes it, or the data itself */
+function responseOf(
+  fixture: FixtureOrInterceptor,
+):
+  | { fn: (...args: any) => unknown; name: 'response' | 'fetchResponse' }
+  | { data: unknown } {
+  if ('fetchResponse' in fixture) {
+    return { fn: fixture.fetchResponse, name: 'fetchResponse' };
+  }
+  return typeof fixture.response === 'function' ?
+      { fn: fixture.response, name: 'response' }
+    : { data: fixture.response };
 }
 
 /** `GET /article/1`, as the Store keys it; interceptors have no args, so
@@ -111,44 +124,20 @@ function keyOf(fixture: FixtureOrInterceptor): string {
   return endpoint.method ? `${endpoint.method} ${path}` : path;
 }
 
-/** `ƒ → { todos: Object.values(this) }`: what the function returns, read
- * from its source, so the row hints at the response without running it */
-function FunctionHint({
-  name,
-  fixture,
-}: {
-  name: 'response' | 'fetchResponse';
-  fixture: FixtureOrInterceptor;
-}) {
-  return (
-    <>
-      <span className={styles.fixtureFn}>ƒ</span>{' '}
-      {/* the source is only sure to be pinned in the browser's bundle */}
-      <BrowserOnly>
-        {() => {
-          const returned = returnedSource(`${(fixture as any)[name]}`);
-          return returned ? `→ ${returned.slice(0, HINT_CHARS)}` : name;
-        }}
-      </BrowserOnly>
-    </>
-  );
-}
-
 function FixtureResponse({
   fixture,
 }: {
   fixture: FixtureOrInterceptor;
 }): ReactElement {
-  if ('fetchResponse' in fixture || typeof fixture.response === 'function') {
-    const fn =
-      'fetchResponse' in fixture ? fixture.fetchResponse : fixture.response;
+  const response = responseOf(fixture);
+  if ('fn' in response) {
     // The function's source is pinned at build time (fixture-source.js), but
     // only the browser's bundle is sure to carry it
     return (
       <BrowserOnly>
         {() => (
           <CodeBlock language="javascript" className={styles.fixtureJson}>
-            {`${fn}`}
+            {`${response.fn}`}
           </CodeBlock>
         )}
       </BrowserOnly>
@@ -156,7 +145,7 @@ function FixtureResponse({
   }
   return (
     <CodeBlock language="json" className={styles.fixtureJson}>
-      {JSON.stringify(fixture.response, null, 2)}
+      {JSON.stringify(response.data, null, 2)}
     </CodeBlock>
   );
 }
