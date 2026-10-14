@@ -191,7 +191,7 @@
      send1 10.8%   send2 23.4%   srv1 32.4%   srv2 43.2%
      back2 55.8%   back1 73.8%
    Holding a moment restarts the animations paused, so the negative
-   delay --seek is the moment shown (see index.tsx) */
+   delay --seek, set on the svg, is the moment shown (see index.tsx) */
 .anim {
   animation-duration: var(--period);
   animation-timing-function: linear;
@@ -375,8 +375,9 @@
   }
 }
 
-/* the digit on each screen: the strip slides a window (24px) per count, up
-   as it rises and back down when the late response knocks it back */
+/* the count on each screen: a strip of the counts the row shows, in order,
+   slid one window (24px) per change: none 0, 2, 1; naive 0, 1, 2, 1;
+   Data Client 0, 1, 2 */
 .none .strip {
   animation-name: countNone;
 }
@@ -394,12 +395,12 @@
   }
   57.8%,
   73.8% {
-    transform: translateY(-48px);
+    transform: translateY(-24px);
     animation-timing-function: ease-out;
   }
   75.8%,
   100% {
-    transform: translateY(-24px);
+    transform: translateY(-48px);
   }
 }
 @keyframes countNaive {
@@ -420,7 +421,7 @@
   }
   75.8%,
   100% {
-    transform: translateY(-24px);
+    transform: translateY(-72px);
   }
 }
 @keyframes countClient {

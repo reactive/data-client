@@ -18,10 +18,11 @@ const SWEEP = 0.9;
 
 const LANE = { client: 36, server: 88 };
 /**
- * When each event happens, as a share of the sweep. styles.module.css keys
+ * When each moment happens, as a share of the sweep. styles.module.css keys
  * its keyframes to the same moments (each × 90%), so change them together.
  */
 const AT = {
+  start: 0,
   /** the first increment is sent, from 0 */
   send1: 0.12,
   /** the second increment is sent, from 1 */
@@ -35,20 +36,22 @@ const AT = {
   /** the first response, 1, reaches the client last */
   back1: 0.82,
 };
-type Event = keyof typeof AT;
-const x = (at: number) => X0 + at * SPAN;
+type Moment = keyof typeof AT;
+const x = (at: Moment) => X0 + AT[at] * SPAN;
+/** Which keyframe shows an element from its moment on; the start needs none */
+const appear = (at: Moment) => at !== 'start' && clsx(styles.anim, styles[at]);
 
 /** Each request: out to the server and back */
 const REQUESTS = [
-  { c: styles.req1, send: AT.send1, srv: AT.srv1, back: AT.back1, count: 1 },
-  { c: styles.req2, send: AT.send2, srv: AT.srv2, back: AT.back2, count: 2 },
-];
+  { c: styles.req1, send: 'send1', srv: 'srv1', back: 'back1', count: 1 },
+  { c: styles.req2, send: 'send2', srv: 'srv2', back: 'back2', count: 2 },
+] as const;
 
 interface Step {
-  at: number;
+  at: Moment;
   value: number;
-  /** what changed the count; `start` is the count the row begins with */
-  kind: 'start' | 'optimistic' | 'response';
+  /** set by the client before the server confirms it */
+  optimistic?: boolean;
 }
 interface Row {
   key: 'none' | 'naive' | 'client';
@@ -62,29 +65,29 @@ const ROWS: Row[] = [
     key: 'none',
     base: 150,
     steps: [
-      { at: 0, value: 0, kind: 'start' },
-      { at: AT.back2, value: 2, kind: 'response' },
-      { at: AT.back1, value: 1, kind: 'response' },
+      { at: 'start', value: 0 },
+      { at: 'back2', value: 2 },
+      { at: 'back1', value: 1 },
     ],
   },
   {
     key: 'naive',
     base: 190,
     steps: [
-      { at: 0, value: 0, kind: 'start' },
-      { at: AT.send1, value: 1, kind: 'optimistic' },
-      { at: AT.send2, value: 2, kind: 'optimistic' },
-      { at: AT.back2, value: 2, kind: 'response' },
-      { at: AT.back1, value: 1, kind: 'response' },
+      { at: 'start', value: 0 },
+      { at: 'send1', value: 1, optimistic: true },
+      { at: 'send2', value: 2, optimistic: true },
+      { at: 'back2', value: 2 },
+      { at: 'back1', value: 1 },
     ],
   },
   {
     key: 'client',
     base: 230,
     steps: [
-      { at: 0, value: 0, kind: 'start' },
-      { at: AT.send1, value: 1, kind: 'optimistic' },
-      { at: AT.send2, value: 2, kind: 'optimistic' },
+      { at: 'start', value: 0 },
+      { at: 'send1', value: 1, optimistic: true },
+      { at: 'send2', value: 2, optimistic: true },
     ],
   },
 ];
@@ -94,12 +97,6 @@ const PILL = { w: 16, h: 14 };
 /** The count display beside each row's label */
 const SCREEN = { x: 84, w: 28, h: 24 };
 
-/** Which keyframe shows an element from the moment it happens */
-const appear = (at: number) => {
-  const event = (Object.keys(AT) as Event[]).find(k => AT[k] === at);
-  return event && clsx(styles.anim, styles[event]);
-};
-
 /**
  * Two increments of a counter race: the second response comes back before
  * the first. A playhead sweeps the timeline; under the requests, three step
@@ -107,28 +104,33 @@ const appear = (at: number) => {
  * Hovering (or a tap, on touch screens) holds the moment under the pointer.
  */
 export default function OptimisticRace() {
-  // the moment held under the pointer, as a share of the sweep; `run`
-  // restarts the animations, so a hold starts them paused at 0 and a
-  // negative delay then seeks them (see styles.module.css)
-  const [hold, setHold] = useState<{ at: number | null; run: number }>({
-    at: null,
-    run: 0,
-  });
+  // whether a moment is held under the pointer; `run` restarts the
+  // animations, so a hold starts them paused at 0 and the negative delay
+  // --seek, written straight onto the svg, then seeks them (see
+  // styles.module.css)
+  const [hold, setHold] = useState({ held: false, run: 0 });
   const svg = useRef<SVGSVGElement>(null);
-  /** a tap holds until the next tap; dragging scrubs meanwhile */
-  const tap = useRef<{ x: number; pinned: boolean } | null>(null);
-  const pinned = useRef(false);
+  /** the svg's box while held, so a move needs no layout */
+  const box = useRef<DOMRect>(undefined);
 
   const seek = (e: React.PointerEvent) => {
-    const box = svg.current?.getBoundingClientRect();
-    if (!box) return;
-    const px = ((e.clientX - box.left) / box.width) * WIDTH;
+    if (!box.current || !svg.current) return;
+    const { left, width } = box.current;
+    const px = ((e.clientX - left) / width) * WIDTH;
     const at = Math.min(1, Math.max(0, (px - X0) / SPAN));
-    setHold(h => ({ at, run: h.at === null ? h.run + 1 : h.run }));
+    svg.current.style.setProperty(
+      '--seek',
+      `calc(var(--period) * ${-at * SWEEP})`,
+    );
+  };
+  const grab = (e: React.PointerEvent) => {
+    box.current = e.currentTarget.getBoundingClientRect();
+    setHold(h => (h.held ? h : { held: true, run: h.run + 1 }));
+    seek(e);
   };
   const release = () => {
-    pinned.current = false;
-    setHold(h => (h.at === null ? h : { at: null, run: h.run + 1 }));
+    svg.current?.style.removeProperty('--seek');
+    setHold(h => (h.held ? { held: false, run: h.run + 1 } : h));
   };
   const touch = (e: React.PointerEvent) => e.pointerType === 'touch';
 
@@ -140,31 +142,20 @@ export default function OptimisticRace() {
         viewBox={`0 ${TOP} ${WIDTH} ${HEIGHT - TOP}`}
         role="img"
         style={
-          hold.at !== null ?
-            ({
-              '--seek': `calc(var(--period) * ${-hold.at * SWEEP})`,
-              '--play': 'paused',
-            } as React.CSSProperties)
+          hold.held ?
+            ({ '--play': 'paused' } as React.CSSProperties)
           : undefined
         }
+        // a mouse holds the moment under it; a finger, while it drags
         onPointerMove={e => {
-          if (!touch(e) || (pinned.current && e.buttons)) seek(e);
+          if (!touch(e) || e.buttons) (hold.held ? seek : grab)(e);
         }}
         onPointerLeave={e => {
           if (!touch(e)) release();
         }}
+        // a tap holds; the next one lets go
         onPointerDown={e => {
-          if (!touch(e)) return;
-          tap.current = { x: e.clientX, pinned: pinned.current };
-          pinned.current = true;
-          seek(e);
-        }}
-        onPointerUp={e => {
-          if (!touch(e) || !tap.current) return;
-          // a second tap lets go; a drag just moved the hold
-          if (tap.current.pinned && Math.abs(e.clientX - tap.current.x) < 8)
-            release();
-          tap.current = null;
+          if (touch(e)) (hold.held ? release : grab)(e);
         }}
         onPointerCancel={e => {
           if (touch(e)) release();
@@ -327,8 +318,11 @@ function travel(x0: number, y0: number, x1: number, y1: number) {
  */
 function StepChart({ row: { key, base, steps } }: { row: Row }) {
   const y = (value: number) => base - value * STEP;
-  const final = steps[steps.length - 1].value;
-  const wrong = final !== 2;
+  // the counts it shows, in order: a response that re-sets one changes nothing
+  const shown = steps
+    .filter((step, i) => !i || step.value !== steps[i - 1].value)
+    .map(step => step.value);
+  const wrong = shown[shown.length - 1] !== 2;
   return (
     <g className={styles[key]}>
       {steps.map((step, i) => {
@@ -346,7 +340,7 @@ function StepChart({ row: { key, base, steps } }: { row: Row }) {
             <g
               className={clsx(
                 styles.pill,
-                step.kind === 'optimistic' && styles.optimistic,
+                step.optimistic && styles.optimistic,
                 prev && step.value === prev.value && styles.again,
               )}
             >
@@ -366,30 +360,31 @@ function StepChart({ row: { key, base, steps } }: { row: Row }) {
       {key === 'client' && (
         <>
           {/* the second response confirms the count the store already shows */}
-          <g className={clsx(styles.confirmed, appear(AT.back2))}>
-            <circle cx={x(AT.back2) + 11} cy={y(2)} r="5.5" />
-            <path d={`M${x(AT.back2) + 8} ${y(2) + 0.3}l2 2 4-4.3`} />
+          <g className={clsx(styles.confirmed, appear('back2'))}>
+            <circle cx={x('back2') + 11} cy={y(2)} r="5.5" />
+            <path d={`M${x('back2') + 8} ${y(2) + 0.3}l2 2 4-4.3`} />
           </g>
           {/* the first response is older than the store's data, so it is ignored */}
-          <g className={clsx(styles.pill, styles.ignored, appear(AT.back1))}>
+          <g className={clsx(styles.pill, styles.ignored, appear('back1'))}>
             <rect
-              x={x(AT.back1) + 3}
+              x={x('back1') + 3}
               y={y(2) - PILL.h / 2}
               width={PILL.w}
               height={PILL.h}
             />
             {/* eslint-disable-next-line @docusaurus/no-untranslated-text -- the count */}
-            <text x={x(AT.back1) + 3 + PILL.w / 2} y={y(2) + 3.5}>
+            <text x={x('back1') + 3 + PILL.w / 2} y={y(2) + 3.5}>
               1
             </text>
             <path
-              d={`M${x(AT.back1) + 6} ${y(2) + 4.5}L${x(AT.back1) + 16} ${y(2) - 4.5}`}
+              d={`M${x('back1') + 6} ${y(2) + 4.5}L${x('back1') + 16} ${y(2) - 4.5}`}
             />
           </g>
         </>
       )}
 
-      {/* the live counter: a strip of digits, slid to the one on screen */}
+      {/* the live counter: a strip of the counts it shows, slid one slot
+          per change */}
       <rect
         className={styles.screen}
         x={SCREEN.x}
@@ -406,20 +401,20 @@ function StepChart({ row: { key, base, steps } }: { row: Row }) {
         viewBox={`0 0 ${SCREEN.w} ${SCREEN.h}`}
       >
         <g className={clsx(styles.strip, styles.anim)}>
-          {[0, 1, 2].map(digit => (
+          {shown.map((value, i) => (
             <text
-              key={digit}
+              key={i}
               x={SCREEN.w / 2}
-              y={SCREEN.h / 2 + 4.5 + digit * SCREEN.h}
+              y={SCREEN.h / 2 + 4.5 + i * SCREEN.h}
             >
-              {digit}
+              {value}
             </text>
           ))}
         </g>
       </svg>
       {wrong && (
         <rect
-          className={clsx(styles.screen, styles.flag, appear(AT.back1))}
+          className={clsx(styles.screen, styles.flag, appear('back1'))}
           x={SCREEN.x}
           y={y(1) - SCREEN.h / 2}
           width={SCREEN.w}
