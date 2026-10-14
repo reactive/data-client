@@ -197,10 +197,10 @@ packages/react/src/hooks/__tests__/useSuspense.test.ts
 packages/react/src/components/__tests__/DataProvider.test.tsx
 ```
 
-**Test naming:**
-- Node-only: `*.node.test.ts[x]`
-- React Native: `*.native.test.ts[x]`
-- Regular: `*.test.ts[x]`
+**Test naming** (files in `__tests__/`; elsewhere add `.test` before the suffix, e.g. `*.test.node.ts[x]`):
+- Node-only: `*.node.ts[x]`
+- React Native: `*.native.ts[x]`
+- Regular: `*.ts[x]`
 
 ## Best Practices
 
