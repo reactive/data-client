@@ -8,7 +8,8 @@
  */
 const prettier = require('prettier');
 
-const FN_KEYS = new Set(['response', 'fetchResponse']);
+// `delay` too, so the panel can show a function's fixed delay
+const FN_KEYS = new Set(['response', 'fetchResponse', 'delay']);
 // Babel child keys holding TypeScript-only syntax, cut from the shown source
 // (Babel 8 moves call and `new` type arguments to typeArguments)
 const TYPE_KEYS = new Set([

@@ -89,11 +89,21 @@ export function summarize(fixture: FixtureOrInterceptor) {
     : (JSON.stringify(response.data) ?? String(response.data))
     )?.slice(0, HINT_CHARS),
     error: 'error' in fixture && fixture.error === true,
-    delay:
-      typeof delay === 'number' ? `${delay} ms`
-      : delay ? 'delay'
-      : undefined,
+    delay: delayLabel(delay),
   };
+}
+
+/** `150 ms`, also for a function that always returns 150 (as pinned by
+ * fixture-source.js), and nothing for no delay; any other delay function
+ * reads `delay` */
+function delayLabel(delay: FixtureOrInterceptor['delay']) {
+  const ms =
+    typeof delay === 'function' ?
+      Number((delay as { returnedSource?: string }).returnedSource)
+    : delay;
+  if (ms !== 0 && ms !== undefined) {
+    return Number.isNaN(ms) ? 'delay' : `${ms} ms`;
+  }
 }
 
 /** The fixture's response: a function that makes it, or the data itself */

@@ -121,6 +121,22 @@ describe('summarize', () => {
     });
   });
 
+  test('a delay function that always returns a number shows it', () => {
+    const delay = (returnedSource?: string) =>
+      summarize({
+        endpoint: getArticle,
+        args: [{ id: 1 }],
+        response: 1,
+        delay: Object.defineProperty(() => 0, 'returnedSource', {
+          value: returnedSource,
+        }),
+      } as any).delay;
+    expect(delay('150')).toBe('150 ms');
+    expect(delay('0')).toBeUndefined();
+    expect(delay('500 + Math.random() * 4500')).toBe('delay');
+    expect(delay()).toBe('delay');
+  });
+
   test('fetch interceptors name fetchResponse', () => {
     expect(
       summarize({
