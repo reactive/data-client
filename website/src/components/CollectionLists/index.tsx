@@ -6,7 +6,7 @@ import styles from './styles.module.css';
 import StoreIcon from '../Playground/StoreIcon';
 
 const WIDTH = 420;
-/** Where the drawing starts: the call line's box */
+/** The viewBox starts here, just above the call highlight's stroke */
 const TOP = 22;
 const HEIGHT = 226;
 /** Seconds one run of the chosen operation takes (the CSS animations' duration) */
@@ -16,8 +16,9 @@ const OPS = ['push', 'unshift', 'remove', 'move'] as const;
 type Op = (typeof OPS)[number];
 type User = '1' | '2';
 
-/** The call line's baseline, and its box: room for the longest call, unshift's */
+/** The call line's baseline */
 const CALL_Y = 40;
+/** The call highlight's width: room for the longest call, unshift's */
 const CALL_W = 392;
 
 // the cached lists in the store, one per set of arguments getTodos was called with
@@ -310,7 +311,7 @@ function Todo({ user, className }: { user: User; className?: string }) {
     </g>
   );
 }
-/** Picks the operation; outside the SVG, which is an image */
+/** Picks the operation. Outside the SVG: inside its role="img", buttons would be presentational. */
 function Tabs({ op, onChange }: { op: Op; onChange: (op: Op) => void }) {
   return (
     <div

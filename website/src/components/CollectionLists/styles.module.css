@@ -42,6 +42,10 @@ text .user2 {
 /* the segmented control: push / unshift / remove / move */
 .controls {
   display: flex;
+  /* only at large text sizes on a phone */
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
   width: fit-content;
   margin: 0 auto 4px;
   padding: 2px;
@@ -62,8 +66,12 @@ text .user2 {
     color var(--motion-snappy);
 }
 .controls button[aria-pressed='true'] {
-  background: var(--ifm-color-primary);
+  /* darker in light mode, so the white label reads */
+  background: var(--ifm-color-primary-darker);
   color: var(--on-chip);
+}
+[data-theme='dark'] .controls button[aria-pressed='true'] {
+  background: var(--ifm-color-primary);
 }
 .controls button:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
