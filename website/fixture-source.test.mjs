@@ -9,6 +9,12 @@ const { babelPlugin, recmaPlugin } = require('./fixture-source.js');
 const docusaurusRequire = createRequire(require.resolve('@docusaurus/babel'));
 const babel = docusaurusRequire('@babel/core');
 
+// The source each pinned fixture function shows
+const shownSources = code =>
+  [...code.matchAll(/value: \(\) => ("(?:[^"\\]|\\.)*")/g)].map(([, literal]) =>
+    JSON.parse(literal),
+  );
+
 const run = code => {
   const module = { exports: {} };
   new Function('module', 'E', code)(module, {});
@@ -116,7 +122,7 @@ world\`;
     );
   });
 
-  it('shows JSX and ALL_CAPS names as authored', () => {
+  it('shows JSX, with multi-line attributes and ALL_CAPS names, as authored', () => {
     const code = compile(
       `module.exports = [
   {
@@ -129,11 +135,9 @@ world\`;
 ];`,
       'test.tsx',
     );
-    const [, literal] = /value: \(\) => ("(?:[^"\\]|\\.)*")/.exec(code);
-    assert.equal(
-      JSON.parse(literal),
+    assert.deepEqual(shownSources(code), [
       '(a) => (\n  <b title="multi\n          line">{BASE + a}</b>\n)',
-    );
+    ]);
   });
 
   it('leaves non-fixture objects alone', () => {
@@ -166,10 +170,7 @@ id,
         { recmaPlugins: [recmaPlugin] },
       ),
     );
-    const sources = [
-      ...out.matchAll(/value: \(\) => ("(?:[^"\\]|\\.)*")/g),
-    ].map(([, literal]) => JSON.parse(literal));
-    assert.deepEqual(sources, [
+    assert.deepEqual(shownSources(out), [
       'response({ id }) {\n  return {\n    id,\n  };\n}',
       'a => a.b',
     ]);

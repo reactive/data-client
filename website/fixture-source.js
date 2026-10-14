@@ -74,7 +74,10 @@ function babelPlugin({ types: t, template }) {
     path.traverse({
       enter(child) {
         if (child.isTemplateElement() || child.isStringLiteral()) {
-          literals.push(child.node);
+          // Only multi-line text can hold a line start
+          if (code.slice(child.node.start, child.node.end).includes('\n')) {
+            literals.push(child.node);
+          }
         } else if (TYPE_KEYS.has(child.key)) {
           cuts.push([child.node.start, child.node.end]);
           child.skip();
@@ -121,9 +124,9 @@ function babelPlugin({ types: t, template }) {
       },
     });
     // The first line starts at the fixture; later ones keep the file's
-    // nesting, so cut their shared indent (text inside template literals
-    // and JSX attribute strings is the fixture's data, so it's neither
-    // measured nor cut)
+    // nesting, so cut their shared indent (text inside string and template
+    // literals, e.g. a multi-line JSX attribute, is the fixture's data, so
+    // it's neither measured nor cut)
     const indents = [];
     for (let nl = code.indexOf('\n', start); nl !== -1 && nl < end;) {
       const line = nl + 1;
