@@ -45,7 +45,7 @@
     "raw-loader": "^4.0.2",
     "react-redux": "^9.2.0",
     "redux": "^5.0.1",
-    "remark-directive": "^3.0.0",
+    "remark-directive": "^4.0.0",
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.0",
     "remark-mdx": "^3.0.0",
