@@ -593,6 +593,10 @@ div.playgroundTextEdit > .playgroundHeader,
   translate: 0 0;
   transition-delay: 0s;
 }
+/* pinned, they get room to unfold a response even over a short result */
+.playgroundResult:has(> .fixturesPopover[data-open]) {
+  min-height: min(14rem, 50svh);
+}
 @media (hover: hover) {
   /* a preview while the pointer is on the toggle or the fixtures */
   .previewHeader:has(.fixturesToggle:hover)
