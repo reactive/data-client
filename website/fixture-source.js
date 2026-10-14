@@ -160,7 +160,10 @@ function babelPlugin({ types: t, template }) {
   // so source that doesn't parse is never shown
   const parseError = expression => {
     try {
-      template.expression.ast(expression);
+      template.expression(expression, {
+        plugins: ['jsx'],
+        placeholderPattern: false,
+      })();
     } catch (error) {
       return error;
     }

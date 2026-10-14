@@ -116,6 +116,25 @@ world\`;
     );
   });
 
+  it('shows JSX as authored', () => {
+    const code = babel.transformSync(
+      `module.exports = [{ endpoint: E, response: (a: string) => <b>{a}</b> }];`,
+      {
+        filename: path.resolve('src/fixtures/test.tsx'),
+        babelrc: false,
+        configFile: false,
+        presets: [
+          [
+            docusaurusRequire.resolve('@babel/preset-typescript'),
+            { isTSX: true, allExtensions: true },
+          ],
+        ],
+        plugins: [babelPlugin],
+      },
+    ).code;
+    assert.match(code, /value: \(\) => "\(a\) => <b>\{a\}<\/b>"/);
+  });
+
   it('leaves non-fixture objects alone', () => {
     const src = `const x = { response() { return 1; } };`;
     assert.doesNotMatch(compile(src), /toString/);
