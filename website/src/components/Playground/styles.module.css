@@ -999,6 +999,8 @@ div.playgroundTextEdit > .playgroundHeader,
 .fixtureFn {
   color: var(--store-type);
   font-style: italic;
+  /* the italic ƒ leans into what follows */
+  margin-right: 1px;
 }
 .fixtureToggle[aria-expanded='true'] .fixtureHint {
   visibility: hidden;
@@ -1013,6 +1015,10 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 div.fixtureJson {
   margin-bottom: 0;
+}
+/* a delay function follows the response */
+div.fixtureJson + div.fixtureJson {
+  margin-top: 6px;
 }
 .fixtureJson code {
   white-space: pre-wrap;

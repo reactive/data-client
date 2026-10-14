@@ -1,5 +1,6 @@
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import Translate from '@docusaurus/Translate';
+import useIsBrowser from '@docusaurus/useIsBrowser';
 import CodeBlock from '@theme/CodeBlock';
 import clsx from 'clsx';
 import { memo, type ReactElement, useState } from 'react';
@@ -24,7 +25,10 @@ export default memo(FixturePreview);
  * mounts while open */
 function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
   const [open, setOpen] = useState(false);
-  const { method, path, fnName, hint, error, delay } = summarize(fixture);
+  const { method, path, fnName, hint, error, delay, delayFn } =
+    summarize(fixture);
+  // a function's source can differ between the server and browser bundles
+  const isBrowser = useIsBrowser();
   return (
     <div className={styles.fixture}>
       <button
@@ -56,7 +60,15 @@ function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
           </span>
         : null}
         {delay ?
-          <span className={clsx(styles.pill, styles.fixtureDelay)}>
+          <span
+            className={clsx(styles.pill, styles.fixtureDelay)}
+            title={delayFn && isBrowser ? `${fixture.delay}` : undefined}
+          >
+            {delayFn ?
+              <>
+                <span className={styles.fixtureFn}>ƒ</span>{' '}
+              </>
+            : null}
             {delay}
           </span>
         : null}
@@ -65,6 +77,9 @@ function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
         {open && (
           <div className={styles.fixtureBody}>
             <FixtureResponse fixture={fixture} />
+            {typeof fixture.delay === 'function' && (
+              <FunctionSource fn={fixture.delay} name="delay" />
+            )}
           </div>
         )}
       </Unfold>
@@ -90,6 +105,7 @@ export function summarize(fixture: FixtureOrInterceptor) {
     )?.slice(0, HINT_CHARS),
     error: 'error' in fixture && fixture.error === true,
     delay: delayLabel(delay),
+    delayFn: typeof delay === 'function',
   };
 }
 
@@ -148,22 +164,35 @@ function FixtureResponse({
   fixture: FixtureOrInterceptor;
 }): ReactElement {
   const response = responseOf(fixture);
-  if ('fn' in response) {
-    // The function's source is pinned at build time (fixture-source.js), but
-    // only the browser's bundle is sure to carry it
-    return (
-      <BrowserOnly>
-        {() => (
-          <CodeBlock language="javascript" className={styles.fixtureJson}>
-            {`${response.fn}`}
-          </CodeBlock>
-        )}
-      </BrowserOnly>
-    );
-  }
+  if ('fn' in response) return <FunctionSource fn={response.fn} />;
   return (
     <CodeBlock language="json" className={styles.fixtureJson}>
       {JSON.stringify(response.data, null, 2)}
     </CodeBlock>
+  );
+}
+
+/** A fixture function's source, named when it doesn't say its own name
+ * (`delay: () => 150`) */
+function FunctionSource({
+  fn,
+  name,
+}: {
+  fn: (...args: any) => unknown;
+  name?: string;
+}) {
+  // The source is pinned at build time (fixture-source.js), but only the
+  // browser's bundle is sure to carry it
+  return (
+    <BrowserOnly>
+      {() => {
+        const source = `${fn}`;
+        return (
+          <CodeBlock language="javascript" className={styles.fixtureJson}>
+            {name && !source.startsWith(name) ? `${name}: ${source}` : source}
+          </CodeBlock>
+        );
+      }}
+    </BrowserOnly>
   );
 }

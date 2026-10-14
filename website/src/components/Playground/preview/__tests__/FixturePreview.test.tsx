@@ -83,6 +83,20 @@ describe('FixturePreview', () => {
     expect(pinned.textContent).toContain('ƒ → { id: 1 }');
   });
 
+  test('delay functions: ƒ on the pill, their source on hover and open', () => {
+    const delay = () => 150;
+    render(
+      <FixturePreview
+        fixtures={[{ endpoint: getArticle, response: 1, delay } as any]}
+      />,
+    );
+    const toggle = screen.getByRole('button');
+    const pill = screen.getByTitle(`${delay}`);
+    expect(pill.textContent).toBe('ƒ delay');
+    fireEvent.click(toggle);
+    expect(screen.getByText(`delay: ${delay}`)).toBeTruthy();
+  });
+
   test('shows function responses once open', () => {
     render(
       <FixturePreview
@@ -118,6 +132,7 @@ describe('summarize', () => {
       hint: undefined,
       error: false,
       delay: 'delay',
+      delayFn: true,
     });
   });
 
