@@ -3,9 +3,8 @@
  * Every docs instance on the site, read by docusaurus.config.ts (plugin
  * options), docsToMarkdown.mjs (routes) and llms-plugin.js (llms.txt).
  *
- * Instances with a `framework` render their source for that framework (Vue
- * via the generated mirror, see index.js); instances sharing a `path` are one
- * set of docs in each framework. The rest are shared by every framework.
+ * Instances with a `framework` render docs/core for that framework (Vue via
+ * the generated mirror, see index.js); the rest are shared by every framework.
  *
  * - id: docs plugin instance id
  * - path: source folder, relative to the repo root (for Vue, the source its
@@ -49,15 +48,11 @@ const DOCS_INSTANCES = [
   },
 ];
 
-const docsInstance = id => DOCS_INSTANCES.find(d => d.id === id);
-/** The instance's docs in each framework (none if shared by every framework) */
-const frameworkVariants = id =>
-  DOCS_INSTANCES.filter(d => d.framework && d.path === docsInstance(id)?.path);
-
 /** Instances rendering docs/core, one per framework */
-const FRAMEWORK_INSTANCES = frameworkVariants(DOCS_INSTANCES[0].id);
+const FRAMEWORK_INSTANCES = DOCS_INSTANCES.filter(d => d.framework);
 const FRAMEWORKS = FRAMEWORK_INSTANCES.map(d => d.framework);
 
+const docsInstance = id => DOCS_INSTANCES.find(d => d.id === id);
 const frameworkInstance = framework =>
   FRAMEWORK_INSTANCES.find(d => d.framework === framework);
 
@@ -79,7 +74,6 @@ module.exports = {
   FRAMEWORK_INSTANCES,
   FRAMEWORKS,
   docsInstance,
-  frameworkVariants,
   frameworkInstance,
   trimRoute,
   mdRoute,

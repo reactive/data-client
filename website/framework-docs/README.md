@@ -138,13 +138,9 @@ Vue:
   (`FRAMEWORKS`) read routes and frameworks from it.
 - `index.js` `docsFor()` lists each framework's docs with their routes (honoring `slug`) and
   `framework_equivalent`; `remarkFramework.js` and `docsToMarkdown.mjs` link with those routes.
-- Instances sharing a source `path` are one set of docs in each framework (`frameworkVariants()`).
-  `FrameworkSelector` (in the breadcrumbs) switches to the same page in the current docs' other
-  variant, or its `framework_equivalent` (`customFields.frameworkEquivalents`), and disables a
-  framework when neither exists there.
-- The `custom-frameworkDropdown` navbar item links to each variant of `docsPluginId`'s docs
-  (default: `docs/core`), labeled with the reader's framework unless given a `label`. The reader's
-  framework is the one of the docs being viewed, else the last one viewed (`usePreferredFramework()`).
+- `FrameworkSelector` (in the breadcrumbs) switches to the same page in the other docs instance, or
+  its `framework_equivalent` (`customFields.frameworkEquivalents`), and disables a framework when
+  neither exists there.
 
 ## Agent skill references
 
