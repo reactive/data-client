@@ -3,7 +3,7 @@ import Translate from '@docusaurus/Translate';
 import useIsomorphicLayoutEffect from '@docusaurus/useIsomorphicLayoutEffect';
 import clsx from 'clsx';
 import type * as Monaco from 'monaco-editor';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useId, useMemo, useRef, useState } from 'react';
 
 import Header from '../Header';
 import { modelPath, useModelId } from '../monaco/modelPath';
@@ -11,7 +11,6 @@ import { createMissingModels } from '../monaco/models';
 import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
 import TabList from '../TabList';
-import Unfold from '../Unfold';
 import type { CodeDocument, CodeModel } from './codeModel';
 import type { InteractiveEditorProps } from './InteractiveEditor';
 import StaticEditor from './StaticEditor';
@@ -91,9 +90,12 @@ export default function EditorSurface({
   const createModels = useCreateModels(id, documents);
 
   // fixtures belong to the code, not to any one file: row (kept compact)
-  // folds them under the file tabs behind a toggle at the bar's end
+  // floats them over the code from a ƒ at the file tabs' end, previewed on
+  // hover and pinned open by a click or tap
   const rowFixtures = row && documents.length > 1 ? fixtureContent : undefined;
   const [fixturesOpen, setFixturesOpen] = useState(false);
+  // useId, unlike the models' id, matches between SSR and hydration
+  const fixturesId = useId();
   const tabs =
     row && documents.length > 1 ?
       <EditorTabs
@@ -106,6 +108,7 @@ export default function EditorSurface({
         {rowFixtures != null ?
           <FixturesToggle
             open={fixturesOpen}
+            controls={fixturesId}
             onClick={() => setFixturesOpen(open => !open)}
           />
         : null}
@@ -113,9 +116,17 @@ export default function EditorSurface({
     : null;
   const fixtures =
     rowFixtures != null ?
-      <Unfold open={fixturesOpen}>{rowFixtures}</Unfold>
+      <div className={styles.fixturesAnchor}>
+        <div
+          id={fixturesId}
+          className={styles.fixturesPopover}
+          data-open={fixturesOpen || undefined}
+        >
+          {rowFixtures}
+        </div>
+      </div>
     : null;
-  // the file tabs (and the fixtures they fold) only go with the files, so
+  // the file tabs (and the fixtures they float) only go with the files, so
   // they go under the cover with them
   const code = documents.map((document, index) => (
     <React.Fragment key={`${document.path}:${index}`}>
@@ -155,7 +166,7 @@ export default function EditorSurface({
       })}
     >
       <EditorHeader
-        // without file tabs to fold them under, fixtures show as when stacked
+        // without file tabs to float them from, fixtures show as when stacked
         fixtureContent={rowFixtures == null ? fixtureContent : undefined}
         title={row && documents.length === 1 ? documents[0].title : undefined}
         covered={covered}
@@ -308,9 +319,11 @@ function EditorTabs({
 
 function FixturesToggle({
   open,
+  controls,
   onClick,
 }: {
   open: boolean;
+  controls: string;
   onClick: () => void;
 }) {
   return (
@@ -318,12 +331,13 @@ function FixturesToggle({
       type="button"
       className={clsx('clean-btn', styles.fixturesToggle)}
       aria-expanded={open}
+      aria-controls={controls}
       onClick={onClick}
     >
       <span className={styles.fixtureFn} aria-hidden>
         ƒ
       </span>
-      <span className={styles.fixturesToggleLabel}>
+      <span className={styles.visuallyHidden}>
         <Translate id="playground.fixtures">Fixtures</Translate>
       </span>
     </button>

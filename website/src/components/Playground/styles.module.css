@@ -548,52 +548,71 @@ div.playgroundTextEdit > .playgroundHeader,
 .small .tab {
   padding: 0.4rem 0.75rem;
 }
-/* Row's fixtures toggle, at the file tabs' end: the fixtures are part of the
-   code, not a file of it, so it reads as a control rather than a tab */
+/* Row's fixtures toggle: a ƒ at the file tabs' end (the fixtures are part
+   of the code, not a file of it), lit while they show */
 .fixturesToggle {
   flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35em;
-  margin-left: auto;
   padding: 0 0.75rem;
   font: inherit;
-  opacity: 0.75;
-  transition:
-    opacity var(--ifm-transition-fast) ease,
-    color var(--ifm-transition-fast) ease,
-    background-color var(--ifm-transition-fast) ease;
+  transition: background-color var(--ifm-transition-fast) ease;
 }
-/* open, it stays lit as when hovered (the bar's own colors, both themes) */
 .fixturesToggle[aria-expanded='true'] {
-  opacity: 1;
   background-color: var(--pg-tab-hover-bg);
-  color: var(--pg-tab-hover);
 }
 .fixturesToggle:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
   outline-offset: -2px;
 }
-/* narrow, the ƒ alone, so the file tabs keep the room */
-@container playground (max-width: 559px) {
-  .fixturesToggleLabel {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
-/* the fixtures end where the code begins */
-.tabControls + .unfold .fixtureBlock {
+/* the fixtures float over the code from the bar's bottom edge: a no-height
+   layer so the code never moves */
+.fixturesAnchor {
+  position: relative;
+  z-index: 3;
+  height: 0;
+}
+.fixturesPopover {
+  position: absolute;
+  inset: 0 0 auto;
+  max-height: min(20rem, 60svh);
+  overflow: auto;
+  /* opaque: the code it floats over never shows through */
+  background: var(--monoco-code-background);
   border-bottom: 1px solid var(--pg-bar-edge);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  visibility: hidden;
+  opacity: 0;
+  translate: 0 -4px;
+  /* hides once faded, so it stays reachable while the pointer crosses */
+  transition:
+    opacity var(--ifm-transition-fast) ease,
+    translate var(--ifm-transition-fast) ease,
+    visibility 0s linear var(--ifm-transition-fast);
+}
+.fixturesPopover[data-open] {
+  visibility: visible;
+  opacity: 1;
+  translate: 0 0;
+  transition-delay: 0s;
 }
 @media (hover: hover) {
   .fixturesToggle:hover {
-    opacity: 1;
     background-color: var(--pg-tab-hover-bg);
-    color: var(--pg-tab-hover);
+  }
+  /* a preview while the pointer is on the ƒ or the fixtures */
+  .tabControls:has(.fixturesToggle:hover) + .fixturesAnchor > .fixturesPopover,
+  .fixturesPopover:hover {
+    visibility: visible;
+    opacity: 1;
+    translate: 0 0;
+    transition-delay: 0s;
   }
 }
 /* With header controls (e.g. homepage demos) the selected control joins the

@@ -45,20 +45,23 @@ function renderSurface(layout: 'row' | 'stacked', docs = documents) {
 }
 
 describe('EditorSurface fixtures', () => {
-  test('row folds them behind a toggle beside the file tabs', () => {
+  test('row floats them from a toggle beside the file tabs', () => {
     renderSurface('row');
     const toggle = screen.getByRole('button', { name: /Fixtures/ });
     expect(toggle.closest('[role="tablist"]')).toBeNull();
-    const fixtures = screen.getByText('GET /article/1');
-    expect(fixtures.closest('[inert]')).not.toBeNull();
+    const popover = document.getElementById(
+      toggle.getAttribute('aria-controls')!,
+    )!;
+    expect(popover.textContent).toBe('GET /article/1');
+    expect(popover.hasAttribute('data-open')).toBe(false);
 
     fireEvent.click(toggle);
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
-    expect(fixtures.closest('[inert]')).toBeNull();
+    expect(popover.hasAttribute('data-open')).toBe(true);
 
     fireEvent.click(toggle);
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
-    expect(fixtures.closest('[inert]')).not.toBeNull();
+    expect(popover.hasAttribute('data-open')).toBe(false);
   });
 
   test('stacked shows them open, with no toggle', () => {
