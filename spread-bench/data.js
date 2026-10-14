@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791943233102,
+  "lastUpdate": 1791945589586,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -465,6 +465,37 @@ window.BENCHMARK_DATA = {
             "range": "±1.36%",
             "unit": "ops/sec",
             "extra": "86 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "f3be7db263b988b0a9e58fd76070286a20a7a4fb",
+          "message": "pkg: Update actions/setup-node action to v7 (#4370)\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+          "timestamp": "2026-10-14T02:38:06Z",
+          "tree_id": "a4f032f2f38bc374eee60b18ecc0422f9b85476f",
+          "url": "https://github.com/reactive/data-client/commit/f3be7db263b988b0a9e58fd76070286a20a7a4fb"
+        },
+        "date": 1791945586272,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 154,
+            "range": "±0.79%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
           }
         ]
       }
