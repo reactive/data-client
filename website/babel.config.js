@@ -7,7 +7,7 @@ module.exports = api => ({
   presets: [require.resolve('@docusaurus/core/lib/babel/preset')],
   overrides: [
     {
-      test: filename => filename.startsWith(siteSrc),
+      test: siteSrc,
       plugins: [require('./fixture-source.js').babelPlugin],
     },
   ],
