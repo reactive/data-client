@@ -35,6 +35,9 @@ function walk(dir, base = dir) {
   });
 }
 
+/** Markdown that Docusaurus renders as a page (not an `_` partial) */
+const isPage = file => MD.test(file) && !path.basename(file).startsWith('_');
+
 const readSrc = (file, src = SRC) =>
   fs.readFileSync(path.join(src, file), 'utf8');
 const frontMatter = content => content.match(FM)?.[1] ?? '';
@@ -106,7 +109,7 @@ function resolveSources(framework, src = SRC) {
 function docsFor(framework) {
   const docs = new Map();
   for (const [out, src] of resolveSources(framework)) {
-    if (!MD.test(out) || path.basename(out).startsWith('_')) continue;
+    if (!isPage(out)) continue;
     const content = rewriteFrontMatter(readSrc(src), framework);
     const id = docIdOf(out, content);
     docs.set(id, {
@@ -157,17 +160,14 @@ function frameworkEquivalents() {
   return equivalents;
 }
 
-/** Throws unless `docId` is a published doc of a (non-framework) docs instance */
-function assertDoc(instance, docId) {
+/** Doc ids of a non-framework docs instance (framework ones: `docsFor`) */
+function docIdsOf(instance) {
   const dir = path.resolve(ROOT, instance.path);
-  const published = walk(dir).some(
-    file =>
-      MD.test(file) &&
-      !path.posix.basename(file).startsWith('_') &&
-      docIdOf(file, fs.readFileSync(path.join(dir, file), 'utf8')) === docId,
+  return new Set(
+    walk(dir)
+      .filter(isPage)
+      .map(file => docIdOf(file, readSrc(file, dir))),
   );
-  if (!published)
-    throw new Error(`'${docId}' is not a doc in docs instance ${instance.id}`);
 }
 
 /**
@@ -183,9 +183,12 @@ function docsEquivalents() {
   for (const d of DOCS_INSTANCES) {
     if (!d.equivalents) continue;
     const other = DOCS_INSTANCES.find(o => o.group === d.group && o !== d);
+    const [ids, otherIds] = [docIdsOf(d), docIdsOf(other)];
     for (const [id, counterpart] of Object.entries(d.equivalents)) {
-      assertDoc(d, id);
-      assertDoc(other, counterpart);
+      if (!ids.has(id) || !otherIds.has(counterpart))
+        throw new Error(
+          `${d.id} equivalents: '${id}' -> '${counterpart}' needs docs in ${d.id} and ${other.id}`,
+        );
       equivalents[d.id][id] = counterpart;
       equivalents[other.id][counterpart] = id;
     }
