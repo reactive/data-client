@@ -36,8 +36,10 @@ In these cases it will fetch if the data is considered stale.
 to transition from '[fresh](#fresh)' to '[stale](#stale)' status. Try setting it to a very low number like '50'
 to make it becomes [stale](#stale) almost instantly; or a very large number to stay around for a long time.
 
-Toggling between 'first' and 'second' changes the parameters. If the data is still considered fresh
+Going between the First and Second pages changes the parameters. If the data is still considered fresh
 you will continue to see the old time without any refresh.
+
+Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
@@ -61,54 +63,41 @@ export const lastUpdated = new RestEndpoint({
 ```ts title="getUpdated"
 import { lastUpdated } from './api/lastUpdated';
 
-export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
+export const getUpdated = lastUpdated.extend({
+  dataExpiryLength: 10000,
+});
 ```
 
-```tsx title="TimePage"
-import { useSuspense } from '@data-client/react';
-import { getUpdated } from './getUpdated';
-
-export default function TimePage({ id }) {
-  const { updatedAt } = useSuspense(getUpdated, { id });
+```tsx title="Home" route="/"
+export default function Home() {
   return (
-    <div>
-      API time for {id}:{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
-    </div>
+    <nav>
+      <Link to="/time/1">First</Link> <Link to="/time/2">Second</Link>
+    </nav>
   );
 }
 ```
 
-```tsx title="Navigator"
-import React from 'react';
-import { AsyncBoundary } from '@data-client/react';
-import TimePage from './TimePage';
+```tsx title="TimePage" route="/time/:id"
+import { useSuspense } from '@data-client/react';
+import { getUpdated } from './getUpdated';
 
-function Navigator() {
-  const [id, setId] = React.useState('1');
-  const handleChange = e => setId(e.currentTarget.value);
+export default function TimePage({ id }: { id: string }) {
+  const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
       <div>
-        <button value="1" onClick={handleChange}>
-          First
-        </button>
-        <button value="2" onClick={handleChange}>
-          Second
-        </button>
+        API time for {id}:{' '}
+        <time>
+          {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
+        </time>
       </div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
-        <TimePage id={id} />
-      </AsyncBoundary>
       <div>
         Current Time: <CurrentTime />
       </div>
     </div>
   );
 }
-render(<Navigator />);
 ```
 
 <details>
@@ -166,8 +155,10 @@ const NoRetryResource = resource({
 [Endpoint.invalidIfStale](https://dataclient.io/rest/api/Endpoint#invalidifstale) eliminates the '[stale](#stale)' status, making data
 that expires immediately be considered '[invalid](#invalid)'.
 
-This is demonstrated by the component suspending once its data goes stale. If the data is still
-within the expiry time it just continues to display it.
+This is demonstrated by a page suspending (navigation waits on the progress bar) once its data goes stale.
+If the data is still within the expiry time it just continues to display it.
+
+Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
@@ -197,51 +188,36 @@ export const getUpdated = lastUpdated.extend({
 });
 ```
 
-```tsx title="TimePage"
-import { useSuspense } from '@data-client/react';
-import { getUpdated } from './getUpdated';
-
-export default function TimePage({ id }) {
-  const { updatedAt } = useSuspense(getUpdated, { id });
+```tsx title="Home" route="/"
+export default function Home() {
   return (
-    <div>
-      API time for {id}:{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
-    </div>
+    <nav>
+      <Link to="/time/1">First</Link> <Link to="/time/2">Second</Link>
+    </nav>
   );
 }
 ```
 
-```tsx title="Navigator"
-import React from 'react';
-import { AsyncBoundary } from '@data-client/react';
-import TimePage from './TimePage';
+```tsx title="TimePage" route="/time/:id"
+import { useSuspense } from '@data-client/react';
+import { getUpdated } from './getUpdated';
 
-function Navigator() {
-  const [id, setId] = React.useState('1');
-  const handleChange = e => setId(e.currentTarget.value);
+export default function TimePage({ id }: { id: string }) {
+  const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
       <div>
-        <button value="1" onClick={handleChange}>
-          First
-        </button>
-        <button value="2" onClick={handleChange}>
-          Second
-        </button>
+        API time for {id}:{' '}
+        <time>
+          {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
+        </time>
       </div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
-        <TimePage id={id} />
-      </AsyncBoundary>
       <div>
         Current Time: <CurrentTime />
       </div>
     </div>
   );
 }
-render(<Navigator />);
 ```
 
 ## Force refresh
