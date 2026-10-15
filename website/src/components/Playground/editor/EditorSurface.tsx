@@ -8,6 +8,7 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import Header from '../Header';
 import { modelPath, useModelId } from '../monaco/modelPath';
 import { createMissingModels } from '../monaco/models';
+import NetworkIcon from '../NetworkIcon';
 import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
 import TabList from '../TabList';
@@ -308,7 +309,8 @@ function EditorHeader({
     <>
       {fixtureContent != null ?
         <>
-          <Header small>
+          <Header small className={styles.fixturesHeader}>
+            <NetworkIcon />
             <Translate id="playground.fixtures">Fixtures</Translate>
           </Header>
           {fixtureContent}

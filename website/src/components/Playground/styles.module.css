@@ -89,6 +89,12 @@
   font-weight: 500;
   padding: 0.4rem 0.75rem;
 }
+/* the network icon row's preview toggle uses, so readers learn it */
+.fixturesHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+}
 .playgroundHeader.clickable {
   cursor: pointer;
 }
