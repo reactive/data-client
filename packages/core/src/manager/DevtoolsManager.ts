@@ -178,14 +178,17 @@ export default class DevToolsManager implements Manager {
       const controllers: Map<string, Controller> = ((
         globalThis as any
       ).__DC_CONTROLLERS__ ??= new Map());
-      // another provider already has this name: register under 'name (2)', 'name (3)', ...
+      // another provider on this page has the name: register under 'name (2)', 'name (3)', ...
+      // Without a page (server rendering) stores are made per request and never cleaned up,
+      // so replace the old one rather than keep every request's store alive.
       let key = this.devtoolsName;
-      for (
-        let i = 2;
-        controllers.has(key) && controllers.get(key) !== this.controller;
-        i++
-      )
-        key = `${this.devtoolsName} (${i})`;
+      if (globalThis.document)
+        for (
+          let i = 2;
+          controllers.has(key) && controllers.get(key) !== this.controller;
+          i++
+        )
+          key = `${this.devtoolsName} (${i})`;
       this.registryKey = key;
       controllers.set(key, this.controller);
       ((globalThis as any).__DC_ACTIONS__ ??= new Map()).set(

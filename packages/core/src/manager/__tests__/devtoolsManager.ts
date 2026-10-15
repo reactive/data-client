@@ -64,23 +64,28 @@ describe('DevToolsManager', () => {
     it('registers controllers that share a name under distinct keys', () => {
       const a = new DevToolsManager({ name: 'App' });
       const b = new DevToolsManager({ name: 'App' });
+      const c = new DevToolsManager({ name: 'App' });
       const { controller: ctrlA } = setup(a);
       const { controller: ctrlB, dispatch: dispatchB } = setup(b);
+      const { controller: ctrlC } = setup(c);
       a.init(initialState);
       b.init(initialState);
+      c.init(initialState);
       dispatchB(setAction(1));
 
       expect([...controllers().entries()]).toEqual([
         ['App', ctrlA],
         ['App (2)', ctrlB],
+        ['App (3)', ctrlC],
       ]);
       expect(actionLogs().get('App')).toEqual([]);
       expect(actionLogs().get('App (2)')).toEqual([setAction(1)]);
 
       b.cleanup();
-      expect([...controllers().keys()]).toEqual(['App']);
-      expect([...actionLogs().keys()]).toEqual(['App']);
+      expect([...controllers().keys()]).toEqual(['App', 'App (3)']);
+      expect([...actionLogs().keys()]).toEqual(['App', 'App (3)']);
       a.cleanup();
+      c.cleanup();
       expect(controllers().size).toBe(0);
       expect(actionLogs().size).toBe(0);
     });
@@ -100,11 +105,14 @@ describe('DevToolsManager', () => {
     it('cleanup leaves a controller registered by another manager', () => {
       const manager = new DevToolsManager({ name: 'App' });
       setup(manager);
+      // cleanup before init has nothing to remove
       manager.cleanup();
+      manager.init(initialState);
       const other = new Controller();
-      (globalThis as any).__DC_CONTROLLERS__ = new Map([['App', other]]);
+      controllers().set('App', other);
       manager.cleanup();
       expect(controllers().get('App')).toBe(other);
+      expect(actionLogs().has('App')).toBe(true);
     });
   });
 });

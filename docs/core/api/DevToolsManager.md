@@ -111,7 +111,7 @@ __DC_ACTIONS__.get('Data Client: My App').slice(-10);
 This is useful for AI coding assistants using the [Chrome DevTools MCP](https://developer.chrome.com/blog/chrome-devtools-mcp)
 or [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) to programmatically inspect and interact
 with the store. Each :react[[DataProvider](/docs/api/DataProvider)]:vue[installed [DataClientPlugin](./DataClientPlugin.md)] registers independently, so
-multiple :react[providers]:vue[apps] on the same page are supported. When a name is already taken, the next one
+multiple :react[providers]:vue[apps] on the same page are supported. When a name is already taken on the page, the next one
 registers as `'Data Client: My App (2)'`, and so on; set `name` to give each a recognizable key.
 
 The action log keeps up to twice [`maxAge`](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#maxage)
