@@ -31,8 +31,9 @@ export interface PlaygroundProps<T = any> {
   /** Tabs for files + editor beside preview (when wide enough).
    * Use when the code is one tall open file and the preview is short. Stay
    * stacked when the Store opens by default (it would cover the code), when
-   * the fixtures are the lesson (row hides them), or when the preview renders
-   * a long list (it gets tall in the narrow column). */
+   * the fixtures are the lesson (row folds them behind a toggle in the
+   * preview's header), or when the preview renders a long list (it gets tall
+   * in the narrow column). */
   row?: boolean;
   /** Inactive (e.g. unselected Demo tab): no Monaco until first shown, no preview */
   hidden?: boolean;
@@ -90,6 +91,10 @@ export default function Playground<T>({
     if (!hidden) setEditorInteractive(true);
   }, [hidden]);
 
+  const fixtureContent =
+    fixtures.length ? <FixturePreview fixtures={fixtures} /> : undefined;
+  const previewFixtures = row ? fixtureContent : undefined;
+
   const editor = (
     <EditorShell>
       <EditorSurface
@@ -97,9 +102,7 @@ export default function Playground<T>({
         interactive={editorInteractive}
         layout={row ? 'row' : 'stacked'}
         variant="playground"
-        fixtureContent={
-          fixtures.length ? <FixturePreview fixtures={fixtures} /> : undefined
-        }
+        fixtureContent={fixtureContent}
         headerControls={headerControls}
         cover={
           row ?
@@ -115,12 +118,13 @@ export default function Playground<T>({
     </EditorShell>
   );
   // Live preview only while visible — unmounts when hidden (resets store).
-  const loading = <PreviewLoading row={row} />;
+  const loading = <PreviewLoading row={row} fixtureContent={previewFixtures} />;
   const preview =
     hidden ? loading : (
       <Boundary fallback={loading}>
         <LivePreview
           documents={documents}
+          fixtureContent={previewFixtures}
           storeOpen={storeOpen}
           toggleStore={toggleStore}
           row={row}
@@ -156,10 +160,20 @@ export default function Playground<T>({
 }
 
 /** SSR, crawler, hidden and loading state: empty preview frame + Store
- * toggle (the side strip, unless the code's corner badge is it) */
-function PreviewLoading({ row }: { row: boolean }) {
+ * toggle (the side strip, unless the code's corner badge is it), and row's
+ * fixtures, already usable */
+function PreviewLoading({
+  row,
+  fixtureContent,
+}: {
+  row: boolean;
+  fixtureContent?: React.ReactNode;
+}) {
   return (
-    <PreviewWrapper headerControls={<StoreHeaderToggle />}>
+    <PreviewWrapper
+      headerControls={<StoreHeaderToggle />}
+      fixtures={fixtureContent}
+    >
       <div className={styles.playgroundPreview} />
       {row ? null : <StoreToggle />}
     </PreviewWrapper>

@@ -89,6 +89,12 @@
   font-weight: 500;
   padding: 0.4rem 0.75rem;
 }
+/* the network icon row's preview toggle uses, so readers learn it */
+.fixturesHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+}
 .playgroundHeader.clickable {
   cursor: pointer;
 }
@@ -388,11 +394,16 @@ div.playgroundTextEdit > .playgroundHeader,
   display: flex;
   flex-direction: column;
   position: relative;
-  z-index: 1;
+  /* over the code, and over the fixtures that float across it */
+  z-index: 2;
   overflow: hidden;
   pointer-events: none;
   /* the code alone sets the cell's height, so the Store scrolls within it */
   contain: size;
+}
+/* the code's own layers (Monaco's) stay under the fixtures floating over it */
+.editorDocs {
+  isolation: isolate;
 }
 /* under the header, the file tabs are no longer the top corner */
 .playgroundContainer .editorBody:not(:first-child) .editorDocs > .tabControls {
@@ -432,7 +443,7 @@ div.playgroundTextEdit > .playgroundHeader,
 .storeBadge {
   --swap-in: 0 110%;
   --swap-out: 0 -110%;
-  z-index: 2;
+  z-index: 3;
   align-self: end;
   justify-self: end;
   margin: 0.75rem;
@@ -547,6 +558,58 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .small .tab {
   padding: 0.4rem 0.75rem;
+}
+/* the fixtures float from the header's bottom edge, so the preview never
+   moves: over the result, and in side-by-side row over the code too, for
+   width (see @container below). The anchor is a no-height block (not
+   positioned) that gives them that static top. */
+.previewWrapper {
+  position: relative;
+}
+.fixturesAnchor {
+  height: 0;
+}
+.fixturesPopover {
+  position: absolute;
+  z-index: 1;
+  /* hangs from the preview's right edge; over the code, only as wide as a
+     response line needs */
+  inset: auto 0 auto auto;
+  width: min(100%, 36rem);
+  max-height: min(20rem, 60svh);
+  overflow: auto;
+  background: var(--pg-tab-selected-bg);
+  border: 1px solid var(--store-line-strong);
+  border-width: 0 0 1px 1px;
+  border-bottom-left-radius: var(--ifm-global-radius);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.4),
+    0 2px 6px rgba(0, 0, 0, 0.25);
+  visibility: hidden;
+  opacity: 0;
+  translate: 0 -4px;
+  /* visibility holds until faded, so it stays reachable while the pointer
+     crosses */
+  transition:
+    opacity var(--motion-smooth),
+    translate var(--motion-smooth),
+    visibility var(--motion-smooth);
+}
+.fixturesPopover[data-open] {
+  visibility: visible;
+  opacity: 1;
+  translate: 0 0;
+}
+@media (hover: hover) {
+  /* a preview while the pointer is on the toggle or the fixtures */
+  .previewHeader:has(.fixturesToggle:hover)
+    + .fixturesAnchor
+    > .fixturesPopover,
+  .fixturesPopover:hover {
+    visibility: visible;
+    opacity: 1;
+    translate: 0 0;
+  }
 }
 /* With header controls (e.g. homepage demos) the selected control joins the
    file subtab row below it, and that row's selected file joins the code */
@@ -1104,6 +1167,14 @@ div.fixtureJson + div.fixtureJson {
   .editorBody:first-child .storeHost {
     border-top-right-radius: 0;
   }
+  /* the fixtures span the whole playground: the preview column is too thin
+     for a response. Unpositioned, the preview's clip doesn't reach them */
+  .playgroundContainer.row {
+    position: relative;
+  }
+  .playgroundContainer.row > .previewWrapper {
+    position: static;
+  }
 }
 /* Stacked row layout: the Store opens upward over the code */
 @container playground (max-width: 719px) {
@@ -1129,6 +1200,14 @@ div.fixtureJson + div.fixtureJson {
   }
   .playgroundContainer.row .storeHeaderToggle {
     display: inline-flex;
+  }
+  /* pinned, they get room to unfold a response even over a short result;
+     the preview clips them, so they scroll within that same height */
+  .fixturesAnchor:has(> [data-open]) + .playgroundResult {
+    min-height: min(14rem, 50svh);
+  }
+  .fixturesPopover {
+    max-height: min(14rem, 50svh);
   }
 }
 
@@ -1185,6 +1264,21 @@ div.fixtureJson + div.fixtureJson {
   margin-inline-start: 3px;
   background: #ff5f56;
   box-shadow: 0 0 0 3px rgba(255, 95, 86, 0.2);
+}
+/* With a demo's navigation in the header, a tight header keeps only the
+   label's dot (still named for screen readers), so the path gets the room */
+.previewHeader {
+  container: previewHeader / inline-size;
+}
+@container previewHeader (max-width: 36rem) {
+  .previewHeader:has(.routerControls) .liveLabelText {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
 /* A playground with a demo (autorun/DemoLabel): the label replays it, and
    its dot breathes while it plays */
@@ -1277,7 +1371,10 @@ div.fixtureJson + div.fixtureJson {
 .headerButton.storeHeaderToggle {
   display: none;
 }
-.storeHeaderToggle[aria-pressed='true'] {
+/* the fixtures toggle (row) is lit the same while they show */
+.storeHeaderToggle[aria-pressed='true'],
+.fixturesToggle[aria-expanded='true'],
+.previewHeader:has(+ .fixturesAnchor > .fixturesPopover:hover) .fixturesToggle {
   background-color: var(--pg-tab-hover-bg);
   color: var(--ifm-color-primary);
 }

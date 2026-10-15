@@ -9,7 +9,6 @@ import { ResetButton } from './PreviewError';
 import PreviewWrapper from './PreviewWrapper';
 import { useRenderCount } from './RenderCount';
 import { routerTrailer } from './router';
-import { usePreviewReset } from './usePreviewReset';
 import type { CodeDocument } from '../editor/codeModel';
 import type { PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
@@ -17,9 +16,12 @@ import SchemaRegistry from './store/schemaRegistry';
 import { StoreHeaderToggle } from './StoreToggle';
 import { useCodeManagers } from './useCodeManagers';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
+import { usePreviewReset } from './usePreviewReset';
 
 export interface LivePreviewProps<T> extends PreviewProps<T> {
   documents: readonly CodeDocument[];
+  /** Row's fixtures, folded into the header (see PreviewWrapper) */
+  fixtureContent?: React.ReactNode;
   renderCount: boolean;
   actionLog?: LogOptions;
   autoRun?: AutoRunScript;
@@ -29,6 +31,7 @@ export interface LivePreviewProps<T> extends PreviewProps<T> {
 
 export default function LivePreview<T>({
   documents,
+  fixtureContent,
   storeOpen,
   toggleStore,
   row,
@@ -87,6 +90,7 @@ export default function LivePreview<T>({
             <DemoLabel player={demo.player} onPlay={demo.replay} />
           : undefined
         }
+        fixtures={fixtureContent}
         headerControls={
           <>
             {badge}
