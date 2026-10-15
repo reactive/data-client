@@ -171,6 +171,19 @@ function docsEquivalents() {
     if (!d.equivalents) continue;
     const other = DOCS_INSTANCES.find(o => o.group === d.group && o !== d);
     for (const [id, counterpart] of Object.entries(d.equivalents)) {
+      for (const [instance, docId] of [
+        [d, id],
+        [other, counterpart],
+      ]) {
+        if (
+          !['.md', '.mdx'].some(ext =>
+            fs.existsSync(path.resolve(ROOT, instance.path, docId + ext)),
+          )
+        )
+          throw new Error(
+            `${d.id} equivalents: '${docId}' is not a doc in ${instance.id}`,
+          );
+      }
       equivalents[d.id][id] = counterpart;
       equivalents[other.id][counterpart] = id;
     }
