@@ -10,8 +10,8 @@ afterEach(() => {
 });
 
 // server rendering makes a store per request and never cleans it up
-it('replaces a same-named controller when there is no page', () => {
-  expect(globalThis.document).toBeUndefined();
+it('replaces a same-named controller when server rendering', () => {
+  expect(typeof window).toBe('undefined');
   const a = new DevToolsManager({ name: 'App' });
   const b = new DevToolsManager({ name: 'App' });
   const ctrlB = new Controller();
