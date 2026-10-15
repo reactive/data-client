@@ -10,46 +10,31 @@ Debug `@data-client/react` state and actions programmatically via [Chrome DevToo
 2. Chrome DevTools MCP connected and page loaded
 3. `DevToolsManager` included in `DataProvider` managers (default in dev mode)
 
-## Step 1: Access the Controller
+## Step 1: Install the Debug Shim
+
+Run this **once** after each page load (a reload clears it). It picks the controller, exposes it as
+`window.__rdc` for every later snippet, and wraps dispatch to capture actions in a circular buffer
+on `window.__rdcActions`.
 
 `DevToolsManager` registers controllers in `globalThis.__DC_CONTROLLERS__` keyed by
-`devtoolsName` — defaults to `"Data Client: <page title>"`.
-
-### Discover available controllers
-
-```js
-// evaluate_script
-() => {
-  const m = globalThis.__DC_CONTROLLERS__;
-  if (!m || m.size === 0) return 'no controllers registered';
-  return [...m.keys()];
-}
-```
-
-### Get a controller by key
-
-Use the key from discovery. Always use `.get(devtoolsName)` with the actual key — not `.values().next().value` — so you target the correct store when multiple `DataProvider`s exist. The snippets below use the first controller for brevity.
-
-```js
-// evaluate_script
-() => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.get('Data Client: My App');
-  if (!ctrl) return 'not found';
-  return { ok: true, stateKeys: Object.keys(ctrl.getState()) };
-}
-```
-
-## Step 2: Install the Debug Shim
-
-Run this **once** after the page loads. It wraps dispatch to capture all actions in a circular buffer.
+`devtoolsName` — defaults to `"Data Client: <page title>"`. With a single controller, leave `NAME`
+unset. With several `DataProvider`s, the shim returns their keys; rerun it with
+`NAME` set to the one to target.
 
 ```js
 // evaluate_script
 (() => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  if (!ctrl) return { error: 'No controller found' };
+  const NAME = undefined;
+  const controllers = globalThis.__DC_CONTROLLERS__;
+  if (!controllers?.size) return { error: 'No controllers registered' };
+  if (!NAME && controllers.size > 1)
+    return { error: 'Set NAME to one of', keys: [...controllers.keys()] };
+  const ctrl = NAME ? controllers.get(NAME) : controllers.values().next().value;
+  if (!ctrl) return { error: 'Controller not found', keys: [...controllers.keys()] };
+  if (window.__rdc === ctrl) return { ok: true, alreadyInstalled: true };
 
-  globalThis.__DC_ACTION_LOG__ = [];
+  window.__rdc = ctrl;
+  window.__rdcActions = [];
   const MAX_LOG = 200;
 
   const origDispatch = ctrl._dispatch.bind(ctrl);
@@ -65,10 +50,9 @@ Run this **once** after the page loads. It wraps dispatch to capture all actions
     if (action.meta?.date) entry.date = action.meta.date;
     if (action.error) entry.error = true;
 
-    globalThis.__DC_ACTION_LOG__.push(entry);
-    if (globalThis.__DC_ACTION_LOG__.length > MAX_LOG) {
-      globalThis.__DC_ACTION_LOG__ = globalThis.__DC_ACTION_LOG__.slice(-MAX_LOG / 2);
-    }
+    window.__rdcActions.push(entry);
+    if (window.__rdcActions.length > MAX_LOG)
+      window.__rdcActions = window.__rdcActions.slice(-MAX_LOG / 2);
 
     return origDispatch(action);
   };
@@ -77,19 +61,18 @@ Run this **once** after the page loads. It wraps dispatch to capture all actions
 })()
 ```
 
-## Step 3: Read State
+## Step 2: Read State
 
 ### High-level queries (denormalized, schema-aware)
 
-Controller provides `getResponse`, `getError`, and `get` that denormalize through schemas — pass `ctrl.getState()` as the last argument.
+Controller provides `getResponse`, `getError`, and `get` that denormalize through schemas — pass `window.__rdc.getState()` as the last argument.
 
 ```js
 // evaluate_script — get denormalized response for an endpoint
 async () => {
   const mod = await import('/src/resources/Todo.ts');
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  const state = ctrl.getState();
-  const { data, expiryStatus, expiresAt } = ctrl.getResponse(
+  const state = window.__rdc.getState();
+  const { data, expiryStatus, expiresAt } = window.__rdc.getResponse(
     mod.TodoResource.getList,
     {},
     state,
@@ -102,9 +85,8 @@ async () => {
 // evaluate_script — check if an endpoint has an error
 async () => {
   const mod = await import('/src/resources/Todo.ts');
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  const state = ctrl.getState();
-  const error = ctrl.getError(
+  const state = window.__rdc.getState();
+  const error = window.__rdc.getError(
     mod.TodoResource.get,
     { id: '5' },
     state,
@@ -117,9 +99,8 @@ async () => {
 // evaluate_script — query a Queryable schema (Entity, Collection, Query)
 async () => {
   const mod = await import('/src/resources/Todo.ts');
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  const state = ctrl.getState();
-  const result = ctrl.get(mod.Todo, { id: '5' }, state);
+  const state = window.__rdc.getState();
+  const result = window.__rdc.get(mod.Todo, { id: '5' }, state);
   return result;
 }
 ```
@@ -131,8 +112,7 @@ Use these when you need to see the raw cache structure without denormalization.
 ```js
 // evaluate_script — state overview
 () => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  const state = ctrl.getState();
+  const state = window.__rdc.getState();
   return {
     entityTypes: Object.keys(state.entities),
     endpointCount: Object.keys(state.endpoints).length,
@@ -146,8 +126,7 @@ Use these when you need to see the raw cache structure without denormalization.
 ```js
 // evaluate_script — inspect specific entity type by key
 () => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  const entities = ctrl.getState().entities['Todo'];
+  const entities = window.__rdc.getState().entities['Todo'];
   if (!entities) return { error: 'Entity not found' };
   const pks = Object.keys(entities);
   return {
@@ -161,8 +140,7 @@ Use these when you need to see the raw cache structure without denormalization.
 ```js
 // evaluate_script — find endpoint cache entries by path substring
 () => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  const state = ctrl.getState();
+  const state = window.__rdc.getState();
   const keys = Object.keys(state.endpoints).filter(k => k.includes('/todos'));
   return keys.map(k => ({
     key: k,
@@ -177,8 +155,7 @@ Use these when you need to see the raw cache structure without denormalization.
 ```js
 // evaluate_script
 () => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  return ctrl.getState().entities?.['Todo']?.['5'];
+  return window.__rdc.getState().entities?.['Todo']?.['5'];
 }
 ```
 
@@ -187,29 +164,28 @@ Use these when you need to see the raw cache structure without denormalization.
 ```js
 // evaluate_script
 () => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  const state = ctrl.getState();
+  const state = window.__rdc.getState();
   const key = Object.keys(state.meta).find(k => k.includes('/todos'));
   return key ? { key, ...state.meta[key] } : 'no meta found';
 }
 ```
 
-## Step 4: Track Actions
+## Step 3: Track Actions
 
-After installing the debug shim (Step 2):
+After installing the debug shim (Step 1):
 
 ### Read recent actions
 
 ```js
 // evaluate_script
-() => globalThis.__DC_ACTION_LOG__?.slice(-20) ?? []
+() => window.__rdcActions?.slice(-20) ?? []
 ```
 
 ### Filter by action type
 
 ```js
 // evaluate_script — track only fetches
-() => (globalThis.__DC_ACTION_LOG__ ?? [])
+() => (window.__rdcActions ?? [])
   .filter(a => a.type === 'rdc/fetch' || a.type === 'rdc/setresponse')
   .slice(-20)
 ```
@@ -218,17 +194,17 @@ After installing the debug shim (Step 2):
 
 ```js
 // evaluate_script
-() => (globalThis.__DC_ACTION_LOG__ ?? []).filter(a => a.error)
+() => (window.__rdcActions ?? []).filter(a => a.error)
 ```
 
 ### Clear action log
 
 ```js
 // evaluate_script
-() => { globalThis.__DC_ACTION_LOG__ = []; return { cleared: true }; }
+() => { window.__rdcActions = []; return { cleared: true }; }
 ```
 
-## Step 5: Mutate State via Controller
+## Step 4: Mutate State via Controller
 
 Use Controller methods — **never** dispatch raw actions.
 
@@ -238,8 +214,7 @@ Use Controller methods — **never** dispatch raw actions.
 // evaluate_script — triggers refetch for subscribed components
 async () => {
   const mod = await import('/src/resources/Todo.ts');
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  await ctrl.invalidate(mod.TodoResource.get, { id: '5' });
+  await window.__rdc.invalidate(mod.TodoResource.get, { id: '5' });
   return { invalidated: true };
 }
 ```
@@ -249,8 +224,7 @@ async () => {
 ```js
 // evaluate_script
 () => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  ctrl.invalidateAll({ testKey: key => key.includes('/todos') });
+  window.__rdc.invalidateAll({ testKey: key => key.includes('/todos') });
   return 'todo endpoints invalidated';
 }
 ```
@@ -260,8 +234,7 @@ async () => {
 ```js
 // evaluate_script
 () => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  ctrl.expireAll({ testKey: key => key.includes('/todos') });
+  window.__rdc.expireAll({ testKey: key => key.includes('/todos') });
   return 'todo endpoints expired';
 }
 ```
@@ -272,8 +245,7 @@ async () => {
 // evaluate_script — use setResponse to inject mock data
 async () => {
   const mod = await import('/src/resources/Todo.ts');
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  await ctrl.setResponse(
+  await window.__rdc.setResponse(
     mod.TodoResource.getList,
     {},
     [{ id: 1, title: 'Mock Todo', completed: false }],
@@ -287,8 +259,7 @@ async () => {
 ```js
 // evaluate_script
 () => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  ctrl.resetEntireStore();
+  window.__rdc.resetEntireStore();
   return { reset: true };
 }
 ```
@@ -316,7 +287,7 @@ then cross-reference with endpoint keys in state.
 
 ## Controller State Readers
 
-All take `state` (from `ctrl.getState()`) as the **last** argument.
+All take `state` (from `window.__rdc.getState()`) as the **last** argument.
 
 | Method         | Signature                    | Returns                                                           |
 | -------------- | ---------------------------- | ----------------------------------------------------------------- |
@@ -350,16 +321,16 @@ State = {
 
 For monitoring ongoing activity, poll with short intervals:
 
-1. Install shim (Step 2)
+1. Install shim (Step 1)
 2. Trigger the user action or navigation
 3. Wait 2–3 seconds
-4. Read actions (Step 4) — check for `rdc/fetch` then `rdc/setresponse` pairs
-5. If needed, read entity state (Step 3) to verify cache contents
+4. Read actions (Step 3) — check for `rdc/fetch` then `rdc/setresponse` pairs
+5. If needed, read entity state (Step 2) to verify cache contents
 6. Repeat if watching for subscription updates
 
 ## Debugging Checklist
 
-1. **Verify controller exists**: Check `__DC_CONTROLLERS__` map size
+1. **Install the shim**: Confirms a controller exists and exposes it as `window.__rdc`
 2. **Inspect state shape**: Get entity types and endpoint count
 3. **Check specific data**: Look up entities by type and pk
 4. **Review endpoint metadata**: Check expiry, errors, invalidation status
