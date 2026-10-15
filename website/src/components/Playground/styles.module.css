@@ -440,7 +440,8 @@ div.playgroundTextEdit > .playgroundHeader,
 
 /* The Store toggle in the code's corner, over the Store as it slides in
    under it; its label rises out as the other rises in. Closed, it stays
-   under the fixtures floating over the code (they come later at its level). */
+   under the fixtures floating over the code: same z-index as theirs, and the
+   preview (with them) comes after the editor in the DOM. */
 .storeBadge {
   --swap-in: 0 110%;
   --swap-out: 0 -110%;
@@ -461,6 +462,7 @@ div.playgroundTextEdit > .playgroundHeader,
   text-transform: uppercase;
   white-space: nowrap;
 }
+/* over the Store (z-index 2) from opening until it has slid back out */
 .storeHost:has(> .storePanel[data-visible]) + .storeBadge {
   z-index: 3;
 }
