@@ -186,6 +186,28 @@ describe('DevToolsManager', () => {
       ]);
     });
 
+    it('holds the cap across unsubscribe and resubscribe', () => {
+      const dispatch = pollingDispatch();
+      for (let cycle = 0; cycle < 3; cycle++) {
+        dispatch(subscribe('a'));
+        for (let i = 1; i <= 3; i++) {
+          dispatch(fetchAction('a', i));
+          dispatch(responseAction('a', i));
+        }
+        dispatch(unsubscribe('a'));
+        dispatch(fetchAction('a', 9));
+        dispatch(responseAction('a', 9));
+      }
+      dispatch(subscribe('a'));
+      dispatch(fetchAction('a', 10));
+      dispatch(responseAction('a', 10));
+
+      expect(typesAndKeys()).toEqual([
+        [FETCH, 'a'],
+        [SET_RESPONSE, 'a'],
+      ]);
+    });
+
     it('stops capping once every subscriber leaves', () => {
       const dispatch = pollingDispatch();
       dispatch(subscribe('a'));
