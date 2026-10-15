@@ -208,6 +208,21 @@ describe('DevToolsManager', () => {
       ]);
     });
 
+    it('tracks polling even when skipLogging hides subscribes', () => {
+      const manager = new DevToolsManager(
+        { name: 'App', maxPollingActions: 2 },
+        action => action.type === SUBSCRIBE,
+      );
+      const { dispatch } = setup(manager);
+      manager.init(initialState);
+      dispatch(subscribe('a'));
+      for (let i = 1; i <= 3; i++) dispatch(fetchAction('a', i));
+      expect(typesAndKeys()).toEqual([
+        [FETCH, 'a'],
+        [FETCH, 'a'],
+      ]);
+    });
+
     it('stops capping once every subscriber leaves', () => {
       const dispatch = pollingDispatch();
       dispatch(subscribe('a'));
@@ -273,6 +288,25 @@ describe('DevToolsManager', () => {
       manager.cleanup();
       manager.init(initialState);
       expect([...controllers().entries()]).toEqual([['App', controller]]);
+    });
+
+    it('keeps a suffixed key when init runs again after a lower one frees', () => {
+      const a = new DevToolsManager({ name: 'App' });
+      const b = new DevToolsManager({ name: 'App' });
+      const c = new DevToolsManager({ name: 'App' });
+      setup(a);
+      setup(b);
+      const { controller: ctrlC } = setup(c);
+      a.init(initialState);
+      b.init(initialState);
+      c.init(initialState);
+      b.cleanup();
+      c.init(initialState);
+
+      expect(controllers().get('App (3)')).toBe(ctrlC);
+      expect(controllers().has('App (2)')).toBe(false);
+      c.cleanup();
+      expect(controllers().has('App (3)')).toBe(false);
     });
 
     it('cleanup leaves a controller registered by another manager', () => {

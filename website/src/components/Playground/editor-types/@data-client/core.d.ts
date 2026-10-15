@@ -1527,6 +1527,8 @@ declare class DevToolsManager implements Manager {
     devtoolsName: string;
     maxBufferLength: number;
     constructor(config?: DevToolsConfig, skipLogging?: (action: ActionTypes) => boolean);
+    /** Counts polling subscribers per key, even for actions skipLogging hides */
+    protected trackPolling(action: ActionTypes): void;
     /** Keeps `__DC_ACTIONS__` small: polling keys keep only their latest actions,
      * and all but the newest actions drop their payloads.
      */

@@ -176,6 +176,7 @@ export default class DevToolsManager implements Manager {
         let state = controller.getState();
         return next => action => {
           const shouldSkip = this.skipLogging?.(action);
+          this.trackPolling(action);
           if (!shouldSkip) this.logAction(action);
           const ret = next(action);
           if (!reducer) return ret;
@@ -197,12 +198,8 @@ export default class DevToolsManager implements Manager {
     }
   }
 
-  /** Keeps `__DC_ACTIONS__` small: polling keys keep only their latest actions,
-   * and all but the newest actions drop their payloads.
-   */
-  protected logAction(action: ActionTypes) {
-    const log = this.actionLog;
-    const key = (action as { key?: string }).key;
+  /** Counts polling subscribers per key, even for actions skipLogging hides */
+  protected trackPolling(action: ActionTypes) {
     if (
       (action.type === SUBSCRIBE || action.type === UNSUBSCRIBE) &&
       action.endpoint.pollFrequency
@@ -213,6 +210,14 @@ export default class DevToolsManager implements Manager {
       if (count > 0) this.pollingSubscribers.set(action.key, count);
       else this.pollingSubscribers.delete(action.key);
     }
+  }
+
+  /** Keeps `__DC_ACTIONS__` small: polling keys keep only their latest actions,
+   * and all but the newest actions drop their payloads.
+   */
+  protected logAction(action: ActionTypes) {
+    const log = this.actionLog;
+    const key = (action as { key?: string }).key;
     if (key !== undefined && this.pollingSubscribers.has(key)) {
       // drop all but the newest maxPollingActions - 1, making room for this one
       for (let i = log.length - 1, seen = 0; i >= 0; i--) {
@@ -247,7 +252,14 @@ export default class DevToolsManager implements Manager {
       // Without a window (server rendering), stores are made per request and never cleaned up,
       // so replace the old one instead of keeping every request's store alive.
       // Checks window, not document: React Native has a window but no document.
-      let key = this.devtoolsName;
+      // keep the key this controller already holds (init can run again without cleanup)
+      let key =
+        (
+          this.registryKey !== undefined &&
+          controllers.get(this.registryKey) === this.controller
+        ) ?
+          this.registryKey
+        : this.devtoolsName;
       if (typeof window !== 'undefined')
         for (
           let i = 2;
