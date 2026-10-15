@@ -155,7 +155,7 @@ const NoRetryResource = resource({
 [Endpoint.invalidIfStale](https://dataclient.io/rest/api/Endpoint#invalidifstale) eliminates the '[stale](#stale)' status, making data
 that expires immediately be considered '[invalid](#invalid)'.
 
-This is demonstrated by a page suspending (navigation waits on the progress bar) once its data goes stale.
+This is demonstrated by a page suspending once its data goes stale (navigation waits on the progress bar).
 If the data is still within the expiry time it just continues to display it.
 
 Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).

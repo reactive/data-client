@@ -228,7 +228,7 @@ const NoRetryResource = resource({
 [Endpoint.invalidIfStale](/rest/api/Endpoint#invalidifstale) eliminates the '[stale](#stale)' status, making data
 that expires immediately be considered '[invalid](#invalid)'.
 
-This is demonstrated by a page suspending (navigation waits on the progress bar) once its data goes stale.
+This is demonstrated by a page suspending once its data goes stale:react[ (navigation waits on the progress bar)].
 If the data is still within the expiry time it just continues to display it.
 
 <FrameworkPlayground row defaultTab="getUpdated" fixtures={[
