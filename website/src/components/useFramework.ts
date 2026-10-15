@@ -6,16 +6,10 @@ import { docsInstance } from '../../framework-docs/docsInstances.js';
 
 export type Framework = 'react' | 'vue';
 
-/** Framework a docs instance renders, if it is a framework's docs */
-const frameworkOf = (pluginId: string | undefined) =>
-  docsInstance(pluginId)?.framework as Framework | undefined;
-
-/** Framework of the current page, if it is a framework's docs */
-const useDocsFramework = () => frameworkOf(useActivePlugin()?.pluginId);
-
 /** Which framework the current docs page is rendered for */
 export default function useFramework(): Framework {
-  return useDocsFramework() ?? 'react';
+  const { framework } = docsInstance(useActivePlugin()?.pluginId) ?? {};
+  return (framework as Framework | undefined) ?? 'react';
 }
 
 /**

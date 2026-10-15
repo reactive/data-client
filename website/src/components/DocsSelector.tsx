@@ -36,6 +36,8 @@ const logos: Record<string, React.FC | undefined> = {
   react: ReactLogo,
   vue: VueLogo,
 };
+const logoOf = (instance: { framework?: string }) =>
+  instance.framework ? logos[instance.framework] : undefined;
 
 /**
  * Same page in each docs instance of `ids`, if it exists: the same doc id, or
@@ -69,8 +71,8 @@ function useCounterparts(
 export default function DocsSelector() {
   // breadcrumbs only render on docs pages
   const activeId = useActivePlugin()!.pluginId;
-  const { group } = docsInstance(activeId)!;
-  const ids = groupIds(group);
+  const active = docsInstance(activeId)!;
+  const ids = groupIds(active.group);
   const docsEquivalents = useDocusaurusContext().siteConfig.customFields
     ?.docsEquivalents as Equivalents;
   const counterparts = useCounterparts(
@@ -94,7 +96,7 @@ export default function DocsSelector() {
   }, [isOpen]);
 
   if (
-    group === 'protocol' &&
+    active.group === 'protocol' &&
     !ids.some(id => id !== activeId && counterparts[id])
   )
     return null;
@@ -105,7 +107,7 @@ export default function DocsSelector() {
     if (id !== activeId && target) history.push(target);
   };
 
-  const ActiveLogo = logos[docsInstance(activeId)!.framework ?? ''];
+  const ActiveLogo = logoOf(active);
 
   return (
     <div className={styles.container} ref={containerRef}>
@@ -113,7 +115,7 @@ export default function DocsSelector() {
         className={styles.trigger}
         onClick={() => setIsOpen(!isOpen)}
         aria-label={
-          group === 'framework' ?
+          active.group === 'framework' ?
             translate({
               id: 'frameworkSelector.select',
               message: 'Select framework',
@@ -126,7 +128,7 @@ export default function DocsSelector() {
         aria-expanded={isOpen}
       >
         {ActiveLogo && <ActiveLogo />}
-        <span>{docsInstance(activeId)!.name}</span>
+        <span>{active.name}</span>
         <svg className={styles.chevron} viewBox="0 0 12 12">
           <path
             fill="currentColor"
@@ -137,8 +139,9 @@ export default function DocsSelector() {
       {isOpen && (
         <ul className={styles.dropdown}>
           {ids.map(id => {
-            const Logo = logos[docsInstance(id)!.framework ?? ''];
-            const label = docsInstance(id)!.name;
+            const instance = docsInstance(id)!;
+            const Logo = logoOf(instance);
+            const label = instance.name;
             return (
               <li key={id}>
                 <button

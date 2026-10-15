@@ -183,17 +183,15 @@ function docsEquivalents() {
   for (const d of DOCS_INSTANCES) {
     if (!d.equivalents) continue;
     const other = DOCS_INSTANCES.find(o => o.group === d.group && o !== d);
-    const ids = { [d.id]: docIdsOf(d), [other.id]: docIdsOf(other) };
+    const ids = docIdsOf(d);
+    const otherIds = docIdsOf(other);
     for (const [id, counterpart] of Object.entries(d.equivalents)) {
-      for (const [instance, docId] of [
-        [d.id, id],
-        [other.id, counterpart],
-      ]) {
-        if (!ids[instance].has(docId))
-          throw new Error(
-            `${d.id} equivalents: '${docId}' is not a doc in ${instance}`,
-          );
-      }
+      if (!ids.has(id))
+        throw new Error(`${d.id} equivalents: '${id}' is not a doc in ${d.id}`);
+      if (!otherIds.has(counterpart))
+        throw new Error(
+          `${d.id} equivalents: '${counterpart}' is not a doc in ${other.id}`,
+        );
       equivalents[d.id][id] = counterpart;
       equivalents[other.id][counterpart] = id;
     }

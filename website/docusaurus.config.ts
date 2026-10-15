@@ -24,13 +24,12 @@ const isDev = process.env.NODE_ENV === 'development';
 
 // docs/core is shared by React (/docs) and Vue (/vue); see framework-docs/
 const {
-  FRAMEWORK_INSTANCES,
   docsInstance,
   groupIds,
   frameworkInstance,
 } = require('./framework-docs/docsInstances.js');
 const frameworkDocs = require('./framework-docs/index.js');
-const frameworkDocsIds = FRAMEWORK_INSTANCES.map(d => d.id);
+const frameworkDocsIds = groupIds('framework');
 const remarkFramework = require('./framework-docs/remarkFramework.js');
 // Non-Vue instances render React; :::vue reaches Vue agents via skill references
 const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
