@@ -171,6 +171,8 @@ export default class DevToolsManager implements Manager {
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'production') {
       this.prototype.middleware = function (controller) {
+        // a reused manager starts a fresh log for a new store
+        if (controller !== this.controller) this.actionLog = [];
         this.controller = controller;
         const reducer = this.devTools && createReducer(controller as any);
         let state = controller.getState();
@@ -202,7 +204,7 @@ export default class DevToolsManager implements Manager {
   protected trackPolling(action: ActionTypes) {
     if (
       (action.type === SUBSCRIBE || action.type === UNSUBSCRIBE) &&
-      action.endpoint.pollFrequency
+      action.endpoint.pollFrequency !== undefined
     ) {
       const count =
         (this.pollingSubscribers.get(action.key) ?? 0) +

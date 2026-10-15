@@ -71,6 +71,18 @@ describe('DevToolsManager', () => {
       expect(actionLogs().get('App')).toEqual([setAction(1), setAction(2)]);
     });
 
+    it('starts a fresh log when reused for another store', () => {
+      const manager = new DevToolsManager({ name: 'App' });
+      const { dispatch } = setup(manager);
+      manager.init(initialState);
+      dispatch(setAction(1));
+      manager.cleanup();
+      const { dispatch: dispatch2 } = setup(manager);
+      manager.init(initialState);
+      dispatch2(setAction(2));
+      expect(actionLogs().get('App')).toEqual([setAction(2)]);
+    });
+
     it('trims in place to maxBufferLength', () => {
       const manager = new DevToolsManager({ name: 'App', maxAge: 5 });
       const { dispatch } = setup(manager);
