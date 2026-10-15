@@ -10,6 +10,14 @@ Debug :react[`@data-client/react`]:vue[`@data-client/vue`] state and actions pro
 2. Chrome DevTools MCP connected and page loaded
 3. `DevToolsManager` included in :react[`DataProvider`]:vue[`DataClientPlugin`] managers (default in dev mode)
 
+## Where to Start
+
+| Symptom | First check |
+|---|---|
+| Data never appears or stays loading | The key's `meta` `error` and `getError` (Step 2), and its status in `list_network_requests` |
+| A mutation succeeded but the UI shows old data | The entity in `state.entities` (Step 2). If it is unchanged and the response sits only under the mutation's own `endpoints` key, the endpoint has no `schema`, so nothing was normalized into the entity |
+| Requests fire too often or not at all | Timestamps in `list_network_requests`, then `fetchedAt` per key in the action log (Step 3) of the controller that owns the endpoint. `pollFrequency` is in milliseconds |
+
 ## Step 1: Install the Debug Shim
 
 Run this after each page load (a reload clears it). It picks a controller, exposes it as
@@ -18,7 +26,8 @@ is safe. A `ReferenceError` for either global means the shim is not installed.
 
 `DevToolsManager` registers controllers in `globalThis.__DC_CONTROLLERS__` keyed by
 `devtoolsName`, which defaults to `"Data Client: <page title>"`. With a single controller, leave `NAME`
-unset. With several, the shim returns their keys; rerun it with `NAME` set to the one to target.
+unset. With several, the shim returns their keys; rerun it with `NAME` set to the one whose
+`getState().endpoints` holds the keys you are debugging.
 
 Newer versions record actions from startup in `globalThis.__DC_ACTIONS__` (same keys), and the shim uses
 that log (`actionLog: 'built-in'`). On older versions it wraps dispatch instead (`actionLog: 'shim'`),
@@ -289,11 +298,6 @@ async () => {
 }
 ```
 
-## Correlating with Network Requests
-
-Use `list_network_requests` with `resourceTypes: ["fetch", "xhr"]` to see API calls,
-then cross-reference with endpoint keys in state.
-
 ## Action Types Reference
 
 | Type | Controller Method | Description |
@@ -341,24 +345,3 @@ State = {
   lastReset: number,
 }
 ```
-
-## Polling Pattern
-
-For monitoring ongoing activity, poll with short intervals:
-
-1. Install shim (Step 1)
-2. Trigger the user action or navigation
-3. Wait 2–3 seconds
-4. Read actions (Step 3) — check for `rdc/fetch` then `rdc/setresponse` pairs
-5. If needed, read entity state (Step 2) to verify cache contents
-6. Repeat if watching for subscription updates
-
-## Debugging Checklist
-
-1. **Install the shim**: Confirms a controller exists and exposes it as `__DC_CTRL__`
-2. **Inspect state shape**: Get entity types and endpoint count
-3. **Check specific data**: Look up entities by type and pk
-4. **Review endpoint metadata**: Check expiry, errors, invalidation status
-5. **Track actions**: Read the action log for recent dispatches
-6. **Correlate network**: Compare `list_network_requests` with endpoint keys
-7. **Force refresh**: Use `invalidateAll` or `expireAll` to trigger refetches
