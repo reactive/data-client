@@ -59,7 +59,7 @@ When using React Navigation, [focus events](https://reactnavigation.org/docs/use
 to transition from '[fresh](#fresh)' to '[stale](#stale)' status. Try setting it to a very low number like '50'
 to make it becomes [stale](#stale) almost instantly; or a very large number to stay around for a long time.
 
-Toggling between 'first' and 'second' changes the parameters. If the data is still considered fresh
+Going between the First and Second pages changes the parameters. If the data is still considered fresh
 you will continue to see the old time without any refresh.
 
 <FrameworkPlayground row defaultTab="getUpdated" fixtures={[
@@ -101,63 +101,59 @@ export const lastUpdated = new RestEndpoint({
 ```ts title="getUpdated"
 import { lastUpdated } from './api/lastUpdated';
 
-export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
+export const getUpdated = lastUpdated.extend({
+  dataExpiryLength: 10000,
+});
 ```
 
 :::react
 
-```tsx title="TimePage"
-import { useSuspense } from '@data-client/react';
-import { getUpdated } from './getUpdated';
-
-export default function TimePage({ id }) {
-  const { updatedAt } = useSuspense(getUpdated, { id });
+```tsx title="Home" route="/" collapsed
+export default function Home() {
   return (
-    <div>
-      API time for {id}:{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
-    </div>
+    <nav>
+      <Link to="/time/1">First</Link> <Link to="/time/2">Second</Link>
+    </nav>
   );
 }
 ```
 
-```tsx title="Navigator" collapsed
-import React from 'react';
-import { AsyncBoundary } from '@data-client/react';
-import TimePage from './TimePage';
+```tsx title="TimePage" route="/time/:id"
+import { useSuspense } from '@data-client/react';
+import { getUpdated } from './getUpdated';
 
-function Navigator() {
-  const [id, setId] = React.useState('1');
-  const handleChange = e => setId(e.currentTarget.value);
+export default function TimePage({ id }: { id: string }) {
+  const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
       <div>
-        <button value="1" onClick={handleChange}>
-          First
-        </button>
-        <button value="2" onClick={handleChange}>
-          Second
-        </button>
+        API time for {id}:{' '}
+        <time>
+          {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
+        </time>
       </div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
-        <TimePage id={id} />
-      </AsyncBoundary>
       <div>
         Current Time: <CurrentTime />
       </div>
     </div>
   );
 }
-render(<Navigator />);
 ```
 
 :::
 
 :::vue
 
-```html title="TimePage.vue"
+```html title="Home.vue" route="/" collapsed
+<template>
+  <nav>
+    <RouterLink to="/time/1">First</RouterLink>
+    <RouterLink to="/time/2">Second</RouterLink>
+  </nav>
+</template>
+```
+
+```html title="TimePage.vue" route="/time/:id"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getUpdated } from './getUpdated';
@@ -170,29 +166,6 @@ render(<Navigator />);
   <div>
     API time for {{ id }}:
     <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-  </div>
-</template>
-```
-
-```html title="Navigator.vue" collapsed
-<script setup lang="ts">
-  import { ref } from 'vue';
-  import TimePage from './TimePage.vue';
-
-  const id = ref('1');
-</script>
-
-<template>
-  <div>
-    <div>
-      <button @click="id = '1'">First</button>
-      <button @click="id = '2'">Second</button>
-    </div>
-    <!-- :key remounts TimePage so it suspends for the new id -->
-    <Suspense timeout="0">
-      <TimePage :key="id" :id="id" />
-      <template #fallback><div>loading...</div></template>
-    </Suspense>
   </div>
 </template>
 ```
@@ -255,8 +228,8 @@ const NoRetryResource = resource({
 [Endpoint.invalidIfStale](/rest/api/Endpoint#invalidifstale) eliminates the '[stale](#stale)' status, making data
 that expires immediately be considered '[invalid](#invalid)'.
 
-This is demonstrated by the component suspending once its data goes stale. If the data is still
-within the expiry time it just continues to display it.
+This is demonstrated by a page suspending (navigation waits on the progress bar) once its data goes stale.
+If the data is still within the expiry time it just continues to display it.
 
 <FrameworkPlayground row defaultTab="getUpdated" fixtures={[
 {
@@ -305,58 +278,52 @@ export const getUpdated = lastUpdated.extend({
 
 :::react
 
-```tsx title="TimePage"
-import { useSuspense } from '@data-client/react';
-import { getUpdated } from './getUpdated';
-
-export default function TimePage({ id }) {
-  const { updatedAt } = useSuspense(getUpdated, { id });
+```tsx title="Home" route="/" collapsed
+export default function Home() {
   return (
-    <div>
-      API time for {id}:{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
-    </div>
+    <nav>
+      <Link to="/time/1">First</Link> <Link to="/time/2">Second</Link>
+    </nav>
   );
 }
 ```
 
-```tsx title="Navigator" collapsed
-import React from 'react';
-import { AsyncBoundary } from '@data-client/react';
-import TimePage from './TimePage';
+```tsx title="TimePage" route="/time/:id"
+import { useSuspense } from '@data-client/react';
+import { getUpdated } from './getUpdated';
 
-function Navigator() {
-  const [id, setId] = React.useState('1');
-  const handleChange = e => setId(e.currentTarget.value);
+export default function TimePage({ id }: { id: string }) {
+  const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
       <div>
-        <button value="1" onClick={handleChange}>
-          First
-        </button>
-        <button value="2" onClick={handleChange}>
-          Second
-        </button>
+        API time for {id}:{' '}
+        <time>
+          {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
+        </time>
       </div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
-        <TimePage id={id} />
-      </AsyncBoundary>
       <div>
         Current Time: <CurrentTime />
       </div>
     </div>
   );
 }
-render(<Navigator />);
 ```
 
 :::
 
 :::vue
 
-```html title="TimePage.vue"
+```html title="Home.vue" route="/" collapsed
+<template>
+  <nav>
+    <RouterLink to="/time/1">First</RouterLink>
+    <RouterLink to="/time/2">Second</RouterLink>
+  </nav>
+</template>
+```
+
+```html title="TimePage.vue" route="/time/:id"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getUpdated } from './getUpdated';
@@ -369,29 +336,6 @@ render(<Navigator />);
   <div>
     API time for {{ id }}:
     <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-  </div>
-</template>
-```
-
-```html title="Navigator.vue" collapsed
-<script setup lang="ts">
-  import { ref } from 'vue';
-  import TimePage from './TimePage.vue';
-
-  const id = ref('1');
-</script>
-
-<template>
-  <div>
-    <div>
-      <button @click="id = '1'">First</button>
-      <button @click="id = '2'">Second</button>
-    </div>
-    <!-- :key remounts TimePage so it suspends for the new id -->
-    <Suspense timeout="0">
-      <TimePage :key="id" :id="id" />
-      <template #fallback><div>loading...</div></template>
-    </Suspense>
   </div>
 </template>
 ```
