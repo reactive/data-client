@@ -60,13 +60,13 @@ source render:
 ```bash
 # AV1 (main file)
 ffmpeg -i source.mp4 -c:v libsvtav1 -preset 5 -crf 44 -g 300 -pix_fmt yuv420p10le \
-  -c:a libopus -b:a 64k <name>.webm
+  -c:a libopus -b:a 128k <name>.webm
 # H.264 fallback for browsers without AV1 decode (older Safari/iOS)
 ffmpeg -i source.mp4 -c:v libx264 -preset slower -crf 28 -tune animation -level:v 4.1 \
-  -pix_fmt yuv420p -movflags +faststart -c:a aac -b:a 80k <name>.mp4
+  -pix_fmt yuv420p -movflags +faststart -c:a aac -b:a 192k <name>.mp4
 ```
 
-Check text stays sharp on a few frame crops before lowering quality further. Grab a 16:9 poster from a frame that
+Check text stays sharp on a few frame crops before lowering quality further. Keep the audio rates: at Opus 64k and AAC 80k the narration audibly distorts. Grab a 16:9 poster from a frame that
 shows what the clip covers:
 
 ```bash
