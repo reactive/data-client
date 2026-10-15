@@ -200,7 +200,7 @@ export default class DevToolsManager implements Manager {
    * and all but the newest actions drop their payloads.
    */
   protected logAction(action: ActionTypes) {
-    const log: { key?: string }[] = this.actionLog;
+    const log = this.actionLog;
     const key = (action as { key?: string }).key;
     if (
       (action.type === SUBSCRIBE || action.type === UNSUBSCRIBE) &&
@@ -215,7 +215,10 @@ export default class DevToolsManager implements Manager {
     if (key !== undefined && this.polling.has(key)) {
       // the log already holds at most maxPollingActions for this key, so this removes its oldest
       for (let i = log.length - 1, seen = 0; i >= 0; i--) {
-        if (log[i].key === key && ++seen >= this.maxPollingActions) {
+        if (
+          (log[i] as { key?: string }).key === key &&
+          ++seen >= this.maxPollingActions
+        ) {
           log.splice(i, 1);
           break;
         }
