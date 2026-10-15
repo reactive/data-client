@@ -179,8 +179,9 @@ export default class DevToolsManager implements Manager {
         globalThis as any
       ).__DC_CONTROLLERS__ ??= new Map());
       // another provider has the name: register under 'name (2)', 'name (3)', ...
-      // Server rendering makes a store per request and never cleans it up,
-      // so there replace the old one rather than keep every request's store alive.
+      // Without a window (server rendering), stores are made per request and never cleaned up,
+      // so replace the old one instead of keeping every request's store alive.
+      // Checks window, not document: React Native has a window but no document.
       let key = this.devtoolsName;
       if (typeof window !== 'undefined')
         for (
