@@ -1,3 +1,4 @@
+import { FETCH, SUBSCRIBE, UNSUBSCRIBE } from '../actionTypes.js';
 import type { DevToolsConfig } from './devtoolsTypes.js';
 import type { Controller, EndpointInterface } from '../index.js';
 import type { Middleware } from '../middlewareTypes.js';
@@ -94,6 +95,34 @@ function pushCapped<T>(buffer: T[], item: T, max: number) {
   if (buffer.length > max) buffer.splice(0, max / 2);
 }
 
+/** Newest actions kept whole in the action log; older ones are summarized.
+ *
+ * Matches the 20 the debugging skill reads.
+ */
+const FULL_ACTIONS = 20;
+
+/** Keeps what shows what happened and when, dropping what retains memory
+ * (response bodies, args, set values, fetch promises).
+ *
+ * Builds the object explicitly: a rest spread here was 4x slower.
+ */
+function summarize(action: any) {
+  const summary: any = {
+    type: action.type,
+    key: action.key,
+    endpoint: action.endpoint,
+    meta:
+      action.type === FETCH ?
+        { fetchedAt: action.meta.fetchedAt }
+      : action.meta,
+  };
+  if (action.error) {
+    summary.error = true;
+    summary.response = action.response;
+  }
+  return summary;
+}
+
 /** Integrates with https://github.com/reduxjs/redux-devtools
  *
  * Options: https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md
@@ -109,6 +138,9 @@ export default class DevToolsManager implements Manager {
   protected actionLog: ActionTypes[] = [];
   /** Key this controller is registered under in `__DC_CONTROLLERS__` and `__DC_ACTIONS__` */
   declare protected registryKey?: string;
+  /** Subscriber count for each polling key */
+  protected polling = new Map<string, number>();
+  maxPollingActions = 4;
   declare protected controller: Controller;
   declare skipLogging?: (action: ActionTypes) => boolean;
   declare devtoolsName: string;
@@ -129,6 +161,8 @@ export default class DevToolsManager implements Manager {
     // we cut it in half so we should double so we don't lose
     if (config?.maxAge) this.maxBufferLength = config.maxAge * 2;
     if (skipLogging) this.skipLogging = skipLogging;
+    if (config?.maxPollingActions)
+      this.maxPollingActions = config.maxPollingActions;
   }
 
   static {
@@ -141,8 +175,7 @@ export default class DevToolsManager implements Manager {
         let state = controller.getState();
         return next => action => {
           const shouldSkip = this.skipLogging?.(action);
-          if (!shouldSkip)
-            pushCapped(this.actionLog, action, this.maxBufferLength);
+          if (!shouldSkip) this.logAction(action);
           const ret = next(action);
           if (!reducer) return ret;
           if (this.started) {
@@ -161,6 +194,36 @@ export default class DevToolsManager implements Manager {
     } else {
       this.prototype.middleware = () => next => action => next(action);
     }
+  }
+
+  /** Keeps `__DC_ACTIONS__` small: polling keys keep only their latest actions,
+   * and all but the newest actions drop their payloads.
+   */
+  protected logAction(action: ActionTypes) {
+    const log: { key?: string }[] = this.actionLog;
+    const key = (action as { key?: string }).key;
+    if (
+      (action.type === SUBSCRIBE || action.type === UNSUBSCRIBE) &&
+      action.endpoint.pollFrequency
+    ) {
+      const count =
+        (this.polling.get(action.key) ?? 0) +
+        (action.type === SUBSCRIBE ? 1 : -1);
+      if (count > 0) this.polling.set(action.key, count);
+      else this.polling.delete(action.key);
+    }
+    if (key !== undefined && this.polling.has(key)) {
+      // the log already holds at most maxPollingActions for this key, so this removes its oldest
+      for (let i = log.length - 1, seen = 0; i >= 0; i--) {
+        if (log[i].key === key && ++seen >= this.maxPollingActions) {
+          log.splice(i, 1);
+          break;
+        }
+      }
+    }
+    pushCapped(log, action, this.maxBufferLength);
+    const old = log.length - 1 - FULL_ACTIONS;
+    if (old >= 0) log[old] = summarize(log[old]);
   }
 
   handleAction(action: any, state: any) {

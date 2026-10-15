@@ -1,11 +1,18 @@
 import { Controller, initialState } from '../..';
-import { RESET, SET } from '../../actionTypes';
+import {
+  FETCH,
+  RESET,
+  SET,
+  SET_RESPONSE,
+  SUBSCRIBE,
+  UNSUBSCRIBE,
+} from '../../actionTypes';
 import DevToolsManager from '../DevtoolsManager.js';
 
 const controllers = () =>
   (globalThis as any).__DC_CONTROLLERS__ as Map<string, Controller>;
 const actionLogs = () =>
-  (globalThis as any).__DC_ACTIONS__ as Map<string, unknown[]>;
+  (globalThis as any).__DC_ACTIONS__ as Map<string, any[]>;
 
 function setup(manager: DevToolsManager, controller = new Controller()) {
   const next = jest.fn(() => Promise.resolve());
@@ -14,6 +21,36 @@ function setup(manager: DevToolsManager, controller = new Controller()) {
 }
 
 const setAction = (i: number): any => ({ type: SET, value: i });
+const typesAndKeys = () =>
+  actionLogs()
+    .get('App')!
+    .map(a => [a.type, a.key]);
+const pollEndpoint = { name: 'poll', pollFrequency: 1000 };
+const subscribe = (key: string): any => ({
+  type: SUBSCRIBE,
+  key,
+  endpoint: pollEndpoint,
+  args: [],
+});
+const unsubscribe = (key: string): any => ({
+  ...subscribe(key),
+  type: UNSUBSCRIBE,
+});
+const fetchAction = (key: string, i: number): any => ({
+  type: FETCH,
+  key,
+  endpoint: pollEndpoint,
+  args: [i],
+  meta: { fetchedAt: i, promise: Promise.resolve(), resolve() {}, reject() {} },
+});
+const responseAction = (key: string, i: number): any => ({
+  type: SET_RESPONSE,
+  key,
+  endpoint: pollEndpoint,
+  args: [i],
+  response: { i },
+  meta: { fetchedAt: i, date: i, expiresAt: i },
+});
 
 afterEach(() => {
   delete (globalThis as any).__DC_CONTROLLERS__;
@@ -57,6 +94,105 @@ describe('DevToolsManager', () => {
       dispatch({ type: RESET, date: 0 } as any);
 
       expect(actionLogs().get('App')).toEqual([{ type: RESET, date: 0 }]);
+    });
+  });
+
+  describe('summaries', () => {
+    it('drops payloads from all but the newest 20 actions', () => {
+      const manager = new DevToolsManager({ name: 'App' });
+      const { dispatch } = setup(manager);
+      manager.init(initialState);
+      dispatch(fetchAction('a', 1));
+      dispatch({
+        ...responseAction('a', 2),
+        error: true,
+        response: { message: 'boom' },
+      });
+      dispatch(responseAction('a', 3));
+      for (let i = 0; i < 20; i++) dispatch(setAction(i));
+      const log = actionLogs().get('App')!;
+
+      expect(log.slice(0, 3)).toEqual([
+        {
+          type: FETCH,
+          key: 'a',
+          endpoint: pollEndpoint,
+          meta: { fetchedAt: 1 },
+        },
+        {
+          type: SET_RESPONSE,
+          key: 'a',
+          endpoint: pollEndpoint,
+          error: true,
+          response: { message: 'boom' },
+          meta: { fetchedAt: 2, date: 2, expiresAt: 2 },
+        },
+        {
+          type: SET_RESPONSE,
+          key: 'a',
+          endpoint: pollEndpoint,
+          meta: { fetchedAt: 3, date: 3, expiresAt: 3 },
+        },
+      ]);
+      expect(log.slice(3)).toEqual(
+        Array.from({ length: 20 }, (_, i) => setAction(i)),
+      );
+    });
+  });
+
+  describe('polling', () => {
+    function pollingDispatch() {
+      const manager = new DevToolsManager({
+        name: 'App',
+        maxPollingActions: 2,
+      });
+      const { dispatch } = setup(manager);
+      manager.init(initialState);
+      return dispatch;
+    }
+
+    it('keeps only the latest maxPollingActions for a polling key', () => {
+      const dispatch = pollingDispatch();
+      dispatch(subscribe('a'));
+      dispatch(subscribe('a'));
+      dispatch(setAction(0));
+      for (let i = 1; i <= 3; i++) {
+        dispatch(fetchAction('a', i));
+        dispatch(responseAction('a', i));
+      }
+      dispatch(fetchAction('b', 9));
+
+      expect(typesAndKeys()).toEqual([
+        [SET, undefined],
+        [FETCH, 'a'],
+        [SET_RESPONSE, 'a'],
+        [FETCH, 'b'],
+      ]);
+      expect(actionLogs().get('App')![1].args).toEqual([3]);
+    });
+
+    it('stops capping once every subscriber leaves', () => {
+      const dispatch = pollingDispatch();
+      dispatch(subscribe('a'));
+      dispatch(subscribe('a'));
+      dispatch(unsubscribe('a'));
+      dispatch(fetchAction('a', 1));
+      dispatch(responseAction('a', 1));
+      expect(typesAndKeys()).toEqual([
+        [FETCH, 'a'],
+        [SET_RESPONSE, 'a'],
+      ]);
+
+      dispatch(unsubscribe('a'));
+      dispatch(fetchAction('a', 2));
+      expect(actionLogs().get('App')).toHaveLength(4);
+    });
+
+    it('does not cap subscriptions without pollFrequency', () => {
+      const dispatch = pollingDispatch();
+      dispatch({ ...subscribe('a'), endpoint: { name: 'live' } });
+      for (let i = 1; i <= 3; i++) dispatch(fetchAction('a', i));
+      expect(actionLogs().get('App')).toHaveLength(4);
     });
   });
 

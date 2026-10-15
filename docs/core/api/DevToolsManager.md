@@ -116,8 +116,23 @@ registers as `'Data Client: My App (2)'`, and so on; set `name` to give each a r
 server rendering, a store replaces the previous one with its name instead, since per-request stores are never cleaned up.
 
 The action log keeps up to twice [`maxAge`](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#maxage)
-actions (100 by default) and skips the same duplicate fetches the extension does. Controllers and their logs are
-removed when `cleanup()` is called. None of this exists in production builds.
+actions (100 by default) and skips the same duplicate fetches the extension does. To keep its memory small, only the
+newest 20 actions keep their `args` and `response`; older ones keep `type`, `key`, `endpoint`, `meta` and error
+responses. While an endpoint [polls](/rest/api/RestEndpoint#pollfrequency), the log keeps only its last
+`maxPollingActions` actions (4 by default, the last two polls), so polling doesn't push everything else out:
+
+<ProviderManagers imports={['getDefaultManagers']}>
+
+```ts
+const managers = getDefaultManagers({
+  // highlight-next-line
+  devToolsManager: { maxPollingActions: 10 },
+});
+```
+
+</ProviderManagers>
+
+Controllers and their logs are removed when `cleanup()` is called. None of this exists in production builds.
 
 ## More info
 

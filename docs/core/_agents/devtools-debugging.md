@@ -185,7 +185,9 @@ Use these when you need to see the raw cache structure without denormalization.
 
 ## Step 3: Track Actions
 
-After installing the debug shim (Step 1):
+After installing the debug shim (Step 1). With the built-in log, only the newest 20 actions keep `args` and
+`response` (older ones keep `type`, `key`, `endpoint`, `meta` and error responses), and each polling endpoint
+keeps only its last few actions. To see a payload, repeat the action and read it right away.
 
 ### Read recent actions
 
@@ -196,7 +198,7 @@ After installing the debug shim (Step 1):
   key: a.key,
   endpoint: a.endpoint?.name,
   args: a.args,
-  date: a.meta?.date,
+  fetchedAt: a.meta?.fetchedAt,
   error: a.error ? (a.response?.message || true) : undefined,
 }))
 ```
@@ -208,7 +210,7 @@ After installing the debug shim (Step 1):
 () => __DC_ACTION_LOG__
   .filter(a => a.type === 'rdc/fetch' || a.type === 'rdc/setresponse')
   .slice(-20)
-  .map(a => ({ type: a.type, key: a.key, date: a.meta?.date }))
+  .map(a => ({ type: a.type, key: a.key, fetchedAt: a.meta?.fetchedAt }))
 ```
 
 ### Filter errors
