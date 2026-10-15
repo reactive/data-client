@@ -13,6 +13,7 @@ const path = require('path');
 const getSlug = require('@docusaurus/plugin-content-docs/lib/slug.js').default;
 
 const {
+  DOCS_INSTANCES,
   FRAMEWORKS,
   frameworkInstance,
   localizedPath,
@@ -122,8 +123,8 @@ function docsFor(framework) {
 }
 
 /**
- * `framework_equivalent:` front matter in both directions, for
- * FrameworkSelector: { [framework]: { [doc id]: counterpart's doc id } }
+ * `framework_equivalent:` front matter in both directions:
+ * { [framework]: { [doc id]: counterpart's doc id } }
  */
 function frameworkEquivalents() {
   const docs = Object.fromEntries(FRAMEWORKS.map(f => [f, docsFor(f)]));
@@ -151,6 +152,27 @@ function frameworkEquivalents() {
           );
         equivalents[other][equivalent] = id;
       }
+    }
+  }
+  return equivalents;
+}
+
+/**
+ * For DocsSelector: { [docs instance id]: { [doc id]: counterpart's doc id } },
+ * from `framework_equivalent:` front matter and each instance's `equivalents`
+ * (both directions)
+ */
+function docsEquivalents() {
+  const frameworks = frameworkEquivalents();
+  const equivalents = Object.fromEntries(
+    DOCS_INSTANCES.map(d => [d.id, d.framework ? frameworks[d.framework] : {}]),
+  );
+  for (const d of DOCS_INSTANCES) {
+    if (!d.equivalents) continue;
+    const other = DOCS_INSTANCES.find(o => o.group === d.group && o !== d);
+    for (const [id, counterpart] of Object.entries(d.equivalents)) {
+      equivalents[d.id][id] = counterpart;
+      equivalents[other.id][counterpart] = id;
     }
   }
   return equivalents;
@@ -258,7 +280,7 @@ module.exports = {
   sidebarsFor,
   sourcePath,
   docsFor,
-  frameworkEquivalents,
+  docsEquivalents,
   docIdOf,
   pageFrameworks,
   rewriteFrontMatter,

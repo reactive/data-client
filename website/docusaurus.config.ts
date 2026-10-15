@@ -26,6 +26,7 @@ const isDev = process.env.NODE_ENV === 'development';
 const {
   FRAMEWORK_INSTANCES,
   docsInstance,
+  groupIds,
   frameworkInstance,
 } = require('./framework-docs/docsInstances.js');
 const frameworkDocs = require('./framework-docs/index.js');
@@ -300,8 +301,8 @@ const config: Config = {
   themes: ['@docusaurus/theme-mermaid'],
   customFields: {
     repoUrl: 'https://github.com/reactive/data-client',
-    // read by FrameworkSelector to switch between differently named pages
-    frameworkEquivalents: frameworkDocs.frameworkEquivalents(),
+    // read by DocsSelector to switch between differently named pages
+    docsEquivalents: frameworkDocs.docsEquivalents(),
   },
   onBrokenLinks: 'warn',
   future: {
@@ -649,7 +650,7 @@ const config: Config = {
         {
           // REST/GraphQL menu showing the protocol being read
           type: 'custom-docsDropdown',
-          docsPluginIds: ['rest', 'graphql'],
+          docsPluginIds: groupIds('protocol'),
           position: 'left',
         },
         { to: '/blog', label: 'News', position: 'left' },

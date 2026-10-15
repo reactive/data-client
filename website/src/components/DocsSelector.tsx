@@ -9,8 +9,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import React, { useState, useRef, useEffect } from 'react';
 
 import styles from './DocsSelector.module.css';
-import { type Framework, frameworkPluginId } from './useFramework';
-import { docsInstance } from '../../framework-docs/docsInstances.js';
+import { docsInstance, groupIds } from '../../framework-docs/docsInstances.js';
 
 const ReactLogo = () => (
   <svg viewBox="0 0 24 24" className={styles.logo}>
@@ -33,38 +32,20 @@ const VueLogo = () => (
 /** For each docs instance, its doc ids mapped to the same page in the others */
 type Equivalents = Record<string, Record<string, string>>;
 
-/** GraphQL pages and the REST page each one parallels */
-const graphqlToRest: Record<string, string> = {
-  auth: 'guides/auth',
-  'api/GQLEndpoint': 'api/RestEndpoint',
-  'api/GQLEntity': 'api/Entity',
-};
-const protocolEquivalents: Equivalents = {
-  graphql: graphqlToRest,
-  rest: Object.fromEntries(
-    Object.entries(graphqlToRest).map(([graphql, rest]) => [rest, graphql]),
-  ),
-};
-
 const logos: Record<string, React.FC | undefined> = {
-  [frameworkPluginId.react]: ReactLogo,
-  [frameworkPluginId.vue]: VueLogo,
+  react: ReactLogo,
+  vue: VueLogo,
 };
-
-/** Docs instances that render the same pages for a different framework or protocol */
-const groups = [
-  { kind: 'framework', ids: [frameworkPluginId.react, frameworkPluginId.vue] },
-  { kind: 'protocol', ids: ['rest', 'graphql'] },
-] as const;
 
 /**
  * Same page in each docs instance of `ids`, if it exists: the same doc id, or
- * its equivalent. The hash only carries over to the same doc.
+ * its equivalent (`equivalents` of the active instance). The hash only
+ * carries over to the same doc.
  */
 function useCounterparts(
   ids: readonly string[],
   activeId: string,
-  equivalents: Equivalents,
+  equivalents: Record<string, string>,
 ): Record<string, string | undefined> {
   const allDocs = useAllDocsData();
   const { activeDoc } = useActiveDocContext(activeId);
@@ -74,7 +55,7 @@ function useCounterparts(
   const counterpart = (id: string) => {
     if (!activeDoc) return;
     const same = find(id, activeDoc.id);
-    return same ? same + hash : find(id, equivalents[activeId]?.[activeDoc.id]);
+    return same ? same + hash : find(id, equivalents[activeDoc.id]);
   };
   return Object.fromEntries(ids.map(id => [id, counterpart(id)]));
 }
@@ -86,21 +67,16 @@ function useCounterparts(
  * most REST pages (like schemas) serve GraphQL as they are.
  */
 export default function DocsSelector() {
-  const activeId = useActivePlugin()?.pluginId ?? frameworkPluginId.react;
-  const { kind, ids } = groups.find(g =>
-    (g.ids as readonly string[]).includes(activeId),
-  )!;
-  const frameworkEquivalents = useDocusaurusContext().siteConfig.customFields
-    ?.frameworkEquivalents as Record<Framework, Record<string, string>>;
+  // breadcrumbs only render on docs pages
+  const activeId = useActivePlugin()!.pluginId;
+  const { group } = docsInstance(activeId)!;
+  const ids = groupIds(group);
+  const docsEquivalents = useDocusaurusContext().siteConfig.customFields
+    ?.docsEquivalents as Equivalents;
   const counterparts = useCounterparts(
     ids,
     activeId,
-    kind === 'framework' ?
-      {
-        [frameworkPluginId.react]: frameworkEquivalents.react,
-        [frameworkPluginId.vue]: frameworkEquivalents.vue,
-      }
-    : protocolEquivalents,
+    docsEquivalents[activeId],
   );
   const history = useHistory();
   const [isOpen, setIsOpen] = useState(false);
@@ -108,16 +84,17 @@ export default function DocsSelector() {
 
   // Close dropdown when clicking outside
   useEffect(() => {
+    if (!isOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
       if (!containerRef.current?.contains(e.target as Node)) setIsOpen(false);
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [isOpen]);
 
   if (
-    kind === 'protocol' &&
+    group === 'protocol' &&
     !ids.some(id => id !== activeId && counterparts[id])
   )
     return null;
@@ -128,7 +105,7 @@ export default function DocsSelector() {
     if (id !== activeId && target) history.push(target);
   };
 
-  const ActiveLogo = logos[activeId];
+  const ActiveLogo = logos[docsInstance(activeId)!.framework ?? ''];
 
   return (
     <div className={styles.container} ref={containerRef}>
@@ -136,7 +113,7 @@ export default function DocsSelector() {
         className={styles.trigger}
         onClick={() => setIsOpen(!isOpen)}
         aria-label={
-          kind === 'framework' ?
+          group === 'framework' ?
             translate({
               id: 'frameworkSelector.select',
               message: 'Select framework',
@@ -160,7 +137,7 @@ export default function DocsSelector() {
       {isOpen && (
         <ul className={styles.dropdown}>
           {ids.map(id => {
-            const Logo = logos[id];
+            const Logo = logos[docsInstance(id)!.framework ?? ''];
             const label = docsInstance(id)!.name;
             return (
               <li key={id}>
