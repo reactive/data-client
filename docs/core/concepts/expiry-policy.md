@@ -62,7 +62,7 @@ to make it becomes [stale](#stale) almost instantly; or a very large number to s
 Toggling between 'first' and 'second' changes the parameters. If the data is still considered fresh
 you will continue to see the old time without any refresh.
 
-<FrameworkPlayground row fixtures={[
+<FrameworkPlayground row defaultTab="getUpdated" fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -258,7 +258,7 @@ that expires immediately be considered '[invalid](#invalid)'.
 This is demonstrated by the component suspending once its data goes stale. If the data is still
 within the expiry time it just continues to display it.
 
-<FrameworkPlayground row fixtures={[
+<FrameworkPlayground row defaultTab="getUpdated" fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
