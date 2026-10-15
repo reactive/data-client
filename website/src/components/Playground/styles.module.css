@@ -439,11 +439,12 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 
 /* The Store toggle in the code's corner, over the Store as it slides in
-   under it; its label rises out as the other rises in */
+   under it; its label rises out as the other rises in. Closed, it stays
+   under the fixtures floating over the code (they come later at its level). */
 .storeBadge {
   --swap-in: 0 110%;
   --swap-out: 0 -110%;
-  z-index: 3;
+  z-index: 1;
   align-self: end;
   justify-self: end;
   margin: 0.75rem;
@@ -459,6 +460,9 @@ div.playgroundTextEdit > .playgroundHeader,
   letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+.storeHost:has(> .storePanel[data-visible]) + .storeBadge {
+  z-index: 3;
 }
 .storeBadge:hover {
   background: var(--pg-tab-hover-bg)
