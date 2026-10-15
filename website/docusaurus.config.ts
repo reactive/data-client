@@ -647,13 +647,9 @@ const config: Config = {
           label: 'API',
         },
         {
-          to: 'rest',
-          label: 'REST',
-          position: 'left',
-        },
-        {
-          to: 'graphql',
-          label: 'GraphQL',
+          // REST/GraphQL menu showing the protocol being read
+          type: 'custom-docsDropdown',
+          docsPluginIds: ['rest', 'graphql'],
           position: 'left',
         },
         { to: '/blog', label: 'News', position: 'left' },
