@@ -1,4 +1,4 @@
-import Translate from '@docusaurus/Translate';
+import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, { useId, useState } from 'react';
 
@@ -17,8 +17,11 @@ export default function PreviewWrapper({
 }: Props) {
   const [routerSlot, setRouterSlot] = useState<HTMLElement | null>(null);
   const [fixturesOpen, setFixturesOpen] = useState(false);
-  // matches between SSR and hydration
   const fixturesId = useId();
+  const fixturesLabel = translate({
+    id: 'playground.fixtures',
+    message: 'Fixtures',
+  });
   return (
     <div className={styles.previewWrapper} ref={ref}>
       <Header className={styles.previewHeader}>
@@ -37,14 +40,13 @@ export default function PreviewWrapper({
                 styles.headerButton,
                 styles.fixturesToggle,
               )}
+              title={fixturesLabel}
+              aria-label={fixturesLabel}
               aria-expanded={fixturesOpen}
               aria-controls={fixturesId}
               onClick={() => setFixturesOpen(open => !open)}
             >
               <NetworkIcon />
-              <span className={styles.visuallyHidden}>
-                <Translate id="playground.fixtures">Fixtures</Translate>
-              </span>
             </button>
           : null}
           {headerControls}

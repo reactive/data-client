@@ -31,8 +31,9 @@ export interface PlaygroundProps<T = any> {
   /** Tabs for files + editor beside preview (when wide enough).
    * Use when the code is one tall open file and the preview is short. Stay
    * stacked when the Store opens by default (it would cover the code), when
-   * the fixtures are the lesson (row folds them behind a toggle in the preview's header), or when
-   * the preview renders a long list (it gets tall in the narrow column). */
+   * the fixtures are the lesson (row folds them behind a toggle in the
+   * preview's header), or when the preview renders a long list (it gets tall
+   * in the narrow column). */
   row?: boolean;
   /** Inactive (e.g. unselected Demo tab): no Monaco until first shown, no preview */
   hidden?: boolean;
@@ -92,8 +93,6 @@ export default function Playground<T>({
 
   const fixtureContent =
     fixtures.length ? <FixturePreview fixtures={fixtures} /> : undefined;
-  // row keeps the code compact: its fixtures fold into the preview's header,
-  // beside the Store, where readers inspect what the demo did
   const previewFixtures = row ? fixtureContent : undefined;
 
   const editor = (

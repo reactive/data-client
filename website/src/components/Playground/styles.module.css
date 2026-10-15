@@ -553,22 +553,6 @@ div.playgroundTextEdit > .playgroundHeader,
 .small .tab {
   padding: 0.4rem 0.75rem;
 }
-/* Row's fixtures toggle: a network icon (they mock its calls) beside the
-   Store's in the preview header, where readers inspect what the demo did;
-   lit while the fixtures show */
-.fixturesToggle[aria-expanded='true'],
-.previewHeader:has(+ .fixturesAnchor > .fixturesPopover:hover) .fixturesToggle {
-  background-color: var(--pg-tab-hover-bg);
-  color: var(--ifm-color-primary);
-}
-.visuallyHidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
 /* the fixtures float from the header's bottom edge, so the preview never
    moves: over the result, and in side-by-side row over the code too, for
    width (see @container below). The anchor is a no-height block (not
@@ -589,7 +573,7 @@ div.playgroundTextEdit > .playgroundHeader,
   max-height: min(20rem, 60svh);
   overflow: auto;
   background: var(--pg-tab-selected-bg);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--store-line-strong);
   border-width: 0 0 1px 1px;
   border-bottom-left-radius: var(--ifm-global-radius);
   box-shadow:
@@ -598,17 +582,17 @@ div.playgroundTextEdit > .playgroundHeader,
   visibility: hidden;
   opacity: 0;
   translate: 0 -4px;
-  /* hides once faded, so it stays reachable while the pointer crosses */
+  /* visibility holds until faded, so it stays reachable while the pointer
+     crosses */
   transition:
-    opacity var(--ifm-transition-fast) ease,
-    translate var(--ifm-transition-fast) ease,
-    visibility 0s linear var(--ifm-transition-fast);
+    opacity var(--motion-smooth),
+    translate var(--motion-smooth),
+    visibility var(--motion-smooth);
 }
 .fixturesPopover[data-open] {
   visibility: visible;
   opacity: 1;
   translate: 0 0;
-  transition-delay: 0s;
 }
 @media (hover: hover) {
   /* a preview while the pointer is on the toggle or the fixtures */
@@ -619,7 +603,6 @@ div.playgroundTextEdit > .playgroundHeader,
     visibility: visible;
     opacity: 1;
     translate: 0 0;
-    transition-delay: 0s;
   }
 }
 /* With header controls (e.g. homepage demos) the selected control joins the
@@ -1382,7 +1365,10 @@ div.fixtureJson + div.fixtureJson {
 .headerButton.storeHeaderToggle {
   display: none;
 }
-.storeHeaderToggle[aria-pressed='true'] {
+/* the fixtures toggle (row) is lit the same while they show */
+.storeHeaderToggle[aria-pressed='true'],
+.fixturesToggle[aria-expanded='true'],
+.previewHeader:has(+ .fixturesAnchor > .fixturesPopover:hover) .fixturesToggle {
   background-color: var(--pg-tab-hover-bg);
   color: var(--ifm-color-primary);
 }
