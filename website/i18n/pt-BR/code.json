@@ -860,6 +860,26 @@
     "message": "Operação",
     "description": "Label of the push / unshift / remove / move switch on the collection lists diagram"
   },
+  "atomicMutations.label": {
+    "message": "Um app de tarefas sob o seu store. Uma linha de TodoList chama ctrl.fetch(partialUpdate): o store altera esse Todo na hora, de forma otimista, e os novos dados fluem pelos vínculos apenas até os componentes que o renderizam, a sua linha em TodoList e, para o Todo 1, TodoDetail, enquanto o PATCH é enviado e a sua resposta confirma a alteração. CurrentUser e o resto da árvore mantêm os mesmos dados, e nada é buscado de novo",
+    "description": "Accessible label of the atomic mutations diagram on the Mutate Data page"
+  },
+  "atomicMutations.entity": {
+    "message": "{entity} no store",
+    "description": "Label of an entity chip in the atomic mutations diagram; pointing at it highlights the components bound to it"
+  },
+  "atomicMutations.currentUser": {
+    "message": "CurrentUser renderiza User 1",
+    "description": "Label of the CurrentUser component in the atomic mutations diagram; pointing at it highlights the entity it is bound to"
+  },
+  "atomicMutations.todoList": {
+    "message": "TodoList renderiza Todo 1, Todo 2 e Todo 3",
+    "description": "Label of the TodoList component in the atomic mutations diagram; pointing at it highlights the entities it is bound to"
+  },
+  "atomicMutations.todoDetail": {
+    "message": "TodoDetail renderiza Todo 1",
+    "description": "Label of the TodoDetail component in the atomic mutations diagram; pointing at it highlights the entity it is bound to"
+  },
   "expiryTimeline.within": {
     "message": "dentro de",
     "description": "Before the dataExpiryLength option name, over the Fresh story: a mount within that time finds fresh data"

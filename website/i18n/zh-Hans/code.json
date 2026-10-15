@@ -860,6 +860,26 @@
     "message": "操作",
     "description": "Label of the push / unshift / remove / move switch on the collection lists diagram"
   },
+  "atomicMutations.label": {
+    "message": "一个待办应用及其上方的 store。TodoList 中的一行调用 ctrl.fetch(partialUpdate)：store 立即乐观地改变该 Todo，新数据沿着绑定只流向渲染它的组件，即它在 TodoList 中的那一行，以及（对 Todo 1 而言）TodoDetail；与此同时 PATCH 发出，其响应确认这次改变。CurrentUser 和树中其余部分保持原有数据，没有任何内容被重新获取",
+    "description": "Accessible label of the atomic mutations diagram on the Mutate Data page"
+  },
+  "atomicMutations.entity": {
+    "message": "store 中的 {entity}",
+    "description": "Label of an entity chip in the atomic mutations diagram; pointing at it highlights the components bound to it"
+  },
+  "atomicMutations.currentUser": {
+    "message": "CurrentUser 渲染 User 1",
+    "description": "Label of the CurrentUser component in the atomic mutations diagram; pointing at it highlights the entity it is bound to"
+  },
+  "atomicMutations.todoList": {
+    "message": "TodoList 渲染 Todo 1、Todo 2 和 Todo 3",
+    "description": "Label of the TodoList component in the atomic mutations diagram; pointing at it highlights the entities it is bound to"
+  },
+  "atomicMutations.todoDetail": {
+    "message": "TodoDetail 渲染 Todo 1",
+    "description": "Label of the TodoDetail component in the atomic mutations diagram; pointing at it highlights the entity it is bound to"
+  },
   "expiryTimeline.within": {
     "message": "未超过",
     "description": "Before the dataExpiryLength option name, over the Fresh story: a mount within that time finds fresh data"
