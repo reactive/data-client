@@ -46,7 +46,7 @@ Apps sharing the default name overwrite each other, so give each a distinct
       if (action.endpoint) entry.endpoint = action.endpoint.name || action.endpoint.key;
       if (action.args) entry.args = action.args;
       if (action.meta?.date) entry.date = action.meta.date;
-      if (action.error) entry.error = action.response?.message ?? true;
+      if (action.error) entry.error = action.response?.message || true;
 
       const log = globalThis.__DC_ACTION_LOG__;
       log.push(entry);
@@ -60,6 +60,16 @@ Apps sharing the default name overwrite each other, so give each a distinct
   return { ok: true, stateKeys: Object.keys(ctrl.getState()) };
 })()
 ```
+
+### Gotchas
+
+- **Actions from before the shim are not logged**, including the fetches made while the page
+  loaded. For a load-time problem, read the outcome from state (`meta` has each key's `date`,
+  `expiresAt` and `error`; see Step 2) and the requests from `list_network_requests`. To watch the
+  fetches happen, install the shim, then repeat them with `invalidateAll` (Step 4) or an in-app
+  navigation; a reload clears the shim.
+- **Rerun Step 1 when the log stops growing or the data looks stale.** Nothing errors when
+  the app is created again (for example on a hot reload of the module that calls `createApp`), which makes a new controller.
 
 ## Step 2: Read State
 
