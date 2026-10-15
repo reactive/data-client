@@ -104,10 +104,13 @@ of guessing from code. In dev mode, [DevToolsManager](/docs/api/DevToolsManager#
 [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp), or
 [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) for React Native, can read the store, follow dispatched actions, and
 match them to network requests. The map is there in browsers, React Native and Node
-([#3753](https://github.com/reactive/data-client/pull/3753)).
+([#3753](https://github.com/reactive/data-client/pull/3753)). Each store's recent actions are on
+`globalThis.__DC_ACTIONS__` from the moment the app starts, so the agent also sees the fetches made while the page
+loaded, with or without the Redux DevTools extension.
 
 ```js title="Browser DevTools console"
 __DC_CONTROLLERS__.get('Data Client: My App').getState();
+__DC_ACTIONS__.get('Data Client: My App').slice(-10);
 ```
 
 The React and Vue skills drive this through Chrome DevTools MCP; see

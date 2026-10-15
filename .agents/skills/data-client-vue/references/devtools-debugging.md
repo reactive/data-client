@@ -13,14 +13,16 @@ Debug `@data-client/vue` state and actions programmatically via [Chrome DevTools
 ## Step 1: Install the Debug Shim
 
 Run this after each page load (a reload clears it). It picks a controller, exposes it as
-`__DC_CTRL__` for every later snippet, and wraps dispatch to record actions in `__DC_ACTION_LOG__`.
-Rerunning it is safe. A `ReferenceError` for either global means the shim is not installed.
+`__DC_CTRL__` for every later snippet, and points `__DC_ACTION_LOG__` at its recent actions. Rerunning it
+is safe. A `ReferenceError` for either global means the shim is not installed.
 
 `DevToolsManager` registers controllers in `globalThis.__DC_CONTROLLERS__` keyed by
 `devtoolsName`, which defaults to `"Data Client: <page title>"`. With a single controller, leave `NAME`
 unset. With several, the shim returns their keys; rerun it with `NAME` set to the one to target.
-Apps sharing the default name overwrite each other, so give each a distinct
-[`name`](https://dataclient.io/vue/api/DevToolsManager) to inspect them separately.
+
+Newer versions record actions from startup in `globalThis.__DC_ACTIONS__` (same keys), and the shim uses
+that log (`actionLog: 'built-in'`). On older versions it wraps dispatch instead (`actionLog: 'shim'`),
+which only sees actions from then on.
 
 ```js
 // evaluate_script
@@ -30,44 +32,41 @@ Apps sharing the default name overwrite each other, so give each a distinct
   if (!controllers?.size) return { error: 'No controllers registered' };
   if (!NAME && controllers.size > 1)
     return { error: 'Set NAME to one of', keys: [...controllers.keys()] };
-  const ctrl = NAME ? controllers.get(NAME) : controllers.values().next().value;
+  const key = NAME ?? controllers.keys().next().value;
+  const ctrl = controllers.get(key);
   if (!ctrl) return { error: 'Controller not found', keys: [...controllers.keys()] };
+  const stateKeys = Object.keys(ctrl.getState());
 
-  if (globalThis.__DC_CTRL__ !== ctrl) globalThis.__DC_ACTION_LOG__ = [];
+  const builtIn = globalThis.__DC_ACTIONS__?.get(key);
+  if (builtIn || globalThis.__DC_CTRL__ !== ctrl) globalThis.__DC_ACTION_LOG__ = builtIn ?? [];
   globalThis.__DC_CTRL__ = ctrl;
+  if (builtIn) return { ok: true, actionLog: 'built-in', stateKeys };
   // dispatch is rebound if the middleware chain is rebuilt, so check the wrapper, not the alias
-  if (ctrl._dispatch.__dcDebugShim) return { ok: true, alreadyInstalled: true };
+  if (ctrl._dispatch.__dcDebugShim) return { ok: true, actionLog: 'shim', stateKeys };
 
   const MAX_LOG = 200;
   const origDispatch = ctrl._dispatch;
   const shim = (action) => {
     if (globalThis.__DC_CTRL__ === ctrl) {
-      const entry = { type: action.type, key: action.key, ts: Date.now() };
-      if (action.endpoint) entry.endpoint = action.endpoint.name || action.endpoint.key;
-      if (action.args) entry.args = action.args;
-      if (action.meta?.date) entry.date = action.meta.date;
-      if (action.error) entry.error = action.response?.message || true;
-
       const log = globalThis.__DC_ACTION_LOG__;
-      log.push(entry);
-      if (log.length > MAX_LOG) globalThis.__DC_ACTION_LOG__ = log.slice(-MAX_LOG / 2);
+      log.push(action);
+      if (log.length > MAX_LOG) log.splice(0, MAX_LOG / 2);
     }
     return origDispatch(action);
   };
   shim.__dcDebugShim = true;
   ctrl._dispatch = shim;
 
-  return { ok: true, stateKeys: Object.keys(ctrl.getState()) };
+  return { ok: true, actionLog: 'shim', stateKeys };
 })()
 ```
 
 ### Gotchas
 
-- **Actions from before the shim are not logged**, including the fetches made while the page
-  loaded. For a load-time problem, read the outcome from state (`meta` has each key's `date`,
-  `expiresAt` and `error`; see Step 2) and the requests from `list_network_requests`. To watch the
-  fetches happen, install the shim, then repeat them with `invalidateAll` (Step 4) or an in-app
-  navigation; a reload clears the shim.
+- **With `actionLog: 'shim'`, actions from before the shim are not logged**, including the fetches
+  made while the page loaded. For a load-time problem, read the outcome from state (`meta` has each key's
+  `date`, `expiresAt` and `error`; see Step 2) and the requests from `list_network_requests`. To watch the
+  fetches happen, repeat them with `invalidateAll` (Step 4) or an in-app navigation; a reload clears the shim.
 - **Rerun Step 1 when the log stops growing or the data looks stale.** Nothing errors when
   the app is created again (for example on a hot reload of the module that calls `createApp`), which makes a new controller.
 
@@ -191,8 +190,15 @@ After installing the debug shim (Step 1):
 ### Read recent actions
 
 ```js
-// evaluate_script
-() => __DC_ACTION_LOG__.slice(-20)
+// evaluate_script — actions hold endpoints and promises, so return just these fields
+() => __DC_ACTION_LOG__.slice(-20).map(a => ({
+  type: a.type,
+  key: a.key,
+  endpoint: a.endpoint?.name,
+  args: a.args,
+  date: a.meta?.date,
+  error: a.error ? (a.response?.message || true) : undefined,
+}))
 ```
 
 ### Filter by action type
@@ -202,20 +208,23 @@ After installing the debug shim (Step 1):
 () => __DC_ACTION_LOG__
   .filter(a => a.type === 'rdc/fetch' || a.type === 'rdc/setresponse')
   .slice(-20)
+  .map(a => ({ type: a.type, key: a.key, date: a.meta?.date }))
 ```
 
 ### Filter errors
 
 ```js
 // evaluate_script
-() => __DC_ACTION_LOG__.filter(a => a.error)
+() => __DC_ACTION_LOG__
+  .filter(a => a.error)
+  .map(a => ({ type: a.type, key: a.key, error: a.response?.message || true }))
 ```
 
 ### Clear action log
 
 ```js
 // evaluate_script
-() => { globalThis.__DC_ACTION_LOG__ = []; return { cleared: true }; }
+() => { __DC_ACTION_LOG__.length = 0; return { cleared: true }; }
 ```
 
 ## Step 4: Mutate State via Controller

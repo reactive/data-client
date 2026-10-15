@@ -84,6 +84,16 @@ if (process.env.NODE_ENV !== 'production') {
   };
 }
 
+/** Appends, dropping the oldest half once over `max`.
+ *
+ * Halving means we aren't reallocating on every push; trimming in place keeps
+ * arrays shared on globals (like `__DC_ACTIONS__`) current.
+ */
+function pushCapped<T>(buffer: T[], item: T, max: number) {
+  buffer.push(item);
+  if (buffer.length > max) buffer.splice(0, max / 2);
+}
+
 /** Integrates with https://github.com/reduxjs/redux-devtools
  *
  * Options: https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md
@@ -95,6 +105,10 @@ export default class DevToolsManager implements Manager {
   declare protected devTools: undefined | any;
   protected started = false;
   protected actions: [ActionTypes, State<unknown>][] = [];
+  /** Recent actions, kept in development whether or not the extension is connected */
+  protected actionLog: ActionTypes[] = [];
+  /** Key this controller is registered under in `__DC_CONTROLLERS__` and `__DC_ACTIONS__` */
+  declare protected registryKey?: string;
   declare protected controller: Controller;
   declare skipLogging?: (action: ActionTypes) => boolean;
   declare devtoolsName: string;
@@ -123,12 +137,14 @@ export default class DevToolsManager implements Manager {
     if (process.env.NODE_ENV !== 'production') {
       this.prototype.middleware = function (controller) {
         this.controller = controller;
-        if (!this.devTools) return next => action => next(action);
-        const reducer = createReducer(controller as any);
+        const reducer = this.devTools && createReducer(controller as any);
         let state = controller.getState();
         return next => action => {
           const shouldSkip = this.skipLogging?.(action);
+          if (!shouldSkip)
+            pushCapped(this.actionLog, action, this.maxBufferLength);
           const ret = next(action);
+          if (!reducer) return ret;
           if (this.started) {
             // we track state changes here since getState() will only update after a batch commit
             state = reducer(state, action);
@@ -151,21 +167,30 @@ export default class DevToolsManager implements Manager {
     if (this.started) {
       this.devTools.send(action, state);
     } else {
-      // avoid this getting too big in case this is long running
-      // we cut in half so we aren't constantly reallocating
-      if (this.actions.length > this.maxBufferLength)
-        this.actions = this.actions.slice(this.maxBufferLength / 2);
       // queue actions
-      this.actions.push([action, state]);
+      pushCapped(this.actions, [action, state], this.maxBufferLength);
     }
   }
 
   /** Called when initial state is ready */
   init(state: State<any>) {
     if (process.env.NODE_ENV !== 'production') {
-      ((globalThis as any).__DC_CONTROLLERS__ ??= new Map()).set(
-        this.devtoolsName,
-        this.controller,
+      const controllers: Map<string, Controller> = ((
+        globalThis as any
+      ).__DC_CONTROLLERS__ ??= new Map());
+      // another provider already has this name: register under 'name (2)', 'name (3)', ...
+      let key = this.devtoolsName;
+      for (
+        let i = 2;
+        controllers.has(key) && controllers.get(key) !== this.controller;
+        i++
+      )
+        key = `${this.devtoolsName} (${i})`;
+      this.registryKey = key;
+      controllers.set(key, this.controller);
+      ((globalThis as any).__DC_ACTIONS__ ??= new Map()).set(
+        key,
+        this.actionLog,
       );
     }
     if (process.env.NODE_ENV !== 'production' && this.devTools) {
@@ -198,10 +223,12 @@ export default class DevToolsManager implements Manager {
   /** Ensures all subscriptions are cleaned up. */
   cleanup() {
     if (process.env.NODE_ENV !== 'production') {
+      const key = this.registryKey;
       const map: Map<string, Controller> | undefined = (globalThis as any)
         .__DC_CONTROLLERS__;
-      if (map?.get(this.devtoolsName) === this.controller) {
-        map.delete(this.devtoolsName);
+      if (key !== undefined && map?.get(key) === this.controller) {
+        map.delete(key);
+        (globalThis as any).__DC_ACTIONS__?.delete(key);
       }
     }
   }
