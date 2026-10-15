@@ -138,9 +138,10 @@ Vue:
   (`FRAMEWORKS`) read routes and frameworks from it.
 - `index.js` `docsFor()` lists each framework's docs with their routes (honoring `slug`) and
   `framework_equivalent`; `remarkFramework.js` and `docsToMarkdown.mjs` link with those routes.
-- `FrameworkSelector` (in the breadcrumbs) switches to the same page in the other docs instance, or
-  its `framework_equivalent` (`customFields.frameworkEquivalents`), and disables a framework when
-  neither exists there.
+- `DocsSelector` (in the breadcrumbs) switches to the same page in the other docs instance of its
+  `group` (React/Vue, REST/GraphQL), or its `framework_equivalent` or instance `equivalents`
+  (`customFields.docsEquivalents`). It disables a framework when neither exists there, and hides
+  for REST/GraphQL pages without a counterpart (most REST pages, like schemas, serve GraphQL as is).
 
 ## Agent skill references
 

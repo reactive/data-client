@@ -24,12 +24,12 @@ const isDev = process.env.NODE_ENV === 'development';
 
 // docs/core is shared by React (/docs) and Vue (/vue); see framework-docs/
 const {
-  FRAMEWORK_INSTANCES,
   docsInstance,
+  groupIds,
   frameworkInstance,
 } = require('./framework-docs/docsInstances.js');
 const frameworkDocs = require('./framework-docs/index.js');
-const frameworkDocsIds = FRAMEWORK_INSTANCES.map(d => d.id);
+const frameworkDocsIds = groupIds('framework');
 const remarkFramework = require('./framework-docs/remarkFramework.js');
 // Non-Vue instances render React; :::vue reaches Vue agents via skill references
 const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
@@ -300,8 +300,8 @@ const config: Config = {
   themes: ['@docusaurus/theme-mermaid'],
   customFields: {
     repoUrl: 'https://github.com/reactive/data-client',
-    // read by FrameworkSelector to switch between differently named pages
-    frameworkEquivalents: frameworkDocs.frameworkEquivalents(),
+    // read by DocsSelector to switch between differently named pages
+    docsEquivalents: frameworkDocs.docsEquivalents(),
   },
   onBrokenLinks: 'warn',
   future: {
@@ -647,13 +647,9 @@ const config: Config = {
           label: 'API',
         },
         {
-          to: 'rest',
-          label: 'REST',
-          position: 'left',
-        },
-        {
-          to: 'graphql',
-          label: 'GraphQL',
+          // REST/GraphQL menu showing the protocol being read
+          type: 'custom-docsDropdown',
+          docsPluginIds: groupIds('protocol'),
           position: 'left',
         },
         { to: '/blog', label: 'News', position: 'left' },
