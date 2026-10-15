@@ -240,6 +240,20 @@ describe('DevToolsManager', () => {
       expect(actionLogs().get('App')).toHaveLength(4);
     });
 
+    it('forgets polling keys on cleanup', () => {
+      const manager = new DevToolsManager({
+        name: 'App',
+        maxPollingActions: 2,
+      });
+      const { dispatch } = setup(manager);
+      manager.init(initialState);
+      dispatch(subscribe('a'));
+      manager.cleanup();
+      manager.init(initialState);
+      for (let i = 1; i <= 3; i++) dispatch(fetchAction('a', i));
+      expect(typesAndKeys().filter(([type]) => type === FETCH)).toHaveLength(3);
+    });
+
     it('does not cap subscriptions without pollFrequency', () => {
       const dispatch = pollingDispatch();
       dispatch({ ...subscribe('a'), endpoint: { name: 'live' } });

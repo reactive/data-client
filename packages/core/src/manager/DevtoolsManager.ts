@@ -304,6 +304,8 @@ export default class DevToolsManager implements Manager {
   /** Ensures all subscriptions are cleaned up. */
   cleanup() {
     if (process.env.NODE_ENV !== 'production') {
+      // SubscriptionManager.cleanup() stops polling without dispatching unsubscribes
+      this.pollingSubscribers.clear();
       const key = this.registryKey;
       const map: Map<string, Controller> | undefined = (globalThis as any)
         .__DC_CONTROLLERS__;
