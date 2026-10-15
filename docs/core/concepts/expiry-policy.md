@@ -62,7 +62,7 @@ to make it becomes [stale](#stale) almost instantly; or a very large number to s
 Toggling between 'first' and 'second' changes the parameters. If the data is still considered fresh
 you will continue to see the old time without any refresh.
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -258,7 +258,7 @@ that expires immediately be considered '[invalid](#invalid)'.
 This is demonstrated by the component suspending once its data goes stale. If the data is still
 within the expiry time it just continues to display it.
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -409,7 +409,7 @@ We sometimes want to fetch new data; while continuing to show the old (stale) da
 [Controller.fetch](../api/Controller#fetch) can be used to trigger a fetch while still showing
 the previous data. This can be done even with 'fresh' data.
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -497,7 +497,7 @@ render(<ShowTime />);
 
 [Controller.expireAll()](../api/Controller.md#expireAll) sets all responses' [expiry status](#expiry-status) matching `testKey` to [Stale](#stale).
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -657,7 +657,7 @@ is `true`. Components mounted after invalidation suspend until the new data arri
 
 In this example [invalidating the endpoint](../api/Controller.md#invalidate) :react[shows the loading fallback since the data is not allowed to be displayed]:vue[refetches it, even though its data is still fresh].
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
