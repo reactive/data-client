@@ -157,6 +157,19 @@ function frameworkEquivalents() {
   return equivalents;
 }
 
+/** Throws unless `docId` is a published doc of a (non-framework) docs instance */
+function assertDoc(instance, docId) {
+  const dir = path.resolve(ROOT, instance.path);
+  const published = walk(dir).some(
+    file =>
+      MD.test(file) &&
+      !path.posix.basename(file).startsWith('_') &&
+      docIdOf(file, fs.readFileSync(path.join(dir, file), 'utf8')) === docId,
+  );
+  if (!published)
+    throw new Error(`'${docId}' is not a doc in docs instance ${instance.id}`);
+}
+
 /**
  * For DocsSelector: { [docs instance id]: { [doc id]: counterpart's doc id } },
  * from `framework_equivalent:` front matter and each instance's `equivalents`
@@ -171,19 +184,8 @@ function docsEquivalents() {
     if (!d.equivalents) continue;
     const other = DOCS_INSTANCES.find(o => o.group === d.group && o !== d);
     for (const [id, counterpart] of Object.entries(d.equivalents)) {
-      for (const [instance, docId] of [
-        [d, id],
-        [other, counterpart],
-      ]) {
-        if (
-          !['.md', '.mdx'].some(ext =>
-            fs.existsSync(path.resolve(ROOT, instance.path, docId + ext)),
-          )
-        )
-          throw new Error(
-            `${d.id} equivalents: '${docId}' is not a doc in ${instance.id}`,
-          );
-      }
+      assertDoc(d, id);
+      assertDoc(other, counterpart);
       equivalents[d.id][id] = counterpart;
       equivalents[other.id][counterpart] = id;
     }
