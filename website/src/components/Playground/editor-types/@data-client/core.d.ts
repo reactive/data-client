@@ -1496,7 +1496,7 @@ interface EnhancerOptions {
 }
 interface DevToolsConfig extends EnhancerOptions {
     type?: string;
-    /** Actions kept in `__DC_ACTIONS__` for each endpoint while it polls
+    /** Actions kept in `__DC_ACTIONS__` for each key (endpoint and args) while it polls
      *
      * @default 4 (the last two polls)
      */
@@ -1518,8 +1518,9 @@ declare class DevToolsManager implements Manager {
     protected actionLog: ActionTypes[];
     /** Key this controller is registered under in `__DC_CONTROLLERS__` and `__DC_ACTIONS__` */
     protected registryKey?: string;
-    /** Subscriber count for each polling key */
-    protected polling: Map<string, number>;
+    /** Subscriber count for each key that is polling; a key is removed when its count reaches 0 */
+    protected pollingSubscribers: Map<string, number>;
+    /** Actions kept in the log for each key while it polls */
     maxPollingActions: number;
     protected controller: Controller;
     skipLogging?: (action: ActionTypes) => boolean;

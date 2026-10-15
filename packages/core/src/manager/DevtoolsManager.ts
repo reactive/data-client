@@ -138,8 +138,9 @@ export default class DevToolsManager implements Manager {
   protected actionLog: ActionTypes[] = [];
   /** Key this controller is registered under in `__DC_CONTROLLERS__` and `__DC_ACTIONS__` */
   declare protected registryKey?: string;
-  /** Subscriber count for each polling key */
-  protected polling = new Map<string, number>();
+  /** Subscriber count for each key that is polling; a key is removed when its count reaches 0 */
+  protected pollingSubscribers = new Map<string, number>();
+  /** Actions kept in the log for each key while it polls */
   maxPollingActions = 4;
   declare protected controller: Controller;
   declare skipLogging?: (action: ActionTypes) => boolean;
@@ -207,21 +208,19 @@ export default class DevToolsManager implements Manager {
       action.endpoint.pollFrequency
     ) {
       const count =
-        (this.polling.get(action.key) ?? 0) +
+        (this.pollingSubscribers.get(action.key) ?? 0) +
         (action.type === SUBSCRIBE ? 1 : -1);
-      if (count > 0) this.polling.set(action.key, count);
-      else this.polling.delete(action.key);
+      if (count > 0) this.pollingSubscribers.set(action.key, count);
+      else this.pollingSubscribers.delete(action.key);
     }
-    if (key !== undefined && this.polling.has(key)) {
-      // the log already holds at most maxPollingActions for this key, so this removes its oldest
+    if (key !== undefined && this.pollingSubscribers.has(key)) {
+      // drop all but the newest maxPollingActions - 1, making room for this one
       for (let i = log.length - 1, seen = 0; i >= 0; i--) {
         if (
           (log[i] as { key?: string }).key === key &&
           ++seen >= this.maxPollingActions
-        ) {
+        )
           log.splice(i, 1);
-          break;
-        }
       }
     }
     pushCapped(log, action, this.maxBufferLength);

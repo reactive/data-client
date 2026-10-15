@@ -171,6 +171,21 @@ describe('DevToolsManager', () => {
       expect(actionLogs().get('App')![1].args).toEqual([3]);
     });
 
+    it('trims actions logged before polling started', () => {
+      const dispatch = pollingDispatch();
+      for (let i = 1; i <= 3; i++) {
+        dispatch(fetchAction('a', i));
+        dispatch(responseAction('a', i));
+      }
+      dispatch(subscribe('a'));
+      dispatch(fetchAction('a', 4));
+
+      expect(typesAndKeys()).toEqual([
+        [SUBSCRIBE, 'a'],
+        [FETCH, 'a'],
+      ]);
+    });
+
     it('stops capping once every subscriber leaves', () => {
       const dispatch = pollingDispatch();
       dispatch(subscribe('a'));
