@@ -9,6 +9,7 @@ sidebar_label: Render Data
 </head>
 
 import DataColocation from '@site/src/components/DataColocation';
+import AsyncBoundaries from '@site/src/components/AsyncBoundaries';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
@@ -265,6 +266,8 @@ us to make error/loading disjoint from data usage.
 
 Instead we place :react[[&lt;AsyncBoundary /\>](../api/AsyncBoundary.md)]:vue[Vue's built-in [&lt;Suspense /\>](https://vuejs.org/guide/built-ins/suspense.html) along with [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured)] to handling loading and error conditions at or above navigational boundaries like **pages,
 routes, or [modals](https://www.appcues.com/blog/modal-dialog-windows)**.
+
+<AsyncBoundaries />
 
 <AsyncBoundaryExamples />
 

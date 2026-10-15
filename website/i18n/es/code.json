@@ -935,5 +935,29 @@
   "optimisticRace.optimistic": {
     "message": "optimista",
     "description": "Under \"Other\" and \"Data Client\" in the race condition diagram: these rows show a counter with optimistic updates"
+  },
+  "asyncBoundaries.app": {
+    "message": "alrededor de toda la app",
+    "description": "Where the boundary goes, on the async boundaries diagram; completes \"<AsyncBoundary> around the whole app\""
+  },
+  "asyncBoundaries.page": {
+    "message": "alrededor de la ruta PostPage",
+    "description": "Where the boundary goes, on the async boundaries diagram; completes \"<AsyncBoundary> around the PostPage route\""
+  },
+  "asyncBoundaries.component": {
+    "message": "alrededor de cada componente que carga",
+    "description": "Where the boundary goes, on the async boundaries diagram; completes \"<AsyncBoundary> around each component that loads\""
+  },
+  "asyncBoundaries.label": {
+    "message": "El árbol de componentes bajo su store, con un {boundary} {where}. Abrir un post monta Avatar, PostBody y CommentList, que se suspenden hasta que llegan sus datos: todo lo que está dentro del límite muestra su fallback de carga hasta que llega el último, mientras el resto de la página sigue renderizándose. Cuanto más arriba esté el límite, menos indicadores de carga hay y más parte de la página reemplazan; uno alrededor de cada componente muestra tres que se resuelven uno a uno",
+    "description": "Accessible label of the async boundaries diagram on the Render Data page; {boundary} is AsyncBoundary or Suspense, {where} one of the asyncBoundaries.app/page/component strings"
+  },
+  "asyncBoundaries.where": {
+    "message": "Dónde va el límite",
+    "description": "Label of the group of positions the boundary can be moved to on the async boundaries diagram"
+  },
+  "asyncBoundaries.labelVueApp": {
+    "message": "El árbol de componentes bajo su store, con un Suspense alrededor de toda la app. Se resolvió cuando la app cargó por primera vez, así que abrir un post no vuelve a mostrar su fallback: Avatar, PostBody y CommentList quedan en blanco, sin ningún indicador de carga, cada uno hasta que llegan sus propios datos",
+    "description": "Accessible label of the async boundaries diagram on the Vue Render Data page, when the Suspense is around the whole app"
   }
 }

@@ -935,5 +935,29 @@
   "optimisticRace.optimistic": {
     "message": "乐观更新",
     "description": "Under \"Other\" and \"Data Client\" in the race condition diagram: these rows show a counter with optimistic updates"
+  },
+  "asyncBoundaries.app": {
+    "message": "包住整个应用",
+    "description": "Where the boundary goes, on the async boundaries diagram; completes \"<AsyncBoundary> around the whole app\""
+  },
+  "asyncBoundaries.page": {
+    "message": "包住 PostPage 路由",
+    "description": "Where the boundary goes, on the async boundaries diagram; completes \"<AsyncBoundary> around the PostPage route\""
+  },
+  "asyncBoundaries.component": {
+    "message": "包住每个需要加载的组件",
+    "description": "Where the boundary goes, on the async boundaries diagram; completes \"<AsyncBoundary> around each component that loads\""
+  },
+  "asyncBoundaries.label": {
+    "message": "store 之下的组件树，带有一个 {boundary}，{where}。打开一篇文章会挂载 Avatar、PostBody 和 CommentList，它们会挂起直到各自的数据到达：边界内的一切都显示它的加载 fallback，直到最后一份数据到达，而页面的其余部分继续正常渲染。边界越高，加载指示器越少，但它们替换掉的页面越多；每个组件各有一个边界时，会显示三个指示器，逐个完成",
+    "description": "Accessible label of the async boundaries diagram on the Render Data page; {boundary} is AsyncBoundary or Suspense, {where} one of the asyncBoundaries.app/page/component strings"
+  },
+  "asyncBoundaries.where": {
+    "message": "边界放在哪里",
+    "description": "Label of the group of positions the boundary can be moved to on the async boundaries diagram"
+  },
+  "asyncBoundaries.labelVueApp": {
+    "message": "store 之下的组件树，整个应用外面包着一个 Suspense。它在应用首次加载时就已完成，所以打开一篇文章不会再显示它的 fallback：Avatar、PostBody 和 CommentList 保持空白，没有任何加载指示器，各自等到自己的数据到达",
+    "description": "Accessible label of the async boundaries diagram on the Vue Render Data page, when the Suspense is around the whole app"
   }
 }

@@ -43,7 +43,7 @@
     "docs/core/concepts/reactivity.md": "1f3f4c5c445db48d04de10966da56a9946d246f8",
     "docs/core/concepts/validation.md": "29d58207abf2606269613cdbfd2ff3209c6e0e71",
     "docs/core/getting-started/agent-skills.md": "a3e67cb45cda75362ea902dba34e3c72489e941e",
-    "docs/core/getting-started/data-dependency.md": "25bc7847ca7d53937ec02f7e7839ad8e68cfaff8",
+    "docs/core/getting-started/data-dependency.md": "98de688f41da9e9ae5df1df225aa61cfcd8361be",
     "docs/core/getting-started/debugging.md": "d2b5c1e8e5faec00320384a359facc15532129d3",
     "docs/core/getting-started/installation.md": "fadd92df97f5259c6aa716916c9a67088dc97097",
     "docs/core/getting-started/mutations.md": "2dbc68d4c23d8fdf068f423f05a30b954d11a17b",
@@ -397,7 +397,13 @@
       "optimisticRace.dataClient": "Data Client",
       "optimisticRace.other": "Other",
       "optimisticRace.noOptimistic": "no optimistic",
-      "optimisticRace.optimistic": "optimistic"
+      "optimisticRace.optimistic": "optimistic",
+      "asyncBoundaries.app": "around the whole app",
+      "asyncBoundaries.page": "around the PostPage route",
+      "asyncBoundaries.component": "around each component that loads",
+      "asyncBoundaries.label": "The component tree under its store, with one {boundary} {where}. Opening a post mounts Avatar, PostBody and CommentList, which suspend until their data arrives: everything inside the boundary shows its loading fallback until the last of them does, while the rest of the page keeps rendering. The higher the boundary, the fewer loading indicators and the more of the page they replace; one around each component shows three that resolve one by one",
+      "asyncBoundaries.where": "Where the boundary goes",
+      "asyncBoundaries.labelVueApp": "The component tree under its store, with one Suspense around the whole app. It resolved when the app first loaded, so opening a post does not bring back its fallback: Avatar, PostBody and CommentList stay blank, with no loading indicator, each until its own data arrives"
     },
     "docusaurus-plugin-content-blog/options.json": {
       "title": "Blog",

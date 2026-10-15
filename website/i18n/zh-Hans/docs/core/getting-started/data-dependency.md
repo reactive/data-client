@@ -9,6 +9,7 @@ sidebar_label: 渲染数据
 </head>
 
 import DataColocation from '@site/src/components/DataColocation';
+import AsyncBoundaries from '@site/src/components/AsyncBoundaries';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
@@ -68,11 +69,11 @@ export const PostResource = resource({
 
 :::react
 
-```tsx title="PostDetail" {5} collapsed
+```tsx title="PostDetail" route="/posts/:id" {5} collapsed
 import { useSuspense } from '@data-client/react';
 import { PostResource } from './Resources';
 
-export default function PostDetail({ setRoute, id }) {
+export default function PostDetail({ id }) {
   const post = useSuspense(PostResource.get, { id });
   return (
     <div>
@@ -86,15 +87,6 @@ export default function PostDetail({ setRoute, id }) {
         </div>
       </header>
       <p>{post.body}</p>
-      <a
-        href="#"
-        onClick={e => {
-          e.preventDefault();
-          setRoute('list');
-        }}
-      >
-        « Back
-      </a>
     </div>
   );
 }
@@ -103,72 +95,45 @@ export default function PostDetail({ setRoute, id }) {
 ```tsx title="PostItem" collapsed
 import { type Post } from './Resources';
 
-export default function PostItem({ post, setRoute }: Props) {
+export default function PostItem({ post }: { post: Post }) {
   return (
     <div className="listItem spaced">
       <Avatar src={post.author.profileImage} />
       <div>
         <h4>
-          <a
-            href="#"
-            onClick={e => {
-              e.preventDefault();
-              setRoute(`detail/${post.id}`);
-            }}
-          >
-            {post.title}
-          </a>
+          <Link to={`/posts/${post.id}`}>{post.title}</Link>
         </h4>
         <small>by {post.author.name}</small>
       </div>
     </div>
   );
 }
-
-interface Props {
-  post: Post;
-  setRoute: Function;
-}
 ```
 
-```tsx title="PostList" {6}
+```tsx title="PostList" route="/" {7}
 import { useSuspense } from '@data-client/react';
+import LoadMore from './LoadMore';
 import PostItem from './PostItem';
 import { PostResource } from './Resources';
 
-export default function PostList({ setRoute }) {
+export default function PostList() {
   const posts = useSuspense(PostResource.getList);
   return (
     <div>
       {posts.map(post => (
-        <PostItem key={post.pk()} post={post} setRoute={setRoute} />
+        <PostItem key={post.pk()} post={post} />
       ))}
+      <LoadMore />
     </div>
   );
 }
 ```
 
-```tsx title="Navigation" collapsed
-import React from 'react';
+```tsx title="LoadMore" collapsed
 import { useController, useLoading, useQuery } from '@data-client/react';
 import { PostResource } from './Resources';
-import PostList from './PostList';
-import PostDetail from './PostDetail';
 
-function Navigation() {
-  const [route, setRoute] = React.useState('list');
-  if (route.startsWith('detail'))
-    return <PostDetail setRoute={setRoute} id={route.split('/')[1]} />;
-
-  return (
-    <>
-      <PostList setRoute={setRoute} />
-      <LoadMore />
-    </>
-  );
-}
-
-function LoadMore() {
+export default function LoadMore() {
   const ctrl = useController();
   const posts = useQuery(PostResource.getList.schema);
   const [nextPage, isPending] = useLoading(() =>
@@ -181,20 +146,18 @@ function LoadMore() {
     </center>
   );
 }
-render(<Navigation />);
 ```
 
 :::
 
 :::vue
 
-```html title="PostDetail.vue" {7} collapsed
+```html title="PostDetail.vue" route="/posts/:id" {6} collapsed
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { PostResource } from './Resources';
 
   const props = defineProps<{ id: string }>();
-  const emit = defineEmits<{ setRoute: [route: string] }>();
   const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
 </script>
 
@@ -210,7 +173,6 @@ render(<Navigation />);
       </div>
     </header>
     <p>{{ post.body }}</p>
-    <a href="#" @click.prevent="emit('setRoute', 'list')">« Back</a>
   </div>
 </template>
 ```
@@ -220,7 +182,6 @@ render(<Navigation />);
   import { type Post } from './Resources';
 
   defineProps<{ post: Post }>();
-  const emit = defineEmits<{ setRoute: [route: string] }>();
 </script>
 
 <template>
@@ -228,9 +189,7 @@ render(<Navigation />);
     <Avatar :src="post.author.profileImage" />
     <div>
       <h4>
-        <a href="#" @click.prevent="emit('setRoute', `detail/${post.id}`)">
-          {{ post.title }}
-        </a>
+        <RouterLink :to="`/posts/${post.id}`">{{ post.title }}</RouterLink>
       </h4>
       <small>by {{ post.author.name }}</small>
     </div>
@@ -238,24 +197,20 @@ render(<Navigation />);
 </template>
 ```
 
-```html title="PostList.vue" {7}
+```html title="PostList.vue" route="/" {7}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
+  import LoadMore from './LoadMore.vue';
   import PostItem from './PostItem.vue';
   import { PostResource } from './Resources';
 
-  const emit = defineEmits<{ setRoute: [route: string] }>();
   const posts = await useSuspense(PostResource.getList);
 </script>
 
 <template>
   <div>
-    <PostItem
-      v-for="post in posts"
-      :key="post.pk()"
-      :post="post"
-      @setRoute="emit('setRoute', $event)"
-    />
+    <PostItem v-for="post in posts" :key="post.pk()" :post="post" />
+    <LoadMore />
   </div>
 </template>
 ```
@@ -285,30 +240,6 @@ render(<Navigation />);
 </template>
 ```
 
-```html title="Navigation.vue" collapsed
-<script setup lang="ts">
-  import { ref, computed } from 'vue';
-  import PostList from './PostList.vue';
-  import PostDetail from './PostDetail.vue';
-  import LoadMore from './LoadMore.vue';
-
-  const route = ref('list');
-  const detailId = computed(() =>
-    route.value.startsWith('detail')
-      ? route.value.split('/')[1]
-      : undefined,
-  );
-</script>
-
-<template>
-  <PostDetail v-if="detailId" :id="detailId" @setRoute="route = $event" />
-  <template v-else>
-    <PostList @setRoute="route = $event" />
-    <LoadMore />
-  </template>
-</template>
-```
-
 :::
 
 </FrameworkPlayground>
@@ -335,6 +266,8 @@ Reactive Data Client 会在[数据变化](./mutations.md)时立即自动更新�
 
 我们会在**页面、路由或[模态框](https://www.appcues.com/blog/modal-dialog-windows)**等导航边界处或其上层放置 :react[[&lt;AsyncBoundary /\>](../api/AsyncBoundary.md)]:vue[Vue 内置的 [&lt;Suspense /\>](https://vuejs.org/guide/built-ins/suspense.html) 以及 [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured)]，
 用来处理加载和错误状态。
+
+<AsyncBoundaries />
 
 <AsyncBoundaryExamples />
 
