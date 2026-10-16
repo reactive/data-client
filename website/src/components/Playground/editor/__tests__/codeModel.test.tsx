@@ -91,10 +91,12 @@ describe('code document model', () => {
           'b',
         ),
         code({ metastring: 'title="Page layout" route="/layout/:id"' }, 'c'),
+        code({ metastring: 'title=layout path=src/layout.tsx' }, 'd'),
       ]).map(({ layout, start }) => [layout, start]),
     ).toEqual([
       [true, undefined],
       [false, '/time/1'],
+      [false, undefined],
       [false, undefined],
     ]);
   });

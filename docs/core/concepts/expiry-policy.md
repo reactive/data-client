@@ -171,7 +171,11 @@ export default function Navigator({ children }) {
     <RouterView v-slot="{ Component, route }">
       <!-- :key remounts TimePage so it suspends for the new id -->
       <Suspense timeout="0">
-        <component :is="Component" :key="route.fullPath" />
+        <component
+          :is="Component"
+          :key="route.fullPath"
+          :id="route.params.id"
+        />
         <template #fallback><div>loading...</div></template>
       </Suspense>
     </RouterView>
@@ -352,7 +356,11 @@ export default function Navigator({ children }) {
     <RouterView v-slot="{ Component, route }">
       <!-- :key remounts TimePage so it suspends for the new id -->
       <Suspense timeout="0">
-        <component :is="Component" :key="route.fullPath" />
+        <component
+          :is="Component"
+          :key="route.fullPath"
+          :id="route.params.id"
+        />
         <template #fallback><div>loading...</div></template>
       </Suspense>
     </RouterView>

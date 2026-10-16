@@ -34,11 +34,11 @@ function metaValue(metastring: string, key: string): string | undefined {
     .find(value => value !== undefined);
 }
 
-/** A bare `key` flag in a fence metastring, not the word inside a quoted
- * value like `title="Page layout"` */
+/** A bare `key` flag in a fence metastring, not the word inside another
+ * key's value like `title="Page layout"` or `path=src/layout.tsx` */
 function metaFlag(metastring: string, key: string): boolean {
-  return new RegExp(`\\b${key}\\b`).test(
-    metastring.replace(/(["']).*?\1/g, ''),
+  return new RegExp(`(?:^|\\s)${key}(?=\\s|$)`).test(
+    metastring.replace(/\w+=(?:(["']).*?\1|\S+)/g, ''),
   );
 }
 
