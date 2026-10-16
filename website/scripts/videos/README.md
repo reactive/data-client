@@ -66,7 +66,7 @@ ffmpeg -i source.mp4 -c:v libx264 -preset slower -crf 28 -tune animation -level:
   -pix_fmt yuv420p -movflags +faststart -c:a aac -b:a 192k <name>.mp4
 ```
 
-Check text stays sharp on a few frame crops before lowering quality further. Keep the audio rates: at Opus 64k and AAC 80k the narration audibly distorts. Grab a 16:9 poster from a frame that
+Check text stays sharp on a few frame crops before lowering quality further. Keep the audio rates: Opus 64k and AAC 80k measurably degrade narration. Grab a 16:9 poster from a frame that
 shows what the clip covers:
 
 ```bash
