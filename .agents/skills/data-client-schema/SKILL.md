@@ -59,13 +59,7 @@ to represent the data expected.
 
 - Every `Entity` subclass **defines defaults** for _all_ non-optional serialised fields.
 - Override `pk()` only when the primary key ≠ `id`.
-- [`static indexes`](references/Entity.md#indexes) for lookups by a unique non-pk field, instead of hand-built lookup `Map`s from list results:
-  ```ts
-  class User extends Entity {
-    static indexes = ['username' as const];
-  }
-  const user = useQuery(User, { username: 'ntucker' });
-  ```
+- [`static indexes = ['username' as const]`](references/Entity.md#indexes) for lookups by a unique non-pk field (then `useQuery(User, { username })`), instead of hand-built lookup `Map`s from list results
 - `pk()` return type is `number | string | undefined`
 - Override `Entity.process(value, parent, key, args)` to insert fields based on args/url
 - `static schema` (optional) for nested schemas or deserialization functions
@@ -138,10 +132,8 @@ Override as function, RegExp, or `string[]`:
 new Collection([Todo], { nonFilterArgumentKeys: /orderBy|sortDir/ })
 ```
 
-A plain fetch of a Collection endpoint **replaces** that collection's contents; only the extenders
-below (and `RestEndpoint.getPage`) add to it. Looping plain fetches over page numbers doesn't
-accumulate: each page lands in its own collection, or overwrites the shared one when `argsKey` drops
-the page arg. Load more pages with `getPage`.
+A plain fetch of a Collection endpoint **replaces** its contents; only the extenders below and
+`RestEndpoint.getPage` add to it. Load more pages with `getPage`, never a loop of plain fetches.
 
 ### Extenders
 

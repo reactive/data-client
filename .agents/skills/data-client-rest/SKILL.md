@@ -164,8 +164,8 @@ export const IssueResource = resource({
 ## 6. Common Mistakes to Avoid
 
 - Don't use `resource()` when mutation endpoints are not used or needed
-- Don't override `fetch` to shape requests or responses: it replaces the whole pipeline, skipping `url()`, `getRequestInit()`, `parseResponse()` and `process()`. Override the lifecycle method that owns the concern: `getHeaders()`/`getRequestInit()` for the request, `parseResponse()`/`process()` for the response
-- `pollFrequency` polls only while something subscribes (`useLive`/`useSubscription`); plain reads never poll. When only one view should poll, give it its own endpoint (`TodoResource.getList.extend({ pollFrequency: 5000 })`) rather than adding it to the shared definition, which every other subscriber would inherit
+- Don't override `fetch` to shape requests or responses: it replaces the whole lifecycle above. Override the lifecycle method that owns the concern: `getHeaders()`/`getRequestInit()` for the request, `parseResponse()`/`process()` for the response
+- `pollFrequency` polls only while something subscribes (`useLive`/`useSubscription`). When only one view should poll, give it its own endpoint (`TodoResource.getList.extend({ pollFrequency: 5000 })`) instead of changing the shared definition
 
 # References
 

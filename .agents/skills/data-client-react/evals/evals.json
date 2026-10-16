@@ -33,7 +33,7 @@
       "id": 3,
       "name": "cold-deep-link",
       "prompt": "Add a `TodoTitle` component (src/components/TodoTitle.tsx) that takes a `todoId` and shows that todo's title in the page header. Todos are usually already loaded by the list page, but users also open /todos/:id directly from shared links. Show 'Not found' when the todo doesn't exist. TodoResource is in src/resources/Todo.ts.",
-      "expected_output": "A component that reads the todo with useSuspense or useDLE(TodoResource.get, { id: todoId }) and shows 'Not found' only from a real 404 (error), not from a cache miss.",
+      "expected_output": "A component that reads the todo with useDLE(TodoResource.get, { id: todoId }) and shows 'Not found' from its error (404), or useSuspense with the 404 handled by a boundary's errorComponent; never from a cache miss.",
       "files": [],
       "assertions": [
         "The todo is read with `useSuspense(TodoResource.get, …)` or `useDLE(TodoResource.get, …)`, not only `useCache`/`useQuery`.",
@@ -50,7 +50,7 @@
       "assertions": [
         "No `usersById` (or similar lookup map) is built and passed down as a prop.",
         "The component that renders the avatar reads the user itself with a data-client hook, given the id as a prop.",
-        "The reply explains that rows binding the same endpoint and args share one fetch, so per-row hooks are not a performance problem."
+        "`PostList` does not read `UserResource` itself."
       ]
     },
     {

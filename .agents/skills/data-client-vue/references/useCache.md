@@ -4,8 +4,9 @@
 
 Data rendering without the fetch.
 
-Access any [Endpoint](https://dataclient.io/rest/api/Endpoint)'s response. If the response does not exist, returns
-`undefined`. This can be used to check for an `Endpoint's` existence like for authentication.
+Access any [Endpoint](https://dataclient.io/rest/api/Endpoint)'s response. If nothing has fetched or set the response yet, returns
+`undefined`. This means "not loaded yet", not that the data doesn't exist on the server, which makes it
+useful for checks like whether a user is authenticated.
 
 `useCache()` is reactive to data [mutations](./mutations.md); rerendering only when necessary.
 
