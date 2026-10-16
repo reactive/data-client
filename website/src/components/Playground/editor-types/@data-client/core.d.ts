@@ -1520,19 +1520,15 @@ declare class DevToolsManager implements Manager {
     protected registryKey?: string;
     /** Subscriber count for each key that is polling; a key is removed when its count reaches 0 */
     protected pollingSubscribers: Map<string, number>;
-    /** Actions kept in the log for each key while it polls */
+    /** Actions kept in the log for each key while it polls (development only) */
     maxPollingActions: number;
+    protected trackPolling: (action: ActionTypes) => void;
+    protected logAction: (action: ActionTypes) => void;
     protected controller: Controller;
     skipLogging?: (action: ActionTypes) => boolean;
     devtoolsName: string;
     maxBufferLength: number;
     constructor(config?: DevToolsConfig, skipLogging?: (action: ActionTypes) => boolean);
-    /** Counts polling subscribers per key, even for actions skipLogging hides */
-    protected trackPolling(action: ActionTypes): void;
-    /** Keeps `__DC_ACTIONS__` small: polling keys keep only their latest actions,
-     * and all but the newest actions drop their payloads.
-     */
-    protected logAction(action: ActionTypes): void;
     handleAction(action: any, state: any): void;
     /** Called when initial state is ready */
     init(state: State<any>): void;
