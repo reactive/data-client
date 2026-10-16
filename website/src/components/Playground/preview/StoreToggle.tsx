@@ -11,6 +11,12 @@ import { useLayoutMotion } from '../../motion';
 import StoreIcon from '../StoreIcon';
 import styles from '../styles.module.css';
 
+// one for the page: closing a Store closes every playground's in its group
+let clicked: HTMLElement | undefined;
+/** The Store toggle the reader clicked last, while on the page: held in place
+ * on screen as the Stores it closed slide out and leave the layout */
+export const heldToggle = () => (clicked?.isConnected ? clicked : undefined);
+
 /** Store open state, persisted per `groupId`; toggling keeps the page from
  * scrolling, also as each Store it closes leaves the layout (`heldToggle`).
  * `showStore` opens or closes it for a demo without persisting, until the
@@ -39,12 +45,6 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   }, []);
   return [open, toggle, showStore] as const;
 }
-
-// one for the page: closing a Store closes every playground's in its group
-let clicked: HTMLElement | undefined;
-/** The Store toggle the reader clicked last, while on the page: held in place
- * on screen as the Stores it closed slide out and leave the layout */
-export const heldToggle = () => (clicked?.isConnected ? clicked : undefined);
 
 /** Toggle row; also rendered (inert) by the preview loading fallback in ../index.tsx */
 export function StoreToggle({
