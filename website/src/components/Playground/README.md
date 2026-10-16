@@ -381,7 +381,7 @@ Behavior to keep when changing the code:
 - It pauses while neither the preview nor the playground is mostly in view,
   or the tab is in the background, so it never scrolls the page back to a
   reader who scrolled past.
-- A `store` step opens or closes the Store through `useStoreOpen`'s `show`,
+- A `store` step opens or closes the Store through `useStoreOpen`'s `showForDemo`,
   without saving it: tab storage keeps the reader's own choice, shared by
   every playground with the page's `groupId`.
 - It never calls `focus()`, which would take the page's focus from the
