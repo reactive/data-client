@@ -108,25 +108,28 @@ it('keeps an exiting element, with its last content, until it slides out', async
 it('holds `hold` in place through the render that takes it out of layout', async () => {
   blocked.length = 0;
   const toggle = document.body.appendChild(document.createElement('button'));
-  const hold = () => toggle;
-  function Held({ open }: { open: boolean }) {
-    return (
-      <MotionGroup layoutDependency={open}>
-        <Reveal show={open} hold={hold}>
-          panel
-        </Reveal>
-      </MotionGroup>
-    );
-  }
-  const { rerender } = render(<Held open />);
-  rerender(<Held open={false} />);
-  await settledReveals();
-  expect(blocked).toEqual([]);
+  try {
+    const hold = () => toggle;
+    function Held({ open }: { open: boolean }) {
+      return (
+        <MotionGroup layoutDependency={open}>
+          <Reveal show={open} hold={hold}>
+            panel
+          </Reveal>
+        </MotionGroup>
+      );
+    }
+    const { rerender } = render(<Held open />);
+    rerender(<Held open={false} />);
+    await settledReveals();
+    expect(blocked).toEqual([]);
 
-  await act(async () => animations.at(-1)?.animation.finish?.());
-  expect(blocked).toEqual([toggle]);
-  expectHidden();
-  toggle.remove();
+    await act(async () => animations.at(-1)?.animation.finish?.());
+    expect(blocked).toEqual([toggle]);
+    expectHidden();
+  } finally {
+    toggle.remove();
+  }
 });
 
 it('turns around mid-exit instead of remounting', () => {
