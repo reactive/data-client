@@ -195,9 +195,8 @@ export default function App() {
 Subscription handler to reset error state on events like URL location changes. This is great
 for placing a boundary to wrap routing components.
 
-When the boundary's content changes because a prop changes (like a selected item's id) rather than
-through a `listen` event, add `key={id}` to the boundary so an error shown for the previous item
-doesn't remain.
+When the content changes with a prop (like a selected item's id) rather than a `listen` event, add
+`key={id}` to the boundary so the previous item's error doesn't remain.
 
 An example using [Anansi Router](https://www.npmjs.com/package/@anansi/router), which uses
 [history](https://www.npmjs.com/package/history) subscription.

@@ -59,7 +59,7 @@ to represent the data expected.
 
 - Every `Entity` subclass **defines defaults** for _all_ non-optional serialised fields.
 - Override `pk()` only when the primary key ≠ `id`.
-- [`static indexes = ['username' as const]`](references/Entity.md#indexes) for lookups by a unique non-pk field (then `useQuery(User, { username })`), instead of hand-built lookup `Map`s from list results
+- [`static indexes = ['username' as const]`](references/Entity.md#indexes) to look up by a unique non-pk field with `useQuery(User, { username })`, instead of building lookup `Map`s
 - `pk()` return type is `number | string | undefined`
 - Override `Entity.process(value, parent, key, args)` to insert fields based on args/url
 - `static schema` (optional) for nested schemas or deserialization functions
@@ -133,7 +133,7 @@ new Collection([Todo], { nonFilterArgumentKeys: /orderBy|sortDir/ })
 ```
 
 A plain fetch of a Collection endpoint **replaces** its contents; only the extenders below and
-`RestEndpoint.getPage` add to it. Load more pages with `getPage`, never a loop of plain fetches.
+`getPage` add to it, so load more pages with `getPage`.
 
 ### Extenders
 

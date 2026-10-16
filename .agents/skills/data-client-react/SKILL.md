@@ -28,10 +28,9 @@ const post = use(postPromise);
 const comments = use(commentsPromise);
 ```
 
-Sequential `useSuspense` calls waterfall (each suspends before the next starts its fetch). For 2+
-endpoints in one component, call `useFetch` for each first so all requests start, then `use()` each
-promise as above (React 19+). On older React, follow those `useFetch` calls with a `useSuspense` for each;
-the requests are already in flight, so suspending on the first no longer delays the rest.
+Sequential `useSuspense` calls waterfall. For 2+ endpoints in one component, start every request with
+`useFetch` first, then read each with `use()` (React 19+) or `useSuspense` (older React; it reuses the
+in-flight request).
 
 For API definitions (like TodoResource), apply the skill "data-client-rest".
 
@@ -99,10 +98,10 @@ ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 
 | To refresh or update | Call |
 |---|---|
-| You already have the new value | `ctrl.set()` / `ctrl.setResponse()` - no network |
-| One known endpoint+args, keep showing current data | `ctrl.fetch(endpoint, args)` |
-| Every cached args of an endpoint, keep showing current data | `ctrl.expireAll(endpoint)` - only fetching hooks (`useSuspense`/`useFetch`/`useDLE`/`useLive`) refetch; `useCache`/`useQuery` don't |
-| Showing the current data would be wrong | `ctrl.invalidate()` / `ctrl.invalidateAll()` - mounted `useSuspense` suspends |
+| You already have the new value | `ctrl.set()` / `ctrl.setResponse()` (no network) |
+| One endpoint+args | `ctrl.fetch(endpoint, args)` |
+| Every cached args of an endpoint | `ctrl.expireAll(endpoint)`: fetching hooks refetch; `useCache`/`useQuery` don't |
+| Current data must not show while refetching | `ctrl.invalidate()` / `ctrl.invalidateAll()`: `useSuspense` suspends |
 
 Write many entities without a fetch with one `ctrl.set([Entity], rows)`. Never loop `ctrl.set(Entity, args, row)` per row, and never add an endpoint or `setResponse()` just to batch.
 
@@ -139,16 +138,17 @@ available in dev mode.
 
 Custom [Managers](https://dataclient.io/docs/api/Manager) allow for global side effect handling.
 This is useful for websockets, SSE, logging, etc. Always use the skill "data-client-manager" when writing managers.
-Write external events that update server data (websocket, SSE, worker results) into the store with
-`ctrl.set()`, not into React state; ephemeral UI-only streams (a countdown, upload progress) can stay local. A single bridge component may own the listener in an effect (with cleanup); use a Manager when
-several components need the stream or it must outlive the component.
+Write events that change server data (websocket, SSE, worker results) to the store with `ctrl.set()`,
+not React state; UI-only streams (a countdown, upload progress) can stay local. One component may own
+the listener in an effect; use a Manager when several components need the stream or it must outlive
+the component.
 
 ## Best Practices & Notes
 
 - [useDebounce(query, timeout)](references/useDebounce.md) when rendering async data based on user field inputs
 - [[handleSubmit, loading, error] = useLoading()](references/useLoading.md) when tracking async mutations
 - Prefer smaller React components that do one thing
-- **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill. Pass ids/args as props, not fetched data that a component only hands further down (a list passing each item to the row that renders it is fine); components binding the same endpoint and args share one fetch and one cache entry
+- **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill. Pass ids/args, not fetched data a component only hands down (a list passing each item to its row is fine); bindings with the same endpoint and args share one fetch and cache entry
 - **Don't hide data bindings inside custom hooks**: wrapping them obfuscates a component's data dependencies and couples data logic to view code, causing drift. Put tightly coupled data transformations in a `Query` schema (with the data model, e.g. `src/resources/`) so they stay reusable and evolve independently of views
 - For tests, apply the skill "data-client-react-testing"
 
