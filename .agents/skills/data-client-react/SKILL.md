@@ -28,6 +28,10 @@ const post = use(postPromise);
 const comments = use(commentsPromise);
 ```
 
+Sequential `useSuspense` calls waterfall: each one suspends before the next hook runs, so the second
+fetch starts only after the first resolves. When a component reads 2+ endpoints, start them all with
+`useFetch`, then `use()` each promise as above.
+
 For API definitions (like TodoResource), apply the skill "data-client-rest".
 
 ## Mutations
@@ -92,6 +96,14 @@ Its props are `fallback`, `errorComponent`, `errorClassName`, and `listen`. It c
 ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.invalidateAll(), ctrl.setResponse(), ctrl.set(),
 ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 
+To refresh or update data, pick by what you have:
+
+| Situation | Call |
+|---|---|
+| You already have the new value (push payload, computed result) | `ctrl.set()` / `ctrl.setResponse()` - no network |
+| Data may be outdated; keep showing it while refetching | `ctrl.fetch(endpoint, args)`, or `ctrl.expireAll(endpoint)` so mounted bindings refetch |
+| Showing the current data would be wrong | `ctrl.invalidate()` / `ctrl.invalidateAll()` - mounted `useSuspense` suspends and refetches (loading flash) |
+
 Write many entities without a fetch with one `ctrl.set([Entity], rows)`. Never loop `ctrl.set(Entity, args, row)` per row, and never add an endpoint or `setResponse()` just to batch.
 
 ## Programmatic queries
@@ -127,15 +139,26 @@ available in dev mode.
 
 Custom [Managers](https://dataclient.io/docs/api/Manager) allow for global side effect handling.
 This is useful for websockets, SSE, logging, etc. Always use the skill "data-client-manager" when writing managers.
+External event streams (websocket, SSE, timers) belong in a Manager that writes with `controller.set()`,
+not in a component `useEffect` that keeps results in React state: every bound component then updates
+consistently, and the connection outlives any one component.
 
 ## Best Practices & Notes
 
 - [useDebounce(query, timeout)](references/useDebounce.md) when rendering async data based on user field inputs
 - [[handleSubmit, loading, error] = useLoading()](references/useLoading.md) when tracking async mutations
 - Prefer smaller React components that do one thing
-- **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill
+- **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill. Pass identity (ids, args) and render config as props, not fetched data, lookup maps or promises; children that bind the same endpoint and args share one fetch and one cache entry, so extra bindings cost nothing
 - **Don't hide data bindings inside custom hooks**: wrapping them obfuscates a component's data dependencies and couples data logic to view code, causing drift. Put tightly coupled data transformations in a `Query` schema (with the data model, e.g. `src/resources/`) so they stay reusable and evolve independently of views
 - For tests, apply the skill "data-client-react-testing"
+
+## Common Mistakes to Avoid
+
+- **Treating a cache miss as "doesn't exist"**: `useCache`/`useQuery` return `undefined` until something in this session fetched or set the data, and a cold load (deep link, refresh) starts with an empty store. Read data the component requires with `useSuspense`/`useDLE`; use `useCache`/`useQuery` for data another binding already guarantees, or when "not loaded yet" is the actual question (e.g. auth state).
+- **`useEffect` + `ctrl.fetch` (+ `useState`) to load data**: it skips deduplication, staleness and store subscription, and the copied state goes stale. Read with a binding hook; call `ctrl.fetch` from event handlers.
+- **`useSuspense` in persistent chrome outside every `AsyncBoundary`** (nav, header, breadcrumbs): it suspends up to the root and blanks the whole shell. Use `useDLE` or `useCache` there.
+- **Expecting `AsyncBoundary` to clear its error when a prop changes**: error state resets only when `listen` fires. When the boundary's content switches by prop (selected id), add `key={id}` to the boundary.
+- **Building lookup `Map`s from list results**: use [Entity.indexes](https://dataclient.io/rest/api/Entity#indexes) or a `Query` (skill "data-client-schema"). In event handlers, read a `Query` with `ctrl.get(query, args, ctrl.getState())` instead of rescanning a fetched list.
 
 # References
 

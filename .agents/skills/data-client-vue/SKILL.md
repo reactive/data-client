@@ -159,9 +159,10 @@ This is useful for websockets, SSE, logging, etc. Pass them to `DataClientPlugin
 - [useDebounce(query, timeout)](references/useDebounce.md) when rendering async data based on user field inputs
 - [[handleSubmit, loading, error] = useLoading()](references/useLoading.md) when tracking async mutations
 - Prefer smaller Vue components that do one thing
-- **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill
+- **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill. Pass identity (ids, args) as props, not fetched data; children that bind the same endpoint and args share one fetch and one cache entry
 - **Don't hide data bindings inside custom composables**: wrapping them obfuscates a component's data dependencies and couples data logic to view code, causing drift. Put tightly coupled data transformations in a `Query` schema (with the data model, e.g. `src/resources/`) so they stay reusable and evolve independently of views
 - Don't copy results into `ref()`/`reactive()` state; render the returned refs directly so updates flow through
+- `useCache`/`useQuery` return `undefined` until something in this session fetched or set the data, and a cold load (deep link, refresh) starts with an empty store, so a miss never means "doesn't exist on the server". Read data the component requires with `useSuspense`/`useDLE`; use `useCache`/`useQuery` for data another binding already guarantees
 - For tests, apply the skill "data-client-vue-testing"
 
 # References
