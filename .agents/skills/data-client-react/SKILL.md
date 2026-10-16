@@ -30,7 +30,8 @@ const comments = use(commentsPromise);
 
 Sequential `useSuspense` calls waterfall (each suspends before the next starts its fetch). For 2+
 endpoints in one component, call `useFetch` for each first so all requests start, then `use()` each
-promise as above (React 19+), or call `useSuspense` for each (older React; it reuses the in-flight requests).
+promise as above (React 19+). On older React, follow those `useFetch` calls with a `useSuspense` for each;
+the requests are already in flight, so suspending on the first no longer delays the rest.
 
 For API definitions (like TodoResource), apply the skill "data-client-rest".
 
@@ -100,7 +101,7 @@ ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 |---|---|
 | You already have the new value | `ctrl.set()` / `ctrl.setResponse()` - no network |
 | One known endpoint+args, keep showing current data | `ctrl.fetch(endpoint, args)` |
-| Every cached args of an endpoint, keep showing current data | `ctrl.expireAll(endpoint)` - only fetching hooks (`useSuspense`/`useDLE`/`useLive`) refetch; `useCache`/`useQuery` don't |
+| Every cached args of an endpoint, keep showing current data | `ctrl.expireAll(endpoint)` - only fetching hooks (`useSuspense`/`useFetch`/`useDLE`/`useLive`) refetch; `useCache`/`useQuery` don't |
 | Showing the current data would be wrong | `ctrl.invalidate()` / `ctrl.invalidateAll()` - mounted `useSuspense` suspends |
 
 Write many entities without a fetch with one `ctrl.set([Entity], rows)`. Never loop `ctrl.set(Entity, args, row)` per row, and never add an endpoint or `setResponse()` just to batch.
