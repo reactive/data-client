@@ -8,6 +8,7 @@ import React, {
   useCallback,
   useState,
   useTransition,
+  Fragment,
   type ComponentType,
 } from 'react';
 import { createPortal } from 'react-dom';
@@ -92,7 +93,7 @@ interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
  */
 export function Router({
   routes,
-  layout: Layout,
+  layout: Layout = Fragment,
   start = '/',
 }: {
   routes: readonly Route[];
@@ -111,17 +112,6 @@ export function Router({
   const controlsSlot = use(RouterControlsSlot);
   const path = history[history.length - 1];
   const atRoot = history.length === 1;
-  const page = (
-    <Suspense fallback={<Loading />}>
-      {/* the header's controls stay usable when a page throws, so Back
-          recovers; a new path clears the error. Suspense stays outside this
-          key: a newly mounted one would show its fallback rather than hold
-          the page */}
-      <ErrorBoundary key={path} fallbackComponent={ErrorMessage}>
-        <Page routes={routes} path={path} />
-      </ErrorBoundary>
-    </Suspense>
-  );
   return (
     <NavigateContext value={navigate}>
       {controlsSlot &&
@@ -148,9 +138,17 @@ export function Router({
         aria-hidden="true"
       />
       <PathContext value={path}>
-        {Layout ?
-          <Layout>{page}</Layout>
-        : page}
+        <Layout>
+          <Suspense fallback={<Loading />}>
+            {/* the header's controls stay usable when a page throws, so
+                Back recovers; a new path clears the error. Suspense stays
+                outside this key: a newly mounted one would show its fallback
+                rather than hold the page */}
+            <ErrorBoundary key={path} fallbackComponent={ErrorMessage}>
+              <Page routes={routes} path={path} />
+            </ErrorBoundary>
+          </Suspense>
+        </Layout>
       </PathContext>
     </NavigateContext>
   );

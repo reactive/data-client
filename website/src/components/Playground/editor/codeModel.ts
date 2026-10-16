@@ -34,6 +34,14 @@ function metaValue(metastring: string, key: string): string | undefined {
     .find(value => value !== undefined);
 }
 
+/** A bare `key` flag in a fence metastring, not the word inside a quoted
+ * value like `title="Page layout"` */
+function metaFlag(metastring: string, key: string): boolean {
+  return new RegExp(`\\b${key}\\b`).test(
+    metastring.replace(/(["']).*?\1/g, ''),
+  );
+}
+
 export function parseCodeDocuments(
   children: string | React.ReactNode | React.ReactNode[],
   defaultTab?: string,
@@ -74,16 +82,15 @@ export function parseCodeDocuments(
           defaultTab ?
             // Vue SFC tabs are titled `Name.vue`; match them by component name
             title?.replace(/\.vue$/, '') !== defaultTab
-          : /\bcollapsed\b/.test(metastring),
-        col: /\bcolumn\b/.test(metastring),
+          : metaFlag(metastring, 'collapsed'),
+        col: metaFlag(metastring, 'column'),
         path:
           metaValue(metastring, 'path') ||
           (fileBase.includes('.') ? fileBase : `${fileBase}.${extension}`),
         highlights: /\{([\d\-,.]+)\}/.exec(metastring)?.[1],
         route: metaValue(metastring, 'route'),
         start: metaValue(metastring, 'start'),
-        // a bare flag: not the word inside a quoted title, path or route
-        layout: /\blayout\b/.test(metastring.replace(/(["']).*?\1/g, '')),
+        layout: metaFlag(metastring, 'layout'),
         language,
         // Direct element props (title, path, collapsed, autoFocus) override
         // metastring-derived values — Demo/CodeEditor relies on this.
