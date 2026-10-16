@@ -34,6 +34,20 @@ describe('routerTrailer', () => {
       '\n;render(<__PlaygroundRouter routes={[["/", PostList], ["/posts/:id", PostDetail]]} />);',
     );
   });
+
+  test('passes the layout and start path', () => {
+    expect(
+      routerTrailer([
+        {
+          ...doc('export default function Page() {}', '/p/:id'),
+          start: '/p/1',
+        },
+        { ...doc('export default function Nav() {}'), layout: true },
+      ]),
+    ).toBe(
+      '\n;render(<__PlaygroundRouter routes={[["/p/:id", Page]]} layout={Nav} start={"/p/1"} />);',
+    );
+  });
 });
 
 describe('Router', () => {
@@ -120,6 +134,41 @@ describe('Router', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Back' }));
     });
     expect(screen.getByText('Missing')).toBeTruthy();
+  });
+
+  test('keeps the layout around pages, marking the current link', async () => {
+    function Nav({ children }: { children: React.ReactNode }) {
+      return (
+        <>
+          <nav>
+            <Link to="/p/1">One</Link>
+            <Link to="/p/2">Two</Link>
+          </nav>
+          {children}
+        </>
+      );
+    }
+    renderInPreview(
+      <Router
+        routes={[['/p/:id', ({ id }: { id: string }) => <>page {id}</>]]}
+        layout={Nav}
+        start="/p/1"
+      />,
+    );
+    expect(screen.getByText('page 1')).toBeTruthy();
+    expect(screen.getByText('One').getAttribute('aria-current')).toBe('page');
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Two'));
+    });
+    expect(screen.getByText('page 2')).toBeTruthy();
+    expect(screen.getByText('Two').getAttribute('aria-current')).toBe('page');
+    expect(screen.getByText('One').getAttribute('aria-current')).toBeNull();
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Home' }));
+    });
+    expect(screen.getByText('page 1')).toBeTruthy();
   });
 
   test('Home returns to the first page from deep in the history', async () => {

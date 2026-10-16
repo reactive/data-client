@@ -790,6 +790,19 @@ div.playgroundTextEdit > .playgroundHeader,
 .playgroundPreview textarea:where(:not([class])) {
   padding: 0.3rem 0.5rem;
 }
+/* A demo's links between its pages (Link), the one shown marked as current */
+.playgroundPreview nav:where(:not([class])) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-bottom: 0.5rem;
+}
+.playgroundPreview nav a[aria-current='page'] {
+  color: var(--ifm-font-color-base);
+  font-weight: 600;
+  text-decoration: underline 2px var(--ifm-color-primary);
+  text-underline-offset: 0.35em;
+}
 /* Groups a form's fields so one `disabled` locks them all */
 .playgroundPreview fieldset {
   min-width: 0;
@@ -1036,6 +1049,19 @@ div.playgroundTextEdit > .playgroundHeader,
   .fixtureToggle:hover {
     background-color: var(--store-hover);
   }
+}
+/* an error response: a red edge and wash, so it stands apart from the
+   successes at a glance (a wash in background-image, under hover's color) */
+.fixtureError {
+  box-shadow: inset 3px 0 var(--store-null);
+  background-image: linear-gradient(
+    rgba(255, 88, 116, 0.1),
+    rgba(255, 88, 116, 0.1)
+  );
+}
+.fixtureError .pill.danger {
+  background-color: rgba(255, 88, 116, 0.16);
+  font-weight: 600;
 }
 .fixtureToggle:focus-visible {
   outline: 2px solid var(--ifm-color-primary);

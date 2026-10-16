@@ -59,7 +59,7 @@ When using React Navigation, [focus events](https://reactnavigation.org/docs/use
 to transition from '[fresh](#fresh)' to '[stale](#stale)' status. Try setting it to a very low number like '50'
 to make it becomes [stale](#stale) almost instantly; or a very large number to stay around for a long time.
 
-Going between the First and Second pages changes the parameters. If the data is still considered fresh
+Toggling between 'first' and 'second' changes the parameters. If the data is still considered fresh
 you will continue to see the old time without any refresh.
 
 <FrameworkPlayground row defaultTab="getUpdated" fixtures={[
@@ -101,24 +101,12 @@ export const lastUpdated = new RestEndpoint({
 ```ts title="getUpdated"
 import { lastUpdated } from './api/lastUpdated';
 
-export const getUpdated = lastUpdated.extend({
-  dataExpiryLength: 10000,
-});
+export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 ```
 
 :::react
 
-```tsx title="Home" route="/" collapsed
-export default function Home() {
-  return (
-    <nav>
-      <Link to="/time/1">First</Link> <Link to="/time/2">Second</Link>
-    </nav>
-  );
-}
-```
-
-```tsx title="TimePage" route="/time/:id"
+```tsx title="TimePage" route="/time/:id" start="/time/1"
 import { useSuspense } from '@data-client/react';
 import { getUpdated } from './getUpdated';
 
@@ -126,12 +114,24 @@ export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
-      <div>
-        API time for {id}:{' '}
-        <time>
-          {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-        </time>
-      </div>
+      API time for {id}:{' '}
+      <time>
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
+      </time>
+    </div>
+  );
+}
+```
+
+```tsx title="Navigator" layout collapsed
+export default function Navigator({ children }) {
+  return (
+    <div>
+      <nav>
+        <Link to="/time/1">First</Link>
+        <Link to="/time/2">Second</Link>
+      </nav>
+      {children}
       <div>
         Current Time: <CurrentTime />
       </div>
@@ -144,16 +144,7 @@ export default function TimePage({ id }: { id: string }) {
 
 :::vue
 
-```html title="Home.vue" route="/" collapsed
-<template>
-  <nav>
-    <RouterLink to="/time/1">First</RouterLink>
-    <RouterLink to="/time/2">Second</RouterLink>
-  </nav>
-</template>
-```
-
-```html title="TimePage.vue" route="/time/:id"
+```html title="TimePage.vue" route="/time/:id" start="/time/1"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getUpdated } from './getUpdated';
@@ -165,7 +156,28 @@ export default function TimePage({ id }: { id: string }) {
 <template>
   <div>
     API time for {{ id }}:
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+    <time
+      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
+      }}</time
+    >
+  </div>
+</template>
+```
+
+```html title="Navigator.vue" layout collapsed
+<template>
+  <div>
+    <nav>
+      <RouterLink to="/time/1">First</RouterLink>
+      <RouterLink to="/time/2">Second</RouterLink>
+    </nav>
+    <RouterView v-slot="{ Component, route }">
+      <!-- :key remounts TimePage so it suspends for the new id -->
+      <Suspense timeout="0">
+        <component :is="Component" :key="route.fullPath" />
+        <template #fallback><div>loading...</div></template>
+      </Suspense>
+    </RouterView>
   </div>
 </template>
 ```
@@ -180,16 +192,10 @@ export default function TimePage({ id }: { id: string }) {
 Long cache lifetime
 
 ```typescript title="LongLivingResource.ts"
-import {
-  RestEndpoint,
-  RestGenerics,
-  resource,
-} from '@data-client/rest';
+import { RestEndpoint, RestGenerics, resource } from '@data-client/rest';
 
 // We can now use LongLivingEndpoint to create endpoints that will be cached for one hour
-class LongLivingEndpoint<
-  O extends RestGenerics,
-> extends RestEndpoint<O> {
+class LongLivingEndpoint<O extends RestGenerics> extends RestEndpoint<O> {
   dataExpiryLength = 60 * 60 * 1000; // one hour
 }
 
@@ -202,16 +208,10 @@ const LongLivingResource = resource({
 Never retry on error
 
 ```typescript title="NoRetryResource.ts"
-import {
-  RestEndpoint,
-  RestGenerics,
-  resource,
-} from '@data-client/rest';
+import { RestEndpoint, RestGenerics, resource } from '@data-client/rest';
 
 // We can now use NoRetryEndpoint to create endpoints that will be cached for one hour
-class NoRetryEndpoint<
-  O extends RestGenerics,
-> extends RestEndpoint<O> {
+class NoRetryEndpoint<O extends RestGenerics> extends RestEndpoint<O> {
   errorExpiryLength = Infinity;
 }
 
@@ -228,7 +228,7 @@ const NoRetryResource = resource({
 [Endpoint.invalidIfStale](/rest/api/Endpoint#invalidifstale) eliminates the '[stale](#stale)' status, making data
 that expires immediately be considered '[invalid](#invalid)'.
 
-This is demonstrated by a page suspending once its data goes stale:react[ (navigation waits on the progress bar)].
+This is demonstrated by the page suspending once its data goes stale:react[ (navigation waits on the progress bar)].
 If the data is still within the expiry time it just continues to display it.
 
 <FrameworkPlayground row defaultTab="getUpdated" fixtures={[
@@ -278,17 +278,7 @@ export const getUpdated = lastUpdated.extend({
 
 :::react
 
-```tsx title="Home" route="/" collapsed
-export default function Home() {
-  return (
-    <nav>
-      <Link to="/time/1">First</Link> <Link to="/time/2">Second</Link>
-    </nav>
-  );
-}
-```
-
-```tsx title="TimePage" route="/time/:id"
+```tsx title="TimePage" route="/time/:id" start="/time/1"
 import { useSuspense } from '@data-client/react';
 import { getUpdated } from './getUpdated';
 
@@ -296,12 +286,24 @@ export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
-      <div>
-        API time for {id}:{' '}
-        <time>
-          {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-        </time>
-      </div>
+      API time for {id}:{' '}
+      <time>
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
+      </time>
+    </div>
+  );
+}
+```
+
+```tsx title="Navigator" layout collapsed
+export default function Navigator({ children }) {
+  return (
+    <div>
+      <nav>
+        <Link to="/time/1">First</Link>
+        <Link to="/time/2">Second</Link>
+      </nav>
+      {children}
       <div>
         Current Time: <CurrentTime />
       </div>
@@ -314,16 +316,7 @@ export default function TimePage({ id }: { id: string }) {
 
 :::vue
 
-```html title="Home.vue" route="/" collapsed
-<template>
-  <nav>
-    <RouterLink to="/time/1">First</RouterLink>
-    <RouterLink to="/time/2">Second</RouterLink>
-  </nav>
-</template>
-```
-
-```html title="TimePage.vue" route="/time/:id"
+```html title="TimePage.vue" route="/time/:id" start="/time/1"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getUpdated } from './getUpdated';
@@ -335,7 +328,28 @@ export default function TimePage({ id }: { id: string }) {
 <template>
   <div>
     API time for {{ id }}:
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+    <time
+      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
+      }}</time
+    >
+  </div>
+</template>
+```
+
+```html title="Navigator.vue" layout collapsed
+<template>
+  <div>
+    <nav>
+      <RouterLink to="/time/1">First</RouterLink>
+      <RouterLink to="/time/2">Second</RouterLink>
+    </nav>
+    <RouterView v-slot="{ Component, route }">
+      <!-- :key remounts TimePage so it suspends for the new id -->
+      <Suspense timeout="0">
+        <component :is="Component" :key="route.fullPath" />
+        <template #fallback><div>loading...</div></template>
+      </Suspense>
+    </RouterView>
   </div>
 </template>
 ```
@@ -427,7 +441,10 @@ render(<ShowTime />);
 
 <template>
   <div>
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+    <time
+      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
+      }}</time
+    >
     <button @click="ctrl.fetch(lastUpdated, { id: '1' })">Refresh</button>
   </div>
 </template>
@@ -551,7 +568,11 @@ render(<Demo />);
 
 <template>
   <div>
-    <b>{{ id }}</b> <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+    <b>{{ id }}</b>
+    <time
+      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
+      }}</time
+    >
   </div>
 </template>
 ```
@@ -687,9 +708,7 @@ function Demo() {
       <button onClick={() => ctrl.invalidateAll(lastUpdated)}>
         Invalidate All
       </button>
-      <button
-        onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}
-      >
+      <button onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}>
         Invalidate First
       </button>
     </div>
@@ -713,7 +732,11 @@ render(<Demo />);
 
 <template>
   <div>
-    <b>{{ id }}</b> <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+    <b>{{ id }}</b>
+    <time
+      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
+      }}</time
+    >
   </div>
 </template>
 ```
@@ -734,7 +757,9 @@ render(<Demo />);
       <template #fallback><div>{{ id }} Loading...</div></template>
     </Suspense>
 
-    <button @click="ctrl.invalidateAll(lastUpdated)">Invalidate All</button>
+    <button @click="ctrl.invalidateAll(lastUpdated)">
+      Invalidate All
+    </button>
     <button @click="ctrl.invalidate(lastUpdated, { id: '1' })">
       Invalidate First
     </button>
@@ -818,7 +843,11 @@ export default function TimePage({ id }) {
 
 ```tsx title="ShowTime"
 import { Invalidate, RestEndpoint } from '@data-client/rest';
-import { AsyncBoundary, useController, useLoading } from '@data-client/react';
+import {
+  AsyncBoundary,
+  useController,
+  useLoading,
+} from '@data-client/react';
 import { TimedEntity } from './api/lastUpdated';
 import TimePage from './TimePage';
 
@@ -848,11 +877,7 @@ function ShowTime() {
       </button>
       <button
         onClick={() =>
-          ctrl.setResponse(
-            deleteLastUpdated,
-            { id: '1' },
-            { id: '1' },
-          )
+          ctrl.setResponse(deleteLastUpdated, { id: '1' }, { id: '1' })
         }
       >
         Invalidate (without fetching DELETE)
@@ -884,7 +909,10 @@ render(<ShowTime />);
 <template>
   <div>
     API time for {{ id }}:
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+    <time
+      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
+      }}</time
+    >
   </div>
 </template>
 ```
@@ -940,7 +968,7 @@ when we want to change the local store directly.
 
 #### Conditional Invalidation based on data
 
-If `invalidation` should happen only sometimes, based on the response data, we can 
+If `invalidation` should happen only sometimes, based on the response data, we can
 return `undefined` from [Entity.process](/rest/api/Entity#process).
 
 ```ts

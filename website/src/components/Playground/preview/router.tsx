@@ -30,22 +30,34 @@ type Route = readonly [
 /** Appended to the preview's code: renders the documents that declare a
  * `route` as the pages of a router, so demos need no navigation code of their
  * own. A page is its document's default export; its path's params are its
- * props.
+ * props. A `layout` document's default export wraps every page, and a
+ * `start` path opens the router somewhere other than `/`.
  */
 export function routerTrailer(documents: readonly CodeDocument[]) {
   const routes = documents
     .filter(document => document.route)
     .map(
-      document =>
-        `[${JSON.stringify(document.route)}, ${defaultExportName(document.value) ?? 'undefined'}]`,
+      document => `[${JSON.stringify(document.route)}, ${exportOf(document)}]`,
     );
   if (!routes.length) return '';
-  return `\n;render(<${ROUTER} routes={[${routes.join(', ')}]} />);`;
+  const layout = documents.find(document => document.layout);
+  const start = documents.find(document => document.start)?.start;
+  const props = [
+    `routes={[${routes.join(', ')}]}`,
+    ...(layout ? [`layout={${exportOf(layout)}}`] : []),
+    ...(start ? [`start={${JSON.stringify(start)}}`] : []),
+  ];
+  return `\n;render(<${ROUTER} ${props.join(' ')} />);`;
 }
+
+const exportOf = (document: CodeDocument) =>
+  defaultExportName(document.value) ?? 'undefined';
 
 const NavigateContext = createContext<(to: string) => void>(() => {
   throw new Error('useNavigate() only works in a page with a `route`');
 });
+/** The path shown, which Links to it mark as current */
+const PathContext = createContext<string | undefined>(undefined);
 
 /** Opens `to` in the preview's router */
 export function useNavigate() {
@@ -57,6 +69,7 @@ export function Link({ to, onClick, ...props }: LinkProps) {
   return (
     <a
       href={to}
+      aria-current={use(PathContext) === to ? 'page' : undefined}
       {...props}
       onClick={event => {
         onClick?.(event);
@@ -71,12 +84,22 @@ interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   to: string;
 }
 
-/** Starts at `/`, with Back, Home and the path shown in the preview's header.
- * Navigation is a transition: the current page stays until the next one is
- * ready, with a progress bar along the preview's top edge meanwhile.
+/** Starts at `start`, with Back, Home and the path shown in the preview's
+ * header. Navigation is a transition: the current page stays until the next
+ * one is ready, with a progress bar along the preview's top edge meanwhile.
+ * `layout` stays mounted around the pages, so what it shows (say, links
+ * between them) holds through navigation.
  */
-export function Router({ routes }: { routes: readonly Route[] }) {
-  const [history, setHistory] = useState(['/']);
+export function Router({
+  routes,
+  layout: Layout,
+  start = '/',
+}: {
+  routes: readonly Route[];
+  layout?: ComponentType<{ children: React.ReactNode }>;
+  start?: string;
+}) {
+  const [history, setHistory] = useState([start]);
   const [pending, startTransition] = useTransition();
   const navigate = useCallback(
     (to: string) =>
@@ -88,6 +111,17 @@ export function Router({ routes }: { routes: readonly Route[] }) {
   const controlsSlot = use(RouterControlsSlot);
   const path = history[history.length - 1];
   const atRoot = history.length === 1;
+  const page = (
+    <Suspense fallback={<Loading />}>
+      {/* the header's controls stay usable when a page throws, so Back
+          recovers; a new path clears the error. Suspense stays outside this
+          key: a newly mounted one would show its fallback rather than hold
+          the page */}
+      <ErrorBoundary key={path} fallbackComponent={ErrorMessage}>
+        <Page routes={routes} path={path} />
+      </ErrorBoundary>
+    </Suspense>
+  );
   return (
     <NavigateContext value={navigate}>
       {controlsSlot &&
@@ -104,7 +138,7 @@ export function Router({ routes }: { routes: readonly Route[] }) {
                 ),
               )
             }
-            onHome={() => startTransition(() => setHistory(['/']))}
+            onHome={() => startTransition(() => setHistory([start]))}
           />,
           controlsSlot,
         )}
@@ -113,15 +147,11 @@ export function Router({ routes }: { routes: readonly Route[] }) {
         data-pending={pending || undefined}
         aria-hidden="true"
       />
-      <Suspense fallback={<Loading />}>
-        {/* the header's controls stay usable when a page throws, so Back
-            recovers; a new path clears the error. Suspense stays outside this
-            key: a newly mounted one would show its fallback rather than hold
-            the page */}
-        <ErrorBoundary key={path} fallbackComponent={ErrorMessage}>
-          <Page routes={routes} path={path} />
-        </ErrorBoundary>
-      </Suspense>
+      <PathContext value={path}>
+        {Layout ?
+          <Layout>{page}</Layout>
+        : page}
+      </PathContext>
     </NavigateContext>
   );
 }

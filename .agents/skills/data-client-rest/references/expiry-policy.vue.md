@@ -33,7 +33,7 @@ In these cases it will fetch if the data is considered stale.
 to transition from '[fresh](#fresh)' to '[stale](#stale)' status. Try setting it to a very low number like '50'
 to make it becomes [stale](#stale) almost instantly; or a very large number to stay around for a long time.
 
-Going between the First and Second pages changes the parameters. If the data is still considered fresh
+Toggling between 'first' and 'second' changes the parameters. If the data is still considered fresh
 you will continue to see the old time without any refresh.
 
 Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
@@ -60,21 +60,10 @@ export const lastUpdated = new RestEndpoint({
 ```ts title="getUpdated"
 import { lastUpdated } from './api/lastUpdated';
 
-export const getUpdated = lastUpdated.extend({
-  dataExpiryLength: 10000,
-});
+export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 ```
 
-```html title="Home.vue" route="/"
-<template>
-  <nav>
-    <RouterLink to="/time/1">First</RouterLink>
-    <RouterLink to="/time/2">Second</RouterLink>
-  </nav>
-</template>
-```
-
-```html title="TimePage.vue" route="/time/:id"
+```html title="TimePage.vue" route="/time/:id" start="/time/1"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getUpdated } from './getUpdated';
@@ -86,7 +75,28 @@ export const getUpdated = lastUpdated.extend({
 <template>
   <div>
     API time for {{ id }}:
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+    <time
+      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
+      }}</time
+    >
+  </div>
+</template>
+```
+
+```html title="Navigator.vue" layout
+<template>
+  <div>
+    <nav>
+      <RouterLink to="/time/1">First</RouterLink>
+      <RouterLink to="/time/2">Second</RouterLink>
+    </nav>
+    <RouterView v-slot="{ Component, route }">
+      <!-- :key remounts TimePage so it suspends for the new id -->
+      <Suspense timeout="0">
+        <component :is="Component" :key="route.fullPath" />
+        <template #fallback><div>loading...</div></template>
+      </Suspense>
+    </RouterView>
   </div>
 </template>
 ```
@@ -98,16 +108,10 @@ export const getUpdated = lastUpdated.extend({
 Long cache lifetime
 
 ```typescript title="LongLivingResource.ts"
-import {
-  RestEndpoint,
-  RestGenerics,
-  resource,
-} from '@data-client/rest';
+import { RestEndpoint, RestGenerics, resource } from '@data-client/rest';
 
 // We can now use LongLivingEndpoint to create endpoints that will be cached for one hour
-class LongLivingEndpoint<
-  O extends RestGenerics,
-> extends RestEndpoint<O> {
+class LongLivingEndpoint<O extends RestGenerics> extends RestEndpoint<O> {
   dataExpiryLength = 60 * 60 * 1000; // one hour
 }
 
@@ -120,16 +124,10 @@ const LongLivingResource = resource({
 Never retry on error
 
 ```typescript title="NoRetryResource.ts"
-import {
-  RestEndpoint,
-  RestGenerics,
-  resource,
-} from '@data-client/rest';
+import { RestEndpoint, RestGenerics, resource } from '@data-client/rest';
 
 // We can now use NoRetryEndpoint to create endpoints that will be cached for one hour
-class NoRetryEndpoint<
-  O extends RestGenerics,
-> extends RestEndpoint<O> {
+class NoRetryEndpoint<O extends RestGenerics> extends RestEndpoint<O> {
   errorExpiryLength = Infinity;
 }
 
@@ -146,7 +144,7 @@ const NoRetryResource = resource({
 [Endpoint.invalidIfStale](https://dataclient.io/rest/api/Endpoint#invalidifstale) eliminates the '[stale](#stale)' status, making data
 that expires immediately be considered '[invalid](#invalid)'.
 
-This is demonstrated by a page suspending once its data goes stale.
+This is demonstrated by the page suspending once its data goes stale.
 If the data is still within the expiry time it just continues to display it.
 
 Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
@@ -179,16 +177,7 @@ export const getUpdated = lastUpdated.extend({
 });
 ```
 
-```html title="Home.vue" route="/"
-<template>
-  <nav>
-    <RouterLink to="/time/1">First</RouterLink>
-    <RouterLink to="/time/2">Second</RouterLink>
-  </nav>
-</template>
-```
-
-```html title="TimePage.vue" route="/time/:id"
+```html title="TimePage.vue" route="/time/:id" start="/time/1"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getUpdated } from './getUpdated';
@@ -200,7 +189,28 @@ export const getUpdated = lastUpdated.extend({
 <template>
   <div>
     API time for {{ id }}:
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+    <time
+      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
+      }}</time
+    >
+  </div>
+</template>
+```
+
+```html title="Navigator.vue" layout
+<template>
+  <div>
+    <nav>
+      <RouterLink to="/time/1">First</RouterLink>
+      <RouterLink to="/time/2">Second</RouterLink>
+    </nav>
+    <RouterView v-slot="{ Component, route }">
+      <!-- :key remounts TimePage so it suspends for the new id -->
+      <Suspense timeout="0">
+        <component :is="Component" :key="route.fullPath" />
+        <template #fallback><div>loading...</div></template>
+      </Suspense>
+    </RouterView>
   </div>
 </template>
 ```
@@ -244,7 +254,10 @@ export const lastUpdated = new RestEndpoint({
 
 <template>
   <div>
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+    <time
+      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
+      }}</time
+    >
     <button @click="ctrl.fetch(lastUpdated, { id: '1' })">Refresh</button>
   </div>
 </template>
@@ -284,7 +297,11 @@ export const lastUpdated = new RestEndpoint({
 
 <template>
   <div>
-    <b>{{ id }}</b> <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+    <b>{{ id }}</b>
+    <time
+      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
+      }}</time
+    >
   </div>
 </template>
 ```
@@ -356,7 +373,11 @@ export const lastUpdated = new RestEndpoint({
 
 <template>
   <div>
-    <b>{{ id }}</b> <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+    <b>{{ id }}</b>
+    <time
+      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
+      }}</time
+    >
   </div>
 </template>
 ```
@@ -377,7 +398,9 @@ export const lastUpdated = new RestEndpoint({
       <template #fallback><div>{{ id }} Loading...</div></template>
     </Suspense>
 
-    <button @click="ctrl.invalidateAll(lastUpdated)">Invalidate All</button>
+    <button @click="ctrl.invalidateAll(lastUpdated)">
+      Invalidate All
+    </button>
     <button @click="ctrl.invalidate(lastUpdated, { id: '1' })">
       Invalidate First
     </button>
@@ -421,7 +444,10 @@ export const lastUpdated = new RestEndpoint({
 <template>
   <div>
     API time for {{ id }}:
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+    <time
+      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
+      }}</time
+    >
   </div>
 </template>
 ```

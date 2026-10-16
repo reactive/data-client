@@ -36,7 +36,7 @@ In these cases it will fetch if the data is considered stale.
 to transition from '[fresh](#fresh)' to '[stale](#stale)' status. Try setting it to a very low number like '50'
 to make it becomes [stale](#stale) almost instantly; or a very large number to stay around for a long time.
 
-Going between the First and Second pages changes the parameters. If the data is still considered fresh
+Toggling between 'first' and 'second' changes the parameters. If the data is still considered fresh
 you will continue to see the old time without any refresh.
 
 Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
@@ -63,22 +63,10 @@ export const lastUpdated = new RestEndpoint({
 ```ts title="getUpdated"
 import { lastUpdated } from './api/lastUpdated';
 
-export const getUpdated = lastUpdated.extend({
-  dataExpiryLength: 10000,
-});
+export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 ```
 
-```tsx title="Home" route="/"
-export default function Home() {
-  return (
-    <nav>
-      <Link to="/time/1">First</Link> <Link to="/time/2">Second</Link>
-    </nav>
-  );
-}
-```
-
-```tsx title="TimePage" route="/time/:id"
+```tsx title="TimePage" route="/time/:id" start="/time/1"
 import { useSuspense } from '@data-client/react';
 import { getUpdated } from './getUpdated';
 
@@ -86,12 +74,24 @@ export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
-      <div>
-        API time for {id}:{' '}
-        <time>
-          {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-        </time>
-      </div>
+      API time for {id}:{' '}
+      <time>
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
+      </time>
+    </div>
+  );
+}
+```
+
+```tsx title="Navigator" layout
+export default function Navigator({ children }) {
+  return (
+    <div>
+      <nav>
+        <Link to="/time/1">First</Link>
+        <Link to="/time/2">Second</Link>
+      </nav>
+      {children}
       <div>
         Current Time: <CurrentTime />
       </div>
@@ -107,16 +107,10 @@ export default function TimePage({ id }: { id: string }) {
 Long cache lifetime
 
 ```typescript title="LongLivingResource.ts"
-import {
-  RestEndpoint,
-  RestGenerics,
-  resource,
-} from '@data-client/rest';
+import { RestEndpoint, RestGenerics, resource } from '@data-client/rest';
 
 // We can now use LongLivingEndpoint to create endpoints that will be cached for one hour
-class LongLivingEndpoint<
-  O extends RestGenerics,
-> extends RestEndpoint<O> {
+class LongLivingEndpoint<O extends RestGenerics> extends RestEndpoint<O> {
   dataExpiryLength = 60 * 60 * 1000; // one hour
 }
 
@@ -129,16 +123,10 @@ const LongLivingResource = resource({
 Never retry on error
 
 ```typescript title="NoRetryResource.ts"
-import {
-  RestEndpoint,
-  RestGenerics,
-  resource,
-} from '@data-client/rest';
+import { RestEndpoint, RestGenerics, resource } from '@data-client/rest';
 
 // We can now use NoRetryEndpoint to create endpoints that will be cached for one hour
-class NoRetryEndpoint<
-  O extends RestGenerics,
-> extends RestEndpoint<O> {
+class NoRetryEndpoint<O extends RestGenerics> extends RestEndpoint<O> {
   errorExpiryLength = Infinity;
 }
 
@@ -155,7 +143,7 @@ const NoRetryResource = resource({
 [Endpoint.invalidIfStale](https://dataclient.io/rest/api/Endpoint#invalidifstale) eliminates the '[stale](#stale)' status, making data
 that expires immediately be considered '[invalid](#invalid)'.
 
-This is demonstrated by a page suspending once its data goes stale (navigation waits on the progress bar).
+This is demonstrated by the page suspending once its data goes stale (navigation waits on the progress bar).
 If the data is still within the expiry time it just continues to display it.
 
 Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
@@ -188,17 +176,7 @@ export const getUpdated = lastUpdated.extend({
 });
 ```
 
-```tsx title="Home" route="/"
-export default function Home() {
-  return (
-    <nav>
-      <Link to="/time/1">First</Link> <Link to="/time/2">Second</Link>
-    </nav>
-  );
-}
-```
-
-```tsx title="TimePage" route="/time/:id"
+```tsx title="TimePage" route="/time/:id" start="/time/1"
 import { useSuspense } from '@data-client/react';
 import { getUpdated } from './getUpdated';
 
@@ -206,12 +184,24 @@ export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
-      <div>
-        API time for {id}:{' '}
-        <time>
-          {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-        </time>
-      </div>
+      API time for {id}:{' '}
+      <time>
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
+      </time>
+    </div>
+  );
+}
+```
+
+```tsx title="Navigator" layout
+export default function Navigator({ children }) {
+  return (
+    <div>
+      <nav>
+        <Link to="/time/1">First</Link>
+        <Link to="/time/2">Second</Link>
+      </nav>
+      {children}
       <div>
         Current Time: <CurrentTime />
       </div>
@@ -424,9 +414,7 @@ function Demo() {
       <button onClick={() => ctrl.invalidateAll(lastUpdated)}>
         Invalidate All
       </button>
-      <button
-        onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}
-      >
+      <button onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}>
         Invalidate First
       </button>
     </div>
@@ -478,7 +466,11 @@ export default function TimePage({ id }) {
 
 ```tsx title="ShowTime"
 import { Invalidate, RestEndpoint } from '@data-client/rest';
-import { AsyncBoundary, useController, useLoading } from '@data-client/react';
+import {
+  AsyncBoundary,
+  useController,
+  useLoading,
+} from '@data-client/react';
 import { TimedEntity } from './api/lastUpdated';
 import TimePage from './TimePage';
 
@@ -508,11 +500,7 @@ function ShowTime() {
       </button>
       <button
         onClick={() =>
-          ctrl.setResponse(
-            deleteLastUpdated,
-            { id: '1' },
-            { id: '1' },
-          )
+          ctrl.setResponse(deleteLastUpdated, { id: '1' }, { id: '1' })
         }
       >
         Invalidate (without fetching DELETE)
