@@ -4,10 +4,11 @@
 
 Data rendering without the fetch.
 
-Access any [Endpoint](https://dataclient.io/rest/api/Endpoint)'s response. Returns `undefined` when the store has no usable
-response yet ([Behavior](#behavior) lists when). This means "not loaded yet", not that the data doesn't
-exist on the server. Use it for data that other code is responsible for loading, like the current user
-that a login flow fetches.
+Access any [Endpoint](https://dataclient.io/rest/api/Endpoint)'s response. Returns `undefined` when nothing has fetched or set
+it and it can't be inferred from entities other requests stored, or when it was invalidated
+([Behavior](#behavior) lists every case). This means "not loaded", not that the data doesn't exist on the
+server. Use it for data that other code is responsible for loading, like the current user that a login
+flow fetches.
 
 `useCache()` is reactive to data [mutations](./mutations.md); rerendering only when necessary.
 
