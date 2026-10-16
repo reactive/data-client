@@ -63,6 +63,23 @@ describe('FixturePreview', () => {
     expect(toggle.textContent).toContain('150 ms');
   });
 
+  test("names an error's status when its response gives one", () => {
+    render(
+      <FixturePreview
+        fixtures={[
+          {
+            endpoint: getArticle,
+            args: [{ id: 2 }],
+            response: { status: 404, response: 'Not found' },
+            error: true,
+          },
+        ]}
+      />,
+    );
+    expect(screen.getByText('404')).toBeTruthy();
+    expect(screen.queryByText('error')).toBeNull();
+  });
+
   test('function rows show what the function returns, once pinned', () => {
     const response = () => ({ id: 1 });
     const { container } = render(
