@@ -28,9 +28,8 @@ const post = use(postPromise);
 const comments = use(commentsPromise);
 ```
 
-Sequential `useSuspense` calls waterfall. For 2+ endpoints in one component, start every request with
-`useFetch` first, then read each with `use()` (React 19+) or `useSuspense` (older React; it reuses the
-in-flight request).
+Sequential `useSuspense` calls waterfall, so load 2+ endpoints with `useFetch` as above. Before React 19,
+read them with `useSuspense` instead of `use()`.
 
 For API definitions (like TodoResource), apply the skill "data-client-rest".
 
