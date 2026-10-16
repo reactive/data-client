@@ -152,14 +152,6 @@ several components need the stream or it must outlive the component.
 - **Don't hide data bindings inside custom hooks**: wrapping them obfuscates a component's data dependencies and couples data logic to view code, causing drift. Put tightly coupled data transformations in a `Query` schema (with the data model, e.g. `src/resources/`) so they stay reusable and evolve independently of views
 - For tests, apply the skill "data-client-react-testing"
 
-## Common Mistakes to Avoid
-
-- **Treating a cache miss as "doesn't exist"**: `useCache`/`useQuery` return `undefined` for anything not yet fetched or set this session, and a deep link or refresh starts empty. Read required data with `useSuspense`/`useDLE`; use `useCache`/`useQuery` only for data another binding guarantees, or when "loaded yet?" is the question.
-- **`useEffect` + `ctrl.fetch` (+ `useState`) to load data**: it ignores staleness (refetches on every effect run) and the copied state stops tracking the store. Read with a binding hook; call `ctrl.fetch` from event handlers.
-- **`useSuspense` in persistent chrome outside every `AsyncBoundary`** (nav, header, breadcrumbs): it suspends up to the root and blanks the whole shell. Use `useDLE` or `useCache` there.
-- **Expecting `AsyncBoundary` to clear its error when a prop changes**: error state doesn't reset when props change; it resets on `listen` or `resetErrorBoundary`. When the boundary's content switches by prop (selected id), add `key={id}` to the boundary.
-- **Building lookup `Map`s from list results**: use [Entity.indexes](https://dataclient.io/rest/api/Entity#indexes) or a `Query` (skill "data-client-schema"). In event handlers, read a `Query` with `ctrl.get(query, args, ctrl.getState())` instead of rescanning a fetched list.
-
 # References
 
 For detailed API documentation, see the [references](references/) directory:
