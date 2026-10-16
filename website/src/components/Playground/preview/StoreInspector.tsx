@@ -5,7 +5,7 @@ import { Reveal } from '../../motion';
 import styles from '../styles.module.css';
 import type SchemaRegistry from './store/schemaRegistry';
 import StorePanel from './store/StorePanel';
-import { StoreToggle } from './StoreToggle';
+import { heldToggle, StoreToggle } from './StoreToggle';
 
 function StoreInspector({
   toggle,
@@ -29,7 +29,7 @@ function StoreInspector({
   const [showTree, setShowTree] = useState(false);
   if (ready && !showTree) setShowTree(true);
   const panel = (
-    <Reveal show={open} className={styles.storePanel}>
+    <Reveal show={open} className={styles.storePanel} hold={heldToggle}>
       {showTree ?
         <StorePanel registry={registry} history={history} />
       : null}

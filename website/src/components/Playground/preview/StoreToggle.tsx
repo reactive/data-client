@@ -11,9 +11,16 @@ import { useLayoutMotion } from '../../motion';
 import StoreIcon from '../StoreIcon';
 import styles from '../styles.module.css';
 
+// one for the page: closing a Store closes every playground's in its group
+let clicked: HTMLElement | undefined;
+/** The Store toggle the reader clicked last, while on the page: held in place
+ * on screen as the Stores it closed slide out and leave the layout */
+export const heldToggle = () => (clicked?.isConnected ? clicked : undefined);
+
 /** Store open state, persisted per `groupId`; toggling keeps the page from
- * scrolling. `show` opens or closes it for a demo without persisting, until
- * the reader toggles it (or `show(null)`). */
+ * scrolling, also as each Store it closes leaves the layout (`heldToggle`).
+ * `showStore` opens or closes it for a demo without persisting, until the
+ * reader toggles it (or `showStore(null)`). */
 export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   const [choice, setChoice] = useTabStorage(groupId);
   const [shown, show] = useState<boolean | null>(null);
@@ -23,13 +30,20 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
     useScrollPositionBlocker();
   const toggle = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
-      blockElementScrollPositionUntilNextRender(event.currentTarget);
+      clicked = event.currentTarget;
+      blockElementScrollPositionUntilNextRender(clicked);
       setChoice(open ? 'n' : 'y');
       show(null);
     },
     [blockElementScrollPositionUntilNextRender, open, setChoice],
   );
-  return [open, toggle, show] as const;
+  // a demo's open or close is no reader's click: forget the last one, so it
+  // doesn't pin a toggle the reader clicked earlier
+  const showStore = useCallback((demo: boolean | null) => {
+    clicked = undefined;
+    show(demo);
+  }, []);
+  return [open, toggle, showStore] as const;
 }
 
 /** Toggle row; also rendered (inert) by the preview loading fallback in ../index.tsx */
