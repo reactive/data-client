@@ -31,7 +31,12 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
     },
     [blockElementScrollPositionUntilNextRender, open, setChoice],
   );
-  return [open, toggle, show] as const;
+  // a demo's open or close is no reader's click: nothing to hold for it
+  const showForDemo = useCallback((demo: boolean | null) => {
+    clicked = undefined;
+    show(demo);
+  }, []);
+  return [open, toggle, showForDemo] as const;
 }
 
 // one for the page: closing a Store closes every playground's in its group
