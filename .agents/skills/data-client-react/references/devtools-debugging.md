@@ -12,11 +12,12 @@ Debug `@data-client/react` state and actions programmatically via [Chrome DevToo
 
 ## Where to Start
 
-| Symptom                                        | First check                                                                                                                                                                                              |
-| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data never appears or stays loading            | The key's `meta` `error` and `getError` (Step 2), and its status in `list_network_requests`                                                                                                              |
-| A mutation succeeded but the UI shows old data | The entity in `state.entities` (Step 2). If it is unchanged and the response sits only under the mutation's own `endpoints` key, the endpoint has no `schema`, so nothing was normalized into the entity |
-| Requests fire too often or not at all          | Timestamps in `list_network_requests`, then `fetchedAt` per key in the action log (Step 3) of the controller that owns the endpoint. `pollFrequency` is in milliseconds                                  |
+| Symptom                                        | First check                                                                                                                                                                                                                                                                                                               |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Data never appears or stays loading            | The key's `meta` `error` and `getError` (Step 2), and its status in `list_network_requests`                                                                                                                                                                                                                               |
+| A mutation succeeded but the UI shows old data | The mutation key's `meta` `error` (Step 2): a response that fails to normalize, such as one wrapped in `{ data }`, is stored there with no error on the action. Then the entity in `state.entities`: if it is unchanged and the response sits only under the mutation's own `endpoints` key, the endpoint has no `schema` |
+| A change shows, then reverts on its own        | The mutation key's `meta` `error` first: an optimistic change reverts when its response fails. If there is none, repeat the change and read the action log by time (Step 3): a later `rdc/setresponse` with a newer `meta.fetchedAt` (often a poll) carried the old value                                                 |
+| Requests fire too often or not at all          | Timestamps in `list_network_requests`, then the action log (Step 3) of the controller that owns the endpoint: `fetchedAt` per key, and whether an `rdc/invalidate` or `rdc/invalidateall` precedes each fetch (something, often a Manager, keeps invalidating it). `pollFrequency` is in milliseconds                     |
 
 ## Step 1: Install the Debug Shim
 
@@ -197,6 +198,7 @@ Use these when you need to see the raw cache structure without denormalization.
 After installing the debug shim (Step 1). With the built-in log, only the newest 20 actions keep `args` and
 `response` (older ones keep `type`, `key`, `endpoint`, `meta` and error responses), and each polling key
 (endpoint and args) keeps only its last few actions. To see a payload, repeat the action and read it right away.
+Entries are dropped from the front, so select by time (`meta.fetchedAt >= start`), not by index.
 
 ### Read recent actions
 
@@ -224,11 +226,19 @@ After installing the debug shim (Step 1). With the built-in log, only the newest
 
 ### Filter errors
 
+Errors thrown while storing a response (for example a missing primary key) land only in `meta`, with no
+`error` on the action, so check both.
+
 ```js
 // evaluate_script
-() => __DC_ACTION_LOG__
-  .filter(a => a.error)
-  .map(a => ({ type: a.type, key: a.key, error: a.response?.message || true }))
+() => ({
+  actions: __DC_ACTION_LOG__
+    .filter(a => a.error)
+    .map(a => ({ type: a.type, key: a.key, error: a.response?.message || true })),
+  meta: Object.entries(__DC_CTRL__.getState().meta)
+    .filter(([, m]) => m.error)
+    .map(([key, m]) => ({ key, error: m.error.message, status: m.error.status })),
+})
 ```
 
 ### Clear action log

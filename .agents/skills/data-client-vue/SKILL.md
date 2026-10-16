@@ -143,10 +143,11 @@ const todosByUser = useQuery(groupTodoByUser);
 
 ## Browser Debugging (Chrome DevTools MCP)
 
-To inspect store state, track dispatched [actions](references/Actions.md), or invoke
-[Controller](references/Controller.md) methods from a browser MCP (`user-chrome-devtools`),
-see [devtools-debugging](references/devtools-debugging.md). Dev mode only: start with its debug shim,
-which every other snippet there depends on.
+When debugging a running app with a browser MCP (`user-chrome-devtools`), such as data that never
+appears, reverts, or refetches too often, read [devtools-debugging](references/devtools-debugging.md)
+before probing: its "Where to Start" table maps symptoms to the state and
+[actions](references/Actions.md) to check. Dev mode only: start with its debug shim, which every other
+snippet there depends on.
 
 ## Managers
 
