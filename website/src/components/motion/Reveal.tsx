@@ -20,9 +20,7 @@ import { useMember, useWillGlide } from './MotionGroup';
  *
  * It slides over its siblings; clip it with `overflow: hidden` on an ancestor.
  * `data-visible` marks it from showing until its exit finishes, for styles
- * that should hold through the slide out. Leaving the layout then can move
- * the page, so `hold` names an element (say, the toggle that closed it) to
- * keep in place on screen.
+ * that should hold through the slide out.
  */
 export default function Reveal({
   show,
@@ -90,7 +88,7 @@ export default function Reveal({
         ref={visible ? ref : undefined}
         className={className ? `motion-reveal ${className}` : 'motion-reveal'}
         data-visible={visible || undefined}
-        style={visible ? undefined : { display: 'none' }}
+        style={visible ? undefined : HIDDEN}
       >
         <Activity mode={visible ? 'visible' : 'hidden'}>
           {shown.current}
@@ -98,3 +96,5 @@ export default function Reveal({
       </div>
     : null;
 }
+
+const HIDDEN = { display: 'none' } as const;
