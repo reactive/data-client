@@ -439,11 +439,13 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 
 /* The Store toggle in the code's corner, over the Store as it slides in
-   under it; its label rises out as the other rises in */
+   under it; its label rises out as the other rises in. Closed, it stays
+   under the fixtures floating over the code: same z-index as theirs, and the
+   preview (with them) comes after the editor in the DOM. */
 .storeBadge {
   --swap-in: 0 110%;
   --swap-out: 0 -110%;
-  z-index: 3;
+  z-index: 1;
   align-self: end;
   justify-self: end;
   margin: 0.75rem;
@@ -459,6 +461,10 @@ div.playgroundTextEdit > .playgroundHeader,
   letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+/* over the Store (z-index 2) from opening until it has slid back out */
+.storeHost:has(> .storePanel[data-visible]) + .storeBadge {
+  z-index: 3;
 }
 .storeBadge:hover {
   background: var(--pg-tab-hover-bg)
@@ -784,6 +790,19 @@ div.playgroundTextEdit > .playgroundHeader,
 .playgroundPreview textarea:where(:not([class])) {
   padding: 0.3rem 0.5rem;
 }
+/* A demo's links between its pages (Link), the one shown marked as current */
+.playgroundPreview nav:where(:not([class])) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-bottom: 0.5rem;
+}
+.playgroundPreview nav a[aria-current='page'] {
+  color: var(--ifm-font-color-base);
+  font-weight: 600;
+  text-decoration: underline 2px var(--ifm-color-primary);
+  text-underline-offset: 0.35em;
+}
 /* Groups a form's fields so one `disabled` locks them all */
 .playgroundPreview fieldset {
   min-width: 0;
@@ -1030,6 +1049,20 @@ div.playgroundTextEdit > .playgroundHeader,
   .fixtureToggle:hover {
     background-color: var(--store-hover);
   }
+}
+/* an error response: a red edge and wash, so it stands apart from the
+   successes at a glance (a wash in background-image, under hover's color) */
+.fixtureError {
+  box-shadow: inset 3px 0 var(--store-null);
+  --fixture-error-wash: color-mix(in srgb, var(--store-null) 10%, transparent);
+  background-image: linear-gradient(
+    var(--fixture-error-wash),
+    var(--fixture-error-wash)
+  );
+}
+.fixtureError .pill.danger {
+  background-color: color-mix(in srgb, var(--store-null) 16%, transparent);
+  font-weight: 600;
 }
 .fixtureToggle:focus-visible {
   outline: 2px solid var(--ifm-color-primary);

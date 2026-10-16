@@ -115,7 +115,7 @@ DesignSystem/       components injected into preview scope
 ### Editor
 
 - Fence metastring: `title="…"`, `path="…"` (quotes optional), `collapsed`, `column`,
-  `route="…"` (see Router), `{1-3}` highlight ranges (pre-selected in Monaco); `language-*` class. Element props
+  `route="…"`, `start="…"` and `layout` (see Router), `{1-3}` highlight ranges (pre-selected in Monaco); `language-*` class. Element props
   override metastring values (Demo passes them directly). `defaultTab`
   overrides `collapsed`.
 - `row` layout: non-`column` files are tabs (focus switches tab); `column`
@@ -301,6 +301,11 @@ DesignSystem/       components injected into preview scope
   the design system; Vue pages use `RouterLink` and `vue-router`'s
   `useRouter()`, and keep the same `route` fences only to name their path
   (Vue examples don't run).
+  A `layout` fence's default export wraps every page as its `children` and
+  stays mounted through navigation (links shared by every page, a clock to
+  compare against); `<Link>` marks the one to the current path
+  `aria-current="page"`. A `start="/time/1"` on a page's fence opens the router
+  there (and Home returns there) instead of `/`.
   Navigation is a transition: the page stays until the next one is ready,
   with a progress bar along the preview's top edge meanwhile, so a page needs
   no `startTransition` of its own. Pages render in a Suspense boundary whose

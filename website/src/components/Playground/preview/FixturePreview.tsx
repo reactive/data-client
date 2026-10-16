@@ -24,7 +24,8 @@ export default memo(FixturePreview);
  * mounts while open */
 function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
   const [open, setOpen] = useState(false);
-  const { method, path, fnName, hint, error, delay } = summarize(fixture);
+  const { method, path, fnName, hint, error, status, delay } =
+    summarize(fixture);
   const delayFn =
     typeof fixture.delay === 'function' ? fixture.delay : undefined;
   // a function's source can differ between the server and browser bundles
@@ -33,7 +34,11 @@ function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
     <div className={styles.fixture}>
       <button
         type="button"
-        className={clsx('clean-btn', styles.fixtureToggle)}
+        className={clsx(
+          'clean-btn',
+          styles.fixtureToggle,
+          error && styles.fixtureError,
+        )}
         aria-expanded={open}
         onClick={() => setOpen(o => !o)}
       >
@@ -59,7 +64,9 @@ function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
         </span>
         {error ?
           <span className={clsx(styles.pill, styles.danger)}>
-            <Translate id="playground.fixtures.error">error</Translate>
+            {status ?? (
+              <Translate id="playground.fixtures.error">error</Translate>
+            )}
           </span>
         : null}
         {delay ?
@@ -99,6 +106,7 @@ const HINT_CHARS = 160;
 export function summarize(fixture: FixtureOrInterceptor) {
   const response = responseOf(fixture);
   const { delay } = fixture;
+  const error = 'error' in fixture && fixture.error === true;
   return {
     ...endpointOf(fixture),
     fnName: 'fn' in response ? response.name : undefined,
@@ -108,9 +116,19 @@ export function summarize(fixture: FixtureOrInterceptor) {
       response.fn.returnedSource
     : (JSON.stringify(response.data) ?? String(response.data))
     )?.slice(0, HINT_CHARS),
-    error: 'error' in fixture && fixture.error === true,
+    error,
+    status: error ? statusOf(response) : undefined,
     delay: delayMs(delay),
   };
+}
+
+/** The HTTP status an error response gives, as `{ status: 404, ... }` */
+function statusOf(response: ReturnType<typeof responseOf>) {
+  if (!('data' in response)) return;
+  const { status } = (response.data ?? {}) as { status?: unknown };
+  // an HTTP error status, not some other number the body names `status`
+  if (typeof status === 'number' && status >= 400 && status < 600)
+    return status;
 }
 
 /** 150, also for a function that always returns 150 (as pinned by

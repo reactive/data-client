@@ -12,6 +12,11 @@ export interface CodeDocument {
   /** Path pattern (`/posts/:id`) the preview's router renders this file's
    * default export at */
   route?: string;
+  /** The path the preview's router opens at, when not `/` */
+  start?: string;
+  /** This file's default export wraps every page of the preview's router,
+   * which renders as its `children` */
+  layout?: boolean;
   language: string;
   autoFocus?: boolean;
 }
@@ -27,6 +32,14 @@ function metaValue(metastring: string, key: string): string | undefined {
     .exec(metastring)
     ?.slice(2)
     .find(value => value !== undefined);
+}
+
+/** A bare `key` flag in a fence metastring, not the word inside another
+ * key's value like `title="Page layout"` or `path=src/layout.tsx` */
+function metaFlag(metastring: string, key: string): boolean {
+  return new RegExp(`(?:^|\\s)${key}(?=\\s|$)`).test(
+    metastring.replace(/\w+=(?:(["']).*?\1|\S+)/g, ''),
+  );
 }
 
 export function parseCodeDocuments(
@@ -69,13 +82,15 @@ export function parseCodeDocuments(
           defaultTab ?
             // Vue SFC tabs are titled `Name.vue`; match them by component name
             title?.replace(/\.vue$/, '') !== defaultTab
-          : /\bcollapsed\b/.test(metastring),
-        col: /\bcolumn\b/.test(metastring),
+          : metaFlag(metastring, 'collapsed'),
+        col: metaFlag(metastring, 'column'),
         path:
           metaValue(metastring, 'path') ||
           (fileBase.includes('.') ? fileBase : `${fileBase}.${extension}`),
         highlights: /\{([\d\-,.]+)\}/.exec(metastring)?.[1],
         route: metaValue(metastring, 'route'),
+        start: metaValue(metastring, 'start'),
+        layout: metaFlag(metastring, 'layout'),
         language,
         // Direct element props (title, path, collapsed, autoFocus) override
         // metastring-derived values — Demo/CodeEditor relies on this.
