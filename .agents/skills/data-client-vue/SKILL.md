@@ -162,7 +162,7 @@ This is useful for websockets, SSE, logging, etc. Pass them to `DataClientPlugin
 - **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill. Pass ids/args as props, not fetched data; components binding the same endpoint and args share one fetch and one cache entry
 - **Don't hide data bindings inside custom composables**: wrapping them obfuscates a component's data dependencies and couples data logic to view code, causing drift. Put tightly coupled data transformations in a `Query` schema (with the data model, e.g. `src/resources/`) so they stay reusable and evolve independently of views
 - Don't copy results into `ref()`/`reactive()` state; render the returned refs directly so updates flow through
-- Don't treat a cache miss as "doesn't exist": `useCache`/`useQuery` return `undefined` for anything not yet fetched or set this session, and a deep link or refresh starts empty. Read required data with `useSuspense`/`useDLE`; use `useCache`/`useQuery` only for data another binding guarantees, or when "loaded yet?" is the question (e.g. auth state)
+- Don't treat a cache miss as "doesn't exist": `useCache`/`useQuery` return `undefined` for anything not yet fetched or set this session, and a deep link or refresh starts empty. Read required data with `useSuspense`/`useDLE`; use `useCache`/`useQuery` only for data another binding guarantees, or when "loaded yet?" is the question
 - For tests, apply the skill "data-client-vue-testing"
 
 # References

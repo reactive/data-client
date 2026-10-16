@@ -28,8 +28,9 @@ const post = use(postPromise);
 const comments = use(commentsPromise);
 ```
 
-Sequential `useSuspense` calls waterfall (each suspends before the next starts its fetch); for 2+
-endpoints in one component, use `useFetch` + `use()` as above.
+Sequential `useSuspense` calls waterfall (each suspends before the next starts its fetch). For 2+
+endpoints in one component, call `useFetch` for each first so all requests start, then `use()` each
+promise as above (React 19+), or call `useSuspense` for each (older React; it reuses the in-flight requests).
 
 For API definitions (like TodoResource), apply the skill "data-client-rest".
 
@@ -99,7 +100,7 @@ ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 |---|---|
 | You already have the new value | `ctrl.set()` / `ctrl.setResponse()` - no network |
 | One known endpoint+args, keep showing current data | `ctrl.fetch(endpoint, args)` |
-| Every cached args of an endpoint, keep showing current data | `ctrl.expireAll(endpoint)` |
+| Every cached args of an endpoint, keep showing current data | `ctrl.expireAll(endpoint)` - only fetching hooks (`useSuspense`/`useDLE`/`useLive`) refetch; `useCache`/`useQuery` don't |
 | Showing the current data would be wrong | `ctrl.invalidate()` / `ctrl.invalidateAll()` - mounted `useSuspense` suspends |
 
 Write many entities without a fetch with one `ctrl.set([Entity], rows)`. Never loop `ctrl.set(Entity, args, row)` per row, and never add an endpoint or `setResponse()` just to batch.
@@ -152,7 +153,7 @@ several components need the stream or it must outlive the component.
 
 ## Common Mistakes to Avoid
 
-- **Treating a cache miss as "doesn't exist"**: `useCache`/`useQuery` return `undefined` for anything not yet fetched or set this session, and a deep link or refresh starts empty. Read required data with `useSuspense`/`useDLE`; use `useCache`/`useQuery` only for data another binding guarantees, or when "loaded yet?" is the question (e.g. auth state).
+- **Treating a cache miss as "doesn't exist"**: `useCache`/`useQuery` return `undefined` for anything not yet fetched or set this session, and a deep link or refresh starts empty. Read required data with `useSuspense`/`useDLE`; use `useCache`/`useQuery` only for data another binding guarantees, or when "loaded yet?" is the question.
 - **`useEffect` + `ctrl.fetch` (+ `useState`) to load data**: it ignores staleness (refetches on every effect run) and the copied state stops tracking the store. Read with a binding hook; call `ctrl.fetch` from event handlers.
 - **`useSuspense` in persistent chrome outside every `AsyncBoundary`** (nav, header, breadcrumbs): it suspends up to the root and blanks the whole shell. Use `useDLE` or `useCache` there.
 - **Expecting `AsyncBoundary` to clear its error when a prop changes**: error state doesn't reset when props change; it resets on `listen` or `resetErrorBoundary`. When the boundary's content switches by prop (selected id), add `key={id}` to the boundary.
