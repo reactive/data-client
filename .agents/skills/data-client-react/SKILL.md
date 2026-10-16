@@ -99,7 +99,7 @@ ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 |---|---|
 | You already have the new value | `ctrl.set()` / `ctrl.setResponse()` - no network |
 | One known endpoint+args, keep showing current data | `ctrl.fetch(endpoint, args)` |
-| Every mounted binding of an endpoint, keep showing current data | `ctrl.expireAll(endpoint)` |
+| Every cached args of an endpoint, keep showing current data | `ctrl.expireAll(endpoint)` |
 | Showing the current data would be wrong | `ctrl.invalidate()` / `ctrl.invalidateAll()` - mounted `useSuspense` suspends |
 
 Write many entities without a fetch with one `ctrl.set([Entity], rows)`. Never loop `ctrl.set(Entity, args, row)` per row, and never add an endpoint or `setResponse()` just to batch.
@@ -153,7 +153,7 @@ several components need the stream or it must outlive the component.
 ## Common Mistakes to Avoid
 
 - **Treating a cache miss as "doesn't exist"**: `useCache`/`useQuery` return `undefined` for anything not yet fetched or set this session, and a deep link or refresh starts empty. Read required data with `useSuspense`/`useDLE`; use `useCache`/`useQuery` only for data another binding guarantees, or when "loaded yet?" is the question (e.g. auth state).
-- **`useEffect` + `ctrl.fetch` (+ `useState`) to load data**: it skips deduplication, staleness and store subscription, and the copied state goes stale. Read with a binding hook; call `ctrl.fetch` from event handlers.
+- **`useEffect` + `ctrl.fetch` (+ `useState`) to load data**: it ignores staleness (refetches on every effect run) and the copied state stops tracking the store. Read with a binding hook; call `ctrl.fetch` from event handlers.
 - **`useSuspense` in persistent chrome outside every `AsyncBoundary`** (nav, header, breadcrumbs): it suspends up to the root and blanks the whole shell. Use `useDLE` or `useCache` there.
 - **Expecting `AsyncBoundary` to clear its error when a prop changes**: error state doesn't reset when props change; it resets on `listen` or `resetErrorBoundary`. When the boundary's content switches by prop (selected id), add `key={id}` to the boundary.
 - **Building lookup `Map`s from list results**: use [Entity.indexes](https://dataclient.io/rest/api/Entity#indexes) or a `Query` (skill "data-client-schema"). In event handlers, read a `Query` with `ctrl.get(query, args, ctrl.getState())` instead of rescanning a fetched list.
