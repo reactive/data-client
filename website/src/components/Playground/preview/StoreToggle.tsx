@@ -12,8 +12,9 @@ import StoreIcon from '../StoreIcon';
 import styles from '../styles.module.css';
 
 /** Store open state, persisted per `groupId`; toggling keeps the page from
- * scrolling. `show` opens or closes it for a demo without persisting, until
- * the reader toggles it (or `show(null)`). */
+ * scrolling, also as each Store it closes leaves the layout (`heldToggle`).
+ * `show` opens or closes it for a demo without persisting, until the reader
+ * toggles it (or `show(null)`). */
 export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   const [choice, setChoice] = useTabStorage(groupId);
   const [shown, show] = useState<boolean | null>(null);
@@ -23,7 +24,8 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
     useScrollPositionBlocker();
   const toggle = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
-      blockElementScrollPositionUntilNextRender(event.currentTarget);
+      clicked = event.currentTarget;
+      blockElementScrollPositionUntilNextRender(clicked);
       setChoice(open ? 'n' : 'y');
       show(null);
     },
@@ -31,6 +33,12 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   );
   return [open, toggle, show] as const;
 }
+
+// one for the page: closing a Store closes every playground's in its group
+let clicked: HTMLElement | undefined;
+/** The Store toggle the reader clicked last, while on the page: held in place
+ * on screen as the Stores it closed slide out and leave the layout */
+export const heldToggle = () => (clicked?.isConnected ? clicked : undefined);
 
 /** Toggle row; also rendered (inert) by the preview loading fallback in ../index.tsx */
 export function StoreToggle({

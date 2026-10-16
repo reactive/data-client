@@ -93,6 +93,8 @@ const projects = [
         '<rootDir>/website/src/components/Playground/testing/docusaurusTranslate.tsx',
       '^@docusaurus/theme-common$':
         '<rootDir>/website/src/components/Playground/testing/docusaurusThemeCommon.ts',
+      '^@docusaurus/theme-common/internal$':
+        '<rootDir>/website/src/components/Playground/testing/docusaurusThemeCommonInternal.ts',
       '^@docusaurus/BrowserOnly$':
         '<rootDir>/website/src/components/Playground/testing/docusaurusBrowserOnly.tsx',
       '^@docusaurus/useIsBrowser$':

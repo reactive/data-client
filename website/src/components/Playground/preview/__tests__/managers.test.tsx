@@ -16,15 +16,6 @@ jest.mock('../../DesignSystem/Loading', () => ({ Loading: () => null }));
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
 }));
-jest.mock(
-  '@docusaurus/theme-common/internal',
-  () => ({
-    useScrollPositionBlocker: () => ({
-      blockElementScrollPositionUntilNextRender: () => {},
-    }),
-  }),
-  { virtual: true },
-);
 
 /** Each manager reports its lifecycle to `log` under its label */
 const log: string[] = [];

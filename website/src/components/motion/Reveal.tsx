@@ -1,3 +1,4 @@
+import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
 import React, {
   Activity,
   useCallback,
@@ -19,16 +20,21 @@ import { useMember, useWillGlide } from './MotionGroup';
  *
  * It slides over its siblings; clip it with `overflow: hidden` on an ancestor.
  * `data-visible` marks it from showing until its exit finishes, for styles
- * that should hold through the slide out.
+ * that should hold through the slide out. Leaving the layout then can move
+ * the page, so `hold` names an element (say, the toggle that closed it) to
+ * keep in place on screen.
  */
 export default function Reveal({
   show,
   className,
+  hold,
   children,
 }: {
   show: boolean;
   /** Layout of the sliding box: it is the flex item; its children fill it */
   className?: string;
+  /** Element kept in place on screen as this leaves the layout */
+  hold?: () => HTMLElement | undefined;
   children: React.ReactNode;
 }) {
   const [visible, setVisible] = useState(show);
@@ -43,6 +49,8 @@ export default function Reveal({
   if (show) shown.current = children;
   const memberRef = useMember({ exiting: !show });
   const willGlide = useWillGlide();
+  const { blockElementScrollPositionUntilNextRender } =
+    useScrollPositionBlocker();
   const el = useRef<HTMLDivElement | null>(null);
   const ref = useCallback(
     (node: HTMLDivElement | null) => {
@@ -63,21 +71,30 @@ export default function Reveal({
     let reopened = false;
     // the group starts its glide later in this commit
     queueMicrotask(() =>
-      settled(node).then(() => reopened || setVisible(false)),
+      settled(node).then(() => {
+        if (reopened) return;
+        const held = hold?.();
+        if (held) blockElementScrollPositionUntilNextRender(held);
+        setVisible(false);
+      }),
     );
     return () => {
       reopened = true;
     };
-  }, [show, willGlide]);
+  }, [show, willGlide, hold, blockElementScrollPositionUntilNextRender]);
+  // the box stays outside the <Activity>, whose hidden contents only update
+  // later: hidden, it leaves the layout in this commit, as `hold` expects. It
+  // leaves the group while hidden, so it slides back in from the end.
   return mounted ?
-      <Activity mode={visible ? 'visible' : 'hidden'}>
-        <div
-          ref={ref}
-          className={className ? `motion-reveal ${className}` : 'motion-reveal'}
-          data-visible={visible || undefined}
-        >
+      <div
+        ref={visible ? ref : undefined}
+        className={className ? `motion-reveal ${className}` : 'motion-reveal'}
+        data-visible={visible || undefined}
+        style={visible ? undefined : { display: 'none' }}
+      >
+        <Activity mode={visible ? 'visible' : 'hidden'}>
           {shown.current}
-        </div>
-      </Activity>
+        </Activity>
+      </div>
     : null;
 }
