@@ -126,7 +126,9 @@ export function summarize(fixture: FixtureOrInterceptor) {
 function statusOf(response: ReturnType<typeof responseOf>) {
   if (!('data' in response)) return;
   const { status } = (response.data ?? {}) as { status?: unknown };
-  if (typeof status === 'number') return status;
+  // an HTTP error status, not some other number the body names `status`
+  if (typeof status === 'number' && status >= 400 && status < 600)
+    return status;
 }
 
 /** 150, also for a function that always returns 150 (as pinned by

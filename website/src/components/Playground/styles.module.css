@@ -1054,13 +1054,14 @@ div.playgroundTextEdit > .playgroundHeader,
    successes at a glance (a wash in background-image, under hover's color) */
 .fixtureError {
   box-shadow: inset 3px 0 var(--store-null);
+  --fixture-error-wash: color-mix(in srgb, var(--store-null) 10%, transparent);
   background-image: linear-gradient(
-    rgba(255, 88, 116, 0.1),
-    rgba(255, 88, 116, 0.1)
+    var(--fixture-error-wash),
+    var(--fixture-error-wash)
   );
 }
 .fixtureError .pill.danger {
-  background-color: rgba(255, 88, 116, 0.16);
+  background-color: color-mix(in srgb, var(--store-null) 16%, transparent);
   font-weight: 600;
 }
 .fixtureToggle:focus-visible {

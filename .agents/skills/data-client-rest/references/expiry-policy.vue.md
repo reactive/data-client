@@ -75,10 +75,7 @@ export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 <template>
   <div>
     API time for {{ id }}:
-    <time
-      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
-      }}</time
-    >
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```
@@ -108,10 +105,16 @@ export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 Long cache lifetime
 
 ```typescript title="LongLivingResource.ts"
-import { RestEndpoint, RestGenerics, resource } from '@data-client/rest';
+import {
+  RestEndpoint,
+  RestGenerics,
+  resource,
+} from '@data-client/rest';
 
 // We can now use LongLivingEndpoint to create endpoints that will be cached for one hour
-class LongLivingEndpoint<O extends RestGenerics> extends RestEndpoint<O> {
+class LongLivingEndpoint<
+  O extends RestGenerics,
+> extends RestEndpoint<O> {
   dataExpiryLength = 60 * 60 * 1000; // one hour
 }
 
@@ -124,10 +127,16 @@ const LongLivingResource = resource({
 Never retry on error
 
 ```typescript title="NoRetryResource.ts"
-import { RestEndpoint, RestGenerics, resource } from '@data-client/rest';
+import {
+  RestEndpoint,
+  RestGenerics,
+  resource,
+} from '@data-client/rest';
 
 // We can now use NoRetryEndpoint to create endpoints that will be cached for one hour
-class NoRetryEndpoint<O extends RestGenerics> extends RestEndpoint<O> {
+class NoRetryEndpoint<
+  O extends RestGenerics,
+> extends RestEndpoint<O> {
   errorExpiryLength = Infinity;
 }
 
@@ -189,10 +198,7 @@ export const getUpdated = lastUpdated.extend({
 <template>
   <div>
     API time for {{ id }}:
-    <time
-      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
-      }}</time
-    >
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```
@@ -254,10 +260,7 @@ export const lastUpdated = new RestEndpoint({
 
 <template>
   <div>
-    <time
-      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
-      }}</time
-    >
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
     <button @click="ctrl.fetch(lastUpdated, { id: '1' })">Refresh</button>
   </div>
 </template>
@@ -297,11 +300,7 @@ export const lastUpdated = new RestEndpoint({
 
 <template>
   <div>
-    <b>{{ id }}</b>
-    <time
-      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
-      }}</time
-    >
+    <b>{{ id }}</b> <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```
@@ -373,11 +372,7 @@ export const lastUpdated = new RestEndpoint({
 
 <template>
   <div>
-    <b>{{ id }}</b>
-    <time
-      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
-      }}</time
-    >
+    <b>{{ id }}</b> <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```
@@ -398,9 +393,7 @@ export const lastUpdated = new RestEndpoint({
       <template #fallback><div>{{ id }} Loading...</div></template>
     </Suspense>
 
-    <button @click="ctrl.invalidateAll(lastUpdated)">
-      Invalidate All
-    </button>
+    <button @click="ctrl.invalidateAll(lastUpdated)">Invalidate All</button>
     <button @click="ctrl.invalidate(lastUpdated, { id: '1' })">
       Invalidate First
     </button>
@@ -444,10 +437,7 @@ export const lastUpdated = new RestEndpoint({
 <template>
   <div>
     API time for {{ id }}:
-    <time
-      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
-      }}</time
-    >
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```

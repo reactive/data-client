@@ -156,10 +156,7 @@ export default function Navigator({ children }) {
 <template>
   <div>
     API time for {{ id }}:
-    <time
-      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
-      }}</time
-    >
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```
@@ -192,10 +189,16 @@ export default function Navigator({ children }) {
 Long cache lifetime
 
 ```typescript title="LongLivingResource.ts"
-import { RestEndpoint, RestGenerics, resource } from '@data-client/rest';
+import {
+  RestEndpoint,
+  RestGenerics,
+  resource,
+} from '@data-client/rest';
 
 // We can now use LongLivingEndpoint to create endpoints that will be cached for one hour
-class LongLivingEndpoint<O extends RestGenerics> extends RestEndpoint<O> {
+class LongLivingEndpoint<
+  O extends RestGenerics,
+> extends RestEndpoint<O> {
   dataExpiryLength = 60 * 60 * 1000; // one hour
 }
 
@@ -208,10 +211,16 @@ const LongLivingResource = resource({
 Never retry on error
 
 ```typescript title="NoRetryResource.ts"
-import { RestEndpoint, RestGenerics, resource } from '@data-client/rest';
+import {
+  RestEndpoint,
+  RestGenerics,
+  resource,
+} from '@data-client/rest';
 
 // We can now use NoRetryEndpoint to create endpoints that will be cached for one hour
-class NoRetryEndpoint<O extends RestGenerics> extends RestEndpoint<O> {
+class NoRetryEndpoint<
+  O extends RestGenerics,
+> extends RestEndpoint<O> {
   errorExpiryLength = Infinity;
 }
 
@@ -328,10 +337,7 @@ export default function Navigator({ children }) {
 <template>
   <div>
     API time for {{ id }}:
-    <time
-      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
-      }}</time
-    >
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```
@@ -441,10 +447,7 @@ render(<ShowTime />);
 
 <template>
   <div>
-    <time
-      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
-      }}</time
-    >
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
     <button @click="ctrl.fetch(lastUpdated, { id: '1' })">Refresh</button>
   </div>
 </template>
@@ -568,11 +571,7 @@ render(<Demo />);
 
 <template>
   <div>
-    <b>{{ id }}</b>
-    <time
-      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
-      }}</time
-    >
+    <b>{{ id }}</b> <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```
@@ -708,7 +707,9 @@ function Demo() {
       <button onClick={() => ctrl.invalidateAll(lastUpdated)}>
         Invalidate All
       </button>
-      <button onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}>
+      <button
+        onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}
+      >
         Invalidate First
       </button>
     </div>
@@ -732,11 +733,7 @@ render(<Demo />);
 
 <template>
   <div>
-    <b>{{ id }}</b>
-    <time
-      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
-      }}</time
-    >
+    <b>{{ id }}</b> <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```
@@ -757,9 +754,7 @@ render(<Demo />);
       <template #fallback><div>{{ id }} Loading...</div></template>
     </Suspense>
 
-    <button @click="ctrl.invalidateAll(lastUpdated)">
-      Invalidate All
-    </button>
+    <button @click="ctrl.invalidateAll(lastUpdated)">Invalidate All</button>
     <button @click="ctrl.invalidate(lastUpdated, { id: '1' })">
       Invalidate First
     </button>
@@ -843,11 +838,7 @@ export default function TimePage({ id }) {
 
 ```tsx title="ShowTime"
 import { Invalidate, RestEndpoint } from '@data-client/rest';
-import {
-  AsyncBoundary,
-  useController,
-  useLoading,
-} from '@data-client/react';
+import { AsyncBoundary, useController, useLoading } from '@data-client/react';
 import { TimedEntity } from './api/lastUpdated';
 import TimePage from './TimePage';
 
@@ -877,7 +868,11 @@ function ShowTime() {
       </button>
       <button
         onClick={() =>
-          ctrl.setResponse(deleteLastUpdated, { id: '1' }, { id: '1' })
+          ctrl.setResponse(
+            deleteLastUpdated,
+            { id: '1' },
+            { id: '1' },
+          )
         }
       >
         Invalidate (without fetching DELETE)
@@ -909,10 +904,7 @@ render(<ShowTime />);
 <template>
   <div>
     API time for {{ id }}:
-    <time
-      >{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' })
-      }}</time
-    >
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```
@@ -968,7 +960,7 @@ when we want to change the local store directly.
 
 #### Conditional Invalidation based on data
 
-If `invalidation` should happen only sometimes, based on the response data, we can
+If `invalidation` should happen only sometimes, based on the response data, we can 
 return `undefined` from [Entity.process](/rest/api/Entity#process).
 
 ```ts

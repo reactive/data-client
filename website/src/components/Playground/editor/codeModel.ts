@@ -82,7 +82,8 @@ export function parseCodeDocuments(
         highlights: /\{([\d\-,.]+)\}/.exec(metastring)?.[1],
         route: metaValue(metastring, 'route'),
         start: metaValue(metastring, 'start'),
-        layout: /\blayout\b/.test(metastring),
+        // a bare flag: not the word inside a quoted title, path or route
+        layout: /\blayout\b/.test(metastring.replace(/(["']).*?\1/g, '')),
         language,
         // Direct element props (title, path, collapsed, autoFocus) override
         // metastring-derived values — Demo/CodeEditor relies on this.
