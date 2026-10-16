@@ -247,7 +247,7 @@ export default function LoadMore() {
 
 Do not [prop drill](https://react.dev/learn/passing-data-deeply-with-context#the-problem-with-passing-props). Instead, [useSuspense()](../api/useSuspense.md) in the components that render the data from it. This is
 known as _data co-location_. Pass identity like ids as props rather than threading fetched data
-through components that don't render it; components that ask for the same endpoint and arguments
+through components that don't render it (a list passing each item to its row is fine); components that ask for the same endpoint and arguments
 share one fetch and one copy in the store.
 
 Do not hide data binding hooks inside custom hooks. Instead, put tightly coupled data transformations

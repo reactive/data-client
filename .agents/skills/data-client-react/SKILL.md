@@ -148,7 +148,7 @@ several components need the stream or it must outlive the component.
 - [useDebounce(query, timeout)](references/useDebounce.md) when rendering async data based on user field inputs
 - [[handleSubmit, loading, error] = useLoading()](references/useLoading.md) when tracking async mutations
 - Prefer smaller React components that do one thing
-- **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill. Pass ids/args as props instead of threading fetched data through components that don't render it; components binding the same endpoint and args share one fetch and one cache entry
+- **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill. Pass ids/args as props instead of threading fetched data through components that don't render it (a list passing each item to its row is fine); components binding the same endpoint and args share one fetch and one cache entry
 - **Don't hide data bindings inside custom hooks**: wrapping them obfuscates a component's data dependencies and couples data logic to view code, causing drift. Put tightly coupled data transformations in a `Query` schema (with the data model, e.g. `src/resources/`) so they stay reusable and evolve independently of views
 - For tests, apply the skill "data-client-react-testing"
 
