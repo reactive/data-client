@@ -22,7 +22,7 @@ endpoint it was used in.
 
 <PosterVideo
   poster={useBaseUrl('/videos/docs/normalization-poster.jpg')}
-  duration="1:54"
+  duration="1:46"
   volume={0.5}
   alt="Two endpoints return three copies of the same user. Normalization stores each entity once in a table keyed by id, denormalization follows the ids to rebuild each response, and one rename updates every view. Renaming one user with 10,000 rows on screen rebuilds 30 objects instead of 10,000."
 >
