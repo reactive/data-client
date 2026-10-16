@@ -135,13 +135,15 @@ export default class DevToolsManager implements Manager {
   protected started = false;
   protected actions: [ActionTypes, State<unknown>][] = [];
   /** Recent actions, kept in development whether or not the extension is connected */
-  protected actionLog: ActionTypes[] = [];
+  declare protected actionLog: ActionTypes[];
   /** Key this controller is registered under in `__DC_CONTROLLERS__` and `__DC_ACTIONS__` */
   declare protected registryKey?: string;
   /** Subscriber count for each key that is polling; a key is removed when its count reaches 0 */
-  protected pollingSubscribers = new Map<string, number>();
-  /** Actions kept in the log for each key while it polls */
-  maxPollingActions = 4;
+  declare protected pollingSubscribers: Map<string, number>;
+  /** Actions kept in the log for each key while it polls (development only) */
+  declare maxPollingActions: number;
+  declare protected trackPolling: (action: ActionTypes) => void;
+  declare protected logAction: (action: ActionTypes) => void;
   declare protected controller: Controller;
   declare skipLogging?: (action: ActionTypes) => boolean;
   declare devtoolsName: string;
@@ -162,14 +164,50 @@ export default class DevToolsManager implements Manager {
     // we cut it in half so we should double so we don't lose
     if (config?.maxAge) this.maxBufferLength = config.maxAge * 2;
     if (skipLogging) this.skipLogging = skipLogging;
-    if (config?.maxPollingActions)
-      this.maxPollingActions = config.maxPollingActions;
+    if (process.env.NODE_ENV !== 'production') {
+      this.actionLog = [];
+      this.pollingSubscribers = new Map();
+      this.maxPollingActions = config?.maxPollingActions || 4;
+    }
   }
 
   static {
     /* istanbul ignore if */
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'production') {
+      /** Counts polling subscribers per key, even for actions skipLogging hides */
+      this.prototype.trackPolling = function (action) {
+        if (
+          (action.type === SUBSCRIBE || action.type === UNSUBSCRIBE) &&
+          action.endpoint.pollFrequency !== undefined
+        ) {
+          const count =
+            (this.pollingSubscribers.get(action.key) ?? 0) +
+            (action.type === SUBSCRIBE ? 1 : -1);
+          if (count > 0) this.pollingSubscribers.set(action.key, count);
+          else this.pollingSubscribers.delete(action.key);
+        }
+      };
+      /** Keeps `__DC_ACTIONS__` small: polling keys keep only their latest actions,
+       * and all but the newest actions drop their payloads.
+       */
+      this.prototype.logAction = function (action) {
+        const log = this.actionLog;
+        const key = (action as { key?: string }).key;
+        if (key !== undefined && this.pollingSubscribers.has(key)) {
+          // drop all but the newest maxPollingActions - 1, making room for this one
+          for (let i = log.length - 1, seen = 0; i >= 0; i--) {
+            if (
+              (log[i] as { key?: string }).key === key &&
+              ++seen >= this.maxPollingActions
+            )
+              log.splice(i, 1);
+          }
+        }
+        pushCapped(log, action, this.maxBufferLength);
+        const old = log.length - 1 - FULL_ACTIONS;
+        if (old >= 0) log[old] = summarize(log[old]);
+      };
       this.prototype.middleware = function (controller) {
         // a reused manager starts a fresh log for a new store
         if (controller !== this.controller) this.actionLog = [];
@@ -198,41 +236,6 @@ export default class DevToolsManager implements Manager {
     } else {
       this.prototype.middleware = () => next => action => next(action);
     }
-  }
-
-  /** Counts polling subscribers per key, even for actions skipLogging hides */
-  protected trackPolling(action: ActionTypes) {
-    if (
-      (action.type === SUBSCRIBE || action.type === UNSUBSCRIBE) &&
-      action.endpoint.pollFrequency !== undefined
-    ) {
-      const count =
-        (this.pollingSubscribers.get(action.key) ?? 0) +
-        (action.type === SUBSCRIBE ? 1 : -1);
-      if (count > 0) this.pollingSubscribers.set(action.key, count);
-      else this.pollingSubscribers.delete(action.key);
-    }
-  }
-
-  /** Keeps `__DC_ACTIONS__` small: polling keys keep only their latest actions,
-   * and all but the newest actions drop their payloads.
-   */
-  protected logAction(action: ActionTypes) {
-    const log = this.actionLog;
-    const key = (action as { key?: string }).key;
-    if (key !== undefined && this.pollingSubscribers.has(key)) {
-      // drop all but the newest maxPollingActions - 1, making room for this one
-      for (let i = log.length - 1, seen = 0; i >= 0; i--) {
-        if (
-          (log[i] as { key?: string }).key === key &&
-          ++seen >= this.maxPollingActions
-        )
-          log.splice(i, 1);
-      }
-    }
-    pushCapped(log, action, this.maxBufferLength);
-    const old = log.length - 1 - FULL_ACTIONS;
-    if (old >= 0) log[old] = summarize(log[old]);
   }
 
   handleAction(action: any, state: any) {

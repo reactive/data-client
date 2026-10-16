@@ -1,4 +1,5 @@
 import { Controller, initialState } from '../..';
+import type { ActionTypes } from '../..';
 import {
   FETCH,
   RESET,
@@ -153,18 +154,18 @@ describe('DevToolsManager', () => {
   });
 
   describe('polling', () => {
-    function pollingDispatch() {
-      const manager = new DevToolsManager({
-        name: 'App',
-        maxPollingActions: 2,
-      });
+    function pollingSetup(skipLogging?: (action: ActionTypes) => boolean) {
+      const manager = new DevToolsManager(
+        { name: 'App', maxPollingActions: 2 },
+        skipLogging,
+      );
       const { dispatch } = setup(manager);
       manager.init(initialState);
-      return dispatch;
+      return { manager, dispatch };
     }
 
     it('keeps only the latest maxPollingActions for a polling key', () => {
-      const dispatch = pollingDispatch();
+      const { dispatch } = pollingSetup();
       dispatch(subscribe('a'));
       dispatch(subscribe('a'));
       dispatch(setAction(0));
@@ -184,7 +185,7 @@ describe('DevToolsManager', () => {
     });
 
     it('trims actions logged before polling started', () => {
-      const dispatch = pollingDispatch();
+      const { dispatch } = pollingSetup();
       for (let i = 1; i <= 3; i++) {
         dispatch(fetchAction('a', i));
         dispatch(responseAction('a', i));
@@ -199,7 +200,7 @@ describe('DevToolsManager', () => {
     });
 
     it('holds the cap across unsubscribe and resubscribe', () => {
-      const dispatch = pollingDispatch();
+      const { dispatch } = pollingSetup();
       for (let cycle = 0; cycle < 3; cycle++) {
         dispatch(subscribe('a'));
         for (let i = 1; i <= 3; i++) {
@@ -221,12 +222,7 @@ describe('DevToolsManager', () => {
     });
 
     it('tracks polling even when skipLogging hides subscribes', () => {
-      const manager = new DevToolsManager(
-        { name: 'App', maxPollingActions: 2 },
-        action => action.type === SUBSCRIBE,
-      );
-      const { dispatch } = setup(manager);
-      manager.init(initialState);
+      const { dispatch } = pollingSetup(action => action.type === SUBSCRIBE);
       dispatch(subscribe('a'));
       for (let i = 1; i <= 3; i++) dispatch(fetchAction('a', i));
       expect(typesAndKeys()).toEqual([
@@ -236,7 +232,7 @@ describe('DevToolsManager', () => {
     });
 
     it('stops capping once every subscriber leaves', () => {
-      const dispatch = pollingDispatch();
+      const { dispatch } = pollingSetup();
       dispatch(subscribe('a'));
       dispatch(subscribe('a'));
       dispatch(unsubscribe('a'));
@@ -253,12 +249,7 @@ describe('DevToolsManager', () => {
     });
 
     it('forgets polling keys on cleanup', () => {
-      const manager = new DevToolsManager({
-        name: 'App',
-        maxPollingActions: 2,
-      });
-      const { dispatch } = setup(manager);
-      manager.init(initialState);
+      const { manager, dispatch } = pollingSetup();
       dispatch(subscribe('a'));
       manager.cleanup();
       manager.init(initialState);
@@ -267,7 +258,7 @@ describe('DevToolsManager', () => {
     });
 
     it('does not cap subscriptions without pollFrequency', () => {
-      const dispatch = pollingDispatch();
+      const { dispatch } = pollingSetup();
       dispatch({ ...subscribe('a'), endpoint: { name: 'live' } });
       for (let i = 1; i <= 3; i++) dispatch(fetchAction('a', i));
       expect(actionLogs().get('App')).toHaveLength(4);
