@@ -139,8 +139,8 @@ available in dev mode.
 
 Custom [Managers](https://dataclient.io/docs/api/Manager) allow for global side effect handling.
 This is useful for websockets, SSE, logging, etc. Always use the skill "data-client-manager" when writing managers.
-Write external event streams (websocket, SSE, workers, timers) into the store with `ctrl.set()`, never into
-React state. A single bridge component may own the listener in an effect (with cleanup); use a Manager when
+Write external events that update server data (websocket, SSE, worker results) into the store with
+`ctrl.set()`, not into React state; ephemeral UI-only streams (a countdown, upload progress) can stay local. A single bridge component may own the listener in an effect (with cleanup); use a Manager when
 several components need the stream or it must outlive the component.
 
 ## Best Practices & Notes
