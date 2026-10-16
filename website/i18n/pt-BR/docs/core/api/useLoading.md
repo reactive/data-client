@@ -206,7 +206,7 @@ da regra [react-hooks/exhaustive-deps](https://www.npmjs.com/package/eslint-plug
 ```typescript
 export default function useLoading<
   F extends (...args: any) => Promise<any>,
->(func: F, deps: readonly any[] = []): [F, boolean, Error | undefined];
+>(func: F, deps: readonly any[] = []): [F, boolean];
 ```
 
 :::
