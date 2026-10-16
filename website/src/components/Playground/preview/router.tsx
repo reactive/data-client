@@ -45,7 +45,10 @@ export function routerTrailer(documents: readonly CodeDocument[]) {
   const start = documents.find(document => document.start)?.start;
   const props = [
     `routes={[${routes.join(', ')}]}`,
-    ...(layout ? [`layout={${exportOf(layout)}}`] : []),
+    // null, unlike a missing layout, reports an unnamed export
+    ...(layout ?
+      [`layout={${defaultExportName(layout.value) ?? 'null'}}`]
+    : []),
     ...(start ? [`start={${JSON.stringify(start)}}`] : []),
   ];
   return `\n;render(<${ROUTER} ${props.join(' ')} />);`;
@@ -97,9 +100,11 @@ export function Router({
   start = '/',
 }: {
   routes: readonly Route[];
-  layout?: ComponentType<{ children: React.ReactNode }>;
+  layout?: ComponentType<{ children: React.ReactNode }> | null;
   start?: string;
 }) {
+  if (Layout === null)
+    throw new Error("The layout must be its file's named default export");
   const [history, setHistory] = useState([start]);
   const [pending, startTransition] = useTransition();
   const navigate = useCallback(

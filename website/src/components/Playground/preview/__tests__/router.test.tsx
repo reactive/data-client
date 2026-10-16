@@ -35,6 +35,17 @@ describe('routerTrailer', () => {
     );
   });
 
+  test('passes null for a layout without a named default export', () => {
+    expect(
+      routerTrailer([
+        doc('export default function Page() {}', '/'),
+        { ...doc('export default () => null;'), layout: true },
+      ]),
+    ).toBe(
+      '\n;render(<__PlaygroundRouter routes={[["/", Page]]} layout={null} />);',
+    );
+  });
+
   test('passes the layout and start path', () => {
     expect(
       routerTrailer([
