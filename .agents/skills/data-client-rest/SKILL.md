@@ -165,7 +165,7 @@ export const IssueResource = resource({
 
 - Don't use `resource()` when mutation endpoints are not used or needed
 - Don't override `fetch` to change requests or responses; it replaces the whole lifecycle above. Override `getHeaders()`/`getRequestInit()` or `parseResponse()`/`process()`
-- `pollFrequency` polls only while subscribed (`useLive`/`useSubscription`). Subscribers to the same endpoint and args share one poll at the fastest frequency, so `.extend({ pollFrequency })` on one view also changes it for the others
+- `pollFrequency` polls only while subscribed (`useLive`/`useSubscription`). Subscribers to the same endpoint and args share one poll at the fastest frequency, so a faster `.extend({ pollFrequency })` on one view speeds up the others too
 
 # References
 
