@@ -10,86 +10,83 @@ Debug `@data-client/vue` state and actions programmatically via [Chrome DevTools
 2. Chrome DevTools MCP connected and page loaded
 3. `DevToolsManager` included in `DataClientPlugin` managers (default in dev mode)
 
-## Step 1: Access the Controller
+## Step 1: Install the Debug Shim
+
+Run this after each page load (a reload clears it). It picks a controller, exposes it as
+`__DC_CTRL__` for every later snippet, and wraps dispatch to record actions in `__DC_ACTION_LOG__`.
+Rerunning it is safe. A `ReferenceError` for either global means the shim is not installed.
 
 `DevToolsManager` registers controllers in `globalThis.__DC_CONTROLLERS__` keyed by
-`devtoolsName` — defaults to `"Data Client: <page title>"`.
-
-### Discover available controllers
-
-```js
-// evaluate_script
-() => {
-  const m = globalThis.__DC_CONTROLLERS__;
-  if (!m || m.size === 0) return 'no controllers registered';
-  return [...m.keys()];
-}
-```
-
-### Get a controller by key
-
-Use the key from discovery. Always use `.get(devtoolsName)` with the actual key — not `.values().next().value` — so you target the correct store when multiple Vue apps exist. The snippets below use the first controller for brevity.
-
-```js
-// evaluate_script
-() => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.get('Data Client: My App');
-  if (!ctrl) return 'not found';
-  return { ok: true, stateKeys: Object.keys(ctrl.getState()) };
-}
-```
-
-## Step 2: Install the Debug Shim
-
-Run this **once** after the page loads. It wraps dispatch to capture all actions in a circular buffer.
+`devtoolsName`, which defaults to `"Data Client: <page title>"`. With a single controller, leave `NAME`
+unset. With several, the shim returns their keys; rerun it with `NAME` set to the one to target.
+Apps sharing the default name overwrite each other, so give each a distinct
+[`name`](https://dataclient.io/vue/api/DevToolsManager) to inspect them separately.
 
 ```js
 // evaluate_script
 (() => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  if (!ctrl) return { error: 'No controller found' };
+  const NAME = undefined;
+  const controllers = globalThis.__DC_CONTROLLERS__;
+  if (!controllers?.size) return { error: 'No controllers registered' };
+  if (!NAME && controllers.size > 1)
+    return { error: 'Set NAME to one of', keys: [...controllers.keys()] };
+  const ctrl = NAME ? controllers.get(NAME) : controllers.values().next().value;
+  if (!ctrl) return { error: 'Controller not found', keys: [...controllers.keys()] };
 
-  globalThis.__DC_ACTION_LOG__ = [];
+  if (globalThis.__DC_CTRL__ !== ctrl) globalThis.__DC_ACTION_LOG__ = [];
+  globalThis.__DC_CTRL__ = ctrl;
+  // dispatch is rebound if the middleware chain is rebuilt, so check the wrapper, not the alias
+  if (ctrl._dispatch.__dcDebugShim) return { ok: true, alreadyInstalled: true };
+
   const MAX_LOG = 200;
+  const origDispatch = ctrl._dispatch;
+  const shim = (action) => {
+    if (globalThis.__DC_CTRL__ === ctrl) {
+      const entry = { type: action.type, key: action.key, ts: Date.now() };
+      if (action.endpoint) entry.endpoint = action.endpoint.name || action.endpoint.key;
+      if (action.args) entry.args = action.args;
+      if (action.meta?.date) entry.date = action.meta.date;
+      if (action.error) entry.error = action.response?.message || true;
 
-  const origDispatch = ctrl._dispatch.bind(ctrl);
-  ctrl._dispatch = (action) => {
-    const entry = {
-      type: action.type,
-      key: action.key,
-      ts: Date.now(),
-    };
-
-    if (action.endpoint) entry.endpoint = action.endpoint.name || action.endpoint.key;
-    if (action.args) entry.args = JSON.parse(JSON.stringify(action.args));
-    if (action.meta?.date) entry.date = action.meta.date;
-    if (action.error) entry.error = true;
-
-    globalThis.__DC_ACTION_LOG__.push(entry);
-    if (globalThis.__DC_ACTION_LOG__.length > MAX_LOG) {
-      globalThis.__DC_ACTION_LOG__ = globalThis.__DC_ACTION_LOG__.slice(-MAX_LOG / 2);
+      const log = globalThis.__DC_ACTION_LOG__;
+      log.push(entry);
+      if (log.length > MAX_LOG) globalThis.__DC_ACTION_LOG__ = log.slice(-MAX_LOG / 2);
     }
-
     return origDispatch(action);
   };
+  shim.__dcDebugShim = true;
+  ctrl._dispatch = shim;
 
   return { ok: true, stateKeys: Object.keys(ctrl.getState()) };
 })()
 ```
 
-## Step 3: Read State
+### Gotchas
+
+- **Actions from before the shim are not logged**, including the fetches made while the page
+  loaded. For a load-time problem, read the outcome from state (`meta` has each key's `date`,
+  `expiresAt` and `error`; see Step 2) and the requests from `list_network_requests`. To watch the
+  fetches happen, install the shim, then repeat them with `invalidateAll` (Step 4) or an in-app
+  navigation; a reload clears the shim.
+- **Rerun Step 1 when the log stops growing or the data looks stale.** Nothing errors when
+  the app is created again (for example on a hot reload of the module that calls `createApp`), which makes a new controller.
+
+## Step 2: Read State
 
 ### High-level queries (denormalized, schema-aware)
 
-Controller provides `getResponse`, `getError`, and `get` that denormalize through schemas — pass `ctrl.getState()` as the last argument.
+Controller provides `getResponse`, `getError`, and `get` that denormalize through schemas — pass `__DC_CTRL__.getState()` as the last argument.
+
+These snippets `import()` source modules to get endpoints and schemas, which works on dev servers that
+serve source as native ES modules (e.g. Vite). Otherwise, use raw state inspection below, and
+`invalidateAll`/`expireAll` with `testKey` to mutate.
 
 ```js
 // evaluate_script — get denormalized response for an endpoint
 async () => {
   const mod = await import('/src/resources/Todo.ts');
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  const state = ctrl.getState();
-  const { data, expiryStatus, expiresAt } = ctrl.getResponse(
+  const state = __DC_CTRL__.getState();
+  const { data, expiryStatus, expiresAt } = __DC_CTRL__.getResponse(
     mod.TodoResource.getList,
     {},
     state,
@@ -102,9 +99,8 @@ async () => {
 // evaluate_script — check if an endpoint has an error
 async () => {
   const mod = await import('/src/resources/Todo.ts');
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  const state = ctrl.getState();
-  const error = ctrl.getError(
+  const state = __DC_CTRL__.getState();
+  const error = __DC_CTRL__.getError(
     mod.TodoResource.get,
     { id: '5' },
     state,
@@ -117,9 +113,8 @@ async () => {
 // evaluate_script — query a Queryable schema (Entity, Collection, Query)
 async () => {
   const mod = await import('/src/resources/Todo.ts');
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  const state = ctrl.getState();
-  const result = ctrl.get(mod.Todo, { id: '5' }, state);
+  const state = __DC_CTRL__.getState();
+  const result = __DC_CTRL__.get(mod.Todo, { id: '5' }, state);
   return result;
 }
 ```
@@ -131,8 +126,7 @@ Use these when you need to see the raw cache structure without denormalization.
 ```js
 // evaluate_script — state overview
 () => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  const state = ctrl.getState();
+  const state = __DC_CTRL__.getState();
   return {
     entityTypes: Object.keys(state.entities),
     endpointCount: Object.keys(state.endpoints).length,
@@ -146,8 +140,7 @@ Use these when you need to see the raw cache structure without denormalization.
 ```js
 // evaluate_script — inspect specific entity type by key
 () => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  const entities = ctrl.getState().entities['Todo'];
+  const entities = __DC_CTRL__.getState().entities['Todo'];
   if (!entities) return { error: 'Entity not found' };
   const pks = Object.keys(entities);
   return {
@@ -161,8 +154,7 @@ Use these when you need to see the raw cache structure without denormalization.
 ```js
 // evaluate_script — find endpoint cache entries by path substring
 () => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  const state = ctrl.getState();
+  const state = __DC_CTRL__.getState();
   const keys = Object.keys(state.endpoints).filter(k => k.includes('/todos'));
   return keys.map(k => ({
     key: k,
@@ -177,8 +169,7 @@ Use these when you need to see the raw cache structure without denormalization.
 ```js
 // evaluate_script
 () => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  return ctrl.getState().entities?.['Todo']?.['5'];
+  return __DC_CTRL__.getState().entities?.['Todo']?.['5'];
 }
 ```
 
@@ -187,29 +178,28 @@ Use these when you need to see the raw cache structure without denormalization.
 ```js
 // evaluate_script
 () => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  const state = ctrl.getState();
+  const state = __DC_CTRL__.getState();
   const key = Object.keys(state.meta).find(k => k.includes('/todos'));
   return key ? { key, ...state.meta[key] } : 'no meta found';
 }
 ```
 
-## Step 4: Track Actions
+## Step 3: Track Actions
 
-After installing the debug shim (Step 2):
+After installing the debug shim (Step 1):
 
 ### Read recent actions
 
 ```js
 // evaluate_script
-() => globalThis.__DC_ACTION_LOG__?.slice(-20) ?? []
+() => __DC_ACTION_LOG__.slice(-20)
 ```
 
 ### Filter by action type
 
 ```js
 // evaluate_script — track only fetches
-() => (globalThis.__DC_ACTION_LOG__ ?? [])
+() => __DC_ACTION_LOG__
   .filter(a => a.type === 'rdc/fetch' || a.type === 'rdc/setresponse')
   .slice(-20)
 ```
@@ -218,7 +208,7 @@ After installing the debug shim (Step 2):
 
 ```js
 // evaluate_script
-() => (globalThis.__DC_ACTION_LOG__ ?? []).filter(a => a.error)
+() => __DC_ACTION_LOG__.filter(a => a.error)
 ```
 
 ### Clear action log
@@ -228,7 +218,7 @@ After installing the debug shim (Step 2):
 () => { globalThis.__DC_ACTION_LOG__ = []; return { cleared: true }; }
 ```
 
-## Step 5: Mutate State via Controller
+## Step 4: Mutate State via Controller
 
 Use Controller methods — **never** dispatch raw actions.
 
@@ -238,8 +228,7 @@ Use Controller methods — **never** dispatch raw actions.
 // evaluate_script — triggers refetch for subscribed components
 async () => {
   const mod = await import('/src/resources/Todo.ts');
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  await ctrl.invalidate(mod.TodoResource.get, { id: '5' });
+  await __DC_CTRL__.invalidate(mod.TodoResource.get, { id: '5' });
   return { invalidated: true };
 }
 ```
@@ -249,8 +238,7 @@ async () => {
 ```js
 // evaluate_script
 () => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  ctrl.invalidateAll({ testKey: key => key.includes('/todos') });
+  __DC_CTRL__.invalidateAll({ testKey: key => key.includes('/todos') });
   return 'todo endpoints invalidated';
 }
 ```
@@ -260,8 +248,7 @@ async () => {
 ```js
 // evaluate_script
 () => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  ctrl.expireAll({ testKey: key => key.includes('/todos') });
+  __DC_CTRL__.expireAll({ testKey: key => key.includes('/todos') });
   return 'todo endpoints expired';
 }
 ```
@@ -272,8 +259,7 @@ async () => {
 // evaluate_script — use setResponse to inject mock data
 async () => {
   const mod = await import('/src/resources/Todo.ts');
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  await ctrl.setResponse(
+  await __DC_CTRL__.setResponse(
     mod.TodoResource.getList,
     {},
     [{ id: 1, title: 'Mock Todo', completed: false }],
@@ -287,8 +273,7 @@ async () => {
 ```js
 // evaluate_script
 () => {
-  const ctrl = globalThis.__DC_CONTROLLERS__?.values().next().value;
-  ctrl.resetEntireStore();
+  __DC_CTRL__.resetEntireStore();
   return { reset: true };
 }
 ```
@@ -316,7 +301,7 @@ then cross-reference with endpoint keys in state.
 
 ## Controller State Readers
 
-All take `state` (from `ctrl.getState()`) as the **last** argument.
+All take `state` (from `__DC_CTRL__.getState()`) as the **last** argument.
 
 | Method         | Signature                    | Returns                                                           |
 | -------------- | ---------------------------- | ----------------------------------------------------------------- |
@@ -350,16 +335,16 @@ State = {
 
 For monitoring ongoing activity, poll with short intervals:
 
-1. Install shim (Step 2)
+1. Install shim (Step 1)
 2. Trigger the user action or navigation
 3. Wait 2–3 seconds
-4. Read actions (Step 4) — check for `rdc/fetch` then `rdc/setresponse` pairs
-5. If needed, read entity state (Step 3) to verify cache contents
+4. Read actions (Step 3) — check for `rdc/fetch` then `rdc/setresponse` pairs
+5. If needed, read entity state (Step 2) to verify cache contents
 6. Repeat if watching for subscription updates
 
 ## Debugging Checklist
 
-1. **Verify controller exists**: Check `__DC_CONTROLLERS__` map size
+1. **Install the shim**: Confirms a controller exists and exposes it as `__DC_CTRL__`
 2. **Inspect state shape**: Get entity types and endpoint count
 3. **Check specific data**: Look up entities by type and pk
 4. **Review endpoint metadata**: Check expiry, errors, invalidation status

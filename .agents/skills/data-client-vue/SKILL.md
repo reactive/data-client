@@ -145,8 +145,8 @@ const todosByUser = useQuery(groupTodoByUser);
 
 To inspect store state, track dispatched [actions](references/Actions.md), or invoke
 [Controller](references/Controller.md) methods from a browser MCP (`user-chrome-devtools`),
-see [devtools-debugging](references/devtools-debugging.md). Uses `globalThis.__DC_CONTROLLERS__`
-available in dev mode.
+see [devtools-debugging](references/devtools-debugging.md). Dev mode only: start with its debug shim,
+which every other snippet there depends on.
 
 ## Managers
 
