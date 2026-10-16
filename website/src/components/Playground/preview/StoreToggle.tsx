@@ -13,8 +13,8 @@ import styles from '../styles.module.css';
 
 /** Store open state, persisted per `groupId`; toggling keeps the page from
  * scrolling, also as each Store it closes leaves the layout (`heldToggle`).
- * `showForDemo` opens or closes it for a demo without persisting, until the
- * reader toggles it (or `showForDemo(null)`). */
+ * `showStore` opens or closes it for a demo without persisting, until the
+ * reader toggles it (or `showStore(null)`). */
 export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   const [choice, setChoice] = useTabStorage(groupId);
   const [shown, show] = useState<boolean | null>(null);
@@ -33,11 +33,11 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   );
   // a demo's open or close is no reader's click: forget the last one, so it
   // doesn't pin a toggle the reader clicked earlier
-  const showForDemo = useCallback((demo: boolean | null) => {
+  const showStore = useCallback((demo: boolean | null) => {
     clicked = undefined;
     show(demo);
   }, []);
-  return [open, toggle, showForDemo] as const;
+  return [open, toggle, showStore] as const;
 }
 
 // one for the page: closing a Store closes every playground's in its group
