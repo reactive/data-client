@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792244235619,
+  "lastUpdate": 1792264889706,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -10199,6 +10199,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 183.5,
             "range": "± 6.7%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7c55890a6bb95958899ee2267d9acdbe2d1a4b63",
+          "message": "pkg: Update react-native to 0.88 (#4401)\n\n* pkg: Update all non-major dependencies\n\n* pkg: Support React Native 0.88 in tests and CI\n\nTake react-native's jest aliases from @react-native/jest-preset instead of\ncopying them: 0.88 adds the exports-only react-native/react-private-interface\nentry, which the copied mapper resolved as a missing directory.\n\nReact Native 0.88 bundles the React 19.3 renderer, so the native job runs\nthe ReactNative suites on the installed React and only then downgrades to\n19.2.3 for the previous-minor ReactDOM suites.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01DtLiYpnhzjcWBNPipb6j8W\n\n* internal: Explain the native job's React 19.2 pin\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01DtLiYpnhzjcWBNPipb6j8W\n\n---------\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-17T19:15:18Z",
+          "tree_id": "62c5193d1c28658fdd0334e7a34b1df759eb1961",
+          "url": "https://github.com/reactive/data-client/commit/7c55890a6bb95958899ee2267d9acdbe2d1a4b63"
+        },
+        "date": 1792264886703,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 157.49,
+            "range": "± 8.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 49.38,
+            "range": "± 7.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 357.14,
+            "range": "± 8.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 357.14,
+            "range": "± 6.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 53.63,
+            "range": "± 7.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 318.18,
+            "range": "± 8.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 322.58,
+            "range": "± 6.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 9.07,
+            "range": "± 9.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 76.05,
+            "range": "± 10.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 41.84,
+            "range": "± 5.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 274.02,
+            "range": "± 1.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 298.57,
+            "range": "± 9.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 185.19,
+            "range": "± 6.8%",
             "unit": "ops/s"
           }
         ]
