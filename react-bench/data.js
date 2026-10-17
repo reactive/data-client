@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792264889706,
+  "lastUpdate": 1792265537073,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -10301,6 +10301,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 185.19,
             "range": "± 6.8%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a32740d14de86b7006ccc497484dd52c0bc54c23",
+          "message": "feat(core): Log recent actions on __DC_ACTIONS__ and give same-named stores unique keys (#4393)\n\n* feat(core): Log recent actions on __DC_ACTIONS__ and give same-named stores unique keys\n\nDevToolsManager now records each store's recent actions in development,\nfrom startup and with or without the Redux DevTools extension, on\nglobalThis.__DC_ACTIONS__ (keyed like __DC_CONTROLLERS__). A store whose\ndevtools name is taken registers as 'name (2)' instead of replacing the\nfirst. The debugging skill uses the built-in log and falls back to\nwrapping dispatch on older versions.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* fix(core): Keep replacing same-named stores when server rendering\n\nPer-request SSR stores (e.g. Vue's DataClientPlugin with default managers)\nnever run cleanup, so suffixing their keys would keep every request's\nstore alive in development. Unique keys now apply only on a page.\n\nAlso covers the third-collision key and the cleanup guard in tests.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* fix(core): Detect server rendering with typeof window, keeping unique keys on React Native\n\nReact Native has no document but does define window, so the document\ncheck made same-named React Native stores replace each other.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* test(core): Cover unique keys where window exists without document\n\nPins the React Native case, and words the docs and comment as the\ncondition the code checks.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* feat(core): Keep __DC_ACTIONS__ small: summarize old actions, cap polling keys\n\nOnly the newest 20 actions keep args and response; older ones keep type,\nkey, endpoint, meta and error responses. While an endpoint polls, the log\nkeeps only its last maxPollingActions (default 4) actions.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* fix(core): Type the polling scan without narrowing the log\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* fix(core): Trim a key's older actions when it starts polling\n\nAlso say the polling cap is per key (endpoint and args), and rename the\nsubscriber count map.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* test(core): Polling cap holds across unsubscribe and resubscribe\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* fix(core): Track polling for skipped subscribes; keep a held registry key on re-init\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* fix(core): Forget polling keys on cleanup\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* fix(core): Fresh action log for a reused manager; treat pollFrequency 0 as polling\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* docs(skills): Lead devtools debugging with a symptom table, drop unused sections\n\nSkill evals (with and without the skill on three bugs) showed agents never\nused the polling pattern, checklist or network-correlation sections, and\nasked for a symptom-to-first-check hint.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* docs(skills): Cover reverting changes, stored-only errors and invalidation loops in devtools debugging\n\nHarder evals (refetch loop, wrapped mutation response, stale list cache) on\nSonnet and Haiku showed: normalization errors live only in meta, so the\nerrors snippet missed them; agents sliced the trimmed log by index; and one\nrun never opened the reference.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* refactor(core): Keep the DevToolsManager action log out of production builds\n\nMove trackPolling and logAction into the development-only prototype block and\ncreate their state in a development-only constructor branch, so production\nbundles drop them (DevToolsManager's minified gzip size goes from +381 B over\nmaster to +35 B). Share one polling test setup.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* chore: Regenerate website editor types\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* refactor(core): Keep DevToolsManager log helpers private to the middleware\n\ntrackPolling and logAction are only called from the middleware, so they\nbecome local functions there instead of protected prototype members,\ndropping them from the published types. Comments in init() now sit by\nthe statements they explain.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* docs(skills): Tighten the devtools-debugging Where to Start table\n\nSplit the request-rate row so a request that never fires points at\nmeta.expiresAt and a missing rdc/subscribe, point meta errors at the\nsnippet that reads them, and cover a created item missing from a list.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-17T19:26:30Z",
+          "tree_id": "327487de7a0f13e3fc96fccdbdbcf7fc02206e93",
+          "url": "https://github.com/reactive/data-client/commit/a32740d14de86b7006ccc497484dd52c0bc54c23"
+        },
+        "date": 1792265533861,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 149.25,
+            "range": "± 7.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 41.76,
+            "range": "± 12.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 370.37,
+            "range": "± 6.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 392.31,
+            "range": "± 4.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 54.95,
+            "range": "± 6.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 322.58,
+            "range": "± 8.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 317.54,
+            "range": "± 9.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 8.08,
+            "range": "± 10.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 91.33,
+            "range": "± 8.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 38.99,
+            "range": "± 6.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 256.41,
+            "range": "± 3.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 317.54,
+            "range": "± 10.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 192.31,
+            "range": "± 9.4%",
             "unit": "ops/s"
           }
         ]
