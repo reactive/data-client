@@ -1,7 +1,7 @@
 # Agent impact review
 
-Prompt for a Haiku subagent (Claude Code: Agent tool, `model: "haiku"`; Cursor: a subagent on a fast model)
-that reviews a breaking change for agents trained on the old behavior. Run it after the change, its
+Prompt for a fast, cheap subagent (Claude Code: Agent tool, `model: "haiku"`; Cursor or Codex: a subagent
+on their fastest model) that reviews a breaking change for agents trained on the old behavior. Run it after the change, its
 changeset, docs and skill edits are drafted, so it double-checks them. Fill in `<changeset>`, paste
 everything below the line as the prompt, then verify each finding yourself before acting on it.
 

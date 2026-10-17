@@ -177,20 +177,26 @@ test('a breaking changeset with no agent impact does not hold the push', () => {
   });
 });
 
-test('an eval without a prompt or assertions holds the push', () => {
+test('an eval without a real prompt or assertions holds the push', () => {
   withRepo((root, git) => {
     breakingBranch(root, git);
-    const evals = [{ id: 1, changeset: 'drop-old', assertions: [] }];
-    write(
-      root,
-      '.agents/skills/demo/evals/evals.json',
-      JSON.stringify({ evals }),
-    );
-    git('add', '-A');
-    assert.match(
-      push(root, 'git commit -m evals && git push'),
-      /\.changeset\/drop-old\.md/,
-    );
+    for (const [i, fields] of [
+      { assertions: [] },
+      { prompt: '  ', assertions: ['a'] },
+      { prompt: 'p', assertions: 'not an array' },
+    ].entries()) {
+      const evals = [{ id: 1, changeset: 'drop-old', ...fields }];
+      write(
+        root,
+        '.agents/skills/demo/evals/evals.json',
+        JSON.stringify({ evals }),
+      );
+      git('add', '-A');
+      assert.match(
+        push(root, `git commit -m evals${i} && git push`),
+        /\.changeset\/drop-old\.md/,
+      );
+    }
   });
 });
 
@@ -216,9 +222,11 @@ test('a list-item BREAKING marker holds the push; a lowercase mention does not',
         '.changeset/drop-old.md',
         `---\n'@data-client/core': minor\n---\n\n${body}\n`,
       );
-    changeset('- BREAKING: Remove `old()`');
-    git('commit', '-am', 'list');
-    assert.match(push(root), /\.changeset\/drop-old\.md/);
+    for (const [i, marker] of ['- BREAKING:', '1. BREAKING:'].entries()) {
+      changeset(`${marker} Remove \`old()\``);
+      git('commit', '-am', `list${i}`);
+      assert.match(push(root), /\.changeset\/drop-old\.md/);
+    }
     changeset('Add `new()`\n\nbreaking: none');
     git('commit', '-am', 'lowercase');
     assert.equal(push(root), '');

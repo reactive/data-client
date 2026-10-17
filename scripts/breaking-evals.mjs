@@ -26,7 +26,11 @@ const changesetsWithEvals = new Set(
     return (evals?.evals ?? [])
       .filter(
         ({ changeset, prompt, assertions }) =>
-          changeset && prompt && assertions?.length,
+          changeset &&
+          typeof prompt === 'string' &&
+          prompt.trim() &&
+          Array.isArray(assertions) &&
+          assertions.length,
       )
       .map(({ changeset }) => changeset);
   }),
@@ -38,9 +42,9 @@ const missing = fs.readdirSync(path.join(root, '.changeset')).filter(
     file !== 'README.md' &&
     !changesetsWithEvals.has(file.slice(0, -3)) &&
     !hasReason(file.slice(0, -3)) &&
-    // a marker starting a line of the body (after list, bold or quote
+    // a marker starting a line of the body (after list numbers, bold or quote
     // punctuation), not a sentence that mentions breaking
-    /^[^\w\n]*(BREAKING|Breaking)( CHANGE| [Cc]hange)?[^\w\n]*:/m.test(
+    /^[^\w\n]*(?:\d+[.)]\s*)?[^\w\n]*(BREAKING|Breaking)( CHANGE| [Cc]hange)?[^\w\n]*:/m.test(
       read(`.changeset/${file}`).replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, ''),
     ),
 );
