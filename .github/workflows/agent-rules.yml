@@ -4,13 +4,17 @@ on:
   push:
     branches:
       - master
-    # Inputs and outputs of scripts/agent-rules.mjs, and the hook tests
+    # Inputs and outputs of scripts/agent-rules.mjs and
+    # scripts/breaking-evals.mjs, and the hook tests
     paths:
       - '**/.cursor/rules/**'
       - '**/.claude/rules/**'
       - '.claude/skills'
       - '.cursor/hooks/**'
       - 'scripts/agent-rules.mjs'
+      - 'scripts/breaking-evals.mjs'
+      - '.changeset/**'
+      - '.agents/skills/*/evals/**'
       - '.github/workflows/agent-rules.yml'
       - '.github/workflows/paths-gate.yml'
   pull_request:
@@ -47,5 +51,7 @@ jobs:
       # no install: these only need node and git
       - name: Check Claude Code rules match the Cursor rules
         run: node scripts/agent-rules.mjs --check
+      - name: Check every BREAKING changeset has a skill eval
+        run: node scripts/breaking-evals.mjs
       - name: Test agent hooks
         run: node --test '.cursor/hooks/*.test.js'

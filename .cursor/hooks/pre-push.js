@@ -3,7 +3,7 @@
 // `PreToolUse` on Bash), regenerates agent skill references and Claude Code's
 // copy of the Cursor rules when the branch touches their inputs, runs
 // `eslint --fix` on the JS/TS files it changes, and holds the push until the
-// result is committed, or until each `BREAKING` changeset it adds has an eval.
+// result is committed, and holds `BREAKING` changesets no skill eval names.
 // Runs once per push instead of per edit or turn, so any number of local
 // commits can come first; CI's `regenerate` and `agent-rules` checks are the
 // backstop.
@@ -90,11 +90,11 @@ try {
 }
 
 /**
- * Runs the generator `script` (`yarn build:<build>`) when
+ * Runs the generator or checker `script` (`command`) when
  * the branch changes a file `isInput` matches, then reports problems it
  * printed and `outputs` (pathspecs) left uncommitted
  */
-function regenerate({ what, from, script, build, isInput, outputs }) {
+function regenerate({ what, from, script, command, isInput, outputs = [] }) {
   const isDirty = dirty.some(isInput);
   // the generator reads the working tree, so it can only vouch for what's
   // pushed when that includes these edits; otherwise leave it to CI
@@ -110,61 +110,15 @@ function regenerate({ what, from, script, build, isInput, outputs }) {
     problems = String(err.stderr ?? '').trim();
   }
   // includes output generated earlier but never committed
-  const uncommitted = git(
-    'status',
-    '--porcelain',
-    '--untracked-files=all',
-    '--',
-    ...outputs,
-  );
+  const uncommitted =
+    outputs.length &&
+    git('status', '--porcelain', '--untracked-files=all', '--', ...outputs);
   return [
     uncommitted &&
       `${what} generated from this branch's ${from} changes aren't committed. Commit them, then push again:\n${uncommitted}`,
     problems &&
-      `\`yarn build:${build}\` found problems CI will fail on. Fix them, commit, then push again:\n${problems}`,
+      `\`${command}\` found problems CI will fail on. Fix them, commit, then push again:\n${problems}`,
   ];
-}
-
-/**
- * `BREAKING` changesets this branch adds or edits that no skill eval names,
- * so agents trained on the old behavior get the new one right up front
- */
-function breakingEvals() {
-  const read = file => {
-    try {
-      return fs.readFileSync(path.join(projectDir, file), 'utf8');
-    } catch {
-      return '';
-    }
-  };
-  const breaking = [...new Set([...committed, ...dirty])].filter(
-    file =>
-      /^\.changeset\/[^/]+\.md$/.test(file) &&
-      file !== '.changeset/README.md' &&
-      // the body, after the frontmatter
-      /^BREAKING( CHANGE)?:/m.test(read(file).replace(/^---[^]*?\n---/, '')),
-  );
-  if (!breaking.length) return [];
-  const skills = path.join(projectDir, '.agents/skills');
-  const named = new Set(
-    fs.readdirSync(skills).flatMap(skill => {
-      try {
-        return JSON.parse(
-          read(path.join('.agents/skills', skill, 'evals/evals.json')),
-        ).evals.map(({ changeset }) => changeset);
-      } catch {
-        return [];
-      }
-    }),
-  );
-  const missing = breaking.filter(
-    file => !named.has(path.basename(file, '.md')),
-  );
-  return missing.length ?
-      [
-        `Breaking changesets need an agent impact review and an eval: agents trained on the old behavior will write it by default. For each, run .agents/skills/changeset/agent-impact-review.md on a Haiku subagent, verify and apply its findings, then add an eval with \`"changeset": "<name>"\` to .agents/skills/<skill>/evals/evals.json and check a fresh Haiku subagent passes it (see "Agents trained on the old behavior" in .cursor/rules/breaking-changes.mdc). Commit, then push again:\n${missing.join('\n')}`,
-      ]
-    : [];
 }
 
 const PENDING = path.join(projectDir, 'node_modules/.cache/pre-push-fixed');
@@ -248,13 +202,12 @@ function lintFix() {
 
 const message = [
   ...lintFix(),
-  ...breakingEvals(),
   // dead links, missing variant notes or bad manifests
   ...regenerate({
     what: 'Skill references',
     from: 'docs',
     script: 'website/framework-docs/skillReferences.mjs',
-    build: 'skills',
+    command: 'yarn build:skills',
     isInput: isSkillInput,
     outputs: ['.agents/skills/*/references/*'],
   }),
@@ -262,12 +215,20 @@ const message = [
     what: 'Claude Code rules',
     from: 'Cursor rules',
     script: 'scripts/agent-rules.mjs',
-    build: 'agent-rules',
+    command: 'yarn build:agent-rules',
     // sources only; a hand edit to the output is left to CI
     isInput: file =>
       /(^|\/)\.cursor\/rules\//.test(file) ||
       file === 'scripts/agent-rules.mjs',
     outputs: [':(glob)**/.claude/rules/**', '.claude/skills'],
+  }),
+  ...regenerate({
+    script: 'scripts/breaking-evals.mjs',
+    command: 'node scripts/breaking-evals.mjs',
+    isInput: file =>
+      file.startsWith('.changeset/') ||
+      /^\.agents\/skills\/[^/]+\/evals\//.test(file) ||
+      file === 'scripts/breaking-evals.mjs',
   }),
 ]
   .filter(Boolean)

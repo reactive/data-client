@@ -41,10 +41,10 @@ function withRepo(fn) {
   }
 }
 
-function write(root, file) {
+function write(root, file, content = 'const n = 1;\n') {
   const abs = path.join(root, file);
   fs.mkdirSync(path.dirname(abs), { recursive: true });
-  fs.writeFileSync(abs, 'const n = 1;\n');
+  fs.writeFileSync(abs, content);
 }
 
 /** the reason the hook denies `git push`, if it does */
@@ -106,14 +106,20 @@ test('a pending fix to a file the push deletes does not hold it', () => {
   });
 });
 
-/** a branch adding a `BREAKING` changeset */
+/** master has the checker; the branch adds a `BREAKING` changeset */
 function breakingBranch(root, git) {
+  write(
+    root,
+    'scripts/breaking-evals.mjs',
+    fs.readFileSync(path.join(__dirname, '../../scripts/breaking-evals.mjs')),
+  );
   fs.mkdirSync(path.join(root, '.agents/skills/demo'), { recursive: true });
-  git('commit', '--allow-empty', '-m', 'master');
+  git('add', '-A');
+  git('commit', '-m', 'master');
   git('update-ref', 'refs/remotes/origin/master', 'HEAD');
-  fs.mkdirSync(path.join(root, '.changeset'));
-  fs.writeFileSync(
-    path.join(root, '.changeset/drop-old.md'),
+  write(
+    root,
+    '.changeset/drop-old.md',
     "---\n'@data-client/core': minor\n---\n\nBREAKING: Remove `old()`\n",
   );
   git('add', '-A');
@@ -123,18 +129,23 @@ function breakingBranch(root, git) {
 test('a breaking changeset without an eval holds the push', () => {
   withRepo((root, git) => {
     breakingBranch(root, git);
-    assert.match(push(root), /agent-impact-review[^]*\.changeset\/drop-old\.md/);
+    assert.match(
+      push(root),
+      /breaking-changes\.mdc[^]*\.changeset\/drop-old\.md/,
+    );
   });
 });
 
 test('a breaking changeset an eval names does not hold the push', () => {
   withRepo((root, git) => {
     breakingBranch(root, git);
-    const evals = path.join(root, '.agents/skills/demo/evals/evals.json');
-    fs.mkdirSync(path.dirname(evals));
-    fs.writeFileSync(
-      evals,
-      JSON.stringify({ evals: [{ id: 1, changeset: 'drop-old' }] }),
+    const evals = [
+      { id: 1, changeset: 'drop-old', prompt: 'p', assertions: ['a'] },
+    ];
+    write(
+      root,
+      '.agents/skills/demo/evals/evals.json',
+      JSON.stringify({ evals }),
     );
     git('add', '-A');
     assert.equal(push(root, 'git commit -m evals && git push'), '');

@@ -29,10 +29,10 @@ Mark a change `BREAKING` (minor bump while under 1.0) only when no compatible ve
 
 ## Agents trained on the old behavior
 
-Coding agents learned the previous behavior and will write it by default. An agent that only finds out from a type error or a wrong result has already spent the tokens, so a breaking change (and any change in default behavior) must teach the new way before the agent writes code:
+Agents write the old behavior by default, and finding out from a type error or wrong result wastes tokens, so a breaking change (or changed default) must teach the new way before they write code:
 
-- **Skills lead with the new form**: update every `.agents/skills` example and statement the change affects, including facts derived from the old behavior that never name the changed API (defaults, "returns undefined so check for it", "you don't need X"). State the right way as the default; don't describe the old behavior as a fix to apply after an error.
+- **Skills lead with the new form**: update every `.agents/skills` example and statement the change affects, including facts derived from the old behavior that never name the changed API (defaults, "returns undefined so check for it", "you don't need X"). State the new form as the default, not as a fix after an error.
 - **Haiku impact review**: once the change, changeset, docs and skills are drafted, run [agent-impact-review.md](../../.agents/skills/changeset/agent-impact-review.md) on a Haiku subagent, verify each finding, and apply the real ones.
 - **Breaking-change evals**: add at least one eval per breaking changeset to the evals of the skill an agent would use (`.agents/skills/<skill>/evals/evals.json`), with `"changeset": "<changeset file name without .md>"`. Its prompt is a realistic task that never mentions the change, and its assertions fail on the old habit. Run it on a fresh Haiku subagent given only the skill, not the diff: it must pass on the first try without running code. If it fails, fix the skill, not the eval.
 
-The pre-push hook holds a push whose branch adds or edits a `BREAKING` changeset until an eval names it.
+`scripts/breaking-evals.mjs` (pre-push hook and the `agent-rules` CI check) fails while a pending `BREAKING` changeset has no eval naming it.
