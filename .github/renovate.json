@@ -75,7 +75,11 @@
       "groupSlug": "all-minor-patch"
     },
     {
-      "extends": ["monorepo:react"],
+      "description": "monorepo:react only knows facebook/react; React's packages now publish from react/react",
+      "matchSourceUrls": [
+        "https://github.com/facebook/react",
+        "https://github.com/react/react"
+      ],
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupName": "react"
     },
@@ -182,10 +186,17 @@
       "groupName": "markdown packages"
     },
     {
-      "matchPackageNames": ["react-native-screens"],
+      "description": "React Native is 0.x, so its minors are breaking, and its ecosystem packages release in step with it; they update together, never in the all non-major PR. Renovate has no react-native monorepo preset, so they are matched by name",
+      "matchPackageNames": [
+        "react-native",
+        "@react-native/*",
+        "react-native-*",
+        "@react-navigation/*",
+        "@testing-library/react-native"
+      ],
       "matchUpdateTypes": ["major", "minor", "patch"],
-      "groupSlug": "react-navigation-monorepo",
-      "groupName": "react-navigation monorepo"
+      "groupSlug": "react-native",
+      "groupName": "react-native packages"
     },
     {
       "description": "changesets/action requires a matching Changesets CLI (action v2 refuses CLI v2), so every update of either lands in one PR",
