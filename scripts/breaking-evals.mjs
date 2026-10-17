@@ -40,10 +40,11 @@ const changesetsWithEvals = new Set(
 // like lists, quotes, tables, brackets or emoji): uppercase BREAKING,
 // title-case Breaking with a colon or dash, or a Breaking (changes)
 // heading; not prose that mentions breaking, nor fenced code. Each part stays on
-// one line (no \s, which /m lets cross line breaks), and the heading's
-// markup excludes # so long # runs can't backtrack
+// one line (no \s, which /m lets cross line breaks). Adjacent repeats never
+// match the same characters (the heading's opening markup excludes #, and its
+// closing #s follow their own spaces), so long runs can't backtrack
 const breakingMarker =
-  /^[^A-Za-z\d\n]*(?:\d+[.)][^A-Za-z\d\n]*)?(?:BREAKING(?!_*[A-Za-z\d])|Breaking(?: [Cc]hanges?)?[*_ \t]*(?::|—|–| - ))|^#+[^A-Za-z\d\n#]*Breaking(?:[ \t]+[Cc]hanges?\b|[*_ \t]*(?::|—|–| - |#*[ \t]*$))/m;
+  /^[^A-Za-z\d\n]*(?:\d+[.)][^A-Za-z\d\n]*)?(?:BREAKING(?!_*[A-Za-z\d])|Breaking(?: [Cc]hanges?)?[*_ \t]*(?::|—|–| - ))|^#+[^A-Za-z\d\n#]*Breaking(?:[ \t]+[Cc]hanges?\b|[*_ \t]*(?::|—|–| - )|[*_ \t]*$|[ \t]+#+[ \t]*$)/m;
 
 const missing = fs.readdirSync(path.join(root, '.changeset')).filter(
   file =>

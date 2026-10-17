@@ -235,6 +235,7 @@ test('BREAKING markers after any markup and Breaking headings hold the push; pro
       'BREAKING',
       '## Breaking Changes\n\n-',
       '## Breaking\n\n-',
+      '## Breaking ##\n\n-',
       '## Breaking changes to the cache API\n\n-',
       '[BREAKING]',
       '> [!BREAKING]\n>',
@@ -246,7 +247,10 @@ test('BREAKING markers after any markup and Breaking headings hold the push; pro
       assert.match(push(root), /\.changeset\/drop-old\.md/);
     }
     changeset(
-      'Add `new()`\n\nbreaking: none\n\n## Breaking down the fix\n\n## Breaking, the fix\n\n#\nBreaking\n: split across lines\n\nSet `BREAKING_FLAG` to opt in\n\n```ts\n// BREAKING: legacy flag\n```',
+      'Add `new()`\n\nbreaking: none\n\n## Breaking down the fix\n\n## Breaking, the fix\n\n# Breaking' +
+        // a long run that a backtracking regex would stall on
+        ' '.repeat(50000) +
+        'x\n\n#\nBreaking\n: split across lines\n\nSet `BREAKING_FLAG` to opt in\n\n```ts\n// BREAKING: legacy flag\n```',
     );
     git('commit', '-am', 'lowercase');
     assert.equal(push(root), '');
