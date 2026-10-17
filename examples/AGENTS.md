@@ -12,9 +12,12 @@
 
 - Use **npm** with committed `package-lock.json` (do not add yarn.lock)
 - Reference **published** `@data-client/*` versions (exact or caret ranges, never `workspace:*`)
-- When bumping them to a new release, also make that release's edits listed in [plans/after-release.md](../plans/after-release.md) and delete those entries
 - Include `"stackblitz": { "startCommand": "npm start" }` (or `"npm run dev"`) in `package.json`
 - StackBlitz links: `https://stackblitz.com/github/reactive/data-client/tree/master/examples/<name>`
+
+## Release bumps
+
+When bumping an example's published `@data-client/*` versions to a new release, also make that release's edits listed in [plans/after-release.md](../plans/after-release.md) and delete those entries.
 
 ## StackBlitz Constraints
 
