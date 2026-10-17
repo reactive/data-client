@@ -28,6 +28,42 @@
         "No `as any` or other cast is used to make the `ctrl.set` call typecheck.",
         "The worker listener is removed in the effect cleanup."
       ]
+    },
+    {
+      "id": 3,
+      "name": "cold-deep-link",
+      "prompt": "Add a `TodoTitle` component (src/components/TodoTitle.tsx) that takes a `todoId` and shows that todo's title in the page header. Todos are usually already loaded by the list page, but users also open /todos/:id directly from shared links. Show 'Not found' when the todo doesn't exist. TodoResource is in src/resources/Todo.ts.",
+      "expected_output": "A component that reads the todo with useDLE(TodoResource.get, { id: todoId }) and shows 'Not found' from its error (404), or useSuspense with the 404 handled by a boundary's errorComponent; never from a cache miss.",
+      "files": [],
+      "assertions": [
+        "The todo is read with `useSuspense(TodoResource.get, …)` or `useDLE(TodoResource.get, …)`, not only `useCache`/`useQuery`.",
+        "'Not found' is not shown just because `useCache`/`useQuery` returned `undefined`.",
+        "No `useEffect` calling `ctrl.fetch`, and no fetched data stored in `useState`."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "author-avatars",
+      "prompt": "Show each post's author avatar in `PostList` (src/components/PostList.tsx). Posts come from `PostResource.getList` and each post has a `userId`; users come from `UserResource.get`. Simplest is probably to build a usersById map in PostList and pass it to each `PostRow`, right?",
+      "expected_output": "Pushback on the map: PostRow (or an Avatar child) binds its own user with useSuspense(UserResource.get, { id: userId }); PostList passes only ids.",
+      "files": [],
+      "assertions": [
+        "No `usersById` (or similar lookup map) is built and passed down as a prop.",
+        "The component that renders the avatar reads the user itself with a data-client hook, given the id as a prop.",
+        "`PostList` does not read `UserResource` itself."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "load-all-pages",
+      "prompt": "Our `TodoResource` has `paginationField: 'page'`. Add a 'Load more' button under `TodoList` that loads the next page and shows it below the todos already on screen.",
+      "expected_output": "The button calls ctrl.fetch(TodoResource.getList.getPage, { ...args, page: nextPage }); TodoList keeps rendering useSuspense(TodoResource.getList, args).",
+      "files": [],
+      "assertions": [
+        "The next page is loaded with `TodoResource.getList.getPage`.",
+        "Pages are not loaded with plain `TodoResource.getList` fetches in a loop or accumulated in `useState`.",
+        "`ctrl.fetch` is called from the click handler, not from `useEffect`."
+      ]
     }
   ]
 }

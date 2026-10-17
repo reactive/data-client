@@ -133,7 +133,7 @@ ensure referential consistency of the function.
 ```typescript
 export default function useLoading<
   F extends (...args: any) => Promise<any>,
->(func: F, deps: readonly any[] = []): [F, boolean];
+>(func: F, deps: readonly any[] = []): [F, boolean, Error | undefined];
 ```
 
 ## Examples
