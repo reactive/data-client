@@ -42,6 +42,22 @@
         "The rewrite does not call `controller.set(Ticker, …)` once per row.",
         "No `as any` or other cast is used to make the `controller.set` call typecheck."
       ]
+    },
+    {
+      "id": 4,
+      "name": "timing-manager",
+      "changeset": "manager-middleware-required",
+      "prompt": "Add src/managers/TimingManager.ts: a Manager that logs how long each fetch takes, from when the fetch action is dispatched until its result is in the store, as `console.log(key, ms)`. It has no timers or sockets to close. Also show how to add it to our `DataProvider` in src/index.tsx next to the default managers.",
+      "expected_output": "A class implementing Manager with a `middleware: Middleware` property that times FETCH actions around `await next(action)` and returns its result, an empty `cleanup()` method, and `managers={[new TimingManager(), ...getDefaultManagers()]}` on DataProvider (before NetworkManager, which doesn't pass most FETCH actions on).",
+      "files": [],
+      "assertions": [
+        "The Manager defines `middleware` as a property or field typed `Middleware` (not a `getMiddleware()` method).",
+        "The class has no `getMiddleware` method or property.",
+        "The class defines a `cleanup()` method (an empty body is fine).",
+        "The middleware calls `next(action)` for every action, not only fetches, and returns or awaits its result.",
+        "Fetch actions are recognized by comparing `action.type` to `actionTypes.FETCH`.",
+        "DataProvider receives `managers` that include `...getDefaultManagers()` with the new TimingManager placed before them."
+      ]
     }
   ]
 }
