@@ -81,6 +81,8 @@ Newly installed skills may not be loaded until the next session, so read their `
 
 ## Installation
 
+**TypeScript 4.0 or later is required** (4.5+ for `@data-client/vue`). If `package.json` has an older `typescript`, upgrade it before installing: the type declarations don't parse on 3.x, and `skipLibCheck` doesn't help.
+
 ### Core Packages
 
 | Framework | Core Package |
