@@ -213,4 +213,9 @@ export interface EnhancerOptions {
 
 export interface DevToolsConfig extends EnhancerOptions {
   type?: string;
+  /** Actions kept in `__DC_ACTIONS__` for each key (endpoint and args) while it polls
+   *
+   * @default 4 (the last two polls)
+   */
+  maxPollingActions?: number;
 }

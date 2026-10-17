@@ -90,8 +90,9 @@ const managers = getDefaultManagers({
 ## Programmatic store access {#controllers}
 
 In development mode, `DevToolsManager` registers each [Controller](/docs/api/Controller) on
-`globalThis.__DC_CONTROLLERS__` — a `Map` keyed by the devtools connection name. This works
-in browsers, React Native, and Node.
+`globalThis.__DC_CONTROLLERS__`, a `Map` keyed by the devtools connection name. It also records the
+most recent dispatched actions for each one on `globalThis.__DC_ACTIONS__`, under the same key. This works
+in browsers, React Native, and Node, with or without the Redux DevTools extension.
 
 ```js title="Browser DevTools console"
 // List all registered providers
@@ -102,14 +103,36 @@ __DC_CONTROLLERS__.values().next().value.getState();
 
 // Get state by name
 __DC_CONTROLLERS__.get('Data Client: My App').getState();
+
+// Last 10 actions, including the ones dispatched while the page loaded
+__DC_ACTIONS__.get('Data Client: My App').slice(-10);
 ```
 
 This is useful for AI coding assistants using the [Chrome DevTools MCP](https://developer.chrome.com/blog/chrome-devtools-mcp)
 or [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) to programmatically inspect and interact
 with the store. Each :react[[DataProvider](/docs/api/DataProvider)]:vue[installed [DataClientPlugin](./DataClientPlugin.md)] registers independently, so
-multiple :react[providers]:vue[apps] on the same page are fully supported.
+multiple :react[providers]:vue[apps] on the same page are supported. When a name is already taken, the next one
+registers as `'Data Client: My App (2)'`, and so on; set `name` to give each a recognizable key. Where there is no `window`, as when
+server rendering, a store replaces the previous one with its name instead, since per-request stores are never cleaned up.
 
-Controllers are removed from the map when `cleanup()` is called.
+The action log keeps up to twice [`maxAge`](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#maxage)
+actions (100 by default) and skips the same duplicate fetches the extension does. To keep its memory small, only the
+newest 20 actions keep their `args` and `response`; older ones keep `type`, `key`, `endpoint`, `meta` and error
+responses. While an endpoint [polls](/rest/api/RestEndpoint#pollfrequency), the log keeps only its last
+`maxPollingActions` actions for each key (endpoint and args) (4 by default, the last two polls), so polling doesn't push everything else out:
+
+<ProviderManagers imports={['getDefaultManagers']}>
+
+```ts
+const managers = getDefaultManagers({
+  // highlight-next-line
+  devToolsManager: { maxPollingActions: 10 },
+});
+```
+
+</ProviderManagers>
+
+Controllers and their logs are removed when `cleanup()` is called. None of this exists in production builds.
 
 ## More info
 

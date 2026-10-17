@@ -1496,6 +1496,11 @@ interface EnhancerOptions {
 }
 interface DevToolsConfig extends EnhancerOptions {
     type?: string;
+    /** Actions kept in `__DC_ACTIONS__` for each key (endpoint and args) while it polls
+     *
+     * @default 4 (the last two polls)
+     */
+    maxPollingActions?: number;
 }
 
 /** Integrates with https://github.com/reduxjs/redux-devtools
@@ -1509,6 +1514,14 @@ declare class DevToolsManager implements Manager {
     protected devTools: undefined | any;
     protected started: boolean;
     protected actions: [ActionTypes, State<unknown>][];
+    /** Recent actions, kept in development whether or not the extension is connected */
+    protected actionLog: ActionTypes[];
+    /** Key this controller is registered under in `__DC_CONTROLLERS__` and `__DC_ACTIONS__` */
+    protected registryKey?: string;
+    /** Subscriber count for each key that is polling; a key is removed when its count reaches 0 */
+    protected pollingSubscribers: Map<string, number>;
+    /** Actions kept in the log for each key while it polls (development only) */
+    maxPollingActions: number;
     protected controller: Controller;
     skipLogging?: (action: ActionTypes) => boolean;
     devtoolsName: string;
