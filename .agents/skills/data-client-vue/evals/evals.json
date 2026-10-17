@@ -58,7 +58,7 @@
       "files": [],
       "assertions": [
         "Uses `ctrl.expireAll(TodoResource.getList)` (or an equivalent testKey on getList).",
-        "Does not use `invalidate`/`invalidateAll`/`resetEntireStore`, which would drop the shown lists."
+        "Does not use `invalidate`/`invalidateAll`/`resetEntireStore`, which would blank lists read with `useDLE`/`useCache` and suspend newly mounted ones."
       ]
     }
   ]
