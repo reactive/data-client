@@ -4,7 +4,7 @@
 
 ### Monorepo workspace members
 
-`benchmark`, `benchmark-react`, `test-bundlesize`, `normalizr-*`, `coin-app` — listed in root `package.json` workspaces, managed by yarn. Most use `workspace:*` for `@data-client/*` deps.
+`benchmark`, `benchmark-react`, `test-bundlesize`, `normalizr-*`, `coin-app` — listed in root `package.json` workspaces, managed by yarn. Most use `workspace:*` for `@data-client/*` deps; `coin-app` depends on published versions.
 
 ### Standalone (StackBlitz demos)
 
@@ -17,7 +17,7 @@
 
 ## Release bumps
 
-When bumping an example's published `@data-client/*` versions to a new release, also make that release's edits listed in [plans/after-release.md](../plans/after-release.md) and delete those entries.
+An example on `workspace:*` runs the repo's code, so a breaking change updates it in the same PR. An example that depends on a published `@data-client/*` version (exact or caret range: every standalone example, and `coin-app`) can't run unreleased code, so its edits wait in [plans/after-release.md](../plans/after-release.md). When bumping such an example to a new release, also make that release's edits listed there and delete those entries.
 
 ## StackBlitz Constraints
 
