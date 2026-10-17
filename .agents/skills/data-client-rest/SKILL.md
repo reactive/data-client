@@ -129,11 +129,19 @@ getOptimisticResponse(snap, { id }) {
 
 ---
 
-### RestEndpoint lifecycle methods
+### RestEndpoint lifecycle overrides
 
-- **Perform Fetch:** `fetchResponse()` → `parseResponse()` → `process()`
-  - **url(urlParams):** `urlPrefix` + `path` + (`searchParams` → `searchToString()`)
-  - **getRequestInit(body):** `getHeaders()` + `method` + `signal`
+`fetch()` runs `fetchResponse(url(), getRequestInit())` → `parseResponse()` → `process()`. Override the
+step that owns the change, never `fetch` itself (that replaces the whole lifecycle):
+
+| To change | Override |
+|---|---|
+| Headers (auth, tokens) | `getHeaders(headers)` |
+| Other request options or body encoding | `getRequestInit(body)` |
+| Query string format | `searchToString(searchParams)` |
+| The network call (retries, another client) | `fetchResponse(input, init)` |
+| Non-JSON responses | `content` option (`'blob'`, `'text'`, …), else `parseResponse(response)` |
+| Shape of the parsed data | `process(value, ...args)` |
 
 ---
 
@@ -164,7 +172,6 @@ export const IssueResource = resource({
 ## 6. Common Mistakes to Avoid
 
 - Don't use `resource()` when mutation endpoints are not used or needed
-- Don't override `fetch` to change requests or responses; it replaces the whole lifecycle above. Override `getHeaders()`/`getRequestInit()` or `parseResponse()`/`process()`
 - `pollFrequency` polls only while subscribed (`useLive`/`useSubscription`). Subscribers to the same endpoint and args share one poll at the fastest frequency, so a faster `.extend({ pollFrequency })` on one view speeds up the others too
 
 # References
