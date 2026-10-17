@@ -117,6 +117,13 @@ each data-bound component ([boundaries](references/data-dependency.md#boundaries
 ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.invalidateAll(), ctrl.setResponse(), ctrl.set(),
 ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 
+| To refresh or update | Call |
+|---|---|
+| You already have the new value | `ctrl.set()` / `ctrl.setResponse()` (no network) |
+| One endpoint+args | `ctrl.fetch(endpoint, args)` |
+| All cached args of an endpoint | `ctrl.expireAll(endpoint)`: fetching composables refetch; `useCache`/`useQuery` don't |
+| Current data must not show while refetching | `ctrl.invalidate()` / `ctrl.invalidateAll()`: `useSuspense` suspends |
+
 Write many entities without a fetch with one `ctrl.set([Entity], rows)`. Never loop `ctrl.set(Entity, args, row)` per row, and never add an endpoint or `setResponse()` just to batch.
 
 ## Programmatic queries

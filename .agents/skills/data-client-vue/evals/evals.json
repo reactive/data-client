@@ -49,6 +49,17 @@
         "No lookup map of users is built and passed down.",
         "The component rendering the avatar reads the user itself, given the id."
       ]
+    },
+    {
+      "id": 5,
+      "name": "refresh-all-lists",
+      "prompt": "After `ctrl.fetch(TodoResource.markAllDone)` (returns no body), refresh every cached todo list. Lists are cached under many `{ userId }` filters. Keep the current lists on screen while they reload. Write the `markAllDone` handler in src/components/MarkAllDone.vue.",
+      "expected_output": "Calls ctrl.expireAll(TodoResource.getList) after the mutation.",
+      "files": [],
+      "assertions": [
+        "Uses `ctrl.expireAll(TodoResource.getList)` (or an equivalent testKey on getList).",
+        "Does not use `invalidate`/`invalidateAll`/`resetEntireStore`, which would drop the shown lists."
+      ]
     }
   ]
 }

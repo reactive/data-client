@@ -89,17 +89,6 @@
     },
     {
       "id": 8,
-      "name": "websocket-prices",
-      "prompt": "`TickerTable` and `PriceBadge` both show live prices from wss://feed.example.com, which sends `{ product_id, price }` messages. `Ticker` (src/resources/Ticker.ts) is an Entity with pk `product_id`. Wire the feed in.",
-      "expected_output": "A Manager (or one provider-level listener) writes each message with ctrl.set(Ticker, …); both components read Ticker from the store.",
-      "files": [],
-      "assertions": [
-        "Messages go into the store with `ctrl.set` (or setResponse), not React state.",
-        "The socket is opened once (a Manager or one shared component), not in each consumer."
-      ]
-    },
-    {
-      "id": 9,
       "name": "boundary-reset",
       "prompt": "In `TodoMaster`, `<AsyncBoundary><TodoDetail id={selectedId} /></AsyncBoundary>`. After a todo fails to load, picking another todo still shows the error. Fix it in src/components/TodoMaster.tsx.",
       "expected_output": "Adds key={selectedId} to the AsyncBoundary.",
