@@ -176,3 +176,33 @@ test('a breaking changeset with no agent impact does not hold the push', () => {
     assert.equal(push(root, 'git commit -m exempt && git push'), '');
   });
 });
+
+test('an eval without a prompt or assertions holds the push', () => {
+  withRepo((root, git) => {
+    breakingBranch(root, git);
+    const evals = [{ id: 1, changeset: 'drop-old', assertions: [] }];
+    write(
+      root,
+      '.agents/skills/demo/evals/evals.json',
+      JSON.stringify({ evals }),
+    );
+    git('add', '-A');
+    assert.match(
+      push(root, 'git commit -m evals && git push'),
+      /\.changeset\/drop-old\.md/,
+    );
+  });
+});
+
+test('a bold BREAKING marker holds the push', () => {
+  withRepo((root, git) => {
+    breakingBranch(root, git);
+    write(
+      root,
+      '.changeset/drop-old.md',
+      "---\n'@data-client/core': minor\n---\n\n**BREAKING:** Remove `old()`\n",
+    );
+    git('commit', '-am', 'bold');
+    assert.match(push(root), /\.changeset\/drop-old\.md/);
+  });
+});

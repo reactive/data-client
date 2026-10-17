@@ -3,7 +3,7 @@
 // `PreToolUse` on Bash), regenerates agent skill references and Claude Code's
 // copy of the Cursor rules when the branch touches their inputs, runs
 // `eslint --fix` on the JS/TS files it changes, and holds the push until the
-// result is committed, and holds `BREAKING` changesets no skill eval names.
+// result is committed. It also holds `BREAKING` changesets no skill eval names.
 // Runs once per push instead of per edit or turn, so any number of local
 // commits can come first; CI's `regenerate` and `agent-rules` checks are the
 // backstop.
@@ -90,16 +90,25 @@ try {
 }
 
 /**
- * Runs the generator or checker `script` (`command`) when
- * the branch changes a file `isInput` matches, then reports problems it
- * printed and `outputs` (pathspecs) left uncommitted
+ * Runs the generator or checker `script` when the branch changes a file
+ * `isInput` matches, then reports problems it printed (as `command`) and, for
+ * a generator, `outputs` (pathspecs) left uncommitted
  */
-function regenerate({ what, from, script, command, isInput, outputs = [] }) {
+function regenerate({
+  what,
+  from,
+  script,
+  command = `node ${script}`,
+  isInput,
+  outputs = [],
+}) {
   const isDirty = dirty.some(isInput);
   // the generator reads the working tree, so it can only vouch for what's
   // pushed when that includes these edits; otherwise leave it to CI
   if (isDirty && !commits) return [];
   if (!isDirty && !committed.some(isInput)) return [];
+  // a branch from before the script was added
+  if (!fs.existsSync(path.join(projectDir, script))) return [];
   let problems = '';
   try {
     execFileSync('node', [script], {
@@ -224,7 +233,6 @@ const message = [
   }),
   ...regenerate({
     script: 'scripts/breaking-evals.mjs',
-    command: 'node scripts/breaking-evals.mjs',
     isInput: file =>
       file.startsWith('.changeset/') ||
       /^\.agents\/skills\/[^/]+\/evals\//.test(file) ||
