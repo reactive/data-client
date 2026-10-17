@@ -15,7 +15,8 @@ const readJson = file =>
   fs.existsSync(path.join(root, file)) ? JSON.parse(read(file)) : undefined;
 
 // changesets the impact review found no realistic agent task for, with why
-const exempt = readJson('.agents/skills/changeset/no-agent-impact.json') ?? {};
+const exemptions =
+  readJson('.agents/skills/changeset/no-agent-impact.json') ?? {};
 const changesetsWithEvals = new Set(
   fs.readdirSync(path.join(root, '.agents/skills')).flatMap(skill => {
     const evals = readJson(`.agents/skills/${skill}/evals/evals.json`);
@@ -33,9 +34,9 @@ const missing = fs.readdirSync(path.join(root, '.changeset')).filter(
     file.endsWith('.md') &&
     file !== 'README.md' &&
     !changesetsWithEvals.has(file.slice(0, -3)) &&
-    !exempt[file.slice(0, -3)] &&
+    !Object.hasOwn(exemptions, file.slice(0, -3)) &&
     // the body, after the frontmatter
-    /^\W*BREAKING( CHANGE)?\W*:/im.test(
+    /^[^\w\n]*BREAKING( CHANGE)?[^\w\n]*:/m.test(
       read(`.changeset/${file}`).replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, ''),
     ),
 );

@@ -206,3 +206,30 @@ test('a bold BREAKING marker holds the push', () => {
     assert.match(push(root), /\.changeset\/drop-old\.md/);
   });
 });
+
+test('an indented BREAKING marker holds the push; a lowercase mention does not', () => {
+  withRepo((root, git) => {
+    breakingBranch(root, git);
+    const changeset = body =>
+      write(
+        root,
+        '.changeset/drop-old.md',
+        `---\n'@data-client/core': minor\n---\n\n${body}\n`,
+      );
+    changeset('- BREAKING: Remove `old()`');
+    git('commit', '-am', 'list');
+    assert.match(push(root), /\.changeset\/drop-old\.md/);
+    changeset('Add `new()`\n\nbreaking: none');
+    git('commit', '-am', 'lowercase');
+    assert.equal(push(root), '');
+  });
+});
+
+test('a branch from before the checker does not hold the push', () => {
+  withRepo((root, git) => {
+    breakingBranch(root, git);
+    git('rm', '-q', 'scripts/breaking-evals.mjs');
+    git('commit', '-m', 'old branch');
+    assert.equal(push(root), '');
+  });
+});
