@@ -233,3 +233,34 @@ test('a branch from before the checker does not hold the push', () => {
     assert.equal(push(root), '');
   });
 });
+
+test('title-case Breaking markers hold the push', () => {
+  withRepo((root, git) => {
+    breakingBranch(root, git);
+    for (const marker of ['Breaking:', 'Breaking Change:']) {
+      write(
+        root,
+        '.changeset/drop-old.md',
+        `---\n'@data-client/core': minor\n---\n\n${marker} Remove \`old()\`\n`,
+      );
+      git('commit', '-am', marker);
+      assert.match(push(root), /\.changeset\/drop-old\.md/);
+    }
+  });
+});
+
+test('a blank no-agent-impact reason holds the push', () => {
+  withRepo((root, git) => {
+    breakingBranch(root, git);
+    write(
+      root,
+      '.agents/skills/changeset/no-agent-impact.json',
+      JSON.stringify({ 'drop-old': '  ' }),
+    );
+    git('add', '-A');
+    assert.match(
+      push(root, 'git commit -m exempt && git push'),
+      /\.changeset\/drop-old\.md/,
+    );
+  });
+});
