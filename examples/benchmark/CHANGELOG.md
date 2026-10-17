@@ -1,5 +1,14 @@
 # example-benchmark
 
+## 0.4.87
+
+### Patch Changes
+
+- Updated dependencies [[`b4899d0`](https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169), [`f343f9d`](https://github.com/reactive/data-client/commit/f343f9d42a12f3ad763fac96362166d3b3156b69), [`46f1f24`](https://github.com/reactive/data-client/commit/46f1f24bcb04824805747ed2a1effe7baece337c), [`a82758c`](https://github.com/reactive/data-client/commit/a82758cd1998e58d7ad280407db28bd84f5d7b18), [`b55696c`](https://github.com/reactive/data-client/commit/b55696c72ad3e73e0a2f50d3751c7104cd4ad9ee), [`74e67fa`](https://github.com/reactive/data-client/commit/74e67fa2c4f9f104f5b7a49e877a48e5963e4bd2), [`159c963`](https://github.com/reactive/data-client/commit/159c9633679d95427fe4f626aec341c76e4578f8), [`4549122`](https://github.com/reactive/data-client/commit/4549122004244990a564781a61145ae9ea98370e), [`cc57a77`](https://github.com/reactive/data-client/commit/cc57a77d2e563071926f50cb9054516d2ab9101e), [`022f449`](https://github.com/reactive/data-client/commit/022f44950bf687b61f2d349e42ab906071c6fce7), [`47502c6`](https://github.com/reactive/data-client/commit/47502c664df913297fba3e5011a975dfd01c0d8d), [`fc4b015`](https://github.com/reactive/data-client/commit/fc4b015ca0899a2685af881d17f765dce27ffc1a), [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc), [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc), [`31f3ddb`](https://github.com/reactive/data-client/commit/31f3ddbc178ade2a7f59f7029a54c416df70e003), [`5b1c7b8`](https://github.com/reactive/data-client/commit/5b1c7b8bd385f87e2d5e91a72dfa9b4d3eb4fd53), [`a403df8`](https://github.com/reactive/data-client/commit/a403df8f22dadb0dbd9a6cf72a65f9187ae63176), [`cb6d9f2`](https://github.com/reactive/data-client/commit/cb6d9f21ae73ab79ac5f1d6aea04f68d7c2c6336), [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e)]:
+  - @data-client/core@0.19.0
+  - @data-client/endpoint@0.19.0
+  - @data-client/normalizr@0.19.0
+
 ## 0.4.86
 
 ### Patch Changes
