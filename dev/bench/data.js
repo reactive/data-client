@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792264989750,
+  "lastUpdate": 1792265632501,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -133969,6 +133969,324 @@ window.BENCHMARK_DATA = {
             "range": "±0.91%",
             "unit": "ops/sec",
             "extra": "97 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a32740d14de86b7006ccc497484dd52c0bc54c23",
+          "message": "feat(core): Log recent actions on __DC_ACTIONS__ and give same-named stores unique keys (#4393)\n\n* feat(core): Log recent actions on __DC_ACTIONS__ and give same-named stores unique keys\n\nDevToolsManager now records each store's recent actions in development,\nfrom startup and with or without the Redux DevTools extension, on\nglobalThis.__DC_ACTIONS__ (keyed like __DC_CONTROLLERS__). A store whose\ndevtools name is taken registers as 'name (2)' instead of replacing the\nfirst. The debugging skill uses the built-in log and falls back to\nwrapping dispatch on older versions.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* fix(core): Keep replacing same-named stores when server rendering\n\nPer-request SSR stores (e.g. Vue's DataClientPlugin with default managers)\nnever run cleanup, so suffixing their keys would keep every request's\nstore alive in development. Unique keys now apply only on a page.\n\nAlso covers the third-collision key and the cleanup guard in tests.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* fix(core): Detect server rendering with typeof window, keeping unique keys on React Native\n\nReact Native has no document but does define window, so the document\ncheck made same-named React Native stores replace each other.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* test(core): Cover unique keys where window exists without document\n\nPins the React Native case, and words the docs and comment as the\ncondition the code checks.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* feat(core): Keep __DC_ACTIONS__ small: summarize old actions, cap polling keys\n\nOnly the newest 20 actions keep args and response; older ones keep type,\nkey, endpoint, meta and error responses. While an endpoint polls, the log\nkeeps only its last maxPollingActions (default 4) actions.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* fix(core): Type the polling scan without narrowing the log\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* fix(core): Trim a key's older actions when it starts polling\n\nAlso say the polling cap is per key (endpoint and args), and rename the\nsubscriber count map.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* test(core): Polling cap holds across unsubscribe and resubscribe\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* fix(core): Track polling for skipped subscribes; keep a held registry key on re-init\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* fix(core): Forget polling keys on cleanup\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* fix(core): Fresh action log for a reused manager; treat pollFrequency 0 as polling\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* docs(skills): Lead devtools debugging with a symptom table, drop unused sections\n\nSkill evals (with and without the skill on three bugs) showed agents never\nused the polling pattern, checklist or network-correlation sections, and\nasked for a symptom-to-first-check hint.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* docs(skills): Cover reverting changes, stored-only errors and invalidation loops in devtools debugging\n\nHarder evals (refetch loop, wrapped mutation response, stale list cache) on\nSonnet and Haiku showed: normalization errors live only in meta, so the\nerrors snippet missed them; agents sliced the trimmed log by index; and one\nrun never opened the reference.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* refactor(core): Keep the DevToolsManager action log out of production builds\n\nMove trackPolling and logAction into the development-only prototype block and\ncreate their state in a development-only constructor branch, so production\nbundles drop them (DevToolsManager's minified gzip size goes from +381 B over\nmaster to +35 B). Share one polling test setup.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* chore: Regenerate website editor types\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* refactor(core): Keep DevToolsManager log helpers private to the middleware\n\ntrackPolling and logAction are only called from the middleware, so they\nbecome local functions there instead of protected prototype members,\ndropping them from the published types. Comments in init() now sit by\nthe statements they explain.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n* docs(skills): Tighten the devtools-debugging Where to Start table\n\nSplit the request-rate row so a request that never fires points at\nmeta.expiresAt and a missing rdc/subscribe, point meta errors at the\nsnippet that reads them, and cover a created item missing from a list.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01U7fXTuhewgyp2SGAqY6LgJ\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-17T19:26:30Z",
+          "tree_id": "327487de7a0f13e3fc96fccdbdbcf7fc02206e93",
+          "url": "https://github.com/reactive/data-client/commit/a32740d14de86b7006ccc497484dd52c0bc54c23"
+        },
+        "date": 1792265629394,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 405,
+            "range": "±5.88%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 380,
+            "range": "±1.58%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 329,
+            "range": "±4.47%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 972,
+            "range": "±1.06%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 212,
+            "range": "±5.74%",
+            "unit": "ops/sec",
+            "extra": "67 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 190,
+            "range": "±7.04%",
+            "unit": "ops/sec",
+            "extra": "61 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 987,
+            "range": "±3.48%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 694,
+            "range": "±3.10%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 1329,
+            "range": "±1.39%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1105,
+            "range": "±6.32%",
+            "unit": "ops/sec",
+            "extra": "68 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 509,
+            "range": "±8.24%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 8274,
+            "range": "±1.41%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 3813,
+            "range": "±1.55%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 58792,
+            "range": "±1.32%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 6690,
+            "range": "±2.74%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 181,
+            "range": "±7.53%",
+            "unit": "ops/sec",
+            "extra": "69 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 6866,
+            "range": "±2.78%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 6604,
+            "range": "±2.83%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 7409,
+            "range": "±1.89%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 7590,
+            "range": "±1.88%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 5447,
+            "range": "±2.49%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 5920,
+            "range": "±2.93%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 6788,
+            "range": "±2.49%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1637,
+            "range": "±1.19%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 4225,
+            "range": "±8.27%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 39626,
+            "range": "±4.44%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 5791,
+            "range": "±4.84%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 11884968,
+            "range": "±1.45%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 167,
+            "range": "±10.89%",
+            "unit": "ops/sec",
+            "extra": "68 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 4374,
+            "range": "±1.61%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 3425,
+            "range": "±1.22%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 5678,
+            "range": "±6.06%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 3357,
+            "range": "±1.25%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 6698,
+            "range": "±3.89%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 424,
+            "range": "±2.22%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 244,
+            "range": "±2.73%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 271,
+            "range": "±1.60%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 857,
+            "range": "±3.41%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 118,
+            "range": "±2.14%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 3686,
+            "range": "±4.82%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 11.49,
+            "range": "±3.78%",
+            "unit": "ops/sec",
+            "extra": "33 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 1489,
+            "range": "±6.86%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
           }
         ]
       }
