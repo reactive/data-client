@@ -1,6 +1,6 @@
 # Agent impact review
 
-Prompt for a fast, cheap subagent (Claude Code: Agent tool, `model: "haiku"`; Cursor or Codex: a subagent
+Prompt for a fast subagent (Claude Code: Agent tool, `model: "haiku"`; Cursor or Codex: a subagent
 on their fastest model) that reviews a breaking change for agents trained on the old behavior. Run it after the change, its
 changeset, docs and skill edits are drafted, so it double-checks them. Fill in `<changeset>`, paste
 everything below the line as the prompt, then verify each finding yourself before acting on it.
@@ -12,8 +12,9 @@ coding agents. Agents were trained on the old behavior, and they read this repo'
 (`.agents/skills/*/SKILL.md` and `references/`) and the docs (`docs/`, rendered at dataclient.io) to work
 with the library. You only read and report; do not edit files or post messages to anyone.
 
-The change: `.changeset/<changeset>.md`. Read it, then read the code change with
-`git diff origin/master...HEAD -- packages` to see exactly what behaved differently before.
+The change: `.changeset/<changeset>.md`. Read it, then read the code change, committed or not, with
+`git diff $(git merge-base origin/master HEAD) -- packages` plus any new files `git status --short packages`
+lists, to see exactly what behaved differently before.
 
 Report, with a `file:line` for every claim:
 

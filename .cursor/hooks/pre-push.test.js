@@ -183,7 +183,9 @@ test('an eval without a real prompt or assertions holds the push', () => {
     for (const [i, fields] of [
       { assertions: [] },
       { prompt: '  ', assertions: ['a'] },
+      { prompt: 5, assertions: ['a'] },
       { prompt: 'p', assertions: 'not an array' },
+      { prompt: 'p', assertions: [''] },
     ].entries()) {
       const evals = [{ id: 1, changeset: 'drop-old', ...fields }];
       write(
@@ -222,7 +224,11 @@ test('a list-item BREAKING marker holds the push; a lowercase mention does not',
         '.changeset/drop-old.md',
         `---\n'@data-client/core': minor\n---\n\n${body}\n`,
       );
-    for (const [i, marker] of ['- BREAKING:', '1. BREAKING:'].entries()) {
+    for (const [i, marker] of [
+      '- BREAKING:',
+      '1. BREAKING:',
+      '10) BREAKING:',
+    ].entries()) {
       changeset(`${marker} Remove \`old()\``);
       git('commit', '-am', `list${i}`);
       assert.match(push(root), /\.changeset\/drop-old\.md/);

@@ -17,9 +17,9 @@ const readJson = file =>
 // changesets the impact review found no realistic agent task for, with why
 const exemptions =
   readJson('.agents/skills/changeset/no-agent-impact.json') ?? {};
+const isText = value => typeof value === 'string' && value.trim() !== '';
 // a non-blank string, which also rules out inherited keys like `constructor`
-const hasReason = name =>
-  typeof exemptions[name] === 'string' && exemptions[name].trim() !== '';
+const hasReason = name => isText(exemptions[name]);
 const changesetsWithEvals = new Set(
   fs.readdirSync(path.join(root, '.agents/skills')).flatMap(skill => {
     const evals = readJson(`.agents/skills/${skill}/evals/evals.json`);
@@ -27,10 +27,10 @@ const changesetsWithEvals = new Set(
       .filter(
         ({ changeset, prompt, assertions }) =>
           changeset &&
-          typeof prompt === 'string' &&
-          prompt.trim() &&
+          isText(prompt) &&
           Array.isArray(assertions) &&
-          assertions.length,
+          assertions.length &&
+          assertions.every(isText),
       )
       .map(({ changeset }) => changeset);
   }),
@@ -44,7 +44,7 @@ const missing = fs.readdirSync(path.join(root, '.changeset')).filter(
     !hasReason(file.slice(0, -3)) &&
     // a marker starting a line of the body (after list numbers, bold or quote
     // punctuation), not a sentence that mentions breaking
-    /^[^\w\n]*(?:\d+[.)]\s*)?[^\w\n]*(BREAKING|Breaking)( CHANGE| [Cc]hange)?[^\w\n]*:/m.test(
+    /^[^\w\n]*(?:\d+[.)][^\w\n]*)?(BREAKING|Breaking)( CHANGE| [Cc]hange)?[^\w\n]*:/m.test(
       read(`.changeset/${file}`).replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, ''),
     ),
 );
