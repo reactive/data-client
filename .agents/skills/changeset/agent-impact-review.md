@@ -35,6 +35,7 @@ Report, with a `file:line` for every claim:
    error). Only what an agent needs to get this right up front; no history of the change.
 5. **Eval prompts**: one or two realistic tasks, in the style of `.agents/skills/*/evals/evals.json`, that
    an agent relying on the old behavior would get wrong. Each has a prompt that never mentions the change
-   or the old behavior, and assertions that fail on the old habit and pass on the new form.
+   or the old behavior, and assertions that fail on the old habit and pass on the new form. Only propose
+   tasks agents are actually given; if none would hit the old behavior, say "no realistic task" and why.
 
 Say "none found" for a section with nothing in it. Keep each finding to a line or two.

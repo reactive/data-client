@@ -228,6 +228,7 @@ const message = [
     isInput: file =>
       file.startsWith('.changeset/') ||
       /^\.agents\/skills\/[^/]+\/evals\//.test(file) ||
+      file === '.agents/skills/changeset/no-agent-impact.json' ||
       file === 'scripts/breaking-evals.mjs',
   }),
 ]

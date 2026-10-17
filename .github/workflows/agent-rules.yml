@@ -15,6 +15,7 @@ on:
       - 'scripts/breaking-evals.mjs'
       - '.changeset/**'
       - '.agents/skills/*/evals/**'
+      - '.agents/skills/changeset/no-agent-impact.json'
       - '.github/workflows/agent-rules.yml'
       - '.github/workflows/paths-gate.yml'
   pull_request:

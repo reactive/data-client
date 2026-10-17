@@ -163,3 +163,16 @@ test('a changeset that only mentions breaking does not hold the push', () => {
     assert.equal(push(root), '');
   });
 });
+
+test('a breaking changeset with no agent impact does not hold the push', () => {
+  withRepo((root, git) => {
+    breakingBranch(root, git);
+    write(
+      root,
+      '.agents/skills/changeset/no-agent-impact.json',
+      JSON.stringify({ 'drop-old': 'no agent calls old()' }),
+    );
+    git('add', '-A');
+    assert.equal(push(root, 'git commit -m exempt && git push'), '');
+  });
+});
