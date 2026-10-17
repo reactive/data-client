@@ -75,7 +75,11 @@
       "groupSlug": "all-minor-patch"
     },
     {
-      "extends": ["monorepo:react"],
+      "description": "monorepo:react only knows facebook/react; React's packages now publish from react/react",
+      "matchSourceUrls": [
+        "https://github.com/facebook/react",
+        "https://github.com/react/react"
+      ],
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupName": "react"
     },
