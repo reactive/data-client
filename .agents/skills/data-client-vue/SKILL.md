@@ -117,6 +117,13 @@ each data-bound component ([boundaries](references/data-dependency.md#boundaries
 ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.invalidateAll(), ctrl.setResponse(), ctrl.set(),
 ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 
+| To refresh or update | Call |
+|---|---|
+| You already have the new value | `ctrl.set()` / `ctrl.setResponse()` (no network) |
+| One endpoint+args | `ctrl.fetch(endpoint, args)` |
+| All cached args of an endpoint | `ctrl.expireAll(endpoint)`: fetching composables refetch; `useCache`/`useQuery` don't |
+| Current data must not show while refetching | `ctrl.invalidate()` / `ctrl.invalidateAll()`, rendering `useDLE`'s `loading`; mounted `useSuspense` keeps its last data |
+
 Write many entities without a fetch with one `ctrl.set([Entity], rows)`. Never loop `ctrl.set(Entity, args, row)` per row, and never add an endpoint or `setResponse()` just to batch.
 
 ## Programmatic queries
@@ -160,9 +167,10 @@ This is useful for websockets, SSE, logging, etc. Pass them to `DataClientPlugin
 - [useDebounce(query, timeout)](references/useDebounce.md) when rendering async data based on user field inputs
 - [[handleSubmit, loading, error] = useLoading()](references/useLoading.md) when tracking async mutations
 - Prefer smaller Vue components that do one thing
-- **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill
+- **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill. Pass ids/args, not fetched data a component only hands down (a list passing each item to its row is fine); bindings with the same endpoint and args share one fetch and store entry
 - **Don't hide data bindings inside custom composables**: wrapping them obfuscates a component's data dependencies and couples data logic to view code, causing drift. Put tightly coupled data transformations in a `Query` schema (with the data model, e.g. `src/resources/`) so they stay reusable and evolve independently of views
 - Don't copy results into `ref()`/`reactive()` state; render the returned refs directly so updates flow through
+- `undefined` from `useCache`, or `useQuery` on an Entity, means "not loaded yet", not "doesn't exist"; a deep link or refresh starts empty. Read required data with `useSuspense`/`useDLE`, which fetch only when the cache is missing, stale or invalidated; use `useCache`/`useQuery` for data other code loads
 - For tests, apply the skill "data-client-vue-testing"
 
 # References

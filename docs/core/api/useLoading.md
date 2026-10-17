@@ -185,7 +185,7 @@ of [react-hooks/exhaustive-deps](https://www.npmjs.com/package/eslint-plugin-rea
 ```typescript
 export default function useLoading<
   F extends (...args: any) => Promise<any>,
->(func: F, deps: readonly any[] = []): [F, boolean];
+>(func: F, deps: readonly any[] = []): [F, boolean, Error | undefined];
 ```
 
 :::

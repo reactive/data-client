@@ -28,6 +28,9 @@ const post = use(postPromise);
 const comments = use(commentsPromise);
 ```
 
+Sequential `useSuspense` calls waterfall, so load 2+ endpoints with `useFetch` as above. Before React 19,
+read them with `useSuspense` instead of `use()`.
+
 For API definitions (like TodoResource), apply the skill "data-client-rest".
 
 ## Mutations
@@ -92,6 +95,13 @@ Its props are `fallback`, `errorComponent`, `errorClassName`, and `listen`. It c
 ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.invalidateAll(), ctrl.setResponse(), ctrl.set(),
 ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 
+| To refresh or update | Call |
+|---|---|
+| You already have the new value | `ctrl.set()` / `ctrl.setResponse()` (no network) |
+| One endpoint+args | `ctrl.fetch(endpoint, args)` |
+| All cached args of an endpoint | `ctrl.expireAll(endpoint)`: fetching hooks refetch; `useCache`/`useQuery` don't |
+| Current data must not show while refetching | `ctrl.invalidate()` / `ctrl.invalidateAll()`: `useSuspense` suspends |
+
 Write many entities without a fetch with one `ctrl.set([Entity], rows)`. Never loop `ctrl.set(Entity, args, row)` per row, and never add an endpoint or `setResponse()` just to batch.
 
 ## Programmatic queries
@@ -134,8 +144,9 @@ This is useful for websockets, SSE, logging, etc. Always use the skill "data-cli
 - [useDebounce(query, timeout)](references/useDebounce.md) when rendering async data based on user field inputs
 - [[handleSubmit, loading, error] = useLoading()](references/useLoading.md) when tracking async mutations
 - Prefer smaller React components that do one thing
-- **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill
+- **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill. Pass ids/args, not fetched data a component only hands down (a list passing each item to its row is fine); bindings with the same endpoint and args share one fetch and store entry
 - **Don't hide data bindings inside custom hooks**: wrapping them obfuscates a component's data dependencies and couples data logic to view code, causing drift. Put tightly coupled data transformations in a `Query` schema (with the data model, e.g. `src/resources/`) so they stay reusable and evolve independently of views
+- `undefined` from `useCache`, or `useQuery` on an Entity, means "not loaded yet", not "doesn't exist"; a deep link or refresh starts empty. Read required data with `useSuspense`/`useDLE`, which fetch only when the cache is missing, stale or invalidated; use `useCache`/`useQuery` for data other code loads
 - For tests, apply the skill "data-client-react-testing"
 
 # References

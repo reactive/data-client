@@ -1,0 +1,16 @@
+{
+  "skill_name": "data-client-schema",
+  "evals": [
+    {
+      "id": 1,
+      "name": "lookup-by-username",
+      "prompt": "Route /u/:username renders `UserProfile`. The app shell loads every user with `UserResource.getList` before routes render. Look up the user by `username` (unique; pk is `id`). User is in src/resources/User.ts.",
+      "expected_output": "Adds static indexes = ['username'] to User and reads useQuery(User, { username }).",
+      "files": [],
+      "assertions": [
+        "`User` gets `static indexes` containing `'username'`.",
+        "The user is read with `useQuery(User, { username })`, not by searching or mapping the list."
+      ]
+    }
+  ]
+}
