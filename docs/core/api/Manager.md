@@ -99,7 +99,7 @@ installed once per app, so managers are created once.
 import MyManager from './MyManager';
 
 // highlight-next-line
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = [new MyManager(), ...getDefaultManagers()];
 ```
 
 </ProviderManagers>

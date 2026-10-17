@@ -62,7 +62,7 @@ import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
 import App from './App.vue';
 import MyManager from './MyManager';
 
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = [new MyManager(), ...getDefaultManagers()];
 
 const app = createApp(App);
 app.use(DataClientPlugin, { managers });

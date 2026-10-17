@@ -66,7 +66,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import MyManager from './MyManager';
 
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = [new MyManager(), ...getDefaultManagers()];
 
 createRoot(document.body).render(
   <DataProvider managers={managers}>
@@ -83,7 +83,7 @@ import { AppRegistry } from 'react-native';
 import App from './App';
 import MyManager from './MyManager';
 
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = [new MyManager(), ...getDefaultManagers()];
 
 const Root = () => (
   <DataProvider managers={managers}>
@@ -101,7 +101,7 @@ import { getDefaultManagers } from '@data-client/react';
 import { DataProvider } from '@data-client/react/nextjs';
 import MyManager from './MyManager';
 
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = [new MyManager(), ...getDefaultManagers()];
 
 export default function Provider({
   children,
@@ -133,7 +133,7 @@ import { Stack } from 'expo-router';
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import MyManager from './MyManager';
 
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = [new MyManager(), ...getDefaultManagers()];
 
 export default function RootLayout() {
   return (
