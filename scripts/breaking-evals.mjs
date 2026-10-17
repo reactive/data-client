@@ -42,9 +42,9 @@ const missing = fs.readdirSync(path.join(root, '.changeset')).filter(
     file !== 'README.md' &&
     !changesetsWithEvals.has(file.slice(0, -3)) &&
     !hasReason(file.slice(0, -3)) &&
-    // a marker starting a line of the body (after list numbers, bold or quote
+    // a marker starting a line of the body (after list numbers, emphasis or quote
     // punctuation), not a sentence that mentions breaking
-    /^[^\w\n]*(?:\d+[.)][^\w\n]*)?(BREAKING|Breaking)( CHANGE| [Cc]hange)?[^\w\n]*:/m.test(
+    /^[^A-Za-z\d\n]*(?:\d+[.)][^A-Za-z\d\n]*)?(BREAKING|Breaking)( CHANGE| [Cc]hange)?[^A-Za-z\d\n]*:/m.test(
       read(`.changeset/${file}`).replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, ''),
     ),
 );

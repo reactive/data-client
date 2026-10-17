@@ -228,6 +228,7 @@ test('a list-item BREAKING marker holds the push; a lowercase mention does not',
       '- BREAKING:',
       '1. BREAKING:',
       '10) BREAKING:',
+      '_BREAKING:_',
     ].entries()) {
       changeset(`${marker} Remove \`old()\``);
       git('commit', '-am', `list${i}`);
