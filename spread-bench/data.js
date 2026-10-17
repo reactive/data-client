@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792244094744,
+  "lastUpdate": 1792264762435,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -589,6 +589,37 @@ window.BENCHMARK_DATA = {
             "range": "±0.58%",
             "unit": "ops/sec",
             "extra": "85 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7c55890a6bb95958899ee2267d9acdbe2d1a4b63",
+          "message": "pkg: Update react-native to 0.88 (#4401)\n\n* pkg: Update all non-major dependencies\n\n* pkg: Support React Native 0.88 in tests and CI\n\nTake react-native's jest aliases from @react-native/jest-preset instead of\ncopying them: 0.88 adds the exports-only react-native/react-private-interface\nentry, which the copied mapper resolved as a missing directory.\n\nReact Native 0.88 bundles the React 19.3 renderer, so the native job runs\nthe ReactNative suites on the installed React and only then downgrades to\n19.2.3 for the previous-minor ReactDOM suites.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01DtLiYpnhzjcWBNPipb6j8W\n\n* internal: Explain the native job's React 19.2 pin\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01DtLiYpnhzjcWBNPipb6j8W\n\n---------\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-17T19:15:18Z",
+          "tree_id": "62c5193d1c28658fdd0334e7a34b1df759eb1961",
+          "url": "https://github.com/reactive/data-client/commit/7c55890a6bb95958899ee2267d9acdbe2d1a4b63"
+        },
+        "date": 1792264759472,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 149,
+            "range": "±0.95%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
           }
         ]
       }
