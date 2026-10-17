@@ -13,7 +13,7 @@ They interface with the store using [Controller](references/Controller.md), and 
 
 One concern per Manager; compose many small managers (e.g. transport, subscriptions, logging, auth) rather than one large one.
 
-Every Manager defines a `middleware` property and a `cleanup()` method. There is no `getMiddleware()`. A Manager with nothing to intercept passes actions through: `middleware: Middleware = controller => next => async action => next(action);`
+Every Manager defines a `middleware` property and a `cleanup()` method. A Manager with nothing to intercept passes actions through: `middleware: Middleware = controller => next => async action => next(action);`
 
 ## Use cases
 

@@ -32,8 +32,9 @@ Report, with a `file:line` for every claim:
    that relied on the old behavior; two skills or docs that now disagree with each other. Read the
    `SKILL.md` of every skill whose `description` covers the area, not only files that grep matches.
 4. **Skill updates**: for each skill whose agents would hit an old habit, the smallest edit to its
-   `SKILL.md` that makes the right way the first thing an agent writes (not a note to fix it after an
-   error). Only what an agent needs to get this right up front; no history of the change.
+   `SKILL.md` that makes the right way the first thing an agent writes: a positive example or explanation of
+   the new form, not a note to fix it after an error or a statement that the old API no longer exists. Only
+   what an agent needs to get this right up front; no history of the change.
 5. **Eval prompts**: one or two realistic tasks, in the style of `.agents/skills/*/evals/evals.json`, that
    an agent relying on the old behavior would get wrong. Each has a prompt that never mentions the change
    or the old behavior, and assertions that fail on the old habit and pass on the new form. Only propose
