@@ -215,7 +215,7 @@ test('a bold BREAKING marker holds the push', () => {
   });
 });
 
-test('list, emphasis, plural and heading BREAKING markers hold the push; a lowercase mention does not', () => {
+test('BREAKING markers after any markup and Breaking headings hold the push; prose, identifiers, fenced code and split markers do not', () => {
   withRepo((root, git) => {
     breakingBranch(root, git);
     const changeset = body =>
@@ -246,7 +246,7 @@ test('list, emphasis, plural and heading BREAKING markers hold the push; a lower
       assert.match(push(root), /\.changeset\/drop-old\.md/);
     }
     changeset(
-      'Add `new()`\n\nbreaking: none\n\n## Breaking down the fix\n\n#\nBreaking\n: split across lines\n\nSet `BREAKING_FLAG` to opt in\n\n```ts\n// BREAKING: legacy flag\n```',
+      'Add `new()`\n\nbreaking: none\n\n## Breaking down the fix\n\n## Breaking, the fix\n\n#\nBreaking\n: split across lines\n\nSet `BREAKING_FLAG` to opt in\n\n```ts\n// BREAKING: legacy flag\n```',
     );
     git('commit', '-am', 'lowercase');
     assert.equal(push(root), '');

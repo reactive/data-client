@@ -39,10 +39,10 @@ const changesetsWithEvals = new Set(
 // A marker that is the first word of a line of a changeset body (after any markup
 // like lists, quotes, tables, brackets or emoji): uppercase BREAKING,
 // title-case Breaking with a colon or dash, or a Breaking (changes)
-// heading; not prose that mentions breaking, nor code. Each part stays on
+// heading; not prose that mentions breaking, nor fenced code. Each part stays on
 // one line (no \s, which /m lets cross line breaks)
 const breakingMarker =
-  /^[^A-Za-z\d\n]*(?:\d+[.)][^A-Za-z\d\n]*)?(?:BREAKING(?!_*[A-Za-z\d])|Breaking(?: [Cc]hanges?)?[*_ \t]*(?::|—|–| - ))|^#+[^A-Za-z\d\n]*Breaking(?:[ \t]+[Cc]hanges?\b|[^\sA-Za-z\d]|[ \t]*$)/m;
+  /^[^A-Za-z\d\n]*(?:\d+[.)][^A-Za-z\d\n]*)?(?:BREAKING(?!_*[A-Za-z\d])|Breaking(?: [Cc]hanges?)?[*_ \t]*(?::|—|–| - ))|^#+[^A-Za-z\d\n#]*Breaking(?:[ \t]+[Cc]hanges?\b|[*_ \t]*(?::|—|–| - |$))/m;
 
 const missing = fs.readdirSync(path.join(root, '.changeset')).filter(
   file =>
