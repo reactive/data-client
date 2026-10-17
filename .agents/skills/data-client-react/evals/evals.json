@@ -33,7 +33,7 @@
       "id": 3,
       "name": "cold-deep-link",
       "prompt": "Add `TodoTitle` (src/components/TodoTitle.tsx): takes `todoId` and shows that todo's title in the /todos/:id page header. The list page already loads every todo, so read it from the cache without another request. Show 'Not found' when the todo doesn't exist. TodoResource is in src/resources/Todo.ts.",
-      "expected_output": "Warns that a direct or refreshed /todos/:id visit starts with an empty cache, so a cache miss isn't 'not found'; reads with useSuspense or useDLE (which reuse the cached todo with no request) and shows 'Not found' from the 404.",
+      "expected_output": "Warns that a direct or refreshed /todos/:id visit starts with an empty cache, so a cache miss isn't 'not found'; reads with useSuspense or useDLE and shows 'Not found' from the 404.",
       "files": [],
       "assertions": [
         "The todo is read with `useSuspense` or `useDLE`, not only `useCache`/`useQuery`.",
@@ -69,10 +69,10 @@
       "id": 6,
       "name": "parallel-fetch",
       "prompt": "Write `PostHeader` (src/components/PostHeader.tsx): one `<header>` showing a post's title (`PostResource.get`) next to its comment count (`CommentResource.getList` with `{ postId }`). The app is on React 18.",
-      "expected_output": "Starts both requests with useFetch, then reads each with useSuspense; no use().",
+      "expected_output": "No waterfall: useFetch for both then useSuspense, a child component per request, or useDLE; no use().",
       "files": [],
       "assertions": [
-        "Both requests start before the component first suspends (`useFetch` for each before any `useSuspense`), or each is read in its own child component.",
+        "Both requests start in the same render: `useFetch` for each before any `useSuspense`, `useDLE`, or one child component per request.",
         "`use()` is not used (React 18)."
       ]
     },
