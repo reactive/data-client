@@ -48,14 +48,14 @@
       "name": "timing-manager",
       "changeset": "manager-middleware-required",
       "prompt": "Add src/managers/TimingManager.ts: a Manager that logs how long each fetch takes, from when the fetch action is dispatched until its result is in the store, as `console.log(key, ms)`. It has no timers or sockets to close. Also show how to add it to our `DataProvider` in src/index.tsx next to the default managers.",
-      "expected_output": "A class implementing Manager with a `middleware: Middleware` property that records the start time on FETCH and logs on the SET_RESPONSE with the same key (NetworkManager doesn't pass most FETCH actions on, so timing around `next()` of the FETCH measures nothing), passing every action to `next(action)`; a `cleanup()` method; and `managers={[new TimingManager(), ...getDefaultManagers()]}` on DataProvider.",
+      "expected_output": "A class implementing Manager with a `middleware: Middleware` property that records the start time on FETCH and logs when `action.meta.promise` settles (or on the SET_RESPONSE with the same key) (NetworkManager doesn't pass most FETCH actions on, so timing around `next()` of the FETCH measures nothing), passing every action to `next(action)`; a `cleanup()` method; and `managers={[new TimingManager(), ...getDefaultManagers()]}` on DataProvider.",
       "files": [],
       "assertions": [
         "The Manager defines `middleware` as a property or field typed `Middleware` (not a `getMiddleware()` method).",
         "The class has no `getMiddleware` method or property.",
         "The class defines a `cleanup()` method (an empty body is fine).",
         "The middleware calls `next(action)` for every action, not only fetches, and returns or awaits its result.",
-        "The timer starts on `actionTypes.FETCH` and stops on the `actionTypes.SET_RESPONSE` with the same `action.key`, not around `next()` of the FETCH.",
+        "The timer starts on `actionTypes.FETCH` and stops when that action's `meta.promise` settles or on the `actionTypes.SET_RESPONSE` with the same `action.key`, not when `next()` of the FETCH returns.",
         "DataProvider receives `managers` that include `...getDefaultManagers()` with the new TimingManager placed before them."
       ]
     }
