@@ -36,16 +36,21 @@ const changesetsWithEvals = new Set(
   }),
 );
 
+// A marker that is the first word of a line of a changeset body (after any markup
+// like lists, quotes, tables, brackets or emoji): uppercase BREAKING,
+// title-case Breaking with a colon or dash, or a Breaking (changes)
+// heading; not prose that mentions breaking, nor code. Each part stays on
+// one line (no \s, which /m lets cross line breaks)
+const breakingMarker =
+  /^[^A-Za-z\d\n]*(?:\d+[.)][^A-Za-z\d\n]*)?(?:BREAKING(?!_*[A-Za-z\d])|Breaking(?: [Cc]hanges?)?[*_ \t]*(?::|—|–| - ))|^#+[^A-Za-z\d\n]*Breaking(?:[ \t]+[Cc]hanges?\b|[^\sA-Za-z\d]|[ \t]*$)/m;
+
 const missing = fs.readdirSync(path.join(root, '.changeset')).filter(
   file =>
     file.endsWith('.md') &&
     file !== 'README.md' &&
     !changesetsWithEvals.has(file.slice(0, -3)) &&
     !hasReason(file.slice(0, -3)) &&
-    // a marker starting a line of the body (after list, quote, heading or
-    // emphasis markup): uppercase BREAKING, title-case Breaking with a colon or dash,
-    // or a Breaking heading; not prose that mentions breaking, nor code
-    /^[-*+_># \t]*(?:\d+[.)][-*_ \t]*)?(?:BREAKING(?![A-Za-z\d])|Breaking(?: [Cc]hanges?)?[*_ \t]*(?::|—|–| - ))|^#+[ \t]*Breaking(?: [Cc]hanges?)?[*_ \t]*$/m.test(
+    breakingMarker.test(
       read(`.changeset/${file}`)
         .replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '')
         // fenced code blocks
