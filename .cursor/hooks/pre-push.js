@@ -3,7 +3,8 @@
 // `PreToolUse` on Bash), regenerates agent skill references and Claude Code's
 // copy of the Cursor rules when the branch touches their inputs, runs
 // `eslint --fix` on the JS/TS files it changes, and holds the push until the
-// result is committed.
+// result is committed. It also holds breaking (minor or major bump) changesets
+// with neither a skill eval naming them nor a reason in no-agent-impact.json.
 // Runs once per push instead of per edit or turn, so any number of local
 // commits can come first; CI's `regenerate` and `agent-rules` checks are the
 // backstop.
@@ -90,16 +91,25 @@ try {
 }
 
 /**
- * Runs the generator `script` (`yarn build:<build>`) when
- * the branch changes a file `isInput` matches, then reports problems it
- * printed and `outputs` (pathspecs) left uncommitted
+ * Runs the generator or checker `script` when the branch changes a file
+ * `isInput` matches, then reports problems it printed (as `command`) and, for
+ * a generator, `outputs` (pathspecs) left uncommitted
  */
-function regenerate({ what, from, script, build, isInput, outputs }) {
+function regenerate({
+  what,
+  from,
+  script,
+  command = `node ${script}`,
+  isInput,
+  outputs = [],
+}) {
   const isDirty = dirty.some(isInput);
   // the generator reads the working tree, so it can only vouch for what's
   // pushed when that includes these edits; otherwise leave it to CI
   if (isDirty && !commits) return [];
   if (!isDirty && !committed.some(isInput)) return [];
+  // a branch from before the script was added
+  if (!fs.existsSync(path.join(projectDir, script))) return [];
   let problems = '';
   try {
     execFileSync('node', [script], {
@@ -110,18 +120,14 @@ function regenerate({ what, from, script, build, isInput, outputs }) {
     problems = String(err.stderr ?? '').trim();
   }
   // includes output generated earlier but never committed
-  const uncommitted = git(
-    'status',
-    '--porcelain',
-    '--untracked-files=all',
-    '--',
-    ...outputs,
-  );
+  const uncommitted =
+    outputs.length &&
+    git('status', '--porcelain', '--untracked-files=all', '--', ...outputs);
   return [
     uncommitted &&
       `${what} generated from this branch's ${from} changes aren't committed. Commit them, then push again:\n${uncommitted}`,
     problems &&
-      `\`yarn build:${build}\` found problems CI will fail on. Fix them, commit, then push again:\n${problems}`,
+      `\`${command}\` found problems CI will fail on. Fix them, commit, then push again:\n${problems}`,
   ];
 }
 
@@ -211,7 +217,7 @@ const message = [
     what: 'Skill references',
     from: 'docs',
     script: 'website/framework-docs/skillReferences.mjs',
-    build: 'skills',
+    command: 'yarn build:skills',
     isInput: isSkillInput,
     outputs: ['.agents/skills/*/references/*'],
   }),
@@ -219,12 +225,20 @@ const message = [
     what: 'Claude Code rules',
     from: 'Cursor rules',
     script: 'scripts/agent-rules.mjs',
-    build: 'agent-rules',
+    command: 'yarn build:agent-rules',
     // sources only; a hand edit to the output is left to CI
     isInput: file =>
       /(^|\/)\.cursor\/rules\//.test(file) ||
       file === 'scripts/agent-rules.mjs',
     outputs: [':(glob)**/.claude/rules/**', '.claude/skills'],
+  }),
+  ...regenerate({
+    script: 'scripts/breaking-evals.mjs',
+    isInput: file =>
+      file.startsWith('.changeset/') ||
+      /^\.agents\/skills\/[^/]+\/evals\//.test(file) ||
+      file === '.agents/skills/changeset/no-agent-impact.json' ||
+      file === 'scripts/breaking-evals.mjs',
   }),
 ]
   .filter(Boolean)

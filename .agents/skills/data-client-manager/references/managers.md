@@ -77,7 +77,8 @@ export default class ErrorReportManager implements Manager {
 ### Metrics {#metrics}
 
 Track fetch timing by observing [FETCH](./Actions.md#fetch) actions. `action.meta.promise`
-resolves when the fetch completes.
+resolves when the fetch completes. List it before `...getDefaultManagers()` so it sees each FETCH
+before [NetworkManager](https://dataclient.io/docs/api/NetworkManager) handles it.
 
 ```typescript
 import {
@@ -240,7 +241,7 @@ import { get } from 'idb-keyval';
 import App from './App';
 import PersistManager from './PersistManager';
 
-const managers = [...getDefaultManagers(), new PersistManager()];
+const managers = [new PersistManager(), ...getDefaultManagers()];
 const initialState = await get('data-client');
 
 createRoot(document.body).render(

@@ -13,6 +13,8 @@ They interface with the store using [Controller](references/Controller.md), and 
 
 One concern per Manager; compose many small managers (e.g. transport, subscriptions, logging, auth) rather than one large one.
 
+Every Manager defines a `middleware` property and a `cleanup()` method. A Manager with nothing to intercept passes actions through: `middleware: Middleware = controller => next => async action => next(action);`
+
 ## Use cases
 
 Minimal working examples for each use case live in [references/managers.md](references/managers.md) (see the named section) unless another file is linked:
@@ -159,11 +161,13 @@ export default class CustomSubsManager implements Manager {
 
 ## Usage
 
+List custom managers before `...getDefaultManagers()`. Actions pass through managers in array order, and NetworkManager (one of the defaults) resolves each FETCH itself instead of passing it on (only optimistic mutations continue), so a manager listed after it misses most fetches:
+
 ```tsx
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
 
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = [new MyManager(), ...getDefaultManagers()];
 
 createRoot(document.body).render(
   <DataProvider managers={managers}>

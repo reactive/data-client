@@ -1,0 +1,3 @@
+{
+  "drop-typescript-3": "Agents don't install or keep TypeScript 3.x, so no realistic task hits the old behavior."
+}

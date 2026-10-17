@@ -1,6 +1,6 @@
 ---
 description: Strategy for type/API changes that would break users or mixed package versions
-globs: packages/**, .changeset/**, plans/next-breaking-release.md
+globs: packages/**, .changeset/**, plans/next-breaking-release.md, plans/after-release.md, examples/*/package.json
 alwaysApply: false
 ---
 
@@ -23,3 +23,14 @@ Requiring a matching version for a feature that is new in the same release is no
 3. **Track the cleanup**: add an entry to [plans/next-breaking-release.md](../../plans/next-breaking-release.md) naming the shim to remove, what it breaks, and the migration.
 
 Mark a change `BREAKING` (minor bump while under 1.0) only when no compatible version is reasonable. When a release is already breaking, work through `plans/next-breaking-release.md`, move each finished item into that release's blog migration guide, and delete it from the plan.
+
+## Agents trained on the old behavior
+
+Agents write the old behavior by default, and finding out from a type error or wrong result wastes tokens, so a breaking change (or changed default) must teach the new way before they write code:
+
+- **Skills lead with the new form**: update every `.agents/skills` example and statement the change affects, including facts derived from the old behavior that never name the changed API (defaults, "returns undefined so check for it", "you don't need X"). State the new form as the default with positive examples and explanations, not as a fix after an error, and don't say the old API no longer exists.
+- **Examples lead with it too**: agents copy `examples/`, so update every example the change affects as soon as it can run the new code. Workspace examples change in the same PR; standalone examples install from npm, so they change now when the new form works with their published version, and otherwise go in [plans/after-release.md](../../plans/after-release.md) (see "Release bumps" in `examples/AGENTS.md`).
+- **Agent impact review**: once the change, changeset, docs and skills are drafted, run [agent-impact-review.md](../../.agents/skills/changeset/agent-impact-review.md) on a fast subagent (Haiku in Claude Code, the fastest model in Cursor or Codex), verify each finding, and apply the real ones.
+- **Breaking-change evals**: add at least one eval per breaking changeset to the evals of the skill an agent would use (`.agents/skills/<skill>/evals/evals.json`), with `"changeset": "<changeset file name without .md>"`. Its prompt is a task agents really get, that never mentions the change, and its assertions fail on the old habit. When the review finds no such task (e.g. a dropped TypeScript version no agent would install), give the reason in [no-agent-impact.json](../../.agents/skills/changeset/no-agent-impact.json) instead of inventing a scenario. Run it on a fresh fast subagent given only the skill (without its `evals/` folder), not the diff: it must pass on the first try without running code. If it fails, fix the skill, not the eval.
+
+`scripts/breaking-evals.mjs` (pre-push hook and the `agent-rules` CI check) fails while a pending changeset with a minor or major bump has neither.
