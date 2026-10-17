@@ -106,7 +106,7 @@ test('a pending fix to a file the push deletes does not hold it', () => {
   });
 });
 
-/** master has the checker; the branch adds a `BREAKING` changeset */
+/** master has the checker; the branch adds a breaking (minor) changeset */
 function breakingBranch(root, git) {
   write(
     root,
@@ -152,15 +152,21 @@ test('a breaking changeset an eval names does not hold the push', () => {
   });
 });
 
-test('a changeset that only mentions breaking does not hold the push', () => {
+test('a major bump holds the push; a patch bump does not', () => {
   withRepo((root, git) => {
     breakingBranch(root, git);
-    fs.writeFileSync(
-      path.join(root, '.changeset/drop-old.md'),
-      "---\n'@data-client/core': patch\n---\n\nFix `old()`; a future BREAKING release removes it\n",
-    );
-    git('commit', '-am', 'not breaking');
-    assert.equal(push(root), '');
+    for (const [bump, held] of [
+      ['major', true],
+      ['patch', false],
+    ]) {
+      fs.writeFileSync(
+        path.join(root, '.changeset/drop-old.md'),
+        `---\n'@data-client/core': ${bump}\n---\n\nChange \`old()\`\n`,
+      );
+      git('commit', '-am', bump);
+      if (held) assert.match(push(root), /\.changeset\/drop-old\.md/);
+      else assert.equal(push(root), '');
+    }
   });
 });
 
@@ -202,88 +208,12 @@ test('an eval without a real prompt or assertions holds the push', () => {
   });
 });
 
-test('a bold BREAKING marker holds the push', () => {
-  withRepo((root, git) => {
-    breakingBranch(root, git);
-    write(
-      root,
-      '.changeset/drop-old.md',
-      "---\n'@data-client/core': minor\n---\n\n**BREAKING:** Remove `old()`\n",
-    );
-    git('commit', '-am', 'bold');
-    assert.match(push(root), /\.changeset\/drop-old\.md/);
-  });
-});
-
-test('BREAKING markers after any markup and Breaking headings hold the push; prose, identifiers, fenced code and split markers do not', () => {
-  withRepo((root, git) => {
-    breakingBranch(root, git);
-    const changeset = body =>
-      write(
-        root,
-        '.changeset/drop-old.md',
-        `---\n'@data-client/core': minor\n---\n\n${body}\n`,
-      );
-    for (const [i, marker] of [
-      '- BREAKING:',
-      '1. BREAKING:',
-      '10) BREAKING:',
-      '_BREAKING:_',
-      '__BREAKING__',
-      '**BREAKING**',
-      'BREAKING CHANGES:',
-      'BREAKING',
-      '## Breaking Changes\n\n-',
-      '## Breaking\n\n-',
-      '## Breaking ##\n\n-',
-      'Breaking Changes\n===\n\n-',
-      'Breaking\n---\n\n-',
-      '## Breaking changes to the cache API\n\n-',
-      '[BREAKING]',
-      '> [!BREAKING]\n>',
-      '⚠️ BREAKING:',
-      '| BREAKING |',
-    ].entries()) {
-      changeset(`${marker} Remove \`old()\``);
-      git('commit', '-am', `list${i}`);
-      assert.match(push(root), /\.changeset\/drop-old\.md/);
-    }
-    changeset(
-      'Add `new()`\n\nbreaking: none\n\n## Breaking down the fix\n\n## Breaking, the fix\n\n# Breaking' +
-        // a long run that a backtracking regex would stall on
-        ' '.repeat(50000) +
-        'x\n\n#\nBreaking\n: split across lines\n\nSet `BREAKING_FLAG` to opt in\n\n```ts\n// BREAKING: legacy flag\n```',
-    );
-    git('commit', '-am', 'lowercase');
-    assert.equal(push(root), '');
-  });
-});
-
 test('a branch from before the checker does not hold the push', () => {
   withRepo((root, git) => {
     breakingBranch(root, git);
     git('rm', '-q', 'scripts/breaking-evals.mjs');
     git('commit', '-m', 'old branch');
     assert.equal(push(root), '');
-  });
-});
-
-test('title-case Breaking markers hold the push', () => {
-  withRepo((root, git) => {
-    breakingBranch(root, git);
-    for (const marker of [
-      'Breaking:',
-      'Breaking Change:',
-      'Breaking change —',
-    ]) {
-      write(
-        root,
-        '.changeset/drop-old.md',
-        `---\n'@data-client/core': minor\n---\n\n${marker} Remove \`old()\`\n`,
-      );
-      git('commit', '-am', marker);
-      assert.match(push(root), /\.changeset\/drop-old\.md/);
-    }
   });
 });
 

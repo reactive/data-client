@@ -3,8 +3,8 @@
 // `PreToolUse` on Bash), regenerates agent skill references and Claude Code's
 // copy of the Cursor rules when the branch touches their inputs, runs
 // `eslint --fix` on the JS/TS files it changes, and holds the push until the
-// result is committed. It also holds `BREAKING` changesets with neither a skill
-// eval naming them nor a reason in no-agent-impact.json.
+// result is committed. It also holds breaking (minor or major bump) changesets
+// with neither a skill eval naming them nor a reason in no-agent-impact.json.
 // Runs once per push instead of per edit or turn, so any number of local
 // commits can come first; CI's `regenerate` and `agent-rules` checks are the
 // backstop.

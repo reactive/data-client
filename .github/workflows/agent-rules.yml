@@ -52,7 +52,7 @@ jobs:
       # no install: these only need node and git
       - name: Check Claude Code rules match the Cursor rules
         run: node scripts/agent-rules.mjs --check
-      - name: Check every BREAKING changeset has a skill eval
+      - name: Check every breaking changeset has a skill eval
         run: node scripts/breaking-evals.mjs
       - name: Test agent hooks
         run: node --test '.cursor/hooks/*.test.js'

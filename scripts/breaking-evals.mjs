@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Every pending `BREAKING` changeset needs a skill eval naming it, so agents
+// Every pending breaking changeset (a minor or major bump: the packages are
+// under 1.0, so minor is breaking) needs a skill eval naming it, so agents
 // trained on the old behavior get the new one right up front, or a reason in
 // no-agent-impact.json why no realistic agent task hits it. See "Agents
 // trained on the old behavior" in .cursor/rules/breaking-changes.mdc.
@@ -36,33 +37,26 @@ const changesetsWithEvals = new Set(
   }),
 );
 
-// A marker that is the first word of a line of a changeset body (after any
-// markup like lists, quotes, tables, brackets or emoji): uppercase BREAKING,
-// title-case Breaking with a colon or dash, or a Breaking (changes) heading,
-// ATX or Setext; not prose that mentions breaking, nor fenced code. Each part
-// stays on its line (no \s, which /m lets cross line breaks). Adjacent repeats
-// never match the same characters (the heading's opening markup excludes #,
-// and its closing #s follow their own spaces), so long runs can't backtrack
-const breakingMarker =
-  /^[^A-Za-z\d\n]*(?:\d+[.)][^A-Za-z\d\n]*)?(?:BREAKING(?!_*[A-Za-z\d])|Breaking(?: [Cc]hanges?)?[*_ \t]*(?::|—|–| - ))|^#+[^A-Za-z\d\n#]*Breaking(?:[ \t]+[Cc]hanges?\b|[*_ \t]*(?::|—|–| - )|[*_ \t]*$|[ \t]+#+[ \t]*$)|^[*_]*Breaking(?: [Cc]hanges?)?[*_]*[ \t]*\r?\n(?:=+|-+)[ \t]*\r?$/m;
+/** a minor or major bump in the changeset's frontmatter */
+const isBreaking = changeset =>
+  /:[ \t]*(?:minor|major)[ \t]*\r?$/m.test(
+    changeset.match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? '',
+  );
 
-const missing = fs.readdirSync(path.join(root, '.changeset')).filter(
-  file =>
-    file.endsWith('.md') &&
-    file !== 'README.md' &&
-    !changesetsWithEvals.has(file.slice(0, -3)) &&
-    !hasReason(file.slice(0, -3)) &&
-    breakingMarker.test(
-      read(`.changeset/${file}`)
-        .replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '')
-        // fenced code blocks
-        .replace(/^ *(```|~~~)[\s\S]*?^ *\1/gm, ''),
-    ),
-);
+const missing = fs
+  .readdirSync(path.join(root, '.changeset'))
+  .filter(
+    file =>
+      file.endsWith('.md') &&
+      file !== 'README.md' &&
+      !changesetsWithEvals.has(file.slice(0, -3)) &&
+      !hasReason(file.slice(0, -3)) &&
+      isBreaking(read(`.changeset/${file}`)),
+  );
 
 if (missing.length) {
   console.error(
-    `These BREAKING changesets need an agent impact review, then an eval naming them (\`"changeset": "<name>"\` with a prompt and assertions) or, when no realistic agent task hits the old behavior, a reason in .agents/skills/changeset/no-agent-impact.json; see "Agents trained on the old behavior" in .cursor/rules/breaking-changes.mdc:\n${missing.map(file => `.changeset/${file}`).join('\n')}`,
+    `These breaking (minor or major bump) changesets need a skill eval naming them or a reason in .agents/skills/changeset/no-agent-impact.json; see "Agents trained on the old behavior" in .cursor/rules/breaking-changes.mdc:\n${missing.map(file => `.changeset/${file}`).join('\n')}`,
   );
   process.exit(1);
 }

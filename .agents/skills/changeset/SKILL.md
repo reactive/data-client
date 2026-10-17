@@ -49,7 +49,7 @@ Generate changesets, update documentation, draft blog entries, and update skills
    - If code changes affect workflows described in existing skills, update those skills to match
    - If new APIs or patterns are introduced that agents should know about, add them to the relevant skill
    - Skill changes don't need changesets — they are development tooling, not published packages
-   - For breaking changes, follow "Agents trained on the old behavior" in `.cursor/rules/breaking-changes.mdc`: run the [agent impact review](agent-impact-review.md) on a fast subagent (Haiku in Claude Code, the fastest model in Cursor or Codex) and add a breaking-change eval that names the changeset, or, when the review finds no realistic agent task, a reason in [no-agent-impact.json](no-agent-impact.json)
+   - For breaking changes (a minor or major bump), follow "Agents trained on the old behavior" in `.cursor/rules/breaking-changes.mdc`: the [agent impact review](agent-impact-review.md), then an eval naming the changeset or a reason in [no-agent-impact.json](no-agent-impact.json)
 
 ## Writing perspective
 All user-facing text (changesets, blog entries, docs) should be written from the library user's point of view. Answer: **what did the user see go wrong, and what works for them now?** Avoid internal names (conditional types, branch names, helper types like `SoftPathArgs`, file paths, PR numbers) unless the audience is maintainers reading a technical appendix — changeset bodies are for consumers reading the changelog.
