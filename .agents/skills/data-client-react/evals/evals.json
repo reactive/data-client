@@ -32,37 +32,81 @@
     {
       "id": 3,
       "name": "cold-deep-link",
-      "prompt": "Add a `TodoTitle` component (src/components/TodoTitle.tsx) that takes a `todoId` and shows that todo's title in the page header. Todos are usually already loaded by the list page, but users also open /todos/:id directly from shared links. Show 'Not found' when the todo doesn't exist. TodoResource is in src/resources/Todo.ts.",
-      "expected_output": "A component that reads the todo with useDLE(TodoResource.get, { id: todoId }) and shows 'Not found' from its error (404), or useSuspense with the 404 handled by a boundary's errorComponent; never from a cache miss.",
+      "prompt": "Add `TodoTitle` (src/components/TodoTitle.tsx): takes `todoId` and shows that todo's title in the /todos/:id page header. The list page already loads every todo, so read it from the cache without another request. Show 'Not found' when the todo doesn't exist. TodoResource is in src/resources/Todo.ts.",
+      "expected_output": "Warns that a direct or refreshed /todos/:id visit starts with an empty cache, so a cache miss isn't 'not found'; reads with useSuspense or useDLE (which reuse the cached todo with no request) and shows 'Not found' from the 404.",
       "files": [],
       "assertions": [
-        "The todo is read with `useSuspense(TodoResource.get, …)` or `useDLE(TodoResource.get, …)`, not only `useCache`/`useQuery`.",
-        "'Not found' is not shown just because `useCache`/`useQuery` returned `undefined`.",
-        "No `useEffect` calling `ctrl.fetch`, and no fetched data stored in `useState`."
+        "The todo is read with `useSuspense` or `useDLE`, not only `useCache`/`useQuery`.",
+        "'Not found' comes from the request's error, not from `undefined`.",
+        "No `useEffect` calling `ctrl.fetch`, and no fetched data in `useState`."
       ]
     },
     {
       "id": 4,
       "name": "author-avatars",
-      "prompt": "Show each post's author avatar in `PostList` (src/components/PostList.tsx). Posts come from `PostResource.getList` and each post has a `userId`; users come from `UserResource.get`. Simplest is probably to build a usersById map in PostList and pass it to each `PostRow`, right?",
-      "expected_output": "Pushback on the map: PostRow (or an Avatar child) binds its own user with useSuspense(UserResource.get, { id: userId }); PostList passes only ids.",
+      "prompt": "Show each post's author avatar in `PostList` (src/components/PostList.tsx). Posts come from `PostResource.getList` and have a `userId`; users come from `UserResource.get`. Simplest is to build a usersById map in PostList and pass it to each `PostRow`, right?",
+      "expected_output": "Pushes back: PostRow (or an Avatar child) reads its user with useSuspense(UserResource.get, { id: userId }); PostList passes only ids.",
       "files": [],
       "assertions": [
-        "No `usersById` (or similar lookup map) is built and passed down as a prop.",
-        "The component that renders the avatar reads the user itself with a data-client hook, given the id as a prop.",
-        "`PostList` does not read `UserResource` itself."
+        "No lookup map of users is built and passed down.",
+        "The component rendering the avatar reads the user itself, given the id.",
+        "`PostList` does not read `UserResource`."
       ]
     },
     {
       "id": 5,
-      "name": "load-all-pages",
-      "prompt": "Our `TodoResource` has `paginationField: 'page'`. Add a 'Load more' button under `TodoList` that loads the next page and shows it below the todos already on screen.",
-      "expected_output": "The button calls ctrl.fetch(TodoResource.getList.getPage, { ...args, page: nextPage }); TodoList keeps rendering useSuspense(TodoResource.getList, args).",
+      "name": "load-more",
+      "prompt": "`TodoResource` has `paginationField: 'page'`. Add a 'Load more' button under `TodoList` that loads the next page below the todos already shown.",
+      "expected_output": "The click handler calls ctrl.fetch(TodoResource.getList.getPage, { ...args, page }); TodoList keeps rendering useSuspense(TodoResource.getList, args).",
       "files": [],
       "assertions": [
         "The next page is loaded with `TodoResource.getList.getPage`.",
-        "Pages are not loaded with plain `TodoResource.getList` fetches in a loop or accumulated in `useState`.",
-        "`ctrl.fetch` is called from the click handler, not from `useEffect`."
+        "Pages are not fetched with plain `getList` or accumulated in `useState`.",
+        "`ctrl.fetch` runs in the click handler, not `useEffect`."
+      ]
+    },
+    {
+      "id": 6,
+      "name": "parallel-fetch",
+      "prompt": "Write `PostHeader` (src/components/PostHeader.tsx): one `<header>` showing a post's title (`PostResource.get`) next to its comment count (`CommentResource.getList` with `{ postId }`). The app is on React 18.",
+      "expected_output": "Starts both requests with useFetch, then reads each with useSuspense; no use().",
+      "files": [],
+      "assertions": [
+        "Both requests start before the component first suspends (`useFetch` for each before any `useSuspense`), or each is read in its own child component.",
+        "`use()` is not used (React 18)."
+      ]
+    },
+    {
+      "id": 7,
+      "name": "refresh-all-lists",
+      "prompt": "After `ctrl.fetch(TodoResource.markAllDone)` (returns no body), refresh every cached todo list. Lists are cached under many `{ userId }` filters. Keep the current lists on screen while they reload. Write the `markAllDone` handler in src/components/MarkAllDone.tsx.",
+      "expected_output": "Calls ctrl.expireAll(TodoResource.getList) after the mutation.",
+      "files": [],
+      "assertions": [
+        "Uses `ctrl.expireAll(TodoResource.getList)` (or an equivalent testKey on getList).",
+        "Does not use `invalidate`/`invalidateAll`/`resetEntireStore`, which would drop the shown lists."
+      ]
+    },
+    {
+      "id": 8,
+      "name": "websocket-prices",
+      "prompt": "`TickerTable` and `PriceBadge` both show live prices from wss://feed.example.com, which sends `{ product_id, price }` messages. `Ticker` (src/resources/Ticker.ts) is an Entity with pk `product_id`. Wire the feed in.",
+      "expected_output": "A Manager (or one provider-level listener) writes each message with ctrl.set(Ticker, …); both components read Ticker from the store.",
+      "files": [],
+      "assertions": [
+        "Messages go into the store with `ctrl.set` (or setResponse), not React state.",
+        "The socket is opened once (a Manager or one shared component), not in each consumer."
+      ]
+    },
+    {
+      "id": 9,
+      "name": "boundary-reset",
+      "prompt": "In `TodoMaster`, `<AsyncBoundary><TodoDetail id={selectedId} /></AsyncBoundary>`. After a todo fails to load, picking another todo still shows the error. Fix it in src/components/TodoMaster.tsx.",
+      "expected_output": "Adds key={selectedId} to the AsyncBoundary.",
+      "files": [],
+      "assertions": [
+        "The boundary gets `key={selectedId}` (or the boundary otherwise resets when `selectedId` changes).",
+        "No custom error-boundary class is written."
       ]
     }
   ]
