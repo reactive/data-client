@@ -207,7 +207,7 @@ test('a bold BREAKING marker holds the push', () => {
   });
 });
 
-test('an indented BREAKING marker holds the push; a lowercase mention does not', () => {
+test('a list-item BREAKING marker holds the push; a lowercase mention does not', () => {
   withRepo((root, git) => {
     breakingBranch(root, git);
     const changeset = body =>

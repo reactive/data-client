@@ -14,7 +14,8 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const readJson = file =>
   fs.existsSync(path.join(root, file)) ? JSON.parse(read(file)) : undefined;
 
-// changesets the impact review found no realistic agent task for, with why
+// changesets the impact review found no realistic agent task for, with why;
+// only a non-blank string counts (inherited keys like `constructor` aren't)
 const exemptions =
   readJson('.agents/skills/changeset/no-agent-impact.json') ?? {};
 const changesetsWithEvals = new Set(
@@ -34,9 +35,10 @@ const missing = fs.readdirSync(path.join(root, '.changeset')).filter(
     file.endsWith('.md') &&
     file !== 'README.md' &&
     !changesetsWithEvals.has(file.slice(0, -3)) &&
-    !Object.hasOwn(exemptions, file.slice(0, -3)) &&
-    // the body, after the frontmatter
-    /^[^\w\n]*BREAKING( CHANGE)?[^\w\n]*:/m.test(
+    !exemptions[file.slice(0, -3)]?.trim?.() &&
+    // a marker starting a line of the body (after list, bold or quote
+    // punctuation), not a sentence that mentions breaking
+    /^[^\w\n]*(BREAKING|Breaking)( CHANGE| change)?[^\w\n]*:/m.test(
       read(`.changeset/${file}`).replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, ''),
     ),
 );
