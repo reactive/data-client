@@ -42,11 +42,14 @@ const missing = fs.readdirSync(path.join(root, '.changeset')).filter(
     file !== 'README.md' &&
     !changesetsWithEvals.has(file.slice(0, -3)) &&
     !hasReason(file.slice(0, -3)) &&
-    // a marker starting a line of the body (after list numbers, emphasis or quote
-    // punctuation): uppercase BREAKING, title-case Breaking with a colon, or a
-    // Breaking heading; not a sentence that mentions breaking
-    /^[^A-Za-z\d\n]*(?:\d+[.)][^A-Za-z\d\n]*)?(?:BREAKING(?![A-Za-z\d])|Breaking(?: [Cc]hanges?)?[^A-Za-z\d\n]*:)|^#+\s*Breaking\b/m.test(
-      read(`.changeset/${file}`).replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, ''),
+    // a marker starting a line of the body (after list, quote, heading or
+    // emphasis markup): uppercase BREAKING, title-case Breaking with a colon,
+    // or a Breaking heading; not prose that mentions breaking, nor code
+    /^[-*+_>#\s]*(?:\d+[.)][-*_\s]*)?(?:BREAKING(?![A-Za-z\d])|Breaking(?: [Cc]hanges?)?[*_\s]*:)|^#+\s*Breaking(?: [Cc]hanges?)?[*_\s]*$/m.test(
+      read(`.changeset/${file}`)
+        .replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '')
+        // fenced code blocks
+        .replace(/^ *(```|~~~)[\s\S]*?^ *\1/gm, ''),
     ),
 );
 

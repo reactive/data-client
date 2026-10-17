@@ -232,13 +232,15 @@ test('list, emphasis, plural and heading BREAKING markers hold the push; a lower
       '__BREAKING__',
       '**BREAKING**',
       'BREAKING CHANGES:',
-      '## Breaking',
+      '## Breaking Changes\n\n-',
     ].entries()) {
       changeset(`${marker} Remove \`old()\``);
       git('commit', '-am', `list${i}`);
       assert.match(push(root), /\.changeset\/drop-old\.md/);
     }
-    changeset('Add `new()`\n\nbreaking: none');
+    changeset(
+      'Add `new()`\n\nbreaking: none\n\n## Breaking down the fix\n\n```ts\n// BREAKING: legacy flag\n```',
+    );
     git('commit', '-am', 'lowercase');
     assert.equal(push(root), '');
   });
