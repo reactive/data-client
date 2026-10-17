@@ -17,7 +17,7 @@
 
 ## Release bumps
 
-Workspace members run the repo's code, so a breaking change updates them in the same PR. Standalone examples install published versions from npm and can't run unreleased code, so their edits wait in [plans/after-release.md](../plans/after-release.md). When bumping a standalone example to a new release (usually Renovate's grouped "all non-major dependencies" PR), also make that release's edits listed there and delete those entries.
+Workspace members run the repo's code, so a breaking change updates them in the same PR. Standalone examples install published versions from npm, so an edit that works with their published version lands in the same PR, and one that needs unreleased code waits in [plans/after-release.md](../plans/after-release.md). When bumping a standalone example to a new release (usually Renovate's grouped "all non-major dependencies" PR), also make that release's edits listed there and delete those entries.
 
 ## StackBlitz Constraints
 

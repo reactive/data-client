@@ -236,6 +236,8 @@ test('BREAKING markers after any markup and Breaking headings hold the push; pro
       '## Breaking Changes\n\n-',
       '## Breaking\n\n-',
       '## Breaking ##\n\n-',
+      'Breaking Changes\n===\n\n-',
+      'Breaking\n---\n\n-',
       '## Breaking changes to the cache API\n\n-',
       '[BREAKING]',
       '> [!BREAKING]\n>',
