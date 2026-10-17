@@ -105,3 +105,50 @@ test('a pending fix to a file the push deletes does not hold it', () => {
     assert.equal(push(root, 'git commit -m delete && git push'), '');
   });
 });
+
+/** a branch adding a `BREAKING` changeset */
+function breakingBranch(root, git) {
+  fs.mkdirSync(path.join(root, '.agents/skills/demo'), { recursive: true });
+  git('commit', '--allow-empty', '-m', 'master');
+  git('update-ref', 'refs/remotes/origin/master', 'HEAD');
+  fs.mkdirSync(path.join(root, '.changeset'));
+  fs.writeFileSync(
+    path.join(root, '.changeset/drop-old.md'),
+    "---\n'@data-client/core': minor\n---\n\nBREAKING: Remove `old()`\n",
+  );
+  git('add', '-A');
+  git('commit', '-m', 'branch');
+}
+
+test('a breaking changeset without an eval holds the push', () => {
+  withRepo((root, git) => {
+    breakingBranch(root, git);
+    assert.match(push(root), /agent-impact-review[^]*\.changeset\/drop-old\.md/);
+  });
+});
+
+test('a breaking changeset an eval names does not hold the push', () => {
+  withRepo((root, git) => {
+    breakingBranch(root, git);
+    const evals = path.join(root, '.agents/skills/demo/evals/evals.json');
+    fs.mkdirSync(path.dirname(evals));
+    fs.writeFileSync(
+      evals,
+      JSON.stringify({ evals: [{ id: 1, changeset: 'drop-old' }] }),
+    );
+    git('add', '-A');
+    assert.equal(push(root, 'git commit -m evals && git push'), '');
+  });
+});
+
+test('a changeset that only mentions breaking does not hold the push', () => {
+  withRepo((root, git) => {
+    breakingBranch(root, git);
+    fs.writeFileSync(
+      path.join(root, '.changeset/drop-old.md'),
+      "---\n'@data-client/core': patch\n---\n\nFix `old()`; a future BREAKING release removes it\n",
+    );
+    git('commit', '-am', 'not breaking');
+    assert.equal(push(root), '');
+  });
+});
