@@ -5,9 +5,9 @@
 Data rendering without the fetch.
 
 Access any [Endpoint](https://dataclient.io/rest/api/Endpoint)'s response. Returns `undefined` until it is fetched, set, or
-inferable from entities already in the store, and again after invalidation (see [Behavior](#behavior)). That means "not loaded",
-not "doesn't exist on the server", so use it for data other code loads, like the current user a login
-flow fetches.
+inferable from entities already in the store, and again after invalidation (see [Behavior](#behavior)).
+That means "not loaded", not "doesn't exist on the server", so use it for data other code loads, like
+the current user a login flow fetches.
 
 `useCache()` is reactive to data [mutations](./mutations.md); rerendering only when necessary.
 

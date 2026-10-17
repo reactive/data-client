@@ -108,6 +108,10 @@ export const getTicker = new RestEndpoint({
 });
 ```
 
+`pollFrequency` polls only while subscribed (`useLive`/`useSubscription`). Subscribers to the same
+endpoint and args share one poll at the fastest frequency, so a faster `.extend({ pollFrequency })` on
+one view speeds up the others too.
+
 **Typing tips**  
 - `path` path‑to‑regexp template for 1st arg
 - `method` ≠ `GET` ⇒ 2nd arg = body (unless `body: undefined`)
@@ -136,7 +140,7 @@ step that owns the change, never `fetch` itself (that replaces the whole lifecyc
 
 | To change | Override |
 |---|---|
-| Headers (auth, tokens) | `getHeaders(headers)` |
+| Headers (auth) | `getHeaders(headers)` |
 | Other request options or body encoding | `getRequestInit(body)` |
 | Query string format | `searchToString(searchParams)` |
 | The network call (retries, another client) | `fetchResponse(input, init)` |
@@ -172,7 +176,6 @@ export const IssueResource = resource({
 ## 6. Common Mistakes to Avoid
 
 - Don't use `resource()` when mutation endpoints are not used or needed
-- `pollFrequency` polls only while subscribed (`useLive`/`useSubscription`). Subscribers to the same endpoint and args share one poll at the fastest frequency, so a faster `.extend({ pollFrequency })` on one view speeds up the others too
 
 # References
 
