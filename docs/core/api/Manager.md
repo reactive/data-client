@@ -104,6 +104,9 @@ const managers = [new MyManager(), ...getDefaultManagers()];
 
 </ProviderManagers>
 
+Actions pass through managers in array order. List custom managers before the defaults: [NetworkManager](./NetworkManager.md)
+resolves most FETCH actions itself instead of passing them on.
+
 ## Control flow
 
 Managers integrate with the :react[DataProvider]:vue[DataClientPlugin] store with their lifecycles and middleware. They orchestrate complex control

@@ -43,8 +43,9 @@ const missing = fs.readdirSync(path.join(root, '.changeset')).filter(
     !changesetsWithEvals.has(file.slice(0, -3)) &&
     !hasReason(file.slice(0, -3)) &&
     // a marker starting a line of the body (after list numbers, emphasis or quote
-    // punctuation), not a sentence that mentions breaking
-    /^[^A-Za-z\d\n]*(?:\d+[.)][^A-Za-z\d\n]*)?(BREAKING|Breaking)( CHANGE| [Cc]hange)?[^A-Za-z\d\n]*:/m.test(
+    // punctuation): uppercase BREAKING, title-case Breaking with a colon, or a
+    // Breaking heading; not a sentence that mentions breaking
+    /^[^A-Za-z\d\n]*(?:\d+[.)][^A-Za-z\d\n]*)?(?:BREAKING(?![A-Za-z\d])|Breaking(?: [Cc]hanges?)?[^A-Za-z\d\n]*:)|^#+\s*Breaking\b/m.test(
       read(`.changeset/${file}`).replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, ''),
     ),
 );

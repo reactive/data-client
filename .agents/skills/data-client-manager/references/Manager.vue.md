@@ -69,6 +69,9 @@ app.use(DataClientPlugin, { managers });
 app.mount('#app');
 ```
 
+Actions pass through managers in array order. List custom managers before the defaults: [NetworkManager](https://dataclient.io/vue/api/NetworkManager)
+resolves most FETCH actions itself instead of passing them on.
+
 ## Control flow
 
 Managers integrate with the DataClientPlugin store with their lifecycles and middleware. They orchestrate complex control

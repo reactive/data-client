@@ -25,8 +25,8 @@ Report, with a `file:line` for every claim:
 2. **Stale direct mentions**: every place in `.agents/skills/`, `docs/`, `packages/*/README.md`,
    `README.md`, `examples/` and `website/blog/` (draft posts only) that still shows or describes the old
    behavior. Grep for the changed names, options and return values. All of these are fixed in this PR
-   except examples on a published `@data-client` version instead of `workspace:*` (see "Release bumps" in
-   `examples/AGENTS.md`): mark those for `plans/after-release.md`. A generated reference (`references/*.md`
+   except standalone examples, which install from npm (see "Release bumps" in `examples/AGENTS.md`):
+   mark those for `plans/after-release.md`. A generated reference (`references/*.md`
    with a generated header) is fixed in the `docs/` page it comes from, so name that page.
 3. **Contradicted derived facts**: statements that never name the changed API but are true only because
    of the old behavior. Examples: "X returns undefined, so check for it" after X starts throwing; a table

@@ -215,7 +215,7 @@ test('a bold BREAKING marker holds the push', () => {
   });
 });
 
-test('a list-item BREAKING marker holds the push; a lowercase mention does not', () => {
+test('list, emphasis, plural and heading BREAKING markers hold the push; a lowercase mention does not', () => {
   withRepo((root, git) => {
     breakingBranch(root, git);
     const changeset = body =>
@@ -229,6 +229,10 @@ test('a list-item BREAKING marker holds the push; a lowercase mention does not',
       '1. BREAKING:',
       '10) BREAKING:',
       '_BREAKING:_',
+      '__BREAKING__',
+      '**BREAKING**',
+      'BREAKING CHANGES:',
+      '## Breaking',
     ].entries()) {
       changeset(`${marker} Remove \`old()\``);
       git('commit', '-am', `list${i}`);

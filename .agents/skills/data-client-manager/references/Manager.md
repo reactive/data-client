@@ -146,6 +146,9 @@ export default function RootLayout() {
 }
 ```
 
+Actions pass through managers in array order. List custom managers before the defaults: [NetworkManager](https://dataclient.io/docs/api/NetworkManager)
+resolves most FETCH actions itself instead of passing them on.
+
 ## Control flow
 
 Managers integrate with the DataProvider store with their lifecycles and middleware. They orchestrate complex control
