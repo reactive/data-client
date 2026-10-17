@@ -300,7 +300,8 @@ jobs:
               # suites contend enough to flake 5s test timeouts.
               # React Native 0.88 bundles the React 19.3 renderer, so run on the installed React
               yarn test:ci --selectProjects ReactNative
-              # Previous React minor: these suites assert per-minor React behavior
+              # Previous React minor (19.2): these suites assert per-minor React behavior,
+              # and none of them load react-native, whose 0.88 peer is react ^19.3
               V=19.2.3
               npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
               # test-renderer's minor tracks React's (1.2 pairs with React 19.2)
