@@ -6,7 +6,7 @@ version: 2.1
 executors:
   node:
     docker: &docker
-      - image: cimg/node:26.11
+      - image: cimg/node:26.12
     environment:
       # the whole CI is reset each time anyway, so only track local cache
       YARN_ENABLE_GLOBAL_CACHE: false
@@ -286,14 +286,6 @@ jobs:
             npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
             yarn up react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
             yarn workspace @data-client/test add --dev @testing-library/react-hooks
-            elif [ "<< parameters.react-version >>" == "native" ]; then
-            # React Native 0.87 bundles the React 19.2.3 renderer (React 19.3 pairs with RN 0.88).
-            # This job also covers the previous React minor for the ReactDOM suites below.
-            V=19.2.3
-            npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
-            # test-renderer's minor tracks React's (1.2 pairs with React 19.2)
-            yarn up react@$V react-dom@$V react-test-renderer@$V test-renderer@~1.2.0
-            V=$V node -e "for (const p of ['react','react-dom','react-test-renderer']) { const v=require(p+'/package.json').version; if (v !== process.env.V) throw new Error(p+' resolved to '+v) }"
             fi
       - run:
           name: Running Jest
@@ -306,8 +298,15 @@ jobs:
               # No --maxWorkers here: the ReactNative suites are dominated by
               # fake-timer waits, and capping workers makes the heavy hook
               # suites contend enough to flake 5s test timeouts.
+              # React Native 0.88 bundles the React 19.3 renderer, so run on the installed React
               yarn test:ci --selectProjects ReactNative
-              # Previous React minor: these suites assert per-minor React behavior
+              # Previous React minor (19.2): these suites assert per-minor React behavior,
+              # and none of them load react-native, whose 0.88 peer is react ^19.3
+              V=19.2.3
+              npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
+              # test-renderer's minor tracks React's (1.2 pairs with React 19.2)
+              yarn up react@$V react-dom@$V react-test-renderer@$V test-renderer@~1.2.0
+              V=$V node -e "for (const p of ['react','react-dom','react-test-renderer']) { const v=require(p+'/package.json').version; if (v !== process.env.V) throw new Error(p+' resolved to '+v) }"
               yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPatterns 'packages/react/src/__tests__/concurrent-.*\.web\.tsx' 'packages/react/src/hooks/__tests__/useCacheState.web.tsx'
             elif [ "<< parameters.react-version >>" == "latest" ]; then
               # Coverage floors and projects live in the test:coverage script
