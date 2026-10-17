@@ -233,7 +233,6 @@ test('list, emphasis, plural and heading BREAKING markers hold the push; a lower
       '**BREAKING**',
       'BREAKING CHANGES:',
       'BREAKING',
-      'Breaking change —',
       '## Breaking Changes\n\n-',
     ].entries()) {
       changeset(`${marker} Remove \`old()\``);
@@ -241,7 +240,7 @@ test('list, emphasis, plural and heading BREAKING markers hold the push; a lower
       assert.match(push(root), /\.changeset\/drop-old\.md/);
     }
     changeset(
-      'Add `new()`\n\nbreaking: none\n\n## Breaking down the fix\n\n```ts\n// BREAKING: legacy flag\n```',
+      'Add `new()`\n\nbreaking: none\n\n## Breaking down the fix\n\n#\nBreaking\n: split across lines\n\n```ts\n// BREAKING: legacy flag\n```',
     );
     git('commit', '-am', 'lowercase');
     assert.equal(push(root), '');
@@ -260,7 +259,11 @@ test('a branch from before the checker does not hold the push', () => {
 test('title-case Breaking markers hold the push', () => {
   withRepo((root, git) => {
     breakingBranch(root, git);
-    for (const marker of ['Breaking:', 'Breaking Change:']) {
+    for (const marker of [
+      'Breaking:',
+      'Breaking Change:',
+      'Breaking change —',
+    ]) {
       write(
         root,
         '.changeset/drop-old.md',
