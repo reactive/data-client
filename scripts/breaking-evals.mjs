@@ -18,7 +18,7 @@ const readJson = file =>
 const exemptions =
   readJson('.agents/skills/changeset/no-agent-impact.json') ?? {};
 const isText = value => typeof value === 'string' && value.trim() !== '';
-// a non-blank string, which also rules out inherited keys like `constructor`
+// isText also rules out inherited keys like `constructor`
 const hasReason = name => isText(exemptions[name]);
 const changesetsWithEvals = new Set(
   fs.readdirSync(path.join(root, '.agents/skills')).flatMap(skill => {

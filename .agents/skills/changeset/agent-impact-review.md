@@ -13,8 +13,8 @@ coding agents. Agents were trained on the old behavior, and they read this repo'
 with the library. You only read and report; do not edit files or post messages to anyone.
 
 The change: `.changeset/<changeset>.md`. Read it, then read the code change, committed or not, with
-`git diff $(git merge-base origin/master HEAD) -- packages` plus any new files `git status --short packages`
-lists, to see exactly what behaved differently before.
+`git diff $(git merge-base origin/master HEAD) -- packages`, and read in full each new file
+`git ls-files --others --exclude-standard packages` lists, to see exactly what behaved differently before.
 
 Report, with a `file:line` for every claim:
 
@@ -24,7 +24,8 @@ Report, with a `file:line` for every claim:
    the change makes unnecessary or a guard that now never runs.
 2. **Stale direct mentions**: every place in `.agents/skills/`, `docs/`, `packages/*/README.md`,
    `README.md`, `examples/` and `website/blog/` (draft posts only) that still shows or describes the old
-   behavior. Grep for the changed names, options and return values. A generated reference
+   behavior. Grep for the changed names, options and return values. For each example, say whether it uses
+   `workspace:*` (fix now) or a published version (fix once released). A generated reference
    (`references/*.md` with a generated header) is fixed in the `docs/` page it comes from, so name that page.
 3. **Contradicted derived facts**: statements that never name the changed API but are true only because
    of the old behavior. Examples: "X returns undefined, so check for it" after X starts throwing; a table

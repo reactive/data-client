@@ -77,7 +77,8 @@ export default class ErrorReportManager implements Manager {
 ### Metrics {#metrics}
 
 Track fetch timing by observing [FETCH](./Actions.vue.md#fetch) actions. `action.meta.promise`
-resolves when the fetch completes.
+resolves when the fetch completes. List it before `...getDefaultManagers()` so it sees each FETCH
+before [NetworkManager](https://dataclient.io/vue/api/NetworkManager) handles it.
 
 ```typescript
 import {

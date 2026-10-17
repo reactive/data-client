@@ -161,11 +161,13 @@ export default class CustomSubsManager implements Manager {
 
 ## Usage
 
+Actions pass through managers in array order, and NetworkManager (in `getDefaultManagers()`) handles each FETCH itself, so list a manager that reads FETCH actions before `...getDefaultManagers()`:
+
 ```tsx
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
 
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = [new MyManager(), ...getDefaultManagers()];
 
 createRoot(document.body).render(
   <DataProvider managers={managers}>
