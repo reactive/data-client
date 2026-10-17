@@ -43,9 +43,9 @@ const missing = fs.readdirSync(path.join(root, '.changeset')).filter(
     !changesetsWithEvals.has(file.slice(0, -3)) &&
     !hasReason(file.slice(0, -3)) &&
     // a marker starting a line of the body (after list, quote, heading or
-    // emphasis markup): uppercase BREAKING, title-case Breaking with a colon,
+    // emphasis markup): uppercase BREAKING, title-case Breaking with a colon or dash,
     // or a Breaking heading; not prose that mentions breaking, nor code
-    /^[-*+_>#\s]*(?:\d+[.)][-*_\s]*)?(?:BREAKING(?![A-Za-z\d])|Breaking(?: [Cc]hanges?)?[*_\s]*:)|^#+\s*Breaking(?: [Cc]hanges?)?[*_\s]*$/m.test(
+    /^[-*+_># \t]*(?:\d+[.)][-*_ \t]*)?(?:BREAKING(?![A-Za-z\d])|Breaking(?: [Cc]hanges?)?[*_ \t]*(?::|—|–| - ))|^#+[ \t]*Breaking(?: [Cc]hanges?)?[*_ \t]*$/m.test(
       read(`.changeset/${file}`)
         .replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '')
         // fenced code blocks

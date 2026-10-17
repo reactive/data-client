@@ -232,6 +232,8 @@ test('list, emphasis, plural and heading BREAKING markers hold the push; a lower
       '__BREAKING__',
       '**BREAKING**',
       'BREAKING CHANGES:',
+      'BREAKING',
+      'Breaking change —',
       '## Breaking Changes\n\n-',
     ].entries()) {
       changeset(`${marker} Remove \`old()\``);

@@ -4,7 +4,7 @@
 
 ### Monorepo workspace members
 
-`benchmark`, `benchmark-react`, `test-bundlesize`, `normalizr-*`, `coin-app` — listed in root `package.json` workspaces, managed by yarn. Most use `workspace:*` for `@data-client/*` deps; yarn links the rest (like `coin-app`'s exact pins) to the local packages whenever the pin matches the workspace version.
+`benchmark`, `benchmark-react`, `test-bundlesize`, `normalizr-*`, `coin-app` — listed in root `package.json` workspaces, managed by yarn. Most use `workspace:*` for `@data-client/*` deps; the rest (like `coin-app`'s exact pins) still resolve to the local packages, since changesets bumps those pins with every release.
 
 ### Standalone (StackBlitz demos)
 
