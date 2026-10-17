@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791947231987,
+  "lastUpdate": 1792244094744,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -558,6 +558,37 @@ window.BENCHMARK_DATA = {
             "range": "±1.04%",
             "unit": "ops/sec",
             "extra": "80 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a50e3aa0aadda31b59b4adb63cbf3794f5ef170a",
+          "message": "pkg: Update react to v19.3.1 (#4398)\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+          "timestamp": "2026-10-17T13:32:59Z",
+          "tree_id": "92861b0ed44a36817cde0455a5f8a87592f6b3ee",
+          "url": "https://github.com/reactive/data-client/commit/a50e3aa0aadda31b59b4adb63cbf3794f5ef170a"
+        },
+        "date": 1792244091867,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 150,
+            "range": "±0.58%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
           }
         ]
       }
