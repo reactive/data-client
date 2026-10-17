@@ -1522,8 +1522,6 @@ declare class DevToolsManager implements Manager {
     protected pollingSubscribers: Map<string, number>;
     /** Actions kept in the log for each key while it polls (development only) */
     maxPollingActions: number;
-    protected trackPolling: (action: ActionTypes) => void;
-    protected logAction: (action: ActionTypes) => void;
     protected controller: Controller;
     skipLogging?: (action: ActionTypes) => boolean;
     devtoolsName: string;

@@ -142,8 +142,6 @@ export default class DevToolsManager implements Manager {
   declare protected pollingSubscribers: Map<string, number>;
   /** Actions kept in the log for each key while it polls (development only) */
   declare maxPollingActions: number;
-  declare protected trackPolling: (action: ActionTypes) => void;
-  declare protected logAction: (action: ActionTypes) => void;
   declare protected controller: Controller;
   declare skipLogging?: (action: ActionTypes) => boolean;
   declare devtoolsName: string;
@@ -175,49 +173,49 @@ export default class DevToolsManager implements Manager {
     /* istanbul ignore if */
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'production') {
-      /** Counts polling subscribers per key, even for actions skipLogging hides */
-      this.prototype.trackPolling = function (action) {
-        if (
-          (action.type === SUBSCRIBE || action.type === UNSUBSCRIBE) &&
-          action.endpoint.pollFrequency !== undefined
-        ) {
-          const count =
-            (this.pollingSubscribers.get(action.key) ?? 0) +
-            (action.type === SUBSCRIBE ? 1 : -1);
-          if (count > 0) this.pollingSubscribers.set(action.key, count);
-          else this.pollingSubscribers.delete(action.key);
-        }
-      };
-      /** Keeps `__DC_ACTIONS__` small: polling keys keep only their latest actions,
-       * and all but the newest actions drop their payloads.
-       */
-      this.prototype.logAction = function (action) {
-        const log = this.actionLog;
-        const key = (action as { key?: string }).key;
-        if (key !== undefined && this.pollingSubscribers.has(key)) {
-          // drop all but the newest maxPollingActions - 1, making room for this one
-          for (let i = log.length - 1, seen = 0; i >= 0; i--) {
-            if (
-              (log[i] as { key?: string }).key === key &&
-              ++seen >= this.maxPollingActions
-            )
-              log.splice(i, 1);
-          }
-        }
-        pushCapped(log, action, this.maxBufferLength);
-        const old = log.length - 1 - FULL_ACTIONS;
-        if (old >= 0) log[old] = summarize(log[old]);
-      };
       this.prototype.middleware = function (controller) {
         // a reused manager starts a fresh log for a new store
         if (controller !== this.controller) this.actionLog = [];
         this.controller = controller;
         const reducer = this.devTools && createReducer(controller as any);
         let state = controller.getState();
+        /** Counts polling subscribers per key, even for actions skipLogging hides */
+        const trackPolling = (action: ActionTypes) => {
+          if (
+            (action.type === SUBSCRIBE || action.type === UNSUBSCRIBE) &&
+            action.endpoint.pollFrequency !== undefined
+          ) {
+            const count =
+              (this.pollingSubscribers.get(action.key) ?? 0) +
+              (action.type === SUBSCRIBE ? 1 : -1);
+            if (count > 0) this.pollingSubscribers.set(action.key, count);
+            else this.pollingSubscribers.delete(action.key);
+          }
+        };
+        /** Keeps `__DC_ACTIONS__` small: polling keys keep only their latest actions,
+         * and all but the newest actions drop their payloads.
+         */
+        const logAction = (action: ActionTypes) => {
+          const log = this.actionLog;
+          const key = (action as { key?: string }).key;
+          if (key !== undefined && this.pollingSubscribers.has(key)) {
+            // drop all but the newest maxPollingActions - 1, making room for this one
+            for (let i = log.length - 1, seen = 0; i >= 0; i--) {
+              if (
+                (log[i] as { key?: string }).key === key &&
+                ++seen >= this.maxPollingActions
+              )
+                log.splice(i, 1);
+            }
+          }
+          pushCapped(log, action, this.maxBufferLength);
+          const old = log.length - 1 - FULL_ACTIONS;
+          if (old >= 0) log[old] = summarize(log[old]);
+        };
         return next => action => {
           const shouldSkip = this.skipLogging?.(action);
-          this.trackPolling(action);
-          if (!shouldSkip) this.logAction(action);
+          trackPolling(action);
+          if (!shouldSkip) logAction(action);
           const ret = next(action);
           if (!reducer) return ret;
           if (this.started) {
@@ -253,10 +251,6 @@ export default class DevToolsManager implements Manager {
       const controllers: Map<string, Controller> = ((
         globalThis as any
       ).__DC_CONTROLLERS__ ??= new Map());
-      // another provider has the name: register under 'name (2)', 'name (3)', ...
-      // Without a window (server rendering), stores are made per request and never cleaned up,
-      // so replace the old one instead of keeping every request's store alive.
-      // Checks window, not document: React Native has a window but no document.
       // keep the key this controller already holds (init can run again without cleanup)
       let key =
         (
@@ -265,6 +259,10 @@ export default class DevToolsManager implements Manager {
         ) ?
           this.registryKey
         : this.devtoolsName;
+      // another provider has the name: register under 'name (2)', 'name (3)', ...
+      // Without a window (server rendering), stores are made per request and never cleaned up,
+      // so replace the old one instead of keeping every request's store alive.
+      // Checks window, not document: React Native has a window but no document.
       if (typeof window !== 'undefined')
         for (
           let i = 2;
