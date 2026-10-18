@@ -39,6 +39,8 @@ const baseConfig = {
     'packages/vue/src/test',
     'packages/test',
     'packages/graphql',
+    // dev-time migration tooling, not part of the runtime library
+    'packages/codemods',
     'packages/rest/src/next',
     'packages/core/src/next',
     'packages/core/src/mock',
