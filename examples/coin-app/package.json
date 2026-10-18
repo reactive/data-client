@@ -40,9 +40,9 @@
     "webpack-cli": "*"
   },
   "dependencies": {
-    "@anansi/cli": "4.0.0",
-    "@anansi/core": "0.23.0",
-    "@anansi/router": "0.11.0",
+    "@anansi/cli": "4.0.1",
+    "@anansi/core": "0.23.1",
+    "@anansi/router": "0.11.1",
     "@babel/runtime-corejs3": "8.0.7",
     "@data-client/img": "0.18.0",
     "@data-client/react": "0.18.1",
