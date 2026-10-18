@@ -1,6 +1,7 @@
 ---
 title: Entity 与数据规范化
 sidebar_label: 数据规范化
+image: /img/social/normalization-card.jpg
 ---
 
 <head>
@@ -12,9 +13,24 @@ import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import Link from '@docusaurus/Link';
 import SchemaTable from '../shared/\_schema_table.mdx';
+import PosterVideo from '@site/src/components/PosterVideo';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 [Entity](/rest/api/Entity) 拥有主键，因此可以通过查找表轻松访问。
 这样一来，无论同一份数据出现在哪个 endpoint 中，你都能方便地查找、更新、创建或删除它。
+
+<PosterVideo
+  poster={useBaseUrl('/videos/docs/normalization-poster.jpg')}
+  duration="1:54"
+  volume={0.5}
+  alt="两个 endpoint 返回了同一个用户的三份副本。规范化把每个 entity 只存一次，放在以 id 为键的表中；反规范化顺着 id 重建每个响应；一次重命名就能更新所有视图。屏幕上有 10,000 行时重命名一个用户，只需重建 30 个对象，而不是 10,000 个。"
+>
+  <source
+    src={useBaseUrl('/videos/docs/normalization.webm')}
+    type='video/webm; codecs="av01.0.08M.10, opus"'
+  />
+  <source src={useBaseUrl('/videos/docs/normalization.mp4')} type="video/mp4" />
+</PosterVideo>
 
 <!--
 <LanguageTabs>

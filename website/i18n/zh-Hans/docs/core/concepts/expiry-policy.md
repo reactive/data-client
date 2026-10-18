@@ -62,7 +62,7 @@ import {RestEndpoint} from '@data-client/rest';
 在 'first' 和 'second' 之间切换会改变参数。如果数据仍被视为新鲜，
 你会一直看到旧的时间，而不会发生任何刷新。
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row defaultTab="getUpdated" fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -106,11 +106,11 @@ export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 
 :::react
 
-```tsx title="TimePage"
+```tsx title="TimePage" route="/time/:id" start="/time/1"
 import { useSuspense } from '@data-client/react';
 import { getUpdated } from './getUpdated';
 
-export default function TimePage({ id }) {
+export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
@@ -123,41 +123,28 @@ export default function TimePage({ id }) {
 }
 ```
 
-```tsx title="Navigator" collapsed
-import React from 'react';
-import { AsyncBoundary } from '@data-client/react';
-import TimePage from './TimePage';
-
-function Navigator() {
-  const [id, setId] = React.useState('1');
-  const handleChange = e => setId(e.currentTarget.value);
+```tsx title="Navigator" layout collapsed
+export default function Navigator({ children }) {
   return (
     <div>
-      <div>
-        <button value="1" onClick={handleChange}>
-          First
-        </button>
-        <button value="2" onClick={handleChange}>
-          Second
-        </button>
-      </div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
-        <TimePage id={id} />
-      </AsyncBoundary>
+      <nav>
+        <Link to="/time/1">First</Link>
+        <Link to="/time/2">Second</Link>
+      </nav>
+      {children}
       <div>
         Current Time: <CurrentTime />
       </div>
     </div>
   );
 }
-render(<Navigator />);
 ```
 
 :::
 
 :::vue
 
-```html title="TimePage.vue"
+```html title="TimePage.vue" route="/time/:id" start="/time/1"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getUpdated } from './getUpdated';
@@ -174,25 +161,24 @@ render(<Navigator />);
 </template>
 ```
 
-```html title="Navigator.vue" collapsed
-<script setup lang="ts">
-  import { ref } from 'vue';
-  import TimePage from './TimePage.vue';
-
-  const id = ref('1');
-</script>
-
+```html title="Navigator.vue" layout collapsed
 <template>
   <div>
-    <div>
-      <button @click="id = '1'">First</button>
-      <button @click="id = '2'">Second</button>
-    </div>
-    <!-- :key remounts TimePage so it suspends for the new id -->
-    <Suspense timeout="0">
-      <TimePage :key="id" :id="id" />
-      <template #fallback><div>loading...</div></template>
-    </Suspense>
+    <nav>
+      <RouterLink to="/time/1">First</RouterLink>
+      <RouterLink to="/time/2">Second</RouterLink>
+    </nav>
+    <RouterView v-slot="{ Component, route }">
+      <!-- :key remounts TimePage so it suspends for the new id -->
+      <Suspense timeout="0">
+        <component
+          :is="Component"
+          :key="route.fullPath"
+          :id="route.params.id"
+        />
+        <template #fallback><div>loading...</div></template>
+      </Suspense>
+    </RouterView>
   </div>
 </template>
 ```
@@ -255,10 +241,10 @@ const NoRetryResource = resource({
 [Endpoint.invalidIfStale](/rest/api/Endpoint#invalidifstale) 去掉了“[过时](#stale)”状态，使得
 过期的数据立即被视为“[无效](#invalid)”。
 
-在演示中，组件的数据一旦过时，组件就会挂起。如果数据仍在
-过期时间之内，组件就会继续展示它。
+在演示中，页面的数据一旦过时，页面就会挂起:react[（导航会在进度条上等待）]。
+如果数据仍在过期时间之内，就会继续展示它。
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row defaultTab="getUpdated" fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -305,11 +291,11 @@ export const getUpdated = lastUpdated.extend({
 
 :::react
 
-```tsx title="TimePage"
+```tsx title="TimePage" route="/time/:id" start="/time/1"
 import { useSuspense } from '@data-client/react';
 import { getUpdated } from './getUpdated';
 
-export default function TimePage({ id }) {
+export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
@@ -322,41 +308,28 @@ export default function TimePage({ id }) {
 }
 ```
 
-```tsx title="Navigator" collapsed
-import React from 'react';
-import { AsyncBoundary } from '@data-client/react';
-import TimePage from './TimePage';
-
-function Navigator() {
-  const [id, setId] = React.useState('1');
-  const handleChange = e => setId(e.currentTarget.value);
+```tsx title="Navigator" layout collapsed
+export default function Navigator({ children }) {
   return (
     <div>
-      <div>
-        <button value="1" onClick={handleChange}>
-          First
-        </button>
-        <button value="2" onClick={handleChange}>
-          Second
-        </button>
-      </div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
-        <TimePage id={id} />
-      </AsyncBoundary>
+      <nav>
+        <Link to="/time/1">First</Link>
+        <Link to="/time/2">Second</Link>
+      </nav>
+      {children}
       <div>
         Current Time: <CurrentTime />
       </div>
     </div>
   );
 }
-render(<Navigator />);
 ```
 
 :::
 
 :::vue
 
-```html title="TimePage.vue"
+```html title="TimePage.vue" route="/time/:id" start="/time/1"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getUpdated } from './getUpdated';
@@ -373,25 +346,24 @@ render(<Navigator />);
 </template>
 ```
 
-```html title="Navigator.vue" collapsed
-<script setup lang="ts">
-  import { ref } from 'vue';
-  import TimePage from './TimePage.vue';
-
-  const id = ref('1');
-</script>
-
+```html title="Navigator.vue" layout collapsed
 <template>
   <div>
-    <div>
-      <button @click="id = '1'">First</button>
-      <button @click="id = '2'">Second</button>
-    </div>
-    <!-- :key remounts TimePage so it suspends for the new id -->
-    <Suspense timeout="0">
-      <TimePage :key="id" :id="id" />
-      <template #fallback><div>loading...</div></template>
-    </Suspense>
+    <nav>
+      <RouterLink to="/time/1">First</RouterLink>
+      <RouterLink to="/time/2">Second</RouterLink>
+    </nav>
+    <RouterView v-slot="{ Component, route }">
+      <!-- :key remounts TimePage so it suspends for the new id -->
+      <Suspense timeout="0">
+        <component
+          :is="Component"
+          :key="route.fullPath"
+          :id="route.params.id"
+        />
+        <template #fallback><div>loading...</div></template>
+      </Suspense>
+    </RouterView>
   </div>
 </template>
 ```
@@ -409,7 +381,7 @@ render(<Navigator />);
 [Controller.fetch](../api/Controller#fetch) 可以用来触发获取，同时仍展示
 之前的数据。即使数据是“新鲜”的，也可以这样做。
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -497,7 +469,7 @@ render(<ShowTime />);
 
 [Controller.expireAll()](../api/Controller.md#expireAll) 会把所有与 `testKey` 匹配的响应的[过期状态](#expiry-status)设置为[过时](#stale)。
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -657,7 +629,7 @@ render(<Demo />);
 
 在这个示例中，[使 endpoint 失效](../api/Controller.md#invalidate):react[会显示加载 fallback，因为此时数据不允许展示]:vue[会重新获取它，即使其数据仍然新鲜]。
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -807,7 +779,7 @@ render(<Demo />);
 使用 [Invalidate schema](/rest/api/Invalidate)，我们可以让响应中依赖该 [Entity](/rest/api/Entity) 的_任意_ endpoint
 失效。如果 endpoint 在 [Array](/rest/api/Array) 中使用了该 Entity，它只会被从该 [Array](/rest/api/Array) 中移除。
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',

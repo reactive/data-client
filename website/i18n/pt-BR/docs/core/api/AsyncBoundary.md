@@ -109,6 +109,9 @@ export default function App() {
 Handler de assinatura para redefinir o estado de erro em eventos como mudanças na URL. É ótimo
 para posicionar um boundary que envolve componentes de roteamento.
 
+Quando uma prop, como o id do item selecionado, e não um evento `listen`, altera o conteúdo, adicione `key={id}` à
+boundary para limpar o erro do item anterior.
+
 Um exemplo usando o [Anansi Router](https://www.npmjs.com/package/@anansi/router), que usa a
 assinatura do [history](https://www.npmjs.com/package/history).
 

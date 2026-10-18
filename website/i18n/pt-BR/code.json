@@ -1,10 +1,10 @@
 {
   "theme.Playground.liveEditor": {
-    "message": "Editor em tempo real",
+    "message": "Editor",
     "description": "The live editor label of the live codeblocks"
   },
   "theme.Playground.result": {
-    "message": "Resultado",
+    "message": "Pré-visualização",
     "description": "The result label of the live codeblocks"
   },
   "theme.ErrorPageContent.title": {
@@ -849,8 +849,7 @@
     "message": "Código"
   },
   "dataColocation.label": {
-    "message": "Árvore de componentes em que cada componente que renderiza dados os lê diretamente do store com useSuspense(): User para CurrentUser e Avatar, Post para PostBody e Comment para CommentList. Uma mudança renderiza de novo apenas esses componentes e nada mais da árvore",
-    "description": "Accessible label of the data co-location diagram on the Render Data page"
+    "message": "Árvore de componentes em que cada componente que renderiza dados os lê diretamente do store com useSuspense(): User para CurrentUser e Avatar, Post para PostBody e Comment para CommentList. Uma mudança renderiza de novo apenas esses componentes e nada mais da árvore"
   },
   "collectionLists.label": {
     "message": "Três listas guardadas no store a partir de getTodos({ userId: 1 }), getTodos({ userId: 2 }) e getTodos(). Um todo com userId 1 criado por push ou unshift entra na lista de userId 1 e na lista sem filtro, no fim ou no início, e nunca na lista de userId 2, porque uma lista só recebe um item quando todos os argumentos com que foi buscada aparecem na chamada. remove o tira dessas mesmas listas; move o tira da lista de userId 1 e o coloca na de userId 2, e a lista sem filtro o mantém",
@@ -935,5 +934,14 @@
   "optimisticRace.optimistic": {
     "message": "otimista",
     "description": "Under \"Other\" and \"Data Client\" in the race condition diagram: these rows show a counter with optimistic updates"
+  },
+  "frameworkSelector.selectProtocol": {
+    "message": "Selecionar protocolo"
+  },
+  "playground.fixtures.error": {
+    "message": "erro"
+  },
+  "playground.fixtures.delay": {
+    "message": "atraso"
   }
 }

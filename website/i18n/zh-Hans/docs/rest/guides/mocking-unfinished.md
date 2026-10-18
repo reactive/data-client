@@ -9,7 +9,7 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 模拟这个 endpoint，并以这样一种方式使用它，使得 endpoint 完成后
 你无需对代码做大的改动，那就再好不过了。
 
-<HooksPlayground>
+<HooksPlayground row>
 
 ```typescript title="resources/Rating"
 import { Entity, resource } from '@data-client/rest';

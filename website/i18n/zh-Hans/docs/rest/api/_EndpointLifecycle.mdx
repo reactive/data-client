@@ -41,6 +41,11 @@ errorPolicy(error) {
 是一次成功的网络响应。当实际请求完成时（无论失败
 还是成功），乐观更新都会被实际的网络响应替换。
 
+`expectedResponse` 会用 endpoint 的 [schema](#schema) 进行规范化，因此 TypeScript 会像检查
+[Controller.set()](/docs/api/Controller#set) 的值一样检查它：[Entity](./Entity.md) 接受其任意字段，而
+[Collection](./Collection.md) 接受由这些字段组成的列表。当 endpoint 解析为某个特定类型（例如
+[process()](./RestEndpoint.md#process) 的返回值）时，它必须改为匹配该类型。
+
 <VoteDemo />
 
 <center>

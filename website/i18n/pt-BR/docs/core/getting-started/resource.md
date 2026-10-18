@@ -260,7 +260,7 @@ import type {
 } from '@data-client/react';
 
 export default class StreamManager implements Manager {
-  protected declare middleware: Middleware;
+  declare middleware: Middleware;
   protected declare evtSource: WebSocket | EventSource;
   protected declare endpoints: Record<string, EndpointInterface>;
 
@@ -292,10 +292,6 @@ export default class StreamManager implements Manager {
 
   cleanup() {
     this.evtSource.close();
-  }
-
-  getMiddleware() {
-    return this.middleware;
   }
 }
 ```

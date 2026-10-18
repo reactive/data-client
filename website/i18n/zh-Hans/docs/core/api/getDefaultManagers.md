@@ -106,7 +106,7 @@ const managers = getDefaultManagers({
 ```
 
 `IdlingNetworkManager` 会把无 [sideEffect](/rest/api/Endpoint#sideeffect)（只读/GET）的请求推迟到动画完成之后，
-以防止卡顿。在 Web 端它使用 [requestIdleCallback](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback)，在 React Native 中则使用 InteractionManager.runAfterInteractions。
+以防止卡顿。在 Web 端它使用 [requestIdleCallback](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback)，在 React Native 中则使用 InteractionManager.runAfterInteractions（从 React Native 0.87 起则使用 requestIdleCallback，该版本移除了 InteractionManager）。
 
 :::
 

@@ -134,7 +134,8 @@ export default class ErrorReportManager implements Manager {
 ### Métricas {#metrics}
 
 Mide los tiempos de los fetches observando las acciones [FETCH](../api/Actions.md#fetch). `action.meta.promise`
-se resuelve cuando el fetch termina.
+se resuelve cuando el fetch termina. Colócalo antes de `...getDefaultManagers()` para que vea cada FETCH
+antes de que [NetworkManager](../api/NetworkManager.md) lo gestione.
 
 ```typescript framework-imports
 import {
@@ -299,7 +300,7 @@ import { get } from 'idb-keyval';
 import App from './App';
 import PersistManager from './PersistManager';
 
-const managers = [...getDefaultManagers(), new PersistManager()];
+const managers = [new PersistManager(), ...getDefaultManagers()];
 const initialState = await get('data-client');
 
 createRoot(document.body).render(
@@ -320,7 +321,7 @@ import { get } from 'idb-keyval';
 import App from './App.vue';
 import PersistManager from './PersistManager';
 
-const managers = [...getDefaultManagers(), new PersistManager()];
+const managers = [new PersistManager(), ...getDefaultManagers()];
 const initialState = await get('data-client');
 
 const app = createApp(App);
