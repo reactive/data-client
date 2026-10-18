@@ -56,6 +56,8 @@ npx skills add reactive/data-client
 
 Then run [skill](https://agentskills.io) "data-client-setup"
 
+Skills also ship inside each `@data-client/*` package; load them with [TanStack Intent](https://tanstack.com/intent) (`npx intent install`).
+
 ## Usage
 
 ### Simple [TypeScript definition](https://dataclient.io/rest/api/Entity)
