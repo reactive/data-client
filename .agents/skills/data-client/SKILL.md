@@ -6,8 +6,8 @@ license: Apache 2.0
 
 # Reactive Data Client
 
-It's set up when `package.json` has `@data-client/react` or `@data-client/vue` and the app is wrapped in
-`DataProvider` (React) or uses `DataClientPlugin` (Vue).
+It's set up when `package.json` has `@data-client/react` or `@data-client/vue` and the source wraps the app in
+`DataProvider` (React) or installs `DataClientPlugin` (Vue); search the source for them.
 
 ## Not set up yet
 
@@ -34,7 +34,10 @@ Load the skill for the work:
 | Vue composables: `useSuspense`, `useController`, `DataClientPlugin` | `data-client-vue` |
 | Tests | `data-client-react-testing` or `data-client-vue-testing` |
 | WebSockets, SSE, polling, global side effects | `data-client-manager` |
-| Adding GraphQL or custom async endpoints | `data-client-setup` (bundles their setup guides) |
+| Adding GraphQL, or custom async functions | `data-client-graphql-setup` or `data-client-endpoint-setup`* |
+
+\* Not loaded on their own: read their `SKILL.md` (or `../data-client-setup/references/<skill>.md`) and skip
+the install and provider steps the app already has.
 
 App code imports from `@data-client/react` or `@data-client/vue` and the protocol package (`@data-client/rest`).
 Docs as markdown: https://dataclient.io/llms.txt (React) or https://dataclient.io/vue/llms.txt (Vue).
