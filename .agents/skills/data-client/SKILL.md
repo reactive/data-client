@@ -17,11 +17,6 @@ packages, adds the provider, and migrates existing fetch code. It runs installs,
 when the user asked you to add or use Data Client in this app, that is the go-ahead, so read its `SKILL.md` and
 follow it. When they only asked about Data Client, answer and offer to set it up instead.
 
-If `data-client-setup` isn't installed, the same go-ahead covers installing it:
-`npx skills add reactive/data-client --skill data-client-setup`. If you can't install skills, set up by hand from
-https://dataclient.io/docs/getting-started/installation.md (React) or
-https://dataclient.io/vue/getting-started/installation.md (Vue).
-
 ## Set up
 
 Load the skill for the work:
@@ -35,13 +30,21 @@ Load the skill for the work:
 | Tests | `data-client-react-testing` or `data-client-vue-testing` |
 | WebSockets, SSE, polling, global side effects | `data-client-manager` |
 
-To add a protocol the app doesn't depend on yet, follow its guide in `../data-client-setup/references/`:
-`data-client-rest-setup.md`, `data-client-graphql-setup.md` or `data-client-endpoint-setup.md` (they aren't loaded
-by name).
-
-If a skill named here isn't installed, the go-ahead above applies to it too: install it with
-`npx skills add reactive/data-client --skill <name>`; for a question, read the docs below instead.
+To add a protocol the app doesn't depend on yet, follow its guide in `data-client-setup`
+(`../data-client-setup/references/`): `data-client-rest-setup.md`, `data-client-graphql-setup.md` or
+`data-client-endpoint-setup.md`. They aren't loaded by name.
 
 App code imports from `@data-client/react` or `@data-client/vue` and the protocol package
 (`@data-client/rest`, `@data-client/graphql` or `@data-client/endpoint`).
-Docs as markdown: https://dataclient.io/llms.txt (React) or https://dataclient.io/vue/llms.txt (Vue).
+
+## When a skill isn't installed
+
+This covers `data-client-setup` and every skill above. When the user asked you to add or use Data Client in this
+app, install it with the installer that installed this skill: `npx skills add reactive/data-client --yes --skill <name>`
+for the skills CLI, or `npx openskills install reactive/data-client/.agents/skills/<name>` for OpenSkills. Then read
+its `SKILL.md` directly, since new skills may not load until the next session.
+
+For a question, or when you can't install skills, use the docs as markdown instead:
+https://dataclient.io/llms.txt (React) or https://dataclient.io/vue/llms.txt (Vue); to set up by hand, start at
+https://dataclient.io/docs/getting-started/installation.md (React) or
+https://dataclient.io/vue/getting-started/installation.md (Vue).
