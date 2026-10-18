@@ -6,6 +6,7 @@ const os = require('node:os');
 const path = require('node:path');
 
 const cli = path.join(__dirname, '../cli.js');
+const ignored = ['node_modules/dep', 'packages/app/node_modules/dep'];
 const before = `import { Entity } from '@data-client/rest';
 class MySchema {
   denormalize(input: {}, args: readonly any[], unvisit: any) {
@@ -22,7 +23,7 @@ describe('cli', () => {
   let dir;
   beforeEach(() => {
     dir = fs.mkdtempSync(path.join(os.tmpdir(), 'data-client-codemods-'));
-    for (const folder of ['src', 'node_modules/dep']) {
+    for (const folder of ['src', ...ignored]) {
       fs.mkdirSync(path.join(dir, folder), { recursive: true });
       fs.writeFileSync(path.join(dir, folder, 'schema.ts'), before);
     }
@@ -49,8 +50,10 @@ describe('cli', () => {
     expect(fs.readFileSync(path.join(dir, 'src/schema.ts'), 'utf8')).not.toBe(
       before,
     );
-    expect(
-      fs.readFileSync(path.join(dir, 'node_modules/dep/schema.ts'), 'utf8'),
-    ).toBe(before);
+    for (const folder of ignored) {
+      expect(fs.readFileSync(path.join(dir, folder, 'schema.ts'), 'utf8')).toBe(
+        before,
+      );
+    }
   });
 });
