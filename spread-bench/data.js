@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792264762435,
+  "lastUpdate": 1792329562756,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -618,6 +618,37 @@ window.BENCHMARK_DATA = {
             "name": "setOneEntity in 10k entity store",
             "value": 149,
             "range": "±0.95%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "ecac998f03dcf5480bf5a90e7dcef6ba0886e7e5",
+          "message": "pkg: Update build packages (#4406)\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+          "timestamp": "2026-10-18T13:16:58Z",
+          "tree_id": "0dd428860f18ac902f904fd2bea6b98be6d3afab",
+          "url": "https://github.com/reactive/data-client/commit/ecac998f03dcf5480bf5a90e7dcef6ba0886e7e5"
+        },
+        "date": 1792329559350,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 149,
+            "range": "±0.59%",
             "unit": "ops/sec",
             "extra": "84 samples"
           }
