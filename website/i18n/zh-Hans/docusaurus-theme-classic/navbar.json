@@ -11,14 +11,6 @@
     "message": "API",
     "description": "Navbar item with label API"
   },
-  "item.label.REST": {
-    "message": "REST",
-    "description": "Navbar item with label REST"
-  },
-  "item.label.GraphQL": {
-    "message": "GraphQL",
-    "description": "Navbar item with label GraphQL"
-  },
   "item.label.News": {
     "message": "新闻",
     "description": "Navbar item with label News"

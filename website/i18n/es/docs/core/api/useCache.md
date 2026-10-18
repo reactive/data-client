@@ -16,8 +16,10 @@ import { RestEndpoint } from '@data-client/rest';
 
 Renderizado de datos sin el fetch.
 
-Accede a la respuesta de cualquier [Endpoint](/rest/api/Endpoint). Si la respuesta no existe, devuelve
-`undefined`. Esto puede usarse para comprobar la existencia de un `Endpoint's`, por ejemplo para la autenticación.
+Accede a la respuesta de cualquier [Endpoint](/rest/api/Endpoint). Devuelve `undefined` hasta que se obtiene, se establece o
+se puede inferir a partir de las entities que ya están en el store, y de nuevo tras una invalidación (consulta [Comportamiento](#behavior)).
+Eso significa "no cargado", no "no existe en el servidor", así que úsalo para datos que carga otro código, como
+el usuario actual que obtiene un flujo de inicio de sesión.
 
 `useCache()` reacciona a las [mutaciones](../getting-started/mutations.md) de los datos y vuelve a renderizar solo cuando es necesario.
 

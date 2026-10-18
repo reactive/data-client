@@ -201,11 +201,11 @@
     "message": "禁用函数名混淆"
   },
   "theme.Playground.liveEditor": {
-    "message": "实时编辑器",
+    "message": "编辑器",
     "description": "The live editor label of the live codeblocks"
   },
   "theme.Playground.result": {
-    "message": "结果",
+    "message": "实时预览",
     "description": "The result label of the live codeblocks"
   },
   "theme.ErrorPageContent.title": {
@@ -849,8 +849,7 @@
     "message": "代码"
   },
   "dataColocation.label": {
-    "message": "组件树：每个渲染数据的组件都通过 useSuspense() 直接从 store 读取数据：CurrentUser 和 Avatar 读取 User，PostBody 读取 Post，CommentList 读取 Comment。数据变化只会让这些组件重新渲染，树中其余部分都不会",
-    "description": "Accessible label of the data co-location diagram on the Render Data page"
+    "message": "组件树：每个渲染数据的组件都通过 useSuspense() 直接从 store 读取数据：CurrentUser 和 Avatar 读取 User，PostBody 读取 Post，CommentList 读取 Comment。数据变化只会让这些组件重新渲染，树中其余部分都不会"
   },
   "collectionLists.label": {
     "message": "store 中缓存了三个列表，分别来自 getTodos({ userId: 1 })、getTodos({ userId: 2 }) 和 getTodos()。push 或 unshift 创建的 userId 为 1 的 todo 会加入 userId 1 列表和无筛选列表（加到末尾或开头），但绝不会加入 userId 2 列表，因为只有列表获取时的每个参数都出现在调用中，该列表才会收到这个条目。remove 会把它从同样这些列表中移除；move 会把它从 userId 1 列表移到 userId 2 列表，无筛选列表则保留它",
@@ -935,5 +934,14 @@
   "optimisticRace.optimistic": {
     "message": "乐观更新",
     "description": "Under \"Other\" and \"Data Client\" in the race condition diagram: these rows show a counter with optimistic updates"
+  },
+  "frameworkSelector.selectProtocol": {
+    "message": "选择协议"
+  },
+  "playground.fixtures.error": {
+    "message": "错误"
+  },
+  "playground.fixtures.delay": {
+    "message": "延迟"
   }
 }

@@ -133,7 +133,7 @@ suspensiones.
 <details>
 <summary><b>Demo de SWAPI</b></summary>
 
-<HooksPlayground>
+<HooksPlayground row>
 
 ```tsx
 import { useSuspense } from '@data-client/react';

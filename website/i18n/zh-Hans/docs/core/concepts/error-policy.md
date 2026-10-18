@@ -40,7 +40,7 @@ import {RestEndpoint} from '@data-client/rest';
 
 </SiteOnly>
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',

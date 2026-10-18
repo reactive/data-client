@@ -31,7 +31,7 @@ de renderizado y de recuperación de datos.
 class Controller {
   /*************** Action Dispatchers ***************/
   fetch(endpoint, ...args): ReturnType<E>;
-  fetchIfStale(endpoint, ...args): ReturnType<E> | undefined;
+  fetchIfStale(endpoint, ...args): ReturnType<E> | Denormalize<E['schema']>;
   expireAll({ testKey }): Promise<void>;
   invalidate(endpoint, ...args): Promise<void>;
   invalidateAll({ testKey }): Promise<void>;
@@ -265,7 +265,8 @@ post.pk();
 
 ### fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
-Hace fetch solo si el endpoint se considera '[obsoleto](../concepts/expiry-policy.md#stale)'.
+Hace fetch solo si el endpoint se considera '[obsoleto](../concepts/expiry-policy.md#stale)' o [inválido](../concepts/expiry-policy.md#invalid),
+y devuelve la misma Promise que [fetch()](#fetch). En caso contrario, devuelve de forma síncrona los datos en caché, sin hacer fetch.
 
 Esto puede ser útil al precargar datos, ya que evita obtener de más datos que aún están actualizados.
 

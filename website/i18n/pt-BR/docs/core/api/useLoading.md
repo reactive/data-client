@@ -61,13 +61,13 @@ export const PostResource = resource({
 });
 ```
 
-```html title="PostDetail.vue" collapsed
+```html title="PostDetail.vue" route="/posts/:id" collapsed
 <script setup lang="ts">
   import { computed } from 'vue';
   import { useSuspense } from '@data-client/vue';
   import { PostResource } from './PostResource';
 
-  const props = defineProps<{ id: number }>();
+  const props = defineProps<{ id: string }>();
   const post = await useSuspense(PostResource.get, computed(() => ({
     id: props.id,
   })));
@@ -122,19 +122,20 @@ export const PostResource = resource({
 </template>
 ```
 
-```html title="PostCreate.vue"
+```html title="PostCreate.vue" route="/"
 <script setup lang="ts">
   import { useLoading, useController } from '@data-client/vue';
+  import { useRouter } from 'vue-router';
   import { PostResource } from './PostResource';
   import PostForm from './PostForm.vue';
 
-  const emit = defineEmits<{ navigateToPost: [id: number] }>();
   const ctrl = useController();
+  const router = useRouter();
   // highlight-start
   const [handleSubmit, loading, error] = useLoading(
     async (data: FormData) => {
       const post = await ctrl.fetch(PostResource.getList.push, data);
-      emit('navigateToPost', post.id);
+      router.push(`/posts/${post.id}`);
     },
   );
   // highlight-end
@@ -142,28 +143,6 @@ export const PostResource = resource({
 
 <template>
   <PostForm @submit="handleSubmit" :loading="loading" :error="error" />
-</template>
-```
-
-```html title="Navigation.vue" collapsed
-<script setup lang="ts">
-  import { ref } from 'vue';
-  import PostCreate from './PostCreate.vue';
-  import PostDetail from './PostDetail.vue';
-
-  const id = ref<number | undefined>(undefined);
-</script>
-
-<template>
-  <div v-if="id">
-    <Suspense>
-      <PostDetail :id="id" />
-    </Suspense>
-    <div style="text-align: center">
-      <button @click="id = undefined">New Post</button>
-    </div>
-  </div>
-  <PostCreate v-else @navigate-to-post="id = $event" />
 </template>
 ```
 
@@ -206,7 +185,7 @@ da regra [react-hooks/exhaustive-deps](https://www.npmjs.com/package/eslint-plug
 ```typescript
 export default function useLoading<
   F extends (...args: any) => Promise<any>,
->(func: F, deps: readonly any[] = []): [F, boolean];
+>(func: F, deps: readonly any[] = []): [F, boolean, Error | undefined];
 ```
 
 :::

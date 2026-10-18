@@ -16,8 +16,10 @@ import { RestEndpoint } from '@data-client/rest';
 
 无需 fetch 即可渲染数据。
 
-访问任意 [Endpoint](/rest/api/Endpoint) 的响应。如果响应不存在，则返回
-`undefined`。这可以用来检查某个 `Endpoint's` 的响应是否存在，例如用于身份验证。
+访问任意 [Endpoint](/rest/api/Endpoint) 的响应。在它被获取、设置或能从 store 中已有的 entity 推断出来之前，
+以及失效之后，都返回 `undefined`（参见[行为](#behavior)）。
+这意味着“尚未加载”，而不是“服务器上不存在”，因此请把它用于由其他代码加载的数据，例如
+登录流程获取的当前用户。
 
 `useCache()` 会响应数据[变更](../getting-started/mutations.md)，仅在必要时重新渲染。
 
