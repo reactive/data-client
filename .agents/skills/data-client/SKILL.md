@@ -16,8 +16,8 @@ packages, adds the provider, and migrates existing fetch code. It runs installs,
 when the user asked you to add or use Data Client in this app, that is the go-ahead, so read its `SKILL.md` and
 follow it. When they only asked about Data Client, answer and offer to set it up instead.
 
-If `data-client-setup` isn't installed, install it with
-`npx skills add reactive/data-client --skill data-client-setup`, or set up by hand from
+If `data-client-setup` isn't installed, the same go-ahead covers installing it:
+`npx skills add reactive/data-client --skill data-client-setup`. If you can't install skills, set up by hand from
 https://dataclient.io/docs/getting-started/installation.md.
 
 ## Installed
