@@ -5,7 +5,7 @@
 // Each skill ships once, in a package every app that needs it installs.
 //
 // Usage (from a package's prepack): node ../../scripts/pack-skills.mjs
-//        node scripts/pack-skills.mjs --check   (every published skill ships once)
+//        node scripts/pack-skills.mjs --check   (every published skill ships once and exists)
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -39,15 +39,19 @@ if (process.argv.includes('--check')) {
   const published = JSON.parse(
     fs.readFileSync(path.join(root, '.claude-plugin/marketplace.json'), 'utf8'),
   ).plugins.flatMap(plugin => plugin.skills.map(s => path.basename(s)));
-  const missing = [
-    ...published.filter(s => !owned.includes(s) && !bundled.includes(s)),
-    ...owned.filter(s => !fs.existsSync(path.join(SKILLS, s, 'SKILL.md'))),
+  const problems = [
+    ...published
+      .filter(s => !owned.includes(s) && !bundled.includes(s))
+      .map(s => `${s} ships in no package`),
+    ...owned
+      .filter((s, i) => owned.indexOf(s) !== i)
+      .map(s => `${s} ships in more than one package`),
+    ...owned
+      .filter(s => !fs.existsSync(path.join(SKILLS, s, 'SKILL.md')))
+      .map(s => `${s} has no SKILL.md`),
   ];
-  const twice = owned.filter((s, i) => owned.indexOf(s) !== i);
-  if (missing.length || twice.length) {
-    console.error(
-      `scripts/pack-skills.mjs must ship each existing skill in exactly one package: ${[...missing, ...twice].join(', ')}`,
-    );
+  if (problems.length) {
+    console.error(`scripts/pack-skills.mjs:\n  ${problems.join('\n  ')}`);
     process.exit(1);
   }
 } else {
