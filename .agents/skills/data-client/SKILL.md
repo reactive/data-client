@@ -36,8 +36,8 @@ Load the skill for the work:
 | WebSockets, SSE, polling, global side effects | `data-client-manager` |
 
 To add GraphQL or custom async functions, read `../data-client-setup/references/data-client-graphql-setup.md` or
-`../data-client-setup/references/data-client-endpoint-setup.md` (they aren't loaded by name), skipping the install
-and provider steps the app already has.
+`../data-client-setup/references/data-client-endpoint-setup.md` (they aren't loaded by name; install
+`data-client-setup` as above if it's missing), skipping the install and provider steps the app already has.
 
 App code imports from `@data-client/react` or `@data-client/vue` and the protocol package (`@data-client/rest`).
 Docs as markdown: https://dataclient.io/llms.txt (React) or https://dataclient.io/vue/llms.txt (Vue).
