@@ -28,9 +28,6 @@ To install every skill for your framework now instead, without letting your agen
 
 <SkillTabs />
 
-Then asking your agent to use Data Client is enough: skill `/data-client` routes it to setup or to the skill for
-the task.
-
 ### Load skills from your installed packages
 
 Each `@data-client/*` package ships the skills for its version, so they update with `npm update`. To have your agent

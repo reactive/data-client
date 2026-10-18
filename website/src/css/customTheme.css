@@ -195,3 +195,10 @@ small {
     margin: 0 auto 1.5rem;
   }
 }
+
+/* touch screens have no hover to reveal code block buttons (copy, word wrap) */
+@media (hover: none) {
+  html .theme-code-block button {
+    opacity: 0.6;
+  }
+}

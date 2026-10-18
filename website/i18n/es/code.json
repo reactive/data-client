@@ -946,7 +946,7 @@
   },
   "agentPrompt.prompt": {
     "message": "Usa Reactive Data Client (`@data-client/{framework}` y `@data-client/rest`) para obtener datos.",
-    "description": "Prompt readers copy into their coding agent"
+    "description": "Prompt readers copy into their coding agent. Keep the backticks around package names: they keep each name on one line."
   },
   "homepage.agentPrompt.title": {
     "message": "O díselo a tu agente de programación"

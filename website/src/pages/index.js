@@ -61,14 +61,13 @@ function HomepageHeader() {
             <Translate id="homepage.getStarted">Get Started</Translate>
           </Link>
         </div>
-        <div className={styles.agentPrompt}>
-          <AgentPrompt
-            title={translate({
-              id: 'homepage.agentPrompt.title',
-              message: 'Or tell your coding agent',
-            })}
-          />
-        </div>
+        <AgentPrompt
+          className={styles.agentPrompt}
+          title={translate({
+            id: 'homepage.agentPrompt.title',
+            message: 'Or tell your coding agent',
+          })}
+        />
       </div>
     </header>
   );
