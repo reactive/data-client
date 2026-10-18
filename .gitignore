@@ -90,3 +90,6 @@ website/i18n/*/docusaurus-plugin-content-blog/*
 
 # Vercel CLI (vercel pull / vercel build)
 .vercel
+
+# agent skills copied in at pack time (scripts/pack-skills.mjs)
+packages/*/skills/

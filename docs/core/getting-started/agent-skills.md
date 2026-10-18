@@ -22,6 +22,17 @@ To install every skill for your framework now instead, without letting your agen
 
 <SkillTabs />
 
+### Load skills from your installed packages
+
+Each `@data-client/*` package ships the skills for its version, so they update with `npm update`. To have your agent
+load them, add [TanStack Intent](https://tanstack.com/intent) and run its install, which adds a skill loading section
+to your `AGENTS.md`:
+
+```bash
+npm install -D @tanstack/intent
+npx intent install
+```
+
 ## Available Skills
 
 - [**`/data-client-setup`**](https://skills.sh/reactive/data-client/data-client-setup) — installs and configures Data Client for your framework and API style, along with the skills it needs.

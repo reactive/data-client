@@ -17,6 +17,7 @@ workflows instead of guessing from older releases. This release cycle makes that
 - [Claude Code plugin](/blog/2026/10/06/coding-agents#claude-plugin) - `claude plugin install react@data-client` installs the skills for your framework
 - [Vue skills](/blog/2026/10/06/coding-agents#vue-skills) - Vue projects get Vue composables and tests, not React hooks
 - [llms.txt](/blog/2026/10/06/coding-agents#llms-txt) - Any agent can read the docs as markdown, and every page tells it where to look
+- [Skills in the packages](/blog/2026/10/06/coding-agents#npm-skills) - Each `@data-client/*` package ships the skills for its version, loaded with TanStack Intent
 
 **Also available:**
 
@@ -73,6 +74,17 @@ Agents without skills can read the docs as markdown, following the [llms.txt](ht
 
 Every page links its llms.txt in `<head>`, and every docs page links its markdown, so an agent given any page URL
 finds them on its own.
+
+## Skills in the packages {#npm-skills}
+
+Skills now ship inside the packages they cover, so your agent follows the version you have installed and gets new
+guidance with `npm update`. [TanStack Intent](https://tanstack.com/intent) loads them: its install adds a section to
+your `AGENTS.md` telling agents to load the matching skill before they change code.
+
+```bash
+npm install -D @tanstack/intent
+npx intent install
+```
 
 ## Skills match the docs {#generated-references}
 
