@@ -14,7 +14,6 @@
 
 // Schema and path rewrites apply only to the packages that export `schema`
 // and `RestEndpoint`; the useFetch rewrite applies to any @data-client package.
-const DATA_CLIENT_PREFIX = '@data-client/';
 const DATA_CLIENT_PACKAGES = new Set([
   '@data-client/endpoint',
   '@data-client/rest',
@@ -97,7 +96,7 @@ function transformUseFetch(j, root) {
     .find(j.ImportDeclaration)
     .filter(importPath => {
       const source = importPath.node.source.value;
-      if (!source.startsWith(DATA_CLIENT_PREFIX)) return false;
+      if (!source.startsWith('@data-client/')) return false;
       return importPath.node.specifiers.some(
         s =>
           s.type === 'ImportSpecifier' &&

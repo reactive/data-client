@@ -143,9 +143,7 @@ function isShadowedByParam(p, name, bodyNode) {
       t === 'MethodDefinition'
     ) {
       const params =
-        (cur.node.params && cur.node.params) ||
-        (cur.node.value && cur.node.value.params) ||
-        [];
+        cur.node.params || (cur.node.value && cur.node.value.params) || [];
       if (params.some(prm => getParamName(prm) === name)) return true;
     }
   }
@@ -247,7 +245,6 @@ function rewriteBody(j, methodPath, argsName, unvisitName) {
   if (!bodyPath) return;
   const bodyNode = bodyPath.node;
   const body = bodyScope(j, bodyPath);
-  const isShadowed = (p, name) => isShadowedByParam(p, name, bodyNode);
 
   // 1. Rewrite pass-through calls: x.denormalize(input, args, unvisit) → x.denormalize(input, delegate)
   body
@@ -266,7 +263,11 @@ function rewriteBody(j, methodPath, argsName, unvisitName) {
       );
     })
     .forEach(p => {
-      if (isShadowed(p, argsName) || isShadowed(p, unvisitName)) return;
+      if (
+        isShadowedByParam(p, argsName, bodyNode) ||
+        isShadowedByParam(p, unvisitName, bodyNode)
+      )
+        return;
       p.node.arguments = [p.node.arguments[0], j.identifier('delegate')];
     });
 
@@ -277,7 +278,7 @@ function rewriteBody(j, methodPath, argsName, unvisitName) {
         callee: { type: 'Identifier', name: unvisitName },
       })
       .forEach(p => {
-        if (isShadowed(p, unvisitName)) return;
+        if (isShadowedByParam(p, unvisitName, bodyNode)) return;
         p.node.callee = j.memberExpression(
           j.identifier('delegate'),
           j.identifier('unvisit'),
@@ -305,7 +306,6 @@ function rewriteNormalizeBody(
   if (!bodyPath) return;
   const bodyNode = bodyPath.node;
   const body = bodyScope(j, bodyPath);
-  const isShadowed = (p, name) => isShadowedByParam(p, name, bodyNode);
 
   // 1. Rewrite pass-through calls:
   // x.normalize(input, parent, key, args, visit, delegate[, parentEntity])
@@ -329,9 +329,9 @@ function rewriteNormalizeBody(
     })
     .forEach(p => {
       if (
-        isShadowed(p, argsName) ||
-        isShadowed(p, visitName) ||
-        isShadowed(p, delegateName)
+        isShadowedByParam(p, argsName, bodyNode) ||
+        isShadowedByParam(p, visitName, bodyNode) ||
+        isShadowedByParam(p, delegateName, bodyNode)
       )
         return;
       p.node.arguments = [
@@ -350,7 +350,7 @@ function rewriteNormalizeBody(
         callee: { type: 'Identifier', name: visitName },
       })
       .forEach(p => {
-        if (isShadowed(p, visitName)) return;
+        if (isShadowedByParam(p, visitName, bodyNode)) return;
         const callArgs = p.node.arguments;
         if (
           callArgs.length === 5 &&
