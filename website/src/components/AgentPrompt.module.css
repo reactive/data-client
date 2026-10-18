@@ -1,0 +1,17 @@
+/* the prompt is one sentence: wrap it instead of scrolling sideways on phones */
+.agentPrompt :global(pre code) {
+  white-space: pre-wrap;
+  /* room for the copy button, so wrapped text doesn't run under it */
+  padding-right: 3.25rem;
+}
+
+/* package names (markdown code spans) never break at their hyphen */
+.agentPrompt :global(.token.code-snippet) {
+  white-space: nowrap;
+  font-style: normal !important;
+}
+
+/* copy button stays visible: it is the point of the block, and touch has no hover */
+.agentPrompt :global(.theme-code-block) button {
+  opacity: 0.7;
+}

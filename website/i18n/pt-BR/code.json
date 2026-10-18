@@ -943,5 +943,12 @@
   },
   "playground.fixtures.delay": {
     "message": "atraso"
+  },
+  "agentPrompt.prompt": {
+    "message": "Use o Reactive Data Client (`@data-client/{framework}` e `@data-client/rest`) para buscar dados.",
+    "description": "Prompt readers copy into their coding agent"
+  },
+  "homepage.agentPrompt.title": {
+    "message": "Ou diga ao seu agente de programação"
   }
 }

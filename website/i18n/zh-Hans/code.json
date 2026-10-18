@@ -943,5 +943,12 @@
   },
   "playground.fixtures.delay": {
     "message": "延迟"
+  },
+  "agentPrompt.prompt": {
+    "message": "使用 Reactive Data Client（`@data-client/{framework}` 和 `@data-client/rest`）获取数据。",
+    "description": "Prompt readers copy into their coding agent"
+  },
+  "homepage.agentPrompt.title": {
+    "message": "或者告诉你的编程智能体"
   }
 }
