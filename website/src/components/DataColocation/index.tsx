@@ -81,7 +81,7 @@ export default function DataColocation() {
 
   return (
     <svg
-      className={styles.diagram}
+      className={clsx(styles.diagram, 'doc-float')}
       viewBox="0 0 440 250"
       role="img"
       onClick={() => setActive(null)}
