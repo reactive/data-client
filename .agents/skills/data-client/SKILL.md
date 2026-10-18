@@ -34,10 +34,10 @@ Load the skill for the work:
 | Vue composables: `useSuspense`, `useController`, `DataClientPlugin` | `data-client-vue` |
 | Tests | `data-client-react-testing` or `data-client-vue-testing` |
 | WebSockets, SSE, polling, global side effects | `data-client-manager` |
-| Adding GraphQL, or custom async functions | `data-client-graphql-setup` or `data-client-endpoint-setup`* |
 
-\* Not loaded on their own: read their `SKILL.md` (or `../data-client-setup/references/<skill>.md`) and skip
-the install and provider steps the app already has.
+To add GraphQL or custom async functions, read `../data-client-setup/references/data-client-graphql-setup.md` or
+`../data-client-setup/references/data-client-endpoint-setup.md` (they aren't loaded by name), skipping the install
+and provider steps the app already has.
 
 App code imports from `@data-client/react` or `@data-client/vue` and the protocol package (`@data-client/rest`).
 Docs as markdown: https://dataclient.io/llms.txt (React) or https://dataclient.io/vue/llms.txt (Vue).
