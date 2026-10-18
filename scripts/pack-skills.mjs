@@ -1,15 +1,11 @@
 #!/usr/bin/env node
 // Copies the agent skills a package owns from .agents/skills into its
-// `skills/` folder, so they publish with the version they describe.
-// Agents load them through TanStack Intent (`npx @tanstack/intent install`),
-// which finds any installed package with a `skills/` folder.
-//
-// Shared skills live in the package every app that needs them already has,
-// so each skill ships once: setup and managers with core (React and Vue both
-// depend on it), schemas with endpoint (rest and graphql depend on it).
+// `skills/` folder at pack time, so they publish with the version they
+// describe; TanStack Intent (`npx intent install`) finds them there.
+// Each skill ships once, in a package every app that needs it installs.
 //
 // Usage (from a package's prepack): node ../../scripts/pack-skills.mjs
-//        node scripts/pack-skills.mjs --check   (every data-client skill has one owner)
+//        node scripts/pack-skills.mjs --check   (every published skill ships once)
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,31 +19,33 @@ const owners = {
     'data-client-schema',
     'data-client-v0.18-migration',
   ],
-  '@data-client/rest': ['data-client-rest'],
+  '@data-client/rest': ['data-client-rest', 'path-to-regexp-v8-migration'],
   '@data-client/react': ['data-client-react', 'data-client-react-testing'],
   '@data-client/vue': ['data-client-vue', 'data-client-vue-testing'],
 };
-// bundled into data-client-setup, so shipping them again would duplicate them
-const bundled = [
-  'data-client-rest-setup',
-  'data-client-graphql-setup',
-  'data-client-endpoint-setup',
-];
 // repo tooling, not part of the published copy
 const skip = new Set(['evals', 'references.json']);
 
 if (process.argv.includes('--check')) {
   const owned = Object.values(owners).flat();
-  const problems = [
-    ...owned.filter(s => !fs.existsSync(path.join(SKILLS, s, 'SKILL.md'))),
-    ...fs
-      .readdirSync(SKILLS)
-      .filter(s => s.startsWith('data-client-'))
-      .filter(s => !owned.includes(s) && !bundled.includes(s)),
-  ];
-  if (problems.length) {
+  // skills a shipped skill bundles (references.json `skills`) ship inside it
+  const bundled = owned.flatMap(skill => {
+    const manifest = path.join(SKILLS, skill, 'references.json');
+    return fs.existsSync(manifest) ?
+        (JSON.parse(fs.readFileSync(manifest, 'utf8')).skills ?? [])
+      : [];
+  });
+  // every skill the Claude Code plugins publish
+  const published = JSON.parse(
+    fs.readFileSync(path.join(root, '.claude-plugin/marketplace.json'), 'utf8'),
+  ).plugins.flatMap(plugin => plugin.skills.map(s => path.basename(s)));
+  const missing = published.filter(
+    s => !owned.includes(s) && !bundled.includes(s),
+  );
+  const twice = owned.filter((s, i) => owned.indexOf(s) !== i);
+  if (missing.length || twice.length) {
     console.error(
-      `Skills without exactly one package in scripts/pack-skills.mjs: ${problems.join(', ')}`,
+      `scripts/pack-skills.mjs must ship each skill in exactly one package: ${[...missing, ...twice].join(', ')}`,
     );
     process.exit(1);
   }

@@ -86,10 +86,6 @@ npm install -D @tanstack/intent
 npx intent install
 ```
 
-`@data-client/react` and `@data-client/vue` carry their hooks or composables and testing skills, `@data-client/core`
-carries setup and Managers, `@data-client/endpoint` carries schemas and the v0.18 upgrade, and `@data-client/rest`
-carries REST APIs.
-
 ## Skills match the docs {#generated-references}
 
 Skill reference pages are now generated per framework from these docs, so they carry shared snippets like install
