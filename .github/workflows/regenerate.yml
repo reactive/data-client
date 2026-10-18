@@ -8,8 +8,8 @@ on:
   push:
     branches:
       - master
-    # Inputs of scripts/copywebsitetypes.sh, website/framework-docs/skillReferences.mjs
-    # and checkExamples.mjs
+    # Inputs of scripts/copywebsitetypes.sh, website/framework-docs/skillReferences.mjs,
+    # scripts/pack-skills.mjs --check and checkExamples.mjs
     paths:
       - 'packages/**'
       - '!packages/**/__tests__/**'
@@ -20,6 +20,8 @@ on:
       - 'scripts/strip-dts-comments.mjs'
       - 'scripts/globals.ts'
       - 'scripts/rollup-plugins/**'
+      - 'scripts/pack-skills.mjs'
+      - '.claude-plugin/marketplace.json'
       - 'website/src/components/Playground/editor-types/**'
       - 'website/src/components/Playground/DesignSystem/index.ts'
       - 'website/src/components/Playground/monaco/typeCheckFlags.json'
