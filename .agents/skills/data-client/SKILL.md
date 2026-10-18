@@ -31,9 +31,10 @@ Load the skill for the work:
 | Tests | `data-client-react-testing` or `data-client-vue-testing` |
 | WebSockets, SSE, polling, global side effects | `data-client-manager` |
 
-To add a protocol the app doesn't depend on yet, follow its guide in `data-client-setup`
-(`../data-client-setup/references/`): `data-client-rest-setup.md`, `data-client-graphql-setup.md` or
-`data-client-endpoint-setup.md`. They aren't loaded by name.
+To add a protocol the app doesn't depend on yet, or to write GraphQL queries or wrap async functions, follow its guide
+in `data-client-setup` (`../data-client-setup/references/`): `data-client-rest-setup.md`,
+`data-client-graphql-setup.md` or `data-client-endpoint-setup.md`, installing only packages the app lacks. They
+aren't loaded by name.
 
 App code imports from `@data-client/react` or `@data-client/vue` and the protocol package
 (`@data-client/rest`, `@data-client/graphql` or `@data-client/endpoint`).
