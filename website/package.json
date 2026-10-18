@@ -59,8 +59,8 @@
     "webpack": "^5.76.0"
   },
   "dependencies": {
-    "@anansi/browserslist-config": "1.7.6",
-    "@anansi/webpack-config": "22.0.0",
+    "@anansi/browserslist-config": "1.7.7",
+    "@anansi/webpack-config": "22.0.1",
     "@data-client/endpoint": "workspace:*",
     "@data-client/graphql": "workspace:*",
     "@data-client/react": "workspace:*",
