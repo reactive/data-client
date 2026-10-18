@@ -68,9 +68,7 @@ const isSkillInput = file =>
   isSkillDoc(file) ||
   /^\.agents\/skills\/[^/]+\/(references\.json|SKILL\.md)$/.test(file) ||
   isBundledSkillFile(file) ||
-  file.startsWith('website/framework-docs/') ||
-  // symlinked into skills that others bundle
-  file.startsWith('website/static/codemods/');
+  file.startsWith('website/framework-docs/');
 
 // files the branch changes relative to master and uncommitted ones; renames
 // as delete + add, so the old path counts too

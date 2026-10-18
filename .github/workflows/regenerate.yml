@@ -29,8 +29,6 @@ on:
       - 'docs/**'
       - '.agents/skills/**'
       - 'website/framework-docs/**'
-      # symlinked into skills that others bundle
-      - 'website/static/codemods/**'
       - '.gitattributes'
       - 'website/package.json'
       - 'package.json'
