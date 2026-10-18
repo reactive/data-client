@@ -39,5 +39,6 @@ To add GraphQL or custom async functions, follow `../data-client-setup/reference
 `../data-client-setup/references/data-client-endpoint-setup.md`; they aren't loaded by name. If `data-client-setup`
 is missing, install it first as above.
 
-App code imports from `@data-client/react` or `@data-client/vue` and the protocol package (`@data-client/rest`).
+App code imports from `@data-client/react` or `@data-client/vue` and the protocol package
+(`@data-client/rest`, `@data-client/graphql` or `@data-client/endpoint`).
 Docs as markdown: https://dataclient.io/llms.txt (React) or https://dataclient.io/vue/llms.txt (Vue).
