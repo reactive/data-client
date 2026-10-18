@@ -39,20 +39,22 @@ if (process.argv.includes('--check')) {
   const published = JSON.parse(
     fs.readFileSync(path.join(root, '.claude-plugin/marketplace.json'), 'utf8'),
   ).plugins.flatMap(plugin => plugin.skills.map(s => path.basename(s)));
-  const missing = published.filter(
-    s => !owned.includes(s) && !bundled.includes(s),
-  );
+  const missing = [
+    ...published.filter(s => !owned.includes(s) && !bundled.includes(s)),
+    ...owned.filter(s => !fs.existsSync(path.join(SKILLS, s, 'SKILL.md'))),
+  ];
   const twice = owned.filter((s, i) => owned.indexOf(s) !== i);
   if (missing.length || twice.length) {
     console.error(
-      `scripts/pack-skills.mjs must ship each skill in exactly one package: ${[...missing, ...twice].join(', ')}`,
+      `scripts/pack-skills.mjs must ship each existing skill in exactly one package: ${[...missing, ...twice].join(', ')}`,
     );
     process.exit(1);
   }
 } else {
   const { name } = JSON.parse(fs.readFileSync('package.json', 'utf8'));
   fs.rmSync('skills', { recursive: true, force: true });
-  for (const skill of owners[name] ?? [])
+  if (!owners[name]) throw new Error(`No skills listed for ${name}`);
+  for (const skill of owners[name])
     fs.cpSync(path.join(SKILLS, skill), path.join('skills', skill), {
       recursive: true,
       dereference: true,
