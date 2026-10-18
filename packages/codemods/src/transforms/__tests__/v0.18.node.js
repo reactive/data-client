@@ -322,6 +322,50 @@ const MySchema = {
 
     defineInlineTest(
       transform,
+      { path: 'obj-fn.js' },
+      `
+import { Entity } from '@data-client/rest';
+
+const MySchema = {
+  denormalize: function (input, args, unvisit) {
+    return unvisit(this.schema, input);
+  },
+};
+      `,
+      `
+import { Entity } from '@data-client/rest';
+
+const MySchema = {
+  denormalize: function(input, delegate) {
+    return delegate.unvisit(this.schema, input);
+  },
+};
+      `,
+      'rewrites object property function denormalize',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'field.ts' },
+      `
+import { Entity } from '@data-client/rest';
+
+class MySchema {
+  denormalize = (input: {}, args: readonly any[], unvisit: (s: any, v: any) => any) => unvisit(this.schema, input);
+}
+      `,
+      `
+import { Entity, type IDenormalizeDelegate } from '@data-client/rest';
+
+class MySchema {
+  denormalize = (input: {}, delegate: IDenormalizeDelegate) => delegate.unvisit(this.schema, input);
+}
+      `,
+      'rewrites class field arrow denormalize',
+    );
+
+    defineInlineTest(
+      transform,
       { path: 'fn.ts' },
       `
 import { Entity } from '@data-client/rest';
@@ -388,6 +432,27 @@ const MySchema = {
 };
       `,
       'rewrites object method normalize',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'obj-arrow.js' },
+      `
+import { Entity } from '@data-client/rest';
+
+const MySchema = {
+  normalize: (input, parent, key, args, visit, delegate) =>
+    visit(MySchema.schema, input, parent, key, args),
+};
+      `,
+      `
+import { Entity } from '@data-client/rest';
+
+const MySchema = {
+  normalize: (input, parent, key, delegate) => delegate.visit(MySchema.schema, input, parent, key),
+};
+      `,
+      'rewrites object property arrow normalize',
     );
 
     defineInlineTest(

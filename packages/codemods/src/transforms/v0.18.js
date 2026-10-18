@@ -132,10 +132,7 @@ function paramsLookLikeNormalize(params) {
 // Deliberately param-only (unlike v0.16's full lexical check): a `const args`
 // inside the body is not treated as shadowing. Change only with tests.
 function isShadowedByParam(p, name, bodyNode) {
-  let cur = p;
-  while (cur && cur.parent) {
-    cur = cur.parent;
-    if (cur.node === bodyNode) return false;
+  for (let cur = p; cur && cur.node !== bodyNode; cur = cur.parent) {
     const t = cur.node.type;
     if (
       t === 'FunctionDeclaration' ||
@@ -221,9 +218,24 @@ function rewriteDelegateReferences(
   }
 }
 
-function findMethodBody(j, methodPath) {
-  const bodyCol = j(methodPath).find(j.BlockStatement).at(0);
-  return bodyCol.length ? bodyCol.paths()[0] : undefined;
+// A block, or an arrow function's expression body
+function findMethodBody(methodPath) {
+  return methodPath.node.body ? methodPath.get('body') : undefined;
+}
+
+// Like j(bodyPath), but its find() also matches the body itself, so an arrow's
+// expression body `(…, visit) => visit(…)` is rewritten too
+function bodyScope(j, bodyPath) {
+  const isInBody = p => {
+    for (let cur = p; cur; cur = cur.parent) {
+      if (cur.node === bodyPath.value) return true;
+    }
+    return false;
+  };
+  return {
+    find: (type, filter) =>
+      j(bodyPath.parent).find(type, filter).filter(isInBody),
+  };
 }
 
 // Rewrite identifier references inside a denormalize method body NodePath:
@@ -231,10 +243,10 @@ function findMethodBody(j, methodPath) {
 //   <unvisitName>(...)   → delegate.unvisit(...)
 //   foo.denormalize(x, args, unvisit) → foo.denormalize(x, delegate)
 function rewriteBody(j, methodPath, argsName, unvisitName) {
-  const bodyPath = findMethodBody(j, methodPath);
+  const bodyPath = findMethodBody(methodPath);
   if (!bodyPath) return;
   const bodyNode = bodyPath.node;
-  const body = j(bodyPath);
+  const body = bodyScope(j, bodyPath);
   const isShadowed = (p, name) => isShadowedByParam(p, name, bodyNode);
 
   // 1. Rewrite pass-through calls: x.denormalize(input, args, unvisit) → x.denormalize(input, delegate)
@@ -289,10 +301,10 @@ function rewriteNormalizeBody(
   visitName,
   delegateName,
 ) {
-  const bodyPath = findMethodBody(j, methodPath);
+  const bodyPath = findMethodBody(methodPath);
   if (!bodyPath) return;
   const bodyNode = bodyPath.node;
-  const body = j(bodyPath);
+  const body = bodyScope(j, bodyPath);
   const isShadowed = (p, name) => isShadowedByParam(p, name, bodyNode);
 
   // 1. Rewrite pass-through calls:
@@ -373,9 +385,9 @@ function isFunctionValue(v) {
 }
 
 // Visits every runtime function-like declaration whose key passes `isKey`:
-// class methods, object methods, `{ key: function/arrow }` properties and
-// top-level `function key()`. `rewrite(fnPath, paramsHolder)` returns whether
-// it changed anything.
+// class methods and fields, object methods, `{ key: function/arrow }`
+// properties and top-level `function key()`. `rewrite(fnPath, paramsHolder)`
+// returns whether it changed anything.
 function forEachMethodLike(j, root, isKey, rewrite) {
   let dirty = false;
   const visit = (fnPath, paramsHolder) => {
@@ -404,11 +416,15 @@ function forEachMethodLike(j, root, isKey, rewrite) {
     });
   }
 
-  // Property: { key: function(...) {} } and { key: (...) => {} }
-  root
-    .find(j.Property)
-    .filter(p => isKey(p.node.key) && isFunctionValue(p.node.value))
-    .forEach(p => visit(p.get('value'), p.node.value));
+  // { key: function(...) {} }, { key: (...) => {} } and class fields
+  // `key = (...) => {}`: Property (ESTree), ObjectProperty and ClassProperty
+  // (Babel/tsx parser)
+  for (const type of [j.Property, j.ObjectProperty, j.ClassProperty]) {
+    root
+      .find(type)
+      .filter(p => isKey(p.node.key) && isFunctionValue(p.node.value))
+      .forEach(p => visit(p.get('value'), p.node.value));
+  }
 
   // Top-level: function key(...) { ... }
   root.find(j.FunctionDeclaration).forEach(p => {
