@@ -35,9 +35,12 @@ Load the skill for the work:
 | Tests | `data-client-react-testing` or `data-client-vue-testing` |
 | WebSockets, SSE, polling, global side effects | `data-client-manager` |
 
-To add GraphQL or custom async functions, follow `../data-client-setup/references/data-client-graphql-setup.md` or
-`../data-client-setup/references/data-client-endpoint-setup.md`; they aren't loaded by name. If `data-client-setup`
-is missing, install it first as above.
+If a skill isn't installed, install it the same way (`npx skills add reactive/data-client --skill <name>`), or read the
+docs below.
+
+To add a protocol the app doesn't depend on yet, follow its guide in `../data-client-setup/references/`:
+`data-client-rest-setup.md`, `data-client-graphql-setup.md` or `data-client-endpoint-setup.md` (they aren't loaded
+by name). If `data-client-setup` is missing, install it first as above.
 
 App code imports from `@data-client/react` or `@data-client/vue` and the protocol package
 (`@data-client/rest`, `@data-client/graphql` or `@data-client/endpoint`).
