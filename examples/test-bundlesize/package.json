@@ -25,9 +25,9 @@
     "anansi"
   ],
   "devDependencies": {
-    "@anansi/babel-preset": "7.0.0",
+    "@anansi/babel-preset": "7.0.1",
     "@anansi/browserslist-config": "^1.4.3",
-    "@anansi/webpack-config": "22.0.0",
+    "@anansi/webpack-config": "22.0.1",
     "@babel/core": "^8.0.0",
     "@types/react": "*",
     "@types/react-dom": "*",
