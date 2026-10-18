@@ -30,7 +30,7 @@
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
-    "@anansi/cli": "4.0.0",
+    "@anansi/cli": "4.0.1",
     "@anansi/babel-preset": "7.0.0",
     "@anansi/browserslist-config": "1.7.6",
     "@anansi/webpack-config": "22.0.0",
@@ -48,8 +48,8 @@
     "webpack-dev-server": "6.0.0"
   },
   "dependencies": {
-    "@anansi/core": "0.23.0",
-    "@anansi/router": "0.11.0",
+    "@anansi/core": "0.23.1",
+    "@anansi/router": "0.11.1",
     "@ant-design/cssinjs": "2.1.2",
     "@ant-design/icons": "6.3.4",
     "@babel/runtime-corejs3": "^8.0.0",
