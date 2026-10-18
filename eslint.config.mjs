@@ -165,7 +165,8 @@ export default [
       },
     },
   },
-  // jscodeshift transforms and their CLI run in Node as CommonJS
+  // Mirrors packages/codemods/package.json "type": "commonjs": jscodeshift
+  // transforms and their CLI run in Node as CommonJS
   {
     files: ['packages/codemods/**/*.js'],
     languageOptions: {

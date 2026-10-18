@@ -25,6 +25,13 @@
  */
 
 const DATA_CLIENT_PREFIX = '@data-client/';
+// Packages that re-export the delegate types, in order of preference when
+// adding the import to an existing declaration.
+const DELEGATE_IMPORT_SOURCES = [
+  '@data-client/endpoint',
+  '@data-client/rest',
+  '@data-client/normalizr',
+];
 const DENORMALIZE_DELEGATE_TYPE_NAME = 'IDenormalizeDelegate';
 const NORMALIZE_DELEGATE_TYPE_NAME = 'INormalizeDelegate';
 
@@ -76,17 +83,7 @@ function isDenormalizeLikeKey(key) {
   return false;
 }
 
-function buildNamedDelegateParam(j, withTypes, typeName) {
-  const id = j.identifier('delegate');
-  if (withTypes) {
-    id.typeAnnotation = j.tsTypeAnnotation(
-      j.tsTypeReference(j.identifier(typeName)),
-    );
-  }
-  return id;
-}
-
-function buildDelegateParamWithName(j, name, withTypes, typeName) {
+function buildDelegateParam(j, name, withTypes, typeName) {
   const id = j.identifier(name || 'delegate');
   if (withTypes) {
     id.typeAnnotation = j.tsTypeAnnotation(
@@ -130,39 +127,115 @@ function paramsLookLikeNormalize(params) {
   return false;
 }
 
-// Rewrite identifier references inside a method body NodePath:
+// Whether an identifier reference at `p` is rebound by a parameter of a
+// function nested inside `bodyNode`.
+// Deliberately param-only (unlike v0.16's full lexical check): a `const args`
+// inside the body is not treated as shadowing. Change only with tests.
+function isShadowedByParam(p, name, bodyNode) {
+  let cur = p;
+  while (cur && cur.parent) {
+    cur = cur.parent;
+    if (cur.node === bodyNode) return false;
+    const t = cur.node.type;
+    if (
+      t === 'FunctionDeclaration' ||
+      t === 'FunctionExpression' ||
+      t === 'ArrowFunctionExpression' ||
+      t === 'ObjectMethod' ||
+      t === 'ClassMethod' ||
+      t === 'MethodDefinition'
+    ) {
+      const params =
+        (cur.node.params && cur.node.params) ||
+        (cur.node.value && cur.node.value.params) ||
+        [];
+      if (params.some(prm => getParamName(prm) === name)) return true;
+    }
+  }
+  return false;
+}
+
+// Identifier references that are names, not reads: `x.<name>`, `{ <name>: v }`,
+// `const <name> =`.
+function isNonReferencePosition(p) {
+  const parent = p.parent.node;
+  if (!parent) return true;
+  if (
+    parent.type === 'MemberExpression' &&
+    parent.property === p.node &&
+    !parent.computed
+  )
+    return true;
+  if (
+    (parent.type === 'Property' || parent.type === 'ObjectProperty') &&
+    parent.key === p.node &&
+    !parent.computed
+  )
+    return true;
+  if (parent.type === 'VariableDeclarator' && parent.id === p.node) return true;
+  return false;
+}
+
+// Rewrites the references shared by both method kinds:
+//   <fnName>             → <delegateName>.<member>   (bare reference, not a call)
+//   <argsName>           → <delegateName>.args
+// Calls `<fnName>(...)` are handled by each caller because their argument
+// rewrites differ.
+function rewriteDelegateReferences(
+  j,
+  body,
+  bodyNode,
+  { argsName, fnName, member, delegateName },
+) {
+  const delegateMember = name =>
+    j.memberExpression(j.identifier(delegateName), j.identifier(name));
+
+  if (fnName) {
+    body
+      .find(j.Identifier, { name: fnName })
+      .filter(p => {
+        if (isNonReferencePosition(p)) return false;
+        const parent = p.parent.node;
+        return !(parent.type === 'CallExpression' && parent.callee === p.node);
+      })
+      .forEach(p => {
+        if (isShadowedByParam(p, fnName, bodyNode)) return;
+        j(p).replaceWith(delegateMember(member));
+      });
+  }
+
+  if (argsName) {
+    body
+      .find(j.Identifier, { name: argsName })
+      .filter(p => {
+        if (isNonReferencePosition(p)) return false;
+        const parent = p.parent.node;
+        return !(
+          parent.type === 'TSTypeReference' || parent.type === 'TSQualifiedName'
+        );
+      })
+      .forEach(p => {
+        if (isShadowedByParam(p, argsName, bodyNode)) return;
+        j(p).replaceWith(delegateMember('args'));
+      });
+  }
+}
+
+function findMethodBody(j, methodPath) {
+  const bodyCol = j(methodPath).find(j.BlockStatement).at(0);
+  return bodyCol.length ? bodyCol.paths()[0] : undefined;
+}
+
+// Rewrite identifier references inside a denormalize method body NodePath:
 //   <argsName>           → delegate.args
 //   <unvisitName>(...)   → delegate.unvisit(...)
 //   foo.denormalize(x, args, unvisit) → foo.denormalize(x, delegate)
 function rewriteBody(j, methodPath, argsName, unvisitName) {
-  const bodyCol = j(methodPath).find(j.BlockStatement).at(0);
-  if (!bodyCol.length) return;
-  const bodyPath = bodyCol.paths()[0];
+  const bodyPath = findMethodBody(j, methodPath);
+  if (!bodyPath) return;
+  const bodyNode = bodyPath.node;
   const body = j(bodyPath);
-
-  function isShadowed(p, name) {
-    let cur = p;
-    while (cur && cur.parent) {
-      cur = cur.parent;
-      if (cur.node === bodyPath.node) return false;
-      const t = cur.node.type;
-      if (
-        t === 'FunctionDeclaration' ||
-        t === 'FunctionExpression' ||
-        t === 'ArrowFunctionExpression' ||
-        t === 'ObjectMethod' ||
-        t === 'ClassMethod' ||
-        t === 'MethodDefinition'
-      ) {
-        const params =
-          (cur.node.params && cur.node.params) ||
-          (cur.node.value && cur.node.value.params) ||
-          [];
-        if (params.some(prm => getParamName(prm) === name)) return true;
-      }
-    }
-    return false;
-  }
+  const isShadowed = (p, name) => isShadowedByParam(p, name, bodyNode);
 
   // 1. Rewrite pass-through calls: x.denormalize(input, args, unvisit) → x.denormalize(input, delegate)
   body
@@ -198,74 +271,15 @@ function rewriteBody(j, methodPath, argsName, unvisitName) {
           j.identifier('unvisit'),
         );
       });
-
-    // bare reference: passing `unvisit` to another fn → `delegate.unvisit`
-    body
-      .find(j.Identifier, { name: unvisitName })
-      .filter(p => {
-        const parent = p.parent.node;
-        if (!parent) return false;
-        if (
-          parent.type === 'MemberExpression' &&
-          parent.property === p.node &&
-          !parent.computed
-        )
-          return false;
-        if (
-          (parent.type === 'Property' || parent.type === 'ObjectProperty') &&
-          parent.key === p.node &&
-          !parent.computed
-        )
-          return false;
-        if (parent.type === 'CallExpression' && parent.callee === p.node)
-          return false;
-        if (parent.type === 'VariableDeclarator' && parent.id === p.node)
-          return false;
-        return true;
-      })
-      .forEach(p => {
-        if (isShadowed(p, unvisitName)) return;
-        j(p).replaceWith(
-          j.memberExpression(j.identifier('delegate'), j.identifier('unvisit')),
-        );
-      });
   }
 
-  // 3. bare `args` → `delegate.args`
-  if (argsName) {
-    body
-      .find(j.Identifier, { name: argsName })
-      .filter(p => {
-        const parent = p.parent.node;
-        if (!parent) return false;
-        if (
-          parent.type === 'MemberExpression' &&
-          parent.property === p.node &&
-          !parent.computed
-        )
-          return false;
-        if (
-          (parent.type === 'Property' || parent.type === 'ObjectProperty') &&
-          parent.key === p.node &&
-          !parent.computed
-        )
-          return false;
-        if (parent.type === 'VariableDeclarator' && parent.id === p.node)
-          return false;
-        if (
-          parent.type === 'TSTypeReference' ||
-          parent.type === 'TSQualifiedName'
-        )
-          return false;
-        return true;
-      })
-      .forEach(p => {
-        if (isShadowed(p, argsName)) return;
-        j(p).replaceWith(
-          j.memberExpression(j.identifier('delegate'), j.identifier('args')),
-        );
-      });
-  }
+  // 3. bare `unvisit` → `delegate.unvisit`; bare `args` → `delegate.args`
+  rewriteDelegateReferences(j, body, bodyNode, {
+    argsName,
+    fnName: unvisitName,
+    member: 'unvisit',
+    delegateName: 'delegate',
+  });
 }
 
 function rewriteNormalizeBody(
@@ -275,34 +289,11 @@ function rewriteNormalizeBody(
   visitName,
   delegateName,
 ) {
-  const bodyCol = j(methodPath).find(j.BlockStatement).at(0);
-  if (!bodyCol.length) return;
-  const bodyPath = bodyCol.paths()[0];
+  const bodyPath = findMethodBody(j, methodPath);
+  if (!bodyPath) return;
+  const bodyNode = bodyPath.node;
   const body = j(bodyPath);
-
-  function isShadowed(p, name) {
-    let cur = p;
-    while (cur && cur.parent) {
-      cur = cur.parent;
-      if (cur.node === bodyPath.node) return false;
-      const t = cur.node.type;
-      if (
-        t === 'FunctionDeclaration' ||
-        t === 'FunctionExpression' ||
-        t === 'ArrowFunctionExpression' ||
-        t === 'ObjectMethod' ||
-        t === 'ClassMethod' ||
-        t === 'MethodDefinition'
-      ) {
-        const params =
-          (cur.node.params && cur.node.params) ||
-          (cur.node.value && cur.node.value.params) ||
-          [];
-        if (params.some(prm => getParamName(prm) === name)) return true;
-      }
-    }
-    return false;
-  }
+  const isShadowed = (p, name) => isShadowedByParam(p, name, bodyNode);
 
   // 1. Rewrite pass-through calls:
   // x.normalize(input, parent, key, args, visit, delegate[, parentEntity])
@@ -361,363 +352,204 @@ function rewriteNormalizeBody(
           j.identifier('visit'),
         );
       });
-
-    // bare reference: passing `visit` to another fn → `delegate.visit`
-    body
-      .find(j.Identifier, { name: visitName })
-      .filter(p => {
-        const parent = p.parent.node;
-        if (!parent) return false;
-        if (
-          parent.type === 'MemberExpression' &&
-          parent.property === p.node &&
-          !parent.computed
-        )
-          return false;
-        if (
-          (parent.type === 'Property' || parent.type === 'ObjectProperty') &&
-          parent.key === p.node &&
-          !parent.computed
-        )
-          return false;
-        if (parent.type === 'CallExpression' && parent.callee === p.node)
-          return false;
-        if (parent.type === 'VariableDeclarator' && parent.id === p.node)
-          return false;
-        return true;
-      })
-      .forEach(p => {
-        if (isShadowed(p, visitName)) return;
-        j(p).replaceWith(
-          j.memberExpression(j.identifier(delegateName), j.identifier('visit')),
-        );
-      });
   }
 
-  // 3. bare `args` → `delegate.args`
-  if (argsName) {
-    body
-      .find(j.Identifier, { name: argsName })
-      .filter(p => {
-        const parent = p.parent.node;
-        if (!parent) return false;
-        if (
-          parent.type === 'MemberExpression' &&
-          parent.property === p.node &&
-          !parent.computed
-        )
-          return false;
-        if (
-          (parent.type === 'Property' || parent.type === 'ObjectProperty') &&
-          parent.key === p.node &&
-          !parent.computed
-        )
-          return false;
-        if (parent.type === 'VariableDeclarator' && parent.id === p.node)
-          return false;
-        if (
-          parent.type === 'TSTypeReference' ||
-          parent.type === 'TSQualifiedName'
-        )
-          return false;
-        return true;
-      })
-      .forEach(p => {
-        if (isShadowed(p, argsName)) return;
-        j(p).replaceWith(
-          j.memberExpression(j.identifier(delegateName), j.identifier('args')),
-        );
-      });
-  }
+  // 3. bare `visit` → `delegate.visit`; bare `args` → `delegate.args`
+  rewriteDelegateReferences(j, body, bodyNode, {
+    argsName,
+    fnName: visitName,
+    member: 'visit',
+    delegateName,
+  });
 }
 
-// --- runtime denormalize methods (class/object/function) -------------------
+// --- shared walkers --------------------------------------------------------
 
-function transformDenormalizeMethods(j, root, state) {
+function isFunctionValue(v) {
+  return (
+    !!v &&
+    (v.type === 'FunctionExpression' || v.type === 'ArrowFunctionExpression')
+  );
+}
+
+// Visits every runtime function-like declaration whose key passes `isKey`:
+// class methods, object methods, `{ key: function/arrow }` properties and
+// top-level `function key()`. `rewrite(fnPath, paramsHolder)` returns whether
+// it changed anything.
+function forEachMethodLike(j, root, isKey, rewrite) {
   let dirty = false;
-
-  function processFunctionLike(methodPath, paramsHolder) {
-    const params = paramsHolder.params;
-    if (!paramsLookLikeDenormalize(params)) return false;
-    const argsName = getParamName(params[1]);
-    const unvisitName = getParamName(params[2]);
-
-    paramsHolder.params = [
-      params[0],
-      buildNamedDelegateParam(
-        j,
-        state.useTypes,
-        DENORMALIZE_DELEGATE_TYPE_NAME,
-      ),
-    ];
-    rewriteBody(j, methodPath, argsName, unvisitName);
-
-    if (state.useTypes) state.neededImports.add(DENORMALIZE_DELEGATE_TYPE_NAME);
-    return true;
-  }
+  const visit = (fnPath, paramsHolder) => {
+    if (rewrite(fnPath, paramsHolder)) dirty = true;
+  };
 
   // ClassMethod (Babel/tsx parser)
   if (j.ClassMethod) {
     root.find(j.ClassMethod).forEach(p => {
-      if (!isDenormalizeKey(p.node.key)) return;
-      if (processFunctionLike(p, p.node)) dirty = true;
+      if (isKey(p.node.key)) visit(p, p.node);
     });
   }
 
-  // MethodDefinition (ESTree)
+  // MethodDefinition (ESTree): the function is the `value`.
   if (j.MethodDefinition) {
     root.find(j.MethodDefinition).forEach(p => {
-      if (!isDenormalizeKey(p.node.key)) return;
-      const fn = p.node.value;
-      if (!fn) return;
-      // For MethodDefinition, search inside the FunctionExpression value.
-      const fnPath = p.get('value');
-      if (processFunctionLike(fnPath, fn)) dirty = true;
+      if (!isKey(p.node.key) || !p.node.value) return;
+      visit(p.get('value'), p.node.value);
     });
   }
 
   // ObjectMethod (Babel)
   if (j.ObjectMethod) {
     root.find(j.ObjectMethod).forEach(p => {
-      if (!isDenormalizeKey(p.node.key)) return;
-      if (processFunctionLike(p, p.node)) dirty = true;
+      if (isKey(p.node.key)) visit(p, p.node);
     });
   }
 
-  // Property: { denormalize: function(...) {} } and { denormalize: (...) => {} }
+  // Property: { key: function(...) {} } and { key: (...) => {} }
   root
     .find(j.Property)
-    .filter(p => {
-      if (!isDenormalizeKey(p.node.key)) return false;
-      const v = p.node.value;
-      return (
-        v &&
-        (v.type === 'FunctionExpression' ||
-          v.type === 'ArrowFunctionExpression')
-      );
-    })
-    .forEach(p => {
-      const fn = p.node.value;
-      const fnPath = p.get('value');
-      if (processFunctionLike(fnPath, fn)) dirty = true;
-    });
+    .filter(p => isKey(p.node.key) && isFunctionValue(p.node.value))
+    .forEach(p => visit(p.get('value'), p.node.value));
 
-  // Top-level: function denormalize(input, args, unvisit) { ... }
+  // Top-level: function key(...) { ... }
   root.find(j.FunctionDeclaration).forEach(p => {
-    if (!p.node.id || p.node.id.name !== 'denormalize') return;
-    if (processFunctionLike(p, p.node)) dirty = true;
+    if (p.node.id && isKey(p.node.id)) visit(p, p.node);
   });
 
   return dirty;
 }
 
-// --- TS interface / type signatures ---------------------------------------
-
-function transformTypeSignatures(j, root, state) {
+// Visits TS method signatures (keys passing `isMethodKey`) and function-typed
+// property signatures / class fields (keys passing `isPropertyKey`).
+// `rewriteParams(params)` returns the new parameter list, or null to skip.
+function forEachTypeSignature(
+  j,
+  root,
+  { isMethodKey, isPropertyKey, rewriteParams },
+) {
   if (!j.TSMethodSignature && !j.TSPropertySignature) return false;
   let dirty = false;
 
   if (j.TSMethodSignature) {
     root.find(j.TSMethodSignature).forEach(p => {
-      if (!isDenormalizeKey(p.node.key)) return;
-      const params = p.node.parameters || p.node.params;
-      if (!paramsLookLikeDenormalize(params)) return;
-      const newParams = [
-        params[0],
-        buildNamedDelegateParam(j, true, DENORMALIZE_DELEGATE_TYPE_NAME),
-      ];
+      if (!isMethodKey(p.node.key)) return;
+      const newParams = rewriteParams(p.node.parameters || p.node.params);
+      if (!newParams) return;
       if (p.node.parameters) p.node.parameters = newParams;
       else p.node.params = newParams;
-      state.neededImports.add(DENORMALIZE_DELEGATE_TYPE_NAME);
       dirty = true;
     });
   }
 
-  function rewriteFnTypeNode(fn) {
-    if (!fn) return false;
-    if (fn.type !== 'TSFunctionType') return false;
-    const params = fn.parameters;
-    if (!paramsLookLikeDenormalize(params)) return false;
-    fn.parameters = [
-      params[0],
-      buildNamedDelegateParam(j, true, DENORMALIZE_DELEGATE_TYPE_NAME),
-    ];
-    state.neededImports.add(DENORMALIZE_DELEGATE_TYPE_NAME);
-    return true;
+  function rewriteAnnotatedProperty(p) {
+    if (!isPropertyKey(p.node.key)) return;
+    const ann = p.node.typeAnnotation;
+    const fn = ann && ann.typeAnnotation;
+    if (!fn || fn.type !== 'TSFunctionType') return;
+    const newParams = rewriteParams(fn.parameters);
+    if (!newParams) return;
+    fn.parameters = newParams;
+    dirty = true;
   }
 
   if (j.TSPropertySignature) {
-    root.find(j.TSPropertySignature).forEach(p => {
-      if (!isDenormalizeLikeKey(p.node.key)) return;
-      const ann = p.node.typeAnnotation;
-      if (!ann || !ann.typeAnnotation) return;
-      if (rewriteFnTypeNode(ann.typeAnnotation)) dirty = true;
-    });
+    root.find(j.TSPropertySignature).forEach(rewriteAnnotatedProperty);
   }
 
   ['ClassProperty', 'PropertyDefinition'].forEach(t => {
     if (!j[t]) return;
-    root.find(j[t]).forEach(p => {
-      if (!isDenormalizeLikeKey(p.node.key)) return;
-      const ann = p.node.typeAnnotation;
-      if (!ann || !ann.typeAnnotation) return;
-      if (rewriteFnTypeNode(ann.typeAnnotation)) dirty = true;
-    });
+    root.find(j[t]).forEach(rewriteAnnotatedProperty);
   });
 
   return dirty;
 }
 
-// --- runtime normalize methods (class/object/function) ---------------------
+// --- denormalize: (input, args, unvisit) → (input, delegate) ---------------
+
+function denormalizeParams(j, params, withTypes) {
+  return [
+    params[0],
+    buildDelegateParam(
+      j,
+      'delegate',
+      withTypes,
+      DENORMALIZE_DELEGATE_TYPE_NAME,
+    ),
+  ];
+}
+
+function transformDenormalizeMethods(j, root, state) {
+  return forEachMethodLike(j, root, isDenormalizeKey, (methodPath, holder) => {
+    const params = holder.params;
+    if (!paramsLookLikeDenormalize(params)) return false;
+    const argsName = getParamName(params[1]);
+    const unvisitName = getParamName(params[2]);
+
+    holder.params = denormalizeParams(j, params, state.useTypes);
+    rewriteBody(j, methodPath, argsName, unvisitName);
+
+    if (state.useTypes) state.neededImports.add(DENORMALIZE_DELEGATE_TYPE_NAME);
+    return true;
+  });
+}
+
+function transformTypeSignatures(j, root, state) {
+  return forEachTypeSignature(j, root, {
+    isMethodKey: isDenormalizeKey,
+    // Type-only declarations also cover `_denormalize`, `_denormalizeNullable`.
+    isPropertyKey: isDenormalizeLikeKey,
+    rewriteParams(params) {
+      if (!paramsLookLikeDenormalize(params)) return null;
+      state.neededImports.add(DENORMALIZE_DELEGATE_TYPE_NAME);
+      return denormalizeParams(j, params, true);
+    },
+  });
+}
+
+// --- normalize: (input, parent, key, args, visit, delegate, parentEntity?)
+//              → (input, parent, key, delegate, parentEntity?) ---------------
+
+function normalizeParams(j, params, delegateName, withTypes) {
+  return [
+    params[0],
+    params[1],
+    params[2],
+    buildDelegateParam(
+      j,
+      delegateName,
+      withTypes,
+      NORMALIZE_DELEGATE_TYPE_NAME,
+    ),
+    ...params.slice(6),
+  ];
+}
 
 function transformNormalizeMethods(j, root, state) {
-  let dirty = false;
-
-  function processFunctionLike(methodPath, paramsHolder) {
-    const params = paramsHolder.params;
+  return forEachMethodLike(j, root, isNormalizeKey, (methodPath, holder) => {
+    const params = holder.params;
     if (!paramsLookLikeNormalize(params)) return false;
     const argsName = getParamName(params[3]);
     const visitName = getParamName(params[4]);
     const delegateName = getParamName(params[5]) || 'delegate';
 
-    paramsHolder.params = [
-      params[0],
-      params[1],
-      params[2],
-      buildDelegateParamWithName(
-        j,
-        delegateName,
-        state.useTypes,
-        NORMALIZE_DELEGATE_TYPE_NAME,
-      ),
-      ...params.slice(6),
-    ];
+    holder.params = normalizeParams(j, params, delegateName, state.useTypes);
     rewriteNormalizeBody(j, methodPath, argsName, visitName, delegateName);
 
     if (state.useTypes) state.neededImports.add(NORMALIZE_DELEGATE_TYPE_NAME);
     return true;
-  }
-
-  if (j.ClassMethod) {
-    root.find(j.ClassMethod).forEach(p => {
-      if (!isNormalizeKey(p.node.key)) return;
-      if (processFunctionLike(p, p.node)) dirty = true;
-    });
-  }
-
-  if (j.MethodDefinition) {
-    root.find(j.MethodDefinition).forEach(p => {
-      if (!isNormalizeKey(p.node.key)) return;
-      const fn = p.node.value;
-      if (!fn) return;
-      const fnPath = p.get('value');
-      if (processFunctionLike(fnPath, fn)) dirty = true;
-    });
-  }
-
-  if (j.ObjectMethod) {
-    root.find(j.ObjectMethod).forEach(p => {
-      if (!isNormalizeKey(p.node.key)) return;
-      if (processFunctionLike(p, p.node)) dirty = true;
-    });
-  }
-
-  root
-    .find(j.Property)
-    .filter(p => {
-      if (!isNormalizeKey(p.node.key)) return false;
-      const v = p.node.value;
-      return (
-        v &&
-        (v.type === 'FunctionExpression' ||
-          v.type === 'ArrowFunctionExpression')
-      );
-    })
-    .forEach(p => {
-      const fn = p.node.value;
-      const fnPath = p.get('value');
-      if (processFunctionLike(fnPath, fn)) dirty = true;
-    });
-
-  root.find(j.FunctionDeclaration).forEach(p => {
-    if (!p.node.id || p.node.id.name !== 'normalize') return;
-    if (processFunctionLike(p, p.node)) dirty = true;
   });
-
-  return dirty;
 }
 
 function transformNormalizeTypeSignatures(j, root, state) {
-  if (!j.TSMethodSignature && !j.TSPropertySignature) return false;
-  let dirty = false;
-
-  if (j.TSMethodSignature) {
-    root.find(j.TSMethodSignature).forEach(p => {
-      if (!isNormalizeKey(p.node.key)) return;
-      const params = p.node.parameters || p.node.params;
-      if (!paramsLookLikeNormalize(params)) return;
+  return forEachTypeSignature(j, root, {
+    isMethodKey: isNormalizeKey,
+    isPropertyKey: isNormalizeKey,
+    rewriteParams(params) {
+      if (!paramsLookLikeNormalize(params)) return null;
       const delegateName = getParamName(params[5]) || 'delegate';
-      const newParams = [
-        params[0],
-        params[1],
-        params[2],
-        buildDelegateParamWithName(
-          j,
-          delegateName,
-          true,
-          NORMALIZE_DELEGATE_TYPE_NAME,
-        ),
-        ...params.slice(6),
-      ];
-      if (p.node.parameters) p.node.parameters = newParams;
-      else p.node.params = newParams;
       state.neededImports.add(NORMALIZE_DELEGATE_TYPE_NAME);
-      dirty = true;
-    });
-  }
-
-  function rewriteFnTypeNode(fn) {
-    if (!fn) return false;
-    if (fn.type !== 'TSFunctionType') return false;
-    const params = fn.parameters;
-    if (!paramsLookLikeNormalize(params)) return false;
-    const delegateName = getParamName(params[5]) || 'delegate';
-    fn.parameters = [
-      params[0],
-      params[1],
-      params[2],
-      buildDelegateParamWithName(
-        j,
-        delegateName,
-        true,
-        NORMALIZE_DELEGATE_TYPE_NAME,
-      ),
-      ...params.slice(6),
-    ];
-    state.neededImports.add(NORMALIZE_DELEGATE_TYPE_NAME);
-    return true;
-  }
-
-  if (j.TSPropertySignature) {
-    root.find(j.TSPropertySignature).forEach(p => {
-      if (!isNormalizeKey(p.node.key)) return;
-      const ann = p.node.typeAnnotation;
-      if (!ann || !ann.typeAnnotation) return;
-      if (rewriteFnTypeNode(ann.typeAnnotation)) dirty = true;
-    });
-  }
-
-  ['ClassProperty', 'PropertyDefinition'].forEach(t => {
-    if (!j[t]) return;
-    root.find(j[t]).forEach(p => {
-      if (!isNormalizeKey(p.node.key)) return;
-      const ann = p.node.typeAnnotation;
-      if (!ann || !ann.typeAnnotation) return;
-      if (rewriteFnTypeNode(ann.typeAnnotation)) dirty = true;
-    });
+      return normalizeParams(j, params, delegateName, true);
+    },
   });
-
-  return dirty;
 }
 
 // --- Import injection -----------------------------------------------------
@@ -738,13 +570,8 @@ function ensureDelegateImport(j, root, typeName) {
   });
   if (alreadyImported) return false;
 
-  const preferred = [
-    '@data-client/endpoint',
-    '@data-client/rest',
-    '@data-client/normalizr',
-  ];
   let target = null;
-  for (const name of preferred) {
+  for (const name of DELEGATE_IMPORT_SOURCES) {
     const found = root
       .find(j.ImportDeclaration)
       .filter(p => p.node.source.value === name);
@@ -756,7 +583,7 @@ function ensureDelegateImport(j, root, typeName) {
   if (!target) {
     const newImport = j.importDeclaration(
       [j.importSpecifier(j.identifier(typeName))],
-      j.stringLiteral('@data-client/endpoint'),
+      j.stringLiteral(DELEGATE_IMPORT_SOURCES[0]),
     );
     newImport.importKind = 'type';
     const allImports = root.find(j.ImportDeclaration);

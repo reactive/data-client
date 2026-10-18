@@ -505,7 +505,7 @@ module.exports = function transformer(fileInfo, api) {
       createResult.dirty || directCallsDirty,
     ) || dirty;
 
-  return dirty ? root.toSource({ quote: 'single' }) : undefined;
+  return dirty ? root.toSource({ quote: 'single' }) : fileInfo.source;
 };
 
 module.exports.parser = 'tsx';

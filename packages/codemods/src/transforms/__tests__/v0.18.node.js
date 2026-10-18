@@ -295,6 +295,183 @@ class Wrapper {
     );
   });
 
+  describe('other denormalize declarations', () => {
+    defineInlineTest(
+      transform,
+      { path: 'obj.js' },
+      `
+import { Entity } from '@data-client/rest';
+
+const MySchema = {
+  denormalize(input, args, unvisit) {
+    return unvisit(this.schema, input);
+  },
+};
+      `,
+      `
+import { Entity } from '@data-client/rest';
+
+const MySchema = {
+  denormalize(input, delegate) {
+    return delegate.unvisit(this.schema, input);
+  },
+};
+      `,
+      'rewrites object method denormalize',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'fn.ts' },
+      `
+import { Entity } from '@data-client/rest';
+
+function denormalize(input: {}, args: readonly any[], unvisit: (s: any, v: any) => any) {
+  return unvisit(this.schema, input);
+}
+      `,
+      `
+import { Entity, type IDenormalizeDelegate } from '@data-client/rest';
+
+function denormalize(input: {}, delegate: IDenormalizeDelegate) {
+  return delegate.unvisit(this.schema, input);
+}
+      `,
+      'rewrites top-level function declaration named denormalize',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'prop-sig.ts' },
+      `
+import { Entity } from '@data-client/rest';
+
+interface Lazy {
+  _denormalize: (
+    input: {},
+    args: readonly any[],
+    unvisit: (schema: any, input: any) => any,
+  ) => any;
+}
+      `,
+      `
+import { Entity, type IDenormalizeDelegate } from '@data-client/rest';
+
+interface Lazy {
+  _denormalize: (input: {}, delegate: IDenormalizeDelegate) => any;
+}
+      `,
+      'rewrites denormalize-like interface property signature',
+    );
+  });
+
+  describe('other normalize declarations', () => {
+    defineInlineTest(
+      transform,
+      { path: 'obj.js' },
+      `
+import { Entity } from '@data-client/rest';
+
+const MySchema = {
+  normalize(input, parent, key, args, visit, delegate) {
+    return visit(this.schema, input, parent, key, args);
+  },
+};
+      `,
+      `
+import { Entity } from '@data-client/rest';
+
+const MySchema = {
+  normalize(input, parent, key, delegate) {
+    return delegate.visit(this.schema, input, parent, key);
+  },
+};
+      `,
+      'rewrites object method normalize',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'fn.ts' },
+      `
+import { Entity } from '@data-client/rest';
+
+function normalize(input: any, parent: any, key: string, args: readonly any[], visit: (s: any, v: any, p: any, k: any, a: readonly any[]) => any, delegate: any) {
+  return visit(this.schema, input, parent, key, args);
+}
+      `,
+      `
+import { Entity, type INormalizeDelegate } from '@data-client/rest';
+
+function normalize(input: any, parent: any, key: string, delegate: INormalizeDelegate) {
+  return delegate.visit(this.schema, input, parent, key);
+}
+      `,
+      'rewrites top-level function declaration named normalize',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'prop-sig.ts' },
+      `
+import { Entity } from '@data-client/rest';
+
+interface Wrapper {
+  normalize: (
+    input: any,
+    parent: any,
+    key: string,
+    args: readonly any[],
+    visit: (s: any, v: any) => any,
+    delegate: any,
+  ) => any;
+}
+      `,
+      `
+import { Entity, type INormalizeDelegate } from '@data-client/rest';
+
+interface Wrapper {
+  normalize: (input: any, parent: any, key: string, delegate: INormalizeDelegate) => any;
+}
+      `,
+      'rewrites normalize interface property signature',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'prop-sig-skip.ts' },
+      `
+import { Entity } from '@data-client/rest';
+
+interface Wrapper {
+  _normalize: (
+    input: any,
+    parent: any,
+    key: string,
+    args: readonly any[],
+    visit: (s: any, v: any) => any,
+    delegate: any,
+  ) => any;
+}
+      `,
+      `
+import { Entity } from '@data-client/rest';
+
+interface Wrapper {
+  _normalize: (
+    input: any,
+    parent: any,
+    key: string,
+    args: readonly any[],
+    visit: (s: any, v: any) => any,
+    delegate: any,
+  ) => any;
+}
+      `,
+      'leaves underscore-prefixed normalize property signatures alone (only denormalize is broadened)',
+    );
+  });
+
   describe('combined schema methods', () => {
     defineInlineTest(
       transform,

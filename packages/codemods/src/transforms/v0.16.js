@@ -12,6 +12,9 @@
  *   npx @data-client/codemods v0.16 src/
  */
 
+// Schema and path rewrites apply only to the packages that export `schema`
+// and `RestEndpoint`; the useFetch rewrite applies to any @data-client package.
+const DATA_CLIENT_PREFIX = '@data-client/';
 const DATA_CLIENT_PACKAGES = new Set([
   '@data-client/endpoint',
   '@data-client/rest',
@@ -94,7 +97,7 @@ function transformUseFetch(j, root) {
     .find(j.ImportDeclaration)
     .filter(importPath => {
       const source = importPath.node.source.value;
-      if (!source.startsWith('@data-client/')) return false;
+      if (!source.startsWith(DATA_CLIENT_PREFIX)) return false;
       return importPath.node.specifiers.some(
         s =>
           s.type === 'ImportSpecifier' &&
@@ -458,7 +461,7 @@ module.exports = function transformer(fileInfo, api) {
   dirty = transformUseFetch(j, root) || dirty;
   dirty = transformSchemaImports(j, root) || dirty;
 
-  return dirty ? root.toSource({ quote: 'single' }) : undefined;
+  return dirty ? root.toSource({ quote: 'single' }) : fileInfo.source;
 };
 
 module.exports.parser = 'tsx';

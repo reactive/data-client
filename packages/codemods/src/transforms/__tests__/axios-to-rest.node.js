@@ -449,7 +449,11 @@ import axios from 'axios';
 const url = getUrl();
 const result = axios.get(url);
       `,
-      ``,
+      `
+import axios from 'axios';
+const url = getUrl();
+const result = axios.get(url);
+      `,
       'leaves non-literal URL calls unchanged without rewriting imports',
     );
 
@@ -720,7 +724,10 @@ import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 function foo(client: typeof axios) { return client; }
       `,
-      ``,
+      `
+import axios from 'axios';
+function foo(client: typeof axios) { return client; }
+      `,
       'no-op when axios is used only as typeof annotation',
     );
 
@@ -860,7 +867,10 @@ async function getUsers() {
 import axios from 'axios';
 const result = axios('/users');
       `,
-      ``,
+      `
+import axios from 'axios';
+const result = axios('/users');
+      `,
       'axios as default function call is left unchanged (no-op)',
     );
 
@@ -871,7 +881,10 @@ const result = axios('/users');
 import axios from 'axios';
 const result = axios.get('/users', { headers: { Authorization: 'Bearer token' }, params: { page: 1 } });
       `,
-      ``,
+      `
+import axios from 'axios';
+const result = axios.get('/users', { headers: { Authorization: 'Bearer token' }, params: { page: 1 } });
+      `,
       'config object as second arg is left unchanged (no-op)',
     );
 
@@ -882,7 +895,10 @@ const result = axios.get('/users', { headers: { Authorization: 'Bearer token' },
 import axios from 'axios';
 const result = axios.request({ url: '/users', method: 'get' });
       `,
-      ``,
+      `
+import axios from 'axios';
+const result = axios.request({ url: '/users', method: 'get' });
+      `,
       'axios.request() is left unchanged (no-op)',
     );
 
