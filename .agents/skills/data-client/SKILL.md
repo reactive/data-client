@@ -10,10 +10,15 @@ Check `package.json` for `@data-client/react` or `@data-client/vue`.
 
 ## Not installed yet
 
-Follow the `data-client-setup` skill (`../data-client-setup/SKILL.md`, next to this one). It detects the
+Apply the skill `data-client-setup` (`../data-client-setup/SKILL.md`, next to this one). It detects the
 framework (NextJS, Expo, React Native, Vue, plain React) and API style (REST, GraphQL, custom), installs the
 packages, adds the provider, and migrates existing fetch code. It runs installs, so it isn't loaded on its own:
-when the user asked to add or use Data Client, that is the go-ahead, so read its `SKILL.md` and follow it.
+when the user asked you to add or use Data Client in this app, that is the go-ahead, so read its `SKILL.md` and
+follow it. When they only asked about Data Client, answer and offer to set it up instead.
+
+If `data-client-setup` isn't installed, install it with
+`npx skills add reactive/data-client --skill data-client-setup`, or set up by hand from
+https://dataclient.io/docs/getting-started/installation.md.
 
 ## Installed
 

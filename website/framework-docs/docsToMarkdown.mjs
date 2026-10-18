@@ -390,6 +390,14 @@ function render(file, framework, props = {}, drop = DROP) {
         const { language, code, title } = providerSetup({ ...attrs, managers });
         return [codeBlock({ lang: language, value: code, title })];
       }
+      // same text as website/src/components/AgentPrompt.tsx
+      case 'AgentPrompt':
+        return [
+          codeBlock({
+            lang: 'markdown',
+            value: `Use Reactive Data Client (\`@data-client/${framework}\` and \`@data-client/rest\`) for data fetching.`,
+          }),
+        ];
       case 'PkgTabs':
       case 'PkgInstall':
         return [

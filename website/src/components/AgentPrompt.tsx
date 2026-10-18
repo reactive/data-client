@@ -6,7 +6,8 @@ import React from 'react';
 import styles from './AgentPrompt.module.css';
 import useFramework from './useFramework';
 
-/** One-line prompt that gets a coding agent to set up Data Client */
+/** One-line prompt that gets a coding agent to set up Data Client.
+ * docsToMarkdown.mjs renders the same text for the docs' markdown. */
 export default function AgentPrompt({
   title,
   className,

@@ -5,7 +5,8 @@
   padding-right: calc(var(--ifm-pre-padding) / 2 + 2.5rem);
 }
 
-/* package names (markdown code spans) never break at their hyphen */
+/* package names (markdown code spans) never break at their hyphen; the Prism
+   theme italicizes them with an inline style, hence !important */
 .agentPrompt :global(.token.code-snippet) {
   white-space: nowrap;
   font-style: normal !important;

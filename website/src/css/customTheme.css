@@ -196,8 +196,9 @@ small {
   }
 }
 
-/* touch screens have no hover to reveal code block buttons (copy, word wrap) */
-@media (hover: none) {
+/* touch screens have no hover to reveal code block buttons (copy, word wrap);
+   `html` outranks the theme's `opacity: 0`, which has the same specificity */
+@media (hover: none), (any-pointer: coarse) {
   html .theme-code-block button {
     opacity: 0.6;
   }
