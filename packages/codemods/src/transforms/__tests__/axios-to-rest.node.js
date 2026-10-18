@@ -320,9 +320,11 @@ const other = 123, api = axios.create({ baseURL: 'https://api.example.com' });
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+
 class ApiEndpoint extends RestEndpoint {
   urlPrefix = 'https://api.example.com';
 }
+
 const other = 123;
       `,
       'preserves sibling declarators when axios.create is not the first declarator',
@@ -532,12 +534,12 @@ const result = api.post('/users', payload);
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
-const payload = { name: 'Taylor' };
 
 class ApiEndpoint extends RestEndpoint {
   urlPrefix = 'https://api.example.com';
 }
 
+const payload = { name: 'Taylor' };
 const result = new ApiEndpoint({
   path: '/users',
   method: 'POST'

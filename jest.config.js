@@ -66,6 +66,7 @@ const packages = [
   'normalizr',
   'use-enhanced-reducer',
   'img',
+  'codemods',
   'test',
 ];
 

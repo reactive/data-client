@@ -165,6 +165,14 @@ export default [
       },
     },
   },
+  // jscodeshift transforms and their CLI run in Node as CommonJS
+  {
+    files: ['packages/codemods/**/*.js'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: globals.node,
+    },
+  },
   {
     files: ['examples/**/*.?(m|c)ts?(x)'],
     rules: {
