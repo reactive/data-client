@@ -23,9 +23,9 @@ To install every skill for your framework now instead, without letting your agen
 
 <SkillTabs />
 
-In Claude Code, the plugin installs them in one step. With other agents,
-[TanStack Intent](https://tanstack.com/intent) loads the skills each `@data-client/*` package ships for its version,
-so they update with `npm update`. Its install adds a skill loading section to your `AGENTS.md`.
+In Claude Code, the plugin points your agent at the skills each installed `@data-client/*` package ships, so they
+match its version, and sets your app up when Data Client isn't installed yet. With other agents,
+[TanStack Intent](https://tanstack.com/intent) loads the same package skills, so they update with `npm update`. Its install adds a skill loading section to your `AGENTS.md`.
 
 ### Available Skills
 
