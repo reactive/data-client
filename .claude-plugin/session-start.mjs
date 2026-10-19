@@ -111,12 +111,12 @@ function firstCopy() {
     return error.code !== 'EEXIST';
   }
   try {
-    // lstat: a symlink planted at the marker is never ours, so never fresh
+    // a symlink planted at the marker in the shared tmpdir is never ours:
+    // lstat never sees it as fresh, and rm + 'wx' never writes through it
     const stat = fs.lstatSync(marker, { throwIfNoEntry: false });
     const fresh = stat?.isFile() && Date.now() - stat.mtimeMs < 10_000;
     if (!fresh) {
-      // a fresh file, not one through a symlink planted in the shared tmpdir
-      fs.rmSync(marker, { force: true });
+      if (stat) fs.rmSync(marker);
       fs.writeFileSync(marker, '', { flag: 'wx' });
     }
     return !fresh;

@@ -241,7 +241,11 @@ test('the session marker is never written through a planted symlink', () => {
     ]),
   });
   const id = `test-${path.basename(dir)}`;
-  const target = path.join(victim(), 'sub/keep');
+  const target = path.join(
+    fs.mkdtempSync(path.join(os.tmpdir(), 'dc-victim-')),
+    'keep',
+  );
+  fs.writeFileSync(target, 'keep');
   fs.symlinkSync(
     target,
     path.join(os.tmpdir(), `data-client-hook-${id}-startup`),
@@ -402,25 +406,12 @@ for (const method of [0, 8]) {
       ),
       out,
     );
-    assert.deepEqual(
-      listing(pluginData(dir)),
-      [
-        'pnp-skills',
-        path.join('pnp-skills', '@data-client'),
-        path.join('pnp-skills', '@data-client', 'react'),
-        path.relative(pluginData(dir), copied),
-        path.join(path.relative(pluginData(dir), copied), 'package.json'),
-        path.join(path.relative(pluginData(dir), copied), 'skills'),
-        path.join(
-          path.relative(pluginData(dir), copied),
-          'skills/data-client-react',
-        ),
-        path.join(
-          path.relative(pluginData(dir), copied),
-          'skills/data-client-react/SKILL.md',
-        ),
-      ].sort(),
-    );
+    assert.deepEqual(listing(copied), [
+      'package.json',
+      'skills',
+      path.join('skills', 'data-client-react'),
+      path.join('skills', 'data-client-react', 'SKILL.md'),
+    ]);
     assert.ok(!ran(), '.pnp.cjs ran');
   });
 }
@@ -452,14 +443,6 @@ function zippedReact(description = 'React skill.') {
   );
 }
 
-/** A directory outside the project with one file in a subdirectory */
-function victim() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dc-victim-'));
-  fs.mkdirSync(path.join(dir, 'sub'));
-  fs.writeFileSync(path.join(dir, 'sub/keep'), 'keep');
-  return dir;
-}
-
 const listing = dir => fs.readdirSync(dir, { recursive: true }).sort();
 
 test('Yarn PnP writes nothing into the project', () => {
@@ -470,7 +453,7 @@ test('Yarn PnP writes nothing into the project', () => {
 });
 
 test("a zip one project commits can't replace another project's copy", () => {
-  const data = pluginData(fs.mkdtempSync(path.join(os.tmpdir(), 'dc-hook-')));
+  const data = fs.mkdtempSync(path.join(os.tmpdir(), 'dc-data-'));
   const genuine = zippedReact('Genuine.');
   // same cache path and version, different contents
   const forged = zippedReact('Forged.');

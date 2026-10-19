@@ -65,20 +65,25 @@ function runtimeState(root) {
 }
 
 /**
- * Copies a zipped package's skills and package.json to
- * `<copies>/<pkg>/<zip hash>`, once per zip. The hash names the copy, so a
- * zip one project commits can't stand in for another project's.
+ * Copies a zipped package's skills and package.json to `<copies>/<pkg>/<key>`,
+ * once per zip. The key is the zip's real path and stat, so a zip one project
+ * commits can't stand in for another project's, and a session only stats it.
+ * Copies are a few KB each and go when the plugin is uninstalled.
  */
 function copy(pkg, location, copies) {
   const [, zipFile, inner] = /^(.*?\.zip)[\\/](.*)$/.exec(location) ?? [];
   if (!zipFile || !fs.existsSync(zipFile)) return undefined;
-  const zip = fs.readFileSync(zipFile);
-  const hash = createHash('sha256').update(zip).digest('hex').slice(0, 16);
-  const dir = path.join(copies, pkg, hash);
+  const real = fs.realpathSync(zipFile);
+  const { size, mtimeMs, ino } = fs.statSync(real);
+  const key = createHash('sha256')
+    .update(JSON.stringify([real, size, mtimeMs, ino]))
+    .digest('hex')
+    .slice(0, 16);
+  const dir = path.join(copies, pkg, key);
   // package.json goes last, so an interrupted copy is redone
   if (fs.existsSync(path.join(dir, 'package.json'))) return dir;
   const prefix = inner.split(path.sep).join('/').replace(/\/?$/, '/');
-  const entries = zipEntries(zip);
+  const entries = zipEntries(fs.readFileSync(real));
   const manifest = entries.get(`${prefix}package.json`)?.();
   if (!manifest) return undefined;
   fs.rmSync(dir, { recursive: true, force: true });
