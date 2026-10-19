@@ -1,5 +1,7 @@
 # Claude Code plugin
 
+![How the data-client plugin works](how-it-works.svg)
+
 Everything that publishes Data Client's Claude Code plugin lives in this directory. The packages don't know about it: they ship their skills (`scripts/pack-skills.mjs`), and the plugin finds those skills in whatever the user's project installed.
 
 | File                | What                                                                                                                                                                                                                                                                            |
