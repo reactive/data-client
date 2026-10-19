@@ -12,6 +12,7 @@ import {
   Entity,
   RestEndpoint,
   resource,
+  schema,
   type Denormalize,
   type DenormalizeNullable,
   type Normalize,
@@ -146,6 +147,10 @@ export function adderSchema() {
   ctrl.set(push, { userId: 1 }, { id: 5, titel: 'a' });
   // a Collection made directly has adders too
   ctrl.set(new Collection([Todo]).push, { id: 5, title: 'a' });
+  // Values Collections have no push or unshift
+  const values = new Collection(new schema.Values(Todo));
+  expectType<never>()(values.push, true);
+  expectType<never>()(values.unshift, true);
 }
 
 export function wrapsFetch() {

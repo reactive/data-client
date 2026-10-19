@@ -41,7 +41,9 @@ export interface CollectionArrayAdder<
     delegate: IDenormalizeDelegate,
   ): Denormalize<S['schema']>;
 
-  _denormalizeNullable(): DenormalizeNullable<S['schema']>;
+  // infer keeps casts between Collection types comparable on TS < 6 (DenormalizeNullable<S['schema']> doesn't)
+  _denormalizeNullable(): S extends { schema: infer T } ? DenormalizeNullable<T>
+  : never;
   _normalizeNullable(): NormalizeNullable<S['schema']>;
   // this is not an actual member, but tells Controller.fetch() that a list body resolves a list
   _denormalizeList(): Denormalize<S['schema']>[];

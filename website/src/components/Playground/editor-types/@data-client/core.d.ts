@@ -490,7 +490,7 @@ type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends R
     [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
 };
 /** Args ending in a list body: (body) or (params, body), like RestEndpoint's.
- * Fixed lengths since TS 4.0 has no leading-rest tuples */
+ * Fixed lengths since TS < 4.2 has no leading-rest tuples */
 type ListBodyArgs = readonly [readonly any[]] | readonly [any, readonly any[]];
 /** Rest args longer than any endpoint call's, so a signature using them is skipped by arity instead of reporting errors */
 type NoCall = readonly [

@@ -953,7 +953,9 @@ interface CollectionArrayAdder<S extends PolymorphicInterface, Args extends any[
     /** A list input denormalizes to a list */
     denormalize(input: readonly any[], delegate: IDenormalizeDelegate): Denormalize<S['schema']>[];
     denormalize(input: any, delegate: IDenormalizeDelegate): Denormalize<S['schema']>;
-    _denormalizeNullable(): DenormalizeNullable<S['schema']>;
+    _denormalizeNullable(): S extends {
+        schema: infer T;
+    } ? DenormalizeNullable<T> : never;
     _normalizeNullable(): NormalizeNullable<S['schema']>;
     _denormalizeList(): Denormalize<S['schema']>[];
 }
