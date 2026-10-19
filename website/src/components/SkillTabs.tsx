@@ -16,10 +16,19 @@ interface Props {
   skills?: string[];
   /** false leaves out linking the packages' skills, which needs them installed first */
   packages?: boolean;
+  /** headers on the commands, where the page has room (```bash framed) */
+  framed?: boolean;
 }
 
-export default function SkillTabs({ repo, skill, skills, packages }: Props) {
+export default function SkillTabs({
+  repo,
+  skill,
+  skills,
+  packages,
+  framed,
+}: Props) {
   const framework = useFramework();
+  const metastring = framed ? 'framed' : undefined;
   const commands = skillCommands(
     { repo, skill, skills, packages, framework },
     { skillPackages, setupSkills: setupReferences.skills },
@@ -40,18 +49,26 @@ export default function SkillTabs({ repo, skill, skills, packages }: Props) {
       ]}
     >
       <TabItem value="claude">
-        <CodeBlock className="language-bash">{commands.claude}</CodeBlock>
+        <CodeBlock className="language-bash" metastring={metastring}>
+          {commands.claude}
+        </CodeBlock>
       </TabItem>
       {commands.packages && (
         <TabItem value="packages">
-          <CodeBlock className="language-bash">{commands.packages}</CodeBlock>
+          <CodeBlock className="language-bash" metastring={metastring}>
+            {commands.packages}
+          </CodeBlock>
         </TabItem>
       )}
       <TabItem value="skills">
-        <CodeBlock className="language-bash">{commands.skillsCli}</CodeBlock>
+        <CodeBlock className="language-bash" metastring={metastring}>
+          {commands.skillsCli}
+        </CodeBlock>
       </TabItem>
       <TabItem value="openskills">
-        <CodeBlock className="language-bash">{commands.openSkills}</CodeBlock>
+        <CodeBlock className="language-bash" metastring={metastring}>
+          {commands.openSkills}
+        </CodeBlock>
       </TabItem>
     </Tabs>
   );

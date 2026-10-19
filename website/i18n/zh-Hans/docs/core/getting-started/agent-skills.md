@@ -5,16 +5,23 @@ sidebar_label: Agent Skills
 ---
 
 import SkillTabs from '@site/src/components/SkillTabs';
-import Link from '@docusaurus/Link';
 
-最快的上手方式是让 [AI 智能体](https://agentskills.io)通过 skill [/data-client-setup](https://skills.sh/reactive/data-client/data-client-setup) 完成安装。
+## 安装 skill 以获得最佳效果 {#install-skills-for-best-results}
 
-## 安装 {#install}
+仅凭包名，智能体就能把基础部分做对。[Skills](https://agentskills.io) 则会教给它们其余部分的最新 API，
+例如测试 fixture 和实时 manager。安装 skill
+[/data-client-setup](https://skills.sh/reactive/data-client/data-client-setup)：
 
-<SkillTabs skill="data-client-setup" />
+<SkillTabs skill="data-client-setup" framed />
 
-然后运行 skill `/data-client-setup`。它会检测你的框架和 API 风格（REST、GraphQL、
-自定义），安装下面相应的 skill，接好 provider，并迁移现有的 endpoint。
+然后在你的智能体聊天中运行它：
+
+```prompt framed
+/data-client-setup
+```
+
+它会检测你的框架和 API 风格（REST、GraphQL、自定义），安装下面相应的 skill，接好 provider，
+并迁移现有的 endpoint。
 
 ### 预先安装所有 skill {#install-all-skills-up-front}
 
@@ -22,8 +29,13 @@ import Link from '@docusaurus/Link';
 
 <SkillTabs />
 
-## 可用的 skill {#available-skills}
+在 Claude Code 中，插件会一步完成安装。对于其他智能体，
+[TanStack Intent](https://tanstack.com/intent) 会加载每个 `@data-client/*` 包为其版本附带的 skill，
+因此它们会随 `npm update` 一起更新。它的安装会在你的 `AGENTS.md` 中添加一个 skill 加载部分。
 
+### 可用的 skill {#available-skills}
+
+- [**`/data-client`**](https://skills.sh/reactive/data-client/data-client) — 当你让智能体添加或使用 Data Client 时从这里开始，并将其引导到设置或该任务对应的 skill。
 - [**`/data-client-setup`**](https://skills.sh/reactive/data-client/data-client-setup) — 根据你的框架和 API 风格安装并配置 Data Client，以及它所需的 skill。
 - [**`/data-client-rest-setup`**](https://skills.sh/reactive/data-client/data-client-rest-setup) — 设置 `@data-client/rest` 并迁移现有的
   `fetch`/`axios` 客户端。
@@ -57,6 +69,10 @@ import Link from '@docusaurus/Link';
 :::
 
 在 [skills.sh/reactive/data-client](https://skills.sh/reactive/data-client) 浏览完整目录。
+
+## 手动设置 {#set-up-by-hand}
+
+若要自行安装包并添加 provider，请按照[安装](./installation.md)操作。
 
 ## 面向 LLM 的文档 {#docs-for-llms}
 

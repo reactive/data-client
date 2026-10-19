@@ -17,7 +17,7 @@ export default function Request({ input, init }: Props) {
       <Header small>
         <Translate id="http.request">Request</Translate>
       </Header>
-      <CodeBlock language="bash" className={styles.containedCode}>
+      <CodeBlock language="http" className={styles.containedCode}>
         {text}
       </CodeBlock>
     </div>

@@ -30,5 +30,5 @@ Type and API cleanups deferred because they would break users or mixed package v
 
 [#4410](https://github.com/reactive/data-client/pull/4410) merged the `core`, `react`, `vue` and `migrations` plugins into one `data-client` plugin. `.claude-plugin/marketplace.json` keeps the old names as copies of `data-client` (`.claude-plugin/marketplace.test.mjs` keeps them in lockstep) so existing installs keep updating.
 
-- **Remove the `core`, `react`, `vue` and `migrations` entries** from `.claude-plugin/marketplace.json`, along with their lockstep test in `.claude-plugin/marketplace.test.mjs` and `firstCopy()` (and its test) in `.claude-plugin/session-start.mjs`, which only stops the copies printing the context twice.
+- **Remove the `core`, `react`, `vue` and `migrations` entries** from `.claude-plugin/marketplace.json`, along with their lockstep test in `.claude-plugin/marketplace.test.mjs`.
   - Breaks: Claude Code users who still have an old plugin name installed stop getting updates. Migration: `claude plugin install data-client@data-client`, then uninstall the old one.

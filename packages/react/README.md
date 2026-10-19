@@ -52,7 +52,11 @@ For more details, see [the Getting Started docs page](https://dataclient.io/docs
 npx skills add reactive/data-client
 ```
 
-Then run [skill](https://agentskills.io) "data-client-setup"
+Then run the [skill](https://agentskills.io) in your coding agent's chat:
+
+```prompt
+/data-client-setup
+```
 
 ## Usage
 

@@ -12,22 +12,31 @@ import Installation from '../shared/\_installation.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
 import SiteOnly from '@site/src/components/SiteOnly';
+import AgentPrompt from '@site/src/components/AgentPrompt';
+import SkillTabs from '@site/src/components/SkillTabs';
+
+<SiteOnly>
+
+## Con tu agente de programación {#with-your-coding-agent}
+
+Primero instala las [skills](./agent-skills.md) de Data Client para tu agente de programación. Sin ellas, los agentes aciertan
+con lo básico pero se pierden el resto, como los managers en tiempo real y los fixtures de prueba.
+
+<SkillTabs intent={false} framed />
+
+Luego dile a tu agente:
+
+<AgentPrompt framed />
+
+</SiteOnly>
 
 :::react
+
+## Instalación manual {#install-manually}
 
 <PkgTabs pkgs="@data-client/react @data-client/test @data-client/rest" />
 
 :::
-
-<SiteOnly>
-
-:::tip[Usa Agent Skills]
-
-¿Prefieres generar la estructura inicial con tu agente de IA? Consulta [Agent Skills](./agent-skills.md) y ejecuta `/data-client-setup`.
-
-:::
-
-</SiteOnly>
 
 ## :react[Agrega el proveedor en el componente de nivel superior]:vue[Instala el plugin] {#add-provider-at-top-level-component}
 
@@ -38,6 +47,18 @@ Instala el [plugin de Vue](https://vuejs.org/guide/reusability/plugins.html) al 
 :::
 
 <Installation />
+
+<SiteOnly>
+
+Tu agente de programación también puede cargar las skills que incluyen estos paquetes, ajustadas a la versión que instalaste, con
+[TanStack Intent](https://tanstack.com/intent):
+
+```bash
+npm install -D @tanstack/intent
+npx intent install
+```
+
+</SiteOnly>
 
 <center>
 

@@ -345,7 +345,11 @@ import SkillTabs from '@site/src/components/SkillTabs';
 
 <SkillTabs repo="reactive/data-client" skills={['data-client-schema', 'data-client-rest-setup', 'data-client-rest']} />
 
-然后调用 `/data-client-rest-setup` 进行迁移
+然后在你的智能体聊天中运行它进行迁移：
+
+```prompt
+/data-client-rest-setup
+```
 
 <div style={{ textAlign: 'center' }}>
 <Link className="button button--secondary button--sm" to="https://skills.sh/reactive/data-client/data-client-rest"><img src={useBaseUrl('/img/anthropic.svg')} alt="REST Codegen Skill" style={{

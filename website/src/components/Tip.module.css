@@ -1,0 +1,26 @@
+/* a tooltip bubble above its target, hidden until the target's own rules (hover,
+ * keyboard focus, or a state class like `.copied`) set `opacity: 1; translate: none`. Place it
+ * with `left`, and `--tip-x` to shift it, like -50% to center on `left: 50%` */
+.tip {
+  position: absolute;
+  z-index: 1;
+  bottom: calc(100% + 0.375rem);
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-global-radius);
+  background: var(--ifm-background-surface-color);
+  box-shadow: var(--ifm-global-shadow-md);
+  color: var(--ifm-color-emphasis-900);
+  font-family: var(--ifm-font-family-base);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(var(--tip-x, 0));
+  translate: 0 4px;
+  pointer-events: none;
+  /* instant under reduced motion (motion/css.ts) */
+  transition:
+    opacity var(--motion-snappy),
+    translate var(--motion-snappy);
+}
