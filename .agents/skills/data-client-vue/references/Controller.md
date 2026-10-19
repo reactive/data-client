@@ -239,6 +239,38 @@ until the refetch resolves.
 </template>
 ```
 
+> **Tip: Show the Suspense fallback again**
+>
+> Remount the component with a new `key` after invalidating; the new instance suspends on the invalid data.
+> `timeout="0"` makes `<Suspense>` show its fallback while it waits instead of the old content. Remounting
+> resets the component's local state.
+>
+> ```html title="ArticlePage.vue"
+> <script setup lang="ts">
+>   import { ref } from 'vue';
+>   import { useController } from '@data-client/vue';
+>   import { ArticleResource } from './ArticleResource';
+>   import ArticleName from './ArticleName.vue';
+>
+>   const props = defineProps<{ id: string }>();
+>   const ctrl = useController();
+>   const remountKey = ref(0);
+>
+>   async function reload() {
+>     await ctrl.invalidate(ArticleResource.get, { id: props.id });
+>     remountKey.value++;
+>   }
+> </script>
+>
+> <template>
+>   <button @click="reload">Reload</button>
+>   <Suspense timeout="0">
+>     <ArticleName :key="remountKey" :id="id" />
+>     <template #fallback>Loading...</template>
+>   </Suspense>
+> </template>
+> ```
+
 > **Tip: Invalidate many endpoints at once**
 >
 > Use [schema.Invalidate](https://dataclient.io/rest/api/Invalidate) to invalidate every endpoint that contains a given entity.
@@ -580,7 +612,7 @@ export enum ExpiryStatus {
 
 ##### Invalid
 
-- Will always suspend
+- Will always suspend during setup; mounted components [keep their current data](https://dataclient.io/vue/concepts/expiry-policy#invalidate) until the refetch resolves
 - Will always fetch
 
 #### expiresAt

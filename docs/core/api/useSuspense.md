@@ -204,19 +204,25 @@ render(<ProfileDetail />);
 
 Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by default but also [configurable](../concepts/expiry-policy.md).
 
-| Expiry Status | Fetch           | Suspend | Error             | Conditions                                                                                                                                                                   |
-| ------------- | --------------- | ------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Invalid       | yes<sup>1</sup> | yes     | no                | not in store, [deletion](/rest/api/resource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
-| Stale         | yes<sup>1</sup> | no      | no                | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                                                                                                 |
-| Valid         | no              | no      | maybe<sup>2</sup> | fetch completion                                                                                                                                                             |
-|               | no              | no      | no                | `null` used as second argument                                                                                                                                               |
+| Expiry Status | Fetch           | Suspend               | Error             | Conditions                                                                                                                                                                   |
+| ------------- | --------------- | --------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Invalid       | yes<sup>1</sup> | yes:vue[<sup>3</sup>] | no                | not in store, [deletion](/rest/api/resource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
+| Stale         | yes<sup>1</sup> | no                    | no                | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                                                                                                 |
+| Valid         | no              | no                    | maybe<sup>2</sup> | fetch completion                                                                                                                                                             |
+|               | no              | no                    | no                | `null` used as second argument                                                                                                                                               |
 
-:::note
+::::note
 
 1. Identical fetches are automatically deduplicated
 2. [Hard errors](../concepts/error-policy.md#hard) to be [caught](../getting-started/data-dependency#async-fallbacks) by :react[[Error Boundaries](./AsyncBoundary.md)]:vue[[onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured)]
 
+:::vue
+
+3. Only during setup; mounted components [keep their current data](../concepts/expiry-policy.md#invalidate) until the refetch resolves.
+
 :::
+
+::::
 
 ::::react
 
