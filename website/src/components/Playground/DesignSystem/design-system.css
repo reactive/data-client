@@ -41,8 +41,8 @@
   --ds-surface: var(--pg-panel);
   --ds-surface-2: var(--pg-panel-2);
   --ds-border: var(--pg-line);
-  /* labels and hints: the quietest text that still reads (4.5:1 on the panel) */
-  --ds-faint: #66748a;
+  /* labels and hints: the quietest text that still reads (4.5:1 on the panel and the well) */
+  --ds-faint: #5f6d83;
   /* 3:1 on the panel, so field and button edges stay legible */
   --ds-border-strong: #78889d;
   --ds-accent: #1b6fb8;
@@ -78,7 +78,7 @@
 /* Dark: the same console at night (the panel, well, line and text follow
    --pg-* above); what's left is the design system's own */
 html[data-theme='dark'] .playground-preview {
-  --ds-faint: #6e7d94;
+  --ds-faint: #74839a;
   --ds-border-strong: #58697f;
   --ds-accent: #53aef0;
   --ds-accent-strong: #7cc1f4;
