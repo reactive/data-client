@@ -8,6 +8,7 @@ import {
   headingIds,
   pinHeadingIds,
   structureProblems,
+  syntaxProblems,
 } from './mdx.mjs';
 
 const require = createRequire(import.meta.url);
@@ -105,6 +106,15 @@ describe('structureProblems', () => {
     });
   }
 
+  it('flags a blank front matter title, unless English is blank too', () => {
+    assert.deepEqual(
+      structureProblems(source, translated.replace(/^title: .*$/m, "title: ''"), FILE),
+      ['front matter `title`: translate it, as text'],
+    );
+    const blank = "---\ndescription: ''\n---\n\nUn consejo.\n";
+    assert.deepEqual(structureProblems(blank, blank.replace('Un', 'One'), FILE), []);
+  });
+
   it('flags a sentence left in English, not a short name', () => {
     const english =
       '## Data Client\n\nRead the guide before you start.\n\n## Install it now please {#install}\n\n## process(input, parent, key, args): boolean\n';
@@ -189,11 +199,33 @@ describe('dataProblems', () => {
     );
   });
 
+  it('allows only the fields of an entry to change', () => {
+    assert.deepEqual(
+      dataProblems(
+        'a:\n  label: x\n  nested:\n    label: y\n',
+        'a:\n  label: z\n  nested:\n    label: w\n',
+        fields,
+      ),
+      ['`a.nested.label` must stay "y"'],
+    );
+  });
+
   it('flags YAML that no longer parses', () => {
     assert.match(
       dataProblems(tags, "releases:\n  label: 'Versiones\n", fields)[0],
       /^invalid YAML/,
     );
+  });
+});
+
+describe('syntaxProblems', () => {
+  it('parses .yml as YAML and other files as MDX', () => {
+    assert.match(
+      syntaxProblems("label: 'x\n", '/website/blog/tags.yml')[0],
+      /^invalid YAML/,
+    );
+    assert.deepEqual(syntaxProblems('label: x\n', '/website/blog/tags.yml'), []);
+    assert.notEqual(syntaxProblems('<div>\n', FILE).length, 0);
   });
 });
 
