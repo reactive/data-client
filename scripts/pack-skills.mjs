@@ -6,6 +6,9 @@
 // Each skill ships once, in a package every app that needs it installs
 // (.agents/skill-packages.json).
 //
+// Also copies the `data-client-skills` code into each package that has the
+// command.
+//
 // Usage (from a package's prepack): node ../../scripts/pack-skills.mjs
 //        node scripts/pack-skills.mjs --check   (every library skill ships once and exists)
 import fs from 'node:fs';
@@ -14,6 +17,8 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SKILLS = path.join(root, '.agents/skills');
+// `data-client-skills`, which core ships from source
+const AGENTS = path.join(root, 'packages/core/agents');
 
 const owners = JSON.parse(
   fs.readFileSync(path.join(root, '.agents/skill-packages.json'), 'utf8'),
@@ -50,10 +55,19 @@ if (process.argv.includes('--check')) {
     process.exit(1);
   }
 } else {
-  const { name } = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+  const { name, bin } = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+  // no package every repo installs: core reaches no endpoint-only repo, and
+  // endpoint no app, so each package with the command ships its own copy
+  if (bin?.['data-client-skills']) {
+    fs.rmSync('agents', { recursive: true, force: true });
+    fs.cpSync(AGENTS, 'agents', {
+      recursive: true,
+      filter: src => !src.endsWith('.test.mjs'),
+    });
+  }
   fs.rmSync('skills', { recursive: true, force: true });
-  if (!owners[name]) throw new Error(`No skills listed for ${name}`);
-  for (const skill of owners[name])
+  if (!bin && !owners[name]) throw new Error(`No skills listed for ${name}`);
+  for (const skill of owners[name] ?? [])
     fs.cpSync(path.join(SKILLS, skill), path.join('skills', skill), {
       recursive: true,
       dereference: true,

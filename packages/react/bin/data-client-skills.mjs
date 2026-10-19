@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// On react and vue rather than core: pnpm only links bins of direct
-// dependencies, and core is usually transitive
-import { main } from '@data-client/core/agents/skills';
+// Every package that ships skills, and graphql, has this command: pnpm only
+// links bins of direct dependencies, and no one package is in every repo.
+// agents/ is copied from packages/core/agents at pack time.
+import { main } from '../agents/skills.mjs';
 
 main();

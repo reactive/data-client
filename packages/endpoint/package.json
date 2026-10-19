@@ -98,7 +98,9 @@
     "legacy",
     "LICENSE",
     "README.md",
-    "skills"
+    "skills",
+    "bin",
+    "agents"
   ],
   "scripts": {
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' POLYFILL_TARGETS='chrome>88,safari>14' yarn g:babel --out-dir lib",
@@ -139,5 +141,8 @@
     "nock": "13.3.1",
     "rollup-plugins": "workspace:*",
     "temporal-polyfill": "^1.0.0"
+  },
+  "bin": {
+    "data-client-skills": "./bin/data-client-skills.mjs"
   }
 }

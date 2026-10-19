@@ -94,7 +94,8 @@
     "LICENSE",
     "README.md",
     "skills",
-    "bin"
+    "bin",
+    "agents"
   ],
   "bin": {
     "data-client-skills": "./bin/data-client-skills.mjs"

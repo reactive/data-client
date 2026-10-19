@@ -93,3 +93,6 @@ website/i18n/*/docusaurus-plugin-content-blog/*
 
 # agent skills copied in at pack time (scripts/pack-skills.mjs)
 packages/*/skills/
+# data-client-skills code copied in at pack time (from packages/core/agents)
+packages/*/agents/
+!packages/core/agents/
