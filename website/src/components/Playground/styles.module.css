@@ -440,8 +440,8 @@ div.playgroundTextEdit > .playgroundHeader,
 
 /* The Store toggle in the code's corner, over the Store as it slides in
    under it; its label rises out as the other rises in. It stays under the
-   fixtures floating over the code, open or closed: they never sit lower, and
-   the preview (with them) comes after the editor in the DOM. */
+   fixtures floating over the code: closed it sits lower, open it ties with
+   them, and the preview (with them) comes after the editor in the DOM. */
 .storeBadge {
   --swap-in: 0 110%;
   --swap-out: 0 -110%;
@@ -577,8 +577,9 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .fixturesPopover {
   position: absolute;
-  /* over the open Store (z-index 2) and its toggle, which share the code's
-     side when the preview sits beside it */
+  /* over the open Store (z-index 2), which shares the code's side when the
+     preview sits beside it; ties with the open Store toggle (3), and the
+     preview comes after the editor in the DOM, so the fixtures stay on top */
   z-index: 3;
   /* hangs from the preview's right edge; over the code, only as wide as a
      response line needs */
