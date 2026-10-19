@@ -1,9 +1,16 @@
 ---
-'@data-client/test': patch
+'@data-client/test': minor
 ---
 
-Require `@data-client/react` 0.15 or later
+BREAKING: `@data-client/test` requires `@data-client/react` 0.15 or later
 
-`@data-client/test` already needed `@data-client/react/mock`, which first shipped in `@data-client/react` 0.15, so with 0.12–0.14 it failed at import time. Its peer range now says so, and your package manager warns at install instead.
+Support for `@data-client/react` 0.12 through 0.14 is dropped. Upgrade `@data-client/react` along with
+`@data-client/test`.
 
-`Fixture`, `Interceptor`, and the other fixture types from `@data-client/test` are now the same types as `@data-client/react/mock` exports, so fixtures typed with either import work everywhere.
+```diff title="package.json"
+- "@data-client/react": "^0.14.0",
++ "@data-client/react": "^0.19.0",
+```
+
+`Fixture`, `Interceptor`, and the other fixture types from `@data-client/test` are now the same types that
+`@data-client/react/mock` exports, so fixtures typed with either import work everywhere.
