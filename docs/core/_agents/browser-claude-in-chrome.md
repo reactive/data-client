@@ -11,6 +11,7 @@ your own Chrome.
 2. Run each snippet with `javascript_tool`. It returns the value of the last expression, so call the snippet
    instead of passing it bare: `(() => { ... })()`. An async snippet returns a promise; if you get a promise
    instead of its value, store the value in one call and read it in the next:
-   `(async () => { ... })().then(r => (globalThis.__DC_RESULT__ = r))`, then `__DC_RESULT__`.
+   `globalThis.__DC_RESULT__ = undefined; (async () => { ... })().then(r => (globalThis.__DC_RESULT__ = r), e => (globalThis.__DC_RESULT__ = { error: String(e) }))`,
+   then read `__DC_RESULT__` until it is no longer `undefined`.
 3. Read requests with `read_network_requests` (pass `urlPattern` to narrow them) and logs with
    `read_console_messages`.
