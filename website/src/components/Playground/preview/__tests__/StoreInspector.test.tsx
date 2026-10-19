@@ -15,10 +15,18 @@ jest.mock(
   () => () => require('react').createElement('div', { 'data-testid': 'tree' }),
 );
 
-function Playground({ defaultOpen }: { defaultOpen: 'y' | 'n' }) {
+/** `stores` Store inspectors sharing one toggle state, like a `groupId` */
+function Playground({
+  defaultOpen,
+  stores = 1,
+}: {
+  defaultOpen: 'y' | 'n';
+  stores?: number;
+}) {
   const [open, toggle] = useStoreOpen('store', defaultOpen);
-  return (
+  return Array.from({ length: stores }, (_, i) => (
     <StoreInspector
+      key={i}
       open={open}
       toggle={toggle}
       registry={{} as SchemaRegistry}
@@ -26,7 +34,7 @@ function Playground({ defaultOpen }: { defaultOpen: 'y' | 'n' }) {
       row={false}
       host={null}
     />
-  );
+  ));
 }
 
 beforeEach(() => {
@@ -39,7 +47,7 @@ async function openStore(container: HTMLElement) {
   await act(async () => {
     fireEvent.click(toggle);
   });
-  await screen.findByTestId('tree');
+  await screen.findAllByTestId('tree');
   return toggle;
 }
 
@@ -47,6 +55,13 @@ it('holds the clicked toggle through the commit that adds the tree', async () =>
   const { container } = render(<Playground defaultOpen="n" />);
   const toggle = await openStore(container);
   // once for the click, once for the tree a frame later
+  expect(blocked).toEqual([toggle, toggle]);
+});
+
+it('holds the toggle once for every Store it opened', async () => {
+  const { container } = render(<Playground defaultOpen="n" stores={3} />);
+  const toggle = await openStore(container);
+  expect(screen.getAllByTestId('tree')).toHaveLength(3);
   expect(blocked).toEqual([toggle, toggle]);
 });
 

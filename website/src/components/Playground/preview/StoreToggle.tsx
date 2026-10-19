@@ -16,7 +16,8 @@ let clicked: HTMLElement | undefined;
 /** The Store toggle the reader clicked last, while on the page: held in place
  * on screen as the Stores it closed slide out and leave the layout */
 export const heldToggle = () => (clicked?.isConnected ? clicked : undefined);
-let holding: HTMLElement | undefined;
+/** Held for the commit in progress; cleared once it's done */
+let heldThisCommit: HTMLElement | undefined;
 /** Keeps `heldToggle` in place on screen through this component's next render */
 export function useKeepToggleInPlace() {
   const { blockElementScrollPositionUntilNextRender } =
@@ -26,9 +27,9 @@ export function useKeepToggleInPlace() {
     // every Store the toggle opened commits together, and one hold covers
     // them: more would turn scroll events back on before the first one's
     // scroll lands, so the navbar would hide as if the reader scrolled
-    if (!held || held === holding) return;
-    holding = held;
-    queueMicrotask(() => (holding = undefined));
+    if (!held || held === heldThisCommit) return;
+    heldThisCommit = held;
+    queueMicrotask(() => (heldThisCommit = undefined));
     blockElementScrollPositionUntilNextRender(held);
   }, [blockElementScrollPositionUntilNextRender]);
 }
