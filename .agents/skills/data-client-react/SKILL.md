@@ -126,13 +126,14 @@ const todosByUser = useQuery(groupTodoByUser);
 
 ---
 
-## Browser Debugging (Chrome DevTools MCP)
+## Browser Debugging
 
-When debugging a running app with a browser MCP (`user-chrome-devtools`), such as data that never
+When debugging a running app with a browser tool that runs JavaScript in the page (Chrome DevTools MCP,
+Playwright MCP, Claude in Chrome, and others), such as data that never
 appears, reverts, or refetches too often, read [devtools-debugging](references/devtools-debugging.md)
 before probing: its "Where to Start" table maps symptoms to the state and
 [actions](references/Actions.md) to check. Dev mode only: start with its debug shim, which every other
-snippet there depends on.
+snippet there depends on. Its Browser Tools table says how your tool runs the snippets and links its setup.
 
 ## Managers
 
@@ -169,6 +170,6 @@ For detailed API documentation, see the [references](references/) directory:
 - [data-dependency](references/data-dependency.md) - Rendering guide
 - [mutations](references/mutations.md);[_VoteDemo.md](references/_VoteDemo.md) - Mutations guide
 - [Actions](references/Actions.md) - Store action types (FETCH, SET, etc.)
-- [devtools-debugging](references/devtools-debugging.md) - Debug with Chrome DevTools MCP
+- [devtools-debugging](references/devtools-debugging.md);[browser-chrome-devtools-mcp.md](references/browser-chrome-devtools-mcp.md);[browser-playwright-mcp.md](references/browser-playwright-mcp.md);[browser-claude-in-chrome.md](references/browser-claude-in-chrome.md) - Debug the running app from a browser tool
 
 **ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via skill "data-client-schema" definitions.**
