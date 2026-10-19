@@ -28,15 +28,19 @@ export default function AgentPrompt() {
   const timeout = useRef<number>(undefined);
   useEffect(() => () => window.clearTimeout(timeout.current), []);
   const copy = useCallback(() => {
-    navigator.clipboard.writeText(prompt).then(() => {
-      setCopied(true);
-      setTapped(true);
-      window.clearTimeout(timeout.current);
-      timeout.current = window.setTimeout(() => {
-        setCopied(false);
-        setTapped(false);
-      }, FEEDBACK_MS);
-    });
+    // no clipboard (insecure context) or a denied write leaves the chip as it was
+    navigator.clipboard?.writeText(prompt).then(
+      () => {
+        setCopied(true);
+        setTapped(true);
+        window.clearTimeout(timeout.current);
+        timeout.current = window.setTimeout(() => {
+          setCopied(false);
+          setTapped(false);
+        }, FEEDBACK_MS);
+      },
+      () => setCopied(false),
+    );
   }, [prompt]);
 
   return (

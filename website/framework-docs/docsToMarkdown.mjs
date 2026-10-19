@@ -229,13 +229,25 @@ function jsxText(children, props, file) {
     .join('');
 }
 
+const marketplace = JSON.parse(
+  fs.readFileSync(path.join(ROOT, '.claude-plugin/marketplace.json'), 'utf8'),
+);
+/** Skill names of a marketplace plugin, after those of its dependencies */
+function pluginSkills(name) {
+  const plugin = marketplace.plugins.find(p => p.name === name);
+  return [
+    ...(plugin.dependencies ?? []).flatMap(pluginSkills),
+    ...plugin.skills.map(s => path.basename(s)),
+  ];
+}
+
 const ADMONITIONS = ['note', 'tip', 'info', 'warning', 'danger', 'caution'];
 /** Inline HTML with a markdown equivalent */
 const INLINE = { b: 'strong', strong: 'strong', em: 'emphasis', i: 'emphasis' };
 /** HTML kept as is around its converted children */
 const HTML = ['details', 'sup', 'sub', 'kbd'];
 /** Site-only embeds with nothing to read */
-const DROP = ['ThemedImage', 'SkillTabs', 'head'];
+const DROP = ['ThemedImage', 'head'];
 
 /** Rewrites one page (and its partials) into plain markdown nodes */
 function render(file, framework, props = {}, drop = DROP) {
@@ -398,6 +410,20 @@ function render(file, framework, props = {}, drop = DROP) {
             value: `Use \`@data-client/${framework}\` for all server state`,
           }),
         ];
+      // the Skills CLI tab of website/src/components/SkillTabs.tsx
+      case 'SkillTabs': {
+        const skills =
+          attrs.skill ? [attrs.skill] : pluginSkills(attrs.plugin ?? framework);
+        return [
+          codeBlock({
+            lang: 'bash',
+            value: [
+              'npx skills add reactive/data-client',
+              ...skills.map(s => `--skill ${s}`),
+            ].join(' \\\n  '),
+          }),
+        ];
+      }
       case 'PkgTabs':
       case 'PkgInstall':
         return [
