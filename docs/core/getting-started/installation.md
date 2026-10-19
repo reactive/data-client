@@ -22,7 +22,7 @@ import SkillTabs from '@site/src/components/SkillTabs';
 First install Data Client's [skills](./agent-skills.md) for your coding agent. Without them, agents get
 the basics right but miss the rest, like real-time managers and test fixtures.
 
-<SkillTabs />
+<SkillTabs intent={false} />
 
 Then tell your agent:
 
@@ -47,6 +47,18 @@ Install the [Vue plugin](https://vuejs.org/guide/reusability/plugins.html) when 
 :::
 
 <Installation />
+
+<SiteOnly>
+
+Your coding agent can also load the skills these packages ship, matched to the version you installed, with
+[TanStack Intent](https://tanstack.com/intent):
+
+```bash
+npm install -D @tanstack/intent
+npx intent install
+```
+
+</SiteOnly>
 
 <center>
 

@@ -17,17 +17,26 @@ npx intent install`;
  */
 
 /**
- * @param {{ repo?: string, skill?: string, skills?: string[], plugin?: string, framework: string }} options
- *   with no skills, installs `plugin` (default: the framework's) with its dependencies
+ * @param {{ repo?: string, skill?: string, skills?: string[], plugin?: string, intent?: boolean, framework: string }} options
+ *   with no skills, installs `plugin` (default: the framework's) with its dependencies;
+ *   `intent: false` leaves out TanStack Intent where the packages aren't installed yet
  * @param {Marketplace} marketplace `.claude-plugin/marketplace.json`
  * @returns {{ skillsCli: string, openSkills: string, claude: string, intent?: string }}
  */
 export default function skillCommands(
-  { repo = 'reactive/data-client', skill, skills, plugin, framework },
+  {
+    repo = 'reactive/data-client',
+    skill,
+    skills,
+    plugin,
+    intent: withIntent = true,
+    framework,
+  },
   marketplace,
 ) {
   // Intent loads every skill the packages ship, so it only fits the whole framework's set
-  const intent = !skill && !skills && !plugin ? intentCommand : undefined;
+  const intent =
+    withIntent && !skill && !skills && !plugin ? intentCommand : undefined;
   if (!skills && skill) skills = [skill];
   if (!skills) plugin ??= framework;
   const { plugins } = marketplace;

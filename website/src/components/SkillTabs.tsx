@@ -15,12 +15,20 @@ interface Props {
   /** Plugin from `.claude-plugin/marketplace.json` to install with its dependencies.
    * Defaults to the current page's framework when no skills are given. */
   plugin?: string;
+  /** false leaves out TanStack Intent, which needs the packages installed first */
+  intent?: boolean;
 }
 
-export default function SkillTabs({ repo, skill, skills, plugin }: Props) {
+export default function SkillTabs({
+  repo,
+  skill,
+  skills,
+  plugin,
+  intent,
+}: Props) {
   const framework = useFramework();
   const commands = skillCommands(
-    { repo, skill, skills, plugin, framework },
+    { repo, skill, skills, plugin, intent, framework },
     marketplace,
   );
   return (
