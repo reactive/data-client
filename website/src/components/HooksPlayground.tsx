@@ -9,6 +9,7 @@ const HooksPlayground = ({
   hidden = false,
   defaultOpen = 'n',
   row = false,
+  demo = false,
   fixtures = [],
   defaultTab,
   headerControls,
@@ -21,6 +22,7 @@ const HooksPlayground = ({
     groupId={groupId}
     defaultOpen={defaultOpen}
     row={row}
+    demo={demo}
     hidden={hidden}
     fixtures={fixtures}
     getInitialInterceptorData={getInitialInterceptorData}

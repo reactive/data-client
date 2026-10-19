@@ -38,3 +38,38 @@ describe('PreviewWrapper fixtures', () => {
     expect(screen.queryByRole('button', { name: /Fixtures/ })).toBeNull();
   });
 });
+
+describe('PreviewWrapper label', () => {
+  test("names the code in the label's place while it shows", () => {
+    const { rerender } = render(
+      <PreviewWrapper codeShown={false}>
+        <div>result</div>
+      </PreviewWrapper>,
+    );
+    const live = screen.getByText('Live Preview');
+    const editor = screen.getByText('Editor');
+    expect(live.closest('[aria-hidden]')!.getAttribute('aria-hidden')).toBe(
+      'false',
+    );
+    expect(editor.getAttribute('aria-hidden')).toBe('true');
+
+    rerender(
+      <PreviewWrapper codeShown>
+        <div>result</div>
+      </PreviewWrapper>,
+    );
+    expect(live.closest('[aria-hidden]')!.getAttribute('aria-hidden')).toBe(
+      'true',
+    );
+    expect(editor.getAttribute('aria-hidden')).toBe('false');
+  });
+
+  test('is the label alone where the code never shows', () => {
+    render(
+      <PreviewWrapper>
+        <div>result</div>
+      </PreviewWrapper>,
+    );
+    expect(screen.queryByText('Editor')).toBeNull();
+  });
+});

@@ -17,7 +17,7 @@ indexable and hydration-safe, and those behaviors are easy to drop silently.
 ## Layout
 
 ```
-index.tsx           Playground: code model, editor/preview ordering, hidden handling
+index.tsx           Playground: code model, editor/preview ordering (row, stacked, demo), hidden handling
 userAgent.ts        isBot / isMobileOrBot gates
 PlaygroundEditor.tsx  editor entry used by EditorSurface (aliases editor/InteractiveEditor)
 PlaygroundLiveEditor.tsx  editable react-live editor (mobile/bot fallback)
@@ -47,7 +47,9 @@ preview/            live execution (loaded lazily, never on the server)
   autorun/            the `autoRun` demo player (see Auto-run)
   ...
 editor-types/       .d.ts bundles fed to Monaco (raw-loader)
-DesignSystem/       components injected into preview scope
+DesignSystem/       the demos' design system: design-system.css (tokens, element
+                    styles and classes for demo content) and the components
+                    injected into preview scope
 ```
 
 ## Invariants
@@ -94,7 +96,8 @@ DesignSystem/       components injected into preview scope
   `website/chunks-plugin.js` splits site source used by 2+ pages (the eagerly
   loaded Playground modules among it) into shared chunks instead of a copy
   per docs page.
-- Mobile and bots download none of Monaco or the type libs.
+- Mobile and bots download none of Monaco or the type libs. A `demo`
+  playground mounts its editor only once its code is first shown.
 
 ### Mobile and bots
 
@@ -121,6 +124,24 @@ DesignSystem/       components injected into preview scope
 - `row` layout: non-`column` files are tabs (focus switches tab); `column`
   files stack with collapsible headers. Stacked layout: every titled file gets a header,
   collapsible when there are several files or fixtures.
+- `demo` layout (the `demo` prop, over `row`): the preview comes first at
+  the playground's full width and the code waits behind the Code toggle in
+  the preview's header (`CodeHeaderToggle`, `aria-pressed`), where the
+  label trades for "Editor" (`labelSwap`) while it shows. Pressed, the code
+  takes the result's place (`data-code` on the container hides the result
+  and shows the editor, with `row`'s tabs as `subtabs` under the header);
+  never both at once. The result stays mounted, so the app's state and the
+  Store survive, and edits apply live as usual. Use it when the point is
+  what happens on screen, or the app needs the room: the result and the
+  code share one minimum height (`--pg-demo-min`), so the app's pages and
+  the code trade places without moving the page. The code is in the HTML
+  (`StaticEditor`) as always; Monaco mounts when the code is first shown
+  (the `hidden` latch), so a demo never shown costs no editor. The Store
+  opens as when stacked: beside the result (under it when narrow), from
+  the side strip or the header's icon. The code and the Store never show
+  together: over the code, the header's Store toggle brings the preview
+  back with whatever it says (Show Store opens it, Hide Store closes it).
+  Pressing Code is reader input, so it ends an `autoRun`.
 - Collapsed/unselected files stay mounted (`display: none`), never unmounted:
   their Monaco models must exist for cross-file types, go-to-definition and
   to keep edits. Monaco is uncontrolled (`defaultValue`), so re-renders never
@@ -154,6 +175,25 @@ DesignSystem/       components injected into preview scope
   their built-in types (they're type-only exports).
 - Each playground gets its own `DataProvider` store (`MockResolver` serves
   `fixtures`); `memo(Preview)` keeps it from re-rendering on code edits.
+- Design system (`DesignSystem/design-system.css`, loaded with the preview):
+  what a demo renders is styled under `.playground-preview` so it reads as a
+  real app, in both themes, without the demo importing anything. Tokens
+  (`--ds-text`, `--ds-text-muted`, `--ds-surface`, `--ds-border`,
+  `--ds-border-strong`, `--ds-accent`, `--ds-radius`, `--ds-space-*`,
+  `--ds-text-*`) and the preview's type (15px base, Infima's heading
+  variables); element styles for headings, `p`, `small`, links (in a heading
+  they keep its color with a faint underline), plain `button`s (`primary`
+  fills one with the accent), text inputs, `nav`, `fieldset`; and classes:
+  `appHeader` + `appTitle` (the app's bar), `card` (a lifted surface; holding
+  `listItem`s it loses its padding so their dividers reach its edges),
+  `listItem` (a row with a rule between siblings; `nogap`, `spaced`),
+  `meta` (secondary text), `byline` (avatar beside a name; `Avatar` takes a
+  `size`), `author` (name under avatar), plus the older `voteBlock`/`vote`
+  and `boardColumn`. Prefer a class or element style to a new component;
+  a new scope global goes in `preview/scope.ts`, `monaco/typeLibs.ts` and
+  `website/framework-docs/checkExamples.mjs`. Keep docs demos that use
+  these classes (grep `docs/` and `website/src/components/Demo/code`) in
+  mind when restyling one.
 - Store inspector open state persists per `groupId` via tab storage and
   avoids scroll jumps. In `row` layout it slides over the code from the
   preview's edge (portaled into a layer `EditorSurface` stacks on the code,

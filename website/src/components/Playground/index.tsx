@@ -1,7 +1,7 @@
 import Translate from '@docusaurus/Translate';
 import useIsomorphicLayoutEffect from '@docusaurus/useIsomorphicLayoutEffect';
 import clsx from 'clsx';
-import React, { lazy, useDeferredValue, useState } from 'react';
+import React, { lazy, useCallback, useDeferredValue, useState } from 'react';
 
 import Boundary from './Boundary';
 import { useCodeDocuments } from './editor/codeModel';
@@ -13,6 +13,7 @@ import type LivePreviewType from './preview/LivePreview';
 import PreviewWrapper from './preview/PreviewWrapper';
 import type { LogOptions } from './preview/store/actionLog';
 import {
+  CodeHeaderToggle,
   StoreBadge,
   StoreHeaderToggle,
   StoreToggle,
@@ -34,6 +35,12 @@ export interface PlaygroundProps<T = any> {
    * the Store opens by default (it would cover the code), or when the preview
    * renders a long list (it gets tall in the narrow column). */
   row?: boolean;
+  /** Preview first, at full width, with room for a realistic app; the code
+   * waits behind a Code toggle in its header (file tabs like `row`) and
+   * takes the preview's place while it shows. Use when the point is what
+   * happens on screen, not the code, or the app needs the room. The Store
+   * opens beside the result as when stacked; `row` is ignored. */
+  demo?: boolean;
   /** Inactive (e.g. unselected Demo tab): no Monaco until first shown, no preview */
   hidden?: boolean;
   fixtures?: FixtureOrInterceptor<T>[];
@@ -60,7 +67,8 @@ export default function Playground<T>({
   children,
   groupId = 'playground',
   defaultOpen = 'n',
-  row = false,
+  row: rowLayout = false,
+  demo = false,
   hidden = false,
   fixtures = [],
   getInitialInterceptorData,
@@ -76,6 +84,8 @@ export default function Playground<T>({
   // Defer preview transpilation so editor input remains responsive.
   const documents = useDeferredValue(model.documents);
 
+  // demo has a layout of its own
+  const row = rowLayout && !demo;
   const [storeOpen, toggleStore, showStore] = useStoreOpen(
     groupId,
     defaultOpen,
@@ -84,22 +94,41 @@ export default function Playground<T>({
   const [storeHost, setStoreHost] = useState<HTMLDivElement | null>(null);
   const codeCovered = row && storeOpen;
 
+  // Demo layout: the code takes the result's place while shown
+  const [codeShown, setCodeShown] = useState(false);
+  const toggleCode = useCallback(() => setCodeShown(shown => !shown), []);
+  // the Store lives with the result, so over the code its toggle brings the
+  // preview back along with what it says (Show Store, Hide Store)
+  const toggleStoreInPreview = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      setCodeShown(false);
+      toggleStore(event);
+    },
+    [toggleStore],
+  );
+
   // Hydrate Monaco on first show and keep it (preserves undo / go-to-def).
-  const [editorInteractive, setEditorInteractive] = useState(!hidden);
+  // A demo's code is first shown by its Code toggle.
+  const [editorInteractive, setEditorInteractive] = useState(!hidden && !demo);
   useIsomorphicLayoutEffect(() => {
-    if (!hidden) setEditorInteractive(true);
-  }, [hidden]);
+    if (!hidden && (!demo || codeShown)) setEditorInteractive(true);
+  }, [hidden, demo, codeShown]);
 
   const fixtureContent =
     fixtures.length ? <FixturePreview fixtures={fixtures} /> : undefined;
-  const previewFixtures = row ? fixtureContent : undefined;
+  const previewFixtures = row || demo ? fixtureContent : undefined;
 
   const editor = (
     <EditorShell>
       <EditorSurface
         {...model}
         interactive={editorInteractive}
-        layout={row ? 'row' : 'stacked'}
+        layout={
+          demo ? 'demo'
+          : row ?
+            'row'
+          : 'stacked'
+        }
         variant="playground"
         fixtureContent={fixtureContent}
         headerControls={headerControls}
@@ -116,8 +145,13 @@ export default function Playground<T>({
       />
     </EditorShell>
   );
+  // the demo layout's Code toggle; the code is there whether or not the live
+  // preview has loaded
+  const code = demo ? { codeShown, toggleCode } : undefined;
   // Live preview only while visible — unmounts when hidden (resets store).
-  const loading = <PreviewLoading row={row} fixtureContent={previewFixtures} />;
+  const loading = (
+    <PreviewLoading row={row} fixtureContent={previewFixtures} {...code} />
+  );
   const preview =
     hidden ? loading : (
       <Boundary fallback={loading}>
@@ -125,7 +159,7 @@ export default function Playground<T>({
           documents={documents}
           fixtureContent={previewFixtures}
           storeOpen={storeOpen}
-          toggleStore={toggleStore}
+          toggleStore={demo ? toggleStoreInPreview : toggleStore}
           row={row}
           storeHost={storeHost}
           fixtures={fixtures}
@@ -134,6 +168,7 @@ export default function Playground<T>({
           actionLog={actionLog}
           autoRun={autoRun}
           showStore={showStore}
+          {...code}
         />
       </Boundary>
     );
@@ -149,10 +184,20 @@ export default function Playground<T>({
       <div
         className={clsx(styles.playgroundContainer, {
           [styles.row]: row,
+          [styles.demo]: demo,
         })}
+        data-code={(demo && codeShown) || undefined}
       >
-        {editor}
-        {preview}
+        {demo ?
+          <>
+            {preview}
+            {editor}
+          </>
+        : <>
+            {editor}
+            {preview}
+          </>
+        }
       </div>
     </div>
   );
@@ -160,18 +205,30 @@ export default function Playground<T>({
 
 /** SSR, crawler, hidden and loading state: empty preview frame + Store
  * toggle (the side strip, unless the code's corner badge is it), and row's
- * fixtures, already usable */
+ * fixtures, already usable; so is a demo's Code toggle */
 function PreviewLoading({
   row,
   fixtureContent,
+  codeShown = false,
+  toggleCode,
 }: {
   row: boolean;
   fixtureContent?: React.ReactNode;
+  codeShown?: boolean;
+  toggleCode?: () => void;
 }) {
   return (
     <PreviewWrapper
-      headerControls={<StoreHeaderToggle />}
+      headerControls={
+        <>
+          <StoreHeaderToggle />
+          {toggleCode ?
+            <CodeHeaderToggle open={codeShown} onClick={toggleCode} />
+          : null}
+        </>
+      }
       fixtures={fixtureContent}
+      codeShown={toggleCode ? codeShown : undefined}
     >
       <div className={styles.playgroundPreview} />
       {row ? null : <StoreToggle />}

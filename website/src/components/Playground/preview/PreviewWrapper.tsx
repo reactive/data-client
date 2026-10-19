@@ -1,4 +1,4 @@
-import { translate } from '@docusaurus/Translate';
+import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, { useId, useState } from 'react';
 
@@ -13,6 +13,7 @@ export default function PreviewWrapper({
   headerControls,
   label,
   fixtures,
+  codeShown,
   ref,
 }: Props) {
   const [routerSlot, setRouterSlot] = useState<HTMLElement | null>(null);
@@ -22,14 +23,33 @@ export default function PreviewWrapper({
     id: 'playground.fixtures',
     message: 'Fixtures',
   });
+  const liveLabelNode = label ?? (
+    <span className={styles.liveLabel}>
+      <span className={styles.liveLabelText}>{liveLabel()}</span>
+    </span>
+  );
   return (
     <div className={styles.previewWrapper} ref={ref}>
       <Header className={styles.previewHeader}>
-        {label ?? (
-          <span className={styles.liveLabel}>
-            <span className={styles.liveLabelText}>{liveLabel()}</span>
+        {codeShown === undefined ?
+          liveLabelNode
+        : <span
+            className={clsx(styles.swap, styles.titleSwap, styles.labelSwap)}
+            data-swapped={codeShown || undefined}
+          >
+            <span aria-hidden={codeShown} inert={codeShown}>
+              {liveLabelNode}
+            </span>
+            <span aria-hidden={!codeShown}>
+              <Translate
+                id="theme.Playground.liveEditor"
+                description="The live editor label of the live codeblocks"
+              >
+                Editor
+              </Translate>
+            </span>
           </span>
-        )}
+        }
         <span className={styles.routerSlot} ref={setRouterSlot} />
         <span className={styles.previewControls}>
           {fixtures != null ?
@@ -77,5 +97,8 @@ interface Props {
   /** Mock responses to inspect over the result, from a network icon in the
    * header: previewed on hover, pinned open by a click or tap */
   fixtures?: React.ReactNode;
+  /** Demo layout: the header names the code ("Editor") in the label's place
+   * while it shows in the result's; `undefined` where the code never does */
+  codeShown?: boolean;
   ref?: React.Ref<HTMLDivElement>;
 }

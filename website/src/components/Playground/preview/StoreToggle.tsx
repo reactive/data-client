@@ -131,7 +131,7 @@ export function StoreBadge({
         <Translate id="playground.store">Store</Translate>
       </span>
       <span aria-hidden={!open}>
-        <CodeIcon />
+        <CodeIcon className={styles.storeBadgeCode} />
         <Translate id="playground.code">Code</Translate>
       </span>
     </button>
@@ -143,11 +143,42 @@ const toggleTitle = (open: boolean) =>
     translate({ id: 'playground.store.hide', message: 'Hide Store' })
   : translate({ id: 'playground.store.show', message: 'Show Store' });
 
+/** The Code toggle in the preview's header (the demo layout, ../index.tsx):
+ * pressed, the code takes the result's place */
+export function CodeHeaderToggle({
+  onClick,
+  open,
+}: {
+  onClick: () => void;
+  open: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      className={clsx(
+        'clean-btn',
+        styles.headerButton,
+        styles.codeHeaderToggle,
+      )}
+      title={
+        open ?
+          translate({ id: 'playground.code.hide', message: 'Hide code' })
+        : translate({ id: 'playground.code.show', message: 'Show code' })
+      }
+      aria-label={translate({ id: 'playground.code', message: 'Code' })}
+      aria-pressed={open}
+      onClick={onClick}
+    >
+      <CodeIcon />
+    </button>
+  );
+}
+
 /** Angle brackets around a slash */
-function CodeIcon() {
+function CodeIcon({ className }: { className?: string }) {
   return (
     <svg
-      className={styles.storeBadgeCode}
+      className={className}
       viewBox="0 0 24 24"
       width="1.15em"
       height="1.15em"

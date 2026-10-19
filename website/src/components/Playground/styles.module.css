@@ -533,6 +533,12 @@ div.playgroundTextEdit > .playgroundHeader,
   --swap-in: 100% 0;
   --swap-out: -40% 0;
 }
+/* the preview's label makes the same trade for "Editor" while the code
+   shows (demo layout); padding inside the clip keeps the dot's ring whole */
+.labelSwap {
+  margin: -6px;
+  padding: 6px;
+}
 
 /* live editor v3 */
 :global(.prism-code) {
@@ -650,10 +656,7 @@ div.playgroundTextEdit > .playgroundHeader,
     var(--ifm-color-emphasis-100) 50%
   );
 }
-:root .playgroundPreview {
-  --ifm-heading-margin-bottom: 0.3ex;
-  --ifm-heading-font-weight: 500;
-  --ifm-heading-line-height: 1.2;
+.playgroundPreview {
   overflow: auto;
 }
 /* The router's navigation indicator (preview/router.tsx): a 3px bar along
@@ -756,210 +759,8 @@ div.playgroundTextEdit > .playgroundHeader,
   text-overflow: ellipsis;
   opacity: 0.8;
 }
-/** DEMO STYLES
-* Place any styles needed for demos here
-*/
-.playgroundPreview button {
-  margin-bottom: 8px;
-  margin-right: 8px;
-  padding: 2px 6px;
-}
-/* Base skin for plain controls only; classed ones (DesignSystem rt-*, vote
-   arrows) keep their own chrome. :where() keeps specificity unchanged. */
-.playgroundPreview button:where(:not([class])),
-.playgroundPreview input[type='text']:where(:not([class])),
-.playgroundPreview textarea:where(:not([class])) {
-  border: 1px solid var(--ifm-color-emphasis-400);
-  border-radius: 6px;
-  background: var(--ifm-background-surface-color);
-  color: var(--ifm-font-color-base);
-  font: inherit;
-}
-.playgroundPreview button:where(:not([class])) {
-  padding: 0.3rem 0.8rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  line-height: 1.4;
-  cursor: pointer;
-}
-.playgroundPreview button:where(:not([class])):hover {
-  border-color: var(--ifm-color-primary);
-  color: var(--ifm-color-primary);
-}
-.playgroundPreview input[type='text']:where(:not([class])),
-.playgroundPreview textarea:where(:not([class])) {
-  padding: 0.3rem 0.5rem;
-}
-/* A demo's links between its pages (Link), the one shown marked as current */
-.playgroundPreview nav:where(:not([class])) {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1rem;
-  margin-bottom: 0.5rem;
-}
-.playgroundPreview nav a[aria-current='page'] {
-  color: var(--ifm-font-color-base);
-  font-weight: 600;
-  text-decoration: underline 2px var(--ifm-color-primary);
-  text-underline-offset: 0.35em;
-}
-/* Groups a form's fields so one `disabled` locks them all */
-.playgroundPreview fieldset {
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-.playgroundPreview fieldset:disabled,
-.playgroundPreview fieldset:disabled * {
-  cursor: progress;
-}
-/* While a form saves, a light traces its submit button's border */
-@property --pg-trace-angle {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
-}
-.playgroundPreview form[aria-busy='true'] button[type='submit'] {
-  /* 1px wider border, 1px less padding: same size, room for the light */
-  border: 2px solid transparent;
-  padding: calc(0.3rem - 1px) calc(0.8rem - 1px);
-  background:
-    linear-gradient(
-        var(--ifm-background-surface-color),
-        var(--ifm-background-surface-color)
-      )
-      padding-box,
-    conic-gradient(
-        from var(--pg-trace-angle),
-        var(--ifm-color-emphasis-200) 0 45%,
-        var(--ifm-color-primary) 75%,
-        var(--ifm-color-emphasis-200) 76%
-      )
-      border-box;
-  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 15%, transparent);
-  color: var(--ifm-color-primary);
-  animation: trace 1.2s linear infinite;
-}
-@keyframes trace {
-  to {
-    --pg-trace-angle: 360deg;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .playgroundPreview form[aria-busy='true'] button[type='submit'] {
-    animation: none;
-  }
-}
-.playgroundPreview input[type='checkbox'] {
-  width: 1rem;
-  height: 1rem;
-  vertical-align: -2px;
-  accent-color: var(--ifm-color-primary);
-}
-.playgroundPreview form input[type='text'] {
-  width: 100%;
-}
-.playgroundPreview form textarea {
-  width: 100%;
-}
-.playgroundPreview section {
-  margin-bottom: 2ex;
-}
-.playgroundPreview h4 + small {
-  display: block;
-}
-.playgroundPreview :global(.listItem) {
-  display: flex;
-  gap: 1em;
-}
-.playgroundPreview :global(.listItem.nogap) {
-  gap: 0;
-}
-.playgroundPreview :global(.listItem) > label {
-  flex: 1 1 100%;
-  line-height: 1.1;
-  margin-bottom: 4px;
-}
-.playgroundPreview :global(.listItem) > label input[type='text'] {
-  width: calc(100% - 21px);
-}
-.playgroundPreview :global(.listItem.spaced) {
-  display: flex;
-  gap: 1em;
-  margin-bottom: 10px;
-}
-.playgroundPreview :global(.author) {
-  text-align: center;
-}
-.playgroundPreview :global(.author) small {
-  display: block;
-  line-height: 1;
-}
-.playgroundPreview :global(.voteBlock) {
-  display: flex;
-  float: left;
-  gap: 0.5em;
-  margin-right: 0.5em;
-}
-.playgroundPreview :global(.vote) {
-  flex: 0 0 32px;
-  text-align: center;
-}
-.playgroundPreview :global(.vote .up):hover {
-  color: var(--ifm-color-primary);
-  background: url('../../../static/img/up-arrow-outline-hover.svg') no-repeat
-    center;
-}
-.playgroundPreview :global(.vote .up) {
-  border: none;
-  cursor: pointer;
-  width: 20px;
-  height: 20px;
-  margin-bottom: -8px;
-  margin-right: 0;
-  background: url('../../../static/img/up-arrow-outline.svg') no-repeat center;
-  display: inline-block;
-}
-.playgroundPreview :global(.boardColumn) {
-  background: var(--ifm-color-emphasis-100);
-  border-radius: var(--ifm-global-radius);
-  padding: 0.4rem;
-  margin-bottom: 0.5rem;
-}
-.playgroundPreview :global(.boardColumn) h4 {
-  margin: 0 0 0.3rem;
-  padding: 0 0.25rem;
-}
-.playgroundPreview :global(.boardColumn) :global(.listItem) {
-  background: var(--ifm-background-color);
-  border-radius: calc(var(--ifm-global-radius) * 0.75);
-  padding: 0.25rem 0.5rem;
-  margin-bottom: 0.3rem;
-}
-/* Dark: cards lift off the well-colored column, as light mode lifts white
-   cards off a grey one */
-:root[data-theme='dark']
-  .playgroundPreview
-  :global(.boardColumn)
-  :global(.listItem) {
-  background: hsl(229, 7%, 22%);
-}
-.playgroundPreview :global(.boardColumn) button {
-  margin: 0;
-  padding: 0 4px;
-  line-height: 1;
-  background: none;
-  border: none;
-  cursor: pointer;
-  opacity: 0.5;
-}
-.playgroundPreview :global(.boardColumn) button:hover {
-  opacity: 1;
-}
-.playgroundPreview p {
-  line-height: var(--ifm-heading-line-height);
-}
+/* Demo content (what demos render) is styled by the preview's design system,
+   DesignSystem/design-system.css, loaded with the preview */
 
 /* Endpoint chips shared by the Store inspector (store.module.css composes
    them) and the Fixtures panel: the method before a path, and a status pill */
@@ -1244,6 +1045,53 @@ div.fixtureJson + div.fixtureJson {
   }
 }
 
+/* Demo layout: the preview first, at the playground's full width, with room
+   for a realistic app; the code waits behind the Code toggle in the
+   preview's header and takes the result's place while it shows (`data-code`
+   on the container). Both keep one minimum height, so pages of the app and
+   the code trade places without moving the page under the reader. The Store
+   opens beside the result as in the stacked layout. */
+.playgroundContainer.demo {
+  --pg-demo-min: min(30rem, 80svh);
+  /* the fixtures hang from the header over whichever panel shows:
+     positioned by the container, so the preview's clip never cuts them */
+  position: relative;
+  background-color: var(--ifm-background-color);
+}
+.demo > .previewWrapper {
+  position: static;
+  border-radius: var(--ifm-global-radius);
+}
+.demo[data-code] > .previewWrapper {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.demo .playgroundPreview {
+  --pg-preview-pad: 1.25rem;
+  min-height: var(--pg-demo-min);
+}
+.demo[data-code] .playgroundResult {
+  display: none;
+}
+.demo > .playgroundTextEdit {
+  display: none;
+  min-height: var(--pg-demo-min);
+  background-color: var(--monoco-code-background);
+}
+.demo[data-code] > .playgroundTextEdit {
+  display: block;
+}
+/* under the preview's header, the file tabs are no longer the top corner */
+.playgroundContainer.demo > .playgroundTextEdit > .playgroundHeader {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+@container playground (min-width: 720px) {
+  .demo .playgroundPreview {
+    --pg-preview-pad: 2rem;
+  }
+}
+
 /* EndpointPlayground: left tab bar and right fixture headers share one height */
 .endpointPlayground .playgroundHeader {
   display: flex;
@@ -1404,8 +1252,10 @@ div.fixtureJson + div.fixtureJson {
 .headerButton.storeHeaderToggle {
   display: none;
 }
-/* the fixtures toggle (row) is lit the same while they show */
+/* the fixtures toggle (row) and the Code toggle (demo) are lit the same
+   while what they show does */
 .storeHeaderToggle[aria-pressed='true'],
+.codeHeaderToggle[aria-pressed='true'],
 .fixturesToggle[aria-expanded='true'],
 .previewHeader:has(+ .fixturesAnchor > .fixturesPopover:hover) .fixturesToggle {
   background-color: var(--pg-tab-hover-bg);

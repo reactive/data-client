@@ -1,10 +1,384 @@
-html[data-theme='light'] .playground-preview {
+/* The demos' design system: what a demo app is made of, so it reads as a
+   real app inside the preview (`.playground-preview`, ../preview/Preview.tsx)
+   rather than as bare markup. Loaded with the preview, so only demo content
+   is styled here; the preview's frame is in ../styles.module.css.
+
+   Tokens (`--ds-*`) on the preview, in both themes; element styles for
+   headings, text, links and plain controls; and classes for the pieces most
+   demos need (an app header, cards, lists with dividers, bylines). Add a
+   component (./index.ts) only for markup every demo would repeat. */
+.playground-preview {
+  /* type: one step down from the docs, like an app beside its prose */
+  --ds-text-sm: 0.8125rem;
+  --ds-text-base: 0.9375rem;
+  --ds-text-lg: 1.125rem;
+  --ds-text-xl: 1.375rem;
+  --ds-space-1: 0.25rem;
+  --ds-space-2: 0.5rem;
+  --ds-space-3: 0.75rem;
+  --ds-space-4: 1rem;
+  --ds-space-5: 1.5rem;
+  --ds-radius: 10px;
+  --ds-radius-sm: 6px;
+  --ds-text: var(--ifm-font-color-base);
+  --ds-text-muted: var(--ifm-color-emphasis-700);
+  /* a card over the preview's ground */
+  --ds-surface: var(--ifm-background-color);
+  --ds-border: var(--ifm-color-emphasis-300);
+  /* 3:1 on both the surface and the ground, so field edges stay legible */
+  --ds-border-strong: var(--ifm-color-emphasis-400);
+  --ds-accent: var(--ifm-link-color);
+  --ds-accent-strong: var(--ifm-color-primary-darker);
+  --ds-on-accent: #fff;
+  --ds-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   --ifm-color-formfield-active: var(--ifm-link-color);
+  /* Infima's headings read these */
+  --ifm-h1-font-size: var(--ds-text-xl);
+  --ifm-h2-font-size: var(--ds-text-xl);
+  --ifm-h3-font-size: var(--ds-text-lg);
+  --ifm-h4-font-size: 1rem;
+  --ifm-heading-font-weight: 600;
+  --ifm-heading-line-height: 1.25;
+  --ifm-heading-margin-bottom: var(--ds-space-1);
+  --ifm-paragraph-margin-bottom: var(--ds-space-3);
+  font-size: var(--ds-text-base);
+  line-height: 1.5;
+  color: var(--ds-text);
 }
 html[data-theme='dark'] .playground-preview {
-  --ifm-color-formfield-active: var(--ifm-link-color);
+  --ds-text: #e3e8f2;
+  --ds-text-muted: hsl(229, 12%, 72%);
+  /* a step above the preview's slate (--pg-preview-bg) */
+  --ds-surface: hsl(229, 7%, 23%);
+  --ds-border: rgba(255, 255, 255, 0.1);
+  --ds-accent-strong: var(--ifm-color-primary-lighter);
+  --ds-shadow: none;
 }
 
+/* Text */
+.playground-preview h1,
+.playground-preview h2,
+.playground-preview h3 {
+  letter-spacing: -0.01em;
+}
+.playground-preview p {
+  line-height: 1.5;
+}
+.playground-preview small,
+.playground-preview .meta {
+  font-size: var(--ds-text-sm);
+  color: var(--ds-text-muted);
+}
+.playground-preview h4 + small {
+  display: block;
+}
+.playground-preview section {
+  margin-bottom: var(--ds-space-5);
+}
+.playground-preview section:last-child {
+  margin-bottom: 0;
+}
+
+/* Links: accent-colored; in a heading they keep its color, with a faint
+   underline that fills on hover, so a title that opens a page still shows it */
+.playground-preview a {
+  color: var(--ds-accent);
+  text-decoration: none;
+}
+.playground-preview a:hover,
+.playground-preview a:focus-visible {
+  text-decoration: underline;
+}
+.playground-preview :is(h1, h2, h3, h4) a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
+  text-underline-offset: 0.15em;
+}
+.playground-preview :is(h1, h2, h3, h4) a:hover,
+.playground-preview :is(h1, h2, h3, h4) a:focus-visible {
+  text-decoration-color: currentColor;
+}
+
+/* The app's header: its title at the left, its navigation or actions at
+   the right, ruled off from the page */
+.playground-preview .appHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--ds-space-2) var(--ds-space-4);
+  margin-bottom: var(--ds-space-4);
+  padding-bottom: var(--ds-space-3);
+  border-bottom: 1px solid var(--ds-border);
+}
+.playground-preview .appTitle {
+  margin: 0;
+  font-size: var(--ds-text-lg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.playground-preview .appHeader nav {
+  margin-bottom: 0;
+}
+.playground-preview .appHeader button {
+  margin: 0;
+}
+
+/* A card: a surface lifted off the ground. Holding list items, it has no
+   padding of its own and the items take the room, so their dividers reach
+   its edges. Infima's .card is a flex column with a shadow; this replaces it */
+.playground-preview .card {
+  display: block;
+  overflow: visible;
+  margin-bottom: var(--ds-space-4);
+  padding: var(--ds-space-4);
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius);
+  box-shadow: var(--ds-shadow);
+}
+.playground-preview .card:has(> .listItem) {
+  padding: 0;
+}
+.playground-preview .card > .listItem {
+  padding: var(--ds-space-3) var(--ds-space-4);
+}
+.playground-preview .card > :last-child {
+  margin-bottom: 0;
+}
+
+/* A list's rows: side by side (an avatar, a checkbox, then the text), a
+   rule between them */
+.playground-preview .listItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ds-space-3);
+  padding: var(--ds-space-2) 0;
+}
+.playground-preview .listItem + .listItem {
+  border-top: 1px solid var(--ds-border);
+}
+.playground-preview .listItem > * {
+  min-width: 0;
+}
+.playground-preview .listItem p:last-child {
+  margin-bottom: 0;
+}
+.playground-preview .listItem.nogap {
+  align-items: center;
+  gap: 0;
+}
+/* kept for the demos written before rows had rules of their own */
+.playground-preview .listItem.spaced {
+  gap: 1em;
+}
+.playground-preview .listItem > label {
+  flex: 1 1 100%;
+  line-height: 1.1;
+}
+.playground-preview .listItem > label input[type='text'] {
+  width: calc(100% - 21px);
+}
+/* An avatar with a name: beside each other in a row (a comment's author), or
+   the name under it (`author`, a post's) */
+.playground-preview .byline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-space-2);
+  font-size: var(--ds-text-sm);
+  color: var(--ds-text-muted);
+}
+.playground-preview .byline b,
+.playground-preview .byline strong {
+  color: var(--ds-text);
+  font-weight: 500;
+}
+.playground-preview .author {
+  flex: none;
+  text-align: center;
+}
+.playground-preview .author small {
+  display: block;
+  line-height: 1.2;
+}
+
+/* Controls. Base skin for plain ones and `primary` only; classed ones
+   (rt-*, vote arrows) keep their own chrome. :where() keeps specificity
+   unchanged, so a demo's own class wins. */
+.playground-preview button {
+  margin-bottom: 8px;
+  margin-right: 8px;
+  padding: 2px 6px;
+}
+.playground-preview button:where(:not([class]), .primary),
+.playground-preview input[type='text']:where(:not([class])),
+.playground-preview textarea:where(:not([class])) {
+  border: 1px solid var(--ds-border-strong);
+  border-radius: var(--ds-radius-sm);
+  background: var(--ds-surface);
+  color: var(--ds-text);
+  font: inherit;
+}
+.playground-preview button:where(:not([class]), .primary) {
+  padding: 0.375rem 0.875rem;
+  font-size: var(--ds-text-sm);
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-snappy),
+    border-color var(--motion-snappy),
+    color var(--motion-snappy);
+}
+.playground-preview button:where(:not([class])):hover {
+  border-color: var(--ds-accent);
+  color: var(--ds-accent);
+}
+.playground-preview button:where(:not([class]), .primary):focus-visible {
+  outline: 2px solid var(--ds-accent);
+  outline-offset: 2px;
+}
+/* the one action a page is for */
+.playground-preview button.primary {
+  background: var(--ds-accent);
+  border-color: var(--ds-accent);
+  color: var(--ds-on-accent);
+}
+.playground-preview button.primary:hover {
+  background: var(--ds-accent-strong);
+  border-color: var(--ds-accent-strong);
+}
+.playground-preview input[type='text']:where(:not([class])),
+.playground-preview textarea:where(:not([class])) {
+  padding: 0.3rem 0.5rem;
+}
+/* A demo's links between its pages (Link), the one shown marked as current */
+.playground-preview nav:where(:not([class])) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-bottom: 0.5rem;
+}
+.playground-preview nav a[aria-current='page'] {
+  color: var(--ds-text);
+  font-weight: 600;
+  text-decoration: underline 2px var(--ds-accent);
+  text-underline-offset: 0.35em;
+}
+/* Groups a form's fields so one `disabled` locks them all */
+.playground-preview fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.playground-preview fieldset:disabled,
+.playground-preview fieldset:disabled * {
+  cursor: progress;
+}
+/* While a form saves, a light traces its submit button's border */
+@property --pg-trace-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+.playground-preview form[aria-busy='true'] button[type='submit'] {
+  /* 1px wider border, 1px less padding: same size, room for the light */
+  border: 2px solid transparent;
+  padding: calc(0.375rem - 1px) calc(0.875rem - 1px);
+  background:
+    linear-gradient(var(--ds-surface), var(--ds-surface)) padding-box,
+    conic-gradient(
+        from var(--pg-trace-angle),
+        var(--ifm-color-emphasis-200) 0 45%,
+        var(--ifm-color-primary) 75%,
+        var(--ifm-color-emphasis-200) 76%
+      )
+      border-box;
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 15%, transparent);
+  color: var(--ifm-color-primary);
+  animation: trace 1.2s linear infinite;
+}
+@keyframes trace {
+  to {
+    --pg-trace-angle: 360deg;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .playground-preview form[aria-busy='true'] button[type='submit'] {
+    animation: none;
+  }
+}
+.playground-preview input[type='checkbox'] {
+  width: 1rem;
+  height: 1rem;
+  vertical-align: -2px;
+  accent-color: var(--ifm-color-primary);
+}
+.playground-preview form input[type='text'],
+.playground-preview form textarea {
+  width: 100%;
+}
+
+/* Votes (docs/core/shared/_VoteDemo.mdx) */
+.playground-preview .voteBlock {
+  display: flex;
+  float: left;
+  gap: 0.5em;
+  margin-right: 0.5em;
+}
+.playground-preview .vote {
+  flex: 0 0 32px;
+  text-align: center;
+}
+.playground-preview .vote .up:hover {
+  color: var(--ifm-color-primary);
+  background: url('../../../../static/img/up-arrow-outline-hover.svg') no-repeat
+    center;
+}
+.playground-preview .vote .up {
+  border: none;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  margin-bottom: -8px;
+  margin-right: 0;
+  background: url('../../../../static/img/up-arrow-outline.svg') no-repeat
+    center;
+  display: inline-block;
+}
+/* A board's columns (RestEndpoint's move demo): wells holding cards */
+.playground-preview .boardColumn {
+  background: var(--ifm-color-emphasis-100);
+  border-radius: var(--ds-radius);
+  padding: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+.playground-preview .boardColumn h4 {
+  margin: 0 0 0.3rem;
+  padding: 0 0.25rem;
+}
+.playground-preview .boardColumn .listItem {
+  align-items: center;
+  background: var(--ds-surface);
+  border: 0;
+  border-radius: var(--ds-radius-sm);
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 0.3rem;
+}
+.playground-preview .boardColumn button {
+  margin: 0;
+  padding: 0 4px;
+  line-height: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.5;
+}
+.playground-preview .boardColumn button:hover {
+  opacity: 1;
+}
 /* Root container for the text field */
 .rt-TextFieldRoot {
   display: flex;
