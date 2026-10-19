@@ -1,4 +1,5 @@
 ---
+agent_setup: true
 title: Introducing the Reactive Data Client
 vue_title: Introducing the Reactive Data Client for Vue
 sidebar_label: Introduction

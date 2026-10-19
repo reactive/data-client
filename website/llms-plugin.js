@@ -210,20 +210,18 @@ If the app already has \`@data-client\` packages, run \`${linkCommand}\` instead
             // Docusaurus falls back to the first paragraph, often a fragment
             description: doc.frontMatter.description,
             md: mdRoute(doc.permalink),
+            setup: doc.frontMatter.agent_setup,
             content: render(id, doc, framework),
           })),
         }));
 
       /**
-       * Agents often land on one page from a search, so each page's markdown
-       * names the setup steps under its title (llms-full.txt has them once,
-       * in its header)
+       * Pages agents load to set up Data Client (front matter `agent_setup`)
+       * name the setup steps under their title; llms.txt has them in its header
        */
       const setupNote = `> ${setupStep} If the app already has \`@data-client\` packages, run \`${linkCommand}\` to link the skills they ship.`;
       const withSetup = content =>
-        content.includes(setupCommand) ? content : (
-          content.replace(/^(# .*\n)?\n*/, `$1\n${setupNote}\n\n`).trimStart()
-        );
+        content.replace(/^(# .*\n)?\n*/, `$1\n${setupNote}\n\n`).trimStart();
 
       /** instance id -> sections in its own framework (shared: the default) */
       const rendered = new Map();
@@ -234,7 +232,7 @@ If the app already has \`@data-client\` packages, run \`${linkCommand}\` instead
         );
         rendered.set(instance.id, sections);
         for (const page of sections.flatMap(s => s.pages))
-          write(page.md, withSetup(page.content));
+          write(page.md, page.setup ? withSetup(page.content) : page.content);
         // each shared package also gets its own, for agents that only need its API
         if (!instance.framework) writeLlms(instance, sections);
       }
