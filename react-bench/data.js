@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792329688846,
+  "lastUpdate": 1792428454031,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -10505,6 +10505,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 190.49,
             "range": "± 7.6%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "dc61f24185a12d1e13323d397a0514ec925bdb3c",
+          "message": "docs: Note Vue's mounted useSuspense keeps data after invalidate (#4411)\n\n* docs: Note Vue's mounted useSuspense keeps data after invalidate\n\nVue can't re-suspend a mounted component, so useSuspense keeps returning\nits current data while an invalidated endpoint refetches. Add that\ncarve-out to the invalidate/invalidateAll JSDoc, the useSuspense\nbehavior table, and Controller's ExpiryStatus.Invalid notes.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Tj5PXbDEpJbnwML9CXTHFb\n\n* chore: Regenerate website editor types\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Tj5PXbDEpJbnwML9CXTHFb\n\n* docs: Tighten Vue invalidate carve-outs\n\nFold the Vue caveat into the invalidate JSDoc's first sentence and point\nthe footnotes at expiry-policy instead of restating the reason.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Tj5PXbDEpJbnwML9CXTHFb\n\n* docs: Show how to re-suspend a Vue component after invalidate\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Tj5PXbDEpJbnwML9CXTHFb\n\n* docs: Name the Vue remount key for its purpose\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Tj5PXbDEpJbnwML9CXTHFb\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-19T16:43:31Z",
+          "tree_id": "46ba51e4983ed13c9f32c68e736ee4c6f9b083a2",
+          "url": "https://github.com/reactive/data-client/commit/dc61f24185a12d1e13323d397a0514ec925bdb3c"
+        },
+        "date": 1792428450690,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 194.19,
+            "range": "± 7.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 76.92,
+            "range": "± 4.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 555.56,
+            "range": "± 9.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 666.67,
+            "range": "± 10.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 74.36,
+            "range": "± 8.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 513.16,
+            "range": "± 9.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 555.56,
+            "range": "± 8.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 20.86,
+            "range": "± 10.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 111.12,
+            "range": "± 17.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 59.53,
+            "range": "± 6.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 339.08,
+            "range": "± 5.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 540.94,
+            "range": "± 12.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 270.27,
+            "range": "± 6.1%",
             "unit": "ops/s"
           }
         ]
