@@ -36,6 +36,7 @@
 /* exact numbers, revealed on hover, tap or keyboard focus */
 .tip {
   composes: tip from './tips.module.css';
+  /* overlap the cell's top padding, past the shared 6px pad */
   bottom: calc(100% - 0.875rem);
   left: 50%;
   translate: -50%;

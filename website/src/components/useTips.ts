@@ -6,7 +6,9 @@ import styles from './tips.module.css';
 /**
  * Tooltips shown on hover, keyboard focus or a tap, so touch screens get what
  * hover gives desktop: one pinned at a time, and Escape hides them all until
- * the pointer next enters or presses one, or focus lands on one.
+ * the pointer next enters or presses one, or focus lands on one. An anchor
+ * whose tip holds a link must render its control as its first `a` or
+ * `button`, where Escape returns focus from the link.
  */
 export default function useTips<K>() {
   const [open, setOpen] = useState<K | null>(null);
@@ -59,3 +61,5 @@ export default function useTips<K>() {
     }),
   };
 }
+
+export type Tips<K> = ReturnType<typeof useTips<K>>;

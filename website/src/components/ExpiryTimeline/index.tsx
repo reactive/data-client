@@ -6,7 +6,7 @@ import splitAtHeadings from './splitAtHeadings';
 import styles from './styles.module.css';
 import StoreIcon from '../Playground/StoreIcon';
 import tipStyles from '../tips.module.css';
-import useTips from '../useTips';
+import useTips, { type Tips } from '../useTips';
 
 const ZONES = ['fresh', 'stale', 'invalid'] as const;
 /** The invalidIfStale switch's tooltip, after the three columns' */
@@ -309,8 +309,6 @@ function Bars({ x, y, widths }: { x: number; y: number; widths: number[] }) {
   ));
 }
 
-type Tips = ReturnType<typeof useTips<number>>;
-
 interface ControlProps {
   'aria-describedby': string;
   onPointerDown: (e: React.PointerEvent) => void;
@@ -331,7 +329,7 @@ function Tip({
   align,
   children,
 }: {
-  tips: Tips;
+  tips: Tips<number>;
   index: number;
   tip: string;
   href: string;
