@@ -23,9 +23,10 @@ to `.cursor/mcp.json` (see its Install section) and use that instead.
    as an empty object.
 
    Do not send `Page.reload`. It reloads the Cursor window. Open the page again with `browser_navigate`.
-3. Read requests with `browser_network_requests` when the tool list includes it. Otherwise run
-   `performance.getEntriesByType('resource')` the same way as step 2 for request URLs and durations. Its
-   `responseStatus` is `0` for cross-origin APIs and it can miss blocked requests, so check failures in the
+3. Read requests with `browser_network_requests` when the tool list includes it. Otherwise run this the same way as step 2 for
+   request URLs, durations and statuses (the entries' fields are getters, so map them to plain objects):
+   `() => performance.getEntriesByType('resource').map(e => ({ url: e.name, duration: e.duration, status: e.responseStatus }))`.
+   `responseStatus` is `0` when CORS blocks the response, and blocked requests can be missing, so check failures in the
    endpoint's `meta` error ([devtools-debugging](./devtools-debugging.md), Step 3) instead.
 4. Read logs with `browser_console_messages` when listed. Otherwise read the browser log files Cursor writes for
    the session.
