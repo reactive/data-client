@@ -75,10 +75,17 @@ function skillsDirs(projectDir) {
   const shared = path.join(projectDir, '.agents', 'skills');
   if ([path.dirname(shared), path.dirname(claude)].some(isLink)) return;
   const stat = fs.lstatSync(claude, { throwIfNoEntry: false });
-  if (stat?.isDirectory())
-    return fs.lstatSync(shared, { throwIfNoEntry: false })?.isDirectory() ?
+  if (stat?.isDirectory()) {
+    const sharedStat = fs.lstatSync(shared, { throwIfNoEntry: false });
+    // .claude/skills links into .agents/skills even after someone deleted it
+    // (the junction warning says to): recreate it rather than link it to
+    // .claude/skills, which would make those links circular
+    return (
+        sharedStat?.isDirectory() || (!sharedStat && linksInto(claude, shared))
+      ) ?
         { dest: shared, other: claude, mirror: claude }
       : { dest: claude, other: shared };
+  }
   if (isLink(shared)) return;
   // a committed .claude/skills link checks out as a file without
   // core.symlinks; .agents/skills still serves Codex and Cursor
@@ -87,6 +94,19 @@ function skillsDirs(projectDir) {
   return target === shared || sameDir(claude, shared) ?
       { dest: shared, other: claude }
     : undefined;
+}
+
+/** Whether any entry of `dir` links into `target` */
+function linksInto(dir, target) {
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
+    .some(
+      entry =>
+        entry.isSymbolicLink() &&
+        path.dirname(
+          path.resolve(dir, fs.readlinkSync(path.join(dir, entry.name))),
+        ) === target,
+    );
 }
 
 /** A junction holds an absolute path, which may differ from `shared` in casing or a linked parent */
