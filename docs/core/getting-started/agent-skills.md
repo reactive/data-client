@@ -40,7 +40,7 @@ To install every skill for your framework now instead, without letting your agen
 The **Installed packages** tab links the skills each installed `@data-client/*` package ships into `.agents/skills`
 (with `.claude/skills` linking to it), where Claude Code, Cursor and Codex load them, matched to that package's version. Commit the links. They follow upgrades,
 and running it again picks up skills from packages you add or upgrade. On Windows, commit the links only with Developer Mode on and
-`git config core.symlinks true`; otherwise leave them uncommitted and rerun the command after installing. The Claude Code plugin sets up apps that don't have Data
+`git config core.symlinks true`; otherwise leave them uncommitted and rerun the command after installing. The Claude Code, Cursor and Codex plugins set up apps that don't have Data
 Client yet. If you use [TanStack Intent](https://tanstack.com/intent), it loads the same package skills.
 
 ### Available Skills

@@ -39,16 +39,19 @@ const commitsAll =
     command.replace(/"(?:\\.|[^"\\])*"|'[^']*'/g, "''"),
   );
 
-/** Docs some skill renders, and skills another bundles */
-let skillDocs, bundledSkills;
+/** Docs some skill renders, source files it copies, and skills another bundles */
+let skillDocs, skillFiles, bundledSkills;
 function readManifests() {
   const skills = path.join(projectDir, '.agents/skills');
-  const manifests = fs
-    .readdirSync(skills)
+  // checks every changed file, so tolerate checkouts without skills
+  const manifests = (fs.existsSync(skills) ? fs.readdirSync(skills) : [])
     .map(skill => path.join(skills, skill, 'references.json'))
     .filter(manifest => fs.existsSync(manifest))
     .map(manifest => JSON.parse(fs.readFileSync(manifest, 'utf8')));
   skillDocs = new Set(manifests.flatMap(({ docs }) => Object.values(docs)));
+  skillFiles = new Set(
+    manifests.flatMap(({ files = {} }) => Object.values(files)),
+  );
   bundledSkills = new Set(manifests.flatMap(({ skills = [] }) => skills));
 }
 /** partials (`_foo.mdx`) may be inlined anywhere */
@@ -57,6 +60,11 @@ function isSkillDoc(file) {
   if (path.basename(file).startsWith('_')) return true;
   if (!skillDocs) readManifests();
   return skillDocs.has(file.replace(/\.(react|vue)(\.mdx?)$/, '$2'));
+}
+/** source files a skill's references.json `files` copies in */
+function isSkillSourceFile(file) {
+  if (!skillFiles) readManifests();
+  return skillFiles.has(file);
 }
 /** any file of a bundled skill is copied into the skill bundling it */
 function isBundledSkillFile(file) {
@@ -67,6 +75,7 @@ function isBundledSkillFile(file) {
 }
 const isSkillInput = file =>
   isSkillDoc(file) ||
+  isSkillSourceFile(file) ||
   /^\.agents\/skills\/[^/]+\/(references\.json|SKILL\.md)$/.test(file) ||
   isBundledSkillFile(file) ||
   file.startsWith('website/framework-docs/');
@@ -213,7 +222,7 @@ const message = [
   // dead links, missing variant notes or bad manifests
   ...regenerate({
     what: 'Skill references',
-    from: 'docs',
+    from: 'docs or source',
     script: 'website/framework-docs/skillReferences.mjs',
     command: 'yarn build:skills',
     isInput: isSkillInput,

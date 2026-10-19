@@ -14,7 +14,7 @@ workflows instead of guessing from older releases. This release cycle makes that
 
 **New:**
 
-- [Claude Code plugin](/blog/2026/10/06/coding-agents#claude-plugin) - `claude plugin install data-client@data-client` gives your agent the skills for the version you installed
+- [Claude Code, Cursor and Codex plugins](/blog/2026/10/06/coding-agents#plugins) - `claude plugin install data-client@data-client` gives your agent the skills for the version you installed
 - [Vue skills](/blog/2026/10/06/coding-agents#vue-skills) - Vue projects get Vue composables and tests, not React hooks
 - [llms.txt](/blog/2026/10/06/coding-agents#llms-txt) - Any agent can read the docs as markdown, and every page tells it where to look
 - [Skills in the packages](/blog/2026/10/06/coding-agents#npm-skills) - Each `@data-client/*` package ships the skills for its version, linked into `.agents/skills` with one command
@@ -39,7 +39,7 @@ axios calls to endpoints ([#4153](https://github.com/reactive/data-client/pull/4
 
 [Agent Skills](/docs/getting-started/agent-skills) lists every skill and how to install them all up front.
 
-## Claude Code plugin {#claude-plugin}
+## Claude Code, Cursor and Codex plugins {#plugins}
 
 The Data Client repo is a Claude Code plugin marketplace with one `data-client` plugin. Before Data Client is installed,
 it sets your app up. After that, it points your agent at the skills that ship inside your `@data-client` packages, so a
@@ -49,6 +49,21 @@ React app gets the React skills and a Vue app the Vue ones, each for the version
 ```bash
 claude plugin marketplace add reactive/data-client
 claude plugin install data-client@data-client
+```
+
+Codex installs the same plugin from the same marketplace
+([#4425](https://github.com/reactive/data-client/pull/4425)):
+
+```bash
+codex plugin marketplace add reactive/data-client \
+  --sparse .claude-plugin --sparse .agents/skills
+codex plugin add data-client@data-client
+```
+
+In Cursor, add it from an Agent chat:
+
+```prompt title="Cursor"
+/add-plugin data-client@https://github.com/reactive/data-client
 ```
 
 ## Vue skills {#vue-skills}

@@ -3,6 +3,7 @@ import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import React from 'react';
 
+import AgentPrompt from './AgentPrompt';
 import styles from './SkillTabs.module.css';
 import useFramework from './useFramework';
 import skillPackages from '../../../.agents/skill-packages.json';
@@ -34,9 +35,11 @@ export default function SkillTabs({
     { repo, skill, skills, packages, framework },
     { skillPackages, setupSkills: setupReferences.skills, plugin },
   );
-  // Claude Code's own installer first, then skills that update with the packages
+  // agents' own plugin installers first, then skills that update with the packages
   const tabs = [
     { label: 'Claude Code plugin', value: 'claude', code: commands.claude },
+    { label: 'Cursor plugin', value: 'cursor', code: commands.cursor },
+    { label: 'Codex plugin', value: 'codex', code: commands.codex },
     { label: 'Installed packages', value: 'packages', code: commands.packages },
     { label: 'Skills CLI', value: 'skills', code: commands.skillsCli },
     { label: 'OpenSkills', value: 'openskills', code: commands.openSkills },
@@ -50,9 +53,13 @@ export default function SkillTabs({
     >
       {tabs.map(({ value, code }) => (
         <TabItem key={value} value={value}>
-          <CodeBlock className="language-bash" metastring={metastring}>
-            {code}
-          </CodeBlock>
+          {/* typed into Cursor's Agent chat, not a terminal */}
+          {value === 'cursor' ?
+            <AgentPrompt prompt={code} title="Cursor" framed={framed} />
+          : <CodeBlock className="language-bash" metastring={metastring}>
+              {code}
+            </CodeBlock>
+          }
         </TabItem>
       ))}
     </Tabs>

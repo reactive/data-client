@@ -14,6 +14,7 @@ on:
       - '.cursor/hooks/**'
       - '.claude-plugin/**'
       - 'packages/core/agents/**'
+      - '.cursor-plugin/**'
       - '.agents/skill-packages.json'
       - 'scripts/agent-rules.mjs'
       - 'scripts/breaking-evals.mjs'
