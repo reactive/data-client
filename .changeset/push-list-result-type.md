@@ -9,7 +9,7 @@
 
 Fix the result type of [Controller.fetch()](https://dataclient.io/docs/api/Controller#fetch) when pushing several items at once
 
-Sending an array to [RestEndpoint.push](https://dataclient.io/rest/api/RestEndpoint#push) or `unshift` resolves the created items as an array, but its type was one item, so reading the array was a TypeScript error while `created.id` compiled and was `undefined` at runtime. It is now typed as an array. A single item, `FormData`, or a body typed `any` still resolves one item.
+Sending an array to [RestEndpoint.push](https://dataclient.io/rest/api/RestEndpoint#push) or `unshift` resolves the created items as an array, but its type was one item, so reading the array was a TypeScript error while `created.id` compiled and was `undefined` at runtime. It is now typed as an array. A single item, `FormData`, or a body typed `any` still resolves one item. On a polymorphic Collection, each item is typed as one of its entities (like `Todo | Group`), instead of the shape of the entity map.
 
 ```ts
 // Before: TypeScript error, since the result was typed as one Todo

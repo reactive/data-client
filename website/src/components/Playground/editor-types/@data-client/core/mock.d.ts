@@ -511,14 +511,15 @@ type AdderArgs<E extends (...args: any) => any, A> = E extends {
 } ? [
     Extract<Parameters<E>, ListBodyArgs>
 ] extends [never] ? NoCall : KeepUnion<A> : NoCall;
+type SchemaResult<E> = E extends {
+    schema: infer S;
+} ? Denormalize$1<S> : never;
 interface ControllerFetch {
     /**
      * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
      * @see https://dataclient.io/docs/api/Controller#fetch
      */
-    <E extends (...args: any) => any>(endpoint: E, ...args: AdderArgs<E, Exclude<Parameters<E>, ListBodyArgs>>): Promise<E extends {
-        schema: infer S;
-    } ? Denormalize$1<S> : never>;
+    <E extends (...args: any) => any>(endpoint: E, ...args: AdderArgs<E, Exclude<Parameters<E>, ListBodyArgs>>): Promise<SchemaResult<E>>;
     /**
      * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
      *
@@ -529,9 +530,7 @@ interface ControllerFetch {
         schema: {
             _denormalizeList(): infer L;
         };
-    } ? L : E extends {
-        schema: infer S;
-    } ? Denormalize$1<S> : never>;
+    } ? L : SchemaResult<E>>;
     /**
      * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
      * @see https://dataclient.io/docs/api/Controller#fetch

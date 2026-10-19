@@ -154,16 +154,21 @@ export async function polymorphic() {
   expectType<(Todo | Group)[]>()(added, true);
   const one = await ctrl.fetch(members.push, { name: 'a' });
   expectType<Todo | Group>()(one, true);
+  const unshifted = await ctrl.fetch(members.unshift, [{ name: 'a' }]);
+  expectType<(Todo | Group)[]>()(unshifted, true);
+  expectType<Todo | Group>()(
+    {} as Denormalize<typeof members.schema.push>,
+    true,
+  );
 }
 
-export async function mixedUnion(pickPush: boolean) {
+export async function unionKeepsNonAdderResult(pickPush: boolean) {
   const summary = new RestEndpoint({
     path: '/todos/summary',
     method: 'POST',
     body: [] as Partial<Todo>[],
     schema: { count: '' },
   });
-  // a non-adder in the union keeps its own result
   const result = await ctrl.fetch(
     pickPush ? TodoResource.getList.push : summary,
     [{ title: 'a' }],

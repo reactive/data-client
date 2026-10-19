@@ -51,6 +51,8 @@ type AdderArgs<E extends (...args: any) => any, A> =
     : KeepUnion<A>
   : NoCall;
 
+type SchemaResult<E> = E extends { schema: infer S } ? Denormalize<S> : never;
+
 export interface ControllerFetch {
   /**
    * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
@@ -61,7 +63,7 @@ export interface ControllerFetch {
     // a single (or `any`) body on an endpoint that adds to a list;
     // other endpoints skip this signature by arity, so their errors stay those of the last one
     ...args: AdderArgs<E, Exclude<Parameters<E>, ListBodyArgs>>
-  ): Promise<E extends { schema: infer S } ? Denormalize<S> : never>;
+  ): Promise<SchemaResult<E>>;
   /**
    * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
    *
@@ -72,9 +74,7 @@ export interface ControllerFetch {
     endpoint: E,
     ...args: AdderArgs<E, Extract<Parameters<E>, ListBodyArgs>>
   ): Promise<
-    E extends { schema: { _denormalizeList(): infer L } } ? L
-    : E extends { schema: infer S } ? Denormalize<S>
-    : never
+    E extends { schema: { _denormalizeList(): infer L } } ? L : SchemaResult<E>
   >;
   /**
    * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
