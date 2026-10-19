@@ -19,6 +19,7 @@ import { visit } from 'unist-util-visit';
 import { parseMarkdown } from './parseMarkdown.mjs';
 import providerSetup from './providerSetup.mjs';
 import { ROOT, SITE, rel } from './site.mjs';
+import skillCommands from './skillCommands.mjs';
 
 const require = createRequire(import.meta.url);
 const {
@@ -232,14 +233,6 @@ function jsxText(children, props, file) {
 const marketplace = JSON.parse(
   fs.readFileSync(path.join(ROOT, '.claude-plugin/marketplace.json'), 'utf8'),
 );
-/** Skill names of a marketplace plugin, after those of its dependencies */
-function pluginSkills(name) {
-  const plugin = marketplace.plugins.find(p => p.name === name);
-  return [
-    ...(plugin.dependencies ?? []).flatMap(pluginSkills),
-    ...plugin.skills.map(s => path.basename(s)),
-  ];
-}
 
 const ADMONITIONS = ['note', 'tip', 'info', 'warning', 'danger', 'caution'];
 /** Inline HTML with a markdown equivalent */
@@ -412,20 +405,8 @@ function render(file, framework, props = {}, drop = DROP) {
         ];
       // the Skills CLI tab of website/src/components/SkillTabs.tsx
       case 'SkillTabs': {
-        const skills =
-          attrs.skills ??
-          (attrs.skill ?
-            [attrs.skill]
-          : pluginSkills(attrs.plugin ?? framework));
-        return [
-          codeBlock({
-            lang: 'bash',
-            value: [
-              `npx skills add ${attrs.repo ?? 'reactive/data-client'}`,
-              ...skills.map(s => `--skill ${s}`),
-            ].join(' \\\n  '),
-          }),
-        ];
+        const { skills } = skillCommands({ ...attrs, framework }, marketplace);
+        return [codeBlock({ lang: 'bash', value: skills })];
       }
       case 'PkgTabs':
       case 'PkgInstall':
