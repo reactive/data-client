@@ -50,18 +50,17 @@ Install the [Vue plugin](https://vuejs.org/guide/reusability/plugins.html) when 
 
 <SiteOnly>
 
-These packages ship skills for your coding agent, matched to the version you installed. Link them into
-`.agents/skills`, with `.claude/skills` linking to it, where Claude Code, Cursor and Codex load them, and commit the links:
+## Link your agent's skills {#agent-skills}
+
+The packages ship skills for your coding agent, matched to the version you installed. Link them so Claude Code,
+Cursor and Codex load them, and commit the links:
 
 ```bash
 npx --no data-client-skills
 ```
 
-The links follow upgrades; run it again after adding, removing or upgrading `@data-client` packages so new skills
-get linked too.
-On Windows, commit the links only with Developer Mode on and `git config core.symlinks true`;
-otherwise leave them uncommitted and rerun the command after installing. If you use
-[TanStack Intent](https://tanstack.com/intent), it loads the same skills.
+Run it again after adding, removing or upgrading `@data-client` packages. See [Agent Skills](./agent-skills.md) for
+details.
 
 </SiteOnly>
 
