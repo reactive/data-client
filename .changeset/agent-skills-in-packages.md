@@ -14,4 +14,4 @@ Coding agents can now follow the skills for the version you have installed inste
 npx --no data-client-skills
 ```
 
-Commit the links. They point into `node_modules`, so upgrades need nothing more; run it again after adding or removing `@data-client` packages. [TanStack Intent](https://tanstack.com/intent) also finds these skills.
+Commit the links. They point into `node_modules`, so they follow upgrades; run it again after adding, removing or upgrading `@data-client` packages to pick up new skills. [TanStack Intent](https://tanstack.com/intent) also finds these skills.

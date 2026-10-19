@@ -5,6 +5,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
 
+import { readJSON } from './node-modules.mjs';
+
 /**
  * Each installed version of the `names` packages in the PnP project holding
  * `projectDir`. Packages in the zip cache get their package.json and skills
@@ -46,7 +48,7 @@ function pnpRoot(dir) {
  */
 function runtimeState(root) {
   const data = path.join(root, '.pnp.data.json');
-  if (fs.existsSync(data)) return JSON.parse(fs.readFileSync(data, 'utf8'));
+  if (fs.existsSync(data)) return readJSON(data);
   const text = fs.readFileSync(path.join(root, '.pnp.cjs'), 'utf8');
   // most PnP projects don't use Data Client; skip parsing their map
   if (!text.includes('"@data-client/')) return { packageRegistryData: [] };

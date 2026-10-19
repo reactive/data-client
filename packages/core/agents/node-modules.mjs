@@ -76,7 +76,7 @@ const segments = pattern => pattern.split(/[\\/]/);
 
 /**
  * `packages` of a pnpm-workspace.yaml, as a block or flow list; enough YAML
- * for that one key, so no parser ships with the plugin
+ * for that one key, so core takes no YAML dependency
  */
 function pnpmPackages(file) {
   const text = fs
@@ -169,7 +169,8 @@ function packageDir(from, pkg) {
     const manifest = createRequire(
       path.join(realpath(from), 'package.json'),
     ).resolve(`${pkg}/package.json`);
-    // resolve() caches what it found, which may be gone since
+    // resolve() caches per process what it found, which a sync in the same
+    // process may have seen removed since
     return fs.existsSync(manifest) ? path.dirname(manifest) : undefined;
   } catch {
     return undefined;

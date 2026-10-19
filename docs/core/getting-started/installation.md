@@ -57,7 +57,8 @@ These packages ship skills for your coding agent, matched to the version you ins
 npx --no data-client-skills
 ```
 
-Upgrades need nothing more; run it again after adding or removing `@data-client` packages. If you use
+The links follow upgrades; run it again after adding, removing or upgrading `@data-client` packages so new skills
+get linked too. If you use
 [TanStack Intent](https://tanstack.com/intent), it loads the same skills.
 
 </SiteOnly>

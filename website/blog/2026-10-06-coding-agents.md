@@ -83,8 +83,8 @@ their own skills:
 npx --no data-client-skills
 ```
 
-Commit the links. They point into `node_modules`, so upgrades need nothing more; run it again after adding or removing
-`@data-client` packages. If you use [TanStack Intent](https://tanstack.com/intent), it finds the same skills.
+Commit the links. They point into `node_modules`, so they follow upgrades; run it again after adding, removing or
+upgrading `@data-client` packages to pick up new skills. If you use [TanStack Intent](https://tanstack.com/intent), it finds the same skills.
 
 ## Skills match the docs {#generated-references}
 

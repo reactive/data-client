@@ -1,7 +1,7 @@
 // Links the agent skills each installed @data-client package ships into the
 // project's .claude/skills, where Claude Code and Cursor load them as their
-// own. Links lead through node_modules, so upgrades need no re-run; running
-// this again picks up packages or skills that were added or removed. Under
+// own. Links lead through node_modules, so they follow upgrades; running this
+// again picks up packages or skills that were added or removed. Under
 // Yarn Plug'n'Play, which has no node_modules, it copies the skills instead.
 import fs from 'node:fs';
 import os from 'node:os';
@@ -10,11 +10,12 @@ import path from 'node:path';
 import { nodeModulesPackages, readJSON } from './node-modules.mjs';
 import { pnpPackages } from './pnp.mjs';
 
+// the packages that ship skills (.agents/skill-packages.json); strict layouts
+// reach core and endpoint through any declared @data-client package
 const PACKAGES = [
   '@data-client/core',
   '@data-client/endpoint',
   '@data-client/rest',
-  '@data-client/graphql',
   '@data-client/react',
   '@data-client/vue',
 ];
@@ -36,7 +37,7 @@ export function syncSkills(projectDir) {
   }
   const extracted = fs.mkdtempSync(path.join(os.tmpdir(), 'data-client-'));
   try {
-    const want = wantedSkills(projectDir, dest, extracted, result);
+    const { want, copy } = wantedSkills(projectDir, dest, extracted, result);
     if (!want.size && !fs.existsSync(dest)) return result;
     fs.mkdirSync(dest, { recursive: true });
     for (const entry of fs.readdirSync(dest, { withFileTypes: true })) {
@@ -50,15 +51,14 @@ export function syncSkills(projectDir) {
       fs.rmSync(file, { recursive: true, force: true });
       if (!want.has(entry.name)) result.removed.push(entry.name);
     }
-    for (const [skill, source] of want) {
+    for (const [skill, { dir, id }] of want) {
       const file = path.join(dest, skill);
       // a skill of the user's own with this name wins
       if (fs.lstatSync(file, { throwIfNoEntry: false })) continue;
-      if (source.link) link(source, file);
-      else {
-        fs.cpSync(source.dir, file, { recursive: true });
-        fs.writeFileSync(path.join(file, MARKER), source.id);
-      }
+      if (copy) {
+        fs.cpSync(dir, file, { recursive: true });
+        fs.writeFileSync(path.join(file, MARKER), id);
+      } else link(id, dir, file);
       result.added.push(skill);
     }
     return result;
@@ -67,7 +67,10 @@ export function syncSkills(projectDir) {
   }
 }
 
-/** Skill name -> where it comes from, for every skill the packages ship */
+/**
+ * Skill name -> its directory and id: the link target, or `pkg@version` for
+ * copies, which Yarn Plug'n'Play needs since it has no node_modules
+ */
 function wantedSkills(projectDir, dest, extracted, result) {
   let found = nodeModulesPackages(projectDir, PACKAGES);
   // a project that moved off Plug'n'Play can keep a stale .pnp.cjs, so its
@@ -76,11 +79,10 @@ function wantedSkills(projectDir, dest, extracted, result) {
   if (copy) found = pnpPackages(projectDir, PACKAGES, extracted);
   const want = new Map();
   for (const { pkg, dir } of found) {
+    const version = `${pkg}@${readJSON(path.join(dir, 'package.json')).version}`;
     const shipped = path.join(dir, 'skills');
     if (!fs.existsSync(shipped)) {
-      result.outdated.push(
-        `${pkg}@${readJSON(path.join(dir, 'package.json')).version}`,
-      );
+      result.outdated.push(version);
       continue;
     }
     const base = copy ? undefined : stablePath(dir, pkg, found, dest);
@@ -88,23 +90,13 @@ function wantedSkills(projectDir, dest, extracted, result) {
       // workspaces can install several versions; the first one found wins
       if (want.has(skill)) continue;
       if (!fs.existsSync(path.join(shipped, skill, 'SKILL.md'))) continue;
-      if (copy) {
-        const { version } = readJSON(path.join(dir, 'package.json'));
-        want.set(skill, {
-          dir: path.join(shipped, skill),
-          id: `${pkg}@${version}`,
-        });
-      } else {
-        const target = `${base}/skills/${skill}`;
-        want.set(skill, {
-          link: target,
-          dir: path.join(shipped, skill),
-          id: target,
-        });
-      }
+      want.set(skill, {
+        dir: path.join(shipped, skill),
+        id: copy ? version : `${base}/skills/${skill}`,
+      });
     }
   }
-  return want;
+  return { want, copy };
 }
 
 /**
@@ -144,7 +136,7 @@ function stablePath(dir, pkg, found, dest) {
   return relative(dir);
 }
 
-function link({ link: target, dir }, file) {
+function link(target, dir, file) {
   try {
     fs.symlinkSync(target, file, 'dir');
   } catch (error) {
@@ -158,12 +150,8 @@ function link({ link: target, dir }, file) {
 /** The `data-client-skills` command */
 export function main(projectDir = process.cwd()) {
   const { added, removed, outdated } = syncSkills(projectDir);
-  for (const [label, skills] of [
-    ['Added', added],
-    ['Removed', removed],
-  ]) {
-    if (skills.length) console.log(`${label} ${skills.join(', ')}`);
-  }
+  if (added.length) console.log(`Added ${added.join(', ')}`);
+  if (removed.length) console.log(`Removed ${removed.join(', ')}`);
   if (!added.length && !removed.length)
     console.log('Data Client skills in .claude/skills are up to date');
   if (outdated.length)

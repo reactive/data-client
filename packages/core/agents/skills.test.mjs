@@ -12,7 +12,11 @@ import { syncSkills } from './skills.mjs';
 
 /** Writes `files` (path -> JSON object or text) under a new project dir */
 function project(files) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dc-skills-'));
+  return write(fs.mkdtempSync(path.join(os.tmpdir(), 'dc-skills-')), files);
+}
+
+/** Writes `files` (path -> JSON object or text) under `dir` */
+function write(dir, files) {
   for (const [file, content] of Object.entries(files)) {
     fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
     fs.writeFileSync(
@@ -191,19 +195,12 @@ test('repairs drift: packages and skills added or removed', () => {
     path.join(react, 'data-client-react'),
     path.join(react, 'data-client-react-hooks'),
   );
-  const vue = pkg(
-    'node_modules/@data-client/vue',
-    '@data-client/vue',
-    '0.19.0',
-    ['data-client-vue'],
+  write(
+    dir,
+    pkg('node_modules/@data-client/vue', '@data-client/vue', '0.19.0', [
+      'data-client-vue',
+    ]),
   );
-  for (const [file, content] of Object.entries(vue)) {
-    fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
-    fs.writeFileSync(
-      path.join(dir, file),
-      typeof content === 'string' ? content : JSON.stringify(content),
-    );
-  }
   const { added, removed } = syncSkills(dir);
   assert.deepEqual(added.sort(), [
     'data-client-react-hooks',
@@ -266,7 +263,12 @@ for (const field of [
         ['data-client-schema'],
       ),
     });
-    assert.deepEqual(syncSkills(dir).added, ['data-client-schema']);
+    assert.deepEqual(syncSkills(dir), {
+      added: ['data-client-schema'],
+      removed: [],
+      // graphql ships no skills of its own
+      outdated: [],
+    });
   });
 }
 
