@@ -5,7 +5,7 @@ import { Reveal } from '../../motion';
 import styles from '../styles.module.css';
 import type SchemaRegistry from './store/schemaRegistry';
 import StorePanel from './store/StorePanel';
-import { heldToggle, StoreToggle } from './StoreToggle';
+import { heldToggle, StoreToggle, useHoldToggle } from './StoreToggle';
 
 function StoreInspector({
   toggle,
@@ -27,7 +27,14 @@ function StoreInspector({
   // then stays, so reopening finds the Store as it was left
   const ready = useDeferredValue(open);
   const [showTree, setShowTree] = useState(false);
-  if (ready && !showTree) setShowTree(true);
+  const holdToggle = useHoldToggle();
+  if (ready && !showTree) {
+    setShowTree(true);
+    // a stacked Store grows to fit the tree, as does every Store its toggle
+    // opened: keep that toggle in place. Armed while rendering, since by
+    // commit the tree is in
+    holdToggle();
+  }
   const panel = (
     <Reveal show={open} className={styles.storePanel} hold={heldToggle}>
       {showTree ?

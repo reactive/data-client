@@ -16,9 +16,19 @@ let clicked: HTMLElement | undefined;
 /** The Store toggle the reader clicked last, while on the page: held in place
  * on screen as the Stores it closed slide out and leave the layout */
 export const heldToggle = () => (clicked?.isConnected ? clicked : undefined);
+/** Keeps `heldToggle` in place on screen through this component's next render */
+export function useHoldToggle() {
+  const { blockElementScrollPositionUntilNextRender } =
+    useScrollPositionBlocker();
+  return useCallback(() => {
+    const held = heldToggle();
+    if (held) blockElementScrollPositionUntilNextRender(held);
+  }, [blockElementScrollPositionUntilNextRender]);
+}
 
 /** Store open state, persisted per `groupId`; toggling keeps the page from
- * scrolling, also as each Store it closes leaves the layout (`heldToggle`).
+ * scrolling, also as each Store it opens fills in or it closes leaves the
+ * layout (`heldToggle`).
  * `showStore` opens or closes it for a demo without persisting, until the
  * reader toggles it (or `showStore(null)`). */
 export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
@@ -26,16 +36,15 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   const [shown, show] = useState<boolean | null>(null);
   const open =
     shown ?? (choice === 'y' || choice === 'n' ? choice : defaultOpen) === 'y';
-  const { blockElementScrollPositionUntilNextRender } =
-    useScrollPositionBlocker();
+  const holdToggle = useHoldToggle();
   const toggle = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
       clicked = event.currentTarget;
-      blockElementScrollPositionUntilNextRender(clicked);
+      holdToggle();
       setChoice(open ? 'n' : 'y');
       show(null);
     },
-    [blockElementScrollPositionUntilNextRender, open, setChoice],
+    [holdToggle, open, setChoice],
   );
   // a demo's open or close is no reader's click: forget the last one, so it
   // doesn't pin a toggle the reader clicked earlier
