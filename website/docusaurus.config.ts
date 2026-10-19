@@ -674,12 +674,6 @@ const config: Config = {
           'aria-label': 'Discord chat support',
         },
         {
-          href: 'https://skills.sh/reactive/data-client',
-          position: 'right',
-          className: 'header-anthropic-link',
-          'aria-label': 'Agent Skills',
-        },
-        {
           type: 'localeDropdown',
           position: 'right',
           // last, so it sits beside the color mode toggle; icon only (customTheme.css)
