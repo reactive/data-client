@@ -254,18 +254,18 @@ until the refetch resolves.
 >
 >   const props = defineProps<{ id: string }>();
 >   const ctrl = useController();
->   const version = ref(0);
+>   const remountKey = ref(0);
 >
 >   async function reload() {
 >     await ctrl.invalidate(ArticleResource.get, { id: props.id });
->     version.value++;
+>     remountKey.value++;
 >   }
 > </script>
 >
 > <template>
 >   <button @click="reload">Reload</button>
 >   <Suspense timeout="0">
->     <ArticleName :key="version" :id="id" />
+>     <ArticleName :key="remountKey" :id="id" />
 >     <template #fallback>Loading...</template>
 >   </Suspense>
 > </template>
