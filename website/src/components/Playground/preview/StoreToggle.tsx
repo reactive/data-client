@@ -44,15 +44,21 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   );
   // a demo's open or close is no reader's click: forget the last one, so it
   // doesn't pin a toggle the reader clicked earlier
-  const showStore = useCallback((demo: boolean | null, view?: StoreView) => {
-    clicked = undefined;
-    // a step naming no view keeps the one the demo opened it in
-    show(prev =>
-      demo === null ? null : (
-        { open: demo, view: demo ? (view ?? prev?.view) : undefined }
-      ),
-    );
-  }, []);
+  const showStore = useCallback(
+    (demoOpen: boolean | null, view?: StoreView) => {
+      clicked = undefined;
+      show(prev => {
+        if (demoOpen === null) return null;
+        // a step naming no view keeps the one the demo opened it in
+        const next = demoOpen ? (view ?? prev?.view) : undefined;
+        // unchanged: no render
+        return prev?.open === demoOpen && prev.view === next ?
+            prev
+          : { open: demoOpen, view: next };
+      });
+    },
+    [],
+  );
   // the reader picked a view: the demo's goes, its open stays
   const drop = useCallback(
     () => show(prev => (prev?.view ? { open: prev.open } : prev)),

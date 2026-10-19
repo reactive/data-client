@@ -32,7 +32,8 @@ export interface LivePreviewProps<T> extends PreviewProps<T> {
   autoRun?: AutoRunScript;
   /** Opens or closes the Store for the demo, without saving it */
   showStore: ShowStore;
-  /** The view a demo opened the Store in, for the Store to show */
+  /** The view a demo opened the Store in (if any), and `drop()` to give the
+   * reader's back */
   demoView: DemoView;
 }
 
