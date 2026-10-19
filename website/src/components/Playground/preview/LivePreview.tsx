@@ -1,8 +1,7 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { LiveProvider } from 'react-live';
 
 import DemoLabel from './autorun/DemoLabel';
-import type { ShowStore } from './autorun/player';
 import type { AutoRunScript } from './autorun/script';
 import { useAutoRun } from './autorun/useAutoRun';
 import Preview from './Preview';
@@ -67,15 +66,7 @@ export default function LivePreview<T>({
   // outlives remounts, so a restored store keeps its schemas and actions
   const [registry] = useState(() => new SchemaRegistry(actionLog));
   const managers = useCodeManagers(documents, remount);
-  // the demo's Store view, unsaved, until the reader picks one
-  const [demoView, showView] = useDemoView();
-  const showDemoStore = useCallback<ShowStore>(
-    (open, view) => {
-      if (view !== undefined) showView(view);
-      showStore(open);
-    },
-    [showStore],
-  );
+  const [demoView, showDemoStore] = useDemoView(showStore);
   const demo = useAutoRun(autoRun, reset, showDemoStore);
   const getInterceptorData = useMemo(
     () =>

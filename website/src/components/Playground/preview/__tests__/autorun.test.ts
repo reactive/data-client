@@ -492,7 +492,7 @@ describe('useAutoRun', () => {
     expect(result.current.player.getState()).toBe('idle');
   });
 
-  it("replay starts over from a fresh store, closing a Store it opens in the reader's view", () => {
+  it('replay starts over from a fresh store, closing a Store it opens', () => {
     const reset = jest.fn();
     const playground = document.createElement('div');
     playground.dataset.playground = '';
@@ -506,7 +506,7 @@ describe('useAutoRun', () => {
     result.current.watch(preview);
     act(() => result.current.replay());
     expect(reset).toHaveBeenCalledTimes(1);
-    expect(showStore).toHaveBeenCalledWith(false, null);
+    expect(showStore).toHaveBeenCalledWith(false);
     expect(result.current.player.getState()).toBe('playing');
   });
 

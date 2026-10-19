@@ -113,9 +113,9 @@ export function useAutoRun(
     reset();
     // the reader asked to watch: bring it into view, which it plays in
     if (preview.current) revealOnPage(preview.current);
-    // the demo shows the Store opening, if it does, from the reader's view
+    // the demo shows the Store opening, if it does
     if (script?.some(step => 'store' in step && step.store === 'open'))
-      showStore(false, null);
+      showStore(false);
     start();
   }, [reset, start]);
 

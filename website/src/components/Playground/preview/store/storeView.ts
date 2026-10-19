@@ -7,6 +7,7 @@ import {
 } from 'react';
 
 import { useTabStorage } from '../../../../utils/tabStorage';
+import type { ShowStore } from '../autorun/player';
 
 export type StoreView = 'table' | 'tree';
 
@@ -33,9 +34,19 @@ export function useStoreView() {
   return [view, setView] as const;
 }
 
-/** State for a `DemoViewContext` provider: its value, and `show` */
-export function useDemoView() {
+/** A `DemoViewContext` provider's value, and the demo's `showStore`: it
+ * opens the Store (with `openStore`) in a view, unsaved, and closing it
+ * gives the reader's view back */
+export function useDemoView(openStore: (open: boolean) => void) {
   const [view, show] = useState<StoreView | null>(null);
   const value = useMemo(() => ({ view, show }), [view]);
-  return [value, show] as const;
+  const showStore = useCallback<ShowStore>(
+    (open, next) => {
+      if (!open) show(null);
+      else if (next) show(next);
+      openStore(open);
+    },
+    [openStore],
+  );
+  return [value, showStore] as const;
 }
