@@ -12,8 +12,9 @@ Debug `@data-client/react` state and actions programmatically from any browser t
 
 ## Browser Tools
 
-Every snippet below is a function. Run it in the page and read its return value; async snippets need a tool that
-awaits the returned promise. "The network log" means the browser tool's list of requests.
+Every snippet below is a function. Chrome DevTools MCP and Playwright MCP take it as written, call it in the page
+and await its result. Claude in Chrome runs an expression instead, so call the snippet yourself (see its setup).
+"The network log" means the browser tool's list of requests.
 
 | Tool                | Runs a snippet with | Network log                | Setup                                                           |
 | ------------------- | ------------------- | -------------------------- | --------------------------------------------------------------- |

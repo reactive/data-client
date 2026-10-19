@@ -9,6 +9,8 @@ your own Chrome.
 
 1. Open the dev server in a tab with `navigate`.
 2. Run each snippet with `javascript_tool`. It returns the value of the last expression, so call the snippet
-   instead of passing it bare: `(() => { ... })()`.
+   instead of passing it bare: `(() => { ... })()`. An async snippet returns a promise; if you get a promise
+   instead of its value, store the value in one call and read it in the next:
+   `(async () => { ... })().then(r => (globalThis.__DC_RESULT__ = r))`, then `__DC_RESULT__`.
 3. Read requests with `read_network_requests` (pass `urlPattern` to narrow them) and logs with
    `read_console_messages`.
