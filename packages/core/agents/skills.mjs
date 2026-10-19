@@ -7,7 +7,12 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { isLink, nodeModulesPackages, readJSON } from './node-modules.mjs';
+import {
+  isLink,
+  nodeModulesPackages,
+  posix,
+  readJSON,
+} from './node-modules.mjs';
 import { pnpPackages } from './pnp.mjs';
 
 // the packages that ship skills (.agents/skill-packages.json); strict layouts
@@ -48,8 +53,7 @@ export function syncSkills(projectDir) {
     if (!fs.lstatSync(other, { throwIfNoEntry: false })) {
       fs.mkdirSync(path.dirname(other), { recursive: true });
       const target = posix(path.relative(path.dirname(other), dest));
-      result.junctions =
-        link(target, fs.realpathSync(dest), other) || result.junctions;
+      link(target, other, result);
     }
     syncDir(dest, want, copy, result);
     if (mirror) mirrorLinks(dest, mirror, result);
@@ -98,22 +102,12 @@ function skillsDirs(projectDir) {
 
 /** Whether any entry of `dir` links into `target`, which may be gone */
 function linksInto(dir, target) {
-  // junctions (see mirrorLinks) hold the resolved path, which differs under a
-  // linked parent; target's own parent usually outlives it
-  const parent = path.dirname(target);
-  const targets = [target];
-  if (fs.existsSync(parent))
-    targets.push(path.join(fs.realpathSync(parent), path.basename(target)));
   return fs
     .readdirSync(dir, { withFileTypes: true })
     .some(
       entry =>
         entry.isSymbolicLink() &&
-        targets.includes(
-          path.dirname(
-            path.resolve(dir, fs.readlinkSync(path.join(dir, entry.name))),
-          ),
-        ),
+        names(path.dirname(linkTarget(path.join(dir, entry.name))), target),
     );
 }
 
@@ -142,7 +136,7 @@ function syncDir(dest, want, copy, result) {
       wanted &&
       (current === wanted.id ||
         // a junction (see link) holds the absolute path instead
-        (path.isAbsolute(current) && current === real(wanted.dir)))
+        current === posix(junctionForm(wanted.dir)))
     ) {
       want.delete(entry.name);
       continue;
@@ -155,9 +149,7 @@ function syncDir(dest, want, copy, result) {
     if (copy) {
       fs.cpSync(dir, file, { recursive: true });
       fs.writeFileSync(path.join(file, MARKER), id);
-    } else
-      result.junctions =
-        link(id, fs.realpathSync(dir), file) || result.junctions;
+    } else link(id, file, result);
     result.added.push(skill);
   }
 }
@@ -168,26 +160,22 @@ function syncDir(dest, want, copy, result) {
  * entry, not through it, so upgrades that relink that entry carry over.
  */
 function mirrorLinks(dest, mirror, result) {
-  // a junction (see link) holds the absolute path instead
-  const junction = skill => path.join(fs.realpathSync(dest), skill);
   for (const skill of result.removed) {
     const file = path.join(mirror, skill);
-    if (!isLink(file)) continue;
-    const current = posix(fs.readlinkSync(file));
-    if (current === mirrored(skill) || current === posix(junction(skill)))
+    if (isLink(file) && names(linkTarget(file), path.join(dest, skill)))
       fs.rmSync(file);
   }
   for (const entry of fs.readdirSync(dest, { withFileTypes: true })) {
     const file = path.join(mirror, entry.name);
     if (owned(path.join(dest, entry.name), entry) === undefined) continue;
     if (fs.lstatSync(file, { throwIfNoEntry: false })) continue;
-    result.junctions =
-      link(mirrored(entry.name), junction(entry.name), file) ||
-      result.junctions;
+    link(
+      posix(path.relative(mirror, path.join(dest, entry.name))),
+      file,
+      result,
+    );
   }
 }
-
-const mirrored = skill => `../../.agents/skills/${skill}`;
 
 /**
  * Skill name -> its directory and id: the link target from `dest`, or
@@ -258,22 +246,44 @@ function stablePath(dir, pkg, found, dest) {
   return relative(dir);
 }
 
-const posix = file => file.replaceAll('\\', '/');
-const real = dir => posix(fs.realpathSync(dir));
-
 /**
- * Links `file` to `target`, or to `absolute` with a junction where Windows
- * denies symlinks but still allows junctions, which need an absolute target.
- * Returns true when it had to make a junction.
+ * Links `file` to `target`, or makes a junction where Windows denies symlinks
+ * but still allows junctions, which need an absolute target; notes that in
+ * `result.junctions`.
  */
-function link(target, absolute, file) {
+function link(target, file, result) {
   try {
     fs.symlinkSync(target, file, 'dir');
-    return false;
   } catch (error) {
     if (error.code !== 'EPERM') throw error;
-    fs.symlinkSync(absolute, file, 'junction');
-    return true;
+    fs.symlinkSync(
+      junctionForm(path.resolve(path.dirname(file), target)),
+      file,
+      'junction',
+    );
+    result.junctions = true;
+  }
+}
+
+/**
+ * The target a junction to `dir` holds: the real path of its parent (dir
+ * itself may be a link, or gone) joined to its name
+ */
+function junctionForm(dir) {
+  return path.join(fs.realpathSync(path.dirname(dir)), path.basename(dir));
+}
+
+/** Where the link at `file` leads, as an absolute path */
+const linkTarget = file =>
+  path.resolve(path.dirname(file), fs.readlinkSync(file));
+
+/** Whether `target` (where a link leads) names `dir`, as a symlink or a junction holds it */
+function names(target, dir) {
+  if (target === path.resolve(dir)) return true;
+  try {
+    return target === junctionForm(dir);
+  } catch {
+    return false;
   }
 }
 

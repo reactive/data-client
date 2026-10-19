@@ -35,47 +35,26 @@ export default function SkillTabs({
     { skillPackages, setupSkills: setupReferences.skills, plugin },
   );
   // Claude Code's own installer first, then skills that update with the packages
-  const values = [
-    ...(commands.claude ?
-      [{ label: 'Claude Code plugin', value: 'claude' }]
-    : []),
-    ...(commands.packages ?
-      [{ label: 'Installed packages', value: 'packages' }]
-    : []),
-    { label: 'Skills CLI', value: 'skills' },
-    { label: 'OpenSkills', value: 'openskills' },
-  ];
+  const tabs = [
+    { label: 'Claude Code plugin', value: 'claude', code: commands.claude },
+    { label: 'Installed packages', value: 'packages', code: commands.packages },
+    { label: 'Skills CLI', value: 'skills', code: commands.skillsCli },
+    { label: 'OpenSkills', value: 'openskills', code: commands.openSkills },
+  ].filter(tab => tab.code);
   return (
     <Tabs
       className={styles.tabs}
-      defaultValue={values[0].value}
+      defaultValue={tabs[0].value}
       groupId="agent-skills-program"
-      values={values}
+      values={tabs}
     >
-      {commands.claude && (
-        <TabItem value="claude">
+      {tabs.map(({ value, code }) => (
+        <TabItem key={value} value={value}>
           <CodeBlock className="language-bash" metastring={metastring}>
-            {commands.claude}
+            {code}
           </CodeBlock>
         </TabItem>
-      )}
-      {commands.packages && (
-        <TabItem value="packages">
-          <CodeBlock className="language-bash" metastring={metastring}>
-            {commands.packages}
-          </CodeBlock>
-        </TabItem>
-      )}
-      <TabItem value="skills">
-        <CodeBlock className="language-bash" metastring={metastring}>
-          {commands.skillsCli}
-        </CodeBlock>
-      </TabItem>
-      <TabItem value="openskills">
-        <CodeBlock className="language-bash" metastring={metastring}>
-          {commands.openSkills}
-        </CodeBlock>
-      </TabItem>
+      ))}
     </Tabs>
   );
 }

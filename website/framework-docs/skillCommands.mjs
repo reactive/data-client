@@ -34,12 +34,12 @@ export default function skillCommands(
   },
   { skillPackages, setupSkills, plugin },
 ) {
+  const chosen = skills ?? (skill && [skill]);
   // links every skill the packages ship, so it only fits the whole framework's set
-  const packages =
-    withPackages && !skill && !skills ? packagesCommand : undefined;
+  const packages = withPackages && !chosen ? packagesCommand : undefined;
   const allSkills =
-    skills ??
-    (skill ? [skill] : frameworkSkills(framework, skillPackages, setupSkills));
+    chosen ?? frameworkSkills(framework, skillPackages, setupSkills);
+  const carried = pluginSkills(plugin);
   return {
     packages,
     skillsCli: [
@@ -54,10 +54,7 @@ export default function skillCommands(
     // other skills it doesn't carry. The marketplace's other entries are old
     // names kept for existing installs.
     claude:
-      (
-        (!skill && !skills) ||
-        allSkills.every(s => pluginSkills(plugin).includes(s))
-      ) ?
+      !chosen || allSkills.every(s => carried.includes(s)) ?
         [
           `claude plugin marketplace add ${repo}`,
           'claude plugin install data-client@data-client',

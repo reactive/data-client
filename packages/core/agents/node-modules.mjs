@@ -58,7 +58,7 @@ function workspaceDirs(dir) {
   const patterns = [
     ...(workspaces.packages ?? workspaces),
     ...(fs.existsSync(pnpm) ? pnpmPackages(pnpm) : []),
-  ].filter(pattern => !segments(pattern).includes('..'));
+  ].filter(pattern => !escapes(pattern));
   const excluded = patterns
     .filter(pattern => pattern.startsWith('!'))
     .map(pattern => globRegex(pattern.slice(1)));
@@ -66,12 +66,11 @@ function workspaceDirs(dir) {
     .filter(pattern => !pattern.startsWith('!'))
     .flatMap(pattern => expand(dir, segments(pattern)))
     .filter(found => {
-      const relative = path.relative(dir, found).split(path.sep).join('/');
+      const relative = posix(path.relative(dir, found));
       return !excluded.some(regex => regex.test(relative));
     });
 }
 
-// path.join also splits on `\` on Windows, so the `..` check must too
 const segments = pattern => pattern.split(/[\\/]/);
 
 /**
@@ -173,6 +172,12 @@ function packageDir(from, pkg) {
     return undefined;
   }
 }
+
+/** Whether a relative path climbs out of its folder; path.join also splits on `\` on Windows, so this does too */
+export const escapes = file => segments(file).includes('..');
+
+/** A path with Windows separators turned into the `/` links and globs use */
+export const posix = file => file.replaceAll('\\', '/');
 
 export function isLink(file) {
   return !!fs.lstatSync(file, { throwIfNoEntry: false })?.isSymbolicLink();

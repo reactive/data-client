@@ -40,6 +40,10 @@ if (process.argv.includes('--check')) {
   const library = fs
     .readdirSync(SKILLS)
     .filter(s => s.startsWith('data-client') || s.endsWith('-migration'));
+  const reactBin = fs.readFileSync(
+    path.join(root, 'packages/react', BIN),
+    'utf8',
+  );
   const problems = [
     ...library
       .filter(s => !owned.includes(s) && !bundled.includes(s))
@@ -57,8 +61,7 @@ if (process.argv.includes('--check')) {
       .filter(
         bin =>
           fs.existsSync(path.join(root, bin)) &&
-          fs.readFileSync(path.join(root, bin), 'utf8') !==
-            fs.readFileSync(path.join(root, 'packages/react', BIN), 'utf8'),
+          fs.readFileSync(path.join(root, bin), 'utf8') !== reactBin,
       )
       .map(bin => `${bin} differs from packages/react/${BIN}`),
   ];

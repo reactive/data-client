@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
 
-import { readJSON } from './node-modules.mjs';
+import { escapes, posix, readJSON } from './node-modules.mjs';
 
 /**
  * Each installed version of the `names` packages in the PnP project holding
@@ -52,16 +52,15 @@ function runtimeState(root) {
   const text = fs.readFileSync(path.join(root, '.pnp.cjs'), 'utf8');
   // most PnP projects don't use Data Client; skip parsing their map
   if (!text.includes('"@data-client/')) return { packageRegistryData: [] };
-  const literal = /RAW_RUNTIME_STATE\s*=\s*'((?:[^'\\]|\\[\s\S])*)'/.exec(
-    text,
-  )?.[1];
+  // the literal ends at the first `';` closing a line: every line break
+  // inside it is escaped. A per-character match overflows the regex stack
+  // on large maps.
+  const literal = /RAW_RUNTIME_STATE\s*=\s*'([\s\S]*?)';\r?\n/.exec(text)?.[1];
   // older Yarn majors inline the map differently
   if (!literal) return { packageRegistryData: [] };
   // undo the string escapes; a backslash before a line break continues it
   return JSON.parse(
-    literal.replace(/\\(\r?\n|[\s\S])/g, (_, c) =>
-      /^\r?\n$/.test(c) ? '' : c,
-    ),
+    literal.replace(/\\\r?\n/g, '').replace(/\\([\s\S])/g, '$1'),
   );
 }
 
@@ -69,7 +68,7 @@ function runtimeState(root) {
 function extract(location, dir) {
   const [, zipFile, inner] = /^(.*?\.zip)[\\/](.*)$/.exec(location) ?? [];
   if (!zipFile || !fs.existsSync(zipFile)) return undefined;
-  const prefix = inner.split(path.sep).join('/').replace(/\/?$/, '/');
+  const prefix = posix(inner).replace(/\/?$/, '/');
   const entries = zipEntries(fs.readFileSync(zipFile));
   const manifest = entries.get(`${prefix}package.json`)?.();
   if (!manifest) return undefined;
@@ -78,7 +77,7 @@ function extract(location, dir) {
     if (
       entry.startsWith(`${prefix}skills/`) &&
       !entry.endsWith('/') &&
-      !relative.split(/[\\/]/).includes('..')
+      !escapes(relative)
     )
       write(path.join(dir, relative), read());
   }
