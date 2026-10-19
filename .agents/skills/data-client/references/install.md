@@ -9,7 +9,7 @@ the router skill was installed:
   `node_modules/.pnpm/` for pnpm's transitive `core` and `endpoint`.
 - **OpenSkills** (`AGENTS.md` lists skills in `<available_skills>`):
   `npx openskills install reactive/data-client/.agents/skills/<name>`.
-- **Otherwise**, the skills CLI: `npx skills add reactive/data-client --yes --skill <name>`.
+- **Otherwise**, the skills CLI: `npx skills add reactive/data-client --skill <name>`.
 
 For OpenSkills and the skills CLI, add `-g` when the router skill lives under your home directory.
 

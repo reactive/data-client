@@ -41,9 +41,12 @@ function pkg(dir, name, version, skills = [], dependencies = {}) {
   };
 }
 
-function run(dir, input = '') {
+/** The plugin data directory `run` gives the hook for `dir` */
+const pluginData = dir => `${dir}-data`;
+
+function run(dir, input = '', data = pluginData(dir)) {
   return execFileSync('node', [hook], {
-    env: { ...process.env, CLAUDE_PROJECT_DIR: dir },
+    env: { ...process.env, CLAUDE_PROJECT_DIR: dir, CLAUDE_PLUGIN_DATA: data },
     encoding: 'utf8',
     input,
   });
@@ -230,6 +233,24 @@ test('copies racing on a resume print once', async () => {
   assert.equal(printed.length, 1);
 });
 
+test('the session marker is never written through a planted symlink', () => {
+  const dir = project({
+    'package.json': { dependencies: { '@data-client/react': '*' } },
+    ...pkg('node_modules/@data-client/react', '@data-client/react', '0.19.0', [
+      'data-client-react',
+    ]),
+  });
+  const id = `test-${path.basename(dir)}`;
+  const target = path.join(victim(), 'sub/keep');
+  fs.symlinkSync(
+    target,
+    path.join(os.tmpdir(), `data-client-hook-${id}-startup`),
+  );
+  const input = JSON.stringify({ session_id: id, source: 'startup' });
+  assert.match(run(dir, input), /data-client-react/);
+  assert.equal(fs.readFileSync(target, 'utf8'), 'keep');
+});
+
 test('workspace exclusions skip their packages', () => {
   const app = (name, version) => ({
     [`apps/${name}/package.json`]: {
@@ -345,6 +366,13 @@ function pnpProject(packages, files = {}) {
   return { dir, ran: () => fs.existsSync(path.join(dir, sentinel)) };
 }
 
+/** The one copy of `pkg` the hook made in `data`'s pnp-skills */
+function copyOf(data, pkg = '@data-client/react') {
+  const dir = path.join(data, 'pnp-skills', pkg);
+  const [hash] = fs.readdirSync(dir);
+  return path.join(dir, hash);
+}
+
 for (const method of [0, 8]) {
   test(`Yarn PnP reads zipped packages without running .pnp.cjs (method ${method})`, () => {
     const inZip = 'node_modules/@data-client/react/';
@@ -366,50 +394,60 @@ for (const method of [0, 8]) {
       },
     );
     const out = run(dir);
-    const copied = '.yarn/data-client-skills/@data-client/react@0.19.0';
+    const copied = copyOf(pluginData(dir));
     assert.match(out, /@data-client\/react@0\.19\.0/);
     assert.ok(
-      out.includes(`(${copied}/skills/data-client-react/SKILL.md)`),
+      out.includes(
+        `(${path.join(copied, 'skills/data-client-react/SKILL.md')})`,
+      ),
       out,
     );
-    assert.ok(fs.existsSync(path.join(dir, copied, 'package.json')));
-    assert.ok(!fs.existsSync(path.join(dir, copied, 'index.js')));
-    assert.ok(!fs.existsSync(path.join(dir, '.yarn/escaped')));
-    assert.deepEqual(fs.readdirSync(path.join(dir, copied, 'skills')), [
-      'data-client-react',
-    ]);
+    assert.deepEqual(
+      listing(pluginData(dir)),
+      [
+        'pnp-skills',
+        path.join('pnp-skills', '@data-client'),
+        path.join('pnp-skills', '@data-client', 'react'),
+        path.relative(pluginData(dir), copied),
+        path.join(path.relative(pluginData(dir), copied), 'package.json'),
+        path.join(path.relative(pluginData(dir), copied), 'skills'),
+        path.join(
+          path.relative(pluginData(dir), copied),
+          'skills/data-client-react',
+        ),
+        path.join(
+          path.relative(pluginData(dir), copied),
+          'skills/data-client-react/SKILL.md',
+        ),
+      ].sort(),
+    );
     assert.ok(!ran(), '.pnp.cjs ran');
   });
 }
 
-test('Yarn PnP reads unplugged packages and prunes stale copies', () => {
+test('Yarn PnP reads unplugged packages', () => {
   const unplugged = '.yarn/unplugged/react/node_modules/@data-client/react';
-  const stale = '.yarn/data-client-skills/@data-client/react@0.18.0';
   const { dir, ran } = pnpProject([['@data-client/react', `./${unplugged}/`]], {
     ...pkg(unplugged, '@data-client/react', '0.19.0', ['data-client-react']),
-    [`${stale}/package.json`]: { version: '0.18.0' },
   });
   const out = run(dir);
   assert.ok(out.includes(`(${unplugged}/skills/data-client-react/SKILL.md)`));
-  assert.ok(!fs.existsSync(path.join(dir, stale)));
   assert.ok(!ran(), '.pnp.cjs ran');
 });
 
 /** A Yarn PnP project whose zipped @data-client/react ships one skill */
-function zippedReact(files = {}, packages = undefined) {
+function zippedReact(description = 'React skill.') {
   const inZip = 'node_modules/@data-client/react/';
   return pnpProject(
-    packages ?? [['@data-client/react', `./.yarn/cache/react.zip/${inZip}`]],
+    [['@data-client/react', `./.yarn/cache/react.zip/${inZip}`]],
     {
       '.yarn/cache/react.zip': zip(
         {
           [`${inZip}package.json`]: JSON.stringify({ version: '0.19.0' }),
-          [`${inZip}skills/data-client-react/SKILL.md`]:
-            '---\ndescription: React skill. More.\n---\n',
+          [`${inZip}skills/data-client-react/SKILL.md`]: `---\ndescription: ${description} More.\n---\n`,
         },
         0,
       ),
-      ...files,
     },
   );
 }
@@ -424,32 +462,20 @@ function victim() {
 
 const listing = dir => fs.readdirSync(dir, { recursive: true }).sort();
 
-for (const packages of [undefined, []]) {
-  test(`Yarn PnP never writes or deletes through a committed copies symlink${packages ? ', without Data Client' : ''}`, () => {
-    const target = victim();
-    const { dir } = zippedReact({}, packages);
-    fs.symlinkSync(
-      target,
-      path.join(dir, '.yarn/data-client-skills'),
-      'junction',
-    );
-    const out = run(dir);
-    assert.deepEqual(listing(target), ['sub', path.join('sub', 'keep')]);
-    assert.doesNotMatch(out, /data-client-skills/);
-  });
-}
-
-test('Yarn PnP never writes or deletes through a symlinked scope', () => {
-  const target = victim();
+test('Yarn PnP writes nothing into the project', () => {
   const { dir } = zippedReact();
-  fs.mkdirSync(path.join(dir, '.yarn/data-client-skills'));
-  fs.symlinkSync(
-    target,
-    path.join(dir, '.yarn/data-client-skills/@data-client'),
-    'junction',
-  );
-  run(dir);
-  assert.deepEqual(listing(target), ['sub', path.join('sub', 'keep')]);
+  const before = listing(dir);
+  assert.match(run(dir), /data-client-react/);
+  assert.deepEqual(listing(dir), before);
+});
+
+test("a zip one project commits can't replace another project's copy", () => {
+  const data = pluginData(fs.mkdtempSync(path.join(os.tmpdir(), 'dc-hook-')));
+  const genuine = zippedReact('Genuine.');
+  // same cache path and version, different contents
+  const forged = zippedReact('Forged.');
+  assert.match(run(forged.dir, '', data), /Forged\./);
+  assert.match(run(genuine.dir, '', data), /Genuine\./);
 });
 
 test('a stale .pnp.cjs beside node_modules is ignored', () => {

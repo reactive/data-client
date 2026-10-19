@@ -26,7 +26,7 @@ try {
   // a project that moved off Plug'n'Play can keep a stale .pnp.cjs, so its
   // map counts only when node_modules holds no @data-client package
   let found = nodeModulesPackages(projectDir, names);
-  if (!found.length) found = pnpPackages(projectDir, names);
+  if (!found.length) found = pnpPackages(projectDir, names, pnpCopies());
   if (found.length) {
     const versions = new Set();
     const lines = [];
@@ -68,6 +68,19 @@ try {
 }
 
 /**
+ * Where zipped Yarn PnP skills are copied for agents to read: the plugin's
+ * data directory, never the project. Agents without one (Codex) use a cache
+ * in the user's home.
+ */
+function pnpCopies() {
+  return path.join(
+    process.env.CLAUDE_PLUGIN_DATA ||
+      path.join(os.homedir(), '.cache/data-client'),
+    'pnp-skills',
+  );
+}
+
+/**
  * Whether this is the first copy of the hook to start for this session event.
  * The old plugin names stay installed beside data-client, so several copies
  * run at once; only the first prints.
@@ -98,10 +111,14 @@ function firstCopy() {
     return error.code !== 'EEXIST';
   }
   try {
-    const fresh =
-      fs.existsSync(marker) &&
-      Date.now() - fs.statSync(marker).mtimeMs < 10_000;
-    if (!fresh) fs.writeFileSync(marker, '');
+    // lstat: a symlink planted at the marker is never ours, so never fresh
+    const stat = fs.lstatSync(marker, { throwIfNoEntry: false });
+    const fresh = stat?.isFile() && Date.now() - stat.mtimeMs < 10_000;
+    if (!fresh) {
+      // a fresh file, not one through a symlink planted in the shared tmpdir
+      fs.rmSync(marker, { force: true });
+      fs.writeFileSync(marker, '', { flag: 'wx' });
+    }
     return !fresh;
   } finally {
     fs.rmdirSync(lock);

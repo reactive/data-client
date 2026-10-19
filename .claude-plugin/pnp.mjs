@@ -2,6 +2,7 @@
 // map and the zip cache as data and never runs the project's .pnp.cjs, which
 // a plugin must not do on session start.
 import { Buffer } from 'node:buffer';
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
@@ -9,30 +10,23 @@ import zlib from 'node:zlib';
 /**
  * Each installed version of the `names` packages in the PnP project holding
  * `projectDir`. Packages in the zip cache get their package.json and skills
- * copied to .yarn/data-client-skills, which agents' file tools can read and
- * Yarn's standard .gitignore already ignores.
+ * copied under `copies`, outside the project, where agents' file tools can
+ * read them.
  * @returns {{ pkg: string, dir: string }[]}
  */
-export function pnpPackages(projectDir, names) {
+export function pnpPackages(projectDir, names, copies) {
   const root = pnpRoot(projectDir);
   if (!root) return [];
-  const copies = path.join(root, '.yarn/data-client-skills');
-  // A repository can commit symlinks here, so the hook never writes or
-  // deletes through one: it copies only below real directories
-  const writable = realDirs(root, copies);
   const found = [];
   for (const [pkg, versions] of runtimeState(root).packageRegistryData) {
     if (!names.includes(pkg)) continue;
     for (const [, { packageLocation }] of versions) {
       const location = path.resolve(root, packageLocation);
       const dir =
-        fs.existsSync(location) ? location
-        : writable ? copy(pkg, location, copies)
-        : undefined;
+        fs.existsSync(location) ? location : copy(pkg, location, copies);
       if (dir) found.push({ pkg, dir });
     }
   }
-  if (writable) prune(copies, found);
   return found;
 }
 
@@ -72,23 +66,21 @@ function runtimeState(root) {
 
 /**
  * Copies a zipped package's skills and package.json to
- * `<copies>/<pkg>@<version>`, once per version
+ * `<copies>/<pkg>/<zip hash>`, once per zip. The hash names the copy, so a
+ * zip one project commits can't stand in for another project's.
  */
 function copy(pkg, location, copies) {
   const [, zipFile, inner] = /^(.*?\.zip)[\\/](.*)$/.exec(location) ?? [];
   if (!zipFile || !fs.existsSync(zipFile)) return undefined;
-  const prefix = inner.split(path.sep).join('/').replace(/\/?$/, '/');
-  const entries = zipEntries(zipFile);
-  const manifest = entries.get(`${prefix}package.json`)?.();
-  if (!manifest) return undefined;
-  const { version } = JSON.parse(manifest.toString('utf8'));
-  // the version names a directory, so it must not climb out of `copies`
-  if (!/^[\w.+-]+$/.test(version)) return undefined;
-  const dir = path.join(copies, `${pkg}@${version}`);
-  if (!realDirs(copies, dir)) return undefined;
+  const zip = fs.readFileSync(zipFile);
+  const hash = createHash('sha256').update(zip).digest('hex').slice(0, 16);
+  const dir = path.join(copies, pkg, hash);
   // package.json goes last, so an interrupted copy is redone
   if (fs.existsSync(path.join(dir, 'package.json'))) return dir;
-  // write only into directories this copy creates
+  const prefix = inner.split(path.sep).join('/').replace(/\/?$/, '/');
+  const entries = zipEntries(zip);
+  const manifest = entries.get(`${prefix}package.json`)?.();
+  if (!manifest) return undefined;
   fs.rmSync(dir, { recursive: true, force: true });
   for (const [entry, read] of entries) {
     const relative = entry.slice(prefix.length);
@@ -108,42 +100,8 @@ function write(file, data) {
   fs.writeFileSync(file, data);
 }
 
-/** Removes copies of versions the project no longer installs */
-function prune(copies, found) {
-  if (!fs.existsSync(copies)) return;
-  const kept = new Set(found.map(({ dir }) => dir));
-  // Dirent.isDirectory() is false for symlinks, so none is followed; rmSync
-  // removes links inside a directory without following them
-  for (const scope of realSubdirs(copies)) {
-    for (const dir of realSubdirs(scope)) {
-      if (!kept.has(dir)) fs.rmSync(dir, { recursive: true, force: true });
-    }
-  }
-}
-
-function realSubdirs(dir) {
-  return fs
-    .readdirSync(dir, { withFileTypes: true })
-    .filter(entry => entry.isDirectory())
-    .map(entry => path.join(dir, entry.name));
-}
-
-/** Whether each existing path below `base` down to `dir` is a real directory */
-function realDirs(base, dir) {
-  for (
-    let at = dir;
-    at !== base && at !== path.dirname(at);
-    at = path.dirname(at)
-  ) {
-    const stat = fs.lstatSync(at, { throwIfNoEntry: false });
-    if (stat && !stat.isDirectory()) return false;
-  }
-  return true;
-}
-
 /** Entry name -> reader of its contents, for a zip without Zip64 */
-function zipEntries(file) {
-  const zip = fs.readFileSync(file);
+function zipEntries(zip) {
   const end = zip.lastIndexOf(Buffer.from('PK\x05\x06', 'latin1'));
   const entries = new Map();
   let at = zip.readUInt32LE(end + 16);
@@ -159,7 +117,10 @@ function zipEntries(file) {
         zip.readUInt16LE(local + 26) +
         zip.readUInt16LE(local + 28);
       const data = zip.subarray(start, start + size);
-      return method === 8 ? zlib.inflateRawSync(data) : data;
+      // a skill file is small; a bigger one is a zip bomb, not a skill
+      return method === 8 ?
+          zlib.inflateRawSync(data, { maxOutputLength: 8 << 20 })
+        : data;
     });
     at +=
       46 + nameLength + zip.readUInt16LE(at + 30) + zip.readUInt16LE(at + 32);

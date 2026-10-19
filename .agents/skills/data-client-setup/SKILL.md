@@ -6,6 +6,9 @@ disable-model-invocation: true
 
 # Setup Reactive Data Client
 
+Before installing anything, tell the user which packages and skills you'll add. A request to add or set up Data Client
+is the go-ahead; otherwise wait for theirs.
+
 ## Detection Steps
 
 Before installing, detect the project type and protocol by checking these files:
@@ -75,7 +78,7 @@ Use the installer that installed this skill. For OpenSkills and the skills CLI, 
 
 - **npm package or Claude Code plugin** (this skill is under `node_modules/` or `~/.claude/plugins/`): install nothing. Each skill ships inside the `@data-client/*` package it covers, so it arrives with the packages you install below, at their version. Read each one's `node_modules/@data-client/<package>/skills/<skill>/SKILL.md` when this skill says to apply it (pnpm keeps the transitive `core` and `endpoint` under `node_modules/.pnpm/`).
 - **OpenSkills** (`AGENTS.md` lists skills in an `<available_skills>` block): `npx openskills install reactive/data-client/.agents/skills/<skill>`, once per skill.
-- **Otherwise** use the skills CLI: `npx skills add reactive/data-client --yes --skill <skill> --skill <skill> ...`
+- **Otherwise** use the skills CLI: `npx skills add reactive/data-client --skill <skill> --skill <skill> ...`
 
 Newly installed skills may not be loaded until the next session, so read their `SKILL.md` directly when this skill says to apply them.
 

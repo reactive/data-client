@@ -72,7 +72,7 @@
     <rect x="589" y="454" width="422" height="114" rx="10" fill="#0a1017"/>
     <text x="609" y="488" class="h mono" font-size="19">.pnp.cjs</text>
     <text x="609" y="516" class="m" font-size="15">Yarn Plug'n'Play, read as data</text>
-    <text x="609" y="548" class="mono" font-size="15" fill="#7fd4a0">zipped skills → .yarn/data-client-skills/</text>
+    <text x="609" y="548" class="mono" font-size="15" fill="#7fd4a0">zipped skills → plugin data folder</text>
   </g>
 
   <line x1="1039" y1="370" x2="1063" y2="370" stroke="#7d8fa3" stroke-width="3" marker-end="url(#arrow)"/>
