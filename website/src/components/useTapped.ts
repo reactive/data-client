@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-/** A flag that turns itself off `ms` after `set()`, like a tooltip a tap shows
- * for a moment on touch screens, which can't hover */
+/** A flag that turns itself off `ms` after `set()`, for feedback shown for a
+ * moment, like a tooltip a tap shows on touch screens, which can't hover */
 export default function useTapped(ms = 2000) {
   const [on, setOn] = useState(false);
   const timeout = useRef<number>(undefined);

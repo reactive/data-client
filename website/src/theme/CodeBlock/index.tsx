@@ -16,33 +16,30 @@ import { metaFlag } from '../../utils/fenceMeta';
  * `framed` in the meta (```bash framed) gives both a header, where the page has room. */
 export default function CodeBlockWrapper(props: Props) {
   const language = props.language ?? parseLanguage(props.className);
-  const metaTitle = parseCodeBlockTitle(props.metastring);
+  // a title in the meta wins, as in Docusaurus's own CodeBlock
+  const title =
+    parseCodeBlockTitle(props.metastring) ||
+    (typeof props.title === 'string' ? props.title : undefined);
   const framed = metaFlag(props.metastring ?? '', 'framed');
   if (language === 'prompt' && typeof props.children === 'string') {
     return (
       <AgentPrompt
         prompt={props.children.trim()}
-        title={
-          metaTitle ||
-          (typeof props.title === 'string' ? props.title : undefined)
-        }
+        title={title}
         framed={framed}
       />
     );
   }
   // ./Title gives shell titles the terminal icon
-  if (framed && language && SHELLS.has(language) && !metaTitle) {
+  if (framed && language && SHELLS.has(language) && !title) {
     return (
       <CodeBlock
         {...props}
-        title={
-          props.title ??
-          translate({
-            id: 'theme.CodeBlock.terminalTitle',
-            message: 'Terminal',
-            description: 'Header of framed code blocks of shell commands',
-          })
-        }
+        title={translate({
+          id: 'theme.CodeBlock.terminalTitle',
+          message: 'Terminal',
+          description: 'Header of framed code blocks of shell commands',
+        })}
       />
     );
   }

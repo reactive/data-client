@@ -29,7 +29,9 @@ export default function LayoutWrapper(props: Props) {
     });
     return { ...metadata, lineClassNames };
   }, [shell, metadata]);
-  if (!shell) return <Layout {...props} />;
+  // a tap re-renders only the wrapper, not the code block
+  const layout = useMemo(() => <Layout {...props} />, [props]);
+  if (!shell) return layout;
 
   return (
     <div
@@ -38,7 +40,7 @@ export default function LayoutWrapper(props: Props) {
       onPointerUp={e => e.pointerType === 'touch' && tap()}
     >
       <CodeBlockContextProvider metadata={shellMetadata} wordWrap={wordWrap}>
-        <Layout {...props} />
+        {layout}
       </CodeBlockContextProvider>
       <span role="tooltip" className={styles.tip}>
         {translate({

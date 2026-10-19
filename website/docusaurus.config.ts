@@ -592,7 +592,7 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     prism: {
-      additionalLanguages: ['bash', /*'diff', */ 'json'],
+      additionalLanguages: ['bash', /*'diff', */ 'json', 'http'],
       theme: prismPalenight,
       darkTheme: prismPalenight,
     },

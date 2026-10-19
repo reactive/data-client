@@ -1,5 +1,5 @@
-/* a tooltip bubble above its target, hidden until the target's own hover,
- * keyboard focus or touch tap rules set `opacity: 1; translate: none`. Place it
+/* a tooltip bubble above its target, hidden until the target's own rules (hover,
+ * keyboard focus, or a state class like `.copied`) set `opacity: 1; translate: none`. Place it
  * with `left`, and `--tip-x` to shift it, like -50% to center on `left: 50%` */
 .tip {
   position: absolute;
@@ -19,13 +19,8 @@
   transform: translateX(var(--tip-x, 0));
   translate: 0 4px;
   pointer-events: none;
+  /* instant under reduced motion (motion/css.ts) */
   transition:
-    opacity 0.15s ease,
-    translate 0.15s ease;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tip {
-    transition: none;
-  }
+    opacity var(--motion-snappy),
+    translate var(--motion-snappy);
 }

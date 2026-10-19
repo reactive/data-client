@@ -32,7 +32,8 @@ export default function AgentPrompt({ prompt, title, framed }: Props) {
     { framework },
   );
   const tipId = useId();
-  // also shows the tooltip, since touch screens can't hover
+  // the check icon and the tooltip (which touch screens, lacking hover, need)
+  // show for a moment after a copy; leaving the chip ends both
   const [copied, showCopied, hideCopied] = useTapped(FEEDBACK_MS);
   const copy = useCallback(() => {
     // no clipboard (insecure context) or a denied write leaves the chip as it was
