@@ -24,7 +24,7 @@ Schema driven. Zero updater functions.
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-cc785c?style=flat-square&logo=claude&logoColor=white)](https://skills.sh/reactive/data-client)
 [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
 
-**[📖Read The Docs](https://dataclient.io/vue)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/vue/getting-started/agent-skills) &nbsp;|&nbsp; [🤖Agent Skills](https://skills.sh/reactive/data-client) &nbsp;|&nbsp; [🎮Todo Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/vue-todo-app?file=src%2Fcomponents%2FTodoListContent.vue)
+**[📖Read The Docs](https://dataclient.io/vue)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/vue/getting-started/installation) &nbsp;|&nbsp; [🤖Agent Skills](https://skills.sh/reactive/data-client) &nbsp;|&nbsp; [🎮Todo Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/vue-todo-app?file=src%2Fcomponents%2FTodoListContent.vue)
 
 </div>
 
@@ -301,7 +301,7 @@ it('useSuspense() resolves an article', async () => {
 
 ### ...all typed ...fast ...and consistent
 
-For the small price of 9kb gzipped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/vue/getting-started/agent-skills)
+For the small price of 9kb gzipped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/vue/getting-started/installation)
 
 ## Features
 

@@ -12,22 +12,31 @@ import Installation from '../shared/\_installation.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
 import SiteOnly from '@site/src/components/SiteOnly';
+import AgentPrompt from '@site/src/components/AgentPrompt';
+import SkillTabs from '@site/src/components/SkillTabs';
+
+<SiteOnly>
+
+## With your coding agent
+
+First install Data Client's [skills](./agent-skills.md) for your coding agent. Without them, agents get
+the basics right but miss the rest, like real-time managers and test fixtures.
+
+<SkillTabs intent={false} />
+
+Then tell your agent:
+
+<AgentPrompt />
+
+</SiteOnly>
 
 :::react
+
+## Install manually
 
 <PkgTabs pkgs="@data-client/react @data-client/test @data-client/rest" />
 
 :::
-
-<SiteOnly>
-
-:::tip[Use Agent Skills]
-
-Prefer to scaffold via your AI agent? See [Agent Skills](./agent-skills.md) and run `/data-client-setup`.
-
-:::
-
-</SiteOnly>
 
 ## :react[Add provider at top-level component]:vue[Install the plugin] {#add-provider-at-top-level-component}
 
@@ -38,6 +47,18 @@ Install the [Vue plugin](https://vuejs.org/guide/reusability/plugins.html) when 
 :::
 
 <Installation />
+
+<SiteOnly>
+
+Your coding agent can also load the skills these packages ship, matched to the version you installed, with
+[TanStack Intent](https://tanstack.com/intent):
+
+```bash
+npm install -D @tanstack/intent
+npx intent install
+```
+
+</SiteOnly>
 
 <center>
 

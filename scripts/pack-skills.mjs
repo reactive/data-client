@@ -14,7 +14,11 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SKILLS = path.join(root, '.agents/skills');
 
 const owners = {
-  '@data-client/core': ['data-client-setup', 'data-client-manager'],
+  '@data-client/core': [
+    'data-client',
+    'data-client-setup',
+    'data-client-manager',
+  ],
   '@data-client/endpoint': [
     'data-client-schema',
     'data-client-v0.18-migration',

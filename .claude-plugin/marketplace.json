@@ -16,6 +16,7 @@
       "homepage": "https://dataclient.io/docs/getting-started/agent-skills",
       "license": "Apache-2.0",
       "skills": [
+        "./.agents/skills/data-client",
         "./.agents/skills/data-client-setup",
         "./.agents/skills/data-client-rest-setup",
         "./.agents/skills/data-client-endpoint-setup",

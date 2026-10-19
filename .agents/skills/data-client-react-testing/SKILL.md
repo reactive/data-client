@@ -6,6 +6,9 @@ license: Apache 2.0
 
 # Testing Patterns (@data-client/test)
 
+These helpers come from `@data-client/test`. If `package.json` doesn't list it, add it as a dev dependency with the
+project's package manager (`npm install -D @data-client/test`).
+
 ## Hook Testing with renderDataHook()
 
 ```typescript

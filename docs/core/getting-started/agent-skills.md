@@ -5,11 +5,12 @@ sidebar_label: Agent Skills
 ---
 
 import SkillTabs from '@site/src/components/SkillTabs';
-import Link from '@docusaurus/Link';
 
-The quickest way to get started is to let an [AI Agent](https://agentskills.io) install using skill [/data-client-setup](https://skills.sh/reactive/data-client/data-client-setup).
+## Install skills for best results
 
-## Install
+Agents get the basics right from the package name alone. [Skills](https://agentskills.io) teach them the current
+APIs for the rest, like test fixtures and real-time managers. Install skill
+[/data-client-setup](https://skills.sh/reactive/data-client/data-client-setup):
 
 <SkillTabs skill="data-client-setup" />
 
@@ -22,19 +23,13 @@ To install every skill for your framework now instead, without letting your agen
 
 <SkillTabs />
 
-### Load skills from your installed packages
+In Claude Code, the plugin installs them in one step. With other agents,
+[TanStack Intent](https://tanstack.com/intent) loads the skills each `@data-client/*` package ships for its version,
+so they update with `npm update`. Its install adds a skill loading section to your `AGENTS.md`.
 
-Each `@data-client/*` package ships the skills for its version, so they update with `npm update`. To have your agent
-load them, add [TanStack Intent](https://tanstack.com/intent) and run its install, which adds a skill loading section
-to your `AGENTS.md`:
+### Available Skills
 
-```bash
-npm install -D @tanstack/intent
-npx intent install
-```
-
-## Available Skills
-
+- [**`/data-client`**](https://skills.sh/reactive/data-client/data-client) — starts here when you ask your agent to add or use Data Client, and routes it to setup or the skill for the task.
 - [**`/data-client-setup`**](https://skills.sh/reactive/data-client/data-client-setup) — installs and configures Data Client for your framework and API style, along with the skills it needs.
 - [**`/data-client-rest-setup`**](https://skills.sh/reactive/data-client/data-client-rest-setup) — sets up `@data-client/rest` and migrates existing
   `fetch`/`axios` clients.
@@ -68,6 +63,10 @@ npx intent install
 :::
 
 Browse the full catalog at [skills.sh/reactive/data-client](https://skills.sh/reactive/data-client).
+
+## Set up by hand
+
+To install the packages and add the provider yourself, follow [Installation](./installation.md).
 
 ## Docs for LLMs
 
