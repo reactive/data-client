@@ -13,11 +13,13 @@ Debug `@data-client/vue` state and actions programmatically from any browser too
 ## Browser Tools
 
 Every snippet below is a function. Chrome DevTools MCP and Playwright MCP take it as written, call it in the page
-and await its result. Claude in Chrome runs an expression instead, so call the snippet yourself (see its setup).
+and await its result. Cursor's browser and Claude in Chrome run an expression instead, so call the snippet
+yourself (see their setup).
 "The network log" means the browser tool's list of requests.
 
 | Tool                | Runs a snippet with | Network log                | Setup                                                           |
 | ------------------- | ------------------- | -------------------------- | --------------------------------------------------------------- |
+| Cursor's browser    | `browser_cdp`       | Agent panel                | [browser-cursor](./browser-cursor.md)                           |
 | Chrome DevTools MCP | `evaluate_script`   | `list_network_requests`    | [browser-chrome-devtools-mcp](./browser-chrome-devtools-mcp.md) |
 | Playwright MCP      | `browser_evaluate`  | `browser_network_requests` | [browser-playwright-mcp](./browser-playwright-mcp.md)           |
 | Claude in Chrome    | `javascript_tool`   | `read_network_requests`    | [browser-claude-in-chrome](./browser-claude-in-chrome.md)       |

@@ -14,6 +14,7 @@
     "_useLoading.md": "docs/core/shared/_useLoading.mdx",
     "browser-chrome-devtools-mcp.md": "docs/core/_agents/browser-chrome-devtools-mcp.md",
     "browser-claude-in-chrome.md": "docs/core/_agents/browser-claude-in-chrome.md",
+    "browser-cursor.md": "docs/core/_agents/browser-cursor.md",
     "browser-playwright-mcp.md": "docs/core/_agents/browser-playwright-mcp.md",
     "data-dependency.md": "docs/core/getting-started/data-dependency.md",
     "devtools-debugging.md": "docs/core/_agents/devtools-debugging.md",
