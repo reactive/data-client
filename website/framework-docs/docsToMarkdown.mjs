@@ -19,10 +19,7 @@ import { visit } from 'unist-util-visit';
 import { parseMarkdown } from './parseMarkdown.mjs';
 import providerSetup from './providerSetup.mjs';
 import { ROOT, SITE, rel } from './site.mjs';
-import skillCommands, {
-  intentCommand,
-  wholeFramework,
-} from './skillCommands.mjs';
+import skillCommands from './skillCommands.mjs';
 
 const require = createRequire(import.meta.url);
 const {
@@ -233,9 +230,7 @@ function jsxText(children, props, file) {
     .join('');
 }
 
-const marketplace = JSON.parse(
-  fs.readFileSync(path.join(ROOT, '.claude-plugin/marketplace.json'), 'utf8'),
-);
+const marketplace = require(path.join(ROOT, '.claude-plugin/marketplace.json'));
 
 const ADMONITIONS = ['note', 'tip', 'info', 'warning', 'danger', 'caution'];
 /** Inline HTML with a markdown equivalent */
@@ -402,14 +397,13 @@ function render(file, framework, props = {}) {
       // Skills CLI, and TanStack Intent for the whole framework's skills
       // (website/src/components/SkillTabs.tsx)
       case 'SkillTabs': {
-        const options = { ...attrs, framework };
-        const { skillsCli } = skillCommands(options, marketplace);
-        return [
-          codeBlock({ lang: 'bash', value: skillsCli }),
-          ...(wholeFramework(options) ?
-            [codeBlock({ lang: 'bash', value: intentCommand })]
-          : []),
-        ];
+        const { skillsCli, intent } = skillCommands(
+          { ...attrs, framework },
+          marketplace,
+        );
+        return [skillsCli, intent]
+          .filter(Boolean)
+          .map(value => codeBlock({ lang: 'bash', value }));
       }
       case 'PkgTabs':
       case 'PkgInstall':

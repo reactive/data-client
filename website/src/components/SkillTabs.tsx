@@ -6,10 +6,7 @@ import React from 'react';
 import styles from './SkillTabs.module.css';
 import useFramework from './useFramework';
 import marketplace from '../../../.claude-plugin/marketplace.json';
-import skillCommands, {
-  intentCommand,
-  wholeFramework,
-} from '../../framework-docs/skillCommands.mjs';
+import skillCommands from '../../framework-docs/skillCommands.mjs';
 
 interface Props {
   repo?: string;
@@ -26,8 +23,6 @@ export default function SkillTabs({ repo, skill, skills, plugin }: Props) {
     { repo, skill, skills, plugin, framework },
     marketplace,
   );
-  // Intent loads every skill the installed packages ship, so it only fits the whole framework's set
-  const intent = wholeFramework({ skill, skills, plugin });
   return (
     <Tabs
       className={styles.tabs}
@@ -36,7 +31,9 @@ export default function SkillTabs({ repo, skill, skills, plugin }: Props) {
       // Claude Code's own installer first, then skills that update with the packages
       values={[
         { label: 'Claude Code plugin', value: 'claude' },
-        ...(intent ? [{ label: 'TanStack Intent', value: 'intent' }] : []),
+        ...(commands.intent ?
+          [{ label: 'TanStack Intent', value: 'intent' }]
+        : []),
         { label: 'Skills CLI', value: 'skills' },
         { label: 'OpenSkills', value: 'openskills' },
       ]}
@@ -44,9 +41,9 @@ export default function SkillTabs({ repo, skill, skills, plugin }: Props) {
       <TabItem value="claude">
         <CodeBlock className="language-bash">{commands.claude}</CodeBlock>
       </TabItem>
-      {intent && (
+      {commands.intent && (
         <TabItem value="intent">
-          <CodeBlock className="language-bash">{intentCommand}</CodeBlock>
+          <CodeBlock className="language-bash">{commands.intent}</CodeBlock>
         </TabItem>
       )}
       <TabItem value="skills">

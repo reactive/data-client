@@ -6,22 +6,10 @@
 
 const skillsDir = '.agents/skills';
 
-/**
- * TanStack Intent loads the skills the installed `@data-client/*` packages ship.
- * Run it after installing Data Client.
- */
-export const intentCommand = `# run after installing Data Client: loads the skills its packages ship
+/** TanStack Intent loads the skills the installed `@data-client/*` packages ship */
+const intentCommand = `# run after installing Data Client: loads the skills its packages ship
 npm install -D @tanstack/intent
 npx intent install`;
-
-/**
- * Intent only fits the whole framework's skills: neither `skill` nor `skills`
- * nor `plugin` is set.
- * @param {{ skill?: string, skills?: string[], plugin?: string }} options
- */
-export function wholeFramework({ skill, skills, plugin }) {
-  return !skill && !skills && !plugin;
-}
 
 /**
  * @typedef {{ name: string, dependencies?: string[], skills: string[] }} Plugin
@@ -32,12 +20,14 @@ export function wholeFramework({ skill, skills, plugin }) {
  * @param {{ repo?: string, skill?: string, skills?: string[], plugin?: string, framework: string }} options
  *   with no skills, installs `plugin` (default: the framework's) with its dependencies
  * @param {Marketplace} marketplace `.claude-plugin/marketplace.json`
- * @returns {{ skillsCli: string, openSkills: string, claude: string }}
+ * @returns {{ skillsCli: string, openSkills: string, claude: string, intent?: string }}
  */
 export default function skillCommands(
   { repo = 'reactive/data-client', skill, skills, plugin, framework },
   marketplace,
 ) {
+  // Intent loads every skill the packages ship, so it only fits the whole framework's set
+  const intent = !skill && !skills && !plugin ? intentCommand : undefined;
   if (!skills && skill) skills = [skill];
   if (!skills) plugin ??= framework;
   const { plugins } = marketplace;
@@ -60,6 +50,7 @@ export default function skillCommands(
   const claudePlugins =
     plugin ? [plugin] : [...new Set(allSkills.map(pluginOf))];
   return {
+    intent,
     skillsCli: [
       `npx skills add ${repo}`,
       ...allSkills.map(s => `--skill ${s}`),
