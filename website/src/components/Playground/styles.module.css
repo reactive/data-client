@@ -394,7 +394,7 @@ div.playgroundTextEdit > .playgroundHeader,
   display: flex;
   flex-direction: column;
   position: relative;
-  /* over the code, and over the fixtures that float across it */
+  /* over the code */
   z-index: 2;
   overflow: hidden;
   pointer-events: none;
@@ -439,9 +439,9 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 
 /* The Store toggle in the code's corner, over the Store as it slides in
-   under it; its label rises out as the other rises in. Closed, it stays
-   under the fixtures floating over the code: same z-index as theirs, and the
-   preview (with them) comes after the editor in the DOM. */
+   under it; its label rises out as the other rises in. It stays under the
+   fixtures floating over the code, open or closed: they never sit lower, and
+   the preview (with them) comes after the editor in the DOM. */
 .storeBadge {
   --swap-in: 0 110%;
   --swap-out: 0 -110%;
@@ -577,7 +577,9 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .fixturesPopover {
   position: absolute;
-  z-index: 1;
+  /* over the open Store (z-index 2) and its toggle, which share the code's
+     side when the preview sits beside it */
+  z-index: 3;
   /* hangs from the preview's right edge; over the code, only as wide as a
      response line needs */
   inset: auto 0 auto auto;
