@@ -43,11 +43,10 @@ function here() {
   };
 }
 
-// Whether a url isn't a 404, its request cached for the page's life. Any
-// other status, or a failed request (a dev server, a deploy without
-// vercel.json's CORS header), counts as found, so the menu keeps the page's
-// link as it did before checking. So does a slow one, without caching that,
-// so a click waiting on it isn't held for long.
+// Whether a url isn't a 404, cached for the page's life. Any other status,
+// or a failed request (a dev server, a deploy without vercel.json's CORS
+// header), counts as found, so the menu keeps the page's link as it did
+// before checking.
 const found = new Map<string, Promise<boolean>>();
 function exists(url: string) {
   let res = found.get(url);
@@ -58,10 +57,7 @@ function exists(url: string) {
     );
     found.set(url, res);
   }
-  return Promise.race([
-    res,
-    new Promise<boolean>(resolve => setTimeout(resolve, 1500, true)),
-  ]);
+  return res;
 }
 
 /**
@@ -325,7 +321,7 @@ async function open(from: HTMLElement, focusFirst = false) {
 }
 
 // Points item at its version's section home when this page 404s there, and
-// holds a plain click until the check answers
+// holds a plain click until the check answers, or 1.5s for a slow host
 function checkPage(
   item: HTMLAnchorElement,
   v: SiteVersion,
@@ -345,7 +341,10 @@ function checkPage(
     if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
       return;
     e.preventDefault();
-    checked.then(() => location.assign(item.href));
+    Promise.race([
+      checked,
+      new Promise(resolve => setTimeout(resolve, 1500)),
+    ]).then(() => location.assign(item.href));
   });
 }
 
