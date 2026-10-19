@@ -4,6 +4,7 @@ import { describe, it } from 'node:test';
 
 import {
   TranslationError,
+  dataProblems,
   headingIds,
   pinHeadingIds,
   structureProblems,
@@ -133,6 +134,66 @@ describe('structureProblems', () => {
       FILE,
     );
     assert.match(problem, /invalid MDX/);
+  });
+});
+
+describe('dataProblems', () => {
+  const tags = `releases:
+  label: 'Releases'
+  description: 'New versions of Reactive Data Client'
+  permalink: /releases
+`;
+  const fields = ['label', 'description'];
+
+  it('accepts translated labels and descriptions', () => {
+    assert.deepEqual(
+      dataProblems(
+        tags,
+        `releases:
+  label: 'Versiones'
+  description: 'Nuevas versiones de Reactive Data Client'
+  permalink: /releases
+`,
+        fields,
+      ),
+      [],
+    );
+  });
+
+  it('flags changed keys and other values, and a sentence left in English', () => {
+    assert.deepEqual(
+      dataProblems(
+        tags,
+        `release:
+  label: 'Versiones'
+`,
+        fields,
+      ),
+      ['`releases` added or removed', '`release` added or removed'],
+    );
+    assert.deepEqual(
+      dataProblems(
+        tags,
+        `releases:
+  label: ''
+  description: 'New versions of Reactive Data Client'
+  permalink: /versiones
+`,
+        fields,
+      ),
+      [
+        '`releases.label`: translate it, as text',
+        '`releases.description` not translated: New versions of Reactive Data Client',
+        '`releases.permalink` must stay "/releases"',
+      ],
+    );
+  });
+
+  it('flags YAML that no longer parses', () => {
+    assert.match(
+      dataProblems(tags, "releases:\n  label: 'Versiones\n", fields)[0],
+      /^invalid YAML/,
+    );
   });
 });
 
