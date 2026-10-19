@@ -23,8 +23,9 @@ to `.cursor/mcp.json` (see its Install section) and use that instead.
    as an empty object.
 
    Do not send `Page.reload`. It reloads the Cursor window. Open the page again with `browser_navigate`.
-3. Read requests with `browser_network_requests` and logs with `browser_console_messages` when the tool list
-   includes them. Otherwise the same `Runtime.evaluate` call can return request URLs and durations from
-   `performance.getEntriesByType('resource')`. Those have no status code and can miss blocked requests, so
-   check failures in the key's `meta` error instead. Console output is also in the browser log files Cursor
-   writes for the session.
+3. Read requests with `browser_network_requests` when the tool list includes it. Otherwise run
+   `performance.getEntriesByType('resource')` the same way as step 2 for request URLs and durations. Its
+   `responseStatus` is `0` for cross-origin APIs and it can miss blocked requests, so check failures in the
+   endpoint's `meta` error ([devtools-debugging](./devtools-debugging.md), Step 3) instead.
+4. Read logs with `browser_console_messages` when listed. Otherwise read the browser log files Cursor writes for
+   the session.
