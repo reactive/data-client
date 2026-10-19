@@ -51,7 +51,7 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
         if (demoOpen === null) return null;
         // a step naming no view keeps the one the demo opened it in
         const next = demoOpen ? (view ?? prev?.view) : undefined;
-        // unchanged: no render
+        // unchanged: the playground's children don't re-render
         return prev?.open === demoOpen && prev.view === next ?
             prev
           : { open: demoOpen, view: next };

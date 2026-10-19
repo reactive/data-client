@@ -253,7 +253,9 @@ describe('StorePanel table view', () => {
 
   it("shows a demo's view over the reader's while the Store stays open", () => {
     let showStore: ReturnType<typeof useStoreOpen>[2] = () => {};
+    let renders = 0;
     function Demo({ children }: { children: React.ReactNode }) {
+      renders++;
       const [open, toggle, show, demoView] = useStoreOpen('test', 'y');
       showStore = show;
       return (
@@ -279,9 +281,11 @@ describe('StorePanel table view', () => {
     // a demo's targets are table rows
     act(() => showStore(true, 'table'));
     expect(table()).not.toBeNull();
-    // a step naming no view keeps the demo's
+    // a step naming no view keeps the demo's, and changes nothing
+    const before = renders;
     act(() => showStore(true));
     expect(table()).not.toBeNull();
+    expect(renders).toBe(before);
     // the demo closing gives the reader's view back, which it didn't save
     act(() => showStore(false));
     expect(table()).toBeNull();
