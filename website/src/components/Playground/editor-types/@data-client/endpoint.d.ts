@@ -957,7 +957,7 @@ interface CollectionArrayAdder<S extends PolymorphicInterface, Args extends any[
     denormalize(input: any, delegate: IDenormalizeDelegate): ReturnType<S['denormalize']>[number];
     _denormalizeNullable(): S extends {
         schema: infer T;
-    } ? DenormalizeNullable<T> : never;
+    } ? T extends EntityMap<infer U> ? U | undefined : DenormalizeNullable<T> : never;
     _normalizeNullable(): NormalizeNullable<S['schema']>;
     _denormalizeList(): ReturnType<S['denormalize']>;
 }

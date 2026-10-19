@@ -160,6 +160,10 @@ export async function polymorphic() {
     {} as Denormalize<typeof members.schema.push>,
     true,
   );
+  expectType<Todo | Group | undefined>()(
+    {} as DenormalizeNullable<typeof members.schema.push>,
+    true,
+  );
 }
 
 export async function unionKeepsNonAdderResult(pickPush: boolean) {

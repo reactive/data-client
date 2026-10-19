@@ -41,8 +41,12 @@ export interface CollectionArrayAdder<
     delegate: IDenormalizeDelegate,
   ): ReturnType<S['denormalize']>[number];
 
-  // infer keeps casts between Collection types comparable on TS 4-5 (DenormalizeNullable<S['schema']> doesn't)
-  _denormalizeNullable(): S extends { schema: infer T } ? DenormalizeNullable<T>
+  // infer keeps casts between Collection types comparable on TS 4-5 (DenormalizeNullable<S['schema']> doesn't);
+  // an entity map (polymorphic) yields one of its entities, like schema.Array
+  _denormalizeNullable(): S extends { schema: infer T } ?
+    T extends EntityMap<infer U> ?
+      U | undefined
+    : DenormalizeNullable<T>
   : never;
   _normalizeNullable(): NormalizeNullable<S['schema']>;
   // this is not an actual member, but tells Controller.fetch() that a list body resolves a list
