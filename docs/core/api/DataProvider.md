@@ -6,6 +6,7 @@ description: High performance, globally consistent data management in React
 ---
 
 import Installation from '../shared/\_installation.mdx';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import StateType from '../shared/_state_type.mdx';
 import GCPolicyOptions from '../shared/_gc_policy.mdx';
 import Tabs from '@theme/Tabs';
@@ -110,7 +111,7 @@ const RealApp = (
 
 ### devButton
 
-<img src="/img/client-logo.svg" style={{float:'right',width:'40px'}} />
+<img src={useBaseUrl('/img/client-logo.svg')} style={{float:'right',width:'40px'}} />
 
 In development, a small button will appear that gives easy access to [browser devtools](../getting-started/debugging.md) if
 installed. This option configures where it shows up, or if null will disable it altogether.

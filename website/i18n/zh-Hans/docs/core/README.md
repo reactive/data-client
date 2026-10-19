@@ -909,7 +909,7 @@ groupId="Demos"
 
 <div style={{ textAlign: 'center' }}>
 <Link className="button button--secondary" to="/demos">更多演示</Link>&nbsp;
-<Link className="button button--secondary" to="https://skills.sh/reactive/data-client"><img src="/img/anthropic.svg" alt="Agent Skills" style={{
+<Link className="button button--secondary" to="https://skills.sh/reactive/data-client"><img src={useBaseUrl('/img/anthropic.svg')} alt="Agent Skills" style={{
           height: '1em',
           verticalAlign: '-0.125em',
           display: 'inline',

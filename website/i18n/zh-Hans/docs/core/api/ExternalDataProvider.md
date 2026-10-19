@@ -4,6 +4,7 @@ title: "<ExternalDataProvider />"
 ---
 
 import PkgTabs from '@site/src/components/PkgTabs';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 将外部 store 与 `Reactive Data Client` 集成。应尽可能放在应用树的高层，
 因为只有在 React 树中位于该 provider 之下的组件
@@ -69,7 +70,7 @@ Store 只需符合此接口即可。常见的实现是 [redux store](https://red
 
 ### devButton {#devbutton}
 
-<img src="/img/client-logo.svg" style={{float:'right',width:'40px'}} />
+<img src={useBaseUrl('/img/client-logo.svg')} style={{float:'right',width:'40px'}} />
 
 在开发环境中会出现一个小按钮，如果已安装浏览器 devtools，
 可以通过它快速打开。此选项用于配置按钮出现的位置；设为 null 则完全禁用。
