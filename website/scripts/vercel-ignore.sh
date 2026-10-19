@@ -16,6 +16,7 @@ set -u
 # Keep in sync with the `paths` of site-preview.yml.
 SITE_PATHS=(
   website docs/core docs/rest docs/graphql
+  .agents/skill-packages.json .agents/skills/data-client-setup/references.json
   ':(exclude)website/CHANGELOG.md'
   ':(exclude,glob)website/**/__tests__/**'
   ':(exclude,glob)website/**/*.test.*'

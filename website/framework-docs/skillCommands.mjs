@@ -12,15 +12,16 @@ npm install -D @tanstack/intent
 npx intent install`;
 
 /**
- * @typedef {{ name: string, dependencies?: string[], skills: string[] }} Plugin
- * @typedef {{ name: string, plugins: Plugin[] }} Marketplace
+ * @typedef {{ skillPackages: Record<string, string[]>, setupSkills: string[] }} SkillSources
+ *   `.agents/skill-packages.json`, and the protocol setup skills
+ *   `data-client-setup` bundles (its `references.json` `skills`)
  */
 
 /**
- * @param {{ repo?: string, skill?: string, skills?: string[], plugin?: string, intent?: boolean, framework: string }} options
- *   with no skills, installs `plugin` (default: the framework's) with its dependencies;
+ * @param {{ repo?: string, skill?: string, skills?: string[], intent?: boolean, framework: string }} options
+ *   with no skills, installs every skill for the framework;
  *   `intent: false` leaves out TanStack Intent where the packages aren't installed yet
- * @param {Marketplace} marketplace `.claude-plugin/marketplace.json`
+ * @param {SkillSources} sources
  * @returns {{ skillsCli: string, openSkills: string, claude: string, intent?: string }}
  */
 export default function skillCommands(
@@ -28,36 +29,16 @@ export default function skillCommands(
     repo = 'reactive/data-client',
     skill,
     skills,
-    plugin,
     intent: withIntent = true,
     framework,
   },
-  marketplace,
+  { skillPackages, setupSkills },
 ) {
   // Intent loads every skill the packages ship, so it only fits the whole framework's set
-  const intent =
-    withIntent && !skill && !skills && !plugin ? intentCommand : undefined;
-  if (!skills && skill) skills = [skill];
-  if (!skills) plugin ??= framework;
-  const { plugins } = marketplace;
-  const pluginSkills = name => {
-    const p = plugins.find(p => p.name === name);
-    if (!p) throw new Error(`No plugin "${name}" in marketplace.json`);
-    return [
-      ...(p.dependencies ?? []).flatMap(pluginSkills),
-      ...p.skills.map(skillName),
-    ];
-  };
-  const pluginOf = s => {
-    const p = plugins.find(p => p.skills.some(path => skillName(path) === s));
-    if (!p) throw new Error(`No plugin holds skill "${s}"`);
-    return p.name;
-  };
-
-  const allSkills = plugin ? pluginSkills(plugin) : skills;
-  // Claude Code installs whole plugins, so install each one holding a listed skill
-  const claudePlugins =
-    plugin ? [plugin] : [...new Set(allSkills.map(pluginOf))];
+  const intent = withIntent && !skill && !skills ? intentCommand : undefined;
+  const allSkills =
+    skills ??
+    (skill ? [skill] : frameworkSkills(framework, skillPackages, setupSkills));
   return {
     intent,
     skillsCli: [
@@ -68,13 +49,23 @@ export default function skillCommands(
     openSkills: allSkills
       .map(s => `npx openskills install ${repo}/${skillsDir}/${s}`)
       .join('\n'),
+    // The one plugin points the agent at the skills of the installed packages;
+    // the marketplace's other entries are old names kept for existing installs
     claude: [
       `claude plugin marketplace add ${repo}`,
-      ...claudePlugins.map(
-        p => `claude plugin install ${p}@${marketplace.name}`,
-      ),
+      'claude plugin install data-client@data-client',
     ].join('\n'),
   };
 }
 
-const skillName = path => path.slice(path.lastIndexOf('/') + 1);
+/** Skills of every package a framework's app installs, plus the protocol
+ * setup skills that data-client-setup bundles instead of a package owning */
+function frameworkSkills(framework, skillPackages, setupSkills) {
+  const other = framework === 'react' ? 'vue' : 'react';
+  return [
+    ...Object.entries(skillPackages)
+      .filter(([pkg]) => pkg !== `@data-client/${other}`)
+      .flatMap(([, skills]) => skills),
+    ...setupSkills,
+  ];
+}

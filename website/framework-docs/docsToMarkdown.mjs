@@ -230,7 +230,12 @@ function jsxText(children, props, file) {
     .join('');
 }
 
-const marketplace = require(path.join(ROOT, '.claude-plugin/marketplace.json'));
+const skillSources = {
+  skillPackages: require(path.join(ROOT, '.agents/skill-packages.json')),
+  setupSkills: require(
+    path.join(ROOT, '.agents/skills/data-client-setup/references.json'),
+  ).skills,
+};
 
 const ADMONITIONS = ['note', 'tip', 'info', 'warning', 'danger', 'caution'];
 /** Inline HTML with a markdown equivalent */
@@ -399,7 +404,7 @@ function render(file, framework, props = {}) {
       case 'SkillTabs': {
         const { skillsCli, intent } = skillCommands(
           { ...attrs, framework },
-          marketplace,
+          skillSources,
         );
         return [skillsCli, intent]
           .filter(Boolean)

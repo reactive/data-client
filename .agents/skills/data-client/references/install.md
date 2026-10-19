@@ -3,10 +3,10 @@
 This covers `data-client-setup` and every skill the router names. With the same go-ahead as setup, install it the way
 the router skill was installed:
 
-- **npm package** (the router is under `node_modules/`): each skill ships in the `@data-client/*` package it covers,
-  so install that package if the app lacks it (`@data-client/rest` brings `data-client-rest`).
-- **Claude Code plugin** (the router is under `~/.claude/plugins/`): `claude plugin install react@data-client` or
-  `claude plugin install vue@data-client`.
+- **npm package or Claude Code plugin** (the router is under `node_modules/` or `~/.claude/plugins/`): each skill
+  ships in the `@data-client/*` package it covers, so install that package if the app lacks it (`@data-client/rest`
+  brings `data-client-rest`). Read it at `node_modules/@data-client/<package>/skills/<skill>/SKILL.md`, or under
+  `node_modules/.pnpm/` for pnpm's transitive `core` and `endpoint`.
 - **OpenSkills** (`AGENTS.md` lists skills in `<available_skills>`):
   `npx openskills install reactive/data-client/.agents/skills/<name>`.
 - **Otherwise**, the skills CLI: `npx skills add reactive/data-client --yes --skill <name>`.

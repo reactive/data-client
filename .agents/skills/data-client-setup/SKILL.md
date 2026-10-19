@@ -73,8 +73,7 @@ Protocol setup guides are bundled in this skill, but defining and using data aft
 
 Use the installer that installed this skill. For OpenSkills and the skills CLI, add `-g` if this skill lives under your home directory rather than the project.
 
-- **npm package** (this skill is under `node_modules/`): install nothing. Each skill ships inside the `@data-client/*` package it covers, so it arrives with the packages you install below; load them the way you loaded this one.
-- **Claude Code plugin** (this skill is under `~/.claude/plugins/`): `claude plugin install react@data-client` or `claude plugin install vue@data-client`. Either includes every skill above.
+- **npm package or Claude Code plugin** (this skill is under `node_modules/` or `~/.claude/plugins/`): install nothing. Each skill ships inside the `@data-client/*` package it covers, so it arrives with the packages you install below, at their version. Read each one's `node_modules/@data-client/<package>/skills/<skill>/SKILL.md` when this skill says to apply it (pnpm keeps the transitive `core` and `endpoint` under `node_modules/.pnpm/`).
 - **OpenSkills** (`AGENTS.md` lists skills in an `<available_skills>` block): `npx openskills install reactive/data-client/.agents/skills/<skill>`, once per skill.
 - **Otherwise** use the skills CLI: `npx skills add reactive/data-client --yes --skill <skill> --skill <skill> ...`
 

@@ -25,3 +25,10 @@ Type and API cleanups deferred because they would break users or mixed package v
 
 - **Remove `waitForNextUpdate`** from `renderDataCompose()`'s return value, along with the `resolveNextUpdate` bookkeeping in its test component.
   - Breaks: tests that destructure or call `waitForNextUpdate()`. Migration: `await result` for a Promise result; after changing props or calling the controller, `await allSettled()`.
+
+## Old Claude Code plugin names
+
+[#4410](https://github.com/reactive/data-client/pull/4410) merged the `core`, `react`, `vue` and `migrations` plugins into one `data-client` plugin. `.claude-plugin/marketplace.json` keeps the old names as copies of `data-client` (`.claude-plugin/marketplace.test.mjs` keeps them in lockstep) so existing installs keep updating.
+
+- **Remove the `core`, `react`, `vue` and `migrations` entries** from `.claude-plugin/marketplace.json`, along with their lockstep test in `.claude-plugin/marketplace.test.mjs` and `firstCopy()` (and its test) in `.claude-plugin/session-start.mjs`, which only stops the copies printing the context twice.
+  - Breaks: Claude Code users who still have an old plugin name installed stop getting updates. Migration: `claude plugin install data-client@data-client`, then uninstall the old one.

@@ -14,7 +14,7 @@ workflows instead of guessing from older releases. This release cycle makes that
 
 **New:**
 
-- [Claude Code plugin](/blog/2026/10/06/coding-agents#claude-plugin) - `claude plugin install react@data-client` installs the skills for your framework
+- [Claude Code plugin](/blog/2026/10/06/coding-agents#claude-plugin) - `claude plugin install data-client@data-client` gives your agent the skills for the version you installed
 - [Vue skills](/blog/2026/10/06/coding-agents#vue-skills) - Vue projects get Vue composables and tests, not React hooks
 - [llms.txt](/blog/2026/10/06/coding-agents#llms-txt) - Any agent can read the docs as markdown, and every page tells it where to look
 - [Skills in the packages](/blog/2026/10/06/coding-agents#npm-skills) - Each `@data-client/*` package ships the skills for its version, loaded with TanStack Intent
@@ -41,17 +41,15 @@ axios calls to endpoints ([#4153](https://github.com/reactive/data-client/pull/4
 
 ## Claude Code plugin {#claude-plugin}
 
-The Data Client repo is a Claude Code plugin marketplace. The `core` plugin holds the setup, REST, GraphQL, schema and
-Manager skills; the `react` and `vue` plugins add their framework's skills and pull in `core`; and the `migrations`
-plugin adds the upgrade skills ([#4153](https://github.com/reactive/data-client/pull/4153)). The
-[Agent Skills](/docs/getting-started/agent-skills) page shows the same install with the skills CLI and OpenSkills.
+The Data Client repo is a Claude Code plugin marketplace with one `data-client` plugin. Before Data Client is installed,
+it sets your app up. After that, it points your agent at the skills that ship inside your `@data-client` packages, so a
+React app gets the React skills and a Vue app the Vue ones, each for the version you installed. The
+[Agent Skills](/docs/getting-started/agent-skills) page shows the same skills with the skills CLI and OpenSkills.
 
 ```bash
 claude plugin marketplace add reactive/data-client
-claude plugin install react@data-client
+claude plugin install data-client@data-client
 ```
-
-Use `vue@data-client` for Vue, `core@data-client` for neither, and add `migrations@data-client` before an upgrade.
 
 ## Vue skills {#vue-skills}
 

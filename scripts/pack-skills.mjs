@@ -2,10 +2,11 @@
 // Copies the agent skills a package owns from .agents/skills into its
 // `skills/` folder at pack time, so they publish with the version they
 // describe; TanStack Intent (`npx intent install`) finds them there.
-// Each skill ships once, in a package every app that needs it installs.
+// Each skill ships once, in a package every app that needs it installs
+// (.agents/skill-packages.json).
 //
 // Usage (from a package's prepack): node ../../scripts/pack-skills.mjs
-//        node scripts/pack-skills.mjs --check   (every published skill ships once and exists)
+//        node scripts/pack-skills.mjs --check   (every library skill ships once and exists)
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,20 +14,9 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SKILLS = path.join(root, '.agents/skills');
 
-const owners = {
-  '@data-client/core': [
-    'data-client',
-    'data-client-setup',
-    'data-client-manager',
-  ],
-  '@data-client/endpoint': [
-    'data-client-schema',
-    'data-client-v0.18-migration',
-  ],
-  '@data-client/rest': ['data-client-rest', 'path-to-regexp-v8-migration'],
-  '@data-client/react': ['data-client-react', 'data-client-react-testing'],
-  '@data-client/vue': ['data-client-vue', 'data-client-vue-testing'],
-};
+const owners = JSON.parse(
+  fs.readFileSync(path.join(root, '.agents/skill-packages.json'), 'utf8'),
+);
 // repo tooling, not part of the published copy
 const skip = new Set(['evals', 'references.json']);
 
@@ -39,12 +29,12 @@ if (process.argv.includes('--check')) {
         (JSON.parse(fs.readFileSync(manifest, 'utf8')).skills ?? [])
       : [];
   });
-  // every skill the Claude Code plugins publish
-  const published = JSON.parse(
-    fs.readFileSync(path.join(root, '.claude-plugin/marketplace.json'), 'utf8'),
-  ).plugins.flatMap(plugin => plugin.skills.map(s => path.basename(s)));
+  // library skills (repo tooling like `changeset` stays out of packages)
+  const library = fs
+    .readdirSync(SKILLS)
+    .filter(s => s.startsWith('data-client') || s.endsWith('-migration'));
   const problems = [
-    ...published
+    ...library
       .filter(s => !owned.includes(s) && !bundled.includes(s))
       .map(s => `${s} ships in no package`),
     ...owned

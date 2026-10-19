@@ -21,7 +21,7 @@ on:
       - 'scripts/globals.ts'
       - 'scripts/rollup-plugins/**'
       - 'scripts/pack-skills.mjs'
-      - '.claude-plugin/marketplace.json'
+      - '.agents/skill-packages.json'
       - 'website/src/components/Playground/editor-types/**'
       - 'website/src/components/Playground/DesignSystem/index.ts'
       - 'website/src/components/Playground/monaco/typeCheckFlags.json'

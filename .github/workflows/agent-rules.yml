@@ -5,16 +5,19 @@ on:
     branches:
       - master
     # Inputs and outputs of scripts/agent-rules.mjs and
-    # scripts/breaking-evals.mjs, and the hook tests
+    # scripts/breaking-evals.mjs, the hook tests, and the Claude Code plugin's
+    # tests (.claude-plugin/README.md lists what they read)
     paths:
       - '**/.cursor/rules/**'
       - '**/.claude/rules/**'
       - '.claude/skills'
       - '.cursor/hooks/**'
+      - '.claude-plugin/**'
+      - '.agents/skill-packages.json'
       - 'scripts/agent-rules.mjs'
       - 'scripts/breaking-evals.mjs'
       - '.changeset/**'
-      - '.agents/skills/*/evals/**'
+      - '.agents/skills/**'
       - '.agents/skills/changeset/no-agent-impact.json'
       - '.github/workflows/agent-rules.yml'
       - '.github/workflows/paths-gate.yml'
@@ -55,4 +58,4 @@ jobs:
       - name: Check every breaking changeset has a skill eval
         run: node scripts/breaking-evals.mjs
       - name: Test agent hooks
-        run: node --test '.cursor/hooks/*.test.js'
+        run: node --test '.cursor/hooks/*.test.js' '.claude-plugin/*.test.mjs'

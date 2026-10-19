@@ -5,31 +5,24 @@ import React from 'react';
 
 import styles from './SkillTabs.module.css';
 import useFramework from './useFramework';
-import marketplace from '../../../.claude-plugin/marketplace.json';
+import skillPackages from '../../../.agents/skill-packages.json';
+import setupReferences from '../../../.agents/skills/data-client-setup/references.json';
 import skillCommands from '../../framework-docs/skillCommands.mjs';
 
 interface Props {
   repo?: string;
   skill?: string;
+  /** Defaults to every skill for the current page's framework */
   skills?: string[];
-  /** Plugin from `.claude-plugin/marketplace.json` to install with its dependencies.
-   * Defaults to the current page's framework when no skills are given. */
-  plugin?: string;
   /** false leaves out TanStack Intent, which needs the packages installed first */
   intent?: boolean;
 }
 
-export default function SkillTabs({
-  repo,
-  skill,
-  skills,
-  plugin,
-  intent,
-}: Props) {
+export default function SkillTabs({ repo, skill, skills, intent }: Props) {
   const framework = useFramework();
   const commands = skillCommands(
-    { repo, skill, skills, plugin, intent, framework },
-    marketplace,
+    { repo, skill, skills, intent, framework },
+    { skillPackages, setupSkills: setupReferences.skills },
   );
   return (
     <Tabs

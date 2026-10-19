@@ -36,6 +36,13 @@ Schema driven. Zero updater functions.
 npm install --save @data-client/react @data-client/rest @data-client/test
 ```
 
+To have your coding agent load the [skills](https://agentskills.io) these packages ship for their version, add [TanStack Intent](https://tanstack.com/intent):
+
+```bash
+npm install -D @tanstack/intent
+npx intent install
+```
+
 For more details, see [the Getting Started docs page](https://dataclient.io/docs/getting-started/installation).
 
 ### Skills
@@ -45,8 +52,6 @@ npx skills add reactive/data-client
 ```
 
 Then run [skill](https://agentskills.io) "data-client-setup"
-
-Skills also ship inside each `@data-client/*` package; load them with [TanStack Intent](https://tanstack.com/intent) (`npx @tanstack/intent@latest install`).
 
 ## Usage
 
