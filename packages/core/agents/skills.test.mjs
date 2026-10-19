@@ -134,13 +134,6 @@ const links = dir =>
   );
 const skillText = (dir, skill) =>
   fs.readFileSync(path.join(skillsDir(dir), skill, 'SKILL.md'), 'utf8');
-/** What a sync changed or reported, without where it wrote */
-const changes = ({ added, removed, outdated, kept }) => ({
-  added,
-  removed,
-  outdated,
-  kept,
-});
 const listing = dir => fs.readdirSync(dir, { recursive: true }).sort();
 
 /** react and rest installed flat, with core and endpoint hoisted beside them */
@@ -163,11 +156,13 @@ function hoisted() {
 
 test('does nothing without Data Client', () => {
   const dir = project({ 'package.json': { name: 'app' } });
-  assert.deepEqual(changes(syncSkills(dir)), {
+  assert.deepEqual(syncSkills(dir), {
     added: [],
     removed: [],
     outdated: [],
     kept: [],
+    junctions: false,
+    dir: '.agents/skills',
   });
   assert.ok(!fs.existsSync(path.join(dir, '.claude')));
 });
@@ -207,11 +202,13 @@ test('shares one folder: .agents/skills, with .claude/skills linking to it', () 
 test('running again changes nothing', () => {
   const dir = hoisted();
   syncSkills(dir);
-  assert.deepEqual(changes(syncSkills(dir)), {
+  assert.deepEqual(syncSkills(dir), {
     added: [],
     removed: [],
     outdated: [],
     kept: [],
+    junctions: false,
+    dir: '.agents/skills',
   });
 });
 
@@ -342,12 +339,14 @@ for (const field of [
         ['data-client-schema'],
       ),
     });
-    assert.deepEqual(changes(syncSkills(dir)), {
+    assert.deepEqual(syncSkills(dir), {
       added: ['data-client-schema'],
       removed: [],
       // graphql ships no skills of its own
       outdated: [],
       kept: [],
+      junctions: false,
+      dir: '.agents/skills',
     });
   });
 }
@@ -509,18 +508,20 @@ test('Yarn PnP copies are replaced on upgrade and removed with the package', () 
     path.join(upgraded.dir, '.yarn/cache/react.zip'),
     path.join(dir, '.yarn/cache/react.zip'),
   );
-  assert.deepEqual(changes(syncSkills(dir)), {
+  assert.deepEqual(syncSkills(dir), {
     added: ['data-client-react'],
     removed: [],
     outdated: [],
     kept: [],
+    junctions: false,
+    dir: '.agents/skills',
   });
   assert.equal(skillText(dir, 'data-client-react'), 'new');
   fs.rmSync(path.join(dir, '.pnp.cjs'));
   assert.deepEqual(syncSkills(dir).removed, ['data-client-react']);
 });
 
-test('Yarn PnP links unplugged packages like node_modules', () => {
+test('Yarn PnP copies unplugged packages too', () => {
   const unplugged = '.yarn/unplugged/react/node_modules/@data-client/react';
   const { dir } = pnpProject([['@data-client/react', `./${unplugged}/`]], {
     ...pkg(unplugged, '@data-client/react', '0.19.0', ['data-client-react']),

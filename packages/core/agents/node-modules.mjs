@@ -104,10 +104,7 @@ function expand(dir, [segment, ...rest]) {
     // a committed symlink could lead out of the project; subdirs() skips them
     // for wildcard segments too
     const next = path.join(dir, segment);
-    const link = fs
-      .lstatSync(next, { throwIfNoEntry: false })
-      ?.isSymbolicLink();
-    return link ? [] : expand(next, rest);
+    return isLink(next) ? [] : expand(next, rest);
   }
   const children = subdirs(dir);
   if (segment === '**')
@@ -175,6 +172,10 @@ function packageDir(from, pkg) {
   } catch {
     return undefined;
   }
+}
+
+export function isLink(file) {
+  return !!fs.lstatSync(file, { throwIfNoEntry: false })?.isSymbolicLink();
 }
 
 export function readJSON(file) {

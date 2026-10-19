@@ -9,8 +9,15 @@ import SkillTabs from '@site/src/components/SkillTabs';
 ## Install skills for best results
 
 Agents get the basics right from the package name alone. [Skills](https://agentskills.io) teach them the current
-APIs for the rest, like test fixtures and real-time managers. Install skill
-[/data-client-setup](https://skills.sh/reactive/data-client/data-client-setup):
+APIs for the rest, like test fixtures and real-time managers.
+
+If your app already has `@data-client` packages, link the skills they ship, matched to their versions:
+
+```bash framed
+npx --no data-client-skills
+```
+
+Otherwise, install skill [/data-client-setup](https://skills.sh/reactive/data-client/data-client-setup):
 
 <SkillTabs skill="data-client-setup" framed />
 

@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { nodeModulesPackages, readJSON } from './node-modules.mjs';
+import { isLink, nodeModulesPackages, readJSON } from './node-modules.mjs';
 import { pnpPackages } from './pnp.mjs';
 
 // the packages that ship skills (.agents/skill-packages.json); strict layouts
@@ -28,17 +28,27 @@ const MARKER = '.data-client';
  * node_modules/@data-client, or copies holding its marker.
  */
 export function syncSkills(projectDir) {
-  const result = { added: [], removed: [], outdated: [], kept: [] };
-  const dest = skillsDir(projectDir);
-  if (!dest) return result;
-  result.dir = path.relative(projectDir, dest).split(path.sep).join('/');
+  const dirs = skillsDirs(projectDir);
+  const result = {
+    added: [],
+    removed: [],
+    outdated: [],
+    kept: [],
+    junctions: false,
+    dir: dirs && posix(path.relative(projectDir, dirs.dest)),
+  };
+  if (!dirs) return result;
+  const { dest, claude } = dirs;
   const extracted = fs.mkdtempSync(path.join(os.tmpdir(), 'data-client-'));
   try {
-    const { found, copy } = installedPackages(projectDir, extracted);
-    const want = wantedSkills(found, copy, dest, result);
+    const { want, copy } = wantedSkills(projectDir, dest, extracted, result);
     if (!want.size && !fs.existsSync(dest)) return result;
     fs.mkdirSync(dest, { recursive: true });
-    shareWithClaude(projectDir, dest, result);
+    // let Claude Code see a new shared folder
+    if (!fs.lstatSync(claude, { throwIfNoEntry: false })) {
+      fs.mkdirSync(path.dirname(claude), { recursive: true });
+      result.junctions ||= link('../.agents/skills', dest, claude);
+    }
     syncDir(dest, want, copy, result);
     return result;
   } finally {
@@ -47,44 +57,40 @@ export function syncSkills(projectDir) {
 }
 
 /**
- * Where the links go. Codex reads .agents/skills, Claude Code reads
+ * Where the links go (`dest`). Codex reads .agents/skills, Claude Code reads
  * .claude/skills and Cursor reads both, so a new project gets .agents/skills
  * with .claude/skills linking to it. A project that already keeps its skills
  * in a real .claude/skills folder gets them there. Undefined when a link would
  * lead anywhere else: never write through a link someone committed.
  */
-function skillsDir(projectDir) {
+function skillsDirs(projectDir) {
   const claude = path.join(projectDir, '.claude', 'skills');
   const shared = path.join(projectDir, '.agents', 'skills');
   if ([shared, path.dirname(shared), path.dirname(claude)].some(isLink)) return;
-  if (!isLink(claude)) return fs.existsSync(claude) ? claude : shared;
+  if (!isLink(claude))
+    return { dest: fs.existsSync(claude) ? claude : shared, claude };
   const target = path.resolve(path.dirname(claude), fs.readlinkSync(claude));
-  return target === shared ? shared : undefined;
-}
-
-/** Links .claude/skills to .agents/skills when it doesn't exist yet */
-function shareWithClaude(projectDir, dest, result) {
-  const claude = path.join(projectDir, '.claude', 'skills');
-  if (dest === claude || fs.lstatSync(claude, { throwIfNoEntry: false }))
-    return;
-  fs.mkdirSync(path.dirname(claude), { recursive: true });
-  if (link('../.agents/skills', dest, claude)) result.junctions = true;
-}
-
-function isLink(file) {
-  return !!fs.lstatSync(file, { throwIfNoEntry: false })?.isSymbolicLink();
+  return target === shared ? { dest: shared, claude } : undefined;
 }
 
 function syncDir(dest, want, copy, result) {
-  if (!want.size && !fs.existsSync(dest)) return;
-  fs.mkdirSync(dest, { recursive: true });
   for (const entry of fs.readdirSync(dest, { withFileTypes: true })) {
     const file = path.join(dest, entry.name);
     const current = owned(file, entry);
-    if (current === undefined) continue;
+    if (current === undefined) {
+      // anything else holding a wanted name wins: the user's own skill, a
+      // committed link git checked out as a file, copies committed from a
+      // junction. Say so rather than report up to date.
+      if (want.delete(entry.name)) result.kept.push(entry.name);
+      continue;
+    }
     const wanted = want.get(entry.name);
-    // a junction (see link) holds the absolute path instead
-    if (wanted && (current === wanted.id || current === real(wanted.dir))) {
+    if (
+      wanted &&
+      (current === wanted.id ||
+        // a junction (see link) holds the absolute path instead
+        (path.isAbsolute(current) && current === real(wanted.dir)))
+    ) {
       want.delete(entry.name);
       continue;
     }
@@ -93,38 +99,25 @@ function syncDir(dest, want, copy, result) {
   }
   for (const [skill, { dir, id }] of want) {
     const file = path.join(dest, skill);
-    // a skill of the user's own with this name wins; so do a committed link
-    // that git checked out as a file, and copies committed from a junction,
-    // so say so rather than report up to date
-    if (fs.lstatSync(file, { throwIfNoEntry: false })) {
-      result.kept.push(skill);
-      continue;
-    }
     if (copy) {
       fs.cpSync(dir, file, { recursive: true });
       fs.writeFileSync(path.join(file, MARKER), id);
-    } else if (link(id, dir, file)) result.junctions = true;
+    } else result.junctions ||= link(id, dir, file);
     result.added.push(skill);
   }
 }
 
 /**
- * The installed packages; under Yarn Plug'n'Play, which has no node_modules,
- * extracted into `extracted` so they can be copied
+ * Skill name -> its directory and id: the link target from `dest`, or
+ * `pkg@version` for copies, which Yarn Plug'n'Play needs since it has no
+ * node_modules
  */
-function installedPackages(projectDir, extracted) {
-  const found = nodeModulesPackages(projectDir, PACKAGES);
+function wantedSkills(projectDir, dest, extracted, result) {
+  let found = nodeModulesPackages(projectDir, PACKAGES);
   // a project that moved off Plug'n'Play can keep a stale .pnp.cjs, so its
   // map counts only when node_modules holds no @data-client package
-  if (found.length) return { found, copy: false };
-  return { found: pnpPackages(projectDir, PACKAGES, extracted), copy: true };
-}
-
-/**
- * Skill name -> its directory and id: the link target from `dest`, or
- * `pkg@version` for copies
- */
-function wantedSkills(found, copy, dest, result) {
+  const copy = !found.length;
+  if (copy) found = pnpPackages(projectDir, PACKAGES, extracted);
   const want = new Map();
   for (const { pkg, dir } of found) {
     const version = `${pkg}@${readJSON(path.join(dir, 'package.json')).version}`;
@@ -144,7 +137,7 @@ function wantedSkills(found, copy, dest, result) {
       });
     }
   }
-  return want;
+  return { want, copy };
 }
 
 /**
@@ -155,9 +148,7 @@ function owned(file, entry) {
   if (entry.isSymbolicLink()) {
     // Windows writes relative targets with backslashes
     const target = posix(fs.readlinkSync(file));
-    return /node_modules[\\/]@data-client[\\/]/.test(target) ? target : (
-        undefined
-      );
+    return /node_modules\/@data-client\//.test(target) ? target : undefined;
   }
   const marker = path.join(file, MARKER);
   return entry.isDirectory() && fs.existsSync(marker) ?
@@ -172,7 +163,7 @@ function owned(file, entry) {
  * resolves to the store sibling of whichever react version is installed.
  */
 function stablePath(dir, pkg, found, dest) {
-  const relative = from => path.relative(dest, from).split(path.sep).join('/');
+  const relative = from => posix(path.relative(dest, from));
   // Windows resolves `..` before following links, so it gets the store path
   if (!dir.split(path.sep).includes('.pnpm') || process.platform === 'win32')
     return relative(dir);
