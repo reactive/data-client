@@ -96,16 +96,24 @@ function skillsDirs(projectDir) {
     : undefined;
 }
 
-/** Whether any entry of `dir` links into `target` */
+/** Whether any entry of `dir` links into `target`, which may be gone */
 function linksInto(dir, target) {
+  // junctions (see mirrorLinks) hold the resolved path, which differs under a
+  // linked parent; target's own parent usually outlives it
+  const parent = path.dirname(target);
+  const targets = [target];
+  if (fs.existsSync(parent))
+    targets.push(path.join(fs.realpathSync(parent), path.basename(target)));
   return fs
     .readdirSync(dir, { withFileTypes: true })
     .some(
       entry =>
         entry.isSymbolicLink() &&
-        path.dirname(
-          path.resolve(dir, fs.readlinkSync(path.join(dir, entry.name))),
-        ) === target,
+        targets.includes(
+          path.dirname(
+            path.resolve(dir, fs.readlinkSync(path.join(dir, entry.name))),
+          ),
+        ),
     );
 }
 

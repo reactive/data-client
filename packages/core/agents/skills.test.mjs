@@ -333,6 +333,25 @@ test('the skills CLI layout recreates .agents/skills after it was deleted', () =
   assert.match(skillText(dir, 'data-client-react'), /data-client-react skill/);
 });
 
+test('recreates .agents/skills when junctions in .claude/skills lead through a linked parent', () => {
+  const real = hoisted();
+  // the project as reached through a linked folder; junctions hold real paths
+  const dir = path.join(
+    fs.mkdtempSync(path.join(os.tmpdir(), 'dc-alias-')),
+    'app',
+  );
+  fs.symlinkSync(real, dir, 'dir');
+  fs.mkdirSync(skillsDir(dir), { recursive: true });
+  fs.mkdirSync(path.join(dir, '.agents'));
+  fs.symlinkSync(
+    path.join(real, '.agents/skills/data-client-react'),
+    path.join(skillsDir(dir), 'data-client-react'),
+  );
+  assert.equal(syncSkills(dir).dir, '.agents/skills');
+  assert.ok(!fs.lstatSync(path.join(dir, '.agents/skills')).isSymbolicLink());
+  assert.match(skillText(dir, 'data-client-react'), /data-client-react skill/);
+});
+
 test('the skills CLI layout falls back to junctions that follow the .agents/skills entry', () => {
   const dir = hoisted();
   fs.mkdirSync(path.join(dir, '.agents/skills'), { recursive: true });
