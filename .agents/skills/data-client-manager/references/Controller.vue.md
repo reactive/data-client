@@ -580,7 +580,7 @@ export enum ExpiryStatus {
 
 ##### Invalid
 
-- Will always suspend
+- Will always suspend on setup (mounted components [keep their current data](https://dataclient.io/vue/concepts/expiry-policy#invalidate) until the refetch resolves)
 - Will always fetch
 
 #### expiresAt

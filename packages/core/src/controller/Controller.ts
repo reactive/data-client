@@ -188,6 +188,7 @@ export default class Controller<
 
   /**
    * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
+   * In Vue, mounted components keep showing their current data until the refetch resolves.
    * @see https://dataclient.io/docs/api/Controller#invalidate
    */
   invalidate = <E extends EndpointInterface>(
@@ -204,6 +205,7 @@ export default class Controller<
 
   /**
    * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
+   * In Vue, mounted components keep showing their current data until the refetch resolves.
    * @see https://dataclient.io/docs/api/Controller#invalidateAll
    * @returns Promise that resolves when invalidation is commited.
    */

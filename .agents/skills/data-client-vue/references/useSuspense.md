@@ -94,17 +94,19 @@ export const getProfile = new Endpoint(
 
 Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by default but also [configurable](https://dataclient.io/vue/concepts/expiry-policy).
 
-| Expiry Status | Fetch           | Suspend | Error             | Conditions                                                                                                                                                                                                      |
-| ------------- | --------------- | ------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Invalid       | yes<sup>1</sup> | yes     | no                | not in store, [deletion](https://dataclient.io/rest/api/resource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](https://dataclient.io/vue/concepts/expiry-policy#endpointinvalidifstale) |
-| Stale         | yes<sup>1</sup> | no      | no                | (first-render, arg change) & [expiry < now](https://dataclient.io/vue/concepts/expiry-policy)                                                                                                                   |
-| Valid         | no              | no      | maybe<sup>2</sup> | fetch completion                                                                                                                                                                                                |
-|               | no              | no      | no                | `null` used as second argument                                                                                                                                                                                  |
+| Expiry Status | Fetch           | Suspend         | Error             | Conditions                                                                                                                                                                                                      |
+| ------------- | --------------- | --------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Invalid       | yes<sup>1</sup> | yes<sup>3</sup> | no                | not in store, [deletion](https://dataclient.io/rest/api/resource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](https://dataclient.io/vue/concepts/expiry-policy#endpointinvalidifstale) |
+| Stale         | yes<sup>1</sup> | no              | no                | (first-render, arg change) & [expiry < now](https://dataclient.io/vue/concepts/expiry-policy)                                                                                                                   |
+| Valid         | no              | no              | maybe<sup>2</sup> | fetch completion                                                                                                                                                                                                |
+|               | no              | no              | no                | `null` used as second argument                                                                                                                                                                                  |
 
 > **Note**
 >
 > 1. Identical fetches are automatically deduplicated
 > 2. [Hard errors](https://dataclient.io/vue/concepts/error-policy#hard) to be [caught](./data-dependency.md#async-fallbacks) by [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured)
+>
+> 3) Only during setup. Vue can't suspend a mounted component again, so after [invalidation](./Controller.md#invalidate) it [keeps returning its current data](https://dataclient.io/vue/concepts/expiry-policy#invalidate) until the refetch resolves.
 
 > **Tip: Conditional Dependencies**
 >
