@@ -322,7 +322,8 @@ function checkPage(
 ) {
   const checked = exists(v.url + page).then(async hasPage => {
     if (hasPage) return;
-    // the root until a home answers, so a click never opens the 404
+    // the root until a home answers, so a timed-out click doesn't open a
+    // page known to be missing (one still unchecked keeps its link)
     item.href = `${v.url}/`;
     const hasHome = await Promise.all(homes.map(home => exists(v.url + home)));
     const home = homes.find((_, i) => hasHome[i]) ?? '/';
