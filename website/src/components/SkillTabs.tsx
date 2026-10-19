@@ -21,7 +21,7 @@ interface Props {
 
 const skillsDir = '.agents/skills';
 
-const intentCommand = `# loads the skills shipped inside your installed @data-client packages
+const intentCommand = `# run after installing Data Client: loads the skills its packages ship
 npm install -D @tanstack/intent
 npx intent install`;
 
