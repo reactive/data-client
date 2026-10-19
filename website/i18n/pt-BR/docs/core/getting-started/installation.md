@@ -22,7 +22,7 @@ import SkillTabs from '@site/src/components/SkillTabs';
 Primeiro instale as [skills](./agent-skills.md) do Data Client para o seu agente de código. Sem elas, os agents acertam
 o básico, mas deixam passar o restante, como managers em tempo real e fixtures de teste.
 
-<SkillTabs packages={false} framed />
+<SkillTabs intent={false} framed />
 
 Em seguida, diga ao seu agent:
 
