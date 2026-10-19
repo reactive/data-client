@@ -19,16 +19,14 @@ import SkillTabs from '@site/src/components/SkillTabs';
 
 ## With your coding agent
 
-Tell your [coding agent](https://agentskills.io) to use Data Client:
-
-<AgentPrompt />
-
-It gets the basics right from the package name. Install its skills first for the rest, like test
-fixtures and real-time managers:
+First install Data Client's [skills](./agent-skills.md) for your coding agent. Without them, agents get
+the basics right but miss the rest, like real-time managers and test fixtures.
 
 <SkillTabs />
 
-[Agent Skills](./agent-skills.md) explains each skill.
+Then tell your agent:
+
+<AgentPrompt />
 
 </SiteOnly>
 
