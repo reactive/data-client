@@ -4,12 +4,7 @@ title: Agent Skills
 sidebar_label: Agent Skills
 ---
 
-import AgentPrompt from '@site/src/components/AgentPrompt';
 import SkillTabs from '@site/src/components/SkillTabs';
-
-The quickest way to get started is to tell your [coding agent](https://agentskills.io):
-
-<AgentPrompt />
 
 ## Install skills for best results
 

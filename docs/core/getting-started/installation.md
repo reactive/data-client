@@ -12,22 +12,33 @@ import Installation from '../shared/\_installation.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
 import SiteOnly from '@site/src/components/SiteOnly';
+import AgentPrompt from '@site/src/components/AgentPrompt';
+import SkillTabs from '@site/src/components/SkillTabs';
+
+<SiteOnly>
+
+## With your coding agent
+
+Tell your [coding agent](https://agentskills.io) to use Data Client:
+
+<AgentPrompt />
+
+It gets the basics right from the package name. Install its skills first for the rest, like test
+fixtures and real-time managers:
+
+<SkillTabs intent />
+
+[Agent Skills](./agent-skills.md) explains each skill.
+
+</SiteOnly>
 
 :::react
+
+## Install manually
 
 <PkgTabs pkgs="@data-client/react @data-client/test @data-client/rest" />
 
 :::
-
-<SiteOnly>
-
-:::tip[Use Agent Skills]
-
-Prefer to scaffold via your AI agent? See [Agent Skills](./agent-skills.md) and run `/data-client-setup`.
-
-:::
-
-</SiteOnly>
 
 ## :react[Add provider at top-level component]:vue[Install the plugin] {#add-provider-at-top-level-component}
 

@@ -2,6 +2,8 @@
 
 # Getting Started with Reactive Data Client
 
+## Install manually
+
 ```bash
 npm install @data-client/react @data-client/test @data-client/rest
 ```
