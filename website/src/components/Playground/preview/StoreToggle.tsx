@@ -20,8 +20,9 @@ export const heldToggle = () => (clicked?.isConnected ? clicked : undefined);
 
 /** A demo's Store view, shown over the reader's saved one without saving it
  * (see `useStoreOpen`); `drop()` gives theirs back. Here, not with
- * `useStoreView` in ./store/storeView.ts: ../index.tsx provides it, and being
- * in every page chunk (see the top), loads the Store UI only with `import()` */
+ * `useStoreView` in ./store/storeView.ts: ../index.tsx provides it, and must
+ * import the Store UI's lazy chunk only with `import()` since it's in every
+ * page chunk (see the top) */
 export interface DemoView {
   view?: StoreView;
   drop(): void;
