@@ -25,7 +25,7 @@ const loadVersions = (): Promise<SiteVersion[]> =>
 
 /**
  * page: this page's path and locale, to add to any version's url
- * homes: where it falls back to in a version without it (missingPageHome):
+ * homes: where it falls back to in a version without it (checkPage):
  *   its section's home (like /docs), in this locale, then in the default one
  * site: this site's url in the list (production's root, /next or an archive's)
  */
@@ -58,19 +58,6 @@ function exists(url: string) {
     found.set(url, res);
   }
   return res;
-}
-
-/**
- * Where another version's copy of this page lives when it 404s there (a page
- * added, moved or removed between versions, or a locale an archive never
- * built): the first of homes it has, else its root. Like Docusaurus's own
- * version dropdown, which falls back to a version's docs home. Resolves
- * undefined when the page exists.
- */
-async function missingPageHome(url: string, page: string, homes: string[]) {
-  if (await exists(url + page)) return;
-  const hasHome = await Promise.all(homes.map(home => exists(url + home)));
-  return homes.find((_, i) => hasHome[i]) ?? '/';
 }
 
 // var() fallbacks: archives freeze this with an old release's Infima
@@ -320,16 +307,25 @@ async function open(from: HTMLElement, focusFirst = false) {
   if (focusFirst) el.querySelector<HTMLElement>('[role=menuitem]')?.focus();
 }
 
-// Points item at its version's section home when this page 404s there, and
-// holds a plain click until the check answers, or 1.5s for a slow host
+/**
+ * Points item elsewhere when this page 404s in its version (a page added,
+ * moved or removed between versions, or a locale an archive never built):
+ * the first of homes that version has, else its root. Like Docusaurus's own
+ * version dropdown, which falls back to a version's docs home. Holds a plain
+ * click until the check answers, or 1.5s for a slow host.
+ */
 function checkPage(
   item: HTMLAnchorElement,
   v: SiteVersion,
   page: string,
   homes: string[],
 ) {
-  const checked = missingPageHome(v.url, page, homes).then(home => {
-    if (!home) return;
+  const checked = exists(v.url + page).then(async hasPage => {
+    if (hasPage) return;
+    // the root until a home answers, so a click never opens the 404
+    item.href = `${v.url}/`;
+    const hasHome = await Promise.all(homes.map(home => exists(v.url + home)));
+    const home = homes.find((_, i) => hasHome[i]) ?? '/';
     item.href = v.url + home;
     item.title = `This page isn't in ${v.label}`;
     const hint = document.createElement('span');
