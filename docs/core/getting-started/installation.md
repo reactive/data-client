@@ -19,8 +19,6 @@ import AgentOnly from '@site/src/components/AgentOnly';
 
 ## With your coding agent
 
-Tell your agent:
-
 <AgentPrompt framed />
 
 It installs Data Client's setup [skill](./agent-skills.md), which installs the packages, wires up the provider and
