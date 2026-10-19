@@ -943,5 +943,17 @@
   },
   "playground.fixtures.delay": {
     "message": "延迟"
+  },
+  "agentPrompt.prompt": {
+    "message": "所有服务器状态都使用 `@data-client/{framework}`",
+    "description": "Prompt readers copy into their coding agent. Keep the backticks around package names: they keep each name on one line."
+  },
+  "agentPrompt.copy": {
+    "message": "复制给编程代理的提示词",
+    "description": "Tooltip of the agent prompt, which copies itself when clicked"
+  },
+  "agentPrompt.copied": {
+    "message": "已复制",
+    "description": "Shown for a moment after the agent prompt is copied"
   }
 }

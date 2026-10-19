@@ -19,6 +19,7 @@ import { visit } from 'unist-util-visit';
 import { parseMarkdown } from './parseMarkdown.mjs';
 import providerSetup from './providerSetup.mjs';
 import { ROOT, SITE, rel } from './site.mjs';
+import skillCommands from './skillCommands.mjs';
 
 const require = createRequire(import.meta.url);
 const {
@@ -229,16 +230,19 @@ function jsxText(children, props, file) {
     .join('');
 }
 
+const marketplace = require(path.join(ROOT, '.claude-plugin/marketplace.json'));
+
 const ADMONITIONS = ['note', 'tip', 'info', 'warning', 'danger', 'caution'];
 /** Inline HTML with a markdown equivalent */
 const INLINE = { b: 'strong', strong: 'strong', em: 'emphasis', i: 'emphasis' };
 /** HTML kept as is around its converted children */
 const HTML = ['details', 'sup', 'sub', 'kbd'];
-/** Site-only embeds with nothing to read */
-const DROP = ['ThemedImage', 'SkillTabs', 'head'];
+/** Site-only embeds with nothing to read, and `<SiteOnly>` prose for human readers
+ * (tell your agent, install a skill), which agents reading the markdown don't need */
+const DROP = ['ThemedImage', 'head', 'SiteOnly'];
 
 /** Rewrites one page (and its partials) into plain markdown nodes */
-function render(file, framework, props = {}, drop = DROP) {
+function render(file, framework, props = {}) {
   const content = contentFor(file, framework);
   if (!pageFrameworks(content).includes(framework)) return;
   const source = sourceFor(file, framework);
@@ -368,12 +372,12 @@ function render(file, framework, props = {}, drop = DROP) {
 
   function convertJsx(node) {
     const { name } = node;
-    if (!name || drop.includes(name)) return [];
+    if (!name || DROP.includes(name)) return [];
     const flow = node.type === 'mdxJsxFlowElement';
     const attrs = attributesOf(node, props, source);
     if (partials[name]) {
       attrs.children = node.children;
-      return render(partials[name], framework, attrs, drop)?.children ?? [];
+      return render(partials[name], framework, attrs)?.children ?? [];
     }
     switch (name) {
       case 'CodeBlock':
@@ -389,6 +393,17 @@ function render(file, framework, props = {}, drop = DROP) {
         const managers = attrs.children?.find(c => c.type === 'code')?.value;
         const { language, code, title } = providerSetup({ ...attrs, managers });
         return [codeBlock({ lang: language, value: code, title })];
+      }
+      // Skills CLI, and TanStack Intent for the whole framework's skills
+      // (website/src/components/SkillTabs.tsx)
+      case 'SkillTabs': {
+        const { skillsCli, intent } = skillCommands(
+          { ...attrs, framework },
+          marketplace,
+        );
+        return [skillsCli, intent]
+          .filter(Boolean)
+          .map(value => codeBlock({ lang: 'bash', value }));
       }
       case 'PkgTabs':
       case 'PkgInstall':
@@ -576,19 +591,13 @@ function wrapPhrasing(tree) {
 /**
  * Markdown of a doc for a framework, or undefined if the page isn't in it.
  * `resolveRoute(route)` picks the URL for links to site pages (default: the site).
- * `skipSiteOnly` drops `<SiteOnly>` prose (how to install or run a skill) for skill references.
  */
 export function docToMarkdown(
   file,
   framework,
-  { resolveRoute = route => SITE + route, skipSiteOnly = false } = {},
+  { resolveRoute = route => SITE + route } = {},
 ) {
-  const tree = render(
-    file,
-    framework,
-    {},
-    skipSiteOnly ? [...DROP, 'SiteOnly'] : DROP,
-  );
+  const tree = render(file, framework);
   if (!tree) return;
   visit(tree, ['link', 'definition'], node => {
     if (node.url.startsWith('/'))

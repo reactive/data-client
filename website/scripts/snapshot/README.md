@@ -11,7 +11,8 @@ type-check, as they did when that release's CI passed. Archives add nothing to t
   `https://<version>.dataclient.io`, drops its blog with `withoutBlog.ts` (the latest site has every
   post; `vercel.json` redirects the archive host's `/blog` page loads, and `rootBlog.client.ts` its
   in-app links), labels the version under the logo (`versionLabel.ts`, like the latest site's),
-  adds the version menu (`versionMenu.client.ts`) in place of any version dropdown the release has,
+  adds the version menu (`versionMenu.client.ts`; it links each version's copy of the page, or that
+  version's section home, like `/docs`, when the page 404s there) in place of any version dropdown the release has,
   and adds a banner linking to the latest docs. The wrapper
   runs against old configs, so it only reads fields every release has.
 - `.github/workflows/docs-snapshot.yml` runs it in a job with no write token or dependency cache,

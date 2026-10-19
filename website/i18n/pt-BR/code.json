@@ -943,5 +943,17 @@
   },
   "playground.fixtures.delay": {
     "message": "atraso"
+  },
+  "agentPrompt.prompt": {
+    "message": "Use `@data-client/{framework}` para todo o estado do servidor",
+    "description": "Prompt readers copy into their coding agent. Keep the backticks around package names: they keep each name on one line."
+  },
+  "agentPrompt.copy": {
+    "message": "Copiar o prompt para o seu agente de programação",
+    "description": "Tooltip of the agent prompt, which copies itself when clicked"
+  },
+  "agentPrompt.copied": {
+    "message": "Copiado",
+    "description": "Shown for a moment after the agent prompt is copied"
   }
 }
