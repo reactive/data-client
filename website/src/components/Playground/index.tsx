@@ -5,7 +5,6 @@ import React, { lazy, useDeferredValue, useState } from 'react';
 
 import Boundary from './Boundary';
 import { useCodeDocuments } from './editor/codeModel';
-import EditorShell from './editor/EditorShell';
 import EditorSurface from './editor/EditorSurface';
 import type { AutoRunScript } from './preview/autorun/script';
 import FixturePreview from './preview/FixturePreview';
@@ -95,26 +94,24 @@ export default function Playground<T>({
   const previewFixtures = row ? fixtureContent : undefined;
 
   const editor = (
-    <EditorShell>
-      <EditorSurface
-        {...model}
-        interactive={editorInteractive}
-        layout={row ? 'row' : 'stacked'}
-        variant="playground"
-        fixtureContent={fixtureContent}
-        headerControls={headerControls}
-        cover={
-          row ?
-            <>
-              <div ref={setStoreHost} className={styles.storeHost} />
-              <StoreBadge open={storeOpen} onClick={toggleStore} />
-            </>
-          : null
-        }
-        covered={codeCovered}
-        coverTitle={<Translate id="playground.store">Store</Translate>}
-      />
-    </EditorShell>
+    <EditorSurface
+      {...model}
+      interactive={editorInteractive}
+      layout={row ? 'row' : 'stacked'}
+      variant="playground"
+      fixtureContent={fixtureContent}
+      headerControls={headerControls}
+      cover={
+        row ?
+          <>
+            <div ref={setStoreHost} className={styles.storeHost} />
+            <StoreBadge open={storeOpen} onClick={toggleStore} />
+          </>
+        : null
+      }
+      covered={codeCovered}
+      coverTitle={<Translate id="playground.store">Store</Translate>}
+    />
   );
   // Live preview only while visible — unmounts when hidden (resets store).
   const loading = <PreviewLoading row={row} fixtureContent={previewFixtures} />;

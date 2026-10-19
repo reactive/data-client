@@ -27,7 +27,6 @@ Header.tsx, TabList.tsx, styles.module.css   shared chrome (also used by HTTP/, 
 liveLabel.ts        "Live Preview" label text (PreviewWrapper, autorun/DemoLabel)
 editor/             code model + editor UI
   codeModel.ts        parse MDX fences/strings into documents; edits
-  EditorShell.tsx     react-live LiveProvider supplying the Prism theme
   EditorSurface.tsx   headers, file tabs, collapse state, per-file TextEditTab
   StaticEditor.tsx    SSR/crawler/loading markup (Prism, not editable)
   InteractiveEditor.tsx  client-only: Monaco, or editable react-live on mobile/bots
