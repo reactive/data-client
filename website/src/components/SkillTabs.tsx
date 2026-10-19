@@ -3,10 +3,13 @@ import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import React from 'react';
 
-import marketplace from '../../../.claude-plugin/marketplace.json';
-import skillCommands from '../../framework-docs/skillCommands.mjs';
 import styles from './SkillTabs.module.css';
 import useFramework from './useFramework';
+import marketplace from '../../../.claude-plugin/marketplace.json';
+import skillCommands, {
+  intentCommand,
+  wholeFramework,
+} from '../../framework-docs/skillCommands.mjs';
 
 interface Props {
   repo?: string;
@@ -17,10 +20,6 @@ interface Props {
   plugin?: string;
 }
 
-const intentCommand = `# run after installing Data Client: loads the skills its packages ship
-npm install -D @tanstack/intent
-npx intent install`;
-
 export default function SkillTabs({ repo, skill, skills, plugin }: Props) {
   const framework = useFramework();
   const commands = skillCommands(
@@ -28,7 +27,7 @@ export default function SkillTabs({ repo, skill, skills, plugin }: Props) {
     marketplace,
   );
   // Intent loads every skill the installed packages ship, so it only fits the whole framework's set
-  const intent = !skill && !skills && !plugin;
+  const intent = wholeFramework({ skill, skills, plugin });
   return (
     <Tabs
       className={styles.tabs}

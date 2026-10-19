@@ -7,6 +7,23 @@
 const skillsDir = '.agents/skills';
 
 /**
+ * TanStack Intent loads the skills the installed `@data-client/*` packages ship.
+ * Run it after installing Data Client.
+ */
+export const intentCommand = `# run after installing Data Client: loads the skills its packages ship
+npm install -D @tanstack/intent
+npx intent install`;
+
+/**
+ * Intent only fits the whole framework's skills: neither `skill` nor `skills`
+ * nor `plugin` is set.
+ * @param {{ skill?: string, skills?: string[], plugin?: string }} options
+ */
+export function wholeFramework({ skill, skills, plugin }) {
+  return !skill && !skills && !plugin;
+}
+
+/**
  * @typedef {{ name: string, dependencies?: string[], skills: string[] }} Plugin
  * @typedef {{ name: string, plugins: Plugin[] }} Marketplace
  */

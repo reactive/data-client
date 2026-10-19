@@ -19,7 +19,10 @@ import { visit } from 'unist-util-visit';
 import { parseMarkdown } from './parseMarkdown.mjs';
 import providerSetup from './providerSetup.mjs';
 import { ROOT, SITE, rel } from './site.mjs';
-import skillCommands from './skillCommands.mjs';
+import skillCommands, {
+  intentCommand,
+  wholeFramework,
+} from './skillCommands.mjs';
 
 const require = createRequire(import.meta.url);
 const {
@@ -396,13 +399,17 @@ function render(file, framework, props = {}) {
         const { language, code, title } = providerSetup({ ...attrs, managers });
         return [codeBlock({ lang: language, value: code, title })];
       }
-      // the Skills CLI tab of website/src/components/SkillTabs.tsx
+      // Skills CLI, and TanStack Intent for the whole framework's skills
+      // (website/src/components/SkillTabs.tsx)
       case 'SkillTabs': {
-        const { skillsCli } = skillCommands(
-          { ...attrs, framework },
-          marketplace,
-        );
-        return [codeBlock({ lang: 'bash', value: skillsCli })];
+        const options = { ...attrs, framework };
+        const { skillsCli } = skillCommands(options, marketplace);
+        return [
+          codeBlock({ lang: 'bash', value: skillsCli }),
+          ...(wholeFramework(options) ?
+            [codeBlock({ lang: 'bash', value: intentCommand })]
+          : []),
+        ];
       }
       case 'PkgTabs':
       case 'PkgInstall':
