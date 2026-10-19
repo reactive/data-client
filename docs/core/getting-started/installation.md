@@ -13,20 +13,17 @@ import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
 import SiteOnly from '@site/src/components/SiteOnly';
 import AgentPrompt from '@site/src/components/AgentPrompt';
-import SkillTabs from '@site/src/components/SkillTabs';
 
 <SiteOnly>
 
 ## With your coding agent
 
-First install Data Client's [skills](./agent-skills.md) for your coding agent. Without them, agents get
-the basics right but miss the rest, like real-time managers and test fixtures.
-
-<SkillTabs packages={false} framed />
-
-Then tell your agent:
+Tell your agent:
 
 <AgentPrompt framed />
+
+It installs Data Client's setup [skill](./agent-skills.md), which installs the packages, wires up the provider and
+links the skills the packages ship, so your agent knows the current APIs, like real-time managers and test fixtures.
 
 </SiteOnly>
 

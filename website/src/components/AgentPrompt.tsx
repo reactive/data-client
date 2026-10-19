@@ -25,9 +25,10 @@ export default function AgentPrompt({ prompt, title, framed }: Props) {
   prompt ??= translate(
     {
       id: 'agentPrompt.prompt',
-      message: 'Use `@data-client/{framework}` for all server state',
+      message:
+        'Set up `@data-client/{framework}` and use it for all API data. Install its setup skill first: `npx skills add reactive/data-client --skill data-client-setup -y`, then follow it.',
       description:
-        'Prompt readers copy into their coding agent. Keep the backticks around package names: they keep each name on one line.',
+        'Prompt readers copy into their coding agent. Keep the backticks around package names and the command, and the command itself, unchanged: they keep each on one line, and the agent runs the command.',
     },
     { framework },
   );
