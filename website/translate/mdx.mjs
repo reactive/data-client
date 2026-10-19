@@ -287,6 +287,49 @@ export function structureProblems(source, translated, filePath) {
   return problems;
 }
 
+/** Why `content` doesn't parse as YAML, if it doesn't */
+export function yamlProblems(content) {
+  try {
+    yaml.load(content);
+    return [];
+  } catch (error) {
+    return [`invalid YAML: ${error.message}`];
+  }
+}
+
+/**
+ * What a translated data file (YAML, like the blog's tags.yml) changed that it
+ * must not have, versus its `source`: only the string values of `fields` may
+ * differ
+ */
+export function dataProblems(source, translated, fields) {
+  const problems = yamlProblems(translated);
+  if (problems.length) return problems;
+  const compare = (src, out, at) => {
+    const name = at.length ? `\`${at.join('.')}\`` : 'the file';
+    if (fields.includes(at.at(-1)) && typeof src === 'string') {
+      if (typeof out !== 'string' || !out.trim())
+        problems.push(`${name}: translate it, as text`);
+      else if (out === src && isSentence(src))
+        problems.push(`${name} not translated: ${clip(src)}`);
+    } else if (
+      src &&
+      out &&
+      typeof src === 'object' &&
+      typeof out === 'object' &&
+      Array.isArray(src) === Array.isArray(out)
+    ) {
+      for (const key of new Set([...Object.keys(src), ...Object.keys(out)]))
+        if (!(key in src) || !(key in out))
+          problems.push(`\`${[...at, key].join('.')}\` added or removed`);
+        else compare(src[key], out[key], [...at, key]);
+    } else if (JSON.stringify(src) !== JSON.stringify(out))
+      problems.push(`${name} must stay ${clip(JSON.stringify(src))}`);
+  };
+  compare(yaml.load(source), yaml.load(translated), []);
+  return problems;
+}
+
 /** Items of `a` not matched one-for-one in `b` */
 function difference(a, b) {
   const rest = [...b];

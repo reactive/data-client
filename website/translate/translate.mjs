@@ -15,9 +15,11 @@ import { parseArgs } from 'node:util';
 
 import {
   TranslationError,
+  dataProblems,
   mdxProblems,
   pinHeadingIds,
   structureProblems,
+  yamlProblems,
 } from './mdx.mjs';
 import { ROOT, git } from '../framework-docs/site.mjs';
 
@@ -26,9 +28,11 @@ const { GlobExcludeDefault, createMatcher } = require('@docusaurus/utils');
 
 const {
   BLOG,
+  DATA_FIELDS,
   SOURCE_INSTANCES,
   importTarget,
   instanceOf,
+  isTranslatable,
   lockFile,
   readLock,
   relativeImports,
@@ -54,10 +58,9 @@ const {
   },
 });
 
-/** Repo-relative markdown sources, partials included */
-const SOURCES = SOURCE_INSTANCES.flatMap(sourceFiles).filter(file =>
-  MD.test(file),
-);
+/** Repo-relative sources to translate: markdown (partials included) and
+ * data files with prose */
+const SOURCES = SOURCE_INSTANCES.flatMap(sourceFiles).filter(isTranslatable);
 /** Each instance's unpublished files, as its plugin excludes them */
 const EXCLUDED = [...DOCS_INSTANCES, BLOG].map(d => ({
   dir: `${d.path}/`,
@@ -150,8 +153,8 @@ const translated = locale =>
     const dir = path.join(ROOT, translationOf(d.path, locale));
     return fs.existsSync(dir) ?
         walk(dir)
-          .filter(file => MD.test(file))
           .map(file => `${d.path}/${file}`)
+          .filter(isTranslatable)
       : [];
   });
 /** Folder of a locale's committed translations, with a trailing slash */
@@ -325,8 +328,10 @@ function changedTranslations(locale) {
     const [status, file] = [entries[i].slice(0, 2), entries[i].slice(3)];
     // a rename or copy is followed by the path it came from
     if (/[RC]/.test(status)) i++;
-    if (!status.includes('D') && file.startsWith(prefix) && MD.test(file))
-      changed.push(translatedSource(file.slice(prefix.length)));
+    if (!status.includes('D') && file.startsWith(prefix)) {
+      const source = translatedSource(file.slice(prefix.length));
+      if (isTranslatable(source)) changed.push(source);
+    }
   }
   return changed;
 }
@@ -345,6 +350,11 @@ function sourceArg(file, locale) {
 
 /** Structure problems of a translation versus the English it translates */
 function translationProblems(english, content, file) {
+  if (file in DATA_FIELDS)
+    return {
+      problems: dataProblems(english, content, DATA_FIELDS[file]),
+      pinned: content,
+    };
   try {
     const problems = structureProblems(english, content, path.join(ROOT, file));
     if (problems.length) return { problems };
@@ -455,9 +465,10 @@ function check(locale) {
       // a shallow clone lacks it; still make sure the page compiles
       unverified++;
       problems.push(
-        ...mdxProblems(content, path.join(ROOT, file)).map(
-          p => `${translation}: ${p}`,
-        ),
+        ...(file in DATA_FIELDS ?
+          yamlProblems(content)
+        : mdxProblems(content, path.join(ROOT, file))
+        ).map(p => `${translation}: ${p}`),
       );
       continue;
     }
