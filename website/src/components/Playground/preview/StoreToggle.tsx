@@ -16,27 +16,9 @@ let clicked: HTMLElement | undefined;
 /** The Store toggle the reader clicked last, while on the page: held in place
  * on screen as the Stores it closed slide out and leave the layout */
 export const heldToggle = () => (clicked?.isConnected ? clicked : undefined);
-/** Held for the commit in progress; cleared once it's done */
-let heldThisCommit: HTMLElement | undefined;
-/** Keeps `heldToggle` in place on screen through this component's next render */
-export function useKeepToggleInPlace() {
-  const { blockElementScrollPositionUntilNextRender } =
-    useScrollPositionBlocker();
-  return useCallback(() => {
-    const held = heldToggle();
-    // every Store the toggle opened commits together, and one hold covers
-    // them: more would turn scroll events back on before the first one's
-    // scroll lands, so the navbar would hide as if the reader scrolled
-    if (!held || held === heldThisCommit) return;
-    heldThisCommit = held;
-    queueMicrotask(() => (heldThisCommit = undefined));
-    blockElementScrollPositionUntilNextRender(held);
-  }, [blockElementScrollPositionUntilNextRender]);
-}
 
 /** Store open state, persisted per `groupId`; toggling keeps the page from
- * scrolling, also as each Store it opens fills in or it closes leaves the
- * layout (`heldToggle`).
+ * scrolling, also as each Store it closes leaves the layout (`heldToggle`).
  * `showStore` opens or closes it for a demo without persisting, until the
  * reader toggles it (or `showStore(null)`). */
 export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
@@ -44,15 +26,16 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   const [shown, show] = useState<boolean | null>(null);
   const open =
     shown ?? (choice === 'y' || choice === 'n' ? choice : defaultOpen) === 'y';
-  const keepToggleInPlace = useKeepToggleInPlace();
+  const { blockElementScrollPositionUntilNextRender } =
+    useScrollPositionBlocker();
   const toggle = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
       clicked = event.currentTarget;
-      keepToggleInPlace();
+      blockElementScrollPositionUntilNextRender(clicked);
       setChoice(open ? 'n' : 'y');
       show(null);
     },
-    [keepToggleInPlace, open, setChoice],
+    [blockElementScrollPositionUntilNextRender, open, setChoice],
   );
   // a demo's open or close is no reader's click: forget the last one, so it
   // doesn't pin a toggle the reader clicked earlier
