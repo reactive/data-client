@@ -1074,8 +1074,9 @@ const newUser = await ctrl.fetch(
   { username: 'newuser', email: 'new@example.com' },
 );
 
-// Send an array to create several at once; they're added to the end in order
-await ctrl.fetch(
+// Send an array to create several at once; they're added to the end in order,
+// and it resolves the created Users as an array
+const [ana, bo] = await ctrl.fetch(
   UserResource.getList.push,
   { group: 'five' },
   [{ username: 'ana' }, { username: 'bo' }],

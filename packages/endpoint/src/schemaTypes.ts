@@ -6,7 +6,12 @@ import type {
   IDenormalizeDelegate,
   INormalizeDelegate,
 } from './interface.js';
-import type { EntityMap } from './normal.js';
+import type {
+  EntityMap,
+  Denormalize,
+  DenormalizeNullable,
+  NormalizeNullable,
+} from './normal.js';
 import { CollectionOptions } from './schemas/Collection.js';
 import { default as Invalidate } from './schemas/Invalidate.js';
 
@@ -14,21 +19,33 @@ export { EntityMap, Invalidate };
 
 export { EntityInterface } from './interface.js';
 
-/** Schema when adding to an Array Collection
- * Conceptually only returns a single item
+/** Schema when adding to an Array Collection (push, unshift)
+ * Denormalizes one item for a single input, or a list for a list input.
  */
-export type CollectionArrayAdder<S extends PolymorphicInterface> =
-  S extends (
-    {
-      // ensure we are an array type
-      denormalize(...args: any): any[];
-      // get what we are an array of
-      schema: infer T;
-    }
-  ) ?
-    // TODO: eventually we want to allow singular or list and infer the return based on arguments
-    T
-  : never;
+export interface CollectionArrayAdder<
+  S extends PolymorphicInterface,
+  Args extends any[] = any[],
+  Parent = any,
+> extends Omit<
+  CollectionInterface<S, Args, Parent>,
+  'denormalize' | '_denormalizeNullable' | '_normalizeNullable'
+> {
+  /** A list input denormalizes to a list */
+  denormalize(
+    input: readonly any[],
+    delegate: IDenormalizeDelegate,
+  ): Denormalize<S['schema']>[];
+  // last overload is what Denormalize<> reads
+  denormalize(
+    input: any,
+    delegate: IDenormalizeDelegate,
+  ): Denormalize<S['schema']>;
+
+  _denormalizeNullable(): DenormalizeNullable<S['schema']>;
+  _normalizeNullable(): NormalizeNullable<S['schema']>;
+  // this is not an actual member, but tells Controller.fetch() that a list body resolves a list
+  _denormalizeList(): Denormalize<S['schema']>[];
+}
 
 /** Schema when assigning to a Values Collection
  * Conceptually only returns a single item
@@ -191,12 +208,16 @@ export interface CollectionInterface<
   /** Schema to place at the *end* of this Collection
    * @see https://dataclient.io/rest/api/Collection#push
    */
-  push: CollectionArrayAdder<S>;
+  push: S extends { denormalize(...args: any): any[] } ?
+    CollectionArrayAdder<S, Args, Parent>
+  : never;
 
   /** Schema to place at the *beginning* of this Collection
    * @see https://dataclient.io/rest/api/Collection#unshift
    */
-  unshift: CollectionArrayAdder<S>;
+  unshift: S extends { denormalize(...args: any): any[] } ?
+    CollectionArrayAdder<S, Args, Parent>
+  : never;
 
   /** Schema to merge with a Values Collection
    * @see https://dataclient.io/rest/api/Collection#assign

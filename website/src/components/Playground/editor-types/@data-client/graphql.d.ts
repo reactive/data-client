@@ -948,13 +948,17 @@ type CollectionOptions<Args extends any[] = DefaultArgs, Parent = any> = {
     nonFilterArgumentKeys?: ((key: string) => boolean) | string[] | RegExp;
 });
 
-/** Schema when adding to an Array Collection
- * Conceptually only returns a single item
+/** Schema when adding to an Array Collection (push, unshift)
+ * Denormalizes one item for a single input, or a list for a list input.
  */
-type CollectionArrayAdder<S extends PolymorphicInterface> = S extends ({
-    denormalize(...args: any): any[];
-    schema: infer T;
-}) ? T : never;
+interface CollectionArrayAdder<S extends PolymorphicInterface, Args extends any[] = any[], Parent = any> extends Omit<CollectionInterface<S, Args, Parent>, 'denormalize' | '_denormalizeNullable' | '_normalizeNullable'> {
+    /** A list input denormalizes to a list */
+    denormalize(input: readonly any[], delegate: IDenormalizeDelegate): Denormalize<S['schema']>[];
+    denormalize(input: any, delegate: IDenormalizeDelegate): Denormalize<S['schema']>;
+    _denormalizeNullable(): DenormalizeNullable<S['schema']>;
+    _normalizeNullable(): NormalizeNullable<S['schema']>;
+    _denormalizeList(): Denormalize<S['schema']>[];
+}
 /** Schema when assigning to a Values Collection
  * Conceptually only returns a single item
  */
@@ -1050,11 +1054,15 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
     /** Schema to place at the *end* of this Collection
      * @see https://dataclient.io/rest/api/Collection#push
      */
-    push: CollectionArrayAdder<S>;
+    push: S extends {
+        denormalize(...args: any): any[];
+    } ? CollectionArrayAdder<S, Args, Parent> : never;
     /** Schema to place at the *beginning* of this Collection
      * @see https://dataclient.io/rest/api/Collection#unshift
      */
-    unshift: CollectionArrayAdder<S>;
+    unshift: S extends {
+        denormalize(...args: any): any[];
+    } ? CollectionArrayAdder<S, Args, Parent> : never;
     /** Schema to merge with a Values Collection
      * @see https://dataclient.io/rest/api/Collection#assign
      */
@@ -1409,7 +1417,7 @@ type schema_d_All<S extends EntityMap | EntityInterface = EntityMap | EntityInte
 declare const schema_d_All: typeof All;
 type schema_d_Collection<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = Collection<S, Args, Parent>;
 declare const schema_d_Collection: typeof Collection;
-type schema_d_CollectionArrayAdder<S extends PolymorphicInterface> = CollectionArrayAdder<S>;
+type schema_d_CollectionArrayAdder<S extends PolymorphicInterface, Args extends any[] = any[], Parent = any> = CollectionArrayAdder<S, Args, Parent>;
 type schema_d_CollectionArrayOrValuesAdder<S extends PolymorphicInterface> = CollectionArrayOrValuesAdder<S>;
 type schema_d_CollectionConstructor = CollectionConstructor;
 type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = CollectionFromSchema<S, Args, Parent>;

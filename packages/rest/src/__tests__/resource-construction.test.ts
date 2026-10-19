@@ -1134,10 +1134,7 @@ describe('resource()', () => {
         { group: 'five' },
         [{ username: 'a' }, { username: 'b' }],
       );
-      // push's type resolves one item even for an array body (CollectionArrayAdder TODO)
-      expect((created as unknown as User[]).map(user => user.username)).toEqual(
-        ['a', 'b'],
-      );
+      expect(created.map(user => user.username)).toEqual(['a', 'b']);
     });
     expect(contentType).toBe('application/json');
     expect(result.current[0].map(user => user.username)).toEqual([
