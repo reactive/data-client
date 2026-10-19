@@ -6,6 +6,9 @@ disable-model-invocation: true
 
 # Setup Reactive Data Client
 
+Before installing anything, tell the user which packages and skills you'll add. A request to add or set up Data Client
+is the go-ahead; otherwise wait for theirs.
+
 ## Detection Steps
 
 Before installing, detect the project type and protocol by checking these files:
@@ -71,14 +74,27 @@ Protocol setup guides are bundled in this skill, but defining and using data aft
 | GraphQL | None beyond Always (`data-client-schema` covers `@data-client/graphql`) |
 | Custom async | None beyond Always (`data-client-schema` covers `@data-client/endpoint`) |
 
-Use the installer that installed this skill. For OpenSkills and the skills CLI, add `-g` if this skill lives under your home directory rather than the project.
+In Claude Code, Cursor and Codex, install nothing now: each skill ships inside the `@data-client/*` package it covers, at that package's version. After installing the packages below, link their skills from the project root. It links them into `.agents/skills` and makes sure `.claude/skills` sees them too, whichever of the two folders the project already has:
 
-- **npm package** (this skill is under `node_modules/`): install nothing. Each skill ships inside the `@data-client/*` package it covers, so it arrives with the packages you install below; load them the way you loaded this one.
-- **Claude Code plugin** (this skill is under `~/.claude/plugins/`): `claude plugin install react@data-client` or `claude plugin install vue@data-client`. Either includes every skill above.
+```bash
+npx --no data-client-skills   # pnpm exec data-client-skills, yarn data-client-skills
+```
+
+If the command isn't found, or reports that a package ships no skills, the installed packages predate 0.19: install
+the skills with the skills CLI as described below for other agents, and skip the `CLAUDE.md` line.
+
+Then add this line to the project's `CLAUDE.md` (or `AGENTS.md` when there's no `CLAUDE.md`; create `AGENTS.md` if neither exists), using the project's package manager in the command, so later agents keep the links current. Commit `.agents/skills` and `.claude/skills` with the setup. On Windows, commit the links only with Developer Mode on and `git config core.symlinks true`; otherwise leave them uncommitted and rerun the command after installing.
+
+```md
+After adding, removing or upgrading `@data-client/*` packages, run `npx --no data-client-skills` and commit the skill links.
+```
+
+For other agents, use the installer that installed this skill. For OpenSkills and the skills CLI, add `-g` if this skill lives under your home directory rather than the project.
+
 - **OpenSkills** (`AGENTS.md` lists skills in an `<available_skills>` block): `npx openskills install reactive/data-client/.agents/skills/<skill>`, once per skill.
-- **Otherwise** use the skills CLI: `npx skills add reactive/data-client --yes --skill <skill> --skill <skill> ...`
+- **Otherwise** use the skills CLI: `npx skills add reactive/data-client --skill <skill> --skill <skill> ...`
 
-Newly installed skills may not be loaded until the next session, so read their `SKILL.md` directly when this skill says to apply them.
+Newly installed skills may not load until the next session, so read their `SKILL.md` directly (`.claude/skills/<skill>/SKILL.md` after linking) when this skill says to apply them.
 
 ## Installation
 

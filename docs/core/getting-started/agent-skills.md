@@ -9,8 +9,15 @@ import SkillTabs from '@site/src/components/SkillTabs';
 ## Install skills for best results
 
 Agents get the basics right from the package name alone. [Skills](https://agentskills.io) teach them the current
-APIs for the rest, like test fixtures and real-time managers. Install skill
-[/data-client-setup](https://skills.sh/reactive/data-client/data-client-setup):
+APIs for the rest, like test fixtures and real-time managers.
+
+If your app already has `@data-client` packages, link the skills they ship, matched to their versions:
+
+```bash framed
+npx --no data-client-skills
+```
+
+Otherwise, install skill [/data-client-setup](https://skills.sh/reactive/data-client/data-client-setup):
 
 <SkillTabs skill="data-client-setup" framed />
 
@@ -29,9 +36,11 @@ To install every skill for your framework now instead, without letting your agen
 
 <SkillTabs />
 
-In Claude Code, the plugin installs them in one step. With other agents,
-[TanStack Intent](https://tanstack.com/intent) loads the skills each `@data-client/*` package ships for its version,
-so they update with `npm update`. Its install adds a skill loading section to your `AGENTS.md`.
+The **Installed packages** tab links the skills each installed `@data-client/*` package ships into `.agents/skills`
+(with `.claude/skills` linking to it), where Claude Code, Cursor and Codex load them, matched to that package's version. Commit the links. They follow upgrades,
+and running it again picks up skills from packages you add or upgrade. On Windows, commit the links only with Developer Mode on and
+`git config core.symlinks true`; otherwise leave them uncommitted and rerun the command after installing. The Claude Code plugin sets up apps that don't have Data
+Client yet. If you use [TanStack Intent](https://tanstack.com/intent), it loads the same package skills.
 
 ### Available Skills
 

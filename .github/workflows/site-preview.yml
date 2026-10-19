@@ -16,6 +16,9 @@ on:
       - 'docs/core/**'
       - 'docs/rest/**'
       - 'docs/graphql/**'
+      # Imported by website/src/components/SkillTabs.tsx
+      - '.agents/skill-packages.json'
+      - '.agents/skills/data-client-setup/references.json'
       - '.github/workflows/site-preview.yml'
       - '.github/workflows/paths-gate.yml'
   # Redeploys production from master, e.g. after a failed deploy

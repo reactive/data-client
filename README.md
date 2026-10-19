@@ -36,21 +36,27 @@ Schema driven. Zero updater functions.
 npm install --save @data-client/react @data-client/rest @data-client/test
 ```
 
-For more details, see [the Getting Started docs page](https://dataclient.io/docs/getting-started/installation).
-
-### Skills
+To have Claude Code, Cursor or Codex load the [skills](https://agentskills.io) these packages ship for their version, link them into `.agents/skills` (`.claude/skills` links to it) and commit the links:
 
 ```bash
-npx skills add reactive/data-client
+npx --no data-client-skills
 ```
 
-Then run the [skill](https://agentskills.io) in your coding agent's chat:
+For more details, see [the Getting Started docs page](https://dataclient.io/docs/getting-started/installation).
+
+### Let your coding agent set it up
+
+Or skip the install above: add the setup skill,
+
+```bash
+npx skills add reactive/data-client --skill data-client-setup
+```
+
+Then run it in your coding agent's chat, and it installs the packages and links their skills:
 
 ```prompt
 /data-client-setup
 ```
-
-Skills also ship inside each `@data-client/*` package; load them with [TanStack Intent](https://tanstack.com/intent) (`npx @tanstack/intent@latest install`).
 
 ## Usage
 

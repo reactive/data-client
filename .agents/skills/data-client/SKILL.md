@@ -17,16 +17,18 @@ Client, answer and offer to set it up instead.
 
 ## Set up
 
-Load the skill for the work:
+Load the skill for the work. If it isn't available by name but its package is installed, run
+`npx --no data-client-skills` (`pnpm exec`, `yarn`) from the project root, which links the skills the installed packages
+ship into the project's skill folder, then read `.claude/skills/<skill>/SKILL.md`.
 
-| Work | Skill |
-|------|-------|
-| Entities, `Collection`, `Union`, `Query`, normalization | `data-client-schema` |
-| REST endpoints: `resource()`, `RestEndpoint` | `data-client-rest` |
-| React hooks: `useSuspense`, `useController`, `useLive`, `DataProvider` | `data-client-react` |
-| Vue composables: `useSuspense`, `useController`, `DataClientPlugin` | `data-client-vue` |
-| Tests | `data-client-react-testing` or `data-client-vue-testing` |
-| WebSockets, SSE, polling, global side effects | `data-client-manager` |
+| Work | Skill | Package |
+|------|-------|---------|
+| Entities, `Collection`, `Union`, `Query`, normalization | `data-client-schema` | `endpoint` |
+| REST endpoints: `resource()`, `RestEndpoint` | `data-client-rest` | `rest` |
+| React hooks: `useSuspense`, `useController`, `useLive`, `DataProvider` | `data-client-react` | `react` |
+| Vue composables: `useSuspense`, `useController`, `DataClientPlugin` | `data-client-vue` | `vue` |
+| Tests | `data-client-react-testing` or `data-client-vue-testing` | `react` or `vue` |
+| WebSockets, SSE, polling, global side effects | `data-client-manager` | `core` |
 
 To add a protocol the app doesn't depend on yet, or to write GraphQL queries or wrap async functions, follow its guide
 in `data-client-setup` (`../data-client-setup/references/`): `data-client-rest-setup.md`,

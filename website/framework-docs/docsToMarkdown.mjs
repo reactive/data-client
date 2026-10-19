@@ -231,7 +231,13 @@ function jsxText(children, props, file) {
     .join('');
 }
 
-const marketplace = require(path.join(ROOT, '.claude-plugin/marketplace.json'));
+const skillSources = {
+  skillPackages: require(path.join(ROOT, '.agents/skill-packages.json')),
+  setupSkills: require(
+    path.join(ROOT, '.agents/skills/data-client-setup/references.json'),
+  ).skills,
+  plugin: require(path.join(ROOT, '.claude-plugin/marketplace.json')),
+};
 
 const ADMONITIONS = ['note', 'tip', 'info', 'warning', 'danger', 'caution'];
 /** Inline HTML with a markdown equivalent */
@@ -395,14 +401,14 @@ function render(file, framework, props = {}) {
         const { language, code, title } = providerSetup({ ...attrs, managers });
         return [codeBlock({ lang: language, value: code, title })];
       }
-      // Skills CLI, and TanStack Intent for the whole framework's skills
-      // (website/src/components/SkillTabs.tsx)
+      // Skills CLI, and linking the installed packages' skills for the whole
+      // framework's set (website/src/components/SkillTabs.tsx)
       case 'SkillTabs': {
-        const { skillsCli, intent } = skillCommands(
+        const { skillsCli, packages } = skillCommands(
           { ...attrs, framework },
-          marketplace,
+          skillSources,
         );
-        return [skillsCli, intent]
+        return [skillsCli, packages]
           .filter(Boolean)
           .map(value => codeBlock({ lang: 'bash', value }));
       }
