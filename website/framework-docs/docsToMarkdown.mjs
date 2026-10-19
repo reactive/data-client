@@ -395,7 +395,7 @@ function render(file, framework, props = {}, drop = DROP) {
         return [
           codeBlock({
             lang: 'markdown',
-            value: `Use Reactive Data Client (\`@data-client/${framework}\` and \`@data-client/rest\`) for data fetching.`,
+            value: `Use \`@data-client/${framework}\` for all server state`,
           }),
         ];
       case 'PkgTabs':

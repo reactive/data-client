@@ -945,7 +945,7 @@
     "message": "atraso"
   },
   "agentPrompt.prompt": {
-    "message": "Use o Reactive Data Client (`@data-client/{framework}` e `@data-client/rest`) para buscar dados.",
+    "message": "Use `@data-client/{framework}` para todo o estado do servidor",
     "description": "Prompt readers copy into their coding agent. Keep the backticks around package names: they keep each name on one line."
   },
   "homepage.agentPrompt.title": {

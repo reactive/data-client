@@ -945,7 +945,7 @@
     "message": "延迟"
   },
   "agentPrompt.prompt": {
-    "message": "使用 Reactive Data Client（`@data-client/{framework}` 和 `@data-client/rest`）获取数据。",
+    "message": "所有服务器状态都使用 `@data-client/{framework}`",
     "description": "Prompt readers copy into their coding agent. Keep the backticks around package names: they keep each name on one line."
   },
   "homepage.agentPrompt.title": {

@@ -24,7 +24,7 @@ export default function AgentPrompt({
           {
             id: 'agentPrompt.prompt',
             message:
-              'Use Reactive Data Client (`@data-client/{framework}` and `@data-client/rest`) for data fetching.',
+              'Use `@data-client/{framework}` for all server state',
             description:
               'Prompt readers copy into their coding agent. Keep the backticks around package names: they keep each name on one line.',
           },
