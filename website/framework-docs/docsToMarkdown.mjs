@@ -178,8 +178,9 @@ function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
     type: 'code',
     lang: lang ?? null,
     meta:
-      meta?.replace(/\s*\b(collapsed|showLineNumbers|nocheck)\b/g, '').trim() ||
-      null,
+      meta
+        ?.replace(/\s*\b(collapsed|showLineNumbers|nocheck|framed)\b/g, '')
+        .trim() || null,
     value: value
       .split('\n')
       .filter(

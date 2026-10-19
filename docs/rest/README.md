@@ -345,7 +345,11 @@ import SkillTabs from '@site/src/components/SkillTabs';
 
 <SkillTabs repo="reactive/data-client" skills={['data-client-schema', 'data-client-rest-setup', 'data-client-rest']} />
 
-Then call `/data-client-rest-setup` to migrate
+Then migrate by running it in your agent's chat:
+
+```prompt
+/data-client-rest-setup
+```
 
 <div style={{ textAlign: 'center' }}>
 <Link className="button button--secondary button--sm" to="https://skills.sh/reactive/data-client/data-client-rest"><img src={useBaseUrl('/img/anthropic.svg')} alt="REST Codegen Skill" style={{

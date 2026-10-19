@@ -1,17 +1,28 @@
 import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
-import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
+import React, { useCallback, useId } from 'react';
 
 import styles from './AgentPrompt.module.css';
 import useFramework from './useFramework';
+import useTapped from './useTapped';
 
 const FEEDBACK_MS = 2000;
 
-/** One-line prompt that gets a coding agent to set up Data Client: a chip that
- * copies itself (click, tap or Enter) and says so in a tooltip. */
-export default function AgentPrompt() {
+interface Props {
+  /** what to type into the agent; defaults to the prompt that sets up Data Client */
+  prompt?: string;
+  /** the agent, when only one understands the prompt, like "Cursor" */
+  title?: string;
+  /** a full-width chat box with a header, where the page has room */
+  framed?: boolean;
+}
+
+/** Text to type into a coding agent's chat, not a terminal: a chip that copies
+ * itself (click, tap or Enter) and says so in a tooltip.
+ * MDX ```prompt fences render as this (theme/CodeBlock). */
+export default function AgentPrompt({ prompt, title, framed }: Props) {
   const framework = useFramework();
-  const prompt = translate(
+  prompt ??= translate(
     {
       id: 'agentPrompt.prompt',
       message: 'Use `@data-client/{framework}` for all server state',
@@ -21,29 +32,57 @@ export default function AgentPrompt() {
     { framework },
   );
   const tipId = useId();
-  const [copied, setCopied] = useState(false);
+  const [copied, showCopied] = useTapped(FEEDBACK_MS);
   // touch screens can't hover: a tap shows the tooltip for a moment instead
-  const [tapped, setTapped] = useState(false);
-  const timeout = useRef<number>(undefined);
-  useEffect(() => () => window.clearTimeout(timeout.current), []);
+  const [tapped, tap, untap] = useTapped(FEEDBACK_MS);
   const copy = useCallback(() => {
     // no clipboard (insecure context) or a denied write leaves the chip as it was
     navigator.clipboard?.writeText(prompt).then(
       () => {
-        setCopied(true);
-        setTapped(true);
-        window.clearTimeout(timeout.current);
-        timeout.current = window.setTimeout(() => {
-          setCopied(false);
-          setTapped(false);
-        }, FEEDBACK_MS);
+        showCopied();
+        tap();
       },
       () => undefined,
     );
-  }, [prompt]);
+  }, [prompt, showCopied, tap]);
+
+  const header =
+    title ?
+      translate(
+        {
+          id: 'agentPrompt.titleFor',
+          message: '{agent} agent chat',
+          description:
+            'Header of text readers type into one coding agent (like Cursor), not a terminal',
+        },
+        { agent: title },
+      )
+    : translate({
+        id: 'agentPrompt.title',
+        message: 'Agent chat',
+        description:
+          'Header of text readers type into their coding agent, not a terminal',
+      });
+  const copyTip =
+    title ?
+      translate(
+        {
+          id: 'agentPrompt.copyFor',
+          message: 'Copy prompt for {agent}',
+          description:
+            'Tooltip of an agent prompt only one coding agent (like Cursor) understands, which copies itself when clicked',
+        },
+        { agent: title },
+      )
+    : translate({
+        id: 'agentPrompt.copy',
+        message: 'Copy prompt for your coding agent',
+        description:
+          'Tooltip of the agent prompt, which copies itself when clicked',
+      });
 
   return (
-    <div className={styles.agentPrompt}>
+    <div className={clsx(styles.agentPrompt, framed && styles.framed)}>
       <button
         type="button"
         className={clsx(
@@ -54,9 +93,10 @@ export default function AgentPrompt() {
         )}
         aria-describedby={tipId}
         onClick={copy}
-        onBlur={() => setTapped(false)}
+        onBlur={untap}
       >
         <SparklesIcon className={styles.spark} />
+        {framed && <span className={styles.label}>{header}</span>}
         <span className={styles.text}>
           {/* markdown code spans mark package names, which never break at their hyphen */}
           {prompt.split('`').map((part, i) =>
@@ -79,13 +119,7 @@ export default function AgentPrompt() {
             message: 'Copied',
             description: 'Shown for a moment after the agent prompt is copied',
           })
-        : translate({
-            id: 'agentPrompt.copy',
-            message: 'Copy prompt for your coding agent',
-            description:
-              'Tooltip of the agent prompt, which copies itself when clicked',
-          })
-        }
+        : copyTip}
       </span>
     </div>
   );
