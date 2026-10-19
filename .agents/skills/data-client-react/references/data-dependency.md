@@ -151,6 +151,137 @@ us to make error/loading disjoint from data usage.
 Instead we place [\<AsyncBoundary />](./AsyncBoundary.md) to handling loading and error conditions at or above navigational boundaries like **pages,
 routes, or [modals](https://www.appcues.com/blog/modal-dialog-windows)**.
 
+Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
+
+```ts title="Resources"
+import { Entity, resource } from '@data-client/rest';
+
+export class Post extends Entity {
+  id = 0;
+  title = '';
+  body = '';
+  author = '';
+  avatar = '';
+  static key = 'Post';
+}
+export const PostResource = resource({
+  path: '/posts/:id',
+  schema: Post,
+});
+
+export class Comment extends Entity {
+  id = 0;
+  postId = 0;
+  author = '';
+  avatar = '';
+  text = '';
+  static key = 'Comment';
+}
+export const CommentResource = resource({
+  path: '/comments/:id',
+  searchParams: {} as { postId: string },
+  schema: Comment,
+});
+```
+
+```tsx title="Layout" layout
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Field Notes</h1>
+      </header>
+      {children}
+    </>
+  );
+}
+```
+
+```tsx title="PostList" route="/"
+import { useSuspense } from '@data-client/react';
+import { PostResource } from './Resources';
+
+export default function PostList() {
+  const posts = useSuspense(PostResource.getList);
+  return (
+    <div className="card">
+      {posts.map(post => (
+        <div key={post.pk()} className="listItem">
+          <Avatar src={post.avatar} />
+          <div>
+            <h3>
+              <Link to={`/posts/${post.id}`}>{post.title}</Link>
+            </h3>
+            <small>{post.author}</small>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+```tsx title="PostPage" route="/posts/:id" {7,10}
+import { AsyncBoundary } from '@data-client/react';
+import CommentList from './CommentList';
+import PostDetail from './PostDetail';
+
+export default function PostPage({ id }: { id: string }) {
+  return (
+    <AsyncBoundary fallback={<Loading />}>
+      <PostDetail id={id} />
+      <CommentList postId={id} />
+    </AsyncBoundary>
+  );
+}
+```
+
+```tsx title="PostDetail"
+import { useSuspense } from '@data-client/react';
+import { PostResource } from './Resources';
+
+export default function PostDetail({ id }: { id: string }) {
+  const post = useSuspense(PostResource.get, { id });
+  return (
+    <article>
+      <h2>{post.title}</h2>
+      <p className="byline">
+        <Avatar src={post.avatar} size={24} />
+        <b>{post.author}</b>
+      </p>
+      <p>{post.body}</p>
+    </article>
+  );
+}
+```
+
+```tsx title="CommentList"
+import { useSuspense } from '@data-client/react';
+import { CommentResource } from './Resources';
+
+export default function CommentList({ postId }: { postId: string }) {
+  const comments = useSuspense(CommentResource.getList, { postId });
+  return (
+    <section>
+      <h3>Comments</h3>
+      <div className="card">
+        {comments.map(comment => (
+          <div key={comment.pk()} className="listItem">
+            <Avatar src={comment.avatar} size={28} />
+            <div>
+              <b>{comment.author}</b>
+              <p>{comment.text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+```
+
+Show the code and move the `<AsyncBoundary>` to wrap just `<CommentList />`: the post shows before its comments do.
+
 **React Router**
 
 ```tsx {9,11} title="Dashboard.tsx"
