@@ -947,8 +947,5 @@
   "agentPrompt.prompt": {
     "message": "所有服务器状态都使用 `@data-client/{framework}`",
     "description": "Prompt readers copy into their coding agent. Keep the backticks around package names: they keep each name on one line."
-  },
-  "homepage.agentPrompt.title": {
-    "message": "或者告诉你的编程智能体"
   }
 }

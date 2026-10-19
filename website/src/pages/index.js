@@ -10,7 +10,6 @@ import React from 'react';
 
 import styles from './index.module.css';
 import LogoAndText from '../../static/img/client_logo_and_text.svg';
-import AgentPrompt from '../components/AgentPrompt';
 import Demo from '../components/Demo/index';
 import { GithubStarsButton } from '../components/GithubStarsButton';
 import HomepageFeatures from '../components/HomepageFeatures';
@@ -56,18 +55,11 @@ function HomepageHeader() {
           <GithubStarsButton />
           <Link
             className="button button--primary"
-            to="/docs/getting-started/agent-skills"
+            to="/docs/getting-started/installation"
           >
             <Translate id="homepage.getStarted">Get Started</Translate>
           </Link>
         </div>
-        <AgentPrompt
-          className={styles.agentPrompt}
-          title={translate({
-            id: 'homepage.agentPrompt.title',
-            message: 'Or tell your coding agent',
-          })}
-        />
       </div>
     </header>
   );
@@ -95,7 +87,7 @@ function HomepageEnder() {
           </Link>
           <Link
             className="button button--primary"
-            to="/docs/getting-started/agent-skills"
+            to="/docs/getting-started/installation"
           >
             <Translate id="homepage.getStarted">Get Started</Translate>{' '}
             <svg

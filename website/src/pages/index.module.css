@@ -27,15 +27,6 @@ html[data-theme='light'] .logoWrapper {
   }
 }
 
-.agentPrompt {
-  max-width: 38rem;
-  margin: 1.5rem auto 0;
-  text-align: left;
-}
-.agentPrompt :global(.theme-code-block) {
-  margin-bottom: 0;
-}
-
 .buttons {
   display: flex;
   align-items: center;
