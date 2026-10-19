@@ -24,8 +24,13 @@ function StoreInspector({
   host: HTMLElement | null;
 }) {
   // the empty drawer starts moving at once; the tree renders a frame later,
-  // then stays, so reopening finds the Store as it was left
-  const ready = useDeferredValue(open);
+  // then stays, so reopening finds the Store as it was left. A row Store
+  // renders it with the click instead: where the row playground stacks, that
+  // Store grows to fit the tree, and growing a frame later would move the
+  // page after the click's scroll hold. Beside the result, its height follows
+  // the result, not the tree
+  const deferred = useDeferredValue(open);
+  const ready = row ? open : deferred;
   const [showTree, setShowTree] = useState(false);
   if (ready && !showTree) setShowTree(true);
   const panel = (
