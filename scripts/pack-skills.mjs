@@ -10,7 +10,7 @@
 // command.
 //
 // Usage (from a package's prepack): node ../../scripts/pack-skills.mjs
-//        node scripts/pack-skills.mjs --check   (every library skill ships once and exists)
+//        node scripts/pack-skills.mjs --check   (every library skill ships once and exists, and the command copies match)
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,6 +19,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SKILLS = path.join(root, '.agents/skills');
 // `data-client-skills`, which core ships from source and the others copy
 const AGENTS = path.join(root, 'packages/core/agents');
+const BIN = 'bin/data-client-skills.mjs';
 
 const owners = JSON.parse(
   fs.readFileSync(path.join(root, '.agents/skill-packages.json'), 'utf8'),
@@ -49,6 +50,17 @@ if (process.argv.includes('--check')) {
     ...owned
       .filter(s => !fs.existsSync(path.join(SKILLS, s, 'SKILL.md')))
       .map(s => `${s} has no SKILL.md`),
+    // each package keeps its own copy of the command, so keep them in step
+    ...fs
+      .readdirSync(path.join(root, 'packages'))
+      .map(pkg => `packages/${pkg}/${BIN}`)
+      .filter(
+        bin =>
+          fs.existsSync(path.join(root, bin)) &&
+          fs.readFileSync(path.join(root, bin), 'utf8') !==
+            fs.readFileSync(path.join(root, 'packages/core', BIN), 'utf8'),
+      )
+      .map(bin => `${bin} differs from packages/core/${BIN}`),
   ];
   if (problems.length) {
     console.error(`scripts/pack-skills.mjs:\n  ${problems.join('\n  ')}`);
