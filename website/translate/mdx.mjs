@@ -15,6 +15,7 @@ const { proseLines } = require('./localeDocs.js');
 const { FM } = require('../framework-docs/index.js');
 
 const HEADING = /^(#{1,6})\s+(.*)$/;
+const YAML = /\.ya?ml$/;
 const DIRECTIVE_OPEN = /^\s*:{3,}([a-z][\w-]*)/;
 const DIRECTIVE_CLOSE = /^\s*:{3,}\s*$/;
 /** Front matter values a translation may change */
@@ -215,19 +216,54 @@ function frontMatterProblems(source, translated) {
   } catch (error) {
     return [`invalid front matter: ${error.message}`];
   }
+  return yamlDiff(
+    src,
+    out,
+    at => at.length === 1 && TRANSLATABLE_KEY.test(at[0]),
+    { prefix: 'front matter ', flagEnglish: false },
+  );
+}
+
+/**
+ * What parsed YAML `out` changed versus `src`, where only string values at
+ * paths `translatable` accepts may differ; `flagEnglish`: a sentence left in
+ * English there is a problem (titles are often just names)
+ */
+function yamlDiff(
+  src,
+  out,
+  translatable,
+  { prefix = '', flagEnglish = true } = {},
+) {
   const problems = [];
-  const keys = new Set([...Object.keys(src), ...Object.keys(out)]);
-  for (const key of keys) {
-    if (!(key in src) || !(key in out))
-      problems.push(`front matter key \`${key}\` added or removed`);
-    else if (
-      !TRANSLATABLE_KEY.test(key) &&
-      JSON.stringify(src[key]) !== JSON.stringify(out[key])
-    )
-      problems.push(
-        `front matter \`${key}\` must stay ${JSON.stringify(src[key])}`,
-      );
-  }
+  const isObject = value => value !== null && typeof value === 'object';
+  const compare = (a, b, at) => {
+    const name =
+      at.length ? `${prefix}\`${at.join('.')}\`` : prefix.trim() || 'the file';
+    if (translatable(at) && typeof a === 'string') {
+      if (typeof b !== 'string' || !b.trim())
+        problems.push(`${name}: translate it, as text`);
+      else if (flagEnglish && a === b && isSentence(a))
+        problems.push(`${name} not translated: ${clip(a)}`);
+    } else if (
+      isObject(a) &&
+      isObject(b) &&
+      Array.isArray(a) === Array.isArray(b)
+    ) {
+      const [keysA, keysB] = [Object.keys(a), Object.keys(b)];
+      for (const key of [
+        ...difference(keysA, keysB),
+        ...difference(keysB, keysA),
+      ])
+        problems.push(
+          `${prefix}key \`${[...at, key].join('.')}\` added or removed`,
+        );
+      for (const key of keysA)
+        if (key in b) compare(a[key], b[key], [...at, key]);
+    } else if (JSON.stringify(a) !== JSON.stringify(b))
+      problems.push(`${name} must stay ${clip(JSON.stringify(a))}`);
+  };
+  compare(src, out, []);
   return problems;
 }
 
@@ -287,8 +323,9 @@ export function structureProblems(source, translated, filePath) {
   return problems;
 }
 
-/** Why `content` doesn't parse as YAML, if it doesn't */
-export function yamlProblems(content) {
+/** Why `content` (YAML for a .yml `filePath`, else MDX) doesn't parse */
+export function syntaxProblems(content, filePath) {
+  if (!YAML.test(filePath)) return mdxProblems(content, filePath);
   try {
     yaml.load(content);
     return [];
@@ -303,31 +340,13 @@ export function yamlProblems(content) {
  * differ
  */
 export function dataProblems(source, translated, fields) {
-  const problems = yamlProblems(translated);
-  if (problems.length) return problems;
-  const compare = (src, out, at) => {
-    const name = at.length ? `\`${at.join('.')}\`` : 'the file';
-    if (fields.includes(at.at(-1)) && typeof src === 'string') {
-      if (typeof out !== 'string' || !out.trim())
-        problems.push(`${name}: translate it, as text`);
-      else if (out === src && isSentence(src))
-        problems.push(`${name} not translated: ${clip(src)}`);
-    } else if (
-      src &&
-      out &&
-      typeof src === 'object' &&
-      typeof out === 'object' &&
-      Array.isArray(src) === Array.isArray(out)
-    ) {
-      for (const key of new Set([...Object.keys(src), ...Object.keys(out)]))
-        if (!(key in src) || !(key in out))
-          problems.push(`\`${[...at, key].join('.')}\` added or removed`);
-        else compare(src[key], out[key], [...at, key]);
-    } else if (JSON.stringify(src) !== JSON.stringify(out))
-      problems.push(`${name} must stay ${clip(JSON.stringify(src))}`);
-  };
-  compare(yaml.load(source), yaml.load(translated), []);
-  return problems;
+  let out;
+  try {
+    out = yaml.load(translated);
+  } catch (error) {
+    return [`invalid YAML: ${error.message}`];
+  }
+  return yamlDiff(yaml.load(source), out, at => fields.includes(at.at(-1)));
 }
 
 /** Items of `a` not matched one-for-one in `b` */

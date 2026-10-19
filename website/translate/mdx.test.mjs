@@ -169,7 +169,7 @@ describe('dataProblems', () => {
 `,
         fields,
       ),
-      ['`releases` added or removed', '`release` added or removed'],
+      ['key `releases` added or removed', 'key `release` added or removed'],
     );
     assert.deepEqual(
       dataProblems(

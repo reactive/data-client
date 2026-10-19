@@ -16,10 +16,9 @@ import { parseArgs } from 'node:util';
 import {
   TranslationError,
   dataProblems,
-  mdxProblems,
   pinHeadingIds,
   structureProblems,
-  yamlProblems,
+  syntaxProblems,
 } from './mdx.mjs';
 import { ROOT, git } from '../framework-docs/site.mjs';
 
@@ -351,10 +350,7 @@ function sourceArg(file, locale) {
 /** Structure problems of a translation versus the English it translates */
 function translationProblems(english, content, file) {
   if (file in DATA_FIELDS)
-    return {
-      problems: dataProblems(english, content, DATA_FIELDS[file]),
-      pinned: content,
-    };
+    return { problems: dataProblems(english, content, DATA_FIELDS[file]) };
   try {
     const problems = structureProblems(english, content, path.join(ROOT, file));
     if (problems.length) return { problems };
@@ -397,7 +393,7 @@ async function finalize(locale, english) {
     const result = translationProblems(read(file), content, file);
     problems.push(...result.problems.map(p => `${translation}: ${p}`));
     if (result.problems.length) continue;
-    if (result.pinned !== content)
+    if (result.pinned && result.pinned !== content)
       fs.writeFileSync(path.join(ROOT, translation), result.pinned);
     lock.docs[file] = blobs[file];
     accepted.push(translation);
@@ -465,16 +461,15 @@ function check(locale) {
       // a shallow clone lacks it; still make sure the page compiles
       unverified++;
       problems.push(
-        ...(file in DATA_FIELDS ?
-          yamlProblems(content)
-        : mdxProblems(content, path.join(ROOT, file))
-        ).map(p => `${translation}: ${p}`),
+        ...syntaxProblems(content, path.join(ROOT, file)).map(
+          p => `${translation}: ${p}`,
+        ),
       );
       continue;
     }
     if (behind(file, id)) stale++;
     const result = translationProblems(english, content, file);
-    if (!result.problems.length && result.pinned !== content)
+    if (result.pinned && result.pinned !== content)
       result.problems.push('headings lack their English anchors');
     problems.push(...result.problems.map(p => `${translation}: ${p}`));
   }
