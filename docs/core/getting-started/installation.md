@@ -26,7 +26,7 @@ Tell your [coding agent](https://agentskills.io) to use Data Client:
 It gets the basics right from the package name. Install its skills first for the rest, like test
 fixtures and real-time managers:
 
-<SkillTabs intent />
+<SkillTabs />
 
 [Agent Skills](./agent-skills.md) explains each skill.
 

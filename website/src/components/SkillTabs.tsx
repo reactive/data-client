@@ -15,45 +15,33 @@ interface Props {
   /** Plugin from `.claude-plugin/marketplace.json` to install with its dependencies.
    * Defaults to the current page's framework when no skills are given. */
   plugin?: string;
-  /** Also offer TanStack Intent, which loads the skills shipped inside the
-   * installed `@data-client/*` packages (so only for a whole framework's skills) */
-  intent?: boolean;
 }
 
 const intentCommand = `# run after installing Data Client: loads the skills its packages ship
 npm install -D @tanstack/intent
 npx intent install`;
 
-export default function SkillTabs({
-  repo,
-  skill,
-  skills,
-  plugin,
-  intent = false,
-}: Props) {
+export default function SkillTabs({ repo, skill, skills, plugin }: Props) {
   const framework = useFramework();
   const commands = skillCommands(
     { repo, skill, skills, plugin, framework },
     marketplace,
   );
+  // Intent loads every skill the installed packages ship, so it only fits the whole framework's set
+  const intent = !skill && !skills && !plugin;
   return (
     <Tabs
       className={styles.tabs}
-      defaultValue="skills"
+      defaultValue="claude"
       groupId="agent-skills-program"
+      // Claude Code's own installer first, then skills that update with the packages
       values={[
-        { label: 'Skills CLI', value: 'skills' },
-        { label: 'OpenSkills', value: 'openskills' },
         { label: 'Claude Code plugin', value: 'claude' },
         ...(intent ? [{ label: 'TanStack Intent', value: 'intent' }] : []),
+        { label: 'Skills CLI', value: 'skills' },
+        { label: 'OpenSkills', value: 'openskills' },
       ]}
     >
-      <TabItem value="skills">
-        <CodeBlock className="language-bash">{commands.skillsCli}</CodeBlock>
-      </TabItem>
-      <TabItem value="openskills">
-        <CodeBlock className="language-bash">{commands.openSkills}</CodeBlock>
-      </TabItem>
       <TabItem value="claude">
         <CodeBlock className="language-bash">{commands.claude}</CodeBlock>
       </TabItem>
@@ -62,6 +50,12 @@ export default function SkillTabs({
           <CodeBlock className="language-bash">{intentCommand}</CodeBlock>
         </TabItem>
       )}
+      <TabItem value="skills">
+        <CodeBlock className="language-bash">{commands.skillsCli}</CodeBlock>
+      </TabItem>
+      <TabItem value="openskills">
+        <CodeBlock className="language-bash">{commands.openSkills}</CodeBlock>
+      </TabItem>
     </Tabs>
   );
 }
