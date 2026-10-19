@@ -413,12 +413,15 @@ function render(file, framework, props = {}, drop = DROP) {
       // the Skills CLI tab of website/src/components/SkillTabs.tsx
       case 'SkillTabs': {
         const skills =
-          attrs.skill ? [attrs.skill] : pluginSkills(attrs.plugin ?? framework);
+          attrs.skills ??
+          (attrs.skill ?
+            [attrs.skill]
+          : pluginSkills(attrs.plugin ?? framework));
         return [
           codeBlock({
             lang: 'bash',
             value: [
-              'npx skills add reactive/data-client',
+              `npx skills add ${attrs.repo ?? 'reactive/data-client'}`,
               ...skills.map(s => `--skill ${s}`),
             ].join(' \\\n  '),
           }),
