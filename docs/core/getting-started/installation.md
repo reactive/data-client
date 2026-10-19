@@ -22,7 +22,7 @@ import SkillTabs from '@site/src/components/SkillTabs';
 First install Data Client's [skills](./agent-skills.md) for your coding agent. Without them, agents get
 the basics right but miss the rest, like real-time managers and test fixtures.
 
-<SkillTabs intent={false} />
+<SkillTabs packages={false} />
 
 Then tell your agent:
 
@@ -50,13 +50,15 @@ Install the [Vue plugin](https://vuejs.org/guide/reusability/plugins.html) when 
 
 <SiteOnly>
 
-Your coding agent can also load the skills these packages ship, matched to the version you installed, with
-[TanStack Intent](https://tanstack.com/intent):
+These packages ship skills for your coding agent, matched to the version you installed. Link them into
+`.claude/skills`, where Claude Code and Cursor load them, and commit the links:
 
 ```bash
-npm install -D @tanstack/intent
-npx intent install
+npx --no data-client-skills
 ```
+
+Upgrades need nothing more; run it again after adding or removing `@data-client` packages. If you use
+[TanStack Intent](https://tanstack.com/intent), it loads the same skills.
 
 </SiteOnly>
 

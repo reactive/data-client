@@ -140,8 +140,12 @@
     "node.mjs",
     "LICENSE",
     "README.md",
-    "skills"
+    "skills",
+    "bin"
   ],
+  "bin": {
+    "data-client-skills": "./bin/data-client-skills.mjs"
+  },
   "scripts": {
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' POLYFILL_TARGETS='chrome>88,safari>14' POLYFILL_TARGETS='chrome>88,safari>14' yarn g:babel --out-dir lib",
     "build:legacy:lib": "NODE_ENV=production BROWSERSLIST_ENV='2018' POLYFILL_TARGETS='chrome>80,safari>13,firefox>72' POLYFILL_TARGETS='chrome>80,safari>13,firefox>72' yarn g:babel --out-dir legacy",

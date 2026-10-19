@@ -46,6 +46,7 @@
       "require": "./dist/mock.js",
       "default": "./lib/mock/index.js"
     },
+    "./agents/skills": "./agents/skills.mjs",
     "./package.json": "./package.json"
   },
   "type": "module",
@@ -60,7 +61,9 @@
     "legacy",
     "LICENSE",
     "README.md",
-    "skills"
+    "skills",
+    "agents",
+    "!agents/*.test.mjs"
   ],
   "scripts": {
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' POLYFILL_TARGETS='chrome>88,safari>14' yarn g:babel --out-dir lib",

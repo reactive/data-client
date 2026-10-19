@@ -5,14 +5,15 @@ on:
     branches:
       - master
     # Inputs and outputs of scripts/agent-rules.mjs and
-    # scripts/breaking-evals.mjs, the hook tests, and the Claude Code plugin's
-    # tests (.claude-plugin/README.md lists what they read)
+    # scripts/breaking-evals.mjs, the hook tests, the Claude Code plugin's
+    # tests (.claude-plugin/README.md lists what they read), and the skill sync
     paths:
       - '**/.cursor/rules/**'
       - '**/.claude/rules/**'
       - '.claude/skills'
       - '.cursor/hooks/**'
       - '.claude-plugin/**'
+      - 'packages/core/agents/**'
       - '.agents/skill-packages.json'
       - 'scripts/agent-rules.mjs'
       - 'scripts/breaking-evals.mjs'
@@ -57,5 +58,5 @@ jobs:
         run: node scripts/agent-rules.mjs --check
       - name: Check every breaking changeset has a skill eval
         run: node scripts/breaking-evals.mjs
-      - name: Test agent hooks
-        run: node --test '.cursor/hooks/*.test.js' '.claude-plugin/*.test.mjs'
+      - name: Test agent hooks and the skill sync
+        run: node --test '.cursor/hooks/*.test.js' '.claude-plugin/*.test.mjs' 'packages/core/agents/*.test.mjs'

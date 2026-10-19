@@ -6,10 +6,9 @@
 
 const skillsDir = '.agents/skills';
 
-/** TanStack Intent loads the skills the installed `@data-client/*` packages ship */
-const intentCommand = `# run after installing Data Client: loads the skills its packages ship
-npm install -D @tanstack/intent
-npx intent install`;
+/** Links the skills the installed `@data-client/*` packages ship into .claude/skills */
+const packagesCommand = `# after installing Data Client: links the skills its packages ship
+npx --no data-client-skills`;
 
 /**
  * @typedef {{ skillPackages: Record<string, string[]>, setupSkills: string[] }} SkillSources
@@ -18,29 +17,30 @@ npx intent install`;
  */
 
 /**
- * @param {{ repo?: string, skill?: string, skills?: string[], intent?: boolean, framework: string }} options
+ * @param {{ repo?: string, skill?: string, skills?: string[], packages?: boolean, framework: string }} options
  *   with no skills, installs every skill for the framework;
- *   `intent: false` leaves out TanStack Intent where the packages aren't installed yet
+ *   `packages: false` leaves out linking the packages' skills where they aren't installed yet
  * @param {SkillSources} sources
- * @returns {{ skillsCli: string, openSkills: string, claude: string, intent?: string }}
+ * @returns {{ skillsCli: string, openSkills: string, claude: string, packages?: string }}
  */
 export default function skillCommands(
   {
     repo = 'reactive/data-client',
     skill,
     skills,
-    intent: withIntent = true,
+    packages: withPackages = true,
     framework,
   },
   { skillPackages, setupSkills },
 ) {
-  // Intent loads every skill the packages ship, so it only fits the whole framework's set
-  const intent = withIntent && !skill && !skills ? intentCommand : undefined;
+  // links every skill the packages ship, so it only fits the whole framework's set
+  const packages =
+    withPackages && !skill && !skills ? packagesCommand : undefined;
   const allSkills =
     skills ??
     (skill ? [skill] : frameworkSkills(framework, skillPackages, setupSkills));
   return {
-    intent,
+    packages,
     skillsCli: [
       `npx skills add ${repo}`,
       ...allSkills.map(s => `--skill ${s}`),
@@ -49,8 +49,8 @@ export default function skillCommands(
     openSkills: allSkills
       .map(s => `npx openskills install ${repo}/${skillsDir}/${s}`)
       .join('\n'),
-    // The one plugin points the agent at the skills of the installed packages;
-    // the marketplace's other entries are old names kept for existing installs
+    // The plugin sets up new apps; the marketplace's other entries are old
+    // names kept for existing installs
     claude: [
       `claude plugin marketplace add ${repo}`,
       'claude plugin install data-client@data-client',

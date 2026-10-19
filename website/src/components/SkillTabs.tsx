@@ -14,14 +14,14 @@ interface Props {
   skill?: string;
   /** Defaults to every skill for the current page's framework */
   skills?: string[];
-  /** false leaves out TanStack Intent, which needs the packages installed first */
-  intent?: boolean;
+  /** false leaves out linking the packages' skills, which needs them installed first */
+  packages?: boolean;
 }
 
-export default function SkillTabs({ repo, skill, skills, intent }: Props) {
+export default function SkillTabs({ repo, skill, skills, packages }: Props) {
   const framework = useFramework();
   const commands = skillCommands(
-    { repo, skill, skills, intent, framework },
+    { repo, skill, skills, packages, framework },
     { skillPackages, setupSkills: setupReferences.skills },
   );
   return (
@@ -32,8 +32,8 @@ export default function SkillTabs({ repo, skill, skills, intent }: Props) {
       // Claude Code's own installer first, then skills that update with the packages
       values={[
         { label: 'Claude Code plugin', value: 'claude' },
-        ...(commands.intent ?
-          [{ label: 'TanStack Intent', value: 'intent' }]
+        ...(commands.packages ?
+          [{ label: 'Installed packages', value: 'packages' }]
         : []),
         { label: 'Skills CLI', value: 'skills' },
         { label: 'OpenSkills', value: 'openskills' },
@@ -42,9 +42,9 @@ export default function SkillTabs({ repo, skill, skills, intent }: Props) {
       <TabItem value="claude">
         <CodeBlock className="language-bash">{commands.claude}</CodeBlock>
       </TabItem>
-      {commands.intent && (
-        <TabItem value="intent">
-          <CodeBlock className="language-bash">{commands.intent}</CodeBlock>
+      {commands.packages && (
+        <TabItem value="packages">
+          <CodeBlock className="language-bash">{commands.packages}</CodeBlock>
         </TabItem>
       )}
       <TabItem value="skills">

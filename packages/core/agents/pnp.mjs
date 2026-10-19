@@ -1,8 +1,6 @@
 // Finds installed packages in Yarn Plug'n'Play projects. It reads the install
-// map and the zip cache as data and never runs the project's .pnp.cjs, which
-// a plugin must not do on session start.
+// map and the zip cache as data and never runs the project's .pnp.cjs.
 import { Buffer } from 'node:buffer';
-import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
@@ -10,11 +8,10 @@ import zlib from 'node:zlib';
 /**
  * Each installed version of the `names` packages in the PnP project holding
  * `projectDir`. Packages in the zip cache get their package.json and skills
- * copied under `copies`, outside the project, where agents' file tools can
- * read them.
+ * extracted under `extractTo`, an empty directory the caller owns.
  * @returns {{ pkg: string, dir: string }[]}
  */
-export function pnpPackages(projectDir, names, copies) {
+export function pnpPackages(projectDir, names, extractTo) {
   const root = pnpRoot(projectDir);
   if (!root) return [];
   const found = [];
@@ -23,7 +20,9 @@ export function pnpPackages(projectDir, names, copies) {
     for (const [, { packageLocation }] of versions) {
       const location = path.resolve(root, packageLocation);
       const dir =
-        fs.existsSync(location) ? location : copy(pkg, location, copies);
+        fs.existsSync(location) ? location : (
+          extract(location, path.join(extractTo, String(found.length)))
+        );
       if (dir) found.push({ pkg, dir });
     }
   }
@@ -64,29 +63,14 @@ function runtimeState(root) {
   );
 }
 
-/**
- * Copies a zipped package's skills and package.json to `<copies>/<pkg>/<key>`,
- * once per zip. The key is the zip's real path and stat, so a zip one project
- * commits can't stand in for another project's, and a session only stats it.
- * Copies are a few KB each and go when the plugin is uninstalled.
- */
-function copy(pkg, location, copies) {
+/** Extracts a zipped package's package.json and skills into `dir` */
+function extract(location, dir) {
   const [, zipFile, inner] = /^(.*?\.zip)[\\/](.*)$/.exec(location) ?? [];
   if (!zipFile || !fs.existsSync(zipFile)) return undefined;
-  const real = fs.realpathSync(zipFile);
-  const { size, mtimeMs, ino } = fs.statSync(real);
-  const key = createHash('sha256')
-    .update(JSON.stringify([real, size, mtimeMs, ino]))
-    .digest('hex')
-    .slice(0, 16);
-  const dir = path.join(copies, pkg, key);
-  // package.json goes last, so an interrupted copy is redone
-  if (fs.existsSync(path.join(dir, 'package.json'))) return dir;
   const prefix = inner.split(path.sep).join('/').replace(/\/?$/, '/');
-  const entries = zipEntries(fs.readFileSync(real));
+  const entries = zipEntries(fs.readFileSync(zipFile));
   const manifest = entries.get(`${prefix}package.json`)?.();
   if (!manifest) return undefined;
-  fs.rmSync(dir, { recursive: true, force: true });
   for (const [entry, read] of entries) {
     const relative = entry.slice(prefix.length);
     if (

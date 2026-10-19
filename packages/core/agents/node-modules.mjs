@@ -166,11 +166,11 @@ function packageDir(from, pkg) {
   const linked = path.join(from, 'node_modules', pkg);
   if (fs.existsSync(path.join(linked, 'package.json'))) return linked;
   try {
-    return path.dirname(
-      createRequire(path.join(realpath(from), 'package.json')).resolve(
-        `${pkg}/package.json`,
-      ),
-    );
+    const manifest = createRequire(
+      path.join(realpath(from), 'package.json'),
+    ).resolve(`${pkg}/package.json`);
+    // resolve() caches what it found, which may be gone since
+    return fs.existsSync(manifest) ? path.dirname(manifest) : undefined;
   } catch {
     return undefined;
   }

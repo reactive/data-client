@@ -17,7 +17,7 @@ workflows instead of guessing from older releases. This release cycle makes that
 - [Claude Code plugin](/blog/2026/10/06/coding-agents#claude-plugin) - `claude plugin install data-client@data-client` gives your agent the skills for the version you installed
 - [Vue skills](/blog/2026/10/06/coding-agents#vue-skills) - Vue projects get Vue composables and tests, not React hooks
 - [llms.txt](/blog/2026/10/06/coding-agents#llms-txt) - Any agent can read the docs as markdown, and every page tells it where to look
-- [Skills in the packages](/blog/2026/10/06/coding-agents#npm-skills) - Each `@data-client/*` package ships the skills for its version, loaded with TanStack Intent
+- [Skills in the packages](/blog/2026/10/06/coding-agents#npm-skills) - Each `@data-client/*` package ships the skills for its version, linked into `.claude/skills` with one command
 
 **Also available:**
 
@@ -76,13 +76,15 @@ finds them on its own.
 ## Skills in the packages {#npm-skills}
 
 Skills now ship inside the packages they cover, so your agent follows the version you have installed and gets new
-guidance with `npm update`. [TanStack Intent](https://tanstack.com/intent) loads them: its install adds a section to
-your `AGENTS.md` telling agents to load the matching skill before they change code.
+guidance with `npm update`. One command links them into `.claude/skills`, where Claude Code and Cursor load them as
+their own skills:
 
 ```bash
-npm install -D @tanstack/intent
-npx intent install
+npx --no data-client-skills
 ```
+
+Commit the links. They point into `node_modules`, so upgrades need nothing more; run it again after adding or removing
+`@data-client` packages. If you use [TanStack Intent](https://tanstack.com/intent), it finds the same skills.
 
 ## Skills match the docs {#generated-references}
 

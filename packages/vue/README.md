@@ -34,11 +34,10 @@ Schema driven. Zero updater functions.
 npm install --save @data-client/vue @data-client/rest
 ```
 
-To have your coding agent load the [skills](https://agentskills.io) these packages ship for their version, add [TanStack Intent](https://tanstack.com/intent):
+To have Claude Code or Cursor load the [skills](https://agentskills.io) these packages ship for their version, link them into `.claude/skills` and commit the links:
 
 ```bash
-npm install -D @tanstack/intent
-npx intent install
+npx --no data-client-skills
 ```
 
 Install [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin) when creating your app:

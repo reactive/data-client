@@ -20,20 +20,9 @@ test('old plugin names stay copies of data-client', () => {
 });
 
 test('plugin skills exist and ship in a package', () => {
-  // the hook falls back to the plugin's copy of a package's skills
   const owned = Object.values(readJSON('.agents/skill-packages.json')).flat();
   for (const skill of main.skills) {
     assert.ok(fs.existsSync(path.join(root, skill, 'SKILL.md')), skill);
     assert.ok(owned.includes(path.basename(skill)), skill);
-  }
-});
-
-test('hook commands run files in this directory', () => {
-  for (const { hooks } of Object.values(main.hooks).flat()) {
-    for (const { command } of hooks) {
-      const [, file] = /\$\{CLAUDE_PLUGIN_ROOT\}\/([^"]+)/.exec(command);
-      assert.ok(file.startsWith('.claude-plugin/'), command);
-      assert.ok(fs.existsSync(path.join(root, file)), command);
-    }
   }
 });

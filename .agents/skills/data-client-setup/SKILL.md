@@ -74,13 +74,24 @@ Protocol setup guides are bundled in this skill, but defining and using data aft
 | GraphQL | None beyond Always (`data-client-schema` covers `@data-client/graphql`) |
 | Custom async | None beyond Always (`data-client-schema` covers `@data-client/endpoint`) |
 
-Use the installer that installed this skill. For OpenSkills and the skills CLI, add `-g` if this skill lives under your home directory rather than the project.
+In Claude Code and Cursor, install nothing now: each skill ships inside the `@data-client/*` package it covers, at that package's version. After installing the packages below, link their skills into the project's `.claude/skills` from the project root:
 
-- **npm package or Claude Code plugin** (this skill is under `node_modules/` or `~/.claude/plugins/`): install nothing. Each skill ships inside the `@data-client/*` package it covers, so it arrives with the packages you install below, at their version. Read each one's `node_modules/@data-client/<package>/skills/<skill>/SKILL.md` when this skill says to apply it (pnpm keeps the transitive `core` and `endpoint` under `node_modules/.pnpm/`).
+```bash
+npx --no data-client-skills   # pnpm exec data-client-skills, yarn data-client-skills
+```
+
+Then add this line to the project's `CLAUDE.md` (or `AGENTS.md` when there's no `CLAUDE.md`; create `AGENTS.md` if neither exists), using the project's package manager in the command, so later agents keep the links current. Commit `.claude/skills` with the setup.
+
+```md
+After adding, removing or upgrading `@data-client/*` packages, run `npx --no data-client-skills` and commit `.claude/skills`.
+```
+
+For other agents, use the installer that installed this skill. For OpenSkills and the skills CLI, add `-g` if this skill lives under your home directory rather than the project.
+
 - **OpenSkills** (`AGENTS.md` lists skills in an `<available_skills>` block): `npx openskills install reactive/data-client/.agents/skills/<skill>`, once per skill.
 - **Otherwise** use the skills CLI: `npx skills add reactive/data-client --skill <skill> --skill <skill> ...`
 
-Newly installed skills may not be loaded until the next session, so read their `SKILL.md` directly when this skill says to apply them.
+Newly installed skills may not load until the next session, so read their `SKILL.md` directly (`.claude/skills/<skill>/SKILL.md` after linking) when this skill says to apply them.
 
 ## Installation
 

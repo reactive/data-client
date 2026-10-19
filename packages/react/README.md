@@ -38,11 +38,10 @@ Schema driven. Zero updater functions.
 npm install --save @data-client/react @data-client/rest @data-client/test
 ```
 
-To have your coding agent load the [skills](https://agentskills.io) these packages ship for their version, add [TanStack Intent](https://tanstack.com/intent):
+To have Claude Code or Cursor load the [skills](https://agentskills.io) these packages ship for their version, link them into `.claude/skills` and commit the links:
 
 ```bash
-npm install -D @tanstack/intent
-npx intent install
+npx --no data-client-skills
 ```
 
 For more details, see [the Getting Started docs page](https://dataclient.io/docs/getting-started/installation).

@@ -17,9 +17,9 @@ Client, answer and offer to set it up instead.
 
 ## Set up
 
-Load the skill for the work. If it isn't available by name, read the copy the installed package ships, which
-matches its version: `node_modules/@data-client/<package>/skills/<skill>/SKILL.md` (pnpm keeps the transitive
-`core` and `endpoint` under `node_modules/.pnpm/`).
+Load the skill for the work. If it isn't available by name but its package is installed, run
+`npx --no data-client-skills` (`pnpm exec`, `yarn`) from the project root, which links the skills the installed packages
+ship into `.claude/skills`, then read `.claude/skills/<skill>/SKILL.md`.
 
 | Work | Skill | Package |
 |------|-------|---------|

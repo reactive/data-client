@@ -18,19 +18,7 @@
       "skills": [
         "./.agents/skills/data-client",
         "./.agents/skills/data-client-setup"
-      ],
-      "hooks": {
-        "SessionStart": [
-          {
-            "hooks": [
-              {
-                "type": "command",
-                "command": "command -v node >/dev/null && node \"${CLAUDE_PLUGIN_ROOT}/.claude-plugin/session-start.mjs\" || true"
-              }
-            ]
-          }
-        ]
-      }
+      ]
     },
     {
       "name": "core",
@@ -42,19 +30,7 @@
       "skills": [
         "./.agents/skills/data-client",
         "./.agents/skills/data-client-setup"
-      ],
-      "hooks": {
-        "SessionStart": [
-          {
-            "hooks": [
-              {
-                "type": "command",
-                "command": "command -v node >/dev/null && node \"${CLAUDE_PLUGIN_ROOT}/.claude-plugin/session-start.mjs\" || true"
-              }
-            ]
-          }
-        ]
-      }
+      ]
     },
     {
       "name": "react",
@@ -66,19 +42,7 @@
       "skills": [
         "./.agents/skills/data-client",
         "./.agents/skills/data-client-setup"
-      ],
-      "hooks": {
-        "SessionStart": [
-          {
-            "hooks": [
-              {
-                "type": "command",
-                "command": "command -v node >/dev/null && node \"${CLAUDE_PLUGIN_ROOT}/.claude-plugin/session-start.mjs\" || true"
-              }
-            ]
-          }
-        ]
-      }
+      ]
     },
     {
       "name": "vue",
@@ -90,19 +54,7 @@
       "skills": [
         "./.agents/skills/data-client",
         "./.agents/skills/data-client-setup"
-      ],
-      "hooks": {
-        "SessionStart": [
-          {
-            "hooks": [
-              {
-                "type": "command",
-                "command": "command -v node >/dev/null && node \"${CLAUDE_PLUGIN_ROOT}/.claude-plugin/session-start.mjs\" || true"
-              }
-            ]
-          }
-        ]
-      }
+      ]
     },
     {
       "name": "migrations",
@@ -114,19 +66,7 @@
       "skills": [
         "./.agents/skills/data-client",
         "./.agents/skills/data-client-setup"
-      ],
-      "hooks": {
-        "SessionStart": [
-          {
-            "hooks": [
-              {
-                "type": "command",
-                "command": "command -v node >/dev/null && node \"${CLAUDE_PLUGIN_ROOT}/.claude-plugin/session-start.mjs\" || true"
-              }
-            ]
-          }
-        ]
-      }
+      ]
     }
   ]
 }
