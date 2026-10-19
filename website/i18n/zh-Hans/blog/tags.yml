@@ -1,0 +1,74 @@
+releases:
+  label: '版本发布'
+  description: 'Reactive Data Client 的新版本'
+  permalink: /releases
+
+schema:
+  label: 'Schema'
+  description: '类型安全的数据模型定义'
+  permalink: /schema
+
+queryable:
+  label: 'Queryable'
+  description: '可查询的 Schema 无需 Endpoint 即可访问 store'
+  permalink: /queryable
+
+nextjs:
+  label: 'NextJS'
+  description: 'NextJS 是面向 ReactJS 的 SSR 和 SSG 框架'
+  permalink: /nextjs
+
+expo:
+  label: 'Expo'
+  description: 'Expo（及 ExpoGo）是一个 React Native 框架'
+  permalink: /expo
+
+native:
+  label: 'React Native'
+  description: 'React Native 让 React 应用运行在 iOS 和 Android 上'
+  permalink: /react-native
+
+vue:
+  label: 'Vue'
+  description: 'Vue 是一个渲染库'
+  permalink: /vue
+
+rest:
+  label: 'REST'
+  description: '表述性状态转移：基于 HTTP 的 API'
+  permalink: /rest
+
+graphql:
+  label: 'GraphQL'
+  description: '用于 API 的查询和操作语言'
+  permalink: /graphql
+
+resource:
+  label: 'Resource'
+  description: 'Resource 是某个数据模型的一组方法'
+  permalink: /resource
+
+endpoint:
+  label: 'Endpoint'
+  description: 'Endpoint 是操作这些数据的方法'
+  permalink: /endpoint
+
+collection:
+  label: 'Collection'
+  description: '可变的数组或 Values'
+  permalink: /collection
+
+managers:
+  label: 'Manager'
+  description: 'Manager 处理全局副作用和中间件'
+  permalink: /managers
+
+performance:
+  label: '性能'
+  description: '性能改进与优化'
+  permalink: /performance
+
+agents:
+  label: 'AI 智能体'
+  description: '面向 AI 编码智能体的 Skills、llms.txt 和工具'
+  permalink: /agents
