@@ -76,7 +76,7 @@ export default function Playground<T>({
   // Defer preview transpilation so editor input remains responsive.
   const documents = useDeferredValue(model.documents);
 
-  const [storeOpen, toggleStore, showStore] = useStoreOpen(
+  const [storeOpen, toggleStore, showStore, demoView] = useStoreOpen(
     groupId,
     defaultOpen,
   );
@@ -134,6 +134,7 @@ export default function Playground<T>({
           actionLog={actionLog}
           autoRun={autoRun}
           showStore={showStore}
+          demoView={demoView}
         />
       </Boundary>
     );

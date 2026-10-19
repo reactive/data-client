@@ -13,7 +13,11 @@ import type { CodeDocument } from '../editor/codeModel';
 import type { PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
 import SchemaRegistry from './store/schemaRegistry';
-import { DemoViewContext, useDemoView } from './store/storeView';
+import {
+  DemoViewContext,
+  type DemoView,
+  type ShowStore,
+} from './store/storeView';
 import { StoreHeaderToggle } from './StoreToggle';
 import { useCodeManagers } from './useCodeManagers';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
@@ -27,7 +31,9 @@ export interface LivePreviewProps<T> extends PreviewProps<T> {
   actionLog?: LogOptions;
   autoRun?: AutoRunScript;
   /** Opens or closes the Store for the demo, without saving it */
-  showStore: (open: boolean) => void;
+  showStore: ShowStore;
+  /** The view a demo opened the Store in, for the Store to show */
+  demoView: DemoView;
 }
 
 export default function LivePreview<T>({
@@ -43,6 +49,7 @@ export default function LivePreview<T>({
   actionLog,
   autoRun,
   showStore,
+  demoView,
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
@@ -66,8 +73,7 @@ export default function LivePreview<T>({
   // outlives remounts, so a restored store keeps its schemas and actions
   const [registry] = useState(() => new SchemaRegistry(actionLog));
   const managers = useCodeManagers(documents, remount);
-  const [demoView, showDemoStore] = useDemoView(storeOpen, showStore);
-  const demo = useAutoRun(autoRun, reset, showDemoStore);
+  const demo = useAutoRun(autoRun, reset, showStore);
   const getInterceptorData = useMemo(
     () =>
       restored ?

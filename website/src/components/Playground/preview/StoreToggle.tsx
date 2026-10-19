@@ -4,8 +4,9 @@
 import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
 import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
+import type { DemoView, StoreView } from './store/storeView';
 import { useTabStorage } from '../../../utils/tabStorage';
 import { useLayoutMotion } from '../../motion';
 import StoreIcon from '../StoreIcon';
@@ -20,12 +21,16 @@ export const heldToggle = () => (clicked?.isConnected ? clicked : undefined);
 /** Store open state, persisted per `groupId`; toggling keeps the page from
  * scrolling, also as each Store it closes leaves the layout (`heldToggle`).
  * `showStore` opens or closes it for a demo without persisting, until the
- * reader toggles it (or `showStore(null)`). */
+ * reader toggles it (or `showStore(null)`); opening it in a view shows that
+ * view (`demoView`) while the Store stays open, until the reader picks one. */
 export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   const [choice, setChoice] = useTabStorage(groupId);
-  const [shown, show] = useState<boolean | null>(null);
+  const [shown, show] = useState<{ open: boolean; view?: StoreView } | null>(
+    null,
+  );
   const open =
-    shown ?? (choice === 'y' || choice === 'n' ? choice : defaultOpen) === 'y';
+    shown?.open ??
+    (choice === 'y' || choice === 'n' ? choice : defaultOpen) === 'y';
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
   const toggle = useCallback(
@@ -39,11 +44,23 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   );
   // a demo's open or close is no reader's click: forget the last one, so it
   // doesn't pin a toggle the reader clicked earlier
-  const showStore = useCallback((demo: boolean | null) => {
+  const showStore = useCallback((demo: boolean | null, view?: StoreView) => {
     clicked = undefined;
-    show(demo);
+    // a step naming no view keeps the one the demo opened it in
+    show(prev =>
+      demo === null ? null : (
+        { open: demo, view: demo ? (view ?? prev?.view) : undefined }
+      ),
+    );
   }, []);
-  return [open, toggle, showStore] as const;
+  // the reader picked a view: the demo's goes, its open stays
+  const drop = useCallback(
+    () => show(prev => (prev?.view ? { open: prev.open } : prev)),
+    [],
+  );
+  const view = shown?.view;
+  const demoView = useMemo<DemoView>(() => ({ view, drop }), [view, drop]);
+  return [open, toggle, showStore, demoView] as const;
 }
 
 /** Toggle row; also rendered (inert) by the preview loading fallback in ../index.tsx */

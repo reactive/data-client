@@ -368,7 +368,7 @@ Writing a script:
   whose targets only one view shows names it: `{ store: 'open', view: 'table' }`
   for `[data-table]` rows. Like the open itself, it isn't saved, and it holds
   while the Store stays open, until the reader picks a view
-  (`store/storeView.ts`): once the demo or the reader closes it, and on
+  (`useStoreOpen`, `store/storeView.ts`): once the demo or the reader closes it, and on
   replay, the Store shows the reader's view again.
 - A target that doesn't appear within `FIND_TIMEOUT` ends the run, and only
   the console says so (`Playground demo:`). Play every new or edited script
