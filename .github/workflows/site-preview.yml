@@ -152,6 +152,18 @@ jobs:
         run: |
           mv website/build website/next && mkdir website/build && mv website/next website/build/next
           mv website/build/next/site-versions.json website/build/
+      # An app installed from /next keeps its worker, serving frozen docs, when
+      # the worker's update gets a redirect. So with no /next build, its sw.js
+      # paths (which vercel.json doesn't redirect) serve one that unregisters.
+      - name: Retire the /next service workers
+        if: ${{ !steps.next.outputs.next }}
+        working-directory: website/build
+        run: |
+          shopt -s nullglob
+          for sw in sw.js */sw.js; do
+            mkdir -p "next/$(dirname "$sw")"
+            cp ../scripts/snapshot/retiredSw.js "next/$sw"
+          done
       - if: github.event_name == 'push'
         uses: actions/cache/save@v6
         with:
@@ -340,9 +352,10 @@ jobs:
         run: |
           tar -xzf current.tar.gz -C website/build
           # /next is served now, so it no longer redirects to the root
-          jq -e '.redirects | any(.source == "/next/:path*")' website/vercel.json > /dev/null ||
-            { echo "::error::vercel.json has no /next/:path* redirect to drop"; exit 1; }
-          jq '.redirects |= map(select(.source != "/next/:path*"))' website/vercel.json > vercel.json.tmp
+          next='.source | startswith("/next{/:path")'
+          jq -e ".redirects | map(select($next)) | length == 1" website/vercel.json > /dev/null ||
+            { echo "::error::vercel.json has no single /next redirect to drop"; exit 1; }
+          jq ".redirects |= map(select($next | not))" website/vercel.json > vercel.json.tmp
           mv vercel.json.tmp website/vercel.json
       - uses: actions/setup-node@v7
         with:

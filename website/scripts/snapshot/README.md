@@ -64,3 +64,10 @@ starts this by cutting a `<version>.x` maintenance branch and adding `website/ve
   ([scripts/maintenance/README.md](../../../scripts/maintenance/README.md#website-fixes)).
 - The release of the next major archives the current version from its branch, and the listing PR
   deletes `versionCurrent.json`, so master serves the root again.
+
+An app installed from `/next/` (or opened with `?offlineMode=true`) registered a service worker at
+`/next/sw.js` (`/next/<locale>/sw.js` for a locale). A browser keeps a worker whose update fails, and
+a redirect fails it, so once `/next/*` redirects again that app would keep serving the frozen
+pre-release docs from its cache. So whenever there's no next build, `site-preview.yml` puts
+[`retiredSw.js`](retiredSw.js) at each of those paths, and the `/next` redirect leaves them out: the
+worker unregisters, deletes its caches and reloads its pages, which land on the root.
