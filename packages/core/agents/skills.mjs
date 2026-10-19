@@ -81,7 +81,7 @@ function skillsDirs(projectDir) {
 /** A junction holds an absolute path, which may differ from `shared` in casing or a linked parent */
 function sameDir(a, b) {
   try {
-    return fs.realpathSync(a) === fs.realpathSync(b);
+    return fs.realpathSync.native(a) === fs.realpathSync.native(b);
   } catch {
     return false;
   }
