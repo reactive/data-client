@@ -1,3 +1,5 @@
+import type { StoreView } from '../store/storeView';
+
 /** A demo a playground plays by itself: what to do, step by step, as a
  * reader would (see "Auto-run" in ../../README.md). Plain data, so docs can
  * declare it. */
@@ -12,8 +14,11 @@ export type Step =
         | { click: Target }
         /** Appends `text` to an input, a character at a time */
         | { type: Target; text: string }
-        /** Opens or closes the Store, without changing the reader's own choice */
-        | { store: 'open' | 'close' }
+        /** Opens or closes the Store, without changing the reader's own
+         * choice; `view` shows it in the table or tree view, also unsaved,
+         * for a script whose targets only one of them shows */
+        | { store: 'open'; view?: StoreView }
+        | { store: 'close'; view?: never }
       ));
 
 interface StepTiming {

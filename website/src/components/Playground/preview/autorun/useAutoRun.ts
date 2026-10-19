@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { createPlayer } from './player';
+import { createPlayer, type ShowStore } from './player';
 import type { AutoRunScript } from './script';
 import { createStage, revealOnPage } from './stage';
 import { prefersReducedMotion } from '../../../motion';
@@ -17,13 +17,13 @@ import { prefersReducedMotion } from '../../../motion';
  *   background tab, the run pauses where it is.
  * - Under reduced motion it never starts by itself.
  *
- * `showStore` opens or closes the Store for the demo without saving it as
- * the reader's choice.
+ * `showStore` opens or closes the Store for the demo, and shows it in a
+ * view, without saving either as the reader's choice.
  */
 export function useAutoRun(
   script: AutoRunScript | undefined,
   reset: () => void,
-  showStore: (open: boolean) => void,
+  showStore: ShowStore,
 ) {
   const [player] = useState(createPlayer);
   // read when a run starts, so `watch` and `replay` keep their identity
@@ -113,9 +113,9 @@ export function useAutoRun(
     reset();
     // the reader asked to watch: bring it into view, which it plays in
     if (preview.current) revealOnPage(preview.current);
-    // the demo shows the Store opening, if it does
+    // the demo shows the Store opening, if it does, from the reader's view
     if (script?.some(step => 'store' in step && step.store === 'open'))
-      showStore(false);
+      showStore(false, null);
     start();
   }, [reset, start]);
 

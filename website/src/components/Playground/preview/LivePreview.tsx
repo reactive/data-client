@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { LiveProvider } from 'react-live';
 
 import DemoLabel from './autorun/DemoLabel';
+import type { ShowStore } from './autorun/player';
 import type { AutoRunScript } from './autorun/script';
 import { useAutoRun } from './autorun/useAutoRun';
 import Preview from './Preview';
@@ -13,6 +14,7 @@ import type { CodeDocument } from '../editor/codeModel';
 import type { PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
 import SchemaRegistry from './store/schemaRegistry';
+import { DemoViewContext, useDemoView } from './store/storeView';
 import { StoreHeaderToggle } from './StoreToggle';
 import { useCodeManagers } from './useCodeManagers';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
@@ -65,7 +67,16 @@ export default function LivePreview<T>({
   // outlives remounts, so a restored store keeps its schemas and actions
   const [registry] = useState(() => new SchemaRegistry(actionLog));
   const managers = useCodeManagers(documents, remount);
-  const demo = useAutoRun(autoRun, reset, showStore);
+  // the demo's Store view, unsaved, until the reader picks one
+  const [demoView, showView] = useDemoView();
+  const showDemoStore = useCallback<ShowStore>(
+    (open, view) => {
+      if (view !== undefined) showView(view);
+      showStore(open);
+    },
+    [showStore],
+  );
+  const demo = useAutoRun(autoRun, reset, showDemoStore);
   const getInterceptorData = useMemo(
     () =>
       restored ?
@@ -99,23 +110,25 @@ export default function LivePreview<T>({
           </>
         }
       >
-        <Preview
-          key={storeKey}
-          storeOpen={storeOpen}
-          toggleStore={toggleStore}
-          row={row}
-          storeHost={storeHost}
-          fixtures={fixtures}
-          getInitialInterceptorData={getInterceptorData}
-          onCommit={onCommit}
-          initialState={restored?.state}
-          registry={registry}
-          history={history}
-          replacedHistory={replacedHistory}
-          managerHost={managers.host}
-          onReset={reset}
-          {...handlers}
-        />
+        <DemoViewContext.Provider value={demoView}>
+          <Preview
+            key={storeKey}
+            storeOpen={storeOpen}
+            toggleStore={toggleStore}
+            row={row}
+            storeHost={storeHost}
+            fixtures={fixtures}
+            getInitialInterceptorData={getInterceptorData}
+            onCommit={onCommit}
+            initialState={restored?.state}
+            registry={registry}
+            history={history}
+            replacedHistory={replacedHistory}
+            managerHost={managers.host}
+            onReset={reset}
+            {...handlers}
+          />
+        </DemoViewContext.Provider>
       </PreviewWrapper>
     </LiveProvider>
   );

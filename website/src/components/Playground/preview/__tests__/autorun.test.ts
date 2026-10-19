@@ -25,8 +25,10 @@ function fakeStage(
     point: el => void calls.push(el === toggle ? 'point toggle' : 'point'),
     click: () => void calls.push('click'),
     append: (_, text) => void calls.push(`append ${text}`),
-    store: (open, pressed) =>
-      void calls.push(`store ${open}${pressed ? ' pressed' : ''}`),
+    store: (open, pressed, view) =>
+      void calls.push(
+        `store ${open}${pressed ? ' pressed' : ''}${view ? ` ${view}` : ''}`,
+      ),
     end: () => void calls.push('end'),
   };
   return { stage, calls };
@@ -95,6 +97,14 @@ it('glides onto the Store toggle before opening the Store', async () => {
   expect(calls).toEqual(['point toggle']);
   await jest.advanceTimersByTimeAsync(MOVE_MS);
   expect(calls).toEqual(['point toggle', 'store true pressed', 'end']);
+});
+
+it('opens the Store in the view a step names', async () => {
+  const player = createPlayer();
+  const { stage, calls } = fakeStage();
+  player.play([{ delay: 0, store: 'open', view: 'table' }], stage);
+  await jest.runAllTimersAsync();
+  expect(calls).toEqual(['store true table', 'end']);
 });
 
 it('a wait holds for its own time only', async () => {
@@ -189,7 +199,12 @@ describe('stage', () => {
       expect(animate).not.toHaveBeenCalled();
       stage.store(false, true);
       expect(animate).toHaveBeenCalledTimes(1);
-      expect(showStore.mock.calls).toEqual([[true], [false]]);
+      stage.store(true, false, 'table');
+      expect(showStore.mock.calls).toEqual([
+        [true, undefined],
+        [false, undefined],
+        [true, 'table'],
+      ]);
       expect(onClick).not.toHaveBeenCalled();
     } finally {
       delete (HTMLElement.prototype as any).animate;
@@ -364,7 +379,7 @@ describe('useAutoRun', () => {
     see(0.6);
     expect(result.current.player.getState()).toBe('playing');
     await jest.runAllTimersAsync();
-    expect(showStore).toHaveBeenCalledWith(true);
+    expect(showStore).toHaveBeenCalledWith(true, undefined);
   });
 
   it('starts a preview taller than the viewport once it fills most of it', () => {
@@ -385,7 +400,7 @@ describe('useAutoRun', () => {
     expect(showStore).not.toHaveBeenCalled();
     see(0.6);
     await jest.runAllTimersAsync();
-    expect(showStore).toHaveBeenCalledWith(true);
+    expect(showStore).toHaveBeenCalledWith(true, undefined);
   });
 
   it('plays on while the preview shows, the Store opened above it', async () => {
@@ -397,7 +412,7 @@ describe('useAutoRun', () => {
     see(1);
     seeOnly(playground, 0.5);
     await jest.runAllTimersAsync();
-    expect(showStore).toHaveBeenLastCalledWith(false);
+    expect(showStore).toHaveBeenLastCalledWith(false, undefined);
   });
 
   it('plays on while the playground shows, the preview gone from view', async () => {
@@ -406,7 +421,7 @@ describe('useAutoRun', () => {
     see(1);
     seeOnly(preview, 0);
     await jest.runAllTimersAsync();
-    expect(showStore).toHaveBeenCalledWith(true);
+    expect(showStore).toHaveBeenCalledWith(true, undefined);
   });
 
   it('an unmount leaves an idle player free to start', () => {
@@ -477,7 +492,7 @@ describe('useAutoRun', () => {
     expect(result.current.player.getState()).toBe('idle');
   });
 
-  it('replay starts over from a fresh store, closing a Store it opens', () => {
+  it("replay starts over from a fresh store, closing a Store it opens in the reader's view", () => {
     const reset = jest.fn();
     const playground = document.createElement('div');
     playground.dataset.playground = '';
@@ -491,7 +506,7 @@ describe('useAutoRun', () => {
     result.current.watch(preview);
     act(() => result.current.replay());
     expect(reset).toHaveBeenCalledTimes(1);
-    expect(showStore).toHaveBeenCalledWith(false);
+    expect(showStore).toHaveBeenCalledWith(false, null);
     expect(result.current.player.getState()).toBe('playing');
   });
 
@@ -505,7 +520,7 @@ describe('useAutoRun', () => {
     act(() => result.current.replay());
     expect(preview.scrollIntoView).toHaveBeenCalled();
     await jest.runAllTimersAsync();
-    expect(showStore).toHaveBeenLastCalledWith(true);
+    expect(showStore).toHaveBeenLastCalledWith(true, undefined);
   });
 
   it('replay leaves a preview that fills the view where it is', () => {

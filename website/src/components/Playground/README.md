@@ -364,6 +364,11 @@ Writing a script:
 - Target Store UI with `in: 'store'`; the default scope is the preview.
   Match `aria-label`s and `data-*` attributes over visible text, which copy
   edits change.
+- The Store opens in the reader's saved view (table or tree), so a script
+  whose targets only one view shows names it: `{ store: 'open', view: 'table' }`
+  for `[data-table]` rows. Like the open itself, it isn't saved, and it holds
+  until the reader picks a view (`store/storeView.ts`); a replay starts again
+  from the reader's view.
 - A target that doesn't appear within `FIND_TIMEOUT` ends the run, and only
   the console says so (`Playground demo:`). Play every new or edited script
   through in a browser, at a phone width too, where the Store opens above the

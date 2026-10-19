@@ -8,6 +8,11 @@ import { byData } from '../store/dom';
 import { endpointId, parseRowId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
+import {
+  DemoViewContext,
+  useDemoView,
+  type StoreView,
+} from '../store/storeView';
 
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
@@ -246,6 +251,39 @@ describe('StorePanel table view', () => {
     expect(
       screen.getByLabelText('Tree view').getAttribute('aria-pressed'),
     ).toBe('true');
+    expect(document.querySelector('[data-table]')).toBeNull();
+  });
+
+  it("shows a demo's view over the reader's, until they pick one", () => {
+    let show = (_view: StoreView | null) => {};
+    function Demo({ children }: { children: React.ReactNode }) {
+      const [value, setView] = useDemoView();
+      show = setView;
+      return (
+        <DemoViewContext.Provider value={value}>
+          {children}
+        </DemoViewContext.Provider>
+      );
+    }
+    render(
+      <Demo>
+        <StateContext.Provider value={state}>
+          <StorePanel registry={registry()} history={0} />
+        </StateContext.Provider>
+      </Demo>,
+    );
+    // the reader's choice
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    expect(document.querySelector('[data-table]')).toBeNull();
+    // a demo's targets are table rows
+    act(() => show('table'));
+    expect(document.querySelector('[data-table="User"]')).not.toBeNull();
+    // the demo leaves the reader's choice as it was
+    act(() => show(null));
+    expect(document.querySelector('[data-table]')).toBeNull();
+    // the reader picking a view takes over from the demo's
+    act(() => show('table'));
+    fireEvent.click(screen.getByLabelText('Tree view'));
     expect(document.querySelector('[data-table]')).toBeNull();
   });
 
