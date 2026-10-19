@@ -49,7 +49,9 @@ function StoreInspector({
 export default memo(StoreInspector);
 
 /** Runs `run` in the commit that adds the tree, before it reaches the DOM: a
- * stacked Store grows to fit it, as does every Store the same toggle opened */
+ * stacked Store grows to fit it, as does every Store the same toggle opened.
+ * A snapshot, since by any effect the tree is in, and rendering may be
+ * thrown away */
 class BeforeTree extends Component<{
   shown: boolean;
   run: () => void;
@@ -61,7 +63,7 @@ class BeforeTree extends Component<{
   }
 
   componentDidUpdate() {
-    // React wants it beside getSnapshotBeforeUpdate
+    // none: React warns in development of a getSnapshotBeforeUpdate without it
   }
 
   render() {

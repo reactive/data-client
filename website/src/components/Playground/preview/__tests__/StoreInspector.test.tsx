@@ -15,8 +15,14 @@ jest.mock(
   () => () => require('react').createElement('div', { 'data-testid': 'tree' }),
 );
 
-function Playground({ defaultOpen }: { defaultOpen: 'y' | 'n' }) {
-  const [open, toggle] = useStoreOpen('store-inspector-test', defaultOpen);
+function Playground({
+  groupId,
+  defaultOpen,
+}: {
+  groupId: string;
+  defaultOpen: 'y' | 'n';
+}) {
+  const [open, toggle] = useStoreOpen(groupId, defaultOpen);
   return (
     <StoreInspector
       open={open}
@@ -33,8 +39,10 @@ beforeEach(() => {
   blocked.length = 0;
 });
 
-it('holds the clicked toggle through the render that adds the tree', async () => {
-  const { container, findByTestId } = render(<Playground defaultOpen="n" />);
+it('holds the clicked toggle through the commit that adds the tree', async () => {
+  const { container, findByTestId } = render(
+    <Playground groupId="a" defaultOpen="n" />,
+  );
   const toggle = container.querySelector<HTMLElement>('[data-store-toggle]')!;
   await act(async () => {
     fireEvent.click(toggle);
@@ -45,7 +53,21 @@ it('holds the clicked toggle through the render that adds the tree', async () =>
 });
 
 it('holds nothing for a Store that mounts open', async () => {
-  const { findByTestId } = render(<Playground defaultOpen="y" />);
+  const { container, findByTestId, findAllByTestId, rerender } = render(
+    <Playground groupId="a" defaultOpen="n" />,
+  );
+  await act(async () => {
+    fireEvent.click(container.querySelector('[data-store-toggle]')!);
+  });
   await findByTestId('tree');
+  blocked.length = 0;
+  // the clicked toggle is still on the page as another Store mounts open
+  rerender(
+    <>
+      <Playground groupId="a" defaultOpen="n" />
+      <Playground groupId="b" defaultOpen="y" />
+    </>,
+  );
+  expect(await findAllByTestId('tree')).toHaveLength(2);
   expect(blocked).toEqual([]);
 });
