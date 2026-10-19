@@ -48,7 +48,6 @@ function renderPlayground(documents: string[]) {
       fixtures: [],
       renderCount: false,
       showStore: () => {},
-      demoView: { drop() {} },
     };
   };
   const result = render(<LivePreview {...props(documents)} />);

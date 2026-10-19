@@ -13,11 +13,7 @@ import type { CodeDocument } from '../editor/codeModel';
 import type { PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
 import SchemaRegistry from './store/schemaRegistry';
-import {
-  DemoViewContext,
-  type DemoView,
-  type ShowStore,
-} from './store/storeView';
+import type { ShowStore } from './store/storeView';
 import { StoreHeaderToggle } from './StoreToggle';
 import { useCodeManagers } from './useCodeManagers';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
@@ -32,9 +28,6 @@ export interface LivePreviewProps<T> extends PreviewProps<T> {
   autoRun?: AutoRunScript;
   /** Opens or closes the Store for the demo, without saving it */
   showStore: ShowStore;
-  /** The view a demo opened the Store in (if any), and `drop()` to give the
-   * reader's view back */
-  demoView: DemoView;
 }
 
 export default function LivePreview<T>({
@@ -50,7 +43,6 @@ export default function LivePreview<T>({
   actionLog,
   autoRun,
   showStore,
-  demoView,
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
@@ -108,25 +100,23 @@ export default function LivePreview<T>({
           </>
         }
       >
-        <DemoViewContext.Provider value={demoView}>
-          <Preview
-            key={storeKey}
-            storeOpen={storeOpen}
-            toggleStore={toggleStore}
-            row={row}
-            storeHost={storeHost}
-            fixtures={fixtures}
-            getInitialInterceptorData={getInterceptorData}
-            onCommit={onCommit}
-            initialState={restored?.state}
-            registry={registry}
-            history={history}
-            replacedHistory={replacedHistory}
-            managerHost={managers.host}
-            onReset={reset}
-            {...handlers}
-          />
-        </DemoViewContext.Provider>
+        <Preview
+          key={storeKey}
+          storeOpen={storeOpen}
+          toggleStore={toggleStore}
+          row={row}
+          storeHost={storeHost}
+          fixtures={fixtures}
+          getInitialInterceptorData={getInterceptorData}
+          onCommit={onCommit}
+          initialState={restored?.state}
+          registry={registry}
+          history={history}
+          replacedHistory={replacedHistory}
+          managerHost={managers.host}
+          onReset={reset}
+          {...handlers}
+        />
       </PreviewWrapper>
     </LiveProvider>
   );

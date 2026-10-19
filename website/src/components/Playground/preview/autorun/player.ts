@@ -11,7 +11,7 @@ export interface Stage {
   append(el: HTMLElement, text: string): void;
   /** Opens or closes the Store, in `view` if given; `pressed`: the pointer
    * is on the Store's toggle, so the stage shows a press there */
-  store(open: boolean, pressed?: boolean, view?: StoreView): void;
+  store(open: boolean, options?: { pressed?: boolean; view?: StoreView }): void;
   /** The run is over: the pointer goes */
   end(): void;
 }
@@ -99,7 +99,10 @@ async function perform(
       stage.point(toggle);
       await sleep(MOVE_MS);
     }
-    return stage.store(step.store === 'open', !!toggle, step.view);
+    return stage.store(step.store === 'open', {
+      pressed: !!toggle,
+      view: step.view,
+    });
   }
 
   // look the target up again before each act: a render may have replaced it

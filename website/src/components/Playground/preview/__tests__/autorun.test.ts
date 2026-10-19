@@ -25,7 +25,7 @@ function fakeStage(
     point: el => void calls.push(el === toggle ? 'point toggle' : 'point'),
     click: () => void calls.push('click'),
     append: (_, text) => void calls.push(`append ${text}`),
-    store: (open, pressed, view) =>
+    store: (open, { pressed, view } = {}) =>
       void calls.push(
         `store ${open}${pressed ? ' pressed' : ''}${view ? ` ${view}` : ''}`,
       ),
@@ -197,9 +197,9 @@ describe('stage', () => {
       stage.point(toggle);
       stage.store(true);
       expect(animate).not.toHaveBeenCalled();
-      stage.store(false, true);
+      stage.store(false, { pressed: true });
       expect(animate).toHaveBeenCalledTimes(1);
-      stage.store(true, false, 'table');
+      stage.store(true, { view: 'table' });
       expect(showStore.mock.calls).toEqual([
         [true, undefined],
         [false, undefined],

@@ -8,8 +8,7 @@ import { byData } from '../store/dom';
 import { endpointId, parseRowId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
-import { DemoViewContext } from '../store/storeView';
-import { StoreToggle, useStoreOpen } from '../StoreToggle';
+import { DemoViewContext, StoreToggle, useStoreOpen } from '../StoreToggle';
 
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
