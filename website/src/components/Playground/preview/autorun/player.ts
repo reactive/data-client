@@ -16,10 +16,6 @@ export interface Stage {
   end(): void;
 }
 
-/** Opens or closes the Store for a demo; opening in `view` shows that view
- * over the reader's, and closing gives the reader's back */
-export type ShowStore = (open: boolean, view?: StoreView) => void;
-
 export type PlayerState = 'idle' | 'playing' | 'done';
 
 /** ms: before each step, unless it says; the pointer's glide

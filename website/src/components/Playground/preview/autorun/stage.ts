@@ -1,8 +1,9 @@
 import styles from './autorun.module.css';
-import type { ShowStore, Stage } from './player';
+import type { Stage } from './player';
 import type { Scope } from './script';
 import { prefersReducedMotion, springEasing, springs } from '../../../motion';
 import { revealIn } from '../store/dom';
+import type { ShowStore } from '../store/storeView';
 
 /** Acts on one playground's DOM as a reader would, with untrusted events
  * (so the yield listeners in ./useAutoRun.ts tell them from the reader's) and

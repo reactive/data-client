@@ -7,9 +7,12 @@ import {
 } from 'react';
 
 import { useTabStorage } from '../../../../utils/tabStorage';
-import type { ShowStore } from '../autorun/player';
 
 export type StoreView = 'table' | 'tree';
+
+/** Opens or closes the Store for a demo; opening in `view` shows that view
+ * over the reader's while the Store stays open */
+export type ShowStore = (open: boolean, view?: StoreView) => void;
 
 /** A demo's Store view (see ../autorun), shown over the reader's saved one
  * without saving it, until they pick a view; `show(null)` gives theirs back */
@@ -34,19 +37,20 @@ export function useStoreView() {
   return [view, setView] as const;
 }
 
-/** A `DemoViewContext` provider's value, and the demo's `showStore`: it
- * opens the Store (with `openStore`) in a view, unsaved, and closing it
- * gives the reader's view back */
-export function useDemoView(openStore: (open: boolean) => void) {
+/** A `DemoViewContext` provider's value, and the demo's `showStore`, which
+ * opens or closes the Store with `openStore`. A step's view holds while the
+ * Store stays `open`: once it closes, by the demo or the reader, the
+ * reader's view is back */
+export function useDemoView(open: boolean, openStore: (open: boolean) => void) {
   const [view, show] = useState<StoreView | null>(null);
+  if (!open && view) show(null);
   const value = useMemo(() => ({ view, show }), [view]);
-  const showStore = useCallback<ShowStore>(
-    (open, next) => {
-      if (!open) show(null);
-      else if (next) show(next);
-      openStore(open);
+  const showDemoStore = useCallback<ShowStore>(
+    (nextOpen, nextView) => {
+      if (nextOpen && nextView) show(nextView);
+      openStore(nextOpen);
     },
     [openStore],
   );
-  return [value, showStore] as const;
+  return [value, showDemoStore] as const;
 }

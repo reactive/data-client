@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { createPlayer, type ShowStore } from './player';
+import { createPlayer } from './player';
 import type { AutoRunScript } from './script';
 import { createStage, revealOnPage } from './stage';
 import { prefersReducedMotion } from '../../../motion';
+import type { ShowStore } from '../store/storeView';
 
 /** Plays `script` in the playground (`[data-playground]`) around the
  * preview `watch` is the ref of, the first time that preview is mostly in

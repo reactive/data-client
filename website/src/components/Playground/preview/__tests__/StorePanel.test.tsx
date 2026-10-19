@@ -4,12 +4,15 @@ import { StateContext, type State } from '@data-client/react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
-import type { ShowStore } from '../autorun/player';
 import { byData } from '../store/dom';
 import { endpointId, parseRowId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
-import { DemoViewContext, useDemoView } from '../store/storeView';
+import {
+  DemoViewContext,
+  useDemoView,
+  type ShowStore,
+} from '../store/storeView';
 
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
@@ -251,12 +254,14 @@ describe('StorePanel table view', () => {
     expect(document.querySelector('[data-table]')).toBeNull();
   });
 
-  it("shows a demo's view over the reader's, until they pick one or it closes", () => {
-    const openStore = jest.fn();
+  it("shows a demo's view over the reader's while the Store stays open", () => {
     let showStore: ShowStore = () => {};
+    let readerToggle = (_open: boolean) => {};
     function Demo({ children }: { children: React.ReactNode }) {
-      const [value, show] = useDemoView(openStore);
-      showStore = show;
+      const [open, setOpen] = React.useState(true);
+      const [value, showDemoStore] = useDemoView(open, setOpen);
+      showStore = showDemoStore;
+      readerToggle = setOpen;
       return (
         <DemoViewContext.Provider value={value}>
           {children}
@@ -277,16 +282,23 @@ describe('StorePanel table view', () => {
     // a demo's targets are table rows
     act(() => showStore(true, 'table'));
     expect(table()).not.toBeNull();
-    expect(openStore).toHaveBeenLastCalledWith(true);
     // a step naming no view leaves the demo's
     act(() => showStore(true));
     expect(table()).not.toBeNull();
-    // closing gives the reader's view back, which the demo didn't save
+    // the demo closing gives the reader's view back, which it didn't save
     act(() => showStore(false));
-    expect(openStore).toHaveBeenLastCalledWith(false);
+    act(() => readerToggle(true));
     expect(table()).toBeNull();
-    // the reader picking a view takes over from the demo's
+    // so does the reader closing it
     act(() => showStore(true, 'table'));
+    act(() => readerToggle(false));
+    act(() => readerToggle(true));
+    expect(table()).toBeNull();
+    // a demo opening a closed Store shows its view as it opens
+    act(() => readerToggle(false));
+    act(() => showStore(true, 'table'));
+    expect(table()).not.toBeNull();
+    // and the reader picking a view takes over from the demo's
     fireEvent.click(screen.getByLabelText('Tree view'));
     expect(table()).toBeNull();
   });
