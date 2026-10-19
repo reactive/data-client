@@ -80,6 +80,9 @@ In Claude Code, Cursor and Codex, install nothing now: each skill ships inside t
 npx --no data-client-skills   # pnpm exec data-client-skills, yarn data-client-skills
 ```
 
+If the command isn't found, or reports that a package ships no skills, the installed packages predate 0.19: install
+the skills with the skills CLI as described below for other agents, and skip the `CLAUDE.md` line.
+
 Then add this line to the project's `CLAUDE.md` (or `AGENTS.md` when there's no `CLAUDE.md`; create `AGENTS.md` if neither exists), using the project's package manager in the command, so later agents keep the links current. Commit `.agents/skills` and `.claude/skills` with the setup. On Windows, commit the links only with Developer Mode on and `git config core.symlinks true`; otherwise leave them uncommitted and rerun the command after installing.
 
 ```md
