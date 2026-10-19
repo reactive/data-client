@@ -54,7 +54,7 @@
       "permanent": false
     },
     {
-      "source": "/next{/:path((?!(?:[a-z]{2}(?:-[A-Za-z]+)?/)?sw\\.js$).*)}?",
+      "source": "/next{/:path((?!(?:.*/)?sw\\.js$).*)}?",
       "destination": "/:path",
       "permanent": false
     }

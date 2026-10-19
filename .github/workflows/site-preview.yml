@@ -152,17 +152,15 @@ jobs:
         run: |
           mv website/build website/next && mkdir website/build && mv website/next website/build/next
           mv website/build/next/site-versions.json website/build/
-      # An app installed from /next keeps its worker, serving frozen docs, when
-      # the worker's update gets a redirect. So with no /next build, its sw.js
-      # paths (which vercel.json doesn't redirect) serve one that unregisters.
+      # With no /next build, apps installed from it get a worker that
+      # unregisters (scripts/snapshot/README.md#current-and-next)
       - name: Retire the /next service workers
         if: ${{ !steps.next.outputs.next }}
         working-directory: website/build
         run: |
           shopt -s nullglob
           for sw in sw.js */sw.js; do
-            mkdir -p "next/$(dirname "$sw")"
-            cp ../scripts/snapshot/retiredSw.js "next/$sw"
+            install -D ../scripts/snapshot/retiredSw.js "next/$sw"
           done
       - if: github.event_name == 'push'
         uses: actions/cache/save@v6
