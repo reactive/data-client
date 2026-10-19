@@ -106,7 +106,7 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
 > 1. Identical fetches are automatically deduplicated
 > 2. [Hard errors](https://dataclient.io/vue/concepts/error-policy#hard) to be [caught](./data-dependency.md#async-fallbacks) by [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured)
 >
-> 3) Only during setup. Vue can't suspend a mounted component again, so after [invalidation](./Controller.md#invalidate) it [keeps returning its current data](https://dataclient.io/vue/concepts/expiry-policy#invalidate) until the refetch resolves.
+> 3) Only during setup; mounted components [keep their current data](https://dataclient.io/vue/concepts/expiry-policy#invalidate) until the refetch resolves.
 
 > **Tip: Conditional Dependencies**
 >

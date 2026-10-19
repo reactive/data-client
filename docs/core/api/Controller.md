@@ -949,7 +949,7 @@ export enum ExpiryStatus {
 
 ##### Invalid
 
-- Will always suspend:vue[ on setup (mounted components [keep their current data](../concepts/expiry-policy.md#invalidate) until the refetch resolves)]
+- Will always suspend:vue[ during setup; mounted components [keep their current data](../concepts/expiry-policy.md#invalidate) until the refetch resolves]
 - Will always fetch
 
 #### expiresAt

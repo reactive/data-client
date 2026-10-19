@@ -820,14 +820,14 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
         update?: EndpointUpdateFunction<E>;
     }>(endpoint: E, ...args: readonly [...Parameters<E>]) => E['schema'] extends undefined | null ? ReturnType<E> | ResolveType<E> : Promise<Denormalize<E['schema']>> | Denormalize<E['schema']>;
     /**
-     * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
-     * In Vue, mounted components keep showing their current data until the refetch resolves.
+     * Forces refetching on useSuspense with the same Endpoint and parameters, suspending until it resolves
+     * (mounted Vue components keep their current data instead).
      * @see https://dataclient.io/docs/api/Controller#invalidate
      */
     invalidate: <E extends EndpointInterface>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
     /**
-     * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
-     * In Vue, mounted components keep showing their current data until the refetch resolves.
+     * Forces refetching on useSuspense on all matching endpoint result keys, suspending until it resolves
+     * (mounted Vue components keep their current data instead).
      * @see https://dataclient.io/docs/api/Controller#invalidateAll
      * @returns Promise that resolves when invalidation is commited.
      */

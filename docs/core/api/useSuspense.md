@@ -218,7 +218,7 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
 
 :::vue
 
-3. Only during setup. Vue can't suspend a mounted component again, so after [invalidation](./Controller.md#invalidate) it [keeps returning its current data](../concepts/expiry-policy.md#invalidate) until the refetch resolves.
+3. Only during setup; mounted components [keep their current data](../concepts/expiry-policy.md#invalidate) until the refetch resolves.
 
 :::
 
