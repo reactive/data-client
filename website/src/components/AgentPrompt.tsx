@@ -23,8 +23,7 @@ export default function AgentPrompt({
         {translate(
           {
             id: 'agentPrompt.prompt',
-            message:
-              'Use `@data-client/{framework}` for all server state',
+            message: 'Use `@data-client/{framework}` for all server state',
             description:
               'Prompt readers copy into their coding agent. Keep the backticks around package names: they keep each name on one line.',
           },
