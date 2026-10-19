@@ -239,11 +239,12 @@ const ADMONITIONS = ['note', 'tip', 'info', 'warning', 'danger', 'caution'];
 const INLINE = { b: 'strong', strong: 'strong', em: 'emphasis', i: 'emphasis' };
 /** HTML kept as is around its converted children */
 const HTML = ['details', 'sup', 'sub', 'kbd'];
-/** Site-only embeds with nothing to read */
-const DROP = ['ThemedImage', 'head'];
+/** Site-only embeds with nothing to read, and `<SiteOnly>` prose for human readers
+ * (tell your agent, install a skill), which agents reading the markdown don't need */
+const DROP = ['ThemedImage', 'head', 'SiteOnly'];
 
 /** Rewrites one page (and its partials) into plain markdown nodes */
-function render(file, framework, props = {}, drop = DROP) {
+function render(file, framework, props = {}) {
   const content = contentFor(file, framework);
   if (!pageFrameworks(content).includes(framework)) return;
   const source = sourceFor(file, framework);
@@ -373,12 +374,12 @@ function render(file, framework, props = {}, drop = DROP) {
 
   function convertJsx(node) {
     const { name } = node;
-    if (!name || drop.includes(name)) return [];
+    if (!name || DROP.includes(name)) return [];
     const flow = node.type === 'mdxJsxFlowElement';
     const attrs = attributesOf(node, props, source);
     if (partials[name]) {
       attrs.children = node.children;
-      return render(partials[name], framework, attrs, drop)?.children ?? [];
+      return render(partials[name], framework, attrs)?.children ?? [];
     }
     switch (name) {
       case 'CodeBlock':
@@ -395,14 +396,6 @@ function render(file, framework, props = {}, drop = DROP) {
         const { language, code, title } = providerSetup({ ...attrs, managers });
         return [codeBlock({ lang: language, value: code, title })];
       }
-      // same text as website/src/components/AgentPrompt.tsx
-      case 'AgentPrompt':
-        return [
-          codeBlock({
-            lang: 'markdown',
-            value: `Use \`@data-client/${framework}\` for all server state`,
-          }),
-        ];
       // the Skills CLI tab of website/src/components/SkillTabs.tsx
       case 'SkillTabs': {
         const { skillsCli } = skillCommands(
@@ -597,19 +590,13 @@ function wrapPhrasing(tree) {
 /**
  * Markdown of a doc for a framework, or undefined if the page isn't in it.
  * `resolveRoute(route)` picks the URL for links to site pages (default: the site).
- * `skipSiteOnly` drops `<SiteOnly>` prose (how to install or run a skill) for skill references.
  */
 export function docToMarkdown(
   file,
   framework,
-  { resolveRoute = route => SITE + route, skipSiteOnly = false } = {},
+  { resolveRoute = route => SITE + route } = {},
 ) {
-  const tree = render(
-    file,
-    framework,
-    {},
-    skipSiteOnly ? [...DROP, 'SiteOnly'] : DROP,
-  );
+  const tree = render(file, framework);
   if (!tree) return;
   visit(tree, ['link', 'definition'], node => {
     if (node.url.startsWith('/'))

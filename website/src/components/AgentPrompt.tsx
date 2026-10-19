@@ -8,8 +8,7 @@ import useFramework from './useFramework';
 const FEEDBACK_MS = 2000;
 
 /** One-line prompt that gets a coding agent to set up Data Client: a chip that
- * copies itself (click, tap or Enter) and says so in a tooltip.
- * docsToMarkdown.mjs renders the same text as a code block for the docs' markdown. */
+ * copies itself (click, tap or Enter) and says so in a tooltip. */
 export default function AgentPrompt() {
   const framework = useFramework();
   const prompt = translate(
