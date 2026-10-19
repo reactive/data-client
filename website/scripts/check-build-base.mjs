@@ -7,7 +7,7 @@
 //
 //   node website/scripts/check-build-base.mjs
 //     (CI) run after `yarn workspace rdc-website build`, with the same DOCS_NEXT
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join, relative, sep } from 'node:path';
 
@@ -16,8 +16,11 @@ const { DEFAULT_LOCALE, LOCALES } = createRequire(import.meta.url)(
 );
 
 const buildDir = 'website/build';
-// as docusaurus.config.ts's buildBase
-const nextRoot = process.env.DOCS_NEXT === '1' ? '/next' : '';
+// as docusaurus.config.ts's isNext and buildBase
+const nextRoot =
+  existsSync('website/versionCurrent.json') && process.env.DOCS_NEXT === '1' ?
+    '/next'
+  : '';
 const localeDirs = new Set(
   Object.keys(LOCALES).filter(locale => locale !== DEFAULT_LOCALE),
 );
@@ -43,7 +46,7 @@ for (const entry of readdirSync(buildDir, {
   ).matchAll(URLS)) {
     const srcset = quoted ?? single ?? bare;
     const urls =
-      srcset ?
+      srcset !== undefined ?
         srcset.split(',').map(candidate => candidate.trim().split(/\s/)[0])
       : [url ?? cssUrl];
     for (const path of urls) {
