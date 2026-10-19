@@ -11,9 +11,10 @@ const packagesCommand = `# after installing Data Client: links the skills its pa
 npx --no data-client-skills`;
 
 /**
- * @typedef {{ skillPackages: Record<string, string[]>, setupSkills: string[] }} SkillSources
- *   `.agents/skill-packages.json`, and the protocol setup skills
- *   `data-client-setup` bundles (its `references.json` `skills`)
+ * @typedef {{ skillPackages: Record<string, string[]>, setupSkills: string[], plugin: { plugins: { name: string, skills: string[] }[] } }} SkillSources
+ *   `.agents/skill-packages.json`, the protocol setup skills
+ *   `data-client-setup` bundles (its `references.json` `skills`), and
+ *   `.claude-plugin/marketplace.json`
  */
 
 /**
@@ -21,7 +22,7 @@ npx --no data-client-skills`;
  *   with no skills, installs every skill for the framework;
  *   `packages: false` leaves out linking the packages' skills where they aren't installed yet
  * @param {SkillSources} sources
- * @returns {{ skillsCli: string, openSkills: string, claude: string, packages?: string }}
+ * @returns {{ skillsCli: string, openSkills: string, claude?: string, packages?: string }}
  */
 export default function skillCommands(
   {
@@ -31,7 +32,7 @@ export default function skillCommands(
     packages: withPackages = true,
     framework,
   },
-  { skillPackages, setupSkills },
+  { skillPackages, setupSkills, plugin },
 ) {
   // links every skill the packages ship, so it only fits the whole framework's set
   const packages =
@@ -49,13 +50,27 @@ export default function skillCommands(
     openSkills: allSkills
       .map(s => `npx openskills install ${repo}/${skillsDir}/${s}`)
       .join('\n'),
-    // The plugin sets up new apps; the marketplace's other entries are old
-    // names kept for existing installs
-    claude: [
-      `claude plugin marketplace add ${repo}`,
-      'claude plugin install data-client@data-client',
-    ].join('\n'),
+    // The plugin sets up new apps, which then link the whole framework's set;
+    // other skills it doesn't carry. The marketplace's other entries are old
+    // names kept for existing installs.
+    claude:
+      (
+        (!skill && !skills) ||
+        allSkills.every(s => pluginSkills(plugin).includes(s))
+      ) ?
+        [
+          `claude plugin marketplace add ${repo}`,
+          'claude plugin install data-client@data-client',
+        ].join('\n')
+      : undefined,
   };
+}
+
+/** Skill names the data-client plugin carries */
+function pluginSkills(plugin) {
+  return plugin.plugins
+    .find(({ name }) => name === 'data-client')
+    .skills.map(skill => skill.split('/').pop());
 }
 
 /** Skills of every package a framework's app installs, plus the protocol

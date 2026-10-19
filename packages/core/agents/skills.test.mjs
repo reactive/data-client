@@ -277,9 +277,13 @@ test("never touches the user's own skills or links", () => {
   syncSkills(dir);
   assert.equal(skillText(dir, 'data-client-react'), 'mine');
   assert.equal(links(dir).other, '../../somewhere');
-  // a project that keeps skills in a real .claude/skills keeps them there
+  // a project that keeps skills in a real .claude/skills keeps them there,
+  // and Codex reads them through .agents/skills
   assert.ok(links(dir)['data-client-rest']);
-  assert.ok(!fs.existsSync(path.join(dir, '.agents')));
+  assert.equal(
+    fs.readlinkSync(path.join(dir, '.agents/skills')),
+    '../.claude/skills',
+  );
   fs.rmSync(path.join(dir, 'node_modules'), { recursive: true });
   syncSkills(dir);
   assert.equal(skillText(dir, 'data-client-react'), 'mine');

@@ -74,7 +74,7 @@ Protocol setup guides are bundled in this skill, but defining and using data aft
 | GraphQL | None beyond Always (`data-client-schema` covers `@data-client/graphql`) |
 | Custom async | None beyond Always (`data-client-schema` covers `@data-client/endpoint`) |
 
-In Claude Code, Cursor and Codex, install nothing now: each skill ships inside the `@data-client/*` package it covers, at that package's version. After installing the packages below, link their skills from the project root. It links them into `.agents/skills` and makes `.claude/skills` link to that folder (a project that already has a real `.claude/skills` folder keeps them there):
+In Claude Code, Cursor and Codex, install nothing now: each skill ships inside the `@data-client/*` package it covers, at that package's version. After installing the packages below, link their skills from the project root. It links them into `.agents/skills` and makes `.claude/skills` link to that folder (a project that already has a real `.claude/skills` folder keeps them there, and `.agents/skills` links to it):
 
 ```bash
 npx --no data-client-skills   # pnpm exec data-client-skills, yarn data-client-skills

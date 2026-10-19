@@ -7,6 +7,7 @@ import styles from './SkillTabs.module.css';
 import useFramework from './useFramework';
 import skillPackages from '../../../.agents/skill-packages.json';
 import setupReferences from '../../../.agents/skills/data-client-setup/references.json';
+import plugin from '../../../.claude-plugin/marketplace.json';
 import skillCommands from '../../framework-docs/skillCommands.mjs';
 
 interface Props {
@@ -31,28 +32,33 @@ export default function SkillTabs({
   const metastring = framed ? 'framed' : undefined;
   const commands = skillCommands(
     { repo, skill, skills, packages, framework },
-    { skillPackages, setupSkills: setupReferences.skills },
+    { skillPackages, setupSkills: setupReferences.skills, plugin },
   );
+  // Claude Code's own installer first, then skills that update with the packages
+  const values = [
+    ...(commands.claude ?
+      [{ label: 'Claude Code plugin', value: 'claude' }]
+    : []),
+    ...(commands.packages ?
+      [{ label: 'Installed packages', value: 'packages' }]
+    : []),
+    { label: 'Skills CLI', value: 'skills' },
+    { label: 'OpenSkills', value: 'openskills' },
+  ];
   return (
     <Tabs
       className={styles.tabs}
-      defaultValue="claude"
+      defaultValue={values[0].value}
       groupId="agent-skills-program"
-      // Claude Code's own installer first, then skills that update with the packages
-      values={[
-        { label: 'Claude Code plugin', value: 'claude' },
-        ...(commands.packages ?
-          [{ label: 'Installed packages', value: 'packages' }]
-        : []),
-        { label: 'Skills CLI', value: 'skills' },
-        { label: 'OpenSkills', value: 'openskills' },
-      ]}
+      values={values}
     >
-      <TabItem value="claude">
-        <CodeBlock className="language-bash" metastring={metastring}>
-          {commands.claude}
-        </CodeBlock>
-      </TabItem>
+      {commands.claude && (
+        <TabItem value="claude">
+          <CodeBlock className="language-bash" metastring={metastring}>
+            {commands.claude}
+          </CodeBlock>
+        </TabItem>
+      )}
       {commands.packages && (
         <TabItem value="packages">
           <CodeBlock className="language-bash" metastring={metastring}>

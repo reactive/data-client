@@ -236,6 +236,7 @@ const skillSources = {
   setupSkills: require(
     path.join(ROOT, '.agents/skills/data-client-setup/references.json'),
   ).skills,
+  plugin: require(path.join(ROOT, '.claude-plugin/marketplace.json')),
 };
 
 const ADMONITIONS = ['note', 'tip', 'info', 'warning', 'danger', 'caution'];

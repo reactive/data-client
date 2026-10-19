@@ -22,7 +22,7 @@ import SkillTabs from '@site/src/components/SkillTabs';
 首先为你的编程智能体安装 Data Client 的 [skill](./agent-skills.md)。没有它们，智能体能把基础部分做对，
 但会遗漏其余部分，例如实时 manager 和测试 fixture。
 
-<SkillTabs intent={false} framed />
+<SkillTabs packages={false} framed />
 
 然后告诉你的智能体：
 

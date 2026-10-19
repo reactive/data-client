@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SKILLS = path.join(root, '.agents/skills');
-// `data-client-skills`, which core ships from source
+// `data-client-skills`, which core ships from source and the others copy
 const AGENTS = path.join(root, 'packages/core/agents');
 
 const owners = JSON.parse(
@@ -59,7 +59,8 @@ if (process.argv.includes('--check')) {
   // no package every repo installs: core reaches no endpoint-only repo, and
   // endpoint no app, so each package with the command ships its own copy
   const command = !!bin?.['data-client-skills'];
-  if (command) {
+  // core ships its own source
+  if (command && path.resolve('agents') !== AGENTS) {
     fs.rmSync('agents', { recursive: true, force: true });
     fs.cpSync(AGENTS, 'agents', {
       recursive: true,
@@ -67,7 +68,8 @@ if (process.argv.includes('--check')) {
     });
   }
   fs.rmSync('skills', { recursive: true, force: true });
-  if (!command && !owners[name]) throw new Error(`No skills listed for ${name}`);
+  if (!command && !owners[name])
+    throw new Error(`No skills listed for ${name}`);
   for (const skill of owners[name] ?? [])
     fs.cpSync(path.join(SKILLS, skill), path.join('skills', skill), {
       recursive: true,

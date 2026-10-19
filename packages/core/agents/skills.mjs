@@ -38,16 +38,17 @@ export function syncSkills(projectDir) {
     dir: dirs && posix(path.relative(projectDir, dirs.dest)),
   };
   if (!dirs) return result;
-  const { dest, claude } = dirs;
+  const { dest, other } = dirs;
   const extracted = fs.mkdtempSync(path.join(os.tmpdir(), 'data-client-'));
   try {
     const { want, copy } = wantedSkills(projectDir, dest, extracted, result);
     if (!want.size && !fs.existsSync(dest)) return result;
     fs.mkdirSync(dest, { recursive: true });
-    // let Claude Code see a new shared folder
-    if (!fs.lstatSync(claude, { throwIfNoEntry: false })) {
-      fs.mkdirSync(path.dirname(claude), { recursive: true });
-      result.junctions ||= link('../.agents/skills', dest, claude);
+    // let the agents that read the other folder see it too
+    if (!fs.lstatSync(other, { throwIfNoEntry: false })) {
+      fs.mkdirSync(path.dirname(other), { recursive: true });
+      const target = posix(path.relative(path.dirname(other), dest));
+      result.junctions ||= link(target, dest, other);
     }
     syncDir(dest, want, copy, result);
     return result;
@@ -57,24 +58,27 @@ export function syncSkills(projectDir) {
 }
 
 /**
- * Where the links go (`dest`). Codex reads .agents/skills, Claude Code reads
- * .claude/skills and Cursor reads both, so a new project gets .agents/skills
- * with .claude/skills linking to it. A project that already keeps its skills
- * in a real .claude/skills folder gets them there. Undefined when a link would
- * lead anywhere else: never write through a link someone committed.
+ * Where the links go (`dest`), and the folder to link to it (`other`) when
+ * missing. Codex reads .agents/skills, Claude Code reads .claude/skills and
+ * Cursor reads both, so a new project gets .agents/skills with .claude/skills
+ * linking to it. A project that already keeps its skills in a real
+ * .claude/skills folder gets them there, with .agents/skills linking to it.
+ * Undefined when a link would lead anywhere else: never write through a link
+ * someone committed.
  */
 function skillsDirs(projectDir) {
   const claude = path.join(projectDir, '.claude', 'skills');
   const shared = path.join(projectDir, '.agents', 'skills');
-  if ([shared, path.dirname(shared), path.dirname(claude)].some(isLink)) return;
+  if ([path.dirname(shared), path.dirname(claude)].some(isLink)) return;
   const stat = fs.lstatSync(claude, { throwIfNoEntry: false });
-  if (stat?.isDirectory()) return { dest: claude, claude };
+  if (stat?.isDirectory()) return { dest: claude, other: shared };
+  if (isLink(shared)) return;
   // a committed .claude/skills link checks out as a file without
   // core.symlinks; .agents/skills still serves Codex and Cursor
-  if (!stat?.isSymbolicLink()) return { dest: shared, claude };
+  if (!stat?.isSymbolicLink()) return { dest: shared, other: claude };
   const target = path.resolve(path.dirname(claude), fs.readlinkSync(claude));
   return target === shared || sameDir(claude, shared) ?
-      { dest: shared, claude }
+      { dest: shared, other: claude }
     : undefined;
 }
 
