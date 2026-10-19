@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SKILLS = path.join(root, '.agents/skills');
-// `data-client-skills`, which core ships from source and the others copy
+// `data-client-skills`, which each package with the command copies
 const AGENTS = path.join(root, 'packages/core/agents');
 const BIN = 'bin/data-client-skills.mjs';
 
@@ -58,9 +58,9 @@ if (process.argv.includes('--check')) {
         bin =>
           fs.existsSync(path.join(root, bin)) &&
           fs.readFileSync(path.join(root, bin), 'utf8') !==
-            fs.readFileSync(path.join(root, 'packages/core', BIN), 'utf8'),
+            fs.readFileSync(path.join(root, 'packages/react', BIN), 'utf8'),
       )
-      .map(bin => `${bin} differs from packages/core/${BIN}`),
+      .map(bin => `${bin} differs from packages/react/${BIN}`),
   ];
   if (problems.length) {
     console.error(`scripts/pack-skills.mjs:\n  ${problems.join('\n  ')}`);
@@ -71,8 +71,7 @@ if (process.argv.includes('--check')) {
   // no package every repo installs: core reaches no endpoint-only repo, and
   // endpoint no app, so each package with the command ships its own copy
   const command = !!bin?.['data-client-skills'];
-  // core ships its own source
-  if (command && path.resolve('agents') !== AGENTS) {
+  if (command) {
     fs.rmSync('agents', { recursive: true, force: true });
     fs.cpSync(AGENTS, 'agents', {
       recursive: true,

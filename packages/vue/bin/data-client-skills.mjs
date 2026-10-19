@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Every package that ships skills, and graphql, has this command: pnpm only
-// links bins of direct dependencies, and no one package is in every repo.
-// core keeps agents/ in source; the others get a copy at pack time.
+// react, vue, rest, graphql and endpoint each have this command: pnpm only
+// links bins of direct dependencies, and no one of them is in every repo.
+// agents/ is copied from packages/core/agents at pack time.
 // Plain syntax so older Node reaches the version check
 var major = +process.versions.node.split('.')[0];
 if (major < 16) {
