@@ -10,6 +10,7 @@ import React from 'react';
 
 import styles from './index.module.css';
 import LogoAndText from '../../static/img/client_logo_and_text.svg';
+import AgentPrompt from '../components/AgentPrompt';
 import Demo from '../components/Demo/index';
 import { GithubStarsButton } from '../components/GithubStarsButton';
 import HomepageFeatures from '../components/HomepageFeatures';
@@ -59,6 +60,9 @@ function HomepageHeader() {
           >
             <Translate id="homepage.getStarted">Get Started</Translate>
           </Link>
+        </div>
+        <div className={styles.heroPrompt}>
+          <AgentPrompt />
         </div>
       </div>
     </header>

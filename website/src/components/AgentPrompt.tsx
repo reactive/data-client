@@ -89,12 +89,16 @@ export default function AgentPrompt({ prompt, title, framed }: Props) {
         <SparklesIcon className={styles.spark} />
         {framed && <span className={styles.label}>{header}</span>}
         <span className={styles.text}>
-          {/* markdown code spans mark package names, which never break at their hyphen */}
+          {/* markdown code spans mark package names and commands, which never
+           break at a hyphen; commands still wrap between their words */}
           {prompt.split('`').map((part, i) =>
             i % 2 ?
-              <span key={i} className={styles.pkg}>
-                {part}
-              </span>
+              part.split(' ').map((word, j) => (
+                <React.Fragment key={`${i}.${j}`}>
+                  {j > 0 && ' '}
+                  <span className={styles.pkg}>{word}</span>
+                </React.Fragment>
+              ))
             : part,
           )}
         </span>
