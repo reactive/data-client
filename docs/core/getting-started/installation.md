@@ -58,7 +58,9 @@ npx --no data-client-skills
 ```
 
 The links follow upgrades; run it again after adding, removing or upgrading `@data-client` packages so new skills
-get linked too. If you use
+get linked too.
+On Windows, commit the links only with Developer Mode on and `git config core.symlinks true`;
+otherwise leave them uncommitted and rerun the command after installing. If you use
 [TanStack Intent](https://tanstack.com/intent), it loads the same skills.
 
 </SiteOnly>

@@ -8,7 +8,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import zlib from 'node:zlib';
 
-import { syncSkills } from './skills.mjs';
+import { PACKAGES, syncSkills } from './skills.mjs';
 
 /** Writes `files` (path -> JSON object or text) under a new project dir */
 function project(files) {
@@ -134,6 +134,13 @@ const links = dir =>
   );
 const skillText = (dir, skill) =>
   fs.readFileSync(path.join(skillsDir(dir), skill, 'SKILL.md'), 'utf8');
+/** What a sync changed or reported, without where it wrote */
+const changes = ({ added, removed, outdated, kept }) => ({
+  added,
+  removed,
+  outdated,
+  kept,
+});
 const listing = dir => fs.readdirSync(dir, { recursive: true }).sort();
 
 /** react and rest installed flat, with core and endpoint hoisted beside them */
@@ -156,7 +163,12 @@ function hoisted() {
 
 test('does nothing without Data Client', () => {
   const dir = project({ 'package.json': { name: 'app' } });
-  assert.deepEqual(syncSkills(dir), { added: [], removed: [], outdated: [] });
+  assert.deepEqual(changes(syncSkills(dir)), {
+    added: [],
+    removed: [],
+    outdated: [],
+    kept: [],
+  });
   assert.ok(!fs.existsSync(path.join(dir, '.claude')));
 });
 
@@ -195,7 +207,43 @@ test('shares one folder: .agents/skills, with .claude/skills linking to it', () 
 test('running again changes nothing', () => {
   const dir = hoisted();
   syncSkills(dir);
-  assert.deepEqual(syncSkills(dir), { added: [], removed: [], outdated: [] });
+  assert.deepEqual(changes(syncSkills(dir)), {
+    added: [],
+    removed: [],
+    outdated: [],
+    kept: [],
+  });
+});
+
+test('reports a skill something else holds instead of up to date', () => {
+  const dir = hoisted();
+  // how git checks out a committed link with core.symlinks=false
+  write(dir, {
+    '.claude/skills/data-client-react':
+      '../../node_modules/@data-client/react/skills/data-client-react',
+  });
+  assert.deepEqual(syncSkills(dir).kept, ['data-client-react']);
+  assert.deepEqual(syncSkills(dir).kept, ['data-client-react']);
+});
+
+test('keeps links Windows wrote with backslashes', () => {
+  const dir = hoisted();
+  syncSkills(dir);
+  const file = path.join(dir, '.agents/skills/data-client-react');
+  const target = fs.readlinkSync(file);
+  fs.unlinkSync(file);
+  fs.symlinkSync(target.replaceAll('/', '\\'), file);
+  assert.deepEqual(syncSkills(dir).added, []);
+});
+
+test('links the skills of every package in .agents/skill-packages.json', () => {
+  const map = JSON.parse(
+    fs.readFileSync(
+      new URL('../../../.agents/skill-packages.json', import.meta.url),
+      'utf8',
+    ),
+  );
+  assert.deepEqual([...PACKAGES].sort(), Object.keys(map).sort());
 });
 
 test('repairs drift: packages and skills added or removed', () => {
@@ -294,11 +342,12 @@ for (const field of [
         ['data-client-schema'],
       ),
     });
-    assert.deepEqual(syncSkills(dir), {
+    assert.deepEqual(changes(syncSkills(dir)), {
       added: ['data-client-schema'],
       removed: [],
       // graphql ships no skills of its own
       outdated: [],
+      kept: [],
     });
   });
 }
@@ -460,10 +509,11 @@ test('Yarn PnP copies are replaced on upgrade and removed with the package', () 
     path.join(upgraded.dir, '.yarn/cache/react.zip'),
     path.join(dir, '.yarn/cache/react.zip'),
   );
-  assert.deepEqual(syncSkills(dir), {
+  assert.deepEqual(changes(syncSkills(dir)), {
     added: ['data-client-react'],
     removed: [],
     outdated: [],
+    kept: [],
   });
   assert.equal(skillText(dir, 'data-client-react'), 'new');
   fs.rmSync(path.join(dir, '.pnp.cjs'));

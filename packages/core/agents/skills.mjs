@@ -12,7 +12,7 @@ import { pnpPackages } from './pnp.mjs';
 
 // the packages that ship skills (.agents/skill-packages.json); strict layouts
 // reach core and endpoint through any declared @data-client package
-const PACKAGES = [
+export const PACKAGES = [
   '@data-client/core',
   '@data-client/endpoint',
   '@data-client/rest',
@@ -28,16 +28,17 @@ const MARKER = '.data-client';
  * node_modules/@data-client, or copies holding its marker.
  */
 export function syncSkills(projectDir) {
-  const result = { added: [], removed: [], outdated: [] };
+  const result = { added: [], removed: [], outdated: [], kept: [] };
   const dest = skillsDir(projectDir);
   if (!dest) return result;
+  result.dir = path.relative(projectDir, dest).split(path.sep).join('/');
   const extracted = fs.mkdtempSync(path.join(os.tmpdir(), 'data-client-'));
   try {
     const { found, copy } = installedPackages(projectDir, extracted);
     const want = wantedSkills(found, copy, dest, result);
     if (!want.size && !fs.existsSync(dest)) return result;
     fs.mkdirSync(dest, { recursive: true });
-    shareWithClaude(projectDir, dest);
+    shareWithClaude(projectDir, dest, result);
     syncDir(dest, want, copy, result);
     return result;
   } finally {
@@ -62,12 +63,12 @@ function skillsDir(projectDir) {
 }
 
 /** Links .claude/skills to .agents/skills when it doesn't exist yet */
-function shareWithClaude(projectDir, dest) {
+function shareWithClaude(projectDir, dest, result) {
   const claude = path.join(projectDir, '.claude', 'skills');
   if (dest === claude || fs.lstatSync(claude, { throwIfNoEntry: false }))
     return;
   fs.mkdirSync(path.dirname(claude), { recursive: true });
-  link('../.agents/skills', dest, claude);
+  if (link('../.agents/skills', dest, claude)) result.junctions = true;
 }
 
 function isLink(file) {
@@ -81,7 +82,9 @@ function syncDir(dest, want, copy, result) {
     const file = path.join(dest, entry.name);
     const current = owned(file, entry);
     if (current === undefined) continue;
-    if (current === want.get(entry.name)?.id) {
+    const wanted = want.get(entry.name);
+    // a junction (see link) holds the absolute path instead
+    if (wanted && (current === wanted.id || current === real(wanted.dir))) {
       want.delete(entry.name);
       continue;
     }
@@ -90,12 +93,17 @@ function syncDir(dest, want, copy, result) {
   }
   for (const [skill, { dir, id }] of want) {
     const file = path.join(dest, skill);
-    // a skill of the user's own with this name wins
-    if (fs.lstatSync(file, { throwIfNoEntry: false })) continue;
+    // a skill of the user's own with this name wins; so do a committed link
+    // that git checked out as a file, and copies committed from a junction,
+    // so say so rather than report up to date
+    if (fs.lstatSync(file, { throwIfNoEntry: false })) {
+      result.kept.push(skill);
+      continue;
+    }
     if (copy) {
       fs.cpSync(dir, file, { recursive: true });
       fs.writeFileSync(path.join(file, MARKER), id);
-    } else link(id, dir, file);
+    } else if (link(id, dir, file)) result.junctions = true;
     result.added.push(skill);
   }
 }
@@ -145,7 +153,8 @@ function wantedSkills(found, copy, dest, result) {
  */
 function owned(file, entry) {
   if (entry.isSymbolicLink()) {
-    const target = fs.readlinkSync(file);
+    // Windows writes relative targets with backslashes
+    const target = posix(fs.readlinkSync(file));
     return /node_modules[\\/]@data-client[\\/]/.test(target) ? target : (
         undefined
       );
@@ -176,24 +185,39 @@ function stablePath(dir, pkg, found, dest) {
   return relative(dir);
 }
 
+const posix = file => file.replaceAll('\\', '/');
+const real = dir => posix(fs.realpathSync(dir));
+
+/** Returns true when it had to make a junction */
 function link(target, dir, file) {
   try {
     fs.symlinkSync(target, file, 'dir');
+    return false;
   } catch (error) {
     // Windows without symlink rights still allows junctions, which need an
     // absolute target
     if (error.code !== 'EPERM') throw error;
     fs.symlinkSync(fs.realpathSync(dir), file, 'junction');
+    return true;
   }
 }
 
 /** The `data-client-skills` command */
 export function main(projectDir = process.cwd()) {
-  const { added, removed, outdated } = syncSkills(projectDir);
+  const { added, removed, outdated, kept, dir, junctions } =
+    syncSkills(projectDir);
   if (added.length) console.log(`Added ${added.join(', ')}`);
   if (removed.length) console.log(`Removed ${removed.join(', ')}`);
-  if (!added.length && !removed.length)
+  for (const skill of kept)
+    console.log(
+      `Kept ${dir}/${skill} (not a link data-client-skills made); delete it to get the installed version`,
+    );
+  if (!added.length && !removed.length && !kept.length)
     console.log('Data Client skills are up to date');
+  if (junctions)
+    console.log(
+      `Windows denied symlinks, so ${dir} holds junctions, which git commits as copies. Don't commit them; to commit links, turn on Developer Mode, run git config core.symlinks true, delete ${dir} and rerun.`,
+    );
   if (outdated.length)
     console.log(
       `${outdated.join(', ')} ships no skills; upgrade to 0.19 or later to get them`,
