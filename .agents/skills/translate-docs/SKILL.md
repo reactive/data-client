@@ -46,4 +46,6 @@ Keep everything else byte for byte (`finalize` rejects changes to it):
 - Link and image URLs, front matter keys and every other front matter value, and heading ids like `{#some-id}`.
 - Markdown structure: the same headings at the same levels, paragraphs, lists, tables and blank lines.
 
+The blog's `tags.yml` and `authors.yml` are YAML, not MDX: translate only the tag `label` and `description` values and the author `title`, keeping every key, permalink and other value.
+
 Product, API and package names stay in English. The glossary of each language has the rest.
