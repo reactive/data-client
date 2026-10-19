@@ -3,6 +3,7 @@
 '@data-client/react': patch
 '@data-client/vue': patch
 '@data-client/endpoint': patch
+'@data-client/normalizr': patch
 '@data-client/rest': patch
 '@data-client/graphql': patch
 ---
