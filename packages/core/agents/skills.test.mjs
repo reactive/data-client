@@ -295,6 +295,35 @@ test('syncs .agents/skills when a committed .claude/skills links to it', () => {
   assert.ok(fs.existsSync(path.join(dir, '.agents/skills/data-client-react')));
 });
 
+test('syncs .agents/skills when git checked .claude/skills out as a file', () => {
+  const dir = hoisted();
+  write(dir, { '.claude/skills': '../.agents/skills' });
+  assert.deepEqual(syncSkills(dir).added.sort(), [
+    'data-client-manager',
+    'data-client-react',
+    'data-client-rest',
+  ]);
+  assert.ok(fs.existsSync(path.join(dir, '.agents/skills/data-client-react')));
+});
+
+test('accepts a .claude/skills link with an absolute target, like a junction', () => {
+  const real = hoisted();
+  // reached through a linked parent, so the target string differs
+  const dir = path.join(
+    fs.mkdtempSync(path.join(os.tmpdir(), 'dc-alias-')),
+    'app',
+  );
+  fs.symlinkSync(real, dir);
+  fs.mkdirSync(path.join(real, '.agents/skills'), { recursive: true });
+  fs.mkdirSync(path.join(real, '.claude'));
+  fs.symlinkSync(
+    fs.realpathSync(path.join(real, '.agents/skills')),
+    path.join(real, '.claude/skills'),
+  );
+  assert.equal(syncSkills(dir).dir, '.agents/skills');
+  assert.ok(fs.existsSync(path.join(real, '.agents/skills/data-client-react')));
+});
+
 test('never writes through any other committed skills link', () => {
   for (const linked of [
     '.claude',

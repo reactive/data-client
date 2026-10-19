@@ -67,10 +67,24 @@ function skillsDirs(projectDir) {
   const claude = path.join(projectDir, '.claude', 'skills');
   const shared = path.join(projectDir, '.agents', 'skills');
   if ([shared, path.dirname(shared), path.dirname(claude)].some(isLink)) return;
-  if (!isLink(claude))
-    return { dest: fs.existsSync(claude) ? claude : shared, claude };
+  const stat = fs.lstatSync(claude, { throwIfNoEntry: false });
+  if (stat?.isDirectory()) return { dest: claude, claude };
+  // a committed .claude/skills link checks out as a file without
+  // core.symlinks; .agents/skills still serves Codex and Cursor
+  if (!stat?.isSymbolicLink()) return { dest: shared, claude };
   const target = path.resolve(path.dirname(claude), fs.readlinkSync(claude));
-  return target === shared ? { dest: shared, claude } : undefined;
+  return target === shared || sameDir(claude, shared) ?
+      { dest: shared, claude }
+    : undefined;
+}
+
+/** A junction holds an absolute path, which may differ from `shared` in casing or a linked parent */
+function sameDir(a, b) {
+  try {
+    return fs.realpathSync(a) === fs.realpathSync(b);
+  } catch {
+    return false;
+  }
 }
 
 function syncDir(dest, want, copy, result) {
