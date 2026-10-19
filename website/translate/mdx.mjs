@@ -346,7 +346,7 @@ export function dataProblems(source, translated, fields) {
   } catch (error) {
     return [`invalid YAML: ${error.message}`];
   }
-  // each file maps an id to its fields
+  // each file maps an id to its fields, so only depth-2 keys are prose
   return yamlDiff(
     yaml.load(source) ?? {},
     out ?? {},

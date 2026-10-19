@@ -217,6 +217,13 @@ describe('dataProblems', () => {
     );
   });
 
+  it('compares an empty file as an empty mapping', () => {
+    assert.deepEqual(dataProblems('', '', fields), []);
+    assert.deepEqual(dataProblems('', 'a:\n  label: x\n', fields), [
+      'key `a` added or removed',
+    ]);
+  });
+
   it('flags YAML that no longer parses', () => {
     assert.match(
       dataProblems(tags, "releases:\n  label: 'Versiones\n", fields)[0],
