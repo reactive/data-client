@@ -25,7 +25,7 @@ function matches(range) {
 // Declaration entry points this TypeScript resolves for a package's exports
 function entryPoints(pkg) {
   const range = Object.keys(pkg.typesVersions ?? {}).find(matches);
-  // packages without declarations (like the codemods CLI) have none
+  // packages without declarations have none
   if (!range) return pkg.types ? [pkg.types] : [];
   return Object.entries(pkg.typesVersions[range])
     .filter(([subpath]) => subpath !== '*')

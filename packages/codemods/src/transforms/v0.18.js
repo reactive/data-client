@@ -56,35 +56,24 @@ function getParamName(param) {
   return undefined;
 }
 
-function isDenormalizeKey(key) {
-  if (!key) return false;
-  if (key.type === 'Identifier') return key.name === 'denormalize';
-  if (key.type === 'StringLiteral' || key.type === 'Literal')
-    return key.value === 'denormalize';
-  return false;
+// The name of an `ident` or `'string'` key
+function keyName(key) {
+  if (!key) return undefined;
+  if (key.type === 'Identifier') return key.name;
+  if (key.type === 'StringLiteral') return key.value;
+  return undefined;
 }
 
-function isNormalizeKey(key) {
-  if (!key) return false;
-  if (key.type === 'Identifier') return key.name === 'normalize';
-  if (key.type === 'StringLiteral' || key.type === 'Literal')
-    return key.value === 'normalize';
-  return false;
-}
+const isDenormalizeKey = key => keyName(key) === 'denormalize';
+const isNormalizeKey = key => keyName(key) === 'normalize';
 
 // Broader for type-only declarations (class fields, property signatures):
 // matches `denormalize`, `_denormalize`, `_denormalizeNullable`, etc.
 const DENORMALIZE_LIKE = /^_?denormalize(Nullable)?$/;
-function isDenormalizeLikeKey(key) {
-  if (!key) return false;
-  if (key.type === 'Identifier') return DENORMALIZE_LIKE.test(key.name);
-  if (key.type === 'StringLiteral' || key.type === 'Literal')
-    return DENORMALIZE_LIKE.test(String(key.value));
-  return false;
-}
+const isDenormalizeLikeKey = key => DENORMALIZE_LIKE.test(keyName(key));
 
 function buildDelegateParam(j, name, withTypes, typeName) {
-  const id = j.identifier(name || 'delegate');
+  const id = j.identifier(name);
   if (withTypes) {
     id.typeAnnotation = j.tsTypeAnnotation(
       j.tsTypeReference(j.identifier(typeName)),
@@ -102,12 +91,7 @@ function paramsLookLikeDenormalize(params) {
   // Typed signature where 3rd param looks like a function type.
   const ta3 = params[2] && params[2].typeAnnotation;
   const tn = ta3 && (ta3.typeAnnotation || ta3);
-  if (
-    tn &&
-    (tn.type === 'TSFunctionType' || tn.type === 'FunctionTypeAnnotation')
-  )
-    return true;
-  return false;
+  return !!tn && tn.type === 'TSFunctionType';
 }
 
 function paramsLookLikeNormalize(params) {
@@ -119,12 +103,7 @@ function paramsLookLikeNormalize(params) {
   // Typed signature where 5th param looks like a function type.
   const ta5 = params[4] && params[4].typeAnnotation;
   const tn = ta5 && (ta5.typeAnnotation || ta5);
-  if (
-    tn &&
-    (tn.type === 'TSFunctionType' || tn.type === 'FunctionTypeAnnotation')
-  )
-    return true;
-  return false;
+  return !!tn && tn.type === 'TSFunctionType';
 }
 
 // Whether an identifier reference at `p` is rebound by a parameter of a
@@ -139,12 +118,9 @@ function isShadowedByParam(p, name, bodyNode) {
       t === 'FunctionExpression' ||
       t === 'ArrowFunctionExpression' ||
       t === 'ObjectMethod' ||
-      t === 'ClassMethod' ||
-      t === 'MethodDefinition'
+      t === 'ClassMethod'
     ) {
-      const params =
-        cur.node.params || (cur.node.value && cur.node.value.params) || [];
-      if (params.some(prm => getParamName(prm) === name)) return true;
+      if (cur.node.params.some(prm => getParamName(prm) === name)) return true;
     }
   }
   return false;
@@ -162,7 +138,7 @@ function isNonReferencePosition(p) {
   )
     return true;
   if (
-    (parent.type === 'Property' || parent.type === 'ObjectProperty') &&
+    parent.type === 'ObjectProperty' &&
     parent.key === p.node &&
     !parent.computed
   )
@@ -394,32 +370,15 @@ function forEachMethodLike(j, root, isKey, rewrite) {
     if (rewrite(fnPath, paramsHolder)) dirty = true;
   };
 
-  // ClassMethod (Babel/tsx parser)
-  if (j.ClassMethod) {
-    root.find(j.ClassMethod).forEach(p => {
-      if (isKey(p.node.key)) visit(p, p.node);
-    });
-  }
-
-  // MethodDefinition (ESTree): the function is the `value`.
-  if (j.MethodDefinition) {
-    root.find(j.MethodDefinition).forEach(p => {
-      if (!isKey(p.node.key) || !p.node.value) return;
-      visit(p.get('value'), p.node.value);
-    });
-  }
-
-  // ObjectMethod (Babel)
-  if (j.ObjectMethod) {
-    root.find(j.ObjectMethod).forEach(p => {
+  for (const type of [j.ClassMethod, j.ObjectMethod]) {
+    root.find(type).forEach(p => {
       if (isKey(p.node.key)) visit(p, p.node);
     });
   }
 
   // { key: function(...) {} }, { key: (...) => {} } and class fields
-  // `key = (...) => {}`: Property (ESTree), ObjectProperty and ClassProperty
-  // (Babel/tsx parser)
-  for (const type of [j.Property, j.ObjectProperty, j.ClassProperty]) {
+  // `key = (...) => {}`
+  for (const type of [j.ObjectProperty, j.ClassProperty]) {
     root
       .find(type)
       .filter(p => isKey(p.node.key) && isFunctionValue(p.node.value))
@@ -442,19 +401,15 @@ function forEachTypeSignature(
   root,
   { isMethodKey, isPropertyKey, rewriteParams },
 ) {
-  if (!j.TSMethodSignature && !j.TSPropertySignature) return false;
   let dirty = false;
 
-  if (j.TSMethodSignature) {
-    root.find(j.TSMethodSignature).forEach(p => {
-      if (!isMethodKey(p.node.key)) return;
-      const newParams = rewriteParams(p.node.parameters || p.node.params);
-      if (!newParams) return;
-      if (p.node.parameters) p.node.parameters = newParams;
-      else p.node.params = newParams;
-      dirty = true;
-    });
-  }
+  root.find(j.TSMethodSignature).forEach(p => {
+    if (!isMethodKey(p.node.key)) return;
+    const newParams = rewriteParams(p.node.parameters);
+    if (!newParams) return;
+    p.node.parameters = newParams;
+    dirty = true;
+  });
 
   function rewriteAnnotatedProperty(p) {
     if (!isPropertyKey(p.node.key)) return;
@@ -467,14 +422,9 @@ function forEachTypeSignature(
     dirty = true;
   }
 
-  if (j.TSPropertySignature) {
-    root.find(j.TSPropertySignature).forEach(rewriteAnnotatedProperty);
+  for (const type of [j.TSPropertySignature, j.ClassProperty]) {
+    root.find(type).forEach(rewriteAnnotatedProperty);
   }
-
-  ['ClassProperty', 'PropertyDefinition'].forEach(t => {
-    if (!j[t]) return;
-    root.find(j[t]).forEach(rewriteAnnotatedProperty);
-  });
 
   return dirty;
 }
@@ -524,14 +474,14 @@ function transformTypeSignatures(j, root, state) {
 // --- normalize: (input, parent, key, args, visit, delegate, parentEntity?)
 //              → (input, parent, key, delegate, parentEntity?) ---------------
 
-function normalizeParams(j, params, delegateName, withTypes) {
+function normalizeParams(j, params, withTypes) {
   return [
     params[0],
     params[1],
     params[2],
     buildDelegateParam(
       j,
-      delegateName,
+      getParamName(params[5]) || 'delegate',
       withTypes,
       NORMALIZE_DELEGATE_TYPE_NAME,
     ),
@@ -547,7 +497,7 @@ function transformNormalizeMethods(j, root, state) {
     const visitName = getParamName(params[4]);
     const delegateName = getParamName(params[5]) || 'delegate';
 
-    holder.params = normalizeParams(j, params, delegateName, state.useTypes);
+    holder.params = normalizeParams(j, params, state.useTypes);
     rewriteNormalizeBody(j, methodPath, argsName, visitName, delegateName);
 
     if (state.useTypes) state.neededImports.add(NORMALIZE_DELEGATE_TYPE_NAME);
@@ -561,9 +511,8 @@ function transformNormalizeTypeSignatures(j, root, state) {
     isPropertyKey: isNormalizeKey,
     rewriteParams(params) {
       if (!paramsLookLikeNormalize(params)) return null;
-      const delegateName = getParamName(params[5]) || 'delegate';
       state.neededImports.add(NORMALIZE_DELEGATE_TYPE_NAME);
-      return normalizeParams(j, params, delegateName, true);
+      return normalizeParams(j, params, true);
     },
   });
 }
@@ -571,31 +520,13 @@ function transformNormalizeTypeSignatures(j, root, state) {
 // --- Import injection -----------------------------------------------------
 
 function ensureDelegateImport(j, root, typeName) {
-  let alreadyImported = false;
-  root.find(j.ImportDeclaration).forEach(p => {
-    if (alreadyImported) return;
-    p.node.specifiers.forEach(s => {
-      if (
-        s.type === 'ImportSpecifier' &&
-        s.imported &&
-        s.imported.name === typeName
-      ) {
-        alreadyImported = true;
-      }
-    });
-  });
-  if (alreadyImported) return false;
+  if (root.find(j.ImportSpecifier, { imported: { name: typeName } }).length)
+    return false;
 
-  let target = null;
-  for (const name of DELEGATE_IMPORT_SOURCES) {
-    const found = root
-      .find(j.ImportDeclaration)
-      .filter(p => p.node.source.value === name);
-    if (found.length) {
-      target = found.paths()[0];
-      break;
-    }
-  }
+  const target = DELEGATE_IMPORT_SOURCES.map(
+    name =>
+      root.find(j.ImportDeclaration, { source: { value: name } }).paths()[0],
+  ).find(Boolean);
   if (!target) {
     const newImport = j.importDeclaration(
       [j.importSpecifier(j.identifier(typeName))],
@@ -623,6 +554,8 @@ function ensureDelegateImport(j, root, typeName) {
 // --- Main -----------------------------------------------------------------
 
 module.exports = function transformer(fileInfo, api) {
+  // skip parsing files that can't import @data-client
+  if (!fileInfo.source.includes(DATA_CLIENT_PREFIX)) return fileInfo.source;
   const j = api.jscodeshift;
   const root = j(fileInfo.source);
 

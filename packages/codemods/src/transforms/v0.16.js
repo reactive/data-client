@@ -452,6 +452,8 @@ function transformSchemaImports(j, root) {
 // --- Main ---
 
 module.exports = function transformer(fileInfo, api) {
+  // every rewrite needs a @data-client import; skip parsing files without one
+  if (!fileInfo.source.includes('@data-client/')) return fileInfo.source;
   const j = api.jscodeshift;
   const root = j(fileInfo.source);
   let dirty = false;

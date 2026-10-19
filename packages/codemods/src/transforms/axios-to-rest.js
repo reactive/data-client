@@ -463,6 +463,8 @@ function transformDirectCalls(
 // --- Main ---
 
 module.exports = function transformer(fileInfo, api) {
+  // skip parsing files that can't import axios
+  if (!fileInfo.source.includes('axios')) return fileInfo.source;
   const j = api.jscodeshift;
   const root = j(fileInfo.source);
 
