@@ -15,7 +15,7 @@ const { proseLines } = require('./localeDocs.js');
 const { FM } = require('../framework-docs/index.js');
 
 const HEADING = /^(#{1,6})\s+(.*)$/;
-const YAML = /\.ya?ml$/;
+const YAML_FILE = /\.ya?ml$/;
 const DIRECTIVE_OPEN = /^\s*:{3,}([a-z][\w-]*)/;
 const DIRECTIVE_CLOSE = /^\s*:{3,}\s*$/;
 /** Front matter values a translation may change */
@@ -241,7 +241,7 @@ function yamlDiff(
     const name =
       at.length ? `${prefix}\`${at.join('.')}\`` : prefix.trim() || 'the file';
     if (translatable(at) && typeof a === 'string') {
-      if (typeof b !== 'string' || !b.trim())
+      if (typeof b !== 'string' || (a.trim() && !b.trim()))
         problems.push(`${name}: translate it, as text`);
       else if (flagEnglish && a === b && isSentence(a))
         problems.push(`${name} not translated: ${clip(a)}`);
@@ -268,7 +268,7 @@ function yamlDiff(
 }
 
 /** Why `content` doesn't compile as MDX, if it doesn't */
-export function mdxProblems(content, filePath) {
+function mdxProblems(content, filePath) {
   try {
     parse(content, filePath);
     return [];
@@ -325,7 +325,7 @@ export function structureProblems(source, translated, filePath) {
 
 /** Why `content` (YAML for a .yml `filePath`, else MDX) doesn't parse */
 export function syntaxProblems(content, filePath) {
-  if (!YAML.test(filePath)) return mdxProblems(content, filePath);
+  if (!YAML_FILE.test(filePath)) return mdxProblems(content, filePath);
   try {
     yaml.load(content);
     return [];
@@ -336,8 +336,8 @@ export function syntaxProblems(content, filePath) {
 
 /**
  * What a translated data file (YAML, like the blog's tags.yml) changed that it
- * must not have, versus its `source`: only the string values of `fields` may
- * differ
+ * must not have, versus its `source`: only the string values of each entry's
+ * `fields` may differ
  */
 export function dataProblems(source, translated, fields) {
   let out;
@@ -346,7 +346,12 @@ export function dataProblems(source, translated, fields) {
   } catch (error) {
     return [`invalid YAML: ${error.message}`];
   }
-  return yamlDiff(yaml.load(source), out, at => fields.includes(at.at(-1)));
+  // each file maps an id to its fields
+  return yamlDiff(
+    yaml.load(source) ?? {},
+    out ?? {},
+    at => at.length === 2 && fields.includes(at[1]),
+  );
 }
 
 /** Items of `a` not matched one-for-one in `b` */
