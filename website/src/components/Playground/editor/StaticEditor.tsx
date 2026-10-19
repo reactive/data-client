@@ -1,5 +1,4 @@
-import { usePrismTheme } from '@docusaurus/theme-common';
-import { Editor } from 'react-live';
+import PlaygroundLiveEditor from '../PlaygroundLiveEditor';
 
 /**
  * Prism-highlighted, non-editable code. Renders identically on server and
@@ -13,6 +12,5 @@ export default function StaticEditor({
   code: string;
   language: string;
 }) {
-  const theme = usePrismTheme();
-  return <Editor theme={theme} language={language} code={code} disabled />;
+  return <PlaygroundLiveEditor language={language} code={code} disabled />;
 }
