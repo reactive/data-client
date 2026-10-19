@@ -26,6 +26,8 @@ Set up `@data-client/graphql` and use it for all API data. Install its setup ski
 
 It installs the packages, wires up React or Vue, and links the skills they ship.
 
+## Usage
+
 ### Define GraphQL endpoint
 
 ```typescript
