@@ -56,7 +56,10 @@ export default function useTips<K>() {
     /** which tip a tap pinned open; a press or focus outside it unpins it */
     open,
     setOpen,
-    /** props for the element holding a tip and what it explains */
+    /**
+     * props for the element holding a tip and what it explains; when the tip
+     * holds a link, the anchor's first `a` or `button` must be its control
+     */
     anchor,
     /** an anchor that is its own control: focusable, and a tap or click pins it */
     tappable: (key: K, ...className: ClassValue[]) => ({
