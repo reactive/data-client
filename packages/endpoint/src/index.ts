@@ -24,7 +24,12 @@ export {
 } from './schema.js';
 // Without this we get 'cannot be named without a reference to' for resource()....why is this?
 // Clue 1) It only happens with types mentioned in return types of other types
-export type { Array, DefaultArgs, Object } from './schema.js';
+export type {
+  Array,
+  CollectionArrayAdder,
+  DefaultArgs,
+  Object,
+} from './schema.js';
 export type { CollectionOptions } from './schemas/Collection.js';
 export { default as Entity } from './schemas/Entity.js';
 export { default as EntityMixin } from './schemas/EntityMixin.js';

@@ -489,6 +489,65 @@ type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined | 
 type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source>, ...args: any) => {
     [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
 };
+/** Args ending in a list body: (body) or (params, body), like RestEndpoint's.
+ * Fixed lengths since TS < 4.2 has no leading-rest tuples */
+type ListBodyArgs = readonly [readonly any[]] | readonly [any, readonly any[]];
+/** Rest args longer than any endpoint call's, so a signature using them is skipped by arity instead of reporting errors */
+type NoCall = readonly [
+    never,
+    never,
+    never,
+    never,
+    never,
+    never,
+    never,
+    never,
+    never,
+    never
+];
+/** Adds an all-never twin of each args member, so a union that would collapse to one member
+ * still reports errors over all args, like the endpoint's own (split by body) union does */
+type KeepUnion<A> = A | {
+    readonly [K in keyof A]: never;
+};
+/** Args of an endpoint whose schema adds to a list (like Collection.push) and has
+ * call signatures with list bodies (like RestEndpoint.push); NoCall for every other endpoint */
+type AdderArgs<E extends (...args: any) => any, A> = E extends {
+    schema: {
+        _denormalizeList(): any;
+    };
+} ? [
+    Extract<Parameters<E>, ListBodyArgs>
+] extends [never] ? NoCall : KeepUnion<A> : NoCall;
+interface ControllerFetch {
+    /**
+     * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
+     * @see https://dataclient.io/docs/api/Controller#fetch
+     */
+    <E extends (...args: any) => any>(endpoint: E, ...args: AdderArgs<E, Exclude<Parameters<E>, ListBodyArgs>>): Promise<E extends {
+        schema: infer S;
+    } ? Denormalize<S> : never>;
+    /**
+     * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
+     *
+     * A list body on a schema that adds to a list (like Collection.push) resolves a list.
+     * @see https://dataclient.io/docs/api/Controller#fetch
+     */
+    <E extends (...args: any) => any>(endpoint: E, ...args: AdderArgs<E, Extract<Parameters<E>, ListBodyArgs>>): Promise<E extends {
+        schema: {
+            _denormalizeList(): infer L;
+        };
+    } ? L : E extends {
+        schema: infer S;
+    } ? Denormalize<S> : never>;
+    /**
+     * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
+     * @see https://dataclient.io/docs/api/Controller#fetch
+     */
+    <E extends EndpointInterface & {
+        update?: EndpointUpdateFunction<E>;
+    }>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
+}
 
 declare const FETCH: 'rdc/fetch';
 declare const SET: 'rdc/set';
@@ -809,9 +868,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
      * @see https://dataclient.io/docs/api/Controller#fetch
      */
-    fetch: <E extends EndpointInterface & {
-        update?: EndpointUpdateFunction<E>;
-    }>(endpoint: E, ...args: readonly [...Parameters<E>]) => E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
+    fetch: ControllerFetch;
     /**
      * Fetches only if endpoint is considered 'stale'; otherwise returns the cached data synchronously
      * @see https://dataclient.io/docs/api/Controller#fetchIfStale
@@ -1553,4 +1610,4 @@ interface Props {
     shouldLogout?: (error: UnknownError) => boolean;
 }
 
-export { type AbstractInstanceType, type ActionMeta, type ActionTypes, type ConnectionListener, Controller, type CreateCountRef, type DataClientDispatch, DefaultConnectionListener, type Denormalize, type DenormalizeNullable, type DevToolsConfig, DevToolsManager, type Dispatch, type EndpointExtraOptions, type EndpointInterface, type EndpointUpdateFunction, type EntityInterface, type ErrorTypes, type ExpireAllAction, ExpiryStatus, type FetchAction, type FetchFunction, type FetchMeta, type FetchingMeta, type GCAction, type GCInterface, type GCOptions, GCPolicy, type GenericDispatch, type INormalizeDelegate, type IQueryDelegate, ImmortalGCPolicy, type InvalidateAction, type InvalidateAllAction, LogoutManager, type Manager, type Mergeable, type Middleware, type MiddlewareAPI, type NI, type NetworkError, NetworkManager, type Normalize, type NormalizeNullable, type OptimisticAction, type PK, PollingSubscription, type Queryable, type ResetAction, ResetError, type ResolveType, type ResultEntry, type Schema, type SchemaArgs, type SchemaClass, type SetAction, type SetResponseAction, type SetResponseActionBase, type SetResponseActionError, type SetResponseActionSuccess, type State, type SubscribeAction, SubscriptionManager, type UnknownError, type UnsubscribeAction, type UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initManager, initialState };
+export { type AbstractInstanceType, type ActionMeta, type ActionTypes, type ConnectionListener, Controller, type ControllerFetch, type CreateCountRef, type DataClientDispatch, DefaultConnectionListener, type Denormalize, type DenormalizeNullable, type DevToolsConfig, DevToolsManager, type Dispatch, type EndpointExtraOptions, type EndpointInterface, type EndpointUpdateFunction, type EntityInterface, type ErrorTypes, type ExpireAllAction, ExpiryStatus, type FetchAction, type FetchFunction, type FetchMeta, type FetchingMeta, type GCAction, type GCInterface, type GCOptions, GCPolicy, type GenericDispatch, type INormalizeDelegate, type IQueryDelegate, ImmortalGCPolicy, type InvalidateAction, type InvalidateAllAction, LogoutManager, type Manager, type Mergeable, type Middleware, type MiddlewareAPI, type NI, type NetworkError, NetworkManager, type Normalize, type NormalizeNullable, type OptimisticAction, type PK, PollingSubscription, type Queryable, type ResetAction, ResetError, type ResolveType, type ResultEntry, type Schema, type SchemaArgs, type SchemaClass, type SetAction, type SetResponseAction, type SetResponseActionBase, type SetResponseActionError, type SetResponseActionSuccess, type State, type SubscribeAction, SubscriptionManager, type UnknownError, type UnsubscribeAction, type UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initManager, initialState };
