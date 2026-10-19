@@ -181,6 +181,21 @@ export async function unionKeepsNonAdderResult(pickPush: boolean) {
   expectType<Todo[] | { count: string }>()(result, true);
 }
 
+export async function unionKeepsSchemalessResult(pickPush: boolean) {
+  const raw = new RestEndpoint({
+    path: '/todos/raw',
+    method: 'POST',
+    body: [] as Partial<Todo>[],
+    process(value: any): { count: number } {
+      return value;
+    },
+  });
+  const result = await ctrl.fetch(pickPush ? TodoResource.getList.push : raw, [
+    { title: 'a' },
+  ]);
+  expectType<Todo[] | { count: number }>()(result, true);
+}
+
 export function adderSchema() {
   const push = TodoResource.getList.schema.push;
   expectType<Todo>()({} as Denormalize<typeof push>, true);

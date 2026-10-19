@@ -1,4 +1,8 @@
-import type { Denormalize, EndpointInterface } from '@data-client/normalizr';
+import type {
+  Denormalize,
+  EndpointInterface,
+  ResolveType,
+} from '@data-client/normalizr';
 
 import type { EndpointUpdateFunction } from './types.js';
 
@@ -35,7 +39,13 @@ type AdderArgs<E extends (...args: any) => any, A> =
     : KeepUnion<A>
   : NoCall;
 
-type SchemaResult<E> = E extends { schema: infer S } ? Denormalize<S> : never;
+/** Resolved value of a (union member) endpoint: its schema's, or its own when it has none */
+type SchemaResult<E extends (...args: any) => any> =
+  E extends { schema: infer S } ?
+    [S] extends [undefined | null] ?
+      ResolveType<E>
+    : Denormalize<S>
+  : ResolveType<E>;
 
 export interface ControllerFetch {
   /**

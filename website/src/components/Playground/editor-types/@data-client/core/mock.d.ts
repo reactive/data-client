@@ -514,9 +514,12 @@ type AdderArgs<E extends (...args: any) => any, A> = E extends {
 } ? [
     Extract<Parameters<E>, ListBodyArgs>
 ] extends [never] ? NoCall : KeepUnion<A> : NoCall;
-type SchemaResult<E> = E extends {
+/** Resolved value of a (union member) endpoint: its schema's, or its own when it has none */
+type SchemaResult<E extends (...args: any) => any> = E extends {
     schema: infer S;
-} ? Denormalize$1<S> : never;
+} ? [
+    S
+] extends [undefined | null] ? ResolveType$1<E> : Denormalize$1<S> : ResolveType$1<E>;
 interface ControllerFetch {
     /**
      * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
