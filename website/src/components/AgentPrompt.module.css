@@ -2,6 +2,9 @@
 .agentPrompt {
   position: relative;
   display: flex;
+  /* as wide as the chip, so the tip centers on it */
+  width: fit-content;
+  max-width: 100%;
   margin-bottom: var(--ifm-paragraph-margin-bottom);
 }
 
