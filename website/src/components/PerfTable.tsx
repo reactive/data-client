@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 
 import styles from './PerfTable.module.css';
-import usePerfTip from './usePerfTip';
+import tipStyles from './tips.module.css';
+import useTips from './useTips';
 
 export interface PerfTableRow {
   label: string;
@@ -19,7 +20,7 @@ export default function PerfTable({
   columns: { label: string; unit: string }[];
   rows: PerfTableRow[];
 }) {
-  const tip = usePerfTip(styles.active);
+  const tips = useTips<string>();
   return (
     <div className={styles.scroll}>
       <table className={styles.perfTable}>
@@ -45,7 +46,10 @@ export default function PerfTable({
                 const change = Math.round(((after - before) / before) * 100);
                 const max = Math.max(before, after);
                 return (
-                  <td key={columns[i].label} {...tip(`${label}-${i}`)}>
+                  <td
+                    key={columns[i].label}
+                    {...tips.tappable(`${label}-${i}`)}
+                  >
                     <div className={styles.cell}>
                       <div className={styles.bars} aria-hidden="true">
                         <span
@@ -72,12 +76,14 @@ export default function PerfTable({
                     </div>
                     {/* exact numbers stay in the DOM for crawlers and screen readers */}
                     <span className={styles.tip}>
-                      {before}
-                      {unit} →{' '}
-                      <strong>
-                        {after}
-                        {unit}
-                      </strong>
+                      <span className={tipStyles.bubble}>
+                        {before}
+                        {unit} →{' '}
+                        <strong>
+                          {after}
+                          {unit}
+                        </strong>
+                      </span>
                     </span>
                   </td>
                 );
