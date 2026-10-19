@@ -68,6 +68,7 @@ export interface ControllerFetch {
    * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
    *
    * A list body on a schema that adds to a list (like Collection.push) resolves a list.
+   * The body is the last argument, after at most one params argument.
    * @see https://dataclient.io/docs/api/Controller#fetch
    */
   <E extends (...args: any) => any>(

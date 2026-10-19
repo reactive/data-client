@@ -9,6 +9,7 @@ import {
 
 import {
   Collection,
+  Endpoint,
   Entity,
   RestEndpoint,
   resource,
@@ -186,6 +187,14 @@ export function adderSchema() {
   expectType<Todo | undefined>()({} as DenormalizeNullable<typeof push>, true);
   expectType<string>()({} as Normalize<typeof push>, true);
   ctrl.set(push, { userId: 1 }, { id: 5, title: 'a' });
+  ctrl.set(push, { userId: 1 }, [
+    { id: 5, title: 'a' },
+    { id: 6, title: 'b' },
+  ]);
+  // @ts-expect-error not a Todo field
+  ctrl.set(push, { userId: 1 }, [{ id: 5, titel: 'a' }]);
+  // @ts-expect-error not a Todo
+  ctrl.set(push, { userId: 1 }, 5);
   ctrl.set(TodoResource.getList.schema.unshift, { userId: 1 }, { id: 5 });
   // @ts-expect-error not a Todo field
   ctrl.set(push, { userId: 1 }, { id: 5, titel: 'a' });
@@ -229,4 +238,17 @@ export async function untypedResults() {
   expectType<Todo>()(get, true);
   const list = await ctrl.fetch(TodoResource.getList, {} as any);
   expectType<Todo[]>()(list, true);
+}
+
+export async function otherEndpoints() {
+  // any endpoint whose schema adds to a list gets the list result, not just RestEndpoint
+  const addMany = new Endpoint(
+    (todos: Partial<Todo>[]) => Promise.resolve(todos),
+    { schema: TodoResource.getList.schema.push, sideEffect: true },
+  );
+  const added = await ctrl.fetch(addMany, [{ title: 'a' }]);
+  expectType<Todo[]>()(added, true);
+  const anyEndpoint: any = addMany;
+  const untyped = await ctrl.fetch(anyEndpoint, 1, [2]);
+  expectType<any>()(untyped, true);
 }

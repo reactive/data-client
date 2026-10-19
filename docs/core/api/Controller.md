@@ -647,6 +647,16 @@ takes the input of the schema it wraps, since `set()` normalizes that schema rat
 ctrl.set(TodoResource.getList.schema, [{ id: '5', completed: true }]);
 ```
 
+[Collection.push](/rest/api/Collection#push) and [unshift](/rest/api/Collection#unshift) take the Collection's args,
+which pick the lists to add to, and one row or a list of rows.
+
+```ts
+ctrl.set(TodoResource.getList.schema.push, { userId: '1' }, [
+  { id: '6', title: 'Buy milk' },
+  { id: '7', title: 'Walk dog' },
+]);
+```
+
 :::note Unions
 
 When each member declares its discriminator as a literal (like `readonly type = 'first'`), a

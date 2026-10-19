@@ -119,7 +119,9 @@ type SetRow<U> = 0 extends 1 & U ? {
     readonly [K in Exclude<keyof U, FunctionKeys<U>>]?: SetField<U[K]>;
 } : SetField<U>;
 /** Raw input `set()` normalizes for a Queryable */
-type SetValue<S> = InputSchema<InputSchema<InputSchema<S>>> extends infer N ? N extends EntityInterface ? SetRow<Denormalize<N>> : SetInput<Denormalize<N>> : never;
+type SetValue<S> = InputSchema<InputSchema<InputSchema<S>>> extends infer N ? N extends EntityInterface ? SetRow<Denormalize<N>> : N extends {
+    _denormalizeList(): infer L;
+} ? SetInput<Denormalize<N>> | SetInput<L> : SetInput<Denormalize<N>> : never;
 /** Query normalizes with its inner schema; its process() output is not input
  *
  * Applied three times in SetValue to unwrap nested Queries (TS 4.0 has no recursive aliases)

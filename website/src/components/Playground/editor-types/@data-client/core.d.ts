@@ -380,7 +380,9 @@ type SetManyValue<S> = S extends readonly (infer E)[] ? true extends IsUnion<E> 
     'Use a Union schema for several Entity types': never;
 }[] : readonly SetRow<Denormalize<E>>[] : SetValue<S>;
 /** Raw input `set()` normalizes for a Queryable */
-type SetValue<S> = InputSchema<InputSchema<InputSchema<S>>> extends infer N ? N extends EntityInterface ? SetRow<Denormalize<N>> : SetInput<Denormalize<N>> : never;
+type SetValue<S> = InputSchema<InputSchema<InputSchema<S>>> extends infer N ? N extends EntityInterface ? SetRow<Denormalize<N>> : N extends {
+    _denormalizeList(): infer L;
+} ? SetInput<Denormalize<N>> | SetInput<L> : SetInput<Denormalize<N>> : never;
 /** Query normalizes with its inner schema; its process() output is not input
  *
  * Applied three times in SetValue to unwrap nested Queries (TS 4.0 has no recursive aliases)
@@ -532,6 +534,7 @@ interface ControllerFetch {
      * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
      *
      * A list body on a schema that adds to a list (like Collection.push) resolves a list.
+     * The body is the last argument, after at most one params argument.
      * @see https://dataclient.io/docs/api/Controller#fetch
      */
     <E extends (...args: any) => any>(endpoint: E, ...args: AdderArgs<E, Extract<Parameters<E>, ListBodyArgs>>): Promise<E extends {
