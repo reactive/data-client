@@ -31,7 +31,7 @@ function StoreInspector({
   const keepToggleInPlace = useKeepToggleInPlace();
   const panel = (
     <Reveal show={open} className={styles.storePanel} hold={heldToggle}>
-      <BeforeTree shown={showTree} run={keepToggleInPlace}>
+      <BeforeTree run={keepToggleInPlace}>
         {showTree ?
           <StorePanel registry={registry} history={history} />
         : null}
@@ -48,17 +48,16 @@ function StoreInspector({
 }
 export default memo(StoreInspector);
 
-/** Runs `run` in the commit that adds the tree, before it reaches the DOM: a
- * stacked Store grows to fit it, as does every Store the same toggle opened.
- * A snapshot, since by any effect the tree is in, and rendering may be
- * thrown away */
+/** Runs `run` in the commit that adds its children, before they reach the
+ * DOM: a stacked Store grows to fit the tree, as does every Store the same
+ * toggle opened. Not in an effect, which runs once the page has grown, nor
+ * while rendering, which React may throw away. */
 class BeforeTree extends Component<{
-  shown: boolean;
   run: () => void;
   children: React.ReactNode;
 }> {
   getSnapshotBeforeUpdate(prev: Readonly<BeforeTree['props']>) {
-    if (this.props.shown && !prev.shown) this.props.run();
+    if (this.props.children && !prev.children) this.props.run();
     return null;
   }
 
