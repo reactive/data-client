@@ -178,6 +178,20 @@ test('links each shipped skill through node_modules', () => {
   assert.match(skillText(dir, 'data-client-react'), /data-client-react skill/);
 });
 
+test('shares one folder: .agents/skills, with .claude/skills linking to it', () => {
+  const dir = hoisted();
+  syncSkills(dir);
+  assert.equal(
+    fs.readlinkSync(path.join(dir, '.claude/skills')),
+    '../.agents/skills',
+  );
+  assert.ok(
+    fs
+      .lstatSync(path.join(dir, '.agents/skills/data-client-react'))
+      .isSymbolicLink(),
+  );
+});
+
 test('running again changes nothing', () => {
   const dir = hoisted();
   syncSkills(dir);
@@ -218,14 +232,31 @@ test("never touches the user's own skills or links", () => {
   syncSkills(dir);
   assert.equal(skillText(dir, 'data-client-react'), 'mine');
   assert.equal(links(dir).other, '../../somewhere');
+  // a project that keeps skills in a real .claude/skills keeps them there
+  assert.ok(links(dir)['data-client-rest']);
+  assert.ok(!fs.existsSync(path.join(dir, '.agents')));
   fs.rmSync(path.join(dir, 'node_modules'), { recursive: true });
   syncSkills(dir);
   assert.equal(skillText(dir, 'data-client-react'), 'mine');
   assert.deepEqual(Object.keys(links(dir)), ['other']);
 });
 
-test('never writes through a committed .claude or .claude/skills link', () => {
-  for (const linked of ['.claude', '.claude/skills']) {
+test('syncs .agents/skills when a committed .claude/skills links to it', () => {
+  const dir = hoisted();
+  fs.mkdirSync(path.join(dir, '.agents/skills'), { recursive: true });
+  fs.mkdirSync(path.join(dir, '.claude'));
+  fs.symlinkSync('../.agents/skills', path.join(dir, '.claude/skills'));
+  syncSkills(dir);
+  assert.ok(fs.existsSync(path.join(dir, '.agents/skills/data-client-react')));
+});
+
+test('never writes through any other committed skills link', () => {
+  for (const linked of [
+    '.claude',
+    '.claude/skills',
+    '.agents',
+    '.agents/skills',
+  ]) {
     const dir = hoisted();
     const elsewhere = fs.mkdtempSync(path.join(os.tmpdir(), 'dc-elsewhere-'));
     fs.mkdirSync(path.dirname(path.join(dir, linked)), { recursive: true });

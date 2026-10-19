@@ -19,7 +19,7 @@ Client, answer and offer to set it up instead.
 
 Load the skill for the work. If it isn't available by name but its package is installed, run
 `npx --no data-client-skills` (`pnpm exec`, `yarn`) from the project root, which links the skills the installed packages
-ship into `.claude/skills`, then read `.claude/skills/<skill>/SKILL.md`.
+ship into the project's skill folder, then read `.claude/skills/<skill>/SKILL.md`.
 
 | Work | Skill | Package |
 |------|-------|---------|

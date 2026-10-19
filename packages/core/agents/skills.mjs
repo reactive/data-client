@@ -1,6 +1,6 @@
 // Links the agent skills each installed @data-client package ships into the
-// project's .claude/skills, where Claude Code and Cursor load them as their
-// own. Links lead through node_modules, so they follow upgrades; running this
+// project's skill folder, where Claude Code, Cursor and Codex load them as
+// their own. Links lead through node_modules, so they follow upgrades; running this
 // again picks up packages or skills that were added or removed. Under
 // Yarn Plug'n'Play, which has no node_modules, it copies the skills instead.
 import fs from 'node:fs';
@@ -23,44 +23,22 @@ const PACKAGES = [
 const MARKER = '.data-client';
 
 /**
- * Makes `<projectDir>/.claude/skills` hold exactly the skills the installed
+ * Makes the project's skill folder hold exactly the skills the installed
  * packages ship. Only touches entries it made: links into
  * node_modules/@data-client, or copies holding its marker.
  */
 export function syncSkills(projectDir) {
-  const dest = path.join(projectDir, '.claude', 'skills');
   const result = { added: [], removed: [], outdated: [] };
-  // never write through a link someone committed
-  for (const dir of [path.dirname(dest), dest]) {
-    if (fs.lstatSync(dir, { throwIfNoEntry: false })?.isSymbolicLink())
-      return result;
-  }
+  const dest = skillsDir(projectDir);
+  if (!dest) return result;
   const extracted = fs.mkdtempSync(path.join(os.tmpdir(), 'data-client-'));
   try {
-    const { want, copy } = wantedSkills(projectDir, dest, extracted, result);
+    const { found, copy } = installedPackages(projectDir, extracted);
+    const want = wantedSkills(found, copy, dest, result);
     if (!want.size && !fs.existsSync(dest)) return result;
     fs.mkdirSync(dest, { recursive: true });
-    for (const entry of fs.readdirSync(dest, { withFileTypes: true })) {
-      const file = path.join(dest, entry.name);
-      const current = owned(file, entry);
-      if (current === undefined) continue;
-      if (current === want.get(entry.name)?.id) {
-        want.delete(entry.name);
-        continue;
-      }
-      fs.rmSync(file, { recursive: true, force: true });
-      if (!want.has(entry.name)) result.removed.push(entry.name);
-    }
-    for (const [skill, { dir, id }] of want) {
-      const file = path.join(dest, skill);
-      // a skill of the user's own with this name wins
-      if (fs.lstatSync(file, { throwIfNoEntry: false })) continue;
-      if (copy) {
-        fs.cpSync(dir, file, { recursive: true });
-        fs.writeFileSync(path.join(file, MARKER), id);
-      } else link(id, dir, file);
-      result.added.push(skill);
-    }
+    shareWithClaude(projectDir, dest);
+    syncDir(dest, want, copy, result);
     return result;
   } finally {
     fs.rmSync(extracted, { recursive: true, force: true });
@@ -68,15 +46,77 @@ export function syncSkills(projectDir) {
 }
 
 /**
- * Skill name -> its directory and id: the link target, or `pkg@version` for
- * copies, which Yarn Plug'n'Play needs since it has no node_modules
+ * Where the links go. Codex reads .agents/skills, Claude Code reads
+ * .claude/skills and Cursor reads both, so a new project gets .agents/skills
+ * with .claude/skills linking to it. A project that already keeps its skills
+ * in a real .claude/skills folder gets them there. Undefined when a link would
+ * lead anywhere else: never write through a link someone committed.
  */
-function wantedSkills(projectDir, dest, extracted, result) {
-  let found = nodeModulesPackages(projectDir, PACKAGES);
+function skillsDir(projectDir) {
+  const claude = path.join(projectDir, '.claude', 'skills');
+  const shared = path.join(projectDir, '.agents', 'skills');
+  if ([shared, path.dirname(shared), path.dirname(claude)].some(isLink)) return;
+  if (!isLink(claude)) return fs.existsSync(claude) ? claude : shared;
+  const target = path.resolve(path.dirname(claude), fs.readlinkSync(claude));
+  return target === shared ? shared : undefined;
+}
+
+/** Links .claude/skills to .agents/skills when it doesn't exist yet */
+function shareWithClaude(projectDir, dest) {
+  const claude = path.join(projectDir, '.claude', 'skills');
+  if (dest === claude || fs.lstatSync(claude, { throwIfNoEntry: false }))
+    return;
+  fs.mkdirSync(path.dirname(claude), { recursive: true });
+  link('../.agents/skills', dest, claude);
+}
+
+function isLink(file) {
+  return !!fs.lstatSync(file, { throwIfNoEntry: false })?.isSymbolicLink();
+}
+
+function syncDir(dest, want, copy, result) {
+  if (!want.size && !fs.existsSync(dest)) return;
+  fs.mkdirSync(dest, { recursive: true });
+  for (const entry of fs.readdirSync(dest, { withFileTypes: true })) {
+    const file = path.join(dest, entry.name);
+    const current = owned(file, entry);
+    if (current === undefined) continue;
+    if (current === want.get(entry.name)?.id) {
+      want.delete(entry.name);
+      continue;
+    }
+    fs.rmSync(file, { recursive: true, force: true });
+    if (!want.has(entry.name)) result.removed.push(entry.name);
+  }
+  for (const [skill, { dir, id }] of want) {
+    const file = path.join(dest, skill);
+    // a skill of the user's own with this name wins
+    if (fs.lstatSync(file, { throwIfNoEntry: false })) continue;
+    if (copy) {
+      fs.cpSync(dir, file, { recursive: true });
+      fs.writeFileSync(path.join(file, MARKER), id);
+    } else link(id, dir, file);
+    result.added.push(skill);
+  }
+}
+
+/**
+ * The installed packages; under Yarn Plug'n'Play, which has no node_modules,
+ * extracted into `extracted` so they can be copied
+ */
+function installedPackages(projectDir, extracted) {
+  const found = nodeModulesPackages(projectDir, PACKAGES);
   // a project that moved off Plug'n'Play can keep a stale .pnp.cjs, so its
   // map counts only when node_modules holds no @data-client package
-  const copy = !found.length;
-  if (copy) found = pnpPackages(projectDir, PACKAGES, extracted);
+  if (found.length) return { found, copy: false };
+  return { found: pnpPackages(projectDir, PACKAGES, extracted), copy: true };
+}
+
+/**
+ * Skill name -> its directory and id: the link target from `dest`, or
+ * `pkg@version` for copies
+ */
+function wantedSkills(found, copy, dest, result) {
   const want = new Map();
   for (const { pkg, dir } of found) {
     const version = `${pkg}@${readJSON(path.join(dir, 'package.json')).version}`;
@@ -96,11 +136,11 @@ function wantedSkills(projectDir, dest, extracted, result) {
       });
     }
   }
-  return { want, copy };
+  return want;
 }
 
 /**
- * What a `.claude/skills` entry this made points at (a link's target, or the
+ * What a skill folder entry this made points at (a link's target, or the
  * version in a copy's marker), or undefined for anyone else's entry
  */
 function owned(file, entry) {
@@ -153,7 +193,7 @@ export function main(projectDir = process.cwd()) {
   if (added.length) console.log(`Added ${added.join(', ')}`);
   if (removed.length) console.log(`Removed ${removed.join(', ')}`);
   if (!added.length && !removed.length)
-    console.log('Data Client skills in .claude/skills are up to date');
+    console.log('Data Client skills are up to date');
   if (outdated.length)
     console.log(
       `${outdated.join(', ')} ships no skills; upgrade to 0.19 or later to get them`,

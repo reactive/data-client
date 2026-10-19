@@ -6,7 +6,7 @@
 
 const skillsDir = '.agents/skills';
 
-/** Links the skills the installed `@data-client/*` packages ship into .claude/skills */
+/** Links the skills the installed `@data-client/*` packages ship into .agents/skills */
 const packagesCommand = `# after installing Data Client: links the skills its packages ship
 npx --no data-client-skills`;
 

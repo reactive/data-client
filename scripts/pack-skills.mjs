@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Copies the agent skills a package owns from .agents/skills into its
 // `skills/` folder at pack time, so they publish with the version they
-// describe; `data-client-skills` links them into a project's .claude/skills,
+// describe; `data-client-skills` links them into a project's .agents/skills,
 // and TanStack Intent finds them there too.
 // Each skill ships once, in a package every app that needs it installs
 // (.agents/skill-packages.json).

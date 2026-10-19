@@ -74,16 +74,16 @@ Protocol setup guides are bundled in this skill, but defining and using data aft
 | GraphQL | None beyond Always (`data-client-schema` covers `@data-client/graphql`) |
 | Custom async | None beyond Always (`data-client-schema` covers `@data-client/endpoint`) |
 
-In Claude Code and Cursor, install nothing now: each skill ships inside the `@data-client/*` package it covers, at that package's version. After installing the packages below, link their skills into the project's `.claude/skills` from the project root:
+In Claude Code, Cursor and Codex, install nothing now: each skill ships inside the `@data-client/*` package it covers, at that package's version. After installing the packages below, link their skills from the project root. It links them into `.agents/skills` and makes `.claude/skills` link to that folder (a project that already has a real `.claude/skills` folder keeps them there):
 
 ```bash
 npx --no data-client-skills   # pnpm exec data-client-skills, yarn data-client-skills
 ```
 
-Then add this line to the project's `CLAUDE.md` (or `AGENTS.md` when there's no `CLAUDE.md`; create `AGENTS.md` if neither exists), using the project's package manager in the command, so later agents keep the links current. Commit `.claude/skills` with the setup.
+Then add this line to the project's `CLAUDE.md` (or `AGENTS.md` when there's no `CLAUDE.md`; create `AGENTS.md` if neither exists), using the project's package manager in the command, so later agents keep the links current. Commit `.agents/skills` and `.claude/skills` with the setup.
 
 ```md
-After adding, removing or upgrading `@data-client/*` packages, run `npx --no data-client-skills` and commit `.claude/skills`.
+After adding, removing or upgrading `@data-client/*` packages, run `npx --no data-client-skills` and commit the skill links.
 ```
 
 For other agents, use the installer that installed this skill. For OpenSkills and the skills CLI, add `-g` if this skill lives under your home directory rather than the project.

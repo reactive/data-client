@@ -17,7 +17,7 @@ workflows instead of guessing from older releases. This release cycle makes that
 - [Claude Code plugin](/blog/2026/10/06/coding-agents#claude-plugin) - `claude plugin install data-client@data-client` gives your agent the skills for the version you installed
 - [Vue skills](/blog/2026/10/06/coding-agents#vue-skills) - Vue projects get Vue composables and tests, not React hooks
 - [llms.txt](/blog/2026/10/06/coding-agents#llms-txt) - Any agent can read the docs as markdown, and every page tells it where to look
-- [Skills in the packages](/blog/2026/10/06/coding-agents#npm-skills) - Each `@data-client/*` package ships the skills for its version, linked into `.claude/skills` with one command
+- [Skills in the packages](/blog/2026/10/06/coding-agents#npm-skills) - Each `@data-client/*` package ships the skills for its version, linked into `.agents/skills` with one command
 
 **Also available:**
 
@@ -76,8 +76,8 @@ finds them on its own.
 ## Skills in the packages {#npm-skills}
 
 Skills now ship inside the packages they cover, so your agent follows the version you have installed and gets new
-guidance with `npm update`. One command links them into `.claude/skills`, where Claude Code and Cursor load them as
-their own skills:
+guidance with `npm update`. One command links them into `.agents/skills`, with `.claude/skills` linking to it, where Claude Code,
+Cursor and Codex load them as their own skills:
 
 ```bash
 npx --no data-client-skills

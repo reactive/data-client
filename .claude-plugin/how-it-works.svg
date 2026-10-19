@@ -50,7 +50,7 @@
   <text x="589" y="300" class="t" font-size="18">version's.</text>
   <rect x="589" y="326" width="422" height="242" rx="10" fill="#0a1017"/>
   <g class="mono" font-size="15">
-    <text x="609" y="358" class="h" font-size="18">.claude/skills/</text>
+    <text x="609" y="358" class="h" font-size="18">.agents/skills/ <tspan class="m" font-size="14" font-weight="400" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">  ← .claude/skills links here</tspan></text>
     <text x="609" y="392" fill="#7fd4a0">data-client-react →</text>
     <text x="627" y="414" class="m">node_modules/@data-client/react/</text>
     <text x="627" y="436" class="m">skills/data-client-react</text>
@@ -67,9 +67,9 @@
   <circle cx="1110" cy="195" r="20" fill="#4cc38a"/>
   <text x="1110" y="202" text-anchor="middle" font-size="20" font-weight="700" fill="#0c131b">3</text>
   <text x="1144" y="204" class="h" font-size="27">Native skills</text>
-  <text x="1094" y="252" class="t" font-size="18">Claude Code and Cursor list them and</text>
-  <text x="1094" y="276" class="t" font-size="18">load the one the task needs, like any</text>
-  <text x="1094" y="300" class="t" font-size="18">skill you installed yourself.</text>
+  <text x="1094" y="252" class="t" font-size="18">Claude Code, Cursor and Codex list them</text>
+  <text x="1094" y="276" class="t" font-size="18">and load the one the task needs, like</text>
+  <text x="1094" y="300" class="t" font-size="18">any skill you installed yourself.</text>
   <rect x="1094" y="326" width="422" height="242" rx="10" fill="#0a1017"/>
   <circle cx="1116" cy="346" r="5" fill="#f2665c"/>
   <circle cx="1134" cy="346" r="5" fill="#f0bf62"/>

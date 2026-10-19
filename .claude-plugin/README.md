@@ -6,7 +6,7 @@ Everything that publishes Data Client's Claude Code plugin lives in this directo
 carries the `data-client` router and `data-client-setup` skills and no hooks. Every other skill ships in the
 `@data-client/*` package it covers (`scripts/pack-skills.mjs`), and `data-client-skills` (a bin on
 `@data-client/react` and `@data-client/vue`, implemented in `packages/core/agents/`) links those into the project's
-`.claude/skills`, where Claude Code and Cursor load them as their own.
+`.agents/skills` (with `.claude/skills` linking to it), where Claude Code, Cursor and Codex load them as their own.
 
 | File               | What                                                                                                                                                                                                                                                                            |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

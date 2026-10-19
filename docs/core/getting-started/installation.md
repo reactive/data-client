@@ -51,7 +51,7 @@ Install the [Vue plugin](https://vuejs.org/guide/reusability/plugins.html) when 
 <SiteOnly>
 
 These packages ship skills for your coding agent, matched to the version you installed. Link them into
-`.claude/skills`, where Claude Code and Cursor load them, and commit the links:
+`.agents/skills`, with `.claude/skills` linking to it, where Claude Code, Cursor and Codex load them, and commit the links:
 
 ```bash
 npx --no data-client-skills

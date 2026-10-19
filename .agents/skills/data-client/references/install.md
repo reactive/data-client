@@ -3,9 +3,9 @@
 This covers `data-client-setup` and every skill the router names. With the same go-ahead as setup, install it the way
 the router skill was installed:
 
-- **Claude Code or Cursor**: each skill ships in the `@data-client/*` package it covers, so install that package if
+- **Claude Code, Cursor or Codex**: each skill ships in the `@data-client/*` package it covers, so install that package if
   the app lacks it (`@data-client/rest` brings `data-client-rest`), then run `npx --no data-client-skills` (`pnpm exec`,
-  `yarn`) to link its skills into `.claude/skills`.
+  `yarn`) to link its skills into the project's skill folder.
 - **OpenSkills** (`AGENTS.md` lists skills in `<available_skills>`):
   `npx openskills install reactive/data-client/.agents/skills/<name>`.
 - **Otherwise**, the skills CLI: `npx skills add reactive/data-client --skill <name>`.

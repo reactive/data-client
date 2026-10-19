@@ -36,7 +36,7 @@ Schema driven. Zero updater functions.
 npm install --save @data-client/react @data-client/rest @data-client/test
 ```
 
-To have Claude Code or Cursor load the [skills](https://agentskills.io) these packages ship for their version, link them into `.claude/skills` and commit the links:
+To have Claude Code, Cursor or Codex load the [skills](https://agentskills.io) these packages ship for their version, link them into `.agents/skills` (`.claude/skills` links to it) and commit the links:
 
 ```bash
 npx --no data-client-skills

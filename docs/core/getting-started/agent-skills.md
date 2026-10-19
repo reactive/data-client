@@ -29,8 +29,8 @@ To install every skill for your framework now instead, without letting your agen
 
 <SkillTabs />
 
-The **Installed packages** tab links the skills each installed `@data-client/*` package ships into `.claude/skills`,
-where Claude Code and Cursor load them, matched to that package's version. Commit the links. They follow upgrades,
+The **Installed packages** tab links the skills each installed `@data-client/*` package ships into `.agents/skills`
+(with `.claude/skills` linking to it), where Claude Code, Cursor and Codex load them, matched to that package's version. Commit the links. They follow upgrades,
 and running it again picks up skills from packages you add or upgrade. The Claude Code plugin sets up apps that don't have Data
 Client yet. If you use [TanStack Intent](https://tanstack.com/intent), it loads the same package skills.
 
