@@ -1,8 +1,8 @@
 import { usePrismTheme } from '@docusaurus/theme-common';
-import React from 'react';
+import React, { memo } from 'react';
 import { Editor } from 'react-live';
 
-export default function PlaygroundLiveEditor({
+function PlaygroundLiveEditor({
   onChange,
   code,
   language,
@@ -16,3 +16,4 @@ export default function PlaygroundLiveEditor({
     <Editor theme={theme} language={language} code={code} onChange={onChange} />
   );
 }
+export default memo(PlaygroundLiveEditor);
