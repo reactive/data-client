@@ -6,39 +6,68 @@
    Tokens (`--ds-*`) on the preview, in both themes; element styles for
    headings, text, links and plain controls; and classes for the pieces most
    demos need (an app header, cards, lists with dividers, bylines). Add a
-   component (./index.ts) only for markup every demo would repeat. */
+   component (./index.ts) only for markup every demo would repeat.
+
+   The look is the site's "control room" console: flat panels ruled with 1px
+   lines, muted secondary text, small mono uppercase labels over groups of
+   rows, and one blue for links, primary actions and focus. Cards are the
+   console's view cards (a 1px line on the panel, radius 10, padding 12);
+   wells (a board's columns, a field's inset) step to the second panel color. */
 .playground-preview {
   /* type: one step down from the docs, like an app beside its prose */
   --ds-text-sm: 0.8125rem;
   --ds-text-base: 0.9375rem;
   --ds-text-lg: 1.125rem;
   --ds-text-xl: 1.375rem;
+  /* a group's label (ENTITIES, VIEWS): small mono caps */
+  --ds-text-label: 11px;
   --ds-space-1: 0.25rem;
   --ds-space-2: 0.5rem;
   --ds-space-3: 0.75rem;
   --ds-space-4: 1rem;
   --ds-space-5: 1.5rem;
   --ds-radius: 10px;
-  --ds-radius-sm: 6px;
+  --ds-radius-sm: 8px;
+  --ds-radius-xs: 4px;
   /* a button's or a field's inset */
   --ds-control-pad-y: 0.375rem;
   --ds-control-pad-x: 0.875rem;
-  --ds-text: var(--ifm-font-color-base);
-  --ds-text-muted: var(--ifm-color-emphasis-700);
-  /* a card over the preview's ground */
-  --ds-surface: var(--ifm-background-color);
-  --ds-border: var(--ifm-color-emphasis-300);
-  /* 3:1 on both the surface and the ground, so field edges stay legible */
-  --ds-border-strong: var(--ifm-color-emphasis-400);
-  --ds-accent: var(--ifm-link-color);
-  --ds-accent-strong: var(--ifm-color-primary-darker);
+  /* The palette is the frame's (--pg-*, ../styles.module.css, switching with
+     the theme there): the panel is the preview's ground, which cards share,
+     ruled off by their border; a well a step below it holds a board's
+     column or a field's inset */
+  --ds-text: var(--pg-text);
+  --ds-text-muted: var(--pg-muted);
+  --ds-surface: var(--pg-panel);
+  --ds-surface-2: var(--pg-panel-2);
+  --ds-border: var(--pg-line);
+  /* labels and hints: the quietest text that still reads (4.5:1 on the panel) */
+  --ds-faint: #66748a;
+  /* 3:1 on the panel, so field and button edges stay legible */
+  --ds-border-strong: #78889d;
+  --ds-accent: #1b6fb8;
+  --ds-accent-strong: #155b99;
+  /* the accent's wash: a highlighted row, a changed value, a focus ring */
+  --ds-accent-soft: color-mix(in srgb, var(--ds-accent) 10%, transparent);
   --ds-on-accent: #fff;
-  --ds-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --ifm-color-formfield-active: var(--ifm-link-color);
+  /* Infima's own vars, re-pointed so what reads them (the rt-* fields, links,
+     the error panel's text) follows this palette in both themes */
+  --ifm-color-emphasis-0: var(--ds-surface);
+  --ifm-color-emphasis-100: var(--ds-surface-2);
+  --ifm-color-emphasis-400: var(--ds-border-strong);
+  --ifm-color-emphasis-500: var(--ds-border-strong);
+  --ifm-color-emphasis-700: var(--ds-text-muted);
+  --ifm-color-content: var(--ds-text);
+  --ifm-font-color-base: var(--ds-text);
+  /* links keep the accent under the pointer */
+  --ifm-link-color: var(--ds-accent);
+  --ifm-link-hover-color: var(--ds-accent);
+  --ifm-color-formfield-active: var(--ds-accent);
   /* Infima's headings read these (h1 is set below: theme-classic sizes a
      first-child h1 as a page title) */
   --ifm-h2-font-size: var(--ds-text-xl);
   --ifm-h3-font-size: var(--ds-text-lg);
+  --ifm-h4-font-size: var(--ds-text-base);
   --ifm-heading-font-weight: 600;
   --ifm-heading-margin-bottom: var(--ds-space-1);
   --ifm-paragraph-margin-bottom: var(--ds-space-3);
@@ -46,32 +75,21 @@
   line-height: 1.5;
   color: var(--ds-text);
 }
-/* Dark: steps from the preview's slate ground (--pg-preview-bg, set with the
-   frame in ../styles.module.css): a card a step above it, control wells a
-   step below */
+/* Dark: the same console at night (the panel, well, line and text follow
+   --pg-* above); what's left is the design system's own */
 html[data-theme='dark'] .playground-preview {
-  --ds-text: #e3e8f2;
-  --ds-text-muted: hsl(229, 12%, 72%);
-  --ds-surface: color-mix(in srgb, var(--pg-preview-bg) 94%, white);
-  --ds-border: rgba(255, 255, 255, 0.1);
-  --ds-accent-strong: var(--ifm-color-primary-lighter);
-  --ds-shadow: none;
-  /* the fields (rt-*) read Infima's: wells, and a 3:1 edge on both the well
-     and the ground */
-  --ifm-background-surface-color: color-mix(
-    in srgb,
-    var(--pg-preview-bg) 85%,
-    black
-  );
-  --ifm-color-emphasis-100: var(--ifm-background-surface-color);
-  --ifm-color-emphasis-400: hsl(229, 5%, 48%);
+  --ds-faint: #6e7d94;
+  --ds-border-strong: #58697f;
+  --ds-accent: #53aef0;
+  --ds-accent-strong: #7cc1f4;
+  --ds-accent-soft: color-mix(in srgb, var(--ds-accent) 14%, transparent);
+  --ds-on-accent: #04121f;
+  /* fields sit in the well, a step above the panel */
+  --ifm-color-emphasis-0: var(--ds-surface-2);
 }
 /* The floating label straddles the field's top edge, so it blends into both */
 html[data-theme='dark'] .playground-preview .rt-TextFieldLabel {
-  background: linear-gradient(
-    var(--pg-preview-bg) 50%,
-    var(--ifm-color-emphasis-100) 50%
-  );
+  background: linear-gradient(var(--ds-surface) 50%, var(--ds-surface-2) 50%);
 }
 
 /* Text */
@@ -101,10 +119,30 @@ div.playground-preview h1:first-child {
 .playground-preview section:last-child {
   margin-bottom: 0;
 }
+/* A group's label over its rows (a section's "Comments", a board column's
+   name): the console's small mono caps, not a heading. A row's own title
+   (a post's h3 in a list) stays a heading */
+.playground-preview section > h3,
+.playground-preview .boardColumn > h4 {
+  margin: 0 0 var(--ds-space-2);
+  font: 500 var(--ds-text-label) / 1.4 var(--ifm-font-family-monospace);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ds-faint);
+}
+/* A value that just changed: washed in the accent and ringed by it */
+.playground-preview mark {
+  padding: 1px 4px;
+  margin: -1px -4px;
+  border-radius: var(--ds-radius-xs);
+  background: var(--ds-accent-soft);
+  box-shadow: 0 0 0 1px var(--ds-accent);
+  color: inherit;
+}
 
-/* Links keep Infima's (--ds-accent is its link color); in a heading they
-   keep its color, with a faint underline that fills on hover, so a title
-   that opens a page still shows it */
+/* Links take the accent (Infima's `a` reads --ifm-link-color above); in a
+   heading they keep its color, with a faint underline that fills on hover,
+   so a title that opens a page still shows it */
 .playground-preview :is(h1, h2, h3, h4) a {
   color: inherit;
   text-decoration: underline;
@@ -114,6 +152,11 @@ div.playground-preview h1:first-child {
 .playground-preview :is(h1, h2, h3, h4) a:hover,
 .playground-preview :is(h1, h2, h3, h4) a:focus-visible {
   text-decoration-color: currentColor;
+}
+.playground-preview a:focus-visible {
+  outline: 2px solid var(--ds-accent);
+  outline-offset: 2px;
+  border-radius: var(--ds-radius-xs);
 }
 
 /* The app's header: its title at the left, its navigation or actions at
@@ -141,24 +184,25 @@ div.playground-preview h1:first-child {
   margin: 0;
 }
 
-/* A card: a surface lifted off the ground. Holding list items, it has no
-   padding of its own and the items take the room, so their dividers reach
-   its edges. Infima's .card is a flex column with a shadow; this replaces it */
+/* A card: a view card, ruled off the panel by a 1px line. Holding list
+   items, it has no padding of its own and the items take the room, so their
+   dividers reach its edges. Infima's .card is a flex column with a shadow;
+   this replaces it */
 .playground-preview .card {
   display: block;
   overflow: visible;
   margin-bottom: var(--ds-space-4);
-  padding: var(--ds-space-4);
+  padding: var(--ds-space-3);
   background: var(--ds-surface);
   border: 1px solid var(--ds-border);
   border-radius: var(--ds-radius);
-  box-shadow: var(--ds-shadow);
+  box-shadow: none;
 }
 .playground-preview .card:has(> .listItem) {
   padding: 0;
 }
 .playground-preview .card > .listItem {
-  padding: var(--ds-space-3) var(--ds-space-4);
+  padding: 10px var(--ds-space-3);
 }
 .playground-preview .card > :last-child {
   margin-bottom: 0;
@@ -208,7 +252,7 @@ div.playground-preview h1:first-child {
 .playground-preview .byline b,
 .playground-preview .byline strong {
   color: var(--ds-text);
-  font-weight: 500;
+  font-weight: 600;
 }
 .playground-preview .author {
   flex: none;
@@ -247,13 +291,22 @@ div.playground-preview h1:first-child {
     border-color var(--motion-snappy),
     color var(--motion-snappy);
 }
-.playground-preview button:where(:not([class])):hover {
+/* hover washes it in the accent; a press (touch too) deepens the wash */
+.playground-preview button:where(:not([class])):is(:hover, :active) {
   border-color: var(--ds-accent);
+  background: var(--ds-accent-soft);
   color: var(--ds-accent);
+}
+.playground-preview button:where(:not([class])):active {
+  background: color-mix(in srgb, var(--ds-accent) 18%, var(--ds-surface));
 }
 .playground-preview button:where(:not([class]), .primary):focus-visible {
   outline: 2px solid var(--ds-accent);
   outline-offset: 2px;
+}
+.playground-preview button:where(:not([class]), .primary):disabled {
+  cursor: default;
+  opacity: 0.5;
 }
 /* the one action a page is for */
 .playground-preview button.primary {
@@ -261,13 +314,23 @@ div.playground-preview h1:first-child {
   border-color: var(--ds-accent);
   color: var(--ds-on-accent);
 }
-.playground-preview button.primary:hover {
+.playground-preview button.primary:hover,
+.playground-preview button.primary:active {
   background: var(--ds-accent-strong);
   border-color: var(--ds-accent-strong);
 }
 .playground-preview input[type='text']:where(:not([class])),
 .playground-preview textarea:where(:not([class])) {
-  padding: 0.3rem 0.5rem;
+  padding: 0.3rem 0.625rem;
+  transition:
+    border-color var(--motion-snappy),
+    box-shadow var(--motion-snappy);
+}
+.playground-preview input[type='text']:where(:not([class])):focus-visible,
+.playground-preview textarea:where(:not([class])):focus-visible {
+  outline: none;
+  border-color: var(--ds-accent);
+  box-shadow: 0 0 0 3px var(--ds-accent-soft);
 }
 /* A demo's links between its pages (Link), the one shown marked as current */
 .playground-preview nav:where(:not([class])) {
@@ -308,12 +371,12 @@ div.playground-preview h1:first-child {
     linear-gradient(var(--ds-surface), var(--ds-surface)) padding-box,
     conic-gradient(
         from var(--pg-trace-angle),
-        var(--ifm-color-emphasis-200) 0 45%,
+        var(--ds-border) 0 45%,
         var(--ds-accent) 75%,
-        var(--ifm-color-emphasis-200) 76%
+        var(--ds-border) 76%
       )
       border-box;
-  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 15%, transparent);
+  box-shadow: 0 0 0 3px var(--ds-accent-soft);
   color: var(--ds-accent);
   animation: ds-trace 1.2s linear infinite;
 }
@@ -332,6 +395,10 @@ div.playground-preview h1:first-child {
   height: 1rem;
   vertical-align: -2px;
   accent-color: var(--ds-accent);
+}
+.playground-preview input[type='checkbox']:focus-visible {
+  outline: 2px solid var(--ds-accent);
+  outline-offset: 2px;
 }
 .playground-preview form input[type='text'],
 .playground-preview form textarea {
@@ -365,24 +432,27 @@ div.playground-preview h1:first-child {
     center;
   display: inline-block;
 }
-/* A board's columns (RestEndpoint's move demo): wells holding cards */
+/* A board's columns (RestEndpoint's move demo): wells holding cards, each a
+   row like the console's (radius 8, 9px 10px) */
 .playground-preview .boardColumn {
-  background: var(--ifm-color-emphasis-100);
+  background: var(--ds-surface-2);
   border-radius: var(--ds-radius);
-  padding: 0.4rem;
+  padding: var(--ds-space-2);
   margin-bottom: 0.5rem;
 }
-.playground-preview .boardColumn h4 {
-  margin: 0 0 0.3rem;
-  padding: 0 0.25rem;
+.playground-preview .boardColumn > h4 {
+  padding: 0 var(--ds-space-1);
 }
 .playground-preview .boardColumn .listItem {
   align-items: center;
   background: var(--ds-surface);
-  border: 0;
+  border: 1px solid var(--ds-border);
   border-radius: var(--ds-radius-sm);
-  padding: 0.25rem 0.5rem;
-  margin-bottom: 0.3rem;
+  padding: 9px 10px;
+  margin-bottom: 6px;
+}
+.playground-preview .boardColumn .listItem:last-child {
+  margin-bottom: 0;
 }
 .playground-preview .boardColumn button {
   margin: 0;
@@ -390,11 +460,11 @@ div.playground-preview h1:first-child {
   line-height: 1;
   background: none;
   border: none;
-  cursor: pointer;
-  opacity: 0.5;
+  border-radius: var(--ds-radius-xs);
+  color: var(--ds-text-muted);
 }
-.playground-preview .boardColumn button:hover {
-  opacity: 1;
+.playground-preview .boardColumn button:is(:hover, :active) {
+  color: var(--ds-accent);
 }
 /* Root container for the text field */
 .rt-TextFieldRoot {
@@ -404,14 +474,13 @@ div.playground-preview h1:first-child {
   padding: 0.5em;
   background-color: var(--ifm-color-emphasis-0);
   border: 1px solid var(--ifm-color-emphasis-400);
-  border-radius: 4px;
+  border-radius: var(--ds-radius-sm);
   position: relative;
-  margin-bottom:1ex;
-  transition: opacity var(--motion-snappy);
-}
-html[data-theme='dark'] .rt-TextFieldRoot,
-html[data-theme='dark'] .rt-TextAreaRoot {
-  background-color: var(--ifm-color-emphasis-100);
+  margin-bottom: 1ex;
+  transition:
+    opacity var(--motion-snappy),
+    border-color var(--motion-snappy),
+    box-shadow var(--motion-snappy);
 }
 
 /* The slot element (left side) */
@@ -461,7 +530,7 @@ html[data-theme='dark'] .rt-TextAreaRoot {
   left: 0.75em;
   background-color: var(--ifm-color-emphasis-0);
   padding: 0 0.25em;
-  font-size: 0.70rem;
+  font-size: 0.7rem;
   color: var(--ifm-color-emphasis-700);
   pointer-events: none;
 }
@@ -473,8 +542,8 @@ html[data-theme='dark'] .rt-TextAreaRoot {
 
 .rt-TextFieldRoot:focus-within {
   border-color: var(--ifm-color-formfield-active);
+  box-shadow: 0 0 0 3px var(--ds-accent-soft);
 }
-
 
 .large.rt-TextFieldRoot {
   font-size: 16px;
@@ -490,38 +559,30 @@ html[data-theme='dark'] .rt-TextAreaRoot {
 }
 .small.rt-TextFieldRoot {
   display: inline-flex;
-  border: 1px solid transparent;       /* Transparent borders on all sides */
-  border-bottom-color: var(--ifm-color-emphasis-500);           /* Visible bottom border */
+  border: 1px solid transparent; /* Transparent borders on all sides */
+  border-bottom-color: var(
+    --ifm-color-emphasis-500
+  ); /* Visible bottom border */
   background: none;
   outline: none;
-  padding: 5px;                        /* Consistent padding */
-  height: 30px;                        /* Fixed height to prevent shifting */
-  box-sizing: border-box;              /* Include padding and border in element's size */
-  transition: all 0.2s ease-in-out;    /* Quick animation for transitions */
+  padding: 5px; /* Consistent padding */
+  height: 30px; /* Fixed height to prevent shifting */
+  box-sizing: border-box; /* Include padding and border in element's size */
+  transition: all 0.2s ease-in-out; /* Quick animation for transitions */
   border-radius: 0;
-  margin-bottom:0;
-  margin-top:-4px;
-}
-html[data-theme='dark'] .small.rt-TextFieldRoot {
-  background: none;
+  margin-bottom: 0;
+  margin-top: -4px;
 }
 .small.rt-TextFieldRoot:hover,
 .small.rt-TextFieldRoot:focus-within {
   background-color: var(--ifm-color-emphasis-0);
-  border-color: var(--ifm-color-emphasis-400);                  /* Make all borders visible */
-  border-radius: 4px;
+  border-color: var(--ifm-color-emphasis-400); /* Make all borders visible */
+  border-radius: 6px;
 }
 .small.rt-TextFieldRoot:focus-within {
-  border-color: var(--ifm-color-formfield-active);                  /* Make all borders visible */
-}
-/* Dark: a faint lift over the panel instead of a near-black well, and the
-   same blue as the checked checkboxes for focus */
-html[data-theme='dark'] .small.rt-TextFieldRoot:hover,
-html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
-  background-color: rgba(255, 255, 255, 0.06);
-}
-html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
-  border-color: var(--ifm-color-primary);
+  border-color: var(
+    --ifm-color-formfield-active
+  ); /* Make all borders visible */
 }
 /* Typed text matches the todo titles beside it */
 .small .rt-TextFieldInput {
@@ -543,9 +604,6 @@ html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
   min-width: 0;
 }
 
-
-
-
 /* Disabled fields (on their own or in a disabled fieldset) fade back */
 .rt-TextFieldRoot:has(> .rt-TextFieldInput:disabled),
 .rt-TextAreaRoot:has(> .rt-TextAreaInput:disabled) {
@@ -558,11 +616,13 @@ html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
   width: 100%;
   background-color: var(--ifm-color-emphasis-0);
   border: 1px solid var(--ifm-color-emphasis-400);
-  border-radius: 4px;
-  padding-bottom:-5px;
+  border-radius: var(--ds-radius-sm);
   /* overflow: hidden; */
-  margin: 1.5ex 0 .5ex;
-  transition: opacity var(--motion-snappy);
+  margin: 1.5ex 0 0.5ex;
+  transition:
+    opacity var(--motion-snappy),
+    border-color var(--motion-snappy),
+    box-shadow var(--motion-snappy);
 }
 
 /* The textarea element inside the component */
@@ -571,6 +631,7 @@ html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
   width: 100%;
   border: none;
   outline: none;
+  font: inherit;
   font-size: 14px;
   color: var(--ifm-color-content);
   background: transparent;
@@ -580,7 +641,6 @@ html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
   margin-bottom: -4px;
 }
 
-
 /* Focus state for the textarea */
 .rt-TextAreaInput:focus + .rt-TextFieldLabel {
   color: var(--ifm-color-formfield-active);
@@ -588,4 +648,5 @@ html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
 
 .rt-TextAreaRoot:focus-within {
   border-color: var(--ifm-color-formfield-active);
+  box-shadow: 0 0 0 3px var(--ds-accent-soft);
 }

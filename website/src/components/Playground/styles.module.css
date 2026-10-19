@@ -31,8 +31,22 @@
   --store-record: rgba(130, 170, 255, 0.07);
   --store-tip: #3a4057;
   --store-bg: var(--monoco-code-background);
+  /* The preview's console palette (DesignSystem/design-system.css reads it
+     into --ds-*): the panel and the well below it, the 1px line that rules
+     them, its text, and the live dot */
+  --pg-panel: #fff;
+  --pg-panel-2: #eef2f7;
+  --pg-line: #d8e0ea;
+  --pg-text: #0b1220;
+  --pg-muted: #4c5a6e;
+  --pg-live: #0d8257;
+  --pg-live-soft: color-mix(in srgb, var(--pg-live) 14%, transparent);
+  --pg-shadow: rgba(15, 30, 60, 0.28);
   border-radius: var(--ifm-global-radius);
-  box-shadow: var(--ifm-global-shadow-lw);
+  /* the line around the frame, and a soft drop under it */
+  box-shadow:
+    0 0 0 1px var(--pg-line),
+    0 24px 60px -30px var(--pg-shadow);
   overflow: visible;
   display: flex;
   align-items: stretch;
@@ -134,6 +148,16 @@
   --pg-bar: hsl(229, 9%, 21%);
   --pg-tab-hover-bg: hsl(229, 9%, 26%);
 }
+:root[data-theme='dark'] .playgroundContainer {
+  --pg-panel: #0b1017;
+  --pg-panel-2: #111824;
+  --pg-line: #1d2836;
+  --pg-text: #e8eef6;
+  --pg-muted: #94a2b6;
+  --pg-live: #3ddc97;
+  --pg-live-soft: color-mix(in srgb, var(--pg-live) 16%, transparent);
+  --pg-shadow: rgba(0, 0, 0, 0.8);
+}
 /* EndpointPlayground's right column is code, so it always uses the dark bar */
 .endpointPlayground {
   --pg-bar: hsl(229, 8%, 26%);
@@ -214,7 +238,6 @@ div.playgroundTextEdit > .playgroundHeader,
   /* the frame's inset; .navProgress reads it to reach the frame's edges */
   --pg-preview-pad: 1rem;
   padding: var(--pg-preview-pad);
-  background-color: var(--ifm-pre-background);
   flex: 1 4 30%;
   overflow: auto;
 }
@@ -639,13 +662,10 @@ div.playgroundTextEdit > .playgroundHeader,
   --pg-tab-selected: var(--pg-tab-hover);
 }
 
-:root[data-theme='dark'] .playgroundPreview {
-  /* The demo's content is quieter than the frame: a hint of the code's hue
-     (the design system's dark surfaces are steps from it) */
-  --pg-preview-bg: hsl(229, 7%, 19%);
-  background-color: var(--pg-preview-bg);
-}
+/* The preview's ground is the console's panel (the design system's cards
+   and fields take their surface from it too, in both themes) */
 .playgroundPreview {
+  background-color: var(--pg-panel);
   overflow: auto;
 }
 /* The router's navigation indicator (preview/router.tsx): a 3px bar along
@@ -1111,22 +1131,40 @@ div.fixtureJson + div.fixtureJson {
   left: 0.75rem;
 }
 
-/* Live Preview label: a drawn dot renders the same on every OS, unlike 🔴 */
+/* Live Preview label: the console's status dot (drawn, so it renders the
+   same on every OS) before the label in the panel's text; the rest of the
+   header is muted */
 .liveLabel {
   display: inline-flex;
   align-items: center;
-  gap: 0.6em;
+  gap: 10px;
+  color: var(--pg-text);
 }
 .liveLabel::before {
   content: '';
-  width: 0.55em;
-  height: 0.55em;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   flex: none;
   /* optical nudge: the ring's outer edge lines up with the text inset */
   margin-inline-start: 3px;
-  background: #ff5f56;
-  box-shadow: 0 0 0 3px rgba(255, 95, 86, 0.2);
+  background: var(--pg-live);
+  box-shadow: 0 0 0 3px var(--pg-live-soft);
+}
+/* The preview's header is the console's bar: 44px on the panel, ruled off
+   below, in small mono. Outranks .playgroundHeader's caps and bar color;
+   the editor's own headers keep theirs. */
+.playgroundHeader.previewHeader {
+  --pg-bar: var(--pg-panel);
+  --pg-tab: var(--pg-muted);
+  --pg-tab-hover-bg: var(--pg-panel-2);
+  --pg-tab-hover: var(--pg-text);
+  min-height: 44px;
+  padding: 0 0.75rem;
+  border-bottom: 1px solid var(--pg-line);
+  font: 500 12px / 1 var(--ifm-font-family-monospace);
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 /* With a demo's navigation in the header, a tight header keeps only the
    label's dot (still named for screen readers), so the path gets the room */
@@ -1149,7 +1187,6 @@ div.fixtureJson + div.fixtureJson {
   font: inherit;
   letter-spacing: inherit;
   text-transform: inherit;
-  color: inherit;
   cursor: pointer;
 }
 .demoLabel:focus-visible {
@@ -1157,10 +1194,14 @@ div.fixtureJson + div.fixtureJson {
   outline-offset: 2px;
   border-radius: var(--ifm-global-radius);
 }
+/* the ring widens under the pointer, and on a press (touch too) */
 @media (hover: hover) {
   .demoLabel:hover::before {
-    box-shadow: 0 0 0 5px rgba(255, 95, 86, 0.3);
+    box-shadow: 0 0 0 5px var(--pg-live-soft);
   }
+}
+.demoLabel:active::before {
+  box-shadow: 0 0 0 5px var(--pg-live-soft);
 }
 .demoLabel::before {
   transition: box-shadow var(--motion-snappy);
@@ -1170,7 +1211,7 @@ div.fixtureJson + div.fixtureJson {
 }
 @keyframes demoPulse {
   50% {
-    box-shadow: 0 0 0 6px rgba(255, 95, 86, 0);
+    box-shadow: 0 0 0 6px transparent;
     scale: 0.8;
   }
 }
@@ -1178,7 +1219,7 @@ div.fixtureJson + div.fixtureJson {
   /* still shows it's playing, without the motion */
   .demoLabel[data-playing]::before {
     animation: none;
-    box-shadow: 0 0 0 5px rgba(255, 95, 86, 0.35);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--pg-live) 35%, transparent);
   }
 }
 
@@ -1191,12 +1232,11 @@ div.fixtureJson + div.fixtureJson {
 .renderCount {
   font: inherit;
   letter-spacing: normal;
-  text-transform: none;
   font-weight: normal;
-  padding: 0 0.5em;
-  border: none;
-  border-radius: var(--ifm-global-radius);
-  background: var(--ifm-color-emphasis-300);
+  padding: 1px 0.5em;
+  border: 1px solid var(--pg-line);
+  border-radius: 5px;
+  background: var(--pg-panel-2);
   color: inherit;
   cursor: pointer;
 }

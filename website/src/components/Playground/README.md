@@ -178,14 +178,20 @@ DesignSystem/       the demos' design system: design-system.css (tokens, element
 - Design system (`DesignSystem/design-system.css`, loaded with the preview):
   what a demo renders is styled under `.playground-preview` so it reads as a
   real app, in both themes, without the demo importing anything. Tokens
-  (`--ds-text`, `--ds-text-muted`, `--ds-surface`, `--ds-border`,
-  `--ds-border-strong`, `--ds-accent`, `--ds-radius`, `--ds-space-*`,
-  `--ds-text-*`) and the preview's type (15px base, Infima's heading
-  variables); element styles for headings, `p`, `small`, links (in a heading
-  they keep its color with a faint underline), plain `button`s (`primary`
-  fills one with the accent), text inputs, `nav`, `fieldset`; and classes:
-  `appHeader` + `appTitle` (the app's bar), `card` (a lifted surface; holding
-  `listItem`s it loses its padding so their dividers reach its edges),
+  (`--ds-text`, `--ds-text-muted`, `--ds-faint`, `--ds-surface`,
+  `--ds-surface-2` (a well a step below the panel), `--ds-border`,
+  `--ds-border-strong`, `--ds-accent`, `--ds-accent-soft` (its wash),
+  `--ds-radius`, `--ds-radius-sm`, `--ds-radius-xs`, `--ds-space-*`,
+  `--ds-text-*` including `--ds-text-label` for small mono caps over a
+  group of rows; the palette reads the frame's `--pg-*` in
+  `../styles.module.css`, which switch with the theme) and the preview's
+  type (15px base, Infima's heading variables); element styles for
+  headings, `p`, `small`, links (in a heading they keep its color with a
+  faint underline), plain `button`s (`primary` fills one with the accent),
+  text inputs, `nav`, `fieldset`; and classes: `appHeader` + `appTitle`
+  (the app's bar), `card` (a flat surface ruled off the panel by a 1px line;
+  holding `listItem`s it loses its padding so their dividers reach its
+  edges),
   `listItem` (a row with a rule between siblings; `nogap`, `spaced`),
   `meta` (secondary text), `byline` (avatar beside a name; `Avatar` takes a
   `size`), `author` (name under avatar), plus the older `voteBlock`/`vote`
