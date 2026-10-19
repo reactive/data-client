@@ -108,11 +108,18 @@ describe('structureProblems', () => {
 
   it('flags a blank front matter title, unless English is blank too', () => {
     assert.deepEqual(
-      structureProblems(source, translated.replace(/^title: .*$/m, "title: ''"), FILE),
+      structureProblems(
+        source,
+        translated.replace(/^title: .*$/m, "title: ''"),
+        FILE,
+      ),
       ['front matter `title`: translate it, as text'],
     );
     const blank = "---\ndescription: ''\n---\n\nUn consejo.\n";
-    assert.deepEqual(structureProblems(blank, blank.replace('Un', 'One'), FILE), []);
+    assert.deepEqual(
+      structureProblems(blank, blank.replace('Un', 'One'), FILE),
+      [],
+    );
   });
 
   it('flags a sentence left in English, not a short name', () => {
@@ -224,7 +231,10 @@ describe('syntaxProblems', () => {
       syntaxProblems("label: 'x\n", '/website/blog/tags.yml')[0],
       /^invalid YAML/,
     );
-    assert.deepEqual(syntaxProblems('label: x\n', '/website/blog/tags.yml'), []);
+    assert.deepEqual(
+      syntaxProblems('label: x\n', '/website/blog/tags.yml'),
+      [],
+    );
     assert.notEqual(syntaxProblems('<div>\n', FILE).length, 0);
   });
 });
