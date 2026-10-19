@@ -141,13 +141,14 @@ export function adderSchema() {
   expectType<Todo | undefined>()({} as DenormalizeNullable<typeof push>, true);
   expectType<string>()({} as Normalize<typeof push>, true);
   ctrl.set(push, { userId: 1 }, { id: 5, title: 'a' });
+  ctrl.set(TodoResource.getList.schema.unshift, { userId: 1 }, { id: 5 });
   // @ts-expect-error not a Todo field
   ctrl.set(push, { userId: 1 }, { id: 5, titel: 'a' });
+  // a Collection made directly has adders too
+  ctrl.set(new Collection([Todo]).push, { id: 5, title: 'a' });
 }
 
 export function wrapsFetch() {
-  const collection = new Collection([Todo]);
-  collection.push.schema;
   // generic helpers that forward to fetch keep compiling
   function forward<E extends EndpointInterface>(
     endpoint: E,

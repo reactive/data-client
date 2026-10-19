@@ -47,6 +47,12 @@ export interface CollectionArrayAdder<
   _denormalizeList(): Denormalize<S['schema']>[];
 }
 
+/** CollectionArrayAdder for Array Collections; never for Values Collections */
+type ArrayAdder<S extends PolymorphicInterface, Args extends any[], Parent> =
+  S extends { denormalize(...args: any): any[] } ?
+    CollectionArrayAdder<S, Args, Parent>
+  : never;
+
 /** Schema when assigning to a Values Collection
  * Conceptually only returns a single item
  */
@@ -208,16 +214,12 @@ export interface CollectionInterface<
   /** Schema to place at the *end* of this Collection
    * @see https://dataclient.io/rest/api/Collection#push
    */
-  push: S extends { denormalize(...args: any): any[] } ?
-    CollectionArrayAdder<S, Args, Parent>
-  : never;
+  push: ArrayAdder<S, Args, Parent>;
 
   /** Schema to place at the *beginning* of this Collection
    * @see https://dataclient.io/rest/api/Collection#unshift
    */
-  unshift: S extends { denormalize(...args: any): any[] } ?
-    CollectionArrayAdder<S, Args, Parent>
-  : never;
+  unshift: ArrayAdder<S, Args, Parent>;
 
   /** Schema to merge with a Values Collection
    * @see https://dataclient.io/rest/api/Collection#assign

@@ -959,6 +959,10 @@ interface CollectionArrayAdder<S extends PolymorphicInterface, Args extends any[
     _normalizeNullable(): NormalizeNullable<S['schema']>;
     _denormalizeList(): Denormalize<S['schema']>[];
 }
+/** CollectionArrayAdder for Array Collections; never for Values Collections */
+type ArrayAdder<S extends PolymorphicInterface, Args extends any[], Parent> = S extends {
+    denormalize(...args: any): any[];
+} ? CollectionArrayAdder<S, Args, Parent> : never;
 /** Schema when assigning to a Values Collection
  * Conceptually only returns a single item
  */
@@ -1054,15 +1058,11 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
     /** Schema to place at the *end* of this Collection
      * @see https://dataclient.io/rest/api/Collection#push
      */
-    push: S extends {
-        denormalize(...args: any): any[];
-    } ? CollectionArrayAdder<S, Args, Parent> : never;
+    push: ArrayAdder<S, Args, Parent>;
     /** Schema to place at the *beginning* of this Collection
      * @see https://dataclient.io/rest/api/Collection#unshift
      */
-    unshift: S extends {
-        denormalize(...args: any): any[];
-    } ? CollectionArrayAdder<S, Args, Parent> : never;
+    unshift: ArrayAdder<S, Args, Parent>;
     /** Schema to merge with a Values Collection
      * @see https://dataclient.io/rest/api/Collection#assign
      */
@@ -1509,4 +1509,4 @@ declare function validateRequired(processedEntity: any, requiredDefaults: Record
 /** https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html#the-noinfer-utility-type */
 type NI<T> = NoInfer<T>;
 
-export { type AbstractInstanceType, All, Array$1 as Array, type CheckLoop, Collection, type CollectionOptions, type DefaultArgs, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, type EntitiesInterface, type EntitiesPath, Entity, type EntityFields, type EntityInterface, type EntityMap, EntityMixin, type EntityPath, type EntityTable, type ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type FetchFunction, type GetEntity, type GetIndex, type IDenormalizeDelegate, type IEntityClass, type IEntityInstance, type INormalizeDelegate, type IQueryDelegate, type IndexPath, Invalidate, type KeyofEndpointInstance, Lazy, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedIndex, type NormalizedNullableObject, Object$1 as Object, type ObjectArgs, type PolymorphicInterface, Query, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, Scalar, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, Union, type UnknownError, Values, type Visit, schema_d as schema, unshift, validateRequired };
+export { type AbstractInstanceType, All, Array$1 as Array, type CheckLoop, Collection, type CollectionArrayAdder, type CollectionOptions, type DefaultArgs, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, type EntitiesInterface, type EntitiesPath, Entity, type EntityFields, type EntityInterface, type EntityMap, EntityMixin, type EntityPath, type EntityTable, type ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type FetchFunction, type GetEntity, type GetIndex, type IDenormalizeDelegate, type IEntityClass, type IEntityInstance, type INormalizeDelegate, type IQueryDelegate, type IndexPath, Invalidate, type KeyofEndpointInstance, Lazy, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedIndex, type NormalizedNullableObject, Object$1 as Object, type ObjectArgs, type PolymorphicInterface, Query, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, Scalar, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, Union, type UnknownError, Values, type Visit, schema_d as schema, unshift, validateRequired };
