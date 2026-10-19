@@ -19,8 +19,9 @@ let clicked: HTMLElement | undefined;
 export const heldToggle = () => (clicked?.isConnected ? clicked : undefined);
 
 /** A demo's Store view, shown over the reader's saved one without saving it
- * (see `useStoreOpen`); `drop()` gives theirs back. Here, not in
- * ./store/storeView.ts, for ../index.tsx to provide */
+ * (see `useStoreOpen`); `drop()` gives theirs back. Here, not with
+ * `useStoreView` in ./store/storeView.ts: ../index.tsx provides it, and may
+ * only import the Store UI's lazy chunk with `import()` (see the top) */
 export interface DemoView {
   view?: StoreView;
   drop(): void;
