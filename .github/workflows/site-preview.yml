@@ -350,10 +350,10 @@ jobs:
         run: |
           tar -xzf current.tar.gz -C website/build
           # /next is served now, so it no longer redirects to the root
-          next='.source | startswith("/next{/:path")'
-          jq -e ".redirects | map(select($next)) | length == 1" website/vercel.json > /dev/null ||
+          nextRedirect='.source | startswith("/next{/:path")'
+          jq -e ".redirects | map(select($nextRedirect)) | length == 1" website/vercel.json > /dev/null ||
             { echo "::error::vercel.json has no single /next redirect to drop"; exit 1; }
-          jq ".redirects |= map(select($next | not))" website/vercel.json > vercel.json.tmp
+          jq ".redirects |= map(select($nextRedirect | not))" website/vercel.json > vercel.json.tmp
           mv vercel.json.tmp website/vercel.json
       - uses: actions/setup-node@v7
         with:
