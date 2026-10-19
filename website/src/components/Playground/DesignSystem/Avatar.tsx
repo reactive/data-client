@@ -1,6 +1,6 @@
 import React from 'react';
 
-/** A round profile picture; 32px, or `size` (24 beside a comment's name) */
+/** A round profile picture; 32px, or `size` to match the text beside it (smaller in a byline or a comment) */
 export function Avatar({ src, size = 32 }: { src: string; size?: number }) {
   return (
     <span

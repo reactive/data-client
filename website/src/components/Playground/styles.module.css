@@ -1234,6 +1234,11 @@ div.fixtureJson + div.fixtureJson {
 .headerButton.storeHeaderToggle {
   display: none;
 }
+/* over a demo's code the side strip hides with the preview, so the header's
+   toggle stands in for it */
+.demo[data-code] .headerButton.storeHeaderToggle {
+  display: inline-flex;
+}
 /* the fixtures toggle (row) and the Code toggle (demo) are lit the same
    while what they show does */
 .storeHeaderToggle[aria-pressed='true'],
