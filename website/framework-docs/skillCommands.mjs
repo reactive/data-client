@@ -1,14 +1,19 @@
 /**
  * Commands that install Data Client's agent skills, one per installer.
- * Shared by src/components/SkillTabs (site) and docsToMarkdown.mjs
- * (skill references, llms.txt), so both install the same skills.
+ * Shared by the site (SkillTabs, AgentPrompt), docsToMarkdown.mjs (skill
+ * references) and llms-plugin.js (llms.txt), so they all install the same skills.
  */
 
 const skillsDir = '.agents/skills';
 
 /** Links the skills the installed `@data-client/*` packages ship into .agents/skills */
+export const linkCommand = 'npx --no data-client-skills';
 const packagesCommand = `# after installing Data Client: links the skills its packages ship
-npx --no data-client-skills`;
+${linkCommand}`;
+
+/** Installs the setup skill, which sets up Data Client; agents run it from the setup prompt and llms.txt */
+export const setupCommand =
+  'npx skills add reactive/data-client --skill data-client-setup -y';
 
 /**
  * @typedef {{ skillPackages: Record<string, string[]>, setupSkills: string[], plugin: { plugins: { name: string, skills: string[] }[] } }} SkillSources

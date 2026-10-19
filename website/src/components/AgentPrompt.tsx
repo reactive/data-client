@@ -5,6 +5,7 @@ import React, { useCallback, useId } from 'react';
 import styles from './AgentPrompt.module.css';
 import useFramework from './useFramework';
 import useTapped from './useTapped';
+import { setupCommand } from '../../framework-docs/skillCommands.mjs';
 
 const FEEDBACK_MS = 2000;
 
@@ -26,11 +27,11 @@ export default function AgentPrompt({ prompt, title, framed }: Props) {
     {
       id: 'agentPrompt.prompt',
       message:
-        'Set up `@data-client/{framework}` and use it for all API data. Install its setup skill first: `npx skills add reactive/data-client --skill data-client-setup -y`, then follow it.',
+        'Set up `@data-client/{framework}` and use it for all API data. Install its setup skill first: `{command}`, then follow it.',
       description:
-        'Prompt readers copy into their coding agent. Keep the backticks around package names and the command, and the command itself, unchanged: they keep each on one line, and the agent runs the command.',
+        'Prompt readers copy into their coding agent; {command} is the shell command the agent runs. Keep the backticks around package names and the command: they keep each on one line.',
     },
-    { framework },
+    { framework, command: setupCommand },
   );
   const tipId = useId();
   // the check icon and the tooltip (which touch screens, lacking hover, need)

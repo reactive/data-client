@@ -5,6 +5,7 @@ sidebar_label: Agent Skills
 ---
 
 import SkillTabs from '@site/src/components/SkillTabs';
+import AgentOnly from '@site/src/components/AgentOnly';
 
 ## Install skills for best results
 
@@ -83,11 +84,10 @@ Browse the full catalog at [skills.sh/reactive/data-client](https://skills.sh/re
 
 To install the packages and add the provider yourself, follow [Installation](./installation.md).
 
-## Docs for LLMs
+<AgentOnly>
 
-Agents without skills can read these docs as plain markdown, following the [llms.txt](https://llmstxt.org) convention:
+Every docs page is also available as markdown by adding `.md` to its URL, like :react[[/docs/api/useSuspense.md](https://dataclient.io/docs/api/useSuspense.md)]:vue[[/vue/api/useSuspense.md](https://dataclient.io/vue/api/useSuspense.md)].
+:react[[llms.txt](https://dataclient.io/llms.txt)]:vue[[llms.txt](https://dataclient.io/vue/llms.txt)] lists them all, and
+:react[[llms-full.txt](https://dataclient.io/llms-full.txt)]:vue[[llms-full.txt](https://dataclient.io/vue/llms-full.txt)] holds all :react[React]:vue[Vue], REST and GraphQL docs in one file.
 
-- :react[[llms.txt](https://dataclient.io/llms.txt)]:vue[[llms.txt](https://dataclient.io/vue/llms.txt)] — index of every page, with links to each page's markdown
-- :react[[llms-full.txt](https://dataclient.io/llms-full.txt)]:vue[[llms-full.txt](https://dataclient.io/vue/llms-full.txt)] — all :react[React]:vue[Vue], REST and GraphQL docs in one file
-
-Any docs page is also available as markdown by adding `.md` to its URL, like :react[[/docs/api/useSuspense.md](https://dataclient.io/docs/api/useSuspense.md)]:vue[[/vue/api/useSuspense.md](https://dataclient.io/vue/api/useSuspense.md)].
+</AgentOnly>

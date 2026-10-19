@@ -13,6 +13,7 @@ import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
 import SiteOnly from '@site/src/components/SiteOnly';
 import AgentPrompt from '@site/src/components/AgentPrompt';
+import AgentOnly from '@site/src/components/AgentOnly';
 
 <SiteOnly>
 
@@ -26,6 +27,19 @@ It installs Data Client's setup [skill](./agent-skills.md), which installs the p
 links the skills the packages ship, so your agent knows the current APIs, like real-time managers and test fixtures.
 
 </SiteOnly>
+
+<AgentOnly>
+
+To set up Data Client, install its setup skill from the project root:
+
+```bash
+npx skills add reactive/data-client --skill data-client-setup -y
+```
+
+Then read `.agents/skills/data-client-setup/SKILL.md` and follow it. It installs the packages, wires up the provider
+and links the skills the packages ship. The steps below are the same setup by hand.
+
+</AgentOnly>
 
 :::react
 
@@ -60,6 +74,19 @@ Run it again after adding, removing or upgrading `@data-client` packages. See [A
 details.
 
 </SiteOnly>
+
+<AgentOnly>
+
+Then link the skills the installed packages ship, matched to their versions, from the project root, and commit the
+links:
+
+```bash
+npx --no data-client-skills
+```
+
+Run it again after adding, removing or upgrading `@data-client` packages.
+
+</AgentOnly>
 
 <center>
 

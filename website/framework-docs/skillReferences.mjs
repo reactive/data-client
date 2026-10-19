@@ -104,6 +104,7 @@ function buildSkill(skillDir, { frameworks, docs, skills = [] }) {
     for (const [name, doc] of Object.entries(docs)) {
       const body = docToMarkdown(path.join(ROOT, doc), framework, {
         resolveRoute,
+        agentOnly: false,
       });
       if (!body) continue;
       const content = `<!-- ${GENERATED} ${doc} (${framework}). Edit the source doc, not this file. -->\n\n${body}`;
