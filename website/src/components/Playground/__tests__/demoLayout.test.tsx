@@ -1,5 +1,6 @@
 /// <reference types="jest" />
 /// <reference types="@docusaurus/module-type-aliases" />
+/// <reference types="@docusaurus/theme-classic" />
 
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
@@ -38,8 +39,8 @@ describe('demo layout', () => {
   test('the server HTML has the code and the Code toggle, preview first', () => {
     const html = renderToString(<Playground demo>{fences()}</Playground>);
     expect(html).toContain('listOfPosts');
-    expect(html).toContain('aria-label="Code"');
-    expect(html).toContain('aria-pressed="false"');
+    const codeToggle = html.match(/<button[^>]*aria-label="Code"[^>]*>/)?.[0];
+    expect(codeToggle).toContain('aria-pressed="false"');
     expect(html).not.toContain('data-code');
     expect(html.indexOf('Live Preview')).toBeLessThan(
       html.indexOf('listOfPosts'),

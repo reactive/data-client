@@ -400,7 +400,9 @@
       "optimisticRace.optimistic": "optimistic",
       "frameworkSelector.selectProtocol": "Select protocol",
       "playground.fixtures.error": "error",
-      "playground.fixtures.delay": "delay"
+      "playground.fixtures.delay": "delay",
+      "playground.code.hide": "Hide code",
+      "playground.code.show": "Show code"
     },
     "docusaurus-plugin-content-blog/options.json": {
       "sidebar.title": "All posts",

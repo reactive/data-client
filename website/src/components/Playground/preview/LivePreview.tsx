@@ -10,10 +10,10 @@ import PreviewWrapper from './PreviewWrapper';
 import { useRenderCount } from './RenderCount';
 import { routerTrailer } from './router';
 import type { CodeDocument } from '../editor/codeModel';
-import type { PreviewProps } from '../types';
+import type { CodeControl, PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
 import SchemaRegistry from './store/schemaRegistry';
-import { CodeHeaderToggle, StoreHeaderToggle } from './StoreToggle';
+import { StoreHeaderToggle } from './StoreToggle';
 import { useCodeManagers } from './useCodeManagers';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
 import { usePreviewReset } from './usePreviewReset';
@@ -27,10 +27,8 @@ export interface LivePreviewProps<T> extends PreviewProps<T> {
   autoRun?: AutoRunScript;
   /** Opens or closes the Store for the demo, without saving it */
   showStore: (open: boolean) => void;
-  /** Demo layout: whether the code shows in the result's place, and the
-   * header's Code toggle (see ../index.tsx) */
-  codeShown?: boolean;
-  toggleCode?: () => void;
+  /** Demo layout: the code in the result's place, and its toggle (../index.tsx) */
+  code?: CodeControl;
 }
 
 export default function LivePreview<T>({
@@ -46,8 +44,7 @@ export default function LivePreview<T>({
   actionLog,
   autoRun,
   showStore,
-  codeShown = false,
-  toggleCode,
+  code: codeControl,
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
@@ -97,14 +94,11 @@ export default function LivePreview<T>({
           : undefined
         }
         fixtures={fixtureContent}
-        codeShown={toggleCode ? codeShown : undefined}
+        code={codeControl}
         headerControls={
           <>
             {badge}
             <StoreHeaderToggle open={storeOpen} onClick={toggleStore} />
-            {toggleCode ?
-              <CodeHeaderToggle open={codeShown} onClick={toggleCode} />
-            : null}
             <ResetButton onClick={reset} />
           </>
         }

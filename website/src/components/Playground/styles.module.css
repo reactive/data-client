@@ -149,7 +149,7 @@ div.playgroundTextEdit > .playgroundHeader,
 .endpointPlayground .playgroundHeader {
   box-shadow: inset 0 -1px 0 var(--pg-bar-edge);
 }
-.playgroundContainer:not(.row)
+.playgroundContainer:not(.row, .demo)
   > div.playgroundTextEdit
   > .playgroundHeader:first-child {
   border-top-right-radius: var(--ifm-global-radius);
@@ -176,7 +176,7 @@ div.playgroundTextEdit > .playgroundHeader,
 .playgroundEditor :global(.prism-code) {
   font: 13px / 19px var(--ifm-font-family-monospace) !important;
 }
-.playgroundContainer:not(.row) {
+.playgroundContainer:not(.row, .demo) {
   background-color: var(--monoco-code-background);
 }
 .closed {
@@ -640,21 +640,10 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 
 :root[data-theme='dark'] .playgroundPreview {
-  /* The demo's content is quieter than the frame: a hint of the code's hue */
+  /* The demo's content is quieter than the frame: a hint of the code's hue
+     (the design system's dark surfaces are steps from it) */
   --pg-preview-bg: hsl(229, 7%, 19%);
   background-color: var(--pg-preview-bg);
-  /* Controls read these for fills and borders: wells a step below the body */
-  --ifm-background-surface-color: hsl(229, 7%, 15%);
-  --ifm-color-emphasis-100: var(--ifm-background-surface-color);
-  /* 3:1 against both the well and the body, so field edges stay legible */
-  --ifm-color-emphasis-400: hsl(229, 5%, 48%);
-}
-/* The floating label straddles the field's top edge, so it blends into both */
-:root[data-theme='dark'] .playgroundPreview :global(.rt-TextFieldLabel) {
-  background: linear-gradient(
-    var(--pg-preview-bg) 50%,
-    var(--ifm-color-emphasis-100) 50%
-  );
 }
 .playgroundPreview {
   overflow: auto;
@@ -1056,7 +1045,6 @@ div.fixtureJson + div.fixtureJson {
   /* the fixtures hang from the header over whichever panel shows:
      positioned by the container, so the preview's clip never cuts them */
   position: relative;
-  background-color: var(--ifm-background-color);
 }
 .demo > .previewWrapper {
   position: static;
@@ -1073,18 +1061,12 @@ div.fixtureJson + div.fixtureJson {
 .demo[data-code] .playgroundResult {
   display: none;
 }
-.demo > .playgroundTextEdit {
+.demo:not([data-code]) > .playgroundTextEdit {
   display: none;
+}
+.demo > .playgroundTextEdit {
   min-height: var(--pg-demo-min);
   background-color: var(--monoco-code-background);
-}
-.demo[data-code] > .playgroundTextEdit {
-  display: block;
-}
-/* under the preview's header, the file tabs are no longer the top corner */
-.playgroundContainer.demo > .playgroundTextEdit > .playgroundHeader {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
 }
 @container playground (min-width: 720px) {
   .demo .playgroundPreview {

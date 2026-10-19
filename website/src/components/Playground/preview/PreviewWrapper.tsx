@@ -1,11 +1,12 @@
-import Translate, { translate } from '@docusaurus/Translate';
+import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, { useId, useState } from 'react';
 
 import Header from '../Header';
-import { liveLabel } from '../liveLabel';
+import { editorLabel, liveLabel } from '../liveLabel';
 import NetworkIcon from '../NetworkIcon';
 import styles from '../styles.module.css';
+import type { CodeControl } from '../types';
 import { RouterControlsSlot } from './routerSlot';
 
 export default function PreviewWrapper({
@@ -13,7 +14,7 @@ export default function PreviewWrapper({
   headerControls,
   label,
   fixtures,
-  codeShown,
+  code,
   ref,
 }: Props) {
   const [routerSlot, setRouterSlot] = useState<HTMLElement | null>(null);
@@ -31,25 +32,17 @@ export default function PreviewWrapper({
   return (
     <div className={styles.previewWrapper} ref={ref}>
       <Header className={styles.previewHeader}>
-        {codeShown === undefined ?
-          liveLabelNode
-        : <span
+        {code ?
+          <span
             className={clsx(styles.swap, styles.titleSwap, styles.labelSwap)}
-            data-swapped={codeShown || undefined}
+            data-swapped={code.shown || undefined}
           >
-            <span aria-hidden={codeShown} inert={codeShown}>
+            <span aria-hidden={code.shown} inert={code.shown}>
               {liveLabelNode}
             </span>
-            <span aria-hidden={!codeShown}>
-              <Translate
-                id="theme.Playground.liveEditor"
-                description="The live editor label of the live codeblocks"
-              >
-                Editor
-              </Translate>
-            </span>
+            <span aria-hidden={!code.shown}>{editorLabel()}</span>
           </span>
-        }
+        : liveLabelNode}
         <span className={styles.routerSlot} ref={setRouterSlot} />
         <span className={styles.previewControls}>
           {fixtures != null ?
@@ -69,6 +62,7 @@ export default function PreviewWrapper({
               <NetworkIcon />
             </button>
           : null}
+          {code?.toggle}
           {headerControls}
         </span>
       </Header>
@@ -97,8 +91,9 @@ interface Props {
   /** Mock responses to inspect over the result, from a network icon in the
    * header: previewed on hover, pinned open by a click or tap */
   fixtures?: React.ReactNode;
-  /** Demo layout: the header names the code ("Editor") in the label's place
-   * while it shows in the result's; `undefined` where the code never does */
-  codeShown?: boolean;
+  /** Demo layout: the code's toggle joins the header's controls, and while
+   * the code shows in the result's place the header names it ("Editor") in
+   * the label's */
+  code?: CodeControl;
   ref?: React.Ref<HTMLDivElement>;
 }

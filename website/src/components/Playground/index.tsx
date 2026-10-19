@@ -20,7 +20,7 @@ import {
   useStoreOpen,
 } from './preview/StoreToggle';
 import styles from './styles.module.css';
-import type { FixtureOrInterceptor } from './types';
+import type { CodeControl, FixtureOrInterceptor } from './types';
 import { isBot } from './userAgent';
 
 export interface PlaygroundProps<T = any> {
@@ -84,8 +84,11 @@ export default function Playground<T>({
   // Defer preview transpilation so editor input remains responsive.
   const documents = useDeferredValue(model.documents);
 
-  // demo has a layout of its own
-  const row = rowLayout && !demo;
+  const layout =
+    demo ? 'demo'
+    : rowLayout ? 'row'
+    : 'stacked';
+  const row = layout === 'row';
   const [storeOpen, toggleStore, showStore] = useStoreOpen(
     groupId,
     defaultOpen,
@@ -107,28 +110,24 @@ export default function Playground<T>({
     [toggleStore],
   );
 
-  // Hydrate Monaco on first show and keep it (preserves undo / go-to-def).
-  // A demo's code is first shown by its Code toggle.
-  const [editorInteractive, setEditorInteractive] = useState(!hidden && !demo);
+  // Hydrate Monaco on first show (a demo's code is first shown by its Code
+  // toggle) and keep it (preserves undo / go-to-def).
+  const codeVisible = !hidden && (!demo || codeShown);
+  const [editorInteractive, setEditorInteractive] = useState(codeVisible);
   useIsomorphicLayoutEffect(() => {
-    if (!hidden && (!demo || codeShown)) setEditorInteractive(true);
-  }, [hidden, demo, codeShown]);
+    if (codeVisible) setEditorInteractive(true);
+  }, [codeVisible]);
 
   const fixtureContent =
     fixtures.length ? <FixturePreview fixtures={fixtures} /> : undefined;
-  const previewFixtures = row || demo ? fixtureContent : undefined;
+  const previewFixtures = layout === 'stacked' ? undefined : fixtureContent;
 
   const editor = (
     <EditorShell>
       <EditorSurface
         {...model}
         interactive={editorInteractive}
-        layout={
-          demo ? 'demo'
-          : row ?
-            'row'
-          : 'stacked'
-        }
+        layout={layout}
         variant="playground"
         fixtureContent={fixtureContent}
         headerControls={headerControls}
@@ -145,12 +144,18 @@ export default function Playground<T>({
       />
     </EditorShell>
   );
-  // the demo layout's Code toggle; the code is there whether or not the live
-  // preview has loaded
-  const code = demo ? { codeShown, toggleCode } : undefined;
+  // the demo layout's Code toggle: in the preview's header whether or not
+  // the live preview has loaded
+  const code: CodeControl | undefined =
+    demo ?
+      {
+        shown: codeShown,
+        toggle: <CodeHeaderToggle open={codeShown} onClick={toggleCode} />,
+      }
+    : undefined;
   // Live preview only while visible — unmounts when hidden (resets store).
   const loading = (
-    <PreviewLoading row={row} fixtureContent={previewFixtures} {...code} />
+    <PreviewLoading row={row} fixtureContent={previewFixtures} code={code} />
   );
   const preview =
     hidden ? loading : (
@@ -168,7 +173,7 @@ export default function Playground<T>({
           actionLog={actionLog}
           autoRun={autoRun}
           showStore={showStore}
-          {...code}
+          code={code}
         />
       </Boundary>
     );
@@ -209,26 +214,17 @@ export default function Playground<T>({
 function PreviewLoading({
   row,
   fixtureContent,
-  codeShown = false,
-  toggleCode,
+  code,
 }: {
   row: boolean;
   fixtureContent?: React.ReactNode;
-  codeShown?: boolean;
-  toggleCode?: () => void;
+  code?: CodeControl;
 }) {
   return (
     <PreviewWrapper
-      headerControls={
-        <>
-          <StoreHeaderToggle />
-          {toggleCode ?
-            <CodeHeaderToggle open={codeShown} onClick={toggleCode} />
-          : null}
-        </>
-      }
+      headerControls={<StoreHeaderToggle />}
       fixtures={fixtureContent}
-      codeShown={toggleCode ? codeShown : undefined}
+      code={code}
     >
       <div className={styles.playgroundPreview} />
       {row ? null : <StoreToggle />}

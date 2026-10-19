@@ -6,6 +6,7 @@ import type * as Monaco from 'monaco-editor';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import Header from '../Header';
+import { editorLabel } from '../liveLabel';
 import { modelPath, useModelId } from '../monaco/modelPath';
 import { createMissingModels } from '../monaco/models';
 import NetworkIcon from '../NetworkIcon';
@@ -288,14 +289,7 @@ function EditorTabs({
 }
 
 function EditorHeader({
-  title = (
-    <Translate
-      id="theme.Playground.liveEditor"
-      description="The live editor label of the live codeblocks"
-    >
-      Editor
-    </Translate>
-  ),
+  title = editorLabel(),
   covered,
   coverTitle,
   fixtureContent,
