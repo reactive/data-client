@@ -13,6 +13,7 @@ import type LivePreviewType from './preview/LivePreview';
 import PreviewWrapper from './preview/PreviewWrapper';
 import type { LogOptions } from './preview/store/actionLog';
 import {
+  DemoViewContext,
   StoreBadge,
   StoreHeaderToggle,
   StoreToggle,
@@ -76,7 +77,7 @@ export default function Playground<T>({
   // Defer preview transpilation so editor input remains responsive.
   const documents = useDeferredValue(model.documents);
 
-  const [storeOpen, toggleStore, showStore] = useStoreOpen(
+  const [storeOpen, toggleStore, showStore, demoView] = useStoreOpen(
     groupId,
     defaultOpen,
   );
@@ -121,20 +122,22 @@ export default function Playground<T>({
   const preview =
     hidden ? loading : (
       <Boundary fallback={loading}>
-        <LivePreview
-          documents={documents}
-          fixtureContent={previewFixtures}
-          storeOpen={storeOpen}
-          toggleStore={toggleStore}
-          row={row}
-          storeHost={storeHost}
-          fixtures={fixtures}
-          getInitialInterceptorData={getInitialInterceptorData}
-          renderCount={renderCount}
-          actionLog={actionLog}
-          autoRun={autoRun}
-          showStore={showStore}
-        />
+        <DemoViewContext.Provider value={demoView}>
+          <LivePreview
+            documents={documents}
+            fixtureContent={previewFixtures}
+            storeOpen={storeOpen}
+            toggleStore={toggleStore}
+            row={row}
+            storeHost={storeHost}
+            fixtures={fixtures}
+            getInitialInterceptorData={getInitialInterceptorData}
+            renderCount={renderCount}
+            actionLog={actionLog}
+            autoRun={autoRun}
+            showStore={showStore}
+          />
+        </DemoViewContext.Provider>
       </Boundary>
     );
 

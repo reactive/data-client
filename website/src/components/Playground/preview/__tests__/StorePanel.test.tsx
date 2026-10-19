@@ -8,6 +8,7 @@ import { byData } from '../store/dom';
 import { endpointId, parseRowId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
+import { DemoViewContext, StoreToggle, useStoreOpen } from '../StoreToggle';
 
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
@@ -247,6 +248,55 @@ describe('StorePanel table view', () => {
       screen.getByLabelText('Tree view').getAttribute('aria-pressed'),
     ).toBe('true');
     expect(document.querySelector('[data-table]')).toBeNull();
+  });
+
+  it("shows a demo's view over the reader's while the Store stays open", () => {
+    let showStore: ReturnType<typeof useStoreOpen>[2] = () => {};
+    let renders = 0;
+    function Demo({ children }: { children: React.ReactNode }) {
+      renders++;
+      const [open, toggle, show, demoView] = useStoreOpen('test', 'y');
+      showStore = show;
+      return (
+        <DemoViewContext.Provider value={demoView}>
+          <StoreToggle onClick={toggle} open={open} />
+          {children}
+        </DemoViewContext.Provider>
+      );
+    }
+    const readerToggle = () =>
+      fireEvent.click(document.querySelector('[data-store-toggle]')!);
+    render(
+      <Demo>
+        <StateContext.Provider value={state}>
+          <StorePanel registry={registry()} history={0} />
+        </StateContext.Provider>
+      </Demo>,
+    );
+    const table = () => document.querySelector('[data-table="User"]');
+    // the reader's choice
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    expect(table()).toBeNull();
+    // a demo's targets are table rows
+    act(() => showStore(true, 'table'));
+    expect(table()).not.toBeNull();
+    // a step naming no view keeps the demo's, and changes nothing
+    const before = renders;
+    act(() => showStore(true));
+    expect(table()).not.toBeNull();
+    expect(renders).toBe(before);
+    // the demo closing gives the reader's view back, which it didn't save
+    act(() => showStore(false));
+    expect(table()).toBeNull();
+    // so does the reader toggling the Store
+    act(() => showStore(true, 'table'));
+    readerToggle();
+    expect(table()).toBeNull();
+    // and the reader picking a view takes over from the demo's
+    act(() => showStore(true, 'table'));
+    expect(table()).not.toBeNull();
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    expect(table()).toBeNull();
   });
 
   it('leaves focus alone as the overview first shows, and on the tab picked', () => {
