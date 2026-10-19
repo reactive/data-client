@@ -6,18 +6,7 @@ Run the [debugging](./devtools-debugging.md) snippets with Cursor's built-in bro
 `cursor-ide-browser` tools). Docs: [Browser](https://cursor.com/docs/agent/tools/browser).
 
 Cloud agents and CI have no `cursor-ide-browser` tools. Add [Playwright MCP](./browser-playwright-mcp.md)
-to `.cursor/mcp.json` and use that instead:
-
-```json
-{
-  "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest"]
-    }
-  }
-}
-```
+to `.cursor/mcp.json` (see its Install section) and use that instead.
 
 ## Use
 

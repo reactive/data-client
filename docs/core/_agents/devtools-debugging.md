@@ -19,7 +19,7 @@ yourself (see their setup).
 
 | Tool | Runs a snippet with | Network log | Setup |
 |---|---|---|---|
-| Cursor's browser | `browser_cdp` | Agent panel | [browser-cursor](./browser-cursor.md) |
+| Cursor's browser | `browser_cdp` | `browser_network_requests` if listed, else `performance` entries | [browser-cursor](./browser-cursor.md) |
 | Chrome DevTools MCP | `evaluate_script` | `list_network_requests` | [browser-chrome-devtools-mcp](./browser-chrome-devtools-mcp.md) |
 | Playwright MCP | `browser_evaluate` | `browser_network_requests` | [browser-playwright-mcp](./browser-playwright-mcp.md) |
 | Claude in Chrome | `javascript_tool` | `read_network_requests` | [browser-claude-in-chrome](./browser-claude-in-chrome.md) |
