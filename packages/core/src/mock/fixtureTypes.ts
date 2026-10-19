@@ -1,4 +1,4 @@
-import type { EndpointInterface, ResolveType } from '../index.js';
+import type { EndpointInterface, ResolveType } from '@data-client/normalizr';
 
 type Updater = (
   result: any,
