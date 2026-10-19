@@ -58,18 +58,21 @@ function workspaceDirs(dir) {
   const patterns = [
     ...(workspaces.packages ?? workspaces),
     ...(fs.existsSync(pnpm) ? pnpmPackages(pnpm) : []),
-  ].filter(pattern => !pattern.split('/').includes('..'));
+  ].filter(pattern => !segments(pattern).includes('..'));
   const excluded = patterns
     .filter(pattern => pattern.startsWith('!'))
     .map(pattern => globRegex(pattern.slice(1)));
   return patterns
     .filter(pattern => !pattern.startsWith('!'))
-    .flatMap(pattern => expand(dir, pattern.split('/')))
+    .flatMap(pattern => expand(dir, segments(pattern)))
     .filter(found => {
       const relative = path.relative(dir, found).split(path.sep).join('/');
       return !excluded.some(regex => regex.test(relative));
     });
 }
+
+// path.join also splits on `\` on Windows, so the `..` check must too
+const segments = pattern => pattern.split(/[\\/]/);
 
 /**
  * `packages` of a pnpm-workspace.yaml, as a block or flow list; enough YAML

@@ -256,16 +256,18 @@ test('workspace exclusions skip their packages', () => {
 });
 
 test('workspaces outside the project are ignored', () => {
-  const dir = project({
-    'app/package.json': { workspaces: ['../**'] },
-    ...pkg(
-      'sibling/node_modules/@data-client/react',
-      '@data-client/react',
-      '0.19.0',
-    ),
-    'sibling/package.json': { dependencies: { '@data-client/react': '*' } },
-  });
-  assert.equal(run(path.join(dir, 'app')), '');
+  for (const pattern of ['../**', '..\\**', 'packages\\..\\..\\**']) {
+    const dir = project({
+      'app/package.json': { workspaces: [pattern] },
+      ...pkg(
+        'sibling/node_modules/@data-client/react',
+        '@data-client/react',
+        '0.19.0',
+      ),
+      'sibling/package.json': { dependencies: { '@data-client/react': '*' } },
+    });
+    assert.equal(run(path.join(dir, 'app')), '', pattern);
+  }
 });
 
 test('symlinked workspace paths are not followed', () => {
