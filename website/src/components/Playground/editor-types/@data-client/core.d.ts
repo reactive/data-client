@@ -491,6 +491,7 @@ type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined | 
 type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source>, ...args: any) => {
     [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
 };
+
 /** Args ending in a list body: (body) or (params, body), like RestEndpoint's.
  * Fixed lengths since TS < 4.2 has no leading-rest tuples */
 type ListBodyArgs = readonly [readonly any[]] | readonly [any, readonly any[]];
@@ -910,7 +911,9 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     set<S extends Queryable>(schema: S, ...rest: readonly [
         ...SchemaArgs<S>,
-        SkipInfer<SetValue<S> | ((previousValue: Denormalize<S>) => SetValue<S>), S>
+        SkipInfer<SetValue<S> | (S extends {
+            _denormalizeList(): any;
+        } ? never : (previousValue: Denormalize<S>) => SetValue<S>), S>
     ]): Promise<void>;
     /**
      * Sets every row of an Array or Values of one Entity (or Union) in one normalize,
@@ -1610,4 +1613,4 @@ interface Props {
     shouldLogout?: (error: UnknownError) => boolean;
 }
 
-export { type AbstractInstanceType, type ActionMeta, type ActionTypes, type ConnectionListener, Controller, type ControllerFetch, type CreateCountRef, type DataClientDispatch, DefaultConnectionListener, type Denormalize, type DenormalizeNullable, type DevToolsConfig, DevToolsManager, type Dispatch, type EndpointExtraOptions, type EndpointInterface, type EndpointUpdateFunction, type EntityInterface, type ErrorTypes, type ExpireAllAction, ExpiryStatus, type FetchAction, type FetchFunction, type FetchMeta, type FetchingMeta, type GCAction, type GCInterface, type GCOptions, GCPolicy, type GenericDispatch, type INormalizeDelegate, type IQueryDelegate, ImmortalGCPolicy, type InvalidateAction, type InvalidateAllAction, LogoutManager, type Manager, type Mergeable, type Middleware, type MiddlewareAPI, type NI, type NetworkError, NetworkManager, type Normalize, type NormalizeNullable, type OptimisticAction, type PK, PollingSubscription, type Queryable, type ResetAction, ResetError, type ResolveType, type ResultEntry, type Schema, type SchemaArgs, type SchemaClass, type SetAction, type SetResponseAction, type SetResponseActionBase, type SetResponseActionError, type SetResponseActionSuccess, type State, type SubscribeAction, SubscriptionManager, type UnknownError, type UnsubscribeAction, type UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initManager, initialState };
+export { type AbstractInstanceType, type ActionMeta, type ActionTypes, type ConnectionListener, Controller, type CreateCountRef, type DataClientDispatch, DefaultConnectionListener, type Denormalize, type DenormalizeNullable, type DevToolsConfig, DevToolsManager, type Dispatch, type EndpointExtraOptions, type EndpointInterface, type EndpointUpdateFunction, type EntityInterface, type ErrorTypes, type ExpireAllAction, ExpiryStatus, type FetchAction, type FetchFunction, type FetchMeta, type FetchingMeta, type GCAction, type GCInterface, type GCOptions, GCPolicy, type GenericDispatch, type INormalizeDelegate, type IQueryDelegate, ImmortalGCPolicy, type InvalidateAction, type InvalidateAllAction, LogoutManager, type Manager, type Mergeable, type Middleware, type MiddlewareAPI, type NI, type NetworkError, NetworkManager, type Normalize, type NormalizeNullable, type OptimisticAction, type PK, PollingSubscription, type Queryable, type ResetAction, ResetError, type ResolveType, type ResultEntry, type Schema, type SchemaArgs, type SchemaClass, type SetAction, type SetResponseAction, type SetResponseActionBase, type SetResponseActionError, type SetResponseActionSuccess, type State, type SubscribeAction, SubscriptionManager, type UnknownError, type UnsubscribeAction, type UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, index_d as actions, applyManager, createReducer, initManager, initialState };

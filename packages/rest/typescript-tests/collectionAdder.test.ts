@@ -208,6 +208,9 @@ export function adderSchema() {
   );
   // @ts-expect-error not a Todo field
   ctrl.set(push, { userId: 1 }, { id: 5, titel: 'a' });
+  // adders have no previous value, so an updater function would never run
+  // @ts-expect-error
+  ctrl.set(push, { userId: 1 }, (prev: any) => prev);
   // a Collection made directly has adders too
   ctrl.set(new Collection([Todo]).push, { id: 5, title: 'a' });
   // Values Collections have no push or unshift

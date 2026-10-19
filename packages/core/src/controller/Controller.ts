@@ -38,7 +38,8 @@ import {
   createSetResponse,
 } from './actions/index.js';
 import ensurePojo from './ensurePojo.js';
-import type { ControllerFetch, EndpointUpdateFunction } from './types.js';
+import type { ControllerFetch } from './fetchTypes.js';
+import type { EndpointUpdateFunction } from './types.js';
 import { ReduxMiddlewareAPI } from '../manager/applyManager.js';
 import type { GCInterface } from '../state/GCPolicy.js';
 import { ImmortalGCPolicy } from '../state/GCPolicy.js';
@@ -230,7 +231,10 @@ export default class Controller<
     ...rest: readonly [
       ...SchemaArgs<S>,
       SkipInfer<
-        SetValue<S> | ((previousValue: Denormalize<S>) => SetValue<S>),
+        | SetValue<S>
+        // adders (Collection.push) have no previous value to update
+        | (S extends { _denormalizeList(): any } ? never
+          : (previousValue: Denormalize<S>) => SetValue<S>),
         S
       >,
     ]

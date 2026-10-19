@@ -483,6 +483,7 @@ type ResultEntry<E extends EndpointInterface$1> = E['schema'] extends undefined 
 type EndpointUpdateFunction<Source extends EndpointInterface$1, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source>, ...args: any) => {
     [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
 };
+
 /** Args ending in a list body: (body) or (params, body), like RestEndpoint's.
  * Fixed lengths since TS < 4.2 has no leading-rest tuples */
 type ListBodyArgs = readonly [readonly any[]] | readonly [any, readonly any[]];
@@ -800,7 +801,9 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     set<S extends Queryable$1>(schema: S, ...rest: readonly [
         ...SchemaArgs$1<S>,
-        SkipInfer<SetValue$1<S> | ((previousValue: Denormalize$1<S>) => SetValue$1<S>), S>
+        SkipInfer<SetValue$1<S> | (S extends {
+            _denormalizeList(): any;
+        } ? never : (previousValue: Denormalize$1<S>) => SetValue$1<S>), S>
     ]): Promise<void>;
     /**
      * Sets every row of an Array or Values of one Entity (or Union) in one normalize,
