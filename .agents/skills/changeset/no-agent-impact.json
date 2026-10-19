@@ -1,4 +1,5 @@
 {
   "drop-typescript-3": "Agents don't install or keep TypeScript 3.x, so no realistic task hits the old behavior.",
-  "test-mock-reexports": "Agent-written test code and imports are the same before and after; only install-time peer resolution changes, for projects pinned to @data-client/react 0.15.2 or older."
+  "test-mock-reexports": "Agent-written test code and imports are the same before and after; only install-time peer resolution changes, for projects pinned to @data-client/react 0.15.2 or older.",
+  "codemods-package": "New package at its first release (minor takes it from 0.0.0 to 0.1.0); nothing existing changes behavior, so there is no old habit to fail on."
 }

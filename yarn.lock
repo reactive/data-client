@@ -5100,6 +5100,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@data-client/codemods@workspace:packages/codemods":
+  version: 0.0.0-use.local
+  resolution: "@data-client/codemods@workspace:packages/codemods"
+  dependencies:
+    jscodeshift: "npm:^17.3.0"
+  bin:
+    data-client-codemods: ./src/cli.js
+  languageName: unknown
+  linkType: soft
+
 "@data-client/core@workspace:*, @data-client/core@workspace:^, @data-client/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@data-client/core@workspace:packages/core"
@@ -29102,7 +29112,6 @@ __metadata:
     globals: "npm:^16.0.0"
     jest: "npm:^30.0.0"
     jest-environment-jsdom: "npm:^30.0.0"
-    jscodeshift: "npm:^17.3.0"
     mkdirp: "npm:^3.0.0"
     nock: "npm:13.3.1"
     npm-run-all: "npm:^4.1.5"
