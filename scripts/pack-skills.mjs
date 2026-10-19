@@ -58,7 +58,8 @@ if (process.argv.includes('--check')) {
   const { name, bin } = JSON.parse(fs.readFileSync('package.json', 'utf8'));
   // no package every repo installs: core reaches no endpoint-only repo, and
   // endpoint no app, so each package with the command ships its own copy
-  if (bin?.['data-client-skills']) {
+  const command = !!bin?.['data-client-skills'];
+  if (command) {
     fs.rmSync('agents', { recursive: true, force: true });
     fs.cpSync(AGENTS, 'agents', {
       recursive: true,
@@ -66,7 +67,7 @@ if (process.argv.includes('--check')) {
     });
   }
   fs.rmSync('skills', { recursive: true, force: true });
-  if (!bin && !owners[name]) throw new Error(`No skills listed for ${name}`);
+  if (!command && !owners[name]) throw new Error(`No skills listed for ${name}`);
   for (const skill of owners[name] ?? [])
     fs.cpSync(path.join(SKILLS, skill), path.join('skills', skill), {
       recursive: true,
