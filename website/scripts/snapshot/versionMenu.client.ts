@@ -43,17 +43,18 @@ function here() {
   };
 }
 
-// Whether a url answers, cached for the page's life. A failed or slow
-// request (a dev server, a deploy without vercel.json's CORS header, a host
-// that stalls) counts as found, so the menu keeps the page's link as it did
-// before checking, and a click waiting on it isn't held for long.
+// Whether a url isn't a 404, cached for the page's life. Any other status,
+// or a failed or slow request (a dev server, a deploy without vercel.json's
+// CORS header, a host that stalls), counts as found, so the menu keeps the
+// page's link as it did before checking, and a click waiting on it isn't
+// held for long.
 const found = new Map<string, Promise<boolean>>();
 function exists(url: string) {
   let res = found.get(url);
   if (!res) {
     res = Promise.race([
       fetch(url, { method: 'HEAD' }).then(
-        r => r.ok,
+        r => r.status !== 404,
         () => true,
       ),
       new Promise<boolean>(resolve => setTimeout(resolve, 1500, true)),
