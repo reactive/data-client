@@ -4,10 +4,8 @@
 // describe; `data-client-skills` links them into a project's .agents/skills,
 // and TanStack Intent finds them there too.
 // Each skill ships once, in a package every app that needs it installs
-// (.agents/skill-packages.json).
-//
-// Also copies the `data-client-skills` code into each package that has the
-// command.
+// (.agents/skill-packages.json). Packages with the `data-client-skills`
+// command also get its code.
 //
 // Usage (from a package's prepack): node ../../scripts/pack-skills.mjs
 //        node scripts/pack-skills.mjs --check   (every library skill ships once and exists, and the command copies match)
@@ -17,7 +15,6 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SKILLS = path.join(root, '.agents/skills');
-// `data-client-skills`, which each package with the command copies
 const AGENTS = path.join(root, 'packages/core/agents');
 const BIN = 'bin/data-client-skills.mjs';
 

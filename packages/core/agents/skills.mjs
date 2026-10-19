@@ -9,6 +9,7 @@ import path from 'node:path';
 
 import {
   isLink,
+  lstat,
   nodeModulesPackages,
   posix,
   readJSON,
@@ -43,20 +44,23 @@ export function syncSkills(projectDir) {
     dir: dirs && posix(path.relative(projectDir, dirs.dest)),
   };
   if (!dirs) return result;
-  const { dest, other, mirror } = dirs;
+  const { dest, other } = dirs;
   const extracted = fs.mkdtempSync(path.join(os.tmpdir(), 'data-client-'));
   try {
     const { want, copy } = wantedSkills(projectDir, dest, extracted, result);
     if (!want.size && !fs.existsSync(dest)) return result;
     fs.mkdirSync(dest, { recursive: true });
-    // let the agents that read the other folder see it too
-    if (!fs.lstatSync(other, { throwIfNoEntry: false })) {
+    // let the agents that read the other folder see it too: link the folder
+    // when there is none, or each skill into a real one (the skills CLI
+    // layout)
+    const otherStat = lstat(other);
+    if (!otherStat) {
       fs.mkdirSync(path.dirname(other), { recursive: true });
       const target = posix(path.relative(path.dirname(other), dest));
       link(target, other, result);
     }
     syncDir(dest, want, copy, result);
-    if (mirror) mirrorLinks(dest, mirror, result);
+    if (otherStat?.isDirectory()) mirrorLinks(dest, other, result);
     return result;
   } finally {
     fs.rmSync(extracted, { recursive: true, force: true });
@@ -64,8 +68,8 @@ export function syncSkills(projectDir) {
 }
 
 /**
- * Where the links go (`dest`), the folder to link to it (`other`) when
- * missing, and a folder to link each skill into (`mirror`). Codex reads
+ * Where the links go (`dest`) and the other folder agents read (`other`),
+ * which syncSkills links to it or mirrors it into. Codex reads
  * .agents/skills, Claude Code reads .claude/skills and Cursor reads both, so
  * a new project gets .agents/skills with .claude/skills linking to it. When
  * both are real folders, as the skills CLI makes them, the skills go in
@@ -78,16 +82,16 @@ function skillsDirs(projectDir) {
   const claude = path.join(projectDir, '.claude', 'skills');
   const shared = path.join(projectDir, '.agents', 'skills');
   if ([path.dirname(shared), path.dirname(claude)].some(isLink)) return;
-  const stat = fs.lstatSync(claude, { throwIfNoEntry: false });
+  const stat = lstat(claude);
   if (stat?.isDirectory()) {
-    const sharedStat = fs.lstatSync(shared, { throwIfNoEntry: false });
+    const sharedStat = lstat(shared);
     // .claude/skills links into .agents/skills even after someone deleted it
     // (the junction warning says to): recreate it rather than link it to
     // .claude/skills, which would make those links circular
     return (
         sharedStat?.isDirectory() || (!sharedStat && linksInto(claude, shared))
       ) ?
-        { dest: shared, other: claude, mirror: claude }
+        { dest: shared, other: claude }
       : { dest: claude, other: shared };
   }
   if (isLink(shared)) return;
@@ -134,9 +138,7 @@ function syncDir(dest, want, copy, result) {
     const wanted = want.get(entry.name);
     if (
       wanted &&
-      (current === wanted.id ||
-        // a junction (see link) holds the absolute path instead
-        current === posix(junctionForm(wanted.dir)))
+      (current === wanted.id || holdsJunction(current, wanted.dir))
     ) {
       want.delete(entry.name);
       continue;
@@ -168,7 +170,7 @@ function mirrorLinks(dest, mirror, result) {
   for (const entry of fs.readdirSync(dest, { withFileTypes: true })) {
     const file = path.join(mirror, entry.name);
     if (owned(path.join(dest, entry.name), entry) === undefined) continue;
-    if (fs.lstatSync(file, { throwIfNoEntry: false })) continue;
+    if (lstat(file)) continue;
     link(
       posix(path.relative(mirror, path.join(dest, entry.name))),
       file,
@@ -235,11 +237,11 @@ function owned(file, entry) {
 function stablePath(dir, pkg, found, dest) {
   const relative = from => posix(path.relative(dest, from));
   // Windows resolves `..` before following links, so it gets the store path
-  if (!dir.split(path.sep).includes('.pnpm') || process.platform === 'win32')
-    return relative(dir);
+  const inStore = d => d.split(path.sep).includes('.pnpm');
+  if (!inStore(dir) || process.platform === 'win32') return relative(dir);
   const parent = path.dirname(fs.realpathSync(dir));
   for (const direct of found) {
-    if (direct.dir.split(path.sep).includes('.pnpm')) continue;
+    if (inStore(direct.dir)) continue;
     if (path.dirname(fs.realpathSync(direct.dir)) === parent)
       return `${relative(direct.dir)}/../${pkg.split('/')[1]}`;
   }
@@ -279,9 +281,13 @@ const linkTarget = file =>
 
 /** Whether `target` (where a link leads) names `dir`, as a symlink or a junction holds it */
 function names(target, dir) {
-  if (target === path.resolve(dir)) return true;
+  return target === path.resolve(dir) || holdsJunction(target, dir);
+}
+
+/** Whether `target` is what a junction to `dir` holds (see link); `dir`'s parent may be gone */
+function holdsJunction(target, dir) {
   try {
-    return target === junctionForm(dir);
+    return posix(target) === posix(junctionForm(dir));
   } catch {
     return false;
   }

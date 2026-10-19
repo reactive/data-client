@@ -179,8 +179,11 @@ export const escapes = file => segments(file).includes('..');
 /** A path with Windows separators turned into the `/` links and globs use */
 export const posix = file => file.replaceAll('\\', '/');
 
+/** The file's own stats, not its link target's, or undefined when missing */
+export const lstat = file => fs.lstatSync(file, { throwIfNoEntry: false });
+
 export function isLink(file) {
-  return !!fs.lstatSync(file, { throwIfNoEntry: false })?.isSymbolicLink();
+  return !!lstat(file)?.isSymbolicLink();
 }
 
 export function readJSON(file) {

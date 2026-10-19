@@ -50,13 +50,13 @@ function runtimeState(root) {
   const data = path.join(root, '.pnp.data.json');
   if (fs.existsSync(data)) return readJSON(data);
   const text = fs.readFileSync(path.join(root, '.pnp.cjs'), 'utf8');
-  // most PnP projects don't use Data Client; skip parsing their map
-  if (!text.includes('"@data-client/')) return { packageRegistryData: [] };
-  // the literal ends at the first `';` closing a line: every line break
-  // inside it is escaped. A per-character match overflows the regex stack
-  // on large maps.
-  const literal = /RAW_RUNTIME_STATE\s*=\s*'([\s\S]*?)';\r?\n/.exec(text)?.[1];
-  // older Yarn majors inline the map differently
+  // Most PnP projects don't use Data Client, so skip parsing their map. The
+  // literal ends at the first `';` closing a line: every line break inside it
+  // is escaped (a per-character match overflows the regex stack on large
+  // maps). Older Yarn majors inline the map differently.
+  const literal =
+    text.includes('"@data-client/') &&
+    /RAW_RUNTIME_STATE\s*=\s*'([\s\S]*?)';\r?\n/.exec(text)?.[1];
   if (!literal) return { packageRegistryData: [] };
   // undo the string escapes; a backslash before a line break continues it
   return JSON.parse(

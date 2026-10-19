@@ -99,6 +99,16 @@ function pnpProject(packages, files = {}) {
   return { dir, ran: () => fs.existsSync(path.join(dir, sentinel)) };
 }
 
+/** `real` reached through a linked folder, as junctions see it on Windows */
+function aliased(real) {
+  const dir = path.join(
+    fs.mkdtempSync(path.join(os.tmpdir(), 'dc-alias-')),
+    'app',
+  );
+  fs.symlinkSync(real, dir, 'dir');
+  return dir;
+}
+
 /** A Yarn PnP project whose zipped @data-client/react ships `files` */
 function zippedReact(version, files, method = 0) {
   const inZip = 'node_modules/@data-client/react/';
@@ -336,11 +346,7 @@ test('the skills CLI layout recreates .agents/skills after it was deleted', () =
 test('recreates .agents/skills when junctions in .claude/skills lead through a linked parent', () => {
   const real = hoisted();
   // the project as reached through a linked folder; junctions hold real paths
-  const dir = path.join(
-    fs.mkdtempSync(path.join(os.tmpdir(), 'dc-alias-')),
-    'app',
-  );
-  fs.symlinkSync(real, dir, 'dir');
+  const dir = aliased(real);
   fs.mkdirSync(skillsDir(dir), { recursive: true });
   fs.mkdirSync(path.join(dir, '.agents'));
   fs.symlinkSync(
@@ -410,11 +416,7 @@ test('syncs .agents/skills when git checked .claude/skills out as a file', () =>
 test('accepts a .claude/skills link with an absolute target, like a junction', () => {
   const real = hoisted();
   // reached through a linked parent, so the target string differs
-  const dir = path.join(
-    fs.mkdtempSync(path.join(os.tmpdir(), 'dc-alias-')),
-    'app',
-  );
-  fs.symlinkSync(real, dir);
+  const dir = aliased(real);
   fs.mkdirSync(path.join(real, '.agents/skills'), { recursive: true });
   fs.mkdirSync(path.join(real, '.claude'));
   fs.symlinkSync(
@@ -656,6 +658,22 @@ test('Yarn PnP copies unplugged packages too', () => {
   const { dir } = pnpProject([['@data-client/react', `./${unplugged}/`]], {
     ...pkg(unplugged, '@data-client/react', '0.19.0', ['data-client-react']),
   });
+  syncSkills(dir);
+  assert.match(skillText(dir, 'data-client-react'), /data-client-react skill/);
+});
+
+test('Yarn PnP reads large install maps', () => {
+  const unplugged = '.yarn/unplugged/react/node_modules/@data-client/react';
+  // a big monorepo's map, past where a per-character regex overflows
+  const others = Array.from({ length: 80000 }, (_, i) => [
+    `other-package-${i}`,
+    `./.yarn/cache/other-package-${i}.zip/node_modules/other-package-${i}/`,
+  ]);
+  const { dir } = pnpProject(
+    [['@data-client/react', `./${unplugged}/`], ...others],
+    pkg(unplugged, '@data-client/react', '0.19.0', ['data-client-react']),
+  );
+  assert.ok(fs.statSync(path.join(dir, '.pnp.cjs')).size > 9e6);
   syncSkills(dir);
   assert.match(skillText(dir, 'data-client-react'), /data-client-react skill/);
 });
