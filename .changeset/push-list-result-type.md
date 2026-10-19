@@ -25,7 +25,10 @@ The deprecated `resource().create` keeps typing its result as one item; use `get
 [ctrl.set()](https://dataclient.io/docs/api/Controller#set) with [Collection.push](https://dataclient.io/rest/api/Collection#push) or `unshift` now takes the Collection's args, which pick the lists it adds to. Before, it took the Entity's fields, so args that matched no list compiled and silently added nothing.
 
 ```ts
-const TodoResource = resource({ path: '/groups/:group/todos/:id', schema: Todo });
+const TodoResource = resource({
+  path: '/groups/:group/todos/:id',
+  schema: Todo,
+});
 
 // Before: TypeScript error, though this adds the todo to group five's lists
 // After: compiles
