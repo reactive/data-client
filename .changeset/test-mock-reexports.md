@@ -4,8 +4,8 @@
 
 BREAKING: `@data-client/test` requires `@data-client/react` 0.15 or later
 
-Support for `@data-client/react` 0.12 through 0.14 is dropped. Upgrade `@data-client/react` along with
-`@data-client/test`.
+Support for `@data-client/react` 0.12 through 0.14 is dropped, since `@data-client/test` imports
+`@data-client/react/mock`, which first shipped in 0.15. Upgrade `@data-client/react` along with `@data-client/test`.
 
 ```diff title="package.json"
 - "@data-client/react": "^0.14.0",
