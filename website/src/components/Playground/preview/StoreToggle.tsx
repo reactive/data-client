@@ -17,7 +17,7 @@ let clicked: HTMLElement | undefined;
  * on screen as the Stores it closed slide out and leave the layout */
 export const heldToggle = () => (clicked?.isConnected ? clicked : undefined);
 /** Keeps `heldToggle` in place on screen through this component's next render */
-export function useHoldToggle() {
+export function useKeepToggleInPlace() {
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
   return useCallback(() => {
@@ -36,15 +36,15 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   const [shown, show] = useState<boolean | null>(null);
   const open =
     shown ?? (choice === 'y' || choice === 'n' ? choice : defaultOpen) === 'y';
-  const holdToggle = useHoldToggle();
+  const keepToggleInPlace = useKeepToggleInPlace();
   const toggle = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
       clicked = event.currentTarget;
-      holdToggle();
+      keepToggleInPlace();
       setChoice(open ? 'n' : 'y');
       show(null);
     },
-    [holdToggle, open, setChoice],
+    [keepToggleInPlace, open, setChoice],
   );
   // a demo's open or close is no reader's click: forget the last one, so it
   // doesn't pin a toggle the reader clicked earlier
