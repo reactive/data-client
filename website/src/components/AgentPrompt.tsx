@@ -32,19 +32,12 @@ export default function AgentPrompt({ prompt, title, framed }: Props) {
     { framework },
   );
   const tipId = useId();
-  const [copied, showCopied] = useTapped(FEEDBACK_MS);
-  // touch screens can't hover: a tap shows the tooltip for a moment instead
-  const [tapped, tap, untap] = useTapped(FEEDBACK_MS);
+  // also shows the tooltip, since touch screens can't hover
+  const [copied, showCopied, hideCopied] = useTapped(FEEDBACK_MS);
   const copy = useCallback(() => {
     // no clipboard (insecure context) or a denied write leaves the chip as it was
-    navigator.clipboard?.writeText(prompt).then(
-      () => {
-        showCopied();
-        tap();
-      },
-      () => undefined,
-    );
-  }, [prompt, showCopied, tap]);
+    navigator.clipboard?.writeText(prompt).then(showCopied, () => undefined);
+  }, [prompt, showCopied]);
 
   const header =
     title ?
@@ -85,15 +78,10 @@ export default function AgentPrompt({ prompt, title, framed }: Props) {
     <div className={clsx(styles.agentPrompt, framed && styles.framed)}>
       <button
         type="button"
-        className={clsx(
-          'clean-btn',
-          styles.prompt,
-          copied && styles.copied,
-          tapped && styles.tapped,
-        )}
+        className={clsx('clean-btn', styles.prompt, copied && styles.copied)}
         aria-describedby={tipId}
         onClick={copy}
-        onBlur={untap}
+        onBlur={hideCopied}
       >
         <SparklesIcon className={styles.spark} />
         {framed && <span className={styles.label}>{header}</span>}

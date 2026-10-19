@@ -1,5 +1,7 @@
 import React, { useCallback, useReducer } from 'react';
 
+import { metaFlag, metaValue } from '../../../utils/fenceMeta';
+
 export interface CodeDocument {
   value: string;
   path: string;
@@ -24,22 +26,6 @@ export interface CodeDocument {
 export interface CodeModel {
   documents: readonly CodeDocument[];
   update: (index: number, value: string) => void;
-}
-
-/** `key="value"`, `key='value'` or bare `key=value` from a fence metastring */
-function metaValue(metastring: string, key: string): string | undefined {
-  return new RegExp(`\\b${key}=(?:(["'])(.*?)\\1|([^\\s"']+))`)
-    .exec(metastring)
-    ?.slice(2)
-    .find(value => value !== undefined);
-}
-
-/** A bare `key` flag in a fence metastring, not the word inside another
- * key's value like `title="Page layout"` or `path=src/layout.tsx` */
-export function metaFlag(metastring: string, key: string): boolean {
-  return new RegExp(`(?:^|\\s)${key}(?=\\s|$)`).test(
-    metastring.replace(/\w+=(?:(["']).*?\1|\S+)/g, ''),
-  );
 }
 
 export function parseCodeDocuments(

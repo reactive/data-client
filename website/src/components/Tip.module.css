@@ -1,5 +1,5 @@
-/* a tooltip bubble above its target, hidden until the target shows it with
- * `.shown` rules of its own (hover, keyboard focus or touch tap). Place it
+/* a tooltip bubble above its target, hidden until the target's own hover,
+ * keyboard focus or touch tap rules set `opacity: 1; translate: none`. Place it
  * with `left`, and `--tip-x` to shift it, like -50% to center on `left: 50%` */
 .tip {
   position: absolute;

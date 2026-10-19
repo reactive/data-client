@@ -154,7 +154,7 @@
 }
 
 .prompt:focus-visible + .tip,
-.tapped + .tip {
+.copied + .tip {
   opacity: 1;
   translate: none;
 }

@@ -9,7 +9,7 @@ import React from 'react';
 
 import { SHELLS } from './shells';
 import AgentPrompt from '../../components/AgentPrompt';
-import { metaFlag } from '../../components/Playground/editor/codeModel';
+import { metaFlag } from '../../utils/fenceMeta';
 
 /** ```prompt fences are typed into a coding agent's chat, not a terminal, so
  * they render as the agent prompt chip (shell blocks: ./Layout).
