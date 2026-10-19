@@ -5,6 +5,7 @@ import React, { useId, useRef, useState } from 'react';
 import splitAtHeadings from './splitAtHeadings';
 import styles from './styles.module.css';
 import StoreIcon from '../Playground/StoreIcon';
+import tipStyles from '../tips.module.css';
 import useTips from '../useTips';
 
 const ZONES = ['fresh', 'stale', 'invalid'] as const;
@@ -351,10 +352,10 @@ function Tip({
     return touch;
   };
   return (
-    <span {...tips.anchor(index, clsx(styles.note, align))}>
+    <span {...tips.anchor(index, styles.note, align)}>
       {children(control, tapped)}
       <span className={styles.tip} id={id}>
-        <span className={styles.bubble}>
+        <span className={tipStyles.bubble}>
           {tip}{' '}
           <a href={href}>
             {translate({

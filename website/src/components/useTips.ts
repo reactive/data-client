@@ -1,4 +1,4 @@
-import clsx from 'clsx';
+import clsx, { type ClassValue } from 'clsx';
 import { useEffect, useState } from 'react';
 
 import styles from './tips.module.css';
@@ -50,7 +50,7 @@ export default function useTips<K>() {
     setOpen,
     toggle: (key: K) => setOpen(current => (current === key ? null : key)),
     /** props for the element holding a tip and what it explains */
-    anchor: (key: K, className?: string) => ({
+    anchor: (key: K, ...className: ClassValue[]) => ({
       className: clsx(styles.anchor, dismissed && styles.dismissed, className),
       'data-open': open === key || undefined,
       onPointerEnter: revive,

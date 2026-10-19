@@ -201,10 +201,7 @@
 .right .tip {
   right: 0;
 }
-.bubble {
-  composes: bubble from '../tips.module.css';
-}
-.bubble a {
+.tip a {
   white-space: nowrap;
 }
 

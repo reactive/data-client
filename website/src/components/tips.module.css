@@ -27,10 +27,9 @@
   box-shadow: var(--ifm-global-shadow-md);
 }
 /* shown on keyboard focus (of the anchor, its control or a link in the tip),
-   or pinned by a tap */
-.anchor:focus-visible > .tip,
-.anchor:has(:focus-visible) > .tip,
-.anchor[data-open] > .tip {
+   or pinned by a tap; a tip with nothing to click sets --tip-pointer-events:
+   none so what it covers stays hoverable */
+.anchor:is(:focus-visible, :has(:focus-visible), [data-open]) > .tip {
   opacity: 1;
   transform: translateY(0);
   pointer-events: var(--tip-pointer-events, auto);

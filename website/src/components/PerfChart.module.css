@@ -41,7 +41,6 @@
   left: 50%;
   translate: -50%;
   white-space: nowrap;
-  /* nothing to click in it, so the row it covers stays hoverable */
   --tip-pointer-events: none;
 }
 
