@@ -1,4 +1,4 @@
 {
   "drop-typescript-3": "Agents don't install or keep TypeScript 3.x, so no realistic task hits the old behavior.",
-  "test-mock-reexports": "Agent-written test code and imports are the same before and after; only install-time peer resolution changes, for projects pinned to @data-client/react 0.14 or older."
+  "test-mock-reexports": "Agent-written test code and imports are the same before and after; only install-time peer resolution changes, for projects pinned to @data-client/react 0.15.2 or older."
 }
