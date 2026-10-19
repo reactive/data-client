@@ -55,14 +55,16 @@ it('holds the clicked toggle through the commit that adds the tree', async () =>
   const { container } = render(<Playground defaultOpen="n" />);
   const toggle = await openStore(container);
   // once for the click, once for the tree a frame later
-  expect(blocked).toEqual([toggle, toggle]);
+  expect(blocked).toHaveLength(2);
+  blocked.forEach(held => expect(held).toBe(toggle));
 });
 
 it('holds the toggle once for every Store it opened', async () => {
   const { container } = render(<Playground defaultOpen="n" stores={3} />);
   const toggle = await openStore(container);
   expect(screen.getAllByTestId('tree')).toHaveLength(3);
-  expect(blocked).toEqual([toggle, toggle]);
+  expect(blocked).toHaveLength(2);
+  blocked.forEach(held => expect(held).toBe(toggle));
 });
 
 it('holds nothing for a Store that mounts open', async () => {
