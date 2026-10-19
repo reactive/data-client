@@ -22,11 +22,11 @@ import SkillTabs from '@site/src/components/SkillTabs';
 First install Data Client's [skills](./agent-skills.md) for your coding agent. Without them, agents get
 the basics right but miss the rest, like real-time managers and test fixtures.
 
-<SkillTabs intent={false} />
+<SkillTabs intent={false} framed />
 
 Then tell your agent:
 
-<AgentPrompt />
+<AgentPrompt framed />
 
 </SiteOnly>
 

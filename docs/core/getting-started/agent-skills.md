@@ -12,10 +12,16 @@ Agents get the basics right from the package name alone. [Skills](https://agents
 APIs for the rest, like test fixtures and real-time managers. Install skill
 [/data-client-setup](https://skills.sh/reactive/data-client/data-client-setup):
 
-<SkillTabs skill="data-client-setup" />
+<SkillTabs skill="data-client-setup" framed />
 
-Then run skill `/data-client-setup`. It detects your framework and API style (REST, GraphQL,
-custom), installs the matching skills below, wires up the provider, and migrates existing endpoints.
+Then run it in your agent's chat:
+
+```prompt framed
+/data-client-setup
+```
+
+It detects your framework and API style (REST, GraphQL, custom), installs the matching skills below, wires up the
+provider, and migrates existing endpoints.
 
 ### Install all skills up front
 

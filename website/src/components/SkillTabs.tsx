@@ -17,6 +17,8 @@ interface Props {
   plugin?: string;
   /** false leaves out TanStack Intent, which needs the packages installed first */
   intent?: boolean;
+  /** headers on the commands, where the page has room (```bash framed) */
+  framed?: boolean;
 }
 
 export default function SkillTabs({
@@ -25,8 +27,10 @@ export default function SkillTabs({
   skills,
   plugin,
   intent,
+  framed,
 }: Props) {
   const framework = useFramework();
+  const metastring = framed ? 'framed' : undefined;
   const commands = skillCommands(
     { repo, skill, skills, plugin, intent, framework },
     marketplace,
@@ -47,18 +51,26 @@ export default function SkillTabs({
       ]}
     >
       <TabItem value="claude">
-        <CodeBlock className="language-bash">{commands.claude}</CodeBlock>
+        <CodeBlock className="language-bash" metastring={metastring}>
+          {commands.claude}
+        </CodeBlock>
       </TabItem>
       {commands.intent && (
         <TabItem value="intent">
-          <CodeBlock className="language-bash">{commands.intent}</CodeBlock>
+          <CodeBlock className="language-bash" metastring={metastring}>
+            {commands.intent}
+          </CodeBlock>
         </TabItem>
       )}
       <TabItem value="skills">
-        <CodeBlock className="language-bash">{commands.skillsCli}</CodeBlock>
+        <CodeBlock className="language-bash" metastring={metastring}>
+          {commands.skillsCli}
+        </CodeBlock>
       </TabItem>
       <TabItem value="openskills">
-        <CodeBlock className="language-bash">{commands.openSkills}</CodeBlock>
+        <CodeBlock className="language-bash" metastring={metastring}>
+          {commands.openSkills}
+        </CodeBlock>
       </TabItem>
     </Tabs>
   );
