@@ -24,7 +24,9 @@ const loadVersions = (): Promise<SiteVersion[]> =>
     }));
 
 /**
- * page: this page's path, locale, query and hash, to add to any version's url
+ * page: this page's path and locale, to add to any version's url
+ * homes: where it falls back to in a version without it (missingPageHome):
+ *   its section's home (like /docs), in this locale, then in the default one
  * site: this site's url in the list (production's root, /next or an archive's)
  */
 function here() {
@@ -32,10 +34,45 @@ function here() {
   const lang = document.documentElement.lang;
   const locale = lang && baseUrl.endsWith(`/${lang}/`) ? `${lang}/` : '';
   const base = baseUrl.slice(0, baseUrl.length - locale.length);
+  const path = location.pathname.slice(baseUrl.length);
+  const section = path.split('/')[0];
   return {
-    page: `/${locale}${location.pathname.slice(baseUrl.length)}${location.search}${location.hash}`,
+    page: `/${locale}${path}`,
+    homes: [...new Set([`/${locale}${section}`, `/${section}`])],
     site: `${location.origin}${base}`.replace(/\/$/, ''),
   };
+}
+
+// Whether a url answers, cached for the page's life. A failed request (a
+// dev server, or a deploy without vercel.json's CORS header) counts as found,
+// so the menu keeps the page's link as it did before checking.
+const found = new Map<string, Promise<boolean>>();
+function exists(url: string) {
+  let res = found.get(url);
+  if (!res) {
+    res = fetch(url, { method: 'HEAD' }).then(
+      r => r.ok,
+      () => true,
+    );
+    found.set(url, res);
+  }
+  return res;
+}
+
+/**
+ * Where another version's copy of this page lives when it 404s there (a page
+ * added, moved or removed between versions, or a locale an archive never
+ * built): the first of homes it has, else its root. Like Docusaurus's own
+ * version dropdown, which falls back to a version's docs home. Resolves
+ * undefined when the page exists.
+ */
+async function missingPageHome(url: string, page: string, homes: string[]) {
+  // every candidate at once, so a missing page costs one round trip
+  const [hasPage, ...hasHome] = await Promise.all(
+    [page, ...homes].map(path => exists(url + path)),
+  );
+  if (hasPage) return;
+  return homes.find((_, i) => hasHome[i]) ?? '/';
 }
 
 // var() fallbacks: archives freeze this with an old release's Infima
@@ -139,6 +176,12 @@ const STYLE = `
 [data-theme=dark] .version-menu__note[data-note="latest"] {
   background: color-mix(in srgb, var(--ifm-color-primary) 24%, transparent);
   color: var(--ifm-color-primary-lightest, var(--ifm-color-primary));
+}
+.version-menu__home {
+  margin-left: auto;
+  color: var(--ifm-color-emphasis-600);
+  font-size: 0.75rem;
+  font-weight: 400;
 }
 .version-menu__foot {
   margin: 0.3125rem -0.3125rem -0.3125rem;
@@ -251,15 +294,15 @@ async function open(from: HTMLElement, focusFirst = false) {
   const { bottom } = (
     brand.closest('.navbar-sidebar__brand, .navbar') ?? brand
   ).getBoundingClientRect();
-  const { page, site } = here();
+  const { page, homes, site } = here();
+  const rest = `${location.search}${location.hash}`;
   listEl?.replaceChildren(
     ...list.map(v => {
       const item = document.createElement('a');
       item.className = 'version-menu__item';
       item.setAttribute('role', 'menuitem');
-      item.href = `${v.url}${page}`;
+      item.href = `${v.url}${page}${rest}`;
       item.textContent = v.label;
-      if (v.url === site) item.setAttribute('aria-current', 'page');
       if (v.note) {
         const note = document.createElement('span');
         note.className = 'version-menu__note';
@@ -267,6 +310,8 @@ async function open(from: HTMLElement, focusFirst = false) {
         note.textContent = v.note;
         item.append(note);
       }
+      if (v.url === site) item.setAttribute('aria-current', 'page');
+      else checkPage(item, v, page, homes);
       return item;
     }),
   );
@@ -275,6 +320,31 @@ async function open(from: HTMLElement, focusFirst = false) {
   el.setAttribute('data-open', '');
   brand.setAttribute('aria-expanded', 'true');
   if (focusFirst) el.querySelector<HTMLElement>('[role=menuitem]')?.focus();
+}
+
+// Points item at its version's section home when this page 404s there, and
+// holds a plain click until the check answers
+function checkPage(
+  item: HTMLAnchorElement,
+  v: SiteVersion,
+  page: string,
+  homes: string[],
+) {
+  const checked = missingPageHome(v.url, page, homes).then(home => {
+    if (!home) return;
+    item.href = v.url + home;
+    item.title = `This page isn't in ${v.label}`;
+    const hint = document.createElement('span');
+    hint.className = 'version-menu__home';
+    hint.textContent = `→ ${home}`;
+    item.append(hint);
+  });
+  item.addEventListener('click', e => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+      return;
+    e.preventDefault();
+    checked.then(() => location.assign(item.href));
+  });
 }
 
 function close() {
