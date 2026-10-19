@@ -57,10 +57,18 @@ starts this by cutting a `<version>.x` maintenance branch and adding `website/ve
   (the wrapper keeps the blog and every
   static file), cached by the branch's commit so master's deploys rebuild it only when the branch
   changes, and `docs deploy` puts it beside `/next/` and the archives. `vercel.json` sends `/next/*`
-  to the root whenever there is no next build (`docs deploy` drops that redirect while there is one,
-  and fails if it's gone), and `/next/blog` to the root's blog.
+  (except its `sw.js` paths, below) to the root whenever there is no next build (`docs deploy`
+  drops that redirect while there is one, and fails if it's gone), and `/next/blog` to the root's
+  blog.
 - `website-port.yml` opens a PR to the branch for each master push whose commits change only site
   code (`website/src`, `website/static`), so a UI fix reaches the root
   ([scripts/maintenance/README.md](../../../scripts/maintenance/README.md#website-fixes)).
 - The release of the next major archives the current version from its branch, and the listing PR
   deletes `versionCurrent.json`, so master serves the root again.
+
+An app installed from `/next/` (or opened with `?offlineMode=true`) registered a service worker at
+`/next/sw.js` (`/next/<locale>/sw.js` for a locale). A browser keeps a worker whose update fails, and
+a redirect fails it, so once `/next/*` redirects again that app would keep serving the frozen
+pre-release docs from its cache. So whenever there's no next build, `site-preview.yml` puts
+[`retiredSw.js`](retiredSw.js) at each of those paths, and the `/next` redirect leaves them out: the
+worker unregisters, deletes its caches and reloads its pages, which land on the root.
