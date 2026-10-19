@@ -53,21 +53,26 @@ it('holds the clicked toggle through the commit that adds the tree', async () =>
 });
 
 it('holds nothing for a Store that mounts open', async () => {
-  const { container, findByTestId, findAllByTestId, rerender } = render(
-    <Playground groupId="a" defaultOpen="n" />,
+  const page = (more: boolean) => (
+    <>
+      <Playground groupId="a" defaultOpen="n" />
+      {more ?
+        <Playground groupId="b" defaultOpen="y" />
+      : null}
+    </>
   );
+  const { container, findByTestId, findAllByTestId, rerender } = render(
+    page(false),
+  );
+  const toggle = container.querySelector<HTMLElement>('[data-store-toggle]')!;
   await act(async () => {
-    fireEvent.click(container.querySelector('[data-store-toggle]')!);
+    fireEvent.click(toggle);
   });
   await findByTestId('tree');
   blocked.length = 0;
   // the clicked toggle is still on the page as another Store mounts open
-  rerender(
-    <>
-      <Playground groupId="a" defaultOpen="n" />
-      <Playground groupId="b" defaultOpen="y" />
-    </>,
-  );
+  rerender(page(true));
   expect(await findAllByTestId('tree')).toHaveLength(2);
+  expect(toggle.isConnected).toBe(true);
   expect(blocked).toEqual([]);
 });
