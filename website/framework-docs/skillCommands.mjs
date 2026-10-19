@@ -15,7 +15,7 @@ const skillsDir = '.agents/skills';
  * @param {{ repo?: string, skill?: string, skills?: string[], plugin?: string, framework: string }} options
  *   with no skills, installs `plugin` (default: the framework's) with its dependencies
  * @param {Marketplace} marketplace `.claude-plugin/marketplace.json`
- * @returns {{ skills: string, openSkills: string, claude: string }}
+ * @returns {{ skillsCli: string, openSkills: string, claude: string }}
  */
 export default function skillCommands(
   { repo = 'reactive/data-client', skill, skills, plugin, framework },
@@ -43,7 +43,7 @@ export default function skillCommands(
   const claudePlugins =
     plugin ? [plugin] : [...new Set(allSkills.map(pluginOf))];
   return {
-    skills: [
+    skillsCli: [
       `npx skills add ${repo}`,
       ...allSkills.map(s => `--skill ${s}`),
     ].join(allSkills.length > 1 ? ' \\\n  ' : ' '),

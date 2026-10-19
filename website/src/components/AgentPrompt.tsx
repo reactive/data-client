@@ -39,7 +39,7 @@ export default function AgentPrompt() {
           setTapped(false);
         }, FEEDBACK_MS);
       },
-      () => setCopied(false),
+      () => undefined,
     );
   }, [prompt]);
 

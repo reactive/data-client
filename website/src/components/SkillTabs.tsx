@@ -49,7 +49,7 @@ export default function SkillTabs({
       ]}
     >
       <TabItem value="skills">
-        <CodeBlock className="language-bash">{commands.skills}</CodeBlock>
+        <CodeBlock className="language-bash">{commands.skillsCli}</CodeBlock>
       </TabItem>
       <TabItem value="openskills">
         <CodeBlock className="language-bash">{commands.openSkills}</CodeBlock>

@@ -405,8 +405,11 @@ function render(file, framework, props = {}, drop = DROP) {
         ];
       // the Skills CLI tab of website/src/components/SkillTabs.tsx
       case 'SkillTabs': {
-        const { skills } = skillCommands({ ...attrs, framework }, marketplace);
-        return [codeBlock({ lang: 'bash', value: skills })];
+        const { skillsCli } = skillCommands(
+          { ...attrs, framework },
+          marketplace,
+        );
+        return [codeBlock({ lang: 'bash', value: skillsCli })];
       }
       case 'PkgTabs':
       case 'PkgInstall':
