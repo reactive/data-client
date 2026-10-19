@@ -48,7 +48,8 @@ export function syncSkills(projectDir) {
     if (!fs.lstatSync(other, { throwIfNoEntry: false })) {
       fs.mkdirSync(path.dirname(other), { recursive: true });
       const target = posix(path.relative(path.dirname(other), dest));
-      result.junctions ||= link(target, dest, other);
+      result.junctions =
+        link(target, fs.realpathSync(dest), other) || result.junctions;
     }
     syncDir(dest, want, copy, result);
     if (mirror) mirrorLinks(dest, mirror, result);
@@ -126,27 +127,35 @@ function syncDir(dest, want, copy, result) {
     if (copy) {
       fs.cpSync(dir, file, { recursive: true });
       fs.writeFileSync(path.join(file, MARKER), id);
-    } else result.junctions ||= link(id, dir, file);
+    } else
+      result.junctions =
+        link(id, fs.realpathSync(dir), file) || result.junctions;
     result.added.push(skill);
   }
 }
 
 /**
  * Links each skill this made in `dest` into `mirror` (../../.agents/skills/<name>),
- * and drops those links for skills it removed
+ * and drops those links for skills it removed. Each points at the `dest`
+ * entry, not through it, so upgrades that relink that entry carry over.
  */
 function mirrorLinks(dest, mirror, result) {
+  // a junction (see link) holds the absolute path instead
+  const junction = skill => path.join(fs.realpathSync(dest), skill);
   for (const skill of result.removed) {
     const file = path.join(mirror, skill);
-    if (isLink(file) && posix(fs.readlinkSync(file)) === mirrored(skill))
+    if (!isLink(file)) continue;
+    const current = posix(fs.readlinkSync(file));
+    if (current === mirrored(skill) || current === posix(junction(skill)))
       fs.rmSync(file);
   }
   for (const entry of fs.readdirSync(dest, { withFileTypes: true })) {
-    const dir = path.join(dest, entry.name);
     const file = path.join(mirror, entry.name);
-    if (owned(dir, entry) === undefined) continue;
+    if (owned(path.join(dest, entry.name), entry) === undefined) continue;
     if (fs.lstatSync(file, { throwIfNoEntry: false })) continue;
-    result.junctions ||= link(mirrored(entry.name), dir, file);
+    result.junctions =
+      link(mirrored(entry.name), junction(entry.name), file) ||
+      result.junctions;
   }
 }
 
@@ -224,16 +233,18 @@ function stablePath(dir, pkg, found, dest) {
 const posix = file => file.replaceAll('\\', '/');
 const real = dir => posix(fs.realpathSync(dir));
 
-/** Returns true when it had to make a junction */
-function link(target, dir, file) {
+/**
+ * Links `file` to `target`, or to `absolute` with a junction where Windows
+ * denies symlinks but still allows junctions, which need an absolute target.
+ * Returns true when it had to make a junction.
+ */
+function link(target, absolute, file) {
   try {
     fs.symlinkSync(target, file, 'dir');
     return false;
   } catch (error) {
-    // Windows without symlink rights still allows junctions, which need an
-    // absolute target
     if (error.code !== 'EPERM') throw error;
-    fs.symlinkSync(fs.realpathSync(dir), file, 'junction');
+    fs.symlinkSync(absolute, file, 'junction');
     return true;
   }
 }

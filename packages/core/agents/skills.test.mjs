@@ -320,6 +320,41 @@ test('the skills CLI layout: .agents/skills with a link to each skill in .claude
   assert.equal(skillText(dir, 'data-client-setup'), 'from the CLI');
 });
 
+test('the skills CLI layout falls back to junctions that follow the .agents/skills entry', () => {
+  const dir = hoisted();
+  fs.mkdirSync(path.join(dir, '.agents/skills'), { recursive: true });
+  fs.mkdirSync(skillsDir(dir), { recursive: true });
+  // Windows without symlink rights: only junctions, with absolute targets
+  const symlink = fs.symlinkSync;
+  fs.symlinkSync = (target, file, type) => {
+    if (type !== 'junction')
+      throw Object.assign(new Error('denied'), { code: 'EPERM' });
+    symlink(target, file);
+  };
+  try {
+    assert.equal(syncSkills(dir).junctions, true);
+    const agents = fs.realpathSync(path.join(dir, '.agents/skills'));
+    // every skill, not just the first: a junction doesn't stop the rest
+    assert.deepEqual(Object.keys(links(dir)).sort(), [
+      'data-client-manager',
+      'data-client-react',
+      'data-client-rest',
+    ]);
+    assert.equal(
+      links(dir)['data-client-rest'],
+      path.join(agents, 'data-client-rest'),
+    );
+    fs.rmSync(path.join(dir, 'node_modules/@data-client/rest'), {
+      recursive: true,
+    });
+    assert.deepEqual(syncSkills(dir).removed, ['data-client-rest']);
+    assert.ok(!('data-client-rest' in links(dir)));
+    assert.deepEqual(syncSkills(dir).added, []);
+  } finally {
+    fs.symlinkSync = symlink;
+  }
+});
+
 test('syncs .agents/skills when a committed .claude/skills links to it', () => {
   const dir = hoisted();
   fs.mkdirSync(path.join(dir, '.agents/skills'), { recursive: true });
