@@ -290,6 +290,36 @@ test("never touches the user's own skills or links", () => {
   assert.deepEqual(Object.keys(links(dir)), ['other']);
 });
 
+test('the skills CLI layout: .agents/skills with a link to each skill in .claude/skills', () => {
+  const dir = hoisted();
+  // what `npx skills add` leaves
+  write(dir, { '.agents/skills/data-client-setup/SKILL.md': 'from the CLI' });
+  fs.mkdirSync(skillsDir(dir), { recursive: true });
+  fs.symlinkSync(
+    '../../.agents/skills/data-client-setup',
+    path.join(skillsDir(dir), 'data-client-setup'),
+  );
+  assert.equal(syncSkills(dir).dir, '.agents/skills');
+  assert.ok(
+    fs
+      .lstatSync(path.join(dir, '.agents/skills/data-client-react'))
+      .isSymbolicLink(),
+  );
+  assert.deepEqual(links(dir), {
+    'data-client-manager': '../../.agents/skills/data-client-manager',
+    'data-client-react': '../../.agents/skills/data-client-react',
+    'data-client-rest': '../../.agents/skills/data-client-rest',
+    'data-client-setup': '../../.agents/skills/data-client-setup',
+  });
+  assert.match(skillText(dir, 'data-client-react'), /data-client-react skill/);
+  fs.rmSync(path.join(dir, 'node_modules/@data-client/rest'), {
+    recursive: true,
+  });
+  assert.deepEqual(syncSkills(dir).removed, ['data-client-rest']);
+  assert.ok(!('data-client-rest' in links(dir)));
+  assert.equal(skillText(dir, 'data-client-setup'), 'from the CLI');
+});
+
 test('syncs .agents/skills when a committed .claude/skills links to it', () => {
   const dir = hoisted();
   fs.mkdirSync(path.join(dir, '.agents/skills'), { recursive: true });

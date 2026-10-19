@@ -38,7 +38,7 @@ export function syncSkills(projectDir) {
     dir: dirs && posix(path.relative(projectDir, dirs.dest)),
   };
   if (!dirs) return result;
-  const { dest, other } = dirs;
+  const { dest, other, mirror } = dirs;
   const extracted = fs.mkdtempSync(path.join(os.tmpdir(), 'data-client-'));
   try {
     const { want, copy } = wantedSkills(projectDir, dest, extracted, result);
@@ -51,6 +51,7 @@ export function syncSkills(projectDir) {
       result.junctions ||= link(target, dest, other);
     }
     syncDir(dest, want, copy, result);
+    if (mirror) mirrorLinks(dest, mirror, result);
     return result;
   } finally {
     fs.rmSync(extracted, { recursive: true, force: true });
@@ -58,20 +59,25 @@ export function syncSkills(projectDir) {
 }
 
 /**
- * Where the links go (`dest`), and the folder to link to it (`other`) when
- * missing. Codex reads .agents/skills, Claude Code reads .claude/skills and
- * Cursor reads both, so a new project gets .agents/skills with .claude/skills
- * linking to it. A project that already keeps its skills in a real
- * .claude/skills folder gets them there, with .agents/skills linking to it.
- * Undefined when a link would lead anywhere else: never write through a link
- * someone committed.
+ * Where the links go (`dest`), the folder to link to it (`other`) when
+ * missing, and a folder to link each skill into (`mirror`). Codex reads
+ * .agents/skills, Claude Code reads .claude/skills and Cursor reads both, so
+ * a new project gets .agents/skills with .claude/skills linking to it. When
+ * both are real folders, as the skills CLI makes them, the skills go in
+ * .agents/skills with a link to each in .claude/skills, as that CLI does. A
+ * project that keeps its skills only in a real .claude/skills folder gets them
+ * there, with .agents/skills linking to it. Undefined when a link would lead
+ * anywhere else: never write through a link someone committed.
  */
 function skillsDirs(projectDir) {
   const claude = path.join(projectDir, '.claude', 'skills');
   const shared = path.join(projectDir, '.agents', 'skills');
   if ([path.dirname(shared), path.dirname(claude)].some(isLink)) return;
   const stat = fs.lstatSync(claude, { throwIfNoEntry: false });
-  if (stat?.isDirectory()) return { dest: claude, other: shared };
+  if (stat?.isDirectory())
+    return fs.lstatSync(shared, { throwIfNoEntry: false })?.isDirectory() ?
+        { dest: shared, other: claude, mirror: claude }
+      : { dest: claude, other: shared };
   if (isLink(shared)) return;
   // a committed .claude/skills link checks out as a file without
   // core.symlinks; .agents/skills still serves Codex and Cursor
@@ -124,6 +130,27 @@ function syncDir(dest, want, copy, result) {
     result.added.push(skill);
   }
 }
+
+/**
+ * Links each skill this made in `dest` into `mirror` (../../.agents/skills/<name>),
+ * and drops those links for skills it removed
+ */
+function mirrorLinks(dest, mirror, result) {
+  for (const skill of result.removed) {
+    const file = path.join(mirror, skill);
+    if (isLink(file) && posix(fs.readlinkSync(file)) === mirrored(skill))
+      fs.rmSync(file);
+  }
+  for (const entry of fs.readdirSync(dest, { withFileTypes: true })) {
+    const dir = path.join(dest, entry.name);
+    const file = path.join(mirror, entry.name);
+    if (owned(dir, entry) === undefined) continue;
+    if (fs.lstatSync(file, { throwIfNoEntry: false })) continue;
+    result.junctions ||= link(mirrored(entry.name), dir, file);
+  }
+}
+
+const mirrored = skill => `../../.agents/skills/${skill}`;
 
 /**
  * Skill name -> its directory and id: the link target from `dest`, or
