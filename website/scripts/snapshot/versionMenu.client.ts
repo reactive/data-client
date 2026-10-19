@@ -38,30 +38,30 @@ function here() {
   const section = path.split('/')[0];
   return {
     page: `/${locale}${path}`,
-    homes: [...new Set([`/${locale}${section}`, `/${section}`])],
+    homes: locale ? [`/${locale}${section}`, `/${section}`] : [`/${section}`],
     site: `${location.origin}${base}`.replace(/\/$/, ''),
   };
 }
 
-// Whether a url isn't a 404, cached for the page's life. Any other status,
-// or a failed or slow request (a dev server, a deploy without vercel.json's
-// CORS header, a host that stalls), counts as found, so the menu keeps the
-// page's link as it did before checking, and a click waiting on it isn't
-// held for long.
+// Whether a url isn't a 404, its request cached for the page's life. Any
+// other status, or a failed request (a dev server, a deploy without
+// vercel.json's CORS header), counts as found, so the menu keeps the page's
+// link as it did before checking. So does a slow one, without caching that,
+// so a click waiting on it isn't held for long.
 const found = new Map<string, Promise<boolean>>();
 function exists(url: string) {
   let res = found.get(url);
   if (!res) {
-    res = Promise.race([
-      fetch(url, { method: 'HEAD' }).then(
-        r => r.status !== 404,
-        () => true,
-      ),
-      new Promise<boolean>(resolve => setTimeout(resolve, 1500, true)),
-    ]);
+    res = fetch(url, { method: 'HEAD' }).then(
+      r => r.status !== 404,
+      () => true,
+    );
     found.set(url, res);
   }
-  return res;
+  return Promise.race([
+    res,
+    new Promise<boolean>(resolve => setTimeout(resolve, 1500, true)),
+  ]);
 }
 
 /**
@@ -72,11 +72,8 @@ function exists(url: string) {
  * undefined when the page exists.
  */
 async function missingPageHome(url: string, page: string, homes: string[]) {
-  // every candidate at once, so a missing page costs one round trip
-  const [hasPage, ...hasHome] = await Promise.all(
-    [page, ...homes].map(path => exists(url + path)),
-  );
-  if (hasPage) return;
+  if (await exists(url + page)) return;
+  const hasHome = await Promise.all(homes.map(home => exists(url + home)));
   return homes.find((_, i) => hasHome[i]) ?? '/';
 }
 
