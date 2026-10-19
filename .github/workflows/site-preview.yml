@@ -146,6 +146,11 @@ jobs:
           fi
       - name: Check the Store inspector stays in its lazy chunk
         run: node website/scripts/check-lazy-chunks.mjs
+      # Installed /next/ and locale apps serve only their own build offline
+      - name: Check pages load static files from their own build
+        env:
+          DOCS_NEXT: ${{ steps.next.outputs.next }}
+        run: node website/scripts/check-build-base.mjs
       # The version menu's list stays at the root, where every version reads it
       - name: Move the build under /next
         if: steps.next.outputs.next

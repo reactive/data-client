@@ -7,6 +7,7 @@ hide_title: true
 ---
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
@@ -347,7 +348,7 @@ import SkillTabs from '@site/src/components/SkillTabs';
 然后调用 `/data-client-rest-setup` 进行迁移
 
 <div style={{ textAlign: 'center' }}>
-<Link className="button button--secondary button--sm" to="https://skills.sh/reactive/data-client/data-client-rest"><img src="/img/anthropic.svg" alt="REST Codegen Skill" style={{
+<Link className="button button--secondary button--sm" to="https://skills.sh/reactive/data-client/data-client-rest"><img src={useBaseUrl('/img/anthropic.svg')} alt="REST Codegen Skill" style={{
           height: '1em',
           verticalAlign: '-0.125em',
           display: 'inline',
