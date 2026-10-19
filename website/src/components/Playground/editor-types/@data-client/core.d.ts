@@ -537,7 +537,9 @@ interface ControllerFetch {
         schema: {
             _denormalizeList(): infer L;
         };
-    } ? L : never>;
+    } ? L : E extends {
+        schema: infer S;
+    } ? Denormalize<S> : never>;
     /**
      * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
      * @see https://dataclient.io/docs/api/Controller#fetch

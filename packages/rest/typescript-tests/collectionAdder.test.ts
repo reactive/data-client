@@ -136,6 +136,41 @@ export async function otherSchemas() {
   expectType<any>()(raw, true);
 }
 
+class Group extends Entity {
+  id = 0;
+  name = '';
+}
+export async function polymorphic() {
+  const members = new RestEndpoint({
+    path: '/members',
+    schema: new Collection(
+      new schema.Array(
+        { todos: Todo, groups: Group },
+        (input: { type: 'todos' | 'groups' }) => input.type,
+      ),
+    ),
+  });
+  const added = await ctrl.fetch(members.push, [{ title: 'a' }]);
+  expectType<(Todo | Group)[]>()(added, true);
+  const one = await ctrl.fetch(members.push, { name: 'a' });
+  expectType<Todo | Group>()(one, true);
+}
+
+export async function mixedUnion(pickPush: boolean) {
+  const summary = new RestEndpoint({
+    path: '/todos/summary',
+    method: 'POST',
+    body: [] as Partial<Todo>[],
+    schema: { count: '' },
+  });
+  // a non-adder in the union keeps its own result
+  const result = await ctrl.fetch(
+    pickPush ? TodoResource.getList.push : summary,
+    [{ title: 'a' }],
+  );
+  expectType<Todo[] | { count: string }>()(result, true);
+}
+
 export function adderSchema() {
   const push = TodoResource.getList.schema.push;
   expectType<Todo>()({} as Denormalize<typeof push>, true);

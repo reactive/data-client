@@ -6,12 +6,7 @@ import type {
   IDenormalizeDelegate,
   INormalizeDelegate,
 } from './interface.js';
-import type {
-  EntityMap,
-  Denormalize,
-  DenormalizeNullable,
-  NormalizeNullable,
-} from './normal.js';
+import type { EntityMap, NormalizeNullable } from './normal.js';
 import { CollectionOptions } from './schemas/Collection.js';
 import { default as Invalidate } from './schemas/Invalidate.js';
 
@@ -30,23 +25,21 @@ export interface CollectionArrayAdder<
   CollectionInterface<S, Args, Parent>,
   'denormalize' | '_denormalizeNullable' | '_normalizeNullable'
 > {
-  /** A list input denormalizes to a list */
+  /** A list input denormalizes to a list, like the Collection's */
   denormalize(
     input: readonly any[],
     delegate: IDenormalizeDelegate,
-  ): Denormalize<S['schema']>[];
+  ): ReturnType<S['denormalize']>;
   // last overload is what Denormalize<> reads
   denormalize(
     input: any,
     delegate: IDenormalizeDelegate,
-  ): Denormalize<S['schema']>;
+  ): ReturnType<S['denormalize']>[number];
 
-  // infer keeps casts between Collection types comparable on TS < 6 (DenormalizeNullable<S['schema']> doesn't)
-  _denormalizeNullable(): S extends { schema: infer T } ? DenormalizeNullable<T>
-  : never;
+  _denormalizeNullable(): ReturnType<S['denormalize']>[number] | undefined;
   _normalizeNullable(): NormalizeNullable<S['schema']>;
   // this is not an actual member, but tells Controller.fetch() that a list body resolves a list
-  _denormalizeList(): Denormalize<S['schema']>[];
+  _denormalizeList(): ReturnType<S['denormalize']>;
 }
 
 /** CollectionArrayAdder for Array Collections; never for Values Collections */

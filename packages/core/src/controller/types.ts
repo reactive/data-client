@@ -71,7 +71,11 @@ export interface ControllerFetch {
   <E extends (...args: any) => any>(
     endpoint: E,
     ...args: AdderArgs<E, Extract<Parameters<E>, ListBodyArgs>>
-  ): Promise<E extends { schema: { _denormalizeList(): infer L } } ? L : never>;
+  ): Promise<
+    E extends { schema: { _denormalizeList(): infer L } } ? L
+    : E extends { schema: infer S } ? Denormalize<S>
+    : never
+  >;
   /**
    * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
    * @see https://dataclient.io/docs/api/Controller#fetch

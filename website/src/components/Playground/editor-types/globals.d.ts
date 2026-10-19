@@ -954,14 +954,12 @@ type CollectionOptions<Args extends any[] = DefaultArgs, Parent = any> = {
  * Denormalizes one item for a single input, or a list for a list input.
  */
 interface CollectionArrayAdder<S extends PolymorphicInterface, Args extends any[] = any[], Parent = any> extends Omit<CollectionInterface<S, Args, Parent>, 'denormalize' | '_denormalizeNullable' | '_normalizeNullable'> {
-    /** A list input denormalizes to a list */
-    denormalize(input: readonly any[], delegate: IDenormalizeDelegate): Denormalize<S['schema']>[];
-    denormalize(input: any, delegate: IDenormalizeDelegate): Denormalize<S['schema']>;
-    _denormalizeNullable(): S extends {
-        schema: infer T;
-    } ? DenormalizeNullable<T> : never;
+    /** A list input denormalizes to a list, like the Collection's */
+    denormalize(input: readonly any[], delegate: IDenormalizeDelegate): ReturnType<S['denormalize']>;
+    denormalize(input: any, delegate: IDenormalizeDelegate): ReturnType<S['denormalize']>[number];
+    _denormalizeNullable(): ReturnType<S['denormalize']>[number] | undefined;
     _normalizeNullable(): NormalizeNullable<S['schema']>;
-    _denormalizeList(): Denormalize<S['schema']>[];
+    _denormalizeList(): ReturnType<S['denormalize']>;
 }
 /** CollectionArrayAdder for Array Collections; never for Values Collections */
 type ArrayAdder<S extends PolymorphicInterface, Args extends any[], Parent> = S extends {
