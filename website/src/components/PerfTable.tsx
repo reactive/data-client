@@ -45,13 +45,10 @@ export default function PerfTable({
                 const { unit } = columns[i];
                 const change = Math.round(((after - before) / before) * 100);
                 const max = Math.max(before, after);
-                const key = `${label}-${i}`;
                 return (
                   <td
                     key={columns[i].label}
-                    {...tips.anchor(key)}
-                    tabIndex={0}
-                    onClick={() => tips.toggle(key)}
+                    {...tips.tappable(`${label}-${i}`)}
                   >
                     <div className={styles.cell}>
                       <div className={styles.bars} aria-hidden="true">

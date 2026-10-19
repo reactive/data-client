@@ -78,12 +78,7 @@ export default function PerfChart({
           <span className={styles.oneLabel}>1x</span>
         </div>
         {data.map(({ label, baseline, value, speedup, multiplier, worse }) => (
-          <div
-            key={label}
-            {...tips.anchor(label, styles.row)}
-            tabIndex={0}
-            onClick={() => tips.toggle(label)}
-          >
+          <div key={label} {...tips.tappable(label, styles.row)}>
             <span className={styles.label}>{label}</span>
             <span className={styles.track} aria-hidden="true">
               <span

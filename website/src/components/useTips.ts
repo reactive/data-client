@@ -6,9 +6,7 @@ import styles from './tips.module.css';
 /**
  * Tooltips shown on hover, keyboard focus or a tap, so touch screens get what
  * hover gives desktop: one pinned at a time, and Escape hides them all until
- * the pointer next enters or presses one, or focus lands on one. An anchor
- * whose tip holds a link must render its control as its first `a` or
- * `button`, where Escape returns focus from the link.
+ * the pointer next enters or presses one, or focus lands on one.
  */
 export default function useTips<K>() {
   const [open, setOpen] = useState<K | null>(null);
@@ -32,7 +30,8 @@ export default function useTips<K>() {
       // an Escape another widget already handled is that widget's
       if (e.key !== 'Escape' || e.defaultPrevented) return;
       // focus stays put, except on a link in the tip this hides: it returns
-      // to that tip's control, before the dismissal so this focus can't revive it
+      // to that tip's control (the anchor's first `a` or `button`), before the
+      // dismissal so this focus can't revive it
       const active = document.activeElement;
       if (active?.closest(`.${styles.tip}`))
         active
@@ -46,18 +45,24 @@ export default function useTips<K>() {
     return () => document.removeEventListener('keydown', dismiss);
   }, []);
   const revive = () => setDismissed(false);
+  const anchor = (key: K, ...className: ClassValue[]) => ({
+    className: clsx(styles.anchor, dismissed && styles.dismissed, className),
+    'data-open': open === key || undefined,
+    onPointerEnter: revive,
+    onPointerDown: revive,
+    onFocus: revive,
+  });
   return {
     /** which tip a tap pinned open; a press or focus outside it unpins it */
     open,
     setOpen,
-    toggle: (key: K) => setOpen(current => (current === key ? null : key)),
     /** props for the element holding a tip and what it explains */
-    anchor: (key: K, ...className: ClassValue[]) => ({
-      className: clsx(styles.anchor, dismissed && styles.dismissed, className),
-      'data-open': open === key || undefined,
-      onPointerEnter: revive,
-      onPointerDown: revive,
-      onFocus: revive,
+    anchor,
+    /** an anchor that is its own control: focusable, and a tap or click pins it */
+    tappable: (key: K, ...className: ClassValue[]) => ({
+      ...anchor(key, ...className),
+      tabIndex: 0,
+      onClick: () => setOpen(current => (current === key ? null : key)),
     }),
   };
 }
