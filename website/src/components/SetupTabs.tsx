@@ -12,7 +12,7 @@ import {
 
 /** Ways to set up Data Client with an agent: agents' own plugins first
  * (install in a terminal, then start setup in the agent's chat), then the
- * prompt any agent takes in its chat */
+ * prompt other agents take in their chat */
 export default function SetupTabs() {
   const framework = useFramework();
   return (
@@ -27,7 +27,7 @@ export default function SetupTabs() {
           framed
         />
       </TabItem>
-      <TabItem value="any" label="Any agent">
+      <TabItem value="other" label="Other agents">
         <AgentPrompt framed />
       </TabItem>
     </Tabs>
