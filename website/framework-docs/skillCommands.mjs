@@ -1,14 +1,33 @@
 /**
  * Commands that install Data Client's agent skills, one per installer.
- * Shared by src/components/SkillTabs (site) and docsToMarkdown.mjs
- * (skill references, llms.txt), so both install the same skills.
+ * Shared by the site (SkillTabs, AgentPrompt), docsToMarkdown.mjs (skill
+ * references) and llms-plugin.js (llms.txt), so they all install the same skills.
  */
 
 const skillsDir = '.agents/skills';
 
 /** Links the skills the installed `@data-client/*` packages ship into .agents/skills */
+export const linkCommand = 'npx --no data-client-skills';
 const packagesCommand = `# after installing Data Client: links the skills its packages ship
-npx --no data-client-skills`;
+${linkCommand}`;
+
+/** Installs the setup skill, which sets up Data Client; agents run it from the setup prompt and llms.txt */
+export const setupCommand =
+  'npx skills add reactive/data-client --skill data-client-setup -y';
+
+/**
+ * Installs the Claude Code plugin for the project, so teammates get it from
+ * .claude/settings.json; --sparse checks out only the plugin and its skills
+ */
+export const claudePluginCommand = [
+  'claude plugin marketplace add reactive/data-client --scope project \\\n  --sparse .claude-plugin .agents/skills',
+  'claude plugin install data-client@data-client --scope project',
+].join('\n');
+
+/** Starts the plugin's setup skill by name; through the router skill, Claude
+ * would read it from the plugin cache, outside the project, and ask first */
+export const claudeSetupPrompt = framework =>
+  `/data-client:data-client-setup Set up \`@data-client/${framework}\` and use it for all API data`;
 
 /**
  * @typedef {{ skillPackages: Record<string, string[]>, setupSkills: string[], plugin: { plugins: { name: string, skills: string[] }[] } }} SkillSources

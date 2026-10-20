@@ -412,6 +412,9 @@ function render(file, framework, props = {}) {
           .filter(Boolean)
           .map(value => codeBlock({ lang: 'bash', value }));
       }
+      // kept by docToMarkdown for pages agents read, dropped from skill references
+      case 'AgentOnly':
+        return [{ type: 'agentOnly', children: convertAll(node.children) }];
       case 'PkgTabs':
       case 'PkgInstall':
         return [
@@ -598,14 +601,20 @@ function wrapPhrasing(tree) {
 /**
  * Markdown of a doc for a framework, or undefined if the page isn't in it.
  * `resolveRoute(route)` picks the URL for links to site pages (default: the site).
+ * `agentOnly: false` drops `<AgentOnly>` steps, which skill references don't
+ * need: the skill already gives them.
  */
 export function docToMarkdown(
   file,
   framework,
-  { resolveRoute = route => SITE + route } = {},
+  { resolveRoute = route => SITE + route, agentOnly = true } = {},
 ) {
   const tree = render(file, framework);
   if (!tree) return;
+  visit(tree, 'agentOnly', (node, index, parent) => {
+    parent.children.splice(index, 1, ...(agentOnly ? node.children : []));
+    return index;
+  });
   visit(tree, ['link', 'definition'], node => {
     if (node.url.startsWith('/'))
       node.url = resolveRoute(node.url.replace(/\.mdx?(?=$|[#?])/, ''));

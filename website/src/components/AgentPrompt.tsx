@@ -5,6 +5,7 @@ import React, { useCallback, useId } from 'react';
 import styles from './AgentPrompt.module.css';
 import useFramework from './useFramework';
 import useTapped from './useTapped';
+import { setupCommand } from '../../framework-docs/skillCommands.mjs';
 
 const FEEDBACK_MS = 2000;
 
@@ -25,11 +26,12 @@ export default function AgentPrompt({ prompt, title, framed }: Props) {
   prompt ??= translate(
     {
       id: 'agentPrompt.prompt',
-      message: 'Use `@data-client/{framework}` for all server state',
+      message:
+        'Set up `@data-client/{framework}` and use it for all API data. Install its setup skill first: `{command}`, then follow it.',
       description:
-        'Prompt readers copy into their coding agent. Keep the backticks around package names: they keep each name on one line.',
+        'Prompt readers copy into their coding agent; {command} is the shell command the agent runs. Keep the backticks around package names and the command: they keep each on one line.',
     },
-    { framework },
+    { framework, command: setupCommand },
   );
   const tipId = useId();
   // the check icon and the tooltip (which touch screens, lacking hover, need)
@@ -87,12 +89,16 @@ export default function AgentPrompt({ prompt, title, framed }: Props) {
         <SparklesIcon className={styles.spark} />
         {framed && <span className={styles.label}>{header}</span>}
         <span className={styles.text}>
-          {/* markdown code spans mark package names, which never break at their hyphen */}
+          {/* markdown code spans mark package names and commands, which never
+           break at a hyphen; commands still wrap between their words */}
           {prompt.split('`').map((part, i) =>
             i % 2 ?
-              <span key={i} className={styles.pkg}>
-                {part}
-              </span>
+              part.split(' ').map((word, j) => (
+                <React.Fragment key={`${i}.${j}`}>
+                  {j > 0 && ' '}
+                  <span className={styles.pkg}>{word}</span>
+                </React.Fragment>
+              ))
             : part,
           )}
         </span>

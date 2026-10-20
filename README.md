@@ -46,17 +46,13 @@ For more details, see [the Getting Started docs page](https://dataclient.io/docs
 
 ### Let your coding agent set it up
 
-Or skip the install above: add the setup skill,
-
-```bash
-npx skills add reactive/data-client --skill data-client-setup
-```
-
-Then run it in your coding agent's chat, and it installs the packages and links their skills:
+Or skip the install above and tell your coding agent:
 
 ```prompt
-/data-client-setup
+Set up `@data-client/react` and use it for all API data. Install its setup skill first: `npx skills add reactive/data-client --skill data-client-setup -y`, then follow it.
 ```
+
+It installs the packages, wires up the provider and links the skills they ship.
 
 ## Usage
 

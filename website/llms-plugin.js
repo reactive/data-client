@@ -64,6 +64,8 @@ module.exports = function llmsPlugin(context) {
       if (context.i18n.currentLocale !== context.i18n.defaultLocale) return;
       const { docToMarkdown, ROOT } =
         await import('./framework-docs/docsToMarkdown.mjs');
+      const { setupCommand, linkCommand } =
+        await import('./framework-docs/skillCommands.mjs');
 
       // docs instance id -> its folder and sidebar sections
       const instances = new Map(
@@ -134,6 +136,8 @@ module.exports = function llmsPlugin(context) {
         FRAMEWORK_INSTANCES.filter(o => o !== except).map(
           o => `Using ${o.name}? See ${url}${llmsTxtRoute(o.id)}`,
         );
+      // the same steps the site's setup prompt gives (AgentPrompt)
+      const setupStep = `To add Data Client to an app, run \`${setupCommand}\` from the project root, then read \`.agents/skills/data-client-setup/SKILL.md\` and follow it.`;
       /** Title, summary and intro of a docs instance's llms.txt */
       const header = instance => {
         const { id, name, framework } = instance;
@@ -143,6 +147,7 @@ module.exports = function llmsPlugin(context) {
             `# Data Client for ${name}`,
             `> @data-client/${id}: ${name} endpoints and schemas for Reactive Data Client. Its full docs, with framework hooks, are in the framework llms.txt files.`,
             [`Package: @data-client/${id}.`, ...seeFrameworks()].join(' '),
+            `${setupStep} If the app already has it, run \`${linkCommand}\` from the project root to link the agent skills it ships into \`.agents/skills\`.`,
           ];
         const packages = [framework, ...shared.map(d => d.id)].map(
           pkg => `@data-client/${pkg}`,
@@ -154,6 +159,11 @@ module.exports = function llmsPlugin(context) {
             `Packages: ${packages.join(', ')}.`,
             ...seeFrameworks(instance),
           ].join(' '),
+          `## Set up with a coding agent
+
+${setupStep} It installs \`@data-client/${framework}\` and the API packages the app needs, wires up the provider, and links the skills those packages ship, matched to their versions.
+
+If the app already has \`@data-client\` packages, run \`${linkCommand}\` instead, then load the skill for the task from \`.agents/skills\`.`,
         ];
       };
 
@@ -200,9 +210,18 @@ module.exports = function llmsPlugin(context) {
             // Docusaurus falls back to the first paragraph, often a fragment
             description: doc.frontMatter.description,
             md: mdRoute(doc.permalink),
+            setup: doc.frontMatter.agent_setup,
             content: render(id, doc, framework),
           })),
         }));
+
+      /**
+       * Pages agents load to set up Data Client (front matter `agent_setup`)
+       * name the setup steps under their title; llms.txt has them in its header
+       */
+      const setupNote = `> ${setupStep} If the app already has \`@data-client\` packages, run \`${linkCommand}\` to link the skills they ship.`;
+      const withSetup = content =>
+        content.replace(/^(# .*\n)?\n*/, `$1\n${setupNote}\n\n`).trimStart();
 
       /** instance id -> sections in its own framework (shared: the default) */
       const rendered = new Map();
@@ -213,7 +232,7 @@ module.exports = function llmsPlugin(context) {
         );
         rendered.set(instance.id, sections);
         for (const page of sections.flatMap(s => s.pages))
-          write(page.md, page.content);
+          write(page.md, page.setup ? withSetup(page.content) : page.content);
         // each shared package also gets its own, for agents that only need its API
         if (!instance.framework) writeLlms(instance, sections);
       }

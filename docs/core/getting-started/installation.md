@@ -12,23 +12,33 @@ import Installation from '../shared/\_installation.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
 import SiteOnly from '@site/src/components/SiteOnly';
-import AgentPrompt from '@site/src/components/AgentPrompt';
-import SkillTabs from '@site/src/components/SkillTabs';
+import SetupTabs from '@site/src/components/SetupTabs';
+import AgentOnly from '@site/src/components/AgentOnly';
 
 <SiteOnly>
 
 ## With your coding agent
 
-First install Data Client's [skills](./agent-skills.md) for your coding agent. Without them, agents get
-the basics right but miss the rest, like real-time managers and test fixtures.
+<SetupTabs />
 
-<SkillTabs packages={false} framed />
-
-Then tell your agent:
-
-<AgentPrompt framed />
+Either way, your agent runs Data Client's setup [skill](./agent-skills.md), which installs the packages, wires up the
+provider and links the skills the packages ship, so your agent knows the current APIs, like real-time managers and test
+fixtures.
 
 </SiteOnly>
+
+<AgentOnly>
+
+To set up Data Client, install its setup skill from the project root:
+
+```bash
+npx skills add reactive/data-client --skill data-client-setup -y
+```
+
+Then read `.agents/skills/data-client-setup/SKILL.md` and follow it. It installs the packages, wires up the provider
+and links the skills the packages ship. The steps below are the same setup by hand.
+
+</AgentOnly>
 
 :::react
 
@@ -63,6 +73,19 @@ Run it again after adding, removing or upgrading `@data-client` packages. See [A
 details.
 
 </SiteOnly>
+
+<AgentOnly>
+
+Then link the skills the installed packages ship, matched to their versions, from the project root, and commit the
+links:
+
+```bash
+npx --no data-client-skills
+```
+
+Run it again after adding, removing or upgrading `@data-client` packages.
+
+</AgentOnly>
 
 <center>
 
