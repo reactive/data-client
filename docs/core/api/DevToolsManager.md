@@ -89,17 +89,14 @@ const managers = getDefaultManagers({
 
 ## Programmatic store access {#controllers}
 
-In development mode, `DevToolsManager` registers each [Controller](/docs/api/Controller) on
-`globalThis.__DC_CONTROLLERS__`, a `Map` keyed by the devtools connection name. It also records the
-most recent dispatched actions for each one on `globalThis.__DC_ACTIONS__`, under the same key. This works
-in browsers, React Native, and Node, with or without the Redux DevTools extension.
-
-`globalThis.__DC__` reads one store from both: `__DC__.controller` is its Controller and `__DC__.actions` its
-action log. With several stores on the page, set `__DC__.store` to the key of the one to read.
+In development mode, `DevToolsManager` puts the page's store on `globalThis.__DC__`: `__DC__.controller` is its
+[Controller](/docs/api/Controller) and `__DC__.actions` its most recent dispatched actions, including the ones from
+page load. This works in browsers, React Native, and Node, with or without the Redux DevTools extension.
 
 ```js title="Browser DevTools console"
-// The page's store
 __DC__.controller.getState();
+
+// Last 10 actions
 __DC__.actions.slice(-10);
 
 // Response for a key in the action log, without importing its endpoint
@@ -109,18 +106,12 @@ const a = __DC__.actions.findLast(
 );
 c.getResponse(a.endpoint, ...a.args, c.getState()).data;
 
-// Pick a store when there are several
+// With several stores, pick one by key
+__DC__.stores; // ['Data Client: My App', 'Data Client: My App (2)']
 __DC__.store = 'Data Client: My App (2)';
-
-// List all registered providers
-__DC_CONTROLLERS__.keys();
-
-// Get state by name
-__DC_CONTROLLERS__.get('Data Client: My App').getState();
-
-// Last 10 actions, including the ones dispatched while the page loaded
-__DC_ACTIONS__.get('Data Client: My App').slice(-10);
 ```
+
+Each store's Controller is also registered in `globalThis.__DC_CONTROLLERS__`, a `Map` from those keys.
 
 This is useful for AI coding assistants using the [Chrome DevTools MCP](https://developer.chrome.com/blog/chrome-devtools-mcp)
 or [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) to programmatically inspect and interact

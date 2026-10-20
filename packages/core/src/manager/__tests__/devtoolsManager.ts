@@ -193,6 +193,7 @@ describe('DevToolsManager', () => {
       expect(() => dc().controller).toThrow(
         'Set __DC__.store to one of: "A", "B"',
       );
+      expect(dc().stores).toEqual(['A', 'B']);
       dc().store = 'B';
       expect(dc().controller).toBe(ctrlB);
       expect(dc().actions).toBe(actionLogs().get('B'));

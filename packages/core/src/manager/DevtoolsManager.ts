@@ -142,6 +142,11 @@ class DebugStore {
     return (globalThis as any).__DC_CONTROLLERS__.get(this.resolveKey());
   }
 
+  /** Keys of the registered stores, for `store` */
+  get stores(): string[] {
+    return [...((globalThis as any).__DC_CONTROLLERS__?.keys() ?? [])];
+  }
+
   /** Recent actions; all but the newest 20 are summaries without `response` or `value` */
   get actions(): ActionTypes[] {
     return (globalThis as any).__DC_ACTIONS__.get(this.resolveKey());
