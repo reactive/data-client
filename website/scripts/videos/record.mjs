@@ -4,13 +4,12 @@
  * Usage: yarn workspace rdc-website record-videos [clip...]
  * See README.md in this directory.
  */
-import { build } from 'esbuild';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
-import { workspaceSources } from '../workspaceSources.mjs';
+import { bundleBrowserApp } from '../workspaceSources.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const outDir = join(here, '../../static/videos/blog');
@@ -33,7 +32,7 @@ if (unknown.length) {
 }
 
 async function record(name, entry) {
-  const script = await bundle(join(here, entry));
+  const script = await bundleBrowserApp({ entryPoints: [join(here, entry)] });
   const context = await browser.newContext({
     viewport: size,
     deviceScaleFactor: 1,
@@ -56,20 +55,6 @@ async function record(name, entry) {
   await page.video().saveAs(file);
   await page.video().delete();
   console.log(`Recorded ${file}`);
-}
-
-async function bundle(entryPoint) {
-  const result = await build({
-    entryPoints: [entryPoint],
-    bundle: true,
-    write: false,
-    format: 'esm',
-    jsx: 'automatic',
-    define: { 'process.env.NODE_ENV': '"development"' },
-    plugins: [workspaceSources],
-    logLevel: 'error',
-  });
-  return result.outputFiles[0].text;
 }
 
 const PAGE = `<!doctype html>

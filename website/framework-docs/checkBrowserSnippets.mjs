@@ -25,14 +25,13 @@
  * Needs Playwright's Chromium (`npx playwright install chromium`), or set
  * CHROMIUM_PATH to an existing Chromium binary.
  */
-import * as esbuild from 'esbuild';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { chromium } from 'playwright';
 
 import { docCodeBlocks } from './docsToMarkdown.mjs';
 import { ROOT } from './site.mjs';
-import { workspaceSources } from '../scripts/workspaceSources.mjs';
+import { bundleBrowserApp } from '../scripts/workspaceSources.mjs';
 
 const AGENTS = path.join(ROOT, 'docs/core/_agents');
 const ORIGIN = 'http://app.test';
@@ -54,18 +53,17 @@ function snippets(file) {
     }));
 }
 
-/** The page's snippet containing `marker` */
-function findSnippet(file, marker) {
-  const snippet = snippets(file).find(({ src }) => src.includes(marker));
-  assert.ok(
-    snippet,
-    `no snippet in ${file} contains ${JSON.stringify(marker)}`,
-  );
+const SNIPPETS = snippets('devtools-debugging.md');
+
+/** The snippet in `list` containing `marker` */
+function findSnippet(list, marker) {
+  const snippet = list.find(({ src }) => src.includes(marker));
+  assert.ok(snippet, `no snippet contains ${JSON.stringify(marker)}`);
   return snippet.src;
 }
 
-async function bundleApp() {
-  const { outputFiles } = await esbuild.build({
+function bundleApp() {
+  return bundleBrowserApp({
     stdin: {
       contents: `
 import { DataProvider, useSuspense } from '@data-client/react';
@@ -95,18 +93,10 @@ createRoot(document.getElementById('root')).render(
       loader: 'tsx',
       resolveDir: path.join(ROOT, 'website'),
     },
-    bundle: true,
-    write: false,
-    format: 'esm',
-    jsx: 'automatic',
-    define: { 'process.env.NODE_ENV': '"development"' },
-    plugins: [workspaceSources],
-    logLevel: 'error',
   });
-  return outputFiles[0].text;
 }
 
-async function openApp(browser, app) {
+async function openApp() {
   const page = await browser.newPage();
   const pageErrors = [];
   page.on('pageerror', e => pageErrors.push(e));
@@ -155,8 +145,11 @@ function cdpEvaluate({ cdp }, expression, options = {}) {
 }
 
 /** `browser_cdp`: `(<snippet>)()`; a throw or rejection is exceptionDetails */
-async function runExpression(app, src) {
-  const { result, exceptionDetails } = await cdpEvaluate(app, `(${src}\n)()`);
+async function runExpression(target, src) {
+  const { result, exceptionDetails } = await cdpEvaluate(
+    target,
+    `(${src}\n)()`,
+  );
   if (exceptionDetails)
     throw new Error(
       exceptionDetails.exception?.description ?? exceptionDetails.text,
@@ -175,19 +168,16 @@ assert.ok(
 );
 
 /** Claude in Chrome: an async snippet starts, then `__DC_RESULT__` is read */
-async function runClaudeInChrome(app, src) {
-  if (!/^async /m.test(src)) return runExpression(app, src);
+async function runClaudeInChrome(target, src) {
+  if (!/^async /m.test(src)) return runExpression(target, src);
   await runExpression(
-    app,
+    target,
     `() => { ${RECIPE.replace(RECIPE_SLOT, () => `(${src}\n)()`)} }`,
   );
-  for (let tries = 0; tries < 50; tries++) {
-    const result = await runExpression(app, '() => globalThis.__DC_RESULT__');
-    if (result?.error) throw new Error(result.error);
-    if (result) return result.value ?? null;
-    await new Promise(resolve => setTimeout(resolve, 20));
-  }
-  throw new Error('__DC_RESULT__ never set');
+  await target.page.waitForFunction(() => globalThis.__DC_RESULT__);
+  const result = await runExpression(target, '() => globalThis.__DC_RESULT__');
+  if (result.error) throw new Error(result.error);
+  return result.value ?? null;
 }
 
 const actionTypes = log => log.map(({ type }) => type);
@@ -261,9 +251,9 @@ function assertNoPageErrors({ pageErrors }, label, allowed = []) {
   );
 }
 
-async function checkSnippets(browser, app, run, label) {
-  const target = await openApp(browser, app);
-  for (const { name, src } of snippets('devtools-debugging.md')) {
+async function checkSnippets(run, label) {
+  const target = await openApp();
+  for (const { name, src } of SNIPPETS) {
     try {
       const expect = expectationFor(src);
       const result = await run(target, src);
@@ -290,9 +280,9 @@ async function checkSnippets(browser, app, run, label) {
 }
 
 /** Older versions have no `__DC_ACTIONS__`: the shim wraps dispatch instead */
-async function checkShimFallback(browser, app) {
-  const target = await openApp(browser, app);
-  const shim = findSnippet('devtools-debugging.md', 'const NAME');
+async function checkShimFallback() {
+  const target = await openApp();
+  const shim = findSnippet(SNIPPETS, 'const NAME');
   await runFunction(target, '() => { delete globalThis.__DC_ACTIONS__; }');
   for (let i = 0; i < 2; i++)
     assert.equal((await runFunction(target, shim)).actionLog, 'shim');
@@ -313,8 +303,8 @@ async function checkShimFallback(browser, app) {
 }
 
 /** The `Runtime.evaluate` results browser-cursor.md's desktop step 2 describes */
-async function checkCdpResults(browser, app) {
-  const target = await openApp(browser, app);
+async function checkCdpResults() {
+  const target = await openApp();
   const bare = await cdpEvaluate(target, '() => 1');
   assert.equal(bare.result.type, 'function');
   assert.deepEqual(bare.result.value, {});
@@ -347,9 +337,9 @@ async function checkCdpResults(browser, app) {
 }
 
 /** desktop step 4: `__DC_CONSOLE__` records console calls and uncaught errors */
-async function checkConsoleCapture(browser, app) {
-  const target = await openApp(browser, app);
-  const capture = findSnippet('browser-cursor.md', '__DC_CONSOLE__');
+async function checkConsoleCapture() {
+  const target = await openApp();
+  const capture = findSnippet(snippets('browser-cursor.md'), '__DC_CONSOLE__');
   assert.deepEqual(await runExpression(target, capture), {
     ok: true,
     count: 0,
@@ -391,22 +381,22 @@ try {
   const checks = [
     [
       'evaluate_script / browser_evaluate',
-      b => checkSnippets(b, app, runFunction, 'function'),
+      () => checkSnippets(runFunction, 'function'),
     ],
     [
       'browser_cdp Runtime.evaluate',
-      b => checkSnippets(b, app, runExpression, 'expression'),
+      () => checkSnippets(runExpression, 'expression'),
     ],
     [
       'Claude in Chrome __DC_RESULT__',
-      b => checkSnippets(b, app, runClaudeInChrome, 'claude-in-chrome'),
+      () => checkSnippets(runClaudeInChrome, 'claude-in-chrome'),
     ],
-    ['shim without __DC_ACTIONS__', b => checkShimFallback(b, app)],
-    ['Runtime.evaluate results', b => checkCdpResults(b, app)],
-    ['__DC_CONSOLE__ capture', b => checkConsoleCapture(b, app)],
+    ['shim without __DC_ACTIONS__', () => checkShimFallback()],
+    ['Runtime.evaluate results', () => checkCdpResults()],
+    ['__DC_CONSOLE__ capture', () => checkConsoleCapture()],
   ];
   for (const [name, check] of checks) {
-    await check(browser);
+    await check();
     console.log(`✓ ${name}`);
   }
 } finally {

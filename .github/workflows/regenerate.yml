@@ -30,6 +30,7 @@ on:
       - 'docs/**'
       - '.agents/skills/**'
       - 'website/framework-docs/**'
+      - 'website/scripts/workspaceSources.mjs'
       - '.gitattributes'
       - 'website/package.json'
       - 'package.json'
@@ -91,9 +92,27 @@ jobs:
         if: ${{ !cancelled() }}
         run: yarn check:doc-examples
 
+      - name: Get Playwright version
+        id: playwright-version
+        if: ${{ !cancelled() }}
+        run: |
+          echo "version=$(node -p "require(require.resolve('playwright/package.json', { paths: ['website'] })).version")" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        if: ${{ !cancelled() }}
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
       - name: Install Chromium
         if: ${{ !cancelled() }}
-        run: yarn workspace rdc-website exec playwright install chromium --with-deps
+        # System deps can't live in the cache, so install them either way.
+        run: |
+          if [ "${{ steps.playwright-cache.outputs.cache-hit }}" = "true" ]; then
+            yarn workspace rdc-website exec playwright install-deps chromium
+          else
+            yarn workspace rdc-website exec playwright install chromium --with-deps
+          fi
       - name: Run the agents' browser debugging snippets
         if: ${{ !cancelled() }}
         run: yarn check:browser-snippets
