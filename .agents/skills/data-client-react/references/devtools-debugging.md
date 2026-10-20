@@ -113,7 +113,7 @@ install it, then repeat the action (`invalidateAll` in Step 4, or an in-app navi
 
 ## Step 1: Install the Debug Shim
 
-Run this after each page load (a reload clears it). It picks a controller, exposes it as
+Run this after each page load: navigating (even to the same URL), reloading or an HMR full reload clears it. It picks a controller, exposes it as
 `__DC_CTRL__` for every later snippet, and points `__DC_ACTION_LOG__` at its recent actions. Rerunning it
 is safe. A `ReferenceError` for either global means the shim is not installed.
 

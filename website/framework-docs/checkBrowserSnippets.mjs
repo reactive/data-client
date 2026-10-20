@@ -1,16 +1,10 @@
 /**
  * Runs the "run in page" snippets agents use to debug a Data Client app
- * (docs/core/_agents/devtools-debugging.md) in Chromium, each of the ways its
- * Browser Tools section says a tool runs them, so a change to the snippets,
- * those instructions, or DevToolsManager's globals fails here instead of in an
- * agent's session. The ways' parameters and the `__DC_RESULT__` recipe are
- * read from the page, so the check follows what agents are told:
- *
- * - Function (Chrome DevTools MCP, Playwright MCP): call it and await it.
- * - Awaited expression (Cursor's `browser_cdp`): CDP `Runtime.evaluate` with
- *   the page's `expression`, `awaitPromise` and `returnByValue`.
- * - Expression (Claude in Chrome): `Runtime.evaluate` without awaiting; async
- *   snippets go through the `__DC_RESULT__` recipe.
+ * (docs/core/_agents/devtools-debugging.md) in Chromium, each way its Browser
+ * Tools section says a tool can run them, so a change to the snippets, those
+ * instructions, or DevToolsManager's globals fails here instead of in an
+ * agent's session. The ways' parameters and the `__DC_RESULT__` recipe are read
+ * from the page, and every way the page lists needs a runner in `WAYS`.
  *
  * Also checks the `Runtime.evaluate` results the page tells agents to expect
  * (a bare function, a DOM node, a rejection, ...), as Cursor 3.25's desktop
@@ -50,14 +44,21 @@ const SNIPPETS = BLOCKS.filter(
   src: value,
 }));
 
+const SOURCE = fs.readFileSync(DEBUGGING, 'utf8');
 /** A `### heading` section of the page's source */
 function section(heading) {
-  const text = fs
-    .readFileSync(DEBUGGING, 'utf8')
-    .split(`\n### ${heading}\n`)[1];
+  const text = SOURCE.split(`\n### ${heading}\n`)[1];
   assert.ok(text, `devtools-debugging.md has no "${heading}" section`);
   return text.split('\n#')[0];
 }
+/** The ways the Browser Tools section lists, by heading */
+const WAY_HEADINGS = [
+  ...SOURCE.split('\n## Browser Tools\n')[1]
+    .split('\n## ')[0]
+    .matchAll(/^### (.+)$/gm),
+]
+  .map(([, heading]) => heading)
+  .filter(heading => heading !== 'Without a network or console tool');
 
 const SLOT = '(<snippet>)()';
 /** `(<snippet>)()` with the snippet in place */
@@ -71,12 +72,11 @@ const AWAITED = Object.fromEntries(
   ),
 );
 assert.equal(AWAITED.expression, SLOT, 'awaited expression');
+// the results checkCdpResults verifies are still the ones the page describes
+for (const term of ['exceptionDetails', '"function"', 'DOM node'])
+  assert.ok(section('Awaited expression').includes(term), term);
 
 assert.ok(section('Expression').includes(`\`${SLOT}\``), 'expression call');
-const RECIPE = BLOCKS.find(({ value }) =>
-  value.includes('__DC_RESULT__'),
-)?.value;
-assert.ok(RECIPE?.includes(SLOT), '__DC_RESULT__ recipe');
 
 /** The snippet in `list` containing `marker` */
 function findSnippet(list, marker) {
@@ -84,6 +84,12 @@ function findSnippet(list, marker) {
   assert.ok(snippet, `no snippet contains ${JSON.stringify(marker)}`);
   return snippet.src;
 }
+
+const RECIPE = findSnippet(
+  BLOCKS.map(({ value }) => ({ src: value })),
+  '__DC_RESULT__',
+);
+assert.ok(RECIPE.includes(SLOT), '__DC_RESULT__ recipe');
 
 function bundleApp() {
   return bundleBrowserApp({
@@ -159,16 +165,15 @@ async function runFunction({ page }, src) {
 
 /** CDP `Runtime.evaluate`; a throw or rejection is exceptionDetails */
 async function cdpEvaluate({ cdp }, params) {
-  const response = await cdp.send('Runtime.evaluate', params);
-  const { exceptionDetails } = response;
+  const { result, exceptionDetails } = await cdp.send(
+    'Runtime.evaluate',
+    params,
+  );
   if (exceptionDetails)
-    throw Object.assign(
-      new Error(
-        exceptionDetails.exception?.description ?? exceptionDetails.text,
-      ),
-      { response },
+    throw new Error(
+      exceptionDetails.exception?.description ?? exceptionDetails.text,
     );
-  return response.result.value ?? null;
+  return result.value ?? null;
 }
 
 /** Awaited expression: the page's `Runtime.evaluate` parameters */
@@ -358,7 +363,9 @@ async function checkConsoleCapture() {
       Promise.reject(new Error('unhandled'));
     }`,
   );
-  await target.page.waitForTimeout(100);
+  await target.page.waitForFunction(
+    () => globalThis.__DC_CONSOLE__.length >= 4,
+  );
   const { log, total } = await runAwaitedExpression(
     target,
     '() => ({ log: __DC_CONSOLE__.slice(-20), total: __DC_CONSOLE__.length })',
@@ -378,18 +385,24 @@ async function checkConsoleCapture() {
   await target.page.close();
 }
 
-const app = await bundleApp();
-const browser = await chromium.launch({
-  executablePath: process.env.CHROMIUM_PATH,
-});
+/** A runner for each way the page lists, by its heading */
+const WAYS = {
+  Function: runFunction,
+  'Awaited expression': runAwaitedExpression,
+  Expression: runExpression,
+};
+assert.deepEqual(Object.keys(WAYS), WAY_HEADINGS, 'a runner for each way');
+
+const [app, browser] = await Promise.all([
+  bundleApp(),
+  chromium.launch({ executablePath: process.env.CHROMIUM_PATH }),
+]);
 try {
   const checks = [
-    ['function', () => checkSnippets(runFunction, 'function')],
-    [
-      'awaited expression',
-      () => checkSnippets(runAwaitedExpression, 'awaited expression'),
-    ],
-    ['expression', () => checkSnippets(runExpression, 'expression')],
+    ...Object.entries(WAYS).map(([way, run]) => [
+      way,
+      () => checkSnippets(run, way),
+    ]),
     ['shim without __DC_ACTIONS__', checkShimFallback],
     ['Runtime.evaluate results', checkCdpResults],
     ['console capture', checkConsoleCapture],

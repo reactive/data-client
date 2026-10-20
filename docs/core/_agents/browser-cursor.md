@@ -17,13 +17,13 @@ If both are listed, either works.
 The desktop agent drives Cursor's built-in browser (the Browser tab). Docs:
 [Browser](https://cursor.com/docs/agent/tools/browser).
 
-1. Open the dev server with `browser_navigate`. It loads the page fresh, so rerun Step 1 after it.
+1. Open the dev server with `browser_navigate`.
 2. Run each snippet with `browser_cdp`, method `Runtime.evaluate`, as an
    [awaited expression](./devtools-debugging.md#awaited-expression).
 3. Read requests and logs with the
-   [requests snippet and console capture](./devtools-debugging.md#without-a-network-or-console-tool). Cursor's
-   browser tools include no network or console reader, and `browser_cdp` returns only command results, not
-   events, so `Network.enable` and `Log.enable` record nothing you can read.
+   [requests snippet and console capture](./devtools-debugging.md#without-a-network-or-console-tool).
+   `browser_cdp` returns only command results, not events, so `Network.enable` and `Log.enable` record nothing
+   you can read.
 
 Do not send `Page.reload`. It reloads the Cursor window, which ends the agent's turn with no response, and a
 resumed turn can send it again. Use `browser_navigate` instead.
