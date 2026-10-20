@@ -334,11 +334,12 @@ describe('PollingSubscription', () => {
 
     const action = createSubscription(getList, { args: [] });
     jest.useFakeTimers();
+    let sub: PollingSubscription | undefined;
     try {
-      const sub = new PollingSubscription(action, controller);
+      sub = new PollingSubscription(action, controller);
       jest.advanceTimersByTime(1);
-      sub.cleanup();
     } finally {
+      sub?.cleanup();
       jest.useRealTimers();
     }
 
