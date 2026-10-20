@@ -332,13 +332,13 @@ describe('PollingSubscription', () => {
     const getList = ArticleResource.getList.extend({ pollFrequency: 5000 });
     expect(Object.hasOwn(getList, 'schema')).toBe(false);
 
-    jest.useFakeTimers();
     const action = createSubscription(getList, { args: [] });
-    const sub = new PollingSubscription(action, controller);
+    jest.useFakeTimers();
     try {
+      const sub = new PollingSubscription(action, controller);
       jest.advanceTimersByTime(1);
-    } finally {
       sub.cleanup();
+    } finally {
       jest.useRealTimers();
     }
 

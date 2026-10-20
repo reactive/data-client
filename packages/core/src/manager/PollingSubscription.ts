@@ -128,8 +128,8 @@ export default class PollingSubscription implements Subscription {
     // inherit (not copy) so members on the prototype chain (like the schema of an
     // `.extend()`ed endpoint) are kept
     Object.setPrototypeOf(endpoint, sup);
-    // the wrapper's own `name` ('endpoint') would shadow the inherited one
-    delete (endpoint as any).name;
+    // drop the wrapper's own `name` ('endpoint') so the endpoint's is inherited too
+    Reflect.deleteProperty(endpoint, 'name');
     endpoint.dataExpiryLength = this.frequency / 2;
     endpoint.errorExpiryLength = this.frequency / 10;
     endpoint.errorPolicy = () => 'soft' as const;
