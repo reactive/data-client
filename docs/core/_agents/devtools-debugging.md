@@ -117,7 +117,8 @@ Snippets use the entity `Todo` and paths containing `/todos`: replace them with 
 
 - **Several stores** (`__DC__.controller` throws `Set __DC__.store to one of: ...`): set `__DC__.store` to the key
   in `__DC__.stores` whose `getState().endpoints` holds the keys you are debugging. A page load clears it.
-- **`__DC__` is undefined**: the page is a production build, or its managers leave out `DevToolsManager`.
+- **`__DC__` is undefined**: the page is a production build, its managers leave out `DevToolsManager`, or its
+  `@data-client` packages are older than 0.19.
 
 ## Read State
 
