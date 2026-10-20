@@ -94,9 +94,9 @@ function bundleApp() {
   return bundleBrowserApp({
     stdin: {
       contents: `
-import { DataProvider, useSuspense } from '@data-client/react';
+import { DataProvider, useController, useSuspense } from '@data-client/react';
 import { Entity, resource } from '@data-client/rest';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 
 class Todo extends Entity {
@@ -109,6 +109,11 @@ const TodoResource = resource({ path: '/todos/:id', schema: Todo });
 
 function TodoList() {
   const todos = useSuspense(TodoResource.getList);
+  const ctrl = useController();
+  // the newest '/todos' action is a mutation, which snippets must not resend
+  useEffect(() => {
+    ctrl.fetch(TodoResource.partialUpdate, { id: 1 }, { completed: true });
+  }, [ctrl]);
   return todos.map(todo => <p key={todo.pk()}>{todo.title}</p>);
 }
 createRoot(document.getElementById('root')).render(
@@ -125,6 +130,7 @@ createRoot(document.getElementById('root')).render(
 async function openApp() {
   const page = await browser.newPage();
   const pageErrors = [];
+  const mutations = [];
   page.on('pageerror', e => pageErrors.push(e));
   await page.route(`${ORIGIN}/**`, route => {
     const { pathname } = new URL(route.request().url());
@@ -137,13 +143,27 @@ async function openApp() {
       return route.fulfill({ contentType: 'text/javascript', body: app });
     if (pathname === '/todos') return route.fulfill({ json: TODOS });
     const todo = TODOS.find(({ id }) => `/todos/${id}` === pathname);
+    if (todo && route.request().method() !== 'GET') {
+      mutations.push(pathname);
+      return route.fulfill({
+        json: { ...todo, ...route.request().postDataJSON() },
+      });
+    }
     return todo ?
         route.fulfill({ json: todo })
       : route.fulfill({ status: 404, json: { message: 'Not found' } });
   });
   await page.goto(ORIGIN);
   await page.getByText('Todo 5').waitFor();
-  return { page, cdp: await page.context().newCDPSession(page), pageErrors };
+  await page.waitForFunction(() =>
+    __DC__.actions.some(a => a.type === 'rdc/setresponse' && a.endpoint?.sideEffect),
+  );
+  return {
+    page,
+    cdp: await page.context().newCDPSession(page),
+    pageErrors,
+    mutations,
+  };
 }
 
 /** `evaluate_script` / `browser_evaluate`: call the function, await, serialize */
@@ -238,6 +258,7 @@ async function checkSnippets(run, label) {
   const log = await run(target, '() => __DC__.actions.map(a => a.type)');
   for (const type of ['rdc/fetch', 'rdc/invalidateall'])
     assert.ok(log.includes(type), `${label}: log is missing ${type}: ${log}`);
+  assert.deepEqual(target.mutations, ['/todos/1'], `${label}: a snippet resent a mutation`);
   assertNoPageErrors(target, label);
   await target.page.close();
 }
