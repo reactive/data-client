@@ -333,20 +333,21 @@ describe('PollingSubscription', () => {
     expect(Object.hasOwn(getList, 'schema')).toBe(false);
 
     jest.useFakeTimers();
-    const sub = new PollingSubscription(
-      createSubscription(getList, { args: [] }),
-      controller,
-    );
-    jest.advanceTimersByTime(1);
-    sub.cleanup();
-    jest.useRealTimers();
+    const action = createSubscription(getList, { args: [] });
+    const sub = new PollingSubscription(action, controller);
+    try {
+      jest.advanceTimersByTime(1);
+    } finally {
+      sub.cleanup();
+      jest.useRealTimers();
+    }
 
     expect(dispatch.mock.calls.length).toBe(1);
     const polled = dispatch.mock.calls[0][0].endpoint;
     expect(polled.schema).toBe(getList.schema);
     expect(polled.process).toBe(getList.process);
     expect(polled.name).toBe(getList.name);
-    expect(polled.key()).toBe(getList.key());
+    expect(polled.key()).toBe(action.key);
     expect(polled.dataExpiryLength).toBe(2500);
     expect(polled.errorPolicy()).toBe('soft');
   });
