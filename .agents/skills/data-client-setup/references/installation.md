@@ -2,13 +2,15 @@
 
 # Getting Started with Reactive Data Client
 
-## Install manually
+## Set up by hand {#manual-setup}
+
+### Install packages {#install-manually}
 
 ```bash
 npm install @data-client/react @data-client/test @data-client/rest
 ```
 
-## Add provider at top-level component {#add-provider-at-top-level-component}
+### Add provider at top-level component {#add-provider-at-top-level-component}
 
 **Web**
 
