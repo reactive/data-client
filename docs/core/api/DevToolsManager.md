@@ -104,7 +104,9 @@ __DC__.actions.slice(-10);
 
 // Response for a key in the action log, without importing its endpoint
 const c = __DC__.controller;
-const a = __DC__.actions.findLast(a => a.key?.includes('/todos'));
+const a = __DC__.actions.findLast(
+  a => a.endpoint && a.key.includes('/todos'),
+);
 c.getResponse(a.endpoint, ...a.args, c.getState()).data;
 
 // Pick a store when there are several
