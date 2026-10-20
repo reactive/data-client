@@ -9,6 +9,9 @@
  * The first framework with the page writes `<name>.md`; later ones write
  * `<name>.<framework>.md` only when their page differs.
  *
+ * `"files": { "RestEndpoint.js": "packages/rest/src/RestEndpoint.js" }` copies
+ * source files in as they are.
+ *
  * `"skills": ["other-skill"]` bundles another skill so this one works without
  * it installed: its SKILL.md body becomes `references/other-skill.md` and its
  * other files (references, scripts) are copied under `references/other-skill/`.
@@ -82,7 +85,7 @@ function generateSkill(skillDir) {
   return generated.get(skillDir);
 }
 
-function buildSkill(skillDir, { frameworks, docs, skills = [] }) {
+function buildSkill(skillDir, { frameworks, docs, files = {}, skills = [] }) {
   const out = new Map();
   // framework that rendered each file
   const renderedBy = new Map();
@@ -92,6 +95,10 @@ function buildSkill(skillDir, { frameworks, docs, skills = [] }) {
       throw new Error(`${rel(skillDir)}/${MANIFEST}: ${doc} is not in docs/`);
     if (!fs.existsSync(path.join(ROOT, doc)))
       throw new Error(`${rel(skillDir)}/${MANIFEST}: ${doc} does not exist`);
+  }
+  for (const source of Object.values(files)) {
+    if (!fs.existsSync(path.join(ROOT, source)))
+      throw new Error(`${rel(skillDir)}/${MANIFEST}: ${source} does not exist`);
   }
   for (const framework of frameworks) {
     const localRoutes = localRoutesFor(docs, framework);
@@ -135,6 +142,14 @@ function buildSkill(skillDir, { frameworks, docs, skills = [] }) {
             `${open}${name}.${framework}.md`
           : link,
       ),
+    );
+  }
+  // a copy, not a symlink, so it survives installs that copy only the skill
+  for (const [name, source] of Object.entries(files)) {
+    const file = path.join(ROOT, source);
+    out.set(
+      path.join(skillDir, 'references', name),
+      withHeader(file, fs.readFileSync(file, 'utf8')),
     );
   }
   for (const skill of skills)

@@ -24,10 +24,28 @@ export const claudePluginCommand = [
   'claude plugin install data-client@data-client --scope project',
 ].join('\n');
 
+const setupTask = framework =>
+  `Set up \`@data-client/${framework}\` and use it for all API data`;
+
 /** Starts the plugin's setup skill by name; through the router skill, Claude
  * would read it from the plugin cache, outside the project, and ask first */
 export const claudeSetupPrompt = framework =>
-  `/data-client:data-client-setup Set up \`@data-client/${framework}\` and use it for all API data`;
+  `/data-client:data-client-setup ${setupTask(framework)}`;
+
+/**
+ * Codex reads the Claude Code marketplace; --sparse checks out only the
+ * plugin and its skills. Codex installs plugins for the user, with no project scope
+ */
+const codexPlugin = repo =>
+  [
+    `codex plugin marketplace add ${repo} \\\n  --sparse .claude-plugin --sparse ${skillsDir}`,
+    'codex plugin add data-client@data-client',
+  ].join('\n');
+export const codexPluginCommand = codexPlugin('reactive/data-client');
+
+/** Codex starts a skill when the prompt mentions it as `$plugin:skill` */
+export const codexSetupPrompt = framework =>
+  `$data-client:data-client-setup ${setupTask(framework)}`;
 
 /**
  * @typedef {{ skillPackages: Record<string, string[]>, setupSkills: string[], plugin: { plugins: { name: string, skills: string[] }[] } }} SkillSources
@@ -41,7 +59,7 @@ export const claudeSetupPrompt = framework =>
  *   with no skills, installs every skill for the framework;
  *   `packages: false` leaves out linking the packages' skills where they aren't installed yet
  * @param {SkillSources} sources
- * @returns {{ skillsCli: string, openSkills: string, claude?: string, packages?: string }}
+ * @returns {{ skillsCli: string, openSkills: string, claude?: string, cursor?: string, codex?: string, packages?: string }}
  */
 export default function skillCommands(
   {
@@ -58,7 +76,10 @@ export default function skillCommands(
   const packages = withPackages && !chosen ? packagesCommand : undefined;
   const allSkills =
     chosen ?? frameworkSkills(framework, skillPackages, setupSkills);
+  // The plugin sets up new apps, which then link the whole framework's set;
+  // other skills it doesn't carry
   const carried = pluginSkills(plugin);
+  const withPlugin = !chosen || allSkills.every(s => carried.includes(s));
   return {
     packages,
     skillsCli: [
@@ -69,16 +90,17 @@ export default function skillCommands(
     openSkills: allSkills
       .map(s => `npx openskills install ${repo}/${skillsDir}/${s}`)
       .join('\n'),
-    // The plugin sets up new apps, which then link the whole framework's set;
-    // other skills it doesn't carry. The marketplace's other entries are old
-    // names kept for existing installs.
-    claude:
-      !chosen || allSkills.every(s => carried.includes(s)) ?
-        [
-          `claude plugin marketplace add ${repo}`,
-          'claude plugin install data-client@data-client',
-        ].join('\n')
-      : undefined,
+    ...(withPlugin && {
+      // the marketplace's other entries are old names kept for existing installs
+      claude: [
+        `claude plugin marketplace add ${repo}`,
+        'claude plugin install data-client@data-client',
+      ].join('\n'),
+      // the same plugin from .cursor-plugin, pinned to master: Cursor otherwise
+      // checks out main, which this repo doesn't have
+      cursor: `/add-plugin data-client@https://github.com/${repo}`,
+      codex: codexPlugin(repo),
+    }),
   };
 }
 

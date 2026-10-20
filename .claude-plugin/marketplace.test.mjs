@@ -26,3 +26,10 @@ test('plugin skills exist and ship in a package', () => {
     assert.ok(owned.includes(path.basename(skill)), skill);
   }
 });
+
+test('the Cursor plugin matches marketplace.json', async () => {
+  // regenerate with node .claude-plugin/cursor.mjs
+  const { cursorFiles } = await import('./cursor.mjs');
+  for (const [file, json] of Object.entries(cursorFiles()))
+    assert.deepEqual(readJSON(file), json, file);
+});
