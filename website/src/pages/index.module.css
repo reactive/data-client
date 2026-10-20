@@ -97,14 +97,3 @@ html[data-theme='light'] .buttons :global(.button.button--secondary) {
   color: var(--ifm-color-emphasis-700);
   margin-bottom: 1.5rem;
 }
-
-/* the setup prompt, centered under the buttons */
-.heroPrompt {
-  display: flex;
-  justify-content: center;
-  max-width: 44rem;
-  margin: 1.5rem auto 0;
-}
-.heroPrompt > * {
-  margin-bottom: 0;
-}
