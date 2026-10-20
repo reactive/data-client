@@ -67,10 +67,11 @@ Request URLs, durations and statuses from the page's `performance` entries:
   url: e.name,
   duration: e.duration,
   status: e.responseStatus,
+  transferSize: e.transferSize,
 }))
 ```
 
-`status` is `0` for any cross-origin response read without CORS (images and fonts too, even when they load), and
+`transferSize` is `0` when the browser's HTTP cache answered without asking the server. `status` is `0` for any cross-origin response read without CORS (images and fonts too, even when they load), and
 blocked requests can be missing, so check failures in the key's `meta` error ([Errors](#errors)) instead.
 
 To read console output, install this console capture after each page load. It records later console calls,
@@ -107,7 +108,7 @@ install it, then repeat the action (`invalidateAll` in [Change state](#change-st
 |---|---|
 | Data never appears or stays loading | The key's `meta` error ([Errors](#errors)) and its request in the network log |
 | A mutation succeeded but the UI shows old data | The mutation key's `meta` error: a response that fails to normalize, such as one wrapped in `{ data }`, is stored there, not on the action. Then `state.entities`: if the entity is unchanged and the response sits only under the mutation's own `endpoints` key, the endpoint has no `schema`. A created item missing from a list needs the list's Collection, such as `getList.push` |
-| A change shows, then reverts on its own | The mutation key's `meta` error: an optimistic change reverts when its request fails. If there is none, repeat the change and read the log by time ([Actions](#actions)) for a later `rdc/setresponse` with a newer `meta.fetchedAt` (often a poll) that carried the old value |
+| A change shows, then reverts on its own | The mutation key's `meta` error: an optimistic change reverts when its request fails. If there is none, repeat the change and read the log by time ([Actions](#actions)) for a later `rdc/setresponse` with a newer `meta.fetchedAt` (often a poll) that carried the old value. If the server already returns the new value, something between served the old one: the browser's HTTP cache answers with `transferSize` `0` (requests snippet) |
 | Requests fire too often | Request times in the network log, then the log ([Actions](#actions)) for that key: whether an `rdc/invalidate` or `rdc/invalidateall` comes before each fetch (something, often a Manager, keeps invalidating it). `pollFrequency` is in milliseconds |
 | Requests never fire | The key's `meta.expiresAt`: data stays fresh until then. A polled key also needs an `rdc/subscribe` in the log |
 
