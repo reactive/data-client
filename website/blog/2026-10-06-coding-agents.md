@@ -111,19 +111,19 @@ Browse them all at [skills.sh/reactive/data-client](https://skills.sh/reactive/d
 ### Debug a running app {#debugging}
 
 Ask your agent "why didn't this refetch?" or "what's in the cache right now?" and it can check the running app instead
-of guessing from code. In dev mode, [DevToolsManager](/docs/api/DevToolsManager#controllers) puts each store's
-[Controller](/docs/api/Controller) on `globalThis.__DC_CONTROLLERS__`, so an agent connected through
-[Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp), or
-[Expo MCP](https://docs.expo.dev/eas/ai/mcp/) for React Native, can read the store, follow dispatched actions, and
-match them to network requests. The map is there in browsers, React Native and Node
-([#3753](https://github.com/reactive/data-client/pull/3753)). Each store's recent actions are on
-`globalThis.__DC_ACTIONS__` from the moment the app starts, so the agent also sees the fetches made while the page
-loaded, with or without the Redux DevTools extension.
+of guessing from code. In dev mode, [DevToolsManager](/docs/api/DevToolsManager#controllers) puts the page's store on
+`globalThis.__DC__`. `__DC__.controller` is its [Controller](/docs/api/Controller) and `__DC__.actions` its recent
+actions, including the fetches made while the page loaded, with or without the Redux DevTools extension. An agent
+connected through [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp), or
+[Expo MCP](https://docs.expo.dev/eas/ai/mcp/) for React Native, can read the store and match those actions to network
+requests. This works in browsers, React Native, and Node.
 
 ```js title="Browser DevTools console"
-__DC_CONTROLLERS__.get('Data Client: My App').getState();
-__DC_ACTIONS__.get('Data Client: My App').slice(-10);
+__DC__.controller.getState();
+__DC__.actions.slice(-10);
 ```
+
+`globalThis.__DC_CONTROLLERS__` ([#3753](https://github.com/reactive/data-client/pull/3753)) still lists those Controllers in development, and is deprecated in favor of `__DC__`.
 
 The React and Vue skills drive this through Chrome DevTools MCP; see
 [debugging with agents](/docs/getting-started/debugging#debugging-with-agents) for what they can inspect.

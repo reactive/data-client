@@ -22,12 +22,12 @@ c.getResponse(a.endpoint, ...a.args, c.getState()).data;
 
 With several stores on a page, `__DC__.stores` lists their keys and setting `__DC__.store` picks one. Stores with
 the same devtools name each get their own key (`'Data Client: My App (2)'`, `(3)`, ...) instead of the second hiding
-the first. `__DC__` replaces `globalThis.__DC_CONTROLLERS__`:
+the first. `globalThis.__DC_CONTROLLERS__` is deprecated and still available in development. Use `__DC__`:
 
 ```js title="Browser DevTools console"
-// before
+// deprecated
 __DC_CONTROLLERS__.get('Data Client: My App').getState();
-// after
+// use this
 __DC__.store = 'Data Client: My App';
 __DC__.controller.getState();
 ```

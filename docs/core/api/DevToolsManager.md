@@ -111,6 +111,9 @@ __DC__.stores; // ['Data Client: My App', 'Data Client: My App (2)']
 __DC__.store = 'Data Client: My App (2)';
 ```
 
+`globalThis.__DC_CONTROLLERS__` is deprecated. Development builds still set it to a `Map` of these
+Controllers, with the same keys as `__DC__.stores`.
+
 This is useful for AI coding assistants using the [Chrome DevTools MCP](https://developer.chrome.com/blog/chrome-devtools-mcp)
 or [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) to programmatically inspect and interact
 with the store. Each :react[[DataProvider](/docs/api/DataProvider)]:vue[installed [DataClientPlugin](./DataClientPlugin.md)] registers independently, so

@@ -32,3 +32,10 @@ Type and API cleanups deferred because they would break users or mixed package v
 
 - **Remove the `core`, `react`, `vue` and `migrations` entries** from `.claude-plugin/marketplace.json`, along with their lockstep test in `.claude-plugin/marketplace.test.mjs`.
   - Breaks: Claude Code users who still have an old plugin name installed stop getting updates. Migration: `claude plugin install data-client@data-client`, then uninstall the old one.
+
+## `globalThis.__DC_CONTROLLERS__`
+
+`DevToolsManager` still publishes `globalThis.__DC_CONTROLLERS__` in development (`packages/core/src/manager/DevtoolsManager.ts`). It is a deprecated `Map` of Controllers, a live view of `__DC__.registry` (`controllersFor`), and its global type is marked `@deprecated`.
+
+- **Remove `globalThis.__DC_CONTROLLERS__`**, `controllersFor`, and the `declare global` type.
+  - Breaks: development scripts that read `globalThis.__DC_CONTROLLERS__`. Migration: use `__DC__.controller`. When `__DC__.stores` lists more than one key, set `__DC__.store` to the one you want.
