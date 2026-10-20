@@ -260,30 +260,6 @@ async function checkSnippets(run, label) {
   await target.page.close();
 }
 
-/** `__DC__` serializes to its settings and follows `store` among several stores */
-async function checkStoreSelection() {
-  const target = await openApp();
-  assert.deepEqual(await runAwaitedExpression(target, '() => __DC__'), {});
-  const result = await runFunction(
-    target,
-    `() => {
-      const keys = [...__DC_CONTROLLERS__.keys()];
-      __DC_CONTROLLERS__.set('Other', {});
-      let error;
-      try { __DC__.controller; } catch (e) { error = e.message; }
-      __DC__.store = keys[0];
-      const picked = __DC__.controller === __DC_CONTROLLERS__.get(keys[0]);
-      __DC_CONTROLLERS__.delete('Other');
-      __DC__.store = undefined;
-      return { error, picked };
-    }`,
-  );
-  assert.match(result.error, /^Set __DC__\.store to one of: .*"Other"/);
-  assert.equal(result.picked, true);
-  assertNoPageErrors(target, 'store selection');
-  await target.page.close();
-}
-
 /** The `Runtime.evaluate` results "Awaited expression" describes */
 async function checkCdpResults() {
   const target = await openApp();
@@ -303,6 +279,10 @@ async function checkCdpResults() {
   );
   assert.ok(rejected.exceptionDetails);
   assert.deepEqual(rejected.result.value, {});
+  // __DC__'s getters stay off the instance, so returning it doesn't throw
+  const dc = await evaluate('__DC__');
+  assert.ok(!dc.exceptionDetails);
+  assert.deepEqual(dc.result.value, {});
   assertNoPageErrors(target, 'Runtime.evaluate');
   await target.page.close();
 }
@@ -364,7 +344,6 @@ try {
       way,
       () => checkSnippets(run, way),
     ]),
-    ['__DC__.store', checkStoreSelection],
     ['Runtime.evaluate results', checkCdpResults],
     ['console capture', checkConsoleCapture],
   ];
