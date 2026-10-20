@@ -157,6 +157,17 @@ describe('DevToolsManager', () => {
     });
   });
 
+  it('drops request bodies from summarized mutations', () => {
+    const manager = new DevToolsManager({ name: 'App' });
+    const { dispatch } = setup(manager);
+    manager.init(initialState);
+    const endpoint = { name: 'create', sideEffect: true };
+    dispatch({ ...fetchAction('c', 1), endpoint, args: [{ title: 'body' }] });
+    for (let i = 0; i < 20; i++) dispatch(setAction(i));
+
+    expect(actionLogs().get('App')![0]).not.toHaveProperty('args');
+  });
+
   describe('__DC__', () => {
     const dc = () => (globalThis as any).__DC__;
 

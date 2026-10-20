@@ -102,10 +102,10 @@ function pushCapped<T>(buffer: T[], item: T, max: number) {
 const FULL_ACTIONS = 20;
 
 /** Keeps what shows what happened and when, dropping what retains memory
- * (response bodies, set values, fetch promises).
+ * (response bodies, set values, request bodies, fetch promises).
  *
- * Keeps `endpoint` and `args`, so `controller.getResponse(a.endpoint, ...a.args, state)`
- * works for any logged key.
+ * Keeps `args` of endpoints without side effects, so
+ * `controller.getResponse(a.endpoint, ...a.args, state)` works for any key they logged.
  *
  * Builds the object explicitly: a rest spread here was 4x slower.
  */
@@ -114,12 +114,14 @@ function summarize(action: any) {
     type: action.type,
     key: action.key,
     endpoint: action.endpoint,
-    args: action.args,
     meta:
       action.type === FETCH ?
         { fetchedAt: action.meta.fetchedAt }
       : action.meta,
   };
+  // mutation args hold request bodies (objects, FormData, files)
+  if (action.endpoint && !action.endpoint.sideEffect)
+    summary.args = action.args;
   if (action.error) {
     summary.error = true;
     summary.response = action.response;
@@ -145,7 +147,7 @@ class DebugStore {
     return (globalThis as any).__DC_ACTIONS__.get(this.resolveKey());
   }
 
-  protected resolveKey(): string {
+  private resolveKey(): string {
     const controllers: Map<string, Controller> =
       (globalThis as any).__DC_CONTROLLERS__ ?? new Map();
     const key =

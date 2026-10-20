@@ -11,8 +11,8 @@ methods they already know, without looking up a key first. `__DC__.controller` a
 store; with several stores, set `__DC__.store` to the one to read. Each access looks the store up again, so it keeps
 working after a provider remounts. Production builds don't include it.
 
-Logged actions now keep their `args` after their payloads are dropped, so any key in the log can be read back
-without importing its endpoint:
+Logged fetches of endpoints without side effects now keep their `args` after their payloads are dropped, so any
+key they logged can be read back without importing its endpoint:
 
 ```js title="Browser DevTools console"
 const c = __DC__.controller;

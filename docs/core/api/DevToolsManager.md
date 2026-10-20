@@ -115,9 +115,6 @@ __DC__.store = 'Data Client: My App (2)';
 // List all registered providers
 __DC_CONTROLLERS__.keys();
 
-// Get state from the first provider
-__DC_CONTROLLERS__.values().next().value.getState();
-
 // Get state by name
 __DC_CONTROLLERS__.get('Data Client: My App').getState();
 
@@ -134,8 +131,8 @@ server rendering, a store replaces the previous one with its name instead, since
 
 The action log keeps up to twice [`maxAge`](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#maxage)
 actions (100 by default) and skips the same duplicate fetches the extension does. To keep its memory small, only the
-newest 20 actions keep their `response`; older ones keep `type`, `key`, `endpoint`, `args`, `meta` and error
-responses. While an endpoint [polls](/rest/api/RestEndpoint#pollfrequency), the log keeps only its last
+newest 20 actions keep their `response`; older ones keep `type`, `key`, `endpoint`, `meta`, error
+responses and the `args` of endpoints without side effects. While an endpoint [polls](/rest/api/RestEndpoint#pollfrequency), the log keeps only its last
 `maxPollingActions` actions for each key (endpoint and args) (4 by default, the last two polls), so polling doesn't push everything else out:
 
 <ProviderManagers imports={['getDefaultManagers']}>
