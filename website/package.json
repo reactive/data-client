@@ -77,7 +77,7 @@
     "@mdx-js/react": "^3.1.0",
     "@monaco-editor/react": "^4.8.0-rc.0",
     "@number-flow/react": "^0.6.0",
-    "@typescript/native": "npm:typescript@7.1.0-beta",
+    "@typescript/native": "npm:typescript@7.0.2",
     "babel-plugin-react-compiler": "^1.0.0",
     "bignumber.js": "11.1.5",
     "clsx": "2.1.1",

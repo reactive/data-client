@@ -31,7 +31,7 @@
     "@babel/core": "^8.0.0",
     "@types/react": "*",
     "@types/react-dom": "*",
-    "@typescript/native": "npm:typescript@7.1.0-beta",
+    "@typescript/native": "npm:typescript@7.0.2",
     "react-refresh": "*",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "webpack": "*",
