@@ -2,7 +2,8 @@ name: regenerate
 # Reruns the generators whose output is committed: playground editor types
 # (yarn copy:websitetypes) and skill references (yarn build:skills).
 # Fails when the committed output is stale: PR authors regenerate and commit it.
-# Also type-checks the docs' React and Vue examples.
+# Also type-checks the docs' React and Vue examples, and runs the agents'
+# browser debugging snippets in Chromium.
 # Claude Code rules are left to agent-rules.yml, which needs no install.
 on:
   push:
@@ -90,3 +91,9 @@ jobs:
         if: ${{ !cancelled() }}
         run: yarn check:doc-examples
 
+      - name: Install Chromium
+        if: ${{ !cancelled() }}
+        run: yarn workspace rdc-website exec playwright install chromium --with-deps
+      - name: Run the agents' browser debugging snippets
+        if: ${{ !cancelled() }}
+        run: yarn check:browser-snippets

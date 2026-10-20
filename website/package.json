@@ -19,6 +19,7 @@
     "docusaurus": "docusaurus",
     "build:skills": "node framework-docs/skillReferences.mjs && node ../scripts/pack-skills.mjs --check",
     "check:doc-examples": "node framework-docs/checkExamples.mjs",
+    "check:browser-snippets": "node framework-docs/checkBrowserSnippets.mjs",
     "social-card": "node scripts/socialCard.mjs"
   },
   "engines": {

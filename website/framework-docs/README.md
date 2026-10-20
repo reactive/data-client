@@ -125,6 +125,18 @@ Vue:
 - Template expressions only see Vue's allowed globals, not `FormData` or `window`; move such code
   into `<script setup>`.
 
+### Browser debugging snippets
+
+`yarn check:browser-snippets` (`checkBrowserSnippets.mjs`, run by the `regenerate` check) runs every
+` ```js ` block starting `// run in page` in `docs/core/_agents/devtools-debugging.md` against a small
+React app built from the workspace sources, in Chromium, the ways agents' browser tools run them:
+as a function (Chrome DevTools MCP, Playwright MCP), as a CDP `Runtime.evaluate` expression (Cursor),
+and through Claude in Chrome's `__DC_RESULT__` recipe. It also checks the Cursor console capture in
+`browser-cursor.md` and the `Runtime.evaluate` results that page describes. Snippets use the entity
+`Todo` (ids 1 to 5), paths under `/todos` and `import('/src/resources/Todo.ts')`; a new snippet
+whose result matters gets an entry in its `EXPECT` list. Set `CHROMIUM_PATH` to use a Chromium
+other than Playwright's.
+
 ## How it works
 
 - `remarkFramework.js` keeps the matching `:::react`/`:::vue` content and drops the rest. Each docs
