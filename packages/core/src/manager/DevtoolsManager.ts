@@ -143,8 +143,18 @@ class DebugStore {
     { controller: Controller; actions: ActionTypes[] }
   >;
 
+  /** Live view of `registry` published as `globalThis.__DC_CONTROLLERS__` */
+  declare readonly controllers: Map<string, Controller>;
+
   constructor() {
-    Object.defineProperty(this, 'registry', { value: new Map() });
+    const registry = new Map<
+      string,
+      { controller: Controller; actions: ActionTypes[] }
+    >();
+    Object.defineProperty(this, 'registry', { value: registry });
+    Object.defineProperty(this, 'controllers', {
+      value: controllersFor(registry),
+    });
   }
 
   /** Keys of the registered stores, for `store` */
@@ -175,6 +185,44 @@ class DebugStore {
       : 'No Data Client store is mounted',
     );
   }
+}
+
+/** `Map<string, Controller>` view of a debug registry.
+ *
+ * Not the registry itself: its values are `{ controller, actions }`, and
+ * `__DC_CONTROLLERS__.get(key)` returns the Controller. Reads and writes go
+ * through `registry`, so the two stay in sync.
+ */
+function controllersFor(
+  registry: DebugStore['registry'],
+): Map<string, Controller> {
+  const view: Map<string, Controller> = Object.create(Map.prototype);
+  Object.defineProperty(view, 'size', { get: () => registry.size });
+  view.get = key => registry.get(key)?.controller;
+  view.has = key => registry.has(key);
+  view.keys = () => registry.keys();
+  view.values = function* () {
+    for (const { controller } of registry.values()) yield controller;
+  } as Map<string, Controller>['values'];
+  view.entries = function* () {
+    for (const [key, { controller }] of registry) yield [key, controller];
+  } as Map<string, Controller>['entries'];
+  view[Symbol.iterator] = () => view.entries();
+  view.forEach = (callback, thisArg) => {
+    for (const [key, { controller }] of registry)
+      callback.call(thisArg, controller, key, view);
+  };
+  view.delete = key => registry.delete(key);
+  view.clear = () => {
+    registry.clear();
+  };
+  view.set = (key, controller) => {
+    const existing = registry.get(key);
+    if (existing) existing.controller = controller;
+    else registry.set(key, { controller, actions: [] });
+    return view;
+  };
+  return view;
 }
 
 /** Integrates with https://github.com/reduxjs/redux-devtools
@@ -302,8 +350,10 @@ export default class DevToolsManager implements Manager {
   /** Called when initial state is ready */
   init(state: State<any>) {
     if (process.env.NODE_ENV !== 'production') {
-      const { registry }: DebugStore = ((globalThis as any).__DC__ ??=
-        new DebugStore());
+      const dc: DebugStore = ((globalThis as any).__DC__ ??= new DebugStore());
+      // Reassigned, not ??=, so replacing __DC__ cannot leave a stale Map.
+      (globalThis as any).__DC_CONTROLLERS__ = dc.controllers;
+      const { registry } = dc;
       const ownedBy = (key: string) =>
         registry.get(key)?.controller === this.controller;
       // keep the key this controller already holds (init can run again without cleanup)
@@ -366,4 +416,16 @@ export default class DevToolsManager implements Manager {
         registry.delete(key);
     }
   }
+}
+
+declare global {
+  /**
+   * Controllers `DevToolsManager` registered in development, keyed like `__DC__.stores`.
+   * Kept in sync with `__DC__.registry`. Absent from production builds.
+   *
+   * @deprecated Use `__DC__`. `__DC__.controller` is the page's store, and
+   * `__DC__.store` selects one when several are mounted.
+   * @see https://dataclient.io/docs/api/DevToolsManager#controllers
+   */
+  var __DC_CONTROLLERS__: Map<string, Controller> | undefined;
 }
