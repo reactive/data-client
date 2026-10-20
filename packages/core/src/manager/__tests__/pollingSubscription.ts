@@ -1,5 +1,5 @@
 import { Endpoint } from '@data-client/endpoint';
-import { Article } from '__tests__/new';
+import { Article, ArticleResource } from '__tests__/new';
 
 import { createSubscription } from '../../controller/actions/createSubscription';
 import Controller from '../../controller/Controller';
@@ -322,6 +322,33 @@ describe('PollingSubscription', () => {
         expect(warnSpy.mock.calls[0]).toMatchSnapshot();
       });
     });
+  });
+
+  it('should keep members of an extended endpoint when polling', () => {
+    const dispatch = jest.fn();
+    const controller = new Controller({ dispatch });
+    (controller as any).getState = () => initialState;
+    // extend() puts schema (and methods like process) on the prototype
+    const getList = ArticleResource.getList.extend({ pollFrequency: 5000 });
+    expect(Object.hasOwn(getList, 'schema')).toBe(false);
+
+    jest.useFakeTimers();
+    const sub = new PollingSubscription(
+      createSubscription(getList, { args: [] }),
+      controller,
+    );
+    jest.advanceTimersByTime(1);
+    sub.cleanup();
+    jest.useRealTimers();
+
+    expect(dispatch.mock.calls.length).toBe(1);
+    const polled = dispatch.mock.calls[0][0].endpoint;
+    expect(polled.schema).toBe(getList.schema);
+    expect(polled.process).toBe(getList.process);
+    expect(polled.name).toBe(getList.name);
+    expect(polled.key()).toBe(getList.key());
+    expect(polled.dataExpiryLength).toBe(2500);
+    expect(polled.errorPolicy()).toBe('soft');
   });
 
   describe('offline support', () => {
