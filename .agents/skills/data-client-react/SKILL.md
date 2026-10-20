@@ -128,11 +128,19 @@ const todosByUser = useQuery(groupTodoByUser);
 
 ## Browser Debugging
 
-When debugging a running app with a browser tool that runs JavaScript in the page, such as data that never
-appears, reverts, or refetches too often, read [devtools-debugging](references/devtools-debugging.md)
-before probing: its "Where to Start" table maps symptoms to the state and
-[actions](references/Actions.md) to check. In dev mode, `__DC__.controller` is the page's Controller, so every
-Controller method above works on it. Its Browser Tools table says how your tool runs the snippets; then read the
+When the running app shows the wrong data (it never appears, reverts, or refetches too often), check the page's
+store before reading code for the cause: the UI renders what the store holds, and its action log shows what put it
+there. In dev mode, `__DC__.controller` is the page's Controller, so every Controller method above works on it, and
+`__DC__.actions` are its recent [actions](references/Actions.md). With a browser tool that runs JavaScript in the page:
+
+1. Compare the store to the server: `__DC__.controller.getState().entities.Todo['5']` against the API's response.
+2. If they differ, find what wrote the store's value: `__DC__.actions.map(a => [a.type, a.key])` lists actions oldest
+   first; the `rdc/setresponse` that carried it names the endpoint, and that endpoint's schema shows how it reached
+   the entity.
+3. After a fix, compare every entity of that type to the server again, not only the one you changed.
+
+[devtools-debugging](references/devtools-debugging.md) has a "Where to Start" table mapping symptoms to the state and
+actions to check, ready-made snippets, and a Browser Tools table saying how your tool runs them; then read the
 `browser-*.md` setup it links for your tool.
 
 ## Managers
