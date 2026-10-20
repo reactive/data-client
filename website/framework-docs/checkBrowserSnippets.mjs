@@ -27,12 +27,12 @@
  */
 import * as esbuild from 'esbuild';
 import assert from 'node:assert/strict';
-import fs from 'node:fs';
 import path from 'node:path';
 import { chromium } from 'playwright';
 
 import { docCodeBlocks } from './docsToMarkdown.mjs';
 import { ROOT } from './site.mjs';
+import { workspaceSources } from '../scripts/workspaceSources.mjs';
 
 const AGENTS = path.join(ROOT, 'docs/core/_agents');
 const ORIGIN = 'http://app.test';
@@ -54,20 +54,15 @@ function snippets(file) {
     }));
 }
 
-/** Resolves `@data-client/<pkg>[/<sub>]` to the package's source */
-const workspaceSources = {
-  name: 'workspace-sources',
-  setup(build) {
-    build.onResolve({ filter: /^@data-client\// }, ({ path: id }) => {
-      const [, pkg, sub] = id.match(/^@data-client\/([^/]+)\/?(.*)$/);
-      const dir = path.join(ROOT, 'packages', pkg, 'src', sub);
-      const file = ['index.ts', 'index.tsx', 'index.js']
-        .map(name => path.join(dir, name))
-        .find(fs.existsSync);
-      return file ? { path: file } : undefined;
-    });
-  },
-};
+/** The page's snippet containing `marker` */
+function findSnippet(file, marker) {
+  const snippet = snippets(file).find(({ src }) => src.includes(marker));
+  assert.ok(
+    snippet,
+    `no snippet in ${file} contains ${JSON.stringify(marker)}`,
+  );
+  return snippet.src;
+}
 
 async function bundleApp() {
   const { outputFiles } = await esbuild.build({
@@ -169,17 +164,22 @@ async function runExpression(app, src) {
   return result.value ?? null;
 }
 
+const RECIPE_SLOT = '(async () => { ... })()';
+const RECIPE = docCodeBlocks(
+  path.join(AGENTS, 'browser-claude-in-chrome.md'),
+  'react',
+).find(({ value }) => value.includes('__DC_RESULT__'))?.value;
+assert.ok(
+  RECIPE?.includes(RECIPE_SLOT),
+  'Claude in Chrome __DC_RESULT__ recipe',
+);
+
 /** Claude in Chrome: an async snippet starts, then `__DC_RESULT__` is read */
 async function runClaudeInChrome(app, src) {
   if (!/^async /m.test(src)) return runExpression(app, src);
-  const recipe = docCodeBlocks(
-    path.join(AGENTS, 'browser-claude-in-chrome.md'),
-    'react',
-  ).find(({ value }) => value.includes('__DC_RESULT__')).value;
-  assert.match(recipe, /\(async \(\) => \{ \.\.\. \}\)\(\)/);
   await runExpression(
     app,
-    `() => { ${recipe.replace('(async () => { ... })()', `(${src}\n)()`)} }`,
+    `() => { ${RECIPE.replace(RECIPE_SLOT, () => `(${src}\n)()`)} }`,
   );
   for (let tries = 0; tries < 50; tries++) {
     const result = await runExpression(app, '() => globalThis.__DC_RESULT__');
@@ -192,7 +192,7 @@ async function runClaudeInChrome(app, src) {
 
 const actionTypes = log => log.map(({ type }) => type);
 
-/** What a snippet must return, by its comment (or a line of its source) */
+/** What each snippet must return, by its comment (or a line of its source) */
 const EXPECT = [
   [
     'run in page\n() => {\n  const NAME',
@@ -232,20 +232,42 @@ const EXPECT = [
     result => assert.deepEqual(result, { actions: [], meta: [] }),
   ],
   ['length = 0', result => assert.deepEqual(result, { cleared: true })],
+  [
+    'triggers refetch for subscribed',
+    result => assert.deepEqual(result, { invalidated: true }),
+  ],
+  [
+    'invalidateAll({',
+    result => assert.equal(result, 'todo endpoints invalidated'),
+  ],
+  ['expireAll({', result => assert.equal(result, 'todo endpoints expired')],
+  ['inject mock data', result => assert.deepEqual(result, { set: true })],
+  ['resetEntireStore()', result => assert.deepEqual(result, { reset: true })],
 ];
+
+/** The EXPECT check for a snippet; every snippet needs one */
+function expectationFor(src) {
+  const found = EXPECT.find(([marker]) => src.includes(marker));
+  assert.ok(found, 'add an EXPECT entry for this snippet');
+  return found[1];
+}
+
+/** Uncaught page errors, except the ones a check causes on purpose */
+function assertNoPageErrors({ pageErrors }, label, allowed = []) {
+  assert.deepEqual(
+    pageErrors.filter(({ message }) => !allowed.includes(message)),
+    [],
+    `${label}: page errors`,
+  );
+}
 
 async function checkSnippets(browser, app, run, label) {
   const target = await openApp(browser, app);
-  const list = snippets('devtools-debugging.md');
-  for (const [marker] of EXPECT)
-    assert.ok(
-      list.some(({ src }) => src.includes(marker)),
-      `no snippet matches ${JSON.stringify(marker)}`,
-    );
-  for (const { name, src } of list) {
+  for (const { name, src } of snippets('devtools-debugging.md')) {
     try {
+      const expect = expectationFor(src);
       const result = await run(target, src);
-      EXPECT.find(([marker]) => src.includes(marker))?.[1](result);
+      expect(result);
       assert.ok(!result?.error, `returned an error: ${JSON.stringify(result)}`);
     } catch (e) {
       throw new Error(
@@ -263,14 +285,14 @@ async function checkSnippets(browser, app, run, label) {
     'rdc/reset',
   ])
     assert.ok(log.includes(type), `${label}: log is missing ${type}: ${log}`);
-  assert.deepEqual(target.pageErrors, [], `${label}: page errors`);
+  assertNoPageErrors(target, label);
   await target.page.close();
 }
 
 /** Older versions have no `__DC_ACTIONS__`: the shim wraps dispatch instead */
 async function checkShimFallback(browser, app) {
   const target = await openApp(browser, app);
-  const shim = snippets('devtools-debugging.md')[0].src;
+  const shim = findSnippet('devtools-debugging.md', 'const NAME');
   await runFunction(target, '() => { delete globalThis.__DC_ACTIONS__; }');
   for (let i = 0; i < 2; i++)
     assert.equal((await runFunction(target, shim)).actionLog, 'shim');
@@ -286,6 +308,7 @@ async function checkShimFallback(browser, app) {
     log.filter(type => type === 'rdc/invalidateall'),
     ['rdc/invalidateall'],
   );
+  assertNoPageErrors(target, 'shim');
   await target.page.close();
 }
 
@@ -319,15 +342,15 @@ async function checkCdpResults(browser, app) {
     await runExpression(target, '() => ({ a: 1 })').then(v => v.a),
     1,
   );
+  assertNoPageErrors(target, 'Runtime.evaluate');
   await target.page.close();
 }
 
 /** desktop step 4: `__DC_CONSOLE__` records console calls and uncaught errors */
 async function checkConsoleCapture(browser, app) {
   const target = await openApp(browser, app);
-  const [capture] = snippets('browser-cursor.md');
-  assert.ok(capture.src.includes('__DC_CONSOLE__'), 'console capture snippet');
-  assert.deepEqual(await runExpression(target, capture.src), {
+  const capture = findSnippet('browser-cursor.md', '__DC_CONSOLE__');
+  assert.deepEqual(await runExpression(target, capture), {
     ok: true,
     count: 0,
   });
@@ -341,7 +364,10 @@ async function checkConsoleCapture(browser, app) {
     }`,
   );
   await target.page.waitForTimeout(100);
-  const log = await runExpression(target, '() => __DC_CONSOLE__.slice(-20)');
+  const { log, total } = await runExpression(
+    target,
+    '() => ({ log: __DC_CONSOLE__.slice(-20), total: __DC_CONSOLE__.length })',
+  );
   const has = (level, text) =>
     assert.ok(
       log.some(entry => entry.level === level && entry.text.includes(text)),
@@ -352,7 +378,8 @@ async function checkConsoleCapture(browser, app) {
   has('uncaught', 'uncaught');
   has('unhandledrejection', 'unhandled');
   // rerunning keeps the log and doesn't wrap console twice
-  assert.equal((await runExpression(target, capture.src)).count, log.length);
+  assert.equal((await runExpression(target, capture)).count, total);
+  assertNoPageErrors(target, 'console capture', ['uncaught', 'unhandled']);
   await target.page.close();
 }
 

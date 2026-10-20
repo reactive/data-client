@@ -10,8 +10,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
+import { workspaceSources } from '../workspaceSources.mjs';
+
 const here = dirname(fileURLToPath(import.meta.url));
-const root = join(here, '../../..');
 const outDir = join(here, '../../static/videos/blog');
 
 /** name -> scene entry; each records to static/videos/blog/<name>.webm */
@@ -65,22 +66,7 @@ async function bundle(entryPoint) {
     format: 'esm',
     jsx: 'automatic',
     define: { 'process.env.NODE_ENV': '"development"' },
-    // use workspace sources, like jest does
-    plugins: [
-      {
-        name: 'data-client-src',
-        setup(build) {
-          // workspace sources, like moduleNameMapper in jest.config.js
-          build.onResolve({ filter: /^@data-client\// }, args => {
-            const src = args.path.replace(/^@data-client\/([^/]+)/, '$1/src');
-            return build.resolve(`./packages/${src}`, {
-              kind: args.kind,
-              resolveDir: root,
-            });
-          });
-        },
-      },
-    ],
+    plugins: [workspaceSources],
     logLevel: 'error',
   });
   return result.outputFiles[0].text;
