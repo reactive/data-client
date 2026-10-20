@@ -96,6 +96,10 @@ function buildSkill(skillDir, { frameworks, docs, files = {}, skills = [] }) {
     if (!fs.existsSync(path.join(ROOT, doc)))
       throw new Error(`${rel(skillDir)}/${MANIFEST}: ${doc} does not exist`);
   }
+  for (const source of Object.values(files)) {
+    if (!fs.existsSync(path.join(ROOT, source)))
+      throw new Error(`${rel(skillDir)}/${MANIFEST}: ${source} does not exist`);
+  }
   for (const framework of frameworks) {
     const localRoutes = localRoutesFor(docs, framework);
     const resolveRoute = url => {

@@ -39,8 +39,8 @@ const commitsAll =
     command.replace(/"(?:\\.|[^"\\])*"|'[^']*'/g, "''"),
   );
 
-/** Docs some skill renders, source files it copies, and skills another bundles */
-let skillDocs, skillFiles, bundledSkills;
+/** Docs some skill renders or source files it copies, and skills another bundles */
+let skillDocs, bundledSkills;
 function readManifests() {
   const skills = path.join(projectDir, '.agents/skills');
   // checks every changed file, so tolerate checkouts without skills
@@ -48,23 +48,22 @@ function readManifests() {
     .map(skill => path.join(skills, skill, 'references.json'))
     .filter(manifest => fs.existsSync(manifest))
     .map(manifest => JSON.parse(fs.readFileSync(manifest, 'utf8')));
-  skillDocs = new Set(manifests.flatMap(({ docs }) => Object.values(docs)));
-  skillFiles = new Set(
-    manifests.flatMap(({ files = {} }) => Object.values(files)),
+  skillDocs = new Set(
+    manifests.flatMap(({ docs, files = {} }) => [
+      ...Object.values(docs),
+      ...Object.values(files),
+    ]),
   );
   bundledSkills = new Set(manifests.flatMap(({ skills = [] }) => skills));
 }
-/** partials (`_foo.mdx`) may be inlined anywhere */
+/** a doc or source file some skill renders; partials (`_foo.mdx`) may be inlined anywhere */
 function isSkillDoc(file) {
-  if (!/^docs\/.*\.mdx?$/.test(file)) return false;
-  if (path.basename(file).startsWith('_')) return true;
+  const isDoc = /^docs\/.*\.mdx?$/.test(file);
+  if (isDoc && path.basename(file).startsWith('_')) return true;
   if (!skillDocs) readManifests();
-  return skillDocs.has(file.replace(/\.(react|vue)(\.mdx?)$/, '$2'));
-}
-/** source files a skill's references.json `files` copies in */
-function isSkillSourceFile(file) {
-  if (!skillFiles) readManifests();
-  return skillFiles.has(file);
+  return skillDocs.has(
+    isDoc ? file.replace(/\.(react|vue)(\.mdx?)$/, '$2') : file,
+  );
 }
 /** any file of a bundled skill is copied into the skill bundling it */
 function isBundledSkillFile(file) {
@@ -75,7 +74,6 @@ function isBundledSkillFile(file) {
 }
 const isSkillInput = file =>
   isSkillDoc(file) ||
-  isSkillSourceFile(file) ||
   /^\.agents\/skills\/[^/]+\/(references\.json|SKILL\.md)$/.test(file) ||
   isBundledSkillFile(file) ||
   file.startsWith('website/framework-docs/');

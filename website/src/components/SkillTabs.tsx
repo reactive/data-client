@@ -3,7 +3,6 @@ import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import React from 'react';
 
-import AgentPrompt from './AgentPrompt';
 import styles from './SkillTabs.module.css';
 import useFramework from './useFramework';
 import skillPackages from '../../../.agents/skill-packages.json';
@@ -38,7 +37,14 @@ export default function SkillTabs({
   // agents' own plugin installers first, then skills that update with the packages
   const tabs = [
     { label: 'Claude Code plugin', value: 'claude', code: commands.claude },
-    { label: 'Cursor plugin', value: 'cursor', code: commands.cursor },
+    // typed into Cursor's Agent chat, not a terminal
+    {
+      label: 'Cursor plugin',
+      value: 'cursor',
+      code: commands.cursor,
+      language: 'prompt',
+      title: 'Cursor',
+    },
     { label: 'Codex plugin', value: 'codex', code: commands.codex },
     { label: 'Installed packages', value: 'packages', code: commands.packages },
     { label: 'Skills CLI', value: 'skills', code: commands.skillsCli },
@@ -51,15 +57,15 @@ export default function SkillTabs({
       groupId="agent-skills-program"
       values={tabs}
     >
-      {tabs.map(({ value, code }) => (
+      {tabs.map(({ value, code, language = 'bash', title }) => (
         <TabItem key={value} value={value}>
-          {/* typed into Cursor's Agent chat, not a terminal */}
-          {value === 'cursor' ?
-            <AgentPrompt prompt={code} title="Cursor" framed={framed} />
-          : <CodeBlock className="language-bash" metastring={metastring}>
-              {code}
-            </CodeBlock>
-          }
+          <CodeBlock
+            className={`language-${language}`}
+            metastring={metastring}
+            title={title}
+          >
+            {code}
+          </CodeBlock>
         </TabItem>
       ))}
     </Tabs>

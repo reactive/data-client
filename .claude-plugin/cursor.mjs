@@ -12,10 +12,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+export const root = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+);
 const skills = '.agents/skills';
+const repository = 'https://github.com/reactive/data-client';
 
-/** Cursor's manifests (path => JSON), derived from marketplace.json */
+/** Cursor's manifests (path => JSON): the `data-client` entry of
+ * marketplace.json plus Cursor's own listing fields */
 export function cursorFiles() {
   const marketplace = JSON.parse(
     fs.readFileSync(path.join(root, '.claude-plugin/marketplace.json'), 'utf8'),
@@ -31,7 +36,7 @@ export function cursorFiles() {
           name: plugin.name,
           source: {
             source: 'git-subdir',
-            url: 'https://github.com/reactive/data-client.git',
+            url: `${repository}.git`,
             path: skills,
             ref: 'master',
           },
@@ -46,7 +51,7 @@ export function cursorFiles() {
       description: plugin.description,
       author: marketplace.owner,
       homepage: plugin.homepage,
-      repository: 'https://github.com/reactive/data-client',
+      repository,
       license: plugin.license,
       keywords: [
         'data-client',
