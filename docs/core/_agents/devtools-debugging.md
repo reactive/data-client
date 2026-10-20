@@ -113,8 +113,7 @@ install it, then repeat the action (`invalidateAll` in [Change state](#change-st
 
 ## The Store
 
-`__DC__` needs no setup and follows the app across remounts. Snippets use the entity `Todo` and paths containing
-`/todos`: replace them with the app's own.
+Snippets use the entity `Todo` and paths containing `/todos`: replace them with the app's own.
 
 - **Several stores** (`__DC__.controller` throws `Set __DC__.store to one of: ...`): set `__DC__.store` to the key
   whose `getState().endpoints` holds the keys you are debugging. A page load clears it.
@@ -122,14 +121,14 @@ install it, then repeat the action (`invalidateAll` in [Change state](#change-st
 
 ## Read State
 
-A key's denormalized response, as components see it. The action log holds each key's endpoint and `args`, so this
-works for any key fetched since the page loaded:
+A key's denormalized response, as components see it. The action log holds each fetched key's endpoint and `args`,
+so this works for any key read since the page loaded:
 
 ```js
 // run in page — response for a key
 () => {
   const c = __DC__.controller, state = c.getState();
-  const a = __DC__.actions.findLast(a => a.key?.includes('/todos') && a.endpoint);
+  const a = __DC__.actions.findLast(a => a.args && a.key?.includes('/todos'));
   if (!a) return { error: 'key not in the action log; repeat the fetch' };
   const { data, expiryStatus, expiresAt } = c.getResponse(a.endpoint, ...a.args, state);
   return { key: a.key, data, expiryStatus, expiresAt, error: c.getError(a.endpoint, ...a.args, state)?.message };
@@ -142,7 +141,7 @@ works for any key fetched since the page loaded:
 // run in page — refetch a key
 async () => {
   const c = __DC__.controller;
-  const a = __DC__.actions.findLast(a => a.key?.includes('/todos') && a.endpoint);
+  const a = __DC__.actions.findLast(a => a.args && a.key?.includes('/todos'));
   if (!a) return { error: 'key not in the action log' };
   await c.fetch(a.endpoint, ...a.args);
   return c.getResponse(a.endpoint, ...a.args, c.getState()).data;

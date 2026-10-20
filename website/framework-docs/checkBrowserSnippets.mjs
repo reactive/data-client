@@ -191,42 +191,24 @@ async function runExpression(target, src) {
 
 const actionTypes = log => log.map(({ type }) => type);
 
-/** What each snippet must return, by its comment */
-const EXPECT = [
-  [
-    'response for a key',
-    result => {
-      assert.equal(result.data?.length, TODOS.length);
-      assert.equal(result.expiryStatus, 3);
-    },
-  ],
-  ['refetch a key', result => assert.equal(result?.length, TODOS.length)],
-  [
-    'cache entries by path substring',
-    result => assert.ok(result.some(({ key }) => key.includes('/todos'))),
-  ],
-  [
-    'recent actions',
-    result => assert.ok(actionTypes(result).includes('rdc/setresponse')),
-  ],
-  ['errors', result => assert.deepEqual(result, { actions: [], meta: [] })],
-  [
-    'invalidate keys by path substring',
-    result => assert.deepEqual(result, { invalidated: true }),
-  ],
-  [
-    '— requests\n',
-    result => assert.ok(result.some(({ url }) => url.endsWith('/todos'))),
-  ],
-  ['— console capture', result => assert.equal(result.ok, true)],
-];
-
-/** The EXPECT check for a snippet; every snippet needs one */
-function expectationFor(src) {
-  const found = EXPECT.find(([marker]) => src.includes(marker));
-  assert.ok(found, 'add an EXPECT entry for this snippet');
-  return found[1];
-}
+/** What each snippet must return, by its name (`// run in page — <name>`) */
+const EXPECT = {
+  'response for a key': result => {
+    assert.equal(result.data?.length, TODOS.length);
+    assert.equal(result.expiryStatus, 3);
+  },
+  'refetch a key': result => assert.equal(result?.length, TODOS.length),
+  'cache entries by path substring': result =>
+    assert.ok(result.some(({ key }) => key.includes('/todos'))),
+  'recent actions': result =>
+    assert.ok(actionTypes(result).includes('rdc/setresponse')),
+  errors: result => assert.deepEqual(result, { actions: [], meta: [] }),
+  'invalidate keys by path substring': result =>
+    assert.deepEqual(result, { invalidated: true }),
+  requests: result =>
+    assert.ok(result.some(({ url }) => url.endsWith('/todos'))),
+  'console capture': result => assert.equal(result.ok, true),
+};
 
 /** Uncaught page errors, except the ones a check causes on purpose */
 function assertNoPageErrors({ pageErrors }, label, allowed = []) {
@@ -241,15 +223,15 @@ async function checkSnippets(run, label) {
   const target = await openApp();
   for (const { name, src } of SNIPPETS) {
     try {
-      const expect = expectationFor(src);
+      const expect = EXPECT[name];
+      assert.ok(expect, 'add an EXPECT entry for this snippet');
       const result = await run(target, src);
       expect(result);
       assert.ok(!result?.error, `returned an error: ${JSON.stringify(result)}`);
     } catch (e) {
-      throw new Error(
-        `${label}: snippet "${name || src.split('\n')[1]}": ${e.message}`,
-        { cause: e },
-      );
+      throw new Error(`${label}: snippet "${name}": ${e.message}`, {
+        cause: e,
+      });
     }
   }
   // the snippets' Controller calls are logged like the app's own

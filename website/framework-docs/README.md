@@ -132,8 +132,8 @@ Vue:
 React app built from the workspace sources, in Chromium, each way that page's Browser Tools section says a tool can
 run them, with their parameters and the `__DC_RESULT__` recipe read from the page (a new way needs a runner in its
 `WAYS`). It also checks the `Runtime.evaluate` results the page describes. Snippets use the entity
-`Todo` (ids 1 to 5) and paths under `/todos`; each snippet
-needs an entry in its `EXPECT` list, saying what it returns. Set `CHROMIUM_PATH` to use a Chromium
+`Todo` (ids 1 to 5) and paths under `/todos`; each snippet is named (`// run in page — <name>`) and
+needs an entry under that name in its `EXPECT`, saying what it returns. Set `CHROMIUM_PATH` to use a Chromium
 other than Playwright's.
 
 ## How it works
