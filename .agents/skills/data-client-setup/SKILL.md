@@ -98,7 +98,7 @@ For other agents, use the installer that installed this skill. For OpenSkills an
 - **OpenSkills** (`AGENTS.md` lists skills in an `<available_skills>` block): `npx openskills install reactive/data-client/.agents/skills/<skill>`, once per skill.
 - **Otherwise** use the skills CLI: `npx skills add reactive/data-client --skill <skill> --skill <skill> ...`
 
-Newly installed skills may not load until the next session, so read their `SKILL.md` directly (`.claude/skills/<skill>/SKILL.md` after linking) when this skill says to apply them.
+Skills linked during a session may not load until the next one (Claude Code only picks them up live from a `.claude/skills` folder that existed when the session started, and Cursor fixes its skill list when a chat starts). So for the rest of this session, whenever a task calls for one of them, here or after setup, read its `SKILL.md` directly (`.claude/skills/<skill>/SKILL.md` after linking) unless it's already available by name. The next session loads them on its own.
 
 ## Installation
 
@@ -283,7 +283,7 @@ In Vue, call `app.use(DataClientPlugin)` on the root app before `app.mount()`.
 
 ## Next Steps
 
-After core setup and protocol-specific setup:
+After core setup and protocol-specific setup (in this session, read each skill below from `.claude/skills/<skill>/SKILL.md`):
 1. Define data schemas using `Entity` - see skill "data-client-schema"
 2. Use hooks like `useSuspense`, `useQuery`, `useController` - see skill "data-client-react" or "data-client-vue"
 3. Define REST resources - see skill "data-client-rest"
