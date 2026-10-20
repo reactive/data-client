@@ -1,6 +1,6 @@
 ---
 description: Constraints for the agent browser-debugging docs (devtools-debugging snippets and per-tool browser setup pages)
-globs: docs/core/_agents/**, docs/core/getting-started/debugging.md, docs/core/getting-started/agent-skills.md, docs/core/api/DevToolsManager.md
+globs: docs/core/_agents/**, docs/core/getting-started/debugging.md, docs/core/getting-started/agent-skills.md, docs/core/api/DevToolsManager.md, website/framework-docs/checkBrowserSnippets.mjs
 alwaysApply: false
 ---
 
@@ -55,3 +55,4 @@ Cursor desktop (raw inputs and outputs in [#4428](https://github.com/reactive/da
 - `examples/vue-todo-app` (Vite, `npm run dev`) serves `/src/...` for `import()` snippets. Its resources are `src/resources/TodoResource.ts`, not the snippets' illustrative `Todo.ts`.
 - `actionLog: 'built-in'` (`__DC_ACTIONS__`) is unreleased (`.changeset/devtools-action-log.md`). Testing it needs an app built against the workspace `packages/`.
 - Record raw tool input and output for every behavior you document, so it can become an automated check.
+- `yarn check:browser-snippets` (`website/framework-docs/checkBrowserSnippets.mjs`, in the `regenerate` check) runs every snippet in Chromium against an app built from the workspace `packages/`, the ways the adapters do (function, `Runtime.evaluate` expression, `__DC_RESULT__`), plus the console capture and the `Runtime.evaluate` results above. Run it after any snippet change, and turn each newly recorded behavior into a check there. It replays CDP, not the tools themselves, so a new claim about a tool still needs a live run.
