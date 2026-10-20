@@ -17,7 +17,7 @@ key they logged can be read back without importing its endpoint:
 ```js title="Browser DevTools console"
 const c = __DC__.controller;
 const a = __DC__.actions.findLast(
-  a => a.endpoint && a.key.includes('/todos'),
+  a => a.args && a.key?.includes('/todos'),
 );
 c.getResponse(a.endpoint, ...a.args, c.getState()).data;
 ```
