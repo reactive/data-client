@@ -12,8 +12,8 @@ Debug `@data-client/vue` state and actions programmatically from any browser too
 
 ## Browser Tools
 
-Every snippet below is a function. Each tool runs it one of three ways; its setup page only adds how to open the
-page and anything specific to that tool.
+Every snippet below is a function. Find your tool in the table: it runs snippets one of the ways below, and its
+setup page says how to open the page.
 
 | Tool                 | Runs a snippet with                           | How                                       | Network log                                            | Console                                               | Setup                                                           |
 | -------------------- | --------------------------------------------- | ----------------------------------------- | ------------------------------------------------------ | ----------------------------------------------------- | --------------------------------------------------------------- |

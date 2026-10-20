@@ -1,6 +1,6 @@
 ---
 name: data-client-react
-description: Use @data-client/react hooks for data fetching, mutations, and rendering - useSuspense, useFetch, useQuery, useCache, useLive, useDLE, useSubscription, useController, DataProvider, AsyncBoundary, useLoading, useDebounce. Use when reading/rendering remote data, triggering mutations, doing optimistic updates, real-time subscriptions, or wiring Suspense/error boundaries in React.
+description: Use @data-client/react hooks for data fetching, mutations, and rendering - useSuspense, useFetch, useQuery, useCache, useLive, useDLE, useSubscription, useController, DataProvider, AsyncBoundary, useLoading, useDebounce. Use when reading/rendering remote data, triggering mutations, doing optimistic updates, real-time subscriptions, or wiring Suspense/error boundaries in React, or debugging a running app's data from a browser tool.
 license: Apache 2.0
 ---
 ## Rendering
@@ -128,12 +128,12 @@ const todosByUser = useQuery(groupTodoByUser);
 
 ## Browser Debugging
 
-When debugging a running app with a browser tool that runs JavaScript in the page (Cursor's browser,
-Chrome DevTools MCP, Playwright MCP, Claude in Chrome, and others), such as data that never
+When debugging a running app with a browser tool that runs JavaScript in the page, such as data that never
 appears, reverts, or refetches too often, read [devtools-debugging](references/devtools-debugging.md)
 before probing: its "Where to Start" table maps symptoms to the state and
 [actions](references/Actions.md) to check. Dev mode only: start with its debug shim, which every other
-snippet there depends on. Its Browser Tools table says how your tool runs the snippets and links its setup.
+snippet there depends on. Its Browser Tools table says how your tool runs the snippets; then read the
+`browser-*.md` setup it links for your tool.
 
 ## Managers
 
@@ -170,6 +170,7 @@ For detailed API documentation, see the [references](references/) directory:
 - [data-dependency](references/data-dependency.md) - Rendering guide
 - [mutations](references/mutations.md);[_VoteDemo.md](references/_VoteDemo.md) - Mutations guide
 - [Actions](references/Actions.md) - Store action types (FETCH, SET, etc.)
-- [devtools-debugging](references/devtools-debugging.md);[browser-cursor.md](references/browser-cursor.md);[browser-chrome-devtools-mcp.md](references/browser-chrome-devtools-mcp.md);[browser-playwright-mcp.md](references/browser-playwright-mcp.md);[browser-claude-in-chrome.md](references/browser-claude-in-chrome.md) - Debug the running app from a browser tool
+- [devtools-debugging](references/devtools-debugging.md) - Debug the running app from a browser tool
+- [browser-cursor.md](references/browser-cursor.md);[browser-chrome-devtools-mcp.md](references/browser-chrome-devtools-mcp.md);[browser-playwright-mcp.md](references/browser-playwright-mcp.md);[browser-claude-in-chrome.md](references/browser-claude-in-chrome.md) - Setup for one browser tool; read only yours
 
 **ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via skill "data-client-schema" definitions.**
