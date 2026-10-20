@@ -156,7 +156,9 @@ async function openApp() {
   await page.goto(ORIGIN);
   await page.getByText('Todo 5').waitFor();
   await page.waitForFunction(() =>
-    __DC__.actions.some(a => a.type === 'rdc/setresponse' && a.endpoint?.sideEffect),
+    __DC__.actions.some(
+      a => a.type === 'rdc/setresponse' && a.endpoint?.sideEffect,
+    ),
   );
   return {
     page,
@@ -258,7 +260,11 @@ async function checkSnippets(run, label) {
   const log = await run(target, '() => __DC__.actions.map(a => a.type)');
   for (const type of ['rdc/fetch', 'rdc/invalidateall'])
     assert.ok(log.includes(type), `${label}: log is missing ${type}: ${log}`);
-  assert.deepEqual(target.mutations, ['/todos/1'], `${label}: a snippet resent a mutation`);
+  assert.deepEqual(
+    target.mutations,
+    ['/todos/1'],
+    `${label}: a snippet resent a mutation`,
+  );
   assertNoPageErrors(target, label);
   await target.page.close();
 }
