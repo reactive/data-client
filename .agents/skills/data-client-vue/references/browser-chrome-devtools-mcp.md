@@ -24,7 +24,7 @@ Add it to the agent's MCP servers:
 ## Use
 
 1. Open the dev server with `new_page` or `navigate_page`.
-2. Run each snippet with `evaluate_script`, passing it as `function` exactly as written. It awaits async
-   snippets and returns the result as JSON.
+2. Run each snippet with `evaluate_script`, passing it as `function`
+   ([function](./devtools-debugging.md#function)).
 3. Read requests with `list_network_requests` (full details with `get_network_request`) and logs with
    `list_console_messages`.

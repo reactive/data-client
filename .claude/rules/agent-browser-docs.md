@@ -13,7 +13,8 @@ paths:
 
 ## Layout
 
-- `docs/core/_agents/devtools-debugging.md` owns every snippet, written once. Each `browser-<tool>.md` is only an adapter: open the page, run a snippet, read requests, read console output. Code that works in any tool goes in `devtools-debugging.md`; an adapter links to it rather than copying it.
+- `docs/core/_agents/devtools-debugging.md` is the core: every snippet, the three ways a tool runs one (Function, Awaited expression, Expression with the `__DC_RESULT__` recipe), and the requests snippet and console capture for tools without readers. Each `browser-<tool>.md` is a thin adapter: install, how to open the page, which tool runs snippets and which of the three ways it is, its request and console readers (or a link to the core fallbacks), and quirks only that tool has (Cursor's `Page.reload`). Anything that would work in a second tool goes in the core; an adapter links to it rather than copying it.
+- A new tool that runs JavaScript in the page is a row in the Browser Tools table plus an adapter page naming one of the three ways. A tool that fits none of them adds a fourth way to the core and to `checkBrowserSnippets.mjs`, not to its adapter.
 - Adding, renaming or dropping a tool touches: the Browser Tools table in `devtools-debugging.md`, the agent table in `browser-cursor.md` (Cursor only), the tool names on `getting-started/debugging.md`, `getting-started/agent-skills.md` and `api/DevToolsManager.md`, and both skills' `references.json` plus the reference line in their `SKILL.md`.
 
 ## Snippet contract
@@ -48,8 +49,6 @@ Cursor desktop (raw inputs and outputs in [#4428](https://github.com/reactive/da
 
 ## Sharing code between adapters
 
-- Two snippets live in `browser-cursor.md` but work in any tool: the console capture (`__DC_CONSOLE__`) and the `performance` request reader. When a second adapter needs either one (another tool with no console reader, or console output from page load, which only an in-page capture installed before the action can see), move it into `devtools-debugging.md` and link it from both adapters.
-- The `__DC_RESULT__` wrapper in `browser-claude-in-chrome.md` serves any adapter that evaluates expressions without awaiting. Move it into `devtools-debugging.md` when a second one appears.
 - Merging the shim and console capture into one install snippet saves a call per page load. It also makes each snippet harder to rerun and read, so only merge them if round trips become the problem.
 - Shared install snippets follow Step 1's shape: a `NAME`-style constant at the top for anything the agent sets, an idempotent install, and an `{ ok, ... }` or `{ error, ... }` return.
 
@@ -60,4 +59,4 @@ Cursor desktop (raw inputs and outputs in [#4428](https://github.com/reactive/da
 - `examples/vue-todo-app` (Vite, `npm run dev`) serves `/src/...` for `import()` snippets. Its resources are `src/resources/TodoResource.ts`, not the snippets' illustrative `Todo.ts`.
 - `actionLog: 'built-in'` (`__DC_ACTIONS__`) is unreleased (`.changeset/devtools-action-log.md`). Testing it needs an app built against the workspace `packages/`.
 - Record raw tool input and output for every behavior you document, so it can become an automated check.
-- `yarn check:browser-snippets` (`website/framework-docs/checkBrowserSnippets.mjs`, in the `regenerate` check) runs every snippet in Chromium against an app built from the workspace `packages/`, the ways the adapters do (function, `Runtime.evaluate` expression, `__DC_RESULT__`), plus the console capture and the `Runtime.evaluate` results above. Run it after any snippet change, and turn each newly recorded behavior into a check there. It replays CDP, not the tools themselves, so a new claim about a tool still needs a live run.
+- `yarn check:browser-snippets` (`website/framework-docs/checkBrowserSnippets.mjs`, in the `regenerate` check) runs every snippet in Chromium against an app built from the workspace `packages/`, the ways the adapters do (each of the three ways, reading their parameters and the `__DC_RESULT__` recipe from the core page), plus the console capture and the `Runtime.evaluate` results above. Every snippet needs an `EXPECT` entry. Run it after any snippet change, and turn each newly recorded behavior into a check there. It replays CDP, not the tools themselves, so a new claim about a tool still needs a live run.

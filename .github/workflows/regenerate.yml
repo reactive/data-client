@@ -10,7 +10,7 @@ on:
     branches:
       - master
     # Inputs of scripts/copywebsitetypes.sh, website/framework-docs/skillReferences.mjs,
-    # scripts/pack-skills.mjs --check and checkExamples.mjs
+    # scripts/pack-skills.mjs --check, checkExamples.mjs and checkBrowserSnippets.mjs
     paths:
       - 'packages/**'
       - '!packages/**/__tests__/**'

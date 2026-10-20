@@ -24,7 +24,7 @@ Add it to the agent's MCP servers:
 ## Use
 
 1. Open the dev server with `browser_navigate`.
-2. Run each snippet with `browser_evaluate`, passing it as `function` exactly as written. It awaits async
-   snippets.
+2. Run each snippet with `browser_evaluate`, passing it as `function`
+   ([function](./devtools-debugging.md#function)).
 3. Read requests with `browser_network_requests` (pass `filter`, a URL regexp, to narrow them; full details with
    `browser_network_request`) and logs with `browser_console_messages`.

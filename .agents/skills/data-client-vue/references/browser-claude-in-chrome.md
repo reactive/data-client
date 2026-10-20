@@ -8,19 +8,6 @@ your own Chrome.
 ## Use
 
 1. Open the dev server in a tab with `navigate`.
-
-2. Run each snippet with `javascript_tool`. It returns the value of the last expression, so call the snippet
-   instead of passing it bare: `(() => { ... })()`. An async snippet returns a promise; if you get a promise
-   instead of its value, start it in one call, then read `__DC_RESULT__` in the next until it is set. It holds
-   `{ value }`, or `{ error }` if the snippet threw. Run one async snippet at a time.
-
-   ```js
-   globalThis.__DC_RESULT__ = undefined; // so an earlier snippet's result can't be read as this one's
-   (async () => { ... })().then(
-     value => (globalThis.__DC_RESULT__ = { value }),
-     e => (globalThis.__DC_RESULT__ = { error: String(e) }),
-   );
-   ```
-
+2. Run each snippet with `javascript_tool` as an [expression](./devtools-debugging.md#expression).
 3. Read requests with `read_network_requests` (pass `urlPattern` to narrow them) and logs with
    `read_console_messages`.

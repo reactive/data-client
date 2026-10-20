@@ -129,10 +129,9 @@ Vue:
 
 `yarn check:browser-snippets` (`checkBrowserSnippets.mjs`, run by the `regenerate` check) runs every
 ` ```js ` block starting `// run in page` in `docs/core/_agents/devtools-debugging.md` against a small
-React app built from the workspace sources, in Chromium, the ways agents' browser tools run them:
-as a function (Chrome DevTools MCP, Playwright MCP), as a CDP `Runtime.evaluate` expression (Cursor),
-and through Claude in Chrome's `__DC_RESULT__` recipe. It also checks the Cursor console capture in
-`browser-cursor.md` and the `Runtime.evaluate` results that page describes. Snippets use the entity
+React app built from the workspace sources, in Chromium, each of the three ways its Browser Tools section says a
+tool runs them (Function, Awaited expression, Expression), with their parameters and the `__DC_RESULT__` recipe
+read from that page. It also checks the `Runtime.evaluate` results the page describes. Snippets use the entity
 `Todo` (ids 1 to 5), paths under `/todos` and `import('/src/resources/Todo.ts')`; each snippet
 needs an entry in its `EXPECT` list, saying what it returns. Set `CHROMIUM_PATH` to use a Chromium
 other than Playwright's.

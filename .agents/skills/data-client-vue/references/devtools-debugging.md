@@ -12,22 +12,94 @@ Debug `@data-client/vue` state and actions programmatically from any browser too
 
 ## Browser Tools
 
-Every snippet below is a function. Chrome DevTools MCP and Playwright MCP take it as written, call it in the page
-and await its result. Cursor's desktop browser and Claude in Chrome run an expression instead, so call the snippet
-yourself (see their setup).
-"The network log" means the browser tool's list of requests.
+Every snippet below is a function. Each tool runs it one of three ways; its setup page only adds how to open the
+page and anything specific to that tool.
 
-| Tool                 | Runs a snippet with                           | Network log                                                      | Setup                                                           |
-| -------------------- | --------------------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------- |
-| Cursor desktop agent | `browser_cdp`                                 | `browser_network_requests` if listed, else `performance` entries | [browser-cursor](./browser-cursor.md#desktop-agent)             |
-| Cursor cloud agent   | `browser_evaluate` once Playwright is enabled | `browser_network_requests`                                       | [browser-cursor](./browser-cursor.md#cloud-agent)               |
-| Chrome DevTools MCP  | `evaluate_script`                             | `list_network_requests`                                          | [browser-chrome-devtools-mcp](./browser-chrome-devtools-mcp.md) |
-| Playwright MCP       | `browser_evaluate`                            | `browser_network_requests`                                       | [browser-playwright-mcp](./browser-playwright-mcp.md)           |
-| Claude in Chrome     | `javascript_tool`                             | `read_network_requests`                                          | [browser-claude-in-chrome](./browser-claude-in-chrome.md)       |
+| Tool                 | Runs a snippet with                           | How                                       | Network log                                            | Console                                               | Setup                                                           |
+| -------------------- | --------------------------------------------- | ----------------------------------------- | ------------------------------------------------------ | ----------------------------------------------------- | --------------------------------------------------------------- |
+| Cursor desktop agent | `browser_cdp`                                 | [Awaited expression](#awaited-expression) | [requests snippet](#without-a-network-or-console-tool) | [console capture](#without-a-network-or-console-tool) | [browser-cursor](./browser-cursor.md#desktop-agent)             |
+| Cursor cloud agent   | `browser_evaluate` once Playwright is enabled | [Function](#function)                     | `browser_network_requests`                             | `browser_console_messages`                            | [browser-cursor](./browser-cursor.md#cloud-agent)               |
+| Chrome DevTools MCP  | `evaluate_script`                             | [Function](#function)                     | `list_network_requests`                                | `list_console_messages`                               | [browser-chrome-devtools-mcp](./browser-chrome-devtools-mcp.md) |
+| Playwright MCP       | `browser_evaluate`                            | [Function](#function)                     | `browser_network_requests`                             | `browser_console_messages`                            | [browser-playwright-mcp](./browser-playwright-mcp.md)           |
+| Claude in Chrome     | `javascript_tool`                             | [Expression](#expression)                 | `read_network_requests`                                | `read_console_messages`                               | [browser-claude-in-chrome](./browser-claude-in-chrome.md)       |
 
-Any other tool works if it can run a function in the page and return its result (for example Playwright's
-`page.evaluate`). A browser that can only click, type and read the console can't run these snippets; connect one
-of the tools above instead.
+Any other tool works if it runs JavaScript in the page and returns the result: pick the way below that matches it
+(Playwright's `page.evaluate` is a function; CDP `Runtime.evaluate` is an awaited expression). A browser that can
+only click, type and read the console can't run these snippets; connect one of the tools above instead.
+
+### Function
+
+The tool takes a function, calls it in the page and awaits its result. Pass the snippet exactly as written.
+
+### Awaited expression
+
+The tool evaluates an expression, like CDP `Runtime.evaluate`. Call the snippet and have the tool await it:
+
+- `expression`: `(<snippet>)()`
+- `awaitPromise`: `true`
+- `returnByValue`: `true`
+
+The snippet's value is `result.value`. Check `exceptionDetails` first: a throw or a rejected promise lands there,
+and a rejection still returns `result.value` as `{}`. `{}` is also what comes back for a bare function
+(`result.type` `"function"`), an async snippet without `awaitPromise`, and a DOM node, so return plain data.
+
+### Expression
+
+The tool returns the value of the last expression and doesn't await promises. Call a sync snippet:
+`(<snippet>)()`. Start an async one with this, then read `__DC_RESULT__` in the next call until it is set. It
+holds `{ value }`, or `{ error }` if the snippet threw. Run one async snippet at a time.
+
+```js
+globalThis.__DC_RESULT__ = undefined; // so an earlier snippet's result can't be read as this one's
+(<snippet>)().then(
+  value => (globalThis.__DC_RESULT__ = { value }),
+  e => (globalThis.__DC_RESULT__ = { error: String(e) }),
+);
+```
+
+### Without a network or console tool
+
+Request URLs, durations and statuses from the page's `performance` entries:
+
+```js
+// run in page — requests
+() => performance.getEntriesByType('resource').map(e => ({
+  url: e.name,
+  duration: e.duration,
+  status: e.responseStatus,
+}))
+```
+
+`status` is `0` for any cross-origin response read without CORS (images and fonts too, even when they load), and
+blocked requests can be missing, so check failures in the key's `meta` error (Filter errors, Step 3) instead.
+
+To read console output, install this console capture after each page load. It records later console calls,
+uncaught errors and unhandled rejections; read them with `__DC_CONSOLE__.slice(-20)`. For errors from page load,
+install it, then repeat the action (`invalidateAll` in Step 4, or an in-app navigation).
+
+```js
+// run in page — console capture
+() => {
+  if (globalThis.__DC_CONSOLE__) return { ok: true, count: __DC_CONSOLE__.length };
+  const log = (globalThis.__DC_CONSOLE__ = []);
+  const text = (a) => {
+    if (a instanceof Error) return a.stack ?? String(a);
+    if (typeof a === 'string') return a;
+    try { return JSON.stringify(a); } catch { return String(a); }
+  };
+  const push = (level, args) => {
+    log.push({ level, time: Date.now(), text: args.map(text).join(' ') });
+    if (log.length > 200) log.splice(0, 100);
+  };
+  for (const level of ['log', 'info', 'warn', 'error', 'debug']) {
+    const orig = console[level];
+    console[level] = (...args) => { push(level, args); return orig.apply(console, args); };
+  }
+  addEventListener('error', (e) => push('uncaught', [e.error ?? e.message]));
+  addEventListener('unhandledrejection', (e) => push('unhandledrejection', [e.reason]));
+  return { ok: true, count: 0 };
+}
+```
 
 ## Where to Start
 

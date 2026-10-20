@@ -1,21 +1,20 @@
 /**
  * Runs the "run in page" snippets agents use to debug a Data Client app
- * (docs/core/_agents/devtools-debugging.md and browser-*.md) in Chromium, the
- * ways each browser tool runs them, so a change to the snippets, the docs, or
- * DevToolsManager's globals fails here instead of in an agent's session.
+ * (docs/core/_agents/devtools-debugging.md) in Chromium, each of the ways its
+ * Browser Tools section says a tool runs them, so a change to the snippets,
+ * those instructions, or DevToolsManager's globals fails here instead of in an
+ * agent's session. The ways' parameters and the `__DC_RESULT__` recipe are
+ * read from the page, so the check follows what agents are told:
  *
- * - Function: Chrome DevTools MCP's `evaluate_script` and Playwright MCP's
- *   `browser_evaluate` take the snippet as a function, call it and await it.
- * - Expression: Cursor's desktop `browser_cdp` (and a cloud agent without
- *   Playwright MCP) sends CDP `Runtime.evaluate` with `(<snippet>)()`,
- *   `awaitPromise` and `returnByValue`, as browser-cursor.md says.
- * - Claude in Chrome's `javascript_tool` returns the last expression, so async
- *   snippets go through the `__DC_RESULT__` recipe in browser-claude-in-chrome.md.
+ * - Function (Chrome DevTools MCP, Playwright MCP): call it and await it.
+ * - Awaited expression (Cursor's `browser_cdp`): CDP `Runtime.evaluate` with
+ *   the page's `expression`, `awaitPromise` and `returnByValue`.
+ * - Expression (Claude in Chrome): `Runtime.evaluate` without awaiting; async
+ *   snippets go through the `__DC_RESULT__` recipe.
  *
- * Also checks the `Runtime.evaluate` results browser-cursor.md tells agents to
- * expect (a bare function, a DOM node, a rejection, ...), as reported by
- * Cursor 3.25's desktop agent on #4428, and the `__DC_CONSOLE__` capture
- * agents use where the tool can't read the console.
+ * Also checks the `Runtime.evaluate` results the page tells agents to expect
+ * (a bare function, a DOM node, a rejection, ...), as Cursor 3.25's desktop
+ * agent reported them on #4428, and the console capture.
  *
  * The page is a small React app built from the workspace sources, with a Todo
  * resource whose `/todos` responses are mocked; `/src/resources/Todo.ts`
@@ -26,6 +25,7 @@
  * CHROMIUM_PATH to an existing Chromium binary.
  */
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import path from 'node:path';
 import { chromium } from 'playwright';
 
@@ -33,7 +33,7 @@ import { docCodeBlocks } from './docsToMarkdown.mjs';
 import { ROOT } from './site.mjs';
 import { bundleBrowserApp } from '../scripts/workspaceSources.mjs';
 
-const AGENTS = path.join(ROOT, 'docs/core/_agents');
+const DEBUGGING = path.join(ROOT, 'docs/core/_agents/devtools-debugging.md');
 const ORIGIN = 'http://app.test';
 const TODOS = Array.from({ length: 5 }, (_, i) => ({
   id: i + 1,
@@ -41,19 +41,42 @@ const TODOS = Array.from({ length: 5 }, (_, i) => ({
   completed: false,
 }));
 
+const BLOCKS = docCodeBlocks(DEBUGGING, 'react');
 /** The page's snippets, in doc order */
-function snippets(file) {
-  return docCodeBlocks(path.join(AGENTS, file), 'react')
-    .filter(
-      ({ lang, value }) => lang === 'js' && value.startsWith('// run in page'),
-    )
-    .map(({ value }) => ({
-      name: value.match(/^\/\/ run in page(?: — (.*))?/)[1] ?? '',
-      src: value,
-    }));
+const SNIPPETS = BLOCKS.filter(
+  ({ lang, value }) => lang === 'js' && value.startsWith('// run in page'),
+).map(({ value }) => ({
+  name: value.match(/^\/\/ run in page(?: — (.*))?/)[1] ?? '',
+  src: value,
+}));
+
+/** A `### heading` section of the page's source */
+function section(heading) {
+  const text = fs
+    .readFileSync(DEBUGGING, 'utf8')
+    .split(`\n### ${heading}\n`)[1];
+  assert.ok(text, `devtools-debugging.md has no "${heading}" section`);
+  return text.split('\n#')[0];
 }
 
-const SNIPPETS = snippets('devtools-debugging.md');
+const SLOT = '(<snippet>)()';
+/** `(<snippet>)()` with the snippet in place */
+const callSnippet = (template, src) =>
+  template.replace(SLOT, () => `(${src}\n)()`);
+
+/** The awaited expression's `Runtime.evaluate` parameters, as the page lists them */
+const AWAITED = Object.fromEntries(
+  [...section('Awaited expression').matchAll(/^- `(\w+)`: `([^`]+)`$/gm)].map(
+    ([, key, value]) => [key, key === 'expression' ? value : JSON.parse(value)],
+  ),
+);
+assert.equal(AWAITED.expression, SLOT, 'awaited expression');
+
+assert.ok(section('Expression').includes(`\`${SLOT}\``), 'expression call');
+const RECIPE = BLOCKS.find(({ value }) =>
+  value.includes('__DC_RESULT__'),
+)?.value;
+assert.ok(RECIPE?.includes(SLOT), '__DC_RESULT__ recipe');
 
 /** The snippet in `list` containing `marker` */
 function findSnippet(list, marker) {
@@ -134,48 +157,36 @@ async function runFunction({ page }, src) {
   return JSON.parse(json);
 }
 
-/** CDP `Runtime.evaluate`, as browser-cursor.md tells the agent to send it */
-function cdpEvaluate({ cdp }, expression, options = {}) {
-  return cdp.send('Runtime.evaluate', {
-    expression,
-    awaitPromise: true,
-    returnByValue: true,
-    ...options,
+/** CDP `Runtime.evaluate`; a throw or rejection is exceptionDetails */
+async function cdpEvaluate({ cdp }, params) {
+  const response = await cdp.send('Runtime.evaluate', params);
+  const { exceptionDetails } = response;
+  if (exceptionDetails)
+    throw Object.assign(
+      new Error(
+        exceptionDetails.exception?.description ?? exceptionDetails.text,
+      ),
+      { response },
+    );
+  return response.result.value ?? null;
+}
+
+/** Awaited expression: the page's `Runtime.evaluate` parameters */
+function runAwaitedExpression(target, src) {
+  return cdpEvaluate(target, {
+    ...AWAITED,
+    expression: callSnippet(AWAITED.expression, src),
   });
 }
 
-/** `browser_cdp`: `(<snippet>)()`; a throw or rejection is exceptionDetails */
+/** Expression: no awaiting, so an async snippet starts, then `__DC_RESULT__` is read */
 async function runExpression(target, src) {
-  const { result, exceptionDetails } = await cdpEvaluate(
-    target,
-    `(${src}\n)()`,
-  );
-  if (exceptionDetails)
-    throw new Error(
-      exceptionDetails.exception?.description ?? exceptionDetails.text,
-    );
-  return result.value ?? null;
-}
-
-const RECIPE_SLOT = '(async () => { ... })()';
-const RECIPE = docCodeBlocks(
-  path.join(AGENTS, 'browser-claude-in-chrome.md'),
-  'react',
-).find(({ value }) => value.includes('__DC_RESULT__'))?.value;
-assert.ok(
-  RECIPE?.includes(RECIPE_SLOT),
-  'Claude in Chrome __DC_RESULT__ recipe',
-);
-
-/** Claude in Chrome: an async snippet starts, then `__DC_RESULT__` is read */
-async function runClaudeInChrome(target, src) {
-  if (!/^async /m.test(src)) return runExpression(target, src);
-  await runExpression(
-    target,
-    `() => { ${RECIPE.replace(RECIPE_SLOT, () => `(${src}\n)()`)} }`,
-  );
+  const evaluate = expression =>
+    cdpEvaluate(target, { expression, returnByValue: true });
+  if (!/^async /m.test(src)) return evaluate(callSnippet(SLOT, src));
+  await evaluate(callSnippet(RECIPE, src));
   await target.page.waitForFunction(() => globalThis.__DC_RESULT__);
-  const result = await runExpression(target, '() => globalThis.__DC_RESULT__');
+  const result = await evaluate('globalThis.__DC_RESULT__');
   if (result.error) throw new Error(result.error);
   return result.value ?? null;
 }
@@ -233,6 +244,11 @@ const EXPECT = [
   ['expireAll({', result => assert.equal(result, 'todo endpoints expired')],
   ['inject mock data', result => assert.deepEqual(result, { set: true })],
   ['resetEntireStore()', result => assert.deepEqual(result, { reset: true })],
+  [
+    '— requests\n',
+    result => assert.ok(result.some(({ url }) => url.endsWith('/todos'))),
+  ],
+  ['— console capture', result => assert.equal(result.ok, true)],
 ];
 
 /** The EXPECT check for a snippet; every snippet needs one */
@@ -302,49 +318,38 @@ async function checkShimFallback() {
   await target.page.close();
 }
 
-/** The `Runtime.evaluate` results browser-cursor.md's desktop step 2 describes */
+/** The `Runtime.evaluate` results "Awaited expression" describes */
 async function checkCdpResults() {
   const target = await openApp();
-  const bare = await cdpEvaluate(target, '() => 1');
+  const evaluate = (expression, params) =>
+    target.cdp.send('Runtime.evaluate', { ...AWAITED, expression, ...params });
+  const bare = await evaluate('() => 1');
   assert.equal(bare.result.type, 'function');
   assert.deepEqual(bare.result.value, {});
-  const noAwait = await cdpEvaluate(target, '(async () => 1)()', {
-    awaitPromise: false,
-  });
+  const noAwait = await evaluate('(async () => 1)()', { awaitPromise: false });
   assert.deepEqual(noAwait.result.value, {});
-  const node = await cdpEvaluate(
-    target,
-    "(() => document.createElement('div'))()",
-  );
+  const node = await evaluate("(() => document.createElement('div'))()");
   assert.deepEqual(node.result.value, {});
-  const thrown = await cdpEvaluate(
-    target,
-    "(() => { throw new Error('thrown'); })()",
-  );
+  const thrown = await evaluate("(() => { throw new Error('thrown'); })()");
   assert.ok(thrown.exceptionDetails);
-  const rejected = await cdpEvaluate(
-    target,
+  const rejected = await evaluate(
     "(async () => { throw new Error('rejected'); })()",
   );
   assert.ok(rejected.exceptionDetails);
   assert.deepEqual(rejected.result.value, {});
-  assert.equal(
-    await runExpression(target, '() => ({ a: 1 })').then(v => v.a),
-    1,
-  );
   assertNoPageErrors(target, 'Runtime.evaluate');
   await target.page.close();
 }
 
-/** desktop step 4: `__DC_CONSOLE__` records console calls and uncaught errors */
+/** The console capture records console calls and uncaught errors */
 async function checkConsoleCapture() {
   const target = await openApp();
-  const capture = findSnippet(snippets('browser-cursor.md'), '__DC_CONSOLE__');
-  assert.deepEqual(await runExpression(target, capture), {
+  const capture = findSnippet(SNIPPETS, '__DC_CONSOLE__');
+  assert.deepEqual(await runAwaitedExpression(target, capture), {
     ok: true,
     count: 0,
   });
-  await runExpression(
+  await runAwaitedExpression(
     target,
     `() => {
       console.log('logged', { a: 1 });
@@ -354,7 +359,7 @@ async function checkConsoleCapture() {
     }`,
   );
   await target.page.waitForTimeout(100);
-  const { log, total } = await runExpression(
+  const { log, total } = await runAwaitedExpression(
     target,
     '() => ({ log: __DC_CONSOLE__.slice(-20), total: __DC_CONSOLE__.length })',
   );
@@ -368,7 +373,7 @@ async function checkConsoleCapture() {
   has('uncaught', 'uncaught');
   has('unhandledrejection', 'unhandled');
   // rerunning keeps the log and doesn't wrap console twice
-  assert.equal((await runExpression(target, capture)).count, total);
+  assert.equal((await runAwaitedExpression(target, capture)).count, total);
   assertNoPageErrors(target, 'console capture', ['uncaught', 'unhandled']);
   await target.page.close();
 }
@@ -379,21 +384,15 @@ const browser = await chromium.launch({
 });
 try {
   const checks = [
+    ['function', () => checkSnippets(runFunction, 'function')],
     [
-      'evaluate_script / browser_evaluate',
-      () => checkSnippets(runFunction, 'function'),
+      'awaited expression',
+      () => checkSnippets(runAwaitedExpression, 'awaited expression'),
     ],
-    [
-      'browser_cdp Runtime.evaluate',
-      () => checkSnippets(runExpression, 'expression'),
-    ],
-    [
-      'Claude in Chrome __DC_RESULT__',
-      () => checkSnippets(runClaudeInChrome, 'claude-in-chrome'),
-    ],
-    ['shim without __DC_ACTIONS__', () => checkShimFallback()],
-    ['Runtime.evaluate results', () => checkCdpResults()],
-    ['__DC_CONSOLE__ capture', () => checkConsoleCapture()],
+    ['expression', () => checkSnippets(runExpression, 'expression')],
+    ['shim without __DC_ACTIONS__', checkShimFallback],
+    ['Runtime.evaluate results', checkCdpResults],
+    ['console capture', checkConsoleCapture],
   ];
   for (const [name, check] of checks) {
     await check();
