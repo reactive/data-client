@@ -48,4 +48,4 @@ Cursor desktop traps the docs don't need to tell agents:
 ## Verifying
 
 - Run `yarn check:browser-snippets` after any snippet or core change. It replays the ways over CDP in Chromium, not the tools themselves, so a new claim about a tool still needs a live run in that tool: two earlier Cursor claims checked only against plain Chrome CDP were wrong. Record the raw input and output of each live run and turn it into a check in `checkBrowserSnippets.mjs`.
-- `examples/todo-app` (React, webpack) isn't a yarn workspace: `npm ci && npm start` serves `:8080`. It uses published packages, so `__DC__` is undefined there until a release ships it (`.changeset/devtools-debug-global.md`).
+- `examples/todo-app` (React, webpack) isn't a yarn workspace: `npm ci && npm start` serves `:8080`. It uses published packages, so `__DC__` is undefined there until a release ships it (`.changeset/devtools-action-log.md`).

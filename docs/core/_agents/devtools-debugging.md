@@ -116,7 +116,7 @@ install it, then repeat the action (`invalidateAll` in [Change state](#change-st
 Snippets use the entity `Todo` and paths containing `/todos`: replace them with the app's own.
 
 - **Several stores** (`__DC__.controller` throws `Set __DC__.store to one of: ...`): set `__DC__.store` to the key
-  whose `getState().endpoints` holds the keys you are debugging. A page load clears it.
+  in `__DC__.stores` whose `getState().endpoints` holds the keys you are debugging. A page load clears it.
 - **`__DC__` is undefined**: the page is a production build, or its managers leave out `DevToolsManager`.
 
 ## Read State
