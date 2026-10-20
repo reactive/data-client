@@ -37,7 +37,7 @@ This is useful when you want a quick answer to questions like "why didn't this r
 clicking through each inspector panel.
 
 The skill works with any browser tool that can run JavaScript in the page, such as
-Cursor's built-in browser (`browser_cdp`),
+Cursor's built-in browser,
 [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp),
 [Playwright MCP](https://github.com/microsoft/playwright-mcp) or Claude in Chrome. If your editor's built-in
 browser can only click and read the console, add one of these.

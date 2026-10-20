@@ -2,13 +2,21 @@
 title: Cursor Browser Setup
 ---
 
-Run the [debugging](./devtools-debugging.md) snippets with Cursor's built-in browser (the Browser tab,
-`cursor-ide-browser` tools). Docs: [Browser](https://cursor.com/docs/agent/tools/browser).
+Run the [debugging](./devtools-debugging.md) snippets from a Cursor agent. Which tools you have depends on where
+the agent runs: check your tool list.
 
-Cloud agents and CI have no `cursor-ide-browser` tools. Add [Playwright MCP](./browser-playwright-mcp.md)
-to `.cursor/mcp.json` (see its Install section) and use that instead.
+| Agent | Browser tools | Follow |
+|---|---|---|
+| Desktop (the IDE) | `cursor-ide-browser`: `browser_navigate`, `browser_cdp` | [Desktop agent](#desktop-agent) |
+| Cloud agent | none built in; Playwright MCP from the project's `.cursor/mcp.json` | [Cloud agent](#cloud-agent) |
 
-## Use
+If both are listed, either works.
+
+## Desktop agent
+
+The desktop agent drives Cursor's built-in browser (the Browser tab). Docs:
+[Browser](https://cursor.com/docs/agent/tools/browser).
+
 
 1. Open the dev server with `browser_navigate`.
 2. Run each snippet with `browser_cdp`, method `Runtime.evaluate`. It evaluates an expression, so call the
@@ -30,3 +38,24 @@ to `.cursor/mcp.json` (see its Install section) and use that instead.
    endpoint's `meta` error ([devtools-debugging](./devtools-debugging.md), Step 3) instead.
 4. Read logs with `browser_console_messages` when listed. Otherwise read the browser log files Cursor writes for
    the session.
+
+## Cloud agent
+
+Cloud agents have no built-in browser tools, but they load the project's `.cursor/mcp.json`. Add
+[Playwright MCP](./browser-playwright-mcp.md) there, headless since the agent's machine has no display:
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest", "--headless"]
+    }
+  }
+}
+```
+
+Commit it so every cloud agent gets it, then follow [Playwright MCP's Use steps](./browser-playwright-mcp.md#use)
+(`browser_navigate`, `browser_evaluate`, `browser_network_requests`). If the tools are still missing, the config
+didn't load: script the machine's Chrome over its DevTools protocol with the same `Runtime.evaluate` parameters
+as the desktop agent's step 2.
