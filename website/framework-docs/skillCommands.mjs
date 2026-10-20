@@ -16,6 +16,19 @@ export const setupCommand =
   'npx skills add reactive/data-client --skill data-client-setup -y';
 
 /**
+ * One terminal paste for Claude Code: installs the plugin for the project
+ * (teammates get it from .claude/settings.json), then starts its setup skill.
+ * The prompt has no backticks, which the shell would run.
+ */
+export const claudeSetupCommand = framework =>
+  [
+    // --sparse checks out only the plugin and its skills, not the whole repo
+    'claude plugin marketplace add reactive/data-client --scope project \\\n    --sparse .claude-plugin .agents/skills',
+    'claude plugin install data-client@data-client --scope project',
+    `claude "/data-client:data-client-setup Set up @data-client/${framework} and use it for all API data"`,
+  ].join(' && \\\n  ');
+
+/**
  * @typedef {{ skillPackages: Record<string, string[]>, setupSkills: string[], plugin: { plugins: { name: string, skills: string[] }[] } }} SkillSources
  *   `.agents/skill-packages.json`, the protocol setup skills
  *   `data-client-setup` bundles (its `references.json` `skills`), and

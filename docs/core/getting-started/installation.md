@@ -12,17 +12,18 @@ import Installation from '../shared/\_installation.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
 import SiteOnly from '@site/src/components/SiteOnly';
-import AgentPrompt from '@site/src/components/AgentPrompt';
+import SetupTabs from '@site/src/components/SetupTabs';
 import AgentOnly from '@site/src/components/AgentOnly';
 
 <SiteOnly>
 
 ## With your coding agent
 
-<AgentPrompt framed />
+<SetupTabs />
 
-It installs Data Client's setup [skill](./agent-skills.md), which installs the packages, wires up the provider and
-links the skills the packages ship, so your agent knows the current APIs, like real-time managers and test fixtures.
+Either way, your agent runs Data Client's setup [skill](./agent-skills.md), which installs the packages, wires up the
+provider and links the skills the packages ship, so your agent knows the current APIs, like real-time managers and test
+fixtures.
 
 </SiteOnly>
 
