@@ -21,6 +21,8 @@ Add it to the agent's MCP servers:
 }
 ```
 
+On a machine with no display (a cloud agent, CI, a remote shell), append `"--headless"` to `args`.
+
 ## Use
 
 1. Open the dev server with `browser_navigate`.
