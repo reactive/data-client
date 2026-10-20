@@ -10,10 +10,12 @@ import {
 } from '../../actionTypes';
 import DevToolsManager from '../DevtoolsManager.js';
 
+const registry = (): Map<string, { controller: Controller; actions: any[] }> =>
+  (globalThis as any).__DC__?.registry ?? new Map();
 const controllers = () =>
-  (globalThis as any).__DC_CONTROLLERS__ as Map<string, Controller>;
+  new Map([...registry()].map(([key, { controller }]) => [key, controller]));
 const actionLogs = () =>
-  (globalThis as any).__DC_ACTIONS__ as Map<string, any[]>;
+  new Map([...registry()].map(([key, { actions }]) => [key, actions]));
 
 function setup(manager: DevToolsManager, controller = new Controller()) {
   const next = jest.fn(() => Promise.resolve());
@@ -54,8 +56,6 @@ const responseAction = (key: string, i: number): any => ({
 });
 
 afterEach(() => {
-  delete (globalThis as any).__DC_CONTROLLERS__;
-  delete (globalThis as any).__DC_ACTIONS__;
   delete (globalThis as any).__DC__;
 });
 
@@ -396,10 +396,9 @@ describe('DevToolsManager', () => {
       manager.cleanup();
       manager.init(initialState);
       const other = new Controller();
-      controllers().set('App', other);
+      registry().set('App', { controller: other, actions: [] });
       manager.cleanup();
       expect(controllers().get('App')).toBe(other);
-      expect(actionLogs().has('App')).toBe(true);
     });
   });
 });

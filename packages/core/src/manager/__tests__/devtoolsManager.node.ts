@@ -1,12 +1,12 @@
 import { Controller, initialState } from '../..';
 import DevToolsManager from '../DevtoolsManager.js';
 
+const registry = (): Map<string, { controller: Controller; actions: any[] }> =>
+  (globalThis as any).__DC__?.registry ?? new Map();
 const controllers = () =>
-  (globalThis as any).__DC_CONTROLLERS__ as Map<string, Controller>;
+  new Map([...registry()].map(([key, { controller }]) => [key, controller]));
 
 afterEach(() => {
-  delete (globalThis as any).__DC_CONTROLLERS__;
-  delete (globalThis as any).__DC_ACTIONS__;
   delete (globalThis as any).__DC__;
 });
 

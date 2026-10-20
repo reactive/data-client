@@ -88,7 +88,7 @@ if (process.env.NODE_ENV !== 'production') {
 /** Appends, dropping the oldest half once over `max`.
  *
  * Halving means we aren't reallocating on every push; trimming in place keeps
- * arrays shared on globals (like `__DC_ACTIONS__`) current.
+ * arrays shared on globals (like `__DC__.actions`) current.
  */
 function pushCapped<T>(buffer: T[], item: T, max: number) {
   buffer.push(item);
@@ -129,39 +129,49 @@ function summarize(action: any) {
   return summary;
 }
 
-/** `globalThis.__DC__`: one store's Controller and action log, for console and agent debugging.
+/** `globalThis.__DC__`: each store's Controller and action log, for console and agent debugging.
  *
- * Reads the registries on every access, so it follows a remounted provider.
- * Getters live on the prototype, so serializing `__DC__` yields only `store`.
+ * Getters read the registry on every access, so they follow a remounted provider.
+ * Only `store` is enumerable, so serializing `__DC__` yields just that.
  */
 class DebugStore {
-  /** Registry key to read; may be left unset when the page has one store */
+  /** Key of the store to read; may be left unset when the page has one store */
   declare store?: string;
+  /** Registered stores by key */
+  declare readonly registry: Map<
+    string,
+    { controller: Controller; actions: ActionTypes[] }
+  >;
 
-  get controller(): Controller {
-    return (globalThis as any).__DC_CONTROLLERS__.get(this.resolveKey());
+  constructor() {
+    Object.defineProperty(this, 'registry', { value: new Map() });
   }
 
   /** Keys of the registered stores, for `store` */
   get stores(): string[] {
-    return [...((globalThis as any).__DC_CONTROLLERS__?.keys() ?? [])];
+    return [...this.registry.keys()];
+  }
+
+  get controller(): Controller {
+    return this.entry().controller;
   }
 
   /** Recent actions; all but the newest 20 are summaries without `response` or `value` */
   get actions(): ActionTypes[] {
-    return (globalThis as any).__DC_ACTIONS__.get(this.resolveKey());
+    return this.entry().actions;
   }
 
-  private resolveKey(): string {
-    const controllers: Map<string, Controller> =
-      (globalThis as any).__DC_CONTROLLERS__ ?? new Map();
+  private entry() {
     const key =
       this.store ??
-      (controllers.size === 1 ? controllers.keys().next().value : undefined);
-    if (key !== undefined && controllers.has(key)) return key;
+      (this.registry.size === 1 ?
+        this.registry.keys().next().value
+      : undefined);
+    const entry = key === undefined ? undefined : this.registry.get(key);
+    if (entry) return entry;
     throw new Error(
-      controllers.size ?
-        `Set __DC__.store to one of: ${[...controllers.keys()].map(k => JSON.stringify(k)).join(', ')}`
+      this.registry.size ?
+        `Set __DC__.store to one of: ${this.stores.map(k => JSON.stringify(k)).join(', ')}`
       : 'No Data Client store is mounted',
     );
   }
@@ -180,7 +190,7 @@ export default class DevToolsManager implements Manager {
   protected actions: [ActionTypes, State<unknown>][] = [];
   /** Recent actions, kept in development whether or not the extension is connected */
   declare protected actionLog: ActionTypes[];
-  /** Key this controller is registered under in `__DC_CONTROLLERS__` and `__DC_ACTIONS__` */
+  /** Key this controller is registered under in `__DC__` */
   declare protected registryKey?: string;
   /** Subscriber count for each key that is polling; a key is removed when its count reaches 0 */
   declare protected pollingSubscribers: Map<string, number>;
@@ -236,7 +246,7 @@ export default class DevToolsManager implements Manager {
             else this.pollingSubscribers.delete(action.key);
           }
         };
-        /** Keeps `__DC_ACTIONS__` small: polling keys keep only their latest actions,
+        /** Keeps `__DC__.actions` small: polling keys keep only their latest actions,
          * and all but the newest actions drop their payloads.
          */
         const logAction = (action: ActionTypes) => {
@@ -292,15 +302,13 @@ export default class DevToolsManager implements Manager {
   /** Called when initial state is ready */
   init(state: State<any>) {
     if (process.env.NODE_ENV !== 'production') {
-      const controllers: Map<string, Controller> = ((
-        globalThis as any
-      ).__DC_CONTROLLERS__ ??= new Map());
+      const { registry }: DebugStore = ((globalThis as any).__DC__ ??=
+        new DebugStore());
+      const ownedBy = (key: string) =>
+        registry.get(key)?.controller === this.controller;
       // keep the key this controller already holds (init can run again without cleanup)
       let key =
-        (
-          this.registryKey !== undefined &&
-          controllers.get(this.registryKey) === this.controller
-        ) ?
+        this.registryKey !== undefined && ownedBy(this.registryKey) ?
           this.registryKey
         : this.devtoolsName;
       // another provider has the name: register under 'name (2)', 'name (3)', ...
@@ -308,19 +316,13 @@ export default class DevToolsManager implements Manager {
       // so replace the old one instead of keeping every request's store alive.
       // Checks window, not document: React Native has a window but no document.
       if (typeof window !== 'undefined')
-        for (
-          let i = 2;
-          controllers.has(key) && controllers.get(key) !== this.controller;
-          i++
-        )
+        for (let i = 2; registry.has(key) && !ownedBy(key); i++)
           key = `${this.devtoolsName} (${i})`;
       this.registryKey = key;
-      controllers.set(key, this.controller);
-      ((globalThis as any).__DC_ACTIONS__ ??= new Map()).set(
-        key,
-        this.actionLog,
-      );
-      (globalThis as any).__DC__ ??= new DebugStore();
+      registry.set(key, {
+        controller: this.controller,
+        actions: this.actionLog,
+      });
     }
     if (process.env.NODE_ENV !== 'production' && this.devTools) {
       this.devTools.init(state);
@@ -355,12 +357,13 @@ export default class DevToolsManager implements Manager {
       // SubscriptionManager.cleanup() stops polling without dispatching unsubscribes
       this.pollingSubscribers.clear();
       const key = this.registryKey;
-      const map: Map<string, Controller> | undefined = (globalThis as any)
-        .__DC_CONTROLLERS__;
-      if (key !== undefined && map?.get(key) === this.controller) {
-        map.delete(key);
-        (globalThis as any).__DC_ACTIONS__?.delete(key);
-      }
+      const registry: DebugStore['registry'] | undefined = (globalThis as any)
+        .__DC__?.registry;
+      if (
+        key !== undefined &&
+        registry?.get(key)?.controller === this.controller
+      )
+        registry.delete(key);
     }
   }
 }
