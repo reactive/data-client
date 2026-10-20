@@ -24,10 +24,28 @@ export const claudePluginCommand = [
   'claude plugin install data-client@data-client --scope project',
 ].join('\n');
 
+const setupTask = framework =>
+  `Set up \`@data-client/${framework}\` and use it for all API data`;
+
 /** Starts the plugin's setup skill by name; through the router skill, Claude
  * would read it from the plugin cache, outside the project, and ask first */
 export const claudeSetupPrompt = framework =>
-  `/data-client:data-client-setup Set up \`@data-client/${framework}\` and use it for all API data`;
+  `/data-client:data-client-setup ${setupTask(framework)}`;
+
+/**
+ * Codex reads the Claude Code marketplace; --sparse checks out only the
+ * plugin and its skills. Codex installs plugins for the user, with no project scope
+ */
+const codexPlugin = repo =>
+  [
+    `codex plugin marketplace add ${repo} \\\n  --sparse .claude-plugin --sparse ${skillsDir}`,
+    'codex plugin add data-client@data-client',
+  ].join('\n');
+export const codexPluginCommand = codexPlugin('reactive/data-client');
+
+/** Codex starts a skill when the prompt mentions it as `$plugin:skill` */
+export const codexSetupPrompt = framework =>
+  `$data-client:data-client-setup ${setupTask(framework)}`;
 
 /**
  * @typedef {{ skillPackages: Record<string, string[]>, setupSkills: string[], plugin: { plugins: { name: string, skills: string[] }[] } }} SkillSources
@@ -81,12 +99,7 @@ export default function skillCommands(
       // the same plugin from .cursor-plugin, pinned to master: Cursor otherwise
       // checks out main, which this repo doesn't have
       cursor: `/add-plugin data-client@https://github.com/${repo}`,
-      // Codex reads the Claude Code marketplace; --sparse checks out only the
-      // plugin and its skills, not the whole repo
-      codex: [
-        `codex plugin marketplace add ${repo} \\\n  --sparse .claude-plugin --sparse ${skillsDir}`,
-        'codex plugin add data-client@data-client',
-      ].join('\n'),
+      codex: codexPlugin(repo),
     }),
   };
 }

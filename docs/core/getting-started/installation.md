@@ -21,7 +21,7 @@ import AgentOnly from '@site/src/components/AgentOnly';
 
 <SetupTabs />
 
-Either way, your agent runs Data Client's setup [skill](./agent-skills.md), which installs the packages, wires up the
+Whichever you use, your agent runs Data Client's setup [skill](./agent-skills.md), which installs the packages, wires up the
 provider and links the skills the packages ship, so your agent knows the current APIs, like real-time managers and test
 fixtures.
 

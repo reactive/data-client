@@ -8,6 +8,8 @@ import useFramework from './useFramework';
 import {
   claudePluginCommand,
   claudeSetupPrompt,
+  codexPluginCommand,
+  codexSetupPrompt,
 } from '../../framework-docs/skillCommands.mjs';
 
 /** Ways to set up Data Client with an agent: agents' own plugins first
@@ -24,6 +26,16 @@ export default function SetupTabs() {
         <AgentPrompt
           prompt={claudeSetupPrompt(framework)}
           title="Claude Code"
+          framed
+        />
+      </TabItem>
+      <TabItem value="codex" label="Codex">
+        <CodeBlock className="language-bash" metastring="framed">
+          {codexPluginCommand}
+        </CodeBlock>
+        <AgentPrompt
+          prompt={codexSetupPrompt(framework)}
+          title="Codex"
           framed
         />
       </TabItem>
