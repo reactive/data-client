@@ -8,7 +8,7 @@ the agent runs: check your tool list.
 | Agent | Browser tools | Follow |
 |---|---|---|
 | Desktop (the IDE) | `cursor-ide-browser`: `browser_navigate`, `browser_cdp` | [Desktop agent](#desktop-agent) |
-| Cloud agent | none built in; Playwright MCP from the project's `.cursor/mcp.json` | [Cloud agent](#cloud-agent) |
+| Cloud agent | none, until Playwright is enabled for the run | [Cloud agent](#cloud-agent) |
 
 If both are listed, either works.
 
@@ -41,21 +41,25 @@ The desktop agent drives Cursor's built-in browser (the Browser tab). Docs:
 
 ## Cloud agent
 
-Cloud agents have no built-in browser tools, but they load the project's `.cursor/mcp.json`. Add
-[Playwright MCP](./browser-playwright-mcp.md) there, headless since the agent's machine has no display:
+A cloud agent does not read `.cursor/mcp.json`. The MCP servers for a run are the ones enabled in the
+[MCP dropdown at cursor.com/agents](https://cursor.com/agents) (team servers are under Dashboard → Plugins & MCPs).
+Committing the file does not add them. The repo's `.cursor/mcp.json` is for the desktop IDE.
+
+To get Playwright, add this stdio server in that dropdown. The cloud image already runs it: no
+`.cursor/environment.json` and no separate browser install. Running this command on a cloud agent exposed
+`browser_navigate`, `browser_evaluate`, `browser_network_requests`, and `browser_console_messages`:
 
 ```json
 {
   "mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest", "--headless"]
+      "args": ["-y", "@playwright/mcp@0.0.83", "--headless"]
     }
   }
 }
 ```
 
-Commit it so every cloud agent gets it, then follow [Playwright MCP's Use steps](./browser-playwright-mcp.md#use)
-(`browser_navigate`, `browser_evaluate`, `browser_network_requests`). If the tools are still missing, the config
-didn't load: script the machine's Chrome over its DevTools protocol with the same `Runtime.evaluate` parameters
-as the desktop agent's step 2.
+Then follow [Playwright MCP's Use steps](./browser-playwright-mcp.md#use). If those tools are not in the tool
+list, the server is not enabled for this run. The machine's Chrome is still there: drive it over the DevTools
+protocol with the same `Runtime.evaluate` parameters as the desktop agent's step 2.
