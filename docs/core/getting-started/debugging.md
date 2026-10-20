@@ -22,7 +22,8 @@ In dev mode, [DevToolsManager](../api/DevToolsManager.md) exposes live `Controll
 cache state, endpoint metadata, and dispatched actions directly from the running app.
 
 Technically, the agent reads the page's store from [`globalThis.__DC__`](../api/DevToolsManager.md#controllers):
-`__DC__.controller` is its `Controller` and `__DC__.actions` its recent actions.
+`__DC__.controller` is its `Controller` and `__DC__.actions` its recent actions. Every
+:react[`DataProvider`]:vue[`DataClientPlugin`] store is registered in `globalThis.__DC_CONTROLLERS__`, a dev-mode `Map`.
 
 At a high level, the agent can:
 

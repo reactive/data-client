@@ -23,11 +23,10 @@ Every snippet has to work in every way, so each one:
 
 - Is a function expression (`() => {}` or `async () => {}`), never an IIFE: Function tools call what they're given, and the expression ways have the agent wrap it as `(<snippet>)()`.
 - Returns plain JSON: DOM nodes, functions and promises come back as `{}`. Map actions and `PerformanceEntry`s (getter fields) to plain fields.
-- Shares state only through `globalThis.__DC_*`, which any page load clears. Install snippets are safe to rerun: return early if installed, cap logs (200, drop half), return `{ ok, ... }`, and put anything the agent sets in a `NAME`-style constant at the top (Step 1's shape).
+- Reads the store through `__DC__` and keeps its own state on `globalThis.__DC_*`, which any page load clears. Install snippets (the console capture) are safe to rerun: return early if installed, cap logs (200, drop half), return `{ ok, ... }`.
 - Returns `{ error }` for expected failures instead of throwing, since each way reports a throw differently.
-- Can't rely on `import('/src/...')`: it only works on native-ESM dev servers (Vite) and rejects on webpack, so keep a raw-state alternative next to every snippet that imports.
+- Takes endpoints from the action log (`a.endpoint`, `a.args`), never `import('/src/...')`, which only works on native-ESM dev servers (Vite).
 - Prefers sync: the Expression way needs two calls for an async snippet.
-- Keep the shim and console capture separate: merging saves a call per page load but makes both harder to rerun and read.
 
 ## Status
 
@@ -49,5 +48,4 @@ Cursor desktop traps the docs don't need to tell agents:
 ## Verifying
 
 - Run `yarn check:browser-snippets` after any snippet or core change. It replays the ways over CDP in Chromium, not the tools themselves, so a new claim about a tool still needs a live run in that tool: two earlier Cursor claims checked only against plain Chrome CDP were wrong. Record the raw input and output of each live run and turn it into a check in `checkBrowserSnippets.mjs`.
-- `examples/todo-app` (React, webpack) isn't a yarn workspace: `npm ci && npm start` serves `:8080`. It uses published packages, so `import()` snippets 404 and Step 1 reports `actionLog: 'shim'` until a release ships `__DC_ACTIONS__` (`.changeset/devtools-action-log.md`).
-- `examples/vue-todo-app` (Vite, `npm run dev`) serves `/src/...` for `import()` snippets; its resources are `src/resources/TodoResource.ts`, not the snippets' illustrative `Todo.ts`.
+- `examples/todo-app` (React, webpack) isn't a yarn workspace: `npm ci && npm start` serves `:8080`. It uses published packages, so `__DC__` is undefined there until a release ships it (`.changeset/devtools-debug-global.md`).

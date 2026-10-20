@@ -153,8 +153,8 @@ const todosByUser = useQuery(groupTodoByUser);
 When debugging a running app with a browser tool that runs JavaScript in the page, such as data that never
 appears, reverts, or refetches too often, read [devtools-debugging](references/devtools-debugging.md)
 before probing: its "Where to Start" table maps symptoms to the state and
-[actions](references/Actions.md) to check. Dev mode only: start with its debug shim, which every other
-snippet there depends on. Its Browser Tools table says how your tool runs the snippets; then read the
+[actions](references/Actions.md) to check. In dev mode, `__DC__.controller` is the page's Controller, so every
+Controller method above works on it. Its Browser Tools table says how your tool runs the snippets; then read the
 `browser-*.md` setup it links for your tool.
 
 ## Managers

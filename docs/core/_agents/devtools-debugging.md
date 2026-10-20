@@ -2,7 +2,7 @@
 title: Debugging in the Browser
 ---
 
-Debug :react[`@data-client/react`]:vue[`@data-client/vue`] state and actions programmatically from any browser tool that runs JavaScript in the page. The app's [DevToolsManager](../api/DevToolsManager.md) exposes the [Controller](../api/Controller.md) on [`globalThis.__DC_CONTROLLERS__`](../api/DevToolsManager.md#controllers) (a `Map` keyed by `devtoolsName`) in dev mode.
+Debug :react[`@data-client/react`]:vue[`@data-client/vue`] state and actions programmatically from any browser tool that runs JavaScript in the page. In dev mode, the app's [DevToolsManager](../api/DevToolsManager.md#controllers) puts the store on `globalThis.__DC__`: `__DC__.controller` is its [Controller](../api/Controller.md), so every Controller method works, and `__DC__.actions` is its recent [actions](../api/Actions.md).
 
 ## Prerequisites
 
@@ -71,11 +71,11 @@ Request URLs, durations and statuses from the page's `performance` entries:
 ```
 
 `status` is `0` for any cross-origin response read without CORS (images and fonts too, even when they load), and
-blocked requests can be missing, so check failures in the key's `meta` error (Filter errors, Step 3) instead.
+blocked requests can be missing, so check failures in the key's `meta` error ([Errors](#errors)) instead.
 
 To read console output, install this console capture after each page load. It records later console calls,
 uncaught errors and unhandled rejections; read them with `__DC_CONSOLE__.slice(-20)`. For errors from page load,
-install it, then repeat the action (`invalidateAll` in Step 4, or an in-app navigation).
+install it, then repeat the action (`invalidateAll` in [Change state](#change-state), or an in-app navigation).
 
 ```js
 // run in page — console capture
@@ -105,198 +105,75 @@ install it, then repeat the action (`invalidateAll` in Step 4, or an in-app navi
 
 | Symptom | Check first |
 |---|---|
-| Data never appears or stays loading | The key's `meta` error (Filter errors, Step 3) and its request in the network log |
+| Data never appears or stays loading | The key's `meta` error ([Errors](#errors)) and its request in the network log |
 | A mutation succeeded but the UI shows old data | The mutation key's `meta` error: a response that fails to normalize, such as one wrapped in `{ data }`, is stored there, not on the action. Then `state.entities`: if the entity is unchanged and the response sits only under the mutation's own `endpoints` key, the endpoint has no `schema`. A created item missing from a list needs the list's Collection, such as `getList.push` |
-| A change shows, then reverts on its own | The mutation key's `meta` error: an optimistic change reverts when its request fails. If there is none, repeat the change and read the log by time (Step 3) for a later `rdc/setresponse` with a newer `meta.fetchedAt` (often a poll) that carried the old value |
-| Requests fire too often | Request times in the network log, then the log (Step 3) for that key: whether an `rdc/invalidate` or `rdc/invalidateall` comes before each fetch (something, often a Manager, keeps invalidating it). `pollFrequency` is in milliseconds |
+| A change shows, then reverts on its own | The mutation key's `meta` error: an optimistic change reverts when its request fails. If there is none, repeat the change and read the log by time ([Actions](#actions)) for a later `rdc/setresponse` with a newer `meta.fetchedAt` (often a poll) that carried the old value |
+| Requests fire too often | Request times in the network log, then the log ([Actions](#actions)) for that key: whether an `rdc/invalidate` or `rdc/invalidateall` comes before each fetch (something, often a Manager, keeps invalidating it). `pollFrequency` is in milliseconds |
 | Requests never fire | The key's `meta.expiresAt`: data stays fresh until then. A polled key also needs an `rdc/subscribe` in the log |
 
-## Step 1: Install the Debug Shim
+## The Store
 
-Run this after each page load: navigating (even to the same URL), reloading or an HMR full reload clears it. It picks a controller, exposes it as
-`__DC_CTRL__` for every later snippet, and points `__DC_ACTION_LOG__` at its recent actions. Rerunning it
-is safe. A `ReferenceError` for either global means the shim is not installed.
+`__DC__` needs no setup and follows the app across remounts. Snippets use the entity `Todo` and paths containing
+`/todos`: replace them with the app's own.
 
-`DevToolsManager` registers controllers in `globalThis.__DC_CONTROLLERS__` keyed by
-`devtoolsName`, which defaults to `"Data Client: <page title>"`. With a single controller, leave `NAME`
-unset. With several, the shim returns their keys; rerun it with `NAME` set to the one whose
-`getState().endpoints` holds the keys you are debugging.
+- **Several stores** (`__DC__.controller` throws `Set __DC__.store to one of: ...`): set `__DC__.store` to the key
+  whose `getState().endpoints` holds the keys you are debugging. A page load clears it.
+- **`__DC__` is undefined**: the page is a production build, or its managers leave out `DevToolsManager`.
 
-Newer versions record actions from startup in `globalThis.__DC_ACTIONS__` (same keys), and the shim uses
-that log (`actionLog: 'built-in'`). On older versions it wraps dispatch instead (`actionLog: 'shim'`),
-which only sees actions from then on.
+## Read State
+
+A key's denormalized response, as components see it. The action log holds each key's endpoint and `args`, so this
+works for any key fetched since the page loaded:
 
 ```js
-// run in page
+// run in page — response for a key
 () => {
-  const NAME = undefined;
-  const controllers = globalThis.__DC_CONTROLLERS__;
-  if (!controllers?.size) return { error: 'No controllers registered' };
-  if (!NAME && controllers.size > 1)
-    return { error: 'Set NAME to one of', keys: [...controllers.keys()] };
-  const key = NAME ?? controllers.keys().next().value;
-  const ctrl = controllers.get(key);
-  if (!ctrl) return { error: 'Controller not found', keys: [...controllers.keys()] };
-  const stateKeys = Object.keys(ctrl.getState());
-
-  const builtIn = globalThis.__DC_ACTIONS__?.get(key);
-  if (builtIn || globalThis.__DC_CTRL__ !== ctrl) globalThis.__DC_ACTION_LOG__ = builtIn ?? [];
-  globalThis.__DC_CTRL__ = ctrl;
-  if (builtIn) return { ok: true, actionLog: 'built-in', stateKeys };
-  // dispatch is rebound if the middleware chain is rebuilt, so check the wrapper, not the alias
-  if (ctrl._dispatch.__dcDebugShim) return { ok: true, actionLog: 'shim', stateKeys };
-
-  const MAX_LOG = 200;
-  const origDispatch = ctrl._dispatch;
-  const shim = (action) => {
-    if (globalThis.__DC_CTRL__ === ctrl) {
-      const log = globalThis.__DC_ACTION_LOG__;
-      log.push(action);
-      if (log.length > MAX_LOG) log.splice(0, MAX_LOG / 2);
-    }
-    return origDispatch(action);
-  };
-  shim.__dcDebugShim = true;
-  ctrl._dispatch = shim;
-
-  return { ok: true, actionLog: 'shim', stateKeys };
+  const c = __DC__.controller, state = c.getState();
+  const a = __DC__.actions.findLast(a => a.key?.includes('/todos') && a.endpoint);
+  if (!a) return { error: 'key not in the action log; repeat the fetch' };
+  const { data, expiryStatus, expiresAt } = c.getResponse(a.endpoint, ...a.args, state);
+  return { key: a.key, data, expiryStatus, expiresAt, error: c.getError(a.endpoint, ...a.args, state)?.message };
 }
 ```
 
-### Gotchas
-
-- **With `actionLog: 'shim'`, actions from before the shim are not logged**, including the fetches
-  made while the page loaded. For a load-time problem, read the outcome from state (`meta` has each key's
-  `date`, `expiresAt` and `error`; see Step 2) and the requests from the network log. To watch the
-  fetches happen, repeat them with `invalidateAll` (Step 4) or an in-app navigation; a reload clears the shim.
-- **Rerun Step 1 when the log stops growing or the data looks stale.** Nothing errors when
-  :react[a remount of `DataProvider` creates a new controller, or rebuilding its middleware drops the wrapper.]:vue[the app is created again (for example on a hot reload of the module that calls `createApp`), which makes a new controller.]
-
-## Step 2: Read State
-
-### High-level queries (denormalized, schema-aware)
-
-Controller provides `getResponse`, `getError`, and `get` that denormalize through schemas — pass `__DC_CTRL__.getState()` as the last argument.
-
-These snippets `import()` source modules to get endpoints and schemas, which works on dev servers that
-serve source as native ES modules (e.g. Vite). Otherwise, use raw state inspection below, and
-`invalidateAll`/`expireAll` with `testKey` to mutate.
+`expiryStatus`: `1` Invalid, `2` InvalidIfStale, `3` Valid. To fetch it again and read the fresh response:
 
 ```js
-// run in page — get denormalized response for an endpoint
+// run in page — refetch a key
 async () => {
-  const mod = await import('/src/resources/Todo.ts');
-  const state = __DC_CTRL__.getState();
-  const { data, expiryStatus, expiresAt } = __DC_CTRL__.getResponse(
-    mod.TodoResource.getList,
-    {},
-    state,
-  );
-  return { data, expiryStatus, expiresAt };
+  const c = __DC__.controller;
+  const a = __DC__.actions.findLast(a => a.key?.includes('/todos') && a.endpoint);
+  if (!a) return { error: 'key not in the action log' };
+  await c.fetch(a.endpoint, ...a.args);
+  return c.getResponse(a.endpoint, ...a.args, c.getState()).data;
 }
 ```
 
-```js
-// run in page — check if an endpoint has an error
-async () => {
-  const mod = await import('/src/resources/Todo.ts');
-  const state = __DC_CTRL__.getState();
-  const error = __DC_CTRL__.getError(
-    mod.TodoResource.get,
-    { id: '5' },
-    state,
-  );
-  return { error: error?.message ?? null };
-}
-```
+Raw normalized state, for keys no longer in the log or to see how entities are stored (shape under
+[State Shape](#state-shape-reference)):
 
 ```js
-// run in page — query a Queryable schema (Entity, Collection, Query)
-async () => {
-  const mod = await import('/src/resources/Todo.ts');
-  const state = __DC_CTRL__.getState();
-  const result = __DC_CTRL__.get(mod.Todo, { id: '5' }, state);
-  return result;
-}
-```
-
-### Raw normalized state inspection
-
-Use these when you need to see the raw cache structure without denormalization.
-
-```js
-// run in page — state overview
+// run in page — cache entries by path substring
 () => {
-  const state = __DC_CTRL__.getState();
-  return {
-    entityTypes: Object.keys(state.entities),
-    endpointCount: Object.keys(state.endpoints).length,
-    metaCount: Object.keys(state.meta).length,
-    optimisticCount: state.optimistic.length,
-    lastReset: state.lastReset,
-  };
-}
-```
-
-```js
-// run in page — inspect specific entity type by key
-() => {
-  const entities = __DC_CTRL__.getState().entities['Todo'];
-  if (!entities) return { error: 'Entity not found' };
-  const pks = Object.keys(entities);
-  return {
-    count: pks.length,
-    samplePKs: pks.slice(0, 10),
-    sample: pks.length > 0 ? entities[pks[0]] : null,
-  };
-}
-```
-
-```js
-// run in page — find endpoint cache entries by path substring
-() => {
-  const state = __DC_CTRL__.getState();
-  const keys = Object.keys(state.endpoints).filter(k => k.includes('/todos'));
-  return keys.map(k => ({
-    key: k,
-    value: state.endpoints[k],
-    meta: state.meta[k],
+  const state = __DC__.controller.getState();
+  return Object.keys(state.endpoints).filter(k => k.includes('/todos')).map(key => ({
+    key, value: state.endpoints[key], meta: state.meta[key],
   }));
 }
 ```
 
-### Inspect a specific entity by pk
+`getState().entities.Todo` holds every `Todo` by pk.
+
+## Actions
+
+The log keeps the newest 100 actions, and each polling key (endpoint and args) only its last few. Only the newest
+20 keep their `response`; to see a payload, repeat the action and read it right away. Entries are dropped from the
+front, so select by time (`meta.fetchedAt >= start`), not by index. Actions hold endpoints and promises, so map
+them to plain fields:
 
 ```js
-// run in page
-() => {
-  return __DC_CTRL__.getState().entities?.['Todo']?.['5'];
-}
-```
-
-### Check endpoint metadata (expiry, errors, invalidation)
-
-```js
-// run in page
-() => {
-  const state = __DC_CTRL__.getState();
-  const key = Object.keys(state.meta).find(k => k.includes('/todos'));
-  return key ? { key, ...state.meta[key] } : 'no meta found';
-}
-```
-
-## Step 3: Track Actions
-
-After installing the debug shim (Step 1). With the built-in log, only the newest 20 actions keep `args` and
-`response` (older ones keep `type`, `key`, `endpoint`, `meta` and error responses), and each polling key
-(endpoint and args) keeps only its last few actions. To see a payload, repeat the action and read it right away.
-Entries are dropped from the front, so select by time (`meta.fetchedAt >= start`), not by index.
-
-### Read recent actions
-
-```js
-// run in page — actions hold endpoints and promises, so return just these fields
-() => __DC_ACTION_LOG__.slice(-20).map(a => ({
+// run in page — recent actions
+() => __DC__.actions.slice(-20).map(a => ({
   type: a.type,
   key: a.key,
   endpoint: a.endpoint?.name,
@@ -306,128 +183,38 @@ Entries are dropped from the front, so select by time (`meta.fetchedAt >= start`
 }))
 ```
 
-### Filter by action type
+### Errors
+
+Errors thrown while storing a response (for example a missing primary key) land only in `meta`, with no `error`
+on the action, so check both:
 
 ```js
-// run in page — track only fetches
-() => __DC_ACTION_LOG__
-  .filter(a => a.type === 'rdc/fetch' || a.type === 'rdc/setresponse')
-  .slice(-20)
-  .map(a => ({ type: a.type, key: a.key, fetchedAt: a.meta?.fetchedAt }))
-```
-
-### Filter errors
-
-Errors thrown while storing a response (for example a missing primary key) land only in `meta`, with no
-`error` on the action, so check both.
-
-```js
-// run in page
+// run in page — errors
 () => ({
-  actions: __DC_ACTION_LOG__
+  actions: __DC__.actions
     .filter(a => a.error)
     .map(a => ({ type: a.type, key: a.key, error: a.response?.message || true })),
-  meta: Object.entries(__DC_CTRL__.getState().meta)
+  meta: Object.entries(__DC__.controller.getState().meta)
     .filter(([, m]) => m.error)
     .map(([key, m]) => ({ key, error: m.error.message, status: m.error.status })),
 })
 ```
 
-### Clear action log
+## Change State
+
+Use Controller methods, never raw dispatches: they log the same actions the app's own calls do.
 
 ```js
-// run in page
-() => { __DC_ACTION_LOG__.length = 0; return { cleared: true }; }
-```
-
-## Step 4: Mutate State via Controller
-
-Use Controller methods — **never** dispatch raw actions.
-
-### Invalidate an endpoint (force refetch)
-
-```js
-// run in page — triggers refetch for subscribed components
-async () => {
-  const mod = await import('/src/resources/Todo.ts');
-  await __DC_CTRL__.invalidate(mod.TodoResource.get, { id: '5' });
+// run in page — invalidate keys by path substring
+() => {
+  __DC__.controller.invalidateAll({ testKey: key => key.includes('/todos') });
   return { invalidated: true };
 }
 ```
 
-### Invalidate endpoints matching a pattern
-
-```js
-// run in page
-() => {
-  __DC_CTRL__.invalidateAll({ testKey: key => key.includes('/todos') });
-  return 'todo endpoints invalidated';
-}
-```
-
-### Expire endpoints (mark stale, refetch on next use)
-
-```js
-// run in page
-() => {
-  __DC_CTRL__.expireAll({ testKey: key => key.includes('/todos') });
-  return 'todo endpoints expired';
-}
-```
-
-### Set a value directly
-
-```js
-// run in page — use setResponse to inject mock data
-async () => {
-  const mod = await import('/src/resources/Todo.ts');
-  await __DC_CTRL__.setResponse(
-    mod.TodoResource.getList,
-    {},
-    [{ id: 1, title: 'Mock Todo', completed: false }],
-  );
-  return { set: true };
-}
-```
-
-### Reset entire store
-
-```js
-// run in page
-() => {
-  __DC_CTRL__.resetEntireStore();
-  return { reset: true };
-}
-```
-
-## Action Types Reference
-
-| Type | Controller Method | Description |
-|---|---|---|
-| `rdc/fetch` | `fetch()` | Network request initiated |
-| `rdc/setresponse` | `setResponse()` | Response written to cache |
-| `rdc/set` | `set()` | Direct entity value set |
-| `rdc/optimistic` | (automatic) | Optimistic update applied |
-| `rdc/invalidate` | `invalidate()` | Single endpoint invalidated |
-| `rdc/invalidateall` | `invalidateAll()` | Bulk invalidation by key test |
-| `rdc/expireall` | `expireAll()` | Bulk mark-stale by key test |
-| `rdc/reset` | `resetEntireStore()` | Full store reset |
-| `rdc/subscribe` | `subscribe()` | Subscription registered |
-| `rdc/unsubscribe` | `unsubscribe()` | Subscription removed |
-| `rdc/gc` | (automatic) | Garbage collection |
-
-## Controller State Readers
-
-All take `state` (from `__DC_CTRL__.getState()`) as the **last** argument.
-
-| Method | Signature | Returns |
-|---|---|---|
-| `getResponse` | `(endpoint, ...args, state)` | `{ data, expiryStatus, expiresAt }` — denormalized through schema |
-| `getError` | `(endpoint, ...args, state)` | `ErrorTypes \| undefined` |
-| `get` | `(schema, ...args, state)` | `Denormalized \| undefined` for any Queryable schema |
-| `getQueryMeta` | `(schema, ...args, state)` | `{ data, countRef }` |
-
-`expiryStatus` values: `1` = Invalid, `2` = InvalidIfStale, `3` = Valid.
+`expireAll` takes the same `testKey` and marks keys stale without refetching until next use.
+`setResponse(a.endpoint, ...a.args, value)` with a logged action injects mock data, and `resetEntireStore()`
+clears everything.
 
 ## State Shape Reference
 
