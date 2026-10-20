@@ -23,7 +23,6 @@ cache state, endpoint metadata, and dispatched actions directly from the running
 
 Technically, the agent reads the page's store from [`globalThis.__DC__`](../api/DevToolsManager.md#controllers):
 `__DC__.controller` is its `Controller` and `__DC__.actions` its recent actions.
-`globalThis.__DC_CONTROLLERS__` still lists those controllers in development, and is deprecated.
 
 At a high level, the agent can:
 

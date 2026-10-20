@@ -1,12 +1,13 @@
 import { Controller, initialState } from '../..';
 import DevToolsManager from '../DevtoolsManager.js';
 
-const controllers = (): Map<string, Controller> =>
-  (globalThis as any).__DC_CONTROLLERS__ ?? new Map();
+const registry = (): Map<string, { controller: Controller; actions: any[] }> =>
+  (globalThis as any).__DC__?.registry ?? new Map();
+const controllers = () =>
+  new Map([...registry()].map(([key, { controller }]) => [key, controller]));
 
 afterEach(() => {
   delete (globalThis as any).__DC__;
-  delete (globalThis as any).__DC_CONTROLLERS__;
 });
 
 // server rendering makes a store per request and never cleans it up

@@ -1,10 +1,10 @@
 ---
-'@data-client/core': patch
-'@data-client/react': patch
-'@data-client/vue': patch
+'@data-client/core': minor
+'@data-client/react': minor
+'@data-client/vue': minor
 ---
 
-Add `globalThis.__DC__` in development, with each store's Controller and recent actions
+BREAKING: `globalThis.__DC__` replaces `globalThis.__DC_CONTROLLERS__` in development, with each store's Controller and recent actions
 
 Coding agents and console debugging can reach the store with the [Controller](https://dataclient.io/docs/api/Controller)
 methods they already know, and see what it dispatched, including the fetches made while the page loaded, without
@@ -22,12 +22,12 @@ c.getResponse(a.endpoint, ...a.args, c.getState()).data;
 
 With several stores on a page, `__DC__.stores` lists their keys and setting `__DC__.store` picks one. Stores with
 the same devtools name each get their own key (`'Data Client: My App (2)'`, `(3)`, ...) instead of the second hiding
-the first. `globalThis.__DC_CONTROLLERS__` is deprecated and still available in development. Use `__DC__`:
+the first. Debugging code that read `globalThis.__DC_CONTROLLERS__` reads `__DC__` instead:
 
 ```js title="Browser DevTools console"
-// deprecated
+// before
 __DC_CONTROLLERS__.get('Data Client: My App').getState();
-// use this
+// after
 __DC__.store = 'Data Client: My App';
 __DC__.controller.getState();
 ```

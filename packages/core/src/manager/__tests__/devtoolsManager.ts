@@ -12,8 +12,8 @@ import DevToolsManager from '../DevtoolsManager.js';
 
 const registry = (): Map<string, { controller: Controller; actions: any[] }> =>
   (globalThis as any).__DC__?.registry ?? new Map();
-const controllers = (): Map<string, Controller> =>
-  (globalThis as any).__DC_CONTROLLERS__ ?? new Map();
+const controllers = () =>
+  new Map([...registry()].map(([key, { controller }]) => [key, controller]));
 const actionLogs = () =>
   new Map([...registry()].map(([key, { actions }]) => [key, actions]));
 
@@ -57,7 +57,6 @@ const responseAction = (key: string, i: number): any => ({
 
 afterEach(() => {
   delete (globalThis as any).__DC__;
-  delete (globalThis as any).__DC_CONTROLLERS__;
 });
 
 describe('DevToolsManager', () => {
@@ -200,60 +199,6 @@ describe('DevToolsManager', () => {
       expect(dc().actions).toBe(actionLogs().get('B'));
       dc().store = 'C';
       expect(() => dc().actions).toThrow('Set __DC__.store to one of');
-    });
-
-    it('resolves registered controllers on deprecated __DC_CONTROLLERS__', () => {
-      const a = new DevToolsManager({ name: 'A' });
-      const b = new DevToolsManager({ name: 'B' });
-      const { controller: ctrlA } = setup(a);
-      const { controller: ctrlB } = setup(b);
-      a.init(initialState);
-      b.init(initialState);
-
-      const alias = (globalThis as any).__DC_CONTROLLERS__ as Map<
-        string,
-        Controller
-      >;
-      expect(alias).toBeInstanceOf(Map);
-      expect(alias).toBe(dc().controllers);
-      expect(alias.get('A')).toBe(ctrlA);
-      expect(alias.get('B')).toBe(ctrlB);
-      expect(alias.has('B')).toBe(true);
-      expect([...alias.keys()]).toEqual(['A', 'B']);
-      expect([...alias.values()]).toEqual([ctrlA, ctrlB]);
-      expect([...alias.entries()]).toEqual([
-        ['A', ctrlA],
-        ['B', ctrlB],
-      ]);
-      expect([...alias]).toEqual([
-        ['A', ctrlA],
-        ['B', ctrlB],
-      ]);
-      const seen: string[] = [];
-      alias.forEach((controller, key) => {
-        if (controller === ctrlA) seen.push(key);
-      });
-      expect(seen).toEqual(['A']);
-
-      const other = new Controller();
-      alias.set('A', other);
-      expect(alias.get('A')).toBe(other);
-      expect(registry().get('A')?.controller).toBe(other);
-      expect(registry().get('A')?.actions).toBe(actionLogs().get('A'));
-      alias.set('C', ctrlB);
-      expect(registry().get('C')).toEqual({ controller: ctrlB, actions: [] });
-
-      b.cleanup();
-      expect(alias.has('B')).toBe(false);
-      expect(alias.get('A')).toBe(other);
-      alias.delete('C');
-      expect(registry().has('C')).toBe(false);
-      alias.clear();
-      expect(registry().size).toBe(0);
-      expect(alias.size).toBe(0);
-
-      a.init(initialState);
-      expect((globalThis as any).__DC_CONTROLLERS__).toBe(alias);
     });
 
     it('follows a remounted store', () => {

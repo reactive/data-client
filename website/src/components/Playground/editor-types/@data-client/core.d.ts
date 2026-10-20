@@ -1535,17 +1535,6 @@ declare class DevToolsManager implements Manager {
     /** Ensures all subscriptions are cleaned up. */
     cleanup(): void;
 }
-declare global {
-    /**
-     * Controllers `DevToolsManager` registered in development, keyed like `__DC__.stores`.
-     * Kept in sync with `__DC__.registry`. Absent from production builds.
-     *
-     * @deprecated Use `__DC__`. `__DC__.controller` is the page's store, and
-     * `__DC__.store` selects one when several are mounted.
-     * @see https://dataclient.io/docs/api/DevToolsManager#controllers
-     */
-    var __DC_CONTROLLERS__: Map<string, Controller> | undefined;
-}
 
 /** Handling network unauthorized indicators like HTTP 401
  *
