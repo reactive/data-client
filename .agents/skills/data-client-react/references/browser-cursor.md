@@ -25,18 +25,51 @@ The desktop agent drives Cursor's built-in browser (the Browser tab). Docs:
    - `params.awaitPromise`: `true`
    - `params.returnByValue`: `true`
 
-   The tool returns the `Runtime.evaluate` result, and the snippet's value is `result.value`. A bare
-   function comes back as a function with no value. An async snippet without `awaitPromise` comes back
-   as an empty object.
+   The tool returns the `Runtime.evaluate` result, and the snippet's value is `result.value`. Check
+   `exceptionDetails` first: a throw or a rejected promise lands there, and a rejection still returns
+   `result.value` as `{}`. `{}` is also what comes back for a bare function (`result.type` `"function"`), an
+   async snippet without `awaitPromise`, and a DOM node, so return plain data.
 
-   Do not send `Page.reload`. It reloads the Cursor window. Open the page again with `browser_navigate`.
-3. Read requests with `browser_network_requests` when the tool list includes it. Otherwise run this the same way as step 2 for
-   request URLs, durations and statuses (the entries' fields are getters, so map them to plain objects):
+   Do not send `Page.reload`. It reloads the Cursor window, which ends the agent's turn with no response,
+   and a resumed turn can send it again. Open the page again with `browser_navigate`, which loads it fresh,
+   so rerun Step 1.
+3. Read requests with `browser_network_requests` when the tool list includes it. `browser_cdp` returns only
+   command results, not events, so `Network.enable` records nothing you can read. Otherwise run this the same
+   way as step 2 for request URLs, durations and statuses (the entries' fields are getters, so map them to plain objects):
    `() => performance.getEntriesByType('resource').map(e => ({ url: e.name, duration: e.duration, status: e.responseStatus }))`.
-   `responseStatus` is `0` when CORS blocks the response, and blocked requests can be missing, so check failures in the
-   endpoint's `meta` error ([devtools-debugging](./devtools-debugging.md), Step 3) instead.
-4. Read logs with `browser_console_messages` when listed. Otherwise read the browser log files Cursor writes for
-   the session.
+   `responseStatus` is `0` for any cross-origin response read without CORS (images and fonts too, even when
+   they load), and blocked requests can be missing, so check failures in the endpoint's `meta` error
+   ([devtools-debugging](./devtools-debugging.md), Step 3) instead.
+4. Read logs with `browser_console_messages` when listed. Otherwise install this the same way as step 2 to record
+   later console calls, uncaught errors and unhandled rejections (a page load clears it), then read
+   `__DC_CONSOLE__.slice(-20)`:
+
+   ```js
+   // run in page
+   () => {
+     if (globalThis.__DC_CONSOLE__) return { ok: true, count: __DC_CONSOLE__.length };
+     const log = (globalThis.__DC_CONSOLE__ = []);
+     const text = (a) => {
+       if (a instanceof Error) return a.stack ?? String(a);
+       if (typeof a === 'string') return a;
+       try { return JSON.stringify(a); } catch { return String(a); }
+     };
+     const push = (level, args) => {
+       log.push({ level, time: Date.now(), text: args.map(text).join(' ') });
+       if (log.length > 200) log.splice(0, 100);
+     };
+     for (const level of ['log', 'info', 'warn', 'error', 'debug']) {
+       const orig = console[level];
+       console[level] = (...args) => { push(level, args); return orig.apply(console, args); };
+     }
+     addEventListener('error', (e) => push('uncaught', [e.error ?? e.message]));
+     addEventListener('unhandledrejection', (e) => push('unhandledrejection', [e.reason]));
+     return { ok: true, count: 0 };
+   }
+   ```
+
+   To see errors from page load, install it, then repeat the action (`invalidateAll` from
+   [devtools-debugging](./devtools-debugging.md) Step 4, or an in-app navigation).
 
 ## Cloud agent
 
