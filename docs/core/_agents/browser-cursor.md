@@ -45,20 +45,9 @@ A cloud agent does not read `.cursor/mcp.json`. The MCP servers for a run are th
 [MCP dropdown at cursor.com/agents](https://cursor.com/agents) (team servers are under Dashboard → Plugins & MCPs).
 Committing the file does not add them.
 
-To get Playwright, add this stdio server in that dropdown. The cloud image already runs it: no
-`.cursor/environment.json` and no separate browser install. Running this command on a cloud agent exposed
-`browser_navigate`, `browser_evaluate`, `browser_network_requests`, and `browser_console_messages`:
-
-```json
-{
-  "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": ["-y", "@playwright/mcp@0.0.83", "--headless"]
-    }
-  }
-}
-```
+To get Playwright, add [Playwright MCP's server](./browser-playwright-mcp.md#install) there as a stdio server
+with `--headless` appended to its args (the agent's machine has no display). The cloud image already has Chrome,
+so it needs no `.cursor/environment.json` or browser install.
 
 Then follow [Playwright MCP's Use steps](./browser-playwright-mcp.md#use). If those tools are not in the tool
 list, the server is not enabled for this run. The machine's Chrome is still there: drive it over the DevTools
