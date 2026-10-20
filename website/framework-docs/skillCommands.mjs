@@ -32,6 +32,16 @@ const setupTask = framework =>
 export const claudeSetupPrompt = framework =>
   `/data-client:data-client-setup ${setupTask(framework)}`;
 
+/** Installs the Cursor plugin from .cursor-plugin, typed in Cursor's agent
+ * chat; its skills load from the next chat */
+const cursorPlugin = repo =>
+  `/add-plugin data-client@https://github.com/${repo}`;
+export const cursorPluginCommand = cursorPlugin('reactive/data-client');
+
+/** Cursor starts a plugin skill by its own name */
+export const cursorSetupPrompt = framework =>
+  `/data-client-setup ${setupTask(framework)}`;
+
 /**
  * Codex reads the Claude Code marketplace; --sparse checks out only the
  * plugin and its skills. Codex installs plugins for the user, with no project scope
@@ -98,7 +108,7 @@ export default function skillCommands(
       ].join('\n'),
       // the same plugin from .cursor-plugin, pinned to master: Cursor otherwise
       // checks out main, which this repo doesn't have
-      cursor: `/add-plugin data-client@https://github.com/${repo}`,
+      cursor: cursorPlugin(repo),
       codex: codexPlugin(repo),
     }),
   };
