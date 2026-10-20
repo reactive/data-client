@@ -52,7 +52,7 @@ Any user-facing change in `packages/*` requires a changeset. Core packages are v
 
 For agent integrations (skills, plugins, setup docs, hooks), support in this order:
 
-1. **Claude Code** (CLI, desktop, projects) and **Cursor** (IDE, CLI, cloud agents, projects): must work out of the box; test here first.
+1. **Claude Code** (CLI, desktop, projects) and **Cursor** (IDE, CLI, cloud agents, projects): must work out of the box.
 2. **Codex**: supported; fix gaps when found.
 3. **Everything else**: best effort through the shared `.agents/skills` and `AGENTS.md` conventions; never at tier 1's expense.
 
