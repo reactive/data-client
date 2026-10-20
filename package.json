@@ -93,7 +93,7 @@
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "@typescript/native": "npm:typescript@7.0.2",
+    "@typescript/native": "npm:typescript@7.1.0-beta",
     "babel-plugin-module-resolver": "5.0.3",
     "babel-plugin-syntax-hermes-parser": "^0.37.0",
     "benchmark": "^2.1.4",

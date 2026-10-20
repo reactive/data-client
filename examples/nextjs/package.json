@@ -33,7 +33,7 @@
     "tar-fs": "^3.1.2",
     "tunnel-agent": "^0.6.0",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "@typescript/native": "npm:typescript@7.0.2"
+    "@typescript/native": "npm:typescript@7.1.0-beta"
   },
   "overrides": {
     "@types/react": "19.3.0",
