@@ -17,13 +17,13 @@ import AgentOnly from '@site/src/components/AgentOnly';
 
 <SiteOnly>
 
-## With your coding agent
+## Set up with your coding agent {#agent-setup}
 
 <SetupTabs />
 
 Either way, your agent runs Data Client's setup [skill](./agent-skills.md), which installs the packages, wires up the
 provider and links the skills the packages ship, so your agent knows the current APIs, like real-time managers and test
-fixtures.
+fixtures. That's the whole setup, so you can go straight to [Define Data](./resource).
 
 </SiteOnly>
 
@@ -40,15 +40,23 @@ and links the skills the packages ship. The steps below are the same setup by ha
 
 </AgentOnly>
 
+## Set up by hand {#manual-setup}
+
+<SiteOnly>
+
+These steps are the same setup without an agent. If your agent ran the setup, skip them: it already did every one.
+
+</SiteOnly>
+
 :::react
 
-## Install manually
+### Install packages {#install-manually}
 
 <PkgTabs pkgs="@data-client/react @data-client/test @data-client/rest" />
 
 :::
 
-## :react[Add provider at top-level component]:vue[Install the plugin] {#add-provider-at-top-level-component}
+### :react[Add provider at top-level component]:vue[Install the plugin] {#add-provider-at-top-level-component}
 
 :::vue
 
@@ -60,7 +68,7 @@ Install the [Vue plugin](https://vuejs.org/guide/reusability/plugins.html) when 
 
 <SiteOnly>
 
-## Link your agent's skills {#agent-skills}
+### Link your agent's skills {#agent-skills}
 
 The packages ship skills for your coding agent, matched to the version you installed. Link them so Claude Code,
 Cursor and Codex load them, and commit the links:
