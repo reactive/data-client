@@ -399,14 +399,26 @@ jobs:
             # replace both with the requested compiler release so `tsc` matches.
             # Stable minors use a tilde range (`~5.3`). A prerelease (`7.1.0-beta`)
             # is an exact pin: `~7.1.0-beta` also matches the later 7.1.0 release.
+            #
+            # Yarn's default npmMinimalAgeGate is 1 day, so a release from today is
+            # quarantined (YN0016). npmPreapprovedPackages exempts named packages
+            # from that gate; the env form is YARN_NPM_PREAPPROVED_PACKAGES, a
+            # comma-separated list. It replaces the .yarnrc.yml value for this
+            # process, so it is set only on the two `yarn up`s below and only for
+            # a prerelease. `typescript` does not match the platform packages that
+            # typescript@7.1.0-beta depends on (`@typescript/typescript-<os>-<cpu>`),
+            # which are published with it, so those names are listed too. The gate
+            # itself stays at 1 day, and .yarnrc.yml is unchanged.
             ts_version="<< parameters.typescript-version >>"
             if [[ "$ts_version" == *-* ]]; then
               ts_range="$ts_version"
+              export YARN_NPM_PREAPPROVED_PACKAGES='typescript,@typescript/typescript-*'
             else
               ts_range="~$ts_version"
             fi
             yarn up "typescript@${ts_range}"
             yarn up "@typescript/native@npm:typescript@${ts_range}"
+            unset YARN_NPM_PREAPPROVED_PACKAGES
             if [[ "<< parameters.typescript-version >>" == "4.0" || \
             "<< parameters.typescript-version >>" == "4.1" || \
             "<< parameters.typescript-version >>" == "4.3" ]]; then
