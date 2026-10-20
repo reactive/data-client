@@ -43,7 +43,7 @@ The desktop agent drives Cursor's built-in browser (the Browser tab). Docs:
 
 A cloud agent does not read `.cursor/mcp.json`. The MCP servers for a run are the ones enabled in the
 [MCP dropdown at cursor.com/agents](https://cursor.com/agents) (team servers are under Dashboard → Plugins & MCPs).
-Committing the file does not add them. The repo's `.cursor/mcp.json` is for the desktop IDE.
+Committing the file does not add them.
 
 To get Playwright, add this stdio server in that dropdown. The cloud image already runs it: no
 `.cursor/environment.json` and no separate browser install. Running this command on a cloud agent exposed
