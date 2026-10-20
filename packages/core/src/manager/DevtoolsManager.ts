@@ -102,7 +102,10 @@ function pushCapped<T>(buffer: T[], item: T, max: number) {
 const FULL_ACTIONS = 20;
 
 /** Keeps what shows what happened and when, dropping what retains memory
- * (response bodies, args, set values, fetch promises).
+ * (response bodies, set values, fetch promises).
+ *
+ * Keeps `endpoint` and `args`, so `controller.getResponse(a.endpoint, ...a.args, state)`
+ * works for any logged key.
  *
  * Builds the object explicitly: a rest spread here was 4x slower.
  */
@@ -111,6 +114,7 @@ function summarize(action: any) {
     type: action.type,
     key: action.key,
     endpoint: action.endpoint,
+    args: action.args,
     meta:
       action.type === FETCH ?
         { fetchedAt: action.meta.fetchedAt }
@@ -121,6 +125,38 @@ function summarize(action: any) {
     summary.response = action.response;
   }
   return summary;
+}
+
+/** `globalThis.__DC__`: one store's Controller and action log, for console and agent debugging.
+ *
+ * Reads the registries on every access, so it follows a remounted provider.
+ * Getters live on the prototype, so serializing `__DC__` yields only `store`.
+ */
+class DebugStore {
+  /** Registry key to read; may be left unset when the page has one store */
+  declare store?: string;
+
+  get controller(): Controller {
+    return (globalThis as any).__DC_CONTROLLERS__.get(this.resolveKey());
+  }
+
+  get actions(): ActionTypes[] {
+    return (globalThis as any).__DC_ACTIONS__.get(this.resolveKey());
+  }
+
+  protected resolveKey(): string {
+    const controllers: Map<string, Controller> =
+      (globalThis as any).__DC_CONTROLLERS__ ?? new Map();
+    const key =
+      this.store ??
+      (controllers.size === 1 ? controllers.keys().next().value : undefined);
+    if (key !== undefined && controllers.has(key)) return key;
+    throw new Error(
+      controllers.size ?
+        `Set __DC__.store to one of: ${[...controllers.keys()].map(k => JSON.stringify(k)).join(', ')}`
+      : 'No Data Client store is mounted',
+    );
+  }
 }
 
 /** Integrates with https://github.com/reduxjs/redux-devtools
@@ -276,6 +312,7 @@ export default class DevToolsManager implements Manager {
         key,
         this.actionLog,
       );
+      (globalThis as any).__DC__ ??= new DebugStore();
     }
     if (process.env.NODE_ENV !== 'production' && this.devTools) {
       this.devTools.init(state);

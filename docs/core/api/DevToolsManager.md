@@ -94,7 +94,22 @@ In development mode, `DevToolsManager` registers each [Controller](/docs/api/Con
 most recent dispatched actions for each one on `globalThis.__DC_ACTIONS__`, under the same key. This works
 in browsers, React Native, and Node, with or without the Redux DevTools extension.
 
+`globalThis.__DC__` reads one store from both: `__DC__.controller` is its Controller and `__DC__.actions` its
+action log. With several stores on the page, set `__DC__.store` to the key of the one to read.
+
 ```js title="Browser DevTools console"
+// The page's store
+__DC__.controller.getState();
+__DC__.actions.slice(-10);
+
+// Response for a key in the action log, without importing its endpoint
+const c = __DC__.controller;
+const a = __DC__.actions.findLast(a => a.key?.includes('/todos'));
+c.getResponse(a.endpoint, ...a.args, c.getState()).data;
+
+// Pick a store when there are several
+__DC__.store = 'Data Client: My App (2)';
+
 // List all registered providers
 __DC_CONTROLLERS__.keys();
 
@@ -117,7 +132,7 @@ server rendering, a store replaces the previous one with its name instead, since
 
 The action log keeps up to twice [`maxAge`](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#maxage)
 actions (100 by default) and skips the same duplicate fetches the extension does. To keep its memory small, only the
-newest 20 actions keep their `args` and `response`; older ones keep `type`, `key`, `endpoint`, `meta` and error
+newest 20 actions keep their `response`; older ones keep `type`, `key`, `endpoint`, `args`, `meta` and error
 responses. While an endpoint [polls](/rest/api/RestEndpoint#pollfrequency), the log keeps only its last
 `maxPollingActions` actions for each key (endpoint and args) (4 by default, the last two polls), so polling doesn't push everything else out:
 

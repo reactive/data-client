@@ -7,6 +7,7 @@ const controllers = () =>
 afterEach(() => {
   delete (globalThis as any).__DC_CONTROLLERS__;
   delete (globalThis as any).__DC_ACTIONS__;
+  delete (globalThis as any).__DC__;
 });
 
 // server rendering makes a store per request and never cleans it up

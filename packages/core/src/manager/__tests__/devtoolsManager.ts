@@ -56,6 +56,7 @@ const responseAction = (key: string, i: number): any => ({
 afterEach(() => {
   delete (globalThis as any).__DC_CONTROLLERS__;
   delete (globalThis as any).__DC_ACTIONS__;
+  delete (globalThis as any).__DC__;
 });
 
 describe('DevToolsManager', () => {
@@ -130,12 +131,14 @@ describe('DevToolsManager', () => {
           type: FETCH,
           key: 'a',
           endpoint: pollEndpoint,
+          args: [1],
           meta: { fetchedAt: 1 },
         },
         {
           type: SET_RESPONSE,
           key: 'a',
           endpoint: pollEndpoint,
+          args: [2],
           error: true,
           response: { message: 'boom' },
           meta: { fetchedAt: 2, date: 2, expiresAt: 2 },
@@ -144,12 +147,60 @@ describe('DevToolsManager', () => {
           type: SET_RESPONSE,
           key: 'a',
           endpoint: pollEndpoint,
+          args: [3],
           meta: { fetchedAt: 3, date: 3, expiresAt: 3 },
         },
       ]);
       expect(log.slice(3)).toEqual(
         Array.from({ length: 20 }, (_, i) => setAction(i)),
       );
+    });
+  });
+
+  describe('__DC__', () => {
+    const dc = () => (globalThis as any).__DC__;
+
+    it('reads the only store without configuration', () => {
+      const manager = new DevToolsManager({ name: 'App' });
+      const { controller } = setup(manager);
+      manager.init(initialState);
+
+      expect(dc().controller).toBe(controller);
+      expect(dc().actions).toBe(actionLogs().get('App'));
+      // getters stay off the instance, so serializing it returns only settings
+      expect(JSON.parse(JSON.stringify(dc()))).toEqual({});
+    });
+
+    it('asks for a store when several are registered', () => {
+      const a = new DevToolsManager({ name: 'A' });
+      const b = new DevToolsManager({ name: 'B' });
+      setup(a);
+      const { controller: ctrlB } = setup(b);
+      a.init(initialState);
+      b.init(initialState);
+
+      expect(() => dc().controller).toThrow(
+        'Set __DC__.store to one of: "A", "B"',
+      );
+      dc().store = 'B';
+      expect(dc().controller).toBe(ctrlB);
+      expect(dc().actions).toBe(actionLogs().get('B'));
+      dc().store = 'C';
+      expect(() => dc().actions).toThrow('Set __DC__.store to one of');
+    });
+
+    it('follows a remounted store', () => {
+      const manager = new DevToolsManager({ name: 'App' });
+      setup(manager);
+      manager.init(initialState);
+      const api = dc();
+      manager.cleanup();
+      expect(() => api.controller).toThrow('No Data Client store is mounted');
+
+      const { controller } = setup(manager);
+      manager.init(initialState);
+      expect(dc()).toBe(api);
+      expect(api.controller).toBe(controller);
     });
   });
 
