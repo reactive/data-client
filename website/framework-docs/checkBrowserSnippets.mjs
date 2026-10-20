@@ -337,10 +337,11 @@ const WAYS = {
 };
 assert.deepEqual(Object.keys(WAYS), WAY_HEADINGS, 'a runner for each way');
 
-const [app, browser] = await Promise.all([
-  bundleApp(),
-  chromium.launch({ executablePath: process.env.CHROMIUM_PATH }),
-]);
+// bundle first: a build error then exits without a browser left open
+const app = await bundleApp();
+const browser = await chromium.launch({
+  executablePath: process.env.CHROMIUM_PATH,
+});
 try {
   const checks = [
     ...Object.entries(WAYS).map(([way, run]) => [
