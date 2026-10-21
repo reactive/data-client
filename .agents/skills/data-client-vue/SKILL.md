@@ -150,20 +150,10 @@ const todosByUser = useQuery(groupTodoByUser);
 
 ## Debugging wrong or stale data in a running app
 
-When the running app shows the wrong data (it never appears, reverts, or refetches too often), check the page's
-store before reading code for the cause: the UI renders what the store holds, and its action log shows what put it
-there. In dev mode, `__DC__.controller` is the page's Controller, so every Controller method above works on it, and
-`__DC__.actions` are its recent [actions](references/Actions.md). With a browser tool that runs JavaScript in the page:
-
-1. Compare the store to the server: `__DC__.controller.getState().entities.Todo['5']` against the API's response.
-2. If they differ, find what wrote the store's value: `__DC__.actions.map(a => [a.type, a.key])` lists actions oldest
-   first; the `rdc/setresponse` that carried it names the endpoint, and that endpoint's schema shows how it reached
-   the entity.
-3. After a fix, compare every entity of that type to the server again, not only the one you changed.
-
-[devtools-debugging](references/devtools-debugging.md) has a "Where to Start" table mapping symptoms to the state and
-actions to check, ready-made snippets, and a Browser Tools table saying how your tool runs them; then read the
-`browser-*.md` setup it links for your tool.
+When the running app shows the wrong data, inspect the page's store before reading code for the cause. In dev mode,
+`__DC__.controller` is the page's Controller and `__DC__.actions` its recent [actions](references/Actions.md), reachable
+from any browser tool that runs JavaScript in the page. [devtools-debugging](references/devtools-debugging.md) maps
+symptoms to what to check and links the setup for your browser tool.
 
 ## Managers
 
