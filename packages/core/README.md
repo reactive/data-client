@@ -65,8 +65,8 @@ that read from it.
 
 ### Provider: own the store
 
-This is the whole lifecycle, as a framework-free store. `@data-client/vue`'s `DataClientPlugin` (built on `createDataClient()`) is nearly this code
-wrapped around `shallowRef` and `provide()`.
+This is the whole lifecycle, as a framework-free store. `@data-client/vue`'s `DataClientPlugin` does nearly this internally, wrapped
+around `shallowRef` and `provide()`.
 
 ```ts
 function createStore({
@@ -117,11 +117,13 @@ function createStore({
 
 Requirements every provider must meet:
 
-- **One `Controller`, one set of managers per store**, created once and kept stable. Pass a `GCPolicy` to enable garbage
-  collection; the default `ImmortalGCPolicy` keeps everything.
+- **One `Controller`, one set of managers per store**, created once and kept stable. Include `NetworkManager`: it does
+  the fetching, and `applyManager()` binds the controller through the first manager, so the list can't be empty. Pass a
+  `GCPolicy` to enable garbage collection; the default `ImmortalGCPolicy` keeps everything.
 - **Dispatch must go through the whole middleware chain**, including dispatches managers make themselves, which is why
   `api.dispatch` calls the composed chain rather than `commit`. The promise it returns should resolve once the new state is
-  visible to readers.
+  visible to readers. (`controller.fetch()` of a `sideEffect` endpoint resolves just before its result is committed, so
+  read results from `State` on the next notification rather than right after `await`.)
 - **The middleware `api.getState()` returns the committed state** (without optimistic updates), since managers and
   `Controller` reason about what the server confirmed. Views read the optimistic overlay (the store's `getState()` here).
 - **Run `initManager()` after the store is ready** (on mount), and call its returned cleanup on unmount. It also starts and
@@ -155,8 +157,9 @@ function read(store, endpoint, ...args) {
 
 Recompute when the store notifies. Selectors are memoized, so comparing `data` by reference is enough to skip updates.
 A real binding also memoizes the fetch decision on the key, `expiresAt` and `state.lastReset`, as `useSuspense()` does;
-NetworkManager deduplicates concurrent fetches either way. Call `countRef()` when `data` changes and call what it returns
-when the view lets go of that data, so GC keeps its entities. Selectors treat `null` as the first argument after the endpoint
+NetworkManager deduplicates concurrent fetches of endpoints without
+`sideEffect` either way. Call `countRef()` when `data` changes and call what it returns
+when the view lets go of that data, so GC keeps its entities. Selectors treat a single `null` argument
 (`read(store, endpoint, null)`) as "no request", which lets callers defer fetching.
 
 ## How React and Vue build on core
@@ -237,7 +240,8 @@ app-wide methods.
 
 ### Types
 
-`State`, `PK`, `EndpointInterface`, `EntityInterface`, `Schema`, `Queryable`, `Denormalize`, `DenormalizeNullable`,
+`State`, `PK`, `DataClientDispatch`, `GenericDispatch`, `EndpointUpdateFunction`, `FetchingMeta`, `DevToolsConfig`,
+`EndpointInterface`, `EntityInterface`, `Schema`, `Queryable`, `Denormalize`, `DenormalizeNullable`,
 `Normalize`, `ResolveType`, `FetchFunction`, `NetworkError`, `UnknownError`, `ErrorTypes`, and the rest of
 [the shared types](https://dataclient.io/docs/api/types) from `@data-client/normalizr`.
 
