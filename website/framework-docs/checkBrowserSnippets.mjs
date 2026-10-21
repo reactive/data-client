@@ -43,6 +43,18 @@ const SNIPPETS = BLOCKS.filter(
   src: value,
 }));
 
+// getting-started/debugging.md gives agents a few of these: keep them copies
+for (const { lang, value } of docCodeBlocks(
+  path.join(ROOT, 'docs/core/getting-started/debugging.md'),
+  'react',
+)) {
+  if (lang === 'js' && value.startsWith('// run in page'))
+    assert.ok(
+      SNIPPETS.some(({ src }) => src === value),
+      `debugging.md snippet differs from devtools-debugging.md: ${value.split('\n')[0]}`,
+    );
+}
+
 const SOURCE = fs.readFileSync(DEBUGGING, 'utf8');
 /** A `### heading` section of the page's source */
 function section(heading) {
