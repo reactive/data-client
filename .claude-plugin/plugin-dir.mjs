@@ -1,7 +1,9 @@
-// Writes the Cursor copy of the `data-client` plugin: node .claude-plugin/cursor.mjs
-// Cursor plugins can't reach files outside their folder, so it's rooted at
-// .agents/skills. marketplace.test.mjs fails when the written files drift
-// from marketplace.json.
+// Writes the manifests that make .agents/skills a self-contained copy of the
+// `data-client` plugin: node .claude-plugin/plugin-dir.mjs
+// Cursor plugins and plugins listed in Claude's directory can't reach files
+// outside their folder, so they're rooted at .agents/skills.
+// marketplace.test.mjs fails when the written files drift from
+// marketplace.json.
 //
 // `/add-plugin` checks out ref "main" when the marketplace entry's source
 // doesn't pin one, and a branch on the GitHub URL is ignored. This repo's
@@ -19,13 +21,26 @@ export const root = path.resolve(
 const skills = '.agents/skills';
 const repository = 'https://github.com/reactive/data-client';
 
-/** Cursor's manifests (path => JSON): the `data-client` entry of
- * marketplace.json plus Cursor's own listing fields */
-export function cursorFiles() {
+/** The plugin directory's manifests (path => JSON): the `data-client` entry
+ * of marketplace.json plus each listing's own fields */
+export function pluginDirFiles() {
   const marketplace = JSON.parse(
     fs.readFileSync(path.join(root, '.claude-plugin/marketplace.json'), 'utf8'),
   );
   const plugin = marketplace.plugins.find(p => p.name === marketplace.name);
+  const keywords = [
+    'data-client',
+    'react',
+    'vue',
+    'rest',
+    'graphql',
+    'normalized-cache',
+  ];
+  // Each entry is a skill directory (it contains SKILL.md). Listing the
+  // plugin root would also publish the maintainer skills beside them.
+  const pluginSkills = plugin.skills.map(
+    skill => `./${path.relative(skills, skill)}`,
+  );
   return {
     '.cursor-plugin/marketplace.json': {
       name: marketplace.name,
@@ -53,26 +68,30 @@ export function cursorFiles() {
       homepage: plugin.homepage,
       repository,
       license: plugin.license,
-      keywords: [
-        'data-client',
-        'react',
-        'vue',
-        'rest',
-        'graphql',
-        'normalized-cache',
-      ],
+      keywords,
       category: 'developer-tools',
       tags: ['react', 'vue', 'data-fetching'],
       logo: 'assets/logo.svg',
-      // Each entry is a skill directory (it contains SKILL.md). Listing the
-      // plugin root would also publish the maintainer skills beside them.
-      skills: plugin.skills.map(skill => `./${path.relative(skills, skill)}`),
+      skills: pluginSkills,
+    },
+    // Claude's plugin directory submits this folder. No `version`: Claude Code
+    // then treats every commit as an update, like the root marketplace does.
+    [`${skills}/.claude-plugin/plugin.json`]: {
+      name: plugin.name,
+      displayName: 'Reactive Data Client',
+      description: plugin.description,
+      author: marketplace.owner,
+      homepage: plugin.homepage,
+      repository,
+      license: plugin.license,
+      keywords,
+      skills: pluginSkills,
     },
   };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  for (const [file, json] of Object.entries(cursorFiles())) {
+  for (const [file, json] of Object.entries(pluginDirFiles())) {
     fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
     fs.writeFileSync(
       path.join(root, file),

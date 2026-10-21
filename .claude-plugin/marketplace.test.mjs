@@ -27,9 +27,9 @@ test('plugin skills exist and ship in a package', () => {
   }
 });
 
-test('the Cursor plugin matches marketplace.json', async () => {
-  // regenerate with node .claude-plugin/cursor.mjs
-  const { cursorFiles } = await import('./cursor.mjs');
-  for (const [file, json] of Object.entries(cursorFiles()))
+test('the plugin directory matches marketplace.json', async () => {
+  // regenerate with node .claude-plugin/plugin-dir.mjs
+  const { pluginDirFiles } = await import('./plugin-dir.mjs');
+  for (const [file, json] of Object.entries(pluginDirFiles()))
     assert.deepEqual(readJSON(file), json, file);
 });
