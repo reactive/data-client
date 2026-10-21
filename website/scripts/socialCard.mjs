@@ -5,7 +5,7 @@
  * Usage (from repo root):
  *   yarn workspace rdc-website social-card blog/2026-10-03-v0.19-batch-set.md
  *   yarn workspace rdc-website social-card 0.19 --force   # overwrite existing
- *   yarn workspace rdc-website social-card coding-agents  # non-release post, by slug
+ *   yarn workspace rdc-website social-card <slug>         # non-release post, by slug
  *
  * Release posts (titled `vX.Y: ...`) write X.Y-card.png with a RELEASE pill and
  * a visual per headline feature. Other posts write <slug>-card.png with their
@@ -44,7 +44,7 @@ const MAX_FEATURE_ROWS = 6;
 // simple-icons brand marks (CC0): single-path, monochrome, 24x24
 const ICON_DIR = path.join(WEBSITE_ROOT, 'scripts/card-icons');
 // Agents the skills CLI (`npx skills add`) installs into, shown under the
-// tagline of posts tagged `agents`
+// tagline of non-release posts tagged `agents`
 const AGENT_ICONS = [
   'claude',
   'cursor',
@@ -107,7 +107,8 @@ async function parsePost(postFile) {
       .slice(0, version ? MAX_ROWS : MAX_FEATURE_ROWS)
       .map(({ tag, text }) => ({ tag, label: bulletLabel(text) })),
     feature: version && featureVisual(headline, bullets, details),
-    agents: tags.includes('agents') && AGENT_ICONS,
+    // release cards fill that space with their headline and feature visuals
+    agents: !version && tags.includes('agents') && AGENT_ICONS,
   };
 }
 
