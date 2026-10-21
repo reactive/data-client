@@ -30,7 +30,10 @@ type-check, as they did when that release's CI passed. Archives add nothing to t
   `site-preview.yml` runs it before uploading a build for deploy. `vercel.json` rewrites each
   archive's host (`<version>.dataclient.io`) to its directory, except `/api` (the site's
   functions), and redirects that directory's own paths to the host. Vercel applies rewrites after its file check, where the root's pages would answer
-  first, so `docs deploy` moves that route ahead of the check in `vercel build`'s output. Production
+  first, so `docs deploy` moves that route ahead of the check in `vercel build`'s output. Vercel
+  also answers every miss with the root's `404.html`, which on an archive's host loads no styles
+  (its `/assets/` map to the archive's), so `docs deploy` routes misses on each archive host,
+  under `/next/` and under each locale to that build's own `404.html`. Production
   deploys then add each listed host to the Vercel project as a domain (dataclient.io's DNS, on
   Cloudflare, already sends every subdomain to Vercel). The hostname scheme lives in `vercel.json`,
   `docusaurus.snapshot.config.ts` and that deploy step.
