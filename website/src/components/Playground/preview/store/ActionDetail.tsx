@@ -54,6 +54,8 @@ export function ActionDetail({
       <SubjectChanges entries={[entry]} subject={subject} gap={gap} />
       <div className={clsx(styles.fields, styles.metaList)}>
         <Field name="dispatchedAt" node={{ t: 'val', v: entry.at }} />
+        {entry.origin && <Field name="sentBy">{entry.origin}</Field>}
+        {entry.consumedBy && <Field name="handledBy">{entry.consumedBy}</Field>}
         {actionFields(entry.action).map(([name, value]) => (
           <Field key={name} name={name} node={plain(value)} />
         ))}
@@ -106,7 +108,7 @@ export function SubjectChanges({
           )}
         </>
       : <span className={styles.dim}>
-          {unappliedNote(entries[entries.length - 1].action)}
+          {unappliedNote(entries[entries.length - 1])}
         </span>
       }
     </div>
@@ -117,6 +119,7 @@ export function SubjectChanges({
 function unchangedNote(subject: View) {
   switch (subject.kind) {
     case 'root':
+    case 'manager':
       return 'No change to the store';
     case 'list':
       return 'No change to these rows';
@@ -126,16 +129,14 @@ function unchangedNote(subject: View) {
 }
 
 /** Why an action that never reached the store is still in the log */
-function unappliedNote(action: ActionTypes) {
-  switch (action.type) {
-    case actionTypes.FETCH:
-      return 'Started the request; the store changes when its response arrives';
-    case actionTypes.SUBSCRIBE:
-    case actionTypes.UNSUBSCRIBE:
-      return 'Handled by SubscriptionManager; the store is unchanged';
-    default:
-      return 'A manager handled this without passing it to the store';
-  }
+function unappliedNote({ action, consumedBy }: LogEntry) {
+  // NetworkManager sets off a fetch's request (its name may end in `#2`)
+  const requested = !consumedBy || consumedBy.startsWith('NetworkManager');
+  if (action.type === actionTypes.FETCH && requested)
+    return 'Started the request; the store changes when its response arrives';
+  return consumedBy ?
+      `Handled by ${consumedBy}; the store is unchanged`
+    : 'Not passed on to the store (yet)';
 }
 
 /** Rows the `stored` actions changed, and how */

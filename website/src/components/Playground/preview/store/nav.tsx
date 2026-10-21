@@ -73,7 +73,9 @@ export const cellDive =
 export type View =
   | { readonly kind: 'root' }
   | ListView
-  | { readonly kind: 'record'; readonly id: string };
+  | { readonly kind: 'record'; readonly id: string }
+  /** What one manager of the chain sent, or kept from the rest of it */
+  | { readonly kind: 'manager'; readonly name: string };
 
 /** One action (`seq`), or (`whole`) its group up to it, shown over a
  * subject with what it did to it; `null`, live, is the newest */

@@ -26,6 +26,7 @@ import {
   gapText,
   KeyLabel,
   Lifecycle,
+  ManagerTags,
   spanOf,
   Status,
   statusFailed,
@@ -395,6 +396,7 @@ const GroupRow = memo(function GroupRow({
           {group.kind === 'single' && <TypeName entry={first} />}
           <KeyLabel value={group.key} />
           <Tag group={group} />
+          <ManagerTags entries={all} subject={subject} />
           <span className={styles.actMeta}>
             <Status group={group} />
             <Time at={first.at} />
@@ -552,6 +554,7 @@ function StepRow({
     >
       <Time at={entry.at} />
       <TypeName entry={entry} />
+      <ManagerTags entries={[entry]} subject={subject} />
       <span className={styles.actSum}>
         <ActionSpanContext.Provider value={spanOf([entry])}>
           <ChangeChips changes={changes} own={own} />

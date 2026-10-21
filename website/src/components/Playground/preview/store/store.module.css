@@ -1020,6 +1020,13 @@ div.gapRow {
   gap: 0.5rem;
   min-width: 0;
 }
+/* the code's manager that sent an action, or kept it from the rest of the
+   chain */
+.manager {
+  composes: pill from '../../styles.module.css';
+  color: var(--store-muted);
+  border-color: var(--store-line-strong);
+}
 /* the key keeps its room in a narrow row: the meta wraps under it first */
 .actKey {
   flex: 0 1 auto;
