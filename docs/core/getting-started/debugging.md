@@ -17,14 +17,14 @@ import Errors from '../_agents/_errors.mdx';
 
 <SiteOnly>
 
-[`globalThis.__DC__`](../api/DevToolsManager.md#controllers) allows agents to introspect the Data Client store of the
-running app: its state, recent actions and errors, so your coding agent can debug what you see. Ask it:
+[`globalThis.__DC__`](../api/DevToolsManager.md#controllers) allows agents to introspect the Data Client store of your
+app in development: its state, recent actions and errors, so your coding agent can debug what you see. Ask it:
 
 ```prompt
 The todo list still shows the old title after I save. Find out why.
 ```
 
-With Data Client's [skills](./agent-skills.md) set up, it finds the cause there instead of guessing from code. It
+With Data Client's [skills](./agent-skills.md) set up, it finds the cause in the store instead of guessing from code. It
 needs a browser tool that runs JavaScript in the page: Cursor's browser,
 [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp),
 [Playwright MCP](https://github.com/microsoft/playwright-mcp) or Claude in Chrome. If debugging doesn't work with your
