@@ -182,8 +182,8 @@ loading:
 | Platform extras    |                                              | SSR and Next.js, React Native, [Redux](https://dataclient.io/docs/guides/redux)                                                                                                                          |                                                                                                                       |
 | Testing            | `@data-client/core/mock`                     | [@data-client/test](https://www.npmjs.com/package/@data-client/test): [`MockResolver`](https://dataclient.io/docs/api/MockResolver), [`renderDataHook()`](https://dataclient.io/docs/api/renderDataHook) | `@data-client/vue/test`: `MockPlugin`, `mountDataClient()`                                                            |
 
-Both shipped packages re-export core's API, so a new integration should also re-export `Controller`, the managers, `ExpiryStatus`, `actionTypes`, `GCPolicy` and the
-types, so app code never imports core.
+Both shipped packages re-export `Controller`, the managers, `ExpiryStatus`, `actionTypes`, `GCPolicy` and the types, so
+app code never imports core. A new integration should do the same.
 
 ## Public interface
 
