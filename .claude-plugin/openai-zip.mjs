@@ -15,23 +15,24 @@ const out = path.resolve(process.argv[2] ?? 'data-client-plugin.zip');
 const manifest = pluginDirFiles()['.agents/skills/.claude-plugin/plugin.json'];
 const stage = fs.mkdtempSync(path.join(os.tmpdir(), 'data-client-plugin-'));
 
-for (const skill of manifest.skills)
-  fs.cpSync(path.join(skills, skill), path.join(stage, 'skills', skill), {
-    recursive: true,
-    // repo tooling, left out like scripts/pack-skills.mjs does
-    filter: src => !['evals', 'references.json'].includes(path.basename(src)),
-  });
-for (const file of ['README.md', 'assets/logo.svg'])
-  fs.cpSync(path.join(skills, file), path.join(stage, file));
-fs.cpSync(path.join(root, 'LICENSE'), path.join(stage, 'LICENSE'));
-fs.mkdirSync(path.join(stage, '.claude-plugin'));
-fs.writeFileSync(
-  path.join(stage, '.claude-plugin/plugin.json'),
-  `${JSON.stringify({ ...manifest, skills: './skills/' }, null, 2)}\n`,
-);
-
-fs.rmSync(out, { force: true });
 try {
+  for (const skill of manifest.skills)
+    fs.cpSync(path.join(skills, skill), path.join(stage, 'skills', skill), {
+      recursive: true,
+      // repo tooling, left out like scripts/pack-skills.mjs does
+      filter: src => !['evals', 'references.json'].includes(path.basename(src)),
+    });
+  for (const file of ['README.md', 'assets/logo.svg'])
+    fs.cpSync(path.join(skills, file), path.join(stage, file));
+  fs.cpSync(path.join(root, 'LICENSE'), path.join(stage, 'LICENSE'));
+  fs.mkdirSync(path.join(stage, '.claude-plugin'));
+  fs.writeFileSync(
+    path.join(stage, '.claude-plugin/plugin.json'),
+    `${JSON.stringify({ ...manifest, skills: './skills/' }, null, 2)}\n`,
+  );
+
+  fs.rmSync(out, { force: true });
+  // needs the zip CLI
   execFileSync('zip', ['-qrX', out, '.'], { cwd: stage });
 } finally {
   fs.rmSync(stage, { recursive: true });
