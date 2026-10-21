@@ -21,6 +21,7 @@ import {
   use,
   lazy,
   startTransition,
+  useState,
   Activity,
   StrictMode,
   Suspense,
@@ -30,6 +31,7 @@ import type { ReactElement, ReactNode } from 'react';
 import { useFetch, useSuspense } from '../../hooks';
 import DataProvider from '../DataProvider';
 import ErrorBoundary from '../ErrorBoundary';
+import { CommitGateManager } from '../../managers';
 import { getDefaultManagers } from '../getDefaultManagers';
 import { LegacyReact } from '../LegacyReact';
 
@@ -112,6 +114,24 @@ function FetchReader({
   return <Text>{`value ${value}`}</Text>;
 }
 
+// web opts in; native's defaults already include the gate
+function gatedManagers() {
+  const managers = getDefaultManagers();
+  return managers.some(m => m instanceof CommitGateManager) ? managers : (
+      [new CommitGateManager(), ...managers]
+    );
+}
+
+// like DataProvider's own defaults: every render that is thrown away builds new managers
+function FreshDataProvider({ children }: { children: ReactNode }) {
+  const [managers] = useState(gatedManagers);
+  return (
+    <DataProvider managers={managers} devButton={null}>
+      {children}
+    </DataProvider>
+  );
+}
+
 function Blocker({ gate }: { gate: GatePromise }) {
   if (use) use(gate);
   else if (!gate.done) throw gate;
@@ -143,11 +163,19 @@ async function runRace(
   const errors = recordConsoleErrors();
   const { endpoint, getCalls } = makeEndpoint(settle);
   const gate = makeGate();
-  const managers = shared ? getDefaultManagers() : undefined;
+  const managers = shared ? gatedManagers() : undefined;
+  const Provider =
+    managers ?
+      ({ children }: { children: ReactNode }) => (
+        <DataProvider managers={managers} devButton={null}>
+          {children}
+        </DataProvider>
+      )
+    : FreshDataProvider;
   const Text = host.Text;
   const Reader = reader === 'fetch' ? FetchReader : SuspenseReader;
   const provider = (
-    <DataProvider managers={managers} devButton={null}>
+    <Provider>
       <ErrorBoundary
         fallbackComponent={({ error }) => (
           <Text>{`error ${error.message}`}</Text>
@@ -160,7 +188,7 @@ async function runRace(
           <Blocker gate={gate} />
         : null}
       </ErrorBoundary>
-    </DataProvider>
+    </Provider>
   );
   let tree: ReactElement;
   if (where === 'lazy') {
@@ -213,7 +241,7 @@ async function runRace(
 async function runHiddenActivity(host: RaceHost, settle: 'value' | 'error') {
   const errors = recordConsoleErrors();
   const { endpoint, getCalls } = makeEndpoint(settle);
-  const managers = getDefaultManagers();
+  const managers = gatedManagers();
   const Text = host.Text;
   const tree = (mode: 'hidden' | 'visible') => (
     <Activity mode={mode}>

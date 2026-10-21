@@ -22,10 +22,7 @@ export interface FetchingMeta {
   resolve: (value?: any) => void;
   reject: (value?: any) => void;
   fetchedAt: number;
-  parked?: () => void;
 }
-
-type Resolution = Parameters<Controller['resolve']>[1];
 
 /** Handles all async network dispatches
  *
@@ -108,38 +105,6 @@ export default class NetworkManager implements Manager {
   /** On mount */
   init() {
     delete this.cleanupDate;
-    for (const meta of this.fetching.values()) {
-      if (meta.parked) {
-        // init() can run inside the host's commit, where resolve() overrides such as act() throw
-        Promise.resolve().then(() => this.publishParked());
-        return;
-      }
-    }
-  }
-
-  /** Publishes parked results; scans again here so a RESET before this job drops them */
-  protected publishParked() {
-    // unmounted dispatch drops actions; leave results parked for the next init()
-    if (this.cleanupDate) return;
-    for (const meta of this.fetching.values()) {
-      const publish = meta.parked;
-      meta.parked = undefined;
-      publish?.();
-    }
-  }
-
-  /** Like an unparked settle: a failed publish becomes the fetch's error, and a failed error publish is dropped */
-  protected settle(endpoint: FetchAction['endpoint'], resolution: Resolution) {
-    try {
-      this.controller.resolve(endpoint, resolution);
-    } catch (error) {
-      if (!resolution.error)
-        this.settle(endpoint, {
-          ...resolution,
-          response: error as Error,
-          error: true,
-        });
-    }
   }
 
   /** Ensures all promises are completed by rejecting remaining. */
@@ -228,7 +193,7 @@ export default class NetworkManager implements Manager {
 
           // don't update state with promises started before last clear
           if (fetchedAt >= lastReset) {
-            this.publish(action, {
+            this.controller.resolve(action.endpoint, {
               args: action.args,
               response,
               fetchedAt,
@@ -240,7 +205,7 @@ export default class NetworkManager implements Manager {
           const lastReset = this.getLastReset();
           // don't update state with promises started before last clear
           if (fetchedAt >= lastReset) {
-            this.publish(action, {
+            this.controller.resolve(action.endpoint, {
               args: action.args,
               response: error,
               fetchedAt,
@@ -259,18 +224,6 @@ export default class NetworkManager implements Manager {
     } else {
       return deferedFetch().catch(() => {});
     }
-  }
-
-  /** Resolves a fetch, or parks a throttled result on its record until init() if the controller awaits it */
-  protected publish(action: FetchAction, resolution: Resolution) {
-    const meta =
-      !action.endpoint.sideEffect &&
-      this.controller.awaitingInit &&
-      this.fetching.get(action.key);
-    // a newer fetch may own this key's record
-    if (meta && meta.fetchedAt === resolution.fetchedAt)
-      meta.parked = () => this.settle(action.endpoint, resolution);
-    else this.controller.resolve(action.endpoint, resolution);
   }
 
   /** Called when middleware intercepts a set action.

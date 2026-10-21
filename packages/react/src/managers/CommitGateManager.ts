@@ -1,0 +1,60 @@
+import { actionTypes } from '@data-client/core';
+import type {
+  ActionTypes,
+  Controller,
+  Manager,
+  Middleware,
+} from '@data-client/core';
+
+/** Holds fetch results until DataProvider mounts
+ *
+ * A fetch can settle before its DataProvider commits, when something outside it
+ * suspends or when the provider sits in a lazy layout (as with Expo Router). React
+ * discards that render's store, so the result would land nowhere. This holds
+ * results until init() and replays them into the store that mounted.
+ *
+ * Place it before NetworkManager, and share it with the managers it protects.
+ * @see https://dataclient.io/docs/api/CommitGateManager
+ */
+export default class CommitGateManager implements Manager {
+  protected held: [ActionTypes, () => void][] = [];
+  protected controller?: Controller;
+  protected mounted?: Controller;
+
+  middleware: Middleware = controller => {
+    this.controller = controller;
+    return next => action => {
+      if (controller === this.mounted) {
+        if (action.type === actionTypes.RESET) this.drop();
+        return next(action);
+      }
+      if (action.type !== actionTypes.SET_RESPONSE) return next(action);
+      return new Promise<void>(resolve => this.held.push([action, resolve]));
+    };
+  };
+
+  init() {
+    this.mounted = this.controller;
+    // init() runs in the host's commit, where dispatch overrides such as act() throw
+    if (this.held.length) Promise.resolve().then(() => this.replay());
+  }
+
+  cleanup() {
+    this.mounted = undefined;
+  }
+
+  protected replay() {
+    const mounted = this.mounted;
+    // unmounted again before this job; keep holding for the next init()
+    if (!mounted) return;
+    const held = this.held;
+    this.held = [];
+    for (const [action, resolve] of held)
+      mounted.dispatch(action).then(resolve);
+  }
+
+  protected drop() {
+    for (const [, resolve] of this.held) resolve();
+    this.held = [];
+  }
+}
