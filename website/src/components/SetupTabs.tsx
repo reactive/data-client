@@ -16,11 +16,6 @@ import {
   codexSetupPrompt,
 } from '../../framework-docs/skillCommands.mjs';
 
-/** Puts the agent's brand mark before its tab label */
-const logo = (className: string) => ({
-  className: `${styles.logo} ${className}`,
-});
-
 /** Ways to set up Data Client with an agent: agents' own plugins first
  * (install, then start setup in the agent's chat), then the
  * prompt other agents take in their chat */
@@ -30,7 +25,7 @@ export default function SetupTabs() {
     <Tabs groupId="agent-setup" className={styles.tabs}>
       <TabItem
         value="claude"
-        attributes={logo(styles.claude)}
+        attributes={{ className: styles.claude }}
         label="Claude Code"
         default
       >
@@ -43,7 +38,11 @@ export default function SetupTabs() {
           framed
         />
       </TabItem>
-      <TabItem value="cursor" attributes={logo(styles.cursor)} label="Cursor">
+      <TabItem
+        value="cursor"
+        attributes={{ className: styles.cursor }}
+        label="Cursor"
+      >
         <AgentPrompt prompt={cursorPluginCommand} title="Cursor" framed />
         <p>
           <Translate
@@ -59,7 +58,11 @@ export default function SetupTabs() {
           framed
         />
       </TabItem>
-      <TabItem value="codex" attributes={logo(styles.codex)} label="Codex">
+      <TabItem
+        value="codex"
+        attributes={{ className: styles.codex }}
+        label="Codex"
+      >
         <CodeBlock className="language-bash" metastring="framed">
           {codexPluginCommand}
         </CodeBlock>
@@ -71,7 +74,7 @@ export default function SetupTabs() {
       </TabItem>
       <TabItem
         value="other"
-        attributes={logo(styles.other)}
+        attributes={{ className: styles.other }}
         label="Other agents"
       >
         <AgentPrompt framed />
