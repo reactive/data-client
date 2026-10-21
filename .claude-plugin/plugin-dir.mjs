@@ -28,19 +28,27 @@ export function pluginDirFiles() {
     fs.readFileSync(path.join(root, '.claude-plugin/marketplace.json'), 'utf8'),
   );
   const plugin = marketplace.plugins.find(p => p.name === marketplace.name);
-  const keywords = [
-    'data-client',
-    'react',
-    'vue',
-    'rest',
-    'graphql',
-    'normalized-cache',
-  ];
-  // Each entry is a skill directory (it contains SKILL.md). Listing the
-  // plugin root would also publish the maintainer skills beside them.
-  const pluginSkills = plugin.skills.map(
-    skill => `./${path.relative(skills, skill)}`,
-  );
+  // the fields both plugin.json listings share
+  const listing = {
+    name: plugin.name,
+    displayName: 'Reactive Data Client',
+    description: plugin.description,
+    author: marketplace.owner,
+    homepage: plugin.homepage,
+    repository,
+    license: plugin.license,
+    keywords: [
+      'data-client',
+      'react',
+      'vue',
+      'rest',
+      'graphql',
+      'normalized-cache',
+    ],
+    // Each entry is a skill directory (it contains SKILL.md). Listing the
+    // plugin root would also publish the maintainer skills beside them.
+    skills: plugin.skills.map(skill => `./${path.relative(skills, skill)}`),
+  };
   return {
     '.cursor-plugin/marketplace.json': {
       name: marketplace.name,
@@ -60,33 +68,15 @@ export function pluginDirFiles() {
       ],
     },
     [`${skills}/.cursor-plugin/plugin.json`]: {
-      name: plugin.name,
-      displayName: 'Reactive Data Client',
+      ...listing,
       version: '1.0.0',
-      description: plugin.description,
-      author: marketplace.owner,
-      homepage: plugin.homepage,
-      repository,
-      license: plugin.license,
-      keywords,
       category: 'developer-tools',
       tags: ['react', 'vue', 'data-fetching'],
       logo: 'assets/logo.svg',
-      skills: pluginSkills,
     },
     // Claude's plugin directory submits this folder. No `version`: Claude Code
     // then treats every commit as an update, like the root marketplace does.
-    [`${skills}/.claude-plugin/plugin.json`]: {
-      name: plugin.name,
-      displayName: 'Reactive Data Client',
-      description: plugin.description,
-      author: marketplace.owner,
-      homepage: plugin.homepage,
-      repository,
-      license: plugin.license,
-      keywords,
-      skills: pluginSkills,
-    },
+    [`${skills}/.claude-plugin/plugin.json`]: listing,
   };
 }
 

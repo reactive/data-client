@@ -17,15 +17,15 @@ endpoint, rest, graphql, react and vue, implemented in `packages/core/agents/` a
 
 ## Codex and Cursor
 
-Codex reads `marketplace.json` as is (`codex plugin add data-client@data-client`). Cursor plugins can't reach files outside their folder, so `plugin-dir.mjs` writes a copy of the `data-client` entry rooted at `.agents/skills` (`.cursor-plugin/marketplace.json`, `.agents/skills/.cursor-plugin/plugin.json`), and `marketplace.test.mjs` fails when they drift. The marketplace source is a `git-subdir` pinned to `master`: Cursor's `/add-plugin` otherwise checks out `main`, which this repo does not have. Cursor's published `marketplace.schema.json` still types `source` as a string; the object form comes from its plugin docs, and the Cursor agent's install resolved it.
+Codex reads `marketplace.json` as is (`codex plugin add data-client@data-client`). Cursor plugins can't reach files outside their folder, so `plugin-dir.mjs` writes a copy of the `data-client` entry rooted at `.agents/skills` (`.cursor-plugin/marketplace.json`, `.agents/skills/.cursor-plugin/plugin.json`, and the `.agents/skills/.claude-plugin/plugin.json` Claude's directory reads), and `marketplace.test.mjs` fails when they drift. The marketplace source is a `git-subdir` pinned to `master`: Cursor's `/add-plugin` otherwise checks out `main`, which this repo does not have. Cursor's published `marketplace.schema.json` still types `source` as a string; the object form comes from its plugin docs, and the Cursor agent's install resolved it.
 
 ## Public listings
 
 Each listing reads the plugin from `.agents/skills`, whose `README.md` is the listing's description.
 
 - **Claude's plugin directory** ([claude.ai/directory/manage](https://claude.ai/directory/manage), plugin path
-  `.agents/skills`, branch `master`) reads `.agents/skills/.claude-plugin/plugin.json`, which `plugin-dir.mjs` writes
-  without a `version` so every commit is an update. Check it with `claude plugin validate ./.agents/skills`. The
+  `.agents/skills`, branch `master`) reads `.agents/skills/.claude-plugin/plugin.json`, written without a `version` so
+  every commit is an update. Check it with `claude plugin validate ./.agents/skills`. The
   directory refuses repositories whose GitHub archive passes 50 MiB.
 - **Cursor Marketplace** ([cursor.com/marketplace/publish](https://cursor.com/marketplace/publish)) reviews the
   repository link and `.cursor-plugin/marketplace.json`.

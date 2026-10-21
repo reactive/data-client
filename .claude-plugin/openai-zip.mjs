@@ -18,6 +18,8 @@ const stage = fs.mkdtempSync(path.join(os.tmpdir(), 'data-client-plugin-'));
 for (const skill of manifest.skills)
   fs.cpSync(path.join(skills, skill), path.join(stage, 'skills', skill), {
     recursive: true,
+    // repo tooling, left out like scripts/pack-skills.mjs does
+    filter: src => !['evals', 'references.json'].includes(path.basename(src)),
   });
 for (const file of ['README.md', 'assets/logo.svg'])
   fs.cpSync(path.join(skills, file), path.join(stage, file));
@@ -29,6 +31,9 @@ fs.writeFileSync(
 );
 
 fs.rmSync(out, { force: true });
-execFileSync('zip', ['-qrX', out, '.'], { cwd: stage });
-fs.rmSync(stage, { recursive: true });
+try {
+  execFileSync('zip', ['-qrX', out, '.'], { cwd: stage });
+} finally {
+  fs.rmSync(stage, { recursive: true });
+}
 console.log(`Wrote ${path.relative(process.cwd(), out)}`);
