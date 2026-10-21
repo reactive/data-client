@@ -60,3 +60,6 @@ jobs:
         run: node scripts/breaking-evals.mjs
       - name: Test agent hooks and the skill sync
         run: node --test '.cursor/hooks/*.test.js' '.claude-plugin/*.test.mjs' 'packages/core/agents/*.test.mjs'
+      # the folder Claude's plugin directory lists (.claude-plugin/README.md)
+      - name: Validate the plugin directory
+        run: npx -y @anthropic-ai/claude-code@2.1.306 plugin validate ./.agents/skills
