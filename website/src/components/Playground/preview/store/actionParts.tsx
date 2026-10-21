@@ -22,12 +22,14 @@ import {
 } from './actionGroups';
 import type ActionLog from './actionLog';
 import { isRecordChange, type History, type LogEntry } from './actionLog';
+import { notableAttribution } from './attribution';
 import { kindColor } from './dom';
 import {
   ActionSpanContext,
   type ActionSpan,
   type Moment,
   type Then,
+  type View,
 } from './nav';
 import styles from './store.module.css';
 import { CountChip, EndpointKey, EntityKey, RefChip } from './Value';
@@ -337,6 +339,40 @@ export function TypeName({ entry }: { entry: LogEntry }) {
       {actionName(action)}
       {optimistic && <span className={styles.dim}> optimistic</span>}
     </span>
+  );
+}
+
+/** Which of the code's managers sent the actions, and which kept one from
+ * the rest of the chain (the routine work of the default managers left
+ * out, see `notableAttribution`) */
+export function ManagerTags({
+  entries,
+  subject,
+}: {
+  entries: readonly LogEntry[];
+  /** Whose actions are listed: a manager's go without its own name */
+  subject: View;
+}) {
+  const { origin, consumedBy } = notableAttribution(
+    entries,
+    subject.kind === 'manager' ? subject.name : undefined,
+  );
+  return (
+    <>
+      {origin && (
+        <span className={styles.manager} title={`Sent by ${origin}`}>
+          ↑ {origin}
+        </span>
+      )}
+      {consumedBy && (
+        <span
+          className={styles.manager}
+          title={`${consumedBy} handled it without passing it on`}
+        >
+          ⊘ handled by {consumedBy}
+        </span>
+      )}
+    </>
   );
 }
 

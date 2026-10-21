@@ -3,6 +3,7 @@ import { Endpoint, Entity } from '@data-client/endpoint';
 import {
   actionTypes,
   DataProvider,
+  DevToolsManager,
   NetworkManager,
   PollingSubscription,
   SubscriptionManager,
@@ -13,11 +14,16 @@ import {
   type Manager,
   type Middleware,
 } from '@data-client/react';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React, { Suspense } from 'react';
 
 import { managerNames } from '../store/attribution';
 import SchemaRegistry from '../store/schemaRegistry';
+import StorePanel from '../store/StorePanel';
+
+jest.mock('../../../../utils/tabStorage', () => ({
+  useTabStorage: () => require('react').useState(null),
+}));
 
 class Ticker extends Entity {
   id = '';
@@ -56,7 +62,7 @@ const getTicker = new Endpoint(async () => ({ id: 'BTC', price: 1 }), {
   name: 'getTicker',
 });
 
-function mount(own: Manager[], preview?: React.ReactNode) {
+function mount(own: Manager[], preview?: React.ReactNode, panel = false) {
   const registry = new SchemaRegistry({ trimEvery: 1 });
   const log = registry.log.connect(0);
   const managers = [log.head, registry, ...log.track(own), log.tail];
@@ -69,6 +75,7 @@ function mount(own: Manager[], preview?: React.ReactNode) {
     <DataProvider managers={managers} devButton={null}>
       <Grab />
       <Suspense fallback="loading">{preview}</Suspense>
+      {panel && <StorePanel registry={registry} history={0} />}
     </DataProvider>,
   );
   return {
@@ -201,5 +208,145 @@ describe('manager attribution', () => {
       [actionTypes.EXPIREALL, 'Echo'],
       [actionTypes.RESET, undefined],
     ]);
+  });
+
+  it('counts a copy passed on as the action passed on', async () => {
+    class Stamping implements Manager<ActionTypes> {
+      middleware: Middleware<ActionTypes> = () => next => action =>
+        next({ ...action });
+
+      cleanup() {}
+    }
+    const { ctrl, entries } = mount([new Stamping(), new NetworkManager()]);
+    await act(async () => {
+      void ctrl().set(Ticker, { id: 'BTC' }, { id: 'BTC', price: 6 });
+    });
+    expect(entries()[0].consumedBy).toBeUndefined();
+  });
+
+  it('takes back "handled" when a held action is passed on later', async () => {
+    jest.useFakeTimers();
+    try {
+      class Holding implements Manager<ActionTypes> {
+        middleware: Middleware<ActionTypes> = () => next => action => {
+          setTimeout(() => next(action), 100);
+          return undefined as any;
+        };
+
+        cleanup() {}
+      }
+      const { ctrl, entries } = mount([new Holding(), new NetworkManager()]);
+      act(() => {
+        void ctrl().set(Ticker, { id: 'BTC' }, { id: 'BTC', price: 7 });
+      });
+      expect(entries()[0].consumedBy).toBe('Holding');
+      act(() => {
+        jest.advanceTimersByTime(100);
+      });
+      expect(entries()[0].consumedBy).toBeUndefined();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it("doesn't credit DevToolsManager with calls through the controller it shares", async () => {
+    const devtools = new DevToolsManager();
+    const { entries } = mount([devtools, new NetworkManager()]);
+    await act(async () => {
+      void (devtools as any).controller.set(
+        Ticker,
+        { id: 'BTC' },
+        { id: 'BTC', price: 8 },
+      );
+    });
+    expect(entries()[0].origin).toBeUndefined();
+  });
+});
+
+describe('Store panel manager attribution', () => {
+  /** The shown level */
+  const top = () =>
+    [...document.querySelectorAll<HTMLElement>('[data-level]')].find(
+      el => !el.closest('[hidden]') && !el.hasAttribute('data-covered'),
+    )!;
+  const managersSection = () =>
+    screen.getByRole('button', { name: /^Managers/ }).closest('section')!;
+
+  it('lists the chain with what each manager sent and handled', async () => {
+    const stream = new StreamManager();
+    const { ctrl } = mount(
+      [
+        stream,
+        new NetworkManager(),
+        new SubscriptionManager(PollingSubscription),
+      ],
+      undefined,
+      true,
+    );
+    await act(async () => {
+      void stream.push(1);
+      void stream.push(2);
+      void ctrl().subscribe(getTicker);
+    });
+    const rows = [...managersSection().querySelectorAll('tbody tr')].map(tr =>
+      [...tr.querySelectorAll('td')].slice(0, 4).map(td => td.textContent),
+    );
+    expect(rows).toEqual([
+      ['1', 'StreamManager', '2', '1'],
+      ['2', 'NetworkManager', '0', '0'],
+      ['3', 'SubscriptionManager', '0', '0'],
+    ]);
+  });
+
+  it('starts closed when the chain is only the library defaults', async () => {
+    const { ctrl } = mount(
+      [new NetworkManager(), new SubscriptionManager(PollingSubscription)],
+      undefined,
+      true,
+    );
+    await act(async () => {
+      void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
+    });
+    expect(
+      screen
+        .getByRole('button', { name: /^Managers/ })
+        .getAttribute('aria-expanded'),
+    ).toBe('false');
+  });
+
+  it("opens a manager's actions, tagged with who sent them", async () => {
+    const stream = new StreamManager();
+    const { ctrl } = mount([stream, new NetworkManager()], undefined, true);
+    await act(async () => {
+      void stream.push(1);
+      void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
+    });
+    fireEvent.click(within(managersSection()).getByText('StreamManager'));
+    const level = top();
+    expect(
+      within(level).getByRole('navigation', { name: 'Store location' })
+        .textContent,
+    ).toContain('StreamManager');
+    // its one set, without naming it again on each row
+    expect(
+      level.querySelectorAll('[role="button"][aria-expanded]'),
+    ).toHaveLength(1);
+    expect(within(level).queryByText(/↑ StreamManager/)).toBeNull();
+  });
+
+  it("tags the store's actions with the manager that sent them", async () => {
+    const stream = new StreamManager();
+    const { ctrl } = mount([stream, new NetworkManager()], undefined, true);
+    await act(async () => {
+      void stream.push(1);
+      void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
+    });
+    fireEvent.click(
+      within(screen.getAllByRole('group', { name: /^Scrubber/ })[0]).getByRole(
+        'button',
+        { name: 'Actions' },
+      ),
+    );
+    expect(screen.getAllByText('↑ StreamManager')).toHaveLength(1);
   });
 });

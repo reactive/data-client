@@ -668,7 +668,9 @@ function buildTimeline(
 /** Whether a change is to a row `subject` covers */
 export function touches(subject: View, change: Change): boolean {
   switch (subject.kind) {
+    // a manager's actions change whatever they change
     case 'root':
+    case 'manager':
       return true;
     case 'record':
       return change.id === subject.id;
@@ -729,6 +731,12 @@ export function subjectFilter(
 ): SubjectFilter {
   if (subject.kind === 'root')
     return { hit: e => !!e.store, lists: () => true, gaps: NO_GAPS };
+  if (subject.kind === 'manager') {
+    const { name } = subject;
+    // like the store's: what it kept from the store lists, but has no moment
+    const lists = (e: LogEntry) => e.origin === name || e.consumedBy === name;
+    return { hit: e => !!e.store && lists(e), lists, gaps: NO_GAPS };
+  }
   const hit = (e: LogEntry) =>
     gaps.has(e.seq) || log.changes(e).some(c => touches(subject, c));
   return { hit, lists: hit, gaps };

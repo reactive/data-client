@@ -215,8 +215,8 @@ export default class ActionLog {
     keep?: number,
     deduped?: (action: ActionTypes) => boolean,
   ) {
-    /** Each action's entry, for the tail to find what the head recorded */
-    const recorded = new WeakMap<ActionTypes, LogEntry>();
+    /** Each action's seq, for the tail to find what the head recorded */
+    const recorded = new WeakMap<ActionTypes, number>();
     const attribution: Attribution = {};
     let managers: readonly string[] | undefined;
     let first = true;
@@ -256,7 +256,7 @@ export default class ActionLog {
           ...(origin && { origin }),
         };
         first = false;
-        recorded.set(action, entry);
+        recorded.set(action, entry.seq);
         this.append(id, entry, managers);
         return next(action);
       },
@@ -292,7 +292,7 @@ export default class ActionLog {
           // entry, but its state counts)
           this.patch(
             id,
-            recorded.get(action)?.seq,
+            recorded.get(action),
             { store: { before, after: state } },
             { state },
           );
@@ -307,9 +307,9 @@ export default class ActionLog {
       const names = managerNames(chain);
       managers = names;
       return chain.map((manager, i) =>
-        attributed(manager, names[i], attribution, action => {
-          const entry = recorded.get(action);
-          if (entry) this.patch(id, entry.seq, { consumedBy: names[i] });
+        attributed(manager, names[i], attribution, (action, by) => {
+          const seq = recorded.get(action);
+          if (seq) this.patch(id, seq, { consumedBy: by || undefined });
         }),
       );
     };
@@ -433,21 +433,23 @@ export default class ActionLog {
     };
   }
 
-  /** `fields` added to entry `seq` of history `id` (and `rest` to it) */
+  /** `fields` added to entry `seq` of history `id`, and `historyFields`
+   * to the history */
   private patch(
     id: number,
     seq: number | undefined,
     fields: Partial<LogEntry>,
-    rest?: Partial<History>,
+    historyFields?: Partial<History>,
   ) {
     const history = this.histories.get(id);
     if (!history) return;
+    const { entries } = history;
+    // nearly always the newest
+    const i = entries.findLastIndex(e => e.seq === seq);
     this.histories.set(id, {
       ...history,
-      entries: history.entries.map(e =>
-        e.seq === seq ? { ...e, ...fields } : e,
-      ),
-      ...rest,
+      ...(i >= 0 && { entries: entries.with(i, { ...entries[i], ...fields }) }),
+      ...historyFields,
     });
     this.notify();
   }
