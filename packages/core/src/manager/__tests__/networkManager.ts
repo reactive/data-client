@@ -436,7 +436,7 @@ describe('NetworkManager while the controller awaits init()', () => {
   }
 
   function commit(nm: NetworkManager, controller: Controller) {
-    initManager([nm], controller, initialState)();
+    return initManager([nm], controller, initialState)();
   }
 
   it('resolves immediately when nothing awaits init()', async () => {
@@ -507,7 +507,7 @@ describe('NetworkManager while the controller awaits init()', () => {
     const controller = bind(dispatch);
     const nm = new NetworkManager();
     await start(nm, endpoint, controller);
-    initManager([nm], controller, initialState)()();
+    commit(nm, controller)();
     await Promise.resolve();
     expect(dispatch).not.toHaveBeenCalled();
     commit(nm, controller);

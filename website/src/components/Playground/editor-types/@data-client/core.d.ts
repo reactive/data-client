@@ -1049,7 +1049,7 @@ interface FetchingMeta {
     resolve: (value?: any) => void;
     reject: (value?: any) => void;
     fetchedAt: number;
-    parked?: [FetchAction['endpoint'], Resolution];
+    parked?: () => void;
 }
 type Resolution = Parameters<Controller['resolve']>[1];
 /** Handles all async network dispatches
@@ -1076,6 +1076,8 @@ declare class NetworkManager implements Manager {
     init(): void;
     /** Publishes parked results; scans again here so a RESET before this job drops them */
     protected publishParked(): void;
+    /** Like an unparked settle: a failed publish becomes the fetch's error, and a failed error publish is dropped */
+    protected settle(endpoint: FetchAction['endpoint'], resolution: Resolution): void;
     /** Ensures all promises are completed by rejecting remaining. */
     cleanup(): void;
     /** Used by DevtoolsManager to determine whether to log an action */
@@ -1096,7 +1098,7 @@ declare class NetworkManager implements Manager {
      */
     protected handleFetch(action: FetchAction): Promise<any>;
     /** Resolves a fetch, or parks a throttled result on its record until init() if the controller awaits it */
-    protected publish(action: FetchAction, resolution: Resolution, throttle: boolean): void;
+    protected publish(action: FetchAction, resolution: Resolution): void;
     /** Called when middleware intercepts a set action.
      *
      * Will resolve the promise associated with set key.

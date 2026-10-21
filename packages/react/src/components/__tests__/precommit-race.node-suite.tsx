@@ -86,6 +86,10 @@ function makeEndpoint(settle: 'value' | 'error') {
   return { endpoint, getCalls: () => calls };
 }
 
+function expectedText(settle: 'value' | 'error') {
+  return settle === 'error' ? 'error nope' : 'value 5';
+}
+
 function SuspenseReader({
   endpoint,
   Text,
@@ -182,7 +186,7 @@ async function runRace(
       <Suspense fallback={<Text>outer</Text>}>{tree}</Suspense>
     : tree;
   const element = strict ? <StrictMode>{root}</StrictMode> : root;
-  const expected = settle === 'error' ? 'error nope' : 'value 5';
+  const expected = expectedText(settle);
   const renderer = host.createRenderer();
   try {
     if (transition) startTransition(() => renderer.render(element));
@@ -226,7 +230,7 @@ async function runHiddenActivity(host: RaceHost, settle: 'value' | 'error') {
       </DataProvider>
     </Activity>
   );
-  const expected = settle === 'error' ? 'error nope' : 'value 5';
+  const expected = expectedText(settle);
   const renderer = host.createRenderer();
   try {
     renderer.render(tree('hidden'));
@@ -261,7 +265,7 @@ function expectResolved(
     settle,
   }: { shared: boolean; where: Where; settle: 'value' | 'error' },
 ) {
-  const expected = settle === 'error' ? 'error nope' : 'value 5';
+  const expected = expectedText(settle);
   if (where === 'lazy') {
     expect(result.beforeRelease).toContain('route fallback');
   } else if (LegacyReact) {
@@ -282,49 +286,43 @@ function expectResolved(
 
 export function registerPrecommitRaceTests(host: RaceHost) {
   describe('fetch that settles before DataProvider commits', () => {
+    const g = globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean };
     let prevAct: boolean | undefined;
 
     beforeAll(() => {
-      prevAct = (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean })
-        .IS_REACT_ACT_ENVIRONMENT;
-      (
-        globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-      ).IS_REACT_ACT_ENVIRONMENT = false;
+      prevAct = g.IS_REACT_ACT_ENVIRONMENT;
+      g.IS_REACT_ACT_ENVIRONMENT = false;
     });
 
     afterAll(() => {
-      (
-        globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-      ).IS_REACT_ACT_ENVIRONMENT = prevAct;
+      g.IS_REACT_ACT_ENVIRONMENT = prevAct;
     });
 
-    const cases: {
+    const base: {
       shared: boolean;
       where: Where;
       transition: boolean;
       reader: ReaderKind;
-    }[] = [
-      {
-        shared: true,
-        where: 'outside',
-        transition: false,
-        reader: 'suspense',
-      },
-      { shared: true, where: 'outside', transition: true, reader: 'suspense' },
-      {
-        shared: false,
-        where: 'outside',
-        transition: false,
-        reader: 'suspense',
-      },
-      { shared: true, where: 'inside', transition: false, reader: 'suspense' },
-      { shared: true, where: 'none', transition: false, reader: 'suspense' },
-      { shared: true, where: 'outside', transition: false, reader: 'fetch' },
-      { shared: true, where: 'outside', transition: true, reader: 'fetch' },
-      { shared: false, where: 'outside', transition: false, reader: 'fetch' },
-      { shared: true, where: 'lazy', transition: false, reader: 'suspense' },
-      { shared: true, where: 'lazy', transition: true, reader: 'suspense' },
-    ];
+    } = {
+      shared: true,
+      where: 'outside',
+      transition: false,
+      reader: 'suspense',
+    };
+    const cases = (
+      [
+        {},
+        { transition: true },
+        { shared: false },
+        { where: 'inside' },
+        { where: 'none' },
+        { reader: 'fetch' },
+        { reader: 'fetch', transition: true },
+        { reader: 'fetch', shared: false },
+        { where: 'lazy' },
+        { where: 'lazy', transition: true },
+      ] as const
+    ).map(overrides => ({ ...base, ...overrides }));
 
     for (const spec of cases) {
       const supported =
@@ -339,27 +337,14 @@ export function registerPrecommitRaceTests(host: RaceHost) {
     }
 
     it('shows a rejected fetch without calling the endpoint again', async () => {
-      const spec = {
-        shared: true,
-        where: 'outside',
-        transition: false,
-        reader: 'suspense',
-        settle: 'error',
-      } as const;
+      const spec = { ...base, settle: 'error' } as const;
       expectResolved(await runRace(host, spec), spec);
     });
 
     for (const settle of ['value', 'error'] as const) {
       const outcome = settle === 'error' ? 'an error' : 'a value';
       it(`shows ${outcome} under StrictMode without calling the endpoint again`, async () => {
-        const spec = {
-          shared: true,
-          where: 'outside',
-          transition: false,
-          reader: 'suspense',
-          settle,
-          strict: true,
-        } as const;
+        const spec = { ...base, settle, strict: true };
         expectResolved(await runRace(host, spec), spec);
       });
 
@@ -367,7 +352,7 @@ export function registerPrecommitRaceTests(host: RaceHost) {
       (Activity !== undefined ? it : it.skip)(
         `shows ${outcome} that settled inside a hidden Activity once it is revealed`,
         async () => {
-          const expected = settle === 'error' ? 'error nope' : 'value 5';
+          const expected = expectedText(settle);
           const result = await runHiddenActivity(host, settle);
           expect(result.callsBeforeReveal).toBe(1);
           expect(result.beforeReveal).not.toContain(expected);

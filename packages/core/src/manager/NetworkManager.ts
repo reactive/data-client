@@ -22,7 +22,7 @@ export interface FetchingMeta {
   resolve: (value?: any) => void;
   reject: (value?: any) => void;
   fetchedAt: number;
-  parked?: [FetchAction['endpoint'], Resolution];
+  parked?: () => void;
 }
 
 type Resolution = Parameters<Controller['resolve']>[1];
@@ -122,24 +122,23 @@ export default class NetworkManager implements Manager {
     // unmounted dispatch drops actions; leave results parked for the next init()
     if (this.cleanupDate) return;
     for (const meta of this.fetching.values()) {
-      if (!meta.parked) continue;
-      const [endpoint, resolution] = meta.parked;
+      const publish = meta.parked;
       meta.parked = undefined;
-      try {
-        this.controller.resolve(endpoint, resolution);
-      } catch (error) {
-        // same as an unparked settle: a failed publish becomes the fetch's error
-        if (!resolution.error)
-          try {
-            this.controller.resolve(endpoint, {
-              ...resolution,
-              response: error as Error,
-              error: true,
-            });
-          } catch {
-            // like throttle()'s fetch().catch(), a failed error publish has nowhere left to go
-          }
-      }
+      publish?.();
+    }
+  }
+
+  /** Like an unparked settle: a failed publish becomes the fetch's error, and a failed error publish is dropped */
+  protected settle(endpoint: FetchAction['endpoint'], resolution: Resolution) {
+    try {
+      this.controller.resolve(endpoint, resolution);
+    } catch (error) {
+      if (!resolution.error)
+        this.settle(endpoint, {
+          ...resolution,
+          response: error as Error,
+          error: true,
+        });
     }
   }
 
@@ -229,15 +228,11 @@ export default class NetworkManager implements Manager {
 
           // don't update state with promises started before last clear
           if (fetchedAt >= lastReset) {
-            this.publish(
-              action,
-              {
-                args: action.args,
-                response,
-                fetchedAt,
-              },
-              throttle,
-            );
+            this.publish(action, {
+              args: action.args,
+              response,
+              fetchedAt,
+            });
           }
           return response;
         })
@@ -245,16 +240,12 @@ export default class NetworkManager implements Manager {
           const lastReset = this.getLastReset();
           // don't update state with promises started before last clear
           if (fetchedAt >= lastReset) {
-            this.publish(
-              action,
-              {
-                args: action.args,
-                response: error,
-                fetchedAt,
-                error: true,
-              },
-              throttle,
-            );
+            this.publish(action, {
+              args: action.args,
+              response: error,
+              fetchedAt,
+              error: true,
+            });
           }
           throw error;
         });
@@ -271,15 +262,14 @@ export default class NetworkManager implements Manager {
   }
 
   /** Resolves a fetch, or parks a throttled result on its record until init() if the controller awaits it */
-  protected publish(
-    action: FetchAction,
-    resolution: Resolution,
-    throttle: boolean,
-  ) {
+  protected publish(action: FetchAction, resolution: Resolution) {
     const meta =
-      throttle && this.controller.awaitingInit && this.fetching.get(action.key);
+      !action.endpoint.sideEffect &&
+      this.controller.awaitingInit &&
+      this.fetching.get(action.key);
+    // a newer fetch may own this key's record
     if (meta && meta.fetchedAt === resolution.fetchedAt)
-      meta.parked = [action.endpoint, resolution];
+      meta.parked = () => this.settle(action.endpoint, resolution);
     else this.controller.resolve(action.endpoint, resolution);
   }
 
