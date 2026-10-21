@@ -32,11 +32,6 @@ such as [@data-client/rest](https://www.npmjs.com/package/@data-client/rest) and
 
 </div>
 
-### Framework implementations
-
-- [React](https://www.npmjs.com/package/@data-client/react) (also React Native, Next.js and other SSR, and [Redux](https://dataclient.io/docs/guides/redux))
-- [Vue](https://www.npmjs.com/package/@data-client/vue)
-
 ## How it fits together
 
 Core owns everything about data; an integration only owns _when_ to run it and _how_ the UI hears about changes.
@@ -57,7 +52,8 @@ Core owns everything about data; an integration only owns _when_ to run it and _
 3. **`createReducer(controller)`** turns actions into the next normalized `State`. Pending optimistic updates live in
    `state.optimistic` and are layered on top for rendering.
 4. **[GCPolicy](https://dataclient.io/docs/api/DataProvider#gcPolicy)** frees entities no mounted view references.
-   Views hold a reference with the `countRef` that `getResponseMeta()` returns.
+   Views hold a reference with the `countRef` that `getResponseMeta()` returns. GC deletes in place, so it doesn't
+   produce a new `State`.
 
 Because the store is a plain reducer plus middleware, it can live in any state container: React's `useReducer`,
 a Vue `shallowRef`, a Redux store, or a plain variable.
@@ -90,8 +86,7 @@ function createStore({
   // the last link in the chain commits to the store
   const commit = async (action: ActionTypes) => {
     const next = reducer(base, action);
-    // Same reference: nothing to announce. GC also lands here, since it deletes
-    // in place, but it only removes data no view holds.
+    // the reducer returns the same reference when nothing changed
     if (next === base) return;
     base = next;
     state = base.optimistic.reduce(reducer, base);
@@ -140,13 +135,10 @@ Every read is a selector call, plus a fetch when the data is stale. This is `use
 function read(store, endpoint, ...args) {
   const { controller } = store;
   const state = store.getState();
-  // memoized: same inputs give the same object, across every view
   const { data, expiryStatus, expiresAt, countRef } =
     controller.getResponseMeta(endpoint, ...args, state);
 
-  // Invalid data must refetch; otherwise only once it's stale.
-  // NetworkManager deduplicates concurrent fetches of the same key; a real binding also
-  // memoizes this on key, expiresAt and state.lastReset, as useSuspense() does.
+  // Invalid data must refetch; otherwise only once it's stale
   const fetching =
     expiryStatus === ExpiryStatus.Invalid || Date.now() > expiresAt ?
       // failures are stored in State, so getError() reports them
@@ -157,13 +149,15 @@ function read(store, endpoint, ...args) {
   const ready = expiryStatus === ExpiryStatus.Valid || !fetching;
   const error = controller.getError(endpoint, ...args, state);
 
-  // countRef() marks the entities in use; call what it returns when the view lets go
   return { data, error, ready, fetching, retain: countRef };
 }
 ```
 
-Recompute when the store notifies. Since results are memoized, comparing `data` by reference is enough to skip updates.
-Passing `null` as the first argument (`read(store, endpoint, null)`) is the convention for "don't fetch yet".
+Recompute when the store notifies. Selectors are memoized, so comparing `data` by reference is enough to skip updates.
+A real binding also memoizes the fetch decision on the key, `expiresAt` and `state.lastReset`, as `useSuspense()` does;
+NetworkManager deduplicates concurrent fetches either way. Call `retain()` when `data` changes and call what it returns
+when the view lets go of that data, so GC keeps its entities. Selectors treat `null` as the first endpoint argument
+(`read(store, endpoint, null)`) as "no request", which lets callers defer fetching.
 
 ## How React and Vue build on core
 
@@ -183,8 +177,8 @@ loading:
 | Platform extras    |                                              | SSR and Next.js, React Native, [Redux](https://dataclient.io/docs/guides/redux)                                                                                                                          |                                                                                                                       |
 | Testing            | `@data-client/core/mock`                     | [@data-client/test](https://www.npmjs.com/package/@data-client/test): [`MockResolver`](https://dataclient.io/docs/api/MockResolver), [`renderDataHook()`](https://dataclient.io/docs/api/renderDataHook) | `@data-client/vue/test`: `MockPlugin`, `mountDataClient()`                                                            |
 
-Both shipped packages re-export `Controller`, the managers, `ExpiryStatus`, `actionTypes`, `GCPolicy` and the types, so
-app code never imports core. A new integration should do the same.
+A new integration should re-export the same set as react and vue (`Controller`, the managers, `ExpiryStatus`,
+`actionTypes`, `GCPolicy` and the types), so app code never imports core.
 
 ## Public interface
 
