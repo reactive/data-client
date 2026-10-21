@@ -17,6 +17,7 @@ import {
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React, { Suspense } from 'react';
 
+import { stageFilter } from '../store/actionGroups';
 import { managerNames } from '../store/attribution';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
@@ -305,6 +306,28 @@ describe('manager attribution', () => {
   });
 });
 
+describe('stageFilter', () => {
+  const base = {
+    hit: (e: any) => !!e.store,
+    lists: () => true,
+    gaps: new Map(),
+  };
+  const chain = ['StreamManager', 'NetworkManager'];
+
+  it("lists all the store's actions, and stands on those the code's managers kept too", () => {
+    const filter = stageFilter(base, chain, null);
+    expect(filter.lists).toBe(base.lists);
+    expect(filter.hit({ consumedBy: 'StreamManager' } as any)).toBe(true);
+    expect(filter.hit({ consumedBy: 'NetworkManager' } as any)).toBe(false);
+  });
+
+  it("narrows to a picked stage's actions", () => {
+    const filter = stageFilter(base, chain, 'StreamManager');
+    expect(filter.lists({ origin: 'StreamManager' } as any)).toBe(true);
+    expect(filter.lists({ store: {} } as any)).toBe(false);
+  });
+});
+
 describe('Store panel pipeline', () => {
   const openActions = () =>
     fireEvent.click(
@@ -347,7 +370,7 @@ describe('Store panel pipeline', () => {
       'NetworkManager0',
       'SubscriptionManager0',
     ]);
-    expect(pipeline().textContent).toMatch(/store$/);
+    expect(pipeline().lastElementChild?.textContent).toBe('store');
   });
 
   it('leaves it out when the chain is only the library defaults', async () => {

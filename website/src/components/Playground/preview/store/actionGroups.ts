@@ -744,12 +744,15 @@ export function stageFilter(
   chain: readonly string[],
   picked: string | null,
 ): SubjectFilter {
-  let hit: SubjectFilter['hit'];
-  if (picked === null) {
-    const own = new Set(chain.filter(name => !isLibraryManager(name)));
-    hit = e => base.hit(e) || (!!e.consumedBy && own.has(e.consumedBy));
-  } else hit = byStage(picked);
-  return { ...base, hit, lists: hit };
+  if (picked !== null) {
+    const hit = byStage(picked);
+    return { ...base, hit, lists: hit };
+  }
+  const own = new Set(chain.filter(name => !isLibraryManager(name)));
+  return {
+    ...base,
+    hit: e => base.hit(e) || (!!e.consumedBy && own.has(e.consumedBy)),
+  };
 }
 
 /** Row `id` as diffs name it, to compare it between two stores */
