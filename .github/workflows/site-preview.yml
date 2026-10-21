@@ -409,20 +409,18 @@ jobs:
           # or a locale and has no styles on an archive's host; answer it with
           # the 404.html of the build it's in. Archives first, as their hosts'
           # paths look like the root's; then the longest prefix wins
-          dirs="$(cd website/build && find . -mindepth 2 -name 404.html -printf '%h\n' | cut -c3- | jq -R . | jq -s .)"
-          jq --argjson dirs "$dirs" '
-            ($dirs | sort_by([(startswith("archives/") | not), -length]) | map(
-              if test("^archives/") then
-                capture("^archives/(?<version>[^/]+)(/(?<sub>.+))?$")
-                | (.version | gsub("\\."; "\\.")) as $v
-                | { src: ("^(?:/archives/\($v))?/" + if .sub then "\(.sub)/" else "(?!api)" end),
-                    has: [{ type: "host", value: "\($v)\\.dataclient\\.io" }],
-                    dest: "/archives/\(.version)\(if .sub then "/\(.sub)" else "" end)/404" }
-              else { src: "^/\(.)/", dest: "/\(.)/404" } end
-              | . + { status: 404 })) as $pages
+          jq '
+            ($ARGS.positional | sort_by((startswith("archives/") | not), -length) | map(
+              { src: "^/\(.)/", dest: "/\(.)/404", status: 404 } + ((
+                split("/") | select(.[0] == "archives")
+                | (.[1] | gsub("\\."; "\\.")) as $v
+                | { src: "^(?:/archives/\($v))?/\(.[2:] | map(. + "/") | join("") | if . == "" then "(?!api)" end)",
+                    has: [{ type: "host", value: "\($v)\\.dataclient\\.io" }] }
+              ) // {}))) as $pages
             | (.routes | map(.handle == "error") | index(true)) as $error
             | if $error == null then error("no error phase to add them to")
-              else .routes |= .[:$error + 1] + $pages + .[$error + 1:] end' "$config" > config.json.tmp ||
+              else .routes |= .[:$error + 1] + $pages + .[$error + 1:] end' "$config" --args \
+            $(find website/build -mindepth 2 -name 404.html -printf '%h\n' | cut -d/ -f3-) > config.json.tmp ||
             { echo "::error::Couldn't add each build's 404 page to $config"; exit 1; }
           mv config.json.tmp "$config"
           meta=()
