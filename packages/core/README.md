@@ -86,7 +86,7 @@ function createStore({
   // the last link in the chain commits to the store
   const commit = async (action: ActionTypes) => {
     const next = reducer(base, action);
-    // the reducer returns the same reference when nothing changed
+    // same reference (no-op actions, and GC, which deletes in place): skip notifying
     if (next === base) return;
     base = next;
     state = base.optimistic.reduce(reducer, base);
@@ -149,14 +149,14 @@ function read(store, endpoint, ...args) {
   const ready = expiryStatus === ExpiryStatus.Valid || !fetching;
   const error = controller.getError(endpoint, ...args, state);
 
-  return { data, error, ready, fetching, retain: countRef };
+  return { data, error, ready, fetching, countRef };
 }
 ```
 
 Recompute when the store notifies. Selectors are memoized, so comparing `data` by reference is enough to skip updates.
 A real binding also memoizes the fetch decision on the key, `expiresAt` and `state.lastReset`, as `useSuspense()` does;
-NetworkManager deduplicates concurrent fetches either way. Call `retain()` when `data` changes and call what it returns
-when the view lets go of that data, so GC keeps its entities. Selectors treat `null` as the first endpoint argument
+NetworkManager deduplicates concurrent fetches either way. Call `countRef()` when `data` changes and call what it returns
+when the view lets go of that data, so GC keeps its entities. Selectors treat `null` as the first argument after the endpoint
 (`read(store, endpoint, null)`) as "no request", which lets callers defer fetching.
 
 ## How React and Vue build on core
