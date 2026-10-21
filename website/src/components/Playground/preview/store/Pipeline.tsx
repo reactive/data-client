@@ -97,7 +97,7 @@ function Strip({
 }) {
   const end = (
     <span
-      // apart from the stages' keys: a class name never starts with a space
+      // no stage's key (the app, or a manager's name) starts with a space
       key=" store"
       className={clsx(
         styles.stage,
