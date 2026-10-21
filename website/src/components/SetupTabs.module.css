@@ -8,7 +8,7 @@
   white-space: nowrap;
 }
 
-.tabs :global(.tabs__item)::before {
+:is(.claude, .cursor, .codex, .other)::before {
   content: '';
   display: inline-block;
   width: 1.1em;
