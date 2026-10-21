@@ -415,7 +415,12 @@ export default function CommentList({ postId }: { postId: string }) {
   <header class="appHeader">
     <h1 class="appTitle">Field Notes</h1>
   </header>
-  <RouterView />
+  <RouterView v-slot="{ Component }">
+    <Suspense>
+      <component :is="Component" />
+      <template #fallback><Loading /></template>
+    </Suspense>
+  </RouterView>
 </template>
 ```
 
