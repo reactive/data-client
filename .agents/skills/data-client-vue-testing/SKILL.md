@@ -1,6 +1,6 @@
 ---
 name: data-client-vue-testing
-description: Test @data-client/vue composables and components - renderDataCompose, mountDataClient, fixtures, jest, nock HTTP mocking, polling/subscription tests with fake timers, useSuspense, useLive, useSubscription, Vue 3 reactive props. Use when writing or debugging tests for composables or components built on @data-client/vue.
+description: Test Vue code that uses @data-client/vue: components and composables that fetch or change data, with mocked responses for loading, error, mutation and polling cases. Covers renderDataCompose, mountDataClient and fixtures.
 license: Apache 2.0
 ---
 

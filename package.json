@@ -40,6 +40,7 @@
     "copy:websitetypes": "yarn ci:build:types && ./scripts/copywebsitetypes.sh",
     "build:skills": "yarn workspace rdc-website build:skills",
     "check:doc-examples": "yarn workspace rdc-website check:doc-examples",
+    "check:browser-snippets": "yarn workspace rdc-website check:browser-snippets",
     "build:agent-rules": "node scripts/agent-rules.mjs",
     "blog:publish": "node website/scripts/blog-publish.mjs",
     "test": "NODE_ENV=test run jest",

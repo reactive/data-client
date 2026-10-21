@@ -4,14 +4,14 @@
  * Usage: yarn workspace rdc-website record-videos [clip...]
  * See README.md in this directory.
  */
-import { build } from 'esbuild';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
+import { bundleBrowserApp } from '../workspaceSources.mjs';
+
 const here = dirname(fileURLToPath(import.meta.url));
-const root = join(here, '../../..');
 const outDir = join(here, '../../static/videos/blog');
 
 /** name -> scene entry; each records to static/videos/blog/<name>.webm */
@@ -32,7 +32,7 @@ if (unknown.length) {
 }
 
 async function record(name, entry) {
-  const script = await bundle(join(here, entry));
+  const script = await bundleBrowserApp({ entryPoints: [join(here, entry)] });
   const context = await browser.newContext({
     viewport: size,
     deviceScaleFactor: 1,
@@ -55,35 +55,6 @@ async function record(name, entry) {
   await page.video().saveAs(file);
   await page.video().delete();
   console.log(`Recorded ${file}`);
-}
-
-async function bundle(entryPoint) {
-  const result = await build({
-    entryPoints: [entryPoint],
-    bundle: true,
-    write: false,
-    format: 'esm',
-    jsx: 'automatic',
-    define: { 'process.env.NODE_ENV': '"development"' },
-    // use workspace sources, like jest does
-    plugins: [
-      {
-        name: 'data-client-src',
-        setup(build) {
-          // workspace sources, like moduleNameMapper in jest.config.js
-          build.onResolve({ filter: /^@data-client\// }, args => {
-            const src = args.path.replace(/^@data-client\/([^/]+)/, '$1/src');
-            return build.resolve(`./packages/${src}`, {
-              kind: args.kind,
-              resolveDir: root,
-            });
-          });
-        },
-      },
-    ],
-    logLevel: 'error',
-  });
-  return result.outputFiles[0].text;
 }
 
 const PAGE = `<!doctype html>

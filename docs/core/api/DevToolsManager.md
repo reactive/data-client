@@ -111,7 +111,8 @@ __DC__.stores; // ['Data Client: My App', 'Data Client: My App (2)']
 __DC__.store = 'Data Client: My App (2)';
 ```
 
-This is useful for AI coding assistants using the [Chrome DevTools MCP](https://developer.chrome.com/blog/chrome-devtools-mcp)
+This is useful for AI coding assistants using a browser tool that runs page JavaScript (such as
+Cursor's built-in browser, [Chrome DevTools MCP](https://developer.chrome.com/blog/chrome-devtools-mcp) or [Playwright MCP](https://github.com/microsoft/playwright-mcp)),
 or [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) to programmatically inspect and interact
 with the store. Each :react[[DataProvider](/docs/api/DataProvider)]:vue[installed [DataClientPlugin](./DataClientPlugin.md)] registers independently, so
 multiple :react[providers]:vue[apps] on the same page are supported. When a name is already taken, the next one

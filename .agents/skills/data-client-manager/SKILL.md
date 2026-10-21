@@ -1,6 +1,6 @@
 ---
 name: data-client-manager
-description: Implement @data-client Managers for global/background side effects - websocket, SSE, polling, real-time updates, subscriptions, logging, analytics, metrics/timing, error reporting (Sentry), toast notifications, refetch on window focus or network reconnect, cross-tab sync (BroadcastChannel), offline persistence (localStorage/IndexedDB), auth logout on 401, middleware, intercepting Controller actions, DataProvider managers prop, redux-style action handling. Use when adding cross-cutting store behavior, reacting to dispatched actions, or handling external event streams.
+description: Write @data-client Managers for app-wide side effects and real-time data such as websockets, SSE and polling: code that reacts to every request or to events from outside the app and updates the store. Use one instead of useEffect for behavior that belongs to the whole app, such as error toasts and reporting, logging and analytics, auth failures, refetching on focus or reconnect, and cross-tab sync.
 license: Apache 2.0
 ---
 

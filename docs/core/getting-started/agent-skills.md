@@ -63,7 +63,7 @@ Client yet. If you use [TanStack Intent](https://tanstack.com/intent), it loads 
 :::react
 
 - [**`/data-client-react`**](https://skills.sh/reactive/data-client/data-client-react) — uses `useSuspense`, `useFetch`, `useQuery`, `useLive`,
-  and mutation hooks, and [debugs your running app](./debugging.md#debugging-with-agents) with Chrome DevTools MCP.
+  and mutation hooks, and [debugs your running app](./debugging.md#debugging-with-agents) from a browser tool such as Cursor's browser, Chrome DevTools MCP, or Playwright MCP.
 - [**`/data-client-react-testing`**](https://skills.sh/reactive/data-client/data-client-react-testing) — writes React tests with `renderDataHook`,
   fixtures, interceptors, and `nock`.
 
@@ -72,7 +72,7 @@ Client yet. If you use [TanStack Intent](https://tanstack.com/intent), it loads 
 :::vue
 
 - [**`/data-client-vue`**](https://skills.sh/reactive/data-client/data-client-vue) — uses `useSuspense`, `useFetch`, `useQuery`, `useLive`,
-  and mutation composables with `DataClientPlugin`, and [debugs your running app](./debugging.md#debugging-with-agents) with Chrome DevTools MCP.
+  and mutation composables with `DataClientPlugin`, and [debugs your running app](./debugging.md#debugging-with-agents) from a browser tool such as Cursor's browser, Chrome DevTools MCP, or Playwright MCP.
 - [**`/data-client-vue-testing`**](https://skills.sh/reactive/data-client/data-client-vue-testing) — writes Vue tests with `renderDataCompose`,
   `mountDataClient`, fixtures, and `nock`.
 
