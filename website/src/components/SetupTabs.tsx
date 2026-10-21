@@ -5,6 +5,7 @@ import Tabs from '@theme/Tabs';
 import React from 'react';
 
 import AgentPrompt from './AgentPrompt';
+import styles from './SetupTabs.module.css';
 import useFramework from './useFramework';
 import {
   claudePluginCommand,
@@ -21,8 +22,13 @@ import {
 export default function SetupTabs() {
   const framework = useFramework();
   return (
-    <Tabs groupId="agent-setup">
-      <TabItem value="claude" label="Claude Code" default>
+    <Tabs groupId="agent-setup" className={styles.tabs}>
+      <TabItem
+        value="claude"
+        attributes={{ className: styles.claude }}
+        label="Claude Code"
+        default
+      >
         <CodeBlock className="language-bash" metastring="framed">
           {claudePluginCommand}
         </CodeBlock>
@@ -32,7 +38,11 @@ export default function SetupTabs() {
           framed
         />
       </TabItem>
-      <TabItem value="cursor" label="Cursor">
+      <TabItem
+        value="cursor"
+        attributes={{ className: styles.cursor }}
+        label="Cursor"
+      >
         <AgentPrompt prompt={cursorPluginCommand} title="Cursor" framed />
         <p>
           <Translate
@@ -48,7 +58,11 @@ export default function SetupTabs() {
           framed
         />
       </TabItem>
-      <TabItem value="codex" label="Codex">
+      <TabItem
+        value="codex"
+        attributes={{ className: styles.codex }}
+        label="Codex"
+      >
         <CodeBlock className="language-bash" metastring="framed">
           {codexPluginCommand}
         </CodeBlock>
@@ -58,7 +72,11 @@ export default function SetupTabs() {
           framed
         />
       </TabItem>
-      <TabItem value="other" label="Other agents">
+      <TabItem
+        value="other"
+        attributes={{ className: styles.other }}
+        label="Other agents"
+      >
         <AgentPrompt framed />
       </TabItem>
     </Tabs>
