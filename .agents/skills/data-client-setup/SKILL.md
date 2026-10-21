@@ -90,7 +90,7 @@ the skills with the skills CLI as described below for other agents, and skip the
 Then add this line to the project's `CLAUDE.md` (or `AGENTS.md` when there's no `CLAUDE.md`; create `AGENTS.md` if neither exists), using the project's package manager in the command, so later agents keep the links current. Commit `.agents/skills` and `.claude/skills` with the setup. On Windows, commit the links only with Developer Mode on and `git config core.symlinks true`; otherwise leave them uncommitted and rerun the command after installing.
 
 ```md
-After adding, removing or upgrading `@data-client/*` packages, run `npx --no data-client-skills` and commit the skill links.
+Read the matching `data-client-*` skill before writing, changing or debugging code that uses `@data-client`. After adding, removing or upgrading `@data-client/*` packages, run `npx --no data-client-skills` and commit the skill links.
 ```
 
 For other agents, use the installer that installed this skill. For OpenSkills and the skills CLI, add `-g` if this skill lives under your home directory rather than the project.

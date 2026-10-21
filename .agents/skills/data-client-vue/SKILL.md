@@ -1,6 +1,6 @@
 ---
 name: data-client-vue
-description: Use @data-client/vue composables for data fetching, mutations, and rendering - useSuspense, useFetch, useQuery, useCache, useLive, useDLE, useSubscription, useController, useLoading, useDebounce, DataClientPlugin, Suspense, onErrorCaptured. Use when reading/rendering remote data, triggering mutations, doing optimistic updates, real-time subscriptions, or wiring Suspense and error handling in Vue 3, or debugging a running app's data from a browser tool.
+description: Use @data-client/vue composables for data fetching, mutations, and rendering - useSuspense, useFetch, useQuery, useCache, useLive, useDLE, useSubscription, useController, useLoading, useDebounce, DataClientPlugin, Suspense, onErrorCaptured. Use when reading/rendering remote data, triggering mutations, doing optimistic updates, real-time subscriptions, or wiring Suspense and error handling in Vue 3, or when a running app shows wrong, stale, missing or reverting data or refetches too often (debug its store from a browser tool).
 license: Apache 2.0
 ---
 ## Setup
@@ -80,6 +80,8 @@ const deleteTodo = id => ctrl.fetch(TodoResource.delete, { id });
 const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId: 1, page })
 ```
 
+`push`/`unshift` add the new item to every cached list whose args all match the ones you pass: `{ userId: 1 }` reaches the `{}` and `{ userId: 1 }` lists, not `{ userId: 2 }`. A list arg that doesn't filter, such as a sort, belongs in the Collection's `nonFilterArgumentKeys` (skill "data-client-schema"); otherwise new items never reach that list.
+
 Read reactive values (`props.todo.id`, `title.value`) inside the handler so each call uses current state.
 The Controller is also available as `$dataClient` in any template (and `this.$dataClient` in the Options API).
 
@@ -148,7 +150,7 @@ const todosByUser = useQuery(groupTodoByUser);
 
 ---
 
-## Browser Debugging
+## Debugging wrong or stale data in a running app
 
 When the running app shows the wrong data (it never appears, reverts, or refetches too often), check the page's
 store before reading code for the cause: the UI renders what the store holds, and its action log shows what put it
@@ -158,7 +160,8 @@ there. In dev mode, `__DC__.controller` is the page's Controller, so every Contr
 1. Compare the store to the server: `__DC__.controller.getState().entities.Todo['5']` against the API's response.
 2. If they differ, find what wrote the store's value: `__DC__.actions.map(a => [a.type, a.key])` lists actions oldest
    first; the `rdc/setresponse` that carried it names the endpoint, and that endpoint's schema shows how it reached
-   the entity.
+   the entity. If that action carried an older version than one already stored (a poll, or a copy embedded in
+   another response), the Entity needs `shouldReorder` comparing its version field (skill "data-client-schema").
 3. After a fix, compare every entity of that type to the server again, not only the one you changed.
 
 [devtools-debugging](references/devtools-debugging.md) has a "Where to Start" table mapping symptoms to the state and

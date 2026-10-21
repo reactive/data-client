@@ -1,6 +1,6 @@
 ---
 name: data-client-schema
-description: Model data with @data-client schemas (Entity, EntityMixin, Collection, Union, Query, Values, All, Invalidate, Lazy, Scalar) for atomic, consistent, referentially-equal async data via normalization, identity-based caching, and a single source of truth. Use when defining or editing pk, static schema, resource()/RestEndpoint schema, mutable lists/maps (push/unshift/assign/remove/move), polymorphic/discriminated types, memoized selectors / derived data, partial/supplementary entities, relational/nested/joined data, optimistic updates, or cache invalidation across @data-client/rest, /endpoint, /graphql, or /normalizr. Apply proactively when discussing data models, remote data shape, caching, normalization, identity, joins, polymorphism, mutable collections, or store consistency.
+description: Model data with @data-client schemas (Entity, EntityMixin, Collection, Union, Query, Values, All, Invalidate, Lazy, Scalar) for atomic, consistent, referentially-equal async data via normalization, identity-based caching, and a single source of truth. Use when defining or editing pk, static schema, resource()/RestEndpoint schema, mutable lists/maps (push/unshift/assign/remove/move), polymorphic/discriminated types, stale or out-of-order responses overwriting newer data, memoized selectors / derived data, partial/supplementary entities, relational/nested/joined data, optimistic updates, or cache invalidation across @data-client/rest, /endpoint, /graphql, or /normalizr. Apply proactively when discussing data models, remote data shape, caching, normalization, identity, joins, polymorphism, mutable collections, or store consistency.
 license: Apache 2.0
 ---
 
@@ -70,6 +70,7 @@ to represent the data expected.
 ## 3. Entity lifecycle methods
 
 - **Normalize** (JSON response → cache): operates on POJOs; output is JSON-serializable plain data stored in the normalized cache. Order: `process()` → `pk()` → [validate()](references/validation.md) → **visit nested schemas** (recurse into `schema` fields) → if existing: `mergeWithStore()` which calls `shouldUpdate()` and maybe `shouldReorder()` + `merge()`; metadata via `mergeMetaWithStore()`.
+- **Older data arriving after newer** (a poll, a slow request, or a copy embedded in another response carries an older version of an entity that's already stored): override [`shouldReorder()`](references/Entity.md#shouldreorder) to compare the entity's version field, such as `updatedAt`, so the newer copy's fields win. `shouldUpdate()` is for skipping updates (usually for performance), not for ordering. A copy with the same pk is the same record: don't move it to another Entity or leave it unnormalized to stop it overwriting.
 - **Denormalize** (cache → component): creates Entity **class instances** via `fromJS()`, restoring prototype chain so getters, methods, and `schema` processing work. Order: `createIfValid()` → [validate()](references/validation.md) → `fromJS()` → **unvisit nested schemas** (recurse into `schema` fields).
 
 ---
