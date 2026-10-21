@@ -25,7 +25,8 @@ Each listing reads the plugin from `.agents/skills`, whose `README.md` is the li
 
 - **Claude's plugin directory** ([claude.ai/directory/manage](https://claude.ai/directory/manage), plugin path
   `.agents/skills`, branch `master`) reads `.agents/skills/.claude-plugin/plugin.json`, written without a `version` so
-  every commit is an update. The `agent-rules` workflow checks it with `claude plugin validate ./.agents/skills`. The
+  every commit is an update. The `agent-rules` workflow checks its manifest and skills with `claude plugin validate ./.agents/skills`; the
+  directory's safety scan and policy review run only on submission. The
   directory refuses repositories whose GitHub archive passes 50 MiB.
 - **Cursor Marketplace** ([cursor.com/marketplace/publish](https://cursor.com/marketplace/publish)) reviews the
   repository link and `.cursor-plugin/marketplace.json`.
@@ -42,5 +43,5 @@ Each listing reads the plugin from `.agents/skills`, whose `README.md` is the li
 ## CI
 
 The `agent-rules` workflow runs these tests and the `data-client-skills` tests (`packages/core/agents/*.test.mjs`), with
-no install. Its `paths` cover this directory and the inputs above, and `marketplace.test.mjs` fails when the old names
+no install, then fetches a pinned Claude Code CLI for `claude plugin validate`. Its `paths` cover this directory and the inputs above, and `marketplace.test.mjs` fails when the old names
 drift from `data-client` or a plugin skill goes missing or stops shipping in a package. `plugin-dir.test.mjs` checks the skill names, logo and README the plugin directory listings read.

@@ -4,7 +4,7 @@ name: regenerate
 # Fails when the committed output is stale: PR authors regenerate and commit it.
 # Also type-checks the docs' React and Vue examples, and runs the agents'
 # browser debugging snippets in Chromium.
-# Claude Code rules are left to agent-rules.yml, which needs no install.
+# Claude Code rules are left to agent-rules.yml, which installs no dependencies.
 on:
   push:
     branches:
