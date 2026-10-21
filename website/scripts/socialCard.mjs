@@ -44,7 +44,7 @@ const MAX_FEATURE_ROWS = 6;
 // simple-icons brand marks (CC0): single-path, monochrome, 24x24
 const ICON_DIR = path.join(WEBSITE_ROOT, 'scripts/card-icons');
 // Agents the skills CLI (`npx skills add`) installs into, shown under the
-// tagline of non-release posts tagged `agents`
+// tagline of posts tagged `agents`
 const AGENT_ICONS = [
   'claude',
   'cursor',
@@ -107,8 +107,7 @@ async function parsePost(postFile) {
       .slice(0, version ? MAX_ROWS : MAX_FEATURE_ROWS)
       .map(({ tag, text }) => ({ tag, label: bulletLabel(text) })),
     feature: version && featureVisual(headline, bullets, details),
-    // release cards fill that space with their headline and feature visuals
-    agents: !version && tags.includes('agents') && AGENT_ICONS,
+    agents: tags.includes('agents') && AGENT_ICONS,
   };
 }
 
@@ -725,7 +724,7 @@ function cardHtml({
     margin-top: 26px; width: 680px; font-size: 28px; font-weight: 300; line-height: 1.35; color: #b4bfd0;
     display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
   }
-  .agents { display: flex; align-items: center; gap: 26px; margin-top: 30px; color: #b4bfd0; }
+  .agents { display: flex; align-items: center; gap: 26px; margin-top: 24px; color: #b4bfd0; }
   .agents span { font-size: 18px; font-weight: 500; letter-spacing: 0.2em; color: #6f82a0; margin-right: 6px; }
   .agents svg { width: 36px; height: 36px; opacity: 0.85; }
   .panel {
@@ -877,6 +876,15 @@ async function render(html, outFile, feature) {
         )
           box.style.fontSize = --size + 'px';
       }
+      // Clamp the tagline shorter until the agent row below it fits
+      const tagline = document.querySelector('.tagline');
+      const agents = document.querySelector('.agents');
+      let lines = 3;
+      while (
+        agents?.getBoundingClientRect().bottom > innerHeight - 16 &&
+        lines > 1
+      )
+        tagline.style.webkitLineClamp = String(--lines);
     });
     await page.screenshot({ path: outFile });
   } finally {
