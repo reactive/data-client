@@ -9,6 +9,8 @@ import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import SiteOnly from '@site/src/components/SiteOnly';
 import AgentOnly from '@site/src/components/AgentOnly';
+import RecentActions from '../_agents/_recent-actions.mdx';
+import Errors from '../_agents/_errors.mdx';
 
 ## Debugging with agents
 
@@ -32,51 +34,21 @@ needs a browser tool that runs JavaScript in the page: Cursor's browser,
 
 When the running app shows wrong or stale data, read its store in the page before reading code for the cause. In
 dev mode, `__DC__.controller` is the page's [Controller](../api/Controller.md), so every Controller method works,
-and `__DC__.actions` holds its recent [actions](../api/Actions.md). Use any browser tool that runs JavaScript in
-the page; one that can only click and read the console can't.
+and `__DC__.actions` holds its recent [actions](../api/Actions.md).
 
 Each snippet is a function. Pass it as is to a tool that takes a function (Chrome DevTools MCP `evaluate_script`,
 Playwright MCP `browser_evaluate`), or evaluate `(<snippet>)()` in one that takes an expression (Claude in Chrome
 `javascript_tool`, CDP `Runtime.evaluate` with `returnByValue`).
 
-```js
-// run in page — recent actions
-() => __DC__.actions.slice(-20).map(a => ({
-  type: a.type,
-  key: a.key,
-  endpoint: a.endpoint?.name,
-  args: a.args,
-  fetchedAt: a.meta?.fetchedAt,
-  error: a.error ? (a.response?.message || true) : undefined,
-}))
-```
+<RecentActions />
 
-Errors thrown while storing a response, like a missing primary key or a response wrapped in `{ data }`, land only in
-`meta`, with no `error` on the action, so check both:
+<Errors />
 
-```js
-// run in page — errors
-() => ({
-  actions: __DC__.actions
-    .filter(a => a.error)
-    .map(a => ({ type: a.type, key: a.key, error: a.response?.message || true })),
-  meta: Object.entries(__DC__.controller.getState().meta)
-    .filter(([, m]) => m.error)
-    .map(([key, m]) => ({ key, error: m.error.message, status: m.error.status })),
-})
-```
+`__DC__` is undefined in production builds, without `DevToolsManager` in the managers, or before `@data-client` 0.19.
 
-- `__DC__.controller` throws `Set __DC__.store to one of: ...` when the page has several stores: set
-  `__DC__.store` to the key in `__DC__.stores` whose `getState().endpoints` holds the keys you are debugging.
-- `__DC__` is undefined in production builds, when the managers leave out `DevToolsManager`, and before
-  `@data-client` 0.19.
-
-For everything else (reading and refetching a key's response, a table of symptoms and what to check first, changing
-state, and setup for each browser tool), read the `devtools-debugging` reference of skill
-:react[`data-client-react`]:vue[`data-client-vue`]:
-:react[`.agents/skills/data-client-react/references/devtools-debugging.md`]:vue[`.agents/skills/data-client-vue/references/devtools-debugging.md`].
-If it's missing, link the skills the app's packages ship by running `npx --no data-client-skills` from the project
-root, or read
+The rest (a key's response and refetch, symptoms and what to check first, changing state, each browser tool's setup)
+is in :react[`.agents/skills/data-client-react/references/devtools-debugging.md`]:vue[`.agents/skills/data-client-vue/references/devtools-debugging.md`].
+If it's missing, `npx --no data-client-skills` from the project root links it, or read
 :react[[the published copy](https://raw.githubusercontent.com/reactive/data-client/master/.agents/skills/data-client-react/references/devtools-debugging.md)]:vue[[the published copy](https://raw.githubusercontent.com/reactive/data-client/master/.agents/skills/data-client-vue/references/devtools-debugging.md)].
 
 </AgentOnly>

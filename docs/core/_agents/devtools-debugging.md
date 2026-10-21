@@ -2,6 +2,9 @@
 title: Debugging in the Browser
 ---
 
+import RecentActions from './_recent-actions.mdx';
+import Errors from './_errors.mdx';
+
 Debug :react[`@data-client/react`]:vue[`@data-client/vue`] state and actions programmatically from any browser tool that runs JavaScript in the page. In dev mode, the app's [DevToolsManager](../api/DevToolsManager.md#controllers) puts the store on `globalThis.__DC__`: `__DC__.controller` is its [Controller](../api/Controller.md), so every Controller method works, and `__DC__.actions` is its recent [actions](../api/Actions.md).
 
 ## Prerequisites
@@ -179,34 +182,11 @@ The log keeps the newest 100 actions, and each polling key (endpoint and args) o
 front, so select by time (`meta.fetchedAt >= start`), not by index. Actions hold endpoints and promises, so map
 them to plain fields:
 
-```js
-// run in page — recent actions
-() => __DC__.actions.slice(-20).map(a => ({
-  type: a.type,
-  key: a.key,
-  endpoint: a.endpoint?.name,
-  args: a.args,
-  fetchedAt: a.meta?.fetchedAt,
-  error: a.error ? (a.response?.message || true) : undefined,
-}))
-```
+<RecentActions />
 
 ### Errors
 
-Errors thrown while storing a response (for example a missing primary key) land only in `meta`, with no `error`
-on the action, so check both:
-
-```js
-// run in page — errors
-() => ({
-  actions: __DC__.actions
-    .filter(a => a.error)
-    .map(a => ({ type: a.type, key: a.key, error: a.response?.message || true })),
-  meta: Object.entries(__DC__.controller.getState().meta)
-    .filter(([, m]) => m.error)
-    .map(([key, m]) => ({ key, error: m.error.message, status: m.error.status })),
-})
-```
+<Errors />
 
 ## Change State
 
