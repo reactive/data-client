@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792538623018,
+  "lastUpdate": 1792548221090,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -10811,6 +10811,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 222.22,
             "range": "± 9.1%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "b091c5f21a14321393315193642242d8e97c1acd",
+          "message": "enhance(core): Add globalThis.__DC__ to read a store's Controller and action log (#4435)\n\n* enhance(core): Add globalThis.__DC__ to read a store's Controller and action log in development\n\nSummarized actions keep args, so logged keys can be read back with getResponse.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01VvySSBgX1ZiMWZ31xzFRLa\n\n* docs(core): Read only endpoint-backed actions in the __DC__ example\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01VvySSBgX1ZiMWZ31xzFRLa\n\n* enhance(core): Keep only side-effect-free args in summarized actions\n\nMutation args hold request bodies, which the summaries exist to drop.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01VvySSBgX1ZiMWZ31xzFRLa\n\n* docs(core): Find logged actions that kept their args\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01VvySSBgX1ZiMWZ31xzFRLa\n\n* enhance(core): Document __DC__ as the one debug entry point\n\nAdds __DC__.stores and folds the action log changeset into one __DC__ changeset;\n__DC_ACTIONS__ is now undocumented storage.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01VvySSBgX1ZiMWZ31xzFRLa\n\n* enhance(core)!: Keep the debug registry on __DC__ alone\n\n__DC__.registry replaces __DC_CONTROLLERS__ and __DC_ACTIONS__, so __DC__ is the\nonly debug global.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01VvySSBgX1ZiMWZ31xzFRLa\n\n* fix(core): Keep deprecated __DC_CONTROLLERS__ synced with the debug registry\n\nThe registry values are { controller, actions }, so the shipped Map cannot be\nthat same instance. It is a live view that returns each Controller and follows\nregistry updates, and its global type is marked @deprecated.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* docs: Note that __DC_CONTROLLERS__ is deprecated, not removed\n\nThe patch notes, DevToolsManager docs, and the coding-agents draft point at\n__DC__ and keep the old Map as a development alias. Removing it is tracked\nfor the next breaking release.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* enhance(core)!: Drop the __DC_CONTROLLERS__ alias; __DC__ is the only debug global\n\nReverts c07b0301 and fc684fb3. Only debugging agents read these dev-only\nglobals and they learn __DC__ from the skills, so the changeset is a\nbreaking minor with a migration guide entry instead of keeping a shim.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01VvySSBgX1ZiMWZ31xzFRLa\n\n* docs(core): Skip mutations in the __DC__ response recipe\n\nThe newest action under '/todos' can be a PATCH or POST, whose response\nisn't the list; match only endpoints without side effects.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01VvySSBgX1ZiMWZ31xzFRLa\n\n* internal: Simplify __DC__ store lookup\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01VvySSBgX1ZiMWZ31xzFRLa\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>\nCo-authored-by: Cursor Agent <cursoragent@cursor.com>",
+          "timestamp": "2026-10-21T01:58:01Z",
+          "tree_id": "adf582e1084ada87a3d747c2898db66f1c691113",
+          "url": "https://github.com/reactive/data-client/commit/b091c5f21a14321393315193642242d8e97c1acd"
+        },
+        "date": 1792548218038,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 238.1,
+            "range": "± 10.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 79.37,
+            "range": "± 4.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 625,
+            "range": "± 9.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 690.48,
+            "range": "± 7.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 69.5,
+            "range": "± 10.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 526.32,
+            "range": "± 6.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 588.24,
+            "range": "± 9.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 20,
+            "range": "± 6.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 143.89,
+            "range": "± 11.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 65.36,
+            "range": "± 5.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 400,
+            "range": "± 5.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 588.24,
+            "range": "± 9.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 322.58,
+            "range": "± 8.0%",
             "unit": "ops/s"
           }
         ]
