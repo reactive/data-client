@@ -156,8 +156,9 @@ function read(store, endpoint, ...args) {
 
 Recompute when the store notifies. Selectors are memoized, so comparing `data` by reference is enough to skip updates.
 
-- A real binding memoizes the fetch decision on the key, `expiresAt` and `state.lastReset`, as `useSuspense()` does.
-  NetworkManager also deduplicates concurrent fetches, except for `sideEffect` endpoints.
+- NetworkManager deduplicates concurrent fetches of the same key for any binding, except for `sideEffect` endpoints.
+- A real binding also memoizes the fetch decision on the key, `expiresAt` and `state.lastReset`, as `useSuspense()`
+  does, so re-renders don't dispatch redundant fetches.
 - `controller.fetch()` of a `sideEffect` endpoint resolves just before its result is committed, so read results from
   `State` on the next notification rather than right after `await`.
 - Call `countRef()` when `data` changes, and call what it returns when the view lets go of that data, so GC keeps its
