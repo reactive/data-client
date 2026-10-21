@@ -52,7 +52,7 @@ export const TodoResource = resource({
   schema: Todo,
   searchParams: {} as { userId?: string | number } | undefined,
   paginationField: 'page',
-  nonFilterArgumentKeys: ['orderBy'], // list args that don't filter, so push/unshift still reach every matching list
+  nonFilterArgumentKeys: ['orderBy'],
   optimistic: true,
 });
 ```
