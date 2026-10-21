@@ -128,6 +128,8 @@ const userTodos = new Collection([Todo], {
 
 Default `createCollectionFilter` uses `nonFilterArgumentKeys` (default: keys starting with `'order'`) to exclude non-filter args when matching collections. This affects which existing collections receive new items from `push`/`unshift`/`assign`/`move`.
 
+`push`/`unshift` add the new item to every cached list whose filter args all match the ones you pass: `{ userId: 1 }` reaches the `{}` and `{ userId: 1 }` lists, not `{ userId: 2 }`. A list arg that doesn't filter, such as a sort, must be in `nonFilterArgumentKeys`; otherwise new items never reach that list.
+
 Override as function, RegExp, or `string[]`:
 ```ts
 new Collection([Todo], { nonFilterArgumentKeys: /orderBy|sortDir/ })

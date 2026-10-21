@@ -53,8 +53,6 @@ const deleteTodo = id => ctrl.fetch(TodoResource.delete, { id });
 const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId: 1, page })
 ```
 
-`push`/`unshift` add the new item to every cached list whose args all match the ones you pass: `{ userId: 1 }` reaches the `{}` and `{ userId: 1 }` lists, not `{ userId: 2 }`. A list arg that doesn't filter, such as a sort, belongs in the Collection's `nonFilterArgumentKeys` (skill "data-client-schema"); otherwise new items never reach that list.
-
 ## Helpful hooks
 
 ```tsx

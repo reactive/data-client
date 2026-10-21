@@ -1,6 +1,6 @@
 ---
 name: data-client-rest
-description: Define how the app talks to its API with @data-client/rest, including the shape of the data each call returns. Use it when adding or changing any API call or its data, changing how requests are sent or responses are read, or deciding how fetched data is stored, updated and kept fresh. Covers resource, RestEndpoint, Entity, Collection and pagination.
+description: Define how the app talks to its API with @data-client/rest, including the shape of the data each call returns. Use it when adding or changing any API call or its data, changing how requests are sent or responses are read, or deciding how fetched data is stored, updated and kept fresh. Covers resource, RestEndpoint and pagination.
 license: Apache 2.0
 ---
 # Guide: Using `@data-client/rest` for Resource Modeling
@@ -52,7 +52,7 @@ export const TodoResource = resource({
   schema: Todo,
   searchParams: {} as { userId?: string | number } | undefined,
   paginationField: 'page',
-  nonFilterArgumentKeys: ['orderBy'],
+  nonFilterArgumentKeys: ['orderBy'], // list args that don't filter, so push/unshift still reach every matching list
   optimistic: true,
 });
 ```
