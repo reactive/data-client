@@ -668,8 +668,9 @@ function buildTimeline(
 /** Whether a change is to a row `subject` covers */
 export function touches(subject: View, change: Change): boolean {
   switch (subject.kind) {
+    // the store's and a manager's actions change whatever they change
     case 'root':
-    case 'manager': // a manager's actions change whatever they change
+    case 'manager':
       return true;
     case 'record':
       return change.id === subject.id;

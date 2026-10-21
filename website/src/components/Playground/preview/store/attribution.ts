@@ -144,7 +144,12 @@ export function attributed(
         passed.add(action);
         // a copy passed on stands for the action it was made from
         const from = running.at(-1);
-        if (from && from !== action) {
+        // one passed on in its place (not besides it) stands for it
+        if (
+          from &&
+          !passed.has(from) &&
+          !copiedFrom(attribution, from, action)
+        ) {
           passed.add(from);
           attribution.copies.set(action, from);
         }
@@ -171,6 +176,18 @@ export function attributed(
     };
   };
   return tracked;
+}
+
+/** Whether `action` is `from`, or what it's a copy of (so a copy never
+ * leads back to itself) */
+function copiedFrom(
+  { copies }: Attribution,
+  action: ActionTypes,
+  from: ActionTypes,
+): boolean {
+  for (let a: ActionTypes | undefined = action; a; a = copies.get(a))
+    if (a === from) return true;
+  return false;
 }
 
 type AnyFn = (...args: any[]) => any;
