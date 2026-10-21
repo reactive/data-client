@@ -1,6 +1,6 @@
 ---
 name: data-client-vue
-description: Use @data-client/vue composables for data fetching, mutations, and rendering - useSuspense, useFetch, useQuery, useCache, useLive, useDLE, useSubscription, useController, useLoading, useDebounce, DataClientPlugin, Suspense, onErrorCaptured. Use when reading/rendering remote data, triggering mutations, doing optimistic updates, real-time subscriptions, or wiring Suspense and error handling in Vue 3, or when a running app shows wrong, stale, missing or reverting data or refetches too often (debug its store from a browser tool).
+description: Fetch, mutate and render data in Vue with @data-client/vue, and debug data that looks wrong on screen.
 license: Apache 2.0
 ---
 ## Setup

@@ -1,6 +1,6 @@
 ---
 name: data-client
-description: Start here when asked to add, use, or set up Reactive Data Client (@data-client/react, @data-client/vue, @data-client/rest) in an app. Routes to setup when the app isn't set up yet, and to the right Data Client skill when it is.
+description: Reactive Data Client (@data-client/*). Start here for any task or bug in an app that uses it, or to add it to one.
 license: Apache 2.0
 ---
 
