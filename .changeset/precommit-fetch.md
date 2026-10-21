@@ -1,13 +1,6 @@
 ---
 '@data-client/core': patch
-'@data-client/endpoint': patch
-'@data-client/graphql': patch
-'@data-client/img': patch
-'@data-client/normalizr': patch
 '@data-client/react': patch
-'@data-client/rest': patch
-'@data-client/test': patch
-'@data-client/vue': patch
 ---
 
 Fix Suspense staying on the fallback when a fetch resolves before DataProvider mounts
