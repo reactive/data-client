@@ -69,7 +69,7 @@ that read from it.
 
 ### Provider: own the store
 
-This is the whole lifecycle, as a framework-free store. `@data-client/vue`'s `DataClientPlugin` (via its internal `createDataClient()`) is nearly this code
+This is the whole lifecycle, as a framework-free store. `@data-client/vue`'s `DataClientPlugin` (built on `createDataClient()`) is nearly this code
 wrapped around `shallowRef` and `provide()`.
 
 ```ts
@@ -90,7 +90,8 @@ function createStore({
   // the last link in the chain commits to the store
   const commit = async (action: ActionTypes) => {
     const next = reducer(base, action);
-    // unchanged State (subscribe, unsubscribe; GC only drops data no view holds)
+    // Same reference: nothing to announce. GC also lands here, since it deletes
+    // in place, but it only removes data no view holds.
     if (next === base) return;
     base = next;
     state = base.optimistic.reduce(reducer, base);
