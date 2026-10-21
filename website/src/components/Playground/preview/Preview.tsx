@@ -55,7 +55,7 @@ function Preview<T>({
     const log = registry.log.connect(history, replacedHistory, action =>
       network.skipLogging(action),
     );
-    return [log.head, registry, ...managers, log.tail];
+    return [log.head, registry, ...log.track(managers), log.tail];
   });
 
   return (
