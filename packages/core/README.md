@@ -69,7 +69,7 @@ that read from it.
 
 ### Provider: own the store
 
-This is the whole lifecycle, as a framework-free store. `@data-client/vue`'s `DataClientPlugin` is nearly this code
+This is the whole lifecycle, as a framework-free store. `@data-client/vue`'s `DataClientPlugin` (via its internal `createDataClient()`) is nearly this code
 wrapped around `shallowRef` and `provide()`.
 
 ```ts
@@ -90,7 +90,7 @@ function createStore({
   // the last link in the chain commits to the store
   const commit = async (action: ActionTypes) => {
     const next = reducer(base, action);
-    // subscribe/unsubscribe and similar actions leave State unchanged
+    // unchanged State (subscribe, unsubscribe; GC only drops data no view holds)
     if (next === base) return;
     base = next;
     state = base.optimistic.reduce(reducer, base);
@@ -182,7 +182,7 @@ loading:
 | Platform extras    |                                              | SSR and Next.js, React Native, [Redux](https://dataclient.io/docs/guides/redux)                                                                                                                          |                                                                                                                       |
 | Testing            | `@data-client/core/mock`                     | [@data-client/test](https://www.npmjs.com/package/@data-client/test): [`MockResolver`](https://dataclient.io/docs/api/MockResolver), [`renderDataHook()`](https://dataclient.io/docs/api/renderDataHook) | `@data-client/vue/test`: `MockPlugin`, `mountDataClient()`                                                            |
 
-A new integration should likewise re-export `Controller`, the managers, `ExpiryStatus`, `actionTypes`, `GCPolicy` and the
+Both shipped packages re-export core's API, so a new integration should also re-export `Controller`, the managers, `ExpiryStatus`, `actionTypes`, `GCPolicy` and the
 types, so app code never imports core.
 
 ## Public interface
