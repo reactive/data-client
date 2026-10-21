@@ -233,6 +233,7 @@ describe('manager attribution', () => {
     }
     const { ctrl, history } = mount([
       new Stamping(),
+      new Stamping(),
       new StreamManager(),
       new NetworkManager(),
     ]);
@@ -243,6 +244,26 @@ describe('manager attribution', () => {
     const [subscribe, set] = history().entries;
     expect(subscribe.consumedBy).toBe('StreamManager');
     expect(set.store).toBeDefined();
+  });
+
+  it("keeps an action's own record when another is passed on besides it", async () => {
+    class Extra implements Manager<ActionTypes> {
+      middleware: Middleware<ActionTypes> = controller => next => action => {
+        const result = next(action);
+        if (action.type === actionTypes.SET)
+          next({ ...action, value: { id: 'BTC', price: 0 } } as ActionTypes);
+        return result;
+      };
+
+      cleanup() {}
+    }
+    const { ctrl, history } = mount([new Extra(), new NetworkManager()]);
+    await act(async () => {
+      void ctrl().set(Ticker, { id: 'BTC' }, { id: 'BTC', price: 9 });
+    });
+    const [set] = history().entries;
+    expect(set.store?.before).not.toBe(set.store?.after);
+    expect((set.store?.after.entities as any).Ticker.BTC.price).toBe(9);
   });
 
   it('takes back "handled" when a held action is passed on later', async () => {
