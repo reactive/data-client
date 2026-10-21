@@ -79,8 +79,7 @@ export function Internals({ model }: { model: StoreModel }) {
 }
 
 /** Which of the store's sections to show, and how many rows its entities
- * hold: a diff leaves out what it has nothing of, the managers and the
- * internals */
+ * hold: a diff leaves out what it has nothing of, and the internals */
 export function useShownSections(model: StoreModel) {
   const diff = useContext(DiffContext) !== null;
   const entityCount = model.tables.reduce((n, t) => n + t.rows.length, 0);
@@ -88,7 +87,6 @@ export function useShownSections(model: StoreModel) {
     entityCount,
     endpoints: !diff || model.endpoints.length > 0,
     entities: !diff || entityCount > 0,
-    managers: !diff,
     internals: !diff,
   };
 }

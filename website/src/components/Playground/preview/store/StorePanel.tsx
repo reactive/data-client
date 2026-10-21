@@ -971,8 +971,6 @@ function SubjectLevel({
     view.kind === 'root' ? <RootView scroller={scroller} />
     : view.kind === 'list' ?
       <ListView view={view} scroller={scroller} header={header} />
-    : view.kind === 'manager' ?
-      <ActionsListLevel subject={view} header={header} />
     : <RecordLevel id={view.id} scroller={scroller} header={header} />
   );
 }
@@ -1265,8 +1263,6 @@ function crumbLabel(
         </>
       );
     }
-    case 'manager':
-      return <span className={styles.crumbName}>{view.name}</span>;
     case 'record': {
       const row = findRow(model, view.id);
       if (!row) return '…';

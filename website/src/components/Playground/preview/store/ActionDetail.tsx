@@ -9,7 +9,6 @@ import {
   type ChangeKind,
 } from './actionGroups';
 import { isRecordChange, type LogEntry } from './actionLog';
-import { isNetworkManager } from './attribution';
 import {
   AtMoment,
   ChangeChip,
@@ -17,6 +16,7 @@ import {
   spanOf,
   useActions,
 } from './actionParts';
+import { isNetworkManager, ownChain } from './attribution';
 import { EndpointBody } from './Details';
 import { errorText, findRow, isEndpointRow } from './model';
 import {
@@ -26,6 +26,7 @@ import {
   type Nav,
   type View,
 } from './nav';
+import { ActionPath } from './Pipeline';
 import { plain } from './refs';
 import styles from './store.module.css';
 import {
@@ -50,13 +51,23 @@ export function ActionDetail({
   subject: View;
   gap?: ChangeKind;
 }) {
+  // the way it took, when the code brought managers of its own; else in
+  // words, if a manager sent or handled it
+  const chain = ownChain(useActions().history.managers);
   return (
     <div className={styles.actBody}>
       <SubjectChanges entries={[entry]} subject={subject} gap={gap} />
+      {chain && <ActionPath chain={chain} entry={entry} />}
       <div className={clsx(styles.fields, styles.metaList)}>
         <Field name="dispatchedAt" node={{ t: 'val', v: entry.at }} />
-        {entry.origin && <Field name="sentBy">{entry.origin}</Field>}
-        {entry.consumedBy && <Field name="handledBy">{entry.consumedBy}</Field>}
+        {!chain && (
+          <>
+            {entry.origin && <Field name="sentBy">{entry.origin}</Field>}
+            {entry.consumedBy && (
+              <Field name="handledBy">{entry.consumedBy}</Field>
+            )}
+          </>
+        )}
         {actionFields(entry.action).map(([name, value]) => (
           <Field key={name} name={name} node={plain(value)} />
         ))}
@@ -120,7 +131,6 @@ export function SubjectChanges({
 function unchangedNote(subject: View) {
   switch (subject.kind) {
     case 'root':
-    case 'manager':
       return 'No change to the store';
     case 'list':
       return 'No change to these rows';
