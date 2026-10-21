@@ -196,6 +196,8 @@ const PREVIEW_SCOPE_DECLARATIONS = `declare function render(component:JSX.Elemen
         declare function Link(props: React.AnchorHTMLAttributes<HTMLAnchorElement> & { to: string }):JSX.Element;
         declare function useNavigate(): (to: string) => void;
         declare function Loading():JSX.Element;
+        declare function Toaster():JSX.Element;
+        declare const toast: { success(message: string): void; error(message: string): void };
         declare function ErrorMessage(props: { error: Error & { status?: number }; resetErrorBoundary?: () => void; className?: string }):JSX.Element;
         declare function randomFloatInRange(min: number, max: number, decimals?: number): number;
         declare function mockFetch<T>(getResponse: (...args: any[]) => T, name?: string, delay?: number): (...args: any[]) => Promise<T>;

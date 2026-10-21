@@ -191,9 +191,14 @@ DesignSystem/       the demos' design system: design-system.css (tokens, element
   text inputs, `nav`, `fieldset`; and classes: `appHeader` + `appTitle`
   (the app's bar), `card` (a flat surface ruled off the panel by a 1px line;
   holding `listItem`s it loses its padding so their dividers reach its
-  edges),
-  `listItem` (a row with a rule between siblings; `nogap`, `spaced`),
-  `meta` (secondary text), `byline` (avatar beside a name; `Avatar` takes a
+  edges), `list` (rows with no box or rules, in line with the header;
+  rounded bands, checkbox rows light up under the pointer and fade when
+  checked),
+  `listItem` (a row with a rule between siblings; `nogap`, `spaced`; a
+  leading checkbox in its `label` is a round box drawn in the accent),
+  `meta` (secondary text; last in a `listItem`, it sits at the row's end),
+  `toaster`/`toast` (rendered by the `Toaster` component, which shows what
+  the `toast` helper sends), `byline` (avatar beside a name; `Avatar` takes a
   `size`), `author` (name under avatar), plus the older `voteBlock`/`vote`
   and `boardColumn`. Prefer a class or element style to a new component;
   a new scope global goes in `preview/scope.ts`, `monaco/typeLibs.ts` and
@@ -379,6 +384,11 @@ DesignSystem/       the demos' design system: design-system.css (tokens, element
   - Only editing `getManagers` or a document declaring a name it uses (e.g. its
     Manager class) changes the managers: the store remounts with its data, so
     other edits keep sockets open. Code that fails to run keeps the old ones.
+  - Kept managers still close over the values of the run that built them, while
+    the UI re-runs with fresh ones (remounting on every edit would close their
+    sockets), so a manager that reaches the UI does it
+    through something every run shares: a design system module (`toast`,
+    `DesignSystem/Toaster.tsx`) or the store.
   - A manager that throws shows a "Manager error" card; the preview runs on
     without that step.
 - Errors show in one `ErrorPanel` card (`Playground/ErrorPanel.tsx`) labeled by the stage that failed: amber

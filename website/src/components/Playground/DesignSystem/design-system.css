@@ -208,8 +208,42 @@ div.playground-preview h1:first-child {
   margin-bottom: 0;
 }
 
-/* A list's rows: side by side (an avatar, a checkbox, then the text), a
-   rule between them */
+/* A list (a todo list, prices): rows on the panel with no box or rules
+   between them, their text in line with the app header's; each row is a
+   rounded band reaching past its text, and a checkbox row lights up under
+   the pointer and fades once checked */
+.playground-preview .list {
+  margin-bottom: var(--ds-space-4);
+}
+.playground-preview .list > .listItem {
+  align-items: center;
+  margin: 0 calc(-1 * var(--ds-space-3));
+  padding: var(--ds-space-3);
+  border-radius: var(--ds-radius-sm);
+  transition: background-color var(--motion-snappy);
+}
+.playground-preview .list > .listItem + .listItem {
+  border-top: 0;
+}
+/* touch screens skip it: a tapped row would stay lit */
+@media (hover: hover) {
+  .playground-preview .list > .listItem:has(> label):hover {
+    background: var(--ds-surface-2);
+  }
+}
+.playground-preview
+  .list
+  > .listItem
+  > label:has(> input[type='checkbox']:checked) {
+  /* the faintest text that still reads (4.5:1); the box fades with it */
+  color: var(--ds-faint);
+}
+.playground-preview .list > .listItem > label > input[type='checkbox']:checked {
+  opacity: 0.7;
+}
+
+/* Rows: side by side (an avatar, a checkbox, then the text), a rule
+   between them (a `list` drops it) */
 .playground-preview .listItem {
   display: flex;
   align-items: flex-start;
@@ -465,6 +499,92 @@ div.playground-preview h1:first-child {
 }
 .playground-preview .boardColumn button:is(:hover, :active) {
   color: var(--ds-accent);
+}
+/* A checkbox row (a todo): the box sits in its label, so the whole row
+   toggles it; the box is a round one drawn in the accent (focus keeps the
+   checkbox ring above). The rules after this one need no :first-child:
+   they only show on the box it unstyles */
+.playground-preview
+  .listItem
+  > label:has(> input[type='checkbox']:first-child) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.playground-preview .listItem > label > input[type='checkbox']:first-child {
+  appearance: none;
+  flex: none;
+  display: grid;
+  place-content: center;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 1.5px solid var(--ds-border-strong);
+  border-radius: 50%;
+  background: var(--ds-surface);
+  transition:
+    background-color var(--motion-snappy),
+    border-color var(--motion-snappy);
+}
+.playground-preview .listItem > label > input[type='checkbox']::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: var(--ds-on-accent);
+  clip-path: polygon(14% 44%, 0 59%, 39% 96%, 100% 22%, 85% 8%, 38% 66%);
+  transform: scale(0);
+  transition: transform var(--motion-snappy);
+}
+.playground-preview .listItem > label > input[type='checkbox']:checked {
+  background: var(--ds-accent);
+  border-color: var(--ds-accent);
+}
+.playground-preview .listItem > label > input[type='checkbox']:checked::after {
+  transform: scale(1);
+}
+/* A row's trailing detail (when it was fetched, a count) sits at its end */
+.playground-preview .listItem > .meta:last-child {
+  margin-left: auto;
+}
+
+/* Toasts (<Toaster />, ./Toaster.tsx): stacked under the app, each a row
+   with an edge bar in its outcome's color: the console's live green for
+   success, red for an error */
+.playground-preview .toaster {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-2);
+  margin-top: var(--ds-space-3);
+}
+.playground-preview .toaster:empty {
+  display: none;
+}
+.playground-preview .toast {
+  --toast-color: var(--pg-live);
+  padding: var(--ds-space-2) var(--ds-space-3);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-sm);
+  /* the edge bar: inset so the radius clips it */
+  box-shadow: inset 3px 0 0 var(--toast-color);
+  background: color-mix(in srgb, var(--toast-color) 8%, var(--ds-surface));
+  font-size: var(--ds-text-sm);
+  animation: ds-toast-in 160ms ease-out;
+}
+.playground-preview .toast[data-kind='error'] {
+  --toast-color: var(--ifm-color-danger);
+}
+@keyframes ds-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .playground-preview .toast {
+    animation: none;
+  }
 }
 /* Root container for the text field */
 .rt-TextFieldRoot {
