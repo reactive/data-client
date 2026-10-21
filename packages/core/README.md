@@ -53,7 +53,7 @@ Core owns everything about data; an integration only owns _when_ to run it and _
    memoized, referentially stable values.
 2. **[Managers](https://dataclient.io/docs/api/Manager)** are redux-style middleware with a lifecycle (`init`, `cleanup`).
    [NetworkManager](https://dataclient.io/docs/api/NetworkManager) performs and deduplicates fetches; others add polling,
-   websockets, devtools, logout handling, or your own [protocol](https://dataclient.io/docs/guides/custom-protocol).
+   websockets, devtools, logout handling, or your own [manager](https://dataclient.io/docs/concepts/managers).
 3. **`createReducer(controller)`** turns actions into the next normalized `State`. Pending optimistic updates live in
    `state.optimistic` and are layered on top for rendering.
 4. **[GCPolicy](https://dataclient.io/docs/api/DataProvider#gcPolicy)** frees entities no mounted view references.
@@ -69,7 +69,7 @@ that read from it.
 
 ### Provider: own the store
 
-This is the whole lifecycle, as a framework-free store. `@data-client/vue`'s `createDataClient()` is nearly this code
+This is the whole lifecycle, as a framework-free store. `@data-client/vue`'s `DataClientPlugin` is nearly this code
 wrapped around `shallowRef` and `provide()`.
 
 ```ts
@@ -89,7 +89,10 @@ function createStore({
 
   // the last link in the chain commits to the store
   const commit = async (action: ActionTypes) => {
-    base = reducer(base, action);
+    const next = reducer(base, action);
+    // subscribe/unsubscribe and similar actions leave State unchanged
+    if (next === base) return;
+    base = next;
     state = base.optimistic.reduce(reducer, base);
     listeners.forEach(listener => listener());
   };
@@ -123,13 +126,14 @@ Requirements every provider must meet:
 - **Dispatch must go through the whole middleware chain**, including dispatches managers make themselves, which is why
   `api.dispatch` calls the composed chain rather than `commit`. The promise it returns should resolve once the new state is
   visible to readers.
-- **`getState()` returns the committed state** (without optimistic updates); views read the optimistic overlay.
+- **The middleware `api.getState()` returns the committed state** (without optimistic updates), since managers and
+  `Controller` reason about what the server confirmed. Views read the optimistic overlay (the store's `getState()` here).
 - **Run `initManager()` after the store is ready** (on mount), and call its returned cleanup on unmount. It also starts and
   stops the `GCPolicy`.
 
 ### Bindings: read the store
 
-Every read is one selector call. This is `useSuspense()` with the framework taken out:
+Every read is a selector call, plus a fetch when the data is stale. This is `useSuspense()` with the framework taken out:
 
 ```ts
 function read(store, endpoint, ...args) {
@@ -140,10 +144,12 @@ function read(store, endpoint, ...args) {
     controller.getResponseMeta(endpoint, ...args, state);
 
   // Invalid data must refetch; otherwise only once it's stale.
-  // NetworkManager deduplicates concurrent fetches of the same key.
+  // NetworkManager deduplicates concurrent fetches of the same key; a real binding also
+  // memoizes this on key, expiresAt and state.lastReset, as useSuspense() does.
   const fetching =
     expiryStatus === ExpiryStatus.Invalid || Date.now() > expiresAt ?
-      controller.fetch(endpoint, ...args)
+      // failures are stored in State, so getError() reports them
+      controller.fetch(endpoint, ...args).catch(() => {})
     : undefined;
 
   // Valid data (even if stale) can render now; anything else waits for `fetching`
@@ -163,21 +169,21 @@ Passing `null` as the first argument (`read(store, endpoint, null)`) is the conv
 Both shipped integrations wire the same core pieces. What they add is the platform's idea of state, lifecycle, and
 loading:
 
-| Concern            | Core provides                                | [@data-client/react](https://www.npmjs.com/package/@data-client/react)                                                                          | [@data-client/vue](https://www.npmjs.com/package/@data-client/vue)                                                    |
-| ------------------ | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Store container    | `createReducer`, `applyManager`              | `useReducer` with middleware, in [`<DataProvider>`](https://dataclient.io/docs/api/DataProvider)                                                | `shallowRef` and a composed middleware chain, in [`DataClientPlugin`](https://dataclient.io/vue/api/DataClientPlugin) |
-| Sharing            | `Controller`                                 | `ControllerContext`, `StateContext`; [`useController()`](https://dataclient.io/docs/api/useController)                                          | `provide`/`inject` keys; `useController()`, `$dataClient`                                                             |
-| Lifecycle          | `initManager`, `GCPolicy`                    | `useEffect` in the provider                                                                                                                     | `provider.start()` on install, `stop()` on `app.unmount`                                                              |
-| Reading            | `getResponseMeta`, `get`, `getError`         | Hooks memoized on the state slices they read                                                                                                    | Composables returning `ComputedRef`s; args may be refs or getters                                                     |
-| Loading            | `ExpiryStatus`, `expiresAt`                  | [`useSuspense()`](https://dataclient.io/docs/api/useSuspense) throws the fetch promise for Suspense                                             | `useSuspense()` is async, for `<Suspense>` with async `setup()`                                                       |
-| Errors             | `getError`, error policies                   | Thrown to [`<ErrorBoundary>`](https://dataclient.io/docs/api/ErrorBoundary) / [`<AsyncBoundary>`](https://dataclient.io/docs/api/AsyncBoundary) | Thrown when the returned ref is read                                                                                  |
-| Garbage collection | `countRef` from selectors                    | `useEffect(countRef, [data])`                                                                                                                   | `watch` on `data`                                                                                                     |
-| Default managers   | `NetworkManager`, `SubscriptionManager`, ... | [`getDefaultManagers()`](https://dataclient.io/docs/api/getDefaultManagers), `IdlingNetworkManager`, devtools button                            | `getDefaultManagers()`                                                                                                |
-| Platform extras    |                                              | SSR and Next.js, React Native, [Redux](https://dataclient.io/docs/guides/redux)                                                                 |                                                                                                                       |
-| Testing            | `@data-client/core/mock`                     | [`MockResolver`](https://dataclient.io/docs/api/MockResolver), [`renderDataHook()`](https://dataclient.io/docs/api/renderDataHook)              | `MockPlugin`, `mountDataClient()`                                                                                     |
+| Concern            | Core provides                                | [@data-client/react](https://www.npmjs.com/package/@data-client/react)                                                                                                                                   | [@data-client/vue](https://www.npmjs.com/package/@data-client/vue)                                                    |
+| ------------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Store container    | `createReducer`, `applyManager`              | `useReducer` with middleware, in [`<DataProvider>`](https://dataclient.io/docs/api/DataProvider)                                                                                                         | `shallowRef` and a composed middleware chain, in [`DataClientPlugin`](https://dataclient.io/vue/api/DataClientPlugin) |
+| Sharing            | `Controller`                                 | `ControllerContext`, `StateContext`; [`useController()`](https://dataclient.io/docs/api/useController)                                                                                                   | `provide`/`inject` keys; `useController()`, `$dataClient`                                                             |
+| Lifecycle          | `initManager`, `GCPolicy`                    | `useEffect` in the provider                                                                                                                                                                              | `provider.start()` on install, `stop()` on `app.unmount`                                                              |
+| Reading            | `getResponseMeta`, `get`, `getError`         | Hooks memoized on the state slices they read                                                                                                                                                             | Composables returning `ComputedRef`s; args may be refs or getters                                                     |
+| Loading            | `ExpiryStatus`, `expiresAt`                  | [`useSuspense()`](https://dataclient.io/docs/api/useSuspense) throws the fetch promise for Suspense                                                                                                      | `useSuspense()` is async, for `<Suspense>` with async `setup()`                                                       |
+| Errors             | `getError`, error policies                   | Thrown to [`<ErrorBoundary>`](https://dataclient.io/docs/api/ErrorBoundary) / [`<AsyncBoundary>`](https://dataclient.io/docs/api/AsyncBoundary)                                                          | Thrown when the returned ref is read                                                                                  |
+| Garbage collection | `countRef` from selectors                    | `useEffect(countRef, [data])`                                                                                                                                                                            | `watch` on `data`                                                                                                     |
+| Default managers   | `NetworkManager`, `SubscriptionManager`, ... | [`getDefaultManagers()`](https://dataclient.io/docs/api/getDefaultManagers), `IdlingNetworkManager`, devtools button                                                                                     | `getDefaultManagers()`                                                                                                |
+| Platform extras    |                                              | SSR and Next.js, React Native, [Redux](https://dataclient.io/docs/guides/redux)                                                                                                                          |                                                                                                                       |
+| Testing            | `@data-client/core/mock`                     | [@data-client/test](https://www.npmjs.com/package/@data-client/test): [`MockResolver`](https://dataclient.io/docs/api/MockResolver), [`renderDataHook()`](https://dataclient.io/docs/api/renderDataHook) | `@data-client/vue/test`: `MockPlugin`, `mountDataClient()`                                                            |
 
-Both packages re-export core's `Controller`, managers, `ExpiryStatus`, `actionTypes`, `GCPolicy` and types, so their users
-never import core. A new integration should do the same.
+A new integration should likewise re-export `Controller`, the managers, `ExpiryStatus`, `actionTypes`, `GCPolicy` and the
+types, so app code never imports core.
 
 ## Public interface
 
