@@ -138,8 +138,7 @@ there. In dev mode, `__DC__.controller` is the page's Controller, so every Contr
 1. Compare the store to the server: `__DC__.controller.getState().entities.Todo['5']` against the API's response.
 2. If they differ, find what wrote the store's value: `__DC__.actions.map(a => [a.type, a.key])` lists actions oldest
    first; the `rdc/setresponse` that carried it names the endpoint, and that endpoint's schema shows how it reached
-   the entity. If that action carried an older version than one already stored (a poll, or a copy embedded in
-   another response), the Entity needs `shouldReorder` comparing its version field (skill "data-client-schema").
+   the entity.
 3. After a fix, compare every entity of that type to the server again, not only the one you changed.
 
 [devtools-debugging](references/devtools-debugging.md) has a "Where to Start" table mapping symptoms to the state and
