@@ -1,7 +1,6 @@
 {
   "name": "data-client",
   "displayName": "Reactive Data Client",
-  "version": "1.0.0",
   "description": "Sets up Data Client, then points your agent at the skills shipped in your installed @data-client packages, so React or Vue apps get the guidance for their version",
   "author": {
     "name": "Nathaniel Tucker",
@@ -18,8 +17,9 @@
     "graphql",
     "normalized-cache"
   ],
+  "skills": ["./data-client", "./data-client-setup"],
+  "version": "1.0.0",
   "category": "developer-tools",
   "tags": ["react", "vue", "data-fetching"],
-  "logo": "assets/logo.svg",
-  "skills": ["./data-client", "./data-client-setup"]
+  "logo": "assets/logo.svg"
 }

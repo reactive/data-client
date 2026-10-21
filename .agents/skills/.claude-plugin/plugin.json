@@ -1,0 +1,24 @@
+{
+  "name": "data-client",
+  "displayName": "Reactive Data Client",
+  "description": "Sets up Data Client, then points your agent at the skills shipped in your installed @data-client packages, so React or Vue apps get the guidance for their version",
+  "author": {
+    "name": "Nathaniel Tucker",
+    "email": "me@ntucker.me"
+  },
+  "homepage": "https://dataclient.io/docs/getting-started/agent-skills",
+  "repository": "https://github.com/reactive/data-client",
+  "license": "Apache-2.0",
+  "keywords": [
+    "data-client",
+    "react",
+    "vue",
+    "rest",
+    "graphql",
+    "normalized-cache"
+  ],
+  "skills": ["./data-client", "./data-client-setup"],
+  "icon": "./assets/logo.svg",
+  "documentationUrl": "https://dataclient.io/docs/getting-started/agent-skills",
+  "supportUrl": "https://github.com/reactive/data-client/issues"
+}
