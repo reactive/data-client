@@ -148,7 +148,7 @@ export function ActionsLevel({
   // at the store, when the code brought its own managers: who sent what
   const chain =
     subject.kind === 'root' ? ownChain(history.managers) : undefined;
-  const [chosen, setPicked] = useState<string | null>(null);
+  const [chosen, setChosen] = useState<string | null>(null);
   // a stage the chain no longer has (the code changed) counts as none
   const picked =
     chosen === APP || (chosen !== null && chain?.includes(chosen)) ?
@@ -170,7 +170,7 @@ export function ActionsLevel({
             chain={chain}
             entries={history.entries}
             picked={picked}
-            onPick={setPicked}
+            onPick={setChosen}
           />
         )}
         <ActionList rows={rows} subject={subject} filter={filter} />
