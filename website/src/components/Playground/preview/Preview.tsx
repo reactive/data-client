@@ -55,6 +55,8 @@ function Preview<T>({
     const log = registry.log.connect(history, replacedHistory, action =>
       network.skipLogging(action),
     );
+    // the head goes first: it credits each action to the manager whose
+    // controller call sent it
     return [log.head, registry, ...log.track(managers), log.tail];
   });
 

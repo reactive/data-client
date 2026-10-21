@@ -29,6 +29,11 @@ const knownOf = (manager: Manager) =>
 export const isLibraryManager = (name: string) =>
   KNOWN.some(known => baseName(name) === known.name);
 
+/** Whether it's the library's NetworkManager, which sends what it handles
+ * of a fetch (by the name `managerNames` gave it) */
+export const isNetworkManager = (name: string) =>
+  baseName(name) === 'NetworkManager';
+
 /** Its class's name, without the `#2` a repeat gets */
 const baseName = (name: string) => name.replace(/ #\d+$/, '');
 
@@ -103,6 +108,9 @@ export interface Attribution {
    * the stack. The log's head reads it as each action arrives, and clears
    * it, so what else that dispatch sets off isn't credited to it too */
   dispatching?: string;
+  /** The action each copy a middleware passed on was made from, so whoever
+   * handles the copy is credited on the action the log recorded */
+  readonly copies: WeakMap<ActionTypes, ActionTypes>;
 }
 
 /** `manager`, telling `attribution` while it calls its controller (what it
@@ -136,7 +144,10 @@ export function attributed(
         passed.add(action);
         // a copy passed on stands for the action it was made from
         const from = running.at(-1);
-        if (from) passed.add(from);
+        if (from && from !== action) {
+          passed.add(from);
+          attribution.copies.set(action, from);
+        }
         if (reported.has(action)) consumed(action, false);
         return next(action);
       });

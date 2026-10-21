@@ -9,6 +9,7 @@ import {
   type ChangeKind,
 } from './actionGroups';
 import { isRecordChange, type LogEntry } from './actionLog';
+import { isNetworkManager } from './attribution';
 import {
   AtMoment,
   ChangeChip,
@@ -131,7 +132,7 @@ function unchangedNote(subject: View) {
 /** Why an action that never reached the store is still in the log */
 function unappliedNote({ action, consumedBy }: LogEntry) {
   // NetworkManager sets off a fetch's request (its name may end in `#2`)
-  const requested = !consumedBy || consumedBy.startsWith('NetworkManager');
+  const requested = !consumedBy || isNetworkManager(consumedBy);
   if (action.type === actionTypes.FETCH && requested)
     return 'Started the request; the store changes when its response arrives';
   return consumedBy ?
