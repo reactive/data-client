@@ -126,18 +126,17 @@ Browse them all at [skills.sh/reactive/data-client](https://skills.sh/reactive/d
 ### Debug a running app {#debugging}
 
 Ask your agent "why didn't this refetch?" or "what's in the cache right now?" and it can check the running app instead
-of guessing from code. In dev mode, [DevToolsManager](/docs/api/DevToolsManager#controllers) puts each store's
-[Controller](/docs/api/Controller) on `globalThis.__DC_CONTROLLERS__`, so an agent connected through
+of guessing from code. In dev mode, [DevToolsManager](/docs/api/DevToolsManager#controllers) puts the store on
+`globalThis.__DC__`: `__DC__.controller` is its [Controller](/docs/api/Controller) and `__DC__.actions` its recent
+actions, recorded from the moment the app starts, so the agent also sees the fetches made while the page loaded, with
+or without the Redux DevTools extension. An agent connected through
 [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp), or
 [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) for React Native, can read the store, follow dispatched actions, and
-match them to network requests. The map is there in browsers, React Native and Node
-([#3753](https://github.com/reactive/data-client/pull/3753)). Each store's recent actions are on
-`globalThis.__DC_ACTIONS__` from the moment the app starts, so the agent also sees the fetches made while the page
-loaded, with or without the Redux DevTools extension.
+match them to network requests.
 
 ```js title="Browser DevTools console"
-__DC_CONTROLLERS__.get('Data Client: My App').getState();
-__DC_ACTIONS__.get('Data Client: My App').slice(-10);
+__DC__.controller.getState();
+__DC__.actions.slice(-10);
 ```
 
 The React and Vue skills drive this through Chrome DevTools MCP; see

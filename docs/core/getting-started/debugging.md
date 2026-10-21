@@ -21,9 +21,8 @@ in your coding agent, then ask it to inspect the current page or app state.
 In dev mode, [DevToolsManager](../api/DevToolsManager.md) exposes live `Controller` instances so an agent can inspect
 cache state, endpoint metadata, and dispatched actions directly from the running app.
 
-Technically, those controllers are stored on [`globalThis.__DC_CONTROLLERS__`](../api/DevToolsManager.md#controllers), which is a
-browser-global `Map`. You can think of it as a temporary dev-mode registry that lets tools
-and agents look up the active :react[`DataProvider`]:vue[`DataClientPlugin`] stores for the current page.
+Technically, the agent reads the page's store from [`globalThis.__DC__`](../api/DevToolsManager.md#controllers):
+`__DC__.controller` is its `Controller` and `__DC__.actions` its recent actions.
 
 At a high level, the agent can:
 
