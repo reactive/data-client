@@ -33,8 +33,11 @@ test('plugin skills are directories inside the plugin, named by SKILL.md', () =>
 });
 
 test('logo stays inside the plugin directory', () => {
-  assert.equal(manifest.logo.includes('..'), false);
-  assert.ok(fs.existsSync(path.join(pluginRoot, manifest.logo)));
+  const { icon } = JSON.parse(read('.claude-plugin/plugin.json'));
+  for (const file of [manifest.logo, icon]) {
+    assert.equal(file.includes('..'), false, file);
+    assert.ok(fs.existsSync(path.join(pluginRoot, file)), file);
+  }
 });
 
 test('README is long enough for the Claude directory listing', () => {

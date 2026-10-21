@@ -20,6 +20,7 @@ export const root = path.resolve(
 );
 const skills = '.agents/skills';
 const repository = 'https://github.com/reactive/data-client';
+const logo = 'assets/logo.svg';
 
 /** The plugin directory's manifests (path => JSON): the `data-client` entry
  * of marketplace.json plus each listing's own fields */
@@ -72,14 +73,14 @@ export function pluginDirFiles() {
       version: '1.0.0',
       category: 'developer-tools',
       tags: ['react', 'vue', 'data-fetching'],
-      logo: 'assets/logo.svg',
+      logo,
     },
     // Claude's plugin directory submits this folder. No `version`: Claude Code
     // then treats every commit as an update, like the root marketplace does.
     [`${skills}/.claude-plugin/plugin.json`]: {
       ...listing,
       // listing fields only Claude's directory reads
-      icon: './assets/logo.svg',
+      icon: `./${logo}`,
       documentationUrl: plugin.homepage,
       supportUrl: `${repository}/issues`,
     },

@@ -30,7 +30,7 @@ Each listing reads the plugin from `.agents/skills`, whose `README.md` is the li
 - **Cursor Marketplace** ([cursor.com/marketplace/publish](https://cursor.com/marketplace/publish)) reviews the
   repository link and `.cursor-plugin/marketplace.json`.
 - **OpenAI's plugin directory** (ChatGPT and Codex) takes an uploaded ZIP, not the repository:
-  `node .claude-plugin/openai-zip.mjs` writes `data-client-plugin.zip`, versioned `1.<date>.0`. Upload a new one whenever the plugin's skills
+  `node .claude-plugin/openai-zip.mjs` writes `data-client-plugin.zip`, versioned by its build time. Upload a new one whenever the plugin's skills
   change.
 
 ## What it reads from the rest of the repo
