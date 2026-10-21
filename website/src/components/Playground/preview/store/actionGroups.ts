@@ -7,6 +7,7 @@ import {
 
 import type ActionLog from './actionLog';
 import type { LogEntry } from './actionLog';
+import { byStage, isLibraryManager } from './attribution';
 import { endpointId, entityId, parseRowId } from './model';
 import type { View } from './nav';
 import { isPlainObject, temporalType } from './refs';
@@ -668,9 +669,7 @@ function buildTimeline(
 /** Whether a change is to a row `subject` covers */
 export function touches(subject: View, change: Change): boolean {
   switch (subject.kind) {
-    // the store's and a manager's actions change whatever they change
     case 'root':
-    case 'manager':
       return true;
     case 'record':
       return change.id === subject.id;
@@ -731,17 +730,27 @@ export function subjectFilter(
 ): SubjectFilter {
   if (subject.kind === 'root')
     return { hit: e => !!e.store, lists: () => true, gaps: NO_GAPS };
-  if (subject.kind === 'manager') {
-    const { name } = subject;
-    // what it sent or handled, kept from the store or not
-    const hit = (e: LogEntry) => e.origin === name || e.consumedBy === name;
-    return { hit, lists: hit, gaps: NO_GAPS };
-  }
   const hit = (e: LogEntry) =>
     gaps.has(e.seq) || log.changes(e).some(c => touches(subject, c));
   return { hit, lists: hit, gaps };
 }
 const NO_GAPS: ReadonlyMap<number, ChangeKind> = new Map();
+
+/** The store's filter (`base`) with its managers (`chain`) drawn as a
+ * pipeline: what the `picked` stage took part in (see `byStage`), or, none
+ * picked, also what the code's own managers kept from the store */
+export function stageFilter(
+  base: SubjectFilter,
+  chain: readonly string[],
+  picked: string | null,
+): SubjectFilter {
+  let hit: SubjectFilter['hit'];
+  if (picked === null) {
+    const own = new Set(chain.filter(name => !isLibraryManager(name)));
+    hit = e => base.hit(e) || (!!e.consumedBy && own.has(e.consumedBy));
+  } else hit = byStage(picked);
+  return { ...base, hit, lists: hit };
+}
 
 /** Row `id` as diffs name it, to compare it between two stores */
 function rowOf(id: string): Change | undefined {

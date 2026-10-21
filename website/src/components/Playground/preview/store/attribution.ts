@@ -37,58 +37,48 @@ export const isNetworkManager = (name: string) =>
 /** Its class's name, without the `#2` a repeat gets */
 const baseName = (name: string) => name.replace(/ #\d+$/, '');
 
-export interface ManagerRow {
-  /** Its name (unique in its chain) */
+interface Stage {
+  /** The manager's name (unique in its chain) */
   readonly id: string;
-  /** Where it is in the chain, from 1 */
-  readonly position: number;
   /** Actions it dispatched */
   readonly sent: number;
   /** Actions it kept from the rest of the chain */
   readonly handled: number;
-  /** When it last did either */
-  readonly last?: number;
 }
 
-/** The chain's managers in order, with what each did over `entries` up to
- * `until` (all of them when it's missing) */
-export function managerRows(
+/** What the app and each manager of the chain (in order) did over
+ * `entries`: the app, what it dispatched itself */
+export function pipeline(
   managers: readonly string[],
-  entries: readonly {
-    seq: number;
-    at: number;
-    origin?: string;
-    consumedBy?: string;
-  }[],
-  until = Infinity,
-): ManagerRow[] {
-  const rows = new Map(
-    managers.map((id, i) => [
-      id,
-      {
-        id,
-        position: i + 1,
-        sent: 0,
-        handled: 0,
-        last: undefined as number | undefined,
-      },
-    ]),
-  );
-  for (const { seq, at, origin, consumedBy } of entries) {
-    if (seq > until) break;
-    const sender = origin && rows.get(origin);
-    if (sender) {
-      sender.sent++;
-      sender.last = at;
-    }
-    const handler = consumedBy && rows.get(consumedBy);
-    if (handler) {
-      handler.handled++;
-      handler.last = at;
-    }
+  entries: readonly { origin?: string; consumedBy?: string }[],
+): { app: number; stages: Stage[] } {
+  const stages = new Map(managers.map(id => [id, { id, sent: 0, handled: 0 }]));
+  let app = 0;
+  for (const { origin, consumedBy } of entries) {
+    const sender = origin && stages.get(origin);
+    if (sender) sender.sent++;
+    else if (!origin) app++;
+    const handler = consumedBy && stages.get(consumedBy);
+    if (handler) handler.handled++;
   }
-  return [...rows.values()];
+  return { app, stages: [...stages.values()] };
 }
+
+/** The chain, when it's more than the library's defaults: the code
+ * brought a manager of its own */
+export const ownChain = (managers: readonly string[] | undefined) =>
+  managers?.some(name => !isLibraryManager(name)) ? managers : undefined;
+
+/** Whether `entry` is one `stage` took part in: `APP`, those the app
+ * dispatched; a manager, those it sent or kept from the rest of the chain */
+export function byStage(stage: string) {
+  return (entry: { origin?: string; consumedBy?: string }) =>
+    stage === APP ?
+      !entry.origin
+    : entry.origin === stage || entry.consumedBy === stage;
+}
+/** The stage before the chain: the app's own dispatches */
+export const APP = 'the app';
 
 /** What the Store inspector calls each manager of a chain: its class, with
  * `#2` and on when a chain holds several of one class */
@@ -142,9 +132,9 @@ export function attributed(
       const running: ActionTypes[] = [];
       const dispatch = withController(action => {
         passed.add(action);
-        // a copy passed on stands for the action it was made from
+        // one passed on in place of the action running (not besides it,
+        // nor a copy it came from) stands for it
         const from = running.at(-1);
-        // one passed on in its place (not besides it) stands for it
         if (
           from &&
           !passed.has(from) &&
@@ -178,15 +168,15 @@ export function attributed(
   return tracked;
 }
 
-/** Whether `action` is `from`, or what it's a copy of (so a copy never
- * leads back to itself) */
+/** Whether `ancestor` is `action`, or what it was copied from (linking a
+ * copy to its ancestor would loop) */
 function copiedFrom(
   { copies }: Attribution,
   action: ActionTypes,
-  from: ActionTypes,
+  ancestor: ActionTypes,
 ): boolean {
   for (let a: ActionTypes | undefined = action; a; a = copies.get(a))
-    if (a === from) return true;
+    if (a === ancestor) return true;
   return false;
 }
 
@@ -223,15 +213,13 @@ function asDispatcher(
 
 /** Who sent `entries` (the first, which started them) and the first
  * manager to keep one from the rest of the chain, leaving out the library's
- * managers, whose work every playground has, so the code's own stand out,
- * and `except` (whose actions are listed). An action's detail still says
- * all */
+ * managers, whose work every playground has, so the code's own stand out.
+ * An action's path still says all */
 export function notableAttribution(
   entries: readonly { origin?: string; consumedBy?: string }[],
-  except?: string,
 ): { origin?: string; consumedBy?: string } {
   const notable = (name?: string) =>
-    name && name !== except && !isLibraryManager(name) ? name : undefined;
+    name && !isLibraryManager(name) ? name : undefined;
   return {
     origin: notable(entries[0]?.origin),
     consumedBy: entries.map(e => notable(e.consumedBy)).find(Boolean),

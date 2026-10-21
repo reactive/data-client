@@ -1027,6 +1027,76 @@ div.gapRow {
   color: var(--store-muted);
   border-color: var(--store-line-strong);
 }
+/* the pipeline: the app, the chain's managers and the store, as stages an
+   action goes through; it wraps rather than scroll */
+.pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--store-line);
+}
+.actBody > .pipeline {
+  padding: 0.4rem 0 0;
+  border: none;
+}
+.stageStep {
+  display: inline-flex;
+  align-items: center;
+}
+.stageArrow {
+  padding: 0 0.35rem;
+  color: var(--store-dim);
+}
+.stage {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--store-line-strong);
+  border-radius: 6px;
+  background: none;
+  color: var(--store-fg);
+  font: 400 11px / 1.5 var(--ifm-font-family-monospace);
+  white-space: nowrap;
+}
+button.stage {
+  cursor: pointer;
+}
+button.stage:hover {
+  background: var(--store-hover);
+}
+button.stage:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 1px;
+}
+.stage[aria-pressed='true'] {
+  border-color: var(--ifm-color-primary);
+  background: rgba(130, 170, 255, 0.16);
+}
+@media (pointer: coarse) {
+  button.stage {
+    padding-block: 0.35rem;
+  }
+}
+.stageNote {
+  color: var(--store-muted);
+}
+.stageSender {
+  border-color: var(--ifm-color-primary);
+}
+.stageStop {
+  border-color: var(--store-stale);
+  background: var(--store-stale-bg);
+}
+.stageOff {
+  opacity: 0.4;
+}
+.stageEnd {
+  border-style: dashed;
+  color: var(--store-muted);
+}
 /* the key keeps its room in a narrow row: the meta wraps under it first */
 .actKey {
   flex: 0 1 auto;

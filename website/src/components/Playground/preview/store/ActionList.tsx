@@ -11,6 +11,7 @@ import React, {
 
 import {
   groupEntriesOf,
+  stageFilter,
   groupOf,
   joinedFetches,
   touches,
@@ -37,10 +38,12 @@ import {
   useFollow,
   useLog,
 } from './actionParts';
+import { ownChain } from './attribution';
 import type { Header } from './DiveViews';
 import { byData, onActivateKey, revealIn, toggled } from './dom';
 import { actionId } from './model';
 import { ActionSpanContext, useNavState, type View } from './nav';
+import { Pipeline } from './Pipeline';
 import styles from './store.module.css';
 
 /** The groups with an action that touched the subject */
@@ -134,13 +137,22 @@ export function ActionsPane({
  * `header` (the crumbs) with their count, then the list */
 export function ActionsLevel({
   subject,
-  filter,
+  filter: subjectFilter,
   header,
 }: {
   subject: View;
   filter: SubjectFilter;
   header: Header;
 }) {
+  const { history } = useActions();
+  // at the store, when the code brought its own managers: who sent what
+  const chain =
+    subject.kind === 'root' ? ownChain(history.managers) : undefined;
+  const [picked, setPicked] = useState<string | null>(null);
+  const filter = useMemo(
+    () => (chain ? stageFilter(subjectFilter, chain, picked) : subjectFilter),
+    [chain, picked, subjectFilter],
+  );
   const rows = useRows(filter);
   return (
     <>
@@ -148,6 +160,14 @@ export function ActionsLevel({
         <span className={styles.count}>{rows.length.toLocaleString()}</span>,
       )}
       <section className={styles.actionsLevel} aria-label="Actions">
+        {chain && (
+          <Pipeline
+            chain={chain}
+            entries={history.entries}
+            picked={picked}
+            onPick={setPicked}
+          />
+        )}
         <ActionList rows={rows} subject={subject} filter={filter} />
       </section>
     </>
@@ -396,7 +416,7 @@ const GroupRow = memo(function GroupRow({
           {group.kind === 'single' && <TypeName entry={first} />}
           <KeyLabel value={group.key} />
           <Tag group={group} />
-          <ManagerTags entries={all} subject={subject} />
+          <ManagerTags entries={all} />
           <span className={styles.actMeta}>
             <Status group={group} />
             <Time at={first.at} />
@@ -554,7 +574,7 @@ function StepRow({
     >
       <Time at={entry.at} />
       <TypeName entry={entry} />
-      <ManagerTags entries={[entry]} subject={subject} />
+      <ManagerTags entries={[entry]} />
       <span className={styles.actSum}>
         <ActionSpanContext.Provider value={spanOf([entry])}>
           <ChangeChips changes={changes} own={own} />

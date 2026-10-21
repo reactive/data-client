@@ -305,16 +305,22 @@ describe('manager attribution', () => {
   });
 });
 
-describe('Store panel manager attribution', () => {
-  /** The shown level */
-  const top = () =>
-    [...document.querySelectorAll<HTMLElement>('[data-level]')].find(
-      el => !el.closest('[hidden]') && !el.hasAttribute('data-covered'),
-    )!;
-  const managersSection = () =>
-    screen.getByRole('button', { name: /^Managers/ }).closest('section')!;
+describe('Store panel pipeline', () => {
+  const openActions = () =>
+    fireEvent.click(
+      within(screen.getAllByRole('group', { name: /^Scrubber/ })[0]).getByRole(
+        'button',
+        { name: 'Actions' },
+      ),
+    );
+  const pipeline = () => screen.getByRole('group', { name: /^Pipeline/ });
+  /** The listed rows' heads */
+  const listed = () =>
+    screen
+      .getByRole('region', { name: 'Actions' })
+      .querySelectorAll('[role="button"][aria-expanded]');
 
-  it('lists the chain with what each manager sent and handled', async () => {
+  it('draws the app, the chain and the store, with what each sent and kept', async () => {
     const stream = new StreamManager();
     const { ctrl } = mount(
       [
@@ -330,17 +336,21 @@ describe('Store panel manager attribution', () => {
       void stream.push(2);
       void ctrl().subscribe(getTicker);
     });
-    const rows = [...managersSection().querySelectorAll('tbody tr')].map(tr =>
-      [...tr.querySelectorAll('td')].slice(0, 4).map(td => td.textContent),
-    );
-    expect(rows).toEqual([
-      ['1', 'StreamManager', '2', '1'],
-      ['2', 'NetworkManager', '0', '0'],
-      ['3', 'SubscriptionManager', '0', '0'],
+    openActions();
+    expect(
+      within(pipeline())
+        .getAllByRole('button')
+        .map(b => b.textContent),
+    ).toEqual([
+      'the app1',
+      'StreamManager2⊘ 1',
+      'NetworkManager0',
+      'SubscriptionManager0',
     ]);
+    expect(pipeline().textContent).toMatch(/store$/);
   });
 
-  it('starts closed when the chain is only the library defaults', async () => {
+  it('leaves it out when the chain is only the library defaults', async () => {
     const { ctrl } = mount(
       [new NetworkManager(), new SubscriptionManager(PollingSubscription)],
       undefined,
@@ -349,14 +359,11 @@ describe('Store panel manager attribution', () => {
     await act(async () => {
       void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
     });
-    expect(
-      screen
-        .getByRole('button', { name: /^Managers/ })
-        .getAttribute('aria-expanded'),
-    ).toBe('false');
+    openActions();
+    expect(screen.queryByRole('group', { name: /^Pipeline/ })).toBeNull();
   });
 
-  it("opens a manager's actions: what it sent and what it handled", async () => {
+  it("shows only a stage's actions while it is picked", async () => {
     const stream = new StreamManager();
     const { ctrl } = mount([stream, new NetworkManager()], undefined, true);
     await act(async () => {
@@ -364,18 +371,23 @@ describe('Store panel manager attribution', () => {
       void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
       void ctrl().subscribe(getTicker);
     });
-    fireEvent.click(within(managersSection()).getByText('StreamManager'));
-    const level = top();
-    expect(
-      within(level).getByRole('navigation', { name: 'Store location' })
-        .textContent,
-    ).toContain('StreamManager');
-    // its set and the subscribe it kept from the store, without naming it
-    // again on each row
-    expect(
-      level.querySelectorAll('[role="button"][aria-expanded]'),
-    ).toHaveLength(2);
-    expect(within(level).queryByText(/↑ StreamManager/)).toBeNull();
+    openActions();
+    expect(listed()).toHaveLength(3);
+    const streamStage = within(pipeline()).getByRole('button', {
+      name: /^StreamManager/,
+    });
+    fireEvent.click(streamStage);
+    expect(streamStage.getAttribute('aria-pressed')).toBe('true');
+    // its set and the subscribe it kept from the store
+    expect(listed()).toHaveLength(2);
+    fireEvent.click(
+      within(pipeline()).getByRole('button', { name: /^the app/ }),
+    );
+    expect(listed()).toHaveLength(2);
+    fireEvent.click(
+      within(pipeline()).getByRole('button', { name: /^the app/ }),
+    );
+    expect(listed()).toHaveLength(3);
   });
 
   it("tags the store's actions with the manager that sent them", async () => {
@@ -385,12 +397,24 @@ describe('Store panel manager attribution', () => {
       void stream.push(1);
       void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
     });
-    fireEvent.click(
-      within(screen.getAllByRole('group', { name: /^Scrubber/ })[0]).getByRole(
-        'button',
-        { name: 'Actions' },
-      ),
-    );
+    openActions();
     expect(screen.getAllByText('↑ StreamManager')).toHaveLength(1);
+  });
+
+  it("draws an action's path: who sent it and where it stopped", async () => {
+    const { ctrl } = mount(
+      [new StreamManager(), new NetworkManager()],
+      undefined,
+      true,
+    );
+    await act(async () => {
+      void ctrl().subscribe(getTicker);
+    });
+    openActions();
+    fireEvent.click(listed()[0]);
+    const path = await screen.findByRole('group', { name: /^Path/ });
+    expect(path.textContent).toBe(
+      'the app→StreamManager⊘ handled it→NetworkManager→store',
+    );
   });
 });

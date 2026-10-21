@@ -29,7 +29,6 @@ import {
   type ActionSpan,
   type Moment,
   type Then,
-  type View,
 } from './nav';
 import styles from './store.module.css';
 import { CountChip, EndpointKey, EntityKey, RefChip } from './Value';
@@ -345,18 +344,8 @@ export function TypeName({ entry }: { entry: LogEntry }) {
 /** Which of the code's managers sent the actions, and which kept one from
  * the rest of the chain (the routine work of the default managers left
  * out, see `notableAttribution`) */
-export function ManagerTags({
-  entries,
-  subject,
-}: {
-  entries: readonly LogEntry[];
-  /** Whose actions are listed: a manager's go without its own name */
-  subject: View;
-}) {
-  const { origin, consumedBy } = notableAttribution(
-    entries,
-    subject.kind === 'manager' ? subject.name : undefined,
-  );
+export function ManagerTags({ entries }: { entries: readonly LogEntry[] }) {
+  const { origin, consumedBy } = notableAttribution(entries);
   return (
     <>
       {origin && (
