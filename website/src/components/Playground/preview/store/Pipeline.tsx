@@ -97,6 +97,7 @@ function Strip({
 }) {
   const end = (
     <span
+      // apart from the stages, whose keys are names (never with a space)
       key=" store"
       className={clsx(
         styles.stage,

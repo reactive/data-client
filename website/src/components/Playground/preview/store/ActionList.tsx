@@ -38,7 +38,7 @@ import {
   useFollow,
   useLog,
 } from './actionParts';
-import { ownChain } from './attribution';
+import { APP, ownChain } from './attribution';
 import type { Header } from './DiveViews';
 import { byData, onActivateKey, revealIn, toggled } from './dom';
 import { actionId } from './model';
@@ -148,7 +148,10 @@ export function ActionsLevel({
   // at the store, when the code brought its own managers: who sent what
   const chain =
     subject.kind === 'root' ? ownChain(history.managers) : undefined;
-  const [picked, setPicked] = useState<string | null>(null);
+  const [pick, setPicked] = useState<string | null>(null);
+  // a stage the chain no longer has (the code changed) is let go
+  const picked =
+    pick === APP || (pick !== null && chain?.includes(pick)) ? pick : null;
   const filter = useMemo(
     () => (chain ? stageFilter(subjectFilter, chain, picked) : subjectFilter),
     [chain, picked, subjectFilter],
