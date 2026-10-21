@@ -76,7 +76,13 @@ export function pluginDirFiles() {
     },
     // Claude's plugin directory submits this folder. No `version`: Claude Code
     // then treats every commit as an update, like the root marketplace does.
-    [`${skills}/.claude-plugin/plugin.json`]: listing,
+    [`${skills}/.claude-plugin/plugin.json`]: {
+      ...listing,
+      // listing fields only Claude's directory reads
+      icon: './assets/logo.svg',
+      documentationUrl: plugin.homepage,
+      supportUrl: `${repository}/issues`,
+    },
   };
 }
 

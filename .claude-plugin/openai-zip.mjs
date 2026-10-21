@@ -13,6 +13,9 @@ import { pluginDirFiles, root } from './plugin-dir.mjs';
 const skills = path.join(root, '.agents/skills');
 const out = path.resolve(process.argv[2] ?? 'data-client-plugin.zip');
 const manifest = pluginDirFiles()['.agents/skills/.claude-plugin/plugin.json'];
+// OpenAI requires a semver `version` that grows with each upload; the
+// repo's manifest has none so Claude Code updates on every commit
+const version = `1.${new Date().toISOString().slice(0, 10).replaceAll('-', '')}.0`;
 const stage = fs.mkdtempSync(path.join(os.tmpdir(), 'data-client-plugin-'));
 
 try {
@@ -28,7 +31,7 @@ try {
   fs.mkdirSync(path.join(stage, '.claude-plugin'));
   fs.writeFileSync(
     path.join(stage, '.claude-plugin/plugin.json'),
-    `${JSON.stringify({ ...manifest, skills: './skills/' }, null, 2)}\n`,
+    `${JSON.stringify({ ...manifest, version, skills: './skills/' }, null, 2)}\n`,
   );
 
   fs.rmSync(out, { force: true });
