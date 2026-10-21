@@ -36,7 +36,7 @@
   <rect x="84" y="454" width="422" height="50" rx="10" fill="#0a1017"/>
   <text x="102" y="486" class="mono" font-size="17"><tspan fill="#5f7183">$ </tspan><tspan fill="#c9d4df">npx --no </tspan><tspan fill="#6cb8ef">data-client-skills</tspan></text>
   <text x="84" y="542" class="m" font-size="16">Commit the links. Setup also adds one line</text>
-  <text x="84" y="566" class="m" font-size="16">to CLAUDE.md so agents rerun it on changes.</text>
+  <text x="84" y="566" class="m" font-size="16">to AGENTS.md so agents rerun it on changes.</text>
 
   <line x1="534" y1="370" x2="558" y2="370" stroke="#7d8fa3" stroke-width="3" marker-end="url(#arrow)"/>
 
@@ -97,7 +97,7 @@
     <rect x="820" y="696" width="720" height="128" rx="16" fill="#1d1a12" stroke="#e3a63b" stroke-opacity="0.45" stroke-width="2"/>
     <rect x="844" y="716" width="300" height="30" rx="15" fill="#e3a63b" fill-opacity="0.2"/>
     <text x="994" y="737" text-anchor="middle" font-size="15" font-weight="600" fill="#f0bf62">Packages added or removed</text>
-    <text x="844" y="778" class="t" font-size="19">Rerun <tspan class="mono h" font-size="18">data-client-skills</tspan>. The CLAUDE.md line</text>
+    <text x="844" y="778" class="t" font-size="19">Rerun <tspan class="mono h" font-size="18">data-client-skills</tspan>. The AGENTS.md line</text>
     <text x="844" y="804" class="t" font-size="19">and the data-client skill tell agents to.</text>
   </g>
 </svg>
