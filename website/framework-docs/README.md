@@ -128,7 +128,7 @@ Vue:
 ### Browser debugging snippets
 
 `yarn check:browser-snippets` (`checkBrowserSnippets.mjs`, run by the `regenerate` check) runs every
-` ```js ` block starting `// run in page` in `docs/core/_agents/devtools-debugging.md` against a small
+` ```js ` block starting `// run in page` in `docs/core/_agents/devtools-debugging.md` (including its `_*.mdx` partials) against a small
 React app built from the workspace sources, in Chromium, each way that page's Browser Tools section says a tool can
 run them, with their parameters and the `__DC_RESULT__` recipe read from the page (a new way needs a runner in its
 `WAYS`). It also checks the `Runtime.evaluate` results the page describes. Snippets use the entity

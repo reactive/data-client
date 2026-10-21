@@ -9,6 +9,7 @@ import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import SiteOnly from '@site/src/components/SiteOnly';
 import AgentOnly from '@site/src/components/AgentOnly';
+import ResponseForKey from '../_agents/_response-for-key.mdx';
 import RecentActions from '../_agents/_recent-actions.mdx';
 import Errors from '../_agents/_errors.mdx';
 
@@ -36,9 +37,12 @@ When the running app shows wrong or stale data, read its store in the page befor
 dev mode, `__DC__.controller` is the page's [Controller](../api/Controller.md), so every Controller method works,
 and `__DC__.actions` holds its recent [actions](../api/Actions.md).
 
-Each snippet is a function. Pass it as is to a tool that takes a function (Chrome DevTools MCP `evaluate_script`,
-Playwright MCP `browser_evaluate`), or evaluate `(<snippet>)()` in one that takes an expression (Claude in Chrome
-`javascript_tool`, CDP `Runtime.evaluate` with `returnByValue`).
+Each snippet below is a sync function. Pass it as is to a tool that takes a function (Chrome DevTools MCP
+`evaluate_script`, Playwright MCP `browser_evaluate`), or evaluate `(<snippet>)()` in one that takes an expression
+(Claude in Chrome `javascript_tool`, CDP `Runtime.evaluate` with `awaitPromise` and `returnByValue`). They use the
+entity `Todo` and paths containing `/todos`: replace them with the app's own.
+
+<ResponseForKey />
 
 <RecentActions />
 
@@ -46,7 +50,7 @@ Playwright MCP `browser_evaluate`), or evaluate `(<snippet>)()` in one that take
 
 `__DC__` is undefined in production builds, without `DevToolsManager` in the managers, or before `@data-client` 0.19.
 
-The rest (a key's response and refetch, symptoms and what to check first, changing state, each browser tool's setup)
+The rest (refetching, symptoms and what to check first, changing state, each browser tool's setup)
 is in :react[`.agents/skills/data-client-react/references/devtools-debugging.md`]:vue[`.agents/skills/data-client-vue/references/devtools-debugging.md`].
 If it's missing, `npx --no data-client-skills` from the project root links it, or read
 :react[[the published copy](https://raw.githubusercontent.com/reactive/data-client/master/.agents/skills/data-client-react/references/devtools-debugging.md)]:vue[[the published copy](https://raw.githubusercontent.com/reactive/data-client/master/.agents/skills/data-client-vue/references/devtools-debugging.md)].

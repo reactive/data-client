@@ -13,7 +13,7 @@ paths:
 
 ## Layout
 
-- `docs/core/_agents/devtools-debugging.md` is the core: every snippet, the ways a tool can run one (Browser Tools, whose table is the only list of each tool's runner, way and readers), and fallbacks for tools without request or console readers. Each `browser-<tool>.md` is a thin adapter: install, open the page, which way it runs snippets, and quirks only that tool has. Anything a second tool could use goes in the core.
+- `docs/core/_agents/devtools-debugging.md` is the core: every snippet (some through its `_*.mdx` partials, which the Debugging page's agent steps also import), the ways a tool can run one (Browser Tools, whose table is the only list of each tool's runner, way and readers), and fallbacks for tools without request or console readers. Each `browser-<tool>.md` is a thin adapter: install, open the page, which way it runs snippets, and quirks only that tool has. Anything a second tool could use goes in the core.
 - A tool that fits none of the ways adds a `###` way to the core and a runner to `WAYS` in `checkBrowserSnippets.mjs`.
 - Adding, renaming or dropping a tool touches: the Browser Tools table, the agent table in `browser-cursor.md` (Cursor only), the Status table below, the tool names on `getting-started/debugging.md`, `getting-started/agent-skills.md` and `api/DevToolsManager.md`, and both skills' `references.json` plus the reference line in their `SKILL.md`.
 

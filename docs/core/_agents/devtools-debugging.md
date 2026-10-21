@@ -2,6 +2,7 @@
 title: Debugging in the Browser
 ---
 
+import ResponseForKey from './_response-for-key.mdx';
 import RecentActions from './_recent-actions.mdx';
 import Errors from './_errors.mdx';
 
@@ -127,24 +128,9 @@ Snippets use the entity `Todo` and paths containing `/todos`: replace them with 
 
 ## Read State
 
-A key's denormalized response, as components see it. The action log holds each fetched key's endpoint and `args`,
-so this works for any key read since the page loaded:
+<ResponseForKey />
 
-```js
-// run in page — response for a key
-() => {
-  const c = __DC__.controller, state = c.getState();
-  // a fetch of the key, not a mutation of an item under it
-  const a = __DC__.actions.findLast(
-    a => a.args && !a.endpoint?.sideEffect && a.key?.includes('/todos'),
-  );
-  if (!a) return { error: 'key not in the action log; repeat the fetch' };
-  const { data, expiryStatus, expiresAt } = c.getResponse(a.endpoint, ...a.args, state);
-  return { key: a.key, data, expiryStatus, expiresAt, error: c.getError(a.endpoint, ...a.args, state)?.message };
-}
-```
-
-`expiryStatus`: `1` Invalid, `2` InvalidIfStale, `3` Valid. To fetch it again and read the fresh response:
+To fetch it again and read the fresh response:
 
 ```js
 // run in page — refetch a key
