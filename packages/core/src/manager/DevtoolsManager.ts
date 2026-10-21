@@ -163,10 +163,7 @@ class DebugStore {
 
   private entry() {
     const key =
-      this.store ??
-      (this.registry.size === 1 ?
-        this.registry.keys().next().value
-      : undefined);
+      this.store ?? (this.registry.size === 1 ? this.stores[0] : undefined);
     const entry = key === undefined ? undefined : this.registry.get(key);
     if (entry) return entry;
     throw new Error(
