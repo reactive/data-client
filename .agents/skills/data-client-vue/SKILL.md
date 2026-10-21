@@ -1,6 +1,6 @@
 ---
 name: data-client-vue
-description: Fetch, mutate and render data in Vue with @data-client/vue, and debug data that looks wrong on screen.
+description: Read, change and render async and shared state in Vue with @data-client/vue: any data from an API or other async source, and global state shared across components (it has to persist somewhere, which makes it async). Use it for loading and error states, mutations and forms, filtered or derived views, and debugging data that looks wrong or stale on screen. Use it in place of fetch in onMounted or watch, or app-wide refs and provide/inject; its main composables are useSuspense, useQuery and useController.
 license: Apache 2.0
 ---
 ## Setup

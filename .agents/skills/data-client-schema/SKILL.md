@@ -1,6 +1,6 @@
 ---
 name: data-client-schema
-description: Model data with @data-client schemas (Entity, Collection and others): how responses are normalized, merged and kept consistent in the cache.
+description: Model the app's data with @data-client schemas: the shape of each type, how types nest and relate, and how responses normalize and merge so one update shows everywhere. Use it when adding or changing a data type or field, relating types, building derived views, or when the same item looks different in two places. Covers Entity, Collection, Union and Query.
 license: Apache 2.0
 ---
 
