@@ -14,10 +14,10 @@ workflows instead of guessing from older releases. This release cycle makes that
 
 **New:**
 
-- [Claude Code plugin](/blog/2026/10/06/coding-agents#claude-plugin) - `claude plugin install react@data-client` installs the skills for your framework
+- [Claude Code, Cursor and Codex plugins](/blog/2026/10/06/coding-agents#plugins) - `claude plugin install data-client@data-client` gives your agent the skills for the version you installed
 - [Vue skills](/blog/2026/10/06/coding-agents#vue-skills) - Vue projects get Vue composables and tests, not React hooks
 - [llms.txt](/blog/2026/10/06/coding-agents#llms-txt) - Any agent can read the docs as markdown, and every page tells it where to look
-- [Skills in the packages](/blog/2026/10/06/coding-agents#npm-skills) - Each `@data-client/*` package ships the skills for its version, loaded with TanStack Intent
+- [Skills in the packages](/blog/2026/10/06/coding-agents#npm-skills) - Each `@data-client/*` package ships the skills for its version, linked into `.agents/skills` with one command
 
 **Also available:**
 
@@ -39,19 +39,32 @@ axios calls to endpoints ([#4153](https://github.com/reactive/data-client/pull/4
 
 [Agent Skills](/docs/getting-started/agent-skills) lists every skill and how to install them all up front.
 
-## Claude Code plugin {#claude-plugin}
+## Claude Code, Cursor and Codex plugins {#plugins}
 
-The Data Client repo is a Claude Code plugin marketplace. The `core` plugin holds the setup, REST, GraphQL, schema and
-Manager skills; the `react` and `vue` plugins add their framework's skills and pull in `core`; and the `migrations`
-plugin adds the upgrade skills ([#4153](https://github.com/reactive/data-client/pull/4153)). The
-[Agent Skills](/docs/getting-started/agent-skills) page shows the same install with the skills CLI and OpenSkills.
+The Data Client repo is a Claude Code plugin marketplace with one `data-client` plugin. Before Data Client is installed,
+it sets your app up. After that, it points your agent at the skills that ship inside your `@data-client` packages, so a
+React app gets the React skills and a Vue app the Vue ones, each for the version you installed. The
+[Agent Skills](/docs/getting-started/agent-skills) page shows the same skills with the skills CLI and OpenSkills.
 
 ```bash
 claude plugin marketplace add reactive/data-client
-claude plugin install react@data-client
+claude plugin install data-client@data-client
 ```
 
-Use `vue@data-client` for Vue, `core@data-client` for neither, and add `migrations@data-client` before an upgrade.
+Codex installs the same plugin from the same marketplace
+([#4425](https://github.com/reactive/data-client/pull/4425)):
+
+```bash
+codex plugin marketplace add reactive/data-client \
+  --sparse .claude-plugin --sparse .agents/skills
+codex plugin add data-client@data-client
+```
+
+In Cursor, add it from an Agent chat:
+
+```prompt title="Cursor"
+/add-plugin data-client@https://github.com/reactive/data-client
+```
 
 ## Vue skills {#vue-skills}
 
@@ -78,13 +91,15 @@ finds them on its own.
 ## Skills in the packages {#npm-skills}
 
 Skills now ship inside the packages they cover, so your agent follows the version you have installed and gets new
-guidance with `npm update`. [TanStack Intent](https://tanstack.com/intent) loads them: its install adds a section to
-your `AGENTS.md` telling agents to load the matching skill before they change code.
+guidance with `npm update`. One command links them into `.agents/skills`, with `.claude/skills` linking to it, where Claude Code,
+Cursor and Codex load them as their own skills:
 
 ```bash
-npm install -D @tanstack/intent
-npx intent install
+npx --no data-client-skills
 ```
+
+Commit the links. They point into `node_modules`, so they follow upgrades; run it again after adding, removing or
+upgrading `@data-client` packages to pick up new skills. If you use [TanStack Intent](https://tanstack.com/intent), it finds the same skills.
 
 ## Skills match the docs {#generated-references}
 
@@ -111,18 +126,17 @@ Browse them all at [skills.sh/reactive/data-client](https://skills.sh/reactive/d
 ### Debug a running app {#debugging}
 
 Ask your agent "why didn't this refetch?" or "what's in the cache right now?" and it can check the running app instead
-of guessing from code. In dev mode, [DevToolsManager](/docs/api/DevToolsManager#controllers) puts each store's
-[Controller](/docs/api/Controller) on `globalThis.__DC_CONTROLLERS__`, so an agent connected through
+of guessing from code. In dev mode, [DevToolsManager](/docs/api/DevToolsManager#controllers) puts the store on
+`globalThis.__DC__`: `__DC__.controller` is its [Controller](/docs/api/Controller) and `__DC__.actions` its recent
+actions, recorded from the moment the app starts, so the agent also sees the fetches made while the page loaded, with
+or without the Redux DevTools extension. An agent connected through
 [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp), or
 [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) for React Native, can read the store, follow dispatched actions, and
-match them to network requests. The map is there in browsers, React Native and Node
-([#3753](https://github.com/reactive/data-client/pull/3753)). Each store's recent actions are on
-`globalThis.__DC_ACTIONS__` from the moment the app starts, so the agent also sees the fetches made while the page
-loaded, with or without the Redux DevTools extension.
+match them to network requests.
 
 ```js title="Browser DevTools console"
-__DC_CONTROLLERS__.get('Data Client: My App').getState();
-__DC_ACTIONS__.get('Data Client: My App').slice(-10);
+__DC__.controller.getState();
+__DC__.actions.slice(-10);
 ```
 
 The React and Vue skills drive this through Chrome DevTools MCP; see

@@ -21,7 +21,11 @@ Instale a skill de configuração do REST para automatizar a migração com seu 
 
 <SkillTabs repo="reactive/data-client" skills={['data-client-schema', 'data-client-rest-setup', 'data-client-rest']} />
 
-Em seguida, execute a skill `/data-client-rest-setup` para iniciar a migração. Ela detectará o axios e aplicará automaticamente o subprocedimento de migração adequado.
+Em seguida, inicie a migração no chat do seu agent. Ela detectará o axios e aplicará automaticamente o subprocedimento de migração adequado.
+
+```prompt
+/data-client-rest-setup
+```
 
 </SiteOnly>
 

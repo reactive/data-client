@@ -4,6 +4,7 @@ import { createPlayer } from './player';
 import type { AutoRunScript } from './script';
 import { createStage, revealOnPage } from './stage';
 import { prefersReducedMotion } from '../../../motion';
+import type { ShowStore } from '../store/storeView';
 
 /** Plays `script` in the playground (`[data-playground]`) around the
  * preview `watch` is the ref of, the first time that preview is mostly in
@@ -17,13 +18,13 @@ import { prefersReducedMotion } from '../../../motion';
  *   background tab, the run pauses where it is.
  * - Under reduced motion it never starts by itself.
  *
- * `showStore` opens or closes the Store for the demo without saving it as
- * the reader's choice.
+ * `showStore` opens or closes the Store for the demo, and shows it in a
+ * view, without saving either as the reader's choice.
  */
 export function useAutoRun(
   script: AutoRunScript | undefined,
   reset: () => void,
-  showStore: (open: boolean) => void,
+  showStore: ShowStore,
 ) {
   const [player] = useState(createPlayer);
   // read when a run starts, so `watch` and `replay` keep their identity

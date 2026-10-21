@@ -12,22 +12,31 @@ import Installation from '../shared/\_installation.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
 import SiteOnly from '@site/src/components/SiteOnly';
+import AgentPrompt from '@site/src/components/AgentPrompt';
+import SkillTabs from '@site/src/components/SkillTabs';
+
+<SiteOnly>
+
+## 使用你的编程智能体 {#with-your-coding-agent}
+
+首先为你的编程智能体安装 Data Client 的 [skill](./agent-skills.md)。没有它们，智能体能把基础部分做对，
+但会遗漏其余部分，例如实时 manager 和测试 fixture。
+
+<SkillTabs intent={false} framed />
+
+然后告诉你的智能体：
+
+<AgentPrompt framed />
+
+</SiteOnly>
 
 :::react
+
+## 手动安装 {#install-manually}
 
 <PkgTabs pkgs="@data-client/react @data-client/test @data-client/rest" />
 
 :::
-
-<SiteOnly>
-
-:::tip[使用 Agent Skills]
-
-更想让 AI 智能体帮你搭建？请查看 [Agent Skills](./agent-skills.md) 并运行 `/data-client-setup`。
-
-:::
-
-</SiteOnly>
 
 ## :react[在顶层组件中添加 provider]:vue[安装插件] {#add-provider-at-top-level-component}
 
@@ -38,6 +47,18 @@ import SiteOnly from '@site/src/components/SiteOnly';
 :::
 
 <Installation />
+
+<SiteOnly>
+
+你的编程智能体也可以通过 [TanStack Intent](https://tanstack.com/intent) 加载这些包附带的 skill，
+并与你安装的版本相匹配：
+
+```bash
+npm install -D @tanstack/intent
+npx intent install
+```
+
+</SiteOnly>
 
 <center>
 

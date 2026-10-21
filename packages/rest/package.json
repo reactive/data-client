@@ -116,7 +116,9 @@
     "ts4.1",
     "LICENSE",
     "README.md",
-    "skills"
+    "skills",
+    "bin",
+    "agents"
   ],
   "scripts": {
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' POLYFILL_TARGETS='chrome>88,safari>14' yarn g:babel --out-dir lib && NODE_ENV=production BROWSERSLIST_ENV='2020' yarn g:rollup",
@@ -149,5 +151,8 @@
     "@types/node": "^26.0.0",
     "nock": "13.3.1",
     "rollup-plugins": "workspace:*"
+  },
+  "bin": {
+    "data-client-skills": "./bin/data-client-skills.mjs"
   }
 }

@@ -16,6 +16,9 @@ on:
       - 'docs/core/**'
       - 'docs/rest/**'
       - 'docs/graphql/**'
+      # Imported by website/src/components/SkillTabs.tsx
+      - '.agents/skill-packages.json'
+      - '.agents/skills/data-client-setup/references.json'
       - '.github/workflows/site-preview.yml'
       - '.github/workflows/paths-gate.yml'
   # Redeploys production from master, e.g. after a failed deploy
@@ -146,6 +149,11 @@ jobs:
           fi
       - name: Check the Store inspector stays in its lazy chunk
         run: node website/scripts/check-lazy-chunks.mjs
+      # Installed /next/ and locale apps serve only their own build offline
+      - name: Check pages load static files from their own build
+        env:
+          DOCS_NEXT: ${{ steps.next.outputs.next }}
+        run: node website/scripts/check-build-base.mjs
       # The version menu's list stays at the root, where every version reads it
       - name: Move the build under /next
         if: steps.next.outputs.next
@@ -396,6 +404,25 @@ jobs:
                 elif $fs == null then error("no filesystem check to move it ahead of")
                 else $rest[:$fs] + $archive + $rest[$fs:] end)' "$config" > config.json.tmp ||
             { echo "::error::Couldn't move $config's archive host rewrite"; exit 1; }
+          mv config.json.tmp "$config"
+          # A miss gets the root's 404.html, which is another site under /next/
+          # or a locale and has no styles on an archive's host; answer it with
+          # the 404.html of the build it's in. Archives first, as their hosts'
+          # paths look like the root's; then the longest prefix wins. An archive's
+          # route replaces src and adds its host
+          jq '
+            ($ARGS.positional | sort_by((startswith("archives/") | not), -length) | map(
+              { src: "^/\(.)/", dest: "/\(.)/404", status: 404 } + ((
+                split("/") | select(.[0] == "archives")
+                | (.[1] | gsub("\\."; "\\.")) as $v
+                | { src: "^(?:/archives/\($v))?/\(.[2:] | map(. + "/") | join("") | if . == "" then "(?!api(?:/|$))" end)",
+                    has: [{ type: "host", value: "\($v)\\.dataclient\\.io" }] }
+              ) // {}))) as $notFound
+            | (.routes | map(.handle == "error") | index(true)) as $errorPhase
+            | if $errorPhase == null then error("no error phase to add them to")
+              else .routes |= .[:$errorPhase + 1] + $notFound + .[$errorPhase + 1:] end' "$config" --args \
+            $(find website/build -mindepth 2 -name 404.html -printf '%h\n' | cut -d/ -f3-) > config.json.tmp ||
+            { echo "::error::Couldn't add each build's 404 page to $config"; exit 1; }
           mv config.json.tmp "$config"
           meta=()
           # Ties the preview to its branch instead of the PR merge ref

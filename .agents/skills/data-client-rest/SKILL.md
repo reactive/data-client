@@ -1,6 +1,6 @@
 ---
 name: data-client-rest
-description: Define REST APIs with @data-client/rest - resource(), RestEndpoint, CRUD (GET/POST/PUT/PATCH/DELETE), HTTP fetch, normalize, cache, urlPrefix, path-to-regexp parameters, searchParams, pagination, extend(), auth/headers, optimistic updates, polling, file download, blob, parseResponse. Use when defining or modifying network endpoints, REST resources, or the HTTP layer.
+description: Define how the app talks to its API with @data-client/rest, including the shape of the data each call returns. Use it when adding or changing any API call or its data, changing how requests are sent or responses are read, or deciding how fetched data is stored, updated and kept fresh. Covers resource, RestEndpoint and pagination.
 license: Apache 2.0
 ---
 # Guide: Using `@data-client/rest` for Resource Modeling

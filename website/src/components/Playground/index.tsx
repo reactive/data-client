@@ -5,7 +5,6 @@ import React, { lazy, useCallback, useDeferredValue, useState } from 'react';
 
 import Boundary from './Boundary';
 import { useCodeDocuments } from './editor/codeModel';
-import EditorShell from './editor/EditorShell';
 import EditorSurface from './editor/EditorSurface';
 import type { AutoRunScript } from './preview/autorun/script';
 import FixturePreview from './preview/FixturePreview';
@@ -14,6 +13,7 @@ import PreviewWrapper from './preview/PreviewWrapper';
 import type { LogOptions } from './preview/store/actionLog';
 import {
   CodeHeaderToggle,
+  DemoViewContext,
   StoreBadge,
   StoreHeaderToggle,
   StoreToggle,
@@ -89,7 +89,7 @@ export default function Playground<T>({
     : rowLayout ? 'row'
     : 'stacked';
   const row = layout === 'row';
-  const [storeOpen, toggleStore, showStore] = useStoreOpen(
+  const [storeOpen, toggleStore, showStore, demoView] = useStoreOpen(
     groupId,
     defaultOpen,
   );
@@ -123,26 +123,24 @@ export default function Playground<T>({
   const previewFixtures = layout === 'stacked' ? undefined : fixtureContent;
 
   const editor = (
-    <EditorShell>
-      <EditorSurface
-        {...model}
-        interactive={editorInteractive}
-        layout={layout}
-        variant="playground"
-        fixtureContent={fixtureContent}
-        headerControls={headerControls}
-        cover={
-          row ?
-            <>
-              <div ref={setStoreHost} className={styles.storeHost} />
-              <StoreBadge open={storeOpen} onClick={toggleStore} />
-            </>
-          : null
-        }
-        covered={codeCovered}
-        coverTitle={<Translate id="playground.store">Store</Translate>}
-      />
-    </EditorShell>
+    <EditorSurface
+      {...model}
+      interactive={editorInteractive}
+      layout={layout}
+      variant="playground"
+      fixtureContent={fixtureContent}
+      headerControls={headerControls}
+      cover={
+        row ?
+          <>
+            <div ref={setStoreHost} className={styles.storeHost} />
+            <StoreBadge open={storeOpen} onClick={toggleStore} />
+          </>
+        : null
+      }
+      covered={codeCovered}
+      coverTitle={<Translate id="playground.store">Store</Translate>}
+    />
   );
   // the demo layout's Code toggle: in the preview's header whether or not
   // the live preview has loaded
@@ -160,21 +158,23 @@ export default function Playground<T>({
   const preview =
     hidden ? loading : (
       <Boundary fallback={loading}>
-        <LivePreview
-          documents={documents}
-          fixtureContent={previewFixtures}
-          storeOpen={storeOpen}
-          toggleStore={demo ? toggleStoreInPreview : toggleStore}
-          row={row}
-          storeHost={storeHost}
-          fixtures={fixtures}
-          getInitialInterceptorData={getInitialInterceptorData}
-          renderCount={renderCount}
-          actionLog={actionLog}
-          autoRun={autoRun}
-          showStore={showStore}
-          code={code}
-        />
+        <DemoViewContext.Provider value={demoView}>
+          <LivePreview
+            documents={documents}
+            fixtureContent={previewFixtures}
+            storeOpen={storeOpen}
+            toggleStore={demo ? toggleStoreInPreview : toggleStore}
+            row={row}
+            storeHost={storeHost}
+            fixtures={fixtures}
+            getInitialInterceptorData={getInitialInterceptorData}
+            renderCount={renderCount}
+            actionLog={actionLog}
+            autoRun={autoRun}
+            showStore={showStore}
+            code={code}
+          />
+        </DemoViewContext.Provider>
       </Boundary>
     );
 

@@ -39,24 +39,31 @@ const commitsAll =
     command.replace(/"(?:\\.|[^"\\])*"|'[^']*'/g, "''"),
   );
 
-/** Docs some skill renders, and skills another bundles */
+/** Docs some skill renders or source files it copies, and skills another bundles */
 let skillDocs, bundledSkills;
 function readManifests() {
   const skills = path.join(projectDir, '.agents/skills');
-  const manifests = fs
-    .readdirSync(skills)
+  // checks every changed file, so tolerate checkouts without skills
+  const manifests = (fs.existsSync(skills) ? fs.readdirSync(skills) : [])
     .map(skill => path.join(skills, skill, 'references.json'))
     .filter(manifest => fs.existsSync(manifest))
     .map(manifest => JSON.parse(fs.readFileSync(manifest, 'utf8')));
-  skillDocs = new Set(manifests.flatMap(({ docs }) => Object.values(docs)));
+  skillDocs = new Set(
+    manifests.flatMap(({ docs, files = {} }) => [
+      ...Object.values(docs),
+      ...Object.values(files),
+    ]),
+  );
   bundledSkills = new Set(manifests.flatMap(({ skills = [] }) => skills));
 }
-/** partials (`_foo.mdx`) may be inlined anywhere */
+/** a doc or source file some skill renders; partials (`_foo.mdx`) may be inlined anywhere */
 function isSkillDoc(file) {
-  if (!/^docs\/.*\.mdx?$/.test(file)) return false;
-  if (path.basename(file).startsWith('_')) return true;
+  const isDoc = /^docs\/.*\.mdx?$/.test(file);
+  if (isDoc && path.basename(file).startsWith('_')) return true;
   if (!skillDocs) readManifests();
-  return skillDocs.has(file.replace(/\.(react|vue)(\.mdx?)$/, '$2'));
+  return skillDocs.has(
+    isDoc ? file.replace(/\.(react|vue)(\.mdx?)$/, '$2') : file,
+  );
 }
 /** any file of a bundled skill is copied into the skill bundling it */
 function isBundledSkillFile(file) {
@@ -213,7 +220,7 @@ const message = [
   // dead links, missing variant notes or bad manifests
   ...regenerate({
     what: 'Skill references',
-    from: 'docs',
+    from: 'docs or source',
     script: 'website/framework-docs/skillReferences.mjs',
     command: 'yarn build:skills',
     isInput: isSkillInput,

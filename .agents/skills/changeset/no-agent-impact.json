@@ -1,3 +1,6 @@
 {
-  "drop-typescript-3": "Agents don't install or keep TypeScript 3.x, so no realistic task hits the old behavior."
+  "drop-typescript-3": "Agents don't install or keep TypeScript 3.x, so no realistic task hits the old behavior.",
+  "test-mock-reexports": "Agent-written test code and imports are the same before and after; only install-time peer resolution changes, for projects pinned to @data-client/react 0.15.2 or older.",
+  "codemods-package": "New package at its first release (minor takes it from 0.0.0 to 0.1.0); nothing existing changes behavior, so there is no old habit to fail on.",
+  "devtools-action-log": "Only debugging agents read these dev-only globals, and they learn __DC__ from the data-client skills; no app code or shipped tooling depends on __DC_CONTROLLERS__, which was added in 0.16 and isn't something agents have memorized."
 }

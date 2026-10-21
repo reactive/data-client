@@ -38,13 +38,13 @@ values={[
 <PkgInstall pkgs="@data-client/rest" />
 
 <div style={{ textAlign: 'center' }}>
-<Link className="button button--secondary button--sm" to="https://chatgpt.com/g/g-682609591fe48191a6850901521b4e4b-typescript-rest-codegen"><img src="/img/gpt.svg" alt="Codegen GPT" style={{
+<Link className="button button--secondary button--sm" to="https://chatgpt.com/g/g-682609591fe48191a6850901521b4e4b-typescript-rest-codegen"><img src={useBaseUrl('/img/gpt.svg')} alt="Codegen GPT" style={{
           height: '1em',
           verticalAlign: '-0.125em',
           display: 'inline',
         }}
 /> Codegen</Link>&nbsp;
-<Link className="button button--secondary button--sm" to="https://skills.sh/reactive/data-client"><img src="/img/copilot.svg" alt="Skills" style={{
+<Link className="button button--secondary button--sm" to="https://skills.sh/reactive/data-client"><img src={useBaseUrl('/img/copilot.svg')} alt="Skills" style={{
           height: '1em',              // Match font size
           verticalAlign: '-0.125em',  // Fine-tune: try -0.125em or 'middle'
           display: 'inline',          // Inline with text

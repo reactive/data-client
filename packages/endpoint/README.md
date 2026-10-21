@@ -15,6 +15,16 @@ Declarative, strongly typed, reusable network definitions for networking librari
 
 </div>
 
+## Let your coding agent set it up
+
+Tell your coding agent:
+
+```prompt
+Set up `@data-client/endpoint` and use it for all API data. Install its setup skill first: `npx skills add reactive/data-client --skill data-client-setup -y`, then follow it.
+```
+
+It installs the packages, wires up React or Vue, and links the skills they ship.
+
 ## Usage
 
 ### 1) Take any class and async functions

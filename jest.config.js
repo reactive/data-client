@@ -39,6 +39,8 @@ const baseConfig = {
     'packages/vue/src/test',
     'packages/test',
     'packages/graphql',
+    // dev-time migration tooling: tested, but not held to the library's coverage floors
+    'packages/codemods',
     'packages/rest/src/next',
     'packages/core/src/next',
     'packages/core/src/mock',
@@ -66,6 +68,7 @@ const packages = [
   'normalizr',
   'use-enhanced-reducer',
   'img',
+  'codemods',
   'test',
 ];
 

@@ -91,7 +91,13 @@ function InteractiveEditor({
   // After hooks to satisfy the rules of hooks; safe because we only render
   // client-side, so navigator is defined and hydration is already done.
   if (isMobileOrBot()) {
-    return <PlaygroundLiveEditor onChange={onChange} code={code} />;
+    return (
+      <PlaygroundLiveEditor
+        onChange={onChange}
+        code={code}
+        language={language}
+      />
+    );
   }
 
   return (

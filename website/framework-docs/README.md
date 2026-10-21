@@ -126,6 +126,17 @@ Vue:
 - Template expressions only see Vue's allowed globals, not `FormData` or `window`; move such code
   into `<script setup>`.
 
+### Browser debugging snippets
+
+`yarn check:browser-snippets` (`checkBrowserSnippets.mjs`, run by the `regenerate` check) runs every
+` ```js ` block starting `// run in page` in `docs/core/_agents/devtools-debugging.md` against a small
+React app built from the workspace sources, in Chromium, each way that page's Browser Tools section says a tool can
+run them, with their parameters and the `__DC_RESULT__` recipe read from the page (a new way needs a runner in its
+`WAYS`). It also checks the `Runtime.evaluate` results the page describes. Snippets use the entity
+`Todo` (ids 1 to 5) and paths under `/todos`; each snippet is named (`// run in page — <name>`) and
+needs an entry under that name in its `EXPECT`, saying what it returns. Set `CHROMIUM_PATH` to use a Chromium
+other than Playwright's.
+
 ## How it works
 
 - `remarkFramework.js` keeps the matching `:::react`/`:::vue` content and drops the rest. Each docs
@@ -165,8 +176,8 @@ skill's `SKILL.md` body becomes `references/<skill>.md`, with its relative links
 `references/<skill>/`, which holds copies of its references and scripts.
 
 Prose only for readers of the site, such as how to install or run a skill, goes in `<SiteOnly>`
-(`@site/src/components/SiteOnly`, around blocks or inline): skill references drop it, so a skill
-never tells an agent to install the skill it's running (`llms.txt` keeps it). Content only agents need goes in `docs/core/_agents/`.
+(`@site/src/components/SiteOnly`, around blocks or inline): skill references and `llms.txt` drop it,
+since their readers are agents, so a skill never tells an agent to install the skill it's running. Content only agents need goes in `docs/core/_agents/`.
 
 Partials can use `props` in `{...}` expressions; the generator evaluates them with the props passed
 where the partial is used. JSX inside an expression is only supported for `<CodeBlock>`; anything

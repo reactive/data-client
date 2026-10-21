@@ -1,10 +1,13 @@
 ---
 name: data-client-react-testing
-description: Test @data-client/react with renderDataHook and mountDataClient - jest unit tests, fixtures, interceptors, MockResolver, mock responses, nock HTTP mocking, fake timers for polling/subscription tests, DataProvider test setup, hook and component testing. Use when writing or debugging tests for hooks, components, or resources built on @data-client/react.
+description: Test React code that uses @data-client/react: components and hooks that fetch or change data, with mocked responses for loading, error, mutation and polling cases. Covers renderDataHook, MockResolver and fixtures.
 license: Apache 2.0
 ---
 
 # Testing Patterns (@data-client/test)
+
+These helpers come from `@data-client/test`. If `package.json` doesn't list it, add it as a dev dependency with the
+project's package manager (`npm install -D @data-client/test`).
 
 ## Hook Testing with renderDataHook()
 
