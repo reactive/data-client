@@ -1,0 +1,166 @@
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import { RestEndpoint } from '@data-client/rest';
+
+export const rateFixtures = [
+  {
+    endpoint: new RestEndpoint({ path: '/rates/:currency' }),
+    response({ currency }) {
+      this.rates[currency] *= 1 + (Math.random() - 0.5) / 50;
+      return {
+        currency,
+        usd: Math.round(this.rates[currency] * 100) / 100,
+        fetchedAt: new Date().toISOString(),
+      };
+    },
+    delay: 300,
+  },
+];
+export const getInitialRates = () => ({
+  rates: { BTC: 64000, ETH: 3100 },
+});
+
+<FrameworkPlayground
+  fixtures={rateFixtures}
+  getInitialInterceptorData={getInitialRates}
+  row
+  defaultTab="RefreshManager"
+>
+
+```ts title="getRate" collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+export class Rate extends Entity {
+  currency = '';
+  usd = 0;
+  fetchedAt = '';
+
+  pk() {
+    return this.currency;
+  }
+  static key = 'Rate';
+}
+export const getRate = new RestEndpoint({
+  path: '/rates/:currency',
+  schema: Rate,
+});
+```
+
+```ts title="RefreshManager" framework-imports
+import type { Manager, Middleware, Controller } from '@data-client/react';
+
+export default class RefreshManager implements Manager {
+  declare protected controller: Controller;
+  protected handle = () =>
+    this.controller.expireAll({ testKey: () => true });
+
+  middleware: Middleware = controller => {
+    this.controller = controller;
+    return next => async action => next(action);
+  };
+
+  init() {
+    window.addEventListener('focus', this.handle);
+    window.addEventListener('online', this.handle);
+  }
+
+  cleanup() {
+    window.removeEventListener('focus', this.handle);
+    window.removeEventListener('online', this.handle);
+  }
+}
+```
+
+```ts title="getManagers" collapsed framework-imports
+import { getDefaultManagers } from '@data-client/react';
+import RefreshManager from './RefreshManager';
+
+// the app's managers (DataProvider or DataClientPlugin)
+export default function getManagers() {
+  return [new RefreshManager(), ...getDefaultManagers()];
+}
+```
+
+:::react
+
+```tsx title="Rates"
+import { useSuspense } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { getRate } from './getRate';
+
+function RateRow({ currency }: { currency: string }) {
+  const rate = useSuspense(getRate, { currency });
+  return (
+    <div className="listItem">
+      <strong>{currency}</strong>
+      <NumberFlow
+        value={rate.usd}
+        format={{ style: 'currency', currency: 'USD' }}
+      />
+      <small className="meta">
+        fetched {new Date(rate.fetchedAt).toLocaleTimeString()}
+      </small>
+    </div>
+  );
+}
+render(
+  <>
+    <header className="appHeader">
+      <h1 className="appTitle">Rates</h1>
+    </header>
+    <div className="list">
+      <RateRow currency="BTC" />
+      <RateRow currency="ETH" />
+    </div>
+  </>,
+);
+```
+
+:::
+
+:::vue
+
+```html title="RateRow.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
+  import { getRate } from './getRate';
+
+  const props = defineProps<{ currency: string }>();
+  const rate = await useSuspense(getRate, () => ({
+    currency: props.currency,
+  }));
+</script>
+
+<template>
+  <div class="listItem">
+    <strong>{{ currency }}</strong>
+    <NumberFlow
+      :value="rate.usd"
+      :format="{ style: 'currency', currency: 'USD' }"
+    />
+    <small class="meta">
+      fetched {{ new Date(rate.fetchedAt).toLocaleTimeString() }}
+    </small>
+  </div>
+</template>
+```
+
+```html title="Rates.vue"
+<script setup lang="ts">
+  import RateRow from './RateRow.vue';
+</script>
+
+<template>
+  <header class="appHeader">
+    <h1 class="appTitle">Rates</h1>
+  </header>
+  <div class="list">
+    <RateRow currency="BTC" />
+    <RateRow currency="ETH" />
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>

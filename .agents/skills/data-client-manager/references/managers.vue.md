@@ -110,14 +110,31 @@ export default class MetricsManager implements Manager {
 
 Show a toast when any [mutation](https://dataclient.io/rest/guides/side-effects) succeeds or fails.
 
-```typescript
+```ts title="TodoResource"
+import { Entity, resource } from '@data-client/rest';
+
+export class Todo extends Entity {
+  id = 0;
+  title = '';
+  completed = false;
+
+  static key = 'Todo';
+}
+export const TodoResource = resource({
+  path: '/todos/:id',
+  schema: Todo,
+  optimistic: true,
+});
+```
+
+```ts title="ToastManager"
 import {
   type Manager,
   type Middleware,
   actionTypes,
 } from '@data-client/vue';
-import { toast } from './toast';
 
+// toast is the app's toast library, e.g. import { toast } from 'sonner'
 export default class ToastManager implements Manager {
   middleware: Middleware = controller => next => async action => {
     if (
@@ -134,13 +151,83 @@ export default class ToastManager implements Manager {
 }
 ```
 
+```ts title="getManagers"
+import { getDefaultManagers } from '@data-client/vue';
+import ToastManager from './ToastManager';
+
+// the app's managers (DataProvider or DataClientPlugin)
+export default function getManagers() {
+  return [new ToastManager(), ...getDefaultManagers()];
+}
+```
+
+```html title="TodoList.vue"
+<script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import { TodoResource } from './TodoResource';
+
+  const ctrl = useController();
+  const todos = await useSuspense(TodoResource.getList);
+
+  const toggle = (id: number, e: Event) =>
+    ctrl
+      .fetch(
+        TodoResource.partialUpdate,
+        { id },
+        { completed: (e.currentTarget as HTMLInputElement).checked },
+      )
+      // ToastManager reports failures
+      .catch(() => {});
+</script>
+
+<template>
+  <header class="appHeader">
+    <h1 class="appTitle">Launch tasks</h1>
+  </header>
+  <div class="list">
+    <div v-for="todo in todos" :key="todo.pk()" class="listItem nogap">
+      <label>
+        <input
+          type="checkbox"
+          :checked="todo.completed"
+          @change="toggle(todo.id, $event)"
+        />
+        {{ todo.title }}
+      </label>
+    </div>
+  </div>
+  <Toaster />
+</template>
+```
+
+The server rejects changes to the archived task, so checking it off rolls back with an error toast.
+
 ### Refresh on focus or reconnect {#refresh-on-focus}
 
 [Controller.expireAll()](./Controller.vue.md#expireAll) marks data as [Stale](https://dataclient.io/vue/concepts/expiry-policy#stale),
 triggering refetch of any _actively rendered_ data without suspending ([stale-while-revalidate](https://dataclient.io/vue/concepts/expiry-policy)).
 [init()](./Manager.vue.md#init) and [cleanup()](./Manager.vue.md#cleanup) manage the event listeners.
 
-```typescript
+```ts title="getRate"
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+export class Rate extends Entity {
+  currency = '';
+  usd = 0;
+  fetchedAt = '';
+
+  pk() {
+    return this.currency;
+  }
+  static key = 'Rate';
+}
+export const getRate = new RestEndpoint({
+  path: '/rates/:currency',
+  schema: Rate,
+});
+```
+
+```ts title="RefreshManager"
 import type { Manager, Middleware, Controller } from '@data-client/vue';
 
 export default class RefreshManager implements Manager {
@@ -164,6 +251,61 @@ export default class RefreshManager implements Manager {
   }
 }
 ```
+
+```ts title="getManagers"
+import { getDefaultManagers } from '@data-client/vue';
+import RefreshManager from './RefreshManager';
+
+// the app's managers (DataProvider or DataClientPlugin)
+export default function getManagers() {
+  return [new RefreshManager(), ...getDefaultManagers()];
+}
+```
+
+```html title="RateRow.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
+  import { getRate } from './getRate';
+
+  const props = defineProps<{ currency: string }>();
+  const rate = await useSuspense(getRate, () => ({
+    currency: props.currency,
+  }));
+</script>
+
+<template>
+  <div class="listItem">
+    <strong>{{ currency }}</strong>
+    <NumberFlow
+      :value="rate.usd"
+      :format="{ style: 'currency', currency: 'USD' }"
+    />
+    <small class="meta">
+      fetched {{ new Date(rate.fetchedAt).toLocaleTimeString() }}
+    </small>
+  </div>
+</template>
+```
+
+```html title="Rates.vue"
+<script setup lang="ts">
+  import RateRow from './RateRow.vue';
+</script>
+
+<template>
+  <header class="appHeader">
+    <h1 class="appTitle">Rates</h1>
+  </header>
+  <div class="list">
+    <RateRow currency="BTC" />
+    <RateRow currency="ETH" />
+  </div>
+</template>
+```
+
+Each time the window regains focus or comes back online, every rate refetches and its fetch time
+updates, without a loading state.
 
 ### Cross-tab synchronization {#cross-tab-sync}
 
