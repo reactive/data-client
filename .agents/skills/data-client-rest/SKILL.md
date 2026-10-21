@@ -1,6 +1,6 @@
 ---
 name: data-client-rest
-description: Define how the app talks to its API with @data-client/rest, including the shape of the data each call returns. Use it when adding or changing any API call or its data, deciding how fetched data is stored, updated and kept fresh, or handling the base URL, headers and auth, pagination, optimistic updates, file downloads and response transforms. Covers resource, RestEndpoint, Entity and Collection.
+description: Define how the app talks to its API with @data-client/rest, including the shape of the data each call returns. Use it when adding or changing any API call or its data, changing how requests are sent or responses are read, or deciding how fetched data is stored, updated and kept fresh. Covers resource, RestEndpoint, Entity, Collection and pagination.
 license: Apache 2.0
 ---
 # Guide: Using `@data-client/rest` for Resource Modeling
