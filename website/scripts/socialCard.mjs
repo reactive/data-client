@@ -876,12 +876,12 @@ async function render(html, outFile, feature) {
         )
           box.style.fontSize = --size + 'px';
       }
-      // Clamp the tagline shorter until the agent row below it fits
+      // Clamp the tagline shorter until the agent row (posts tagged `agents`) fits
       const tagline = document.querySelector('.tagline');
-      const agents = document.querySelector('.agents');
-      let lines = 3;
+      const agentRow = document.querySelector('.agents');
+      let lines = parseInt(getComputedStyle(tagline).webkitLineClamp);
       while (
-        agents?.getBoundingClientRect().bottom > innerHeight - 16 &&
+        agentRow?.getBoundingClientRect().bottom > innerHeight - 16 &&
         lines > 1
       )
         tagline.style.webkitLineClamp = String(--lines);
