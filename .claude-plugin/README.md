@@ -43,4 +43,4 @@ Each listing reads the plugin from `.agents/skills`, whose `README.md` is the li
 
 The `agent-rules` workflow runs these tests and the `data-client-skills` tests (`packages/core/agents/*.test.mjs`), with
 no install. Its `paths` cover this directory and the inputs above, and `marketplace.test.mjs` fails when the old names
-drift from `data-client` or a plugin skill goes missing or stops shipping in a package. `plugin-dir.test.mjs` checks that the plugin directory still installs.
+drift from `data-client` or a plugin skill goes missing or stops shipping in a package. `plugin-dir.test.mjs` checks the skill names, logo and README the plugin directory listings read.
