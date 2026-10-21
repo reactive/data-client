@@ -224,6 +224,27 @@ describe('manager attribution', () => {
     expect(entries()[0].consumedBy).toBeUndefined();
   });
 
+  it('credits whoever handles a copy, and stores it, on the recorded action', async () => {
+    class Stamping implements Manager<ActionTypes> {
+      middleware: Middleware<ActionTypes> = () => next => action =>
+        next({ ...action });
+
+      cleanup() {}
+    }
+    const { ctrl, history } = mount([
+      new Stamping(),
+      new StreamManager(),
+      new NetworkManager(),
+    ]);
+    await act(async () => {
+      void ctrl().subscribe(getTicker);
+      void ctrl().set(Ticker, { id: 'BTC' }, { id: 'BTC', price: 6 });
+    });
+    const [subscribe, set] = history().entries;
+    expect(subscribe.consumedBy).toBe('StreamManager');
+    expect(set.store).toBeDefined();
+  });
+
   it('takes back "handled" when a held action is passed on later', async () => {
     jest.useFakeTimers();
     try {
@@ -314,12 +335,13 @@ describe('Store panel manager attribution', () => {
     ).toBe('false');
   });
 
-  it("opens a manager's actions, tagged with who sent them", async () => {
+  it("opens a manager's actions: what it sent and what it handled", async () => {
     const stream = new StreamManager();
     const { ctrl } = mount([stream, new NetworkManager()], undefined, true);
     await act(async () => {
       void stream.push(1);
       void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
+      void ctrl().subscribe(getTicker);
     });
     fireEvent.click(within(managersSection()).getByText('StreamManager'));
     const level = top();
@@ -327,10 +349,11 @@ describe('Store panel manager attribution', () => {
       within(level).getByRole('navigation', { name: 'Store location' })
         .textContent,
     ).toContain('StreamManager');
-    // its one set, without naming it again on each row
+    // its set and the subscribe it kept from the store, without naming it
+    // again on each row
     expect(
       level.querySelectorAll('[role="button"][aria-expanded]'),
-    ).toHaveLength(1);
+    ).toHaveLength(2);
     expect(within(level).queryByText(/↑ StreamManager/)).toBeNull();
   });
 

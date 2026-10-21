@@ -217,7 +217,18 @@ export default class ActionLog {
   ) {
     /** Each action's seq, for the tail to find what the head recorded */
     const recorded = new WeakMap<ActionTypes, number>();
-    const attribution: Attribution = {};
+    const attribution: Attribution = { copies: new WeakMap() };
+    /** The seq of `action`, or of what it's a copy of */
+    const seqOf = (action: ActionTypes): number | undefined => {
+      for (
+        let a: ActionTypes | undefined = action;
+        a;
+        a = attribution.copies.get(a)
+      ) {
+        const seq = recorded.get(a);
+        if (seq !== undefined) return seq;
+      }
+    };
     let managers: readonly string[] | undefined;
     let first = true;
     /** An action reached the tail, which keeps the history's state since */
@@ -292,7 +303,7 @@ export default class ActionLog {
           // entry, but its state counts)
           this.patch(
             id,
-            recorded.get(action),
+            seqOf(action),
             { store: { before, after: state } },
             { state },
           );
@@ -308,8 +319,9 @@ export default class ActionLog {
       managers = names;
       return chain.map((manager, i) =>
         attributed(manager, names[i], attribution, (action, by) => {
-          const seq = recorded.get(action);
-          if (seq) this.patch(id, seq, { consumedBy: by || undefined });
+          const seq = seqOf(action);
+          if (seq !== undefined)
+            this.patch(id, seq, { consumedBy: by || undefined });
         }),
       );
     };
