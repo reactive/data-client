@@ -148,10 +148,12 @@ export function ActionsLevel({
   // at the store, when the code brought its own managers: who sent what
   const chain =
     subject.kind === 'root' ? ownChain(history.managers) : undefined;
-  const [pick, setPicked] = useState<string | null>(null);
-  // a stage the chain no longer has (the code changed) is let go
+  const [chosen, setPicked] = useState<string | null>(null);
+  // a stage the chain no longer has (the code changed) counts as none
   const picked =
-    pick === APP || (pick !== null && chain?.includes(pick)) ? pick : null;
+    chosen === APP || (chosen !== null && chain?.includes(chosen)) ?
+      chosen
+    : null;
   const filter = useMemo(
     () => (chain ? stageFilter(subjectFilter, chain, picked) : subjectFilter),
     [chain, picked, subjectFilter],
