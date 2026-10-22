@@ -12,6 +12,7 @@ import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import {RestEndpoint} from '@data-client/rest';
 import { todoFixtures } from '@site/src/fixtures/todos';
 import OptimisticTransform from '../shared/\_optimisticTransform.mdx';
+import OptimisticRace from '@site/src/components/OptimisticRace';
 
 # Optimistic Updates
 
@@ -73,7 +74,7 @@ export default function TodoItem({ todo }: { todo: Todo }) {
           checked={todo.completed}
           onChange={handleChange}
         />
-        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
+        {todo.completed ? <s>{todo.title}</s> : todo.title}
       </label>
       <CancelButton onClick={handleDelete} />
     </div>
@@ -301,22 +302,9 @@ but optimistic updates make it even worse.
 Here's an example of the race condition. Here we request an increment twice; but the first response comes back to
 client after the second response.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Client
-    participant Server
-    Client->>+Server: Increment from 0
-    Client->>+Server: Increment from 1
-    Server->>-Client: Response: 2
-    Server->>-Client: Response: 1
-```
+<OptimisticRace />
 
-With other libraries and no optimistic updates this would result in showing 0, then, 2, then 1.
-
-If the other library does have optimistic updates, it should show 0, 1, 2, 2, then 1.
-
-In both cases we end up showing an incorrect state, and along the way see weird janky state updates.
+Other libraries show 0, 2, then 1 without optimistic updates, and 0, 1, 2, 2, then 1 with them. Both end on the wrong count, with janky updates along the way. Data Client shows 0, 1, then 2, and keeps 2 when the older response arrives last.
 
 ### Compensating for Server timing variations {#server-timings}
 
@@ -430,7 +418,8 @@ export const increment = new RestEndpoint({
 :::react
 
 ```tsx title="CounterPage" collapsed
-import { useLoading } from '@data-client/react';
+import React from 'react';
+import { useController, useSuspense, useLoading } from '@data-client/react';
 import { getCount } from './count';
 import { increment } from './increment';
 

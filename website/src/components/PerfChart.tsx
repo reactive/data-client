@@ -1,7 +1,9 @@
+/* eslint-disable @docusaurus/no-untranslated-text -- blog-only, and the blog is not translated */
 import type { CSSProperties } from 'react';
 
 import styles from './PerfChart.module.css';
-import usePerfTip from './usePerfTip';
+import tipStyles from './tips.module.css';
+import useTips from './useTips';
 
 export interface PerfRow {
   label: string;
@@ -54,8 +56,8 @@ export default function PerfChart({
   const scale = (n: number) =>
     log ? Math.log(Math.max(n, lo)) - Math.log(lo) : n;
   const scaledMax = scale(max) || 1;
+  const tips = useTips<string>();
   // where 1x (no change) falls on the bar track, so bars read against it
-  const tip = usePerfTip(styles.active);
   const one = {
     '--perf-one': `${(scale(1) / scaledMax) * 100}%`,
   } as CSSProperties;
@@ -76,7 +78,7 @@ export default function PerfChart({
           <span className={styles.oneLabel}>1x</span>
         </div>
         {data.map(({ label, baseline, value, speedup, multiplier, worse }) => (
-          <div key={label} {...tip(label, styles.row)}>
+          <div key={label} {...tips.tappable(label, styles.row)}>
             <span className={styles.label}>{label}</span>
             <span className={styles.track} aria-hidden="true">
               <span
@@ -104,10 +106,12 @@ export default function PerfChart({
             </span>
             {/* exact numbers stay in the DOM for crawlers and screen readers */}
             <span className={styles.tip}>
-              {baselineLabel} {baseline} {unit} → {valueLabel}{' '}
-              <strong>
-                {value} {unit}
-              </strong>
+              <span className={tipStyles.bubble}>
+                {baselineLabel} {baseline} {unit} → {valueLabel}{' '}
+                <strong>
+                  {value} {unit}
+                </strong>
+              </span>
             </span>
           </div>
         ))}

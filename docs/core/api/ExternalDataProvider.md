@@ -4,6 +4,7 @@ title: "<ExternalDataProvider />"
 ---
 
 import PkgTabs from '@site/src/components/PkgTabs';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Integrates external stores with `Reactive Data Client`. Should be placed as high as possible
 in application tree as any usage of the hooks is only possible for components below the provider
@@ -23,10 +24,15 @@ in the React tree.
 import { ExternalDataProvider } from '@data-client/react/redux';
 import { createRoot } from 'react-dom/client';
 
-import { store, selector } from './store';
+import { store, selector, controller } from './store';
+import App from './App';
 
 createRoot(document.body).render(
-  <ExternalDataProvider store={store} selector={selector}>
+  <ExternalDataProvider
+    store={store}
+    selector={selector}
+    controller={controller}
+  >
     <App />
   </ExternalDataProvider>,
 );
@@ -64,7 +70,7 @@ This function is used to retrieve the `Reactive Data Client` specific part of th
 
 ### devButton
 
-<img src="/img/client-logo.svg" style={{float:'right',width:'40px'}} />
+<img src={useBaseUrl('/img/client-logo.svg')} style={{float:'right',width:'40px'}} />
 
 In development, a small button will appear that gives easy access to browser devtools if
 installed. This option configures where it shows up, or if null will disable it altogether.
@@ -72,13 +78,31 @@ installed. This option configures where it shows up, or if null will disable it 
 `'bottom-right' | 'bottom-left' | 'top-right'| 'top-left' | null` = `'bottom-right'`
 
 ```tsx title="Disable button"
-<DataProvider devButton={null}>
-  <App/>
-</DataProvider>
+import { ExternalDataProvider } from '@data-client/react/redux';
+import { store, selector, controller } from './store';
+import App from './App';
+
+<ExternalDataProvider
+  store={store}
+  selector={selector}
+  controller={controller}
+  devButton={null}
+>
+  <App />
+</ExternalDataProvider>;
 ```
 
 ```tsx title="Place in top right corner"
-<DataProvider devButton="top-right">
-  <App/>
-</DataProvider>
+import { ExternalDataProvider } from '@data-client/react/redux';
+import { store, selector, controller } from './store';
+import App from './App';
+
+<ExternalDataProvider
+  store={store}
+  selector={selector}
+  controller={controller}
+  devButton="top-right"
+>
+  <App />
+</ExternalDataProvider>;
 ```

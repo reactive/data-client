@@ -186,13 +186,13 @@ it('re-renders when the store changes', async () => {
 
 Returns
 
-| Member         | Description                                                                                        |
-| -------------- | -------------------------------------------------------------------------------------------------- |
-| `wrapper`      | Vue Test Utils [VueWrapper](https://test-utils.vuejs.org/api/#wrapper-methods) of the mounted tree |
-| `controller`   | The app's [Controller](https://dataclient.io/vue/api/Controller)                                   |
-| `app`          | The Vue app instance                                                                               |
-| `cleanup()`    | Unmounts and stops the managers                                                                    |
-| `allSettled()` | Resolves once every in-flight fetch settles                                                        |
+| Member         | Description                                                                                                                  |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `wrapper`      | Vue Test Utils [VueWrapper](https://test-utils.vuejs.org/api/#wrapper-methods) of the mounted tree                           |
+| `controller`   | The app's [Controller](https://dataclient.io/vue/api/Controller)                                                             |
+| `app`          | The Vue app instance                                                                                                         |
+| `cleanup()`    | Unmounts and stops the managers                                                                                              |
+| `allSettled()` | Resolves once every in-flight fetch settles, including fetches a prop change just started, and the component has re-rendered |
 
 ### Options
 

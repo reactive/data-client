@@ -20,6 +20,7 @@ On React Native, [CommitGateManager](https://dataclient.io/docs/api/CommitGateMa
 ```tsx title="index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 
 const managers = getDefaultManagers({
   // set fallback expiry time to an hour
@@ -38,6 +39,7 @@ createRoot(document.body).render(
 ```tsx title="index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { AppRegistry } from 'react-native';
+import App from './App';
 
 const managers = getDefaultManagers({
   // set fallback expiry time to an hour
@@ -161,7 +163,7 @@ const managers = getDefaultManagers({
 Sending manager instances allows us to customize managers using inheritance.
 
 ```ts
-import { IdlingNetworkManager } from '@data-client/react';
+import { getDefaultManagers, IdlingNetworkManager } from '@data-client/react';
 
 const managers = getDefaultManagers({
   networkManager: new IdlingNetworkManager(),
@@ -169,7 +171,7 @@ const managers = getDefaultManagers({
 ```
 
 `IdlingNetworkManager` can prevent stuttering by delaying [sideEffect](https://dataclient.io/rest/api/Endpoint#sideeffect)-free (read-only/GET) fetches
-until animations are complete. This works in web using [requestIdleCallback](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback), and react native using InteractionManager.runAfterInteractions.
+until animations are complete. This works in web using [requestIdleCallback](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback), and React Native using InteractionManager.runAfterInteractions (or requestIdleCallback from React Native 0.87, which removed InteractionManager).
 
 ### Disabling
 

@@ -1,4 +1,5 @@
-import { ref, onUnmounted, type Ref } from 'vue';
+import { ref, onUnmounted } from 'vue';
+import type { Ref } from 'vue';
 
 /**
  * Takes an async function and tracks resolution as a boolean.

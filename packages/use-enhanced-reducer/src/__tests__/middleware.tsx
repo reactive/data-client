@@ -125,7 +125,8 @@ describe('createEnhancedReducerHook', () => {
         [logger],
       );
     });
-    let [state, dispatch] = result.current;
+    let [, dispatch] = result.current;
+    let state: (typeof result.current)[0];
     act(() => {
       dispatch({ payload: 5 });
     });
@@ -182,14 +183,15 @@ describe('createEnhancedReducerHook', () => {
     const { result, waitFor } = renderHook(() => {
       return useEnhancedReducer(reducer, { counter: 0 }, [logger]);
     });
-    let [state, dispatch] = result.current;
+    let [, dispatch] = result.current;
     expect(callBefore.mock.calls.length).toBe(0);
     let action: any = { type: 'hi' };
     act(() => {
       dispatch(action);
     });
 
-    [state, dispatch] = result.current;
+    const [state, nextDispatch] = result.current;
+    dispatch = nextDispatch;
     expect(callBefore.mock.calls.length).toBe(1);
     await waitFor(() => {
       expect(callAfter.mock.calls.length).toBe(1);

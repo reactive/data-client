@@ -22,6 +22,8 @@ Testing user interactions that trigger mutations can be aided with the use of [\
 and [Interceptors](./Fixtures.md#interceptor)
 
 ```typescript title="__tests__/fixtures.ts"
+import { ArticleResource } from '../resources/Article';
+
 export default {
   full: [
     {
@@ -88,7 +90,7 @@ describe('<ArticleList />', () => {
       </DataProvider>
     );
     const { findByText } = render(tree);
-    const content = findByText(results.full.result[0].content);
+    const content = findByText(results.full[0].response[0].content);
     expect(content).toBeDefined();
   });
 
@@ -105,7 +107,9 @@ describe('<ArticleList />', () => {
     const { findByText } = render(tree);
     expect(findByText('loading')).toBeDefined();
 
-    await waitFor(expect(findByText(results.full.result[0].content)).toBeDefined());
+    await waitFor(() =>
+      expect(findByText(results.full[0].response[0].content)).toBeDefined(),
+    );
   })
 });
 ```

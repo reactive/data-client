@@ -273,6 +273,8 @@ page fetching. On web, it is recommended to use something based on [Intersection
 ```tsx
 import { useSuspense, useController } from '@data-client/react';
 import { PostResource } from 'resources/Post';
+import Pagination from './Pagination';
+import PostList from './PostList';
 
 function NewsList() {
   const { results, cursor } = useSuspense(PostResource.getList);

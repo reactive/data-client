@@ -16,17 +16,17 @@ Data in this state is considered new enough that it doesn't need to fetch.
 
 Data is still allowed to be shown, however Reactive Data Client might attempt to revalidate by fetching again.
 
+### Invalid
+
+Data should not be shown. Any components needing this data will trigger fetch and suspense. If no components care about this
+data no action will be taken.
+
 [useSuspense()](https://dataclient.io/docs/api/useSuspense) considers fetching on mount as well as when its parameters change.
 In these cases it will fetch if the data is considered stale.
 
 > **Info: React Native**
 >
 > When using React Navigation, [focus events](https://reactnavigation.org/docs/use-focus-effect/) also trigger fetches for stale data.
-
-### Invalid
-
-Data should not be shown. Any components needing this data will trigger fetch and suspense. If no components care about this
-data no action will be taken.
 
 ## Expiry Time
 
@@ -38,6 +38,8 @@ to make it becomes [stale](#stale) almost instantly; or a very large number to s
 
 Toggling between 'first' and 'second' changes the parameters. If the data is still considered fresh
 you will continue to see the old time without any refresh.
+
+Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
@@ -64,50 +66,38 @@ import { lastUpdated } from './api/lastUpdated';
 export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 ```
 
-```tsx title="TimePage"
+```tsx title="TimePage" route="/time/:id" start="/time/1"
+import { useSuspense } from '@data-client/react';
 import { getUpdated } from './getUpdated';
 
-export default function TimePage({ id }) {
+export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
       API time for {id}:{' '}
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
-          updatedAt,
-        )}
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
       </time>
     </div>
   );
 }
 ```
 
-```tsx title="Navigator"
-import TimePage from './TimePage';
-
-function Navigator() {
-  const [id, setId] = React.useState('1');
-  const handleChange = e => setId(e.currentTarget.value);
+```tsx title="Navigator" layout
+export default function Navigator({ children }) {
   return (
     <div>
-      <div>
-        <button value="1" onClick={handleChange}>
-          First
-        </button>
-        <button value="2" onClick={handleChange}>
-          Second
-        </button>
-      </div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
-        <TimePage id={id} />
-      </AsyncBoundary>
+      <nav>
+        <Link to="/time/1">First</Link>
+        <Link to="/time/2">Second</Link>
+      </nav>
+      {children}
       <div>
         Current Time: <CurrentTime />
       </div>
     </div>
   );
 }
-render(<Navigator />);
 ```
 
 <details>
@@ -165,8 +155,10 @@ const NoRetryResource = resource({
 [Endpoint.invalidIfStale](https://dataclient.io/rest/api/Endpoint#invalidifstale) eliminates the '[stale](#stale)' status, making data
 that expires immediately be considered '[invalid](#invalid)'.
 
-This is demonstrated by the component suspending once its data goes stale. If the data is still
-within the expiry time it just continues to display it.
+This is demonstrated by the page suspending once its data goes stale (navigation waits on the progress bar).
+If the data is still within the expiry time it just continues to display it.
+
+Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
@@ -196,50 +188,38 @@ export const getUpdated = lastUpdated.extend({
 });
 ```
 
-```tsx title="TimePage"
+```tsx title="TimePage" route="/time/:id" start="/time/1"
+import { useSuspense } from '@data-client/react';
 import { getUpdated } from './getUpdated';
 
-export default function TimePage({ id }) {
+export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
       API time for {id}:{' '}
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
-          updatedAt,
-        )}
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
       </time>
     </div>
   );
 }
 ```
 
-```tsx title="Navigator"
-import TimePage from './TimePage';
-
-function Navigator() {
-  const [id, setId] = React.useState('1');
-  const handleChange = e => setId(e.currentTarget.value);
+```tsx title="Navigator" layout
+export default function Navigator({ children }) {
   return (
     <div>
-      <div>
-        <button value="1" onClick={handleChange}>
-          First
-        </button>
-        <button value="2" onClick={handleChange}>
-          Second
-        </button>
-      </div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
-        <TimePage id={id} />
-      </AsyncBoundary>
+      <nav>
+        <Link to="/time/1">First</Link>
+        <Link to="/time/2">Second</Link>
+      </nav>
+      {children}
       <div>
         Current Time: <CurrentTime />
       </div>
     </div>
   );
 }
-render(<Navigator />);
 ```
 
 ## Force refresh
@@ -271,6 +251,7 @@ export const lastUpdated = new RestEndpoint({
 ```
 
 ```tsx title="ShowTime"
+import { useSuspense, useController } from '@data-client/react';
 import { lastUpdated } from './api/lastUpdated';
 
 function ShowTime() {
@@ -279,9 +260,7 @@ function ShowTime() {
   return (
     <div>
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
-          updatedAt,
-        )}
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
       </time>{' '}
       <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>
         Refresh
@@ -316,6 +295,7 @@ export const lastUpdated = new RestEndpoint({
 ```
 
 ```tsx title="ShowTime"
+import { useSuspense, useController } from '@data-client/react';
 import { lastUpdated } from './api/lastUpdated';
 
 export default function ShowTime({ id }: { id: string }) {
@@ -325,9 +305,7 @@ export default function ShowTime({ id }: { id: string }) {
     <div>
       <b>{id}</b>{' '}
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
-          updatedAt,
-        )}
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
       </time>
     </div>
   );
@@ -341,7 +319,7 @@ export default function Loading({ id }: { id: string }) {
 ```
 
 ```tsx title="Demo"
-import { AsyncBoundary } from '@data-client/react';
+import { AsyncBoundary, useController } from '@data-client/react';
 
 import { lastUpdated } from './api/lastUpdated';
 import ShowTime from './ShowTime';
@@ -401,6 +379,7 @@ export const lastUpdated = new RestEndpoint({
 ```
 
 ```tsx title="ShowTime"
+import { useSuspense, useController } from '@data-client/react';
 import { lastUpdated } from './api/lastUpdated';
 
 export default function ShowTime({ id }: { id: string }) {
@@ -410,9 +389,7 @@ export default function ShowTime({ id }: { id: string }) {
     <div>
       <b>{id}</b>{' '}
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
-          updatedAt,
-        )}
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
       </time>
     </div>
   );
@@ -426,7 +403,7 @@ export default function Loading({ id }: { id: string }) {
 ```
 
 ```tsx title="Demo"
-import { AsyncBoundary } from '@data-client/react';
+import { AsyncBoundary, useController } from '@data-client/react';
 
 import { lastUpdated } from './api/lastUpdated';
 import ShowTime from './ShowTime';
@@ -485,6 +462,7 @@ export const lastUpdated = new RestEndpoint({
 ```
 
 ```tsx title="TimePage"
+import { useSuspense } from '@data-client/react';
 import { lastUpdated } from './api/lastUpdated';
 
 export default function TimePage({ id }) {
@@ -493,9 +471,7 @@ export default function TimePage({ id }) {
     <div>
       API time for {id}:{' '}
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
-          updatedAt,
-        )}
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
       </time>
     </div>
   );
@@ -503,8 +479,8 @@ export default function TimePage({ id }) {
 ```
 
 ```tsx title="ShowTime"
-import { Invalidate } from '@data-client/rest';
-import { useLoading } from '@data-client/react';
+import { Invalidate, RestEndpoint } from '@data-client/rest';
+import { AsyncBoundary, useController, useLoading } from '@data-client/react';
 import { TimedEntity } from './api/lastUpdated';
 import TimePage from './TimePage';
 

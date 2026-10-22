@@ -21,9 +21,8 @@ in your coding agent, then ask it to inspect the current page or app state.
 In dev mode, [DevToolsManager](../api/DevToolsManager.md) exposes live `Controller` instances so an agent can inspect
 cache state, endpoint metadata, and dispatched actions directly from the running app.
 
-Technically, those controllers are stored on [`globalThis.__DC_CONTROLLERS__`](../api/DevToolsManager.md#controllers), which is a
-browser-global `Map`. You can think of it as a temporary dev-mode registry that lets tools
-and agents look up the active :react[`DataProvider`]:vue[`DataClientPlugin`] stores for the current page.
+Technically, the agent reads the page's store from [`globalThis.__DC__`](../api/DevToolsManager.md#controllers):
+`__DC__.controller` is its `Controller` and `__DC__.actions` its recent actions.
 
 At a high level, the agent can:
 
@@ -37,7 +36,11 @@ This is useful when you want a quick answer to questions like "why didn't this r
 "what is in the cache right now?", or "which action updated this entity?" without manually
 clicking through each inspector panel.
 
-The skill drives this through [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp).
+The skill works with any browser tool that can run JavaScript in the page, such as
+Cursor's built-in browser,
+[Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp),
+[Playwright MCP](https://github.com/microsoft/playwright-mcp) or Claude in Chrome. If your editor's built-in
+browser can only click and read the console, add one of these.
 
 ## Manual debugging
 
@@ -149,6 +152,7 @@ by setting the trace option to `true` with [getDefaultManagers](../api/getDefaul
 ```tsx title="index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 
 const managers = getDefaultManagers({
   // highlight-next-line

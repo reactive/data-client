@@ -1,0 +1,74 @@
+releases:
+  label: 'Versiones'
+  description: 'Nuevas versiones de Reactive Data Client'
+  permalink: /releases
+
+schema:
+  label: 'Schemas'
+  description: 'Definición con tipado seguro de un modelo de datos'
+  permalink: /schema
+
+queryable:
+  label: 'Queryable'
+  description: 'Los Schemas consultables permiten acceder al store sin un Endpoint'
+  permalink: /queryable
+
+nextjs:
+  label: 'NextJS'
+  description: 'NextJS es un framework de SSR y SSG para ReactJS'
+  permalink: /nextjs
+
+expo:
+  label: 'Expo'
+  description: 'Expo (y ExpoGo) es un framework de React Native'
+  permalink: /expo
+
+native:
+  label: 'React Native'
+  description: 'React Native permite crear aplicaciones de React para iOS y Android'
+  permalink: /react-native
+
+vue:
+  label: 'Vue'
+  description: 'Vue es una biblioteca de renderizado'
+  permalink: /vue
+
+rest:
+  label: 'REST'
+  description: 'Transferencia de estado representacional: APIs basadas en HTTP'
+  permalink: /rest
+
+graphql:
+  label: 'GraphQL'
+  description: 'Lenguaje de consulta y manipulación para APIs'
+  permalink: /graphql
+
+resource:
+  label: 'Resources'
+  description: 'Los Resources son un conjunto de métodos para un modelo de datos'
+  permalink: /resource
+
+endpoint:
+  label: 'Endpoint'
+  description: 'Los Endpoints son los métodos sobre esos datos'
+  permalink: /endpoint
+
+collection:
+  label: 'Collections'
+  description: 'Arrays o Values mutables'
+  permalink: /collection
+
+managers:
+  label: 'Managers'
+  description: 'Los Managers gestionan efectos secundarios globales y middleware'
+  permalink: /managers
+
+performance:
+  label: 'Rendimiento'
+  description: 'Mejoras de rendimiento y optimizaciones'
+  permalink: /performance
+
+agents:
+  label: 'Agentes de IA'
+  description: 'Skills, llms.txt y herramientas para agentes de programación con IA'
+  permalink: /agents

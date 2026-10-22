@@ -35,7 +35,7 @@ export interface SuccessFixture<
   E extends EndpointInterface = EndpointInterface,
 > {
   readonly endpoint: E;
-  readonly args: Parameters<E>;
+  readonly args: Readonly<Parameters<E>>;
   readonly response:
     | ResolveType<E>
     | ((...args: Parameters<E>) => ResolveType<E>);
@@ -74,7 +74,7 @@ export interface ErrorFixture {
 ```ts
 export interface ErrorFixture<E extends EndpointInterface = EndpointInterface> {
   readonly endpoint: E;
-  readonly args: Parameters<E>;
+  readonly args: Readonly<Parameters<E>>;
   readonly response: any;
   readonly error: true;
   /** Number of milliseconds to wait before resolving */

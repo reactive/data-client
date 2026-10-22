@@ -1,9 +1,7 @@
 import type { GetEntityCache } from './entitiesCache.js';
 import { EndpointsCache } from './types.js';
-import WeakDependencyMap, {
-  type Dep,
-  type KeyFn,
-} from './WeakDependencyMap.js';
+import WeakDependencyMap from './WeakDependencyMap.js';
+import type { Dep, KeyFn } from './WeakDependencyMap.js';
 import type Cache from '../denormalize/cache.js';
 import type { INVALID } from '../denormalize/symbol.js';
 import type { EntityInterface, EntityPath } from '../interface.js';

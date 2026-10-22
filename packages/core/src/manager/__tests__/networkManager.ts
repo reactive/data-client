@@ -128,7 +128,7 @@ describe('NetworkManager', () => {
     const fetchRejectAction = createFetch(errorUpdateShape, {
       args: [{ id: 5 }, { id: 5, title: 'hi' }],
     });
-    (fetchRejectAction.meta.promise as any).catch((e: unknown) => {});
+    fetchRejectAction.meta.promise.catch(() => {});
 
     let NM: NetworkManager;
     beforeEach(() => {
@@ -136,6 +136,13 @@ describe('NetworkManager', () => {
     });
     afterEach(() => {
       NM.cleanup();
+    });
+
+    it('meta.promise is a Promise managers can chain with finally()', async () => {
+      const action = createFetch(detailEndpoint, { args: [{ id: 5 }] });
+      const done = action.meta.promise.finally(() => {});
+      action.meta.resolve('result');
+      await expect(done).resolves.toBe('result');
     });
 
     it('should handle fetch actions and dispatch on success', async () => {

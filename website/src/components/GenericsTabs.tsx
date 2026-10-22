@@ -1,3 +1,4 @@
+import { translate } from '@docusaurus/Translate';
 import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import React from 'react';
@@ -13,8 +14,17 @@ export default function GenericsTabs({ children }: Props) {
       defaultValue="simple"
       groupId="with-generics"
       values={[
-        { label: 'Type', value: 'simple' },
-        { label: 'With Generics', value: 'generics' },
+        {
+          label: translate({ id: 'genericsTabs.type', message: 'Type' }),
+          value: 'simple',
+        },
+        {
+          label: translate({
+            id: 'genericsTabs.generics',
+            message: 'With Generics',
+          }),
+          value: 'generics',
+        },
       ]}
     >
       <TabItem value="simple">{simpleType}</TabItem>

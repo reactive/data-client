@@ -17,6 +17,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   queue: max
 
+permissions:
+  contents: read
+
 jobs:
   beta-release:
     name: Beta Release
@@ -28,7 +31,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: '26'
           cache: 'yarn'
@@ -38,12 +41,12 @@ jobs:
 
       - name: Create Beta Release Pull Request or Publish to npm
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v2.1.2
         with:
-          version: yarn changeset:version:beta
-          publish: yarn changeset:publish:beta
-          commit: "internal: Publish beta version"
-          title: "Version Packages (Beta)"
-          createGithubReleases: false
+          version-script: yarn changeset:version:beta
+          publish-script: yarn changeset:publish:beta
+          commit-message: "internal: Publish beta version"
+          pr-title: "Version Packages (Beta)"
+          create-github-releases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

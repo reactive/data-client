@@ -1,5 +1,40 @@
 import anansiPlugin from '@anansi/eslint-plugin';
+import docusaurusPlugin from '@docusaurus/eslint-plugin';
 import globals from 'globals';
+
+// Playground/preview/ is the lazy PreviewWithScope chunk (live execution,
+// Store inspector). A static import from outside copies it into every docs page
+// with a Playground, so only these eager files (SSR and loading-state chrome)
+// may be imported.
+const EAGER_PREVIEW = [
+  'FixturePreview',
+  'PreviewWrapper',
+  'routerSlot',
+  'StoreToggle',
+];
+/** Restrict `restricted` import paths, except the eager files */
+const lazyPreviewImports = (...restricted) => [
+  'error',
+  {
+    patterns: [
+      {
+        group: [
+          ...restricted,
+          // gitignore-style `X` does not match `X.tsx`
+          ...EAGER_PREVIEW.flatMap(f =>
+            ['./', '**/preview/'].flatMap(dir => [
+              `!${dir}${f}`,
+              `!${dir}${f}.*`,
+            ]),
+          ),
+        ],
+        allowTypeImports: true,
+        message:
+          'Playground/preview/ loads lazily: use import() or `import type`, or add a deliberately eager file to EAGER_PREVIEW in eslint.config.mjs.',
+      },
+    ],
+  },
+];
 
 export default [
   ...anansiPlugin.configs.typescript,
@@ -24,6 +59,7 @@ export default [
     },
   },
   {
+    // Published declarations are emitted from these sources (tests follow the same style).
     // An overload implementation signature is not visible to callers, so `any`
     // there only disables checking the overloads against the body.
     // Use the real container type with `unknown` inner values instead.
@@ -37,7 +73,74 @@ export default [
           message:
             'Overload implementation signatures must not return `any`; it hides mismatches between the overloads and the body. Use the real return type (with `unknown` inner values).',
         },
+        {
+          selector: 'ExportSpecifier[exportKind="type"]',
+          message:
+            'Inline `type` export specifiers are emitted into .d.ts files, which TypeScript < 4.5 cannot parse. Use a separate `export type { ... }`.',
+        },
       ],
+      'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
+    },
+  },
+  {
+    files: ['website/src/**/*.?(m|c)ts?(x)'],
+    ignores: ['website/src/components/Playground/preview/**'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports':
+        lazyPreviewImports('**/preview/**'),
+    },
+  },
+  {
+    // Site UI text goes through <Translate> so every locale gets it. Checks JSX
+    // text only: attributes (title, aria-label, placeholder) need review
+    files: ['website/src/{components,theme}/**/*.?(m|c)tsx'],
+    ignores: [
+      '**/__tests__/**',
+      '**/testing/**',
+      // TODO: translate once its redesign settles
+      'website/src/components/Playground/preview/store/**',
+    ],
+    plugins: { '@docusaurus': docusaurusPlugin },
+    rules: {
+      '@docusaurus/no-untranslated-text': [
+        'error',
+        {
+          // separators, value punctuation and units around numbers
+          ignoredStrings: [
+            '·',
+            '…',
+            '‹',
+            '›',
+            '▶',
+            '×',
+            '→',
+            'ƒ',
+            ':',
+            '+',
+            ',',
+            '[',
+            ']',
+            '{',
+            '}',
+            '[]',
+            '{}',
+            '[Circular]',
+            's',
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // The eager files themselves must not reach into the lazy rest of preview/
+    files: EAGER_PREVIEW.map(
+      f => `website/src/components/Playground/preview/${f}.?(m|c)ts?(x)`,
+    ),
+    rules: {
+      '@typescript-eslint/no-restricted-imports': lazyPreviewImports(
+        './**',
+        '**/preview/**',
+      ),
     },
   },
   {
@@ -60,6 +163,15 @@ export default [
         ...globals.browser,
         process: 'writable',
       },
+    },
+  },
+  // Mirrors packages/codemods/package.json "type": "commonjs": jscodeshift
+  // transforms and their CLI run in Node as CommonJS
+  {
+    files: ['packages/codemods/**/*.js'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: globals.node,
     },
   },
   {

@@ -39,7 +39,7 @@ export class Post extends Entity {
   };
 
   get img() {
-    return `//loremflickr.com/96/72/kitten,cat?lock=${this.id % 16}`;
+    return `https://picsum.photos/seed/${this.id % 16}/96/72`;
   }
 }
 ```
@@ -206,7 +206,7 @@ export const UserResource = resource({
 ```
 
 ```tsx title="UsersPage" {22}
-import { Query } from '@data-client/rest';
+import { All, Query } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
 import { UserResource, User } from './UserResource';
 
@@ -278,7 +278,8 @@ export const DepartmentResource = resource({
 });
 ```
 
-```tsx title="DepartmentsPage" {7}
+```tsx title="DepartmentsPage" {8}
+import { All } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
 import { DepartmentResource, Department } from './Resources';
 

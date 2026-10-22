@@ -1,7 +1,8 @@
 import { Controller } from '@data-client/core';
 import type { App } from 'vue';
 
-import { createDataClient, type ProvideOptions } from './createDataClient.js';
+import { createDataClient } from './createDataClient.js';
+import type { ProvideOptions } from './createDataClient.js';
 
 /**
  * Vue 3 Plugin for Reactive Data Client

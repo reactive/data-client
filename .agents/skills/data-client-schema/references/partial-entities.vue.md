@@ -24,6 +24,8 @@ a subset of fields needed to summarize.
 In this case we can override [Entity.validate()](./Entity.vue.md#validate) using [validateRequired()](https://dataclient.io/rest/api/validateRequired) to ensure
 we have the full and complete response when needed (detail views), while keeping our state [DRY](https://deviq.com/principles/dont-repeat-yourself) and normalized to ensure data integrity.
 
+Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
+
 ```typescript title="resources/Article" {13,25}
 import { validateRequired, Collection, Entity, resource } from '@data-client/rest';
 import { Temporal } from 'temporal-polyfill';
@@ -59,13 +61,31 @@ export const ArticleResource = resource({
 });
 ```
 
-```html title="ArticleDetail.vue"
+```html title="ArticleList.vue" route="/"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { ArticleResource } from './resources/Article';
+
+  const articles = await useSuspense(ArticleResource.getList);
+</script>
+
+<template>
+  <div>
+    <div v-for="article in articles" :key="article.pk()">
+      <RouterLink :to="`/articles/${article.id}`">
+        Click me: {{ article.title }}
+      </RouterLink>
+    </div>
+  </div>
+</template>
+```
+
+```html title="ArticleDetail.vue" route="/articles/:id"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { ArticleResource } from './resources/Article';
 
   const props = defineProps<{ id: string }>();
-  const emit = defineEmits<{ home: [] }>();
   const article = await useSuspense(ArticleResource.get, () => ({
     id: props.id,
   }));
@@ -73,10 +93,7 @@ export const ArticleResource = resource({
 
 <template>
   <div>
-    <h4>
-      <a @click="emit('home')" style="cursor: pointer">&lt;</a>
-      {{ article.title }}
-    </h4>
+    <h4>{{ article.title }}</h4>
     <div>
       <p>{{ article.content }}</p>
       <div>
@@ -87,32 +104,6 @@ export const ArticleResource = resource({
       </div>
     </div>
   </div>
-</template>
-```
-
-```html title="ArticleList.vue"
-<script setup lang="ts">
-  import { ref } from 'vue';
-  import { useSuspense } from '@data-client/vue';
-  import { ArticleResource } from './resources/Article';
-  import ArticleDetail from './ArticleDetail.vue';
-
-  const route = ref('');
-  const articles = await useSuspense(ArticleResource.getList);
-</script>
-
-<template>
-  <div v-if="!route">
-    <div
-      v-for="article in articles"
-      :key="article.pk()"
-      @click="route = article.id"
-      style="cursor: pointer; text-decoration: underline"
-    >
-      Click me: {{ article.title }}
-    </div>
-  </div>
-  <ArticleDetail v-else :id="route" @home="route = ''" />
 </template>
 ```
 

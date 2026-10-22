@@ -53,7 +53,7 @@ export default function TodoItem({ todo }: { todo: Todo }) {
           checked={todo.completed}
           onChange={handleChange}
         />
-        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
+        {todo.completed ? <s>{todo.title}</s> : todo.title}
       </label>
       <CancelButton onClick={handleDelete} />
     </div>
@@ -135,7 +135,7 @@ export class Post extends Entity {
   };
 
   get img() {
-    return `//loremflickr.com/96/72/kitten,cat?lock=${this.id % 16}`;
+    return `https://picsum.photos/seed/${this.id % 16}/96/72`;
   }
 }
 ```
@@ -253,6 +253,8 @@ problems in asynchronous programming.
 
 [useLoading()](https://dataclient.io/docs/api/useLoading) enhances async functions by tracking their loading and error states.
 
+Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
+
 ```ts title="PostResource"
 import { Entity, resource } from '@data-client/rest';
 
@@ -266,7 +268,7 @@ export class Post extends Entity {
   static key = 'Post';
 
   get img() {
-    return `//loremflickr.com/96/72/kitten,cat?lock=${this.id % 16}`;
+    return `https://picsum.photos/seed/${this.id % 16}/96/72`;
   }
 }
 export const PostResource = resource({
@@ -275,7 +277,7 @@ export const PostResource = resource({
 });
 ```
 
-```tsx title="PostDetail"
+```tsx title="PostDetail" route="/posts/:id"
 import { useSuspense } from '@data-client/react';
 import { PostResource } from './PostResource';
 
@@ -303,69 +305,47 @@ export default function PostForm({ onSubmit, loading, error }) {
     onSubmit(data);
   };
   return (
-    <form onSubmit={handleSubmit}>
-      <TextInput
-        label="Title"
-        name="title"
-        defaultValue="My New Post"
-        required
-      />
-      <TextArea name="body" rows={12} label="Body" required>
-        After clicking 'save', the button will be disabled until the POST
-        is completed. Upon completion the newly created post is displayed
-        immediately as Reactive Data Client is able to use the fetch
-        response to populate the store.
-      </TextArea>
-      {error ? (
-        <div className="alert alert--danger">{error.message}</div>
-      ) : null}
-      <div>
-        <button type="submit" disabled={loading}>
-          {loading ? 'saving...' : 'Save'}
-        </button>
-      </div>
+    <form onSubmit={handleSubmit} aria-busy={loading}>
+      <fieldset disabled={loading}>
+        <TextInput
+          label="Title"
+          name="title"
+          defaultValue="My New Post"
+          required
+        />
+        <TextArea name="body" rows={12} label="Body" required>
+          After clicking 'save', the form is locked and the button animates
+          until the POST completes. Upon completion the newly
+          created post is displayed immediately as Reactive Data Client is
+          able to use the fetch response to populate the store.
+        </TextArea>
+        {error ? (
+          <div className="alert alert--danger">{error.message}</div>
+        ) : null}
+        <button type="submit">{loading ? 'Saving…' : 'Save'}</button>
+      </fieldset>
     </form>
   );
 }
 ```
 
-```tsx title="PostCreate" {7}
+```tsx title="PostCreate" route="/" {8}
 import { useLoading, useController } from '@data-client/react';
 import { PostResource } from './PostResource';
 import PostForm from './PostForm';
 
-export default function PostCreate({ navigateToPost }) {
+export default function PostCreate() {
   const ctrl = useController();
+  const navigate = useNavigate();
   const [handleSubmit, loading, error] = useLoading(
     async data => {
       const post = await ctrl.fetch(PostResource.getList.push, data);
-      navigateToPost(post.id);
+      navigate(`/posts/${post.id}`);
     },
-    [ctrl],
+    [ctrl, navigate],
   );
   return (
     <PostForm onSubmit={handleSubmit} loading={loading} error={error} />
   );
 }
-```
-
-```tsx title="Navigation"
-import PostCreate from './PostCreate';
-import PostDetail from './PostDetail';
-
-function Navigation() {
-  const [id, setId] = React.useState<undefined | number>(undefined);
-  if (id) {
-    return (
-      <div>
-        <PostDetail id={id} />
-        <center>
-          <button onClick={() => setId(undefined)}>New Post</button>
-        </center>
-      </div>
-    );
-  }
-  return <PostCreate navigateToPost={setId} />;
-}
-render(<Navigation />);
 ```

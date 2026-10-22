@@ -255,6 +255,8 @@ export class Post extends Entity {
 ```
 
 ```tsx title="PostPage"
+import { RestEndpoint } from '@data-client/rest';
+import { useSuspense } from '@data-client/react';
 import { Post } from './Post';
 
 export const getPost = new RestEndpoint({
@@ -268,11 +270,7 @@ function PostPage() {
       <p>
         {post.content} - <cite>{post.author.name}</cite>
       </p>
-      <time>
-        {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
-          post.createdAt,
-        )}
-      </time>
+      <time>{post.createdAt.toLocaleString('en-US', { dateStyle: 'medium' })}</time>
     </div>
   );
 }
@@ -328,6 +326,9 @@ export const UserResource = resource({
 ```
 
 ```tsx
+import { useSuspense } from '@data-client/react';
+import { UserResource } from './resources/User';
+
 const user = useSuspense(UserResource.get, { username: 'bob' });
 ```
 
@@ -364,12 +365,18 @@ const getAssets = new RestEndpoint({
 Some top level component:
 
 ```tsx
+import { useSuspense } from '@data-client/react';
+import { getAssets } from './resources/Asset';
+
 const assets = useSuspense(getAssets);
 ```
 
 Nested below:
 
 ```tsx
+import { useQuery } from '@data-client/react';
+import { LatestPrice } from './resources/LatestPrice';
+
 const price = useQuery(LatestPrice, { symbol: 'BTC' });
 ```
 

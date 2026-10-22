@@ -11,7 +11,11 @@
     "noImplicitAny": false,   // this is for normalizr
     "types": ["node", "jest"],
     "paths": {
-      "__tests__/*": ["./__tests__/*"]
+      "__tests__/*": ["./__tests__/*"],
+      // jest.config.js maps this webpack alias to a stub
+      "@docusaurus/Translate": [
+        "./website/src/components/Playground/testing/docusaurusTranslate.tsx"
+      ]
     }
   },
   "include": ["packages/*/src", "packages/*/typescript-tests", "__tests__"]

@@ -10,7 +10,7 @@ defined in your [RestEndpoint](./RestEndpoint.vue.md).
 Here's an example using simple [cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies) auth by sending [fetch credentials](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#sending_a_request_with_credentials_included):
 
 ```ts title="AuthdEndpoint" {9}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,

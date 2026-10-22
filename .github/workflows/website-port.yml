@@ -1,0 +1,108 @@
+# While website/versionCurrent.json exists, master's site serves at /next/ and
+# the branch it names (the current version's) serves the root
+# (scripts/maintenance/README.md). A website fix merged here would never reach
+# the root, so each push opens a PR to that branch cherry-picking the pushed
+# commits that change only site code. The branch's maintenance.yml ports the
+# other way, skipping these by their `Maintenance-only:` line.
+name: website port
+on:
+  push:
+    branches:
+      - master
+    # Site code only; keep in sync with the port step's `site` pattern
+    paths:
+      - 'website/src/**'
+      - 'website/static/**'
+
+permissions:
+  contents: read
+
+# One port at a time, in push order. Each branches from the target's tip, not
+# from ports still open: a pick conflicting with one warns to port it by hand,
+# and one only depending on one is left to the PR's checks
+concurrency:
+  group: ${{ github.workflow }}
+  queue: max
+
+jobs:
+  port:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      # dispatches site-preview.yml to rebuild the root
+      actions: write
+      contents: write
+      pull-requests: write
+    steps:
+      # The port app's token makes the PR's push, CI and auto-merge run
+      # workflows like a person's would; the workflow token starts none
+      - id: app
+        if: vars.PORT_APP_CLIENT_ID
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.PORT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.PORT_APP_PRIVATE_KEY }}
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          # the picks need only the commits' trees
+          filter: blob:none
+          token: ${{ steps.app.outputs.token || github.token }}
+      - name: Open a PR porting the push's website fixes to the current version
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token || github.token }}
+          APP: ${{ steps.app.outputs.token && 'true' || '' }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          [ -f website/versionCurrent.json ] || { echo "master serves the root: nothing to port"; exit 0; }
+          target="$(jq -r .ref website/versionCurrent.json)"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          branch="port/master-${GITHUB_SHA::8}"
+          git switch -c "$branch" "origin/$target"
+          # A commit ports when every file it changes is site code: not docs,
+          # the blog, translations, configs or packages, which are versioned,
+          # nor the editor types (generated from this version's packages) or
+          # the demos' code (written against its API)
+          site='^website/(src|static)/'
+          versioned='^website/src/components/(Playground/editor-types|Demo/code)/'
+          picked=()
+          for commit in $(git rev-list --reverse --no-merges "$BEFORE..$GITHUB_SHA"); do
+            files="$(git diff-tree --no-commit-id --name-only -r --no-renames "$commit")"
+            if [ -z "$files" ] || grep -qvE "$site" <<<"$files" || grep -qE "$versioned" <<<"$files"; then
+              echo "Skipping $commit: not only site code"
+              continue
+            fi
+            if ! git cherry-pick "$commit"; then
+              git cherry-pick --abort
+              echo "::warning title=Not ported::$commit doesn't apply to $target; port it by hand"
+              continue
+            fi
+            # maintenance.yml skips it when porting the branch back to master
+            git commit --amend --no-edit --trailer "Maintenance-only: ported from master ($commit)"
+            picked+=("$commit")
+          done
+          [ "${#picked[@]}" -gt 0 ] || { echo "Nothing to port"; exit 0; }
+          # a re-run picks the same commits again, as new ones
+          git push --force origin "$branch"
+          # Named after the last commit it ports
+          title="$(git log -1 --format=%s)"
+          list="$(git log --no-walk=unsorted --format='- %s (%h)' "${picked[@]}")"
+          body="Ports website fixes from master to \`$target\` (the current version, which serves the root docs):
+
+          $list
+
+          Made by website-port.yml. Auto-merge is on: it merges once the branch's required checks pass, and the merge rebuilds the root through maintenance.yml. Keep the last line in the squash message, so maintenance.yml doesn't port it back.
+
+          Maintenance-only: ported from master (${picked[*]})"
+          [ -n "$(gh pr list --head "$branch" --json number --jq '.[]')" ] \
+            || gh pr create --base "$target" --head "$branch" --title "$title" --body "$body"
+          gh pr merge --auto --squash --subject "$title" --body "$body" "$branch" \
+            || echo "::notice title=Not auto-merged::Merge the PR from $branch by hand"
+          # Without the app, a merge pushed with the workflow token starts no
+          # workflows, so the branch's maintenance.yml won't rebuild the root:
+          # dispatch it here. It queues behind this push's own deploy, so it
+          # builds the merge. (A later auto-merge can't, so set up the app.)
+          if [ -z "$APP" ] && [ "$(gh pr view "$branch" --json state --jq .state)" = MERGED ]; then
+            gh workflow run site-preview.yml --ref master
+          fi

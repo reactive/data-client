@@ -1,6 +1,6 @@
 ---
 name: data-client-schema
-description: Model data with @data-client schemas (Entity, EntityMixin, Collection, Union, Query, Values, All, Invalidate, Lazy, Scalar) for atomic, consistent, referentially-equal async data via normalization, identity-based caching, and a single source of truth. Use when defining or editing pk, static schema, resource()/RestEndpoint schema, mutable lists/maps (push/unshift/assign/remove/move), polymorphic/discriminated types, memoized selectors / derived data, partial/supplementary entities, relational/nested/joined data, optimistic updates, or cache invalidation across @data-client/rest, /endpoint, /graphql, or /normalizr. Apply proactively when discussing data models, remote data shape, caching, normalization, identity, joins, polymorphism, mutable collections, or store consistency.
+description: Model the app's data with @data-client schemas: the shape of each type, how types nest and relate, and how responses normalize and merge so one update shows everywhere. Use it whenever the shape of the app's data changes, when deriving values or views from data already loaded, or when the same item looks different in two places. Covers Entity, Collection, Union and Query.
 license: Apache 2.0
 ---
 
@@ -59,6 +59,7 @@ to represent the data expected.
 
 - Every `Entity` subclass **defines defaults** for _all_ non-optional serialised fields.
 - Override `pk()` only when the primary key ≠ `id`.
+- [`static indexes = ['username' as const]`](references/Entity.md#indexes) to look up by a unique non-pk field with `useQuery(User, { username })`, instead of building lookup `Map`s
 - `pk()` return type is `number | string | undefined`
 - Override `Entity.process(value, parent, key, args)` to insert fields based on args/url
 - `static schema` (optional) for nested schemas or deserialization functions
@@ -69,6 +70,7 @@ to represent the data expected.
 ## 3. Entity lifecycle methods
 
 - **Normalize** (JSON response → cache): operates on POJOs; output is JSON-serializable plain data stored in the normalized cache. Order: `process()` → `pk()` → [validate()](references/validation.md) → **visit nested schemas** (recurse into `schema` fields) → if existing: `mergeWithStore()` which calls `shouldUpdate()` and maybe `shouldReorder()` + `merge()`; metadata via `mergeMetaWithStore()`.
+- **Older data arriving after newer** (a poll, slow request or embedded copy): override [`shouldReorder(existingMeta, incomingMeta, existing, incoming)`](references/Entity.md#shouldreorder) to compare a version field such as `updatedAt`; that alone keeps the newer fields. `shouldUpdate()` is for skipping updates to save work.
 - **Denormalize** (cache → component): creates Entity **class instances** via `fromJS()`, restoring prototype chain so getters, methods, and `schema` processing work. Order: `createIfValid()` → [validate()](references/validation.md) → `fromJS()` → **unvisit nested schemas** (recurse into `schema` fields).
 
 ---
@@ -124,12 +126,15 @@ const userTodos = new Collection([Todo], {
 
 ### nonFilterArgumentKeys
 
-Default `createCollectionFilter` uses `nonFilterArgumentKeys` (default: keys starting with `'order'`) to exclude non-filter args when matching collections. This affects which existing collections receive new items from `push`/`unshift`/`assign`/`move`.
+Default `createCollectionFilter` uses `nonFilterArgumentKeys` (default: keys starting with `'order'`) to exclude non-filter args when matching collections. This affects which existing collections receive new items from `push`/`unshift`/`assign`/`move`: pushing with `{ userId: 1 }` reaches the `{}` and `{ userId: 1 }` lists, not `{ userId: 2 }`, and a list arg left out of `nonFilterArgumentKeys` (such as a sort) keeps new items out of that list.
 
 Override as function, RegExp, or `string[]`:
 ```ts
 new Collection([Todo], { nonFilterArgumentKeys: /orderBy|sortDir/ })
 ```
+
+A plain fetch of a Collection endpoint **replaces** its contents; only the extenders below and
+`getPage` add to it, so load more pages with `getPage`.
 
 ### Extenders
 

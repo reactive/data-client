@@ -1,6 +1,10 @@
 {
   "cleanUrls": true,
-  "ignoreCommand": "bash scripts/vercel-ignore.sh",
+  "git": {
+    "deploymentEnabled": false
+  },
+  "installCommand": "",
+  "buildCommand": "test -f build/index.html",
   "redirects": [
     {
       "source": "/docs/getting-started/devtools-debugging.md",
@@ -11,6 +15,75 @@
       "source": "/vue/getting-started/devtools-debugging.md",
       "destination": "/vue/getting-started/debugging.md",
       "permanent": true
+    },
+    {
+      "source": "/next/blog/:path*",
+      "destination": "/blog/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/blog/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<version>0\\.\\d+|[1-9]\\d*)\\.dataclient\\.io"
+        }
+      ],
+      "destination": "https://dataclient.io/blog/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/next/:locale([a-z]{2}|[a-z]{2}-[A-Za-z]+)/blog/:path*",
+      "destination": "/:locale/blog/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:locale([a-z]{2}|[a-z]{2}-[A-Za-z]+)/blog/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<version>0\\.\\d+|[1-9]\\d*)\\.dataclient\\.io"
+        }
+      ],
+      "destination": "https://dataclient.io/:locale/blog/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/archives/:version(0\\.\\d+|[1-9]\\d*){/:path(.*)}?",
+      "destination": "https://:version.dataclient.io/:path",
+      "permanent": false
+    },
+    {
+      "source": "/next{/:path((?!(?:.*/)?sw\\.js$).*)}?",
+      "destination": "/:path",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/:path((?!api(?:/|$)).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<version>0\\.\\d+|[1-9]\\d*)\\.dataclient\\.io"
+        }
+      ],
+      "destination": "/archives/:version/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/:path((?!api(?:/|$)).*)",
+      "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }]
+    },
+    {
+      "source": "/site-versions.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300, stale-while-revalidate=86400"
+        }
+      ]
     }
   ]
 }

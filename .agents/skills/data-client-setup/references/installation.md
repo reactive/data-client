@@ -2,21 +2,22 @@
 
 # Getting Started with Reactive Data Client
 
+## Set up by hand {#manual-setup}
+
+### Install packages {#install-manually}
+
 ```bash
 npm install @data-client/react @data-client/test @data-client/rest
 ```
 
-> **Tip: Use Agent Skills**
->
-> Prefer to scaffold via your AI agent? See [Agent Skills](https://dataclient.io/docs/getting-started/agent-skills) and run `/data-client-setup`.
-
-## Add provider at top-level component {#add-provider-at-top-level-component}
+### Add provider at top-level component {#add-provider-at-top-level-component}
 
 **Web**
 
 ```tsx title="index.tsx"
 import { DataProvider } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 
 createRoot(document.body).render(
   <DataProvider>
@@ -32,6 +33,7 @@ Alternatively [integrate state with redux](https://dataclient.io/docs/guides/red
 ```tsx title="index.tsx"
 import { DataProvider } from '@data-client/react';
 import { AppRegistry } from 'react-native';
+import App from './App';
 
 const Root = () => (
   <DataProvider>
@@ -83,7 +85,7 @@ export default function RootLayout() {
 [Anansi](https://github.com/ntucker/anansi) (beta) is a fully composable framework for React development with optional
 Server Side Rendering.
 
-```bash title="bash"
+```bash
 npx @anansi/cli hatch my-project
 ```
 

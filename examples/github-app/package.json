@@ -19,7 +19,7 @@
     "startCommand": "npm start"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": "^22.18.0 || >=24.11.0"
   },
   "browserslist": "extends @anansi/browserslist-config",
   "keywords": [
@@ -30,41 +30,40 @@
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
-    "@anansi/cli": "3.1.107",
-    "@anansi/babel-preset": "6.2.27",
-    "@anansi/browserslist-config": "1.7.5",
-    "@anansi/webpack-config": "21.1.19",
-    "@babel/core": "7.29.7",
-    "@linaria/core": "6.3.0",
-    "@linaria/react": "6.3.0",
-    "@linaria/shaker": "5.0.3",
+    "@anansi/cli": "4.0.1",
+    "@anansi/babel-preset": "7.0.1",
+    "@anansi/browserslist-config": "1.7.7",
+    "@anansi/webpack-config": "22.0.1",
+    "@babel/core": "8.0.7",
+    "@linaria/core": "8.2.0",
+    "@linaria/react": "8.2.0",
     "@types/lodash": "4.14.192",
     "@types/parse-link-header": "^2.0.0",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "react-refresh": "0.18.0",
+    "react-refresh": "0.19.0",
     "serve": "14.2.6",
-    "webpack": "5.108.4",
-    "webpack-cli": "6.0.1",
-    "webpack-dev-server": "5.2.6"
+    "webpack": "5.112.0",
+    "webpack-cli": "7.2.3",
+    "webpack-dev-server": "6.0.0"
   },
   "dependencies": {
-    "@anansi/core": "0.22.12",
-    "@anansi/router": "0.10.24",
+    "@anansi/core": "0.23.1",
+    "@anansi/router": "0.11.1",
     "@ant-design/cssinjs": "2.1.2",
     "@ant-design/icons": "6.3.4",
-    "@babel/runtime-corejs3": "^7.26.7",
-    "@data-client/graphql": "0.18.0",
-    "@data-client/img": "0.18.0",
-    "@data-client/react": "0.18.1",
-    "@data-client/rest": "0.18.1",
-    "temporal-polyfill": "^0.3.0",
-    "antd": "6.6.5",
+    "@babel/runtime-corejs3": "^8.0.0",
+    "@data-client/graphql": "0.18.2",
+    "@data-client/img": "0.18.2",
+    "@data-client/react": "0.18.2",
+    "@data-client/rest": "0.18.2",
+    "temporal-polyfill": "^1.0.0",
+    "antd": "6.6.6",
     "core-js": "^3.48.0",
     "history": "^5.3.0",
     "parse-link-header": "^2.0.0",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "react-markdown": "10.1.0",
     "rehype-highlight": "7.0.2",
     "remark-gfm": "4.0.1",
@@ -76,6 +75,8 @@
     "sockjs": {
       "uuid": ">=11.1.1"
     },
-    "qs": ">=6.16.0"
+    "qs": ">=6.16.0",
+    "compression": "1.8.2",
+    "simple-git": "4.0.2"
   }
 }

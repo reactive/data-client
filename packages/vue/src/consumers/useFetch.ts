@@ -6,7 +6,8 @@ import type {
   DenormalizeNullable,
   ResolveType,
 } from '@data-client/core';
-import { watch, ref, type Ref } from 'vue';
+import { watch, ref } from 'vue';
+import type { Ref } from 'vue';
 
 import type {
   MaybeRefsOrGetters,

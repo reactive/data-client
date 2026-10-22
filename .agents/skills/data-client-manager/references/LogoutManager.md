@@ -19,6 +19,7 @@ import {
   getDefaultManagers,
 } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 
 const managers = [new LogoutManager(), ...getDefaultManagers()];
 
@@ -38,6 +39,7 @@ import {
   getDefaultManagers,
 } from '@data-client/react';
 import { AppRegistry } from 'react-native';
+import App from './App';
 
 const managers = [new LogoutManager(), ...getDefaultManagers()];
 

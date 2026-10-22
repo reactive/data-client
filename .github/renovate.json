@@ -4,7 +4,6 @@
   "commitMessagePrefix": "pkg: ",
   "commitMessageTopic": "`{{depName}}`",
   "dependencyDashboardApproval": true,
-  "rebaseWhen": "conflicted",
   "rangeStrategy": "auto",
   "ignoreDeps": [
     "whatwg-fetch",
@@ -17,6 +16,22 @@
   "timezone": "America/Chicago",
   "postUpdateOptions": ["yarnDedupeHighest"],
   "packageRules": [
+    {
+      "description": "yarn's default 1-day npmMinimalAgeGate rejects fresher releases, so proposing them leaves the PR without a yarn.lock update. Security updates skip this on purpose; if one lands without a lockfile, tick its retry box once the release is a day old",
+      "matchManagers": ["npm"],
+      "minimumReleaseAge": "1 day"
+    },
+    {
+      "description": "mirrors npmPreapprovedPackages in .yarnrc.yml; must stay after the 1-day rule, since later rules win",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["@anansi/*", "@data-client/*", "@pojo-router/*"],
+      "minimumReleaseAge": "0 days"
+    },
+    {
+      "description": "overrides keep their range form (so >= floors are left alone) while exact pins get bumped together with the matching dependencies entry, avoiding EOVERRIDE",
+      "matchDepTypes": ["overrides"],
+      "rangeStrategy": "replace"
+    },
     {
       "matchCurrentVersion": "4.9.0-dev.20220903",
       "matchPackageNames": ["typescript"],
@@ -167,10 +182,24 @@
       "groupName": "markdown packages"
     },
     {
-      "matchPackageNames": ["react-native-screens"],
+      "description": "React Native is 0.x, so its minors are breaking, and its ecosystem packages release in step with it; they update together, never in the all non-major PR. Renovate has no react-native monorepo preset, so they are matched by name",
+      "matchPackageNames": [
+        "react-native",
+        "@react-native/*",
+        "react-native-*",
+        "@react-navigation/*",
+        "@testing-library/react-native"
+      ],
       "matchUpdateTypes": ["major", "minor", "patch"],
-      "groupSlug": "react-navigation-monorepo",
-      "groupName": "react-navigation monorepo"
+      "groupSlug": "react-native",
+      "groupName": "react-native packages"
+    },
+    {
+      "description": "changesets/action requires a matching Changesets CLI (action v2 refuses CLI v2), so every update of either lands in one PR",
+      "matchPackageNames": ["changesets/action", "@changesets/cli"],
+      "separateMajorMinor": false,
+      "groupName": "changesets",
+      "groupSlug": "changesets"
     },
     {
       "matchPackageNames": ["node", "@types/node", "cimg/node"],
@@ -186,6 +215,14 @@
       "managerFilePatterns": ["/^\\.circleci/config\\.yml$/"],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+CLI=https://cli\\.codecov\\.io/(?<currentValue>v[^/]+)/"
+      ]
+    },
+    {
+      "description": "Vercel CLI pinned in the docs deploy job",
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/site-preview\\.yml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+VERCEL_CLI_VERSION: (?<currentValue>\\S+)"
       ]
     }
   ]

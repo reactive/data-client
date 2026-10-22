@@ -16,7 +16,7 @@ and retrieval performance.
 class Controller {
   /*************** Action Dispatchers ***************/
   fetch(endpoint, ...args): ReturnType<E>;
-  fetchIfStale(endpoint, ...args): ReturnType<E> | undefined;
+  fetchIfStale(endpoint, ...args): ReturnType<E> | Denormalize<E['schema']>;
   expireAll({ testKey }): Promise<void>;
   invalidate(endpoint, ...args): Promise<void>;
   invalidateAll({ testKey }): Promise<void>;
@@ -94,9 +94,9 @@ the response or error upon completion.
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
   import { useRouter } from 'vue-router';
-  import { PostResource } from './PostResource';
+  import { Post, PostResource } from './PostResource';
 
-  const props = defineProps<{ post: PostResource }>();
+  const props = defineProps<{ post: Post }>();
   const ctrl = useController();
   const router = useRouter();
 
@@ -147,7 +147,8 @@ the response or error upon completion.
 
 ### fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
-Fetches only if endpoint is considered '[stale](https://dataclient.io/vue/concepts/expiry-policy#stale)'.
+Fetches only if endpoint is considered '[stale](https://dataclient.io/vue/concepts/expiry-policy#stale)' or [invalid](https://dataclient.io/vue/concepts/expiry-policy#invalid),
+returning the same Promise as [fetch()](#fetch). Otherwise returns the cached data synchronously, without fetching.
 
 This can be useful when prefetching data, as it avoids overfetching fresh data.
 
@@ -237,6 +238,38 @@ until the refetch resolves.
   </div>
 </template>
 ```
+
+> **Tip: Show the Suspense fallback again**
+>
+> Remount the component with a new `key` after invalidating; the new instance suspends on the invalid data.
+> `timeout="0"` makes `<Suspense>` show its fallback while it waits instead of the old content. Remounting
+> resets the component's local state.
+>
+> ```html title="ArticlePage.vue"
+> <script setup lang="ts">
+>   import { ref } from 'vue';
+>   import { useController } from '@data-client/vue';
+>   import { ArticleResource } from './ArticleResource';
+>   import ArticleName from './ArticleName.vue';
+>
+>   const props = defineProps<{ id: string }>();
+>   const ctrl = useController();
+>   const remountKey = ref(0);
+>
+>   async function reload() {
+>     await ctrl.invalidate(ArticleResource.get, { id: props.id });
+>     remountKey.value++;
+>   }
+> </script>
+>
+> <template>
+>   <button @click="reload">Reload</button>
+>   <Suspense timeout="0">
+>     <ArticleName :key="remountKey" :id="id" />
+>     <template #fallback>Loading...</template>
+>   </Suspense>
+> </template>
+> ```
 
 > **Tip: Invalidate many endpoints at once**
 >
@@ -429,6 +462,12 @@ fields:
 ctrl.set([new schema.Invalidate(Todo)], [{ id: '5' }, { id: '6' }]);
 ```
 
+To delete one, pass the Invalidate schema and its row:
+
+```ts
+ctrl.set(new schema.Invalidate(Todo), { id: '5' });
+```
+
 [Values](https://dataclient.io/rest/api/Values) schemas take an object of rows instead:
 
 ```ts
@@ -438,7 +477,7 @@ ctrl.set(new schema.Values(Todo), {
 });
 ```
 
-Array and Values schemas take no `args` (so [Entity.pk()](https://dataclient.io/rest/api/Entity#pk) and [Entity.process()](https://dataclient.io/rest/api/Entity#process)
+Array, Values and Invalidate schemas take no `args` (so [Entity.pk()](https://dataclient.io/rest/api/Entity#pk) and [Entity.process()](https://dataclient.io/rest/api/Entity#process)
 receive `[]`) and no updater function. Rows that share a pk merge in list order, without
 [Entity.shouldReorder()](https://dataclient.io/rest/api/Entity#shouldreorder). Use this instead of calling `set()` once per row, such as when
 [batching high-frequency stream updates](./managers.vue.md#batching).
@@ -573,7 +612,7 @@ export enum ExpiryStatus {
 
 ##### Invalid
 
-- Will always suspend
+- Will always suspend during setup; mounted components [keep their current data](https://dataclient.io/vue/concepts/expiry-policy#invalidate) until the refetch resolves
 - Will always fetch
 
 #### expiresAt

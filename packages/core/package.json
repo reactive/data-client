@@ -59,7 +59,8 @@
     "node.mjs",
     "legacy",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "skills"
   ],
   "scripts": {
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' POLYFILL_TARGETS='chrome>88,safari>14' yarn g:babel --out-dir lib",
@@ -71,7 +72,7 @@
     "build": "run build:lib && run build:legacy:lib && run build:bundle",
     "dev": "run build:lib -w",
     "prepare": "run build:lib",
-    "prepack": "run prepare && run build:bundle && run build:legacy:lib"
+    "prepack": "run prepare && run build:bundle && run build:legacy:lib && node ../../scripts/pack-skills.mjs"
   },
   "keywords": [
     "data",
@@ -103,7 +104,8 @@
     "GraphQL",
     "REST",
     "RPC",
-    "declarative"
+    "declarative",
+    "tanstack-intent"
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "funding": "https://github.com/sponsors/ntucker",
@@ -111,14 +113,14 @@
   "homepage": "https://dataclient.io",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/reactive/data-client.git",
+    "url": "git+https://github.com/reactive/data-client.git",
     "directory": "packages/core"
   },
   "bugs": {
     "url": "https://github.com/reactive/data-client/issues"
   },
   "dependencies": {
-    "@babel/runtime": "^7.20.0",
+    "@babel/runtime": "^7.20.0 || ^8.0.0",
     "@data-client/normalizr": "workspace:^",
     "flux-standard-action": "^2.1.1"
   },
@@ -126,7 +128,7 @@
     "@anansi/browserslist-config": "^1.4.2",
     "@data-client/endpoint": "workspace:*",
     "@types/jest": "30.0.0",
-    "@types/node": "^25.0.0",
+    "@types/node": "^26.0.0",
     "rollup-plugins": "workspace:*"
   }
 }

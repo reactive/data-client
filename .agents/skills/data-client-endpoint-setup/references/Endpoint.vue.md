@@ -99,7 +99,8 @@ export interface Todo {
 }
 ```
 
-```ts title="api" {11}
+```ts title="api" {12}
+import { Endpoint } from '@data-client/rest';
 import { Todo } from './interface';
 
 const getTodoOriginal = (id: number): Promise<Todo> =>
@@ -114,6 +115,7 @@ export const getTodo = new Endpoint(getTodoOriginal);
 ```
 
 ```tsx title="React"
+import { useSuspense } from '@data-client/react';
 import { getTodo } from './api';
 
 function TodoDetail() {
@@ -259,8 +261,7 @@ Declarative definition of how to [process responses](https://dataclient.io/rest/
 Not providing this option means no entities will be extracted.
 
 ```tsx
-import { Entity } from '@data-client/normalizr';
-import { Endpoint } from '@data-client/endpoint';
+import { Endpoint, Entity } from '@data-client/endpoint';
 
 class User extends Entity {
   id = '';
@@ -268,7 +269,7 @@ class User extends Entity {
 }
 
 const getUser = new Endpoint(
-    ({ id }) ⇒ fetch(`/users/${id}`),
+    ({ id }) => fetch(`/users/${id}`),
     { schema: User }
 );
 ```
@@ -312,6 +313,11 @@ When provided, any fetches with this endpoint will behave as though the `expecte
 from this function was a succesful network response. When the actual fetch completes (regardless
 of failure or success), the optimistic update will be replaced with the actual network response.
 
+`expectedResponse` is normalized with the endpoint's [schema](#schema), so TypeScript checks it like a
+[Controller.set()](https://dataclient.io/vue/api/Controller#set) value: an [Entity](https://dataclient.io/rest/api/Entity) takes any of its fields, and a
+[Collection](https://dataclient.io/rest/api/Collection) takes a list of them. When the endpoint resolves a specific type, like the return
+of [process()](https://dataclient.io/rest/api/RestEndpoint#process), it must match that type instead.
+
 ```ts title="Post"
 import { Entity, EntityMixin } from '@data-client/rest';
 
@@ -333,7 +339,7 @@ export class Post extends Entity {
   };
 
   get img() {
-    return `//loremflickr.com/96/72/kitten,cat?lock=${this.id % 16}`;
+    return `https://picsum.photos/seed/${this.id % 16}/96/72`;
   }
 }
 ```
@@ -512,7 +518,7 @@ const createUser = new RestEndpoint({
 Can be used to further customize the endpoint definition
 
 ```typescript
-const getUser = new Endpoint(({ id }) ⇒ fetch(`/users/${id}`));
+const getUser = new Endpoint(({ id }) => fetch(`/users/${id}`));
 
 const getUserNormalized = getUser.extend({ schema: User });
 ```
@@ -527,7 +533,7 @@ In addition to the members, `fetch` can be sent to override the fetch function.
 import { Endpoint } from '@data-client/endpoint';
 
 const UserDetail = new Endpoint(
-  ({ id }) ⇒ fetch(`/users/${id}`).then(res => res.json())
+  ({ id }) => fetch(`/users/${id}`).then(res => res.json())
 );
 ```
 
@@ -542,7 +548,7 @@ class User extends Entity {
 }
 
 const UserDetail = new Endpoint(
-  ({ id }) ⇒ fetch(`/users/${id}`).then(res => res.json()),
+  ({ id }) => fetch(`/users/${id}`).then(res => res.json()),
   { schema: User }
 );
 ```
@@ -558,7 +564,7 @@ class User extends Entity {
 }
 
 const UserList = new Endpoint(
-  () ⇒ fetch(`/users/`).then(res => res.json()),
+  () => fetch(`/users/`).then(res => res.json()),
   { schema: [User] }
 );
 ```
@@ -566,7 +572,11 @@ const UserList = new Endpoint(
 **React**
 
 ```tsx
-function UserProfile() {
+import { useSuspense, useController } from '@data-client/react';
+import { UserDetail } from './api/User';
+import UserForm from './UserForm';
+
+function UserProfile({ id }: { id: string }) {
   const user = useSuspense(UserDetail, { id });
   const ctrl = useController();
 

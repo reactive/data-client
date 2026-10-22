@@ -91,6 +91,8 @@ BENCH_V8_TRACE=true yarn workspace example-benchmark-react bench --scenario upda
 - **Schema changes** (Entity, Query, All): Run both — Node benchmark for raw throughput, React benchmark for rendering impact.
 - **Performance investigation**: Start with Node benchmark to isolate the JS layer, then validate with React benchmark for end-to-end confirmation.
 
+Before acting on a CI benchmark comment, follow "Reading the CI comment" in `@examples/benchmark-react/README.md`; the variance thresholds in this file hold only within one machine.
+
 ---
 
 # Node benchmark details (`@examples/benchmark`)

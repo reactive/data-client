@@ -19,7 +19,7 @@ some media fetches as well to take advantage of suspense and [concurrent mode su
 string -> value map structures. Instead, we'll define our own simple [Endpoint](/rest/api/Endpoint).
 
 ```typescript
-import { Endpoint } from '@data-client/react';
+import { Endpoint } from '@data-client/rest';
 
 export const getPhoto = new Endpoint(async ({ userId }: { userId: string }) => {
   const response = await fetch(`/users/${userId}/photo`);
@@ -38,7 +38,7 @@ values={[
 ]}>
 <TabItem value="useSuspense">
 
-```tsx
+```tsx nocheck
 // photo is typed as ArrayBuffer
 const photo = useSuspense(getPhoto, { userId });
 ```
@@ -46,7 +46,7 @@ const photo = useSuspense(getPhoto, { userId });
 </TabItem>
 <TabItem value="useCache">
 
-```tsx
+```tsx nocheck
 // photo will be undefined if the fetch hasn't completed
 // photo will be ArrayBuffer if the fetch has completed
 const photo = useCache(getPhoto, { userId });
@@ -55,7 +55,7 @@ const photo = useCache(getPhoto, { userId });
 </TabItem>
 <TabItem value="JS/Node">
 
-```tsx
+```tsx nocheck
 // photo is typed as ArrayBuffer
 const photo = await getPhoto({ userId });
 ```
@@ -80,6 +80,7 @@ images using suspense. This becomes especially powerful [with the fetch as you r
 import React, { ImgHTMLAttributes } from 'react';
 import { useSuspense } from '@data-client/react';
 import { Img } from '@data-client/img';
+import { UserResource } from './resources/User';
 
 export default function Profile({ username }: { username: string }) {
   const user = useSuspense(UserResource.get, { username });
@@ -105,6 +106,7 @@ the image request can start. If the image url is deterministic based on the same
 import React, { ImgHTMLAttributes } from 'react';
 import { useSuspense, useFetch } from '@data-client/react';
 import { Img, getImage } from '@data-client/img';
+import { UserResource } from './resources/User';
 
 export default function Profile({ username }: { username: string }) {
   const imageSrc = `/profile_images/${username}}`;

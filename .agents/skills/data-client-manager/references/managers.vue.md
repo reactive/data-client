@@ -77,7 +77,8 @@ export default class ErrorReportManager implements Manager {
 ### Metrics {#metrics}
 
 Track fetch timing by observing [FETCH](./Actions.vue.md#fetch) actions. `action.meta.promise`
-resolves when the fetch completes.
+resolves when the fetch completes. List it before `...getDefaultManagers()` so it sees each FETCH
+before [NetworkManager](https://dataclient.io/vue/api/NetworkManager) handles it.
 
 ```typescript
 import {
@@ -91,9 +92,12 @@ export default class MetricsManager implements Manager {
   middleware: Middleware = controller => next => async action => {
     if (action.type === actionTypes.FETCH) {
       const start = performance.now();
-      const track = () =>
-        trackTiming(action.endpoint.name, performance.now() - start);
-      action.meta.promise.then(track, track);
+      action.meta.promise
+        .finally(() => {
+          trackTiming(action.endpoint.name, performance.now() - start);
+        })
+        // the fetch's caller handles errors; this only observes timing
+        .catch(() => {});
     }
     return next(action);
   };
@@ -237,7 +241,7 @@ import { get } from 'idb-keyval';
 import App from './App.vue';
 import PersistManager from './PersistManager';
 
-const managers = [...getDefaultManagers(), new PersistManager()];
+const managers = [new PersistManager(), ...getDefaultManagers()];
 const initialState = await get('data-client');
 
 const app = createApp(App);

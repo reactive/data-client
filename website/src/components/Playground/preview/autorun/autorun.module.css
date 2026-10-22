@@ -1,0 +1,46 @@
+/* A zero-height layer at the playground's foot (appended by stage.ts): the
+   pointer is placed from its top left.
+   Over the Store and its sheets, under the site's navbar. */
+.layer {
+  position: relative;
+  z-index: 10;
+  height: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-snappy);
+}
+.layer[data-ended] {
+  opacity: 0;
+}
+
+.pointer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition:
+    transform var(--motion-smooth),
+    opacity var(--motion-snappy);
+}
+.pointer[data-shown] {
+  opacity: 1;
+}
+.pointer svg {
+  display: block;
+  fill: #fff;
+  stroke: #1c1e21;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.35));
+}
+/* the click's ring (stage.ts animates it) */
+.pointer::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--ifm-color-primary);
+  opacity: 0;
+}

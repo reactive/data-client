@@ -7,11 +7,14 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import CollectionLists from '@site/src/components/CollectionLists';
 import { RestEndpoint } from '@data-client/rest';
 import { v4 as uuid } from 'uuid';
 import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts-collection';
 
 # Collection
+
+<CollectionLists float />
 
 `Collections` define mutable [Lists (Array)](./Array.md) or [Maps (Values)](./Values.md).
 
@@ -21,6 +24,8 @@ and move between collections with [.move](#move).
 
 [RestEndpoint](./RestEndpoint.md) provides [.push](./RestEndpoint.md#push), [.unshift](./RestEndpoint.md#unshift), [.assign](./RestEndpoint.md#assign), [.remove](./RestEndpoint.md#remove), [.move](./RestEndpoint.md#move)
 and [.getPage](./RestEndpoint.md#getpage)/ [.paginated()](./RestEndpoint.md#paginated) extenders when using `Collections`
+
+<div style={{clear: 'both'}} />
 
 ## Usage
 
@@ -108,11 +113,12 @@ export const getUsers = new RestEndpoint({
 
 :::react
 
-```tsx title="NewTodo" {10-14}
+```tsx title="NewTodo" {11-15}
+import React from 'react';
 import { useController } from '@data-client/react';
 import { getTodos } from './api/Todo';
 
-export default function NewTodo({ userId }: { userId?: string }) {
+export default function NewTodo({ userId }: { userId: string }) {
   const ctrl = useController();
   const [unshift, setUnshift] = React.useState(false);
 
@@ -196,7 +202,7 @@ render(<UserList />);
   import { useController } from '@data-client/vue';
   import { getTodos } from './api/Todo';
 
-  const props = defineProps<{ userId?: string }>();
+  const props = defineProps<{ userId: string }>();
   const ctrl = useController();
   const unshift = ref(false);
 
@@ -704,7 +710,7 @@ ctrl.set(getTodos.schema.remove, { userId: '1' }, { id: '123' });
 ```
 
 ```ts
-// Remove from all collections (empty args matches all)
+// Empty args only match collections fetched with no filter args, like getTodos({})
 ctrl.set(getTodos.schema.remove, {}, { id: '123' });
 ```
 

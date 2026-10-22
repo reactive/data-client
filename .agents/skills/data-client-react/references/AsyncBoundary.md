@@ -57,9 +57,12 @@ export default function DashboardLayout({
 
 **Expo**
 
-```tsx {15,17} title="app/dashboard/_layout.tsx"
+```tsx {18,20} title="app/dashboard/_layout.tsx"
 import { AsyncBoundary } from '@data-client/react';
 import { Slot } from 'expo-router';
+import { Image, StyleSheet } from 'react-native';
+
+import ParallaxScrollView from '@/components/ParallaxScrollView';
 
 export default function DashboardLayout() {
   return (
@@ -78,15 +81,26 @@ export default function DashboardLayout() {
     </ParallaxScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  logo: { height: 178, width: 290 },
+});
 ```
 
 **Antd Modal**
 
 ```tsx title="ModalOpen.tsx"
 import { AsyncBoundary } from '@data-client/react';
+import { useState } from 'react';
 import { Button, Modal } from 'antd';
 
+import MyModalBody from './MyModalBody';
+
 export default function ModalOpen() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showModal = () => setIsModalOpen(true);
+  const handleOk = () => setIsModalOpen(false);
+  const handleCancel = () => setIsModalOpen(false);
   return (
     <>
       <Button type="primary" onClick={showModal}>
@@ -143,6 +157,7 @@ Component to handle caught errors
 ```tsx
 import React from 'react';
 import { DataProvider, AsyncBoundary } from '@data-client/react';
+import Router from './Router';
 
 function ErrorPage({
   error,
@@ -180,15 +195,18 @@ export default function App() {
 Subscription handler to reset error state on events like URL location changes. This is great
 for placing a boundary to wrap routing components.
 
+When a prop like the selected item's id, not a `listen` event, changes the content, add `key={id}` to
+the boundary to clear the previous item's error.
+
 An example using [Anansi Router](https://www.npmjs.com/package/@anansi/router), which uses
 [history](https://www.npmjs.com/package/history) subscription.
 
 ```tsx
-import { useController } from '@anansi/router';
+import { useRouter, Link, MatchedRoute } from '@anansi/router';
 import { AsyncBoundary } from '@data-client/react';
 
 function App() {
-  const { history } = useController();
+  const { history } = useRouter();
   return (
     <div>
       <nav>

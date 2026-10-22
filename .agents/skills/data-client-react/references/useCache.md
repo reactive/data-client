@@ -4,8 +4,10 @@
 
 Data rendering without the fetch.
 
-Access any [Endpoint](https://dataclient.io/rest/api/Endpoint)'s response. If the response does not exist, returns
-`undefined`. This can be used to check for an `Endpoint's` existence like for authentication.
+Access any [Endpoint](https://dataclient.io/rest/api/Endpoint)'s response. Returns `undefined` until it is fetched, set, or
+inferable from entities already in the store, and again after invalidation (see [Behavior](#behavior)).
+That means "not loaded", not "doesn't exist on the server", so use it for data other code loads, like
+the current user a login flow fetches.
 
 `useCache()` is reactive to data [mutations](./mutations.md); rerendering only when necessary.
 
@@ -31,7 +33,7 @@ export const UserResource = resource({
 ```
 
 ```tsx title="Unauthed"
-import { useLoading } from '@data-client/react';
+import { useController, useLoading } from '@data-client/react';
 import { UserResource } from './UserResource';
 
 export default function Unauthed() {
@@ -54,6 +56,7 @@ export default function Unauthed() {
 ```
 
 ```tsx title="Authorized"
+import { useController } from '@data-client/react';
 import { User, UserResource } from './UserResource';
 
 export default function Authorized({ user }: { user: User }) {
@@ -70,6 +73,7 @@ export default function Authorized({ user }: { user: User }) {
 ```
 
 ```tsx title="Entry"
+import { useCache } from '@data-client/react';
 import { UserResource } from './UserResource';
 import Unauthed from './Unauthed';
 import Authorized from './Authorized';

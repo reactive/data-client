@@ -71,6 +71,7 @@ Component to handle caught errors
 ```tsx
 import React from 'react';
 import { DataProvider, AsyncBoundary } from '@data-client/react';
+import Router from './Router';
 
 function ErrorPage({
   error,
@@ -108,15 +109,18 @@ export default function App() {
 Subscription handler to reset error state on events like URL location changes. This is great
 for placing a boundary to wrap routing components.
 
+When a prop like the selected item's id, not a `listen` event, changes the content, add `key={id}` to
+the boundary to clear the previous item's error.
+
 An example using [Anansi Router](https://www.npmjs.com/package/@anansi/router), which uses
 [history](https://www.npmjs.com/package/history) subscription.
 
 ```tsx
-import { useController } from '@anansi/router';
+import { useRouter, Link, MatchedRoute } from '@anansi/router';
 import { AsyncBoundary } from '@data-client/react';
 
 function App() {
-  const { history } = useController();
+  const { history } = useRouter();
   return (
     <div>
       <nav>

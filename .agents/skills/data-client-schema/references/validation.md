@@ -32,6 +32,7 @@ export const getArticle = new RestEndpoint({
 ```
 
 ```tsx title="ArticlePage"
+import { useSuspense } from '@data-client/react';
 import { getArticle } from './api/Article';
 
 function ArticlePage({ id }: { id: string }) {
@@ -65,6 +66,7 @@ export const getArticle = new RestEndpoint({
 ```
 
 ```tsx title="ArticlePage"
+import { useSuspense } from '@data-client/react';
 import { getArticle } from './api/Article';
 
 function ArticlePage({ id }: { id: string }) {
@@ -81,6 +83,8 @@ Another great use of validation is mixing endpoints that return [incomplete obje
 useful when some fields consume lots of bandwidth or are computationally expensive for the backend.
 
 Consider using [validateRequired](https://dataclient.io/rest/api/validateRequired) to reduce code.
+
+Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
 
 ```typescript title="api/Article"
 import { Entity, RestEndpoint } from '@data-client/rest';
@@ -116,53 +120,43 @@ export const getArticle = new RestEndpoint({
 });
 ```
 
-```tsx title="ArticleDetail"
-import { getArticle, getArticleList } from './api/Article';
+```tsx title="ArticleList" route="/"
+import { useSuspense } from '@data-client/react';
+import { getArticleList } from './api/Article';
 
-function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
+export default function ArticleList() {
+  const articles = useSuspense(getArticleList);
+  return (
+    <div>
+      {articles.map(article => (
+        <div key={article.pk()}>
+          <Link to={`/articles/${article.id}`}>Click me: {article.title}</Link>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+```tsx title="ArticleDetail" route="/articles/:id"
+import { useSuspense } from '@data-client/react';
+import { getArticle } from './api/Article';
+
+export default function ArticleDetail({ id }: { id: string }) {
   const article = useSuspense(getArticle, { id });
   return (
     <div>
-      <h4>
-        <a onClick={onHome} style={{ cursor: 'pointer' }}>
-          &lt;
-        </a>{' '}
-        {article.title}
-      </h4>
+      <h4>{article.title}</h4>
       <div>
         <p>{article.content}</p>
         <div>
           Created:{' '}
           <time>
-            {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
-              article.createdAt,
-            )}
+            {article.createdAt.toLocaleString('en-US', { dateStyle: 'medium' })}
           </time>
         </div>
       </div>
     </div>
   );
 }
-function ArticleList() {
-  const [route, setRoute] = React.useState('');
-  const articles = useSuspense(getArticleList);
-  if (!route) {
-    return (
-      <div>
-        {articles.map(article => (
-          <div
-            key={article.pk()}
-            onClick={() => setRoute(article.id)}
-            style={{ cursor: 'pointer', textDecoration: 'underline' }}
-          >
-            Click me: {article.title}
-          </div>
-        ))}
-      </div>
-    );
-  }
-  return <ArticleDetail id={route} onHome={() => setRoute('')} />;
-}
-
-render(<ArticleList />);
 ```

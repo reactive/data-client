@@ -1,5 +1,5 @@
 /// <reference types="react/canary" />
-import { type State } from '@data-client/core';
+import type { State } from '@data-client/core';
 import { ComponentProps, use } from 'react';
 
 import DataProvider from '../../../components/DataProvider.js';

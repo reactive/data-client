@@ -1,0 +1,19 @@
+/* a framed shell block's header reads as a terminal's: quiet, with the prompt
+ * glyph. Code blocks are palenight in both site themes, so it takes palenight's colors */
+.terminalTitle {
+  display: flex;
+  /* as tall as the agent chat box's header: Docusaurus pads titles 0.75rem */
+  margin-block: -0.375rem;
+  align-items: center;
+  gap: 0.375rem;
+  color: #8e98b8;
+  font-family: var(--ifm-font-family-base);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+.terminalIcon {
+  flex: none;
+  width: 0.875rem;
+  height: 0.875rem;
+}

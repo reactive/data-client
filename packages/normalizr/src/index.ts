@@ -17,6 +17,13 @@ export type {
   SchemaArgs,
 } from './types.js';
 export type { NI } from './NoInfer.js';
+export type {
+  SetInvalidateSchema,
+  SetManySchema,
+  SetManyValue,
+  SetValue,
+  SkipInfer,
+} from './setTypes.js';
 export * from './endpoint/types.js';
 export * from './interface.js';
 export type {

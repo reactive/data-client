@@ -11,10 +11,6 @@
       "items": [
         {
           "type": "doc",
-          "id": "getting-started/agent-skills"
-        },
-        {
-          "type": "doc",
           "id": "getting-started/installation"
         },
         {
@@ -78,6 +74,10 @@
       "type": "category",
       "label": "Tooling",
       "items": [
+        {
+          "type": "doc",
+          "id": "getting-started/agent-skills"
+        },
         {
           "type": "doc",
           "id": "guides/storybook"

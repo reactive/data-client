@@ -1,6 +1,7 @@
 ---
 title: Entity and Data Normalization
 sidebar_label: Data Normalization
+image: /img/social/normalization-card.jpg
 ---
 
 <head>
@@ -12,10 +13,25 @@ import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import Link from '@docusaurus/Link';
 import SchemaTable from '../shared/\_schema_table.mdx';
+import PosterVideo from '@site/src/components/PosterVideo';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 [Entities](/rest/api/Entity) have a primary key. This enables easy access via a lookup table.
 This makes it easy to find, update, create, or delete the same data - no matter what
 endpoint it was used in.
+
+<PosterVideo
+  poster={useBaseUrl('/videos/docs/normalization-poster.jpg')}
+  duration="1:54"
+  volume={0.5}
+  alt="Two endpoints return three copies of the same user. Normalization stores each entity once in a table keyed by id, denormalization follows the ids to rebuild each response, and one rename updates every view. Renaming one user with 10,000 rows on screen rebuilds 30 objects instead of 10,000."
+>
+  <source
+    src={useBaseUrl('/videos/docs/normalization.webm')}
+    type='video/webm; codecs="av01.0.08M.10, opus"'
+  />
+  <source src={useBaseUrl('/videos/docs/normalization.mp4')} type="video/mp4" />
+</PosterVideo>
 
 <!--
 <LanguageTabs>
@@ -92,6 +108,9 @@ class Presentation extends Entity {
 :::react
 
 ```tsx
+import { useSuspense } from '@data-client/react';
+import { getPresentations } from './api/Presentation';
+
 export function PresentationsPage() {
   const presentation = useSuspense(getPresentations);
   return presentation.map(presentation => (
@@ -170,6 +189,9 @@ const todoCreate = new RestEndpoint({
 
 ```tsx
 import { useController } from '@data-client/react';
+import { todoCreate } from './api/Todo';
+import Form from './Form';
+import FormField from './FormField';
 
 export default function NewTodoForm() {
   const ctrl = useController();
@@ -230,7 +252,10 @@ const todoUpdate = new RestEndpoint({
 :::react
 
 ```tsx
-import { useController } from '@data-client/react';
+import { useController, useSuspense } from '@data-client/react';
+import { todoDetail, todoUpdate } from './api/Todo';
+import Form from './Form';
+import FormField from './FormField';
 
 export default function UpdateTodoForm({ id }: { id: number }) {
   const todo = useSuspense(todoDetail, { id });
@@ -302,6 +327,7 @@ const todoDelete = new RestEndpoint({
 
 ```tsx
 import { useController } from '@data-client/react';
+import { todoDelete, type Todo } from './api/Todo';
 
 export default function TodoWithDelete({ todo }: { todo: Todo }) {
   const ctrl = useController();

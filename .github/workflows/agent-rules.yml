@@ -4,42 +4,59 @@ on:
   push:
     branches:
       - master
-    # Inputs and outputs of scripts/agent-rules.mjs, and the hook tests
+    # Inputs and outputs of scripts/agent-rules.mjs and
+    # scripts/breaking-evals.mjs, the hook tests, the Claude Code plugin's
+    # tests (.claude-plugin/README.md lists what they read), and the skill sync
     paths:
       - '**/.cursor/rules/**'
       - '**/.claude/rules/**'
       - '.claude/skills'
       - '.cursor/hooks/**'
+      - '.claude-plugin/**'
+      - 'packages/core/agents/**'
+      - '.cursor-plugin/**'
+      - '.agents/skill-packages.json'
       - 'scripts/agent-rules.mjs'
+      - 'scripts/breaking-evals.mjs'
+      - '.changeset/**'
+      - '.agents/skills/**'
       - '.github/workflows/agent-rules.yml'
+      - '.github/workflows/paths-gate.yml'
   pull_request:
     branches:
       - master
-    paths:
-      - '**/.cursor/rules/**'
-      - '**/.claude/rules/**'
-      - '.claude/skills'
-      - '.cursor/hooks/**'
-      - 'scripts/agent-rules.mjs'
-      - '.github/workflows/agent-rules.yml'
+  # Required check: no `paths` (see paths-gate.yml)
+  merge_group:
 
 concurrency:
   group: agent-rules-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
+  gate:
+    if: github.event_name != 'push'
+    uses: ./.github/workflows/paths-gate.yml
+
   check:
+    name: agent-rules
+    needs: gate
+    if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
           fetch-depth: 1
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: '26'
       # no install: these only need node and git
       - name: Check Claude Code rules match the Cursor rules
         run: node scripts/agent-rules.mjs --check
-      - name: Test agent hooks
-        run: node --test '.cursor/hooks/*.test.js'
+      - name: Check every breaking changeset has a skill eval
+        run: node scripts/breaking-evals.mjs
+      - name: Test agent hooks and the skill sync
+        run: node --test '.cursor/hooks/*.test.js' '.claude-plugin/*.test.mjs' 'packages/core/agents/*.test.mjs'

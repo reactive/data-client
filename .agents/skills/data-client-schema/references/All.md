@@ -34,6 +34,7 @@ export const createUser = new RestEndpoint({
 ```
 
 ```tsx title="NewUser"
+import React from 'react';
 import { useController } from '@data-client/react';
 import { createUser } from './api/User';
 
@@ -46,7 +47,7 @@ export default function NewUser() {
         e.currentTarget.value = '';
       }
     },
-    [fetch],
+    [ctrl],
   );
   return <input onKeyPress={handlePress}/>;
 }

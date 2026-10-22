@@ -17,7 +17,7 @@ Here's an example using simple [cookie](https://developer.mozilla.org/en-US/docs
 <EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'Cookie': 'session=abc;'}}} status={200} response={{  "id": "1","title": "this post"}}>
 
 ```ts title="AuthdEndpoint" {9}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,
@@ -106,7 +106,7 @@ export const handleLogin = async e => {
 
 :::react
 
-```tsx title="Auth" collapsed
+```tsx title="Auth" collapsed nocheck
 import { handleLogin } from './AuthdEndpoint';
 
 export default function Auth() {
@@ -198,7 +198,7 @@ export const handleLogin = async e => {
 
 :::react
 
-```tsx title="Auth" collapsed
+```tsx title="Auth" collapsed nocheck
 import { handleLogin } from './AuthdEndpoint';
 
 export default function Auth() {
@@ -292,7 +292,7 @@ export const handleLogin = async e => {
 
 :::react
 
-```tsx title="Auth" collapsed
+```tsx title="Auth" collapsed nocheck
 import { handleLogin } from './AuthdEndpoint';
 
 export default function Auth() {
@@ -369,9 +369,13 @@ by using [hookifyResource](../api/hookifyResource.md)
 :::react
 
 ```ts title="resources/Post.ts"
-import { resource, hookifyResource } from '@data-client/rest';
+import { Entity, resource, hookifyResource } from '@data-client/rest';
+import { useAuthContext } from '../AuthContext';
 
-// Post defined here
+class Post extends Entity {
+  id = '';
+  title = '';
+}
 
 export const PostResource = hookifyResource(
   resource({ path: '/posts/:id', schema: Post }),
@@ -450,6 +454,9 @@ Using this means all endpoint calls must only occur :react[during a function ren
 :::react
 
 ```tsx
+import { useController } from '@data-client/react';
+import { PostResource } from './resources/Post';
+
 function CreatePost() {
   const controller = useController();
   //highlight-next-line
@@ -457,7 +464,9 @@ function CreatePost() {
 
   return (
     <form
-      onSubmit={e => controller.fetch(createPost, new FormData(e.target))}
+      onSubmit={e =>
+        controller.fetch(createPost, new FormData(e.currentTarget))
+      }
     >
       {/* ... */}
     </form>
@@ -521,7 +530,11 @@ Next we will [extend](../api/RestEndpoint.md#extend) to generate a new endpoint 
 :::react
 
 ```tsx
-function useEndpoint(endpoint: RestEndpoint) {
+import { useMemo } from 'react';
+import type { IRestEndpoint } from '@data-client/rest';
+import { useAuthContext } from './AuthContext';
+
+function useEndpoint(endpoint: IRestEndpoint) {
   const accessToken = useAuthContext();
   return useMemo(
     () => endpoint.extend({ accessToken }),
@@ -552,6 +565,10 @@ Using this means all endpoint calls must only occur :react[during a function ren
 :::react
 
 ```tsx
+import { useController } from '@data-client/react';
+import { PostResource } from './api/Post';
+import { useEndpoint } from './useEndpoint';
+
 function CreatePost() {
   const controller = useController();
   //highlight-next-line

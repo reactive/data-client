@@ -1,0 +1,451 @@
+/* two increments racing, and what three counters show meanwhile */
+.frame {
+  --line: var(--ifm-color-emphasis-300);
+  --req1: hsl(262, 52%, 48%);
+  --req2: hsl(206, 69%, 40%);
+  --bad: hsl(0, 65%, 48%);
+  --good: hsl(150, 55%, 34%);
+  --on-chip: #fff;
+  /* one pass of the story */
+  --period: 9s;
+  max-width: 560px;
+  margin: 0 auto 1.5rem;
+}
+[data-theme='dark'] .frame {
+  --req1: hsl(262, 75%, 74%);
+  --req2: var(--ifm-color-primary-light);
+  --bad: hsl(0, 80%, 70%);
+  --good: hsl(150, 50%, 60%);
+  --on-chip: hsl(220, 20%, 12%);
+}
+.diagram {
+  --play: running;
+  --seek: 0s;
+  display: block;
+  width: 100%;
+  font-size: 11.5px;
+  text-anchor: middle;
+  user-select: none;
+  /* a finger scrubs sideways and still scrolls the page */
+  touch-action: pan-y;
+}
+
+.req1 {
+  --c: var(--req1);
+}
+.req2 {
+  --c: var(--req2);
+}
+
+.lane {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+.laneLabel {
+  text-anchor: end;
+  fill: var(--ifm-color-emphasis-700);
+}
+.rowLabel {
+  text-anchor: end;
+}
+.rowLabel text {
+  fill: var(--ifm-font-color-base);
+  font-weight: 500;
+}
+.rowLabel.client text {
+  fill: var(--ifm-color-primary);
+}
+.rowLabel .sub {
+  fill: var(--ifm-color-emphasis-600);
+  font-size: 9.5px;
+  font-weight: 400;
+}
+
+/* each request's way out and back, faint under the chips that travel it */
+.guide {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 4;
+  opacity: 0.35;
+}
+
+/* the increment going out, the server's count, and the count coming back */
+.chip text {
+  fill: var(--c);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 10px;
+  font-weight: 600;
+}
+.chip rect {
+  rx: 7px;
+}
+.request {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--c);
+  stroke-width: 1.5;
+}
+.filled rect {
+  fill: var(--c);
+}
+.filled text {
+  fill: var(--on-chip);
+}
+
+/* the count over time, and the count it was set to at each change */
+.step {
+  fill: none;
+  stroke: var(--ifm-color-emphasis-600);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+.pill rect {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--ifm-color-emphasis-600);
+  stroke-width: 1.2;
+  rx: 4px;
+}
+.pill text {
+  fill: var(--ifm-font-color-base);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 10px;
+  font-weight: 600;
+}
+/* an optimistic count: shown before the server confirms it */
+.optimistic rect {
+  stroke-dasharray: 2.5 2;
+}
+/* a response that set the count it already showed */
+.again {
+  opacity: 0.5;
+}
+/* the count going down: the race, in red */
+.bad .step {
+  stroke: var(--bad);
+  stroke-width: 2;
+}
+.bad .pill rect {
+  fill: var(--bad);
+  stroke: var(--bad);
+}
+.bad .pill text {
+  fill: var(--on-chip);
+}
+/* Data Client: the second response confirms, the late first one is ignored */
+.confirmed circle {
+  fill: var(--good);
+}
+.confirmed path {
+  fill: none;
+  stroke: var(--on-chip);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ignored rect {
+  stroke: var(--ifm-color-emphasis-400);
+}
+.ignored text {
+  fill: var(--ifm-color-emphasis-500);
+}
+.ignored path {
+  stroke: var(--ifm-color-emphasis-600);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+/* the live counter: a window onto a strip of digits */
+.screen {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--ifm-color-emphasis-500);
+  stroke-width: 1.2;
+  rx: 5px;
+}
+.window {
+  overflow: hidden;
+}
+.strip text {
+  fill: var(--ifm-font-color-base);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 14px;
+  font-weight: 700;
+}
+/* the counter is wrong from the late response on */
+.flag {
+  fill: none;
+  stroke: var(--bad);
+  stroke-width: 2;
+}
+
+.playhead {
+  stroke: var(--ifm-color-primary);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  opacity: 0.7;
+  animation-name: sweep;
+}
+
+/* One pass: the playhead crosses the axis in the first 90%, then rests.
+   Every keyframe is keyed to the moments in index.tsx (AT × 90%):
+     send1 10.8%   send2 23.4%   srv1 32.4%   srv2 43.2%
+     back2 55.8%   back1 73.8%
+   Holding a moment restarts the animations paused, so the negative
+   delay --seek, set on the svg, is the moment shown (see index.tsx) */
+.anim {
+  animation-duration: var(--period);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-delay: var(--seek);
+  animation-play-state: var(--play);
+}
+@keyframes sweep {
+  0% {
+    transform: translateX(0);
+  }
+  90%,
+  100% {
+    /* the axis' length, X1 - X0 in index.tsx */
+    transform: translateX(302px);
+  }
+}
+
+/* each change shows from the moment it happens */
+.send1 {
+  animation-name: send1;
+}
+.send2 {
+  animation-name: send2;
+}
+.srv1 {
+  animation-name: srv1;
+}
+.srv2 {
+  animation-name: srv2;
+}
+.back2 {
+  animation-name: back2;
+}
+.back1 {
+  animation-name: back1;
+}
+@keyframes send1 {
+  0%,
+  10.7% {
+    opacity: 0;
+  }
+  10.8%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes send2 {
+  0%,
+  23.3% {
+    opacity: 0;
+  }
+  23.4%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes srv1 {
+  0%,
+  32.3% {
+    opacity: 0;
+  }
+  32.4%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes srv2 {
+  0%,
+  43.1% {
+    opacity: 0;
+  }
+  43.2%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes back2 {
+  0%,
+  55.7% {
+    opacity: 0;
+  }
+  55.8%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes back1 {
+  0%,
+  73.7% {
+    opacity: 0;
+  }
+  73.8%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* the increments travel to the server, where each becomes its count; the
+   counts travel back, the second overtaking the first */
+.out1 {
+  animation-name: out1;
+}
+.out2 {
+  animation-name: out2;
+}
+.return1 {
+  animation-name: return1;
+}
+.return2 {
+  animation-name: return2;
+}
+@keyframes out1 {
+  0%,
+  10.7% {
+    transform: translate(var(--x0), var(--y0));
+    opacity: 0;
+  }
+  10.8% {
+    opacity: 1;
+  }
+  32.4% {
+    transform: translate(var(--x1), var(--y1));
+    opacity: 1;
+  }
+  32.5%,
+  100% {
+    transform: translate(var(--x1), var(--y1));
+    opacity: 0;
+  }
+}
+@keyframes out2 {
+  0%,
+  23.3% {
+    transform: translate(var(--x0), var(--y0));
+    opacity: 0;
+  }
+  23.4% {
+    opacity: 1;
+  }
+  43.2% {
+    transform: translate(var(--x1), var(--y1));
+    opacity: 1;
+  }
+  43.3%,
+  100% {
+    transform: translate(var(--x1), var(--y1));
+    opacity: 0;
+  }
+}
+@keyframes return1 {
+  0%,
+  32.3% {
+    transform: translate(var(--x0), var(--y0));
+    opacity: 0;
+  }
+  32.4% {
+    transform: translate(var(--x0), var(--y0));
+    opacity: 1;
+  }
+  73.8%,
+  100% {
+    transform: translate(var(--x1), var(--y1));
+    opacity: 1;
+  }
+}
+@keyframes return2 {
+  0%,
+  43.1% {
+    transform: translate(var(--x0), var(--y0));
+    opacity: 0;
+  }
+  43.2% {
+    transform: translate(var(--x0), var(--y0));
+    opacity: 1;
+  }
+  55.8%,
+  100% {
+    transform: translate(var(--x1), var(--y1));
+    opacity: 1;
+  }
+}
+
+/* the count on each screen: a strip of the counts the row shows, in order,
+   slid one window (24px) per change: none 0, 2, 1; naive 0, 1, 2, 1;
+   Data Client 0, 1, 2 */
+.none .strip {
+  animation-name: countNone;
+}
+.naive .strip {
+  animation-name: countNaive;
+}
+.client .strip {
+  animation-name: countClient;
+}
+@keyframes countNone {
+  0%,
+  55.8% {
+    transform: translateY(0);
+    animation-timing-function: ease-out;
+  }
+  57.8%,
+  73.8% {
+    transform: translateY(-24px);
+    animation-timing-function: ease-out;
+  }
+  75.8%,
+  100% {
+    transform: translateY(-48px);
+  }
+}
+@keyframes countNaive {
+  0%,
+  10.8% {
+    transform: translateY(0);
+    animation-timing-function: ease-out;
+  }
+  12.8%,
+  23.4% {
+    transform: translateY(-24px);
+    animation-timing-function: ease-out;
+  }
+  25.4%,
+  73.8% {
+    transform: translateY(-48px);
+    animation-timing-function: ease-out;
+  }
+  75.8%,
+  100% {
+    transform: translateY(-72px);
+  }
+}
+@keyframes countClient {
+  0%,
+  10.8% {
+    transform: translateY(0);
+    animation-timing-function: ease-out;
+  }
+  12.8%,
+  23.4% {
+    transform: translateY(-24px);
+    animation-timing-function: ease-out;
+  }
+  25.4%,
+  100% {
+    transform: translateY(-48px);
+  }
+}
+
+/* nothing moves on its own: hold the end of the story, every count shown;
+   a hover or tap still shows any moment */
+@media (prefers-reduced-motion: reduce) {
+  .diagram {
+    --play: paused;
+    --seek: calc(var(--period) * -0.9);
+  }
+}

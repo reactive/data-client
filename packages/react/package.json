@@ -5,7 +5,7 @@
   "homepage": "https://dataclient.io",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/reactive/data-client.git",
+    "url": "git+https://github.com/reactive/data-client.git",
     "directory": "packages/react"
   },
   "bugs": {
@@ -50,7 +50,8 @@
     "sse",
     "declarative",
     "dynamic data",
-    "mutations"
+    "mutations",
+    "tanstack-intent"
   ],
   "sideEffects": [
     "./lib/hooks/useFocusEffect.native.js",
@@ -138,8 +139,14 @@
     "native",
     "node.mjs",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "skills",
+    "bin",
+    "agents"
   ],
+  "bin": {
+    "data-client-skills": "./bin/data-client-skills.mjs"
+  },
   "scripts": {
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' POLYFILL_TARGETS='chrome>88,safari>14' POLYFILL_TARGETS='chrome>88,safari>14' yarn g:babel --out-dir lib",
     "build:legacy:lib": "NODE_ENV=production BROWSERSLIST_ENV='2018' POLYFILL_TARGETS='chrome>80,safari>13,firefox>72' POLYFILL_TARGETS='chrome>80,safari>13,firefox>72' yarn g:babel --out-dir legacy",
@@ -151,13 +158,13 @@
     "build": "run build:lib && run build:legacy:lib && run build:native:lib && run build:bundle",
     "dev": "run build:lib -w",
     "prepare": "run build:lib",
-    "prepack": "run prepare && run build:legacy:lib && run build:bundle"
+    "prepack": "run prepare && run build:legacy:lib && run build:bundle && node ../../scripts/pack-skills.mjs"
   },
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "funding": "https://github.com/sponsors/ntucker",
   "license": "Apache-2.0",
   "dependencies": {
-    "@babel/runtime": "^7.20.0",
+    "@babel/runtime": "^7.20.0 || ^8.0.0",
     "@data-client/core": "workspace:^",
     "@data-client/use-enhanced-reducer": "workspace:^"
   },
@@ -183,22 +190,25 @@
     "@react-navigation/native-stack": "^7.2.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.1.0",
-    "@testing-library/react-native": "^13.3.3",
+    "@testing-library/react-native": "^14.0.0",
     "@types/jest": "30.0.0",
-    "@types/node": "^25.0.0",
+    "@types/node": "^26.0.0",
     "@types/qs": "^6",
     "@types/react": "19.3.0",
     "@types/react-dom": "*",
     "jest-mock": "^30.0.0",
     "nock": "13.3.1",
     "qs": "^6.14.2",
-    "react": "19.2.3",
+    "react": "19.3.1",
     "react-dom": "^19.0.0",
-    "react-native": "0.86.2",
+    "react-native": "0.88.0",
     "react-native-safe-area-context": "^5.0.0",
     "react-native-screens": "^4.1.0",
+    "react-redux": "^9.2.0",
     "react-test-renderer": "^19.0.0",
+    "redux": "^5.0.1",
     "rollup-plugins": "workspace:*",
-    "temporal-polyfill": "^0.3.0"
+    "temporal-polyfill": "^1.0.0",
+    "test-renderer": "^1.3.0"
   }
 }

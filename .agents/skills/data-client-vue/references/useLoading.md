@@ -10,6 +10,8 @@ Helps track loading and error state of imperative async functions.
 
 ## Usage
 
+Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
+
 ```ts title="PostResource"
 import { Entity, resource } from '@data-client/rest';
 
@@ -23,7 +25,7 @@ export class Post extends Entity {
   static key = 'Post';
 
   get img() {
-    return `//loremflickr.com/96/72/kitten,cat?lock=${this.id % 16}`;
+    return `https://picsum.photos/seed/${this.id % 16}/96/72`;
   }
 }
 export const PostResource = resource({
@@ -32,13 +34,13 @@ export const PostResource = resource({
 });
 ```
 
-```html title="PostDetail.vue"
+```html title="PostDetail.vue" route="/posts/:id"
 <script setup lang="ts">
   import { computed } from 'vue';
   import { useSuspense } from '@data-client/vue';
   import { PostResource } from './PostResource';
 
-  const props = defineProps<{ id: number }>();
+  const props = defineProps<{ id: string }>();
   const post = await useSuspense(PostResource.get, computed(() => ({
     id: props.id,
   })));
@@ -72,69 +74,46 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <form @submit="handleSubmit">
-    <TextInput
-      label="Title"
-      name="title"
-      defaultValue="My New Post"
-      required
-    />
-    <TextArea name="body" :rows="12" label="Body" required>
-      After clicking 'save', the button will be disabled until the POST
-      is completed. Upon completion the newly created post is displayed
-      immediately as Reactive Data Client is able to use the fetch
-      response to populate the store.
-    </TextArea>
-    <div v-if="error" class="alert alert--danger">{{ error.message }}</div>
-    <div>
-      <button type="submit" :disabled="loading">
-        {{ loading ? 'saving...' : 'Save' }}
-      </button>
-    </div>
+  <form @submit="handleSubmit" :aria-busy="loading">
+    <fieldset :disabled="loading">
+      <TextInput
+        label="Title"
+        name="title"
+        defaultValue="My New Post"
+        required
+      />
+      <TextArea name="body" :rows="12" label="Body" required>
+        After clicking 'save', the form is locked and the button animates
+        until the POST completes. Upon completion the newly
+        created post is displayed immediately as Reactive Data Client is
+        able to use the fetch response to populate the store.
+      </TextArea>
+      <div v-if="error" class="alert alert--danger">{{ error.message }}</div>
+      <button type="submit">{{ loading ? 'Saving…' : 'Save' }}</button>
+    </fieldset>
   </form>
 </template>
 ```
 
-```html title="PostCreate.vue"
+```html title="PostCreate.vue" route="/"
 <script setup lang="ts">
   import { useLoading, useController } from '@data-client/vue';
+  import { useRouter } from 'vue-router';
   import { PostResource } from './PostResource';
   import PostForm from './PostForm.vue';
 
-  const emit = defineEmits<{ navigateToPost: [id: number] }>();
   const ctrl = useController();
+  const router = useRouter();
   const [handleSubmit, loading, error] = useLoading(
     async (data: FormData) => {
       const post = await ctrl.fetch(PostResource.getList.push, data);
-      emit('navigateToPost', post.id);
+      router.push(`/posts/${post.id}`);
     },
   );
 </script>
 
 <template>
   <PostForm @submit="handleSubmit" :loading="loading" :error="error" />
-</template>
-```
-
-```html title="Navigation.vue"
-<script setup lang="ts">
-  import { ref } from 'vue';
-  import PostCreate from './PostCreate.vue';
-  import PostDetail from './PostDetail.vue';
-
-  const id = ref<number | undefined>(undefined);
-</script>
-
-<template>
-  <div v-if="id">
-    <Suspense>
-      <PostDetail :id="id" />
-    </Suspense>
-    <div style="text-align: center">
-      <button @click="id = undefined">New Post</button>
-    </div>
-  </div>
-  <PostCreate v-else @navigate-to-post="id = $event" />
 </template>
 ```
 

@@ -1,3 +1,4 @@
+import Translate from '@docusaurus/Translate';
 import CodeBlock from '@theme/CodeBlock';
 
 import styles from './Wrapper.module.css';
@@ -13,8 +14,10 @@ export default function Request({ input, init }: Props) {
   }
   return (
     <div>
-      <Header small>Request</Header>
-      <CodeBlock language="bash" className={styles.containedCode}>
+      <Header small>
+        <Translate id="http.request">Request</Translate>
+      </Header>
+      <CodeBlock language="http" className={styles.containedCode}>
         {text}
       </CodeBlock>
     </div>

@@ -1,6 +1,32 @@
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import {RestEndpoint} from '@data-client/rest';
 
+export const raceDemo = [
+  { delay: 800, store: 'open' },
+  { delay: 1000, click: '.vote button.up' },
+  { delay: 250, click: '.vote button.up' },
+  { delay: 250, click: '.vote button.up' },
+  { delay: 250, click: '.vote button.up' },
+  // past the slowest increment response (the fixture's 5s), so the
+  // timeline holds every response
+  { wait: 5500 },
+  { click: { in: 'store', selector: 'button[aria-label="Diff"]' } },
+  // the first action (the count's load), then on through each change, time
+  // to read each diff: 8 = the 4 clicks' optimistic updates and responses
+  {
+    click: {
+      in: 'store',
+      selector: '[role="group"][aria-label^="Scrubber"] button[data-id]',
+    },
+  },
+  ...Array.from({ length: 8 }, () => ({
+    delay: 1500,
+    click: { in: 'store', selector: 'button[aria-label="Next change"]' },
+  })),
+  // Store → Code: back to the code that did it
+  { delay: 2000, store: 'close' },
+];
+
 <FrameworkPlayground fixtures={[
 {
 endpoint: new RestEndpoint({path: '/api/count'}),
@@ -23,6 +49,7 @@ delay: () => 500 + Math.random() * 4500,
 ]}
 getInitialInterceptorData={() => ({count: 0})}
 row
+autoRun={raceDemo}
 >
 
 ```ts title="count" collapsed
@@ -65,7 +92,8 @@ export const increment = new RestEndpoint({
 :::react
 
 ```tsx title="CounterPage" collapsed
-import { useLoading } from '@data-client/react';
+import React from 'react';
+import { useController, useSuspense, useLoading } from '@data-client/react';
 import { getCount } from './count';
 import { increment } from './increment';
 

@@ -8,30 +8,32 @@ For instance [fetch](./Controller.md#fetch), [invalidate](./Controller.md#invali
 and [setResponse](./Controller.md#setResponse)
 
 ```tsx
+import { useCallback } from 'react';
 import { useController } from '@data-client/react';
+import { MyResource } from './resources';
 
-function MyComponent({ id }) {
+function MyComponent({ id }: { id: string }) {
   const ctrl = useController();
 
   const handleRefresh = useCallback(
     async e => {
       await ctrl.fetch(MyResource.get, { id });
     },
-    [fetch, id],
+    [ctrl, id],
   );
 
   const handleSuspend = useCallback(
     async e => {
       await ctrl.invalidate(MyResource.get, { id });
     },
-    [invalidate, id],
+    [ctrl, id],
   );
 
   const handleLogout = useCallback(
     async e => {
       ctrl.resetEntireStore();
     },
-    [resetEntireStore],
+    [ctrl],
   );
 }
 ```
@@ -43,8 +45,14 @@ function MyComponent({ id }) {
 [fetch](./Controller.md#fetch) returns the denormalized response, matching [useSuspense()](./useSuspense.md)'s return type. This allows using Entity methods like `pk()`.
 
 ```tsx
+import type { FormEvent } from 'react';
+import { useNavigate } from 'react-router';
+import { useController } from '@data-client/react';
+import { PostResource } from './PostResource';
+
 function CreatePost() {
   const ctrl = useController();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -66,6 +74,9 @@ function CreatePost() {
 Use [set](./Controller.md#set) for immediate updates without network requests. Supports functional updates to avoid race conditions.
 
 ```tsx
+import { useController } from '@data-client/react';
+import { Article } from './Article';
+
 function VoteButton({ articleId }: { articleId: string }) {
   const ctrl = useController();
 
@@ -89,6 +100,9 @@ function VoteButton({ articleId }: { articleId: string }) {
 Force refetch of related data using [invalidate](./Controller.md#invalidate) or [expireAll](./Controller.md#expireAll).
 
 ```tsx
+import { useController } from '@data-client/react';
+import { UserResource } from './UserResource';
+
 function ClearUserCache({ userId }: { userId: string }) {
   const ctrl = useController();
 
@@ -111,6 +125,10 @@ function ClearUserCache({ userId }: { userId: string }) {
 Use [fetchIfStale](./Controller.md#fetchIfStale) to prefetch without overfetching fresh data.
 
 ```tsx
+import { Link } from 'react-router';
+import { useController } from '@data-client/react';
+import { ArticleResource } from './ArticleResource';
+
 function ArticleLink({ id }: { id: string }) {
   const ctrl = useController();
 
@@ -130,6 +148,10 @@ function ArticleLink({ id }: { id: string }) {
 Populate cache with external data via [set](./Controller.md#set).
 
 ```tsx
+import { useEffect } from 'react';
+import { useController } from '@data-client/react';
+import { EntityMap } from './resources';
+
 function useWebsocket(url: string) {
   const ctrl = useController();
 

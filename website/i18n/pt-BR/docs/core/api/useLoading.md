@@ -1,0 +1,226 @@
+---
+title: useLoading() - Transforme qualquer promise em estado do React
+vue_title: useLoading() - Transforme qualquer promise em estado do Vue
+sidebar_label: useLoading()
+description: Acompanhe o estado de carregamento e de erro de qualquer função assíncrona.
+---
+
+import UseLoading from '../shared/\_useLoading.mdx';
+import PkgInstall from '@site/src/components/PkgInstall';
+import StackBlitz from '@site/src/components/StackBlitz';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import {
+postFixtures,
+getInitialInterceptorData,
+} from '@site/src/fixtures/posts';
+
+# useLoading()
+
+Ajuda a acompanhar o estado de carregamento e de erro de funções assíncronas imperativas.
+
+:::tip
+
+[useSuspense()](./useSuspense.md) ou [useDLE()](./useDLE.md) são melhores para endpoints GET/de leitura.
+
+:::
+
+## Uso {#usage}
+
+:::react
+
+<UseLoading />
+
+Assim como [useCallback](https://react.dev/reference/react/useCallback), recebe uma lista de dependências para
+garantir a consistência referencial da função.
+
+:::
+
+:::vue
+
+<FrameworkPlayground fixtures={postFixtures} getInitialInterceptorData={getInitialInterceptorData} row>
+
+```ts title="PostResource" collapsed
+import { Entity, resource } from '@data-client/rest';
+
+export class Post extends Entity {
+  id = 0;
+  author = 0;
+  title = '';
+  body = '';
+  votes = 0;
+
+  static key = 'Post';
+
+  get img() {
+    return `https://picsum.photos/seed/${this.id % 16}/96/72`;
+  }
+}
+export const PostResource = resource({
+  path: '/posts/:id',
+  schema: Post,
+});
+```
+
+```html title="PostDetail.vue" route="/posts/:id" collapsed
+<script setup lang="ts">
+  import { computed } from 'vue';
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource } from './PostResource';
+
+  const props = defineProps<{ id: string }>();
+  const post = await useSuspense(PostResource.get, computed(() => ({
+    id: props.id,
+  })));
+</script>
+
+<template>
+  <div>
+    <div class="voteBlock">
+      <img :src="post.img" width="70" height="52" />
+    </div>
+    <div>
+      <h4>{{ post.title }}</h4>
+      <p>{{ post.body }}</p>
+    </div>
+  </div>
+</template>
+```
+
+```html title="PostForm.vue" collapsed
+<script setup lang="ts">
+  defineProps<{
+    loading: boolean;
+    error: Error | undefined;
+  }>();
+  const emit = defineEmits<{ submit: [data: FormData] }>();
+
+  const handleSubmit = (e: Event) => {
+    e.preventDefault();
+    emit('submit', new FormData(e.target as HTMLFormElement));
+  };
+</script>
+
+<template>
+  <form @submit="handleSubmit" :aria-busy="loading">
+    <fieldset :disabled="loading">
+      <TextInput
+        label="Title"
+        name="title"
+        defaultValue="My New Post"
+        required
+      />
+      <TextArea name="body" :rows="12" label="Body" required>
+        After clicking 'save', the form is locked and the button animates
+        until the POST completes. Upon completion the newly
+        created post is displayed immediately as Reactive Data Client is
+        able to use the fetch response to populate the store.
+      </TextArea>
+      <div v-if="error" class="alert alert--danger">{{ error.message }}</div>
+      <button type="submit">{{ loading ? 'Saving…' : 'Save' }}</button>
+    </fieldset>
+  </form>
+</template>
+```
+
+```html title="PostCreate.vue" route="/"
+<script setup lang="ts">
+  import { useLoading, useController } from '@data-client/vue';
+  import { useRouter } from 'vue-router';
+  import { PostResource } from './PostResource';
+  import PostForm from './PostForm.vue';
+
+  const ctrl = useController();
+  const router = useRouter();
+  // highlight-start
+  const [handleSubmit, loading, error] = useLoading(
+    async (data: FormData) => {
+      const post = await ctrl.fetch(PostResource.getList.push, data);
+      router.push(`/posts/${post.id}`);
+    },
+  );
+  // highlight-end
+</script>
+
+<template>
+  <PostForm @submit="handleSubmit" :loading="loading" :error="error" />
+</template>
+```
+
+</FrameworkPlayground>
+
+Retorna a função encapsulada junto com os [refs](https://vuejs.org/api/reactivity-core.html#ref) `loading` e `error`.
+A função encapsulada é estável, portanto não é necessária uma lista de dependências: quaisquer refs ou props que ela lê
+são lidos no momento da chamada.
+
+:::
+
+::::react
+
+## Eslint {#eslint}
+
+:::tip[Configuração do Eslint]
+
+Como usamos a lista de deps, não deixe de adicionar useLoading à configuração 'additionalHooks'
+da regra [react-hooks/exhaustive-deps](https://www.npmjs.com/package/eslint-plugin-react-hooks), caso você a utilize.
+
+```js
+{
+  "rules": {
+    // ...
+    "react-hooks/exhaustive-deps": ["warn", {
+      "additionalHooks": "(useLoading)"
+    }]
+  }
+}
+```
+
+:::
+
+::::
+
+## Tipos {#types}
+
+:::react
+
+```typescript
+export default function useLoading<
+  F extends (...args: any) => Promise<any>,
+>(func: F, deps: readonly any[] = []): [F, boolean, Error | undefined];
+```
+
+:::
+
+:::vue
+
+```typescript
+export default function useLoading<
+  F extends (...args: any) => Promise<any>,
+>(func: F): [F, Ref<boolean>, Ref<Error | undefined>];
+```
+
+`loading` é `true` enquanto a promise retornada estiver pendente. Se `func` for rejeitada, a rejeição é
+capturada e armazenada em `error`; ela é limpa novamente na próxima chamada.
+
+:::
+
+## Exemplos {#examples}
+
+:::react
+
+### Paginação do Github {#github-pagination}
+
+<StackBlitz app="github-app" file="src/resources/Issue.tsx,src/pages/IssueList.tsx,src/pages/NextPage.tsx" view="editor" />
+
+### Envio do formulário de comentário do Github {#github-comment-form-submission}
+
+<StackBlitz app="github-app" file="src/pages/IssueDetail/CreateComment.tsx,src/pages/IssueDetail/CommentForm.tsx" view="editor" />
+
+:::
+
+:::vue
+
+### Criação de Todo {#todo-creation}
+
+<StackBlitz app="vue-todo-app" file="src/components/TodoList.vue,src/resources/TodoResource.ts" view="editor" />
+
+:::

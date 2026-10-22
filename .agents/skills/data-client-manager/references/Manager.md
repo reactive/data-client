@@ -63,9 +63,10 @@ have internal state, so it is important to not constantly recreate them.
 ```tsx title="index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 import MyManager from './MyManager';
 
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = [new MyManager(), ...getDefaultManagers()];
 
 createRoot(document.body).render(
   <DataProvider managers={managers}>
@@ -79,9 +80,10 @@ createRoot(document.body).render(
 ```tsx title="index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { AppRegistry } from 'react-native';
+import App from './App';
 import MyManager from './MyManager';
 
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = [new MyManager(), ...getDefaultManagers()];
 
 const Root = () => (
   <DataProvider managers={managers}>
@@ -99,7 +101,7 @@ import { getDefaultManagers } from '@data-client/react';
 import { DataProvider } from '@data-client/react/nextjs';
 import MyManager from './MyManager';
 
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = [new MyManager(), ...getDefaultManagers()];
 
 export default function Provider({
   children,
@@ -131,7 +133,7 @@ import { Stack } from 'expo-router';
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import MyManager from './MyManager';
 
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = [new MyManager(), ...getDefaultManagers()];
 
 export default function RootLayout() {
   return (
@@ -143,6 +145,9 @@ export default function RootLayout() {
   );
 }
 ```
+
+Actions pass through managers in array order. List custom managers before the defaults: [NetworkManager](https://dataclient.io/docs/api/NetworkManager)
+resolves most FETCH actions itself instead of passing them on.
 
 ## Control flow
 

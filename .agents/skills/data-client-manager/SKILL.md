@@ -1,6 +1,6 @@
 ---
 name: data-client-manager
-description: Implement @data-client Managers for global/background side effects - websocket, SSE, polling, real-time updates, subscriptions, logging, analytics, metrics/timing, error reporting (Sentry), toast notifications, refetch on window focus or network reconnect, cross-tab sync (BroadcastChannel), offline persistence (localStorage/IndexedDB), auth logout on 401, middleware, intercepting Controller actions, DataProvider managers prop, redux-style action handling. Use when adding cross-cutting store behavior, reacting to dispatched actions, or handling external event streams.
+description: Write @data-client Managers for app-wide side effects and real-time data such as websockets, SSE and polling: code that reacts to every request or to events from outside the app and updates the store. Use one instead of useEffect for behavior that belongs to the whole app, such as error toasts and reporting, logging and analytics, auth failures, refetching on focus or reconnect, and cross-tab sync.
 license: Apache 2.0
 ---
 
@@ -12,6 +12,8 @@ They interface with the store using [Controller](references/Controller.md), and 
 ## Single Responsibility
 
 One concern per Manager; compose many small managers (e.g. transport, subscriptions, logging, auth) rather than one large one.
+
+Every Manager defines a `middleware` property and a `cleanup()` method. A Manager with nothing to intercept passes actions through: `middleware: Middleware = controller => next => async action => next(action);`
 
 ## Use cases
 
@@ -159,11 +161,13 @@ export default class CustomSubsManager implements Manager {
 
 ## Usage
 
+List custom managers before `...getDefaultManagers()`. Actions pass through managers in array order, and NetworkManager (one of the defaults) resolves each FETCH itself instead of passing it on (only optimistic mutations continue), so a manager listed after it misses most fetches:
+
 ```tsx
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
 
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = [new MyManager(), ...getDefaultManagers()];
 
 createRoot(document.body).render(
   <DataProvider managers={managers}>

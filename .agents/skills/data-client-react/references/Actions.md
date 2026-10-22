@@ -26,7 +26,7 @@ interface FetchMeta {
   fetchedAt: number;
   resolve: (value?: any | PromiseLike<any>) => void;
   reject: (reason?: any) => void;
-  promise: PromiseLike<any>;
+  promise: Promise<any>;
 }
 
 interface FetchAction {

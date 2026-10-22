@@ -24,7 +24,7 @@ Schema driven. Zero updater functions.
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-cc785c?style=flat-square&logo=claude&logoColor=white)](https://skills.sh/reactive/data-client)
 [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
 
-**[📖Read The Docs](https://dataclient.io/docs)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/docs/getting-started/agent-skills) &nbsp;|&nbsp; [🤖Agent Skills](https://skills.sh/reactive/data-client) <br/>🎮 **Demos:** &nbsp;
+**[📖Read The Docs](https://dataclient.io/docs)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/docs/getting-started/installation) &nbsp;|&nbsp; [🤖Agent Skills](https://skills.sh/reactive/data-client) <br/>🎮 **Demos:** &nbsp;
 [Todo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx) &nbsp;|&nbsp;
 [Github](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx) &nbsp;|&nbsp;
 [NextJS SSR](https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=components%2Ftodo%2FTodoList.tsx) &nbsp;|&nbsp;
@@ -38,15 +38,23 @@ Schema driven. Zero updater functions.
 npm install --save @data-client/react @data-client/rest @data-client/test
 ```
 
-For more details, see [the Getting Started docs page](https://dataclient.io/docs/getting-started/agent-skills).
-
-### Skills
+To have Claude Code, Cursor or Codex load the [skills](https://agentskills.io) these packages ship for their version, link them into `.agents/skills` (`.claude/skills` links to it) and commit the links:
 
 ```bash
-npx skills add reactive/data-client
+npx --no data-client-skills
 ```
 
-Then run [skill](https://agentskills.io) "data-client-setup"
+For more details, see [the Getting Started docs page](https://dataclient.io/docs/getting-started/installation).
+
+### Let your coding agent set it up
+
+Or skip the install above and tell your coding agent:
+
+```prompt
+Set up `@data-client/react` and use it for all API data. Install its setup skill first: `npx skills add reactive/data-client --skill data-client-setup -y`, then follow it.
+```
+
+It installs the packages, wires up the provider and links the skills they ship.
 
 ## Usage
 
@@ -245,7 +253,7 @@ const Story = () => (
 
 ### ...all typed ...fast ...and consistent
 
-For the small price of 9kb gzipped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/docs/getting-started/agent-skills)
+For the small price of 9kb gzipped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/docs/getting-started/installation)
 
 ## Features
 

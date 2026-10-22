@@ -1,0 +1,30 @@
+import CodeBlock from '@theme/CodeBlock';
+
+::::tip[Dependências condicionais]
+
+Usar `null` como segundo argumento de qualquer hook do <abbr title="Reactive Data Client">Data Client</abbr> significa "não fazer nada."
+
+:::react
+
+<CodeBlock
+  language="typescript">
+  {`// todo could be undefined if id is undefined
+const todo = ${props.hook ?? 'useSuspense'}(TodoResource.get, id ? { id } : null);`}
+</CodeBlock>
+
+:::
+
+:::vue
+
+<CodeBlock
+  language="typescript">
+  {`// todo could be undefined if id is undefined
+const todo = ${(props.hook ?? 'useSuspense') === 'useSuspense' ? 'await ' : ''}${props.hook ?? 'useSuspense'}(
+  TodoResource.get,
+  computed(() => (id.value ? { id: id.value } : null)),
+);`}
+</CodeBlock>
+
+:::
+
+::::

@@ -106,7 +106,6 @@ describe('<DataProvider />', () => {
     const { rerender } = render(tree);
     expect(dispatch).toBeDefined();
     let curDisp = dispatch;
-    let curController = controller;
     rerender(tree);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
@@ -117,7 +116,7 @@ describe('<DataProvider />', () => {
     rerender(<DataProvider managers={managers}>{chil}</DataProvider>);
     expect(count).toBe(1);
     curDisp = dispatch;
-    curController = controller;
+    const curController = controller;
     rerender(<DataProvider managers={managers}>{chil}</DataProvider>);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
@@ -130,6 +129,24 @@ describe('<DataProvider />', () => {
     );
     expect(curController).not.toBe(controller);
     expect(count).toBe(2);
+  });
+
+  it('should construct a Controller subclass with its own members', () => {
+    class MyController extends Controller {
+      doSomething = () => 'hi';
+    }
+    let ctrl: Controller | undefined;
+    function ContextTester() {
+      ctrl = useController();
+      return null;
+    }
+    render(
+      <DataProvider Controller={MyController}>
+        <ContextTester />
+      </DataProvider>,
+    );
+    expect(ctrl).toBeInstanceOf(MyController);
+    expect((ctrl as MyController).doSomething()).toBe('hi');
   });
 
   it('should change state', () => {

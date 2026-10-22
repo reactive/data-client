@@ -32,7 +32,7 @@ export default function mockInitialState(
 
 function dispatchFixture(
   fixture: Fixture,
-  args: any[],
+  args: readonly any[],
   controller: Controller,
   fetchedAt?: number,
 ) {

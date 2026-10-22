@@ -39,6 +39,7 @@ const PLATFORMS = {
     imports: [
       ...importLine(['DataProvider', ...names], '@data-client/react'),
       "import { createRoot } from 'react-dom/client';",
+      "import App from './App';",
     ],
     body: `createRoot(document.body).render(
   <DataProvider${managersProp(managers)}>
@@ -51,6 +52,7 @@ const PLATFORMS = {
     imports: [
       ...importLine(['DataProvider', ...names], '@data-client/react'),
       "import { AppRegistry } from 'react-native';",
+      "import App from './App';",
     ],
     body: `const Root = () => (
   <DataProvider${managersProp(managers)}>

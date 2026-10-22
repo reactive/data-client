@@ -3,12 +3,13 @@ import * as rhReact from '@data-client/react';
 import * as rhReactNext from '@data-client/react/next';
 import * as rest from '@data-client/rest';
 import BigNumber from 'bignumber.js';
-import { use } from 'react';
+import { Suspense, use } from 'react';
+// uses native Temporal (and its Intl) when the browser has it
+import { Temporal, Intl } from 'temporal-polyfill';
 import { v4 as uuid } from 'uuid';
 
-import ResetableErrorBoundary from '../../ResettableErrorBoundary';
 import * as designSystem from '../DesignSystem';
-import { Temporal, Intl, DateTimeFormat } from './temporal';
+import { Link, ROUTER, Router, useNavigate } from './router';
 
 function randomFloatInRange(min: number, max: number, decimals: number) {
   return parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
@@ -34,13 +35,16 @@ export const previewScope = {
   ...graphql,
   ...rest,
   use,
+  Suspense,
   uuid,
   randomFloatInRange,
   mockFetch,
   BigNumber,
-  ResetableErrorBoundary,
   Temporal,
   Intl,
-  DateTimeFormat,
+  DateTimeFormat: Intl.DateTimeFormat,
   ...designSystem,
+  Link,
+  useNavigate,
+  [ROUTER]: Router,
 };

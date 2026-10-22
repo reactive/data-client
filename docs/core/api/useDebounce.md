@@ -89,11 +89,12 @@ export const issueQuery = new RestEndpoint({
 :::react
 
 ```tsx title="IssueList" collapsed
+import React from 'react';
 import { useSuspense } from '@data-client/react';
 import { issueQuery } from './IssueQuery';
 
 function IssueList({ query, owner, repo }) {
-  const q = `${query} repo:${owner}/${repo}`;
+  const q = `${query} repo:${owner}/${repo} is:issue`;
   const response = useSuspense(issueQuery, { q });
   return (
     <>
@@ -113,7 +114,8 @@ function IssueList({ query, owner, repo }) {
 export default React.memo(IssueList) as typeof IssueList;
 ```
 
-```tsx title="SearchIssues" {8}
+```tsx title="SearchIssues" {9}
+import React from 'react';
 import { AsyncBoundary } from '@data-client/react';
 import { useDebounce } from '@data-client/react';
 import IssueList from './IssueList';
@@ -135,8 +137,8 @@ export default function SearchIssues() {
       >
         <SearchIcon />
       </TextInput>
-      <AsyncBoundary fallback={<Loading />}>
-        <IssueList query={debouncedQuery} owner="facebook" repo="react" />
+      <AsyncBoundary fallback={<Loading />} errorComponent={ErrorMessage}>
+        <IssueList query={debouncedQuery} owner="react" repo="react" />
       </AsyncBoundary>
     </>
   );
@@ -160,7 +162,7 @@ render(<SearchIssues />);
     repo: string;
   }>();
   const response = await useSuspense(issueQuery, computed(() => ({
-    q: `${props.query} repo:${props.owner}/${props.repo}`,
+    q: `${props.query} repo:${props.owner}/${props.repo} is:issue`,
   })));
 </script>
 
@@ -174,13 +176,19 @@ render(<SearchIssues />);
 
 ```html title="SearchIssues.vue"
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { onErrorCaptured, ref } from 'vue';
   import { useDebounce } from '@data-client/vue';
   import IssueList from './IssueList.vue';
 
   const query = ref('');
   // highlight-next-line
   const [debouncedQuery, isPending] = useDebounce(query, 200);
+
+  const error = ref<Error | null>(null);
+  onErrorCaptured(e => {
+    error.value = e;
+    return false;
+  });
 </script>
 
 <template>
@@ -194,8 +202,13 @@ render(<SearchIssues />);
   >
     <SearchIcon />
   </TextInput>
-  <Suspense>
-    <IssueList :query="debouncedQuery" owner="facebook" repo="react" />
+  <ErrorMessage
+    v-if="error"
+    :error="error"
+    :resetErrorBoundary="() => (error = null)"
+  />
+  <Suspense v-else>
+    <IssueList :query="debouncedQuery" owner="react" repo="react" />
     <template #fallback><Loading /></template>
   </Suspense>
 </template>

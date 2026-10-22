@@ -1,0 +1,191 @@
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import {
+  postFixtures,
+  getInitialInterceptorData,
+} from '@site/src/fixtures/posts';
+
+<FrameworkPlayground fixtures={postFixtures} getInitialInterceptorData={getInitialInterceptorData} row>
+
+```ts title="PostResource" collapsed
+import { Entity, resource } from '@data-client/rest';
+
+export class Post extends Entity {
+  id = 0;
+  author = 0;
+  title = '';
+  body = '';
+  votes = 0;
+
+  static key = 'Post';
+
+  get img() {
+    return `https://picsum.photos/seed/${this.id % 16}/96/72`;
+  }
+}
+export const PostResource = resource({
+  path: '/posts/:id',
+  schema: Post,
+});
+```
+
+:::react
+
+```tsx title="PostDetail" route="/posts/:id" collapsed
+import { useSuspense } from '@data-client/react';
+import { PostResource } from './PostResource';
+
+export default function PostDetail({ id }) {
+  const post = useSuspense(PostResource.get, { id });
+  return (
+    <div>
+      <div className="voteBlock">
+        <img src={post.img} width="70" height="52" />
+      </div>
+      <div>
+        <h4>{post.title}</h4>
+        <p>{post.body}</p>
+      </div>
+    </div>
+  );
+}
+```
+
+```tsx title="PostForm" collapsed
+export default function PostForm({ onSubmit, loading, error }) {
+  const handleSubmit = e => {
+    e.preventDefault();
+    const data = new FormData(e.target);
+    onSubmit(data);
+  };
+  return (
+    <form onSubmit={handleSubmit} aria-busy={loading}>
+      <fieldset disabled={loading}>
+        <TextInput
+          label="Title"
+          name="title"
+          defaultValue="My New Post"
+          required
+        />
+        <TextArea name="body" rows={12} label="Body" required>
+          After clicking 'save', the form is locked and the button animates
+          until the POST completes. Upon completion the newly
+          created post is displayed immediately as Reactive Data Client is
+          able to use the fetch response to populate the store.
+        </TextArea>
+        {error ? (
+          <div className="alert alert--danger">{error.message}</div>
+        ) : null}
+        <button type="submit">{loading ? 'Saving…' : 'Save'}</button>
+      </fieldset>
+    </form>
+  );
+}
+```
+
+```tsx title="PostCreate" route="/" {8}
+import { useLoading, useController } from '@data-client/react';
+import { PostResource } from './PostResource';
+import PostForm from './PostForm';
+
+export default function PostCreate() {
+  const ctrl = useController();
+  const navigate = useNavigate();
+  const [handleSubmit, loading, error] = useLoading(
+    async data => {
+      const post = await ctrl.fetch(PostResource.getList.push, data);
+      navigate(`/posts/${post.id}`);
+    },
+    [ctrl, navigate],
+  );
+  return (
+    <PostForm onSubmit={handleSubmit} loading={loading} error={error} />
+  );
+}
+```
+
+:::
+
+:::vue
+
+```html title="PostDetail.vue" route="/posts/:id" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource } from './PostResource';
+
+  const props = defineProps<{ id: string }>();
+  const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
+</script>
+
+<template>
+  <div>
+    <div class="voteBlock">
+      <img :src="post.img" width="70" height="52" />
+    </div>
+    <div>
+      <h4>{{ post.title }}</h4>
+      <p>{{ post.body }}</p>
+    </div>
+  </div>
+</template>
+```
+
+```html title="PostForm.vue" collapsed
+<script setup lang="ts">
+  defineProps<{ loading: boolean; error: Error | undefined }>();
+  const emit = defineEmits<{ submit: [data: FormData] }>();
+
+  const handleSubmit = (e: Event) => {
+    e.preventDefault();
+    const data = new FormData(e.target as HTMLFormElement);
+    emit('submit', data);
+  };
+</script>
+
+<template>
+  <form @submit="handleSubmit" :aria-busy="loading">
+    <fieldset :disabled="loading">
+      <TextInput
+        label="Title"
+        name="title"
+        defaultValue="My New Post"
+        required
+      />
+      <TextArea name="body" :rows="12" label="Body" required>
+        After clicking 'save', the form is locked and the button animates
+        until the POST completes. Upon completion the newly
+        created post is displayed immediately as Reactive Data Client is
+        able to use the fetch response to populate the store.
+      </TextArea>
+      <div v-if="error" class="alert alert--danger">{{ error.message }}</div>
+      <button type="submit">{{ loading ? 'Saving…' : 'Save' }}</button>
+    </fieldset>
+  </form>
+</template>
+```
+
+```html title="PostCreate.vue" route="/" {10-15}
+<script setup lang="ts">
+  import { useLoading, useController } from '@data-client/vue';
+  import { useRouter } from 'vue-router';
+  import { PostResource } from './PostResource';
+  import PostForm from './PostForm.vue';
+
+  const ctrl = useController();
+  const router = useRouter();
+
+  const [handleSubmit, loading, error] = useLoading(
+    async (data: FormData) => {
+      const post = await ctrl.fetch(PostResource.getList.push, data);
+      router.push(`/posts/${post.id}`);
+    },
+  );
+</script>
+
+<template>
+  <PostForm @submit="handleSubmit" :loading="loading" :error="error" />
+</template>
+```
+
+:::
+
+</FrameworkPlayground>

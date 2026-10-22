@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/@changesets/config@2.3.1/schema.json",
+  "$schema": "https://unpkg.com/@changesets/config@4.0.1/schema.json",
   "changelog": ["./changelog-github-custom.js", { "repo": "reactive/data-client" }],
   "commit": false,
   "linked": [
@@ -26,5 +26,6 @@
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
     "onlyUpdatePeerDependentsWhenOutOfRange": true
   },
+  "privatePackages": { "version": true, "tag": false },
   "ignore": []
 }

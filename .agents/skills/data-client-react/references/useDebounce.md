@@ -59,11 +59,12 @@ export const issueQuery = new RestEndpoint({
 ```
 
 ```tsx title="IssueList"
+import React from 'react';
 import { useSuspense } from '@data-client/react';
 import { issueQuery } from './IssueQuery';
 
 function IssueList({ query, owner, repo }) {
-  const q = `${query} repo:${owner}/${repo}`;
+  const q = `${query} repo:${owner}/${repo} is:issue`;
   const response = useSuspense(issueQuery, { q });
   return (
     <>
@@ -83,7 +84,8 @@ function IssueList({ query, owner, repo }) {
 export default React.memo(IssueList) as typeof IssueList;
 ```
 
-```tsx title="SearchIssues" {8}
+```tsx title="SearchIssues" {9}
+import React from 'react';
 import { AsyncBoundary } from '@data-client/react';
 import { useDebounce } from '@data-client/react';
 import IssueList from './IssueList';
@@ -105,8 +107,8 @@ export default function SearchIssues() {
       >
         <SearchIcon />
       </TextInput>
-      <AsyncBoundary fallback={<Loading />}>
-        <IssueList query={debouncedQuery} owner="facebook" repo="react" />
+      <AsyncBoundary fallback={<Loading />} errorComponent={ErrorMessage}>
+        <IssueList query={debouncedQuery} owner="react" repo="react" />
       </AsyncBoundary>
     </>
   );

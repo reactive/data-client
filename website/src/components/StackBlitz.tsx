@@ -1,4 +1,5 @@
 import Link from '@docusaurus/Link';
+import Translate, { translate } from '@docusaurus/Translate';
 
 import { isBot } from './Playground/userAgent';
 import styles from './StackBlitz.module.css';
@@ -54,32 +55,42 @@ export default function StackBlitz({
     <>
       <div className={styles.card}>
         <p className={styles.cardTitle}>
-          {app ? `Explore the ${app} example` : 'Explore the example'}
+          {app ?
+            <Translate id="stackblitz.exploreApp" values={{ app }}>
+              {'Explore the {app} example'}
+            </Translate>
+          : <Translate id="stackblitz.explore">Explore the example</Translate>}
         </p>
         <div className={styles.cardLinks}>
           <Link
             className="button button--primary"
             to={`${projectUrl}?${new URLSearchParams({ file })}`}
           >
-            Open in StackBlitz
+            <Translate id="stackblitz.open">Open in StackBlitz</Translate>
           </Link>
           <Link
             className="button button--secondary"
             to={`https://github.com/reactive/${projectPath}`}
           >
-            View source
+            <Translate id="stackblitz.source">View source</Translate>
           </Link>
         </div>
       </div>
       <div className={styles.wrapper}>
         <span className={styles.loading} aria-hidden="true">
-          Loading demo…
+          <Translate id="stackblitz.loading">Loading demo…</Translate>
         </span>
         <iframe
           ref={frameRef}
           width={width}
           height={height}
-          title={`${app ?? repo} demo on StackBlitz`}
+          title={translate(
+            {
+              id: 'stackblitz.frameTitle',
+              message: '{name} demo on StackBlitz',
+            },
+            { name: app ?? repo },
+          )}
           className={styles.frame}
           {...(hasIntersected && !isBot ?
             {
@@ -92,7 +103,7 @@ export default function StackBlitz({
       </div>
       <p style={{ textAlign: 'center' }}>
         <Link className="button button--secondary button--sm" to="/demos">
-          More Demos
+          <Translate id="stackblitz.moreDemos">More Demos</Translate>
         </Link>
       </p>
     </>

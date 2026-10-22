@@ -84,6 +84,9 @@ render(<PostWithComments id={1} />);
 > in another component.
 
 ```tsx
+import { useFetch } from '@data-client/react';
+import { PostResource } from './resources/Post';
+
 function MasterPost({ id }: { id: number }) {
   useFetch(PostResource.get, { id });
   // ...
@@ -148,6 +151,9 @@ function useFetch<
 Use `promise.resolved` to check whether data is still loading:
 
 ```tsx
+import { useFetch } from '@data-client/react';
+import { PostResource } from './resources/Post';
+
 function MasterPost({ id }: { id: number }) {
   const promise = useFetch(PostResource.get, { id });
   if (!promise.resolved) {

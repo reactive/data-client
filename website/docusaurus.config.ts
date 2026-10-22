@@ -2,18 +2,21 @@ import type * as Preset from '@docusaurus/preset-classic';
 import type * as PresetMermaid from '@docusaurus/theme-mermaid';
 import type { Config } from '@docusaurus/types';
 import { GlobExcludeDefault, getVcsPreset } from '@docusaurus/utils';
+import fs from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
 import { themes } from 'prism-react-renderer';
 
 import gqlRedirects from './gqlRedirects';
+import { versionLabel } from './scripts/snapshot/versionLabel';
+import { siteLabel, siteVersions, versionCurrent } from './siteVersions';
+import { motionCss } from './src/components/motion/css';
+import { DEFAULT_LOCALE, LOCALES } from './translate/locales';
 import versions from './versions.json';
 
 // Keep Monaco CDN preload hashes in sync with the installed monaco-editor package.
 const require = createRequire(path.join(__dirname, 'package.json'));
 require('./scripts/generateMonacoPreloads.cjs').ensureMonacoPreloadManifest();
-// Real history for "Last updated" dates (Vercel clones shallow)
-require('./scripts/deepenGitHistory.cjs').deepenGitHistory();
 
 //const versionsRest = require('./rest_versions.json');
 
@@ -22,44 +25,109 @@ const isDev = process.env.NODE_ENV === 'development';
 // docs/core is shared by React (/docs) and Vue (/vue); see framework-docs/
 const {
   docsInstance,
+  groupIds,
   frameworkInstance,
 } = require('./framework-docs/docsInstances.js');
 const frameworkDocs = require('./framework-docs/index.js');
+const frameworkDocsIds = groupIds('framework');
 const remarkFramework = require('./framework-docs/remarkFramework.js');
 // Non-Vue instances render React; :::vue reaches Vue agents via skill references
 const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
+const localeDocs = require('./translate/localeDocs.js');
+const remarkJoinCjkLines = require('./translate/remarkJoinCjkLines.js');
+// set by Docusaurus for the locale being built or served
+const currentLocale = process.env.DOCUSAURUS_CURRENT_LOCALE ?? DEFAULT_LOCALE;
+// This locale's path on the site root ('' or '/es')
+const localeRoot = currentLocale === DEFAULT_LOCALE ? '' : `/${currentLocale}`;
+const url = 'https://dataclient.io';
+// The production build of master while it's the next major, served at /next/
+// beside the current version's site (site-preview.yml). PR previews build
+// master alone, so they link to the current version on the production site.
+const isNext = !!versionCurrent && process.env.DOCS_NEXT === '1';
+const currentOrigin = isNext ? '' : url;
+// This build's baseUrl (/, /es/, /next/, /next/es/), so pages load static
+// files from their own build, the one an installed app's worker can serve
+const buildBase = `${isNext ? '/next' : ''}${localeRoot}/`;
 const vueDocs = frameworkDocs.generate('vue');
-if (isDev) frameworkDocs.watch('vue');
+// Each locale renders English with its translations in place
+// (translate/README.md); its Vue pages mirror its docs/core
+const locales = Object.keys(LOCALES);
+const mirrors = [
+  vueDocs,
+  ...locales.flatMap(locale => {
+    const docs = localeDocs.generate(locale);
+    // a Vue page maps to its docs/core page, which maps to what's committed
+    return [frameworkDocs.generate('vue', locale), docs];
+  }),
+];
+/** Committed source of a generated page (itself if not generated), for its git
+ * history. Paths can arrive relative to the site (generated blog posts' do);
+ * mirrors map absolute ones */
+const mirrorSourceOf = (file: string): string =>
+  mirrors.reduce(
+    (f, mirror) => mirror.sourceOf(f),
+    path.resolve(__dirname, file),
+  );
+if (isDev) {
+  frameworkDocs.watch('vue');
+  for (const locale of locales)
+    localeDocs.watch(locale, () => frameworkDocs.generate('vue', locale));
+}
 const vueInstance = frameworkInstance('vue');
+// Shared by light and dark so SSR (`theme`) and the client (`darkTheme`)
+// agree; color mode isn't known at build time, so SSR always emits `theme`.
+// Transparent plain background lets the container own the color
+// (`.theme-code-block`, and the Playground editor via `usePrismTheme()`); a
+// solid color on `<pre>` would cover the dark container until hydration.
+const prismPalenight = {
+  ...themes.palenight,
+  plain: { ...themes.palenight.plain, backgroundColor: 'transparent' },
+};
+
 const gitVcs = getVcsPreset('default-v1');
 const editRoot = 'https://github.com/reactive/data-client/edit/master';
+// Playground fixtures show readable functions in production (fixture-source.js)
+const recmaPlugins = [require('./fixture-source.js').recmaPlugin];
+// In Chinese, joins lines split inside a paragraph (translate/README.md)
+const localeRemarkPlugins =
+  currentLocale === DEFAULT_LOCALE ? [] : [remarkJoinCjkLines];
 /** Plugin options locating a docs instance (framework-docs/docsInstances.js) */
 const docsLocation = (id: string) => {
-  const { path: docsPath, routeBasePath } = docsInstance(id);
+  const { path: docsPath, routeBasePath, exclude = [] } = docsInstance(id);
   return {
     id,
     path: `../${docsPath}`,
     routeBasePath,
+    // replaces Docusaurus' defaults; keep them so `_` partials aren't published
+    exclude: [...GlobExcludeDefault, ...exclude],
     editUrl: ({ docPath }: { docPath: string }) =>
       `${editRoot}/${docsPath}/${docPath}`,
+    remarkPlugins: localeRemarkPlugins,
+    recmaPlugins,
   };
 };
 
 const config: Config = {
   title: 'Data Client',
   tagline: 'Async State Management without the Management',
-  url: 'https://dataclient.io',
-  baseUrl: '/',
+  url,
+  baseUrl: isNext ? '/next/' : '/',
   organizationName: 'data-client',
   projectName: 'data-client',
   trailingSlash: false,
+  // Pages without a translation render in English (see translate/README.md)
+  i18n: {
+    defaultLocale: DEFAULT_LOCALE,
+    locales: [DEFAULT_LOCALE, ...locales],
+  },
   markdown: {
     mermaid: true,
     hooks: {
       onBrokenMarkdownLinks: 'warn',
     },
-    // Vercel preview deploys publish `draft: true` pages so PRs can review them;
-    // production (VERCEL_ENV=production) and local builds still drop them.
+    // Preview deploys (VERCEL_ENV=preview, set by site-preview.yml) publish
+    // `draft: true` pages so PRs can review them; production and local builds
+    // still drop them.
     ...(process.env.VERCEL_ENV === 'preview' && {
       parseFrontMatter: async params => {
         const result = await params.defaultParseFrontMatter(params);
@@ -69,6 +137,7 @@ const config: Config = {
     }),
   },
   headTags: [
+    versionLabel(siteLabel),
     {
       tagName: 'link',
       attributes: {
@@ -131,34 +200,34 @@ const config: Config = {
     },
     {
       rel: 'preload',
-      href: '/css/font.css',
+      href: `${buildBase}css/font.css`,
       as: 'style',
       crossOrigin: 'anonymous',
     },
     {
       rel: 'preload',
-      href: '/font/Roboto-Mono.woff2',
+      href: `${buildBase}font/Roboto-Mono.woff2`,
       as: 'font',
       type: 'font/woff2',
       crossOrigin: 'anonymous',
     },
     {
       rel: 'preload',
-      href: '/font/Roboto-Mono-Italic.woff2',
+      href: `${buildBase}font/Roboto-Mono-Italic.woff2`,
       as: 'font',
       type: 'font/woff2',
       crossOrigin: 'anonymous',
     },
     {
       rel: 'preload',
-      href: '/font/Rubik.woff2',
+      href: `${buildBase}font/Rubik.woff2`,
       as: 'font',
       type: 'font/woff2',
       crossOrigin: 'anonymous',
     },
     {
       rel: 'preload',
-      href: '/font/Rubik-Italic.woff2',
+      href: `${buildBase}font/Rubik-Italic.woff2`,
       as: 'font',
       type: 'font/woff2',
       crossOrigin: 'anonymous',
@@ -171,40 +240,36 @@ const config: Config = {
     },
     {
       rel: 'stylesheet',
-      href: '/css/font.css',
+      href: `${buildBase}css/font.css`,
       crossOrigin: 'anonymous',
       media: 'all',
     },
     {
       rel: 'icon',
-      href: '/favicon.ico',
+      href: `${buildBase}favicon.ico`,
       type: 'image/x-icon',
     },
     {
       rel: 'icon',
       type: 'image/png',
-      href: '/img/favicon/favicon-16x16.png',
+      href: `${buildBase}img/favicon/favicon-16x16.png`,
       sizes: '16x16',
     },
     {
       rel: 'icon',
       type: 'image/png',
-      href: '/img/favicon/favicon-32x32.png',
+      href: `${buildBase}img/favicon/favicon-32x32.png`,
       sizes: '32x32',
     },
     {
       rel: 'apple-touch-icon',
       type: 'image/png',
-      href: '/apple-touch-icon.png',
+      href: `${buildBase}apple-touch-icon.png`,
       sizes: '180x180',
     },
     {
-      rel: 'manifest',
-      href: '/img/favicon/site.webmanifest',
-    },
-    {
       rel: 'mask-icon',
-      href: '/img/favicon/safari-pinned-tab.svg',
+      href: `${buildBase}img/favicon/safari-pinned-tab.svg`,
       color: '#3E96DB',
     },
     /*{
@@ -221,23 +286,37 @@ const config: Config = {
     }, TODO: figure out how to load this*/
   ],
   scripts: [],
-  clientModules: [require.resolve('./src/gtagfix.ts')],
+  clientModules: [
+    require.resolve('./src/gtagfix.ts'),
+    require.resolve('./src/staleDeploy.ts'),
+    require.resolve('./scripts/snapshot/versionMenu.client.ts'),
+    // /next/ builds its blog so its links are checked, but sends in-app blog
+    // links to the root's, as vercel.json does page loads: blog URLs never change
+    ...(isNext ?
+      [require.resolve('./scripts/snapshot/rootBlog.client.ts')]
+    : []),
+  ],
   //favicon: '/favicon.ico', we declare our own headers for this above
-  themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
+  themes: ['@docusaurus/theme-mermaid'],
   customFields: {
     repoUrl: 'https://github.com/reactive/data-client',
-    // read by FrameworkSelector to switch between differently named pages
-    frameworkEquivalents: frameworkDocs.frameworkEquivalents(),
+    // read by DocsSelector to switch between differently named pages
+    docsEquivalents: frameworkDocs.docsEquivalents(),
   },
   onBrokenLinks: 'warn',
   future: {
+    // Docusaurus Faster (Rspack, SWC), except that JS still compiles with
+    // Babel, which runs the React Compiler (babel.config.js).
+    // removeLegacyPostBuildHeadAttribute is required by ssgWorkerThreads.
+    v4: { fasterByDefault: true, removeLegacyPostBuildHeadAttribute: true },
+    faster: { swcJsLoader: false },
     // Generated Vue mirror pages have no git history; read their source's
     experimental_vcs: {
       ...gitVcs,
       getFileCreationInfo: file =>
-        gitVcs.getFileCreationInfo(vueDocs.sourceOf(file)),
+        gitVcs.getFileCreationInfo(mirrorSourceOf(file)),
       getFileLastUpdateInfo: file =>
-        gitVcs.getFileLastUpdateInfo(vueDocs.sourceOf(file)),
+        gitVcs.getFileLastUpdateInfo(mirrorSourceOf(file)),
     },
   },
   presets: [
@@ -246,12 +325,6 @@ const config: Config = {
       {
         docs: {
           ...docsLocation('default'),
-          // `exclude` replaces Docusaurus' defaults; keep them so `_` partials aren't published
-          exclude: [
-            ...GlobExcludeDefault,
-            'getting-started/README.md',
-            '**/*.vue.{md,mdx}',
-          ],
           sidebarPath: require.resolve('./framework-docs/sidebars-react.js'),
           beforeDefaultRemarkPlugins: reactRemarkPlugins,
           showLastUpdateAuthor: true,
@@ -267,6 +340,8 @@ const config: Config = {
             : ['current', ...versions],
         },
         blog: {
+          remarkPlugins: localeRemarkPlugins,
+          recmaPlugins,
           showReadingTime: true,
           blogSidebarTitle: 'All posts',
           blogSidebarCount: 'ALL',
@@ -290,11 +365,71 @@ const config: Config = {
   ],
   plugins: [
     [
+      '@docusaurus/plugin-pwa',
+      {
+        // src/pwaRegister.ts registers only where offline is wanted, so
+        // whenever the worker is registered it precaches
+        offlineModeActivationStrategies: ['always'],
+        swRegister: require.resolve('./src/pwaRegister.ts'),
+        // The manifest link goes under each build's baseUrl (/next/, /es/),
+        // and its relative start_url and scope resolve against it, so the
+        // installed app opens the build that has this worker
+        pwaHead: [
+          {
+            tagName: 'link',
+            rel: 'manifest',
+            href: 'img/favicon/site.webmanifest',
+          },
+        ],
+        injectManifestConfig: {
+          // social cards are for link previews, never shown on the site
+          globIgnores: [
+            'img/social/**',
+            // /next/ sends its blog links to the root site's blog
+            ...(isNext ? ['blog.html', 'blog/**'] : []),
+          ],
+          // Pages are files like docs/intro.html served at /docs/intro
+          // (trailingSlash: false), so cache them under the URL they're served
+          // at; the worker's offline lookup only tries URL and URL/index.html
+          manifestTransforms: [
+            entries => ({
+              manifest: entries.map(entry => ({
+                ...entry,
+                url: entry.url.replace(
+                  /(^|\/)(?!index\.html$)([^/]+)\.html$/,
+                  '$1$2',
+                ),
+              })),
+            }),
+          ],
+        },
+      },
+    ],
+    // The version menu's list. site-preview.yml serves it at the production
+    // root; builds of other versions (SNAPSHOT_VERSION) leave theirs out
+    () => ({
+      name: 'site-versions',
+      async postBuild({ outDir }) {
+        if (process.env.SNAPSHOT_VERSION || currentLocale !== DEFAULT_LOCALE)
+          return;
+        await fs.promises.writeFile(
+          path.join(outDir, 'site-versions.json'),
+          JSON.stringify(siteVersions),
+        );
+      },
+    }),
+    // global motion styles (spring tokens, <Reveal>): website/src/components/motion/css.ts
+    () => ({
+      name: 'motion-css',
+      injectHtmlTags: () => ({
+        headTags: [{ tagName: 'style', innerHTML: motionCss() }],
+      }),
+    }),
+    [
       '@docusaurus/plugin-content-docs',
       {
         ...docsLocation('vue'),
         path: vueDocs.outDir,
-        exclude: [...GlobExcludeDefault, 'getting-started/README.md'],
         sidebarPath: require.resolve('./framework-docs/sidebars-vue.js'),
         beforeDefaultRemarkPlugins: [
           [
@@ -435,6 +570,10 @@ const config: Config = {
     path.resolve(__dirname, './profiling-plugin'),
     path.resolve(__dirname, './raw-plugin'),
     path.resolve(__dirname, './llms-plugin'),
+    path.resolve(__dirname, './chunks-plugin'),
+    path.resolve(__dirname, './build-id-plugin'),
+    // Default-locale robots.txt lists every locale sitemap (sitemap-robots-plugin.js)
+    path.resolve(__dirname, './sitemap-robots-plugin'),
   ],
   themeConfig: {
     mermaid: {
@@ -453,11 +592,9 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     prism: {
-      additionalLanguages: ['bash', /*'diff', */ 'json'],
-      darkTheme: {
-        ...themes.palenight,
-        plain: { backgroundColor: 'transparent' },
-      },
+      additionalLanguages: ['bash', /*'diff', */ 'json', 'http'],
+      theme: prismPalenight,
+      darkTheme: prismPalenight,
     },
     // Open Graph and Twitter card images.
     image: 'img/social/data-client-logo.png',
@@ -472,10 +609,19 @@ const config: Config = {
       },
       { name: 'twitter:card', content: 'summary' },
     ],
-    announcementBar: {
-      id: 'announcementBar-2', // Increment on change
-      content: `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>`,
-    },
+    announcementBar:
+      versionCurrent ?
+        {
+          id: `next-${versionCurrent.version}`,
+          content: `You're reading the docs for the next, unreleased version. <a href="${currentOrigin}${localeRoot}/docs">See the v${versionCurrent.version} docs</a>.`,
+          isCloseable: false,
+        }
+      : {
+          id: 'announcementBar-2', // Increment on change
+          content:
+            LOCALES[currentLocale]?.announcement ??
+            `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>`,
+        },
     navbar: {
       title: 'Reactive Data Client',
       logo: {
@@ -487,57 +633,26 @@ const config: Config = {
       hideOnScroll: true,
       items: [
         {
-          type: 'doc',
+          // React/Vue menu showing the framework being read
+          type: 'custom-docsDropdown',
+          docsPluginIds: frameworkDocsIds,
           position: 'left',
-          docId: 'introduction',
-          label: 'React',
         },
         {
-          type: 'doc',
-          position: 'left',
-          docId: 'introduction',
-          docsPluginId: 'vue',
-          label: 'Vue',
-        },
-        {
-          // links to the React or Vue API, based on the docs being viewed
-          type: 'custom-frameworkDocSidebar',
+          // links to the React or Vue API: the docs being viewed, else the last ones read
+          type: 'custom-preferredDocSidebar',
+          docsPluginIds: frameworkDocsIds,
           position: 'left',
           sidebarId: 'api',
           label: 'API',
         },
         {
-          to: 'rest',
-          label: 'REST',
-          position: 'left',
-        },
-        {
-          to: 'graphql',
-          label: 'GraphQL',
+          // REST/GraphQL menu showing the protocol being read
+          type: 'custom-docsDropdown',
+          docsPluginIds: groupIds('protocol'),
           position: 'left',
         },
         { to: '/blog', label: 'News', position: 'left' },
-        /*{
-            type: 'docsVersionDropdown',
-            docsPluginId: 'default',
-            position: 'right',
-            dropdownItemsBefore: [
-              {
-                label: 'Upgrade Guide',
-                to: 'docs/upgrade/upgrading-to-7',
-              },
-            ],/
-          },
-          {
-            type: 'docsVersionDropdown',
-            docsPluginId: 'rest',
-            position: 'right',
-          },
-          {
-            type: 'docsVersionDropdown',
-            docsPluginId: 'graphql',
-            position: 'right',
-          }, TODO: Add back when we have versions to upgrade*/
         {
           to: 'demos',
           label: 'Demos',
@@ -559,10 +674,11 @@ const config: Config = {
           'aria-label': 'Discord chat support',
         },
         {
-          href: 'https://skills.sh/reactive/data-client',
+          type: 'localeDropdown',
           position: 'right',
-          className: 'header-anthropic-link',
-          'aria-label': 'Agent Skills',
+          // last, so it sits beside the color mode toggle; icon only (customTheme.css)
+          className: 'header-locale-dropdown',
+          'aria-label': 'Language',
         },
       ],
     },

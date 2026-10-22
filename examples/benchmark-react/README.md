@@ -75,6 +75,8 @@ Median ops/s per scenario; range is approximate 95% CI margin from the runner (`
 
 Run: **2026-03-22**, Linux (WSL2), `yarn build:benchmark-react`, static preview + `env -u CI npx tsx bench/runner.ts --network-sim true` (all libraries; memory scenarios not included). Numbers are **machine-specific**; use them for relative comparison between libraries, not as absolutes.
 
+This run used commit [`57b2f97`](https://github.com/reactive/data-client/commit/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05) (TanStack Query 5.62.7, SWR 2.4.1, React 19.2.3) with the convergent settings of that time: 5 warmup + 5–50 samples at ±8% (small), 3 warmup + 5–40 samples at ±12% (large). Full details: [Benchmark methodology](./METHODOLOGY.md).
+
 | Scenario | data-client | tanstack-query | swr | baseline |
 |---|---:|---:|---:|---:|
 | **Navigation** | | | | |
@@ -110,6 +112,19 @@ CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported mar
 - **Ref-stability:** `issueRefChanged` and `userRefChanged` count how many components received a new object reference. Normalized caches preserve referential equality for unchanged entities; query-keyed caches typically create new references on each cache write.
 - **React commit:** Reported as `(react commit)` suffix entries. These measure React Profiler `actualDuration` and isolate React reconciliation cost from layout/paint.
 - **Report viewer:** Toggle the "Base metrics", "React commit", and "Trace" checkboxes to filter the comparison table. Use "Load history" to compare multiple runs over time.
+
+## Reading the CI comment
+
+The "Benchmark React", "Benchmark", and "Benchmark Spread" PR comments compare one GitHub runner against the last master run on another, so runner speed alone can shift a whole run by up to ~1.7×. The thresholds above and the comment's ± ranges hold only within one machine.
+
+| Comment shows | Do |
+|---|---|
+| Every suite shifts together, React and Node comments disagree, or "Build packages" time moved with the scores | Treat as runner noise |
+| Only suites on code the PR changes shift | Run an A/B |
+
+A/B: build base and PR in separate worktrees (`yarn build:benchmark-react` or `yarn build:benchmark`); for React, serve each with `BENCH_PORT=<port> yarn workspace example-benchmark-react preview`. Alternate base and PR for 5+ rounds (`CI=true BENCH_PORT=<port> yarn bench` or `yarn workspace example-benchmark start <suite> [filter]`) and compare medians; interleaving cancels machine drift.
+
+The path filter skips `packages/rest/src` and most of `packages/endpoint/src`, so for changes there the stored baseline may predate master.
 
 ## Adding a new library
 

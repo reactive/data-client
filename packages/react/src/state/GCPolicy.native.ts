@@ -1,5 +1,6 @@
 import { GCPolicy } from '@data-client/core';
-import { InteractionManager } from 'react-native';
+
+import idleCallback from '../idleCallback.native.js';
 
 /** Can help prevent stuttering by waiting for idle before performing GC sweeps */
 export default class NativeGCPolicy extends GCPolicy {
@@ -11,9 +12,6 @@ export default class NativeGCPolicy extends GCPolicy {
     callback: (...args: any[]) => void,
     options?: IdleRequestOptions,
   ) {
-    InteractionManager.runAfterInteractions(callback);
-    if (options?.timeout) {
-      InteractionManager.setDeadline(options.timeout);
-    }
+    idleCallback(callback, options);
   }
 }

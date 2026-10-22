@@ -1,6 +1,6 @@
 ---
 name: data-client-rest
-description: Define REST APIs with @data-client/rest - resource(), RestEndpoint, CRUD (GET/POST/PUT/PATCH/DELETE), HTTP fetch, normalize, cache, urlPrefix, path-to-regexp parameters, searchParams, pagination, extend(), auth/headers, optimistic updates, polling, file download, blob, parseResponse. Use when defining or modifying network endpoints, REST resources, or the HTTP layer.
+description: Define how the app talks to its API with @data-client/rest, including the shape of the data each call returns. Use it when adding or changing any API call or its data, changing how requests are sent or responses are read, or deciding how fetched data is stored, updated and kept fresh. Covers resource, RestEndpoint and pagination.
 license: Apache 2.0
 ---
 # Guide: Using `@data-client/rest` for Resource Modeling
@@ -108,6 +108,10 @@ export const getTicker = new RestEndpoint({
 });
 ```
 
+`pollFrequency` polls only while subscribed (`useLive`/`useSubscription`). Subscribers to the same
+endpoint and args share one poll at the fastest frequency, so a faster `.extend({ pollFrequency })` on
+one view speeds up the others too.
+
 **Typing tips**  
 - `path` path‑to‑regexp template for 1st arg
 - `method` ≠ `GET` ⇒ 2nd arg = body (unless `body: undefined`)
@@ -129,11 +133,19 @@ getOptimisticResponse(snap, { id }) {
 
 ---
 
-### RestEndpoint lifecycle methods
+### RestEndpoint lifecycle overrides
 
-- **Perform Fetch:** `fetchResponse()` → `parseResponse()` → `process()`
-  - **url(urlParams):** `urlPrefix` + `path` + (`searchParams` → `searchToString()`)
-  - **getRequestInit(body):** `getHeaders()` + `method` + `signal`
+`fetch()` runs `fetchResponse(url(), getRequestInit())` → `parseResponse()` → `process()`. Override the
+step that owns the change, never `fetch` itself (that replaces the whole lifecycle):
+
+| To change | Override |
+|---|---|
+| Headers (auth) | `getHeaders(headers)` |
+| Other request options or body encoding | `getRequestInit(body)` |
+| Query string format | `searchToString(searchParams)` |
+| The network call (retries, another client) | `fetchResponse(input, init)` |
+| Non-JSON responses | `content` option (`'blob'`, `'text'`, …), else `parseResponse(response)` |
+| Shape of the parsed data | `process(value, ...args)` |
 
 ---
 

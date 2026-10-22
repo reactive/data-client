@@ -1432,6 +1432,7 @@ describe('RestEndpoint', () => {
         params.two;
 
         body.hi;
+        return body;
       },
     }).extend({
       path: '/:group/next/:two',
@@ -1441,6 +1442,7 @@ describe('RestEndpoint', () => {
         params.group;
         // @ts-expect-error
         params.id;
+        return { title: `${params.two}` };
       },
     });
 
@@ -1455,6 +1457,7 @@ describe('RestEndpoint', () => {
         params.two;
 
         body.hi;
+        return body;
       },
     }).extend({
       getOptimisticResponse(snap, params, body) {
@@ -1463,6 +1466,7 @@ describe('RestEndpoint', () => {
         params.two;
 
         body.hi;
+        return body;
       },
     });
   });
@@ -1553,6 +1557,27 @@ describe('RestEndpoint.fetch()', () => {
     const payload2 = { id: 20, content: 'better task' };
     const article = await CoolerArticleResource.create(payload2);
     expect(article).toMatchObject(payload2);
+  });
+
+  it('getRequestInit() should JSON-encode objects and arrays, but pass other bodies through', async () => {
+    const endpoint = new RestEndpoint({ path: '/items', method: 'POST' });
+    const json = { 'Content-Type': 'application/json' };
+    for (const body of [{ a: 1 }, [{ a: 1 }, { a: 2 }], [], ['a', 5]]) {
+      const init = await endpoint.getRequestInit(body);
+      expect(init.body).toBe(JSON.stringify(body));
+      expect(init.headers).toEqual(json);
+    }
+    for (const body of [
+      new FormData(),
+      new URLSearchParams('a=1'),
+      new Blob(['a']),
+      new Uint8Array([1, 2]),
+      'raw',
+    ]) {
+      const init = await endpoint.getRequestInit(body);
+      expect(init.body).toBe(body);
+      expect(init.headers).toBeUndefined();
+    }
   });
 
   it('should PUT with multipart form data', async () => {

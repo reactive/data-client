@@ -5,6 +5,8 @@
 Make your components reusable by binding the data where you **use** it with the one-line [useSuspense()](./useSuspense.md),
 which guarantees data with [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await).
 
+Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
+
 ```ts title="Resources"
 import { Entity, resource } from '@data-client/rest';
 
@@ -47,13 +49,12 @@ export const PostResource = resource({
 });
 ```
 
-```html title="PostDetail.vue" {7}
+```html title="PostDetail.vue" route="/posts/:id" {6}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { PostResource } from './Resources';
 
   const props = defineProps<{ id: string }>();
-  const emit = defineEmits<{ setRoute: [route: string] }>();
   const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
 </script>
 
@@ -69,7 +70,6 @@ export const PostResource = resource({
       </div>
     </header>
     <p>{{ post.body }}</p>
-    <a href="#" @click.prevent="emit('setRoute', 'list')">« Back</a>
   </div>
 </template>
 ```
@@ -79,7 +79,6 @@ export const PostResource = resource({
   import { type Post } from './Resources';
 
   defineProps<{ post: Post }>();
-  const emit = defineEmits<{ setRoute: [route: string] }>();
 </script>
 
 <template>
@@ -87,9 +86,7 @@ export const PostResource = resource({
     <Avatar :src="post.author.profileImage" />
     <div>
       <h4>
-        <a href="#" @click.prevent="emit('setRoute', `detail/${post.id}`)">
-          {{ post.title }}
-        </a>
+        <RouterLink :to="`/posts/${post.id}`">{{ post.title }}</RouterLink>
       </h4>
       <small>by {{ post.author.name }}</small>
     </div>
@@ -97,24 +94,20 @@ export const PostResource = resource({
 </template>
 ```
 
-```html title="PostList.vue" {7}
+```html title="PostList.vue" route="/" {7}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
+  import LoadMore from './LoadMore.vue';
   import PostItem from './PostItem.vue';
   import { PostResource } from './Resources';
 
-  const emit = defineEmits<{ setRoute: [route: string] }>();
   const posts = await useSuspense(PostResource.getList);
 </script>
 
 <template>
   <div>
-    <PostItem
-      v-for="post in posts"
-      :key="post.pk()"
-      :post="post"
-      @setRoute="emit('setRoute', $event)"
-    />
+    <PostItem v-for="post in posts" :key="post.pk()" :post="post" />
+    <LoadMore />
   </div>
 </template>
 ```
@@ -144,34 +137,10 @@ export const PostResource = resource({
 </template>
 ```
 
-```html title="Navigation.vue"
-<script setup lang="ts">
-  import { ref, computed } from 'vue';
-  import PostList from './PostList.vue';
-  import PostDetail from './PostDetail.vue';
-  import LoadMore from './LoadMore.vue';
-
-  const route = ref('list');
-  const detailId = computed(() =>
-    route.value.startsWith('detail')
-      ? route.value.split('/')[1]
-      : undefined,
-  );
-</script>
-
-<template>
-  <PostDetail v-if="detailId" :id="detailId" @setRoute="route = $event" />
-  <template v-else>
-    <PostList @setRoute="route = $event" />
-    <LoadMore />
-  </template>
-</template>
-```
-
-[](https://react.dev/learn/passing-data-deeply-with-context)
-
 Do not [prop drill](https://react.dev/learn/passing-data-deeply-with-context#the-problem-with-passing-props). Instead, [useSuspense()](./useSuspense.md) in the components that render the data from it. This is
-known as _data co-location_.
+known as _data co-location_. Pass ids or args as props, not fetched data a component only hands down
+(a list passing each item to the row that renders it is fine). Components asking for the same
+endpoint and args share one fetch and one copy in the store.
 
 Do not hide data binding hooks inside custom hooks. Instead, put tightly coupled data transformations
 in [Query](https://dataclient.io/rest/api/Query) — data logic belongs with the data model, where it stays visible, reusable,
@@ -191,7 +160,7 @@ us to make error/loading disjoint from data usage.
 Instead we place Vue's built-in [\<Suspense />](https://vuejs.org/guide/built-ins/suspense.html) along with [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured) to handling loading and error conditions at or above navigational boundaries like **pages,
 routes, or [modals](https://www.appcues.com/blog/modal-dialog-windows)**.
 
-```html title="Dashboard.vue" {13-20}
+```html title="Dashboard.vue" {15-16,23}
 <script setup lang="ts">
   import { onErrorCaptured, ref } from 'vue';
 
@@ -247,7 +216,7 @@ export const ProfileResource = resource({
 });
 ```
 
-```html title="ProfileList.vue" {5}
+```html title="ProfileList.vue" {5,9-10}
 <script setup lang="ts">
   import { useDLE } from '@data-client/vue';
   import { ProfileResource } from './ProfileResource';

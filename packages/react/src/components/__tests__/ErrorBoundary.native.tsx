@@ -18,16 +18,16 @@ describe('<ErrorBoundary />', () => {
       removeEventListener('error', onError);
   });
 
-  it('should render children with no error', () => {
+  it('should render children with no error', async () => {
     const tree = (
       <ErrorBoundary>
         <Text>hi</Text>
       </ErrorBoundary>
     );
-    const { getByText } = render(tree);
+    const { getByText } = await render(tree);
     expect(getByText(/hi/i)).not.toBeNull();
   });
-  it('should catch non-network errors', () => {
+  it('should catch non-network errors', async () => {
     const originalError = console.error;
     console.error = jest.fn();
     let renderCount = 0;
@@ -41,13 +41,13 @@ describe('<ErrorBoundary />', () => {
         <Text>hi</Text>
       </ErrorBoundary>
     );
-    const { getByText } = render(tree);
+    const { getByText } = await render(tree);
     expect(getByText(/you failed/i)).not.toBeNull();
     console.error = originalError;
     expect(renderCount).toBeLessThan(10);
   });
 
-  it('should render response.statusText using default fallback', () => {
+  it('should render response.statusText using default fallback', async () => {
     const originalError = console.error;
     console.error = jest.fn();
     function Throw(): ReactElement {
@@ -63,7 +63,7 @@ describe('<ErrorBoundary />', () => {
         <Text>hi</Text>
       </ErrorBoundary>
     );
-    const { getByText, queryByText } = render(tree);
+    const { getByText, queryByText } = await render(tree);
     expect(getByText(/my status text/i)).not.toBeNull();
     expect(queryByText(/hi/i)).toBe(null);
     console.error = originalError;
@@ -99,7 +99,7 @@ describe('<ErrorBoundary />', () => {
         <Text>hi</Text>
       </ErrorBoundary>
     );
-    const { getByText, queryByText } = render(tree);
+    const { getByText, queryByText } = await render(tree);
     expect(getByText(/my status text/i)).not.toBeNull();
     const resetButton = queryByText('Clear Error');
     expect(resetButton).not.toBeNull();
@@ -108,7 +108,7 @@ describe('<ErrorBoundary />', () => {
       return;
     }
     shouldThrow = false;
-    fireEvent.press(resetButton);
+    await fireEvent.press(resetButton);
     expect(queryByText(/my status text/i)).toBe(null);
     expect(getByText(/hi/i)).not.toBeNull();
     console.error = originalError;

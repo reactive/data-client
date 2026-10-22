@@ -24,7 +24,7 @@ Schema driven. Zero updater functions.
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-cc785c?style=flat-square&logo=claude&logoColor=white)](https://skills.sh/reactive/data-client)
 [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
 
-**[📖Read The Docs](https://dataclient.io/vue)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/vue/getting-started/agent-skills) &nbsp;|&nbsp; [🤖Agent Skills](https://skills.sh/reactive/data-client) &nbsp;|&nbsp; [🎮Todo Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/vue-todo-app?file=src%2Fcomponents%2FTodoListContent.vue)
+**[📖Read The Docs](https://dataclient.io/vue)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/vue/getting-started/installation) &nbsp;|&nbsp; [🤖Agent Skills](https://skills.sh/reactive/data-client) &nbsp;|&nbsp; [🎮Todo Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/vue-todo-app?file=src%2Fcomponents%2FTodoListContent.vue)
 
 </div>
 
@@ -32,6 +32,12 @@ Schema driven. Zero updater functions.
 
 ```bash
 npm install --save @data-client/vue @data-client/rest
+```
+
+To have Claude Code, Cursor or Codex load the [skills](https://agentskills.io) these packages ship for their version, link them into `.agents/skills` (`.claude/skills` links to it) and commit the links:
+
+```bash
+npx --no data-client-skills
 ```
 
 Install [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin) when creating your app:
@@ -48,13 +54,15 @@ app.mount('#app');
 
 For more details, see [the Getting Started docs page](https://dataclient.io/vue/getting-started/installation).
 
-### Skills
+### Let your coding agent set it up
 
-```bash
-npx skills add reactive/data-client
+Or skip the install above and tell your coding agent:
+
+```prompt
+Set up `@data-client/vue` and use it for all API data. Install its setup skill first: `npx skills add reactive/data-client --skill data-client-setup -y`, then follow it.
 ```
 
-Then run [skill](https://agentskills.io) "data-client-setup"
+It installs the packages, wires up the provider and links the skills they ship.
 
 ## Usage
 
@@ -299,7 +307,7 @@ it('useSuspense() resolves an article', async () => {
 
 ### ...all typed ...fast ...and consistent
 
-For the small price of 9kb gzipped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/vue/getting-started/agent-skills)
+For the small price of 9kb gzipped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/vue/getting-started/installation)
 
 ## Features
 

@@ -1,10 +1,13 @@
 ---
 name: data-client-setup
-description: Install and set up @data-client/react or @data-client/vue in a project. Detects project type (NextJS, Expo, React Native, Vue, plain React) and protocol (REST, GraphQL, custom), then installs and hands off to the matching framework and protocol skills.
+description: Install and set up @data-client/react or @data-client/vue in a project. Detects project type (NextJS, Expo, React Native, Vue, plain React) and protocol (REST, GraphQL, custom), then follows the bundled protocol-specific setup guide.
 disable-model-invocation: true
 ---
 
 # Setup Reactive Data Client
+
+Before installing anything, tell the user which packages and skills you'll add. A request to add or set up Data Client
+is the go-ahead; otherwise wait for theirs.
 
 ## Detection Steps
 
@@ -60,24 +63,42 @@ For async operations that don't match REST or GraphQL:
 
 ### 4. Install the Skills This Project Needs
 
-This skill hands off to other Data Client skills. Install the ones that match what you detected, skipping any already installed:
+Protocol setup guides are bundled in this skill, but defining and using data afterwards is covered by other Data Client skills. Install the ones that match what you detected, skipping any already installed:
 
 | Detected | Skills |
 |----------|--------|
 | Always | `data-client-schema`, `data-client-manager` |
 | React (NextJS, Expo, React Native, plain React) | `data-client-react`, `data-client-react-testing` |
 | Vue | `data-client-vue`, `data-client-vue-testing` |
-| REST | `data-client-rest-setup`, `data-client-rest` |
-| GraphQL | `data-client-graphql-setup` |
-| Custom async | `data-client-endpoint-setup` |
+| REST | `data-client-rest` |
+| GraphQL | None beyond Always (`data-client-schema` covers `@data-client/graphql`) |
+| Custom async | None beyond Always (`data-client-schema` covers `@data-client/endpoint`) |
 
-Use the installer that installed this skill. For OpenSkills and the skills CLI, add `-g` if this skill lives under your home directory rather than the project.
+In Claude Code, Cursor and Codex, install nothing now: each skill ships inside the `@data-client/*` package it covers, at that package's version. After installing the packages below, link their skills from the project root. It links them into `.agents/skills` and makes sure `.claude/skills` sees them too, whichever of the two folders the project already has:
 
-- **Claude Code plugin** (this skill is under `~/.claude/plugins/`): `claude plugin install react@data-client` or `claude plugin install vue@data-client`. Either includes every skill above.
+```bash
+npx --no data-client-skills   # pnpm exec data-client-skills, yarn data-client-skills
+```
+
+If it reports `Kept .agents/skills/data-client-setup`, that's the copy the skills CLI installed to start this setup.
+Remove it with `npx skills remove data-client-setup -y` and run the command again, so this skill too follows the
+installed version.
+
+If the command isn't found, or reports that a package ships no skills, the installed packages predate 0.19: install
+the skills with the skills CLI as described below for other agents, and leave the last sentence (the `data-client-skills` command) out of the `AGENTS.md` lines.
+
+Then add these lines to the project's `AGENTS.md` (create it if missing), using the project's package manager in the command. They tell later agents that Data Client owns the app's server state, so they reach for it and its skills instead of hand-written fetching, and keep the skill links current. Claude Code reads `AGENTS.md` only when the project has no `CLAUDE.md`, so if a `CLAUDE.md` exists, make sure it has an `@AGENTS.md` line. Commit `.agents/skills` and `.claude/skills` with the setup.
+
+```md
+This app manages server state (fetching, caching, mutations and real-time updates) with Reactive Data Client. Use it for all server data, and read the matching `data-client-*` skill before writing, changing or debugging code that loads or changes data. After adding, removing or upgrading `@data-client/*` packages, run `npx --no data-client-skills` and commit the skill links.
+```
+
+For other agents, use the installer that installed this skill. For OpenSkills and the skills CLI, add `-g` if this skill lives under your home directory rather than the project.
+
 - **OpenSkills** (`AGENTS.md` lists skills in an `<available_skills>` block): `npx openskills install reactive/data-client/.agents/skills/<skill>`, once per skill.
-- **Otherwise** use the skills CLI: `npx skills add reactive/data-client --yes --skill <skill> --skill <skill> ...`
+- **Otherwise** use the skills CLI: `npx skills add reactive/data-client --skill <skill> --skill <skill> ...`
 
-Newly installed skills may not be loaded until the next session, so read their `SKILL.md` directly when this skill says to apply them.
+Skills linked during a session may not load until the next one (Claude Code only picks them up live from a `.claude/skills` folder that existed when the session started, and Cursor fixes its skill list when a chat starts). So for the rest of this session, whenever a task calls for one of them, here or after setup, read its `SKILL.md` directly (`.claude/skills/<skill>/SKILL.md` after linking) unless it's already available by name. The next session loads them on its own.
 
 ## Installation
 
@@ -204,32 +225,32 @@ app.mount('#app');
 
 ## Protocol-Specific Setup
 
-After provider setup, apply the appropriate skill based on detected protocol:
+After provider setup, follow the guide for each detected protocol. These guides are bundled copies of the standalone protocol setup skills, so they need nothing else installed.
 
 ### REST APIs
 
-Apply skill **"data-client-rest-setup"** which will:
+Follow [references/data-client-rest-setup.md](references/data-client-rest-setup.md), which will:
 1. Install `@data-client/rest`
 2. Offer to create a custom `BaseEndpoint` class extending `RestEndpoint`
 3. Configure common behaviors: urlPrefix, authentication, error handling
 
 ### GraphQL APIs
 
-Apply skill **"data-client-graphql-setup"** which will:
+Follow [references/data-client-graphql-setup.md](references/data-client-graphql-setup.md), which will:
 1. Install `@data-client/graphql`
 2. Create and configure `GQLEndpoint` instance
 3. Set up authentication headers
 
 ### Custom Async Operations
 
-Apply skill **"data-client-endpoint-setup"** which will:
+Follow [references/data-client-endpoint-setup.md](references/data-client-endpoint-setup.md), which will:
 1. Install `@data-client/endpoint`
 2. Offer to wrap existing async functions with `new Endpoint()`
 3. Configure schemas and caching options
 
 ### Multiple Protocols
 
-If multiple protocols are detected, apply multiple setup skills. Each protocol package can be installed alongside others.
+If multiple protocols are detected, follow each protocol's guide. Each protocol package can be installed alongside others.
 
 ## Verification Checklist
 
@@ -239,7 +260,7 @@ After setup, verify:
 - [ ] Provider/Plugin wraps the app at root level
 - [ ] Correct import path used (especially `@data-client/react/nextjs` for NextJS)
 - [ ] No duplicate providers in component tree
-- [ ] Protocol-specific setup completed via appropriate skill
+- [ ] Protocol-specific setup completed via its guide
 
 ## Common Issues
 
@@ -262,7 +283,7 @@ In Vue, call `app.use(DataClientPlugin)` on the root app before `app.mount()`.
 
 ## Next Steps
 
-After core setup and protocol-specific setup:
+After core setup and protocol-specific setup (in this session, read each skill below from `.claude/skills/<skill>/SKILL.md`):
 1. Define data schemas using `Entity` - see skill "data-client-schema"
 2. Use hooks like `useSuspense`, `useQuery`, `useController` - see skill "data-client-react" or "data-client-vue"
 3. Define REST resources - see skill "data-client-rest"
@@ -277,3 +298,6 @@ For detailed API documentation, see the [references](references/) directory:
 - [DataClientPlugin](references/DataClientPlugin.md) - Plugin options (Vue)
 - [installation](references/installation.md) - Installation guide
 - [getDefaultManagers](references/getDefaultManagers.md) - Default managers
+- [REST setup](references/data-client-rest-setup.md) - `@data-client/rest` setup and migration from axios, fetch, ky, superagent or got
+- [GraphQL setup](references/data-client-graphql-setup.md) - `@data-client/graphql` setup
+- [Custom endpoint setup](references/data-client-endpoint-setup.md) - Wrapping other async functions with `@data-client/endpoint`

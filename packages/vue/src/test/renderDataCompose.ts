@@ -1,11 +1,9 @@
-import { type Controller } from '@data-client/core';
-import { type VueWrapper } from '@vue/test-utils';
+import type { Controller } from '@data-client/core';
+import type { VueWrapper } from '@vue/test-utils';
 import { defineComponent, h, watch, reactive, nextTick, isRef } from 'vue';
 
-import {
-  mountDataClient,
-  type RenderDataClientOptions,
-} from './mountDataClient.js';
+import { mountDataClient } from './mountDataClient.js';
+import type { RenderDataClientOptions } from './mountDataClient.js';
 
 /**
  * Renders a Vue composable with DataClient provider for testing
@@ -23,6 +21,12 @@ export async function renderDataCompose<P = any, R = any>(
   controller: Controller;
   cleanup: () => void;
   allSettled: () => Promise<PromiseSettledResult<unknown>[]>;
+  /**
+   * @deprecated Gives up silently after 1 second, so a test can pass while the composable is
+   * still suspended. Use `await result` for a Promise result, and `await allSettled()` after changing
+   * props or calling the controller.
+   * @see https://dataclient.io/vue/guides/unit-testing-composables#renderdatacompose-api
+   */
   waitForNextUpdate: () => Promise<void>;
 }> {
   // Extract props from options, or create empty ref if not provided

@@ -1771,7 +1771,7 @@ it('should allow concrete body types when subclassing RestEndpoint with O=any', 
     schema: User,
     body: {} as { phrase: string },
     getOptimisticResponse(snap, body) {
-      return body;
+      return { username: body.phrase };
     },
   });
   // @ts-expect-error - body strongly defined means it is required
@@ -1786,7 +1786,7 @@ it('should allow concrete body types when subclassing RestEndpoint with O=any', 
     schema: User,
     body: {} as { phrase: string },
     getOptimisticResponse(snap, body) {
-      return body;
+      return { username: body.phrase };
     },
   });
   // @ts-expect-error - body strongly defined means it is required
@@ -1840,7 +1840,7 @@ it('should allow concrete body types when subclassing RestEndpoint with O=any', 
     method: 'PUT',
     body: {} as { name: string },
     getOptimisticResponse(snap, ...args) {
-      return args[args.length - 1];
+      return { username: 'bob' };
     },
   });
   // @ts-expect-error - body required even when path is widened
@@ -1855,7 +1855,7 @@ it('should allow concrete body types when subclassing RestEndpoint with O=any', 
     searchParams: {} as { q?: string },
     body: {} as { filters: string[] },
     getOptimisticResponse(snap, ...args) {
-      return args[args.length - 1];
+      return { username: 'bob' };
     },
   });
   widenedSearch({ filters: ['a'] });
@@ -1984,6 +1984,147 @@ it('should type resource using RestEndpoint subclass with O=any', () => {
   () => FnExtended.current();
 });
 
+it('getOptimisticResponse returns raw input for the schema', () => {
+  const UserRes = resource({ path: '/users/:id', schema: User });
+  const createUser = new RestEndpoint({
+    path: '/users',
+    method: 'POST',
+    schema: User,
+  });
+
+  new RestEndpoint({
+    path: '/users/:id',
+    method: 'PUT',
+    schema: User,
+    getOptimisticResponse(snap, params, body) {
+      // numbers and strings coerce
+      return { id: params.id, username: 'bob' };
+    },
+  });
+  new RestEndpoint({
+    path: '/users/:id',
+    method: 'PUT',
+    schema: User,
+    // @ts-expect-error isAdmin is a boolean
+    getOptimisticResponse(snap, params, body) {
+      return { id: params.id, isAdmin: 'yes' };
+    },
+  });
+  createUser.extend({
+    // @ts-expect-error isAdmin is a boolean
+    getOptimisticResponse(snap, body) {
+      return { isAdmin: 'yes' };
+    },
+  });
+  createUser.extend({
+    path: '/groups/:group/users',
+    // @ts-expect-error isAdmin is a boolean
+    getOptimisticResponse(snap, params, body) {
+      return { isAdmin: 'yes' };
+    },
+  });
+  // @ts-expect-error isAdmin is a boolean
+  UserRes.extend('update', {
+    getOptimisticResponse(snap, params, body) {
+      return { id: params.id, isAdmin: 'yes' };
+    },
+  });
+  UserRes.extend({
+    // @ts-expect-error isAdmin is a boolean
+    update: {
+      getOptimisticResponse(snap, params, body) {
+        return { id: params.id, isAdmin: 'yes' };
+      },
+    },
+  });
+  // overridden schema is used
+  UserRes.extend({
+    update: {
+      schema: [User],
+      getOptimisticResponse(snap, params, body) {
+        return [{ id: 5, isAdmin: true }];
+      },
+    },
+  });
+  UserRes.extend({
+    // @ts-expect-error schema is now a list
+    update: {
+      schema: [User],
+      getOptimisticResponse(snap, params, body) {
+        return { id: 5, isAdmin: true };
+      },
+    },
+  });
+  // Collection takes a list of rows
+  UserRes.extend('getList', {
+    getOptimisticResponse(snap) {
+      return [{ id: 5, isAdmin: true }];
+    },
+  });
+  // @ts-expect-error Collection takes a list of rows
+  UserRes.extend('getList', {
+    getOptimisticResponse(snap) {
+      return { id: 5, isAdmin: true };
+    },
+  });
+  // new keys are based on get
+  UserRes.extend('touch', {
+    method: 'POST',
+    getOptimisticResponse(snap, params) {
+      return { id: 5, isAdmin: true };
+    },
+  });
+  UserRes.extend('touch', {
+    method: 'POST',
+    // @ts-expect-error isAdmin is a boolean
+    getOptimisticResponse(snap, params) {
+      return { id: 5, isAdmin: 'yes' };
+    },
+  });
+  UserRes.extend(Base => ({
+    touch: Base.update.extend({
+      // @ts-expect-error isAdmin is a boolean
+      getOptimisticResponse(snap, params, body) {
+        return { id: params.id, isAdmin: 'yes' };
+      },
+    }),
+  }));
+  // no schema: anything goes
+  UserRes.extend({
+    update: {
+      schema: null,
+      getOptimisticResponse(snap, params, body) {
+        return { ok: true };
+      },
+    },
+  });
+  UserRes.getList.push.extend({
+    // @ts-expect-error isAdmin is a boolean
+    getOptimisticResponse(snap, body) {
+      return { isAdmin: 'yes' };
+    },
+  });
+
+  // process() return type is checked instead
+  createUser.extend({
+    process(value): { ok: boolean } {
+      return value;
+    },
+    getOptimisticResponse(snap, body) {
+      return { ok: true };
+    },
+  });
+  createUser.extend({
+    process(value): { ok: boolean } {
+      return value;
+    },
+    // @ts-expect-error ok is a boolean
+    getOptimisticResponse(snap, body) {
+      return { ok: 'yes' };
+    },
+  });
+});
+
 it('content property: return type inference', () => {
   const blobEp = new RestEndpoint({
     path: '/files/:id' as const,
@@ -2054,6 +2195,7 @@ it('content property: schema constraint', () => {
   // @ts-expect-error - schema incompatible with content: 'text'
   new RestEndpoint({ path: '/x' as const, content: 'text', schema: Article });
 
+  // prettier-ignore
   // @ts-expect-error - schema incompatible with content: 'arrayBuffer'
   new RestEndpoint({ path: '/x' as const, content: 'arrayBuffer', schema: Article });
 
@@ -2132,12 +2274,8 @@ it('content property: extend and subclass', () => {
     content: 'blob',
   });
   const contentVal:
-    | 'json'
-    | 'blob'
-    | 'text'
-    | 'arrayBuffer'
-    | 'stream'
-    | undefined = ep.content;
+    'json' | 'blob' | 'text' | 'arrayBuffer' | 'stream' | undefined =
+    ep.content;
 
   // subclass pattern
   class BlobEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
@@ -2148,3 +2286,26 @@ it('content property: extend and subclass', () => {
   });
   expect(subclassed.content).toBe('blob');
 });
+
+// --- Collection wrapped in Query or Lazy ---
+() => {
+  const getArticles = new RestEndpoint({
+    path: '/:group/articles',
+    schema: new schema.Query(new Collection([Article]), articles => articles),
+  });
+  getArticles.push({ group: 'react' }, { title: 'hi' });
+  getArticles.unshift({ group: 'react' }, { title: 'hi' });
+  getArticles.remove({ group: 'react' }, { id: 5 });
+  // @ts-expect-error - title must be a string
+  getArticles.push({ group: 'react' }, { title: 5 });
+  // @ts-expect-error - group is required
+  getArticles.push({ title: 'hi' });
+
+  const getLazyArticles = new RestEndpoint({
+    path: '/articles',
+    schema: new schema.Lazy(new Collection([Article])),
+  });
+  getLazyArticles.push({ title: 'hi' });
+  // @ts-expect-error - title must be a string
+  getLazyArticles.push({ title: 5 });
+};

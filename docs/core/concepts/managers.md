@@ -10,6 +10,7 @@ import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import StackBlitz from '@site/src/components/StackBlitz';
 import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
+import StreamManagerDemo from '../shared/\_StreamManagerDemo.mdx';
 
 <head>
   <meta name="docsearch:pagerank" content="40"/>
@@ -133,7 +134,8 @@ export default class ErrorReportManager implements Manager {
 ### Metrics {#metrics}
 
 Track fetch timing by observing [FETCH](../api/Actions.md#fetch) actions. `action.meta.promise`
-resolves when the fetch completes.
+resolves when the fetch completes. List it before `...getDefaultManagers()` so it sees each FETCH
+before [NetworkManager](../api/NetworkManager.md) handles it.
 
 ```typescript framework-imports
 import {
@@ -147,9 +149,12 @@ export default class MetricsManager implements Manager {
   middleware: Middleware = controller => next => async action => {
     if (action.type === actionTypes.FETCH) {
       const start = performance.now();
-      const track = () =>
-        trackTiming(action.endpoint.name, performance.now() - start);
-      action.meta.promise.then(track, track);
+      action.meta.promise
+        .finally(() => {
+          trackTiming(action.endpoint.name, performance.now() - start);
+        })
+        // the fetch's caller handles errors; this only observes timing
+        .catch(() => {});
     }
     return next(action);
   };
@@ -295,7 +300,7 @@ import { get } from 'idb-keyval';
 import App from './App';
 import PersistManager from './PersistManager';
 
-const managers = [...getDefaultManagers(), new PersistManager()];
+const managers = [new PersistManager(), ...getDefaultManagers()];
 const initialState = await get('data-client');
 
 createRoot(document.body).render(
@@ -316,7 +321,7 @@ import { get } from 'idb-keyval';
 import App from './App.vue';
 import PersistManager from './PersistManager';
 
-const managers = [...getDefaultManagers(), new PersistManager()];
+const managers = [new PersistManager(), ...getDefaultManagers()];
 const initialState = await get('data-client');
 
 const app = createApp(App);
@@ -394,6 +399,12 @@ export default class StreamManager implements Manager {
 
 [Controller.set()](../api/Controller.md#set) allows directly updating [Querable Schemas](/rest/api/schema#queryable)
 directly with `event.data`.
+
+:::react
+
+<StreamManagerDemo />
+
+:::
 
 #### Batching high-frequency updates {#batching}
 

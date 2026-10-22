@@ -11,20 +11,52 @@ import PkgTabs from '@site/src/components/PkgTabs';
 import Installation from '../shared/\_installation.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
+import SiteOnly from '@site/src/components/SiteOnly';
+import SetupTabs from '@site/src/components/SetupTabs';
+import AgentOnly from '@site/src/components/AgentOnly';
+
+<SiteOnly>
+
+## Set up with your coding agent {#agent-setup}
+
+<SetupTabs />
+
+Whichever you use, your agent runs Data Client's setup [skill](./agent-skills.md), which installs the packages, wires up the
+provider and links the skills the packages ship, so your agent knows the current APIs, like real-time managers and test
+fixtures. That's the whole setup, so you can go straight to [Define Data](./resource).
+
+</SiteOnly>
+
+<AgentOnly>
+
+To set up Data Client, install its setup skill from the project root:
+
+```bash
+npx skills add reactive/data-client --skill data-client-setup -y
+```
+
+Then read `.agents/skills/data-client-setup/SKILL.md` and follow it. It installs the packages, wires up the provider
+and links the skills the packages ship. The steps below are the same setup by hand.
+
+</AgentOnly>
+
+## Set up by hand {#manual-setup}
+
+<SiteOnly>
+
+These steps are the same setup without an agent. If your agent ran the setup, skip them: it already did every one.
+
+</SiteOnly>
 
 :::react
+
+### Install packages {#install-manually}
 
 <PkgTabs pkgs="@data-client/react @data-client/test @data-client/rest" />
 
 :::
 
-:::tip[Use Agent Skills]
-
-Prefer to scaffold via your AI agent? See [Agent Skills](./agent-skills.md) and run `/data-client-setup`.
-
-:::
-
-## :react[Add provider at top-level component]:vue[Install the plugin] {#add-provider-at-top-level-component}
+### :react[Add provider at top-level component]:vue[Install the plugin] {#add-provider-at-top-level-component}
 
 :::vue
 
@@ -33,6 +65,35 @@ Install the [Vue plugin](https://vuejs.org/guide/reusability/plugins.html) when 
 :::
 
 <Installation />
+
+<SiteOnly>
+
+### Link your agent's skills {#agent-skills}
+
+The packages ship skills for your coding agent, matched to the version you installed. Link them so Claude Code,
+Cursor and Codex load them, and commit the links:
+
+```bash
+npx --no data-client-skills
+```
+
+Run it again after adding, removing or upgrading `@data-client` packages. See [Agent Skills](./agent-skills.md) for
+details.
+
+</SiteOnly>
+
+<AgentOnly>
+
+Then link the skills the installed packages ship, matched to their versions, from the project root, and commit the
+links:
+
+```bash
+npx --no data-client-skills
+```
+
+Run it again after adding, removing or upgrading `@data-client` packages.
+
+</AgentOnly>
 
 <center>
 
@@ -60,6 +121,12 @@ Install the [Vue plugin](https://vuejs.org/guide/reusability/plugins.html) when 
 <summary><b>TypeScript 4.0+</b></summary>
 
 TypeScript is optional, but requires at least version [4.0](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-0.html#variadic-tuple-types) and [strictNullChecks](https://www.typescriptlang.org/tsconfig#strictNullChecks) for full type enforcement.
+
+:::vue
+
+`@data-client/vue` needs TypeScript 4.5 or later, since Vue's own types do.
+
+:::
 
 </details>
 

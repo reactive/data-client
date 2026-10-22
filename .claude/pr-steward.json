@@ -1,0 +1,7 @@
+{
+  "preview": {
+    "check": "docs deploy",
+    "url": "https://docs-site-pr-{number}-data-client.vercel.app"
+  },
+  "land": ["Once everything is verified, run /simplify on the change."]
+}

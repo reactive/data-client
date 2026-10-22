@@ -88,12 +88,12 @@
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
     "@types/jest": "30.0.0",
-    "@types/node": "^25.0.0",
+    "@types/node": "^26.0.0",
     "@types/react": "19.3.0",
     "react": "^19.0.0",
     "rollup-plugins": "workspace:*"
   },
   "dependencies": {
-    "@babel/runtime": "^7.20.0"
+    "@babel/runtime": "^7.20.0 || ^8.0.0"
   }
 }
