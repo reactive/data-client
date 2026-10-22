@@ -121,4 +121,25 @@ describe('CommitGateManager', () => {
     expect(reduced[1]).toMatchObject({ error: true, response: failure });
     expect(reduced[2]).toMatchObject({ error: false, response: 5 });
   });
+
+  it('rejects when a held error result throws on replay', async () => {
+    const gate = new CommitGateManager();
+    const discarded = bind(gate);
+    const held = discarded.controller.dispatch(
+      actions.createSetResponse(endpoint, {
+        args: [],
+        response: new Error('fetch failed'),
+        fetchedAt: Date.now(),
+        error: true,
+      }),
+    );
+    const committed = bind(gate);
+    const failure = new Error('middleware threw');
+    committed.reduced.mockImplementationOnce(() => {
+      throw failure;
+    });
+    committed.mount();
+    await expect(held).rejects.toBe(failure);
+    expect(committed.reduced).toHaveBeenCalledTimes(1);
+  });
 });
