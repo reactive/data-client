@@ -79,4 +79,26 @@ describe('CommitGateManager', () => {
       type: 'rdc/reset',
     });
   });
+
+  it('drops held results on a RESET before mount', async () => {
+    const gate = new CommitGateManager();
+    const { controller, reduced, mount } = bind(gate);
+    const held = controller.dispatch(setResponse());
+    void controller.dispatch(actions.createReset());
+    mount();
+    await held;
+    expect(reduced).toHaveBeenCalledTimes(1);
+    expect(reduced.mock.calls[0][0]).toMatchObject({ type: 'rdc/reset' });
+  });
+
+  it('rejects the held promise when its replay fails', async () => {
+    const gate = new CommitGateManager();
+    const discarded = bind(gate);
+    const held = discarded.controller.dispatch(setResponse());
+    const committed = bind(gate);
+    const failure = new Error('replay failed');
+    committed.reduced.mockImplementationOnce(() => Promise.reject(failure));
+    committed.mount();
+    await expect(held).rejects.toBe(failure);
+  });
 });

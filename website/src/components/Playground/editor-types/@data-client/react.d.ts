@@ -15,11 +15,15 @@ declare class WebIdlingNetworkManager extends NetworkManager {
  * discards that render's store, so the result would land nowhere. This holds
  * results until init() and replays them into the store that mounted.
  *
- * Place it before NetworkManager, and share it with the managers it protects.
+ * Place it first in the managers it protects, with one gate per DataProvider.
  * @see https://dataclient.io/docs/api/CommitGateManager
  */
 declare class CommitGateManager implements Manager {
-    protected held: [ActionTypes, () => void][];
+    protected held: [
+        action: ActionTypes,
+        resolve: () => void,
+        reject: (error: unknown) => void
+    ][];
     protected controller?: Controller;
     protected mounted?: Controller;
     middleware: Middleware;

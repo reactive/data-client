@@ -40,6 +40,13 @@ const managers = [new CommitGateManager(), ...getDefaultManagers()];
 
 </ProviderManagers>
 
+:::note
+
+Put it first, in the same `managers` list as the [NetworkManager](./NetworkManager.md) it protects,
+and give each `DataProvider` its own `CommitGateManager`.
+
+:::
+
 :::tip
 
 Placing `DataProvider` at the root, with every [Suspense](https://react.dev/reference/react/Suspense)

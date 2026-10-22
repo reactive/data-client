@@ -13,23 +13,31 @@ import type {
  * discards that render's store, so the result would land nowhere. This holds
  * results until init() and replays them into the store that mounted.
  *
- * Place it before NetworkManager, and share it with the managers it protects.
+ * Place it first in the managers it protects, with one gate per DataProvider.
  * @see https://dataclient.io/docs/api/CommitGateManager
  */
 export default class CommitGateManager implements Manager {
-  protected held: [ActionTypes, () => void][] = [];
+  protected held: [
+    action: ActionTypes,
+    resolve: () => void,
+    reject: (error: unknown) => void,
+  ][] = [];
   protected controller?: Controller;
   protected mounted?: Controller;
 
   middleware: Middleware = controller => {
     this.controller = controller;
     return next => action => {
-      if (controller === this.mounted) {
-        if (action.type === actionTypes.RESET) this.drop();
+      // held results predate any reset, whichever store it reaches
+      if (action.type === actionTypes.RESET) this.drop();
+      if (
+        controller === this.mounted ||
+        action.type !== actionTypes.SET_RESPONSE
+      )
         return next(action);
-      }
-      if (action.type !== actionTypes.SET_RESPONSE) return next(action);
-      return new Promise<void>(resolve => this.held.push([action, resolve]));
+      return new Promise<void>((resolve, reject) =>
+        this.held.push([action, resolve, reject]),
+      );
     };
   };
 
@@ -49,8 +57,8 @@ export default class CommitGateManager implements Manager {
     if (!mounted) return;
     const held = this.held;
     this.held = [];
-    for (const [action, resolve] of held)
-      mounted.dispatch(action).then(resolve);
+    for (const [action, resolve, reject] of held)
+      mounted.dispatch(action).then(resolve, reject);
   }
 
   protected drop() {
