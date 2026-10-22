@@ -1,5 +1,5 @@
 import { PathFunction, ParamData } from 'path-to-regexp';
-import { Manager, State, GCInterface, Controller, EndpointInterface as EndpointInterface$1, FetchFunction as FetchFunction$1, Schema as Schema$1, ResolveType as ResolveType$1, Denormalize as Denormalize$1, DenormalizeNullable as DenormalizeNullable$1, Queryable as Queryable$1, NI as NI$1, SchemaArgs as SchemaArgs$1, NetworkError as NetworkError$2, UnknownError as UnknownError$1, ErrorTypes as ErrorTypes$2 } from '@data-client/core';
+import { Manager, Controller, State, ActionTypes, GCInterface, Middleware, EndpointInterface as EndpointInterface$1, FetchFunction as FetchFunction$1, Schema as Schema$1, ResolveType as ResolveType$1, Denormalize as Denormalize$1, DenormalizeNullable as DenormalizeNullable$1, Queryable as Queryable$1, NI as NI$1, SchemaArgs as SchemaArgs$1, NetworkError as NetworkError$2, UnknownError as UnknownError$1, ErrorTypes as ErrorTypes$2 } from '@data-client/core';
 export { Manager } from '@data-client/core';
 import * as React from 'react';
 import React__default, { JSX } from 'react';
@@ -2299,6 +2299,45 @@ declare class NetworkError extends Error {
     };
 }
 
+declare const CATCH_UP = "rdc/catchup";
+interface ClientStoreOptions {
+    managers?: Manager[];
+    initialState?: State<unknown>;
+    Controller?: new (props: {
+        gcPolicy: GCInterface;
+    }) => Controller;
+    gcPolicy?: GCInterface;
+}
+/** A DataProvider store that lives outside React
+ *
+ * React discards a render that never commits, along with anything it created.
+ * Results that settle in that window still reduce into this store, and the
+ * DataProvider that commits starts from them.
+ *
+ * Create it once, outside any component, and pass it to `<DataProvider store>`.
+ * @see https://dataclient.io/docs/api/ClientStore
+ */
+declare class ClientStore implements Manager {
+    readonly controller: Controller;
+    readonly managers: Manager[];
+    readonly reducer: (state: State<unknown>, action: ActionTypes | CatchUpAction) => State<unknown>;
+    /** The latest state while no DataProvider is mounted */
+    state: State<unknown>;
+    protected mounted: boolean;
+    protected pending: ActionTypes[];
+    protected counts: WeakMap<State<unknown>, number>;
+    protected waiting: (() => void)[];
+    constructor({ managers, initialState, Controller, gcPolicy, }?: ClientStoreOptions);
+    middleware: Middleware;
+    /** Called with the state the mounted DataProvider started from */
+    init(seed: State<unknown>): void;
+    cleanup(): void;
+}
+interface CatchUpAction {
+    type: typeof CATCH_UP;
+    actions: ActionTypes[];
+}
+
 type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
 interface ProviderProps {
@@ -2310,12 +2349,16 @@ interface ProviderProps {
     }) => Controller;
     gcPolicy?: GCInterface;
     devButton?: DevToolsPosition | null | undefined;
+    /** Store created outside React; its managers, Controller and state replace those props
+     * @see https://dataclient.io/docs/api/ClientStore
+     */
+    store?: ClientStore;
 }
 /**
  * Manages state, providing all context needed to use the hooks.
  * @see https://dataclient.io/docs/api/DataProvider
  */
-declare function DataProvider({ children, managers, gcPolicy, initialState, Controller, devButton, }: ProviderProps): JSX.Element;
+declare function DataProvider({ children, managers, gcPolicy, initialState, Controller, devButton, store, }: ProviderProps): JSX.Element;
 
 declare const ErrorFallback: ({ error, className, }: {
     error: Error;

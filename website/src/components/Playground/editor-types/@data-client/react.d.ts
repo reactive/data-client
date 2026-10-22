@@ -1,5 +1,5 @@
 import * as _data_client_core from '@data-client/core';
-import { NetworkManager, Manager, State, GCInterface, Controller, DevToolsManager, DevToolsConfig, SubscriptionManager, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, NI, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, __INTERNAL__, actions, applyManager, createReducer, initManager } from '@data-client/core';
+import { NetworkManager, Manager, Controller, State, ActionTypes, GCInterface, Middleware, DevToolsManager, DevToolsConfig, SubscriptionManager, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, NI, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, __INTERNAL__, actions, applyManager, createReducer, initManager } from '@data-client/core';
 export { AbstractInstanceType, ActionTypes, Controller, CreateCountRef, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GCInterface, GCOptions, GCPolicy, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, Queryable, ResetAction, ResolveType, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import * as React from 'react';
 import React__default, { JSX, Context } from 'react';
@@ -9,6 +9,45 @@ declare class WebIdlingNetworkManager extends NetworkManager {
 }
 
 declare function BackupLoading(): React__default.JSX.Element;
+
+declare const CATCH_UP = "rdc/catchup";
+interface ClientStoreOptions {
+    managers?: Manager[];
+    initialState?: State<unknown>;
+    Controller?: new (props: {
+        gcPolicy: GCInterface;
+    }) => Controller;
+    gcPolicy?: GCInterface;
+}
+/** A DataProvider store that lives outside React
+ *
+ * React discards a render that never commits, along with anything it created.
+ * Results that settle in that window still reduce into this store, and the
+ * DataProvider that commits starts from them.
+ *
+ * Create it once, outside any component, and pass it to `<DataProvider store>`.
+ * @see https://dataclient.io/docs/api/ClientStore
+ */
+declare class ClientStore implements Manager {
+    readonly controller: Controller;
+    readonly managers: Manager[];
+    readonly reducer: (state: State<unknown>, action: ActionTypes | CatchUpAction) => State<unknown>;
+    /** The latest state while no DataProvider is mounted */
+    state: State<unknown>;
+    protected mounted: boolean;
+    protected pending: ActionTypes[];
+    protected counts: WeakMap<State<unknown>, number>;
+    protected waiting: (() => void)[];
+    constructor({ managers, initialState, Controller, gcPolicy, }?: ClientStoreOptions);
+    middleware: Middleware;
+    /** Called with the state the mounted DataProvider started from */
+    init(seed: State<unknown>): void;
+    cleanup(): void;
+}
+interface CatchUpAction {
+    type: typeof CATCH_UP;
+    actions: ActionTypes[];
+}
 
 type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
@@ -21,12 +60,16 @@ interface ProviderProps {
     }) => Controller;
     gcPolicy?: GCInterface;
     devButton?: DevToolsPosition | null | undefined;
+    /** Store created outside React; its managers, Controller and state replace those props
+     * @see https://dataclient.io/docs/api/ClientStore
+     */
+    store?: ClientStore;
 }
 /**
  * Manages state, providing all context needed to use the hooks.
  * @see https://dataclient.io/docs/api/DataProvider
  */
-declare function DataProvider({ children, managers, gcPolicy, initialState, Controller, devButton, }: ProviderProps): JSX.Element;
+declare function DataProvider({ children, managers, gcPolicy, initialState, Controller, devButton, store, }: ProviderProps): JSX.Element;
 
 /** Returns the default Managers used by DataProvider.
  *
@@ -305,4 +348,4 @@ type ReducerAction<R extends React__default.Reducer<any, any>> = R extends React
 /** Turns a dispatch function into one that resolves once its been commited */
 declare function usePromisifiedDispatch<R extends React__default.Reducer<any, any>>(dispatch: React__default.Dispatch<ReducerAction<R>>, state: React__default.ReducerState<R>): (action: ReducerAction<R>) => Promise<void>;
 
-export { _default as AsyncBoundary, BackupLoading, DataProvider as CacheProvider, ControllerContext, DataProvider, type DevToolsPosition, ErrorBoundary, WebIdlingNetworkManager as IdlingNetworkManager, ErrorBoundary as NetworkErrorBoundary, type ProviderProps, StateContext, type Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useCancelling, useController, useDLE, useDebounce, useError, useFetch, useLive, useLoading, usePromisifiedDispatch, useQuery, useSubscription, useSuspense };
+export { _default as AsyncBoundary, BackupLoading, DataProvider as CacheProvider, ClientStore, type ClientStoreOptions, ControllerContext, DataProvider, type DevToolsPosition, ErrorBoundary, WebIdlingNetworkManager as IdlingNetworkManager, ErrorBoundary as NetworkErrorBoundary, type ProviderProps, StateContext, type Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useCancelling, useController, useDLE, useDebounce, useError, useFetch, useLive, useLoading, usePromisifiedDispatch, useQuery, useSubscription, useSuspense };
