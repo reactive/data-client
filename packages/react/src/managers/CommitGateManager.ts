@@ -9,7 +9,7 @@ import type {
 /** Holds fetch results until DataProvider mounts
  *
  * A fetch can settle before its DataProvider commits, when something outside it
- * suspends or when the provider sits in a lazy layout (as with Expo Router). React
+ * suspends or when the provider sits in a lazy layout (as with Expo Router on web). React
  * discards that render's store, so the result would land nowhere. This holds
  * results until init() and replays them into the store that mounted.
  *

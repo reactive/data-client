@@ -25,11 +25,12 @@ that mounts, so the endpoint is called only once.
 
 ## Usage
 
-On React Native, [DataProvider](./DataProvider.md#managers) adds it first to its `managers`, since
-[Expo Router](https://docs.expo.dev/router/introduction/) loads the root layout lazily.
+Add it first when `DataProvider` renders inside a [lazy](https://react.dev/reference/react/lazy)
+layout or route, or next to a component that can suspend outside it. The most common case is
+[Expo Router](https://docs.expo.dev/router/introduction/): with async routes on, which is the default
+on web, it wraps the root `_layout.tsx` in `React.lazy`. This isn't specific to React Native.
 
-On web, add it first when `DataProvider` renders inside a [lazy](https://react.dev/reference/react/lazy)
-layout or route, or next to a component that can suspend outside it.
+On React Native, [DataProvider](./DataProvider.md#managers) adds it first to its `managers` for you.
 
 <ProviderManagers imports={['CommitGateManager', 'getDefaultManagers']}>
 
