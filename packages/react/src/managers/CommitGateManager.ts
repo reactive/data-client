@@ -57,8 +57,14 @@ export default class CommitGateManager implements Manager {
     if (!mounted) return;
     const held = this.held;
     this.held = [];
-    for (const [action, resolve, reject] of held)
-      mounted.dispatch(action).then(resolve, reject);
+    for (const [action, resolve, reject] of held) {
+      // one failing middleware must not strand the rest
+      try {
+        mounted.dispatch(action).then(resolve, reject);
+      } catch (error) {
+        reject(error);
+      }
+    }
   }
 
   protected drop() {

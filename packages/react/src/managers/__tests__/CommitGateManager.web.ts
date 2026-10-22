@@ -101,4 +101,20 @@ describe('CommitGateManager', () => {
     committed.mount();
     await expect(held).rejects.toBe(failure);
   });
+
+  it('replays the rest when one replay throws', async () => {
+    const gate = new CommitGateManager();
+    const discarded = bind(gate);
+    const first = discarded.controller.dispatch(setResponse());
+    const second = discarded.controller.dispatch(setResponse());
+    const committed = bind(gate);
+    const failure = new Error('middleware threw');
+    committed.reduced.mockImplementationOnce(() => {
+      throw failure;
+    });
+    committed.mount();
+    await expect(first).rejects.toBe(failure);
+    await second;
+    expect(committed.reduced).toHaveBeenCalledTimes(2);
+  });
 });
