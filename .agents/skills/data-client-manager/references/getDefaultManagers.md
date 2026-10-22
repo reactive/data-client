@@ -11,8 +11,6 @@ Currently returns \[[DevToolsManager](https://dataclient.io/docs/api/DevToolsMan
 
 \*(`DevToolsManager` is excluded in production builds.)
 
-On React Native, [CommitGateManager](https://dataclient.io/docs/api/CommitGateManager) comes first.
-
 ## Usage
 
 **Web**

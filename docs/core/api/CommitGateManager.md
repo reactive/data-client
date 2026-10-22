@@ -25,7 +25,7 @@ that mounts, so the endpoint is called only once.
 
 ## Usage
 
-React Native's [getDefaultManagers()](./getDefaultManagers.md) already includes it, since
+On React Native, [DataProvider](./DataProvider.md#managers) adds it first to its `managers`, since
 [Expo Router](https://docs.expo.dev/router/introduction/) loads the root layout lazily.
 
 On web, add it first when `DataProvider` renders inside a [lazy](https://react.dev/reference/react/lazy)

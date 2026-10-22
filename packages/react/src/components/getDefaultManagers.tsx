@@ -6,7 +6,6 @@ import {
   PollingSubscription,
   DevToolsManager,
 } from '../managers/index.js';
-import platformManagers from './platformManagers.js';
 
 /* istanbul ignore next */
 /** Returns the default Managers used by DataProvider.
@@ -21,14 +20,12 @@ let getDefaultManagers: ({
   networkManager,
   subscriptionManager = PollingSubscription,
 } = {}) =>
-  platformManagers(
-    subscriptionManager === null ?
-      [constructManager(NetworkManager, networkManager)]
-    : [
-        constructManager(NetworkManager, networkManager),
-        constructManager(SubscriptionManager, subscriptionManager),
-      ],
-  );
+  subscriptionManager === null ?
+    [constructManager(NetworkManager, networkManager)]
+  : [
+      constructManager(NetworkManager, networkManager),
+      constructManager(SubscriptionManager, subscriptionManager),
+    ];
 /* istanbul ignore else */
 if (process.env.NODE_ENV !== 'production') {
   getDefaultManagers = ({
@@ -52,7 +49,7 @@ if (process.env.NODE_ENV !== 'production') {
         ),
       );
     }
-    return platformManagers(managers);
+    return managers;
   };
 }
 export { getDefaultManagers };

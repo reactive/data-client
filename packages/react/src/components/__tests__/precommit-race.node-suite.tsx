@@ -41,7 +41,11 @@ export interface RaceRenderer {
 export interface RaceHost {
   createRenderer(): RaceRenderer;
   Text: (props: { children?: ReactNode }) => ReactElement;
+  /** DataProvider adds CommitGateManager itself, as on React Native */
+  addsGate?: boolean;
 }
+
+let addsGate = false;
 
 const CALL_CAP = 30;
 const POLL_MS = 10;
@@ -111,12 +115,10 @@ function FetchReader({
   return <Text>{`value ${value}`}</Text>;
 }
 
-// web opts in; native's defaults already include the gate
+// web opts in; on native DataProvider adds the gate itself
 function gatedManagers() {
   const managers = getDefaultManagers();
-  return managers.some(m => m instanceof CommitGateManager) ? managers : (
-      [new CommitGateManager(), ...managers]
-    );
+  return addsGate ? managers : [new CommitGateManager(), ...managers];
 }
 
 // like DataProvider's own defaults: every render that is thrown away builds new managers
@@ -162,7 +164,7 @@ async function runRace(
   const gate = makeGate();
   const managers = shared ? gatedManagers() : undefined;
   const Provider =
-    managers ?
+    managers || addsGate ?
       ({ children }: { children: ReactNode }) => (
         <DataProvider managers={managers} devButton={null}>
           {children}
@@ -310,6 +312,7 @@ function expectResolved(
 }
 
 export function registerPrecommitRaceTests(host: RaceHost) {
+  addsGate = !!host.addsGate;
   describe('fetch that settles before DataProvider commits', () => {
     const g = globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean };
     let prevAct: boolean | undefined;

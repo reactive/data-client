@@ -6,6 +6,7 @@ import { registerPrecommitRaceTests } from './precommit-race.node-suite';
 import type { RaceHost } from './precommit-race.node-suite';
 
 const host: RaceHost = {
+  addsGate: true,
   Text: ({ children }: { children?: ReactNode }) => <Text>{children}</Text>,
   createRenderer() {
     let renderer: TestRenderer.ReactTestRenderer | undefined;

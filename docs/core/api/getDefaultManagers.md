@@ -18,12 +18,6 @@ Currently returns \[[DevToolsManager](./DevToolsManager.md)\*, [NetworkManager](
 
 \*(`DevToolsManager` is excluded in production builds.)
 
-:::react
-
-On React Native, [CommitGateManager](./CommitGateManager.md) comes first.
-
-:::
-
 ## Usage
 
 <ProviderManagers imports={['getDefaultManagers']}>
