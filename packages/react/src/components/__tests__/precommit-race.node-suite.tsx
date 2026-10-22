@@ -45,8 +45,6 @@ export interface RaceHost {
   addsGate?: boolean;
 }
 
-let addsGate = false;
-
 const CALL_CAP = 30;
 const POLL_MS = 10;
 // three waits must fit inside Jest's default 5s test timeout
@@ -75,7 +73,7 @@ async function waitUntilStable(read: () => number, polls = 5) {
   }
 }
 
-function makeEndpoint(settle: 'value' | 'error') {
+function makeEndpoint(settle: Settle) {
   let calls = 0;
   const endpoint = new Endpoint(
     () => {
@@ -89,7 +87,7 @@ function makeEndpoint(settle: 'value' | 'error') {
   return { endpoint, getCalls: () => calls };
 }
 
-function expectedText(settle: 'value' | 'error') {
+function expectedText(settle: Settle) {
   return settle === 'error' ? 'error nope' : 'value 5';
 }
 
@@ -116,21 +114,12 @@ function FetchReader({
 }
 
 // web opts in; on native DataProvider adds the gate itself
-function gatedManagers() {
+function gatedManagers(host: RaceHost) {
   const managers = getDefaultManagers();
-  return addsGate ? managers : [new CommitGateManager(), ...managers];
+  return host.addsGate ? managers : [new CommitGateManager(), ...managers];
 }
 
-// like DataProvider's own defaults: every render that is thrown away builds new managers
-function FreshDataProvider({ children }: { children: ReactNode }) {
-  const [managers] = useState(gatedManagers);
-  return (
-    <DataProvider managers={managers} devButton={null}>
-      {children}
-    </DataProvider>
-  );
-}
-
+// suspends through use() when available, like the sibling use() this race starts from
 function Blocker({ gate }: { gate: GatePromise }) {
   if (use) use(gate);
   else if (!gate.done) throw gate;
@@ -140,53 +129,70 @@ function Blocker({ gate }: { gate: GatePromise }) {
 // 'lazy': DataProvider is inside a React.lazy layout, like Expo Router's root layout
 type Where = 'outside' | 'inside' | 'none' | 'lazy';
 type ReaderKind = 'suspense' | 'fetch';
+type Settle = 'value' | 'error';
+interface RaceSpec {
+  shared: boolean;
+  where: Where;
+  transition: boolean;
+  reader: ReaderKind;
+  settle: Settle;
+  strict?: boolean;
+}
+
+function readerTree(
+  host: RaceHost,
+  endpoint: ReturnType<typeof makeEndpoint>['endpoint'],
+  Reader: typeof SuspenseReader,
+  sibling: ReactNode = null,
+) {
+  const Text = host.Text;
+  return (
+    <ErrorBoundary
+      fallbackComponent={({ error }) => <Text>{`error ${error.message}`}</Text>}
+    >
+      <Suspense fallback={<Text>fallback</Text>}>
+        <Reader endpoint={endpoint} Text={Text} />
+      </Suspense>
+      {sibling}
+    </ErrorBoundary>
+  );
+}
+
+function warnedNotMounted(errors: ReturnType<typeof recordConsoleErrors>) {
+  return errors.unexpected.some(args =>
+    args.join(' ').includes("hasn't mounted yet"),
+  );
+}
 
 async function runRace(
   host: RaceHost,
-  {
-    shared,
-    where,
-    transition,
-    reader,
-    settle,
-    strict = false,
-  }: {
-    shared: boolean;
-    where: Where;
-    transition: boolean;
-    reader: ReaderKind;
-    settle: 'value' | 'error';
-    strict?: boolean;
-  },
+  { shared, where, transition, reader, settle, strict = false }: RaceSpec,
 ) {
   const errors = recordConsoleErrors();
   const { endpoint, getCalls } = makeEndpoint(settle);
   const gate = makeGate();
-  const managers = shared ? gatedManagers() : undefined;
-  const Provider =
-    managers || addsGate ?
-      ({ children }: { children: ReactNode }) => (
-        <DataProvider managers={managers} devButton={null}>
-          {children}
-        </DataProvider>
-      )
-    : FreshDataProvider;
+  const sharedManagers = shared ? gatedManagers(host) : undefined;
+  // unshared: like DataProvider's own defaults, every render that is thrown away builds new managers
+  const initManagers = () =>
+    sharedManagers ?? (host.addsGate ? undefined : gatedManagers(host));
+  function Provider({ children }: { children: ReactNode }) {
+    const [managers] = useState(initManagers);
+    return (
+      <DataProvider managers={managers} devButton={null}>
+        {children}
+      </DataProvider>
+    );
+  }
   const Text = host.Text;
   const Reader = reader === 'fetch' ? FetchReader : SuspenseReader;
   const provider = (
     <Provider>
-      <ErrorBoundary
-        fallbackComponent={({ error }) => (
-          <Text>{`error ${error.message}`}</Text>
-        )}
-      >
-        <Suspense fallback={<Text>fallback</Text>}>
-          <Reader endpoint={endpoint} Text={Text} />
-        </Suspense>
-        {where === 'inside' ?
-          <Blocker gate={gate} />
-        : null}
-      </ErrorBoundary>
+      {readerTree(
+        host,
+        endpoint,
+        Reader,
+        where === 'inside' ? <Blocker gate={gate} /> : null,
+      )}
     </Provider>
   );
   let tree: ReactElement;
@@ -226,10 +232,12 @@ async function runRace(
     gate.release();
     await waitUntil(() => renderer.read().includes(expected));
     await waitUntilStable(getCalls);
-    const warned = errors.unexpected.some(args =>
-      args.join(' ').includes("hasn't mounted yet"),
-    );
-    return { beforeRelease, text: renderer.read(), calls: getCalls(), warned };
+    return {
+      beforeRelease,
+      text: renderer.read(),
+      calls: getCalls(),
+      warned: warnedNotMounted(errors),
+    };
   } finally {
     renderer.unmount();
     errors.restore();
@@ -237,23 +245,14 @@ async function runRace(
 }
 
 // a hidden Activity renders its tree without mounting Effects, so DataProvider stays uncommitted until shown
-async function runHiddenActivity(host: RaceHost, settle: 'value' | 'error') {
+async function runHiddenActivity(host: RaceHost, settle: Settle) {
   const errors = recordConsoleErrors();
   const { endpoint, getCalls } = makeEndpoint(settle);
-  const managers = gatedManagers();
-  const Text = host.Text;
+  const managers = gatedManagers(host);
   const tree = (mode: 'hidden' | 'visible') => (
     <Activity mode={mode}>
       <DataProvider managers={managers} devButton={null}>
-        <ErrorBoundary
-          fallbackComponent={({ error }) => (
-            <Text>{`error ${error.message}`}</Text>
-          )}
-        >
-          <Suspense fallback={<Text>fallback</Text>}>
-            <SuspenseReader endpoint={endpoint} Text={Text} />
-          </Suspense>
-        </ErrorBoundary>
+        {readerTree(host, endpoint, SuspenseReader)}
       </DataProvider>
     </Activity>
   );
@@ -268,15 +267,12 @@ async function runHiddenActivity(host: RaceHost, settle: 'value' | 'error') {
     renderer.render(tree('visible'));
     await waitUntil(() => renderer.read().includes(expected));
     await waitUntilStable(getCalls);
-    const warned = errors.unexpected.some(args =>
-      args.join(' ').includes("hasn't mounted yet"),
-    );
     return {
       beforeReveal,
       callsBeforeReveal,
       text: renderer.read(),
       calls: getCalls(),
-      warned,
+      warned: warnedNotMounted(errors),
     };
   } finally {
     renderer.unmount();
@@ -286,11 +282,7 @@ async function runHiddenActivity(host: RaceHost, settle: 'value' | 'error') {
 
 function expectResolved(
   result: Awaited<ReturnType<typeof runRace>>,
-  {
-    shared,
-    where,
-    settle,
-  }: { shared: boolean; where: Where; settle: 'value' | 'error' },
+  { shared, where, settle }: Pick<RaceSpec, 'shared' | 'where' | 'settle'>,
 ) {
   const expected = expectedText(settle);
   if (where === 'lazy') {
@@ -312,7 +304,6 @@ function expectResolved(
 }
 
 export function registerPrecommitRaceTests(host: RaceHost) {
-  addsGate = !!host.addsGate;
   describe('fetch that settles before DataProvider commits', () => {
     const g = globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean };
     let prevAct: boolean | undefined;
@@ -326,12 +317,7 @@ export function registerPrecommitRaceTests(host: RaceHost) {
       g.IS_REACT_ACT_ENVIRONMENT = prevAct;
     });
 
-    const base: {
-      shared: boolean;
-      where: Where;
-      transition: boolean;
-      reader: ReaderKind;
-    } = {
+    const base: Omit<RaceSpec, 'settle'> = {
       shared: true,
       where: 'outside',
       transition: false,

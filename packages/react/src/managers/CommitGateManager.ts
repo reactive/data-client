@@ -19,8 +19,7 @@ import type {
 export default class CommitGateManager implements Manager {
   protected held: [
     action: ActionTypes,
-    resolve: () => void,
-    reject: (error: unknown) => void,
+    settle: (result?: Promise<void>) => void,
   ][] = [];
   protected controller?: Controller;
   protected mounted?: Controller;
@@ -35,9 +34,7 @@ export default class CommitGateManager implements Manager {
         action.type !== actionTypes.SET_RESPONSE
       )
         return next(action);
-      return new Promise<void>((resolve, reject) =>
-        this.held.push([action, resolve, reject]),
-      );
+      return new Promise<void>(settle => this.held.push([action, settle]));
     };
   };
 
@@ -57,18 +54,14 @@ export default class CommitGateManager implements Manager {
     if (!mounted) return;
     const held = this.held;
     this.held = [];
-    for (const [action, resolve, reject] of held) {
-      // one failing middleware must not strand the rest
-      try {
-        mounted.dispatch(action).then(resolve, reject);
-      } catch (error) {
-        reject(error);
-      }
+    for (const [action, settle] of held) {
+      // a throwing middleware rejects only its own result, not the rest
+      settle(new Promise<void>(resolve => resolve(mounted.dispatch(action))));
     }
   }
 
   protected drop() {
-    for (const [, resolve] of this.held) resolve();
+    for (const [, settle] of this.held) settle();
     this.held = [];
   }
 }
