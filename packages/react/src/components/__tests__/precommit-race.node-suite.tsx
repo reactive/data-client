@@ -12,11 +12,8 @@
  * is suspended, so the race cannot happen there. `use()` exists from 19.
  */
 import { Endpoint } from '@data-client/endpoint';
-import {
-  makeGate,
-  recordConsoleErrors,
-  type GatePromise,
-} from '__tests__/streamingHarness';
+import { makeGate, recordConsoleErrors } from '__tests__/streamingHarness';
+import type { GatePromise } from '__tests__/streamingHarness';
 import {
   use,
   lazy,
@@ -29,9 +26,9 @@ import {
 import type { ReactElement, ReactNode } from 'react';
 
 import { useFetch, useSuspense } from '../../hooks';
+import { CommitGateManager } from '../../managers';
 import DataProvider from '../DataProvider';
 import ErrorBoundary from '../ErrorBoundary';
-import { CommitGateManager } from '../../managers';
 import { getDefaultManagers } from '../getDefaultManagers';
 import { LegacyReact } from '../LegacyReact';
 

@@ -2,10 +2,8 @@ import type { ReactNode } from 'react';
 import { Text } from 'react-native';
 import TestRenderer from 'react-test-renderer';
 
-import {
-  registerPrecommitRaceTests,
-  type RaceHost,
-} from './precommit-race.node-suite';
+import { registerPrecommitRaceTests } from './precommit-race.node-suite';
+import type { RaceHost } from './precommit-race.node-suite';
 
 const host: RaceHost = {
   Text: ({ children }: { children?: ReactNode }) => <Text>{children}</Text>,

@@ -1,11 +1,8 @@
 import type { ReactElement, ReactNode } from 'react';
 
 import { LegacyReact } from '../LegacyReact';
-import {
-  registerPrecommitRaceTests,
-  type RaceHost,
-  type RaceRenderer,
-} from './precommit-race.node-suite';
+import { registerPrecommitRaceTests } from './precommit-race.node-suite';
+import type { RaceHost, RaceRenderer } from './precommit-race.node-suite';
 
 function createRoot(container: HTMLElement): Omit<RaceRenderer, 'read'> {
   if (LegacyReact) {
