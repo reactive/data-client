@@ -122,7 +122,7 @@ describe('CommitGateManager', () => {
     expect(reduced[2]).toMatchObject({ error: false, response: 5 });
   });
 
-  it('rejects when a held error result throws on replay', async () => {
+  it('swallows a throw while replaying a held error, like a mounted provider', async () => {
     const gate = new CommitGateManager();
     const discarded = bind(gate);
     const held = discarded.controller.dispatch(
@@ -139,7 +139,27 @@ describe('CommitGateManager', () => {
       throw failure;
     });
     committed.mount();
-    await expect(held).rejects.toBe(failure);
+    await expect(held).resolves.toBeUndefined();
     expect(committed.reduced).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps replaying when publishing the error also throws', async () => {
+    const gate = new CommitGateManager();
+    const discarded = bind(gate);
+    const first = discarded.controller.dispatch(setResponse());
+    const second = discarded.controller.dispatch(setResponse());
+    const committed = bind(gate);
+    committed.reduced
+      .mockImplementationOnce(() => {
+        throw new Error('middleware threw');
+      })
+      .mockImplementationOnce(() => {
+        throw new Error('error publish threw');
+      });
+    committed.mount();
+    await first;
+    await second;
+    expect(committed.reduced).toHaveBeenCalledTimes(3);
+    expect(committed.reduced.mock.calls[2][0]).toMatchObject({ response: 5 });
   });
 });

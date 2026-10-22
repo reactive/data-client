@@ -58,16 +58,21 @@ export default class CommitGateManager implements Manager {
       try {
         settle(mounted.dispatch(action));
       } catch (error) {
-        // like a dispatch that throws once mounted: that fetch shows the error, the rest still replay
+        // like NetworkManager once mounted: a throw becomes that fetch's error, and a
+        // throw while publishing an error is swallowed; the rest still replay
         settle(
-          action.error ?
-            Promise.reject(error)
-          : mounted.resolve(action.endpoint, {
-              args: action.args,
-              response: error as Error,
-              fetchedAt: action.meta.fetchedAt,
-              error: true,
-            }),
+          action.error ? undefined : (
+            new Promise<void>(resolve =>
+              resolve(
+                mounted.resolve(action.endpoint, {
+                  args: action.args,
+                  response: error as Error,
+                  fetchedAt: action.meta.fetchedAt,
+                  error: true,
+                }),
+              ),
+            ).catch(() => {})
+          ),
         );
       }
     }
