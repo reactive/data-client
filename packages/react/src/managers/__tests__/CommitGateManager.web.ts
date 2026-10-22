@@ -102,7 +102,7 @@ describe('CommitGateManager', () => {
     await expect(held).rejects.toBe(failure);
   });
 
-  it('replays the rest when one replay throws', async () => {
+  it('shows a replay that throws as that fetch error, and replays the rest', async () => {
     const gate = new CommitGateManager();
     const discarded = bind(gate);
     const first = discarded.controller.dispatch(setResponse());
@@ -113,8 +113,12 @@ describe('CommitGateManager', () => {
       throw failure;
     });
     committed.mount();
-    await expect(first).rejects.toBe(failure);
+    await first;
     await second;
-    expect(committed.reduced).toHaveBeenCalledTimes(2);
+    const reduced = committed.reduced.mock.calls.map(([action]) => action);
+    // the call that threw, then its error, then the next result
+    expect(reduced).toHaveLength(3);
+    expect(reduced[1]).toMatchObject({ error: true, response: failure });
+    expect(reduced[2]).toMatchObject({ error: false, response: 5 });
   });
 });

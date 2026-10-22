@@ -11,6 +11,8 @@
  * React 17 only has legacy roots, which commit DataProvider while a sibling
  * is suspended, so the race cannot happen there. `use()` exists from 19.
  */
+import { actionTypes } from '@data-client/core';
+import type { Controller, Manager, Middleware } from '@data-client/core';
 import { Endpoint } from '@data-client/endpoint';
 import { makeGate, recordConsoleErrors } from '__tests__/streamingHarness';
 import type { GatePromise } from '__tests__/streamingHarness';
@@ -25,7 +27,7 @@ import {
 } from 'react';
 import type { ReactElement, ReactNode } from 'react';
 
-import { useFetch, useSuspense } from '../../hooks';
+import { useController, useFetch, useSuspense } from '../../hooks';
 import { CommitGateManager } from '../../managers';
 import DataProvider from '../DataProvider';
 import ErrorBoundary from '../ErrorBoundary';
@@ -87,6 +89,19 @@ function makeEndpoint(settle: Settle) {
   return { endpoint, getCalls: () => calls };
 }
 
+// throws on the first result it sees, like a buggy custom Manager after NetworkManager
+class ThrowOnceManager implements Manager {
+  protected thrown = false;
+  middleware: Middleware = () => next => action => {
+    if (action.type === actionTypes.SET_RESPONSE && !this.thrown) {
+      this.thrown = true;
+      throw new Error('middleware threw');
+    }
+    return next(action);
+  };
+  cleanup() {}
+}
+
 function expectedText(settle: Settle) {
   return settle === 'error' ? 'error nope' : 'value 5';
 }
@@ -114,9 +129,18 @@ function FetchReader({
 }
 
 // web opts in; on native DataProvider adds the gate itself
-function gatedManagers(host: RaceHost) {
-  const managers = getDefaultManagers();
+function gatedManagers(host: RaceHost, extra: Manager[] = []) {
+  const managers = [...getDefaultManagers(), ...extra];
   return host.addsGate ? managers : [new CommitGateManager(), ...managers];
+}
+
+function ControllerProbe({
+  onController,
+}: {
+  onController: (c: Controller) => void;
+}) {
+  onController(useController());
+  return null;
 }
 
 // suspends through use() when available, like the sibling use() this race starts from
@@ -137,6 +161,12 @@ interface RaceSpec {
   reader: ReaderKind;
   settle: Settle;
   strict?: boolean;
+  /** a Manager after NetworkManager throws on the first result */
+  throwOnce?: boolean;
+  /** set a new value once mounted, which must reach the screen */
+  mutate?: boolean;
+  /** shared Manager instances, but a new array on every render */
+  freshArray?: boolean;
 }
 
 function readerTree(
@@ -166,19 +196,35 @@ function warnedNotMounted(errors: ReturnType<typeof recordConsoleErrors>) {
 
 async function runRace(
   host: RaceHost,
-  { shared, where, transition, reader, settle, strict = false }: RaceSpec,
+  {
+    shared,
+    where,
+    transition,
+    reader,
+    settle,
+    strict = false,
+    throwOnce = false,
+    mutate = false,
+    freshArray = false,
+  }: RaceSpec,
 ) {
   const errors = recordConsoleErrors();
   const { endpoint, getCalls } = makeEndpoint(settle);
   const gate = makeGate();
-  const sharedManagers = shared ? gatedManagers(host) : undefined;
+  const extra = throwOnce ? [new ThrowOnceManager()] : [];
+  const sharedManagers = shared ? gatedManagers(host, extra) : undefined;
   // unshared: like DataProvider's own defaults, every render that is thrown away builds new managers
   const initManagers = () =>
-    sharedManagers ?? (host.addsGate ? undefined : gatedManagers(host));
+    sharedManagers ?? (host.addsGate ? undefined : gatedManagers(host, extra));
+  let controller: Controller | undefined;
   function Provider({ children }: { children: ReactNode }) {
     const [managers] = useState(initManagers);
     return (
-      <DataProvider managers={managers} devButton={null}>
+      <DataProvider
+        managers={freshArray && managers ? [...managers] : managers}
+        devButton={null}
+      >
+        <ControllerProbe onController={c => (controller = c)} />
         {children}
       </DataProvider>
     );
@@ -219,7 +265,7 @@ async function runRace(
       <Suspense fallback={<Text>outer</Text>}>{tree}</Suspense>
     : tree;
   const element = strict ? <StrictMode>{root}</StrictMode> : root;
-  const expected = expectedText(settle);
+  const expected = throwOnce ? 'error middleware threw' : expectedText(settle);
   const renderer = host.createRenderer();
   try {
     if (transition) startTransition(() => renderer.render(element));
@@ -232,9 +278,17 @@ async function runRace(
     gate.release();
     await waitUntil(() => renderer.read().includes(expected));
     await waitUntilStable(getCalls);
+    const text = renderer.read();
+    let afterMutate: string | undefined;
+    if (mutate) {
+      void controller?.setResponse(endpoint, 6);
+      await waitUntil(() => renderer.read().includes('value 6'));
+      afterMutate = renderer.read();
+    }
     return {
       beforeRelease,
-      text: renderer.read(),
+      text,
+      afterMutate,
       calls: getCalls(),
       warned: warnedNotMounted(errors),
     };
@@ -349,6 +403,45 @@ export function registerPrecommitRaceTests(host: RaceHost) {
         },
       );
     }
+
+    it('shows the error when a Manager throws on the held result', async () => {
+      const unhandled: unknown[] = [];
+      const onUnhandled = (reason: unknown) => unhandled.push(reason);
+      process.on('unhandledRejection', onUnhandled);
+      let result;
+      try {
+        result = await runRace(host, {
+          ...base,
+          settle: 'value',
+          throwOnce: true,
+        });
+        await tick();
+      } finally {
+        process.off('unhandledRejection', onUnhandled);
+      }
+      expect(unhandled).toEqual([]);
+      // like a provider that mounted before the fetch settled
+      expect(result.text).toContain('error middleware threw');
+      expect(result.text).not.toContain('fallback');
+      expect(result.calls).toBe(1);
+      expect(result.warned).toBe(false);
+    });
+
+    it('applies updates made after mount', async () => {
+      const result = await runRace(host, {
+        ...base,
+        settle: 'value',
+        mutate: true,
+      });
+      expect(result.text).toContain('value 5');
+      expect(result.afterMutate).toContain('value 6');
+      expect(result.calls).toBe(1);
+    });
+
+    it('holds results when shared Managers come in a new array each render', async () => {
+      const spec = { ...base, settle: 'value', freshArray: true } as const;
+      expectResolved(await runRace(host, spec), spec);
+    });
 
     it('shows a rejected fetch without calling the endpoint again', async () => {
       const spec = { ...base, settle: 'error' } as const;

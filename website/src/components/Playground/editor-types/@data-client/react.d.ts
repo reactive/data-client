@@ -1,5 +1,5 @@
 import * as _data_client_core from '@data-client/core';
-import { NetworkManager, Manager, ActionTypes, Controller, Middleware, State, GCInterface, DevToolsManager, DevToolsConfig, SubscriptionManager, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, NI, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, __INTERNAL__, actions, applyManager, createReducer, initManager } from '@data-client/core';
+import { NetworkManager, Manager, SetResponseAction, Controller, Middleware, State, GCInterface, DevToolsManager, DevToolsConfig, SubscriptionManager, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, NI, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, __INTERNAL__, actions, applyManager, createReducer, initManager } from '@data-client/core';
 export { AbstractInstanceType, ActionTypes, Controller, CreateCountRef, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GCInterface, GCOptions, GCPolicy, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, Queryable, ResetAction, ResolveType, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import * as React from 'react';
 import React__default, { JSX, Context } from 'react';
@@ -20,7 +20,7 @@ declare class WebIdlingNetworkManager extends NetworkManager {
  */
 declare class CommitGateManager implements Manager {
     protected held: [
-        action: ActionTypes,
+        action: SetResponseAction,
         settle: (result?: Promise<void>) => void
     ][];
     protected controller?: Controller;

@@ -1,9 +1,9 @@
 import { actionTypes } from '@data-client/core';
 import type {
-  ActionTypes,
   Controller,
   Manager,
   Middleware,
+  SetResponseAction,
 } from '@data-client/core';
 
 /** Holds fetch results until DataProvider mounts
@@ -18,7 +18,7 @@ import type {
  */
 export default class CommitGateManager implements Manager {
   protected held: [
-    action: ActionTypes,
+    action: SetResponseAction,
     settle: (result?: Promise<void>) => void,
   ][] = [];
   protected controller?: Controller;
@@ -55,8 +55,21 @@ export default class CommitGateManager implements Manager {
     const held = this.held;
     this.held = [];
     for (const [action, settle] of held) {
-      // a throwing middleware rejects only its own result, not the rest
-      settle(new Promise<void>(resolve => resolve(mounted.dispatch(action))));
+      try {
+        settle(mounted.dispatch(action));
+      } catch (error) {
+        // like a dispatch that throws once mounted: that fetch shows the error, the rest still replay
+        settle(
+          action.error ?
+            Promise.reject(error)
+          : mounted.resolve(action.endpoint, {
+              args: action.args,
+              response: error as Error,
+              fetchedAt: action.meta.fetchedAt,
+              error: true,
+            }),
+        );
+      }
     }
   }
 
