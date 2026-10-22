@@ -21,8 +21,7 @@ declare class WebIdlingNetworkManager extends NetworkManager {
 declare class CommitGateManager implements Manager {
     protected held: [
         action: ActionTypes,
-        resolve: () => void,
-        reject: (error: unknown) => void
+        settle: (result?: Promise<void>) => void
     ][];
     protected controller?: Controller;
     protected mounted?: Controller;
