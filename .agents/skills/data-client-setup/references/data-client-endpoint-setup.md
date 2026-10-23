@@ -29,6 +29,9 @@ Use `@data-client/endpoint` when:
 
 ## Wrapping Async Functions
 
+The `schema` option normalizes each response into the shared cache, and the examples below import Entity classes
+that must already exist. Apply the skill "data-client-schema" to define them before writing endpoints.
+
 See [Endpoint](./data-client-endpoint-setup/references/Endpoint.md) for full API documentation.
 
 ### Detection
@@ -329,8 +332,7 @@ Both hooks and controller methods take endpoint as first argument, with the endp
 
 ## Next Steps
 
-1. Apply skill "data-client-schema" to define Entity classes
-2. Apply skill "data-client-react" or "data-client-vue" for usage
+Apply skill "data-client-react" or "data-client-vue" for usage.
 
 ## References
 

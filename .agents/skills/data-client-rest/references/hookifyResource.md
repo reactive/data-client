@@ -62,7 +62,7 @@ Assuming you use the unchanged result of [resource()](./resource.md), these will
 
 - method: 'GET'
 - path: `path`
-- schema: [schema](./Entity.md)
+- schema: [schema](https://dataclient.io/rest/api/Entity)
 
 ```typescript
 // GET //test.com/api/abc/xyz
@@ -145,7 +145,7 @@ Commonly used with [Controller.fetch](https://dataclient.io/docs/api/Controller#
 
 - method: 'GET'
 - args: `shortenPath(path) & { [paginationField]: string | number } & searchParams`
-- schema: [new Collection(\[schema\]).addWith(paginatedMerge, paginatedFilter(removeCursor))](./Collection.md)
+- schema: [new Collection(\[schema\]).addWith(paginatedMerge, paginatedFilter(removeCursor))](https://dataclient.io/rest/api/Collection)
 
 ```typescript
 // GET //test.com/api/abc?isExtra=xyz&page=2
