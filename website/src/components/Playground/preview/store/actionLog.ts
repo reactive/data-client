@@ -16,6 +16,7 @@ import {
   type Change,
   type RequestGroup,
 } from './actionGroups';
+import { attributed, managerNames, type Attribution } from './attribution';
 import type { Moment } from './nav';
 
 const { createReducer } = __INTERNAL__;
@@ -57,6 +58,12 @@ export interface LogEntry {
   /** A fetch's: whether NetworkManager shared it with the request it already
    * had for its key, instead of fetching. Missing when the log can't tell */
   readonly deduped?: boolean;
+  /** The manager that dispatched it (through its controller); missing for
+   * the app's own (a component's fetch, a button's set) */
+  readonly origin?: string;
+  /** The manager whose middleware handled it without passing it on, so the
+   * managers after it (and the store) never saw it */
+  readonly consumedBy?: string;
   /** The store's own state (pending optimistic updates not yet applied)
    * right before and after this action. Missing when a manager handled the
    * action without passing it on (a plain fetch, a subscribe) */
@@ -82,6 +89,8 @@ export interface History {
   /** By an entry's seq: how many earlier updates of its row `updateLimit`
    * dropped (see `capUpdates`) */
   readonly dropped?: ReadonlyMap<number, number>;
+  /** Its current store's managers in chain order, as `track` named them */
+  readonly managers?: readonly string[];
 }
 
 const EMPTY: History = { entries: [], since: 0 };
@@ -206,8 +215,21 @@ export default class ActionLog {
     keep?: number,
     deduped?: (action: ActionTypes) => boolean,
   ) {
-    /** Each action's entry, for the tail to find what the head recorded */
-    const recorded = new WeakMap<ActionTypes, LogEntry>();
+    /** Each action's seq, for the tail to find what the head recorded */
+    const recorded = new WeakMap<ActionTypes, number>();
+    const attribution: Attribution = { copies: new WeakMap() };
+    /** The seq of `action`, or of what it's a copy of */
+    const seqOf = (action: ActionTypes): number | undefined => {
+      for (
+        let a: ActionTypes | undefined = action;
+        a;
+        a = attribution.copies.get(a)
+      ) {
+        const seq = recorded.get(a);
+        if (seq !== undefined) return seq;
+      }
+    };
+    let managers: readonly string[] | undefined;
     let first = true;
     /** An action reached the tail, which keeps the history's state since */
     let reached = false;
@@ -220,6 +242,7 @@ export default class ActionLog {
       if (first) dropOthers();
       this.histories.set(id, {
         ...this.history(id),
+        managers,
         state: detach(state),
         ...(first && { storeFrom: this.nextSeq }),
       });
@@ -227,6 +250,8 @@ export default class ActionLog {
     };
     const head: Manager<ActionTypes> = {
       middleware: () => next => action => {
+        const origin = attribution.dispatching;
+        attribution.dispatching = undefined;
         if (!this.recording) return next(action);
         // the first action recorded starts the history
         if (first) dropOthers();
@@ -239,10 +264,11 @@ export default class ActionLog {
             action.type === actionTypes.FETCH && {
               deduped: deduped(action),
             }),
+          ...(origin && { origin }),
         };
         first = false;
-        recorded.set(action, entry);
-        this.append(id, entry);
+        recorded.set(action, entry.seq);
+        this.append(id, entry, managers);
         return next(action);
       },
       // a store can start without dispatching (one restored after an error,
@@ -273,13 +299,33 @@ export default class ActionLog {
             action.type === actionTypes.GC ? detach(before) : before,
             action,
           );
-          this.settle(id, recorded.get(action), { before, after: state });
+          // the state it left (one sent before recording started has no
+          // entry, but its state counts)
+          this.patch(
+            id,
+            seqOf(action),
+            { store: { before, after: state } },
+            { state },
+          );
           return next(action);
         };
       },
       cleanup() {},
     };
-    return { head, tail };
+    /** The store's own managers (between `head` and `tail`), each
+     * crediting what it dispatches and consumes to its name */
+    const track = (chain: readonly Manager[]): Manager[] => {
+      const names = managerNames(chain);
+      managers = names;
+      return chain.map((manager, i) =>
+        attributed(manager, names[i], attribution, (action, by) => {
+          const seq = seqOf(action);
+          if (seq !== undefined)
+            this.patch(id, seq, { consumedBy: by || undefined });
+        }),
+      );
+    };
+    return { head, tail, track };
   }
 
   history = (id: number): History => this.histories.get(id) ?? EMPTY;
@@ -352,7 +398,7 @@ export default class ActionLog {
     };
   };
 
-  private append(id: number, entry: LogEntry) {
+  private append(id: number, entry: LogEntry, managers?: readonly string[]) {
     const history = this.histories.get(id);
     // only a store's first action starts a history; a dropped one stays gone
     if (!history && !entry.newStore) return;
@@ -361,6 +407,7 @@ export default class ActionLog {
     const due = appended.length - trimmed >= this.trimEvery;
     this.histories.set(id, {
       ...history,
+      ...(!history && { managers }),
       entries: appended,
       since: entries.length ? since : entry.at,
       ...(due && this.compact(appended, history)),
@@ -398,18 +445,23 @@ export default class ActionLog {
     };
   }
 
-  /** The store state an action left */
-  private settle(
+  /** `fields` added to entry `seq` of history `id`, and `historyFields`
+   * to the history */
+  private patch(
     id: number,
-    entry: LogEntry | undefined,
-    store: Required<LogEntry>['store'],
+    seq: number | undefined,
+    fields: Partial<LogEntry>,
+    historyFields?: Partial<History>,
   ) {
     const history = this.histories.get(id);
     if (!history) return;
+    const { entries } = history;
+    // nearly always the newest
+    const i = entries.findLastIndex(e => e.seq === seq);
     this.histories.set(id, {
       ...history,
-      entries: history.entries.map(e => (e === entry ? { ...e, store } : e)),
-      state: store.after,
+      ...(i >= 0 && { entries: entries.with(i, { ...entries[i], ...fields }) }),
+      ...historyFields,
     });
     this.notify();
   }

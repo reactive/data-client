@@ -457,11 +457,14 @@ export function Field({
   name,
   node,
   inline = false,
+  children,
 }: {
   name: string;
-  node: VNode;
+  node?: VNode;
   /** On one line, cut off where it runs out of room */
   inline?: boolean;
+  /** Shown as is, instead of a `node` */
+  children?: React.ReactNode;
 }) {
   return (
     <div className={styles.field}>
@@ -469,7 +472,9 @@ export function Field({
         {name}
         <span className={styles.dim}>:</span>
       </span>
-      {inline ?
+      {!node ?
+        children
+      : inline ?
         <span className={styles.oneLine}>
           <Inline node={node} name={name} />
         </span>

@@ -16,6 +16,7 @@ import {
   spanOf,
   useActions,
 } from './actionParts';
+import { isNetworkManager, ownChain } from './attribution';
 import { EndpointBody } from './Details';
 import { errorText, findRow, isEndpointRow } from './model';
 import {
@@ -25,6 +26,7 @@ import {
   type Nav,
   type View,
 } from './nav';
+import { ActionPath } from './Pipeline';
 import { plain } from './refs';
 import styles from './store.module.css';
 import {
@@ -49,11 +51,23 @@ export function ActionDetail({
   subject: View;
   gap?: ChangeKind;
 }) {
+  // the way it took, when the code brought managers of its own; else in
+  // words, if a manager sent or handled it
+  const chain = ownChain(useActions().history.managers);
   return (
     <div className={styles.actBody}>
       <SubjectChanges entries={[entry]} subject={subject} gap={gap} />
+      {chain && <ActionPath chain={chain} entry={entry} />}
       <div className={clsx(styles.fields, styles.metaList)}>
         <Field name="dispatchedAt" node={{ t: 'val', v: entry.at }} />
+        {!chain && (
+          <>
+            {entry.origin && <Field name="sentBy">{entry.origin}</Field>}
+            {entry.consumedBy && (
+              <Field name="handledBy">{entry.consumedBy}</Field>
+            )}
+          </>
+        )}
         {actionFields(entry.action).map(([name, value]) => (
           <Field key={name} name={name} node={plain(value)} />
         ))}
@@ -106,7 +120,7 @@ export function SubjectChanges({
           )}
         </>
       : <span className={styles.dim}>
-          {unappliedNote(entries[entries.length - 1].action)}
+          {unappliedNote(entries[entries.length - 1])}
         </span>
       }
     </div>
@@ -126,16 +140,14 @@ function unchangedNote(subject: View) {
 }
 
 /** Why an action that never reached the store is still in the log */
-function unappliedNote(action: ActionTypes) {
-  switch (action.type) {
-    case actionTypes.FETCH:
-      return 'Started the request; the store changes when its response arrives';
-    case actionTypes.SUBSCRIBE:
-    case actionTypes.UNSUBSCRIBE:
-      return 'Handled by SubscriptionManager; the store is unchanged';
-    default:
-      return 'A manager handled this without passing it to the store';
-  }
+function unappliedNote({ action, consumedBy }: LogEntry) {
+  // NetworkManager sets off a fetch's request (its name may end in `#2`)
+  const requested = !consumedBy || isNetworkManager(consumedBy);
+  if (action.type === actionTypes.FETCH && requested)
+    return 'Started the request; the store changes when its response arrives';
+  return consumedBy ?
+      `Handled by ${consumedBy}; the store is unchanged`
+    : 'Not passed on to the store (yet)';
 }
 
 /** Rows the `stored` actions changed, and how */
