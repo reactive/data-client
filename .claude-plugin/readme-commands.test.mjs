@@ -17,6 +17,13 @@ import {
 } from '../website/framework-docs/skillCommands.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// the prompt for any agent: AgentPrompt's default, a translate() message it can't export
+const [, agentPrompt] = fs
+  .readFileSync(
+    path.join(root, 'website/src/components/AgentPrompt.tsx'),
+    'utf8',
+  )
+  .match(/id: 'agentPrompt\.prompt',\s*message:\s*'([^']+)'/);
 const readmes = {
   'README.md': 'react',
   'packages/react/README.md': 'react',
@@ -33,8 +40,9 @@ for (const [file, framework] of Object.entries(readmes)) {
       cursorSetupPrompt(framework),
       codexPluginCommand,
       codexSetupPrompt(framework),
-      // the prompt for any agent, as website/src/components/AgentPrompt.tsx words it
-      `Set up \`@data-client/${framework}\` and use it for all API data. Install its setup skill first: \`${setupCommand}\`, then follow it.`,
+      agentPrompt
+        .replace('{framework}', framework)
+        .replace('{command}', setupCommand),
     ])
       assert.ok(readme.includes(command), command);
   });
