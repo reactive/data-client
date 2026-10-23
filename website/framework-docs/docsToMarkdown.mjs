@@ -255,7 +255,7 @@ function render(file, framework, props = {}) {
   const source = sourceFor(file, framework);
   const parsed = parse(source);
   const tree = structuredClone(parsed.tree);
-  remarkFramework({ framework })(tree);
+  remarkFramework({ framework, keepAgentOnly: true })(tree);
   const partials = {};
   const tabLabels = [];
 
@@ -596,6 +596,19 @@ function wrapPhrasing(tree) {
       return children;
     }, []);
   });
+}
+
+/**
+ * Where a link to an unpublished agent page (`docs/core/_agents/`) goes in page
+ * markdown (llms-plugin): the framework skill's generated copy on GitHub, or
+ * undefined for any other route.
+ */
+export function agentReferenceUrl(route) {
+  const match = route.match(/^\/(docs|vue)\/_agents\/([^#?]+)(.*)$/);
+  if (!match) return;
+  const [, base, name, hash] = match;
+  const skill = `data-client-${base === 'vue' ? 'vue' : 'react'}`;
+  return `https://raw.githubusercontent.com/reactive/data-client/master/.agents/skills/${skill}/references/${name}.md${hash}`;
 }
 
 /**
