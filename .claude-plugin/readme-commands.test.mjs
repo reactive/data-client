@@ -13,6 +13,7 @@ import {
   codexSetupPrompt,
   cursorPluginCommand,
   cursorSetupPrompt,
+  setupCommand,
   setupPrompt,
 } from '../website/framework-docs/skillCommands.mjs';
 
@@ -45,3 +46,12 @@ for (const pkg of ['rest', 'graphql', 'endpoint']) {
     assert.ok(read(`packages/${pkg}/README.md`).includes(setupPrompt(pkg)));
   });
 }
+
+test("AgentPrompt's default prompt matches setupPrompt", () => {
+  // its translate() literal can't import setupPrompt (i18n extraction needs a literal)
+  const message = setupPrompt('{framework}').replace(setupCommand, '{command}');
+  assert.ok(
+    read('website/src/components/AgentPrompt.tsx').includes(message),
+    message,
+  );
+});
