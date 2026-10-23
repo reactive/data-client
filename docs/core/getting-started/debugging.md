@@ -9,13 +9,11 @@ import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import SiteOnly from '@site/src/components/SiteOnly';
 import AgentOnly from '@site/src/components/AgentOnly';
-import ResponseForKey from '../_agents/_response-for-key.mdx';
-import RecentActions from '../_agents/_recent-actions.mdx';
-import Errors from '../_agents/_errors.mdx';
-
-## Debugging with agents
+import DevtoolsDebugging from '../_agents/devtools-debugging.md';
 
 <SiteOnly>
+
+## Debugging with agents
 
 [`globalThis.__DC__`](../api/DevToolsManager.md#controllers) allows agents to introspect the Data Client store of your
 app in development: its state, recent actions and errors, so your coding agent can debug what you see. Ask it:
@@ -33,36 +31,23 @@ If debugging doesn't work with your agent or browser tool, [open an issue](https
 naming both so we can support it. Or have your agent write it:
 
 ```prompt
-Debugging this app through globalThis.__DC__ didn't work. Open a bug report on reactive/data-client titled "Agent debugging: <agent> + <browser tool>" (with gh issue create, or give me the text to paste), including your agent and browser tool names and versions, the app's @data-client versions, what you ran and what happened.
+Debugging this app through globalThis.__DC__ didn't work with you or your browser tool. Search reactive/data-client issues for one about this agent and browser tool. If there's none, draft a bug report following its .github/ISSUE_TEMPLATE/bug_report.md, titled "Agent debugging: <agent> + <browser tool>", with: agent and browser tool names and versions, the app's @data-client versions, whether globalThis.__DC__ was defined, what you ran and the exact error. Leave out app data and secrets. Show me the draft before filing it with gh issue create.
 ```
 
 </SiteOnly>
 
 <AgentOnly>
 
-When the running app shows wrong or stale data, read its store in the page before reading code for the cause. In
-dev mode, `__DC__.controller` is the page's [Controller](../api/Controller.md), so every Controller method works,
-and `__DC__.actions` holds its recent [actions](../api/Actions.md).
+<DevtoolsDebugging />
 
-Each snippet below is a sync function. Pass it as is to a tool that takes a function (Chrome DevTools MCP
-`evaluate_script`, Playwright MCP `browser_evaluate`), or evaluate `(<snippet>)()` in one that takes an expression
-(Claude in Chrome `javascript_tool`, CDP `Runtime.evaluate` with `awaitPromise` and `returnByValue`). They use the
-entity `Todo` and paths containing `/todos`: replace them with the app's own.
+## Manual inspection
 
-<ResponseForKey />
-
-<RecentActions />
-
-<Errors />
-
-`__DC__` is undefined in production builds, without `DevToolsManager` in the managers, or before `@data-client` 0.19.
-
-The rest (refetching, symptoms and what to check first, changing state, each browser tool's setup)
-is in :react[`.agents/skills/data-client-react/references/devtools-debugging.md`]:vue[`.agents/skills/data-client-vue/references/devtools-debugging.md`].
-If it's missing, `npx --no data-client-skills` from the project root links it, or read
-:react[[the published copy](https://raw.githubusercontent.com/reactive/data-client/master/.agents/skills/data-client-react/references/devtools-debugging.md)]:vue[[the published copy](https://raw.githubusercontent.com/reactive/data-client/master/.agents/skills/data-client-vue/references/devtools-debugging.md)].
+If the user wants to inspect the store themselves, point them to the Redux DevTools browser extension: this page on
+the site shows how to install and open it.
 
 </AgentOnly>
+
+<SiteOnly>
 
 ## Manual debugging
 
@@ -208,3 +193,5 @@ app.mount('#app');
 ```
 
 :::
+
+</SiteOnly>

@@ -12,6 +12,10 @@
  * left unused afterwards (a React-only partial on a Vue page) are dropped so
  * they are not bundled.
  *
+ * `<AgentOnly>` blocks are removed unless `agentOnly` is set (docsToMarkdown
+ * keeps them for agents), so the site's table of contents never lists their
+ * headings or the headings of partials they import.
+ *
  * With `routeBasePath`, absolute `/docs/...` links are pointed at this
  * instance's route for the target doc when it exists there (`docs`, from
  * `docsFor()` in index.js, which honors `slug`), so Vue pages link to Vue
@@ -28,10 +32,14 @@ const isEmptyHeading = node =>
     c => c.type === 'text' && /^\s*(\\?\{#[^}]*\})?\s*$/.test(c.value),
   );
 
-function filterChildren(node, framework) {
+const isAgentOnly = node =>
+  node.type === 'mdxJsxFlowElement' && node.name === 'AgentOnly';
+
+function filterChildren(node, framework, agentOnly) {
   if (!node.children) return;
   node.children = node.children.flatMap(child => {
-    filterChildren(child, framework);
+    if (!agentOnly && isAgentOnly(child)) return [];
+    filterChildren(child, framework, agentOnly);
     if (isEmptyHeading(child)) return [];
     if (!DIRECTIVES.includes(child.type) || !FRAMEWORKS.includes(child.name))
       return [child];
@@ -105,9 +113,14 @@ function rewriteLinks(node, routeBasePath, docs) {
   node.children?.forEach(child => rewriteLinks(child, routeBasePath, docs));
 }
 
-module.exports = function remarkFramework({ framework, routeBasePath, docs }) {
+module.exports = function remarkFramework({
+  framework,
+  routeBasePath,
+  docs,
+  agentOnly = false,
+}) {
   return tree => {
-    filterChildren(tree, framework);
+    filterChildren(tree, framework, agentOnly);
     rewriteImports(tree, framework);
     pruneImports(tree);
     if (routeBasePath) rewriteLinks(tree, routeBasePath, docs);

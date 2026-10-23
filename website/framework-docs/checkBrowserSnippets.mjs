@@ -1,6 +1,6 @@
 /**
  * Runs the "run in page" snippets agents use to debug a Data Client app
- * (docs/core/_agents/devtools-debugging.md and its partials) in Chromium, each way its Browser
+ * (docs/core/_agents/devtools-debugging.md) in Chromium, each way its Browser
  * Tools section says a tool can run them, so a change to the snippets, those
  * instructions, or DevToolsManager's globals fails here instead of in an
  * agent's session. The ways' parameters and the `__DC_RESULT__` recipe are read

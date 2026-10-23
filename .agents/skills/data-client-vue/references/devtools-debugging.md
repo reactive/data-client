@@ -141,9 +141,7 @@ so this works for any key read since the page loaded:
 }
 ```
 
-`expiryStatus`: `1` Invalid, `2` InvalidIfStale, `3` Valid.
-
-To fetch it again and read the fresh response:
+`expiryStatus`: `1` Invalid, `2` InvalidIfStale, `3` Valid. To fetch it again and read the fresh response:
 
 ```js
 // run in page — refetch a key

@@ -62,7 +62,7 @@ module.exports = function llmsPlugin(context) {
     async postBuild({ outDir, plugins, siteConfig: { url } }) {
       // agents read the English source; other locales would only copy it
       if (context.i18n.currentLocale !== context.i18n.defaultLocale) return;
-      const { docToMarkdown, ROOT } =
+      const { docToMarkdown, agentReferenceUrl, ROOT } =
         await import('./framework-docs/docsToMarkdown.mjs');
       const { setupCommand, linkCommand } =
         await import('./framework-docs/skillCommands.mjs');
@@ -96,6 +96,8 @@ module.exports = function llmsPlugin(context) {
         ),
       );
       const resolveRoute = route => {
+        const agentReference = agentReferenceUrl(route);
+        if (agentReference) return agentReference;
         const [, pathname, hash] = route.match(/^([^#?]*)(.*)$/);
         return routes.has(trimRoute(pathname)) ?
             `${url}${mdRoute(pathname)}${hash}`
