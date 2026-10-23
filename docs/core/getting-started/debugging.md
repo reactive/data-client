@@ -31,7 +31,7 @@ If debugging doesn't work with your agent or browser tool, [open an issue](https
 naming both so we can support it. Or have your agent write it:
 
 ```prompt
-Debugging this app through globalThis.__DC__ didn't work with you or your browser tool. Search reactive/data-client issues for one about this agent and browser tool. If there's none, draft a bug report following its .github/ISSUE_TEMPLATE/bug_report.md, titled "Agent debugging: <agent> + <browser tool>", with: agent and browser tool names and versions, the app's @data-client versions, whether globalThis.__DC__ was defined, what you ran and the exact error. Leave out app data and secrets. Show me the draft before filing it with gh issue create.
+Debugging this app through globalThis.__DC__ didn't work with you and your browser tool. Search reactive/data-client issues for one about this pair; if there's none, draft a bug report from its .github/ISSUE_TEMPLATE/bug_report.md titled "Agent debugging: <agent> + <browser tool>" with both names and versions, the app's @data-client versions, whether globalThis.__DC__ was defined, what you ran and the exact error, and no app data or secrets. Show me the draft before filing it with gh issue create.
 ```
 
 </SiteOnly>
@@ -42,8 +42,8 @@ Debugging this app through globalThis.__DC__ didn't work with you or your browse
 
 ## Manual inspection
 
-If the user wants to inspect the store themselves, point them to the Redux DevTools browser extension: this page on
-the site shows how to install and open it.
+If the user wants to inspect the store themselves, send them to the Redux DevTools extension steps at
+:react[https://dataclient.io/docs/getting-started/debugging#manual-debugging]:vue[https://dataclient.io/vue/getting-started/debugging#manual-debugging].
 
 </AgentOnly>
 

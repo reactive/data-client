@@ -613,7 +613,8 @@ export function agentReferenceUrl(route) {
 
 /**
  * Markdown of a doc for a framework, or undefined if the page isn't in it.
- * `resolveRoute(route)` picks the URL for links to site pages (default: the site).
+ * `resolveRoute(route)` picks the URL for links to site pages (default: the site,
+ * with unpublished `_agents` pages going to the skill's copy on GitHub).
  * `agentOnly: false` drops `<AgentOnly>` steps, which skill references don't
  * need: the skill already gives them.
  */
