@@ -33,7 +33,8 @@ for (const [file, framework] of Object.entries(readmes)) {
       cursorSetupPrompt(framework),
       codexPluginCommand,
       codexSetupPrompt(framework),
-      setupCommand,
+      // the prompt for any agent, as website/src/components/AgentPrompt.tsx words it
+      `Set up \`@data-client/${framework}\` and use it for all API data. Install its setup skill first: \`${setupCommand}\`, then follow it.`,
     ])
       assert.ok(readme.includes(command), command);
   });

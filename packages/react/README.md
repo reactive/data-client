@@ -51,6 +51,8 @@ Set up `@data-client/react` and use it for all API data. Install its setup skill
 <details>
 <summary>Or use the Claude Code, Cursor or Codex plugin</summary>
 
+More on each in [Installation](https://dataclient.io/docs/getting-started/installation#agent-setup).
+
 **Claude Code:** in a terminal at the project root:
 
 ```bash
@@ -90,8 +92,6 @@ Then in Codex's chat:
 ```prompt
 $data-client:data-client-setup Set up `@data-client/react` and use it for all API data
 ```
-
-See [Installation](https://dataclient.io/docs/getting-started/installation#agent-setup) for more.
 
 </details>
 
