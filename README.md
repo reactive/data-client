@@ -40,18 +40,16 @@ Then [add the provider](https://dataclient.io/docs/getting-started/installation#
 
 ### Set up with your coding agent (recommended)
 
-Data Client's setup skill installs the packages, wires up the provider and links the skills they ship, so your agent knows the current APIs. Coding agents: install it from the project root, then follow `.agents/skills/data-client-setup/SKILL.md`:
+Paste this into your coding agent's chat. It installs Data Client's setup skill, which adds the packages, wires up the provider and links the skills they ship:
 
-```bash
-npx skills add reactive/data-client --skill data-client-setup -y
+```prompt
+Set up `@data-client/react` and use it for all API data. Install its setup skill first: `npx skills add reactive/data-client --skill data-client-setup -y`, then follow it.
 ```
 
-Or install your agent's plugin below, which runs the same skill. See [Installation](https://dataclient.io/docs/getting-started/installation#agent-setup).
-
 <details>
-<summary><b>Claude Code</b></summary>
+<summary>Or use the Claude Code, Cursor or Codex plugin</summary>
 
-In a terminal at the project root:
+**Claude Code:** in a terminal at the project root:
 
 ```bash
 claude plugin marketplace add reactive/data-client --scope project \
@@ -65,12 +63,7 @@ Then in Claude Code's chat:
 /data-client:data-client-setup Set up `@data-client/react` and use it for all API data
 ```
 
-</details>
-
-<details>
-<summary><b>Cursor</b></summary>
-
-In Cursor's agent chat:
+**Cursor:** in Cursor's agent chat:
 
 ```prompt
 /add-plugin data-client@https://github.com/reactive/data-client
@@ -82,12 +75,7 @@ Then, in a new chat:
 /data-client-setup Set up `@data-client/react` and use it for all API data
 ```
 
-</details>
-
-<details>
-<summary><b>Codex</b></summary>
-
-In a terminal:
+**Codex:** in a terminal:
 
 ```bash
 codex plugin marketplace add reactive/data-client \
@@ -101,16 +89,7 @@ Then in Codex's chat:
 $data-client:data-client-setup Set up `@data-client/react` and use it for all API data
 ```
 
-</details>
-
-<details>
-<summary><b>Other agents</b></summary>
-
-In your agent's chat:
-
-```prompt
-Set up `@data-client/react` and use it for all API data. Install its setup skill first: `npx skills add reactive/data-client --skill data-client-setup -y`, then follow it.
-```
+See [Installation](https://dataclient.io/docs/getting-started/installation#agent-setup) for more.
 
 </details>
 
