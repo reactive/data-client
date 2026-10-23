@@ -1,7 +1,9 @@
 // eslint-env jest
-import React, { version } from 'react';
+import { Endpoint } from '@data-client/endpoint';
+import React, { Suspense, version } from 'react';
 import { renderToString } from 'react-dom/server';
 
+import { useSuspense } from '../../hooks';
 import DataProvider from '../DataProvider';
 
 describe('<DataProvider />', () => {
@@ -12,8 +14,12 @@ describe('<DataProvider />', () => {
   afterEach(() => {
     warnspy.mockRestore();
   });
+  const ssrWarnings = () =>
+    warnspy.mock.calls.filter(([msg]) =>
+      `${msg}`.includes('does not update while doing SSR'),
+    );
 
-  it('should warn users about SSR with DataProvider', async () => {
+  it('should render without warning when nothing fetches during SSR', async () => {
     const tree = (
       <DataProvider>
         <div>hi</div>
@@ -27,7 +33,7 @@ describe('<DataProvider />', () => {
 
     const msg = renderToString(tree);
 
-    expect(warnspy.mock.lastCall).toMatchSnapshot();
+    expect(ssrWarnings()).toEqual([]);
 
     if (!LegacyReact) {
       expect(msg).toMatchInlineSnapshot(
@@ -36,5 +42,27 @@ describe('<DataProvider />', () => {
     } else {
       expect(msg).toMatchInlineSnapshot(`"<div>hi</div>"`);
     }
+  });
+
+  it('should warn once when fetching during SSR', () => {
+    const getThing = new Endpoint(() => Promise.resolve({ id: '5' }), {
+      key: () => 'getThing',
+    });
+    function Thing() {
+      useSuspense(getThing);
+      return <div>thing</div>;
+    }
+    const tree = (
+      <DataProvider>
+        <Suspense fallback={<div>loading</div>}>
+          <Thing />
+        </Suspense>
+      </DataProvider>
+    );
+
+    renderToString(tree);
+    renderToString(tree);
+
+    expect(ssrWarnings()).toMatchSnapshot();
   });
 });
