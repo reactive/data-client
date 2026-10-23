@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792776183097,
+  "lastUpdate": 1792780329712,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -11015,6 +11015,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 165.3,
             "range": "± 6.1%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2c260a97b2d5b482de9de4b960d52b5c7f579777",
+          "message": "fix(react): Don't warn \"Uncaught suspense\" for discarded SSR fallbacks (#4450)\n\nReact 19's streaming server renderer also renders the fallback of a\nboundary with over 500 bytes of content so it can outline it, then\nthrows it away. BackupLoading warned from useMemo during render, so\nSSR logged \"Uncaught suspense\" when nothing suspended. Warn from an\neffect instead, as the native version already does.\n\n\nClaude-Session: https://claude.ai/code/session_01WBaTij4gPJo7ymy384kK4E\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-23T18:25:48Z",
+          "tree_id": "675b1dae1e3dbc3feadebedf002a80ca71da8bbc",
+          "url": "https://github.com/reactive/data-client/commit/2c260a97b2d5b482de9de4b960d52b5c7f579777"
+        },
+        "date": 1792780326253,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 153.85,
+            "range": "± 8.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 47.3,
+            "range": "± 9.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 384.62,
+            "range": "± 7.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 392.31,
+            "range": "± 8.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 52.5,
+            "range": "± 7.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 327.96,
+            "range": "± 12.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 307.77,
+            "range": "± 8.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 9.7,
+            "range": "± 9.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 82.99,
+            "range": "± 9.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 36.76,
+            "range": "± 4.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 243.9,
+            "range": "± 4.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 303.03,
+            "range": "± 8.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 185.19,
+            "range": "± 7.2%",
             "unit": "ops/s"
           }
         ]
