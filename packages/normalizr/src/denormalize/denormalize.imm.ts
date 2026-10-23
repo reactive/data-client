@@ -18,7 +18,8 @@ export function denormalize<S extends Schema>(
 
   return getUnvisit(
     MemoPolicy.getEntities(entities),
-    new LocalCache(),
+    new LocalCache(args),
     args,
+    MemoPolicy.valuePolicy,
   )(schema, input).data;
 }

@@ -167,12 +167,6 @@ exports[`denormalize [cached] denormalizes without entities fills undefined 1`] 
 }
 `;
 
-exports[`denormalize [cached] denormalizes without entities fills undefined 2`] = `
-Immutable.Map {
-  "data": undefined,
-}
-`;
-
 exports[`denormalize [cached] gracefully handles when nested entities are primitives 1`] = `[Function]`;
 
 exports[`denormalize [cached] set to undefined if schema key is not in entities 1`] = `
@@ -354,12 +348,6 @@ exports[`denormalize [fast] denormalizes with function as pk() 1`] = `
 
 exports[`denormalize [fast] denormalizes without entities fills undefined 1`] = `
 {
-  "data": undefined,
-}
-`;
-
-exports[`denormalize [fast] denormalizes without entities fills undefined 2`] = `
-Immutable.Map {
   "data": undefined,
 }
 `;
