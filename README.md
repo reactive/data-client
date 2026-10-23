@@ -110,7 +110,7 @@ If your agent ran the setup, skip this: it already did every step.
 npm install --save @data-client/react @data-client/rest @data-client/test
 ```
 
-Then link the skills the packages ship into `.agents/skills`, so Claude Code, Cursor and Codex load them, and commit the links (needs `@data-client` 0.19 or later):
+Then link the skills the packages ship into `.agents/skills`, so Claude Code, Cursor and Codex load them, and commit the links (needs `@data-client/react` 0.19 or later):
 
 ```bash
 npx --no data-client-skills
