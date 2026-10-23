@@ -40,7 +40,7 @@ Debugging this app through globalThis.__DC__ didn't work with you and your brows
 
 <DevtoolsDebugging />
 
-## Manual inspection
+## Manual debugging
 
 If the user wants to inspect the store themselves, send them to the Redux DevTools extension steps at
 :react[https://dataclient.io/docs/getting-started/debugging#manual-debugging]:vue[https://dataclient.io/vue/getting-started/debugging#manual-debugging].

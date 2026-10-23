@@ -255,7 +255,7 @@ function render(file, framework, props = {}) {
   const source = sourceFor(file, framework);
   const parsed = parse(source);
   const tree = structuredClone(parsed.tree);
-  remarkFramework({ framework, agentOnly: true })(tree);
+  remarkFramework({ framework, keepAgentOnly: true })(tree);
   const partials = {};
   const tabLabels = [];
 
@@ -599,8 +599,8 @@ function wrapPhrasing(tree) {
 }
 
 /**
- * Where a link to an unpublished agent page (`docs/core/_agents/`) goes outside
- * skill references: the framework skill's generated copy on GitHub, or
+ * Where a link to an unpublished agent page (`docs/core/_agents/`) goes in page
+ * markdown (llms-plugin): the framework skill's generated copy on GitHub, or
  * undefined for any other route.
  */
 export function agentReferenceUrl(route) {
@@ -613,18 +613,14 @@ export function agentReferenceUrl(route) {
 
 /**
  * Markdown of a doc for a framework, or undefined if the page isn't in it.
- * `resolveRoute(route)` picks the URL for links to site pages (default: the site,
- * with unpublished `_agents` pages going to the skill's copy on GitHub).
+ * `resolveRoute(route)` picks the URL for links to site pages (default: the site).
  * `agentOnly: false` drops `<AgentOnly>` steps, which skill references don't
  * need: the skill already gives them.
  */
 export function docToMarkdown(
   file,
   framework,
-  {
-    resolveRoute = route => agentReferenceUrl(route) ?? SITE + route,
-    agentOnly = true,
-  } = {},
+  { resolveRoute = route => SITE + route, agentOnly = true } = {},
 ) {
   const tree = render(file, framework);
   if (!tree) return;
