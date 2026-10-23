@@ -16,7 +16,11 @@ export default function FrameworkPlayground(
   const framework = useFramework();
   if (framework === 'vue')
     return (
-      <TypeScriptEditor row={props.row} defaultTab={props.defaultTab}>
+      // a demo's code shows as row's tabs
+      <TypeScriptEditor
+        row={props.row || props.demo}
+        defaultTab={props.defaultTab}
+      >
         {props.children}
       </TypeScriptEditor>
     );

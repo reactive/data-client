@@ -1,6 +1,7 @@
 import React from 'react';
 
-export function Avatar({ src }: { src: string }) {
+/** A round profile picture; 32px, or `size` to match the text beside it (smaller in a byline or a comment) */
+export function Avatar({ src, size = 32 }: { src: string; size?: number }) {
   return (
     <span
       style={{
@@ -9,10 +10,10 @@ export function Avatar({ src }: { src: string }) {
     >
       <img
         src={src}
-        height="32"
-        width="32"
+        height={size}
+        width={size}
         style={{
-          borderRadius: '16px',
+          borderRadius: '50%',
           overflow: 'hidden',
           display: 'inline-block',
         }}

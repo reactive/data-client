@@ -848,6 +848,12 @@
   "playground.code": {
     "message": "Código"
   },
+  "playground.code.show": {
+    "message": "Mostrar o código"
+  },
+  "playground.code.hide": {
+    "message": "Ocultar o código"
+  },
   "dataColocation.label": {
     "message": "Árvore de componentes em que cada componente que renderiza dados os lê diretamente do store com useSuspense(): User para CurrentUser e Avatar, Post para PostBody e Comment para CommentList. Uma mudança renderiza de novo apenas esses componentes e nada mais da árvore"
   },

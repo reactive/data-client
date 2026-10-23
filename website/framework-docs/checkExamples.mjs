@@ -33,15 +33,23 @@ const PLAYGROUND = path.join(ROOT, 'website/src/components/Playground');
 const TYPE_CHECK_FLAGS = require(`${PLAYGROUND}/monaco/typeCheckFlags.json`);
 const EXT = { ts: '.ts', typescript: '.ts', tsx: '.tsx', html: '.vue' };
 /**
- * The playground's design system: stand-ins for an app's own components, so
- * examples use them without importing them. NumberFlow is a real library, so
- * examples import it.
+ * The playground's design system: stand-ins for an app's own components (and
+ * helpers like `toast`), so examples use them without importing them.
+ * NumberFlow is a real library, so examples import it.
  */
-const PLACEHOLDERS = [
+const DESIGN_SYSTEM = [
   ...fs
     .readFileSync(path.join(PLAYGROUND, 'DesignSystem/index.ts'), 'utf8')
-    .matchAll(/^export \{ (\w+) \}/gm),
-].map(([, name]) => name);
+    .matchAll(/^export \{ ([\w, ]+) \}/gm),
+]
+  .flatMap(([, names]) => names.split(/,\s*/))
+  // `default as NumberFlow` re-exports the real library
+  .filter(name => /^\w+$/.test(name));
+// by name: components are capitalized (`Toaster`), helpers aren't (`toast`)
+const PLACEHOLDERS = DESIGN_SYSTEM.filter(name => /^[A-Z]/.test(name));
+const HELPER_DECLARATIONS = DESIGN_SYSTEM.filter(name => /^[a-z]/.test(name))
+  .map(name => `  const ${name}: any;`)
+  .join('\n');
 
 const titleOf = block => block.meta?.match(/title="([^"]+)"/)?.[1];
 /** A single file component, titled or not */
@@ -66,6 +74,7 @@ declare global {
   function Link(props: AnchorHTMLAttributes<HTMLAnchorElement> & { to: string }): ReactNode;
   function useNavigate(): (to: string) => void;
 ${PLACEHOLDERS.map(name => `  const ${name}: FC<any>;`).join('\n')}
+${HELPER_DECLARATIONS}
 }
 `,
   },
@@ -83,6 +92,9 @@ declare module 'vue' {
   interface GlobalComponents {
 ${[...PLACEHOLDERS, 'RouterLink', 'RouterView'].map(name => `    ${name}: DefineComponent<any>;`).join('\n')}
   }
+}
+declare global {
+${HELPER_DECLARATIONS}
 }
 `,
   },

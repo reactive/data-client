@@ -410,7 +410,9 @@
       "agentPrompt.copyFor": "Copy prompt for {agent}",
       "agentPrompt.copy": "Copy prompt for your coding agent",
       "theme.CodeBlock.terminal": "Run in your terminal",
-      "theme.CodeBlock.terminalTitle": "Terminal"
+      "theme.CodeBlock.terminalTitle": "Terminal",
+      "playground.code.hide": "Hide code",
+      "playground.code.show": "Show code"
     },
     "docusaurus-plugin-content-blog/options.json": {
       "title": "Blog",

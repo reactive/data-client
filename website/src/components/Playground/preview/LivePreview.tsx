@@ -10,7 +10,7 @@ import PreviewWrapper from './PreviewWrapper';
 import { useRenderCount } from './RenderCount';
 import { routerTrailer } from './router';
 import type { CodeDocument } from '../editor/codeModel';
-import type { PreviewProps } from '../types';
+import type { CodeControl, PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
 import SchemaRegistry from './store/schemaRegistry';
 import type { ShowStore } from './store/storeView';
@@ -28,6 +28,8 @@ export interface LivePreviewProps<T> extends PreviewProps<T> {
   autoRun?: AutoRunScript;
   /** Opens or closes the Store for the demo, without saving it */
   showStore: ShowStore;
+  /** Demo layout: the code in the result's place, and its toggle (../index.tsx) */
+  code?: CodeControl;
 }
 
 export default function LivePreview<T>({
@@ -43,6 +45,7 @@ export default function LivePreview<T>({
   actionLog,
   autoRun,
   showStore,
+  code: codeControl,
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
@@ -92,6 +95,7 @@ export default function LivePreview<T>({
           : undefined
         }
         fixtures={fixtureContent}
+        code={codeControl}
         headerControls={
           <>
             {badge}

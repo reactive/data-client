@@ -116,21 +116,79 @@ export function StoreHeaderToggle({
   open?: boolean;
 }) {
   return (
-    <button
-      type="button"
-      className={clsx(
-        'clean-btn',
-        styles.headerButton,
-        styles.storeHeaderToggle,
-      )}
+    <HeaderToggle
+      className={styles.storeHeaderToggle}
       title={toggleTitle(open)}
-      aria-label={translate({ id: 'playground.store', message: 'Store' })}
-      aria-pressed={open}
+      label={translate({ id: 'playground.store', message: 'Store' })}
+      open={open}
       data-store-toggle
-      disabled={!onClick}
       onClick={onClick}
     >
       <StoreIcon />
+    </HeaderToggle>
+  );
+}
+
+/** The Code toggle in the preview's header (the demo layout, ../index.tsx):
+ * pressed, the code takes the result's place */
+export function CodeHeaderToggle({
+  onClick,
+  open,
+}: {
+  onClick: () => void;
+  open: boolean;
+}) {
+  return (
+    <HeaderToggle
+      className={styles.codeHeaderToggle}
+      title={
+        open ?
+          translate({ id: 'playground.code.hide', message: 'Hide code' })
+        : translate({ id: 'playground.code.show', message: 'Show code' })
+      }
+      label={translate({ id: 'playground.code', message: 'Code' })}
+      open={open}
+      onClick={onClick}
+    >
+      <CodeIcon />
+    </HeaderToggle>
+  );
+}
+
+/** An icon button in the preview's header that reads pressed while what it
+ * shows does; disabled without a handler (the loading fallback holds the
+ * layout with one) */
+function HeaderToggle({
+  className,
+  title,
+  label,
+  open,
+  onClick,
+  children,
+  ...rest
+}: {
+  className: string;
+  /** What pressing it does now */
+  title: string;
+  /** Its name, the same either way */
+  label: string;
+  open: boolean;
+  onClick?: React.MouseEventHandler<HTMLElement>;
+  children: React.ReactNode;
+  'data-store-toggle'?: true;
+}) {
+  return (
+    <button
+      type="button"
+      className={clsx('clean-btn', styles.headerButton, className)}
+      title={title}
+      aria-label={label}
+      aria-pressed={open}
+      disabled={!onClick}
+      onClick={onClick}
+      {...rest}
+    >
+      {children}
     </button>
   );
 }
@@ -160,7 +218,7 @@ export function StoreBadge({
         <Translate id="playground.store">Store</Translate>
       </span>
       <span aria-hidden={!open}>
-        <CodeIcon />
+        <CodeIcon className={styles.storeBadgeCode} />
         <Translate id="playground.code">Code</Translate>
       </span>
     </button>
@@ -173,10 +231,10 @@ const toggleTitle = (open: boolean) =>
   : translate({ id: 'playground.store.show', message: 'Show Store' });
 
 /** Angle brackets around a slash */
-function CodeIcon() {
+function CodeIcon({ className }: { className?: string }) {
   return (
     <svg
-      className={styles.storeBadgeCode}
+      className={className}
       viewBox="0 0 24 24"
       width="1.15em"
       height="1.15em"

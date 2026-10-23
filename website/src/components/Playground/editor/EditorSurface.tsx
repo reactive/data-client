@@ -6,6 +6,7 @@ import type * as Monaco from 'monaco-editor';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import Header from '../Header';
+import { editorLabel } from '../liveLabel';
 import { modelPath, useModelId } from '../monaco/modelPath';
 import { createMissingModels } from '../monaco/models';
 import NetworkIcon from '../NetworkIcon';
@@ -17,7 +18,8 @@ import type { InteractiveEditorProps } from './InteractiveEditor';
 import StaticEditor from './StaticEditor';
 
 export interface EditorSurfaceProps extends CodeModel {
-  layout: 'row' | 'stacked';
+  /** `demo`: tabs like `row`, under the preview's header (see ../index.tsx) */
+  layout: 'row' | 'stacked' | 'demo';
   variant: 'playground' | 'standalone';
   /** When false, keep static SSR-friendly editors (no Monaco). Defaults true. */
   interactive?: boolean;
@@ -44,7 +46,7 @@ export default function EditorSurface({
   coverTitle,
 }: EditorSurfaceProps) {
   const id = useModelId();
-  const row = layout === 'row';
+  const row = layout !== 'stacked';
   const [closedList, setClosed] = useState(() =>
     documents.map(({ collapsed }) => collapsed),
   );
@@ -97,7 +99,7 @@ export default function EditorSurface({
         closedList={closedList}
         onClick={handleTabSwitch}
         compact={variant === 'standalone'}
-        hasHeaderControls={headerControls != null}
+        subtabs={headerControls != null || layout === 'demo'}
       />
     : null;
   // the file tabs only pick which file shows, so they go under the cover
@@ -251,13 +253,15 @@ function EditorTabs({
   closedList,
   onClick,
   compact,
-  hasHeaderControls,
+  subtabs,
 }: {
   documents: readonly CodeDocument[];
   closedList: readonly boolean[];
   onClick: (index: number) => void;
   compact: boolean;
-  hasHeaderControls: boolean;
+  /** Under another header (the controls', or the preview's in the demo
+   * layout): a step above the bar, so the two rows read apart */
+  subtabs: boolean;
 }) {
   const tabs = documents
     .map((document, index) => ({ document, index }))
@@ -266,11 +270,11 @@ function EditorTabs({
   return (
     <Header
       className={clsx(
-        { [styles.subtabs]: hasHeaderControls },
+        { [styles.subtabs]: subtabs },
         styles.noupper,
         styles.tabControls,
       )}
-      small={hasHeaderControls || compact}
+      small={subtabs || compact}
     >
       <TabList
         tabs={tabs.map(({ document, index }) => ({
@@ -285,14 +289,7 @@ function EditorTabs({
 }
 
 function EditorHeader({
-  title = (
-    <Translate
-      id="theme.Playground.liveEditor"
-      description="The live editor label of the live codeblocks"
-    >
-      Editor
-    </Translate>
-  ),
+  title = editorLabel(),
   covered,
   coverTitle,
   fixtureContent,
