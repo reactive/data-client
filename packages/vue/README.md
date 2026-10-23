@@ -46,21 +46,15 @@ app.use(DataClientPlugin);
 app.mount('#app');
 ```
 
-Then link the skills the packages ship so Claude Code, Cursor and Codex load them, and commit the links:
+### Set up with your coding agent (recommended)
 
-```bash
-npx --no data-client-skills
-```
-
-Coding agents: the setup skill does all of this for you. Install it from the project root, then follow `.agents/skills/data-client-setup/SKILL.md`:
+Data Client's setup skill installs the packages, wires up the provider and links the skills they ship, so your agent knows the current APIs. Coding agents: install it from the project root, then follow `.agents/skills/data-client-setup/SKILL.md`:
 
 ```bash
 npx skills add reactive/data-client --skill data-client-setup -y
 ```
 
-### Set up with your coding agent
-
-Or have your agent do it all: its setup skill installs the packages, wires up the provider and links the skills. Pick your agent below, or see [Installation](https://dataclient.io/vue/getting-started/installation#agent-setup) for more.
+Or install your agent's plugin below, which runs the same skill. See [Installation](https://dataclient.io/vue/getting-started/installation#agent-setup).
 
 <details>
 <summary><b>Claude Code</b></summary>

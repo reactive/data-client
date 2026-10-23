@@ -13,7 +13,6 @@ import {
   codexSetupPrompt,
   cursorPluginCommand,
   cursorSetupPrompt,
-  linkCommand,
   setupCommand,
 } from '../website/framework-docs/skillCommands.mjs';
 
@@ -35,7 +34,6 @@ for (const [file, framework] of Object.entries(readmes)) {
       codexPluginCommand,
       codexSetupPrompt(framework),
       setupCommand,
-      linkCommand,
     ])
       assert.ok(readme.includes(command), command);
   });
