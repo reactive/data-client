@@ -1,7 +1,7 @@
 // eslint-env jest
 import { Endpoint } from '@data-client/endpoint';
 import React, { Suspense, version } from 'react';
-import { renderToString } from 'react-dom/server';
+import * as ReactDOMServer from 'react-dom/server';
 
 import { useSuspense } from '../../hooks';
 import DataProvider from '../DataProvider';
@@ -28,10 +28,10 @@ describe('<DataProvider />', () => {
     const LegacyReact = version.startsWith('16') || version.startsWith('17');
 
     // let our lazy component load
-    renderToString(tree);
+    ReactDOMServer.renderToString(tree);
     await new Promise(resolve => setTimeout(resolve, 0));
 
-    const msg = renderToString(tree);
+    const msg = ReactDOMServer.renderToString(tree);
 
     expect(ssrWarnings()).toEqual([]);
 
@@ -42,6 +42,33 @@ describe('<DataProvider />', () => {
     } else {
       expect(msg).toMatchInlineSnapshot(`"<div>hi</div>"`);
     }
+  });
+
+  it('should not warn about uncaught suspense when React renders but discards the fallback', async () => {
+    // only streaming renderers (React 18+) outline
+    if (!('renderToReadableStream' in ReactDOMServer)) return;
+    // React 19 also renders the fallback of a non-root boundary over 500 bytes, then discards it
+    const tree = (
+      <div>
+        <DataProvider>
+          {Array.from({ length: 20 }, (_, i) => (
+            <div key={i}>{`row ${i} of text to fill out the boundary`}</div>
+          ))}
+        </DataProvider>
+      </div>
+    );
+
+    const stream = await (ReactDOMServer as any).renderToReadableStream(tree);
+    await stream.allReady;
+    const msg = await new Response(stream).text();
+
+    expect(msg).toContain('row 19');
+    expect(msg).not.toContain('Uncaught Suspense');
+    expect(
+      warnspy.mock.calls.filter(([msg]) =>
+        `${msg}`.includes('Uncaught suspense'),
+      ),
+    ).toEqual([]);
   });
 
   it('should warn once when fetching during SSR', () => {
@@ -60,8 +87,8 @@ describe('<DataProvider />', () => {
       </DataProvider>
     );
 
-    renderToString(tree);
-    renderToString(tree);
+    ReactDOMServer.renderToString(tree);
+    ReactDOMServer.renderToString(tree);
 
     expect(ssrWarnings()).toMatchSnapshot();
   });
