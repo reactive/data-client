@@ -18,12 +18,17 @@ import {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 // the prompt for any agent: AgentPrompt's default, a translate() message it can't export
-const [, agentPrompt] = fs
+const promptMatch = fs
   .readFileSync(
     path.join(root, 'website/src/components/AgentPrompt.tsx'),
     'utf8',
   )
-  .match(/id: 'agentPrompt\.prompt',\s*message:\s*'([^']+)'/);
+  .match(/id: 'agentPrompt\.prompt',\s*message:\s*'([^'\\]+)'/);
+assert.ok(
+  promptMatch,
+  'agentPrompt.prompt message not found in AgentPrompt.tsx',
+);
+const agentPrompt = promptMatch[1];
 const readmes = {
   'README.md': 'react',
   'packages/react/README.md': 'react',
