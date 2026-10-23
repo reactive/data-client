@@ -1,4 +1,4 @@
-// Keeps the setup commands the READMEs copy in step with the site's:
+// Keeps the setup commands the READMEs and AgentPrompt copy in step with skillCommands.mjs:
 // node --test '.claude-plugin/*.test.mjs'
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -51,7 +51,7 @@ test("AgentPrompt's default prompt matches setupPrompt", () => {
   // its translate() literal can't import setupPrompt (i18n extraction needs a literal)
   const message = setupPrompt('{framework}').replace(setupCommand, '{command}');
   assert.ok(
-    read('website/src/components/AgentPrompt.tsx').includes(message),
+    read('website/src/components/AgentPrompt.tsx').includes(`'${message}'`),
     message,
   );
 });
