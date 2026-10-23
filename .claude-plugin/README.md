@@ -23,8 +23,7 @@ Codex reads `marketplace.json` as is (`codex plugin add data-client@data-client`
 - `.agents/skills/data-client/` and `.agents/skills/data-client-setup/`: the two skills the plugin carries.
 - `.agents/skill-packages.json`: which package ships which skill, so the test can check the plugin's skills also ship
   in a package.
-- `website/framework-docs/skillCommands.mjs`, `website/src/components/AgentPrompt.tsx` and the root, `packages/react` and `packages/vue` READMEs:
-  `readme-commands.test.mjs` fails when a README's setup commands drift from the site's.
+- `website/framework-docs/skillCommands.mjs` and the READMEs that copy its setup commands (root, react, vue, rest, graphql, endpoint): `readme-commands.test.mjs`.
 
 ## CI
 

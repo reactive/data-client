@@ -4,8 +4,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
-import { fileURLToPath } from 'node:url';
 
+import { root } from './cursor.mjs';
 import {
   claudePluginCommand,
   claudeSetupPrompt,
@@ -13,42 +13,35 @@ import {
   codexSetupPrompt,
   cursorPluginCommand,
   cursorSetupPrompt,
-  setupCommand,
+  setupPrompt,
 } from '../website/framework-docs/skillCommands.mjs';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-// the prompt for any agent: AgentPrompt's default, a translate() message it can't export
-const promptMatch = fs
-  .readFileSync(
-    path.join(root, 'website/src/components/AgentPrompt.tsx'),
-    'utf8',
-  )
-  .match(/id: 'agentPrompt\.prompt',\s*message:\s*'([^'\\]+)'/);
-assert.ok(
-  promptMatch,
-  'agentPrompt.prompt message not found in AgentPrompt.tsx',
-);
-const agentPrompt = promptMatch[1];
-const readmes = {
+const read = file => fs.readFileSync(path.join(root, file), 'utf8');
+
+// READMEs with the full agent setup: the prompt and each agent's plugin
+for (const [file, framework] of Object.entries({
   'README.md': 'react',
   'packages/react/README.md': 'react',
   'packages/vue/README.md': 'vue',
-};
-
-for (const [file, framework] of Object.entries(readmes)) {
+})) {
   test(`${file} setup commands match skillCommands.mjs`, () => {
-    const readme = fs.readFileSync(path.join(root, file), 'utf8');
+    const readme = read(file);
     for (const command of [
+      setupPrompt(framework),
       claudePluginCommand,
       claudeSetupPrompt(framework),
       cursorPluginCommand,
       cursorSetupPrompt(framework),
       codexPluginCommand,
       codexSetupPrompt(framework),
-      agentPrompt
-        .replace('{framework}', framework)
-        .replace('{command}', setupCommand),
     ])
       assert.ok(readme.includes(command), command);
+  });
+}
+
+// protocol READMEs carry only the prompt
+for (const pkg of ['rest', 'graphql', 'endpoint']) {
+  test(`packages/${pkg}/README.md setup prompt matches skillCommands.mjs`, () => {
+    assert.ok(read(`packages/${pkg}/README.md`).includes(setupPrompt(pkg)));
   });
 }

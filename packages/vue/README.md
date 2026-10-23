@@ -48,7 +48,7 @@ app.mount('#app');
 
 ### Set up with your coding agent (recommended)
 
-Paste this into your coding agent's chat. It installs Data Client's setup skill, which adds the packages, wires up the provider and links the skills they ship:
+Or skip the steps above and paste this into your coding agent's chat. It installs Data Client's setup skill, which adds the packages, wires up the provider and links the skills they ship:
 
 ```prompt
 Set up `@data-client/vue` and use it for all API data. Install its setup skill first: `npx skills add reactive/data-client --skill data-client-setup -y`, then follow it.
