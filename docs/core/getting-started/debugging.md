@@ -27,8 +27,9 @@ The todo list still shows the old title after I save. Find out why.
 With Data Client's [skills](./agent-skills.md) set up, it finds the cause in the store instead of guessing from code. It
 needs a browser tool that runs JavaScript in the page: Cursor's browser,
 [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp),
-[Playwright MCP](https://github.com/microsoft/playwright-mcp) or Claude in Chrome. If debugging doesn't work with your
-agent or browser tool, [open an issue](https://github.com/reactive/data-client/issues/new?template=bug_report.md&title=Agent%20debugging%3A%20)
+[Playwright MCP](https://github.com/microsoft/playwright-mcp) or Claude in Chrome.
+
+If debugging doesn't work with your agent or browser tool, [open an issue](https://github.com/reactive/data-client/issues/new?template=bug_report.md&title=Agent%20debugging%3A%20)
 naming both so we can support it.
 
 </SiteOnly>
