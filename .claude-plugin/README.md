@@ -12,7 +12,7 @@ endpoint, rest, graphql, react and vue, implemented in `packages/core/agents/` a
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `marketplace.json` | The marketplace Claude Code reads (`claude plugin marketplace add reactive/data-client`). `data-client` is the plugin; `core`, `react`, `vue` and `migrations` are old names kept as copies so existing installs keep updating (`plans/next-breaking-release.md` removes them). |
 | `cursor.mjs`       | Writes Cursor's copy of the plugin (see below).                                                                                                                                                                                                                                 |
-| `*.test.mjs`       | `node --test '.claude-plugin/*.test.mjs'`: `marketplace.json` and the Cursor copy against the repo.                                                                                                                                                                             |
+| `*.test.mjs`       | `node --test '.claude-plugin/*.test.mjs'`: `marketplace.json` and the Cursor copy against the repo; READMEs against the site.                                                                                                                                                   |
 
 ## Codex and Cursor
 
@@ -23,6 +23,8 @@ Codex reads `marketplace.json` as is (`codex plugin add data-client@data-client`
 - `.agents/skills/data-client/` and `.agents/skills/data-client-setup/`: the two skills the plugin carries.
 - `.agents/skill-packages.json`: which package ships which skill, so the test can check the plugin's skills also ship
   in a package.
+- `website/framework-docs/skillCommands.mjs` and the root, `packages/react` and `packages/vue` READMEs:
+  `readme-commands.test.mjs` fails when a README's setup commands drift from the site's.
 
 ## CI
 
