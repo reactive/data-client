@@ -30,7 +30,11 @@ needs a browser tool that runs JavaScript in the page: Cursor's browser,
 [Playwright MCP](https://github.com/microsoft/playwright-mcp) or Claude in Chrome.
 
 If debugging doesn't work with your agent or browser tool, [open an issue](https://github.com/reactive/data-client/issues/new?template=bug_report.md&title=Agent%20debugging%3A%20)
-naming both so we can support it.
+naming both so we can support it. Or have your agent write it:
+
+```prompt
+Debugging this app through globalThis.__DC__ didn't work. Open a bug report on reactive/data-client titled "Agent debugging: <agent> + <browser tool>" (with gh issue create, or give me the text to paste), including your agent and browser tool names and versions, the app's @data-client versions, what you ran and what happened.
+```
 
 </SiteOnly>
 
