@@ -52,73 +52,11 @@ For more details, see [the Getting Started docs page](https://dataclient.io/docs
 
 ### Set up with your coding agent
 
-Or have your coding agent do it: it runs Data Client's setup [skill](https://agentskills.io), which installs the packages, wires up the provider and links the skills the packages ship, so your agent knows the current APIs.
-
-<details open>
-<summary><b>Claude Code</b></summary>
-
-In a terminal at the project root:
-
-```bash
-claude plugin marketplace add reactive/data-client --scope project \
-  --sparse .claude-plugin .agents/skills
-claude plugin install data-client@data-client --scope project
-```
-
-Then in Claude Code's chat:
-
-```prompt
-/data-client:data-client-setup Set up `@data-client/react` and use it for all API data
-```
-
-</details>
-
-<details>
-<summary><b>Cursor</b></summary>
-
-In Cursor's agent chat:
-
-```prompt
-/add-plugin data-client@https://github.com/reactive/data-client
-```
-
-Then, in a new chat:
-
-```prompt
-/data-client-setup Set up `@data-client/react` and use it for all API data
-```
-
-</details>
-
-<details>
-<summary><b>Codex</b></summary>
-
-In a terminal:
-
-```bash
-codex plugin marketplace add reactive/data-client \
-  --sparse .claude-plugin --sparse .agents/skills
-codex plugin add data-client@data-client
-```
-
-Then in Codex's chat:
-
-```prompt
-$data-client:data-client-setup Set up `@data-client/react` and use it for all API data
-```
-
-</details>
-
-<details>
-<summary><b>Other agents</b></summary>
-
-In your agent's chat:
+Data Client has plugins for Claude Code, Cursor and Codex, and a prompt for any other coding agent. Each runs the setup [skill](https://agentskills.io), which installs the packages, wires up the provider and links the skills the packages ship, so your agent knows the current APIs. Get the commands for your agent on [the Installation page](https://dataclient.io/docs/getting-started/installation#agent-setup), or paste this into your agent's chat:
 
 ```prompt
 Set up `@data-client/react` and use it for all API data. Install its setup skill first: `npx skills add reactive/data-client --skill data-client-setup -y`, then follow it.
 ```
-
-</details>
 
 ## Usage
 

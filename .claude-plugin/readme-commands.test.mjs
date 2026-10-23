@@ -7,36 +7,21 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import {
-  claudePluginCommand,
-  claudeSetupPrompt,
-  codexPluginCommand,
-  codexSetupPrompt,
-  cursorPluginCommand,
-  cursorSetupPrompt,
   linkCommand,
   setupCommand,
 } from '../website/framework-docs/skillCommands.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const readmes = {
-  'README.md': 'react',
-  'packages/react/README.md': 'react',
-  'packages/vue/README.md': 'vue',
-};
+const readmes = [
+  'README.md',
+  'packages/react/README.md',
+  'packages/vue/README.md',
+];
 
-for (const [file, framework] of Object.entries(readmes)) {
+for (const file of readmes) {
   test(`${file} setup commands match skillCommands.mjs`, () => {
     const readme = fs.readFileSync(path.join(root, file), 'utf8');
-    for (const command of [
-      claudePluginCommand,
-      claudeSetupPrompt(framework),
-      cursorPluginCommand,
-      cursorSetupPrompt(framework),
-      codexPluginCommand,
-      codexSetupPrompt(framework),
-      setupCommand,
-      linkCommand,
-    ])
+    for (const command of [setupCommand, linkCommand])
       assert.ok(readme.includes(command), command);
   });
 }
