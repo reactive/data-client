@@ -32,9 +32,27 @@ Schema driven. Zero updater functions.
 
 ## Installation
 
+```bash
+npm install --save @data-client/react @data-client/rest @data-client/test
+```
+
+Then link the skills the packages ship into `.agents/skills`, so Claude Code, Cursor and Codex load them, and commit the links (needs `@data-client/react` 0.19 or later):
+
+```bash
+npx --no data-client-skills
+```
+
+Coding agents: Data Client's setup skill does these steps and wires up the provider. Install it from the project root, then read `.agents/skills/data-client-setup/SKILL.md` and follow it:
+
+```bash
+npx skills add reactive/data-client --skill data-client-setup -y
+```
+
+For more details, see [the Getting Started docs page](https://dataclient.io/docs/getting-started/installation).
+
 ### Set up with your coding agent
 
-Your agent runs Data Client's setup [skill](https://agentskills.io), which installs the packages, wires up the provider and links the skills the packages ship, so your agent knows the current APIs.
+Or have your coding agent do it: it runs Data Client's setup [skill](https://agentskills.io), which installs the packages, wires up the provider and links the skills the packages ship, so your agent knows the current APIs.
 
 <details open>
 <summary><b>Claude Code</b></summary>
@@ -101,22 +119,6 @@ Set up `@data-client/react` and use it for all API data. Install its setup skill
 ```
 
 </details>
-
-### Set up by hand
-
-If your agent ran the setup, skip this: it already did every step.
-
-```bash
-npm install --save @data-client/react @data-client/rest @data-client/test
-```
-
-Then link the skills the packages ship into `.agents/skills`, so Claude Code, Cursor and Codex load them, and commit the links (needs `@data-client/react` 0.19 or later):
-
-```bash
-npx --no data-client-skills
-```
-
-For more details, see [the Getting Started docs page](https://dataclient.io/docs/getting-started/installation).
 
 ## Usage
 
