@@ -4,6 +4,7 @@ import { LivePreview } from 'react-live';
 import Boundary from '../Boundary';
 import PreviewError, { type PreviewErrorProps } from './PreviewError';
 import { Loading } from '../DesignSystem/Loading';
+import styles from '../styles.module.css';
 
 function PreviewBlock({
   onCommit,
@@ -14,9 +15,9 @@ function PreviewBlock({
       <Boundary fallback={<Loading />}>
         {onCommit ?
           <Profiler id="playground-preview" onRender={onCommit}>
-            <LivePreview />
+            <LivePreview className={styles.sheet} />
           </Profiler>
-        : <LivePreview />}
+        : <LivePreview className={styles.sheet} />}
       </Boundary>
       <PreviewError {...errorProps} />
     </>

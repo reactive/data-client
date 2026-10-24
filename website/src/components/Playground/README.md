@@ -177,9 +177,9 @@ DesignSystem/       the demos' design system: design-system.css (tokens, element
 - The preview is a stage and the app a sheet on it (`../styles.module.css`):
   the `previewWrapper` paints the stage (`--pg-stage`, a soft tonal
   gradient in either theme), which shows as the header's tint with no rule
-  under it; react-live's output `div` (the preview's one child with no
-  class; the loading mark and the error card stand on the stage, and an
-  empty one hides) is the sheet: `--pg-panel`, flush with the frame's sides
+  under it; react-live's output `div` (`sheet`, named in
+  `preview/PreviewBlock.tsx`; the loading mark and the error card stand on
+  the stage, and an empty one hides) is the sheet: `--pg-panel`, flush with the frame's sides
   and foot, its top corners rounded 12px into the tint, `--pg-sheet-pad`
   inside (1.25rem; 1.5rem in a `demo` from 720px; 1rem under 560px),
   `overflow: clip`. The header shares `--pg-sheet-pad` so its label lines

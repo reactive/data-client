@@ -38,7 +38,8 @@
   --ds-text-muted: var(--pg-muted);
   --ds-surface: var(--pg-panel);
   --ds-surface-2: var(--pg-panel-2);
-  /* kept for demos that draw their own rule; nothing here uses it */
+  /* a faint line: the busy submit button's trace, and demos that draw their
+     own rule */
   --ds-border: var(--pg-line);
   /* an interactive row's band under the pointer: reads on the panel and on
      a well alike */

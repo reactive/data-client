@@ -678,9 +678,8 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 
 /* The preview is a stage (on the wrapper, so it tints the header) and the
-   app one sheet filling the rest: the react-live output (the one child with
-   no class of its own; the loading mark and the error card stand on the
-   stage) is the sheet, flush with the frame's sides and foot, its top
+   app one sheet filling the rest: the react-live output (.sheet; the
+   loading mark and the error card stand on the stage) is the sheet, flush with the frame's sides and foot, its top
    corners notched into the header's tint, with its own inset. The design
    system's surface is the sheet's color, so fields and wells read against
    it */
@@ -693,7 +692,7 @@ div.playgroundTextEdit > .playgroundHeader,
   flex-direction: column;
   overflow: auto;
 }
-.playgroundPreview > div:not([class]) {
+.sheet {
   flex: 1 0 auto;
   padding: var(--pg-sheet-pad);
   border-radius: 12px 12px 0 0;
@@ -701,7 +700,7 @@ div.playgroundTextEdit > .playgroundHeader,
   /* the progress bar's corners stay inside the radius */
   overflow: clip;
 }
-.playgroundPreview > div:not([class]):empty {
+.sheet:empty {
   display: none;
 }
 /* narrow, the sheet gives up some inset for the text */
