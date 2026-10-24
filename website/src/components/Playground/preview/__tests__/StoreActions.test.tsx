@@ -1619,20 +1619,6 @@ describe('Store action level', () => {
       [...top().querySelectorAll('h3')].map(h => h.textContent);
     expect(headings()).toEqual(['Step', 'Store changes', 'Action']);
     expect(top().textContent).toContain('dispatchedAt');
-    // and back and forth between them, in place
-    const alone = top();
-    fireEvent.click(
-      within(top()).getByRole('button', { name: 'Its request ›' }),
-    );
-    expect(top()).toBe(alone);
-    expect(headings()).toEqual(['Steps', 'Store changes']);
-    expect(
-      top().querySelector('[role="button"][aria-current]')!.textContent,
-    ).toMatch(/setResponse/);
-    fireEvent.click(
-      within(top()).getByRole('button', { name: 'This step alone ›' }),
-    );
-    expect(headings()).toEqual(['Step', 'Store changes', 'Action']);
     fireEvent.click(step('After'));
     expect(crumbs()).toEqual(['Actions', 'set Post']);
     // past the newest is live again
@@ -1643,6 +1629,45 @@ describe('Store action level', () => {
     // Back lists them all
     backTo('Actions');
     expect(rows()).toHaveLength(2);
+  });
+
+  it('goes between a request and one of its steps in place, focus kept', async () => {
+    const { ctrl } = mount();
+    openAction();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    const headings = () =>
+      [...top().querySelectorAll('h3')].map(h => h.textContent);
+    const link = (name: string) =>
+      within(top()).queryByRole('button', { name });
+    // an action of no request has none to go to
+    expect(headings()).toEqual(['Step', 'Store changes', 'Action']);
+    expect(link('Its request ›')).toBeNull();
+    fireEvent.click(step('Before'));
+    const level = top();
+    expect(headings()).toEqual(['Steps', 'Store changes']);
+    // its step alone, and back, each on the same level
+    link('This step alone ›')!.focus();
+    fireEvent.click(link('This step alone ›')!);
+    expect(top()).toBe(level);
+    expect(headings()).toEqual(['Step', 'Store changes', 'Action']);
+    expect(document.activeElement).toBe(level);
+    link('Its request ›')!.focus();
+    fireEvent.click(link('Its request ›')!);
+    expect(top()).toBe(level);
+    expect(headings()).toEqual(['Steps', 'Store changes']);
+    expect(document.activeElement).toBe(level);
+    // a step picked there too
+    const current = top().querySelector<HTMLElement>(
+      '[role="button"][aria-current]',
+    )!;
+    current.focus();
+    fireEvent.click(current);
+    expect(top()).toBe(level);
+    expect(headings()).toEqual(['Step', 'Store changes', 'Action']);
+    expect(document.activeElement).toBe(level);
   });
 
   it('shows the newest request live as one, its optimistic update too', async () => {

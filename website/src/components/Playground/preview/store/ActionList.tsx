@@ -40,7 +40,7 @@ import {
 } from './actionParts';
 import { APP, routesOf, shownChain } from './attribution';
 import type { Header } from './DiveViews';
-import { byData, onActivateKey, revealIn, toggled } from './dom';
+import { byData, focusLevelOf, onActivateKey, revealIn, toggled } from './dom';
 import { actionId } from './model';
 import { ActionSpanContext, useNavState, type Scope, type View } from './nav';
 import { Pipeline, StepPath } from './Pipeline';
@@ -458,7 +458,8 @@ const GroupRow = memo(function GroupRow({
 });
 
 /** A group's actions that touched `subject` (at the store, all of them),
- * under what they did together: each shows alone in place, as the moment */
+ * under what they did together: clicking one shows it alone, in place of
+ * them (on the same level), as the moment */
 export function GroupActions({
   group,
   subject,
@@ -491,8 +492,9 @@ export function GroupActions({
       ),
     [chain, entries, filter],
   );
+  const ref = useRef<HTMLDivElement>(null);
   return (
-    <div className={styles.groupSteps}>
+    <div className={styles.groupSteps} ref={ref}>
       <Steps
         group={group}
         currentSeq={currentSeq}
@@ -500,7 +502,10 @@ export function GroupActions({
         lists={filter.lists}
         notes={gapNotes(entries, filter.gaps)}
         paths={paths}
-        onSelect={set}
+        onSelect={(seq, scope) => {
+          focusLevelOf(ref.current!);
+          set(seq, scope);
+        }}
       />
     </div>
   );

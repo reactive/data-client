@@ -11,7 +11,7 @@ import React, {
   useSyncExternalStore,
 } from 'react';
 
-import { ActionDetail, SubjectChanges } from './ActionDetail';
+import { ActionDetail, SectionHead, SubjectChanges } from './ActionDetail';
 import {
   groupEntries,
   groupEntriesOf,
@@ -1056,18 +1056,14 @@ function ActionLevel({
       : <>
           {group && span ?
             <div className={styles.actBody}>
-              <div className={styles.sectionHead}>
-                <h3 className={styles.sectionLabel}>Steps</h3>
-                {scope !== 'group' && (
-                  <button
-                    type="button"
-                    className={styles.sectionLink}
-                    onClick={() => set(entry.seq, 'action')}
-                  >
-                    This step alone ›
-                  </button>
-                )}
-              </div>
+              <SectionHead
+                label="Steps"
+                link="This step alone ›"
+                // a picked row stands for all of them: no one step to show
+                onLink={
+                  scope === 'group' ? undefined : () => set(entry.seq, 'action')
+                }
+              />
               <GroupActions
                 group={group}
                 subject={subject}
@@ -1082,7 +1078,7 @@ function ActionLevel({
               entry={entry}
               subject={subject}
               gap={filter.gaps.get(entry.seq)}
-              onRequest={request && (() => set(entry.seq))}
+              onRequest={request ? () => set(entry.seq) : undefined}
             />
           }
           <ActionStep

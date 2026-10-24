@@ -20,6 +20,7 @@ import {
 } from './actionParts';
 import { isNetworkManager, shownChain } from './attribution';
 import { EndpointBody } from './Details';
+import { focusLevelOf } from './dom';
 import { errorText, findRow, isEndpointRow } from './model';
 import {
   ActionSpanContext,
@@ -62,18 +63,7 @@ export function ActionDetail({
   const chain = shownChain(useActions().history.managers);
   return (
     <div className={styles.actBody}>
-      <div className={styles.sectionHead}>
-        <h3 className={styles.sectionLabel}>Step</h3>
-        {onRequest && (
-          <button
-            type="button"
-            className={styles.sectionLink}
-            onClick={onRequest}
-          >
-            Its request ›
-          </button>
-        )}
-      </div>
+      <SectionHead label="Step" link="Its request ›" onLink={onRequest} />
       <div className={styles.groupSteps}>
         <div className={styles.steps}>
           <div className={clsx(styles.row, styles.stepRow, styles.inertRow)}>
@@ -92,6 +82,36 @@ export function ActionDetail({
           <Field key={name} name={name} node={plain(value)} />
         ))}
       </div>
+    </div>
+  );
+}
+
+/** A section's heading, and (`onLink`) the way between a request's steps
+ * and one step alone, which switch in place */
+export function SectionHead({
+  label,
+  link,
+  onLink,
+}: {
+  label: string;
+  link: string;
+  onLink?: () => void;
+}) {
+  return (
+    <div className={styles.sectionHead}>
+      <h3 className={styles.sectionLabel}>{label}</h3>
+      {onLink && (
+        <button
+          type="button"
+          className={clsx(styles.more, styles.sectionLink)}
+          onClick={e => {
+            focusLevelOf(e.currentTarget);
+            onLink();
+          }}
+        >
+          {link}
+        </button>
+      )}
     </div>
   );
 }
