@@ -38,7 +38,7 @@ Any user-facing change in `packages/*` requires a changeset. Core packages are v
 
 ## Pull Requests
 
-Write PR descriptions by following the HTML comments in `.github/PULL_REQUEST_TEMPLATE.md`: they are the instructions for each section, not just a layout. Then delete the comments. See skill "pr" for the full workflow.
+Fill in `.github/PULL_REQUEST_TEMPLATE.md`. Its HTML comments are per-section instructions, not just layout (some agent tools treat templates as layout only). See skill "pr".
 
 ## File Organization
 

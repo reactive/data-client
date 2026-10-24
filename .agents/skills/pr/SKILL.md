@@ -120,7 +120,7 @@ Scope is optional, used for specificity (e.g., `feat(rest):`, `fix(core):`). Use
 
 ### PR Body Template
 
-Fill in [.github/PULL_REQUEST_TEMPLATE.md](../../../.github/PULL_REQUEST_TEMPLATE.md). Its HTML comments are the writing instructions: follow them, then delete every comment.
+Fill in [.github/PULL_REQUEST_TEMPLATE.md](../../../.github/PULL_REQUEST_TEMPLATE.md) as its comments instruct.
 
 Use changeset descriptions, commit messages, and the diff as source material.
 
