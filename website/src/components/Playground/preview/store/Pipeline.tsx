@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { actionName, type SubjectFilter } from './actionGroups';
 import type { LogEntry } from './actionLog';
@@ -162,6 +162,14 @@ function Strip({
    * any of its stages is, so one that grows or shrinks as managers start or
    * stop acting stays open */
   const [opened, setOpened] = useState<ReadonlySet<string>>(new Set());
+  /** The run whose fold button was just pressed, by its first stage. The
+   * button moves as its run opens or folds (open, it stays on the line with
+   * the run's last stage), so the one replacing it takes focus, in the next
+   * render only: a later one (a manager starting to act) never steals it */
+  const pendingFocus = useRef<string | null>(null);
+  useEffect(() => {
+    pendingFocus.current = null;
+  });
   const runs = foldRuns(stages);
   const isOpen = (run: readonly Shown[]) =>
     run.length > 1 && run.some(stage => opened.has(stage.id));
@@ -188,43 +196,35 @@ function Strip({
         const text = open ? 'fold' : run.length + ' ' + run[0].foldAs;
         const button = (
           <button
-            key="fold"
             type="button"
             className={clsx(styles.stage, styles.stageFold)}
             title={names}
             aria-label={text + ': ' + names}
             aria-expanded={open}
-            onClick={() =>
+            ref={button => {
+              if (button && pendingFocus.current === key) button.focus();
+            }}
+            onClick={() => {
+              pendingFocus.current = key;
               setOpened(
                 new Set(
                   open ?
                     [...openNow].filter(id => !ids.includes(id))
                   : [...openNow, ...ids],
                 ),
-              )
-            }
+              );
+            }}
           >
             {text}
           </button>
         );
-        // the button keeps one keyed slot, open or folded, so the one
-        // pressed stays (and keeps focus); open, it follows the run's last
-        // stage in that slot, so it never wraps away from the run (keyed
-        // lists both ways, so React matches the button by its key)
-        const last = run[run.length - 1];
-        return [
-          ...(open ? run.slice(0, -1) : []).map(stage => (
-            <Step key={stage.id}>{stage.node}</Step>
-          )),
-          <Step key={'fold:' + key}>
-            {open ?
-              [
-                <React.Fragment key={last.id}>{last.node}</React.Fragment>,
-                button,
-              ]
-            : [button]}
-          </Step>,
-        ];
+        if (!open) return [<Step key={key}>{button}</Step>];
+        return run.map((stage, i) => (
+          <Step key={stage.id}>
+            {stage.node}
+            {i === run.length - 1 && button}
+          </Step>
+        ));
       })}
       <Step arrow={false}>
         <span
