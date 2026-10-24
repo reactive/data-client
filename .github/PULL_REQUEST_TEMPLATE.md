@@ -2,6 +2,8 @@
 Read every comment, then delete them all.
 - Style: about 50% ASD-STE100: short sentences, active voice, one idea each. Keep the repo's and
   requester's terms. Write for library users first, reviewers second.
+- Say each point once. Do not restate Motivation in Solution, or Solution in Assumptions. Skip lists
+  of tests, docs, or changesets that the diff already shows.
 - Diagrams only when clearer than text. Use Mermaid; an image needs a working URL, never a local path.
 - Keep attribution lines where your tool requires them. Delete "Fixes #" if there is no issue.
 - Changed packages/*? Run `yarn test:coverage` first; coverage must not drop.
@@ -12,7 +14,7 @@ Fixes #
 ### Motivation
 <!--
 No user-facing trigger (typo, tooling, refactor)? One sentence on what was wrong, then stop.
-Otherwise: bug, new use case, or improvement? Then two short paragraphs:
+Otherwise, start with "Bug fix.", "New use case." or "Improvement." Then two short paragraphs:
 1. Trigger: the conditions, in user terms, that cause the need. Shape, not text to copy:
    "A component reads an entity through two different schemas, and one schema is nested in a Union."
 2. One instance: a real case (link it) or a realistic one. Bug: what the user saw vs. expected.
@@ -39,7 +41,8 @@ if the flow has more than three steps. Keep the "why" here, not also in Solution
 <!--
 - Assumptions this change relies on but does not prove, or "none".
 - Checks you ran and what each covers. Say what you did not test.
-- Tag each item high, medium, or low certainty; give a reason for medium and low. One line each for a small PR.
+- Tag every item high, medium, or low certainty, including what you did not run; give a reason for
+  medium and low. One line each for a small PR.
 -->
 
 <!--
