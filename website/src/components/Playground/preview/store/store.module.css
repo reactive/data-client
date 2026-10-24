@@ -1249,17 +1249,10 @@ button.stage:focus-visible {
   margin: 0;
   border: none;
 }
-/* the headings of a request's sections (styled as .table th, above), and
-   the way between a request's steps and one step alone beside them */
-.sectionLabel,
-.sectionLink {
+/* the headings of a request's sections (styled as .table th, above) */
+.sectionLabel {
   margin: 0;
   padding: 0.75rem 0.75rem 0.25rem;
-}
-.sectionHead {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
 }
 div.stepRow {
   flex-wrap: wrap;

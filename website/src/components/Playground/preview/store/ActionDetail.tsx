@@ -20,7 +20,6 @@ import {
 } from './actionParts';
 import { isNetworkManager, shownChain } from './attribution';
 import { EndpointBody } from './Details';
-import { focusLevelOf } from './dom';
 import { errorText, findRow, isEndpointRow } from './model';
 import {
   ActionSpanContext,
@@ -51,19 +50,16 @@ export function ActionDetail({
   entry,
   subject,
   gap,
-  onRequest,
 }: {
   entry: LogEntry;
   subject: View;
   gap?: ChangeKind;
-  /** Shows the request it is a step of, when it is one */
-  onRequest?: () => void;
 }) {
   // the way it took through the managers
   const chain = shownChain(useActions().history.managers);
   return (
     <div className={styles.actBody}>
-      <SectionHead label="Step" link="Its request ›" onLink={onRequest} />
+      <h3 className={styles.sectionLabel}>Step</h3>
       <div className={styles.groupSteps}>
         <div className={styles.steps}>
           <div className={clsx(styles.row, styles.stepRow, styles.inertRow)}>
@@ -82,36 +78,6 @@ export function ActionDetail({
           <Field key={name} name={name} node={plain(value)} />
         ))}
       </div>
-    </div>
-  );
-}
-
-/** A section's heading, and (`onLink`) the way between a request's steps
- * and one step alone, which switch in place */
-export function SectionHead({
-  label,
-  link,
-  onLink,
-}: {
-  label: string;
-  link: string;
-  onLink?: () => void;
-}) {
-  return (
-    <div className={styles.sectionHead}>
-      <h3 className={styles.sectionLabel}>{label}</h3>
-      {onLink && (
-        <button
-          type="button"
-          className={clsx(styles.more, styles.sectionLink)}
-          onClick={e => {
-            focusLevelOf(e.currentTarget);
-            onLink();
-          }}
-        >
-          {link}
-        </button>
-      )}
     </div>
   );
 }

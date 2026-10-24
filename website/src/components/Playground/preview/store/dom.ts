@@ -168,13 +168,6 @@ export function useHoldFocus(ref: React.RefObject<HTMLElement | null>) {
   return hold;
 }
 
-/** Hands focus held inside `el` to its level before a change removes `el`
- * (the level's view switching in place), so it doesn't fall to the page */
-export function focusLevelOf(el: Element) {
-  if (!el.contains(document.activeElement)) return;
-  el.closest<HTMLElement>('[data-level]')?.focus({ preventScroll: true });
-}
-
 /** `set` with `key` added, or removed when it is in: a toggle's state */
 export function toggled<T>(set: ReadonlySet<T>, key: T): Set<T> {
   const next = new Set(set);

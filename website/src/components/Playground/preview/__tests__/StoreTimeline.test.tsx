@@ -513,7 +513,7 @@ describe('Store scrubber', () => {
     // over the subject, with focus
     const level = top()!;
     expect(level.querySelector('[aria-current="page"]')!.textContent).toBe(
-      'setResponse GET /posts',
+      'GET /posts',
     );
     // as its request: the steps to it, and what they did
     expect(level.textContent).toContain('Store changes');
@@ -1446,7 +1446,7 @@ describe('Store Actions pane', () => {
     expect(screen.queryByRole('button', { name: 'Close timeline' })).toBeNull();
     expect(pane()).toBeNull();
     expect(top()!.querySelector('[aria-current="page"]')!.textContent).toBe(
-      'setResponse GET /posts',
+      'GET /posts',
     );
     // focus lands on the level once the sheet slid shut
     fireEvent.transitionEnd(box);

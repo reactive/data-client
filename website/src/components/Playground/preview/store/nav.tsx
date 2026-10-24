@@ -78,7 +78,7 @@ export type View =
 /** What a moment at action `seq` stands for: by default its request up to
  * it (its optimistic update and response as one, as live shows the
  * newest's), `group` its row's actions up to it (the row was picked), or
- * `action` only it (its step was picked) */
+ * `action` only it (its step was picked: a level deeper than its request) */
 export type Scope = 'request' | 'group' | 'action';
 
 /** Action `seq` (as much as `scope` says), shown over a subject with what
@@ -134,9 +134,17 @@ export interface LevelStack {
     scope?: Scope,
     quiet?: boolean,
   ) => void;
+  /** Opens action `seq` alone a level deeper, over its request's view */
+  readonly diveAction: (seq: number) => void;
   /** The moment moved: the action view follows it (on top or under levels
-   * its chips opened), to the newest action as it goes live (`null`) */
-  readonly followMoment: (seq: number | null, scope?: Scope) => void;
+   * its chips opened), to the newest action as it goes live (`null`).
+   * `under`, it shows a level deeper than its request's view, which moves
+   * along under it */
+  readonly followMoment: (
+    seq: number | null,
+    scope?: Scope,
+    under?: boolean,
+  ) => void;
 }
 
 /** A stack of views over `root`, opening at `over` (on top of it) */
@@ -182,7 +190,7 @@ export function useLevelStack(
     (seq: number | null, scope: Scope = 'request', quiet = false) => {
       setLevels(prev => {
         let under = prev.stack;
-        if (under[under.length - 1].view.kind === 'action')
+        while (under[under.length - 1].view.kind === 'action')
           under = under.slice(0, -1);
         if (under[under.length - 1].view.kind !== 'actions')
           under = [...under, { key: nextKey.current++, view: ACTIONS }];
@@ -196,20 +204,50 @@ export function useLevelStack(
     },
     [],
   );
+  const diveAction = useCallback((seq: number) => {
+    const view: ActionView = { kind: 'action', seq, scope: 'action' };
+    setLevels(prev => ({
+      ...prev,
+      stack: [...prev.stack, { key: nextKey.current++, view }],
+    }));
+  }, []);
   const followMoment = useCallback(
-    (seq: number | null, scope: Scope = 'request') => {
+    (seq: number | null, scope: Scope = 'request', under = false) => {
       setLevels(prev => {
         // the action view, on top or under levels its chips opened (which
         // the moment moves too, see `clearAt`), so Back finds the moment's
-        const i = prev.stack.findLastIndex(e => e.view.kind === 'action');
-        const shown = prev.stack[i]?.view;
+        let i = prev.stack.findLastIndex(e => e.view.kind === 'action');
+        if (i < 0) return prev;
+        // one a level deeper than its request moves that along under it
+        const deep = prev.stack[i - 1]?.view.kind === 'action';
+        if (deep) i--;
+        const views: ActionView[] =
+          under ?
+            [
+              { kind: 'action', seq, scope: 'request' },
+              { kind: 'action', seq, scope },
+            ]
+          : [{ kind: 'action', seq, scope }];
+        const was = prev.stack.slice(i, i + (deep ? 2 : 1));
         if (
-          shown?.kind !== 'action' ||
-          (shown.seq === seq && (shown.scope ?? 'request') === scope)
+          was.length === views.length &&
+          was.every(
+            ({ view }, j) =>
+              view.kind === 'action' &&
+              view.seq === views[j].seq &&
+              (view.scope ?? 'request') === views[j].scope,
+          )
         )
           return prev;
         const stack = [...prev.stack];
-        stack[i] = { key: stack[i].key, view: { kind: 'action', seq, scope } };
+        stack.splice(
+          i,
+          was.length,
+          ...views.map((view, j) => ({
+            key: was[j]?.key ?? nextKey.current++,
+            view,
+          })),
+        );
         return { ...prev, stack };
       });
     },
@@ -222,6 +260,7 @@ export function useLevelStack(
     back,
     clearAt,
     showAction,
+    diveAction,
     followMoment,
   };
 }
@@ -254,6 +293,8 @@ export interface NavState {
    * in the Action tab: what it did to the subject, then the action itself
    * (or the group's actions) */
   readonly show: (seq: number, scope?: Scope) => void;
+  /** Opens action `seq` alone, a level deeper than its request shown */
+  readonly dive: (seq: number) => void;
 }
 export const NavStateContext = createContext<NavState>({
   seq: null,
@@ -262,6 +303,7 @@ export const NavStateContext = createContext<NavState>({
   later: undefined,
   set: () => {},
   show: () => {},
+  dive: () => {},
 });
 export const useNavState = () => useContext(NavStateContext);
 

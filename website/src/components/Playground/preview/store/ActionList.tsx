@@ -40,14 +40,14 @@ import {
 } from './actionParts';
 import { APP, routesOf, shownChain } from './attribution';
 import type { Header } from './DiveViews';
-import { byData, focusLevelOf, onActivateKey, revealIn, toggled } from './dom';
+import { byData, onActivateKey, revealIn, toggled } from './dom';
 import { actionId } from './model';
 import { ActionSpanContext, useNavState, type Scope, type View } from './nav';
 import { Pipeline, StepPath } from './Pipeline';
 import styles from './store.module.css';
 
 /** The groups with an action that touched the subject */
-function useRows(filter: SubjectFilter) {
+export function useRows(filter: SubjectFilter) {
   const { groups } = useActions();
   const { hit } = filter;
   return useMemo(
@@ -246,7 +246,7 @@ function ActionList({
     next.focus();
     set(
       Number(next.dataset.seq),
-      next.dataset.id === next.dataset.group ? 'group' : 'action',
+      next.dataset.id === next.dataset.group ? 'group' : 'request',
     );
   };
   return (
@@ -305,7 +305,15 @@ function gapNotes(
 
 /** A group of one action is its own step: its row carries the action's id
  * (what the moment scrolls to); a group of several, the group's */
-const isLone = (group: ActionGroup) => groupEntriesOf(group).length === 1;
+export const isLone = (group: ActionGroup) =>
+  groupEntriesOf(group).length === 1;
+
+/** The action a row stands for: its last that touched the subject (a
+ * request's response), or its last */
+export function rowSeq(group: ActionGroup, hit: SubjectFilter['hit']) {
+  const all = groupEntriesOf(group);
+  return (all.findLast(hit) ?? all[all.length - 1]).seq;
+}
 const rowId = (group: ActionGroup) =>
   isLone(group) ? actionId(groupEntriesOf(group)[0].seq) : group.id;
 
@@ -381,9 +389,7 @@ const GroupRow = memo(function GroupRow({
   // what it did to the subject (at the store, everything)
   const changes = log.mergedChanges(all).filter(c => touches(subject, c));
   const first = all[0];
-  // the row stands for its last action that touched the subject (a
-  // request's response), or its last one
-  const seq = (all.findLast(filter.hit) ?? all[all.length - 1]).seq;
+  const seq = rowSeq(group, filter.hit);
   const steps = !isLone(group);
   // the row stands for all its actions, what they did together
   const select = () => onSelect(seq, steps ? 'group' : 'request');
@@ -458,8 +464,8 @@ const GroupRow = memo(function GroupRow({
 });
 
 /** A group's actions that touched `subject` (at the store, all of them),
- * under what they did together: clicking one shows it alone, in place of
- * them (on the same level), as the moment */
+ * under what they did together: clicking one opens it alone, a level deeper,
+ * as the moment */
 export function GroupActions({
   group,
   subject,
@@ -472,7 +478,7 @@ export function GroupActions({
   /** The moment's action, marked among them */
   currentSeq?: number;
 }) {
-  const { set } = useNavState();
+  const { dive } = useNavState();
   const chain = shownChain(useActions().history.managers);
   const entries = useMemo(() => groupEntriesOf(group), [group]);
   // each way its actions took, under the first step to take it
@@ -492,9 +498,8 @@ export function GroupActions({
       ),
     [chain, entries, filter],
   );
-  const ref = useRef<HTMLDivElement>(null);
   return (
-    <div className={styles.groupSteps} ref={ref}>
+    <div className={styles.groupSteps}>
       <Steps
         group={group}
         currentSeq={currentSeq}
@@ -502,10 +507,7 @@ export function GroupActions({
         lists={filter.lists}
         notes={gapNotes(entries, filter.gaps)}
         paths={paths}
-        onSelect={(seq, scope) => {
-          focusLevelOf(ref.current!);
-          set(seq, scope);
-        }}
+        onSelect={dive}
       />
     </div>
   );
