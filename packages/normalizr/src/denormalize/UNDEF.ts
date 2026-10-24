@@ -2,9 +2,8 @@ export const UNDEF = {} as any;
 
 const valueKeys = new Map<unknown, object>();
 
-/** The memo dependency key for an entity value. Objects key themselves;
- * `undefined` uses `UNDEF`; any other value (`null`, `INVALID`) gets its own
- * stable object, since `WeakMap` keys must be objects. */
+/** `WeakMap` key for an entity value: the object itself, `UNDEF` for
+ * `undefined`, or a stable stand-in for any other value (`null`, `INVALID`). */
 export function depKey(entity: unknown): object {
   if (typeof entity === 'object' && entity !== null) return entity;
   if (entity === undefined) return UNDEF;
