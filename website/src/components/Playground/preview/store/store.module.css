@@ -1038,8 +1038,21 @@ div.gapRow {
   border-bottom: 1px solid var(--store-line);
 }
 .actBody > .pipeline {
-  padding: 0.4rem 0 0;
+  padding: 0.4rem 0.75rem 0;
   border: none;
+}
+.route {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.4rem 0.75rem 0;
+}
+.route > .pipeline {
+  padding: 0;
+  border: none;
+}
+.routeName {
+  font: 400 11px / 1.5 var(--ifm-font-family-monospace);
 }
 .stageStep {
   display: inline-flex;

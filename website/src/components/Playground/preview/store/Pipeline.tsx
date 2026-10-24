@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import React, { useMemo } from 'react';
 
 import type { LogEntry } from './actionLog';
+import { TypeName } from './actionParts';
 import { APP, pipeline } from './attribution';
 import styles from './store.module.css';
 
@@ -74,6 +75,42 @@ export function ActionPath({
         </span>
       ))}
     </Strip>
+  );
+}
+
+/** Each way `entries` (a request's actions) took, once, with how many took
+ * it: a fetch the app sent and NetworkManager handled, then the response it
+ * sent on to the store */
+export function GroupPaths({
+  chain,
+  entries,
+}: {
+  chain: readonly string[];
+  entries: readonly LogEntry[];
+}) {
+  const routes = useMemo(() => {
+    const seen = new Map<string, { entry: LogEntry; n: number }>();
+    for (const entry of entries) {
+      const { action, origin, consumedBy, store } = entry;
+      const key = [action.type, origin, consumedBy, !!store].join(' ');
+      const route = seen.get(key);
+      if (route) route.n++;
+      else seen.set(key, { entry, n: 1 });
+    }
+    return [...seen.values()];
+  }, [entries]);
+  return (
+    <>
+      {routes.map(({ entry, n }) => (
+        <div key={entry.seq} className={styles.route}>
+          <span className={styles.routeName}>
+            <TypeName entry={entry} />
+            {n > 1 && <span className={styles.dim}> ×{n}</span>}
+          </span>
+          <ActionPath chain={chain} entry={entry} />
+        </div>
+      ))}
+    </>
   );
 }
 

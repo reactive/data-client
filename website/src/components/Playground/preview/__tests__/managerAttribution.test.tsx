@@ -433,6 +433,20 @@ describe('Store panel pipeline', () => {
     expect(screen.getAllByText('↑ StreamManager')).toHaveLength(1);
   });
 
+  it("draws a request's paths: one for each way its actions took", async () => {
+    const { ctrl } = mount([new NetworkManager()], undefined, true);
+    await act(async () => {
+      await ctrl().fetch(getTicker);
+    });
+    openActions();
+    fireEvent.click(listed()[0]);
+    const paths = await screen.findAllByRole('group', { name: /^Path/ });
+    expect(paths.map(p => p.textContent)).toEqual([
+      'the app→NetworkManager⊘ handled it→store',
+      'the app→NetworkManager↑ sent it→store',
+    ]);
+  });
+
   it("draws an action's path: who sent it and where it stopped", async () => {
     const { ctrl } = mount(
       [new StreamManager(), new NetworkManager()],
