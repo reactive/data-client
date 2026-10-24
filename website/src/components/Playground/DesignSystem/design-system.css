@@ -5,14 +5,13 @@
 
    Tokens (`--ds-*`) on the preview, in both themes; element styles for
    headings, text, links and plain controls; and classes for the pieces most
-   demos need (an app header, cards, lists with dividers, bylines). Add a
-   component (./index.ts) only for markup every demo would repeat.
+   demos need (an app header, cards, lists, bylines). Add a component
+   (./index.ts) only for markup every demo would repeat.
 
-   The look is the site's "control room" console: flat panels ruled with 1px
-   lines, muted secondary text, small mono uppercase labels over groups of
-   rows, and one blue for links, primary actions and focus. Cards are the
-   console's view cards (a 1px line on the panel, radius 10, padding 12);
-   wells (a board's columns, a field's inset) step to the second panel color. */
+   The look is quiet: no decorative lines anywhere. Rows are set apart by
+   space, groups by a label in weight and by their inset, and secondary text
+   by a muted color; one blue serves links, primary actions and focus. Only
+   form controls keep an edge (it is what makes them controls). */
 .playground-preview {
   /* type: one step down from the docs, like an app beside its prose */
   --ds-text-sm: 0.8125rem;
@@ -33,14 +32,17 @@
   --ds-control-pad-y: 0.375rem;
   --ds-control-pad-x: 0.875rem;
   /* The palette is the frame's (--pg-*, ../styles.module.css, switching with
-     the theme there): the panel is the preview's ground, which cards share,
-     ruled off by their border; a well a step below it holds a board's
-     column or a field's inset */
+     the theme there): the panel is the app's surface; a well a step off it
+     holds a board's column or a field's inset */
   --ds-text: var(--pg-text);
   --ds-text-muted: var(--pg-muted);
   --ds-surface: var(--pg-panel);
   --ds-surface-2: var(--pg-panel-2);
+  /* kept for demos that draw their own rule; nothing here uses it */
   --ds-border: var(--pg-line);
+  /* an interactive row's band under the pointer: reads on the panel and on
+     a well alike */
+  --ds-hover: color-mix(in srgb, var(--ds-text) 6%, transparent);
   /* labels and hints: the quietest text that still reads (4.5:1 on the panel and the well) */
   --ds-faint: #5f6d83;
   /* 3:1 on the panel, so field and button edges stay legible */
@@ -78,8 +80,10 @@
 /* Dark: the same console at night (the panel, well, line and text follow
    --pg-* above); what's left is the design system's own */
 html[data-theme='dark'] .playground-preview {
-  --ds-faint: #74839a;
-  --ds-border-strong: #58697f;
+  /* 4.6:1 on the sheet */
+  --ds-faint: #77869d;
+  /* 3.4:1 on the sheet, 3.1:1 on a well */
+  --ds-border-strong: #5f7189;
   --ds-accent: #53aef0;
   --ds-accent-strong: #7cc1f4;
   --ds-accent-soft: color-mix(in srgb, var(--ds-accent) 14%, transparent);
@@ -120,15 +124,15 @@ div.playground-preview h1:first-child {
   margin-bottom: 0;
 }
 /* A group's label over its rows (a section's "Comments", a board column's
-   name): the console's small mono caps, not a heading. A row's own title
-   (a post's h3 in a list) stays a heading */
+   name): small, muted and semibold, so weight alone marks the group. A
+   row's own title (a post's h3 in a list) stays a heading */
 .playground-preview section > h3,
 .playground-preview .boardColumn > h4 {
   margin: 0 0 var(--ds-space-2);
-  font: 500 var(--ds-text-label) / 1.4 var(--ifm-font-family-monospace);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ds-faint);
+  font: 600 var(--ds-text-sm) / 1.4 var(--ifm-font-family-base);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ds-text-muted);
 }
 /* A value that just changed: washed in the accent and ringed by it */
 .playground-preview mark {
@@ -160,16 +164,14 @@ div.playground-preview h1:first-child {
 }
 
 /* The app's header: its title at the left, its navigation or actions at
-   the right, ruled off from the page */
+   the right; the space under it, not a rule, sets the page off */
 .playground-preview .appHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--ds-space-2) var(--ds-space-4);
-  margin-bottom: var(--ds-space-4);
-  padding-bottom: var(--ds-space-3);
-  border-bottom: 1px solid var(--ds-border);
+  margin-bottom: var(--ds-space-5);
 }
 /* through .appHeader to outrank Infima's `.markdown h1:first-child` margin */
 .playground-preview .appHeader .appTitle {
@@ -184,25 +186,20 @@ div.playground-preview h1:first-child {
   margin: 0;
 }
 
-/* A card: a view card, ruled off the panel by a 1px line. Holding list
-   items, it has no padding of its own and the items take the room, so their
-   dividers reach its edges. Infima's .card is a flex column with a shadow;
-   this replaces it */
+/* A card: a group of content (a post list, a comment thread) with no box of
+   its own: the app's surface (the floating sheet the frame gives it, see
+   ../styles.module.css) is the card, so its rows sit in line with the
+   header and the space around the group marks it. Infima's .card is a
+   bordered flex column with a shadow; this replaces it */
 .playground-preview .card {
   display: block;
   overflow: visible;
   margin-bottom: var(--ds-space-4);
-  padding: var(--ds-space-3);
-  background: var(--ds-surface);
-  border: 1px solid var(--ds-border);
-  border-radius: var(--ds-radius);
-  box-shadow: none;
-}
-.playground-preview .card:has(> .listItem) {
   padding: 0;
-}
-.playground-preview .card > .listItem {
-  padding: 10px var(--ds-space-3);
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 .playground-preview .card > :last-child {
   margin-bottom: 0;
@@ -222,13 +219,10 @@ div.playground-preview h1:first-child {
   border-radius: var(--ds-radius-sm);
   transition: background-color var(--motion-snappy);
 }
-.playground-preview .list > .listItem + .listItem {
-  border-top: 0;
-}
 /* touch screens skip it: a tapped row would stay lit */
 @media (hover: hover) {
   .playground-preview .list > .listItem:has(> label):hover {
-    background: var(--ds-surface-2);
+    background: var(--ds-hover);
   }
 }
 .playground-preview
@@ -242,16 +236,13 @@ div.playground-preview h1:first-child {
   opacity: 0.7;
 }
 
-/* Rows: side by side (an avatar, a checkbox, then the text), a rule
-   between them (a `list` drops it) */
+/* Rows: side by side (an avatar, a checkbox, then the text), set apart by
+   space alone: 20px from one row's content to the next's */
 .playground-preview .listItem {
   display: flex;
   align-items: flex-start;
   gap: var(--ds-space-3);
-  padding: var(--ds-space-2) 0;
-}
-.playground-preview .listItem + .listItem {
-  border-top: 1px solid var(--ds-border);
+  padding: 10px 0;
 }
 .playground-preview .listItem > * {
   min-width: 0;
@@ -263,7 +254,7 @@ div.playground-preview h1:first-child {
   align-items: center;
   gap: 0;
 }
-/* kept for the demos written before rows had rules of their own */
+/* kept for the demos written before rows had a gap of their own */
 .playground-preview .listItem.spaced {
   gap: 1em;
 }
@@ -466,13 +457,14 @@ div.playground-preview h1:first-child {
     center;
   display: inline-block;
 }
-/* A board's columns (RestEndpoint's move demo): wells holding cards, each a
-   row like the console's (radius 8, 9px 10px) */
+/* A board's columns (RestEndpoint's move demo): wells a step off the
+   sheet, each holding its tasks as rows of the sheet's color (radius 8, no
+   edge), 6px apart */
 .playground-preview .boardColumn {
   background: var(--ds-surface-2);
-  border-radius: var(--ds-radius);
+  border-radius: 12px;
   padding: var(--ds-space-2);
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--ds-space-2);
 }
 .playground-preview .boardColumn > h4 {
   padding: 0 var(--ds-space-1);
@@ -480,7 +472,6 @@ div.playground-preview h1:first-child {
 .playground-preview .boardColumn .listItem {
   align-items: center;
   background: var(--ds-surface);
-  border: 1px solid var(--ds-border);
   border-radius: var(--ds-radius-sm);
   padding: 9px 10px;
   margin-bottom: 6px;
@@ -549,9 +540,9 @@ div.playground-preview h1:first-child {
   margin-left: auto;
 }
 
-/* Toasts (<Toaster />, ./Toaster.tsx): stacked under the app, each a row
-   with an edge bar in its outcome's color: the console's live green for
-   success, red for an error */
+/* Toasts (<Toaster />, ./Toaster.tsx): stacked under the app, each a tinted
+   row with an edge bar in its outcome's color: the live green for success,
+   red for an error */
 .playground-preview .toaster {
   display: flex;
   flex-direction: column;
@@ -564,7 +555,6 @@ div.playground-preview h1:first-child {
 .playground-preview .toast {
   --toast-color: var(--pg-live);
   padding: var(--ds-space-2) var(--ds-space-3);
-  border: 1px solid var(--ds-border);
   border-radius: var(--ds-radius-sm);
   /* the edge bar: inset so the radius clips it */
   box-shadow: inset 3px 0 0 var(--toast-color);

@@ -174,36 +174,56 @@ DesignSystem/       the demos' design system: design-system.css (tokens, element
   their built-in types (they're type-only exports).
 - Each playground gets its own `DataProvider` store (`MockResolver` serves
   `fixtures`); `memo(Preview)` keeps it from re-rendering on code edits.
+- The preview is a stage and the app a sheet on it (`../styles.module.css`):
+  the `previewWrapper` paints the stage (`--pg-stage`, a soft tonal
+  gradient in either theme), which shows as the header's tint with no rule
+  under it; react-live's output `div` (the preview's one child with no
+  class; the loading mark and the error card stand on the stage, and an
+  empty one hides) is the sheet: `--pg-panel`, flush with the frame's sides
+  and foot, its top corners rounded 12px into the tint, `--pg-sheet-pad`
+  inside (1.25rem; 1.5rem in a `demo` from 720px; 1rem under 560px),
+  `overflow: clip`. The header shares `--pg-sheet-pad` so its label lines
+  up with the sheet's text, and `.navProgress` reads it to run along the
+  sheet's top edge. The frame has no ring: a faint edge shadow and a soft
+  drop under it. The header is the site's text at 13px, muted, with the
+  live dot; the router's controls follow it after a gap, and `renderCount`
+  is a tonal pill (`--pg-hover`, a 7% wash of the text, is every header
+  control's hover band).
 - Design system (`DesignSystem/design-system.css`, loaded with the preview):
   what a demo renders is styled under `.playground-preview` so it reads as a
-  real app, in both themes, without the demo importing anything. Tokens
-  (`--ds-text`, `--ds-text-muted`, `--ds-faint`, `--ds-surface`,
-  `--ds-surface-2` (a well a step below the panel), `--ds-border`,
-  `--ds-border-strong`, `--ds-accent`, `--ds-accent-soft` (its wash),
-  `--ds-radius`, `--ds-radius-sm`, `--ds-radius-xs`, `--ds-space-*`,
-  `--ds-text-*` including `--ds-text-label` for small mono caps over a
-  group of rows; the palette reads the frame's `--pg-*` in
-  `../styles.module.css`, which switch with the theme) and the preview's
-  type (15px base, Infima's heading variables); element styles for
-  headings, `p`, `small`, links (in a heading they keep its color with a
-  faint underline), plain `button`s (`primary` fills one with the accent),
-  text inputs, `nav`, `fieldset`; and classes: `appHeader` + `appTitle`
-  (the app's bar), `card` (a flat surface ruled off the panel by a 1px line;
-  holding `listItem`s it loses its padding so their dividers reach its
-  edges), `list` (rows with no box or rules, in line with the header;
-  rounded bands, checkbox rows light up under the pointer and fade when
-  checked),
-  `listItem` (a row with a rule between siblings; `nogap`, `spaced`; a
-  leading checkbox in its `label` is a round box drawn in the accent),
-  `meta` (secondary text; last in a `listItem`, it sits at the row's end),
-  `toaster`/`toast` (rendered by the `Toaster` component, which shows what
-  the `toast` helper sends), `byline` (avatar beside a name; `Avatar` takes a
-  `size`), `author` (name under avatar), plus the older `voteBlock`/`vote`
-  and `boardColumn`. Prefer a class or element style to a new component;
-  a new scope global goes in `preview/scope.ts`, `monaco/typeLibs.ts` and
-  `website/framework-docs/checkExamples.mjs`. Keep docs demos that use
-  these classes (grep `docs/` and `website/src/components/Demo/code`) in
-  mind when restyling one.
+  real app, in both themes, without the demo importing anything. No
+  decorative lines: rows are set apart by space, groups by a label in weight
+  and their inset, secondary text by color; only form controls keep an edge.
+  Tokens (`--ds-text`, `--ds-text-muted`, `--ds-faint`, `--ds-surface` (the
+  sheet), `--ds-surface-2` (a well a step off it), `--ds-hover` (an
+  interactive row's band), `--ds-border` (kept for demos that draw their
+  own rule), `--ds-border-strong` (control edges, 3:1 on the sheet and on a
+  well), `--ds-accent`, `--ds-accent-soft` (its wash), `--ds-radius`,
+  `--ds-radius-sm`, `--ds-radius-xs`, `--ds-space-*`, `--ds-text-*`
+  (`--ds-text-label` is kept; labels now use `--ds-text-sm`); the palette
+  reads the frame's `--pg-*` in `../styles.module.css`, which switch with
+  the theme) and the preview's type (15px base, Infima's heading
+  variables); element styles for headings, `p`, `small`, links (in a heading
+  they keep its color with a faint underline), a `section > h3` or
+  `boardColumn > h4` as a group's label (13px semibold muted, sentence
+  case), plain `button`s (`primary` fills one with the accent), text
+  inputs, `nav`, `fieldset`; and classes: `appHeader` + `appTitle` (the
+  app's bar, set off by the space under it), `card` (a group with no box of
+  its own: the sheet is the card), `list` (rows in line with the header as
+  rounded bands; checkbox rows light up under the pointer and fade when
+  checked), `listItem` (a row 10px above and below, no rule; `nogap`,
+  `spaced`; a leading checkbox in its `label` is a round box drawn in the
+  accent), `meta` (secondary text; last in a `listItem`, it sits at the
+  row's end), `toaster`/`toast` (rendered by the `Toaster` component, which
+  shows what the `toast` helper sends: a tinted row with an edge bar, no
+  border), `byline` (avatar beside a name; `Avatar` takes a `size`),
+  `author` (name under avatar), `boardColumn` (a well, radius 12, holding
+  its tasks as rows of the sheet's color, radius 8, no edge), plus the
+  older `voteBlock`/`vote`. Prefer a class or element style to a new
+  component; a new scope global goes in `preview/scope.ts`,
+  `monaco/typeLibs.ts` and `website/framework-docs/checkExamples.mjs`. Keep
+  docs demos that use these classes (grep `docs/` and
+  `website/src/components/Demo/code`) in mind when restyling one.
 - Store inspector open state persists per `groupId` via tab storage and
   avoids scroll jumps. In `row` layout it slides over the code from the
   preview's edge (portaled into a layer `EditorSurface` stacks on the code,
