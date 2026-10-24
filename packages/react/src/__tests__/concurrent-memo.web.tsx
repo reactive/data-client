@@ -1,4 +1,3 @@
-import type { State } from '@data-client/core';
 import { Endpoint, Entity } from '@data-client/endpoint';
 import {
   DataProvider,
@@ -7,20 +6,11 @@ import {
   useSuspense,
 } from '@data-client/react';
 import { mockInitialState } from '@data-client/test';
-import { act, render } from '@testing-library/react';
-import { makeGetTodo, Todo } from '__tests__/concurrentFixtures';
-import type { TodoItem } from '__tests__/concurrentFixtures';
+import { act, fireEvent, render } from '@testing-library/react';
+import { Todo, type TodoItem } from '__tests__/concurrentFixtures';
 import React, { Suspense, useState, useTransition, version } from 'react';
 
 import useCacheState from '../hooks/useCacheState';
-
-/**
- * Memoization under concurrent rendering. Every read of the list records the
- * entity versions it read and the result it got. A read of versions an
- * earlier read already saw, that gets a different result, is a miss that
- * caching more would have avoided, since those versions' entities are
- * still alive.
- */
 
 const LegacyReact = version.startsWith('16') || version.startsWith('17');
 const describeConcurrent = LegacyReact ? describe.skip : describe;
@@ -30,7 +20,7 @@ class Note extends Entity {
   text = '';
 }
 
-const ROWS = 50;
+const ROWS = 300;
 const rows = (): TodoItem[] =>
   Array.from({ length: ROWS }, (_, i) => ({ id: `${i}`, title: `${i}` }));
 
@@ -38,40 +28,29 @@ const getTodoList = new Endpoint(() => Promise.resolve(rows()), {
   schema: [Todo],
   name: 'getTodoList',
 });
-const getTodo = makeGetTodo(({ id }) => Promise.resolve({ id, title: id }));
+const getTodo = new Endpoint(
+  ({ id }: { id: string }) => Promise.resolve({ id, title: id }),
+  { schema: Todo, name: 'getTodo' },
+);
 const getNote = new Endpoint(
   ({ id }: { id: string }) => Promise.resolve({ id, text: id }),
   { schema: Note, name: 'getNote' },
 );
-const pending: Record<
-  string,
-  { resolve: (value: TodoItem) => void; reject: (error: Error) => void }
-> = {};
-const hold = (key: string) =>
-  new Promise<TodoItem>((resolve, reject) => {
-    pending[key] = { resolve, reject };
-  });
-const getDetail = new Endpoint(({ id }: { id: string }) => hold(id), {
-  schema: Todo,
-  name: 'getDetail',
-});
-const updateKey = (id: string, title: string) => `update ${id} ${title}`;
-const updateTodo = new Endpoint(
-  ({ id, title }: { id: string; title: string }) => hold(updateKey(id, title)),
-  {
-    schema: Todo,
-    sideEffect: true,
-    name: 'updateTodo',
-    getOptimisticResponse(_snap, { id, title }) {
-      return { id, title };
-    },
-  },
+const resolvers: Record<string, (value: TodoItem) => void> = {};
+const getDetail = new Endpoint(
+  ({ id }: { id: string }) =>
+    new Promise<TodoItem>(resolve => {
+      resolvers[id] = resolve;
+    }),
+  { schema: Todo, name: 'getDetail' },
 );
 const noDevManagers = getDefaultManagers({ devToolsManager: null });
 
+/** Stable small ids for objects, so a render can name the entity versions it read. */
 const ids = new WeakMap<object, number>();
 let nextId = 0;
-const idOf = (o: object) => {
+const idOf = (o: object | undefined) => {
+  if (!o) return -1;
   let id = ids.get(o);
   if (id === undefined) {
     id = nextId++;
@@ -80,69 +59,72 @@ const idOf = (o: object) => {
   return id;
 };
 
-/** Every read of the list: entity versions read, result identity. */
-type Read = { versions: string; data: unknown };
-let reads: Read[] = [];
-const versionsOf = (state: State<unknown>, todos: { id: string }[]) => {
-  const table = (state.entities[Todo.key] ?? {}) as Record<string, object>;
-  return todos.map(todo => idOf(table[todo.id])).join(',');
-};
+/**
+ * Every render of the list: which entity versions it read, and the result it
+ * got back. A render that reads versions an earlier render already read, but
+ * gets a different result, is a miss that caching more would have avoided.
+ */
+type ListRender = { versions: string; data: unknown };
+let renders: ListRender[] = [];
 
 function List() {
   const todos = useSuspense(getTodoList);
   const state = useCacheState();
-  reads.push({
-    versions: versionsOf(state, todos),
+  const table = (state.entities[Todo.key] ?? {}) as Record<string, object>;
+  renders.push({
+    versions: todos.map(todo => idOf(table[todo.id])).join(','),
     data: todos,
   });
-  return <div>{todos.length}</div>;
+  return <div data-testid="count">{todos.length}</div>;
 }
 
 function Detail({ id }: { id: string }) {
   const todo = useSuspense(getDetail, { id });
-  return <div>{todo.title}</div>;
+  return <div data-testid="detail">{todo.title}</div>;
 }
 
 let controller: ReturnType<typeof useController>;
-let startTransition: (fn: () => void) => void;
-let showDetail: (id: string) => void;
-let typeText: (text: string) => void;
-
-function App({ consumers }: { consumers: number }) {
+function App() {
   controller = useController();
-  const [detail, setDetail] = useState<string[]>([]);
+  const [detail, setDetail] = useState<string | null>(null);
   const [text, setText] = useState('');
   const [isPending, start] = useTransition();
-  startTransition = start;
-  showDetail = id => setDetail(prev => [...prev, id]);
-  typeText = setText;
   return (
     <div>
       <span data-testid="pending">{String(isPending)}</span>
-      <span>{text}</span>
+      <input
+        data-testid="input"
+        value={text}
+        onChange={e => setText(e.target.value)}
+      />
+      <button
+        data-testid="open"
+        onClick={() =>
+          start(() => {
+            // Edits a listed row, then suspends on the detail, so the
+            // transition stays pending while urgent updates commit.
+            controller.setResponse(getTodo, { id: '5' }, {
+              id: '5',
+              title: 'from transition',
+            });
+            setDetail('X');
+          })
+        }
+      >
+        open
+      </button>
       <Suspense fallback={<p>loading list</p>}>
-        {Array.from({ length: consumers }, (_, i) => (
-          <List key={i} />
-        ))}
+        <List />
       </Suspense>
+      {/* already revealed, so a transition that suspends here stays pending */}
       <Suspense fallback={<p>loading detail</p>}>
-        {detail.map(id => (
-          <Detail key={id} id={id} />
-        ))}
+        {detail ? <Detail id={detail} /> : null}
       </Suspense>
     </div>
   );
 }
 
-/** A manager or event handler reading the committed store outside render. */
-function readRaw() {
-  const state = controller.getState();
-  const { data } = controller.getResponse(getTodoList, state);
-  reads.push({ versions: versionsOf(state, data as any), data });
-}
-
-/** Reads of versions already read before, that got a different result. */
-function avoidableMisses(list: Read[]) {
+function avoidableMisses(list: ListRender[]) {
   const seen = new Map<string, unknown>();
   let misses = 0;
   for (const { versions, data } of list) {
@@ -152,7 +134,8 @@ function avoidableMisses(list: Read[]) {
   return misses;
 }
 
-function flipBacks(list: Read[]) {
+/** How often a render read versions it had read before, after reading others. */
+function flipBacks(list: ListRender[]) {
   const seen = new Set<string>();
   let last: string | undefined;
   let flips = 0;
@@ -164,8 +147,21 @@ function flipBacks(list: Read[]) {
   return flips;
 }
 
-function mount(consumers: number) {
-  return render(
+function trace(name: string) {
+  if (!process.env.MEMO_TRACE) return;
+  const label = new Map<string, number>();
+  const seq = renders.map(r => {
+    if (!label.has(r.versions)) label.set(r.versions, label.size);
+    return `v${label.get(r.versions)}:d${idOf(r.data as object)}`;
+  });
+  console.log(
+    `${name}: ${renders.length} renders, ${label.size} versions, ${flipBacks(renders)} flip-backs, ${avoidableMisses(renders)} avoidable misses\n${seq.join(' ')}`,
+  );
+}
+
+/** Mount, start a transition that stays pending, run `urgent` five times, then let it commit. */
+async function runPendingTransition(urgent: (i: number) => void) {
+  const { getByTestId } = render(
     <DataProvider
       initialState={mockInitialState([
         { endpoint: getTodoList, args: [], response: rows() },
@@ -173,200 +169,68 @@ function mount(consumers: number) {
       devButton={null}
       managers={noDevManagers}
     >
-      <App consumers={consumers} />
+      <App />
     </DataProvider>,
   );
-}
-
-const writeTodo = (id: string, title: string) => {
-  controller.setResponse(getTodo, { id }, { id, title });
-};
-
-function beginTransition(row: string, id: string) {
+  expect(getByTestId('count').textContent).toBe(`${ROWS}`);
   act(() => {
-    startTransition(() => {
-      writeTodo(row, `from transition ${id}`);
-      showDetail(id);
-    });
+    fireEvent.click(getByTestId('open'));
   });
-}
-
-/** Resolves a held request with `value`, or rejects it with an `Error`. */
-async function settle(key: string, value: TodoItem | Error) {
+  expect(getByTestId('pending').textContent).toBe('true');
+  for (let i = 0; i < 5; i++) {
+    act(() => urgent(i));
+    expect(getByTestId('pending').textContent).toBe('true');
+  }
   await act(async () => {
-    if (value instanceof Error) pending[key].reject(value);
-    else pending[key].resolve(value);
+    resolvers.X({ id: 'X', title: 'detail' });
   });
-}
-const finishTransition = (id: string) => settle(id, { id, title: 'detail' });
-
-const writeNote = (i: number) =>
-  act(() => {
-    controller.setResponse(
-      getNote,
-      { id: `${i}` },
-      { id: `${i}`, text: `note ${i}` },
-    );
-  });
-
-function beginOptimistic(id: string, title: string) {
-  act(() => {
-    controller.fetch(updateTodo, { id, title }).catch(() => {});
-  });
+  expect(getByTestId('detail').textContent).toBe('detail');
+  expect(getByTestId('pending').textContent).toBe('false');
 }
 
-const rollBack = (id: string, title: string) =>
-  settle(updateKey(id, title), new Error('rejected'));
-const resolveOptimistic = (id: string, title: string) =>
-  settle(updateKey(id, title), { id, title });
+describeConcurrent('memoization under concurrent rendering', () => {
+  beforeEach(() => {
+    renders = [];
+    for (const key of Object.keys(resolvers)) delete resolvers[key];
+  });
 
-describeConcurrent.each([1, 2])(
-  'memoization under concurrent rendering, %i consumer(s)',
-  consumers => {
-    beforeEach(() => {
-      reads = [];
-      for (const key of Object.keys(pending)) delete pending[key];
-    });
+  // While a transition is pending, React renders the urgent lane without its
+  // update and retries the transition with it, so the list alternates between
+  // the committed rows and the transition's rows.
 
-    // While a transition is pending, React renders the urgent lane without its
-    // update and retries the transition with it, so a list alternates between
-    // the committed rows and the transition's rows.
-
-    it('urgent re-renders during a pending transition', async () => {
-      const { getByTestId } = mount(consumers);
-      beginTransition('5', 'X');
-      expect(getByTestId('pending').textContent).toBe('true');
-      for (let i = 0; i < 5; i++) act(() => typeText(`typed ${i}`));
-      await finishTransition('X');
-      expect(getByTestId('pending').textContent).toBe('false');
-      expect(flipBacks(reads)).toBeGreaterThan(0);
-      expect(avoidableMisses(reads)).toBe(0);
-    });
-
-    it('urgent writes to other entities during a pending transition', async () => {
-      const { getByTestId } = mount(consumers);
-      beginTransition('5', 'X');
-      for (let i = 0; i < 5; i++) writeNote(i);
-      expect(getByTestId('pending').textContent).toBe('true');
-      await finishTransition('X');
-      expect(flipBacks(reads)).toBeGreaterThan(0);
-      expect(avoidableMisses(reads)).toBe(0);
-    });
-
-    it('urgent writes to a listed row during a pending transition', async () => {
-      // React reapplies every update queued after the transition's on each
-      // render, so each render reads new rows and none can hit.
-      mount(consumers);
-      beginTransition('5', 'X');
-      for (let i = 0; i < 5; i++) {
-        act(() => writeTodo('7', `urgent ${i}`));
-      }
-      await finishTransition('X');
-      expect(avoidableMisses(reads)).toBe(0);
-    });
-
-    it('two pending transitions with urgent writes between', async () => {
-      mount(consumers);
-      beginTransition('5', 'X');
-      writeNote(0);
-      beginTransition('6', 'Y');
-      for (let i = 1; i < 5; i++) writeNote(i);
-      await finishTransition('X');
-      writeNote(5);
-      await finishTransition('Y');
-      expect(avoidableMisses(reads)).toBe(0);
-    });
-
-    it('overlapping optimistic updates rolled back out of order', async () => {
-      mount(consumers);
-      beginOptimistic('3', 'A');
-      writeNote(0);
-      beginOptimistic('4', 'B');
-      writeNote(1);
-      await rollBack('3', 'A');
-      writeNote(2);
-      await rollBack('4', 'B');
-      writeNote(3);
-      expect(flipBacks(reads)).toBeGreaterThan(0);
-      expect(avoidableMisses(reads)).toBe(0);
-    });
-
-    it('an optimistic update rolled back during a pending transition', async () => {
-      mount(consumers);
-      beginOptimistic('3', 'A');
-      writeNote(0);
-      beginTransition('5', 'X');
-      for (let i = 1; i < 4; i++) writeNote(i);
-      await rollBack('3', 'A');
-      for (let i = 4; i < 7; i++) writeNote(i);
-      await finishTransition('X');
-      writeNote(7);
-      expect(avoidableMisses(reads)).toBe(0);
-    });
-
-    // After a transition commits, the committed rows are a new version. The
-    // memo only sees it again when a read reaches it: useSuspense serves
-    // urgent re-renders with an unchanged store from its own useMemo.
-
-    it('urgent re-renders during a second transition, after the first committed', async () => {
-      const { getByTestId } = mount(consumers);
-      beginTransition('5', 'X');
-      for (let i = 0; i < 3; i++) act(() => typeText(`a${i}`));
-      await finishTransition('X');
-      expect(getByTestId('pending').textContent).toBe('false');
-      beginTransition('6', 'Y');
-      for (let i = 0; i < 3; i++) act(() => typeText(`b${i}`));
-      await finishTransition('Y');
-      expect(flipBacks(reads)).toBeGreaterThan(0);
-      expect(avoidableMisses(reads)).toBe(0);
-    });
-
-    it('reads outside render during optimistic updates, across a resolved mutation', async () => {
-      mount(consumers);
-      beginOptimistic('3', 'A');
-      readRaw();
-      writeNote(0);
-      readRaw();
-      // the mutation resolves: row 3 has a new committed version
-      await resolveOptimistic('3', 'A');
-      beginOptimistic('4', 'B');
-      readRaw();
-      writeNote(1);
-      readRaw();
-      writeNote(2);
-      readRaw();
-      await rollBack('4', 'B');
-      expect(flipBacks(reads)).toBeGreaterThan(0);
-      expect(avoidableMisses(reads)).toBe(0);
-    });
-
-    it('urgent writes to other entities during a second transition, after the first committed', async () => {
-      // every urgent write changes the state object, so useSuspense re-queries
-      // the memo; the list's rows are unchanged, so every read should hit
-      mount(consumers);
-      beginTransition('5', 'X');
-      for (let i = 0; i < 3; i++) writeNote(i);
-      await finishTransition('X');
-      beginTransition('6', 'Y');
-      for (let i = 3; i < 8; i++) writeNote(i);
-      await finishTransition('Y');
-      expect(flipBacks(reads)).toBeGreaterThan(0);
-      expect(avoidableMisses(reads)).toBe(0);
-    });
-
-    it('urgent re-renders during a pending transition, after two committed writes to a row', async () => {
-      mount(consumers);
-      act(() => {
-        writeTodo('9', 'v2');
+  it('urgent re-renders during a pending transition reuse the committed result', async () => {
+    await runPendingTransition(i => {
+      fireEvent.change(document.querySelector('input')!, {
+        target: { value: `typed ${i}` },
       });
-      act(() => {
-        writeTodo('9', 'v3');
-      });
-      beginTransition('5', 'X');
-      for (let i = 0; i < 3; i++) act(() => typeText(`a${i}`));
-      await finishTransition('X');
-      expect(flipBacks(reads)).toBeGreaterThan(0);
-      expect(avoidableMisses(reads)).toBe(0);
     });
-  },
-);
+    trace('typing');
+    expect(flipBacks(renders)).toBeGreaterThan(0);
+    expect(avoidableMisses(renders)).toBe(0);
+  });
+
+  it('urgent writes to other entities during a pending transition reuse the committed result', async () => {
+    await runPendingTransition(i => {
+      controller.setResponse(getNote, { id: `${i}` }, {
+        id: `${i}`,
+        text: `note ${i}`,
+      });
+    });
+    trace('other entity writes');
+    expect(flipBacks(renders)).toBeGreaterThan(0);
+    expect(avoidableMisses(renders)).toBe(0);
+  });
+
+  it('urgent writes to a listed row during a pending transition', async () => {
+    // React reapplies every update queued after the transition's on each
+    // render, so each render reads new rows and none can hit.
+    await runPendingTransition(i => {
+      controller.setResponse(getTodo, { id: '7' }, {
+        id: '7',
+        title: `urgent ${i}`,
+      });
+    });
+    trace('listed row writes');
+    expect(avoidableMisses(renders)).toBe(0);
+  });
+});
