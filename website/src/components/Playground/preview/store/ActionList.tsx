@@ -265,7 +265,7 @@ function ActionList({
           group={group}
           open={open.has(group.id)}
           currentSeq={group === current ? seq! : undefined}
-          whole={group === current && scope === 'group'}
+          picked={group === current && scope === 'group'}
           subject={subject}
           filter={filter}
           onToggle={toggle}
@@ -357,7 +357,7 @@ const GroupRow = memo(function GroupRow({
   group,
   open,
   currentSeq,
-  whole,
+  picked,
   subject,
   filter,
   onToggle,
@@ -367,8 +367,9 @@ const GroupRow = memo(function GroupRow({
   open: boolean;
   /** The moment's action, when it is one of this row's */
   currentSeq?: number;
-  /** The moment stands for the row's actions up to it, not one step */
-  whole: boolean;
+  /** The row itself was picked: the moment stands for its actions up to
+   * it, so no one step is marked */
+  picked: boolean;
   subject: View;
   filter: SubjectFilter;
   onToggle: (id: string) => void;
@@ -445,7 +446,7 @@ const GroupRow = memo(function GroupRow({
       {open && (
         <Steps
           group={group}
-          currentSeq={whole ? undefined : currentSeq}
+          currentSeq={picked ? undefined : currentSeq}
           subject={subject}
           lists={filter.lists}
           notes={notes}

@@ -41,10 +41,11 @@ import {
   ValueChange,
 } from './Value';
 
-/** One action, in the sections a request's view has: its step (and the
- * way it took through the managers), what it did to `subject` (every row at
- * the store, a line saying it left the subject alone, or that it is where a
- * `gap` of dropped actions changing it was found), then the action itself */
+/** One action, headed as a request's view is: its step (and the way it
+ * took through the managers), what it did to `subject` (every row at the
+ * store, a line saying it left the subject alone, or that it is where a
+ * `gap` of dropped actions changing it was found); then, only here, the
+ * action itself */
 export function ActionDetail({
   entry,
   subject,

@@ -108,7 +108,8 @@ export default function StorePanel({
   const [view, setView] = useStoreView();
   const tree = view === 'tree';
   // the subject at the moment (`state`), or the moment's action; and the
-  // state as a whole, or (`diffMode`) only what the moment's action changed.
+  // state as a whole, or (`diffMode`) only what the moment changed (its
+  // request's actions up to it, see `Scope`).
   // Each Playground's own, unlike the table or tree view
   const [tab, setTab] = useState<Tab>('state');
   const [diffMode, setDiffMode] = useState(false);
@@ -276,7 +277,7 @@ export default function StorePanel({
       setMomentSeq(seq);
       setScope(seq === null ? 'request' : to);
       clearAt();
-      followMoment(seq, to);
+      followMoment(seq, seq === null ? 'request' : to);
     },
     [clearAt, followMoment],
   );
@@ -557,7 +558,7 @@ export default function StorePanel({
                         <button
                           type="button"
                           aria-label="Diff"
-                          title="Diff: only what the moment's action changed"
+                          title="Diff: only what the moment changed"
                           aria-pressed={diffMode}
                           onClick={() => setDiffMode(true)}
                         >
@@ -1055,6 +1056,7 @@ function ActionLevel({
                 group={group}
                 subject={subject}
                 filter={filter}
+                // a picked row stands for all of them: no one step is marked
                 currentSeq={scope === 'group' ? undefined : entry.seq}
               />
               <h3 className={styles.sectionLabel}>Store changes</h3>
@@ -1296,7 +1298,8 @@ function ActionCrumb({
   subject: View;
 }) {
   const { entry, group } = useShownAction(seq, scope, subject);
-  // a request steps through its actions: the crumb names the moment's
+  // a picked row is named for its group; stepping (and a step picked)
+  // names the moment's action
   return (
     group && scope === 'group' ? <KeyLabel value={group.key} />
     : entry ? <ActionName entry={entry} />

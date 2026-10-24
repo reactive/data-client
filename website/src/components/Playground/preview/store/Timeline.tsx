@@ -604,7 +604,7 @@ export const Scrubber = memo(function Scrubber({
   const { actions, setOn, behind, catchingUp } = useHeld(track);
   const { groups } = actions;
   const { scope, earlier, later, set: onSelect, show } = useNavState();
-  // a row picked stands for its whole group: the label names that
+  // a row picked stands for its group: the label names that
   const group =
     scope === 'group' && entry ? groupOf(groups, entry.seq) : undefined;
   const { shown, scale, drawn, decor } = useDrawer(actions, hit, onMark);
