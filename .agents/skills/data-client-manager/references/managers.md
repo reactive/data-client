@@ -161,50 +161,6 @@ export default function getManagers() {
 }
 ```
 
-```tsx title="TodoList"
-import { useController, useSuspense } from '@data-client/react';
-import { TodoResource } from './TodoResource';
-
-function TodoList() {
-  const ctrl = useController();
-  const todos = useSuspense(TodoResource.getList);
-  return (
-    <div className="list">
-      {todos.map(todo => (
-        <div key={todo.pk()} className="listItem nogap">
-          <label>
-            <input
-              type="checkbox"
-              checked={todo.completed}
-              onChange={e =>
-                ctrl
-                  .fetch(
-                    TodoResource.partialUpdate,
-                    { id: todo.id },
-                    { completed: e.currentTarget.checked },
-                  )
-                  // ToastManager reports failures
-                  .catch(() => {})
-              }
-            />
-            {todo.title}
-          </label>
-        </div>
-      ))}
-    </div>
-  );
-}
-render(
-  <>
-    <header className="appHeader">
-      <h1 className="appTitle">Launch tasks</h1>
-    </header>
-    <TodoList />
-    <Toaster />
-  </>,
-);
-```
-
 The server rejects changes to the archived task, so checking it off rolls back with an error toast.
 
 ### Refresh on focus or reconnect {#refresh-on-focus}
@@ -265,39 +221,6 @@ import RefreshManager from './RefreshManager';
 export default function getManagers() {
   return [new RefreshManager(), ...getDefaultManagers()];
 }
-```
-
-```tsx title="Rates"
-import { useSuspense } from '@data-client/react';
-import NumberFlow from '@number-flow/react';
-import { getRate } from './getRate';
-
-function RateRow({ currency }: { currency: string }) {
-  const rate = useSuspense(getRate, { currency });
-  return (
-    <div className="listItem">
-      <strong>{currency}</strong>
-      <NumberFlow
-        value={rate.usd}
-        format={{ style: 'currency', currency: 'USD' }}
-      />
-      <small className="meta">
-        fetched {new Date(rate.fetchedAt).toLocaleTimeString()}
-      </small>
-    </div>
-  );
-}
-render(
-  <>
-    <header className="appHeader">
-      <h1 className="appTitle">Rates</h1>
-    </header>
-    <div className="list">
-      <RateRow currency="BTC" />
-      <RateRow currency="ETH" />
-    </div>
-  </>,
-);
 ```
 
 Each time the window regains focus or comes back online, every rate refetches and its fetch time

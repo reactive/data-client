@@ -161,45 +161,6 @@ export default function getManagers() {
 }
 ```
 
-```html title="TodoList.vue"
-<script setup lang="ts">
-  import { useController, useSuspense } from '@data-client/vue';
-  import { TodoResource } from './TodoResource';
-
-  const ctrl = useController();
-  const todos = await useSuspense(TodoResource.getList);
-
-  const toggle = (id: number, e: Event) =>
-    ctrl
-      .fetch(
-        TodoResource.partialUpdate,
-        { id },
-        { completed: (e.currentTarget as HTMLInputElement).checked },
-      )
-      // ToastManager reports failures
-      .catch(() => {});
-</script>
-
-<template>
-  <header class="appHeader">
-    <h1 class="appTitle">Launch tasks</h1>
-  </header>
-  <div class="list">
-    <div v-for="todo in todos" :key="todo.pk()" class="listItem nogap">
-      <label>
-        <input
-          type="checkbox"
-          :checked="todo.completed"
-          @change="toggle(todo.id, $event)"
-        />
-        {{ todo.title }}
-      </label>
-    </div>
-  </div>
-  <Toaster />
-</template>
-```
-
 The server rejects changes to the archived task, so checking it off rolls back with an error toast.
 
 ### Refresh on focus or reconnect {#refresh-on-focus}
@@ -260,48 +221,6 @@ import RefreshManager from './RefreshManager';
 export default function getManagers() {
   return [new RefreshManager(), ...getDefaultManagers()];
 }
-```
-
-```html title="RateRow.vue"
-<script setup lang="ts">
-  import { useSuspense } from '@data-client/vue';
-  import NumberFlow from '@number-flow/vue';
-  import { getRate } from './getRate';
-
-  const props = defineProps<{ currency: string }>();
-  const rate = await useSuspense(getRate, () => ({
-    currency: props.currency,
-  }));
-</script>
-
-<template>
-  <div class="listItem">
-    <strong>{{ currency }}</strong>
-    <NumberFlow
-      :value="rate.usd"
-      :format="{ style: 'currency', currency: 'USD' }"
-    />
-    <small class="meta">
-      fetched {{ new Date(rate.fetchedAt).toLocaleTimeString() }}
-    </small>
-  </div>
-</template>
-```
-
-```html title="Rates.vue"
-<script setup lang="ts">
-  import RateRow from './RateRow.vue';
-</script>
-
-<template>
-  <header class="appHeader">
-    <h1 class="appTitle">Rates</h1>
-  </header>
-  <div class="list">
-    <RateRow currency="BTC" />
-    <RateRow currency="ETH" />
-  </div>
-</template>
 ```
 
 Each time the window regains focus or comes back online, every rate refetches and its fetch time
