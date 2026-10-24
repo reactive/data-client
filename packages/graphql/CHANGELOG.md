@@ -1,5 +1,151 @@
 # @data-client/graphql
 
+## 0.19.0
+
+### Minor Changes
+
+- [#4151](https://github.com/reactive/data-client/pull/4151) [`4549122`](https://github.com/reactive/data-client/commit/4549122004244990a564781a61145ae9ea98370e) - BREAKING: Require TypeScript 4.0 or later
+
+  The TypeScript 3.x type declarations are removed. They no longer type-checked on any TypeScript 3.x version, and
+  `@data-client/rest` already required TypeScript 4.0. Upgrade TypeScript to 4.0 or later.
+
+  ```diff title="package.json"
+  - "typescript": "^3.9.0"
+  + "typescript": "^4.0.0"
+  ```
+
+### Patch Changes
+
+- [#4407](https://github.com/reactive/data-client/pull/4407) [`b475613`](https://github.com/reactive/data-client/commit/b4756135b70e4fb79e9146114a1266b4f7b4a4cb) - Ship agent skills inside the packages
+
+  Coding agents can now follow the skills for the version you have installed instead of guessing from older releases. Each package carries the skills it covers, and the new `data-client-skills` command (in `@data-client/react`, `vue`, `rest`, `graphql` and `endpoint`, so repos with only API definitions get it too) links them into `.agents/skills`, with `.claude/skills` linking to it, where Claude Code, Cursor and Codex load them as their own:
+
+  ```bash
+  npx --no data-client-skills
+  ```
+
+  Commit the links. They point into `node_modules`, so they follow upgrades; run it again after adding, removing or upgrading `@data-client` packages to pick up new skills. [TanStack Intent](https://tanstack.com/intent) also finds these skills.
+
+- [#4209](https://github.com/reactive/data-client/pull/4209) [`b4899d0`](https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169) Thanks [@renovate](https://github.com/apps/renovate)! - Support `@babel/runtime` 8
+
+  Apps on Babel 8 now share their `@babel/runtime` with Data Client instead of installing a second copy. Apps on Babel 7 keep working unchanged.
+
+- [#4149](https://github.com/reactive/data-client/pull/4149) [`cc57a77`](https://github.com/reactive/data-client/commit/cc57a77d2e563071926f50cb9054516d2ab9101e) - Fix Entity classes not assignable to `EntityInterface`
+
+  [Entity.pk()](https://dataclient.io/rest/api/Entity#pk)'s static `args` parameter is now `readonly any[]`, matching `EntityInterface`. Entity classes can be passed where an `EntityInterface` is expected.
+
+  ```ts
+  import type { EntityInterface } from '@data-client/react';
+
+  // Before: TypeScript error (args is readonly in EntityInterface)
+  // After: typechecks
+  const schema: EntityInterface = User;
+  ```
+
+  Overrides of `static pk()` that type `args` as a mutable array still compile, but a future breaking release will require `readonly any[]`, so update them now:
+
+  ```ts
+  class User extends Entity {
+    static pk(value: any, parent?: any, key?: string, args?: readonly any[]) {
+      return `${value.id}-${args?.[0]?.org}`;
+    }
+  }
+  ```
+
+- [#4173](https://github.com/reactive/data-client/pull/4173) [`022f449`](https://github.com/reactive/data-client/commit/022f44950bf687b61f2d349e42ab906071c6fce7) - Speed up TypeScript checking of `RestEndpoint`, `resource()` and `.extend()`
+
+  Editors and `tsc` check code that defines or calls endpoints faster and with less memory. In our stress tests, a file of 150 RestEndpoints with long paths, `.extend()` and `.paginated()` checked in about half the time (3.1s → 1.6s) and memory (345MB → 207MB). Files that use `resource()` with React or Vue hooks did 22-25% less type work. TypeScript reports the same errors as before.
+
+  On TypeScript 5.x and earlier, a `process(value, params)` method passed to `.extend()` no longer fails with "implicitly has an 'any' type" under `strict`, matching TypeScript 6+. TypeScript 4.0 also accepts a chained `.extend().extend()`.
+
+  ```ts
+  const getUser = new RestEndpoint({ path: '/users/:id', schema: User });
+
+  // Before (TypeScript 5.x and earlier): error TS7006: Parameter 'value' implicitly has an 'any' type.
+  // After: no error
+  const getUserName = getUser.extend({
+    process(value, params) {
+      return value.name;
+    },
+  });
+  ```
+
+- [#4122](https://github.com/reactive/data-client/pull/4122) [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc) - Fix more TypeScript 4.x errors when `skipLibCheck` is off
+
+  [Entity](https://dataclient.io/rest/api/Entity), [Endpoint](https://dataclient.io/rest/api/Endpoint), [Union](https://dataclient.io/rest/api/Union) and [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint) declarations no longer report errors on TypeScript 4.0 through 4.5. On TypeScript 4.0 and 4.1, an `Entity` can be an `Endpoint` schema again.
+
+  ```ts
+  import { Endpoint, Entity, schema } from '@data-client/endpoint';
+
+  class User extends Entity {
+    id = '';
+    type = 'users';
+  }
+  const getUser = new Endpoint(
+    (id: string) => fetch(`/users/${id}`).then(res => res.json()),
+    { schema: User },
+  );
+  const feed = new schema.Union({ users: User }, 'type');
+
+  // Before (TypeScript 4.0, skipLibCheck: false):
+  //   error TS2456: Type alias 'RemoveArray' circularly references itself.
+  //   error TS2322: Type 'typeof User' is not assignable to type 'EntityInterface<any>'.
+  // Before (TypeScript 4.2):
+  //   error TS2344: Type 'TBase' does not satisfy the constraint 'new (...args: any) => any'.
+  // After: no errors
+  ```
+
+- [#4122](https://github.com/reactive/data-client/pull/4122) [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc) - Fix types for TypeScript 4.x when `skipLibCheck` is off
+
+  TypeScript 4.0 through 4.7 no longer report `Cannot find name 'NoInfer'` from `@data-client/endpoint` or `@data-client/normalizr`, and TypeScript 4.0 through 4.9 no longer report `Only named exports may use 'export type'` from `@data-client/normalizr`.
+
+  ```ts
+  import { Entity } from '@data-client/endpoint';
+  import { normalize } from '@data-client/normalizr';
+
+  // Before (TypeScript 4.7, skipLibCheck: false):
+  //   error TS2304: Cannot find name 'NoInfer'.
+  //   error TS1383: Only named exports may use 'export type'.
+  // After: no errors
+  ```
+
+- [#4224](https://github.com/reactive/data-client/pull/4224) [`a403df8`](https://github.com/reactive/data-client/commit/a403df8f22dadb0dbd9a6cf72a65f9187ae63176) - Fix `Entity.maxEntityDepth` docs: the default is 64, not 128
+
+  Editor hover docs for `static maxEntityDepth` now show the real default. Runtime behavior is unchanged; set `maxEntityDepth` explicitly if you relied on 128.
+
+- [#4198](https://github.com/reactive/data-client/pull/4198) [`cb6d9f2`](https://github.com/reactive/data-client/commit/cb6d9f21ae73ab79ac5f1d6aea04f68d7c2c6336) - Fix `getOptimisticResponse()` accepting any return value
+
+  Unless an endpoint has a typed `process()`, its [getOptimisticResponse()](https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse)
+  could return anything, so a wrong field type only showed up as bad data in the UI until the server responded. The return
+  value is now checked against the endpoint's schema, like a [Controller.set()](https://dataclient.io/docs/api/Controller#set)
+  value: an Entity takes any of its fields, and a [Collection](https://dataclient.io/rest/api/Collection) takes a list of them.
+  This applies to `new RestEndpoint()`, `.extend()` and `resource().extend()`.
+
+  ```ts
+  const toggleTodo = new RestEndpoint({
+    path: '/todos/:id',
+    method: 'PATCH',
+    schema: Todo,
+    getOptimisticResponse(snap, { id }) {
+      const todo = snap.get(Todo, { id });
+      if (!todo) throw snap.abort;
+      // Before: compiled, then the checkbox stayed checked because 'false' is truthy
+      // After: TypeScript error, completed is a boolean
+      return { id, completed: todo.completed ? 'false' : 'true' };
+    },
+  });
+  ```
+
+  Return the field's real type instead (`completed: !todo.completed`). Endpoints with a typed `process()` keep checking
+  the return against what `process()` returns.
+
+- [#4019](https://github.com/reactive/data-client/pull/4019) [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e) Thanks [@renovate](https://github.com/apps/renovate)! - Fix TypeScript 7 module resolution for package exports
+
+  TypeScript 7 requires a `types` condition in `package.json` `exports`. Without it, imports resolved to runtime entrypoints like `node.mjs` and lost declaration files.
+
+- Updated dependencies [[`b475613`](https://github.com/reactive/data-client/commit/b4756135b70e4fb79e9146114a1266b4f7b4a4cb), [`b4899d0`](https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169), [`4549122`](https://github.com/reactive/data-client/commit/4549122004244990a564781a61145ae9ea98370e), [`cc57a77`](https://github.com/reactive/data-client/commit/cc57a77d2e563071926f50cb9054516d2ab9101e), [`022f449`](https://github.com/reactive/data-client/commit/022f44950bf687b61f2d349e42ab906071c6fce7), [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc), [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc), [`a403df8`](https://github.com/reactive/data-client/commit/a403df8f22dadb0dbd9a6cf72a65f9187ae63176), [`cb6d9f2`](https://github.com/reactive/data-client/commit/cb6d9f21ae73ab79ac5f1d6aea04f68d7c2c6336), [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e)]:
+  - @data-client/endpoint@0.19.0
+
 ## 0.18.0
 
 ### Minor Changes
