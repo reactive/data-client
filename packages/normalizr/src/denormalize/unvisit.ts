@@ -1,6 +1,6 @@
 import type Cache from './cache.js';
 import { INVALID } from './symbol.js';
-import { UNDEF } from './UNDEF.js';
+import { depKey, UNDEF } from './UNDEF.js';
 import type {
   EntityInterface,
   EntityPath,
@@ -24,7 +24,16 @@ const getUnvisitEntity = (
     const entity =
       inputIsId ? getEntity({ key: schema.key, pk: entityOrId }) : entityOrId;
     if (typeof entity === 'symbol') {
-      return schema.denormalize(entity, delegate);
+      if (!inputIsId) return schema.denormalize(entity, delegate);
+      // record it as a dependency, so parents recompute once it is valid again
+      return cache.getEntity(
+        entityOrId,
+        schema,
+        depKey(entity),
+        localCacheKey => {
+          localCacheKey.set(entityOrId, schema.denormalize(entity, delegate));
+        },
+      );
     }
 
     if (
@@ -41,6 +50,18 @@ const getUnvisitEntity = (
       return cache.getEntity(entityOrId, schema, UNDEF, localCacheKey => {
         localCacheKey.set(entityOrId, undefined);
       });
+    }
+
+    if (entity === null && inputIsId) {
+      // record it as a dependency, so parents recompute once it is set
+      return cache.getEntity(
+        entityOrId,
+        schema,
+        depKey(null),
+        localCacheKey => {
+          localCacheKey.set(entityOrId, null);
+        },
+      );
     }
 
     if (typeof entity !== 'object' || entity === null) {
