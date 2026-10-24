@@ -47,7 +47,6 @@ import {
   useActions,
   type Actions,
 } from './actionParts';
-import { shownChain } from './attribution';
 import { NARROW_WIDTH } from './columns';
 import { diffModel, type RowDiff } from './diffModel';
 import { ListView, RecordLevel, type Header } from './DiveViews';
@@ -1028,9 +1027,8 @@ function ActionLevel({
   subject: View;
   header: Header;
 }) {
-  const { entries, managers } = useActions().history;
+  const { entries } = useActions().history;
   const { entry, group, span, filter } = useShownAction(seq, whole, subject);
-  const chain = shownChain(managers);
   // a group steps from its first action and to after the moment's
   const from = span ? span[0].seq : entry?.seq;
   // the step before leads, so the crumbs under it head the action shown
@@ -1052,9 +1050,7 @@ function ActionLevel({
           {group && span ?
             <div className={styles.actBody}>
               <SubjectChanges entries={span} subject={subject} />
-              {chain && (
-                <GroupPaths chain={chain} entries={span.filter(filter.lists)} />
-              )}
+              <GroupPaths entries={span} filter={filter} />
               <GroupActions group={group} subject={subject} filter={filter} />
             </div>
           : <ActionDetail

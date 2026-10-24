@@ -57,6 +57,13 @@ class SlowManager implements Manager<ActionTypes> {
   cleanup() {}
 }
 
+/** Passes everything on */
+class QuietManager implements Manager<ActionTypes> {
+  middleware: Middleware<ActionTypes> = () => next => action => next(action);
+
+  cleanup() {}
+}
+
 const getTicker = new Endpoint(async () => ({ id: 'BTC', price: 1 }), {
   schema: Ticker,
   key: () => 'GET /ticker',
@@ -337,6 +344,11 @@ describe('Store panel pipeline', () => {
       ),
     );
   const pipeline = () => screen.getByRole('group', { name: /^Pipeline/ });
+  /** The pipeline's stages (and folds), as they read */
+  const stages = () =>
+    within(pipeline())
+      .getAllByRole('button')
+      .map(b => b.textContent);
   /** The listed rows' heads */
   const listed = () =>
     screen
@@ -360,19 +372,11 @@ describe('Store panel pipeline', () => {
       void ctrl().subscribe(getTicker);
     });
     openActions();
-    expect(
-      within(pipeline())
-        .getAllByRole('button')
-        .map(b => b.textContent),
-    ).toEqual(['the app1', 'StreamManager2⊘ 1', '2 idle']);
+    expect(stages()).toEqual(['the app1', 'StreamManager2⊘ 1', '2 idle']);
     expect(pipeline().lastElementChild?.textContent).toBe('store');
     // the idle ones open in place, and fold again
     fireEvent.click(within(pipeline()).getByRole('button', { name: '2 idle' }));
-    expect(
-      within(pipeline())
-        .getAllByRole('button')
-        .map(b => b.textContent),
-    ).toEqual([
+    expect(stages()).toEqual([
       'the app1',
       'StreamManager2⊘ 1',
       'NetworkManager0',
@@ -393,15 +397,51 @@ describe('Store panel pipeline', () => {
       void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
     });
     openActions();
-    expect(
-      within(pipeline())
-        .getAllByRole('button')
-        .map(b => b.textContent),
-    ).toEqual(['the app1', '2 idle']);
+    expect(stages()).toEqual(['the app1', '2 idle']);
     fireEvent.click(listed()[0]);
     const path = await screen.findByRole('group', { name: /^Path/ });
     // it only passed them
     expect(path.textContent).toBe('the app→2 passed→store');
+  });
+
+  it('folds each run of quiet managers on its own', async () => {
+    const { ctrl } = mount(
+      [
+        new QuietManager(),
+        new QuietManager(),
+        new StreamManager(),
+        new NetworkManager(),
+        new SubscriptionManager(PollingSubscription),
+      ],
+      undefined,
+      true,
+    );
+    await act(async () => {
+      void ctrl().subscribe(getTicker);
+    });
+    openActions();
+    expect(stages()).toEqual([
+      'the app1',
+      '2 idle',
+      'StreamManager0⊘ 1',
+      '2 idle',
+    ]);
+    fireEvent.click(
+      within(pipeline()).getAllByRole('button', { name: '2 idle' })[0],
+    );
+    expect(stages()).toEqual([
+      'the app1',
+      'QuietManager0',
+      'QuietManager #20',
+      'fold',
+      'StreamManager0⊘ 1',
+      '2 idle',
+    ]);
+    fireEvent.click(listed()[0]);
+    const path = await screen.findByRole('group', { name: /^Path/ });
+    expect(path.textContent).toBe(
+      'the app→2 passed→StreamManager⊘ handled it→2 never saw it→store',
+    );
   });
 
   it("shows only a stage's actions while it is picked", async () => {
