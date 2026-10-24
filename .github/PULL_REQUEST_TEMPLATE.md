@@ -2,8 +2,8 @@
 How to write this description. Read every comment first, then delete all of them.
 
 - Style: about 50% ASD-STE100 Simplified Technical English. Follow its spirit, not every rule:
-  short sentences, active voice, one idea per sentence. Name the thing ("the Post entity", not "it"). Use the terms the repo,
-  its docs, or the requester already use.
+  short sentences, active voice, one idea per sentence. Name the thing ("the Post entity", not "it").
+  Use the terms the repo, its docs, or the requester already use.
 - Write for a library user first and a reviewer second. Keep each section short.
 - A comment that starts with "Include only when" marks a conditional section. Delete that section,
   heading included, when its condition does not hold.
