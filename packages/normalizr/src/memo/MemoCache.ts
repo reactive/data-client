@@ -28,6 +28,8 @@ export default class MemoCache {
   private reads = new WeakMap<object, KeepReads>();
   /** `entities` from the latest `commit`; reads with it are kept right away. */
   private committedEntities: object | undefined = undefined;
+  /** Whether that store had no optimistic updates. */
+  private committedSettled = true;
   /** Caches the queryKey based on schema, args, and any used entities or indexes */
   protected queryKeys: Map<string, WeakDependencyMap<QueryPath>> = new Map();
 
@@ -67,7 +69,7 @@ export default class MemoCache {
       args,
     )(schema, input);
     if (entities === this.committedEntities) {
-      this.endpoints.keepLast();
+      this.endpoints.keepLast(this.committedSettled);
     } else if (entities && typeof entities === 'object') {
       let reads = this.reads.get(entities);
       if (!reads) this.reads.set(entities, (reads = new Map()));
@@ -88,13 +90,15 @@ export default class MemoCache {
    * results are kept by recency alone.
    *
    * @param entities The `entities` of the committed state, by reference.
+   * @param settled Whether that state has no optimistic updates.
    */
-  commit(entities: object): void {
+  commit(entities: object, settled = true): void {
     this.committedEntities = entities;
+    this.committedSettled = settled;
     const reads = this.reads.get(entities);
     if (!reads) return;
     this.reads.delete(entities);
-    this.endpoints.keep(reads);
+    this.endpoints.keep(reads, settled);
   }
 
   /** Compute denormalized form maintaining referential equality for same inputs */

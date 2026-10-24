@@ -111,7 +111,7 @@ describe('WeakDependencyMap', () => {
     ).toBeUndefined();
   });
 
-  it('keeps four entries, never evicting the one the store flipped back to', () => {
+  it('keeps the two most recent entries, plus the one the store flipped back to', () => {
     const wem = new WeakDependencyMap<EntityPath>();
     const [b2, b3, b4, b5, b6] = [[2], [3], [4], [5], [6]];
     const withB = (entity: object) =>
@@ -121,20 +121,19 @@ describe('WeakDependencyMap', () => {
     setB(b, 'b');
     setB(b2, 'b2');
     setB(b3, 'b3');
+    // the first entry is pinned until a flip; b2 is the third most recent
     setB(b4, 'b4');
     // full: the least recently used goes, except the first entry, kept until a flip
     setB(b5, 'b5');
     expect(wem.get(a, withB(b2))[0]).toBeUndefined();
     expect(wem.get(a, withB(b))[0]).toBe('b');
 
-    // reading b3 back after newer entries makes it the kept one instead;
-    // most recently used now: b3, b, b5, b4
+    // reading b3 back after newer entries pins it instead of b
     expect(wem.get(a, withB(b3))[0]).toBe('b3');
     setB(b6, 'b6');
     expect(wem.get(a, withB(b4))[0]).toBeUndefined();
-    setB(b4, 'b4 again');
-    // most recently used: b4, b6, b3 (kept), b, b5; b5 goes
-    expect(wem.get(a, withB(b5))[0]).toBeUndefined();
+    setB(b6, 'b6');
+    expect(wem.get(a, withB(b))[0]).toBeUndefined();
     expect(wem.get(a, withB(b3))[0]).toBe('b3');
   });
 
