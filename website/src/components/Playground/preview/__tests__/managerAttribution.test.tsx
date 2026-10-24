@@ -373,7 +373,7 @@ describe('Store panel pipeline', () => {
     expect(pipeline().lastElementChild?.textContent).toBe('store');
   });
 
-  it('draws the library defaults too', async () => {
+  it('draws the library defaults and their path', async () => {
     const { ctrl } = mount(
       [new NetworkManager(), new SubscriptionManager(PollingSubscription)],
       undefined,
