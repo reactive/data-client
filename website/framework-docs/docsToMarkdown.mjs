@@ -174,17 +174,14 @@ const html = value => ({ type: 'html', value });
  * errors back to them; `data.nocheck` marks fences that check skips, and
  * `data.docsOnly` marks fences skill references drop.
  */
+const FENCE_FLAGS =
+  /\s*\b(collapsed|showLineNumbers|nocheck|framed|docs-only)\b/g;
 function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
+  const flags = new Set(meta?.match(FENCE_FLAGS)?.map(f => f.trim()));
   return {
     type: 'code',
     lang: lang ?? null,
-    meta:
-      meta
-        ?.replace(
-          /\s*\b(collapsed|showLineNumbers|nocheck|framed|docs-only)\b/g,
-          '',
-        )
-        .trim() || null,
+    meta: meta?.replace(FENCE_FLAGS, '').trim() || null,
     value: value
       .split('\n')
       .filter(
@@ -195,8 +192,8 @@ function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
       .trim(),
     data: {
       raw: value,
-      nocheck: /\bnocheck\b/.test(meta ?? ''),
-      docsOnly: /\bdocs-only\b/.test(meta ?? ''),
+      nocheck: flags.has('nocheck'),
+      docsOnly: flags.has('docs-only'),
     },
   };
 }
@@ -622,29 +619,21 @@ export function agentReferenceUrl(route) {
 /**
  * Markdown of a doc for a framework, or undefined if the page isn't in it.
  * `resolveRoute(route)` picks the URL for links to site pages (default: the site).
- * `agentOnly: false` drops `<AgentOnly>` steps, which skill references don't
- * need: the skill already gives them. `docsOnly: false` drops `docs-only`
- * fences, such as a playground's preview UI.
+ * `skill: true` renders a skill reference: it drops `<AgentOnly>` steps, which
+ * the skill already gives, and `docs-only` fences, such as a playground's
+ * preview UI.
  */
 export function docToMarkdown(
   file,
   framework,
-  {
-    resolveRoute = route => SITE + route,
-    agentOnly = true,
-    docsOnly = true,
-  } = {},
+  { resolveRoute = route => SITE + route, skill = false } = {},
 ) {
   const tree = render(file, framework);
   if (!tree) return;
-  if (!docsOnly)
-    visit(tree, 'code', (node, index, parent) => {
-      if (!node.data.docsOnly) return;
-      parent.children.splice(index, 1);
-      return index;
-    });
-  visit(tree, 'agentOnly', (node, index, parent) => {
-    parent.children.splice(index, 1, ...(agentOnly ? node.children : []));
+  visit(tree, ['agentOnly', 'code'], (node, index, parent) => {
+    if (node.type === 'code' && !(skill && node.data.docsOnly)) return;
+    const kept = node.type === 'agentOnly' && !skill ? node.children : [];
+    parent.children.splice(index, 1, ...kept);
     return index;
   });
   visit(tree, ['link', 'definition'], node => {
