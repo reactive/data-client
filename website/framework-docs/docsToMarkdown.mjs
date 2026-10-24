@@ -171,7 +171,8 @@ const html = value => ({ type: 'html', value });
 /**
  * Code without Docusaurus-only syntax (highlight markers, display options).
  * `data.raw` keeps the fence's own lines, so the docs example check can map
- * errors back to them; `data.nocheck` marks fences that check skips.
+ * errors back to them; `data.nocheck` marks fences that check skips, and
+ * `data.docsOnly` marks fences skill references drop.
  */
 function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
   return {
@@ -179,7 +180,10 @@ function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
     lang: lang ?? null,
     meta:
       meta
-        ?.replace(/\s*\b(collapsed|showLineNumbers|nocheck|framed)\b/g, '')
+        ?.replace(
+          /\s*\b(collapsed|showLineNumbers|nocheck|framed|docs-only)\b/g,
+          '',
+        )
         .trim() || null,
     value: value
       .split('\n')
@@ -189,7 +193,11 @@ function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
       )
       .join('\n')
       .trim(),
-    data: { raw: value, nocheck: /\bnocheck\b/.test(meta ?? '') },
+    data: {
+      raw: value,
+      nocheck: /\bnocheck\b/.test(meta ?? ''),
+      docsOnly: /\bdocs-only\b/.test(meta ?? ''),
+    },
   };
 }
 /** The glue a playground's router supplies, which its files don't show */
@@ -615,15 +623,26 @@ export function agentReferenceUrl(route) {
  * Markdown of a doc for a framework, or undefined if the page isn't in it.
  * `resolveRoute(route)` picks the URL for links to site pages (default: the site).
  * `agentOnly: false` drops `<AgentOnly>` steps, which skill references don't
- * need: the skill already gives them.
+ * need: the skill already gives them. `docsOnly: false` drops `docs-only`
+ * fences, such as a playground's preview UI.
  */
 export function docToMarkdown(
   file,
   framework,
-  { resolveRoute = route => SITE + route, agentOnly = true } = {},
+  {
+    resolveRoute = route => SITE + route,
+    agentOnly = true,
+    docsOnly = true,
+  } = {},
 ) {
   const tree = render(file, framework);
   if (!tree) return;
+  if (!docsOnly)
+    visit(tree, 'code', (node, index, parent) => {
+      if (!node.data.docsOnly) return;
+      parent.children.splice(index, 1);
+      return index;
+    });
   visit(tree, 'agentOnly', (node, index, parent) => {
     parent.children.splice(index, 1, ...(agentOnly ? node.children : []));
     return index;

@@ -21,7 +21,7 @@ export class Ticker extends Entity {
 }
 ```
 
-```ts title="PriceSource" collapsed
+```ts title="PriceSource" collapsed docs-only
 /** Stands in for an EventSource: pushes JSON messages to `onmessage` */
 export class PriceSource {
   onmessage: ((event: { data: string }) => void) | null = null;
@@ -89,7 +89,7 @@ export default function getManagers() {
 }
 ```
 
-```tsx title="Prices"
+```tsx title="Prices" docs-only
 import { useQuery } from '@data-client/react';
 import { Ticker } from './Ticker';
 
