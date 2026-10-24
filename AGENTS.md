@@ -36,6 +36,10 @@ Changing root `package.json` `workspaces` requires updating `.circleci/config.ym
 
 Any user-facing change in `packages/*` requires a changeset. Core packages are version-linked (bumping one bumps all). See skill "changeset" for full workflow.
 
+## Pull Requests
+
+Write PR descriptions by following the HTML comments in `.github/PULL_REQUEST_TEMPLATE.md`: they are the instructions for each section, not just a layout. Then delete the comments. See skill "pr" for the full workflow.
+
 ## File Organization
 
 - **API definitions**: `src/resources/` within examples/apps
