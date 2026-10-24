@@ -4,8 +4,8 @@ import { UNDEF } from '../denormalize/UNDEF.js';
  * via `typeof === 'function'`. */
 export type KeyFn = (args: readonly any[]) => string | undefined;
 
-/** Sentinel string used in place of `undefined` for string-keyed deps so
- * equal `argsKey` results compare equal. */
+/** Sentinel string used in place of `undefined` for string-keyed deps so we
+ * can perform Map lookups consistently. */
 const UNDEF_KEY = '\0';
 
 /** Maps a (ordered) list of dependencies to a value.
@@ -19,15 +19,16 @@ const UNDEF_KEY = '\0';
  * Hermes rescans every `WeakMap` entry in the heap on each pass, so a chain
  * as long as the dependency list stalls every old-generation collection.
  *
- * String-keyed dependencies (used by `argsKey`) split entries into buckets
- * by the value `path(args)` returns, so each bucket keeps its own value.
+ * String-keyed dependencies (used by `argsKey`) branch on a `Map` keyed by
+ * the value `path(args)` returns, so each argument set keeps its own entries
+ * and a lookup only checks its own.
  */
 export default class WeakDependencyMap<
   Path,
   K extends object = object,
   V = any,
 > {
-  private readonly next = new WeakMap<K, Entry<Path, V>[]>();
+  private readonly next = new WeakMap<K, Node<Path, V>>();
   /** Sticky: true once any function-typed (`argsKey`) dep has been stored. */
   private hasStr = false;
 
@@ -36,12 +37,22 @@ export default class WeakDependencyMap<
     getDependency: GetDependency<Path, K | symbol>,
     args: readonly any[] = [],
   ) {
-    const entries = this.next.get(entity);
-    if (!entries) return EMPTY;
-    for (let i = 0; i < entries.length; i++) {
-      const entry = entries[i];
-      if (matches(entry, getDependency, args))
-        return [entry.value, entry.journey] as readonly [V, Path[]];
+    let node = this.next.get(entity);
+    while (node) {
+      const { entries } = node;
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
+        if (matches(entry, getDependency, args)) {
+          entry.hit = true;
+          if (i > 0) {
+            entries.splice(i, 1);
+            entries.unshift(entry);
+          }
+          return [entry.value, entry.journey] as readonly [V, Path[]];
+        }
+      }
+      if (!node.fn) break;
+      node = node.children?.get(node.fn(args) ?? UNDEF_KEY);
     }
     return EMPTY;
   }
@@ -59,9 +70,14 @@ export default class WeakDependencyMap<
     journey?: Path[],
   ) {
     if (dependencies.length < 1) throw new KeySize();
+    const root = (dependencies[0].entity ?? UNDEF) as K;
+    let node = this.next.get(root);
+    if (!node) {
+      node = newNode();
+      this.next.set(root, node);
+    }
     const paths = new Array<Path | KeyFn>(dependencies.length - 1);
     const keys = new Array<unknown>(dependencies.length - 1);
-    let bucket = '';
     for (let i = 1; i < dependencies.length; i++) {
       const dep = dependencies[i];
       paths[i - 1] = dep.path;
@@ -69,33 +85,35 @@ export default class WeakDependencyMap<
         this.hasStr = true;
         const k = (dep.path as KeyFn)(args) ?? UNDEF_KEY;
         keys[i - 1] = k;
-        bucket += `${k}\u0001`;
+        node.fn = dep.path as KeyFn;
+        if (!node.children) node.children = new Map();
+        let child = node.children.get(k);
+        if (!child) {
+          child = newNode();
+          node.children.set(k, child);
+        }
+        node = child;
       } else {
         keys[i - 1] = dep.entity ?? UNDEF;
       }
     }
-    const root = (dependencies[0].entity ?? UNDEF) as K;
-    const entry: Entry<Path, V> = {
+    const { entries } = node;
+    entries.unshift({
       paths,
       keys,
-      bucket,
       value,
       // we could recompute this on get, but it would have a cost and we optimize for `get`
       journey: journey ?? (dependencies.map(d => d.path) as Path[]),
-    };
-    const entries = this.next.get(root);
-    if (!entries) {
-      this.next.set(root, [entry]);
-      return;
-    }
-    entries.unshift(entry);
-    // Keep the newest few per bucket, so a store that flips back (an
-    // optimistic update rolled back) still hits. Older ones only pin stale
-    // entities.
-    let kept = 0;
-    for (let i = 0; i < entries.length; i++) {
-      if (entries[i].bucket !== bucket) continue;
-      if (++kept > VARIANTS) entries.splice(i--, 1);
+      hit: false,
+    });
+    // Two entries per argument set, so a store that flips back still hits.
+    // A pending transition does that: React retries it with freshly built
+    // entities between urgent renders of the committed store. So when full,
+    // drop the previous newest if nothing read it again (a one-off), else the
+    // least recently used.
+    if (entries.length > VARIANTS) {
+      if (!entries[1].hit) entries.splice(1, 1);
+      else entries.length = VARIANTS;
     }
   }
 
@@ -134,18 +152,30 @@ export interface Dep<Path, K = object> {
 
 const EMPTY = [undefined, undefined] as const;
 
-/** Entries kept per (first dependency, `argsKey` bucket). */
+/** Entries kept per (first dependency, `argsKey` results). */
 const VARIANTS = 2;
+
+/** Entries for one set of `argsKey` results, and the branch on the next one. */
+interface Node<Path, V> {
+  entries: Entry<Path, V>[];
+  /** The next `argsKey` dependency; its result picks the child. */
+  fn: KeyFn | undefined;
+  children: Map<string, Node<Path, V>> | undefined;
+}
+
+function newNode<Path, V>(): Node<Path, V> {
+  return { entries: [], fn: undefined, children: undefined };
+}
 
 /** One cached value: the dependencies after the first, and what they resolved to. */
 interface Entry<Path, V> {
   readonly paths: (Path | KeyFn)[];
   /** Entity reference (or `UNDEF`) for entity paths; `argsKey` result for function paths. */
   readonly keys: unknown[];
-  /** `argsKey` results joined, so entries for other args stay cached. */
-  readonly bucket: string;
   readonly value: V;
   readonly journey: Path[];
+  /** Read again since it was set. */
+  hit: boolean;
 }
 
 class KeySize extends Error {

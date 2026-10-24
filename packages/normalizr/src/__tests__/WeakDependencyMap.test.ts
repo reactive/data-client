@@ -128,6 +128,21 @@ describe('WeakDependencyMap', () => {
     expect(wem.get(a, withB(b))[0]).toBeUndefined();
   });
 
+  it('keeps a re-read value while one-off values come and go', () => {
+    // a pending transition: React re-reads the committed store between
+    // retries that each build new entities
+    const wem = new WeakDependencyMap<EntityPath>();
+    const withB = (entity: object) =>
+      MemoPolicy.getEntities({ ...state, B: { '2': entity } });
+    wem.set([depA, depB], 'committed');
+    for (let i = 0; i < 5; i++) {
+      const retry = [i];
+      expect(wem.get(a, withB(retry))[0]).toBeUndefined();
+      wem.set([depA, { ...depB, entity: retry }], `retry ${i}`);
+      expect(wem.get(a, withB(b))[0]).toBe('committed');
+    }
+  });
+
   it('considers empty key list invalid', () => {
     const wem = new WeakDependencyMap<EntityPath>();
     expect(() => wem.set([], 'whatever')).toThrowErrorMatchingInlineSnapshot(
