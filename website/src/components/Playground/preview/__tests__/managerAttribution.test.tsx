@@ -57,6 +57,21 @@ class SlowManager implements Manager<ActionTypes> {
   cleanup() {}
 }
 
+/** Fetches with `controller.fetch`, passing everything on */
+class PrefetchManager implements Manager<ActionTypes> {
+  declare controller: Controller;
+  middleware: Middleware<ActionTypes> = controller => {
+    this.controller = controller;
+    return next => action => next(action);
+  };
+
+  prefetch() {
+    return this.controller.fetch(getTicker);
+  }
+
+  cleanup() {}
+}
+
 /** Passes everything on */
 class QuietManager implements Manager<ActionTypes> {
   middleware: Middleware<ActionTypes> = () => next => action => next(action);
@@ -564,10 +579,36 @@ describe('Store panel pipeline', () => {
     expect(paths[1].parentElement?.previousElementSibling?.textContent).toMatch(
       /^\d+\.\d+ssetResponse/,
     );
-    // the steps, then what they changed in the store
+  });
+
+  it('heads a request with its steps, then its store changes', async () => {
+    const { ctrl } = mount([new NetworkManager()], undefined, true);
+    await act(async () => {
+      await ctrl().fetch(getTicker);
+    });
+    openActions();
+    fireEvent.click(listed()[0]);
+    await screen.findAllByRole('group', { name: /^Path/ });
     expect(
       screen.getAllByRole('heading', { level: 3 }).map(h => h.textContent),
     ).toEqual(['Steps', 'Store changes']);
+  });
+
+  it('draws the path of a deduped fetch that went its own way', async () => {
+    const prefetcher = new PrefetchManager();
+    const { ctrl } = mount([prefetcher, new NetworkManager()], undefined, true);
+    await act(async () => {
+      await Promise.all([ctrl().fetch(getTicker), prefetcher.prefetch()]);
+    });
+    openActions();
+    fireEvent.click(listed()[0]);
+    const paths = await screen.findAllByRole('group', { name: /^Path/ });
+    const own = paths.find(p =>
+      /^PrefetchManager↑ sent it/.test(p.textContent ?? ''),
+    );
+    expect(own?.parentElement?.previousElementSibling?.textContent).toMatch(
+      /deduped into this request$/,
+    );
   });
 
   it("draws an action's path: who sent it and where it stopped", async () => {

@@ -466,23 +466,24 @@ export function GroupActions({
 }) {
   const { show } = useNavState();
   const chain = shownChain(useActions().history.managers);
-  const entries = groupEntriesOf(group);
   // each way its actions took, under the first step to take it
   const paths = useMemo(
     () =>
       chain &&
       new Map(
-        routesOf(entries.filter(filter.lists)).map(({ entry, n }) => [
-          entry.seq,
-          <StepPath
-            key={'path ' + entry.seq}
-            chain={chain}
-            entry={entry}
-            n={n}
-          />,
-        ]),
+        routesOf(groupEntriesOf(group).filter(filter.lists)).map(
+          ({ entry, n }) => [
+            entry.seq,
+            <StepPath
+              key={'path ' + entry.seq}
+              chain={chain}
+              entry={entry}
+              n={n}
+            />,
+          ],
+        ),
       ),
-    [chain, entries, filter],
+    [chain, group, filter],
   );
   return (
     <div className={styles.groupSteps}>
@@ -490,7 +491,7 @@ export function GroupActions({
         group={group}
         subject={subject}
         lists={filter.lists}
-        notes={gapNotes(entries, filter.gaps)}
+        notes={gapNotes(groupEntriesOf(group), filter.gaps)}
         paths={paths}
         onSelect={show}
       />
