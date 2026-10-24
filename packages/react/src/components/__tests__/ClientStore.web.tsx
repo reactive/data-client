@@ -192,6 +192,62 @@ describe('ClientStore', () => {
     expect(text(container)).toBe('value 7');
   });
 
+  it18(
+    'keeps updating the mounted tree while a transition remount never commits',
+    async () => {
+      const store = new ClientStore();
+      const App = ({ k }: { k: number }) => (
+        <Suspense fallback="loading">
+          <DataProvider key={k} store={store} devButton={null}>
+            <Value id={8} />
+          </DataProvider>
+          {k > 1 ?
+            <Forever />
+          : null}
+        </Suspense>
+      );
+      const { container, rerender } = render(<App k={1} />);
+      await act(async () => {
+        void store.controller.setResponse(endpoint, 8, 5);
+      });
+      expect(text(container)).toBe('value 5');
+      // the new key's provider renders but the transition never commits
+      act(() => startTransition(() => rerender(<App k={2} />)));
+      expect(text(container)).toBe('value 5');
+      let settled = false;
+      await act(async () => {
+        void store.controller
+          .setResponse(endpoint, 8, 6)
+          .then(() => (settled = true));
+      });
+      expect(text(container)).toBe('value 6');
+      expect(settled).toBe(true);
+    },
+  );
+
+  it('drops a response that settles after a reset before mount', async () => {
+    let release = (_value: number) => {};
+    const slow = new Endpoint(
+      () => new Promise<number>(resolve => (release = resolve)),
+      { name: 'slow' },
+    );
+    const store = new ClientStore();
+    const fetched = store.controller.fetch(slow);
+    // a result fetched in the same millisecond as the reset counts as newer
+    await new Promise(resolve => setTimeout(resolve, 2));
+    await store.controller.resetEntireStore();
+    release(9);
+    // like a mounted provider: the reset aborts it, so the stale result is never stored
+    await expect(fetched).rejects.toThrow('RESET');
+    expect(store.getState().endpoints[slow.key()]).toBeUndefined();
+    const { container } = render(
+      <DataProvider store={store} devButton={null}>
+        <Value id={9} />
+      </DataProvider>,
+    );
+    expect(text(container)).toBe('no 9');
+  });
+
   it('rejects provider props that the store owns', () => {
     const store = new ClientStore();
     // @ts-expect-error the store owns its managers

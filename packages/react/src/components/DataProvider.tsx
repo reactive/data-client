@@ -58,7 +58,8 @@ export default function DataProvider({
   store,
 }: ProviderProps): JSX.Element {
   const gcRef: React.RefObject<GCPolicy> = useRef<any>(gcPolicy);
-  if (!gcRef.current) gcRef.current = new GCPolicy();
+  // a store brings its own
+  if (!gcRef.current && !store) gcRef.current = new GCPolicy();
 
   // contents of this component expected to be relatively stable
   const controllerRef: React.RefObject<DataController> = useRef<any>(undefined);
