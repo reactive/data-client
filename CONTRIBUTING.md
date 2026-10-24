@@ -35,6 +35,9 @@ If your idea requires design considerations, it's best to [start a discussion][4
 * Ensure your [commit messages are well-written][2]. This can double as your
   pull request message, so it pays to take the time to write a clear message.
 
+* Fill in the [pull request template](.github/PULL_REQUEST_TEMPLATE.md). Its
+  comments explain what each section needs.
+
 * Add tests for your feature. You should be able to look at other tests for
   examples. If you're unsure, don't hesitate to [open an issue][1] and ask!
 
