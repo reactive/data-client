@@ -1043,8 +1043,9 @@ div.gapRow {
 }
 .route {
   display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.75rem;
   padding: 0.4rem 0.75rem 0;
 }
 .route > .pipeline {
@@ -1052,6 +1053,7 @@ div.gapRow {
   border: none;
 }
 .routeName {
+  min-width: 7rem;
   font: 400 11px / 1.5 var(--ifm-font-family-monospace);
 }
 .stageStep {
@@ -1090,6 +1092,28 @@ button.stage:focus-visible {
 }
 @media (pointer: coarse) {
   button.stage {
+    padding-block: 0.35rem;
+  }
+}
+.stageFold {
+  padding: 0.15rem 0.6rem;
+  border: 1px dashed var(--store-line-strong);
+  border-radius: 999px;
+  background: none;
+  color: var(--store-muted);
+  font: 400 11px / 1.5 var(--ifm-font-family-monospace);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.stageFold:hover {
+  background: var(--store-hover);
+}
+.stageFold:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 1px;
+}
+@media (pointer: coarse) {
+  .stageFold {
     padding-block: 0.35rem;
   }
 }

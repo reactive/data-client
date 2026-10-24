@@ -364,13 +364,23 @@ describe('Store panel pipeline', () => {
       within(pipeline())
         .getAllByRole('button')
         .map(b => b.textContent),
+    ).toEqual(['the app1', 'StreamManager2⊘ 1', '2 idle']);
+    expect(pipeline().lastElementChild?.textContent).toBe('store');
+    // the idle ones open in place, and fold again
+    fireEvent.click(within(pipeline()).getByRole('button', { name: '2 idle' }));
+    expect(
+      within(pipeline())
+        .getAllByRole('button')
+        .map(b => b.textContent),
     ).toEqual([
       'the app1',
       'StreamManager2⊘ 1',
       'NetworkManager0',
       'SubscriptionManager0',
+      'fold',
     ]);
-    expect(pipeline().lastElementChild?.textContent).toBe('store');
+    fireEvent.click(within(pipeline()).getByRole('button', { name: 'fold' }));
+    within(pipeline()).getByRole('button', { name: '2 idle' });
   });
 
   it('draws the library defaults and their path', async () => {
@@ -387,12 +397,11 @@ describe('Store panel pipeline', () => {
       within(pipeline())
         .getAllByRole('button')
         .map(b => b.textContent),
-    ).toEqual(['the app1', 'NetworkManager0', 'SubscriptionManager0']);
+    ).toEqual(['the app1', '2 idle']);
     fireEvent.click(listed()[0]);
     const path = await screen.findByRole('group', { name: /^Path/ });
-    expect(path.textContent).toBe(
-      'the app→NetworkManager→SubscriptionManager→store',
-    );
+    // it only passed them
+    expect(path.textContent).toBe('the app→2 passed→store');
   });
 
   it("shows only a stage's actions while it is picked", async () => {
@@ -436,15 +445,20 @@ describe('Store panel pipeline', () => {
   it("draws a request's paths: one for each way its actions took", async () => {
     const { ctrl } = mount([new NetworkManager()], undefined, true);
     await act(async () => {
-      await ctrl().fetch(getTicker);
+      await Promise.all([ctrl().fetch(getTicker), ctrl().fetch(getTicker)]);
     });
     openActions();
     fireEvent.click(listed()[0]);
     const paths = await screen.findAllByRole('group', { name: /^Path/ });
     expect(paths.map(p => p.textContent)).toEqual([
       'the app→NetworkManager⊘ handled it→store',
-      'the app→NetworkManager↑ sent it→store',
+      // a manager's dispatch starts at the top of the chain
+      'NetworkManager↑ sent it→store',
     ]);
+    // the deduped fetch took the same way
+    expect(paths[0].parentElement?.firstElementChild?.textContent).toBe(
+      'fetch ×2',
+    );
   });
 
   it("draws an action's path: who sent it and where it stopped", async () => {

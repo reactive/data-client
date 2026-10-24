@@ -1052,7 +1052,9 @@ function ActionLevel({
           {group && span ?
             <div className={styles.actBody}>
               <SubjectChanges entries={span} subject={subject} />
-              {chain && <GroupPaths chain={chain} entries={span} />}
+              {chain && (
+                <GroupPaths chain={chain} entries={span.filter(filter.lists)} />
+              )}
               <GroupActions group={group} subject={subject} filter={filter} />
             </div>
           : <ActionDetail

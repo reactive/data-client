@@ -65,6 +65,27 @@ export function pipeline(
   return [...stages.values()];
 }
 
+/** Each way `entries` took (by type, sender, handler and whether it was
+ * stored), with the first to take it and how many did */
+export function routesOf<
+  E extends {
+    action: { type: string };
+    origin?: string;
+    consumedBy?: string;
+    store?: unknown;
+  },
+>(entries: readonly E[]): { entry: E; n: number }[] {
+  const seen = new Map<string, { entry: E; n: number }>();
+  for (const entry of entries) {
+    const { action, origin, consumedBy, store } = entry;
+    const key = [action.type, origin, consumedBy, !!store].join(' ');
+    const route = seen.get(key);
+    if (route) route.n++;
+    else seen.set(key, { entry, n: 1 });
+  }
+  return [...seen.values()];
+}
+
 /** The chain to draw, once the store has managers */
 export const shownChain = (managers: readonly string[] | undefined) =>
   managers?.length ? managers : undefined;
