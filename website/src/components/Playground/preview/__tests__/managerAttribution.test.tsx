@@ -446,7 +446,10 @@ describe('Store panel pipeline', () => {
       name: 'fold: QuietManager, QuietManager #2',
     });
     expect(fold.getAttribute('aria-expanded')).toBe('true');
+    // focus moves to the button that folds it back
+    expect(document.activeElement).toBe(fold);
     fireEvent.click(fold);
+    expect(document.activeElement?.textContent).toBe('2 idle');
     expect(stages()).toEqual([
       'the app1',
       '2 idle',

@@ -1,10 +1,11 @@
 import clsx from 'clsx';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 
 import { actionName, type SubjectFilter } from './actionGroups';
 import type { LogEntry } from './actionLog';
 import { TypeName, useActions } from './actionParts';
 import { APP, pipeline, routesOf, shownChain } from './attribution';
+import { toggled } from './dom';
 import styles from './store.module.css';
 
 /** Every dispatch's way to the store: the app, then each manager of the
@@ -158,20 +159,16 @@ function Strip({
   stored?: boolean;
   stages: readonly Shown[];
 }) {
-  /** The runs opened, by their stages */
+  /** The runs opened, by their first stage (a run that grows or shrinks
+   * as managers start or stop acting stays as it was) */
   const [opened, setOpened] = useState<ReadonlySet<string>>(new Set());
-  const toggle = (key: string) =>
-    setOpened(prev => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
+  /** The run whose fold button just changed, to keep focus on it */
+  const focus = useRef<string | null>(null);
   return (
     <div className={styles.pipeline} role="group" aria-label={label}>
       {foldRuns(stages).flatMap(run => {
+        const key = run[0].id;
         const names = run.map(stage => stage.id).join(', ');
-        const key = names;
         const fold = (text: string) => (
           <button
             type="button"
@@ -179,7 +176,16 @@ function Strip({
             title={names}
             aria-label={text + ': ' + names}
             aria-expanded={opened.has(key)}
-            onClick={() => toggle(key)}
+            ref={button => {
+              if (button && focus.current === key) {
+                focus.current = null;
+                button.focus();
+              }
+            }}
+            onClick={() => {
+              focus.current = key;
+              setOpened(prev => toggled(prev, key));
+            }}
           >
             {text}
           </button>
