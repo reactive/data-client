@@ -33,7 +33,7 @@ Accepted limitations (intentional; don't "fix"):
 - A render that applies a pending store update rebuilds every entity that update touches (`useReducer` has no eager state). Those reads are one-offs.
 - Within one committed store, a reader re-reads at most one version unchanged: renders read the committed `optimisticState`, managers and callbacks read `controller.getState()`. Every commit starts a new version. Rolling back an optimistic update returns to the older real entities.
 - So `WeakDependencyMap` keeps the most recently used entries, never evicting two: the one the store last flipped back to, and the one a committed render last read.
-- Commits come from `MemoCache.commit(entities)`, which `DataStore` calls from an effect (effects never run for discarded renders). Recency alone can't find the committed result: `useSuspense` serves urgent re-renders of an unchanged store from its own `useMemo`, so those reads never reach the memo.
+- Commits come from `MemoCache.commit(entities)`, which `DataStore` calls from an effect (effects never run for discarded renders). Reads are buffered per `entities` (one per node) until it commits; reads with the latest committed `entities` are kept right away, so late mounts are covered. Recency alone can't find the committed result: `useSuspense` serves urgent re-renders of an unchanged store from its own `useMemo`, so those reads never reach the memo.
 - `yarn workspace example-benchmark start:memo-tradeoffs` measures hit rates and retained memory for these choices.
 
 ## Schema-tree traversal pattern

@@ -1,6 +1,6 @@
 import GlobalCache from './globalCache.js';
 import WeakDependencyMap from './WeakDependencyMap.js';
-import type { KeepToken } from './WeakDependencyMap.js';
+import type { KeepReads } from './WeakDependencyMap.js';
 import buildQueryKey from '../buildQueryKey.js';
 import { GetEntityCache, getEntityCaches } from './entitiesCache.js';
 import { MemoPolicy } from './Policy.js';
@@ -25,7 +25,9 @@ export default class MemoCache {
   /** Caches the final denormalized form based on input, entities */
   protected endpoints: EndpointsCache = new WeakDependencyMap<EntityPath>();
   /** Results read per store `entities`, until that store commits. */
-  private reads = new WeakMap<object, KeepToken[]>();
+  private reads = new WeakMap<object, KeepReads>();
+  /** `entities` from the latest `commit`; reads with it are kept right away. */
+  private committedEntities: object | undefined = undefined;
   /** Caches the queryKey based on schema, args, and any used entities or indexes */
   protected queryKeys: Map<string, WeakDependencyMap<QueryPath>> = new Map();
 
@@ -64,24 +66,35 @@ export default class MemoCache {
       new GlobalCache(getEntity, this._getCache, this.endpoints, args),
       args,
     )(schema, input);
-    const read = this.endpoints.lastRead();
-    if (read && entities && typeof entities === 'object') {
-      const reads = this.reads.get(entities);
-      if (reads) reads.push(read);
-      else this.reads.set(entities, [read]);
+    if (entities === this.committedEntities) {
+      this.endpoints.keepLast();
+    } else if (entities && typeof entities === 'object') {
+      let reads = this.reads.get(entities);
+      if (!reads) this.reads.set(entities, (reads = new Map()));
+      this.endpoints.trackLast(reads);
     }
     return result;
   }
 
-  /** Marks every result read with `entities` as committed, so the cache
-   * keeps it through later one-off reads. Call it once that store has been
-   * rendered and committed (React: from an effect, which never runs for a
-   * discarded render). */
+  /**
+   * Marks `entities` as the committed store version.
+   *
+   * Every result already read with `entities` is kept through later one-off
+   * reads (such as each retry of a pending transition, which builds new
+   * entities), and so is every later read with the same `entities`.
+   *
+   * Call it once a render of that store has committed. `DataProvider` calls
+   * it from an effect, which never runs for a discarded render. Without it,
+   * results are kept by recency alone.
+   *
+   * @param entities The `entities` of the committed state, by reference.
+   */
   commit(entities: object): void {
+    this.committedEntities = entities;
     const reads = this.reads.get(entities);
     if (!reads) return;
     this.reads.delete(entities);
-    for (const read of reads) this.endpoints.keep(read);
+    this.endpoints.keep(reads);
   }
 
   /** Compute denormalized form maintaining referential equality for same inputs */
