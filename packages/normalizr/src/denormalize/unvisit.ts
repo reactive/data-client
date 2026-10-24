@@ -22,30 +22,20 @@ const getUnvisitEntity = (
     const inputIsId = typeof entityOrId !== 'object';
     const entity =
       inputIsId ? getEntity({ key: schema.key, pk: entityOrId }) : entityOrId;
-    if (
-      inputIsId &&
-      (typeof entity !== 'object' || entity === null) &&
-      // blank ids can't be looked up, so they aren't dependencies
-      entityOrId !== '' &&
-      entityOrId !== 'undefined'
-    ) {
-      // A missing, null or INVALID entity is still a dependency of anything
-      // nested above it, so those recompute once it changes.
-      return cache.getEntity(entityOrId, schema, entity, localCacheKey => {
-        localCacheKey.set(
-          entityOrId,
-          typeof entity === 'symbol' ?
-            schema.denormalize(entity, delegate)
-          : entity,
-        );
-      });
-    }
-    if (typeof entity === 'symbol') {
-      return schema.denormalize(entity, delegate);
-    }
-
     if (typeof entity !== 'object' || entity === null) {
-      return entity as any;
+      const value = () =>
+        typeof entity === 'symbol' ?
+          schema.denormalize(entity, delegate)
+        : entity;
+      // A missing, null or INVALID entity is still a dependency of anything
+      // nested above it, so those recompute once it changes. Blank ids can't
+      // be looked up, so they aren't dependencies.
+      if (inputIsId && entityOrId !== '' && entityOrId !== 'undefined') {
+        return cache.getEntity(entityOrId, schema, entity, localCacheKey => {
+          localCacheKey.set(entityOrId, value());
+        });
+      }
+      return value() as any;
     }
 
     let pk: string | number | undefined =

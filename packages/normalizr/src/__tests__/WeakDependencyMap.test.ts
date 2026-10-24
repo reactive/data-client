@@ -1,5 +1,6 @@
 import { Temporal } from 'temporal-polyfill';
 
+import { INVALID } from '../denormalize/symbol';
 import { EntityPath } from '../interface';
 import { MemoPolicy } from '../memo/Policy';
 import WeakDependencyMap from '../memo/WeakDependencyMap';
@@ -89,6 +90,22 @@ describe('WeakDependencyMap', () => {
     expect(wem.get(c, getEntity)[0]).toBe('fifth');
 
     expect(wem.get({}, getEntity)[0]).toBeUndefined();
+  });
+
+  it.each([
+    ['null', null],
+    ['INVALID', INVALID],
+  ])('tracks a %s dependency, as root or after it', (_, value) => {
+    const wem = new WeakDependencyMap<EntityPath>();
+    const withA = (entity: unknown) =>
+      MemoPolicy.getEntities({ ...state, A: { '1': entity as any } });
+    const depNull = { path: depA.path, entity: value as any };
+    wem.set([depNull], 'root');
+    wem.set([depB, depNull], 'child');
+    expect(wem.get(value as any, withA(value))[0]).toBe('root');
+    expect(wem.get(b, withA(value))[0]).toBe('child');
+    expect(wem.get(b, withA(a))[0]).toBeUndefined();
+    expect(wem.get(b, withA(undefined))[0]).toBeUndefined();
   });
 
   it('considers empty key list invalid', () => {

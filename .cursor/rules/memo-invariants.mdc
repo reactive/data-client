@@ -1,6 +1,6 @@
 ---
 description: Memoization invariants for normalizr's MemoCache and WeakDependencyMap
-globs: packages/normalizr/src/memo/**, packages/normalizr/src/denormalize/**, packages/endpoint/src/schemas/**
+globs: packages/normalizr/src/memo/**, packages/normalizr/src/denormalize/**, packages/normalizr/src/schemas/**, packages/endpoint/src/schemas/**
 alwaysApply: false
 ---
 
