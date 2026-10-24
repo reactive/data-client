@@ -557,11 +557,17 @@ describe('Store panel pipeline', () => {
     // each under the first step to take it; the deduped fetch took the
     // same way
     const fetchPath = paths[0].parentElement;
-    expect(fetchPath?.previousElementSibling?.textContent).toMatch(/fetch/);
+    expect(fetchPath?.previousElementSibling?.textContent).toMatch(
+      /^\d+\.\d+sfetch$/,
+    );
     expect(paths[0].textContent).toMatch(/store×2$/);
     expect(paths[1].parentElement?.previousElementSibling?.textContent).toMatch(
-      /setResponse/,
+      /^\d+\.\d+ssetResponse/,
     );
+    // the steps, then what they changed in the store
+    expect(
+      screen.getAllByRole('heading', { level: 3 }).map(h => h.textContent),
+    ).toEqual(['Steps', 'Store changes']);
   });
 
   it("draws an action's path: who sent it and where it stopped", async () => {

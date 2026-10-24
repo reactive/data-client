@@ -556,6 +556,14 @@ div.row[data-change='removed'] {
   border: 0;
   background: none;
 }
+/* the headings: a table's columns, a request's sections */
+.table th,
+.sectionLabel {
+  font: 600 10px / 1.6 var(--ifm-font-family-base);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--store-dim);
+}
 .table th {
   position: sticky;
   top: 0;
@@ -564,10 +572,6 @@ div.row[data-change='removed'] {
   background: var(--store-bg);
   box-shadow: inset 0 -1px 0 var(--store-line-strong);
   text-align: start;
-  font: 600 10px / 1.6 var(--ifm-font-family-base);
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--store-dim);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1043,8 +1047,11 @@ div.gapRow {
 }
 /* a step's path through the managers, quiet under it: only the stages
    that sent or handled it keep a tint */
+/* under the step's name: past the step row's padding, its time column
+   (3.2em at the row's 11px) and their gap */
 .stepPath {
-  padding: 0 0.75rem 0.3rem calc(0.75rem + 3.2em + 0.45rem);
+  padding: 0 0.75rem 0.3rem calc(0.75rem + 3.2em + 0.6rem);
+  font-size: 11px;
 }
 .stepCount {
   padding-left: 0.6rem;
@@ -1243,10 +1250,6 @@ button.stage:focus-visible {
 .sectionLabel {
   margin: 0;
   padding: 0.75rem 0.75rem 0.25rem;
-  font: 600 10px / 1.6 var(--ifm-font-family-base);
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--store-dim);
 }
 div.stepRow {
   flex-wrap: wrap;

@@ -468,19 +468,22 @@ export function GroupActions({
   const chain = shownChain(useActions().history.managers);
   const entries = groupEntriesOf(group);
   // each way its actions took, under the first step to take it
-  const paths =
-    chain &&
-    new Map(
-      routesOf(entries.filter(filter.lists)).map(({ entry, n }) => [
-        entry.seq,
-        <StepPath
-          key={'path ' + entry.seq}
-          chain={chain}
-          entry={entry}
-          n={n}
-        />,
-      ]),
-    );
+  const paths = useMemo(
+    () =>
+      chain &&
+      new Map(
+        routesOf(entries.filter(filter.lists)).map(({ entry, n }) => [
+          entry.seq,
+          <StepPath
+            key={'path ' + entry.seq}
+            chain={chain}
+            entry={entry}
+            n={n}
+          />,
+        ]),
+      ),
+    [chain, entries, filter],
+  );
   return (
     <div className={styles.groupSteps}>
       <Steps
@@ -548,8 +551,9 @@ function Steps({
         }
         if (counted.has(request)) return null;
         counted.add(request);
-        const n = request.entries.filter(e => joined.has(e)).length;
-        return (
+        const deduped = request.entries.filter(e => joined.has(e));
+        const n = deduped.length;
+        return [
           <div
             key={entry.seq}
             className={clsx(styles.row, styles.stepRow, styles.joined)}
@@ -558,8 +562,10 @@ function Steps({
             <span className={styles.dim}>
               {n} more fetch{n === 1 ? '' : 'es'} deduped into this request
             </span>
-          </div>
-        );
+          </div>,
+          // a fetch deduped here may still have gone its own way
+          ...deduped.map(e => paths?.get(e.seq)),
+        ];
       })}
     </div>
   );
