@@ -1113,6 +1113,13 @@ function ActionLevel({
     // the neighbouring row in the list's own order: rows can overlap in
     // time (a subscription still polling), so not by their seqs
     const own = groupOf(groups, entry.seq);
+    // live sits past the list's end: nothing after it, the last row
+    // (unless it is the one shown) before it
+    if (seq === null) {
+      if (dir > 0) return undefined;
+      const last = rows.findLast(row => row !== own);
+      return last && rowSeq(last, filter.hit);
+    }
     const i = own ? rows.indexOf(own) : -1;
     const next =
       i >= 0 ? rows[i + dir]
@@ -1120,7 +1127,7 @@ function ActionLevel({
       : rows.find(row => groupEntriesOf(row)[0].seq > entry.seq);
     if (next) return rowSeq(next, filter.hit);
     // past the newest is live again
-    if (dir > 0 && seq !== null) return null;
+    if (dir > 0) return null;
   };
   const to: Scope = deep ? 'action' : 'group';
   // the step before leads, so the crumbs under it head the action shown

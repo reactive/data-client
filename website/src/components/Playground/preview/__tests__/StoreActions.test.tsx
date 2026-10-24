@@ -1750,6 +1750,14 @@ describe('Store action level', () => {
       fireEvent.click(step('Before'));
       expect(listed[i]).toContain(flat(crumbs()[1]));
     }
+    // live sits past the list's end, though its row (still polling) is
+    // listed earlier: nothing after it, the last row before it
+    fireEvent.click(screen.getByRole('button', { name: 'Live' }));
+    expect(step('After').textContent).toContain('this is live');
+    fireEvent.click(step('Before'));
+    expect(listed[listed.length - 1]).toContain(flat(crumbs()[1]));
+    fireEvent.click(step('After'));
+    expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
   });
 
   it("goes back to the moment's action as its tab is picked over the list", async () => {
