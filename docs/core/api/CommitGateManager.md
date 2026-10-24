@@ -62,7 +62,8 @@ boundary inside it, avoids the race without this manager.
 #### Processed Actions
 
 - [setResponse](./Controller.md#setResponse) is held until the provider mounts.
-- [resetEntireStore](./Controller.md#resetEntireStore) drops held results.
+- [resetEntireStore](./Controller.md#resetEntireStore) drops held results, and results fetched before it that settle later.
+- During server rendering, nothing is held, since a server render never mounts.
 
 #### Dispatched Actions
 

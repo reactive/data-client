@@ -25,6 +25,7 @@ declare class CommitGateManager implements Manager {
     ][];
     protected controller?: Controller;
     protected mounted?: Controller;
+    protected resetAt: number;
     middleware: Middleware;
     init(): void;
     cleanup(): void;

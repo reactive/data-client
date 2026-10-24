@@ -91,6 +91,26 @@ describe('CommitGateManager', () => {
     expect(reduced.mock.calls[0][0]).toMatchObject({ type: 'rdc/reset' });
   });
 
+  it('drops a result fetched before a RESET that settles after it, before mount', async () => {
+    const gate = new CommitGateManager();
+    const discarded = bind(gate);
+    const stale = actions.createSetResponse(endpoint, {
+      args: [],
+      response: 9,
+      fetchedAt: Date.now() - 10,
+    });
+    void discarded.controller.dispatch(actions.createReset());
+    // the uncommitted store still reports lastReset 0, so NetworkManager lets it through
+    const settled = discarded.controller.dispatch(stale);
+    const fresh = discarded.controller.dispatch(setResponse());
+    const committed = bind(gate);
+    committed.mount();
+    await settled;
+    await fresh;
+    expect(committed.reduced).toHaveBeenCalledTimes(1);
+    expect(committed.reduced.mock.calls[0][0]).toMatchObject({ response: 5 });
+  });
+
   it('rejects the held promise when its replay fails', async () => {
     const gate = new CommitGateManager();
     const discarded = bind(gate);

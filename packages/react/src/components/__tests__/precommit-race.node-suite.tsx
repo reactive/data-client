@@ -27,7 +27,7 @@ import {
 } from 'react';
 import type { ReactElement, ReactNode } from 'react';
 
-import { useController, useFetch, useSuspense } from '../../hooks';
+import { useCache, useController, useFetch, useSuspense } from '../../hooks';
 import { CommitGateManager } from '../../managers';
 import DataProvider from '../DataProvider';
 import ErrorBoundary from '../ErrorBoundary';
@@ -334,6 +334,153 @@ async function runHiddenActivity(host: RaceHost, settle: Settle) {
   }
 }
 
+function Forever(): ReactNode {
+  throw new Promise(() => {});
+}
+
+// a key change in a transition renders a new provider that never commits, next to the mounted one
+async function runTransitionRemount(host: RaceHost) {
+  const errors = recordConsoleErrors();
+  const { endpoint, getCalls } = makeEndpoint('value');
+  const managers = gatedManagers(host);
+  const controllers: Controller[] = [];
+  const Text = host.Text;
+  const tree = (k: number) => (
+    <Suspense fallback={<Text>outer</Text>}>
+      <DataProvider key={k} managers={managers} devButton={null}>
+        <ControllerProbe onController={c => controllers.push(c)} />
+        {readerTree(host, endpoint, SuspenseReader)}
+      </DataProvider>
+      {k > 1 ?
+        <Forever />
+      : null}
+    </Suspense>
+  );
+  const renderer = host.createRenderer();
+  try {
+    renderer.render(tree(1));
+    await waitUntil(() => renderer.read().includes('value 5'));
+    const mounted = controllers[0];
+    startTransition(() => renderer.render(tree(2)));
+    await waitUntil(() => controllers.some(c => c !== mounted));
+    await tick();
+    const duringTransition = renderer.read();
+    let settled = false;
+    void mounted.setResponse(endpoint, 6).then(() => (settled = true));
+    await waitUntil(() => renderer.read().includes('value 6'));
+    await waitUntil(() => settled);
+    return {
+      rendered: controllers.some(c => c !== mounted),
+      duringTransition,
+      text: renderer.read(),
+      settled,
+      calls: getCalls(),
+      warned: warnedNotMounted(errors),
+    };
+  } finally {
+    renderer.unmount();
+    errors.restore();
+  }
+}
+
+// before mount: a reset while a fetch is in flight, then that stale response arrives
+async function runResetBeforeMount(host: RaceHost) {
+  const errors = recordConsoleErrors();
+  let calls = 0;
+  let releaseStale = (_value: number) => {};
+  const endpoint = new Endpoint(
+    () => {
+      calls += 1;
+      if (calls === 1)
+        return new Promise<number>(resolve => (releaseStale = resolve));
+      if (calls > CALL_CAP) return new Promise<number>(() => {});
+      return Promise.resolve(100);
+    },
+    { dataExpiryLength: Infinity, name: 'precommit-reset' },
+  );
+  const gate = makeGate();
+  const managers = gatedManagers(host);
+  let controller: Controller | undefined;
+  const tree = (
+    <>
+      <DataProvider managers={managers} devButton={null}>
+        <ControllerProbe onController={c => (controller = c)} />
+        {readerTree(host, endpoint, SuspenseReader)}
+      </DataProvider>
+      <Blocker gate={gate} />
+    </>
+  );
+  const element =
+    LegacyReact ?
+      <Suspense fallback={<host.Text>outer</host.Text>}>{tree}</Suspense>
+    : tree;
+  const renderer = host.createRenderer();
+  try {
+    renderer.render(element);
+    await waitUntil(() => calls > 0);
+    // the response must be older than the reset, as NetworkManager compares them by time
+    await tick();
+    void controller?.resetEntireStore();
+    releaseStale(9);
+    await tick();
+    gate.release();
+    const seen = new Set<string>();
+    await waitUntil(() => {
+      seen.add(renderer.read());
+      return renderer.read().includes('value 100');
+    });
+    await waitUntilStable(() => calls);
+    return {
+      seen: [...seen],
+      text: renderer.read(),
+      calls,
+      warned: warnedNotMounted(errors),
+    };
+  } finally {
+    renderer.unmount();
+    errors.restore();
+  }
+}
+
+// before mount, a transition sets a value while something outside the provider suspends
+async function runTransitionBeforeMount(host: RaceHost) {
+  const errors = recordConsoleErrors();
+  const { endpoint } = makeEndpoint('value');
+  const gate = makeGate();
+  const managers = gatedManagers(host);
+  let controller: Controller | undefined;
+  const Text = host.Text;
+  function Cached() {
+    const ctrl = useController();
+    controller = ctrl;
+    const value = useCache(endpoint);
+    return <Text>{value === undefined ? 'empty' : `value ${value}`}</Text>;
+  }
+  const tree = (
+    <>
+      <DataProvider managers={managers} devButton={null}>
+        <Cached />
+      </DataProvider>
+      <Blocker gate={gate} />
+    </>
+  );
+  const renderer = host.createRenderer();
+  try {
+    renderer.render(tree);
+    await waitUntil(() => controller !== undefined);
+    startTransition(() => {
+      void controller?.setResponse(endpoint, 7);
+    });
+    await tick();
+    gate.release();
+    await waitUntil(() => renderer.read().includes('value 7'));
+    return { text: renderer.read(), warned: warnedNotMounted(errors) };
+  } finally {
+    renderer.unmount();
+    errors.restore();
+  }
+}
+
 function expectResolved(
   result: Awaited<ReturnType<typeof runRace>>,
   { shared, where, settle }: Pick<RaceSpec, 'shared' | 'where' | 'settle'>,
@@ -447,6 +594,35 @@ export function registerPrecommitRaceTests(host: RaceHost) {
       const spec = { ...base, settle: 'error' } as const;
       expectResolved(await runRace(host, spec), spec);
     });
+
+    // legacy roots commit the siblings of what suspends, so nothing is discarded there
+    (LegacyReact ? it.skip : it)(
+      'keeps updating the mounted tree while a transition remount never commits',
+      async () => {
+        const result = await runTransitionRemount(host);
+        expect(result.rendered).toBe(true);
+        expect(result.duringTransition).toContain('value 5');
+        expect(result.text).toContain('value 6');
+        expect(result.settled).toBe(true);
+        expect(result.warned).toBe(false);
+      },
+    );
+
+    it('drops a response that settles after a reset before mount', async () => {
+      const result = await runResetBeforeMount(host);
+      expect(result.seen.some(text => text.includes('value 9'))).toBe(false);
+      expect(result.text).toContain('value 100');
+      expect(result.calls).toBe(2);
+    });
+
+    (LegacyReact ? it.skip : it)(
+      'shows a transition dispatched before mount',
+      async () => {
+        const result = await runTransitionBeforeMount(host);
+        expect(result.text).toContain('value 7');
+        expect(result.warned).toBe(false);
+      },
+    );
 
     for (const settle of ['value', 'error'] as const) {
       const outcome = settle === 'error' ? 'an error' : 'a value';

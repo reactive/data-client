@@ -1,4 +1,6 @@
 import { actionTypes } from '@data-client/core';
+
+import { SSR } from '../components/LegacyReact.js';
 import type {
   Controller,
   Manager,
@@ -23,17 +25,26 @@ export default class CommitGateManager implements Manager {
   ][] = [];
   protected controller?: Controller;
   protected mounted?: Controller;
+  // NetworkManager reads lastReset from a store that hasn't committed, which a reset never reached
+  protected resetAt = 0;
 
   middleware: Middleware = controller => {
     this.controller = controller;
     return next => action => {
+      // a server render never commits, so holding would only leak
+      if (SSR) return next(action);
       // held results predate any reset, whichever store it reaches
-      if (action.type === actionTypes.RESET) this.drop();
+      if (action.type === actionTypes.RESET) {
+        this.resetAt = action.date;
+        this.drop();
+      }
       if (
         controller === this.mounted ||
         action.type !== actionTypes.SET_RESPONSE
       )
         return next(action);
+      // fetched before that reset, as NetworkManager would drop it once mounted
+      if (action.meta.fetchedAt < this.resetAt) return Promise.resolve();
       return new Promise<void>(settle => this.held.push([action, settle]));
     };
   };
