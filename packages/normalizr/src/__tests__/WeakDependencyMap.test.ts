@@ -91,6 +91,43 @@ describe('WeakDependencyMap', () => {
     expect(wem.get({}, getEntity)[0]).toBeUndefined();
   });
 
+  it('hits and misses on a long dependency list', () => {
+    const items = Array.from({ length: 5000 }, (_, i) => ({ i }));
+    const big = Object.fromEntries(items.map((v, i) => [`${i}`, v]));
+    const deps = [
+      depA,
+      ...items.map((entity, i) => ({ path: { key: 'D', pk: `${i}` }, entity })),
+    ];
+    const wem = new WeakDependencyMap<EntityPath>();
+    wem.set(deps, 'all');
+
+    expect(wem.get(a, MemoPolicy.getEntities({ ...state, D: big }))[0]).toBe(
+      'all',
+    );
+    const changed = { ...big, '4999': { i: 4999 } };
+    expect(
+      wem.get(a, MemoPolicy.getEntities({ ...state, D: changed }))[0],
+    ).toBeUndefined();
+  });
+
+  it('keeps the previous value when the store flips back', () => {
+    const wem = new WeakDependencyMap<EntityPath>();
+    const b2 = [4, 5, 6];
+    const b3 = [7, 8, 9];
+    const withB = (entity: object) =>
+      MemoPolicy.getEntities({ ...state, B: { '2': entity } });
+    wem.set([depA, depB], 'b');
+    wem.set([depA, { ...depB, entity: b2 }], 'b2');
+    expect(wem.get(a, withB(b))[0]).toBe('b');
+    expect(wem.get(a, withB(b2))[0]).toBe('b2');
+
+    // only the newest two per bucket stay
+    wem.set([depA, { ...depB, entity: b3 }], 'b3');
+    expect(wem.get(a, withB(b3))[0]).toBe('b3');
+    expect(wem.get(a, withB(b2))[0]).toBe('b2');
+    expect(wem.get(a, withB(b))[0]).toBeUndefined();
+  });
+
   it('considers empty key list invalid', () => {
     const wem = new WeakDependencyMap<EntityPath>();
     expect(() => wem.set([], 'whatever')).toThrowErrorMatchingInlineSnapshot(

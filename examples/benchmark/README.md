@@ -80,6 +80,35 @@ counts (minor/major/other) and total GC pause during the loop, and retained
 heap after a full GC (should be ~0; nonzero indicates actual retention).
 Local-only — not tracked in CI.
 
+### WeakMap (ephemeron) pressure
+
+Memoization keys cached values on entities through `WeakMap`s. How much a
+collection costs for those depends on the engine, so measure the worst case
+with:
+
+```bash
+yarn start:ephemerons [filter]
+```
+
+Each scenario takes a V8 heap snapshot and replays Hermes's marking loop on
+it. It reports the live `WeakMap` entries, how many marking passes Hermes
+would need, and their product, which is the number of entry visits in one
+Hermes old-generation pause. It also reports V8's own full-GC time. The
+scenarios mirror a live market screen: a 3,736-symbol endpoint whose symbols
+join streaming tickers, and a 100-row trade tape that prepends prints.
+Local-only — not tracked in CI.
+
+How engines resolve `WeakMap` entries during a major collection:
+
+| Engine | Algorithm | Where it runs | Cost for N nested entries |
+| --- | --- | --- | --- |
+| Hermes (React Native) | Repeats a scan of every `WeakMap` entry slot in the heap until a pass marks nothing new (`HadesGC::markWeakMapEntrySlots`). No key → value index. | Stop-the-world, on the JS thread, at the end of every old-gen collection | passes ≈ N + 1, each visiting every slot: quadratic |
+| V8 (Node, Chrome) | The same fixpoint for at most `--ephemeron-fixpoint-iterations` (default 10) passes, then a linear algorithm over a key → values map (`MarkTransitiveClosureLinear` in `mark-compact.cc`) | Major GC; most marking is concurrent | linear |
+
+So a structure that V8 collects in milliseconds can stall Hermes for seconds:
+one pass per level of nesting, and every pass rescans every `WeakMap` entry in
+the app, not only the memo's own. Keep `WeakMap` nesting shallow.
+
 ### Profiling
 
 For opt/deopt investigation:

@@ -4,29 +4,31 @@ import { UNDEF } from '../denormalize/UNDEF.js';
  * via `typeof === 'function'`. */
 export type KeyFn = (args: readonly any[]) => string | undefined;
 
-/** Sentinel string used in place of `undefined` for string-keyed deps so we
- * can perform Map lookups consistently. */
+/** Sentinel string used in place of `undefined` for string-keyed deps so
+ * equal `argsKey` results compare equal. */
 const UNDEF_KEY = '\0';
 
 /** Maps a (ordered) list of dependencies to a value.
  *
  * Useful as a memoization cache for flat/normalized stores.
  *
- * Object dependencies are weakly referenced (via `WeakMap`), allowing
- * automatic garbage collection when the dependency is no longer used.
- * String-keyed dependencies (used by `argsKey`) sit on a `Map` keyed by the
- * value returned from `path(args)`, branching on a stable function reference.
+ * Only the first dependency is a `WeakMap` key, so a cached value is
+ * collected with it. The rest are stored on the entry and compared by
+ * identity on `get`. Keeping one level of `WeakMap` matters: garbage
+ * collectors resolve nested `WeakMap`s one level per marking pass, and
+ * Hermes rescans every `WeakMap` entry in the heap on each pass, so a chain
+ * as long as the dependency list stalls every old-generation collection.
+ *
+ * String-keyed dependencies (used by `argsKey`) split entries into buckets
+ * by the value `path(args)` returns, so each bucket keeps its own value.
  */
 export default class WeakDependencyMap<
   Path,
   K extends object = object,
   V = any,
 > {
-  private readonly next = new WeakMap<K, Link<Path, K, V>>();
-  private nextPath: Path | KeyFn | undefined = undefined;
-  /** Sticky: true once any function-typed (`argsKey`) dep has been stored.
-   * Lets `get` pick the entity-only fast path when no schema in this map
-   * uses `argsKey` — avoids a polymorphic `typeof` branch per walk step. */
+  private readonly next = new WeakMap<K, Entry<Path, V>[]>();
+  /** Sticky: true once any function-typed (`argsKey`) dep has been stored. */
   private hasStr = false;
 
   get(
@@ -34,39 +36,14 @@ export default class WeakDependencyMap<
     getDependency: GetDependency<Path, K | symbol>,
     args: readonly any[] = [],
   ) {
-    let curLink = this.next.get(entity);
-    if (!curLink) return EMPTY;
-    if (this.hasStr) return this._getMixed(curLink, getDependency, args);
-    while (curLink.nextPath) {
-      // we cannot perform lookups with `undefined`, so we use a special object to represent undefined
-      const nextDependency = getDependency(curLink.nextPath as Path) ?? UNDEF;
-      const nextLink = curLink.next.get(nextDependency as any);
-      if (!nextLink) return EMPTY;
-      curLink = nextLink;
+    const entries = this.next.get(entity);
+    if (!entries) return EMPTY;
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      if (matches(entry, getDependency, args))
+        return [entry.value, entry.journey] as readonly [V, Path[]];
     }
-    // curLink exists, but has no path - so must have a value
-    return [curLink.value, curLink.journey] as readonly [V, Path[]];
-  }
-
-  /** Slow path: dep chain may interleave entity and `argsKey`-style deps. */
-  private _getMixed(
-    curLink: Link<Path, K, V>,
-    getDependency: GetDependency<Path, K | symbol>,
-    args: readonly any[],
-  ) {
-    while (curLink.nextPath) {
-      let nextLink: Link<Path, K, V> | undefined;
-      if (typeof curLink.nextPath === 'function') {
-        const keyValue = (curLink.nextPath as KeyFn)(args) ?? UNDEF_KEY;
-        nextLink = curLink.nextStr?.get(keyValue);
-      } else {
-        const nextDependency = getDependency(curLink.nextPath as Path) ?? UNDEF;
-        nextLink = curLink.next.get(nextDependency as any);
-      }
-      if (!nextLink) return EMPTY;
-      curLink = nextLink;
-    }
-    return [curLink.value, curLink.journey] as readonly [V, Path[]];
+    return EMPTY;
   }
 
   set(
@@ -82,34 +59,44 @@ export default class WeakDependencyMap<
     journey?: Path[],
   ) {
     if (dependencies.length < 1) throw new KeySize();
-    let curLink: Link<Path, K, V> = this as any;
-    for (const dep of dependencies) {
-      let nextLink: Link<Path, K, V> | undefined;
+    const paths = new Array<Path | KeyFn>(dependencies.length - 1);
+    const keys = new Array<unknown>(dependencies.length - 1);
+    let bucket = '';
+    for (let i = 1; i < dependencies.length; i++) {
+      const dep = dependencies[i];
+      paths[i - 1] = dep.path;
       if (typeof dep.path === 'function') {
         this.hasStr = true;
-        if (!curLink.nextStr) curLink.nextStr = new Map();
         const k = (dep.path as KeyFn)(args) ?? UNDEF_KEY;
-        nextLink = curLink.nextStr.get(k);
-        if (!nextLink) {
-          nextLink = new Link<Path, K, V>();
-          curLink.nextStr.set(k, nextLink);
-        }
+        keys[i - 1] = k;
+        bucket += `${k}\u0001`;
       } else {
-        nextLink = curLink.next.get(dep.entity as K);
-        if (!nextLink) {
-          nextLink = new Link<Path, K, V>();
-          // void members are represented as a symbol so we can lookup
-          curLink.next.set((dep.entity ?? UNDEF) as K, nextLink);
-        }
+        keys[i - 1] = dep.entity ?? UNDEF;
       }
-      curLink.nextPath = dep.path as any;
-      curLink = nextLink;
     }
-    // in case there used to be more
-    curLink.nextPath = undefined;
-    curLink.value = value;
-    // we could recompute this on get, but it would have a cost and we optimize for `get`
-    curLink.journey = journey ?? (dependencies.map(d => d.path) as Path[]);
+    const root = (dependencies[0].entity ?? UNDEF) as K;
+    const entry: Entry<Path, V> = {
+      paths,
+      keys,
+      bucket,
+      value,
+      // we could recompute this on get, but it would have a cost and we optimize for `get`
+      journey: journey ?? (dependencies.map(d => d.path) as Path[]),
+    };
+    const entries = this.next.get(root);
+    if (!entries) {
+      this.next.set(root, [entry]);
+      return;
+    }
+    entries.unshift(entry);
+    // Keep the newest few per bucket, so a store that flips back (an
+    // optimistic update rolled back) still hits. Older ones only pin stale
+    // entities.
+    let kept = 0;
+    for (let i = 0; i < entries.length; i++) {
+      if (entries[i].bucket !== bucket) continue;
+      if (++kept > VARIANTS) entries.splice(i--, 1);
+    }
   }
 
   /** True once any `argsKey`-style dep has been written. Consumers can use
@@ -117,6 +104,23 @@ export default class WeakDependencyMap<
   get hasStringDeps(): boolean {
     return this.hasStr;
   }
+}
+
+function matches<Path, K extends object, V>(
+  entry: Entry<Path, V>,
+  getDependency: GetDependency<Path, K | symbol>,
+  args: readonly any[],
+): boolean {
+  const { paths, keys } = entry;
+  for (let i = 0; i < paths.length; i++) {
+    const path = paths[i];
+    if (typeof path === 'function') {
+      if (((path as KeyFn)(args) ?? UNDEF_KEY) !== keys[i]) return false;
+    } else if ((getDependency(path as Path) ?? UNDEF) !== keys[i]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 export type GetDependency<Path, K = object | symbol> = (
@@ -130,14 +134,18 @@ export interface Dep<Path, K = object> {
 
 const EMPTY = [undefined, undefined] as const;
 
-/** Link in a chain */
-class Link<Path, K extends object, V> {
-  next = new WeakMap<K, Link<Path, K, V>>();
-  /** Lazily allocated branch for string-keyed (`argsKey`) deps. */
-  nextStr: Map<string, Link<Path, K, V>> | undefined = undefined;
-  nextPath: Path | KeyFn | undefined = undefined;
-  value: V | undefined = undefined;
-  journey: Path[] = [];
+/** Entries kept per (first dependency, `argsKey` bucket). */
+const VARIANTS = 2;
+
+/** One cached value: the dependencies after the first, and what they resolved to. */
+interface Entry<Path, V> {
+  readonly paths: (Path | KeyFn)[];
+  /** Entity reference (or `UNDEF`) for entity paths; `argsKey` result for function paths. */
+  readonly keys: unknown[];
+  /** `argsKey` results joined, so entries for other args stay cached. */
+  readonly bucket: string;
+  readonly value: V;
+  readonly journey: Path[];
 }
 
 class KeySize extends Error {
