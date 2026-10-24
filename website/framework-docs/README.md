@@ -108,6 +108,10 @@ blocks or to stubs typed `any`.
   readability, so only their playgrounds are checked.
 - Add `nocheck` to a fence's meta (` ```tsx title="Foo" nocheck `) only for a deliberately partial
   fragment; it's dropped from the rendered page and skill references.
+- Add `docs-only` to a playground file that only makes the preview work, like its UI
+  (` ```tsx title="Prices" docs-only `). Skill references drop it, since agents pay for every line
+  and it teaches nothing about the API; the site, `llms.txt` pages and this check keep it. Keep
+  files the shown code imports, so the reference still reads as one example.
 
 React:
 

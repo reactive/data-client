@@ -58,7 +58,7 @@ Keeping data in the serialized form is often fine, especially if it is only bein
 be displayed. However, this can be problematic when derived data is computed like adding time to a date
 or multiplying two numbers.
 
-In this case, simply use the [static schema](./Entity.md#schema) with [Temporal.Instant](https://tc39.es/proposal-temporal/) and [BigNumber](https://github.com/MikeMcl/bignumber.js)
+In this case, simply use the [static schema](https://dataclient.io/rest/api/Entity#schema) with [Temporal.Instant](https://tc39.es/proposal-temporal/) and [BigNumber](https://github.com/MikeMcl/bignumber.js)
 
 ```tsx title="api/Price"
 import { Entity, RestEndpoint } from '@data-client/rest';
@@ -108,7 +108,7 @@ render(<PricePage />);
 ### Deserializing Date
 
 In case you want to use legacy [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date),
-you can turn the constructor into a function [schema](./schema.md).
+you can turn the constructor into a function [schema](https://dataclient.io/rest/api/schema).
 
 ```ts
 export class ExchangePrice extends Entity {

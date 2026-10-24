@@ -27,6 +27,11 @@ export const claudePluginCommand = [
 const setupTask = framework =>
   `Set up \`@data-client/${framework}\` and use it for all API data`;
 
+/** The prompt any agent takes: installs the setup skill, then follows it.
+ * AgentPrompt's translate() default repeats it as a literal for i18n extraction */
+export const setupPrompt = pkg =>
+  `${setupTask(pkg)}. Install its setup skill first: \`${setupCommand}\`, then follow it.`;
+
 /** Starts the plugin's setup skill by name; through the router skill, Claude
  * would read it from the plugin cache, outside the project, and ask first */
 export const claudeSetupPrompt = framework =>

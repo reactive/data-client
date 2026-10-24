@@ -168,19 +168,21 @@ const text = value => ({ type: 'text', value });
 const paragraph = children => ({ type: 'paragraph', children });
 const html = value => ({ type: 'html', value });
 
+/** Fence meta flags: stripped from the output, and some read into `data` */
+const FENCE_FLAGS =
+  /\s*\b(collapsed|showLineNumbers|nocheck|framed|docs-only)\b/g;
 /**
  * Code without Docusaurus-only syntax (highlight markers, display options).
  * `data.raw` keeps the fence's own lines, so the docs example check can map
- * errors back to them; `data.nocheck` marks fences that check skips.
+ * errors back to them; `data.nocheck` marks fences that check skips, and
+ * `data.docsOnly` marks fences skill references drop.
  */
 function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
+  const flags = new Set(meta?.match(FENCE_FLAGS)?.map(f => f.trim()));
   return {
     type: 'code',
     lang: lang ?? null,
-    meta:
-      meta
-        ?.replace(/\s*\b(collapsed|showLineNumbers|nocheck|framed)\b/g, '')
-        .trim() || null,
+    meta: meta?.replace(FENCE_FLAGS, '').trim() || null,
     value: value
       .split('\n')
       .filter(
@@ -189,7 +191,11 @@ function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
       )
       .join('\n')
       .trim(),
-    data: { raw: value, nocheck: /\bnocheck\b/.test(meta ?? '') },
+    data: {
+      raw: value,
+      nocheck: flags.has('nocheck'),
+      docsOnly: flags.has('docs-only'),
+    },
   };
 }
 /** The glue a playground's router supplies, which its files don't show */
@@ -255,7 +261,7 @@ function render(file, framework, props = {}) {
   const source = sourceFor(file, framework);
   const parsed = parse(source);
   const tree = structuredClone(parsed.tree);
-  remarkFramework({ framework })(tree);
+  remarkFramework({ framework, keepAgentOnly: true })(tree);
   const partials = {};
   const tabLabels = [];
 
@@ -599,20 +605,36 @@ function wrapPhrasing(tree) {
 }
 
 /**
+ * Where a link to an unpublished agent page (`docs/core/_agents/`) goes in page
+ * markdown (llms-plugin): the framework skill's generated copy on GitHub, or
+ * undefined for any other route.
+ */
+export function agentReferenceUrl(route) {
+  const match = route.match(/^\/(docs|vue)\/_agents\/([^#?]+)(.*)$/);
+  if (!match) return;
+  const [, base, name, hash] = match;
+  const skill = `data-client-${base === 'vue' ? 'vue' : 'react'}`;
+  return `https://raw.githubusercontent.com/reactive/data-client/master/.agents/skills/${skill}/references/${name}.md${hash}`;
+}
+
+/**
  * Markdown of a doc for a framework, or undefined if the page isn't in it.
  * `resolveRoute(route)` picks the URL for links to site pages (default: the site).
- * `agentOnly: false` drops `<AgentOnly>` steps, which skill references don't
- * need: the skill already gives them.
+ * `skill: true` renders a skill reference: it drops `<AgentOnly>` steps, which
+ * the skill already gives, and `docs-only` fences, such as a playground's
+ * preview UI.
  */
 export function docToMarkdown(
   file,
   framework,
-  { resolveRoute = route => SITE + route, agentOnly = true } = {},
+  { resolveRoute = route => SITE + route, skill = false } = {},
 ) {
   const tree = render(file, framework);
   if (!tree) return;
-  visit(tree, 'agentOnly', (node, index, parent) => {
-    parent.children.splice(index, 1, ...(agentOnly ? node.children : []));
+  visit(tree, ['agentOnly', 'code'], (node, index, parent) => {
+    if (node.type === 'code' && !(skill && node.data.docsOnly)) return;
+    const kept = node.type === 'agentOnly' && !skill ? node.children : [];
+    parent.children.splice(index, 1, ...kept);
     return index;
   });
   visit(tree, ['link', 'definition'], node => {
