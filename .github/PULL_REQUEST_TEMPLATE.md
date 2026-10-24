@@ -2,8 +2,8 @@
 Read every comment, then delete them all.
 - Style: about 50% ASD-STE100: short sentences, active voice, one idea each. Keep the repo's and
   requester's terms. Write for library users first, reviewers second.
-- Say each point once. Do not restate Motivation in Solution, or Solution in Assumptions. Skip lists
-  of tests, docs, or changesets that the diff already shows.
+- Say each point once. Do not restate Motivation in Solution, or Solution in Assumptions. Solution
+  does not list or describe tests, docs, or changesets: the diff shows them. Small fix: under 250 words.
 - Diagrams only when clearer than text. Use Mermaid; an image needs a working URL, never a local path.
 - Keep attribution lines where your tool requires them. Delete "Fixes #" if there is no issue.
 - Changed packages/*? Run `yarn test:coverage` first; coverage must not drop.
@@ -24,9 +24,9 @@ Otherwise, start with "Bug fix.", "New use case." or "Improvement." Then two sho
 ### Solution
 <!--
 High level, then key decisions, trade-offs, and why. Group several changes by kind (API, behavior,
-types, docs, tests, internal), one bullet each.
+types, internal), one bullet each.
 User code changes: before/after code, copied from the changesets when they have it. Never invent a "before".
-Behavior-only change: old and new behavior, one sentence each.
+Behavior-only change: old and new behavior, one sentence each, unless Motivation already says it.
 -->
 <!--
 Add "#### Architecture change" here only if a maintainer's mental model of core machinery is wrong
