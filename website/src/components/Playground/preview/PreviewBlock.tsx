@@ -10,14 +10,15 @@ function PreviewBlock({
   onCommit,
   ...errorProps
 }: PreviewErrorProps & { onCommit?: ProfilerOnRenderCallback }) {
+  const preview = <LivePreview className={styles.sheet} />;
   return (
     <>
       <Boundary fallback={<Loading />}>
         {onCommit ?
           <Profiler id="playground-preview" onRender={onCommit}>
-            <LivePreview className={styles.sheet} />
+            {preview}
           </Profiler>
-        : <LivePreview className={styles.sheet} />}
+        : preview}
       </Boundary>
       <PreviewError {...errorProps} />
     </>

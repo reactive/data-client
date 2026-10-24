@@ -244,14 +244,8 @@ div.playgroundTextEdit > .playgroundHeader,
   transform: rotateZ(90deg);
 }
 
-/* The sheet's inset, set on the wrapper so the header shares it (its label
-   lines up with the sheet's text) and .navProgress reaches the sheet's edges */
-.previewWrapper {
-  --pg-sheet-pad: 1.25rem;
-}
 :global(.col) .playgroundPreview {
   flex: 1 4 30%;
-  overflow: auto;
 }
 /* Preview errors: one card, colored by the stage that failed. Amber means the
    code never ran (compile); red means it ran and threw (runtime).
@@ -679,11 +673,14 @@ div.playgroundTextEdit > .playgroundHeader,
 
 /* The preview is a stage (on the wrapper, so it tints the header) and the
    app one sheet filling the rest: the react-live output (.sheet; the
-   loading mark and the error card stand on the stage) is the sheet, flush with the frame's sides and foot, its top
-   corners notched into the header's tint, with its own inset. The design
-   system's surface is the sheet's color, so fields and wells read against
-   it */
+   loading mark and the error card stand on the stage) is the sheet, flush
+   with the frame's sides and foot, its top corners notched into the
+   header's tint, with its own inset. The design system's surface is the
+   sheet's color, so fields and wells read against it. The inset is set on
+   the wrapper so the header shares it (its label lines up with the sheet's
+   text) and .navProgress reaches the sheet's edges. */
 .previewWrapper {
+  --pg-sheet-pad: 1.25rem;
   background: var(--pg-stage);
 }
 .playgroundPreview {
@@ -702,12 +699,6 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .sheet:empty {
   display: none;
-}
-/* narrow, the sheet gives up some inset for the text */
-@container playground (max-width: 559px) {
-  .previewWrapper {
-    --pg-sheet-pad: 1rem;
-  }
 }
 /* The router's navigation indicator (preview/router.tsx): a 3px bar along
    the frame's top edge while the next page loads. A 0-height block (so the
@@ -1124,11 +1115,6 @@ div.fixtureJson + div.fixtureJson {
   min-height: var(--pg-demo-min);
   background-color: var(--monoco-code-background);
 }
-@container playground (min-width: 720px) {
-  .demo > .previewWrapper {
-    --pg-sheet-pad: 1.5rem;
-  }
-}
 
 /* EndpointPlayground: left tab bar and right fixture headers share one height */
 .endpointPlayground .playgroundHeader {
@@ -1361,8 +1347,12 @@ div.fixtureJson + div.fixtureJson {
   border-color: var(--pe-accent);
 }
 
-/* Narrow playgrounds: the Store stacks under the preview at full width */
+/* Narrow playgrounds: the Store stacks under the preview at full width, and
+   the sheet gives up some inset for the text */
 @container playground (max-width: 559px) {
+  .previewWrapper {
+    --pg-sheet-pad: 1rem;
+  }
   .playgroundResult {
     flex-direction: column;
   }

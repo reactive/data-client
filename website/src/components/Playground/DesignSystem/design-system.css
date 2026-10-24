@@ -18,14 +18,13 @@
   --ds-text-base: 0.9375rem;
   --ds-text-lg: 1.125rem;
   --ds-text-xl: 1.375rem;
-  /* a group's label (ENTITIES, VIEWS): small mono caps */
-  --ds-text-label: 11px;
   --ds-space-1: 0.25rem;
   --ds-space-2: 0.5rem;
   --ds-space-3: 0.75rem;
   --ds-space-4: 1rem;
   --ds-space-5: 1.5rem;
-  --ds-radius: 10px;
+  /* a well (a board's column) */
+  --ds-radius: 12px;
   --ds-radius-sm: 8px;
   --ds-radius-xs: 4px;
   /* a button's or a field's inset */
@@ -43,7 +42,7 @@
   --ds-border: var(--pg-line);
   /* an interactive row's band under the pointer: reads on the panel and on
      a well alike */
-  --ds-hover: color-mix(in srgb, var(--ds-text) 6%, transparent);
+  --ds-hover: var(--pg-hover);
   /* labels and hints: the quietest text that still reads (4.5:1 on the panel and the well) */
   --ds-faint: #5f6d83;
   /* 3:1 on the panel, so field and button edges stay legible */
@@ -68,7 +67,7 @@
   --ifm-color-formfield-active: var(--ds-accent);
   /* Infima's headings read these (h1 is set below: theme-classic sizes a
      first-child h1 as a page title) */
-  --ifm-h2-font-size: var(--ds-text-xl);
+  --ifm-h2-font-size: 1.25rem;
   --ifm-h3-font-size: var(--ds-text-lg);
   --ifm-h4-font-size: var(--ds-text-base);
   --ifm-heading-font-weight: 600;
@@ -103,14 +102,11 @@ html[data-theme='dark'] .playground-preview .rt-TextFieldLabel {
 .playground-preview h3 {
   letter-spacing: -0.01em;
 }
-/* A page's title (a post's): the one bold thing on the page, a step up
-   from the body, with the byline close under it */
+/* A page's title (a post's): a step up from the body, with the byline
+   close under it */
 .playground-preview h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
   line-height: 1.3;
-  letter-spacing: -0.01em;
-  margin-bottom: var(--ds-space-1);
+  margin-bottom: 2px;
 }
 /* an app's h1 is no page title: outranks theme-classic's
    `.markdown h1:first-child` (3rem, and a page's gap under it) */
@@ -138,10 +134,9 @@ div.playground-preview h1:first-child {
    row's own title (a post's h3 in a list) stays a heading */
 .playground-preview section > h3,
 .playground-preview .boardColumn > h4 {
-  margin: 0 0 var(--ds-space-2);
+  margin: 0 0 6px;
   font: 600 var(--ds-text-sm) / 1.4 var(--ifm-font-family-base);
   letter-spacing: 0;
-  text-transform: none;
   color: var(--ds-text-muted);
 }
 /* A value that just changed: washed in the accent and ringed by it */
@@ -183,7 +178,7 @@ div.playground-preview h1:first-child {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--ds-space-2) var(--ds-space-4);
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.25rem;
 }
 /* through .appHeader to outrank Infima's `.markdown h1:first-child` margin */
 .playground-preview .appHeader .appTitle {
@@ -213,8 +208,6 @@ div.playground-preview h1:first-child {
   margin-bottom: var(--ds-space-4);
   padding: 0;
   background: none;
-  border: 0;
-  border-radius: 0;
   box-shadow: none;
 }
 .playground-preview .card > :last-child {
@@ -231,7 +224,7 @@ div.playground-preview h1:first-child {
 .playground-preview .list > .listItem {
   align-items: center;
   margin: 0 calc(-1 * var(--ds-space-3));
-  padding: var(--ds-space-3);
+  padding: var(--ds-space-2) var(--ds-space-3);
   border-radius: var(--ds-radius-sm);
   transition: background-color var(--motion-snappy);
 }
@@ -253,12 +246,12 @@ div.playground-preview h1:first-child {
 }
 
 /* Rows: side by side (an avatar, a checkbox, then the text), set apart by
-   space alone: 20px from one row's content to the next's */
+   space alone: 16px from one row's content to the next's */
 .playground-preview .listItem {
   display: flex;
   align-items: flex-start;
   gap: var(--ds-space-3);
-  padding: 10px 0;
+  padding: 8px 0;
 }
 .playground-preview .listItem > * {
   min-width: 0;
@@ -282,24 +275,15 @@ div.playground-preview h1:first-child {
   width: calc(100% - 21px);
 }
 /* An avatar with a name: beside each other in a row (a post's author under
-   its title, all of it muted at the body's secondary size, a 20px avatar,
-   and the body 20px below), or the name under it (`author`, a post's) */
+   its title, muted at the body's secondary size), or the name under it
+   (`author`, a post's) */
 .playground-preview .byline {
   display: inline-flex;
   align-items: center;
   gap: var(--ds-space-2);
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--ds-space-4);
   font-size: var(--ds-text-sm);
   color: var(--ds-text-muted);
-}
-.playground-preview .byline img {
-  width: 20px;
-  height: 20px;
-}
-.playground-preview .byline b,
-.playground-preview .byline strong {
-  color: inherit;
-  font-weight: 400;
 }
 .playground-preview .author {
   flex: none;
@@ -484,9 +468,9 @@ div.playground-preview h1:first-child {
    edge), 6px apart */
 .playground-preview .boardColumn {
   background: var(--ds-surface-2);
-  border-radius: 12px;
-  padding: var(--ds-space-2);
-  margin-bottom: var(--ds-space-2);
+  border-radius: var(--ds-radius);
+  padding: 6px;
+  margin-bottom: 6px;
 }
 .playground-preview .boardColumn > h4 {
   padding: 0 var(--ds-space-1);
@@ -495,8 +479,8 @@ div.playground-preview h1:first-child {
   align-items: center;
   background: var(--ds-surface);
   border-radius: var(--ds-radius-sm);
-  padding: 9px 10px;
-  margin-bottom: 6px;
+  padding: 7px 10px;
+  margin-bottom: var(--ds-space-1);
 }
 .playground-preview .boardColumn .listItem:last-child {
   margin-bottom: 0;
@@ -568,7 +552,7 @@ div.playground-preview h1:first-child {
 .playground-preview .toaster {
   display: flex;
   flex-direction: column;
-  gap: var(--ds-space-2);
+  gap: 6px;
   margin-top: var(--ds-space-3);
 }
 .playground-preview .toaster:empty {
