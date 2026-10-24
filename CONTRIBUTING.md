@@ -40,7 +40,8 @@ If your idea requires design considerations, it's best to [start a discussion][4
 
 * Add tests for your feature. You should be able to look at other tests for
   examples. If you're unsure, don't hesitate to [open an issue][1] and ask!
-  Run `yarn test:coverage` and make sure coverage doesn't decrease.
+  Before you open the PR, run `yarn test:coverage` and make sure coverage
+  doesn't decrease.
 
 * Add a changeset for user-facing changes in published packages:
   * Use the `/changeset` skill to generate changesets, update docs, and prepare a PR description.

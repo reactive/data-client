@@ -1,8 +1,8 @@
 <!--
 How to write this description. Read every comment first, then delete all of them.
 
-- Style: about 50% ASD-STE100 Simplified Technical English: short sentences, active voice,
-  one idea per sentence. Name the thing ("the Post entity", not "it"). Use the terms the repo,
+- Style: about 50% ASD-STE100 Simplified Technical English. Follow its spirit, not every rule:
+  short sentences, active voice, one idea per sentence. Name the thing ("the Post entity", not "it"). Use the terms the repo,
   its docs, or the requester already use.
 - Write for a library user first and a reviewer second. Keep each section short.
 - A comment that starts with "Include only when" marks a conditional section. Delete that section,
@@ -29,7 +29,8 @@ For a change with no user-facing trigger (for example, a typo fix), write one se
 ### Solution
 <!--
 Give the change at a high level, then the key decisions and why you made them.
-Copy the code examples from this PR's changesets as written. Describe runtime-only changes in prose.
+When user code changes, copy the before/after code from this PR's changesets as written.
+Describe runtime-only changes in prose.
 When there is more than one change, list them grouped by kind (for example: API, behavior, types,
 docs, tests, internal), one short bullet per change. Name the package when it matters.
 -->
