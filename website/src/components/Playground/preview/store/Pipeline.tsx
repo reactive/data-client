@@ -1,11 +1,10 @@
 import clsx from 'clsx';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { actionName, type SubjectFilter } from './actionGroups';
 import type { LogEntry } from './actionLog';
 import { TypeName, useActions } from './actionParts';
 import { APP, pipeline, routesOf, shownChain } from './attribution';
-import { toggled } from './dom';
 import styles from './store.module.css';
 
 /** Every dispatch's way to the store: the app, then each manager of the
@@ -159,38 +158,49 @@ function Strip({
   stored?: boolean;
   stages: readonly Shown[];
 }) {
-  /** The runs opened, by their first stage (a run that grows or shrinks
-   * as managers start or stop acting stays as it was) */
+  /** The stages of the runs opened: a run is open while any of its stages
+   * is, so one that grows or shrinks as managers start or stop acting stays
+   * open */
   const [opened, setOpened] = useState<ReadonlySet<string>>(new Set());
-  /** The run whose fold button just changed, to keep focus on it */
-  const focus = useRef<string | null>(null);
+  /** The run whose fold button was just pressed, by its first stage, to
+   * keep focus on the button that replaces it in the next render only */
+  const pendingFocus = useRef<string | null>(null);
+  useEffect(() => {
+    pendingFocus.current = null;
+  });
   return (
     <div className={styles.pipeline} role="group" aria-label={label}>
       {foldRuns(stages).flatMap(run => {
         const key = run[0].id;
-        const names = run.map(stage => stage.id).join(', ');
+        const ids = run.map(stage => stage.id);
+        const names = ids.join(', ');
+        const open = ids.some(id => opened.has(id));
         const fold = (text: string) => (
           <button
             type="button"
             className={clsx(styles.stage, styles.stageFold)}
             title={names}
             aria-label={text + ': ' + names}
-            aria-expanded={opened.has(key)}
+            aria-expanded={open}
             ref={button => {
-              if (button && focus.current === key) {
-                focus.current = null;
-                button.focus();
-              }
+              if (button && pendingFocus.current === key) button.focus();
             }}
             onClick={() => {
-              focus.current = key;
-              setOpened(prev => toggled(prev, key));
+              pendingFocus.current = key;
+              setOpened(prev => {
+                const next = new Set(prev);
+                for (const id of ids) {
+                  if (open) next.delete(id);
+                  else next.add(id);
+                }
+                return next;
+              });
             }}
           >
             {text}
           </button>
         );
-        if (run.length === 1 || !opened.has(key))
+        if (run.length === 1 || !open)
           return [
             <Step key={run[0].id}>
               {run.length > 1 ?
