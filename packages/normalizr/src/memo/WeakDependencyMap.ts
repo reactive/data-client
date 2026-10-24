@@ -44,6 +44,9 @@ export function depKey(entity: unknown): object {
  * String-keyed dependencies (used by `argsKey`) branch on a `Map` keyed by
  * the value `path(args)` returns, so each argument set keeps its own entries
  * and a lookup only checks its own.
+ *
+ * Invariants every change must keep: "Memo invariants" in
+ * `packages/normalizr/AGENTS.md`.
  */
 export default class WeakDependencyMap<
   Path,
