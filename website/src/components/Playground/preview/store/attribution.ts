@@ -78,7 +78,7 @@ export function routesOf<
   const seen = new Map<string, { entry: E; n: number }>();
   for (const entry of entries) {
     const { action, origin, consumedBy, store } = entry;
-    const key = [action.type, origin, consumedBy, !!store].join(' ');
+    const key = JSON.stringify([action.type, origin, consumedBy, !!store]);
     const route = seen.get(key);
     if (route) route.n++;
     else seen.set(key, { entry, n: 1 });

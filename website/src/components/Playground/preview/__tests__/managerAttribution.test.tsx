@@ -349,6 +349,9 @@ describe('Store panel pipeline', () => {
     within(pipeline())
       .getAllByRole('button')
       .map(b => b.textContent);
+  /** The pipeline's button that reads `name` */
+  const stage = (name: string | RegExp) =>
+    within(pipeline()).getByRole('button', { name });
   /** The listed rows' heads */
   const listed = () =>
     screen
@@ -375,9 +378,7 @@ describe('Store panel pipeline', () => {
     expect(stages()).toEqual(['the app1', 'StreamManager2⊘ 1', '2 idle']);
     expect(pipeline().lastElementChild?.textContent).toBe('store');
     // the idle ones open in place, and fold again
-    fireEvent.click(
-      within(pipeline()).getByRole('button', { name: /^2 idle/ }),
-    );
+    fireEvent.click(stage(/^2 idle/));
     expect(stages()).toEqual([
       'the app1',
       'StreamManager2⊘ 1',
@@ -385,8 +386,8 @@ describe('Store panel pipeline', () => {
       'SubscriptionManager0',
       'fold',
     ]);
-    fireEvent.click(within(pipeline()).getByRole('button', { name: /^fold/ }));
-    within(pipeline()).getByRole('button', { name: /^2 idle/ });
+    fireEvent.click(stage(/^fold/));
+    stage(/^2 idle/);
   });
 
   it('draws the library defaults and their path', async () => {
@@ -432,6 +433,7 @@ describe('Store panel pipeline', () => {
       name: /^2 idle/,
     });
     expect(first.getAttribute('aria-expanded')).toBe('false');
+    first.focus();
     fireEvent.click(first);
     expect(stages()).toEqual([
       'the app1',
@@ -442,11 +444,10 @@ describe('Store panel pipeline', () => {
       '2 idle',
     ]);
     // it says which run it folds
-    const fold = within(pipeline()).getByRole('button', {
-      name: 'fold: QuietManager, QuietManager #2',
-    });
+    const fold = stage('fold: QuietManager, QuietManager #2');
     expect(fold.getAttribute('aria-expanded')).toBe('true');
-    // focus moves to the button that folds it back
+    // the button pressed stays, keeping focus, to fold it back
+    expect(fold).toBe(first);
     expect(document.activeElement).toBe(fold);
     fireEvent.click(fold);
     expect(document.activeElement?.textContent).toBe('2 idle');
@@ -474,13 +475,9 @@ describe('Store panel pipeline', () => {
     });
     openActions();
     expect(stages()).toEqual(['the app1', '3 idle']);
-    fireEvent.click(
-      within(pipeline()).getByRole('button', { name: /^3 idle/ }),
-    );
+    fireEvent.click(stage(/^3 idle/));
     // picking the first takes it out of the run, which stays open
-    fireEvent.click(
-      within(pipeline()).getByRole('button', { name: /^QuietManager(?! #)/ }),
-    );
+    fireEvent.click(stage(/^QuietManager(?! #)/));
     expect(stages()).toEqual([
       'the app1',
       'QuietManager0',
@@ -488,12 +485,10 @@ describe('Store panel pipeline', () => {
       'QuietManager #30',
       'fold',
     ]);
-    fireEvent.click(within(pipeline()).getByRole('button', { name: /^fold/ }));
+    fireEvent.click(stage(/^fold/));
     expect(stages()).toEqual(['the app1', 'QuietManager0', '2 idle']);
     // unpicked, it rejoins the folded run without opening it
-    fireEvent.click(
-      within(pipeline()).getByRole('button', { name: /^QuietManager(?! #)/ }),
-    );
+    fireEvent.click(stage(/^QuietManager(?! #)/));
     expect(stages()).toEqual(['the app1', '3 idle']);
   });
 
@@ -507,14 +502,10 @@ describe('Store panel pipeline', () => {
       void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
     });
     openActions();
-    fireEvent.click(
-      within(pipeline()).getByRole('button', { name: /^2 idle/ }),
-    );
-    const first = () =>
-      within(pipeline()).getByRole('button', { name: /^QuietManager(?! #)/ });
-    fireEvent.click(first());
+    fireEvent.click(stage(/^2 idle/));
+    fireEvent.click(stage(/^QuietManager(?! #)/));
     expect(stages()).toEqual(['the app1', 'QuietManager0', 'QuietManager #20']);
-    fireEvent.click(first());
+    fireEvent.click(stage(/^QuietManager(?! #)/));
     expect(stages()).toEqual(['the app1', '2 idle']);
   });
 
@@ -528,20 +519,14 @@ describe('Store panel pipeline', () => {
     });
     openActions();
     expect(listed()).toHaveLength(3);
-    const streamStage = within(pipeline()).getByRole('button', {
-      name: /^StreamManager/,
-    });
+    const streamStage = stage(/^StreamManager/);
     fireEvent.click(streamStage);
     expect(streamStage.getAttribute('aria-pressed')).toBe('true');
     // its set and the subscribe it kept from the store
     expect(listed()).toHaveLength(2);
-    fireEvent.click(
-      within(pipeline()).getByRole('button', { name: /^the app/ }),
-    );
+    fireEvent.click(stage(/^the app/));
     expect(listed()).toHaveLength(2);
-    fireEvent.click(
-      within(pipeline()).getByRole('button', { name: /^the app/ }),
-    );
+    fireEvent.click(stage(/^the app/));
     expect(listed()).toHaveLength(3);
   });
 

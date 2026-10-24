@@ -1097,9 +1097,7 @@ button.stage:focus-visible {
 }
 .stageFold {
   padding-inline: 0.6rem;
-  border-style: dashed;
   border-radius: 999px;
-  color: var(--store-muted);
 }
 .stageNote {
   color: var(--store-muted);
@@ -1114,6 +1112,8 @@ button.stage:focus-visible {
 .stageOff {
   opacity: 0.4;
 }
+/* the dim, dashed stages: a folded run, and the store */
+.stageFold,
 .stageEnd {
   border-style: dashed;
   color: var(--store-muted);

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { actionName, type SubjectFilter } from './actionGroups';
 import type { LogEntry } from './actionLog';
@@ -162,15 +162,6 @@ function Strip({
    * any of its stages is, so one that grows or shrinks as managers start or
    * stop acting stays open */
   const [opened, setOpened] = useState<ReadonlySet<string>>(new Set());
-  /** The run whose fold button was just pressed, by its first stage, to
-   * keep focus on the button that replaces it in the next render only. The
-   * pressed button unmounts (its run opens or folds), so the ref callback of
-   * the one replacing it focuses it; cleared after each commit so a later
-   * render (a manager starting to act) never steals focus back */
-  const pendingFocus = useRef<string | null>(null);
-  useEffect(() => {
-    pendingFocus.current = null;
-  });
   const runs = foldRuns(stages);
   const isOpen = (run: readonly Shown[]) =>
     run.length > 1 && run.some(stage => opened.has(stage.id));
@@ -190,46 +181,44 @@ function Strip({
     <div className={styles.pipeline} role="group" aria-label={label}>
       {runs.flatMap(run => {
         const key = run[0].id;
+        if (run.length === 1) return [<Step key={key}>{run[0].node}</Step>];
         const ids = run.map(stage => stage.id);
         const names = ids.join(', ');
         const open = isOpen(run);
-        const fold = (text: string) => (
-          <button
-            type="button"
-            className={clsx(styles.stage, styles.stageFold)}
-            title={names}
-            aria-label={text + ': ' + names}
-            aria-expanded={open}
-            ref={button => {
-              if (button && pendingFocus.current === key) button.focus();
-            }}
-            onClick={() => {
-              pendingFocus.current = key;
-              const next = new Set(openNow);
-              for (const id of ids) {
-                if (open) next.delete(id);
-                else next.add(id);
+        const text = open ? 'fold' : run.length + ' ' + run[0].foldAs;
+        // one keyed slot whether open or folded, so the button pressed
+        // stays (and keeps focus) as its run opens or folds
+        const fold = (
+          <Step key={'fold:' + key}>
+            <button
+              type="button"
+              className={clsx(styles.stage, styles.stageFold)}
+              title={names}
+              aria-label={text + ': ' + names}
+              aria-expanded={open}
+              onClick={() =>
+                setOpened(
+                  new Set(
+                    open ?
+                      [...openNow].filter(id => !ids.includes(id))
+                    : [...openNow, ...ids],
+                  ),
+                )
               }
-              setOpened(next);
-            }}
-          >
-            {text}
-          </button>
-        );
-        if (run.length === 1 || !open)
-          return [
-            <Step key={run[0].id}>
-              {run.length > 1 ?
-                fold(run.length + ' ' + run[0].foldAs)
-              : run[0].node}
-            </Step>,
-          ];
-        return run.map((stage, i) => (
-          <Step key={stage.id}>
-            {stage.node}
-            {i === run.length - 1 && fold('fold')}
+            >
+              {text}
+            </button>
           </Step>
-        ));
+        );
+        if (!open) return [fold];
+        return [
+          ...run.map((stage, i) => (
+            <Step key={stage.id} arrow={i < run.length - 1}>
+              {stage.node}
+            </Step>
+          )),
+          fold,
+        ];
       })}
       <span className={styles.stageStep}>
         <span
@@ -248,13 +237,21 @@ function Strip({
 
 /** A stage and the arrow after it, which wraps with it, so a line never
  * starts with one */
-function Step({ children }: { children: React.ReactNode }) {
+function Step({
+  arrow = true,
+  children,
+}: {
+  arrow?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <span className={styles.stageStep}>
       {children}
-      <span className={styles.stageArrow} aria-hidden>
-        →
-      </span>
+      {arrow && (
+        <span className={styles.stageArrow} aria-hidden>
+          →
+        </span>
+      )}
     </span>
   );
 }
