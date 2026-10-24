@@ -43,7 +43,7 @@ export default class WeakDependencyMap<
     getDependency: GetDependency<Path, K | symbol>,
     args: readonly any[] = [],
   ) {
-    let node = this.next.get(entity);
+    let node = this.next.get(depKey(entity) as K);
     while (node) {
       const { entries } = node;
       for (let i = 0; i < entries.length; i++) {
