@@ -207,29 +207,6 @@ export const CommentResource = resource({
 </template>
 ```
 
-```html title="PostList.vue" route="/"
-<script setup lang="ts">
-  import { useSuspense } from '@data-client/vue';
-  import { PostResource } from './Resources';
-
-  const posts = await useSuspense(PostResource.getList);
-</script>
-
-<template>
-  <div class="card">
-    <div v-for="post in posts" :key="post.pk()" class="listItem">
-      <Avatar :src="post.avatar" />
-      <div>
-        <h3>
-          <RouterLink :to="`/posts/${post.id}`">{{ post.title }}</RouterLink>
-        </h3>
-        <small>{{ post.author }}</small>
-      </div>
-    </div>
-  </div>
-</template>
-```
-
 ```html title="PostPage.vue" route="/posts/:id" {9,15}
 <script setup lang="ts">
   import CommentList from './CommentList.vue';

@@ -184,43 +184,6 @@ export const CommentResource = resource({
 });
 ```
 
-```tsx title="Layout" layout
-export default function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <header className="appHeader">
-        <h1 className="appTitle">Field Notes</h1>
-      </header>
-      {children}
-    </>
-  );
-}
-```
-
-```tsx title="PostList" route="/"
-import { useSuspense } from '@data-client/react';
-import { PostResource } from './Resources';
-
-export default function PostList() {
-  const posts = useSuspense(PostResource.getList);
-  return (
-    <div className="card">
-      {posts.map(post => (
-        <div key={post.pk()} className="listItem">
-          <Avatar src={post.avatar} />
-          <div>
-            <h3>
-              <Link to={`/posts/${post.id}`}>{post.title}</Link>
-            </h3>
-            <small>{post.author}</small>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-```
-
 ```tsx title="PostPage" route="/posts/:id" {7,10}
 import { AsyncBoundary } from '@data-client/react';
 import CommentList from './CommentList';

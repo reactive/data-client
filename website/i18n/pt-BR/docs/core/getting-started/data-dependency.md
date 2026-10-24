@@ -310,7 +310,7 @@ export const CommentResource = resource({
 
 :::react
 
-```tsx title="Layout" layout collapsed
+```tsx title="Layout" layout collapsed docs-only
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
@@ -323,7 +323,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 }
 ```
 
-```tsx title="PostList" route="/" collapsed
+```tsx title="PostList" route="/" collapsed docs-only
 import { useSuspense } from '@data-client/react';
 import { PostResource } from './Resources';
 
@@ -424,7 +424,7 @@ export default function CommentList({ postId }: { postId: string }) {
 </template>
 ```
 
-```html title="PostList.vue" route="/" collapsed
+```html title="PostList.vue" route="/" collapsed docs-only
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { PostResource } from './Resources';
