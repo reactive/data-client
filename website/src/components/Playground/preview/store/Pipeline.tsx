@@ -186,41 +186,47 @@ function Strip({
         const names = ids.join(', ');
         const open = isOpen(run);
         const text = open ? 'fold' : run.length + ' ' + run[0].foldAs;
-        // one keyed slot whether open or folded, so the button pressed
-        // stays (and keeps focus) as its run opens or folds
-        const fold = (
-          <Step key={'fold:' + key}>
-            <button
-              type="button"
-              className={clsx(styles.stage, styles.stageFold)}
-              title={names}
-              aria-label={text + ': ' + names}
-              aria-expanded={open}
-              onClick={() =>
-                setOpened(
-                  new Set(
-                    open ?
-                      [...openNow].filter(id => !ids.includes(id))
-                    : [...openNow, ...ids],
-                  ),
-                )
-              }
-            >
-              {text}
-            </button>
-          </Step>
+        const button = (
+          <button
+            key="fold"
+            type="button"
+            className={clsx(styles.stage, styles.stageFold)}
+            title={names}
+            aria-label={text + ': ' + names}
+            aria-expanded={open}
+            onClick={() =>
+              setOpened(
+                new Set(
+                  open ?
+                    [...openNow].filter(id => !ids.includes(id))
+                  : [...openNow, ...ids],
+                ),
+              )
+            }
+          >
+            {text}
+          </button>
         );
-        if (!open) return [fold];
+        // the button keeps one keyed slot, open or folded, so the one
+        // pressed stays (and keeps focus); open, it follows the run's last
+        // stage in that slot, so it never wraps away from the run (keyed
+        // lists both ways, so React matches the button by its key)
+        const last = run[run.length - 1];
         return [
-          ...run.map((stage, i) => (
-            <Step key={stage.id} arrow={i < run.length - 1}>
-              {stage.node}
-            </Step>
+          ...(open ? run.slice(0, -1) : []).map(stage => (
+            <Step key={stage.id}>{stage.node}</Step>
           )),
-          fold,
+          <Step key={'fold:' + key}>
+            {open ?
+              [
+                <React.Fragment key={last.id}>{last.node}</React.Fragment>,
+                button,
+              ]
+            : [button]}
+          </Step>,
         ];
       })}
-      <span className={styles.stageStep}>
+      <Step arrow={false}>
         <span
           className={clsx(
             styles.stage,
@@ -230,13 +236,13 @@ function Strip({
         >
           store
         </span>
-      </span>
+      </Step>
     </div>
   );
 }
 
-/** A stage and the arrow after it, which wraps with it, so a line never
- * starts with one */
+/** A stage and the arrow after it (none after the store), which wraps with
+ * it, so a line never starts with one */
 function Step({
   arrow = true,
   children,
