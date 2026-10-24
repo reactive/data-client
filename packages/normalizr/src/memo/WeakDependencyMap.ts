@@ -1,4 +1,4 @@
-import { depKey } from '../denormalize/UNDEF.js';
+import { UNDEF } from '../denormalize/UNDEF.js';
 
 /** Function path used by `argsKey` deps. Distinguished from object paths
  * via `typeof === 'function'`. */
@@ -7,6 +7,21 @@ export type KeyFn = (args: readonly any[]) => string | undefined;
 /** Sentinel string used in place of `undefined` for string-keyed deps so we
  * can perform Map lookups consistently. */
 const UNDEF_KEY = '\0';
+
+const valueKeys = new Map<unknown, object>();
+
+/** `WeakMap` key for an entity value: the object itself, `UNDEF` for
+ * `undefined`, or a stable stand-in for any other value (`null`, `INVALID`). */
+function depKey(entity: unknown): object {
+  if (typeof entity === 'object' && entity !== null) return entity;
+  if (entity === undefined) return UNDEF;
+  let key = valueKeys.get(entity);
+  if (!key) {
+    key = {};
+    valueKeys.set(entity, key);
+  }
+  return key;
+}
 
 /** Maps a (ordered) list of dependencies to a value.
  *
