@@ -17,6 +17,7 @@ interface StoreProps {
   middlewares: GenericMiddleware[];
   initialState: State<unknown>;
   controller: Controller;
+  reducer?: (state: State<unknown>, action: any) => State<unknown>;
 }
 /**
  * This part of the provider concerns only the parts that matter for store changes
@@ -28,8 +29,12 @@ function DataStore({
   middlewares,
   initialState,
   controller,
+  reducer,
 }: StoreProps) {
-  const masterReducer = useMemo(() => createReducer(controller), [controller]);
+  const masterReducer = useMemo(
+    () => reducer ?? createReducer(controller),
+    [reducer, controller],
+  );
 
   // we don't need `dispatch` here, since applyManager() assigns the dispatch to controller
   const [state] = useEnhancedReducer(masterReducer, initialState, middlewares);

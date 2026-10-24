@@ -11,6 +11,7 @@ import type { Middleware as GenericMiddleware } from '@data-client/use-enhanced-
 import React, { useCallback, useMemo, useRef } from 'react';
 import type { JSX } from 'react';
 
+import type ClientStore from './ClientStore.js';
 import DataStore from './DataStore.js';
 import type { DevToolsPosition } from './DevToolsButton.js';
 import { getDefaultManagers } from './getDefaultManagers.js';
@@ -27,6 +28,10 @@ export interface ProviderProps {
   Controller?: new (props: { gcPolicy: GCInterface }) => DataController;
   gcPolicy?: GCInterface;
   devButton?: DevToolsPosition | null | undefined;
+  /** Store created outside React; its managers, Controller and state replace those props
+   * @see https://dataclient.io/docs/api/ClientStore
+   */
+  store?: ClientStore;
 }
 
 /**
@@ -40,6 +45,7 @@ export default function DataProvider({
   initialState = defaultState as State<unknown>,
   Controller = DataController,
   devButton = 'bottom-right',
+  store,
 }: ProviderProps): JSX.Element {
   const gcRef: React.RefObject<GCPolicy> = useRef<any>(gcPolicy);
   if (!gcRef.current) gcRef.current = new GCPolicy();
@@ -47,16 +53,21 @@ export default function DataProvider({
   // contents of this component expected to be relatively stable
   const controllerRef: React.RefObject<DataController> = useRef<any>(undefined);
   if (!controllerRef.current)
-    controllerRef.current = new Controller({ gcPolicy: gcRef.current });
+    controllerRef.current =
+      store?.controller ?? new Controller({ gcPolicy: gcRef.current });
   //TODO: bind all methods so destructuring works
 
-  const managersRef: React.RefObject<Manager[]> = useRef<any>(managers);
+  const managersRef: React.RefObject<Manager[]> = useRef<any>(
+    store?.managers ?? managers,
+  );
   if (!managersRef.current) managersRef.current = getDefaultManagers();
+  // a render React discards leaves its results in the store for the one that mounts
+  const seed = store ? store.state : initialState;
 
   // run in a useEffect in DataStore
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const mgrEffect = useCallback(
-    initManager(managersRef.current, controllerRef.current, initialState),
+    initManager(managersRef.current, controllerRef.current, seed),
     // we don't support initialState changes
     managersRef.current,
   );
@@ -86,8 +97,9 @@ export default function DataProvider({
       <DataStore
         mgrEffect={mgrEffect}
         middlewares={middlewares}
-        initialState={initialState}
+        initialState={seed}
         controller={controllerRef.current}
+        reducer={store?.reducer}
       >
         {children}
       </DataStore>
