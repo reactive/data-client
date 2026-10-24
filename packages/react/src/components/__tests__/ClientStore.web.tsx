@@ -5,6 +5,7 @@ import React, { Activity, Suspense, startTransition } from 'react';
 
 import { useCache } from '../../hooks';
 import ClientStore from '../ClientStore';
+import { LegacyReact } from '../LegacyReact';
 import DataProvider from '../DataProvider';
 
 const endpoint = new Endpoint((id: number) => Promise.resolve(id), {
@@ -23,6 +24,8 @@ function Forever(): React.ReactNode {
 const text = (container: HTMLElement) => container.textContent;
 // Activity is React 19.2+
 const it19 = Activity !== undefined ? it : it.skip;
+// legacy Suspense commits the siblings of what suspends
+const it18 = LegacyReact ? it.skip : it;
 
 describe('ClientStore', () => {
   let errorSpy: jest.SpyInstance;
@@ -49,29 +52,32 @@ describe('ClientStore', () => {
     expect(text(container)).toBe('value 1');
   });
 
-  it('keeps updating a mounted provider after another provider render is discarded', async () => {
-    const store = new ClientStore();
-    const { container } = render(
-      <DataProvider store={store} devButton={null}>
-        <Value id={2} />
-      </DataProvider>,
-    );
-    // the second provider never commits; it must not take over the Controller
-    const discarded = render(
-      <Suspense fallback="loading">
+  it18(
+    'keeps updating a mounted provider after another provider render is discarded',
+    async () => {
+      const store = new ClientStore();
+      const { container } = render(
         <DataProvider store={store} devButton={null}>
           <Value id={2} />
-        </DataProvider>
-        <Forever />
-      </Suspense>,
-    );
-    expect(text(discarded.container)).toBe('loading');
-    await act(async () => {
-      void store.controller.setResponse(endpoint, 2, 2);
-    });
-    expect(text(container)).toBe('value 2');
-    discarded.unmount();
-  });
+        </DataProvider>,
+      );
+      // the second provider never commits; it must not take over the Controller
+      const discarded = render(
+        <Suspense fallback="loading">
+          <DataProvider store={store} devButton={null}>
+            <Value id={2} />
+          </DataProvider>
+          <Forever />
+        </Suspense>,
+      );
+      expect(text(discarded.container)).toBe('loading');
+      await act(async () => {
+        void store.controller.setResponse(endpoint, 2, 2);
+      });
+      expect(text(container)).toBe('value 2');
+      discarded.unmount();
+    },
+  );
 
   it('updates every committed provider, and the rest after one unmounts', async () => {
     const store = new ClientStore();
