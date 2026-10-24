@@ -1,5 +1,6 @@
 import GlobalCache from './globalCache.js';
 import WeakDependencyMap from './WeakDependencyMap.js';
+import type { KeepToken } from './WeakDependencyMap.js';
 import buildQueryKey from '../buildQueryKey.js';
 import { GetEntityCache, getEntityCaches } from './entitiesCache.js';
 import { MemoPolicy } from './Policy.js';
@@ -23,6 +24,8 @@ export default class MemoCache {
   declare protected _getCache: GetEntityCache;
   /** Caches the final denormalized form based on input, entities */
   protected endpoints: EndpointsCache = new WeakDependencyMap<EntityPath>();
+  /** Results read per store `entities`, until that store commits. */
+  private reads = new WeakMap<object, KeepToken[]>();
   /** Caches the queryKey based on schema, args, and any used entities or indexes */
   protected queryKeys: Map<string, WeakDependencyMap<QueryPath>> = new Map();
 
@@ -56,11 +59,29 @@ export default class MemoCache {
     }
     const getEntity = this.policy.getEntities(entities);
 
-    return getUnvisit(
+    const result = getUnvisit(
       getEntity,
       new GlobalCache(getEntity, this._getCache, this.endpoints, args),
       args,
     )(schema, input);
+    const read = this.endpoints.lastRead();
+    if (read && entities && typeof entities === 'object') {
+      const reads = this.reads.get(entities);
+      if (reads) reads.push(read);
+      else this.reads.set(entities, [read]);
+    }
+    return result;
+  }
+
+  /** Marks every result read with `entities` as committed, so the cache
+   * keeps it through later one-off reads. Call it once that store has been
+   * rendered and committed (React: from an effect, which never runs for a
+   * discarded render). */
+  commit(entities: object): void {
+    const reads = this.reads.get(entities);
+    if (!reads) return;
+    this.reads.delete(entities);
+    for (const read of reads) this.endpoints.keep(read);
   }
 
   /** Compute denormalized form maintaining referential equality for same inputs */

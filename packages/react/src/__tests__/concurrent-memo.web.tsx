@@ -329,11 +329,9 @@ describeConcurrent.each([1, 2])(
       for (let i = 0; i < 3; i++) act(() => typeText(`b${i}`));
       await finishTransition('Y');
       expect(flipBacks(reads)).toBeGreaterThan(0);
-      // The committed rows changed when the first write committed, and typing
-      // re-renders are served by useSuspense's useMemo, so the memo never
-      // sees them re-read before the transition's retries push them out.
-      // That costs one recompute, after which they are kept.
-      expect(avoidableMisses(reads)).toBeLessThanOrEqual(1);
+      // Typing re-renders are served by useSuspense's useMemo and never
+      // reach the memo, so only the commit signal keeps the new rows.
+      expect(avoidableMisses(reads)).toBe(0);
     });
 
     it('reads outside render during optimistic updates, across a resolved mutation', async () => {
@@ -381,11 +379,9 @@ describeConcurrent.each([1, 2])(
       for (let i = 0; i < 3; i++) act(() => typeText(`a${i}`));
       await finishTransition('X');
       expect(flipBacks(reads)).toBeGreaterThan(0);
-      // The committed rows changed when the first write committed, and typing
-      // re-renders are served by useSuspense's useMemo, so the memo never
-      // sees them re-read before the transition's retries push them out.
-      // That costs one recompute, after which they are kept.
-      expect(avoidableMisses(reads)).toBeLessThanOrEqual(1);
+      // Typing re-renders are served by useSuspense's useMemo and never
+      // reach the memo, so only the commit signal keeps the new rows.
+      expect(avoidableMisses(reads)).toBe(0);
     });
 
     // Many store versions in flight at once. Every version stays readable
