@@ -168,14 +168,15 @@ const text = value => ({ type: 'text', value });
 const paragraph = children => ({ type: 'paragraph', children });
 const html = value => ({ type: 'html', value });
 
+/** Fence meta flags: stripped from the output, and some read into `data` */
+const FENCE_FLAGS =
+  /\s*\b(collapsed|showLineNumbers|nocheck|framed|docs-only)\b/g;
 /**
  * Code without Docusaurus-only syntax (highlight markers, display options).
  * `data.raw` keeps the fence's own lines, so the docs example check can map
  * errors back to them; `data.nocheck` marks fences that check skips, and
  * `data.docsOnly` marks fences skill references drop.
  */
-const FENCE_FLAGS =
-  /\s*\b(collapsed|showLineNumbers|nocheck|framed|docs-only)\b/g;
 function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
   const flags = new Set(meta?.match(FENCE_FLAGS)?.map(f => f.trim()));
   return {

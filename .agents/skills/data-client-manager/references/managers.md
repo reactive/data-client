@@ -337,6 +337,32 @@ export class Ticker extends Entity {
 }
 ```
 
+```ts title="PriceSource"
+/** Stands in for an EventSource: pushes JSON messages to `onmessage` */
+export class PriceSource {
+  onmessage: ((event: { data: string }) => void) | null = null;
+  protected prices: Record<string, number> = {
+    'BTC-USD': 64000,
+    'ETH-USD': 3100,
+  };
+  protected timer = setInterval(() => {
+    for (const product_id in this.prices) {
+      this.prices[product_id] *= 1 + (Math.random() - 0.5) / 100;
+      this.onmessage?.({
+        data: JSON.stringify({
+          product_id,
+          price: Math.round(this.prices[product_id] * 100) / 100,
+        }),
+      });
+    }
+  }, 1200);
+
+  close() {
+    clearInterval(this.timer);
+  }
+}
+```
+
 ```ts title="StreamManager"
 import type { Controller, Manager, Middleware } from '@data-client/react';
 import { Ticker } from './Ticker';

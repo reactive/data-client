@@ -21,7 +21,7 @@ export class Ticker extends Entity {
 }
 ```
 
-```ts title="PriceSource" collapsed docs-only
+```ts title="PriceSource" collapsed
 /** Stands in for an EventSource: pushes JSON messages to `onmessage` */
 export class PriceSource {
   onmessage: ((event: { data: string }) => void) | null = null;
