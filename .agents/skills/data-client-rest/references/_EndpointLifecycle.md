@@ -40,8 +40,8 @@ from this function was a succesful network response. When the actual fetch compl
 of failure or success), the optimistic update will be replaced with the actual network response.
 
 `expectedResponse` is normalized with the endpoint's [schema](#schema), so TypeScript checks it like a
-[Controller.set()](https://dataclient.io/docs/api/Controller#set) value: an [Entity](./Entity.md) takes any of its fields, and a
-[Collection](./Collection.md) takes a list of them. When the endpoint resolves a specific type, like the return
+[Controller.set()](https://dataclient.io/docs/api/Controller#set) value: an [Entity](https://dataclient.io/rest/api/Entity) takes any of its fields, and a
+[Collection](https://dataclient.io/rest/api/Collection) takes a list of them. When the endpoint resolves a specific type, like the return
 of [process()](./RestEndpoint.md#process), it must match that type instead.
 
 ```ts title="Post"
@@ -183,7 +183,7 @@ render(<PostList />);
 
 > **Tip**
 >
-> Try using [Collections](./Collection.md) instead.
+> Try using [Collections](https://dataclient.io/rest/api/Collection) instead.
 >
 > They are much easier to use and more robust!
 
