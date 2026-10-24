@@ -30,6 +30,8 @@ Skip a step when it does not make sense (for example, a typo fix).
 Give the change at a high level, then the key decisions and why you made them.
 Include the before/after user code from this PR's changesets, if it has any. Use code only when user code changes;
 describe runtime-only changes in prose.
+List the changes grouped by kind (for example: API, behavior, types, docs, tests, internal).
+One short bullet per change. Name the package when it matters.
 -->
 
 #### Architecture change (when applicable)
@@ -42,11 +44,10 @@ and build the reader's intuition before you name the mechanism. Show the old flo
 Add a clean diagram when it helps.
 -->
 
-#### Other changes (when applicable)
+#### Other changes (only with an Architecture change)
 <!--
-Use this heading only next to "Architecture change". Otherwise list the changes directly under Solution.
-Group the remaining changes by kind (for example: API, behavior, types, docs, tests, internal).
-One short bullet per change. Name the package when it matters.
+Separates the rest of the changes from the architecture change. List them here, grouped as described
+under Solution. Without an Architecture change, delete this heading and list the changes under Solution.
 -->
 
 ### Assumptions and validation
