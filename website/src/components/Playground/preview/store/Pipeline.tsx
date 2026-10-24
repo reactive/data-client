@@ -174,6 +174,15 @@ function Strip({
   const runs = foldRuns(stages);
   const isOpen = (run: readonly Shown[]) =>
     run.length > 1 && run.some(stage => opened.has(stage.id));
+  // only the stages of runs open now: a run that splits up closes, so a
+  // manager that left it can't reopen another run it joins later
+  const openNow = new Set(
+    runs
+      .filter(isOpen)
+      .flat()
+      .map(stage => stage.id),
+  );
+  if (openNow.size !== opened.size) setOpened(openNow);
   return (
     <div className={styles.pipeline} role="group" aria-label={label}>
       {runs.flatMap(run => {
@@ -193,15 +202,12 @@ function Strip({
             }}
             onClick={() => {
               pendingFocus.current = key;
-              // rebuilt from the runs open now, so ids that left a run
-              // can't reopen it when they rejoin after it's folded
-              setOpened(
-                new Set(
-                  runs
-                    .filter(other => (other === run ? !open : isOpen(other)))
-                    .flatMap(other => other.map(stage => stage.id)),
-                ),
-              );
+              const next = new Set(openNow);
+              for (const id of ids) {
+                if (open) next.delete(id);
+                else next.add(id);
+              }
+              setOpened(next);
             }}
           >
             {text}

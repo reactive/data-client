@@ -497,6 +497,27 @@ describe('Store panel pipeline', () => {
     expect(stages()).toEqual(['the app1', '3 idle']);
   });
 
+  it('closes a run that splits up', async () => {
+    const { ctrl } = mount(
+      [new QuietManager(), new QuietManager()],
+      undefined,
+      true,
+    );
+    await act(async () => {
+      void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
+    });
+    openActions();
+    fireEvent.click(
+      within(pipeline()).getByRole('button', { name: /^2 idle/ }),
+    );
+    const first = () =>
+      within(pipeline()).getByRole('button', { name: /^QuietManager(?! #)/ });
+    fireEvent.click(first());
+    expect(stages()).toEqual(['the app1', 'QuietManager0', 'QuietManager #20']);
+    fireEvent.click(first());
+    expect(stages()).toEqual(['the app1', '2 idle']);
+  });
+
   it("shows only a stage's actions while it is picked", async () => {
     const stream = new StreamManager();
     const { ctrl } = mount([stream, new NetworkManager()], undefined, true);
