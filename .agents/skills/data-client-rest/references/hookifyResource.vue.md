@@ -70,7 +70,7 @@ Assuming you use the unchanged result of [resource()](./resource.vue.md), these 
 
 - method: 'GET'
 - path: `path`
-- schema: [schema](./Entity.vue.md)
+- schema: [schema](https://dataclient.io/rest/api/Entity)
 
 ```typescript
 // GET //test.com/api/abc/xyz
@@ -153,7 +153,7 @@ Commonly used with [Controller.fetch](https://dataclient.io/vue/api/Controller#f
 
 - method: 'GET'
 - args: `shortenPath(path) & { [paginationField]: string | number } & searchParams`
-- schema: [new Collection(\[schema\]).addWith(paginatedMerge, paginatedFilter(removeCursor))](./Collection.vue.md)
+- schema: [new Collection(\[schema\]).addWith(paginatedMerge, paginatedFilter(removeCursor))](https://dataclient.io/rest/api/Collection)
 
 ```typescript
 // GET //test.com/api/abc?isExtra=xyz&page=2

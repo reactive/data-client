@@ -38,23 +38,62 @@ Schema driven. Zero updater functions.
 npm install --save @data-client/react @data-client/rest @data-client/test
 ```
 
-To have Claude Code, Cursor or Codex load the [skills](https://agentskills.io) these packages ship for their version, link them into `.agents/skills` (`.claude/skills` links to it) and commit the links:
+Then [add the provider](https://dataclient.io/docs/getting-started/installation#add-provider-at-top-level-component) at your app's root.
 
-```bash
-npx --no data-client-skills
-```
+### Set up with your coding agent (recommended)
 
-For more details, see [the Getting Started docs page](https://dataclient.io/docs/getting-started/installation).
-
-### Let your coding agent set it up
-
-Or skip the install above and tell your coding agent:
+Or skip the steps above and paste this into your coding agent's chat. It installs Data Client's setup skill, which adds the packages, wires up the provider and links the skills they ship:
 
 ```prompt
 Set up `@data-client/react` and use it for all API data. Install its setup skill first: `npx skills add reactive/data-client --skill data-client-setup -y`, then follow it.
 ```
 
-It installs the packages, wires up the provider and links the skills they ship.
+<details>
+<summary>Or use the Claude Code, Cursor or Codex plugin</summary>
+
+More on each in [Installation](https://dataclient.io/docs/getting-started/installation#agent-setup).
+
+**Claude Code:** in a terminal at the project root:
+
+```bash
+claude plugin marketplace add reactive/data-client --scope project \
+  --sparse .claude-plugin .agents/skills
+claude plugin install data-client@data-client --scope project
+```
+
+Then in Claude Code's chat:
+
+```prompt
+/data-client:data-client-setup Set up `@data-client/react` and use it for all API data
+```
+
+**Cursor:** in Cursor's agent chat:
+
+```prompt
+/add-plugin data-client@https://github.com/reactive/data-client
+```
+
+Then, in a new chat:
+
+```prompt
+/data-client-setup Set up `@data-client/react` and use it for all API data
+```
+
+**Codex:** in a terminal:
+
+```bash
+codex plugin marketplace add reactive/data-client \
+  --sparse .claude-plugin --sparse .agents/skills
+codex plugin add data-client@data-client
+```
+
+Then in Codex's chat:
+
+```prompt
+$data-client:data-client-setup Set up `@data-client/react` and use it for all API data
+```
+
+</details>
 
 ## Usage
 

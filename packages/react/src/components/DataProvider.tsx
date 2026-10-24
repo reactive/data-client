@@ -2,10 +2,12 @@
 import {
   initialState as defaultState,
   Controller as DataController,
+  actionTypes,
   applyManager,
   initManager,
 } from '@data-client/core';
 import type { State, Manager, GCInterface } from '@data-client/core';
+import type { Middleware as GenericMiddleware } from '@data-client/use-enhanced-reducer';
 import React, { useCallback, useMemo, useRef } from 'react';
 import type { JSX } from 'react';
 
@@ -45,13 +47,6 @@ export default function DataProvider({
   devButton = 'bottom-right',
   store,
 }: ProviderProps): JSX.Element {
-  /* istanbul ignore else */
-  if (process.env.NODE_ENV !== 'production' && SSR) {
-    console.warn(
-      `DataProvider from @data-client/react does not update while doing SSR.
-See https://dataclient.io/docs/guides/ssr.`,
-    );
-  }
   const gcRef: React.RefObject<GCPolicy> = useRef<any>(gcPolicy);
   if (!gcRef.current) gcRef.current = new GCPolicy();
 
@@ -79,7 +74,16 @@ See https://dataclient.io/docs/guides/ssr.`,
 
   // Makes manager middleware compatible with redux-style middleware (by a wrapper enhancement to provide controller API)
   const middlewares = useMemo(
-    () => applyManager(managersRef.current, controllerRef.current),
+    () => {
+      const middlewares: GenericMiddleware[] = applyManager(
+        managersRef.current,
+        controllerRef.current,
+      );
+      /* istanbul ignore else */
+      if (process.env.NODE_ENV !== 'production' && SSR)
+        middlewares.unshift(warnFetchDuringSSR);
+      return middlewares;
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     managersRef.current,
   );
@@ -103,3 +107,16 @@ See https://dataclient.io/docs/guides/ssr.`,
     </ControllerContext.Provider>
   );
 }
+
+let warnedFetchDuringSSR = false;
+/** Rendering on the server is fine; fetching there is lost since this store never updates */
+const warnFetchDuringSSR: GenericMiddleware = () => next => action => {
+  if (action.type === actionTypes.FETCH && !warnedFetchDuringSSR) {
+    warnedFetchDuringSSR = true;
+    console.warn(
+      `DataProvider from @data-client/react does not update while doing SSR, so data fetched during SSR will not be rendered.
+See https://dataclient.io/docs/guides/ssr.`,
+    );
+  }
+  return next(action);
+};
