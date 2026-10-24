@@ -16,7 +16,12 @@ import {
   type Change,
   type RequestGroup,
 } from './actionGroups';
-import { attributed, managerNames, type Attribution } from './attribution';
+import {
+  attributed,
+  lineage,
+  managerNames,
+  type Attribution,
+} from './attribution';
 import type { Moment } from './nav';
 
 const { createReducer } = __INTERNAL__;
@@ -220,11 +225,7 @@ export default class ActionLog {
     const attribution: Attribution = { copies: new WeakMap() };
     /** The seq of `action`, or of what it's a copy of */
     const seqOf = (action: ActionTypes): number | undefined => {
-      for (
-        let a: ActionTypes | undefined = action;
-        a;
-        a = attribution.copies.get(a)
-      ) {
+      for (const a of lineage(attribution, action)) {
         const seq = recorded.get(a);
         if (seq !== undefined) return seq;
       }
@@ -320,8 +321,7 @@ export default class ActionLog {
       return chain.map((manager, i) =>
         attributed(manager, names[i], attribution, (action, by) => {
           const seq = seqOf(action);
-          if (seq !== undefined)
-            this.patch(id, seq, { consumedBy: by || undefined });
+          if (seq !== undefined) this.patch(id, seq, { consumedBy: by });
         }),
       );
     };
@@ -457,7 +457,9 @@ export default class ActionLog {
     if (!history) return;
     const { entries } = history;
     // nearly always the newest
-    const i = entries.findLastIndex(e => e.seq === seq);
+    const i =
+      seq === undefined ? -1 : entries.findLastIndex(e => e.seq === seq);
+    if (i < 0 && !historyFields) return;
     this.histories.set(id, {
       ...history,
       ...(i >= 0 && { entries: entries.with(i, { ...entries[i], ...fields }) }),

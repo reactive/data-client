@@ -373,7 +373,7 @@ describe('Store panel pipeline', () => {
     expect(pipeline().lastElementChild?.textContent).toBe('store');
   });
 
-  it('leaves it out when the chain is only the library defaults', async () => {
+  it('draws the library defaults too', async () => {
     const { ctrl } = mount(
       [new NetworkManager(), new SubscriptionManager(PollingSubscription)],
       undefined,
@@ -383,7 +383,11 @@ describe('Store panel pipeline', () => {
       void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
     });
     openActions();
-    expect(screen.queryByRole('group', { name: /^Pipeline/ })).toBeNull();
+    expect(
+      within(pipeline())
+        .getAllByRole('button')
+        .map(b => b.textContent),
+    ).toEqual(['the app1', 'NetworkManager0', 'SubscriptionManager0']);
   });
 
   it("shows only a stage's actions while it is picked", async () => {

@@ -16,7 +16,7 @@ import {
   spanOf,
   useActions,
 } from './actionParts';
-import { isNetworkManager, ownChain } from './attribution';
+import { isNetworkManager, shownChain } from './attribution';
 import { EndpointBody } from './Details';
 import { errorText, findRow, isEndpointRow } from './model';
 import {
@@ -51,23 +51,14 @@ export function ActionDetail({
   subject: View;
   gap?: ChangeKind;
 }) {
-  // the way it took, when the code brought managers of its own; else in
-  // words, if a manager sent or handled it
-  const chain = ownChain(useActions().history.managers);
+  // the way it took through the managers
+  const chain = shownChain(useActions().history.managers);
   return (
     <div className={styles.actBody}>
       <SubjectChanges entries={[entry]} subject={subject} gap={gap} />
       {chain && <ActionPath chain={chain} entry={entry} />}
       <div className={clsx(styles.fields, styles.metaList)}>
         <Field name="dispatchedAt" node={{ t: 'val', v: entry.at }} />
-        {!chain && (
-          <>
-            {entry.origin && <Field name="sentBy">{entry.origin}</Field>}
-            {entry.consumedBy && (
-              <Field name="handledBy">{entry.consumedBy}</Field>
-            )}
-          </>
-        )}
         {actionFields(entry.action).map(([name, value]) => (
           <Field key={name} name={name} node={plain(value)} />
         ))}

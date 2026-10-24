@@ -1073,7 +1073,7 @@ button.stage:focus-visible {
 }
 .stage[aria-pressed='true'] {
   border-color: var(--ifm-color-primary);
-  background: rgba(130, 170, 255, 0.16);
+  background: var(--store-selected);
 }
 @media (pointer: coarse) {
   button.stage {

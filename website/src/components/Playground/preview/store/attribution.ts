@@ -21,13 +21,14 @@ const KNOWN: readonly {
   { cls: DevToolsManager, name: 'DevToolsManager', console: true },
   { cls: LogoutManager, name: 'LogoutManager' },
 ];
+const KNOWN_NAMES = new Set(KNOWN.map(known => known.name));
 const knownOf = (manager: Manager) =>
   KNOWN.find(({ cls }) => manager instanceof cls);
 
 /** A manager every store has unless the code chooses otherwise, by the
  * name `managerNames` gave it */
 export const isLibraryManager = (name: string) =>
-  KNOWN.some(known => baseName(name) === known.name);
+  KNOWN_NAMES.has(baseName(name));
 
 /** Whether it's the library's NetworkManager, which sends what it handles
  * of a fetch (by the name `managerNames` gave it) */
@@ -46,28 +47,27 @@ interface Stage {
   readonly handled: number;
 }
 
-/** What the app and each manager of the chain (in order) did over
- * `entries`: the app, what it dispatched itself */
+/** What the app (`APP`, what it dispatched itself) and each manager of
+ * the chain, in order, did over `entries` */
 export function pipeline(
   managers: readonly string[],
   entries: readonly { origin?: string; consumedBy?: string }[],
-): { app: number; stages: Stage[] } {
-  const stages = new Map(managers.map(id => [id, { id, sent: 0, handled: 0 }]));
-  let app = 0;
-  for (const { origin, consumedBy } of entries) {
-    const sender = origin && stages.get(origin);
+): Stage[] {
+  const stages = new Map(
+    [APP, ...managers].map(id => [id, { id, sent: 0, handled: 0 }]),
+  );
+  for (const { origin = APP, consumedBy } of entries) {
+    const sender = stages.get(origin);
     if (sender) sender.sent++;
-    else if (!origin) app++;
     const handler = consumedBy && stages.get(consumedBy);
     if (handler) handler.handled++;
   }
-  return { app, stages: [...stages.values()] };
+  return [...stages.values()];
 }
 
-/** The chain, when it's more than the library's defaults: the code
- * brought a manager of its own */
-export const ownChain = (managers: readonly string[] | undefined) =>
-  managers?.some(name => !isLibraryManager(name)) ? managers : undefined;
+/** The chain to draw, once the store has managers */
+export const shownChain = (managers: readonly string[] | undefined) =>
+  managers?.length ? managers : undefined;
 
 /** Whether `entry` is one `stage` took part in: `APP`, those the app
  * dispatched; a manager, those it sent or kept from the rest of the chain */
@@ -106,7 +106,7 @@ export interface Attribution {
 /** `manager`, telling `attribution` while it calls its controller (what it
  * dispatches through `set`, `fetch`, `dispatch` …), and `consumed` with each
  * action its middleware returned without passing on (when its promise
- * settles, for async middleware), or `false` when one it did pass on later.
+ * settles, for async middleware), or with no one when it passes one on later.
  * Passing on a copy (`next({ ...action })`) counts while the middleware
  * runs. The prototype stays the manager, so `instanceof` checks still see
  * its class */
@@ -114,7 +114,7 @@ export function attributed(
   manager: Manager,
   name: string,
   attribution: Attribution,
-  consumed: (action: ActionTypes, by: string | false) => void,
+  consumed: (action: ActionTypes, by?: string) => void,
 ): Manager {
   const tracked: Manager = Object.create(manager);
   // with `this` the manager, as DataProvider would call them
@@ -143,7 +143,7 @@ export function attributed(
           passed.add(from);
           attribution.copies.set(action, from);
         }
-        if (reported.has(action)) consumed(action, false);
+        if (reported.has(action)) consumed(action);
         return next(action);
       });
       return action => {
@@ -168,15 +168,22 @@ export function attributed(
   return tracked;
 }
 
+/** `action`, then what it was copied from, and so on */
+export function* lineage(
+  { copies }: Attribution,
+  action: ActionTypes,
+): Generator<ActionTypes> {
+  for (let a: ActionTypes | undefined = action; a; a = copies.get(a)) yield a;
+}
+
 /** Whether `ancestor` is `action`, or what it was copied from (linking a
  * copy to its ancestor would loop) */
 function copiedFrom(
-  { copies }: Attribution,
+  attribution: Attribution,
   action: ActionTypes,
   ancestor: ActionTypes,
 ): boolean {
-  for (let a: ActionTypes | undefined = action; a; a = copies.get(a))
-    if (a === ancestor) return true;
+  for (const a of lineage(attribution, action)) if (a === ancestor) return true;
   return false;
 }
 
@@ -188,15 +195,15 @@ function asDispatcher(
   name: string,
   attribution: Attribution,
 ): Controller {
-  const wrapped = new Map<PropertyKey, [AnyFn, AnyFn]>();
+  const wrapped = new WeakMap<AnyFn, AnyFn>();
   return new Proxy(controller, {
     get(target, key) {
       const value = Reflect.get(target, key, target);
       if (typeof value !== 'function') return value;
       // the same function each read, until the controller's changes
-      const cached = wrapped.get(key);
-      if (cached && cached[0] === value) return cached[1];
-      const fn = function (this: unknown, ...args: unknown[]) {
+      let fn = wrapped.get(value);
+      if (fn) return fn;
+      fn = function (this: unknown, ...args: unknown[]) {
         const outer = attribution.dispatching;
         attribution.dispatching = name;
         try {
@@ -205,7 +212,7 @@ function asDispatcher(
           attribution.dispatching = outer;
         }
       };
-      wrapped.set(key, [value, fn]);
+      wrapped.set(value, fn);
       return fn;
     },
   });
@@ -220,8 +227,7 @@ export function notableAttribution(
 ): { origin?: string; consumedBy?: string } {
   const notable = (name?: string) =>
     name && !isLibraryManager(name) ? name : undefined;
-  return {
-    origin: notable(entries[0]?.origin),
-    consumedBy: entries.map(e => notable(e.consumedBy)).find(Boolean),
-  };
+  let consumedBy: string | undefined;
+  for (const e of entries) if ((consumedBy = notable(e.consumedBy))) break;
+  return { origin: notable(entries[0]?.origin), consumedBy };
 }

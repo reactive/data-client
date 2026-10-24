@@ -38,7 +38,7 @@ import {
   useFollow,
   useLog,
 } from './actionParts';
-import { APP, ownChain } from './attribution';
+import { APP, shownChain } from './attribution';
 import type { Header } from './DiveViews';
 import { byData, onActivateKey, revealIn, toggled } from './dom';
 import { actionId } from './model';
@@ -145,9 +145,9 @@ export function ActionsLevel({
   header: Header;
 }) {
   const { history } = useActions();
-  // at the store, when the code brought its own managers: who sent what
+  // at the store: who sent what
   const chain =
-    subject.kind === 'root' ? ownChain(history.managers) : undefined;
+    subject.kind === 'root' ? shownChain(history.managers) : undefined;
   const [chosen, setChosen] = useState<string | null>(null);
   // a stage the chain no longer has (the code changed) counts as none
   const picked =
