@@ -1,5 +1,13 @@
 # normalizr-redux-example
 
+## 0.1.59
+
+### Patch Changes
+
+- Updated dependencies [[`b475613`](https://github.com/reactive/data-client/commit/b4756135b70e4fb79e9146114a1266b4f7b4a4cb), [`b4899d0`](https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169), [`f343f9d`](https://github.com/reactive/data-client/commit/f343f9d42a12f3ad763fac96362166d3b3156b69), [`4549122`](https://github.com/reactive/data-client/commit/4549122004244990a564781a61145ae9ea98370e), [`cc57a77`](https://github.com/reactive/data-client/commit/cc57a77d2e563071926f50cb9054516d2ab9101e), [`022f449`](https://github.com/reactive/data-client/commit/022f44950bf687b61f2d349e42ab906071c6fce7), [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc), [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc), [`a403df8`](https://github.com/reactive/data-client/commit/a403df8f22dadb0dbd9a6cf72a65f9187ae63176), [`cb6d9f2`](https://github.com/reactive/data-client/commit/cb6d9f21ae73ab79ac5f1d6aea04f68d7c2c6336), [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e)]:
+  - @data-client/endpoint@0.19.0
+  - @data-client/normalizr@0.19.0
+
 ## 0.1.58
 
 ### Patch Changes

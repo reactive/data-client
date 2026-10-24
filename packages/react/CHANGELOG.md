@@ -1,5 +1,349 @@
 # @data-client/react
 
+## 0.19.0
+
+### Minor Changes
+
+- [#4393](https://github.com/reactive/data-client/pull/4393) [`a32740d`](https://github.com/reactive/data-client/commit/a32740d14de86b7006ccc497484dd52c0bc54c23) - BREAKING: `globalThis.__DC__` replaces `globalThis.__DC_CONTROLLERS__` in development, with each store's Controller and recent actions
+
+  Coding agents and console debugging can reach the store with the [Controller](https://dataclient.io/docs/api/Controller)
+  methods they already know, and see what it dispatched, including the fetches made while the page loaded, without
+  the Redux DevTools extension. `__DC__.controller` and `__DC__.actions` read the page's store. Each access looks
+  the store up again, so it keeps working after a provider remounts. Production builds don't include it.
+
+  ```js title="Browser DevTools console"
+  __DC__.actions.slice(-10);
+
+  // Response for a key in the action log, without importing its endpoint
+  const c = __DC__.controller;
+  const a = __DC__.actions.findLast(
+    a => a.args && !a.endpoint?.sideEffect && a.key?.includes('/todos'),
+  );
+  c.getResponse(a.endpoint, ...a.args, c.getState()).data;
+  ```
+
+  With several stores on a page, `__DC__.stores` lists their keys and setting `__DC__.store` picks one. Stores with
+  the same devtools name each get their own key (`'Data Client: My App (2)'`, `(3)`, ...) instead of the second hiding
+  the first. Debugging code that read `globalThis.__DC_CONTROLLERS__` reads `__DC__` instead:
+
+  ```js title="Browser DevTools console"
+  // before
+  __DC_CONTROLLERS__.get('Data Client: My App').getState();
+  // after
+  __DC__.store = 'Data Client: My App';
+  __DC__.controller.getState();
+  ```
+
+  To keep memory small, only the newest 20 actions keep their payloads (older fetches of endpoints without side
+  effects keep their `args`), and each polling key (endpoint and args) keeps only its last two polls
+  (`maxPollingActions`, default 4 actions). See [DevToolsManager](https://dataclient.io/docs/api/DevToolsManager#controllers).
+
+- [#4151](https://github.com/reactive/data-client/pull/4151) [`4549122`](https://github.com/reactive/data-client/commit/4549122004244990a564781a61145ae9ea98370e) - BREAKING: Require TypeScript 4.0 or later
+
+  The TypeScript 3.x type declarations are removed. They no longer type-checked on any TypeScript 3.x version, and
+  `@data-client/rest` already required TypeScript 4.0. Upgrade TypeScript to 4.0 or later.
+
+  ```diff title="package.json"
+  - "typescript": "^3.9.0"
+  + "typescript": "^4.0.0"
+  ```
+
+- [#4382](https://github.com/reactive/data-client/pull/4382) [`31f3ddb`](https://github.com/reactive/data-client/commit/31f3ddbc178ade2a7f59f7029a54c416df70e003) - BREAKING: [Manager.middleware](https://dataclient.io/docs/api/Manager#middleware) is required; `getMiddleware()` is removed
+
+  A Manager without `middleware`, including one that still uses `getMiddleware()` (replaced in v0.14), is now a
+  TypeScript error, and throws in development when `DataProvider` or `DataClientPlugin` mounts. Rename `getMiddleware()`
+  to a `middleware` property:
+
+  ```ts
+  // before
+  getMiddleware = (): Middleware => controller => next => async action =>
+    next(action);
+  // after
+  middleware: Middleware = controller => next => async action => next(action);
+  ```
+
+### Patch Changes
+
+- [#4407](https://github.com/reactive/data-client/pull/4407) [`b475613`](https://github.com/reactive/data-client/commit/b4756135b70e4fb79e9146114a1266b4f7b4a4cb) - Ship agent skills inside the packages
+
+  Coding agents can now follow the skills for the version you have installed instead of guessing from older releases. Each package carries the skills it covers, and the new `data-client-skills` command (in `@data-client/react`, `vue`, `rest`, `graphql` and `endpoint`, so repos with only API definitions get it too) links them into `.agents/skills`, with `.claude/skills` linking to it, where Claude Code, Cursor and Codex load them as their own:
+
+  ```bash
+  npx --no data-client-skills
+  ```
+
+  Commit the links. They point into `node_modules`, so they follow upgrades; run it again after adding, removing or upgrading `@data-client` packages to pick up new skills. [TanStack Intent](https://tanstack.com/intent) also finds these skills.
+
+- [#4209](https://github.com/reactive/data-client/pull/4209) [`b4899d0`](https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169) Thanks [@renovate](https://github.com/apps/renovate)! - Support `@babel/runtime` 8
+
+  Apps on Babel 8 now share their `@babel/runtime` with Data Client instead of installing a second copy. Apps on Babel 7 keep working unchanged.
+
+- [#4450](https://github.com/reactive/data-client/pull/4450) [`2c260a9`](https://github.com/reactive/data-client/commit/2c260a97b2d5b482de9de4b960d52b5c7f579777) - Fix "Uncaught suspense" warning during React 19 server rendering when nothing suspended
+
+  Server rendering with React 19 could log "Uncaught suspense" even though every boundary finished rendering. The warning now only appears in the browser, when a fallback actually shows.
+
+- [#4103](https://github.com/reactive/data-client/pull/4103) [`f343f9d`](https://github.com/reactive/data-client/commit/f343f9d42a12f3ad763fac96362166d3b3156b69) - Fix `controller.set()` types for Array schemas
+
+  `controller.set([Entity], rows)` and `controller.set(new schema.Array(Entity), rows)` now typecheck. This writes every row in one store update: each row merges with its stored entity, and entities not in `rows` stay. This works with `exactOptionalPropertyTypes` on too.
+
+  Rows are typed by the Entity's fields. The schema holds one Entity, [Union](https://dataclient.io/rest/api/Union) (for mixed types) or [Invalidate](https://dataclient.io/rest/api/Invalidate) (to delete), in an Array or [Values](https://dataclient.io/rest/api/Values) (which takes an object keyed by id).
+
+  Batch `set()` needs `@data-client/rest` (or `endpoint`/`graphql`) from this release, since older Entity classes don't type as `EntityInterface`.
+
+  ```ts
+  // Before: TypeScript error on [Ticker], so batches became one set() per row
+  for (const row of rows) {
+    ctrl.set(Ticker, { product_id: row.product_id }, row);
+  }
+
+  // After: one store update
+  ctrl.set([Ticker], rows);
+
+  // Mixed Entity types, batch deletes, and rows keyed by id
+  const Message = new schema.Union({ ticker: Ticker, trade: Trade }, 'type');
+  ctrl.set([Message], messages);
+  ctrl.set([new schema.Invalidate(Ticker)], [{ product_id: 'BTC-USD' }]);
+  ctrl.set(new schema.Values(Ticker), { 'BTC-USD': row });
+  ```
+
+- [#4230](https://github.com/reactive/data-client/pull/4230) [`46f1f24`](https://github.com/reactive/data-client/commit/46f1f24bcb04824805747ed2a1effe7baece337c) - Fix `controller.set()` types for a single [Invalidate](https://dataclient.io/rest/api/Invalidate)
+
+  Deleting one entity with `set()` worked at runtime but failed to typecheck, since `Invalidate` isn't
+  [Queryable](https://dataclient.io/rest/api/schema#queryable). Pass the schema and the row to delete; the row is typed
+  by the Entity's fields.
+
+  ```ts
+  // Before: TypeScript error, so a one-row batch was the workaround
+  ctrl.set([new Invalidate(Post)], [{ id: '5' }]);
+
+  // After
+  ctrl.set(new Invalidate(Post), { id: '5' });
+  ```
+
+  Like batch `set()`, it takes no `args` and no updater function.
+
+- [#4133](https://github.com/reactive/data-client/pull/4133) [`a82758c`](https://github.com/reactive/data-client/commit/a82758cd1998e58d7ad280407db28bd84f5d7b18) - Fix `controller.set()` accepting any value
+
+  Values are now typed by the schema: Entities take their fields, while [Collection](https://dataclient.io/rest/api/Collection)
+  and [All](https://dataclient.io/rest/api/All) take a list of rows. [Query](https://dataclient.io/rest/api/Query) takes
+  the input of the schema it wraps, not what its `process()` returns. Updater functions must return the same.
+
+  ```ts
+  // Before: these all typechecked, then failed or wrote nothing at runtime
+  ctrl.set(new schema.All(Todo), 42);
+  ctrl.set(TodoResource.getList.schema, 'anything');
+  ctrl.set(Todo, { id: '5' }, { id: '5', completed: 'yes' });
+
+  // After: TypeScript errors on the above; these typecheck
+  ctrl.set(TodoResource.getList.schema, [{ id: '5', completed: true }]);
+  ctrl.set(new schema.All(Todo), [{ id: '5', completed: true }]);
+  ```
+
+  When each member declares its discriminator as a literal (like `readonly type = 'post'`), a
+  [Union](https://dataclient.io/rest/api/Union) row is checked against the member it selects. Only
+  declared fields are accepted, so a key read by a `schemaAttribute` function must be declared on each member.
+
+  ```ts
+  const Feed = new schema.Union({ post: Post, comment: Comment }, 'type');
+  // TypeScript error: commentBody is a Comment field, not a Post field
+  ctrl.set(
+    Feed,
+    { id: '1', type: 'post' },
+    { type: 'post', commentBody: 'hi' },
+  );
+  ```
+
+- [#4228](https://github.com/reactive/data-client/pull/4228) [`b55696c`](https://github.com/reactive/data-client/commit/b55696c72ad3e73e0a2f50d3751c7104cd4ad9ee) - Fix TypeScript error passing a `Controller` subclass to `DataProvider` or `DataClientPlugin`
+
+  A plain `class MyController extends Controller` failed to typecheck as the `Controller` option of [DataProvider](https://dataclient.io/docs/api/DataProvider#Controller), Vue's [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin#Controller), and the `@data-client/react/redux` `DataProvider`, so the documented example needed a cast. `MockController()` from `@data-client/core/mock` had the same error when wrapping your subclass. These now typecheck, and you can drop the casts.
+
+  ```tsx
+  class MyController extends Controller {
+    doSomething = () => console.log('hi');
+  }
+
+  // Before: TypeScript error, so you had to cast
+  <DataProvider Controller={MyController as typeof Controller}>
+  app.use(DataClientPlugin, { Controller: MyController as typeof Controller });
+
+  // After
+  <DataProvider Controller={MyController}>
+  app.use(DataClientPlugin, { Controller: MyController });
+  ```
+
+- [#4420](https://github.com/reactive/data-client/pull/4420) [`c3b8c54`](https://github.com/reactive/data-client/commit/c3b8c54bc3062cf082e67c215310cb98b3a03078) - Fix fixture types needing `@data-client/endpoint` installed
+
+  `Fixture` and the other fixture types from `@data-client/react/mock`, `@data-client/core/mock` and `@data-client/test` no
+  longer resolve `@data-client/endpoint`, which those packages don't depend on. Projects that install only
+  `@data-client/react` and `@data-client/test` (for example with pnpm's strict layout) no longer get
+  `Cannot find module '@data-client/endpoint'` when type-checking fixtures.
+
+- [#4449](https://github.com/reactive/data-client/pull/4449) [`3e45bac`](https://github.com/reactive/data-client/commit/3e45bac4bc06e9bfd3a38cc1b2118e5eee126a2e) - Fix `DataProvider` warning about SSR on pages that don't fetch during the server render
+
+  `DataProvider` used to warn every time it rendered on the server, even when nothing on the page fetched data. Apps that render a static shell and only load data after mount (like Expo Router's static web output) saw the warning on every page. It now warns once, the first time a fetch starts during SSR, since that data will not be rendered. See the [SSR guide](https://dataclient.io/docs/guides/ssr) to render fetched data on the server.
+
+- [#4150](https://github.com/reactive/data-client/pull/4150) [`74e67fa`](https://github.com/reactive/data-client/commit/74e67fa2c4f9f104f5b7a49e877a48e5963e4bd2) - Fix `useCache()` and `useDLE()` returning a truthy `Symbol` for deleted entities
+
+  After an entity was deleted and its refetch failed, `useCache()` and `useDLE()` (React and Vue) returned an internal
+  `Symbol` instead of `undefined`. Since a `Symbol` is truthy, "not loaded" checks passed, and code went on to use it as
+  the entity:
+
+  ```tsx
+  const todo = useCache(TodoResource.get, { id });
+  if (!todo) return <TodoPlaceholder />;
+  // Before: reached here with a Symbol; todo.title was undefined and todo.title.trim() threw
+  // After: the placeholder renders
+  return <TodoItem title={todo.title.trim()} />;
+  ```
+
+  [Controller.getResponse()](https://dataclient.io/docs/api/Controller#getResponse) and
+  [Controller.fetchIfStale()](https://dataclient.io/docs/api/Controller#fetchIfStale) now also give `undefined` there,
+  like [Controller.get()](https://dataclient.io/docs/api/Controller#get) already did.
+
+- [#4163](https://github.com/reactive/data-client/pull/4163) [`159c963`](https://github.com/reactive/data-client/commit/159c9633679d95427fe4f626aec341c76e4578f8) - Fix slow updates in development while Redux DevTools is open
+
+  With the [Redux DevTools](https://dataclient.io/docs/getting-started/debugging) extension open, every store update
+  stalled the page while DevTools serialized the store: about 20ms with 50 entities, and 200ms with 500. Apps doing
+  many `controller.set()` calls, polling, or live updates would stutter in development. Each update now serializes
+  40-60x faster, and timestamps still show as readable times like `10:42:07.123 AM`.
+
+- [#4227](https://github.com/reactive/data-client/pull/4227) [`47502c6`](https://github.com/reactive/data-client/commit/47502c664df913297fba3e5011a975dfd01c0d8d) - Type FETCH `action.meta.promise` as `Promise`
+
+  Managers can now call `.finally()` and `.catch()` on a FETCH action's `meta.promise` without a TypeScript error. It was always a real `Promise` at runtime, but was typed `PromiseLike`, which only has `.then()`.
+
+  ```ts
+  // Before: TypeScript error on .finally(), so both callbacks went to .then()
+  const track = () =>
+    trackTiming(action.endpoint.name, performance.now() - start);
+  action.meta.promise.then(track, track);
+
+  // After
+  action.meta.promise
+    .finally(() => {
+      trackTiming(action.endpoint.name, performance.now() - start);
+    })
+    // the fetch's caller handles errors; this only observes timing
+    .catch(() => {});
+  ```
+
+- [#4250](https://github.com/reactive/data-client/pull/4250) [`fc4b015`](https://github.com/reactive/data-client/commit/fc4b015ca0899a2685af881d17f765dce27ffc1a) - Fixture `args` accept readonly tuples
+
+  Fixtures written with `args: [...] as const` now type-check when passed to [MockResolver](https://dataclient.io/docs/api/MockResolver), `renderDataHook()`, Vue's `renderDataCompose()` or `mockInitialState()`. Before, TypeScript rejected them with "The type 'readonly [...]' is 'readonly' and cannot be assigned to the mutable type", so you had to drop `as const` or cast.
+
+  ```ts
+  const fixtures = [
+    {
+      endpoint: TodoResource.getList,
+      args: [{ userId: 1 }] as const,
+      response: [{ id: 1, title: 'Write tests', userId: 1 }],
+    },
+  ];
+
+  // Before: type error on `fixtures`. After: works as written
+  <MockResolver fixtures={fixtures}>
+    <TodoList />
+  </MockResolver>;
+  ```
+
+- [#4232](https://github.com/reactive/data-client/pull/4232) [`31b1820`](https://github.com/reactive/data-client/commit/31b182033106d5ce44352481577d3c321e39ebe9) - Fix `',' expected` errors on TypeScript 4.0 through 4.4
+
+  Importing `@data-client/react/redux`, `@data-client/react/nextjs` or `@data-client/test` failed to compile on TypeScript before 4.5, even with `skipLibCheck` on, because their declaration files used syntax those versions can't parse. They now compile on TypeScript 4.0 and later.
+
+  ```ts
+  import { DataProvider } from '@data-client/react/nextjs';
+  import { renderDataHook } from '@data-client/test';
+
+  // Before (TypeScript 4.0 to 4.4):
+  //   node_modules/@data-client/react/lib/server/nextjs/DataProvider/DataProvider.d.ts(1,15): error TS1005: ',' expected.
+  //   node_modules/@data-client/test/lib/makeRenderDataClient/index.d.ts(3,33): error TS1005: ',' expected.
+  // After: no errors
+  ```
+
+  `@data-client/vue/test` types now also resolve with `moduleResolution: "node"`.
+
+- [#4122](https://github.com/reactive/data-client/pull/4122) [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc) - Fix types for TypeScript 4.x when `skipLibCheck` is off
+
+  TypeScript 4.0 through 4.7 no longer report `Cannot find name 'NoInfer'` from `@data-client/endpoint` or `@data-client/normalizr`, and TypeScript 4.0 through 4.9 no longer report `Only named exports may use 'export type'` from `@data-client/normalizr`.
+
+  ```ts
+  import { Entity } from '@data-client/endpoint';
+  import { normalize } from '@data-client/normalizr';
+
+  // Before (TypeScript 4.7, skipLibCheck: false):
+  //   error TS2304: Cannot find name 'NoInfer'.
+  //   error TS1383: Only named exports may use 'export type'.
+  // After: no errors
+  ```
+
+- [#4378](https://github.com/reactive/data-client/pull/4378) [`5b1c7b8`](https://github.com/reactive/data-client/commit/5b1c7b8bd385f87e2d5e91a72dfa9b4d3eb4fd53) - Clear error for a [Manager](https://dataclient.io/docs/api/Manager) without `middleware`
+
+  A Manager must define [middleware](https://dataclient.io/docs/api/Manager#middleware). One without it used to crash
+  with `manager.middleware is not a function`; in development it now throws an error naming the Manager and linking to
+  the docs.
+
+- [#4378](https://github.com/reactive/data-client/pull/4378) [`5b1c7b8`](https://github.com/reactive/data-client/commit/5b1c7b8bd385f87e2d5e91a72dfa9b4d3eb4fd53) - Fix React Native screens refetching fresh data every time they regain focus
+
+  On React Native, [useSuspense()](https://dataclient.io/docs/api/useSuspense), [useFetch()](https://dataclient.io/docs/api/useFetch)
+  and [useDLE()](https://dataclient.io/docs/api/useDLE) revalidate when a screen comes back into focus. They checked
+  the expiry from the screen's first render, so once that data went stale, every refocus refetched it, even right after
+  a fetch had made it fresh. After the arguments changed, they could also refetch the old arguments.
+
+  Refocusing now refetches only when the current data is [stale](https://dataclient.io/docs/concepts/expiry-policy#stale)
+  or [invalid](https://dataclient.io/docs/concepts/expiry-policy#invalid), using the current arguments.
+
+- [#4437](https://github.com/reactive/data-client/pull/4437) [`ebf3c68`](https://github.com/reactive/data-client/commit/ebf3c6893ed49efd7e1f90b3b7997f8a923ed4b6) - Fix polling losing the schema of endpoints made with `.extend()`
+
+  When [pollFrequency](https://dataclient.io/rest/api/RestEndpoint#pollfrequency) was added with `.extend()`, each poll
+  stored its response without normalizing it. Lists read with [useLive()](https://dataclient.io/docs/api/useLive) or
+  [useSubscription()](https://dataclient.io/docs/api/useSubscription) then stopped updating from mutations, optimistic
+  updates and Collection pushes until the next poll arrived. Polls now keep the endpoint's `schema`, `process()` and other
+  options.
+
+  ```ts
+  const TodoResource = resource({
+    path: '/todos/:id',
+    schema: Todo,
+    optimistic: true,
+  });
+  const getTodos = TodoResource.getList.extend({ pollFrequency: 2000 });
+
+  const todos = useLive(getTodos);
+  // toggling a todo now re-renders this list right away, not on the next poll
+  ctrl.fetch(TodoResource.partialUpdate, { id }, { completed: true });
+  ```
+
+- [#4238](https://github.com/reactive/data-client/pull/4238) [`954b1e9`](https://github.com/reactive/data-client/commit/954b1e9041ba47b39b9ffdd53a55b0b16adc8675) - Fix TypeScript error passing `prepareStore()`'s store to react-redux's `<Provider>`
+
+  `prepareStore()` from `@data-client/react/redux` typed its `store` as a minimal object with only `getState()` and `subscribe()`, so [using it with React-Redux](https://dataclient.io/docs/guides/redux) needed a cast, and `store.dispatch()` was a TypeScript error. It's now typed as a Redux `Store`. Its `replaceReducer()` and `[Symbol.observable]()` aren't supported: they throw, and are typed as returning `never`.
+
+  ```tsx
+  const { store, selector, controller } = prepareStore(
+    initialState,
+    managers,
+    Controller,
+    otherReducers,
+    extraMiddlewares,
+  );
+
+  // Before: TypeScript error, so you had to cast
+  <Provider store={store as any}>
+
+  // After
+  <Provider store={store}>
+  ```
+
+- [#4355](https://github.com/reactive/data-client/pull/4355) [`4829b10`](https://github.com/reactive/data-client/commit/4829b1033a24f52e2a1d0e5a03532f9cfa4f525f) - Support React Native 0.87
+
+  React Native 0.87 removed `InteractionManager`, so apps on it crashed as soon as a component called `useSuspense()`, `useFetch()` or `useDLE()`. On 0.87 and later, Data Client now waits for idle time with `requestIdleCallback()`, as React Native recommends. Older React Native versions keep using `InteractionManager`.
+
+- [#4019](https://github.com/reactive/data-client/pull/4019) [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e) Thanks [@renovate](https://github.com/apps/renovate)! - Fix TypeScript 7 module resolution for package exports
+
+  TypeScript 7 requires a `types` condition in `package.json` `exports`. Without it, imports resolved to runtime entrypoints like `node.mjs` and lost declaration files.
+
+- Updated dependencies [[`b475613`](https://github.com/reactive/data-client/commit/b4756135b70e4fb79e9146114a1266b4f7b4a4cb), [`b4899d0`](https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169), [`f343f9d`](https://github.com/reactive/data-client/commit/f343f9d42a12f3ad763fac96362166d3b3156b69), [`46f1f24`](https://github.com/reactive/data-client/commit/46f1f24bcb04824805747ed2a1effe7baece337c), [`a82758c`](https://github.com/reactive/data-client/commit/a82758cd1998e58d7ad280407db28bd84f5d7b18), [`b55696c`](https://github.com/reactive/data-client/commit/b55696c72ad3e73e0a2f50d3751c7104cd4ad9ee), [`c3b8c54`](https://github.com/reactive/data-client/commit/c3b8c54bc3062cf082e67c215310cb98b3a03078), [`b1d40fd`](https://github.com/reactive/data-client/commit/b1d40fd80c9aa292f5cdbce9b573e7749d889069), [`74e67fa`](https://github.com/reactive/data-client/commit/74e67fa2c4f9f104f5b7a49e877a48e5963e4bd2), [`a32740d`](https://github.com/reactive/data-client/commit/a32740d14de86b7006ccc497484dd52c0bc54c23), [`159c963`](https://github.com/reactive/data-client/commit/159c9633679d95427fe4f626aec341c76e4578f8), [`4549122`](https://github.com/reactive/data-client/commit/4549122004244990a564781a61145ae9ea98370e), [`47502c6`](https://github.com/reactive/data-client/commit/47502c664df913297fba3e5011a975dfd01c0d8d), [`fc4b015`](https://github.com/reactive/data-client/commit/fc4b015ca0899a2685af881d17f765dce27ffc1a), [`31f3ddb`](https://github.com/reactive/data-client/commit/31f3ddbc178ade2a7f59f7029a54c416df70e003), [`5b1c7b8`](https://github.com/reactive/data-client/commit/5b1c7b8bd385f87e2d5e91a72dfa9b4d3eb4fd53), [`ebf3c68`](https://github.com/reactive/data-client/commit/ebf3c6893ed49efd7e1f90b3b7997f8a923ed4b6), [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e)]:
+  - @data-client/core@0.19.0
+  - @data-client/use-enhanced-reducer@0.1.15
+
 ## 0.18.1
 
 ### Patch Changes

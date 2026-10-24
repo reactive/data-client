@@ -1,5 +1,127 @@
 # @data-client/test
 
+## 0.19.0
+
+### Minor Changes
+
+- [#4151](https://github.com/reactive/data-client/pull/4151) [`4549122`](https://github.com/reactive/data-client/commit/4549122004244990a564781a61145ae9ea98370e) - BREAKING: Require TypeScript 4.0 or later
+
+  The TypeScript 3.x type declarations are removed. They no longer type-checked on any TypeScript 3.x version, and
+  `@data-client/rest` already required TypeScript 4.0. Upgrade TypeScript to 4.0 or later.
+
+  ```diff title="package.json"
+  - "typescript": "^3.9.0"
+  + "typescript": "^4.0.0"
+  ```
+
+- [#4414](https://github.com/reactive/data-client/pull/4414) [`38acf12`](https://github.com/reactive/data-client/commit/38acf129ac4a3ed2a15167ab5818cdf53290f45b) - BREAKING: `@data-client/test` requires `@data-client/react` 0.15.3 or later
+
+  Support for `@data-client/react` 0.12 through 0.15.2 is dropped, since `@data-client/test` imports
+  `@data-client/react/mock`, which first loads in Jest and other CommonJS tests in 0.15.3. Upgrade `@data-client/react`
+  along with `@data-client/test`.
+
+  ```diff title="package.json"
+  - "@data-client/react": "^0.14.0",
+  + "@data-client/react": "^0.19.0",
+  ```
+
+  `Fixture`, `Interceptor`, and the other fixture types from `@data-client/test` are now the same types that
+  `@data-client/react/mock` exports, so fixtures typed with either import work everywhere.
+
+### Patch Changes
+
+- [#4209](https://github.com/reactive/data-client/pull/4209) [`b4899d0`](https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169) Thanks [@renovate](https://github.com/apps/renovate)! - Support `@babel/runtime` 8
+
+  Apps on Babel 8 now share their `@babel/runtime` with Data Client instead of installing a second copy. Apps on Babel 7 keep working unchanged.
+
+- [#4228](https://github.com/reactive/data-client/pull/4228) [`b55696c`](https://github.com/reactive/data-client/commit/b55696c72ad3e73e0a2f50d3751c7104cd4ad9ee) - Fix TypeScript error passing a `Controller` subclass to `DataProvider` or `DataClientPlugin`
+
+  A plain `class MyController extends Controller` failed to typecheck as the `Controller` option of [DataProvider](https://dataclient.io/docs/api/DataProvider#Controller), Vue's [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin#Controller), and the `@data-client/react/redux` `DataProvider`, so the documented example needed a cast. `MockController()` from `@data-client/core/mock` had the same error when wrapping your subclass. These now typecheck, and you can drop the casts.
+
+  ```tsx
+  class MyController extends Controller {
+    doSomething = () => console.log('hi');
+  }
+
+  // Before: TypeScript error, so you had to cast
+  <DataProvider Controller={MyController as typeof Controller}>
+  app.use(DataClientPlugin, { Controller: MyController as typeof Controller });
+
+  // After
+  <DataProvider Controller={MyController}>
+  app.use(DataClientPlugin, { Controller: MyController });
+  ```
+
+- [#4420](https://github.com/reactive/data-client/pull/4420) [`c3b8c54`](https://github.com/reactive/data-client/commit/c3b8c54bc3062cf082e67c215310cb98b3a03078) - Fix fixture types needing `@data-client/endpoint` installed
+
+  `Fixture` and the other fixture types from `@data-client/react/mock`, `@data-client/core/mock` and `@data-client/test` no
+  longer resolve `@data-client/endpoint`, which those packages don't depend on. Projects that install only
+  `@data-client/react` and `@data-client/test` (for example with pnpm's strict layout) no longer get
+  `Cannot find module '@data-client/endpoint'` when type-checking fixtures.
+
+- [#4250](https://github.com/reactive/data-client/pull/4250) [`fc4b015`](https://github.com/reactive/data-client/commit/fc4b015ca0899a2685af881d17f765dce27ffc1a) - Fixture `args` accept readonly tuples
+
+  Fixtures written with `args: [...] as const` now type-check when passed to [MockResolver](https://dataclient.io/docs/api/MockResolver), `renderDataHook()`, Vue's `renderDataCompose()` or `mockInitialState()`. Before, TypeScript rejected them with "The type 'readonly [...]' is 'readonly' and cannot be assigned to the mutable type", so you had to drop `as const` or cast.
+
+  ```ts
+  const fixtures = [
+    {
+      endpoint: TodoResource.getList,
+      args: [{ userId: 1 }] as const,
+      response: [{ id: 1, title: 'Write tests', userId: 1 }],
+    },
+  ];
+
+  // Before: type error on `fixtures`. After: works as written
+  <MockResolver fixtures={fixtures}>
+    <TodoList />
+  </MockResolver>;
+  ```
+
+- [#4232](https://github.com/reactive/data-client/pull/4232) [`31b1820`](https://github.com/reactive/data-client/commit/31b182033106d5ce44352481577d3c321e39ebe9) - Fix `',' expected` errors on TypeScript 4.0 through 4.4
+
+  Importing `@data-client/react/redux`, `@data-client/react/nextjs` or `@data-client/test` failed to compile on TypeScript before 4.5, even with `skipLibCheck` on, because their declaration files used syntax those versions can't parse. They now compile on TypeScript 4.0 and later.
+
+  ```ts
+  import { DataProvider } from '@data-client/react/nextjs';
+  import { renderDataHook } from '@data-client/test';
+
+  // Before (TypeScript 4.0 to 4.4):
+  //   node_modules/@data-client/react/lib/server/nextjs/DataProvider/DataProvider.d.ts(1,15): error TS1005: ',' expected.
+  //   node_modules/@data-client/test/lib/makeRenderDataClient/index.d.ts(3,33): error TS1005: ',' expected.
+  // After: no errors
+  ```
+
+  `@data-client/vue/test` types now also resolve with `moduleResolution: "node"`.
+
+- [#4099](https://github.com/reactive/data-client/pull/4099) [`4ae6080`](https://github.com/reactive/data-client/commit/4ae608081ed33c6ce5ab3c0032276cc3069311f8) - Fix mount effects when `renderDataHook()` suspends on the first render
+
+  `renderDataHook()` and `makeRenderDataHook()` now run provider mount effects when the first render suspends, including `use(useFetch())`. The hook result stays unresolved until the data arrives.
+
+- [#4251](https://github.com/reactive/data-client/pull/4251) [`dc84c02`](https://github.com/reactive/data-client/commit/dc84c02853fd4adafd79c1c96636c259df04abf7) - Fix `act` and `renderHook` typed as `any` on TypeScript 4.0–4.4
+
+  `act()`, `renderHook()` and `RenderHookOptions` from `@data-client/test` were `any` on TypeScript 4.0–4.4, and
+  reported `Cannot find module './renderHook.cjs'` with `skipLibCheck` off. They now have their real types:
+
+  ```ts
+  import { act, renderHook } from '@data-client/test';
+
+  const { result } = renderHook(() => 5);
+  result.current; // number
+  await act(() => Promise.resolve(5)); // number
+  ```
+
+- [#4374](https://github.com/reactive/data-client/pull/4374) [`274fc07`](https://github.com/reactive/data-client/commit/274fc0795105bb3ece3ec6b9966dc03b14bbac36) Thanks [@renovate](https://github.com/apps/renovate)! - Support React Native Testing Library 14
+
+  [renderDataHook()](https://dataclient.io/docs/api/renderDataHook) keeps working on React Native after upgrading to `@testing-library/react-native` 14, and stays synchronous, so existing `renderDataHook()` calls need no `await`. Install `test-renderer`, which RNTL 14 needs anyway. Projects on RNTL 13 keep working unchanged.
+
+- [#4019](https://github.com/reactive/data-client/pull/4019) [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e) Thanks [@renovate](https://github.com/apps/renovate)! - Fix TypeScript 7 module resolution for package exports
+
+  TypeScript 7 requires a `types` condition in `package.json` `exports`. Without it, imports resolved to runtime entrypoints like `node.mjs` and lost declaration files.
+
+- Updated dependencies [[`b475613`](https://github.com/reactive/data-client/commit/b4756135b70e4fb79e9146114a1266b4f7b4a4cb), [`b4899d0`](https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169), [`2c260a9`](https://github.com/reactive/data-client/commit/2c260a97b2d5b482de9de4b960d52b5c7f579777), [`f343f9d`](https://github.com/reactive/data-client/commit/f343f9d42a12f3ad763fac96362166d3b3156b69), [`46f1f24`](https://github.com/reactive/data-client/commit/46f1f24bcb04824805747ed2a1effe7baece337c), [`a82758c`](https://github.com/reactive/data-client/commit/a82758cd1998e58d7ad280407db28bd84f5d7b18), [`b55696c`](https://github.com/reactive/data-client/commit/b55696c72ad3e73e0a2f50d3751c7104cd4ad9ee), [`c3b8c54`](https://github.com/reactive/data-client/commit/c3b8c54bc3062cf082e67c215310cb98b3a03078), [`3e45bac`](https://github.com/reactive/data-client/commit/3e45bac4bc06e9bfd3a38cc1b2118e5eee126a2e), [`74e67fa`](https://github.com/reactive/data-client/commit/74e67fa2c4f9f104f5b7a49e877a48e5963e4bd2), [`a32740d`](https://github.com/reactive/data-client/commit/a32740d14de86b7006ccc497484dd52c0bc54c23), [`159c963`](https://github.com/reactive/data-client/commit/159c9633679d95427fe4f626aec341c76e4578f8), [`4549122`](https://github.com/reactive/data-client/commit/4549122004244990a564781a61145ae9ea98370e), [`47502c6`](https://github.com/reactive/data-client/commit/47502c664df913297fba3e5011a975dfd01c0d8d), [`fc4b015`](https://github.com/reactive/data-client/commit/fc4b015ca0899a2685af881d17f765dce27ffc1a), [`31b1820`](https://github.com/reactive/data-client/commit/31b182033106d5ce44352481577d3c321e39ebe9), [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc), [`31f3ddb`](https://github.com/reactive/data-client/commit/31f3ddbc178ade2a7f59f7029a54c416df70e003), [`5b1c7b8`](https://github.com/reactive/data-client/commit/5b1c7b8bd385f87e2d5e91a72dfa9b4d3eb4fd53), [`5b1c7b8`](https://github.com/reactive/data-client/commit/5b1c7b8bd385f87e2d5e91a72dfa9b4d3eb4fd53), [`ebf3c68`](https://github.com/reactive/data-client/commit/ebf3c6893ed49efd7e1f90b3b7997f8a923ed4b6), [`954b1e9`](https://github.com/reactive/data-client/commit/954b1e9041ba47b39b9ffdd53a55b0b16adc8675), [`4829b10`](https://github.com/reactive/data-client/commit/4829b1033a24f52e2a1d0e5a03532f9cfa4f525f), [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e)]:
+  - @data-client/react@0.19.0
+
 ## 0.18.0
 
 ### Patch Changes
