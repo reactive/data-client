@@ -246,8 +246,8 @@ export default function PostDetail({ id }: { id: string }) {
     <article>
       <h2>{post.title}</h2>
       <p className="byline">
-        <Avatar src={post.avatar} size={24} />
-        <b>{post.author}</b>
+        <Avatar src={post.avatar} size={20} />
+        {post.author}
       </p>
       <p>{post.body}</p>
     </article>
