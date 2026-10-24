@@ -34,6 +34,9 @@ export default class WeakDependencyMap<
   private readonly next = new WeakMap<K, Node<Path, V>>();
   /** Sticky: true once any function-typed (`argsKey`) dep has been stored. */
   private hasStr = false;
+  /** The entry the latest `get` hit or `set` wrote, for `lastRead()`. */
+  private lastNode: Node<Path, V> | undefined = undefined;
+  private lastEntry: Entry<Path, V> | undefined = undefined;
 
   get(
     entity: K,
@@ -53,6 +56,8 @@ export default class WeakDependencyMap<
             entries.splice(i, 1);
             entries.unshift(entry);
           }
+          this.lastNode = node;
+          this.lastEntry = entry;
           return [entry.value, entry.journey] as readonly [V, Path[]];
         }
       }
@@ -109,10 +114,13 @@ export default class WeakDependencyMap<
       // we could recompute this on get, but it would have a cost and we optimize for `get`
       journey: journey ?? (dependencies.map(d => d.path) as Path[]),
     };
+    this.lastEntry = entry;
     if (!node) {
-      this.next.set(root, newNode(entry));
+      this.lastNode = newNode(entry);
+      this.next.set(root, this.lastNode);
       return;
     }
+    this.lastNode = node;
     // A store can flip back to a version it already showed: React renders the
     // committed store between retries of a pending transition, which build new
     // entities each time, and rolling back an optimistic update returns to the
@@ -122,9 +130,31 @@ export default class WeakDependencyMap<
     if (!node.kept) node.kept = entry;
     entries.unshift(entry);
     if (entries.length > MAX_ENTRIES) {
-      const last = entries.length - 1;
-      entries.splice(entries[last] === node.kept ? last - 1 : last, 1);
+      // evict the least recently used entry that isn't pinned
+      let i = entries.length - 1;
+      while (entries[i] === node.kept || entries[i] === node.committed) i--;
+      entries.splice(i, 1);
     }
+  }
+
+  /** The entry the latest `get` hit or `set` wrote, to pass to `keep()` later. */
+  lastRead(): KeepToken | undefined {
+    const node = this.lastNode;
+    const entry = this.lastEntry;
+    this.lastNode = this.lastEntry = undefined;
+    return node && entry ? { node, entry } : undefined;
+  }
+
+  /** Never evict this entry: its result was committed. React serves
+   * re-renders of a committed store from hook memos without asking the
+   * cache, so recency alone can't tell a committed result from a one-off
+   * render of a pending transition. */
+  keep(token: KeepToken): void {
+    const { node, entry } = token as {
+      node: Node<Path, V>;
+      entry: Entry<Path, V>;
+    };
+    if (node.entries.includes(entry)) node.committed = entry;
   }
 
   /** True once any `argsKey`-style dep has been written. Consumers can use
@@ -162,6 +192,12 @@ export interface Dep<Path, K = object> {
 
 const EMPTY = [undefined, undefined] as const;
 
+/** Opaque handle to one cached entry; see `WeakDependencyMap.lastRead()`. */
+export interface KeepToken {
+  readonly node: unknown;
+  readonly entry: unknown;
+}
+
 /** Entries kept per (first dependency, `argsKey` results). */
 const MAX_ENTRIES = 3;
 
@@ -171,6 +207,8 @@ interface Node<Path, V> {
   entries: Entry<Path, V>[];
   /** Never evicted: the entry most recently read back after a newer one. */
   kept: Entry<Path, V> | undefined;
+  /** Never evicted: the entry most recently read by a committed render. */
+  committed: Entry<Path, V> | undefined;
   /** The next `argsKey` dependency; its result picks the child. */
   fn: KeyFn | undefined;
   children: Map<string, Node<Path, V>> | undefined;
@@ -180,6 +218,7 @@ function newNode<Path, V>(entry: Entry<Path, V> | undefined): Node<Path, V> {
   return {
     entries: entry ? [entry] : [],
     kept: entry,
+    committed: undefined,
     fn: undefined,
     children: undefined,
   };

@@ -1113,3 +1113,35 @@ describe('MemoCache nested entity dependencies', () => {
     expect(second.data).toBe(first.data);
   });
 });
+
+describe('MemoCache.commit', () => {
+  class Todo extends Entity {
+    id = '';
+    title = '';
+  }
+  const input = ['1', '2'];
+  const store = (title: string) => ({
+    Todo: { '1': { id: '1', title }, '2': { id: '2', title: 'b' } },
+  });
+
+  it('keeps a committed result through any number of one-off reads', () => {
+    const memo = new MemoCache();
+    const committed = store('committed');
+    const first = memo.denormalize([Todo], input, committed).data;
+    memo.commit(committed);
+    // a pending transition: each retry builds new entities, read once
+    for (let i = 0; i < 5; i++)
+      memo.denormalize([Todo], input, store(`retry ${i}`));
+    expect(memo.denormalize([Todo], input, committed).data).toBe(first);
+  });
+
+  it('without commit, one-off reads push out a result read only once', () => {
+    const memo = new MemoCache();
+    memo.denormalize([Todo], input, store('first'));
+    const committed = store('committed');
+    const first = memo.denormalize([Todo], input, committed).data;
+    for (let i = 0; i < 5; i++)
+      memo.denormalize([Todo], input, store(`retry ${i}`));
+    expect(memo.denormalize([Todo], input, committed).data).not.toBe(first);
+  });
+});
