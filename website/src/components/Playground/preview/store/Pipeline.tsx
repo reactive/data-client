@@ -1,10 +1,9 @@
 import clsx from 'clsx';
 import React, { useMemo, useState } from 'react';
 
-import { actionName, type SubjectFilter } from './actionGroups';
+import { actionName } from './actionGroups';
 import type { LogEntry } from './actionLog';
-import { TypeName, useActions } from './actionParts';
-import { APP, pipeline, routesOf, shownChain } from './attribution';
+import { APP, pipeline } from './attribution';
 import styles from './store.module.css';
 
 /** Every dispatch's way to the store: the app, then each manager of the
@@ -56,9 +55,12 @@ export function Pipeline({
 export function ActionPath({
   chain,
   entry: { seq, action, origin = APP, consumedBy, store },
+  children,
 }: {
   chain: readonly string[];
   entry: LogEntry;
+  /** After the store, on its line */
+  children?: React.ReactNode;
 }) {
   // a manager's dispatch starts down the chain from its top, not the app
   const ids = origin === APP ? [APP, ...chain] : chain;
@@ -97,43 +99,36 @@ export function ActionPath({
           ),
         };
       })}
-    />
+    >
+      {children}
+    </Strip>
   );
 }
 
-/** Each way `entries` (a request's actions, those `filter` lists) took
- * through the managers, once, with how many took it: a fetch the app sent
- * and NetworkManager handled, then the response it sent on to the store */
-export function GroupPaths({
-  entries,
-  filter,
+/** The path one way a request's actions took through the managers, under
+ * the first step to take it, with how many took it */
+export function StepPath({
+  chain,
+  entry,
+  n,
 }: {
-  entries: readonly LogEntry[];
-  filter: SubjectFilter;
+  chain: readonly string[];
+  entry: LogEntry;
+  n: number;
 }) {
-  const chain = shownChain(useActions().history.managers);
-  const routes = useMemo(
-    () => routesOf(entries.filter(filter.lists)),
-    [entries, filter],
-  );
-  if (!chain) return null;
   return (
-    <>
-      {routes.map(({ entry, n }) => (
-        <div key={entry.seq} className={styles.route}>
-          <span className={styles.routeName}>
-            <TypeName entry={entry} />
-            {n > 1 && (
-              <span className={styles.dim} title={n + ' actions took this way'}>
-                {' '}
-                ×{n}
-              </span>
-            )}
+    <div className={styles.stepPath}>
+      <ActionPath chain={chain} entry={entry}>
+        {n > 1 && (
+          <span
+            className={styles.stepCount}
+            title={n + ' actions took this way'}
+          >
+            ×{n}
           </span>
-          <ActionPath chain={chain} entry={entry} />
-        </div>
-      ))}
-    </>
+        )}
+      </ActionPath>
+    </div>
   );
 }
 
@@ -153,10 +148,13 @@ function Strip({
   label,
   stored = true,
   stages,
+  children,
 }: {
   label: string;
   stored?: boolean;
   stages: readonly Shown[];
+  /** After the store, on its line */
+  children?: React.ReactNode;
 }) {
   /** The stages of the runs opened: a run (of two or more) is open while
    * any of its stages is, so one that grows or shrinks as managers start or
@@ -231,6 +229,7 @@ function Strip({
         >
           store
         </span>
+        {children}
       </Step>
     </div>
   );

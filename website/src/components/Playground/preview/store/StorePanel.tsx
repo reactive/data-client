@@ -77,7 +77,6 @@ import {
   type LevelView,
   type View,
 } from './nav';
-import { GroupPaths } from './Pipeline';
 import { Preview, usePreview } from './Preview';
 import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
@@ -1049,9 +1048,10 @@ function ActionLevel({
       : <>
           {group && span ?
             <div className={styles.actBody}>
-              <SubjectChanges entries={span} subject={subject} />
-              <GroupPaths entries={span} filter={filter} />
+              <h3 className={styles.sectionLabel}>Steps</h3>
               <GroupActions group={group} subject={subject} filter={filter} />
+              <h3 className={styles.sectionLabel}>Store changes</h3>
+              <SubjectChanges entries={span} subject={subject} />
             </div>
           : <ActionDetail
               entry={entry}

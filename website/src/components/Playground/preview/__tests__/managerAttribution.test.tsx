@@ -550,13 +550,17 @@ describe('Store panel pipeline', () => {
     fireEvent.click(listed()[0]);
     const paths = await screen.findAllByRole('group', { name: /^Path/ });
     expect(paths.map(p => p.textContent)).toEqual([
-      'the app→NetworkManager⊘ handled it→store',
+      'the app→NetworkManager⊘ handled it→store×2',
       // a manager's dispatch starts at the top of the chain
       'NetworkManager↑ sent it→store',
     ]);
-    // the deduped fetch took the same way
-    expect(paths[0].parentElement?.firstElementChild?.textContent).toBe(
-      'fetch ×2',
+    // each under the first step to take it; the deduped fetch took the
+    // same way
+    const fetchPath = paths[0].parentElement;
+    expect(fetchPath?.previousElementSibling?.textContent).toMatch(/fetch/);
+    expect(paths[0].textContent).toMatch(/store×2$/);
+    expect(paths[1].parentElement?.previousElementSibling?.textContent).toMatch(
+      /setResponse/,
     );
   });
 

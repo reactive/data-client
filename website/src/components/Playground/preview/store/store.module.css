@@ -1041,20 +1041,31 @@ div.gapRow {
   padding: 0.4rem 0.75rem 0;
   border: none;
 }
-.route {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.2rem 0.75rem;
-  padding: 0.4rem 0.75rem 0;
+/* a step's path through the managers, quiet under it: only the stages
+   that sent or handled it keep a tint */
+.stepPath {
+  padding: 0 0.75rem 0.3rem calc(0.75rem + 3.2em + 0.45rem);
 }
-.route > .pipeline {
+.stepCount {
+  padding-left: 0.6rem;
+  color: var(--store-dim);
+}
+.stepPath > .pipeline {
+  row-gap: 0.1rem;
   padding: 0;
   border: none;
 }
-.routeName {
-  min-width: 7rem;
-  font: 400 11px / 1.5 var(--ifm-font-family-monospace);
+.stepPath .stage:not(.stageFold) {
+  padding: 0 0.3rem;
+  border-color: transparent;
+  color: var(--store-muted);
+}
+.stepPath .stage.stageSender {
+  background: var(--store-selected);
+  color: var(--store-fg);
+}
+.stepPath .stage.stageStop {
+  color: var(--store-stale);
 }
 .stageStep {
   display: inline-flex;
@@ -1225,6 +1236,17 @@ button.stage:focus-visible {
 .groupSteps > .steps {
   max-height: none;
   overflow-y: visible;
+  margin: 0;
+  border: none;
+}
+/* the headings of a request's sections */
+.sectionLabel {
+  margin: 0;
+  padding: 0.75rem 0.75rem 0.25rem;
+  font: 600 10px / 1.6 var(--ifm-font-family-base);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--store-dim);
 }
 div.stepRow {
   flex-wrap: wrap;

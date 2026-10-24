@@ -38,12 +38,12 @@ import {
   useFollow,
   useLog,
 } from './actionParts';
-import { APP, shownChain } from './attribution';
+import { APP, routesOf, shownChain } from './attribution';
 import type { Header } from './DiveViews';
 import { byData, onActivateKey, revealIn, toggled } from './dom';
 import { actionId } from './model';
 import { ActionSpanContext, useNavState, type View } from './nav';
-import { Pipeline } from './Pipeline';
+import { Pipeline, StepPath } from './Pipeline';
 import styles from './store.module.css';
 
 /** The groups with an action that touched the subject */
@@ -465,13 +465,30 @@ export function GroupActions({
   filter: SubjectFilter;
 }) {
   const { show } = useNavState();
+  const chain = shownChain(useActions().history.managers);
+  const entries = groupEntriesOf(group);
+  // each way its actions took, under the first step to take it
+  const paths =
+    chain &&
+    new Map(
+      routesOf(entries.filter(filter.lists)).map(({ entry, n }) => [
+        entry.seq,
+        <StepPath
+          key={'path ' + entry.seq}
+          chain={chain}
+          entry={entry}
+          n={n}
+        />,
+      ]),
+    );
   return (
     <div className={styles.groupSteps}>
       <Steps
         group={group}
         subject={subject}
         lists={filter.lists}
-        notes={gapNotes(groupEntriesOf(group), filter.gaps)}
+        notes={gapNotes(entries, filter.gaps)}
+        paths={paths}
         onSelect={show}
       />
     </div>
@@ -488,6 +505,7 @@ function Steps({
   subject,
   lists,
   notes,
+  paths,
   onSelect,
 }: {
   group: ActionGroup;
@@ -495,6 +513,8 @@ function Steps({
   subject: View;
   lists: SubjectFilter['lists'];
   notes: ReadonlyMap<number, ChangeKind>;
+  /** What to show under a step, by its seq */
+  paths?: ReadonlyMap<number, React.ReactNode>;
   onSelect: (seq: number) => void;
 }) {
   const all = groupEntriesOf(group);
@@ -523,6 +543,7 @@ function Steps({
                 onSelect={onSelect}
               />
             ),
+            lists(entry) && paths?.get(entry.seq),
           ];
         }
         if (counted.has(request)) return null;
