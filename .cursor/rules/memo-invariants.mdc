@@ -1,0 +1,9 @@
+---
+description: Memoization invariants for normalizr's MemoCache and WeakDependencyMap
+globs: packages/normalizr/src/memo/**, packages/normalizr/src/denormalize/**, packages/endpoint/src/schemas/**
+alwaysApply: false
+---
+
+# Memo invariants
+
+Before changing memoization, or a schema's `denormalize`, read "Memo invariants" in `packages/normalizr/AGENTS.md`. Every change must keep all of them. Cover any new edge case with a test in one of the files listed there.

@@ -1,4 +1,4 @@
-import { UNDEF } from '../denormalize/UNDEF.js';
+import { depKey } from '../denormalize/UNDEF.js';
 
 /** Function path used by `argsKey` deps. Distinguished from object paths
  * via `typeof === 'function'`. */
@@ -38,8 +38,8 @@ export default class WeakDependencyMap<
     if (!curLink) return EMPTY;
     if (this.hasStr) return this._getMixed(curLink, getDependency, args);
     while (curLink.nextPath) {
-      // we cannot perform lookups with `undefined`, so we use a special object to represent undefined
-      const nextDependency = getDependency(curLink.nextPath as Path) ?? UNDEF;
+      // WeakMap keys must be objects, so other values use a stand-in
+      const nextDependency = depKey(getDependency(curLink.nextPath as Path));
       const nextLink = curLink.next.get(nextDependency as any);
       if (!nextLink) return EMPTY;
       curLink = nextLink;
@@ -60,7 +60,7 @@ export default class WeakDependencyMap<
         const keyValue = (curLink.nextPath as KeyFn)(args) ?? UNDEF_KEY;
         nextLink = curLink.nextStr?.get(keyValue);
       } else {
-        const nextDependency = getDependency(curLink.nextPath as Path) ?? UNDEF;
+        const nextDependency = depKey(getDependency(curLink.nextPath as Path));
         nextLink = curLink.next.get(nextDependency as any);
       }
       if (!nextLink) return EMPTY;
@@ -95,11 +95,11 @@ export default class WeakDependencyMap<
           curLink.nextStr.set(k, nextLink);
         }
       } else {
-        nextLink = curLink.next.get(dep.entity as K);
+        const key = depKey(dep.entity) as K;
+        nextLink = curLink.next.get(key);
         if (!nextLink) {
           nextLink = new Link<Path, K, V>();
-          // void members are represented as a symbol so we can lookup
-          curLink.next.set((dep.entity ?? UNDEF) as K, nextLink);
+          curLink.next.set(key, nextLink);
         }
       }
       curLink.nextPath = dep.path as any;

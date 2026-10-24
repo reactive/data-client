@@ -11,6 +11,22 @@ Non-obvious constraints when changing `src/memo/`, `src/denormalize/`, or `src/i
 - **Storage shape is API.** `state.entities[key][pk]` is observed by snapshot tests, SSR payloads, and devtools. Shape changes are breaking even when normalize/denormalize round-trip correctly.
 - **Cache invalidation is reference-driven.** A new object at `entities[key][pk]` busts every chain through that step. Storing multiple logical cells under one `pk` invalidates them all on any single-cell write.
 
+## Memo invariants
+
+Every change to `src/memo/`, or to a schema's `denormalize`, must keep these. Tests: `src/__tests__/WeakDependencyMap.test.ts`, `src/__tests__/MemoCache.ts`, `packages/react/src/__tests__/concurrent-memo.web.tsx`.
+
+1. **Sound hits.** A hit returns only a value computed from exactly these entity objects (`===`; `depKey()` stands in for `undefined`, `null` and `INVALID`) and these `argsKey` results.
+2. **Complete dependencies.** Every entity and `argsKey` a computation reads is recorded, including deps replayed from a nested hit, and including entities that are missing, `null` or `INVALID`.
+3. **Deterministic.** The same reads lead to the same further reads and an equal result. All args-dependence goes through a pure, referentially stable `argsKey` fn.
+4. **Complete journey.** The paths returned with a hit cover every entity the value depends on; subscriptions and GC count refs from them. Callers never mutate it.
+5. **Weak retention.** A cached value lives only while what it is keyed on is reachable.
+6. **Stable identity.** The same reads return the same object while it is cached.
+
+Accepted limitations (intentional; don't "fix"):
+
+- The results cache is keyed by the input object, not the schema. Two schemas only see the same result object if two endpoints share a cache key, which is already a bug in the endpoints.
+- Entities past the max entity depth (64) are read but not tracked. The depth limit exists to bound recursion; changes that deep don't invalidate ancestors.
+
 ## Schema-tree traversal pattern
 
 When walking the schema *definition* (not data), the canonical recursion is used in many places. Keep it consistent:
