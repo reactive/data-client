@@ -7,7 +7,7 @@ import {
 } from '@data-client/react';
 import { mockInitialState } from '@data-client/test';
 import { act, render } from '@testing-library/react';
-import { Todo } from '__tests__/concurrentFixtures';
+import { makeGetTodo, Todo } from '__tests__/concurrentFixtures';
 import type { TodoItem } from '__tests__/concurrentFixtures';
 import React, { Suspense, useState, useTransition, version } from 'react';
 
@@ -37,10 +37,7 @@ const getTodoList = new Endpoint(() => Promise.resolve(rows()), {
   schema: [Todo],
   name: 'getTodoList',
 });
-const getTodo = new Endpoint(
-  ({ id }: { id: string }) => Promise.resolve({ id, title: id }),
-  { schema: Todo, name: 'getTodo' },
-);
+const getTodo = makeGetTodo(({ id }) => Promise.resolve({ id, title: id }));
 const getNote = new Endpoint(
   ({ id }: { id: string }) => Promise.resolve({ id, text: id }),
   { schema: Note, name: 'getNote' },
@@ -98,12 +95,12 @@ function List() {
     data: todos,
     who: 'render',
   });
-  return <div data-testid="count">{todos.length}</div>;
+  return <div>{todos.length}</div>;
 }
 
 function Detail({ id }: { id: string }) {
   const todo = useSuspense(getDetail, { id });
-  return <div data-testid="detail">{todo.title}</div>;
+  return <div>{todo.title}</div>;
 }
 
 let controller: ReturnType<typeof useController>;
@@ -194,17 +191,14 @@ function mount(consumers: number) {
   );
 }
 
+const writeTodo = (id: string, title: string) => {
+  controller.setResponse(getTodo, { id }, { id, title });
+};
+
 function beginTransition(row: string, id: string) {
   act(() => {
     startTransition(() => {
-      controller.setResponse(
-        getTodo,
-        { id: row },
-        {
-          id: row,
-          title: `from transition ${id}`,
-        },
-      );
+      writeTodo(row, `from transition ${id}`);
       showDetail(id);
     });
   });
@@ -287,16 +281,7 @@ describeConcurrent.each([1, 2])(
       mount(consumers);
       beginTransition('5', 'X');
       for (let i = 0; i < 5; i++) {
-        act(() => {
-          controller.setResponse(
-            getTodo,
-            { id: '7' },
-            {
-              id: '7',
-              title: `urgent ${i}`,
-            },
-          );
-        });
+        act(() => writeTodo('7', `urgent ${i}`));
       }
       await finishTransition('X');
       trace('listed row writes');
@@ -361,11 +346,7 @@ describeConcurrent.each([1, 2])(
       await finishTransition('Y');
       trace('second transition');
       expect(flipBacks(reads)).toBeGreaterThan(0);
-      // The committed rows changed when the first write committed, and typing
-      // re-renders are served by useSuspense's useMemo, so the memo never
-      // sees them re-read before the transition's retries push them out.
-      // That costs one recompute, after which they are kept.
-      expect(avoidableMisses(reads)).toBeLessThanOrEqual(1);
+      expect(avoidableMisses(reads)).toBe(0);
     });
 
     it('reads outside render during optimistic updates, across a resolved mutation', async () => {
@@ -406,21 +387,17 @@ describeConcurrent.each([1, 2])(
     it('the same pattern as the existing typing test, after two committed writes to a row', async () => {
       mount(consumers);
       act(() => {
-        controller.setResponse(getTodo, { id: '9' }, { id: '9', title: 'v2' });
+        writeTodo('9', 'v2');
       });
       act(() => {
-        controller.setResponse(getTodo, { id: '9' }, { id: '9', title: 'v3' });
+        writeTodo('9', 'v3');
       });
       beginTransition('5', 'X');
       for (let i = 0; i < 3; i++) act(() => typeText(`a${i}`));
       await finishTransition('X');
       trace('typing after two committed writes');
       expect(flipBacks(reads)).toBeGreaterThan(0);
-      // The committed rows changed when the first write committed, and typing
-      // re-renders are served by useSuspense's useMemo, so the memo never
-      // sees them re-read before the transition's retries push them out.
-      // That costs one recompute, after which they are kept.
-      expect(avoidableMisses(reads)).toBeLessThanOrEqual(1);
+      expect(avoidableMisses(reads)).toBe(0);
     });
   },
 );

@@ -1,6 +1,5 @@
 import type Cache from './cache.js';
 import { INVALID } from './symbol.js';
-import { depKey, UNDEF } from './UNDEF.js';
 import type {
   EntityInterface,
   EntityPath,
@@ -23,45 +22,26 @@ const getUnvisitEntity = (
     const inputIsId = typeof entityOrId !== 'object';
     const entity =
       inputIsId ? getEntity({ key: schema.key, pk: entityOrId }) : entityOrId;
-    if (typeof entity === 'symbol') {
-      if (!inputIsId) return schema.denormalize(entity, delegate);
-      // record it as a dependency, so parents recompute once it is valid again
-      return cache.getEntity(
-        entityOrId,
-        schema,
-        depKey(entity),
-        localCacheKey => {
-          localCacheKey.set(entityOrId, schema.denormalize(entity, delegate));
-        },
-      );
-    }
-
     if (
-      entity === undefined &&
       inputIsId &&
-      // entityOrId cannot be undefined literal as this function wouldn't be called in that case
-      // however the blank strings can still occur
+      (typeof entity !== 'object' || entity === null) &&
+      // blank ids can't be looked up, so they aren't dependencies
       entityOrId !== '' &&
       entityOrId !== 'undefined'
     ) {
-      // we cannot perform WeakMap lookups with `undefined`, so we use a special object to represent undefined
-      // we're actually using this call to ensure we update the cache if a nested schema changes from `undefined`
-      // this is because cache.getEntity adds this key,pk as a dependency of anything it is nested under
-      return cache.getEntity(entityOrId, schema, UNDEF, localCacheKey => {
-        localCacheKey.set(entityOrId, undefined);
+      // A missing, null or INVALID entity is still a dependency of anything
+      // nested above it, so those recompute once it changes.
+      return cache.getEntity(entityOrId, schema, entity, localCacheKey => {
+        localCacheKey.set(
+          entityOrId,
+          typeof entity === 'symbol' ?
+            schema.denormalize(entity, delegate)
+          : entity,
+        );
       });
     }
-
-    if (entity === null && inputIsId) {
-      // record it as a dependency, so parents recompute once it is set
-      return cache.getEntity(
-        entityOrId,
-        schema,
-        depKey(null),
-        localCacheKey => {
-          localCacheKey.set(entityOrId, null);
-        },
-      );
+    if (typeof entity === 'symbol') {
+      return schema.denormalize(entity, delegate);
     }
 
     if (typeof entity !== 'object' || entity === null) {

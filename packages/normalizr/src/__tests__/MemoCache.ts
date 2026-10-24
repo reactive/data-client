@@ -6,6 +6,7 @@ import {
   CoolerArticle,
   IndexedUser,
   FirstUnion,
+  Article,
 } from '__tests__/new';
 
 import { fromJSState } from './immutable.test';
@@ -1066,18 +1067,8 @@ describe('MemoCache', () => {
 });
 
 describe('MemoCache nested entity dependencies', () => {
-  class User extends Entity {
-    id = '';
-    name = '';
-  }
-  class Article extends Entity {
-    id = '';
-    title = '';
-    author: User | undefined = undefined;
-    static schema = { author: User };
-  }
   const article = { id: '1', title: 't', author: '2' };
-  const bob = { id: '2', name: 'bob' };
+  const bob = { id: '2', username: 'bob' };
 
   it.each([
     ['missing', undefined],
@@ -1093,12 +1084,12 @@ describe('MemoCache nested entity dependencies', () => {
         Article: { '1': article },
         User: users,
       });
-      expect((first.data as any).author?.name).toBeUndefined();
+      expect((first.data as any).author?.username).toBeUndefined();
       const second = memo.denormalize(Article, '1', {
         Article: { '1': article },
         User: { '2': bob },
       });
-      expect((second.data as any).author?.name).toBe('bob');
+      expect((second.data as any).author?.username).toBe('bob');
     },
   );
 

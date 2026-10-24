@@ -34,7 +34,7 @@ export default class WeakDependencyMap<
     getDependency: GetDependency<Path, K | symbol>,
     args: readonly any[] = [],
   ) {
-    let curLink = this.next.get(entity);
+    let curLink = this.next.get(depKey(entity) as K);
     if (!curLink) return EMPTY;
     if (this.hasStr) return this._getMixed(curLink, getDependency, args);
     while (curLink.nextPath) {
