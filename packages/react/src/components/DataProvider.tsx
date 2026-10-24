@@ -21,18 +21,28 @@ import { ControllerContext } from '../context.js';
 import { DevToolsManager } from '../managers/index.js';
 import GCPolicy from '../state/GCPolicy.js';
 
-export interface ProviderProps {
+export type ProviderProps = {
   children: React.ReactNode;
-  managers?: Manager[];
-  initialState?: State<unknown>;
-  Controller?: new (props: { gcPolicy: GCInterface }) => DataController;
-  gcPolicy?: GCInterface;
   devButton?: DevToolsPosition | null | undefined;
-  /** Store created outside React; its managers, Controller and state replace those props
-   * @see https://dataclient.io/docs/api/ClientStore
-   */
-  store?: ClientStore;
-}
+} & (
+  | {
+      managers?: Manager[];
+      initialState?: State<unknown>;
+      Controller?: new (props: { gcPolicy: GCInterface }) => DataController;
+      gcPolicy?: GCInterface;
+      store?: undefined;
+    }
+  | {
+      /** Store created outside React; it owns the managers, Controller and state
+       * @see https://dataclient.io/docs/api/ClientStore
+       */
+      store: ClientStore;
+      managers?: undefined;
+      initialState?: undefined;
+      Controller?: undefined;
+      gcPolicy?: undefined;
+    }
+);
 
 /**
  * Manages state, providing all context needed to use the hooks.
@@ -61,13 +71,13 @@ export default function DataProvider({
     store?.managers ?? managers,
   );
   if (!managersRef.current) managersRef.current = getDefaultManagers();
-  // a render React discards leaves its results in the store for the one that mounts
-  const seed = store ? store.state : initialState;
 
-  // run in a useEffect in DataStore
+  // run in a useEffect in DataStore; a store runs its own
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const mgrEffect = useCallback(
-    initManager(managersRef.current, controllerRef.current, seed),
+    store ? noop : (
+      initManager(managersRef.current, controllerRef.current, initialState)
+    ),
     // we don't support initialState changes
     managersRef.current,
   );
@@ -75,6 +85,8 @@ export default function DataProvider({
   // Makes manager middleware compatible with redux-style middleware (by a wrapper enhancement to provide controller API)
   const middlewares = useMemo(
     () => {
+      // a store binds its managers once, outside React
+      if (store) return [];
       const middlewares: GenericMiddleware[] = applyManager(
         managersRef.current,
         controllerRef.current,
@@ -97,9 +109,9 @@ export default function DataProvider({
       <DataStore
         mgrEffect={mgrEffect}
         middlewares={middlewares}
-        initialState={seed}
+        initialState={initialState}
         controller={controllerRef.current}
-        reducer={store?.reducer}
+        store={store}
       >
         {children}
       </DataStore>
@@ -107,6 +119,8 @@ export default function DataProvider({
     </ControllerContext.Provider>
   );
 }
+
+const noop = () => {};
 
 let warnedFetchDuringSSR = false;
 /** Rendering on the server is fine; fetching there is lost since this store never updates */
