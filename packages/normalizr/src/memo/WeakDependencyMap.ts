@@ -43,8 +43,10 @@ export default class WeakDependencyMap<
       for (let i = 0; i < entries.length; i++) {
         const entry = entries[i];
         if (matches(entry, getDependency, args)) {
-          entry.hit = true;
           if (i > 0) {
+            // read back after something newer was cached: the store flipped
+            // back to this version, so it is the one to keep
+            node.kept = entry;
             entries.splice(i, 1);
             entries.unshift(entry);
           }
@@ -103,24 +105,23 @@ export default class WeakDependencyMap<
       value,
       // we could recompute this on get, but it would have a cost and we optimize for `get`
       journey: journey ?? (dependencies.map(d => d.path) as Path[]),
-      hit: false,
     };
     if (!node) {
       this.next.set(root, newNode(entry));
       return;
     }
-    // Two entries per argument set, so a store that flips back still hits.
-    // A pending transition does that: React retries it with freshly built
-    // entities between urgent renders of the committed store. So when full,
-    // drop the previous newest if nothing read it again (a one-off), else the
-    // least recently used.
+    // A store can flip back to a version it already showed: React renders the
+    // committed store between retries of a pending transition, which build new
+    // entities each time, and rolling back an optimistic update returns to the
+    // entities from before it. So beyond the newest entries, keep the one the
+    // store last flipped back to (or the first one, until a flip happens).
     const { entries } = node;
-    if (entries.length === 0) {
-      entries.push(entry);
-      return;
+    if (!node.kept) node.kept = entry;
+    entries.unshift(entry);
+    if (entries.length > MAX_ENTRIES) {
+      const last = entries.length - 1;
+      entries.splice(entries[last] === node.kept ? last - 1 : last, 1);
     }
-    if (entries.length === 1 || entries[0].hit) entries[1] = entries[0];
-    entries[0] = entry;
   }
 
   /** True once any `argsKey`-style dep has been written. Consumers can use
@@ -158,10 +159,15 @@ export interface Dep<Path, K = object> {
 
 const EMPTY = [undefined, undefined] as const;
 
-/** Entries for one set of `argsKey` results (at most two, most recent first),
- * and the branch on the next one. */
+/** Entries kept per (first dependency, `argsKey` results). */
+const MAX_ENTRIES = 3;
+
+/** Entries for one set of `argsKey` results, most recently used first, and the
+ * branch on the next one. */
 interface Node<Path, V> {
   entries: Entry<Path, V>[];
+  /** Never evicted: the entry most recently read back after a newer one. */
+  kept: Entry<Path, V> | undefined;
   /** The next `argsKey` dependency; its result picks the child. */
   fn: KeyFn | undefined;
   children: Map<string, Node<Path, V>> | undefined;
@@ -170,6 +176,7 @@ interface Node<Path, V> {
 function newNode<Path, V>(entry: Entry<Path, V> | undefined): Node<Path, V> {
   return {
     entries: entry ? [entry] : [],
+    kept: entry,
     fn: undefined,
     children: undefined,
   };
@@ -182,8 +189,6 @@ interface Entry<Path, V> {
   readonly keys: unknown[];
   readonly value: V;
   readonly journey: Path[];
-  /** Read again since it was set. */
-  hit: boolean;
 }
 
 class KeySize extends Error {
