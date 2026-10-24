@@ -201,9 +201,9 @@ function asDispatcher(
       const value = Reflect.get(target, key, target);
       if (typeof value !== 'function') return value;
       // the same function each read, until the controller's changes
-      let fn = wrapped.get(value);
-      if (fn) return fn;
-      fn = function (this: unknown, ...args: unknown[]) {
+      const cached = wrapped.get(value);
+      if (cached) return cached;
+      const dispatching = function (this: unknown, ...args: unknown[]) {
         const outer = attribution.dispatching;
         attribution.dispatching = name;
         try {
@@ -212,8 +212,8 @@ function asDispatcher(
           attribution.dispatching = outer;
         }
       };
-      wrapped.set(value, fn);
-      return fn;
+      wrapped.set(value, dispatching);
+      return dispatching;
     },
   });
 }
@@ -227,7 +227,8 @@ export function notableAttribution(
 ): { origin?: string; consumedBy?: string } {
   const notable = (name?: string) =>
     name && !isLibraryManager(name) ? name : undefined;
-  let consumedBy: string | undefined;
-  for (const e of entries) if ((consumedBy = notable(e.consumedBy))) break;
-  return { origin: notable(entries[0]?.origin), consumedBy };
+  return {
+    origin: notable(entries[0]?.origin),
+    consumedBy: entries.find(e => notable(e.consumedBy))?.consumedBy,
+  };
 }

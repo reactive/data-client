@@ -388,6 +388,11 @@ describe('Store panel pipeline', () => {
         .getAllByRole('button')
         .map(b => b.textContent),
     ).toEqual(['the app1', 'NetworkManager0', 'SubscriptionManager0']);
+    fireEvent.click(listed()[0]);
+    const path = await screen.findByRole('group', { name: /^Path/ });
+    expect(path.textContent).toBe(
+      'the app→NetworkManager→SubscriptionManager→store',
+    );
   });
 
   it("shows only a stage's actions while it is picked", async () => {
