@@ -1297,7 +1297,9 @@ div.joined {
 }
 .actBody > .metaList {
   margin: 0;
-  padding: 0.4rem 0.75rem 0.2rem;
+  padding: 0 0.75rem 0.2rem;
+  /* its heading sets it apart */
+  border: none;
   /* narrow as the panel may be, the values keep room: names take only what
      they need, and a nested object goes under its name, indented */
   grid-template-columns: max-content minmax(0, 1fr);

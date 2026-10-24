@@ -42,7 +42,7 @@ import { APP, routesOf, shownChain } from './attribution';
 import type { Header } from './DiveViews';
 import { byData, onActivateKey, revealIn, toggled } from './dom';
 import { actionId } from './model';
-import { ActionSpanContext, useNavState, type View } from './nav';
+import { ActionSpanContext, useNavState, type Scope, type View } from './nav';
 import { Pipeline, StepPath } from './Pipeline';
 import styles from './store.module.css';
 
@@ -82,8 +82,8 @@ export function ActionsPane({
   toggle: React.RefObject<HTMLElement | null>;
   /** The pointer came into it (`true`) or left it */
   onHover: (inside: boolean, e: React.PointerEvent) => void;
-  /** A row (`whole`) or step was picked: moves the moment there */
-  onPick: (seq: number, whole?: boolean) => void;
+  /** A row (`group`) or step (`action`) was picked: moves the moment there */
+  onPick: (seq: number, scope?: Scope) => void;
   onClose: () => void;
 }) {
   const rows = useRows(filter);
@@ -193,12 +193,12 @@ function ActionList({
   rows: readonly ActionGroup[];
   subject: View;
   filter: SubjectFilter;
-  /** What a row (`whole`: its group's actions as one) or step picked does,
-   * by default open it */
-  onPick?: (seq: number, whole?: boolean) => void;
+  /** What a row (`group`: its actions as one) or step (`action`) picked
+   * does, by default open it */
+  onPick?: (seq: number, scope?: Scope) => void;
 }) {
   const { history, groups } = useActions();
-  const { seq, whole, set, show } = useNavState();
+  const { seq, scope, set, show } = useNavState();
   const scroller = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
   const toggle = useCallback(
@@ -244,7 +244,10 @@ function ActionList({
     if (!next) return;
     e.preventDefault();
     next.focus();
-    set(Number(next.dataset.seq), next.dataset.id === next.dataset.group);
+    set(
+      Number(next.dataset.seq),
+      next.dataset.id === next.dataset.group ? 'group' : 'action',
+    );
   };
   return (
     <div ref={scroller} className={styles.actList} onKeyDown={onKeyDown}>
@@ -262,7 +265,7 @@ function ActionList({
           group={group}
           open={open.has(group.id)}
           currentSeq={group === current ? seq! : undefined}
-          whole={group === current && whole}
+          whole={group === current && scope === 'group'}
           subject={subject}
           filter={filter}
           onToggle={toggle}
@@ -369,8 +372,8 @@ const GroupRow = memo(function GroupRow({
   subject: View;
   filter: SubjectFilter;
   onToggle: (id: string) => void;
-  /** Opens an action (or the row's, `whole`), as the moment */
-  onSelect: (seq: number, whole?: boolean) => void;
+  /** Opens an action (or the row's, `group`), as the moment */
+  onSelect: (seq: number, scope?: Scope) => void;
 }) {
   const { log } = useLog();
   const all = groupEntriesOf(group);
@@ -382,7 +385,7 @@ const GroupRow = memo(function GroupRow({
   const seq = (all.findLast(filter.hit) ?? all[all.length - 1]).seq;
   const steps = !isLone(group);
   // the row stands for all its actions, what they did together
-  const select = () => onSelect(seq, steps);
+  const select = () => onSelect(seq, steps ? 'group' : 'request');
   const notes = gapNotes(all, filter.gaps);
   return (
     <div className={styles.actGroup} data-open={open || undefined}>
@@ -459,39 +462,42 @@ export function GroupActions({
   group,
   subject,
   filter,
+  currentSeq,
 }: {
   group: ActionGroup;
   subject: View;
   filter: SubjectFilter;
+  /** The moment's action, marked among them */
+  currentSeq?: number;
 }) {
   const { show } = useNavState();
   const chain = shownChain(useActions().history.managers);
+  const entries = useMemo(() => groupEntriesOf(group), [group]);
   // each way its actions took, under the first step to take it
   const paths = useMemo(
     () =>
       chain &&
       new Map(
-        routesOf(groupEntriesOf(group).filter(filter.lists)).map(
-          ({ entry, n }) => [
-            entry.seq,
-            <StepPath
-              key={'path ' + entry.seq}
-              chain={chain}
-              entry={entry}
-              n={n}
-            />,
-          ],
-        ),
+        routesOf(entries.filter(filter.lists)).map(({ entry, n }) => [
+          entry.seq,
+          <StepPath
+            key={'path ' + entry.seq}
+            chain={chain}
+            entry={entry}
+            n={n}
+          />,
+        ]),
       ),
-    [chain, group, filter],
+    [chain, entries, filter],
   );
   return (
     <div className={styles.groupSteps}>
       <Steps
         group={group}
+        currentSeq={currentSeq}
         subject={subject}
         lists={filter.lists}
-        notes={gapNotes(groupEntriesOf(group), filter.gaps)}
+        notes={gapNotes(entries, filter.gaps)}
         paths={paths}
         onSelect={show}
       />
@@ -519,7 +525,8 @@ function Steps({
   notes: ReadonlyMap<number, ChangeKind>;
   /** What to show under a step, by its seq */
   paths?: ReadonlyMap<number, React.ReactNode>;
-  onSelect: (seq: number) => void;
+  /** Opens a step's action alone */
+  onSelect: (seq: number, scope: 'action') => void;
 }) {
   const all = groupEntriesOf(group);
   const joined = joinedFetches(group);
@@ -588,10 +595,10 @@ function StepRow({
   subject: View;
   /** Whether it is the moment's action */
   current: boolean;
-  onSelect: (seq: number) => void;
+  onSelect: (seq: number, scope: 'action') => void;
 }) {
   const { log } = useLog();
-  const select = () => onSelect(entry.seq);
+  const select = () => onSelect(entry.seq, 'action');
   const changes = log.changes(entry).filter(c => touches(subject, c));
   return (
     <div

@@ -314,7 +314,7 @@ describe('Store Actions pane detail', () => {
     expect(crumbs()).toEqual(['Actions', 'GET /posts', 'Post 1']);
     // the action under the record follows to the newest: its request's
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
-    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'Post 1']);
+    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts', 'Post 1']);
   });
 
   it('scopes the changes to the subject it is over', async () => {
@@ -1603,6 +1603,22 @@ describe('Store action level', () => {
     expect(scrubber().textContent).toContain('After setResponse GET /posts');
     expect(step('Before').textContent).toContain('nothing the log kept');
     expect(step('After').textContent).toContain('set Post');
+    // as its request, as live shows one: its fetch too, the moment's step
+    // marked
+    const current = top().querySelector<HTMLElement>(
+      '[role="button"][aria-current]',
+    )!;
+    expect(current.textContent).toMatch(/setResponse/);
+    expect(top().textContent).toMatch(/fetch.*setResponse.*Store changes/s);
+    expect(top().textContent).not.toContain('dispatchedAt');
+    // only the step itself opens the action alone
+    fireEvent.click(current);
+    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts']);
+    // in the same sections, its own step for the request's
+    const headings = () =>
+      [...top().querySelectorAll('h3')].map(h => h.textContent);
+    expect(headings()).toEqual(['Step', 'Store changes', 'Action']);
+    expect(top().textContent).toContain('dispatchedAt');
     fireEvent.click(step('After'));
     expect(crumbs()).toEqual(['Actions', 'set Post']);
     // past the newest is live again
@@ -1630,7 +1646,7 @@ describe('Store action level', () => {
       release(undefined);
       await done;
     });
-    expect(crumbs()).toEqual(['Actions', 'PATCH /posts/1']);
+    expect(crumbs()).toEqual(['Actions', 'setResponse PATCH /posts/1']);
     expect(top().textContent).toMatch(/title: "One" → "Edited!"/);
     expect(top().textContent).toContain('this is live');
   });

@@ -52,7 +52,7 @@ export function Pipeline({
  * it passed, the one that handled it (⊘) and those after, which never saw
  * it, and whether it reached the store. Runs of managers it only passed, or
  * that never saw it, fold */
-export function ActionPath({
+function ActionPath({
   chain,
   entry: { seq, action, origin = APP, consumedBy, store },
   children,

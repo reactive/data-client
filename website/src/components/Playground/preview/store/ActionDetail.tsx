@@ -14,6 +14,8 @@ import {
   ChangeChip,
   gapText,
   spanOf,
+  Time,
+  TypeName,
   useActions,
 } from './actionParts';
 import { isNetworkManager, shownChain } from './attribution';
@@ -26,7 +28,7 @@ import {
   type Nav,
   type View,
 } from './nav';
-import { ActionPath } from './Pipeline';
+import { StepPath } from './Pipeline';
 import { plain } from './refs';
 import styles from './store.module.css';
 import {
@@ -39,9 +41,10 @@ import {
   ValueChange,
 } from './Value';
 
-/** What an action did to `subject` (every row at the store, a line saying
- * it left the subject alone, or that it is where a `gap` of dropped actions
- * changing it was found), then the action itself */
+/** One action, in the sections a request's view has: its step (and the
+ * way it took through the managers), what it did to `subject` (every row at
+ * the store, a line saying it left the subject alone, or that it is where a
+ * `gap` of dropped actions changing it was found), then the action itself */
 export function ActionDetail({
   entry,
   subject,
@@ -55,8 +58,19 @@ export function ActionDetail({
   const chain = shownChain(useActions().history.managers);
   return (
     <div className={styles.actBody}>
+      <h3 className={styles.sectionLabel}>Step</h3>
+      <div className={styles.groupSteps}>
+        <div className={styles.steps}>
+          <div className={clsx(styles.row, styles.stepRow, styles.inertRow)}>
+            <Time at={entry.at} />
+            <TypeName entry={entry} />
+          </div>
+          {chain && <StepPath chain={chain} entry={entry} n={1} />}
+        </div>
+      </div>
+      <h3 className={styles.sectionLabel}>Store changes</h3>
       <SubjectChanges entries={[entry]} subject={subject} gap={gap} />
-      {chain && <ActionPath chain={chain} entry={entry} />}
+      <h3 className={styles.sectionLabel}>Action</h3>
       <div className={clsx(styles.fields, styles.metaList)}>
         <Field name="dispatchedAt" node={{ t: 'val', v: entry.at }} />
         {actionFields(entry.action).map(([name, value]) => (

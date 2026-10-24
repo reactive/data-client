@@ -603,9 +603,10 @@ export const Scrubber = memo(function Scrubber({
   // the pointer on the track: what it shows holds still
   const { actions, setOn, behind, catchingUp } = useHeld(track);
   const { groups } = actions;
-  const { whole, earlier, later, set: onSelect, show } = useNavState();
+  const { scope, earlier, later, set: onSelect, show } = useNavState();
   // a row picked stands for its whole group: the label names that
-  const group = whole && entry ? groupOf(groups, entry.seq) : undefined;
+  const group =
+    scope === 'group' && entry ? groupOf(groups, entry.seq) : undefined;
   const { shown, scale, drawn, decor } = useDrawer(actions, hit, onMark);
   const end = useTrackFollow(track, scale, catchingUp);
 
@@ -718,7 +719,7 @@ export const Scrubber = memo(function Scrubber({
             type="button"
             className={styles.momentAction}
             title="Show action"
-            onClick={() => show(entry.seq, !!group)}
+            onClick={() => show(entry.seq, scope)}
           >
             {group ?
               <KeyLabel value={group.key} />

@@ -515,7 +515,8 @@ describe('Store scrubber', () => {
     expect(level.querySelector('[aria-current="page"]')!.textContent).toBe(
       'setResponse GET /posts',
     );
-    expect(level.textContent).toContain('dispatchedAt');
+    // as its request: the steps to it, and what they did
+    expect(level.textContent).toContain('Store changes');
     expect(document.activeElement).toBe(level);
   });
 

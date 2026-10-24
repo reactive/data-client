@@ -9,7 +9,7 @@ import type ActionLog from './actionLog';
 import type { LogEntry } from './actionLog';
 import { byStage, isLibraryManager } from './attribution';
 import { endpointId, entityId, parseRowId } from './model';
-import type { View } from './nav';
+import type { Scope, View } from './nav';
 import { isPlainObject, temporalType } from './refs';
 
 /** Each has a color, `--store-kind-<kind>` in store.module.css */
@@ -465,14 +465,15 @@ export function groupEntriesOf(group: ActionGroup): readonly LogEntry[] {
   );
 }
 
-/** The actions a moment stands for: `entry` alone, or (`whole`) every
- * action of its group up to it, so their effect shows as one */
+/** The actions a moment at `entry` stands for (see `Scope`), so their
+ * effect shows as one */
 export function momentEntries(
   groups: readonly ActionGroup[],
   entry: LogEntry,
-  whole: boolean,
+  scope: Scope,
 ): readonly LogEntry[] {
-  const group = whole ? groupOf(groups, entry.seq) : undefined;
+  if (scope === 'request') return requestEntries(groups, entry);
+  const group = scope === 'group' ? groupOf(groups, entry.seq) : undefined;
   return group ?
       groupEntriesOf(group).filter(e => e.seq <= entry.seq)
     : [entry];
