@@ -103,6 +103,15 @@ html[data-theme='dark'] .playground-preview .rt-TextFieldLabel {
 .playground-preview h3 {
   letter-spacing: -0.01em;
 }
+/* A page's title (a post's): the one bold thing on the page, a step up
+   from the body, with the byline close under it */
+.playground-preview h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  margin-bottom: var(--ds-space-1);
+}
 /* an app's h1 is no page title: outranks theme-classic's
    `.markdown h1:first-child` (3rem, and a page's gap under it) */
 .playground-preview h1,
@@ -164,21 +173,27 @@ div.playground-preview h1:first-child {
   border-radius: var(--ds-radius-xs);
 }
 
-/* The app's header: its title at the left, its navigation or actions at
-   the right; the space under it, not a rule, sets the page off */
+/* The app's header: its name at the left, its navigation or actions at the
+   right; the space under it (28px), not a rule, sets the page off. The
+   name is a small tracked wordmark in the muted color, so the title below
+   carries the page */
 .playground-preview .appHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--ds-space-2) var(--ds-space-4);
-  margin-bottom: var(--ds-space-5);
+  margin-bottom: 1.75rem;
 }
 /* through .appHeader to outrank Infima's `.markdown h1:first-child` margin */
 .playground-preview .appHeader .appTitle {
   margin: 0;
-  font-size: var(--ds-text-lg);
+  font-size: 0.75rem;
   font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ds-text-muted);
 }
 .playground-preview .appHeader nav {
   margin-bottom: 0;
@@ -266,19 +281,25 @@ div.playground-preview h1:first-child {
 .playground-preview .listItem > label input[type='text'] {
   width: calc(100% - 21px);
 }
-/* An avatar with a name: beside each other in a row (a comment's author), or
-   the name under it (`author`, a post's) */
+/* An avatar with a name: beside each other in a row (a post's author under
+   its title, all of it muted at the body's secondary size, a 20px avatar,
+   and the body 20px below), or the name under it (`author`, a post's) */
 .playground-preview .byline {
   display: inline-flex;
   align-items: center;
   gap: var(--ds-space-2);
+  margin-bottom: 1.25rem;
   font-size: var(--ds-text-sm);
   color: var(--ds-text-muted);
 }
+.playground-preview .byline img {
+  width: 20px;
+  height: 20px;
+}
 .playground-preview .byline b,
 .playground-preview .byline strong {
-  color: var(--ds-text);
-  font-weight: 600;
+  color: inherit;
+  font-weight: 400;
 }
 .playground-preview .author {
   flex: none;
