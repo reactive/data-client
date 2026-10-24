@@ -158,23 +158,29 @@ function Strip({
   stored?: boolean;
   stages: readonly Shown[];
 }) {
-  /** The stages of the runs opened: a run is open while any of its stages
-   * is, so one that grows or shrinks as managers start or stop acting stays
-   * open */
+  /** The stages of the runs opened: a run (of two or more) is open while
+   * any of its stages is, so one that grows or shrinks as managers start or
+   * stop acting stays open */
   const [opened, setOpened] = useState<ReadonlySet<string>>(new Set());
   /** The run whose fold button was just pressed, by its first stage, to
-   * keep focus on the button that replaces it in the next render only */
+   * keep focus on the button that replaces it in the next render only. The
+   * pressed button unmounts (its run opens or folds), so the ref callback of
+   * the one replacing it focuses it; cleared after each commit so a later
+   * render (a manager starting to act) never steals focus back */
   const pendingFocus = useRef<string | null>(null);
   useEffect(() => {
     pendingFocus.current = null;
   });
+  const runs = foldRuns(stages);
+  const isOpen = (run: readonly Shown[]) =>
+    run.length > 1 && run.some(stage => opened.has(stage.id));
   return (
     <div className={styles.pipeline} role="group" aria-label={label}>
-      {foldRuns(stages).flatMap(run => {
+      {runs.flatMap(run => {
         const key = run[0].id;
         const ids = run.map(stage => stage.id);
         const names = ids.join(', ');
-        const open = ids.some(id => opened.has(id));
+        const open = isOpen(run);
         const fold = (text: string) => (
           <button
             type="button"
@@ -187,14 +193,15 @@ function Strip({
             }}
             onClick={() => {
               pendingFocus.current = key;
-              setOpened(prev => {
-                const next = new Set(prev);
-                for (const id of ids) {
-                  if (open) next.delete(id);
-                  else next.add(id);
-                }
-                return next;
-              });
+              // rebuilt from the runs open now, so ids that left a run
+              // can't reopen it when they rejoin after it's folded
+              setOpened(
+                new Set(
+                  runs
+                    .filter(other => (other === run ? !open : isOpen(other)))
+                    .flatMap(other => other.map(stage => stage.id)),
+                ),
+              );
             }}
           >
             {text}

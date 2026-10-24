@@ -463,6 +463,40 @@ describe('Store panel pipeline', () => {
     );
   });
 
+  it('keeps a run open as its first manager leaves, and folded when it rejoins', async () => {
+    const { ctrl } = mount(
+      [new QuietManager(), new QuietManager(), new QuietManager()],
+      undefined,
+      true,
+    );
+    await act(async () => {
+      void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
+    });
+    openActions();
+    expect(stages()).toEqual(['the app1', '3 idle']);
+    fireEvent.click(
+      within(pipeline()).getByRole('button', { name: /^3 idle/ }),
+    );
+    // picking the first takes it out of the run, which stays open
+    fireEvent.click(
+      within(pipeline()).getByRole('button', { name: /^QuietManager(?! #)/ }),
+    );
+    expect(stages()).toEqual([
+      'the app1',
+      'QuietManager0',
+      'QuietManager #20',
+      'QuietManager #30',
+      'fold',
+    ]);
+    fireEvent.click(within(pipeline()).getByRole('button', { name: /^fold/ }));
+    expect(stages()).toEqual(['the app1', 'QuietManager0', '2 idle']);
+    // unpicked, it rejoins the folded run without opening it
+    fireEvent.click(
+      within(pipeline()).getByRole('button', { name: /^QuietManager(?! #)/ }),
+    );
+    expect(stages()).toEqual(['the app1', '3 idle']);
+  });
+
   it("shows only a stage's actions while it is picked", async () => {
     const stream = new StreamManager();
     const { ctrl } = mount([stream, new NetworkManager()], undefined, true);
