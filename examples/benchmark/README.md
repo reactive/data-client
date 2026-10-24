@@ -109,6 +109,17 @@ So a structure that V8 collects in milliseconds can stall Hermes for seconds:
 one pass per level of nesting, and every pass rescans every `WeakMap` entry in
 the app, not only the memo's own. Keep `WeakMap` nesting shallow.
 
+### Memo cache worst cases
+
+```bash
+yarn start:memo-tradeoffs [filter]
+```
+
+Measures where caching fewer versions could cost reads or memory: one list
+read against several store snapshots in turn (hit rate and time per read),
+heap the memo keeps beyond the store after a run of updates, and one list read
+under many `argsKey` values. Local-only — not tracked in CI.
+
 ### Profiling
 
 For opt/deopt investigation:
