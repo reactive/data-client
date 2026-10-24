@@ -15,8 +15,8 @@ Non-obvious constraints when changing `src/memo/`, `src/denormalize/`, or `src/i
 
 Every change to `src/memo/`, or to a schema's `denormalize`, must keep these. Tests: `src/__tests__/WeakDependencyMap.test.ts`, `src/__tests__/MemoCache.ts`, `packages/react/src/__tests__/concurrent-memo.web.tsx`.
 
-1. **Sound hits.** A hit returns only a value computed from exactly these entity objects (`===`; `UNDEF` for missing) and these `argsKey` results.
-2. **Complete dependencies.** Every entity and `argsKey` a computation reads is recorded, including deps replayed from a nested hit. Known gap (pre-existing): `INVALID` or `null` nested entities are read without being recorded, so the parent stays stale after the child becomes valid again.
+1. **Sound hits.** A hit returns only a value computed from exactly these entity objects (`===`; `depKey()` stands in for `undefined`, `null` and `INVALID`) and these `argsKey` results.
+2. **Complete dependencies.** Every entity and `argsKey` a computation reads is recorded, including deps replayed from a nested hit, and including entities that are missing, `null` or `INVALID`.
 3. **Deterministic.** The same reads lead to the same further reads and an equal result. All args-dependence goes through a pure, referentially stable `argsKey` fn.
 4. **Complete journey.** The paths returned with a hit cover every entity the value depends on; subscriptions and GC count refs from them. Callers never mutate it.
 5. **Weak, bounded retention.** A value lives only while its first dependency is reachable, with at most `MAX_ENTRIES` values per first dependency and `argsKey` results.

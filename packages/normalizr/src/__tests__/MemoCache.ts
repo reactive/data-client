@@ -9,6 +9,7 @@ import {
 } from '__tests__/new';
 
 import { fromJSState } from './immutable.test';
+import { INVALID } from '../denormalize/symbol';
 import { IQueryDelegate } from '../interface';
 import MemoCache from '../memo/MemoCache';
 import { MemoPolicy as POJOPolicy } from '../memo/Policy';
@@ -1061,5 +1062,54 @@ describe('MemoCache', () => {
           .data,
       ).toBeUndefined();
     });
+  });
+});
+
+describe('MemoCache nested entity dependencies', () => {
+  class User extends Entity {
+    id = '';
+    name = '';
+  }
+  class Article extends Entity {
+    id = '';
+    title = '';
+    author: User | undefined = undefined;
+    static schema = { author: User };
+  }
+  const article = { id: '1', title: 't', author: '2' };
+  const bob = { id: '2', name: 'bob' };
+
+  it.each([
+    ['missing', undefined],
+    ['INVALID', INVALID],
+    ['null', null],
+  ])(
+    'a %s child is a dependency: the parent recomputes once it is set',
+    (_, child) => {
+      const memo = new MemoCache();
+      const users: Record<string, any> =
+        child === undefined ? {} : { '2': child };
+      const first = memo.denormalize(Article, '1', {
+        Article: { '1': article },
+        User: users,
+      });
+      expect((first.data as any).author?.name).toBeUndefined();
+      const second = memo.denormalize(Article, '1', {
+        Article: { '1': article },
+        User: { '2': bob },
+      });
+      expect((second.data as any).author?.name).toBe('bob');
+    },
+  );
+
+  it('stays cached while the child stays INVALID', () => {
+    const memo = new MemoCache();
+    const entities = { Article: { '1': article }, User: { '2': INVALID } };
+    const first = memo.denormalize(Article, '1', entities);
+    const second = memo.denormalize(Article, '1', {
+      ...entities,
+      User: { ...entities.User },
+    });
+    expect(second.data).toBe(first.data);
   });
 });

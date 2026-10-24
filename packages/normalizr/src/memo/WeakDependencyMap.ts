@@ -1,4 +1,4 @@
-import { UNDEF } from '../denormalize/UNDEF.js';
+import { depKey } from '../denormalize/UNDEF.js';
 
 /** Function path used by `argsKey` deps. Distinguished from object paths
  * via `typeof === 'function'`. */
@@ -75,7 +75,7 @@ export default class WeakDependencyMap<
     journey?: Path[],
   ) {
     if (dependencies.length < 1) throw new KeySize();
-    const root = (dependencies[0].entity ?? UNDEF) as K;
+    const root = depKey(dependencies[0].entity) as K;
     let node = this.next.get(root);
     const paths = new Array<Path | KeyFn>(dependencies.length - 1);
     const keys = new Array<unknown>(dependencies.length - 1);
@@ -99,7 +99,7 @@ export default class WeakDependencyMap<
         }
         node = child;
       } else {
-        keys[i - 1] = dep.entity ?? UNDEF;
+        keys[i - 1] = depKey(dep.entity);
       }
     }
     const entry: Entry<Path, V> = {
@@ -144,7 +144,7 @@ function matches<Path, K extends object, V>(
     const path = paths[i];
     if (typeof path === 'function') {
       if (((path as KeyFn)(args) ?? UNDEF_KEY) !== keys[i]) return false;
-    } else if ((getDependency(path as Path) ?? UNDEF) !== keys[i]) {
+    } else if (depKey(getDependency(path as Path)) !== keys[i]) {
       return false;
     }
   }
@@ -188,7 +188,7 @@ function newNode<Path, V>(entry: Entry<Path, V> | undefined): Node<Path, V> {
 /** One cached value: the dependencies after the first, and what they resolved to. */
 interface Entry<Path, V> {
   readonly paths: (Path | KeyFn)[];
-  /** Entity reference (or `UNDEF`) for entity paths; `argsKey` result for function paths. */
+  /** `depKey()` of the entity for entity paths; `argsKey` result for function paths. */
   readonly keys: unknown[];
   readonly value: V;
   readonly journey: Path[];
