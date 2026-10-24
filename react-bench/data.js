@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792780329712,
+  "lastUpdate": 1792814405437,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -11117,6 +11117,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 185.19,
             "range": "± 7.2%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8817f474d269b84cdc97c0fb40fdfd1bb4eb4dd7",
+          "message": "pkg: Bump vulnerable packages from security audit (#4456)\n\nPatches body-parser, fast-uri, happy-dom, ip-address, launch-editor,\nserialize-javascript and undici in the yarn workspaces and the npm\nexample apps (github-app, todo-app).\n\n\nClaude-Session: https://claude.ai/code/session_01LPaw2xHUR1A23Jmfzu19sF\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-24T03:56:21Z",
+          "tree_id": "1ad693937b728ebdfdb003525cf4a79dbffce364",
+          "url": "https://github.com/reactive/data-client/commit/8817f474d269b84cdc97c0fb40fdfd1bb4eb4dd7"
+        },
+        "date": 1792814402152,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 222.22,
+            "range": "± 8.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 73.27,
+            "range": "± 6.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 666.67,
+            "range": "± 6.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 625,
+            "range": "± 6.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 64.78,
+            "range": "± 9.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 444.66,
+            "range": "± 10.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 555.56,
+            "range": "± 7.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 20.64,
+            "range": "± 8.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 125.79,
+            "range": "± 11.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 60.61,
+            "range": "± 7.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 384.62,
+            "range": "± 0.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 555.56,
+            "range": "± 9.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 307.77,
+            "range": "± 6.0%",
             "unit": "ops/s"
           }
         ]
