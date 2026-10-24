@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792329562756,
+  "lastUpdate": 1792814292910,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -651,6 +651,37 @@ window.BENCHMARK_DATA = {
             "range": "±0.59%",
             "unit": "ops/sec",
             "extra": "84 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8817f474d269b84cdc97c0fb40fdfd1bb4eb4dd7",
+          "message": "pkg: Bump vulnerable packages from security audit (#4456)\n\nPatches body-parser, fast-uri, happy-dom, ip-address, launch-editor,\nserialize-javascript and undici in the yarn workspaces and the npm\nexample apps (github-app, todo-app).\n\n\nClaude-Session: https://claude.ai/code/session_01LPaw2xHUR1A23Jmfzu19sF\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-24T03:56:21Z",
+          "tree_id": "1ad693937b728ebdfdb003525cf4a79dbffce364",
+          "url": "https://github.com/reactive/data-client/commit/8817f474d269b84cdc97c0fb40fdfd1bb4eb4dd7"
+        },
+        "date": 1792814289692,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 246,
+            "range": "±0.62%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
           }
         ]
       }
