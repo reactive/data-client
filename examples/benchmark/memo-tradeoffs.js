@@ -158,14 +158,17 @@ const SYMBOLS = 3736;
  */
 function retained(run) {
   fullGC();
-  const live = { memo: new MemoCache() };
-  live.store = run(live.memo);
-  fullGC();
-  const withMemo = heapUsed();
-  delete live.memo;
+  let store;
+  // the memo is only reachable inside this call
+  const withMemo = (() => {
+    const memo = new MemoCache();
+    store = run(memo);
+    fullGC();
+    return heapUsed();
+  })();
   fullGC();
   const storeOnly = heapUsed();
-  delete live.store;
+  void store;
   return withMemo - storeOnly;
 }
 
