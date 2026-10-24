@@ -1720,6 +1720,38 @@ describe('Store action level', () => {
     expect(top().textContent).not.toContain('"poll 0"');
   });
 
+  it('steps through the rows in list order while a subscription overlaps them', async () => {
+    const { ctrl } = mount();
+    const polled = new Endpoint(async () => [{ id: '1', title: 'poll' }], {
+      schema: [Post],
+      key: () => POSTS,
+      name: 'polled',
+      pollFrequency: 1e6,
+    });
+    await act(async () => {
+      await ctrl().subscribe(polled);
+      await ctrl().fetch(polled);
+      await ctrl().set(Post, { id: '2' }, { id: '2', title: 'Later' });
+      await ctrl().fetch(polled);
+    });
+    openPane();
+    const flat = (text: string | null) => text!.replace(/\s/g, '');
+    const listed = rows().map(r => flat(r.textContent));
+    fireEvent.click(rows()[0]);
+    const seen = [flat(crumbs()[1])];
+    for (let i = 1; i < listed.length; i++) {
+      fireEvent.click(step('After'));
+      seen.push(flat(crumbs()[1]));
+    }
+    // every row once, in the list's order
+    expect(seen).toHaveLength(listed.length);
+    seen.forEach((label, i) => expect(listed[i]).toContain(label));
+    for (let i = listed.length - 2; i >= 0; i--) {
+      fireEvent.click(step('Before'));
+      expect(listed[i]).toContain(flat(crumbs()[1]));
+    }
+  });
+
   it("goes back to the moment's action as its tab is picked over the list", async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));

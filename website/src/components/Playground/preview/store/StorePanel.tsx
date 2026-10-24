@@ -1110,12 +1110,14 @@ function ActionLevel({
         return row ? listed.has(row) : filter.hit(e);
       });
     }
+    // the neighbouring row in the list's own order: rows can overlap in
+    // time (a subscription still polling), so not by their seqs
     const own = groupOf(groups, entry.seq);
-    const at = own ? rowSeq(own, filter.hit) : entry.seq;
+    const i = own ? rows.indexOf(own) : -1;
     const next =
-      dir < 0 ?
-        rows.findLast(row => rowSeq(row, filter.hit) < at)
-      : rows.find(row => rowSeq(row, filter.hit) > at);
+      i >= 0 ? rows[i + dir]
+      : dir < 0 ? rows.findLast(row => groupEntriesOf(row)[0].seq < entry.seq)
+      : rows.find(row => groupEntriesOf(row)[0].seq > entry.seq);
     if (next) return rowSeq(next, filter.hit);
     // past the newest is live again
     if (dir > 0 && seq !== null) return null;
