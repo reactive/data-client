@@ -129,11 +129,13 @@ export default class WeakDependencyMap<
     const { entries } = node;
     if (!node.kept) node.kept = entry;
     entries.unshift(entry);
-    if (entries.length > MAX_ENTRIES) {
-      // evict the least recently used entry that isn't pinned
-      let i = entries.length - 1;
-      while (entries[i] === node.kept || entries[i] === node.committed) i--;
-      entries.splice(i, 1);
+    // beyond the pinned entries, keep only the most recently used few
+    let unpinned = 0;
+    for (let i = 0; i < entries.length; i++) {
+      const e = entries[i];
+      if (e === node.kept || e === node.committed || e === node.settled)
+        continue;
+      if (++unpinned > UNPINNED) entries.splice(i--, 1);
     }
   }
 
@@ -148,10 +150,11 @@ export default class WeakDependencyMap<
   }
 
   /** Never evict the entry the latest `get` hit or `set` wrote; see `keep()`. */
-  keepLast(): void {
+  keepLast(settled: boolean): void {
     const node = this.lastNode;
     if (!node) return;
     node.committed = this.lastEntry;
+    if (settled) node.settled = this.lastEntry;
     this.lastNode = this.lastEntry = undefined;
   }
 
@@ -159,9 +162,11 @@ export default class WeakDependencyMap<
    * re-renders of a committed store from hook memos without asking the
    * cache, so recency alone can't tell a committed result from a one-off
    * render of a pending transition. */
-  keep(reads: KeepReads): void {
+  keep(reads: KeepReads, settled: boolean): void {
     for (const [node, entry] of reads as Map<Node<Path, V>, Entry<Path, V>>) {
-      if (node.entries.includes(entry)) node.committed = entry;
+      if (!node.entries.includes(entry)) continue;
+      node.committed = entry;
+      if (settled) node.settled = entry;
     }
   }
 
@@ -204,8 +209,9 @@ const EMPTY = [undefined, undefined] as const;
  * `WeakDependencyMap.trackLast()`. */
 export type KeepReads = Map<object, object>;
 
-/** Entries kept per (first dependency, `argsKey` results). */
-const MAX_ENTRIES = 3;
+/** Unpinned entries kept per (first dependency, `argsKey` results), most
+ * recently used. Up to three more are pinned. */
+const UNPINNED = 2;
 
 /** Entries for one set of `argsKey` results, most recently used first, and the
  * branch on the next one. */
@@ -215,6 +221,12 @@ interface Node<Path, V> {
   kept: Entry<Path, V> | undefined;
   /** Never evicted: the entry most recently read by a committed render. */
   committed: Entry<Path, V> | undefined;
+  /** Never evicted: the entry most recently read by a committed render of a
+   * store with no optimistic updates. Every optimistic update rebuilds the
+   * entities it touches on each store change, so once the last one settles,
+   * this is the only earlier result the store can come back to, however
+   * many were in flight. */
+  settled: Entry<Path, V> | undefined;
   /** The next `argsKey` dependency; its result picks the child. */
   fn: KeyFn | undefined;
   children: Map<string, Node<Path, V>> | undefined;
@@ -225,6 +237,7 @@ function newNode<Path, V>(entry: Entry<Path, V> | undefined): Node<Path, V> {
     entries: entry ? [entry] : [],
     kept: entry,
     committed: undefined,
+    settled: undefined,
     fn: undefined,
     children: undefined,
   };

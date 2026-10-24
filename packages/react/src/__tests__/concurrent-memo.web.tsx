@@ -403,5 +403,101 @@ describeConcurrent.each([1, 2])(
       // reach the memo, so only the commit signal keeps the new rows.
       expect(avoidableMisses(reads)).toBe(0);
     });
+
+    // Optimistic updates stack: each one rebuilds the entities it touches on
+    // every store change, so only the store from before all of them can be
+    // read again. However many are in flight, settling the last one must
+    // return to that result, and the list must show the right rows.
+
+    const SCRAMBLED = [3, 7, 1, 9, 0, 5, 2, 8, 4, 6];
+
+    /** `n` optimistic edits to rows 10.., with an unrelated write after each. */
+    function beginMany(n: number) {
+      for (let i = 0; i < n; i++) {
+        beginOptimistic(`${10 + i}`, `optimistic ${i}`);
+        writeNote(100 + i);
+      }
+    }
+
+    /** Titles the latest render showed. */
+    function lastTitles() {
+      const last = [...reads].reverse().find(r => r.who === 'render');
+      return (last?.data as { title: string }[]).map(todo => todo.title);
+    }
+
+    it('ten optimistic updates in flight, rolled back out of order', async () => {
+      mount(consumers);
+      beginMany(10);
+      for (const i of SCRAMBLED) {
+        await rollBack(`${10 + i}`, `optimistic ${i}`);
+        writeNote(200 + i);
+      }
+      trace('ten optimistic rolled back');
+      expect(lastTitles()).toEqual(rows().map(row => row.title));
+      expect(avoidableMisses(reads)).toBe(0);
+    });
+
+    it('ten optimistic updates in flight, half resolved and half rolled back', async () => {
+      mount(consumers);
+      beginMany(10);
+      for (const i of SCRAMBLED) {
+        if (i % 2) await rollBack(`${10 + i}`, `optimistic ${i}`);
+        else await resolveOptimistic(`${10 + i}`, `optimistic ${i}`);
+        writeNote(200 + i);
+      }
+      trace('ten optimistic resolved or rolled back');
+      expect(lastTitles()).toEqual(
+        rows().map(({ id, title }) => {
+          const i = Number(id) - 10;
+          return i >= 0 && i < 10 && i % 2 === 0 ? `optimistic ${i}` : title;
+        }),
+      );
+      expect(avoidableMisses(reads)).toBe(0);
+    });
+
+    it('ten optimistic updates rolled back, after earlier flips moved what the memo keeps', async () => {
+      mount(consumers);
+      beginTransition('5', 'X');
+      for (let i = 0; i < 3; i++) writeNote(i);
+      await finishTransition('X');
+      readRaw();
+      writeNote(3);
+      readRaw();
+      beginMany(10);
+      for (const i of SCRAMBLED) {
+        await rollBack(`${10 + i}`, `optimistic ${i}`);
+        readRaw();
+      }
+      trace('ten optimistic after flips');
+      expect(avoidableMisses(reads)).toBe(0);
+    });
+
+    it('ten optimistic updates rolled back while a transition is pending', async () => {
+      mount(consumers);
+      beginMany(5);
+      beginTransition('5', 'X');
+      for (let i = 5; i < 10; i++) {
+        beginOptimistic(`${10 + i}`, `optimistic ${i}`);
+        writeNote(100 + i);
+      }
+      for (const i of SCRAMBLED) await rollBack(`${10 + i}`, `optimistic ${i}`);
+      await finishTransition('X');
+      trace('ten optimistic during a transition');
+      expect(avoidableMisses(reads)).toBe(0);
+    });
+
+    it('fifty optimistic updates in flight still settle to the right rows', async () => {
+      mount(consumers);
+      for (let i = 0; i < 50; i++)
+        beginOptimistic(`${i % ROWS}`, `optimistic ${i}`);
+      for (let i = 49; i >= 0; i -= 2)
+        await rollBack(`${i % ROWS}`, `optimistic ${i}`);
+      for (let i = 0; i < 50; i += 2)
+        await rollBack(`${i % ROWS}`, `optimistic ${i}`);
+      writeNote(0);
+      trace('fifty optimistic');
+      expect(lastTitles()).toEqual(rows().map(row => row.title));
+      expect(avoidableMisses(reads)).toBe(0);
+    });
   },
 );

@@ -51,7 +51,7 @@ export type DataClientDispatch = (value: ActionTypes) => Promise<void>;
 
 /** Optional: lets the memo keep results from committed stores (see `MemoCache.commit`). */
 interface MemoCommit {
-  commit?(entities: object): void;
+  commit?(entities: object, settled?: boolean): void;
 }
 
 export interface ControllerConstructorProps<
