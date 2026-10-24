@@ -40,11 +40,11 @@ If your idea requires design considerations, it's best to [start a discussion][4
 
 * Add tests for your feature. You should be able to look at other tests for
   examples. If you're unsure, don't hesitate to [open an issue][1] and ask!
-  Before you open the PR, run `yarn test:coverage` and make sure coverage
-  doesn't decrease.
+  When you change code under `packages/`, run `yarn test:coverage` before you
+  open the PR and make sure coverage doesn't decrease.
 
 * Add a changeset for user-facing changes in published packages:
-  * Use the `/changeset` skill to generate changesets, update docs, and prepare a PR description.
+  * Use the `/changeset` skill to generate changesets and update docs.
   * If doing manually: run `yarn changeset` from repo root once per distinct change.
 
 * If you changed package types, docs or skills, regenerate the committed
