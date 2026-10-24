@@ -1254,6 +1254,27 @@ button.stage:focus-visible {
   margin: 0;
   padding: 0.75rem 0.75rem 0.25rem;
 }
+/* a heading with a way between a request's view and its step's alone */
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.sectionLink {
+  padding: 0.75rem 0.75rem 0.25rem;
+  border: 0;
+  background: none;
+  color: var(--ifm-color-primary);
+  font: 400 11px / 1.6 var(--ifm-font-family-monospace);
+  cursor: pointer;
+}
+.sectionLink:hover {
+  text-decoration: underline;
+}
+.sectionLink:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
+}
 div.stepRow {
   flex-wrap: wrap;
   gap: 0.1rem 0.6rem;

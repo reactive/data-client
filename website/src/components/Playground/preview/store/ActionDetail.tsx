@@ -50,16 +50,30 @@ export function ActionDetail({
   entry,
   subject,
   gap,
+  onRequest,
 }: {
   entry: LogEntry;
   subject: View;
   gap?: ChangeKind;
+  /** Shows the request it is a step of, when it is one */
+  onRequest?: () => void;
 }) {
   // the way it took through the managers
   const chain = shownChain(useActions().history.managers);
   return (
     <div className={styles.actBody}>
-      <h3 className={styles.sectionLabel}>Step</h3>
+      <div className={styles.sectionHead}>
+        <h3 className={styles.sectionLabel}>Step</h3>
+        {onRequest && (
+          <button
+            type="button"
+            className={styles.sectionLink}
+            onClick={onRequest}
+          >
+            Its request ›
+          </button>
+        )}
+      </div>
       <div className={styles.groupSteps}>
         <div className={styles.steps}>
           <div className={clsx(styles.row, styles.stepRow, styles.inertRow)}>

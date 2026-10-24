@@ -1619,6 +1619,20 @@ describe('Store action level', () => {
       [...top().querySelectorAll('h3')].map(h => h.textContent);
     expect(headings()).toEqual(['Step', 'Store changes', 'Action']);
     expect(top().textContent).toContain('dispatchedAt');
+    // and back and forth between them, in place
+    const alone = top();
+    fireEvent.click(
+      within(top()).getByRole('button', { name: 'Its request ›' }),
+    );
+    expect(top()).toBe(alone);
+    expect(headings()).toEqual(['Steps', 'Store changes']);
+    expect(
+      top().querySelector('[role="button"][aria-current]')!.textContent,
+    ).toMatch(/setResponse/);
+    fireEvent.click(
+      within(top()).getByRole('button', { name: 'This step alone ›' }),
+    );
+    expect(headings()).toEqual(['Step', 'Store changes', 'Action']);
     fireEvent.click(step('After'));
     expect(crumbs()).toEqual(['Actions', 'set Post']);
     // past the newest is live again

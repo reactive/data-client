@@ -458,7 +458,7 @@ const GroupRow = memo(function GroupRow({
 });
 
 /** A group's actions that touched `subject` (at the store, all of them),
- * under what they did together: each opens its own */
+ * under what they did together: each shows alone in place, as the moment */
 export function GroupActions({
   group,
   subject,
@@ -471,7 +471,7 @@ export function GroupActions({
   /** The moment's action, marked among them */
   currentSeq?: number;
 }) {
-  const { show } = useNavState();
+  const { set } = useNavState();
   const chain = shownChain(useActions().history.managers);
   const entries = useMemo(() => groupEntriesOf(group), [group]);
   // each way its actions took, under the first step to take it
@@ -500,7 +500,7 @@ export function GroupActions({
         lists={filter.lists}
         notes={gapNotes(entries, filter.gaps)}
         paths={paths}
-        onSelect={show}
+        onSelect={set}
       />
     </div>
   );

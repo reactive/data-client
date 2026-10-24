@@ -1029,7 +1029,12 @@ function ActionLevel({
   header: Header;
 }) {
   const { entries } = useActions().history;
-  const { entry, group, span, filter } = useShownAction(seq, scope, subject);
+  const { entry, group, span, request, filter } = useShownAction(
+    seq,
+    scope,
+    subject,
+  );
+  const { set } = useNavState();
   // a picked row steps from its first action; otherwise one action at a
   // time, through its request
   const from = scope === 'group' && span ? span[0].seq : entry?.seq;
@@ -1051,7 +1056,18 @@ function ActionLevel({
       : <>
           {group && span ?
             <div className={styles.actBody}>
-              <h3 className={styles.sectionLabel}>Steps</h3>
+              <div className={styles.sectionHead}>
+                <h3 className={styles.sectionLabel}>Steps</h3>
+                {scope !== 'group' && (
+                  <button
+                    type="button"
+                    className={styles.sectionLink}
+                    onClick={() => set(entry.seq, 'action')}
+                  >
+                    This step alone ›
+                  </button>
+                )}
+              </div>
               <GroupActions
                 group={group}
                 subject={subject}
@@ -1066,6 +1082,7 @@ function ActionLevel({
               entry={entry}
               subject={subject}
               gap={filter.gaps.get(entry.seq)}
+              onRequest={request && (() => set(entry.seq))}
             />
           }
           <ActionStep
@@ -1100,17 +1117,22 @@ function useShownAction(
     let group: ActionGroup | undefined;
     // its actions up to it, as one
     let span: readonly LogEntry[] | undefined;
-    if (entry && scope !== 'action') {
+    // shown alone, the request it is a step of
+    let request: ActionGroup | undefined;
+    if (entry) {
       const shown =
         scope === 'group' ?
           groupOf(groups, entry.seq)
         : requestOf(groups, entry.seq);
       if (shown && groupEntriesOf(shown).length > 1) {
-        group = shown;
-        span = momentEntries(groups, entry, scope);
+        if (scope === 'action') request = shown;
+        else {
+          group = shown;
+          span = momentEntries(groups, entry, scope);
+        }
       }
     }
-    return { entry, group, span, filter };
+    return { entry, group, span, request, filter };
   }, [entries, groups, filter, seq, scope]);
 }
 
