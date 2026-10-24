@@ -182,7 +182,10 @@ function Strip({
       .flat()
       .map(stage => stage.id),
   );
-  if (openNow.size !== opened.size) setOpened(openNow);
+  // synced while rendering, so a stale open run is never painted; a manager
+  // can leave a run and another join it in one render, so compare members
+  if (openNow.size !== opened.size || [...openNow].some(id => !opened.has(id)))
+    setOpened(openNow);
   return (
     <div className={styles.pipeline} role="group" aria-label={label}>
       {runs.flatMap(run => {
