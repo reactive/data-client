@@ -72,10 +72,6 @@ export default class WeakDependencyMap<
     if (dependencies.length < 1) throw new KeySize();
     const root = (dependencies[0].entity ?? UNDEF) as K;
     let node = this.next.get(root);
-    if (!node) {
-      node = newNode();
-      this.next.set(root, node);
-    }
     const paths = new Array<Path | KeyFn>(dependencies.length - 1);
     const keys = new Array<unknown>(dependencies.length - 1);
     for (let i = 1; i < dependencies.length; i++) {
@@ -85,11 +81,15 @@ export default class WeakDependencyMap<
         this.hasStr = true;
         const k = (dep.path as KeyFn)(args) ?? UNDEF_KEY;
         keys[i - 1] = k;
+        if (!node) {
+          node = newNode(undefined);
+          this.next.set(root, node);
+        }
         node.fn = dep.path as KeyFn;
         if (!node.children) node.children = new Map();
         let child = node.children.get(k);
         if (!child) {
-          child = newNode();
+          child = newNode(undefined);
           node.children.set(k, child);
         }
         node = child;
@@ -97,24 +97,30 @@ export default class WeakDependencyMap<
         keys[i - 1] = dep.entity ?? UNDEF;
       }
     }
-    const { entries } = node;
-    entries.unshift({
+    const entry: Entry<Path, V> = {
       paths,
       keys,
       value,
       // we could recompute this on get, but it would have a cost and we optimize for `get`
       journey: journey ?? (dependencies.map(d => d.path) as Path[]),
       hit: false,
-    });
+    };
+    if (!node) {
+      this.next.set(root, newNode(entry));
+      return;
+    }
     // Two entries per argument set, so a store that flips back still hits.
     // A pending transition does that: React retries it with freshly built
     // entities between urgent renders of the committed store. So when full,
     // drop the previous newest if nothing read it again (a one-off), else the
     // least recently used.
-    if (entries.length > VARIANTS) {
-      if (!entries[1].hit) entries.splice(1, 1);
-      else entries.length = VARIANTS;
+    const { entries } = node;
+    if (entries.length === 0) {
+      entries.push(entry);
+      return;
     }
+    if (entries.length === 1 || entries[0].hit) entries[1] = entries[0];
+    entries[0] = entry;
   }
 
   /** True once any `argsKey`-style dep has been written. Consumers can use
@@ -152,10 +158,8 @@ export interface Dep<Path, K = object> {
 
 const EMPTY = [undefined, undefined] as const;
 
-/** Entries kept per (first dependency, `argsKey` results). */
-const VARIANTS = 2;
-
-/** Entries for one set of `argsKey` results, and the branch on the next one. */
+/** Entries for one set of `argsKey` results (at most two, most recent first),
+ * and the branch on the next one. */
 interface Node<Path, V> {
   entries: Entry<Path, V>[];
   /** The next `argsKey` dependency; its result picks the child. */
@@ -163,8 +167,12 @@ interface Node<Path, V> {
   children: Map<string, Node<Path, V>> | undefined;
 }
 
-function newNode<Path, V>(): Node<Path, V> {
-  return { entries: [], fn: undefined, children: undefined };
+function newNode<Path, V>(entry: Entry<Path, V> | undefined): Node<Path, V> {
+  return {
+    entries: entry ? [entry] : [],
+    fn: undefined,
+    children: undefined,
+  };
 }
 
 /** One cached value: the dependencies after the first, and what they resolved to. */
