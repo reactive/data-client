@@ -1126,6 +1126,27 @@ describe('MemoCache.commit', () => {
     expect(memo.denormalize([Todo], input, committed).data).toBe(first);
   });
 
+  it('keeps a result first read after its store committed', () => {
+    const memo = new MemoCache();
+    memo.denormalize([Todo], input, store('older'));
+    const committed = store('committed');
+    memo.commit(committed);
+    // a late mount reads the committed store
+    const late = memo.denormalize([Todo], input, committed).data;
+    for (let i = 0; i < 5; i++)
+      memo.denormalize([Todo], input, store(`retry ${i}`));
+    expect(memo.denormalize([Todo], input, committed).data).toBe(late);
+  });
+
+  it('repeat reads with the same entities do not grow the buffer', () => {
+    const memo = new MemoCache();
+    const pending = store('pending');
+    for (let i = 0; i < 50; i++) memo.denormalize([Todo], input, pending);
+    memo.denormalize([Todo], ['2'], pending);
+    // one per cached input, however many reads
+    expect((memo as any).reads.get(pending).size).toBe(2);
+  });
+
   it('without commit, one-off reads push out a result read only once', () => {
     const memo = new MemoCache();
     memo.denormalize([Todo], input, store('first'));

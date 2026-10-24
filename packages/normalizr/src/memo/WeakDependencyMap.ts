@@ -34,7 +34,7 @@ export default class WeakDependencyMap<
   private readonly next = new WeakMap<K, Node<Path, V>>();
   /** Sticky: true once any function-typed (`argsKey`) dep has been stored. */
   private hasStr = false;
-  /** The entry the latest `get` hit or `set` wrote, for `lastRead()`. */
+  /** The entry the latest `get` hit or `set` wrote, for `trackLast()`/`keepLast()`. */
   private lastNode: Node<Path, V> | undefined = undefined;
   private lastEntry: Entry<Path, V> | undefined = undefined;
 
@@ -137,24 +137,32 @@ export default class WeakDependencyMap<
     }
   }
 
-  /** The entry the latest `get` hit or `set` wrote, to pass to `keep()` later. */
-  lastRead(): KeepToken | undefined {
+  /** Records the entry the latest `get` hit or `set` wrote into `reads`, to
+   * pass to `keep()` later. One per node (the last read wins), so repeat
+   * reads don't grow it. */
+  trackLast(reads: KeepReads): void {
     const node = this.lastNode;
-    const entry = this.lastEntry;
+    if (!node) return;
+    (reads as Map<Node<Path, V>, Entry<Path, V>>).set(node, this.lastEntry!);
     this.lastNode = this.lastEntry = undefined;
-    return node && entry ? { node, entry } : undefined;
   }
 
-  /** Never evict this entry: its result was committed. React serves
+  /** Never evict the entry the latest `get` hit or `set` wrote; see `keep()`. */
+  keepLast(): void {
+    const node = this.lastNode;
+    if (!node) return;
+    node.committed = this.lastEntry;
+    this.lastNode = this.lastEntry = undefined;
+  }
+
+  /** Never evict these entries: their results were committed. React serves
    * re-renders of a committed store from hook memos without asking the
    * cache, so recency alone can't tell a committed result from a one-off
    * render of a pending transition. */
-  keep(token: KeepToken): void {
-    const { node, entry } = token as {
-      node: Node<Path, V>;
-      entry: Entry<Path, V>;
-    };
-    if (node.entries.includes(entry)) node.committed = entry;
+  keep(reads: KeepReads): void {
+    for (const [node, entry] of reads as Map<Node<Path, V>, Entry<Path, V>>) {
+      if (node.entries.includes(entry)) node.committed = entry;
+    }
   }
 
   /** True once any `argsKey`-style dep has been written. Consumers can use
@@ -192,11 +200,9 @@ export interface Dep<Path, K = object> {
 
 const EMPTY = [undefined, undefined] as const;
 
-/** Opaque handle to one cached entry; see `WeakDependencyMap.lastRead()`. */
-export interface KeepToken {
-  readonly node: unknown;
-  readonly entry: unknown;
-}
+/** Opaque record of cached entries read, at most one per node; see
+ * `WeakDependencyMap.trackLast()`. */
+export type KeepReads = Map<object, object>;
 
 /** Entries kept per (first dependency, `argsKey` results). */
 const MAX_ENTRIES = 3;
