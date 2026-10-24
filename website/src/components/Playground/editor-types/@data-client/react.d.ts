@@ -1,11 +1,35 @@
 import * as _data_client_core from '@data-client/core';
-import { NetworkManager, Manager, State, GCInterface, Controller, DevToolsManager, DevToolsConfig, SubscriptionManager, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, NI, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, __INTERNAL__, actions, applyManager, createReducer, initManager } from '@data-client/core';
+import { NetworkManager, Manager, SetResponseAction, Controller, Middleware, State, GCInterface, DevToolsManager, DevToolsConfig, SubscriptionManager, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, NI, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, __INTERNAL__, actions, applyManager, createReducer, initManager } from '@data-client/core';
 export { AbstractInstanceType, ActionTypes, Controller, CreateCountRef, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GCInterface, GCOptions, GCPolicy, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, Queryable, ResetAction, ResolveType, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import * as React from 'react';
 import React__default, { JSX, Context } from 'react';
 
 /** Can help prevent stuttering by waiting for idle for sideEffect free fetches */
 declare class WebIdlingNetworkManager extends NetworkManager {
+}
+
+/** Holds fetch results until DataProvider mounts
+ *
+ * A fetch can settle before its DataProvider commits, when something outside it
+ * suspends or when the provider sits in a lazy layout (as with Expo Router on web). React
+ * discards that render's store, so the result would land nowhere. This holds
+ * results until init() and replays them into the store that mounted.
+ *
+ * Place it first in the managers it protects, with one gate per DataProvider.
+ * @see https://dataclient.io/docs/api/CommitGateManager
+ */
+declare class CommitGateManager implements Manager {
+    protected held: [
+        action: SetResponseAction,
+        settle: (result?: Promise<void>) => void
+    ][];
+    protected controller?: Controller;
+    protected mounted?: Controller;
+    middleware: Middleware;
+    init(): void;
+    cleanup(): void;
+    protected replay(): void;
+    protected drop(): void;
 }
 
 declare function BackupLoading(): React__default.JSX.Element;
@@ -305,4 +329,4 @@ type ReducerAction<R extends React__default.Reducer<any, any>> = R extends React
 /** Turns a dispatch function into one that resolves once its been commited */
 declare function usePromisifiedDispatch<R extends React__default.Reducer<any, any>>(dispatch: React__default.Dispatch<ReducerAction<R>>, state: React__default.ReducerState<R>): (action: ReducerAction<R>) => Promise<void>;
 
-export { _default as AsyncBoundary, BackupLoading, DataProvider as CacheProvider, ControllerContext, DataProvider, type DevToolsPosition, ErrorBoundary, WebIdlingNetworkManager as IdlingNetworkManager, ErrorBoundary as NetworkErrorBoundary, type ProviderProps, StateContext, type Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useCancelling, useController, useDLE, useDebounce, useError, useFetch, useLive, useLoading, usePromisifiedDispatch, useQuery, useSubscription, useSuspense };
+export { _default as AsyncBoundary, BackupLoading, DataProvider as CacheProvider, CommitGateManager, ControllerContext, DataProvider, type DevToolsPosition, ErrorBoundary, WebIdlingNetworkManager as IdlingNetworkManager, ErrorBoundary as NetworkErrorBoundary, type ProviderProps, StateContext, type Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useCancelling, useController, useDLE, useDebounce, useError, useFetch, useLive, useLoading, usePromisifiedDispatch, useQuery, useSubscription, useSuspense };

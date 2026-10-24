@@ -261,6 +261,10 @@
         },
         {
           "type": "doc",
+          "id": "api/CommitGateManager"
+        },
+        {
+          "type": "doc",
           "id": "api/SubscriptionManager"
         },
         {
