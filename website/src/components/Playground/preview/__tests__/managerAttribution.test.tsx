@@ -375,7 +375,9 @@ describe('Store panel pipeline', () => {
     expect(stages()).toEqual(['the app1', 'StreamManager2⊘ 1', '2 idle']);
     expect(pipeline().lastElementChild?.textContent).toBe('store');
     // the idle ones open in place, and fold again
-    fireEvent.click(within(pipeline()).getByRole('button', { name: '2 idle' }));
+    fireEvent.click(
+      within(pipeline()).getByRole('button', { name: /^2 idle/ }),
+    );
     expect(stages()).toEqual([
       'the app1',
       'StreamManager2⊘ 1',
@@ -383,8 +385,8 @@ describe('Store panel pipeline', () => {
       'SubscriptionManager0',
       'fold',
     ]);
-    fireEvent.click(within(pipeline()).getByRole('button', { name: 'fold' }));
-    within(pipeline()).getByRole('button', { name: '2 idle' });
+    fireEvent.click(within(pipeline()).getByRole('button', { name: /^fold/ }));
+    within(pipeline()).getByRole('button', { name: /^2 idle/ });
   });
 
   it('draws the library defaults and their path', async () => {
@@ -426,14 +428,28 @@ describe('Store panel pipeline', () => {
       'StreamManager0⊘ 1',
       '2 idle',
     ]);
-    fireEvent.click(
-      within(pipeline()).getAllByRole('button', { name: '2 idle' })[0],
-    );
+    const [first] = within(pipeline()).getAllByRole('button', {
+      name: /^2 idle/,
+    });
+    expect(first.getAttribute('aria-expanded')).toBe('false');
+    fireEvent.click(first);
     expect(stages()).toEqual([
       'the app1',
       'QuietManager0',
       'QuietManager #20',
       'fold',
+      'StreamManager0⊘ 1',
+      '2 idle',
+    ]);
+    // it says which run it folds
+    const fold = within(pipeline()).getByRole('button', {
+      name: 'fold: QuietManager, QuietManager #2',
+    });
+    expect(fold.getAttribute('aria-expanded')).toBe('true');
+    fireEvent.click(fold);
+    expect(stages()).toEqual([
+      'the app1',
+      '2 idle',
       'StreamManager0⊘ 1',
       '2 idle',
     ]);

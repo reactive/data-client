@@ -158,23 +158,27 @@ function Strip({
   stored?: boolean;
   stages: readonly Shown[];
 }) {
-  /** The runs opened, by their first stage */
+  /** The runs opened, by their stages */
   const [opened, setOpened] = useState<ReadonlySet<string>>(new Set());
   const toggle = (key: string) =>
     setOpened(prev => {
       const next = new Set(prev);
-      if (!next.delete(key)) next.add(key);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
       return next;
     });
   return (
     <div className={styles.pipeline} role="group" aria-label={label}>
       {foldRuns(stages).flatMap(run => {
-        const key = run[0].id;
+        const names = run.map(stage => stage.id).join(', ');
+        const key = names;
         const fold = (text: string) => (
           <button
             type="button"
             className={clsx(styles.stage, styles.stageFold)}
-            title={run.map(stage => stage.id).join(', ')}
+            title={names}
+            aria-label={text + ': ' + names}
+            aria-expanded={opened.has(key)}
             onClick={() => toggle(key)}
           >
             {text}
