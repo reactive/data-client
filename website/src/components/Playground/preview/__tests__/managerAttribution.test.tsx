@@ -433,6 +433,7 @@ describe('Store panel pipeline', () => {
       name: /^2 idle/,
     });
     expect(first.getAttribute('aria-expanded')).toBe('false');
+    first.focus();
     fireEvent.click(first);
     expect(stages()).toEqual([
       'the app1',
@@ -445,7 +446,8 @@ describe('Store panel pipeline', () => {
     // it says which run it folds
     const fold = stage('fold: QuietManager, QuietManager #2');
     expect(fold.getAttribute('aria-expanded')).toBe('true');
-    // focus moves to the button that folds it back
+    // the button pressed stays, keeping focus, to fold it back
+    expect(fold).toBe(first);
     expect(document.activeElement).toBe(fold);
     fireEvent.click(fold);
     expect(document.activeElement?.textContent).toBe('2 idle');

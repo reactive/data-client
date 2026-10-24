@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { actionName, type SubjectFilter } from './actionGroups';
 import type { LogEntry } from './actionLog';
@@ -162,14 +162,6 @@ function Strip({
    * any of its stages is, so one that grows or shrinks as managers start or
    * stop acting stays open */
   const [opened, setOpened] = useState<ReadonlySet<string>>(new Set());
-  /** The run whose fold button was just pressed, by its first stage. The
-   * button moves as its run opens or folds (open, it stays on the line with
-   * the run's last stage), so the one replacing it takes focus, in the next
-   * render only: a later one (a manager starting to act) never steals it */
-  const pendingFocus = useRef<string | null>(null);
-  useEffect(() => {
-    pendingFocus.current = null;
-  });
   const runs = foldRuns(stages);
   const isOpen = (run: readonly Shown[]) =>
     run.length > 1 && run.some(stage => opened.has(stage.id));
@@ -194,37 +186,40 @@ function Strip({
         const names = ids.join(', ');
         const open = isOpen(run);
         const text = open ? 'fold' : run.length + ' ' + run[0].foldAs;
-        const button = (
-          <button
-            type="button"
-            className={clsx(styles.stage, styles.stageFold)}
-            title={names}
-            aria-label={text + ': ' + names}
-            aria-expanded={open}
-            ref={button => {
-              if (button && pendingFocus.current === key) button.focus();
-            }}
-            onClick={() => {
-              pendingFocus.current = key;
-              setOpened(
-                new Set(
-                  open ?
-                    [...openNow].filter(id => !ids.includes(id))
-                  : [...openNow, ...ids],
-                ),
-              );
-            }}
-          >
-            {text}
-          </button>
-        );
-        if (!open) return [<Step key={key}>{button}</Step>];
-        return run.map((stage, i) => (
-          <Step key={stage.id}>
-            {stage.node}
-            {i === run.length - 1 && button}
+        // its own keyed slot, open or folded, so the button pressed stays
+        // (and keeps focus) as its run opens, folds or changes at its end,
+        // and the stages around it never move to another parent
+        const fold = (
+          <Step key={'fold:' + key}>
+            <button
+              type="button"
+              className={clsx(styles.stage, styles.stageFold)}
+              title={names}
+              aria-label={text + ': ' + names}
+              aria-expanded={open}
+              onClick={() =>
+                setOpened(
+                  new Set(
+                    open ?
+                      [...openNow].filter(id => !ids.includes(id))
+                    : [...openNow, ...ids],
+                  ),
+                )
+              }
+            >
+              {text}
+            </button>
           </Step>
-        ));
+        );
+        if (!open) return [fold];
+        return [
+          ...run.map((stage, i) => (
+            <Step key={stage.id} arrow={i < run.length - 1}>
+              {stage.node}
+            </Step>
+          )),
+          fold,
+        ];
       })}
       <Step arrow={false}>
         <span
@@ -241,8 +236,9 @@ function Strip({
   );
 }
 
-/** A stage and the arrow after it (none after the store), which wraps with
- * it, so a line never starts with one */
+/** A stage and the arrow after it (none after the store, or after an open
+ * run's last stage, whose fold button follows it), which wraps with it, so
+ * a line never starts with one */
 function Step({
   arrow = true,
   children,
