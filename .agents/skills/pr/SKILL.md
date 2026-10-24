@@ -72,8 +72,6 @@ git status --porcelain
 
 If changesets are missing or the draft blog post is unmodified, invoke the skill "changeset" to create them before proceeding. Skip this step for `docs:`, `pkg:`, `internal:`, `demo:` changes.
 
-For changes under `packages/`, run `yarn test:coverage` and make sure coverage does not decrease.
-
 ## Step 4: Push to Remote
 
 ```bash

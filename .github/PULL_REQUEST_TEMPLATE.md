@@ -11,13 +11,15 @@ How to write this description. Read every comment first, then delete all of them
   Prefer Mermaid; use an image only with a URL that already works, never a local path.
 - Keep any header lines your tool requires (such as an attribution block) as the first lines.
 - Delete the "Fixes #" line when there is no linked issue.
+- Before you open the PR, run `yarn test:coverage` and make sure coverage does not decrease.
 -->
 
 Fixes #
 
 ### Motivation
 <!--
-Write two short paragraphs:
+Say whether this fixes a bug, enables a new use case, or improves existing behavior. Then write
+two short paragraphs:
 1. The trigger: the conditions, from a library user's point of view, that cause the problem or need,
    in the fewest terms possible. Shape only, do not copy: "A component reads an entity through two
    different schemas, and one schema is nested in a Union."
@@ -28,7 +30,8 @@ For a change with no user-facing trigger (for example, a typo fix), write one se
 
 ### Solution
 <!--
-Give the change at a high level, then the key decisions and why you made them.
+Give the change at a high level, then the key technical decisions, their trade-offs, and why you
+made them.
 When user code changes, copy the before/after code from this PR's changesets as written.
 Describe runtime-only changes in prose.
 When there is more than one change, list them grouped by kind (for example: API, behavior, types,
