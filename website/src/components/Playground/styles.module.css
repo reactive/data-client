@@ -454,10 +454,10 @@ div.playgroundTextEdit > .playgroundHeader,
   /* the folder's header is narrower than its content: inset by this at
      each free side, its paper flaring out into the content's top edge
      (concave, --pg-head-flare) and the content's corner turning down from
-     there (convex, the rest). Both the card's radius, so the two make one
-     even S, the curve every tab here makes into its card */
-  --pg-head-inset: 20px;
-  --pg-head-flare: var(--pg-card-radius);
+     there (convex, the rest). The two halves equal, so they make one even
+     S; a subtle one, short of the card's radius */
+  --pg-head-inset: 12px;
+  --pg-head-flare: 6px;
   --pg-body-radius: calc(var(--pg-head-inset) - var(--pg-head-flare));
   border-radius: 0;
   box-shadow: none;
