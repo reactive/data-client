@@ -20,7 +20,7 @@ import { PlaygroundHiddenContext } from './Playground/hiddenContext';
 export default function PlaygroundTabs(props: TabsProps) {
   const isBrowser = useIsBrowser();
   const value = useTabsContextValue(props);
-  const groupHidden = useContext(PlaygroundHiddenContext);
+  const inheritedHidden = useContext(PlaygroundHiddenContext);
   const container = useRef<HTMLDivElement>(null);
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
@@ -42,7 +42,9 @@ export default function PlaygroundTabs(props: TabsProps) {
         {React.Children.map(sanitizeTabsChildren(props.children), item =>
           React.isValidElement<TabItemProps>(item) ?
             <PlaygroundHiddenContext.Provider
-              value={groupHidden || item.props.value !== value.selectedValue}
+              value={
+                inheritedHidden || item.props.value !== value.selectedValue
+              }
             >
               {item}
             </PlaygroundHiddenContext.Provider>

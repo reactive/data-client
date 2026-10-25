@@ -90,12 +90,15 @@ and `editor/callouts.ts`.
   as comments; caption and callout legend render outside the editor so they
   are in the HTML whether or not Monaco loads.
 
-### Hidden playgrounds (homepage protocol tabs)
+### Hidden playgrounds (protocol tabs)
 
 All tabs stay mounted so every protocol's source is in the HTML. `hidden`
 keeps `StaticEditor` until first shown, then latches interactive so undo
 history and go-to-definition survive tab switches. The live preview unmounts
-while hidden, so its store resets.
+while hidden, so its store resets. The homepage passes `hidden` directly; in
+MDX, `PlaygroundTabs` sets it through `PlaygroundHiddenContext`
+(`hiddenContext.ts`) for every playground under an unselected tab, nested tab
+groups included. An explicit `hidden` prop wins.
 
 ### Layouts
 
