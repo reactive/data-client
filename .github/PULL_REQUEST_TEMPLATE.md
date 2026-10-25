@@ -2,7 +2,7 @@
 Read every comment, then delete them all.
 - Style: about 50% ASD-STE100: short active sentences, one idea each, in the repo's and requester's
   terms. Write for library users first.
-- Size to the change: docs or tooling 1-3 sentences; small fix or option under 200 words; feature
+- Size to the change: docs or tooling under 80 words; small fix or option under 200 words; feature
   under 400. Optional sections default to absent.
 - Say each point once. Solution skips tests, docs, and changesets: the diff shows them.
 - Diagrams only when clearer than text: Mermaid, or an image with a working URL.
