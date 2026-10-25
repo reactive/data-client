@@ -58,20 +58,35 @@ export default class WeakDependencyMap<
   private readonly next = new WeakMap<K, Node<Path, V>>();
   /** Sticky: true once any function-typed (`argsKey`) dep has been stored. */
   private hasStr = false;
-  /** The entry the latest `get` hit or `set` wrote, for `trackLast()`/`keepLast()`. */
+  /** The entry the latest `get` hit or `set` wrote, for `trackLast()`/`keepLast()`.
+   * Only recorded when `tracksLast`: a map that never calls those would hold
+   * its last entry strongly for as long as the map lives. */
   private lastNode: Node<Path, V> | undefined = undefined;
   private lastEntry: Entry<Path, V> | undefined = undefined;
+  private readonly tracksLast: boolean;
+
+  /** @param tracksLast record each hit or write for `trackLast()`/`keepLast()` */
+  constructor(tracksLast = false) {
+    this.tracksLast = tracksLast;
+  }
+
+  private record(node: Node<Path, V>, entry: Entry<Path, V>) {
+    if (!this.tracksLast) return;
+    this.lastNode = node;
+    this.lastEntry = entry;
+  }
 
   get(
     entity: K,
     getDependency: GetDependency<Path, K | symbol>,
     args: readonly any[] = [],
   ) {
-    const node = this.next.get(depKey(entity) as K);
-    const entry = node && find(node, getDependency, args);
-    return entry ?
-        ([entry.value, entry.journey] as readonly [V, Path[]])
-      : EMPTY;
+    const root = this.next.get(depKey(entity) as K);
+    const node = root && find(root, getDependency, args);
+    if (!node) return EMPTY;
+    const entry = node.entries[0];
+    this.record(node, entry);
+    return [entry.value, entry.journey] as readonly [V, Path[]];
   }
 
   set(
@@ -126,13 +141,13 @@ export default class WeakDependencyMap<
       // we could recompute this on get, but it would have a cost and we optimize for `get`
       journey: journey ?? (dependencies.map(d => d.path) as Path[]),
     };
-    this.lastEntry = entry;
     if (!node) {
-      this.lastNode = newNode(entry);
-      this.next.set(root, this.lastNode);
+      node = newNode(entry);
+      this.next.set(root, node);
+      this.record(node, entry);
       return;
     }
-    this.lastNode = node;
+    this.record(node, entry);
     // A store can flip back to a version it already showed: React renders the
     // committed store between retries of a pending transition, which build new
     // entities each time, and rolling back an optimistic update returns to the
