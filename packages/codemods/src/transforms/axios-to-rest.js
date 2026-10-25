@@ -355,7 +355,7 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
           }
           if (literal && ORIGIN.exec(prefix.value)?.[0].includes('@')) {
             unknownTodos.push([
-              'fetch rejects credentials in a url; send them in an `Authorization` header from `getHeaders()`',
+              'fetch rejects credentials in a url: remove `user:pass@` from `urlPrefix` and send them as an `Authorization` header from `getHeaders()`',
               'basic-auth',
             ]);
           }
@@ -926,6 +926,9 @@ function buildCall(j, callPath, className, prefixed, isTS) {
   )
     return null;
 
+  // axios sends both a url query key and the same key from spread params;
+  // an object keeps only one
+  if (spreadParams.length && url.query.length) return null;
   // each query key must be distinct from the path params and each other
   const keys = new Set(url.args.map(propKey));
   for (const prop of [...url.query, ...configParams]) {

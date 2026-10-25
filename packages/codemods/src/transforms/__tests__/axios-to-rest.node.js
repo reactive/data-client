@@ -1262,7 +1262,7 @@ import axios from 'axios';
 // TODO(data-client): convert this axios.get() call to an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
 const list = () => axios.get('https://user:pass@example.com/items');
 
-// TODO(data-client): fetch rejects credentials in a url; send them in an \`Authorization\` header from \`getHeaders()\`: https://dataclient.io/rest/guides/axios-migration#basic-auth
+// TODO(data-client): fetch rejects credentials in a url: remove \`user:pass@\` from \`urlPrefix\` and send them as an \`Authorization\` header from \`getHeaders()\`: https://dataclient.io/rest/guides/axios-migration#basic-auth
 class ApiEndpoint extends RestEndpoint {
   urlPrefix = 'https://user:pass@example.com';
 }
@@ -1311,17 +1311,11 @@ import axios from 'axios';
 const get = () => axios.get('/users?sort=name', { params: nextFilters() });
       `,
       `
-import { RestEndpoint } from '@data-client/rest';
-// TODO(data-client): check these query params serialize as before: axios leaves out null and undefined values and formats arrays and objects its own way; match it in \`searchToString()\`: https://dataclient.io/rest/guides/axios-migration#query-serialization
-// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
-const get = () => new RestEndpoint({
-  path: '/users'
-})({
-  ...nextFilters(),
-  sort: 'name'
-});
+import axios from 'axios';
+// TODO(data-client): convert this axios.get() call to an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
+const get = () => axios.get('/users?sort=name', { params: nextFilters() });
       `,
-      'spreads a params expression before a literal query, which it cannot affect',
+      'marks spread params next to a url query, since a shared key would collapse',
     );
 
     defineInlineTest(
