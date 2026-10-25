@@ -169,8 +169,9 @@ export default function Playground<T>({
     [declared, openCode],
   );
 
-  // Hydrate Monaco on first show (a demo's code is first shown by its Code
-  // toggle) and keep it (preserves undo / go-to-def).
+  // Until first shown (a demo's code is first shown by its Code toggle) the
+  // code is plain text in the HTML; then Monaco hydrates and stays
+  // (preserves undo / go-to-def).
   const codeVisible = !hidden && (!demo || codeShown);
   const [editorInteractive, setEditorInteractive] = useState(codeVisible);
   if (codeVisible && !editorInteractive) setEditorInteractive(true);
@@ -178,7 +179,17 @@ export default function Playground<T>({
 
   const fixtureContent =
     fixtures.length ? <FixturePreview fixtures={fixtures} /> : undefined;
-  const previewFixtures = layout === 'stacked' ? undefined : fixtureContent;
+  // folded into the preview's header (row, demo), the fixtures render once
+  // the pointer or focus reaches the playground, not in the HTML (or the
+  // page) before: in time for the toggle's hover preview to fade in. Until
+  // then `false` holds the toggle's place
+  const [fixturesNear, setFixturesNear] = useState(false);
+  const previewFixtures =
+    layout === 'stacked' || !fixtureContent ? undefined
+    : fixturesNear ? fixtureContent
+    : false;
+  const nearFixtures =
+    previewFixtures === false ? () => setFixturesNear(true) : undefined;
 
   const editor = (
     <EditorSurface
@@ -195,13 +206,19 @@ export default function Playground<T>({
   // the live preview has loaded
   const code: CodeControl | undefined =
     demo ? { shown: codeShown, toggle: toggleCode } : undefined;
-  // Live preview only while visible — unmounts when hidden (resets store).
-  const loading = (
-    <PreviewLoading row={row} fixtureContent={previewFixtures} code={code} />
-  );
+  // Live preview only while visible — unmounts when hidden (resets store);
+  // hidden, not even its frame is in the HTML
   const preview =
-    hidden ? loading : (
-      <Boundary fallback={loading}>
+    hidden ? null : (
+      <Boundary
+        fallback={
+          <PreviewLoading
+            row={row}
+            fixtureContent={previewFixtures}
+            code={code}
+          />
+        }
+      >
         <DemoViewContext.Provider value={demoView}>
           <CodeOpenerContext.Provider value={codeOpener}>
             <LivePreview
@@ -241,6 +258,8 @@ export default function Playground<T>({
         })}
         data-code={(demo && codeShown) || undefined}
         data-store-moving={storeMoving || undefined}
+        onPointerOver={nearFixtures}
+        onFocus={nearFixtures}
       >
         {demo ?
           <>
@@ -252,7 +271,7 @@ export default function Playground<T>({
             {preview}
           </>
         }
-        {row ?
+        {row && !hidden ?
           <div
             id={storeId}
             className={styles.storeHost}
@@ -277,7 +296,7 @@ export default function Playground<T>({
   );
 }
 
-/** SSR, crawler, hidden and loading state: the preview's frame with a blank
+/** SSR, crawler and loading state: the preview's frame with a blank
  * sheet + Store toggle (the side strip; the row layout's is the folder's
  * handle, rendered with the folder above), and row's fixtures, already
  * usable; so is a demo's Code toggle. The reset holds its place, disabled */

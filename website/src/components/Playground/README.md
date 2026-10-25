@@ -42,7 +42,13 @@ and `editor/callouts.ts`.
   prop, not a metastring; Demo passes it): then their plain text is in the
   HTML, hidden by CSS, for crawlers.
 - The preview renders `PreviewLoading` (frame, loading page, Store toggle) on
-  the server, while loading, for bots and while `hidden`.
+  the server, while loading and for bots; while `hidden`, nothing (nor the
+  row's Store folder).
+- What the first paint doesn't show stays out of the HTML (DOM size counts
+  against the page): the Store's tree loads with the live preview, the
+  fixtures popover's rows render once the pointer or focus reaches the
+  playground (`index.tsx`, so they outlive the preview's remounts), and code not yet shown (a hidden tab, a demo's
+  code) is plain text, not highlighted, until it shows.
 - Loading goes straight to loaded. The page's first paint, the chunk
   loading and the app waiting on data all draw `preview/PendingSheet.tsx`,
   and `PreviewHeaderControls` gives the loading and live headers the same
@@ -92,13 +98,13 @@ and `editor/callouts.ts`.
 
 ### Hidden playgrounds (protocol tabs)
 
-All tabs stay mounted so every protocol's source is in the HTML. `hidden`
-keeps `StaticEditor` until first shown, then latches interactive so undo
-history and go-to-definition survive tab switches. The live preview unmounts
-while hidden, so its store resets. The homepage passes `hidden` directly; in
-MDX, `PlaygroundTabs` sets it through `PlaygroundHiddenContext`
-(`hiddenContext.ts`) for every playground under an unselected tab, nested tab
-groups included. An explicit `hidden` prop wins.
+All tabs stay mounted so every protocol's source is in the HTML (a hidden
+tab's as plain text). `hidden` keeps it static until first shown, then
+latches interactive so undo history and go-to-definition survive tab
+switches. The live preview unmounts while hidden, so its store resets. The
+homepage passes `hidden` directly; in MDX, `PlaygroundTabs` sets it through
+`PlaygroundHiddenContext` (`hiddenContext.ts`) for every playground under an
+unselected tab, nested tab groups included. An explicit `hidden` prop wins.
 
 ### Layouts
 

@@ -35,6 +35,9 @@ describe('demo layout', () => {
   test('the server HTML has the code and the Code toggle, preview first', () => {
     const html = renderToString(<Playground demo>{fences()}</Playground>);
     expect(html).toContain('listOfPosts');
+    // unseen until the Code toggle shows it: plain text for crawlers, not a
+    // node per highlighted token
+    expect(html).not.toContain('token-line');
     const codeToggle = html.match(/<button[^>]*aria-label="Code"[^>]*>/)?.[0];
     expect(codeToggle).toContain('aria-pressed="false"');
     expect(html).not.toContain('data-code');
@@ -48,7 +51,7 @@ describe('demo layout', () => {
     const playground = container.querySelector('[data-playground] > div')!;
     const toggle = screen.getByRole('button', { name: 'Code' });
     // the code is there, hidden by the layout, before it is shown
-    expect(screen.getByText('listOfPosts')).toBeTruthy();
+    expect(screen.getByText(/listOfPosts/)).toBeTruthy();
     expect(playground.hasAttribute('data-code')).toBe(false);
     expect(toggle.getAttribute('aria-pressed')).toBe('false');
     expect(toggle.title).toBe('Show code');
@@ -72,5 +75,47 @@ describe('demo layout', () => {
   test('without demo there is no Code toggle', () => {
     render(<Playground row>{fences()}</Playground>);
     expect(screen.queryByRole('button', { name: 'Code' })).toBeNull();
+  });
+});
+
+describe('hidden playground (an unselected homepage tab)', () => {
+  test('the server HTML has its code as plain text, and no preview', () => {
+    const html = renderToString(
+      <Playground row hidden>
+        {fences()}
+      </Playground>,
+    );
+    expect(html).toContain('listOfPosts');
+    expect(html).not.toContain('token-line');
+    expect(html).not.toContain('Live Preview');
+  });
+});
+
+describe('folded fixtures', () => {
+  const fixtures = [
+    {
+      endpoint: { key: () => 'GET /article/1' },
+      args: [],
+      response: { id: 1 },
+    },
+  ] as any[];
+
+  test('render once the pointer reaches the playground, not in the HTML', () => {
+    const html = renderToString(
+      <Playground row fixtures={fixtures}>
+        {fences()}
+      </Playground>,
+    );
+    expect(html).toContain('aria-label="Fixtures"');
+    expect(html).not.toContain('/article/1');
+
+    const { container } = render(
+      <Playground row fixtures={fixtures}>
+        {fences()}
+      </Playground>,
+    );
+    expect(container.textContent).not.toContain('/article/1');
+    fireEvent.pointerOver(screen.getByRole('button', { name: 'Fixtures' }));
+    expect(container.textContent).toContain('/article/1');
   });
 });
