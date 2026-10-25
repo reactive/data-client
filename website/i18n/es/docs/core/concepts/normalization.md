@@ -1,6 +1,7 @@
 ---
 title: Entity y normalización de datos
 sidebar_label: Normalización de datos
+image: /img/social/normalization-card.jpg
 ---
 
 <head>
@@ -12,10 +13,25 @@ import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import Link from '@docusaurus/Link';
 import SchemaTable from '../shared/\_schema_table.mdx';
+import PosterVideo from '@site/src/components/PosterVideo';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Las [Entities](/rest/api/Entity) tienen una clave primaria. Esto permite un acceso sencillo mediante una tabla de búsqueda.
 Así resulta fácil encontrar, actualizar, crear o eliminar los mismos datos, sin importar en qué
 endpoint se hayan usado.
+
+<PosterVideo
+  poster={useBaseUrl('/videos/docs/normalization-poster.jpg')}
+  duration="1:54"
+  volume={0.5}
+  alt="Dos endpoints devuelven tres copias del mismo usuario. La normalización guarda cada entity una sola vez en una tabla indexada por id, la desnormalización sigue los ids para reconstruir cada respuesta, y un solo cambio de nombre actualiza todas las vistas. Cambiar el nombre de un usuario con 10.000 filas en pantalla reconstruye 30 objetos en lugar de 10.000."
+>
+  <source
+    src={useBaseUrl('/videos/docs/normalization.webm')}
+    type='video/webm; codecs="av01.0.08M.10, opus"'
+  />
+  <source src={useBaseUrl('/videos/docs/normalization.mp4')} type="video/mp4" />
+</PosterVideo>
 
 <!--
 <LanguageTabs>

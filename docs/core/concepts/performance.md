@@ -5,6 +5,7 @@ sidebar_label: Performance
 
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import PosterVideo from '@site/src/components/PosterVideo';
 
 <head>
   <meta name="docsearch:pagerank" content="30"/>
@@ -54,6 +55,19 @@ guide library optimizations and catch performance regressions over time.
 Denormalization compared with the legacy [normalizr](https://github.com/paularmstrong/normalizr)
 library. Entity-level memoization maintains global referential equality and
 speeds up repeated access, including after [mutations](../getting-started/mutations.md).
+
+<PosterVideo
+  poster={useBaseUrl('/videos/docs/memocache-poster.jpg')}
+  duration="1:59"
+  volume={0.5}
+  alt="Denormalizing rebuilds each post from ids, so without a cache every write hands every row a new object. MemoCache keys each result on the entity objects it read, held weakly in a WeakDependencyMap. Renaming User 7 rebuilds posts 1 and 2 while post 3 keeps its object, and the old user object is garbage collected with the posts cached behind it. Against normalizr on a large list, denormalizing is 1.7× faster without the cache and 11.5× faster on a cache hit."
+>
+  <source
+    src={useBaseUrl('/videos/docs/memocache.webm')}
+    type='video/webm; codecs="av01.0.08M.10, opus"'
+  />
+  <source src={useBaseUrl('/videos/docs/memocache.mp4')} type="video/mp4" />
+</PosterVideo>
 
 <center>
 
