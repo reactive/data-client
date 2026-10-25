@@ -36,7 +36,9 @@ function depKey(entity: unknown): object {
  *
  * String-keyed dependencies (used by `argsKey`) branch on a `Map` keyed by
  * the value `path(args)` returns, so each argument set keeps its own entries
- * and a lookup only checks its own.
+ * and a lookup only checks its own. A node keeps one branch per `argsKey`
+ * function: which one a computation reaches first can depend on the
+ * entities before it (a missing entity skips its nested `argsKey`).
  *
  * Invariants every change must keep: "Memo invariants" in
  * `packages/normalizr/AGENTS.md`.
@@ -55,26 +57,11 @@ export default class WeakDependencyMap<
     getDependency: GetDependency<Path, K | symbol>,
     args: readonly any[] = [],
   ) {
-    let node = this.next.get(depKey(entity) as K);
-    while (node) {
-      const { entries } = node;
-      for (let i = 0; i < entries.length; i++) {
-        const entry = entries[i];
-        if (matches(entry, getDependency, args)) {
-          if (i > 0) {
-            // read back after something newer was cached: the store flipped
-            // back to this version, so it is the one to keep
-            node.kept = entry;
-            entries.splice(i, 1);
-            entries.unshift(entry);
-          }
-          return [entry.value, entry.journey] as readonly [V, Path[]];
-        }
-      }
-      if (!node.fn) break;
-      node = node.children?.get(node.fn(args) ?? UNDEF_KEY);
-    }
-    return EMPTY;
+    const root = this.next.get(depKey(entity) as K);
+    const node = root && find(root, getDependency, args);
+    if (!node) return EMPTY;
+    const entry = node.entries[0];
+    return [entry.value, entry.journey] as readonly [V, Path[]];
   }
 
   set(
@@ -105,12 +92,16 @@ export default class WeakDependencyMap<
           node = newNode(undefined);
           this.next.set(root, node);
         }
-        node.fn = dep.path as KeyFn;
-        if (!node.children) node.children = new Map();
-        let child = node.children.get(k);
+        if (!node.branches) node.branches = [];
+        let branch = node.branches.find(b => b.fn === dep.path);
+        if (!branch) {
+          branch = { fn: dep.path as KeyFn, children: new Map() };
+          node.branches.push(branch);
+        }
+        let child = branch.children.get(k);
         if (!child) {
           child = newNode(undefined);
-          node.children.set(k, child);
+          branch.children.set(k, child);
         }
         node = child;
       } else {
@@ -149,6 +140,35 @@ export default class WeakDependencyMap<
   }
 }
 
+/** The node at or below `node` with an entry that matches the store, if any;
+ * that entry is moved to the front of its entries. */
+function find<Path, K extends object, V>(
+  node: Node<Path, V>,
+  getDependency: GetDependency<Path, K | symbol>,
+  args: readonly any[],
+): Node<Path, V> | undefined {
+  const { entries } = node;
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    if (matches(entry, getDependency, args)) {
+      if (i > 0) {
+        // read back after something newer was cached: the store flipped
+        // back to this version, so it is the one to keep
+        node.kept = entry;
+        entries.splice(i, 1);
+        entries.unshift(entry);
+      }
+      return node;
+    }
+  }
+  if (!node.branches) return;
+  for (const { fn, children } of node.branches) {
+    const child = children.get(fn(args) ?? UNDEF_KEY);
+    const hit = child && find(child, getDependency, args);
+    if (hit) return hit;
+  }
+}
+
 function matches<Path, K extends object, V>(
   entry: Entry<Path, V>,
   getDependency: GetDependency<Path, K | symbol>,
@@ -181,22 +201,25 @@ const EMPTY = [undefined, undefined] as const;
 const MAX_ENTRIES = 3;
 
 /** Entries for one set of `argsKey` results, most recently used first, and the
- * branch on the next one. */
+ * branches on the next one. */
 interface Node<Path, V> {
   entries: Entry<Path, V>[];
   /** Never evicted: the entry most recently read back after a newer one. */
   kept: Entry<Path, V> | undefined;
-  /** The next `argsKey` dependency; its result picks the child. */
-  fn: KeyFn | undefined;
-  children: Map<string, Node<Path, V>> | undefined;
+  /** One per next `argsKey` dependency; its result picks the child. */
+  branches: Branch<Path, V>[] | undefined;
+}
+
+interface Branch<Path, V> {
+  readonly fn: KeyFn;
+  readonly children: Map<string, Node<Path, V>>;
 }
 
 function newNode<Path, V>(entry: Entry<Path, V> | undefined): Node<Path, V> {
   return {
     entries: entry ? [entry] : [],
     kept: entry,
-    fn: undefined,
-    children: undefined,
+    branches: undefined,
   };
 }
 
