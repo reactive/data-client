@@ -10,10 +10,15 @@ const UNDEF_KEY = '\0';
 
 const valueKeys = new Map<unknown, object>();
 
-/** `WeakMap` key for an entity value: the object itself, `UNDEF` for
- * `undefined`, or a stable stand-in for any other value (`null`, `INVALID`). */
-function depKey(entity: unknown): object {
-  if (typeof entity === 'object' && entity !== null) return entity;
+/** `WeakMap` key for an entity value: the object or function itself, `UNDEF`
+ * for `undefined`, or a stable stand-in for any other value (`null`,
+ * `INVALID`). Only those few values get stand-ins, since they're never freed. */
+export function depKey(entity: unknown): object {
+  if (
+    (typeof entity === 'object' && entity !== null) ||
+    typeof entity === 'function'
+  )
+    return entity;
   if (entity === undefined) return UNDEF;
   let key = valueKeys.get(entity);
   if (!key) {
