@@ -293,8 +293,6 @@ export interface NavState {
    * in the Action tab: what it did to the subject, then the action itself
    * (or the group's actions) */
   readonly show: (seq: number, scope?: Scope) => void;
-  /** Opens action `seq` alone, a level deeper than its request shown */
-  readonly dive: (seq: number) => void;
 }
 export const NavStateContext = createContext<NavState>({
   seq: null,
@@ -303,7 +301,6 @@ export const NavStateContext = createContext<NavState>({
   later: undefined,
   set: () => {},
   show: () => {},
-  dive: () => {},
 });
 export const useNavState = () => useContext(NavStateContext);
 

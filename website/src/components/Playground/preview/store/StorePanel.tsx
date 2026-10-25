@@ -288,7 +288,7 @@ export default function StorePanel({
   const underRequest = useCallback((seq: number | null, to: Scope) => {
     const request =
       seq === null ? undefined : requestOf(groupsRef.current, seq);
-    return to === 'action' && !!request && groupEntriesOf(request).length > 1;
+    return to === 'action' && !!request && !isLone(request);
   }, []);
   const showAction = useCallback(
     (seq: number | null, to: Scope = 'request', quiet = false) => {
@@ -403,27 +403,15 @@ export default function StorePanel({
       ] as const,
     [known, momentSeq, filter.hit],
   );
-  // a step of a request opens alone, a level deeper
-  const dive = useCallback(
-    (seq: number) => {
-      setMomentSeq(seq);
-      setScope('action');
-      clearAt();
-      diveAction(seq);
-    },
-    [clearAt, diveAction],
-  );
-  // coming back up from an action alone, the moment is its request's again
+  // back on an action view (coming up from an action alone), the moment is
+  // that view's
   const { stack: actionStack, back: backActions } = actionLevels;
   const actionsShown = useMemo<LevelStack>(
     () => ({
       ...actionLevels,
       back: depth => {
         const up = actionStack[depth - 1]?.view;
-        if (
-          up?.kind === 'action' &&
-          actionStack[depth]?.view.kind === 'action'
-        ) {
+        if (up?.kind === 'action') {
           setMomentSeq(up.seq);
           setScope(up.scope ?? 'request');
         }
@@ -433,8 +421,8 @@ export default function StorePanel({
     [actionLevels, actionStack, backActions],
   );
   const navState = useMemo<NavState>(
-    () => ({ seq: momentSeq, scope, earlier, later, set, show, dive }),
-    [momentSeq, scope, earlier, later, set, show, dive],
+    () => ({ seq: momentSeq, scope, earlier, later, set, show }),
+    [momentSeq, scope, earlier, later, set, show],
   );
   // what the peek's chips open: over the State tab's top level, in the
   // table view, with the peek closed to show it
@@ -1101,33 +1089,30 @@ function ActionLevel({
   const deep = scope === 'action';
   /** The row or (deep) action before or after the one shown: deep, every
    * action of the rows listed, as their steps show them */
+  const listed = useMemo(() => new Set(rows), [rows]);
   const step = (dir: -1 | 1) => {
     if (!entry) return undefined;
-    if (deep) {
-      const listed = new Set(rows);
+    if (deep)
       return stepMoment(entries, entry.seq, dir, e => {
         const row = groupOf(groups, e.seq);
         return row ? listed.has(row) : filter.hit(e);
       });
-    }
     // the neighbouring row in the list's own order: rows can overlap in
-    // time (a subscription still polling), so not by their seqs
+    // time (a subscription still polling), so not by their seqs. Live sits
+    // past the list's end, its own row (shown already) skipped
     const own = groupOf(groups, entry.seq);
-    // live sits past the list's end: nothing after it, the last row
-    // (unless it is the one shown) before it
-    if (seq === null) {
-      if (dir > 0) return undefined;
-      const last = rows.findLast(row => row !== own);
-      return last && rowSeq(last, filter.hit);
-    }
-    const i = own ? rows.indexOf(own) : -1;
-    const next =
+    const i =
+      seq === null ? rows.length
+      : own ? rows.indexOf(own)
+      : -1;
+    let next =
       i >= 0 ? rows[i + dir]
       : dir < 0 ? rows.findLast(row => groupEntriesOf(row)[0].seq < entry.seq)
       : rows.find(row => groupEntriesOf(row)[0].seq > entry.seq);
+    if (seq === null && next === own) next = rows[i + 2 * dir];
     if (next) return rowSeq(next, filter.hit);
     // past the newest is live again
-    if (dir > 0) return null;
+    if (dir > 0 && seq !== null) return null;
   };
   const to: Scope = deep ? 'action' : 'group';
   // the step before leads, so the crumbs under it head the action shown
