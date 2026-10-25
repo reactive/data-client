@@ -1,3 +1,5 @@
+import { INVALID } from '../denormalize/symbol.js';
+
 /** Function path used by `argsKey` deps. Distinguished from object paths
  * via `typeof === 'function'`. */
 export type KeyFn = (args: readonly any[]) => string | undefined;
@@ -6,21 +8,24 @@ export type KeyFn = (args: readonly any[]) => string | undefined;
  * can perform Map lookups consistently. */
 const UNDEF_KEY = '\0';
 
-const valueKeys = new Map<unknown, object>();
+const UNDEF_DEP = {};
+const NULL_DEP = {};
+const INVALID_DEP = {};
+const otherDeps = new Map<unknown, object>();
 
 /** `WeakMap` key for an entity value: the object or function itself, or a
- * stable stand-in for any other value (`undefined`, `null`, `INVALID`). Only
- * those few values get stand-ins, since they're never freed. */
+ * fixed stand-in for `undefined`, `null` or `INVALID`. Checked on every
+ * dependency, so the common values never need a lookup. */
 export function depKey(entity: unknown): object {
-  if (
-    (typeof entity === 'object' && entity !== null) ||
-    typeof entity === 'function'
-  )
-    return entity;
-  let key = valueKeys.get(entity);
+  if (typeof entity === 'object') return entity ?? NULL_DEP;
+  if (entity === undefined) return UNDEF_DEP;
+  if (typeof entity === 'function') return entity;
+  if (entity === INVALID) return INVALID_DEP;
+  // normalize never stores other values; a stand-in for one is never freed
+  let key = otherDeps.get(entity);
   if (!key) {
     key = {};
-    valueKeys.set(entity, key);
+    otherDeps.set(entity, key);
   }
   return key;
 }
