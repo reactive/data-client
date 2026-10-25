@@ -80,32 +80,6 @@ export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 </template>
 ```
 
-```html title="Navigator.vue" layout
-<template>
-  <div>
-    <nav>
-      <RouterLink to="/time/1">First</RouterLink>
-      <RouterLink to="/time/2">Second</RouterLink>
-    </nav>
-    <RouterView v-slot="{ Component, route }">
-      <!-- :key remounts TimePage so it suspends for the new id -->
-      <Suspense timeout="0">
-        <component
-          :is="Component"
-          :key="route.fullPath"
-          :id="route.params.id"
-        />
-        <template #fallback><Loading /></template>
-      </Suspense>
-    </RouterView>
-    <div class="listItem">
-      <span class="meta">Current time</span>
-      <CurrentTime />
-    </div>
-  </div>
-</template>
-```
-
 <details>
 
 <summary>@data-client/rest</summary>
@@ -207,32 +181,6 @@ export const getUpdated = lastUpdated.extend({
   <div class="listItem">
     <span class="meta">API time for {{ id }}</span>
     <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-  </div>
-</template>
-```
-
-```html title="Navigator.vue" layout
-<template>
-  <div>
-    <nav>
-      <RouterLink to="/time/1">First</RouterLink>
-      <RouterLink to="/time/2">Second</RouterLink>
-    </nav>
-    <RouterView v-slot="{ Component, route }">
-      <!-- :key remounts TimePage so it suspends for the new id -->
-      <Suspense timeout="0">
-        <component
-          :is="Component"
-          :key="route.fullPath"
-          :id="route.params.id"
-        />
-        <template #fallback><Loading /></template>
-      </Suspense>
-    </RouterView>
-    <div class="listItem">
-      <span class="meta">Current time</span>
-      <CurrentTime />
-    </div>
   </div>
 </template>
 ```

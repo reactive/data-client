@@ -121,7 +121,7 @@ export default function TimePage({ id }: { id: string }) {
 }
 ```
 
-```tsx title="Navigator" layout collapsed
+```tsx title="Navigator" layout collapsed docs-only
 export default function Navigator({ children }) {
   return (
     <div>
@@ -160,7 +160,7 @@ export default function Navigator({ children }) {
 </template>
 ```
 
-```html title="Navigator.vue" layout collapsed
+```html title="Navigator.vue" layout collapsed docs-only
 <template>
   <div>
     <nav>
@@ -309,7 +309,7 @@ export default function TimePage({ id }: { id: string }) {
 }
 ```
 
-```tsx title="Navigator" layout collapsed
+```tsx title="Navigator" layout collapsed docs-only
 export default function Navigator({ children }) {
   return (
     <div>
@@ -348,7 +348,7 @@ export default function Navigator({ children }) {
 </template>
 ```
 
-```html title="Navigator.vue" layout collapsed
+```html title="Navigator.vue" layout collapsed docs-only
 <template>
   <div>
     <nav>

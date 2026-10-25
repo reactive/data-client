@@ -81,24 +81,6 @@ export default function TimePage({ id }: { id: string }) {
 }
 ```
 
-```tsx title="Navigator" layout
-export default function Navigator({ children }) {
-  return (
-    <div>
-      <nav>
-        <Link to="/time/1">First</Link>
-        <Link to="/time/2">Second</Link>
-      </nav>
-      {children}
-      <div className="listItem">
-        <span className="meta">Current time</span>
-        <CurrentTime />
-      </div>
-    </div>
-  );
-}
-```
-
 <details>
 
 <summary>@data-client/rest</summary>
@@ -197,24 +179,6 @@ export default function TimePage({ id }: { id: string }) {
     <div className="listItem">
       <span className="meta">API time for {id}</span>
       <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
-    </div>
-  );
-}
-```
-
-```tsx title="Navigator" layout
-export default function Navigator({ children }) {
-  return (
-    <div>
-      <nav>
-        <Link to="/time/1">First</Link>
-        <Link to="/time/2">Second</Link>
-      </nav>
-      {children}
-      <div className="listItem">
-        <span className="meta">Current time</span>
-        <CurrentTime />
-      </div>
     </div>
   );
 }
