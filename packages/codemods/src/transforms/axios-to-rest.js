@@ -353,6 +353,12 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
               'base-endpoint',
             ]);
           }
+          if (literal && ORIGIN.exec(prefix.value)?.[0].includes('@')) {
+            unknownTodos.push([
+              'fetch rejects credentials in a url; send them in an `Authorization` header from `getHeaders()`',
+              'basic-auth',
+            ]);
+          }
           const urlProp = j.classProperty(j.identifier('urlPrefix'), prefix);
           urlProp.static = false;
           classBody.push(urlProp);
@@ -581,6 +587,8 @@ function toPath(j, urlArg) {
   let urlPrefix;
   const origin = quasis[0].match(ORIGIN);
   if (origin) {
+    // fetch rejects credentials in a url
+    if (origin[0].includes('@')) return null;
     urlPrefix = origin[0];
     quasis = [quasis[0].slice(urlPrefix.length), ...quasis.slice(1)];
   }

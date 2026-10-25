@@ -1227,6 +1227,28 @@ async function save() {
       {},
       `
 import axios from 'axios';
+const list = () => axios.get('https://user:pass@example.com/items');
+const api = axios.create({ baseURL: 'https://user:pass@example.com' });
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+import axios from 'axios';
+// TODO(data-client): convert this axios.get() call to an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
+const list = () => axios.get('https://user:pass@example.com/items');
+
+// TODO(data-client): fetch rejects credentials in a url; send them in an \`Authorization\` header from \`getHeaders()\`: https://dataclient.io/rest/guides/axios-migration#basic-auth
+class ApiEndpoint extends RestEndpoint {
+  urlPrefix = 'https://user:pass@example.com';
+}
+      `,
+      'marks urls with credentials, which fetch rejects',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
 const list = async () => (await axios.get('/users', { params: { role: null, page: undefined, sort: 'name' } })).data;
       `,
       `
