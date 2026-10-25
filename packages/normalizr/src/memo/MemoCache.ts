@@ -23,7 +23,7 @@ export default class MemoCache {
   /** Cache for every entity based on its dependencies and its own input */
   declare protected _getCache: GetEntityCache;
   /** Caches the final denormalized form based on input, entities */
-  protected endpoints: EndpointsCache = new WeakDependencyMap<EntityPath>();
+  protected endpoints: EndpointsCache = new WeakDependencyMap<EntityPath>(true);
   /** Results read per store `entities`, until that store commits. */
   private reads = new WeakMap<object, KeepReads>();
   /** `entities` from the latest `commit`; reads with it are kept right away. */

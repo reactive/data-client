@@ -176,6 +176,22 @@ describe('WeakDependencyMap', () => {
     expect(depKey(null)).not.toBe(depKey(INVALID));
   });
 
+  it('records hits and writes only when tracking', () => {
+    // a map that never calls trackLast() must not hold its last entry: the
+    // per-entity maps would keep every entity they ever cached alive
+    const getEntity = MemoPolicy.getEntities(state);
+    for (const tracks of [false, true]) {
+      const wem = new WeakDependencyMap<EntityPath>(tracks);
+      wem.set([depA, depB], 'value');
+      const reads = new Map<object, object>();
+      wem.trackLast(reads);
+      expect(reads.size).toBe(tracks ? 1 : 0);
+      wem.get(a, getEntity);
+      wem.trackLast(reads);
+      expect(reads.size).toBe(tracks ? 1 : 0);
+    }
+  });
+
   it('considers empty key list invalid', () => {
     const wem = new WeakDependencyMap<EntityPath>();
     expect(() => wem.set([], 'whatever')).toThrowErrorMatchingInlineSnapshot(

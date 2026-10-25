@@ -199,6 +199,26 @@ const memoryCases = [
       return store;
     },
   },
+  {
+    // a trade tape: old trades leave the store, so nothing should keep their
+    // cached denormalized rows alive
+    name: 'retained: 100-row trade tape, 3 new trades per flush x 600',
+    run(memo) {
+      let store;
+      let trades = [];
+      for (let flush = 0; flush < 600; flush++) {
+        const fresh = Array.from({ length: 3 }, (_, j) => ({
+          id: flush * 3 + j,
+          name: `trade ${flush * 3 + j}`,
+          value: flush,
+        }));
+        trades = [...fresh, ...trades].slice(0, 100);
+        store = normalize([Row], trades);
+        memo.denormalize([Row], store.result, store.entities);
+      }
+      return store;
+    },
+  },
   ...[1000, 10000].map(n => ({
     name: `retained: ${n}-row list refetched (every row replaced) x 20`,
     run(memo) {
