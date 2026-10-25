@@ -11,21 +11,25 @@ paths:
 
 # V8 optimization check
 
-When a change to code that runs per entity, per render or per request could affect how V8 optimizes it, measure its effect before and after, then weigh revisions on what you find. That includes object shapes or property order, polymorphic call sites, `try`/`catch`, `arguments`, `delete`, and closures or spreads in loops. Skip it for changes that don't alter executed hot code (comments, type declarations, error-message strings, renamed locals or functions; renamed object properties do change shapes).
+When a change to code that runs per entity, per render or per request could change how V8 optimizes it (shapes, property order, call-site polymorphism, `try`/`catch`, closures or spreads in loops), spawn a fast subagent to measure base vs change: **Haiku** in Claude Code (`model: "haiku"`), **Grok 4.7 Fast** at medium in Cursor. Skip it for comments, types, strings and local renames.
 
-1. **Spawn a fast subagent** to measure: **Haiku** in Claude Code (Agent tool, `model: "haiku"`), **Grok 4.7 Fast** at medium reasoning in Cursor. Give it the changed functions, the base ref, and the benchmark to run.
-2. **It measures both sides** (base and change) for each changed hot function. In `examples/benchmark`, use `start:trace` or `start:deopt`, or call `node` directly with the extra V8 flags **before** `./index.js` (flags after it, as in `yarn start --flag`, are read as the suite and filter args, so V8 never sees them):
+| Changed package | Harness | What it can measure |
+| --- | --- | --- |
+| normalizr, core, endpoint | `examples/benchmark` | everything below |
+| react, rest | `examples/benchmark-react` (`bench:trace`, `bench:deopt`) | opt/deopt traces and `--prof` only; report the rest as not measured |
 
-   ```bash
-   cd examples/benchmark && NODE_ENV=production node --allow-natives-syntax --trace-deopt --trace-turbo-inlining ./index.js normalizr denormalize
-   ```
+For each changed hot function, measure on both refs:
 
-   - **Optimization**: does it get optimized at all, and does it stay optimized? `%GetOptimizationStatus` via [printStatus.js](../../examples/benchmark/printStatus.js) (needs `--allow-natives-syntax`).
-   - **Deopts**: count and reasons from `--trace-deopt`.
-   - **Inline caches**: monomorphic vs polymorphic vs megamorphic from `--log-ic` (`start:deopt` already logs them for [Deopt Explorer](https://github.com/microsoft/deoptexplorer-vscode)).
-   - **Shapes and inlining**: hidden-class transitions on the objects the change creates (`--log-maps`), and whether the callers still inline it (`--trace-turbo-inlining`).
-   - **Throughput**: the relevant benchmark suite (see the benchmarking rule) or a `micro.js` case, same machine, same session.
+- **Optimized and staying optimized**: `%GetOptimizationStatus` via [printStatus.js](../../examples/benchmark/printStatus.js).
+- **Deopts**: `--trace-deopt`.
+- **Inline caches** (mono/poly/megamorphic) and **shapes**: `yarn start:deopt` logs ICs and maps for [Deopt Explorer](https://github.com/microsoft/deoptexplorer-vscode).
+- **Inlining**: `--trace-turbo-inlining`.
+- **Throughput**: the relevant suite or a `micro.js` case, several runs each in one session.
 
-   `examples/benchmark` exercises only the normalizr, core and endpoint packages. For `packages/react` and `packages/rest`, use `examples/benchmark-react`: `bench:trace` (`--trace-opt --trace-deopt`) and `bench:deopt` (`--prof`) pass V8 flags to Chromium. `printStatus.js`, `--log-ic`, `--log-maps` and inlining traces aren't wired up there, so report those as not measured. Vue has no benchmark, so this rule doesn't cover `packages/vue`.
-3. **Weigh revisions**: for any new deopt, IC going poly/megamorphic, shape instability or lost inlining, try a revision (stable property order, monomorphic helpers, hoisting `try`/`catch` out of the hot function) and re-measure. Run each version several times in the same session. If one is faster by more than the spread you measured across those runs, it wins. Otherwise, keep the better V8 state, since benchmarks feed fewer shapes than real apps. Name any V8 regression you keep in the PR.
-4. **Report** the before/after measurements in the PR description.
+Gotcha: in `examples/benchmark`, V8 flags must come before `./index.js`. After it (`yarn start --trace-deopt`) they become the suite and filter args, so nothing is traced:
+
+```bash
+cd examples/benchmark && NODE_ENV=production node --allow-natives-syntax --trace-deopt --trace-turbo-inlining ./index.js normalizr denormalize
+```
+
+For any new deopt, polymorphic IC, unstable shape or lost inlining, try a revision (stable property order, monomorphic helpers, `try`/`catch` hoisted out) and re-measure. A version faster by more than the run-to-run spread wins; otherwise keep the better V8 state, since benchmarks see fewer shapes than real apps. Put the before/after numbers, and any V8 regression you kept, in the PR description.
