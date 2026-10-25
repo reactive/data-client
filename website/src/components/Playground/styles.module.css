@@ -471,7 +471,7 @@ div.playgroundTextEdit > .playgroundHeader,
   /* the handle: how far it sticks out, and its length along the edge */
   --pg-tab-width: 2.5rem;
   --pg-tab-length: 3rem;
-  /* the row's loading page: its skeleton title and paragraph */
+  /* the height of the row's loading page (a skeleton title and paragraph) */
   --pg-pending-sheet: 8.5rem;
   /* how far the code card and the app's sheet reach toward the other's foot */
   --pg-card-foot: 6rem;
@@ -1404,8 +1404,8 @@ div.fixtureJson + div.fixtureJson {
        below that (./preview/PreviewWrapper.tsx) */
     max-height: calc(100% - var(--pg-preview-gap, 0px));
   }
-  /* the loading page is one height, so its folder's end is known before
-     the page hydrates and measures it (the same, measured) */
+  /* the loading page is one height, so where its folder ends is known
+     before the page hydrates: what PreviewWrapper.tsx then measures */
   .row:has(.sheet[aria-busy]) {
     --pg-preview-gap: max(
       0px,
