@@ -65,3 +65,16 @@ it('moves only for the reader or a demo', async () => {
   expect(button().textContent).toBe('open');
   expect(moving()).toBe(true);
 });
+
+it("moves for each of a demo's steps through the showStore it started with", async () => {
+  render(<Store />);
+  // a demo's run holds the showStore it started with (../autorun/stage.ts)
+  const held = showStore;
+  act(() => held(true));
+  expect(moving()).toBe(true);
+  await act(() => new Promise(requestAnimationFrame));
+  expect(moving()).toBe(false);
+  act(() => held(false));
+  expect(button().textContent).toBe('shut');
+  expect(moving()).toBe(true);
+});
