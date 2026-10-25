@@ -36,7 +36,7 @@ export const isNetworkManager = (name: string) =>
   baseName(name) === 'NetworkManager';
 
 /** Its class's name, without the `#2` a repeat gets */
-const baseName = (name: string) => name.replace(/ #\d+$/, '');
+export const baseName = (name: string) => name.replace(/ #\d+$/, '');
 
 interface Stage {
   /** The manager's name (unique in its chain) */

@@ -1511,19 +1511,40 @@ div.joined {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.momentAction {
+/* text that is a button: the moment's action, and a manager the
+   playground's code declares, which opens it there */
+.momentAction,
+.managerLink,
+.codeLink {
   min-width: 0;
   padding: 0;
   border: 0;
   background: none;
   color: inherit;
   font: inherit;
-  text-decoration: underline dotted;
-  text-underline-offset: 2px;
   cursor: pointer;
 }
-.momentAction:hover {
+.momentAction,
+.managerLink {
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+.momentAction:hover,
+.codeLink:hover {
   color: var(--store-fg);
+}
+.managerLink:hover {
+  text-decoration-style: solid;
+}
+/* beside a pipeline stage, whose own click picks it */
+.codeLink {
+  margin-left: 0.3em;
+  color: var(--store-muted);
+}
+@media (pointer: coarse) {
+  .codeLink {
+    padding: 0.35rem 0.2rem;
+  }
 }
 
 /* The lanes, above the tabs; narrow, they drop over them as a sheet */

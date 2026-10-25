@@ -2,6 +2,7 @@ import type * as Monaco from 'monaco-editor';
 import { useCallback, useEffect, useState } from 'react';
 
 import { prefersReducedMotion } from '../../motion';
+import type { CodeTarget } from '../editor/openCode';
 
 interface OpenRequest {
   editor: Monaco.editor.ICodeEditor;
@@ -9,19 +10,35 @@ interface OpenRequest {
 }
 
 /**
- * Lands cross-file go to definition in this editor. Opening only asks for
- * this editor's tab (`onOpen`); the selection and focus wait until the tab
- * is visible, since a display:none editor can't take focus.
+ * Lands cross-file go to definition in this editor, and lines asked for by
+ * `reveal` (each new object, once). Opening only asks for this editor's tab
+ * (`onOpen`); the selection and focus wait until the tab is visible, since
+ * a display:none editor can't take focus.
  */
 export default function useDefinitionOpener({
   isVisible,
   onOpen,
+  reveal,
 }: {
   isVisible: boolean;
   /** Show this editor's tab. Read once at mount, so it must be stable. */
   onOpen: () => void;
+  /** A line to put the cursor on: its tab opens at once, the cursor lands
+   * once the editor has mounted and shows */
+  reveal?: Pick<CodeTarget, 'line'>;
 }) {
   const [request, setRequest] = useState<OpenRequest | null>(null);
+  // Monaco may load after the ask: the cursor waits for it, the tab doesn't
+  const [editor, setEditor] = useState<Monaco.editor.ICodeEditor | null>(null);
+  useEffect(() => {
+    if (reveal) onOpen();
+    // onOpen is stable (see above)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reveal]);
+  useEffect(() => {
+    if (editor && reveal)
+      setRequest({ editor, target: { lineNumber: reveal.line, column: 1 } });
+  }, [editor, reveal]);
 
   useEffect(() => {
     if (!request || !isVisible) return;
@@ -51,6 +68,7 @@ export default function useDefinitionOpener({
         },
       });
       editor.onDidDispose(() => opener.dispose());
+      setEditor(editor);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],

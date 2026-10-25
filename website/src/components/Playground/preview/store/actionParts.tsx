@@ -30,6 +30,7 @@ import {
   type Moment,
   type Then,
 } from './nav';
+import ManagerName from './ManagerName';
 import styles from './store.module.css';
 import { CountChip, EndpointKey, EntityKey, RefChip } from './Value';
 import {
@@ -350,7 +351,7 @@ export function ManagerTags({ entries }: { entries: readonly LogEntry[] }) {
     <>
       {origin && (
         <span className={styles.manager} title={`Sent by ${origin}`}>
-          ↑ {origin}
+          ↑ <ManagerName name={origin} />
         </span>
       )}
       {consumedBy && (
@@ -358,7 +359,7 @@ export function ManagerTags({ entries }: { entries: readonly LogEntry[] }) {
           className={styles.manager}
           title={`${consumedBy} handled it without passing it on`}
         >
-          ⊘ handled by {consumedBy}
+          ⊘ handled by <ManagerName name={consumedBy} />
         </span>
       )}
     </>

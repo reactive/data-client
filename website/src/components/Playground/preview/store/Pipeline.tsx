@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { actionName } from './actionGroups';
 import type { LogEntry } from './actionLog';
 import { APP, pipeline } from './attribution';
+import ManagerName from './ManagerName';
 import styles from './store.module.css';
 
 /** Every dispatch's way to the store: the app, then each manager of the
@@ -30,18 +31,21 @@ export function Pipeline({
         foldAs:
           id !== APP && !sent && !handled && picked !== id ? 'idle' : undefined,
         node: (
-          <button
-            type="button"
-            className={styles.stage}
-            aria-pressed={picked === id}
-            onClick={() => onPick(picked === id ? null : id)}
-          >
-            {id}
-            <span className={sent ? styles.number : styles.dim}>{sent}</span>
-            {handled > 0 && (
-              <span className={styles.stageNote}>⊘ {handled}</span>
-            )}
-          </button>
+          <>
+            <button
+              type="button"
+              className={styles.stage}
+              aria-pressed={picked === id}
+              onClick={() => onPick(picked === id ? null : id)}
+            >
+              {id}
+              <span className={sent ? styles.number : styles.dim}>{sent}</span>
+              {handled > 0 && (
+                <span className={styles.stageNote}>⊘ {handled}</span>
+              )}
+            </button>
+            <ManagerName name={id} stage />
+          </>
         ),
       }))}
     />
@@ -88,7 +92,7 @@ function ActionPath({
                 after && styles.stageOff,
               )}
             >
-              {id}
+              <ManagerName name={id} />
               {id === origin && id !== APP && (
                 <span className={styles.stageNote}>↑ sent it</span>
               )}

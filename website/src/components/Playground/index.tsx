@@ -1,11 +1,23 @@
 import Translate from '@docusaurus/Translate';
 import useIsomorphicLayoutEffect from '@docusaurus/useIsomorphicLayoutEffect';
 import clsx from 'clsx';
-import React, { lazy, useDeferredValue, useState } from 'react';
+import React, {
+  lazy,
+  useCallback,
+  useDeferredValue,
+  useMemo,
+  useState,
+} from 'react';
 
 import Boundary from './Boundary';
 import { useCodeDocuments } from './editor/codeModel';
 import EditorSurface from './editor/EditorSurface';
+import {
+  CodeOpenerContext,
+  type CodeOpener,
+  type CodeTarget,
+  declarationsOf,
+} from './editor/openCode';
 import type { AutoRunScript } from './preview/autorun/script';
 import FixturePreview from './preview/FixturePreview';
 import type LivePreviewType from './preview/LivePreview';
@@ -84,6 +96,24 @@ export default function Playground<T>({
   const [storeHost, setStoreHost] = useState<HTMLDivElement | null>(null);
   const codeCovered = row && storeOpen;
 
+  // the line the Store last asked to show: a new object per ask, so asking
+  // for the same line again shows it again
+  const [codeShown, showCode] = useState<CodeTarget | null>(null);
+  const openCode = useCallback(
+    (target: CodeTarget) => {
+      // in the same render, so the code is uncovered (no longer inert) by
+      // the time its editor takes focus
+      if (row) showStore(false);
+      showCode({ ...target });
+    },
+    [row, showStore],
+  );
+  // from the code the preview runs, so the Store's links change with it
+  const codeOpener = useMemo<CodeOpener>(
+    () => ({ declared: declarationsOf(documents), open: openCode }),
+    [documents, openCode],
+  );
+
   // Hydrate Monaco on first show and keep it (preserves undo / go-to-def).
   const [editorInteractive, setEditorInteractive] = useState(!hidden);
   useIsomorphicLayoutEffect(() => {
@@ -111,6 +141,7 @@ export default function Playground<T>({
         : null
       }
       covered={codeCovered}
+      reveal={codeShown}
       coverTitle={<Translate id="playground.store">Store</Translate>}
     />
   );
@@ -120,20 +151,22 @@ export default function Playground<T>({
     hidden ? loading : (
       <Boundary fallback={loading}>
         <DemoViewContext.Provider value={demoView}>
-          <LivePreview
-            documents={documents}
-            fixtureContent={previewFixtures}
-            storeOpen={storeOpen}
-            toggleStore={toggleStore}
-            row={row}
-            storeHost={storeHost}
-            fixtures={fixtures}
-            getInitialInterceptorData={getInitialInterceptorData}
-            renderCount={renderCount}
-            actionLog={actionLog}
-            autoRun={autoRun}
-            showStore={showStore}
-          />
+          <CodeOpenerContext.Provider value={codeOpener}>
+            <LivePreview
+              documents={documents}
+              fixtureContent={previewFixtures}
+              storeOpen={storeOpen}
+              toggleStore={toggleStore}
+              row={row}
+              storeHost={storeHost}
+              fixtures={fixtures}
+              getInitialInterceptorData={getInitialInterceptorData}
+              renderCount={renderCount}
+              actionLog={actionLog}
+              autoRun={autoRun}
+              showStore={showStore}
+            />
+          </CodeOpenerContext.Provider>
         </DemoViewContext.Provider>
       </Boundary>
     );

@@ -17,6 +17,11 @@ import {
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React, { Suspense } from 'react';
 
+import {
+  CodeOpenerContext,
+  declarationsOf,
+  type CodeOpener,
+} from '../../editor/openCode';
 import { stageFilter } from '../store/actionGroups';
 import { managerNames } from '../store/attribution';
 import SchemaRegistry from '../store/schemaRegistry';
@@ -85,7 +90,12 @@ const getTicker = new Endpoint(async () => ({ id: 'BTC', price: 1 }), {
   name: 'getTicker',
 });
 
-function mount(own: Manager[], preview?: React.ReactNode, panel = false) {
+function mount(
+  own: Manager[],
+  preview?: React.ReactNode,
+  panel = false,
+  opener: CodeOpener | null = null,
+) {
   const registry = new SchemaRegistry({ trimEvery: 1 });
   const log = registry.log.connect(0);
   const managers = [log.head, registry, ...log.track(own), log.tail];
@@ -95,11 +105,13 @@ function mount(own: Manager[], preview?: React.ReactNode, panel = false) {
     return null;
   }
   render(
-    <DataProvider managers={managers} devButton={null}>
-      <Grab />
-      <Suspense fallback="loading">{preview}</Suspense>
-      {panel && <StorePanel registry={registry} history={0} />}
-    </DataProvider>,
+    <CodeOpenerContext.Provider value={opener}>
+      <DataProvider managers={managers} devButton={null}>
+        <Grab />
+        <Suspense fallback="loading">{preview}</Suspense>
+        {panel && <StorePanel registry={registry} history={0} />}
+      </DataProvider>
+    </CodeOpenerContext.Provider>,
   );
   return {
     ctrl: () => ref.ctrl!,
@@ -609,6 +621,40 @@ describe('Store panel pipeline', () => {
     expect(own?.parentElement?.previousElementSibling?.textContent).toMatch(
       /deduped into this request$/,
     );
+  });
+
+  it("opens the code of the playground's own managers wherever they're named", async () => {
+    const open = jest.fn();
+    const documents = [
+      { path: 'Ticker.ts', value: 'export class Ticker {}' },
+      {
+        path: 'StreamManager.ts',
+        value: "import x from 'x';\n\nexport default class StreamManager {}",
+      },
+    ];
+    const stream = new StreamManager();
+    mount([stream, new NetworkManager()], undefined, true, {
+      declared: declarationsOf(documents),
+      open,
+    });
+    await act(async () => {
+      void stream.push(1);
+    });
+    openActions();
+    const target = { path: 'StreamManager.ts', line: 3 };
+    const links = () => screen.getAllByTitle('Open StreamManager in the code');
+    // the pipeline's, and the tag on its action's row
+    expect(links()).toHaveLength(2);
+    for (const link of links()) fireEvent.click(link);
+    expect(open.mock.calls).toEqual([[target], [target]]);
+    // the tag's click opens no action
+    expect(screen.queryByRole('group', { name: /^Path/ })).toBeNull();
+    // nor do the library's managers, which the code doesn't declare
+    expect(screen.queryByTitle(/Open NetworkManager/)).toBeNull();
+    fireEvent.click(listed()[0]);
+    const path = await screen.findByRole('group', { name: /^Path/ });
+    fireEvent.click(within(path).getByTitle('Open StreamManager in the code'));
+    expect(open).toHaveBeenLastCalledWith(target);
   });
 
   it("draws an action's path: who sent it and where it stopped", async () => {
