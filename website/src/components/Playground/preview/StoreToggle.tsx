@@ -200,14 +200,14 @@ function HeaderToggle({
  * Store's edge, drawn out (see .storeDrawer in ../styles.module.css) */
 export function StoreTab({
   onClick,
-  open = false,
+  open,
   controls,
   ref,
 }: {
-  onClick?: React.MouseEventHandler<HTMLElement>;
-  open?: boolean;
+  onClick: React.MouseEventHandler<HTMLElement>;
+  open: boolean;
   /** The folder's id */
-  controls?: string;
+  controls: string;
   ref?: React.Ref<HTMLButtonElement>;
 }) {
   return (
@@ -219,7 +219,6 @@ export function StoreTab({
       aria-label={translate({ id: 'playground.store', message: 'Store' })}
       aria-expanded={open}
       aria-controls={controls}
-      disabled={!onClick}
       onClick={onClick}
       data-store-toggle
     >

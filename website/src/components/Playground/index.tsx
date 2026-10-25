@@ -112,18 +112,14 @@ export default function Playground<T>({
   const codeCovered = row && storeOpen;
   // the folder's handle: Escape anywhere on the folder pushes it shut
   const handle = useRef<HTMLButtonElement>(null);
-  const shutStore = useCallback(
-    (event: React.KeyboardEvent) => {
-      if (event.key !== 'Escape' || event.defaultPrevented || !storeOpen)
-        return;
-      const tab = handle.current;
-      if (!tab) return;
-      event.preventDefault();
-      toggleStore({ currentTarget: tab });
-      tab.focus();
-    },
-    [storeOpen, toggleStore],
-  );
+  const shutStore = (event: React.KeyboardEvent) => {
+    if (event.key !== 'Escape' || event.defaultPrevented || !storeOpen) return;
+    const tab = handle.current;
+    if (!tab) return;
+    event.preventDefault();
+    toggleStore({ currentTarget: tab });
+    tab.focus();
+  };
 
   // Demo layout: the code takes the result's place while shown
   const [codeShown, setCodeShown] = useState(false);
@@ -261,7 +257,7 @@ export default function Playground<T>({
               <StoreTab
                 ref={handle}
                 open={storeOpen}
-                onClick={toggleStoreInPreview}
+                onClick={toggleStore}
                 controls={storeId}
               />
             </div>

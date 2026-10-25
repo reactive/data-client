@@ -1,5 +1,5 @@
 import BrowserOnly from '@docusaurus/BrowserOnly';
-import Translate from '@docusaurus/Translate';
+import Translate, { translate } from '@docusaurus/Translate';
 import useIsomorphicLayoutEffect from '@docusaurus/useIsomorphicLayoutEffect';
 import clsx from 'clsx';
 import type * as Monaco from 'monaco-editor';
@@ -261,7 +261,7 @@ function EditorTabs({
       small={subtabs || compact}
     >
       <TabList
-        label="Files"
+        label={translate({ id: 'playground.files', message: 'Files' })}
         tabs={tabs.map(({ document, index }) => ({
           key: `${document.path}:${index}`,
           label: document.title,

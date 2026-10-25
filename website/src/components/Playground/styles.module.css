@@ -449,10 +449,8 @@ div.playgroundTextEdit > .playgroundHeader,
   /* the handle: how far it sticks out, and its length along the edge */
   --pg-tab-width: 2.5rem;
   --pg-tab-length: 3rem;
-  /* the preview's column; the layer's pull starts at its edge */
-  --pg-preview-col: max(16rem, calc((100% - var(--pg-gap)) * 0.35));
-  /* the drawer's pull: a big surface a long way, deliberate */
-  --pg-folder-sweep: var(--motion-drawer);
+  /* how far the code card and the app's sheet reach toward the other's foot */
+  --pg-card-foot: 6rem;
   border-radius: 0;
   box-shadow: none;
   background: none;
@@ -493,44 +491,31 @@ div.playgroundTextEdit > .playgroundHeader,
   background: color-mix(in srgb, var(--ifm-font-color-base) 7%, transparent);
   color: var(--ifm-font-color-base);
 }
-.row .tab.selected,
-.row .tab.selected:hover {
-  background: var(--pg-tab-selected-bg);
-  color: var(--pg-tab-selected);
-  box-shadow: none;
-}
 /* the open file's tab is the card's paper rising: over the card's edge (and
    its shadow) and curving out into the card's top edge either side, the
    curves a pixel into the tab so no hairline shows between them (not
    below it: the tab row would scroll) */
-.row .tab.selected {
+.row .tab.selected,
+.row .tab.selected:hover {
   position: relative;
   z-index: 1;
+  --pg-fillet-color: var(--pg-tab-selected-bg);
+  background: var(--pg-tab-selected-bg);
+  color: var(--pg-tab-selected);
+  box-shadow: none;
 }
 .row .tab.selected::before,
 .row .tab.selected::after {
-  content: '';
-  position: absolute;
   bottom: 0;
-  width: calc(var(--pg-card-radius) + 1px);
   height: var(--pg-card-radius);
-  pointer-events: none;
 }
 .row .tab.selected::before {
   right: calc(100% - 1px);
-  background: radial-gradient(
-    circle at 0 0,
-    transparent calc(var(--pg-card-radius) - 0.5px),
-    var(--pg-tab-selected-bg) var(--pg-card-radius)
-  );
+  --pg-fillet-at: 0 0;
 }
 .row .tab.selected::after {
   left: calc(100% - 1px);
-  background: radial-gradient(
-    circle at 100% 0,
-    transparent calc(var(--pg-card-radius) - 0.5px),
-    var(--pg-tab-selected-bg) var(--pg-card-radius)
-  );
+  --pg-fillet-at: 100% 0;
 }
 /* at the card's edge (TabList's flush marks), no curve out past it */
 .row
@@ -560,11 +545,13 @@ div.playgroundTextEdit > .playgroundHeader,
   padding-top: 10px;
   border-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;
 }
-.row .editorDocs::after {
+/* the code card's foot, and the app sheet's on the folder (see the top) */
+.row .editorDocs::after,
+.row > .previewWrapper::after {
   content: '';
   flex: 1 1 0;
   min-height: var(--pg-card-radius);
-  max-height: 6rem;
+  max-height: var(--pg-card-foot);
   border-radius: 0 0 var(--pg-card-radius) var(--pg-card-radius);
 }
 /* the open file's tab at the card's edge runs straight into it */
@@ -604,13 +591,6 @@ div.playgroundTextEdit > .playgroundHeader,
   flex: 1 1 auto;
   min-width: 0;
 }
-.row > .previewWrapper::after {
-  content: '';
-  flex: 1 1 0;
-  min-height: var(--pg-card-radius);
-  max-height: 6rem;
-  border-radius: 0 0 var(--pg-card-radius) var(--pg-card-radius);
-}
 .row > .previewWrapper:has(.sheet:not(:empty))::after {
   background: var(--pg-panel);
 }
@@ -638,7 +618,7 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .row > .storeHost > .storeDrawer {
   pointer-events: auto;
-  transition: translate var(--pg-folder-sweep);
+  transition: translate var(--motion-drawer);
 }
 .row > .storeHost .storePanel {
   display: flex;
@@ -646,7 +626,7 @@ div.playgroundTextEdit > .playgroundHeader,
   height: 100%;
   min-height: 0;
   background: var(--pg-stage);
-  transition: box-shadow var(--pg-folder-sweep);
+  transition: box-shadow var(--motion-drawer);
 }
 /* fills the drawer instead of its usual cap */
 .row > .storeHost .storePanel > * {
@@ -669,22 +649,20 @@ div.playgroundTextEdit > .playgroundHeader,
   position: absolute;
   display: grid;
   place-items: center;
+  --pg-fillet-color: var(--pg-stage);
   background: var(--pg-stage);
   color: var(--pg-muted);
   font-size: 1.1rem;
   cursor: pointer;
   transition: color var(--motion-snappy);
 }
-.storeTab:disabled {
-  cursor: default;
-}
-@media (hover: hover) {
-  .storeTab:enabled:hover {
-    color: var(--pg-text);
-  }
-}
 .storeTab[aria-expanded='true'] {
   color: var(--ifm-color-primary);
+}
+@media (hover: hover) {
+  .storeTab:hover {
+    color: var(--pg-text);
+  }
 }
 .storeTab:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
@@ -692,11 +670,23 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .storeTab::before,
 .storeTab::after {
+  height: calc(var(--pg-card-radius) + 1px);
+}
+/* Concave fillets: a selected tab's or the handle's paper curving out into
+   the edge it rises from, at --pg-fillet-at in its own --pg-fillet-color */
+.row .tab.selected::before,
+.row .tab.selected::after,
+.storeTab::before,
+.storeTab::after {
   content: '';
   position: absolute;
   width: calc(var(--pg-card-radius) + 1px);
-  height: calc(var(--pg-card-radius) + 1px);
   pointer-events: none;
+  background: radial-gradient(
+    circle at var(--pg-fillet-at),
+    transparent calc(var(--pg-card-radius) - 0.5px),
+    var(--pg-fillet-color) var(--pg-card-radius)
+  );
 }
 
 .debugToggle:hover {
@@ -1175,16 +1165,11 @@ div.fixtureJson + div.fixtureJson {
    no longer forces an incorrect stack on homepage/blog): a grid, the file
    tabs' row over the code card, the folder beside the card, and the folder's
    layer over the card's row, its Store in the card's column */
-@property --pg-fold {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 0px;
-}
 @container playground (min-width: 720px) {
   .playgroundContainer.row {
-    /* the preview's edge, where the drawer parks (a length, see @property,
-       so the drawer can move by it) */
-    --pg-fold: calc(100cqw - max(16rem, calc((100cqw - var(--pg-gap)) * 0.35)));
+    --pg-preview-col: max(16rem, calc((100cqw - var(--pg-gap)) * 0.35));
+    /* the preview's edge, where the drawer parks */
+    --pg-fold: calc(100cqw - var(--pg-preview-col));
     display: grid;
     grid-template-columns: minmax(0, 1fr) var(--pg-preview-col);
     /* the tabs' row is the preview header's row */
@@ -1221,7 +1206,7 @@ div.fixtureJson + div.fixtureJson {
     position: absolute;
     inset: 0 auto 0 0;
     width: var(--pg-fold);
-    translate: var(--pg-fold) 0;
+    translate: 100% 0;
   }
   .row > .storeHost[data-open] > .storeDrawer {
     translate: 0 0;
@@ -1244,20 +1229,12 @@ div.fixtureJson + div.fixtureJson {
   .storeTab::before {
     right: -1px;
     bottom: calc(100% - 1px);
-    background: radial-gradient(
-      circle at 0 0,
-      transparent calc(var(--pg-card-radius) - 0.5px),
-      var(--pg-stage) var(--pg-card-radius)
-    );
+    --pg-fillet-at: 0 0;
   }
   .storeTab::after {
     right: -1px;
     top: calc(100% - 1px);
-    background: radial-gradient(
-      circle at 0 100%,
-      transparent calc(var(--pg-card-radius) - 0.5px),
-      var(--pg-stage) var(--pg-card-radius)
-    );
+    --pg-fillet-at: 0 100%;
   }
   .playgroundContainer.endpointPlayground {
     flex-direction: row;
@@ -1334,20 +1311,12 @@ div.fixtureJson + div.fixtureJson {
   .storeTab::before {
     right: calc(100% - 1px);
     bottom: -1px;
-    background: radial-gradient(
-      circle at 0 0,
-      transparent calc(var(--pg-card-radius) - 0.5px),
-      var(--pg-stage) var(--pg-card-radius)
-    );
+    --pg-fillet-at: 0 0;
   }
   .storeTab::after {
     left: calc(100% - 1px);
     bottom: -1px;
-    background: radial-gradient(
-      circle at 100% 0,
-      transparent calc(var(--pg-card-radius) - 0.5px),
-      var(--pg-stage) var(--pg-card-radius)
-    );
+    --pg-fillet-at: 100% 0;
   }
   /* pinned, they get room to unfold a response even over a short result;
      the preview clips them, so they scroll within that same height */

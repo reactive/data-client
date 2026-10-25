@@ -1,3 +1,4 @@
+import { translate } from '@docusaurus/Translate';
 import React, { useContext } from 'react';
 
 import CodeTabContext from './CodeTabContext';
@@ -12,7 +13,7 @@ export default function ProtocolChoice() {
   return (
     <TabList
       className={styles.segmented}
-      label="Protocol"
+      label={translate({ id: 'demo.protocol', message: 'Protocol' })}
       tabs={values.map(({ value, label }) => ({
         key: value,
         label,

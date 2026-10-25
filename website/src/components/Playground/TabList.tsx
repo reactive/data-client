@@ -32,18 +32,15 @@ export default function TabList({
   useFlushEdges(list, selected);
   // the selected tab is the one in the tab order; the arrows move from it
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const from = tabs.findIndex(tab => tab.selected);
-    const rtl = getComputedStyle(event.currentTarget).direction === 'rtl';
-    const forward = rtl ? 'ArrowLeft' : 'ArrowRight';
-    const backward = rtl ? 'ArrowRight' : 'ArrowLeft';
     let to: number;
     switch (event.key) {
-      case forward:
-        to = (from + 1) % tabs.length;
+      case 'ArrowRight':
+      case 'ArrowLeft': {
+        const rtl = getComputedStyle(event.currentTarget).direction === 'rtl';
+        const step = (event.key === 'ArrowRight') !== rtl ? 1 : -1;
+        to = (selected + step + tabs.length) % tabs.length;
         break;
-      case backward:
-        to = (from - 1 + tabs.length) % tabs.length;
-        break;
+      }
       case 'Home':
         to = 0;
         break;
