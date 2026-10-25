@@ -91,7 +91,7 @@ export const TodoResource = resource({
 });
 ```
 
-**`new BaseEndpoint({ ... })`** for anything else (search, auth, custom actions). Type a body with a truthy value, `body: {} as { email: string; password: string }`, never `undefined as unknown as T`: the endpoint only sends a body when `body` is set.
+**`new BaseEndpoint({ ... })`** for anything else (search, auth, custom actions). Type a body with a truthy value, `body: {} as { email: string; password: string }`, never `undefined as unknown as T`: `body: undefined` means the endpoint sends no body. A `POST`, `PUT` or `PATCH` that sends none needs that `body: undefined`, or its only argument is taken as the body and the path params go missing.
 
 If the codebase validates responses with Zod or Yup, keep that by parsing in `process()` and still add an Entity `schema`; see "Coexisting with Zod or Yup" in the [Axios migration](references/axios-migration.md).
 
