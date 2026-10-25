@@ -494,6 +494,7 @@ source.cancel();
 ```
 
 ```ts title="After"
+const getUser = new ApiEndpoint({ path: '/users/:id' });
 const controller = new AbortController();
 // callout: `extend()` gives this one request its own signal; a `signal` set when the endpoint is created would abort all of its requests.
 getUser.extend({ signal: controller.signal })({ id: '1' });
