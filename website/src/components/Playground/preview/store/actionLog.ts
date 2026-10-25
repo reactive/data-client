@@ -12,8 +12,8 @@ import {
   groupEntries,
   groupEntriesOf,
   groupOf,
-  rowMoment,
   type ActionGroup,
+  type Requests,
   pollFrequencyOf,
   mergeChanges,
   type Change,
@@ -128,19 +128,20 @@ export interface Listing {
   readonly entries: readonly LogEntry[];
   readonly groups: readonly ActionGroup[];
   readonly rows: readonly ActionGroup[];
+  /** The rows' requests: where the surface steps */
+  readonly requests: Requests;
   readonly hit: (entry: LogEntry) => boolean;
 }
 
 /** Where a step before (`-1`) or after (`1`) the moment at `entry` (the
  * newest, `live`) lands, at its depth (see `Scope`). An action alone steps
  * an action at a time through the rows listed, every step of theirs
- * included.
- * Otherwise it steps a row at a time, in the list's order (rows overlap in
- * time: a subscription still polling). Live is a place past the last row:
- * stepping on from it reaches live, stepping back from live the last row.
- * `null` is live; `undefined` has nowhere to go */
+ * included. Otherwise it steps a request at a time (see `requestsOf`), a
+ * picked row stepping from its request at the moment. Live is a place past
+ * the last request: stepping on from it reaches live, stepping back from
+ * live the last request. `null` is live; `undefined` has nowhere to go */
 export function stepAt(
-  { entries, groups, rows, hit }: Listing,
+  { entries, groups, rows, requests, hit }: Listing,
   entry: LogEntry | undefined,
   live: boolean,
   scope: Scope,
@@ -155,16 +156,13 @@ export function stepAt(
     });
     if (next) return { seq: next.seq, scope };
   } else {
-    const own = groupOf(groups, entry.seq);
-    const i =
-      live ? rows.length
-      : own ? rows.indexOf(own)
-      : -1;
+    const { moments } = requests;
+    const i = live ? moments.length : requests.of.get(entry.seq);
     const next =
-      i >= 0 ? rows[i + by]
-      : by < 0 ? rows.findLast(row => groupEntriesOf(row)[0].seq < entry.seq)
-      : rows.find(row => groupEntriesOf(row)[0].seq > entry.seq);
-    if (next) return rowMoment(next, hit);
+      i !== undefined ? moments[i + by]
+      : by < 0 ? moments.findLast(m => m.seq < entry.seq)
+      : moments.find(m => m.seq > entry.seq);
+    if (next) return next;
   }
   // past the newest is live again
   if (by > 0 && !live) return null;

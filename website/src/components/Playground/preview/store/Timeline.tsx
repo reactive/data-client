@@ -11,8 +11,8 @@ import React, {
 import {
   actionName,
   groupEntriesOf,
-  groupOf,
-  joinedFetches,
+  shownGroup,
+  shownOf,
   type ActionGroup,
   type RequestGroup,
   type SubjectFilter,
@@ -108,13 +108,6 @@ export function lanesOf(groups: readonly ActionGroup[]): Lane[] {
     else lanes.set(group.key, [group]);
   }
   return [...lanes].map(([key, groups]) => ({ key, groups }));
-}
-
-/** The shown history: without the fetches deduped into a request in
- * flight (they add nothing to see), which `joined` holds */
-function shownOf(groups: readonly ActionGroup[], entries: readonly LogEntry[]) {
-  const joined = new Set(groups.flatMap(g => [...joinedFetches(g).keys()]));
-  return { joined, shown: entries.filter(e => !joined.has(e)) };
 }
 
 /** The shown history on `timeScale` */
@@ -613,9 +606,8 @@ export const Scrubber = memo(function Scrubber({
     step: onStep,
     show,
   } = useNavState();
-  // a row picked stands for its group: the label names that
-  const group =
-    scope === 'group' && entry ? groupOf(groups, entry.seq) : undefined;
+  // a request or row of several actions is named for them all
+  const group = entry && shownGroup(groups, entry.seq, scope);
   const { shown, scale, drawn, decor } = useDrawer(actions, hit, onMark);
   const end = useTrackFollow(track, scale, catchingUp);
 

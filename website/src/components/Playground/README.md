@@ -222,8 +222,11 @@ DesignSystem/       components injected into preview scope
     action, and one stuck to the bottom (`ActionStep`) name the subject's actions before and after it (as ‹ ›
     step: one pure `stepAt` in `preview/store/actionLog.ts` serves ‹ ›, ←→,
     Before and After, landing on the moment's neighbours at its own depth,
-    rows on the surface, single actions (fetches included) a level
-    deeper; live is a place past the last row), and a click makes that the
+    requests on the surface (`requestsOf`: each poll of a subscription its
+    own, in time order), single actions (fetches included, those deduped
+    into a request in flight left out as the timeline leaves them, see
+    `shownOf`) a level deeper; live is a place past the last request; a
+    moment of several actions is named for its request or row, `shownGroup`), and a click makes that the
     moment, in the same level. Its stack opens at the action over the
     subject's actions in full (`{ kind: 'actions' }`, `ActionsLevel` in
     `preview/store/ActionList.tsx`, a `region` with its row count beside the
@@ -275,8 +278,8 @@ DesignSystem/       components injected into preview scope
   widget that took them with `preventDefault`; the panel alone handles them) step through the changes
   to the subject (`subjectFilter`'s `hit`: every stored action at the store; below it the marks that left the subject alone
   are dimmed, `data-dim`, and skipped; past the newest, and End, go live;
-  stepping back from live lands on the newest row), a
-  mark (every one is a button, hollow for an action the store never saw) lands where a step would at the moment's depth (`pickAt`: on the surface its row, a level deeper the action alone), "Live" lets go. Marks closer on the track than a
+  stepping back from live lands on the newest request), a
+  mark (every one is a button, hollow for an action the store never saw) lands where a step would at the moment's depth (`pickAt`: on the surface its request, a level deeper the action alone), "Live" lets go. Marks closer on the track than a
   mark's width and a gap (`MERGE_PX`) draw as one, at the first of them
   (`data-count`; dimmed only if all are), so fast polling stays readable. While the moment is set its second line says "After
   <action> · <time>", which opens the action at full width. Its ▾ ("Timeline", `aria-expanded`) slides open the expanded

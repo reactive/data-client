@@ -477,16 +477,41 @@ export function rowMoment(group: ActionGroup, hit: SubjectFilter['hit']): Step {
   return { seq, scope: isLone(group) ? 'request' : 'group' };
 }
 
-/** Where picking action `seq` lands at a moment's depth (`scope`): a level
- * deeper, the action alone; on the surface, its row, as the list's row does */
-export function pickAt(
-  groups: readonly ActionGroup[],
+/** The requests of `rows`, the surface's places: each request (a
+ * subscription's polls each their own, not the whole subscription) and each
+ * action of none that `hit` says touched the subject, at its moment (its
+ * last such action), in the order those came. `of` finds the one holding
+ * an action, by its seq */
+export interface Requests {
+  readonly moments: readonly Step[];
+  readonly of: ReadonlyMap<number, number>;
+}
+export function requestsOf(
+  rows: readonly ActionGroup[],
   hit: SubjectFilter['hit'],
-  seq: number,
-  scope: Scope,
-): Step {
-  const row = scope === 'action' ? undefined : groupOf(groups, seq);
-  if (row) return rowMoment(row, hit);
+): Requests {
+  const parts = rows.flatMap(row =>
+    row.kind === 'subscription' ?
+      [...row.entries.map(e => [e]), ...row.requests.map(r => r.entries)]
+    : [groupEntriesOf(row)],
+  );
+  const found = parts
+    .map(entries => ({ entries, last: entries.findLast(hit) }))
+    .filter(part => part.last)
+    .sort((a, b) => a.last!.seq - b.last!.seq);
+  return {
+    moments: found.map(({ last }) => ({ seq: last!.seq, scope: 'request' })),
+    of: new Map(
+      found.flatMap(({ entries }, i) => entries.map(e => [e.seq, i] as const)),
+    ),
+  };
+}
+
+/** Where picking action `seq` lands at a moment's depth (`scope`): a level
+ * deeper, the action alone; on the surface, its request, as ← → step */
+export function pickAt(requests: Requests, seq: number, scope: Scope): Step {
+  const i = scope === 'action' ? undefined : requests.of.get(seq);
+  if (i !== undefined) return requests.moments[i];
   return { seq, scope: scope === 'action' ? scope : 'request' };
 }
 
@@ -522,6 +547,19 @@ export function requestOf(
   return group?.kind === 'subscription' ?
       group.requests.find(r => r.entries.some(e => e.seq === seq))
     : group;
+}
+
+/** The group a moment at `seq` shows as one, and is named for: its row
+ * (`group`) or request, when that has several actions; none for one alone */
+export function shownGroup(
+  groups: readonly ActionGroup[],
+  seq: number,
+  scope: Scope,
+): ActionGroup | undefined {
+  if (scope === 'action') return;
+  const shown =
+    scope === 'group' ? groupOf(groups, seq) : requestOf(groups, seq);
+  return shown && !isLone(shown) ? shown : undefined;
 }
 
 /** The request `entry` belongs to, up to it: its optimistic update and
@@ -567,6 +605,17 @@ export function joinedFetches(group: ActionGroup) {
     for (const entry of request.entries.slice(1))
       if (entry.action.type === actionTypes.FETCH) joined.set(entry, request);
   return joined;
+}
+
+/** The shown history: without the fetches deduped into a request in
+ * flight (they add nothing to see, so neither the timeline nor the steps
+ * stop at them), which `joined` holds */
+export function shownOf(
+  groups: readonly ActionGroup[],
+  entries: readonly LogEntry[],
+) {
+  const joined = new Set(groups.flatMap(g => [...joinedFetches(g).keys()]));
+  return { joined, shown: entries.filter(e => !joined.has(e)) };
 }
 
 /** What an action is about: an endpoint key, or a schema's key for `set` */

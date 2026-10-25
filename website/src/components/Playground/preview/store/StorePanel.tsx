@@ -14,14 +14,16 @@ import React, {
 import { ActionDetail, SubjectChanges } from './ActionDetail';
 import {
   groupEntries,
-  groupEntriesOf,
   groupOf,
   isLone,
   keepUnchanged,
   momentEntries,
   pickAt,
-  rowsOf,
   requestEntries,
+  requestsOf,
+  rowsOf,
+  shownGroup,
+  shownOf,
   requestOf,
   subjectFilter,
   subjectGaps,
@@ -388,13 +390,26 @@ export default function StorePanel({
   // opens the one picked there, as the list's own rows do (in place, so
   // stepping on keeps focus on the timeline); narrow, it closes the sheet
   const actionShown = actionLevels.stack.some(e => e.view.kind === 'action');
+  // what every step (‹ ›, ← →, Before and After) and a mark picked go
+  // through: the subject's rows, the surface stepping by their requests
+  const { hit } = filter;
+  const listing = useMemo(() => {
+    const rows = rowsOf(groups, hit);
+    return {
+      entries: shownOf(groups, known).shown,
+      groups,
+      rows,
+      requests: requestsOf(rows, hit),
+      hit,
+    };
+  }, [known, groups, hit]);
   const mark = useCallback(
     (seq: number) => {
-      const to = pickAt(groups, filter.hit, seq, scope);
+      const to = pickAt(listing.requests, seq, scope);
       set(to.seq, to.scope);
       if (tab === 'action' && !actionShown) showAction(to.seq, to.scope, true);
     },
-    [groups, filter.hit, scope, set, tab, actionShown, showAction],
+    [listing, scope, set, tab, actionShown, showAction],
   );
   const markInSheet = useCallback(
     (seq: number) => {
@@ -403,15 +418,12 @@ export default function StorePanel({
     },
     [mark, collapse],
   );
-  // every step (‹ ›, ← →, Before and After) goes to the moment's
-  // neighbours at its depth, among the subject's rows
-  const { hit } = filter;
+  // the moment's neighbours at its depth
   const [earlier, later] = useMemo(() => {
-    const listing = { entries: known, groups, rows: rowsOf(groups, hit), hit };
     const live = momentSeq === null;
     const at = live ? newestOf(known, hit) : (moment ?? undefined);
     return ([-1, 1] as const).map(by => stepAt(listing, at, live, scope, by));
-  }, [known, groups, hit, momentSeq, moment, scope]);
+  }, [listing, known, hit, momentSeq, moment, scope]);
   const step = useCallback(
     (by: -1 | 1) => {
       const to = by < 0 ? earlier : later;
@@ -1155,19 +1167,9 @@ function useShownAction(
   return useMemo(() => {
     const entry =
       seq === null ? newestOf(entries, filter.hit) : findEntry(entries, seq);
-    let group: ActionGroup | undefined;
+    const group = entry && shownGroup(groups, entry.seq, scope);
     // its actions up to it, as one
-    let span: readonly LogEntry[] | undefined;
-    if (entry && scope !== 'action') {
-      const shown =
-        scope === 'group' ?
-          groupOf(groups, entry.seq)
-        : requestOf(groups, entry.seq);
-      if (shown && groupEntriesOf(shown).length > 1) {
-        group = shown;
-        span = momentEntries(groups, entry, scope);
-      }
-    }
+    const span = group && momentEntries(groups, entry, scope);
     return { entry, group, span, filter };
   }, [entries, groups, filter, seq, scope]);
 }
@@ -1195,9 +1197,8 @@ function ActionStep({ dir }: { dir: -1 | 1 }) {
   const to = dir < 0 ? earlier : later;
   const label = dir < 0 ? 'Before' : 'After';
   const entry = to ? findEntry(history.entries, to.seq) : undefined;
-  // a row of several actions is named for them all
-  const row =
-    to?.scope === 'group' && entry ? groupOf(groups, entry.seq) : undefined;
+  // a request or row of several actions is named for them all
+  const shown = to && shownGroup(groups, to.seq, to.scope);
   return (
     <button
       type="button"
@@ -1222,8 +1223,8 @@ function ActionStep({ dir }: { dir: -1 | 1 }) {
       : entry ?
         <>
           <span className={styles.actStepName}>
-            {row && !isLone(row) ?
-              <KeyLabel value={row.key} />
+            {shown ?
+              <KeyLabel value={shown.key} />
             : <ActionName entry={entry} />}
           </span>
           <span className={styles.dim}>

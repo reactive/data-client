@@ -477,7 +477,7 @@ describe('Store Actions pane detail', () => {
     fireEvent.click(expander(rows()[0]));
     expect(rows()[0].getAttribute('aria-expanded')).toBe('false');
     expect(rows()[0].getAttribute('aria-current')).toBe('true');
-    expect(scrubber().textContent).toContain('fetch');
+    expect(scrubber().textContent).toContain('After GET /posts');
     fireEvent.click(expander(rows()[0]));
     expect(rows()[0].getAttribute('aria-expanded')).toBe('true');
     // and a row's ▸ opens and closes it while the moment is on another
@@ -1752,6 +1752,35 @@ describe('Store action level', () => {
     expect(after()).toEqual([]);
   });
 
+  it('steps an action at a time past a fetch deduped into the request, as the timeline shows none', async () => {
+    const { ctrl } = mount();
+    await act(() =>
+      Promise.all([ctrl().fetch(getPosts), ctrl().fetch(getPosts)]),
+    );
+    openAction();
+    fireEvent.click(
+      top().querySelector<HTMLElement>('[role="button"][data-seq="1"]')!,
+    );
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'fetch GET /posts']);
+    // its mark is the moment's
+    const selected = () =>
+      [...document.querySelectorAll<HTMLElement>('[data-selected]')].map(
+        el => el.getAttribute('aria-label')?.split(' ')[0],
+      );
+    expect(selected()).toEqual(['fetch']);
+    // the deduped fetch is no step of its own: on to the response
+    fireEvent.click(step('After'));
+    expect(crumbs()).toEqual([
+      'Actions',
+      'GET /posts',
+      'setResponse GET /posts',
+    ]);
+    expect(selected()).toEqual(['setResponse']);
+    fireEvent.click(screen.getByRole('button', { name: 'Previous change' }));
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'fetch GET /posts']);
+    expect(selected()).toEqual(['fetch']);
+  });
+
   it('shows the newest request live as one, its optimistic update too', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
@@ -1825,7 +1854,7 @@ describe('Store action level', () => {
     expect(crumbs()).toEqual(row);
   });
 
-  it('steps through the rows in list order while a subscription overlaps them', async () => {
+  it('steps a request at a time, each poll of a subscription its own', async () => {
     const { ctrl } = mount();
     const polled = new Endpoint(async () => [{ id: '1', title: 'poll' }], {
       schema: [Post],
@@ -1839,28 +1868,31 @@ describe('Store action level', () => {
       await ctrl().set(Post, { id: '2' }, { id: '2', title: 'Later' });
       await ctrl().fetch(polled);
     });
-    openPane();
-    const flat = (text: string | null) => text!.replace(/\s/g, '');
-    const listed = rows().map(r => flat(r.textContent));
-    fireEvent.click(rows()[0]);
-    const seen = [flat(crumbs()[1])];
-    for (let i = 1; i < listed.length; i++) {
-      fireEvent.click(step('After'));
-      seen.push(flat(crumbs()[1]));
-    }
-    // every row once, in the list's order
-    expect(seen).toHaveLength(listed.length);
-    seen.forEach((label, i) => expect(listed[i]).toContain(label));
-    for (let i = listed.length - 2; i >= 0; i--) {
+    openAction();
+    const selected = () =>
+      [...document.querySelectorAll<HTMLElement>('[data-selected]')].map(
+        el => el.getAttribute('aria-label')?.split(' ')[0],
+      );
+    // live is past the newest request; back from it, a request at a time:
+    // a poll alone, its fetch and response marked, not the subscription's
+    // every poll (how many polls there are depends on timing)
+    const seen: string[] = [];
+    while (!(step('Before') as HTMLButtonElement).disabled) {
       fireEvent.click(step('Before'));
-      expect(listed[i]).toContain(flat(crumbs()[1]));
+      const [, label] = crumbs();
+      seen.unshift(label!);
+      expect(selected()).toEqual(
+        label === 'set Post' ? ['set'] : ['fetch', 'setResponse'],
+      );
     }
-    // live sits past the list's end, though its row (still polling) is
-    // listed earlier: nothing after it, the last row before it
-    fireEvent.click(screen.getByRole('button', { name: 'Live' }));
-    expect(step('After').textContent).toContain('this is live');
-    fireEvent.click(step('Before'));
-    expect(listed[listed.length - 1]).toContain(flat(crumbs()[1]));
+    expect(seen).toContain('set Post');
+    expect(seen.length).toBeGreaterThanOrEqual(3);
+    expect(new Set(seen)).toEqual(new Set(['GET /posts', 'set Post']));
+    // and on again in time, to live
+    for (const label of seen.slice(1)) {
+      fireEvent.click(step('After'));
+      expect(crumbs()[1]).toBe(label);
+    }
     fireEvent.click(step('After'));
     expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
   });
