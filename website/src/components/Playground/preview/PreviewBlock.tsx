@@ -15,13 +15,7 @@ function PreviewBlock({
   onCommit,
   ...errorProps
 }: PreviewErrorProps & { onCommit?: ProfilerOnRenderCallback }) {
-  // react-live runs the code only after its first render: until it has, the
-  // app is still loading (not an app that renders nothing)
-  const { newCode, error } = useContext(LiveContext);
-  const preview =
-    newCode === undefined && !error ?
-      <PendingSheet />
-    : <LivePreview className={styles.sheet} />;
+  const preview = <LiveSheet />;
   return (
     <>
       <Boundary fallback={<PendingSheet />}>
@@ -34,6 +28,15 @@ function PreviewBlock({
       <PreviewError {...errorProps} />
     </>
   );
+}
+/** The app's sheet: react-live runs the code only after its first render, so
+ * until it has, the app is still loading (not an app that renders nothing).
+ * Its own component, so react-live's context changes don't reach the memo */
+function LiveSheet() {
+  const { newCode, error } = useContext(LiveContext);
+  return newCode === undefined && !error ?
+      <PendingSheet />
+    : <LivePreview className={styles.sheet} />;
 }
 // memo: Store inspector toggles re-render Preview; they must not reach the
 // profiled tree (or bump the render badge).

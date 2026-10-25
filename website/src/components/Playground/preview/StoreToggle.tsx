@@ -8,9 +8,7 @@ import React, {
   createContext,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 
@@ -54,10 +52,6 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   // (`useStoreMotion`); the stored choice arriving, or another Store in the
   // group closing this one, just lands
   const [moves, setMoves] = useState(0);
-  const latestOpen = useRef(open);
-  useLayoutEffect(() => {
-    latestOpen.current = open;
-  });
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
   const toggle = useCallback(
@@ -72,17 +66,20 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   );
   // a demo's open or close is no reader's click: forget the last one, so it
   // doesn't pin a toggle the reader clicked earlier
-  const showStore = useCallback<ShowStore>((demoOpen, view) => {
-    clicked = undefined;
-    if (demoOpen !== latestOpen.current) setMoves(n => n + 1);
-    show(prev => {
-      const next = demoOpen ? (view ?? prev?.view) : undefined;
-      // unchanged: the playground's children don't re-render
-      return prev?.open === demoOpen && prev.view === next ?
-          prev
-        : { open: demoOpen, view: next };
-    });
-  }, []);
+  const showStore = useCallback<ShowStore>(
+    (demoOpen, view) => {
+      clicked = undefined;
+      if (demoOpen !== open) setMoves(n => n + 1);
+      show(prev => {
+        const next = demoOpen ? (view ?? prev?.view) : undefined;
+        // unchanged: the playground's children don't re-render
+        return prev?.open === demoOpen && prev.view === next ?
+            prev
+          : { open: demoOpen, view: next };
+      });
+    },
+    [open],
+  );
   // the reader picked a view: the demo's goes, its open stays
   const drop = useCallback(
     () => show(prev => (prev?.view ? { open: prev.open } : prev)),
@@ -109,30 +106,45 @@ export function useStoreMotion(
   useEffect(() => {
     if (!container || !moving) return;
     let frame = 0;
-    const check = () => {
-      // shown once open, hidden once shut (none before the preview loads)
-      const panel = container.querySelector(`.${styles.storePanel}`);
-      const resting = !panel || open === panel.hasAttribute('data-visible');
-      // the Store's own motion, not the app's or what the Store shows (a
-      // row's flash as data arrives), which would hold the playground moving
-      const app = container.querySelector(`.${styles.playgroundPreview}`);
-      const unrelated = (target: Element) =>
-        app?.contains(target) || (target !== panel && panel?.contains(target));
-      // (no Web Animations, e.g. jsdom: nothing runs)
-      const running = container
-        .getAnimations?.({ subtree: true })
-        .some(
-          a =>
-            a.playState === 'running' &&
-            a.effect?.getTiming().iterations !== Infinity &&
-            !unrelated((a.effect as KeyframeEffect).target!),
-        );
-      if (resting && !running) setRested(moves);
-      else frame = requestAnimationFrame(check);
+    let cancelled = false;
+    const nextFrame = () =>
+      new Promise(resolve => (frame = requestAnimationFrame(resolve)));
+    const settle = async () => {
+      // what this move started is running by the next frame
+      await nextFrame();
+      while (!cancelled) {
+        // shown once open, hidden once shut (none before the preview loads)
+        const panel = container.querySelector(`.${styles.storePanel}`);
+        // the Store's own motion, not the app's or what the Store shows (a
+        // row's flash as data arrives), which would hold the playground moving
+        const app = container.querySelector(`.${styles.playgroundPreview}`);
+        const related = (target: Element) =>
+          !app?.contains(target) &&
+          (target === panel || !panel?.contains(target));
+        // (no Web Animations, e.g. jsdom: nothing runs)
+        const running = (container.getAnimations?.({ subtree: true }) ?? [])
+          .filter(
+            a =>
+              a.playState === 'running' &&
+              a.effect?.getTiming().iterations !== Infinity &&
+              related((a.effect as KeyframeEffect).target!),
+          )
+          .map(a => a.finished);
+        const resting = !panel || open === panel.hasAttribute('data-visible');
+        if (resting && !running.length) {
+          setRested(moves);
+          return;
+        }
+        // then check again: a retargeted motion, or the panel shown or hidden
+        await Promise.allSettled(running);
+        await nextFrame();
+      }
     };
-    // what this move started is running by the next frame
-    frame = requestAnimationFrame(check);
-    return () => cancelAnimationFrame(frame);
+    settle();
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+    };
   }, [container, moving, moves, open]);
   return moving;
 }

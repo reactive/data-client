@@ -1605,8 +1605,11 @@ div.fixtureJson + div.fixtureJson {
   .row > .playgroundTextEdit {
     grid-area: 1 / 1 / 2 / 2;
   }
+  /* the fixtures hang on past its foot, over the page below (it stacks
+     above that while they show), so the preview never moves */
   .row > .previewWrapper {
     grid-area: 2 / 1 / 3 / 2;
+    overflow: visible;
   }
   /* the layer is the code's rows; the gap below it stays in view, and
      nothing past that (the drawer parked behind the folder) */
@@ -1708,11 +1711,6 @@ div.fixtureJson + div.fixtureJson {
     left: calc(100% - 1px);
     bottom: -1px;
     --pg-fillet-at: 100% 0;
-  }
-  /* the fixtures hang on past the preview's foot, over the page below
-     (it stacks above that while they show), so the preview never moves */
-  .row > .previewWrapper {
-    overflow: visible;
   }
 }
 
