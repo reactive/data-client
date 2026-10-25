@@ -211,14 +211,16 @@
     opacity: 0;
   }
 }
+/* setresponse is wider than fetch: it starts right of HTTP's center so
+   its left end stays inside the viewBox */
 @keyframes response {
   0%,
   38% {
-    transform: translate(42px, 200px);
+    transform: translate(52px, 200px);
     opacity: 0;
   }
   41% {
-    transform: translate(42px, 200px);
+    transform: translate(52px, 200px);
     opacity: 1;
   }
   46% {
