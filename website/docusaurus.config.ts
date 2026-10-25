@@ -375,8 +375,10 @@ const config: Config = {
           // social cards are for link previews, never shown on the site
           globIgnores: [
             'img/social/**',
-            // Monaco's chunks (monaco-plugin.js); phones never load the editor
+            // Monaco's chunks (monaco-plugin.js) and icon font; phones never
+            // load the editor
             'assets/js/monaco*',
+            'assets/fonts/codicon-*',
             // /next/ sends its blog links to the root site's blog
             ...(isNext ? ['blog.html', 'blog/**'] : []),
           ],
