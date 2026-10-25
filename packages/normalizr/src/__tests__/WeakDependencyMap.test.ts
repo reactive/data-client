@@ -152,6 +152,32 @@ describe('WeakDependencyMap', () => {
     }
   });
 
+  it.each<[string, any]>([
+    ['null', null],
+    ['INVALID', INVALID],
+  ])('tracks a %s dependency after the root', (_, value) => {
+    const wem = new WeakDependencyMap<EntityPath>();
+    const withA = (entity: any) =>
+      MemoPolicy.getEntities({ ...state, A: { '1': entity } });
+    const depValue = { path: depA.path, entity: value };
+    wem.set([depB, depValue], 'child');
+    expect(wem.get(b, withA(value))[0]).toBe('child');
+    expect(wem.get(b, withA(a))[0]).toBeUndefined();
+    expect(wem.get(b, withA(undefined))[0]).toBeUndefined();
+  });
+
+  it('keys objects and functions by themselves, so they stay collectable', () => {
+    // an Entity class is a function, and is the first dependency of buildQueryKey
+    class Thing {}
+    const obj = {};
+    expect(depKey(Thing)).toBe(Thing);
+    expect(depKey(obj)).toBe(obj);
+    expect(depKey(null)).toBe(depKey(null));
+    expect(depKey(null)).not.toBe(depKey(INVALID));
+    expect(depKey(1)).toBe(depKey(1));
+    expect(depKey(1)).not.toBe(depKey(2));
+  });
+
   it('considers empty key list invalid', () => {
     const wem = new WeakDependencyMap<EntityPath>();
     expect(() => wem.set([], 'whatever')).toThrowErrorMatchingInlineSnapshot(
@@ -393,6 +419,19 @@ describe('WeakDependencyMap eviction', () => {
       expect(
         wem.get(root, withRows(r1, { r: 3 }), [{ portfolio: 'A' }])[0],
       ).toBeUndefined();
+    });
+
+    it('treats a selector that throws on unreached args as a miss', () => {
+      // the Scalar inside C reads args[0].portfolio; with C missing, traversal
+      // never calls it, so a lookup must not fail on it either
+      const wem = new WeakDependencyMap<EntityPath>();
+      const strict = (a: readonly any[]) => a[0].portfolio;
+      wem.set([rootDep, c(loaded), fn(strict)], 'with C', [{ portfolio: 'P' }]);
+      expect(() => wem.get(root, withC(undefined), [])).not.toThrow();
+      expect(wem.get(root, withC(undefined), [])[0]).toBeUndefined();
+      expect(wem.get(root, withC(loaded), [{ portfolio: 'P' }])[0]).toBe(
+        'with C',
+      );
     });
 
     it('bounds the routes a lookup searches', () => {

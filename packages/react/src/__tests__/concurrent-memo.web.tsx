@@ -1,3 +1,4 @@
+import type { State } from '@data-client/core';
 import { Endpoint, Entity } from '@data-client/endpoint';
 import {
   DataProvider,
@@ -7,7 +8,7 @@ import {
 } from '@data-client/react';
 import { mockInitialState } from '@data-client/test';
 import { act, render } from '@testing-library/react';
-import { Todo } from '__tests__/concurrentFixtures';
+import { makeGetTodo, Todo } from '__tests__/concurrentFixtures';
 import type { TodoItem } from '__tests__/concurrentFixtures';
 import React, { Suspense, useState, useTransition, version } from 'react';
 
@@ -17,8 +18,8 @@ import useCacheState from '../hooks/useCacheState';
  * Memoization under concurrent rendering. Every read of the list records the
  * entity versions it read and the result it got. A read of versions an
  * earlier read already saw, that gets a different result, is a miss that
- * caching more would have avoided (the old dependency chain kept every
- * version whose entities were alive).
+ * caching more would have avoided, since those versions' entities are
+ * still alive.
  */
 
 const LegacyReact = version.startsWith('16') || version.startsWith('17');
@@ -37,10 +38,7 @@ const getTodoList = new Endpoint(() => Promise.resolve(rows()), {
   schema: [Todo],
   name: 'getTodoList',
 });
-const getTodo = new Endpoint(
-  ({ id }: { id: string }) => Promise.resolve({ id, title: id }),
-  { schema: Todo, name: 'getTodo' },
-);
+const getTodo = makeGetTodo(({ id }) => Promise.resolve({ id, title: id }));
 const getNote = new Endpoint(
   ({ id }: { id: string }) => Promise.resolve({ id, text: id }),
   { schema: Note, name: 'getNote' },
@@ -57,9 +55,9 @@ const getDetail = new Endpoint(({ id }: { id: string }) => hold(id), {
   schema: Todo,
   name: 'getDetail',
 });
+const updateKey = (id: string, title: string) => `update ${id} ${title}`;
 const updateTodo = new Endpoint(
-  ({ id, title }: { id: string; title: string }) =>
-    hold(`update ${id} ${title}`),
+  ({ id, title }: { id: string; title: string }) => hold(updateKey(id, title)),
   {
     schema: Todo,
     sideEffect: true,
@@ -73,8 +71,7 @@ const noDevManagers = getDefaultManagers({ devToolsManager: null });
 
 const ids = new WeakMap<object, number>();
 let nextId = 0;
-const idOf = (o: object | undefined) => {
-  if (!o) return -1;
+const idOf = (o: object) => {
   let id = ids.get(o);
   if (id === undefined) {
     id = nextId++;
@@ -83,27 +80,27 @@ const idOf = (o: object | undefined) => {
   return id;
 };
 
-/** Every read of the list: entity versions read, result identity, reader. */
-type Read = { versions: string; data: unknown; who: string };
+/** Every read of the list: entity versions read, result identity. */
+type Read = { versions: string; data: unknown };
 let reads: Read[] = [];
-const versionsOf = (table: Record<string, object>, todos: { id: string }[]) =>
-  todos.map(todo => idOf(table[todo.id])).join(',');
+const versionsOf = (state: State<unknown>, todos: { id: string }[]) => {
+  const table = (state.entities[Todo.key] ?? {}) as Record<string, object>;
+  return todos.map(todo => idOf(table[todo.id])).join(',');
+};
 
 function List() {
   const todos = useSuspense(getTodoList);
   const state = useCacheState();
-  const table = (state.entities[Todo.key] ?? {}) as Record<string, object>;
   reads.push({
-    versions: versionsOf(table, todos),
+    versions: versionsOf(state, todos),
     data: todos,
-    who: 'render',
   });
-  return <div data-testid="count">{todos.length}</div>;
+  return <div>{todos.length}</div>;
 }
 
 function Detail({ id }: { id: string }) {
   const todo = useSuspense(getDetail, { id });
-  return <div data-testid="detail">{todo.title}</div>;
+  return <div>{todo.title}</div>;
 }
 
 let controller: ReturnType<typeof useController>;
@@ -117,7 +114,7 @@ function App({ consumers }: { consumers: number }) {
   const [text, setText] = useState('');
   const [isPending, start] = useTransition();
   startTransition = start;
-  showDetail = id => setDetail(ids => [...ids, id]);
+  showDetail = id => setDetail(prev => [...prev, id]);
   typeText = setText;
   return (
     <div>
@@ -141,8 +138,7 @@ function App({ consumers }: { consumers: number }) {
 function readRaw() {
   const state = controller.getState();
   const { data } = controller.getResponse(getTodoList, state);
-  const table = (state.entities[Todo.key] ?? {}) as Record<string, object>;
-  reads.push({ versions: versionsOf(table, data as any), data, who: 'raw' });
+  reads.push({ versions: versionsOf(state, data as any), data });
 }
 
 /** Reads of versions already read before, that got a different result. */
@@ -168,18 +164,6 @@ function flipBacks(list: Read[]) {
   return flips;
 }
 
-function trace(name: string) {
-  if (!process.env.MEMO_TRACE) return;
-  const label = new Map<string, number>();
-  const seq = reads.map(r => {
-    if (!label.has(r.versions)) label.set(r.versions, label.size);
-    return `${r.who === 'raw' ? 'R' : ''}v${label.get(r.versions)}:d${idOf(r.data as object)}`;
-  });
-  console.log(
-    `${name}: ${reads.length} reads, ${label.size} versions, ${flipBacks(reads)} flip-backs, ${avoidableMisses(reads)} avoidable misses\n${seq.join(' ')}`,
-  );
-}
-
 function mount(consumers: number) {
   return render(
     <DataProvider
@@ -194,37 +178,34 @@ function mount(consumers: number) {
   );
 }
 
+const writeTodo = (id: string, title: string) => {
+  controller.setResponse(getTodo, { id }, { id, title });
+};
+
 function beginTransition(row: string, id: string) {
   act(() => {
     startTransition(() => {
-      controller.setResponse(
-        getTodo,
-        { id: row },
-        {
-          id: row,
-          title: `from transition ${id}`,
-        },
-      );
+      writeTodo(row, `from transition ${id}`);
       showDetail(id);
     });
   });
 }
 
-async function finishTransition(id: string) {
+/** Resolves a held request with `value`, or rejects it with an `Error`. */
+async function settle(key: string, value: TodoItem | Error) {
   await act(async () => {
-    pending[id].resolve({ id, title: 'detail' });
+    if (value instanceof Error) pending[key].reject(value);
+    else pending[key].resolve(value);
   });
 }
+const finishTransition = (id: string) => settle(id, { id, title: 'detail' });
 
 const writeNote = (i: number) =>
   act(() => {
     controller.setResponse(
       getNote,
       { id: `${i}` },
-      {
-        id: `${i}`,
-        text: `note ${i}`,
-      },
+      { id: `${i}`, text: `note ${i}` },
     );
   });
 
@@ -234,17 +215,10 @@ function beginOptimistic(id: string, title: string) {
   });
 }
 
-async function rollBack(id: string, title: string) {
-  await act(async () => {
-    pending[`update ${id} ${title}`].reject(new Error('rejected'));
-  });
-}
-
-async function resolveOptimistic(id: string, title: string) {
-  await act(async () => {
-    pending[`update ${id} ${title}`].resolve({ id, title });
-  });
-}
+const rollBack = (id: string, title: string) =>
+  settle(updateKey(id, title), new Error('rejected'));
+const resolveOptimistic = (id: string, title: string) =>
+  settle(updateKey(id, title), { id, title });
 
 describeConcurrent.each([1, 2])(
   'memoization under concurrent rendering, %i consumer(s)',
@@ -265,7 +239,6 @@ describeConcurrent.each([1, 2])(
       for (let i = 0; i < 5; i++) act(() => typeText(`typed ${i}`));
       await finishTransition('X');
       expect(getByTestId('pending').textContent).toBe('false');
-      trace('typing');
       expect(flipBacks(reads)).toBeGreaterThan(0);
       expect(avoidableMisses(reads)).toBe(0);
     });
@@ -276,7 +249,6 @@ describeConcurrent.each([1, 2])(
       for (let i = 0; i < 5; i++) writeNote(i);
       expect(getByTestId('pending').textContent).toBe('true');
       await finishTransition('X');
-      trace('other entity writes');
       expect(flipBacks(reads)).toBeGreaterThan(0);
       expect(avoidableMisses(reads)).toBe(0);
     });
@@ -287,19 +259,9 @@ describeConcurrent.each([1, 2])(
       mount(consumers);
       beginTransition('5', 'X');
       for (let i = 0; i < 5; i++) {
-        act(() => {
-          controller.setResponse(
-            getTodo,
-            { id: '7' },
-            {
-              id: '7',
-              title: `urgent ${i}`,
-            },
-          );
-        });
+        act(() => writeTodo('7', `urgent ${i}`));
       }
       await finishTransition('X');
-      trace('listed row writes');
       expect(avoidableMisses(reads)).toBe(0);
     });
 
@@ -312,7 +274,6 @@ describeConcurrent.each([1, 2])(
       await finishTransition('X');
       writeNote(5);
       await finishTransition('Y');
-      trace('two transitions');
       expect(avoidableMisses(reads)).toBe(0);
     });
 
@@ -326,7 +287,6 @@ describeConcurrent.each([1, 2])(
       writeNote(2);
       await rollBack('4', 'B');
       writeNote(3);
-      trace('optimistic out of order');
       expect(flipBacks(reads)).toBeGreaterThan(0);
       expect(avoidableMisses(reads)).toBe(0);
     });
@@ -341,7 +301,6 @@ describeConcurrent.each([1, 2])(
       for (let i = 4; i < 7; i++) writeNote(i);
       await finishTransition('X');
       writeNote(7);
-      trace('optimistic during transition');
       expect(avoidableMisses(reads)).toBe(0);
     });
 
@@ -355,11 +314,9 @@ describeConcurrent.each([1, 2])(
       for (let i = 0; i < 3; i++) act(() => typeText(`a${i}`));
       await finishTransition('X');
       expect(getByTestId('pending').textContent).toBe('false');
-      // the store moved on: the committed rows now include row 5's new version
       beginTransition('6', 'Y');
       for (let i = 0; i < 3; i++) act(() => typeText(`b${i}`));
       await finishTransition('Y');
-      trace('second transition');
       expect(flipBacks(reads)).toBeGreaterThan(0);
       // The committed rows changed when the first write committed, and typing
       // re-renders are served by useSuspense's useMemo, so the memo never
@@ -383,14 +340,13 @@ describeConcurrent.each([1, 2])(
       writeNote(2);
       readRaw();
       await rollBack('4', 'B');
-      trace('raw reads across a resolved mutation');
       expect(flipBacks(reads)).toBeGreaterThan(0);
       expect(avoidableMisses(reads)).toBe(0);
     });
 
     it('urgent writes to other entities during a second transition, after the first committed', async () => {
       // every urgent write changes the state object, so useSuspense re-queries
-      // the memo; the list's rows are unchanged and the old chain would hit
+      // the memo; the list's rows are unchanged, so every read should hit
       mount(consumers);
       beginTransition('5', 'X');
       for (let i = 0; i < 3; i++) writeNote(i);
@@ -398,23 +354,21 @@ describeConcurrent.each([1, 2])(
       beginTransition('6', 'Y');
       for (let i = 3; i < 8; i++) writeNote(i);
       await finishTransition('Y');
-      trace('other entity writes during a second transition');
       expect(flipBacks(reads)).toBeGreaterThan(0);
       expect(avoidableMisses(reads)).toBe(0);
     });
 
-    it('the same pattern as the existing typing test, after two committed writes to a row', async () => {
+    it('urgent re-renders during a pending transition, after two committed writes to a row', async () => {
       mount(consumers);
       act(() => {
-        controller.setResponse(getTodo, { id: '9' }, { id: '9', title: 'v2' });
+        writeTodo('9', 'v2');
       });
       act(() => {
-        controller.setResponse(getTodo, { id: '9' }, { id: '9', title: 'v3' });
+        writeTodo('9', 'v3');
       });
       beginTransition('5', 'X');
       for (let i = 0; i < 3; i++) act(() => typeText(`a${i}`));
       await finishTransition('X');
-      trace('typing after two committed writes');
       expect(flipBacks(reads)).toBeGreaterThan(0);
       // The committed rows changed when the first write committed, and typing
       // re-renders are served by useSuspense's useMemo, so the memo never

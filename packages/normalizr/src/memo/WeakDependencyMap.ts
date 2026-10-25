@@ -64,7 +64,7 @@ export default class WeakDependencyMap<
     getDependency: GetDependency<Path, K | symbol>,
     args: readonly any[] = [],
   ) {
-    const root = this.next.get(depKey(entity) as K);
+    const root = this.next.get(entity);
     const node = root && find(root, getDependency, args);
     if (!node) return EMPTY;
     const entry = node.entries[0];
@@ -84,7 +84,7 @@ export default class WeakDependencyMap<
     journey?: Path[],
   ) {
     if (dependencies.length < 1) throw new KeySize();
-    const root = (dependencies[0].entity ?? UNDEF) as K;
+    const root = depKey(dependencies[0].entity) as K;
     let node = this.next.get(root);
     let top = node;
     const paths = new Array<Path | KeyFn>(dependencies.length - 1);
@@ -120,7 +120,7 @@ export default class WeakDependencyMap<
         }
         node = child;
       } else {
-        keys[i - 1] = dep.entity ?? UNDEF;
+        keys[i - 1] = depKey(dep.entity);
       }
     }
     const entry: Entry<Path, V> = {
@@ -184,13 +184,26 @@ function find<Path, K extends object, V>(
     if (branches) {
       for (let b = 0; b < branches.length; b++) {
         const { fn, children } = branches[b];
-        const child = children.get(fn(args) ?? UNDEF_KEY);
+        const key = select(fn, args);
+        const child = key === undefined ? undefined : children.get(key);
         if (!child) continue;
         if (!next) next = child;
         else (pending || (pending = [])).push(child);
       }
     }
     node = next ?? pending?.pop();
+  }
+}
+
+/** A branch's `argsKey` result. A branch is tried before the entities that
+ * led to it are checked, so its selector can see args its own schema path
+ * would never reach with (say, a nested entity that is now missing): treat a
+ * throw as no match, since traversal wouldn't have called it. */
+function select(fn: KeyFn, args: readonly any[]): string | undefined {
+  try {
+    return fn(args) ?? UNDEF_KEY;
+  } catch {
+    return undefined;
   }
 }
 
@@ -254,7 +267,7 @@ function newNode<Path, V>(entry: Entry<Path, V> | undefined): Node<Path, V> {
 /** One cached value: the dependencies after the first, and what they resolved to. */
 interface Entry<Path, V> {
   readonly paths: (Path | KeyFn)[];
-  /** Entity reference (or `UNDEF`) for entity paths; `argsKey` result for function paths. */
+  /** `depKey()` of the entity for entity paths; `argsKey` result for function paths. */
   readonly keys: unknown[];
   readonly value: V;
   readonly journey: Path[];

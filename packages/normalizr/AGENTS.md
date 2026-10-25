@@ -15,8 +15,8 @@ Non-obvious constraints when changing `src/memo/`, `src/denormalize/`, or `src/i
 
 Every change to `src/memo/`, or to a schema's `denormalize`, must keep these. Tests: `src/__tests__/WeakDependencyMap.test.ts`, `src/__tests__/MemoCache.ts`, `packages/react/src/__tests__/concurrent-memo.web.tsx`.
 
-1. **Sound hits.** A hit returns only a value computed from exactly these entity objects (`===`; `UNDEF` for missing) and these `argsKey` results.
-2. **Complete dependencies.** Every entity and `argsKey` a computation reads is recorded, including deps replayed from a nested hit. Known gap (pre-existing): `INVALID` or `null` nested entities are read without being recorded, so the parent stays stale after the child becomes valid again.
+1. **Sound hits.** A hit returns only a value computed from exactly these entity objects (`===`; non-object values such as `undefined`, `null` and `INVALID` compare by value) and these `argsKey` results.
+2. **Complete dependencies.** Every entity and `argsKey` a computation reads is recorded, including deps replayed from a nested hit, and including entities that are missing, `null` or `INVALID`.
 3. **Deterministic.** The same reads lead to the same further reads and an equal result. All args-dependence goes through a pure, referentially stable `argsKey` fn.
 4. **Complete journey.** The paths returned with a hit cover every entity the value depends on; subscriptions and GC count refs from them. Callers never mutate it.
 5. **Weak, bounded retention.** A value lives only while its first dependency is reachable, with at most `MAX_ENTRIES` values per first dependency and `argsKey` results.
@@ -26,7 +26,7 @@ Every change to `src/memo/`, or to a schema's `denormalize`, must keep these. Te
 Accepted limitations (intentional; don't "fix"):
 
 - The results cache is keyed by the input object, not the schema. Two schemas only see the same result object if two endpoints share a cache key, which is already a bug in the endpoints.
-- Entities past the max entity depth (64) are read but not tracked. The depth limit exists to bound recursion; changes that deep don't invalidate ancestors.
+- Entities past `MAX_ENTITY_DEPTH` (`src/denormalize/unvisit.ts`) are read but not tracked, so changes that deep don't invalidate ancestors.
 
 ### Which versions to keep (React concurrency)
 
