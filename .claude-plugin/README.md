@@ -13,7 +13,7 @@ endpoint, rest, graphql, react and vue, implemented in `packages/core/agents/` a
 | `marketplace.json` | The marketplace Claude Code reads (`claude plugin marketplace add reactive/data-client`). `data-client` is the plugin; `core`, `react`, `vue` and `migrations` are old names kept as copies so existing installs keep updating (`plans/next-breaking-release.md` removes them). |
 | `plugin-dir.mjs`   | Writes the manifests that make `.agents/skills` a self-contained copy of the plugin, for Cursor and Claude's plugin directory (see below).                                                                                                                                      |
 | `openai-zip.mjs`   | Packs the plugin as the ZIP OpenAI's plugin directory uploads (see below).                                                                                                                                                                                                      |
-| `*.test.mjs`       | `node --test '.claude-plugin/*.test.mjs'`: `marketplace.json` and the plugin directory copies against the repo; READMEs against the site.                                                                                                                                  |
+| `*.test.mjs`       | `node --test '.claude-plugin/*.test.mjs'`: `marketplace.json` and the plugin directory copies against the repo; READMEs against the site.                                                                                                                                       |
 
 ## Codex and Cursor
 
