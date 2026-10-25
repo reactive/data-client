@@ -7,7 +7,7 @@ interface Toast {
 }
 
 /** How long a toast stays on screen */
-const SHOW_MS = 4000;
+export const SHOW_MS = 4000;
 
 // Module state, like a toast library's: the preview's code re-runs on every
 // edit, but this module doesn't, so code kept from an earlier run (a Manager)

@@ -9,11 +9,7 @@ import Playground from '..';
 
 // a phone: the live preview loads (not a bot), with the react-live editor
 jest.mock('../userAgent', () => ({ isBot: false, isMobileOrBot: () => true }));
-jest.mock('../PlaygroundEditor', () => ({
-  __esModule: true,
-  default: ({ code }: { code: string }) =>
-    require('react').createElement('textarea', { defaultValue: code }),
-}));
+jest.mock('../PlaygroundEditor', () => require('../testing/playgroundEditor'));
 // The real chunk pulls in the whole preview scope (ESM-only packages jest
 // can't load); the folder and its handle are the Playground's own
 jest.mock('../preview/LivePreview', () => {

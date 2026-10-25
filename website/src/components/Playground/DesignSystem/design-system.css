@@ -13,20 +13,6 @@
    by a muted color; one blue serves links, primary actions and focus. Only
    form controls keep an edge (it is what makes them controls). The tokens
    and the skeletons are in ./base.css, which loads with the Playground. */
-/* Dark: the same console at night (the panel, well, line and text follow
-   --pg-* above); what's left is the design system's own */
-html[data-theme='dark'] .playground-preview {
-  /* 4.6:1 on the sheet */
-  --ds-faint: #78869d;
-  /* 3.4:1 on the sheet, 3.1:1 on a well */
-  --ds-border-strong: #607189;
-  --ds-accent: #53aef0;
-  --ds-accent-strong: #7cc1f4;
-  --ds-accent-soft: color-mix(in srgb, var(--ds-accent) 14%, transparent);
-  --ds-on-accent: #04121f;
-  /* fields sit in the well, a step above the panel */
-  --ifm-color-emphasis-0: var(--ds-surface-2);
-}
 /* Text */
 .playground-preview h1,
 .playground-preview h2,
@@ -36,7 +22,7 @@ html[data-theme='dark'] .playground-preview {
 /* A page's title (a post's): a step up from the body, with the byline
    close under it */
 .playground-preview h2 {
-  line-height: 1.3;
+  line-height: var(--ds-h2-leading);
   margin-bottom: 2px;
 }
 /* an app's h1 is no page title: outranks theme-classic's
@@ -186,7 +172,7 @@ div.playground-preview h1:first-child {
   display: flex;
   align-items: flex-start;
   gap: var(--ds-space-3);
-  padding: 8px 0;
+  padding: var(--ds-row-pad) 0;
 }
 .playground-preview .listItem > * {
   min-width: 0;
@@ -264,7 +250,11 @@ div.playground-preview h1:first-child {
   color: var(--ds-accent);
 }
 .playground-preview button:where(:not([class])):active {
-  background: color-mix(in srgb, var(--ds-accent) 18%, var(--ds-surface));
+  background: color-mix(
+    in srgb,
+    var(--ds-accent) var(--ds-accent-press),
+    var(--ds-surface)
+  );
 }
 .playground-preview button:where(:not([class]), .primary):focus-visible {
   outline: 2px solid var(--ds-accent);
@@ -519,12 +509,20 @@ div.playground-preview h1:first-child {
 .playground-preview
   .buttonGroup
   > button:not([class], [aria-busy='true']):hover {
-  background: color-mix(in srgb, var(--ds-accent) 10%, var(--ds-surface));
+  background: color-mix(
+    in srgb,
+    var(--ds-accent) var(--ds-accent-wash),
+    var(--ds-surface)
+  );
 }
 .playground-preview
   .buttonGroup
   > button:not([class], [aria-busy='true']):active {
-  background: color-mix(in srgb, var(--ds-accent) 18%, var(--ds-surface));
+  background: color-mix(
+    in srgb,
+    var(--ds-accent) var(--ds-accent-press),
+    var(--ds-surface)
+  );
 }
 /* a busy segment's light runs inside the group's edge (outranking the
    segment's border: 0) */
@@ -553,8 +551,9 @@ div.playground-preview h1:first-child {
    32px hit area reaches into the row's inset, so the row keeps its height */
 .playground-preview button.cancel {
   flex: none;
-  margin: -8px -8px -8px auto;
-  padding: 8px;
+  margin: calc(-1 * var(--ds-row-pad)) calc(-1 * var(--ds-row-pad))
+    calc(-1 * var(--ds-row-pad)) auto;
+  padding: var(--ds-row-pad);
   border: 0;
   border-radius: var(--ds-radius-sm);
   background: none;

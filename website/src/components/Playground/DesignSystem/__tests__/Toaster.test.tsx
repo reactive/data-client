@@ -2,7 +2,7 @@
 import { act, render, screen } from '@testing-library/react';
 import React from 'react';
 
-import { toast, Toaster } from '../Toaster';
+import { SHOW_MS, toast, Toaster } from '../Toaster';
 
 describe('Toaster', () => {
   beforeEach(() => jest.useFakeTimers());
@@ -17,7 +17,7 @@ describe('Toaster', () => {
     expect(screen.getByText('Saved').dataset.kind).toBe('success');
     expect(screen.getByText('Failed').dataset.kind).toBe('error');
 
-    act(() => jest.advanceTimersByTime(4000));
+    act(() => jest.advanceTimersByTime(SHOW_MS));
     expect(screen.queryByText('Saved')).toBeNull();
     expect(screen.queryByText('Failed')).toBeNull();
   });
@@ -26,6 +26,6 @@ describe('Toaster', () => {
     toast.success('Early');
     render(<Toaster />);
     expect(screen.queryByText('Early')).not.toBeNull();
-    act(() => jest.advanceTimersByTime(4000));
+    act(() => jest.advanceTimersByTime(SHOW_MS));
   });
 });

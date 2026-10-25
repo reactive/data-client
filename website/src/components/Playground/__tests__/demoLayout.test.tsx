@@ -11,11 +11,7 @@ import Playground from '..';
 // a crawler: the live preview never loads, so the preview stays its loading
 // frame (whose Code toggle already works), and no Monaco
 jest.mock('../userAgent', () => ({ isBot: true, isMobileOrBot: () => true }));
-jest.mock('../PlaygroundEditor', () => ({
-  __esModule: true,
-  default: ({ code }: { code: string }) =>
-    require('react').createElement('textarea', { defaultValue: code }),
-}));
+jest.mock('../PlaygroundEditor', () => require('../testing/playgroundEditor'));
 
 // one Prism token each, so the HTML and the DOM's text can be searched for them
 const LIST =
