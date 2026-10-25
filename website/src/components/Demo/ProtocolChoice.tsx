@@ -5,8 +5,8 @@ import CodeTabContext from './CodeTabContext';
 import styles from './styles.module.css';
 import TabList from '../Playground/TabList';
 
-/** REST or GraphQL: a segmented control above a playground (the homepage's
- * demos, and PlaygroundTabs in the docs) */
+/** A segmented control picking one of `values` (REST, GraphQL...) above a
+ * playground: the homepage's demos, and PlaygroundTabs in the docs */
 export function ProtocolSwitch({
   values,
   selectedValue,
