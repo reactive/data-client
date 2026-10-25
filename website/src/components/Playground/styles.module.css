@@ -461,13 +461,13 @@ div.playgroundTextEdit > .playgroundHeader,
   /* the folder's header is narrower than its content: inset by this at
      each free side, its paper flaring out into the content's top edge
      (concave, --pg-head-flare) and the content's corner turning down from
-     there (convex, the rest). The flare runs deeper than it is wide
-     (--pg-head-flare-depth), so the header's foot sweeps out into the
-     content in one long curve */
-  --pg-head-inset: 12px;
+     there (convex, as round as the code card's). The flare runs deeper than
+     it is wide (--pg-head-flare-depth), so the header's foot sweeps out into
+     the content in one long curve */
   --pg-head-flare: 8px;
   --pg-head-flare-depth: 16px;
-  --pg-body-radius: calc(var(--pg-head-inset) - var(--pg-head-flare));
+  --pg-body-radius: var(--pg-card-radius);
+  --pg-head-inset: calc(var(--pg-head-flare) + var(--pg-body-radius));
   border-radius: 0;
   box-shadow: none;
   background: none;
@@ -1321,19 +1321,23 @@ div.fixtureJson + div.fixtureJson {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
-  /* its content's paper a pixel on under the Store's edge, so no seam
-     shows (not its header's: inset, the Store's header covers it) */
-  .row:has(> .storeHost .storePanel[data-visible]) .playgroundResult,
+  /* its foot's paper a pixel on under the Store's edge, so no seam shows
+     (not its content's: the Store's sheet meets it, square) */
   .row:has(> .storeHost .storePanel[data-visible]) > .previewWrapper::after {
     box-shadow: -1px 0 var(--pg-stage);
   }
-  /* its content runs on from the Store's strip, the sheet's corner notched
-     into it (its header stays inset: the Store's covers that, see
-     .storeHost) */
-  .row .playgroundResult {
+  /* its content runs on from the Store's strip (its header stays inset:
+     the Store's covers that, see .storeHost) */
+  .row .playgroundResult,
+  .row .sheet {
     transition: border-top-left-radius var(--motion-snappy);
   }
   .row:has(> .storeHost .storePanel[data-visible]) .playgroundResult {
+    border-top-left-radius: 0;
+  }
+  /* sliding shut, the Store's sheet meets the app's at the fold: square,
+     the two read as one bar until it has slid behind */
+  .row:has(> .storeHost:not([data-open]) .storePanel[data-visible]) .sheet {
     border-top-left-radius: 0;
   }
   /* the Store running on below the preview: its corner there squares
