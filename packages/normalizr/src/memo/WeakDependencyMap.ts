@@ -10,10 +10,15 @@ const UNDEF_KEY = '\0';
 
 const valueKeys = new Map<unknown, object>();
 
-/** `WeakMap` key for an entity value: the object itself, `UNDEF` for
- * `undefined`, or a stable stand-in for any other value (`null`, `INVALID`). */
-function depKey(entity: unknown): object {
-  if (typeof entity === 'object' && entity !== null) return entity;
+/** `WeakMap` key for an entity value: the object or function itself, `UNDEF`
+ * for `undefined`, or a stable stand-in for any other value (`null`,
+ * `INVALID`). Only those few values get stand-ins, since they're never freed. */
+export function depKey(entity: unknown): object {
+  if (
+    (typeof entity === 'object' && entity !== null) ||
+    typeof entity === 'function'
+  )
+    return entity;
   if (entity === undefined) return UNDEF;
   let key = valueKeys.get(entity);
   if (!key) {
@@ -184,31 +189,41 @@ export default class WeakDependencyMap<
 }
 
 /** The node at or below `node` with an entry that matches the store, if any;
- * that entry is moved to the front of its entries. */
+ * that entry is moved to the front of its entries. A loop, not recursion:
+ * a list can record one `argsKey` per row, so the nodes nest that deep. */
 function find<Path, K extends object, V>(
-  node: Node<Path, V>,
+  node: Node<Path, V> | undefined,
   getDependency: GetDependency<Path, K | symbol>,
   args: readonly any[],
 ): Node<Path, V> | undefined {
-  const { entries } = node;
-  for (let i = 0; i < entries.length; i++) {
-    const entry = entries[i];
-    if (matches(entry, getDependency, args)) {
-      if (i > 0) {
-        // read back after something newer was cached: the store flipped
-        // back to this version, so it is the one to keep
-        node.kept = entry;
-        entries.splice(i, 1);
-        entries.unshift(entry);
+  // other branches to try, only allocated when a node has more than one
+  let pending: Node<Path, V>[] | undefined;
+  while (node) {
+    const { entries, branches } = node;
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      if (matches(entry, getDependency, args)) {
+        if (i > 0) {
+          // read back after something newer was cached: the store flipped
+          // back to this version, so it is the one to keep
+          node.kept = entry;
+          entries.splice(i, 1);
+          entries.unshift(entry);
+        }
+        return node;
       }
-      return node;
     }
-  }
-  if (!node.branches) return;
-  for (const { fn, children } of node.branches) {
-    const child = children.get(fn(args) ?? UNDEF_KEY);
-    const hit = child && find(child, getDependency, args);
-    if (hit) return hit;
+    let next: Node<Path, V> | undefined;
+    if (branches) {
+      for (let b = 0; b < branches.length; b++) {
+        const { fn, children } = branches[b];
+        const child = children.get(fn(args) ?? UNDEF_KEY);
+        if (!child) continue;
+        if (!next) next = child;
+        else (pending || (pending = [])).push(child);
+      }
+    }
+    node = next ?? pending?.pop();
   }
 }
 
