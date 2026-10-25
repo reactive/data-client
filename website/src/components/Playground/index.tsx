@@ -16,8 +16,8 @@ import {
   CodeOpenerContext,
   type CodeOpener,
   type CodeTarget,
-  declarationsOf,
 } from './editor/openCode';
+import { declarationsOf } from './editor/declarations';
 import type { AutoRunScript } from './preview/autorun/script';
 import FixturePreview from './preview/FixturePreview';
 import type LivePreviewType from './preview/LivePreview';
@@ -101,12 +101,12 @@ export default function Playground<T>({
   const [codeShown, showCode] = useState<CodeTarget | null>(null);
   const openCode = useCallback(
     (target: CodeTarget) => {
-      // in the same render, so the code is uncovered (no longer inert) by
-      // the time its editor takes focus
-      if (row) showStore(false);
+      // in the same render, so the code is no longer inert by the time its
+      // editor takes focus
+      if (codeCovered) showStore(false);
       showCode({ ...target });
     },
-    [row, showStore],
+    [codeCovered, showStore],
   );
   // from the code the preview runs, so the Store's links change with it
   const codeOpener = useMemo<CodeOpener>(

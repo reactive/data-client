@@ -3,8 +3,8 @@ import React, { useMemo, useState } from 'react';
 
 import { actionName } from './actionGroups';
 import type { LogEntry } from './actionLog';
-import { APP, pipeline } from './attribution';
-import ManagerName from './ManagerName';
+import { APP, originOf, pipeline, stagesOf } from './attribution';
+import { CodeLink, ManagerName } from './ManagerName';
 import styles from './store.module.css';
 
 /** Every dispatch's way to the store: the app, then each manager of the
@@ -25,6 +25,7 @@ export function Pipeline({
   const stages = useMemo(() => pipeline(chain, entries), [chain, entries]);
   return (
     <Strip
+      className={styles.pipelineBar}
       label="Pipeline: who sent the actions, and who handled them"
       stages={stages.map(({ id, sent, handled }) => ({
         id,
@@ -44,7 +45,7 @@ export function Pipeline({
                 <span className={styles.stageNote}>⊘ {handled}</span>
               )}
             </button>
-            <ManagerName name={id} stage />
+            <CodeLink name={id} />
           </>
         ),
       }))}
@@ -58,7 +59,7 @@ export function Pipeline({
  * that never saw it, fold */
 function ActionPath({
   chain,
-  entry: { seq, action, origin = APP, consumedBy, store },
+  entry,
   children,
 }: {
   chain: readonly string[];
@@ -66,8 +67,10 @@ function ActionPath({
   /** After the store, on its line */
   children?: React.ReactNode;
 }) {
+  const { seq, action, consumedBy, store } = entry;
+  const origin = originOf(entry);
   // a manager's dispatch starts down the chain from its top, not the app
-  const ids = origin === APP ? [APP, ...chain] : chain;
+  const ids = origin === APP ? stagesOf(chain) : chain;
   const stop = consumedBy ? ids.indexOf(consumedBy) : -1;
   return (
     <Strip
@@ -149,11 +152,13 @@ interface Shown {
  * when the action never reached it, `stored` false). Two or more stages in
  * a row that fold alike show as one, until it's opened */
 function Strip({
+  className,
   label,
   stored = true,
   stages,
   children,
 }: {
+  className?: string;
   label: string;
   stored?: boolean;
   stages: readonly Shown[];
@@ -180,7 +185,11 @@ function Strip({
   if (openNow.size !== opened.size || [...openNow].some(id => !opened.has(id)))
     setOpened(openNow);
   return (
-    <div className={styles.pipeline} role="group" aria-label={label}>
+    <div
+      className={clsx(styles.pipeline, className)}
+      role="group"
+      aria-label={label}
+    >
       {runs.flatMap(run => {
         const key = run[0].id;
         if (run.length === 1) return [<Step key={key}>{run[0].node}</Step>];

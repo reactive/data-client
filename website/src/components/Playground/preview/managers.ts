@@ -8,7 +8,7 @@ import {
 
 import { takeSnapshot, type PreviewSnapshot } from './usePreviewReset';
 import type { CodeDocument } from '../editor/codeModel';
-import { declarationsIn } from '../editor/openCode';
+import { declarationsIn } from '../editor/declarations';
 
 /** Hash of the documents `getManagers()` depends on. Editing them gives the
  * store new managers; other edits keep them. */

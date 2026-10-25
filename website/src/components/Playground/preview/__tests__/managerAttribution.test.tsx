@@ -17,13 +17,10 @@ import {
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React, { Suspense } from 'react';
 
-import {
-  CodeOpenerContext,
-  declarationsOf,
-  type CodeOpener,
-} from '../../editor/openCode';
+import { declarationsOf } from '../../editor/declarations';
+import { CodeOpenerContext, type CodeOpener } from '../../editor/openCode';
 import { stageFilter } from '../store/actionGroups';
-import { managerNames } from '../store/attribution';
+import { isLibraryManager, managerNames } from '../store/attribution';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
 
@@ -146,10 +143,25 @@ describe('manager attribution', () => {
   });
 
   it('knows library managers by class, not by their (minified) name', () => {
-    class e extends NetworkManager {}
-    expect(
-      managerNames([new e(), { middleware: () => (n: unknown) => n } as any]),
-    ).toEqual(['NetworkManager', 'Object']);
+    const name = Object.getOwnPropertyDescriptor(NetworkManager, 'name')!;
+    Object.defineProperty(NetworkManager, 'name', { value: 'e' });
+    try {
+      expect(
+        managerNames([
+          new NetworkManager(),
+          { middleware: () => (n: unknown) => n } as any,
+        ]),
+      ).toEqual(['NetworkManager', 'Object']);
+    } finally {
+      Object.defineProperty(NetworkManager, 'name', name);
+    }
+  });
+
+  it("names a subclass of the library's for itself: it is the code's", () => {
+    class PollingNetwork extends NetworkManager {}
+    const [own] = managerNames([new PollingNetwork()]);
+    expect(own).toBe('PollingNetwork');
+    expect(isLibraryManager(own)).toBe(false);
   });
 
   it("credits what a manager sends through its controller, not the app's", async () => {

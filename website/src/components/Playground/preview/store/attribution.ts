@@ -8,9 +8,11 @@ import {
   type Manager,
 } from '@data-client/react';
 
+import type { LogEntry } from './actionLog';
+
 /** The library's managers, by class: a production build minifies their
- * `constructor.name`. `console`: it hands its controller to the console
- * (`__DC__`), whose calls it never makes itself */
+ * `constructor.name`. `console`: it (or a subclass) hands its controller to
+ * the console (`__DC__`), whose calls it never makes itself */
 const KNOWN: readonly {
   readonly cls: abstract new (...args: any) => Manager;
   readonly name: string;
@@ -22,8 +24,12 @@ const KNOWN: readonly {
   { cls: LogoutManager, name: 'LogoutManager' },
 ];
 const KNOWN_NAMES = new Set(KNOWN.map(known => known.name));
-const knownOf = (manager: Manager) =>
-  KNOWN.find(({ cls }) => manager instanceof cls);
+/** The library's name for `manager`, when it is one of the library's own
+ * classes; a subclass is the code's, named for itself */
+const libraryName = (manager: Manager) =>
+  KNOWN.find(({ cls }) => manager.constructor === cls)?.name;
+const sharesWithConsole = (manager: Manager) =>
+  KNOWN.some(known => known.console && manager instanceof known.cls);
 
 /** A manager every store has unless the code chooses otherwise, by the
  * name `managerNames` gave it */
@@ -47,19 +53,29 @@ interface Stage {
   readonly handled: number;
 }
 
-/** What the app (`APP`, what it dispatched itself) and each manager of
- * the chain, in order, did over `entries` */
+/** Who sent an action and who kept it from the rest of the chain */
+type Attributed = Pick<LogEntry, 'origin' | 'consumedBy'>;
+
+/** The stage before the chain: the app's own dispatches */
+export const APP = 'the app';
+/** Every stage a dispatch can start from, in order: the app, then the chain */
+export const stagesOf = (chain: readonly string[]) => [APP, ...chain];
+/** The stage that sent `entry`: a manager, or the app */
+export const originOf = (entry: Attributed) => entry.origin ?? APP;
+
+/** What the app and each manager of the chain, in order, did over
+ * `entries` */
 export function pipeline(
-  managers: readonly string[],
-  entries: readonly { origin?: string; consumedBy?: string }[],
+  chain: readonly string[],
+  entries: readonly Attributed[],
 ): Stage[] {
   const stages = new Map(
-    [APP, ...managers].map(id => [id, { id, sent: 0, handled: 0 }]),
+    stagesOf(chain).map(id => [id, { id, sent: 0, handled: 0 }]),
   );
-  for (const { origin = APP, consumedBy } of entries) {
-    const sender = stages.get(origin);
+  for (const entry of entries) {
+    const sender = stages.get(originOf(entry));
     if (sender) sender.sent++;
-    const handler = consumedBy && stages.get(consumedBy);
+    const handler = entry.consumedBy && stages.get(entry.consumedBy);
     if (handler) handler.handled++;
   }
   return [...stages.values()];
@@ -67,15 +83,10 @@ export function pipeline(
 
 /** Each way `entries` took (by type, sender, handler and whether it was
  * stored), with the first to take it and how many did */
-export function routesOf<
-  E extends {
-    action: { type: string };
-    origin?: string;
-    consumedBy?: string;
-    store?: unknown;
-  },
->(entries: readonly E[]): { entry: E; n: number }[] {
-  const seen = new Map<string, { entry: E; n: number }>();
+export function routesOf(
+  entries: readonly LogEntry[],
+): { entry: LogEntry; n: number }[] {
+  const seen = new Map<string, { entry: LogEntry; n: number }>();
   for (const entry of entries) {
     const { action, origin, consumedBy, store } = entry;
     const key = JSON.stringify([action.type, origin, consumedBy, !!store]);
@@ -90,24 +101,19 @@ export function routesOf<
 export const shownChain = (managers: readonly string[] | undefined) =>
   managers?.length ? managers : undefined;
 
-/** Whether `entry` is one `stage` took part in: `APP`, those the app
- * dispatched; a manager, those it sent or kept from the rest of the chain */
+/** Whether `entry` is one `stage` took part in: those it sent, and (a
+ * manager) those it kept from the rest of the chain */
 export function byStage(stage: string) {
-  return (entry: { origin?: string; consumedBy?: string }) =>
-    stage === APP ?
-      !entry.origin
-    : entry.origin === stage || entry.consumedBy === stage;
+  return (entry: Attributed) =>
+    originOf(entry) === stage || entry.consumedBy === stage;
 }
-/** The stage before the chain: the app's own dispatches */
-export const APP = 'the app';
 
 /** What the Store inspector calls each manager of a chain: its class, with
  * `#2` and on when a chain holds several of one class */
 export function managerNames(managers: readonly Manager[]): string[] {
   const seen = new Map<string, number>();
   return managers.map(manager => {
-    const base =
-      knownOf(manager)?.name || manager.constructor?.name || 'Manager';
+    const base = libraryName(manager) || manager.constructor?.name || 'Manager';
     const n = (seen.get(base) ?? 0) + 1;
     seen.set(base, n);
     return n > 1 ? `${base} #${n}` : base;
@@ -141,7 +147,7 @@ export function attributed(
   // with `this` the manager, as DataProvider would call them
   if (manager.init) tracked.init = state => manager.init!(state);
   tracked.cleanup = () => manager.cleanup();
-  const sends = !knownOf(manager)?.console;
+  const sends = !sharesWithConsole(manager);
   tracked.middleware = controller => {
     const own =
       sends ? asDispatcher(controller, name, attribution) : controller;
@@ -243,9 +249,7 @@ function asDispatcher(
  * manager to keep one from the rest of the chain, leaving out the library's
  * managers, whose work every playground has, so the code's own stand out.
  * An action's path still says all */
-export function notableAttribution(
-  entries: readonly { origin?: string; consumedBy?: string }[],
-): { origin?: string; consumedBy?: string } {
+export function notableAttribution(entries: readonly Attributed[]): Attributed {
   const notable = (name?: string) =>
     name && !isLibraryManager(name) ? name : undefined;
   return {

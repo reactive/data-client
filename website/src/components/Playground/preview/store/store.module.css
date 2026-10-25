@@ -1033,19 +1033,18 @@ div.gapRow {
   color: var(--store-muted);
   border-color: var(--store-line-strong);
 }
-/* the pipeline: the app, the chain's managers and the store, as stages an
-   action goes through; it wraps rather than scroll */
+/* stages an action goes through (the app, the chain's managers, the
+   store), wrapping rather than scrolling: the pipeline over the store's
+   actions, and each action's path */
 .pipeline {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   row-gap: 0.35rem;
+}
+.pipelineBar {
   padding: 0.5rem 0.75rem;
   border-bottom: 1px solid var(--store-line);
-}
-.actBody > .pipeline {
-  padding: 0.4rem 0.75rem 0;
-  border: none;
 }
 /* a step's path through the managers, as plain words under its name and
    changes: only the managers that sent or handled it stand out */
@@ -1073,8 +1072,6 @@ div.gapRow {
 }
 .stepPath > .pipeline {
   row-gap: 0.1rem;
-  padding: 0;
-  border: none;
 }
 .stepPath .stage:not(.stageFold) {
   padding: 0;

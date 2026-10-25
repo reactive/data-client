@@ -54,7 +54,6 @@ export function ActionDetail({
   subject: View;
   gap?: ChangeKind;
 }) {
-  // the way it took through the managers
   const chain = shownChain(useActions().history.managers);
   return (
     <div className={styles.actBody}>
@@ -140,7 +139,7 @@ function unchangedNote(subject: View) {
 
 /** Why an action that never reached the store is still in the log */
 function unappliedNote({ action, consumedBy }: LogEntry) {
-  // NetworkManager sets off a fetch's request (its name may end in `#2`)
+  // NetworkManager sets off a fetch's request
   const requested = !consumedBy || isNetworkManager(consumedBy);
   if (action.type === actionTypes.FETCH && requested)
     return 'Started the request; the store changes when its response arrives';

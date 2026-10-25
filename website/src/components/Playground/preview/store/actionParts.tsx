@@ -30,7 +30,7 @@ import {
   type Moment,
   type Then,
 } from './nav';
-import ManagerName from './ManagerName';
+import { ManagerName } from './ManagerName';
 import styles from './store.module.css';
 import { CountChip, EndpointKey, EntityKey, RefChip } from './Value';
 import {
