@@ -279,6 +279,8 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
   let dirty = false;
   const existingClasses = getExistingClassNames(j, root);
   const createToClass = new Map();
+  // classes whose urlPrefix came from a baseURL
+  const prefixedClasses = new Set();
 
   root.find(j.VariableDeclarator).forEach(declPath => {
     const init = declPath.node.init;
@@ -321,6 +323,7 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
 
     const classBody = [];
     const unknownOptions = [];
+    const unknownTodos = [];
 
     if (config) {
       for (const prop of config.properties) {
@@ -336,12 +339,24 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
         }
 
         if (key === 'baseURL') {
-          const urlProp = j.classProperty(
-            j.identifier('urlPrefix'),
-            prop.value,
-          );
+          // axios joins baseURL and url with one '/'; urlPrefix + path are
+          // joined as is, and every path starts with '/'
+          let prefix = prop.value;
+          const literal =
+            prefix.type === 'StringLiteral' ||
+            (prefix.type === 'Literal' && typeof prefix.value === 'string');
+          if (literal && prefix.value.endsWith('/')) {
+            prefix = j.stringLiteral(prefix.value.replace(/\/+$/, ''));
+          } else if (!literal) {
+            unknownTodos.push([
+              'make sure `urlPrefix` has no trailing `/`, since every path starts with one',
+              'base-endpoint',
+            ]);
+          }
+          const urlProp = j.classProperty(j.identifier('urlPrefix'), prefix);
           urlProp.static = false;
           classBody.push(urlProp);
+          prefixedClasses.add(className);
         } else if (key === 'headers') {
           const headers = j.identifier('headers');
           const fn = j.functionExpression(
@@ -389,6 +404,8 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
       ]);
     }
     const markOptions = node => {
+      for (const [message, anchor] of unknownTodos)
+        addTodo(j, node, message, anchor);
       if (!unknownOptions.length) return;
       const [message, anchor] = optionsTodo(unknownOptions, `\`${className}\``);
       addTodo(j, node, message, anchor);
@@ -423,7 +440,7 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
     dirty = true;
   });
 
-  return { dirty, createToClass };
+  return { dirty, createToClass, prefixedClasses };
 }
 
 // --- 3. Transform direct axios/instance method calls ---
@@ -792,7 +809,7 @@ function addTodo(j, node, message, anchor) {
   comments.push(j.commentLine(text, true, false));
 }
 
-function buildCall(j, callPath, className, isTS) {
+function buildCall(j, callPath, className, prefixed, isTS) {
   const callee = callPath.node.callee;
   const methodName = callee.property.name;
   const args = callPath.node.arguments;
@@ -800,6 +817,12 @@ function buildCall(j, callPath, className, isTS) {
 
   const url = toPath(j, args[0]);
   if (!url) return { reason: 'url' };
+  if (prefixed) {
+    // the class's urlPrefix field would override a urlPrefix option
+    if (url.urlPrefix) return { reason: 'absolute url' };
+    // axios puts a '/' between baseURL and a relative url
+    if (!url.path.startsWith('/')) url.path = '/' + url.path;
+  }
 
   const hasBody = BODY_METHODS.has(methodName);
   const data = hasBody ? args[1] : undefined;
@@ -901,7 +924,7 @@ function transformDirectCalls(
   root,
   axiosLocalName,
   axiosImportScope,
-  createToClass,
+  { createToClass, prefixedClasses },
   isTS,
 ) {
   let dirty = false;
@@ -942,7 +965,13 @@ function transformDirectCalls(
       if (!className) continue;
     }
 
-    const result = buildCall(j, callPath, className, isTS);
+    const result = buildCall(
+      j,
+      callPath,
+      className,
+      prefixedClasses.has(className),
+      isTS,
+    );
     if (!result.node) {
       markTodo(
         j,
@@ -1194,7 +1223,7 @@ module.exports = function transformer(fileInfo, api) {
     root,
     axiosLocalName,
     axiosImportScope,
-    createResult.createToClass,
+    createResult,
     isTS,
   );
   const directCallsDirty = calls.dirty;

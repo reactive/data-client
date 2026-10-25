@@ -1230,6 +1230,78 @@ const get = (a, b) => new RestEndpoint({
       {},
       `
 import axios from 'axios';
+const api = axios.create({ baseURL: 'https://api.example.com/v1/' });
+const getUser = id => api.get(\`/users/\${id}\`);
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+
+class ApiEndpoint extends RestEndpoint {
+  urlPrefix = 'https://api.example.com/v1';
+}
+
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+const getUser = id => new ApiEndpoint({
+  path: '/users/:id'
+})({
+  id
+});
+      `,
+      'drops a trailing slash from baseURL so it joins a leading-slash url once',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const api = axios.create({ baseURL: 'https://api.example.com/v1' });
+const getUser = id => api.get(\`users/\${id}\`);
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+
+class ApiEndpoint extends RestEndpoint {
+  urlPrefix = 'https://api.example.com/v1';
+}
+
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+const getUser = id => new ApiEndpoint({
+  path: '/users/:id'
+})({
+  id
+});
+      `,
+      'adds the slash axios puts between baseURL and a relative url',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const api = axios.create({ baseURL: process.env.API_URL });
+const other = () => api.get('https://other.com/x');
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+
+// TODO(data-client): make sure \`urlPrefix\` has no trailing \`/\`, since every path starts with one: https://dataclient.io/rest/guides/axios-migration#base-endpoint
+class ApiEndpoint extends RestEndpoint {
+  urlPrefix = process.env.API_URL;
+}
+
+// TODO(data-client): convert this api.get() call to an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
+const other = () => api.get('https://other.com/x');
+      `,
+      'marks a non-literal baseURL and absolute urls through an instance',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
 const api = axios.create({ baseURL: '/api', timeout: 5000, withCredentials: true });
 api.interceptors.request.use(config => config);
       `,
