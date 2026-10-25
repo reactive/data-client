@@ -901,9 +901,10 @@ div.playgroundTextEdit > .playgroundHeader,
   opacity: 1;
   translate: 0 0;
 }
-/* row: a card like the code's, lifted off the folder a step under its
-   header, in line with the header's end; while it shows, the preview
-   stacks over the Store's layer, so the handle doesn't cut into it */
+/* row: a card like the code's under the preview's header, in line with
+   its inset, its toggle a tab rising from it into the header (as the open
+   file's tab rises from the code); while it shows, the preview stacks over
+   the Store's layer, so the handle doesn't cut into it */
 .row > .previewWrapper:has(.fixturesPopover[data-open]) {
   z-index: 4;
 }
@@ -915,17 +916,73 @@ div.playgroundTextEdit > .playgroundHeader,
 .row .fixturesPopover {
   right: var(--pg-head-inset);
   width: min(100% - 2 * var(--pg-head-inset), 36rem);
-  margin-top: 6px;
   border: 0;
   border-radius: var(--pg-card-radius);
+  /* it fades in where it rests, joined to its tab */
+  translate: 0 0;
+  /* nothing reaches above its top edge, where the tab joins it */
   box-shadow:
-    0 2px 6px rgba(15, 30, 60, 0.18),
-    0 18px 40px -8px rgba(15, 30, 60, 0.4);
+    0 4px 8px -2px rgba(15, 30, 60, 0.25),
+    0 22px 40px -10px rgba(15, 30, 60, 0.45);
 }
 :root[data-theme='dark'] .row .fixturesPopover {
-  box-shadow:
-    0 0 0 1px var(--store-line-strong),
-    0 18px 40px -8px rgba(0, 0, 0, 0.75);
+  box-shadow: 0 22px 40px -10px rgba(0, 0, 0, 0.8);
+}
+/* the tab's foot, down to the header's bottom edge, curving out into the
+   card's top edge */
+.row .fixturesToggle {
+  --fixtures-tab: var(--pg-tab-selected-bg);
+  --fixtures-foot: calc((var(--pg-row) - 2rem) / 2);
+  position: relative;
+}
+.row .fixturesToggle::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: calc(-1 * var(--fixtures-foot));
+  right: calc(-1 * var(--fixtures-foot));
+  height: var(--fixtures-foot);
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(
+        var(--fixtures-foot) var(--fixtures-foot) at 0 0,
+        transparent calc(100% - 0.5px),
+        var(--fixtures-tab) 100%
+      )
+      left / var(--fixtures-foot) 100% no-repeat,
+    radial-gradient(
+        var(--fixtures-foot) var(--fixtures-foot) at 100% 0,
+        transparent calc(100% - 0.5px),
+        var(--fixtures-tab) 100%
+      )
+      right / var(--fixtures-foot) 100% no-repeat,
+    linear-gradient(var(--fixtures-tab) 0 0) center /
+      calc(100% - 2 * var(--fixtures-foot)) 100% no-repeat;
+}
+.row .headerButton.fixturesToggle[aria-expanded='true'],
+.row
+  .previewHeader:has(+ .fixturesAnchor > .fixturesPopover:hover)
+  .headerButton.fixturesToggle {
+  border-radius: 8px 8px 0 0;
+  background: var(--fixtures-tab);
+  color: var(--pg-tab-selected);
+}
+.row .headerButton.fixturesToggle[aria-expanded='true']::after,
+.row
+  .previewHeader:has(+ .fixturesAnchor > .fixturesPopover:hover)
+  .headerButton.fixturesToggle::after {
+  opacity: 1;
+}
+@media (hover: hover) {
+  .row .headerButton.fixturesToggle:hover {
+    border-radius: 8px 8px 0 0;
+    background: var(--fixtures-tab);
+    color: var(--pg-tab-selected);
+  }
+  .row .headerButton.fixturesToggle:hover::after {
+    opacity: 1;
+  }
 }
 @media (hover: hover) {
   /* a preview while the pointer is on the toggle or the fixtures */
