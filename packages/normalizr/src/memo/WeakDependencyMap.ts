@@ -122,7 +122,7 @@ export default class WeakDependencyMap<
           // Past MAX_FORKS, start this root over instead.
           if (node.branches.length && ++top!.forks > MAX_FORKS) {
             this.next.delete(root);
-            return this.set(dependencies, value, args, journey);
+            return this.set(dependencies, value, args, journey, track);
           }
           branch = { fn: dep.path as KeyFn, children: new Map() };
           node.branches.push(branch);
