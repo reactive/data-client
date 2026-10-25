@@ -892,9 +892,12 @@ function Levels({
       {stack.map((entry, depth) => {
         const { key, view, at } = entry;
         const level = levelOf(entry);
-        // the store's root has no crumbs; the actions' does, for their subject
+        // a stack's first level has no crumbs, as its tab names it; the
+        // actions' has, to name a subject other than the store
         const header = (tools: React.ReactNode) =>
-          depth > 0 || view.kind === 'actions' ? crumbs(depth, tools) : null;
+          depth > 0 || (view.kind === 'actions' && subjectAt(depth) !== ROOT) ?
+            crumbs(depth, tools)
+          : null;
         // one a chip opened at an action shows that store, not the moment's
         const levelDiff = !at ? diff : undefined;
         return (
@@ -1118,10 +1121,16 @@ function ActionLevel({
   header: Header;
 }) {
   const { entry, group, span, filter } = useShownAction(seq, scope, subject);
-  // the step before leads, so the crumbs under it head the action shown
+  // the steps lead, before on the left and after on the right as the
+  // timeline runs, so the crumbs under them head the action shown
   return (
     <>
-      {entry && <ActionStep dir={-1} />}
+      {entry && (
+        <div className={styles.actSteps}>
+          <ActionStep dir={-1} />
+          <ActionStep dir={1} />
+        </div>
+      )}
       {header(
         seq === null && entry && <span className={styles.dim}>newest</span>,
       )}
@@ -1145,7 +1154,6 @@ function ActionLevel({
               gap={filter.gaps.get(entry.seq)}
             />
           }
-          <ActionStep dir={1} />
         </>
       }
     </>
@@ -1203,6 +1211,7 @@ function ActionStep({ dir }: { dir: -1 | 1 }) {
     <button
       type="button"
       className={clsx(styles.actStep, dir > 0 && styles.actStepAfter)}
+      data-dir={label}
       disabled={to === undefined}
       title={
         to === undefined ? undefined
@@ -1213,25 +1222,26 @@ function ActionStep({ dir }: { dir: -1 | 1 }) {
       onClick={() => step(dir)}
     >
       <span className={styles.actStepDir}>
-        {to !== undefined && (dir < 0 ? '↑ ' : '↓ ')}
+        {to !== undefined && dir < 0 && '← '}
         {label}
+        {to !== undefined && dir > 0 && ' →'}
       </span>
-      {to === undefined ?
-        <span className={styles.dim}>
-          {dir < 0 ? 'nothing the log kept' : 'nothing yet: this is live'}
-        </span>
-      : entry ?
-        <>
-          <span className={styles.actStepName}>
+      <span className={styles.actStepName}>
+        {to === undefined ?
+          <span className={styles.dim}>
+            {dir < 0 ? 'nothing the log kept' : 'nothing yet: this is live'}
+          </span>
+        : entry ?
+          <>
             {shown ?
               <KeyLabel value={shown.key} />
-            : <ActionName entry={entry} />}
-          </span>
-          <span className={styles.dim}>
-            <Time at={entry.at} />
-          </span>
-        </>
-      : <span className={styles.liveText}>Live</span>}
+            : <ActionName entry={entry} />}{' '}
+            <span className={styles.dim}>
+              <Time at={entry.at} />
+            </span>
+          </>
+        : <span className={styles.liveText}>Live</span>}
+      </span>
     </button>
   );
 }

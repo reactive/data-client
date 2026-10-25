@@ -1874,15 +1874,19 @@ button.tlMark:hover {
 
 /* the Action tab's actions before and after the one shown, a line each, to
    step to; the one after stays at the bottom, of a short level too */
+/* before on the left and after on the right, as the timeline runs */
+.actSteps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--store-line);
+}
 .actStep {
   display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  width: 100%;
+  flex-direction: column;
+  gap: 0.1rem;
   min-width: 0;
   padding: 0.35rem 0.75rem;
   border: 0;
-  border-bottom: 1px solid var(--store-line);
   background: none;
   color: var(--store-fg);
   font: inherit;
@@ -1890,13 +1894,9 @@ button.tlMark:hover {
   white-space: nowrap;
 }
 .actStepAfter {
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
-  margin-top: auto;
-  border-top: 1px solid var(--store-line-strong);
-  border-bottom: 0;
-  background: var(--store-bg);
+  align-items: flex-end;
+  border-left: 1px solid var(--store-line);
+  text-align: right;
 }
 .actStep:enabled {
   cursor: pointer;
@@ -1905,20 +1905,15 @@ button.tlMark:hover {
 .actStep:enabled:hover {
   background: var(--store-hover);
 }
-.actStepAfter:enabled:hover {
-  background: linear-gradient(var(--store-hover), var(--store-hover))
-    var(--store-bg);
-}
 .actStepDir {
-  flex: none;
-  width: 4.2rem;
   color: var(--store-dim);
   font-size: 0.85em;
 }
 .actStepName {
-  min-width: 0;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .liveText {
   color: var(--store-fresh);

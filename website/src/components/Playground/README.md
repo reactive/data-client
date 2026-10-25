@@ -218,8 +218,8 @@ DesignSystem/       components injected into preview scope
     the crumbs, which name it, then what it did to the subject and the action's fields;
     live, `seq: null`, the subject's newest action, garbage collection
     aside, as its whole request when it has several actions, so an
-    optimistic update shows with its response, with "newest" by its crumb). A line above its crumbs, so they head the
-    action, and one stuck to the bottom (`ActionStep`) name the subject's actions before and after it (as ‹ ›
+    optimistic update shows with its response, with "newest" by its crumb). A row above its crumbs, so they head the
+    action, names the subject's actions before (on the left) and after (on the right, as the timeline runs) it (`ActionStep`, as ‹ ›
     step: one pure `stepAt` in `preview/store/actionLog.ts` serves ‹ ›, ←→,
     Before and After, landing on the moment's neighbours at its own depth,
     requests on the surface (`requestsOf`: each poll of a subscription its
@@ -229,8 +229,9 @@ DesignSystem/       components injected into preview scope
     moment of several actions is named for its request or row, `shownGroup`), and a click makes that the
     moment, in the same level. Its stack opens at the action over the
     subject's actions in full (`{ kind: 'actions' }`, `ActionsLevel` in
-    `preview/store/ActionList.tsx`, a `region` with its row count beside the
-    crumbs "Actions of <subject>"), which Back, its crumb and the
+    `preview/store/ActionList.tsx`, a `region`; below the store, its row count beside the
+    crumbs "Actions of <subject>", while at the store the tab names it and
+    it has no crumbs, as a stack's first level never does), which Back, its crumb and the
     scrubber's list button go to, and picking the Action tab again leaves
     for the moment's action; while it shows, a mark picked on the
     timeline (the timelines' `onMark`) opens its action, as a row does, while ‹ › only move

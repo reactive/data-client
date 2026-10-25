@@ -277,7 +277,7 @@ describe('Store Actions pane detail', () => {
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     expect(crumbs()).toEqual(['Actions', 'GET /posts']);
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
-    expect(crumbs()).toEqual(['Actions']);
+    expect(crumbs()).toEqual([]);
     expect(rows()[0].getAttribute('aria-current')).toBe('true');
     expect(rows()[0].getAttribute('aria-expanded')).toBe('true');
     fireEvent.click(pane().querySelector<HTMLElement>('[data-seq="1"]')!);
@@ -524,8 +524,8 @@ describe('Store Actions pane detail', () => {
     wait();
     fireEvent.click(toggle);
     expect(peek()).toBeNull();
-    expect(crumbs()).toEqual(['Actions']);
-    expect(listCount()).toBe('1');
+    expect(crumbs()).toEqual([]);
+    expect(rows()).toHaveLength(1);
     expect(toggle.getAttribute('aria-pressed')).toBe('true');
     hover(toggle, false);
     hover(toggle, true);
@@ -1597,7 +1597,7 @@ describe('Store diff', () => {
 describe('Store action level', () => {
   /** The Action tab's line for the action before or after the one shown */
   const step = (dir: 'Before' | 'After') =>
-    [...top().children].find(el => el.textContent!.includes(dir))!;
+    top().querySelector<HTMLElement>(`[data-dir="${dir}"]`)!;
 
   it('shows the newest action live, stepping a row at a time', async () => {
     const { ctrl } = mount();
@@ -1904,7 +1904,7 @@ describe('Store action level', () => {
       ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
     );
     openPane();
-    expect(crumbs()).toEqual(['Actions']);
+    expect(crumbs()).toEqual([]);
     openAction();
     expect(crumbs()).toEqual(['Actions', 'set Post']);
     // at a moment, its action
@@ -1924,7 +1924,7 @@ describe('Store action level', () => {
     const mark = (name: RegExp) =>
       within(scrubber()).getByRole('button', { name });
     openPane();
-    expect(crumbs()).toEqual(['Actions']);
+    expect(crumbs()).toEqual([]);
     const list = top();
     fireEvent.click(mark(/^set at/));
     expect(crumbs()).toEqual(['Actions', 'set Post']);
@@ -1935,7 +1935,7 @@ describe('Store action level', () => {
     expect(top()).toBe(list);
     // stepping over the list only marks the moment there
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
-    expect(crumbs()).toEqual(['Actions']);
+    expect(crumbs()).toEqual([]);
     // in State, a mark only moves the moment
     openState();
     fireEvent.click(mark(/^setResponse at/));
@@ -2017,7 +2017,8 @@ describe('Store Actions pane on a record', () => {
     // the store lists every action
     toRoot();
     openPane();
-    expect(listCount()).toBe('5');
+    // its tab names the store's: no crumbs of their own
+    expect(crumbs()).toEqual([]);
     expect(rows()).toHaveLength(5);
   });
 
