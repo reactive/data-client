@@ -473,9 +473,9 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .row .tabs {
   height: 100%;
+  /* the header's width, so a short row has room for the last tab's curve */
+  flex: 1 1 auto;
   min-width: 0;
-  /* room for the last tab's curve; at the card's edges the row clips them */
-  padding-inline-end: var(--pg-card-radius);
 }
 .row .tab {
   gap: 0.5em;
@@ -518,6 +518,15 @@ div.playgroundTextEdit > .playgroundHeader,
 .row .tab.selected::after {
   left: calc(100% - 1px);
   --pg-fillet-at: 100% 0;
+}
+/* too near the card's edge for its curve and the card's corner both
+   (TabList's flush marks): straight down into the squared corner. Hidden,
+   the last tab's curve no longer lets the row scroll past the edge */
+.row
+  .tabs:is([data-flush-left], :has(> .tab:first-child.selected))
+  > .tab.selected::before,
+.row .tabs[data-flush-right] > .tab.selected::after {
+  content: none;
 }
 .row .tab:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
