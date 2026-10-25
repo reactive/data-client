@@ -943,5 +943,37 @@
   },
   "playground.fixtures.delay": {
     "message": "延迟"
+  },
+  "agentPrompt.prompt": {
+    "message": "所有服务器状态都使用 `@data-client/{framework}`",
+    "description": "Prompt readers copy into their coding agent. Keep the backticks around package names: they keep each name on one line."
+  },
+  "agentPrompt.copy": {
+    "message": "复制给编程代理的提示词",
+    "description": "Tooltip of the agent prompt, which copies itself when clicked"
+  },
+  "agentPrompt.copied": {
+    "message": "已复制",
+    "description": "Shown for a moment after the agent prompt is copied"
+  },
+  "agentPrompt.title": {
+    "message": "智能体对话",
+    "description": "Header of text readers type into their coding agent, not a terminal"
+  },
+  "agentPrompt.titleFor": {
+    "message": "{agent} 智能体对话",
+    "description": "Header of text readers type into one coding agent (like Cursor), not a terminal"
+  },
+  "agentPrompt.copyFor": {
+    "message": "复制给 {agent} 的提示词",
+    "description": "Tooltip of an agent prompt only one coding agent (like Cursor) understands, which copies itself when clicked"
+  },
+  "theme.CodeBlock.terminal": {
+    "message": "在终端中运行",
+    "description": "Tooltip of code blocks holding shell commands, which start with $"
+  },
+  "theme.CodeBlock.terminalTitle": {
+    "message": "终端",
+    "description": "Header of framed code blocks of shell commands"
   }
 }

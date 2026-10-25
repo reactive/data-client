@@ -5,17 +5,29 @@ on:
     branches:
       - master
     # Inputs and outputs of scripts/agent-rules.mjs and
-    # scripts/breaking-evals.mjs, and the hook tests
+    # scripts/breaking-evals.mjs, the hook tests, the Claude Code plugin's
+    # tests (.claude-plugin/README.md lists what they read), and the skill sync
     paths:
       - '**/.cursor/rules/**'
       - '**/.claude/rules/**'
       - '.claude/skills'
       - '.cursor/hooks/**'
+      - '.claude-plugin/**'
+      - 'packages/core/agents/**'
+      - '.cursor-plugin/**'
+      - '.agents/skill-packages.json'
+      - 'website/framework-docs/skillCommands.mjs'
+      - 'website/src/components/AgentPrompt.tsx'
+      - 'README.md'
+      - 'packages/react/README.md'
+      - 'packages/vue/README.md'
+      - 'packages/rest/README.md'
+      - 'packages/graphql/README.md'
+      - 'packages/endpoint/README.md'
       - 'scripts/agent-rules.mjs'
       - 'scripts/breaking-evals.mjs'
       - '.changeset/**'
-      - '.agents/skills/*/evals/**'
-      - '.agents/skills/changeset/no-agent-impact.json'
+      - '.agents/skills/**'
       - '.github/workflows/agent-rules.yml'
       - '.github/workflows/paths-gate.yml'
   pull_request:
@@ -54,5 +66,5 @@ jobs:
         run: node scripts/agent-rules.mjs --check
       - name: Check every breaking changeset has a skill eval
         run: node scripts/breaking-evals.mjs
-      - name: Test agent hooks
-        run: node --test '.cursor/hooks/*.test.js'
+      - name: Test agent hooks and the skill sync
+        run: node --test '.cursor/hooks/*.test.js' '.claude-plugin/*.test.mjs' 'packages/core/agents/*.test.mjs'

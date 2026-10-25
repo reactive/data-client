@@ -21,7 +21,11 @@ import SiteOnly from '@site/src/components/SiteOnly';
 
 <SkillTabs repo="reactive/data-client" skills={['data-client-schema', 'data-client-rest-setup', 'data-client-rest']} />
 
-然后运行 skill `/data-client-rest-setup` 开始迁移。它会检测 axios 并自动应用相应的迁移子流程。
+然后在你的智能体聊天中开始迁移。它会检测 axios 并自动应用相应的迁移子流程。
+
+```prompt
+/data-client-rest-setup
+```
 
 </SiteOnly>
 

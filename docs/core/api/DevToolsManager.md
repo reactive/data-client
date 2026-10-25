@@ -89,26 +89,30 @@ const managers = getDefaultManagers({
 
 ## Programmatic store access {#controllers}
 
-In development mode, `DevToolsManager` registers each [Controller](/docs/api/Controller) on
-`globalThis.__DC_CONTROLLERS__`, a `Map` keyed by the devtools connection name. It also records the
-most recent dispatched actions for each one on `globalThis.__DC_ACTIONS__`, under the same key. This works
-in browsers, React Native, and Node, with or without the Redux DevTools extension.
+In development mode, `DevToolsManager` puts the page's store on `globalThis.__DC__`: `__DC__.controller` is its
+[Controller](/docs/api/Controller) and `__DC__.actions` its most recent dispatched actions, including the ones from
+page load. This works in browsers, React Native, and Node, with or without the Redux DevTools extension.
 
 ```js title="Browser DevTools console"
-// List all registered providers
-__DC_CONTROLLERS__.keys();
+__DC__.controller.getState();
 
-// Get state from the first provider
-__DC_CONTROLLERS__.values().next().value.getState();
+// Last 10 actions
+__DC__.actions.slice(-10);
 
-// Get state by name
-__DC_CONTROLLERS__.get('Data Client: My App').getState();
+// Response for a key in the action log, without importing its endpoint
+const c = __DC__.controller;
+const a = __DC__.actions.findLast(
+  a => a.args && !a.endpoint?.sideEffect && a.key?.includes('/todos'),
+);
+c.getResponse(a.endpoint, ...a.args, c.getState()).data;
 
-// Last 10 actions, including the ones dispatched while the page loaded
-__DC_ACTIONS__.get('Data Client: My App').slice(-10);
+// With several stores, pick one by key
+__DC__.stores; // ['Data Client: My App', 'Data Client: My App (2)']
+__DC__.store = 'Data Client: My App (2)';
 ```
 
-This is useful for AI coding assistants using the [Chrome DevTools MCP](https://developer.chrome.com/blog/chrome-devtools-mcp)
+This is useful for AI coding assistants using a browser tool that runs page JavaScript (such as
+Cursor's built-in browser, [Chrome DevTools MCP](https://developer.chrome.com/blog/chrome-devtools-mcp) or [Playwright MCP](https://github.com/microsoft/playwright-mcp)),
 or [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) to programmatically inspect and interact
 with the store. Each :react[[DataProvider](/docs/api/DataProvider)]:vue[installed [DataClientPlugin](./DataClientPlugin.md)] registers independently, so
 multiple :react[providers]:vue[apps] on the same page are supported. When a name is already taken, the next one
@@ -117,8 +121,8 @@ server rendering, a store replaces the previous one with its name instead, since
 
 The action log keeps up to twice [`maxAge`](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#maxage)
 actions (100 by default) and skips the same duplicate fetches the extension does. To keep its memory small, only the
-newest 20 actions keep their `args` and `response`; older ones keep `type`, `key`, `endpoint`, `meta` and error
-responses. While an endpoint [polls](/rest/api/RestEndpoint#pollfrequency), the log keeps only its last
+newest 20 actions keep their `response`; older ones keep `type`, `key`, `endpoint`, `meta`, error
+responses and the `args` of endpoints without side effects. While an endpoint [polls](/rest/api/RestEndpoint#pollfrequency), the log keeps only its last
 `maxPollingActions` actions for each key (endpoint and args) (4 by default, the last two polls), so polling doesn't push everything else out:
 
 <ProviderManagers imports={['getDefaultManagers']}>

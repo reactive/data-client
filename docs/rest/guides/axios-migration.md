@@ -21,7 +21,11 @@ Install the REST setup skill to automate the migration with your AI coding assis
 
 <SkillTabs repo="reactive/data-client" skills={['data-client-schema', 'data-client-rest-setup', 'data-client-rest']} />
 
-Then run skill `/data-client-rest-setup` to start the migration. It will detect axios and apply the appropriate migration sub-procedure automatically.
+Then start the migration in your agent's chat. It will detect axios and apply the appropriate migration sub-procedure automatically.
+
+```prompt
+/data-client-rest-setup
+```
 
 </SiteOnly>
 

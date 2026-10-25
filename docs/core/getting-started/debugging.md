@@ -7,37 +7,47 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import SiteOnly from '@site/src/components/SiteOnly';
+import AgentOnly from '@site/src/components/AgentOnly';
+import DevtoolsDebugging from '../_agents/devtools-debugging.md';
+
+<SiteOnly>
 
 ## Debugging with agents
 
-For many debugging tasks, the fastest path is to use an agent that already knows the
-:react[`@data-client/react`]:vue[`@data-client/vue`] debugging workflow.
+[`globalThis.__DC__`](../api/DevToolsManager.md#controllers) allows agents to introspect the Data Client store of your
+app in development: its state, recent actions and errors, so your coding agent can debug what you see. Ask it:
 
-Install the :react[[`data-client-react` skill](https://skills.sh/reactive/data-client/data-client-react)]:vue[[`data-client-vue` skill](https://skills.sh/reactive/data-client/data-client-vue)]
-in your coding agent, then ask it to inspect the current page or app state.
+```prompt
+The todo list still shows the old title after I save. Find out why.
+```
 
-### How agent debugging works
+With Data Client's [skills](./agent-skills.md) set up, it finds the cause in the store instead of guessing from code. It
+needs a browser tool that runs JavaScript in the page: Cursor's browser,
+[Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp),
+[Playwright MCP](https://github.com/microsoft/playwright-mcp) or Claude in Chrome.
 
-In dev mode, [DevToolsManager](../api/DevToolsManager.md) exposes live `Controller` instances so an agent can inspect
-cache state, endpoint metadata, and dispatched actions directly from the running app.
+If debugging doesn't work with your agent or browser tool, [open an issue](https://github.com/reactive/data-client/issues/new?template=bug_report.md&title=Agent%20debugging%3A%20)
+naming both so we can support it. Or have your agent write it:
 
-Technically, those controllers are stored on [`globalThis.__DC_CONTROLLERS__`](../api/DevToolsManager.md#controllers), which is a
-browser-global `Map`. You can think of it as a temporary dev-mode registry that lets tools
-and agents look up the active :react[`DataProvider`]:vue[`DataClientPlugin`] stores for the current page.
+```prompt
+Debugging this app through globalThis.__DC__ didn't work with you and your browser tool. Search reactive/data-client issues for one about this pair; if there's none, draft a bug report from its .github/ISSUE_TEMPLATE/bug_report.md titled "Agent debugging: <agent> + <browser tool>" with both names and versions, the app's @data-client versions, whether globalThis.__DC__ was defined, what you ran and the exact error, and no app data or secrets. Show me the draft before filing it with gh issue create.
+```
 
-At a high level, the agent can:
+</SiteOnly>
 
-- discover the active :react[`DataProvider`]:vue[`DataClientPlugin`] controllers
-- read normalized or denormalized cache state
-- inspect recent fetches, responses, errors, and invalidations
-- correlate store changes with browser network activity
-- trigger safe controller operations like invalidation or expiration for investigation
+<AgentOnly>
 
-This is useful when you want a quick answer to questions like "why didn't this refetch?",
-"what is in the cache right now?", or "which action updated this entity?" without manually
-clicking through each inspector panel.
+<DevtoolsDebugging />
 
-The skill drives this through [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp).
+## Manual debugging
+
+If the user wants to inspect the store themselves, send them to the Redux DevTools extension steps at
+:react[https://dataclient.io/docs/getting-started/debugging#manual-debugging]:vue[https://dataclient.io/vue/getting-started/debugging#manual-debugging].
+
+</AgentOnly>
+
+<SiteOnly>
 
 ## Manual debugging
 
@@ -183,3 +193,5 @@ app.mount('#app');
 ```
 
 :::
+
+</SiteOnly>

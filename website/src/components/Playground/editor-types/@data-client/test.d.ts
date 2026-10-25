@@ -1,112 +1,11 @@
+import { MockProps, Fixture, Interceptor } from '@data-client/core/mock';
+export { ErrorFixture, ErrorFixtureEndpoint, Fixture, FixtureEndpoint, Interceptor, SuccessFixture, SuccessFixtureEndpoint, mockInitialState } from '@data-client/core/mock';
 import React from 'react';
-import { EndpointInterface, ResolveType, Manager, State, GCInterface, Controller } from '@data-client/react';
+import { Manager, State, GCInterface, Controller } from '@data-client/react';
 import * as _testing_library_react from '@testing-library/react';
 import { Queries, RenderOptions, waitForOptions } from '@testing-library/react';
 import { queries } from '@testing-library/dom';
 import * as ReactDOMClient from 'react-dom/client';
-export { mockInitialState } from '@data-client/core/mock';
-
-type Updater = (result: any, ...args: any) => Record<string, (...args: any) => any>;
-interface SuccessFixtureEndpoint<E extends EndpointInterface & {
-    update?: Updater;
-} = EndpointInterface> {
-    readonly endpoint: E;
-    readonly args: Readonly<Parameters<E>>;
-    readonly response: ResolveType<E> | ((...args: Parameters<E>) => ResolveType<E>);
-    readonly error?: false;
-    /** Number of miliseconds to wait before resolving */
-    readonly delay?: number;
-    /** Waits to run `response()` after `delay` time */
-    readonly delayCollapse?: boolean;
-}
-interface ResponseInterceptor<T = any, E extends EndpointInterface & {
-    update?: Updater;
-    testKey(key: string): boolean;
-} = EndpointInterface & {
-    testKey(key: string): boolean;
-}> {
-    readonly endpoint: E;
-    response(this: T, ...args: Parameters<E>): ResolveType<E>;
-    /** Number of miliseconds (or function that returns) to wait before resolving */
-    readonly delay?: number | ((...args: Parameters<E>) => number);
-    /** Waits to run `response()` after `delay` time */
-    readonly delayCollapse?: boolean;
-}
-interface FetchInterceptor<T = any, E extends EndpointInterface & {
-    update?: Updater;
-    testKey(key: string): boolean;
-    fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
-    extend(options: any): any;
-} = EndpointInterface & {
-    testKey(key: string): boolean;
-    fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
-    extend(options: any): any;
-}> {
-    readonly endpoint: E;
-    fetchResponse(this: T, input: RequestInfo, init: RequestInit): ResolveType<E>;
-    /** Number of miliseconds (or function that returns) to wait before resolving */
-    readonly delay?: number | ((...args: Parameters<E>) => number);
-    /** Waits to run `response()` after `delay` time */
-    readonly delayCollapse?: boolean;
-}
-/** Interceptors match and compute dynamic responses based on args
- *
- * @see https://dataclient.io/docs/api/Fixtures#interceptor
- */
-type Interceptor<T = any, E extends EndpointInterface & {
-    update?: Updater;
-    testKey(key: string): boolean;
-    fetchResponse?(input: RequestInfo, init: RequestInit): Promise<Response>;
-    extend?(options: any): any;
-} = EndpointInterface & {
-    testKey(key: string): boolean;
-    fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
-    extend(options: any): any;
-}> = ResponseInterceptor<T, E> | (E extends ({
-    fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
-    extend(options: any): any;
-}) ? FetchInterceptor<T, E> : never);
-interface ErrorFixtureEndpoint<E extends EndpointInterface & {
-    update?: Updater;
-} = EndpointInterface> {
-    readonly endpoint: E;
-    readonly args: Readonly<Parameters<E>>;
-    readonly response: any;
-    readonly error: true;
-    /** Number of miliseconds to wait before resolving */
-    readonly delay?: number;
-    /** Waits to run `response()` after `delay` time */
-    readonly delayCollapse?: boolean;
-}
-type FixtureEndpoint<E extends EndpointInterface & {
-    update?: Updater;
-} = EndpointInterface> = SuccessFixtureEndpoint<E> | ErrorFixtureEndpoint<E>;
-/** Represents a successful response
- *
- * @see https://dataclient.io/docs/api/Fixtures#successfixture
- */
-type SuccessFixture<E extends EndpointInterface & {
-    update?: Updater;
-} = EndpointInterface> = SuccessFixtureEndpoint<E>;
-/** Represents a failed/errored response
- *
- * @see https://dataclient.io/docs/api/Fixtures#errorfixtures
- */
-type ErrorFixture<E extends EndpointInterface & {
-    update?: Updater;
-} = EndpointInterface> = ErrorFixtureEndpoint<E>;
-/** Represents a static response
- *
- * @see https://dataclient.io/docs/api/Fixtures
- */
-type Fixture<E extends EndpointInterface & {
-    update?: Updater;
-} = EndpointInterface> = FixtureEndpoint<E>;
-
-interface MockProps<T = any> {
-    readonly fixtures?: (Fixture | Interceptor<T>)[];
-    getInitialInterceptorData?: () => T;
-}
 
 interface MockResolverProps<T> extends MockProps<T> {
     children: React.ReactNode;
@@ -201,4 +100,4 @@ declare const renderDataHook: RenderDataHook;
 declare const act: ActType;
 declare const renderHook: RenderHook;
 
-export { type DataProviderProps, type ErrorFixture, type ErrorFixtureEndpoint, type Fixture, type FixtureEndpoint, type Interceptor, MockResolver, type RenderDataHook, type RenderDataHookResult, type RenderHookOptions, type SuccessFixture, type SuccessFixtureEndpoint, act, makeRenderDataHook as makeRenderDataClient, makeRenderDataHook, renderDataHook, renderHook };
+export { type DataProviderProps, MockResolver, type RenderDataHook, type RenderDataHookResult, type RenderHookOptions, act, makeRenderDataHook as makeRenderDataClient, makeRenderDataHook, renderDataHook, renderHook };

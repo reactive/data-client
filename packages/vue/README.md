@@ -24,7 +24,7 @@ Schema driven. Zero updater functions.
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-cc785c?style=flat-square&logo=claude&logoColor=white)](https://skills.sh/reactive/data-client)
 [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
 
-**[📖Read The Docs](https://dataclient.io/vue)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/vue/getting-started/agent-skills) &nbsp;|&nbsp; [🤖Agent Skills](https://skills.sh/reactive/data-client) &nbsp;|&nbsp; [🎮Todo Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/vue-todo-app?file=src%2Fcomponents%2FTodoListContent.vue)
+**[📖Read The Docs](https://dataclient.io/vue)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/vue/getting-started/installation) &nbsp;|&nbsp; [🤖Agent Skills](https://skills.sh/reactive/data-client) &nbsp;|&nbsp; [🎮Todo Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/vue-todo-app?file=src%2Fcomponents%2FTodoListContent.vue)
 
 </div>
 
@@ -46,17 +46,60 @@ app.use(DataClientPlugin);
 app.mount('#app');
 ```
 
-For more details, see [the Getting Started docs page](https://dataclient.io/vue/getting-started/installation).
+### Set up with your coding agent (recommended)
 
-### Skills
+Or skip the steps above and paste this into your coding agent's chat. It installs Data Client's setup skill, which adds the packages, wires up the provider and links the skills they ship:
 
-```bash
-npx skills add reactive/data-client
+```prompt
+Set up `@data-client/vue` and use it for all API data. Install its setup skill first: `npx skills add reactive/data-client --skill data-client-setup -y`, then follow it.
 ```
 
-Then run [skill](https://agentskills.io) "data-client-setup"
+<details>
+<summary>Or use the Claude Code, Cursor or Codex plugin</summary>
 
-Skills also ship inside each `@data-client/*` package; load them with [TanStack Intent](https://tanstack.com/intent) (`npx @tanstack/intent@latest install`).
+More on each in [Installation](https://dataclient.io/vue/getting-started/installation#agent-setup).
+
+**Claude Code:** in a terminal at the project root:
+
+```bash
+claude plugin marketplace add reactive/data-client --scope project \
+  --sparse .claude-plugin .agents/skills
+claude plugin install data-client@data-client --scope project
+```
+
+Then in Claude Code's chat:
+
+```prompt
+/data-client:data-client-setup Set up `@data-client/vue` and use it for all API data
+```
+
+**Cursor:** in Cursor's agent chat:
+
+```prompt
+/add-plugin data-client@https://github.com/reactive/data-client
+```
+
+Then, in a new chat:
+
+```prompt
+/data-client-setup Set up `@data-client/vue` and use it for all API data
+```
+
+**Codex:** in a terminal:
+
+```bash
+codex plugin marketplace add reactive/data-client \
+  --sparse .claude-plugin --sparse .agents/skills
+codex plugin add data-client@data-client
+```
+
+Then in Codex's chat:
+
+```prompt
+$data-client:data-client-setup Set up `@data-client/vue` and use it for all API data
+```
+
+</details>
 
 ## Usage
 
@@ -301,7 +344,7 @@ it('useSuspense() resolves an article', async () => {
 
 ### ...all typed ...fast ...and consistent
 
-For the small price of 9kb gzipped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/vue/getting-started/agent-skills)
+For the small price of 9kb gzipped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/vue/getting-started/installation)
 
 ## Features
 

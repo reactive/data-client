@@ -6,6 +6,7 @@ description: React 中高性能、全局一致的数据管理
 ---
 
 import Installation from '../shared/\_installation.mdx';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import StateType from '../shared/_state_type.mdx';
 import GCPolicyOptions from '../shared/_gc_policy.mdx';
 import Tabs from '@theme/Tabs';
@@ -110,7 +111,7 @@ const RealApp = (
 
 ### devButton {#devbutton}
 
-<img src="/img/client-logo.svg" style={{float:'right',width:'40px'}} />
+<img src={useBaseUrl('/img/client-logo.svg')} style={{float:'right',width:'40px'}} />
 
 在开发环境中会出现一个小按钮，如果已安装[浏览器 DevTools](../getting-started/debugging.md)，
 可以通过它快速打开。此选项用于配置按钮显示的位置，设为 null 则完全禁用它。

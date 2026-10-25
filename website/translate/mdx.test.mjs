@@ -4,9 +4,11 @@ import { describe, it } from 'node:test';
 
 import {
   TranslationError,
+  dataProblems,
   headingIds,
   pinHeadingIds,
   structureProblems,
+  syntaxProblems,
 } from './mdx.mjs';
 
 const require = createRequire(import.meta.url);
@@ -104,6 +106,22 @@ describe('structureProblems', () => {
     });
   }
 
+  it('flags a blank front matter title, unless English is blank too', () => {
+    assert.deepEqual(
+      structureProblems(
+        source,
+        translated.replace(/^title: .*$/m, "title: ''"),
+        FILE,
+      ),
+      ['front matter `title`: translate it, as text'],
+    );
+    const blank = "---\ndescription: ''\n---\n\nUn consejo.\n";
+    assert.deepEqual(
+      structureProblems(blank, blank.replace('Un', 'One'), FILE),
+      [],
+    );
+  });
+
   it('flags a sentence left in English, not a short name', () => {
     const english =
       '## Data Client\n\nRead the guide before you start.\n\n## Install it now please {#install}\n\n## process(input, parent, key, args): boolean\n';
@@ -133,6 +151,98 @@ describe('structureProblems', () => {
       FILE,
     );
     assert.match(problem, /invalid MDX/);
+  });
+});
+
+describe('dataProblems', () => {
+  const tags = `releases:
+  label: 'Releases'
+  description: 'New versions of Reactive Data Client'
+  permalink: /releases
+`;
+  const fields = ['label', 'description'];
+
+  it('accepts translated labels and descriptions', () => {
+    assert.deepEqual(
+      dataProblems(
+        tags,
+        `releases:
+  label: 'Versiones'
+  description: 'Nuevas versiones de Reactive Data Client'
+  permalink: /releases
+`,
+        fields,
+      ),
+      [],
+    );
+  });
+
+  it('flags changed keys and other values, and a sentence left in English', () => {
+    assert.deepEqual(
+      dataProblems(
+        tags,
+        `release:
+  label: 'Versiones'
+`,
+        fields,
+      ),
+      ['key `releases` added or removed', 'key `release` added or removed'],
+    );
+    assert.deepEqual(
+      dataProblems(
+        tags,
+        `releases:
+  label: ''
+  description: 'New versions of Reactive Data Client'
+  permalink: /versiones
+`,
+        fields,
+      ),
+      [
+        '`releases.label`: translate it, as text',
+        '`releases.description` not translated: New versions of Reactive Data Client',
+        '`releases.permalink` must stay "/releases"',
+      ],
+    );
+  });
+
+  it('allows only the fields of an entry to change', () => {
+    assert.deepEqual(
+      dataProblems(
+        'a:\n  label: x\n  nested:\n    label: y\n',
+        'a:\n  label: z\n  nested:\n    label: w\n',
+        fields,
+      ),
+      ['`a.nested.label` must stay "y"'],
+    );
+  });
+
+  it('compares an empty file as an empty mapping', () => {
+    assert.deepEqual(dataProblems('', '', fields), []);
+    assert.deepEqual(dataProblems('', 'a:\n  label: x\n', fields), [
+      'key `a` added or removed',
+    ]);
+  });
+
+  it('flags YAML that no longer parses', () => {
+    assert.match(
+      dataProblems(tags, "releases:\n  label: 'Versiones\n", fields)[0],
+      /^invalid YAML/,
+    );
+  });
+});
+
+describe('syntaxProblems', () => {
+  it('parses .yml as YAML and other files as MDX', () => {
+    assert.match(
+      syntaxProblems("label: 'x\n", '/website/blog/tags.yml')[0],
+      /^invalid YAML/,
+    );
+    assert.deepEqual(
+      syntaxProblems('label: x\n', '/website/blog/tags.yml'),
+      [],
+    );
+    assert.notEqual(syntaxProblems('<div>\n', FILE).length, 0);
   });
 });
 

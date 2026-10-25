@@ -1,28 +1,26 @@
 #!/usr/bin/env node
 // Copies the agent skills a package owns from .agents/skills into its
 // `skills/` folder at pack time, so they publish with the version they
-// describe; TanStack Intent (`npx intent install`) finds them there.
-// Each skill ships once, in a package every app that needs it installs.
+// describe; `data-client-skills` links them into a project's .agents/skills,
+// and TanStack Intent finds them there too.
+// Each skill ships once, in a package every app that needs it installs
+// (.agents/skill-packages.json). Packages with the `data-client-skills`
+// command also get its code.
 //
 // Usage (from a package's prepack): node ../../scripts/pack-skills.mjs
-//        node scripts/pack-skills.mjs --check   (every published skill ships once and exists)
+//        node scripts/pack-skills.mjs --check   (every library skill ships once and exists, and the command copies match)
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SKILLS = path.join(root, '.agents/skills');
+const AGENTS = path.join(root, 'packages/core/agents');
+const BIN = 'bin/data-client-skills.mjs';
 
-const owners = {
-  '@data-client/core': ['data-client-setup', 'data-client-manager'],
-  '@data-client/endpoint': [
-    'data-client-schema',
-    'data-client-v0.18-migration',
-  ],
-  '@data-client/rest': ['data-client-rest', 'path-to-regexp-v8-migration'],
-  '@data-client/react': ['data-client-react', 'data-client-react-testing'],
-  '@data-client/vue': ['data-client-vue', 'data-client-vue-testing'],
-};
+const owners = JSON.parse(
+  fs.readFileSync(path.join(root, '.agents/skill-packages.json'), 'utf8'),
+);
 // repo tooling, not part of the published copy
 const skip = new Set(['evals', 'references.json']);
 
@@ -35,12 +33,16 @@ if (process.argv.includes('--check')) {
         (JSON.parse(fs.readFileSync(manifest, 'utf8')).skills ?? [])
       : [];
   });
-  // every skill the Claude Code plugins publish
-  const published = JSON.parse(
-    fs.readFileSync(path.join(root, '.claude-plugin/marketplace.json'), 'utf8'),
-  ).plugins.flatMap(plugin => plugin.skills.map(s => path.basename(s)));
+  // library skills (repo tooling like `changeset` stays out of packages)
+  const library = fs
+    .readdirSync(SKILLS)
+    .filter(s => s.startsWith('data-client') || s.endsWith('-migration'));
+  const reactBin = fs.readFileSync(
+    path.join(root, 'packages/react', BIN),
+    'utf8',
+  );
   const problems = [
-    ...published
+    ...library
       .filter(s => !owned.includes(s) && !bundled.includes(s))
       .map(s => `${s} ships in no package`),
     ...owned
@@ -49,16 +51,37 @@ if (process.argv.includes('--check')) {
     ...owned
       .filter(s => !fs.existsSync(path.join(SKILLS, s, 'SKILL.md')))
       .map(s => `${s} has no SKILL.md`),
+    // each package keeps its own copy of the command, so keep them in step
+    ...fs
+      .readdirSync(path.join(root, 'packages'))
+      .map(pkg => `packages/${pkg}/${BIN}`)
+      .filter(
+        bin =>
+          fs.existsSync(path.join(root, bin)) &&
+          fs.readFileSync(path.join(root, bin), 'utf8') !== reactBin,
+      )
+      .map(bin => `${bin} differs from packages/react/${BIN}`),
   ];
   if (problems.length) {
     console.error(`scripts/pack-skills.mjs:\n  ${problems.join('\n  ')}`);
     process.exit(1);
   }
 } else {
-  const { name } = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+  const { name, bin } = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+  // no package every repo installs: core reaches no endpoint-only repo, and
+  // endpoint no app, so each package with the command ships its own copy
+  const command = !!bin?.['data-client-skills'];
+  if (command) {
+    fs.rmSync('agents', { recursive: true, force: true });
+    fs.cpSync(AGENTS, 'agents', {
+      recursive: true,
+      filter: src => !src.endsWith('.test.mjs'),
+    });
+  }
   fs.rmSync('skills', { recursive: true, force: true });
-  if (!owners[name]) throw new Error(`No skills listed for ${name}`);
-  for (const skill of owners[name])
+  if (!command && !owners[name])
+    throw new Error(`No skills listed for ${name}`);
+  for (const skill of owners[name] ?? [])
     fs.cpSync(path.join(SKILLS, skill), path.join('skills', skill), {
       recursive: true,
       dereference: true,

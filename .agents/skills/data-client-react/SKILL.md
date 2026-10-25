@@ -1,6 +1,6 @@
 ---
 name: data-client-react
-description: Use @data-client/react hooks for data fetching, mutations, and rendering - useSuspense, useFetch, useQuery, useCache, useLive, useDLE, useSubscription, useController, DataProvider, AsyncBoundary, useLoading, useDebounce. Use when reading/rendering remote data, triggering mutations, doing optimistic updates, real-time subscriptions, or wiring Suspense/error boundaries in React.
+description: Read, change and render async and shared state in React with @data-client/react: any data from an API or other async source, and global state shared across components (it has to persist somewhere, which makes it async). Use it for loading and error states, mutations and forms, filtered or derived views, and debugging data that looks wrong or stale on screen. Use it in place of fetch in useEffect, or app-wide useState and context; its main hooks are useSuspense, useQuery and useController.
 license: Apache 2.0
 ---
 ## Rendering
@@ -126,13 +126,12 @@ const todosByUser = useQuery(groupTodoByUser);
 
 ---
 
-## Browser Debugging (Chrome DevTools MCP)
+## Debugging wrong or stale data in a running app
 
-When debugging a running app with a browser MCP (`user-chrome-devtools`), such as data that never
-appears, reverts, or refetches too often, read [devtools-debugging](references/devtools-debugging.md)
-before probing: its "Where to Start" table maps symptoms to the state and
-[actions](references/Actions.md) to check. Dev mode only: start with its debug shim, which every other
-snippet there depends on.
+When the running app shows the wrong data, inspect the page's store before reading code for the cause. In dev mode,
+`__DC__.controller` is the page's Controller and `__DC__.actions` its recent [actions](references/Actions.md), reachable
+from any browser tool that runs JavaScript in the page. [devtools-debugging](references/devtools-debugging.md) maps
+symptoms to what to check and links the setup for your browser tool.
 
 ## Managers
 
@@ -169,6 +168,7 @@ For detailed API documentation, see the [references](references/) directory:
 - [data-dependency](references/data-dependency.md) - Rendering guide
 - [mutations](references/mutations.md);[_VoteDemo.md](references/_VoteDemo.md) - Mutations guide
 - [Actions](references/Actions.md) - Store action types (FETCH, SET, etc.)
-- [devtools-debugging](references/devtools-debugging.md) - Debug with Chrome DevTools MCP
+- [devtools-debugging](references/devtools-debugging.md) - Debug the running app from a browser tool
+- [browser-cursor.md](references/browser-cursor.md);[browser-chrome-devtools-mcp.md](references/browser-chrome-devtools-mcp.md);[browser-playwright-mcp.md](references/browser-playwright-mcp.md);[browser-claude-in-chrome.md](references/browser-claude-in-chrome.md) - Setup for one browser tool; read only yours
 
 **ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via skill "data-client-schema" definitions.**

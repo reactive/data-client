@@ -1,4 +1,3 @@
-import mockInitialState from './mockState.js';
 export { default as MockResolver } from './MockResolver.js';
 export type {
   FixtureEndpoint,
@@ -8,6 +7,5 @@ export type {
   SuccessFixture,
   ErrorFixture,
   Interceptor,
-} from './fixtureTypes.js';
-
-export { mockInitialState };
+} from '@data-client/react/mock';
+export { mockInitialState } from '@data-client/react/mock';

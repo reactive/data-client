@@ -943,5 +943,37 @@
   },
   "playground.fixtures.delay": {
     "message": "retraso"
+  },
+  "agentPrompt.prompt": {
+    "message": "Usa `@data-client/{framework}` para todo el estado del servidor",
+    "description": "Prompt readers copy into their coding agent. Keep the backticks around package names: they keep each name on one line."
+  },
+  "agentPrompt.copy": {
+    "message": "Copiar el prompt para tu agente de programación",
+    "description": "Tooltip of the agent prompt, which copies itself when clicked"
+  },
+  "agentPrompt.copied": {
+    "message": "Copiado",
+    "description": "Shown for a moment after the agent prompt is copied"
+  },
+  "agentPrompt.title": {
+    "message": "Chat del agente",
+    "description": "Header of text readers type into their coding agent, not a terminal"
+  },
+  "agentPrompt.titleFor": {
+    "message": "Chat del agente de {agent}",
+    "description": "Header of text readers type into one coding agent (like Cursor), not a terminal"
+  },
+  "agentPrompt.copyFor": {
+    "message": "Copiar el prompt para {agent}",
+    "description": "Tooltip of an agent prompt only one coding agent (like Cursor) understands, which copies itself when clicked"
+  },
+  "theme.CodeBlock.terminal": {
+    "message": "Ejecútalo en tu terminal",
+    "description": "Tooltip of code blocks holding shell commands, which start with $"
+  },
+  "theme.CodeBlock.terminalTitle": {
+    "message": "Terminal",
+    "description": "Header of framed code blocks of shell commands"
   }
 }

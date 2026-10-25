@@ -127,7 +127,7 @@ export const getTodo = new RestEndpoint({
 export const updateTodo = getTodo.extend({ method: 'PUT' });
 ```
 
-Using a [Schema](./schema.vue.md) enables [automatic data consistency](https://dataclient.io/vue/concepts/normalization) without the need to hurt performance with [refetching](https://dataclient.io/vue/api/Controller#expireAll).
+Using a [Schema](https://dataclient.io/rest/api/schema) enables [automatic data consistency](https://dataclient.io/vue/concepts/normalization) without the need to hurt performance with [refetching](https://dataclient.io/vue/api/Controller#expireAll).
 
 ### Typing
 
@@ -564,7 +564,7 @@ updateSite({ slug: 'cool' }, { url: '/' });
 ### paginationField
 
 If specified, will add [getPage](#getpage) method on the `RestEndpoint`. [Pagination guide](./pagination.vue.md). Schema
-must also contain a [Collection](./Collection.vue.md).
+must also contain a [Collection](https://dataclient.io/rest/api/Collection).
 
 ### urlPrefix: string = '' {#urlPrefix}
 
@@ -834,12 +834,12 @@ const getUserWithId = getUser.extend({
 
 ### schema?: Schema {#schema}
 
-[Declarative data lifecycle](./schema.vue.md)
+[Declarative data lifecycle](https://dataclient.io/rest/api/schema)
 
-- Global data consistency and performance with [DRY](https://www.plutora.com/blog/understanding-the-dry-dont-repeat-yourself-principle) state: [where](./schema.vue.md) to expect [Entities](./Entity.vue.md)
+- Global data consistency and performance with [DRY](https://www.plutora.com/blog/understanding-the-dry-dont-repeat-yourself-principle) state: [where](https://dataclient.io/rest/api/schema) to expect [Entities](https://dataclient.io/rest/api/Entity)
 - Functions to [deserialize fields](./network-transform.vue.md#deserializing-fields)
-- [Race condition handling](./Entity.vue.md#shouldreorder)
-- [Validation](./Entity.vue.md#validate)
+- [Race condition handling](https://dataclient.io/rest/api/Entity#shouldreorder)
+- [Validation](https://dataclient.io/rest/api/Entity#validate)
 
 ```tsx
 import { Entity, RestEndpoint } from '@data-client/rest';
@@ -912,8 +912,8 @@ from this function was a succesful network response. When the actual fetch compl
 of failure or success), the optimistic update will be replaced with the actual network response.
 
 `expectedResponse` is normalized with the endpoint's [schema](#schema), so TypeScript checks it like a
-[Controller.set()](https://dataclient.io/vue/api/Controller#set) value: an [Entity](./Entity.vue.md) takes any of its fields, and a
-[Collection](./Collection.vue.md) takes a list of them. When the endpoint resolves a specific type, like the return
+[Controller.set()](https://dataclient.io/vue/api/Controller#set) value: an [Entity](https://dataclient.io/rest/api/Entity) takes any of its fields, and a
+[Collection](https://dataclient.io/rest/api/Collection) takes a list of them. When the endpoint resolves a specific type, like the return
 of [process()](./RestEndpoint.vue.md#process), it must match that type instead.
 
 ```ts title="Post"
@@ -1050,7 +1050,7 @@ export const PostResource = resource({
 
 > **Tip**
 >
-> Try using [Collections](./Collection.vue.md) instead.
+> Try using [Collections](https://dataclient.io/rest/api/Collection) instead.
 >
 > They are much easier to use and more robust!
 
@@ -1131,14 +1131,14 @@ const UserDetailNormalized = getUser.extend({
 
 ## Specialized extenders
 
-These convenience accessors create new endpoints for common [Collection](./Collection.vue.md) operations.
-They only work when the `RestEndpoint`'s schema contains a [Collection](./Collection.vue.md).
+These convenience accessors create new endpoints for common [Collection](https://dataclient.io/rest/api/Collection) operations.
+They only work when the `RestEndpoint`'s schema contains a [Collection](https://dataclient.io/rest/api/Collection).
 
 ### push
 
-Creates a POST endpoint that places newly created Entities at the _end_ of a [Collection](./Collection.vue.md).
+Creates a POST endpoint that places newly created Entities at the _end_ of a [Collection](https://dataclient.io/rest/api/Collection).
 
-Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.push](./Collection.vue.md#push)
+Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.push](https://dataclient.io/rest/api/Collection#push)
 
 ```tsx
 import { RestEndpoint, Collection } from '@data-client/rest';
@@ -1189,9 +1189,9 @@ const [ana, bo] = await ctrl.fetch(
 
 ### unshift
 
-Creates a POST endpoint that places newly created Entities at the _start_ of a [Collection](./Collection.vue.md).
+Creates a POST endpoint that places newly created Entities at the _start_ of a [Collection](https://dataclient.io/rest/api/Collection).
 
-Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.unshift](./Collection.vue.md#unshift)
+Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.unshift](https://dataclient.io/rest/api/Collection#unshift)
 
 ```tsx
 import { RestEndpoint, Collection } from '@data-client/rest';
@@ -1234,9 +1234,9 @@ const newUser = await ctrl.fetch(
 
 ### assign
 
-Creates a POST endpoint that merges Entities into a [Values](https://dataclient.io/rest/api/Values) [Collection](./Collection.vue.md).
+Creates a POST endpoint that merges Entities into a [Values](https://dataclient.io/rest/api/Values) [Collection](https://dataclient.io/rest/api/Collection).
 
-Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.assign](./Collection.vue.md#assign)
+Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.assign](https://dataclient.io/rest/api/Collection#assign)
 
 ```tsx
 import { RestEndpoint, Collection, Values } from '@data-client/rest';
@@ -1281,9 +1281,9 @@ await ctrl.fetch(StatsResource.getList.assign, {
 
 ### remove
 
-Creates a PATCH endpoint that removes Entities from a [Collection](./Collection.vue.md) and updates them with the response.
+Creates a PATCH endpoint that removes Entities from a [Collection](https://dataclient.io/rest/api/Collection) and updates them with the response.
 
-Returns a new RestEndpoint with [method](#method): 'PATCH' and schema: [Collection.remove](./Collection.vue.md#remove)
+Returns a new RestEndpoint with [method](#method): 'PATCH' and schema: [Collection.remove](https://dataclient.io/rest/api/Collection#remove)
 
 ```tsx
 import { RestEndpoint, Collection } from '@data-client/rest';
@@ -1330,11 +1330,11 @@ const deleteAndRemove = MyResource.delete.extend({
 
 ### move
 
-Creates a PATCH endpoint that moves Entities between [Collections](./Collection.vue.md). It removes from
+Creates a PATCH endpoint that moves Entities between [Collections](https://dataclient.io/rest/api/Collection). It removes from
 collections matching the entity's existing state and adds to collections matching the new values
 (from the body/last arg).
 
-Returns a new RestEndpoint with [method](#method): 'PATCH' and schema: [Collection.move](./Collection.vue.md#move)
+Returns a new RestEndpoint with [method](#method): 'PATCH' and schema: [Collection.move](https://dataclient.io/rest/api/Collection#move)
 
 ```ts title="TaskResource"
 import { Entity, resource } from '@data-client/rest';
@@ -1416,7 +1416,7 @@ export const TaskResource = resource({
 
 The remove filter is based on the entity's **existing** values in the store.
 The add filter is based on the merged entity values (existing + body).
-This uses the same [createCollectionFilter](./Collection.vue.md#createcollectionfilter) logic as push/remove.
+This uses the same [createCollectionFilter](https://dataclient.io/rest/api/Collection#createcollectionfilter) logic as push/remove.
 
 ```tsx
 import { resource } from '@data-client/rest';
@@ -1440,7 +1440,7 @@ await ctrl.fetch(
 ### getPage
 
 An endpoint to retrieve the next page using [paginationField](#paginationfield) as the searchParameter key. Schema
-must also contain a [Collection](./Collection.vue.md)
+must also contain a [Collection](https://dataclient.io/rest/api/Collection)
 
 ```html
 <script lang="ts">
@@ -1481,7 +1481,7 @@ page, to append to this endpoint. See [Infinite Scrolling Pagination](./paginati
 const getNextPage = getList.paginated('cursor');
 ```
 
-Schema must also contain a [Collection](./Collection.vue.md)
+Schema must also contain a [Collection](https://dataclient.io/rest/api/Collection)
 
 ### paginated(removeCursor) {#paginated-function}
 
@@ -1504,7 +1504,7 @@ const getNextPage = getList.paginated(
 `removeCusor` is a function that takes the arguments sent in fetch of `getNextPage` and returns
 the arguments to update `getList`.
 
-Schema must also contain a [Collection](./Collection.vue.md)
+Schema must also contain a [Collection](https://dataclient.io/rest/api/Collection)
 
 ## Inheritance
 

@@ -1,4 +1,5 @@
 ---
+agent_setup: true
 title: Introducing the Reactive Data Client
 vue_title: Introducing the Reactive Data Client for Vue
 sidebar_label: Introduction
@@ -909,7 +910,7 @@ groupId="Demos"
 
 <div style={{ textAlign: 'center' }}>
 <Link className="button button--secondary" to="/demos">More Demos</Link>&nbsp;
-<Link className="button button--secondary" to="https://skills.sh/reactive/data-client"><img src="/img/anthropic.svg" alt="Agent Skills" style={{
+<Link className="button button--secondary" to="https://skills.sh/reactive/data-client"><img src={useBaseUrl('/img/anthropic.svg')} alt="Agent Skills" style={{
           height: '1em',
           verticalAlign: '-0.125em',
           display: 'inline',

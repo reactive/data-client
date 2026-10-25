@@ -180,26 +180,15 @@
   transform: translateX(12px);
 }
 
-/* what each control does, in a bubble above it; the pad keeps the mouse's
-   path from the control into the bubble hovered */
+/* what each control does, in a bubble above it */
 .note {
-  position: relative;
   display: inline-block;
   max-width: 100%;
 }
 .tip {
-  position: absolute;
-  z-index: 2;
-  bottom: 100%;
-  padding-bottom: 6px;
+  composes: tip from '../tips.module.css';
   width: max-content;
   max-width: min(272px, 100vw - 2rem);
-  opacity: 0;
-  transform: translateY(4px);
-  pointer-events: none;
-  transition:
-    opacity var(--motion-snappy),
-    transform var(--motion-snappy);
 }
 .left .tip {
   left: 0;
@@ -212,40 +201,8 @@
 .right .tip {
   right: 0;
 }
-.bubble {
-  display: block;
-  padding: 0.4rem 0.6rem;
-  border: 1px solid var(--line);
-  border-radius: var(--ifm-global-radius);
-  font-size: 0.8rem;
-  line-height: 1.4;
-  color: var(--ifm-color-emphasis-900);
-  background: var(--ifm-background-surface-color);
-  box-shadow: var(--ifm-global-shadow-md);
-}
-.bubble a {
+.tip a {
   white-space: nowrap;
-}
-/* shown on keyboard focus, while its link has focus, or pinned by a tap */
-.control:focus-visible + .tip,
-.tip:focus-within,
-.open .tip {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-/* and on hover, where there is one; a tap stands in for it on touch */
-@media (hover: hover) {
-  .note:hover .tip {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
-}
-/* after Escape (see useTips); must follow the hover rule it overrides */
-.note.dismissed .tip {
-  opacity: 0;
-  pointer-events: none;
 }
 
 /* the story: store, component and API, drawn small */

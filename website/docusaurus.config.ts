@@ -592,7 +592,7 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     prism: {
-      additionalLanguages: ['bash', /*'diff', */ 'json'],
+      additionalLanguages: ['bash', /*'diff', */ 'json', 'http'],
       theme: prismPalenight,
       darkTheme: prismPalenight,
     },
@@ -672,12 +672,6 @@ const config: Config = {
           position: 'right',
           className: 'header-discord-link',
           'aria-label': 'Discord chat support',
-        },
-        {
-          href: 'https://skills.sh/reactive/data-client',
-          position: 'right',
-          className: 'header-anthropic-link',
-          'aria-label': 'Agent Skills',
         },
         {
           type: 'localeDropdown',

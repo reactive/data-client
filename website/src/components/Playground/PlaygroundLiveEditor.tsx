@@ -1,14 +1,15 @@
+import { usePrismTheme } from '@docusaurus/theme-common';
 import React, { memo } from 'react';
-import { LiveEditor } from 'react-live';
+import { Editor } from 'react-live';
 
-const MemoEditor = memo(LiveEditor);
-
-export default function PlaygroundLiveEditor({
-  onChange,
-  code,
-}: {
-  onChange: (value: string) => void;
+/** react-live's editor in the site's Prism theme */
+function PlaygroundLiveEditor(props: {
   code: string;
+  language: string;
+  onChange?: (value: string) => void;
+  disabled?: boolean;
 }) {
-  return <MemoEditor onChange={onChange} code={code} />;
+  const theme = usePrismTheme();
+  return <Editor theme={theme} {...props} />;
 }
+export default memo(PlaygroundLiveEditor);

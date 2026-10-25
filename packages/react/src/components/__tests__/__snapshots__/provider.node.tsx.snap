@@ -1,8 +1,10 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`<DataProvider /> should warn users about SSR with DataProvider 1`] = `
+exports[`<DataProvider /> should warn once when fetching during SSR 1`] = `
 [
-  "DataProvider from @data-client/react does not update while doing SSR.
+  [
+    "DataProvider from @data-client/react does not update while doing SSR, so data fetched during SSR will not be rendered.
 See https://dataclient.io/docs/guides/ssr.",
+  ],
 ]
 `;

@@ -27,7 +27,6 @@ Header.tsx, TabList.tsx, styles.module.css   shared chrome (also used by HTTP/, 
 liveLabel.ts        "Live Preview" label text (PreviewWrapper, autorun/DemoLabel)
 editor/             code model + editor UI
   codeModel.ts        parse MDX fences/strings into documents; edits
-  EditorShell.tsx     react-live LiveProvider supplying the Prism theme
   EditorSurface.tsx   headers, file tabs, collapse state, per-file TextEditTab
   StaticEditor.tsx    SSR/crawler/loading markup (Prism, not editable)
   InteractiveEditor.tsx  client-only: Monaco, or editable react-live on mobile/bots
@@ -364,6 +363,12 @@ Writing a script:
 - Target Store UI with `in: 'store'`; the default scope is the preview.
   Match `aria-label`s and `data-*` attributes over visible text, which copy
   edits change.
+- The Store opens in the reader's saved view (table or tree), so a script
+  whose targets only one view shows names it: `{ store: 'open', view: 'table' }`
+  for `[data-table]` rows. Like the open itself, it isn't saved, and it holds
+  while the Store stays open, until the reader picks a view
+  (`useStoreOpen`, `store/storeView.ts`): once the demo or the reader closes it, and on
+  replay, the Store shows the reader's view again.
 - A target that doesn't appear within `FIND_TIMEOUT` ends the run, and only
   the console says so (`Playground demo:`). Play every new or edited script
   through in a browser, at a phone width too, where the Store opens above the
