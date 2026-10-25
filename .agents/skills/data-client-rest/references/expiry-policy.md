@@ -73,28 +73,9 @@ import { getUpdated } from './getUpdated';
 export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
-    <div>
-      API time for {id}:{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
-    </div>
-  );
-}
-```
-
-```tsx title="Navigator" layout
-export default function Navigator({ children }) {
-  return (
-    <div>
-      <nav>
-        <Link to="/time/1">First</Link>
-        <Link to="/time/2">Second</Link>
-      </nav>
-      {children}
-      <div>
-        Current Time: <CurrentTime />
-      </div>
+    <div className="listItem">
+      <span className="meta">API time for {id}</span>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
     </div>
   );
 }
@@ -195,28 +176,9 @@ import { getUpdated } from './getUpdated';
 export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
-    <div>
-      API time for {id}:{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
-    </div>
-  );
-}
-```
-
-```tsx title="Navigator" layout
-export default function Navigator({ children }) {
-  return (
-    <div>
-      <nav>
-        <Link to="/time/1">First</Link>
-        <Link to="/time/2">Second</Link>
-      </nav>
-      {children}
-      <div>
-        Current Time: <CurrentTime />
-      </div>
+    <div className="listItem">
+      <span className="meta">API time for {id}</span>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
     </div>
   );
 }
@@ -258,14 +220,15 @@ function ShowTime() {
   const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
   const ctrl = useController();
   return (
-    <div>
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>{' '}
+    <>
+      <div className="listItem">
+        <span className="meta">API time</span>
+        <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
+      </div>
       <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>
         Refresh
       </button>
-    </div>
+    </>
   );
 }
 render(<ShowTime />);
@@ -302,11 +265,9 @@ export default function ShowTime({ id }: { id: string }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
   const ctrl = useController();
   return (
-    <div>
-      <b>{id}</b>{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
+    <div className="listItem">
+      <b>{id}</b>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
     </div>
   );
 }
@@ -314,7 +275,12 @@ export default function ShowTime({ id }: { id: string }) {
 
 ```tsx title="Loading"
 export default function Loading({ id }: { id: string }) {
-  return <div>{id} Loading...</div>;
+  return (
+    <div className="listItem">
+      <b>{id}</b>
+      <span className="skeleton" />
+    </div>
+  );
 }
 ```
 
@@ -339,12 +305,14 @@ function Demo() {
         <ShowTime id="3" />
       </AsyncBoundary>
 
-      <button onClick={() => ctrl.expireAll(lastUpdated)}>
-        Expire All
-      </button>
-      <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>
-        Force Refresh First
-      </button>
+      <div className="buttonGroup">
+        <button onClick={() => ctrl.expireAll(lastUpdated)}>
+          Expire All
+        </button>
+        <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>
+          Force Refresh First
+        </button>
+      </div>
     </div>
   );
 }
@@ -386,11 +354,9 @@ export default function ShowTime({ id }: { id: string }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
   const ctrl = useController();
   return (
-    <div>
-      <b>{id}</b>{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
+    <div className="listItem">
+      <b>{id}</b>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
     </div>
   );
 }
@@ -398,7 +364,12 @@ export default function ShowTime({ id }: { id: string }) {
 
 ```tsx title="Loading"
 export default function Loading({ id }: { id: string }) {
-  return <div>{id} Loading...</div>;
+  return (
+    <div className="listItem">
+      <b>{id}</b>
+      <span className="skeleton" />
+    </div>
+  );
 }
 ```
 
@@ -423,14 +394,16 @@ function Demo() {
         <ShowTime id="3" />
       </AsyncBoundary>
 
-      <button onClick={() => ctrl.invalidateAll(lastUpdated)}>
-        Invalidate All
-      </button>
-      <button
-        onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}
-      >
-        Invalidate First
-      </button>
+      <div className="buttonGroup">
+        <button onClick={() => ctrl.invalidateAll(lastUpdated)}>
+          Invalidate All
+        </button>
+        <button
+          onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}
+        >
+          Invalidate First
+        </button>
+      </div>
     </div>
   );
 }
@@ -468,11 +441,9 @@ import { lastUpdated } from './api/lastUpdated';
 export default function TimePage({ id }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
   return (
-    <div>
-      API time for {id}:{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
+    <div className="listItem">
+      <span className="meta">API time for {id}</span>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
     </div>
   );
 }
@@ -499,31 +470,41 @@ function ShowTime() {
   );
   return (
     <div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
-        <TimePage id="1" />
-      </AsyncBoundary>
-      <div>
-        Current Time: <CurrentTime />
-      </div>
-      <button onClick={handleDelete}>
-        {loadingDelete ? 'loading...' : 'Invalidate'}
-      </button>
-      <button
-        onClick={() =>
-          ctrl.setResponse(
-            deleteLastUpdated,
-            { id: '1' },
-            { id: '1' },
-          )
+      <AsyncBoundary
+        fallback={
+          <div className="listItem">
+            <span className="meta">API time for 1</span>
+            <span className="skeleton" />
+          </div>
         }
       >
-        Invalidate (without fetching DELETE)
-      </button>
-      <button
-        onClick={() => ctrl.set([InvalidateTimedEntity], [{ id: '1' }])}
-      >
-        Invalidate Entity with ctrl.set
-      </button>
+        <TimePage id="1" />
+      </AsyncBoundary>
+      <div className="listItem">
+        <span className="meta">Current time</span>
+        <CurrentTime />
+      </div>
+      <div className="buttonGroup">
+        <button onClick={handleDelete} aria-busy={loadingDelete}>
+          Invalidate
+        </button>
+        <button
+          onClick={() =>
+            ctrl.setResponse(
+              deleteLastUpdated,
+              { id: '1' },
+              { id: '1' },
+            )
+          }
+        >
+          Invalidate (without fetching DELETE)
+        </button>
+        <button
+          onClick={() => ctrl.set([InvalidateTimedEntity], [{ id: '1' }])}
+        >
+          Invalidate Entity with ctrl.set
+        </button>
+      </div>
     </div>
   );
 }

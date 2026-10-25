@@ -381,7 +381,9 @@ export default function PostListLayout({
           Clara
         </label>
         <TextInput defaultValue="New Post" name="title" label="Title" />
-        <button type="submit">{loading ? 'loading...' : 'Push'}</button>
+        <button type="submit" aria-busy={loading}>
+          Push
+        </button>
       </form>
     </div>
   );

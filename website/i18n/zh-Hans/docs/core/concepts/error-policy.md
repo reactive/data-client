@@ -87,11 +87,9 @@ import { lastUpdated } from './api/lastUpdated';
 export default function TimePage({ id }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
   return (
-    <div>
-      API time:{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
+    <div className="listItem">
+      <span className="meta">API time</span>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
     </div>
   );
 }
@@ -116,10 +114,17 @@ function ShowTime() {
   };
   return (
     <div>
-      <Suspense fallback={<Loading />}>
+      <Suspense
+        fallback={
+          <div className="listItem">
+            <span className="meta">API time</span>
+            <span className="skeleton" />
+          </div>
+        }
+      >
         <TimePage id="1" />
       </Suspense>
-      <div>
+      <div className="buttonGroup">
         <button onClick={() => fail(500)}>Fail Soft</button>
         <button onClick={() => fail(400)}>Fail Hard</button>
         <button onClick={() => fail(500, true)}>Invalidate Soft</button>
@@ -146,8 +151,8 @@ render(<ShowTime />);
 </script>
 
 <template>
-  <div>
-    API time:
+  <div class="listItem">
+    <span class="meta">API time</span>
     <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
@@ -180,12 +185,17 @@ render(<ShowTime />);
 
 <template>
   <div>
-    <div v-if="error">{{ error.message }}</div>
+    <ErrorMessage v-if="error" :error="error" />
     <Suspense v-else>
       <TimePage id="1" />
-      <template #fallback><div>loading...</div></template>
+      <template #fallback>
+        <div class="listItem">
+          <span class="meta">API time</span>
+          <span class="skeleton" />
+        </div>
+      </template>
     </Suspense>
-    <div>
+    <div class="buttonGroup">
       <button @click="fail(500)">Fail Soft</button>
       <button @click="fail(400)">Fail Hard</button>
       <button @click="fail(500, true)">Invalidate Soft</button>

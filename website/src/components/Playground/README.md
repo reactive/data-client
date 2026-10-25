@@ -1,355 +1,329 @@
 # Playground
 
-Live, editable code examples for the docs, blog and homepage. Read this before
-changing anything here: most of the complexity exists to keep pages fast,
-indexable and hydration-safe, and those behaviors are easy to drop silently.
+Live, editable code examples for the docs, blog and homepage. Most of the
+complexity here keeps pages fast, indexable and hydration-safe, and each of
+those breaks silently: nothing fails in dev when the Store ships in every
+docs page chunk or a crawler gets an empty frame. Read this before changing
+code under this directory, then run the checks under Verify.
 
-## Entry points
+## Where to change what
 
-| Component                                                                                   | Used by                        | What it renders                         |
-| ------------------------------------------------------------------------------------------- | ------------------------------ | --------------------------------------- |
-| `HooksPlayground` (`../HooksPlayground.tsx`) → `Playground` (`index.tsx`)                   | MDX docs/blog, homepage `Demo` | Editor + live preview + Store inspector |
-| `TypeScriptEditor` (`../TypeScriptEditor.tsx`)                                              | MDX                            | Editor only (`variant="standalone"`)    |
-| `EndpointPlayground` (`../HTTP/EndpointPlayground.tsx`)                                     | MDX                            | Editor + static HTTP request/response   |
-| `DiffEditor` (`../DiffEditor.tsx` → `../DiffEditorChooser.tsx` → `../DiffEditorMonaco.tsx`) | MDX                            | Read-only Monaco diff of two fences     |
-| `Demo/CodeEditor` (`../Demo/CodeEditor.tsx`)                                                | Homepage                       | One `HooksPlayground` per protocol tab  |
+`../HooksPlayground.tsx` (MDX, and the homepage's `../Demo/CodeEditor.tsx`)
+renders `index.tsx`. `../TypeScriptEditor.tsx` and
+`../HTTP/EndpointPlayground.tsx` reuse `editor/EditorSurface.tsx`
+(`variant="standalone"`); `../DiffEditor.tsx` reuses `editor/codeModel.ts`
+and `editor/callouts.ts`.
 
-## Layout
+| Task                                                | Where                                                                                                                                                                   |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Props, layouts, Store placement, hidden handling    | `index.tsx` (`PlaygroundProps` documents each prop)                                                                                                                     |
+| Fence metastring, file list                         | `editor/codeModel.ts`                                                                                                                                                   |
+| Editor chrome: tabs, headers, collapse, SSR markup  | `editor/EditorSurface.tsx`, `editor/StaticEditor.tsx`, `editor/InteractiveEditor.tsx`                                                                                   |
+| Monaco: types, completions, go-to-definition, theme | `monaco/`; `editor-types/` and `monaco/preloadManifest.ts` are generated (see JS delivery)                                                                              |
+| Running the code, scope globals                     | `preview/LivePreview.tsx`, `preview/useCodeManagers.ts`, `preview/transformCode.ts`, `preview/scope.ts`                                                                 |
+| Preview frame, Store open state and motion          | `preview/PreviewWrapper.tsx`, `preview/StoreToggle.tsx`, `preview/StoreInspector.tsx`, `styles.module.css`                                                              |
+| Store inspector UI                                  | `preview/store/`: `StorePanel.tsx` owns navigation (`nav.tsx`), `actionLog.ts` records, `actionGroups.ts` groups, `attribution.ts` names the manager behind each action |
+| Managers the code declares                          | `preview/managers.ts`; [data flow](./managers-data-flow.png) (source `managers-data-flow.svg`)                                                                          |
+| Multi-page demos                                    | `preview/router.tsx`                                                                                                                                                    |
+| Demo markup's look                                  | `DesignSystem/design-system.css` (tokens and skeletons in `base.css`)                                                                                                   |
+| Self-playing demos                                  | `preview/autorun/`                                                                                                                                                      |
+| Mobile and crawler gates                            | `userAgent.ts`                                                                                                                                                          |
+| Docusaurus stubs for tests                          | `testing/` (mapped in the root `jest.config.js`)                                                                                                                        |
 
-```
-index.tsx           Playground: code model, editor/preview ordering, hidden handling
-userAgent.ts        isBot / isMobileOrBot gates
-PlaygroundEditor.tsx  editor entry used by EditorSurface (aliases editor/InteractiveEditor)
-PlaygroundLiveEditor.tsx  editable react-live editor (mobile/bot fallback)
-resources/          sample resources (currently unreferenced; kept for future demos)
-Boundary.tsx        BrowserOnly + Suspense with one fallback for SSR and loading
-Header.tsx, TabList.tsx, styles.module.css   shared chrome (also used by HTTP/, Demo/)
-liveLabel.ts        "Live Preview" label text (PreviewWrapper, autorun/DemoLabel)
-editor/             code model + editor UI
-  codeModel.ts        parse MDX fences/strings into documents; edits
-  EditorSurface.tsx   headers, file tabs, collapse state, per-file TextEditTab
-  StaticEditor.tsx    SSR/crawler/loading markup (Prism, not editable)
-  InteractiveEditor.tsx  client-only: Monaco, or editable react-live on mobile/bots
-  declarations.ts     top-level names each document declares (managers' reload, Store links)
-  openCode.ts         CodeOpenerContext: what the Store can open in the code
-monaco/             everything Monaco-specific
-  setup.ts            side-effect init: CDN loader, hints, compiler options, theme, types
-  typeLibs.ts         raw .d.ts chunks from editor-types/ → addExtraLib
-  navigation.ts       import completions
-  useDefinitionOpener.ts  cross-tab go-to-definition, and `reveal` for Store links, into this editor
-  modelPath.ts        `/<id>/<file>` model URI scheme
-  models.ts           creates a surface's models together so cross-tab imports type-check
-  preloadManifest.ts  GENERATED by website/scripts/generateMonacoPreloads.cjs
-  resourceHints.ts, theme.ts, options.ts, language.ts, useAutoHeight.ts, highlightSelections.ts
-preview/            live execution (loaded lazily, never on the server)
-  LivePreview.tsx     react-live LiveProvider with scope + transformCode
-  Preview.tsx         DataProvider + MockResolver(fixtures) + Store inspector
-  StoreToggle.tsx     Store toggles + open state
-  store/              Store inspector: StorePanel owns navigation (nav.tsx), actionLog.ts
-                      logs dispatches, actionGroups.ts groups them, attribution.ts
-                      says which manager sent or handled each (Pipeline.tsx, ManagerName.tsx)
-  autorun/            the `autoRun` demo player (see Auto-run)
-  ...
-editor-types/       .d.ts bundles fed to Monaco (raw-loader)
-DesignSystem/       components injected into preview scope
-```
+`resources/` is referenced by nothing.
 
 ## Invariants
 
-### SSR / SSG and crawlers
+### Hydration and crawlers
 
 - Open files' source is in the static HTML: `TextEditTab` renders
-  `StaticEditor` on the server and during hydration (BrowserOnly fallback).
-  Collapsed/unselected files render nothing until opened, to keep the HTML
-  small, unless the document sets `ssr`: then its plain text is in the HTML,
-  hidden by CSS, for crawlers.
-- The preview renders `PreviewLoading` (empty frame + Store toggle) on the
-  server, while loading, for bots, and while `hidden`.
-- Fixtures render server-side as JSON `CodeBlock`s; function sources and
-  titles wait for `useIsBrowser` (a stringified function differs between
-  server and client bundles).
-- Never branch on `navigator`/user agent during render outside `BrowserOnly`
-  (hydration mismatch). `isBot` is module-level and only read in the
-  `lazy()` factory (and in StackBlitz after intersection); `isMobileOrBot()`
-  is only called inside BrowserOnly or in `monaco/setup.ts`.
+  `StaticEditor` on the server and as the `BrowserOnly` fallback. Collapsed
+  files render nothing (HTML size), unless the element has `ssr` (an element
+  prop, not a metastring; Demo passes it): then their plain text is in the
+  HTML, hidden by CSS, for crawlers.
+- The preview renders `PreviewLoading` (frame, loading page, Store toggle) on
+  the server, while loading, for bots and while `hidden`.
+- Loading goes straight to loaded. The page's first paint, the chunk
+  loading and the app waiting on data all draw `preview/PendingSheet.tsx`,
+  and `PreviewHeaderControls` gives the loading and live headers the same
+  controls, so nothing moves in between. In `row`, the loading page has a
+  fixed height (`--pg-pending-sheet`), so CSS knows where the folder ends
+  before hydration; keep it equal to what `usePreviewGap` then measures.
+- Never branch on `navigator` or the user agent during render outside
+  `BrowserOnly`: both gates are false on the server, so the markup would
+  mismatch. `isBot` is read only in the `lazy()` factory (and by StackBlitz
+  after intersection); `isMobileOrBot()` only inside `BrowserOnly` or in
+  `monaco/setup.ts`.
+- Fixture function sources wait for `useIsBrowser`: a stringified function
+  differs between the server and browser bundles.
 
-### Incremental JS delivery
+### JS delivery
 
-- `monaco/setup.ts` runs once when the editor chunk evaluates: injects
-  preload/prefetch `<link>`s for the version-matched CDN files, starts
-  `loader.init()` and the type-lib chunk downloads in parallel.
-  `preloadManifest.ts` is generated from the installed `monaco-editor` on
-  install and every docusaurus config load, so it is gitignored and can't go
-  stale.
-- Type libs: one webpack chunk per third-party `.d.ts` (`reactDTS`, …) and a
-  single `dataClientDTS` chunk holding exactly the `DATA_CLIENT_LIBS` entries
-  (check-only editor types such as `vue/test` stay out). Failed fetches
-  degrade to empty libs.
-- Preview code is a lazy chunk (`PreviewWithScope`, prefetched) and
-  `PreviewBlock` a nested lazy chunk (preloaded with its parent). The Store
-  inspector (`preview/StoreInspector.tsx`, `preview/store/`) lives in it.
-  ESLint treats all of `preview/` as lazy: from outside it, only `import()`,
-  `import type`, or an allowlisted eager file (`StoreToggle`,
-  `PreviewWrapper`, `FixturePreview`, which render in SSR and loading states)
-  may be imported, and those files may not statically import the rest.
-  `website/scripts/check-lazy-chunks.mjs` (run by the `website` CI job)
-  backs this up on the build: the Store UI must ship only in `PreviewWithScope`.
-- Docusaurus only shares modules used by half of all pages, so
-  `website/chunks-plugin.js` splits site source used by 2+ pages (the eagerly
-  loaded Playground modules among it) into shared chunks instead of a copy
-  per docs page.
-- Mobile and bots download none of Monaco or the type libs.
+- `preview/` is the lazy `PreviewWithScope` chunk (`PreviewBlock` nested in
+  it, preloaded with its parent). From outside it, import only with
+  `import()`, `import type`, or from a file listed in `EAGER_PREVIEW`
+  (`eslint.config.mjs`); those render in SSR and loading states and may not
+  statically import the rest of `preview/`. ESLint can't see MDX or a
+  `splitChunks` change, so `website/scripts/check-lazy-chunks.mjs` (the
+  `website` GitHub job, after the build) fails when the Store UI ships
+  outside that chunk.
+- `website/chunks-plugin.js` shares site modules used by 2+ pages; Docusaurus
+  alone shares only modules used by half of all pages, so the eager
+  Playground modules would be copied into every docs page chunk.
+- `monaco/setup.ts` runs once when the editor chunk evaluates (resource
+  hints, `loader.init()`, type libs in parallel) and does nothing for mobile
+  or bots, so they download none of Monaco. `monaco/preloadManifest.ts` is
+  generated from the installed `monaco-editor` on install and on every
+  docusaurus config load, and gitignored.
+- Type libs: one chunk per third-party `.d.ts`, one `dataClientDTS` chunk
+  holding exactly `DATA_CLIENT_LIBS` (check-only types like `vue/test` stay
+  out). A failed fetch degrades to an empty lib.
+- `editor-types/` is generated by `yarn copy:websitetypes`; the `regenerate`
+  workflow fails when it is stale. Don't hand-edit it.
 
 ### Mobile and bots
 
-- Mobile: editable react-live editor instead of Monaco; live preview still runs.
-- Bots: same editor fallback; preview stays `PreviewLoading` (never loads
-  `LivePreview`); StackBlitz embeds never load.
-- `DiffEditor` shows a two-`CodeBlock` grid instead of Monaco, with callout
-  markers appended as trailing comments; caption and callout legend are
-  outside the editor, so they render for everyone.
+- Mobile: an editable react-live editor instead of Monaco; the preview runs.
+- Bots: the same editor; the preview stays `PreviewLoading` and StackBlitz
+  embeds never load.
+- `DiffEditor` falls back to two `CodeBlock`s with callout markers appended
+  as comments; caption and callout legend render outside the editor so they
+  are in the HTML whether or not Monaco loads.
 
-### Hidden playgrounds (homepage Demo protocol tabs)
+### Hidden playgrounds (homepage protocol tabs)
 
-- All protocols stay mounted so every protocol's source is in the HTML.
-- `hidden` keeps `StaticEditor` (no Monaco) until first shown, then latches
-  interactive so undo history and go-to-definition survive tab switches.
-- The live preview unmounts while hidden (its store resets).
+All tabs stay mounted so every protocol's source is in the HTML. `hidden`
+keeps `StaticEditor` until first shown, then latches interactive so undo
+history and go-to-definition survive tab switches. The live preview unmounts
+while hidden, so its store resets.
+
+### Layouts
+
+`index.tsx` picks `demo`, else `row`, else stacked. Tests:
+`__tests__/rowLayout.test.tsx`, `__tests__/demoLayout*.test.tsx`.
+
+- Fence metastring: `title`, `path` (quotes optional), `collapsed`, `column`,
+  `route`, `start`, `layout`, `{1-3}` (pre-selected in Monaco) and the
+  `language-*` class. Element props override metastring values (Demo passes
+  them); `defaultTab` overrides `collapsed`.
+- Stacked: every titled file has a header, collapsible when there are several
+  files or fixtures; fixtures list above the editor (the other layouts fold
+  them into the preview header).
+- `row`: files are tabs over the code card (`column` files stack with
+  headers); the preview is a folder beside it (under it below a 720px
+  container width) with the Store on a layer behind it (`.storeHost` >
+  `.storeDrawer`, `StoreTab` as the handle). Open, the drawer slides over the
+  code and its file tabs, which go `inert`. `PreviewWrapper` measures
+  `--pg-preview-gap` so the folder ends at the sheet's foot.
+- `demo`: preview first, full width; the code waits behind the header's Code
+  toggle and takes the result's place (`data-code` on the container). Never
+  code and result together, and never code and Store: the Store toggle over
+  the code brings the result back. The result stays mounted so app state
+  survives; both share `--pg-demo-min` so toggling doesn't move the page.
+  The Code toggle counts as reader input, so it ends an `autoRun`.
 
 ### Editor
 
-- Fence metastring: `title="…"`, `path="…"` (quotes optional), `collapsed`, `column`,
-  `route="…"`, `start="…"` and `layout` (see Router), `{1-3}` highlight ranges (pre-selected in Monaco); `language-*` class. Element props
-  override metastring values (Demo passes them directly). `defaultTab`
-  overrides `collapsed`.
-- `row` layout: non-`column` files are tabs (focus switches tab); `column`
-  files stack with collapsible headers. Stacked layout: every titled file gets a header,
-  collapsible when there are several files or fixtures.
-- Collapsed/unselected files stay mounted (`display: none`), never unmounted:
-  their Monaco models must exist for cross-file types, go-to-definition and
-  to keep edits. Monaco is uncontrolled (`defaultValue`), so re-renders never
-  reset the buffer.
-- After a `monaco-editor` bump, open a multi-file playground after page load
-  (e.g. a second homepage demo tab) whose importing file comes before the
-  file it imports, and check it shows no TS2307 (Cannot find module) marker.
-  `monaco/models.ts` relies on the TS worker answering requests in order,
-  which no test runs against real Monaco.
-- Fixtures are listed above the editor in stacked layout only.
-- Go-to-definition across files: each editor registers an opener for its own
-  model (`monaco/useDefinitionOpener.ts`) that shows its tab, then selects and
-  focuses once the tab is visible (a `display: none` editor can't take focus).
-- Relative import completions list only the other files of the same
-  playground (same model id).
-- Handlers passed to `InteractiveEditor` are referentially stable so unedited
-  tabs skip re-rendering on keystrokes.
-- Height follows Monaco content size and re-measures when a tab is shown.
+- Collapsed files stay mounted (`display: none`), never unmounted: their
+  Monaco models carry cross-file types, go-to-definition and edits. Monaco
+  is uncontrolled (`defaultValue`), so re-renders never reset the buffer.
+- Handlers passed to `InteractiveEditor` are referentially stable
+  (`EditorSurface`), which is what lets `memo` skip unedited tabs on
+  keystrokes; `useDefinitionOpener` reads `onOpen` once.
+- `monaco/models.ts` creates a surface's models in one synchronous pass and
+  relies on the TS worker answering in order. No test runs against real
+  Monaco, so after a `monaco-editor` bump open a multi-file playground after
+  page load (a second homepage tab) whose importing file comes before the
+  file it imports, and check for no TS2307 (Cannot find module) marker.
+- Go-to-definition and Store links (`reveal`) only ask for the tab;
+  selection and focus wait until it is visible, since a `display: none`
+  editor can't take focus. For the same reason `openCode` (`index.tsx`)
+  closes a covering Store in the same render as it hands the line over.
 
-### Preview
+### Running the code
 
-- All documents are concatenated with a `;` between them (so a half-typed
-  statement can't absorb the next document), deferred with `useDeferredValue`,
-  stripped of imports/exports by `transformCode`, and run `noInline`
-  (`render(<App />)`) with `preview/scope.ts` as globals, inside one block so
-  a demo may declare its own `Link` or `Avatar` (react-live passes the scope
-  as parameters, which a `const` or `class` can't redeclare). The documents
-  share that block, so two of them can't declare the same name. Keep
-  `monaco/typeLibs.ts` declarations in sync with the scope: `globalScopeLib()`
-  aliases library exports into `declare global`, and `Array`/`Object` keep
-  their built-in types (they're type-only exports).
-- Each playground gets its own `DataProvider` store (`MockResolver` serves
-  `fixtures`); `memo(Preview)` keeps it from re-rendering on code edits.
-- Store inspector open state persists per `groupId` via tab storage and
-  avoids scroll jumps. In `row` layout it slides over the code from the
-  preview's edge (portaled into a layer `EditorSurface` stacks on the code,
-  which goes `inert`), so the preview stays usable beside it; when the
-  layout stacks it opens upward over the code. It covers the file tabs
-  too, which only pick the file shown. Its toggle is `StoreBadge` in
-  the code's corner (rendered by `index.tsx` with the cover), which stays
-  put as the Store slides under it and names what it brings back (Store,
-  then Code); narrow, the preview header's icon takes over. Over the Store,
-  the header's selected control takes the Store's color so it still joins
-  what is under it.
-  It opens and closes as a drawer (`../motion`: the toggle glides, the panel
-  `Reveal`s); the panel's contents render a frame after it starts moving
-  (`useDeferredValue`).
-- The Store inspector logs every dispatch through
-  `preview/store/actionLog.ts`, which documents its limits and `LogOptions`
-  (the Playground's `actionLog` prop, over `DOCS_LOG` in `index.tsx`: a docs
-  page holds several playgrounds, so each keeps a shorter history than the
-  log's defaults, which suit a devtool for a whole site). Preview.tsx gives each store mount its
-  own `registry.log.connect(history, replacedHistory, skipLogging)` managers. Keep
-  `head` first and `tail` last when adding managers: the tail must see exactly
-  what reaches the store. `usePreviewReset` owns the `history` id: a fresh
-  store (see Reset) starts a new history, a store the retry restores continues
-  its own, and the panel shows only the current one. An action's chips open the
-  store as that action left it (see `Moment` in `preview/store/nav.tsx`).
-- Store inspector navigation (`preview/store/nav.tsx`, all state owned by
-  `StorePanel`):
-  - Two coordinates. The **moment** is a `Step` (`seq` plus `scope`) or
-    `null` for live; `NavStateContext` carries it down with `earlier`,
-    `later` and `current` (the seqs it stands for, which the timeline, list
-    and levels all mark), and children move it only through `set`, `step`
-    and `show`. The **subject** is a stack of levels (table, record, list)
-    with breadcrumbs, Back and Escape.
-  - `scope` says what a moment spans: `request` (the default, and live: the
-    newest request), `group` (a row of several actions was picked) or
-    `action` (a step was picked, shown a level deeper). `unitOf` in
-    `actionGroups.ts` is the one owner of that; `momentEntries` (what Diff
-    shows as one effect, so an optimistic update and its response merge)
-    and `shownGroup` (what names it) build on it.
-  - Every way of moving goes through two pure functions at the moment's
-    depth: `stepAt` (`actionLog.ts`) for ‹ ›, ← →, Before and After, and
-    `pickAt` for a mark picked on a timeline. The surface steps by request
-    (`requestsOf`: each poll of a subscription its own); a level deeper
-    steps every listed action. Live is a place past the last request.
-  - Tabs: **State** (Snapshot, or Diff via `diffModel` and `mergeChanges`,
-    which leaves out rows other actions changed in between) and **Action**
-    (`ActionDetail` over `ActionsLevel`, so Back lists the subject's
-    actions). Both stacks stay mounted while hidden, keeping scroll, pages
-    and filters. The tab and Snapshot/Diff are each Playground's own; table
-    vs tree is shared (`useTabStorage`).
-  - The Action tab's Before/After columns (`ActionStep`) take no height and
-    only the action between them scrolls, so the wheel over the action
-    scrolls it. Stepping moves the action level with the moment
-    (`followMoment`), keeping an action alone a level under its request or
-    row.
-  - A level a chip opened at an action shows that action's store until the
-    moment is set on purpose (`clearAt`).
-  - The action list (`ActionList`, also the scrubber's hover peek
-    `ActionsPane`) shows what `subjectFilter` says touched the subject. Rows
-    render again only when their own group changes: keep `GroupRow`
-    memoized, `subjectFilter`'s result stable and the chips' `Nav` reading
-    the model through a ref. ↑ ↓ read a row's moment from its `data-seq`
-    and `data-scope`.
-  - ← → reach the panel only when the focused element has no use for them
-    (`usesArrows`, or a widget calling `preventDefault`).
-  - Timeline marks are placed as fractions of the track (`--tl-f`), never
-    measured. Under `NARROW_WIDTH` the timeline opens as a sheet over the
-    content. Where no level can open a view (tree view, the peek's chips),
-    `StorePanel` opens it over the top level in the table view.
+- Documents are joined with `\n;\n` (a half-typed statement can't absorb the
+  next file), deferred with `useDeferredValue`, stripped of imports and
+  exports (`transformCode`), wrapped in one `{}` block (so a demo can declare
+  its own `Link` or `Avatar` with `const` or `class`, which a scope parameter
+  would forbid) and run `noInline` with `render(<App />)`. Files share the
+  block, so two can't declare the same name.
+- Scope globals and their types live apart. A design-system export is picked
+  up from `DesignSystem/index.ts` by `preview/scope.ts` and by
+  `website/framework-docs/checkExamples.mjs`; declare its type by hand in
+  `monaco/typeLibs.ts` (`PREVIEW_SCOPE_DECLARATIONS`). Any other global goes
+  in all three. `globalScopeLib()` aliases library exports into
+  `declare global`, skipping `Array` and `Object` so the built-ins keep
+  their types.
+- Each playground has its own `DataProvider` with `MockResolver(fixtures)`;
+  `memo(Preview)` keeps it from re-rendering on code edits, so what reaches
+  it must be stable.
 
-- Router (`preview/router.tsx`): a demo with several pages gives each page's
-  fence a `route` (a path whose `:name` segments are params, `/posts/:id`) and writes no
-  navigation of its own. The page is that file's named default export, and
-  the path's params are its props. When any file has one, `routerTrailer`
-  appends the `render()` (so no file calls it): a router starting at `/` with
-  Back, Home and the current path in the preview's header (so pages need no
-  back links; `PreviewWrapper` gives the header slot through
-  `RouterControlsSlot`, and the router portals into it). Pages move with
-  `<Link to>` and `useNavigate()`, scope globals that stand in for the app's own router, like
-  the design system; Vue pages use `RouterLink` and `vue-router`'s
-  `useRouter()`, and keep the same `route` fences only to name their path
-  (Vue examples don't run).
-  A `layout` fence's default export wraps every page as its `children` and
-  stays mounted through navigation (links shared by every page, a clock to
-  compare against); `<Link>` marks the one to the current path
-  `aria-current="page"`. A `start="/time/1"` on a page's fence opens the router
-  there (and Home returns there) instead of `/`.
-  Navigation is a transition: the page stays until the next one is ready,
-  with a progress bar along the preview's top edge meanwhile, so a page needs
-  no `startTransition` of its own. Pages render in a Suspense boundary whose
-  fallback shows only before the first page is ready.
-  A reset (fresh store) starts again at `/`.
-- `renderCount` wraps the live result in a `<Profiler>` and shows its commit
-  count in the preview header (written to the DOM, so counting adds no commits).
-  `website/profiling-plugin.js` replaces `react-dom/client` with React's
-  profiling build because production builds never call `onRender`; the badge
-  stays hidden if that ever stops working. `website/profiling-loader.js` pins
-  the build's DevTools check off, so only `<Profiler>` subtrees are ever timed
-  (otherwise DevTools users would profile every page).
-- Reset: the header icon and the button under a render error remount the
-  preview with a fresh store (`usePreviewReset`). When a render error follows an
-  edit (e.g. a changed `Entity.key` leaves old data unreadable), the preview
-  retries once with a fresh store and restores the old store if the error
-  persists. It retries again only after the preview has rendered cleanly for a
-  second, so typing through a typo costs at most one retry. Compile and
-  evaluation errors never reset.
-- Managers: code defining `getManagers()` (as passed to `<DataProvider managers>`)
-  sets the store's managers; otherwise `getDefaultManagers()` without DevTools.
-  `ManagerHost` (`preview/managers.ts`) builds and guards them;
-  `useCodeManagers` is LivePreview's only hook into it.
-  [Data flow diagram](./managers-data-flow.png) (source: `managers-data-flow.svg`).
-  - Only editing `getManagers` or a document declaring a name it uses (e.g. its
-    Manager class) changes the managers: the store remounts with its data, so
-    other edits keep sockets open. Code that fails to run keeps the old ones.
-  - A manager that throws shows a "Manager error" card; the preview runs on
-    without that step.
-  - The Store shows which manager sent or handled each action
-    (`preview/store/attribution.ts`). Library managers are matched by exact
-    class, so a playground's subclass counts as its own code.
-  - A manager the code declares links to its declaration (`ManagerName`).
-    Opening one closes a Store covering the code in the same render as it
-    hands the line to the editor (`openCode` in `index.tsx`): an `inert`
-    editor can't take focus, and Monaco may still be loading, so `reveal`
-    waits for both.
-- Errors show in one `ErrorPanel` card (`Playground/ErrorPanel.tsx`) labeled by the stage that failed: amber
-  "Compile error" for react-live's `SyntaxError`s (the code never ran) and red
-  "Runtime error" for anything thrown while running. Demos rely on the reset
-  above to recover rather than encoding their own (e.g. a store-clearing error
-  fallback); say so in the prose next to a demo that needs it.
-- Third-party console noise is demoted only while previews are mounted
-  (`usePlaygroundConsoleDemotion`); never add first-party matchers.
+### Store inspector
+
+- Open state persists per `groupId` (tab storage); closing one Store closes
+  every playground's in the group, and toggling blocks the page's scroll
+  position.
+- Motion invariant: the Store animates only while the reader or a demo moves
+  it. `useStoreOpen` counts those moves, `useStoreMotion` turns them into
+  `data-store-moving` on the container, which alone gives `--pg-store-*`
+  their durations, and the stacked `MotionGroup` keys on the same count.
+  Everything else (the saved choice arriving at hydration, a tab showing the
+  playground, a resize, another Store in the group closing this one) must
+  land without animating. `preview/__tests__/StoreMotion.test.tsx` checks it.
+- Row: `StoreInspector` portals into the drawer (`FolderPanel`, an
+  `<Activity>` hidden once the sweep has shut, so reopening finds the Store
+  as it was left). Other layouts: a `Reveal` beside the result (see
+  `../motion/README.md`); the tree renders a frame after the drawer starts
+  moving (`useDeferredValue`).
+- Log: `Preview.tsx` connects `registry.log` once per store mount with
+  `log.head` first and `log.tail` last. Keep that order when adding
+  managers: the head credits each action to the manager that sent it, the
+  tail must see exactly what reaches the store. `usePreviewReset` owns the
+  `history` id: a fresh store starts a new one, a store the retry restores
+  continues its own. `DOCS_LOG` (`index.tsx`) shortens the log's defaults
+  because a page holds several playgrounds; the `actionLog` prop overrides
+  it per playground.
+- Navigation (`preview/store/nav.tsx`, all state owned by `StorePanel`): the
+  moment (a `Step`, or `null` for live) moves only through `stepAt`
+  (`actionLog.ts`) and `pickAt` (`actionGroups.ts`); `unitOf` is the one
+  owner of what a `scope` spans. Rows render again only when their own group
+  changes: keep `GroupRow` memoized and `subjectFilter`'s result stable.
+  Timeline marks are fractions of the track (`--tl-f`), never measured.
+  ← → reach the panel only when the focused element has no use for them
+  (`usesArrows`).
+
+### Multi-page demos
+
+A fence with `route="/posts/:id"` is a page: its default export, the path's
+params as props. When any file has one, `routerTrailer` appends the
+`render()`, so no file calls it. A `layout` fence wraps every page and stays
+mounted; `start` opens the router somewhere other than `/`. Pages move with
+the scope's `Link` and `useNavigate()`; navigation is already a transition
+with a progress bar, so pages need no `startTransition`. A reset starts over
+at `start`. Vue examples don't run; `checkExamples.mjs` declares
+`RouterLink` and `RouterView` for them.
+
+### Reset and errors
+
+- A render error right after an edit retries once with a fresh store (a
+  changed `Entity.key` leaves old data unreadable); if it persists the old
+  store comes back, and no retry runs until a clean render has held for
+  `HEALTHY_AFTER_MS`, so typing through a typo costs at most one retry.
+  Compile and evaluation errors never reset.
+- `ErrorPanel` names the failed stage: compile (react-live `SyntaxError`, the
+  code never ran), runtime, or manager (the preview runs on without that
+  manager). Demos rely on this reset instead of their own store-clearing
+  fallbacks; say so in the prose beside a demo that needs it.
+- `usePlaygroundConsoleDemotion` demotes only React's recreate-tree report
+  while previews are mounted. Never add matchers for `@data-client/*` or
+  first-party code: fix the source.
+
+### Managers
+
+- `getManagers()` in the code sets the store's managers (otherwise
+  `getDefaultManagers({ devToolsManager: null })`). Only editing the file
+  that defines it, or a file declaring a name it uses, remounts the store
+  with its data; other edits keep sockets open. Code that fails to run keeps
+  the old managers.
+- A kept manager closes over the run that built it, not the UI's latest, so
+  it reaches the UI only through what every run shares: the store, or a
+  design-system module such as `toast`.
+- Attribution matches library managers by exact class, so a playground's
+  subclass counts as its own code and links to its declaration
+  (`ManagerName`).
+
+### renderCount
+
+The badge is a `<Profiler>` commit count written straight to the DOM, so
+counting adds no commits. It depends on `website/profiling-plugin.js`
+swapping `react-dom/client` for React's profiling build (production never
+calls `onRender`) and `website/profiling-loader.js` pinning the DevTools
+check off (otherwise visitors with DevTools would profile every page). The
+badge stays hidden while `onRender` never fires, so a broken swap shows
+nothing rather than a wrong count.
+
+### Design system
+
+`DesignSystem/design-system.css` is scoped to `.playground-preview` and loads
+with the preview; its tokens (`--ds-*`, reading the frame's `--pg-*`) and
+skeletons (`base.css`) load with the Playground, so the first paint shows the
+app's own loading page (`preview/PendingSheet.tsx`). Doc examples use plain
+elements and these classes, never inline styles or style imports, so a look
+changes in one place. Space separates things, not lines: add no borders or
+dividers (only form controls keep an edge). Before restyling a class, grep
+`docs/` and `website/src/components/Demo/code` for the demos using it. Prefer
+a class or element style to a new component.
+
+Elements are styled: `h2` is a page title; plain `button`s (`primary` fills
+one; `aria-busy` traces a pending light), text inputs, `nav`, `fieldset`.
+
+| Class                                      | Use for                                                                          |
+| ------------------------------------------ | -------------------------------------------------------------------------------- |
+| `appHeader` + `appTitle`                   | the app's top bar and wordmark                                                   |
+| `card`                                     | a group (no box: the sheet is the card)                                          |
+| `list`, `listItem` (`nogap`, `spaced`)     | rows; checkbox rows highlight and fade when done                                 |
+| `meta`                                     | secondary text; last in a `listItem`, it sits at the row's end                   |
+| `byline`, `author` (`Avatar` takes `size`) | who wrote something                                                              |
+| `buttonGroup`                              | a row of actions as one segmented control                                        |
+| `cancel` (`<CancelButton />`)              | a row's remove button                                                            |
+| `skeleton`                                 | a value still loading; `<Loading />`, the default fallback, draws a page of them |
+| `toaster`, `toast`                         | notifications: render `<Toaster />`, call `toast.success()` or `toast.error()`   |
+| `boardColumn`                              | a kanban column                                                                  |
+| `voteBlock`, `vote`                        | a vote count with its buttons                                                    |
 
 ### Auto-run
 
-A playground with `autoRun` (a `Step[]`, `preview/autorun/script.ts`) plays it
-by itself, like a video, the first time 60% of its preview (or of the
-viewport, for a taller preview) is in view; never by itself under reduced
-motion. The "Live Preview" label becomes its control (`DemoLabel`): pressing
-it replays the demo from a fresh store and scrolls the preview into view, and
-its red dot pulses while the demo plays.
+A playground with `autoRun` (a `Step[]`, `preview/autorun/script.ts`) plays
+it the first time 60% of its preview (or of the viewport, for a taller
+preview) is in view, never under reduced motion. The "Live Preview" label
+becomes its control (`DemoLabel`): pressing it replays from a fresh store.
+`player.ts` owns timing, `stage.ts` the DOM (locators, untrusted events, the
+pointer), `useAutoRun.ts` connects them to the preview's ref.
 
 Writing a script:
 
-- No captions: the change on screen as the pointer acts is what draws the
-  eye, so pick steps whose effect shows and `wait` while it sinks in.
 - Declare it as a module-level `export const` (like `raceDemo` in
-  `docs/rest/shared/_optimisticTransform.mdx`). "Starts by itself once per
-  page load" is tracked by array identity, so an inline `autoRun={[…]}`
-  plays by itself again whenever the page's framework is switched away and
-  back.
-- Target Store UI with `in: 'store'`; the default scope is the preview.
+  `docs/rest/shared/_optimisticTransform.mdx`): "plays by itself once per
+  page load" is keyed by array identity, so an inline `autoRun={[…]}` plays
+  again whenever the page's framework is switched away and back.
+- Target Store UI with `in: 'store'` (the default scope is the preview).
   Match `aria-label`s and `data-*` attributes over visible text, which copy
   edits change.
-- The Store opens in the reader's saved view (table or tree), so a script
-  whose targets only one view shows names it: `{ store: 'open', view: 'table' }`
-  for `[data-table]` rows. Like the open itself, it isn't saved, and it holds
-  while the Store stays open, until the reader picks a view
-  (`useStoreOpen`, `store/storeView.ts`): once the demo or the reader closes it, and on
-  replay, the Store shows the reader's view again.
-- A target that doesn't appear within `FIND_TIMEOUT` ends the run, and only
-  the console says so (`Playground demo:`). Play every new or edited script
-  through in a browser, at a phone width too, where the Store opens above the
-  preview.
-- Step counts follow the fixtures: `raceDemo` presses Next once per change
-  its clicks make, so changing the fixture means recounting.
+- The Store opens in the reader's saved view, so a script whose targets only
+  one view shows names it: `{ store: 'open', view: 'table' }` for
+  `[data-table]` rows. Neither the open nor the view is saved.
+- A target missing after `FIND_TIMEOUT` ends the run, and only the console
+  says so (`Playground demo:`). Play every new or edited script in a
+  browser, at a phone width too, where the Store opens above the preview.
+- Step counts follow the fixtures (`raceDemo` presses Next once per change
+  its clicks make), so changing a fixture means recounting.
 
-Behavior to keep when changing the code:
+Behavior to keep when changing the player:
 
-- The reader's own input (`isTrusted`) anywhere in the playground, a press, a
-  tap or a key, ends the run for good, since the rest of the script assumes a
-  state the reader just changed; the label starts it over. Scrolling,
-  hovering, a touch that starts a scroll and the demo's own controls
-  (`data-autorun-control`) don't count.
+- The reader's own input (`isTrusted`) anywhere in the playground ends the
+  run for good, since the rest of the script assumes a state they just
+  changed. Scrolling, hovering, a touch that starts a scroll and the demo's
+  own controls (`data-autorun-control`) don't count.
 - It pauses while neither the preview nor the playground is mostly in view,
   or the tab is in the background, so it never scrolls the page back to a
   reader who scrolled past.
-- A `store` step opens or closes the Store through `useStoreOpen`'s `showStore`,
-  without saving it: tab storage keeps the reader's own choice, shared by
-  every playground with the page's `groupId`.
 - It never calls `focus()`, which would take the page's focus from the
-  reader.
-- The player's state reaches React only in `DemoLabel`, so a run never
+  reader, and its state reaches React only in `DemoLabel`, so a run never
   re-renders the playground.
 
-`player.ts` owns timing: a pausable clock, one step at a time, each looking
-its target up again before it acts (renders replace elements). `stage.ts` owns
-the DOM: locators, untrusted events and the pointer. `useAutoRun.ts` connects
-them to the preview's ref.
+## Verify
 
-## Tests
-
-`yarn test --selectProjects ReactDOM --testPathPatterns website/src/components/Playground`
-(CI persists only this directory of the website for these tests, without the
-website's dependencies. `react-live` is also a root devDependency so the
-`PreviewError` test can pin the react-live behavior it relies on.)
+- Unit tests:
+  `yarn test --selectProjects ReactDOM --testPathPatterns website/src/components/Playground`.
+  CI persists only `Playground/`, `motion/` and `utils/` of the website for
+  these, without the website's dependencies; `react-live` is a root
+  devDependency so `PreviewError.test.tsx` can pin the react-live behavior
+  it relies on.
+- Lazy-import rule: `yarn lint website/src/components/Playground`.
+- Chunk check, as the `website` job runs it:
+  `yarn workspace rdc-website build && node website/scripts/check-lazy-chunks.mjs`.
+- Docs examples still type-check against the scope:
+  `yarn workspace rdc-website check:doc-examples`.
+- In a browser: the TS2307 check after a `monaco-editor` bump (Editor), and
+  any changed auto-run script at desktop and phone widths.
