@@ -312,6 +312,34 @@ describe('StorePanel table view', () => {
     expect(crumbs()).toEqual([]);
   });
 
+  it('moves between State and Action with the keyboard', () => {
+    mount();
+    const state = screen.getByRole('tab', { name: 'State' });
+    const actions = screen.getByRole('tab', { name: 'Action' });
+    expect(state.getAttribute('title')).toBe('The store at the moment');
+    state.focus();
+    fireEvent.keyDown(state, { key: 'ArrowRight' });
+    expect(actions.getAttribute('aria-selected')).toBe('true');
+    expect(document.activeElement).toBe(actions);
+    // modified arrows are left to the browser
+    fireEvent.keyDown(actions, { key: 'ArrowLeft', altKey: true });
+    expect(actions.getAttribute('aria-selected')).toBe('true');
+    fireEvent.keyDown(actions, { key: 'Home' });
+    expect(state.getAttribute('aria-selected')).toBe('true');
+    expect(document.activeElement).toBe(state);
+    actions.focus();
+    fireEvent.keyDown(actions, { key: 'Enter' });
+    expect(actions.getAttribute('aria-selected')).toBe('true');
+    // the view switches ride the tab row while State is picked
+    fireEvent.keyDown(actions, { key: 'End' });
+    fireEvent.keyDown(actions, { key: 'ArrowLeft' });
+    expect(
+      screen
+        .getByRole('tablist')
+        .parentElement!.contains(screen.getByLabelText('Tree view')),
+    ).toBe(true);
+  });
+
   it('keeps the levels open across the tree view, without replaying them', () => {
     mount();
     fireEvent.click(top().querySelector('[data-table=Post] tr[data-id]')!);

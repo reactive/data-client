@@ -14,7 +14,7 @@ interface TabItem {
   label: ReactNode;
   title?: string;
   selected: boolean;
-  /** A click, or ← → Home End from the selected tab */
+  /** A click, Enter or Space, or ← → Home End from the selected tab */
   onSelect: () => void;
 }
 
@@ -34,9 +34,12 @@ export default function TabList({
 }) {
   const list = useRef<HTMLDivElement>(null);
   const selected = tabs.findIndex(tab => tab.selected);
-  useFlushEdges(list, selected, tabClassName === undefined);
+  const fileTabs = tabClassName === undefined;
+  useFlushEdges(list, selected, fileTabs);
   // the selected tab is the one in the tab order; the arrows move from it
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    // modified keys keep their own meaning (Alt+← is Back)
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
     let to: number;
     switch (event.key) {
       case 'ArrowRight':
@@ -52,6 +55,15 @@ export default function TabList({
       case 'End':
         to = tabs.length - 1;
         break;
+      // the focused tab, as a click picks it (a picked tab may act again)
+      case 'Enter':
+      case ' ':
+        to = Array.prototype.indexOf.call(
+          event.currentTarget.children,
+          event.target,
+        );
+        if (to < 0) return;
+        break;
       default:
         return;
     }
@@ -62,7 +74,7 @@ export default function TabList({
   return (
     <div
       ref={list}
-      className={tabClassName ? className : clsx(styles.tabs, className)}
+      className={fileTabs ? clsx(styles.tabs, className) : className}
       role="tablist"
       aria-orientation="horizontal"
       aria-label={label}
@@ -77,7 +89,9 @@ export default function TabList({
           title={title}
           onClick={onSelect}
           className={
-            tabClassName ?? clsx(styles.tab, { [styles.selected]: selected })
+            fileTabs ?
+              clsx(styles.tab, { [styles.selected]: selected })
+            : tabClassName
           }
         >
           {label}
