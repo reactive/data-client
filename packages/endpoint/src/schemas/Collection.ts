@@ -111,7 +111,7 @@ export default class CollectionSchema<
         ([key, value]) =>
           this.nonFilterArgumentKeys(key) ||
           // strings are canonical form. See pk() above for value transformation
-          `${args[0][key]}` === value ||
+          `${args[0]?.[key]}` === value ||
           `${args[1]?.[key]}` === value,
       );
   }
