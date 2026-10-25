@@ -6,6 +6,9 @@
  *   a different snapshot. Reports how many reads hit and time per read.
  * - retained memory: heap the memo holds beyond the store itself, after a run
  *   of updates. Entity churn (every row replaced) is the worst case.
+ * - optimistic streak: the settled store is committed, then M optimistic
+ *   updates each render and commit unsettled, then the store settles back.
+ *   Reports how often the settled result is still cached, and heap held.
  * - argsKey buckets: one list read under N different `argsKey` values (a
  *   portfolio app switching between N portfolios), all cached, and the heap
  *   the memo holds for them.
@@ -244,6 +247,46 @@ for (const { name, run } of memoryCases) {
     scenario: name,
     'memo retains': `${(bytes / 1024 / 1024).toFixed(2)} MB`,
   });
+}
+
+// --- optimistic streak ---------------------------------------------------------
+
+const STREAKS = 20;
+for (const flipBack of [false, true]) {
+  for (const m of [1, 3, 8]) {
+    const name = `optimistic streak: ${ROWS}-row list, ${m} unsettled commits${flipBack ? ' and a flip back' : ''}, then the settled store x ${STREAKS}`;
+    if (!want(name)) continue;
+    let hits = 0;
+    const bytes = retained(memo => {
+      const read = state =>
+        memo.denormalize(StockSchema, base.result, state.entities, stockArgs)
+          .data;
+      const settled = read(base);
+      memo.commit(base.entities, true);
+      for (let streak = 0; streak < STREAKS; streak++) {
+        // each optimistic update renders and commits a store with one more
+        // row changed; then they all settle and the store is `base` again
+        const states = snapshots(m + 1).slice(1);
+        // a pending transition rendered between the first two commits; reading
+        // it back moves the flip-back pin off `base`, leaving only the settled pin
+        const pending = flipBack && snapshots(2)[1];
+        if (pending) read(pending);
+        states.forEach((state, i) => {
+          read(state);
+          memo.commit(state.entities, false);
+          if (pending && i === 0) read(pending);
+        });
+        if (read(base) === settled) hits++;
+        memo.commit(base.entities, true);
+      }
+      return base;
+    });
+    rows.push({
+      scenario: name,
+      'hit rate': `${((hits / STREAKS) * 100).toFixed(0)}%`,
+      'memo retains': `${(bytes / 1024 / 1024).toFixed(2)} MB`,
+    });
+  }
 }
 
 // --- argsKey buckets ------------------------------------------------------------
