@@ -6,7 +6,7 @@ alwaysApply: false
 
 # V8 optimization check
 
-When a change touches code that runs per entity, per render or per request (the hot paths the benchmarking rule's scenarios cover) and changes anything V8 optimizes on (object shapes or property order, polymorphic call sites, `try`/`catch`, `arguments`, `delete`, closures or spreads in loops), measure its effect on V8 before and after, then weigh revisions on what you find.
+When a change touches code that runs per entity, per render or per request, measure its effect on V8 before and after, then weigh revisions on what you find. Watch most for what V8 optimizes on: object shapes or property order, polymorphic call sites, `try`/`catch`, `arguments`, `delete`, closures or spreads in loops.
 
 1. **Spawn a fast subagent** to measure: **Haiku** in Claude Code (Agent tool, `model: "haiku"`), **Grok 4.7 Fast** at medium reasoning in Cursor. Give it the changed functions, the base ref, and the benchmark to run.
 2. **It measures both sides** (base and change) for each changed hot function, using the benchmarking rule's profiling scripts (`start:trace`, `start:deopt`) plus the flags below:
@@ -17,5 +17,5 @@ When a change touches code that runs per entity, per render or per request (the 
    - **Throughput**: the relevant benchmark suite (see the benchmarking rule) or a `micro.js` case, same machine, same session.
 
    `examples/benchmark` runs only normalizr, core and endpoint. For `packages/react` and `packages/rest`, use `examples/benchmark-react`: `bench:trace` (`--trace-opt --trace-deopt`) and `bench:deopt` (`--prof`) pass V8 flags to Chromium. `printStatus.js`, `--log-ic`, `--log-maps` and inlining traces aren't wired up there.
-3. **Weigh revisions**: for any new deopt, IC going poly/megamorphic, shape instability or lost inlining, try a revision (stable property order, monomorphic helpers, hoisting `try`/`catch` out of the hot function) and re-measure. Throughput decides. When throughput is flat, keep the better V8 state: benchmarks see fewer shapes than real apps, so a call site gone polymorphic costs more in production than the benchmark shows.
+3. **Weigh revisions**: for any new deopt, IC going poly/megamorphic, shape instability or lost inlining, try a revision (stable property order, monomorphic helpers, hoisting `try`/`catch` out of the hot function) and re-measure. Prefer the version that is no worse on either. If throughput is flat (within the benchmark's run-to-run variance), keep the better V8 state, since benchmarks feed fewer shapes than real apps. Keep a V8 regression only for a measured throughput gain, and name it in the PR.
 4. **Report** the before/after measurements in the PR description.
