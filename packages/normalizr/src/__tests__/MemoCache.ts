@@ -1071,15 +1071,13 @@ describe('MemoCache nested entity dependencies', () => {
   const bob = { id: '2', username: 'bob' };
 
   it.each([
-    ['missing', undefined],
-    ['INVALID', INVALID],
-    ['null', null],
+    ['missing', {}],
+    ['INVALID', { '2': INVALID }],
+    ['null', { '2': null }],
   ])(
     'a %s child is a dependency: the parent recomputes once it is set',
-    (_, child) => {
+    (_, users) => {
       const memo = new MemoCache();
-      const users: Record<string, any> =
-        child === undefined ? {} : { '2': child };
       const first = memo.denormalize(Article, '1', {
         Article: { '1': article },
         User: users,

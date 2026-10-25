@@ -1,5 +1,3 @@
-import { UNDEF } from '../denormalize/UNDEF.js';
-
 /** Function path used by `argsKey` deps. Distinguished from object paths
  * via `typeof === 'function'`. */
 export type KeyFn = (args: readonly any[]) => string | undefined;
@@ -10,16 +8,15 @@ const UNDEF_KEY = '\0';
 
 const valueKeys = new Map<unknown, object>();
 
-/** `WeakMap` key for an entity value: the object or function itself, `UNDEF`
- * for `undefined`, or a stable stand-in for any other value (`null`,
- * `INVALID`). Only those few values get stand-ins, since they're never freed. */
+/** `WeakMap` key for an entity value: the object or function itself, or a
+ * stable stand-in for any other value (`undefined`, `null`, `INVALID`). Only
+ * those few values get stand-ins, since they're never freed. */
 export function depKey(entity: unknown): object {
   if (
     (typeof entity === 'object' && entity !== null) ||
     typeof entity === 'function'
   )
     return entity;
-  if (entity === undefined) return UNDEF;
   let key = valueKeys.get(entity);
   if (!key) {
     key = {};
@@ -58,7 +55,6 @@ export default class WeakDependencyMap<
     if (!curLink) return EMPTY;
     if (this.hasStr) return this._getMixed(curLink, getDependency, args);
     while (curLink.nextPath) {
-      // WeakMap keys must be objects, so other values use a stand-in
       const nextDependency = depKey(getDependency(curLink.nextPath as Path));
       const nextLink = curLink.next.get(nextDependency as any);
       if (!nextLink) return EMPTY;
