@@ -9,7 +9,7 @@ import type ActionLog from './actionLog';
 import type { LogEntry } from './actionLog';
 import { byStage, isLibraryManager } from './attribution';
 import { endpointId, entityId, parseRowId } from './model';
-import type { Scope, View } from './nav';
+import type { Scope, Step, View } from './nav';
 import { isPlainObject, temporalType } from './refs';
 
 /** Each has a color, `--store-kind-<kind>` in store.module.css */
@@ -456,6 +456,26 @@ const sameList = <T>(a: readonly T[], b: readonly T[]) =>
 
 const sameArgs = (fetch: ActionTypes, response: ActionTypes) =>
   'args' in fetch && 'args' in response && equal(fetch.args, response.args);
+
+/** The rows listed for a subject: the groups with an action `hit` says
+ * touched it */
+export const rowsOf = (
+  groups: readonly ActionGroup[],
+  hit: SubjectFilter['hit'],
+) => groups.filter(g => groupEntriesOf(g).some(hit));
+
+/** A row of one action: it has no steps */
+export const isLone = (group: ActionGroup) =>
+  groupEntriesOf(group).length === 1;
+
+/** The moment a row stands for: its last action that touched the subject (a
+ * request's response), or its last; all its actions as one, unless it has
+ * only that one */
+export function rowMoment(group: ActionGroup, hit: SubjectFilter['hit']): Step {
+  const all = groupEntriesOf(group);
+  const seq = (all.findLast(hit) ?? all[all.length - 1]).seq;
+  return { seq, scope: isLone(group) ? 'request' : 'group' };
+}
 
 /** Every action of a group, in dispatch order */
 export function groupEntriesOf(group: ActionGroup): readonly LogEntry[] {

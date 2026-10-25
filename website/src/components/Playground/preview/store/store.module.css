@@ -1717,10 +1717,17 @@ button.tlMark:hover {
     0 0 0 2px var(--store-bg),
     0 0 0 3.5px var(--store-fg);
 }
-/* the store didn't see it (a plain fetch, a subscribe): no state to show */
+/* the store didn't see it (a plain fetch, a subscribe): picked, it shows
+   the store as it found it */
 .tlHollow {
   background: none;
   box-shadow: inset 0 0 0 1.5px currentColor;
+}
+.tlHollow[data-selected] {
+  box-shadow:
+    inset 0 0 0 1.5px currentColor,
+    0 0 0 2px var(--store-bg),
+    0 0 0 3.5px var(--store-fg);
 }
 .tlOptimistic {
   width: 7px;

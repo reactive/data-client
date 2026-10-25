@@ -181,11 +181,12 @@ DesignSystem/       components injected into preview scope
 - The Store inspector navigates by two coordinates (see
   `preview/store/nav.tsx`, both owned by `StorePanel`): the **moment** (the
   action shown, or live; `NavStateContext` carries it down, with where a
-  step back or on lands (`earlier`, `later`), and `set` and
-  `show(seq)` back up: `show` also opens that action in the Action tab) and the **subject** (a
+  step back or on lands (`earlier`, `later`) and the set of actions it
+  stands for (`current`, which marks the timeline's dots, the list's rows
+  and steps alike), and `set`, `step` and `show(seq)` back up: `show` also opens that action in the Action tab) and the **subject** (a
   stack of levels over the store: a table, a record, a list of rows, with
   breadcrumbs, Back and Escape). A moment can stand for one action or, when
-  a request's or subscription's row was picked (`whole`), every action of
+  a request's or subscription's row was picked (scope `group`), every action of
   that group up to it (`momentEntries` in `preview/store/actionGroups.ts`),
   so an optimistic update and its response show as one effect. Two tabs at
   the left end of the bar (`role="tablist"`), **State** and **Action**,
@@ -218,7 +219,10 @@ DesignSystem/       components injected into preview scope
     aside, as its whole request when it has several actions, so an
     optimistic update shows with its response, with "newest" by its crumb). A line above its crumbs, so they head the
     action, and one stuck to the bottom (`ActionStep`) name the subject's actions before and after it (as ‹ ›
-    step, `stepMoment`; past the newest is live), and a click makes that the
+    step: one pure `stepAt` in `preview/store/actionLog.ts` serves ‹ ›, ←→,
+    Before and After, landing on the moment's neighbours at its own depth,
+    rows on the surface, single actions (fetches included) a level
+    deeper; live is a place past the last row), and a click makes that the
     moment, in the same level. Its stack opens at the action over the
     subject's actions in full (`{ kind: 'actions' }`, `ActionsLevel` in
     `preview/store/ActionList.tsx`, a `region` with its row count beside the
@@ -228,7 +232,7 @@ DesignSystem/       components injected into preview scope
     timeline (the timelines' `onMark`) opens its action, as a row does, while ‹ › only move
     the moment. Picking a step there sets the moment and
     opens the action over the list; picking a row of several actions opens
-    the group (`whole`: what they did together, then its actions, each
+    the group (scope `group`: what they did together, then its actions, each
     opening its own). Chips drill on in the tab. Stepping the moment moves
     that level to the new action, and going live to the newest
     (`followMoment`).
@@ -269,8 +273,9 @@ DesignSystem/       components injected into preview scope
   panel without a use of its own for them, see `usesArrows`, or a
   widget that took them with `preventDefault`; the panel alone handles them) step through the changes
   to the subject (`subjectFilter`'s `hit`: every stored action at the store; below it the marks that left the subject alone
-  are dimmed, `data-dim`, and skipped; past the newest, and End, go live), a
-  mark lands on its action, "Live" lets go. Marks closer on the track than a
+  are dimmed, `data-dim`, and skipped; past the newest, and End, go live;
+  stepping back from live lands on the newest row), a
+  mark (every one is a button, hollow for an action the store never saw) lands on its action, "Live" lets go. Marks closer on the track than a
   mark's width and a gap (`MERGE_PX`) draw as one, at the first of them
   (`data-count`; dimmed only if all are), so fast polling stays readable. While the moment is set its second line says "After
   <action> · <time>", which opens the action at full width. Its ▾ ("Timeline", `aria-expanded`) slides open the expanded

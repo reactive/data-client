@@ -16,7 +16,9 @@ import {
   groupEntries,
   groupEntriesOf,
   groupOf,
+  isLone,
   keepUnchanged,
+  rowsOf,
   momentEntries,
   requestEntries,
   requestOf,
@@ -28,19 +30,12 @@ import {
   type SubjectFilter,
   changeOf,
 } from './actionGroups';
-import {
-  ActionsLevel,
-  ActionsPane,
-  GroupActions,
-  isLone,
-  rowSeq,
-  useRows,
-} from './ActionList';
+import { ActionsLevel, ActionsPane, GroupActions } from './ActionList';
 import {
   findEntry,
   isRecordChange,
   keepSameMap,
-  stepMoment,
+  stepAt,
   storeAt,
   withDropped,
   type LogEntry,
@@ -234,6 +229,10 @@ export default function StorePanel({
     );
     return newest && requestEntries(groups, newest);
   }, [groups, moment, scope, known]);
+  const current = useMemo(
+    () => new Set(moment && span ? span.map(e => e.seq) : []),
+    [moment, span],
+  );
   const first = span?.find(e => e.store);
   const last = span?.findLast(e => e.store);
   const prior = first && then({ seq: first.seq, before: true });
@@ -402,14 +401,31 @@ export default function StorePanel({
     },
     [mark, collapse],
   );
-  // the timeline steps over the subject's actions
-  const [earlier, later] = useMemo(
-    () =>
-      [
-        stepMoment(known, momentSeq, -1, filter.hit),
-        stepMoment(known, momentSeq, 1, filter.hit),
-      ] as const,
-    [known, momentSeq, filter.hit],
+  // every step (‹ ›, ← →, Before and After) goes to the moment's
+  // neighbours at its depth, among the subject's rows
+  const rows = useMemo(() => rowsOf(groups, filter.hit), [groups, filter.hit]);
+  const [earlier, later] = useMemo(() => {
+    const at =
+      momentSeq === null ? newestOf(known, filter.hit) : (moment ?? undefined);
+    return ([-1, 1] as const).map(by =>
+      stepAt(
+        known,
+        groups,
+        rows,
+        filter.hit,
+        at,
+        momentSeq === null,
+        scope,
+        by,
+      ),
+    );
+  }, [known, groups, rows, filter.hit, momentSeq, moment, scope]);
+  const step = useCallback(
+    (by: -1 | 1) => {
+      const to = by < 0 ? earlier : later;
+      if (to !== undefined) set(to && to.seq, to?.scope);
+    },
+    [earlier, later, set],
   );
   // back on an action view (coming up from an action alone), the moment is
   // that view's
@@ -429,8 +445,17 @@ export default function StorePanel({
     [actionLevels, actionStack, backActions],
   );
   const navState = useMemo<NavState>(
-    () => ({ seq: momentSeq, scope, earlier, later, set, show }),
-    [momentSeq, scope, earlier, later, set, show],
+    () => ({
+      seq: momentSeq,
+      scope,
+      current,
+      earlier,
+      later,
+      set,
+      step,
+      show,
+    }),
+    [momentSeq, scope, current, earlier, later, set, step, show],
   );
   // what the peek's chips open: over the State tab's top level, in the
   // table view, with the peek closed to show it
@@ -538,10 +563,10 @@ export default function StorePanel({
                 !e.metaKey &&
                 !usesArrows(e.target as Element)
               ) {
-                const to = e.key === 'ArrowLeft' ? earlier : later;
-                if (to !== undefined) {
+                const by = e.key === 'ArrowLeft' ? -1 : 1;
+                if ((by < 0 ? earlier : later) !== undefined) {
                   e.preventDefault();
-                  set(to);
+                  step(by);
                 }
                 return;
               }
@@ -1090,43 +1115,11 @@ function ActionLevel({
   subject: View;
   header: Header;
 }) {
-  const { entries } = useActions().history;
   const { entry, group, span, filter } = useShownAction(seq, scope, subject);
-  const rows = useRows(filter);
-  const groups = useActions().groups;
-  const deep = scope === 'action';
-  /** The row or (deep) action before or after the one shown: deep, every
-   * action of the rows listed, as their steps show them */
-  const listed = useMemo(() => new Set(rows), [rows]);
-  const step = (dir: -1 | 1) => {
-    if (!entry) return undefined;
-    if (deep)
-      return stepMoment(entries, entry.seq, dir, e => {
-        const row = groupOf(groups, e.seq);
-        return row ? listed.has(row) : filter.hit(e);
-      });
-    // the neighbouring row in the list's own order: rows can overlap in
-    // time (a subscription still polling), so not by their seqs. Live sits
-    // past the list's end, its own row (shown already) skipped
-    const own = groupOf(groups, entry.seq);
-    const i =
-      seq === null ? rows.length
-      : own ? rows.indexOf(own)
-      : -1;
-    let next =
-      i >= 0 ? rows[i + dir]
-      : dir < 0 ? rows.findLast(row => groupEntriesOf(row)[0].seq < entry.seq)
-      : rows.find(row => groupEntriesOf(row)[0].seq > entry.seq);
-    if (seq === null && next === own) next = rows[i + 2 * dir];
-    if (next) return rowSeq(next, filter.hit);
-    // past the newest is live again
-    if (dir > 0 && seq !== null) return null;
-  };
-  const to: Scope = deep ? 'action' : 'group';
   // the step before leads, so the crumbs under it head the action shown
   return (
     <>
-      {entry && <ActionStep dir={-1} to={step(-1)} scope={to} />}
+      {entry && <ActionStep dir={-1} />}
       {header(
         seq === null && entry && <span className={styles.dim}>newest</span>,
       )}
@@ -1140,13 +1133,7 @@ function ActionLevel({
           {group && span ?
             <div className={styles.actBody}>
               <h3 className={styles.sectionLabel}>Steps</h3>
-              <GroupActions
-                group={group}
-                subject={subject}
-                filter={filter}
-                // a picked row stands for all of them: no one step is marked
-                currentSeq={scope === 'group' ? undefined : entry.seq}
-              />
+              <GroupActions group={group} subject={subject} filter={filter} />
               <h3 className={styles.sectionLabel}>Store changes</h3>
               <SubjectChanges entries={span} subject={subject} />
             </div>
@@ -1156,7 +1143,7 @@ function ActionLevel({
               gap={filter.gaps.get(entry.seq)}
             />
           }
-          <ActionStep dir={1} to={step(1)} scope={to} />
+          <ActionStep dir={1} />
         </>
       }
     </>
@@ -1209,26 +1196,18 @@ function newestOf(
   );
 }
 
-/** One line for the action before (`-1`) or after (`1`) the one shown,
- * which a click makes the moment, so the level shows it instead: `to` (see
- * `stepMoment`) is its seq, `null` live, `undefined` none */
-function ActionStep({
-  dir,
-  to,
-  scope,
-}: {
-  dir: -1 | 1;
-  to: number | null | undefined;
-  /** What the step lands on: a row (`group`) or an action alone */
-  scope: Scope;
-}) {
+/** One line for the moment before (`-1`) or after (`1`) the one shown, at
+ * its depth (see `NavState`), which a click makes the moment, so the level
+ * shows it instead */
+function ActionStep({ dir }: { dir: -1 | 1 }) {
   const { history, groups } = useActions();
-  const { set } = useNavState();
+  const { earlier, later, step } = useNavState();
+  const to = dir < 0 ? earlier : later;
   const label = dir < 0 ? 'Before' : 'After';
-  const entry = to == null ? undefined : findEntry(history.entries, to);
+  const entry = to ? findEntry(history.entries, to.seq) : undefined;
   // a row of several actions is named for them all
   const row =
-    scope === 'group' && entry ? groupOf(groups, entry.seq) : undefined;
+    to?.scope === 'group' && entry ? groupOf(groups, entry.seq) : undefined;
   return (
     <button
       type="button"
@@ -1240,7 +1219,7 @@ function ActionStep({
           'Back to live'
         : 'Step to this action'
       }
-      onClick={() => to !== undefined && set(to, scope)}
+      onClick={() => step(dir)}
     >
       <span className={styles.actStepDir}>
         {to !== undefined && (dir < 0 ? '↑ ' : '↓ ')}

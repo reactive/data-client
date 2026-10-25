@@ -81,6 +81,12 @@ export type View =
  * `action` only it (its step was picked: a level deeper than its request) */
 export type Scope = 'request' | 'group' | 'action';
 
+/** A moment to go to: action `seq`, as much as `scope` says */
+export interface Step {
+  readonly seq: number;
+  readonly scope: Scope;
+}
+
 /** Action `seq` (as much as `scope` says), shown over a subject with what
  * it did to it; `null`, live, is the newest */
 interface ActionView {
@@ -287,10 +293,16 @@ export interface NavState {
   /** What the moment stands for: what its actions did together shows as
    * one */
   readonly scope: Scope;
-  /** Where a step back (‹, ←) and on (›, →) land: see `stepMoment` */
-  readonly earlier: number | null | undefined;
-  readonly later: number | null | undefined;
+  /** The actions the moment stands for, by seq (see `momentEntries`): the
+   * list, the timeline and the levels mark them all. None while live */
+  readonly current: ReadonlySet<number>;
+  /** Where a step back (‹, ←, Before) and on (›, →, After) land, at the
+   * moment's depth (see `stepAt`): `null` live, `undefined` nowhere */
+  readonly earlier: Step | null | undefined;
+  readonly later: Step | null | undefined;
   readonly set: (seq: number | null, scope?: Scope) => void;
+  /** Moves the moment to `earlier` (`-1`) or `later` (`1`) */
+  readonly step: (by: -1 | 1) => void;
   /** Moves the moment to action `seq` (as much as `scope` says) and opens it
    * in the Action tab: what it did to the subject, then the action itself
    * (or the group's actions) */
@@ -299,9 +311,11 @@ export interface NavState {
 export const NavStateContext = createContext<NavState>({
   seq: null,
   scope: 'request',
+  current: new Set(),
   earlier: undefined,
   later: undefined,
   set: () => {},
+  step: () => {},
   show: () => {},
 });
 export const useNavState = () => useContext(NavStateContext);

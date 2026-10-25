@@ -307,15 +307,14 @@ describe('Store scrubber', () => {
     expect(screen.getByRole('group', { name: 'Store view' })).toBeTruthy();
     await act(() => ctrl().fetch(getPosts));
     await act(() => ctrl().fetch(getPosts));
-    // only actions that reached the store can be picked; the rest show
+    // every action can be picked, those the store never saw too (hollow)
     const marks = within(bar).getAllByRole('button', {
       name: /^setResponse at/,
     });
     expect(marks).toHaveLength(2);
-    expect(within(bar).getAllByRole('img', { name: /^fetch at/ })).toHaveLength(
-      2,
-    );
-    expect(within(bar).queryByRole('button', { name: /^fetch at/ })).toBeNull();
+    expect(
+      within(bar).getAllByRole('button', { name: /^fetch at/ }),
+    ).toHaveLength(2);
     // the lanes stay collapsed
     expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
   });
@@ -339,9 +338,9 @@ describe('Store scrubber', () => {
     expect(
       within(bar).getAllByRole('button', { name: /^setResponse at/ }),
     ).toHaveLength(20);
-    expect(within(bar).getAllByRole('img', { name: /^fetch at/ })).toHaveLength(
-      20,
-    );
+    expect(
+      within(bar).getAllByRole('button', { name: /^fetch at/ }),
+    ).toHaveLength(20);
     expect(bar.querySelector('[data-count]')).toBeNull();
     // the newest stays in view, as the lanes' does
     expect(track.scrollLeft).toBe(2000);
@@ -439,6 +438,24 @@ describe('Store scrubber', () => {
     expect(marks[0].hasAttribute('data-selected')).toBe(false);
   });
 
+  it('marks every action of the row the moment stands for, and picks a fetch', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    const bar = scrubber();
+    const [fetch] = within(bar).getAllByRole('button', { name: /^fetch at/ });
+    const [response] = within(bar).getAllByRole('button', {
+      name: /^setResponse at/,
+    });
+    // the request, its fetch with its response
+    fireEvent.click(screen.getByRole('button', { name: 'Previous change' }));
+    expect(fetch.hasAttribute('data-selected')).toBe(true);
+    expect(response.hasAttribute('data-selected')).toBe(true);
+    // the request up to its fetch
+    fireEvent.click(fetch);
+    expect(fetch.hasAttribute('data-selected')).toBe(true);
+    expect(response.hasAttribute('data-selected')).toBe(false);
+  });
+
   it('steps through changes with ‹ › and the arrow keys, past the newest to live', async () => {
     const { ctrl } = mount();
     title = 'One';
@@ -526,15 +543,16 @@ describe('Store scrubber', () => {
     await act(() => ctrl().set(Post, { id: '2' }, { id: '2', title: 'Two' }));
     const marks = () =>
       within(scrubber())
-        .getAllByRole('button', { name: /at \d/ })
+        .getAllByRole('button', { name: /^set(Response)? at/ })
         .map(m => m.hasAttribute('data-dim'));
     // the store: every change
     expect(marks()).toEqual([false, false]);
     // a record: its own
     fireEvent.click(top()!.querySelector<HTMLElement>('tr[data-id]')!);
     expect(marks()).toEqual([false, true]);
+    // its rows: the request that added it
     fireEvent.click(screen.getByRole('button', { name: 'Previous change' }));
-    expect(scrubber().textContent).toContain('setResponse');
+    expect(scrubber().textContent).toContain('After GET /posts');
     expect(
       (
         screen.getByRole('button', {
@@ -566,7 +584,7 @@ describe('Store scrubber', () => {
     });
     // still first on the lane, picked, though the log let go of it
     expect(marks()[0].hasAttribute('data-selected')).toBe(true);
-    expect(scrubber().textContent).toContain('setResponse');
+    expect(scrubber().textContent).toContain('GET /posts');
   });
 });
 

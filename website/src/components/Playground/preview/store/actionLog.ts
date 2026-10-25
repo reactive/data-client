@@ -11,6 +11,9 @@ import {
   diffStates,
   groupEntries,
   groupEntriesOf,
+  groupOf,
+  rowMoment,
+  type ActionGroup,
   pollFrequencyOf,
   mergeChanges,
   type Change,
@@ -22,7 +25,7 @@ import {
   managerNames,
   type Attribution,
 } from './attribution';
-import type { Moment } from './nav';
+import type { Moment, Scope, Step } from './nav';
 
 const { createReducer } = __INTERNAL__;
 
@@ -118,18 +121,46 @@ function nearestHit(
   return entries.find(e => e.seq > seq && hit(e));
 }
 
-/** Where a step before (`-1`) or after (`1`) moment `seq` lands: the nearest
- * action `hit` says touched the subject, or past the newest, live (`null`).
- * `undefined` has nowhere to go: before the oldest, or after live */
-export function stepMoment(
+/** Where a step before (`-1`) or after (`1`) the moment at `entry` (the
+ * newest, `live`) lands, at its depth (see `Scope`). An action alone steps
+ * an action at a time through the rows listed (`rows`, the groups with an
+ * action `hit` says touched the subject), every step of theirs included.
+ * Otherwise it steps a row at a time, in the list's order (rows overlap in
+ * time: a subscription still polling). Live is a place past the last row:
+ * stepping on from it reaches live, stepping back from live the last row.
+ * `null` is live; `undefined` has nowhere to go */
+export function stepAt(
   entries: readonly LogEntry[],
-  seq: number | null,
-  by: -1 | 1,
+  groups: readonly ActionGroup[],
+  rows: readonly ActionGroup[],
   hit: (entry: LogEntry) => boolean,
-): number | null | undefined {
-  const next = nearestHit(entries, seq, by, hit);
-  if (next) return next.seq;
-  if (by > 0 && seq !== null) return null;
+  entry: LogEntry | undefined,
+  live: boolean,
+  scope: Scope,
+  by: -1 | 1,
+): Step | null | undefined {
+  if (!entry) return undefined;
+  if (scope === 'action') {
+    const listed = new Set(rows);
+    const next = nearestHit(entries, entry.seq, by, e => {
+      const row = groupOf(groups, e.seq);
+      return row ? listed.has(row) : hit(e);
+    });
+    if (next) return { seq: next.seq, scope };
+  } else {
+    const own = groupOf(groups, entry.seq);
+    const i =
+      live ? rows.length
+      : own ? rows.indexOf(own)
+      : -1;
+    const next =
+      i >= 0 ? rows[i + by]
+      : by < 0 ? rows.findLast(row => groupEntriesOf(row)[0].seq < entry.seq)
+      : rows.find(row => groupEntriesOf(row)[0].seq > entry.seq);
+    if (next) return rowMoment(next, hit);
+  }
+  // past the newest is live again
+  if (by > 0 && !live) return null;
 }
 
 /** The store at `entry`'s moment: as it left it, or (one a manager handled
