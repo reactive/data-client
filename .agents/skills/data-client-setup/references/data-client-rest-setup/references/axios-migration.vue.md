@@ -42,13 +42,47 @@ your source folders, never the repo root:
 npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/
 ```
 
-It:
+Each axios call becomes a call to an endpoint. Path params, `params` and the body become its arguments, and it resolves to the body, so `.data` goes away.
 
-- Replaces `import axios from 'axios'` with `import { RestEndpoint } from '@data-client/rest'`
-- Converts `axios.create({ baseURL, headers })` into a base `RestEndpoint` subclass with `urlPrefix` and `getHeaders()`
-- Transforms `axios.get()`, `.post()`, `.put()`, `.patch()` and `.delete()` into `new RestEndpoint({ path, method })`
-- Transforms calls on a created instance (`api.post()` where `api = axios.create(...)`) into
-  `new CreatedClassName({ path, method })`
+```ts title="Before"
+import axios from 'axios';
+
+const api = axios.create({ baseURL: 'https://api.example.com' });
+
+export async function getPost(id: string) {
+  const res = await api.get(`/posts/${id}`);
+  return res.data;
+}
+
+export async function createPost(body: { title: string }) {
+  const { data } = await api.post('/posts', body);
+  return data;
+}
+```
+
+```ts title="After"
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
+
+class ApiEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+  urlPrefix = 'https://api.example.com';
+}
+
+export async function getPost(id: string) {
+  const res = await new ApiEndpoint({ path: '/posts/:id' })({ id });
+  return res;
+}
+
+export async function createPost(body: { title: string }) {
+  const data = await new ApiEndpoint({ path: '/posts', method: 'POST' })(
+    body,
+  );
+  return data;
+}
+```
+
+What it can't convert, such as interceptors, `timeout`, `isAxiosError()` or a function that returns the axios
+response to its callers, gets a `// TODO(data-client):` comment linking the section below that covers it. Search for
+`TODO(data-client)` and resolve each one as you go through the next steps.
 
 If the project wraps axios in its own class or function and never calls `axios.get()` or `.post()` directly, or only
 calls `axios(config)`, the codemod has little to do. Skip it and start at [step 3](#base-endpoint).
@@ -349,7 +383,10 @@ import { PostResource } from './api/posts';
 
 const posts = await PostResource.getList();
 const post = await PostResource.get({ id: '1' });
-const created = await PostResource.getList.push({ title: 'Hello', body: '' });
+const created = await PostResource.getList.push({
+  title: 'Hello',
+  body: '',
+});
 ```
 
 Reading these endpoints through the store, with [`useSuspense()`](https://dataclient.io/vue/api/useSuspense) and the normalized cache, is a
@@ -396,6 +433,7 @@ Search for what still uses axios:
 
 | Pattern                                    | Finds                     |
 | ------------------------------------------ | ------------------------- |
+| `TODO\(data-client\)`                      | what the codemod left     |
 | `import.*from ['"]axios['"]`               | import statements         |
 | `axios\.create`                            | instance creation         |
 | `axios\.(get\|post\|put\|patch\|delete)`   | direct calls              |
@@ -463,11 +501,15 @@ export default class ApiEndpoint<
   O extends RestGenerics = any,
 > extends RestEndpoint<O> {
   // callout: Runs for each request, so each one gets its own 5 seconds. `AbortSignal.timeout()` passed to the constructor would start counting once, when the endpoint is created.
-  async getRequestInit(body?: RequestInit['body'] | Record<string, unknown>) {
+  async getRequestInit(
+    body?: RequestInit['body'] | Record<string, unknown>,
+  ) {
     const init = await super.getRequestInit(body);
     const timeout = AbortSignal.timeout(5000);
     // callout: Keeps `extend({ signal })` cancellation working: either signal aborts the request.
-    const signal = init.signal ? AbortSignal.any([init.signal, timeout]) : timeout;
+    const signal = init.signal
+      ? AbortSignal.any([init.signal, timeout])
+      : timeout;
     return { ...init, signal };
   }
 }

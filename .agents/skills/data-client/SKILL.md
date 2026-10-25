@@ -15,6 +15,10 @@ Read `../data-client-setup/SKILL.md` (next to this one) and follow it. It isn't 
 installs; the user asking to add or use Data Client in this app is the go-ahead. If they only asked about Data
 Client, answer and offer to set it up instead.
 
+To only replace an HTTP client (axios, fetch, ky, superagent, got) with `@data-client/rest` endpoints, follow
+`../data-client-setup/references/data-client-rest-setup.md` instead. It needs no provider and leaves how the app loads
+and stores data alone.
+
 ## Set up
 
 Load the skill for the work. If it isn't available by name but its package is installed, run
@@ -30,9 +34,10 @@ ship into the project's skill folder, then read `.claude/skills/<skill>/SKILL.md
 | Tests | `data-client-react-testing` or `data-client-vue-testing` | `react` or `vue` |
 | WebSockets, SSE, polling, global side effects | `data-client-manager` | `core` |
 
-To add a protocol the app doesn't depend on yet, or to write GraphQL queries or wrap async functions, follow its guide
-in `data-client-setup` (`../data-client-setup/references/`): `data-client-rest-setup.md`,
-`data-client-graphql-setup.md` or `data-client-endpoint-setup.md`, installing only packages the app lacks. They
+To add a protocol the app doesn't depend on yet, move axios or fetch calls to REST endpoints, write GraphQL queries or
+wrap async functions, follow its guide in `data-client-setup` (`../data-client-setup/references/`):
+`data-client-rest-setup.md`, `data-client-graphql-setup.md` or `data-client-endpoint-setup.md`, installing only packages
+the app lacks. They
 aren't loaded by name.
 
 If a skill named here isn't installed, follow [references/install.md](references/install.md).

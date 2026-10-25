@@ -63,7 +63,11 @@ When multiple HTTP libraries are detected, run each sub-procedure on the relevan
 Each migration is a self-contained reference. Read only the relevant one(s) based on detection results above. After completing migrations, return here for base class setup.
 
 - **Axios** → [references/axios-migration.md](./data-client-rest-setup/references/axios-migration.md) — codemod, interceptors, error handling, timeout, cancelToken, responseType, paramsSerializer, auth, validateStatus, CSRF, upload progress
-  - Run its codemod before any manual edits: `npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/`.
+  1. Check `git status` is clean (commit or ask first), so the codemod's changes can be reviewed on their own.
+  2. Run its codemod before any manual edits, on the source folders (never the repo root): `npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/`. It turns each axios call into an endpoint call and drops `.data`.
+  3. Find what it left: search the source for `TODO(data-client)`. Each comment names one thing to finish and links its guide section, which is in the reference under the same heading. Resolve it, then delete the comment.
+  4. Follow the reference's remaining steps (base endpoint, entities and resources, call sites, error handling). Callers keep loading data the way they did; only the call changes.
+  5. Run the type checker and tests. When no `axios` import or `TODO(data-client)` comment is left, uninstall axios.
 - **Raw fetch** → [references/fetch-migration.md](./data-client-rest-setup/references/fetch-migration.md) — fetch wrappers, headers, status checks, POST patterns, error handling
 - **Ky** → [references/ky-migration.md](./data-client-rest-setup/references/ky-migration.md) — prefixUrl, hooks, HTTPError, instance config
 - **SuperAgent** → [references/superagent-migration.md](./data-client-rest-setup/references/superagent-migration.md) — chained API, plugins, agents, file uploads

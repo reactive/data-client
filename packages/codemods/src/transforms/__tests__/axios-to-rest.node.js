@@ -1,6 +1,9 @@
 'use strict';
 
-const { defineInlineTest } = require('jscodeshift/dist/testUtils');
+const {
+  defineInlineTest,
+  runInlineTest,
+} = require('jscodeshift/dist/testUtils');
 
 const transform = require('../axios-to-rest');
 
@@ -46,6 +49,7 @@ const source = CancelToken.source();
       `
 import { RestEndpoint } from '@data-client/rest';
 import { CancelToken } from 'axios';
+// TODO(data-client): use an \`AbortSignal\` instead of \`CancelToken\`: https://dataclient.io/rest/guides/axios-migration#cancellation
 const source = CancelToken.source();
       `,
       'preserves CancelToken import when used at runtime',
@@ -70,6 +74,7 @@ import { AxiosError } from 'axios';
 try {
   throw new Error('x');
 } catch (err) {
+  // TODO(data-client): check \`NetworkError\` instead of \`AxiosError\`: https://dataclient.io/rest/guides/axios-migration#error-handling
   if (err instanceof AxiosError) {
     console.log(err);
   }
@@ -121,7 +126,9 @@ if (err instanceof AxiosError) {
       `
 import { RestEndpoint } from '@data-client/rest';
 import { CancelToken, AxiosError } from 'axios';
+// TODO(data-client): use an \`AbortSignal\` instead of \`CancelToken\`: https://dataclient.io/rest/guides/axios-migration#cancellation
 const source = CancelToken.source();
+// TODO(data-client): check \`NetworkError\` instead of \`AxiosError\`: https://dataclient.io/rest/guides/axios-migration#error-handling
 if (err instanceof AxiosError) {
   log(err);
 }
@@ -141,6 +148,7 @@ if (err instanceof Err) {
       `
 import { RestEndpoint } from '@data-client/rest';
 import { AxiosError as Err } from 'axios';
+// TODO(data-client): check \`NetworkError\` instead of \`AxiosError\`: https://dataclient.io/rest/guides/axios-migration#error-handling
 if (err instanceof Err) {
   log(err);
 }
@@ -304,9 +312,10 @@ class ApiEndpoint extends RestEndpoint {
 }
 
 const other = 123;
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new ApiEndpoint({
   path: '/users'
-});
+})();
       `,
       'preserves sibling declarators when axios.create shares a declaration',
     );
@@ -346,9 +355,10 @@ export class ApiEndpoint extends RestEndpoint {
 }
 
 export const other = 123;
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new ApiEndpoint({
   path: '/users'
-});
+})();
       `,
       'preserves exported sibling declarators when axios.create shares a declaration',
     );
@@ -366,9 +376,10 @@ const result = axios.get('/users');
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new RestEndpoint({
   path: '/users'
-});
+})();
       `,
       'converts axios.get to new RestEndpoint',
     );
@@ -382,10 +393,12 @@ const result = axios.post('/users');
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new RestEndpoint({
   path: '/users',
-  method: 'POST'
-});
+  method: 'POST',
+  body: undefined
+})();
       `,
       'converts axios.post to new RestEndpoint with method POST',
     );
@@ -399,10 +412,12 @@ const result = axios.put('/users/1');
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new RestEndpoint({
   path: '/users/1',
-  method: 'PUT'
-});
+  method: 'PUT',
+  body: undefined
+})();
       `,
       'converts axios.put to new RestEndpoint with method PUT',
     );
@@ -416,10 +431,12 @@ const result = axios.patch('/users/1');
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new RestEndpoint({
   path: '/users/1',
-  method: 'PATCH'
-});
+  method: 'PATCH',
+  body: undefined
+})();
       `,
       'converts axios.patch to new RestEndpoint with method PATCH',
     );
@@ -433,10 +450,11 @@ const result = axios.delete('/users/1');
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new RestEndpoint({
   path: '/users/1',
   method: 'DELETE'
-});
+})();
       `,
       'converts axios.delete to new RestEndpoint with method DELETE',
     );
@@ -452,9 +470,10 @@ const result = axios.get(url);
       `
 import axios from 'axios';
 const url = getUrl();
+// TODO(data-client): convert this axios.get() call to an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = axios.get(url);
       `,
-      'leaves non-literal URL calls unchanged without rewriting imports',
+      'marks non-literal URL calls without rewriting imports',
     );
 
     defineInlineTest(
@@ -470,9 +489,11 @@ const dynamic = axios.get(dynamicUrl);
 import { RestEndpoint } from '@data-client/rest';
 import axios from 'axios';
 const dynamicUrl = getUrl();
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const direct = new RestEndpoint({
   path: '/users'
-});
+})();
+// TODO(data-client): convert this axios.get() call to an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
 const dynamic = axios.get(dynamicUrl);
       `,
       'keeps axios import when dynamic axios calls remain after converting literal calls',
@@ -497,9 +518,10 @@ class ApiEndpoint extends RestEndpoint {
   urlPrefix = 'https://api.example.com';
 }
 
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new ApiEndpoint({
   path: '/users'
-});
+})();
       `,
       'converts instance.get to new ClassName after axios.create transform',
     );
@@ -519,10 +541,12 @@ class ApiEndpoint extends RestEndpoint {
   urlPrefix = 'https://api.example.com';
 }
 
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new ApiEndpoint({
   path: '/users',
-  method: 'POST'
-});
+  method: 'POST',
+  body: undefined
+})();
       `,
       'converts instance.post to new ClassName with method POST',
     );
@@ -544,10 +568,11 @@ class ApiEndpoint extends RestEndpoint {
 }
 
 const payload = { name: 'Taylor' };
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new ApiEndpoint({
   path: '/users',
   method: 'POST'
-});
+})(payload);
       `,
       'converts instance.post with payload arg to avoid dangling instance references',
     );
@@ -567,10 +592,12 @@ class ApiEndpoint extends RestEndpoint {
   urlPrefix = 'https://api.example.com';
 }
 
+// TODO(data-client): move axios \`headers\` to the endpoint: https://dataclient.io/rest/guides/axios-migration#quick-reference
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new ApiEndpoint({
   path: '/users/1',
   method: 'PATCH'
-});
+})({ enabled: true });
       `,
       'converts instance.patch with payload/config args to avoid dangling instance references',
     );
@@ -601,9 +628,10 @@ function fetchViaOtherClient() {
   return api.get('/shadowed');
 }
 
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new ApiEndpoint({
   path: '/users'
-});
+})();
       `,
       'does not rewrite shadowed instance identifiers in nested scopes',
     );
@@ -621,9 +649,9 @@ const result: AxiosResponse<User> = await axios.get<User>('/users/1');
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
-const result: AxiosResponse<User> = await new RestEndpoint({
+const result: User = await new RestEndpoint({
   path: '/users/1'
-});
+})();
       `,
       'handles generic type parameters on axios method calls',
     );
@@ -637,9 +665,10 @@ const data = (await axios.get('/users')) as AxiosResponse<User>;
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const data = (await new RestEndpoint({
   path: '/users'
-})) as AxiosResponse<User>;
+})()) as AxiosResponse<User>;
       `,
       'handles as casts with AxiosResponse',
     );
@@ -654,9 +683,10 @@ const result = axios.get('/users');
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new RestEndpoint({
   path: '/users'
-});
+})();
       `,
       'removes import type declaration alongside default import',
     );
@@ -670,9 +700,10 @@ const result = axios.get('/users');
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new RestEndpoint({
   path: '/users'
-});
+})();
       `,
       'removes inline type specifiers from import',
     );
@@ -687,9 +718,10 @@ const result = axios.get('/users');
       `
 import { RestEndpoint } from '@data-client/rest';
 import { isAxiosError } from 'axios';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new RestEndpoint({
   path: '/users'
-});
+})();
       `,
       'removes inline type specifiers but preserves unknown named imports',
     );
@@ -743,9 +775,10 @@ const result = axios.get('/users');
 import { RestEndpoint } from '@data-client/rest';
 import axios from 'axios';
 function foo(client: typeof axios) { return client; }
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new RestEndpoint({
   path: '/users'
-});
+})();
       `,
       'preserves axios import when typeof annotation coexists with method calls',
     );
@@ -792,9 +825,10 @@ const result = axios.get('/users');
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new RestEndpoint({
   path: '/users'
-});
+})();
       `,
       'handles multiple import statements from axios without duplicate RestEndpoint imports',
     );
@@ -810,9 +844,10 @@ const x: AxiosResponse<User> = result;
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new RestEndpoint({
   path: '/users'
-});
+})();
 const x: AxiosResponse<User> = result;
       `,
       'removes multiple axios imports with type references used as annotations',
@@ -833,9 +868,9 @@ const users = axios.get('/users').then(res => res.data);
 import { RestEndpoint } from '@data-client/rest';
 const users = new RestEndpoint({
   path: '/users'
-}).then(res => res.data);
+})();
       `,
-      'chained .then() is preserved after transforming axios.get',
+      'drops a .then() that only unwraps .data',
     );
 
     defineInlineTest(
@@ -851,9 +886,9 @@ async function getUsers() {
       `
 import { RestEndpoint } from '@data-client/rest';
 async function getUsers() {
-  const { data } = await new RestEndpoint({
+  const data = await new RestEndpoint({
     path: '/users'
-  });
+  })();
   return data;
 }
       `,
@@ -869,9 +904,10 @@ const result = axios('/users');
       `,
       `
 import axios from 'axios';
+// TODO(data-client): replace this axios call with an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = axios('/users');
       `,
-      'axios as default function call is left unchanged (no-op)',
+      'marks axios(config) calls it cannot convert',
     );
 
     defineInlineTest(
@@ -882,10 +918,16 @@ import axios from 'axios';
 const result = axios.get('/users', { headers: { Authorization: 'Bearer token' }, params: { page: 1 } });
       `,
       `
-import axios from 'axios';
-const result = axios.get('/users', { headers: { Authorization: 'Bearer token' }, params: { page: 1 } });
+import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): move axios \`headers\` to the endpoint: https://dataclient.io/rest/guides/axios-migration#quick-reference
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+const result = new RestEndpoint({
+  path: '/users'
+})({
+  page: 1
+});
       `,
-      'config object as second arg is left unchanged (no-op)',
+      'passes config params as args and marks other config options',
     );
 
     defineInlineTest(
@@ -897,9 +939,10 @@ const result = axios.request({ url: '/users', method: 'get' });
       `,
       `
 import axios from 'axios';
+// TODO(data-client): replace this axios call with an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = axios.request({ url: '/users', method: 'get' });
       `,
-      'axios.request() is left unchanged (no-op)',
+      'marks axios.request() calls it cannot convert',
     );
 
     defineInlineTest(
@@ -913,11 +956,14 @@ const result = axios.get(\`/users/\${id}\`);
       `
 import { RestEndpoint } from '@data-client/rest';
 const id = 5;
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new RestEndpoint({
-  path: \`/users/\${id}\`
+  path: '/users/:id'
+})({
+  id
 });
       `,
-      'template literal URLs are transformed',
+      'turns template literal expressions into path params',
     );
 
     defineInlineTest(
@@ -967,13 +1013,15 @@ function fetchData(condition) {
 import { RestEndpoint } from '@data-client/rest';
 function fetchData(condition) {
   if (condition) {
+    // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
     return new RestEndpoint({
       path: '/a'
-    });
+    })();
   } else {
+    // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
     return new RestEndpoint({
       path: '/b'
-    });
+    })();
   }
 }
       `,
@@ -990,13 +1038,276 @@ const result = axios.all([axios.get('/a'), axios.get('/b')]);
       `
 import { RestEndpoint } from '@data-client/rest';
 import axios from 'axios';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+// TODO(data-client): use \`Promise.all()\` instead of \`axios.all()\`: https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = axios.all([new RestEndpoint({
   path: '/a'
-}), new RestEndpoint({
+})(), new RestEndpoint({
   path: '/b'
-})]);
+})()]);
       `,
       'axios.all with nested axios.get calls transforms the gets but preserves axios.all and import',
+    );
+  });
+
+  // ── Response bodies ─────────────────────────────────────────────────
+
+  describe('reading the body instead of .data', () => {
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+async function getUser(id) {
+  const res = await axios.get(\`/users/\${id}\`);
+  console.log(res.data.name);
+  return res.data;
+}
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+async function getUser(id) {
+  const res = await new RestEndpoint({
+    path: '/users/:id'
+  })({
+    id
+  });
+  console.log(res.name);
+  return res;
+}
+      `,
+      'replaces res.data reads when the response is only read for its data',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+async function getUser() {
+  return (await axios.get('/me')).data;
+}
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+async function getUser() {
+  return await new RestEndpoint({
+    path: '/me'
+  })();
+}
+      `,
+      'unwraps (await call).data',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+async function getUser() {
+  const { data: user } = await axios.get('/me');
+  return user;
+}
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+async function getUser() {
+  const user = await new RestEndpoint({
+    path: '/me'
+  })();
+  return user;
+}
+      `,
+      'unwraps a renamed data destructure',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const search = q => axios.get(\`/search?q=\${q}&limit=5\`).then(({ data }) => data.items);
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+const search = q => new RestEndpoint({
+  path: '/search'
+})({
+  q,
+  limit: '5'
+}).then(data => data.items);
+      `,
+      'moves the query string into args and unwraps a .then() data destructure',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+async function save() {
+  const { data, status } = await axios.post('/users', { name: 'a' });
+  return [data, status];
+}
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+async function save() {
+  // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+  const { data, status } = await new RestEndpoint({
+    path: '/users',
+    method: 'POST'
+  })({ name: 'a' });
+  return [data, status];
+}
+      `,
+      'marks reads of response fields other than data',
+    );
+  });
+
+  // ── Urls and config ─────────────────────────────────────────────────
+
+  describe('urls and config', () => {
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const save = (post, body) => axios.put(\`https://api.example.com/posts/\${post.id}\`, body, { params: { notify: true } });
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+const save = (post, body) => new RestEndpoint({
+  urlPrefix: 'https://api.example.com',
+  path: '/posts/:id',
+  method: 'PUT'
+})({
+  id: post.id,
+  notify: true
+}, body);
+      `,
+      'splits an absolute url into urlPrefix and passes params with the body',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const get = (a, b) => axios.get(\`/files/v\${a}/\${b.id}/\${a}\`);
+      `,
+      `
+import axios from 'axios';
+// TODO(data-client): convert this axios.get() call to an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
+const get = (a, b) => axios.get(\`/files/v\${a}/\${b.id}/\${a}\`);
+      `,
+      'marks urls whose expressions do not fill a whole path segment',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const get = (a, b) => axios.get(\`/a/\${a.id}/b/\${b.id}\`);
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+const get = (a, b) => new RestEndpoint({
+  path: '/a/:id/b/:id2'
+})({
+  id: a.id,
+  id2: b.id
+});
+      `,
+      'names repeated path params uniquely',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const api = axios.create({ baseURL: '/api', timeout: 5000, withCredentials: true });
+api.interceptors.request.use(config => config);
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+
+// TODO(data-client): move axios \`timeout\`, \`withCredentials\` to \`ApiEndpoint\`: https://dataclient.io/rest/guides/axios-migration#quick-reference
+class ApiEndpoint extends RestEndpoint {
+  urlPrefix = '/api';
+}
+
+// TODO(data-client): move this interceptor into \`ApiEndpoint\`: https://dataclient.io/rest/guides/axios-migration#base-endpoint
+api.interceptors.request.use(config => config);
+      `,
+      'marks instance options and interceptors it cannot move',
+    );
+  });
+
+  // ── TypeScript ──────────────────────────────────────────────────────
+
+  describe('TypeScript files', () => {
+    const tsTest = (input, output, name) =>
+      it(name, () => {
+        runInlineTest(transform, {}, { source: input, path: 'api.ts' }, output);
+      });
+
+    tsTest(
+      `
+import axios, { AxiosResponse } from 'axios';
+const api = axios.create({ baseURL: '/api', headers: { 'X-App': 'web' } });
+interface User { id: string }
+export async function getUser(id: string) {
+  const res: AxiosResponse<User> = await api.get(\`/users/\${id}\`);
+  return res.data;
+}
+export async function listUsers(page: number) {
+  const { data } = await api.get<User[]>('/users', { params: { page } });
+  return data;
+}
+      `,
+      `
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
+
+class ApiEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+  urlPrefix = '/api';
+
+  getHeaders(headers: HeadersInit): HeadersInit {
+    return {
+      ...headers,
+      'X-App': 'web'
+    };
+  }
+}
+
+interface User { id: string }
+export async function getUser(id: string) {
+  const res: User = await new ApiEndpoint({
+    path: '/users/:id'
+  })({
+    id
+  });
+  return res;
+}
+export async function listUsers(page: number) {
+  const data = await new ApiEndpoint({
+    path: '/users',
+    searchParams: {} as Record<string, unknown>,
+
+    process(value): User[] {
+      return value;
+    }
+  })({
+    page
+  });
+  return data;
+}
+      `,
+      'keeps types: a generic base class, the response type and untyped query params',
     );
   });
 
