@@ -72,7 +72,8 @@
 .scrubber::after {
   content: '';
   position: absolute;
-  bottom: 0;
+  /* under the body (it stacks above), meeting its corner partway round */
+  bottom: calc(-1 * var(--pg-head-flare-drop, 0px));
   height: var(--pg-head-flare-depth, 0px);
   pointer-events: none;
 }
@@ -80,7 +81,8 @@
   right: calc(100% - 1px);
   width: calc(var(--store-head-start, 0) * (var(--pg-head-flare, 0px) + 1px));
   background: radial-gradient(
-    var(--pg-head-flare, 0px) var(--pg-head-flare-depth, 0px) at 0 0,
+    circle var(--pg-head-flare-radius, 0px) at
+      calc(100% - 1px - var(--pg-head-flare-radius, 0px)) 0,
     transparent calc(100% - 0.5px),
     var(--store-bg) 100%
   );
@@ -89,7 +91,8 @@
   left: calc(100% - 1px);
   width: calc(var(--store-head-end, 0) * (var(--pg-head-flare, 0px) + 1px));
   background: radial-gradient(
-    var(--pg-head-flare, 0px) var(--pg-head-flare-depth, 0px) at 100% 0,
+    circle var(--pg-head-flare-radius, 0px) at
+      calc(1px + var(--pg-head-flare-radius, 0px)) 0,
     transparent calc(100% - 0.5px),
     var(--store-bg) 100%
   );
