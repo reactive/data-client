@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const {
+  applyTransform,
   defineInlineTest,
   runInlineTest,
 } = require('jscodeshift/dist/testUtils');
@@ -1638,12 +1639,14 @@ api.interceptors.request.use(config => config);
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'axios-to-rest-'));
       for (const [name, source] of Object.entries(files))
         fs.writeFileSync(path.join(dir, name), source);
-      const filePath = path.join(dir, file);
-      return transform(
-        { path: filePath, source: files[file] },
-        { jscodeshift: require('jscodeshift').withParser('tsx'), stats() {} },
+      return applyTransform(
+        transform,
         {},
-      ).trim();
+        {
+          path: path.join(dir, file),
+          source: files[file],
+        },
+      );
     };
     const posts = `
 import { api } from './client';

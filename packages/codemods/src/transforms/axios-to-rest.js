@@ -126,20 +126,12 @@ function readsOf(j, within, name, scope, options) {
     .filter(p => p.scope.lookup(name) === scope && isRead(p, options));
 }
 
-function hasReference(j, root, localName, importScope, excludeTypePositions) {
-  return (
-    readsOf(j, root, localName, importScope, {
-      types: !excludeTypePositions,
-    }).size() > 0
-  );
-}
-
 function hasLiveReference(j, root, localName, importScope) {
-  return hasReference(j, root, localName, importScope, false);
+  return readsOf(j, root, localName, importScope).size() > 0;
 }
 
 function hasRuntimeReference(j, root, localName, importScope) {
-  return hasReference(j, root, localName, importScope, true);
+  return readsOf(j, root, localName, importScope, { types: false }).size() > 0;
 }
 
 function ensureRestImports(j, root, names) {
@@ -161,7 +153,7 @@ function ensureRestImports(j, root, names) {
           s.imported &&
           s.importKind !== 'type'
         )
-          imported.add(s.imported.name || s.imported.value);
+          imported.add(specName(s.imported));
       }
     });
     const missing = names.filter(name => !imported.has(name));
@@ -230,7 +222,7 @@ function transformImports(
       // axios stays, but drop the types nothing reads anymore
       const used = importPath.node.specifiers.filter(s => {
         if (s.type !== 'ImportSpecifier') return true;
-        const importedName = s.imported.name || s.imported.value;
+        const importedName = specName(s.imported);
         if (s.importKind !== 'type' && !AXIOS_TYPE_IMPORTS.has(importedName))
           return true;
         const localName = (s.local && s.local.name) || importedName;
@@ -248,7 +240,7 @@ function transformImports(
       if (s.type === 'ImportDefaultSpecifier') return false;
       if (s.type === 'ImportSpecifier' && s.importKind === 'type') return false;
       if (s.type === 'ImportSpecifier' && s.imported) {
-        const importedName = s.imported.name || s.imported.value;
+        const importedName = specName(s.imported);
         const localName = (s.local && s.local.name) || importedName;
 
         if (AXIOS_RUNTIME_IMPORTS.has(importedName)) {
@@ -537,7 +529,15 @@ function aliasConfig(fromFile) {
   return config || {};
 }
 
+// each folder's imports resolve the same way, so files there share lookups
+const resolveCache = new Map();
 function resolveModule(fromFile, spec) {
+  const key = nodePath.dirname(nodePath.resolve(fromFile)) + '\0' + spec;
+  if (!resolveCache.has(key)) resolveCache.set(key, findModule(fromFile, spec));
+  return resolveCache.get(key);
+}
+
+function findModule(fromFile, spec) {
   if (spec.startsWith('.'))
     return findFile(nodePath.resolve(nodePath.dirname(fromFile), spec));
   const { baseUrl, paths, pathsDir } = aliasConfig(fromFile);
@@ -563,6 +563,23 @@ function resolveModule(fromFile, spec) {
   }
   // a bare import is a package unless baseUrl has a file by that name
   return baseUrl ? findFile(nodePath.resolve(baseUrl, spec)) : undefined;
+}
+
+/** Names of the instances whose `.interceptors.response` the module uses */
+function responseInterceptorTargets(j, root) {
+  return new Set(
+    root
+      .find(j.MemberExpression, {
+        object: {
+          type: 'MemberExpression',
+          object: { type: 'Identifier' },
+          property: { name: 'interceptors' },
+        },
+        property: { name: 'response' },
+      })
+      .nodes()
+      .map(node => node.object.object.name),
+  );
 }
 
 // exported name ('default' for a default export) -> { className, prefixed,
@@ -591,10 +608,7 @@ function exportedInstances(j, file) {
     }
     for (const spec of specifiers || [])
       if (spec.local && spec.exported)
-        exportsOf.set(
-          spec.exported.name || spec.exported.value,
-          spec.local.name || spec.local.value,
-        );
+        exportsOf.set(specName(spec.exported), specName(spec.local));
   });
   root.find(j.ExportDefaultDeclaration).forEach(p => {
     const decl = p.node.declaration;
@@ -603,17 +617,8 @@ function exportedInstances(j, file) {
       exportsOf.set('default', decl.id.name);
   });
   // a response interceptor can change what `.data` means at each call
-  const intercepts = name =>
-    root
-      .find(j.MemberExpression, {
-        object: {
-          type: 'MemberExpression',
-          object: { type: 'Identifier', name },
-          property: { name: 'interceptors' },
-        },
-        property: { name: 'response' },
-      })
-      .size() > 0;
+  const interceptedNames = responseInterceptorTargets(j, root);
+  const intercepts = name => interceptedNames.has(name);
 
   const axiosDefault = root
     .find(j.ImportDeclaration, { source: { value: 'axios' } })
@@ -653,23 +658,22 @@ function exportedInstances(j, file) {
   for (const [exported, local] of exportsOf) {
     if (!classes.has(local)) continue;
     const name = local.replace(/Endpoint$/, '');
+    // the instance names the rewrite would derive this class's name from
+    const sources = [name, name.charAt(0).toLowerCase() + name.slice(1)].filter(
+      c => deriveClassName(c) === local,
+    );
     // an aliased or default export keeps its name; otherwise the class took
-    // the instance's place, under the name the rewrite derived from it
+    // the instance's place
     const candidates =
-      exported !== local ?
-        [exported]
-      : [name, name.charAt(0).toLowerCase() + name.slice(1)].filter(
-          c => deriveClassName(c) === local && !exportsOf.has(c),
-        );
+      exported !== local ? [exported] : sources.filter(c => !exportsOf.has(c));
+    const intercepted = sources.some(intercepts);
     for (const candidate of candidates)
       if (!found.has(candidate))
         found.set(candidate, {
           className: local,
           exportName: exported,
           prefixed: classes.get(local),
-          intercepted: [name, name.charAt(0).toLowerCase() + name.slice(1)]
-            .filter(c => deriveClassName(c) === local)
-            .some(intercepts),
+          intercepted,
         });
   }
   return found;
@@ -700,7 +704,7 @@ function importedInstances(j, root, filePath) {
         if (s.importKind === 'type') continue;
         const imported =
           s.type === 'ImportDefaultSpecifier' ? 'default'
-          : s.type === 'ImportSpecifier' ? s.imported.name || s.imported.value
+          : s.type === 'ImportSpecifier' ? specName(s.imported)
           : null;
         const instance = imported && instances.get(imported);
         if (!instance) continue;
@@ -775,6 +779,16 @@ function reordersEffects(moved, crossed) {
   return (
     (effects(moved) && reads(crossed)) || (effects(crossed) && reads(moved))
   );
+}
+
+/** A module export or import name, which can be a string literal */
+const specName = node => node.name || node.value;
+
+/** The property name when `node` reads a non-computed member of `object` */
+function memberOf(node, object) {
+  return node.type === 'MemberExpression' && node.object === object ?
+      memberName(node)
+    : null;
 }
 
 function memberName(node) {
@@ -878,7 +892,6 @@ function toPath(j, urlArg) {
   const queryStart = joined.indexOf('?');
   const pathPart = queryStart === -1 ? joined : joined.slice(0, queryStart);
   const queryPart = queryStart === -1 ? '' : joined.slice(queryStart + 1);
-  const pathExprCount = (pathPart.match(/\0/g) || []).length;
 
   const args = [];
   const taken = new Set();
@@ -886,6 +899,7 @@ function toPath(j, urlArg) {
   const shared = new Map();
   let path = '';
   const segments = pathPart.split('\0');
+  const pathExprCount = segments.length - 1;
   for (let i = 0; i < segments.length; i++) {
     const text = segments[i];
     if (RESERVED_PATH_CHARS.test(text)) return null;
@@ -954,13 +968,7 @@ function unwrapResponseType(annotation) {
 }
 
 function isDataMember(node, object) {
-  return (
-    node.type === 'MemberExpression' &&
-    node.object === object &&
-    !node.computed &&
-    node.property.type === 'Identifier' &&
-    node.property.name === 'data'
-  );
+  return memberOf(node, object) === 'data';
 }
 
 /** Replaces each `name.data` read with `name`; false if `name` is read any other way */
@@ -1053,14 +1061,7 @@ function unwrapData(j, callPath) {
       return false;
     const param = cb.params[0];
     if (param.type === 'Identifier') {
-      const cbPath = j(thenPath)
-        .find(
-          cb.type === 'ArrowFunctionExpression' ?
-            j.ArrowFunctionExpression
-          : j.FunctionExpression,
-        )
-        .filter(p => p.node === cb)
-        .paths()[0];
+      const cbPath = thenPath.get('arguments', 0);
       if (!dropDataReads(j, cbPath, param.name, cbPath.scope, param))
         return false;
       const bodyType = unwrapResponseType(param.typeAnnotation);
@@ -1136,13 +1137,6 @@ function markTodo(j, path, message, anchor) {
     p.node.type !== 'ClassProperty' &&
     p.node.type !== 'ClassMethod' &&
     p.node.type !== 'MethodDefinition'
-  ) {
-    p = p.parent;
-  }
-  if (
-    p.parent &&
-    (p.parent.node.type === 'ExportNamedDeclaration' ||
-      p.parent.node.type === 'ExportDefaultDeclaration')
   ) {
     p = p.parent;
   }
@@ -1278,12 +1272,7 @@ function buildCall(j, callPath, className, prefixed, isTS) {
     j.objectExpression(options),
   ]);
   const params = callArgs.length ? j.objectExpression(callArgs) : null;
-  const invokeArgs =
-    data ?
-      params ? [params, data]
-      : [data]
-    : params ? [params]
-    : [];
+  const invokeArgs = [params, data].filter(Boolean);
 
   return {
     node: j.callExpression(endpoint, invokeArgs),
@@ -1299,7 +1288,7 @@ function transformDirectCalls(
   root,
   axiosLocalName,
   axiosImportScope,
-  { createToClass, prefixedClasses, intercepted: importedIntercepted = [] },
+  { createToClass, prefixedClasses, intercepted: importedIntercepted },
   isTS,
 ) {
   let dirty = false;
@@ -1307,21 +1296,12 @@ function transformDirectCalls(
   const callTargets = new Set([axiosLocalName, ...createToClass.keys()]);
   // a response interceptor can change what `.data` refers to (often the
   // body's own `data` field, after `response => response.data`)
-  const intercepted = new Set(
-    root
-      .find(j.MemberExpression, {
-        object: {
-          type: 'MemberExpression',
-          object: { type: 'Identifier' },
-          property: { name: 'interceptors' },
-        },
-        property: { name: 'response' },
-      })
-      .nodes()
-      .map(node => node.object.object.name)
-      .filter(name => callTargets.has(name))
-      .concat([...importedIntercepted]),
-  );
+  const intercepted = new Set([
+    ...[...responseInterceptorTargets(j, root)].filter(name =>
+      callTargets.has(name),
+    ),
+    ...importedIntercepted,
+  ]);
 
   // innermost calls first, so a call nested in another call's args converts
   // before its parent rebuilds around it
@@ -1442,6 +1422,10 @@ const AXIOS_MEMBER_TODOS = {
     'use an `AbortSignal` instead of `CancelToken`',
     'cancellation',
   ],
+  AxiosError: [
+    'check `NetworkError` instead of `AxiosError`',
+    'error-handling',
+  ],
 };
 
 function markLeftovers(
@@ -1454,10 +1438,7 @@ function markLeftovers(
   let dirty = false;
 
   // calls it couldn't convert are marked already
-  const isMarkedCall = p =>
-    p.parent.node.type === 'MemberExpression' &&
-    p.parent.node.object === p.node &&
-    HTTP_METHODS.has(memberName(p.parent.node));
+  const isMarkedCall = p => HTTP_METHODS.has(memberOf(p.parent.node, p.node));
 
   // axios instances are classes now; anything else reading them needs a hand
   for (const [name, scopes] of createToClass) {
@@ -1476,7 +1457,7 @@ function markLeftovers(
         // the module exports the class now, which importers convert to
         if (parent.type === 'ExportSpecifier') {
           if (parent.local !== p.node) return;
-          const exported = parent.exported.name || parent.exported.value;
+          const exported = specName(parent.exported);
           parent.local = j.identifier(className);
           if (exported === name) parent.exported = j.identifier(className);
           dirty = true;
@@ -1487,10 +1468,7 @@ function markLeftovers(
           dirty = true;
           return;
         }
-        const member =
-          parent.type === 'MemberExpression' && parent.object === p.node ?
-            memberName(parent)
-          : null;
+        const member = memberOf(parent, p.node);
         if (member === 'interceptors') {
           markTodo(
             j,
@@ -1522,10 +1500,7 @@ function markLeftovers(
       .filter(p => !isMarkedCall(p))
       .forEach(p => {
         const parent = p.parent.node;
-        const member =
-          parent.type === 'MemberExpression' && parent.object === p.node ?
-            memberName(parent)
-          : null;
+        const member = memberOf(parent, p.node);
         const [message, anchor] = own(AXIOS_MEMBER_TODOS, member) || [
           'replace this axios call with an endpoint',
           'call-sites',
@@ -1544,12 +1519,9 @@ function markLeftovers(
     .forEach(importPath => {
       for (const s of importPath.node.specifiers || []) {
         if (s.type !== 'ImportSpecifier' || s.importKind === 'type') continue;
-        const imported = s.imported.name || s.imported.value;
+        const imported = specName(s.imported);
         const local = (s.local && s.local.name) || imported;
-        const todo =
-          imported === 'AxiosError' ?
-            ['check `NetworkError` instead of `AxiosError`', 'error-handling']
-          : own(AXIOS_MEMBER_TODOS, imported);
+        const todo = own(AXIOS_MEMBER_TODOS, imported);
         if (!todo) continue;
         readsOf(j, root, local, importPath.scope, { types: false }).forEach(
           p => {
@@ -1610,7 +1582,6 @@ module.exports = function transformer(fileInfo, api) {
     createResult,
     isTS,
   );
-  const directCallsDirty = calls.dirty;
   dirty = calls.dirty || calls.marked || dirty;
 
   dirty =
@@ -1645,7 +1616,7 @@ module.exports = function transformer(fileInfo, api) {
         j,
         root,
         axiosLocalName,
-        createResult.dirty || directCallsDirty,
+        createResult.dirty || calls.dirty,
         isTS && createResult.dirty ?
           ['RestEndpoint', 'RestGenerics']
         : ['RestEndpoint'],
