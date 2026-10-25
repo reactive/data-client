@@ -35,13 +35,13 @@
      --ds-*): the sheet the app is on (panel) and a well a step off it, a
      line kept for demos that draw their own, its text, and the live dot */
   --pg-panel: #fff;
-  --pg-panel-2: hsl(213, 23%, 95%);
-  --pg-line: hsl(213, 19%, 88%);
+  --pg-panel-2: #eef2f7;
+  --pg-line: #d8e0ea;
   /* the stage the sheet sits on, showing as the header's tint: a cool tonal
      ground, lighter at the top */
-  --pg-stage: linear-gradient(170deg, hsl(213, 30%, 95.5%), hsl(214, 24%, 92%));
+  --pg-stage: linear-gradient(170deg, #eef3f9, #e2e9f2);
   --pg-text: #0b1220;
-  --pg-muted: hsl(215, 12%, 36.5%);
+  --pg-muted: #4c5a6e;
   --pg-live: #0d8257;
   --pg-live-soft: color-mix(in srgb, var(--pg-live) 14%, transparent);
   /* a resting control's band under the pointer, on any ground */
@@ -150,19 +150,22 @@
 }
 /* Dark mode: the frame is a muted slate of the code's indigo, so the code
    (and the active tab, which matches it) keeps the color. Bars sit a step
-   above the code, and the preview a half step, so the top row reads as one band */
+   above the code, and the preview a half step, so the top row reads as one
+   band. The editor's slate and the preview's navy each sit 40% of the way
+   toward the other (in OKLab), so they read as one family with a hint of
+   difference */
 :root[data-theme='dark'] .playgroundContainer:not(.endpointPlayground) {
-  --pg-bar: hsl(229, 18%, 21%);
-  --pg-tab-hover-bg: hsl(229, 18%, 26%);
+  --pg-bar: #21262f;
+  --pg-tab-hover-bg: #2c313c;
 }
 :root[data-theme='dark'] .playgroundContainer {
   /* the sheet a step above the stage, its wells a step above that */
-  --pg-panel: hsl(216, 22%, 11.4%);
-  --pg-panel-2: hsl(216, 20%, 15.5%);
-  --pg-line: hsl(219, 20%, 22%);
-  --pg-stage: linear-gradient(170deg, hsl(216, 25%, 7.6%), hsl(216, 25%, 8%));
-  --pg-text: hsl(214, 28%, 94%);
-  --pg-muted: hsl(215, 12%, 65%);
+  --pg-panel: #181e2a;
+  --pg-panel-2: #202837;
+  --pg-line: #2c364d;
+  --pg-stage: linear-gradient(170deg, #1a1e26, #19222b);
+  --pg-text: #eaedf5;
+  --pg-muted: #96a1b5;
   --pg-live: #3ddc97;
   --pg-live-soft: color-mix(in srgb, var(--pg-live) 16%, transparent);
   --pg-shadow: rgba(0, 0, 0, 0.8);

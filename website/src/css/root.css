@@ -1,5 +1,5 @@
 html[data-theme='dark'] {
-  --monoco-code-background: hsl(229, 30%, 15%);
+  --monoco-code-background: #1a1f2b;
   --monoco-code-lineHighlightBorder: hsl(228, 20%, 20%);
   --ifm-link-color: var(--ifm-color-primary-light);
   --docusaurus-highlighted-code-line-bg: rgb(72 77 91);
@@ -12,7 +12,7 @@ html[data-theme='dark'] {
   --ifm-color-secondary-lightest: #fff;
 }
 html[data-theme='light'] {
-  --monoco-code-background: hsl(229, 30%, 20%);
+  --monoco-code-background: #292d3e;
   --monoco-code-lineHighlightBorder: hsl(228, 20%, 25%);
   --ifm-hero-fade-to-background-color: #fff;
   --ifm-link-color: var(--ifm-color-primary-dark);

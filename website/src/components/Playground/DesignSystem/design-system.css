@@ -44,9 +44,9 @@
      a well alike */
   --ds-hover: var(--pg-hover);
   /* labels and hints: the quietest text that still reads (4.5:1 on the panel and the well) */
-  --ds-faint: hsl(217, 10%, 44%);
+  --ds-faint: #5f6d83;
   /* 3:1 on the panel, so field and button edges stay legible */
-  --ds-border-strong: hsl(214, 10%, 54%);
+  --ds-border-strong: #78889d;
   --ds-accent: #1b6fb8;
   --ds-accent-strong: #155b99;
   /* the accent's wash: a highlighted row, a changed value, a focus ring */
@@ -80,10 +80,10 @@
 /* Dark: the same console at night (the panel, well, line and text follow
    --pg-* above); what's left is the design system's own */
 html[data-theme='dark'] .playground-preview {
-  /* 4.7:1 on the sheet */
-  --ds-faint: hsl(216, 10%, 54%);
+  /* 4.6:1 on the sheet */
+  --ds-faint: #7b879e;
   /* 3.5:1 on the sheet, 3.1:1 on a well */
-  --ds-border-strong: hsl(214, 11.5%, 45.5%);
+  --ds-border-strong: #65748c;
   --ds-accent: #53aef0;
   --ds-accent-strong: #7cc1f4;
   --ds-accent-soft: color-mix(in srgb, var(--ds-accent) 14%, transparent);
