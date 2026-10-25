@@ -479,6 +479,7 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .row .tab {
   gap: 0.5em;
+  white-space: nowrap;
   height: 100%;
   padding: 0 0.85rem;
   border-radius: 8px 8px 0 0;
@@ -531,8 +532,11 @@ div.playgroundTextEdit > .playgroundHeader,
     var(--pg-tab-selected-bg) var(--pg-card-radius)
   );
 }
-/* no curve out past the card's edge */
-.row .tab.selected:first-child::before {
+/* at the card's edge (TabList's flush marks), no curve out past it */
+.row
+  .tabs:is([data-flush-left], :has(> .tab:first-child.selected))
+  > .tab.selected::before,
+.row .tabs[data-flush-right] > .tab.selected::after {
   content: none;
 }
 .row .tab:focus-visible {
@@ -563,12 +567,18 @@ div.playgroundTextEdit > .playgroundHeader,
   max-height: 6rem;
   border-radius: 0 0 var(--pg-card-radius) var(--pg-card-radius);
 }
-/* the first file open: its tab's edge runs straight into the card */
+/* the open file's tab at the card's edge runs straight into it */
 .row
-  .tabControls:has(.tab:first-child.selected)
+  .tabControls:has(.tabs[data-flush-left], .tab:first-child.selected)
   + .editorDocs
   > .playgroundEditor {
   border-top-left-radius: 0;
+}
+.row
+  .tabControls:has(.tabs[data-flush-right])
+  + .editorDocs
+  > .playgroundEditor {
+  border-top-right-radius: 0;
 }
 /* the preview's folder: the row's height, its header and the app's sheet on
    it; the sheet's foot runs on toward the code's by 6rem at most, its
@@ -616,7 +626,10 @@ div.playgroundTextEdit > .playgroundHeader,
    is behind the folder and its Store leaves the tree (StoreInspector) */
 .row > .storeHost {
   position: relative;
-  z-index: 1;
+  /* over the preview, so its handle is the folder's own paper (the
+     preview's shadow under it); the drawer never reaches the preview
+     (clipped at its edge below) */
+  z-index: 3;
   min-width: 0;
   min-height: 0;
   /* the handle reaches past its edge (the frame's last-child rule clips) */
@@ -649,15 +662,14 @@ div.playgroundTextEdit > .playgroundHeader,
 .row > .storeHost:has(.storePanel[data-visible]) {
   min-height: var(--store-min);
 }
-/* The handle: a pull tab of the folder's color on the drawer's edge, out
-   from under the preview (whose shadow falls on it) and, drawn out, still
-   outside the Store's edge; its own shadow clipped where it joins */
+/* The handle: a pull tab of the folder's paper on the drawer's edge, out
+   past the preview's edge and, drawn out, the Store's; it curves into
+   that edge either side as the open file's tab does into its card */
 .storeTab {
   position: absolute;
   display: grid;
   place-items: center;
   background: var(--pg-stage);
-  box-shadow: var(--pg-card-shadow);
   color: var(--pg-muted);
   font-size: 1.1rem;
   cursor: pointer;
@@ -677,6 +689,14 @@ div.playgroundTextEdit > .playgroundHeader,
 .storeTab:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
   outline-offset: -3px;
+}
+.storeTab::before,
+.storeTab::after {
+  content: '';
+  position: absolute;
+  width: calc(var(--pg-card-radius) + 1px);
+  height: calc(var(--pg-card-radius) + 1px);
+  pointer-events: none;
 }
 
 .debugToggle:hover {
@@ -1192,7 +1212,7 @@ div.fixtureJson + div.fixtureJson {
   }
   .row > .storeHost {
     grid-area: 1 / 1 / 3 / 3;
-    clip-path: inset(-4rem 0 -4rem -4rem);
+    clip-path: inset(-4rem calc(100% - var(--pg-fold)) -4rem -4rem);
   }
   /* the drawer: the code's column and the gap, edge to edge, its handle
      out past the playground's edge; the Store scrolls within the row's
@@ -1213,13 +1233,31 @@ div.fixtureJson + div.fixtureJson {
     padding-right: var(--pg-gap);
     border-radius: 0 var(--pg-card-radius) var(--pg-card-radius) 0;
   }
+  /* by the foot, its curve clear of the corner's */
   .storeTab {
     right: 100%;
-    bottom: 0;
+    bottom: calc(2 * var(--pg-card-radius));
     width: var(--pg-tab-width);
     height: var(--pg-tab-length);
     border-radius: var(--pg-card-radius) 0 0 var(--pg-card-radius);
-    clip-path: inset(-4rem 0 -4rem -4rem);
+  }
+  .storeTab::before {
+    right: -1px;
+    bottom: calc(100% - 1px);
+    background: radial-gradient(
+      circle at 0 0,
+      transparent calc(var(--pg-card-radius) - 0.5px),
+      var(--pg-stage) var(--pg-card-radius)
+    );
+  }
+  .storeTab::after {
+    right: -1px;
+    top: calc(100% - 1px);
+    background: radial-gradient(
+      circle at 0 100%,
+      transparent calc(var(--pg-card-radius) - 0.5px),
+      var(--pg-stage) var(--pg-card-radius)
+    );
   }
   .playgroundContainer.endpointPlayground {
     flex-direction: row;
@@ -1284,15 +1322,32 @@ div.fixtureJson + div.fixtureJson {
     border-radius: 0 0 var(--pg-card-radius) var(--pg-card-radius);
   }
   /* up from the top edge at its right end (the thumb's side, clear of
-     anything laid out at the left above the preview), past the corner's
-     curve, so the two join */
+     anything laid out at the left above the preview), its curve clear of
+     the corner's */
   .storeTab {
     bottom: 100%;
-    right: var(--pg-card-radius);
+    right: calc(2 * var(--pg-card-radius));
     width: var(--pg-tab-length);
     height: var(--pg-tab-width);
     border-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;
-    clip-path: inset(-4rem -4rem 0 -4rem);
+  }
+  .storeTab::before {
+    right: calc(100% - 1px);
+    bottom: -1px;
+    background: radial-gradient(
+      circle at 0 0,
+      transparent calc(var(--pg-card-radius) - 0.5px),
+      var(--pg-stage) var(--pg-card-radius)
+    );
+  }
+  .storeTab::after {
+    left: calc(100% - 1px);
+    bottom: -1px;
+    background: radial-gradient(
+      circle at 100% 0,
+      transparent calc(var(--pg-card-radius) - 0.5px),
+      var(--pg-stage) var(--pg-card-radius)
+    );
   }
   /* pinned, they get room to unfold a response even over a short result;
      the preview clips them, so they scroll within that same height */
