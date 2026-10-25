@@ -1227,6 +1227,24 @@ async function save() {
       {},
       `
 import axios from 'axios';
+const list = async () => (await axios.get('/users', { params: { role: null, page: undefined, sort: 'name' } })).data;
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+const list = async () => await new RestEndpoint({
+  path: '/users'
+})({
+  sort: 'name'
+});
+      `,
+      'drops null and undefined params as axios does',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
 const get = id => axios.get(\`/users/\${id}\`, { params: nextFilters() });
       `,
       `
@@ -1424,7 +1442,7 @@ const list = (id, filters) => axios.get(\`/users/\${id}/posts\`, { params: filte
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
-// TODO(data-client): check these query params serialize as before: arrays, nested objects and URLSearchParams need \`searchToString()\`: https://dataclient.io/rest/guides/axios-migration#query-serialization
+// TODO(data-client): check these query params serialize as before: axios leaves out null and undefined values and has its own format for arrays, nested objects and URLSearchParams; match it in \`searchToString()\`: https://dataclient.io/rest/guides/axios-migration#query-serialization
 // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const list = (id, filters) => new RestEndpoint({
   path: '/users/:id/posts'
@@ -1528,6 +1546,7 @@ export async function getUser(id: string) {
   return res;
 }
 export async function listUsers(page: number) {
+  // TODO(data-client): check these query params serialize as before: axios leaves out null and undefined values and has its own format for arrays, nested objects and URLSearchParams; match it in \`searchToString()\`: https://dataclient.io/rest/guides/axios-migration#query-serialization
   const data = await (new ApiEndpoint({
     path: '/users',
     searchParams: {} as Record<string, unknown>

@@ -469,6 +469,24 @@ function isSimple(node) {
   );
 }
 
+function isScalarLiteral(node) {
+  return (
+    node.type === 'StringLiteral' ||
+    node.type === 'NumericLiteral' ||
+    node.type === 'BooleanLiteral' ||
+    (node.type === 'Literal' && node.value !== null) ||
+    (node.type === 'TemplateLiteral' && !node.expressions.length)
+  );
+}
+
+function isNullish(node) {
+  return (
+    node.type === 'NullLiteral' ||
+    (node.type === 'Literal' && node.value === null) ||
+    (node.type === 'Identifier' && node.name === 'undefined')
+  );
+}
+
 function memberName(node) {
   if (node.type === 'Identifier') return node.name;
   if (
@@ -860,7 +878,7 @@ function buildCall(j, callPath, className, prefixed, isTS) {
   const config = hasBody ? args[2] : args[1];
   if (args.some(a => a.type === 'SpreadElement')) return null;
 
-  const query = [...url.query];
+  const configParams = [];
   const spreadParams = [];
   const unknownOptions = [];
   const todos = [];
@@ -870,7 +888,12 @@ function buildCall(j, callPath, className, prefixed, isTS) {
       const key = propKey(prop);
       if (key === 'params') {
         if (prop.value.type === 'ObjectExpression') {
-          query.push(...prop.value.properties);
+          // axios leaves out null and undefined params
+          configParams.push(
+            ...prop.value.properties.filter(
+              p => !p.value || !isNullish(p.value),
+            ),
+          );
         } else {
           // first, so it can't replace a path param
           spreadParams.push(j.spreadElement(prop.value));
@@ -883,6 +906,7 @@ function buildCall(j, callPath, className, prefixed, isTS) {
     }
   }
 
+  const query = [...url.query, ...configParams];
   // each query key must be distinct from the path params and each other
   const keys = new Set(url.args.map(propKey));
   for (const prop of query) {
@@ -890,17 +914,14 @@ function buildCall(j, callPath, className, prefixed, isTS) {
     if (!key || keys.has(key)) return null;
     keys.add(key);
   }
-  // axios serializes arrays and objects in params its own way
+  // axios drops nullish params and serializes arrays and objects its own way,
+  // so only literal scalars are sure to serialize the same
   if (
     spreadParams.length ||
-    query.some(
-      prop =>
-        prop.value.type === 'ArrayExpression' ||
-        prop.value.type === 'ObjectExpression',
-    )
+    configParams.some(prop => !prop.value || !isScalarLiteral(prop.value))
   ) {
     todos.push([
-      'check these query params serialize as before: arrays, nested objects and URLSearchParams need `searchToString()`',
+      'check these query params serialize as before: axios leaves out null and undefined values and has its own format for arrays, nested objects and URLSearchParams; match it in `searchToString()`',
       'query-serialization',
     ]);
   }
