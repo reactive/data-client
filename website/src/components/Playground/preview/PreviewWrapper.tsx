@@ -93,9 +93,8 @@ export default function PreviewWrapper({
 /** Row layout: how far the row runs on below the app's sheet with its foot
  * (the wrapper's ::after) at full reach, as `--pg-preview-gap` on the row:
  * the preview's folder ends there, and the open Store runs on past it.
- * Measured against the row, which that end never moves. While the loading
- * page shows, styles.module.css sets it from tokens instead, so the page
- * has it before it hydrates */
+ * Measured against the row, which that end never moves. Before the page
+ * hydrates, styles.module.css derives it for the loading page */
 function usePreviewGap(result: HTMLElement | null) {
   useLayoutEffect(() => {
     const wrapper = result?.parentElement;

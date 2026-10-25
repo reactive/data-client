@@ -1404,14 +1404,15 @@ div.fixtureJson + div.fixtureJson {
        below that (./preview/PreviewWrapper.tsx) */
     max-height: calc(100% - var(--pg-preview-gap, 0px));
   }
-  /* the loading page is one height, so where its folder ends follows from
-     the tokens alone: the same before the page hydrates as after, over
-     what PreviewWrapper.tsx measures (inline, so this must be important) */
+  /* the loading page is one height, so where its folder ends is known
+     before the page hydrates and PreviewWrapper.tsx measures the same; in
+     row heights (100%), so only the folder's own rules may read it before
+     then, never the Store's (it shows only once hydrated) */
   .row:has(.sheet[aria-busy]) {
     --pg-preview-gap: max(
       0px,
       100% - var(--pg-row) - var(--pg-pending-sheet) - var(--pg-card-foot)
-    ) !important;
+    );
   }
   .row .sheet[aria-busy] {
     height: var(--pg-pending-sheet);
