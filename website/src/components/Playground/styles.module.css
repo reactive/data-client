@@ -485,9 +485,8 @@ div.playgroundTextEdit > .playgroundHeader,
   border-radius: 8px 8px 0 0;
   color: var(--ifm-color-emphasis-800);
   box-shadow: none;
-  transition:
-    background-color var(--motion-snappy),
-    color var(--motion-snappy);
+  /* its paper (background and curves) comes and goes at once, together */
+  transition: color var(--motion-snappy);
 }
 .row .tab:hover {
   background: color-mix(in srgb, var(--ifm-font-color-base) 7%, transparent);
