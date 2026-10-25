@@ -8,7 +8,7 @@ The [RestEndpoint](./data-client-rest-setup/references/RestEndpoint.md) and [res
 
 ## Step 1: Installation
 
-Install the REST package alongside the core package:
+Install the REST package:
 
 ```bash
 # npm
@@ -45,11 +45,11 @@ Check `package.json` dependencies and scan source files:
 
 | Check | Pattern | Action |
 |-------|---------|--------|
-| `"axios"` in dependencies, or `import.*from ['"]axios['"]` in source | **Axios** | Follow [references/axios-migration.md](./data-client-rest-setup/references/axios-migration.md) |
-| `fetch(` calls with REST-style URLs, or wrapper functions around `fetch` | **Raw fetch** | Follow [references/fetch-migration.md](./data-client-rest-setup/references/fetch-migration.md) |
-| `"ky"` in dependencies, or `import.*from ['"]ky['"]` | **Ky** | Follow [references/ky-migration.md](./data-client-rest-setup/references/ky-migration.md) |
-| `"superagent"` in dependencies | **SuperAgent** | Follow [references/superagent-migration.md](./data-client-rest-setup/references/superagent-migration.md) |
-| `"got"` in dependencies (rare in browser code) | **Got** | Follow [references/got-migration.md](./data-client-rest-setup/references/got-migration.md) |
+| `"axios"` in dependencies, or `import.*from ['"]axios['"]` in source | **Axios** | Follow [Axios migration](./data-client-rest-setup/references/axios-migration.md) |
+| `fetch(` calls with REST-style URLs, or wrapper functions around `fetch` | **Raw fetch** | Follow [Fetch migration](./data-client-rest-setup/references/fetch-migration.md) |
+| `"ky"` in dependencies, or `import.*from ['"]ky['"]` | **Ky** | Follow [Ky migration](./data-client-rest-setup/references/ky-migration.md) |
+| `"superagent"` in dependencies | **SuperAgent** | Follow [SuperAgent migration](./data-client-rest-setup/references/superagent-migration.md) |
+| `"got"` in dependencies (rare in browser code) | **Got** | Follow [Got migration](./data-client-rest-setup/references/got-migration.md) |
 | No existing HTTP library detected | **Fresh project** | Skip to [Step 3: Custom RestEndpoint Base Class](#step-3-custom-restendpoint-base-class) |
 
 ### Ambiguous Detection
@@ -76,20 +76,20 @@ When multiple HTTP libraries are detected, run each sub-procedure on the relevan
 
 Each migration is a self-contained reference. Read only the relevant one(s) based on detection results above. After completing migrations, return here for base class setup.
 
-- **Axios** → [references/axios-migration.md](./data-client-rest-setup/references/axios-migration.md) — codemod, interceptors, error handling, timeout, cancelToken, responseType, paramsSerializer, auth, validateStatus, CSRF, upload progress
+- **Axios** → [Axios migration](./data-client-rest-setup/references/axios-migration.md) — codemod, interceptors, error handling, timeout, cancelToken, responseType, paramsSerializer, auth, validateStatus, CSRF, upload progress
   1. Check `git status` is clean (commit or ask first), so the codemod's changes can be reviewed on their own.
   2. Run its codemod before any manual edits, on the source folders (never the repo root): `npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/`. It turns each axios call into an endpoint call and drops `.data`.
   3. Find what it left: search the source for `TODO(data-client)`. Each comment names one thing to finish and links its guide section, which is in the reference under the same heading. Resolve it, then delete the comment.
   4. Follow the reference's remaining steps (base endpoint, entities and resources, call sites, error handling). Callers keep loading data the way they did; only the call changes.
   5. Run the type checker and tests. When no `axios` import or `TODO(data-client)` comment is left, uninstall axios.
-- **Raw fetch** → [references/fetch-migration.md](./data-client-rest-setup/references/fetch-migration.md) — fetch wrappers, headers, status checks, POST patterns, error handling
-- **Ky** → [references/ky-migration.md](./data-client-rest-setup/references/ky-migration.md) — prefixUrl, hooks, HTTPError, instance config
-- **SuperAgent** → [references/superagent-migration.md](./data-client-rest-setup/references/superagent-migration.md) — chained API, plugins, agents, file uploads
-- **Got** → [references/got-migration.md](./data-client-rest-setup/references/got-migration.md) — Node.js patterns, hooks, pagination, retry
+- **Raw fetch** → [Fetch migration](./data-client-rest-setup/references/fetch-migration.md) — fetch wrappers, headers, status checks, POST patterns, error handling
+- **Ky** → [Ky migration](./data-client-rest-setup/references/ky-migration.md) — prefixUrl, hooks, HTTPError, instance config
+- **SuperAgent** → [SuperAgent migration](./data-client-rest-setup/references/superagent-migration.md) — chained API, plugins, agents, file uploads
+- **Got** → [Got migration](./data-client-rest-setup/references/got-migration.md) — Node.js patterns, hooks, pagination, retry
 
 ## Step 3: Custom RestEndpoint Base Class
 
-After installation and any migrations, **offer to create a custom RestEndpoint class** for the project.
+After installation and any migrations, **offer to create a custom RestEndpoint class** for the project. If a migration already made one (the axios codemod turns each `axios.create()` instance into a class), add these overrides to that class instead of creating another.
 
 ### Detection Checklist
 
@@ -186,10 +186,11 @@ getRequestInit(body?: RequestInit['body'] | Record<string, unknown>): RequestIni
 
 ### Custom Response Parsing (unwrap data envelope)
 
+Only when the JSON body itself is wrapped, like `{ "data": { "id": 1 } }`. axios's `response.data` is axios's wrapper around the body, not an envelope, and the axios codemod already removed it; unwrapping again would strip a real `data` field.
+
 ```ts
 process(value: any, ...args: any[]) {
-  // If API wraps responses in { data: ... }
-  return value.data ?? value;
+  return value.data;
 }
 ```
 
@@ -257,10 +258,6 @@ export class BaseEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> 
   searchToString(searchParams: Record<string, any>): string {
     return qs.stringify(searchParams, { arrayFormat: 'brackets' });
   }
-
-  process(value: any, ...args: any[]) {
-    return value?.data ?? value;
-  }
 }
 
 async function getAuthToken(): Promise<string | null> {
@@ -304,7 +301,7 @@ export const loginEndpoint = new BaseEndpoint({
 
 ### Coexisting with existing validation (Zod, Yup)
 
-If the codebase already validates responses with Zod/Yup, prefer **Entity as the source of truth** for types that benefit from caching/normalization. Keep Zod only for types that don't need normalization (auth tokens, form validation types, one-off responses). See the migration reference files for detailed options.
+If the codebase already validates responses with Zod or Yup, keep that validation by parsing in `process()` and add an Entity `schema` for normalization; skip the Entity only for responses that don't need normalization (auth tokens, one-off responses). The [Axios migration](./data-client-rest-setup/references/axios-migration.md) reference shows each option under "Coexisting with Zod or Yup".
 
 ## Next Steps
 

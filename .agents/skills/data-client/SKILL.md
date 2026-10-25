@@ -40,4 +40,4 @@ wrap async functions, follow its guide in `data-client-setup` (`../data-client-s
 the app lacks. They
 aren't loaded by name.
 
-If a skill named here isn't installed, follow [references/install.md](references/install.md).
+If a skill named here isn't installed, follow [Installing a missing skill](references/install.md).
