@@ -11,15 +11,14 @@ import React, {
 import {
   actionName,
   groupEntriesOf,
-  groupOf,
-  joinedFetches,
+  shownOf,
   type ActionGroup,
   type RequestGroup,
   type SubjectFilter,
 } from './actionGroups';
 import type ActionLog from './actionLog';
 import type { History, LogEntry } from './actionLog';
-import { ActionName } from './actionParts';
+import { MomentName } from './actionParts';
 import {
   CATCH_UP_MS,
   droppedIn,
@@ -35,7 +34,7 @@ import {
   type Actions,
 } from './actionParts';
 import { NARROW_WIDTH } from './columns';
-import { useHoldFocus, useWidth } from './dom';
+import { byData, useHoldFocus, useWidth } from './dom';
 import { actionId } from './model';
 import { useNavState } from './nav';
 import type { OnPreview } from './Preview';
@@ -110,13 +109,6 @@ export function lanesOf(groups: readonly ActionGroup[]): Lane[] {
   return [...lanes].map(([key, groups]) => ({ key, groups }));
 }
 
-/** The shown history: without the fetches deduped into a request in
- * flight (they add nothing to see), which `joined` holds */
-function shownOf(groups: readonly ActionGroup[], entries: readonly LogEntry[]) {
-  const joined = new Set(groups.flatMap(g => [...joinedFetches(g).keys()]));
-  return { joined, shown: entries.filter(e => !joined.has(e)) };
-}
-
 /** The shown history on `timeScale` */
 function useScale(actions: Actions) {
   // from the history alone: stepping through moments leaves the marks be
@@ -138,14 +130,14 @@ function useDrawer(
   onSelect: (seq: number) => void,
 ) {
   const { log, history } = actions;
-  const { seq: selected } = useNavState();
+  const { seq: selected, current } = useNavState();
   const { joined, shown, scale } = useScale(actions);
   const draw = drawer({
     log,
     scale,
     joined,
     since: history.since,
-    selected,
+    current,
     hit,
     onSelect,
   });
@@ -165,13 +157,15 @@ function useDrawer(
 
 /** Draws groups along `scale`: requests as spans from fetch to response,
  * everything else as marks, placed as fractions of the track (`--tl-f`).
- * Picking an action the store saw makes it the moment. The marks `hit` says left the subject alone are dimmed */
+ * Picking an action makes it the moment; the moment's actions (`current`)
+ * are marked. Those the store never saw are hollow, and those `hit` says
+ * left the subject alone are dimmed */
 function drawer({
   log,
   scale,
   joined,
   since,
-  selected,
+  current,
   hit,
   onSelect,
 }: {
@@ -179,7 +173,7 @@ function drawer({
   scale: TimeScale;
   joined: ReadonlySet<LogEntry>;
   since: number;
-  selected: number | null;
+  current: ReadonlySet<number>;
   hit: SubjectFilter['hit'];
   onSelect: (seq: number) => void;
 }) {
@@ -192,29 +186,25 @@ function drawer({
   const mark = (entry: LogEntry, extra?: string) => {
     const label = labelOf(entry);
     const style = pos(scale.x.get(entry.seq)!);
-    const type = typeClass(entry);
-    // only an action the store saw has a state to show
-    return entry.store ?
-        <button
-          key={entry.seq}
-          type="button"
-          tabIndex={-1}
-          className={clsx(styles.tlMark, type, extra)}
-          style={style}
-          aria-label={label}
-          data-id={actionId(entry.seq)}
-          data-selected={entry.seq === selected || undefined}
-          data-dim={!hit(entry) || undefined}
-          onClick={() => onSelect(entry.seq)}
-        />
-      : <span
-          key={entry.seq}
-          className={clsx(styles.tlMark, styles.tlHollow, type, extra)}
-          style={style}
-          role="img"
-          aria-label={label}
-          data-id={actionId(entry.seq)}
-        />;
+    return (
+      <button
+        key={entry.seq}
+        type="button"
+        tabIndex={-1}
+        className={clsx(
+          styles.tlMark,
+          !entry.store && styles.tlHollow,
+          typeClass(entry),
+          extra,
+        )}
+        style={style}
+        aria-label={label}
+        data-id={actionId(entry.seq)}
+        data-selected={current.has(entry.seq) || undefined}
+        data-dim={!hit(entry) || undefined}
+        onClick={() => onSelect(entry.seq)}
+      />
+    );
   };
   const span = (from: number, to: number, className: string, key: string) => (
     <span
@@ -551,9 +541,13 @@ function useTrackFollow(
   );
   useLayoutEffect(() => {
     if (selected === null) return;
-    scroller.current
-      ?.querySelector('[data-selected]')
-      ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+    // the moment's own mark, of the several it may stand for
+    const el = scroller.current;
+    if (el)
+      byData(el, 'id', actionId(selected))?.scrollIntoView?.({
+        block: 'nearest',
+        inline: 'nearest',
+      });
   }, [scroller, selected, refocus]);
   return () => (selected === null ? followNewest() : set(null));
 }
@@ -603,9 +597,14 @@ export const Scrubber = memo(function Scrubber({
   // the pointer on the track: what it shows holds still
   const { actions, setOn, behind, catchingUp } = useHeld(track);
   const { groups } = actions;
-  const { whole, earlier, later, set: onSelect, show } = useNavState();
-  // a row picked stands for its whole group: the label names that
-  const group = whole && entry ? groupOf(groups, entry.seq) : undefined;
+  const {
+    scope,
+    earlier,
+    later,
+    set: onSelect,
+    step: onStep,
+    show,
+  } = useNavState();
   const { shown, scale, drawn, decor } = useDrawer(actions, hit, onMark);
   const end = useTrackFollow(track, scale, catchingUp);
 
@@ -614,9 +613,13 @@ export const Scrubber = memo(function Scrubber({
   const bar = useRef<HTMLDivElement>(null);
   const hold = useHoldFocus(bar);
   useTrackPreview(track, bar, [shown], scale, onPreview, setOn);
-  const step = (to: number | null) => {
+  const step = (by: -1 | 1) => {
     hold();
-    onSelect(to);
+    onStep(by);
+  };
+  const live = () => {
+    hold();
+    onSelect(null);
   };
   const onKeyDown = (e: React.KeyboardEvent) => {
     // ← → step as they do across the panel, which takes them on from here
@@ -644,7 +647,7 @@ export const Scrubber = memo(function Scrubber({
           data-step
           aria-label="Previous change"
           disabled={earlier === undefined}
-          onClick={() => earlier !== undefined && step(earlier)}
+          onClick={() => step(-1)}
         >
           ‹
         </button>
@@ -653,7 +656,7 @@ export const Scrubber = memo(function Scrubber({
           data-step
           aria-label="Next change"
           disabled={later === undefined}
-          onClick={() => later !== undefined && step(later)}
+          onClick={() => step(1)}
         >
           ›
         </button>
@@ -671,11 +674,7 @@ export const Scrubber = memo(function Scrubber({
           )}
         </div>
         {entry ?
-          <button
-            type="button"
-            className={styles.liveButton}
-            onClick={() => step(null)}
-          >
+          <button type="button" className={styles.liveButton} onClick={live}>
             Live
           </button>
         : <span
@@ -718,11 +717,9 @@ export const Scrubber = memo(function Scrubber({
             type="button"
             className={styles.momentAction}
             title="Show action"
-            onClick={() => show(entry.seq, !!group)}
+            onClick={() => show(entry.seq, scope)}
           >
-            {group ?
-              <KeyLabel value={group.key} />
-            : <ActionName entry={entry} />}
+            <MomentName entry={entry} scope={scope} />
           </button>
           <span className={styles.dim}>
             {' · '}

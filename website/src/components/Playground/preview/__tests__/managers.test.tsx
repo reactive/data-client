@@ -42,6 +42,7 @@ function renderPlayground(documents: string[]) {
       groupId: 'test',
       documents: docs.map(value => ({ value }) as any),
       storeOpen: false,
+      storeMoves: 0,
       toggleStore: () => {},
       storeHost: null,
       row: false,

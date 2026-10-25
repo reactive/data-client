@@ -59,8 +59,16 @@ export default function CompanyGrid({ companies }: { companies: Company[] }) {
           <tr key={c.pk()}>
             <td>{c.name}</td>
             <td align="right">${c.price.toFixed(2)}</td>
-            <td align="right">{formatPercent(c.pct_equity)}</td>
-            <td align="right">{formatShares(c.shares)}</td>
+            <td align="right">
+              {c.pct_equity === undefined ?
+                <span className="skeleton" />
+              : formatPercent(c.pct_equity)}
+            </td>
+            <td align="right">
+              {c.shares === undefined ?
+                <span className="skeleton" />
+              : c.shares.toLocaleString()}
+            </td>
           </tr>
         ))}
       </tbody>
@@ -68,12 +76,8 @@ export default function CompanyGrid({ companies }: { companies: Company[] }) {
   );
 }
 
-function formatPercent(value: number | undefined) {
-  return value === undefined ? 'loading...' : `${(value * 100).toFixed(1)}%`;
-}
-
-function formatShares(value: number | undefined) {
-  return value === undefined ? 'loading...' : value.toLocaleString();
+function formatPercent(value: number) {
+  return `${(value * 100).toFixed(1)}%`;
 }
 ```
 

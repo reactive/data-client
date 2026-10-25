@@ -98,7 +98,8 @@ blocks or to stubs typed `any`.
   React playground would provide as globals, `Temporal` from `temporal-polyfill`, and the app's own
   modules (`import { ArticleResource } from './resources/Article'`).
 - The playground's design system (`website/src/components/Playground/DesignSystem`: `Loading`,
-  `Avatar`, `TextInput`, ...) stands for the app's own components and needs no import, like
+  `Avatar`, `TextInput`, `Toaster`, ...) stands for the app's own components, and its `toast` for the
+  app's toast library; neither needs an import, like
   `render()`, which mounts a React playground's app, React's `Link` and `useNavigate()`, which
   stand for the app's router (see "Router" in `website/src/components/Playground/README.md`), and
   Vue's `RouterLink` and `RouterView`.

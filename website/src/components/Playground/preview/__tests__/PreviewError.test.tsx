@@ -7,7 +7,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { LivePreview, LiveProvider } from 'react-live';
 
-import PreviewError, { ResetButton } from '../PreviewError';
+import PreviewError from '../PreviewError';
+import ResetButton from '../ResetButton';
 
 // Guards PreviewError's reliance on react-live's undocumented `newCode`.
 function renderPreview(code: string) {

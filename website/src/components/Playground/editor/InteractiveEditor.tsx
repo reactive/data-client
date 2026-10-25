@@ -12,6 +12,7 @@ import useAutoHeight from '../monaco/useAutoHeight';
 import useDefinitionOpener from '../monaco/useDefinitionOpener';
 import PlaygroundLiveEditor from '../PlaygroundLiveEditor';
 import { isMobileOrBot } from '../userAgent';
+import type { CodeTarget } from './openCode';
 import StaticEditor from './StaticEditor';
 
 // TODO: consider using the ts worker's getEmitOutput to compile rather than babel
@@ -33,6 +34,8 @@ export interface InteractiveEditorProps {
   isFocused?: boolean;
   language: string;
   readOnly?: boolean;
+  /** A line to put the cursor on (each new object, once) */
+  reveal?: Pick<CodeTarget, 'line'>;
 }
 
 /**
@@ -51,6 +54,7 @@ function InteractiveEditor({
   isFocused = false,
   language,
   readOnly = false,
+  reveal,
 }: InteractiveEditorProps) {
   const editorOptions = useMemo(() => ({ ...options, readOnly }), [readOnly]);
   const { height, handleMount: handleAutoMount } = useAutoHeight({
@@ -60,6 +64,7 @@ function InteractiveEditor({
   const handleOpenerMount = useDefinitionOpener({
     isVisible: isFocused,
     onOpen: () => onFocus(tabIndex),
+    reveal,
   });
 
   // Mount-time setup only: props read here are fixed for the editor's life

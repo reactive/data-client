@@ -6,8 +6,11 @@ import DiffEditorChooser from './DiffEditorChooser';
 import Grid from './Grid';
 import { calloutMarker, parseCallouts } from './Playground/editor/callouts';
 import { parseCodeDocuments } from './Playground/editor/codeModel';
+import { useHasIntersected } from './useHasIntersected';
 
 export default function DiffEditor({ children, caption }: Props) {
+  // pages can hold many diffs: start each editor only as it nears the viewport
+  const [ref, nearViewport] = useHasIntersected<HTMLElement>(NEAR);
   // Display-only: documents never change after parsing
   const { sides, callouts } = useMemo(() => {
     const [before, after] = parseCodeDocuments(children, 'Before');
@@ -43,13 +46,15 @@ export default function DiffEditor({ children, caption }: Props) {
   // Caption and callouts render outside the editor so they are always in the
   // server-rendered HTML, whether or not Monaco loads.
   return (
-    <figure className={styles.figure}>
+    <figure className={styles.figure} ref={ref}>
       {caption && (
         <figcaption className={styles.caption}>
           {typeof caption === 'string' ? inlineCode(caption) : caption}
         </figcaption>
       )}
-      <DiffEditorChooser sides={sides} fallback={fallback} />
+      {nearViewport ?
+        <DiffEditorChooser sides={sides} fallback={fallback} />
+      : fallback}
       {callouts.length > 0 && (
         <ol className={styles.callouts}>
           {callouts.map(({ index, text }) => (
@@ -70,6 +75,8 @@ function inlineCode(text: string) {
     .split('`')
     .map((part, i) => (i % 2 ? <code key={i}>{part}</code> : part));
 }
+
+const NEAR = { rootMargin: '50%', threshold: 0 };
 
 interface Props {
   children: React.ReactNode;

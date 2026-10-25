@@ -297,7 +297,7 @@ export const DepartmentResource = resource({
 </script>
 
 <template>
-  <div v-if="!departments">Loading...</div>
+  <Loading v-if="!departments" />
   <div v-else>
     <div v-for="dept in departments" :key="dept.pk()">
       <strong>{{ dept.name }}</strong>: <BuildingList :dept="dept" />

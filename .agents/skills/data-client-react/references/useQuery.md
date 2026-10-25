@@ -295,7 +295,7 @@ function BuildingList({ dept }: { dept: Department }) {
 function DepartmentsPage() {
   useFetch(DepartmentResource.getList);
   const departments = useQuery(new All(Department));
-  if (!departments) return <div>Loading...</div>;
+  if (!departments) return <Loading />;
   return (
     <div>
       {departments.map(dept => (

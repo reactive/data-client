@@ -367,7 +367,7 @@ export const getPosts = new RestEndpoint({
         Clara
       </label>
       <TextInput value="New Post" name="title" label="Title" />
-      <button type="submit">{{ loading ? 'loading...' : 'Push' }}</button>
+      <button type="submit" :aria-busy="loading">Push</button>
     </form>
   </div>
 </template>
