@@ -198,13 +198,15 @@ process(value: any, ...args: any[]) {
 
 ```ts
 async fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response> {
-  const response = await super.fetchResponse(input, init);
-  
-  if (response.status === 401) {
-    window.dispatchEvent(new CustomEvent('auth:expired'));
+  try {
+    return await super.fetchResponse(input, init);
+  } catch (error: any) {
+    // super.fetchResponse() throws a NetworkError for any non-2xx status
+    if (error.status === 401) {
+      window.dispatchEvent(new CustomEvent('auth:expired'));
+    }
+    throw error;
   }
-  
-  return response;
 }
 ```
 
