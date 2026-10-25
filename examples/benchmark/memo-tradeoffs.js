@@ -7,7 +7,8 @@
  * - retained memory: heap the memo holds beyond the store itself, after a run
  *   of updates. Entity churn (every row replaced) is the worst case.
  * - argsKey buckets: one list read under N different `argsKey` values (a
- *   portfolio app switching between N portfolios), all cached.
+ *   portfolio app switching between N portfolios), all cached, and the heap
+ *   the memo holds for them.
  *
  * Local-only; not part of CI benchmark tracking. Run with:
  *   yarn workspace example-benchmark start:memo-tradeoffs [filter]
@@ -237,6 +238,13 @@ for (const n of [1, 10, 100, 1000]) {
   for (const args of portfolios) {
     store = normalize(StockSchema, buildStockData(ROWS), args, store, meta());
   }
+  // heap held once every portfolio is cached
+  const bytes = retained(memo => {
+    for (const args of portfolios) {
+      memo.denormalize(StockSchema, store.result, store.entities, args);
+    }
+    return store;
+  });
   const memo = new MemoCache();
   const last = new Array(n);
   let hits = 0;
@@ -261,6 +269,7 @@ for (const n of [1, 10, 100, 1000]) {
     scenario: name,
     'µs/read': us.toFixed(1),
     'hit rate': `${((hits / reads) * 100).toFixed(0)}%`,
+    'memo retains': `${(bytes / 1024 / 1024).toFixed(2)} MB`,
   });
 }
 

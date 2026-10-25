@@ -25,6 +25,9 @@ import {
   StockScalarValuesSchema,
   buildStockData,
   buildStockScalarUpdate,
+  PortfolioScalar,
+  HoldingSchema,
+  buildHoldingData,
 } from './schemas.js';
 import userData from './user.json' with { type: 'json' };
 
@@ -90,6 +93,34 @@ const stockUpdatedState = normalize(
 );
 globalThis.__scalarChurn = () =>
   denormalize(Stock, 's-0', stockState.entities, stockArgs);
+
+/** A new `entities` with one row of `key` replaced by a new object. */
+function replaceRow(entities, key, pk) {
+  const table = entities[key];
+  return { ...entities, [key]: { ...table, [pk]: { ...table[pk] } } };
+}
+const projectKey = ProjectWithBuildTypesDescription.key;
+const firstProject = result.project[0];
+const lastProject = result.project[result.project.length - 1];
+const stockCell = `${Stock.key}|s-350|${stockArgs[0].portfolio}`;
+
+// Holdings join Stocks (portfolio lens) and have their own currency lens. Each
+// store is missing a different quarter of the Stocks, so the list reaches the
+// two lenses in a different order in each.
+const holdingArgs = [{ portfolio: 'portfolioA', currency: 'EUR' }];
+const holdingState = normalize(
+  HoldingSchema,
+  buildHoldingData(700),
+  holdingArgs,
+  initialState,
+  actionMeta,
+);
+const withMissingStocks = offset => {
+  const stocks = { ...holdingState.entities[Stock.key] };
+  for (let i = offset; i < 700; i += 4) delete stocks[`s-${i}`];
+  return { ...holdingState.entities, [Stock.key]: stocks };
+};
+const holdingStores = [withMissingStocks(0), withMissingStocks(2)];
 
 export default function addNormlizrSuite(suite, filter) {
   const memo = new MemoCache();
@@ -159,6 +190,22 @@ export default function addNormlizrSuite(suite, filter) {
       valuesState.entities,
     );
   });
+  add('denormalizeLong Scalar', () => {
+    return new MemoCache().denormalize(
+      StockSchema,
+      stockState.result,
+      stockState.entities,
+      stockArgs,
+    );
+  });
+  add('denormalizeLong two Scalars, 25% Stocks missing', () => {
+    return new MemoCache().denormalize(
+      HoldingSchema,
+      holdingState.result,
+      holdingStores[0],
+      holdingArgs,
+    );
+  });
   add('denormalizeLong donotcache', () => {
     return denormalize(ProjectSchema, result, entities);
   });
@@ -225,6 +272,23 @@ export default function addNormlizrSuite(suite, filter) {
       },
     },
   );
+  // steady state: each op is a store update that replaces one project, then
+  // a read of the cached list
+  for (const [row, pk] of [
+    ['first', firstProject],
+    ['last', lastProject],
+  ]) {
+    const memoUpdate = new MemoCache();
+    memoUpdate.denormalize(ProjectSchema, result, entities, []);
+    add(`denormalizeLong withCache update ${row} row`, () => {
+      return memoUpdate.denormalize(
+        ProjectSchema,
+        result,
+        replaceRow(entities, projectKey, pk),
+        [],
+      );
+    });
+  }
   for (const [hole, holeEntities] of nestedHoles) {
     // one MemoCache each, so the variants don't evict each other's result
     const memoHoles = new MemoCache();
@@ -255,6 +319,41 @@ export default function addNormlizrSuite(suite, filter) {
       stockState.result,
       stockUpdatedState.entities,
       stockArgs,
+    );
+  });
+  const memoScalarCell = new MemoCache();
+  memoScalarCell.denormalize(
+    StockSchema,
+    stockState.result,
+    stockState.entities,
+    stockArgs,
+  );
+  add('denormalizeLong Scalar withCache update one cell', () => {
+    return memoScalarCell.denormalize(
+      StockSchema,
+      stockState.result,
+      replaceRow(stockState.entities, PortfolioScalar.key, stockCell),
+      stockArgs,
+    );
+  });
+  // two stores whose lists reach the two lenses in different orders, read in
+  // turn, so list nodes keep more than one argsKey branch
+  const memoHolding = new MemoCache();
+  let holdingRead = 0;
+  for (const store of holdingStores) {
+    memoHolding.denormalize(
+      HoldingSchema,
+      holdingState.result,
+      store,
+      holdingArgs,
+    );
+  }
+  add('denormalizeLong two Scalars, 25% Stocks missing withCache', () => {
+    return memoHolding.denormalize(
+      HoldingSchema,
+      holdingState.result,
+      holdingStores[holdingRead++ & 1],
+      holdingArgs,
     );
   });
   add('denormalizeLong All withCache', () => {
@@ -299,6 +398,8 @@ export default function addNormlizrSuite(suite, filter) {
       printStatus(ProjectWithBuildTypesDescription.prototype.pk);
       printStatus(Entity.merge);
       printStatus(Entity.validate);
+      printStatus(WeakDependencyMap.prototype.get);
+      printStatus(WeakDependencyMap.prototype.set);
     }
   });
 }

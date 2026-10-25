@@ -48,6 +48,8 @@ class CountingWeakMap extends NativeWeakMap {
 globalThis.WeakMap = CountingWeakMap;
 
 const { Entity, normalize, MemoCache } = await import('./dist/index.js');
+// after the bundle, so a static import doesn't load it before CountingWeakMap
+const { Department, buildBidirectionalChain } = await import('./schemas.js');
 
 const EPHEMERON =
   /part of key \(.*? @(\d+)\) -> value \(.*? @(\d+)\) pair in WeakMap \(table @(\d+)\)/;
@@ -259,6 +261,28 @@ function tradeTape() {
   return { memo, store };
 }
 
+const CHAIN = 50;
+
+/** A Department -> Building -> Department chain `CHAIN` Departments deep whose
+ * deepest Building is replaced on every tick, so every level recomputes. */
+function deepChain() {
+  const memo = new MemoCache();
+  const { entities: first, result } = buildBidirectionalChain(CHAIN);
+  let entities = first;
+  const leaf = `bldg-${CHAIN - 1}`;
+  for (let tick = 1; tick <= TICKS; tick++) {
+    entities = {
+      ...entities,
+      Building: {
+        ...entities.Building,
+        [leaf]: { ...entities.Building[leaf], name: `Building ${tick}` },
+      },
+    };
+    memo.denormalize(Department, result, entities);
+  }
+  return { memo, entities, result };
+}
+
 const scenarios = [
   {
     name: `exchangeInfo: ${SYMBOLS} symbols join tickers, ${TICKERS_PER_TICK} tickers x ${TICKS} ticks`,
@@ -271,6 +295,10 @@ const scenarios = [
   {
     name: `trade tape: ${TAPE} rows, ${PRINTS_PER_FLUSH} prints x ${FLUSHES} flushes`,
     fn: tradeTape,
+  },
+  {
+    name: `deep chain: ${CHAIN} Departments deep, deepest Building replaced x ${TICKS} ticks`,
+    fn: deepChain,
   },
 ].filter(s => !process.argv[2] || s.name.includes(process.argv[2]));
 
