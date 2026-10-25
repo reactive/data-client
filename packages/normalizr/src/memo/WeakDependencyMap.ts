@@ -156,7 +156,7 @@ function find<Path, K extends object, V>(
     const { entries, branches } = node;
     for (let i = 0; i < entries.length; i++) {
       const entry = entries[i];
-      if (matches(entry, getDependency, args)) {
+      if (matches(entry, getDependency)) {
         if (i > 0) {
           // read back after something newer was cached: the store flipped
           // back to this version, so it is the one to keep
@@ -184,16 +184,13 @@ function find<Path, K extends object, V>(
 function matches<Path, K extends object, V>(
   entry: Entry<Path, V>,
   getDependency: GetDependency<Path, K | symbol>,
-  args: readonly any[],
 ): boolean {
   const { paths, keys } = entry;
   for (let i = 0; i < paths.length; i++) {
     const path = paths[i];
-    if (typeof path === 'function') {
-      if (((path as KeyFn)(args) ?? UNDEF_KEY) !== keys[i]) return false;
-    } else if (depKey(getDependency(path as Path)) !== keys[i]) {
-      return false;
-    }
+    // the route to this entry already picked every argsKey result
+    if (typeof path === 'function') continue;
+    if (depKey(getDependency(path as Path)) !== keys[i]) return false;
   }
   return true;
 }
