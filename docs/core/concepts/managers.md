@@ -172,12 +172,11 @@ Show a toast when any [mutation](/rest/guides/side-effects) succeeds or fails.
 
 <ToastManagerDemo />
 
-The server rejects changes to the archived task, so checking it off rolls back with an error toast.
-
 <SiteOnly>
 
 :::react
 
+The server rejects changes to the archived task, so checking it off rolls back with an error toast.
 Check off a task to try it. Edit the messages in `ToastManager` and the preview runs your version.
 
 :::
@@ -192,14 +191,12 @@ triggering refetch of any _actively rendered_ data without suspending ([stale-wh
 
 <RefreshManagerDemo />
 
-Each time the window regains focus or comes back online, every rate refetches and its fetch time
-updates, without a loading state.
-
 <SiteOnly>
 
 :::react
 
-Switch to another tab or app and back to try it.
+Each time the window regains focus or comes back online, every rate refetches and its fetch time
+updates, without a loading state. Switch to another tab or app and back to try it.
 
 :::
 

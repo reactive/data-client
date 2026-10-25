@@ -161,8 +161,6 @@ export default function getManagers() {
 }
 ```
 
-The server rejects changes to the archived task, so checking it off rolls back with an error toast.
-
 ### Refresh on focus or reconnect {#refresh-on-focus}
 
 [Controller.expireAll()](./Controller.vue.md#expireAll) marks data as [Stale](https://dataclient.io/vue/concepts/expiry-policy#stale),
@@ -222,9 +220,6 @@ export default function getManagers() {
   return [new RefreshManager(), ...getDefaultManagers()];
 }
 ```
-
-Each time the window regains focus or comes back online, every rate refetches and its fetch time
-updates, without a loading state.
 
 ### Cross-tab synchronization {#cross-tab-sync}
 
