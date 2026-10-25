@@ -265,18 +265,24 @@ describe('Store Actions pane detail', () => {
     ).toBeTruthy();
     // each of its actions opens on its own
     fireEvent.click(top().querySelector<HTMLElement>('[data-seq="2"]')!);
-    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts']);
+    expect(crumbs()).toEqual([
+      'Actions',
+      'GET /posts',
+      'setResponse GET /posts',
+    ]);
     expect(scrubber().textContent).toContain('After setResponse');
     expect(top().textContent).toContain('dispatchedAt');
-    // Back lists it as the moment's, open; a step is a moment too: the
-    // store never saw the fetch
+    // Back surfaces to its request, then lists it as the moment's, open; a
+    // step is a moment too: the store never saw the fetch
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
-    expect(crumbs()).toEqual(['Actions']);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts']);
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    expect(crumbs()).toEqual([]);
     expect(rows()[0].getAttribute('aria-current')).toBe('true');
     expect(rows()[0].getAttribute('aria-expanded')).toBe('true');
     fireEvent.click(pane().querySelector<HTMLElement>('[data-seq="1"]')!);
     expect(scrubber().textContent).toContain('fetch');
-    expect(crumbs()).toEqual(['Actions', 'fetch GET /posts']);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'fetch GET /posts']);
     expect(top().textContent).toContain('Started the request');
     expect(top().textContent).not.toContain('+ Post 1');
     // State shows the subject again, the moment staying
@@ -374,10 +380,10 @@ describe('Store Actions pane detail', () => {
     const level = top();
     previous();
     expect(top()).toBe(level);
-    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts']);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts']);
     // a record its chip opened over it: the action under it steps too
     fireEvent.click(within(top()).getByRole('button', { name: '+ Post 1' }));
-    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts', 'Post 1']);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'Post 1']);
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
     expect(crumbs()).toEqual(['Actions', 'set Post', 'Post 1']);
     // past the newest, live: the action view shows the newest
@@ -448,10 +454,21 @@ describe('Store Actions pane detail', () => {
     const fetch = document.activeElement as HTMLElement;
     expect(fetch.dataset.seq).toBe('1');
     expect(fetch.getAttribute('aria-current')).toBe('true');
+    expect(
+      fetch
+        .parentElement!.querySelector('[data-seq="2"]')!
+        .getAttribute('aria-current'),
+    ).toBeNull();
+    // the head stands for every step of the row: each is marked
     fireEvent.keyDown(fetch, { key: 'ArrowUp' });
     expect(document.activeElement).toBe(rows()[0]);
     expect(rows()[0].getAttribute('aria-current')).toBe('true');
-    expect(fetch.getAttribute('aria-current')).toBeNull();
+    expect(fetch.getAttribute('aria-current')).toBe('true');
+    expect(
+      fetch
+        .parentElement!.querySelector('[data-seq="2"]')!
+        .getAttribute('aria-current'),
+    ).toBe('true');
     fireEvent.keyDown(rows()[0], { key: 'ArrowDown' });
     expect(fetch.getAttribute('aria-current')).toBe('true');
     rows()[0].focus();
@@ -460,7 +477,7 @@ describe('Store Actions pane detail', () => {
     fireEvent.click(expander(rows()[0]));
     expect(rows()[0].getAttribute('aria-expanded')).toBe('false');
     expect(rows()[0].getAttribute('aria-current')).toBe('true');
-    expect(scrubber().textContent).toContain('fetch');
+    expect(scrubber().textContent).toContain('After GET /posts');
     fireEvent.click(expander(rows()[0]));
     expect(rows()[0].getAttribute('aria-expanded')).toBe('true');
     // and a row's ▸ opens and closes it while the moment is on another
@@ -507,8 +524,8 @@ describe('Store Actions pane detail', () => {
     wait();
     fireEvent.click(toggle);
     expect(peek()).toBeNull();
-    expect(crumbs()).toEqual(['Actions']);
-    expect(listCount()).toBe('1');
+    expect(crumbs()).toEqual([]);
+    expect(rows()).toHaveLength(1);
     expect(toggle.getAttribute('aria-pressed')).toBe('true');
     hover(toggle, false);
     hover(toggle, true);
@@ -697,10 +714,10 @@ describe('Store Actions pane', () => {
     fireEvent.click(expander(rows()[0]));
     fireEvent.click(pane().querySelector<HTMLElement>('[data-seq="1"]')!);
     expect(scrubber().textContent).toContain('fetch');
-    expect(crumbs()).toEqual(['Actions', 'fetch GET /posts']);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'fetch GET /posts']);
     expect(top().textContent).toContain('Started the request');
     await act(() => ctrl().set(Post, { id: '2' }, { id: '2', title: 'Later' }));
-    expect(crumbs()).toEqual(['Actions', 'fetch GET /posts']);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'fetch GET /posts']);
     expect(top().textContent).toContain('Started the request');
     expect(scrubber().textContent).toContain('fetch');
     openState();
@@ -730,9 +747,10 @@ describe('Store Actions pane', () => {
       previous();
       expect(rows()[0].getAttribute('aria-expanded')).toBe('true');
       expect(rows()[0].getAttribute('aria-current')).toBe('true');
-      expect(marked()).toHaveLength(2);
-      expect(marked()[1]).toContain('setResponse');
-      expect(marked()[1]).not.toContain('fetch');
+      // the row stands for its whole request: every step of it is marked
+      expect(marked()).toHaveLength(3);
+      expect(marked()[1]).toContain('fetch');
+      expect(marked()[2]).toContain('setResponse');
       expect(scrollTo).toHaveBeenCalledWith(
         expect.objectContaining({ behavior: 'smooth' }),
       );
@@ -1577,11 +1595,11 @@ describe('Store diff', () => {
 });
 
 describe('Store action level', () => {
-  /** The Action tab's line for the action before or after the one shown */
+  /** The Action tab's column for the action before or after the one shown */
   const step = (dir: 'Before' | 'After') =>
-    [...top().children].find(el => el.textContent!.includes(dir))!;
+    within(top()).getByRole('button', { name: new RegExp('^' + dir + ': ') });
 
-  it('shows the newest action live, stepping to those before and after it', async () => {
+  it('shows the newest action live, stepping a row at a time', async () => {
     const { ctrl } = mount();
     openAction();
     expect(crumbs()).toEqual(['Actions', 'Newest']);
@@ -1590,19 +1608,32 @@ describe('Store action level', () => {
     await act(() =>
       ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
     );
-    // live: the newest, after it nothing yet
+    // live: the newest, after it nothing yet. Live sits past the last row,
+    // so the step before it is that row, held still
     expect(crumbs()).toEqual(['Actions', 'set Post']);
     expect(top().textContent).toMatch(/title: "One" → "Edited"/);
-    expect(step('Before').textContent).toContain('setResponse GET /posts');
+    expect(step('Before').textContent).toContain('set Post');
     expect(step('After').textContent).toContain('this is live');
-    // the one before becomes the moment, in the same level
     const level = top();
     fireEvent.click(step('Before'));
     expect(top()).toBe(level);
-    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts']);
-    expect(scrubber().textContent).toContain('After setResponse GET /posts');
+    expect(crumbs()).toEqual(['Actions', 'set Post']);
+    expect(step('Before').textContent).toContain('GET /posts');
+    // the row before becomes the moment, in the same level: its request
+    // as one, every step of it marked
+    fireEvent.click(step('Before'));
+    expect(top()).toBe(level);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts']);
+    expect(scrubber().textContent).toContain('After GET /posts');
     expect(step('Before').textContent).toContain('nothing the log kept');
     expect(step('After').textContent).toContain('set Post');
+    expect(
+      [
+        ...top().querySelectorAll<HTMLElement>('[role="button"][aria-current]'),
+      ].map(el => el.dataset.seq),
+    ).toEqual(['1', '2']);
+    expect(top().textContent).toMatch(/fetch.*setResponse.*Store changes/s);
+    expect(top().textContent).not.toContain('dispatchedAt');
     fireEvent.click(step('After'));
     expect(crumbs()).toEqual(['Actions', 'set Post']);
     // past the newest is live again
@@ -1613,6 +1644,141 @@ describe('Store action level', () => {
     // Back lists them all
     backTo('Actions');
     expect(rows()).toHaveLength(2);
+  });
+
+  it('dives into a step, stepping an action at a time, and surfaces to its request', async () => {
+    const { ctrl } = mount();
+    openAction();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    const headings = () =>
+      [...top().querySelectorAll('h3')].map(h => h.textContent);
+    // an action of no request is one level: nothing deeper to go to
+    expect(headings()).toEqual(['Store changes', 'Action']);
+    fireEvent.click(step('Before'));
+    fireEvent.click(step('Before'));
+    const request = top();
+    expect(headings()).toEqual(['Steps', 'Store changes']);
+    // a step itself opens alone, a level deeper
+    fireEvent.click(
+      top().querySelector<HTMLElement>('[role="button"][data-seq="2"]')!,
+    );
+    expect(top()).not.toBe(request);
+    expect(crumbs()).toEqual([
+      'Actions',
+      'GET /posts',
+      'setResponse GET /posts',
+    ]);
+    expect(headings()).toEqual(['Store changes', 'Action']);
+    expect(top().textContent).toContain('dispatchedAt');
+    expect(document.activeElement).toBe(top());
+    // steps there are its request's actions, one at a time
+    const deep = top();
+    fireEvent.click(step('Before'));
+    expect(top()).toBe(deep);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'fetch GET /posts']);
+    // the scrubber steps the same way, and its marks show just the action
+    const selected = () =>
+      [...document.querySelectorAll<HTMLElement>('[data-selected]')].map(
+        el => el.getAttribute('aria-label')?.split(' ')[0],
+      );
+    expect(selected()).toEqual(['fetch']);
+    fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
+    expect(crumbs()).toEqual([
+      'Actions',
+      'GET /posts',
+      'setResponse GET /posts',
+    ]);
+    expect(selected()).toEqual(['setResponse']);
+    fireEvent.click(screen.getByRole('button', { name: 'Previous change' }));
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'fetch GET /posts']);
+    // a level deeper, a mark picks its action alone too
+    fireEvent.click(
+      within(scrubber()).getByRole('button', { name: /^setResponse at/ }),
+    );
+    expect(crumbs()).toEqual([
+      'Actions',
+      'GET /posts',
+      'setResponse GET /posts',
+    ]);
+    fireEvent.click(
+      within(scrubber()).getByRole('button', { name: /^fetch at/ }),
+    );
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'fetch GET /posts']);
+    fireEvent.click(step('After'));
+    fireEvent.click(step('After'));
+    // past its request, the next action: one alone needs no request level
+    expect(crumbs()).toEqual(['Actions', 'set Post']);
+    fireEvent.click(step('Before'));
+    expect(crumbs()).toEqual([
+      'Actions',
+      'GET /posts',
+      'setResponse GET /posts',
+    ]);
+    // Back surfaces to the request up to the step it came from, its steps
+    // marked
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    expect(crumbs()).toEqual(['Actions', 'GET /posts']);
+    expect(headings()).toEqual(['Steps', 'Store changes']);
+    expect(
+      [
+        ...top().querySelectorAll<HTMLElement>('[role="button"][aria-current]'),
+      ].map(el => el.dataset.seq),
+    ).toEqual(['1', '2']);
+    const after = () =>
+      [...top().querySelectorAll<HTMLElement>('[data-after]')].map(
+        el => el.dataset.seq,
+      );
+    expect(after()).toEqual([]);
+    backTo('Actions');
+    fireEvent.click(
+      top().querySelector<HTMLElement>(
+        '[role="button"][data-seq="1"]:not([aria-expanded])',
+      )!,
+    );
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    expect(crumbs()).toEqual(['Actions', 'GET /posts']);
+    // up to its fetch, the response it hasn't seen yet dims
+    expect(after()).toEqual(['2']);
+    // at a step alone, the list opens its row: the step before it stays as
+    // it is
+    fireEvent.click(
+      top().querySelector<HTMLElement>('[role="button"][data-seq="2"]')!,
+    );
+    backTo('Actions');
+    expect(top().querySelector('[data-seq="1"]')).not.toBeNull();
+    expect(after()).toEqual([]);
+  });
+
+  it('steps an action at a time past a fetch deduped into the request, as the timeline shows none', async () => {
+    const { ctrl } = mount();
+    await act(() =>
+      Promise.all([ctrl().fetch(getPosts), ctrl().fetch(getPosts)]),
+    );
+    openAction();
+    fireEvent.click(
+      top().querySelector<HTMLElement>('[role="button"][data-seq="1"]')!,
+    );
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'fetch GET /posts']);
+    // its mark is the moment's
+    const selected = () =>
+      [...document.querySelectorAll<HTMLElement>('[data-selected]')].map(
+        el => el.getAttribute('aria-label')?.split(' ')[0],
+      );
+    expect(selected()).toEqual(['fetch']);
+    // the deduped fetch is no step of its own: on to the response
+    fireEvent.click(step('After'));
+    expect(crumbs()).toEqual([
+      'Actions',
+      'GET /posts',
+      'setResponse GET /posts',
+    ]);
+    expect(selected()).toEqual(['setResponse']);
+    fireEvent.click(screen.getByRole('button', { name: 'Previous change' }));
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'fetch GET /posts']);
+    expect(selected()).toEqual(['fetch']);
   });
 
   it('shows the newest request live as one, its optimistic update too', async () => {
@@ -1633,6 +1799,8 @@ describe('Store action level', () => {
     expect(crumbs()).toEqual(['Actions', 'PATCH /posts/1']);
     expect(top().textContent).toMatch(/title: "One" → "Edited!"/);
     expect(top().textContent).toContain('this is live');
+    // live, nothing has come after
+    expect(top().querySelector('[data-after]')).toBeNull();
   });
 
   it('shows the newest poll live as its own request', async () => {
@@ -1658,6 +1826,77 @@ describe('Store action level', () => {
     expect(top().textContent).not.toContain('"poll 0"');
   });
 
+  it('dives into a step of a subscription that is no request of its own, Back coming up to the row', async () => {
+    const { ctrl } = mount();
+    const polled = new Endpoint(async () => [{ id: '1', title: 'poll' }], {
+      schema: [Post],
+      key: () => POSTS,
+      name: 'polled',
+      pollFrequency: 1e6,
+    });
+    await act(async () => {
+      await ctrl().subscribe(polled);
+      await ctrl().fetch(polled);
+    });
+    openPane();
+    fireEvent.click(rows()[0]);
+    const row = crumbs();
+    expect(row).toHaveLength(2);
+    // its subscribe stands alone: no request holds it but the row
+    fireEvent.click(
+      [
+        ...top().querySelectorAll<HTMLElement>('[role="button"][data-seq]'),
+      ].find(el => el.textContent!.includes('subscribe'))!,
+    );
+    expect(crumbs()).toHaveLength(3);
+    expect(crumbs().slice(0, 2)).toEqual(row);
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    expect(crumbs()).toEqual(row);
+  });
+
+  it('steps a request at a time, each poll of a subscription its own', async () => {
+    const { ctrl } = mount();
+    const polled = new Endpoint(async () => [{ id: '1', title: 'poll' }], {
+      schema: [Post],
+      key: () => POSTS,
+      name: 'polled',
+      pollFrequency: 1e6,
+    });
+    await act(async () => {
+      await ctrl().subscribe(polled);
+      await ctrl().fetch(polled);
+      await ctrl().set(Post, { id: '2' }, { id: '2', title: 'Later' });
+      await ctrl().fetch(polled);
+    });
+    openAction();
+    const selected = () =>
+      [...document.querySelectorAll<HTMLElement>('[data-selected]')].map(
+        el => el.getAttribute('aria-label')?.split(' ')[0],
+      );
+    // live is past the newest request; back from it, a request at a time:
+    // a poll alone, its fetch and response marked, not the subscription's
+    // every poll (how many polls there are depends on timing)
+    const seen: string[] = [];
+    while (!(step('Before') as HTMLButtonElement).disabled) {
+      fireEvent.click(step('Before'));
+      const [, label] = crumbs();
+      seen.unshift(label!);
+      expect(selected()).toEqual(
+        label === 'set Post' ? ['set'] : ['fetch', 'setResponse'],
+      );
+    }
+    expect(seen).toContain('set Post');
+    expect(seen.length).toBeGreaterThanOrEqual(3);
+    expect(new Set(seen)).toEqual(new Set(['GET /posts', 'set Post']));
+    // and on again in time, to live
+    for (const label of seen.slice(1)) {
+      fireEvent.click(step('After'));
+      expect(crumbs()[1]).toBe(label);
+    }
+    fireEvent.click(step('After'));
+    expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
+  });
+
   it("goes back to the moment's action as its tab is picked over the list", async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
@@ -1665,7 +1904,7 @@ describe('Store action level', () => {
       ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
     );
     openPane();
-    expect(crumbs()).toEqual(['Actions']);
+    expect(crumbs()).toEqual([]);
     openAction();
     expect(crumbs()).toEqual(['Actions', 'set Post']);
     // at a moment, its action
@@ -1673,7 +1912,7 @@ describe('Store action level', () => {
     previous();
     openPane();
     openAction();
-    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts']);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts']);
   });
 
   it('opens the action a timeline mark picks while it lists them', async () => {
@@ -1685,23 +1924,24 @@ describe('Store action level', () => {
     const mark = (name: RegExp) =>
       within(scrubber()).getByRole('button', { name });
     openPane();
-    expect(crumbs()).toEqual(['Actions']);
+    expect(crumbs()).toEqual([]);
     const list = top();
     fireEvent.click(mark(/^set at/));
     expect(crumbs()).toEqual(['Actions', 'set Post']);
     // a step moves it on, in place
     previous();
-    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts']);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts']);
     backTo('Actions');
     expect(top()).toBe(list);
     // stepping over the list only marks the moment there
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
-    expect(crumbs()).toEqual(['Actions']);
+    expect(crumbs()).toEqual([]);
     // in State, a mark only moves the moment
     openState();
     fireEvent.click(mark(/^setResponse at/));
     expect(crumbs()).toEqual([]);
-    expect(scrubber().textContent).toContain('After setResponse GET /posts');
+    // on the surface, a mark picks its row, as the list's row does
+    expect(scrubber().textContent).toContain('After GET /posts');
   });
 
   it('steps the timeline with ← → from anywhere they mean nothing else', async () => {
@@ -1714,7 +1954,7 @@ describe('Store action level', () => {
     fireEvent.keyDown(top(), { key: 'ArrowLeft' });
     expect(scrubber().textContent).toContain('After set Post');
     fireEvent.keyDown(top(), { key: 'ArrowLeft' });
-    expect(scrubber().textContent).toContain('After setResponse GET /posts');
+    expect(scrubber().textContent).toContain('After GET /posts');
     fireEvent.keyDown(top(), { key: 'ArrowRight' });
     fireEvent.keyDown(top(), { key: 'ArrowRight' });
     expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
@@ -1777,7 +2017,8 @@ describe('Store Actions pane on a record', () => {
     // the store lists every action
     toRoot();
     openPane();
-    expect(listCount()).toBe('5');
+    // its tab names the store's: no crumbs of their own
+    expect(crumbs()).toEqual([]);
     expect(rows()).toHaveLength(5);
   });
 
@@ -1946,7 +2187,7 @@ describe('Store Actions pane on a record', () => {
     const { seq } = step.dataset;
     fireEvent.click(step);
     expect(top().textContent).toContain('title:');
-    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    backTo('Actions of Post 1');
     expect(
       [
         ...pane().querySelectorAll<HTMLElement>(
@@ -2115,7 +2356,7 @@ describe('Store Actions pane on a record', () => {
     });
     await act(() => ctrl().fetch(getPosts));
     const bar = scrubber();
-    expect(bar.textContent).toContain('setResponse');
+    expect(bar.textContent).toContain('GET /posts');
     const next = within(bar).getByRole('button', { name: 'Next change' });
     expect((next as HTMLButtonElement).disabled).toBe(false);
     // its records still say what changed them
@@ -2137,7 +2378,7 @@ describe('Store Actions pane on a record', () => {
     expect(previousButton().disabled).toBe(false);
     fireEvent.click(previousButton());
     expect(screen.getByRole('button', { name: 'Live' })).toBeTruthy();
-    expect(bar.textContent).toContain('setResponse');
+    expect(bar.textContent).toContain('GET /posts');
   });
 });
 

@@ -31,7 +31,7 @@ Behavior-only change: old and new behavior, one sentence each, unless Motivation
 <!--
 Add "#### Architecture change" here only if a maintainer's mental model of core machinery is wrong
 afterwards (store shape, normalize/denormalize or memoization, Controller/Manager flow, Schema or
-Endpoint contracts, cross-package assumptions). A fix that restores documented behavior is not one.
+Endpoint contracts, cross-package assumptions). Simple changes (fixes, options, docs) never get one.
 Open with one naming sentence. Then 3Blue1Brown-style: trace one concrete case through the old flow,
 show where it fails, then through the new flow, one idea per step. 150-300 words; a Mermaid diagram
 if the flow has more than three steps. Keep the "why" here, not also in Solution.

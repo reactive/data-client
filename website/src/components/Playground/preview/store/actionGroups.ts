@@ -7,8 +7,9 @@ import {
 
 import type ActionLog from './actionLog';
 import type { LogEntry } from './actionLog';
+import { byStage, isLibraryManager } from './attribution';
 import { endpointId, entityId, parseRowId } from './model';
-import type { View } from './nav';
+import type { Scope, Step, View } from './nav';
 import { isPlainObject, temporalType } from './refs';
 
 /** Each has a color, `--store-kind-<kind>` in store.module.css */
@@ -456,6 +457,64 @@ const sameList = <T>(a: readonly T[], b: readonly T[]) =>
 const sameArgs = (fetch: ActionTypes, response: ActionTypes) =>
   'args' in fetch && 'args' in response && equal(fetch.args, response.args);
 
+/** The rows listed for a subject: the groups with an action `hit` says
+ * touched it */
+export const rowsOf = (
+  groups: readonly ActionGroup[],
+  hit: SubjectFilter['hit'],
+) => groups.filter(g => groupEntriesOf(g).some(hit));
+
+/** A row of one action: it has no steps */
+export const isLone = (group: ActionGroup) =>
+  groupEntriesOf(group).length === 1;
+
+/** The moment a row stands for: its last action that touched the subject (a
+ * request's response), or its last; all its actions as one, unless it has
+ * only that one */
+export function rowMoment(group: ActionGroup, hit: SubjectFilter['hit']): Step {
+  const all = groupEntriesOf(group);
+  const seq = (all.findLast(hit) ?? all[all.length - 1]).seq;
+  return { seq, scope: isLone(group) ? 'request' : 'group' };
+}
+
+/** The requests of `rows`, the surface's places: each request (a
+ * subscription's polls each their own, not the whole subscription) and each
+ * action of none that `hit` says touched the subject, at its moment (its
+ * last such action), in the order those came. `of` finds the one holding
+ * an action, by its seq */
+export interface Requests {
+  readonly moments: readonly Step[];
+  readonly of: ReadonlyMap<number, number>;
+}
+export function requestsOf(
+  rows: readonly ActionGroup[],
+  hit: SubjectFilter['hit'],
+): Requests {
+  const parts = rows.flatMap(row =>
+    row.kind === 'subscription' ?
+      [...row.entries.map(e => [e]), ...row.requests.map(r => r.entries)]
+    : [groupEntriesOf(row)],
+  );
+  const found = parts
+    .map(entries => ({ entries, last: entries.findLast(hit) }))
+    .filter(part => part.last)
+    .sort((a, b) => a.last!.seq - b.last!.seq);
+  return {
+    moments: found.map(({ last }) => ({ seq: last!.seq, scope: 'request' })),
+    of: new Map(
+      found.flatMap(({ entries }, i) => entries.map(e => [e.seq, i] as const)),
+    ),
+  };
+}
+
+/** Where picking action `seq` lands at a moment's depth (`scope`): a level
+ * deeper, the action alone; on the surface, its request, as ← → step */
+export function pickAt(requests: Requests, seq: number, scope: Scope): Step {
+  const i = scope === 'action' ? undefined : requests.of.get(seq);
+  if (i !== undefined) return requests.moments[i];
+  return { seq, scope: scope === 'action' ? scope : 'request' };
+}
+
 /** Every action of a group, in dispatch order */
 export function groupEntriesOf(group: ActionGroup): readonly LogEntry[] {
   if (group.kind !== 'subscription') return group.entries;
@@ -464,22 +523,37 @@ export function groupEntriesOf(group: ActionGroup): readonly LogEntry[] {
   );
 }
 
-/** The actions a moment stands for: `entry` alone, or (`whole`) every
- * action of its group up to it, so their effect shows as one */
+/** The group a moment at `seq` spans (see `Scope`): its request, its row,
+ * or none for the action alone */
+export function unitOf(
+  groups: readonly ActionGroup[],
+  seq: number,
+  scope: Scope,
+): ActionGroup | undefined {
+  switch (scope) {
+    case 'request':
+      return requestOf(groups, seq);
+    case 'group':
+      return groupOf(groups, seq);
+    case 'action':
+      return undefined;
+  }
+}
+
+/** The actions a moment at `entry` stands for, up to it, so their effect
+ * shows as one */
 export function momentEntries(
   groups: readonly ActionGroup[],
   entry: LogEntry,
-  whole: boolean,
+  scope: Scope,
 ): readonly LogEntry[] {
-  const group = whole ? groupOf(groups, entry.seq) : undefined;
-  return group ?
-      groupEntriesOf(group).filter(e => e.seq <= entry.seq)
-    : [entry];
+  const unit = unitOf(groups, entry.seq, scope);
+  return unit ? groupEntriesOf(unit).filter(e => e.seq <= entry.seq) : [entry];
 }
 
 /** The group action `seq` belongs to, narrowed to its request when a
  * subscription polled it */
-export function requestOf(
+function requestOf(
   groups: readonly ActionGroup[],
   seq: number,
 ): ActionGroup | undefined {
@@ -489,14 +563,15 @@ export function requestOf(
     : group;
 }
 
-/** The request `entry` belongs to, up to it: its optimistic update and
- * response together, even when a subscription polled it */
-export function requestEntries(
+/** The group a moment at `seq` shows as one, and is named for: the one it
+ * spans, when that has several actions */
+export function shownGroup(
   groups: readonly ActionGroup[],
-  entry: LogEntry,
-): readonly LogEntry[] {
-  const request = requestOf(groups, entry.seq);
-  return request ? request.entries.filter(e => e.seq <= entry.seq) : [entry];
+  seq: number,
+  scope: Scope,
+): ActionGroup | undefined {
+  const unit = unitOf(groups, seq, scope);
+  return unit && !isLone(unit) ? unit : undefined;
 }
 
 /** By seq, for each list of groups: the one holding that action */
@@ -532,6 +607,17 @@ export function joinedFetches(group: ActionGroup) {
     for (const entry of request.entries.slice(1))
       if (entry.action.type === actionTypes.FETCH) joined.set(entry, request);
   return joined;
+}
+
+/** The shown history: without the fetches deduped into a request in
+ * flight (they add nothing to see, so neither the timeline nor the steps
+ * stop at them), which `joined` holds */
+export function shownOf(
+  groups: readonly ActionGroup[],
+  entries: readonly LogEntry[],
+) {
+  const joined = new Set(groups.flatMap(g => [...joinedFetches(g).keys()]));
+  return { joined, shown: entries.filter(e => !joined.has(e)) };
 }
 
 /** What an action is about: an endpoint key, or a schema's key for `set` */
@@ -734,6 +820,25 @@ export function subjectFilter(
   return { hit, lists: hit, gaps };
 }
 const NO_GAPS: ReadonlyMap<number, ChangeKind> = new Map();
+
+/** The store's filter (`base`) with its managers (`chain`) drawn as a
+ * pipeline: what the `picked` stage took part in (see `byStage`), or, none
+ * picked, also what the code's own managers kept from the store */
+export function stageFilter(
+  base: SubjectFilter,
+  chain: readonly string[],
+  picked: string | null,
+): SubjectFilter {
+  if (picked !== null) {
+    const hit = byStage(picked);
+    return { ...base, hit, lists: hit };
+  }
+  const own = new Set(chain.filter(name => !isLibraryManager(name)));
+  return {
+    ...base,
+    hit: e => base.hit(e) || (!!e.consumedBy && own.has(e.consumedBy)),
+  };
+}
 
 /** Row `id` as diffs name it, to compare it between two stores */
 function rowOf(id: string): Change | undefined {

@@ -15,6 +15,7 @@ import styles from '../styles.module.css';
 import TabList from '../TabList';
 import type { CodeDocument, CodeModel } from './codeModel';
 import type { InteractiveEditorProps } from './InteractiveEditor';
+import type { CodeTarget } from './openCode';
 import StaticEditor from './StaticEditor';
 
 export interface EditorSurfaceProps extends CodeModel {
@@ -31,6 +32,9 @@ export interface EditorSurfaceProps extends CodeModel {
   covered?: boolean;
   /** Names `cover` in the header while it hides the code */
   coverTitle?: React.ReactNode;
+  /** A line to show, handed to its file's editor, which opens its tab and
+   * puts the cursor there (each new object, once) */
+  reveal?: CodeTarget | null;
 }
 
 export default function EditorSurface({
@@ -44,6 +48,7 @@ export default function EditorSurface({
   cover,
   covered = false,
   coverTitle,
+  reveal,
 }: EditorSurfaceProps) {
   const id = useModelId();
   const row = layout !== 'stacked';
@@ -132,6 +137,7 @@ export default function EditorSurface({
         language={document.language}
         highlights={document.highlights}
         autoFocus={document.autoFocus}
+        reveal={reveal?.path === document.path ? reveal : undefined}
       />
     </React.Fragment>
   ));

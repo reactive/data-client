@@ -11,12 +11,22 @@ import {
   diffStates,
   groupEntries,
   groupEntriesOf,
+  groupOf,
+  type ActionGroup,
+  type Requests,
   pollFrequencyOf,
   mergeChanges,
   type Change,
   type RequestGroup,
 } from './actionGroups';
-import type { Moment } from './nav';
+import {
+  attributed,
+  lineage,
+  managerNames,
+  startsRequests,
+  type Attribution,
+} from './attribution';
+import type { Moment, Scope, Step } from './nav';
 
 const { createReducer } = __INTERNAL__;
 
@@ -57,6 +67,14 @@ export interface LogEntry {
   /** A fetch's: whether NetworkManager shared it with the request it already
    * had for its key, instead of fetching. Missing when the log can't tell */
   readonly deduped?: boolean;
+  /** The manager that dispatched it (through its controller); missing for
+   * the app's own (a component's fetch, a button's set) */
+  readonly origin?: string;
+  /** The manager whose middleware handled it without passing it on, so the
+   * managers after it (and the store) never saw it */
+  readonly consumedBy?: string;
+  /** A fetch `consumedBy` a NetworkManager, which started its request */
+  readonly requested?: true;
   /** The store's own state (pending optimistic updates not yet applied)
    * right before and after this action. Missing when a manager handled the
    * action without passing it on (a plain fetch, a subscribe) */
@@ -82,6 +100,8 @@ export interface History {
   /** By an entry's seq: how many earlier updates of its row `updateLimit`
    * dropped (see `capUpdates`) */
   readonly dropped?: ReadonlyMap<number, number>;
+  /** Its current store's managers in chain order, as `track` named them */
+  readonly managers?: readonly string[];
 }
 
 const EMPTY: History = { entries: [], since: 0 };
@@ -104,18 +124,50 @@ function nearestHit(
   return entries.find(e => e.seq > seq && hit(e));
 }
 
-/** Where a step before (`-1`) or after (`1`) moment `seq` lands: the nearest
- * action `hit` says touched the subject, or past the newest, live (`null`).
- * `undefined` has nowhere to go: before the oldest, or after live */
-export function stepMoment(
-  entries: readonly LogEntry[],
-  seq: number | null,
+/** The actions a subject's steps go through: the log's `entries` in their
+ * `groups`, and the rows `listed` for it (those with an action `hit` says
+ * touched it) */
+export interface Listing {
+  readonly entries: readonly LogEntry[];
+  readonly groups: readonly ActionGroup[];
+  readonly listed: ReadonlySet<ActionGroup>;
+  /** The rows' requests: where the surface steps */
+  readonly requests: Requests;
+  readonly hit: (entry: LogEntry) => boolean;
+}
+
+/** Where a step before (`-1`) or after (`1`) the moment at `entry` (the
+ * newest, `live`) lands, at its depth (see `Scope`). An action alone steps
+ * an action at a time through the rows listed, every step of theirs
+ * included. Otherwise it steps a request at a time (see `requestsOf`), a
+ * picked row stepping from its request at the moment. Live is a place past
+ * the last request: stepping on from it reaches live, stepping back from
+ * live the last request. `null` is live; `undefined` has nowhere to go */
+export function stepAt(
+  { entries, groups, listed, requests, hit }: Listing,
+  entry: LogEntry | undefined,
+  live: boolean,
+  scope: Scope,
   by: -1 | 1,
-  hit: (entry: LogEntry) => boolean,
-): number | null | undefined {
-  const next = nearestHit(entries, seq, by, hit);
-  if (next) return next.seq;
-  if (by > 0 && seq !== null) return null;
+): Step | null | undefined {
+  if (!entry) return undefined;
+  if (scope === 'action') {
+    const next = nearestHit(entries, entry.seq, by, e => {
+      const row = groupOf(groups, e.seq);
+      return row ? listed.has(row) : hit(e);
+    });
+    if (next) return { seq: next.seq, scope };
+  } else {
+    const { moments } = requests;
+    const i = live ? moments.length : requests.of.get(entry.seq);
+    const next =
+      i !== undefined ? moments[i + by]
+      : by < 0 ? moments.findLast(m => m.seq < entry.seq)
+      : moments.find(m => m.seq > entry.seq);
+    if (next) return next;
+  }
+  // past the newest is live again
+  if (by > 0 && !live) return null;
 }
 
 /** The store at `entry`'s moment: as it left it, or (one a manager handled
@@ -206,8 +258,17 @@ export default class ActionLog {
     keep?: number,
     deduped?: (action: ActionTypes) => boolean,
   ) {
-    /** Each action's entry, for the tail to find what the head recorded */
-    const recorded = new WeakMap<ActionTypes, LogEntry>();
+    /** Each action's seq, for the tail to find what the head recorded */
+    const recorded = new WeakMap<ActionTypes, number>();
+    const attribution: Attribution = { copies: new WeakMap() };
+    /** The seq of `action`, or of what it's a copy of */
+    const seqOf = (action: ActionTypes): number | undefined => {
+      for (const a of lineage(attribution, action)) {
+        const seq = recorded.get(a);
+        if (seq !== undefined) return seq;
+      }
+    };
+    let managers: readonly string[] | undefined;
     let first = true;
     /** An action reached the tail, which keeps the history's state since */
     let reached = false;
@@ -220,6 +281,7 @@ export default class ActionLog {
       if (first) dropOthers();
       this.histories.set(id, {
         ...this.history(id),
+        managers,
         state: detach(state),
         ...(first && { storeFrom: this.nextSeq }),
       });
@@ -227,6 +289,8 @@ export default class ActionLog {
     };
     const head: Manager<ActionTypes> = {
       middleware: () => next => action => {
+        const origin = attribution.dispatching;
+        attribution.dispatching = undefined;
         if (!this.recording) return next(action);
         // the first action recorded starts the history
         if (first) dropOthers();
@@ -239,10 +303,11 @@ export default class ActionLog {
             action.type === actionTypes.FETCH && {
               deduped: deduped(action),
             }),
+          ...(origin && { origin }),
         };
         first = false;
-        recorded.set(action, entry);
-        this.append(id, entry);
+        recorded.set(action, entry.seq);
+        this.append(id, entry, managers);
         return next(action);
       },
       // a store can start without dispatching (one restored after an error,
@@ -273,13 +338,39 @@ export default class ActionLog {
             action.type === actionTypes.GC ? detach(before) : before,
             action,
           );
-          this.settle(id, recorded.get(action), { before, after: state });
+          // the state it left (one sent before recording started has no
+          // entry, but its state counts)
+          this.patch(
+            id,
+            seqOf(action),
+            { store: { before, after: state } },
+            { state },
+          );
           return next(action);
         };
       },
       cleanup() {},
     };
-    return { head, tail };
+    /** The store's own managers (between `head` and `tail`), each
+     * crediting what it dispatches and consumes to its name */
+    const track = (chain: readonly Manager[]): Manager[] => {
+      const names = managerNames(chain);
+      managers = names;
+      return chain.map((manager, i) => {
+        const requests = startsRequests(manager);
+        return attributed(manager, names[i], attribution, (action, by) => {
+          const seq = seqOf(action);
+          if (seq === undefined) return;
+          const requested =
+            requests && by !== undefined && action.type === actionTypes.FETCH;
+          this.patch(id, seq, {
+            consumedBy: by,
+            requested: requested || undefined,
+          });
+        });
+      });
+    };
+    return { head, tail, track };
   }
 
   history = (id: number): History => this.histories.get(id) ?? EMPTY;
@@ -352,7 +443,7 @@ export default class ActionLog {
     };
   };
 
-  private append(id: number, entry: LogEntry) {
+  private append(id: number, entry: LogEntry, managers?: readonly string[]) {
     const history = this.histories.get(id);
     // only a store's first action starts a history; a dropped one stays gone
     if (!history && !entry.newStore) return;
@@ -361,6 +452,7 @@ export default class ActionLog {
     const due = appended.length - trimmed >= this.trimEvery;
     this.histories.set(id, {
       ...history,
+      ...(!history && { managers }),
       entries: appended,
       since: entries.length ? since : entry.at,
       ...(due && this.compact(appended, history)),
@@ -398,18 +490,25 @@ export default class ActionLog {
     };
   }
 
-  /** The store state an action left */
-  private settle(
+  /** `fields` added to entry `seq` of history `id`, and `historyFields`
+   * to the history */
+  private patch(
     id: number,
-    entry: LogEntry | undefined,
-    store: Required<LogEntry>['store'],
+    seq: number | undefined,
+    fields: Partial<LogEntry>,
+    historyFields?: Partial<History>,
   ) {
     const history = this.histories.get(id);
     if (!history) return;
+    const { entries } = history;
+    // nearly always the newest
+    const i =
+      seq === undefined ? -1 : entries.findLastIndex(e => e.seq === seq);
+    if (i < 0 && !historyFields) return;
     this.histories.set(id, {
       ...history,
-      entries: history.entries.map(e => (e === entry ? { ...e, store } : e)),
-      state: store.after,
+      ...(i >= 0 && { entries: entries.with(i, { ...entries[i], ...fields }) }),
+      ...historyFields,
     });
     this.notify();
   }
@@ -556,6 +655,17 @@ function detach(state: State<unknown>): State<unknown> {
     endpoints: { ...state.endpoints },
     meta: { ...state.meta },
   };
+}
+
+/** `next`, or `prev` when it holds the same, so what is built on the set
+ * keeps its identity between actions that leave it alone */
+export function keepSameSet<T>(
+  prev: ReadonlySet<T>,
+  next: ReadonlySet<T>,
+): ReadonlySet<T> {
+  if (prev.size !== next.size) return next;
+  for (const value of next) if (!prev.has(value)) return next;
+  return prev;
 }
 
 /** `next`, or `prev` when it holds the same, so what is built on the map
