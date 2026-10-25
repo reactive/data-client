@@ -480,6 +480,22 @@ function memberName(node) {
   return null;
 }
 
+/**
+ * RestEndpoint encodes path and query values itself, so a value the url
+ * already encoded passes unwrapped to avoid encoding it twice.
+ */
+function unencoded(expr) {
+  return (
+      expr.type === 'CallExpression' &&
+        expr.callee.type === 'Identifier' &&
+        expr.callee.name === 'encodeURIComponent' &&
+        expr.arguments.length === 1 &&
+        expr.arguments[0].type !== 'SpreadElement'
+    ) ?
+      expr.arguments[0]
+    : expr;
+}
+
 /** Parses `a=1&b=${x}` query text into args properties; null if it can't */
 function parseQuery(j, text, expressions) {
   const props = [];
@@ -495,7 +511,7 @@ function parseQuery(j, text, expressions) {
     // a repeated key would collapse into one arg
     if (props.some(p => p.key.name === key)) return null;
     if (value === '\0') {
-      const expr = expressions[exprIndex++];
+      const expr = unencoded(expressions[exprIndex++]);
       props.push(
         j.objectProperty.from({
           key: j.identifier(key),
@@ -566,7 +582,7 @@ function toPath(j, urlArg) {
     // each expression must fill a whole path segment
     const next = segments[i + 1];
     if (!path.endsWith('/') || (next && !next.startsWith('/'))) return null;
-    const expr = expressions[i];
+    const expr = unencoded(expressions[i]);
     let name = memberName(expr) || 'param';
     // the same variable can fill two segments; anything else is evaluated once each
     const source = isPure(expr) ? j(expr).toSource() : {};

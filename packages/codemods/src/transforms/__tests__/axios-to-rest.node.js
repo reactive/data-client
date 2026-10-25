@@ -1227,6 +1227,25 @@ async function save() {
       {},
       `
 import axios from 'axios';
+const search = async (user, q) => (await axios.get(\`/users/\${encodeURIComponent(user)}/search?q=\${encodeURIComponent(q)}\`)).data;
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+const search = async (user, q) => await new RestEndpoint({
+  path: '/users/:user/search'
+})({
+  user,
+  q
+});
+      `,
+      'unwraps encodeURIComponent() since the endpoint encodes path and query values',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
 const save = (post, body) => axios.put(\`https://api.example.com/posts/\${post.id}\`, body, { params: { notify: true } });
       `,
       `
