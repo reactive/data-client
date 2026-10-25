@@ -1183,6 +1183,74 @@ describe('MemoCache.commit', () => {
     );
   });
 
+  it('recomputes a committed single-entity result at most once after one-off reads', () => {
+    // a detail endpoint stores just the pk; each retry rewrites a nested child
+    class Author extends Entity {
+      id = '';
+      name = '';
+    }
+    class Post extends Entity {
+      id = '';
+      author = Author.fromJS();
+      static schema = { author: Author };
+    }
+    const post = { id: '1', author: '2' };
+    const withAuthor = (name: string) => ({
+      Post: { '1': post },
+      Author: { '2': { id: '2', name } },
+    });
+    const memo = new MemoCache();
+    memo.denormalize(Post, '1', withAuthor('older'));
+    const committed = withAuthor('committed');
+    const first = memo.denormalize(Post, '1', committed).data;
+    memo.commit(committed);
+    for (let i = 0; i < 5; i++)
+      memo.denormalize(Post, '1', withAuthor(`retry ${i}`));
+    // A pk input never reaches the endpoints tier, so commit() doesn't pin
+    // it: recency alone keeps it, so it can be rebuilt once (equal values).
+    const again = memo.denormalize(Post, '1', committed).data;
+    expect(again).toEqual(first);
+  });
+
+  it('keeps the settled result after committed and flip-back pins move on', () => {
+    const memo = new MemoCache();
+    const s0 = store('settled');
+    const r0 = memo.denormalize([Todo], input, s0).data;
+    memo.commit(s0, true);
+    // an optimistic update commits: s1 takes the committed pin
+    const s1 = store('optimistic');
+    const r1 = memo.denormalize([Todo], input, s1).data;
+    memo.commit(s1, false);
+    // one-off reads, and a flip back to one of them, which takes the kept pin
+    const x0 = store('x0');
+    memo.denormalize([Todo], input, x0);
+    memo.denormalize([Todo], input, store('x1'));
+    memo.denormalize([Todo], input, x0);
+    memo.denormalize([Todo], input, store('x2'));
+    memo.denormalize([Todo], input, store('x3'));
+    // only the settled pin holds r0 now
+    expect(memo.denormalize([Todo], input, s0).data).toBe(r0);
+    expect(memo.denormalize([Todo], input, s1).data).toBe(r1);
+  });
+
+  it('releases old pins once newer commits replace them', () => {
+    const memo = new MemoCache();
+    // the first entry is kept until a flip back, so start with another one
+    memo.denormalize([Todo], input, store('older'));
+    const s0 = store('first');
+    const r0 = memo.denormalize([Todo], input, s0).data;
+    memo.commit(s0);
+    const s1 = store('second');
+    memo.denormalize([Todo], input, s1);
+    memo.commit(s1);
+    for (let i = 0; i < 4; i++)
+      memo.denormalize([Todo], input, store(`one-off ${i}`));
+    // bounded retention: nothing pins r0 any more
+    const again = memo.denormalize([Todo], input, s0).data;
+    expect(again).toEqual(r0);
+    expect(again).not.toBe(r0);
+  });
+
   it('repeat reads with the same entities do not grow the buffer', () => {
     const memo = new MemoCache();
     const pending = store('pending');
