@@ -1,5 +1,5 @@
 ---
-description: Which agent hosts to prioritize when changing agent integrations (skills, plugins, setup docs, hooks)
+description: Which agent hosts to prioritize when changing agent integrations (skills, plugins, agent setup docs)
 globs: .agents/skills/**, .claude-plugin/**, packages/core/agents/**, docs/core/_agents/**, docs/core/getting-started/agent-skills.md, docs/core/getting-started/installation.md, docs/core/shared/_installation.mdx, website/src/components/SkillTabs.tsx, website/src/components/AgentPrompt.tsx, website/src/components/AgentOnly.tsx
 alwaysApply: false
 ---
