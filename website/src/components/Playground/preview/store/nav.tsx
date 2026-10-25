@@ -134,16 +134,18 @@ export interface LevelStack {
     scope?: Scope,
     quiet?: boolean,
   ) => void;
-  /** Opens action `seq` alone a level deeper, over its request's view */
+  /** Opens action `seq` alone a level deeper, over its request's (or row's)
+   * view */
   readonly diveAction: (seq: number) => void;
   /** The moment moved: the action view follows it (on top or under levels
    * its chips opened), to the newest action as it goes live (`null`).
-   * `under`, it shows a level deeper than its request's view, which moves
-   * along under it */
+   * `under` (what the view under it stands for: its request, or the row
+   * holding it), it shows a level deeper than that view, which moves along
+   * under it */
   readonly followMoment: (
     seq: number | null,
     scope?: Scope,
-    under?: boolean,
+    under?: Scope,
   ) => void;
 }
 
@@ -212,7 +214,7 @@ export function useLevelStack(
     }));
   }, []);
   const followMoment = useCallback(
-    (seq: number | null, scope: Scope = 'request', under = false) => {
+    (seq: number | null, scope: Scope = 'request', under?: Scope) => {
       setLevels(prev => {
         // the action view, on top or under levels its chips opened (which
         // the moment moves too, see `clearAt`), so Back finds the moment's
@@ -224,7 +226,7 @@ export function useLevelStack(
         const views: ActionView[] =
           under ?
             [
-              { kind: 'action', seq, scope: 'request' },
+              { kind: 'action', seq, scope: under },
               { kind: 'action', seq, scope },
             ]
           : [{ kind: 'action', seq, scope }];

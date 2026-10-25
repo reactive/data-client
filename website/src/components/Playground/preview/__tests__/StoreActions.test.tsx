@@ -1720,6 +1720,34 @@ describe('Store action level', () => {
     expect(top().textContent).not.toContain('"poll 0"');
   });
 
+  it('dives into a step of a subscription that is no request of its own, Back coming up to the row', async () => {
+    const { ctrl } = mount();
+    const polled = new Endpoint(async () => [{ id: '1', title: 'poll' }], {
+      schema: [Post],
+      key: () => POSTS,
+      name: 'polled',
+      pollFrequency: 1e6,
+    });
+    await act(async () => {
+      await ctrl().subscribe(polled);
+      await ctrl().fetch(polled);
+    });
+    openPane();
+    fireEvent.click(rows()[0]);
+    const row = crumbs();
+    expect(row).toHaveLength(2);
+    // its subscribe stands alone: no request holds it but the row
+    fireEvent.click(
+      [
+        ...top().querySelectorAll<HTMLElement>('[role="button"][data-seq]'),
+      ].find(el => el.textContent!.includes('subscribe'))!,
+    );
+    expect(crumbs()).toHaveLength(3);
+    expect(crumbs().slice(0, 2)).toEqual(row);
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    expect(crumbs()).toEqual(row);
+  });
+
   it('steps through the rows in list order while a subscription overlaps them', async () => {
     const { ctrl } = mount();
     const polled = new Endpoint(async () => [{ id: '1', title: 'poll' }], {

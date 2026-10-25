@@ -280,23 +280,31 @@ export default function StorePanel({
     showAction: showLevel,
     diveAction,
   } = actionLevels;
-  // an action alone opens a level deeper than its request, when it has one
-  // of more actions, so Back comes up to that. The groups come through a
-  // ref, so `show` keeps its identity and the memoized rows skip rendering
+  // an action alone opens a level deeper than its request or row, when
+  // that has more actions, so Back comes up to it. The groups come through
+  // a ref, so `show` keeps its identity and the memoized rows skip rendering
   const groupsRef = useRef(groups);
   groupsRef.current = groups;
-  const underRequest = useCallback((seq: number | null, to: Scope) => {
-    const request =
-      seq === null ? undefined : requestOf(groupsRef.current, seq);
-    return to === 'action' && !!request && !isLone(request);
-  }, []);
+  // what the view under an action alone stands for: its request, or else
+  // the row holding it, when either has more actions
+  const under = useCallback(
+    (seq: number | null, to: Scope): Scope | undefined => {
+      if (to !== 'action' || seq === null) return;
+      const request = requestOf(groupsRef.current, seq);
+      if (request && !isLone(request)) return 'request';
+      const row = groupOf(groupsRef.current, seq);
+      if (row && !isLone(row)) return 'group';
+    },
+    [],
+  );
   const showAction = useCallback(
     (seq: number | null, to: Scope = 'request', quiet = false) => {
-      if (!underRequest(seq, to)) return showLevel(seq, to, quiet);
-      showLevel(seq, 'request', quiet);
+      const parent = under(seq, to);
+      if (!parent) return showLevel(seq, to, quiet);
+      showLevel(seq, parent, quiet);
       diveAction(seq!);
     },
-    [underRequest, showLevel, diveAction],
+    [under, showLevel, diveAction],
   );
   const clearAt = useCallback(() => {
     clearStateAt();
@@ -312,9 +320,9 @@ export default function StorePanel({
       setMomentSeq(seq);
       setScope(next);
       clearAt();
-      followMoment(seq, next, underRequest(seq, next));
+      followMoment(seq, next, under(seq, next));
     },
-    [clearAt, followMoment, underRequest, deep],
+    [clearAt, followMoment, under, deep],
   );
 
   const panel = useRef<HTMLDivElement>(null);
