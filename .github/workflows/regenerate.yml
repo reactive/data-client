@@ -36,6 +36,7 @@ on:
       - 'package.json'
       - 'yarn.lock'
       - '.github/workflows/regenerate.yml'
+      - '.github/actions/website-install/**'
       - '.github/workflows/paths-gate.yml'
   pull_request:
     branches:
@@ -68,13 +69,9 @@ jobs:
         with:
           fetch-depth: 1
           persist-credentials: false
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '26'
-          cache: 'yarn'
       - name: Install packages
         # website provides bignumber.js, @number-flow/react, etc.
-        run: ./scripts/ci-install.sh website
+        uses: ./.github/actions/website-install
       - name: Regenerate playground editor types
         run: yarn copy:websitetypes
       - name: Regenerate skill references

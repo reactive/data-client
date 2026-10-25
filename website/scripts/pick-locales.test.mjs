@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 
-import { pickLocales } from './pick-locales.mjs';
+import { gitMentions, pickLocales } from './pick-locales.mjs';
 
 const mentionedBy =
   (locales = {}) =>
@@ -47,6 +49,7 @@ describe('pickLocales', () => {
   it('builds one translated locale for inputs every locale shares', () => {
     for (const file of [
       'website/docusaurus.config.ts',
+      'website/fixture-source.js',
       'website/translate/localeDocs.js',
       'website/translate/locales.js',
       'website/framework-docs/index.js',
@@ -70,6 +73,7 @@ describe('pickLocales', () => {
       'website/translate/translate.mjs',
       'website/translate/mdx.mjs',
       'website/translate/mdx.test.mjs',
+      'website/fixture-source.test.mjs',
       'website/translate/glossary/es.md',
     ])
       assert.deepEqual(pick([file]), ['en'], file);
@@ -119,5 +123,24 @@ describe('pickLocales', () => {
 
   it('builds every locale for a locale the config does not list', () => {
     assert.equal(pick(['website/i18n/fr/code.json']), null);
+  });
+});
+
+describe('gitMentions', () => {
+  it('finds the locales whose translations name a file, as a whole word', () => {
+    assert.ok(gitMentions(['FrameworkPlayground']).size > 0);
+    assert.equal(gitMentions(['ramework']).size, 0);
+    assert.equal(gitMentions(['no-such-file-name']).size, 0);
+  });
+});
+
+describe('pick-locales.mjs', () => {
+  it('builds only English for an empty diff', () => {
+    const out = execFileSync(
+      process.execPath,
+      [fileURLToPath(new URL('pick-locales.mjs', import.meta.url)), 'HEAD'],
+      { encoding: 'utf8' },
+    );
+    assert.equal(out, 'en\n');
   });
 });

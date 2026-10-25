@@ -1,7 +1,10 @@
 /**
  * Which locales a pull request's preview builds. Each locale is a full build,
- * so a PR builds English plus only the locales its diff could change or
- * break; the merge queue and master always build every locale.
+ * so a PR builds English, the locales whose own files it changes, one
+ * translated locale when it changes an input every locale shares, and the
+ * locales whose translations name a file it deletes. Anything else that
+ * breaks only a translation fails in the merge queue, which (like master)
+ * builds every locale.
  *
  *   node website/scripts/pick-locales.mjs <base-sha>
  *
@@ -21,20 +24,22 @@ const TRANSLATED = Object.keys(LOCALES);
  * builds differ only in content, and this one also joins CJK lines */
 const REPRESENTATIVE = 'zh-Hans';
 
-/** Inputs every locale's build shares: the config, the generators of each
- * locale's docs and Vue mirror, and its remark plugins. Leaves out what only
- * translators and checks run (translate.mjs, its glossaries and tests, the
- * docs-example checks) and docs */
+/** Inputs every locale's build shares: the config and the plugins beside
+ * it, the generators of each locale's docs and Vue mirror, and its remark
+ * plugins. Leaves out what only translators and checks run (translate.mjs,
+ * its glossaries and tests, the docs-example checks) and docs */
 const sharesEveryLocale = file =>
-  file === 'website/docusaurus.config.ts' ||
-  (/^website\/(translate|framework-docs)\//.test(file) &&
-    !/\.md$|\.test\.mjs$/.test(file) &&
-    !/^website\/translate\/(translate|mdx)\.mjs$/.test(file) &&
-    !/^website\/translate\/(glossary|lock)\//.test(file) &&
-    !/^website\/framework-docs\/(check\w*|skillReferences)\.mjs$/.test(file));
+  /^website\/([^/]+\.(js|cjs|mjs|ts)|(translate|framework-docs)\/.*)$/.test(
+    file,
+  ) &&
+  !/\.md$|\.test\.mjs$/.test(file) &&
+  !/^website\/translate\/(translate|mdx)\.mjs$/.test(file) &&
+  !/^website\/translate\/(glossary|lock)\//.test(file) &&
+  !/^website\/framework-docs\/(check\w*|skillReferences)\.mjs$/.test(file);
 
 /** A locale's own files: its translations and its lock (which marks the
- * pages whose English changed since), where translate/localeDocs.js puts them */
+ * pages whose English changed since). Keep in sync with translationOf() and
+ * lockFile() in translate/localeDocs.js, which this doesn't import to stay light */
 const localeOf = file =>
   file.match(/^website\/i18n\/([^/]+)\//)?.[1] ??
   file.match(/^website\/translate\/lock\/([^/]+)\.json$/)?.[1];
@@ -59,19 +64,24 @@ const gitLines = (...args) => {
   }
 };
 
-/** Locales whose translations or lock mention any of `names`, by path or content */
+/** Locales whose translations or lock mention any of `names` as a whole
+ * word, by path or content */
 export function gitMentions(names) {
   const files = gitLines(
     'grep',
     '-l',
     '-F',
+    '-w',
     ...names.flatMap(name => ['-e', name]),
     '--',
     'website/i18n',
     'website/translate/lock',
   );
   const paths = gitLines('ls-files', '--', 'website/i18n').filter(file =>
-    names.some(name => path.posix.basename(file).includes(name)),
+    file
+      .replace(/\.[^/.]+$/, '')
+      .split('/')
+      .some(segment => names.includes(segment)),
   );
   return new Set([...files, ...paths].map(localeOf).filter(Boolean));
 }

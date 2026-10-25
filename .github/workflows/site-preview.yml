@@ -20,6 +20,7 @@ on:
       - '.agents/skill-packages.json'
       - '.agents/skills/data-client-setup/references.json'
       - '.github/workflows/site-preview.yml'
+      - '.github/actions/website-install/**'
       - '.github/workflows/paths-gate.yml'
   # Redeploys production from master, e.g. after a failed deploy
   workflow_dispatch:
@@ -41,8 +42,8 @@ jobs:
     if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
     uses: ./.github/workflows/paths-gate.yml
 
-  # The preview's critical path: the deploy waits only on this job, so the
-  # checks run beside it in `checks`, and `website` requires both
+  # The preview's critical path. The checks run beside it in `checks`;
+  # `website` requires both, and production deploys only when both passed
   build:
     name: website build
     needs: gate
@@ -241,12 +242,22 @@ jobs:
         run: |
           git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null || git fetch --depth=1 origin "$BASE_SHA"
           node website/scripts/blog-publish.mjs --check "$BASE_SHA"
+      # Pull requests reuse a build of the same sources, types included, like
+      # the install; off pull requests this only looks up whether to save
+      - name: Restore package types and the packages the website imports
+        id: libs
+        if: github.event_name != 'merge_group'
+        uses: actions/cache/restore@v6
+        with:
+          path: packages/*/lib
+          key: ${{ steps.install.outputs.libs-key }}
+          lookup-only: ${{ github.event_name != 'pull_request' }}
       - name: Build package types and the packages the website imports
+        if: github.event_name != 'pull_request' || steps.libs.outputs.cache-hit != 'true'
         run: yarn ci:build:website
-      # For `build` on later runs; their types ride along
-      - if: github.event_name != 'merge_group'
+      # Also for `build` on later runs
+      - if: steps.libs.outcome == 'success' && steps.libs.outputs.cache-hit != 'true'
         uses: actions/cache/save@v6
-        continue-on-error: true
         with:
           path: packages/*/lib
           key: ${{ steps.install.outputs.libs-key }}
@@ -353,9 +364,10 @@ jobs:
   # Not a required check: a Vercel outage mustn't block merging
   deploy:
     name: docs deploy
-    needs: [build, current]
-    # current is skipped on pull requests; it must not fail, or the root would be missing
-    if: ${{ !cancelled() && needs.build.result == 'success' && needs.build.outputs.deploy == 'true' && needs.current.result != 'failure' }}
+    needs: [build, checks, current]
+    # current is skipped on pull requests; it must not fail, or the root would
+    # be missing. A preview deploys even when a check failed.
+    if: ${{ !cancelled() && needs.build.result == 'success' && needs.build.outputs.deploy == 'true' && needs.current.result != 'failure' && (needs.build.outputs.target != 'production' || needs.checks.result == 'success') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

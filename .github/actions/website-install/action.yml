@@ -9,7 +9,7 @@ inputs:
     default: 'false'
 outputs:
   libs-key:
-    description: Cache key for the packages' built lib/, from everything their build:lib reads
+    description: Cache key for the packages' built lib/, from everything ci:build:website reads
     value: ${{ steps.keys.outputs.libs }}
 runs:
   using: composite
@@ -19,7 +19,7 @@ runs:
       run: |
         # Everything scripts/ci-install.sh website reads
         echo "modules=website-modules-node26-$RUNNER_OS-$RUNNER_ARCH-${{ hashFiles('yarn.lock', '.yarnrc.yml', '.yarn/releases/**', '.yarn/plugins/**', 'scripts/ci-install.sh', 'package.json', 'packages/*/package.json', 'scripts/rollup-plugins/package.json', 'website/package.json', 'website/scripts/generateMonacoPreloads.cjs') }}" >> "$GITHUB_OUTPUT"
-        echo "libs=website-libs-${{ hashFiles('packages/*/src/**', 'packages/*/package.json', 'packages/*/rollup.config.*', 'scripts/rollup-plugins/**', 'babel.config.js', 'package.json', 'yarn.lock') }}" >> "$GITHUB_OUTPUT"
+        echo "libs=website-libs-${{ hashFiles('packages/*/src/**', 'packages/*/package.json', 'packages/*/rollup.config.*', 'scripts/rollup-plugins/**', 'babel.config.js', 'tsconfig*.json', 'packages/*/tsconfig*.json', 'package.json', 'yarn.lock') }}" >> "$GITHUB_OUTPUT"
     # Looks up only, off pull requests, to know whether to save
     - id: modules
       if: github.event_name != 'merge_group'
@@ -43,10 +43,11 @@ runs:
     - if: github.event_name != 'pull_request' || steps.modules.outputs.cache-hit != 'true'
       shell: bash
       run: ./scripts/ci-install.sh website
-    # What the website's postinstall writes outside node_modules
-    - if: github.event_name == 'pull_request' && steps.modules.outputs.cache-hit == 'true'
+    # It writes outside node_modules
+    - name: Run the website's postinstall
+      if: github.event_name == 'pull_request' && steps.modules.outputs.cache-hit == 'true'
       shell: bash
-      run: node website/scripts/generateMonacoPreloads.cjs
+      run: yarn workspace rdc-website run postinstall
     - if: inputs.save == 'true' && steps.modules.outcome == 'success' && steps.modules.outputs.cache-hit != 'true'
       uses: actions/cache/save@v6
       with:
