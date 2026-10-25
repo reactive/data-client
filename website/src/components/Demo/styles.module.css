@@ -4,10 +4,14 @@
 }
 
 /* REST or GraphQL (ProtocolChoice): a segmented control above the
-   playground, in a slim row of its own */
+   playground, in a slim row of its own. It takes the preview's colors (its
+   stage, a sheet for the pick, and their text), so it reads as part of the
+   playground rather than the page's grays */
 .segmented {
-  --pg-seg: var(--ifm-color-emphasis-200);
+  --pg-seg: #e8eef6;
   --pg-seg-on: #fff;
+  --pg-seg-text: #4c5a6e;
+  --pg-seg-text-on: #0b1220;
   width: fit-content;
   margin-bottom: 6px;
   padding: 3px;
@@ -16,14 +20,16 @@
   background: var(--pg-seg);
 }
 :root[data-theme='dark'] .segmented {
-  --pg-seg: #292c34;
-  --pg-seg-on: #3d424e;
+  --pg-seg: #0a0f18;
+  --pg-seg-on: #151c28;
+  --pg-seg-text: #95a2b6;
+  --pg-seg-text-on: #e9eef6;
 }
 .segmented > [role='tab'] {
   height: 24px;
   padding: 0 11px;
   border-radius: 999px;
-  color: var(--ifm-color-emphasis-800);
+  color: var(--pg-seg-text);
   font: 600 12px / 1 var(--ifm-font-family-base);
   letter-spacing: 0.01em;
   box-shadow: none;
@@ -33,12 +39,12 @@
 }
 .segmented > [role='tab']:hover {
   background: none;
-  color: var(--ifm-font-color-base);
+  color: var(--pg-seg-text-on);
 }
 .segmented > [role='tab'][aria-selected='true'] {
   background: var(--pg-seg-on);
-  color: var(--ifm-font-color-base);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.14);
+  color: var(--pg-seg-text-on);
+  box-shadow: 0 1px 2px rgba(15, 30, 60, 0.16);
 }
 .segmented > [role='tab']:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
