@@ -15,9 +15,9 @@ When a change to code that runs per entity, per render or per request could chan
 
 Measure the base in a separate `git worktree`, so neither side's checkout or `dist/` is stale. Always pass a narrow filter: unfiltered traces and logs run to many MB.
 
-- **Optimization status**: `SHOW_OPTIMIZATION=1` prints [printStatus.js](../../examples/benchmark/printStatus.js) for the functions in each suite's `complete` handler. To check another function, add `printStatus(fn)` there (it must be exported from the suite's `src/index.ts`).
+- **Optimization status**: `SHOW_OPTIMIZATION=1` prints [printStatus.js](../../examples/benchmark/printStatus.js) for the functions in each suite's `complete` handler. To check another function, add `printStatus(fn)` there (it must be exported from `examples/benchmark/src/index.ts`).
 - **Deopts**: `--trace-deopt`.
-- **Inline caches and shapes**: `--log-ic --log-maps --logfile=v8.log --no-logfile-per-isolate`. IC lines are `<Type>IC,pc,time,line,column,old,new,map,key`, states `0` uninitialized, `1` monomorphic, `P` polymorphic, `N` megamorphic; line and column point into `dist/index.js`. Find regressions with `grep -E '^(Keyed)?(Load|Store)IC,' v8.log | grep -E ',(P|N),'`.
+- **Inline caches and shapes**: `--log-ic --log-maps --logfile=v8.log --no-logfile-per-isolate`. IC lines end `…,old,new,map,key`, states `0` uninitialized, `1` monomorphic, `P` polymorphic, `N` megamorphic. Lines carry no file and positions differ between the two builds, and Node internals log ICs too, so compare per property `key` that the changed code reads or writes: count lines reaching `P` or `N` on each ref, e.g. `grep -E 'IC,.*,(P|N),[^,]*,myKey,' v8.log | wc -l`.
 - **Inlining**: `--trace-turbo-inlining`.
 - **Throughput**: a separate run without trace or log flags (they slow V8), several runs per ref on one machine in one session. Use the relevant suite (see the benchmarking rule) or a `micro.js` case.
 
