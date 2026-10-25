@@ -4,9 +4,9 @@ import { describe, it } from 'node:test';
 import { pickLocales } from './pick-locales.mjs';
 
 const mentionedBy =
-  (names = {}) =>
-  name =>
-    new Set(names[name]);
+  (locales = {}) =>
+  names =>
+    new Set(names.flatMap(name => locales[name] ?? []));
 const pick = (changed, deleted = [], names) =>
   pickLocales(changed, deleted, mentionedBy(names));
 

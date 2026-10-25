@@ -71,62 +71,22 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           [ ! -f website/versionCurrent.json ] || echo "next=1" >> "$GITHUB_OUTPUT"
-      # Pull requests reuse an install of the same manifests and lockfile
-      # instead of installing (about 20s); master saves one when it's missing.
-      # The queue and master always install from scratch.
-      - name: Restore installed packages
-        id: modules
-        if: github.event_name != 'merge_group'
-        uses: actions/cache/restore@v6
-        with:
-          path: |
-            node_modules
-            packages/*/node_modules
-            scripts/rollup-plugins/node_modules
-            website/node_modules
-            !website/node_modules/.cache
-            .yarn/install-state.gz
-          # Everything scripts/ci-install.sh website reads
-          key: website-modules-node26-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock', '.yarnrc.yml', '.yarn/releases/**', '.yarn/plugins/**', 'scripts/ci-install.sh', 'package.json', 'packages/*/package.json', 'scripts/rollup-plugins/package.json', 'website/package.json', 'website/scripts/generateMonacoPreloads.cjs') }}
-          lookup-only: ${{ github.event_name != 'pull_request' }}
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '26'
-          # Yarn's download cache, only when installing
-          cache: ${{ (github.event_name != 'pull_request' || steps.modules.outputs.cache-hit != 'true') && 'yarn' || '' }}
+      # `checks` saves both caches, off this job's critical path
       - name: Install packages
-        if: github.event_name != 'pull_request' || steps.modules.outputs.cache-hit != 'true'
-        run: ./scripts/ci-install.sh website
-      - if: steps.modules.outcome == 'success' && steps.modules.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v6
-        with:
-          path: |
-            node_modules
-            packages/*/node_modules
-            scripts/rollup-plugins/node_modules
-            website/node_modules
-            !website/node_modules/.cache
-            .yarn/install-state.gz
-          key: ${{ steps.modules.outputs.cache-primary-key }}
+        id: install
+        uses: ./.github/actions/website-install
       # The build needs only their JavaScript (`checks` builds the types).
       # Pull requests reuse a build of the same sources, like the install.
       - name: Restore the packages the website imports
         id: libs
-        if: github.event_name != 'merge_group'
+        if: github.event_name == 'pull_request'
         uses: actions/cache/restore@v6
         with:
           path: packages/*/lib
-          # Everything their build:lib reads
-          key: website-libs-${{ hashFiles('packages/*/src/**', 'packages/*/package.json', 'packages/*/rollup.config.*', 'scripts/rollup-plugins/**', 'babel.config.js', 'package.json', 'yarn.lock') }}
-          lookup-only: ${{ github.event_name != 'pull_request' }}
+          key: ${{ steps.install.outputs.libs-key }}
       - name: Build the packages the website imports
-        if: github.event_name != 'pull_request' || steps.libs.outputs.cache-hit != 'true'
+        if: steps.libs.outputs.cache-hit != 'true'
         run: yarn ci:build:website-lib
-      - if: steps.libs.outcome == 'success' && steps.libs.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v6
-        with:
-          path: packages/*/lib
-          key: ${{ steps.libs.outputs.cache-primary-key }}
       # Each locale is a full build, so PRs build only English and the
       # locales they could change or break (scripts/pick-locales.mjs). The
       # queue and master always build every locale.
@@ -136,11 +96,8 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          # Fails open: every locale when the diff or the picker fails
-          if git diff --name-only --no-renames "$BASE_SHA" HEAD > "$RUNNER_TEMP/changed" \
-            && git diff --name-only --no-renames --diff-filter=D "$BASE_SHA" HEAD > "$RUNNER_TEMP/deleted" \
-            && locales="$(node website/scripts/pick-locales.mjs "$RUNNER_TEMP/changed" "$RUNNER_TEMP/deleted")" \
-            && [ -n "$locales" ]; then
+          # Fails open: every locale when the picker fails
+          if locales="$(node website/scripts/pick-locales.mjs "$BASE_SHA")" && [ -n "$locales" ]; then
             # PRs that don't deploy get no preview comment, so say it here too
             echo "::notice title=Locales::This PR builds ${locales// /, }; the merge queue builds every locale"
             echo "locales=$locales" >> "$GITHUB_OUTPUT"
@@ -272,10 +229,11 @@ jobs:
           filter: ${{ github.event_name != 'merge_group' && 'blob:none' || '' }}
       - name: Test Vercel ignore decision
         run: bash website/scripts/vercel-ignore.test.sh
-      - uses: actions/setup-node@v7
+      - name: Install packages
+        id: install
+        uses: ./.github/actions/website-install
         with:
-          node-version: '26'
-          cache: 'yarn'
+          save: 'true'
       - name: Check published blog posts are dated today
         if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
         env:
@@ -283,25 +241,26 @@ jobs:
         run: |
           git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null || git fetch --depth=1 origin "$BASE_SHA"
           node website/scripts/blog-publish.mjs --check "$BASE_SHA"
-      - name: Install packages
-        run: ./scripts/ci-install.sh website
       - name: Build package types and the packages the website imports
         run: yarn ci:build:website
+      # For `build` on later runs; their types ride along
+      - if: github.event_name != 'merge_group'
+        uses: actions/cache/save@v6
+        continue-on-error: true
+        with:
+          path: packages/*/lib
+          key: ${{ steps.install.outputs.libs-key }}
       - name: Typecheck website
         run: yarn workspace rdc-website typecheck
       # CircleCI's lint job covers packages/ only; api/ is the Vercel functions
       - name: Lint website
         run: yarn lint --quiet 'website/{src,api}/**/*.{js,ts,tsx}'
       - name: Check translations
-        run: |
-          node --test 'website/translate/*.test.mjs'
-          node website/translate/translate.mjs check
-      - name: Check sitemap robots.txt
-        run: node --test website/sitemap-robots-plugin.test.mjs
-      - name: Check Playground fixture source plugins
-        run: node --test website/fixture-source.test.mjs
-      - name: Check the locale picker
-        run: node --test website/scripts/pick-locales.test.mjs
+        run: node website/translate/translate.mjs check
+      # Translation tooling, sitemap robots.txt, Playground fixture source
+      # plugins and the locale picker
+      - name: Test website scripts
+        run: node --test 'website/translate/*.test.mjs' website/*.test.mjs website/scripts/*.test.mjs
 
   # The required check (branch protection matches this name): passes when the
   # build and checks passed, or the gate skipped them
