@@ -32,14 +32,19 @@ If your idea requires design considerations, it's best to [start a discussion][4
   do this by [opening an issue][1] and asking. It may also help give the
   maintainers context for when the time comes to review your code.
 
-* Ensure your [commit messages are well-written][2]. This can double as your
-  pull request message, so it pays to take the time to write a clear message.
+* Ensure your [commit messages are well-written][2]. They are source material
+  for the pull request description.
+
+* Fill in the [pull request template](.github/PULL_REQUEST_TEMPLATE.md). Its
+  comments explain what each section needs.
 
 * Add tests for your feature. You should be able to look at other tests for
   examples. If you're unsure, don't hesitate to [open an issue][1] and ask!
+  When you change code under `packages/`, run `yarn test:coverage` before you
+  open the PR and make sure coverage doesn't decrease.
 
 * Add a changeset for user-facing changes in published packages:
-  * Use the `/changeset` skill to generate changesets, update docs, and prepare a PR description.
+  * Use the `/changeset` skill to generate changesets and update docs.
   * If doing manually: run `yarn changeset` from repo root once per distinct change.
 
 * If you changed package types, docs or skills, regenerate the committed
