@@ -1,0 +1,308 @@
+.diagram {
+  --line: var(--ifm-color-emphasis-300);
+  --action: hsl(262, 52%, 48%);
+  --state: var(--ifm-color-primary);
+  --on-chip: #fff;
+  /* one trip around the loop */
+  --cycle: 9s;
+  display: block;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto 1.5rem;
+  font-size: 12px;
+  text-anchor: middle;
+  user-select: none;
+}
+[data-theme='dark'] .diagram {
+  --action: hsl(262, 75%, 74%);
+  --state: var(--ifm-color-primary-light);
+  --on-chip: hsl(220, 20%, 12%);
+}
+
+.flow {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 2 6;
+  animation: flow 0.8s linear infinite;
+}
+@keyframes flow {
+  from {
+    stroke-dashoffset: 8;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.head {
+  stroke: none;
+  fill: var(--line);
+}
+.action .flow {
+  stroke: var(--action);
+}
+.action .head {
+  fill: var(--action);
+}
+.state .flow {
+  stroke: var(--state);
+}
+.state .head {
+  fill: var(--state);
+}
+/* state reaches the components after the response reaches the store */
+.state {
+  opacity: 0.5;
+  animation: send var(--cycle) calc(var(--cycle) * 0.72) infinite;
+}
+@keyframes send {
+  0%,
+  20%,
+  100% {
+    opacity: 0.5;
+  }
+  3% {
+    opacity: 1;
+  }
+}
+
+.box rect,
+.manager rect,
+.outside rect {
+  fill: var(--fill, var(--ifm-background-surface-color));
+  stroke: var(--edge, var(--line));
+  stroke-width: 1.5;
+  rx: 7px;
+}
+.box text,
+.manager text {
+  fill: var(--ifm-font-color-base);
+  font-weight: 500;
+}
+
+.managers rect {
+  fill: color-mix(
+    in srgb,
+    var(--line) 30%,
+    var(--ifm-background-surface-color)
+  );
+  rx: 12px;
+}
+.managers text {
+  fill: var(--ifm-color-emphasis-600);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-anchor: start;
+}
+/* the slot for an app's own managers */
+.Custom rect {
+  stroke-dasharray: 4 3;
+}
+
+.outside rect {
+  rx: 10px;
+}
+.outside text {
+  fill: var(--ifm-color-emphasis-700);
+  font-size: 11px;
+}
+
+.store rect {
+  stroke: var(--state);
+  rx: 12px;
+}
+.db {
+  color: var(--state);
+}
+.components rect {
+  fill: color-mix(
+    in srgb,
+    var(--state) 12%,
+    var(--ifm-background-surface-color)
+  );
+  stroke: var(--state);
+}
+
+/* the action being handled, then the store and components re-rendering for
+   it, like React DevTools' highlight */
+.diagram .flash {
+  fill: none;
+  stroke: var(--state);
+  stroke-width: 8;
+  opacity: 0;
+}
+/* delays are the chip keyframe stops: fetch reaches NetworkManager at 22%,
+   setresponse reaches the store at 72% */
+.Network .flash {
+  stroke: var(--action);
+  animation: render var(--cycle) calc(var(--cycle) * 0.22) infinite;
+}
+.store .flash {
+  animation: render var(--cycle) calc(var(--cycle) * 0.72) infinite;
+}
+.components .flash {
+  animation: render var(--cycle) calc(var(--cycle) * 0.75) infinite;
+}
+@keyframes render {
+  0%,
+  20%,
+  100% {
+    opacity: 0;
+  }
+  3% {
+    opacity: 0.6;
+  }
+}
+
+/* actions travel the loop: fetch passes the app's own managers and stops at
+   NetworkManager, which sends it out and dispatches the response back through
+   the Controller into the store */
+.chip {
+  opacity: 0;
+  animation: var(--cycle) linear infinite;
+  /* even while faded out, it would catch taps meant for what it rests on */
+  pointer-events: none;
+}
+.fetch {
+  animation-name: fetch;
+}
+.response {
+  animation-name: response;
+}
+.chip rect {
+  fill: var(--action);
+  rx: 9px;
+}
+.chip text {
+  fill: var(--on-chip);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+@keyframes fetch {
+  0% {
+    transform: translate(330px, 70px);
+    opacity: 0;
+  }
+  3% {
+    transform: translate(330px, 70px);
+    opacity: 1;
+  }
+  10% {
+    transform: translate(190px, 70px);
+  }
+  14% {
+    transform: translate(190px, 132px);
+  }
+  18% {
+    transform: translate(190px, 166px);
+  }
+  22% {
+    transform: translate(190px, 200px);
+  }
+  29% {
+    transform: translate(42px, 200px);
+    opacity: 1;
+  }
+  34%,
+  100% {
+    transform: translate(42px, 200px);
+    opacity: 0;
+  }
+}
+/* setresponse is wider than fetch: it starts right of HTTP's center so
+   its left end stays inside the viewBox */
+@keyframes response {
+  0%,
+  38% {
+    transform: translate(52px, 200px);
+    opacity: 0;
+  }
+  41% {
+    transform: translate(52px, 200px);
+    opacity: 1;
+  }
+  46% {
+    transform: translate(190px, 200px);
+  }
+  49% {
+    transform: translate(284px, 200px);
+  }
+  53% {
+    transform: translate(284px, 70px);
+  }
+  57% {
+    transform: translate(190px, 70px);
+  }
+  60% {
+    transform: translate(190px, 132px);
+  }
+  63% {
+    transform: translate(190px, 166px);
+  }
+  66% {
+    transform: translate(190px, 200px);
+  }
+  69% {
+    transform: translate(190px, 234px);
+  }
+  72% {
+    transform: translate(190px, 287px);
+    opacity: 1;
+  }
+  75%,
+  100% {
+    transform: translate(190px, 287px);
+    opacity: 0;
+  }
+}
+
+.manager,
+.outside {
+  cursor: pointer;
+}
+.manager,
+.outside,
+.link,
+.chip g {
+  transition:
+    opacity var(--motion-snappy),
+    stroke-width var(--motion-snappy);
+}
+.off {
+  opacity: 0.2;
+}
+.manager.on,
+.outside.on {
+  --fill: color-mix(
+    in srgb,
+    var(--state) 12%,
+    var(--ifm-background-surface-color)
+  );
+  --edge: var(--state);
+}
+.link.on {
+  stroke: var(--state);
+  stroke-width: 3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow,
+  .state,
+  .diagram .flash {
+    animation: none;
+  }
+  /* each action holds still on the x=190 line: fetch leaving the
+     Controller, setresponse entering the Store */
+  .chip {
+    animation: none;
+    opacity: 1;
+  }
+  .fetch {
+    transform: translate(190px, 89px);
+  }
+  .response {
+    transform: translate(190px, 265px);
+  }
+}

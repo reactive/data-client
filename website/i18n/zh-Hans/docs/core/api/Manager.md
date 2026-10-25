@@ -3,8 +3,7 @@ title: Manager - 掌握全局 store 的强大中间件
 sidebar_label: Manager
 ---
 
-import ThemedImage from '@theme/ThemedImage';
-import useBaseUrl from '@docusaurus/useBaseUrl';
+import DataFlow from '@site/src/components/DataFlow';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import ProviderManagers from '../shared/_provider_managers.mdx';
 
@@ -111,13 +110,7 @@ action 会按数组顺序依次经过各个 manager。请把自定义 manager �
 Manager 通过其生命周期和中间件与 :react[DataProvider]:vue[DataClientPlugin] store 集成。它们通过拦截和派发 [action](./Actions.md)
 以及读取内部状态来进行交互，从而编排复杂的控制流。
 
-<ThemedImage
-alt="Manager 的 flux 流程"
-sources={{
-    light: useBaseUrl('/img/flux-full.png'),
-    dark: useBaseUrl('/img/flux-full-dark.png'),
-  }}
-/>
+<DataFlow />
 
 `middleware` 的职责是派发 action、响应 [action](./Actions.md)，或者两者兼而有之。
 

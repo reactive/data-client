@@ -868,6 +868,10 @@
     "message": "操作",
     "description": "Label of the push / unshift / remove / move switch on the collection lists diagram"
   },
+  "dataFlow.label": {
+    "message": "单向数据流。组件通过 Controller 派发 action，进入 manager 的中间件链：先是你自己的 manager，然后是 DevToolsManager、NetworkManager 和 SubscriptionManager。manager 与外部世界（SSE、WebSockets、IndexedDB、DevTools、HTTP）交互，并通过 Controller 派发回来。读取数据时，rdc/fetch action 经过你的 manager，在 NetworkManager 停下，由它通过 HTTP 发出请求，并把响应作为 rdc/setresponse 派发，经过每个 manager 进入 store。新的状态随后在组件中渲染",
+    "description": "Accessible label of the data flow diagram on the Managers, Manager, Overview and Debugging pages"
+  },
   "expiryTimeline.within": {
     "message": "未超过",
     "description": "Before the dataExpiryLength option name, over the Fresh story: a mount within that time finds fresh data"

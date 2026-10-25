@@ -5,8 +5,7 @@ image: /img/devtool-action.png
 ---
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import ThemedImage from '@theme/ThemedImage';
-import useBaseUrl from '@docusaurus/useBaseUrl';
+import DataFlow from '@site/src/components/DataFlow';
 
 ## 使用 agent 调试 {#debugging-with-agents}
 
@@ -104,16 +103,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 <abbr title="Reactive Data Client">Data Client</abbr> 采用 [flux store](https://facebookarchive.github.io/flux/docs/in-depth-overview/) 模式，每一次变化都可追踪且含义明确，
 因此调试起来非常直接。
 
-<div style={{textAlign:'center'}}>
-<ThemedImage
-  alt="FLUX"
-  sources={{
-    light: useBaseUrl('/img/diagrams/flux-simple.png'),
-    dark: useBaseUrl('/img/diagrams/flux-simple-dark.png'),
-  }}
-  style={{maxHeight:"260px"}}
-/>
-</div>
+<DataFlow />
 
 > [进一步了解控制流](../concepts/managers.md)
 

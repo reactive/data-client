@@ -3,8 +3,7 @@ title: Manager - Middlewares potentes con conocimiento global del store
 sidebar_label: Manager
 ---
 
-import ThemedImage from '@theme/ThemedImage';
-import useBaseUrl from '@docusaurus/useBaseUrl';
+import DataFlow from '@site/src/components/DataFlow';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import ProviderManagers from '../shared/_provider_managers.mdx';
 
@@ -112,13 +111,7 @@ resuelve él mismo la mayoría de las acciones FETCH en lugar de pasarlas al sig
 Los managers se integran con el store de :react[DataProvider]:vue[DataClientPlugin] mediante sus ciclos de vida y su middleware. Orquestan flujos de control
 complejos interceptando y despachando [acciones](./Actions.md), además de leer el estado interno.
 
-<ThemedImage
-alt="Flujo flux del Manager"
-sources={{
-    light: useBaseUrl('/img/flux-full.png'),
-    dark: useBaseUrl('/img/flux-full-dark.png'),
-  }}
-/>
+<DataFlow />
 
 El trabajo del `middleware` es despachar acciones, responder a las [acciones](./Actions.md), o ambas cosas.
 

@@ -4,8 +4,7 @@ unlisted: true
 ---
 
 import SchemaTable from '../shared/\_schema_table.mdx';
-import ThemedImage from '@theme/ThemedImage';
-import useBaseUrl from '@docusaurus/useBaseUrl';
+import DataFlow from '@site/src/components/DataFlow';
 import Link from '@docusaurus/Link';
 
 ## Definição da API {#api-definition}
@@ -74,13 +73,7 @@ import Link from '@docusaurus/Link';
 
 ## Cliente {#client}
 
-<ThemedImage
-alt="FLUX"
-sources={{
-    light: useBaseUrl('/img/flux-full.png'),
-    dark: useBaseUrl('/img/flux-full-dark.png'),
-  }}
-/>
+<DataFlow />
 
 |                                  Nome                                  | Definição                                                                          |
 | :--------------------------------------------------------------------: | ---------------------------------------------------------------------------------- |
