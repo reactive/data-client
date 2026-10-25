@@ -15,8 +15,6 @@ jspm_packages/
 # generated files
 .docusaurus
 .cache-loader
-# from the installed monaco-editor (scripts/generateMonacoPreloads.cjs)
-/src/components/Playground/monaco/preloadManifest.ts
 
 # misc
 .DS_Store
