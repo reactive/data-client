@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # REST Protocol Setup & Migration
 
-Configures `@data-client/rest` for a project, fresh or migrating from another HTTP library. It only defines endpoints and schemas, so it needs no Data Client provider: leave how the app loads and stores data alone unless the user asks to change it.
+This setup only defines endpoints and schemas, so it needs no Data Client provider: leave how the app loads and stores data alone unless the user asks to change it.
 
 APIs: [RestEndpoint](references/RestEndpoint.md), [resource](references/resource.md). Vue projects: read `<name>.vue.md` instead of `<name>.md` when it exists.
 
@@ -71,12 +71,12 @@ Override only what the app does today:
 | Auth or other headers (may be `async`, e.g. token refresh) | `getHeaders(headers)` |
 | Auth token from React context (Okta, Auth0) | [`hookifyResource()`](references/hookifyResource.md); a base class can't read context |
 | Cookies, CSRF, other `RequestInit` | `getRequestInit(body)`, spreading `super.getRequestInit(body)` |
-| JSON body wrapped in an envelope, like `{ "data": {...}, "meta": {...} }` | `process(value) { return value?.data; }` (`value` is null for a 204). Only for a real envelope: axios's `response.data` is axios's wrapper, which the codemod already removed |
-| Status handling, like a 401 redirect | `async fetchResponse(input, init)`: `super.fetchResponse()` throws a `NetworkError` for any non-2xx status, so wrap it in `try`, check `error.status` in `catch`, and rethrow |
+| JSON body wrapped in an envelope, like `{ "data": {...}, "meta": {...} }`, or other transforms like case conversion | `process(value)`, e.g. `return value?.data` (`value` is null for a 204). Unwrap only a real envelope: axios's `response.data` is axios's wrapper, which the codemod already removed. Parse date fields in the Entity's `static schema` instead (e.g. `createdAt: Temporal.Instant.from`; skill "data-client-schema") |
+| Status handling, like a 401 redirect | `async fetchResponse(input, init)`: `super.fetchResponse()` throws a `NetworkError` for any non-2xx status, so wrap it in `try`, check `error.status` in `catch`, and rethrow ([Server error messages](references/axios-migration.md#server-error-messages) shows it) |
 | Arrays or nested objects in the query | `searchToString(searchParams)`, e.g. `qs.stringify(searchParams, { arrayFormat: 'brackets' })` |
-| Non-JSON responses | `parseResponse(response)`, falling back to `super.parseResponse(response)` |
-| Non-JSON request bodies (form-data, urlencoded) | Nothing: a plain object or array `body` is sent as JSON, while `FormData`, `URLSearchParams`, `Blob` or a string is passed to `fetch()` as-is |
-| Response transforms, like case conversion | `process(value)`. Parse date fields in the Entity's `static schema` instead (e.g. `createdAt: Temporal.Instant.from`; skill "data-client-schema") |
+| Non-JSON responses (files, text) | The `content` option (`'blob'`, `'text'`, `'arrayBuffer'`, `'stream'`); `parseResponse(response)` only for anything else |
+
+Request bodies need no override: a plain object or array is sent as JSON, while `FormData`, `URLSearchParams`, `Blob` or a string is passed to `fetch()` as-is.
 
 ## Defining endpoints
 
