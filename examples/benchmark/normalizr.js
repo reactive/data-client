@@ -26,6 +26,7 @@ import {
   buildStockData,
   buildStockScalarUpdate,
   PortfolioScalar,
+  BuildTypeDescription,
   HoldingSchema,
   buildHoldingData,
 } from './schemas.js';
@@ -121,6 +122,16 @@ const withMissingStocks = offset => {
   return { ...holdingState.entities, [Stock.key]: stocks };
 };
 const holdingStores = [withMissingStocks(0), withMissingStocks(2)];
+
+const BuildTypeSchema = { buildType: BuildTypeDescription };
+
+/** A MemoCache that has read `input` with `ents`, then committed `ents`. */
+function committedMemo(schema, input, ents, args) {
+  const memo = new MemoCache();
+  memo.denormalize(schema, input, ents, args);
+  memo.commit(ents);
+  return memo;
+}
 
 export default function addNormlizrSuite(suite, filter) {
   const memo = new MemoCache();
@@ -371,6 +382,78 @@ export default function addNormlizrSuite(suite, filter) {
       queryState.entities,
       [],
     );
+  });
+  // committed: each MemoCache has committed the `entities` it reads, so reads
+  // take the path a committed render's re-reads take
+  const memoCommitted = committedMemo(ProjectSchema, result, entities, []);
+  add('denormalizeLong withCache committed', () => {
+    return memoCommitted.denormalize(ProjectSchema, result, entities, []);
+  });
+  const memoValuesCommitted = committedMemo(
+    ProjectSchemaValues,
+    valuesState.result,
+    valuesState.entities,
+    [],
+  );
+  add('denormalizeLong Values withCache committed', () => {
+    return memoValuesCommitted.denormalize(
+      ProjectSchemaValues,
+      valuesState.result,
+      valuesState.entities,
+      [],
+    );
+  });
+  const memoStockCommitted = committedMemo(
+    StockSchema,
+    stockState.result,
+    stockState.entities,
+    stockArgs,
+  );
+  add('denormalizeLong Scalar withCache committed', () => {
+    return memoStockCommitted.denormalize(
+      StockSchema,
+      stockState.result,
+      stockState.entities,
+      stockArgs,
+    );
+  });
+  const memoAllCommitted = committedMemo(
+    AllProjects,
+    queryState.result,
+    queryState.entities,
+    [],
+  );
+  add('denormalizeLong All withCache committed', () => {
+    return memoAllCommitted.denormalize(
+      AllProjects,
+      queryState.result,
+      queryState.entities,
+      [],
+    );
+  });
+  // commit() cost: each op reads 500 small endpoints with a new `entities`,
+  // then (in the second case) commits it
+  const buildTypeInputs = Object.keys(entities.BuildTypeDescription)
+    .slice(0, 500)
+    .map(id => ({ buildType: id }));
+  const memoReads = new MemoCache();
+  const memoCommits = new MemoCache();
+  for (const input of buildTypeInputs) {
+    memoReads.denormalize(BuildTypeSchema, input, entities, []);
+    memoCommits.denormalize(BuildTypeSchema, input, entities, []);
+  }
+  add('denormalizeShort 500 endpoints withCache', () => {
+    const next = { ...entities };
+    for (let i = 0; i < 500; ++i) {
+      memoReads.denormalize(BuildTypeSchema, buildTypeInputs[i], next, []);
+    }
+  });
+  add('denormalizeShort 500 endpoints withCache then commit', () => {
+    const next = { ...entities };
+    for (let i = 0; i < 500; ++i) {
+      memoCommits.denormalize(BuildTypeSchema, buildTypeInputs[i], next, []);
+    }
+    memoCommits.commit(next);
   });
   add('denormalizeLongAndShort withEntityCacheOnly', () => {
     memo.endpoints = new WeakDependencyMap();

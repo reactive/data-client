@@ -40,6 +40,8 @@ Both arguments are optional:
   - `denormalizeLong withCache update first|last row` - steady state: each op builds a new `entities` with one project replaced, then reads the cached list; the changed row is first or last in the list
   - `denormalizeLong Scalar` (cold) and `denormalizeLong Scalar withCache update one cell` - the 700-row `Scalar` list in a new `MemoCache`, and read again after each op replaces one `Scalar` cell
   - `denormalizeLong two Scalars, 25% Stocks missing` (and `withCache`) - a `Holding` list with two `Scalar` lenses (one through its `Stock`); two stores missing different Stocks are read in turn, so list nodes keep more than one `argsKey` branch
+  - `... withCache committed` - the `denormalizeLong`, `Values`, `Scalar` and `All` withCache cases on a `MemoCache` that has `commit()`ed the `entities` it reads, so reads take the committed path
+  - `denormalizeShort 500 endpoints withCache` (and `then commit`) - each op reads 500 small cached endpoints with a new `entities`, then commits it; the difference is the cost of `commit()`
 - `spread` - degenerate-case writes where spread cost scales with store size (single-entity `setResponse` into 1k/10k/100k entity stores, 10k cached endpoint keys, collection push onto 10k items, invalidateAll/expireAll). One case (`setOneEntity in 10k entity store`) is tracked over time in CI via `.github/workflows/benchmark-spread.yml`; the rest are manual-only.
 - `micro` - isolated microbenchmarks for testing specific operations
 - `old-normalizr` - runs equivalent benchmarks using the normalizr package
@@ -124,9 +126,10 @@ yarn start:memo-tradeoffs [filter]
 
 Measures where caching fewer versions could cost reads or memory: one list
 read against several store snapshots in turn (hit rate and time per read),
-heap the memo keeps beyond the store after a run of updates, and one list read
-under many `argsKey` values (hit rate and heap held). Local-only — not tracked
-in CI.
+heap the memo keeps beyond the store after a run of updates, an optimistic
+streak (the settled store committed, then 1, 3 or 8 unsettled commits, then
+the settled store read again: hit rate and heap held), and one list read under
+many `argsKey` values (hit rate and heap held). Local-only — not tracked in CI.
 
 ### Profiling
 
