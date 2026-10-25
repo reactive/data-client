@@ -25,3 +25,17 @@ export function declarationsOf(
   }
   return declared;
 }
+
+/** `next`, or `prev` when every name is declared where it was, so what is
+ * built on it keeps its identity through edits that move no declaration */
+export function keepSameDeclarations(
+  prev: ReadonlyMap<string, CodeTarget>,
+  next: ReadonlyMap<string, CodeTarget>,
+): ReadonlyMap<string, CodeTarget> {
+  if (prev.size !== next.size) return next;
+  for (const [name, { path, line }] of next) {
+    const was = prev.get(name);
+    if (was?.path !== path || was.line !== line) return next;
+  }
+  return prev;
+}

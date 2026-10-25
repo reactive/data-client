@@ -86,6 +86,15 @@ export interface Step {
   readonly seq: number;
   readonly scope: Scope;
 }
+/** `next`, or `prev` when it is the same place, so what is built on it
+ * keeps its identity between actions that don't move it */
+export const keepSameStep = <S extends Step | null | undefined>(
+  prev: S,
+  next: S,
+): S =>
+  prev && next && prev.seq === next.seq && prev.scope === next.scope ?
+    prev
+  : next;
 
 /** Action `seq` (as much as `scope` says), shown over a subject with what
  * it did to it; `null`, live, is the newest */
@@ -134,15 +143,14 @@ export interface LevelStack {
   readonly clearAt: () => void;
   /** Shows action `seq` (as much as `scope` says) over the subject's actions
    * (opening them, or in place of the action view on top), so Back lists
-   * them; `null` the newest. `quiet`, without sliding in or taking focus */
+   * them; `null` the newest. `under` (see `followMoment`), a level deeper
+   * than that view. `quiet`, without sliding in or taking focus */
   readonly showAction: (
     seq: number | null,
     scope?: Scope,
+    under?: Scope,
     quiet?: boolean,
   ) => void;
-  /** Opens action `seq` alone a level deeper, over its request's (or row's)
-   * view */
-  readonly diveAction: (seq: number) => void;
   /** The moment moved: the action view follows it (on top or under levels
    * its chips opened), to the newest action as it goes live (`null`).
    * `under` (what the view under it stands for: its request, or the row
@@ -195,30 +203,37 @@ export function useLevelStack(
   // a level of its own (a new key), so it slides in and takes focus like
   // any level opened on purpose
   const showAction = useCallback(
-    (seq: number | null, scope: Scope = 'request', quiet = false) => {
+    (
+      seq: number | null,
+      scope: Scope = 'request',
+      under?: Scope,
+      quiet = false,
+    ) => {
       setLevels(prev => {
-        let under = prev.stack;
-        while (under[under.length - 1].view.kind === 'action')
-          under = under.slice(0, -1);
-        if (under[under.length - 1].view.kind !== 'actions')
-          under = [...under, { key: nextKey.current++, view: ACTIONS }];
-        const view: ActionView = { kind: 'action', seq, scope };
-        const entry: StackEntry = { key: nextKey.current++, view };
+        let base = prev.stack;
+        while (base[base.length - 1].view.kind === 'action')
+          base = base.slice(0, -1);
+        if (base[base.length - 1].view.kind !== 'actions')
+          base = [...base, { key: nextKey.current++, view: ACTIONS }];
+        const views: ActionView[] = [
+          ...(under ? [{ kind: 'action', seq, scope: under } as const] : []),
+          { kind: 'action', seq, scope },
+        ];
         return {
           ...prev,
-          stack: [...under, quiet ? { ...entry, quiet: true } : entry],
+          stack: [
+            ...base,
+            ...views.map((view): StackEntry => ({
+              key: nextKey.current++,
+              view,
+              ...(quiet && { quiet: true }),
+            })),
+          ],
         };
       });
     },
     [],
   );
-  const diveAction = useCallback((seq: number) => {
-    const view: ActionView = { kind: 'action', seq, scope: 'action' };
-    setLevels(prev => ({
-      ...prev,
-      stack: [...prev.stack, { key: nextKey.current++, view }],
-    }));
-  }, []);
   const followMoment = useCallback(
     (seq: number | null, scope: Scope = 'request', under?: Scope) => {
       setLevels(prev => {
@@ -268,7 +283,6 @@ export function useLevelStack(
     back,
     clearAt,
     showAction,
-    diveAction,
     followMoment,
   };
 }

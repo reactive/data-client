@@ -6,18 +6,19 @@ import React, {
   useCallback,
   useDeferredValue,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 
 import Boundary from './Boundary';
 import { useCodeDocuments } from './editor/codeModel';
+import { declarationsOf, keepSameDeclarations } from './editor/declarations';
 import EditorSurface from './editor/EditorSurface';
 import {
   CodeOpenerContext,
   type CodeOpener,
   type CodeTarget,
 } from './editor/openCode';
-import { declarationsOf } from './editor/declarations';
 import type { AutoRunScript } from './preview/autorun/script';
 import FixturePreview from './preview/FixturePreview';
 import type LivePreviewType from './preview/LivePreview';
@@ -108,10 +109,20 @@ export default function Playground<T>({
     },
     [codeCovered, showStore],
   );
-  // from the code the preview runs, so the Store's links change with it
+  // from the code the preview runs, so the Store's links change with it;
+  // kept while no declaration moves, so an edit elsewhere renders no link
+  const lastDeclared = useRef<CodeOpener['declared']>(new Map());
+  const declared = useMemo(
+    () =>
+      (lastDeclared.current = keepSameDeclarations(
+        lastDeclared.current,
+        declarationsOf(documents),
+      )),
+    [documents],
+  );
   const codeOpener = useMemo<CodeOpener>(
-    () => ({ declared: declarationsOf(documents), open: openCode }),
-    [documents, openCode],
+    () => ({ declared, open: openCode }),
+    [declared, openCode],
   );
 
   // Hydrate Monaco on first show and keep it (preserves undo / go-to-def).

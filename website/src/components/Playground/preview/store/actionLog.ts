@@ -125,12 +125,12 @@ function nearestHit(
 }
 
 /** The actions a subject's steps go through: the log's `entries` in their
- * `groups`, and the `rows` listed for it (those with an action `hit` says
+ * `groups`, and the rows `listed` for it (those with an action `hit` says
  * touched it) */
 export interface Listing {
   readonly entries: readonly LogEntry[];
   readonly groups: readonly ActionGroup[];
-  readonly rows: readonly ActionGroup[];
+  readonly listed: ReadonlySet<ActionGroup>;
   /** The rows' requests: where the surface steps */
   readonly requests: Requests;
   readonly hit: (entry: LogEntry) => boolean;
@@ -144,7 +144,7 @@ export interface Listing {
  * the last request: stepping on from it reaches live, stepping back from
  * live the last request. `null` is live; `undefined` has nowhere to go */
 export function stepAt(
-  { entries, groups, rows, requests, hit }: Listing,
+  { entries, groups, listed, requests, hit }: Listing,
   entry: LogEntry | undefined,
   live: boolean,
   scope: Scope,
@@ -152,7 +152,6 @@ export function stepAt(
 ): Step | null | undefined {
   if (!entry) return undefined;
   if (scope === 'action') {
-    const listed = new Set(rows);
     const next = nearestHit(entries, entry.seq, by, e => {
       const row = groupOf(groups, e.seq);
       return row ? listed.has(row) : hit(e);
@@ -656,6 +655,17 @@ function detach(state: State<unknown>): State<unknown> {
     endpoints: { ...state.endpoints },
     meta: { ...state.meta },
   };
+}
+
+/** `next`, or `prev` when it holds the same, so what is built on the set
+ * keeps its identity between actions that leave it alone */
+export function keepSameSet<T>(
+  prev: ReadonlySet<T>,
+  next: ReadonlySet<T>,
+): ReadonlySet<T> {
+  if (prev.size !== next.size) return next;
+  for (const value of next) if (!prev.has(value)) return next;
+  return prev;
 }
 
 /** `next`, or `prev` when it holds the same, so what is built on the map

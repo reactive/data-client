@@ -30,6 +30,8 @@ export default function useDefinitionOpener({
   const [request, setRequest] = useState<OpenRequest | null>(null);
   // Monaco may load after the ask: the cursor waits for it, the tab doesn't
   const [editor, setEditor] = useState<Monaco.editor.ICodeEditor | null>(null);
+  // only as the ask comes: the editor mounting later moves the cursor, but
+  // never opens the tab again over one picked since
   useEffect(() => {
     if (reveal) onOpen();
     // onOpen is stable (see above)

@@ -34,6 +34,7 @@ import {
   findEntry,
   isRecordChange,
   keepSameMap,
+  keepSameSet,
   stepAt,
   storeAt,
   withDropped,
@@ -73,6 +74,7 @@ import {
   type Nav,
   type NavState,
   type Scope,
+  keepSameStep,
   type StackEntry,
   type Step,
   type Then,
@@ -231,8 +233,13 @@ export default function StorePanel({
     );
     return newest && momentEntries(groups, newest, 'request');
   }, [groups, moment, scope, known]);
+  const lastCurrent = useRef<ReadonlySet<number>>(new Set());
   const current = useMemo(
-    () => new Set(moment && span ? span.map(e => e.seq) : []),
+    () =>
+      (lastCurrent.current = keepSameSet(
+        lastCurrent.current,
+        new Set(moment && span ? span.map(e => e.seq) : []),
+      )),
     [moment, span],
   );
   const first = span?.find(e => e.store);
@@ -279,7 +286,6 @@ export default function StorePanel({
     clearAt: clearActionsAt,
     followMoment,
     showAction: showLevel,
-    diveAction,
   } = actionLevels;
   // an action alone opens a level deeper than its request or row, when
   // that has more actions, so Back comes up to it. The groups come through
@@ -296,13 +302,9 @@ export default function StorePanel({
     [],
   );
   const showAction = useCallback(
-    (seq: number | null, to: Scope = 'request', quiet = false) => {
-      const parent = under(seq, to);
-      if (!parent) return showLevel(seq, to, quiet);
-      showLevel(seq, parent, quiet);
-      diveAction(seq!);
-    },
-    [under, showLevel, diveAction],
+    (seq: number | null, to: Scope = 'request', quiet = false) =>
+      showLevel(seq, to, under(seq, to), quiet),
+    [under, showLevel],
   );
   const clearAt = useCallback(() => {
     clearStateAt();
@@ -392,7 +394,7 @@ export default function StorePanel({
     return {
       entries: shownOf(groups, known).shown,
       groups,
-      rows,
+      listed: new Set(rows),
       requests: requestsOf(rows, hit),
       hit,
     };
@@ -412,11 +414,15 @@ export default function StorePanel({
     },
     [mark, collapse],
   );
-  // the moment's neighbours at its depth
+  // the moment's neighbours at its depth, kept while they stay put, so the
+  // nav state holds still as actions arrive
+  const lastSteps = useRef<readonly (Step | null | undefined)[]>([]);
   const [earlier, later] = useMemo(() => {
     const live = momentSeq === null;
     const at = live ? newestOf(known, hit) : (moment ?? undefined);
-    return ([-1, 1] as const).map(by => stepAt(listing, at, live, scope, by));
+    return (lastSteps.current = ([-1, 1] as const).map((by, i) =>
+      keepSameStep(lastSteps.current[i], stepAt(listing, at, live, scope, by)),
+    ));
   }, [listing, known, hit, momentSeq, moment, scope]);
   const step = useCallback(
     (by: -1 | 1) => {
@@ -1103,7 +1109,7 @@ function DiffLevel({
  * to without changing depth */
 function ActionLevel({
   seq,
-  scope = 'request',
+  scope,
   subject,
   header,
 }: {

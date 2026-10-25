@@ -567,6 +567,10 @@ div.row[data-change='removed'] {
   text-transform: uppercase;
   color: var(--store-dim);
 }
+.sectionLabel {
+  margin: 0;
+  padding: 0.75rem 0.75rem 0.25rem;
+}
 .table th {
   position: sticky;
   top: 0;
@@ -1260,11 +1264,6 @@ button.stage:focus-visible {
   overflow-y: visible;
   margin: 0;
   border: none;
-}
-/* the headings of a request's sections (styled as .table th, above) */
-.sectionLabel {
-  margin: 0;
-  padding: 0.75rem 0.75rem 0.25rem;
 }
 /* a step of the moment's row past the moment: the store hasn't seen it */
 .stepRow[data-after] {
