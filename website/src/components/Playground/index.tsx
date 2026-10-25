@@ -3,7 +3,6 @@ import React, {
   lazy,
   useCallback,
   useDeferredValue,
-  useEffect,
   useId,
   useMemo,
   useRef,
@@ -31,6 +30,7 @@ import {
   StoreHeaderToggle,
   StoreTab,
   StoreToggle,
+  useStoreMotion,
   useStoreOpen,
 } from './preview/StoreToggle';
 import styles from './styles.module.css';
@@ -103,29 +103,16 @@ export default function Playground<T>({
     : rowLayout ? 'row'
     : 'stacked';
   const row = layout === 'row';
-  const [storeOpen, toggleStore, showStore, demoView] = useStoreOpen(
-    groupId,
-    defaultOpen,
-  );
+  const [storeOpen, toggleStore, showStore, demoView, storeMoves] =
+    useStoreOpen(groupId, defaultOpen);
+  // the Store animates only while the reader or a demo moves it, never as
+  // the playground shows or its layout changes
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
+  const storeMoving = useStoreMotion(container, storeMoves, storeOpen);
   // Row layout: the preview is a folder with the Store behind it, which its
   // handle pulls out over the code (the folder's layer, .storeHost), leaving
   // the preview usable
   const [storeHost, setStoreHost] = useState<HTMLDivElement | null>(null);
-  // the drawer slides only once it has been painted where it rests: shown
-  // (the protocol switch, a page load), a browser may resolve the container
-  // query that parks it a frame late, and slide it there (Safari)
-  useEffect(() => {
-    if (!storeHost || hidden) return;
-    let frame = requestAnimationFrame(() => {
-      frame = requestAnimationFrame(() =>
-        storeHost.toggleAttribute('data-settled', true),
-      );
-    });
-    return () => {
-      cancelAnimationFrame(frame);
-      storeHost.removeAttribute('data-settled');
-    };
-  }, [storeHost, hidden]);
   const storeId = useId();
   const codeCovered = row && storeOpen;
   // the folder's handle: Escape anywhere on the folder pushes it shut
@@ -229,6 +216,7 @@ export default function Playground<T>({
               actionLog={actionLog}
               autoRun={autoRun}
               showStore={showStore}
+              storeMoves={storeMoves}
               code={code}
             />
           </CodeOpenerContext.Provider>
@@ -245,11 +233,13 @@ export default function Playground<T>({
       })}
     >
       <div
+        ref={setContainer}
         className={clsx(styles.playgroundContainer, {
           [styles.row]: row,
           [styles.demo]: demo,
         })}
         data-code={(demo && codeShown) || undefined}
+        data-store-moving={storeMoving || undefined}
       >
         {demo ?
           <>

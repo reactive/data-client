@@ -196,8 +196,12 @@ DesignSystem/       demo styling (design-system.css) and components injected int
   `--pg-preview-gap`); the drawer comes from its left edge with the handle
   level with that foot, and only its sheet runs on below it, the strip of
   folder between the two sheets curving into its edge; stacked, up from the preview's top edge, at most `--store-cap`
-  tall so a long file's top stays in view. It slides only once painted at
-  rest (`data-settled`), so showing a playground never animates it. The
+  tall so a long file's top stays in view. It animates only while the reader or a demo moves it
+  (`useStoreMotion` sets `data-store-moving`, which gives every
+  Store-linked transition its duration, `--pg-store-*`; the stacked
+  Store's `MotionGroup` keys on the same moves), so a tab showing the
+  playground, hydration, a resize or another Store in its group closing
+  it just lands. The
   preview stays usable either way. The Store itself is chrome on the folder (the scrubber's row,
   State and Action as tabs) and content on a sheet the picked tab joins
   (`store.module.css`). A folder's header is inset from its content

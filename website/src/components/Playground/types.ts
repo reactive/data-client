@@ -13,6 +13,9 @@ export interface CodeControl {
 
 export interface PreviewProps<T = any> {
   storeOpen: boolean;
+  /** Counts the reader's and demos' Store moves (`useStoreOpen`): the Store
+   * animates only for these */
+  storeMoves: number;
   toggleStore: MouseEventHandler<HTMLElement>;
   row: boolean;
   /** Row layout: the layer over the code the Store slides into */

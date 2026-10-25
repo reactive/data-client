@@ -66,7 +66,7 @@
    slides shut) */
 .scrubber > * {
   opacity: var(--store-head-ink, 1);
-  transition: opacity var(--motion-snappy);
+  transition: opacity var(--pg-store-snappy);
 }
 .scrubber::before,
 .scrubber::after {

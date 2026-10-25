@@ -36,6 +36,7 @@ export default function LivePreview<T>({
   documents,
   fixtureContent,
   storeOpen,
+  storeMoves,
   toggleStore,
   row,
   storeHost,
@@ -109,6 +110,7 @@ export default function LivePreview<T>({
         <Preview
           key={storeKey}
           storeOpen={storeOpen}
+          storeMoves={storeMoves}
           toggleStore={toggleStore}
           row={row}
           storeHost={storeHost}

@@ -6,6 +6,15 @@
   margin-bottom: var(--ifm-leading);
 }
 .playgroundContainer {
+  /* The Store's motion (its slide and everything that moves with it) runs
+     only while the reader or a demo moves it (`data-store-moving`,
+     ./preview/StoreToggle.tsx `useStoreMotion`): at rest these durations
+     are 0, so nothing that changes the Store's layout instead (a tab showing
+     the playground, a container query resolving late, a resize) animates.
+     Every Store-linked transition uses them */
+  --pg-store-drawer: 0s;
+  --pg-store-snappy: 0s;
+  --pg-store-fade: 0s;
   /* the Store's size, for it and every layout that holds it: room to
      inspect whatever the code's or the preview's height, and the most it
      takes when its own content sets the height */
@@ -53,6 +62,12 @@
   align-items: stretch;
   flex-direction: column;
   background-color: var(--ifm-background-color);
+}
+.playgroundContainer[data-store-moving] {
+  --pg-store-drawer: var(--motion-drawer);
+  --pg-store-snappy: var(--motion-snappy);
+  /* the preview header's curves fade in as it lands */
+  --pg-store-fade: 120ms ease-out 180ms;
 }
 .playgroundContainer.standaloneEditor {
   --ifm-code-font-size: 14.4px;
@@ -718,10 +733,7 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .row > .storeHost > .storeDrawer {
   pointer-events: auto;
-}
-/* once painted at rest (../index.tsx) */
-.row > .storeHost > .storeDrawer[data-settled] {
-  transition: translate var(--motion-drawer);
+  transition: translate var(--pg-store-drawer);
 }
 /* its paper is its header's and its body's (./preview/store), the header
    inset at the drawer's leading edge as the preview's is */
@@ -1415,9 +1427,9 @@ div.fixtureJson + div.fixtureJson {
   .row:has(> .storeHost[data-open])::before {
     left: 0;
   }
-  .row:has(> .storeHost > .storeDrawer[data-settled]) > .previewWrapper::before,
-  .row:has(> .storeHost > .storeDrawer[data-settled])::before {
-    transition: left var(--motion-drawer);
+  .row > .previewWrapper::before,
+  .row::before {
+    transition: left var(--pg-store-drawer);
   }
   .row:has(> .storeHost .storePanel[data-visible]) > .previewWrapper {
     border-top-left-radius: 0;
@@ -1432,7 +1444,7 @@ div.fixtureJson + div.fixtureJson {
      the Store's covers that, see .storeHost) */
   .row .playgroundResult,
   .row .sheet {
-    transition: border-top-left-radius var(--motion-snappy);
+    transition: border-top-left-radius var(--pg-store-snappy);
   }
   .row:has(> .storeHost .storePanel[data-visible]) .playgroundResult {
     border-top-left-radius: 0;
@@ -1472,10 +1484,10 @@ div.fixtureJson + div.fixtureJson {
      file tabs would show past the Store header's inset */
   .row .editorDocs > .playgroundEditor,
   .row .editorDocs::after {
-    transition: box-shadow var(--motion-drawer);
+    transition: box-shadow var(--pg-store-drawer);
   }
   .row .tabControls {
-    transition: opacity var(--motion-drawer);
+    transition: opacity var(--pg-store-drawer);
   }
   .row:has(> .storeHost[data-open]) .editorDocs > .playgroundEditor,
   .row:has(> .storeHost[data-open]) .editorDocs::after {
@@ -1634,7 +1646,7 @@ div.fixtureJson + div.fixtureJson {
     z-index: -1;
     box-shadow: var(--pg-card-shadow);
     opacity: 0;
-    transition: opacity var(--motion-drawer);
+    transition: opacity var(--pg-store-drawer);
   }
   .row > .storeHost[data-open] > .storeDrawer::before {
     opacity: 1;
@@ -1662,20 +1674,20 @@ div.fixtureJson + div.fixtureJson {
      fading in as it lands */
   .row .previewHeader {
     transition:
-      margin var(--motion-snappy),
-      padding var(--motion-snappy),
-      border-radius var(--motion-snappy);
+      margin var(--pg-store-snappy),
+      padding var(--pg-store-snappy),
+      border-radius var(--pg-store-snappy);
   }
   .row .previewHeader::before,
   .row .previewHeader::after {
-    transition: opacity 120ms ease-out 180ms;
+    transition: opacity var(--pg-store-fade);
   }
   .row:has(> .storeHost .storePanel[data-visible]) .previewHeader::before,
   .row:has(> .storeHost .storePanel[data-visible]) .previewHeader::after {
     transition: none;
   }
   .row .playgroundResult {
-    transition: border-radius var(--motion-snappy);
+    transition: border-radius var(--pg-store-snappy);
   }
   /* up from the header's top edge at its right end (the thumb's side,
      clear of anything laid out at the left above the preview), past the

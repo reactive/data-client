@@ -20,6 +20,7 @@ import type { PreviewProps } from '../types';
 
 function Preview<T>({
   storeOpen,
+  storeMoves,
   toggleStore,
   row,
   storeHost,
@@ -74,7 +75,7 @@ function Preview<T>({
         getInitialInterceptorData={getInitialInterceptorData}
       >
         <ManagersSync host={managerHost} />
-        <MotionGroup layoutDependency={storeOpen}>
+        <MotionGroup layoutDependency={storeMoves}>
           <div
             className={`playground-preview ${styles.playgroundPreview}`}
             onPointerDownCapture={onInteract}

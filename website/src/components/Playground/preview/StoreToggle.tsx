@@ -4,7 +4,15 @@
 import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
 import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
-import React, { createContext, useCallback, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import type { ShowStore, StoreView } from './store/storeView';
 import { useTabStorage } from '../../../utils/tabStorage';
@@ -42,6 +50,14 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   const open =
     shown?.open ??
     (choice === 'y' || choice === 'n' ? choice : defaultOpen) === 'y';
+  // moves made here, by the reader or a demo: only these animate the Store
+  // (`useStoreMotion`); the stored choice arriving, or another Store in the
+  // group closing this one, just lands
+  const [moves, setMoves] = useState(0);
+  const latestOpen = useRef(open);
+  useLayoutEffect(() => {
+    latestOpen.current = open;
+  });
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
   const toggle = useCallback(
@@ -50,6 +66,7 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
       blockElementScrollPositionUntilNextRender(clicked);
       setChoice(open ? 'n' : 'y');
       show(null);
+      setMoves(n => n + 1);
     },
     [blockElementScrollPositionUntilNextRender, open, setChoice],
   );
@@ -57,6 +74,7 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   // doesn't pin a toggle the reader clicked earlier
   const showStore = useCallback<ShowStore>((demoOpen, view) => {
     clicked = undefined;
+    if (demoOpen !== latestOpen.current) setMoves(n => n + 1);
     show(prev => {
       const next = demoOpen ? (view ?? prev?.view) : undefined;
       // unchanged: the playground's children don't re-render
@@ -72,7 +90,51 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   );
   const view = shown?.view;
   const demoView = useMemo<DemoView>(() => ({ view, drop }), [view, drop]);
-  return [open, toggle, showStore, demoView] as const;
+  return [open, toggle, showStore, demoView, moves] as const;
+}
+
+/** Whether the Store is moving for one of `moves` (`useStoreOpen`), as
+ * `data-store-moving` on the playground (`container`), which gives its
+ * motion its durations (styles.module.css): until it is at rest, open or
+ * shut, with nothing left sliding or fading. Any other change, from the
+ * layout or the page (a tab showing the playground, a resize, hydration),
+ * lands at once */
+export function useStoreMotion(
+  container: HTMLElement | null,
+  moves: number,
+  open: boolean,
+) {
+  const [rested, setRested] = useState(moves);
+  const moving = moves !== rested;
+  useEffect(() => {
+    if (!container || !moving) return;
+    let frame = 0;
+    const check = () => {
+      // shown once open, hidden once shut (none before the preview loads)
+      const panel = container.querySelector(`.${styles.storePanel}`);
+      const resting = !panel || open === panel.hasAttribute('data-visible');
+      // the Store's own motion, not the app's or what the Store shows (a
+      // row's flash as data arrives), which would hold the playground moving
+      const app = container.querySelector(`.${styles.playgroundPreview}`);
+      const unrelated = (target: Element) =>
+        app?.contains(target) || (target !== panel && panel?.contains(target));
+      // (no Web Animations, e.g. jsdom: nothing runs)
+      const running = container
+        .getAnimations?.({ subtree: true })
+        .some(
+          a =>
+            a.playState === 'running' &&
+            a.effect?.getTiming().iterations !== Infinity &&
+            !unrelated((a.effect as KeyframeEffect).target!),
+        );
+      if (resting && !running) setRested(moves);
+      else frame = requestAnimationFrame(check);
+    };
+    // what this move started is running by the next frame
+    frame = requestAnimationFrame(check);
+    return () => cancelAnimationFrame(frame);
+  }, [container, moving, moves, open]);
+  return moving;
 }
 
 /** Toggle row; also rendered (inert) by the preview loading fallback in ../index.tsx */
