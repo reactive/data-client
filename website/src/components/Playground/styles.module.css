@@ -34,15 +34,8 @@
   /* The preview's palette (DesignSystem/design-system.css reads it into
      --ds-*): the sheet the app is on (panel) and a well a step off it, a
      line kept for demos that draw their own, its text, and the live dot */
-  --pg-panel: #fff;
   --pg-panel-2: #eef2f7;
   --pg-line: #d8e0ea;
-  /* the stage the sheet sits on, showing as the header's tint: a cool tonal
-     ground. One flat color: in row layout it is the preview's folder, which
-     the Store opens on, painted in pieces (see .row) */
-  --pg-stage: #e8eef6;
-  --pg-text: #0b1220;
-  --pg-muted: #4c5a6e;
   --pg-live: #0d8257;
   --pg-live-soft: color-mix(in srgb, var(--pg-live) 14%, transparent);
   /* a resting control's band under the pointer, on any ground */
@@ -137,6 +130,24 @@
   padding: 0.75rem var(--ifm-pre-padding);
 }
 
+/* The preview's sheet (panel), the stage it sits on, and their text, on
+   :root so controls beside a playground (the homepage's protocol switch)
+   share them. The stage shows as the header's tint: a cool tonal ground,
+   one flat color; in row layout it is the preview's folder, which the Store
+   opens on, painted in pieces (see .row). Dark: the sheet a step above the
+   stage */
+:root {
+  --pg-panel: #fff;
+  --pg-stage: #e8eef6;
+  --pg-text: #0b1220;
+  --pg-muted: #4c5a6e;
+}
+:root[data-theme='dark'] {
+  --pg-panel: #151c28;
+  --pg-stage: #0a0f18;
+  --pg-text: #e9eef6;
+  --pg-muted: #95a2b6;
+}
 /* Playground chrome. Every header (editor tabs, Live Preview, Store) shares
    one neutral bar color in both themes so the top row reads as one band. */
 :root {
@@ -160,13 +171,9 @@
   --pg-tab-hover-bg: #343842;
 }
 :root[data-theme='dark'] .playgroundContainer {
-  /* the sheet a step above the stage, its wells a step above that */
-  --pg-panel: #151c28;
+  /* the sheet's wells a step above it */
   --pg-panel-2: #1d2635;
   --pg-line: #2a344c;
-  --pg-stage: #0a0f18;
-  --pg-text: #e9eef6;
-  --pg-muted: #95a2b6;
   --pg-live: #3ddc97;
   --pg-live-soft: color-mix(in srgb, var(--pg-live) 16%, transparent);
   --pg-shadow: rgba(0, 0, 0, 0.8);
