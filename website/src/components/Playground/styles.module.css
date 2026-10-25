@@ -498,6 +498,43 @@ div.playgroundTextEdit > .playgroundHeader,
   color: var(--pg-tab-selected);
   box-shadow: none;
 }
+/* the open file's tab is the card's paper rising: over the card's edge (and
+   its shadow) and curving out into the card's top edge either side, each
+   piece a pixel into the next so no hairline shows between them */
+.row .tab.selected {
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 1px 0 var(--pg-tab-selected-bg);
+}
+.row .tab.selected::before,
+.row .tab.selected::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  width: calc(var(--pg-card-radius) + 1px);
+  height: calc(var(--pg-card-radius) + 1px);
+  pointer-events: none;
+}
+.row .tab.selected::before {
+  right: calc(100% - 1px);
+  background: radial-gradient(
+    circle at 0 0,
+    transparent calc(var(--pg-card-radius) - 0.5px),
+    var(--pg-tab-selected-bg) var(--pg-card-radius)
+  );
+}
+.row .tab.selected::after {
+  left: calc(100% - 1px);
+  background: radial-gradient(
+    circle at 100% 0,
+    transparent calc(var(--pg-card-radius) - 0.5px),
+    var(--pg-tab-selected-bg) var(--pg-card-radius)
+  );
+}
+/* no curve out past the card's edge */
+.row .tab.selected:first-child::before {
+  content: none;
+}
 .row .tab:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
   outline-offset: -2px;
