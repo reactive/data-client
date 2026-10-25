@@ -46,9 +46,8 @@ preview/            live execution (loaded lazily, never on the server)
   autorun/            the `autoRun` demo player (see Auto-run)
   ...
 editor-types/       .d.ts bundles fed to Monaco (raw-loader)
-DesignSystem/       the demos' design system: design-system.css (tokens, element
-                    styles and classes for demo content) and the components
-                    injected into preview scope
+DesignSystem/       demo styling (design-system.css) and components injected into
+                    preview scope (see Design system)
 ```
 
 ## Invariants
@@ -123,24 +122,14 @@ DesignSystem/       the demos' design system: design-system.css (tokens, element
 - `row` layout: non-`column` files are tabs (focus switches tab); `column`
   files stack with collapsible headers. Stacked layout: every titled file gets a header,
   collapsible when there are several files or fixtures.
-- `demo` layout (the `demo` prop, over `row`): the preview comes first at
-  the playground's full width and the code waits behind the Code toggle in
-  the preview's header (`CodeHeaderToggle`, `aria-pressed`), where the
-  label trades for "Editor" (`labelSwap`) while it shows. Pressed, the code
-  takes the result's place (`data-code` on the container hides the result
-  and shows the editor, with `row`'s tabs as `subtabs` under the header);
-  never both at once. The result stays mounted, so the app's state and the
-  Store survive, and edits apply live as usual. Use it when the point is
-  what happens on screen, or the app needs the room: the result and the
-  code share one minimum height (`--pg-demo-min`), so the app's pages and
-  the code trade places without moving the page. The code is in the HTML
-  (`StaticEditor`) as always; Monaco mounts when the code is first shown
-  (the `hidden` latch), so a demo never shown costs no editor. The Store
-  opens as when stacked: beside the result (under it when narrow), from
-  the side strip or the header's icon. The code and the Store never show
-  together: over the code, the header's Store toggle brings the preview
-  back with whatever it says (Show Store opens it, Hide Store closes it).
-  Pressing Code is reader input, so it ends an `autoRun`.
+- `demo` layout (`demo` prop): for demos whose point is what happens on
+  screen. The preview takes the full width and the code waits behind the
+  header's Code toggle (`CodeHeaderToggle`); pressed, the code replaces the
+  result (`data-code` on the container). Never both at once, and never the
+  code and the Store: the Store toggle over the code brings the preview
+  back. The result stays mounted, so app state and the Store survive. Result
+  and code share one min height (`--pg-demo-min`), so toggling doesn't move
+  the page. Pressing Code ends an `autoRun`.
 - Collapsed/unselected files stay mounted (`display: none`), never unmounted:
   their Monaco models must exist for cross-file types, go-to-definition and
   to keep edits. Monaco is uncontrolled (`defaultValue`), so re-renders never
@@ -174,44 +163,14 @@ DesignSystem/       the demos' design system: design-system.css (tokens, element
   their built-in types (they're type-only exports).
 - Each playground gets its own `DataProvider` store (`MockResolver` serves
   `fixtures`); `memo(Preview)` keeps it from re-rendering on code edits.
-- The preview is a stage and the app a sheet on it (`../styles.module.css`):
-  the `previewWrapper` paints the stage (`--pg-stage`), which shows as the
-  header's tint with no rule under it; react-live's output `div` (`sheet`,
-  named in `preview/PreviewBlock.tsx`, which puts the loading page on one
-  too; an empty one hides, and the error card stands on the stage) is the
-  sheet, flush with the frame's sides and foot. `--pg-sheet-pad` is its
-  inset; the header shares it so its label lines up with the sheet's text,
-  and `.navProgress` reads it to run along the sheet's top edge. The frame has no ring, only
-  shadows. `--pg-hover` is every header control's hover band.
-- Design system (`DesignSystem/design-system.css`, loaded with the preview):
-  what a demo renders is styled under `.playground-preview` so it reads as a
-  real app, in both themes, without the demo importing anything. No
-  decorative lines: rows are set apart by space, groups by a label and
-  their inset, secondary text by color; only form controls keep an edge.
-  Tokens are `--ds-*` (the palette reads the frame's `--pg-*`, which switch
-  with the theme), with Infima's heading variables re-pointed; element
-  styles cover headings (an `h2` is a page's title; a `section > h3` or
-  `boardColumn > h4` is a group's label), `p`, `small`, links, plain
-  `button`s (`primary` fills one with the accent), text inputs, `nav` and
-  `fieldset`. Classes: `appHeader` + `appTitle` (the app's wordmark),
-  `card` (a group with no box of its own: the sheet is the card), `list`
-  (rows as rounded bands; checkbox rows light up under the pointer and fade
-  when checked), `listItem` (a row; `nogap`, `spaced`; a leading checkbox
-  in its `label` is a round box in the accent), `meta` (secondary text;
-  last in a `listItem`, it sits at the row's end), `toaster`/`toast`
-  (rendered by the `Toaster` component, which shows what the `toast` helper
-  sends), `buttonGroup` (actions as one segmented control; a button with
-  `aria-busy` is pending, like a saving form's submit), `skeleton` (one
-  line of text still loading, in its value's place; `Loading` draws a page
-  of them, and is every playground's fallback), `byline`
-  (avatar beside a muted name; `Avatar` takes a `size`), `author` (name
-  under avatar), `boardColumn` (a well holding its tasks as rows of the
-  sheet's color), plus the older `voteBlock`/`vote`. Prefer a
-  class or element style to a new component; a new scope global goes in
-  `preview/scope.ts`, `monaco/typeLibs.ts` and
-  `website/framework-docs/checkExamples.mjs`. Keep docs demos that use
-  these classes (grep `docs/` and `website/src/components/Demo/code`) in
-  mind when restyling one.
+- Surfaces (`../styles.module.css`): `previewWrapper` paints the stage
+  (`--pg-stage`, seen as the header's tint) and react-live's output is one
+  `sheet` (`preview/PreviewBlock.tsx`), flush with the frame's sides and
+  foot; the loading fallback is a sheet too, the error card sits on the
+  stage. `--pg-sheet-pad` is the sheet's inset, shared by the header and
+  `.navProgress` so they line up. Colors are `--pg-*`, with separate light
+  and dark values. The editor's background is `--monoco-code-background`
+  (`src/css/root.css`), shared by every code block on the site.
 - Store inspector open state persists per `groupId` via tab storage and
   avoids scroll jumps. In `row` layout it slides over the code from the
   preview's edge (portaled into a layer `EditorSurface` stacks on the code,
@@ -391,11 +350,9 @@ DesignSystem/       the demos' design system: design-system.css (tokens, element
   - Only editing `getManagers` or a document declaring a name it uses (e.g. its
     Manager class) changes the managers: the store remounts with its data, so
     other edits keep sockets open. Code that fails to run keeps the old ones.
-  - Kept managers still close over the values of the run that built them, while
-    the UI re-runs with fresh ones (remounting on every edit would close their
-    sockets), so a manager that reaches the UI does it
-    through something every run shares: a design system module (`toast`,
-    `DesignSystem/Toaster.tsx`) or the store.
+  - A kept manager closes over the run that built it, not the UI's latest run,
+    so it reaches the UI through something every run shares: the store, or a
+    design system module (`toast`).
   - A manager that throws shows a "Manager error" card; the preview runs on
     without that step.
 - Errors show in one `ErrorPanel` card (`Playground/ErrorPanel.tsx`) labeled by the stage that failed: amber
@@ -405,6 +362,38 @@ DesignSystem/       the demos' design system: design-system.css (tokens, element
   fallback); say so in the prose next to a demo that needs it.
 - Third-party console noise is demoted only while previews are mounted
   (`usePlaygroundConsoleDemotion`); never add first-party matchers.
+
+### Design system
+
+`DesignSystem/design-system.css` (scoped to `.playground-preview`, loaded with
+the preview) makes demo markup read as a real app in both themes. Doc
+examples use plain elements and these classes, never inline styles or
+imports: styling changes go here. Space separates things, not lines: add no
+borders or dividers (only form controls keep an edge). Tokens are `--ds-*`,
+reading the frame's `--pg-*`.
+
+Elements are styled too: `h2` is a page title, plain `button`s (`primary`
+fills one; `aria-busy` traces a pending light), text inputs, `nav`,
+`fieldset`.
+
+| Class                                      | Use for                                                                          |
+| ------------------------------------------ | -------------------------------------------------------------------------------- |
+| `appHeader` + `appTitle`                   | the app's top bar and wordmark                                                   |
+| `card`                                     | a group (no box: the sheet is the card)                                          |
+| `list`, `listItem` (`nogap`, `spaced`)     | rows; checkbox rows highlight and fade when done                                 |
+| `meta`                                     | secondary text; last in a `listItem`, it sits at the row's end                   |
+| `byline`, `author` (`Avatar` takes `size`) | who wrote something                                                              |
+| `buttonGroup`                              | a row of actions as one segmented control                                        |
+| `skeleton`                                 | a value still loading; `<Loading />`, the default fallback, draws a page of them |
+| `toaster`, `toast`                         | notifications: render `<Toaster />`, call `toast.success()` or `toast.error()`   |
+| `boardColumn`                              | a kanban column                                                                  |
+| `voteBlock`, `vote`                        | a vote count with its buttons                                                    |
+
+- Prefer a class or element style to a new component. A new scope global
+  goes in `preview/scope.ts`, `monaco/typeLibs.ts` and
+  `website/framework-docs/checkExamples.mjs`.
+- Before restyling a class, grep `docs/` and `website/src/components/Demo/code`
+  for the demos using it.
 
 ### Auto-run
 
