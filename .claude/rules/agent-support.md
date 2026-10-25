@@ -1,0 +1,23 @@
+---
+paths:
+  - ".agents/skills/**"
+  - ".claude-plugin/**"
+  - "packages/core/agents/**"
+  - "docs/core/_agents/**"
+  - "docs/core/getting-started/agent-skills.md"
+  - "docs/core/getting-started/installation.md"
+  - "docs/core/shared/_installation.mdx"
+  - "website/src/components/SkillTabs.tsx"
+  - "website/src/components/AgentPrompt.tsx"
+  - "website/src/components/AgentOnly.tsx"
+---
+<!-- Generated from .cursor/rules/agent-support.mdc by `yarn build:agent-rules`. Edit the source. -->
+
+
+# Agent support priorities
+
+Support agent hosts in this order:
+
+1. **Claude Code** (CLI, desktop, projects) and **Cursor** (IDE, CLI, cloud agents, projects): must work out of the box.
+2. **Codex**: supported; fix gaps when found.
+3. **Everything else**: best effort through the shared `.agents/skills` and `AGENTS.md` conventions; never at tier 1's expense.

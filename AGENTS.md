@@ -52,14 +52,6 @@ Fill in `.github/PULL_REQUEST_TEMPLATE.md`. Its HTML comments are per-section in
 - **Agent rules**: `.cursor/rules/*.mdc` (and nested `<dir>/.cursor/rules`) are the source for both Cursor and Claude Code. `yarn build:agent-rules` generates `.claude/rules/*.md` from them (`globs` become `paths`); never edit those. Every rule needs `globs` or `alwaysApply: true`; guidance pulled in by description alone belongs in a skill. The pre-push hook and the `agent-rules` CI check catch drift.
 - **Agent hooks**: `.cursor/hooks/` scripts are wired in both `.cursor/hooks.json` and `.claude/settings.json`: `eslint-fix.js` fixes uncommitted JS/TS once at the end of each turn and hands errors it can't fix back to the agent, and `pre-push.js` regenerates files, lint-fixes what a push includes, and runs `scripts/breaking-evals.mjs` (a minor or major changeset needs a skill eval; `.cursor/rules/breaking-changes.mdc`). Keep hooks cheap: batch per turn or push, never per edit.
 
-## Agent Support Priorities
-
-For agent integrations (skills, plugins, setup docs, hooks), support in this order:
-
-1. **Claude Code** (CLI, desktop, projects) and **Cursor** (IDE, CLI, cloud agents, projects): must work out of the box.
-2. **Codex**: supported; fix gaps when found.
-3. **Everything else**: best effort through the shared `.agents/skills` and `AGENTS.md` conventions; never at tier 1's expense.
-
 ## Key Principles
 
 1. **Prefer smaller React components** that do one thing
