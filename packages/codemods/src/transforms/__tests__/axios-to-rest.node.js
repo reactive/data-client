@@ -1260,6 +1260,27 @@ const get = id => axios.get(\`/users/\${id}\`, { params: nextFilters() });
       {},
       `
 import axios from 'axios';
+const get = () => axios.get('/users?sort=name', { params: nextFilters() });
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): check these query params serialize as before: axios leaves out null and undefined values and formats arrays and objects its own way; match it in \`searchToString()\`: https://dataclient.io/rest/guides/axios-migration#query-serialization
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+const get = () => new RestEndpoint({
+  path: '/users'
+})({
+  ...nextFilters(),
+  sort: 'name'
+});
+      `,
+      'spreads a params expression before a literal query, which it cannot affect',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
 const search = async (user, q) => (await axios.get(\`/users/\${encodeURIComponent(user)}/search?q=\${encodeURIComponent(q)}\`)).data;
       `,
       `
@@ -1442,7 +1463,7 @@ const list = (id, filters) => axios.get(\`/users/\${id}/posts\`, { params: filte
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
-// TODO(data-client): check these query params serialize as before: axios leaves out null and undefined values and has its own format for arrays, nested objects and URLSearchParams; match it in \`searchToString()\`: https://dataclient.io/rest/guides/axios-migration#query-serialization
+// TODO(data-client): check these query params serialize as before: axios leaves out null and undefined values and formats arrays and objects its own way; match it in \`searchToString()\`: https://dataclient.io/rest/guides/axios-migration#query-serialization
 // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const list = (id, filters) => new RestEndpoint({
   path: '/users/:id/posts'
@@ -1546,7 +1567,7 @@ export async function getUser(id: string) {
   return res;
 }
 export async function listUsers(page: number) {
-  // TODO(data-client): check these query params serialize as before: axios leaves out null and undefined values and has its own format for arrays, nested objects and URLSearchParams; match it in \`searchToString()\`: https://dataclient.io/rest/guides/axios-migration#query-serialization
+  // TODO(data-client): check these query params serialize as before: axios leaves out null and undefined values and formats arrays and objects its own way; match it in \`searchToString()\`: https://dataclient.io/rest/guides/axios-migration#query-serialization
   const data = await (new ApiEndpoint({
     path: '/users',
     searchParams: {} as Record<string, unknown>

@@ -631,8 +631,7 @@ export default class ApiEndpoint<
 
 axios leaves out `null` and `undefined` params, but the default `searchToString()` uses
 [URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams), which sends them as the strings
-`"null"` and `"undefined"`. When a param can be empty, drop it in `searchToString()`, as `skipNulls` does above. See
-[`searchToString()`](../api/RestEndpoint.md#searchToString).
+`"null"` and `"undefined"`; `skipNulls` above drops them. See [`searchToString()`](../api/RestEndpoint.md#searchToString).
 
 ### Basic auth
 

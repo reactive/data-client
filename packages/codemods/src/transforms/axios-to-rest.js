@@ -457,26 +457,20 @@ function isPure(node) {
   );
 }
 
-/** No side effects to reorder: a variable, member chain or literal */
-function isSimple(node) {
+function isLiteral(node) {
   return (
-    isPure(node) ||
     node.type === 'StringLiteral' ||
     node.type === 'NumericLiteral' ||
     node.type === 'BooleanLiteral' ||
     node.type === 'NullLiteral' ||
-    node.type === 'Literal'
+    node.type === 'Literal' ||
+    (node.type === 'TemplateLiteral' && !node.expressions.length)
   );
 }
 
-function isScalarLiteral(node) {
-  return (
-    node.type === 'StringLiteral' ||
-    node.type === 'NumericLiteral' ||
-    node.type === 'BooleanLiteral' ||
-    (node.type === 'Literal' && node.value !== null) ||
-    (node.type === 'TemplateLiteral' && !node.expressions.length)
-  );
+/** No side effects to reorder: a variable, member chain or literal */
+function isSimple(node) {
+  return isPure(node) || isLiteral(node);
 }
 
 function isNullish(node) {
@@ -484,6 +478,18 @@ function isNullish(node) {
     node.type === 'NullLiteral' ||
     (node.type === 'Literal' && node.value === null) ||
     (node.type === 'Identifier' && node.name === 'undefined')
+  );
+}
+
+/**
+ * Whether evaluating `moved` before `crossed`, instead of after, can change
+ * a value: one side has effects and the other reads state.
+ */
+function reordersEffects(moved, crossed) {
+  const effects = list => list.some(e => !isSimple(e));
+  const reads = list => list.some(e => !isLiteral(e));
+  return (
+    (effects(moved) && reads(crossed)) || (effects(crossed) && reads(moved))
   );
 }
 
@@ -529,7 +535,7 @@ function parseQuery(j, text, expressions) {
     // a repeated key would collapse into one arg
     if (props.some(p => p.key.name === key)) return null;
     if (value === '\0') {
-      const expr = unencoded(expressions[exprIndex++]);
+      const expr = expressions[exprIndex++];
       props.push(
         j.objectProperty.from({
           key: j.identifier(key),
@@ -566,7 +572,7 @@ function toPath(j, urlArg) {
     expressions = [];
   } else if (urlArg.type === 'TemplateLiteral') {
     quasis = urlArg.quasis.map(q => q.value.cooked);
-    expressions = urlArg.expressions;
+    expressions = urlArg.expressions.map(unencoded);
     if (quasis.some(q => q == null || q.includes('\0'))) return null;
   } else {
     return null;
@@ -600,7 +606,7 @@ function toPath(j, urlArg) {
     // each expression must fill a whole path segment
     const next = segments[i + 1];
     if (!path.endsWith('/') || (next && !next.startsWith('/'))) return null;
-    const expr = unencoded(expressions[i]);
+    const expr = expressions[i];
     let name = memberName(expr) || 'param';
     // the same variable can fill two segments; anything else is evaluated once each
     const source = isPure(expr) ? j(expr).toSource() : {};
@@ -888,12 +894,7 @@ function buildCall(j, callPath, className, prefixed, isTS) {
       const key = propKey(prop);
       if (key === 'params') {
         if (prop.value.type === 'ObjectExpression') {
-          // axios leaves out null and undefined params
-          configParams.push(
-            ...prop.value.properties.filter(
-              p => !p.value || !isNullish(p.value),
-            ),
-          );
+          configParams.push(...prop.value.properties);
         } else {
           // first, so it can't replace a path param
           spreadParams.push(j.spreadElement(prop.value));
@@ -906,31 +907,34 @@ function buildCall(j, callPath, className, prefixed, isTS) {
     }
   }
 
-  const query = [...url.query, ...configParams];
+  // axios evaluates the url, then the body, then params; the endpoint call
+  // takes spread params first and the body last
+  const spreadValues = spreadParams.map(p => p.argument);
+  const urlValues = [...url.args, ...url.query].map(p => p.value);
+  const paramValues = configParams.map(p => p.value).filter(Boolean);
+  if (
+    reordersEffects(spreadValues, urlValues) ||
+    (data && reordersEffects([...spreadValues, ...paramValues], [data]))
+  )
+    return null;
+
   // each query key must be distinct from the path params and each other
   const keys = new Set(url.args.map(propKey));
-  for (const prop of query) {
+  for (const prop of [...url.query, ...configParams]) {
     const key = propKey(prop);
     if (!key || keys.has(key)) return null;
     keys.add(key);
   }
-  // axios drops nullish params and serializes arrays and objects its own way,
-  // so only literal scalars are sure to serialize the same
-  if (
-    spreadParams.length ||
-    configParams.some(prop => !prop.value || !isScalarLiteral(prop.value))
-  ) {
+  // axios leaves out null and undefined params
+  const sentParams = configParams.filter(p => !isNullish(p.value));
+  // and serializes them its own way, so only literal scalars are sure to match
+  if (spreadParams.length || sentParams.some(p => !isLiteral(p.value))) {
     todos.push([
-      'check these query params serialize as before: axios leaves out null and undefined values and has its own format for arrays, nested objects and URLSearchParams; match it in `searchToString()`',
+      'check these query params serialize as before: axios leaves out null and undefined values and formats arrays and objects its own way; match it in `searchToString()`',
       'query-serialization',
     ]);
   }
-  // a spread now runs before the url's expressions, so it must not depend on order
-  if (
-    spreadParams.some(p => !isSimple(p.argument)) &&
-    (url.args.length || url.query.length)
-  )
-    return null;
+  const query = [...url.query, ...sentParams];
   const callArgs = [...spreadParams, ...url.args, ...query];
 
   const options = [];
@@ -978,15 +982,6 @@ function buildCall(j, callPath, className, prefixed, isTS) {
   const endpoint = j.newExpression(j.identifier(className || 'RestEndpoint'), [
     j.objectExpression(options),
   ]);
-  // params now come before the body, so neither may depend on evaluation order
-  if (
-    data &&
-    !isSimple(data) &&
-    [...spreadParams.map(p => p.argument), ...query.map(p => p.value)].some(
-      v => !isSimple(v),
-    )
-  )
-    return null;
   const params = callArgs.length ? j.objectExpression(callArgs) : null;
   const invokeArgs =
     data ?
