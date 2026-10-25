@@ -2,10 +2,13 @@
 const MONACO = /[\\/]node_modules[\\/]monaco-editor[\\/]/;
 
 /**
- * Keeps Monaco's CSS inside its lazy chunk. Docusaurus extracts every CSS
- * import into the one site-wide stylesheet, which would make every visitor
- * (mobile and bots included) download the editor's styles. style-loader
- * instead injects them when the Monaco chunk evaluates.
+ * Keeps Monaco out of what every visitor downloads (mobile and bots never load
+ * the editor):
+ * - its CSS stays inside its lazy chunks. Docusaurus extracts every CSS import
+ *   into the one site-wide stylesheet; style-loader instead injects them when
+ *   the Monaco chunk evaluates.
+ * - its chunks are named monaco-*, so the offline cache leaves them out
+ *   (docusaurus.config.ts).
  */
 module.exports = function () {
   return {
@@ -20,6 +23,20 @@ module.exports = function () {
       if (!cssRule) throw new Error('monaco-plugin: Docusaurus CSS rule moved');
       cssRule.exclude = [cssRule.exclude, MONACO];
       return {
+        optimization: {
+          splitChunks: {
+            cacheGroups: {
+              monaco: {
+                test: MONACO,
+                chunks: 'all',
+                name: false,
+                filename: 'assets/js/monaco-[id].[contenthash:8].js',
+                enforce: true,
+                priority: 40,
+              },
+            },
+          },
+        },
         module: {
           rules: [
             {

@@ -84,7 +84,8 @@ DesignSystem/       components injected into preview scope
   mounted before `loader.config` would make `@monaco-editor/react` fetch its
   own Monaco from jsDelivr.
 - Monaco's CSS stays in its chunk (`website/monaco-plugin.js` swaps
-  Docusaurus' single extracted stylesheet for style-loader there).
+  Docusaurus' single extracted stylesheet for style-loader there), and its
+  chunks are named `monaco-*` so the installed app's offline cache skips them.
 - Language services and their workers (`monaco/workers.ts`) are separate
   chunks fetched only when a model of that language exists; the TS worker is
   created once the core stage loads rather than when the first editor mounts.
