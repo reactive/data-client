@@ -30,6 +30,26 @@ class Note extends Entity {
   text = '';
 }
 
+/** A single-entity read whose nested child changes while the parent object stays. */
+class Owner extends Entity {
+  id = '';
+  name = '';
+}
+class Project extends Entity {
+  id = '';
+  owner = Owner.fromJS();
+  static schema = { owner: Owner };
+}
+const getProject = new Endpoint(
+  ({ id }: { id: string }) =>
+    Promise.resolve({ id, owner: { id: 'o', name: 'v1' } }),
+  { schema: Project, name: 'getProject' },
+);
+const getOwner = new Endpoint(
+  ({ id }: { id: string }) => Promise.resolve({ id, name: id }),
+  { schema: Owner, name: 'getOwner' },
+);
+
 const ROWS = 50;
 const rows = (): TodoItem[] =>
   Array.from({ length: ROWS }, (_, i) => ({ id: `${i}`, title: `${i}` }));
@@ -99,6 +119,19 @@ function List() {
   return <div>{todos.length}</div>;
 }
 
+function ProjectView() {
+  const project = useSuspense(getProject, { id: 'p' });
+  const state = useCacheState();
+  const table = (key: string, pk: string) =>
+    idOf((state.entities[key] as Record<string, object>)[pk]);
+  reads.push({
+    versions: `p${table(Project.key, 'p')}:o${table(Owner.key, 'o')}`,
+    data: project,
+    who: 'project',
+  });
+  return <div>{project.owner.name}</div>;
+}
+
 function Detail({ id }: { id: string }) {
   const todo = useSuspense(getDetail, { id });
   return <div>{todo.title}</div>;
@@ -109,7 +142,13 @@ let startTransition: (fn: () => void) => void;
 let showDetail: (id: string) => void;
 let typeText: (text: string) => void;
 
-function App({ consumers }: { consumers: number }) {
+function App({
+  consumers,
+  project = false,
+}: {
+  consumers: number;
+  project?: boolean;
+}) {
   controller = useController();
   const [detail, setDetail] = useState<string[]>([]);
   const [text, setText] = useState('');
@@ -125,6 +164,7 @@ function App({ consumers }: { consumers: number }) {
         {Array.from({ length: consumers }, (_, i) => (
           <List key={i} />
         ))}
+        {project && <ProjectView />}
       </Suspense>
       <Suspense fallback={<p>loading detail</p>}>
         {detail.map(id => (
@@ -177,16 +217,21 @@ function trace(name: string) {
   );
 }
 
-function mount(consumers: number) {
+function mount(consumers: number, project = false) {
   return render(
     <DataProvider
       initialState={mockInitialState([
         { endpoint: getTodoList, args: [], response: rows() },
+        {
+          endpoint: getProject,
+          args: [{ id: 'p' }],
+          response: { id: 'p', owner: { id: 'o', name: 'v1' } },
+        },
       ])}
       devButton={null}
       managers={noDevManagers}
     >
-      <App consumers={consumers} />
+      <App consumers={consumers} project={project} />
     </DataProvider>,
   );
 }
@@ -394,6 +439,29 @@ describeConcurrent.each([1, 2])(
       // Typing re-renders are served by useSuspense's useMemo and never
       // reach the memo, so only the commit signal keeps the new rows.
       expect(avoidableMisses(reads)).toBe(0);
+    });
+
+    it('a single-entity read whose nested child each transition retry rewrites', async () => {
+      mount(consumers, true);
+      const writeOwner = (name: string) => {
+        controller.setResponse(getOwner, { id: 'o' }, { id: 'o', name });
+      };
+      act(() => writeOwner('v2'));
+      act(() => writeOwner('v3'));
+      act(() => {
+        startTransition(() => {
+          writeOwner('from transition');
+          showDetail('X');
+        });
+      });
+      for (let i = 0; i < 3; i++) act(() => typeText(`a${i}`));
+      await finishTransition('X');
+      const projectReads = reads.filter(r => r.who === 'project');
+      trace('single-entity read');
+      // A pk input never reaches the endpoints tier, so commit pins don't
+      // cover it: recency alone keeps it, with at most one recompute.
+      expect(avoidableMisses(projectReads)).toBeLessThanOrEqual(1);
+      expect(avoidableMisses(reads.filter(r => r.who !== 'project'))).toBe(0);
     });
 
     // Optimistic updates stack: each one rebuilds the entities it touches on
