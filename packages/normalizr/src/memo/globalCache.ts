@@ -26,17 +26,25 @@ export default class GlobalCache implements Cache {
   /** Set true once `argsKey` is called for this denormalize frame. Gates
    * function-stripping fast paths in `paths()` / `getResults()`. */
   private _hasArgsKey = false;
+  /** Whether to record the result's own memo entry, in `tracked`. */
+  declare private _track: boolean;
+  /** True until the top-level `getEntity` of a pk input takes it. */
+  private trackTop = false;
+  /** The map whose last entry is this result's, once `_track` recorded it. */
+  tracked: WeakDependencyMap<any, any, any> | undefined = undefined;
 
   constructor(
     getEntity: DenormGetEntity,
     getCache: GetEntityCache,
     resultCache: EndpointsCache,
     args: readonly any[] = [],
+    track = false,
   ) {
     this._getEntity = getEntity;
     this._getCache = getCache;
     this._resultCache = resultCache;
     this._args = args;
+    this._track = track;
   }
 
   /** Records `fn(args)` as a string-keyed dependency for the surrounding
@@ -57,6 +65,8 @@ export default class GlobalCache implements Cache {
     computeValue: (localCacheKey: Map<string, any>) => void,
   ): object | undefined | typeof INVALID {
     const key = schema.key;
+    const track = this.trackTop;
+    this.trackTop = false;
     // cycleCache is deferred to the branch that actually needs it
     // to avoid unnecessary allocations.
     const localCacheKey = this.getOrCreateLocalCache(key);
@@ -71,7 +81,9 @@ export default class GlobalCache implements Cache {
         entity,
         this._getEntity,
         this._args,
+        track,
       );
+      if (track) this.tracked = globalCache;
       // TODO: what if this just returned the deps - then we don't need to store them
 
       if (cachePath) {
@@ -112,7 +124,7 @@ export default class GlobalCache implements Cache {
           dependencies: localKey,
           value: localCacheKey.get(pk),
         };
-        globalCache.set(localKey, cacheValue, this._args);
+        globalCache.set(localKey, cacheValue, this._args, undefined, track);
 
         // start of cycle - reset cycle detection
         if (this.cycleIndex === trackingIndex) {
@@ -160,14 +172,20 @@ export default class GlobalCache implements Cache {
     paths: EntityPath[];
   } {
     if (!cachable) {
-      return { data: computeValue(), paths: this.paths() };
+      // a pk input: the top-level entity's own entry is the result's
+      this.trackTop = this._track;
+      const data = computeValue();
+      this.trackTop = false;
+      return { data, paths: this.paths() };
     }
 
     let [data, paths] = this._resultCache.get(
       input,
       this._getEntity,
       this._args,
+      this._track,
     );
+    if (this._track) this.tracked = this._resultCache;
 
     if (paths === undefined) {
       data = computeValue();
@@ -180,7 +198,13 @@ export default class GlobalCache implements Cache {
       paths = this.paths();
       // fill pre-allocated slot 0 with the input reference (chain key only)
       this.dependencies[0] = { path: { key: '', pk: '' }, entity: input };
-      this._resultCache.set(this.dependencies, data, this._args, paths);
+      this._resultCache.set(
+        this.dependencies,
+        data,
+        this._args,
+        paths,
+        this._track,
+      );
     }
     // hit branch: `paths` aliases the stored Link.journey — return as-is.
     // Callers must not mutate it (entityExpiresAt and createCountRef both
