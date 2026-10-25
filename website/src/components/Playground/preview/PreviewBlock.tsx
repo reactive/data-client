@@ -13,7 +13,13 @@ function PreviewBlock({
   const preview = <LivePreview className={styles.sheet} />;
   return (
     <>
-      <Boundary fallback={<Loading />}>
+      <Boundary
+        fallback={
+          <div className={styles.sheet}>
+            <Loading />
+          </div>
+        }
+      >
         {onCommit ?
           <Profiler id="playground-preview" onRender={onCommit}>
             {preview}

@@ -8,6 +8,7 @@ import NetworkIcon from '../NetworkIcon';
 import styles from '../styles.module.css';
 import type { CodeControl } from '../types';
 import { RouterControlsSlot } from './routerSlot';
+import { CodeHeaderToggle } from './StoreToggle';
 
 export default function PreviewWrapper({
   children,
@@ -62,7 +63,9 @@ export default function PreviewWrapper({
               <NetworkIcon />
             </button>
           : null}
-          {code?.toggle}
+          {code ?
+            <CodeHeaderToggle open={code.shown} onClick={code.toggle} />
+          : null}
           {headerControls}
         </span>
       </Header>

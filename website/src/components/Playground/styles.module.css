@@ -673,7 +673,8 @@ div.playgroundTextEdit > .playgroundHeader,
 
 /* The preview is a stage (on the wrapper, so it tints the header) and the
    app one sheet filling the rest: the react-live output (.sheet; the
-   loading mark and the error card stand on the stage) is the sheet, flush
+   loading page is a sheet too, and the error card stands on the stage) is
+   the sheet, flush
    with the frame's sides and foot, its top corners notched into the
    header's tint, with its own inset. The design system's surface is the
    sheet's color, so fields and wells read against it. The inset is set on

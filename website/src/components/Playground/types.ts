@@ -1,5 +1,5 @@
 import type { Fixture, Interceptor } from '@data-client/test';
-import type { MouseEventHandler, ReactNode } from 'react';
+import type { MouseEventHandler } from 'react';
 
 export type FixtureOrInterceptor<T = any> = Fixture | Interceptor<T>;
 
@@ -7,8 +7,8 @@ export type FixtureOrInterceptor<T = any> = Fixture | Interceptor<T>;
 export interface CodeControl {
   /** The code shows in the result's place */
   shown: boolean;
-  /** The header's Code toggle */
-  toggle: ReactNode;
+  /** Shows or hides it (the header's Code toggle) */
+  toggle: () => void;
 }
 
 export interface PreviewProps<T = any> {

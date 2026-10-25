@@ -177,9 +177,9 @@ DesignSystem/       the demos' design system: design-system.css (tokens, element
 - The preview is a stage and the app a sheet on it (`../styles.module.css`):
   the `previewWrapper` paints the stage (`--pg-stage`), which shows as the
   header's tint with no rule under it; react-live's output `div` (`sheet`,
-  named in `preview/PreviewBlock.tsx`; the loading mark and the error card
-  stand on the stage, and an empty one hides) is the sheet, flush with the
-  frame's sides and foot. `--pg-sheet-pad` is its inset; the header shares
+  named in `preview/PreviewBlock.tsx`, which puts the loading page on one
+  too; an empty one hides, and the error card stands on the stage) is the
+  sheet, flush with the frame's sides and foot. `--pg-sheet-pad` is its inset; the header shares
   it so its label lines up with the sheet's text, and `.navProgress` reads
   it to run along the sheet's top edge. The frame has no ring, only
   shadows. `--pg-hover` is every header control's hover band.
@@ -200,7 +200,10 @@ DesignSystem/       the demos' design system: design-system.css (tokens, element
   in its `label` is a round box in the accent), `meta` (secondary text;
   last in a `listItem`, it sits at the row's end), `toaster`/`toast`
   (rendered by the `Toaster` component, which shows what the `toast` helper
-  sends), `buttonGroup` (actions as one segmented control), `byline`
+  sends), `buttonGroup` (actions as one segmented control; a button with
+  `aria-busy` is pending, like a saving form's submit), `skeleton` (one
+  line of text still loading, in its value's place; `Loading` draws a page
+  of them, and is every playground's fallback), `byline`
   (avatar beside a muted name; `Avatar` takes a `size`), `author` (name
   under avatar), `boardColumn` (a well holding its tasks as rows of the
   sheet's color), plus the older `voteBlock`/`vote`. Prefer a

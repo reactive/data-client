@@ -42,7 +42,7 @@ describe('PreviewWrapper fixtures', () => {
 describe('PreviewWrapper label', () => {
   test("names the code in the label's place while it shows", () => {
     const { rerender } = render(
-      <PreviewWrapper code={{ shown: false, toggle: <button>Code</button> }}>
+      <PreviewWrapper code={{ shown: false, toggle: () => {} }}>
         <div>result</div>
       </PreviewWrapper>,
     );
@@ -56,7 +56,7 @@ describe('PreviewWrapper label', () => {
     expect(editor.getAttribute('aria-hidden')).toBe('true');
 
     rerender(
-      <PreviewWrapper code={{ shown: true, toggle: <button>Code</button> }}>
+      <PreviewWrapper code={{ shown: true, toggle: () => {} }}>
         <div>result</div>
       </PreviewWrapper>,
     );

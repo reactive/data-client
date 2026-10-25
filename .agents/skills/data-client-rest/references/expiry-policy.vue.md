@@ -285,7 +285,7 @@ export const lastUpdated = new RestEndpoint({
     <Suspense v-for="id in ['1', '2', '3']" :key="id">
       <ShowTime :id="id" />
       <template #fallback>
-        <div class="listItem"><b>{{ id }}</b> Loading...</div>
+        <div class="listItem"><b>{{ id }}</b><span class="skeleton" /></div>
       </template>
     </Suspense>
 
@@ -362,7 +362,7 @@ export const lastUpdated = new RestEndpoint({
     <Suspense v-for="id in ['1', '2', '3']" :key="id">
       <ShowTime :id="id" />
       <template #fallback>
-        <div class="listItem"><b>{{ id }}</b> Loading...</div>
+        <div class="listItem"><b>{{ id }}</b><span class="skeleton" /></div>
       </template>
     </Suspense>
 
@@ -441,11 +441,16 @@ export const lastUpdated = new RestEndpoint({
   <div>
     <Suspense>
       <TimePage id="1" />
-      <template #fallback><div class="listItem">loading...</div></template>
+      <template #fallback>
+        <div class="listItem">
+          <span class="meta">API time for 1</span>
+          <span class="skeleton" />
+        </div>
+      </template>
     </Suspense>
     <div class="buttonGroup">
-      <button @click="handleDelete">
-        {{ loadingDelete ? 'loading...' : 'Invalidate' }}
+      <button @click="handleDelete" :aria-busy="loadingDelete">
+        Invalidate
       </button>
       <button
         @click="ctrl.setResponse(deleteLastUpdated, { id: '1' }, { id: '1' })"

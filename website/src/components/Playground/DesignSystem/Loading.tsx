@@ -1,12 +1,12 @@
-import useBaseUrl from '@docusaurus/useBaseUrl';
-
-import styles from './Loading.module.css';
-
+/** A page while it loads: its title and a paragraph drawn as skeletons
+ * (design-system.css), standing where the content will land */
 export function Loading() {
-  const loadingUrl = useBaseUrl('img/loading-logo.svg');
   return (
-    <div className={styles.loading}>
-      <img src={loadingUrl} />
+    <div className="skeletonPage" role="status" aria-label="Loading">
+      <span className="skeleton" />
+      <span className="skeleton" />
+      <span className="skeleton" />
+      <span className="skeleton" />
     </div>
   );
 }

@@ -535,7 +535,8 @@ export default function ShowTime({ id }: { id: string }) {
 export default function Loading({ id }: { id: string }) {
   return (
     <div className="listItem">
-      <b>{id}</b> Loading...
+      <b>{id}</b>
+      <span className="skeleton" />
     </div>
   );
 }
@@ -611,7 +612,7 @@ render(<Demo />);
     <Suspense v-for="id in ['1', '2', '3']" :key="id">
       <ShowTime :id="id" />
       <template #fallback>
-        <div class="listItem"><b>{{ id }}</b> Loading...</div>
+        <div class="listItem"><b>{{ id }}</b><span class="skeleton" /></div>
       </template>
     </Suspense>
 
@@ -704,7 +705,8 @@ export default function ShowTime({ id }: { id: string }) {
 export default function Loading({ id }: { id: string }) {
   return (
     <div className="listItem">
-      <b>{id}</b> Loading...
+      <b>{id}</b>
+      <span className="skeleton" />
     </div>
   );
 }
@@ -782,7 +784,7 @@ render(<Demo />);
     <Suspense v-for="id in ['1', '2', '3']" :key="id">
       <ShowTime :id="id" />
       <template #fallback>
-        <div class="listItem"><b>{{ id }}</b> Loading...</div>
+        <div class="listItem"><b>{{ id }}</b><span class="skeleton" /></div>
       </template>
     </Suspense>
 
@@ -889,7 +891,14 @@ function ShowTime() {
   );
   return (
     <div>
-      <AsyncBoundary fallback={<div className="listItem">loading...</div>}>
+      <AsyncBoundary
+        fallback={
+          <div className="listItem">
+            <span className="meta">API time for 1</span>
+            <span className="skeleton" />
+          </div>
+        }
+      >
         <TimePage id="1" />
       </AsyncBoundary>
       <div className="listItem">
@@ -897,8 +906,8 @@ function ShowTime() {
         <CurrentTime />
       </div>
       <div className="buttonGroup">
-        <button onClick={handleDelete}>
-          {loadingDelete ? 'loading...' : 'Invalidate'}
+        <button onClick={handleDelete} aria-busy={loadingDelete}>
+          Invalidate
         </button>
         <button
           onClick={() =>
@@ -968,11 +977,16 @@ render(<ShowTime />);
   <div>
     <Suspense>
       <TimePage id="1" />
-      <template #fallback><div class="listItem">loading...</div></template>
+      <template #fallback>
+        <div class="listItem">
+          <span class="meta">API time for 1</span>
+          <span class="skeleton" />
+        </div>
+      </template>
     </Suspense>
     <div class="buttonGroup">
-      <button @click="handleDelete">
-        {{ loadingDelete ? 'loading...' : 'Invalidate' }}
+      <button @click="handleDelete" :aria-busy="loadingDelete">
+        Invalidate
       </button>
       <button
         @click="ctrl.setResponse(deleteLastUpdated, { id: '1' }, { id: '1' })"

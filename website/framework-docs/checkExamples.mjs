@@ -40,11 +40,9 @@ const EXT = { ts: '.ts', typescript: '.ts', tsx: '.tsx', html: '.vue' };
 const DESIGN_SYSTEM = [
   ...fs
     .readFileSync(path.join(PLAYGROUND, 'DesignSystem/index.ts'), 'utf8')
-    .matchAll(/^export \{ ([\w, ]+) \}/gm),
-]
-  .flatMap(([, names]) => names.split(/,\s*/))
-  // `default as NumberFlow` re-exports the real library
-  .filter(name => /^\w+$/.test(name));
+    // its own modules (`./Avatar`), not the re-exported library
+    .matchAll(/^export \{ ([\w, ]+) \} from '\.\//gm),
+].flatMap(([, names]) => names.split(/,\s*/));
 // by name: components are capitalized (`Toaster`), helpers aren't (`toast`)
 const PLACEHOLDERS = DESIGN_SYSTEM.filter(name => /^[A-Z]/.test(name));
 const HELPER_DECLARATIONS = DESIGN_SYSTEM.filter(name => /^[a-z]/.test(name))

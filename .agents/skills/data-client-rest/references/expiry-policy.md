@@ -277,7 +277,8 @@ export default function ShowTime({ id }: { id: string }) {
 export default function Loading({ id }: { id: string }) {
   return (
     <div className="listItem">
-      <b>{id}</b> Loading...
+      <b>{id}</b>
+      <span className="skeleton" />
     </div>
   );
 }
@@ -365,7 +366,8 @@ export default function ShowTime({ id }: { id: string }) {
 export default function Loading({ id }: { id: string }) {
   return (
     <div className="listItem">
-      <b>{id}</b> Loading...
+      <b>{id}</b>
+      <span className="skeleton" />
     </div>
   );
 }
@@ -468,7 +470,14 @@ function ShowTime() {
   );
   return (
     <div>
-      <AsyncBoundary fallback={<div className="listItem">loading...</div>}>
+      <AsyncBoundary
+        fallback={
+          <div className="listItem">
+            <span className="meta">API time for 1</span>
+            <span className="skeleton" />
+          </div>
+        }
+      >
         <TimePage id="1" />
       </AsyncBoundary>
       <div className="listItem">
@@ -476,8 +485,8 @@ function ShowTime() {
         <CurrentTime />
       </div>
       <div className="buttonGroup">
-        <button onClick={handleDelete}>
-          {loadingDelete ? 'loading...' : 'Invalidate'}
+        <button onClick={handleDelete} aria-busy={loadingDelete}>
+          Invalidate
         </button>
         <button
           onClick={() =>

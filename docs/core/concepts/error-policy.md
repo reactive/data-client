@@ -114,7 +114,14 @@ function ShowTime() {
   };
   return (
     <div>
-      <Suspense fallback={<div className="listItem">loading...</div>}>
+      <Suspense
+        fallback={
+          <div className="listItem">
+            <span className="meta">API time</span>
+            <span className="skeleton" />
+          </div>
+        }
+      >
         <TimePage id="1" />
       </Suspense>
       <div className="buttonGroup">
@@ -181,7 +188,12 @@ render(<ShowTime />);
     <ErrorMessage v-if="error" :error="error" />
     <Suspense v-else>
       <TimePage id="1" />
-      <template #fallback><div class="listItem">loading...</div></template>
+      <template #fallback>
+        <div class="listItem">
+          <span class="meta">API time</span>
+          <span class="skeleton" />
+        </div>
+      </template>
     </Suspense>
     <div class="buttonGroup">
       <button @click="fail(500)">Fail Soft</button>

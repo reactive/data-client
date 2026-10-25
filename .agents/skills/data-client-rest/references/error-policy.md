@@ -72,7 +72,14 @@ function ShowTime() {
   };
   return (
     <div>
-      <Suspense fallback={<div className="listItem">loading...</div>}>
+      <Suspense
+        fallback={
+          <div className="listItem">
+            <span className="meta">API time</span>
+            <span className="skeleton" />
+          </div>
+        }
+      >
         <TimePage id="1" />
       </Suspense>
       <div className="buttonGroup">

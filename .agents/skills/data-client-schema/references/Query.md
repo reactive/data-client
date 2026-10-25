@@ -332,8 +332,14 @@ function PriceDisplay({ productId }: { productId: string }) {
   useFetch(StatsResource.get, { product_id: productId });
   const price = useQuery(queryPrice, { product_id: productId });
   
-  if (price === undefined) return <div>Loading...</div>;
-  return <div>Price: ${price}</div>;
+  return (
+    <div>
+      Price:{' '}
+      {price === undefined ?
+        <span className="skeleton" />
+      : `$${price}`}
+    </div>
+  );
 }
 
 render(<PriceDisplay productId="BTC-USD" />);

@@ -69,11 +69,15 @@ export default function CompanyGrid({ companies }: { companies: Company[] }) {
 }
 
 function formatPercent(value: number | undefined) {
-  return value === undefined ? 'loading...' : `${(value * 100).toFixed(1)}%`;
+  return value === undefined ?
+      <span className="skeleton" />
+    : `${(value * 100).toFixed(1)}%`;
 }
 
 function formatShares(value: number | undefined) {
-  return value === undefined ? 'loading...' : value.toLocaleString();
+  return value === undefined ?
+      <span className="skeleton" />
+    : value.toLocaleString();
 }
 ```
 

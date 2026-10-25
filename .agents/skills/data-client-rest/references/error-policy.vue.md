@@ -85,7 +85,12 @@ export const lastUpdated = new RestEndpoint({
     <ErrorMessage v-if="error" :error="error" />
     <Suspense v-else>
       <TimePage id="1" />
-      <template #fallback><div class="listItem">loading...</div></template>
+      <template #fallback>
+        <div class="listItem">
+          <span class="meta">API time</span>
+          <span class="skeleton" />
+        </div>
+      </template>
     </Suspense>
     <div class="buttonGroup">
       <button @click="fail(500)">Fail Soft</button>

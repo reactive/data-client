@@ -12,7 +12,6 @@ import type LivePreviewType from './preview/LivePreview';
 import PreviewWrapper from './preview/PreviewWrapper';
 import type { LogOptions } from './preview/store/actionLog';
 import {
-  CodeHeaderToggle,
   DemoViewContext,
   StoreBadge,
   StoreHeaderToggle,
@@ -99,9 +98,9 @@ export default function Playground<T>({
 
   // Demo layout: the code takes the result's place while shown
   const [codeShown, setCodeShown] = useState(false);
-  const toggleCode = useCallback(() => setCodeShown(shown => !shown), []);
-  // the Store lives with the result, so over the code its toggle brings the
-  // preview back along with what it says (Show Store, Hide Store)
+  // the Store lives with the result, so over a demo's code its toggle brings
+  // the preview back along with what it says (Show Store, Hide Store); with
+  // no code shown that is a no-op
   const toggleStoreInPreview = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
       setCodeShown(false);
@@ -117,6 +116,11 @@ export default function Playground<T>({
   useIsomorphicLayoutEffect(() => {
     if (codeVisible) setEditorInteractive(true);
   }, [codeVisible]);
+  // in the click's own render, not a second one from the effect
+  const toggleCode = useCallback(() => {
+    setCodeShown(shown => !shown);
+    setEditorInteractive(true);
+  }, []);
 
   const fixtureContent =
     fixtures.length ? <FixturePreview fixtures={fixtures} /> : undefined;
@@ -145,12 +149,7 @@ export default function Playground<T>({
   // the demo layout's Code toggle: in the preview's header whether or not
   // the live preview has loaded
   const code: CodeControl | undefined =
-    demo ?
-      {
-        shown: codeShown,
-        toggle: <CodeHeaderToggle open={codeShown} onClick={toggleCode} />,
-      }
-    : undefined;
+    demo ? { shown: codeShown, toggle: toggleCode } : undefined;
   // Live preview only while visible — unmounts when hidden (resets store).
   const loading = (
     <PreviewLoading row={row} fixtureContent={previewFixtures} code={code} />
@@ -163,7 +162,7 @@ export default function Playground<T>({
             documents={documents}
             fixtureContent={previewFixtures}
             storeOpen={storeOpen}
-            toggleStore={demo ? toggleStoreInPreview : toggleStore}
+            toggleStore={toggleStoreInPreview}
             row={row}
             storeHost={storeHost}
             fixtures={fixtures}

@@ -14,11 +14,6 @@ jest.mock('../PlaygroundEditor', () => ({
   default: ({ code }: { code: string }) =>
     require('react').createElement('textarea', { defaultValue: code }),
 }));
-jest.mock(
-  '@docusaurus/useBaseUrl',
-  () => ({ __esModule: true, default: (url: string) => url }),
-  { virtual: true },
-);
 // The real chunk pulls in the whole preview scope (ESM-only packages jest
 // can't load); what the demo layout needs of it is the header it renders
 // (PreviewWrapper with its Store toggle) and the toggleStore it is handed.
