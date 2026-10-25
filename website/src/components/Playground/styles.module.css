@@ -636,16 +636,12 @@ div.playgroundTextEdit > .playgroundHeader,
   min-height: 0;
   padding-bottom: var(--pg-gap);
   background: var(--pg-stage);
-  transition: box-shadow var(--motion-drawer);
 }
 /* fills the drawer instead of its usual cap */
 .row > .storeHost .storePanel > * {
   flex: 1 1 auto;
   min-height: 0;
   max-height: none;
-}
-.row > .storeHost[data-open] .storePanel {
-  box-shadow: var(--pg-card-shadow);
 }
 /* room to inspect even when the code is short (the Store's own minimum),
    held while shown, until it has slid shut */
@@ -1204,6 +1200,38 @@ div.fixtureJson + div.fixtureJson {
     grid-area: 1 / 2 / 3 / 3;
     /* unpositioned, so the fixtures hang from the playground's edge */
     position: static;
+    box-shadow: none;
+  }
+  /* its shadow, from a box that runs out over the Store with the drawer,
+     so the open Store and the preview are one paper with one shadow */
+  .row > .previewWrapper::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 0 var(--pg-fold);
+    z-index: -1;
+    border-radius: var(--pg-card-radius);
+    box-shadow: var(--pg-card-shadow);
+    pointer-events: none;
+  }
+  .row:has(> .storeHost[data-open]) > .previewWrapper::before {
+    left: 0;
+  }
+  .row:has(> .storeHost > .storeDrawer[data-settled])
+    > .previewWrapper::before {
+    transition: left var(--motion-drawer);
+  }
+  .row:has(> .storeHost .storePanel[data-visible]) > .previewWrapper {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  /* under it, the code card's own shadow would deepen the Store's */
+  .row .editorDocs > .playgroundEditor,
+  .row .editorDocs::after {
+    transition: box-shadow var(--motion-drawer);
+  }
+  .row:has(> .storeHost[data-open]) .editorDocs > .playgroundEditor,
+  .row:has(> .storeHost[data-open]) .editorDocs::after {
+    box-shadow: none;
   }
   .row > .storeHost {
     grid-area: 1 / 1 / 3 / 3;
@@ -1221,12 +1249,11 @@ div.fixtureJson + div.fixtureJson {
   .row > .storeHost[data-open] > .storeDrawer {
     translate: 0 0;
   }
-  /* square along the page's edge, where it covers the file tabs' corner
-     and the handle joins; the Store keeps the gap from the preview lying
-     over its edge */
+  /* its paper runs on into the preview's, square where they meet; the
+     Store's sheet keeps the gap from the preview's */
   .row > .storeHost .storePanel {
     padding-right: var(--pg-gap);
-    border-radius: 0 var(--pg-card-radius) var(--pg-card-radius) 0;
+    border-radius: var(--pg-card-radius) 0 0 var(--pg-card-radius);
   }
   /* by the foot, its curve clear of the corner's */
   .storeTab {
@@ -1308,9 +1335,6 @@ div.fixtureJson + div.fixtureJson {
   }
   .row > .storeHost[data-open] > .storeDrawer {
     translate: 0 0;
-  }
-  .row > .storeHost[data-open] .storePanel {
-    box-shadow: none;
   }
   /* its shadow, from a box that stops short of the foot, so none of it
      falls past the seam onto the preview (the Store paints over the rest) */
