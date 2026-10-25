@@ -11,10 +11,11 @@ import { MotionGroup } from '../../motion';
 import Boundary from '../Boundary';
 import type ManagerHost from './managers';
 import { ManagerError, ManagersSync } from './ManagersSync';
+import PendingSheet from './PendingSheet';
 import type { PreviewErrorProps } from './PreviewError';
+import styles from '../styles.module.css';
 import SchemaRegistry from './store/schemaRegistry';
 import StoreInspector from './StoreInspector';
-import styles from '../styles.module.css';
 import type { PreviewProps } from '../types';
 
 function Preview<T>({
@@ -79,7 +80,7 @@ function Preview<T>({
             onPointerDownCapture={onInteract}
             onKeyDownCapture={onInteract}
           >
-            <Boundary fallback={null}>
+            <Boundary fallback={<PendingSheet />}>
               <PreviewBlockLazy onCommit={onCommit} {...errorProps} />
             </Boundary>
             <ManagerError host={managerHost} />

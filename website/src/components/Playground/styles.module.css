@@ -690,7 +690,7 @@ div.playgroundTextEdit > .playgroundHeader,
   flex: 1 1 auto;
   min-width: 0;
 }
-.row > .previewWrapper:has(.sheet:not(:empty))::after {
+.row > .previewWrapper:has(.sheet:not(:empty), .sheet[data-pending])::after {
   background: var(--pg-panel);
 }
 .row .sheet {
@@ -1048,7 +1048,8 @@ div.playgroundTextEdit > .playgroundHeader,
   /* the progress bar's corners stay inside the radius */
   overflow: clip;
 }
-.sheet:empty {
+/* an app that renders nothing has no sheet; one still loading has one */
+.sheet:empty:not([data-pending]) {
   display: none;
 }
 /* The router's navigation indicator (preview/router.tsx): a 3px bar along

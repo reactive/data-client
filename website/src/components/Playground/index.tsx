@@ -22,7 +22,9 @@ import {
 import type { AutoRunScript } from './preview/autorun/script';
 import FixturePreview from './preview/FixturePreview';
 import type LivePreviewType from './preview/LivePreview';
+import PendingSheet from './preview/PendingSheet';
 import PreviewWrapper from './preview/PreviewWrapper';
+import ResetButton from './preview/ResetButton';
 import type { LogOptions } from './preview/store/actionLog';
 import {
   DemoViewContext,
@@ -284,10 +286,10 @@ export default function Playground<T>({
   );
 }
 
-/** SSR, crawler, hidden and loading state: empty preview frame + Store
- * toggle (the side strip; the row layout's is the folder's handle, rendered
- * with the folder above), and row's fixtures, already usable; so is a demo's
- * Code toggle */
+/** SSR, crawler, hidden and loading state: the preview's frame with a blank
+ * sheet + Store toggle (the side strip; the row layout's is the folder's
+ * handle, rendered with the folder above), and row's fixtures, already
+ * usable; so is a demo's Code toggle. The reset holds its place, disabled */
 function PreviewLoading({
   row,
   fixtureContent,
@@ -299,11 +301,18 @@ function PreviewLoading({
 }) {
   return (
     <PreviewWrapper
-      headerControls={row ? null : <StoreHeaderToggle />}
+      headerControls={
+        <>
+          {row ? null : <StoreHeaderToggle />}
+          <ResetButton />
+        </>
+      }
       fixtures={fixtureContent}
       code={code}
     >
-      <div className={styles.playgroundPreview} />
+      <div className={styles.playgroundPreview}>
+        <PendingSheet />
+      </div>
       {row ? null : <StoreToggle />}
     </PreviewWrapper>
   );

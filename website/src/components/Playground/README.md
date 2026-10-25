@@ -91,9 +91,9 @@ DesignSystem/       demo styling (design-system.css) and components injected int
   `PreviewBlock` a nested lazy chunk (preloaded with its parent). The Store
   inspector (`preview/StoreInspector.tsx`, `preview/store/`) lives in it.
   ESLint treats all of `preview/` as lazy: from outside it, only `import()`,
-  `import type`, or an allowlisted eager file (`StoreToggle`,
-  `PreviewWrapper`, `FixturePreview`, which render in SSR and loading states)
-  may be imported, and those files may not statically import the rest.
+  `import type`, or an eager file (`EAGER_PREVIEW` in `eslint.config.mjs`;
+  they render in SSR and loading states) may be imported, and those files
+  may not statically import the rest.
   `website/scripts/check-lazy-chunks.mjs` (run by the `website` CI job)
   backs this up on the build: the Store UI must ship only in `PreviewWithScope`.
 - Docusaurus only shares modules used by half of all pages, so
