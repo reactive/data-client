@@ -292,7 +292,7 @@ If the codebase already validates responses with Zod/Yup, prefer **Entity as the
 
 1. **Define Entity classes** (skill "data-client-schema") and **wire them to endpoints via `schema:`** — this is essential, not optional. Endpoints with `schema: undefined` bypass normalization and caching.
 2. Apply skill "data-client-rest" for resource and endpoint patterns
-3. Apply skill "data-client-react" or "data-client-vue" for hook-based usage
+3. Only when the user asks to move components onto the store: apply skill "data-client-react" or "data-client-vue" for hook-based usage
 
 ## References
 

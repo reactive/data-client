@@ -2,8 +2,8 @@
 
 # Migrating from Axios
 
-[`@data-client/rest`](https://dataclient.io/rest) replaces axios calls with typed endpoint definitions. Components keep calling them the way
-they called axios, so how the app loads and stores data doesn't change. A [codemod](#codemod) converts the calls; the
+[`@data-client/rest`](https://dataclient.io/rest) replaces axios calls with typed endpoint definitions. Components still call them directly,
+so how the app loads and stores data doesn't change; only the call shape does. A [codemod](#codemod) converts the calls; the
 [steps](#steps) below cover the rest.
 
 ## Why migrate?
@@ -483,6 +483,8 @@ axios.get('/files/1', { responseType: 'blob' });
 const downloadFile = new RestEndpoint({
   path: '/files/:id',
   content: 'blob',
+  // callout: Keeps large blobs out of the cache if you adopt the store later
+  dataExpiryLength: 0,
 });
 ```
 
