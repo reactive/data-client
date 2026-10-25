@@ -1906,10 +1906,14 @@ button.tlMark:hover {
 .actStep:disabled {
   opacity: 0.6;
 }
+/* below the breadcrumbs, when the action has them */
+.crumbs ~ .actFrame .actStepInner {
+  top: 1.9rem;
+}
 /* stays in view as the action scrolls */
 .actStepInner {
   position: sticky;
-  top: 0.4rem;
+  top: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
