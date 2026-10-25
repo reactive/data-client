@@ -179,9 +179,9 @@ DesignSystem/       the demos' design system: design-system.css (tokens, element
   header's tint with no rule under it; react-live's output `div` (`sheet`,
   named in `preview/PreviewBlock.tsx`, which puts the loading page on one
   too; an empty one hides, and the error card stands on the stage) is the
-  sheet, flush with the frame's sides and foot. `--pg-sheet-pad` is its inset; the header shares
-  it so its label lines up with the sheet's text, and `.navProgress` reads
-  it to run along the sheet's top edge. The frame has no ring, only
+  sheet, flush with the frame's sides and foot. `--pg-sheet-pad` is its
+  inset; the header shares it so its label lines up with the sheet's text,
+  and `.navProgress` reads it to run along the sheet's top edge. The frame has no ring, only
   shadows. `--pg-hover` is every header control's hover band.
 - Design system (`DesignSystem/design-system.css`, loaded with the preview):
   what a demo renders is styled under `.playground-preview` so it reads as a

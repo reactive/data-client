@@ -1,5 +1,4 @@
 import Translate from '@docusaurus/Translate';
-import useIsomorphicLayoutEffect from '@docusaurus/useIsomorphicLayoutEffect';
 import clsx from 'clsx';
 import React, { lazy, useCallback, useDeferredValue, useState } from 'react';
 
@@ -113,14 +112,8 @@ export default function Playground<T>({
   // toggle) and keep it (preserves undo / go-to-def).
   const codeVisible = !hidden && (!demo || codeShown);
   const [editorInteractive, setEditorInteractive] = useState(codeVisible);
-  useIsomorphicLayoutEffect(() => {
-    if (codeVisible) setEditorInteractive(true);
-  }, [codeVisible]);
-  // in the click's own render, not a second one from the effect
-  const toggleCode = useCallback(() => {
-    setCodeShown(shown => !shown);
-    setEditorInteractive(true);
-  }, []);
+  if (codeVisible && !editorInteractive) setEditorInteractive(true);
+  const toggleCode = useCallback(() => setCodeShown(shown => !shown), []);
 
   const fixtureContent =
     fixtures.length ? <FixturePreview fixtures={fixtures} /> : undefined;

@@ -30,6 +30,7 @@
   /* a button's or a field's inset */
   --ds-control-pad-y: 0.375rem;
   --ds-control-pad-x: 0.875rem;
+  --ds-control-border: 1px;
   /* The palette is the frame's (--pg-*, ../styles.module.css, switching with
      the theme there): the panel is the app's surface; a well a step off it
      holds a board's column or a field's inset */
@@ -91,15 +92,6 @@ html[data-theme='dark'] .playground-preview {
   /* fields sit in the well, a step above the panel */
   --ifm-color-emphasis-0: var(--ds-surface-2);
 }
-/* The floating label straddles the field's top edge, so it blends into both
-   (the panel above, the field's own background below) */
-.playground-preview .rt-TextFieldLabel {
-  background: linear-gradient(
-    var(--ds-surface) 50%,
-    var(--ifm-color-emphasis-0) 50%
-  );
-}
-
 /* Text */
 .playground-preview h1,
 .playground-preview h2,
@@ -404,10 +396,10 @@ div.playground-preview h1:first-child {
 }
 .playground-preview form[aria-busy='true'] button[type='submit'],
 .playground-preview button[aria-busy='true'] {
-  /* 1px wider border, 1px less padding: same size, room for the light */
+  /* a 2px border, out of the padding: same size, room for the light */
   border: 2px solid transparent;
-  padding: calc(var(--ds-control-pad-y) - 1px)
-    calc(var(--ds-control-pad-x) - 1px);
+  padding: calc(var(--ds-control-pad-y) + var(--ds-control-border) - 2px)
+    calc(var(--ds-control-pad-x) + var(--ds-control-border) - 2px);
   background:
     linear-gradient(var(--ds-surface), var(--ds-surface)) padding-box,
     conic-gradient(
@@ -580,26 +572,28 @@ div.playground-preview h1:first-child {
   overflow: hidden;
 }
 .playground-preview .buttonGroup > button {
+  --ds-control-border: 0px;
   flex: 1 1 auto;
   margin: 0;
   border: 0;
   border-radius: 0;
 }
-/* opaque, so the hairlines don't show through the hover wash */
-.playground-preview .buttonGroup > button:not([class]):hover {
+/* opaque, so the hairlines don't show through the hover wash (a busy
+   segment keeps its light) */
+.playground-preview
+  .buttonGroup
+  > button:not([class], [aria-busy='true']):hover {
   background: color-mix(in srgb, var(--ds-accent) 10%, var(--ds-surface));
 }
-.playground-preview .buttonGroup > button:not([class]):active {
+.playground-preview
+  .buttonGroup
+  > button:not([class], [aria-busy='true']):active {
   background: color-mix(in srgb, var(--ds-accent) 18%, var(--ds-surface));
 }
-/* a busy segment's light runs inside the group's edge: a segment has no
-   border, so the light's 2px come out of its padding, and it takes no
-   pointer, so the hover wash can't cover the light */
+/* a busy segment's light runs inside the group's edge (outranking the
+   segment's border: 0) */
 .playground-preview .buttonGroup > button[aria-busy='true'] {
   border: 2px solid transparent;
-  padding: calc(var(--ds-control-pad-y) - 2px)
-    calc(var(--ds-control-pad-x) - 2px);
-  pointer-events: none;
 }
 /* inside the group's edge, which clips anything outside it */
 .playground-preview .buttonGroup > button:focus-visible {
@@ -658,7 +652,6 @@ div.playground-preview h1:first-child {
    rounded band in that line, with a soft light sweeping across (still for
    reduced motion). */
 .playground-preview .skeleton {
-  --ds-skeleton: color-mix(in srgb, var(--ds-text) 8%, transparent);
   position: relative;
   display: inline-block;
   width: 8em;
@@ -677,10 +670,10 @@ div.playground-preview h1:first-child {
   background: linear-gradient(
       100deg,
       transparent 35%,
-      color-mix(in srgb, var(--ds-text) 7%, transparent) 50%,
+      var(--ds-hover) 50%,
       transparent 65%
     )
-    var(--ds-skeleton);
+    var(--ds-hover);
   background-size: 300% 100%;
   animation: ds-shimmer 1.6s ease-in-out infinite;
 }
@@ -809,12 +802,16 @@ div.playground-preview h1:first-child {
   }
 }
 
-/* Placeholder or label styling */
+/* The floating label straddles the field's top edge, so it blends into both
+   (the panel above, the field's own background below) */
 .rt-TextFieldLabel {
   position: absolute;
   top: -0.75em;
   left: 0.75em;
-  background-color: var(--ifm-color-emphasis-0);
+  background: linear-gradient(
+    var(--ds-surface) 50%,
+    var(--ifm-color-emphasis-0) 50%
+  );
   padding: 0 0.25em;
   font-size: 0.7rem;
   color: var(--ifm-color-emphasis-700);
