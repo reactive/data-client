@@ -86,7 +86,7 @@ export const CommentResource = resource({
 
 :::react
 
-```tsx title="PostWithComments" {7-13}
+```tsx title="PostWithComments" {7-10}
 import { use } from 'react';
 import { useFetch } from '@data-client/react';
 import { PostResource, CommentResource } from './Resources';
@@ -123,7 +123,7 @@ render(<PostWithComments id={1} />);
 
 :::vue
 
-```html title="PostWithComments.vue" {7-15}
+```html title="PostWithComments.vue" {8-9}
 <script setup lang="ts">
   import { useFetch, useSuspense } from '@data-client/vue';
   import { PostResource, CommentResource } from './Resources';

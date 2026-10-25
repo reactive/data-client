@@ -75,7 +75,7 @@ export const PostResource = resource({
 </template>
 ```
 
-```html title="LoadMore.vue"
+```html title="LoadMore.vue" {8}
 <script setup lang="ts">
   import { useController, useLoading } from '@data-client/vue';
   import { PostResource } from './Post';
@@ -96,7 +96,7 @@ export const PostResource = resource({
 </template>
 ```
 
-```html title="PostList.vue"
+```html title="PostList.vue" {7}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import PostItem from './PostItem.vue';

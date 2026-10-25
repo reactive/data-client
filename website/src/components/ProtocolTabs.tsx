@@ -13,11 +13,11 @@ export default function ProtocolTabs({
       groupId="protocol"
       values={[
         { label: 'Rest', value: 'rest' },
-        { label: 'GraphQL', value: 'gql' },
+        { label: 'GraphQL', value: 'graphql' },
       ]}
     >
       <TabItem value="rest">{children[0]}</TabItem>
-      <TabItem value="gql">{children[1]}</TabItem>
+      <TabItem value="graphql">{children[1]}</TabItem>
     </Tabs>
   );
 }

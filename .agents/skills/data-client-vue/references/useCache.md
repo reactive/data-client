@@ -70,7 +70,7 @@ export const UserResource = resource({
 </template>
 ```
 
-```html title="AuthorizedPage.vue"
+```html title="AuthorizedPage.vue" {8}
 <script setup lang="ts">
   import { useCache } from '@data-client/vue';
   import { UserResource } from './UserResource';

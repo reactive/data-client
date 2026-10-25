@@ -11,7 +11,7 @@ High performance async data rendering without overfetching.
 
 ## Usage
 
-**Rest**
+**REST**
 
 ```typescript title="ProfileResource"
 import { Entity, resource } from '@data-client/rest';
@@ -31,7 +31,7 @@ export const ProfileResource = resource({
 });
 ```
 
-```html title="ProfileDetail.vue"
+```html title="ProfileDetail.vue" {5}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { ProfileResource } from './ProfileResource';
@@ -50,7 +50,56 @@ export const ProfileResource = resource({
 </template>
 ```
 
-**Promise**
+**GraphQL**
+
+```typescript title="ProfileResource"
+import { GQLEndpoint, GQLEntity } from '@data-client/graphql';
+
+const gql = new GQLEndpoint('/');
+
+export class Profile extends GQLEntity {
+  avatar = '';
+  fullName = '';
+  bio = '';
+
+  static key = 'Profile';
+}
+
+export const ProfileResource = {
+  get: gql.query(
+    `query GetProfile($id: ID!) {
+    profile(id: $id) {
+      id
+      avatar
+      fullName
+      bio
+    }
+  }`,
+    { profile: Profile },
+  ),
+};
+```
+
+```html title="ProfileDetail.vue" {5}
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { ProfileResource } from './ProfileResource';
+
+  const data = await useSuspense(ProfileResource.get, { id: 1 });
+</script>
+
+<template>
+  <div class="listItem">
+    <Avatar :src="data.profile.avatar" />
+    <div>
+      <h4>{{ data.profile.fullName }}</h4>
+      <p>{{ data.profile.bio }}</p>
+    </div>
+  </div>
+</template>
+```
+
+**Custom**
 
 ```typescript title="Profile"
 import { Endpoint } from '@data-client/endpoint';
@@ -71,7 +120,7 @@ export const getProfile = new Endpoint(
 );
 ```
 
-```html title="ProfileDetail.vue"
+```html title="ProfileDetail.vue" {5}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getProfile } from './Profile';
@@ -160,7 +209,7 @@ export const ProfileResource = resource({
 });
 ```
 
-```html title="ProfileList.vue"
+```html title="ProfileList.vue" {5}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { ProfileResource } from './ProfileResource';
@@ -253,7 +302,7 @@ export const PostResource = resource({
 </template>
 ```
 
-```html title="LoadMore.vue"
+```html title="LoadMore.vue" {8}
 <script setup lang="ts">
   import { useController, useLoading } from '@data-client/vue';
   import { PostResource } from './Post';
@@ -274,7 +323,7 @@ export const PostResource = resource({
 </template>
 ```
 
-```html title="PostList.vue"
+```html title="PostList.vue" {7}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import PostItem from './PostItem.vue';
@@ -405,7 +454,7 @@ export const getPosts = new RestEndpoint({
 });
 ```
 
-```html title="ArticleList.vue"
+```html title="ArticleList.vue" {11}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getPosts } from './api/Post';

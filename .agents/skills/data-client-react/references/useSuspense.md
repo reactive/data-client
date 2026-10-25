@@ -11,7 +11,7 @@ High performance async data rendering without overfetching.
 
 ## Usage
 
-**Rest**
+**REST**
 
 ```typescript title="ProfileResource"
 import { Entity, resource } from '@data-client/rest';
@@ -31,7 +31,7 @@ export const ProfileResource = resource({
 });
 ```
 
-```tsx title="ProfileDetail"
+```tsx title="ProfileDetail" {5}
 import { useSuspense } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
 
@@ -50,7 +50,56 @@ function ProfileDetail() {
 render(<ProfileDetail />);
 ```
 
-**Promise**
+**GraphQL**
+
+```typescript title="ProfileResource"
+import { GQLEndpoint, GQLEntity } from '@data-client/graphql';
+
+const gql = new GQLEndpoint('/');
+
+export class Profile extends GQLEntity {
+  avatar = '';
+  fullName = '';
+  bio = '';
+
+  static key = 'Profile';
+}
+
+export const ProfileResource = {
+  get: gql.query(
+    `query GetProfile($id: ID!) {
+    profile(id: $id) {
+      id
+      avatar
+      fullName
+      bio
+    }
+  }`,
+    { profile: Profile },
+  ),
+};
+```
+
+```tsx title="ProfileDetail" {5}
+import { useSuspense } from '@data-client/react';
+import { ProfileResource } from './ProfileResource';
+
+function ProfileDetail() {
+  const { profile } = useSuspense(ProfileResource.get, { id: 1 });
+  return (
+    <div className="listItem">
+      <Avatar src={profile.avatar} />
+      <div>
+        <h4>{profile.fullName}</h4>
+        <p>{profile.bio}</p>
+      </div>
+    </div>
+  );
+}
+render(<ProfileDetail />);
+```
+
+**Custom**
 
 ```typescript title="Profile"
 import { Endpoint } from '@data-client/endpoint';
@@ -71,7 +120,7 @@ export const getProfile = new Endpoint(
 );
 ```
 
-```tsx title="ProfileDetail"
+```tsx title="ProfileDetail" {5}
 import { useSuspense } from '@data-client/react';
 import { getProfile } from './Profile';
 
@@ -167,7 +216,7 @@ export const ProfileResource = resource({
 });
 ```
 
-```tsx title="ProfileList"  {5}
+```tsx title="ProfileList" {5}
 import { useSuspense } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
 
