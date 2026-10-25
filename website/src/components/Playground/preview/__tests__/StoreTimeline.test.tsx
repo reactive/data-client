@@ -421,7 +421,7 @@ describe('Store scrubber', () => {
     });
     fireEvent.click(marks[0]);
     expect(bar.textContent).toContain('After');
-    expect(bar.textContent).toContain('setResponse');
+    expect(bar.textContent).toContain('GET /posts');
     expect(bar.textContent).toMatch(/· [\d.]+s/);
     expect(marks[0].hasAttribute('data-selected')).toBe(true);
     expect(screen.getAllByText('"One"').length).toBeGreaterThan(0);
@@ -438,7 +438,7 @@ describe('Store scrubber', () => {
     expect(marks[0].hasAttribute('data-selected')).toBe(false);
   });
 
-  it('marks every action of the row the moment stands for, and picks a fetch', async () => {
+  it('marks every action of the row the moment stands for, and a mark picks its row', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
     const bar = scrubber();
@@ -450,10 +450,11 @@ describe('Store scrubber', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Previous change' }));
     expect(fetch.hasAttribute('data-selected')).toBe(true);
     expect(response.hasAttribute('data-selected')).toBe(true);
-    // the request up to its fetch
+    // on the surface, a mark picks its row, as the list's row does
+    fireEvent.click(screen.getByRole('button', { name: 'Live' }));
     fireEvent.click(fetch);
     expect(fetch.hasAttribute('data-selected')).toBe(true);
-    expect(response.hasAttribute('data-selected')).toBe(false);
+    expect(response.hasAttribute('data-selected')).toBe(true);
   });
 
   it('steps through changes with ‹ › and the arrow keys, past the newest to live', async () => {

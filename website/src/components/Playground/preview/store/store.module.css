@@ -1011,9 +1011,8 @@ div.gapRow {
   font-size: 11px;
   cursor: default;
 }
-/* the moment's action: its row, and its step when the row is open */
-.actRow[aria-current],
-.stepRow[aria-current] {
+/* the moment's row */
+.actRow[aria-current] {
   box-shadow: inset 2px 0 0 var(--store-stale);
   background: var(--store-stale-bg);
 }
@@ -1051,6 +1050,19 @@ div.gapRow {
   /* past the padding a step row has */
   padding: 0 0.6rem 0.3rem calc(0.6rem + var(--step-name));
   font-size: 11px;
+}
+/* a single action's view: its time and path on one line under the crumbs */
+.actHeadline {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem 0.1rem;
+  font-size: 11px;
+}
+.actHeadline > .stepPath {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
 }
 .stepCount {
   padding-left: 0.6rem;
@@ -1253,6 +1265,10 @@ button.stage:focus-visible {
 .sectionLabel {
   margin: 0;
   padding: 0.75rem 0.75rem 0.25rem;
+}
+/* a step of the moment's row past the moment: the store hasn't seen it */
+.stepRow[data-after] {
+  opacity: 0.5;
 }
 div.stepRow {
   flex-wrap: wrap;

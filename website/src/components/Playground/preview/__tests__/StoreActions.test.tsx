@@ -1656,7 +1656,7 @@ describe('Store action level', () => {
     const headings = () =>
       [...top().querySelectorAll('h3')].map(h => h.textContent);
     // an action of no request is one level: nothing deeper to go to
-    expect(headings()).toEqual(['Step', 'Store changes', 'Action']);
+    expect(headings()).toEqual(['Store changes', 'Action']);
     fireEvent.click(step('Before'));
     fireEvent.click(step('Before'));
     const request = top();
@@ -1671,7 +1671,7 @@ describe('Store action level', () => {
       'GET /posts',
       'setResponse GET /posts',
     ]);
-    expect(headings()).toEqual(['Step', 'Store changes', 'Action']);
+    expect(headings()).toEqual(['Store changes', 'Action']);
     expect(top().textContent).toContain('dispatchedAt');
     expect(document.activeElement).toBe(top());
     // steps there are its request's actions, one at a time
@@ -1693,6 +1693,19 @@ describe('Store action level', () => {
     ]);
     expect(selected()).toEqual(['setResponse']);
     fireEvent.click(screen.getByRole('button', { name: 'Previous change' }));
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'fetch GET /posts']);
+    // a level deeper, a mark picks its action alone too
+    fireEvent.click(
+      within(scrubber()).getByRole('button', { name: /^setResponse at/ }),
+    );
+    expect(crumbs()).toEqual([
+      'Actions',
+      'GET /posts',
+      'setResponse GET /posts',
+    ]);
+    fireEvent.click(
+      within(scrubber()).getByRole('button', { name: /^fetch at/ }),
+    );
     expect(crumbs()).toEqual(['Actions', 'GET /posts', 'fetch GET /posts']);
     fireEvent.click(step('After'));
     fireEvent.click(step('After'));
@@ -1870,7 +1883,8 @@ describe('Store action level', () => {
     openState();
     fireEvent.click(mark(/^setResponse at/));
     expect(crumbs()).toEqual([]);
-    expect(scrubber().textContent).toContain('After setResponse GET /posts');
+    // on the surface, a mark picks its row, as the list's row does
+    expect(scrubber().textContent).toContain('After GET /posts');
   });
 
   it('steps the timeline with ← → from anywhere they mean nothing else', async () => {

@@ -477,6 +477,19 @@ export function rowMoment(group: ActionGroup, hit: SubjectFilter['hit']): Step {
   return { seq, scope: isLone(group) ? 'request' : 'group' };
 }
 
+/** Where picking action `seq` lands at a moment's depth (`scope`): a level
+ * deeper, the action alone; on the surface, its row, as the list's row does */
+export function pickAt(
+  groups: readonly ActionGroup[],
+  hit: SubjectFilter['hit'],
+  seq: number,
+  scope: Scope,
+): Step {
+  const row = scope === 'action' ? undefined : groupOf(groups, seq);
+  if (row) return rowMoment(row, hit);
+  return { seq, scope: scope === 'action' ? scope : 'request' };
+}
+
 /** Every action of a group, in dispatch order */
 export function groupEntriesOf(group: ActionGroup): readonly LogEntry[] {
   if (group.kind !== 'subscription') return group.entries;

@@ -18,8 +18,9 @@ import {
   groupOf,
   isLone,
   keepUnchanged,
-  rowsOf,
   momentEntries,
+  pickAt,
+  rowsOf,
   requestEntries,
   requestOf,
   subjectFilter,
@@ -389,10 +390,11 @@ export default function StorePanel({
   const actionShown = actionLevels.stack.some(e => e.view.kind === 'action');
   const mark = useCallback(
     (seq: number) => {
-      set(seq);
-      if (tab === 'action' && !actionShown) showAction(seq, 'request', true);
+      const to = pickAt(groups, filter.hit, seq, scope);
+      set(to.seq, to.scope);
+      if (tab === 'action' && !actionShown) showAction(to.seq, to.scope, true);
     },
-    [set, tab, actionShown, showAction],
+    [groups, filter.hit, scope, set, tab, actionShown, showAction],
   );
   const markInSheet = useCallback(
     (seq: number) => {
@@ -403,27 +405,19 @@ export default function StorePanel({
   );
   // every step (‹ ›, ← →, Before and After) goes to the moment's
   // neighbours at its depth, among the subject's rows
-  const rows = useMemo(() => rowsOf(groups, filter.hit), [groups, filter.hit]);
+  const { hit } = filter;
   const [earlier, later] = useMemo(() => {
-    const at =
-      momentSeq === null ? newestOf(known, filter.hit) : (moment ?? undefined);
-    return ([-1, 1] as const).map(by =>
-      stepAt(
-        known,
-        groups,
-        rows,
-        filter.hit,
-        at,
-        momentSeq === null,
-        scope,
-        by,
-      ),
-    );
-  }, [known, groups, rows, filter.hit, momentSeq, moment, scope]);
+    const listing = { entries: known, groups, rows: rowsOf(groups, hit), hit };
+    const live = momentSeq === null;
+    const at = live ? newestOf(known, hit) : (moment ?? undefined);
+    return ([-1, 1] as const).map(by => stepAt(listing, at, live, scope, by));
+  }, [known, groups, hit, momentSeq, moment, scope]);
   const step = useCallback(
     (by: -1 | 1) => {
       const to = by < 0 ? earlier : later;
-      if (to !== undefined) set(to && to.seq, to?.scope);
+      if (to === undefined) return false;
+      set(to && to.seq, to?.scope);
+      return true;
     },
     [earlier, later, set],
   );
@@ -563,11 +557,7 @@ export default function StorePanel({
                 !e.metaKey &&
                 !usesArrows(e.target as Element)
               ) {
-                const by = e.key === 'ArrowLeft' ? -1 : 1;
-                if ((by < 0 ? earlier : later) !== undefined) {
-                  e.preventDefault();
-                  step(by);
-                }
+                if (step(e.key === 'ArrowLeft' ? -1 : 1)) e.preventDefault();
                 return;
               }
               // the sheet shuts from anywhere in the panel, the ▾ included;

@@ -301,8 +301,9 @@ export interface NavState {
   readonly earlier: Step | null | undefined;
   readonly later: Step | null | undefined;
   readonly set: (seq: number | null, scope?: Scope) => void;
-  /** Moves the moment to `earlier` (`-1`) or `later` (`1`) */
-  readonly step: (by: -1 | 1) => void;
+  /** Moves the moment to `earlier` (`-1`) or `later` (`1`), if there is
+   * one: says whether it moved */
+  readonly step: (by: -1 | 1) => boolean;
   /** Moves the moment to action `seq` (as much as `scope` says) and opens it
    * in the Action tab: what it did to the subject, then the action itself
    * (or the group's actions) */
@@ -315,7 +316,7 @@ export const NavStateContext = createContext<NavState>({
   earlier: undefined,
   later: undefined,
   set: () => {},
-  step: () => {},
+  step: () => false,
   show: () => {},
 });
 export const useNavState = () => useContext(NavStateContext);

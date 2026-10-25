@@ -542,7 +542,7 @@ function Steps({
                 own={group.key}
                 group={group.id}
                 subject={subject}
-                current={!!marked?.has(entry.seq)}
+                current={marked?.has(entry.seq)}
                 onSelect={onSelect}
               />
             ),
@@ -585,8 +585,9 @@ function StepRow({
   /** The row's group, which ↑ ↓ keep to */
   group: string;
   subject: View;
-  /** Whether it is the moment's action */
-  current: boolean;
+  /** Whether the moment stands for it, while its row is the moment's: one
+   * after the moment dims, as the store hasn't seen it yet */
+  current?: boolean;
   onSelect: (seq: number, scope: 'action') => void;
 }) {
   const { log } = useLog();
@@ -597,6 +598,7 @@ function StepRow({
       role="button"
       tabIndex={0}
       aria-current={current || undefined}
+      data-after={current === false || undefined}
       data-id={actionId(entry.seq)}
       data-group={group}
       data-seq={entry.seq}

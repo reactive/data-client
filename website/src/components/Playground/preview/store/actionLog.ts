@@ -121,19 +121,26 @@ function nearestHit(
   return entries.find(e => e.seq > seq && hit(e));
 }
 
+/** The actions a subject's steps go through: the log's `entries` in their
+ * `groups`, and the `rows` listed for it (those with an action `hit` says
+ * touched it) */
+export interface Listing {
+  readonly entries: readonly LogEntry[];
+  readonly groups: readonly ActionGroup[];
+  readonly rows: readonly ActionGroup[];
+  readonly hit: (entry: LogEntry) => boolean;
+}
+
 /** Where a step before (`-1`) or after (`1`) the moment at `entry` (the
  * newest, `live`) lands, at its depth (see `Scope`). An action alone steps
- * an action at a time through the rows listed (`rows`, the groups with an
- * action `hit` says touched the subject), every step of theirs included.
+ * an action at a time through the rows listed, every step of theirs
+ * included.
  * Otherwise it steps a row at a time, in the list's order (rows overlap in
  * time: a subscription still polling). Live is a place past the last row:
  * stepping on from it reaches live, stepping back from live the last row.
  * `null` is live; `undefined` has nowhere to go */
 export function stepAt(
-  entries: readonly LogEntry[],
-  groups: readonly ActionGroup[],
-  rows: readonly ActionGroup[],
-  hit: (entry: LogEntry) => boolean,
+  { entries, groups, rows, hit }: Listing,
   entry: LogEntry | undefined,
   live: boolean,
   scope: Scope,

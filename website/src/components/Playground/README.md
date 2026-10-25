@@ -214,7 +214,8 @@ DesignSystem/       components injected into preview scope
       its request's optimistic update (Live on the scrubber is marked as the
       moment).
   - **Action**: the moment's action at full width (`{ kind: 'action', seq }`,
-    `ActionDetail`: what it did to the subject, then the action's fields;
+    `ActionDetail`: its time and path through the managers on one line under
+    the crumbs, which name it, then what it did to the subject and the action's fields;
     live, `seq: null`, the subject's newest action, garbage collection
     aside, as its whole request when it has several actions, so an
     optimistic update shows with its response, with "newest" by its crumb). A line above its crumbs, so they head the
@@ -259,7 +260,7 @@ DesignSystem/       components injected into preview scope
   action that reached it; on a record or list those that changed or stored
   again a row it covers, and on a record the kept action each gap of
   dropped actions was found at, noted once above a run of them), one row per
-  request or subscription; a row's ▸ lists its actions. The moment's row is marked (`aria-current`), opened and
+  request or subscription; a row's ▸ lists its actions. The moment's row is marked (`aria-current`; its steps past the moment dim, `data-after`), opened and
   scrolled to; nothing is marked while live. ↑ ↓ on a row or step move to
   the next one, as the moment; a head of several actions stands for the whole
   group, as clicking it does. A row renders
@@ -275,7 +276,7 @@ DesignSystem/       components injected into preview scope
   to the subject (`subjectFilter`'s `hit`: every stored action at the store; below it the marks that left the subject alone
   are dimmed, `data-dim`, and skipped; past the newest, and End, go live;
   stepping back from live lands on the newest row), a
-  mark (every one is a button, hollow for an action the store never saw) lands on its action, "Live" lets go. Marks closer on the track than a
+  mark (every one is a button, hollow for an action the store never saw) lands where a step would at the moment's depth (`pickAt`: on the surface its row, a level deeper the action alone), "Live" lets go. Marks closer on the track than a
   mark's width and a gap (`MERGE_PX`) draw as one, at the first of them
   (`data-count`; dimmed only if all are), so fast polling stays readable. While the moment is set its second line says "After
   <action> · <time>", which opens the action at full width. Its ▾ ("Timeline", `aria-expanded`) slides open the expanded
