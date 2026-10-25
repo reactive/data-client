@@ -25,6 +25,18 @@ yarn add @data-client/rest
 pnpm add @data-client/rest
 ```
 
+`@data-client/rest` ships the skills this setup uses next (`data-client-rest`, and `data-client-schema` from `@data-client/endpoint`), at the installed version. Link them from the project root:
+
+```bash
+npx --no data-client-skills   # pnpm exec data-client-skills, yarn data-client-skills
+```
+
+If a skill isn't available by name afterwards, read `.claude/skills/<skill>/SKILL.md`. If the command isn't found, the installed version predates 0.19: install them with `npx skills add reactive/data-client --skill data-client-rest --skill data-client-schema -y` instead. Add this line to the project's `AGENTS.md` (create it if missing; if a `CLAUDE.md` exists, make sure it has an `@AGENTS.md` line), using the project's package manager, and commit `.agents/skills` and `.claude/skills`:
+
+```md
+After adding, removing or upgrading `@data-client/*` packages, run `npx --no data-client-skills` and commit the skill links.
+```
+
 ## Step 2: Detect Existing HTTP Patterns
 
 Scan the codebase to determine what's currently used. **Multiple patterns may coexist** — run each applicable migration sub-procedure independently on the relevant files.
