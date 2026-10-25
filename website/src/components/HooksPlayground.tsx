@@ -1,9 +1,7 @@
-import React, { createContext, memo, useContext } from 'react';
+import React, { memo, useContext } from 'react';
 
 import Playground, { type PlaygroundProps } from './Playground';
-
-/** Set by a tab group (PlaygroundTabs) on its unselected tabs' playgrounds */
-export const PlaygroundHiddenContext = createContext(false);
+import { PlaygroundHiddenContext } from './Playground/hiddenContext';
 
 /** MDX entry point: wraps one or more code fences in a live Playground. */
 const HooksPlayground = ({
