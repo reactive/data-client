@@ -1227,6 +1227,21 @@ async function save() {
       {},
       `
 import axios from 'axios';
+const get = id => axios.get(\`/users/\${id}\`, { params: nextFilters() });
+      `,
+      `
+import axios from 'axios';
+// TODO(data-client): convert this axios.get() call to an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
+const get = id => axios.get(\`/users/\${id}\`, { params: nextFilters() });
+      `,
+      'marks calls whose params expression would now run before the url',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
 const search = async (user, q) => (await axios.get(\`/users/\${encodeURIComponent(user)}/search?q=\${encodeURIComponent(q)}\`)).data;
       `,
       `

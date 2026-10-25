@@ -904,6 +904,12 @@ function buildCall(j, callPath, className, prefixed, isTS) {
       'query-serialization',
     ]);
   }
+  // a spread now runs before the url's expressions, so it must not depend on order
+  if (
+    spreadParams.some(p => !isSimple(p.argument)) &&
+    (url.args.length || url.query.length)
+  )
+    return null;
   const callArgs = [...spreadParams, ...url.args, ...query];
 
   const options = [];
