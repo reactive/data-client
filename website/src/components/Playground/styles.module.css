@@ -471,6 +471,8 @@ div.playgroundTextEdit > .playgroundHeader,
   /* the handle: how far it sticks out, and its length along the edge */
   --pg-tab-width: 2.5rem;
   --pg-tab-length: 3rem;
+  /* the row's loading page: its skeleton title and paragraph */
+  --pg-pending-sheet: 8.5rem;
   /* how far the code card and the app's sheet reach toward the other's foot */
   --pg-card-foot: 6rem;
   /* the folder's header is narrower than its content: inset by this at
@@ -704,12 +706,6 @@ div.playgroundTextEdit > .playgroundHeader,
 .row .playgroundPreview {
   flex: 1 1 auto;
   min-width: 0;
-}
-/* while the app loads, its sheet runs to the folder's foot: where the app's
-   would end is unknown until it renders (and --pg-preview-gap until the
-   page hydrates), so the folder never shows under the loading page */
-.row .playgroundResult:has(.sheet[aria-busy]) {
-  flex: 1 1 auto;
 }
 .row > .previewWrapper:has(.sheet:not(:empty))::after {
   background: var(--pg-panel);
@@ -1407,6 +1403,17 @@ div.fixtureJson + div.fixtureJson {
     /* ends at its sheet's foot: --pg-preview-gap is how far the row runs on
        below that (./preview/PreviewWrapper.tsx) */
     max-height: calc(100% - var(--pg-preview-gap, 0px));
+  }
+  /* the loading page is one height, so its folder's end is known before
+     the page hydrates and measures it (the same, measured) */
+  .row:has(.sheet[aria-busy]) {
+    --pg-preview-gap: max(
+      0px,
+      100% - var(--pg-row) - var(--pg-pending-sheet) - var(--pg-card-foot)
+    );
+  }
+  .row .sheet[aria-busy] {
+    height: var(--pg-pending-sheet);
   }
   /* The content's shadow, from boxes that run out over the Store with the
      drawer, so the open Store and the preview are one paper with one
