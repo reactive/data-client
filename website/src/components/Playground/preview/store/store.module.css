@@ -55,35 +55,43 @@
   );
   position: relative;
   margin: 0 var(--store-head-in-end) 0 var(--store-head-in-start);
+  /* what it holds stays clear of the run */
+  padding-right: var(--store-head-run, 0px);
   border-radius: calc(var(--store-head-start, 0) * var(--pg-card-radius, 0px))
     calc(var(--store-head-end, 0) * var(--pg-card-radius, 0px)) 0 0;
   background: var(--store-bg);
   box-shadow: var(--pg-card-shadow, none);
+}
+/* (--store-head-ink: the row layout fades what it holds as the drawer
+   slides shut) */
+.scrubber > * {
+  opacity: var(--store-head-ink, 1);
+  transition: opacity var(--motion-snappy);
 }
 .scrubber::before,
 .scrubber::after {
   content: '';
   position: absolute;
   bottom: 0;
-  height: var(--pg-head-flare, 0px);
+  height: var(--pg-head-flare-depth, 0px);
   pointer-events: none;
 }
 .scrubber::before {
   right: calc(100% - 1px);
   width: calc(var(--store-head-start, 0) * (var(--pg-head-flare, 0px) + 1px));
   background: radial-gradient(
-    circle at 0 0,
-    transparent calc(var(--pg-head-flare, 0px) - 0.5px),
-    var(--store-bg) var(--pg-head-flare, 0px)
+    var(--pg-head-flare, 0px) var(--pg-head-flare-depth, 0px) at 0 0,
+    transparent calc(100% - 0.5px),
+    var(--store-bg) 100%
   );
 }
 .scrubber::after {
   left: calc(100% - 1px);
   width: calc(var(--store-head-end, 0) * (var(--pg-head-flare, 0px) + 1px));
   background: radial-gradient(
-    circle at 100% 0,
-    transparent calc(var(--pg-head-flare, 0px) - 0.5px),
-    var(--store-bg) var(--pg-head-flare, 0px)
+    var(--pg-head-flare, 0px) var(--pg-head-flare-depth, 0px) at 100% 0,
+    transparent calc(100% - 0.5px),
+    var(--store-bg) 100%
   );
 }
 /* Under the scrubber: the tab bar, and (narrow) the sheet the lanes open in
@@ -143,6 +151,10 @@
 .barStart {
   display: flex;
 }
+/* the first sits in the body's corner (the row layout): its radius */
+.barStart > .tab:first-child {
+  border-top-left-radius: var(--pg-body-radius, 8px);
+}
 /* The sheet's head (State): the view's own switches, Snapshot or Diff and
    table or tree, at its top edge */
 .sheetHead {
@@ -168,8 +180,7 @@
   align-items: center;
   padding: 0 0.85rem;
   border: 0;
-  /* the first tab sits in the body's corner (the row layout): one radius */
-  border-radius: var(--pg-body-radius, 8px) var(--pg-body-radius, 8px) 0 0;
+  border-radius: 8px 8px 0 0;
   background: none;
   color: inherit;
   font: inherit;

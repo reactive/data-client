@@ -454,10 +454,12 @@ div.playgroundTextEdit > .playgroundHeader,
   /* the folder's header is narrower than its content: inset by this at
      each free side, its paper flaring out into the content's top edge
      (concave, --pg-head-flare) and the content's corner turning down from
-     there (convex, the rest). The two halves equal, so they make one even
-     S; a subtle one, short of the card's radius */
+     there (convex, the rest). The flare runs deeper than it is wide
+     (--pg-head-flare-depth), so the header's foot sweeps out into the
+     content in one long curve */
   --pg-head-inset: 12px;
-  --pg-head-flare: 6px;
+  --pg-head-flare: 8px;
+  --pg-head-flare-depth: 16px;
   --pg-body-radius: calc(var(--pg-head-inset) - var(--pg-head-flare));
   border-radius: 0;
   box-shadow: none;
@@ -630,17 +632,28 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .row .previewHeader::before,
 .row .previewHeader::after {
+  content: '';
+  position: absolute;
   bottom: 0;
-  height: var(--pg-head-flare);
-  --pg-fillet-r: var(--pg-head-flare);
+  width: calc(var(--pg-head-flare) + 1px);
+  height: var(--pg-head-flare-depth);
+  pointer-events: none;
 }
 .row .previewHeader::before {
   right: calc(100% - 1px);
-  --pg-fillet-at: 0 0;
+  background: radial-gradient(
+    var(--pg-head-flare) var(--pg-head-flare-depth) at 0 0,
+    transparent calc(100% - 0.5px),
+    var(--pg-stage) 100%
+  );
 }
 .row .previewHeader::after {
   left: calc(100% - 1px);
-  --pg-fillet-at: 100% 0;
+  background: radial-gradient(
+    var(--pg-head-flare) var(--pg-head-flare-depth) at 100% 0,
+    transparent calc(100% - 0.5px),
+    var(--pg-stage) 100%
+  );
 }
 .row .playgroundResult {
   flex: none;
@@ -736,15 +749,13 @@ div.playgroundTextEdit > .playgroundHeader,
 .storeTab::after {
   height: calc(var(--pg-card-radius) + 1px);
 }
-/* Concave fillets: a selected tab's, the handle's or a header's paper
-   curving out into the edge it rises from, at --pg-fillet-at in its own
-   --pg-fillet-color, --pg-fillet-r round */
+/* Concave fillets: a selected tab's or the handle's paper curving out into
+   the edge it rises from, at --pg-fillet-at in its own --pg-fillet-color,
+   --pg-fillet-r round */
 .row .tab.selected::before,
 .row .tab.selected::after,
 .storeTab::before,
-.storeTab::after,
-.row .previewHeader::before,
-.row .previewHeader::after {
+.storeTab::after {
   content: '';
   position: absolute;
   width: calc(var(--pg-fillet-r, var(--pg-card-radius)) + 1px);
@@ -1302,19 +1313,18 @@ div.fixtureJson + div.fixtureJson {
   .row:has(> .storeHost .storePanel[data-visible]) > .previewWrapper {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-    /* its paper a pixel on under the Store's edge, so no seam shows */
+  }
+  /* its content's paper a pixel on under the Store's edge, so no seam
+     shows (not its header's: inset, the Store's header covers it) */
+  .row:has(> .storeHost .storePanel[data-visible]) .playgroundResult,
+  .row:has(> .storeHost .storePanel[data-visible]) > .previewWrapper::after {
     box-shadow: -1px 0 var(--pg-stage);
   }
-  /* its header runs on from the Store's (a pixel on under its edge, or its
-     shadow shows through the drawer's clipped edge as a hairline at the
-     fold), and its content from the Store's strip, the sheet's corner
-     notched into it */
-  .row:has(> .storeHost .storePanel[data-visible]) .previewHeader {
-    --pg-head-start: -1px;
-    border-top-left-radius: 0;
-  }
-  .row:has(> .storeHost .storePanel[data-visible]) .previewHeader::before {
-    content: none;
+  /* its content runs on from the Store's strip, the sheet's corner notched
+     into it (its header stays inset: the Store's covers that, see
+     .storeHost) */
+  .row .playgroundResult {
+    transition: border-top-left-radius var(--motion-snappy);
   }
   .row:has(> .storeHost .storePanel[data-visible]) .playgroundResult {
     border-top-left-radius: 0;
@@ -1361,9 +1371,23 @@ div.fixtureJson + div.fixtureJson {
   .row:has(> .storeHost[data-open]) .tabControls {
     opacity: 0;
   }
+  /* clipped at the fold, but for the header's row, where the Store's
+     header runs on over the preview's inset corner (--store-head-run): as
+     the drawer slides shut, the Store's header corner travels across that
+     inset and lands on the preview's, the same shape */
   .row > .storeHost {
     grid-area: 1 / 1 / 3 / 3;
-    clip-path: inset(-4rem calc(100% - var(--pg-fold)) -4rem -4rem);
+    --pg-fold-head: calc(
+      var(--pg-fold) + var(--pg-head-inset) + var(--pg-card-radius) + 1px
+    );
+    clip-path: polygon(
+      -4rem -4rem,
+      var(--pg-fold-head) -4rem,
+      var(--pg-fold-head) var(--pg-row),
+      var(--pg-fold) var(--pg-row),
+      var(--pg-fold) calc(100% + 4rem),
+      -4rem calc(100% + 4rem)
+    );
   }
   /* the drawer: the code's column and the gap, edge to edge, its handle
      out past the playground's edge; the Store scrolls within the row's
@@ -1386,10 +1410,16 @@ div.fixtureJson + div.fixtureJson {
     --store-folder-foot: var(--pg-card-radius);
     --store-folder-end: var(--pg-preview-gap, 0px);
     --store-body-pad: 0 var(--pg-gap) 0 0;
-    /* its header a pixel on past the fold, under the clip: painted boxes
-       snap to pixels and the clip doesn't, so at rest its shadow would
-       show through the sliver between as a hairline on the preview's */
-    --store-head-run: 1px;
+    /* its header on past the fold over the preview's inset and rounded
+       corner, and a pixel into the preview's header: painted boxes snap to
+       pixels and the clip doesn't, so short of it its shadow shows as a
+       hairline */
+    --store-head-run: calc(var(--pg-head-inset) + var(--pg-card-radius) + 1px);
+  }
+  /* sliding shut, what its header holds would pass that run, beside the
+     preview's label: it fades as the drawer goes */
+  .row > .storeHost:not([data-open]) .storePanel {
+    --store-head-ink: 0;
   }
   /* by the preview's foot, its curve clear of the corner's: open, it
      stays level with that foot, however far the Store runs on below */
@@ -1509,10 +1539,30 @@ div.fixtureJson + div.fixtureJson {
   }
   .row:has(> .storeHost .storePanel[data-visible]) .previewHeader::before,
   .row:has(> .storeHost .storePanel[data-visible]) .previewHeader::after {
-    content: none;
+    opacity: 0;
   }
   .row:has(> .storeHost .storePanel[data-visible]) .playgroundResult {
     border-radius: 0;
+  }
+  /* once the Store has slid shut, the header eases back into its inset
+     (margin and padding together, so its label holds still), its curves
+     fading in as it lands */
+  .row .previewHeader {
+    transition:
+      margin var(--motion-snappy),
+      padding var(--motion-snappy),
+      border-radius var(--motion-snappy);
+  }
+  .row .previewHeader::before,
+  .row .previewHeader::after {
+    transition: opacity 120ms ease-out 180ms;
+  }
+  .row:has(> .storeHost .storePanel[data-visible]) .previewHeader::before,
+  .row:has(> .storeHost .storePanel[data-visible]) .previewHeader::after {
+    transition: none;
+  }
+  .row .playgroundResult {
+    transition: border-radius var(--motion-snappy);
   }
   /* up from the header's top edge at its right end (the thumb's side,
      clear of anything laid out at the left above the preview), past the

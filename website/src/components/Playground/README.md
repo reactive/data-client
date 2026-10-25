@@ -203,7 +203,9 @@ DesignSystem/       demo styling (design-system.css) and components injected int
   (`store.module.css`). A folder's header is inset from its content
   (`--pg-head-inset`) and curves out into it, so the folder's paper is
   painted in parts (header, content's top edge, the rest), not by one box;
-  open side by side, the Store's header and the preview's run on as one. In the other layouts the preview header's icon
+  open side by side, the Store's header and the preview's run on as one: the
+  Store's runs past the fold (`--store-head-run`, the host's clip lets it) to
+  the preview's, which stays inset, so shutting lands corner on corner. In the other layouts the preview header's icon
   (`StoreHeaderToggle`) or the side strip (`StoreToggle`) open it beside the
   result as a drawer (`../motion`: the panel `Reveal`s); its contents render
   a frame after it starts moving (`useDeferredValue`).
