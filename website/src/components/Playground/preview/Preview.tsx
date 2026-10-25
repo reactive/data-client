@@ -13,7 +13,7 @@ import type ManagerHost from './managers';
 import { ManagerError, ManagersSync } from './ManagersSync';
 import PendingSheet from './PendingSheet';
 import type { PreviewErrorProps } from './PreviewError';
-import styles from '../styles.module.css';
+import { previewSurfaceClassName } from './PreviewWrapper';
 import SchemaRegistry from './store/schemaRegistry';
 import StoreInspector from './StoreInspector';
 import type { PreviewProps } from '../types';
@@ -77,7 +77,7 @@ function Preview<T>({
         <ManagersSync host={managerHost} />
         <MotionGroup layoutDependency={storeMoves}>
           <div
-            className={`playground-preview ${styles.playgroundPreview}`}
+            className={previewSurfaceClassName}
             onPointerDownCapture={onInteract}
             onKeyDownCapture={onInteract}
           >

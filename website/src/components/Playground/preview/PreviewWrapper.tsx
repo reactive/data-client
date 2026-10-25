@@ -7,8 +7,9 @@ import { editorLabel, liveLabel } from '../liveLabel';
 import NetworkIcon from '../NetworkIcon';
 import styles from '../styles.module.css';
 import type { CodeControl } from '../types';
+import ResetButton from './ResetButton';
 import { RouterControlsSlot } from './routerSlot';
-import { CodeHeaderToggle } from './StoreToggle';
+import { CodeHeaderToggle, StoreHeaderToggle } from './StoreToggle';
 
 export default function PreviewWrapper({
   children,
@@ -90,6 +91,38 @@ export default function PreviewWrapper({
     </div>
   );
 }
+/** The app's surface in the frame: also the design system's scope
+ * (../DesignSystem/base.css), so the loading page is styled as the app is */
+export const previewSurfaceClassName = `playground-preview ${styles.playgroundPreview}`;
+
+/** The header's controls, live (./LivePreview.tsx) or held by the loading
+ * frame (../index.tsx) so the header doesn't move as the preview loads:
+ * without handlers each holds its place, disabled. Row layout has no Store
+ * toggle here (the folder's handle is it) */
+export function PreviewHeaderControls({
+  row,
+  badge,
+  storeOpen,
+  toggleStore,
+  reset,
+}: {
+  row: boolean;
+  badge?: React.ReactNode;
+  storeOpen?: boolean;
+  toggleStore?: React.MouseEventHandler<HTMLElement>;
+  reset?: () => void;
+}) {
+  return (
+    <>
+      {badge}
+      {row ? null : (
+        <StoreHeaderToggle open={storeOpen} onClick={toggleStore} />
+      )}
+      <ResetButton onClick={reset} />
+    </>
+  );
+}
+
 /** Row layout: how far the row runs on below the app's sheet with its foot
  * (the wrapper's ::after) at full reach, as `--pg-preview-gap` on the row:
  * the preview's folder ends there, and the open Store runs on past it.

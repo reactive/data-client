@@ -5,16 +5,14 @@ import DemoLabel from './autorun/DemoLabel';
 import type { AutoRunScript } from './autorun/script';
 import { useAutoRun } from './autorun/useAutoRun';
 import Preview from './Preview';
-import PreviewWrapper from './PreviewWrapper';
+import PreviewWrapper, { PreviewHeaderControls } from './PreviewWrapper';
 import { useRenderCount } from './RenderCount';
-import ResetButton from './ResetButton';
 import { routerTrailer } from './router';
 import type { CodeDocument } from '../editor/codeModel';
 import type { CodeControl, PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
 import SchemaRegistry from './store/schemaRegistry';
 import type { ShowStore } from './store/storeView';
-import { StoreHeaderToggle } from './StoreToggle';
 import { useCodeManagers } from './useCodeManagers';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
 import { usePreviewReset } from './usePreviewReset';
@@ -98,13 +96,13 @@ export default function LivePreview<T>({
         fixtures={fixtureContent}
         code={codeControl}
         headerControls={
-          <>
-            {badge}
-            {row ? null : (
-              <StoreHeaderToggle open={storeOpen} onClick={toggleStore} />
-            )}
-            <ResetButton onClick={reset} />
-          </>
+          <PreviewHeaderControls
+            row={row}
+            badge={badge}
+            storeOpen={storeOpen}
+            toggleStore={toggleStore}
+            reset={reset}
+          />
         }
       >
         <Preview

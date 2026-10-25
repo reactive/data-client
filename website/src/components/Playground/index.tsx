@@ -22,12 +22,13 @@ import type { AutoRunScript } from './preview/autorun/script';
 import FixturePreview from './preview/FixturePreview';
 import type LivePreviewType from './preview/LivePreview';
 import PendingSheet from './preview/PendingSheet';
-import PreviewWrapper from './preview/PreviewWrapper';
-import ResetButton from './preview/ResetButton';
+import PreviewWrapper, {
+  PreviewHeaderControls,
+  previewSurfaceClassName,
+} from './preview/PreviewWrapper';
 import type { LogOptions } from './preview/store/actionLog';
 import {
   DemoViewContext,
-  StoreHeaderToggle,
   StoreTab,
   StoreToggle,
   useStoreMotion,
@@ -291,16 +292,11 @@ function PreviewLoading({
 }) {
   return (
     <PreviewWrapper
-      headerControls={
-        <>
-          {row ? null : <StoreHeaderToggle />}
-          <ResetButton />
-        </>
-      }
+      headerControls={<PreviewHeaderControls row={row} />}
       fixtures={fixtureContent}
       code={code}
     >
-      <div className={`playground-preview ${styles.playgroundPreview}`}>
+      <div className={previewSurfaceClassName}>
         <PendingSheet />
       </div>
       {row ? null : <StoreToggle />}
