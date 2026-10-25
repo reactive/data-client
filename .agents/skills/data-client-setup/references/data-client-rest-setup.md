@@ -2,26 +2,13 @@
 
 # REST Protocol Setup & Migration
 
-This guide configures `@data-client/rest` for a project. It handles both fresh setup and migration from existing HTTP libraries. Use it when the project calls REST APIs. It only defines endpoints and schemas, so it doesn't need the Data Client provider; leave how the app loads and stores data alone unless the user asks to change it.
+Configures `@data-client/rest` for a project, fresh or migrating from another HTTP library. It only defines endpoints and schemas, so it needs no Data Client provider: leave how the app loads and stores data alone unless the user asks to change it.
 
-The [RestEndpoint](./data-client-rest-setup/references/RestEndpoint.md) and [resource](./data-client-rest-setup/references/resource.md) references cover the APIs this guide uses. If the skill "data-client-rest" is installed, also apply it for resource and endpoint patterns beyond setup.
+APIs: [RestEndpoint](./data-client-rest-setup/references/RestEndpoint.md), [resource](./data-client-rest-setup/references/resource.md). Vue projects: read `<name>.vue.md` instead of `<name>.md` when it exists.
 
-## Step 1: Installation
+## Step 1: Install
 
-Install the REST package:
-
-```bash
-# npm
-npm install @data-client/rest
-
-# yarn
-yarn add @data-client/rest
-
-# pnpm
-pnpm add @data-client/rest
-```
-
-`@data-client/rest` ships the skills this setup uses next (`data-client-rest`, and `data-client-schema` from `@data-client/endpoint`), at the installed version. Link them from the project root:
+Install `@data-client/rest` with the project's package manager. It ships the skills this setup uses next (`data-client-rest`, and `data-client-schema` from `@data-client/endpoint`); link them from the project root:
 
 ```bash
 npx --no data-client-skills   # pnpm exec data-client-skills, yarn data-client-skills
@@ -35,289 +22,76 @@ npx --no data-client-skills   # pnpm exec data-client-skills, yarn data-client-s
 After adding, removing or upgrading `@data-client/*` packages, run `npx --no data-client-skills` and commit the skill links.
 ```
 
-## Step 2: Detect Existing HTTP Patterns
+## Step 2: Migrate each HTTP library
 
-Scan the codebase to determine what's currently used. **Multiple patterns may coexist** — run each applicable migration sub-procedure independently on the relevant files.
+Check `package.json` and imports. Several libraries can coexist: migrate each one's files with its reference. If HTTP calls exist but the library is unclear, ask the user.
 
-### Detection Checklist
+| Detected | Follow |
+|----------|--------|
+| `axios` | [Axios migration](./data-client-rest-setup/references/axios-migration.md), with the steps below |
+| `fetch(` calls or wrappers around fetch | [Fetch migration](./data-client-rest-setup/references/fetch-migration.md) |
+| `ky` | [Ky migration](./data-client-rest-setup/references/ky-migration.md) |
+| `superagent` | [SuperAgent migration](./data-client-rest-setup/references/superagent-migration.md) |
+| `got` | [Got migration](./data-client-rest-setup/references/got-migration.md) |
+| none | Step 3 |
 
-Check `package.json` dependencies and scan source files:
+Axios:
 
-| Check | Pattern | Action |
-|-------|---------|--------|
-| `"axios"` in dependencies, or `import.*from ['"]axios['"]` in source | **Axios** | Follow [Axios migration](./data-client-rest-setup/references/axios-migration.md) |
-| `fetch(` calls with REST-style URLs, or wrapper functions around `fetch` | **Raw fetch** | Follow [Fetch migration](./data-client-rest-setup/references/fetch-migration.md) |
-| `"ky"` in dependencies, or `import.*from ['"]ky['"]` | **Ky** | Follow [Ky migration](./data-client-rest-setup/references/ky-migration.md) |
-| `"superagent"` in dependencies | **SuperAgent** | Follow [SuperAgent migration](./data-client-rest-setup/references/superagent-migration.md) |
-| `"got"` in dependencies (rare in browser code) | **Got** | Follow [Got migration](./data-client-rest-setup/references/got-migration.md) |
-| No existing HTTP library detected | **Fresh project** | Skip to [Step 3: Custom RestEndpoint Base Class](#step-3-custom-restendpoint-base-class) |
+1. Check `git status` is clean (commit or ask first), so the codemod's changes can be reviewed on their own.
+2. Run the codemod before any manual edits, on the source folders (never the repo root): `npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/`. It turns each axios call into an endpoint call, turns each `axios.create()` instance into a base endpoint class, and drops `.data` unless a response interceptor may have unwrapped it.
+3. Search the source for `TODO(data-client)`. Each comment names one thing to finish and links its guide section, which is in the reference under the same heading. Resolve it, then delete the comment.
+4. Follow the reference's remaining steps. Callers keep loading data the way they did; only the call changes.
+5. Run the type checker and tests. When no `axios` import or `TODO(data-client)` comment is left, uninstall axios.
 
-### Ambiguous Detection
+## Step 3: Base endpoint class
 
-If you cannot confidently determine which patterns are used (e.g., no clear imports but HTTP calls exist), **ask the user**:
-
-> I found HTTP calls in your codebase but couldn't determine the library. Are you migrating from:
-> 1. axios
-> 2. Raw fetch / custom fetch wrapper
-> 3. ky
-> 4. superagent
-> 5. Something else (please describe)
-> 6. Starting fresh (no migration needed)
-
-### Mixed Codebases
-
-When multiple HTTP libraries are detected, run each sub-procedure on the relevant files. The sub-procedures are independent and don't conflict:
-
-1. Identify which files use which library (group by import statements)
-2. Run each applicable migration sub-procedure on its file group
-3. After all migrations, proceed to the base class setup
-
-## Migration References
-
-Each migration is a self-contained reference. Read only the relevant one(s) based on detection results above. After completing migrations, return here for base class setup.
-
-- **Axios** → [Axios migration](./data-client-rest-setup/references/axios-migration.md) — codemod, interceptors, error handling, timeout, cancelToken, responseType, paramsSerializer, auth, validateStatus, CSRF, upload progress
-  1. Check `git status` is clean (commit or ask first), so the codemod's changes can be reviewed on their own.
-  2. Run its codemod before any manual edits, on the source folders (never the repo root): `npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/`. It turns each axios call into an endpoint call and drops `.data`.
-  3. Find what it left: search the source for `TODO(data-client)`. Each comment names one thing to finish and links its guide section, which is in the reference under the same heading. Resolve it, then delete the comment.
-  4. Follow the reference's remaining steps (base endpoint, entities and resources, call sites, error handling). Callers keep loading data the way they did; only the call changes.
-  5. Run the type checker and tests. When no `axios` import or `TODO(data-client)` comment is left, uninstall axios.
-- **Raw fetch** → [Fetch migration](./data-client-rest-setup/references/fetch-migration.md) — fetch wrappers, headers, status checks, POST patterns, error handling
-- **Ky** → [Ky migration](./data-client-rest-setup/references/ky-migration.md) — prefixUrl, hooks, HTTPError, instance config
-- **SuperAgent** → [SuperAgent migration](./data-client-rest-setup/references/superagent-migration.md) — chained API, plugins, agents, file uploads
-- **Got** → [Got migration](./data-client-rest-setup/references/got-migration.md) — Node.js patterns, hooks, pagination, retry
-
-## Step 3: Custom RestEndpoint Base Class
-
-After installation and any migrations, **offer to create a custom RestEndpoint class** for the project. If a migration already made one (the axios codemod turns each `axios.create()` instance into a class), add these overrides to that class instead of creating another.
-
-### Detection Checklist
-
-Scan the existing codebase for common REST patterns to include:
-
-1. **Base URL / API prefix**: Look for hardcoded URLs like `https://api.example.com` or env vars like `process.env.API_URL`
-2. **Authentication**: Look for `Authorization` headers, tokens in localStorage/cookies, auth interceptors
-3. **Content-Type handling**: Check if API uses JSON, form-data, or custom content types
-4. **Error handling**: Look for error response patterns, status code handling
-5. **Request/Response transforms**: Data transformations, date parsing, case conversion
-6. **Query string format**: Simple params vs nested objects (may need qs library)
-
-### Base Class Template
-
-Create a file at `src/api/BaseEndpoint.ts` (or similar location based on project structure):
+Put the project's shared request behavior in one `RestEndpoint` subclass and build every endpoint from it. If a migration made one (the axios codemod does, from `axios.create()`), add to that class instead of creating another.
 
 ```ts
 import { RestEndpoint, RestGenerics } from '@data-client/rest';
 
-/**
- * Base RestEndpoint with project-specific defaults.
- * Extend this for all REST API endpoints.
- */
 export class BaseEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
-  // API base URL - adjust based on detected patterns
-  urlPrefix = process.env.REACT_APP_API_URL ?? 'https://api.example.com';
+  urlPrefix = 'https://api.example.com';
 
-  // Add authentication headers
   getHeaders(headers: HeadersInit): HeadersInit {
     const token = localStorage.getItem('authToken');
-    return {
-      ...headers,
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
+    return { ...headers, ...(token && { Authorization: `Bearer ${token}` }) };
   }
 }
 ```
 
-## Common Lifecycle Overrides
+Override only what the app does today:
 
-Include these based on what's detected in the codebase. See [RestEndpoint](./data-client-rest-setup/references/RestEndpoint.md) for full API documentation.
+| Behavior | Override |
+|----------|----------|
+| Auth or other headers (may be `async`, e.g. token refresh) | `getHeaders(headers)` |
+| Auth token from React context (Okta, Auth0) | [`hookifyResource()`](./data-client-rest-setup/references/hookifyResource.md); a base class can't read context |
+| Cookies, CSRF, other `RequestInit` | `getRequestInit(body)`, spreading `super.getRequestInit(body)` |
+| JSON body wrapped in an envelope, like `{ "data": {...}, "meta": {...} }` | `process(value) { return value?.data; }` (`value` is null for a 204). Only for a real envelope: axios's `response.data` is axios's wrapper, which the codemod already removed |
+| Status handling, like a 401 redirect | `async fetchResponse(input, init)`: `super.fetchResponse()` throws a `NetworkError` for any non-2xx status, so wrap it in `try`, check `error.status` in `catch`, and rethrow |
+| Arrays or nested objects in the query | `searchToString(searchParams)`, e.g. `qs.stringify(searchParams, { arrayFormat: 'brackets' })` |
+| Non-JSON responses | `parseResponse(response)`, falling back to `super.parseResponse(response)` |
 
-### Authentication (async token refresh)
+## Defining endpoints
 
-```ts
-async getHeaders(headers: HeadersInit): Promise<HeadersInit> {
-  const token = await getValidToken(); // handles refresh
-  return {
-    ...headers,
-    Authorization: `Bearer ${token}`,
-  };
-}
-```
-
-### Authentication from React context (Okta, Auth0)
-
-When auth tokens live in React context (not localStorage), `getHeaders()` on a base class **cannot** access them. Use [`hookifyResource()`](./data-client-rest-setup/references/hookifyResource.md) to inject context-derived headers into every endpoint:
+**`resource()`** for standard CRUD on one path (`get`, `getList`, `create`, `update`, `partialUpdate`, `delete`):
 
 ```ts
-import { hookifyResource, resource } from '@data-client/rest';
-
-const ArticleResourceBase = resource({
-  path: '/articles/:id',
-  schema: Article,
-  Endpoint: BaseEndpoint,
-});
-
-export const ArticleResource = hookifyResource(
-  ArticleResourceBase,
-  function useInit() {
-    const accessToken = useContext(AuthContext);
-    return {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    };
-  },
-);
-```
-
-Usage: `useSuspense(ArticleResource.useGet(), { id })` — the hook calls `useInit()` on every render, so the token is always fresh from context.
-
-### Custom Request Init (CSRF, credentials)
-
-```ts
-getRequestInit(body?: RequestInit['body'] | Record<string, unknown>): RequestInit {
-  return {
-    ...super.getRequestInit(body),
-    credentials: 'include', // for cookies
-    headers: {
-      'X-CSRF-Token': getCsrfToken(),
-    },
-  };
-}
-```
-
-### Custom Response Parsing (unwrap data envelope)
-
-Only when the JSON body itself is wrapped, like `{ "data": { "id": 1 } }`. axios's `response.data` is axios's wrapper around the body, not an envelope, and the axios codemod already removed it; unwrapping again would strip a real `data` field.
-
-```ts
-process(value: any, ...args: any[]) {
-  // value is null for a 204 No Content response
-  return value?.data;
-}
-```
-
-### Custom Error Handling
-
-```ts
-async fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response> {
-  try {
-    return await super.fetchResponse(input, init);
-  } catch (error: any) {
-    // super.fetchResponse() throws a NetworkError for any non-2xx status
-    if (error.status === 401) {
-      window.dispatchEvent(new CustomEvent('auth:expired'));
-    }
-    throw error;
-  }
-}
-```
-
-### Custom Search Params (using qs library)
-
-```ts
-searchToString(searchParams: Record<string, any>): string {
-  return qs.stringify(searchParams, { arrayFormat: 'brackets' });
-}
-```
-
-### Custom parseResponse (handle non-JSON)
-
-```ts
-async parseResponse(response: Response): Promise<any> {
-  const contentType = response.headers.get('content-type');
-  
-  if (contentType?.includes('text/csv')) {
-    return parseCSV(await response.text());
-  }
-  
-  return super.parseResponse(response);
-}
-```
-
-## Full Example with Multiple Overrides
-
-```ts
-import { RestEndpoint, RestGenerics } from '@data-client/rest';
-import qs from 'qs';
-
-export class BaseEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
-  urlPrefix = process.env.API_URL ?? 'http://localhost:3001/api';
-
-  async getHeaders(headers: HeadersInit): Promise<HeadersInit> {
-    const token = await getAuthToken();
-    return {
-      ...headers,
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
-  }
-
-  getRequestInit(body?: RequestInit['body'] | Record<string, unknown>): RequestInit {
-    return {
-      ...super.getRequestInit(body),
-      credentials: 'include',
-    };
-  }
-
-  searchToString(searchParams: Record<string, any>): string {
-    return qs.stringify(searchParams, { arrayFormat: 'brackets' });
-  }
-}
-
-async function getAuthToken(): Promise<string | null> {
-  return localStorage.getItem('token');
-}
-```
-
-## Usage After Setup
-
-Once the base class is created, use it instead of [RestEndpoint](./data-client-rest-setup/references/RestEndpoint.md) directly.
-
-### Choosing `resource()` vs individual endpoints
-
-**Use `resource()`** when an API module has standard CRUD on a single path (list, get, create, update, delete). This is the common case:
-
-```ts
-import { resource } from '@data-client/rest';
-import { BaseEndpoint } from './BaseEndpoint';
-import { Todo } from '../schemas/Todo';
-
 export const TodoResource = resource({
   path: '/todos/:id',
   schema: Todo,
   Endpoint: BaseEndpoint,
 });
-// Provides: TodoResource.get, .getList, .create, .update, .delete, .partialUpdate
 ```
 
-**Use standalone `new BaseEndpoint()`** for non-CRUD operations (search, auth, custom actions) or when the path doesn't match `resource()` conventions:
+**`new BaseEndpoint({ ... })`** for anything else (search, auth, custom actions). Type a body with a truthy value, `body: {} as { email: string; password: string }`, never `undefined as unknown as T`: the endpoint only sends a body when `body` is set.
 
-```ts
-export const loginEndpoint = new BaseEndpoint({
-  path: '/auth/login',
-  method: 'POST' as const,
-  body: {} as { email: string; password: string },
-  schema: undefined,
-});
-```
+If the codebase validates responses with Zod or Yup, keep that by parsing in `process()` and still add an Entity `schema`; see "Coexisting with Zod or Yup" in the [Axios migration](./data-client-rest-setup/references/axios-migration.md).
 
-**Body typing**: Use `body: {} as BodyType` (truthy value) — not `undefined as unknown as BodyType`. The truthy value is needed so the endpoint correctly sends a request body for POST/PUT/PATCH.
+## Next steps
 
-### Coexisting with existing validation (Zod, Yup)
+1. Define Entity classes (skill "data-client-schema") and set each endpoint's `schema:`. Without one, responses aren't normalized or cached.
+2. Apply skill "data-client-rest" for resource and endpoint patterns.
+3. Only when the user asks to move components onto the store: apply skill "data-client-react" or "data-client-vue".
 
-If the codebase already validates responses with Zod or Yup, keep that validation by parsing in `process()` and add an Entity `schema` for normalization; skip the Entity only for responses that don't need normalization (auth tokens, one-off responses). The [Axios migration](./data-client-rest-setup/references/axios-migration.md) reference shows each option under "Coexisting with Zod or Yup".
-
-## Next Steps
-
-1. **Define Entity classes** (skill "data-client-schema") and **wire them to endpoints via `schema:`** — this is essential, not optional. Endpoints with `schema: undefined` bypass normalization and caching.
-2. Apply skill "data-client-rest" for resource and endpoint patterns
-3. Only when the user asks to move components onto the store: apply skill "data-client-react" or "data-client-vue" for hook-based usage
-
-## References
-
-Vue projects: read `<name>.vue.md` instead of `<name>.md` when it exists.
-
-- [RestEndpoint](./data-client-rest-setup/references/RestEndpoint.md) - Full RestEndpoint API
-- [resource](./data-client-rest-setup/references/resource.md) - Resource factory function
-- [Authentication Guide](./data-client-rest-setup/references/auth.md) - Auth patterns and examples
-- [Django Integration](./data-client-rest-setup/references/django.md) - Django REST Framework patterns
-- [Axios Migration Guide](https://dataclient.io/rest/guides/axios-migration) - Full axios migration documentation
+More: [Authentication](./data-client-rest-setup/references/auth.md), [Django REST Framework](./data-client-rest-setup/references/django.md).
