@@ -1,4 +1,4 @@
-/* four labels don't fit a phone: the row scrolls (Infima's .tabs) instead of wrapping each label */
+/* six labels don't fit a phone: the row scrolls (Infima's .tabs) instead of wrapping each label */
 .tabs :global(.tabs__item) {
   white-space: nowrap;
 }

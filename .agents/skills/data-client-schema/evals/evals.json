@@ -11,6 +11,19 @@
         "`User` gets `static indexes` containing `'username'`.",
         "The user is read with `useQuery(User, { username })`, not by searching or mapping the list."
       ]
+    },
+    {
+      "id": 2,
+      "name": "older-copy-overwrites",
+      "prompt": "Bug: when I move a task to Done, the card sometimes jumps back to its old column a few seconds later; the server has the right status. `NotificationResource.getList` (src/resources/Notification.ts) polls every 3 s, and each notification's `subject` is the task as it was when the notification was sent. `Notification.schema = { actor: User, subject: new schema.Union({ task: Task, comment: Comment, project: Project }, 'type') }`. `Task` (src/resources/Task.ts) extends Entity with `id`, `title`, `status`, `updatedAt` (ISO string the server sets on every change). Fix it.",
+      "expected_output": "Task overrides static shouldReorder to return true when incoming.updatedAt is older than existing.updatedAt; Notification's schema is unchanged.",
+      "files": [],
+      "assertions": [
+        "`Task` overrides `static shouldReorder(existingMeta, incomingMeta, existing, incoming)` and returns true when the incoming `updatedAt` is older than the existing one.",
+        "`Task` does not override `merge`, `mergeWithStore` or `shouldUpdate` to fix this.",
+        "The notification `subject` still normalizes as `Task`: no new Entity class or key for it, and it is not left unnormalized.",
+        "The server and `NotificationResource`'s polling are not changed."
+      ]
     }
   ]
 }

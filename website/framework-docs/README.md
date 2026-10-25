@@ -107,6 +107,10 @@ blocks or to stubs typed `any`.
   readability, so only their playgrounds are checked.
 - Add `nocheck` to a fence's meta (` ```tsx title="Foo" nocheck `) only for a deliberately partial
   fragment; it's dropped from the rendered page and skill references.
+- Add `docs-only` to a playground file that only makes the preview work, like its UI
+  (` ```tsx title="Prices" docs-only `). Skill references drop it, since agents pay for every line
+  and it teaches nothing about the API; the site, `llms.txt` pages and this check keep it. Keep
+  files the shown code imports, so the reference still reads as one example.
 
 React:
 
@@ -124,6 +128,17 @@ Vue:
 - Use HTML elements Vue knows: `<center>` and `<strike>` resolve as (missing) components.
 - Template expressions only see Vue's allowed globals, not `FormData` or `window`; move such code
   into `<script setup>`.
+
+### Browser debugging snippets
+
+`yarn check:browser-snippets` (`checkBrowserSnippets.mjs`, run by the `regenerate` check) runs every
+` ```js ` block starting `// run in page` in `docs/core/_agents/devtools-debugging.md` against a small
+React app built from the workspace sources, in Chromium, each way that page's Browser Tools section says a tool can
+run them, with their parameters and the `__DC_RESULT__` recipe read from the page (a new way needs a runner in its
+`WAYS`). It also checks the `Runtime.evaluate` results the page describes. Snippets use the entity
+`Todo` (ids 1 to 5) and paths under `/todos`; each snippet is named (`// run in page — <name>`) and
+needs an entry under that name in its `EXPECT`, saying what it returns. Set `CHROMIUM_PATH` to use a Chromium
+other than Playwright's.
 
 ## How it works
 

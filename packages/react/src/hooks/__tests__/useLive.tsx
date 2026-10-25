@@ -1,6 +1,10 @@
 import { CacheProvider } from '@data-client/react';
 import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
-import { PollingArticleResource, Article } from '__tests__/new';
+import {
+  ArticleResource,
+  PollingArticleResource,
+  Article,
+} from '__tests__/new';
 import nock from 'nock';
 import React from 'react';
 
@@ -157,6 +161,47 @@ describe.each([
       expect(result.error).toBeUndefined();
       expect((result.current as any).title).toBe('fiver');
     }
+  });
+
+  it('useLive() keeps polled lists of extended endpoints normalized', async () => {
+    jest.useFakeTimers({
+      legacyFakeTimers: true,
+    });
+    const frequency = 5000;
+    // extend() keeps schema on the prototype
+    const getList = ArticleResource.getList.extend({
+      pollFrequency: frequency,
+    });
+    jsonNock().get('/article').times(2).reply(200, [articlePayload]);
+
+    const { result, controller, waitFor } = renderDataClient(() =>
+      useLive(getList),
+    );
+    jest.advanceTimersByTime(frequency);
+    await renderDataClient.allSettled();
+    await waitFor(() => expect(result.current).toBeDefined());
+    const firstFetch = controller.getState().meta[getList.key()].date;
+
+    // let a poll replace the response
+    jest.advanceTimersByTime(frequency);
+    await renderDataClient.allSettled();
+    await waitFor(() =>
+      expect(controller.getState().meta[getList.key()].date).toBeGreaterThan(
+        firstFetch,
+      ),
+    );
+    expect(result.current?.[0]).toBeInstanceOf(Article);
+
+    // an entity update must reach the polled list right away
+    act(() => {
+      controller.setResponse(
+        ArticleResource.partialUpdate,
+        { id: articlePayload.id },
+        { title: 'updated' },
+        { ...articlePayload, title: 'updated' },
+      );
+    });
+    expect(result.current?.[0].title).toBe('updated');
   });
 
   it('useSubscription() without active arg', async () => {

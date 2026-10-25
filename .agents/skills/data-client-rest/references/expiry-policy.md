@@ -353,7 +353,7 @@ render(<Demo />);
 
 ## Invalidate (re-suspend) {#invalidate}
 
-Both [endpoints](https://dataclient.io/rest/api/Endpoint) and [entities](./Entity.md) can be targetted to be invalidated.
+Both [endpoints](https://dataclient.io/rest/api/Endpoint) and [entities](https://dataclient.io/rest/api/Entity) can be targetted to be invalidated.
 
 ### A specific endpoint {#invalidate-endpoint}
 
@@ -439,7 +439,7 @@ render(<Demo />);
 
 ### Any endpoint with an entity {#invalidate-entity}
 
-Using the [Invalidate schema](https://dataclient.io/rest/api/Invalidate) allows us to invalidate _any_ endpoint that includes that relies on that [entity](./Entity.md) in their
+Using the [Invalidate schema](https://dataclient.io/rest/api/Invalidate) allows us to invalidate _any_ endpoint that includes that relies on that [entity](https://dataclient.io/rest/api/Entity) in their
 response. If the endpoint uses the entity in an [Array](https://dataclient.io/rest/api/Array), it will simply be removed from that [Array](https://dataclient.io/rest/api/Array).
 
 ```ts title="api/lastUpdated"
@@ -537,7 +537,7 @@ when we want to change the local store directly.
 #### Conditional Invalidation based on data
 
 If `invalidation` should happen only sometimes, based on the response data, we can
-return `undefined` from [Entity.process](./Entity.md#process).
+return `undefined` from [Entity.process](https://dataclient.io/rest/api/Entity#process).
 
 ```ts
 class PriceLevel extends Entity {

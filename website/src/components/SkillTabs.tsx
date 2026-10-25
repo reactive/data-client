@@ -34,9 +34,18 @@ export default function SkillTabs({
     { repo, skill, skills, packages, framework },
     { skillPackages, setupSkills: setupReferences.skills, plugin },
   );
-  // Claude Code's own installer first, then skills that update with the packages
+  // agents' own plugin installers first, then skills that update with the packages
   const tabs = [
     { label: 'Claude Code plugin', value: 'claude', code: commands.claude },
+    // typed into Cursor's Agent chat, not a terminal
+    {
+      label: 'Cursor plugin',
+      value: 'cursor',
+      code: commands.cursor,
+      language: 'prompt',
+      title: 'Cursor',
+    },
+    { label: 'Codex plugin', value: 'codex', code: commands.codex },
     { label: 'Installed packages', value: 'packages', code: commands.packages },
     { label: 'Skills CLI', value: 'skills', code: commands.skillsCli },
     { label: 'OpenSkills', value: 'openskills', code: commands.openSkills },
@@ -48,9 +57,13 @@ export default function SkillTabs({
       groupId="agent-skills-program"
       values={tabs}
     >
-      {tabs.map(({ value, code }) => (
+      {tabs.map(({ value, code, language = 'bash', title }) => (
         <TabItem key={value} value={value}>
-          <CodeBlock className="language-bash" metastring={metastring}>
+          <CodeBlock
+            className={`language-${language}`}
+            metastring={metastring}
+            title={title}
+          >
             {code}
           </CodeBlock>
         </TabItem>

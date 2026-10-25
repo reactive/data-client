@@ -1,17 +1,11 @@
 {
-  "frameworks": [
-    "react",
-    "vue"
-  ],
+  "frameworks": ["react", "vue"],
   "docs": {
-    "Collection.md": "docs/rest/api/Collection.md",
-    "Entity.md": "docs/rest/api/Entity.md",
     "Fixtures.md": "docs/core/api/Fixtures.md",
     "RestEndpoint.md": "docs/rest/api/RestEndpoint.md",
     "_AsyncBoundary.md": "docs/core/shared/_AsyncBoundary.mdx",
     "_EndpointLifecycle.md": "docs/rest/api/_EndpointLifecycle.mdx",
     "_VoteDemo.md": "docs/core/shared/_VoteDemo.mdx",
-    "_entity_lifecycle_methods.md": "docs/rest/shared/_entity_lifecycle_methods.mdx",
     "_optimisticTransform.md": "docs/rest/shared/_optimisticTransform.mdx",
     "_pagination.md": "docs/core/shared/_pagination.mdx",
     "_useLive.md": "docs/core/shared/_useLive.mdx",
@@ -25,7 +19,9 @@
     "network-transform.md": "docs/rest/guides/network-transform.md",
     "optimistic-updates.md": "docs/rest/guides/optimistic-updates.md",
     "pagination.md": "docs/rest/guides/pagination.md",
-    "resource.md": "docs/rest/api/resource.md",
-    "schema.md": "docs/rest/api/schema.md"
+    "resource.md": "docs/rest/api/resource.md"
+  },
+  "files": {
+    "RestEndpoint.js": "packages/rest/src/RestEndpoint.js"
   }
 }

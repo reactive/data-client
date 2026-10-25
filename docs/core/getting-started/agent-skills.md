@@ -40,7 +40,7 @@ To install every skill for your framework now instead, without letting your agen
 The **Installed packages** tab links the skills each installed `@data-client/*` package ships into `.agents/skills`
 (with `.claude/skills` linking to it), where Claude Code, Cursor and Codex load them, matched to that package's version. Commit the links. They follow upgrades,
 and running it again picks up skills from packages you add or upgrade. On Windows, commit the links only with Developer Mode on and
-`git config core.symlinks true`; otherwise leave them uncommitted and rerun the command after installing. The Claude Code plugin sets up apps that don't have Data
+`git config core.symlinks true`; otherwise leave them uncommitted and rerun the command after installing. The Claude Code, Cursor and Codex plugins set up apps that don't have Data
 Client yet. If you use [TanStack Intent](https://tanstack.com/intent), it loads the same package skills.
 
 ### Available Skills
@@ -63,7 +63,7 @@ Client yet. If you use [TanStack Intent](https://tanstack.com/intent), it loads 
 :::react
 
 - [**`/data-client-react`**](https://skills.sh/reactive/data-client/data-client-react) — uses `useSuspense`, `useFetch`, `useQuery`, `useLive`,
-  and mutation hooks, and [debugs your running app](./debugging.md#debugging-with-agents) with Chrome DevTools MCP.
+  and mutation hooks, and [debugs your running app](./debugging.md#debugging-with-agents) from a browser tool such as Cursor's browser, Chrome DevTools MCP, or Playwright MCP.
 - [**`/data-client-react-testing`**](https://skills.sh/reactive/data-client/data-client-react-testing) — writes React tests with `renderDataHook`,
   fixtures, interceptors, and `nock`.
 
@@ -72,7 +72,7 @@ Client yet. If you use [TanStack Intent](https://tanstack.com/intent), it loads 
 :::vue
 
 - [**`/data-client-vue`**](https://skills.sh/reactive/data-client/data-client-vue) — uses `useSuspense`, `useFetch`, `useQuery`, `useLive`,
-  and mutation composables with `DataClientPlugin`, and [debugs your running app](./debugging.md#debugging-with-agents) with Chrome DevTools MCP.
+  and mutation composables with `DataClientPlugin`, and [debugs your running app](./debugging.md#debugging-with-agents) from a browser tool such as Cursor's browser, Chrome DevTools MCP, or Playwright MCP.
 - [**`/data-client-vue-testing`**](https://skills.sh/reactive/data-client/data-client-vue-testing) — writes Vue tests with `renderDataCompose`,
   `mountDataClient`, fixtures, and `nock`.
 
