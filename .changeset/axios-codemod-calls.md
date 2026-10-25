@@ -16,13 +16,10 @@ return res.data;
 
 ```ts
 // after the codemod
-const res = await new ApiEndpoint({
+const res = await (new ApiEndpoint({
   path: '/posts/:id',
   searchParams: {} as Record<string, unknown>,
-  process(value): Post {
-    return value;
-  },
-})({ id, expand: 'author' });
+})({ id, expand: 'author' }) as Promise<Post>);
 return res;
 ```
 

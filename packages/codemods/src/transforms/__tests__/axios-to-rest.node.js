@@ -1162,6 +1162,24 @@ const search = () => new RestEndpoint({
       {},
       `
 import axios from 'axios';
+const a = () => axios.get('/search?q=hello#results');
+const b = queue => axios.post('/items', queue.shift(), { params: { id: queue.shift() } });
+      `,
+      `
+import axios from 'axios';
+// TODO(data-client): convert this axios.get() call to an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
+const a = () => axios.get('/search?q=hello#results');
+// TODO(data-client): convert this axios.post() call to an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
+const b = queue => axios.post('/items', queue.shift(), { params: { id: queue.shift() } });
+      `,
+      'marks fragments and params that would run before an effectful body',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
 const search = q => axios.get(\`/search?q=\${q}&limit=5\`).then(({ data }) => data.items);
       `,
       `
@@ -1476,20 +1494,16 @@ export async function getUser(id: string) {
   return res;
 }
 export async function listUsers(page: number) {
-  const data = await new ApiEndpoint({
+  const data = await (new ApiEndpoint({
     path: '/users',
-    searchParams: {} as Record<string, unknown>,
-
-    process(value): User[] {
-      return value;
-    }
+    searchParams: {} as Record<string, unknown>
   })({
     page
-  });
+  }) as Promise<User[]>);
   return data;
 }
       `,
-      'keeps types: a generic base class, the response type and untyped query params',
+      'keeps types: a generic base class, the response type as a cast and untyped query params',
     );
 
     tsTest(

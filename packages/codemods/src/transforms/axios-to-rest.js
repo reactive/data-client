@@ -457,6 +457,18 @@ function isPure(node) {
   );
 }
 
+/** No side effects to reorder: a variable, member chain or literal */
+function isSimple(node) {
+  return (
+    isPure(node) ||
+    node.type === 'StringLiteral' ||
+    node.type === 'NumericLiteral' ||
+    node.type === 'BooleanLiteral' ||
+    node.type === 'NullLiteral' ||
+    node.type === 'Literal'
+  );
+}
+
 function memberName(node) {
   if (node.type === 'Identifier') return node.name;
   if (
@@ -535,6 +547,8 @@ function toPath(j, urlArg) {
 
   // Join with \0 where each expression sits, then split off the query.
   const joined = quasis.join('\0');
+  // fragments aren't sent
+  if (joined.includes('#')) return null;
   const queryStart = joined.indexOf('?');
   const pathPart = queryStart === -1 ? joined : joined.slice(0, queryStart);
   const queryPart = queryStart === -1 ? '' : joined.slice(queryStart + 1);
@@ -918,21 +932,18 @@ function buildCall(j, callPath, className, prefixed, isTS) {
   }
   const typeArgs =
     callPath.node.typeParameters || callPath.node.typeArguments || null;
-  if (isTS && typeArgs && typeArgs.params.length) {
-    // keeps the response type the axios call was given
-    const process = j.objectMethod(
-      'method',
-      j.identifier('process'),
-      [j.identifier('value')],
-      j.blockStatement([j.returnStatement(j.identifier('value'))]),
-    );
-    process.returnType = j.tsTypeAnnotation(typeArgs.params[0]);
-    options.push(process);
-  }
-
   const endpoint = j.newExpression(j.identifier(className || 'RestEndpoint'), [
     j.objectExpression(options),
   ]);
+  // params now come before the body, so neither may depend on evaluation order
+  if (
+    data &&
+    !isSimple(data) &&
+    [...spreadParams.map(p => p.argument), ...query.map(p => p.value)].some(
+      v => !isSimple(v),
+    )
+  )
+    return null;
   const params = callArgs.length ? j.objectExpression(callArgs) : null;
   const invokeArgs =
     data ?
@@ -943,6 +954,8 @@ function buildCall(j, callPath, className, prefixed, isTS) {
 
   return {
     node: j.callExpression(endpoint, invokeArgs),
+    // the response type the axios call was given
+    responseType: isTS && typeArgs && typeArgs.params[0],
     unknownOptions,
     todos,
   };
@@ -1026,6 +1039,25 @@ function transformDirectCalls(
         'this resolves to the response body now, not an axios response, so drop `.data` (`status` and `headers` are gone too)',
         'call-sites',
       );
+    }
+    if (result.responseType) {
+      // cast where the call ends up; a process() override would skip the base class's
+      const castPath = root
+        .find(j.CallExpression)
+        .filter(p => p.node === result.node)
+        .paths()[0];
+      if (castPath) {
+        const cast = j.tsAsExpression(
+          result.node,
+          j.tsTypeReference(
+            j.identifier('Promise'),
+            j.tsTypeParameterInstantiation([result.responseType]),
+          ),
+        );
+        // recast won't add these itself, and `await x as T` casts the awaited value
+        cast.extra = { parenthesized: true };
+        j(castPath).replaceWith(cast);
+      }
     }
     dirty = true;
   }
