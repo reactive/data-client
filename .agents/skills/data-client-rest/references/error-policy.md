@@ -75,10 +75,12 @@ function ShowTime() {
       <Suspense fallback={<div className="listItem">loading...</div>}>
         <TimePage id="1" />
       </Suspense>
-      <button onClick={() => fail(500)}>Fail Soft</button>
-      <button onClick={() => fail(400)}>Fail Hard</button>
-      <button onClick={() => fail(500, true)}>Invalidate Soft</button>
-      <button onClick={() => fail(400, true)}>Invalidate Hard</button>
+      <div className="buttonGroup">
+        <button onClick={() => fail(500)}>Fail Soft</button>
+        <button onClick={() => fail(400)}>Fail Hard</button>
+        <button onClick={() => fail(500, true)}>Invalidate Soft</button>
+        <button onClick={() => fail(400, true)}>Invalidate Hard</button>
+      </div>
     </div>
   );
 }

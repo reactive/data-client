@@ -117,10 +117,12 @@ function ShowTime() {
       <Suspense fallback={<div className="listItem">loading...</div>}>
         <TimePage id="1" />
       </Suspense>
-      <button onClick={() => fail(500)}>Fail Soft</button>
-      <button onClick={() => fail(400)}>Fail Hard</button>
-      <button onClick={() => fail(500, true)}>Invalidate Soft</button>
-      <button onClick={() => fail(400, true)}>Invalidate Hard</button>
+      <div className="buttonGroup">
+        <button onClick={() => fail(500)}>Fail Soft</button>
+        <button onClick={() => fail(400)}>Fail Hard</button>
+        <button onClick={() => fail(500, true)}>Invalidate Soft</button>
+        <button onClick={() => fail(400, true)}>Invalidate Hard</button>
+      </div>
     </div>
   );
 }
@@ -181,10 +183,12 @@ render(<ShowTime />);
       <TimePage id="1" />
       <template #fallback><div class="listItem">loading...</div></template>
     </Suspense>
-    <button @click="fail(500)">Fail Soft</button>
-    <button @click="fail(400)">Fail Hard</button>
-    <button @click="fail(500, true)">Invalidate Soft</button>
-    <button @click="fail(400, true)">Invalidate Hard</button>
+    <div class="buttonGroup">
+      <button @click="fail(500)">Fail Soft</button>
+      <button @click="fail(400)">Fail Hard</button>
+      <button @click="fail(500, true)">Invalidate Soft</button>
+      <button @click="fail(400, true)">Invalidate Hard</button>
+    </div>
   </div>
 </template>
 ```

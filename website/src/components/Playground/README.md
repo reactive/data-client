@@ -200,9 +200,10 @@ DesignSystem/       the demos' design system: design-system.css (tokens, element
   in its `label` is a round box in the accent), `meta` (secondary text;
   last in a `listItem`, it sits at the row's end), `toaster`/`toast`
   (rendered by the `Toaster` component, which shows what the `toast` helper
-  sends), `byline` (avatar beside a muted name; `Avatar` takes a `size`),
-  `author` (name under avatar), `boardColumn` (a well holding its tasks as
-  rows of the sheet's color), plus the older `voteBlock`/`vote`. Prefer a
+  sends), `buttonGroup` (a row of actions, wrapping on a phone), `byline`
+  (avatar beside a muted name; `Avatar` takes a `size`), `author` (name
+  under avatar), `boardColumn` (a well holding its tasks as rows of the
+  sheet's color), plus the older `voteBlock`/`vote`. Prefer a
   class or element style to a new component; a new scope global goes in
   `preview/scope.ts`, `monaco/typeLibs.ts` and
   `website/framework-docs/checkExamples.mjs`. Keep docs demos that use

@@ -87,10 +87,12 @@ export const lastUpdated = new RestEndpoint({
       <TimePage id="1" />
       <template #fallback><div class="listItem">loading...</div></template>
     </Suspense>
-    <button @click="fail(500)">Fail Soft</button>
-    <button @click="fail(400)">Fail Hard</button>
-    <button @click="fail(500, true)">Invalidate Soft</button>
-    <button @click="fail(400, true)">Invalidate Hard</button>
+    <div class="buttonGroup">
+      <button @click="fail(500)">Fail Soft</button>
+      <button @click="fail(400)">Fail Hard</button>
+      <button @click="fail(500, true)">Invalidate Soft</button>
+      <button @click="fail(400, true)">Invalidate Hard</button>
+    </div>
   </div>
 </template>
 ```

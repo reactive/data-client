@@ -562,12 +562,14 @@ function Demo() {
         <ShowTime id="3" />
       </AsyncBoundary>
 
-      <button onClick={() => ctrl.expireAll(lastUpdated)}>
-        Expire All
-      </button>
-      <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>
-        Force Refresh First
-      </button>
+      <div className="buttonGroup">
+        <button onClick={() => ctrl.expireAll(lastUpdated)}>
+          Expire All
+        </button>
+        <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>
+          Force Refresh First
+        </button>
+      </div>
     </div>
   );
 }
@@ -613,10 +615,12 @@ render(<Demo />);
       </template>
     </Suspense>
 
-    <button @click="ctrl.expireAll(lastUpdated)">Expire All</button>
-    <button @click="ctrl.fetch(lastUpdated, { id: '1' })">
-      Force Refresh First
-    </button>
+    <div class="buttonGroup">
+      <button @click="ctrl.expireAll(lastUpdated)">Expire All</button>
+      <button @click="ctrl.fetch(lastUpdated, { id: '1' })">
+        Force Refresh First
+      </button>
+    </div>
   </div>
 </template>
 ```
@@ -727,14 +731,16 @@ function Demo() {
         <ShowTime id="3" />
       </AsyncBoundary>
 
-      <button onClick={() => ctrl.invalidateAll(lastUpdated)}>
-        Invalidate All
-      </button>
-      <button
-        onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}
-      >
-        Invalidate First
-      </button>
+      <div className="buttonGroup">
+        <button onClick={() => ctrl.invalidateAll(lastUpdated)}>
+          Invalidate All
+        </button>
+        <button
+          onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}
+        >
+          Invalidate First
+        </button>
+      </div>
     </div>
   );
 }
@@ -780,10 +786,12 @@ render(<Demo />);
       </template>
     </Suspense>
 
-    <button @click="ctrl.invalidateAll(lastUpdated)">Invalidate All</button>
-    <button @click="ctrl.invalidate(lastUpdated, { id: '1' })">
-      Invalidate First
-    </button>
+    <div class="buttonGroup">
+      <button @click="ctrl.invalidateAll(lastUpdated)">Invalidate All</button>
+      <button @click="ctrl.invalidate(lastUpdated, { id: '1' })">
+        Invalidate First
+      </button>
+    </div>
   </div>
 </template>
 ```
@@ -888,25 +896,27 @@ function ShowTime() {
         <span className="meta">Current time</span>
         <CurrentTime />
       </div>
-      <button onClick={handleDelete}>
-        {loadingDelete ? 'loading...' : 'Invalidate'}
-      </button>
-      <button
-        onClick={() =>
-          ctrl.setResponse(
-            deleteLastUpdated,
-            { id: '1' },
-            { id: '1' },
-          )
-        }
-      >
-        Invalidate (without fetching DELETE)
-      </button>
-      <button
-        onClick={() => ctrl.set([InvalidateTimedEntity], [{ id: '1' }])}
-      >
-        Invalidate Entity with ctrl.set
-      </button>
+      <div className="buttonGroup">
+        <button onClick={handleDelete}>
+          {loadingDelete ? 'loading...' : 'Invalidate'}
+        </button>
+        <button
+          onClick={() =>
+            ctrl.setResponse(
+              deleteLastUpdated,
+              { id: '1' },
+              { id: '1' },
+            )
+          }
+        >
+          Invalidate (without fetching DELETE)
+        </button>
+        <button
+          onClick={() => ctrl.set([InvalidateTimedEntity], [{ id: '1' }])}
+        >
+          Invalidate Entity with ctrl.set
+        </button>
+      </div>
     </div>
   );
 }
@@ -960,17 +970,19 @@ render(<ShowTime />);
       <TimePage id="1" />
       <template #fallback><div class="listItem">loading...</div></template>
     </Suspense>
-    <button @click="handleDelete">
-      {{ loadingDelete ? 'loading...' : 'Invalidate' }}
-    </button>
-    <button
-      @click="ctrl.setResponse(deleteLastUpdated, { id: '1' }, { id: '1' })"
-    >
-      Invalidate (without fetching DELETE)
-    </button>
-    <button @click="ctrl.set([InvalidateTimedEntity], [{ id: '1' }])">
-      Invalidate Entity with ctrl.set
-    </button>
+    <div class="buttonGroup">
+      <button @click="handleDelete">
+        {{ loadingDelete ? 'loading...' : 'Invalidate' }}
+      </button>
+      <button
+        @click="ctrl.setResponse(deleteLastUpdated, { id: '1' }, { id: '1' })"
+      >
+        Invalidate (without fetching DELETE)
+      </button>
+      <button @click="ctrl.set([InvalidateTimedEntity], [{ id: '1' }])">
+        Invalidate Entity with ctrl.set
+      </button>
+    </div>
   </div>
 </template>
 ```

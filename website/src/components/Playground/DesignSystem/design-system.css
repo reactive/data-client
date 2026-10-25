@@ -556,6 +556,17 @@ div.playground-preview h1:first-child {
 .playground-preview .listItem > .meta:last-child {
   margin-left: auto;
 }
+/* A row of actions on what is above it (Fail Soft, Fail Hard): evenly
+   spaced, wrapping on a phone */
+.playground-preview .buttonGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-space-2);
+  margin-top: var(--ds-space-2);
+}
+.playground-preview .buttonGroup > button {
+  margin: 0;
+}
 /* Actions under rows (a clock's Refresh) stand 16px off the last one */
 .playground-preview .listItem + button {
   margin-top: var(--ds-space-2);

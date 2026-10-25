@@ -304,12 +304,14 @@ function Demo() {
         <ShowTime id="3" />
       </AsyncBoundary>
 
-      <button onClick={() => ctrl.expireAll(lastUpdated)}>
-        Expire All
-      </button>
-      <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>
-        Force Refresh First
-      </button>
+      <div className="buttonGroup">
+        <button onClick={() => ctrl.expireAll(lastUpdated)}>
+          Expire All
+        </button>
+        <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>
+          Force Refresh First
+        </button>
+      </div>
     </div>
   );
 }
@@ -390,14 +392,16 @@ function Demo() {
         <ShowTime id="3" />
       </AsyncBoundary>
 
-      <button onClick={() => ctrl.invalidateAll(lastUpdated)}>
-        Invalidate All
-      </button>
-      <button
-        onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}
-      >
-        Invalidate First
-      </button>
+      <div className="buttonGroup">
+        <button onClick={() => ctrl.invalidateAll(lastUpdated)}>
+          Invalidate All
+        </button>
+        <button
+          onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}
+        >
+          Invalidate First
+        </button>
+      </div>
     </div>
   );
 }
@@ -471,25 +475,27 @@ function ShowTime() {
         <span className="meta">Current time</span>
         <CurrentTime />
       </div>
-      <button onClick={handleDelete}>
-        {loadingDelete ? 'loading...' : 'Invalidate'}
-      </button>
-      <button
-        onClick={() =>
-          ctrl.setResponse(
-            deleteLastUpdated,
-            { id: '1' },
-            { id: '1' },
-          )
-        }
-      >
-        Invalidate (without fetching DELETE)
-      </button>
-      <button
-        onClick={() => ctrl.set([InvalidateTimedEntity], [{ id: '1' }])}
-      >
-        Invalidate Entity with ctrl.set
-      </button>
+      <div className="buttonGroup">
+        <button onClick={handleDelete}>
+          {loadingDelete ? 'loading...' : 'Invalidate'}
+        </button>
+        <button
+          onClick={() =>
+            ctrl.setResponse(
+              deleteLastUpdated,
+              { id: '1' },
+              { id: '1' },
+            )
+          }
+        >
+          Invalidate (without fetching DELETE)
+        </button>
+        <button
+          onClick={() => ctrl.set([InvalidateTimedEntity], [{ id: '1' }])}
+        >
+          Invalidate Entity with ctrl.set
+        </button>
+      </div>
     </div>
   );
 }
