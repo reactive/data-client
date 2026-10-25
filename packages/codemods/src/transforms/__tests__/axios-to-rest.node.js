@@ -1666,6 +1666,80 @@ export function listPosts() {
       );
     });
 
+    it('keeps .data when the client module has a response interceptor', () => {
+      const client = `
+import axios from 'axios';
+export const api = axios.create();
+api.interceptors.response.use(res => res.data);
+`;
+      expect(run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts')).toBe(
+        `
+import { ApiEndpoint } from './client';
+export async function getPost(id: number) {
+  // TODO(data-client): \`api\` has a response interceptor, so check each \`.data\` read of this call: drop it if it read axios's response, keep it if it reads the body's own field: https://dataclient.io/rest/guides/axios-migration#base-endpoint
+  const res = await (new ApiEndpoint({
+    path: '/posts/:id'
+  })({
+    id
+  }) as Promise<Post>);
+  return res.data;
+}`.trim(),
+      );
+    });
+
+    it('exports the class where the module exported the instance', () => {
+      const client = `
+import axios from 'axios';
+const api = axios.create({ baseURL: 'https://api.example.com' });
+export { api };
+`;
+      expect(run({ 'client.ts': client }, 'client.ts')).toBe(
+        `
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
+
+class ApiEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+  urlPrefix = 'https://api.example.com';
+}
+
+export { ApiEndpoint };`.trim(),
+      );
+      expect(run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts')).toBe(
+        converted,
+      );
+    });
+
+    it('follows a default export', () => {
+      const client = `
+import axios from 'axios';
+const api = axios.create({ baseURL: 'https://api.example.com' });
+export default api;
+`;
+      const source = posts.replace('{ api }', 'api');
+      expect(run({ 'client.ts': client }, 'client.ts')).toMatch(
+        /export default ApiEndpoint;$/,
+      );
+      expect(run({ 'client.ts': client, 'posts.ts': source }, 'posts.ts')).toBe(
+        converted.replace('{ ApiEndpoint }', 'ApiEndpoint'),
+      );
+    });
+
+    it('marks what it leaves of an imported instance', () => {
+      const client = `
+import axios from 'axios';
+export const api = axios.create();
+`;
+      const source = `
+import { api } from './client';
+api.defaults.headers.common.X = '1';
+`;
+      expect(run({ 'client.ts': client, 'setup.ts': source }, 'setup.ts')).toBe(
+        `
+import { ApiEndpoint } from './client';
+// TODO(data-client): move these defaults into \`ApiEndpoint\`: https://dataclient.io/rest/guides/axios-migration#base-endpoint
+api.defaults.headers.common.X = '1';`.trim(),
+      );
+    });
+
     it('leaves other imports with a get() alone', () => {
       const source = `
 import { cache } from './cache';

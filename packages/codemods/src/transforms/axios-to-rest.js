@@ -479,8 +479,9 @@ function resolveModule(fromFile, spec) {
   });
 }
 
-// exported name -> { className, prefixed } for each axios instance a module
-// exports, before or after this codemod has rewritten it
+// exported name ('default' for a default export) -> { className, prefixed,
+// intercepted } for each axios instance a module exports, before or after
+// this codemod has rewritten it
 function exportedInstances(j, file) {
   if (exportedInstanceCache.has(file)) return exportedInstanceCache.get(file);
   const found = new Map();
@@ -491,29 +492,42 @@ function exportedInstances(j, file) {
   } catch {
     return found;
   }
-  const exportedVars = new Set();
-  const exportedClasses = new Map();
+  // exported name -> local binding
+  const exportsOf = new Map();
   root.find(j.ExportNamedDeclaration).forEach(p => {
-    const decl = p.node.declaration;
-    if (!decl) return;
-    if (decl.type === 'VariableDeclaration') {
-      for (const d of decl.declarations)
-        if (d.id.type === 'Identifier') exportedVars.add(d.id.name);
-    } else if (
-      decl.type === 'ClassDeclaration' &&
-      decl.id &&
-      decl.superClass &&
-      decl.superClass.type === 'Identifier' &&
-      decl.superClass.name === 'RestEndpoint'
-    ) {
-      exportedClasses.set(
-        decl.id.name,
-        decl.body.body.some(
-          m => m.key && m.key.name === 'urlPrefix' && !m.static,
-        ),
-      );
+    const { declaration, specifiers, source } = p.node;
+    if (source) return;
+    if (declaration && declaration.type === 'VariableDeclaration') {
+      for (const d of declaration.declarations)
+        if (d.id.type === 'Identifier') exportsOf.set(d.id.name, d.id.name);
+    } else if (declaration && declaration.id) {
+      exportsOf.set(declaration.id.name, declaration.id.name);
     }
+    for (const spec of specifiers || [])
+      if (spec.local && spec.exported)
+        exportsOf.set(
+          spec.exported.name || spec.exported.value,
+          spec.local.name || spec.local.value,
+        );
   });
+  root.find(j.ExportDefaultDeclaration).forEach(p => {
+    const decl = p.node.declaration;
+    if (decl.type === 'Identifier') exportsOf.set('default', decl.name);
+    else if (decl.type === 'ClassDeclaration' && decl.id)
+      exportsOf.set('default', decl.id.name);
+  });
+  // a response interceptor can change what `.data` means at each call
+  const intercepts = name =>
+    root
+      .find(j.MemberExpression, {
+        object: {
+          type: 'MemberExpression',
+          object: { type: 'Identifier', name },
+          property: { name: 'interceptors' },
+        },
+        property: { name: 'response' },
+      })
+      .size() > 0;
 
   const axiosDefault = root
     .find(j.ImportDeclaration, { source: { value: 'axios' } })
@@ -527,28 +541,47 @@ function exportedInstances(j, file) {
       axiosDefault.local.name,
       /\.[cm]?tsx?$/.test(file),
     );
-    for (const [name, scopes] of createToClass) {
-      if (!exportedVars.has(name) || scopes.size !== 1) continue;
+    for (const [exported, local] of exportsOf) {
+      const scopes = createToClass.get(local);
+      if (!scopes || scopes.size !== 1) continue;
       const className = [...scopes.values()][0];
-      found.set(name, {
+      found.set(exported, {
         className,
         prefixed: prefixedClasses.has(className),
+        intercepted: intercepts(local),
       });
     }
   }
-  // rewritten already: the instance's export is gone and its class is there
-  for (const [className, prefixed] of exportedClasses) {
-    const name = className.replace(/Endpoint$/, '');
-    for (const candidate of [
-      name,
-      name.charAt(0).toLowerCase() + name.slice(1),
-    ])
-      if (
-        deriveClassName(candidate) === className &&
-        !exportedVars.has(candidate) &&
-        !found.has(candidate)
-      )
-        found.set(candidate, { className, prefixed });
+  // rewritten already: the instance's export now exports its class
+  const classes = new Map();
+  root.find(j.ClassDeclaration).forEach(p => {
+    const { id, superClass, body } = p.node;
+    if (id && superClass && superClass.name === 'RestEndpoint')
+      classes.set(
+        id.name,
+        body.body.some(m => m.key && m.key.name === 'urlPrefix' && !m.static),
+      );
+  });
+  for (const [exported, local] of exportsOf) {
+    if (!classes.has(local)) continue;
+    const name = local.replace(/Endpoint$/, '');
+    // an aliased or default export keeps its name; otherwise the class took
+    // the instance's place, under the name the rewrite derived from it
+    const candidates =
+      exported !== local ?
+        [exported]
+      : [name, name.charAt(0).toLowerCase() + name.slice(1)].filter(
+          c => deriveClassName(c) === local && !exportsOf.has(c),
+        );
+    for (const candidate of candidates)
+      if (!found.has(candidate))
+        found.set(candidate, {
+          className: local,
+          prefixed: classes.get(local),
+          intercepted: [name, name.charAt(0).toLowerCase() + name.slice(1)]
+            .filter(c => deriveClassName(c) === local)
+            .some(intercepts),
+        });
   }
   return found;
 }
@@ -558,8 +591,10 @@ function exportedInstances(j, file) {
 function importedInstances(j, root, filePath) {
   const createToClass = new Map();
   const prefixedClasses = new Set();
+  const intercepted = new Set();
   const renames = [];
-  if (!filePath) return { createToClass, prefixedClasses, renames };
+  if (!filePath)
+    return { createToClass, prefixedClasses, intercepted, renames };
   const taken = getExistingClassNames(j, root);
   root
     .find(j.ImportDeclaration)
@@ -575,11 +610,14 @@ function importedInstances(j, root, filePath) {
       const instances = exportedInstances(j, file);
       if (!instances.size) return;
       for (const s of importPath.node.specifiers || []) {
-        if (s.type !== 'ImportSpecifier' || s.importKind === 'type') continue;
-        const imported = s.imported.name || s.imported.value;
-        const instance = instances.get(imported);
+        if (s.importKind === 'type') continue;
+        const imported =
+          s.type === 'ImportDefaultSpecifier' ? 'default'
+          : s.type === 'ImportSpecifier' ? s.imported.name || s.imported.value
+          : null;
+        const instance = imported && instances.get(imported);
         if (!instance) continue;
-        const local = (s.local && s.local.name) || imported;
+        const local = s.local.name;
         const { className, prefixed } = instance;
         // another binding already has the class's name
         if (
@@ -590,10 +628,11 @@ function importedInstances(j, root, filePath) {
         const scope = importPath.scope.lookup(local) || importPath.scope;
         createToClass.set(local, new Map([[scope, className]]));
         if (prefixed) prefixedClasses.add(className);
+        if (instance.intercepted) intercepted.add(local);
         renames.push({ declaration: importPath.node, specifier: s, className });
       }
     });
-  return { createToClass, prefixedClasses, renames };
+  return { createToClass, prefixedClasses, intercepted, renames };
 }
 
 // --- 3. Transform direct axios/instance method calls ---
@@ -1166,7 +1205,7 @@ function transformDirectCalls(
   root,
   axiosLocalName,
   axiosImportScope,
-  { createToClass, prefixedClasses },
+  { createToClass, prefixedClasses, intercepted: importedIntercepted = [] },
   isTS,
 ) {
   let dirty = false;
@@ -1186,7 +1225,8 @@ function transformDirectCalls(
       })
       .nodes()
       .map(node => node.object.object.name)
-      .filter(name => callTargets.has(name)),
+      .filter(name => callTargets.has(name))
+      .concat([...importedIntercepted]),
   );
 
   // innermost calls first, so a call nested in another call's args converts
@@ -1339,6 +1379,20 @@ function markLeftovers(
       .forEach(p => {
         const className = scopes.get(p.scope.lookup(name));
         const parent = p.parent.node;
+        // the module exports the class now, which importers convert to
+        if (parent.type === 'ExportSpecifier') {
+          if (parent.local !== p.node) return;
+          const exported = parent.exported.name || parent.exported.value;
+          parent.local = j.identifier(className);
+          if (exported === name) parent.exported = j.identifier(className);
+          dirty = true;
+          return;
+        }
+        if (parent.type === 'ExportDefaultDeclaration') {
+          parent.declaration = j.identifier(className);
+          dirty = true;
+          return;
+        }
         const member =
           parent.type === 'MemberExpression' && parent.object === p.node ?
             memberName(parent)
@@ -1452,6 +1506,7 @@ module.exports = function transformer(fileInfo, api) {
     createResult.createToClass.set(name, scopes);
   for (const className of imported.prefixedClasses)
     createResult.prefixedClasses.add(className);
+  createResult.intercepted = imported.intercepted;
 
   const calls = transformDirectCalls(
     j,
@@ -1476,7 +1531,10 @@ module.exports = function transformer(fileInfo, api) {
   // after the calls, which look the instance up by its imported name
   for (const { declaration, specifier, className } of imported.renames) {
     declaration.specifiers = declaration.specifiers.map(s =>
-      s === specifier ? j.importSpecifier(j.identifier(className)) : s,
+      s !== specifier ? s
+      : s.type === 'ImportDefaultSpecifier' ?
+        j.importDefaultSpecifier(j.identifier(className))
+      : j.importSpecifier(j.identifier(className)),
     );
     dirty = true;
   }
