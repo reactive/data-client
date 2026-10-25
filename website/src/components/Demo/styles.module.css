@@ -36,6 +36,18 @@
   color: var(--pg-text);
   box-shadow: 0 1px 2px rgba(15, 30, 60, 0.16);
 }
+/* dark: the stage and sheet sit close, so the pick lifts toward the text
+   and the rest recede toward the stage */
+:root[data-theme='dark'] .segmented > [role='tab'] {
+  color: color-mix(in oklab, var(--pg-muted), var(--pg-stage) 30%);
+}
+:root[data-theme='dark'] .segmented > [role='tab']:hover {
+  color: var(--pg-text);
+}
+:root[data-theme='dark'] .segmented > [role='tab'][aria-selected='true'] {
+  background: color-mix(in oklab, var(--pg-panel), var(--pg-text) 12%);
+  color: var(--pg-text);
+}
 .segmented > [role='tab']:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
   outline-offset: -2px;
