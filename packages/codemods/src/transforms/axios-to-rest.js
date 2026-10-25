@@ -547,6 +547,8 @@ function exportedInstances(j, file) {
       const className = [...scopes.values()][0];
       found.set(exported, {
         className,
+        // the rewrite keeps an alias, and gives the class's own name otherwise
+        exportName: exported === local ? className : exported,
         prefixed: prefixedClasses.has(className),
         intercepted: intercepts(local),
       });
@@ -577,6 +579,7 @@ function exportedInstances(j, file) {
       if (!found.has(candidate))
         found.set(candidate, {
           className: local,
+          exportName: exported,
           prefixed: classes.get(local),
           intercepted: [name, name.charAt(0).toLowerCase() + name.slice(1)]
             .filter(c => deriveClassName(c) === local)
@@ -629,7 +632,12 @@ function importedInstances(j, root, filePath) {
         createToClass.set(local, new Map([[scope, className]]));
         if (prefixed) prefixedClasses.add(className);
         if (instance.intercepted) intercepted.add(local);
-        renames.push({ declaration: importPath.node, specifier: s, className });
+        renames.push({
+          declaration: importPath.node,
+          specifier: s,
+          className,
+          exportName: instance.exportName,
+        });
       }
     });
   return { createToClass, prefixedClasses, intercepted, renames };
@@ -1529,12 +1537,18 @@ module.exports = function transformer(fileInfo, api) {
     ) || dirty;
 
   // after the calls, which look the instance up by its imported name
-  for (const { declaration, specifier, className } of imported.renames) {
+  for (const {
+    declaration,
+    specifier,
+    className,
+    exportName,
+  } of imported.renames) {
     declaration.specifiers = declaration.specifiers.map(s =>
       s !== specifier ? s
       : s.type === 'ImportDefaultSpecifier' ?
         j.importDefaultSpecifier(j.identifier(className))
-      : j.importSpecifier(j.identifier(className)),
+      : exportName === className ? j.importSpecifier(j.identifier(className))
+      : j.importSpecifier(j.identifier(exportName), j.identifier(className)),
     );
     dirty = true;
   }

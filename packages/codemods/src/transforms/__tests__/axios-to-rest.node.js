@@ -1708,6 +1708,30 @@ export { ApiEndpoint };`.trim(),
       );
     });
 
+    it('imports an aliased export under its alias', () => {
+      const client = `
+import axios from 'axios';
+const api = axios.create({ baseURL: 'https://api.example.com' });
+export { api as client };
+`;
+      const source = posts.replace('{ api }', '{ client as api }');
+      const want = converted.replace(
+        '{ ApiEndpoint }',
+        '{ client as ApiEndpoint }',
+      );
+      expect(run({ 'client.ts': client }, 'client.ts')).toMatch(
+        /export \{ ApiEndpoint as client \};$/,
+      );
+      // before and after the client module is rewritten
+      expect(run({ 'client.ts': client, 'posts.ts': source }, 'posts.ts')).toBe(
+        want,
+      );
+      const rewritten = run({ 'client.ts': client }, 'client.ts');
+      expect(
+        run({ 'client.ts': rewritten, 'posts.ts': source }, 'posts.ts'),
+      ).toBe(want);
+    });
+
     it('follows a default export', () => {
       const client = `
 import axios from 'axios';
