@@ -368,6 +368,18 @@ describe('WeakDependencyMap eviction', () => {
     ).toBeUndefined();
   });
 
+  it('looks up values behind many nested argsKey deps', () => {
+    // a list whose rows each record an argsKey nests one node per row
+    const wem = new WeakDependencyMap<EntityPath>();
+    const fns = Array.from({ length: 20000 }, (_, i) => () => `${i}`);
+    const getEntity = MemoPolicy.getEntities({ A: { '1': root } });
+    wem.set(
+      [rootDep, ...fns.map(path => ({ path, entity: undefined }))],
+      'deep',
+    );
+    expect(wem.get(root, getEntity)[0]).toBe('deep');
+  });
+
   it('a shorter dependency list at the same root is served when the longer one mismatches', () => {
     // each entry is checked against its own dependencies, so the older one
     // still serves reads that never touch C
