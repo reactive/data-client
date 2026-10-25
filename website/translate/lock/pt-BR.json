@@ -124,7 +124,7 @@
     "docs/rest/shared/_entity_lifecycle_methods.mdx": "69a119da621aa891d5525b576ca2e4f240eac4d1",
     "docs/rest/shared/_optimisticTransform.mdx": "ceeafd70dcf7e18448a977fdd63e533cf06fe0d1",
     "docs/rest/shared/_PolymorphicFeedDemo.mdx": "973ba6b30da33b373621d2f0c5118cd5b5b84536",
-    "docs/rest/shared/_ScalarDemo.mdx": "05a1bacb97c01ef866bb769fada067e092c53d2b",
+    "docs/rest/shared/_ScalarDemo.mdx": "44c68a0eb7cbaa52a90d844aa117972a61c5ea21",
     "docs/rest/shared/_SortDemo.mdx": "cc3314e0f290b6044a14247ee68ebcab8796c346",
     "website/blog/2023-07-04-v0.2-release-announcement.md": "1156fbbc172e5c2edd6b04faa69e9605a9c87824",
     "website/blog/2024-01-15-v0.9-release-announcement.md": "adcf4a838aa2dc84f6009cc3743a9bd5e429922b",
