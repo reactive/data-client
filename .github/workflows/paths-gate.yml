@@ -20,7 +20,11 @@ jobs:
     outputs:
       relevant: ${{ steps.diff.outputs.relevant }}
     steps:
+      # The diff needs only commits and trees, and yq only the workflows
       - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/workflows
+          filter: blob:none
       - id: diff
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}

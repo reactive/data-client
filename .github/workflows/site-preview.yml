@@ -41,15 +41,16 @@ jobs:
     if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
     uses: ./.github/workflows/paths-gate.yml
 
-  # One job so the install happens once: the typecheck is short next to it
+  # The preview's critical path: the deploy waits only on this job, so the
+  # checks run beside it in `checks`, and `website` requires both
   build:
-    name: website
+    name: website build
     needs: gate
     if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
     outputs:
       deploy: ${{ steps.decide.outputs.deploy }}
-      english-only: ${{ steps.locales.outputs.english-only }}
+      locales: ${{ steps.locales.outputs.locales }}
       next: ${{ steps.next.outputs.next }}
       target: ${{ steps.decide.outputs.target }}
     steps:
@@ -62,8 +63,6 @@ jobs:
           # Commits and trees are all the dates need; files missing from the
           # checkout (old versions) download when read
           filter: ${{ github.event_name != 'merge_group' && 'blob:none' || '' }}
-      - name: Test Vercel ignore decision
-        run: bash website/scripts/vercel-ignore.test.sh
       # While master is the next major (website/versionCurrent.json), its
       # production build serves at /next/ and the `current` job builds the root.
       # The queue builds it that way too, so it fails before the master push does.
@@ -72,52 +71,79 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           [ ! -f website/versionCurrent.json ] || echo "next=1" >> "$GITHUB_OUTPUT"
+      # Pull requests reuse an install of the same manifests and lockfile
+      # instead of installing (about 20s); master saves one when it's missing.
+      # The queue and master always install from scratch.
+      - name: Restore installed packages
+        id: modules
+        if: github.event_name != 'merge_group'
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+            scripts/rollup-plugins/node_modules
+            website/node_modules
+            !website/node_modules/.cache
+            .yarn/install-state.gz
+          # Everything scripts/ci-install.sh website reads
+          key: website-modules-node26-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock', '.yarnrc.yml', '.yarn/releases/**', '.yarn/plugins/**', 'scripts/ci-install.sh', 'package.json', 'packages/*/package.json', 'scripts/rollup-plugins/package.json', 'website/package.json', 'website/scripts/generateMonacoPreloads.cjs') }}
+          lookup-only: ${{ github.event_name != 'pull_request' }}
       - uses: actions/setup-node@v7
         with:
           node-version: '26'
-          cache: 'yarn'
-      - name: Check published blog posts are dated today
-        if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
-        run: |
-          git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null || git fetch --depth=1 origin "$BASE_SHA"
-          node website/scripts/blog-publish.mjs --check "$BASE_SHA"
+          # Yarn's download cache, only when installing
+          cache: ${{ (github.event_name != 'pull_request' || steps.modules.outputs.cache-hit != 'true') && 'yarn' || '' }}
       - name: Install packages
+        if: github.event_name != 'pull_request' || steps.modules.outputs.cache-hit != 'true'
         run: ./scripts/ci-install.sh website
-      - name: Build package types and the packages the website imports
-        run: yarn ci:build:website
-      - name: Typecheck website
-        run: yarn workspace rdc-website typecheck
-      # CircleCI's lint job covers packages/ only; api/ is the Vercel functions
-      - name: Lint website
-        run: yarn lint --quiet 'website/{src,api}/**/*.{js,ts,tsx}'
-      - name: Check translations
-        run: |
-          node --test 'website/translate/*.test.mjs'
-          node website/translate/translate.mjs check
-      - name: Check sitemap robots.txt
-        run: node --test website/sitemap-robots-plugin.test.mjs
-      - name: Check Playground fixture source plugins
-        run: node --test website/fixture-source.test.mjs
-      # Each locale is a full build, so PRs build translations only when they
-      # could break one. The queue and master always build every locale.
+      - if: steps.modules.outcome == 'success' && steps.modules.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+            scripts/rollup-plugins/node_modules
+            website/node_modules
+            !website/node_modules/.cache
+            .yarn/install-state.gz
+          key: ${{ steps.modules.outputs.cache-primary-key }}
+      # The build needs only their JavaScript (`checks` builds the types).
+      # Pull requests reuse a build of the same sources, like the install.
+      - name: Restore the packages the website imports
+        id: libs
+        if: github.event_name != 'merge_group'
+        uses: actions/cache/restore@v6
+        with:
+          path: packages/*/lib
+          # Everything their build:lib reads
+          key: website-libs-${{ hashFiles('packages/*/src/**', 'packages/*/package.json', 'packages/*/rollup.config.*', 'scripts/rollup-plugins/**', 'babel.config.js', 'package.json', 'yarn.lock') }}
+          lookup-only: ${{ github.event_name != 'pull_request' }}
+      - name: Build the packages the website imports
+        if: github.event_name != 'pull_request' || steps.libs.outputs.cache-hit != 'true'
+        run: yarn ci:build:website-lib
+      - if: steps.libs.outcome == 'success' && steps.libs.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: packages/*/lib
+          key: ${{ steps.libs.outputs.cache-primary-key }}
+      # Each locale is a full build, so PRs build only English and the
+      # locales they could change or break (scripts/pick-locales.mjs). The
+      # queue and master always build every locale.
       - name: Pick locales
         id: locales
         if: github.event_name == 'pull_request'
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          # Translations, their tooling and the config that adds locales; a
-          # deleted (or renamed) doc, component or static file can leave a
-          # translation linking to or importing it. Fails open.
-          if changed="$(git diff --name-only --no-renames "$BASE_SHA" HEAD -- \
-                website/i18n website/translate website/framework-docs website/docusaurus.config.ts)" \
-            && deleted="$(git diff --name-only --no-renames --diff-filter=D "$BASE_SHA" HEAD -- docs website/src website/static)" \
-            && [ -z "$changed$deleted" ]; then
+          # Fails open: every locale when the diff or the picker fails
+          if git diff --name-only --no-renames "$BASE_SHA" HEAD > "$RUNNER_TEMP/changed" \
+            && git diff --name-only --no-renames --diff-filter=D "$BASE_SHA" HEAD > "$RUNNER_TEMP/deleted" \
+            && locales="$(node website/scripts/pick-locales.mjs "$RUNNER_TEMP/changed" "$RUNNER_TEMP/deleted")" \
+            && [ -n "$locales" ]; then
             # PRs that don't deploy get no preview comment, so say it here too
-            echo "::notice title=English only::This PR doesn't touch translations; the merge queue builds every locale"
-            echo "english-only=true" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Locales::This PR builds ${locales// /, }; the merge queue builds every locale"
+            echo "locales=$locales" >> "$GITHUB_OUTPUT"
           fi
       # Docusaurus Faster's Rspack cache. Only master saves it, so
       # PRs share one fresh entry instead of each storing their own. Only
@@ -135,12 +161,14 @@ jobs:
           # PRs build drafts. The queue and master build production, so a link
           # to a draft fails here instead of on the master push.
           VERCEL_ENV: ${{ github.event_name == 'pull_request' && 'preview' || 'production' }}
-          ENGLISH_ONLY: ${{ steps.locales.outputs.english-only }}
+          LOCALES: ${{ steps.locales.outputs.locales }}
           DOCS_NEXT: ${{ steps.next.outputs.next }}
         # explicit `shell: bash` adds pipefail, so a failed build isn't masked by tee
         shell: bash
         run: |
-          yarn workspace rdc-website build ${ENGLISH_ONLY:+--locale en} 2>&1 | tee build.log
+          args=()
+          for locale in $LOCALES; do args+=(--locale "$locale"); done
+          yarn workspace rdc-website build "${args[@]}" 2>&1 | tee build.log
           # Warnings (broken links, bundler warnings) fail the check, but not
           # the build itself, which only stops on errors
           if grep -E '\[(WARNING|ERROR)\]' build.log; then
@@ -226,6 +254,71 @@ jobs:
           retention-days: 1
           # A re-run of this job replaces the artifact
           overwrite: true
+          # Fastest zip: most of the bytes are videos and images, already compressed
+          compression-level: 1
+
+  # Off the preview's critical path: a failure here fails `website`, not the deploy
+  checks:
+    name: website checks
+    needs: gate
+    if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          # translate.mjs check reads the English its translations were made from
+          fetch-depth: ${{ github.event_name == 'merge_group' && 1 || 0 }}
+          filter: ${{ github.event_name != 'merge_group' && 'blob:none' || '' }}
+      - name: Test Vercel ignore decision
+        run: bash website/scripts/vercel-ignore.test.sh
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+          cache: 'yarn'
+      - name: Check published blog posts are dated today
+        if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+        run: |
+          git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null || git fetch --depth=1 origin "$BASE_SHA"
+          node website/scripts/blog-publish.mjs --check "$BASE_SHA"
+      - name: Install packages
+        run: ./scripts/ci-install.sh website
+      - name: Build package types and the packages the website imports
+        run: yarn ci:build:website
+      - name: Typecheck website
+        run: yarn workspace rdc-website typecheck
+      # CircleCI's lint job covers packages/ only; api/ is the Vercel functions
+      - name: Lint website
+        run: yarn lint --quiet 'website/{src,api}/**/*.{js,ts,tsx}'
+      - name: Check translations
+        run: |
+          node --test 'website/translate/*.test.mjs'
+          node website/translate/translate.mjs check
+      - name: Check sitemap robots.txt
+        run: node --test website/sitemap-robots-plugin.test.mjs
+      - name: Check Playground fixture source plugins
+        run: node --test website/fixture-source.test.mjs
+      - name: Check the locale picker
+        run: node --test website/scripts/pick-locales.test.mjs
+
+  # The required check (branch protection matches this name): passes when the
+  # build and checks passed, or the gate skipped them
+  website:
+    name: website
+    needs: [build, checks]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          BUILD: ${{ needs.build.result }}
+          CHECKS: ${{ needs.checks.result }}
+        run: |
+          for result in "$BUILD" "$CHECKS"; do
+            [[ "$result" =~ ^(success|skipped)$ ]] ||
+              { echo "::error::website build: $BUILD, website checks: $CHECKS"; exit 1; }
+          done
 
   # While master is the next major, the root serves the current version's
   # docs, built from its branch the way an archive is (scripts/snapshot/README.md)
@@ -366,7 +459,15 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: '26'
-      - run: npm install --global "vercel@$VERCEL_CLI_VERSION"
+      - name: Restore the Vercel CLI
+        id: vercel-cli
+        uses: actions/cache@v6
+        with:
+          path: ~/vercel-cli
+          key: vercel-cli-${{ env.VERCEL_CLI_VERSION }}-node26-${{ runner.os }}-${{ runner.arch }}
+      - if: steps.vercel-cli.outputs.cache-hit != 'true'
+        run: npm install --global --prefix ~/vercel-cli "vercel@$VERCEL_CLI_VERSION"
+      - run: echo "$HOME/vercel-cli/bin" >> "$GITHUB_PATH"
       - name: Deploy
         id: deploy
         env:
@@ -462,4 +563,4 @@ jobs:
           message: |
             **Docs preview:** ${{ steps.deploy.outputs.url }}
 
-            Built from ${{ github.event.pull_request.head.sha }} merged into `master` ([this build](${{ steps.deploy.outputs.deployment }})).${{ needs.build.outputs.english-only == 'true' && ' English only: this PR doesn''t touch translations.' || '' }}
+            Built from ${{ github.event.pull_request.head.sha }} merged into `master` ([this build](${{ steps.deploy.outputs.deployment }})).${{ needs.build.outputs.locales && format(' Locales: {0} (the merge queue builds every locale).', needs.build.outputs.locales) || '' }}
