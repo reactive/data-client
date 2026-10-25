@@ -9,40 +9,42 @@ import useHighlight from '../useHighlight';
 /** 'Custom' is the empty slot for the managers an app adds */
 type Manager = 'DevTools' | 'Network' | 'Subscription' | 'Custom';
 
-// the middleware chain, in the order getDefaultManagers() builds it
+// the middleware chain: an app's own managers go before the defaults (see
+// Manager.md), which follow in the order getDefaultManagers() builds them
 // (the chip keyframes in styles.module.css follow these and OUTSIDE's y)
 const MANAGERS: { id: Manager; name?: string; y: number }[] = [
-  { id: 'DevTools', name: 'DevToolsManager', y: 120 },
-  { id: 'Network', name: 'NetworkManager', y: 154 },
-  { id: 'Subscription', name: 'SubscriptionManager', y: 188 },
-  { id: 'Custom', y: 222 },
+  { id: 'Custom', y: 120 },
+  { id: 'DevTools', name: 'DevToolsManager', y: 154 },
+  { id: 'Network', name: 'NetworkManager', y: 188 },
+  { id: 'Subscription', name: 'SubscriptionManager', y: 222 },
 ];
 
 // the world outside the store, and which manager talks to it
 const OUTSIDE: { name: string; manager: Manager; y: number }[] = [
-  { name: 'DevTools', manager: 'DevTools', y: 132 },
-  { name: 'HTTP', manager: 'Network', y: 166 },
-  { name: 'SSE', manager: 'Custom', y: 210 },
-  { name: 'WebSockets', manager: 'Custom', y: 234 },
-  { name: 'IndexedDB', manager: 'Custom', y: 258 },
+  { name: 'SSE', manager: 'Custom', y: 84 },
+  { name: 'WebSockets', manager: 'Custom', y: 108 },
+  { name: 'IndexedDB', manager: 'Custom', y: 132 },
+  { name: 'DevTools', manager: 'DevTools', y: 166 },
+  { name: 'HTTP', manager: 'Network', y: 200 },
 ];
 
 // what each manager talks to, and its way back into the Controller
 const LINKS: { manager: Manager; d: string }[] = [
-  { manager: 'DevTools', d: 'M116 132H78' },
-  { manager: 'Network', d: 'M116 166H78' },
-  { manager: 'Custom', d: 'M116 234C94 234 100 210 78 210' },
-  { manager: 'Custom', d: 'M116 234H78' },
-  { manager: 'Custom', d: 'M116 234C94 234 100 258 78 258' },
+  { manager: 'Custom', d: 'M116 132C94 132 100 84 78 84' },
+  { manager: 'Custom', d: 'M116 132C94 132 100 108 78 108' },
+  { manager: 'Custom', d: 'M116 132H78' },
+  { manager: 'DevTools', d: 'M116 166H78' },
+  { manager: 'Network', d: 'M116 200H78' },
   // managers dispatch through the Controller, like components do
-  { manager: 'Network', d: 'M264 166H284V70' },
-  { manager: 'Subscription', d: 'M264 200H284V70' },
-  { manager: 'Custom', d: 'M264 234H284V70' },
+  { manager: 'Custom', d: 'M264 132H284V70' },
+  { manager: 'Network', d: 'M264 200H284V70' },
+  { manager: 'Subscription', d: 'M264 234H284V70' },
 ];
 
 // the actions in the animation, named as devtools shows them, and the
-// managers each passes through; a read's fetch stops at NetworkManager
-// (an optimistic mutation's goes on to the store, which this leaves out)
+// managers each passes through; a read's fetch passes the app's managers
+// and stops at NetworkManager (an optimistic mutation's goes on to the
+// store, which this leaves out)
 const ACTIONS: {
   type: string;
   cls: 'fetch' | 'response';
@@ -52,13 +54,13 @@ const ACTIONS: {
   {
     type: 'rdc/fetch',
     cls: 'fetch',
-    managers: ['DevTools', 'Network'],
+    managers: ['Custom', 'DevTools', 'Network'],
     w: 62,
   },
   {
     type: 'rdc/setresponse',
     cls: 'response',
-    managers: ['DevTools', 'Network', 'Subscription', 'Custom'],
+    managers: ['Custom', 'DevTools', 'Network', 'Subscription'],
     w: 96,
   },
 ];
@@ -84,7 +86,7 @@ export default function DataFlow() {
       aria-label={translate({
         id: 'dataFlow.label',
         message:
-          'Unidirectional data flow. Components dispatch actions through the Controller into the middleware chain of managers: DevToolsManager, NetworkManager, SubscriptionManager, then your own. Managers talk to the outside world (DevTools, HTTP, SSE, WebSockets, IndexedDB) and dispatch back through the Controller. A rdc/fetch action for a read stops at NetworkManager, which sends the request over HTTP and dispatches the response as rdc/setresponse through every manager into the store. The new state then renders in the components',
+          'Unidirectional data flow. Components dispatch actions through the Controller into the middleware chain of managers: your own first, then DevToolsManager, NetworkManager and SubscriptionManager. Managers talk to the outside world (SSE, WebSockets, IndexedDB, DevTools, HTTP) and dispatch back through the Controller. A rdc/fetch action for a read passes your managers and stops at NetworkManager, which sends the request over HTTP and dispatches the response as rdc/setresponse through every manager into the store. The new state then renders in the components',
       })}
     >
       <g className={styles.managers}>

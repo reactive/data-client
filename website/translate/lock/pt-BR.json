@@ -411,7 +411,7 @@
       "agentPrompt.copy": "Copy prompt for your coding agent",
       "theme.CodeBlock.terminal": "Run in your terminal",
       "theme.CodeBlock.terminalTitle": "Terminal",
-      "dataFlow.label": "Unidirectional data flow. Components dispatch actions through the Controller into the middleware chain of managers: DevToolsManager, NetworkManager, SubscriptionManager, then your own. Managers talk to the outside world (DevTools, HTTP, SSE, WebSockets, IndexedDB) and dispatch back through the Controller. A rdc/fetch action for a read stops at NetworkManager, which sends the request over HTTP and dispatches the response as rdc/setresponse through every manager into the store. The new state then renders in the components"
+      "dataFlow.label": "Unidirectional data flow. Components dispatch actions through the Controller into the middleware chain of managers: your own first, then DevToolsManager, NetworkManager and SubscriptionManager. Managers talk to the outside world (SSE, WebSockets, IndexedDB, DevTools, HTTP) and dispatch back through the Controller. A rdc/fetch action for a read passes your managers and stops at NetworkManager, which sends the request over HTTP and dispatches the response as rdc/setresponse through every manager into the store. The new state then renders in the components"
     },
     "docusaurus-plugin-content-blog/options.json": {
       "sidebar.title": "All posts",
