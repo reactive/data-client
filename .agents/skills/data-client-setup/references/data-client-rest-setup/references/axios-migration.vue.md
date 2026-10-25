@@ -8,27 +8,35 @@ so how the app loads and stores data doesn't change; only the call shape does. A
 
 ## Why migrate?
 
-The URL is declared once: path parameters are named, typed and encoded from the `path` template, and the rest of the arguments become the query string.
+The URL is declared once: path parameters are typed and encoded from the `path` template, and the rest become the query string. Calls don't change.
 
 ```ts title="Before"
-const getComments = (userId: string, postId: string, sort: string) =>
+const getComments = ({
+  userId,
+  postId,
+  sort,
+}: {
+  userId: string;
+  postId: string;
+  sort?: 'newest' | 'top';
+}) =>
+  // callout: Each parameter is typed, encoded and placed by hand, and nothing checks the template against the type.
   axios.get(
     `/users/${encodeURIComponent(userId)}/posts/${encodeURIComponent(postId)}/comments`,
     { params: { sort } },
   );
 
-// callout: Swapped arguments still compile, and fetch another post's comments.
-getComments(post.id, user.id, 'newest');
+getComments({ userId: user.id, postId: post.id, sort: 'newest' });
 ```
 
 ```ts title="After"
 const getComments = new RestEndpoint({
+  // callout: `userId` and `postId` are typed and encoded from the template, so a missing or misspelled one is a compile error.
   path: '/users/:userId/posts/:postId/comments',
   searchParams: {} as { sort?: 'newest' | 'top' },
 });
 
-// callout: Each argument is named, so order can't matter, and a missing or misspelled one is a compile error.
-getComments({ postId: post.id, userId: user.id, sort: 'newest' });
+getComments({ userId: user.id, postId: post.id, sort: 'newest' });
 ```
 
 - **Typed end to end**: path parameters, bodies and responses are typed from each definition.
