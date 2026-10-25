@@ -35,13 +35,13 @@
      --ds-*): the sheet the app is on (panel) and a well a step off it, a
      line kept for demos that draw their own, its text, and the live dot */
   --pg-panel: #fff;
-  --pg-panel-2: #eef2f7;
-  --pg-line: #d8e0ea;
-  /* the stage the sheet sits on, showing as the header's tint: a cool tonal
-     ground, lighter at the top */
-  --pg-stage: linear-gradient(170deg, #eef3f9, #e2e9f2);
-  --pg-text: #0b1220;
-  --pg-muted: #4c5a6e;
+  --pg-panel-2: hsl(229, 20%, 96%);
+  --pg-line: hsl(229, 16%, 88%);
+  /* the stage the sheet sits on, showing as the header's color: the bar's,
+     so the preview's header is one with the editor's and the Store's */
+  --pg-stage: var(--pg-bar);
+  --pg-text: hsl(229, 25%, 12%);
+  --pg-muted: hsl(229, 10%, 38%);
   --pg-live: #0d8257;
   --pg-live-soft: color-mix(in srgb, var(--pg-live) 14%, transparent);
   /* a resting control's band under the pointer, on any ground */
@@ -150,19 +150,19 @@
 }
 /* Dark mode: the frame is a muted slate of the code's indigo, so the code
    (and the active tab, which matches it) keeps the color. Bars sit a step
-   above the code, and the preview a half step, so the top row reads as one band */
+   above the code, so the top row reads as one band, and the preview's app
+   is on the code's own color, so editor, Store and preview are one family */
 :root[data-theme='dark'] .playgroundContainer:not(.endpointPlayground) {
-  --pg-bar: hsl(229, 9%, 21%);
-  --pg-tab-hover-bg: hsl(229, 9%, 26%);
+  --pg-bar: hsl(229, 12%, 21%);
+  --pg-tab-hover-bg: hsl(229, 12%, 26%);
 }
 :root[data-theme='dark'] .playgroundContainer {
-  /* the sheet a step above the stage, its wells a step above that */
-  --pg-panel: #131b27;
-  --pg-panel-2: #1b2534;
-  --pg-line: #27334a;
-  --pg-stage: linear-gradient(170deg, #0c121b, #0a1620);
-  --pg-text: #e8eef6;
-  --pg-muted: #94a2b6;
+  /* the sheet is the code's color, its wells a step above it */
+  --pg-panel: var(--monoco-code-background);
+  --pg-panel-2: hsl(229, 18%, 19.5%);
+  --pg-line: hsl(229, 14%, 27%);
+  --pg-text: hsl(229, 30%, 93%);
+  --pg-muted: hsl(229, 14%, 68%);
   --pg-live: #3ddc97;
   --pg-live-soft: color-mix(in srgb, var(--pg-live) 16%, transparent);
   --pg-shadow: rgba(0, 0, 0, 0.8);
