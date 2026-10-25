@@ -73,8 +73,8 @@ export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 </script>
 
 <template>
-  <div>
-    API time for {{ id }}:
+  <div class="listItem">
+    <span class="meta">API time for {{ id }}</span>
     <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
@@ -95,9 +95,13 @@ export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
           :key="route.fullPath"
           :id="route.params.id"
         />
-        <template #fallback><div>loading...</div></template>
+        <template #fallback><Loading /></template>
       </Suspense>
     </RouterView>
+    <div class="listItem">
+      <span class="meta">Current time</span>
+      <CurrentTime />
+    </div>
   </div>
 </template>
 ```
@@ -200,8 +204,8 @@ export const getUpdated = lastUpdated.extend({
 </script>
 
 <template>
-  <div>
-    API time for {{ id }}:
+  <div class="listItem">
+    <span class="meta">API time for {{ id }}</span>
     <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
@@ -222,9 +226,13 @@ export const getUpdated = lastUpdated.extend({
           :key="route.fullPath"
           :id="route.params.id"
         />
-        <template #fallback><div>loading...</div></template>
+        <template #fallback><Loading /></template>
       </Suspense>
     </RouterView>
+    <div class="listItem">
+      <span class="meta">Current time</span>
+      <CurrentTime />
+    </div>
   </div>
 </template>
 ```
@@ -267,10 +275,11 @@ export const lastUpdated = new RestEndpoint({
 </script>
 
 <template>
-  <div>
+  <div class="listItem">
+    <span class="meta">API time</span>
     <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-    <button @click="ctrl.fetch(lastUpdated, { id: '1' })">Refresh</button>
   </div>
+  <button @click="ctrl.fetch(lastUpdated, { id: '1' })">Refresh</button>
 </template>
 ```
 
@@ -307,8 +316,9 @@ export const lastUpdated = new RestEndpoint({
 </script>
 
 <template>
-  <div>
-    <b>{{ id }}</b> <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+  <div class="listItem">
+    <b>{{ id }}</b>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```
@@ -326,7 +336,9 @@ export const lastUpdated = new RestEndpoint({
   <div>
     <Suspense v-for="id in ['1', '2', '3']" :key="id">
       <ShowTime :id="id" />
-      <template #fallback><div>{{ id }} Loading...</div></template>
+      <template #fallback>
+        <div class="listItem"><b>{{ id }}</b> Loading...</div>
+      </template>
     </Suspense>
 
     <button @click="ctrl.expireAll(lastUpdated)">Expire All</button>
@@ -379,8 +391,9 @@ export const lastUpdated = new RestEndpoint({
 </script>
 
 <template>
-  <div>
-    <b>{{ id }}</b> <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+  <div class="listItem">
+    <b>{{ id }}</b>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```
@@ -398,7 +411,9 @@ export const lastUpdated = new RestEndpoint({
   <div>
     <Suspense v-for="id in ['1', '2', '3']" :key="id">
       <ShowTime :id="id" />
-      <template #fallback><div>{{ id }} Loading...</div></template>
+      <template #fallback>
+        <div class="listItem"><b>{{ id }}</b> Loading...</div>
+      </template>
     </Suspense>
 
     <button @click="ctrl.invalidateAll(lastUpdated)">Invalidate All</button>
@@ -443,8 +458,8 @@ export const lastUpdated = new RestEndpoint({
 </script>
 
 <template>
-  <div>
-    API time for {{ id }}:
+  <div class="listItem">
+    <span class="meta">API time for {{ id }}</span>
     <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
@@ -474,7 +489,7 @@ export const lastUpdated = new RestEndpoint({
   <div>
     <Suspense>
       <TimePage id="1" />
-      <template #fallback><div>loading...</div></template>
+      <template #fallback><div class="listItem">loading...</div></template>
     </Suspense>
     <button @click="handleDelete">
       {{ loadingDelete ? 'loading...' : 'Invalidate' }}

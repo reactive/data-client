@@ -48,8 +48,8 @@ export const lastUpdated = new RestEndpoint({
 </script>
 
 <template>
-  <div>
-    API time:
+  <div class="listItem">
+    <span class="meta">API time</span>
     <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
@@ -82,17 +82,15 @@ export const lastUpdated = new RestEndpoint({
 
 <template>
   <div>
-    <div v-if="error">{{ error.message }}</div>
+    <ErrorMessage v-if="error" :error="error" />
     <Suspense v-else>
       <TimePage id="1" />
-      <template #fallback><div>loading...</div></template>
+      <template #fallback><div class="listItem">loading...</div></template>
     </Suspense>
-    <div>
-      <button @click="fail(500)">Fail Soft</button>
-      <button @click="fail(400)">Fail Hard</button>
-      <button @click="fail(500, true)">Invalidate Soft</button>
-      <button @click="fail(400, true)">Invalidate Hard</button>
-    </div>
+    <button @click="fail(500)">Fail Soft</button>
+    <button @click="fail(400)">Fail Hard</button>
+    <button @click="fail(500, true)">Invalidate Soft</button>
+    <button @click="fail(400, true)">Invalidate Hard</button>
   </div>
 </template>
 ```

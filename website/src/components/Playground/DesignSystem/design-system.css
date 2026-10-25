@@ -123,6 +123,10 @@ div.playground-preview h1:first-child {
 .playground-preview h4 + small {
   display: block;
 }
+/* a clock's digits keep their width as it ticks */
+.playground-preview time {
+  font-variant-numeric: tabular-nums;
+}
 .playground-preview section {
   margin-bottom: var(--ds-space-5);
 }
@@ -507,8 +511,15 @@ div.playground-preview h1:first-child {
   display: flex;
   align-items: center;
   gap: 10px;
+  /* the row's inset is the label's (6px, tighter than a row of text), so
+     the whole band toggles the box: 33px tall for a one-line title */
+  padding: 6px 0;
   line-height: 1.4;
   cursor: pointer;
+}
+.playground-preview
+  .listItem:has(> label > input[type='checkbox']:first-child) {
+  padding-block: 0;
 }
 .playground-preview .listItem > label > input[type='checkbox']:first-child {
   appearance: none;
@@ -544,6 +555,49 @@ div.playground-preview h1:first-child {
 /* A row's trailing detail (when it was fetched, a count) sits at its end */
 .playground-preview .listItem > .meta:last-child {
   margin-left: auto;
+}
+/* Actions under rows (a clock's Refresh) stand 16px off the last one */
+.playground-preview .listItem + button {
+  margin-top: var(--ds-space-2);
+}
+/* A row led by its label (a clock's "API time", then its reading): the
+   label keeps a column of its own, so sibling rows' values line up, and the
+   row sits on the text's baseline */
+.playground-preview .listItem:has(> .meta:first-child) {
+  align-items: baseline;
+}
+.playground-preview .listItem > .meta:first-child {
+  flex: none;
+  min-width: 7rem;
+}
+/* A row's remove button (CancelButton): a 16px mark at the row's end whose
+   32px hit area reaches into the row's inset, so the row keeps its height */
+.playground-preview button.cancel {
+  flex: none;
+  margin: -8px -8px -8px auto;
+  padding: 8px;
+  border: 0;
+  border-radius: var(--ds-radius-sm);
+  background: none;
+  line-height: 0;
+  cursor: pointer;
+  transition: background-color var(--motion-snappy);
+}
+.playground-preview button.cancel img {
+  display: block;
+}
+@media (hover: hover) {
+  .playground-preview button.cancel:hover {
+    background: var(--ds-hover);
+  }
+}
+.playground-preview button.cancel:focus-visible {
+  outline: 2px solid var(--ds-accent);
+  outline-offset: -2px;
+}
+/* with nothing to remove (a row being written) it only holds the place */
+.playground-preview button.cancel:disabled {
+  visibility: hidden;
 }
 
 /* Toasts (<Toaster />, ./Toaster.tsx): stacked under the app, each a tinted

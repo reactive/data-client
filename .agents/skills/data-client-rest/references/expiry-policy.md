@@ -73,11 +73,9 @@ import { getUpdated } from './getUpdated';
 export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
-    <div>
-      API time for {id}:{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
+    <div className="listItem">
+      <span className="meta">API time for {id}</span>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
     </div>
   );
 }
@@ -92,8 +90,9 @@ export default function Navigator({ children }) {
         <Link to="/time/2">Second</Link>
       </nav>
       {children}
-      <div>
-        Current Time: <CurrentTime />
+      <div className="listItem">
+        <span className="meta">Current time</span>
+        <CurrentTime />
       </div>
     </div>
   );
@@ -195,11 +194,9 @@ import { getUpdated } from './getUpdated';
 export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
-    <div>
-      API time for {id}:{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
+    <div className="listItem">
+      <span className="meta">API time for {id}</span>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
     </div>
   );
 }
@@ -214,8 +211,9 @@ export default function Navigator({ children }) {
         <Link to="/time/2">Second</Link>
       </nav>
       {children}
-      <div>
-        Current Time: <CurrentTime />
+      <div className="listItem">
+        <span className="meta">Current time</span>
+        <CurrentTime />
       </div>
     </div>
   );
@@ -258,14 +256,15 @@ function ShowTime() {
   const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
   const ctrl = useController();
   return (
-    <div>
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>{' '}
+    <>
+      <div className="listItem">
+        <span className="meta">API time</span>
+        <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
+      </div>
       <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>
         Refresh
       </button>
-    </div>
+    </>
   );
 }
 render(<ShowTime />);
@@ -302,11 +301,9 @@ export default function ShowTime({ id }: { id: string }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
   const ctrl = useController();
   return (
-    <div>
-      <b>{id}</b>{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
+    <div className="listItem">
+      <b>{id}</b>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
     </div>
   );
 }
@@ -314,7 +311,11 @@ export default function ShowTime({ id }: { id: string }) {
 
 ```tsx title="Loading"
 export default function Loading({ id }: { id: string }) {
-  return <div>{id} Loading...</div>;
+  return (
+    <div className="listItem">
+      <b>{id}</b> Loading...
+    </div>
+  );
 }
 ```
 
@@ -386,11 +387,9 @@ export default function ShowTime({ id }: { id: string }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
   const ctrl = useController();
   return (
-    <div>
-      <b>{id}</b>{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
+    <div className="listItem">
+      <b>{id}</b>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
     </div>
   );
 }
@@ -398,7 +397,11 @@ export default function ShowTime({ id }: { id: string }) {
 
 ```tsx title="Loading"
 export default function Loading({ id }: { id: string }) {
-  return <div>{id} Loading...</div>;
+  return (
+    <div className="listItem">
+      <b>{id}</b> Loading...
+    </div>
+  );
 }
 ```
 
@@ -468,11 +471,9 @@ import { lastUpdated } from './api/lastUpdated';
 export default function TimePage({ id }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
   return (
-    <div>
-      API time for {id}:{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
+    <div className="listItem">
+      <span className="meta">API time for {id}</span>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
     </div>
   );
 }
@@ -499,11 +500,12 @@ function ShowTime() {
   );
   return (
     <div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
+      <AsyncBoundary fallback={<div className="listItem">loading...</div>}>
         <TimePage id="1" />
       </AsyncBoundary>
-      <div>
-        Current Time: <CurrentTime />
+      <div className="listItem">
+        <span className="meta">Current time</span>
+        <CurrentTime />
       </div>
       <button onClick={handleDelete}>
         {loadingDelete ? 'loading...' : 'Invalidate'}

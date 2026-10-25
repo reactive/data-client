@@ -808,6 +808,9 @@
   "playground.errorMessage.reset": {
     "message": "Reiniciar"
   },
+  "playground.cancelButton.label": {
+    "message": "Eliminar"
+  },
   "playground.error.manager": {
     "message": "Error del Manager"
   },

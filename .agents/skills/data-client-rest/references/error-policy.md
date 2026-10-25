@@ -45,11 +45,9 @@ import { lastUpdated } from './api/lastUpdated';
 export default function TimePage({ id }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
   return (
-    <div>
-      API time:{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
+    <div className="listItem">
+      <span className="meta">API time</span>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
     </div>
   );
 }
@@ -74,15 +72,13 @@ function ShowTime() {
   };
   return (
     <div>
-      <Suspense fallback={<Loading />}>
+      <Suspense fallback={<div className="listItem">loading...</div>}>
         <TimePage id="1" />
       </Suspense>
-      <div>
-        <button onClick={() => fail(500)}>Fail Soft</button>
-        <button onClick={() => fail(400)}>Fail Hard</button>
-        <button onClick={() => fail(500, true)}>Invalidate Soft</button>
-        <button onClick={() => fail(400, true)}>Invalidate Hard</button>
-      </div>
+      <button onClick={() => fail(500)}>Fail Soft</button>
+      <button onClick={() => fail(400)}>Fail Hard</button>
+      <button onClick={() => fail(500, true)}>Invalidate Soft</button>
+      <button onClick={() => fail(400, true)}>Invalidate Hard</button>
     </div>
   );
 }

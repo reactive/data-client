@@ -808,6 +808,9 @@
   "playground.errorMessage.reset": {
     "message": "重置"
   },
+  "playground.cancelButton.label": {
+    "message": "移除"
+  },
   "playground.error.manager": {
     "message": "Manager 错误"
   },
