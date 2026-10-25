@@ -3,7 +3,9 @@ Read every comment, then delete them all.
 - Style: about 50% ASD-STE100: short sentences, active voice, one idea each. Keep the repo's and
   requester's terms. Write for library users first, reviewers second.
 - Say each point once. Do not restate Motivation in Solution, or Solution in Assumptions. Solution
-  does not list or describe tests, docs, or changesets: the diff shows them. Small fix: under 250 words.
+  does not list or describe tests, docs, or changesets: the diff shows them.
+- Size it to the change. Typo, docs or tooling: 1-3 sentences. Small fix or option: under 200 words.
+  Feature: under 400. Only an Architecture change may run longer. Optional sections default to absent.
 - Diagrams only when clearer than text. Use Mermaid; an image needs a working URL, never a local path.
 - Keep attribution lines where your tool requires them. Delete "Fixes #" if there is no issue.
 - Changed packages/*? Run `yarn test:coverage` first; coverage must not drop.
@@ -29,6 +31,8 @@ User code changes: before/after code, copied from the changesets when they have 
 Behavior-only change: old and new behavior, one sentence each, unless Motivation already says it.
 -->
 <!--
+Most PRs have no Architecture change: bug fixes, new options or hooks, types, docs, and refactors
+that keep the same model never get one.
 Add "#### Architecture change" here only if a maintainer's mental model of core machinery is wrong
 afterwards (store shape, normalize/denormalize or memoization, Controller/Manager flow, Schema or
 Endpoint contracts, cross-package assumptions). A fix that restores documented behavior is not one.
