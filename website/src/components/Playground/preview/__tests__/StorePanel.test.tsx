@@ -333,6 +333,11 @@ describe('StorePanel table view', () => {
     state.focus();
     fireEvent.keyDown(state, { key: ' ' });
     expect(state.getAttribute('aria-selected')).toBe('true');
+    // held or modified, it leaves the pick alone
+    actions.focus();
+    fireEvent.keyDown(actions, { key: ' ', repeat: true });
+    fireEvent.keyDown(actions, { key: 'Enter', ctrlKey: true });
+    expect(state.getAttribute('aria-selected')).toBe('true');
   });
 
   it("puts State's view switches in the tab row", () => {

@@ -58,6 +58,8 @@ export default function TabList({
       // the focused tab, as a click picks it (a picked tab may act again)
       case 'Enter':
       case ' ':
+        // once per press; not for a control inside a tab
+        if (event.repeat) return;
         to = Array.prototype.indexOf.call(
           event.currentTarget.children,
           event.target,
