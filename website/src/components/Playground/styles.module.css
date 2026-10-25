@@ -1214,10 +1214,9 @@ div.fixtureJson + div.fixtureJson {
    tabs' row and the code card, then the folder under them with the handle
    out of its top edge; pulled up, the drawer rises over the code and its
    tabs, edge to edge, the handle above the Store. The gap between the two
-   is the handle's room */
+   is the usual one: shut, the handle overlaps the code card's foot */
 @container playground (max-width: 719px) {
   .playgroundContainer.row {
-    --pg-gap: calc(var(--pg-tab-width) + 6px);
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -1229,9 +1228,8 @@ div.fixtureJson + div.fixtureJson {
   .row > .previewWrapper {
     grid-area: 2 / 1 / 3 / 2;
   }
-  /* the layer is the code's rows; the gap below it, where the handle
-     sits, stays in view, and nothing past that (the drawer parked behind
-     the folder) */
+  /* the layer is the code's rows; the gap below it stays in view, and
+     nothing past that (the drawer parked behind the folder) */
   .row > .storeHost {
     grid-area: 1 / 1 / 2 / 2;
     clip-path: inset(-4rem -4rem calc(-1 * var(--pg-gap)) -4rem);
