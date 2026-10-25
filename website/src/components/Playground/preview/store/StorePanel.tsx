@@ -1122,7 +1122,8 @@ function ActionLevel({
 }) {
   const { entry, group, span, filter } = useShownAction(seq, scope, subject);
   // the steps flank it, before on the left and after on the right as the
-  // timeline runs, in columns that take none of the height
+  // timeline runs, in columns that take none of the height; only the action
+  // between them scrolls
   return (
     <>
       {header(
@@ -1136,19 +1137,21 @@ function ActionLevel({
         </p>
       : <div className={styles.actFrame}>
           <ActionStep dir={-1} />
-          {group && span ?
-            <div className={styles.actBody}>
-              <h3 className={styles.sectionLabel}>Steps</h3>
-              <GroupActions group={group} subject={subject} filter={filter} />
-              <h3 className={styles.sectionLabel}>Store changes</h3>
-              <SubjectChanges entries={span} subject={subject} />
-            </div>
-          : <ActionDetail
-              entry={entry}
-              subject={subject}
-              gap={filter.gaps.get(entry.seq)}
-            />
-          }
+          <div className={styles.actScroll}>
+            {group && span ?
+              <div className={styles.actBody}>
+                <h3 className={styles.sectionLabel}>Steps</h3>
+                <GroupActions group={group} subject={subject} filter={filter} />
+                <h3 className={styles.sectionLabel}>Store changes</h3>
+                <SubjectChanges entries={span} subject={subject} />
+              </div>
+            : <ActionDetail
+                entry={entry}
+                subject={subject}
+                gap={filter.gaps.get(entry.seq)}
+              />
+            }
+          </div>
           <ActionStep dir={1} />
         </div>
       }

@@ -221,7 +221,8 @@ DesignSystem/       components injected into preview scope
     optimistic update shows with its response, with "newest" by its crumb). Two narrow
     columns flank the action, taking no height: the left names the action
     before it and the right the one after, as the timeline runs, each with
-    a sticky arrow and its name in vertical text (`ActionStep`, as ‹ ›
+    its arrow and name (vertical text) held in place while only the action
+    between them scrolls (`ActionStep`, as ‹ ›
     step: one pure `stepAt` in `preview/store/actionLog.ts` serves ‹ ›, ←→,
     Before and After, landing on the moment's neighbours at its own depth,
     requests on the surface (`requestsOf`: each poll of a subscription its
