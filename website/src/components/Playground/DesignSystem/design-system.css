@@ -556,16 +556,38 @@ div.playground-preview h1:first-child {
 .playground-preview .listItem > .meta:last-child {
   margin-left: auto;
 }
-/* A row of actions on what is above it (Fail Soft, Fail Hard): evenly
-   spaced, wrapping on a phone */
+/* Actions on what is above it (Fail Soft, Fail Hard) as one segmented
+   control: one edge around them all, a hairline between each. On a phone
+   the segments wrap and stretch, so long labels stack into a list. The
+   hairlines are the group's own color showing through a 1px gap. */
 .playground-preview .buttonGroup {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--ds-space-2);
+  gap: 1px;
+  width: fit-content;
+  max-width: 100%;
   margin-top: var(--ds-space-2);
+  border: 1px solid var(--ds-border-strong);
+  border-radius: var(--ds-radius-sm);
+  background: var(--ds-border-strong);
+  overflow: hidden;
 }
 .playground-preview .buttonGroup > button {
+  flex: 1 1 auto;
   margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+/* opaque, so the hairlines don't show through the hover wash */
+.playground-preview .buttonGroup > button:not([class]):hover {
+  background: color-mix(in srgb, var(--ds-accent) 10%, var(--ds-surface));
+}
+.playground-preview .buttonGroup > button:not([class]):active {
+  background: color-mix(in srgb, var(--ds-accent) 18%, var(--ds-surface));
+}
+/* inside the group's edge, which clips anything outside it */
+.playground-preview .buttonGroup > button:focus-visible {
+  outline-offset: -2px;
 }
 /* Actions under rows (a clock's Refresh) stand 16px off the last one */
 .playground-preview .listItem + button {
