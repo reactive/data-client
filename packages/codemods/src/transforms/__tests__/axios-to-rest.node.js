@@ -1764,6 +1764,27 @@ api.defaults.headers.common.X = '1';`.trim(),
       );
     });
 
+    it('resolves tsconfig path aliases', () => {
+      const client = `
+import axios from 'axios';
+export const api = axios.create({ baseURL: 'https://api.example.com' });
+`;
+      const tsconfig = `{
+  // comments are allowed here
+  "compilerOptions": { "baseUrl": ".", "paths": { "@/*": ["./*"], }, },
+}`;
+      expect(
+        run(
+          {
+            'tsconfig.json': tsconfig,
+            'client.ts': client,
+            'posts.ts': posts.replace("'./client'", "'@/client'"),
+          },
+          'posts.ts',
+        ),
+      ).toBe(converted.replace("'./client'", "'@/client'"));
+    });
+
     it('leaves other imports with a get() alone', () => {
       const source = `
 import { cache } from './cache';
