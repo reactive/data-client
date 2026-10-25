@@ -1,61 +1,43 @@
 <!--
-Read every comment, then delete them all.
-- Style: about 50% ASD-STE100: short active sentences, one idea each, in the repo's and requester's
-  terms. Write for library users first.
-- Size to the change: docs or tooling under 80 words; small fix or option under 200 words; feature
-  under 400. Optional sections default to absent.
-- Say each point once. Solution skips tests, docs, and changesets: the diff shows them.
-- Diagrams only when clearer than text: Mermaid, or an image with a working URL.
-- Keep attribution where your tool requires it. Delete "Fixes #" if there is no issue.
-- Changed packages/*? Run `yarn test:coverage` first; coverage must not drop.
+Follow each comment, then delete it.
+- Style: about 50% ASD-STE100, in the repo's and requester's terms. Write for library users.
+- Keep it as short as the change. Say each point once; skip what the diff shows.
+- Keep attribution your tool requires. Delete "Fixes #" if there is no issue.
+- Changed packages/*? Run `yarn test:coverage`; coverage must not drop.
 -->
 
 Fixes #
 
 ### Motivation
 <!--
-No user-facing trigger (typo, tooling, refactor)? One sentence on what was wrong, then stop.
-Else start with "Bug fix.", "New use case." or "Improvement.", then two short paragraphs:
-1. Trigger: the conditions, in user terms, that cause the need. Shape, not text to copy:
-   "A component reads an entity through two different schemas, and one schema is nested in a Union."
-2. One real (linked) or realistic instance. Bug: what the user saw vs. expected. Else: what they
-   could not do, or what it cost (requests, renders, ms).
+No user-facing trigger (typo, tooling, refactor)? One sentence, then stop.
+Else start with "Bug fix.", "New use case." or "Improvement.", then:
+1. Trigger: the conditions, in user terms. Example shape: "A component reads an entity through two
+   schemas, one nested in a Union."
+2. One real (linked) or realistic instance: what the user saw vs. expected, or what it cost.
 -->
 
 ### Solution
 <!--
-High level, then key decisions, trade-offs, and why. Several changes: group by kind (API, behavior,
-types, internal), one bullet each.
-User code changes: before/after code, from the changesets when they have it. Never invent a "before".
-Behavior-only: old vs. new in one sentence each, unless Motivation already says it.
+Approach, key decisions, trade-offs. Group several changes by kind (API, behavior, types, internal).
+User code changes: before/after code from the changesets; never invent a "before".
+Diagram (Mermaid or image) only when clearer than text.
 -->
 <!--
-Most PRs have none. Add "#### Architecture change" only if a maintainer's mental model of core
-machinery is wrong afterwards (store shape, normalize/denormalize, memoization, Controller/Manager
-flow, Schema or Endpoint contracts, cross-package assumptions). Fixes, options, types, docs, and
-same-model refactors never qualify.
-3Blue1Brown-style, 150-300 words: name it, trace one concrete case through the old flow to where it
-fails, then through the new flow, one idea per step. Mermaid if over three steps. The "why" lives here only.
+Add "#### Architecture change" only if core machinery now works differently (store, normalize/
+denormalize, memoization, Controller/Manager flow, Schema or Endpoint contracts). Fixes, options,
+types, and refactors never qualify. 3Blue1Brown-style: trace one concrete case through the old flow,
+then the new one. Mermaid if over three steps.
 -->
 
 ### Assumptions and validation
 <!--
-- Assumptions the change relies on but does not prove, or "none".
-- Checks run and what each covers; what you did not test.
-- Tag every item high, medium, or low; give a reason for medium and low. One line each for small PRs.
+Assumptions not proven ("none" if none), checks run and what they cover, what is untested.
+Tag each high, medium, or low certainty.
 -->
 
-<!--
-Add "### Methodology" only if how you got here matters to a reviewer (reproduction, benchmark or eval
-setup, rejected alternatives, root-cause search): a few bullets on what you did and on what inputs.
--->
+<!-- Add "### Methodology" only if how you got here matters: reproduction, benchmark, alternatives. -->
 
-<!--
-Add "### GOALS impact" only if the change measurably moves or trades off a GOALS.md goal (bundle size,
-requests, renders, referential stability, concurrent rendering, platforms, version ranges): goal,
-direction, measurement or reason.
--->
+<!-- Add "### GOALS impact" only if a GOALS.md goal moves or is traded off: goal, direction, evidence. -->
 
-<!--
-Add "### Open questions" only for design questions or specific feedback you want.
--->
+<!-- Add "### Open questions" only for feedback you want. -->
