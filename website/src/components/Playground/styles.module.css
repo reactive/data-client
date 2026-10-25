@@ -1293,20 +1293,46 @@ div.fixtureJson + div.fixtureJson {
     grid-area: 1 / 1 / 2 / 2;
     clip-path: inset(-4rem -4rem calc(-1 * var(--pg-gap)) -4rem);
   }
-  /* from the code's foot up, at most the Store's cap: a long file's top
-     stays in view above it */
+  /* from the preview's top edge up, at most the Store's cap (a long
+     file's top stays in view above it): the folder's paper runs on
+     unbroken into the preview's header, only the Store's sheet keeping
+     the gap from it */
   .row > .storeHost > .storeDrawer {
     position: absolute;
-    inset: auto 0 0;
-    height: min(100%, var(--store-cap));
-    translate: 0 calc(100% + var(--pg-gap));
+    inset: auto 0 calc(-1 * var(--pg-gap));
+    height: min(100% + var(--pg-gap), var(--store-cap));
+    translate: 0 100%;
   }
   .row > .storeHost[data-open] > .storeDrawer {
     translate: 0 0;
   }
-  /* square across the top, where it covers the file tabs' corners */
+  /* square all round: across the top it covers the file tabs' corners,
+     and its foot is the preview's top edge */
   .row > .storeHost .storePanel {
-    border-radius: 0 0 var(--pg-card-radius) var(--pg-card-radius);
+    --store-sheet-foot: 12px;
+    padding-bottom: var(--pg-gap);
+  }
+  .row > .storeHost[data-open] .storePanel {
+    box-shadow: none;
+  }
+  /* its shadow, from a box that stops short of the foot, so none of it
+     falls past the seam onto the preview (the Store paints over the rest) */
+  .row > .storeHost > .storeDrawer::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 4rem;
+    z-index: -1;
+    box-shadow: var(--pg-card-shadow);
+    opacity: 0;
+    transition: opacity var(--motion-drawer);
+  }
+  .row > .storeHost[data-open] > .storeDrawer::before {
+    opacity: 1;
+  }
+  /* the folder's top edge joins the Store's, while it shows */
+  .row:has(> .storeHost .storePanel[data-visible]) > .previewWrapper {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
   }
   /* up from the top edge at its right end (the thumb's side, clear of
      anything laid out at the left above the preview), its curve clear of

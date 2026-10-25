@@ -63,8 +63,9 @@
   display: flex;
   flex-direction: column;
 }
-/* The sheet: the picked tab's content, to the folder's foot; what paints
-   over its rows as they scroll (headings, crumbs) takes its color */
+/* The sheet: the picked tab's content, to the folder's foot (rounded by
+   --store-sheet-foot where the folder runs on past it); what paints over its
+   rows as they scroll (headings, crumbs) takes its color */
 .tabPanel {
   --store-bg: var(--pg-panel);
   position: relative;
@@ -73,7 +74,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  border-radius: 12px 12px 0 0;
+  border-radius: 12px 12px var(--store-sheet-foot, 0) var(--store-sheet-foot, 0);
   background: var(--store-bg);
   overflow: clip;
 }
