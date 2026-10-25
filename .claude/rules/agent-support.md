@@ -1,7 +1,9 @@
 ---
 paths:
   - ".agents/skills/**"
+  - ".agents/skills/.cursor-plugin/**"
   - ".claude-plugin/**"
+  - ".cursor-plugin/**"
   - "packages/core/agents/**"
   - "docs/core/_agents/**"
   - "docs/core/getting-started/agent-skills.md"
