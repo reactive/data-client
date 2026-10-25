@@ -56,6 +56,24 @@ describe("row layout: the Store on the preview's folder", () => {
     expect(container.querySelector('textarea')!.closest('[inert]')).toBeNull();
   });
 
+  test('the file tabs go inert under the Store with the code', () => {
+    const fence = (key: string, title: string) =>
+      React.createElement(
+        'code',
+        { key, className: 'language-tsx', metastring: `title="${title}"` },
+        `export default function ${title}() { return null; }`,
+      );
+    const { container } = render(
+      <Playground row>
+        {[fence('a', 'First'), fence('b', 'Second')]}
+      </Playground>,
+    );
+    const tab = container.querySelector('[role="tab"]')!;
+    expect(tab.closest('[inert]')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Store' }));
+    expect(tab.closest('[inert]')).not.toBeNull();
+  });
+
   test('the server HTML has the handle, shut, on the folder after the preview', () => {
     const { renderToStaticMarkup } = require('react-dom/server');
     const html: string = renderToStaticMarkup(

@@ -131,7 +131,8 @@ export default function EditorSurface({
     </React.Fragment>
   ));
   return (
-    <div className={styles.playgroundTextEdit}>
+    // the Store covers the file tabs and the code card alike
+    <div className={styles.playgroundTextEdit} inert={covered}>
       {!row && fixtureContent != null ?
         <>
           <Header small className={styles.fixturesHeader}>
@@ -142,10 +143,8 @@ export default function EditorSurface({
         </>
       : null}
       {tabs}
-      {/* the files: the code card in row layout, which the Store covers */}
-      <div className={styles.editorDocs} inert={covered}>
-        {code}
-      </div>
+      {/* the files: the code card in row layout */}
+      <div className={styles.editorDocs}>{code}</div>
     </div>
   );
 }
