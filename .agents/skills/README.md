@@ -19,10 +19,12 @@ by running `npx --no data-client-skills`, which uses only your installed package
 
 ## Install
 
-In Claude Code:
+With Claude Code, for everyone working on the project:
 
-```
-/plugin install data-client --marketplace reactive/data-client
+```bash
+claude plugin marketplace add reactive/data-client --scope project \
+  --sparse .claude-plugin .agents/skills
+claude plugin install data-client@data-client --scope project
 ```
 
 In Cursor's agent chat:
@@ -34,7 +36,8 @@ In Cursor's agent chat:
 In Codex:
 
 ```bash
-codex plugin marketplace add reactive/data-client
+codex plugin marketplace add reactive/data-client \
+  --sparse .claude-plugin --sparse .agents/skills
 codex plugin add data-client@data-client
 ```
 

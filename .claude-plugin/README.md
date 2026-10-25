@@ -13,7 +13,7 @@ endpoint, rest, graphql, react and vue, implemented in `packages/core/agents/` a
 | `marketplace.json` | The marketplace Claude Code reads (`claude plugin marketplace add reactive/data-client`). `data-client` is the plugin; `core`, `react`, `vue` and `migrations` are old names kept as copies so existing installs keep updating (`plans/next-breaking-release.md` removes them). |
 | `plugin-dir.mjs`   | Writes the manifests that make `.agents/skills` a self-contained copy of the plugin, for Cursor and Claude's plugin directory (see below).                                                                                                                                      |
 | `openai-zip.mjs`   | Packs the plugin as the ZIP OpenAI's plugin directory uploads (see below).                                                                                                                                                                                                      |
-| `*.test.mjs`       | `node --test '.claude-plugin/*.test.mjs'`: `marketplace.json` and the plugin directory copies against the repo.                                                                                                                                                                 |
+| `*.test.mjs`       | `node --test '.claude-plugin/*.test.mjs'`: `marketplace.json` and the plugin directory copies against the repo; READMEs against the site.                                                                                                                                  |
 
 ## Codex and Cursor
 
@@ -39,6 +39,7 @@ Each listing reads the plugin from `.agents/skills`, whose `README.md` is the li
 - `.agents/skills/data-client/` and `.agents/skills/data-client-setup/`: the two skills the plugin carries.
 - `.agents/skill-packages.json`: which package ships which skill, so the test can check the plugin's skills also ship
   in a package.
+- `website/framework-docs/skillCommands.mjs` and the READMEs that copy its setup commands (root, react, vue, rest, graphql, endpoint), and `website/src/components/AgentPrompt.tsx`'s default prompt: `readme-commands.test.mjs`.
 
 ## CI
 
