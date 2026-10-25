@@ -67,28 +67,11 @@ export default class WeakDependencyMap<
     getDependency: GetDependency<Path, K | symbol>,
     args: readonly any[] = [],
   ) {
-    let node = this.next.get(entity);
-    while (node) {
-      const { entries } = node;
-      for (let i = 0; i < entries.length; i++) {
-        const entry = entries[i];
-        if (matches(entry, getDependency, args)) {
-          if (i > 0) {
-            // read back after something newer was cached: the store flipped
-            // back to this version, so it is the one to keep
-            node.kept = entry;
-            entries.splice(i, 1);
-            entries.unshift(entry);
-          }
-          this.lastNode = node;
-          this.lastEntry = entry;
-          return [entry.value, entry.journey] as readonly [V, Path[]];
-        }
-      }
-      if (!node.fn) break;
-      node = node.children?.get(node.fn(args) ?? UNDEF_KEY);
-    }
-    return EMPTY;
+    const node = this.next.get(depKey(entity) as K);
+    const entry = node && find(node, getDependency, args);
+    return entry ?
+        ([entry.value, entry.journey] as readonly [V, Path[]])
+      : EMPTY;
   }
 
   set(
@@ -123,13 +106,6 @@ export default class WeakDependencyMap<
         if (!node.branches) node.branches = [];
         let branch = node.branches.find(b => b.fn === dep.path);
         if (!branch) {
-          // Missing entities change which argsKey comes next, so the routes
-          // under one root can multiply, and a lookup searches all of them.
-          // Past MAX_FORKS, start this root over instead.
-          if (node.branches.length && ++top!.forks > MAX_FORKS) {
-            this.next.delete(root);
-            return this.set(dependencies, value, args, journey);
-          }
           branch = { fn: dep.path as KeyFn, children: new Map() };
           node.branches.push(branch);
         }
@@ -213,55 +189,31 @@ export default class WeakDependencyMap<
   }
 }
 
-/** The node at or below `node` with an entry that matches the store, if any;
- * that entry is moved to the front of its entries. A loop, not recursion:
- * a list can record one `argsKey` per row, so the nodes nest that deep. */
+/** The entry in `node` or below it that matches the store, if any. */
 function find<Path, K extends object, V>(
-  node: Node<Path, V> | undefined,
+  node: Node<Path, V>,
   getDependency: GetDependency<Path, K | symbol>,
   args: readonly any[],
-): Node<Path, V> | undefined {
-  // other branches to try, only allocated when a node has more than one
-  let pending: Node<Path, V>[] | undefined;
-  while (node) {
-    const { entries, branches } = node;
-    for (let i = 0; i < entries.length; i++) {
-      const entry = entries[i];
-      if (matches(entry, getDependency)) {
-        if (i > 0) {
-          // read back after something newer was cached: the store flipped
-          // back to this version, so it is the one to keep
-          node.kept = entry;
-          entries.splice(i, 1);
-          entries.unshift(entry);
-        }
-        return node;
+): Entry<Path, V> | undefined {
+  const { entries } = node;
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    if (matches(entry, getDependency, args)) {
+      if (i > 0) {
+        // read back after something newer was cached: the store flipped
+        // back to this version, so it is the one to keep
+        node.kept = entry;
+        entries.splice(i, 1);
+        entries.unshift(entry);
       }
+      return entry;
     }
-    let next: Node<Path, V> | undefined;
-    if (branches) {
-      for (let b = 0; b < branches.length; b++) {
-        const { fn, children } = branches[b];
-        const key = select(fn, args);
-        const child = key === undefined ? undefined : children.get(key);
-        if (!child) continue;
-        if (!next) next = child;
-        else (pending || (pending = [])).push(child);
-      }
-    }
-    node = next ?? pending?.pop();
   }
-}
-
-/** A branch's `argsKey` result. A branch is tried before the entities that
- * led to it are checked, so its selector can see args its own schema path
- * would never reach with (say, a nested entity that is now missing): treat a
- * throw as no match, since traversal wouldn't have called it. */
-function select(fn: KeyFn, args: readonly any[]): string | undefined {
-  try {
-    return fn(args) ?? UNDEF_KEY;
-  } catch {
-    return undefined;
+  if (!node.branches) return;
+  for (const { fn, children } of node.branches) {
+    const child = children.get(fn(args) ?? UNDEF_KEY);
+    const entry = child && find(child, getDependency, args);
+    if (entry) return entry;
   }
 }
 
@@ -307,27 +259,20 @@ interface Node<Path, V> {
   entries: Entry<Path, V>[];
   /** Never evicted: the entry most recently read back after a newer one. */
   kept: Entry<Path, V> | undefined;
-  /** Never evicted: the entry most recently read by a committed render. */
-  committed: Entry<Path, V> | undefined;
-  /** Never evicted: the entry most recently read by a committed render of a
-   * store with no optimistic updates. Every optimistic update rebuilds the
-   * entities it touches on each store change, so once the last one settles,
-   * this is the only earlier result the store can come back to, however
-   * many were in flight. */
-  settled: Entry<Path, V> | undefined;
-  /** The next `argsKey` dependency; its result picks the child. */
-  fn: KeyFn | undefined;
-  children: Map<string, Node<Path, V>> | undefined;
+  /** One per next `argsKey` dependency; its result picks the child. */
+  branches: Branch<Path, V>[] | undefined;
+}
+
+interface Branch<Path, V> {
+  readonly fn: KeyFn;
+  readonly children: Map<string, Node<Path, V>>;
 }
 
 function newNode<Path, V>(entry: Entry<Path, V> | undefined): Node<Path, V> {
   return {
     entries: entry ? [entry] : [],
     kept: entry,
-    committed: undefined,
-    settled: undefined,
-    fn: undefined,
-    children: undefined,
+    branches: undefined,
   };
 }
 
