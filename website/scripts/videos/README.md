@@ -31,6 +31,7 @@ connection with the extension's Inspector monitor (`@redux-devtools/inspector-mo
 | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------- |
 | `batch-set-devtools`                                  | Coin app `StreamManager` bursts of 500 ticker messages: per-message `set()` vs batched                       | `blog/2026-10-03-v0.19-batch-set.md`  |
 | `normalization` (pre-rendered by @ntucker, see below) | Explainer: duplicate copies, one entity per id, denormalize, one write updates every view, 10k-row benchmark | `docs/core/concepts/normalization.md` |
+| `memocache` (pre-rendered by @ntucker, see below)     | Explainer: same data keeps the same object, WeakDependencyMap keys, a write misses its rows, vs normalizr    | `docs/core/concepts/performance.md`   |
 
 ## Adding a clip
 

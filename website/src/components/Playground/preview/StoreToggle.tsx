@@ -4,7 +4,15 @@
 import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
 import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
-import React, { createContext, useCallback, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import type { ShowStore, StoreView } from './store/storeView';
 import { useTabStorage } from '../../../utils/tabStorage';
@@ -42,14 +50,25 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   const open =
     shown?.open ??
     (choice === 'y' || choice === 'n' ? choice : defaultOpen) === 'y';
+  // moves made here, by the reader or a demo: only these animate the Store
+  // (`useStoreMotion`); the stored choice arriving, or another Store in the
+  // group closing this one, just lands
+  const [moves, setMoves] = useState(0);
+  // a demo's run holds one showStore from its start (./autorun/stage.ts), so
+  // it reads the state as it is now
+  const latestOpen = useRef(open);
+  useLayoutEffect(() => {
+    latestOpen.current = open;
+  });
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
   const toggle = useCallback(
-    (event: React.MouseEvent<HTMLElement>) => {
+    (event: { currentTarget: HTMLElement }) => {
       clicked = event.currentTarget;
       blockElementScrollPositionUntilNextRender(clicked);
       setChoice(open ? 'n' : 'y');
       show(null);
+      setMoves(n => n + 1);
     },
     [blockElementScrollPositionUntilNextRender, open, setChoice],
   );
@@ -57,6 +76,7 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   // doesn't pin a toggle the reader clicked earlier
   const showStore = useCallback<ShowStore>((demoOpen, view) => {
     clicked = undefined;
+    if (demoOpen !== latestOpen.current) setMoves(n => n + 1);
     show(prev => {
       const next = demoOpen ? (view ?? prev?.view) : undefined;
       // unchanged: the playground's children don't re-render
@@ -72,7 +92,66 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   );
   const view = shown?.view;
   const demoView = useMemo<DemoView>(() => ({ view, drop }), [view, drop]);
-  return [open, toggle, showStore, demoView] as const;
+  return [open, toggle, showStore, demoView, moves] as const;
+}
+
+/** Whether the Store is moving for one of `moves` (`useStoreOpen`), as
+ * `data-store-moving` on the playground (`container`), which gives its
+ * motion its durations (styles.module.css): until it is at rest, open or
+ * shut, with nothing left sliding or fading. Any other change, from the
+ * layout or the page (a tab showing the playground, a resize, hydration),
+ * lands at once */
+export function useStoreMotion(
+  container: HTMLElement | null,
+  moves: number,
+  open: boolean,
+) {
+  const [rested, setRested] = useState(moves);
+  const moving = moves !== rested;
+  useEffect(() => {
+    if (!container || !moving) return;
+    let frame = 0;
+    let cancelled = false;
+    const nextFrame = () =>
+      new Promise(resolve => (frame = requestAnimationFrame(resolve)));
+    const settle = async () => {
+      // what this move started is running by the next frame
+      await nextFrame();
+      while (!cancelled) {
+        // shown once open, hidden once shut (none before the preview loads)
+        const panel = container.querySelector(`.${styles.storePanel}`);
+        // the Store's own motion, not the app's or what the Store shows (a
+        // row's flash as data arrives), which would hold the playground moving
+        const app = container.querySelector(`.${styles.playgroundPreview}`);
+        const related = (target: Element) =>
+          !app?.contains(target) &&
+          (target === panel || !panel?.contains(target));
+        // (no Web Animations, e.g. jsdom: nothing runs)
+        const running = (container.getAnimations?.({ subtree: true }) ?? [])
+          .filter(
+            a =>
+              a.playState === 'running' &&
+              a.effect?.getTiming().iterations !== Infinity &&
+              related((a.effect as KeyframeEffect).target!),
+          )
+          .map(a => a.finished);
+        const resting = !panel || open === panel.hasAttribute('data-visible');
+        if (resting && !running.length) {
+          setRested(moves);
+          return;
+        }
+        // then check again: a retargeted motion, or the panel shown or hidden
+        await Promise.allSettled(running);
+        await nextFrame();
+      }
+    };
+    settle();
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+    };
+  }, [container, moving, moves, open]);
+  return moving;
 }
 
 /** Toggle row; also rendered (inert) by the preview loading fallback in ../index.tsx */
@@ -116,53 +195,113 @@ export function StoreHeaderToggle({
   open?: boolean;
 }) {
   return (
-    <button
-      type="button"
-      className={clsx(
-        'clean-btn',
-        styles.headerButton,
-        styles.storeHeaderToggle,
-      )}
+    <HeaderToggle
+      className={styles.storeHeaderToggle}
       title={toggleTitle(open)}
-      aria-label={translate({ id: 'playground.store', message: 'Store' })}
-      aria-pressed={open}
+      label={translate({ id: 'playground.store', message: 'Store' })}
+      open={open}
       data-store-toggle
-      disabled={!onClick}
       onClick={onClick}
     >
       <StoreIcon />
-    </button>
+    </HeaderToggle>
   );
 }
 
-/** The Store toggle in the code's corner, for playgrounds whose Store slides
- * over the code: it names what it brings back, and stays put as the Store
- * slides in under it, so a second click finds it where the first left it */
-export function StoreBadge({
+/** The Code toggle in the preview's header (the demo layout, ../index.tsx):
+ * pressed, the code takes the result's place */
+export function CodeHeaderToggle({
   onClick,
   open,
 }: {
-  onClick: React.MouseEventHandler<HTMLElement>;
+  onClick: () => void;
   open: boolean;
+}) {
+  return (
+    <HeaderToggle
+      className={styles.codeHeaderToggle}
+      title={
+        open ?
+          translate({ id: 'playground.code.hide', message: 'Hide code' })
+        : translate({ id: 'playground.code.show', message: 'Show code' })
+      }
+      label={translate({ id: 'playground.code', message: 'Code' })}
+      open={open}
+      onClick={onClick}
+    >
+      <CodeIcon />
+    </HeaderToggle>
+  );
+}
+
+/** An icon button in the preview's header that reads pressed while what it
+ * shows does; disabled without a handler (the loading fallback holds the
+ * layout with one) */
+function HeaderToggle({
+  className,
+  title,
+  label,
+  open,
+  onClick,
+  children,
+  ...rest
+}: {
+  className: string;
+  /** What pressing it does now */
+  title: string;
+  /** Its name, the same either way */
+  label: string;
+  open: boolean;
+  onClick?: React.MouseEventHandler<HTMLElement>;
+  children: React.ReactNode;
+  'data-store-toggle'?: true;
 }) {
   return (
     <button
       type="button"
-      className={clsx('clean-btn', styles.swap, styles.storeBadge)}
-      title={toggleTitle(open)}
+      className={clsx('clean-btn', styles.headerButton, className)}
+      title={title}
+      aria-label={label}
       aria-pressed={open}
-      data-store-toggle
-      data-swapped={open || undefined}
+      disabled={!onClick}
       onClick={onClick}
+      {...rest}
     >
-      <span aria-hidden={open}>
-        <span className={styles.storeBadgeDot} />
-        <Translate id="playground.store">Store</Translate>
-      </span>
-      <span aria-hidden={!open}>
-        <CodeIcon />
-        <Translate id="playground.code">Code</Translate>
-      </span>
+      {children}
+    </button>
+  );
+}
+
+/** The folder's handle (../index.tsx renders it on the folder's drawer): a
+ * pull tab in the folder's color sticking out of the preview's left edge by
+ * its foot (stacked, out of its bottom edge). Pulled, it draws the folder's
+ * layer out over the code with the Store on it, and stays outside the
+ * Store's edge, drawn out (see .storeDrawer in ../styles.module.css) */
+export function StoreTab({
+  onClick,
+  open,
+  controls,
+  ref,
+}: {
+  onClick: React.MouseEventHandler<HTMLElement>;
+  open: boolean;
+  /** The folder's id */
+  controls: string;
+  ref?: React.Ref<HTMLButtonElement>;
+}) {
+  return (
+    <button
+      ref={ref}
+      type="button"
+      className={clsx('clean-btn', styles.storeTab)}
+      title={toggleTitle(open)}
+      aria-label={translate({ id: 'playground.store', message: 'Store' })}
+      aria-expanded={open}
+      aria-controls={controls}
+      onClick={onClick}
+      data-store-toggle
+    >
+      <StoreIcon />
     </button>
   );
 }
@@ -173,10 +312,10 @@ const toggleTitle = (open: boolean) =>
   : translate({ id: 'playground.store.show', message: 'Show Store' });
 
 /** Angle brackets around a slash */
-function CodeIcon() {
+function CodeIcon({ className }: { className?: string }) {
   return (
     <svg
-      className={styles.storeBadgeCode}
+      className={className}
       viewBox="0 0 24 24"
       width="1.15em"
       height="1.15em"

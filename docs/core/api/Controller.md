@@ -460,7 +460,7 @@ resets the component's local state.
   <button @click="reload">Reload</button>
   <Suspense timeout="0">
     <ArticleName :key="remountKey" :id="id" />
-    <template #fallback>Loading...</template>
+    <template #fallback><Loading /></template>
   </Suspense>
 </template>
 ```

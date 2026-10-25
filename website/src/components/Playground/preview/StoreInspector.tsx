@@ -1,4 +1,11 @@
-import React, { useDeferredValue, useState, memo } from 'react';
+import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
+import React, {
+  Activity,
+  memo,
+  useDeferredValue,
+  useEffect,
+  useState,
+} from 'react';
 import { createPortal } from 'react-dom';
 
 import { Reveal } from '../../motion';
@@ -19,7 +26,8 @@ function StoreInspector({
   toggle: React.MouseEventHandler<HTMLElement>;
   registry: SchemaRegistry;
   history: number;
-  /** Slides over the code (into `host`) instead of beside the result */
+  /** On the preview's folder (`host`), which opens over the code, instead
+   * of beside the result; its toggle is the folder's tab (../index.tsx) */
   row: boolean;
   host: HTMLElement | null;
 }) {
@@ -33,19 +41,70 @@ function StoreInspector({
   const ready = row ? open : deferred;
   const [showTree, setShowTree] = useState(false);
   if (ready && !showTree) setShowTree(true);
-  const panel = (
-    <Reveal show={open} className={styles.storePanel} hold={heldToggle}>
-      {showTree ?
-        <StorePanel registry={registry} history={history} />
-      : null}
-    </Reveal>
+  const tree =
+    showTree ? <StorePanel registry={registry} history={history} /> : null;
+  if (row) {
+    return (
+      host &&
+      createPortal(
+        <FolderPanel open={open} host={host}>
+          {tree}
+        </FolderPanel>,
+        host,
+      )
+    );
+  }
+  return (
+    <>
+      <StoreToggle onClick={toggle} open={open} />
+      <Reveal show={open} className={styles.storePanel} hold={heldToggle}>
+        {tree}
+      </Reveal>
+    </>
   );
-  // over the code, its toggle is the code's corner badge (../index.tsx)
-  return row ?
-      host && createPortal(panel, host)
-    : <>
-        <StoreToggle onClick={toggle} open={open} />
-        {panel}
-      </>;
 }
 export default memo(StoreInspector);
+
+/** The Store on the preview's folder (`host`), which sweeps open over the
+ * code and shut again in CSS (`data-open`, see .storeHost in
+ * ../styles.module.css): the tree stays shown until the sweep has shut,
+ * then hides (an `<Activity>`, so reopening finds it as it was left) and
+ * leaves the layout, with the toggle that shut it held in place on screen,
+ * as `Reveal` does for the Store beside the result */
+function FolderPanel({
+  open,
+  host,
+  children,
+}: {
+  open: boolean;
+  host: HTMLElement;
+  children: React.ReactNode;
+}) {
+  const [shut, setShut] = useState(!open);
+  if (open && shut) setShut(false);
+  const { blockElementScrollPositionUntilNextRender } =
+    useScrollPositionBlocker();
+  useEffect(() => {
+    if (open || shut) return;
+    let reopened = false;
+    // the sweep is a transition this commit's styles started: it is running
+    // by the next frame (none under reduced motion: shut at once)
+    const frame = requestAnimationFrame(() => {
+      Promise.allSettled(host.getAnimations().map(a => a.finished)).then(() => {
+        if (reopened) return;
+        const held = heldToggle();
+        if (held) blockElementScrollPositionUntilNextRender(held);
+        setShut(true);
+      });
+    });
+    return () => {
+      reopened = true;
+      cancelAnimationFrame(frame);
+    };
+  }, [open, shut, host, blockElementScrollPositionUntilNextRender]);
+  return (
+    <div className={styles.storePanel} data-visible={!shut || undefined}>
+      <Activity mode={shut ? 'hidden' : 'visible'}>{children}</Activity>
+    </div>
+  );
+}

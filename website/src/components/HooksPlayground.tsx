@@ -9,9 +9,9 @@ const HooksPlayground = ({
   hidden = false,
   defaultOpen = 'n',
   row = false,
+  demo = false,
   fixtures = [],
   defaultTab,
-  headerControls,
   renderCount,
   actionLog,
   autoRun,
@@ -21,11 +21,11 @@ const HooksPlayground = ({
     groupId={groupId}
     defaultOpen={defaultOpen}
     row={row}
+    demo={demo}
     hidden={hidden}
     fixtures={fixtures}
     getInitialInterceptorData={getInitialInterceptorData}
     defaultTab={defaultTab}
-    headerControls={headerControls}
     renderCount={renderCount}
     actionLog={actionLog}
     autoRun={autoRun}

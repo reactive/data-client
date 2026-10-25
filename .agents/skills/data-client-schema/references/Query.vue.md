@@ -334,8 +334,11 @@ export const StatsResource = resource({
 </script>
 
 <template>
-  <div v-if="price === undefined">Loading...</div>
-  <div v-else>Price: ${{ price }}</div>
+  <div>
+    Price:
+    <span v-if="price === undefined" class="skeleton" />
+    <template v-else>${{ price }}</template>
+  </div>
 </template>
 ```
 

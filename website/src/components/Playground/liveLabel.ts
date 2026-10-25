@@ -7,3 +7,12 @@ export const liveLabel = () =>
     description: 'The result label of the live codeblocks',
     message: 'Live Preview',
   });
+
+/** The code's "Editor" label text (the editor's header; the preview's
+ * header while a demo's code shows) */
+export const editorLabel = () =>
+  translate({
+    id: 'theme.Playground.liveEditor',
+    description: 'The live editor label of the live codeblocks',
+    message: 'Editor',
+  });

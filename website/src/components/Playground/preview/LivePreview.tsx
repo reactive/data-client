@@ -5,16 +5,14 @@ import DemoLabel from './autorun/DemoLabel';
 import type { AutoRunScript } from './autorun/script';
 import { useAutoRun } from './autorun/useAutoRun';
 import Preview from './Preview';
-import { ResetButton } from './PreviewError';
-import PreviewWrapper from './PreviewWrapper';
+import PreviewWrapper, { PreviewHeaderControls } from './PreviewWrapper';
 import { useRenderCount } from './RenderCount';
 import { routerTrailer } from './router';
 import type { CodeDocument } from '../editor/codeModel';
-import type { PreviewProps } from '../types';
+import type { CodeControl, PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
 import SchemaRegistry from './store/schemaRegistry';
 import type { ShowStore } from './store/storeView';
-import { StoreHeaderToggle } from './StoreToggle';
 import { useCodeManagers } from './useCodeManagers';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
 import { usePreviewReset } from './usePreviewReset';
@@ -28,12 +26,15 @@ export interface LivePreviewProps<T> extends PreviewProps<T> {
   autoRun?: AutoRunScript;
   /** Opens or closes the Store for the demo, without saving it */
   showStore: ShowStore;
+  /** Demo layout: the code in the result's place, and its toggle (../index.tsx) */
+  code?: CodeControl;
 }
 
 export default function LivePreview<T>({
   documents,
   fixtureContent,
   storeOpen,
+  storeMoves,
   toggleStore,
   row,
   storeHost,
@@ -43,6 +44,7 @@ export default function LivePreview<T>({
   actionLog,
   autoRun,
   showStore,
+  code: codeControl,
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
@@ -92,17 +94,21 @@ export default function LivePreview<T>({
           : undefined
         }
         fixtures={fixtureContent}
+        code={codeControl}
         headerControls={
-          <>
-            {badge}
-            <StoreHeaderToggle open={storeOpen} onClick={toggleStore} />
-            <ResetButton onClick={reset} />
-          </>
+          <PreviewHeaderControls
+            row={row}
+            badge={badge}
+            storeOpen={storeOpen}
+            toggleStore={toggleStore}
+            reset={reset}
+          />
         }
       >
         <Preview
           key={storeKey}
           storeOpen={storeOpen}
+          storeMoves={storeMoves}
           toggleStore={toggleStore}
           row={row}
           storeHost={storeHost}

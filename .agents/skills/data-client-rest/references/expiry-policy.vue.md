@@ -73,31 +73,9 @@ export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 </script>
 
 <template>
-  <div>
-    API time for {{ id }}:
+  <div class="listItem">
+    <span class="meta">API time for {{ id }}</span>
     <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-  </div>
-</template>
-```
-
-```html title="Navigator.vue" layout
-<template>
-  <div>
-    <nav>
-      <RouterLink to="/time/1">First</RouterLink>
-      <RouterLink to="/time/2">Second</RouterLink>
-    </nav>
-    <RouterView v-slot="{ Component, route }">
-      <!-- :key remounts TimePage so it suspends for the new id -->
-      <Suspense timeout="0">
-        <component
-          :is="Component"
-          :key="route.fullPath"
-          :id="route.params.id"
-        />
-        <template #fallback><div>loading...</div></template>
-      </Suspense>
-    </RouterView>
   </div>
 </template>
 ```
@@ -200,31 +178,9 @@ export const getUpdated = lastUpdated.extend({
 </script>
 
 <template>
-  <div>
-    API time for {{ id }}:
+  <div class="listItem">
+    <span class="meta">API time for {{ id }}</span>
     <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-  </div>
-</template>
-```
-
-```html title="Navigator.vue" layout
-<template>
-  <div>
-    <nav>
-      <RouterLink to="/time/1">First</RouterLink>
-      <RouterLink to="/time/2">Second</RouterLink>
-    </nav>
-    <RouterView v-slot="{ Component, route }">
-      <!-- :key remounts TimePage so it suspends for the new id -->
-      <Suspense timeout="0">
-        <component
-          :is="Component"
-          :key="route.fullPath"
-          :id="route.params.id"
-        />
-        <template #fallback><div>loading...</div></template>
-      </Suspense>
-    </RouterView>
   </div>
 </template>
 ```
@@ -267,10 +223,11 @@ export const lastUpdated = new RestEndpoint({
 </script>
 
 <template>
-  <div>
+  <div class="listItem">
+    <span class="meta">API time</span>
     <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-    <button @click="ctrl.fetch(lastUpdated, { id: '1' })">Refresh</button>
   </div>
+  <button @click="ctrl.fetch(lastUpdated, { id: '1' })">Refresh</button>
 </template>
 ```
 
@@ -307,8 +264,9 @@ export const lastUpdated = new RestEndpoint({
 </script>
 
 <template>
-  <div>
-    <b>{{ id }}</b> <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+  <div class="listItem">
+    <b>{{ id }}</b>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```
@@ -326,13 +284,17 @@ export const lastUpdated = new RestEndpoint({
   <div>
     <Suspense v-for="id in ['1', '2', '3']" :key="id">
       <ShowTime :id="id" />
-      <template #fallback><div>{{ id }} Loading...</div></template>
+      <template #fallback>
+        <div class="listItem"><b>{{ id }}</b><span class="skeleton" /></div>
+      </template>
     </Suspense>
 
-    <button @click="ctrl.expireAll(lastUpdated)">Expire All</button>
-    <button @click="ctrl.fetch(lastUpdated, { id: '1' })">
-      Force Refresh First
-    </button>
+    <div class="buttonGroup">
+      <button @click="ctrl.expireAll(lastUpdated)">Expire All</button>
+      <button @click="ctrl.fetch(lastUpdated, { id: '1' })">
+        Force Refresh First
+      </button>
+    </div>
   </div>
 </template>
 ```
@@ -379,8 +341,9 @@ export const lastUpdated = new RestEndpoint({
 </script>
 
 <template>
-  <div>
-    <b>{{ id }}</b> <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+  <div class="listItem">
+    <b>{{ id }}</b>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```
@@ -398,13 +361,17 @@ export const lastUpdated = new RestEndpoint({
   <div>
     <Suspense v-for="id in ['1', '2', '3']" :key="id">
       <ShowTime :id="id" />
-      <template #fallback><div>{{ id }} Loading...</div></template>
+      <template #fallback>
+        <div class="listItem"><b>{{ id }}</b><span class="skeleton" /></div>
+      </template>
     </Suspense>
 
-    <button @click="ctrl.invalidateAll(lastUpdated)">Invalidate All</button>
-    <button @click="ctrl.invalidate(lastUpdated, { id: '1' })">
-      Invalidate First
-    </button>
+    <div class="buttonGroup">
+      <button @click="ctrl.invalidateAll(lastUpdated)">Invalidate All</button>
+      <button @click="ctrl.invalidate(lastUpdated, { id: '1' })">
+        Invalidate First
+      </button>
+    </div>
   </div>
 </template>
 ```
@@ -443,8 +410,8 @@ export const lastUpdated = new RestEndpoint({
 </script>
 
 <template>
-  <div>
-    API time for {{ id }}:
+  <div class="listItem">
+    <span class="meta">API time for {{ id }}</span>
     <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
@@ -474,19 +441,26 @@ export const lastUpdated = new RestEndpoint({
   <div>
     <Suspense>
       <TimePage id="1" />
-      <template #fallback><div>loading...</div></template>
+      <template #fallback>
+        <div class="listItem">
+          <span class="meta">API time for 1</span>
+          <span class="skeleton" />
+        </div>
+      </template>
     </Suspense>
-    <button @click="handleDelete">
-      {{ loadingDelete ? 'loading...' : 'Invalidate' }}
-    </button>
-    <button
-      @click="ctrl.setResponse(deleteLastUpdated, { id: '1' }, { id: '1' })"
-    >
-      Invalidate (without fetching DELETE)
-    </button>
-    <button @click="ctrl.set([InvalidateTimedEntity], [{ id: '1' }])">
-      Invalidate Entity with ctrl.set
-    </button>
+    <div class="buttonGroup">
+      <button @click="handleDelete" :aria-busy="loadingDelete">
+        Invalidate
+      </button>
+      <button
+        @click="ctrl.setResponse(deleteLastUpdated, { id: '1' }, { id: '1' })"
+      >
+        Invalidate (without fetching DELETE)
+      </button>
+      <button @click="ctrl.set([InvalidateTimedEntity], [{ id: '1' }])">
+        Invalidate Entity with ctrl.set
+      </button>
+    </div>
   </div>
 </template>
 ```

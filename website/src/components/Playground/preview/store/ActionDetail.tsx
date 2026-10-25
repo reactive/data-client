@@ -14,8 +14,10 @@ import {
   ChangeChip,
   gapText,
   spanOf,
+  Time,
   useActions,
 } from './actionParts';
+import { shownChain } from './attribution';
 import { EndpointBody } from './Details';
 import { errorText, findRow, isEndpointRow } from './model';
 import {
@@ -25,6 +27,7 @@ import {
   type Nav,
   type View,
 } from './nav';
+import { StepPath } from './Pipeline';
 import { plain } from './refs';
 import styles from './store.module.css';
 import {
@@ -37,9 +40,11 @@ import {
   ValueChange,
 } from './Value';
 
-/** What an action did to `subject` (every row at the store, a line saying
- * it left the subject alone, or that it is where a `gap` of dropped actions
- * changing it was found), then the action itself */
+/** One action, headed by when it was dispatched and the way it took
+ * through the managers (its crumb names it, so no section of their own),
+ * then what it did to `subject` (every row at the store, a line saying it left the subject alone, or that it is where a
+ * `gap` of dropped actions changing it was found); then, only here, the
+ * action itself */
 export function ActionDetail({
   entry,
   subject,
@@ -49,9 +54,16 @@ export function ActionDetail({
   subject: View;
   gap?: ChangeKind;
 }) {
+  const chain = shownChain(useActions().history.managers);
   return (
     <div className={styles.actBody}>
+      <div className={styles.actHeadline}>
+        <Time at={entry.at} />
+        {chain && <StepPath chain={chain} entry={entry} n={1} />}
+      </div>
+      <h3 className={styles.sectionLabel}>Store changes</h3>
       <SubjectChanges entries={[entry]} subject={subject} gap={gap} />
+      <h3 className={styles.sectionLabel}>Action</h3>
       <div className={clsx(styles.fields, styles.metaList)}>
         <Field name="dispatchedAt" node={{ t: 'val', v: entry.at }} />
         {actionFields(entry.action).map(([name, value]) => (
@@ -106,7 +118,7 @@ export function SubjectChanges({
           )}
         </>
       : <span className={styles.dim}>
-          {unappliedNote(entries[entries.length - 1].action)}
+          {unappliedNote(entries[entries.length - 1])}
         </span>
       }
     </div>
@@ -126,16 +138,12 @@ function unchangedNote(subject: View) {
 }
 
 /** Why an action that never reached the store is still in the log */
-function unappliedNote(action: ActionTypes) {
-  switch (action.type) {
-    case actionTypes.FETCH:
-      return 'Started the request; the store changes when its response arrives';
-    case actionTypes.SUBSCRIBE:
-    case actionTypes.UNSUBSCRIBE:
-      return 'Handled by SubscriptionManager; the store is unchanged';
-    default:
-      return 'A manager handled this without passing it to the store';
-  }
+function unappliedNote({ action, consumedBy, requested }: LogEntry) {
+  if (action.type === actionTypes.FETCH && (!consumedBy || requested))
+    return 'Started the request; the store changes when its response arrives';
+  return consumedBy ?
+      `Handled by ${consumedBy}; the store is unchanged`
+    : 'Not passed on to the store (yet)';
 }
 
 /** Rows the `stored` actions changed, and how */

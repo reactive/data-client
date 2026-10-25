@@ -1,5 +1,8 @@
-/* Store inspector: code-colored in both themes, like the editor */
-/* (the palette, --store-*, is the playground's: ../../styles.module.css) */
+/* Store inspector, on the preview's folder (.storePanel paints it, and sets
+   the palette, --store-*, for each theme: ../../styles.module.css). The
+   folder holds the chrome: the scrubber's row across its top, and State and
+   Action as tabs on it. What a tab shows sits on a sheet (.tabPanel), the
+   app's sheet's color and corners, that the picked tab joins */
 .store {
   position: relative;
   display: flex;
@@ -8,7 +11,6 @@
   /* (see --store-min in ../../styles.module.css) */
   min-height: var(--store-min);
   max-height: var(--store-cap);
-  background: var(--store-bg);
   color: var(--store-fg);
   font: 12px / 1.6 var(--ifm-font-family-monospace);
 }
@@ -29,30 +31,75 @@
   --store-kind-refreshed: var(--store-dim);
   --store-kind-expired: var(--store-stale);
   --store-stale-bg: color-mix(in srgb, var(--store-stale) 9%, transparent);
+  /* a pressed icon button's band */
+  --store-pressed: color-mix(in srgb, var(--store-fg) 12%, transparent);
 }
 
-/* Light mode: the scrubber and the lanes under it are chrome, in the
-   playground's header band, rather than code; their colors darken to read
-   on it */
-:root[data-theme='light'] :is(.scrubber, .lanes) {
-  --store-bg: var(--pg-bar);
-  --store-fg: var(--ifm-color-emphasis-900);
-  --store-muted: var(--ifm-color-emphasis-700);
-  --store-dim: var(--ifm-color-emphasis-600);
-  --store-key: #2f5fc4;
-  --store-fresh: #1d8049;
-  --store-stale: #a26600;
-  --store-null: #cc2b4b;
-  --store-number: #c0501c;
-  --store-type: #8a3fb8;
-  --store-line: rgba(0, 0, 0, 0.08);
-  --store-line-strong: rgba(0, 0, 0, 0.15);
-  --store-hover: rgba(0, 0, 0, 0.05);
-  --store-selected: rgba(47, 95, 196, 0.14);
+/* The folder's paper, the panel's unless laid out as the preview's folder
+   (the row layout, ../../styles.module.css): then it is the scrubber's (the
+   header) and the body's (the content), so the header can be narrower,
+   inset (--pg-head-inset) at the sides --store-head-start and
+   --store-head-end mark (1), flaring out into the content's top edge as the
+   open file's tab does into its card, the content's corner turning down
+   from there. The body's paper stops --store-folder-end short of its foot,
+   so only the sheet runs on past that. Where the header runs on into the
+   preview's instead (the end side), --store-head-run takes it on under
+   that edge. --store-head-radius rounds a header that isn't inset */
+.scrubber {
+  --store-head-in-start: calc(
+    var(--store-head-start, 0) * var(--pg-head-inset, 0px)
+  );
+  --store-head-in-end: calc(
+    var(--store-head-end, 0) * var(--pg-head-inset, 0px) -
+      var(--store-head-run, 0px)
+  );
+  position: relative;
+  margin: 0 var(--store-head-in-end) 0 var(--store-head-in-start);
+  /* what it holds stays clear of the run */
+  padding-right: var(--store-head-run, 0px);
+  border-radius: var(
+    --store-head-radius,
+    calc(var(--store-head-start, 0) * var(--pg-card-radius, 0px))
+      calc(var(--store-head-end, 0) * var(--pg-card-radius, 0px)) 0 0
+  );
   background: var(--store-bg);
-  color: var(--store-muted);
+  box-shadow: var(--pg-card-shadow, none);
 }
-
+/* (--store-head-ink: the row layout fades what it holds as the drawer
+   slides shut) */
+.scrubber > * {
+  opacity: var(--store-head-ink, 1);
+  transition: opacity var(--pg-store-snappy);
+}
+.scrubber::before,
+.scrubber::after {
+  content: '';
+  position: absolute;
+  /* under the body (it stacks above), meeting its corner partway round */
+  bottom: calc(-1 * var(--pg-head-flare-drop, 0px));
+  height: var(--pg-head-flare-depth, 0px);
+  pointer-events: none;
+}
+.scrubber::before {
+  right: calc(100% - 1px);
+  width: calc(var(--store-head-start, 0) * (var(--pg-head-flare, 0px) + 1px));
+  background: radial-gradient(
+    circle var(--pg-head-flare-radius, 0px) at
+      calc(100% - 1px - var(--pg-head-flare-radius, 0px)) 0,
+    transparent calc(100% - 0.5px),
+    var(--store-bg) 100%
+  );
+}
+.scrubber::after {
+  left: calc(100% - 1px);
+  width: calc(var(--store-head-end, 0) * (var(--pg-head-flare, 0px) + 1px));
+  background: radial-gradient(
+    circle var(--pg-head-flare-radius, 0px) at
+      calc(1px + var(--pg-head-flare-radius, 0px)) 0,
+    transparent calc(100% - 0.5px),
+    var(--store-bg) 100%
+  );
+}
 /* Under the scrubber: the tab bar, and (narrow) the sheet the lanes open in
    over what follows */
 .body {
@@ -61,19 +108,24 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  padding: var(--store-body-pad, 0);
+  border-radius: calc(var(--store-head-start, 0) * var(--pg-body-radius, 0px))
+    calc(var(--store-head-end, 0) * var(--pg-body-radius, 0px)) 0
+    var(--store-folder-foot, 0);
+  background: linear-gradient(var(--store-bg) 0 0) top / 100%
+    calc(100% - var(--store-folder-end, 0px)) no-repeat;
 }
 
-/* The State and Action tabs and State's switches; the same band as
-   the other headers */
+/* The State and Action tabs: on the folder, as the files are tabs on the
+   page over the code (../../styles.module.css, .row .tab), the picked one
+   the sheet's color, running into it */
 .bar {
   flex: none;
   display: flex;
   align-items: stretch;
-  min-height: 2.25rem;
-  padding: 0 0.375rem 0 0.25rem;
-  background: var(--pg-bar);
-  color: var(--pg-tab);
-  font: 500 var(--ifm-code-font-size) / 1 var(--ifm-font-family-base);
+  height: 2.5rem;
+  color: var(--store-muted);
+  font: 600 var(--ifm-code-font-size) / 1 var(--ifm-font-family-base);
 }
 /* The bar, the tabs' content and the peek: inert under the sheet */
 .content {
@@ -82,21 +134,43 @@
   display: flex;
   flex-direction: column;
 }
-/* The subject stack, and the peek over its right side */
+/* The sheet: the picked tab's content, to the folder's foot (rounded by
+   --store-sheet-foot where the folder runs on past it); what paints over its
+   rows as they scroll (headings, crumbs) takes its color */
 .tabPanel {
+  --store-bg: var(--pg-panel);
   position: relative;
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
+  border-radius: var(--pg-sheet-radius) var(--pg-sheet-radius)
+    var(--store-sheet-foot, 0) var(--store-sheet-foot, 0);
+  background: var(--store-bg);
+  overflow: clip;
+}
+/* the first tab picked: its edge runs straight into the sheet */
+.bar:has(.tab:first-child[aria-selected='true']) + .tabPanel {
+  border-top-left-radius: 0;
 }
 /* the bar's left end: the State and Action tabs, its full height */
 .barStart {
   display: flex;
-  margin-left: -0.25rem;
 }
-/* the bar's right end: Snapshot or Diff and the view switch, in State */
+/* the first sits in the body's corner (the row layout): its radius */
+.barStart > .tab:first-child {
+  border-top-left-radius: var(--pg-body-radius, 8px);
+}
+/* The sheet's head (State): the view's own switches, Snapshot or Diff and
+   table or tree, at its top edge */
+.sheetHead {
+  flex: none;
+  display: flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0 0.5rem;
+}
 .barEnd {
   display: flex;
   align-items: center;
@@ -111,8 +185,9 @@
 .tab {
   display: inline-flex;
   align-items: center;
-  padding: 0 0.75rem;
+  padding: var(--pg-tab-pad);
   border: 0;
+  border-radius: var(--pg-tab-radius);
   background: none;
   color: inherit;
   font: inherit;
@@ -123,16 +198,17 @@
 }
 @media (hover: hover) {
   .tab:not([aria-selected='true']):hover {
-    background: var(--pg-tab-hover-bg);
-    color: var(--pg-tab-hover);
+    background: var(--store-hover);
+    color: var(--store-fg);
   }
 }
-/* the selected tab joins the store below, as the editor's tabs join the
-   code; an inset edge, so nothing shifts */
 .tab[aria-selected='true'] {
-  background: var(--pg-tab-selected-bg);
-  color: var(--pg-tab-selected);
-  box-shadow: inset 0 2px 0 var(--ifm-color-primary);
+  background: var(--pg-panel);
+  color: var(--store-fg);
+}
+.tab:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
 }
 /* The peek: the subject's actions as an overlay over the panel's right
    side (narrow, most of it), dropping from right under the scrubber's list
@@ -149,16 +225,19 @@
   background: var(--store-bg);
   box-shadow:
     inset 1px 0 0 var(--store-line-strong),
-    -10px 0 24px rgba(0, 0, 0, 0.45);
+    -10px 0 24px var(--pg-shadow);
 }
 .pane.paneNarrow {
   width: min(100%, 22rem);
 }
-/* the subject's actions at full width, a level of their own; they shrink
- * to scroll on their own, unlike the level's other children */
-.level > .actionsLevel {
+/* views that fill the level and scroll inside it, unlike its other
+ * children: the subject's actions, and one action between its steps */
+.level > .actionsLevel,
+.level > .actFrame {
   flex: 1 1 auto;
   min-height: 0;
+}
+.level > .actionsLevel {
   display: flex;
   flex-direction: column;
 }
@@ -223,7 +302,7 @@
 }
 .viewButtons button[aria-pressed='true'],
 .tlFit[aria-pressed='true'] {
-  background: var(--pg-tab-hover-bg);
+  background: var(--store-pressed);
   opacity: 1;
 }
 .viewButtons svg,
@@ -275,7 +354,6 @@
   min-height: 1.9rem;
   padding: 3px 0.75rem 3px 0.25rem;
   background: var(--store-bg);
-  box-shadow: inset 0 -1px 0 var(--store-line-strong);
 }
 .back {
   flex: none;
@@ -348,7 +426,7 @@
   padding: 0 0.4rem;
   border: 1px solid var(--store-line-strong);
   border-radius: 4px;
-  background: rgba(0, 0, 0, 0.22);
+  background: color-mix(in srgb, var(--store-fg) 6%, transparent);
   color: var(--store-fg);
   font: inherit;
   font-size: 11px;
@@ -398,7 +476,7 @@
 }
 
 .section + .section {
-  border-top: 1px solid var(--store-line);
+  margin-top: 0.35rem;
 }
 /* ~32px tall: HEADER_HEIGHT in dom.ts, what scrollToRow leaves above a row */
 .sectionHeader {
@@ -556,18 +634,25 @@ div.row[data-change='removed'] {
   border: 0;
   background: none;
 }
+/* the headings: a table's columns, a request's sections */
+.table th,
+.sectionLabel {
+  font: 600 10px / 1.6 var(--ifm-font-family-base);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--store-dim);
+}
+.sectionLabel {
+  margin: 0;
+  padding: 0.75rem 0.75rem 0.25rem;
+}
 .table th {
   position: sticky;
   top: 0;
   z-index: 1;
   padding: 0.2rem 0.5rem;
   background: var(--store-bg);
-  box-shadow: inset 0 -1px 0 var(--store-line-strong);
   text-align: start;
-  font: 600 10px / 1.6 var(--ifm-font-family-base);
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--store-dim);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -579,7 +664,6 @@ div.row[data-change='removed'] {
 /* a row is ~28px tall: ROW_GUESS in DiveViews.tsx, until one is measured */
 .table td {
   padding: 0.25rem 0.5rem;
-  border-bottom: 1px solid var(--store-line);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -596,7 +680,6 @@ div.row[data-change='removed'] {
 .table tr.spacer > td,
 .table tr.spacer {
   padding: 0;
-  border: 0;
 }
 /* the +N that opens a row's other fields below it */
 .table td.moreCell {
@@ -644,7 +727,6 @@ div.row[data-change='removed'] {
 }
 .table tr.foot > td {
   padding: 0.3rem 0.75rem;
-  border: 0;
   color: var(--store-dim);
   font-size: 11px;
 }
@@ -733,7 +815,7 @@ div.row[data-change='removed'] {
   cursor: pointer;
 }
 .seg button[aria-pressed='true'] {
-  background: rgba(130, 170, 255, 0.16);
+  background: var(--store-selected);
   color: var(--store-fg);
 }
 .detail > .seg {
@@ -889,10 +971,10 @@ div.row[data-change='removed'] {
   align-items: baseline;
   gap: 0.3em;
   max-width: 100%;
-  padding: 0 0.35em;
-  border: 1px solid rgba(199, 146, 234, 0.32);
+  padding: 0 0.45em;
+  border: 0;
   border-radius: 4px;
-  background: rgba(199, 146, 234, 0.12);
+  background: color-mix(in srgb, var(--store-type) 14%, transparent);
   color: var(--store-type);
   font: inherit;
   font-size: 11px;
@@ -911,19 +993,17 @@ div.row[data-change='removed'] {
   color: var(--store-fg);
 }
 .ref:hover {
-  background: rgba(199, 146, 234, 0.24);
+  background: color-mix(in srgb, var(--store-type) 24%, transparent);
 }
 .ref:focus-visible {
   outline: 2px solid var(--store-key);
 }
 .endpointRef {
   color: var(--store-fresh);
-  border-color: rgba(127, 209, 160, 0.35);
-  background: rgba(127, 209, 160, 0.08);
+  background: color-mix(in srgb, var(--store-fresh) 11%, transparent);
 }
 .countRef {
   color: var(--store-dim);
-  border-color: var(--store-line-strong);
   background: var(--store-hover);
 }
 .countRef:hover {
@@ -931,20 +1011,26 @@ div.row[data-change='removed'] {
   background: var(--store-line-strong);
 }
 .endpointRef:hover {
-  background: rgba(127, 209, 160, 0.18);
+  background: color-mix(in srgb, var(--store-fresh) 18%, transparent);
 }
 
+/* status pills (and a manager's, below): a tint of their own color, no
+   edge. Under .store, to outrank the edge the composed .pill draws whatever
+   order the build gives the two files */
 .pill {
   composes: pill from '../../styles.module.css';
   margin-left: auto;
 }
+.store .pill,
+.store .manager {
+  border-color: transparent;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
 .fresh {
   color: var(--store-fresh);
-  border-color: rgba(127, 209, 160, 0.4);
 }
 .stale {
   color: var(--store-stale);
-  border-color: rgba(255, 203, 107, 0.4);
 }
 .error {
   composes: danger from '../../styles.module.css';
@@ -952,15 +1038,9 @@ div.row[data-change='removed'] {
 .invalidated {
   margin-left: 0;
   color: var(--store-kind-invalidated);
-  border-color: color-mix(
-    in srgb,
-    var(--store-kind-invalidated) 40%,
-    transparent
-  );
 }
 .optimistic {
   color: var(--store-type);
-  border-color: rgba(199, 146, 234, 0.4);
 }
 
 /* a record: inline below its row, or as its own level */
@@ -989,9 +1069,6 @@ div.row[data-change='removed'] {
 .actGroup {
   position: relative;
 }
-.actGroup + .actGroup {
-  border-top: 1px solid var(--store-line);
-}
 .actGroup[data-open] {
   background: var(--store-record);
 }
@@ -1007,9 +1084,8 @@ div.gapRow {
   font-size: 11px;
   cursor: default;
 }
-/* the moment's action: its row, and its step when the row is open */
-.actRow[aria-current],
-.stepRow[aria-current] {
+/* the moment's row */
+.actRow[aria-current] {
   box-shadow: inset 2px 0 0 var(--store-stale);
   background: var(--store-stale-bg);
 }
@@ -1019,6 +1095,125 @@ div.gapRow {
   align-items: baseline;
   gap: 0.5rem;
   min-width: 0;
+}
+/* the code's manager that sent an action, or kept it from the rest of the
+   chain */
+.manager {
+  composes: pill from '../../styles.module.css';
+  color: var(--store-muted);
+}
+/* stages an action goes through (the app, the chain's managers, the
+   store), wrapping rather than scrolling: the pipeline over the store's
+   actions, and each action's path */
+.pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: 0.35rem;
+}
+.pipelineBar {
+  padding: 0.5rem 0.75rem 0.35rem;
+}
+/* a step's path through the managers, as plain words under its name and
+   changes: only the managers that sent or handled it stand out */
+.stepPath {
+  /* past the padding a step row has */
+  padding: 0 0.6rem 0.3rem calc(0.6rem + var(--step-name));
+  font-size: 11px;
+}
+/* a single action's view: its time and path on one line under the crumbs */
+.actHeadline {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem 0.1rem;
+  font-size: 11px;
+}
+.actHeadline > .stepPath {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+}
+.stepCount {
+  padding-left: 0.6rem;
+  color: var(--store-dim);
+}
+.stepPath > .pipeline {
+  row-gap: 0.1rem;
+}
+.stepPath .stage:not(.stageFold) {
+  padding: 0;
+  border-color: transparent;
+  background: none;
+  color: var(--store-muted);
+}
+.stepPath .stage.stageSender {
+  color: var(--store-fg);
+}
+.stepPath .stage.stageStop {
+  color: var(--store-stale);
+}
+.stageStep {
+  display: inline-flex;
+  align-items: center;
+}
+.stageArrow {
+  padding: 0 0.35rem;
+  color: var(--store-dim);
+}
+.stage {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--store-line-strong);
+  border-radius: 6px;
+  background: none;
+  color: var(--store-fg);
+  font: 400 11px / 1.5 var(--ifm-font-family-monospace);
+  white-space: nowrap;
+}
+button.stage {
+  cursor: pointer;
+}
+button.stage:hover {
+  background: var(--store-hover);
+}
+button.stage:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 1px;
+}
+.stage[aria-pressed='true'] {
+  border-color: var(--ifm-color-primary);
+  background: var(--store-selected);
+}
+@media (pointer: coarse) {
+  button.stage {
+    padding-block: 0.35rem;
+  }
+}
+.stageFold {
+  padding-inline: 0.6rem;
+  border-radius: 999px;
+}
+/* the dim, dashed stages: a folded run, and the store */
+.stageFold,
+.stageEnd {
+  border-style: dashed;
+  color: var(--store-muted);
+}
+.stageNote {
+  color: var(--store-muted);
+}
+.stageSender {
+  border-color: var(--ifm-color-primary);
+}
+.stageStop {
+  border-color: var(--store-stale);
+  background: var(--store-stale-bg);
+}
+.stageOff {
+  opacity: 0.4;
 }
 /* the key keeps its room in a narrow row: the meta wraps under it first */
 .actKey {
@@ -1118,6 +1313,10 @@ div.gapRow {
    ends a scroll goes on to the list: a contained one trapped the wheel
    whenever the pointer rested on an open row */
 .steps {
+  /* a step's time column (its 11px text), and how far past the row's
+     padding its name starts: its changes and path start there too */
+  --step-time: calc(3.2 * 11px);
+  --step-name: calc(var(--step-time) + 0.6rem);
   margin: 0 0.75rem 0.35rem 1.05rem;
   border-left: 1px solid var(--store-line-strong);
   max-height: 16rem;
@@ -1127,6 +1326,12 @@ div.gapRow {
 .groupSteps > .steps {
   max-height: none;
   overflow-y: visible;
+  margin: 0;
+  border: none;
+}
+/* a step of the moment's row past the moment: the store hasn't seen it */
+.stepRow[data-after] {
+  opacity: 0.5;
 }
 div.stepRow {
   flex-wrap: wrap;
@@ -1134,11 +1339,16 @@ div.stepRow {
   padding: 0.15rem 0.6rem;
 }
 .stepRow .actTime {
-  min-width: 3.2em;
+  min-width: var(--step-time);
   text-align: right;
 }
+/* its changes on their own line, under its name */
 .stepRow .actSum {
-  flex: 1 1 12rem;
+  flex-basis: 100%;
+  padding-left: var(--step-name);
+}
+.stepRow .actSum:empty {
+  display: none;
 }
 div.joined {
   cursor: default;
@@ -1154,7 +1364,7 @@ div.joined {
   text-decoration-color: var(--store-dim);
 }
 .goneRef:hover {
-  background: rgba(199, 146, 234, 0.12);
+  background: color-mix(in srgb, var(--store-type) 12%, transparent);
 }
 
 /* an action at full width: what it did to the subject, then the action */
@@ -1166,7 +1376,9 @@ div.joined {
 }
 .actBody > .metaList {
   margin: 0;
-  padding: 0.4rem 0.75rem 0.2rem;
+  padding: 0 0.75rem 0.2rem;
+  /* its heading sets it apart */
+  border: none;
   /* narrow as the panel may be, the values keep room: names take only what
      they need, and a nested object goes under its name, indented */
   grid-template-columns: max-content minmax(0, 1fr);
@@ -1222,7 +1434,6 @@ div.joined {
   flex: none;
   display: flex;
   flex-direction: column;
-  box-shadow: inset 0 -1px 0 var(--store-line);
   color: var(--store-muted);
   font-size: 11px;
   outline: none;
@@ -1235,8 +1446,9 @@ div.joined {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  min-height: 1.9rem;
-  padding: 2px 0.375rem 2px 0.4rem;
+  /* the preview header's height, across the folder from it */
+  min-height: var(--pg-row, 3rem);
+  padding: 2px 0.5rem;
   transition: background-color var(--motion-snappy);
 }
 /* The pointer on a track holds what it shows still (`[data-held]`, see
@@ -1247,22 +1459,39 @@ div.joined {
 }
 .scrubRow > button {
   flex: none;
-  padding: 0 0.4rem;
-  border: 1px solid var(--store-line-strong);
-  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
   background: none;
   color: var(--store-fg);
   font: inherit;
-  line-height: 1.6;
+  font-size: 15px;
   cursor: pointer;
+  transition: background-color var(--motion-snappy);
 }
 .scrubRow > button:disabled {
   opacity: 0.4;
   cursor: default;
 }
+@media (hover: hover) {
+  .scrubRow > button:enabled:hover {
+    background: var(--store-hover);
+  }
+}
 /* the one lane at the scale's width, scrolling sideways past what fits (as
    .tlBody does): every action keeps its own mark. Too short for a scrollbar;
    a trackpad, ‹ › and the marks move it */
+.scrubLabel {
+  min-width: 0;
+  padding: 0 0.5rem 4px 2.6rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .scrubTrack {
   --tl-row: 18px;
   --tl-track: var(--tl-width);
@@ -1287,14 +1516,16 @@ div.joined {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0 0.4rem;
-  border: 1px solid var(--store-line-strong);
-  border-radius: 4px;
+  width: auto;
+  height: auto;
+  padding: 0 0.55rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--store-hover);
   color: var(--store-muted);
-  font: 500 11px / 1.6 var(--ifm-font-family-base);
+  font: 500 11px / 1.8 var(--ifm-font-family-base);
   transition:
     background-color var(--motion-snappy),
-    border-color var(--motion-snappy),
     color var(--motion-snappy);
 }
 .liveButton::before {
@@ -1315,7 +1546,6 @@ div.joined {
 }
 .scrubRow > button.liveButton:hover,
 .scrubRow > .liveCurrent {
-  border-color: color-mix(in srgb, var(--store-fresh) 40%, transparent);
   color: var(--store-fresh);
 }
 .scrubRow > .liveCurrent {
@@ -1340,7 +1570,7 @@ div.joined {
   opacity: 1;
 }
 .expand[aria-pressed='true'] {
-  background: var(--pg-tab-hover-bg);
+  background: var(--store-pressed);
 }
 .expand svg {
   width: 14px;
@@ -1355,26 +1585,40 @@ div.joined {
 .expand[aria-expanded='true'] svg {
   rotate: 180deg;
 }
-.scrubLabel {
-  min-width: 0;
-  padding: 0 0.5rem 4px 2.6rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.momentAction {
+/* text that is a button: the moment's action, and a manager the
+   playground's code declares, which opens it there */
+.momentAction,
+.managerLink,
+.codeLink {
   min-width: 0;
   padding: 0;
   border: 0;
   background: none;
   color: inherit;
   font: inherit;
-  text-decoration: underline dotted;
-  text-underline-offset: 2px;
   cursor: pointer;
 }
-.momentAction:hover {
+.momentAction,
+.managerLink {
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+.momentAction:hover,
+.codeLink:hover {
   color: var(--store-fg);
+}
+.managerLink:hover {
+  text-decoration-style: solid;
+}
+/* beside a pipeline stage, whose own click picks it */
+.codeLink {
+  margin-left: 0.3em;
+  color: var(--store-muted);
+}
+@media (pointer: coarse) {
+  .codeLink {
+    padding: 0.35rem 0.2rem;
+  }
 }
 
 /* The lanes, above the tabs; narrow, they drop over them as a sheet */
@@ -1388,7 +1632,7 @@ div.joined {
   right: 0;
   z-index: 5;
   background: var(--store-bg);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 10px 24px var(--pg-shadow);
 }
 .sheetBar,
 .paneHead {
@@ -1410,7 +1654,7 @@ div.joined {
   font: inherit;
 }
 .sheetBar button:hover {
-  background: var(--pg-tab-hover-bg);
+  background: var(--store-hover);
   opacity: 1;
 }
 .sheet .tlLanes {
@@ -1428,7 +1672,6 @@ div.joined {
   flex: none;
   display: flex;
   max-height: 12rem;
-  box-shadow: inset 0 -1px 0 var(--store-line-strong);
   outline: none;
 }
 .tlLanes:focus-visible {
@@ -1441,7 +1684,6 @@ div.joined {
   width: var(--tl-label);
   overflow-y: auto;
   scrollbar-width: none;
-  box-shadow: inset -1px 0 0 var(--store-line);
 }
 .tlLabels::-webkit-scrollbar {
   display: none;
@@ -1584,10 +1826,17 @@ button.tlMark:hover {
     0 0 0 2px var(--store-bg),
     0 0 0 3.5px var(--store-fg);
 }
-/* the store didn't see it (a plain fetch, a subscribe): no state to show */
+/* the store didn't see it (a plain fetch, a subscribe): picked, it shows
+   the store as it found it */
 .tlHollow {
   background: none;
   box-shadow: inset 0 0 0 1.5px currentColor;
+}
+.tlHollow[data-selected] {
+  box-shadow:
+    inset 0 0 0 1.5px currentColor,
+    0 0 0 2px var(--store-bg),
+    0 0 0 3.5px var(--store-fg);
 }
 .tlOptimistic {
   width: 7px;
@@ -1690,7 +1939,7 @@ button.tlMark:hover {
   border-radius: 6px;
   box-shadow:
     0 0 0 1px var(--store-line-strong),
-    0 8px 24px rgba(0, 0, 0, 0.45);
+    0 8px 24px var(--pg-shadow);
 }
 .previewCard > .actHead {
   padding: 0.35rem 0.6rem 0;
@@ -1716,31 +1965,31 @@ button.tlMark:hover {
   padding: 0.3rem 0.6rem 0.45rem;
 }
 
-/* the Action tab's actions before and after the one shown, a line each, to
-   step to; the one after stays at the bottom, of a short level too */
+/* the Action tab's action between the ones before and after it: columns
+   down its edges, as the timeline runs, take none of its height, and only
+   the action between them scrolls */
+.level > .actFrame {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr);
+}
+.actScroll {
+  overflow-y: auto;
+}
+/* the arrow, then (vertical) what it steps to, a long name cut short */
 .actStep {
   display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  width: 100%;
-  min-width: 0;
-  padding: 0.35rem 0.75rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  width: 1.75rem;
+  padding: 0.4rem 0;
+  overflow: hidden;
   border: 0;
-  border-bottom: 1px solid var(--store-line);
   background: none;
   color: var(--store-fg);
   font: inherit;
-  text-align: left;
-  white-space: nowrap;
-}
-.actStepAfter {
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
-  margin-top: auto;
-  border-top: 1px solid var(--store-line-strong);
-  border-bottom: 0;
-  background: var(--store-bg);
+  font-size: 11px;
 }
 .actStep:enabled {
   cursor: pointer;
@@ -1749,20 +1998,28 @@ button.tlMark:hover {
 .actStep:enabled:hover {
   background: var(--store-hover);
 }
-.actStepAfter:enabled:hover {
-  background: linear-gradient(var(--store-hover), var(--store-hover))
-    var(--store-bg);
-}
 .actStepDir {
-  flex: none;
-  width: 4.2rem;
   color: var(--store-dim);
-  font-size: 0.85em;
+  font-size: 1.4em;
+  line-height: 1;
+}
+.actStep:enabled:hover .actStepDir {
+  color: var(--store-fg);
 }
 .actStepName {
-  min-width: 0;
+  min-height: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .liveText {
   color: var(--store-fresh);
