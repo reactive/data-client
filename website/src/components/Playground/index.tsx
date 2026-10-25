@@ -1,9 +1,9 @@
-import Translate from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, {
   lazy,
   useCallback,
   useDeferredValue,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -25,8 +25,8 @@ import PreviewWrapper from './preview/PreviewWrapper';
 import type { LogOptions } from './preview/store/actionLog';
 import {
   DemoViewContext,
-  StoreBadge,
   StoreHeaderToggle,
+  StoreTab,
   StoreToggle,
   useStoreOpen,
 } from './preview/StoreToggle';
@@ -40,11 +40,13 @@ export interface PlaygroundProps<T = any> {
   groupId?: string;
   /** Store inspector open by default */
   defaultOpen?: 'y' | 'n';
-  /** Tabs for files + editor beside preview (when wide enough).
-   * Use when the code is one tall open file and the preview is short; row
-   * folds fixtures behind a toggle in the preview's header. Stay stacked when
-   * the Store opens by default (it would cover the code), or when the preview
-   * renders a long list (it gets tall in the narrow column). */
+  /** Files as tabs over a code card, the preview a folder beside it (when
+   * wide enough; under it otherwise), with the Store behind the preview: its
+   * tab opens it over the code. Use when the code is one tall open file and
+   * the preview is short; row folds fixtures behind a toggle in the
+   * preview's header. Stay stacked when the Store opens by default (it would
+   * cover the code), or when the preview renders a long list (it gets tall
+   * in the narrow column). */
   row?: boolean;
   /** Preview first, at full width, with room for a realistic app; the code
    * waits behind a Code toggle in its header (file tabs like `row`) and
@@ -58,7 +60,6 @@ export interface PlaygroundProps<T = any> {
   getInitialInterceptorData?: () => T;
   /** Title of the file tab to open; overrides `collapsed` metastrings */
   defaultTab?: string;
-  headerControls?: React.ReactNode;
   /** Show a badge counting the preview's React commits (e.g. one notification vs N) */
   renderCount?: boolean;
   /** How the Store's action log records (e.g. `{ recordFrom: 'open' }` for
@@ -84,7 +85,6 @@ export default function Playground<T>({
   fixtures = [],
   getInitialInterceptorData,
   defaultTab,
-  headerControls,
   renderCount = false,
   actionLog: logOptions,
   autoRun,
@@ -104,9 +104,26 @@ export default function Playground<T>({
     groupId,
     defaultOpen,
   );
-  // Row layout: the Store slides over the code, leaving the preview usable
+  // Row layout: the preview is a folder with the Store behind it, which its
+  // handle pulls out over the code (the folder's layer, .storeHost), leaving
+  // the preview usable
   const [storeHost, setStoreHost] = useState<HTMLDivElement | null>(null);
+  const storeId = useId();
   const codeCovered = row && storeOpen;
+  // the folder's handle: Escape anywhere on the folder pushes it shut
+  const handle = useRef<HTMLButtonElement>(null);
+  const shutStore = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key !== 'Escape' || event.defaultPrevented || !storeOpen)
+        return;
+      const tab = handle.current;
+      if (!tab) return;
+      event.preventDefault();
+      toggleStore({ currentTarget: tab });
+      tab.focus();
+    },
+    [storeOpen, toggleStore],
+  );
 
   // Demo layout: the code takes the result's place while shown
   const [codeShown, setCodeShown] = useState(false);
@@ -114,7 +131,7 @@ export default function Playground<T>({
   // the preview back along with what it says (Show Store, Hide Store); with
   // no code shown that is a no-op
   const toggleStoreInPreview = useCallback(
-    (event: React.MouseEvent<HTMLElement>) => {
+    (event: { currentTarget: HTMLElement }) => {
       setCodeShown(false);
       toggleStore(event);
     },
@@ -168,18 +185,8 @@ export default function Playground<T>({
       layout={layout}
       variant="playground"
       fixtureContent={fixtureContent}
-      headerControls={headerControls}
-      cover={
-        row ?
-          <>
-            <div ref={setStoreHost} className={styles.storeHost} />
-            <StoreBadge open={storeOpen} onClick={toggleStore} />
-          </>
-        : null
-      }
       covered={codeCovered}
       reveal={codeTarget}
-      coverTitle={<Translate id="playground.store">Store</Translate>}
     />
   );
   // the demo layout's Code toggle: in the preview's header whether or not
@@ -240,14 +247,35 @@ export default function Playground<T>({
             {preview}
           </>
         }
+        {row ?
+          <div
+            id={storeId}
+            className={styles.storeHost}
+            data-open={storeOpen || undefined}
+          >
+            <div
+              ref={setStoreHost}
+              className={styles.storeDrawer}
+              onKeyDown={shutStore}
+            >
+              <StoreTab
+                ref={handle}
+                open={storeOpen}
+                onClick={toggleStoreInPreview}
+                controls={storeId}
+              />
+            </div>
+          </div>
+        : null}
       </div>
     </div>
   );
 }
 
 /** SSR, crawler, hidden and loading state: empty preview frame + Store
- * toggle (the side strip, unless the code's corner badge is it), and row's
- * fixtures, already usable; so is a demo's Code toggle */
+ * toggle (the side strip; the row layout's is the folder's handle, rendered
+ * with the folder above), and row's fixtures, already usable; so is a demo's
+ * Code toggle */
 function PreviewLoading({
   row,
   fixtureContent,
@@ -259,7 +287,7 @@ function PreviewLoading({
 }) {
   return (
     <PreviewWrapper
-      headerControls={<StoreHeaderToggle />}
+      headerControls={row ? null : <StoreHeaderToggle />}
       fixtures={fixtureContent}
       code={code}
     >

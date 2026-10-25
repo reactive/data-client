@@ -99,7 +99,9 @@ export default function LivePreview<T>({
         headerControls={
           <>
             {badge}
-            <StoreHeaderToggle open={storeOpen} onClick={toggleStore} />
+            {row ? null : (
+              <StoreHeaderToggle open={storeOpen} onClick={toggleStore} />
+            )}
             <ResetButton onClick={reset} />
           </>
         }

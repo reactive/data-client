@@ -45,7 +45,7 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
   const toggle = useCallback(
-    (event: React.MouseEvent<HTMLElement>) => {
+    (event: { currentTarget: HTMLElement }) => {
       clicked = event.currentTarget;
       blockElementScrollPositionUntilNextRender(clicked);
       setChoice(open ? 'n' : 'y');
@@ -193,34 +193,37 @@ function HeaderToggle({
   );
 }
 
-/** The Store toggle in the code's corner, for playgrounds whose Store slides
- * over the code: it names what it brings back, and stays put as the Store
- * slides in under it, so a second click finds it where the first left it */
-export function StoreBadge({
+/** The folder's handle (../index.tsx renders it on the folder's drawer): a
+ * pull tab in the folder's color sticking out of the preview's left edge by
+ * its foot (stacked, out of its bottom edge). Pulled, it draws the folder's
+ * layer out over the code with the Store on it, and stays outside the
+ * Store's edge, drawn out (see .storeDrawer in ../styles.module.css) */
+export function StoreTab({
   onClick,
-  open,
+  open = false,
+  controls,
+  ref,
 }: {
-  onClick: React.MouseEventHandler<HTMLElement>;
-  open: boolean;
+  onClick?: React.MouseEventHandler<HTMLElement>;
+  open?: boolean;
+  /** The folder's id */
+  controls?: string;
+  ref?: React.Ref<HTMLButtonElement>;
 }) {
   return (
     <button
+      ref={ref}
       type="button"
-      className={clsx('clean-btn', styles.swap, styles.storeBadge)}
+      className={clsx('clean-btn', styles.storeTab)}
       title={toggleTitle(open)}
-      aria-pressed={open}
-      data-store-toggle
-      data-swapped={open || undefined}
+      aria-label={translate({ id: 'playground.store', message: 'Store' })}
+      aria-expanded={open}
+      aria-controls={controls}
+      disabled={!onClick}
       onClick={onClick}
+      data-store-toggle
     >
-      <span aria-hidden={open}>
-        <span className={styles.storeBadgeDot} />
-        <Translate id="playground.store">Store</Translate>
-      </span>
-      <span aria-hidden={!open}>
-        <CodeIcon className={styles.storeBadgeCode} />
-        <Translate id="playground.code">Code</Translate>
-      </span>
+      <StoreIcon />
     </button>
   );
 }

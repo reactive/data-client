@@ -6,7 +6,6 @@ import type * as Monaco from 'monaco-editor';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import Header from '../Header';
-import { editorLabel } from '../liveLabel';
 import { modelPath, useModelId } from '../monaco/modelPath';
 import { createMissingModels } from '../monaco/models';
 import NetworkIcon from '../NetworkIcon';
@@ -25,13 +24,8 @@ export interface EditorSurfaceProps extends CodeModel {
   /** When false, keep static SSR-friendly editors (no Monaco). Defaults true. */
   interactive?: boolean;
   fixtureContent?: React.ReactNode;
-  headerControls?: React.ReactNode;
-  /** Layer over the files, below the header rows (the Store drawer's host) */
-  cover?: React.ReactNode;
-  /** Whether `cover` hides the code (which goes inert) */
+  /** The Store covers the code, which goes inert */
   covered?: boolean;
-  /** Names `cover` in the header while it hides the code */
-  coverTitle?: React.ReactNode;
   /** A line to show, handed to its file's editor, which opens its tab and
    * puts the cursor there (each new object, once) */
   reveal?: CodeTarget | null;
@@ -44,10 +38,7 @@ export default function EditorSurface({
   variant,
   interactive = true,
   fixtureContent,
-  headerControls,
-  cover,
   covered = false,
-  coverTitle,
   reveal,
 }: EditorSurfaceProps) {
   const id = useModelId();
@@ -104,11 +95,9 @@ export default function EditorSurface({
         closedList={closedList}
         onClick={handleTabSwitch}
         compact={variant === 'standalone'}
-        subtabs={headerControls != null || layout === 'demo'}
+        subtabs={layout === 'demo'}
       />
     : null;
-  // the file tabs only pick which file shows, so they go under the cover
-  // with the files
   const code = documents.map((document, index) => (
     <React.Fragment key={`${document.path}:${index}`}>
       {(!row || document.col) && document.title ?
@@ -142,31 +131,21 @@ export default function EditorSurface({
     </React.Fragment>
   ));
   return (
-    <div
-      className={clsx(styles.playgroundTextEdit, {
-        [styles.withCover]: cover != null,
-      })}
-    >
-      <EditorHeader
-        fixtureContent={!row ? fixtureContent : undefined}
-        title={row && documents.length === 1 ? documents[0].title : undefined}
-        covered={covered}
-        coverTitle={coverTitle}
-        controls={headerControls}
-      />
-      {cover == null ?
+    <div className={styles.playgroundTextEdit}>
+      {!row && fixtureContent != null ?
         <>
-          {tabs}
-          {code}
+          <Header small className={styles.fixturesHeader}>
+            <NetworkIcon />
+            <Translate id="playground.fixtures">Fixtures</Translate>
+          </Header>
+          {fixtureContent}
         </>
-      : <div className={styles.editorBody}>
-          <div className={styles.editorDocs} inert={covered}>
-            {tabs}
-            {code}
-          </div>
-          {cover}
-        </div>
-      }
+      : null}
+      {tabs}
+      {/* the files: the code card in row layout, which the Store covers */}
+      <div className={styles.editorDocs} inert={covered}>
+        {code}
+      </div>
     </div>
   );
 }
@@ -265,8 +244,8 @@ function EditorTabs({
   closedList: readonly boolean[];
   onClick: (index: number) => void;
   compact: boolean;
-  /** Under another header (the controls', or the preview's in the demo
-   * layout): a step above the bar, so the two rows read apart */
+  /** Under the preview's header (the demo layout): a step above the bar, so
+   * the two rows read apart */
   subtabs: boolean;
 }) {
   const tabs = documents
@@ -283,6 +262,7 @@ function EditorTabs({
       small={subtabs || compact}
     >
       <TabList
+        label="Files"
         tabs={tabs.map(({ document, index }) => ({
           key: `${document.path}:${index}`,
           label: document.title,
@@ -291,52 +271,5 @@ function EditorTabs({
         }))}
       />
     </Header>
-  );
-}
-
-function EditorHeader({
-  title = editorLabel(),
-  covered,
-  coverTitle,
-  fixtureContent,
-  controls,
-}: {
-  title?: React.ReactNode;
-  /** The cover hides the code: the title names it, sliding in as it does */
-  covered: boolean;
-  coverTitle?: React.ReactNode;
-  fixtureContent?: React.ReactNode;
-  controls?: React.ReactNode;
-}) {
-  return (
-    <>
-      {fixtureContent != null ?
-        <>
-          <Header small className={styles.fixturesHeader}>
-            <NetworkIcon />
-            <Translate id="playground.fixtures">Fixtures</Translate>
-          </Header>
-          {fixtureContent}
-        </>
-      : null}
-      {controls != null ?
-        <Header
-          className={clsx(styles.tabControls, styles.controlTabs, {
-            [styles.overCover]: covered,
-          })}
-        >
-          <div className={styles.title}>
-            <span
-              className={clsx(styles.swap, styles.titleSwap)}
-              data-swapped={covered || undefined}
-            >
-              <span aria-hidden={covered}>{title}</span>
-              <span aria-hidden={!covered}>{coverTitle}</span>
-            </span>
-          </div>
-          {controls}
-        </Header>
-      : null}
-    </>
   );
 }

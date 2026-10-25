@@ -624,60 +624,62 @@ export default function StorePanel({
                       Action
                     </button>
                   </span>
-                  {tab === 'state' && (
-                    <span className={styles.barEnd}>
-                      <span
-                        className={styles.viewButtons}
-                        role="group"
-                        aria-label="State shown"
-                      >
-                        <button
-                          type="button"
-                          aria-label="Snapshot"
-                          title="Snapshot: the store at the moment"
-                          aria-pressed={!diffMode}
-                          onClick={() => setDiffMode(false)}
-                        >
-                          <SnapshotIcon />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="Diff"
-                          title="Diff: only what the moment changed"
-                          aria-pressed={diffMode}
-                          onClick={() => setDiffMode(true)}
-                        >
-                          <DiffIcon />
-                        </button>
-                      </span>
-                      <span
-                        className={styles.viewButtons}
-                        role="group"
-                        aria-label="Store view"
-                      >
-                        <button
-                          type="button"
-                          aria-label="Table view"
-                          title="Table view"
-                          aria-pressed={!tree}
-                          onClick={() => setView('table')}
-                        >
-                          <TableIcon />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="Tree view"
-                          title="Tree view"
-                          aria-pressed={tree}
-                          onClick={() => setView('tree')}
-                        >
-                          <TreeIcon />
-                        </button>
-                      </span>
-                    </span>
-                  )}
                 </div>
                 <div className={styles.tabPanel} role="tabpanel">
+                  {tab === 'state' && (
+                    <div className={styles.sheetHead}>
+                      <span className={styles.barEnd}>
+                        <span
+                          className={styles.viewButtons}
+                          role="group"
+                          aria-label="State shown"
+                        >
+                          <button
+                            type="button"
+                            aria-label="Snapshot"
+                            title="Snapshot: the store at the moment"
+                            aria-pressed={!diffMode}
+                            onClick={() => setDiffMode(false)}
+                          >
+                            <SnapshotIcon />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="Diff"
+                            title="Diff: only what the moment changed"
+                            aria-pressed={diffMode}
+                            onClick={() => setDiffMode(true)}
+                          >
+                            <DiffIcon />
+                          </button>
+                        </span>
+                        <span
+                          className={styles.viewButtons}
+                          role="group"
+                          aria-label="Store view"
+                        >
+                          <button
+                            type="button"
+                            aria-label="Table view"
+                            title="Table view"
+                            aria-pressed={!tree}
+                            onClick={() => setView('table')}
+                          >
+                            <TableIcon />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="Tree view"
+                            title="Tree view"
+                            aria-pressed={tree}
+                            onClick={() => setView('tree')}
+                          >
+                            <TreeIcon />
+                          </button>
+                        </span>
+                      </span>
+                    </div>
+                  )}
                   {/* both stay mounted, so each keeps the stores its levels
                       show, their scroll, pages and filters; both read the
                       moment's state where they show the moment's store */}

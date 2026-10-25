@@ -2,3 +2,45 @@
   margin-bottom: 3rem;
   /*margin-top: 1.2rem; add back to separate if needed */
 }
+
+/* REST or GraphQL (ProtocolChoice): a segmented control above the
+   playground, in a slim row of its own */
+.segmented {
+  --pg-seg: var(--ifm-color-emphasis-200);
+  --pg-seg-on: #fff;
+  width: fit-content;
+  margin-bottom: 6px;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 999px;
+  background: var(--pg-seg);
+}
+:root[data-theme='dark'] .segmented {
+  --pg-seg: #292c34;
+  --pg-seg-on: #3d424e;
+}
+.segmented > [role='tab'] {
+  height: 24px;
+  padding: 0 11px;
+  border-radius: 999px;
+  color: var(--ifm-color-emphasis-800);
+  font: 600 12px / 1 var(--ifm-font-family-base);
+  letter-spacing: 0.01em;
+  box-shadow: none;
+  transition:
+    background-color var(--motion-snappy),
+    color var(--motion-snappy);
+}
+.segmented > [role='tab']:hover {
+  background: none;
+  color: var(--ifm-font-color-base);
+}
+.segmented > [role='tab'][aria-selected='true'] {
+  background: var(--pg-seg-on);
+  color: var(--ifm-font-color-base);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.14);
+}
+.segmented > [role='tab']:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
+}

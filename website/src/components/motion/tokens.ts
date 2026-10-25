@@ -9,4 +9,7 @@ export const springs = {
   snappy: { duration: 0.25, bounce: 0.15 },
   /** Panels and drawers that carry content; no overshoot past their edge */
   smooth: { duration: 0.4, bounce: 0 },
+  /** A big surface pulled a long way, so the travel reads as deliberate:
+   * the Playground's Store drawer over the code (Playground/styles.module.css) */
+  drawer: { duration: 0.55, bounce: 0 },
 } as const satisfies Record<string, Spring>;

@@ -12,7 +12,6 @@ const HooksPlayground = ({
   demo = false,
   fixtures = [],
   defaultTab,
-  headerControls,
   renderCount,
   actionLog,
   autoRun,
@@ -27,7 +26,6 @@ const HooksPlayground = ({
     fixtures={fixtures}
     getInitialInterceptorData={getInitialInterceptorData}
     defaultTab={defaultTab}
-    headerControls={headerControls}
     renderCount={renderCount}
     actionLog={actionLog}
     autoRun={autoRun}

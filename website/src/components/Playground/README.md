@@ -44,7 +44,8 @@ monaco/             everything Monaco-specific
 preview/            live execution (loaded lazily, never on the server)
   LivePreview.tsx     react-live LiveProvider with scope + transformCode
   Preview.tsx         DataProvider + MockResolver(fixtures) + Store inspector
-  StoreToggle.tsx     Store toggles + open state
+  StoreInspector.tsx  the Store on the folder (row) or beside the result
+  StoreToggle.tsx     Store toggles (the folder's handle, header icon, side strip) + open state
   store/              Store inspector: StorePanel owns navigation (nav.tsx), actionLog.ts
                       logs dispatches, actionGroups.ts groups them, attribution.ts
                       says which manager sent or handled each (Pipeline.tsx, ManagerName.tsx)
@@ -124,9 +125,13 @@ DesignSystem/       demo styling (design-system.css) and components injected int
   `route="…"`, `start="…"` and `layout` (see Router), `{1-3}` highlight ranges (pre-selected in Monaco); `language-*` class. Element props
   override metastring values (Demo passes them directly). `defaultTab`
   overrides `collapsed`.
-- `row` layout: non-`column` files are tabs (focus switches tab); `column`
-  files stack with collapsible headers. Stacked layout: every titled file gets a header,
-  collapsible when there are several files or fixtures.
+- `row` layout, "folder and window" (`styles.module.css`, `.row`): the files
+  are tabs on the page over the code card; beside it (under it when the
+  playground is narrower than 720px) the preview is a folder of the stage's
+  color with the Store's layer behind it (see the Store below). Non-`column`
+  files are tabs (focus switches tab); `column` files stack with collapsible
+  headers. Stacked layout: every titled file gets a header, collapsible when
+  there are several files or fixtures.
 - `demo` layout (`demo` prop): for demos whose point is what happens on
   screen. The preview takes the full width and the code waits behind the
   header's Code toggle (`CodeHeaderToggle`); pressed, the code replaces the
@@ -177,19 +182,23 @@ DesignSystem/       demo styling (design-system.css) and components injected int
   and dark values. The editor's background is `--monoco-code-background`
   (`src/css/root.css`), shared by every code block on the site.
 - Store inspector open state persists per `groupId` via tab storage and
-  avoids scroll jumps. In `row` layout it slides over the code from the
-  preview's edge (portaled into a layer `EditorSurface` stacks on the code,
-  which goes `inert`), so the preview stays usable beside it; when the
-  layout stacks it opens upward over the code. It covers the file tabs
-  too, which only pick the file shown. Its toggle is `StoreBadge` in
-  the code's corner (rendered by `index.tsx` with the cover), which stays
-  put as the Store slides under it and names what it brings back (Store,
-  then Code); narrow, the preview header's icon takes over. Over the Store,
-  the header's selected control takes the Store's color so it still joins
-  what is under it.
-  It opens and closes as a drawer (`../motion`: the toggle glides, the panel
-  `Reveal`s); the panel's contents render a frame after it starts moving
-  (`useDeferredValue`).
+  avoids scroll jumps. In `row` layout it is on the preview's folder:
+  `index.tsx` renders the folder's layer (`.storeHost`, the container's
+  last child) with a drawer (`.storeDrawer`) that holds the handle
+  (`StoreTab`); `StoreInspector` portals the Store into the drawer
+  (`FolderPanel`, an `<Activity>` that hides once the drawer has slid
+  shut). Pulling the handle (click; keyboard; Escape anywhere on the drawer
+  pushes it shut and refocuses the handle) slides the drawer out, one
+  `translate`, over the code and its file tabs edge to edge (they go
+  `inert`), the handle riding outside the Store's edge, past the
+  playground's. Side by side it comes from the preview's left edge by its
+  foot; stacked, up from the preview's top edge. The preview stays usable
+  either way. The Store itself is chrome on the folder (the scrubber's row,
+  State and Action as tabs) and content on a sheet the picked tab joins
+  (`store.module.css`). In the other layouts the preview header's icon
+  (`StoreHeaderToggle`) or the side strip (`StoreToggle`) open it beside the
+  result as a drawer (`../motion`: the panel `Reveal`s); its contents render
+  a frame after it starts moving (`useDeferredValue`).
 - The Store inspector logs every dispatch through
   `preview/store/actionLog.ts`, which documents its limits and `LogOptions`
   (the Playground's `actionLog` prop, over `DOCS_LOG` in `index.tsx`: a docs
