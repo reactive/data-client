@@ -1093,6 +1093,21 @@ describe('MemoCache nested entity dependencies', () => {
     },
   );
 
+  it('a blank child id is not a dependency', () => {
+    const memo = new MemoCache();
+    const entities = {
+      Article: { '1': { ...article, author: '' } },
+      User: {},
+    };
+    const first = memo.denormalize(Article, '1', entities);
+    expect((first.data as any).author).toBeUndefined();
+    const second = memo.denormalize(Article, '1', {
+      ...entities,
+      User: { '2': bob },
+    });
+    expect(second.data).toBe(first.data);
+  });
+
   it('stays cached while the child stays INVALID', () => {
     const memo = new MemoCache();
     const entities = { Article: { '1': article }, User: { '2': INVALID } };
