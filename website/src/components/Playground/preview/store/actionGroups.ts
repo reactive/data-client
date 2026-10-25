@@ -523,23 +523,37 @@ export function groupEntriesOf(group: ActionGroup): readonly LogEntry[] {
   );
 }
 
-/** The actions a moment at `entry` stands for (see `Scope`), so their
- * effect shows as one */
+/** The group a moment at `seq` spans (see `Scope`): its request, its row,
+ * or none for the action alone */
+export function unitOf(
+  groups: readonly ActionGroup[],
+  seq: number,
+  scope: Scope,
+): ActionGroup | undefined {
+  switch (scope) {
+    case 'request':
+      return requestOf(groups, seq);
+    case 'group':
+      return groupOf(groups, seq);
+    case 'action':
+      return undefined;
+  }
+}
+
+/** The actions a moment at `entry` stands for, up to it, so their effect
+ * shows as one */
 export function momentEntries(
   groups: readonly ActionGroup[],
   entry: LogEntry,
   scope: Scope,
 ): readonly LogEntry[] {
-  if (scope === 'request') return requestEntries(groups, entry);
-  const group = scope === 'group' ? groupOf(groups, entry.seq) : undefined;
-  return group ?
-      groupEntriesOf(group).filter(e => e.seq <= entry.seq)
-    : [entry];
+  const unit = unitOf(groups, entry.seq, scope);
+  return unit ? groupEntriesOf(unit).filter(e => e.seq <= entry.seq) : [entry];
 }
 
 /** The group action `seq` belongs to, narrowed to its request when a
  * subscription polled it */
-export function requestOf(
+function requestOf(
   groups: readonly ActionGroup[],
   seq: number,
 ): ActionGroup | undefined {
@@ -549,27 +563,15 @@ export function requestOf(
     : group;
 }
 
-/** The group a moment at `seq` shows as one, and is named for: its row
- * (`group`) or request, when that has several actions; none for one alone */
+/** The group a moment at `seq` shows as one, and is named for: the one it
+ * spans, when that has several actions */
 export function shownGroup(
   groups: readonly ActionGroup[],
   seq: number,
   scope: Scope,
 ): ActionGroup | undefined {
-  if (scope === 'action') return;
-  const shown =
-    scope === 'group' ? groupOf(groups, seq) : requestOf(groups, seq);
-  return shown && !isLone(shown) ? shown : undefined;
-}
-
-/** The request `entry` belongs to, up to it: its optimistic update and
- * response together, even when a subscription polled it */
-export function requestEntries(
-  groups: readonly ActionGroup[],
-  entry: LogEntry,
-): readonly LogEntry[] {
-  const request = requestOf(groups, entry.seq);
-  return request ? request.entries.filter(e => e.seq <= entry.seq) : [entry];
+  const unit = unitOf(groups, seq, scope);
+  return unit && !isLone(unit) ? unit : undefined;
 }
 
 /** By seq, for each list of groups: the one holding that action */

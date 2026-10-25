@@ -14,17 +14,13 @@ import React, {
 import { ActionDetail, SubjectChanges } from './ActionDetail';
 import {
   groupEntries,
-  groupOf,
-  isLone,
   keepUnchanged,
   momentEntries,
   pickAt,
-  requestEntries,
   requestsOf,
   rowsOf,
   shownGroup,
   shownOf,
-  requestOf,
   subjectFilter,
   subjectGaps,
   touches,
@@ -44,7 +40,7 @@ import {
   type LogEntry,
 } from './actionLog';
 import type ActionLog from './actionLog';
-import { ActionName, KeyLabel, Time } from './actionParts';
+import { MomentName, Time } from './actionParts';
 import {
   ActionsContext,
   AtMoment,
@@ -78,6 +74,7 @@ import {
   type NavState,
   type Scope,
   type StackEntry,
+  type Step,
   type Then,
   useNavState,
   type LevelView,
@@ -96,6 +93,8 @@ import Unfold from '../../Unfold';
 
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
+/** What an action alone opens under, first that shows as a group */
+const UNDER = ['request', 'group'] as const satisfies readonly Scope[];
 
 export default function StorePanel({
   registry,
@@ -144,17 +143,17 @@ export default function StorePanel({
   const levels = useLevelStack(ROOT);
   // the Action tab opens at the moment's action, over the list Back goes to
   const actionLevels = useLevelStack(ACTIONS, NEWEST);
-  // the moment: right after one action, until "Live"; a new store (a
-  // reset) starts live, with no action of the old one left showing
-  const [momentSeq, setMomentSeq] = useState<number | null>(null);
-  // what the moment stands for: its request up to it, unless its row (the
-  // group) or its step (the action alone) was picked
-  const [scope, setScope] = useState<Scope>('request');
+  // the moment: right after one action, until "Live" (`null`); a new store
+  // (a reset) starts live, with no action of the old one left showing. It
+  // stands for its request up to it, unless its row (the group) or its step
+  // (the action alone) was picked; live stands for the newest request
+  const [pinned, setPinned] = useState<Step | null>(null);
+  const momentSeq = pinned?.seq ?? null;
+  const scope = pinned?.scope ?? 'request';
   const [shownId, setShownId] = useState(id);
   if (shownId !== id) {
     setShownId(id);
-    setMomentSeq(null);
-    setScope('request');
+    setPinned(null);
     actionLevels.followMoment(null);
     // levels a chip opened at the old store's actions show the new one
     levels.clearAt();
@@ -230,7 +229,7 @@ export default function StorePanel({
     const newest = known.findLast(
       e => e.store && e.action.type !== actionTypes.GC,
     );
-    return newest && requestEntries(groups, newest);
+    return newest && momentEntries(groups, newest, 'request');
   }, [groups, moment, scope, known]);
   const current = useMemo(
     () => new Set(moment && span ? span.map(e => e.seq) : []),
@@ -292,10 +291,7 @@ export default function StorePanel({
   const under = useCallback(
     (seq: number | null, to: Scope): Scope | undefined => {
       if (to !== 'action' || seq === null) return;
-      const request = requestOf(groupsRef.current, seq);
-      if (request && !isLone(request)) return 'request';
-      const row = groupOf(groupsRef.current, seq);
-      if (row && !isLone(row)) return 'group';
+      return UNDER.find(scope => shownGroup(groupsRef.current, seq, scope));
     },
     [],
   );
@@ -319,8 +315,7 @@ export default function StorePanel({
     (seq: number | null, to?: Scope) => {
       const next =
         seq === null ? 'request' : (to ?? (deep ? 'action' : 'request'));
-      setMomentSeq(seq);
-      setScope(next);
+      setPinned(seq === null ? null : { seq, scope: next });
       clearAt();
       followMoment(seq, next, under(seq, next));
     },
@@ -375,8 +370,7 @@ export default function StorePanel({
   // subject's actions (closing the peek and, narrow, the sheet)
   const show = useCallback(
     (seq: number, to: Scope = 'request') => {
-      setMomentSeq(seq);
-      setScope(to);
+      setPinned({ seq, scope: to });
       clearAt();
       setTab('action');
       showAction(seq, to);
@@ -441,10 +435,8 @@ export default function StorePanel({
       ...actionLevels,
       back: depth => {
         const up = actionStack[depth - 1]?.view;
-        if (up?.kind === 'action') {
-          setMomentSeq(up.seq);
-          setScope(up.scope ?? 'request');
-        }
+        if (up?.kind === 'action')
+          setPinned(up.seq === null ? null : { seq: up.seq, scope: up.scope });
         backActions(depth);
       },
     }),
@@ -1116,7 +1108,7 @@ function ActionLevel({
   header,
 }: {
   seq: number | null;
-  scope?: Scope;
+  scope: Scope;
   subject: View;
   header: Header;
 }) {
@@ -1163,11 +1155,7 @@ function ActionLevel({
  * of the subject's), and as one (see `Scope`) its request up to it when that
  * has more (its optimistic update shows too; a poll, only its own request),
  * or its group's actions up to it */
-function useShownAction(
-  seq: number | null,
-  scope: Scope = 'request',
-  subject: View,
-) {
+function useShownAction(seq: number | null, scope: Scope, subject: View) {
   const { log, history, groups } = useActions();
   const { entries } = history;
   const filter = useSubjectFilter(log, entries, subject);
@@ -1199,13 +1187,11 @@ function newestOf(
  * its depth (see `NavState`), which a click makes the moment, so the level
  * shows it instead */
 function ActionStep({ dir }: { dir: -1 | 1 }) {
-  const { history, groups } = useActions();
+  const { history } = useActions();
   const { earlier, later, step } = useNavState();
   const to = dir < 0 ? earlier : later;
   const label = dir < 0 ? 'Before' : 'After';
   const entry = to ? findEntry(history.entries, to.seq) : undefined;
-  // a request or row of several actions is named for them all
-  const shown = to && shownGroup(groups, to.seq, to.scope);
   return (
     <button
       type="button"
@@ -1222,11 +1208,9 @@ function ActionStep({ dir }: { dir: -1 | 1 }) {
           <span className={styles.dim}>
             {dir < 0 ? 'nothing the log kept' : 'nothing yet: this is live'}
           </span>
-        : entry ?
+        : to && entry ?
           <>
-            {shown ?
-              <KeyLabel value={shown.key} />
-            : <ActionName entry={entry} />}{' '}
+            <MomentName entry={entry} scope={to.scope} />{' '}
             <span className={styles.dim}>
               <Time at={entry.at} />
             </span>
@@ -1354,13 +1338,12 @@ function ActionCrumb({
   subject,
 }: {
   seq: number | null;
-  scope?: Scope;
+  scope: Scope;
   subject: View;
 }) {
-  const { entry, group } = useShownAction(seq, scope, subject);
+  const { entry } = useShownAction(seq, scope, subject);
   return (
-    group ? <KeyLabel value={group.key} />
-    : entry ? <ActionName entry={entry} />
+    entry ? <MomentName entry={entry} scope={scope} />
     : seq === null ? <>Newest</>
     : <>…</>
   );

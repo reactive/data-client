@@ -92,7 +92,7 @@ export interface Step {
 interface ActionView {
   readonly kind: 'action';
   readonly seq: number | null;
-  readonly scope?: Scope;
+  readonly scope: Scope;
 }
 
 /** The actions that touched the subject under it, at full width */
@@ -243,7 +243,7 @@ export function useLevelStack(
             ({ view }, j) =>
               view.kind === 'action' &&
               view.seq === views[j].seq &&
-              (view.scope ?? 'request') === views[j].scope,
+              view.scope === views[j].scope,
           )
         )
           return prev;
@@ -274,7 +274,11 @@ export function useLevelStack(
 }
 export const ACTIONS: ActionsView = { kind: 'actions' };
 /** The newest action, followed while live */
-export const NEWEST: ActionView = { kind: 'action', seq: null };
+export const NEWEST: ActionView = {
+  kind: 'action',
+  seq: null,
+  scope: 'request',
+};
 
 /** The store as an action left it, or (`before`) found it (a removed row
  * shows as it was). A level pushed at a Moment shows that store, and so does

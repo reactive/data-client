@@ -244,10 +244,8 @@ function ActionList({
     if (!next) return;
     e.preventDefault();
     next.focus();
-    set(
-      Number(next.dataset.seq),
-      next.dataset.id === next.dataset.group ? 'group' : 'request',
-    );
+    // a step stands for its request up to it
+    set(Number(next.dataset.seq), (next.dataset.scope as Scope) ?? 'request');
   };
   return (
     <div ref={scroller} className={styles.actList} onKeyDown={onKeyDown}>
@@ -392,8 +390,8 @@ const GroupRow = memo(function GroupRow({
         aria-expanded={open}
         aria-current={!!marked || undefined}
         data-id={rowId(group)}
-        data-group={group.id}
         data-seq={seq}
+        data-scope={scope}
         className={clsx(styles.row, styles.actRow)}
         onClick={select}
         onKeyDown={onActivateKey(select)}
@@ -541,7 +539,6 @@ function Steps({
                 key={entry.seq}
                 entry={entry}
                 own={group.key}
-                group={group.id}
                 subject={subject}
                 current={!!marked?.has(entry.seq)}
                 after={!!marked && seq !== null && entry.seq > seq}
@@ -577,7 +574,6 @@ function Steps({
 function StepRow({
   entry,
   own,
-  group,
   subject,
   current,
   after,
@@ -585,8 +581,6 @@ function StepRow({
 }: {
   entry: LogEntry;
   own: string;
-  /** The row's group, which ↑ ↓ keep to */
-  group: string;
   subject: View;
   /** Whether the moment stands for it */
   current: boolean;
@@ -605,7 +599,6 @@ function StepRow({
       aria-current={current || undefined}
       data-after={after || undefined}
       data-id={actionId(entry.seq)}
-      data-group={group}
       data-seq={entry.seq}
       className={clsx(styles.row, styles.stepRow)}
       onClick={select}

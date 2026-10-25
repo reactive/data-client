@@ -14,6 +14,7 @@ import {
   actionKey,
   actionName,
   pollFrequencyOf,
+  shownGroup,
   type ActionGroup,
   type Change,
   type RequestGroup,
@@ -24,13 +25,14 @@ import type ActionLog from './actionLog';
 import { isRecordChange, type History, type LogEntry } from './actionLog';
 import { notableAttribution } from './attribution';
 import { kindColor } from './dom';
+import { ManagerName } from './ManagerName';
 import {
   ActionSpanContext,
   type ActionSpan,
   type Moment,
+  type Scope,
   type Then,
 } from './nav';
-import { ManagerName } from './ManagerName';
 import styles from './store.module.css';
 import { CountChip, EndpointKey, EntityKey, RefChip } from './Value';
 import {
@@ -741,6 +743,20 @@ export function ChangeChip({ change }: { change: Change }) {
       }
     />
   );
+}
+
+/** The moment at `entry` (as much as `scope` says): a request or row of
+ * several actions is named for them all, else the action */
+export function MomentName({
+  entry,
+  scope,
+}: {
+  entry: LogEntry;
+  scope: Scope;
+}) {
+  const { groups } = useActions();
+  const group = shownGroup(groups, entry.seq, scope);
+  return group ? <KeyLabel value={group.key} /> : <ActionName entry={entry} />;
 }
 
 /** `setResponse GET /posts`, or `gc` for an action without a key */

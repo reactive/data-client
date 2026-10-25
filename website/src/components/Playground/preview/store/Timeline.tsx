@@ -11,7 +11,6 @@ import React, {
 import {
   actionName,
   groupEntriesOf,
-  shownGroup,
   shownOf,
   type ActionGroup,
   type RequestGroup,
@@ -19,7 +18,7 @@ import {
 } from './actionGroups';
 import type ActionLog from './actionLog';
 import type { History, LogEntry } from './actionLog';
-import { ActionName } from './actionParts';
+import { MomentName } from './actionParts';
 import {
   CATCH_UP_MS,
   droppedIn,
@@ -606,8 +605,6 @@ export const Scrubber = memo(function Scrubber({
     step: onStep,
     show,
   } = useNavState();
-  // a request or row of several actions is named for them all
-  const group = entry && shownGroup(groups, entry.seq, scope);
   const { shown, scale, drawn, decor } = useDrawer(actions, hit, onMark);
   const end = useTrackFollow(track, scale, catchingUp);
 
@@ -722,9 +719,7 @@ export const Scrubber = memo(function Scrubber({
             title="Show action"
             onClick={() => show(entry.seq, scope)}
           >
-            {group ?
-              <KeyLabel value={group.key} />
-            : <ActionName entry={entry} />}
+            <MomentName entry={entry} scope={scope} />
           </button>
           <span className={styles.dim}>
             {' · '}
