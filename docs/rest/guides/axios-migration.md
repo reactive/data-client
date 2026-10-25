@@ -6,37 +6,41 @@ sidebar_label: Axios Migration
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import PkgTabs from '@site/src/components/PkgTabs';
 import DiffEditor from '@site/src/components/DiffEditor';
-import SetupTabs from '@site/src/components/SetupTabs';
 import SiteOnly from '@site/src/components/SiteOnly';
 import AgentOnly from '@site/src/components/AgentOnly';
 
 # Migrating from Axios
 
-[`@data-client/rest`](/rest) replaces axios calls with typed endpoints whose responses go into one normalized cache.
-A [codemod](#codemod) converts the calls; the [steps](#steps) below cover the rest.
+[`@data-client/rest`](/rest) replaces axios calls with typed endpoint definitions. Components keep calling them the way
+they called axios, so how the app loads and stores data doesn't change. A [codemod](#codemod) converts the calls; the
+[steps](#steps) below cover the rest.
 
 <SiteOnly>
 
 ## Migrate with your coding agent {#agent}
 
-<SetupTabs task="Migrate this app from axios to `@data-client/rest`" />
+Paste this into your agent's chat:
 
-Your agent runs Data Client's setup [skill](/docs/getting-started/agent-skills), which follows this guide: it sets up
-Data Client if the app doesn't have it yet, runs the codemod, then works through the [steps](#steps) the codemod can't
-do. Review its diff like a teammate's.
+```prompt
+Replace this app's axios calls with `@data-client/rest` endpoints, without changing how components load or store data. Install the REST setup skill first: `npx skills add reactive/data-client --skill data-client-rest-setup -y`, then follow it.
+```
+
+The REST setup [skill](/docs/getting-started/agent-skills) follows this guide: it runs the codemod, then works through
+the [steps](#steps) the codemod can't do. Review its diff like a teammate's.
 
 </SiteOnly>
 
 <AgentOnly>
 
-To migrate an app from axios, install Data Client's setup skill from the project root:
+To migrate an app from axios, install the REST setup skill from the project root:
 
 ```bash
-npx skills add reactive/data-client --skill data-client-setup -y
+npx skills add reactive/data-client --skill data-client-rest-setup -y
 ```
 
-Then read `.agents/skills/data-client-setup/SKILL.md` and follow it. It sets up Data Client if the app doesn't have
-it, detects axios, and follows the steps below. If the app already uses Data Client, do the [steps](#steps) in order.
+Then read `.agents/skills/data-client-rest-setup/SKILL.md` and follow it; it detects axios and follows the
+[steps](#steps) below. Only replace the axios calls and their definitions: leave components, data loading and state
+management as they are, unless the user asks to change them.
 
 </AgentOnly>
 
@@ -55,12 +59,11 @@ getUser({ id: '1' });
 
 </DiffEditor>
 
-- **Normalized cache**: each entity is stored once, so an update shows everywhere it's used, without refetching.
-- **Declarative data**: components say what data they need with [`useSuspense()`](/docs/api/useSuspense), not how to
-  fetch it, or track loading and error state.
-- **Mutations update the UI**: responses update the cache, and [optimistic updates](./optimistic-updates.md) show the
-  change before the server answers.
+- **Typed end to end**: path parameters, bodies and responses are typed from each definition.
 - **Less code**: [`resource()`](../api/resource.md) makes a full CRUD API from a `path` and a `schema`.
+- **One place for request behavior**: a base endpoint's methods replace interceptors and per-call config.
+- **Ready for the store**: the same endpoints and schemas work with [`useSuspense()`](/docs/api/useSuspense) and the
+  normalized cache, whenever you adopt them.
 
 ## Migrate step by step {#steps}
 
@@ -73,8 +76,6 @@ These are the steps your agent follows. Commit before each one, so you can revie
 ### 1. Install {#install}
 
 <PkgTabs pkgs="@data-client/rest" />
-
-If the app doesn't use Data Client yet, also [install it and add its provider](/docs/getting-started/installation#manual-setup).
 
 ### 2. Run the codemod {#codemod}
 
@@ -219,11 +220,11 @@ read them. Use [`hookifyResource()`](../api/hookifyResource.md) to add the heade
 
 ### 4. Define entities and resources {#entities}
 
-The codemod makes endpoints without a `schema`. An [Entity](../api/Entity.md) schema is what normalizes and caches the
-responses, so define one for each type the API returns. Replace each module's CRUD functions on one path with a
+The codemod makes endpoints without a `schema`. Define an [Entity](../api/Entity.md) for each type the API returns: its
+fields, their types and its primary key. Replace each module's CRUD functions on one path with a
 [`resource()`](../api/resource.md):
 
-<DiffEditor caption="One `resource()` replaces a module of CRUD functions, and `schema` puts every response in the normalized cache.">
+<DiffEditor caption="One `resource()` replaces a module of CRUD functions, and `schema` types every response.">
 
 ```ts title="Before"
 import api from './api';
@@ -320,8 +321,8 @@ operations that aren't CRUD, like search, custom actions and auth.
 
 :::warning
 
-Don't define Entity classes and then leave `schema` unset on the endpoints: without `schema`, nothing is normalized,
-and the migration gains little over axios.
+Don't define Entity classes and then leave `schema` unset on the endpoints: without `schema`, responses lose their
+types, and the store can't normalize them when you adopt it.
 
 :::
 
@@ -382,140 +383,32 @@ If the codebase already validates responses with Zod or Yup, choose one approach
 - **Zod only, no Entity**: leave `schema` unset and parse manually. Only do this for endpoints that don't gain from
   normalization (auth tokens, one-off responses).
 
-### 5. Convert call sites to hooks {#hooks}
+### 5. Update call sites {#call-sites}
 
-Components stop storing responses in state. They read endpoints with [`useSuspense()`](/docs/api/useSuspense), and
-mutate through the [Controller](/docs/api/Controller), which updates every component that shows the changed data.
+Components and services keep their own loading and state; only the call changes.
 
-:::react
+<DiffEditor caption="Endpoints resolve to the parsed body, so `.data` goes away, and parameters become one object.">
 
-<DiffEditor caption="Loading and error states move to an `AsyncBoundary` above the component.">
+```ts title="Before"
+import { createPost, getPost, getPosts } from './api/posts';
 
-```tsx title="Before"
-import { useEffect, useState } from 'react';
-import { createPost, getPosts, type Post } from './api/posts';
-import PostItems from './PostItems';
-import Spinner from './Spinner';
-
-function PostList() {
-  const [posts, setPosts] = useState<Post[] | null>(null);
-  useEffect(() => {
-    getPosts().then(({ data }) => setPosts(data));
-  }, []);
-  const addPost = async (title: string) => {
-    const { data } = await createPost({ title, body: '' });
-    setPosts(posts => [...(posts ?? []), data]);
-  };
-  if (!posts) return <Spinner />;
-  return <PostItems posts={posts} onAdd={addPost} />;
-}
+const { data: posts } = await getPosts();
+const { data: post } = await getPost('1');
+const { data: created } = await createPost({ title: 'Hello', body: '' });
 ```
 
-```tsx title="After"
-import { useController, useSuspense } from '@data-client/react';
+```ts title="After"
 import { PostResource } from './api/posts';
-import PostItems from './PostItems';
 
-function PostList() {
-  const posts = useSuspense(PostResource.getList);
-  const ctrl = useController();
-  // callout: Adds the new post to the cached list, so every component showing the list updates without a refetch.
-  const addPost = (title: string) =>
-    ctrl.fetch(PostResource.getList.push, { title, body: '' });
-  return <PostItems posts={posts} onAdd={addPost} />;
-}
+const posts = await PostResource.getList();
+const post = await PostResource.get({ id: '1' });
+const created = await PostResource.getList.push({ title: 'Hello', body: '' });
 ```
 
 </DiffEditor>
 
-Put an [`AsyncBoundary`](/docs/api/AsyncBoundary) around the routes or panels that load data, to show their loading
-and error states.
-
-:::
-
-:::vue
-
-<DiffEditor caption="Loading and error states move to a `<Suspense>` above the component.">
-
-```html title="Before"
-<script setup lang="ts">
-  import { onMounted, ref } from 'vue';
-  import { createPost, getPosts, type Post } from './api/posts';
-  import PostItems from './PostItems.vue';
-
-  const posts = ref<Post[]>();
-  onMounted(async () => {
-    posts.value = (await getPosts()).data;
-  });
-  async function addPost(title: string) {
-    const { data } = await createPost({ title, body: '' });
-    posts.value = [...(posts.value ?? []), data];
-  }
-</script>
-
-<template>
-  <Loading v-if="!posts" />
-  <PostItems v-else :posts="posts" @add="addPost" />
-</template>
-```
-
-```html title="After"
-<script setup lang="ts">
-  import { useController, useSuspense } from '@data-client/vue';
-  import { PostResource } from './api/posts';
-  import PostItems from './PostItems.vue';
-
-  const posts = await useSuspense(PostResource.getList);
-  const ctrl = useController();
-  // callout: Adds the new post to the cached list, so every component showing the list updates without a refetch.
-  const addPost = (title: string) =>
-    ctrl.fetch(PostResource.getList.push, { title, body: '' });
-</script>
-
-<template>
-  <PostItems :posts="posts" @add="addPost" />
-</template>
-```
-
-</DiffEditor>
-
-Put a [`<Suspense>`](https://vuejs.org/guide/built-ins/suspense.html) around the routes or panels that load data, to
-show their loading state, and handle their errors with
-[`onErrorCaptured()`](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured).
-
-:::
-
-:::react
-
-#### Gradual migration
-
-If the app uses TanStack Query or SWR and can't convert everything at once, keep those hooks for now but fetch through
-[`controller.fetch()`](/docs/api/Controller#fetch). Calling an endpoint directly only runs its fetch; going through the
-Controller also normalizes the response into the shared cache, so data is consistent from day one:
-
-```ts
-import { useController } from '@data-client/react';
-import { useQuery } from '@tanstack/react-query';
-import ApiEndpoint from './ApiEndpoint';
-import { Project } from './Project';
-
-export const getProject = new ApiEndpoint({
-  path: '/projects/:id',
-  schema: Project,
-});
-
-export function useProject(id: string) {
-  const ctrl = useController();
-  return useQuery({
-    queryKey: ['project', id],
-    queryFn: () => ctrl.fetch(getProject, { id }),
-  });
-}
-```
-
-Later, replace `useProject(id)` with `useSuspense(getProject, { id })`.
-
-:::
+Reading these endpoints through the store, with [`useSuspense()`](/docs/api/useSuspense) and the normalized cache, is a
+separate step you can take later; see [data dependencies](/docs/getting-started/data-dependency).
 
 ### 6. Migrate error handling {#error-handling}
 
@@ -551,9 +444,8 @@ try {
 
 </DiffEditor>
 
-Components that read with `useSuspense()` get errors from :react[their `AsyncBoundary`]:vue[`onErrorCaptured()`]
-instead of a `try`. For soft retries on
-server errors, see [`errorPolicy`](../api/RestEndpoint.md#errorpolicy).
+Read a server's error message from the body once, in the base endpoint; see
+[server error messages](#server-error-messages).
 
 ### 7. Remove axios {#remove-axios}
 
@@ -619,19 +511,6 @@ controller.abort();
 
 </DiffEditor>
 
-In components, [`useCancelling()`](/docs/api/useCancelling) cancels the in-flight request when its parameters change:
-
-```tsx
-import { useCancelling, useSuspense } from '@data-client/react';
-import { searchEndpoint } from './api/search';
-import ResultsList from './ResultsList';
-
-function SearchResults({ query }: { query: string }) {
-  const results = useSuspense(useCancelling(searchEndpoint), { q: query });
-  return <ResultsList results={results} />;
-}
-```
-
 See the [abort guide](./abort.md) for more patterns.
 
 ### Timeout
@@ -650,7 +529,7 @@ export default class ApiEndpoint<
   async getRequestInit(body?: RequestInit['body'] | Record<string, unknown>) {
     const init = await super.getRequestInit(body);
     const timeout = AbortSignal.timeout(5000);
-    // callout: Keeps `extend({ signal })` and `useCancelling()` working: either signal aborts the request.
+    // callout: Keeps `extend({ signal })` cancellation working: either signal aborts the request.
     const signal = init.signal ? AbortSignal.any([init.signal, timeout]) : timeout;
     return { ...init, signal };
   }
@@ -671,8 +550,6 @@ axios.get('/files/1', { responseType: 'blob' });
 const downloadFile = new RestEndpoint({
   path: '/files/:id',
   content: 'blob',
-  // callout: Keeps large blobs out of the cache
-  dataExpiryLength: 0,
 });
 ```
 

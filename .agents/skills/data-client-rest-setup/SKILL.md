@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # REST Protocol Setup & Migration
 
-This guide configures `@data-client/rest` for a project. It handles both fresh setup and migration from existing HTTP libraries. Use it once the Data Client provider is set up and the project calls REST APIs.
+This guide configures `@data-client/rest` for a project. It handles both fresh setup and migration from existing HTTP libraries. Use it when the project calls REST APIs. It only defines endpoints and schemas, so it doesn't need the Data Client provider; leave how the app loads and stores data alone unless the user asks to change it.
 
 The [RestEndpoint](references/RestEndpoint.md) and [resource](references/resource.md) references cover the APIs this guide uses. If the skill "data-client-rest" is installed, also apply it for resource and endpoint patterns beyond setup.
 

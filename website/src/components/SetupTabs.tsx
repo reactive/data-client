@@ -14,22 +14,13 @@ import {
   cursorPluginCommand,
   cursorSetupPrompt,
   codexSetupPrompt,
-  setupPrompt,
-  setupTask,
 } from '../../framework-docs/skillCommands.mjs';
-
-interface Props {
-  /** what the setup skill does, in place of setting up Data Client, like
-   * "Migrate this app from axios to `@data-client/rest`" */
-  task?: string;
-}
 
 /** Ways to set up Data Client with an agent: agents' own plugins first
  * (install, then start setup in the agent's chat), then the
  * prompt other agents take in their chat */
-export default function SetupTabs({ task }: Props) {
+export default function SetupTabs() {
   const framework = useFramework();
-  const request = task || setupTask(framework);
   return (
     <Tabs groupId="agent-setup" className={styles.tabs}>
       <TabItem
@@ -42,7 +33,7 @@ export default function SetupTabs({ task }: Props) {
           {claudePluginCommand}
         </CodeBlock>
         <AgentPrompt
-          prompt={claudeSetupPrompt(request)}
+          prompt={claudeSetupPrompt(framework)}
           title="Claude Code"
           framed
         />
@@ -62,7 +53,7 @@ export default function SetupTabs({ task }: Props) {
           </Translate>
         </p>
         <AgentPrompt
-          prompt={cursorSetupPrompt(request)}
+          prompt={cursorSetupPrompt(framework)}
           title="Cursor"
           framed
         />
@@ -75,15 +66,18 @@ export default function SetupTabs({ task }: Props) {
         <CodeBlock className="language-bash" metastring="framed">
           {codexPluginCommand}
         </CodeBlock>
-        <AgentPrompt prompt={codexSetupPrompt(request)} title="Codex" framed />
+        <AgentPrompt
+          prompt={codexSetupPrompt(framework)}
+          title="Codex"
+          framed
+        />
       </TabItem>
       <TabItem
         value="other"
         attributes={{ className: styles.other }}
         label="Other agents"
       >
-        {/* the default prompt is translated */}
-        <AgentPrompt prompt={task ? setupPrompt(task) : undefined} framed />
+        <AgentPrompt framed />
       </TabItem>
     </Tabs>
   );

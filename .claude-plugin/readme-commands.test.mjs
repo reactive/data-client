@@ -15,7 +15,6 @@ import {
   cursorSetupPrompt,
   setupCommand,
   setupPrompt,
-  setupTask,
 } from '../website/framework-docs/skillCommands.mjs';
 
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
@@ -29,13 +28,13 @@ for (const [file, framework] of Object.entries({
   test(`${file} setup commands match skillCommands.mjs`, () => {
     const readme = read(file);
     for (const command of [
-      setupPrompt(setupTask(framework)),
+      setupPrompt(framework),
       claudePluginCommand,
-      claudeSetupPrompt(setupTask(framework)),
+      claudeSetupPrompt(framework),
       cursorPluginCommand,
-      cursorSetupPrompt(setupTask(framework)),
+      cursorSetupPrompt(framework),
       codexPluginCommand,
-      codexSetupPrompt(setupTask(framework)),
+      codexSetupPrompt(framework),
     ])
       assert.ok(readme.includes(command), command);
   });
@@ -44,18 +43,13 @@ for (const [file, framework] of Object.entries({
 // protocol READMEs carry only the prompt
 for (const pkg of ['rest', 'graphql', 'endpoint']) {
   test(`packages/${pkg}/README.md setup prompt matches skillCommands.mjs`, () => {
-    assert.ok(
-      read(`packages/${pkg}/README.md`).includes(setupPrompt(setupTask(pkg))),
-    );
+    assert.ok(read(`packages/${pkg}/README.md`).includes(setupPrompt(pkg)));
   });
 }
 
 test("AgentPrompt's default prompt matches setupPrompt", () => {
   // its translate() literal can't import setupPrompt (i18n extraction needs a literal)
-  const message = setupPrompt(setupTask('{framework}')).replace(
-    setupCommand,
-    '{command}',
-  );
+  const message = setupPrompt('{framework}').replace(setupCommand, '{command}');
   assert.ok(
     read('website/src/components/AgentPrompt.tsx').includes(`'${message}'`),
     message,
