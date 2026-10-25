@@ -271,7 +271,7 @@ div.playground-preview h1:first-child {
   flex: 1 1 100%;
   line-height: 1.1;
 }
-.playground-preview .listItem > label input[type='text'] {
+.playground-preview .listItem > label input:is(:not([type]), [type='text']) {
   width: calc(100% - 21px);
 }
 /* An avatar with a name: beside each other in a row (a post's author under
@@ -303,7 +303,7 @@ div.playground-preview h1:first-child {
   padding: 2px 6px;
 }
 .playground-preview button:where(:not([class]), .primary),
-.playground-preview input[type='text']:where(:not([class])),
+.playground-preview input:is(:not([type]), [type='text']):where(:not([class])),
 .playground-preview textarea:where(:not([class])) {
   border: 1px solid var(--ds-border-strong);
   border-radius: var(--ds-radius-sm);
@@ -350,14 +350,15 @@ div.playground-preview h1:first-child {
   background: var(--ds-accent-strong);
   border-color: var(--ds-accent-strong);
 }
-.playground-preview input[type='text']:where(:not([class])),
+.playground-preview input:is(:not([type]), [type='text']):where(:not([class])),
 .playground-preview textarea:where(:not([class])) {
   padding: 0.3rem 0.625rem;
   transition:
     border-color var(--motion-snappy),
     box-shadow var(--motion-snappy);
 }
-.playground-preview input[type='text']:where(:not([class])):focus-visible,
+.playground-preview
+  input:is(:not([type]), [type='text']):where(:not([class])):focus-visible,
 .playground-preview textarea:where(:not([class])):focus-visible {
   outline: none;
   border-color: var(--ds-accent);
@@ -434,7 +435,7 @@ div.playground-preview h1:first-child {
   outline: 2px solid var(--ds-accent);
   outline-offset: 2px;
 }
-.playground-preview form input[type='text'],
+.playground-preview form input:is(:not([type]), [type='text']),
 .playground-preview form textarea {
   width: 100%;
 }
