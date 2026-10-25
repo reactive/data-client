@@ -1121,16 +1121,10 @@ function ActionLevel({
   header: Header;
 }) {
   const { entry, group, span, filter } = useShownAction(seq, scope, subject);
-  // the steps lead, before on the left and after on the right as the
-  // timeline runs, so the crumbs under them head the action shown
+  // the steps flank it, before on the left and after on the right as the
+  // timeline runs, in columns that take none of the height
   return (
     <>
-      {entry && (
-        <div className={styles.actSteps}>
-          <ActionStep dir={-1} />
-          <ActionStep dir={1} />
-        </div>
-      )}
       {header(
         seq === null && entry && <span className={styles.dim}>newest</span>,
       )}
@@ -1140,7 +1134,8 @@ function ActionLevel({
             'Nothing dispatched yet. The newest action shows here as the preview runs.'
           : 'No longer in the log.'}
         </p>
-      : <>
+      : <div className={styles.actFrame}>
+          <ActionStep dir={-1} />
           {group && span ?
             <div className={styles.actBody}>
               <h3 className={styles.sectionLabel}>Steps</h3>
@@ -1154,7 +1149,8 @@ function ActionLevel({
               gap={filter.gaps.get(entry.seq)}
             />
           }
-        </>
+          <ActionStep dir={1} />
+        </div>
       }
     </>
   );
@@ -1213,34 +1209,30 @@ function ActionStep({ dir }: { dir: -1 | 1 }) {
       className={clsx(styles.actStep, dir > 0 && styles.actStepAfter)}
       data-dir={label}
       disabled={to === undefined}
-      title={
-        to === undefined ? undefined
-        : to === null ?
-          'Back to live'
-        : 'Step to this action'
-      }
       onClick={() => step(dir)}
     >
-      <span className={styles.actStepDir}>
-        {to !== undefined && dir < 0 && '← '}
-        {label}
-        {to !== undefined && dir > 0 && ' →'}
-      </span>
-      <span className={styles.actStepName}>
-        {to === undefined ?
-          <span className={styles.dim}>
-            {dir < 0 ? 'nothing the log kept' : 'nothing yet: this is live'}
-          </span>
-        : entry ?
-          <>
-            {shown ?
-              <KeyLabel value={shown.key} />
-            : <ActionName entry={entry} />}{' '}
+      {/* the arrow, then what it steps to read down the column */}
+      <span className={styles.actStepInner}>
+        <span className={styles.actStepDir} aria-hidden>
+          {dir < 0 ? '‹' : '›'}
+        </span>
+        <span className={styles.actStepName}>
+          <span className={styles.srOnly}>{label}: </span>
+          {to === undefined ?
             <span className={styles.dim}>
-              <Time at={entry.at} />
+              {dir < 0 ? 'nothing the log kept' : 'nothing yet: this is live'}
             </span>
-          </>
-        : <span className={styles.liveText}>Live</span>}
+          : entry ?
+            <>
+              {shown ?
+                <KeyLabel value={shown.key} />
+              : <ActionName entry={entry} />}{' '}
+              <span className={styles.dim}>
+                <Time at={entry.at} />
+              </span>
+            </>
+          : <span className={styles.liveText}>Live</span>}
+        </span>
       </span>
     </button>
   );

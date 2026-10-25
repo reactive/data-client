@@ -1872,31 +1872,29 @@ button.tlMark:hover {
   padding: 0.3rem 0.6rem 0.45rem;
 }
 
-/* the Action tab's actions before and after the one shown, a line each, to
-   step to; the one after stays at the bottom, of a short level too */
-/* before on the left and after on the right, as the timeline runs */
-.actSteps {
+/* the Action tab's action between the ones before and after it: columns
+   down its edges, as the timeline runs, so they take none of its height */
+.actFrame {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  border-bottom: 1px solid var(--store-line);
+  flex: 1 1 auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
 }
 .actStep {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
-  min-width: 0;
-  padding: 0.35rem 0.75rem;
+  justify-content: flex-start;
+  width: 1.75rem;
+  padding: 0;
   border: 0;
+  border-right: 1px solid var(--store-line);
   background: none;
   color: var(--store-fg);
   font: inherit;
-  text-align: left;
-  white-space: nowrap;
+  font-size: 11px;
 }
 .actStepAfter {
-  align-items: flex-end;
+  border-right: 0;
   border-left: 1px solid var(--store-line);
-  text-align: right;
 }
 .actStep:enabled {
   cursor: pointer;
@@ -1905,14 +1903,40 @@ button.tlMark:hover {
 .actStep:enabled:hover {
   background: var(--store-hover);
 }
+.actStep:disabled {
+  opacity: 0.6;
+}
+/* stays in view as the action scrolls */
+.actStepInner {
+  position: sticky;
+  top: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0;
+}
 .actStepDir {
   color: var(--store-dim);
-  font-size: 0.85em;
+  font-size: 1.4em;
+  line-height: 1;
+}
+.actStep:enabled:hover .actStepDir {
+  color: var(--store-fg);
 }
 .actStepName {
-  max-width: 100%;
+  max-height: 22rem;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
   white-space: nowrap;
 }
 .liveText {
