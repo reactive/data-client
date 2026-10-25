@@ -15,7 +15,7 @@ npx @data-client/codemods v0.18 src/
 | `v0.18`         | `Schema.denormalize()`/`normalize()` to the delegate signatures ([v0.18 post](https://dataclient.io/blog/2026/05/01/v0.18-scalar-typed-downloads))                                        |
 | `v0.16`         | `path-to-regexp` v8 path syntax, `useFetch()` truthiness checks and `schema.X` imports ([v0.16 post](https://dataclient.io/blog/2026/04/01/v0.16-parallel-fetching-collection-move-lazy)) |
 | `v0.15`         | `useDebounce()` results, `entityMeta`, `MemoCache` state and `INVALID` imports ([v0.15 post](https://dataclient.io/blog/2026/01/06/v0.15-vue-support-collection-remove))                  |
-| `axios-to-rest` | `axios` calls to `RestEndpoint` ([axios migration guide](https://dataclient.io/rest/guides/axios-migration))                                                                              |
+| `axios-to-rest` | `axios` calls to `RestEndpoint` calls, with a `TODO(data-client)` comment on what's left ([axios migration guide](https://dataclient.io/rest/guides/axios-migration))                     |
 
 It processes JavaScript and TypeScript files and skips `node_modules`. Other
 [jscodeshift options](https://github.com/facebook/jscodeshift#usage-cli) pass through, such as `--dry` and `--print`

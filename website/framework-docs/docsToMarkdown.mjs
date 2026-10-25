@@ -166,6 +166,7 @@ function attributesOf(node, props, file) {
 
 const text = value => ({ type: 'text', value });
 const paragraph = children => ({ type: 'paragraph', children });
+const code = value => ({ type: 'inlineCode', value });
 const html = value => ({ type: 'html', value });
 
 /** Fence meta flags: stripped from the output, and some read into `data` */
@@ -200,7 +201,6 @@ function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
 }
 /** The glue a playground's router supplies, which its files don't show */
 function routesNote(framework) {
-  const code = value => ({ type: 'inlineCode', value });
   return paragraph([
     text('Files with a '),
     code('route'),
@@ -498,7 +498,20 @@ function render(file, framework, props = {}) {
     if (INLINE[name] && !flow)
       return [{ type: INLINE[name], children: convertAll(node.children) }];
     // Playgrounds, layout and other wrappers: keep what's inside
-    const children = convertAll(node.children);
+    // a caption (DiffEditor's says why the code changes) leads; backticks mark
+    // code, as the components render them
+    const children = [
+      ...(typeof attrs.caption === 'string' ?
+        [
+          paragraph(
+            attrs.caption
+              .split('`')
+              .map((value, i) => (i % 2 ? code(value) : text(value))),
+          ),
+        ]
+      : []),
+      ...convertAll(node.children),
+    ];
     if (!name.endsWith('Playground')) return children;
     // files of one playground make up one example app
     let routed = false;
