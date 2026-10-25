@@ -1,7 +1,5 @@
 import { createContext } from 'react';
 
-import type { CodeDocument } from './codeModel';
-
 /** A line of one of the playground's files */
 export interface CodeTarget {
   readonly path: string;
