@@ -18,11 +18,11 @@ When a change to code that runs per entity, per render or per request could chan
 | normalizr, core, endpoint | `examples/benchmark` | `yarn build:benchmark` (suites import `dist/`) | everything below |
 | react, rest | `examples/benchmark-react` | `yarn build:benchmark-react`, then `preview` | `bench:trace` (opt/deopt) and `bench:deopt` (`--prof`) only; report the rest as not measured |
 
-Measure the base in a separate `git worktree`, so neither side's checkout or `dist/` is stale. Always pass a narrow filter: unfiltered traces and logs run to many MB.
+Measure the base in a separate `git worktree` (run `yarn install` there first), so neither side's checkout or `dist/` is stale. Always pass a narrow filter: unfiltered traces and logs run to many MB.
 
-- **Optimization status**: `SHOW_OPTIMIZATION=1` prints [printStatus.js](../../examples/benchmark/printStatus.js) for the functions in each suite's `complete` handler. To check another function, add `printStatus(fn)` there (it must be exported from `examples/benchmark/src/index.ts`).
+- **Optimization status**: `SHOW_OPTIMIZATION=1` prints [printStatus.js](../../examples/benchmark/printStatus.js) for the functions listed in the `complete` handler of the core, entity, micro and normalizr suites. To check another function, add `printStatus(fn)` there (it must be exported from `examples/benchmark/src/index.ts`).
 - **Deopts**: `--trace-deopt`.
-- **Inline caches and shapes**: `--log-ic --log-maps --logfile=v8.log --no-logfile-per-isolate`. IC lines end `…,old,new,map,key`, states `0` uninitialized, `1` monomorphic, `P` polymorphic, `N` megamorphic. Lines carry no file and positions differ between the two builds, and Node internals log ICs too, so compare per property `key` that the changed code reads or writes: count lines reaching `P` or `N` on each ref, e.g. `grep -E 'IC,.*,(P|N),[^,]*,myKey,' v8.log | wc -l`.
+- **Inline caches and shapes**: `--log-ic --log-maps --logfile=v8.log --no-logfile-per-isolate`. IC lines read `…,old,new,map,key,,` (two empty fields follow the key), states `0` uninitialized, `1` monomorphic, `P` polymorphic, `N` megamorphic. Lines carry no file and positions differ between the two builds, and Node internals log ICs too, so compare per property `key` that the changed code reads or writes: count lines reaching `P` or `N` on each ref, e.g. `grep -E 'IC,.*,(P|N),[^,]*,myKey,' v8.log | wc -l`.
 - **Inlining**: `--trace-turbo-inlining`.
 - **Throughput**: a separate run without trace or log flags (they slow V8), several runs per ref on one machine in one session. Use the relevant suite (see the benchmarking rule) or a `micro.js` case.
 

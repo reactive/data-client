@@ -1,4 +1,5 @@
-// OptimizationStatus bits from V8 12.x src/runtime/runtime.h (Node 22)
+// OptimizationStatus bits from V8 12.x src/runtime/runtime.h (Node 22);
+// array index is the bit position, so keep the order when updating
 const FLAGS = [
   'is function',
   'is never optimized',
