@@ -75,12 +75,33 @@ export type View =
   | ListView
   | { readonly kind: 'record'; readonly id: string };
 
-/** One action (`seq`), or (`whole`) its group up to it, shown over a
- * subject with what it did to it; `null`, live, is the newest */
+/** What a moment at action `seq` stands for: by default its request up to
+ * it (its optimistic update and response as one, as live shows the
+ * newest's), `group` its row's actions up to it (the row was picked), or
+ * `action` only it (its step was picked: a level deeper than its request) */
+export type Scope = 'request' | 'group' | 'action';
+
+/** A moment to go to: action `seq`, as much as `scope` says */
+export interface Step {
+  readonly seq: number;
+  readonly scope: Scope;
+}
+/** `next`, or `prev` when it is the same place, so what is built on it
+ * keeps its identity between actions that don't move it */
+export const keepSameStep = <S extends Step | null | undefined>(
+  prev: S,
+  next: S,
+): S =>
+  prev && next && prev.seq === next.seq && prev.scope === next.scope ?
+    prev
+  : next;
+
+/** Action `seq` (as much as `scope` says), shown over a subject with what
+ * it did to it; `null`, live, is the newest */
 interface ActionView {
   readonly kind: 'action';
   readonly seq: number | null;
-  readonly whole?: boolean;
+  readonly scope: Scope;
 }
 
 /** The actions that touched the subject under it, at full width */
@@ -120,17 +141,26 @@ export interface LevelStack {
   /** Every level shows the store as it is (or the moment's): the moment set
    * on purpose outranks the store a chip opened a level at */
   readonly clearAt: () => void;
-  /** Shows action `seq` (or its group, `whole`) over the subject's actions
+  /** Shows action `seq` (as much as `scope` says) over the subject's actions
    * (opening them, or in place of the action view on top), so Back lists
-   * them; `null` the newest. `quiet`, without sliding in or taking focus */
+   * them; `null` the newest. `under` (see `followMoment`), a level deeper
+   * than that view. `quiet`, without sliding in or taking focus */
   readonly showAction: (
     seq: number | null,
-    whole?: boolean,
+    scope?: Scope,
+    under?: Scope,
     quiet?: boolean,
   ) => void;
   /** The moment moved: the action view follows it (on top or under levels
-   * its chips opened), to the newest action as it goes live (`null`) */
-  readonly followMoment: (seq: number | null, whole?: boolean) => void;
+   * its chips opened), to the newest action as it goes live (`null`).
+   * `under` (what the view under it stands for: its request, or the row
+   * holding it), it shows a level deeper than that view, which moves along
+   * under it */
+  readonly followMoment: (
+    seq: number | null,
+    scope?: Scope,
+    under?: Scope,
+  ) => void;
 }
 
 /** A stack of views over `root`, opening at `over` (on top of it) */
@@ -173,39 +203,79 @@ export function useLevelStack(
   // a level of its own (a new key), so it slides in and takes focus like
   // any level opened on purpose
   const showAction = useCallback(
-    (seq: number | null, whole = false, quiet = false) => {
+    (
+      seq: number | null,
+      scope: Scope = 'request',
+      under?: Scope,
+      quiet = false,
+    ) => {
       setLevels(prev => {
-        let under = prev.stack;
-        if (under[under.length - 1].view.kind === 'action')
-          under = under.slice(0, -1);
-        if (under[under.length - 1].view.kind !== 'actions')
-          under = [...under, { key: nextKey.current++, view: ACTIONS }];
-        const view: ActionView = { kind: 'action', seq, whole };
-        const entry: StackEntry = { key: nextKey.current++, view };
+        let base = prev.stack;
+        while (base[base.length - 1].view.kind === 'action')
+          base = base.slice(0, -1);
+        if (base[base.length - 1].view.kind !== 'actions')
+          base = [...base, { key: nextKey.current++, view: ACTIONS }];
+        const views: ActionView[] = [
+          ...(under ? [{ kind: 'action', seq, scope: under } as const] : []),
+          { kind: 'action', seq, scope },
+        ];
         return {
           ...prev,
-          stack: [...under, quiet ? { ...entry, quiet: true } : entry],
+          stack: [
+            ...base,
+            ...views.map((view): StackEntry => ({
+              key: nextKey.current++,
+              view,
+              ...(quiet && { quiet: true }),
+            })),
+          ],
         };
       });
     },
     [],
   );
-  const followMoment = useCallback((seq: number | null, whole = false) => {
-    setLevels(prev => {
-      // the action view, on top or under levels its chips opened (which
-      // the moment moves too, see `clearAt`), so Back finds the moment's
-      const i = prev.stack.findLastIndex(e => e.view.kind === 'action');
-      const shown = prev.stack[i]?.view;
-      if (
-        shown?.kind !== 'action' ||
-        (shown.seq === seq && !!shown.whole === whole)
-      )
-        return prev;
-      const stack = [...prev.stack];
-      stack[i] = { key: stack[i].key, view: { kind: 'action', seq, whole } };
-      return { ...prev, stack };
-    });
-  }, []);
+  const followMoment = useCallback(
+    (seq: number | null, scope: Scope = 'request', under?: Scope) => {
+      setLevels(prev => {
+        // the action view, on top or under levels its chips opened (which
+        // the moment moves too, see `clearAt`), so Back finds the moment's
+        let i = prev.stack.findLastIndex(e => e.view.kind === 'action');
+        if (i < 0) return prev;
+        // one a level deeper than its request moves that along under it
+        const deep = prev.stack[i - 1]?.view.kind === 'action';
+        if (deep) i--;
+        const views: ActionView[] =
+          under ?
+            [
+              { kind: 'action', seq, scope: under },
+              { kind: 'action', seq, scope },
+            ]
+          : [{ kind: 'action', seq, scope }];
+        const was = prev.stack.slice(i, i + (deep ? 2 : 1));
+        if (
+          was.length === views.length &&
+          was.every(
+            ({ view }, j) =>
+              view.kind === 'action' &&
+              view.seq === views[j].seq &&
+              view.scope === views[j].scope,
+          )
+        )
+          return prev;
+        const stack = [...prev.stack];
+        stack.splice(
+          i,
+          was.length,
+          ...views.map((view, j) => ({
+            key: was[j]?.key ?? nextKey.current++,
+            view,
+          })),
+        );
+        return { ...prev, stack };
+      });
+    },
+    [],
+  );
   return {
     stack,
     returnTo,
@@ -218,7 +288,11 @@ export function useLevelStack(
 }
 export const ACTIONS: ActionsView = { kind: 'actions' };
 /** The newest action, followed while live */
-export const NEWEST: ActionView = { kind: 'action', seq: null };
+export const NEWEST: ActionView = {
+  kind: 'action',
+  seq: null,
+  scope: 'request',
+};
 
 /** The store as an action left it, or (`before`) found it (a removed row
  * shows as it was). A level pushed at a Moment shows that store, and so does
@@ -234,24 +308,33 @@ export interface Moment {
  * actions can move it */
 export interface NavState {
   readonly seq: number | null;
-  /** The moment stands for every action of its group up to `seq` (its row
-   * was picked): what they did together shows as one */
-  readonly whole: boolean;
-  /** Where a step back (‹, ←) and on (›, →) land: see `stepMoment` */
-  readonly earlier: number | null | undefined;
-  readonly later: number | null | undefined;
-  readonly set: (seq: number | null, whole?: boolean) => void;
-  /** Moves the moment to action `seq` (or its group, `whole`) and opens it
+  /** What the moment stands for: what its actions did together shows as
+   * one */
+  readonly scope: Scope;
+  /** The actions the moment stands for, by seq (see `momentEntries`): the
+   * list, the timeline and the levels mark them all. None while live */
+  readonly current: ReadonlySet<number>;
+  /** Where a step back (‹, ←, Before) and on (›, →, After) land, at the
+   * moment's depth (see `stepAt`): `null` live, `undefined` nowhere */
+  readonly earlier: Step | null | undefined;
+  readonly later: Step | null | undefined;
+  readonly set: (seq: number | null, scope?: Scope) => void;
+  /** Moves the moment to `earlier` (`-1`) or `later` (`1`), if there is
+   * one: says whether it moved */
+  readonly step: (by: -1 | 1) => boolean;
+  /** Moves the moment to action `seq` (as much as `scope` says) and opens it
    * in the Action tab: what it did to the subject, then the action itself
    * (or the group's actions) */
-  readonly show: (seq: number, whole?: boolean) => void;
+  readonly show: (seq: number, scope?: Scope) => void;
 }
 export const NavStateContext = createContext<NavState>({
   seq: null,
-  whole: false,
+  scope: 'request',
+  current: new Set(),
   earlier: undefined,
   later: undefined,
   set: () => {},
+  step: () => false,
   show: () => {},
 });
 export const useNavState = () => useContext(NavStateContext);

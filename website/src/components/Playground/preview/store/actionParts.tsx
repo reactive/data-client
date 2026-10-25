@@ -14,6 +14,7 @@ import {
   actionKey,
   actionName,
   pollFrequencyOf,
+  shownGroup,
   type ActionGroup,
   type Change,
   type RequestGroup,
@@ -22,11 +23,14 @@ import {
 } from './actionGroups';
 import type ActionLog from './actionLog';
 import { isRecordChange, type History, type LogEntry } from './actionLog';
+import { notableAttribution } from './attribution';
 import { kindColor } from './dom';
+import { ManagerName } from './ManagerName';
 import {
   ActionSpanContext,
   type ActionSpan,
   type Moment,
+  type Scope,
   type Then,
 } from './nav';
 import styles from './store.module.css';
@@ -337,6 +341,30 @@ export function TypeName({ entry }: { entry: LogEntry }) {
       {actionName(action)}
       {optimistic && <span className={styles.dim}> optimistic</span>}
     </span>
+  );
+}
+
+/** Which of the code's managers sent the actions, and which kept one from
+ * the rest of the chain (the routine work of the default managers left
+ * out, see `notableAttribution`) */
+export function ManagerTags({ entries }: { entries: readonly LogEntry[] }) {
+  const { origin, consumedBy } = notableAttribution(entries);
+  return (
+    <>
+      {origin && (
+        <span className={styles.manager} title={`Sent by ${origin}`}>
+          ↑ <ManagerName name={origin} />
+        </span>
+      )}
+      {consumedBy && (
+        <span
+          className={styles.manager}
+          title={`${consumedBy} handled it without passing it on`}
+        >
+          ⊘ handled by <ManagerName name={consumedBy} />
+        </span>
+      )}
+    </>
   );
 }
 
@@ -715,6 +743,20 @@ export function ChangeChip({ change }: { change: Change }) {
       }
     />
   );
+}
+
+/** The moment at `entry` (as much as `scope` says): a request or row of
+ * several actions is named for them all, else the action */
+export function MomentName({
+  entry,
+  scope,
+}: {
+  entry: LogEntry;
+  scope: Scope;
+}) {
+  const { groups } = useActions();
+  const group = shownGroup(groups, entry.seq, scope);
+  return group ? <KeyLabel value={group.key} /> : <ActionName entry={entry} />;
 }
 
 /** `setResponse GET /posts`, or `gc` for an action without a key */

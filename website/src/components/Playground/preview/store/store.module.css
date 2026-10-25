@@ -154,11 +154,14 @@
 .pane.paneNarrow {
   width: min(100%, 22rem);
 }
-/* the subject's actions at full width, a level of their own; they shrink
- * to scroll on their own, unlike the level's other children */
-.level > .actionsLevel {
+/* views that fill the level and scroll inside it, unlike its other
+ * children: the subject's actions, and one action between its steps */
+.level > .actionsLevel,
+.level > .actFrame {
   flex: 1 1 auto;
   min-height: 0;
+}
+.level > .actionsLevel {
   display: flex;
   flex-direction: column;
 }
@@ -556,6 +559,18 @@ div.row[data-change='removed'] {
   border: 0;
   background: none;
 }
+/* the headings: a table's columns, a request's sections */
+.table th,
+.sectionLabel {
+  font: 600 10px / 1.6 var(--ifm-font-family-base);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--store-dim);
+}
+.sectionLabel {
+  margin: 0;
+  padding: 0.75rem 0.75rem 0.25rem;
+}
 .table th {
   position: sticky;
   top: 0;
@@ -564,10 +579,6 @@ div.row[data-change='removed'] {
   background: var(--store-bg);
   box-shadow: inset 0 -1px 0 var(--store-line-strong);
   text-align: start;
-  font: 600 10px / 1.6 var(--ifm-font-family-base);
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--store-dim);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1007,9 +1018,8 @@ div.gapRow {
   font-size: 11px;
   cursor: default;
 }
-/* the moment's action: its row, and its step when the row is open */
-.actRow[aria-current],
-.stepRow[aria-current] {
+/* the moment's row */
+.actRow[aria-current] {
   box-shadow: inset 2px 0 0 var(--store-stale);
   background: var(--store-stale-bg);
 }
@@ -1019,6 +1029,127 @@ div.gapRow {
   align-items: baseline;
   gap: 0.5rem;
   min-width: 0;
+}
+/* the code's manager that sent an action, or kept it from the rest of the
+   chain */
+.manager {
+  composes: pill from '../../styles.module.css';
+  color: var(--store-muted);
+  border-color: var(--store-line-strong);
+}
+/* stages an action goes through (the app, the chain's managers, the
+   store), wrapping rather than scrolling: the pipeline over the store's
+   actions, and each action's path */
+.pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: 0.35rem;
+}
+.pipelineBar {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--store-line);
+}
+/* a step's path through the managers, as plain words under its name and
+   changes: only the managers that sent or handled it stand out */
+.stepPath {
+  /* past the padding a step row has */
+  padding: 0 0.6rem 0.3rem calc(0.6rem + var(--step-name));
+  font-size: 11px;
+}
+/* a single action's view: its time and path on one line under the crumbs */
+.actHeadline {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem 0.1rem;
+  font-size: 11px;
+}
+.actHeadline > .stepPath {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+}
+.stepCount {
+  padding-left: 0.6rem;
+  color: var(--store-dim);
+}
+.stepPath > .pipeline {
+  row-gap: 0.1rem;
+}
+.stepPath .stage:not(.stageFold) {
+  padding: 0;
+  border-color: transparent;
+  background: none;
+  color: var(--store-muted);
+}
+.stepPath .stage.stageSender {
+  color: var(--store-fg);
+}
+.stepPath .stage.stageStop {
+  color: var(--store-stale);
+}
+.stageStep {
+  display: inline-flex;
+  align-items: center;
+}
+.stageArrow {
+  padding: 0 0.35rem;
+  color: var(--store-dim);
+}
+.stage {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--store-line-strong);
+  border-radius: 6px;
+  background: none;
+  color: var(--store-fg);
+  font: 400 11px / 1.5 var(--ifm-font-family-monospace);
+  white-space: nowrap;
+}
+button.stage {
+  cursor: pointer;
+}
+button.stage:hover {
+  background: var(--store-hover);
+}
+button.stage:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 1px;
+}
+.stage[aria-pressed='true'] {
+  border-color: var(--ifm-color-primary);
+  background: var(--store-selected);
+}
+@media (pointer: coarse) {
+  button.stage {
+    padding-block: 0.35rem;
+  }
+}
+.stageFold {
+  padding-inline: 0.6rem;
+  border-radius: 999px;
+}
+/* the dim, dashed stages: a folded run, and the store */
+.stageFold,
+.stageEnd {
+  border-style: dashed;
+  color: var(--store-muted);
+}
+.stageNote {
+  color: var(--store-muted);
+}
+.stageSender {
+  border-color: var(--ifm-color-primary);
+}
+.stageStop {
+  border-color: var(--store-stale);
+  background: var(--store-stale-bg);
+}
+.stageOff {
+  opacity: 0.4;
 }
 /* the key keeps its room in a narrow row: the meta wraps under it first */
 .actKey {
@@ -1118,6 +1249,10 @@ div.gapRow {
    ends a scroll goes on to the list: a contained one trapped the wheel
    whenever the pointer rested on an open row */
 .steps {
+  /* a step's time column (its 11px text), and how far past the row's
+     padding its name starts: its changes and path start there too */
+  --step-time: calc(3.2 * 11px);
+  --step-name: calc(var(--step-time) + 0.6rem);
   margin: 0 0.75rem 0.35rem 1.05rem;
   border-left: 1px solid var(--store-line-strong);
   max-height: 16rem;
@@ -1127,6 +1262,12 @@ div.gapRow {
 .groupSteps > .steps {
   max-height: none;
   overflow-y: visible;
+  margin: 0;
+  border: none;
+}
+/* a step of the moment's row past the moment: the store hasn't seen it */
+.stepRow[data-after] {
+  opacity: 0.5;
 }
 div.stepRow {
   flex-wrap: wrap;
@@ -1134,11 +1275,16 @@ div.stepRow {
   padding: 0.15rem 0.6rem;
 }
 .stepRow .actTime {
-  min-width: 3.2em;
+  min-width: var(--step-time);
   text-align: right;
 }
+/* its changes on their own line, under its name */
 .stepRow .actSum {
-  flex: 1 1 12rem;
+  flex-basis: 100%;
+  padding-left: var(--step-name);
+}
+.stepRow .actSum:empty {
+  display: none;
 }
 div.joined {
   cursor: default;
@@ -1166,7 +1312,9 @@ div.joined {
 }
 .actBody > .metaList {
   margin: 0;
-  padding: 0.4rem 0.75rem 0.2rem;
+  padding: 0 0.75rem 0.2rem;
+  /* its heading sets it apart */
+  border: none;
   /* narrow as the panel may be, the values keep room: names take only what
      they need, and a nested object goes under its name, indented */
   grid-template-columns: max-content minmax(0, 1fr);
@@ -1362,19 +1510,40 @@ div.joined {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.momentAction {
+/* text that is a button: the moment's action, and a manager the
+   playground's code declares, which opens it there */
+.momentAction,
+.managerLink,
+.codeLink {
   min-width: 0;
   padding: 0;
   border: 0;
   background: none;
   color: inherit;
   font: inherit;
-  text-decoration: underline dotted;
-  text-underline-offset: 2px;
   cursor: pointer;
 }
-.momentAction:hover {
+.momentAction,
+.managerLink {
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+.momentAction:hover,
+.codeLink:hover {
   color: var(--store-fg);
+}
+.managerLink:hover {
+  text-decoration-style: solid;
+}
+/* beside a pipeline stage, whose own click picks it */
+.codeLink {
+  margin-left: 0.3em;
+  color: var(--store-muted);
+}
+@media (pointer: coarse) {
+  .codeLink {
+    padding: 0.35rem 0.2rem;
+  }
 }
 
 /* The lanes, above the tabs; narrow, they drop over them as a sheet */
@@ -1584,10 +1753,17 @@ button.tlMark:hover {
     0 0 0 2px var(--store-bg),
     0 0 0 3.5px var(--store-fg);
 }
-/* the store didn't see it (a plain fetch, a subscribe): no state to show */
+/* the store didn't see it (a plain fetch, a subscribe): picked, it shows
+   the store as it found it */
 .tlHollow {
   background: none;
   box-shadow: inset 0 0 0 1.5px currentColor;
+}
+.tlHollow[data-selected] {
+  box-shadow:
+    inset 0 0 0 1.5px currentColor,
+    0 0 0 2px var(--store-bg),
+    0 0 0 3.5px var(--store-fg);
 }
 .tlOptimistic {
   width: 7px;
@@ -1716,31 +1892,32 @@ button.tlMark:hover {
   padding: 0.3rem 0.6rem 0.45rem;
 }
 
-/* the Action tab's actions before and after the one shown, a line each, to
-   step to; the one after stays at the bottom, of a short level too */
+/* the Action tab's action between the ones before and after it: columns
+   down its edges, as the timeline runs, take none of its height, and only
+   the action between them scrolls */
+.level > .actFrame {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr);
+}
+.actScroll {
+  overflow-y: auto;
+  border-inline: 1px solid var(--store-line);
+}
+/* the arrow, then (vertical) what it steps to, a long name cut short */
 .actStep {
   display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  width: 100%;
-  min-width: 0;
-  padding: 0.35rem 0.75rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  width: 1.75rem;
+  padding: 0.4rem 0;
+  overflow: hidden;
   border: 0;
-  border-bottom: 1px solid var(--store-line);
   background: none;
   color: var(--store-fg);
   font: inherit;
-  text-align: left;
-  white-space: nowrap;
-}
-.actStepAfter {
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
-  margin-top: auto;
-  border-top: 1px solid var(--store-line-strong);
-  border-bottom: 0;
-  background: var(--store-bg);
+  font-size: 11px;
 }
 .actStep:enabled {
   cursor: pointer;
@@ -1749,20 +1926,28 @@ button.tlMark:hover {
 .actStep:enabled:hover {
   background: var(--store-hover);
 }
-.actStepAfter:enabled:hover {
-  background: linear-gradient(var(--store-hover), var(--store-hover))
-    var(--store-bg);
-}
 .actStepDir {
-  flex: none;
-  width: 4.2rem;
   color: var(--store-dim);
-  font-size: 0.85em;
+  font-size: 1.4em;
+  line-height: 1;
+}
+.actStep:enabled:hover .actStepDir {
+  color: var(--store-fg);
 }
 .actStepName {
-  min-width: 0;
+  min-height: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .liveText {
   color: var(--store-fresh);

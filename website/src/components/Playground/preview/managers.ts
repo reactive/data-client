@@ -8,6 +8,7 @@ import {
 
 import { takeSnapshot, type PreviewSnapshot } from './usePreviewReset';
 import type { CodeDocument } from '../editor/codeModel';
+import { declarationsIn } from '../editor/declarations';
 
 /** Hash of the documents `getManagers()` depends on. Editing them gives the
  * store new managers; other edits keep them. */
@@ -35,15 +36,13 @@ function managerSources(sources: readonly string[]): string[] {
 }
 
 function declaresNameUsedBy(source: string, user: string): boolean {
-  for (const [, name] of source.matchAll(DECLARATION)) {
+  for (const { name } of declarationsIn(source)) {
     const escaped = name.replace(/\$/g, '\\$');
     if (new RegExp(`(?<![\\w$])${escaped}(?![\\w$])`).test(user)) return true;
   }
   return false;
 }
 const DEFINES_GET_MANAGERS = /\bfunction\s+getManagers\b|\bgetManagers\s*[:=]/;
-const DECLARATION =
-  /\b(?:class|function|const|let|var|enum)\s+([A-Za-z_$][\w$]*)/g;
 
 /** Managers a playground's code declares with `getManagers()`, the same
  * function a real app passes to `<DataProvider managers>`.
