@@ -499,20 +499,20 @@ div.playgroundTextEdit > .playgroundHeader,
   box-shadow: none;
 }
 /* the open file's tab is the card's paper rising: over the card's edge (and
-   its shadow) and curving out into the card's top edge either side, each
-   piece a pixel into the next so no hairline shows between them */
+   its shadow) and curving out into the card's top edge either side, the
+   curves a pixel into the tab so no hairline shows between them (not
+   below it: the tab row would scroll) */
 .row .tab.selected {
   position: relative;
   z-index: 1;
-  box-shadow: 0 1px 0 var(--pg-tab-selected-bg);
 }
 .row .tab.selected::before,
 .row .tab.selected::after {
   content: '';
   position: absolute;
-  bottom: -1px;
+  bottom: 0;
   width: calc(var(--pg-card-radius) + 1px);
-  height: calc(var(--pg-card-radius) + 1px);
+  height: var(--pg-card-radius);
   pointer-events: none;
 }
 .row .tab.selected::before {
