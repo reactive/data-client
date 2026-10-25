@@ -627,11 +627,14 @@ div.playgroundTextEdit > .playgroundHeader,
 .row > .storeHost > .storeDrawer[data-settled] {
   transition: translate var(--motion-drawer);
 }
+/* its sheet ends short of the foot, rounded, as the code card does */
 .row > .storeHost .storePanel {
+  --store-sheet-foot: 12px;
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 0;
+  padding-bottom: var(--pg-gap);
   background: var(--pg-stage);
   transition: box-shadow var(--motion-drawer);
 }
@@ -1305,12 +1308,6 @@ div.fixtureJson + div.fixtureJson {
   }
   .row > .storeHost[data-open] > .storeDrawer {
     translate: 0 0;
-  }
-  /* square all round: across the top it covers the file tabs' corners,
-     and its foot is the preview's top edge */
-  .row > .storeHost .storePanel {
-    --store-sheet-foot: 12px;
-    padding-bottom: var(--pg-gap);
   }
   .row > .storeHost[data-open] .storePanel {
     box-shadow: none;
