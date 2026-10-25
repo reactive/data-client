@@ -3,6 +3,7 @@ export {
   denormalize,
   WeakDependencyMap,
   MemoCache,
+  INVALID,
 } from '@data-client/normalizr';
 export * from '@data-client/core';
 export {
