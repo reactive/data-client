@@ -71,6 +71,8 @@ Override only what the app does today:
 | Status handling, like a 401 redirect | `async fetchResponse(input, init)`: `super.fetchResponse()` throws a `NetworkError` for any non-2xx status, so wrap it in `try`, check `error.status` in `catch`, and rethrow |
 | Arrays or nested objects in the query | `searchToString(searchParams)`, e.g. `qs.stringify(searchParams, { arrayFormat: 'brackets' })` |
 | Non-JSON responses | `parseResponse(response)`, falling back to `super.parseResponse(response)` |
+| Non-JSON request bodies (form-data, urlencoded) | Nothing: a plain object or array `body` is sent as JSON, while `FormData`, `URLSearchParams`, `Blob` or a string is passed to `fetch()` as-is |
+| Response transforms, like case conversion | `process(value)`. Parse date fields in the Entity's `static schema` instead (e.g. `createdAt: Temporal.Instant.from`; skill "data-client-schema") |
 
 ## Defining endpoints
 
