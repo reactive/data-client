@@ -335,7 +335,7 @@ describe('StorePanel table view', () => {
     expect(state.getAttribute('aria-selected')).toBe('true');
     // held or modified, it leaves the pick alone
     actions.focus();
-    fireEvent.keyDown(actions, { key: ' ', repeat: true });
+    expect(fireEvent.keyDown(actions, { key: ' ', repeat: true })).toBe(false);
     fireEvent.keyDown(actions, { key: 'Enter', ctrlKey: true });
     expect(state.getAttribute('aria-selected')).toBe('true');
   });

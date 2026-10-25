@@ -58,13 +58,17 @@ export default function TabList({
       // the focused tab, as a click picks it (a picked tab may act again)
       case 'Enter':
       case ' ':
-        // once per press; not for a control inside a tab
-        if (event.repeat) return;
         to = Array.prototype.indexOf.call(
           event.currentTarget.children,
           event.target,
         );
+        // a control inside a tab keeps its keys
         if (to < 0) return;
+        // a held key picks once (and doesn't scroll the page)
+        if (event.repeat) {
+          event.preventDefault();
+          return;
+        }
         break;
       default:
         return;
