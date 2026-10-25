@@ -1627,11 +1627,12 @@ div.fixtureJson + div.fixtureJson {
   .row > .storeHost[data-open] > .storeDrawer {
     translate: 0 0;
   }
-  /* its header edge to edge: its top edge lands on the code, which inset
-     corners would show through; its sheet ends short of the foot, rounded,
-     as the code card does */
+  /* its header edge to edge, rounded as the code card under it is: an
+     inset would show the code through its sides; its sheet ends short of
+     the foot, rounded, as the code card does */
   .row > .storeHost .storePanel {
     --store-head-start: 0;
+    --store-head-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;
     --store-sheet-foot: 12px;
     --store-body-pad: 0 0 var(--pg-gap);
   }
@@ -1708,13 +1709,10 @@ div.fixtureJson + div.fixtureJson {
     bottom: -1px;
     --pg-fillet-at: 100% 0;
   }
-  /* pinned, they get room to unfold a response even over a short result;
-     the preview clips them, so they scroll within that same height */
-  .fixturesAnchor:has(> [data-open]) + .playgroundResult {
-    min-height: min(14rem, 50svh);
-  }
-  .fixturesPopover {
-    max-height: min(14rem, 50svh);
+  /* the fixtures hang on past the preview's foot, over the page below
+     (it stacks above that while they show), so the preview never moves */
+  .row > .previewWrapper {
+    overflow: visible;
   }
 }
 

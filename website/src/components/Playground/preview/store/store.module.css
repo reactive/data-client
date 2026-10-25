@@ -44,7 +44,7 @@
    from there. The body's paper stops --store-folder-end short of its foot,
    so only the sheet runs on past that. Where the header runs on into the
    preview's instead (the end side), --store-head-run takes it on under
-   that edge */
+   that edge. --store-head-radius rounds a header that isn't inset */
 .scrubber {
   --store-head-in-start: calc(
     var(--store-head-start, 0) * var(--pg-head-inset, 0px)
@@ -57,8 +57,11 @@
   margin: 0 var(--store-head-in-end) 0 var(--store-head-in-start);
   /* what it holds stays clear of the run */
   padding-right: var(--store-head-run, 0px);
-  border-radius: calc(var(--store-head-start, 0) * var(--pg-card-radius, 0px))
-    calc(var(--store-head-end, 0) * var(--pg-card-radius, 0px)) 0 0;
+  border-radius: var(
+    --store-head-radius,
+    calc(var(--store-head-start, 0) * var(--pg-card-radius, 0px))
+      calc(var(--store-head-end, 0) * var(--pg-card-radius, 0px)) 0 0
+  );
   background: var(--store-bg);
   box-shadow: var(--pg-card-shadow, none);
 }
