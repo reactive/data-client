@@ -901,6 +901,32 @@ div.playgroundTextEdit > .playgroundHeader,
   opacity: 1;
   translate: 0 0;
 }
+/* row: a card like the code's, lifted off the folder a step under its
+   header, in line with the header's end; while it shows, the preview
+   stacks over the Store's layer, so the handle doesn't cut into it */
+.row > .previewWrapper:has(.fixturesPopover[data-open]) {
+  z-index: 4;
+}
+@media (hover: hover) {
+  .row > .previewWrapper:has(.fixturesToggle:hover, .fixturesPopover:hover) {
+    z-index: 4;
+  }
+}
+.row .fixturesPopover {
+  right: var(--pg-head-inset);
+  width: min(100% - 2 * var(--pg-head-inset), 36rem);
+  margin-top: 6px;
+  border: 0;
+  border-radius: var(--pg-card-radius);
+  box-shadow:
+    0 2px 6px rgba(15, 30, 60, 0.18),
+    0 18px 40px -8px rgba(15, 30, 60, 0.4);
+}
+:root[data-theme='dark'] .row .fixturesPopover {
+  box-shadow:
+    0 0 0 1px var(--store-line-strong),
+    0 18px 40px -8px rgba(0, 0, 0, 0.75);
+}
 @media (hover: hover) {
   /* a preview while the pointer is on the toggle or the fixtures */
   .previewHeader:has(.fixturesToggle:hover)
