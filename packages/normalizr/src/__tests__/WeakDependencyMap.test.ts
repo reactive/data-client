@@ -150,17 +150,17 @@ describe('WeakDependencyMap', () => {
     }
   });
 
-  it.each([
+  it.each<[string, any]>([
     ['null', null],
     ['INVALID', INVALID],
   ])('tracks a %s dependency, as root or after it', (_, value) => {
     const wem = new WeakDependencyMap<EntityPath>();
-    const withA = (entity: unknown) =>
-      MemoPolicy.getEntities({ ...state, A: { '1': entity as any } });
-    const depNull = { path: depA.path, entity: value as any };
-    wem.set([depNull], 'root');
-    wem.set([depB, depNull], 'child');
-    expect(wem.get(value as any, withA(value))[0]).toBe('root');
+    const withA = (entity: any) =>
+      MemoPolicy.getEntities({ ...state, A: { '1': entity } });
+    const depValue = { path: depA.path, entity: value };
+    wem.set([depValue], 'root');
+    wem.set([depB, depValue], 'child');
+    expect(wem.get(value, withA(value))[0]).toBe('root');
     expect(wem.get(b, withA(value))[0]).toBe('child');
     expect(wem.get(b, withA(a))[0]).toBeUndefined();
     expect(wem.get(b, withA(undefined))[0]).toBeUndefined();
@@ -241,7 +241,7 @@ describe('WeakDependencyMap', () => {
       expect(wem.get(a, getEntity, [{ userId: 'alice' }])[0]).toBeUndefined();
 
       // removing entity `b` from the store makes the tail entity lookup
-      // resolve to the UNDEF sentinel in mixed mode, which doesn't match
+      // resolve to the undefined stand-in in mixed mode, which doesn't match
       // the originally-recorded reference → miss
       const getEntityMissingB = MemoPolicy.getEntities({ A: { '1': a } });
       expect(

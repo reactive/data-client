@@ -204,21 +204,21 @@ function beginTransition(row: string, id: string) {
   });
 }
 
-async function finishTransition(id: string) {
+/** Resolves a held request with `value`, or rejects it with an `Error`. */
+async function settle(key: string, value: TodoItem | Error) {
   await act(async () => {
-    pending[id].resolve({ id, title: 'detail' });
+    if (value instanceof Error) pending[key].reject(value);
+    else pending[key].resolve(value);
   });
 }
+const finishTransition = (id: string) => settle(id, { id, title: 'detail' });
 
 const writeNote = (i: number) =>
   act(() => {
     controller.setResponse(
       getNote,
       { id: `${i}` },
-      {
-        id: `${i}`,
-        text: `note ${i}`,
-      },
+      { id: `${i}`, text: `note ${i}` },
     );
   });
 
@@ -228,17 +228,10 @@ function beginOptimistic(id: string, title: string) {
   });
 }
 
-async function rollBack(id: string, title: string) {
-  await act(async () => {
-    pending[updateKey(id, title)].reject(new Error('rejected'));
-  });
-}
-
-async function resolveOptimistic(id: string, title: string) {
-  await act(async () => {
-    pending[updateKey(id, title)].resolve({ id, title });
-  });
-}
+const rollBack = (id: string, title: string) =>
+  settle(updateKey(id, title), new Error('rejected'));
+const resolveOptimistic = (id: string, title: string) =>
+  settle(updateKey(id, title), { id, title });
 
 describeConcurrent.each([1, 2])(
   'memoization under concurrent rendering, %i consumer(s)',
