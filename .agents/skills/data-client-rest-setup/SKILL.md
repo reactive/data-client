@@ -194,7 +194,8 @@ Only when the JSON body itself is wrapped, like `{ "data": { "id": 1 } }`. axios
 
 ```ts
 process(value: any, ...args: any[]) {
-  return value.data;
+  // value is null for a 204 No Content response
+  return value?.data;
 }
 ```
 
