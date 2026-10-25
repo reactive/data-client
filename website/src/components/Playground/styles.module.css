@@ -474,6 +474,8 @@ div.playgroundTextEdit > .playgroundHeader,
 .row .tabs {
   height: 100%;
   min-width: 0;
+  /* room for the last tab's curve; at the card's edges the row clips them */
+  padding-inline-end: var(--pg-card-radius);
 }
 .row .tab {
   gap: 0.5em;
@@ -516,13 +518,6 @@ div.playgroundTextEdit > .playgroundHeader,
 .row .tab.selected::after {
   left: calc(100% - 1px);
   --pg-fillet-at: 100% 0;
-}
-/* at the card's edge (TabList's flush marks), no curve out past it */
-.row
-  .tabs:is([data-flush-left], :has(> .tab:first-child.selected))
-  > .tab.selected::before,
-.row .tabs[data-flush-right] > .tab.selected::after {
-  content: none;
 }
 .row .tab:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
@@ -618,6 +613,9 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .row > .storeHost > .storeDrawer {
   pointer-events: auto;
+}
+/* once painted at rest (../index.tsx) */
+.row > .storeHost > .storeDrawer[data-settled] {
   transition: translate var(--motion-drawer);
 }
 .row > .storeHost .storePanel {
@@ -1286,9 +1284,12 @@ div.fixtureJson + div.fixtureJson {
     grid-area: 1 / 1 / 2 / 2;
     clip-path: inset(-4rem -4rem calc(-1 * var(--pg-gap)) -4rem);
   }
+  /* from the code's foot up, at most the Store's cap: a long file's top
+     stays in view above it */
   .row > .storeHost > .storeDrawer {
     position: absolute;
-    inset: 0;
+    inset: auto 0 0;
+    height: min(100%, var(--store-cap));
     translate: 0 calc(100% + var(--pg-gap));
   }
   .row > .storeHost[data-open] > .storeDrawer {

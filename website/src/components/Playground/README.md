@@ -192,8 +192,10 @@ DesignSystem/       demo styling (design-system.css) and components injected int
   `translate`, over the code and its file tabs edge to edge (they go
   `inert`), the handle riding outside the Store's edge, past the
   playground's. Side by side it comes from the preview's left edge by its
-  foot; stacked, up from the preview's top edge. The preview stays usable
-  either way. The Store itself is chrome on the folder (the scrubber's row,
+  foot; stacked, up from the preview's top edge, at most `--store-cap`
+  tall so a long file's top stays in view. It slides only once painted at
+  rest (`data-settled`), so showing a playground never animates it. The
+  preview stays usable either way. The Store itself is chrome on the folder (the scrubber's row,
   State and Action as tabs) and content on a sheet the picked tab joins
   (`store.module.css`). In the other layouts the preview header's icon
   (`StoreHeaderToggle`) or the side strip (`StoreToggle`) open it beside the

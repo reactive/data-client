@@ -80,8 +80,9 @@ export default function TabList({
 }
 
 /** Scrolls the selected tab into the row's view and marks the row
- * `data-flush-left` / `data-flush-right` while that tab meets the header's
- * edge, where what it rises from squares its corner to meet it */
+ * `data-flush-left` / `data-flush-right` while that tab is too near the
+ * header's edge for its curve and the corner of what it rises from
+ * (`--pg-card-radius` each) to fit between, so that corner squares to meet it */
 function useFlushEdges(
   list: RefObject<HTMLDivElement | null>,
   selected: number,
@@ -90,13 +91,23 @@ function useFlushEdges(
     const row = list.current;
     const edges = row?.parentElement;
     if (!row || !edges) return;
+    const reach = Math.max(
+      1,
+      2 *
+        (parseFloat(
+          getComputedStyle(row).getPropertyValue('--pg-card-radius'),
+        ) || 0),
+    );
     const mark = () => {
       const tab = row.children[selected]?.getBoundingClientRect();
       const box = edges.getBoundingClientRect();
-      row.toggleAttribute('data-flush-left', !!tab && tab.left <= box.left + 1);
+      row.toggleAttribute(
+        'data-flush-left',
+        !!tab && tab.left < box.left + reach,
+      );
       row.toggleAttribute(
         'data-flush-right',
-        !!tab && tab.right >= box.right - 1,
+        !!tab && tab.right > box.right - reach,
       );
     };
     const tab = row.children[selected]?.getBoundingClientRect();
