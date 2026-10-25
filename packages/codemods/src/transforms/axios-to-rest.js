@@ -881,7 +881,9 @@ function toPath(j, urlArg) {
   const pathExprCount = (pathPart.match(/\0/g) || []).length;
 
   const args = [];
-  const names = new Map();
+  const taken = new Set();
+  // the same variable can fill two segments: its source -> the param it got
+  const shared = new Map();
   let path = '';
   const segments = pathPart.split('\0');
   for (let i = 0; i < segments.length; i++) {
@@ -893,16 +895,14 @@ function toPath(j, urlArg) {
     const next = segments[i + 1];
     if (!path.endsWith('/') || (next && !next.startsWith('/'))) return null;
     const expr = expressions[i];
-    let name = memberName(expr) || 'param';
-    // the same variable can fill two segments; anything else is evaluated once each
-    const source = isPure(expr) ? j(expr).toSource() : {};
-    if (names.has(name) && names.get(name) !== source) {
-      let n = 2;
-      while (names.has(name + n)) n++;
-      name = name + n;
-    }
-    if (!names.has(name)) {
-      names.set(name, source);
+    const source = isPure(expr) ? j(expr).toSource() : undefined;
+    let name = source && shared.get(source);
+    if (!name) {
+      const base = memberName(expr) || 'param';
+      name = base;
+      for (let n = 2; taken.has(name); n++) name = base + n;
+      taken.add(name);
+      if (source) shared.set(source, name);
       args.push(
         j.objectProperty.from({
           key: j.identifier(name),
@@ -912,7 +912,7 @@ function toPath(j, urlArg) {
       );
     }
     // an effect can change what a later read of an earlier variable sees
-    if (!isSimple(expr)) for (const key of names.keys()) names.set(key, {});
+    if (!isSimple(expr)) shared.clear();
     path += ':' + name;
   }
   if (!path) path = '/';
