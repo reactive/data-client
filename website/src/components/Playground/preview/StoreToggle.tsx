@@ -8,7 +8,9 @@ import React, {
   createContext,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 
@@ -52,6 +54,12 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   // (`useStoreMotion`); the stored choice arriving, or another Store in the
   // group closing this one, just lands
   const [moves, setMoves] = useState(0);
+  // a demo's run holds one showStore from its start (./autorun/stage.ts), so
+  // it reads the state as it is now
+  const latestOpen = useRef(open);
+  useLayoutEffect(() => {
+    latestOpen.current = open;
+  });
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
   const toggle = useCallback(
@@ -66,20 +74,17 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   );
   // a demo's open or close is no reader's click: forget the last one, so it
   // doesn't pin a toggle the reader clicked earlier
-  const showStore = useCallback<ShowStore>(
-    (demoOpen, view) => {
-      clicked = undefined;
-      if (demoOpen !== open) setMoves(n => n + 1);
-      show(prev => {
-        const next = demoOpen ? (view ?? prev?.view) : undefined;
-        // unchanged: the playground's children don't re-render
-        return prev?.open === demoOpen && prev.view === next ?
-            prev
-          : { open: demoOpen, view: next };
-      });
-    },
-    [open],
-  );
+  const showStore = useCallback<ShowStore>((demoOpen, view) => {
+    clicked = undefined;
+    if (demoOpen !== latestOpen.current) setMoves(n => n + 1);
+    show(prev => {
+      const next = demoOpen ? (view ?? prev?.view) : undefined;
+      // unchanged: the playground's children don't re-render
+      return prev?.open === demoOpen && prev.view === next ?
+          prev
+        : { open: demoOpen, view: next };
+    });
+  }, []);
   // the reader picked a view: the demo's goes, its open stays
   const drop = useCallback(
     () => show(prev => (prev?.view ? { open: prev.open } : prev)),
