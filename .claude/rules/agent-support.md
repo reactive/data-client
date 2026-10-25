@@ -1,17 +1,11 @@
 ---
 paths:
-  - ".agents/skills/**"
-  - ".agents/skills/.cursor-plugin/**"
   - ".claude-plugin/**"
   - ".cursor-plugin/**"
+  - ".agents/skills/.cursor-plugin/**"
   - "packages/core/agents/**"
-  - "docs/core/_agents/**"
   - "docs/core/getting-started/agent-skills.md"
-  - "docs/core/getting-started/installation.md"
-  - "docs/core/shared/_installation.mdx"
   - "website/src/components/SkillTabs.tsx"
-  - "website/src/components/AgentPrompt.tsx"
-  - "website/src/components/AgentOnly.tsx"
 ---
 <!-- Generated from .cursor/rules/agent-support.mdc by `yarn build:agent-rules`. Edit the source. -->
 

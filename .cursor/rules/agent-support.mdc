@@ -1,6 +1,6 @@
 ---
-description: Which agent hosts to prioritize when changing agent integrations (skills, plugins, agent setup docs)
-globs: .agents/skills/**, .agents/skills/.cursor-plugin/**, .claude-plugin/**, .cursor-plugin/**, packages/core/agents/**, docs/core/_agents/**, docs/core/getting-started/agent-skills.md, docs/core/getting-started/installation.md, docs/core/shared/_installation.mdx, website/src/components/SkillTabs.tsx, website/src/components/AgentPrompt.tsx, website/src/components/AgentOnly.tsx
+description: Which agent hosts to prioritize when changing per-host agent integrations (plugins, skill linking, agent setup tabs)
+globs: .claude-plugin/**, .cursor-plugin/**, .agents/skills/.cursor-plugin/**, packages/core/agents/**, docs/core/getting-started/agent-skills.md, website/src/components/SkillTabs.tsx
 alwaysApply: false
 ---
 
