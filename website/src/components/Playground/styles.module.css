@@ -626,14 +626,11 @@ div.playgroundTextEdit > .playgroundHeader,
 .row > .storeHost > .storeDrawer[data-settled] {
   transition: translate var(--motion-drawer);
 }
-/* its sheet ends short of the foot, rounded, as the code card does */
 .row > .storeHost .storePanel {
-  --store-sheet-foot: 12px;
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  padding-bottom: var(--pg-gap);
   background: var(--pg-stage);
 }
 /* fills the drawer instead of its usual cap */
@@ -1251,6 +1248,8 @@ div.fixtureJson + div.fixtureJson {
   /* its paper runs on into the preview's, square where they meet; the
      Store's sheet keeps the gap from the preview's */
   .row > .storeHost .storePanel {
+    /* its sheet to the foot, as the preview's is, rounded with the folder */
+    --store-sheet-foot: var(--pg-card-radius);
     padding-right: var(--pg-gap);
     border-radius: var(--pg-card-radius) 0 0 var(--pg-card-radius);
   }
@@ -1334,6 +1333,11 @@ div.fixtureJson + div.fixtureJson {
   }
   .row > .storeHost[data-open] > .storeDrawer {
     translate: 0 0;
+  }
+  /* its sheet ends short of the foot, rounded, as the code card does */
+  .row > .storeHost .storePanel {
+    --store-sheet-foot: 12px;
+    padding-bottom: var(--pg-gap);
   }
   /* its shadow, from a box that stops short of the foot, so none of it
      falls past the seam onto the preview (the Store paints over the rest) */
