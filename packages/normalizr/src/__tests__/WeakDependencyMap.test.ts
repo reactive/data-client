@@ -421,6 +421,28 @@ describe('WeakDependencyMap eviction', () => {
       ).toBeUndefined();
     });
 
+    it('bounds the routes a lookup searches', () => {
+      // each entry reaches a different argsKey first, as missing entities
+      // can make happen; lookups must not slow down as routes pile up
+      const wem = new WeakDependencyMap<EntityPath>();
+      let calls = 0;
+      const fns = Array.from({ length: 40 }, (_, i) => (a: readonly any[]) => {
+        calls++;
+        return `${i}${a[0]?.x}`;
+      });
+      const getEntity = MemoPolicy.getEntities({ A: { '1': root } });
+      fns.forEach((path, i) =>
+        wem.set([rootDep, fn(path)], `v${i}`, [{ x: 1 }]),
+      );
+      calls = 0;
+      // every route is valid for these args, so any of the kept ones may hit
+      expect(wem.get(root, getEntity, [{ x: 1 }])[0]).toBeDefined();
+      expect(calls).toBeLessThanOrEqual(10);
+      // a long chain of one argsKey after another is not a fork
+      wem.set([rootDep, ...fns.map(fn)], 'chain', [{ x: 1 }]);
+      expect(wem.get(root, getEntity, [{ x: 2 }])[0]).toBeUndefined();
+    });
+
     it('evicts inside an argsKey child as at the root', () => {
       const wem = new WeakDependencyMap<EntityPath>();
       const [b2, b3, b4, b5] = [[2], [3], [4], [5]];
