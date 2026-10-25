@@ -121,7 +121,8 @@
   width: 3.5em;
 }
 /* a page: its title at the h2's size, then the paragraph's lines, the last
-   one short like a paragraph's */
+   one short like a paragraph's. The side-by-side playground's loading sheet
+   is fixed at --pg-pending-sheet (../styles.module.css) to fit it */
 .playground-preview .skeletonPage > .skeleton {
   display: block;
   width: 100%;

@@ -1404,13 +1404,14 @@ div.fixtureJson + div.fixtureJson {
        below that (./preview/PreviewWrapper.tsx) */
     max-height: calc(100% - var(--pg-preview-gap, 0px));
   }
-  /* the loading page is one height, so where its folder ends is known
-     before the page hydrates: what PreviewWrapper.tsx then measures */
+  /* the loading page is one height, so where its folder ends follows from
+     the tokens alone: the same before the page hydrates as after, over
+     what PreviewWrapper.tsx measures (inline, so this must be important) */
   .row:has(.sheet[aria-busy]) {
     --pg-preview-gap: max(
       0px,
       100% - var(--pg-row) - var(--pg-pending-sheet) - var(--pg-card-foot)
-    );
+    ) !important;
   }
   .row .sheet[aria-busy] {
     height: var(--pg-pending-sheet);
