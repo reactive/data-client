@@ -5,16 +5,23 @@ sidebar_label: Agent Skills
 ---
 
 import SkillTabs from '@site/src/components/SkillTabs';
-import Link from '@docusaurus/Link';
 
-La forma más rápida de empezar es dejar que un [agente de IA](https://agentskills.io) lo instale usando la skill [/data-client-setup](https://skills.sh/reactive/data-client/data-client-setup).
+## Instala skills para obtener los mejores resultados {#install-skills-for-best-results}
 
-## Instalación {#install}
+Los agentes aciertan con lo básico solo con el nombre del paquete. Las [skills](https://agentskills.io) les enseñan las
+APIs actuales para el resto, como los fixtures de prueba y los managers en tiempo real. Instala la skill
+[/data-client-setup](https://skills.sh/reactive/data-client/data-client-setup):
 
-<SkillTabs skill="data-client-setup" />
+<SkillTabs skill="data-client-setup" framed />
 
-Luego ejecuta la skill `/data-client-setup`. Detecta tu framework y tu estilo de API (REST, GraphQL,
-personalizado), instala las skills correspondientes de la lista de abajo, configura el provider y migra los endpoints existentes.
+Luego ejecútala en el chat de tu agente:
+
+```prompt framed
+/data-client-setup
+```
+
+Detecta tu framework y tu estilo de API (REST, GraphQL, personalizado), instala las skills correspondientes de la lista de abajo,
+configura el provider y migra los endpoints existentes.
 
 ### Instalar todas las skills desde el principio {#install-all-skills-up-front}
 
@@ -22,8 +29,13 @@ Para instalar ahora todas las skills de tu framework, sin dejar que tu agente ej
 
 <SkillTabs />
 
-## Skills disponibles {#available-skills}
+En Claude Code, el plugin las instala en un solo paso. Con otros agentes,
+[TanStack Intent](https://tanstack.com/intent) carga las skills que cada paquete `@data-client/*` incluye para su versión,
+así que se actualizan con `npm update`. Su instalación añade una sección de carga de skills a tu `AGENTS.md`.
 
+### Skills disponibles {#available-skills}
+
+- [**`/data-client`**](https://skills.sh/reactive/data-client/data-client) — es el punto de partida cuando le pides a tu agente que agregue o use Data Client, y lo dirige a la configuración o a la skill adecuada para la tarea.
 - [**`/data-client-setup`**](https://skills.sh/reactive/data-client/data-client-setup) — instala y configura Data Client para tu framework y estilo de API, junto con las skills que necesita.
 - [**`/data-client-rest-setup`**](https://skills.sh/reactive/data-client/data-client-rest-setup) — configura `@data-client/rest` y migra los clientes
   `fetch`/`axios` existentes.
@@ -57,6 +69,10 @@ Para instalar ahora todas las skills de tu framework, sin dejar que tu agente ej
 :::
 
 Explora el catálogo completo en [skills.sh/reactive/data-client](https://skills.sh/reactive/data-client).
+
+## Configuración manual {#set-up-by-hand}
+
+Para instalar los paquetes y añadir el provider tú mismo, sigue [Instalación](./installation.md).
 
 ## Documentación para LLMs {#docs-for-llms}
 

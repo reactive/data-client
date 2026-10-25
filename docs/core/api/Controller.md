@@ -31,7 +31,7 @@ and retrieval performance.
 class Controller {
   /*************** Action Dispatchers ***************/
   fetch(endpoint, ...args): ReturnType<E>;
-  fetchIfStale(endpoint, ...args): ReturnType<E> | undefined;
+  fetchIfStale(endpoint, ...args): ReturnType<E> | Denormalize<E['schema']>;
   expireAll({ testKey }): Promise<void>;
   invalidate(endpoint, ...args): Promise<void>;
   invalidateAll({ testKey }): Promise<void>;
@@ -265,7 +265,8 @@ post.pk();
 
 ### fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
-Fetches only if endpoint is considered '[stale](../concepts/expiry-policy.md#stale)'.
+Fetches only if endpoint is considered '[stale](../concepts/expiry-policy.md#stale)' or [invalid](../concepts/expiry-policy.md#invalid),
+returning the same Promise as [fetch()](#fetch). Otherwise returns the cached data synchronously, without fetching.
 
 This can be useful when prefetching data, as it avoids overfetching fresh data.
 
@@ -429,6 +430,44 @@ function ArticleName({ id }: { id: string }) {
 ```
 
 :::
+
+::::vue
+
+:::tip[Show the Suspense fallback again]
+
+Remount the component with a new `key` after invalidating; the new instance suspends on the invalid data.
+`timeout="0"` makes `<Suspense>` show its fallback while it waits instead of the old content. Remounting
+resets the component's local state.
+
+```html title="ArticlePage.vue"
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { useController } from '@data-client/vue';
+  import { ArticleResource } from './ArticleResource';
+  import ArticleName from './ArticleName.vue';
+
+  const props = defineProps<{ id: string }>();
+  const ctrl = useController();
+  const remountKey = ref(0);
+
+  async function reload() {
+    await ctrl.invalidate(ArticleResource.get, { id: props.id });
+    remountKey.value++;
+  }
+</script>
+
+<template>
+  <button @click="reload">Reload</button>
+  <Suspense timeout="0">
+    <ArticleName :key="remountKey" :id="id" />
+    <template #fallback>Loading...</template>
+  </Suspense>
+</template>
+```
+
+:::
+
+::::
 
 ::::react
 
@@ -948,7 +987,7 @@ export enum ExpiryStatus {
 
 ##### Invalid
 
-- Will always suspend
+- Will always suspend:vue[ during setup; mounted components [keep their current data](../concepts/expiry-policy.md#invalidate) until the refetch resolves]
 - Will always fetch
 
 #### expiresAt

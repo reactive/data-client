@@ -1,10 +1,10 @@
 {
   "theme.Playground.liveEditor": {
-    "message": "Editor en vivo",
+    "message": "Editor",
     "description": "The live editor label of the live codeblocks"
   },
   "theme.Playground.result": {
-    "message": "Resultado",
+    "message": "Vista previa en vivo",
     "description": "The result label of the live codeblocks"
   },
   "theme.ErrorPageContent.title": {
@@ -509,10 +509,6 @@
     "message": "Buscar documentos",
     "description": "The placeholder of the input of the DocSearch pop-up modal"
   },
-  "theme.Playground.buttons.reset": {
-    "message": "Restablecer",
-    "description": "The reset button label for live code blocks"
-  },
   "theme.blog.post.plurals": {
     "message": "Una publicación|{count} publicaciones",
     "description": "Pluralized label for \"{count} posts\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
@@ -853,8 +849,7 @@
     "message": "Código"
   },
   "dataColocation.label": {
-    "message": "Árbol de componentes donde cada componente que renderiza datos los lee directamente del store con useSuspense(): User para CurrentUser y Avatar, Post para PostBody y Comment para CommentList. Un cambio vuelve a renderizar solo esos componentes y nada más del árbol",
-    "description": "Accessible label of the data co-location diagram on the Render Data page"
+    "message": "Árbol de componentes donde cada componente que renderiza datos los lee directamente del store con useSuspense(): User para CurrentUser y Avatar, Post para PostBody y Comment para CommentList. Un cambio vuelve a renderizar solo esos componentes y nada más del árbol"
   },
   "collectionLists.label": {
     "message": "Tres listas guardadas en el store a partir de getTodos({ userId: 1 }), getTodos({ userId: 2 }) y getTodos(). Un todo con userId 1 creado por push o unshift entra en la lista de userId 1 y en la lista sin filtro, al final o al principio, y nunca en la lista de userId 2, porque una lista solo recibe un elemento cuando todos los argumentos con los que se obtuvo aparecen en la llamada. remove lo saca de esas mismas listas; move lo saca de la lista de userId 1 y lo mete en la de userId 2, y la lista sin filtro lo conserva",
@@ -915,5 +910,74 @@
   "expiryTimeline.afterInvalidIfStale": {
     "message": "Con invalidIfStale, una vez pasado dataExpiryLength (en milisegundos), la respuesta en caché es inválida: debe volver a obtenerse antes de poder renderizarse.",
     "description": "Tooltip on the Stale story’s dataExpiryLength label of the expiry diagram, while its invalidIfStale switch is on"
+  },
+  "optimisticRace.label": {
+    "message": "Dos incrementos de un contador en 0 se envían antes de que responda cualquiera de los dos, y la segunda respuesta, 2, llega al cliente antes que la primera, 1. Sin actualizaciones optimistas, un contador muestra 0, luego 2 y luego 1. Con actualizaciones optimistas ingenuas muestra 0, 1, 2, 2 y luego 1. Ambos terminan en el valor incorrecto. Data Client muestra 0, 1, 2 y se queda en 2: la respuesta tardía es más antigua que lo que el store ya tiene, así que no cambia nada",
+    "description": "Accessible label of the race condition diagram on the Optimistic Updates page"
+  },
+  "optimisticRace.client": {
+    "message": "Cliente",
+    "description": "Label of the client lane in the race condition diagram: the app sending increments"
+  },
+  "optimisticRace.server": {
+    "message": "Servidor",
+    "description": "Label of the server lane in the race condition diagram: the API that counts the increments"
+  },
+  "optimisticRace.dataClient": {
+    "message": "Data Client",
+    "description": "Label of the Data Client row in the race condition diagram (the product name, usually kept)"
+  },
+  "optimisticRace.other": {
+    "message": "Otras",
+    "description": "Label of the two rows for other libraries in the race condition diagram, over \"no optimistic\" or \"optimistic\""
+  },
+  "optimisticRace.noOptimistic": {
+    "message": "sin optimismo",
+    "description": "Under \"Other\" in the race condition diagram: this row shows a counter without optimistic updates"
+  },
+  "optimisticRace.optimistic": {
+    "message": "optimista",
+    "description": "Under \"Other\" and \"Data Client\" in the race condition diagram: these rows show a counter with optimistic updates"
+  },
+  "frameworkSelector.selectProtocol": {
+    "message": "Seleccionar protocolo"
+  },
+  "playground.fixtures.error": {
+    "message": "error"
+  },
+  "playground.fixtures.delay": {
+    "message": "retraso"
+  },
+  "agentPrompt.prompt": {
+    "message": "Usa `@data-client/{framework}` para todo el estado del servidor",
+    "description": "Prompt readers copy into their coding agent. Keep the backticks around package names: they keep each name on one line."
+  },
+  "agentPrompt.copy": {
+    "message": "Copiar el prompt para tu agente de programación",
+    "description": "Tooltip of the agent prompt, which copies itself when clicked"
+  },
+  "agentPrompt.copied": {
+    "message": "Copiado",
+    "description": "Shown for a moment after the agent prompt is copied"
+  },
+  "agentPrompt.title": {
+    "message": "Chat del agente",
+    "description": "Header of text readers type into their coding agent, not a terminal"
+  },
+  "agentPrompt.titleFor": {
+    "message": "Chat del agente de {agent}",
+    "description": "Header of text readers type into one coding agent (like Cursor), not a terminal"
+  },
+  "agentPrompt.copyFor": {
+    "message": "Copiar el prompt para {agent}",
+    "description": "Tooltip of an agent prompt only one coding agent (like Cursor) understands, which copies itself when clicked"
+  },
+  "theme.CodeBlock.terminal": {
+    "message": "Ejecútalo en tu terminal",
+    "description": "Tooltip of code blocks holding shell commands, which start with $"
+  },
+  "theme.CodeBlock.terminalTitle": {
+    "message": "Terminal",
+    "description": "Header of framed code blocks of shell commands"
   }
 }

@@ -7,6 +7,7 @@ hide_title: true
 ---
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
@@ -344,10 +345,14 @@ import SkillTabs from '@site/src/components/SkillTabs';
 
 <SkillTabs repo="reactive/data-client" skills={['data-client-schema', 'data-client-rest-setup', 'data-client-rest']} />
 
-Em seguida, chame `/data-client-rest-setup` para migrar
+Em seguida, migre executando-a no chat do seu agent:
+
+```prompt
+/data-client-rest-setup
+```
 
 <div style={{ textAlign: 'center' }}>
-<Link className="button button--secondary button--sm" to="https://skills.sh/reactive/data-client/data-client-rest"><img src="/img/anthropic.svg" alt="Skill de geração de código REST" style={{
+<Link className="button button--secondary button--sm" to="https://skills.sh/reactive/data-client/data-client-rest"><img src={useBaseUrl('/img/anthropic.svg')} alt="Skill de geração de código REST" style={{
           height: '1em',
           verticalAlign: '-0.125em',
           display: 'inline',

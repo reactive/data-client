@@ -82,6 +82,25 @@ describe('code document model', () => {
     ]);
   });
 
+  test("reads the router's start path and bare layout flag", () => {
+    expect(
+      parseCodeDocuments([
+        code({ metastring: 'title="Nav" layout collapsed' }, 'a'),
+        code(
+          { metastring: 'title="Page" route="/time/:id" start="/time/1"' },
+          'b',
+        ),
+        code({ metastring: 'title="Page layout" route="/layout/:id"' }, 'c'),
+        code({ metastring: 'title=layout path=src/layout.tsx' }, 'd'),
+      ]).map(({ layout, start }) => [layout, start]),
+    ).toEqual([
+      [true, undefined],
+      [false, '/time/1'],
+      [false, undefined],
+      [false, undefined],
+    ]);
+  });
+
   test('updates only the addressed document', () => {
     const documents = parseCodeDocuments([
       code({ metastring: 'title="One"' }, 'one'),

@@ -106,7 +106,7 @@ const managers = getDefaultManagers({
 ```
 
 `IdlingNetworkManager` puede evitar los tirones retrasando los fetch sin [sideEffect](/rest/api/Endpoint#sideeffect) (de solo lectura/GET)
-hasta que terminen las animaciones. Funciona en la web mediante [requestIdleCallback](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback), y en React Native mediante InteractionManager.runAfterInteractions.
+hasta que terminen las animaciones. Funciona en la web mediante [requestIdleCallback](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback), y en React Native mediante InteractionManager.runAfterInteractions (o requestIdleCallback desde React Native 0.87, que eliminó InteractionManager).
 
 :::
 

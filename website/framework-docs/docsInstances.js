@@ -12,12 +12,18 @@
  * - routeBasePath: site route of the instance
  * - llms: where the instance's llms.txt and llms-full.txt are served
  * - exclude: unpublished pages (globs), besides Docusaurus' defaults
+ * - group: instances with the same group render the same pages for a
+ *   different framework or protocol; the breadcrumbs switch between them
+ * - equivalents: doc ids mapped to the page each parallels in the other
+ *   instance of its group, where the doc ids differ (frameworks use
+ *   `framework_equivalent:` front matter instead, see index.js)
  */
 const DOCS_INSTANCES = [
   {
     id: 'default',
     framework: 'react',
     name: 'React',
+    group: 'framework',
     path: 'docs/core',
     routeBasePath: 'docs',
     llms: '/',
@@ -27,6 +33,7 @@ const DOCS_INSTANCES = [
     id: 'vue',
     framework: 'vue',
     name: 'Vue',
+    group: 'framework',
     path: 'docs/core',
     routeBasePath: 'vue',
     llms: '/vue/',
@@ -35,6 +42,7 @@ const DOCS_INSTANCES = [
   {
     id: 'rest',
     name: 'REST',
+    group: 'protocol',
     path: 'docs/rest',
     routeBasePath: 'rest',
     llms: '/rest/',
@@ -42,9 +50,15 @@ const DOCS_INSTANCES = [
   {
     id: 'graphql',
     name: 'GraphQL',
+    group: 'protocol',
     path: 'docs/graphql',
     routeBasePath: 'graphql',
     llms: '/graphql/',
+    equivalents: {
+      auth: 'guides/auth',
+      'api/GQLEndpoint': 'api/RestEndpoint',
+      'api/GQLEntity': 'api/Entity',
+    },
   },
 ];
 
@@ -53,6 +67,9 @@ const FRAMEWORK_INSTANCES = DOCS_INSTANCES.filter(d => d.framework);
 const FRAMEWORKS = FRAMEWORK_INSTANCES.map(d => d.framework);
 
 const docsInstance = id => DOCS_INSTANCES.find(d => d.id === id);
+/** Ids of the instances in a group */
+const groupIds = group =>
+  DOCS_INSTANCES.filter(d => d.group === group).map(d => d.id);
 const frameworkInstance = framework =>
   FRAMEWORK_INSTANCES.find(d => d.framework === framework);
 
@@ -74,6 +91,7 @@ module.exports = {
   FRAMEWORK_INSTANCES,
   FRAMEWORKS,
   docsInstance,
+  groupIds,
   frameworkInstance,
   trimRoute,
   mdRoute,

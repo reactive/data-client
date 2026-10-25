@@ -109,6 +109,9 @@ export default function App() {
 订阅处理函数，用于在 URL 位置变化等事件发生时重置错误状态。非常适合
 用边界包裹路由组件的场景。
 
+当改变内容的是一个 prop（比如所选条目的 id）而不是 `listen` 事件时，给边界加上 `key={id}`，
+以清除上一个条目的错误。
+
 下面是使用 [Anansi Router](https://www.npmjs.com/package/@anansi/router) 的示例，它使用了
 [history](https://www.npmjs.com/package/history) 订阅。
 

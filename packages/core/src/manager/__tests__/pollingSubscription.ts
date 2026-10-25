@@ -1,5 +1,5 @@
 import { Endpoint } from '@data-client/endpoint';
-import { Article } from '__tests__/new';
+import { Article, ArticleResource } from '__tests__/new';
 
 import { createSubscription } from '../../controller/actions/createSubscription';
 import Controller from '../../controller/Controller';
@@ -88,9 +88,9 @@ describe('PollingSubscription', () => {
     it('should wait to call for fresh data', () => {
       const dispatch = jest.fn();
       const controller = new Controller({ dispatch });
-      (controller as any).getState = makeState('test.com', Date.now());
-
+      // fake timers first, so the fetch time shares their clock
       jest.useFakeTimers();
+      (controller as any).getState = makeState('test.com', Date.now());
       const sub2 = new PollingSubscription(
         createSubscription(endpoint, { args: [] }),
         controller,
@@ -322,6 +322,35 @@ describe('PollingSubscription', () => {
         expect(warnSpy.mock.calls[0]).toMatchSnapshot();
       });
     });
+  });
+
+  it('should keep members of an extended endpoint when polling', () => {
+    const dispatch = jest.fn();
+    const controller = new Controller({ dispatch });
+    (controller as any).getState = () => initialState;
+    // extend() puts schema (and methods like process) on the prototype
+    const getList = ArticleResource.getList.extend({ pollFrequency: 5000 });
+    expect(Object.hasOwn(getList, 'schema')).toBe(false);
+
+    const action = createSubscription(getList, { args: [] });
+    jest.useFakeTimers();
+    let sub: PollingSubscription | undefined;
+    try {
+      sub = new PollingSubscription(action, controller);
+      jest.advanceTimersByTime(1);
+    } finally {
+      sub?.cleanup();
+      jest.useRealTimers();
+    }
+
+    expect(dispatch.mock.calls.length).toBe(1);
+    const polled = dispatch.mock.calls[0][0].endpoint;
+    expect(polled.schema).toBe(getList.schema);
+    expect(polled.process).toBe(getList.process);
+    expect(polled.name).toBe(getList.name);
+    expect(polled.key()).toBe(action.key);
+    expect(polled.dataExpiryLength).toBe(2500);
+    expect(polled.errorPolicy()).toBe('soft');
   });
 
   describe('offline support', () => {

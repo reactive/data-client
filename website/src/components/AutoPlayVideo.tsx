@@ -4,9 +4,12 @@ const AutoPlayVideo = ({
   src,
   type = 'video/mp4',
   alt,
+  children,
   ...props
 }: React.VideoHTMLAttributes<HTMLVideoElement> & {
   type?: string;
+  /** `<source>` elements in preference order; replaces `src` and `type` */
+  children?: React.ReactNode;
   /** Describes what the video shows, for screen readers and as fallback text */
   alt: string;
 }) => {
@@ -15,11 +18,13 @@ const AutoPlayVideo = ({
   useEffect(() => {
     const videoElement = videoRef.current;
     if (!videoElement) return;
+    // a pause() before play() settles rejects with AbortError; the controls show any real failure
+    const play = () => videoElement.play().catch(() => undefined);
 
     // Ensure IntersectionObserver is supported
     if (!('IntersectionObserver' in window)) {
       // Fallback to always play if not supported
-      videoElement.play();
+      play();
       return;
     }
 
@@ -32,7 +37,7 @@ const AutoPlayVideo = ({
     const handleIntersect = (entries: IntersectionObserverEntry[]) => {
       entries.forEach((entry: IntersectionObserverEntry) => {
         if (entry.isIntersecting) {
-          videoElement.play();
+          play();
         } else {
           videoElement.pause();
         }
@@ -60,7 +65,7 @@ const AutoPlayVideo = ({
         aria-label={alt}
         {...props}
       >
-        <source src={src} type={type} />
+        {children ?? <source src={src} type={type} />}
         {alt}
       </video>
     </center>

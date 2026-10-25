@@ -17,6 +17,7 @@ import Link from '@docusaurus/Link';
 
 ### Condiciones del Endpoint {#endpoint-conditions}
 
+<div className="table-scroll">
 <table>
         <thead>
                 <tr>
@@ -51,6 +52,7 @@ import Link from '@docusaurus/Link';
                 </tr>
         </tbody>
 </table>
+</div>
 
 <!-- #### Endpoint Options
 

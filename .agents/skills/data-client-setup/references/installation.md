@@ -2,11 +2,15 @@
 
 # Getting Started with Reactive Data Client
 
+## Set up by hand {#manual-setup}
+
+### Install packages {#install-manually}
+
 ```bash
 npm install @data-client/react @data-client/test @data-client/rest
 ```
 
-## Add provider at top-level component {#add-provider-at-top-level-component}
+### Add provider at top-level component {#add-provider-at-top-level-component}
 
 **Web**
 
@@ -81,7 +85,7 @@ export default function RootLayout() {
 [Anansi](https://github.com/ntucker/anansi) (beta) is a fully composable framework for React development with optional
 Server Side Rendering.
 
-```bash title="bash"
+```bash
 npx @anansi/cli hatch my-project
 ```
 

@@ -4,6 +4,7 @@ title: "<ExternalDataProvider />"
 ---
 
 import PkgTabs from '@site/src/components/PkgTabs';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Integrates external stores with `Reactive Data Client`. Should be placed as high as possible
 in application tree as any usage of the hooks is only possible for components below the provider
@@ -69,7 +70,7 @@ This function is used to retrieve the `Reactive Data Client` specific part of th
 
 ### devButton
 
-<img src="/img/client-logo.svg" style={{float:'right',width:'40px'}} />
+<img src={useBaseUrl('/img/client-logo.svg')} style={{float:'right',width:'40px'}} />
 
 In development, a small button will appear that gives easy access to browser devtools if
 installed. This option configures where it shows up, or if null will disable it altogether.

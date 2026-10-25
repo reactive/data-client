@@ -138,7 +138,7 @@ Example app: [github-app](https://github.com/reactive/data-client/tree/master/ex
 
 Here we explore a real world example using [cosmos validators list](https://rest.cosmos.directory/stargaze/cosmos/staking/v1beta1/validators).
 
-Since validators only have one Endpoint, we use [RestEndpoint](./RestEndpoint.vue.md) instead of [resource](./resource.vue.md). By using [Collections](./Collection.vue.md) and [paginationField](./RestEndpoint.vue.md#paginationfield), we can call [RestEndpoint.getPage](./RestEndpoint.vue.md#getpage)
+Since validators only have one Endpoint, we use [RestEndpoint](./RestEndpoint.vue.md) instead of [resource](./resource.vue.md). By using [Collections](https://dataclient.io/rest/api/Collection) and [paginationField](./RestEndpoint.vue.md#paginationfield), we can call [RestEndpoint.getPage](./RestEndpoint.vue.md#getpage)
 to append the next page of validators to our list.
 
 ```ts title="Validator" {47-51}

@@ -109,6 +109,9 @@ export default function App() {
 Manejador de suscripción para restablecer el estado de error ante eventos como los cambios de ubicación de la URL. Es ideal
 para colocar un límite que envuelva los componentes de enrutamiento.
 
+Cuando el contenido cambia por una prop, como el id del elemento seleccionado, y no por un evento de `listen`, añade `key={id}` a
+la frontera para borrar el error del elemento anterior.
+
 Un ejemplo con [Anansi Router](https://www.npmjs.com/package/@anansi/router), que usa la suscripción de
 [history](https://www.npmjs.com/package/history).
 

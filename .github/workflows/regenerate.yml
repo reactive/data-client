@@ -2,14 +2,15 @@ name: regenerate
 # Reruns the generators whose output is committed: playground editor types
 # (yarn copy:websitetypes) and skill references (yarn build:skills).
 # Fails when the committed output is stale: PR authors regenerate and commit it.
-# Also type-checks the docs' React and Vue examples.
+# Also type-checks the docs' React and Vue examples, and runs the agents'
+# browser debugging snippets in Chromium.
 # Claude Code rules are left to agent-rules.yml, which needs no install.
 on:
   push:
     branches:
       - master
-    # Inputs of scripts/copywebsitetypes.sh, website/framework-docs/skillReferences.mjs
-    # and checkExamples.mjs
+    # Inputs of scripts/copywebsitetypes.sh, website/framework-docs/skillReferences.mjs,
+    # scripts/pack-skills.mjs --check, checkExamples.mjs and checkBrowserSnippets.mjs
     paths:
       - 'packages/**'
       - '!packages/**/__tests__/**'
@@ -20,6 +21,8 @@ on:
       - 'scripts/strip-dts-comments.mjs'
       - 'scripts/globals.ts'
       - 'scripts/rollup-plugins/**'
+      - 'scripts/pack-skills.mjs'
+      - '.agents/skill-packages.json'
       - 'website/src/components/Playground/editor-types/**'
       - 'website/src/components/Playground/DesignSystem/index.ts'
       - 'website/src/components/Playground/monaco/typeCheckFlags.json'
@@ -27,8 +30,7 @@ on:
       - 'docs/**'
       - '.agents/skills/**'
       - 'website/framework-docs/**'
-      # symlinked into skills that others bundle
-      - 'website/static/codemods/**'
+      - 'website/scripts/workspaceSources.mjs'
       - '.gitattributes'
       - 'website/package.json'
       - 'package.json'
@@ -66,7 +68,7 @@ jobs:
         with:
           fetch-depth: 1
           persist-credentials: false
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: '26'
           cache: 'yarn'
@@ -90,3 +92,27 @@ jobs:
         if: ${{ !cancelled() }}
         run: yarn check:doc-examples
 
+      - name: Get Playwright version
+        id: playwright-version
+        if: ${{ !cancelled() }}
+        run: |
+          echo "version=$(node -p "require(require.resolve('playwright/package.json', { paths: ['website'] })).version")" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        if: ${{ !cancelled() }}
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+      - name: Install Chromium
+        if: ${{ !cancelled() }}
+        # System deps can't live in the cache, so install them either way.
+        run: |
+          if [ "${{ steps.playwright-cache.outputs.cache-hit }}" = "true" ]; then
+            yarn workspace rdc-website exec playwright install-deps chromium
+          else
+            yarn workspace rdc-website exec playwright install chromium --with-deps
+          fi
+      - name: Run the agents' browser debugging snippets
+        if: ${{ !cancelled() }}
+        run: yarn check:browser-snippets

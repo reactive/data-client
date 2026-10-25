@@ -1,13 +1,14 @@
 ---
 name: data-client-schema
-description: Model data with @data-client schemas (Entity, EntityMixin, Collection, Union, Query, Values, All, Invalidate, Lazy, Scalar) for atomic, consistent, referentially-equal async data via normalization, identity-based caching, and a single source of truth. Use when defining or editing pk, static schema, resource()/RestEndpoint schema, mutable lists/maps (push/unshift/assign/remove/move), polymorphic/discriminated types, memoized selectors / derived data, partial/supplementary entities, relational/nested/joined data, optimistic updates, or cache invalidation across @data-client/rest, /endpoint, /graphql, or /normalizr. Apply proactively when discussing data models, remote data shape, caching, normalization, identity, joins, polymorphism, mutable collections, or store consistency.
+description: Model the app's data with @data-client schemas, which normalize responses into one shared cache so an update shows everywhere. Use it whenever an endpoint returning data is added or its response changes (resource, RestEndpoint, GraphQL, Endpoint), when the data's shape changes, when deriving views from loaded data, or when one item looks different in two places. Covers Entity, GQLEntity, Collection, Union and Query.
 license: Apache 2.0
 ---
 
 ## 1. Defining Schemas
 
-Define [schemas](references/schema.md) to represent the JSON returned by an endpoint. Compose these
-to represent the data expected.
+Compose [schemas](references/schema.md) to match the JSON an endpoint returns. Import them from the protocol package
+the app uses (`@data-client/rest`, `@data-client/graphql` or `@data-client/endpoint`; both protocol packages re-export
+endpoint). For GraphQL, extend `GQLEntity` instead of `Entity`; it declares the `id` field used as `pk()`.
 
 ### Object
 
@@ -31,7 +32,7 @@ to represent the data expected.
 
 ### Lens-dependent entity fields
 
-- [new Scalar({ lens, key, entity? })](references/Scalar.md) - fields that vary by runtime lens (portfolio, currency, locale) without entity mutation
+- [new Scalar({ lens, key, entity? })](references/Scalar.md) - fields that vary by runtime lens (portfolio, currency, locale) without entity mutation ([demo](references/_ScalarDemo.md))
 
 ### Derived / selector pattern
 
@@ -43,42 +44,33 @@ to represent the data expected.
   );
   ```
 
-  ```ts
-  const groupTodoByUser = new Query(
-    TodoResource.getList.schema,
-    todos => Object.groupBy(todos, todo => todo.userId),
-  );
-  ```
-
   Define `Query` transformations with the data model (e.g. `src/resources/`) — not inside custom hooks
   wrapping useSuspense/useQuery, which hides data dependencies and couples data logic to view code.
 
----
-
 ## 2. Entity best practices
 
-- Every `Entity` subclass **defines defaults** for _all_ non-optional serialised fields.
+- Every `Entity` subclass **defines defaults** for _all_ non-optional serialised fields: bare TS field types emit no
+  runtime value, so schema inference breaks.
 - Override `pk()` only when the primary key ≠ `id`.
+- [`static indexes = ['username' as const]`](references/Entity.md#indexes) to look up by a unique non-pk field with `useQuery(User, { username })`, instead of building lookup `Map`s
 - `pk()` return type is `number | string | undefined`
 - Override `Entity.process(value, parent, key, args)` to insert fields based on args/url
-- `static schema` (optional) for nested schemas or deserialization functions
+- `static schema` (optional) for nested schemas or deserialization functions; it also joins related entities
+  client-side, so never merge or 'enrich' data by hand ([relational-data](references/relational-data.md))
   - When designing APIs, prefer nesting entities
-
----
 
 ## 3. Entity lifecycle methods
 
 - **Normalize** (JSON response → cache): operates on POJOs; output is JSON-serializable plain data stored in the normalized cache. Order: `process()` → `pk()` → [validate()](references/validation.md) → **visit nested schemas** (recurse into `schema` fields) → if existing: `mergeWithStore()` which calls `shouldUpdate()` and maybe `shouldReorder()` + `merge()`; metadata via `mergeMetaWithStore()`.
+- **Older data arriving after newer** (a poll, slow request or embedded copy): override [`shouldReorder(existingMeta, incomingMeta, existing, incoming)`](references/Entity.md#shouldreorder) to compare a version field such as `updatedAt`; that alone keeps the newer fields. `shouldUpdate()` is for skipping updates to save work.
 - **Denormalize** (cache → component): creates Entity **class instances** via `fromJS()`, restoring prototype chain so getters, methods, and `schema` processing work. Order: `createIfValid()` → [validate()](references/validation.md) → `fromJS()` → **unvisit nested schemas** (recurse into `schema` fields).
-
----
 
 ## 4. **Union Types (Polymorphic Schemas)**
 
 To define polymorphic resources (e.g., events), use [Union](references/Union.md) and a discriminator field.
 
 ```typescript
-import { Union } from '@data-client/rest'; // also available from @data-client/endpoint
+import { Union } from '@data-client/rest';
 
 export abstract class Event extends Entity {
   type: EventType = 'Issue';    // discriminator field is shared
@@ -99,8 +91,6 @@ export const EventResource = resource({
   ),
 });
 ```
-
----
 
 ## 5. Collections (Mutable Lists & Maps)
 
@@ -124,28 +114,30 @@ const userTodos = new Collection([Todo], {
 
 ### nonFilterArgumentKeys
 
-Default `createCollectionFilter` uses `nonFilterArgumentKeys` (default: keys starting with `'order'`) to exclude non-filter args when matching collections. This affects which existing collections receive new items from `push`/`unshift`/`assign`/`move`.
+Default `createCollectionFilter` uses `nonFilterArgumentKeys` (default: keys starting with `'order'`) to exclude non-filter args when matching collections. This affects which existing collections receive new items from `push`/`unshift`/`assign`/`move`: pushing with `{ userId: 1 }` reaches the `{}` and `{ userId: 1 }` lists, not `{ userId: 2 }`, and a list arg left out of `nonFilterArgumentKeys` (such as a sort) keeps new items out of that list.
 
 Override as function, RegExp, or `string[]`:
 ```ts
 new Collection([Todo], { nonFilterArgumentKeys: /orderBy|sortDir/ })
 ```
 
+A plain fetch of a Collection endpoint **replaces** its contents; only the extenders below and
+`getPage` add to it, so load more pages with `getPage`.
+
 ### Extenders
 
-All usable with `ctrl.set()` (local-only) or via [RestEndpoint extenders](https://dataclient.io/rest/api/RestEndpoint) (network).
+Use each as an endpoint's `schema` (network; `resource()` exposes them as `getList.push` etc.) or with `ctrl.set()`
+(local-only).
 
 | Method | Type | Description |
 |--------|------|-------------|
-| `push` | Array | Entity | Append items to end |
-| `unshift` | Array | Entity | Prepend items to start |
+| `push` | Array \| Entity | Append items to end |
+| `unshift` | Array \| Entity | Prepend items to start |
 | `assign` | Values | Merge entries into map |
 | `remove` | Both | Remove items by value from matching collections |
 | `move` | Both | Remove from collections matching existing state, add to collections matching new state |
 | `addWith(merge, filter?)` | Both | Custom creation schema (used internally by push/unshift/assign) |
 | `moveWith(merge)` | Both | Custom move schema (control insertion order, e.g., `unshift` merge for prepending) |
-
----
 
 ## 6. Supplementary Endpoints (enrich existing entities)
 
@@ -155,43 +147,17 @@ use the **same Entity** as the schema — don't create a wrapper entity.
 
 See [partial-entities](references/partial-entities.md) for patterns and examples.
 
----
+## 7. Gotchas
 
-## 7. Best Practices & Notes
-
-- Always set up `schema` on every resource/entity/collection for normalization
-- Normalize deeply nested or relational data by defining proper schemas
-- Use `Entity.schema` for client-side joins
-- Use `Denormalize<>` type from rest/endpoint/graphql instead of InstanceType<>. This will handle all schemas like Unions, not just Entity.
-
-## 8. Common Mistakes to Avoid
-
-- The normalized cache stores **plain JSON-serializable objects** (POJOs), not class instances.
-- Don't forget to use `fromJS()` or assign default properties for class fields — bare TS field types emit no runtime defaults, so schema inference breaks
-- Manually merging or 'enriching' data; instead use `Entity.schema` for client-side joins
+- An endpoint without `schema` bypasses normalization: its data is never updated by other endpoints' responses or
+  `ctrl.set()`.
+- Type responses with `Denormalize<typeof schema>`, not `InstanceType<>`; it handles every schema (Union, Collection),
+  not just Entity.
 
 # References
 
 Vue projects: read `<name>.vue.md` instead of `<name>.md` when it exists.
 
-For detailed API documentation, see the [references](references/) directory:
-
-- [Entity](references/Entity.md) - Normalized data class
-- [EntityMixin](references/EntityMixin.md) - Turn any class into an Entity
-- [Collection](references/Collection.md) - Mutable/growable lists
-- [Union](references/Union.md) - Polymorphic schemas
-- [Query](references/Query.md) - Programmatic selectors
-- [Invalidate](references/Invalidate.md) - Delete entities
-- [Lazy](references/Lazy.md) - Deferred / circular schemas
-- [Scalar](references/Scalar.md) - Lens-dependent entity fields
-  - [Scalar demo](references/_ScalarDemo.md)
-- [Values](references/Values.md) - Map schemas
-- [All](references/All.md) - List all entities of a kind
-- [Array](references/Array.md) - Immutable list schema
-- [Object](references/Object.md) - Object schema
-- [schema](references/schema.md) - Schema overview
-- [relational-data](references/relational-data.md) - Relational data guide
-- [computed-properties](references/computed-properties.md) - Computed properties guide
-- [partial-entities](references/partial-entities.md) - Partial entities guide
-- [side-effects](references/side-effects.md) - Side effects guide
-- [sorting-client-side](references/sorting-client-side.md) - Client-side sorting guide
+- [computed-properties](references/computed-properties.md) - getters and values derived on an Entity
+- [side-effects](references/side-effects.md) - a mutation response that changes other entities
+- [sorting-client-side](references/sorting-client-side.md) - sorting a list from the cache

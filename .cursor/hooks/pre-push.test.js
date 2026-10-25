@@ -41,10 +41,10 @@ function withRepo(fn) {
   }
 }
 
-function write(root, file) {
+function write(root, file, content = 'const n = 1;\n') {
   const abs = path.join(root, file);
   fs.mkdirSync(path.dirname(abs), { recursive: true });
-  fs.writeFileSync(abs, 'const n = 1;\n');
+  fs.writeFileSync(abs, content);
 }
 
 /** the reason the hook denies `git push`, if it does */
@@ -103,5 +103,132 @@ test('a pending fix to a file the push deletes does not hold it', () => {
     assert.match(push(root), /src\/fixed\.ts/);
     git('rm', '-f', 'src/fixed.ts');
     assert.equal(push(root, 'git commit -m delete && git push'), '');
+  });
+});
+
+/** master has the checker; the branch adds a breaking (minor) changeset */
+function breakingBranch(root, git) {
+  write(
+    root,
+    'scripts/breaking-evals.mjs',
+    fs.readFileSync(path.join(__dirname, '../../scripts/breaking-evals.mjs')),
+  );
+  fs.mkdirSync(path.join(root, '.agents/skills/demo'), { recursive: true });
+  git('add', '-A');
+  git('commit', '-m', 'master');
+  git('update-ref', 'refs/remotes/origin/master', 'HEAD');
+  write(
+    root,
+    '.changeset/drop-old.md',
+    "---\n'@data-client/core': minor\n---\n\nBREAKING: Remove `old()`\n",
+  );
+  git('add', '-A');
+  git('commit', '-m', 'branch');
+}
+
+test('a breaking changeset without an eval holds the push', () => {
+  withRepo((root, git) => {
+    breakingBranch(root, git);
+    assert.match(
+      push(root),
+      /breaking-changes\.mdc[^]*\.changeset\/drop-old\.md/,
+    );
+  });
+});
+
+test('a breaking changeset an eval names does not hold the push', () => {
+  withRepo((root, git) => {
+    breakingBranch(root, git);
+    const evals = [
+      { id: 1, changeset: 'drop-old', prompt: 'p', assertions: ['a'] },
+    ];
+    write(
+      root,
+      '.agents/skills/demo/evals/evals.json',
+      JSON.stringify({ evals }),
+    );
+    git('add', '-A');
+    assert.equal(push(root, 'git commit -m evals && git push'), '');
+  });
+});
+
+test('a major bump holds the push; a patch bump does not', () => {
+  withRepo((root, git) => {
+    breakingBranch(root, git);
+    for (const [bump, held] of [
+      ['major', true],
+      ['patch', false],
+    ]) {
+      fs.writeFileSync(
+        path.join(root, '.changeset/drop-old.md'),
+        `---\n'@data-client/core': ${bump}\n---\n\nChange \`old()\`\n`,
+      );
+      git('commit', '-am', bump);
+      if (held) assert.match(push(root), /\.changeset\/drop-old\.md/);
+      else assert.equal(push(root), '');
+    }
+  });
+});
+
+test('a breaking changeset with no agent impact does not hold the push', () => {
+  withRepo((root, git) => {
+    breakingBranch(root, git);
+    write(
+      root,
+      '.agents/skills/changeset/no-agent-impact.json',
+      JSON.stringify({ 'drop-old': 'no agent calls old()' }),
+    );
+    git('add', '-A');
+    assert.equal(push(root, 'git commit -m exempt && git push'), '');
+  });
+});
+
+test('an eval without a real prompt or assertions holds the push', () => {
+  withRepo((root, git) => {
+    breakingBranch(root, git);
+    for (const [i, fields] of [
+      { assertions: [] },
+      { prompt: '  ', assertions: ['a'] },
+      { prompt: 5, assertions: ['a'] },
+      { prompt: 'p', assertions: 'not an array' },
+      { prompt: 'p', assertions: [''] },
+    ].entries()) {
+      const evals = [{ id: 1, changeset: 'drop-old', ...fields }];
+      write(
+        root,
+        '.agents/skills/demo/evals/evals.json',
+        JSON.stringify({ evals }),
+      );
+      git('add', '-A');
+      assert.match(
+        push(root, `git commit -m evals${i} && git push`),
+        /\.changeset\/drop-old\.md/,
+      );
+    }
+  });
+});
+
+test('a branch from before the checker does not hold the push', () => {
+  withRepo((root, git) => {
+    breakingBranch(root, git);
+    git('rm', '-q', 'scripts/breaking-evals.mjs');
+    git('commit', '-m', 'old branch');
+    assert.equal(push(root), '');
+  });
+});
+
+test('a blank no-agent-impact reason holds the push', () => {
+  withRepo((root, git) => {
+    breakingBranch(root, git);
+    write(
+      root,
+      '.agents/skills/changeset/no-agent-impact.json',
+      JSON.stringify({ 'drop-old': '  ' }),
+    );
+    git('add', '-A');
+    assert.match(
+      push(root, 'git commit -m exempt && git push'),
+      /\.changeset\/drop-old\.md/,
+    );
   });
 });

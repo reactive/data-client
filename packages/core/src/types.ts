@@ -61,10 +61,8 @@ export interface State<T> {
  * @see https://dataclient.io/docs/api/Manager
  */
 export interface Manager<Actions = ActionTypes> {
-  /** @see https://dataclient.io/docs/api/Manager#getmiddleware */
-  getMiddleware?(): Middleware<Actions>;
   /** @see https://dataclient.io/docs/api/Manager#middleware */
-  middleware?: Middleware<Actions>;
+  middleware: Middleware<Actions>;
   /** @see https://dataclient.io/docs/api/Manager#cleanup */
   cleanup(): void;
   /** @see https://dataclient.io/docs/api/Manager#init */

@@ -79,7 +79,7 @@ export default function RootLayout() {
 [Anansi](https://github.com/ntucker/anansi) (beta) is a fully composable framework for React development with optional
 Server Side Rendering.
 
-```bash title="bash"
+```bash
 npx @anansi/cli hatch my-project
 ```
 

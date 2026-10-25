@@ -127,7 +127,8 @@ export default class ErrorReportManager implements Manager {
 ### 指标 {#metrics}
 
 通过观察 [FETCH](../api/Actions.md#fetch) action 来跟踪 fetch 耗时。`action.meta.promise`
-会在 fetch 完成时 resolve。
+会在 fetch 完成时 resolve。把它放在 `...getDefaultManagers()` 之前，这样它就能在
+[NetworkManager](../api/NetworkManager.md) 处理每个 FETCH 之前看到它。
 
 ```typescript framework-imports
 import {
@@ -292,7 +293,7 @@ import { get } from 'idb-keyval';
 import App from './App';
 import PersistManager from './PersistManager';
 
-const managers = [...getDefaultManagers(), new PersistManager()];
+const managers = [new PersistManager(), ...getDefaultManagers()];
 const initialState = await get('data-client');
 
 createRoot(document.body).render(
@@ -313,7 +314,7 @@ import { get } from 'idb-keyval';
 import App from './App.vue';
 import PersistManager from './PersistManager';
 
-const managers = [...getDefaultManagers(), new PersistManager()];
+const managers = [new PersistManager(), ...getDefaultManagers()];
 const initialState = await get('data-client');
 
 const app = createApp(App);

@@ -75,5 +75,7 @@ master until that release.
 
 The release archives the current version's docs from its branch at `<version>.dataclient.io` and opens a PR
 listing it, which also deletes `website/versionCurrent.json`. Once that merges, master serves the
-root again. The branch can stay for later fixes: they publish under `latest-<version>`, and a docs
-fix there reaches the archive by dispatching `docs-snapshot.yml` with the branch as `ref`.
+root again, and apps installed from `/next/` drop their offline copy
+([snapshot README](../../website/scripts/snapshot/README.md#current-and-next)). The branch can stay
+for later fixes: they publish under `latest-<version>`, and a docs fix there reaches the archive by
+dispatching `docs-snapshot.yml` with the branch as `ref`.

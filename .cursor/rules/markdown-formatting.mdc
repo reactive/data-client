@@ -23,3 +23,17 @@ Link API concepts that have corresponding doc pages:
 
 - Use backticks for inline code: function names, class names, file paths, package names
 - Use fenced code blocks with language tags for multi-line code examples
+
+## Terminal Commands vs Agent Prompts
+
+The fence language tells readers where a snippet goes; the site styles each one to match.
+
+| Snippet | Fence | In JSX |
+|---|---|---|
+| Shell command, including agent CLIs (`claude plugin install`) | ` ```bash ` | `<CodeBlock className="language-bash">` |
+| Typed into the agent's chat: prompts, skills (`/data-client-setup`), agent slash commands (`/add-plugin`) | ` ```prompt ` | `<AgentPrompt prompt="..." />` |
+
+- Write commands bare, without `$ ` or `title="bash"`: the site already adds an uncopied `$` to each command.
+- A prompt only one agent understands gets `title="Cursor"` (fence meta or prop).
+- Lead each block with where it goes ("Then run it in your agent's chat:"), so READMEs, where GitHub shows `prompt` unstyled, still read right.
+- `framed` (` ```bash framed `, `<SkillTabs framed />`, `<AgentPrompt framed />`) adds "Terminal" / "Agent chat" headers; use it on getting-started steps that alternate the two.

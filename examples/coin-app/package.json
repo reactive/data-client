@@ -24,9 +24,9 @@
     "anansi"
   ],
   "devDependencies": {
-    "@anansi/babel-preset": "7.0.0",
-    "@anansi/browserslist-config": "1.7.5",
-    "@anansi/webpack-config": "22.0.0",
+    "@anansi/babel-preset": "7.0.1",
+    "@anansi/browserslist-config": "1.7.7",
+    "@anansi/webpack-config": "22.0.1",
     "@babel/core": "8.0.7",
     "@linaria/core": "*",
     "@linaria/react": "*",
@@ -40,18 +40,18 @@
     "webpack-cli": "*"
   },
   "dependencies": {
-    "@anansi/cli": "4.0.0",
-    "@anansi/core": "0.23.0",
-    "@anansi/router": "0.11.0",
+    "@anansi/cli": "4.0.1",
+    "@anansi/core": "0.23.1",
+    "@anansi/router": "0.11.1",
     "@babel/runtime-corejs3": "8.0.7",
     "@data-client/img": "0.18.0",
     "@data-client/react": "0.18.1",
     "@data-client/rest": "0.18.1",
-    "core-js": "3.49.0",
+    "core-js": "3.50.0",
     "d3": "7.9.0",
     "history": "*",
-    "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   },
   "main": "src/index.ts",
   "types": "src/index.ts",

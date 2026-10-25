@@ -82,11 +82,11 @@ import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
 import styles from './store.module.css';
 import { StoreUIProvider } from './StoreUI';
+import { useStoreView } from './storeView';
 import Timeline, { Scrubber } from './Timeline';
 import TreeView from './TreeView';
-import Unfold from './Unfold';
 import { RowKey } from './Value';
-import { useTabStorage } from '../../../../utils/tabStorage';
+import Unfold from '../../Unfold';
 
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
@@ -104,8 +104,8 @@ export default function StorePanel({
   const getHistory = () => log.history(id);
   const history = useSyncExternalStore(log.subscribe, getHistory, getHistory);
   const { entries } = history;
-  const [stored, setView] = useTabStorage('playgroundStoreView');
-  const tree = stored === 'tree';
+  const [view, setView] = useStoreView();
+  const tree = view === 'tree';
   // the subject at the moment (`state`), or the moment's action; and the
   // state as a whole, or (`diffMode`) only what the moment's action changed.
   // Each Playground's own, unlike the table or tree view

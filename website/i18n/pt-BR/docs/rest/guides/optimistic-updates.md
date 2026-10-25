@@ -12,6 +12,7 @@ import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import {RestEndpoint} from '@data-client/rest';
 import { todoFixtures } from '@site/src/fixtures/todos';
 import OptimisticTransform from '../shared/\_optimisticTransform.mdx';
+import OptimisticRace from '@site/src/components/OptimisticRace';
 
 # Atualizações otimistas
 
@@ -301,22 +302,9 @@ mas as atualizações otimistas pioram ainda mais a situação.
 Eis um exemplo da race condition. Aqui solicitamos um incremento duas vezes, mas a primeira resposta volta para o
 cliente depois da segunda.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Client
-    participant Server
-    Client->>+Server: Increment from 0
-    Client->>+Server: Increment from 1
-    Server->>-Client: Response: 2
-    Server->>-Client: Response: 1
-```
+<OptimisticRace />
 
-Com outras bibliotecas e sem atualizações otimistas, isso resultaria em exibir 0, depois 2, depois 1.
-
-Se a outra biblioteca tiver atualizações otimistas, ela exibiria 0, 1, 2, 2 e depois 1.
-
-Nos dois casos acabamos exibindo um estado incorreto e, pelo caminho, vemos atualizações de estado estranhas e travadas.
+Outras bibliotecas mostram 0, 2 e depois 1 sem atualizações otimistas, e 0, 1, 2, 2 e depois 1 com elas. As duas terminam no valor errado, com atualizações travadas pelo caminho. O Data Client mostra 0, 1 e depois 2, e mantém o 2 quando a resposta mais antiga chega por último.
 
 ### Compensando variações de tempo do servidor {#server-timings}
 

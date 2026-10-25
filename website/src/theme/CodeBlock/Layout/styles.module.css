@@ -1,0 +1,32 @@
+.terminal {
+  position: relative;
+}
+
+/* the copy button copies the code, never this prompt. Code blocks are palenight
+ * in both site themes, so it takes palenight's comment color */
+.command::before {
+  content: '$ ';
+  color: #697098;
+  user-select: none;
+}
+
+/* what the `$` means, above the block's first command: on hover, keyboard
+ * focus or (touch) tap, like the agent prompt chip's tip (AgentPrompt) */
+.tip {
+  composes: tip from '../../../components/Tip.module.css';
+  left: var(--ifm-pre-padding);
+}
+
+.terminal:has(:focus-visible) .tip,
+.tapped .tip {
+  opacity: 1;
+  translate: none;
+}
+
+/* only devices that really hover; on touch, a tap shows the tip instead */
+@media (hover: hover) {
+  .terminal:hover .tip {
+    opacity: 1;
+    translate: none;
+  }
+}

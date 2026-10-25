@@ -5,7 +5,7 @@
   "homepage": "https://dataclient.io",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/reactive/data-client.git",
+    "url": "git+https://github.com/reactive/data-client.git",
     "directory": "packages/vue"
   },
   "bugs": {
@@ -43,7 +43,8 @@
     "sse",
     "declarative",
     "dynamic data",
-    "mutations"
+    "mutations",
+    "tanstack-intent"
   ],
   "main": "dist/index.js",
   "module": "lib/index.js",
@@ -91,8 +92,14 @@
     "lib",
     "node.mjs",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "skills",
+    "bin",
+    "agents"
   ],
+  "bin": {
+    "data-client-skills": "./bin/data-client-skills.mjs"
+  },
   "scripts": {
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' POLYFILL_TARGETS='chrome>88,safari>14' yarn g:babel --out-dir lib",
     "build:js:node": "BROWSERSLIST_ENV=node12 yarn g:rollup",
@@ -102,7 +109,7 @@
     "build": "run build:lib && run build:bundle",
     "dev": "run build:lib -w",
     "prepare": "run build:lib",
-    "prepack": "run prepare && run build:bundle"
+    "prepack": "run prepare && run build:bundle && node ../../scripts/pack-skills.mjs"
   },
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "funding": "https://github.com/sponsors/ntucker",
@@ -135,7 +142,7 @@
     "jest-mock": "^30.0.0",
     "nock": "13.3.1",
     "rollup-plugins": "workspace:*",
-    "temporal-polyfill": "^0.3.0",
+    "temporal-polyfill": "^1.0.0",
     "vue": "^3.4.0"
   }
 }

@@ -24,7 +24,7 @@ Schema driven. Zero updater functions.
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-cc785c?style=flat-square&logo=claude&logoColor=white)](https://skills.sh/reactive/data-client)
 [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
 
-**[📖Read The Docs](https://dataclient.io/docs)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/docs/getting-started/agent-skills) &nbsp;|&nbsp; [🤖Agent Skills](https://skills.sh/reactive/data-client) <br/>🎮 **Demos:** &nbsp;
+**[📖Read The Docs](https://dataclient.io/docs)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/docs/getting-started/installation) &nbsp;|&nbsp; [🤖Agent Skills](https://skills.sh/reactive/data-client) <br/>🎮 **Demos:** &nbsp;
 [Todo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx) &nbsp;|&nbsp;
 [Github](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx) &nbsp;|&nbsp;
 [NextJS SSR](https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=components%2Ftodo%2FTodoList.tsx) &nbsp;|&nbsp;
@@ -38,15 +38,62 @@ Schema driven. Zero updater functions.
 npm install --save @data-client/react @data-client/rest @data-client/test
 ```
 
-For more details, see [the Getting Started docs page](https://dataclient.io/docs/getting-started/agent-skills).
+Then [add the provider](https://dataclient.io/docs/getting-started/installation#add-provider-at-top-level-component) at your app's root.
 
-### Skills
+### Set up with your coding agent (recommended)
 
-```bash
-npx skills add reactive/data-client
+Or skip the steps above and paste this into your coding agent's chat. It installs Data Client's setup skill, which adds the packages, wires up the provider and links the skills they ship:
+
+```prompt
+Set up `@data-client/react` and use it for all API data. Install its setup skill first: `npx skills add reactive/data-client --skill data-client-setup -y`, then follow it.
 ```
 
-Then run [skill](https://agentskills.io) "data-client-setup"
+<details>
+<summary>Or use the Claude Code, Cursor or Codex plugin</summary>
+
+More on each in [Installation](https://dataclient.io/docs/getting-started/installation#agent-setup).
+
+**Claude Code:** in a terminal at the project root:
+
+```bash
+claude plugin marketplace add reactive/data-client --scope project \
+  --sparse .claude-plugin .agents/skills
+claude plugin install data-client@data-client --scope project
+```
+
+Then in Claude Code's chat:
+
+```prompt
+/data-client:data-client-setup Set up `@data-client/react` and use it for all API data
+```
+
+**Cursor:** in Cursor's agent chat:
+
+```prompt
+/add-plugin data-client@https://github.com/reactive/data-client
+```
+
+Then, in a new chat:
+
+```prompt
+/data-client-setup Set up `@data-client/react` and use it for all API data
+```
+
+**Codex:** in a terminal:
+
+```bash
+codex plugin marketplace add reactive/data-client \
+  --sparse .claude-plugin --sparse .agents/skills
+codex plugin add data-client@data-client
+```
+
+Then in Codex's chat:
+
+```prompt
+$data-client:data-client-setup Set up `@data-client/react` and use it for all API data
+```
+
+</details>
 
 ## Usage
 
@@ -245,7 +292,7 @@ const Story = () => (
 
 ### ...all typed ...fast ...and consistent
 
-For the small price of 9kb gzipped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/docs/getting-started/agent-skills)
+For the small price of 9kb gzipped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/docs/getting-started/installation)
 
 ## Features
 

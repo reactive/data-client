@@ -98,10 +98,13 @@ instalado uma vez por app, então os managers são criados uma única vez.
 import MyManager from './MyManager';
 
 // highlight-next-line
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = [new MyManager(), ...getDefaultManagers()];
 ```
 
 </ProviderManagers>
+
+As actions passam pelos managers na ordem do array. Liste os managers personalizados antes dos padrão: o [NetworkManager](./NetworkManager.md)
+resolve a maioria das actions FETCH por conta própria, em vez de repassá-las.
 
 ## Fluxo de controle {#control-flow}
 

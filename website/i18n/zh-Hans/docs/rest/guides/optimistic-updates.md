@@ -12,6 +12,7 @@ import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import {RestEndpoint} from '@data-client/rest';
 import { todoFixtures } from '@site/src/fixtures/todos';
 import OptimisticTransform from '../shared/\_optimisticTransform.mdx';
+import OptimisticRace from '@site/src/components/OptimisticRace';
 
 # 乐观更新
 
@@ -301,22 +302,9 @@ reject/失败时回滚。
 下面是一个竞态条件的例子。我们请求了两次递增；但第一个响应
 比第二个响应更晚回到客户端。
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Client
-    participant Server
-    Client->>+Server: Increment from 0
-    Client->>+Server: Increment from 1
-    Server->>-Client: Response: 2
-    Server->>-Client: Response: 1
-```
+<OptimisticRace />
 
-使用其他库且没有乐观更新时，界面会先显示 0，然后是 2，最后是 1。
-
-如果其他库支持乐观更新，界面会依次显示 0、1、2、2，最后是 1。
-
-两种情况下，我们最终都显示了错误的状态，而且过程中还会看到古怪、卡顿的状态更新。
+没有乐观更新时，其他库依次显示 0、2、1；有乐观更新时，则显示 0、1、2、2、1。两种情况最终都停在错误的计数上，过程中还会出现卡顿的更新。Data Client 依次显示 0、1、2，并在较早的响应最后到达时保持 2。
 
 ### 补偿服务器时序差异 {#server-timings}
 

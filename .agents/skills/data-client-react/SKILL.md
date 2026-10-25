@@ -1,6 +1,6 @@
 ---
 name: data-client-react
-description: Use @data-client/react hooks for data fetching, mutations, and rendering - useSuspense, useFetch, useQuery, useCache, useLive, useDLE, useSubscription, useController, DataProvider, AsyncBoundary, useLoading, useDebounce. Use when reading/rendering remote data, triggering mutations, doing optimistic updates, real-time subscriptions, or wiring Suspense/error boundaries in React.
+description: Read, change and render async and shared state in React with @data-client/react: any data from an API or other async source, and global state shared across components (it has to persist somewhere, which makes it async). Use it for loading and error states, mutations and forms, filtered or derived views, and debugging data that looks wrong or stale on screen. Use it in place of fetch in useEffect, or app-wide useState and context; its main hooks are useSuspense, useQuery and useController.
 license: Apache 2.0
 ---
 ## Rendering
@@ -27,6 +27,9 @@ const commentsPromise = useFetch(CommentResource.getList, { postId: id });
 const post = use(postPromise);
 const comments = use(commentsPromise);
 ```
+
+Sequential `useSuspense` calls waterfall, so load 2+ endpoints with `useFetch` as above. Before React 19,
+read them with `useSuspense` instead of `use()`.
 
 For API definitions (like TodoResource), apply the skill "data-client-rest".
 
@@ -92,6 +95,13 @@ Its props are `fallback`, `errorComponent`, `errorClassName`, and `listen`. It c
 ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.invalidateAll(), ctrl.setResponse(), ctrl.set(),
 ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 
+| To refresh or update | Call |
+|---|---|
+| You already have the new value | `ctrl.set()` / `ctrl.setResponse()` (no network) |
+| One endpoint+args | `ctrl.fetch(endpoint, args)` |
+| All cached args of an endpoint | `ctrl.expireAll(endpoint)`: fetching hooks refetch; `useCache`/`useQuery` don't |
+| Current data must not show while refetching | `ctrl.invalidate()` / `ctrl.invalidateAll()`: `useSuspense` suspends |
+
 Write many entities without a fetch with one `ctrl.set([Entity], rows)`. Never loop `ctrl.set(Entity, args, row)` per row, and never add an endpoint or `setResponse()` just to batch.
 
 ## Programmatic queries
@@ -116,12 +126,12 @@ const todosByUser = useQuery(groupTodoByUser);
 
 ---
 
-## Browser Debugging (Chrome DevTools MCP)
+## Debugging wrong or stale data in a running app
 
-To inspect store state, track dispatched [actions](references/Actions.md), or invoke
-[Controller](references/Controller.md) methods from a browser MCP (`user-chrome-devtools`),
-see [devtools-debugging](references/devtools-debugging.md). Uses `globalThis.__DC_CONTROLLERS__`
-available in dev mode.
+When the running app shows the wrong data, inspect the page's store before reading code for the cause. In dev mode,
+`__DC__.controller` is the page's Controller and `__DC__.actions` its recent [actions](references/Actions.md), reachable
+from any browser tool that runs JavaScript in the page. [devtools-debugging](references/devtools-debugging.md) maps
+symptoms to what to check and links the setup for your browser tool.
 
 ## Managers
 
@@ -133,8 +143,9 @@ This is useful for websockets, SSE, logging, etc. Always use the skill "data-cli
 - [useDebounce(query, timeout)](references/useDebounce.md) when rendering async data based on user field inputs
 - [[handleSubmit, loading, error] = useLoading()](references/useLoading.md) when tracking async mutations
 - Prefer smaller React components that do one thing
-- **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill
+- **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill. Pass ids/args, not fetched data a component only hands down (a list passing each item to its row is fine); bindings with the same endpoint and args share one fetch and store entry
 - **Don't hide data bindings inside custom hooks**: wrapping them obfuscates a component's data dependencies and couples data logic to view code, causing drift. Put tightly coupled data transformations in a `Query` schema (with the data model, e.g. `src/resources/`) so they stay reusable and evolve independently of views
+- `undefined` from `useCache`, or `useQuery` on an Entity, means "not loaded yet", not "doesn't exist"; a deep link or refresh starts empty. Read required data with `useSuspense`/`useDLE`, which fetch only when the cache is missing, stale or invalidated; use `useCache`/`useQuery` for data other code loads
 - For tests, apply the skill "data-client-react-testing"
 
 # References
@@ -157,6 +168,7 @@ For detailed API documentation, see the [references](references/) directory:
 - [data-dependency](references/data-dependency.md) - Rendering guide
 - [mutations](references/mutations.md);[_VoteDemo.md](references/_VoteDemo.md) - Mutations guide
 - [Actions](references/Actions.md) - Store action types (FETCH, SET, etc.)
-- [devtools-debugging](references/devtools-debugging.md) - Debug with Chrome DevTools MCP
+- [devtools-debugging](references/devtools-debugging.md) - Debug the running app from a browser tool
+- [browser-cursor.md](references/browser-cursor.md);[browser-chrome-devtools-mcp.md](references/browser-chrome-devtools-mcp.md);[browser-playwright-mcp.md](references/browser-playwright-mcp.md);[browser-claude-in-chrome.md](references/browser-claude-in-chrome.md) - Setup for one browser tool; read only yours
 
 **ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via skill "data-client-schema" definitions.**

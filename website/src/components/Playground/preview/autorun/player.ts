@@ -1,5 +1,6 @@
 import type { AutoRunScript, Step, Target } from './script';
 import { springEasing, springs } from '../../../motion';
+import type { StoreView } from '../store/storeView';
 
 /** What a script acts on: the playground's DOM (./stage.ts) */
 export interface Stage {
@@ -8,9 +9,9 @@ export interface Stage {
   point(el: HTMLElement): void;
   click(el: HTMLElement): void;
   append(el: HTMLElement, text: string): void;
-  /** Opens or closes the Store; `pressed`: the pointer is on the Store's
-   * toggle, so the stage shows a press there */
-  store(open: boolean, pressed?: boolean): void;
+  /** Opens or closes the Store, in `view` if given; `pressed`: the pointer
+   * is on the Store's toggle, so the stage shows a press there */
+  store(open: boolean, options?: { pressed?: boolean; view?: StoreView }): void;
   /** The run is over: the pointer goes */
   end(): void;
 }
@@ -98,7 +99,10 @@ async function perform(
       stage.point(toggle);
       await sleep(MOVE_MS);
     }
-    return stage.store(step.store === 'open', !!toggle);
+    return stage.store(step.store === 'open', {
+      pressed: !!toggle,
+      view: step.view,
+    });
   }
 
   // look the target up again before each act: a render may have replaced it

@@ -62,7 +62,7 @@ para que fiquem [stale](#stale) quase instantaneamente; ou um número muito gran
 Alternar entre 'first' e 'second' muda os parâmetros. Se os dados ainda forem considerados fresh,
 você continuará vendo o horário antigo, sem nenhuma atualização.
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row defaultTab="getUpdated" fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -106,11 +106,11 @@ export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 
 :::react
 
-```tsx title="TimePage"
+```tsx title="TimePage" route="/time/:id" start="/time/1"
 import { useSuspense } from '@data-client/react';
 import { getUpdated } from './getUpdated';
 
-export default function TimePage({ id }) {
+export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
@@ -123,41 +123,28 @@ export default function TimePage({ id }) {
 }
 ```
 
-```tsx title="Navigator" collapsed
-import React from 'react';
-import { AsyncBoundary } from '@data-client/react';
-import TimePage from './TimePage';
-
-function Navigator() {
-  const [id, setId] = React.useState('1');
-  const handleChange = e => setId(e.currentTarget.value);
+```tsx title="Navigator" layout collapsed
+export default function Navigator({ children }) {
   return (
     <div>
-      <div>
-        <button value="1" onClick={handleChange}>
-          First
-        </button>
-        <button value="2" onClick={handleChange}>
-          Second
-        </button>
-      </div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
-        <TimePage id={id} />
-      </AsyncBoundary>
+      <nav>
+        <Link to="/time/1">First</Link>
+        <Link to="/time/2">Second</Link>
+      </nav>
+      {children}
       <div>
         Current Time: <CurrentTime />
       </div>
     </div>
   );
 }
-render(<Navigator />);
 ```
 
 :::
 
 :::vue
 
-```html title="TimePage.vue"
+```html title="TimePage.vue" route="/time/:id" start="/time/1"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getUpdated } from './getUpdated';
@@ -174,25 +161,24 @@ render(<Navigator />);
 </template>
 ```
 
-```html title="Navigator.vue" collapsed
-<script setup lang="ts">
-  import { ref } from 'vue';
-  import TimePage from './TimePage.vue';
-
-  const id = ref('1');
-</script>
-
+```html title="Navigator.vue" layout collapsed
 <template>
   <div>
-    <div>
-      <button @click="id = '1'">First</button>
-      <button @click="id = '2'">Second</button>
-    </div>
-    <!-- :key remounts TimePage so it suspends for the new id -->
-    <Suspense timeout="0">
-      <TimePage :key="id" :id="id" />
-      <template #fallback><div>loading...</div></template>
-    </Suspense>
+    <nav>
+      <RouterLink to="/time/1">First</RouterLink>
+      <RouterLink to="/time/2">Second</RouterLink>
+    </nav>
+    <RouterView v-slot="{ Component, route }">
+      <!-- :key remounts TimePage so it suspends for the new id -->
+      <Suspense timeout="0">
+        <component
+          :is="Component"
+          :key="route.fullPath"
+          :id="route.params.id"
+        />
+        <template #fallback><div>loading...</div></template>
+      </Suspense>
+    </RouterView>
   </div>
 </template>
 ```
@@ -255,10 +241,10 @@ const NoRetryResource = resource({
 [Endpoint.invalidIfStale](/rest/api/Endpoint#invalidifstale) elimina o status '[stale](#stale)', fazendo com que dados
 que expiram sejam imediatamente considerados '[invalid](#invalid)'.
 
-Isso é demonstrado pelo componente que suspende assim que seus dados ficam stale. Se os dados ainda estiverem
-dentro do tempo de expiração, ele simplesmente continua a exibi-los.
+Isso é demonstrado pela página que suspende assim que seus dados ficam stale:react[ (a navegação aguarda a barra de progresso)].
+Se os dados ainda estiverem dentro do tempo de expiração, ela simplesmente continua a exibi-los.
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row defaultTab="getUpdated" fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -305,11 +291,11 @@ export const getUpdated = lastUpdated.extend({
 
 :::react
 
-```tsx title="TimePage"
+```tsx title="TimePage" route="/time/:id" start="/time/1"
 import { useSuspense } from '@data-client/react';
 import { getUpdated } from './getUpdated';
 
-export default function TimePage({ id }) {
+export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
@@ -322,41 +308,28 @@ export default function TimePage({ id }) {
 }
 ```
 
-```tsx title="Navigator" collapsed
-import React from 'react';
-import { AsyncBoundary } from '@data-client/react';
-import TimePage from './TimePage';
-
-function Navigator() {
-  const [id, setId] = React.useState('1');
-  const handleChange = e => setId(e.currentTarget.value);
+```tsx title="Navigator" layout collapsed
+export default function Navigator({ children }) {
   return (
     <div>
-      <div>
-        <button value="1" onClick={handleChange}>
-          First
-        </button>
-        <button value="2" onClick={handleChange}>
-          Second
-        </button>
-      </div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
-        <TimePage id={id} />
-      </AsyncBoundary>
+      <nav>
+        <Link to="/time/1">First</Link>
+        <Link to="/time/2">Second</Link>
+      </nav>
+      {children}
       <div>
         Current Time: <CurrentTime />
       </div>
     </div>
   );
 }
-render(<Navigator />);
 ```
 
 :::
 
 :::vue
 
-```html title="TimePage.vue"
+```html title="TimePage.vue" route="/time/:id" start="/time/1"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getUpdated } from './getUpdated';
@@ -373,25 +346,24 @@ render(<Navigator />);
 </template>
 ```
 
-```html title="Navigator.vue" collapsed
-<script setup lang="ts">
-  import { ref } from 'vue';
-  import TimePage from './TimePage.vue';
-
-  const id = ref('1');
-</script>
-
+```html title="Navigator.vue" layout collapsed
 <template>
   <div>
-    <div>
-      <button @click="id = '1'">First</button>
-      <button @click="id = '2'">Second</button>
-    </div>
-    <!-- :key remounts TimePage so it suspends for the new id -->
-    <Suspense timeout="0">
-      <TimePage :key="id" :id="id" />
-      <template #fallback><div>loading...</div></template>
-    </Suspense>
+    <nav>
+      <RouterLink to="/time/1">First</RouterLink>
+      <RouterLink to="/time/2">Second</RouterLink>
+    </nav>
+    <RouterView v-slot="{ Component, route }">
+      <!-- :key remounts TimePage so it suspends for the new id -->
+      <Suspense timeout="0">
+        <component
+          :is="Component"
+          :key="route.fullPath"
+          :id="route.params.id"
+        />
+        <template #fallback><div>loading...</div></template>
+      </Suspense>
+    </RouterView>
   </div>
 </template>
 ```
@@ -409,7 +381,7 @@ render(<Navigator />);
 [Controller.fetch](../api/Controller#fetch) pode ser usado para disparar um fetch enquanto ainda se mostram
 os dados anteriores. Isso pode ser feito mesmo com dados 'fresh'.
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -497,7 +469,7 @@ render(<ShowTime />);
 
 [Controller.expireAll()](../api/Controller.md#expireAll) define o [status de expiração](#expiry-status) de todas as respostas que correspondem a `testKey` como [Stale](#stale).
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -657,7 +629,7 @@ Enquanto isso, [useCache()](../api/useCache.md) retorna `undefined` e o `loading
 
 Neste exemplo, [invalidar o endpoint](../api/Controller.md#invalidate) :react[exibe o fallback de carregamento, já que os dados não podem ser exibidos]:vue[faz o refetch dele, mesmo que seus dados ainda estejam fresh].
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -807,7 +779,7 @@ render(<Demo />);
 Usar o [schema Invalidate](/rest/api/Invalidate) nos permite invalidar _qualquer_ endpoint que dependa dessa [entity](/rest/api/Entity) em sua
 resposta. Se o endpoint usa a entity em um [Array](/rest/api/Array), ela simplesmente será removida desse [Array](/rest/api/Array).
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',

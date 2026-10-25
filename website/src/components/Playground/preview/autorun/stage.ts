@@ -3,6 +3,7 @@ import type { Stage } from './player';
 import type { Scope } from './script';
 import { prefersReducedMotion, springEasing, springs } from '../../../motion';
 import { revealIn } from '../store/dom';
+import type { ShowStore } from '../store/storeView';
 
 /** Acts on one playground's DOM as a reader would, with untrusted events
  * (so the yield listeners in ./useAutoRun.ts tell them from the reader's) and
@@ -10,10 +11,7 @@ import { revealIn } from '../store/dom';
  *
  * The pointer lives in a layer appended to `root`, removed by `end()`.
  */
-export function createStage(
-  root: HTMLElement,
-  showStore: (open: boolean) => void,
-): Stage {
+export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
   const layer = document.createElement('div');
   layer.className = styles.layer;
   root.append(layer);
@@ -127,10 +125,10 @@ export function createStage(
       input.dispatchEvent(new Event('input', { bubbles: true }));
     },
 
-    store(open, pressed) {
+    store(open, { pressed, view } = {}) {
       if (pressed) ring();
       // not the toggle's own click, which would save the reader's choice
-      showStore(open);
+      showStore(open, view);
     },
 
     end() {

@@ -106,7 +106,7 @@ const managers = getDefaultManagers({
 ```
 
 O `IdlingNetworkManager` pode evitar travamentos ao adiar os fetches sem [sideEffect](/rest/api/Endpoint#sideeffect) (somente leitura/GET)
-até que as animações terminem. Na web isso funciona com [requestIdleCallback](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback), e no react native com InteractionManager.runAfterInteractions.
+até que as animações terminem. Na web isso funciona com [requestIdleCallback](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback), e no React Native com InteractionManager.runAfterInteractions (ou requestIdleCallback a partir do React Native 0.87, que removeu o InteractionManager).
 
 :::
 

@@ -2,7 +2,9 @@
 
 # Getting Started with Reactive Data Client
 
-## Install the plugin {#add-provider-at-top-level-component}
+## Set up by hand {#manual-setup}
+
+### Install the plugin {#add-provider-at-top-level-component}
 
 Install the [Vue plugin](https://vuejs.org/guide/reusability/plugins.html) when creating your app.
 

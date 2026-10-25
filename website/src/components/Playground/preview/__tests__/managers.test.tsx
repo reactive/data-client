@@ -16,22 +16,6 @@ jest.mock('../../DesignSystem/Loading', () => ({ Loading: () => null }));
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
 }));
-jest.mock(
-  '@docusaurus/BrowserOnly',
-  () =>
-    ({ children }: { children: () => React.ReactNode }) =>
-      children(),
-  { virtual: true },
-);
-jest.mock(
-  '@docusaurus/theme-common/internal',
-  () => ({
-    useScrollPositionBlocker: () => ({
-      blockElementScrollPositionUntilNextRender: () => {},
-    }),
-  }),
-  { virtual: true },
-);
 
 /** Each manager reports its lifecycle to `log` under its label */
 const log: string[] = [];
@@ -157,6 +141,7 @@ function getManagers() { return [new MethodManager(), ...getDefaultManagers()]; 
 it('swaps managers when a Manager class in its own document changes', async () => {
   const managerClass = (label: string) => `
 export class LogManager implements Manager {
+  middleware = () => next => next;
   init() { managerLog.push('init ${label}'); }
   cleanup() { managerLog.push('cleanup ${label}'); }
 }`;
@@ -176,6 +161,7 @@ export class LogManager implements Manager {
 it('swaps managers when a structurally typed class in its own document changes', async () => {
   const managerClass = (label: string) => `
 export class LogManager {
+  middleware = () => next => next;
   init() { managerLog.push('init ${label}'); }
   cleanup() { managerLog.push('cleanup ${label}'); }
 }`;
@@ -262,22 +248,24 @@ render(<App />);`,
   expect(await screen.findByText(/async broke/)).toBeTruthy();
 });
 
-it('shows a manager error when getMiddleware() throws', async () => {
+it('shows a manager error when middleware is missing', async () => {
   renderPlayground([
-    `class Legacy implements Manager {
-  getMiddleware() { throw new Error('legacy broke'); }
+    `class NoMiddleware {
   cleanup() {}
 }
-function getManagers() { return [new Legacy(), ...getDefaultManagers()]; }`,
+function getManagers() { return [new NoMiddleware(), ...getDefaultManagers()]; }`,
     appDoc('ok'),
   ]);
-  expect(await screen.findByText(/legacy broke/)).toBeTruthy();
+  expect(
+    await screen.findByText(/NoMiddleware has no middleware/),
+  ).toBeTruthy();
   expect(screen.getByText('ok')).toBeTruthy();
 });
 
 it('reads a typed getManagers declaration', async () => {
   renderPlayground([
     `class LogManager {
+  middleware = () => next => next;
   init() { managerLog.push('init typed'); }
   cleanup() {}
 }

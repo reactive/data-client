@@ -52,7 +52,9 @@ function Handle() {
 desktop rises from the bottom when a container query stacks it. It slides
 over its siblings, and its contents fill it: clip it with `overflow: hidden`
 on an ancestor, and make its parent `position: relative` (exits are pinned
-there while they leave).
+there while they leave). Once out, it leaves the layout, which can move the
+page: `hold` names an element (the toggle that closed it) to keep in place
+on screen.
 
 Reduced motion (`prefers-reduced-motion: reduce`) lands everything in place
 instantly, in CSS and JS alike.

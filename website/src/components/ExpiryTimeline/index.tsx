@@ -1,10 +1,12 @@
 import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useId, useRef, useState } from 'react';
 
 import splitAtHeadings from './splitAtHeadings';
 import styles from './styles.module.css';
 import StoreIcon from '../Playground/StoreIcon';
+import tipStyles from '../tips.module.css';
+import useTips, { type Tips } from '../useTips';
 
 const ZONES = ['fresh', 'stale', 'invalid'] as const;
 /** The invalidIfStale switch's tooltip, after the three columns' */
@@ -24,7 +26,7 @@ export default function ExpiryTimeline({
 }) {
   const [invalidIfStale, setInvalidIfStale] = useState(false);
   const columns = splitAtHeadings(children);
-  const tips = useTips();
+  const tips = useTips<number>();
 
   // how each status comes about, over its story
   const when = [
@@ -307,49 +309,6 @@ function Bars({ x, y, widths }: { x: number; y: number; widths: number[] }) {
   ));
 }
 
-interface Tips {
-  /** which tooltip a tap pinned open; a tap elsewhere closes it */
-  open: number | null;
-  setOpen: (i: number | null) => void;
-  /** after Escape, until the pointer next enters or presses, or focus lands */
-  dismissed: boolean;
-  revive: () => void;
-}
-
-/** The tooltips' shared state: one pinned at a time, Escape hides them all */
-function useTips(): Tips {
-  const [open, setOpen] = useState<number | null>(null);
-  const [dismissed, setDismissed] = useState(false);
-  const pinned = open !== null;
-  useEffect(() => {
-    if (!pinned) return;
-    const close = (e: PointerEvent) => {
-      if (!(e.target as Element).closest?.(`.${styles.note}`)) setOpen(null);
-    };
-    document.addEventListener('pointerdown', close);
-    return () => document.removeEventListener('pointerdown', close);
-  }, [pinned]);
-  useEffect(() => {
-    const dismiss = (e: KeyboardEvent) => {
-      // an Escape another widget already handled is that widget's
-      if (e.key !== 'Escape' || e.defaultPrevented) return;
-      // focus stays put, except on a link in the tip this hides: it returns
-      // to that tip's control, before the dismissal so this focus can't revive it
-      const active = document.activeElement;
-      if (active?.closest(`.${styles.tip}`))
-        active
-          .closest(`.${styles.note}`)
-          ?.querySelector<HTMLElement>(`.${styles.control}`)
-          ?.focus();
-      setOpen(null);
-      setDismissed(true);
-    };
-    document.addEventListener('keydown', dismiss);
-    return () => document.removeEventListener('keydown', dismiss);
-  }, []);
-  return { open, setOpen, dismissed, revive: () => setDismissed(false) };
-}
-
 interface ControlProps {
   'aria-describedby': string;
   onPointerDown: (e: React.PointerEvent) => void;
@@ -370,7 +329,7 @@ function Tip({
   align,
   children,
 }: {
-  tips: Tips;
+  tips: Tips<number>;
   index: number;
   tip: string;
   href: string;
@@ -391,20 +350,10 @@ function Tip({
     return touch;
   };
   return (
-    <span
-      className={clsx(
-        styles.note,
-        align,
-        tips.open === index && styles.open,
-        tips.dismissed && styles.dismissed,
-      )}
-      onPointerEnter={tips.revive}
-      onPointerDown={tips.revive}
-      onFocus={tips.revive}
-    >
+    <span {...tips.anchor(index, styles.note, align)}>
       {children(control, tapped)}
       <span className={styles.tip} id={id}>
-        <span className={styles.bubble}>
+        <span className={tipStyles.bubble}>
           {tip}{' '}
           <a href={href}>
             {translate({

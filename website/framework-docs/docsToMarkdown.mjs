@@ -19,6 +19,7 @@ import { visit } from 'unist-util-visit';
 import { parseMarkdown } from './parseMarkdown.mjs';
 import providerSetup from './providerSetup.mjs';
 import { ROOT, SITE, rel } from './site.mjs';
+import skillCommands from './skillCommands.mjs';
 
 const require = createRequire(import.meta.url);
 const {
@@ -167,18 +168,21 @@ const text = value => ({ type: 'text', value });
 const paragraph = children => ({ type: 'paragraph', children });
 const html = value => ({ type: 'html', value });
 
+/** Fence meta flags: stripped from the output, and some read into `data` */
+const FENCE_FLAGS =
+  /\s*\b(collapsed|showLineNumbers|nocheck|framed|docs-only)\b/g;
 /**
  * Code without Docusaurus-only syntax (highlight markers, display options).
  * `data.raw` keeps the fence's own lines, so the docs example check can map
- * errors back to them; `data.nocheck` marks fences that check skips.
+ * errors back to them; `data.nocheck` marks fences that check skips, and
+ * `data.docsOnly` marks fences skill references drop.
  */
 function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
+  const flags = new Set(meta?.match(FENCE_FLAGS)?.map(f => f.trim()));
   return {
     type: 'code',
     lang: lang ?? null,
-    meta:
-      meta?.replace(/\s*\b(collapsed|showLineNumbers|nocheck)\b/g, '').trim() ||
-      null,
+    meta: meta?.replace(FENCE_FLAGS, '').trim() || null,
     value: value
       .split('\n')
       .filter(
@@ -187,7 +191,11 @@ function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
       )
       .join('\n')
       .trim(),
-    data: { raw: value, nocheck: /\bnocheck\b/.test(meta ?? '') },
+    data: {
+      raw: value,
+      nocheck: flags.has('nocheck'),
+      docsOnly: flags.has('docs-only'),
+    },
   };
 }
 /** The glue a playground's router supplies, which its files don't show */
@@ -229,22 +237,31 @@ function jsxText(children, props, file) {
     .join('');
 }
 
+const skillSources = {
+  skillPackages: require(path.join(ROOT, '.agents/skill-packages.json')),
+  setupSkills: require(
+    path.join(ROOT, '.agents/skills/data-client-setup/references.json'),
+  ).skills,
+  plugin: require(path.join(ROOT, '.claude-plugin/marketplace.json')),
+};
+
 const ADMONITIONS = ['note', 'tip', 'info', 'warning', 'danger', 'caution'];
 /** Inline HTML with a markdown equivalent */
 const INLINE = { b: 'strong', strong: 'strong', em: 'emphasis', i: 'emphasis' };
 /** HTML kept as is around its converted children */
 const HTML = ['details', 'sup', 'sub', 'kbd'];
-/** Site-only embeds with nothing to read */
-const DROP = ['ThemedImage', 'SkillTabs', 'head'];
+/** Site-only embeds with nothing to read, and `<SiteOnly>` prose for human readers
+ * (tell your agent, install a skill), which agents reading the markdown don't need */
+const DROP = ['ThemedImage', 'head', 'SiteOnly'];
 
 /** Rewrites one page (and its partials) into plain markdown nodes */
-function render(file, framework, props = {}, drop = DROP) {
+function render(file, framework, props = {}) {
   const content = contentFor(file, framework);
   if (!pageFrameworks(content).includes(framework)) return;
   const source = sourceFor(file, framework);
   const parsed = parse(source);
   const tree = structuredClone(parsed.tree);
-  remarkFramework({ framework })(tree);
+  remarkFramework({ framework, keepAgentOnly: true })(tree);
   const partials = {};
   const tabLabels = [];
 
@@ -368,12 +385,12 @@ function render(file, framework, props = {}, drop = DROP) {
 
   function convertJsx(node) {
     const { name } = node;
-    if (!name || drop.includes(name)) return [];
+    if (!name || DROP.includes(name)) return [];
     const flow = node.type === 'mdxJsxFlowElement';
     const attrs = attributesOf(node, props, source);
     if (partials[name]) {
       attrs.children = node.children;
-      return render(partials[name], framework, attrs, drop)?.children ?? [];
+      return render(partials[name], framework, attrs)?.children ?? [];
     }
     switch (name) {
       case 'CodeBlock':
@@ -390,6 +407,20 @@ function render(file, framework, props = {}, drop = DROP) {
         const { language, code, title } = providerSetup({ ...attrs, managers });
         return [codeBlock({ lang: language, value: code, title })];
       }
+      // Skills CLI, and linking the installed packages' skills for the whole
+      // framework's set (website/src/components/SkillTabs.tsx)
+      case 'SkillTabs': {
+        const { skillsCli, packages } = skillCommands(
+          { ...attrs, framework },
+          skillSources,
+        );
+        return [skillsCli, packages]
+          .filter(Boolean)
+          .map(value => codeBlock({ lang: 'bash', value }));
+      }
+      // kept by docToMarkdown for pages agents read, dropped from skill references
+      case 'AgentOnly':
+        return [{ type: 'agentOnly', children: convertAll(node.children) }];
       case 'PkgTabs':
       case 'PkgInstall':
         return [
@@ -574,22 +605,38 @@ function wrapPhrasing(tree) {
 }
 
 /**
+ * Where a link to an unpublished agent page (`docs/core/_agents/`) goes in page
+ * markdown (llms-plugin): the framework skill's generated copy on GitHub, or
+ * undefined for any other route.
+ */
+export function agentReferenceUrl(route) {
+  const match = route.match(/^\/(docs|vue)\/_agents\/([^#?]+)(.*)$/);
+  if (!match) return;
+  const [, base, name, hash] = match;
+  const skill = `data-client-${base === 'vue' ? 'vue' : 'react'}`;
+  return `https://raw.githubusercontent.com/reactive/data-client/master/.agents/skills/${skill}/references/${name}.md${hash}`;
+}
+
+/**
  * Markdown of a doc for a framework, or undefined if the page isn't in it.
  * `resolveRoute(route)` picks the URL for links to site pages (default: the site).
- * `skipSiteOnly` drops `<SiteOnly>` prose (how to install or run a skill) for skill references.
+ * `skill: true` renders a skill reference: it drops `<AgentOnly>` steps, which
+ * the skill already gives, and `docs-only` fences, such as a playground's
+ * preview UI.
  */
 export function docToMarkdown(
   file,
   framework,
-  { resolveRoute = route => SITE + route, skipSiteOnly = false } = {},
+  { resolveRoute = route => SITE + route, skill = false } = {},
 ) {
-  const tree = render(
-    file,
-    framework,
-    {},
-    skipSiteOnly ? [...DROP, 'SiteOnly'] : DROP,
-  );
+  const tree = render(file, framework);
   if (!tree) return;
+  visit(tree, ['agentOnly', 'code'], (node, index, parent) => {
+    if (node.type === 'code' && !(skill && node.data.docsOnly)) return;
+    const kept = node.type === 'agentOnly' && !skill ? node.children : [];
+    parent.children.splice(index, 1, ...kept);
+    return index;
+  });
   visit(tree, ['link', 'definition'], node => {
     if (node.url.startsWith('/'))
       node.url = resolveRoute(node.url.replace(/\.mdx?(?=$|[#?])/, ''));

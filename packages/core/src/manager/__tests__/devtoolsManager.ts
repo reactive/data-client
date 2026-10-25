@@ -1,0 +1,404 @@
+import { Controller, initialState } from '../..';
+import type { ActionTypes } from '../..';
+import {
+  FETCH,
+  RESET,
+  SET,
+  SET_RESPONSE,
+  SUBSCRIBE,
+  UNSUBSCRIBE,
+} from '../../actionTypes';
+import DevToolsManager from '../DevtoolsManager.js';
+
+const registry = (): Map<string, { controller: Controller; actions: any[] }> =>
+  (globalThis as any).__DC__?.registry ?? new Map();
+const controllers = () =>
+  new Map([...registry()].map(([key, { controller }]) => [key, controller]));
+const actionLogs = () =>
+  new Map([...registry()].map(([key, { actions }]) => [key, actions]));
+
+function setup(manager: DevToolsManager, controller = new Controller()) {
+  const next = jest.fn(() => Promise.resolve());
+  const dispatch = manager.middleware(controller as any)(next);
+  return { controller, dispatch, next };
+}
+
+const setAction = (i: number): any => ({ type: SET, value: i });
+const typesAndKeys = () =>
+  actionLogs()
+    .get('App')!
+    .map(a => [a.type, a.key]);
+const pollEndpoint = { name: 'poll', pollFrequency: 1000 };
+const subscribe = (key: string): any => ({
+  type: SUBSCRIBE,
+  key,
+  endpoint: pollEndpoint,
+  args: [],
+});
+const unsubscribe = (key: string): any => ({
+  ...subscribe(key),
+  type: UNSUBSCRIBE,
+});
+const fetchAction = (key: string, i: number): any => ({
+  type: FETCH,
+  key,
+  endpoint: pollEndpoint,
+  args: [i],
+  meta: { fetchedAt: i, promise: Promise.resolve(), resolve() {}, reject() {} },
+});
+const responseAction = (key: string, i: number): any => ({
+  type: SET_RESPONSE,
+  key,
+  endpoint: pollEndpoint,
+  args: [i],
+  response: { i },
+  meta: { fetchedAt: i, date: i, expiresAt: i },
+});
+
+afterEach(() => {
+  delete (globalThis as any).__DC__;
+});
+
+describe('DevToolsManager', () => {
+  describe('action log', () => {
+    it('logs actions from startup without the extension', () => {
+      const manager = new DevToolsManager({ name: 'App' });
+      const { dispatch, next } = setup(manager);
+      // dispatched before init, like the first fetches of a page load
+      dispatch(setAction(1));
+      manager.init(initialState);
+      dispatch(setAction(2));
+
+      expect(next).toHaveBeenCalledTimes(2);
+      expect(actionLogs().get('App')).toEqual([setAction(1), setAction(2)]);
+    });
+
+    it('starts a fresh log when reused for another store', () => {
+      const manager = new DevToolsManager({ name: 'App' });
+      const { dispatch } = setup(manager);
+      manager.init(initialState);
+      dispatch(setAction(1));
+      manager.cleanup();
+      const { dispatch: dispatch2 } = setup(manager);
+      manager.init(initialState);
+      dispatch2(setAction(2));
+      expect(actionLogs().get('App')).toEqual([setAction(2)]);
+    });
+
+    it('trims in place to maxBufferLength', () => {
+      const manager = new DevToolsManager({ name: 'App', maxAge: 5 });
+      const { dispatch } = setup(manager);
+      manager.init(initialState);
+      const log = actionLogs().get('App');
+      for (let i = 0; i < 12; i++) dispatch(setAction(i));
+
+      expect(actionLogs().get('App')).toBe(log);
+      expect(log!.length).toBeLessThanOrEqual(10);
+      expect(log!.at(-1)).toEqual(setAction(11));
+    });
+
+    it('skips actions skipLogging rejects', () => {
+      const manager = new DevToolsManager(
+        { name: 'App' },
+        action => action.type === SET,
+      );
+      const { dispatch } = setup(manager);
+      manager.init(initialState);
+      dispatch(setAction(1));
+      dispatch({ type: RESET, date: 0 } as any);
+
+      expect(actionLogs().get('App')).toEqual([{ type: RESET, date: 0 }]);
+    });
+  });
+
+  describe('summaries', () => {
+    it('drops payloads from all but the newest 20 actions', () => {
+      const manager = new DevToolsManager({ name: 'App' });
+      const { dispatch } = setup(manager);
+      manager.init(initialState);
+      dispatch(fetchAction('a', 1));
+      dispatch({
+        ...responseAction('a', 2),
+        error: true,
+        response: { message: 'boom' },
+      });
+      dispatch(responseAction('a', 3));
+      for (let i = 0; i < 20; i++) dispatch(setAction(i));
+      const log = actionLogs().get('App')!;
+
+      expect(log.slice(0, 3)).toEqual([
+        {
+          type: FETCH,
+          key: 'a',
+          endpoint: pollEndpoint,
+          args: [1],
+          meta: { fetchedAt: 1 },
+        },
+        {
+          type: SET_RESPONSE,
+          key: 'a',
+          endpoint: pollEndpoint,
+          args: [2],
+          error: true,
+          response: { message: 'boom' },
+          meta: { fetchedAt: 2, date: 2, expiresAt: 2 },
+        },
+        {
+          type: SET_RESPONSE,
+          key: 'a',
+          endpoint: pollEndpoint,
+          args: [3],
+          meta: { fetchedAt: 3, date: 3, expiresAt: 3 },
+        },
+      ]);
+      expect(log.slice(3)).toEqual(
+        Array.from({ length: 20 }, (_, i) => setAction(i)),
+      );
+    });
+  });
+
+  it('drops request bodies from summarized mutations', () => {
+    const manager = new DevToolsManager({ name: 'App' });
+    const { dispatch } = setup(manager);
+    manager.init(initialState);
+    const endpoint = { name: 'create', sideEffect: true };
+    dispatch({ ...fetchAction('c', 1), endpoint, args: [{ title: 'body' }] });
+    for (let i = 0; i < 20; i++) dispatch(setAction(i));
+
+    expect(actionLogs().get('App')![0]).not.toHaveProperty('args');
+  });
+
+  describe('__DC__', () => {
+    const dc = () => (globalThis as any).__DC__;
+
+    it('reads the only store without configuration', () => {
+      const manager = new DevToolsManager({ name: 'App' });
+      const { controller } = setup(manager);
+      manager.init(initialState);
+
+      expect(dc().controller).toBe(controller);
+      expect(dc().actions).toBe(actionLogs().get('App'));
+      // getters stay off the instance, so serializing it returns only settings
+      expect(JSON.parse(JSON.stringify(dc()))).toEqual({});
+    });
+
+    it('asks for a store when several are registered', () => {
+      const a = new DevToolsManager({ name: 'A' });
+      const b = new DevToolsManager({ name: 'B' });
+      setup(a);
+      const { controller: ctrlB } = setup(b);
+      a.init(initialState);
+      b.init(initialState);
+
+      expect(() => dc().controller).toThrow(
+        'Set __DC__.store to one of: "A", "B"',
+      );
+      expect(dc().stores).toEqual(['A', 'B']);
+      dc().store = 'B';
+      expect(dc().controller).toBe(ctrlB);
+      expect(dc().actions).toBe(actionLogs().get('B'));
+      dc().store = 'C';
+      expect(() => dc().actions).toThrow('Set __DC__.store to one of');
+    });
+
+    it('follows a remounted store', () => {
+      const manager = new DevToolsManager({ name: 'App' });
+      setup(manager);
+      manager.init(initialState);
+      const api = dc();
+      manager.cleanup();
+      expect(() => api.controller).toThrow('No Data Client store is mounted');
+
+      const { controller } = setup(manager);
+      manager.init(initialState);
+      expect(dc()).toBe(api);
+      expect(api.controller).toBe(controller);
+    });
+  });
+
+  describe('polling', () => {
+    function pollingSetup(skipLogging?: (action: ActionTypes) => boolean) {
+      const manager = new DevToolsManager(
+        { name: 'App', maxPollingActions: 2 },
+        skipLogging,
+      );
+      const { dispatch } = setup(manager);
+      manager.init(initialState);
+      return { manager, dispatch };
+    }
+
+    it('keeps only the latest maxPollingActions for a polling key', () => {
+      const { dispatch } = pollingSetup();
+      dispatch(subscribe('a'));
+      dispatch(subscribe('a'));
+      dispatch(setAction(0));
+      for (let i = 1; i <= 3; i++) {
+        dispatch(fetchAction('a', i));
+        dispatch(responseAction('a', i));
+      }
+      dispatch(fetchAction('b', 9));
+
+      expect(typesAndKeys()).toEqual([
+        [SET, undefined],
+        [FETCH, 'a'],
+        [SET_RESPONSE, 'a'],
+        [FETCH, 'b'],
+      ]);
+      expect(actionLogs().get('App')![1].args).toEqual([3]);
+    });
+
+    it('trims actions logged before polling started', () => {
+      const { dispatch } = pollingSetup();
+      for (let i = 1; i <= 3; i++) {
+        dispatch(fetchAction('a', i));
+        dispatch(responseAction('a', i));
+      }
+      dispatch(subscribe('a'));
+      dispatch(fetchAction('a', 4));
+
+      expect(typesAndKeys()).toEqual([
+        [SUBSCRIBE, 'a'],
+        [FETCH, 'a'],
+      ]);
+    });
+
+    it('holds the cap across unsubscribe and resubscribe', () => {
+      const { dispatch } = pollingSetup();
+      for (let cycle = 0; cycle < 3; cycle++) {
+        dispatch(subscribe('a'));
+        for (let i = 1; i <= 3; i++) {
+          dispatch(fetchAction('a', i));
+          dispatch(responseAction('a', i));
+        }
+        dispatch(unsubscribe('a'));
+        dispatch(fetchAction('a', 9));
+        dispatch(responseAction('a', 9));
+      }
+      dispatch(subscribe('a'));
+      dispatch(fetchAction('a', 10));
+      dispatch(responseAction('a', 10));
+
+      expect(typesAndKeys()).toEqual([
+        [FETCH, 'a'],
+        [SET_RESPONSE, 'a'],
+      ]);
+    });
+
+    it('tracks polling even when skipLogging hides subscribes', () => {
+      const { dispatch } = pollingSetup(action => action.type === SUBSCRIBE);
+      dispatch(subscribe('a'));
+      for (let i = 1; i <= 3; i++) dispatch(fetchAction('a', i));
+      expect(typesAndKeys()).toEqual([
+        [FETCH, 'a'],
+        [FETCH, 'a'],
+      ]);
+    });
+
+    it('stops capping once every subscriber leaves', () => {
+      const { dispatch } = pollingSetup();
+      dispatch(subscribe('a'));
+      dispatch(subscribe('a'));
+      dispatch(unsubscribe('a'));
+      dispatch(fetchAction('a', 1));
+      dispatch(responseAction('a', 1));
+      expect(typesAndKeys()).toEqual([
+        [FETCH, 'a'],
+        [SET_RESPONSE, 'a'],
+      ]);
+
+      dispatch(unsubscribe('a'));
+      dispatch(fetchAction('a', 2));
+      expect(actionLogs().get('App')).toHaveLength(4);
+    });
+
+    it('forgets polling keys on cleanup', () => {
+      const { manager, dispatch } = pollingSetup();
+      dispatch(subscribe('a'));
+      manager.cleanup();
+      manager.init(initialState);
+      for (let i = 1; i <= 3; i++) dispatch(fetchAction('a', i));
+      expect(typesAndKeys().filter(([type]) => type === FETCH)).toHaveLength(3);
+    });
+
+    it('does not cap subscriptions without pollFrequency', () => {
+      const { dispatch } = pollingSetup();
+      dispatch({ ...subscribe('a'), endpoint: { name: 'live' } });
+      for (let i = 1; i <= 3; i++) dispatch(fetchAction('a', i));
+      expect(actionLogs().get('App')).toHaveLength(4);
+    });
+  });
+
+  describe('registry', () => {
+    it('registers controllers that share a name under distinct keys', () => {
+      const a = new DevToolsManager({ name: 'App' });
+      const b = new DevToolsManager({ name: 'App' });
+      const c = new DevToolsManager({ name: 'App' });
+      const { controller: ctrlA } = setup(a);
+      const { controller: ctrlB, dispatch: dispatchB } = setup(b);
+      const { controller: ctrlC } = setup(c);
+      a.init(initialState);
+      b.init(initialState);
+      c.init(initialState);
+      dispatchB(setAction(1));
+
+      expect([...controllers().entries()]).toEqual([
+        ['App', ctrlA],
+        ['App (2)', ctrlB],
+        ['App (3)', ctrlC],
+      ]);
+      expect(actionLogs().get('App')).toEqual([]);
+      expect(actionLogs().get('App (2)')).toEqual([setAction(1)]);
+
+      b.cleanup();
+      expect([...controllers().keys()]).toEqual(['App', 'App (3)']);
+      expect([...actionLogs().keys()]).toEqual(['App', 'App (3)']);
+      a.cleanup();
+      c.cleanup();
+      expect(controllers().size).toBe(0);
+      expect(actionLogs().size).toBe(0);
+    });
+
+    it('keeps its key when init runs again (StrictMode remount)', () => {
+      const manager = new DevToolsManager({ name: 'App' });
+      const { controller } = setup(manager);
+      manager.init(initialState);
+      manager.init(initialState);
+      expect([...controllers().entries()]).toEqual([['App', controller]]);
+
+      manager.cleanup();
+      manager.init(initialState);
+      expect([...controllers().entries()]).toEqual([['App', controller]]);
+    });
+
+    it('keeps a suffixed key when init runs again after a lower one frees', () => {
+      const a = new DevToolsManager({ name: 'App' });
+      const b = new DevToolsManager({ name: 'App' });
+      const c = new DevToolsManager({ name: 'App' });
+      setup(a);
+      setup(b);
+      const { controller: ctrlC } = setup(c);
+      a.init(initialState);
+      b.init(initialState);
+      c.init(initialState);
+      b.cleanup();
+      c.init(initialState);
+
+      expect(controllers().get('App (3)')).toBe(ctrlC);
+      expect(controllers().has('App (2)')).toBe(false);
+      c.cleanup();
+      expect(controllers().has('App (3)')).toBe(false);
+    });
+
+    it('cleanup leaves a controller registered by another manager', () => {
+      const manager = new DevToolsManager({ name: 'App' });
+      setup(manager);
+      // cleanup before init has nothing to remove
+      manager.cleanup();
+      manager.init(initialState);
+      const other = new Controller();
+      registry().set('App', { controller: other, actions: [] });
+      manager.cleanup();
+      expect(controllers().get('App')).toBe(other);
+    });
+  });
+});
