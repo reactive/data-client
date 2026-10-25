@@ -53,34 +53,28 @@ export default class WeakDependencyMap<
   private readonly next = new WeakMap<K, Node<Path, V>>();
   /** Sticky: true once any function-typed (`argsKey`) dep has been stored. */
   private hasStr = false;
-  /** The entry the latest `get` hit or `set` wrote, for `trackLast()`/`keepLast()`.
-   * Only recorded when `tracksLast`: a map that never calls those would hold
-   * its last entry strongly for as long as the map lives. */
+  /** The entry the latest `get` or `set` with `track` hit or wrote, for
+   * `trackLast()`/`keepLast()`. Only tracked calls record it, and their caller
+   * reads it right away: an entry recorded and never cleared would stay alive
+   * for as long as the map does. */
   private lastNode: Node<Path, V> | undefined = undefined;
   private lastEntry: Entry<Path, V> | undefined = undefined;
-  private readonly tracksLast: boolean;
-
-  /** @param tracksLast record each hit or write for `trackLast()`/`keepLast()` */
-  constructor(tracksLast = false) {
-    this.tracksLast = tracksLast;
-  }
-
-  private record(node: Node<Path, V>, entry: Entry<Path, V>) {
-    if (!this.tracksLast) return;
-    this.lastNode = node;
-    this.lastEntry = entry;
-  }
 
   get(
     entity: K,
     getDependency: GetDependency<Path, K | symbol>,
     args: readonly any[] = [],
+    /** record the hit for `trackLast()`/`keepLast()` */
+    track = false,
   ) {
     const root = this.next.get(depKey(entity) as K);
     const node = root && find(root, getDependency, args);
     if (!node) return EMPTY;
     const entry = node.entries[0];
-    this.record(node, entry);
+    if (track) {
+      this.lastNode = node;
+      this.lastEntry = entry;
+    }
     return [entry.value, entry.journey] as readonly [V, Path[]];
   }
 
@@ -95,6 +89,8 @@ export default class WeakDependencyMap<
      * payoff. The array becomes a shared reference held by every subsequent
      * cache hit; callers MUST NOT mutate it. */
     journey?: Path[],
+    /** record the write for `trackLast()`/`keepLast()` */
+    track = false,
   ) {
     if (dependencies.length < 1) throw new KeySize();
     const root = depKey(dependencies[0].entity) as K;
@@ -135,13 +131,14 @@ export default class WeakDependencyMap<
       // we could recompute this on get, but it would have a cost and we optimize for `get`
       journey: journey ?? (dependencies.map(d => d.path) as Path[]),
     };
+    if (track) this.lastEntry = entry;
     if (!node) {
       node = newNode(entry);
       this.next.set(root, node);
-      this.record(node, entry);
+      if (track) this.lastNode = node;
       return;
     }
-    this.record(node, entry);
+    if (track) this.lastNode = node;
     // A store can flip back to a version it already showed: React renders the
     // committed store between retries of a pending transition, which build new
     // entities each time, and rolling back an optimistic update returns to the

@@ -23,7 +23,7 @@ export default class MemoCache {
   /** Cache for every entity based on its dependencies and its own input */
   declare protected _getCache: GetEntityCache;
   /** Caches the final denormalized form based on input, entities */
-  protected endpoints: EndpointsCache = new WeakDependencyMap<EntityPath>(true);
+  protected endpoints: EndpointsCache = new WeakDependencyMap<EntityPath>();
   /** Results read per store `entities`, until that store commits. */
   private reads = new WeakMap<object, KeepReads>();
   /** `entities` from the latest `commit`; reads with it are kept right away. */
@@ -63,17 +63,26 @@ export default class MemoCache {
     }
     const getEntity = this.policy.getEntities(entities);
 
-    const result = getUnvisit(
+    const tracks = typeof entities === 'object' && entities !== null;
+    const cache = new GlobalCache(
       getEntity,
-      new GlobalCache(getEntity, this._getCache, this.endpoints, args),
+      this._getCache,
+      this.endpoints,
       args,
-    )(schema, input);
-    if (entities === this.committedEntities) {
-      this.endpoints.keepLast(this.committedSettled);
-    } else if (entities && typeof entities === 'object') {
-      let reads = this.reads.get(entities);
-      if (!reads) this.reads.set(entities, (reads = new Map()));
-      this.endpoints.trackLast(reads);
+      tracks,
+    );
+    const result = getUnvisit(getEntity, cache, args)(schema, input);
+    // the result's own entry: in the endpoints tier, or the top-level
+    // entity's map when the input is a pk (single-entity endpoints, queries)
+    const tracked = cache.tracked;
+    if (tracked) {
+      if (entities === this.committedEntities) {
+        tracked.keepLast(this.committedSettled);
+      } else {
+        let reads = this.reads.get(entities);
+        if (!reads) this.reads.set(entities, (reads = new Map()));
+        tracked.trackLast(reads);
+      }
     }
     return result;
   }

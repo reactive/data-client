@@ -15,6 +15,7 @@ import { IQueryDelegate } from '../interface';
 import MemoCache from '../memo/MemoCache';
 import { MemoPolicy as POJOPolicy } from '../memo/Policy';
 import { MemoPolicy as ImmPolicy } from '../memo/Policy.imm';
+import { normalize } from '../normalize/normalize';
 
 class IDEntity extends Entity {
   id = '';
@@ -1183,8 +1184,9 @@ describe('MemoCache.commit', () => {
     );
   });
 
-  it('recomputes a committed single-entity result at most once after one-off reads', () => {
-    // a detail endpoint stores just the pk; each retry rewrites a nested child
+  describe('results whose input is a pk', () => {
+    // a detail endpoint stores just the pk, and queries build one; each retry
+    // rewrites a nested child while the top-level entity object stays
     class Author extends Entity {
       id = '';
       name = '';
@@ -1199,17 +1201,56 @@ describe('MemoCache.commit', () => {
       Post: { '1': post },
       Author: { '2': { id: '2', name } },
     });
-    const memo = new MemoCache();
-    memo.denormalize(Post, '1', withAuthor('older'));
-    const committed = withAuthor('committed');
-    const first = memo.denormalize(Post, '1', committed).data;
-    memo.commit(committed);
-    for (let i = 0; i < 5; i++)
-      memo.denormalize(Post, '1', withAuthor(`retry ${i}`));
-    // A pk input never reaches the endpoints tier, so commit() doesn't pin
-    // it: recency alone keeps it, so it can be rebuilt once (equal values).
-    const again = memo.denormalize(Post, '1', committed).data;
-    expect(again).toEqual(first);
+
+    it('keeps a committed single-entity result through one-off reads', () => {
+      const memo = new MemoCache();
+      memo.denormalize(Post, '1', withAuthor('older'));
+      const committed = withAuthor('committed');
+      const first = memo.denormalize(Post, '1', committed).data;
+      memo.commit(committed);
+      for (let i = 0; i < 5; i++)
+        memo.denormalize(Post, '1', withAuthor(`retry ${i}`));
+      expect(memo.denormalize(Post, '1', committed).data).toBe(first);
+    });
+
+    it('keeps a committed query result through one-off reads', () => {
+      const memo = new MemoCache();
+      const state = (name: string) => ({
+        entities: withAuthor(name),
+        indexes: {},
+      });
+      memo.query(Post, [{ id: '1' }], state('older'));
+      const committed = state('committed');
+      const first = memo.query(Post, [{ id: '1' }], committed).data;
+      memo.commit(committed.entities);
+      for (let i = 0; i < 5; i++)
+        memo.query(Post, [{ id: '1' }], state(`retry ${i}`));
+      expect(memo.query(Post, [{ id: '1' }], committed).data).toBe(first);
+    });
+
+    it('keeps a committed Collection result through one-off reads', () => {
+      const memo = new MemoCache();
+      const posts = new schemas.Collection([Post]);
+      const args = [{ userId: 'u' }];
+      const { entities } = normalize(
+        posts,
+        [{ id: '1', author: { id: '2', name: 'older' } }],
+        args,
+      );
+      const state = (name: string) => ({
+        entities: {
+          ...entities,
+          Author: { '2': { id: '2', name } },
+        },
+        indexes: {},
+      });
+      memo.query(posts, args, state('older'));
+      const committed = state('committed');
+      const first = memo.query(posts, args, committed).data;
+      memo.commit(committed.entities);
+      for (let i = 0; i < 5; i++) memo.query(posts, args, state(`retry ${i}`));
+      expect(memo.query(posts, args, committed).data).toBe(first);
+    });
   });
 
   it('keeps the settled result after committed and flip-back pins move on', () => {
