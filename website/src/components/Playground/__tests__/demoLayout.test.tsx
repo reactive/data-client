@@ -118,4 +118,14 @@ describe('folded fixtures', () => {
     fireEvent.pointerOver(screen.getByRole('button', { name: 'Fixtures' }));
     expect(container.textContent).toContain('/article/1');
   });
+
+  test('a bare click on the toggle opens them with their rows', () => {
+    const { container } = render(
+      <Playground row fixtures={fixtures}>
+        {fences()}
+      </Playground>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Fixtures' }));
+    expect(container.textContent).toContain('/article/1');
+  });
 });

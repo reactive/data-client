@@ -260,6 +260,8 @@ export default function Playground<T>({
         data-store-moving={storeMoving || undefined}
         onPointerOver={nearFixtures}
         onFocus={nearFixtures}
+        // a click with neither (a script's, assistive tech's) opens them full
+        onClick={nearFixtures}
       >
         {demo ?
           <>
