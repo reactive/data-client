@@ -3,17 +3,20 @@ import {
   TabsProvider,
   useScrollPositionBlocker,
   useTabsContextValue,
+  type TabItemProps,
   type TabsProps,
 } from '@docusaurus/theme-common/internal';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 import React, { useRef } from 'react';
 
 import { ProtocolSwitch } from './Demo/ProtocolChoice';
+import { PlaygroundHiddenContext } from './HooksPlayground';
 
 /** Docusaurus `<Tabs>` with the homepage's segmented switch, for tabs that
  * each hold a playground. Takes the same props and `<TabItem>` children, so
- * `groupId` choices stay in sync with every other tab group. Hidden tabs stay
- * mounted, so a reader's edits survive switching back */
+ * `groupId` choices stay in sync with every other tab group. Hidden tabs'
+ * playgrounds stay mounted but run as on the homepage (no live preview,
+ * static code until first shown), so edits survive switching back */
 export default function PlaygroundTabs(props: TabsProps) {
   const isBrowser = useIsBrowser();
   const value = useTabsContextValue(props);
@@ -35,7 +38,15 @@ export default function PlaygroundTabs(props: TabsProps) {
             value.selectValue(newValue);
           }}
         />
-        {sanitizeTabsChildren(props.children)}
+        {React.Children.map(sanitizeTabsChildren(props.children), item =>
+          React.isValidElement<TabItemProps>(item) ?
+            <PlaygroundHiddenContext.Provider
+              value={item.props.value !== value.selectedValue}
+            >
+              {item}
+            </PlaygroundHiddenContext.Provider>
+          : item,
+        )}
       </div>
     </TabsProvider>
   );
