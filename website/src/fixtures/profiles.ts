@@ -1,4 +1,4 @@
-import { GQLEndpoint, GQLEntity } from '@data-client/graphql';
+import { GQLEndpoint } from '@data-client/graphql';
 import { Entity, resource } from '@data-client/rest';
 
 export class Profile extends Entity {
@@ -56,20 +56,10 @@ export const listFixtures = [
   },
 ];
 
-// GraphQL: the query must match the docs' copy exactly, since it is the fixture key
-const gql = new GQLEndpoint('/');
-
-export class GQLProfile extends GQLEntity {
-  avatar = '';
-  fullName = '';
-  bio = '';
-
-  static key = 'Profile';
-}
-
-export const GQLProfileResource = {
-  get: gql.query(
-    `query GetProfile($id: ID!) {
+// GraphQL fixtures key on the query text (whitespace aside), so keep it
+// identical to the useSuspense docs' ProfileResource.get
+const getGQLProfile = new GQLEndpoint('/').query(
+  `query GetProfile($id: ID!) {
     profile(id: $id) {
       id
       avatar
@@ -77,21 +67,12 @@ export const GQLProfileResource = {
       bio
     }
   }`,
-    { profile: GQLProfile },
-  ),
-};
+);
 
-export const gqlDetailFixtures = [
-  {
-    endpoint: GQLProfileResource.get,
-    args: [{ id: 1 }],
-    response: { profile: entities['1'] },
-    delay,
-  },
-  {
-    endpoint: GQLProfileResource.get,
-    args: [{ id: 2 }],
-    response: { profile: entities['2'] },
-    delay,
-  },
-];
+export const gqlDetailFixtures = detailFixtures.map(
+  ({ response, ...fixture }) => ({
+    ...fixture,
+    endpoint: getGQLProfile,
+    response: { profile: response },
+  }),
+);

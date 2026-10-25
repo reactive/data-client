@@ -12,10 +12,11 @@ import { ProtocolSwitch } from './Demo/ProtocolChoice';
 
 /** Docusaurus `<Tabs>` with the homepage's segmented switch, for tabs that
  * each hold a playground. Takes the same props and `<TabItem>` children, so
- * `groupId` choices stay in sync with every other tab group */
+ * `groupId` choices stay in sync with every other tab group. Lazy by default,
+ * so only the shown tab's playground mounts, as on the homepage */
 export default function PlaygroundTabs(props: TabsProps) {
   const isBrowser = useIsBrowser();
-  const value = useTabsContextValue(props);
+  const value = useTabsContextValue({ lazy: true, ...props });
   const container = useRef<HTMLDivElement>(null);
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();

@@ -1,5 +1,5 @@
 import { translate } from '@docusaurus/Translate';
-import React, { useContext, type ReactNode } from 'react';
+import React, { useContext } from 'react';
 
 import CodeTabContext from './CodeTabContext';
 import styles from './styles.module.css';
@@ -12,7 +12,7 @@ export function ProtocolSwitch({
   selectedValue,
   onSelect,
 }: {
-  values: readonly { value: string; label?: ReactNode }[];
+  values: readonly { value: string; label?: string }[];
   selectedValue: string;
   onSelect: (value: string) => void;
 }) {

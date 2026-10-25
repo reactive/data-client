@@ -12,7 +12,7 @@ export default function ProtocolTabs({
       defaultValue="rest"
       groupId="protocol"
       values={[
-        { label: 'Rest', value: 'rest' },
+        { label: 'REST', value: 'rest' },
         { label: 'GraphQL', value: 'graphql' },
       ]}
     >

@@ -30,7 +30,7 @@ defaultValue="rest"
 groupId="protocol"
 values={[
 { label: 'REST', value: 'rest' },
-{ label: 'GraphQL', value: 'graphql' },
+{ label: 'GraphQL', value: 'gql' },
 { label: 'Async/Promise', value: 'other' },
 ]}>
 <TabItem value="rest">
@@ -105,7 +105,7 @@ TodoResource.delete({ id: 5 });
 </TypeScriptEditor>
 
 </TabItem>
-<TabItem value="graphql">
+<TabItem value="gql">
 
 <PkgInstall pkgs="@data-client/graphql" />
 
