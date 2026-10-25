@@ -12,6 +12,7 @@ import styles from './styles.module.css';
 interface TabItem {
   key: string;
   label: ReactNode;
+  title?: string;
   selected: boolean;
   /** A click, or ← → Home End from the selected tab */
   onSelect: () => void;
@@ -20,16 +21,20 @@ interface TabItem {
 export default function TabList({
   tabs,
   className,
+  tabClassName,
   label,
 }: {
   tabs: readonly TabItem[];
   className?: string;
+  /** Replaces the file tabs' look (their classes and edge marks are
+   * dropped); style the picked one by `aria-selected` */
+  tabClassName?: string;
   /** Names the list for assistive tech */
   label?: string;
 }) {
   const list = useRef<HTMLDivElement>(null);
   const selected = tabs.findIndex(tab => tab.selected);
-  useFlushEdges(list, selected);
+  useFlushEdges(list, selected, tabClassName === undefined);
   // the selected tab is the one in the tab order; the arrows move from it
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     let to: number;
@@ -57,20 +62,23 @@ export default function TabList({
   return (
     <div
       ref={list}
-      className={clsx(styles.tabs, className)}
+      className={tabClassName ? className : clsx(styles.tabs, className)}
       role="tablist"
       aria-orientation="horizontal"
       aria-label={label}
       onKeyDown={onKeyDown}
     >
-      {tabs.map(({ key, label, selected, onSelect }) => (
+      {tabs.map(({ key, label, title, selected, onSelect }) => (
         <div
           role="tab"
           aria-selected={selected}
           tabIndex={selected ? 0 : -1}
           key={key}
+          title={title}
           onClick={onSelect}
-          className={clsx(styles.tab, { [styles.selected]: selected })}
+          className={
+            tabClassName ?? clsx(styles.tab, { [styles.selected]: selected })
+          }
         >
           {label}
         </div>
@@ -86,8 +94,10 @@ export default function TabList({
 function useFlushEdges(
   list: RefObject<HTMLDivElement | null>,
   selected: number,
+  enabled: boolean,
 ) {
   useLayoutEffect(() => {
+    if (!enabled) return;
     const row = list.current;
     const edges = row?.parentElement;
     if (!row || !edges) return;
@@ -126,5 +136,5 @@ function useFlushEdges(
       row.removeEventListener('scroll', mark);
       observer?.disconnect();
     };
-  }, [list, selected]);
+  }, [list, selected, enabled]);
 }
