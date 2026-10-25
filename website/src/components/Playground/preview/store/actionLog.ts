@@ -23,6 +23,7 @@ import {
   attributed,
   lineage,
   managerNames,
+  startsRequests,
   type Attribution,
 } from './attribution';
 import type { Moment, Scope, Step } from './nav';
@@ -72,6 +73,8 @@ export interface LogEntry {
   /** The manager whose middleware handled it without passing it on, so the
    * managers after it (and the store) never saw it */
   readonly consumedBy?: string;
+  /** A fetch `consumedBy` a NetworkManager, which started its request */
+  readonly requested?: true;
   /** The store's own state (pending optimistic updates not yet applied)
    * right before and after this action. Missing when a manager handled the
    * action without passing it on (a plain fetch, a subscribe) */
@@ -354,12 +357,19 @@ export default class ActionLog {
     const track = (chain: readonly Manager[]): Manager[] => {
       const names = managerNames(chain);
       managers = names;
-      return chain.map((manager, i) =>
-        attributed(manager, names[i], attribution, (action, by) => {
+      return chain.map((manager, i) => {
+        const requests = startsRequests(manager);
+        return attributed(manager, names[i], attribution, (action, by) => {
           const seq = seqOf(action);
-          if (seq !== undefined) this.patch(id, seq, { consumedBy: by });
-        }),
-      );
+          if (seq === undefined) return;
+          const requested =
+            requests && by !== undefined && action.type === actionTypes.FETCH;
+          this.patch(id, seq, {
+            consumedBy: by,
+            requested: requested || undefined,
+          });
+        });
+      });
     };
     return { head, tail, track };
   }

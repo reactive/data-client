@@ -1,5 +1,6 @@
 import {
   DevToolsManager,
+  IdlingNetworkManager,
   LogoutManager,
   NetworkManager,
   SubscriptionManager,
@@ -19,6 +20,7 @@ const KNOWN: readonly {
   readonly console?: true;
 }[] = [
   { cls: NetworkManager, name: 'NetworkManager' },
+  { cls: IdlingNetworkManager, name: 'IdlingNetworkManager' },
   { cls: SubscriptionManager, name: 'SubscriptionManager' },
   { cls: DevToolsManager, name: 'DevToolsManager', console: true },
   { cls: LogoutManager, name: 'LogoutManager' },
@@ -36,10 +38,10 @@ const sharesWithConsole = (manager: Manager) =>
 export const isLibraryManager = (name: string) =>
   KNOWN_NAMES.has(baseName(name));
 
-/** Whether it's the library's NetworkManager, which sends what it handles
- * of a fetch (by the name `managerNames` gave it) */
-export const isNetworkManager = (name: string) =>
-  baseName(name) === 'NetworkManager';
+/** Whether a fetch it handles starts a request: a NetworkManager, the
+ * library's or a subclass the code made of it */
+export const startsRequests = (manager: Manager) =>
+  manager instanceof NetworkManager;
 
 /** Its class's name, without the `#2` a repeat gets */
 export const baseName = (name: string) => name.replace(/ #\d+$/, '');

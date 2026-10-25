@@ -17,7 +17,7 @@ import {
   Time,
   useActions,
 } from './actionParts';
-import { isNetworkManager, shownChain } from './attribution';
+import { shownChain } from './attribution';
 import { EndpointBody } from './Details';
 import { errorText, findRow, isEndpointRow } from './model';
 import {
@@ -138,10 +138,8 @@ function unchangedNote(subject: View) {
 }
 
 /** Why an action that never reached the store is still in the log */
-function unappliedNote({ action, consumedBy }: LogEntry) {
-  // NetworkManager sets off a fetch's request
-  const requested = !consumedBy || isNetworkManager(consumedBy);
-  if (action.type === actionTypes.FETCH && requested)
+function unappliedNote({ action, consumedBy, requested }: LogEntry) {
+  if (action.type === actionTypes.FETCH && (!consumedBy || requested))
     return 'Started the request; the store changes when its response arrives';
   return consumedBy ?
       `Handled by ${consumedBy}; the store is unchanged`

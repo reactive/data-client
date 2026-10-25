@@ -4,6 +4,7 @@ import {
   actionTypes,
   DataProvider,
   DevToolsManager,
+  IdlingNetworkManager,
   NetworkManager,
   PollingSubscription,
   SubscriptionManager,
@@ -118,6 +119,7 @@ function mount(
         type: e.action.type,
         origin: e.origin,
         consumedBy: e.consumedBy,
+        requested: e.requested,
       })),
   };
 }
@@ -159,9 +161,14 @@ describe('manager attribution', () => {
 
   it("names a subclass of the library's for itself: it is the code's", () => {
     class PollingNetwork extends NetworkManager {}
-    const [own] = managerNames([new PollingNetwork()]);
+    const [own, idling] = managerNames([
+      new PollingNetwork(),
+      new IdlingNetworkManager(),
+    ]);
     expect(own).toBe('PollingNetwork');
     expect(isLibraryManager(own)).toBe(false);
+    // the library's own subclass is the library's
+    expect(isLibraryManager(idling)).toBe(true);
   });
 
   it("credits what a manager sends through its controller, not the app's", async () => {
@@ -210,6 +217,7 @@ describe('manager attribution', () => {
       type: actionTypes.FETCH,
       origin: undefined,
       consumedBy: 'NetworkManager',
+      requested: true,
     };
     expect(entries()).toEqual([
       fetched,
@@ -220,6 +228,22 @@ describe('manager attribution', () => {
         consumedBy: undefined,
       },
     ]);
+  });
+
+  it("knows a NetworkManager subclass's fetches start requests", async () => {
+    class LoggingNetworkManager extends NetworkManager {}
+    function App() {
+      const { price } = useSuspense(getTicker);
+      return <div>price {price}</div>;
+    }
+    const { entries } = mount([new LoggingNetworkManager()], <App />);
+    await screen.findByText('price 1');
+    expect(entries()[0]).toEqual({
+      type: actionTypes.FETCH,
+      origin: undefined,
+      consumedBy: 'LoggingNetworkManager',
+      requested: true,
+    });
   });
 
   it('waits for async middleware before calling an action consumed', async () => {
