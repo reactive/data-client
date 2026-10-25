@@ -179,6 +179,43 @@ export function buildStockScalarUpdate(count = 700) {
   return { stock };
 }
 
+/** A position in a Stock, with its own Scalar on a different lens. A row whose
+ * Stock is missing skips the portfolio `argsKey`, so rows reach the two lenses
+ * in different orders. */
+export class Holding extends Entity {
+  id = '';
+  stock = undefined;
+  fx = 0;
+
+  static key = 'Holding';
+  pk() {
+    return this.id;
+  }
+}
+export const CurrencyScalar = new Scalar({
+  lens: args => args[0]?.currency,
+  key: 'currency',
+  entity: Holding,
+});
+Holding.schema = {
+  stock: Stock,
+  fx: CurrencyScalar,
+};
+export const HoldingSchema = {
+  holding: [Holding],
+};
+
+export function buildHoldingData(count = 700) {
+  const { stock } = buildStockData(count);
+  return {
+    holding: stock.map((s, i) => ({
+      id: `h-${i}`,
+      stock: s,
+      fx: 1 + (i % 50) / 100,
+    })),
+  };
+}
+
 // Degenerate bidirectional chain for #3822 stack overflow testing
 export class Department extends Entity {
   id = '';
