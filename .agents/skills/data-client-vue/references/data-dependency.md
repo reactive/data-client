@@ -160,6 +160,120 @@ us to make error/loading disjoint from data usage.
 Instead we place Vue's built-in [\<Suspense />](https://vuejs.org/guide/built-ins/suspense.html) along with [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured) to handling loading and error conditions at or above navigational boundaries like **pages,
 routes, or [modals](https://www.appcues.com/blog/modal-dialog-windows)**.
 
+Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
+
+```ts title="Resources"
+import { Entity, resource } from '@data-client/rest';
+
+export class Post extends Entity {
+  id = 0;
+  title = '';
+  body = '';
+  author = '';
+  avatar = '';
+  static key = 'Post';
+}
+export const PostResource = resource({
+  path: '/posts/:id',
+  schema: Post,
+});
+
+export class Comment extends Entity {
+  id = 0;
+  postId = 0;
+  author = '';
+  avatar = '';
+  text = '';
+  static key = 'Comment';
+}
+export const CommentResource = resource({
+  path: '/comments/:id',
+  searchParams: {} as { postId: string },
+  schema: Comment,
+});
+```
+
+```html title="Layout.vue" layout
+<template>
+  <header class="appHeader">
+    <h1 class="appTitle">Field Notes</h1>
+  </header>
+  <RouterView v-slot="{ Component }">
+    <Suspense>
+      <component :is="Component" />
+      <template #fallback><Loading /></template>
+    </Suspense>
+  </RouterView>
+</template>
+```
+
+```html title="PostPage.vue" route="/posts/:id" {9,15}
+<script setup lang="ts">
+  import CommentList from './CommentList.vue';
+  import PostDetail from './PostDetail.vue';
+
+  defineProps<{ id: string }>();
+</script>
+
+<template>
+  <Suspense>
+    <div>
+      <PostDetail :id="id" />
+      <CommentList :post-id="id" />
+    </div>
+    <template #fallback><Loading /></template>
+  </Suspense>
+</template>
+```
+
+```html title="PostDetail.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource } from './Resources';
+
+  const props = defineProps<{ id: string }>();
+  const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
+</script>
+
+<template>
+  <article>
+    <h2>{{ post.title }}</h2>
+    <p class="byline">
+      <Avatar :src="post.avatar" :size="20" />
+      {{ post.author }}
+    </p>
+    <p>{{ post.body }}</p>
+  </article>
+</template>
+```
+
+```html title="CommentList.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { CommentResource } from './Resources';
+
+  const props = defineProps<{ postId: string }>();
+  const comments = await useSuspense(CommentResource.getList, () => ({
+    postId: props.postId,
+  }));
+</script>
+
+<template>
+  <section>
+    <h3>Comments</h3>
+    <div class="card">
+      <div v-for="comment in comments" :key="comment.pk()" class="listItem">
+        <Avatar :src="comment.avatar" :size="28" />
+        <div>
+          <b>{{ comment.author }}</b>
+          <p>{{ comment.text }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+```
+
 ```html title="Dashboard.vue" {15-16,23}
 <script setup lang="ts">
   import { onErrorCaptured, ref } from 'vue';

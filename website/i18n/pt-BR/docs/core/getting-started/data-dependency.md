@@ -9,13 +9,21 @@ sidebar_label: Renderizar dados
 </head>
 
 import DataColocation from '@site/src/components/DataColocation';
+import { boundaryFixtures } from '@site/src/fixtures/post-comments';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import SiteOnly from '@site/src/components/SiteOnly';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import { postFixtures } from '@site/src/fixtures/posts';
 import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
 import UseLive from '../shared/\_useLive.mdx';
 import AsyncBoundaryExamples from '../shared/\_AsyncBoundary.mdx';
+
+export const boundaryDemo = [
+  { delay: 1000, click: 'a[href="/posts/1"]' },
+  // past the comments' 2s delay, so the page shows in full
+  { wait: 3000 },
+];
 
 # Renderizando dados assíncronos
 
@@ -267,6 +275,259 @@ separar o tratamento de erro/carregamento do uso dos dados.
 
 Em vez disso, colocamos :react[[&lt;AsyncBoundary /\>](../api/AsyncBoundary.md)]:vue[o [&lt;Suspense /\>](https://vuejs.org/guide/built-ins/suspense.html) nativo do Vue junto com [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured)] para tratar as condições de carregamento e de erro em limites de navegação, ou acima deles, como **páginas,
 rotas ou [modais](https://www.appcues.com/blog/modal-dialog-windows)**.
+
+<FrameworkPlayground fixtures={boundaryFixtures} demo autoRun={boundaryDemo}>
+
+```ts title="Resources" collapsed
+import { Entity, resource } from '@data-client/rest';
+
+export class Post extends Entity {
+  id = 0;
+  title = '';
+  body = '';
+  author = '';
+  avatar = '';
+  static key = 'Post';
+}
+export const PostResource = resource({
+  path: '/posts/:id',
+  schema: Post,
+});
+
+export class Comment extends Entity {
+  id = 0;
+  postId = 0;
+  author = '';
+  avatar = '';
+  text = '';
+  static key = 'Comment';
+}
+export const CommentResource = resource({
+  path: '/comments/:id',
+  searchParams: {} as { postId: string },
+  schema: Comment,
+});
+```
+
+:::react
+
+```tsx title="Layout" layout collapsed docs-only
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Field Notes</h1>
+      </header>
+      {children}
+    </>
+  );
+}
+```
+
+```tsx title="PostList" route="/" collapsed docs-only
+import { useSuspense } from '@data-client/react';
+import { PostResource } from './Resources';
+
+export default function PostList() {
+  const posts = useSuspense(PostResource.getList);
+  return (
+    <div className="card">
+      {posts.map(post => (
+        <div key={post.pk()} className="listItem">
+          <Avatar src={post.avatar} />
+          <div>
+            <h3>
+              <Link to={`/posts/${post.id}`}>{post.title}</Link>
+            </h3>
+            <small>{post.author}</small>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+```tsx title="PostPage" route="/posts/:id" {7,10}
+import { AsyncBoundary } from '@data-client/react';
+import CommentList from './CommentList';
+import PostDetail from './PostDetail';
+
+export default function PostPage({ id }: { id: string }) {
+  return (
+    <AsyncBoundary fallback={<Loading />}>
+      <PostDetail id={id} />
+      <CommentList postId={id} />
+    </AsyncBoundary>
+  );
+}
+```
+
+```tsx title="PostDetail" collapsed
+import { useSuspense } from '@data-client/react';
+import { PostResource } from './Resources';
+
+export default function PostDetail({ id }: { id: string }) {
+  const post = useSuspense(PostResource.get, { id });
+  return (
+    <article>
+      <h2>{post.title}</h2>
+      <p className="byline">
+        <Avatar src={post.avatar} size={20} />
+        {post.author}
+      </p>
+      <p>{post.body}</p>
+    </article>
+  );
+}
+```
+
+```tsx title="CommentList" collapsed
+import { useSuspense } from '@data-client/react';
+import { CommentResource } from './Resources';
+
+export default function CommentList({ postId }: { postId: string }) {
+  const comments = useSuspense(CommentResource.getList, { postId });
+  return (
+    <section>
+      <h3>Comments</h3>
+      <div className="card">
+        {comments.map(comment => (
+          <div key={comment.pk()} className="listItem">
+            <Avatar src={comment.avatar} size={28} />
+            <div>
+              <b>{comment.author}</b>
+              <p>{comment.text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+```
+
+:::
+
+:::vue
+
+```html title="Layout.vue" layout collapsed
+<template>
+  <header class="appHeader">
+    <h1 class="appTitle">Field Notes</h1>
+  </header>
+  <RouterView v-slot="{ Component }">
+    <Suspense>
+      <component :is="Component" />
+      <template #fallback><Loading /></template>
+    </Suspense>
+  </RouterView>
+</template>
+```
+
+```html title="PostList.vue" route="/" collapsed docs-only
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource } from './Resources';
+
+  const posts = await useSuspense(PostResource.getList);
+</script>
+
+<template>
+  <div class="card">
+    <div v-for="post in posts" :key="post.pk()" class="listItem">
+      <Avatar :src="post.avatar" />
+      <div>
+        <h3>
+          <RouterLink :to="`/posts/${post.id}`">{{ post.title }}</RouterLink>
+        </h3>
+        <small>{{ post.author }}</small>
+      </div>
+    </div>
+  </div>
+</template>
+```
+
+```html title="PostPage.vue" route="/posts/:id" {9,15}
+<script setup lang="ts">
+  import CommentList from './CommentList.vue';
+  import PostDetail from './PostDetail.vue';
+
+  defineProps<{ id: string }>();
+</script>
+
+<template>
+  <Suspense>
+    <div>
+      <PostDetail :id="id" />
+      <CommentList :post-id="id" />
+    </div>
+    <template #fallback><Loading /></template>
+  </Suspense>
+</template>
+```
+
+```html title="PostDetail.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource } from './Resources';
+
+  const props = defineProps<{ id: string }>();
+  const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
+</script>
+
+<template>
+  <article>
+    <h2>{{ post.title }}</h2>
+    <p class="byline">
+      <Avatar :src="post.avatar" :size="20" />
+      {{ post.author }}
+    </p>
+    <p>{{ post.body }}</p>
+  </article>
+</template>
+```
+
+```html title="CommentList.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { CommentResource } from './Resources';
+
+  const props = defineProps<{ postId: string }>();
+  const comments = await useSuspense(CommentResource.getList, () => ({
+    postId: props.postId,
+  }));
+</script>
+
+<template>
+  <section>
+    <h3>Comments</h3>
+    <div class="card">
+      <div v-for="comment in comments" :key="comment.pk()" class="listItem">
+        <Avatar :src="comment.avatar" :size="28" />
+        <div>
+          <b>{{ comment.author }}</b>
+          <p>{{ comment.text }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
+
+<SiteOnly>
+
+:::react
+
+Mostre o código e mova o `<AsyncBoundary>` para envolver apenas o `<CommentList />`: o post aparece antes dos comentários.
+
+:::
+
+</SiteOnly>
 
 <AsyncBoundaryExamples />
 
