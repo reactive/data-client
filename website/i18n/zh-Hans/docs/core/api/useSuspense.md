@@ -204,19 +204,25 @@ render(<ProfileDetail />);
 
 缓存策略默认为 [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861)，但也[可以配置](../concepts/expiry-policy.md)。
 
-| 过期状态 | 获取           | 挂起 | 错误             | 条件                                                                                                                                                                   |
-| ------------- | --------------- | ------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 无效       | 是<sup>1</sup> | 是     | 否                | 不在 store 中、[删除](/rest/api/resource#delete)、[失效](./Controller.md#invalidate)、 [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
+| 过期状态 | 获取           | 挂起                  | 错误             | 条件                                                                                                                                                                   |
+| ------------- | --------------- | --------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 无效       | 是<sup>1</sup> | 是:vue[<sup>3</sup>] | 否                | 不在 store 中、[删除](/rest/api/resource#delete)、[失效](./Controller.md#invalidate)、 [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
 | 过时         | 是<sup>1</sup> | 否      | 否                | （首次渲染、参数变化）且 [expiry &lt; now](../concepts/expiry-policy.md)                                                                                                 |
 | 有效         | 否              | 否      | 可能<sup>2</sup> | 获取完成                                                                                                                                                             |
 |               | 否              | 否      | 否                | 第二个参数传入 `null`                                                                                                                                               |
 
-:::note
+::::note
 
 1. 相同的获取请求会自动去重
 2. [硬错误](../concepts/error-policy.md#hard)会被 :react[[Error Boundary](./AsyncBoundary.md)]:vue[[onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured)] [捕获](../getting-started/data-dependency#async-fallbacks)
 
+:::vue
+
+3. 仅在 setup 期间；已挂载的组件会[保留当前数据](../concepts/expiry-policy.md#invalidate)，直到重新获取完成。
+
 :::
+
+::::
 
 ::::react
 

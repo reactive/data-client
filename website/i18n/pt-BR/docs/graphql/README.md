@@ -1,4 +1,5 @@
 ---
+agent_setup: true
 id: README
 title: Uso de GraphQL com o Reactive Data Client
 sidebar_label: Uso

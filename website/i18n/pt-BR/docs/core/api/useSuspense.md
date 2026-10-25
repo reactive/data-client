@@ -206,17 +206,23 @@ A política de cache é [Stale-While-Revalidate](https://tools.ietf.org/html/rfc
 
 | Status de expiração | Fetch           | Suspend | Error             | Condições                                                                                                                                                                   |
 | ------------- | --------------- | ------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Inválido      | sim<sup>1</sup> | sim     | não               | não está na store, [exclusão](/rest/api/resource#delete), [invalidação](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
+| Inválido      | sim<sup>1</sup> | sim:vue[<sup>3</sup>] | não               | não está na store, [exclusão](/rest/api/resource#delete), [invalidação](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
 | Desatualizado | sim<sup>1</sup> | não     | não               | (primeira renderização, mudança de args) & [expiração &lt; agora](../concepts/expiry-policy.md)                                                                                                 |
 | Válido        | não             | não     | talvez<sup>2</sup> | conclusão do fetch                                                                                                                                                             |
 |               | não             | não     | não               | `null` usado como segundo argumento                                                                                                                                               |
 
-:::note
+::::note
 
 1. Fetches idênticos são automaticamente deduplicados
 2. [Erros hard](../concepts/error-policy.md#hard) devem ser [capturados](../getting-started/data-dependency#async-fallbacks) por :react[[Error Boundaries](./AsyncBoundary.md)]:vue[[onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured)]
 
+:::vue
+
+3. Somente durante o setup; componentes montados [mantêm seus dados atuais](../concepts/expiry-policy.md#invalidate) até que o refetch seja resolvido.
+
 :::
+
+::::
 
 ::::react
 

@@ -1,4 +1,5 @@
 ---
+agent_setup: true
 id: README
 title: 在 Reactive Data Client 中使用 REST API
 sidebar_label: Usage

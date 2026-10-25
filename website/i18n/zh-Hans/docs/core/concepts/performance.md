@@ -5,6 +5,7 @@ sidebar_label: 性能
 
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import PosterVideo from '@site/src/components/PosterVideo';
 
 <head>
   <meta name="docsearch:pagerank" content="30"/>
@@ -54,6 +55,19 @@ sources={{
 与旧版 [normalizr](https://github.com/paularmstrong/normalizr)
 库对比反规范化。Entity 级记忆化可以保持全局引用相等，并
 加快重复访问，包括在[变更](../getting-started/mutations.md)之后。
+
+<PosterVideo
+  poster={useBaseUrl('/videos/docs/memocache-poster.jpg')}
+  duration="1:59"
+  volume={0.5}
+  alt="反规范化会根据 id 重建每篇文章，因此如果没有缓存，每次写入都会让每一行得到一个新对象。MemoCache 以它读取的 entity 对象作为每个结果的键，并通过 WeakDependencyMap 弱引用持有这些对象。重命名 User 7 会重建文章 1 和 2，而文章 3 保留原有对象；旧的 user 对象会连同其背后缓存的文章一起被垃圾回收。在大型列表上与 normalizr 对比，不使用缓存时反规范化快 1.7 倍，命中缓存时快 11.5 倍。"
+>
+  <source
+    src={useBaseUrl('/videos/docs/memocache.webm')}
+    type='video/webm; codecs="av01.0.08M.10, opus"'
+  />
+  <source src={useBaseUrl('/videos/docs/memocache.mp4')} type="video/mp4" />
+</PosterVideo>
 
 <center>
 

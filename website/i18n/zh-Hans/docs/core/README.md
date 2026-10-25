@@ -1,4 +1,5 @@
 ---
+agent_setup: true
 title: Reactive Data Client 简介
 vue_title: 面向 Vue 的 Reactive Data Client 简介
 sidebar_label: 简介

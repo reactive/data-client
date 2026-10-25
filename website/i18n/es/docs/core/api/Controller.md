@@ -431,6 +431,44 @@ function ArticleName({ id }: { id: string }) {
 
 :::
 
+::::vue
+
+:::tip[Mostrar de nuevo el fallback de Suspense]
+
+Vuelve a montar el componente con un nuevo `key` después de invalidar; la nueva instancia entra en suspense con los datos inválidos.
+`timeout="0"` hace que `<Suspense>` muestre su fallback mientras espera, en lugar del contenido anterior. Volver a montar
+reinicia el estado local del componente.
+
+```html title="ArticlePage.vue"
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { useController } from '@data-client/vue';
+  import { ArticleResource } from './ArticleResource';
+  import ArticleName from './ArticleName.vue';
+
+  const props = defineProps<{ id: string }>();
+  const ctrl = useController();
+  const remountKey = ref(0);
+
+  async function reload() {
+    await ctrl.invalidate(ArticleResource.get, { id: props.id });
+    remountKey.value++;
+  }
+</script>
+
+<template>
+  <button @click="reload">Reload</button>
+  <Suspense timeout="0">
+    <ArticleName :key="remountKey" :id="id" />
+    <template #fallback>Loading...</template>
+  </Suspense>
+</template>
+```
+
+:::
+
+::::
+
 ::::react
 
 :::tip
@@ -948,7 +986,7 @@ export enum ExpiryStatus {
 
 ##### Invalid {#invalid}
 
-- Siempre entrará en suspense
+- Siempre entrará en suspense:vue[ durante el setup; los componentes ya montados [conservan sus datos actuales](../concepts/expiry-policy.md#invalidate) hasta que se resuelva el refetch]
 - Siempre hará fetch
 
 #### expiresAt {#expiresat}

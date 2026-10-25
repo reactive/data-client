@@ -204,19 +204,25 @@ render(<ProfileDetail />);
 
 La política de caché es [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) de forma predeterminada, pero también es [configurable](../concepts/expiry-policy.md).
 
-| Estado de caducidad | Fetch           | Suspende | Error             | Condiciones                                                                                                                                                                   |
+| Estado de caducidad | Fetch           | Suspende              | Error             | Condiciones                                                                                                                                                                   |
 | ------------- | --------------- | ------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Inválido      | sí<sup>1</sup>  | sí      | no                | no está en el store, [eliminación](/rest/api/resource#delete), [invalidación](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
+| Inválido      | sí<sup>1</sup>  | sí:vue[<sup>3</sup>] | no                | no está en el store, [eliminación](/rest/api/resource#delete), [invalidación](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
 | Obsoleto      | sí<sup>1</sup>  | no      | no                | (primer render, cambio de argumentos) & [caducidad &lt; ahora](../concepts/expiry-policy.md)                                                                                                 |
 | Válido        | no              | no      | quizá<sup>2</sup> | finalización del fetch                                                                                                                                                             |
 |               | no              | no      | no                | `null` usado como segundo argumento                                                                                                                                               |
 
-:::note
+::::note
 
 1. Los fetches idénticos se deduplican automáticamente
 2. Los [errores duros](../concepts/error-policy.md#hard) deben ser [capturados](../getting-started/data-dependency#async-fallbacks) por :react[[Error Boundaries](./AsyncBoundary.md)]:vue[[onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured)]
 
+:::vue
+
+3. Solo durante el setup; los componentes ya montados [conservan sus datos actuales](../concepts/expiry-policy.md#invalidate) hasta que se resuelva el refetch.
+
 :::
+
+::::
 
 ::::react
 

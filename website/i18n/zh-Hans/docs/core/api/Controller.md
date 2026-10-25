@@ -431,6 +431,44 @@ function ArticleName({ id }: { id: string }) {
 
 :::
 
+::::vue
+
+:::tip[再次显示 Suspense fallback]
+
+在失效之后，用新的 `key` 重新挂载组件；新的实例会因无效数据而挂起。
+`timeout="0"` 让 `<Suspense>` 在等待时显示 fallback，而不是旧内容。重新挂载
+会重置组件的本地状态。
+
+```html title="ArticlePage.vue"
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { useController } from '@data-client/vue';
+  import { ArticleResource } from './ArticleResource';
+  import ArticleName from './ArticleName.vue';
+
+  const props = defineProps<{ id: string }>();
+  const ctrl = useController();
+  const remountKey = ref(0);
+
+  async function reload() {
+    await ctrl.invalidate(ArticleResource.get, { id: props.id });
+    remountKey.value++;
+  }
+</script>
+
+<template>
+  <button @click="reload">Reload</button>
+  <Suspense timeout="0">
+    <ArticleName :key="remountKey" :id="id" />
+    <template #fallback>Loading...</template>
+  </Suspense>
+</template>
+```
+
+:::
+
+::::
+
 ::::react
 
 :::tip
@@ -949,7 +987,7 @@ export enum ExpiryStatus {
 
 ##### Invalid {#invalid}
 
-- 总是会挂起
+- 总是会挂起:vue[（仅在 setup 期间；已挂载的组件会[保留当前数据](../concepts/expiry-policy.md#invalidate)，直到重新获取完成）]
 - 总是会获取
 
 #### expiresAt {#expiresat}
