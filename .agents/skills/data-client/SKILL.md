@@ -15,9 +15,8 @@ Read `../data-client-setup/SKILL.md` (next to this one) and follow it. It isn't 
 installs; the user asking to add or use Data Client in this app is the go-ahead. If they only asked about Data
 Client, answer and offer to set it up instead.
 
-To only replace an HTTP client (axios, fetch, ky, superagent, got) with `@data-client/rest` endpoints, follow
-`../data-client-setup/references/data-client-rest-setup.md` instead. It needs no provider and leaves how the app loads
-and stores data alone.
+To only swap an HTTP client (axios, fetch, ky, superagent, got) for `@data-client/rest` endpoints, without a provider
+or store changes, follow `../data-client-setup/references/data-client-rest-setup.md` instead.
 
 ## Set up
 
