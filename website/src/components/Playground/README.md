@@ -191,8 +191,11 @@ DesignSystem/       demo styling (design-system.css) and components injected int
   pushes it shut and refocuses the handle) slides the drawer out, one
   `translate`, over the code and its file tabs edge to edge (they go
   `inert`), the handle riding outside the Store's edge, past the
-  playground's. Side by side it comes from the preview's left edge by its
-  foot; stacked, up from the preview's top edge, at most `--store-cap`
+  playground's. Side by side the preview's folder ends at its sheet's foot
+  (`PreviewWrapper` measures how far the row runs on below, as
+  `--pg-preview-gap`); the drawer comes from its left edge with the handle
+  level with that foot, and runs on below it with the preview's foot curving
+  into its edge; stacked, up from the preview's top edge, at most `--store-cap`
   tall so a long file's top stays in view. It slides only once painted at
   rest (`data-settled`), so showing a playground never animates it. The
   preview stays usable either way. The Store itself is chrome on the folder (the scrubber's row,

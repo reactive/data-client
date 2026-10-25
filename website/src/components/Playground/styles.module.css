@@ -1169,6 +1169,9 @@ div.fixtureJson + div.fixtureJson {
    layer over the card's row, its Store in the card's column */
 @container playground (min-width: 720px) {
   .playgroundContainer.row {
+    /* where the Store runs on below the preview: its corner and the
+       preview's foot curving into it, no deeper than that run */
+    --pg-foot-curve: min(var(--pg-card-radius), var(--pg-preview-gap, 0px));
     --pg-preview-col: max(16rem, calc((100cqw - var(--pg-gap)) * 0.35));
     /* the preview's edge, where the drawer parks */
     --pg-fold: calc(100cqw - var(--pg-preview-col));
@@ -1196,29 +1199,74 @@ div.fixtureJson + div.fixtureJson {
     grid-area: 1 / 2 / 3 / 3;
     /* unpositioned, so the fixtures hang from the playground's edge */
     position: static;
+    /* ends at its sheet's foot: --pg-preview-gap is how far the row runs on
+       below that (./preview/PreviewWrapper.tsx) */
+    max-height: calc(100% - var(--pg-preview-gap, 0px));
     box-shadow: none;
   }
-  /* its shadow, from a box that runs out over the Store with the drawer,
-     so the open Store and the preview are one paper with one shadow */
-  .row > .previewWrapper::before {
+  /* The folder's shadow, from boxes that run out over the Store with the
+     drawer, so the open Store and the preview are one paper with one
+     shadow: the preview's height, edge to edge (here), and the Store's
+     length below it (.row::before) */
+  .row > .previewWrapper::before,
+  .row::before {
     content: '';
     position: absolute;
-    inset: 0 0 0 var(--pg-fold);
-    z-index: -1;
-    border-radius: var(--pg-card-radius);
+    left: var(--pg-fold);
     box-shadow: var(--pg-card-shadow);
     pointer-events: none;
   }
-  .row:has(> .storeHost[data-open]) > .previewWrapper::before {
+  .row > .previewWrapper::before {
+    inset-block: 0 var(--pg-preview-gap, 0px);
+    right: 0;
+    z-index: -1;
+    border-radius: var(--pg-card-radius);
+  }
+  .row::before {
+    top: calc(100% - var(--pg-preview-gap, 0px));
+    bottom: 0;
+    right: var(--pg-preview-col);
+    border-radius: 0 0 var(--pg-foot-curve) var(--pg-card-radius);
+  }
+  .row:has(> .storeHost[data-open]) > .previewWrapper::before,
+  .row:has(> .storeHost[data-open])::before {
     left: 0;
   }
-  .row:has(> .storeHost > .storeDrawer[data-settled])
-    > .previewWrapper::before {
+  .row:has(> .storeHost > .storeDrawer[data-settled]) > .previewWrapper::before,
+  .row:has(> .storeHost > .storeDrawer[data-settled])::before {
     transition: left var(--motion-drawer);
   }
   .row:has(> .storeHost .storePanel[data-visible]) > .previewWrapper {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
+    /* its paper a pixel on under the Store's edge, so no seam shows */
+    box-shadow: -1px 0 var(--pg-stage);
+  }
+  /* the Store running on below the preview: its corner there squares
+     where the two boxes meet */
+  .row:has(> .storeHost .storePanel[data-visible]) > .previewWrapper::before {
+    border-bottom-left-radius: calc(
+      var(--pg-card-radius) - var(--pg-foot-curve)
+    );
+  }
+  /* and the preview's foot curves into the Store's edge, as a tab does
+     into its card */
+  .row:has(> .storeHost .storePanel[data-visible])::after {
+    content: '';
+    position: absolute;
+    /* a pixel on under the Store's edge too */
+    left: calc(var(--pg-fold) - 1px);
+    top: calc(100% - var(--pg-preview-gap, 0px));
+    /* over the preview's shadow (a grid item, it stacks by its z-index) */
+    z-index: 2;
+    width: calc(var(--pg-foot-curve) + 1px);
+    height: var(--pg-foot-curve);
+    pointer-events: none;
+    background: radial-gradient(
+      circle at 100% 100%,
+      transparent calc(var(--pg-foot-curve) - 0.5px),
+      var(--pg-stage) var(--pg-foot-curve)
+    );
   }
   /* under it, the code card's own shadow would deepen the Store's */
   .row .editorDocs > .playgroundEditor,
@@ -1251,12 +1299,14 @@ div.fixtureJson + div.fixtureJson {
     /* its sheet to the foot, as the preview's is, rounded with the folder */
     --store-sheet-foot: var(--pg-card-radius);
     padding-right: var(--pg-gap);
-    border-radius: var(--pg-card-radius) 0 0 var(--pg-card-radius);
+    border-radius: var(--pg-card-radius) 0 var(--pg-foot-curve)
+      var(--pg-card-radius);
   }
-  /* by the foot, its curve clear of the corner's */
+  /* by the preview's foot, its curve clear of the corner's: open, it
+     stays level with that foot, however far the Store runs on below */
   .storeTab {
     right: 100%;
-    bottom: calc(2 * var(--pg-card-radius));
+    bottom: calc(var(--pg-preview-gap, 0px) + 2 * var(--pg-card-radius));
     width: var(--pg-tab-width);
     height: var(--pg-tab-length);
     border-radius: var(--pg-card-radius) 0 0 var(--pg-card-radius);
