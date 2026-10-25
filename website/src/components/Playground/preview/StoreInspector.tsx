@@ -5,7 +5,7 @@ import { Reveal } from '../../motion';
 import styles from '../styles.module.css';
 import type SchemaRegistry from './store/schemaRegistry';
 import StorePanel from './store/StorePanel';
-import { StoreToggle } from './StoreToggle';
+import { heldToggle, StoreToggle } from './StoreToggle';
 
 function StoreInspector({
   toggle,
@@ -24,12 +24,17 @@ function StoreInspector({
   host: HTMLElement | null;
 }) {
   // the empty drawer starts moving at once; the tree renders a frame later,
-  // then stays, so reopening finds the Store as it was left
-  const ready = useDeferredValue(open);
+  // then stays, so reopening finds the Store as it was left. A row Store
+  // renders it with the click instead: where the row playground stacks, that
+  // Store grows to fit the tree, and growing a frame later would move the
+  // page after the click's scroll hold. Beside the result, its height follows
+  // the result, not the tree
+  const deferred = useDeferredValue(open);
+  const ready = row ? open : deferred;
   const [showTree, setShowTree] = useState(false);
   if (ready && !showTree) setShowTree(true);
   const panel = (
-    <Reveal show={open} className={styles.storePanel}>
+    <Reveal show={open} className={styles.storePanel} hold={heldToggle}>
       {showTree ?
         <StorePanel registry={registry} history={history} />
       : null}

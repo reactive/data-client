@@ -98,10 +98,13 @@ interface Manager {
 import MyManager from './MyManager';
 
 // highlight-next-line
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = [new MyManager(), ...getDefaultManagers()];
 ```
 
 </ProviderManagers>
+
+action 会按数组顺序依次经过各个 manager。请把自定义 manager 放在默认 manager 之前：[NetworkManager](./NetworkManager.md)
+会自行处理大多数 FETCH action，而不会把它们继续传递下去。
 
 ## 控制流 {#control-flow}
 

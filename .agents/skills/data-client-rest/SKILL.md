@@ -1,6 +1,6 @@
 ---
 name: data-client-rest
-description: Define REST APIs with @data-client/rest - resource(), RestEndpoint, CRUD (GET/POST/PUT/PATCH/DELETE), HTTP fetch, normalize, cache, urlPrefix, path-to-regexp parameters, searchParams, pagination, extend(), auth/headers, optimistic updates, polling, file download, blob, parseResponse. Use when defining or modifying network endpoints, REST resources, or the HTTP layer.
+description: Define how the app talks to its API with @data-client/rest, including the shape of the data each call returns. Use it when adding or changing any API call or its data, changing how requests are sent or responses are read, or deciding how fetched data is stored, updated and kept fresh. Covers resource, RestEndpoint and pagination.
 license: Apache 2.0
 ---
 # Guide: Using `@data-client/rest` for Resource Modeling
@@ -12,8 +12,9 @@ This project uses [@data-client/rest](https://dataclient.io/rest) to define, fet
 
 ## 1. Defining Schemas
 
-This project uses [schemas](references/schema.md) to define and normalize data models with type safety and automatic cache management. Apply the skill "data-client-schema" for schema patterns.
-**Always follow these patterns (apply the skill "data-client-schema") when generating mutable data definitions.**
+Every `resource()` and `RestEndpoint` takes a `schema` that normalizes its response into the shared cache. Apply the
+skill "data-client-schema" before defining or changing one: Entity, Collection, Union and Query patterns and references
+live there, not here.
 
 ## 2. Resources (`resource()`)
 
@@ -108,6 +109,10 @@ export const getTicker = new RestEndpoint({
 });
 ```
 
+`pollFrequency` polls only while subscribed (`useLive`/`useSubscription`). Subscribers to the same
+endpoint and args share one poll at the fastest frequency, so a faster `.extend({ pollFrequency })` on
+one view speeds up the others too.
+
 **Typing tips**  
 - `path` path‑to‑regexp template for 1st arg
 - `method` ≠ `GET` ⇒ 2nd arg = body (unless `body: undefined`)
@@ -129,11 +134,19 @@ getOptimisticResponse(snap, { id }) {
 
 ---
 
-### RestEndpoint lifecycle methods
+### RestEndpoint lifecycle overrides
 
-- **Perform Fetch:** `fetchResponse()` → `parseResponse()` → `process()`
-  - **url(urlParams):** `urlPrefix` + `path` + (`searchParams` → `searchToString()`)
-  - **getRequestInit(body):** `getHeaders()` + `method` + `signal`
+`fetch()` runs `fetchResponse(url(), getRequestInit())` → `parseResponse()` → `process()`. Override the
+step that owns the change, never `fetch` itself (that replaces the whole lifecycle):
+
+| To change | Override |
+|---|---|
+| Headers (auth) | `getHeaders(headers)` |
+| Other request options or body encoding | `getRequestInit(body)` |
+| Query string format | `searchToString(searchParams)` |
+| The network call (retries, another client) | `fetchResponse(input, init)` |
+| Non-JSON responses | `content` option (`'blob'`, `'text'`, …), else `parseResponse(response)` |
+| Shape of the parsed data | `process(value, ...args)` |
 
 ---
 
@@ -157,7 +170,6 @@ export const IssueResource = resource({
 ## 5. Best Practices & Notes
 
 - When asked to browse or navigate to a web address, actual visit the address
-- Always set up `schema` on every resource/entity/collection for normalization
 - Prefer `RestEndpoint` over `resource()` for defining single endpoints or when mutation endpoints don't exist
 - For blob/file downloads and other non-JSON responses, see [network-transform: file download](references/network-transform.md#file-download).
 
@@ -173,9 +185,7 @@ For detailed API documentation, see the [references](references/) directory:
 
 - [resource](references/resource.md) - Create CRUD endpoints
 - [RestEndpoint](references/RestEndpoint.md);[_EndpointLifecycle.md](references/_EndpointLifecycle.md);[RestEndpoint.js](references/RestEndpoint.js) - Single REST endpoint
-- [Entity](references/Entity.md);[_entity_lifecycle_methods.md](references/_entity_lifecycle_methods.md) - Normalized data class
-- [Collection](references/Collection.md) - Mutable lists
-- [schema](references/schema.md) - Schema overview
+- Entity, Collection and other schemas: skill "data-client-schema"
 - [Fixtures](references/Fixtures.md) - Mock data for testing
 - [data-dependency](references/data-dependency.md);[_useLive.md](references/_useLive.md);[_AsyncBoundary.md](references/_AsyncBoundary.md) - Rendering guide
 - [mutations](references/mutations.md);[_useLoading.md](references/_useLoading.md);[_VoteDemo.md](references/_VoteDemo.md) - Mutations guide

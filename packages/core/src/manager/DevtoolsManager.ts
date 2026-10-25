@@ -1,3 +1,4 @@
+import { FETCH, SUBSCRIBE, UNSUBSCRIBE } from '../actionTypes.js';
 import type { DevToolsConfig } from './devtoolsTypes.js';
 import type { Controller, EndpointInterface } from '../index.js';
 import type { Middleware } from '../middlewareTypes.js';
@@ -84,6 +85,95 @@ if (process.env.NODE_ENV !== 'production') {
   };
 }
 
+/** Appends, dropping the oldest half once over `max`.
+ *
+ * Halving means we aren't reallocating on every push; trimming in place keeps
+ * arrays shared on globals (like `__DC__.actions`) current.
+ */
+function pushCapped<T>(buffer: T[], item: T, max: number) {
+  buffer.push(item);
+  if (buffer.length > max) buffer.splice(0, max / 2);
+}
+
+/** Newest actions kept whole in the action log; older ones are summarized.
+ *
+ * Matches the 20 the debugging skill reads.
+ */
+const FULL_ACTIONS = 20;
+
+/** Keeps what shows what happened and when, dropping what retains memory
+ * (response bodies, set values, request bodies, fetch promises).
+ *
+ * Keeps `args` of endpoints without side effects, so
+ * `controller.getResponse(a.endpoint, ...a.args, state)` works for any key they logged.
+ *
+ * Builds the object explicitly: a rest spread here was 4x slower.
+ */
+function summarize(action: any) {
+  const summary: any = {
+    type: action.type,
+    key: action.key,
+    endpoint: action.endpoint,
+    meta:
+      action.type === FETCH ?
+        { fetchedAt: action.meta.fetchedAt }
+      : action.meta,
+  };
+  // mutation args hold request bodies (objects, FormData, files)
+  if (action.endpoint && !action.endpoint.sideEffect)
+    summary.args = action.args;
+  if (action.error) {
+    summary.error = true;
+    summary.response = action.response;
+  }
+  return summary;
+}
+
+/** `globalThis.__DC__`: each store's Controller and action log, for console and agent debugging.
+ *
+ * Getters read the registry on every access, so they follow a remounted provider.
+ * Only `store` is enumerable, so serializing `__DC__` yields just that.
+ */
+class DebugStore {
+  /** Key of the store to read; may be left unset when the page has one store */
+  declare store?: string;
+  /** Registered stores by key */
+  declare readonly registry: Map<
+    string,
+    { controller: Controller; actions: ActionTypes[] }
+  >;
+
+  constructor() {
+    Object.defineProperty(this, 'registry', { value: new Map() });
+  }
+
+  /** Keys of the registered stores, for `store` */
+  get stores(): string[] {
+    return [...this.registry.keys()];
+  }
+
+  get controller(): Controller {
+    return this.entry().controller;
+  }
+
+  /** Recent actions; all but the newest 20 are summaries without `response` or `value` */
+  get actions(): ActionTypes[] {
+    return this.entry().actions;
+  }
+
+  private entry() {
+    const key =
+      this.store ?? (this.registry.size === 1 ? this.stores[0] : undefined);
+    const entry = key === undefined ? undefined : this.registry.get(key);
+    if (entry) return entry;
+    throw new Error(
+      this.registry.size ?
+        `Set __DC__.store to one of: ${this.stores.map(k => JSON.stringify(k)).join(', ')}`
+      : 'No Data Client store is mounted',
+    );
+  }
+}
+
 /** Integrates with https://github.com/reduxjs/redux-devtools
  *
  * Options: https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md
@@ -95,6 +185,14 @@ export default class DevToolsManager implements Manager {
   declare protected devTools: undefined | any;
   protected started = false;
   protected actions: [ActionTypes, State<unknown>][] = [];
+  /** Recent actions, kept in development whether or not the extension is connected */
+  declare protected actionLog: ActionTypes[];
+  /** Key this controller is registered under in `__DC__` */
+  declare protected registryKey?: string;
+  /** Subscriber count for each key that is polling; a key is removed when its count reaches 0 */
+  declare protected pollingSubscribers: Map<string, number>;
+  /** Actions kept in the log for each key while it polls (development only) */
+  declare maxPollingActions: number;
   declare protected controller: Controller;
   declare skipLogging?: (action: ActionTypes) => boolean;
   declare devtoolsName: string;
@@ -115,6 +213,11 @@ export default class DevToolsManager implements Manager {
     // we cut it in half so we should double so we don't lose
     if (config?.maxAge) this.maxBufferLength = config.maxAge * 2;
     if (skipLogging) this.skipLogging = skipLogging;
+    if (process.env.NODE_ENV !== 'production') {
+      this.actionLog = [];
+      this.pollingSubscribers = new Map();
+      this.maxPollingActions = config?.maxPollingActions || 4;
+    }
   }
 
   static {
@@ -122,13 +225,50 @@ export default class DevToolsManager implements Manager {
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'production') {
       this.prototype.middleware = function (controller) {
+        // a reused manager starts a fresh log for a new store
+        if (controller !== this.controller) this.actionLog = [];
         this.controller = controller;
-        if (!this.devTools) return next => action => next(action);
-        const reducer = createReducer(controller as any);
+        const reducer = this.devTools && createReducer(controller as any);
         let state = controller.getState();
+        /** Counts polling subscribers per key, even for actions skipLogging hides */
+        const trackPolling = (action: ActionTypes) => {
+          if (
+            (action.type === SUBSCRIBE || action.type === UNSUBSCRIBE) &&
+            action.endpoint.pollFrequency !== undefined
+          ) {
+            const count =
+              (this.pollingSubscribers.get(action.key) ?? 0) +
+              (action.type === SUBSCRIBE ? 1 : -1);
+            if (count > 0) this.pollingSubscribers.set(action.key, count);
+            else this.pollingSubscribers.delete(action.key);
+          }
+        };
+        /** Keeps `__DC__.actions` small: polling keys keep only their latest actions,
+         * and all but the newest actions drop their payloads.
+         */
+        const logAction = (action: ActionTypes) => {
+          const log = this.actionLog;
+          const key = (action as { key?: string }).key;
+          if (key !== undefined && this.pollingSubscribers.has(key)) {
+            // drop all but the newest maxPollingActions - 1, making room for this one
+            for (let i = log.length - 1, seen = 0; i >= 0; i--) {
+              if (
+                (log[i] as { key?: string }).key === key &&
+                ++seen >= this.maxPollingActions
+              )
+                log.splice(i, 1);
+            }
+          }
+          pushCapped(log, action, this.maxBufferLength);
+          const old = log.length - 1 - FULL_ACTIONS;
+          if (old >= 0) log[old] = summarize(log[old]);
+        };
         return next => action => {
           const shouldSkip = this.skipLogging?.(action);
+          trackPolling(action);
+          if (!shouldSkip) logAction(action);
           const ret = next(action);
+          if (!reducer) return ret;
           if (this.started) {
             // we track state changes here since getState() will only update after a batch commit
             state = reducer(state, action);
@@ -151,22 +291,35 @@ export default class DevToolsManager implements Manager {
     if (this.started) {
       this.devTools.send(action, state);
     } else {
-      // avoid this getting too big in case this is long running
-      // we cut in half so we aren't constantly reallocating
-      if (this.actions.length > this.maxBufferLength)
-        this.actions = this.actions.slice(this.maxBufferLength / 2);
       // queue actions
-      this.actions.push([action, state]);
+      pushCapped(this.actions, [action, state], this.maxBufferLength);
     }
   }
 
   /** Called when initial state is ready */
   init(state: State<any>) {
     if (process.env.NODE_ENV !== 'production') {
-      ((globalThis as any).__DC_CONTROLLERS__ ??= new Map()).set(
-        this.devtoolsName,
-        this.controller,
-      );
+      const { registry }: DebugStore = ((globalThis as any).__DC__ ??=
+        new DebugStore());
+      const ownedBy = (key: string) =>
+        registry.get(key)?.controller === this.controller;
+      // keep the key this controller already holds (init can run again without cleanup)
+      let key =
+        this.registryKey !== undefined && ownedBy(this.registryKey) ?
+          this.registryKey
+        : this.devtoolsName;
+      // another provider has the name: register under 'name (2)', 'name (3)', ...
+      // Without a window (server rendering), stores are made per request and never cleaned up,
+      // so replace the old one instead of keeping every request's store alive.
+      // Checks window, not document: React Native has a window but no document.
+      if (typeof window !== 'undefined')
+        for (let i = 2; registry.has(key) && !ownedBy(key); i++)
+          key = `${this.devtoolsName} (${i})`;
+      this.registryKey = key;
+      registry.set(key, {
+        controller: this.controller,
+        actions: this.actionLog,
+      });
     }
     if (process.env.NODE_ENV !== 'production' && this.devTools) {
       this.devTools.init(state);
@@ -198,11 +351,16 @@ export default class DevToolsManager implements Manager {
   /** Ensures all subscriptions are cleaned up. */
   cleanup() {
     if (process.env.NODE_ENV !== 'production') {
-      const map: Map<string, Controller> | undefined = (globalThis as any)
-        .__DC_CONTROLLERS__;
-      if (map?.get(this.devtoolsName) === this.controller) {
-        map.delete(this.devtoolsName);
-      }
+      // SubscriptionManager.cleanup() stops polling without dispatching unsubscribes
+      this.pollingSubscribers.clear();
+      const key = this.registryKey;
+      const registry: DebugStore['registry'] | undefined = (globalThis as any)
+        .__DC__?.registry;
+      if (
+        key !== undefined &&
+        registry?.get(key)?.controller === this.controller
+      )
+        registry.delete(key);
     }
   }
 }

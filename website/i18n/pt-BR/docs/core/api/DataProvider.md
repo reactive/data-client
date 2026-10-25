@@ -6,6 +6,7 @@ description: Gerenciamento de dados de alto desempenho e globalmente consistente
 ---
 
 import Installation from '../shared/\_installation.mdx';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import StateType from '../shared/_state_type.mdx';
 import GCPolicyOptions from '../shared/_gc_policy.mdx';
 import Tabs from '@theme/Tabs';
@@ -110,7 +111,7 @@ const RealApp = (
 
 ### devButton {#devbutton}
 
-<img src="/img/client-logo.svg" style={{float:'right',width:'40px'}} />
+<img src={useBaseUrl('/img/client-logo.svg')} style={{float:'right',width:'40px'}} />
 
 Em desenvolvimento, um pequeno botão aparecerá dando acesso fácil às [devtools do navegador](../getting-started/debugging.md), se
 estiverem instaladas. Esta opção configura onde ele aparece ou, se for null, o desativa por completo.

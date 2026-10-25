@@ -104,6 +104,9 @@ export const gql = new CustomGQLEndpoint('/graphql');
 
 ## Defining Queries and Mutations
 
+The `schema` option normalizes each response into the shared cache, and the examples below import Entity classes
+that must already exist. Apply the skill "data-client-schema" to define them before writing endpoints.
+
 ### Query Example
 
 ```ts
@@ -201,8 +204,7 @@ function UserProfile({ id }: { id: string }) {
 
 ## Next Steps
 
-1. Apply skill "data-client-schema" to define Entity classes
-2. Apply skill "data-client-react" or "data-client-vue" for usage
+Apply skill "data-client-react" or "data-client-vue" for usage.
 
 ## References
 

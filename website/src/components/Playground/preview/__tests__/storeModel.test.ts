@@ -2,6 +2,7 @@
 import { Collection, Entity, schema } from '@data-client/endpoint';
 import { actionTypes, type State } from '@data-client/react';
 
+import { splitKey } from '../../splitKey';
 import { changeOf } from '../store/actionGroups';
 import {
   buildModel,
@@ -13,7 +14,6 @@ import {
   prettyPk,
   referrersOf,
   rowLabel,
-  splitKey,
 } from '../store/model';
 import { membersOf, refsList } from '../store/nav';
 import { CIRCULAR, plain, resolve, resolveRow } from '../store/refs';

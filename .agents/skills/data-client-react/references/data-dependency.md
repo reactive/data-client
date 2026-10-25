@@ -129,7 +129,9 @@ export default function LoadMore() {
 ```
 
 Do not [prop drill](https://react.dev/learn/passing-data-deeply-with-context#the-problem-with-passing-props). Instead, [useSuspense()](./useSuspense.md) in the components that render the data from it. This is
-known as _data co-location_.
+known as _data co-location_. Pass ids or args as props, not fetched data a component only hands down
+(a list passing each item to the row that renders it is fine). Components asking for the same
+endpoint and args share one fetch and one copy in the store.
 
 Do not hide data binding hooks inside custom hooks. Instead, put tightly coupled data transformations
 in [Query](https://dataclient.io/rest/api/Query) — data logic belongs with the data model, where it stays visible, reusable,

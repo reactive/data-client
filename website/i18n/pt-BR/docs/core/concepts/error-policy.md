@@ -40,7 +40,7 @@ Um erro soft continua exibindo os últimos dados. Erros hard (e erros soft sem n
 
 </SiteOnly>
 
-<FrameworkPlayground fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',

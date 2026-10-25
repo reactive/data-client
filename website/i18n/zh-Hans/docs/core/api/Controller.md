@@ -31,7 +31,7 @@ import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 class Controller {
   /*************** Action Dispatchers ***************/
   fetch(endpoint, ...args): ReturnType<E>;
-  fetchIfStale(endpoint, ...args): ReturnType<E> | undefined;
+  fetchIfStale(endpoint, ...args): ReturnType<E> | Denormalize<E['schema']>;
   expireAll({ testKey }): Promise<void>;
   invalidate(endpoint, ...args): Promise<void>;
   invalidateAll({ testKey }): Promise<void>;
@@ -265,7 +265,8 @@ post.pk();
 
 ### fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
-仅当 endpoint 被视为“[过时](../concepts/expiry-policy.md#stale)”时才获取。
+仅当 endpoint 被视为“[过时](../concepts/expiry-policy.md#stale)”或[无效](../concepts/expiry-policy.md#invalid)时才获取，
+并返回与 [fetch()](#fetch) 相同的 Promise。否则不发起获取，直接同步返回缓存的数据。
 
 这在预取数据时很有用，因为它可以避免重复获取仍然新鲜的数据。
 

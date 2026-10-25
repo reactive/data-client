@@ -17,7 +17,7 @@ import {
 import { jest } from '@jest/globals';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { render, act, screen } from '@testing-library/react-native';
+import { render, act } from '@testing-library/react-native';
 import {
   CoolerArticleResource,
   InvalidIfStaleArticleResource,
@@ -47,6 +47,8 @@ import {
   AsyncBoundary,
 } from '../..';
 import { articlesPages, payload, users, nested } from '../test-fixtures';
+import useDLE from '../useDLE';
+import useFetch from '../useFetch';
 import useSuspense from '../useSuspense';
 
 async function testDispatchFetch(
@@ -63,7 +65,7 @@ async function testDispatchFetch(
       </AsyncBoundary>
     </ControllerContext.Provider>
   );
-  render(tree);
+  await render(tree);
   expect(dispatch).toHaveBeenCalled();
   // react 19 suspends twice
   expect(dispatch.mock.calls.length).toBeGreaterThanOrEqual(payloads.length);
@@ -190,18 +192,11 @@ describe('useSuspense()', () => {
     fbmock.mockReset();
   });
 
-  afterEach(() => {
-    try {
-      screen.unmount();
-      // eslint-disable-next-line no-empty
-    } catch (e) {}
-  });
-
   it('should dispatch an action that fetches', async () => {
     await testDispatchFetch(ArticleComponentTester, [payload]);
   });
 
-  it('should NOT suspend if result already in cache and options.invalidIfStale is false', () => {
+  it('should NOT suspend if result already in cache and options.invalidIfStale is false', async () => {
     const state: State<unknown> = mockInitialState([
       {
         endpoint: CoolerArticleResource.get,
@@ -217,7 +212,7 @@ describe('useSuspense()', () => {
         </Suspense>
       </StateContext.Provider>
     );
-    const { getByText } = render(tree);
+    const { getByText } = await render(tree);
     expect(fbmock).not.toHaveBeenCalled();
     const title = getByText(payload.title);
     expect(title).toBeDefined();
@@ -271,9 +266,9 @@ describe('useSuspense()', () => {
         </ControllerContext.Provider>
       </StateContext.Provider>
     );
-    it('should NOT suspend even when result is stale and options.invalidIfStale is false', () => {
+    it('should NOT suspend even when result is stale and options.invalidIfStale is false', async () => {
       dispatch.mockClear();
-      const { getByText, getByTestId } = render(tree);
+      const { getByText, getByTestId } = await render(tree);
       expect(fbmock).not.toHaveBeenCalled();
       const title = getByText(payload.title);
       expect(title).toBeDefined();
@@ -284,7 +279,7 @@ describe('useSuspense()', () => {
       await import('@react-navigation/native');
       dispatch.mockClear();
 
-      const { getByText, getByTestId } = render(tree);
+      const { getByText, getByTestId } = await render(tree);
       expect(fbmock).not.toHaveBeenCalled();
       await new Promise(resolve =>
         requestIdleCallback(() => {
@@ -293,10 +288,10 @@ describe('useSuspense()', () => {
       );
       // still should revalidate
       expect(dispatch.mock.calls.length).toBe(1);
-      act(() => thenavigation.navigate('Home'));
+      await act(() => thenavigation.navigate('Home'));
       expect(getByText('Home')).toBeDefined();
 
-      act(() => thenavigation.goBack());
+      await act(() => thenavigation.goBack());
       await new Promise(resolve =>
         requestIdleCallback(() => {
           resolve(null);
@@ -308,7 +303,67 @@ describe('useSuspense()', () => {
     });
   });
 
-  it('should NOT suspend if result is not stale and options.invalidIfStale is true', () => {
+  it.each([
+    ['useSuspense', useSuspense],
+    ['useDLE', useDLE],
+    ['useFetch', useFetch],
+  ] as const)(
+    '%s should not refetch on refocus once revalidated data is fresh',
+    async (_, useHook) => {
+      const fetchArticle = jest.fn(async ({ id }: { id: number }) => payload);
+      const getArticle = new Endpoint(fetchArticle, {
+        schema: CoolerArticle,
+        key: ({ id }: { id: number }) => `fresh-focus-article-${id}`,
+      });
+      const cached = mockInitialState([
+        { endpoint: getArticle, args: [{ id: payload.id }], response: payload },
+      ]);
+      const key = getArticle.key({ id: payload.id });
+      // make the cached result stale so mounting revalidates it
+      const state = {
+        ...cached,
+        meta: { [key]: { ...cached.meta[key], expiresAt: 1 } },
+      };
+
+      let thenavigation: any;
+      function Article({ navigation }: { navigation: any }) {
+        thenavigation = navigation;
+        (useHook as (...args: any[]) => unknown)(getArticle, {
+          id: payload.id,
+        });
+        return <Text testID="article">article</Text>;
+      }
+      function Home() {
+        return <Text>Home</Text>;
+      }
+      const Stack = createNativeStackNavigator();
+      const waitForIdle = () =>
+        act(() => new Promise(resolve => setTimeout(resolve, 50)));
+
+      const { getByText, getByTestId } = await render(
+        <CacheProvider initialState={state}>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName="Article">
+              <Stack.Screen name="Article" component={Article} />
+              <Stack.Screen name="Home" component={Home} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </CacheProvider>,
+      );
+      await waitForIdle();
+      expect(fetchArticle).toHaveBeenCalledTimes(1);
+
+      await act(() => thenavigation.navigate('Home'));
+      expect(getByText('Home')).toBeDefined();
+      await act(() => thenavigation.goBack());
+      await waitForIdle();
+      expect(getByTestId('article')).toBeDefined();
+      // revalidation made the data fresh, so focus shouldn't fetch again
+      expect(fetchArticle).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it('should NOT suspend if result is not stale and options.invalidIfStale is true', async () => {
     const { entities, result } = normalize(CoolerArticle, payload);
     const fetchKey = InvalidIfStaleArticleResource.get.key({ id: payload.id });
     const state = {
@@ -334,12 +389,12 @@ describe('useSuspense()', () => {
         </Suspense>
       </StateContext.Provider>
     );
-    const { getByText } = render(tree);
+    const { getByText } = await render(tree);
     expect(fbmock).not.toHaveBeenCalled();
     const title = getByText(payload.title);
     expect(title).toBeDefined();
   });
-  it('should suspend if result stale in cache and options.invalidIfStale is true', () => {
+  it('should suspend if result stale in cache and options.invalidIfStale is true', async () => {
     const { entities, result } = normalize(CoolerArticle, payload);
     const fetchKey = InvalidIfStaleArticleResource.get.key({ id: payload.id });
     const state = {
@@ -368,10 +423,10 @@ describe('useSuspense()', () => {
         </ControllerContext.Provider>
       </StateContext.Provider>
     );
-    render(tree);
+    await render(tree);
     expect(fbmock).toHaveBeenCalled();
   });
-  it('should suspend if result stale in cache and options.invalidIfStale is true and no schema', () => {
+  it('should suspend if result stale in cache and options.invalidIfStale is true and no schema', async () => {
     const endpoint = InvalidIfStaleArticleResource.get.extend({
       schema: undefined,
     });
@@ -402,7 +457,7 @@ describe('useSuspense()', () => {
         </ControllerContext.Provider>
       </StateContext.Provider>
     );
-    render(tree);
+    await render(tree);
     expect(fbmock).toHaveBeenCalled();
   });
 
@@ -445,7 +500,7 @@ describe('useSuspense()', () => {
           </MockResolver>
         </CacheProvider>
       );
-      const { findAllByText } = render(tree);
+      const { findAllByText } = await render(tree);
       expect(fbmock).toHaveBeenCalled();
       await act(async () => {
         let count = 0;

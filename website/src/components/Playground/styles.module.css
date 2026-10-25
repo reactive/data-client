@@ -11,6 +11,26 @@
      takes when its own content sets the height */
   --store-min: min(24rem, 70svh);
   --store-cap: min(32rem, 70svh);
+  /* The Store's palette, shared with the Fixtures panel (both code-colored
+     in either theme); the light timeline re-declares it (store.module.css) */
+  --store-fg: rgb(191, 199, 213);
+  --store-dim: rgb(105, 112, 152);
+  /* secondary text that stays AA on the code background */
+  --store-muted: rgb(146, 154, 186);
+  --store-key: rgb(130, 170, 255);
+  --store-string: rgb(195, 232, 141);
+  --store-number: rgb(247, 140, 108);
+  --store-null: rgb(255, 88, 116);
+  --store-type: #c792ea;
+  --store-fresh: #7fd1a0;
+  --store-stale: #ffcb6b;
+  --store-line: rgba(255, 255, 255, 0.07);
+  --store-line-strong: rgba(255, 255, 255, 0.12);
+  --store-hover: rgba(255, 255, 255, 0.045);
+  --store-selected: rgba(130, 170, 255, 0.16);
+  --store-record: rgba(130, 170, 255, 0.07);
+  --store-tip: #3a4057;
+  --store-bg: var(--monoco-code-background);
   border-radius: var(--ifm-global-radius);
   box-shadow: var(--ifm-global-shadow-lw);
   overflow: visible;
@@ -68,6 +88,12 @@
   font-size: 80%;
   font-weight: 500;
   padding: 0.4rem 0.75rem;
+}
+/* the network icon row's preview toggle uses, so readers learn it */
+.fixturesHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
 }
 .playgroundHeader.clickable {
   cursor: pointer;
@@ -352,6 +378,9 @@ div.playgroundTextEdit > .playgroundHeader,
 .editorBody {
   flex: 1 1 auto;
   display: grid;
+  /* its layers (the Store over the code, its toggle over that) stay under the
+     fixtures floating across from the preview */
+  isolation: isolate;
   grid-template-columns: minmax(0, 1fr);
 }
 .editorBody > * {
@@ -368,11 +397,16 @@ div.playgroundTextEdit > .playgroundHeader,
   display: flex;
   flex-direction: column;
   position: relative;
-  z-index: 1;
+  /* over the code */
+  z-index: 2;
   overflow: hidden;
   pointer-events: none;
   /* the code alone sets the cell's height, so the Store scrolls within it */
   contain: size;
+}
+/* the code's own layers (Monaco's) stay under the fixtures floating over it */
+.editorDocs {
+  isolation: isolate;
 }
 /* under the header, the file tabs are no longer the top corner */
 .playgroundContainer .editorBody:not(:first-child) .editorDocs > .tabControls {
@@ -408,11 +442,11 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 
 /* The Store toggle in the code's corner, over the Store as it slides in
-   under it; its label rises out as the other rises in */
+   under it; its label rises out as the other rises in. */
 .storeBadge {
   --swap-in: 0 110%;
   --swap-out: 0 -110%;
-  z-index: 2;
+  z-index: 1;
   align-self: end;
   justify-self: end;
   margin: 0.75rem;
@@ -428,6 +462,10 @@ div.playgroundTextEdit > .playgroundHeader,
   letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+/* over the Store (z-index 2) from opening until it has slid back out */
+.storeHost:has(> .storePanel[data-visible]) + .storeBadge {
+  z-index: 3;
 }
 .storeBadge:hover {
   background: var(--pg-tab-hover-bg)
@@ -447,8 +485,7 @@ div.playgroundTextEdit > .playgroundHeader,
   width: 0.45rem;
   height: 0.45rem;
   border-radius: 50%;
-  /* the Store's fresh color */
-  color: #7fd1a0;
+  color: var(--store-fresh);
   background: currentColor;
   box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 18%, transparent);
 }
@@ -528,6 +565,59 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .small .tab {
   padding: 0.4rem 0.75rem;
+}
+/* the fixtures float from the header's bottom edge, so the preview never
+   moves: over the result, and in side-by-side row over the code too, for
+   width (see @container below). The anchor is a no-height block (not
+   positioned) that gives them that static top. */
+.previewWrapper {
+  position: relative;
+}
+.fixturesAnchor {
+  height: 0;
+}
+.fixturesPopover {
+  position: absolute;
+  /* over the code and its Store (see .editorBody) */
+  z-index: 1;
+  /* hangs from the preview's right edge; over the code, only as wide as a
+     response line needs */
+  inset: auto 0 auto auto;
+  width: min(100%, 36rem);
+  max-height: min(20rem, 60svh);
+  overflow: auto;
+  background: var(--pg-tab-selected-bg);
+  border: 1px solid var(--store-line-strong);
+  border-width: 0 0 1px 1px;
+  border-bottom-left-radius: var(--ifm-global-radius);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.4),
+    0 2px 6px rgba(0, 0, 0, 0.25);
+  visibility: hidden;
+  opacity: 0;
+  translate: 0 -4px;
+  /* visibility holds until faded, so it stays reachable while the pointer
+     crosses */
+  transition:
+    opacity var(--motion-smooth),
+    translate var(--motion-smooth),
+    visibility var(--motion-smooth);
+}
+.fixturesPopover[data-open] {
+  visibility: visible;
+  opacity: 1;
+  translate: 0 0;
+}
+@media (hover: hover) {
+  /* a preview while the pointer is on the toggle or the fixtures */
+  .previewHeader:has(.fixturesToggle:hover)
+    + .fixturesAnchor
+    > .fixturesPopover,
+  .fixturesPopover:hover {
+    visibility: visible;
+    opacity: 1;
+    translate: 0 0;
+  }
 }
 /* With header controls (e.g. homepage demos) the selected control joins the
    file subtab row below it, and that row's selected file joins the code */
@@ -702,6 +792,19 @@ div.playgroundTextEdit > .playgroundHeader,
 .playgroundPreview textarea:where(:not([class])) {
   padding: 0.3rem 0.5rem;
 }
+/* A demo's links between its pages (Link), the one shown marked as current */
+.playgroundPreview nav:where(:not([class])) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-bottom: 0.5rem;
+}
+.playgroundPreview nav a[aria-current='page'] {
+  color: var(--ifm-font-color-base);
+  font-weight: 600;
+  text-decoration: underline 2px var(--ifm-color-primary);
+  text-underline-offset: 0.35em;
+}
 /* Groups a form's fields so one `disabled` locks them all */
 .playgroundPreview fieldset {
   min-width: 0;
@@ -860,34 +963,167 @@ div.playgroundTextEdit > .playgroundHeader,
   line-height: var(--ifm-heading-line-height);
 }
 
+/* Endpoint chips shared by the Store inspector (store.module.css composes
+   them) and the Fixtures panel: the method before a path, and a status pill */
+.method {
+  flex: none;
+  font: 600 10px var(--ifm-font-family-base);
+  letter-spacing: 0.04em;
+  color: var(--store-fresh);
+}
+.pill {
+  flex: none;
+  padding: 0 0.5em;
+  border: 1px solid;
+  border-radius: 999px;
+  font: 500 10px / 1.6 var(--ifm-font-family-base);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.danger {
+  color: var(--store-null);
+  border-color: rgba(255, 88, 116, 0.4);
+}
+
+/* `Unfold`: the Store's lanes and a fixture's response slide open and shut:
+   the row grows from nothing as their content rises into place (instant under reduced
+   motion, as the tokens are). `data-open` is set a frame after it mounts
+   (see `Unfold`), so these transitions run both ways and reverse midway */
+.unfold {
+  flex: none;
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  transition: grid-template-rows var(--motion-smooth);
+}
+.unfold[data-open] {
+  grid-template-rows: 1fr;
+}
+.unfoldBody {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* a wide Timeline scrolls inside, not widen the panel */
+  min-width: 0;
+  opacity: 0;
+  translate: 0 -6px;
+  transition:
+    opacity var(--motion-smooth),
+    translate var(--motion-smooth);
+}
+.unfold[data-open] > .unfoldBody {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* Fixtures: the demo's mocked responses, one collapsed row each over the
+   code's dark ground in both themes (the code is dark in both). A row reads
+   `GET /path  …what it returns…  pills`; opening it unfolds the response. */
 .fixtureBlock {
   background-color: var(--prism-background-color);
+  color: var(--store-fg);
   font: var(--ifm-code-font-size) / var(--ifm-pre-line-height)
     var(--ifm-font-family-monospace);
-  color: rgb(191, 199, 213);
-  padding: 8px;
+  /* the response's CodeBlock sits flat in its row, in the row's type */
+  --ifm-global-shadow-lw: none;
+  --ifm-code-border-radius: 0;
+  --ifm-pre-padding: 0;
+  --ifm-code-font-size: 13px;
+  --ifm-pre-line-height: 19px;
+  /* the row's arrow and the gap after it, so text lines up past it */
+  --fixture-indent: calc(12px + 0.5rem);
 }
-.fixtureItem {
+.fixture + .fixture {
+  box-shadow: inset 0 1px 0 var(--store-line);
+}
+.fixtureToggle {
   display: flex;
-  flex-direction: row;
-  gap: 1rem;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 0.75rem;
+  font: inherit;
+  text-align: left;
+  transition: background-color var(--motion-snappy);
 }
-.fixtureHeader {
-  color: rgb(195, 232, 141);
-  font: var(--ifm-code-font-size) / var(--ifm-pre-line-height)
-    var(--ifm-font-family-monospace);
-  flex: 0 1 auto;
+@media (hover: hover) {
+  .fixtureToggle:hover {
+    background-color: var(--store-hover);
+  }
+}
+/* an error response: a red edge and wash, so it stands apart from the
+   successes at a glance (a wash in background-image, under hover's color) */
+.fixtureError {
+  box-shadow: inset 3px 0 var(--store-null);
+  --fixture-error-wash: color-mix(in srgb, var(--store-null) 10%, transparent);
+  background-image: linear-gradient(
+    var(--fixture-error-wash),
+    var(--fixture-error-wash)
+  );
+}
+.fixtureError .pill.danger {
+  background-color: color-mix(in srgb, var(--store-null) 16%, transparent);
+  font-weight: 600;
+}
+.fixtureToggle:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
+}
+.fixtureToggle > .arrow {
+  margin: 0;
+  color: var(--store-dim);
+}
+.fixturePath {
+  min-width: 0;
+  color: var(--pg-tab-selected);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* opened, a long path wraps rather than hiding behind an ellipsis */
+.fixtureToggle[aria-expanded='true'] .fixturePath {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+/* takes the width the path leaves, fading out at the end; nothing is
+   lost, the row opens to all of it */
+.fixtureHint {
+  flex: 1 1 0;
+  min-width: 0;
+  color: var(--store-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* marks a hint read from a function's source rather than data */
+.fixtureFn {
+  color: var(--store-type);
+  font-style: italic;
+  /* the italic ƒ leans into what follows */
+  margin-right: 1px;
+}
+.fixtureToggle[aria-expanded='true'] .fixtureHint {
+  visibility: hidden;
+}
+.fixtureDelay {
+  color: var(--store-muted);
+  border-color: var(--store-line-strong);
+}
+/* the response, aligned under the method */
+.fixtureBody {
+  padding: 0 0.75rem 10px calc(0.75rem + var(--fixture-indent));
 }
 div.fixtureJson {
   margin-bottom: 0;
-  flex: 1 4 auto;
-  min-width: 200px;
+}
+/* a delay function follows the response */
+div.fixtureJson + div.fixtureJson {
+  margin-top: 6px;
 }
 .fixtureJson code {
-  padding: 0;
-  margin: 0;
   white-space: pre-wrap;
-  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .playgroundEditor :global(.monaco-editor) {
@@ -966,6 +1202,14 @@ div.fixtureJson {
   .editorBody:first-child .storeHost {
     border-top-right-radius: 0;
   }
+  /* the fixtures span the whole playground: the preview column is too thin
+     for a response. Unpositioned, the preview's clip doesn't reach them */
+  .playgroundContainer.row {
+    position: relative;
+  }
+  .playgroundContainer.row > .previewWrapper {
+    position: static;
+  }
 }
 /* Stacked row layout: the Store opens upward over the code */
 @container playground (max-width: 719px) {
@@ -991,6 +1235,14 @@ div.fixtureJson {
   }
   .playgroundContainer.row .storeHeaderToggle {
     display: inline-flex;
+  }
+  /* pinned, they get room to unfold a response even over a short result;
+     the preview clips them, so they scroll within that same height */
+  .fixturesAnchor:has(> [data-open]) + .playgroundResult {
+    min-height: min(14rem, 50svh);
+  }
+  .fixturesPopover {
+    max-height: min(14rem, 50svh);
   }
 }
 
@@ -1047,6 +1299,21 @@ div.fixtureJson {
   margin-inline-start: 3px;
   background: #ff5f56;
   box-shadow: 0 0 0 3px rgba(255, 95, 86, 0.2);
+}
+/* With a demo's navigation in the header, a tight header keeps only the
+   label's dot (still named for screen readers), so the path gets the room */
+.previewHeader {
+  container: previewHeader / inline-size;
+}
+@container previewHeader (max-width: 36rem) {
+  .previewHeader:has(.routerControls) .liveLabelText {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
 /* A playground with a demo (autorun/DemoLabel): the label replays it, and
    its dot breathes while it plays */
@@ -1139,7 +1406,10 @@ div.fixtureJson {
 .headerButton.storeHeaderToggle {
   display: none;
 }
-.storeHeaderToggle[aria-pressed='true'] {
+/* the fixtures toggle (row) is lit the same while they show */
+.storeHeaderToggle[aria-pressed='true'],
+.fixturesToggle[aria-expanded='true'],
+.previewHeader:has(+ .fixturesAnchor > .fixturesPopover:hover) .fixturesToggle {
   background-color: var(--pg-tab-hover-bg);
   color: var(--ifm-color-primary);
 }
@@ -1190,5 +1460,22 @@ div.fixtureJson {
   }
   .playgroundContainer .headerButton.storeHeaderToggle {
     display: inline-flex;
+  }
+  /* the response hint takes a line of its own under the path, so the path
+     keeps the row's width */
+  .fixtureToggle {
+    flex-wrap: wrap;
+    row-gap: 0;
+  }
+  .fixturePath {
+    flex: 1 1 0;
+  }
+  .fixtureHint {
+    order: 1;
+    flex-basis: 100%;
+    padding-left: var(--fixture-indent);
+  }
+  .fixtureToggle[aria-expanded='true'] .fixtureHint {
+    display: none;
   }
 }

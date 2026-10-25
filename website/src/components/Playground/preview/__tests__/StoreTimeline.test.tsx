@@ -10,12 +10,13 @@ import {
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
+import { UNFOLD_CLOSE_MS } from '../../Unfold';
 import { whatFields } from '../store/ActionDetail';
 import { groupEntries } from '../store/actionGroups';
 import type { LogEntry } from '../store/actionLog';
+import { FOLLOW_SLACK, type Actions } from '../store/actionParts';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
-import { FOLLOW_SLACK, type Actions } from '../store/actionParts';
 import {
   axisLabels,
   lanesOf,
@@ -23,7 +24,6 @@ import {
   still,
   timeScale,
 } from '../store/Timeline';
-import { UNFOLD_CLOSE_MS } from '../store/Unfold';
 
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),

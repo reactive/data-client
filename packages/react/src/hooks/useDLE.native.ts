@@ -120,11 +120,12 @@ export default function useDLE<
   useFocusEffect(() => {
     // revalidating non-suspending data is low priority, so make sure it doesn't stutter animations
     return idleCallback(() => {
-      if (Date.now() > expiresAt && key) {
+      if ((Date.now() > expiresAt || forceFetch) && key) {
         controller.fetch(endpoint, ...(args as Parameters<E>));
       }
     });
-  }, []);
+    // key stands in for endpoint and args, which change identity every render
+  }, [expiresAt, key, forceFetch]);
 
   const data = useMemo(() => {
     // if useSuspense() would suspend, don't include entities from cache

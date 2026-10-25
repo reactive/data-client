@@ -13,6 +13,7 @@ const path = require('path');
 const getSlug = require('@docusaurus/plugin-content-docs/lib/slug.js').default;
 
 const {
+  DOCS_INSTANCES,
   FRAMEWORKS,
   frameworkInstance,
   localizedPath,
@@ -33,6 +34,9 @@ function walk(dir, base = dir) {
     return [path.relative(base, full).split(path.sep).join('/')];
   });
 }
+
+/** Markdown that Docusaurus renders as a page (not an `_` partial) */
+const isPage = file => MD.test(file) && !path.basename(file).startsWith('_');
 
 const readSrc = (file, src = SRC) =>
   fs.readFileSync(path.join(src, file), 'utf8');
@@ -105,7 +109,7 @@ function resolveSources(framework, src = SRC) {
 function docsFor(framework) {
   const docs = new Map();
   for (const [out, src] of resolveSources(framework)) {
-    if (!MD.test(out) || path.basename(out).startsWith('_')) continue;
+    if (!isPage(out)) continue;
     const content = rewriteFrontMatter(readSrc(src), framework);
     const id = docIdOf(out, content);
     docs.set(id, {
@@ -122,8 +126,8 @@ function docsFor(framework) {
 }
 
 /**
- * `framework_equivalent:` front matter in both directions, for
- * FrameworkSelector: { [framework]: { [doc id]: counterpart's doc id } }
+ * `framework_equivalent:` front matter in both directions:
+ * { [framework]: { [doc id]: counterpart's doc id } }
  */
 function frameworkEquivalents() {
   const docs = Object.fromEntries(FRAMEWORKS.map(f => [f, docsFor(f)]));
@@ -151,6 +155,45 @@ function frameworkEquivalents() {
           );
         equivalents[other][equivalent] = id;
       }
+    }
+  }
+  return equivalents;
+}
+
+/** Doc ids of a non-framework docs instance (framework ones: `docsFor`) */
+function docIdsOf(instance) {
+  const dir = path.resolve(ROOT, instance.path);
+  return new Set(
+    walk(dir)
+      .filter(isPage)
+      .map(file => docIdOf(file, readSrc(file, dir))),
+  );
+}
+
+/**
+ * For DocsSelector: { [docs instance id]: { [doc id]: counterpart's doc id } },
+ * from `framework_equivalent:` front matter and each instance's `equivalents`
+ * (both directions)
+ */
+function docsEquivalents() {
+  const frameworks = frameworkEquivalents();
+  const equivalents = Object.fromEntries(
+    DOCS_INSTANCES.map(d => [d.id, d.framework ? frameworks[d.framework] : {}]),
+  );
+  for (const d of DOCS_INSTANCES) {
+    if (!d.equivalents) continue;
+    const other = DOCS_INSTANCES.find(o => o.group === d.group && o !== d);
+    const ids = docIdsOf(d);
+    const otherIds = docIdsOf(other);
+    for (const [id, counterpart] of Object.entries(d.equivalents)) {
+      if (!ids.has(id))
+        throw new Error(`${d.id} equivalents: '${id}' is not a doc in ${d.id}`);
+      if (!otherIds.has(counterpart))
+        throw new Error(
+          `${d.id} equivalents: '${counterpart}' is not a doc in ${other.id}`,
+        );
+      equivalents[d.id][id] = counterpart;
+      equivalents[other.id][counterpart] = id;
     }
   }
   return equivalents;
@@ -258,7 +301,7 @@ module.exports = {
   sidebarsFor,
   sourcePath,
   docsFor,
-  frameworkEquivalents,
+  docsEquivalents,
   docIdOf,
   pageFrameworks,
   rewriteFrontMatter,

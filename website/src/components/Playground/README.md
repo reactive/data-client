@@ -27,7 +27,6 @@ Header.tsx, TabList.tsx, styles.module.css   shared chrome (also used by HTTP/, 
 liveLabel.ts        "Live Preview" label text (PreviewWrapper, autorun/DemoLabel)
 editor/             code model + editor UI
   codeModel.ts        parse MDX fences/strings into documents; edits
-  EditorShell.tsx     react-live LiveProvider supplying the Prism theme
   EditorSurface.tsx   headers, file tabs, collapse state, per-file TextEditTab
   StaticEditor.tsx    SSR/crawler/loading markup (Prism, not editable)
   InteractiveEditor.tsx  client-only: Monaco, or editable react-live on mobile/bots
@@ -61,9 +60,9 @@ DesignSystem/       components injected into preview scope
   hidden by CSS, for crawlers.
 - The preview renders `PreviewLoading` (empty frame + Store toggle) on the
   server, while loading, for bots, and while `hidden`.
-- Fixtures render server-side as JSON `CodeBlock`s; function responses are
-  BrowserOnly (a stringified function differs between server and client
-  bundles).
+- Fixtures render server-side as JSON `CodeBlock`s; function sources and
+  titles wait for `useIsBrowser` (a stringified function differs between
+  server and client bundles).
 - Never branch on `navigator`/user agent during render outside `BrowserOnly`
   (hydration mismatch). `isBot` is module-level and only read in the
   `lazy()` factory (and in StackBlitz after intersection); `isMobileOrBot()`
@@ -115,7 +114,7 @@ DesignSystem/       components injected into preview scope
 ### Editor
 
 - Fence metastring: `title="…"`, `path="…"` (quotes optional), `collapsed`, `column`,
-  `route="…"` (see Router), `{1-3}` highlight ranges (pre-selected in Monaco); `language-*` class. Element props
+  `route="…"`, `start="…"` and `layout` (see Router), `{1-3}` highlight ranges (pre-selected in Monaco); `language-*` class. Element props
   override metastring values (Demo passes them directly). `defaultTab`
   overrides `collapsed`.
 - `row` layout: non-`column` files are tabs (focus switches tab); `column`
@@ -301,6 +300,11 @@ DesignSystem/       components injected into preview scope
   the design system; Vue pages use `RouterLink` and `vue-router`'s
   `useRouter()`, and keep the same `route` fences only to name their path
   (Vue examples don't run).
+  A `layout` fence's default export wraps every page as its `children` and
+  stays mounted through navigation (links shared by every page, a clock to
+  compare against); `<Link>` marks the one to the current path
+  `aria-current="page"`. A `start="/time/1"` on a page's fence opens the router
+  there (and Home returns there) instead of `/`.
   Navigation is a transition: the page stays until the next one is ready,
   with a progress bar along the preview's top edge meanwhile, so a page needs
   no `startTransition` of its own. Pages render in a Suspense boundary whose
@@ -359,6 +363,12 @@ Writing a script:
 - Target Store UI with `in: 'store'`; the default scope is the preview.
   Match `aria-label`s and `data-*` attributes over visible text, which copy
   edits change.
+- The Store opens in the reader's saved view (table or tree), so a script
+  whose targets only one view shows names it: `{ store: 'open', view: 'table' }`
+  for `[data-table]` rows. Like the open itself, it isn't saved, and it holds
+  while the Store stays open, until the reader picks a view
+  (`useStoreOpen`, `store/storeView.ts`): once the demo or the reader closes it, and on
+  replay, the Store shows the reader's view again.
 - A target that doesn't appear within `FIND_TIMEOUT` ends the run, and only
   the console says so (`Playground demo:`). Play every new or edited script
   through in a browser, at a phone width too, where the Store opens above the
@@ -376,7 +386,7 @@ Behavior to keep when changing the code:
 - It pauses while neither the preview nor the playground is mostly in view,
   or the tab is in the background, so it never scrolls the page back to a
   reader who scrolled past.
-- A `store` step opens or closes the Store through `useStoreOpen`'s `show`,
+- A `store` step opens or closes the Store through `useStoreOpen`'s `showStore`,
   without saving it: tab storage keeps the reader's own choice, shared by
   every playground with the page's `groupId`.
 - It never calls `focus()`, which would take the page's focus from the

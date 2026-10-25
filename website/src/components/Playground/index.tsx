@@ -5,7 +5,6 @@ import React, { lazy, useDeferredValue, useState } from 'react';
 
 import Boundary from './Boundary';
 import { useCodeDocuments } from './editor/codeModel';
-import EditorShell from './editor/EditorShell';
 import EditorSurface from './editor/EditorSurface';
 import type { AutoRunScript } from './preview/autorun/script';
 import FixturePreview from './preview/FixturePreview';
@@ -13,6 +12,7 @@ import type LivePreviewType from './preview/LivePreview';
 import PreviewWrapper from './preview/PreviewWrapper';
 import type { LogOptions } from './preview/store/actionLog';
 import {
+  DemoViewContext,
   StoreBadge,
   StoreHeaderToggle,
   StoreToggle,
@@ -28,7 +28,11 @@ export interface PlaygroundProps<T = any> {
   groupId?: string;
   /** Store inspector open by default */
   defaultOpen?: 'y' | 'n';
-  /** Tabs for files + editor beside preview (when wide enough) */
+  /** Tabs for files + editor beside preview (when wide enough).
+   * Use when the code is one tall open file and the preview is short; row
+   * folds fixtures behind a toggle in the preview's header. Stay stacked when
+   * the Store opens by default (it would cover the code), or when the preview
+   * renders a long list (it gets tall in the narrow column). */
   row?: boolean;
   /** Inactive (e.g. unselected Demo tab): no Monaco until first shown, no preview */
   hidden?: boolean;
@@ -72,7 +76,7 @@ export default function Playground<T>({
   // Defer preview transpilation so editor input remains responsive.
   const documents = useDeferredValue(model.documents);
 
-  const [storeOpen, toggleStore, showStore] = useStoreOpen(
+  const [storeOpen, toggleStore, showStore, demoView] = useStoreOpen(
     groupId,
     defaultOpen,
   );
@@ -86,48 +90,51 @@ export default function Playground<T>({
     if (!hidden) setEditorInteractive(true);
   }, [hidden]);
 
+  const fixtureContent =
+    fixtures.length ? <FixturePreview fixtures={fixtures} /> : undefined;
+  const previewFixtures = row ? fixtureContent : undefined;
+
   const editor = (
-    <EditorShell>
-      <EditorSurface
-        {...model}
-        interactive={editorInteractive}
-        layout={row ? 'row' : 'stacked'}
-        variant="playground"
-        fixtureContent={
-          fixtures.length ? <FixturePreview fixtures={fixtures} /> : undefined
-        }
-        headerControls={headerControls}
-        cover={
-          row ?
-            <>
-              <div ref={setStoreHost} className={styles.storeHost} />
-              <StoreBadge open={storeOpen} onClick={toggleStore} />
-            </>
-          : null
-        }
-        covered={codeCovered}
-        coverTitle={<Translate id="playground.store">Store</Translate>}
-      />
-    </EditorShell>
+    <EditorSurface
+      {...model}
+      interactive={editorInteractive}
+      layout={row ? 'row' : 'stacked'}
+      variant="playground"
+      fixtureContent={fixtureContent}
+      headerControls={headerControls}
+      cover={
+        row ?
+          <>
+            <div ref={setStoreHost} className={styles.storeHost} />
+            <StoreBadge open={storeOpen} onClick={toggleStore} />
+          </>
+        : null
+      }
+      covered={codeCovered}
+      coverTitle={<Translate id="playground.store">Store</Translate>}
+    />
   );
   // Live preview only while visible — unmounts when hidden (resets store).
-  const loading = <PreviewLoading row={row} />;
+  const loading = <PreviewLoading row={row} fixtureContent={previewFixtures} />;
   const preview =
     hidden ? loading : (
       <Boundary fallback={loading}>
-        <LivePreview
-          documents={documents}
-          storeOpen={storeOpen}
-          toggleStore={toggleStore}
-          row={row}
-          storeHost={storeHost}
-          fixtures={fixtures}
-          getInitialInterceptorData={getInitialInterceptorData}
-          renderCount={renderCount}
-          actionLog={actionLog}
-          autoRun={autoRun}
-          showStore={showStore}
-        />
+        <DemoViewContext.Provider value={demoView}>
+          <LivePreview
+            documents={documents}
+            fixtureContent={previewFixtures}
+            storeOpen={storeOpen}
+            toggleStore={toggleStore}
+            row={row}
+            storeHost={storeHost}
+            fixtures={fixtures}
+            getInitialInterceptorData={getInitialInterceptorData}
+            renderCount={renderCount}
+            actionLog={actionLog}
+            autoRun={autoRun}
+            showStore={showStore}
+          />
+        </DemoViewContext.Provider>
       </Boundary>
     );
 
@@ -152,10 +159,20 @@ export default function Playground<T>({
 }
 
 /** SSR, crawler, hidden and loading state: empty preview frame + Store
- * toggle (the side strip, unless the code's corner badge is it) */
-function PreviewLoading({ row }: { row: boolean }) {
+ * toggle (the side strip, unless the code's corner badge is it), and row's
+ * fixtures, already usable */
+function PreviewLoading({
+  row,
+  fixtureContent,
+}: {
+  row: boolean;
+  fixtureContent?: React.ReactNode;
+}) {
   return (
-    <PreviewWrapper headerControls={<StoreHeaderToggle />}>
+    <PreviewWrapper
+      headerControls={<StoreHeaderToggle />}
+      fixtures={fixtureContent}
+    >
       <div className={styles.playgroundPreview} />
       {row ? null : <StoreToggle />}
     </PreviewWrapper>

@@ -15,6 +15,16 @@
 
 </div>
 
+## Let your coding agent set it up
+
+Tell your coding agent:
+
+```prompt
+Set up `@data-client/rest` and use it for all API data. Install its setup skill first: `npx skills add reactive/data-client --skill data-client-setup -y`, then follow it.
+```
+
+It installs the packages, wires up React or Vue, and links the skills they ship.
+
 ## RestEndpoint
 
 Simplify TypeScript fetch functions with [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint)

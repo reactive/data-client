@@ -690,10 +690,8 @@ interface State<T> {
  * @see https://dataclient.io/docs/api/Manager
  */
 interface Manager<Actions = ActionTypes> {
-    /** @see https://dataclient.io/docs/api/Manager#getmiddleware */
-    getMiddleware?(): Middleware<Actions>;
     /** @see https://dataclient.io/docs/api/Manager#middleware */
-    middleware?: Middleware<Actions>;
+    middleware: Middleware<Actions>;
     /** @see https://dataclient.io/docs/api/Manager#cleanup */
     cleanup(): void;
     /** @see https://dataclient.io/docs/api/Manager#init */
@@ -815,19 +813,21 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
         update?: EndpointUpdateFunction<E>;
     }>(endpoint: E, ...args: readonly [...Parameters<E>]) => E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
     /**
-     * Fetches only if endpoint is considered 'stale'; otherwise returns undefined
+     * Fetches only if endpoint is considered 'stale'; otherwise returns the cached data synchronously
      * @see https://dataclient.io/docs/api/Controller#fetchIfStale
      */
     fetchIfStale: <E extends EndpointInterface & {
         update?: EndpointUpdateFunction<E>;
     }>(endpoint: E, ...args: readonly [...Parameters<E>]) => E['schema'] extends undefined | null ? ReturnType<E> | ResolveType<E> : Promise<Denormalize<E['schema']>> | Denormalize<E['schema']>;
     /**
-     * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
+     * Forces refetching on useSuspense with the same Endpoint and parameters, suspending until it resolves
+     * (mounted Vue components keep their current data instead).
      * @see https://dataclient.io/docs/api/Controller#invalidate
      */
     invalidate: <E extends EndpointInterface>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
     /**
-     * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
+     * Forces refetching on useSuspense on all matching endpoint result keys, suspending until it resolves
+     * (mounted Vue components keep their current data instead).
      * @see https://dataclient.io/docs/api/Controller#invalidateAll
      * @returns Promise that resolves when invalidation is commited.
      */
@@ -1498,6 +1498,11 @@ interface EnhancerOptions {
 }
 interface DevToolsConfig extends EnhancerOptions {
     type?: string;
+    /** Actions kept in `__DC__.actions` for each key (endpoint and args) while it polls
+     *
+     * @default 4 (the last two polls)
+     */
+    maxPollingActions?: number;
 }
 
 /** Integrates with https://github.com/reduxjs/redux-devtools
@@ -1511,6 +1516,14 @@ declare class DevToolsManager implements Manager {
     protected devTools: undefined | any;
     protected started: boolean;
     protected actions: [ActionTypes, State<unknown>][];
+    /** Recent actions, kept in development whether or not the extension is connected */
+    protected actionLog: ActionTypes[];
+    /** Key this controller is registered under in `__DC__` */
+    protected registryKey?: string;
+    /** Subscriber count for each key that is polling; a key is removed when its count reaches 0 */
+    protected pollingSubscribers: Map<string, number>;
+    /** Actions kept in the log for each key while it polls (development only) */
+    maxPollingActions: number;
     protected controller: Controller;
     skipLogging?: (action: ActionTypes) => boolean;
     devtoolsName: string;

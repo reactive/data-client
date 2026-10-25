@@ -36,6 +36,14 @@ const BLOG = {
   // Docusaurus reads the blog's UI strings from beside its posts
   keep: ['options.json'],
 };
+/** Data files holding prose (repo-relative): the keys whose values a
+ * translation may change; everything else stays as in English */
+const DATA_FIELDS = {
+  [`${BLOG.path}/tags.yml`]: ['label', 'description'],
+  [`${BLOG.path}/authors.yml`]: ['title'],
+};
+/** Whether a source file is translated: pages, partials and data files */
+const isTranslatable = file => MD.test(file) || file in DATA_FIELDS;
 /**
  * Content with its own source folder: the docs instances (Vue mirrors
  * docs/core) and the blog. `translations`: where its translations are
@@ -242,10 +250,10 @@ function generate(locale) {
   }));
   const isTranslated = file =>
     fs.existsSync(path.join(ROOT, translationOf(file, locale)));
-  // English now, of each translated page, to tell which are outdated
+  // English now, of each translated file, to tell which pages are outdated
   const blobs = blobsOf(
     instances.flatMap(({ files }) =>
-      files.filter(file => MD.test(file) && isTranslated(file)),
+      files.filter(file => isTranslatable(file) && isTranslated(file)),
     ),
   );
   for (const { instance, files } of instances) {
@@ -325,6 +333,8 @@ function watch(locale, then = () => {}) {
 
 module.exports = {
   BLOG,
+  DATA_FIELDS,
+  isTranslatable,
   SOURCE_INSTANCES,
   sourceFiles,
   translatedSource,

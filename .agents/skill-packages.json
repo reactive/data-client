@@ -1,0 +1,14 @@
+{
+  "@data-client/core": [
+    "data-client",
+    "data-client-setup",
+    "data-client-manager"
+  ],
+  "@data-client/endpoint": [
+    "data-client-schema",
+    "data-client-v0.18-migration"
+  ],
+  "@data-client/rest": ["data-client-rest", "path-to-regexp-v8-migration"],
+  "@data-client/react": ["data-client-react", "data-client-react-testing"],
+  "@data-client/vue": ["data-client-vue", "data-client-vue-testing"]
+}

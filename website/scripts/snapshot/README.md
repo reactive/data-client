@@ -11,7 +11,8 @@ type-check, as they did when that release's CI passed. Archives add nothing to t
   `https://<version>.dataclient.io`, drops its blog with `withoutBlog.ts` (the latest site has every
   post; `vercel.json` redirects the archive host's `/blog` page loads, and `rootBlog.client.ts` its
   in-app links), labels the version under the logo (`versionLabel.ts`, like the latest site's),
-  adds the version menu (`versionMenu.client.ts`) in place of any version dropdown the release has,
+  adds the version menu (`versionMenu.client.ts`; it links each version's copy of the page, or that
+  version's section home, like `/docs`, when the page 404s there) in place of any version dropdown the release has,
   and adds a banner linking to the latest docs. The wrapper
   runs against old configs, so it only reads fields every release has.
 - `.github/workflows/docs-snapshot.yml` runs it in a job with no write token or dependency cache,
@@ -29,7 +30,10 @@ type-check, as they did when that release's CI passed. Archives add nothing to t
   `site-preview.yml` runs it before uploading a build for deploy. `vercel.json` rewrites each
   archive's host (`<version>.dataclient.io`) to its directory, except `/api` (the site's
   functions), and redirects that directory's own paths to the host. Vercel applies rewrites after its file check, where the root's pages would answer
-  first, so `docs deploy` moves that route ahead of the check in `vercel build`'s output. Production
+  first, so `docs deploy` moves that route ahead of the check in `vercel build`'s output. Vercel
+  also answers every miss with the root's `404.html`, which on an archive's host loads no styles
+  (its `/assets/` map to the archive's), so `docs deploy` routes misses on each archive host,
+  under `/next/` and under each locale to that build's own `404.html`. Production
   deploys then add each listed host to the Vercel project as a domain (dataclient.io's DNS, on
   Cloudflare, already sends every subdomain to Vercel). The hostname scheme lives in `vercel.json`,
   `docusaurus.snapshot.config.ts` and that deploy step.
@@ -57,10 +61,18 @@ starts this by cutting a `<version>.x` maintenance branch and adding `website/ve
   (the wrapper keeps the blog and every
   static file), cached by the branch's commit so master's deploys rebuild it only when the branch
   changes, and `docs deploy` puts it beside `/next/` and the archives. `vercel.json` sends `/next/*`
-  to the root whenever there is no next build (`docs deploy` drops that redirect while there is one,
-  and fails if it's gone), and `/next/blog` to the root's blog.
+  (except its `sw.js` paths, below) to the root whenever there is no next build (`docs deploy`
+  drops that redirect while there is one, and fails if it's gone), and `/next/blog` to the root's
+  blog.
 - `website-port.yml` opens a PR to the branch for each master push whose commits change only site
   code (`website/src`, `website/static`), so a UI fix reaches the root
   ([scripts/maintenance/README.md](../../../scripts/maintenance/README.md#website-fixes)).
 - The release of the next major archives the current version from its branch, and the listing PR
   deletes `versionCurrent.json`, so master serves the root again.
+
+An app installed from `/next/` (or opened with `?offlineMode=true`) registered a service worker at
+`/next/sw.js` (`/next/<locale>/sw.js` for a locale). A browser keeps a worker whose update fails, and
+a redirect fails it, so once `/next/*` redirects again that app would keep serving the frozen
+pre-release docs from its cache. So whenever there's no next build, `site-preview.yml` puts
+[`retiredSw.js`](retiredSw.js) at each of those paths, and the `/next` redirect leaves them out: the
+worker unregisters, deletes its caches and reloads its pages, which land on the root.

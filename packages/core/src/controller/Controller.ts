@@ -166,7 +166,7 @@ export default class Controller<
   };
 
   /**
-   * Fetches only if endpoint is considered 'stale'; otherwise returns undefined
+   * Fetches only if endpoint is considered 'stale'; otherwise returns the cached data synchronously
    * @see https://dataclient.io/docs/api/Controller#fetchIfStale
    */
   fetchIfStale = <
@@ -187,7 +187,8 @@ export default class Controller<
   };
 
   /**
-   * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
+   * Forces refetching on useSuspense with the same Endpoint and parameters, suspending until it resolves
+   * (mounted Vue components keep their current data instead).
    * @see https://dataclient.io/docs/api/Controller#invalidate
    */
   invalidate = <E extends EndpointInterface>(
@@ -203,7 +204,8 @@ export default class Controller<
     : Promise.resolve();
 
   /**
-   * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
+   * Forces refetching on useSuspense on all matching endpoint result keys, suspending until it resolves
+   * (mounted Vue components keep their current data instead).
    * @see https://dataclient.io/docs/api/Controller#invalidateAll
    * @returns Promise that resolves when invalidation is commited.
    */

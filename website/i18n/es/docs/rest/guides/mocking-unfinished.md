@@ -9,7 +9,7 @@ pero empieza a programar al mismo tiempo que tú. Sería ideal poder simular
 el endpoint fácilmente y usarlo de tal forma que, cuando el endpoint esté listo,
 no tengas que hacer cambios importantes en tu código.
 
-<HooksPlayground>
+<HooksPlayground row>
 
 ```typescript title="resources/Rating"
 import { Entity, resource } from '@data-client/rest';

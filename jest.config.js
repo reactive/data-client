@@ -5,7 +5,16 @@ process.env.ANANSI_JEST_TSCONFIG = 'tsconfig.test.json';
 const fs = require('fs');
 const path = require('path');
 
+const rnPreset = require('@react-native/jest-preset');
+
+// ESM-only dependencies tests import; Jest must compile them to CommonJS
+const esmModules = 'temporal-polyfill|temporal-utils';
+
 const baseConfig = {
+  transformIgnorePatterns: [
+    `/node_modules/(?!@babel/runtime|${esmModules})`,
+    '\\.pnp\\.[^\\/]+$',
+  ],
   testEnvironmentOptions: {
     globalsCleanup: 'on',
     url: 'http://localhost',
@@ -30,6 +39,8 @@ const baseConfig = {
     'packages/vue/src/test',
     'packages/test',
     'packages/graphql',
+    // dev-time migration tooling: tested, but not held to the library's coverage floors
+    'packages/codemods',
     'packages/rest/src/next',
     'packages/core/src/next',
     'packages/core/src/mock',
@@ -57,6 +68,7 @@ const packages = [
   'normalizr',
   'use-enhanced-reducer',
   'img',
+  'codemods',
   'test',
 ];
 
@@ -86,6 +98,14 @@ const projects = [
         '<rootDir>/website/src/components/Playground/testing/docusaurusTranslate.tsx',
       '^@docusaurus/theme-common$':
         '<rootDir>/website/src/components/Playground/testing/docusaurusThemeCommon.ts',
+      '^@docusaurus/theme-common/internal$':
+        '<rootDir>/website/src/components/Playground/testing/docusaurusThemeCommonInternal.ts',
+      '^@docusaurus/BrowserOnly$':
+        '<rootDir>/website/src/components/Playground/testing/docusaurusBrowserOnly.tsx',
+      '^@docusaurus/useIsBrowser$':
+        '<rootDir>/website/src/components/Playground/testing/docusaurusUseIsBrowser.ts',
+      '^@theme/CodeBlock$':
+        '<rootDir>/website/src/components/Playground/testing/themeCodeBlock.tsx',
     },
     setupFiles: ['<rootDir>/scripts/testSetup.js'],
     testEnvironment: 'jsdom',
@@ -108,52 +128,40 @@ const projects = [
       ],
     },
     transformIgnorePatterns: [
-      '/node_modules/(?!@babel/runtime)',
-      '\\.pnp\\.[^\\/]+$',
+      ...baseConfig.transformIgnorePatterns,
       '<rootDir>/.*__tests__/[^/]+\\.(web|native)\\.(j|t)sx?$',
     ],
     testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.node\\.(j|t)sx?$',
   },
   {
-    // Mirrors @react-native/jest-preset (not used as preset: we layer on @anansi/jest-preset).
-    // https://github.com/facebook/react-native/blob/main/packages/jest-preset/jest-preset.js
+    // Layers @react-native/jest-preset on @anansi/jest-preset (jest takes one preset)
     ...baseConfig,
     rootDir: __dirname,
     roots: packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
     displayName: 'ReactNative',
     testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.native\\.(j|t)sx?$',
-    resolver: require.resolve('@react-native/jest-preset/jest/resolver.js'),
+    resolver: rnPreset.resolver,
     moduleNameMapper: {
       ...baseConfig.moduleNameMapper,
-      // exposed only through package `exports`, which the resolver strips
-      '^react-native/setup-env$': `${path.dirname(
-        require.resolve('react-native/package.json'),
-      )}/src/setup-env.js`,
-      '^react-native($|/.*)': `${path.dirname(
-        require.resolve('react-native/package.json'),
-      )}$1`,
+      // aliases react-native's `exports`-only entry points, which its resolver strips
+      ...rnPreset.moduleNameMapper,
     },
-    testEnvironment:
-      require.resolve('@react-native/jest-preset/jest/react-native-env.js'),
+    testEnvironment: rnPreset.testEnvironment,
     transformIgnorePatterns: [
-      'node_modules\\/(?!(((jest-)?react-native)|@react-native(-community)?|@react-navigation))',
+      `node_modules\\/(?!(((jest-)?react-native)|@react-native(-community)?|@react-navigation|${esmModules}))`,
       '<rootDir>/.*__tests__/[^/]+\\.(web|node)\\.(j|t)sx?$',
       '<rootDir>/scripts',
     ],
     setupFiles: [
-      require.resolve('@react-native/jest-preset/jest/setup.js'),
+      ...rnPreset.setupFiles,
       '<rootDir>/scripts/testSetupNative.js',
     ],
     transform: {
-      //'^.+\\.js$': '<rootDir>/node_modules/react-native/jest/preprocessor.js', //setup.js needs to be transformed, but preprocessor screws everything else up
       ...baseConfig.transform,
       '^.+\\.(bmp|gif|jpg|jpeg|mp4|png|psd|svg|webp)$':
         require.resolve('@react-native/jest-preset/jest/assetFileTransformer.js'),
     },
-    haste: {
-      defaultPlatform: 'ios',
-      platforms: ['android', 'ios', 'native'],
-    },
+    haste: rnPreset.haste,
   },
 ];
 

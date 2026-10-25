@@ -5,62 +5,67 @@
     "email": "me@ntucker.me"
   },
   "metadata": {
-    "description": "Agent skills for Reactive Data Client: setup, schemas, REST, managers, and React or Vue usage and testing"
+    "description": "Agent skills for Reactive Data Client, matched to the version your project installs"
   },
   "plugins": [
     {
-      "name": "core",
-      "description": "Framework-agnostic Data Client skills: setup, REST, GraphQL, custom endpoints, schemas, and managers",
+      "name": "data-client",
+      "description": "Sets up Data Client, then points your agent at the skills shipped in your installed @data-client packages, so React or Vue apps get the guidance for their version",
       "source": "./",
       "strict": false,
       "homepage": "https://dataclient.io/docs/getting-started/agent-skills",
       "license": "Apache-2.0",
       "skills": [
-        "./.agents/skills/data-client-setup",
-        "./.agents/skills/data-client-rest-setup",
-        "./.agents/skills/data-client-endpoint-setup",
-        "./.agents/skills/data-client-graphql-setup",
-        "./.agents/skills/data-client-schema",
-        "./.agents/skills/data-client-rest",
-        "./.agents/skills/data-client-manager"
+        "./.agents/skills/data-client",
+        "./.agents/skills/data-client-setup"
+      ]
+    },
+    {
+      "name": "core",
+      "description": "Renamed to data-client; kept so existing installs keep updating",
+      "source": "./",
+      "strict": false,
+      "homepage": "https://dataclient.io/docs/getting-started/agent-skills",
+      "license": "Apache-2.0",
+      "skills": [
+        "./.agents/skills/data-client",
+        "./.agents/skills/data-client-setup"
       ]
     },
     {
       "name": "react",
-      "description": "Data Client hooks and testing for React, NextJS, and React Native",
+      "description": "Renamed to data-client; kept so existing installs keep updating",
       "source": "./",
       "strict": false,
       "homepage": "https://dataclient.io/docs/getting-started/agent-skills",
       "license": "Apache-2.0",
-      "dependencies": ["core"],
       "skills": [
-        "./.agents/skills/data-client-react",
-        "./.agents/skills/data-client-react-testing"
+        "./.agents/skills/data-client",
+        "./.agents/skills/data-client-setup"
       ]
     },
     {
       "name": "vue",
-      "description": "Data Client composables and testing for Vue 3",
+      "description": "Renamed to data-client; kept so existing installs keep updating",
       "source": "./",
       "strict": false,
-      "homepage": "https://dataclient.io/vue/getting-started/agent-skills",
+      "homepage": "https://dataclient.io/docs/getting-started/agent-skills",
       "license": "Apache-2.0",
-      "dependencies": ["core"],
       "skills": [
-        "./.agents/skills/data-client-vue",
-        "./.agents/skills/data-client-vue-testing"
+        "./.agents/skills/data-client",
+        "./.agents/skills/data-client-setup"
       ]
     },
     {
       "name": "migrations",
-      "description": "Upgrade guides: Data Client v0.18 delegate signatures and path-to-regexp v8 path syntax",
+      "description": "Renamed to data-client; kept so existing installs keep updating",
       "source": "./",
       "strict": false,
-      "homepage": "https://dataclient.io/blog",
+      "homepage": "https://dataclient.io/docs/getting-started/agent-skills",
       "license": "Apache-2.0",
       "skills": [
-        "./.agents/skills/data-client-v0.18-migration",
-        "./.agents/skills/path-to-regexp-v8-migration"
+        "./.agents/skills/data-client",
+        "./.agents/skills/data-client-setup"
       ]
     }
   ]

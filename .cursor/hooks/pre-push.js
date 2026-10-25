@@ -3,7 +3,8 @@
 // `PreToolUse` on Bash), regenerates agent skill references and Claude Code's
 // copy of the Cursor rules when the branch touches their inputs, runs
 // `eslint --fix` on the JS/TS files it changes, and holds the push until the
-// result is committed.
+// result is committed. It also holds breaking (minor or major bump) changesets
+// with neither a skill eval naming them nor a reason in no-agent-impact.json.
 // Runs once per push instead of per edit or turn, so any number of local
 // commits can come first; CI's `regenerate` and `agent-rules` checks are the
 // backstop.
@@ -38,24 +39,31 @@ const commitsAll =
     command.replace(/"(?:\\.|[^"\\])*"|'[^']*'/g, "''"),
   );
 
-/** Docs some skill renders, and skills another bundles */
+/** Docs some skill renders or source files it copies, and skills another bundles */
 let skillDocs, bundledSkills;
 function readManifests() {
   const skills = path.join(projectDir, '.agents/skills');
-  const manifests = fs
-    .readdirSync(skills)
+  // checks every changed file, so tolerate checkouts without skills
+  const manifests = (fs.existsSync(skills) ? fs.readdirSync(skills) : [])
     .map(skill => path.join(skills, skill, 'references.json'))
     .filter(manifest => fs.existsSync(manifest))
     .map(manifest => JSON.parse(fs.readFileSync(manifest, 'utf8')));
-  skillDocs = new Set(manifests.flatMap(({ docs }) => Object.values(docs)));
+  skillDocs = new Set(
+    manifests.flatMap(({ docs, files = {} }) => [
+      ...Object.values(docs),
+      ...Object.values(files),
+    ]),
+  );
   bundledSkills = new Set(manifests.flatMap(({ skills = [] }) => skills));
 }
-/** partials (`_foo.mdx`) may be inlined anywhere */
+/** a doc or source file some skill renders; partials (`_foo.mdx`) may be inlined anywhere */
 function isSkillDoc(file) {
-  if (!/^docs\/.*\.mdx?$/.test(file)) return false;
-  if (path.basename(file).startsWith('_')) return true;
+  const isDoc = /^docs\/.*\.mdx?$/.test(file);
+  if (isDoc && path.basename(file).startsWith('_')) return true;
   if (!skillDocs) readManifests();
-  return skillDocs.has(file.replace(/\.(react|vue)(\.mdx?)$/, '$2'));
+  return skillDocs.has(
+    isDoc ? file.replace(/\.(react|vue)(\.mdx?)$/, '$2') : file,
+  );
 }
 /** any file of a bundled skill is copied into the skill bundling it */
 function isBundledSkillFile(file) {
@@ -68,9 +76,7 @@ const isSkillInput = file =>
   isSkillDoc(file) ||
   /^\.agents\/skills\/[^/]+\/(references\.json|SKILL\.md)$/.test(file) ||
   isBundledSkillFile(file) ||
-  file.startsWith('website/framework-docs/') ||
-  // symlinked into skills that others bundle
-  file.startsWith('website/static/codemods/');
+  file.startsWith('website/framework-docs/');
 
 // files the branch changes relative to master and uncommitted ones; renames
 // as delete + add, so the old path counts too
@@ -90,16 +96,25 @@ try {
 }
 
 /**
- * Runs the generator `script` (`yarn build:<build>`) when
- * the branch changes a file `isInput` matches, then reports problems it
- * printed and `outputs` (pathspecs) left uncommitted
+ * Runs the generator or checker `script` when the branch changes a file
+ * `isInput` matches, then reports problems it printed (as `command`) and, for
+ * a generator, `outputs` (pathspecs) left uncommitted
  */
-function regenerate({ what, from, script, build, isInput, outputs }) {
+function regenerate({
+  what,
+  from,
+  script,
+  command = `node ${script}`,
+  isInput,
+  outputs = [],
+}) {
   const isDirty = dirty.some(isInput);
   // the generator reads the working tree, so it can only vouch for what's
   // pushed when that includes these edits; otherwise leave it to CI
   if (isDirty && !commits) return [];
   if (!isDirty && !committed.some(isInput)) return [];
+  // a branch from before the script was added
+  if (!fs.existsSync(path.join(projectDir, script))) return [];
   let problems = '';
   try {
     execFileSync('node', [script], {
@@ -110,18 +125,14 @@ function regenerate({ what, from, script, build, isInput, outputs }) {
     problems = String(err.stderr ?? '').trim();
   }
   // includes output generated earlier but never committed
-  const uncommitted = git(
-    'status',
-    '--porcelain',
-    '--untracked-files=all',
-    '--',
-    ...outputs,
-  );
+  const uncommitted =
+    outputs.length &&
+    git('status', '--porcelain', '--untracked-files=all', '--', ...outputs);
   return [
     uncommitted &&
       `${what} generated from this branch's ${from} changes aren't committed. Commit them, then push again:\n${uncommitted}`,
     problems &&
-      `\`yarn build:${build}\` found problems CI will fail on. Fix them, commit, then push again:\n${problems}`,
+      `\`${command}\` found problems CI will fail on. Fix them, commit, then push again:\n${problems}`,
   ];
 }
 
@@ -209,9 +220,9 @@ const message = [
   // dead links, missing variant notes or bad manifests
   ...regenerate({
     what: 'Skill references',
-    from: 'docs',
+    from: 'docs or source',
     script: 'website/framework-docs/skillReferences.mjs',
-    build: 'skills',
+    command: 'yarn build:skills',
     isInput: isSkillInput,
     outputs: ['.agents/skills/*/references/*'],
   }),
@@ -219,12 +230,20 @@ const message = [
     what: 'Claude Code rules',
     from: 'Cursor rules',
     script: 'scripts/agent-rules.mjs',
-    build: 'agent-rules',
+    command: 'yarn build:agent-rules',
     // sources only; a hand edit to the output is left to CI
     isInput: file =>
       /(^|\/)\.cursor\/rules\//.test(file) ||
       file === 'scripts/agent-rules.mjs',
     outputs: [':(glob)**/.claude/rules/**', '.claude/skills'],
+  }),
+  ...regenerate({
+    script: 'scripts/breaking-evals.mjs',
+    isInput: file =>
+      file.startsWith('.changeset/') ||
+      /^\.agents\/skills\/[^/]+\/evals\//.test(file) ||
+      file === '.agents/skills/changeset/no-agent-impact.json' ||
+      file === 'scripts/breaking-evals.mjs',
   }),
 ]
   .filter(Boolean)

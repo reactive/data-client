@@ -6,7 +6,6 @@ import { changeProps, onActivateKey } from './dom';
 import {
   optimisticId,
   prettyPk,
-  splitKey,
   type EndpointRow,
   type EntityRow,
   type EntityTable,
@@ -38,6 +37,7 @@ import {
   FieldChange,
   Inline,
 } from './Value';
+import { splitKey } from '../../splitKey';
 
 /** Explorer: one line per row with a preview of its fields */
 export default function TreeView({ model }: { model: StoreModel }) {

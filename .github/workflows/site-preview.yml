@@ -16,6 +16,9 @@ on:
       - 'docs/core/**'
       - 'docs/rest/**'
       - 'docs/graphql/**'
+      # Imported by website/src/components/SkillTabs.tsx
+      - '.agents/skill-packages.json'
+      - '.agents/skills/data-client-setup/references.json'
       - '.github/workflows/site-preview.yml'
       - '.github/workflows/paths-gate.yml'
   # Redeploys production from master, e.g. after a failed deploy
@@ -69,7 +72,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           [ ! -f website/versionCurrent.json ] || echo "next=1" >> "$GITHUB_OUTPUT"
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: '26'
           cache: 'yarn'
@@ -95,6 +98,8 @@ jobs:
           node website/translate/translate.mjs check
       - name: Check sitemap robots.txt
         run: node --test website/sitemap-robots-plugin.test.mjs
+      - name: Check Playground fixture source plugins
+        run: node --test website/fixture-source.test.mjs
       # Each locale is a full build, so PRs build translations only when they
       # could break one. The queue and master always build every locale.
       - name: Pick locales
@@ -144,12 +149,27 @@ jobs:
           fi
       - name: Check the Store inspector stays in its lazy chunk
         run: node website/scripts/check-lazy-chunks.mjs
+      # Installed /next/ and locale apps serve only their own build offline
+      - name: Check pages load static files from their own build
+        env:
+          DOCS_NEXT: ${{ steps.next.outputs.next }}
+        run: node website/scripts/check-build-base.mjs
       # The version menu's list stays at the root, where every version reads it
       - name: Move the build under /next
         if: steps.next.outputs.next
         run: |
           mv website/build website/next && mkdir website/build && mv website/next website/build/next
           mv website/build/next/site-versions.json website/build/
+      # With no /next build, apps installed from it get a worker that
+      # unregisters (scripts/snapshot/README.md#current-and-next)
+      - name: Retire the /next service workers
+        if: ${{ !steps.next.outputs.next }}
+        working-directory: website/build
+        run: |
+          shopt -s nullglob
+          for sw in sw.js */sw.js; do
+            install -D ../scripts/snapshot/retiredSw.js "next/$sw"
+          done
       - if: github.event_name == 'push'
         uses: actions/cache/save@v6
         with:
@@ -252,7 +272,7 @@ jobs:
           filter: blob:none
       # No dependency cache, like an archive build: the branch has its own lockfile
       - if: steps.current.outputs.sha && !steps.cache.outputs.cache-hit
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '26'
       - name: Build
@@ -338,11 +358,12 @@ jobs:
         run: |
           tar -xzf current.tar.gz -C website/build
           # /next is served now, so it no longer redirects to the root
-          jq -e '.redirects | any(.source == "/next/:path*")' website/vercel.json > /dev/null ||
-            { echo "::error::vercel.json has no /next/:path* redirect to drop"; exit 1; }
-          jq '.redirects |= map(select(.source != "/next/:path*"))' website/vercel.json > vercel.json.tmp
+          nextRedirect='.source | startswith("/next{/:path")'
+          jq -e ".redirects | map(select($nextRedirect)) | length == 1" website/vercel.json > /dev/null ||
+            { echo "::error::vercel.json has no single /next redirect to drop"; exit 1; }
+          jq ".redirects |= map(select($nextRedirect | not))" website/vercel.json > vercel.json.tmp
           mv vercel.json.tmp website/vercel.json
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: '26'
       - run: npm install --global "vercel@$VERCEL_CLI_VERSION"
@@ -383,6 +404,25 @@ jobs:
                 elif $fs == null then error("no filesystem check to move it ahead of")
                 else $rest[:$fs] + $archive + $rest[$fs:] end)' "$config" > config.json.tmp ||
             { echo "::error::Couldn't move $config's archive host rewrite"; exit 1; }
+          mv config.json.tmp "$config"
+          # A miss gets the root's 404.html, which is another site under /next/
+          # or a locale and has no styles on an archive's host; answer it with
+          # the 404.html of the build it's in. Archives first, as their hosts'
+          # paths look like the root's; then the longest prefix wins. An archive's
+          # route replaces src and adds its host
+          jq '
+            ($ARGS.positional | sort_by((startswith("archives/") | not), -length) | map(
+              { src: "^/\(.)/", dest: "/\(.)/404", status: 404 } + ((
+                split("/") | select(.[0] == "archives")
+                | (.[1] | gsub("\\."; "\\.")) as $v
+                | { src: "^(?:/archives/\($v))?/\(.[2:] | map(. + "/") | join("") | if . == "" then "(?!api(?:/|$))" end)",
+                    has: [{ type: "host", value: "\($v)\\.dataclient\\.io" }] }
+              ) // {}))) as $notFound
+            | (.routes | map(.handle == "error") | index(true)) as $errorPhase
+            | if $errorPhase == null then error("no error phase to add them to")
+              else .routes |= .[:$errorPhase + 1] + $notFound + .[$errorPhase + 1:] end' "$config" --args \
+            $(find website/build -mindepth 2 -name 404.html -printf '%h\n' | cut -d/ -f3-) > config.json.tmp ||
+            { echo "::error::Couldn't add each build's 404 page to $config"; exit 1; }
           mv config.json.tmp "$config"
           meta=()
           # Ties the preview to its branch instead of the PR merge ref

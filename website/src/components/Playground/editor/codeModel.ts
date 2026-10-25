@@ -1,5 +1,7 @@
 import React, { useCallback, useReducer } from 'react';
 
+import { metaFlag, metaValue } from '../../../utils/fenceMeta';
+
 export interface CodeDocument {
   value: string;
   path: string;
@@ -12,6 +14,11 @@ export interface CodeDocument {
   /** Path pattern (`/posts/:id`) the preview's router renders this file's
    * default export at */
   route?: string;
+  /** The path the preview's router opens at, when not `/` */
+  start?: string;
+  /** This file's default export wraps every page of the preview's router,
+   * which renders as its `children` */
+  layout?: boolean;
   language: string;
   autoFocus?: boolean;
 }
@@ -19,14 +26,6 @@ export interface CodeDocument {
 export interface CodeModel {
   documents: readonly CodeDocument[];
   update: (index: number, value: string) => void;
-}
-
-/** `key="value"`, `key='value'` or bare `key=value` from a fence metastring */
-function metaValue(metastring: string, key: string): string | undefined {
-  return new RegExp(`\\b${key}=(?:(["'])(.*?)\\1|([^\\s"']+))`)
-    .exec(metastring)
-    ?.slice(2)
-    .find(value => value !== undefined);
 }
 
 export function parseCodeDocuments(
@@ -69,13 +68,15 @@ export function parseCodeDocuments(
           defaultTab ?
             // Vue SFC tabs are titled `Name.vue`; match them by component name
             title?.replace(/\.vue$/, '') !== defaultTab
-          : /\bcollapsed\b/.test(metastring),
-        col: /\bcolumn\b/.test(metastring),
+          : metaFlag(metastring, 'collapsed'),
+        col: metaFlag(metastring, 'column'),
         path:
           metaValue(metastring, 'path') ||
           (fileBase.includes('.') ? fileBase : `${fileBase}.${extension}`),
         highlights: /\{([\d\-,.]+)\}/.exec(metastring)?.[1],
         route: metaValue(metastring, 'route'),
+        start: metaValue(metastring, 'start'),
+        layout: metaFlag(metastring, 'layout'),
         language,
         // Direct element props (title, path, collapsed, autoFocus) override
         // metastring-derived values — Demo/CodeEditor relies on this.

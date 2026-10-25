@@ -107,11 +107,12 @@ export default function useSuspense<
   useFocusEffect(() => {
     // revalidating non-suspending data is low priority, so make sure it doesn't stutter animations
     return idleCallback(() => {
-      if (Date.now() > expiresAt && key) {
+      if ((Date.now() > expiresAt || forceFetch) && key) {
         controller.fetch(endpoint, ...(args as Parameters<E>));
       }
     });
-  }, []);
+    // key stands in for endpoint and args, which change identity every render
+  }, [expiresAt, key, forceFetch]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(countRef, [data]);

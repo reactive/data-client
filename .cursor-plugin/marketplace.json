@@ -1,0 +1,22 @@
+{
+  "name": "data-client",
+  "owner": {
+    "name": "Nathaniel Tucker",
+    "email": "me@ntucker.me"
+  },
+  "metadata": {
+    "description": "Agent skills for Reactive Data Client, matched to the version your project installs"
+  },
+  "plugins": [
+    {
+      "name": "data-client",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/reactive/data-client.git",
+        "path": ".agents/skills",
+        "ref": "master"
+      },
+      "description": "Sets up Data Client, then points your agent at the skills shipped in your installed @data-client packages, so React or Vue apps get the guidance for their version"
+    }
+  ]
+}

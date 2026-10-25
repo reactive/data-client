@@ -41,6 +41,11 @@ Cuando se proporciona, cualquier fetch con este endpoint se comportará como si 
 de esta función fuera una respuesta de red exitosa. Cuando el fetch real se completa (ya sea
 con fallo o con éxito), la actualización optimista se reemplaza por la respuesta de red real.
 
+`expectedResponse` se normaliza con el [schema](#schema) del endpoint, por lo que TypeScript lo comprueba como un valor de
+[Controller.set()](/docs/api/Controller#set): un [Entity](./Entity.md) acepta cualquiera de sus campos, y un
+[Collection](./Collection.md) acepta una lista de ellos. Cuando el endpoint resuelve un tipo específico, como el valor devuelto
+por [process()](./RestEndpoint.md#process), debe coincidir con ese tipo.
+
 <VoteDemo />
 
 <center>

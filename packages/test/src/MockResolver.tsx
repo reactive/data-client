@@ -1,10 +1,9 @@
 'use client';
 import { ControllerContext, useController } from '@data-client/react';
+import { MockController } from '@data-client/react/mock';
+import type { MockProps } from '@data-client/react/mock';
 import { useMemo } from 'react';
 import React from 'react';
-
-import { MockController } from './MockController.js';
-import { MockProps } from './mockTypes.js';
 
 export interface MockResolverProps<T> extends MockProps<T> {
   children: React.ReactNode;

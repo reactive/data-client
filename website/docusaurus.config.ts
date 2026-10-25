@@ -25,9 +25,11 @@ const isDev = process.env.NODE_ENV === 'development';
 // docs/core is shared by React (/docs) and Vue (/vue); see framework-docs/
 const {
   docsInstance,
+  groupIds,
   frameworkInstance,
 } = require('./framework-docs/docsInstances.js');
 const frameworkDocs = require('./framework-docs/index.js');
+const frameworkDocsIds = groupIds('framework');
 const remarkFramework = require('./framework-docs/remarkFramework.js');
 // Non-Vue instances render React; :::vue reaches Vue agents via skill references
 const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
@@ -84,6 +86,8 @@ const prismPalenight = {
 
 const gitVcs = getVcsPreset('default-v1');
 const editRoot = 'https://github.com/reactive/data-client/edit/master';
+// Playground fixtures show readable functions in production (fixture-source.js)
+const recmaPlugins = [require('./fixture-source.js').recmaPlugin];
 // In Chinese, joins lines split inside a paragraph (translate/README.md)
 const localeRemarkPlugins =
   currentLocale === DEFAULT_LOCALE ? [] : [remarkJoinCjkLines];
@@ -99,6 +103,7 @@ const docsLocation = (id: string) => {
     editUrl: ({ docPath }: { docPath: string }) =>
       `${editRoot}/${docsPath}/${docPath}`,
     remarkPlugins: localeRemarkPlugins,
+    recmaPlugins,
   };
 };
 
@@ -292,11 +297,11 @@ const config: Config = {
     : []),
   ],
   //favicon: '/favicon.ico', we declare our own headers for this above
-  themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
+  themes: ['@docusaurus/theme-mermaid'],
   customFields: {
     repoUrl: 'https://github.com/reactive/data-client',
-    // read by FrameworkSelector to switch between differently named pages
-    frameworkEquivalents: frameworkDocs.frameworkEquivalents(),
+    // read by DocsSelector to switch between differently named pages
+    docsEquivalents: frameworkDocs.docsEquivalents(),
   },
   onBrokenLinks: 'warn',
   future: {
@@ -336,6 +341,7 @@ const config: Config = {
         },
         blog: {
           remarkPlugins: localeRemarkPlugins,
+          recmaPlugins,
           showReadingTime: true,
           blogSidebarTitle: 'All posts',
           blogSidebarCount: 'ALL',
@@ -586,7 +592,7 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     prism: {
-      additionalLanguages: ['bash', /*'diff', */ 'json'],
+      additionalLanguages: ['bash', /*'diff', */ 'json', 'http'],
       theme: prismPalenight,
       darkTheme: prismPalenight,
     },
@@ -627,33 +633,23 @@ const config: Config = {
       hideOnScroll: true,
       items: [
         {
-          type: 'doc',
+          // React/Vue menu showing the framework being read
+          type: 'custom-docsDropdown',
+          docsPluginIds: frameworkDocsIds,
           position: 'left',
-          docId: 'introduction',
-          label: 'React',
         },
         {
-          type: 'doc',
-          position: 'left',
-          docId: 'introduction',
-          docsPluginId: 'vue',
-          label: 'Vue',
-        },
-        {
-          // links to the React or Vue API, based on the docs being viewed
-          type: 'custom-frameworkDocSidebar',
+          // links to the React or Vue API: the docs being viewed, else the last ones read
+          type: 'custom-preferredDocSidebar',
+          docsPluginIds: frameworkDocsIds,
           position: 'left',
           sidebarId: 'api',
           label: 'API',
         },
         {
-          to: 'rest',
-          label: 'REST',
-          position: 'left',
-        },
-        {
-          to: 'graphql',
-          label: 'GraphQL',
+          // REST/GraphQL menu showing the protocol being read
+          type: 'custom-docsDropdown',
+          docsPluginIds: groupIds('protocol'),
           position: 'left',
         },
         { to: '/blog', label: 'News', position: 'left' },
@@ -676,12 +672,6 @@ const config: Config = {
           position: 'right',
           className: 'header-discord-link',
           'aria-label': 'Discord chat support',
-        },
-        {
-          href: 'https://skills.sh/reactive/data-client',
-          position: 'right',
-          className: 'header-anthropic-link',
-          'aria-label': 'Agent Skills',
         },
         {
           type: 'localeDropdown',

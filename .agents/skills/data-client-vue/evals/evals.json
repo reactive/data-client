@@ -27,6 +27,39 @@
         "Results are not copied into separate `ref()` or `reactive()` state; the template reads the returned values directly.",
         "The two fetches are not a waterfall: `useFetch` starts both before the first `await`, or the code otherwise starts them in parallel."
       ]
+    },
+    {
+      "id": 3,
+      "name": "cold-deep-link",
+      "prompt": "Add `TodoTitle.vue` (src/components/TodoTitle.vue): takes a `todoId` prop and shows that todo's title in the /todos/:id page header. The list page already loads every todo, so read it from the cache without another request. Show 'Not found' when the todo doesn't exist. TodoResource is in src/resources/Todo.ts.",
+      "expected_output": "Warns that a direct or refreshed /todos/:id visit starts with an empty cache, so a cache miss isn't 'not found'; reads with useSuspense or useDLE and shows 'Not found' from the 404.",
+      "files": [],
+      "assertions": [
+        "The todo is read with `useSuspense` or `useDLE`, not only `useCache`/`useQuery`.",
+        "'Not found' comes from the request's error, not from `undefined`."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "author-avatars",
+      "prompt": "Show each post's author avatar in `PostList.vue`. Posts come from `PostResource.getList` and have a `userId`; users come from `UserResource.get`. Simplest is to build a usersById map in PostList and pass it to each `PostRow`, right?",
+      "expected_output": "Pushes back: PostRow (or an Avatar child) reads its user with useSuspense(UserResource.get, …); PostList passes only ids.",
+      "files": [],
+      "assertions": [
+        "No lookup map of users is built and passed down.",
+        "The component rendering the avatar reads the user itself, given the id."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "refresh-all-lists",
+      "prompt": "After `ctrl.fetch(TodoResource.markAllDone)` (returns no body), refresh every cached todo list. Lists are cached under many `{ userId }` filters. Keep the current lists on screen while they reload. Write the `markAllDone` handler in src/components/MarkAllDone.vue.",
+      "expected_output": "Calls ctrl.expireAll(TodoResource.getList) after the mutation.",
+      "files": [],
+      "assertions": [
+        "Uses `ctrl.expireAll(TodoResource.getList)` (or an equivalent testKey on getList).",
+        "Does not use `invalidate`/`invalidateAll`/`resetEntireStore`, which would blank lists read with `useDLE`/`useCache` and suspend newly mounted ones."
+      ]
     }
   ]
 }

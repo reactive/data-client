@@ -133,7 +133,7 @@ export default function UserList() {
 <details>
 <summary><b>SWAPI 演示</b></summary>
 
-<HooksPlayground>
+<HooksPlayground row>
 
 ```tsx
 import { useSuspense } from '@data-client/react';

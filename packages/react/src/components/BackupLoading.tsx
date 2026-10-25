@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect } from 'react';
 
 export default function BackupLoading() {
   let message: React.ReactNode = 'loading...';
@@ -6,7 +6,7 @@ export default function BackupLoading() {
   if (process.env.NODE_ENV !== 'production') {
     // env should not change during runtime and this excludes from build
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useMemo(() => {
+    useEffect(() => {
       console.warn(
         `Uncaught suspense.
 Make sure to add your own Suspense boundaries: https://dataclient.io/docs/getting-started/data-dependency#boundaries`,
