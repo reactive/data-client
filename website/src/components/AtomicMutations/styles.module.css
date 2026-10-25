@@ -1,0 +1,384 @@
+/* the diagram, with the pointer targets laid over it in % of its box */
+.stage {
+  --line: var(--ifm-color-emphasis-300);
+  --user: hsl(262, 52%, 48%);
+  --todo: hsl(206, 69%, 40%);
+  --on-chip: #fff;
+  position: relative;
+}
+[data-theme='dark'] .stage {
+  --user: hsl(262, 75%, 74%);
+  --todo: var(--ifm-color-primary-light);
+  --on-chip: hsl(220, 20%, 12%);
+}
+.diagram {
+  --phase: 0s;
+  display: block;
+  width: 100%;
+  font-size: 11.5px;
+  text-anchor: middle;
+  user-select: none;
+}
+
+/* each todo changes in turn, every 2s of a 6s cycle; a change completes it
+   or uncompletes it, so each one toggles back 6s later (a 12s cycle). The
+   endpoint is optimistic: the store changes as ctrl.fetch() is called, the
+   components right after, and the PATCH's response then confirms it */
+.U1 {
+  --c: var(--user);
+}
+.Todo,
+.T1,
+.T2,
+.T3 {
+  --c: var(--todo);
+}
+.T1 {
+  --delay: 0s;
+}
+.T2 {
+  --delay: 2s;
+  /* starts out completed, so its change uncompletes it */
+  --phase: -6s;
+}
+.T3 {
+  --delay: 4s;
+}
+
+.tree {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+
+/* store to component (and TodoList to the API and back): the data's path.
+   Negative delays start every animation mid-cycle, so nothing waits a turn */
+.binding {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 2 6;
+  opacity: 0.45;
+  animation:
+    flow 0.8s linear infinite,
+    send 6s calc(var(--delay) + 0.1s - 6s) infinite;
+}
+@keyframes flow {
+  from {
+    stroke-dashoffset: 8;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes send {
+  0%,
+  30%,
+  100% {
+    opacity: 0.45;
+  }
+  4% {
+    opacity: 1;
+  }
+}
+/* User 1 never changes here, so its binding only flows */
+.binding.U1 {
+  animation: flow 0.8s linear infinite;
+}
+/* the request goes out as the call is made, its response comes back after
+   the store and components have changed: a pulse per slot */
+.request {
+  animation:
+    flow 0.8s linear infinite,
+    send3 6s infinite;
+}
+.response {
+  animation:
+    flow 0.8s linear infinite,
+    send3 6s 0.6s infinite;
+}
+@keyframes send3 {
+  0%,
+  10%,
+  33.33%,
+  43.33%,
+  66.67%,
+  76.67%,
+  100% {
+    opacity: 0.45;
+  }
+  1.33%,
+  34.67%,
+  68% {
+    opacity: 1;
+  }
+}
+
+/* the entity changing, then the components re-rendering for it, like
+   React DevTools' highlight; the pill flashes when the response confirms */
+.diagram .flash {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 8;
+  opacity: 0;
+  animation: render 6s calc(var(--delay) - 6s) infinite;
+}
+.diagram .render {
+  animation-delay: calc(var(--delay) + 0.1s - 6s);
+}
+.diagram .pillFlash {
+  stroke-width: 6;
+  rx: 10px;
+  animation: render3 6s 0.5s infinite;
+}
+@keyframes render {
+  0%,
+  25%,
+  100% {
+    opacity: 0;
+  }
+  4% {
+    opacity: 0.6;
+  }
+}
+@keyframes render3 {
+  0%,
+  8.33%,
+  33.33%,
+  41.67%,
+  66.67%,
+  75%,
+  100% {
+    opacity: 0;
+  }
+  1.33%,
+  34.67%,
+  68% {
+    opacity: 0.6;
+  }
+}
+
+/* the request in flight: which todo it is for */
+.pill {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--c);
+  stroke-width: 1.5;
+  rx: 10px;
+}
+.call,
+.slot {
+  fill: var(--c);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 10px;
+}
+.call {
+  text-anchor: start;
+}
+.slot {
+  font-weight: 600;
+  opacity: 0;
+  animation: slot 6s calc(var(--delay) - 6s) infinite;
+}
+/* the still frame shows Todo 2 completed, so its request is the one out */
+.T2.slot {
+  opacity: 1;
+}
+@keyframes slot {
+  0%,
+  33.33% {
+    opacity: 1;
+  }
+  33.34%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* the checkbox completes as its todo's change is made: in the store first,
+   then in every component that renders it */
+.check {
+  opacity: 0;
+  animation: check 12s calc(var(--delay) + var(--phase) + 0.1s - 12s) infinite;
+}
+.view .check {
+  animation-delay: calc(var(--delay) + var(--phase) + 0.2s - 12s);
+}
+.T2 .check {
+  opacity: 1;
+}
+@keyframes check {
+  0%,
+  49.99% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.store {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--ifm-color-primary);
+  stroke-width: 1.5;
+  rx: 12px;
+}
+.db {
+  color: var(--ifm-color-primary);
+}
+
+.chip rect {
+  fill: var(--c);
+  rx: 11px;
+}
+.chip text {
+  fill: var(--on-chip);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+.chip .box {
+  fill: none;
+  stroke: var(--on-chip);
+  stroke-width: 1.25;
+  rx: 2px;
+}
+.chip .check rect {
+  fill: var(--on-chip);
+  rx: 2px;
+}
+.chip .check path {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.plain rect,
+.bound rect,
+.rest {
+  stroke-width: 1.5;
+  rx: 7px;
+}
+.plain rect,
+.rest {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--line);
+}
+.plain text {
+  fill: var(--ifm-color-emphasis-600);
+}
+.rest {
+  rx: 4px;
+}
+.bound rect {
+  fill: color-mix(in srgb, var(--c) 12%, var(--ifm-background-surface-color));
+  stroke: var(--c);
+}
+.bound text {
+  fill: var(--ifm-font-color-base);
+  font-weight: 500;
+}
+.bound .hook {
+  fill: var(--c);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 10px;
+  font-weight: 400;
+}
+/* what the component shows: a checkbox and lines of text */
+.bound .view rect {
+  stroke: none;
+}
+.bound .bar {
+  fill: var(--ifm-color-emphasis-400);
+  rx: 2.5px;
+}
+/* as specific as the .view rule above, so its outline still draws */
+.bound .view .box {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--c);
+  stroke-width: 1.25;
+  rx: 2.5px;
+}
+.bound .check rect {
+  fill: var(--c);
+  rx: 2.5px;
+}
+.bound .check path {
+  fill: none;
+  stroke: var(--on-chip);
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* pointing at an entity or component dims everything not bound to it */
+.chip,
+.bound,
+.binding,
+.view,
+.Todo {
+  transition:
+    opacity var(--motion-snappy),
+    stroke-width var(--motion-snappy);
+}
+.off {
+  opacity: 0.2;
+}
+/* animations beat plain opacity, so the send pulse gives way to these */
+.binding.on {
+  stroke-width: 3;
+  opacity: 1;
+  animation: flow 0.8s linear infinite;
+}
+.binding.off {
+  animation: none;
+}
+/* the request is for the todo pointed at, or cycles when TodoList is */
+.off .slot,
+.slot.off {
+  animation: none;
+  opacity: 0;
+}
+.single .slot.on {
+  animation: none;
+  opacity: 1;
+}
+
+/* the targets: transparent buttons over the chips and components */
+.targets {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.target {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.chipTarget {
+  border-radius: 11px;
+}
+.target:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+/* last, so it also beats .binding.on; a still frame with Todo 2 completed */
+@media (prefers-reduced-motion: reduce) {
+  .binding,
+  .binding.on,
+  .binding.U1,
+  .diagram .flash,
+  .slot,
+  .check {
+    animation: none;
+  }
+}

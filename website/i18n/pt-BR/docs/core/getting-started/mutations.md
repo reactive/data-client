@@ -12,6 +12,7 @@ import { todoFixtures } from '@site/src/fixtures/todos';
 import { RestEndpoint } from '@data-client/rest';
 import UseLoading from '../shared/\_useLoading.mdx';
 import VoteDemo from '../shared/\_VoteDemo.mdx';
+import AtomicMutations from '@site/src/components/AtomicMutations';
 
 <head>
   <meta name="docsearch:pagerank" content="40"/>
@@ -19,12 +20,16 @@ import VoteDemo from '../shared/\_VoteDemo.mdx';
 
 # Mutações de dados
 
+<AtomicMutations />
+
 Usar nossos endpoints de [Create, Update e Delete](/docs/concepts/atomic-mutations) com
 [Controller.fetch()](../api/Controller.md#fetch) atualiza de forma reativa _todos_ os componentes apropriados de maneira atômica (ao mesmo tempo).
 
 [useController()](../api/useController.md) dá aos componentes acesso a este [setState()](https://react.dev/reference/react/useState#setstate) global turbinado.
 
 [//]: # 'TODO: Add create, and delete examples as well (in tabs)'
+
+<div style={{clear: 'both'}} />
 
 <FrameworkPlayground defaultOpen="n" row fixtures={todoFixtures}>
 
