@@ -28,11 +28,9 @@ module.exports = function () {
             cacheGroups: {
               monaco: {
                 test: MONACO,
-                chunks: 'all',
-                name: false,
                 filename: 'assets/js/monaco-[id].[contenthash:8].js',
+                // also below minSize, so every Monaco module gets the name
                 enforce: true,
-                priority: 40,
               },
             },
           },
