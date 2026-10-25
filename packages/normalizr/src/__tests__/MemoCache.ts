@@ -1153,6 +1153,38 @@ describe('MemoCache.commit', () => {
     expect(memo.denormalize([Todo], input, committed).data).toBe(late);
   });
 
+  it('keeps a result first read after an unsettled commit', () => {
+    // optimistic updates were pending when the store committed
+    const memo = new MemoCache();
+    memo.denormalize([Todo], input, store('older'));
+    const committed = store('committed');
+    memo.commit(committed, false);
+    const late = memo.denormalize([Todo], input, committed).data;
+    for (let i = 0; i < 5; i++)
+      memo.denormalize([Todo], input, store(`retry ${i}`));
+    expect(memo.denormalize([Todo], input, committed).data).toBe(late);
+  });
+
+  it('does not bring back a result evicted before its commit', () => {
+    const memo = new MemoCache();
+    memo.denormalize([Todo], input, store('first'));
+    const committed = store('committed');
+    const first = memo.denormalize([Todo], input, committed).data;
+    for (let i = 0; i < 5; i++)
+      memo.denormalize([Todo], input, store(`retry ${i}`));
+    memo.commit(committed);
+    const again = memo.denormalize([Todo], input, committed).data;
+    expect(again).not.toBe(first);
+    expect(again).toEqual(first);
+  });
+
+  it('does not track reads without an entities table', () => {
+    const memo = new MemoCache();
+    expect(memo.denormalize({ data: Todo }, { data: null }, null).data).toEqual(
+      { data: null },
+    );
+  });
+
   it('repeat reads with the same entities do not grow the buffer', () => {
     const memo = new MemoCache();
     const pending = store('pending');
