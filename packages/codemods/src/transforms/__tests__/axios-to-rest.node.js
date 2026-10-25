@@ -1425,6 +1425,27 @@ const get = (a, b) => new RestEndpoint({
       {},
       `
 import axios from 'axios';
+const get = id => axios.get(\`/pairs/\${id}/\${id++}/\${id}\`);
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+const get = id => new RestEndpoint({
+  path: '/pairs/:id/:param/:id2'
+})({
+  id,
+  param: id++,
+  id2: id
+});
+      `,
+      'reads a repeated variable again after an effectful interpolation',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
 const api = axios.create({ baseURL: 'https://api.example.com/v1/' });
 const getUser = id => api.get(\`/users/\${id}\`);
       `,

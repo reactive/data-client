@@ -882,6 +882,8 @@ function toPath(j, urlArg) {
 
   const args = [];
   const names = new Map();
+  // one effectful interpolation can change what a repeated one reads
+  const dedupe = expressions.slice(0, pathExprCount).every(isPure);
   let path = '';
   const segments = pathPart.split('\0');
   for (let i = 0; i < segments.length; i++) {
@@ -895,7 +897,7 @@ function toPath(j, urlArg) {
     const expr = expressions[i];
     let name = memberName(expr) || 'param';
     // the same variable can fill two segments; anything else is evaluated once each
-    const source = isPure(expr) ? j(expr).toSource() : {};
+    const source = dedupe ? j(expr).toSource() : {};
     if (names.has(name) && names.get(name) !== source) {
       let n = 2;
       while (names.has(name + n)) n++;
