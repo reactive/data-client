@@ -48,7 +48,7 @@ if the flow has more than three steps. Keep the "why" here, not also in Solution
 <!--
 Add "### Methodology" only if how you reached the solution matters to a reviewer: a reproduction,
 benchmark or eval setup, alternatives you tried and rejected, or how you found the root cause.
-A few bullets: what you did, on what inputs, and what it showed. Put results in Assumptions and validation.
+A few bullets: what you did and on what inputs. Results go in Assumptions and validation.
 -->
 
 <!--
