@@ -184,13 +184,26 @@ function find<Path, K extends object, V>(
     if (branches) {
       for (let b = 0; b < branches.length; b++) {
         const { fn, children } = branches[b];
-        const child = children.get(fn(args) ?? UNDEF_KEY);
+        const key = select(fn, args);
+        const child = key === undefined ? undefined : children.get(key);
         if (!child) continue;
         if (!next) next = child;
         else (pending || (pending = [])).push(child);
       }
     }
     node = next ?? pending?.pop();
+  }
+}
+
+/** A branch's `argsKey` result. A branch is tried before the entities that
+ * led to it are checked, so its selector can see args its own schema path
+ * would never reach with (say, a nested entity that is now missing): treat a
+ * throw as no match, since traversal wouldn't have called it. */
+function select(fn: KeyFn, args: readonly any[]): string | undefined {
+  try {
+    return fn(args) ?? UNDEF_KEY;
+  } catch {
+    return undefined;
   }
 }
 

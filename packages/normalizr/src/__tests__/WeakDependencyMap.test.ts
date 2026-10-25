@@ -421,6 +421,19 @@ describe('WeakDependencyMap eviction', () => {
       ).toBeUndefined();
     });
 
+    it('treats a selector that throws on unreached args as a miss', () => {
+      // the Scalar inside C reads args[0].portfolio; with C missing, traversal
+      // never calls it, so a lookup must not fail on it either
+      const wem = new WeakDependencyMap<EntityPath>();
+      const strict = (a: readonly any[]) => a[0].portfolio;
+      wem.set([rootDep, c(loaded), fn(strict)], 'with C', [{ portfolio: 'P' }]);
+      expect(() => wem.get(root, withC(undefined), [])).not.toThrow();
+      expect(wem.get(root, withC(undefined), [])[0]).toBeUndefined();
+      expect(wem.get(root, withC(loaded), [{ portfolio: 'P' }])[0]).toBe(
+        'with C',
+      );
+    });
+
     it('bounds the routes a lookup searches', () => {
       // each entry reaches a different argsKey first, as missing entities
       // can make happen; lookups must not slow down as routes pile up
