@@ -1302,6 +1302,80 @@ const other = () => api.get('https://other.com/x');
       {},
       `
 import axios from 'axios';
+const a = id => axios.get(\`/users/\${id}\`, { params: { id: 5 } });
+const b = () => axios.get('/tags?tag=red&tag=blue');
+const c = () => axios.get('/progress?done=100%');
+const d = ids => axios.get(\`/pairs/\${ids.shift()}/\${ids.shift()}\`);
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+import axios from 'axios';
+// TODO(data-client): convert this axios.get() call to an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
+const a = id => axios.get(\`/users/\${id}\`, { params: { id: 5 } });
+// TODO(data-client): convert this axios.get() call to an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
+const b = () => axios.get('/tags?tag=red&tag=blue');
+// TODO(data-client): convert this axios.get() call to an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
+const c = () => axios.get('/progress?done=100%');
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+const d = ids => new RestEndpoint({
+  path: '/pairs/:param/:param2'
+})({
+  param: ids.shift(),
+  param2: ids.shift()
+});
+      `,
+      'marks query keys that clash or repeat and bad escapes, and evaluates each expression once',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const list = (id, filters) => axios.get(\`/users/\${id}/posts\`, { params: filters });
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): check these query params serialize as before: arrays, nested objects and URLSearchParams need \`searchToString()\`: https://dataclient.io/rest/guides/axios-migration#query-serialization
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+const list = (id, filters) => new RestEndpoint({
+  path: '/users/:id/posts'
+})({
+  ...filters,
+  id
+});
+      `,
+      'spreads non-literal params before path params and marks their serialization',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const rest = axios.create({ baseURL: '/api', ...defaults });
+const t = axios.toString();
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+import axios from 'axios';
+
+// TODO(data-client): move axios \`...defaults\` to \`_RestEndpoint\`: https://dataclient.io/rest/guides/axios-migration#quick-reference
+class _RestEndpoint extends RestEndpoint {
+  urlPrefix = '/api';
+}
+
+// TODO(data-client): replace this axios call with an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
+const t = axios.toString();
+      `,
+      'marks spread instance options, avoids the RestEndpoint name, and ignores inherited keys',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
 const api = axios.create({ baseURL: '/api', timeout: 5000, withCredentials: true });
 api.interceptors.request.use(config => config);
       `,
@@ -1380,6 +1454,24 @@ export async function listUsers(page: number) {
 }
       `,
       'keeps types: a generic base class, the response type and untyped query params',
+    );
+
+    tsTest(
+      `
+import type { RestGenerics } from '@data-client/rest';
+import axios from 'axios';
+export const save = (u: object) => axios.post('/users', u);
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+import type { RestGenerics } from '@data-client/rest';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+export const save = (u: object) => new RestEndpoint({
+  path: '/users',
+  method: 'POST'
+})(u);
+      `,
+      'adds a value import beside an import type',
     );
   });
 

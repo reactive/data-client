@@ -87,58 +87,47 @@ function extractHeaderProperties(j, node) {
 
 // --- 1. Transform imports ---
 
+const TYPE_POSITIONS = new Set([
+  'TSTypeReference',
+  'TSQualifiedName',
+  'TSTypeQuery',
+  'TSExpressionWithTypeArguments',
+  'TSImportType',
+]);
+
+/** Whether an Identifier reads its binding, rather than naming an import, property or key */
+function isRead(path, { types = true } = {}) {
+  const parent = path.parent.node;
+  if (parent.type.startsWith('Import')) return false;
+  if (
+    parent.type === 'MemberExpression' &&
+    parent.property === path.node &&
+    !parent.computed
+  )
+    return false;
+  if (
+    (parent.type === 'ObjectProperty' || parent.type === 'Property') &&
+    parent.key === path.node &&
+    !parent.computed &&
+    !parent.shorthand
+  )
+    return false;
+  if (!types && TYPE_POSITIONS.has(parent.type)) return false;
+  return true;
+}
+
+/** Reads of the `name` binding that `scope` declares, in the `within` collection */
+function readsOf(j, within, name, scope, options) {
+  return within
+    .find(j.Identifier, { name })
+    .filter(p => p.scope.lookup(name) === scope && isRead(p, options));
+}
+
 function hasReference(j, root, localName, importScope, excludeTypePositions) {
   return (
-    root
-      .find(j.Identifier, { name: localName })
-      .filter(path => {
-        if (path.scope.lookup(localName) !== importScope) {
-          return false;
-        }
-
-        const parent = path.parent.node;
-
-        if (
-          (parent.type === 'ImportDefaultSpecifier' ||
-            parent.type === 'ImportSpecifier' ||
-            parent.type === 'ImportNamespaceSpecifier') &&
-          (parent.local === path.node || parent.imported === path.node)
-        ) {
-          return false;
-        }
-
-        if (
-          (parent.type === 'Property' || parent.type === 'ObjectProperty') &&
-          parent.key === path.node &&
-          !parent.computed
-        ) {
-          return false;
-        }
-
-        if (
-          parent.type === 'MemberExpression' &&
-          parent.property === path.node &&
-          !parent.computed
-        ) {
-          return false;
-        }
-
-        if (excludeTypePositions) {
-          // Ignore references used only in TS type positions.
-          if (
-            parent.type === 'TSTypeReference' ||
-            parent.type === 'TSQualifiedName' ||
-            parent.type === 'TSTypeQuery' ||
-            parent.type === 'TSExpressionWithTypeArguments' ||
-            parent.type === 'TSImportType'
-          ) {
-            return false;
-          }
-        }
-
-        return true;
-      })
-      .size() > 0
+    readsOf(j, root, localName, importScope, {
+      types: !excludeTypePositions,
+    }).size() > 0
   );
 }
 
@@ -151,15 +140,24 @@ function hasRuntimeReference(j, root, localName, importScope) {
 }
 
 function ensureRestImports(j, root, names) {
+  // `import type` can't bring in the RestEndpoint value
   const restImports = root
     .find(j.ImportDeclaration)
-    .filter(p => p.node.source.value === '@data-client/rest');
+    .filter(
+      p =>
+        p.node.source.value === '@data-client/rest' &&
+        p.node.importKind !== 'type',
+    );
 
   if (restImports.length) {
     const imported = new Set();
     restImports.forEach(importPath => {
       for (const s of importPath.node.specifiers || []) {
-        if (s.type === 'ImportSpecifier' && s.imported)
+        if (
+          s.type === 'ImportSpecifier' &&
+          s.imported &&
+          s.importKind !== 'type'
+        )
           imported.add(s.imported.name || s.imported.value);
       }
     });
@@ -277,7 +275,10 @@ function transformImports(
 
 function transformAxiosCreate(j, root, axiosLocalName, isTS) {
   let dirty = false;
+  // names the generated class must not take
   const existingClasses = getExistingClassNames(j, root);
+  existingClasses.add('RestEndpoint');
+  existingClasses.add('RestGenerics');
   const createToClass = new Map();
   // classes whose urlPrefix came from a baseURL
   const prefixedClasses = new Set();
@@ -327,12 +328,11 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
 
     if (config) {
       for (const prop of config.properties) {
-        if (prop.type === 'SpreadElement' || prop.type === 'RestElement')
+        if (prop.type === 'SpreadElement' || prop.type === 'RestElement') {
+          unknownOptions.push('...' + j(prop.argument).toSource());
           continue;
-        const key =
-          prop.key.type === 'Identifier' ? prop.key.name
-          : prop.key.type === 'StringLiteral' ? prop.key.value
-          : null;
+        }
+        const key = propKey(prop);
         if (!key) {
           unknownOptions.push('...');
           continue;
@@ -450,6 +450,13 @@ const BODY_METHODS = new Set(['post', 'put', 'patch']);
 const RESERVED_PATH_CHARS = /[{}()[\]+?!*:\\]/;
 const ORIGIN = /^(?:[a-z][a-z\d+.-]*:)?\/\/[^/?#]*/i;
 
+function isPure(node) {
+  if (node.type === 'Identifier' || node.type === 'ThisExpression') return true;
+  return (
+    node.type === 'MemberExpression' && !node.computed && isPure(node.object)
+  );
+}
+
 function memberName(node) {
   if (node.type === 'Identifier') return node.name;
   if (
@@ -473,6 +480,8 @@ function parseQuery(j, text, expressions) {
     const key = pair.slice(0, eq);
     const value = pair.slice(eq + 1);
     if (!/^[A-Za-z_$][\w$]*$/.test(key)) return null;
+    // a repeated key would collapse into one arg
+    if (props.some(p => p.key.name === key)) return null;
     if (value === '\0') {
       const expr = expressions[exprIndex++];
       props.push(
@@ -483,12 +492,13 @@ function parseQuery(j, text, expressions) {
         }),
       );
     } else if (!value.includes('\0')) {
-      props.push(
-        j.objectProperty(
-          j.identifier(key),
-          j.stringLiteral(decodeURIComponent(value)),
-        ),
-      );
+      let decoded;
+      try {
+        decoded = decodeURIComponent(value.replace(/\+/g, ' '));
+      } catch {
+        return null;
+      }
+      props.push(j.objectProperty(j.identifier(key), j.stringLiteral(decoded)));
     } else {
       return null;
     }
@@ -544,7 +554,8 @@ function toPath(j, urlArg) {
     if (!path.endsWith('/') || (next && !next.startsWith('/'))) return null;
     const expr = expressions[i];
     let name = memberName(expr) || 'param';
-    const source = j(expr).toSource();
+    // the same variable can fill two segments; anything else is evaluated once each
+    const source = isPure(expr) ? j(expr).toSource() : {};
     if (names.has(name) && names.get(name) !== source) {
       let n = 2;
       while (names.has(name + n)) n++;
@@ -564,14 +575,13 @@ function toPath(j, urlArg) {
   }
   if (!path) path = '/';
 
-  const pathArgCount = args.length;
+  let query = [];
   if (queryPart) {
-    const query = parseQuery(j, queryPart, expressions.slice(pathExprCount));
+    query = parseQuery(j, queryPart, expressions.slice(pathExprCount));
     if (!query) return null;
-    args.push(...query);
   }
 
-  return { path, urlPrefix, args, pathArgCount };
+  return { path, urlPrefix, args, query };
 }
 
 function propKey(prop) {
@@ -583,7 +593,10 @@ function propKey(prop) {
   return null;
 }
 
-/** The type an AxiosResponse<T> annotation wraps, if that's what it is */
+/**
+ * For an `AxiosResponse<T>` annotation, T; undefined for a bare
+ * `AxiosResponse`; null when it isn't an AxiosResponse at all
+ */
 function unwrapResponseType(annotation) {
   const type = annotation && annotation.typeAnnotation;
   if (
@@ -608,35 +621,11 @@ function isDataMember(node, object) {
   );
 }
 
-/** Every read of `name` bound by `scope`, under `within` */
-function bindingReads(j, within, name, scope, exclude) {
-  return j(within)
-    .find(j.Identifier, { name })
-    .filter(p => {
-      if (p.node === exclude) return false;
-      if (p.scope.lookup(name) !== scope) return false;
-      const parent = p.parent.node;
-      if (
-        parent.type === 'MemberExpression' &&
-        parent.property === p.node &&
-        !parent.computed
-      )
-        return false;
-      if (
-        (parent.type === 'ObjectProperty' || parent.type === 'Property') &&
-        parent.key === p.node &&
-        !parent.computed &&
-        !parent.shorthand
-      )
-        return false;
-      return true;
-    })
-    .paths();
-}
-
 /** Replaces each `name.data` read with `name`; false if `name` is read any other way */
 function dropDataReads(j, within, name, scope, exclude) {
-  const reads = bindingReads(j, within, name, scope, exclude);
+  const reads = readsOf(j, j(within), name, scope)
+    .filter(p => p.node !== exclude)
+    .paths();
   if (!reads.every(p => isDataMember(p.parent.node, p.node))) return false;
   reads.forEach(p => j(p.parent).replaceWith(p.node));
   return true;
@@ -725,7 +714,8 @@ function unwrapData(j, callPath) {
         .paths()[0];
       if (!dropDataReads(j, cbPath, param.name, cbPath.scope, param))
         return false;
-      param.typeAnnotation = null;
+      const bodyType = unwrapResponseType(param.typeAnnotation);
+      param.typeAnnotation = bodyType ? j.tsTypeAnnotation(bodyType) : null;
     } else {
       const inner = dataPattern(param);
       if (!inner) return false;
@@ -751,6 +741,11 @@ function unwrapData(j, callPath) {
 const GUIDE = 'https://dataclient.io/rest/guides/axios-migration';
 const TODO = 'TODO(data-client):';
 
+/** table[key], ignoring inherited keys like `toString` that source code can name */
+function own(table, key) {
+  return Object.hasOwn(table, key) ? table[key] : undefined;
+}
+
 const OPTION_ANCHORS = {
   timeout: 'timeout',
   signal: 'cancellation',
@@ -767,7 +762,7 @@ const OPTION_ANCHORS = {
 };
 
 function optionsTodo(keys, target = 'the endpoint') {
-  const anchors = [...new Set(keys.map(k => OPTION_ANCHORS[k]))];
+  const anchors = [...new Set(keys.map(k => own(OPTION_ANCHORS, k)))];
   const anchor =
     anchors.length === 1 && anchors[0] ? anchors[0] : 'quick-reference';
   return [
@@ -776,7 +771,10 @@ function optionsTodo(keys, target = 'the endpoint') {
   ];
 }
 
-/** Adds a TODO comment above the statement holding `path`, once per message */
+/**
+ * Adds a TODO comment above the nearest statement or class member holding
+ * `path` (outside any `export`), once per message
+ */
 function markTodo(j, path, message, anchor) {
   let p = path;
   while (
@@ -813,13 +811,13 @@ function buildCall(j, callPath, className, prefixed, isTS) {
   const callee = callPath.node.callee;
   const methodName = callee.property.name;
   const args = callPath.node.arguments;
-  if (args.length === 0) return { reason: 'no url' };
+  if (args.length === 0) return null;
 
   const url = toPath(j, args[0]);
-  if (!url) return { reason: 'url' };
+  if (!url) return null;
   if (prefixed) {
     // the class's urlPrefix field would override a urlPrefix option
-    if (url.urlPrefix) return { reason: 'absolute url' };
+    if (url.urlPrefix) return null;
     // axios puts a '/' between baseURL and a relative url
     if (!url.path.startsWith('/')) url.path = '/' + url.path;
   }
@@ -827,27 +825,53 @@ function buildCall(j, callPath, className, prefixed, isTS) {
   const hasBody = BODY_METHODS.has(methodName);
   const data = hasBody ? args[1] : undefined;
   const config = hasBody ? args[2] : args[1];
-  if (args.some(a => a.type === 'SpreadElement')) return { reason: 'spread' };
+  if (args.some(a => a.type === 'SpreadElement')) return null;
 
-  const callArgs = [...url.args];
+  const query = [...url.query];
+  const spreadParams = [];
   const unknownOptions = [];
+  const todos = [];
   if (config) {
-    if (config.type !== 'ObjectExpression') return { reason: 'config' };
+    if (config.type !== 'ObjectExpression') return null;
     for (const prop of config.properties) {
       const key = propKey(prop);
       if (key === 'params') {
         if (prop.value.type === 'ObjectExpression') {
-          callArgs.push(...prop.value.properties);
+          query.push(...prop.value.properties);
         } else {
-          callArgs.push(j.spreadElement(prop.value));
+          // first, so it can't replace a path param
+          spreadParams.push(j.spreadElement(prop.value));
         }
       } else if (key) {
         unknownOptions.push(key);
       } else {
-        return { reason: 'config' };
+        return null;
       }
     }
   }
+
+  // each query key must be distinct from the path params and each other
+  const keys = new Set(url.args.map(propKey));
+  for (const prop of query) {
+    const key = propKey(prop);
+    if (!key || keys.has(key)) return null;
+    keys.add(key);
+  }
+  // axios serializes arrays and objects in params its own way
+  if (
+    spreadParams.length ||
+    query.some(
+      prop =>
+        prop.value.type === 'ArrayExpression' ||
+        prop.value.type === 'ObjectExpression',
+    )
+  ) {
+    todos.push([
+      'check these query params serialize as before: arrays, nested objects and URLSearchParams need `searchToString()`',
+      'query-serialization',
+    ]);
+  }
+  const callArgs = [...spreadParams, ...url.args, ...query];
 
   const options = [];
   if (url.urlPrefix) {
@@ -869,7 +893,7 @@ function buildCall(j, callPath, className, prefixed, isTS) {
       ),
     );
   }
-  if (isTS && callArgs.length > url.pathArgCount) {
+  if (isTS && (query.length || spreadParams.length)) {
     // axios params are untyped too; narrow this once you know the query
     const searchParams = j.tsAsExpression(
       j.objectExpression([]),
@@ -883,6 +907,7 @@ function buildCall(j, callPath, className, prefixed, isTS) {
     );
     options.push(j.objectProperty(j.identifier('searchParams'), searchParams));
   }
+  // with no body, a single argument is params rather than the body
   if (hasBody && !data) {
     options.push(
       j.objectProperty(j.identifier('body'), j.identifier('undefined')),
@@ -916,6 +941,7 @@ function buildCall(j, callPath, className, prefixed, isTS) {
   return {
     node: j.callExpression(endpoint, invokeArgs),
     unknownOptions,
+    todos,
   };
 }
 
@@ -972,7 +998,7 @@ function transformDirectCalls(
       prefixedClasses.has(className),
       isTS,
     );
-    if (!result.node) {
+    if (!result) {
       markTodo(
         j,
         callPath,
@@ -984,15 +1010,16 @@ function transformDirectCalls(
     }
 
     j(callPath).replaceWith(result.node);
-    const newPath = callPath;
     if (result.unknownOptions.length) {
       const [message, anchor] = optionsTodo(result.unknownOptions);
-      markTodo(j, newPath, message, anchor);
+      markTodo(j, callPath, message, anchor);
     }
-    if (!unwrapData(j, newPath)) {
+    for (const [message, anchor] of result.todos)
+      markTodo(j, callPath, message, anchor);
+    if (!unwrapData(j, callPath)) {
       markTodo(
         j,
-        newPath,
+        callPath,
         'this resolves to the response body now, not an axios response, so drop `.data` (`status` and `headers` are gone too)',
         'call-sites',
       );
@@ -1034,37 +1061,23 @@ function markLeftovers(
 ) {
   let dirty = false;
 
+  // calls it couldn't convert are marked already
+  const isMarkedCall = p =>
+    p.parent.node.type === 'MemberExpression' &&
+    p.parent.node.object === p.node &&
+    HTTP_METHODS.has(memberName(p.parent.node));
+
   // axios instances are classes now; anything else reading them needs a hand
   for (const [name, scopes] of createToClass) {
     root
       .find(j.Identifier, { name })
-      .filter(p => {
-        const className = scopes.get(p.scope.lookup(name));
-        if (!className) return false;
-        const parent = p.parent.node;
-        if (
-          parent.type === 'MemberExpression' &&
-          parent.property === p.node &&
-          !parent.computed
-        )
-          return false;
-        if (
-          (parent.type === 'ObjectProperty' || parent.type === 'Property') &&
-          parent.key === p.node &&
-          !parent.computed &&
-          !parent.shorthand
-        )
-          return false;
-        if (parent.type === 'ClassDeclaration') return false;
-        // calls it couldn't convert are marked already
-        if (
-          parent.type === 'MemberExpression' &&
-          parent.object === p.node &&
-          HTTP_METHODS.has(memberName(parent))
-        )
-          return false;
-        return true;
-      })
+      .filter(
+        p =>
+          scopes.has(p.scope.lookup(name)) &&
+          isRead(p) &&
+          p.parent.node.type !== 'ClassDeclaration' &&
+          !isMarkedCall(p),
+      )
       .forEach(p => {
         const className = scopes.get(p.scope.lookup(name));
         const parent = p.parent.node;
@@ -1099,42 +1112,15 @@ function markLeftovers(
   }
 
   if (axiosImportScope) {
-    root
-      .find(j.Identifier, { name: axiosLocalName })
-      .filter(p => {
-        if (p.scope.lookup(axiosLocalName) !== axiosImportScope) return false;
-        const parent = p.parent.node;
-        if (parent.type.startsWith('Import')) return false;
-        if (parent.type.startsWith('TS')) return false;
-        if (
-          parent.type === 'MemberExpression' &&
-          parent.property === p.node &&
-          !parent.computed
-        )
-          return false;
-        if (
-          (parent.type === 'ObjectProperty' || parent.type === 'Property') &&
-          parent.key === p.node &&
-          !parent.computed &&
-          !parent.shorthand
-        )
-          return false;
-        // calls it couldn't convert are marked already
-        if (
-          parent.type === 'MemberExpression' &&
-          parent.object === p.node &&
-          HTTP_METHODS.has(memberName(parent))
-        )
-          return false;
-        return true;
-      })
+    readsOf(j, root, axiosLocalName, axiosImportScope, { types: false })
+      .filter(p => !isMarkedCall(p))
       .forEach(p => {
         const parent = p.parent.node;
         const member =
           parent.type === 'MemberExpression' && parent.object === p.node ?
             memberName(parent)
           : null;
-        const [message, anchor] = AXIOS_MEMBER_TODOS[member] || [
+        const [message, anchor] = own(AXIOS_MEMBER_TODOS, member) || [
           'replace this axios call with an endpoint',
           'call-sites',
         ];
@@ -1157,30 +1143,14 @@ function markLeftovers(
         const todo =
           imported === 'AxiosError' ?
             ['check `NetworkError` instead of `AxiosError`', 'error-handling']
-          : AXIOS_MEMBER_TODOS[imported];
+          : own(AXIOS_MEMBER_TODOS, imported);
         if (!todo) continue;
-        root
-          .find(j.Identifier, { name: local })
-          .filter(p => {
-            if (p.scope.lookup(local) !== importPath.scope) return false;
-            const parent = p.parent.node;
-            if (
-              parent.type.startsWith('Import') ||
-              parent.type.startsWith('TS')
-            )
-              return false;
-            if (
-              parent.type === 'MemberExpression' &&
-              parent.property === p.node &&
-              !parent.computed
-            )
-              return false;
-            return true;
-          })
-          .forEach(p => {
+        readsOf(j, root, local, importPath.scope, { types: false }).forEach(
+          p => {
             markTodo(j, p, todo[0], todo[1]);
             dirty = true;
-          });
+          },
+        );
       }
     });
 
