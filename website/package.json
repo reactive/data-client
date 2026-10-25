@@ -3,7 +3,6 @@
   "name": "rdc-website",
   "scripts": {
     "examples": "docusaurus-examples",
-    "postinstall": "node scripts/generateMonacoPreloads.cjs",
     "start": "docusaurus start",
     "start:vscode": "run start --no-open",
     "start:prod": "serve build",
@@ -53,6 +52,7 @@
     "remark-parse": "^11.0.0",
     "remark-stringify": "^11.0.0",
     "serve": "14.2.6",
+    "style-loader": "^4.0.0",
     "unified": "^11.0.4",
     "unist-util-visit": "^5.0.0",
     "vue": "^3.4.0",

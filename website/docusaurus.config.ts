@@ -14,9 +14,7 @@ import { motionCss } from './src/components/motion/css';
 import { DEFAULT_LOCALE, LOCALES } from './translate/locales';
 import versions from './versions.json';
 
-// Keep Monaco CDN preload hashes in sync with the installed monaco-editor package.
 const require = createRequire(path.join(__dirname, 'package.json'));
-require('./scripts/generateMonacoPreloads.cjs').ensureMonacoPreloadManifest();
 
 //const versionsRest = require('./rest_versions.json');
 
@@ -151,14 +149,6 @@ const config: Config = {
       attributes: {
         rel: 'preconnect',
         href: 'https://fonts.googleapis.com',
-        crossOrigin: 'anonymous',
-      },
-    },
-    {
-      tagName: 'link',
-      attributes: {
-        rel: 'preconnect',
-        href: 'https://cdn.jsdelivr.net',
         crossOrigin: 'anonymous',
       },
     },
@@ -385,6 +375,10 @@ const config: Config = {
           // social cards are for link previews, never shown on the site
           globIgnores: [
             'img/social/**',
+            // Monaco's chunks (monaco-plugin.js) and icon font; phones never
+            // load the editor
+            'assets/js/monaco*',
+            'assets/fonts/codicon-*',
             // /next/ sends its blog links to the root site's blog
             ...(isNext ? ['blog.html', 'blog/**'] : []),
           ],
@@ -569,6 +563,7 @@ const config: Config = {
     path.resolve(__dirname, './node-plugin'),
     path.resolve(__dirname, './profiling-plugin'),
     path.resolve(__dirname, './raw-plugin'),
+    path.resolve(__dirname, './monaco-plugin'),
     path.resolve(__dirname, './llms-plugin'),
     path.resolve(__dirname, './chunks-plugin'),
     path.resolve(__dirname, './build-id-plugin'),
