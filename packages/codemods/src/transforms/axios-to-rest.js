@@ -1,5 +1,8 @@
 'use strict';
 
+const fs = require('fs');
+const nodePath = require('path');
+
 /**
  * Axios → @data-client/rest migration codemod
  *
@@ -449,6 +452,150 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
   return { dirty, createToClass, prefixedClasses };
 }
 
+// --- 2b. Instances imported from another file ---
+
+// a client module usually exports `axios.create()` for the rest of the app;
+// jscodeshift runs one file at a time, so read that module to know its class
+const exportedInstanceCache = new Map();
+// a relative import and a member read that an instance could have
+const INSTANCE_CALL =
+  /from\s*['"]\.[\s\S]*\.\s*(?:get|post|put|patch|delete|interceptors|defaults)\b/;
+
+function resolveModule(fromFile, spec) {
+  const base = nodePath.resolve(nodePath.dirname(fromFile), spec);
+  const stem = base.replace(/\.[cm]?jsx?$/, '');
+  const exts = ['.ts', '.tsx', '.js', '.jsx', '.mts', '.mjs', '.cts', '.cjs'];
+  const candidates = [
+    base,
+    ...exts.map(e => stem + e),
+    ...exts.map(e => nodePath.join(base, 'index' + e)),
+  ];
+  return candidates.find(f => {
+    try {
+      return fs.statSync(f).isFile();
+    } catch {
+      return false;
+    }
+  });
+}
+
+// exported name -> { className, prefixed } for each axios instance a module
+// exports, before or after this codemod has rewritten it
+function exportedInstances(j, file) {
+  if (exportedInstanceCache.has(file)) return exportedInstanceCache.get(file);
+  const found = new Map();
+  exportedInstanceCache.set(file, found);
+  let root;
+  try {
+    root = j(fs.readFileSync(file, 'utf8'));
+  } catch {
+    return found;
+  }
+  const exportedVars = new Set();
+  const exportedClasses = new Map();
+  root.find(j.ExportNamedDeclaration).forEach(p => {
+    const decl = p.node.declaration;
+    if (!decl) return;
+    if (decl.type === 'VariableDeclaration') {
+      for (const d of decl.declarations)
+        if (d.id.type === 'Identifier') exportedVars.add(d.id.name);
+    } else if (
+      decl.type === 'ClassDeclaration' &&
+      decl.id &&
+      decl.superClass &&
+      decl.superClass.type === 'Identifier' &&
+      decl.superClass.name === 'RestEndpoint'
+    ) {
+      exportedClasses.set(
+        decl.id.name,
+        decl.body.body.some(
+          m => m.key && m.key.name === 'urlPrefix' && !m.static,
+        ),
+      );
+    }
+  });
+
+  const axiosDefault = root
+    .find(j.ImportDeclaration, { source: { value: 'axios' } })
+    .find(j.ImportDefaultSpecifier)
+    .nodes()[0];
+  if (axiosDefault) {
+    // not rewritten yet: name the classes the way the rewrite will
+    const { createToClass, prefixedClasses } = transformAxiosCreate(
+      j,
+      root,
+      axiosDefault.local.name,
+      /\.[cm]?tsx?$/.test(file),
+    );
+    for (const [name, scopes] of createToClass) {
+      if (!exportedVars.has(name) || scopes.size !== 1) continue;
+      const className = [...scopes.values()][0];
+      found.set(name, {
+        className,
+        prefixed: prefixedClasses.has(className),
+      });
+    }
+  }
+  // rewritten already: the instance's export is gone and its class is there
+  for (const [className, prefixed] of exportedClasses) {
+    const name = className.replace(/Endpoint$/, '');
+    for (const candidate of [
+      name,
+      name.charAt(0).toLowerCase() + name.slice(1),
+    ])
+      if (
+        deriveClassName(candidate) === className &&
+        !exportedVars.has(candidate) &&
+        !found.has(candidate)
+      )
+        found.set(candidate, { className, prefixed });
+  }
+  return found;
+}
+
+// named imports of axios instances from relative modules; renames each
+// import to the instance's class once the caller has converted the calls
+function importedInstances(j, root, filePath) {
+  const createToClass = new Map();
+  const prefixedClasses = new Set();
+  const renames = [];
+  if (!filePath) return { createToClass, prefixedClasses, renames };
+  const taken = getExistingClassNames(j, root);
+  root
+    .find(j.ImportDeclaration)
+    .filter(
+      p =>
+        p.node.importKind !== 'type' &&
+        typeof p.node.source.value === 'string' &&
+        p.node.source.value.startsWith('.'),
+    )
+    .forEach(importPath => {
+      const file = resolveModule(filePath, importPath.node.source.value);
+      if (!file) return;
+      const instances = exportedInstances(j, file);
+      if (!instances.size) return;
+      for (const s of importPath.node.specifiers || []) {
+        if (s.type !== 'ImportSpecifier' || s.importKind === 'type') continue;
+        const imported = s.imported.name || s.imported.value;
+        const instance = instances.get(imported);
+        if (!instance) continue;
+        const local = (s.local && s.local.name) || imported;
+        const { className, prefixed } = instance;
+        // another binding already has the class's name
+        if (
+          taken.has(className) ||
+          root.find(j.Identifier, { name: className }).size()
+        )
+          continue;
+        const scope = importPath.scope.lookup(local) || importPath.scope;
+        createToClass.set(local, new Map([[scope, className]]));
+        if (prefixed) prefixedClasses.add(className);
+        renames.push({ declaration: importPath.node, specifier: s, className });
+      }
+    });
+  return { createToClass, prefixedClasses, renames };
+}
+
 // --- 3. Transform direct axios/instance method calls ---
 
 const BODY_METHODS = new Set(['post', 'put', 'patch']);
@@ -711,9 +858,13 @@ function dataPattern(pattern) {
 function unwrapData(j, callPath) {
   const parent = callPath.parent;
 
+  // `await api.delete(url);` reads nothing from the response
+  if (parent.node.type === 'ExpressionStatement') return true;
+
   if (parent.node.type === 'AwaitExpression') {
     const awaitNode = parent.node;
     const outer = parent.parent;
+    if (outer.node.type === 'ExpressionStatement') return true;
     if (isDataMember(outer.node, awaitNode)) {
       // (await x).data loses its parentheses with its .data
       if (awaitNode.extra) awaitNode.extra.parenthesized = false;
@@ -1267,16 +1418,19 @@ function markLeftovers(
 // --- Main ---
 
 module.exports = function transformer(fileInfo, api) {
-  // skip parsing files that can't import axios
-  if (!fileInfo.source.includes('axios')) return fileInfo.source;
+  // skip parsing files that neither import axios nor could call an instance
+  // imported from another module
+  const { source } = fileInfo;
+  if (!source.includes('axios') && !INSTANCE_CALL.test(source)) return source;
   const j = api.jscodeshift;
-  const root = j(fileInfo.source);
+  const root = j(source);
   const isTS = /\.[cm]?tsx?$/.test(fileInfo.path || '');
 
   const axiosImport = root
     .find(j.ImportDeclaration)
     .filter(p => p.node.source.value === 'axios');
-  if (!axiosImport.length) return fileInfo.source;
+  const imported = importedInstances(j, root, fileInfo.path);
+  if (!axiosImport.length && !imported.renames.length) return source;
 
   let axiosLocalName = 'axios';
   let axiosImportScope = null;
@@ -1294,6 +1448,10 @@ module.exports = function transformer(fileInfo, api) {
 
   const createResult = transformAxiosCreate(j, root, axiosLocalName, isTS);
   dirty = createResult.dirty || dirty;
+  for (const [name, scopes] of imported.createToClass)
+    createResult.createToClass.set(name, scopes);
+  for (const className of imported.prefixedClasses)
+    createResult.prefixedClasses.add(className);
 
   const calls = transformDirectCalls(
     j,
@@ -1315,18 +1473,28 @@ module.exports = function transformer(fileInfo, api) {
       createResult.createToClass,
     ) || dirty;
 
-  dirty =
-    transformImports(
-      j,
-      root,
-      axiosLocalName,
-      createResult.dirty || directCallsDirty,
-      isTS && createResult.dirty ?
-        ['RestEndpoint', 'RestGenerics']
-      : ['RestEndpoint'],
-    ) || dirty;
+  // after the calls, which look the instance up by its imported name
+  for (const { declaration, specifier, className } of imported.renames) {
+    declaration.specifiers = declaration.specifiers.map(s =>
+      s === specifier ? j.importSpecifier(j.identifier(className)) : s,
+    );
+    dirty = true;
+  }
 
-  return dirty ? root.toSource({ quote: 'single' }) : fileInfo.source;
+  if (axiosImport.length) {
+    dirty =
+      transformImports(
+        j,
+        root,
+        axiosLocalName,
+        createResult.dirty || directCallsDirty,
+        isTS && createResult.dirty ?
+          ['RestEndpoint', 'RestGenerics']
+        : ['RestEndpoint'],
+      ) || dirty;
+  }
+
+  return dirty ? root.toSource({ quote: 'single' }) : source;
 };
 
 module.exports.parser = 'tsx';

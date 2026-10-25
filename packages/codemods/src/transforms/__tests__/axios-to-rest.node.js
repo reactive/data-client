@@ -1,9 +1,12 @@
 'use strict';
 
+const fs = require('fs');
 const {
   defineInlineTest,
   runInlineTest,
 } = require('jscodeshift/dist/testUtils');
+const os = require('os');
+const path = require('path');
 
 const transform = require('../axios-to-rest');
 
@@ -1217,6 +1220,29 @@ async function save() {
       `,
       'marks reads of response fields other than data',
     );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+async function remove(id) {
+  await axios.delete(\`/users/\${id}\`);
+}
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+async function remove(id) {
+  await new RestEndpoint({
+    path: '/users/:id',
+    method: 'DELETE'
+  })({
+    id
+  });
+}
+      `,
+      'leaves no .data note on a call whose result is unused',
+    );
   });
 
   // ── Urls and config ─────────────────────────────────────────────────
@@ -1561,6 +1587,97 @@ api.interceptors.request.use(config => config);
       `,
       'marks instance options and interceptors it cannot move',
     );
+  });
+
+  // ── Instances from another file ────────────────────────────────────
+
+  describe('instances imported from another file', () => {
+    // each test gets its own folder, since the transform caches what it reads
+    const run = (files, file) => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'axios-to-rest-'));
+      for (const [name, source] of Object.entries(files))
+        fs.writeFileSync(path.join(dir, name), source);
+      const filePath = path.join(dir, file);
+      return transform(
+        { path: filePath, source: files[file] },
+        { jscodeshift: require('jscodeshift').withParser('tsx'), stats() {} },
+        {},
+      ).trim();
+    };
+    const posts = `
+import { api } from './client';
+export async function getPost(id: number) {
+  const res = await api.get<Post>(\`/posts/\${id}\`);
+  return res.data;
+}
+`;
+    const converted = `
+import { ApiEndpoint } from './client';
+export async function getPost(id: number) {
+  const res = await (new ApiEndpoint({
+    path: '/posts/:id'
+  })({
+    id
+  }) as Promise<Post>);
+  return res;
+}`.trim();
+
+    it('converts calls on an instance a client module exports', () => {
+      const client = `
+import axios from 'axios';
+export const api = axios.create({ baseURL: 'https://api.example.com' });
+`;
+      expect(run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts')).toBe(
+        converted,
+      );
+    });
+
+    it('converts calls once the client module is rewritten', () => {
+      const client = `
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
+export class ApiEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+  urlPrefix = 'https://api.example.com';
+}
+`;
+      expect(run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts')).toBe(
+        converted,
+      );
+    });
+
+    it('follows an aliased import', () => {
+      const client = `
+import axios from 'axios';
+export const api = axios.create();
+`;
+      const source = `
+import { api as http } from './client';
+export function listPosts() {
+  return http.get('/posts').then(res => res.data);
+}
+`;
+      expect(run({ 'client.ts': client, 'posts.ts': source }, 'posts.ts')).toBe(
+        `
+import { ApiEndpoint } from './client';
+export function listPosts() {
+  return new ApiEndpoint({
+    path: '/posts'
+  })();
+}`.trim(),
+      );
+    });
+
+    it('leaves other imports with a get() alone', () => {
+      const source = `
+import { cache } from './cache';
+export const hit = cache.get('posts');
+`;
+      expect(
+        run(
+          { 'cache.ts': 'export const cache = new Map();\n', 'use.ts': source },
+          'use.ts',
+        ),
+      ).toBe(source.trim());
+    });
   });
 
   // ── TypeScript ──────────────────────────────────────────────────────

@@ -23,6 +23,9 @@ const res = await (new ApiEndpoint({
 return res;
 ```
 
+Calls through an `axios.create()` instance that another file exports, like `import { api } from './client'`, are
+converted too, and their import becomes the instance's new endpoint class.
+
 Anything it can't convert, such as interceptors, `timeout` or `isAxiosError()`, gets a `// TODO(data-client):` comment
 that links the [axios migration guide](https://dataclient.io/rest/guides/axios-migration) section covering it. Search
 for `TODO(data-client)` after running it.

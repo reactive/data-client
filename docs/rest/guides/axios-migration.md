@@ -22,7 +22,7 @@ so how the app loads and stores data doesn't change; only the call shape does. A
 Paste this into your agent's chat:
 
 ```prompt
-Replace this app's axios calls with `@data-client/rest` endpoints, without changing how components load or store data. Install the REST setup skill first: `npx skills add reactive/data-client --skill data-client-rest-setup -y`, then follow it.
+Replace this app's axios calls with `@data-client/rest` endpoints, without changing how components load or store data. Install the REST setup skill first: `npx skills add reactive/data-client --skill data-client-rest-setup -y`, then read `.agents/skills/data-client-rest-setup/SKILL.md` and follow it.
 ```
 
 The REST setup [skill](/docs/getting-started/agent-skills) follows this guide: it runs the codemod, then works through
