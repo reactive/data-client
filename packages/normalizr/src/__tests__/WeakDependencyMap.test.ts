@@ -333,39 +333,115 @@ describe('WeakDependencyMap eviction', () => {
     expect(wem.get(root, withB(S))[0]).toBe('S');
   });
 
-  it('keeps entries that reach different argsKey fns first reachable', () => {
+  describe('argsKey branches', () => {
     // a missing entity skips its nested argsKey, so which fn comes first can
     // change between store snapshots of the same schema and args
-    const wem = new WeakDependencyMap<EntityPath>();
     const portfolio = (args: readonly any[]) => args[0]?.portfolio;
     const currency = (args: readonly any[]) => args[0]?.currency;
-    const args = [{ portfolio: 'P', currency: 'USD' }];
-    const getEntity = MemoPolicy.getEntities({ A: { '1': root } });
-    wem.set(
-      [rootDep, { path: currency, entity: undefined }],
-      'A missing',
-      args,
-    );
-    wem.set(
-      [
-        rootDep,
-        { path: portfolio, entity: undefined },
-        { path: currency, entity: undefined },
-      ],
-      'A loaded',
-      args,
-    );
-    // both snapshots keep hitting as they alternate
-    for (let i = 0; i < 2; i++) {
-      expect(wem.get(root, getEntity, args)[0]).toBeDefined();
+    const region = (args: readonly any[]) => args[0]?.region;
+    const args = [{ portfolio: 'P', currency: 'USD', region: 'EU' }];
+    const c = (entity: object | undefined) => ({
+      path: { key: 'C', pk: '2' },
+      entity,
+    });
+    const fn = (path: (args: readonly any[]) => string | undefined) => ({
+      path,
+      entity: undefined,
+    });
+    const withC = (entity: object | undefined) =>
+      MemoPolicy.getEntities({ A: { '1': root }, C: { '2': entity as any } });
+    const loaded = { c: 1 };
+    const changed = { c: 2 };
+    function setup() {
+      const wem = new WeakDependencyMap<EntityPath>();
+      wem.set([rootDep, c(undefined)], 'plain', args);
+      wem.set([rootDep, c(undefined), fn(currency)], 'C missing', args);
+      wem.set(
+        [rootDep, c(loaded), fn(portfolio), fn(currency)],
+        'C loaded',
+        args,
+      );
+      // a second branch below the root: the lookup has to come back to it
+      wem.set([rootDep, c(changed), fn(portfolio), fn(region)], 'region', args);
+      return wem;
     }
-    expect(
-      wem.get(root, getEntity, [{ portfolio: 'Q', currency: 'USD' }])[0],
-    ).toBe('A missing');
-    // never the wrong value: an entry is validated against its own fns
-    expect(
-      wem.get(root, getEntity, [{ portfolio: 'P', currency: 'EUR' }])[0],
-    ).toBeUndefined();
+
+    it('finds the entry for each snapshot as they alternate', () => {
+      const wem = setup();
+      for (let i = 0; i < 2; i++) {
+        // the first branch's child doesn't match, so the other branch is tried
+        expect(wem.get(root, withC(loaded), args)[0]).toBe('C loaded');
+        // root entries are checked before any branch
+        expect(wem.get(root, withC(undefined), args)[0]).toBe('plain');
+        // two branches deep: currency's child misses, then region's is tried
+        expect(wem.get(root, withC(changed), args)[0]).toBe('region');
+      }
+    });
+
+    it('never returns an entry whose own argsKey results differ', () => {
+      const wem = setup();
+      expect(
+        wem.get(root, withC(loaded), [{ ...args[0], currency: 'EUR' }])[0],
+      ).toBeUndefined();
+      expect(
+        wem.get(root, withC(changed), [{ ...args[0], region: 'US' }])[0],
+      ).toBeUndefined();
+      expect(wem.get(root, withC({ c: 3 }), args)[0]).toBeUndefined();
+    });
+
+    it('keeps rows under the same fn apart by args', () => {
+      // a Scalar lens: every row records the same argsKey fn
+      const wem = new WeakDependencyMap<EntityPath>();
+      const row2 = (entity: object) => ({
+        path: { key: 'D', pk: '2' },
+        entity,
+      });
+      const withRows = (c2: object, d2: object) =>
+        MemoPolicy.getEntities({
+          A: { '1': root },
+          C: { '2': c2 },
+          D: { '2': d2 },
+        });
+      const r1 = { r: 1 };
+      const r2 = { r: 2 };
+      for (const p of ['A', 'B']) {
+        wem.set([rootDep, fn(portfolio), c(r1), fn(portfolio), row2(r2)], p, [
+          { portfolio: p },
+        ]);
+      }
+      for (let i = 0; i < 2; i++) {
+        for (const p of ['A', 'B']) {
+          expect(wem.get(root, withRows(r1, r2), [{ portfolio: p }])[0]).toBe(
+            p,
+          );
+        }
+      }
+      expect(
+        wem.get(root, withRows(r1, { r: 3 }), [{ portfolio: 'A' }])[0],
+      ).toBeUndefined();
+    });
+
+    it('evicts inside an argsKey child as at the root', () => {
+      const wem = new WeakDependencyMap<EntityPath>();
+      const [b2, b3, b4, b5] = [[2], [3], [4], [5]];
+      const b = [1];
+      const one = [{ portfolio: 'P' }];
+      const setB = (entity: object, value: string) =>
+        wem.set([rootDep, fn(portfolio), dep(entity)], value, one);
+      const get = (entity: object) => wem.get(root, withB(entity), one)[0];
+      setB(b, 'b');
+      setB(b2, 'b2');
+      setB(b3, 'b3');
+      setB(b4, 'b4');
+      expect(get(b2)).toBeUndefined();
+      expect(get(b)).toBe('b');
+      expect(get(b3)).toBe('b3');
+      setB(b5, 'b5');
+      expect(get(b4)).toBeUndefined();
+      setB(b4, 'b4 again');
+      expect(get(b)).toBeUndefined();
+      expect(get(b3)).toBe('b3');
+    });
   });
 
   it('looks up values behind many nested argsKey deps', () => {
