@@ -125,7 +125,10 @@ describe('folded fixtures', () => {
         {fences()}
       </Playground>,
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Fixtures' }));
+    expect(container.textContent).not.toContain('/article/1');
+    const toggle = screen.getByRole('button', { name: 'Fixtures' });
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
     expect(container.textContent).toContain('/article/1');
   });
 });

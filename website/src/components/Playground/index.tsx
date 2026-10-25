@@ -180,9 +180,9 @@ export default function Playground<T>({
   const fixtureContent =
     fixtures.length ? <FixturePreview fixtures={fixtures} /> : undefined;
   // folded into the preview's header (row, demo), the fixtures render once
-  // the pointer or focus reaches the playground, not in the HTML (or the
-  // page) before: in time for the toggle's hover preview to fade in. Until
-  // then `false` holds the toggle's place
+  // the pointer, focus or a click reaches the playground, not in the HTML
+  // (or the page) before: in time for the toggle's hover preview to fade
+  // in. Until then `false` holds the toggle's place
   const [fixturesNear, setFixturesNear] = useState(false);
   const previewFixtures =
     layout === 'stacked' || !fixtureContent ? undefined
@@ -260,7 +260,7 @@ export default function Playground<T>({
         data-store-moving={storeMoving || undefined}
         onPointerOver={nearFixtures}
         onFocus={nearFixtures}
-        // a click with neither (a script's, assistive tech's) opens them full
+        // also a click with neither (a script's, assistive tech's)
         onClick={nearFixtures}
       >
         {demo ?

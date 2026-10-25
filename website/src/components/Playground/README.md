@@ -46,9 +46,10 @@ and `editor/callouts.ts`.
   row's Store folder).
 - What the first paint doesn't show stays out of the HTML (DOM size counts
   against the page): the Store's tree loads with the live preview, the
-  fixtures popover's rows render once the pointer or focus reaches the
-  playground (`index.tsx`, so they outlive the preview's remounts), and code not yet shown (a hidden tab, a demo's
-  code) is plain text, not highlighted, until it shows.
+  fixtures popover's rows render once the pointer, focus or a click
+  reaches the playground (`index.tsx`, so they outlive the preview's
+  remounts), and code not yet shown (a hidden tab, a demo's code) is plain
+  text, not highlighted, until it shows.
 - Loading goes straight to loaded. The page's first paint, the chunk
   loading and the app waiting on data all draw `preview/PendingSheet.tsx`,
   and `PreviewHeaderControls` gives the loading and live headers the same
