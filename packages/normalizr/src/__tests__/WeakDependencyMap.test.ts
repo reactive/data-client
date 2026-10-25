@@ -337,6 +337,13 @@ describe('WeakDependencyMap eviction', () => {
     expect(
       wem.get(root, getEntity, [{ userId: 'bob', team: 'y' }])[0],
     ).toBeUndefined();
+    // fnB routes to A's bucket, but A's own fnA rejects these args
+    expect(
+      wem.get(root, getEntity, [{ userId: 'alice', team: 'bob' }])[0],
+    ).toBeUndefined();
+    expect(
+      wem.get(root, getEntity, [{ userId: 'bob', team: 'bob' }])[0],
+    ).toBe('A');
   });
 
   it('a shorter dependency list at the same root is served when the longer one mismatches', () => {
