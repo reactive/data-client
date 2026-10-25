@@ -758,9 +758,11 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 /* The handle: a pull tab of the folder's paper on the drawer's edge, out
    past the preview's edge and, drawn out, the Store's; it curves into
-   that edge either side as the open file's tab does into its card */
+   that edge either side as the open file's tab does into its card; over
+   that edge's shadow, so the two read as one paper */
 .storeTab {
   position: absolute;
+  z-index: 1;
   display: grid;
   place-items: center;
   --pg-fillet-color: var(--pg-stage);
