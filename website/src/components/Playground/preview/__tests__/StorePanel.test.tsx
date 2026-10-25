@@ -330,9 +330,13 @@ describe('StorePanel table view', () => {
     actions.focus();
     fireEvent.keyDown(actions, { key: 'Enter' });
     expect(actions.getAttribute('aria-selected')).toBe('true');
-    // the view switches ride the tab row while State is picked
-    fireEvent.keyDown(actions, { key: 'End' });
-    fireEvent.keyDown(actions, { key: 'ArrowLeft' });
+    state.focus();
+    fireEvent.keyDown(state, { key: ' ' });
+    expect(state.getAttribute('aria-selected')).toBe('true');
+  });
+
+  it("puts State's view switches in the tab row", () => {
+    mount();
     expect(
       screen
         .getByRole('tablist')

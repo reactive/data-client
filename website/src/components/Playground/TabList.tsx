@@ -34,8 +34,8 @@ export default function TabList({
 }) {
   const list = useRef<HTMLDivElement>(null);
   const selected = tabs.findIndex(tab => tab.selected);
-  const fileTabs = tabClassName === undefined;
-  useFlushEdges(list, selected, fileTabs);
+  const defaultLook = tabClassName === undefined;
+  useFlushEdges(list, selected, defaultLook);
   // the selected tab is the one in the tab order; the arrows move from it
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     // modified keys keep their own meaning (Alt+← is Back)
@@ -55,15 +55,6 @@ export default function TabList({
       case 'End':
         to = tabs.length - 1;
         break;
-      // the focused tab, as a click picks it (a picked tab may act again)
-      case 'Enter':
-      case ' ':
-        to = Array.prototype.indexOf.call(
-          event.currentTarget.children,
-          event.target,
-        );
-        if (to < 0) return;
-        break;
       default:
         return;
     }
@@ -74,7 +65,7 @@ export default function TabList({
   return (
     <div
       ref={list}
-      className={fileTabs ? clsx(styles.tabs, className) : className}
+      className={defaultLook ? clsx(styles.tabs, className) : className}
       role="tablist"
       aria-orientation="horizontal"
       aria-label={label}
@@ -88,8 +79,14 @@ export default function TabList({
           key={key}
           title={title}
           onClick={onSelect}
+          // as a click (a picked tab may act again)
+          onKeyDown={event => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            onSelect();
+          }}
           className={
-            fileTabs ?
+            defaultLook ?
               clsx(styles.tab, { [styles.selected]: selected })
             : tabClassName
           }
