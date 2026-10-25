@@ -24,18 +24,19 @@ export const claudePluginCommand = [
   'claude plugin install data-client@data-client --scope project',
 ].join('\n');
 
-const setupTask = framework =>
+/** What the setup prompts ask for; pages can ask the setup skill for another job it covers, like migrating from axios */
+export const setupTask = framework =>
   `Set up \`@data-client/${framework}\` and use it for all API data`;
 
 /** The prompt any agent takes: installs the setup skill, then follows it.
  * AgentPrompt's translate() default repeats it as a literal for i18n extraction */
-export const setupPrompt = pkg =>
-  `${setupTask(pkg)}. Install its setup skill first: \`${setupCommand}\`, then follow it.`;
+export const setupPrompt = task =>
+  `${task}. Install its setup skill first: \`${setupCommand}\`, then follow it.`;
 
 /** Starts the plugin's setup skill by name; through the router skill, Claude
  * would read it from the plugin cache, outside the project, and ask first */
-export const claudeSetupPrompt = framework =>
-  `/data-client:data-client-setup ${setupTask(framework)}`;
+export const claudeSetupPrompt = task =>
+  `/data-client:data-client-setup ${task}`;
 
 /** Installs the Cursor plugin from .cursor-plugin, typed in Cursor's agent
  * chat; its skills load from the next chat */
@@ -44,8 +45,7 @@ const cursorPlugin = repo =>
 export const cursorPluginCommand = cursorPlugin('reactive/data-client');
 
 /** Cursor starts a plugin skill by its own name */
-export const cursorSetupPrompt = framework =>
-  `/data-client-setup ${setupTask(framework)}`;
+export const cursorSetupPrompt = task => `/data-client-setup ${task}`;
 
 /**
  * Codex reads the Claude Code marketplace; --sparse checks out only the
@@ -59,8 +59,8 @@ const codexPlugin = repo =>
 export const codexPluginCommand = codexPlugin('reactive/data-client');
 
 /** Codex starts a skill when the prompt mentions it as `$plugin:skill` */
-export const codexSetupPrompt = framework =>
-  `$data-client:data-client-setup ${setupTask(framework)}`;
+export const codexSetupPrompt = task =>
+  `$data-client:data-client-setup ${task}`;
 
 /**
  * @typedef {{ skillPackages: Record<string, string[]>, setupSkills: string[], plugin: { plugins: { name: string, skills: string[] }[] } }} SkillSources

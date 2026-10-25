@@ -14,13 +14,22 @@ import {
   cursorPluginCommand,
   cursorSetupPrompt,
   codexSetupPrompt,
+  setupPrompt,
+  setupTask,
 } from '../../framework-docs/skillCommands.mjs';
+
+interface Props {
+  /** what the setup skill does, in place of setting up Data Client, like
+   * "Migrate this app from axios to `@data-client/rest`" */
+  task?: string;
+}
 
 /** Ways to set up Data Client with an agent: agents' own plugins first
  * (install, then start setup in the agent's chat), then the
  * prompt other agents take in their chat */
-export default function SetupTabs() {
+export default function SetupTabs({ task }: Props) {
   const framework = useFramework();
+  const request = task ?? setupTask(framework);
   return (
     <Tabs groupId="agent-setup" className={styles.tabs}>
       <TabItem
@@ -33,7 +42,7 @@ export default function SetupTabs() {
           {claudePluginCommand}
         </CodeBlock>
         <AgentPrompt
-          prompt={claudeSetupPrompt(framework)}
+          prompt={claudeSetupPrompt(request)}
           title="Claude Code"
           framed
         />
@@ -53,7 +62,7 @@ export default function SetupTabs() {
           </Translate>
         </p>
         <AgentPrompt
-          prompt={cursorSetupPrompt(framework)}
+          prompt={cursorSetupPrompt(request)}
           title="Cursor"
           framed
         />
@@ -66,18 +75,15 @@ export default function SetupTabs() {
         <CodeBlock className="language-bash" metastring="framed">
           {codexPluginCommand}
         </CodeBlock>
-        <AgentPrompt
-          prompt={codexSetupPrompt(framework)}
-          title="Codex"
-          framed
-        />
+        <AgentPrompt prompt={codexSetupPrompt(request)} title="Codex" framed />
       </TabItem>
       <TabItem
         value="other"
         attributes={{ className: styles.other }}
         label="Other agents"
       >
-        <AgentPrompt framed />
+        {/* the default prompt is translated */}
+        <AgentPrompt prompt={task ? setupPrompt(task) : undefined} framed />
       </TabItem>
     </Tabs>
   );
