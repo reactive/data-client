@@ -20,6 +20,11 @@
      takes when its own content sets the height */
   --store-min: min(24rem, 70svh);
   --store-cap: min(32rem, 70svh);
+  /* the app's sheet's corners, which the Store's sheet shares */
+  --pg-sheet-radius: 12px;
+  /* a tab rising from its card: the files', the Store's and the fixtures' */
+  --pg-tab-radius: 8px 8px 0 0;
+  --pg-tab-pad: 0 0.85rem;
   /* The Store's palette, shared with the Fixtures panel (both code-colored
      in either theme); the light timeline re-declares it (store.module.css) */
   --store-fg: rgb(191, 199, 213);
@@ -396,8 +401,8 @@ div.playgroundTextEdit > .playgroundHeader,
   --store-fg: #d9e0ea;
   --store-muted: var(--pg-muted);
   --store-dim: #6f7c93;
-  --store-line: rgba(233, 238, 246, 0.08);
-  --store-line-strong: rgba(233, 238, 246, 0.15);
+  --store-line: color-mix(in srgb, var(--pg-text) 8%, transparent);
+  --store-line-strong: color-mix(in srgb, var(--pg-text) 15%, transparent);
   --store-hover: var(--pg-hover);
   --store-tip: var(--pg-panel-2);
   transition: --store-top var(--ifm-transition-fast) ease;
@@ -417,10 +422,8 @@ div.playgroundTextEdit > .playgroundHeader,
   --store-type: #8a3fb8;
   --store-fresh: #1d8049;
   --store-stale: #a26600;
-  --store-line: rgba(11, 18, 32, 0.08);
-  --store-line-strong: rgba(11, 18, 32, 0.15);
-  --store-selected: rgba(47, 95, 196, 0.14);
-  --store-record: rgba(47, 95, 196, 0.06);
+  --store-selected: color-mix(in srgb, var(--store-key) 14%, transparent);
+  --store-record: color-mix(in srgb, var(--store-key) 6%, transparent);
   --store-tip: #fff;
 }
 /* beside the result, as tall as it when that is past the Store's own cap,
@@ -529,8 +532,8 @@ div.playgroundTextEdit > .playgroundHeader,
   gap: 0.5em;
   white-space: nowrap;
   height: 100%;
-  padding: 0 0.85rem;
-  border-radius: 8px 8px 0 0;
+  padding: var(--pg-tab-pad);
+  border-radius: var(--pg-tab-radius);
   color: var(--ifm-color-emphasis-800);
   box-shadow: none;
   /* its paper (background and curves) comes and goes at once, together */
@@ -998,7 +1001,7 @@ div.playgroundTextEdit > .playgroundHeader,
 .row
   .previewHeader:has(+ .fixturesAnchor > .fixturesPopover:hover)
   .headerButton.fixturesToggle {
-  border-radius: 8px 8px 0 0;
+  border-radius: var(--pg-tab-radius);
   background: var(--fixtures-tab);
   color: var(--pg-tab-selected);
 }
@@ -1010,7 +1013,7 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 @media (hover: hover) {
   .row .headerButton.fixturesToggle:hover {
-    border-radius: 8px 8px 0 0;
+    border-radius: var(--pg-tab-radius);
     background: var(--fixtures-tab);
     color: var(--pg-tab-selected);
   }
@@ -1059,7 +1062,7 @@ div.playgroundTextEdit > .playgroundHeader,
 .sheet {
   flex: 1 0 auto;
   padding: var(--pg-sheet-pad);
-  border-radius: 12px 12px 0 0;
+  border-radius: var(--pg-sheet-radius) var(--pg-sheet-radius) 0 0;
   background: var(--pg-panel);
   /* the progress bar's corners stay inside the radius */
   overflow: clip;
@@ -1376,6 +1379,11 @@ div.fixtureJson + div.fixtureJson {
     --pg-preview-col: max(16rem, calc((100cqw - var(--pg-gap)) * 0.35));
     /* the preview's edge, where the drawer parks */
     --pg-fold: calc(100cqw - var(--pg-preview-col));
+    /* how far the Store's header runs on past the fold: over the preview's
+       inset and rounded corner, and a pixel into the preview's header
+       (painted boxes snap to pixels and the clip doesn't, so short of it
+       its shadow shows as a hairline) */
+    --pg-head-run: calc(var(--pg-head-inset) + var(--pg-card-radius) + 1px);
     display: grid;
     grid-template-columns: minmax(0, 1fr) var(--pg-preview-col);
     /* the tabs' row is the preview header's row */
@@ -1518,9 +1526,7 @@ div.fixtureJson + div.fixtureJson {
      inset and lands on the preview's, the same shape */
   .row > .storeHost {
     grid-area: 1 / 1 / 3 / 3;
-    --pg-fold-head: calc(
-      var(--pg-fold) + var(--pg-head-inset) + var(--pg-card-radius) + 1px
-    );
+    --pg-fold-head: calc(var(--pg-fold) + var(--pg-head-run));
     clip-path: polygon(
       -4rem -4rem,
       var(--pg-fold-head) -4rem,
@@ -1551,11 +1557,7 @@ div.fixtureJson + div.fixtureJson {
     --store-folder-foot: var(--pg-card-radius);
     --store-folder-end: var(--pg-preview-gap, 0px);
     --store-body-pad: 0 var(--pg-gap) 0 0;
-    /* its header on past the fold over the preview's inset and rounded
-       corner, and a pixel into the preview's header: painted boxes snap to
-       pixels and the clip doesn't, so short of it its shadow shows as a
-       hairline */
-    --store-head-run: calc(var(--pg-head-inset) + var(--pg-card-radius) + 1px);
+    --store-head-run: var(--pg-head-run);
   }
   /* sliding shut, what its header holds would pass that run, beside the
      preview's label: it fades as the drawer goes */
@@ -1649,11 +1651,11 @@ div.fixtureJson + div.fixtureJson {
   }
   /* its header edge to edge, rounded as the code card under it is: an
      inset would show the code through its sides; its sheet ends short of
-     the foot, rounded, as the code card does */
+     the foot, rounded as its top is */
   .row > .storeHost .storePanel {
     --store-head-start: 0;
     --store-head-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;
-    --store-sheet-foot: 12px;
+    --store-sheet-foot: var(--pg-sheet-radius);
     --store-body-pad: 0 0 var(--pg-gap);
   }
   /* its content's shadow (its header casts its own), from a box that stops

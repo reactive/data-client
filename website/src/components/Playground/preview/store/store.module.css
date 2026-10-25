@@ -145,7 +145,8 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  border-radius: 12px 12px var(--store-sheet-foot, 0) var(--store-sheet-foot, 0);
+  border-radius: var(--pg-sheet-radius) var(--pg-sheet-radius)
+    var(--store-sheet-foot, 0) var(--store-sheet-foot, 0);
   background: var(--store-bg);
   overflow: clip;
 }
@@ -184,9 +185,9 @@
 .tab {
   display: inline-flex;
   align-items: center;
-  padding: 0 0.85rem;
+  padding: var(--pg-tab-pad);
   border: 0;
-  border-radius: 8px 8px 0 0;
+  border-radius: var(--pg-tab-radius);
   background: none;
   color: inherit;
   font: inherit;
