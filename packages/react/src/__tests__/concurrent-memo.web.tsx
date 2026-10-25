@@ -458,9 +458,8 @@ describeConcurrent.each([1, 2])(
       await finishTransition('X');
       const projectReads = reads.filter(r => r.who === 'project');
       trace('single-entity read');
-      // A pk input never reaches the endpoints tier, so commit pins don't
-      // cover it: recency alone keeps it, with at most one recompute.
-      expect(avoidableMisses(projectReads)).toBeLessThanOrEqual(1);
+      // a pk input: commit pins the top-level entity's own entry
+      expect(avoidableMisses(projectReads)).toBe(0);
       expect(avoidableMisses(reads.filter(r => r.who !== 'project'))).toBe(0);
     });
 
