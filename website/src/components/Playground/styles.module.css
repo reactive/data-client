@@ -149,23 +149,24 @@
   --pg-tab-selected-bg: var(--monoco-code-background);
 }
 /* Dark mode: the frame is a muted slate of the code's indigo, so the code
-   (and the active tab, which matches it) keeps the color. Bars sit a step
-   above the code, and the preview a half step, so the top row reads as one
-   band. The editor's slate and the preview's navy each sit 40% of the way
-   toward the other (in OKLab), so they read as one family with a hint of
-   difference */
+   (and the active tab, which matches it) keeps the color. The editor's slate
+   and the preview's navy each sit 20% of the way toward the other (in
+   OKLab), so they read as one family with a hint of difference. Each side
+   keeps its depth: the editor's bars a step above the code, and the
+   preview's stage a step below its sheet, about as far, so the sheet stands
+   out as clearly as the code does */
 :root[data-theme='dark'] .playgroundContainer:not(.endpointPlayground) {
-  --pg-bar: #21262f;
-  --pg-tab-hover-bg: #2c313c;
+  --pg-bar: #292c34;
+  --pg-tab-hover-bg: #343842;
 }
 :root[data-theme='dark'] .playgroundContainer {
   /* the sheet a step above the stage, its wells a step above that */
-  --pg-panel: #181e2a;
-  --pg-panel-2: #202837;
-  --pg-line: #2c364d;
-  --pg-stage: linear-gradient(170deg, #1a1e26, #19222b);
-  --pg-text: #eaedf5;
-  --pg-muted: #96a1b5;
+  --pg-panel: #151c28;
+  --pg-panel-2: #1d2635;
+  --pg-line: #2a344c;
+  --pg-stage: linear-gradient(170deg, #0a0e17, #08121b);
+  --pg-text: #e9eef6;
+  --pg-muted: #95a2b6;
   --pg-live: #3ddc97;
   --pg-live-soft: color-mix(in srgb, var(--pg-live) 16%, transparent);
   --pg-shadow: rgba(0, 0, 0, 0.8);

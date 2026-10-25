@@ -81,9 +81,9 @@
    --pg-* above); what's left is the design system's own */
 html[data-theme='dark'] .playground-preview {
   /* 4.6:1 on the sheet */
-  --ds-faint: #7b879e;
-  /* 3.5:1 on the sheet, 3.1:1 on a well */
-  --ds-border-strong: #65748c;
+  --ds-faint: #78869d;
+  /* 3.4:1 on the sheet, 3.1:1 on a well */
+  --ds-border-strong: #607189;
   --ds-accent: #53aef0;
   --ds-accent-strong: #7cc1f4;
   --ds-accent-soft: color-mix(in srgb, var(--ds-accent) 14%, transparent);
