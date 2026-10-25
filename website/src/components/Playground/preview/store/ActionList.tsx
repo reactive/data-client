@@ -524,9 +524,10 @@ function Steps({
   const joined = joinedFetches(group);
   const counted = new Set<RequestGroup>();
   const scroller = useRef<HTMLDivElement>(null);
+  const { seq } = useNavState();
   // a long poll's newest tick stays in view while live; a picked moment
   // holds it still, as it does the list
-  useFollow(scroller, all, 'y', useNavState().seq !== null);
+  useFollow(scroller, all, 'y', seq !== null);
   return (
     <div className={styles.steps} ref={scroller}>
       {all.map(entry => {
@@ -542,7 +543,8 @@ function Steps({
                 own={group.key}
                 group={group.id}
                 subject={subject}
-                current={marked?.has(entry.seq)}
+                current={!!marked?.has(entry.seq)}
+                after={!!marked && seq !== null && entry.seq > seq}
                 onSelect={onSelect}
               />
             ),
@@ -578,6 +580,7 @@ function StepRow({
   group,
   subject,
   current,
+  after,
   onSelect,
 }: {
   entry: LogEntry;
@@ -585,9 +588,11 @@ function StepRow({
   /** The row's group, which ↑ ↓ keep to */
   group: string;
   subject: View;
-  /** Whether the moment stands for it, while its row is the moment's: one
-   * after the moment dims, as the store hasn't seen it yet */
-  current?: boolean;
+  /** Whether the moment stands for it */
+  current: boolean;
+  /** Its row is the moment's and it came after the moment: it dims, as the
+   * store hasn't seen it yet */
+  after: boolean;
   onSelect: (seq: number, scope: 'action') => void;
 }) {
   const { log } = useLog();
@@ -598,7 +603,7 @@ function StepRow({
       role="button"
       tabIndex={0}
       aria-current={current || undefined}
-      data-after={current === false || undefined}
+      data-after={after || undefined}
       data-id={actionId(entry.seq)}
       data-group={group}
       data-seq={entry.seq}

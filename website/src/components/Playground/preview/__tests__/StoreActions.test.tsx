@@ -1727,6 +1727,29 @@ describe('Store action level', () => {
         ...top().querySelectorAll<HTMLElement>('[role="button"][aria-current]'),
       ].map(el => el.dataset.seq),
     ).toEqual(['1', '2']);
+    const after = () =>
+      [...top().querySelectorAll<HTMLElement>('[data-after]')].map(
+        el => el.dataset.seq,
+      );
+    expect(after()).toEqual([]);
+    backTo('Actions');
+    fireEvent.click(
+      top().querySelector<HTMLElement>(
+        '[role="button"][data-seq="1"]:not([aria-expanded])',
+      )!,
+    );
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    expect(crumbs()).toEqual(['Actions', 'GET /posts']);
+    // up to its fetch, the response it hasn't seen yet dims
+    expect(after()).toEqual(['2']);
+    // at a step alone, the list opens its row: the step before it stays as
+    // it is
+    fireEvent.click(
+      top().querySelector<HTMLElement>('[role="button"][data-seq="2"]')!,
+    );
+    backTo('Actions');
+    expect(top().querySelector('[data-seq="1"]')).not.toBeNull();
+    expect(after()).toEqual([]);
   });
 
   it('shows the newest request live as one, its optimistic update too', async () => {
@@ -1747,6 +1770,8 @@ describe('Store action level', () => {
     expect(crumbs()).toEqual(['Actions', 'PATCH /posts/1']);
     expect(top().textContent).toMatch(/title: "One" → "Edited!"/);
     expect(top().textContent).toContain('this is live');
+    // live, nothing has come after
+    expect(top().querySelector('[data-after]')).toBeNull();
   });
 
   it('shows the newest poll live as its own request', async () => {
