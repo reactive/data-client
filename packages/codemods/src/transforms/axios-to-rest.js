@@ -667,6 +667,9 @@ function unwrapData(j, callPath) {
       if (id.type === 'Identifier') {
         const scope = outer.scope.lookup(id.name);
         if (!scope) return false;
+        // other modules may read `.data` from an exported response
+        if (outer.parent.parent.node.type === 'ExportNamedDeclaration')
+          return false;
         if (!dropDataReads(j, scope.path, id.name, scope, id)) return false;
         if (bodyType) id.typeAnnotation = j.tsTypeAnnotation(bodyType);
         else if (bodyType === undefined) id.typeAnnotation = null;

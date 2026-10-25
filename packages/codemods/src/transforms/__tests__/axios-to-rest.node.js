@@ -1126,6 +1126,42 @@ async function getUser() {
       {},
       `
 import axios from 'axios';
+export const response = await axios.get('/config');
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+export const response = await new RestEndpoint({
+  path: '/config'
+})();
+      `,
+      'marks an exported response, since other modules may read its .data',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const search = () => axios.get('/search?q=hello+world');
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+const search = () => new RestEndpoint({
+  path: '/search'
+})({
+  q: 'hello world'
+});
+      `,
+      'decodes + in a literal query as a space',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
 const search = q => axios.get(\`/search?q=\${q}&limit=5\`).then(({ data }) => data.items);
       `,
       `
