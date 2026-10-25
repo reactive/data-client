@@ -12,6 +12,7 @@ import DataColocation from '@site/src/components/DataColocation';
 import { boundaryFixtures } from '@site/src/fixtures/post-comments';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import SiteOnly from '@site/src/components/SiteOnly';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import { postFixtures } from '@site/src/fixtures/posts';
 import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
@@ -518,7 +519,15 @@ export default function CommentList({ postId }: { postId: string }) {
 
 </FrameworkPlayground>
 
-:react[打开代码，把 `<AsyncBoundary>` 移到只包裹 `<CommentList />`：帖子就会先于评论显示。]
+<SiteOnly>
+
+:::react
+
+打开代码，把 `<AsyncBoundary>` 移到只包裹 `<CommentList />`：帖子就会先于评论显示。
+
+:::
+
+</SiteOnly>
 
 <AsyncBoundaryExamples />
 

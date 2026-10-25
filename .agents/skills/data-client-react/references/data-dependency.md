@@ -243,8 +243,6 @@ export default function CommentList({ postId }: { postId: string }) {
 }
 ```
 
-Show the code and move the `<AsyncBoundary>` to wrap just `<CommentList />`: the post shows before its comments do.
-
 **React Router**
 
 ```tsx {9,11} title="Dashboard.tsx"
