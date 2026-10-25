@@ -312,7 +312,7 @@ describe('StorePanel table view', () => {
     expect(crumbs()).toEqual([]);
   });
 
-  it('moves between State and Action with the keyboard', () => {
+  it('moves between and picks State and Action with the keyboard', () => {
     mount();
     const state = screen.getByRole('tab', { name: 'State' });
     const actions = screen.getByRole('tab', { name: 'Action' });
