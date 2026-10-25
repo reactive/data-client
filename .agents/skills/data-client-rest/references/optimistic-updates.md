@@ -314,7 +314,7 @@ Since we are performing optimistic updates this means we must use the client's c
 timing to the server in an `updatedAt` header via [getRequestInit()](./RestEndpoint.md#getRequestInit). The server should then ensure processing based on that order, and
 then store this `updatedAt` in the entity to return in any request.
 
-Overriding [shouldReorder](./Entity.md#shouldreorder), we can reorder out-of-order responses based on the
+Overriding [shouldReorder](https://dataclient.io/rest/api/Entity#shouldreorder), we can reorder out-of-order responses based on the
 server timestamp.
 
 We use [snap.fetchedAt](https://dataclient.io/docs/api/Snapshot#fetchedat) in our [getOptimisticResponse](./RestEndpoint.md#getoptimisticresponse). This respresents the moment the fetch is triggered, which will be the same time the `updatedAt` header is computed.

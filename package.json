@@ -148,7 +148,8 @@
     "serve/compression": "1.8.2",
     "simple-git": ">=4.0.2",
     "tinypool": ">=2.1.2",
-    "postcss-selector-parser": "^7.1.6"
+    "postcss-selector-parser": "^7.1.6",
+    "happy-dom": "^21.0.4"
   },
   "packageManager": "yarn@4.18.1",
   "prettier": {

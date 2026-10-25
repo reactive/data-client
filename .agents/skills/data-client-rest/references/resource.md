@@ -3,7 +3,7 @@
 # Resource
 
 `Resources` are a collection of [RestEndpoints](./RestEndpoint.md) that operate on a common
-data by sharing a [schema](./schema.md)
+data by sharing a [schema](https://dataclient.io/rest/api/schema)
 
 ## Usage
 
@@ -111,9 +111,9 @@ FileResource.getList({ owner: 'john' });
 ### schema
 
 Passed to [RestEndpoint.schema](./RestEndpoint.md#schema) representing a single item. This is usually
-an [Entity](./Entity.md) or [Union](https://dataclient.io/rest/api/Union).
+an [Entity](https://dataclient.io/rest/api/Entity) or [Union](https://dataclient.io/rest/api/Union).
 
-- [getList](#getlist) uses an [Array](https://dataclient.io/rest/api/Array) [Collection](./Collection.md) of the schema.
+- [getList](#getlist) uses an [Array](https://dataclient.io/rest/api/Array) [Collection](https://dataclient.io/rest/api/Collection) of the schema.
 - [delete](#delete) uses a [Invalidate](https://dataclient.io/rest/api/Invalidate) of the schema.
 
 ### urlPrefix
@@ -134,7 +134,7 @@ If specified, will add [Resource.getList.getPage](#getpage) method on the `Resou
 
 ### nonFilterArgumentKeys
 
-Pass-through option to [Collection.nonFilterArgumentKeys](./Collection.md#nonFilterArgumentKeys)
+Pass-through option to [Collection.nonFilterArgumentKeys](https://dataclient.io/rest/api/Collection#nonFilterArgumentKeys)
 for [getList](#getlist) schema.
 
 ```ts
@@ -188,7 +188,7 @@ const TodoResource = resource({
 
 ### Collection
 
-[Collection Class](./Collection.md) used to construct [getList](#getlist) schema.
+[Collection Class](https://dataclient.io/rest/api/Collection) used to construct [getList](#getlist) schema.
 Use this when you need to customize collection behavior beyond
 [`nonFilterArgumentKeys`](#nonfilterargumentkeys), like changing move merge logic.
 
@@ -232,17 +232,17 @@ const PostResource = resource({
 });
 ```
 
-| Name                        | Method                                                                     | Args                                                | Schema                                                        |
-| --------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------- |
-| [get](#get)                 | [GET](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET)       | `[{group: string; id: string}]`                     | [Post](./Entity.md)                                           |
-| [getList](#getlist)         | [GET](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET)       | `[{group: string; author?: string}]`                | [Collection(\[Post\])](./Collection.md)                       |
-| [getList.push](#push)       | [POST](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST)     | `[{group: string; author?: string}, Partial<Post>]` | [Collection(\[Post\]).push](./Collection.md#push)             |
-| [getList.unshift](#unshift) | [POST](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST)     | `[{group: string; author?: string}, Partial<Post>]` | [Collection(\[Post\]).unshift](./Collection.md#unshift)       |
-| [getList.getPage](#getpage) | [GET](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET)       | `[{group: string; author?: string; page: string}]`  | [Collection(\[Post\]).addWith](./Collection.md#addWith)       |
-| [getList.move](#move)       | [PATCH](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PATCH)   | `[{group: string; id: string }, Partial<Post>]`     | [Collection(\[Post\]).move](./Collection.md#move)             |
-| [update](#update)           | [PUT](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT)       | `[{group: string; id: string }, Partial<Post>]`     | [Post](./Entity.md)                                           |
-| [partialUpdate](#update)    | [PATCH](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PATCH)   | `[{group: string; id: string }, Partial<Post>]`     | [Post](./Entity.md)                                           |
-| [delete](#delete)           | [DELETE](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/DELETE) | `[{group: string; id: string }]`                    | [Invalidate(Post)](https://dataclient.io/rest/api/Invalidate) |
+| Name                        | Method                                                                     | Args                                                | Schema                                                                            |
+| --------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------- |
+| [get](#get)                 | [GET](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET)       | `[{group: string; id: string}]`                     | [Post](https://dataclient.io/rest/api/Entity)                                     |
+| [getList](#getlist)         | [GET](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET)       | `[{group: string; author?: string}]`                | [Collection(\[Post\])](https://dataclient.io/rest/api/Collection)                 |
+| [getList.push](#push)       | [POST](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST)     | `[{group: string; author?: string}, Partial<Post>]` | [Collection(\[Post\]).push](https://dataclient.io/rest/api/Collection#push)       |
+| [getList.unshift](#unshift) | [POST](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST)     | `[{group: string; author?: string}, Partial<Post>]` | [Collection(\[Post\]).unshift](https://dataclient.io/rest/api/Collection#unshift) |
+| [getList.getPage](#getpage) | [GET](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET)       | `[{group: string; author?: string; page: string}]`  | [Collection(\[Post\]).addWith](https://dataclient.io/rest/api/Collection#addWith) |
+| [getList.move](#move)       | [PATCH](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PATCH)   | `[{group: string; id: string }, Partial<Post>]`     | [Collection(\[Post\]).move](https://dataclient.io/rest/api/Collection#move)       |
+| [update](#update)           | [PUT](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT)       | `[{group: string; id: string }, Partial<Post>]`     | [Post](https://dataclient.io/rest/api/Entity)                                     |
+| [partialUpdate](#update)    | [PATCH](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PATCH)   | `[{group: string; id: string }, Partial<Post>]`     | [Post](https://dataclient.io/rest/api/Entity)                                     |
+| [delete](#delete)           | [DELETE](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/DELETE) | `[{group: string; id: string }]`                    | [Invalidate(Post)](https://dataclient.io/rest/api/Invalidate)                     |
 
 ### get
 
@@ -320,13 +320,13 @@ PostResource.getList({
 });
 ```
 
-|      Field      | Value                                         |
-| :-------------: | --------------------------------------------- |
-|      method     | 'GET'                                         |
-|       path      | removeLastArg([path](#path))                  |
-|   searchParams  | [searchParams](#searchparams)                 |
-| paginationField | [paginationField](#paginationfield)           |
-|      schema     | [new Collection(\[schema\])](./Collection.md) |
+|      Field      | Value                                                                   |
+| :-------------: | ----------------------------------------------------------------------- |
+|      method     | 'GET'                                                                   |
+|       path      | removeLastArg([path](#path))                                            |
+|   searchParams  | [searchParams](#searchparams)                                           |
+| paginationField | [paginationField](#paginationfield)                                     |
+|      schema     | [new Collection(\[schema\])](https://dataclient.io/rest/api/Collection) |
 
 ```ts
 resource({ path: '/:first/:second' }).getList.path === '/:first';
@@ -371,13 +371,13 @@ PostResource.getList.push(
 );
 ```
 
-|     Field    | Value                                       |
-| :----------: | ------------------------------------------- |
-|    method    | 'POST'                                      |
-|     path     | removeLastArg([path](#path))                |
-| searchParams | [searchParams](#searchparams)               |
-|     body     | [body](#body)                               |
-|    schema    | getList.[schema.push](./Collection.md#push) |
+|     Field    | Value                                                                 |
+| :----------: | --------------------------------------------------------------------- |
+|    method    | 'POST'                                                                |
+|     path     | removeLastArg([path](#path))                                          |
+| searchParams | [searchParams](#searchparams)                                         |
+|     body     | [body](#body)                                                         |
+|    schema    | getList.[schema.push](https://dataclient.io/rest/api/Collection#push) |
 
 Commonly used with [Controller.fetch](https://dataclient.io/docs/api/Controller#fetch)
 
@@ -415,13 +415,13 @@ PostResource.getList.unshift(
 );
 ```
 
-|     Field    | Value                                             |
-| :----------: | ------------------------------------------------- |
-|    method    | 'POST'                                            |
-|     path     | removeLastArg([path](#path))                      |
-| searchParams | [searchParams](#searchparams)                     |
-|     body     | [body](#body)                                     |
-|    schema    | getList.[schema.unshift](./Collection.md#unshift) |
+|     Field    | Value                                                                       |
+| :----------: | --------------------------------------------------------------------------- |
+|    method    | 'POST'                                                                      |
+|     path     | removeLastArg([path](#path))                                                |
+| searchParams | [searchParams](#searchparams)                                               |
+|     body     | [body](#body)                                                               |
+|    schema    | getList.[schema.unshift](https://dataclient.io/rest/api/Collection#unshift) |
 
 Commonly used with [Controller.fetch](https://dataclient.io/docs/api/Controller#fetch)
 
@@ -463,13 +463,13 @@ PostResource.getList.getPage({
 });
 ```
 
-|      Field      | Value                                             |
-| :-------------: | ------------------------------------------------- |
-|      method     | 'GET'                                             |
-|       path      | removeLastArg([path](#path))                      |
-|   searchParams  | [searchParams](#searchparams)                     |
-| paginationField | [paginationField](#paginationfield)               |
-|      schema     | [getList.schema.addWith](./Collection.md#addWith) |
+|      Field      | Value                                                                       |
+| :-------------: | --------------------------------------------------------------------------- |
+|      method     | 'GET'                                                                       |
+|       path      | removeLastArg([path](#path))                                                |
+|   searchParams  | [searchParams](#searchparams)                                               |
+| paginationField | [paginationField](#paginationfield)                                         |
+|      schema     | [getList.schema.addWith](https://dataclient.io/rest/api/Collection#addWith) |
 
 args: `PathToArgs(shortenPath(path)) & searchParams & \{ [paginationField]: string | number \}`
 
@@ -477,7 +477,7 @@ Commonly used with [Controller.fetch](https://dataclient.io/docs/api/Controller#
 
 ### getList.move {#move}
 
-[RestEndpoint.move](./RestEndpoint.md#move) moves an entity between [Collections](./Collection.md) by removing it from
+[RestEndpoint.move](./RestEndpoint.md#move) moves an entity between [Collections](https://dataclient.io/rest/api/Collection) by removing it from
 collections matching its old state and adding it to collections matching the new values from the body.
 
 ```typescript title="Post"
@@ -510,12 +510,12 @@ PostResource.getList.move(
 );
 ```
 
-|  Field | Value                                       |
-| :----: | ------------------------------------------- |
-| method | 'PATCH'                                     |
-|  path  | [path](#path)                               |
-|  body  | [body](#body)                               |
-| schema | getList.[schema.move](./Collection.md#move) |
+|  Field | Value                                                                 |
+| :----: | --------------------------------------------------------------------- |
+| method | 'PATCH'                                                               |
+|  path  | [path](#path)                                                         |
+|  body  | [body](#body)                                                         |
+| schema | getList.[schema.move](https://dataclient.io/rest/api/Collection#move) |
 
 Commonly used with [Controller.fetch](https://dataclient.io/docs/api/Controller#fetch)
 
@@ -655,11 +655,11 @@ Commonly used with [Controller.fetch](https://dataclient.io/docs/api/Controller#
 { "id": "xyz" }
 ```
 
-Response should either be the [pk](./Entity.md#pk) as a string (like `'xyz'`). Or an object with the members needed to compute
-[Entity.pk](./Entity.md#pk) (like `{id: 'xyz'}`).
+Response should either be the [pk](https://dataclient.io/rest/api/Entity#pk) as a string (like `'xyz'`). Or an object with the members needed to compute
+[Entity.pk](https://dataclient.io/rest/api/Entity#pk) (like `{id: 'xyz'}`).
 
 If no response is provided, the `process` implementation will attempt to use the url parameters sent as an object to compute
-the [Entity.pk](./Entity.md#pk). This enables the default implementation to still work with no response, so long as standard
+the [Entity.pk](https://dataclient.io/rest/api/Entity#pk). This enables the default implementation to still work with no response, so long as standard
 arguments are used.
 
 This allows [Invalidate](https://dataclient.io/rest/api/Invalidate) to remove the entity from the [entity table](https://dataclient.io/docs/concepts/normalization)
@@ -782,7 +782,7 @@ export function myResource<O extends ResourceGenerics = any>({
 ### GraphQL + REST Hybrid
 
 When your API provides both REST and GraphQL endpoints, you can mix them in a single resource.
-Use [Entity.process()](./Entity.md#process) to normalize different response shapes.
+Use [Entity.process()](https://dataclient.io/rest/api/Entity#process) to normalize different response shapes.
 
 ```typescript
 import { GQLEndpoint } from '@data-client/graphql';

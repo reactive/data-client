@@ -405,27 +405,6 @@ export default function getManagers() {
 }
 ```
 
-```tsx title="Prices"
-import { useQuery } from '@data-client/react';
-import { Ticker } from './Ticker';
-
-function Price({ product_id }: { product_id: string }) {
-  const ticker = useQuery(Ticker, { product_id });
-  return (
-    <div>
-      {product_id}:{' '}
-      {ticker ? `$${ticker.price.toLocaleString()}` : 'waiting…'}
-    </div>
-  );
-}
-render(
-  <>
-    <Price product_id="BTC-USD" />
-    <Price product_id="ETH-USD" />
-  </>,
-);
-```
-
 #### Batching high-frequency updates {#batching}
 
 Streams like exchange tickers can send hundreds of messages per second, and connections often start with a large snapshot.
