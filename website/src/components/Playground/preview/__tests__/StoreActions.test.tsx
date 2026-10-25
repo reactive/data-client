@@ -1595,9 +1595,9 @@ describe('Store diff', () => {
 });
 
 describe('Store action level', () => {
-  /** The Action tab's line for the action before or after the one shown */
+  /** The Action tab's column for the action before or after the one shown */
   const step = (dir: 'Before' | 'After') =>
-    top().querySelector<HTMLElement>(`[data-dir="${dir}"]`)!;
+    within(top()).getByRole('button', { name: new RegExp('^' + dir + ': ') });
 
   it('shows the newest action live, stepping a row at a time', async () => {
     const { ctrl } = mount();

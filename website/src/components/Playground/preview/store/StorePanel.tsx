@@ -1209,33 +1209,29 @@ function ActionStep({ dir }: { dir: -1 | 1 }) {
   return (
     <button
       type="button"
-      className={clsx(styles.actStep, dir > 0 && styles.actStepAfter)}
-      data-dir={label}
+      className={styles.actStep}
       disabled={to === undefined}
       onClick={() => step(dir)}
     >
-      {/* the arrow, then what it steps to read down the column */}
-      <span className={styles.actStepInner}>
-        <span className={styles.actStepDir} aria-hidden>
-          {dir < 0 ? '‹' : '›'}
-        </span>
-        <span className={styles.actStepName}>
-          <span className={styles.srOnly}>{label}: </span>
-          {to === undefined ?
+      <span className={styles.actStepDir} aria-hidden>
+        {dir < 0 ? '‹' : '›'}
+      </span>
+      <span className={styles.actStepName}>
+        <span className={styles.srOnly}>{label}: </span>
+        {to === undefined ?
+          <span className={styles.dim}>
+            {dir < 0 ? 'nothing the log kept' : 'nothing yet: this is live'}
+          </span>
+        : entry ?
+          <>
+            {shown ?
+              <KeyLabel value={shown.key} />
+            : <ActionName entry={entry} />}{' '}
             <span className={styles.dim}>
-              {dir < 0 ? 'nothing the log kept' : 'nothing yet: this is live'}
+              <Time at={entry.at} />
             </span>
-          : entry ?
-            <>
-              {shown ?
-                <KeyLabel value={shown.key} />
-              : <ActionName entry={entry} />}{' '}
-              <span className={styles.dim}>
-                <Time at={entry.at} />
-              </span>
-            </>
-          : <span className={styles.liveText}>Live</span>}
-        </span>
+          </>
+        : <span className={styles.liveText}>Live</span>}
       </span>
     </button>
   );

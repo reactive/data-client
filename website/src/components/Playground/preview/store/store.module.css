@@ -154,11 +154,14 @@
 .pane.paneNarrow {
   width: min(100%, 22rem);
 }
-/* the subject's actions at full width, a level of their own; they shrink
- * to scroll on their own, unlike the level's other children */
-.level > .actionsLevel {
+/* views that fill the level and scroll inside it, unlike its other
+ * children: the subject's actions, and one action between its steps */
+.level > .actionsLevel,
+.level > .actFrame {
   flex: 1 1 auto;
   min-height: 0;
+}
+.level > .actionsLevel {
   display: flex;
   flex-direction: column;
 }
@@ -1894,37 +1897,31 @@ button.tlMark:hover {
 }
 
 /* the Action tab's action between the ones before and after it: columns
-   down its edges, as the timeline runs, so they take none of its height */
-/* fills the level, so the action scrolls in its own box between the steps */
+   down its edges, as the timeline runs, take none of its height, and only
+   the action between them scrolls */
 .level > .actFrame {
-  flex: 1 1 0;
-  min-height: 0;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   grid-template-rows: minmax(0, 1fr);
 }
 .actScroll {
-  min-width: 0;
   overflow-y: auto;
+  border-inline: 1px solid var(--store-line);
 }
+/* the arrow, then (vertical) what it steps to, a long name cut short */
 .actStep {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  align-items: center;
+  gap: 0.4rem;
   width: 1.75rem;
-  padding: 0;
+  padding: 0.4rem 0;
+  overflow: hidden;
   border: 0;
-  border-right: 1px solid var(--store-line);
   background: none;
   color: var(--store-fg);
   font: inherit;
   font-size: 11px;
-  /* as tall as the action's box, a long name cut short */
-  overflow: hidden;
-}
-.actStepAfter {
-  border-right: 0;
-  border-left: 1px solid var(--store-line);
 }
 .actStep:enabled {
   cursor: pointer;
@@ -1932,17 +1929,6 @@ button.tlMark:hover {
 }
 .actStep:enabled:hover {
   background: var(--store-hover);
-}
-.actStep:disabled {
-  opacity: 0.6;
-}
-.actStepInner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 0;
-  gap: 0.4rem;
-  padding: 0.4rem 0;
 }
 .actStepDir {
   color: var(--store-dim);
