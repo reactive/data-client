@@ -10,4 +10,4 @@ paths:
 
 # Memo invariants
 
-Before changing memoization, or a schema's `denormalize`, read "Memo invariants" in `packages/normalizr/AGENTS.md`. Every change must keep all of them. Cover any new edge case with a test in one of the files listed there.
+Before changing memoization, or a schema's `denormalize`, read "Memo invariants" in `packages/normalizr/AGENTS.md`.

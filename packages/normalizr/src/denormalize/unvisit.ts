@@ -10,6 +10,18 @@ import type { DenormGetEntity } from '../memo/types.js';
 import { denormalize as arrayDenormalize } from '../schemas/Array.js';
 import { denormalize as objectDenormalize } from '../schemas/Object.js';
 
+/** Ids that can't be looked up, so they're never cached or tracked. */
+const isBlankPk = (pk: unknown) =>
+  pk === undefined || pk === '' || pk === 'undefined';
+
+/** What a missing, `null` or `INVALID` entity denormalizes to. */
+const nonObjectValue = (
+  schema: EntityInterface,
+  entity: unknown,
+  delegate: IDenormalizeDelegate,
+): any =>
+  typeof entity === 'symbol' ? schema.denormalize(entity, delegate) : entity;
+
 const getUnvisitEntity = (
   getEntity: DenormGetEntity,
   cache: Cache,
@@ -23,19 +35,18 @@ const getUnvisitEntity = (
     const entity =
       inputIsId ? getEntity({ key: schema.key, pk: entityOrId }) : entityOrId;
     if (typeof entity !== 'object' || entity === null) {
-      const value = () =>
-        typeof entity === 'symbol' ?
-          schema.denormalize(entity, delegate)
-        : entity;
       // A missing, null or INVALID entity is still a dependency of anything
       // nested above it, so those recompute once it changes. Blank ids can't
       // be looked up, so they aren't dependencies.
-      if (inputIsId && entityOrId !== '' && entityOrId !== 'undefined') {
+      if (inputIsId && !isBlankPk(entityOrId)) {
         return cache.getEntity(entityOrId, schema, entity, localCacheKey => {
-          localCacheKey.set(entityOrId, value());
+          localCacheKey.set(
+            entityOrId,
+            nonObjectValue(schema, entity, delegate),
+          );
         });
       }
-      return value() as any;
+      return nonObjectValue(schema, entity, delegate);
     }
 
     let pk: string | number | undefined =
@@ -45,7 +56,7 @@ const getUnvisitEntity = (
 
     // if we can't generate a working pk we cannot do cache lookups properly,
     // so simply denormalize without caching
-    if (pk === undefined || pk === '' || pk === 'undefined') {
+    if (isBlankPk(pk)) {
       return noCacheGetEntity(localCacheKey =>
         unvisitEntityObject(schema, entity, '', localCacheKey, delegate),
       );
