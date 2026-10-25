@@ -194,13 +194,16 @@ DesignSystem/       demo styling (design-system.css) and components injected int
   playground's. Side by side the preview's folder ends at its sheet's foot
   (`PreviewWrapper` measures how far the row runs on below, as
   `--pg-preview-gap`); the drawer comes from its left edge with the handle
-  level with that foot, and runs on below it with the preview's foot curving
-  into its edge; stacked, up from the preview's top edge, at most `--store-cap`
+  level with that foot, and only its sheet runs on below it, the strip of
+  folder between the two sheets curving into its edge; stacked, up from the preview's top edge, at most `--store-cap`
   tall so a long file's top stays in view. It slides only once painted at
   rest (`data-settled`), so showing a playground never animates it. The
   preview stays usable either way. The Store itself is chrome on the folder (the scrubber's row,
   State and Action as tabs) and content on a sheet the picked tab joins
-  (`store.module.css`). In the other layouts the preview header's icon
+  (`store.module.css`). A folder's header is inset from its content
+  (`--pg-head-inset`) and curves out into it, so the folder's paper is
+  painted in parts (header, content's top edge, the rest), not by one box;
+  open side by side, the Store's header and the preview's run on as one. In the other layouts the preview header's icon
   (`StoreHeaderToggle`) or the side strip (`StoreToggle`) open it beside the
   result as a drawer (`../motion`: the panel `Reveal`s); its contents render
   a frame after it starts moving (`useDeferredValue`).

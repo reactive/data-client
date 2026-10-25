@@ -35,6 +35,57 @@
   --store-pressed: color-mix(in srgb, var(--store-fg) 12%, transparent);
 }
 
+/* The folder's paper, the panel's unless laid out as the preview's folder
+   (the row layout, ../../styles.module.css): then it is the scrubber's (the
+   header) and the body's (the content), so the header can be narrower,
+   inset (--pg-head-inset) at the sides --store-head-start and
+   --store-head-end mark (1), flaring out into the content's top edge as the
+   open file's tab does into its card, the content's corner turning down
+   from there. The body's paper stops --store-folder-end short of its foot,
+   so only the sheet runs on past that. Where the header runs on into the
+   preview's instead (the end side), --store-head-run takes it on under
+   that edge */
+.scrubber {
+  --store-head-in-start: calc(
+    var(--store-head-start, 0) * var(--pg-head-inset, 0px)
+  );
+  --store-head-in-end: calc(
+    var(--store-head-end, 0) * var(--pg-head-inset, 0px) -
+      var(--store-head-run, 0px)
+  );
+  position: relative;
+  margin: 0 var(--store-head-in-end) 0 var(--store-head-in-start);
+  border-radius: calc(var(--store-head-start, 0) * var(--pg-card-radius, 0px))
+    calc(var(--store-head-end, 0) * var(--pg-card-radius, 0px)) 0 0;
+  background: var(--store-bg);
+  box-shadow: var(--pg-card-shadow, none);
+}
+.scrubber::before,
+.scrubber::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  height: var(--pg-head-flare, 0px);
+  pointer-events: none;
+}
+.scrubber::before {
+  right: calc(100% - 1px);
+  width: calc(var(--store-head-start, 0) * (var(--pg-head-flare, 0px) + 1px));
+  background: radial-gradient(
+    circle at 0 0,
+    transparent calc(var(--pg-head-flare, 0px) - 0.5px),
+    var(--store-bg) var(--pg-head-flare, 0px)
+  );
+}
+.scrubber::after {
+  left: calc(100% - 1px);
+  width: calc(var(--store-head-end, 0) * (var(--pg-head-flare, 0px) + 1px));
+  background: radial-gradient(
+    circle at 100% 0,
+    transparent calc(var(--pg-head-flare, 0px) - 0.5px),
+    var(--store-bg) var(--pg-head-flare, 0px)
+  );
+}
 /* Under the scrubber: the tab bar, and (narrow) the sheet the lanes open in
    over what follows */
 .body {
@@ -43,6 +94,12 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  padding: var(--store-body-pad, 0);
+  border-radius: calc(var(--store-head-start, 0) * var(--pg-body-radius, 0px))
+    calc(var(--store-head-end, 0) * var(--pg-body-radius, 0px)) 0
+    var(--store-folder-foot, 0);
+  background: linear-gradient(var(--store-bg) 0 0) top / 100%
+    calc(100% - var(--store-folder-end, 0px)) no-repeat;
 }
 
 /* The State and Action tabs: on the folder, as the files are tabs on the
@@ -111,7 +168,8 @@
   align-items: center;
   padding: 0 0.85rem;
   border: 0;
-  border-radius: 8px 8px 0 0;
+  /* the first tab sits in the body's corner (the row layout): one radius */
+  border-radius: var(--pg-body-radius, 8px) var(--pg-body-radius, 8px) 0 0;
   background: none;
   color: inherit;
   font: inherit;

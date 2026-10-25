@@ -451,6 +451,14 @@ div.playgroundTextEdit > .playgroundHeader,
   --pg-tab-length: 3rem;
   /* how far the code card and the app's sheet reach toward the other's foot */
   --pg-card-foot: 6rem;
+  /* the folder's header is narrower than its content: inset by this at
+     each free side, its paper flaring out into the content's top edge
+     (concave, --pg-head-flare) and the content's corner turning down from
+     there (convex, the rest). Both the card's radius, so the two make one
+     even S, the curve every tab here makes into its card */
+  --pg-head-inset: 20px;
+  --pg-head-flare: var(--pg-card-radius);
+  --pg-body-radius: calc(var(--pg-head-inset) - var(--pg-head-flare));
   border-radius: 0;
   box-shadow: none;
   background: none;
@@ -491,6 +499,11 @@ div.playgroundTextEdit > .playgroundHeader,
 .row .tab:hover {
   background: color-mix(in srgb, var(--ifm-font-color-base) 7%, transparent);
   color: var(--ifm-font-color-base);
+}
+/* dark, the open file's tab is near the page's shade: the others' names
+   step back to the muted text so the bright one reads as open */
+:root[data-theme='dark'] .row .tab:not(.selected, :hover) {
+  color: var(--pg-muted);
 }
 /* the open file's tab is the card's paper rising: over the card's edge (and
    its shadow) and curving out into the card's top edge either side, the
@@ -572,7 +585,11 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 /* the preview's folder: the row's height, its header and the app's sheet on
    it; the sheet's foot runs on toward the code's by 6rem at most, its
-   corners the folder's where they meet */
+   corners the folder's where they meet. Its paper comes in parts, so the
+   header can be narrower than the content: the header's own, the content's
+   top edge (.playgroundResult, its corners turning down) and the folder's
+   below that; its shadow likewise, the header's own and the content's box
+   (::before) */
 .row > .previewWrapper {
   position: relative;
   z-index: 2;
@@ -580,15 +597,56 @@ div.playgroundTextEdit > .playgroundHeader,
   display: flex;
   flex-direction: column;
   border-radius: var(--pg-card-radius);
+  /* room for its header's shadow */
+  overflow-clip-margin: 3rem;
+  background: linear-gradient(var(--pg-stage) 0 0) 0
+    calc(var(--pg-row) + var(--pg-body-radius)) / 100% 100% no-repeat;
+}
+.row > .previewWrapper::before {
+  content: '';
+  position: absolute;
+  inset: var(--pg-row) 0 0;
+  z-index: -1;
+  border-radius: var(--pg-body-radius) var(--pg-body-radius)
+    var(--pg-card-radius) var(--pg-card-radius);
+  box-shadow: var(--pg-card-shadow);
+  pointer-events: none;
+}
+/* inset at each side the Store's header doesn't run on from
+   (--pg-head-start, --pg-head-end), its label in line with the sheet's
+   text where the inset leaves room for that, else a header's usual
+   0.75rem in from its edge */
+.row .playgroundHeader.previewHeader {
+  --pg-head-start: var(--pg-head-inset);
+  --pg-head-end: var(--pg-head-inset);
+  position: relative;
+  min-height: var(--pg-row);
+  margin: 0 var(--pg-head-end) 0 var(--pg-head-start);
+  padding: 0 max(0.75rem, calc(var(--pg-sheet-pad) - var(--pg-head-end))) 0
+    max(0.75rem, calc(var(--pg-sheet-pad) - var(--pg-head-start)));
+  border-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;
   background: var(--pg-stage);
   box-shadow: var(--pg-card-shadow);
 }
-.row .playgroundHeader.previewHeader {
-  min-height: var(--pg-row);
+.row .previewHeader::before,
+.row .previewHeader::after {
+  bottom: 0;
+  height: var(--pg-head-flare);
+  --pg-fillet-r: var(--pg-head-flare);
+}
+.row .previewHeader::before {
+  right: calc(100% - 1px);
+  --pg-fillet-at: 0 0;
+}
+.row .previewHeader::after {
+  left: calc(100% - 1px);
+  --pg-fillet-at: 100% 0;
 }
 .row .playgroundResult {
   flex: none;
   height: auto;
+  border-radius: var(--pg-body-radius) var(--pg-body-radius) 0 0;
+  background: var(--pg-stage);
 }
 .row .playgroundPreview {
   flex: 1 1 auto;
@@ -599,6 +657,7 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .row .sheet {
   padding-bottom: calc(var(--pg-sheet-pad) - var(--pg-card-radius));
+  border-radius: var(--pg-body-radius) var(--pg-body-radius) 0 0;
 }
 /* The folder's layer: the stage's color, the whole playground's area under
    the preview, clipped at the page's edge (its drawer overshoots that way,
@@ -626,12 +685,15 @@ div.playgroundTextEdit > .playgroundHeader,
 .row > .storeHost > .storeDrawer[data-settled] {
   transition: translate var(--motion-drawer);
 }
+/* its paper is its header's and its body's (./preview/store), the header
+   inset at the drawer's leading edge as the preview's is */
 .row > .storeHost .storePanel {
+  --store-head-start: 1;
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  background: var(--pg-stage);
+  background: none;
 }
 /* fills the drawer instead of its usual cap */
 .row > .storeHost .storePanel > * {
@@ -674,20 +736,24 @@ div.playgroundTextEdit > .playgroundHeader,
 .storeTab::after {
   height: calc(var(--pg-card-radius) + 1px);
 }
-/* Concave fillets: a selected tab's or the handle's paper curving out into
-   the edge it rises from, at --pg-fillet-at in its own --pg-fillet-color */
+/* Concave fillets: a selected tab's, the handle's or a header's paper
+   curving out into the edge it rises from, at --pg-fillet-at in its own
+   --pg-fillet-color, --pg-fillet-r round */
 .row .tab.selected::before,
 .row .tab.selected::after,
 .storeTab::before,
-.storeTab::after {
+.storeTab::after,
+.row .previewHeader::before,
+.row .previewHeader::after {
   content: '';
   position: absolute;
-  width: calc(var(--pg-card-radius) + 1px);
+  width: calc(var(--pg-fillet-r, var(--pg-card-radius)) + 1px);
   pointer-events: none;
   background: radial-gradient(
     circle at var(--pg-fillet-at),
-    transparent calc(var(--pg-card-radius) - 0.5px),
-    var(--pg-fillet-color) var(--pg-card-radius)
+    transparent calc(var(--pg-fillet-r, var(--pg-card-radius)) - 0.5px),
+    var(--pg-fillet-color, var(--pg-stage))
+      var(--pg-fillet-r, var(--pg-card-radius))
   );
 }
 
@@ -1202,12 +1268,11 @@ div.fixtureJson + div.fixtureJson {
     /* ends at its sheet's foot: --pg-preview-gap is how far the row runs on
        below that (./preview/PreviewWrapper.tsx) */
     max-height: calc(100% - var(--pg-preview-gap, 0px));
-    box-shadow: none;
   }
-  /* The folder's shadow, from boxes that run out over the Store with the
+  /* The content's shadow, from boxes that run out over the Store with the
      drawer, so the open Store and the preview are one paper with one
-     shadow: the preview's height, edge to edge (here), and the Store's
-     length below it (.row::before) */
+     shadow (the headers cast their own): the preview's content, edge to
+     edge (here), and the Store's sheet below it (.row::before) */
   .row > .previewWrapper::before,
   .row::before {
     content: '';
@@ -1217,16 +1282,14 @@ div.fixtureJson + div.fixtureJson {
     pointer-events: none;
   }
   .row > .previewWrapper::before {
-    inset-block: 0 var(--pg-preview-gap, 0px);
+    inset-block: var(--pg-row) var(--pg-preview-gap, 0px);
     right: 0;
-    z-index: -1;
-    border-radius: var(--pg-card-radius);
   }
   .row::before {
     top: calc(100% - var(--pg-preview-gap, 0px));
     bottom: 0;
-    right: var(--pg-preview-col);
-    border-radius: 0 0 var(--pg-foot-curve) var(--pg-card-radius);
+    right: calc(var(--pg-preview-col) + var(--pg-gap));
+    border-radius: 0 0 var(--pg-card-radius) var(--pg-card-radius);
   }
   .row:has(> .storeHost[data-open]) > .previewWrapper::before,
   .row:has(> .storeHost[data-open])::before {
@@ -1242,6 +1305,20 @@ div.fixtureJson + div.fixtureJson {
     /* its paper a pixel on under the Store's edge, so no seam shows */
     box-shadow: -1px 0 var(--pg-stage);
   }
+  /* its header runs on from the Store's (a pixel on under its edge, or its
+     shadow shows through the drawer's clipped edge as a hairline at the
+     fold), and its content from the Store's strip, the sheet's corner
+     notched into it */
+  .row:has(> .storeHost .storePanel[data-visible]) .previewHeader {
+    --pg-head-start: -1px;
+    border-top-left-radius: 0;
+  }
+  .row:has(> .storeHost .storePanel[data-visible]) .previewHeader::before {
+    content: none;
+  }
+  .row:has(> .storeHost .storePanel[data-visible]) .playgroundResult {
+    border-top-left-radius: 0;
+  }
   /* the Store running on below the preview: its corner there squares
      where the two boxes meet */
   .row:has(> .storeHost .storePanel[data-visible]) > .previewWrapper::before {
@@ -1249,13 +1326,13 @@ div.fixtureJson + div.fixtureJson {
       var(--pg-card-radius) - var(--pg-foot-curve)
     );
   }
-  /* and the preview's foot curves into the Store's edge, as a tab does
-     into its card */
+  /* and the strip between the two sheets, ending at the preview's foot,
+     curves into the Store's sheet's edge, as a tab does into its card */
   .row:has(> .storeHost .storePanel[data-visible])::after {
     content: '';
     position: absolute;
-    /* a pixel on under the Store's edge too */
-    left: calc(var(--pg-fold) - 1px);
+    /* a pixel on under the sheet's edge */
+    left: calc(var(--pg-fold) - var(--pg-gap) - 1px);
     top: calc(100% - var(--pg-preview-gap, 0px));
     /* over the preview's shadow (a grid item, it stacks by its z-index) */
     z-index: 2;
@@ -1268,14 +1345,21 @@ div.fixtureJson + div.fixtureJson {
       var(--pg-stage) var(--pg-foot-curve)
     );
   }
-  /* under it, the code card's own shadow would deepen the Store's */
+  /* under it, the code card's own shadow would deepen the Store's, and the
+     file tabs would show past the Store header's inset */
   .row .editorDocs > .playgroundEditor,
   .row .editorDocs::after {
     transition: box-shadow var(--motion-drawer);
   }
+  .row .tabControls {
+    transition: opacity var(--motion-drawer);
+  }
   .row:has(> .storeHost[data-open]) .editorDocs > .playgroundEditor,
   .row:has(> .storeHost[data-open]) .editorDocs::after {
     box-shadow: none;
+  }
+  .row:has(> .storeHost[data-open]) .tabControls {
+    opacity: 0;
   }
   .row > .storeHost {
     grid-area: 1 / 1 / 3 / 3;
@@ -1294,13 +1378,18 @@ div.fixtureJson + div.fixtureJson {
     translate: 0 0;
   }
   /* its paper runs on into the preview's, square where they meet; the
-     Store's sheet keeps the gap from the preview's */
+     Store's sheet keeps the gap from the preview's, a strip of the folder
+     that ends with the preview's foot: below that, only the sheet runs on */
   .row > .storeHost .storePanel {
     /* its sheet to the foot, as the preview's is, rounded with the folder */
     --store-sheet-foot: var(--pg-card-radius);
-    padding-right: var(--pg-gap);
-    border-radius: var(--pg-card-radius) 0 var(--pg-foot-curve)
-      var(--pg-card-radius);
+    --store-folder-foot: var(--pg-card-radius);
+    --store-folder-end: var(--pg-preview-gap, 0px);
+    --store-body-pad: 0 var(--pg-gap) 0 0;
+    /* its header a pixel on past the fold, under the clip: painted boxes
+       snap to pixels and the clip doesn't, so at rest its shadow would
+       show through the sliver between as a hairline on the preview's */
+    --store-head-run: 1px;
   }
   /* by the preview's foot, its curve clear of the corner's: open, it
      stays level with that foot, however far the Store runs on below */
@@ -1384,17 +1473,21 @@ div.fixtureJson + div.fixtureJson {
   .row > .storeHost[data-open] > .storeDrawer {
     translate: 0 0;
   }
-  /* its sheet ends short of the foot, rounded, as the code card does */
+  /* its header edge to edge: its top edge lands on the code, which inset
+     corners would show through; its sheet ends short of the foot, rounded,
+     as the code card does */
   .row > .storeHost .storePanel {
+    --store-head-start: 0;
     --store-sheet-foot: 12px;
-    padding-bottom: var(--pg-gap);
+    --store-body-pad: 0 0 var(--pg-gap);
   }
-  /* its shadow, from a box that stops short of the foot, so none of it
-     falls past the seam onto the preview (the Store paints over the rest) */
+  /* its content's shadow (its header casts its own), from a box that stops
+     short of the foot, so none of it falls past the seam onto the preview
+     (the Store paints over the rest) */
   .row > .storeHost > .storeDrawer::before {
     content: '';
     position: absolute;
-    inset: 0 0 4rem;
+    inset: var(--pg-row) 0 4rem;
     z-index: -1;
     box-shadow: var(--pg-card-shadow);
     opacity: 0;
@@ -1403,17 +1496,30 @@ div.fixtureJson + div.fixtureJson {
   .row > .storeHost[data-open] > .storeDrawer::before {
     opacity: 1;
   }
-  /* the folder's top edge joins the Store's, while it shows */
+  /* the folder's top edge joins the Store's, while it shows: its header
+     the paper between the two sheets, edge to edge */
   .row:has(> .storeHost .storePanel[data-visible]) > .previewWrapper {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
   }
-  /* up from the top edge at its right end (the thumb's side, clear of
-     anything laid out at the left above the preview), its curve clear of
-     the corner's */
+  .row:has(> .storeHost .storePanel[data-visible]) .previewHeader {
+    --pg-head-start: 0px;
+    --pg-head-end: 0px;
+    border-radius: 0;
+  }
+  .row:has(> .storeHost .storePanel[data-visible]) .previewHeader::before,
+  .row:has(> .storeHost .storePanel[data-visible]) .previewHeader::after {
+    content: none;
+  }
+  .row:has(> .storeHost .storePanel[data-visible]) .playgroundResult {
+    border-radius: 0;
+  }
+  /* up from the header's top edge at its right end (the thumb's side,
+     clear of anything laid out at the left above the preview), past the
+     header's inset, its curve clear of the corner's */
   .storeTab {
     bottom: 100%;
-    right: calc(2 * var(--pg-card-radius));
+    right: calc(var(--pg-head-inset) + 2 * var(--pg-card-radius));
     width: var(--pg-tab-length);
     height: var(--pg-tab-width);
     border-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;
