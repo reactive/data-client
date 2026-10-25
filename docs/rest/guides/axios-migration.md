@@ -46,15 +46,23 @@ management as they are, unless the user asks to change them.
 
 ## Why migrate?
 
-<DiffEditor caption="Path parameters are typed from the `path` template, so a typo is a compile error instead of a wrong URL.">
+<DiffEditor caption="Path parameters are named and typed from the `path` template, so mixing them up can't request the wrong URL.">
 
 ```ts title="Before"
-axios.get(`/users/${usrId}`);
+const getComment = (postId: string, commentId: string) =>
+  axios.get(`/posts/${postId}/comments/${commentId}`);
+
+// callout: Swapped arguments still compile, and fetch the wrong comment.
+getComment(comment.id, post.id);
 ```
 
 ```ts title="After"
-const getUser = new RestEndpoint({ path: '/users/:id', schema: User });
-getUser({ id: '1' });
+const getComment = new RestEndpoint({
+  path: '/posts/:postId/comments/:commentId',
+  schema: Comment,
+});
+// callout: Each argument is named, so order can't matter, and a missing or misspelled one is a compile error.
+getComment({ commentId: comment.id, postId: post.id });
 ```
 
 </DiffEditor>
