@@ -29,7 +29,7 @@ interface Props {
  * prompt other agents take in their chat */
 export default function SetupTabs({ task }: Props) {
   const framework = useFramework();
-  const request = task ?? setupTask(framework);
+  const request = task || setupTask(framework);
   return (
     <Tabs groupId="agent-setup" className={styles.tabs}>
       <TabItem

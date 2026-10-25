@@ -588,7 +588,7 @@ npm uninstall axios
 | `transformResponse`                      | [`process()`](../api/RestEndpoint.md#process)                                                                                     |
 | `isAxiosError` / `error.response`        | [`NetworkError`](#error-handling) with `.status` and `.response`                                                                  |
 | `cancelToken` / `signal`                 | [`signal`](#cancellation)                                                                                                         |
-| `timeout`                                | [`AbortSignal.timeout()`](#timeout) via `signal`                                                                                  |
+| `timeout`                                | [`AbortSignal.timeout()`](#timeout) in `getRequestInit()`                                                                         |
 | `responseType: 'blob'` / `'arraybuffer'` | [`content: 'blob'`](#binary-responses) / `'arrayBuffer'`                                                                          |
 | `params` / `paramsSerializer`            | [`searchParams`](../api/RestEndpoint.md#searchParams) / [`searchToString()`](#query-serialization)                                |
 | `auth: { username, password }`           | [`getHeaders()` with `btoa()`](#basic-auth)                                                                                       |
@@ -611,10 +611,8 @@ source.cancel();
 
 ```ts title="After"
 const controller = new AbortController();
-const getUser = new RestEndpoint({
-  path: '/users/:id',
-  signal: controller.signal,
-});
+// callout: `extend()` gives this one request its own signal; a `signal` set when the endpoint is created would abort all of its requests.
+getUser.extend({ signal: controller.signal })({ id: '1' });
 controller.abort();
 ```
 
@@ -644,10 +642,17 @@ axios.get('/users', { timeout: 5000 });
 ```
 
 ```ts title="After"
-const getUsers = new RestEndpoint({
-  path: '/users',
-  signal: AbortSignal.timeout(5000),
-});
+export default class ApiEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  // callout: Runs for each request, so each one gets its own 5 seconds. `AbortSignal.timeout()` passed to the constructor would start counting once, when the endpoint is created.
+  async getRequestInit(body?: RequestInit['body'] | Record<string, unknown>) {
+    return {
+      ...(await super.getRequestInit(body)),
+      signal: AbortSignal.timeout(5000),
+    };
+  }
+}
 ```
 
 </DiffEditor>
