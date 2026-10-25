@@ -705,6 +705,12 @@ div.playgroundTextEdit > .playgroundHeader,
   flex: 1 1 auto;
   min-width: 0;
 }
+/* while the app loads, its sheet runs to the folder's foot: where the app's
+   would end is unknown until it renders (and --pg-preview-gap until the
+   page hydrates), so the folder never shows under the loading page */
+.row .playgroundResult:has(.sheet[aria-busy]) {
+  flex: 1 1 auto;
+}
 .row > .previewWrapper:has(.sheet:not(:empty))::after {
   background: var(--pg-panel);
 }
