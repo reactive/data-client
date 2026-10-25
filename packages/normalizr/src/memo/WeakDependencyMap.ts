@@ -100,6 +100,7 @@ export default class WeakDependencyMap<
     if (dependencies.length < 1) throw new KeySize();
     const root = depKey(dependencies[0].entity) as K;
     let node = this.next.get(root);
+    let top = node;
     const paths = new Array<Path | KeyFn>(dependencies.length - 1);
     const keys = new Array<unknown>(dependencies.length - 1);
     for (let i = 1; i < dependencies.length; i++) {
@@ -110,12 +111,19 @@ export default class WeakDependencyMap<
         const k = (dep.path as KeyFn)(args) ?? UNDEF_KEY;
         keys[i - 1] = k;
         if (!node) {
-          node = newNode(undefined);
+          node = top = newNode(undefined);
           this.next.set(root, node);
         }
         if (!node.branches) node.branches = [];
         let branch = node.branches.find(b => b.fn === dep.path);
         if (!branch) {
+          // Missing entities change which argsKey comes next, so the routes
+          // under one root can multiply, and a lookup searches all of them.
+          // Past MAX_FORKS, start this root over instead.
+          if (node.branches.length && ++top!.forks > MAX_FORKS) {
+            this.next.delete(root);
+            return this.set(dependencies, value, args, journey);
+          }
           branch = { fn: dep.path as KeyFn, children: new Map() };
           node.branches.push(branch);
         }
@@ -229,13 +237,26 @@ function find<Path, K extends object, V>(
     if (branches) {
       for (let b = 0; b < branches.length; b++) {
         const { fn, children } = branches[b];
-        const child = children.get(fn(args) ?? UNDEF_KEY);
+        const key = select(fn, args);
+        const child = key === undefined ? undefined : children.get(key);
         if (!child) continue;
         if (!next) next = child;
         else (pending || (pending = [])).push(child);
       }
     }
     node = next ?? pending?.pop();
+  }
+}
+
+/** A branch's `argsKey` result. A branch is tried before the entities that
+ * led to it are checked, so its selector can see args its own schema path
+ * would never reach with (say, a nested entity that is now missing): treat a
+ * throw as no match, since traversal wouldn't have called it. */
+function select(fn: KeyFn, args: readonly any[]): string | undefined {
+  try {
+    return fn(args) ?? UNDEF_KEY;
+  } catch {
+    return undefined;
   }
 }
 
@@ -272,6 +293,9 @@ export type KeepReads = Map<object, object>;
  * recently used. Up to three more are pinned. */
 const UNPINNED = 2;
 
+/** Nodes under one first dependency that may gain a second `argsKey` branch. */
+const MAX_FORKS = 8;
+
 /** Entries for one set of `argsKey` results, most recently used first, and the
  * branches on the next one. */
 interface Node<Path, V> {
@@ -288,6 +312,8 @@ interface Node<Path, V> {
   settled: Entry<Path, V> | undefined;
   /** One per next `argsKey` dependency; its result picks the child. */
   branches: Branch<Path, V>[] | undefined;
+  /** On a first dependency's node: extra branches made anywhere below it. */
+  forks: number;
 }
 
 interface Branch<Path, V> {
@@ -302,6 +328,7 @@ function newNode<Path, V>(entry: Entry<Path, V> | undefined): Node<Path, V> {
     committed: undefined,
     settled: undefined,
     branches: undefined,
+    forks: 0,
   };
 }
 
