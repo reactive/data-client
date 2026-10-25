@@ -550,8 +550,6 @@ axios.get('/files/1', { responseType: 'blob' });
 const downloadFile = new RestEndpoint({
   path: '/files/:id',
   content: 'blob',
-  // callout: Keeps large blobs out of the cache if you adopt the store later
-  dataExpiryLength: 0,
 });
 ```
 
