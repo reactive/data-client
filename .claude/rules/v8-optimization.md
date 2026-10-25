@@ -5,7 +5,6 @@ paths:
   - "packages/endpoint/src/**"
   - "packages/rest/src/**"
   - "packages/react/src/**"
-  - "packages/vue/src/**"
 ---
 <!-- Generated from .cursor/rules/v8-optimization.mdc by `yarn build:agent-rules`. Edit the source. -->
 
@@ -21,5 +20,7 @@ When a change touches code that runs per entity, per render or per request (the 
    - **Inline caches**: monomorphic vs polymorphic vs megamorphic from `--log-ic` (`start:deopt` already logs them for [Deopt Explorer](https://github.com/microsoft/deoptexplorer-vscode)).
    - **Shapes and inlining**: hidden-class transitions on the objects the change creates (`--log-maps`), and whether the callers still inline it (`--trace-turbo-inlining`).
    - **Throughput**: the relevant benchmark suite (see the benchmarking rule) or a `micro.js` case, same machine, same session.
+
+   `examples/benchmark` runs only normalizr, core and endpoint. For `packages/react` and `packages/rest`, use `examples/benchmark-react`: `bench:trace` (`--trace-opt --trace-deopt`) and `bench:deopt` (`--prof`) pass V8 flags to Chromium. `printStatus.js`, `--log-ic`, `--log-maps` and inlining traces aren't wired up there.
 3. **Weigh revisions**: for any new deopt, IC going poly/megamorphic, shape instability or lost inlining, try a revision (stable property order, monomorphic helpers, hoisting `try`/`catch` out of the hot function) and re-measure. Throughput decides. When throughput is flat, keep the better V8 state: benchmarks see fewer shapes than real apps, so a call site gone polymorphic costs more in production than the benchmark shows.
 4. **Report** the before/after measurements in the PR description.
