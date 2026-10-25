@@ -321,29 +321,39 @@ describe('WeakDependencyMap eviction', () => {
     expect(wem.get(root, withB(S))[0]).toBe('S');
   });
 
-  it('a different argsKey fn at the same position makes the other entry unreachable (false miss, not wrong data)', () => {
+  it('keeps entries that reach different argsKey fns first reachable', () => {
+    // a missing entity skips its nested argsKey, so which fn comes first can
+    // change between store snapshots of the same schema and args
     const wem = new WeakDependencyMap<EntityPath>();
-    const fnA = (args: readonly any[]) => args[0]?.userId;
-    const fnB = (args: readonly any[]) => args[0]?.team;
-    wem.set([rootDep, { path: fnA, entity: undefined }], 'A', [
-      { userId: 'bob' },
-    ]);
-    wem.set([rootDep, { path: fnB, entity: undefined }], 'B', [{ team: 'x' }]);
+    const portfolio = (args: readonly any[]) => args[0]?.portfolio;
+    const currency = (args: readonly any[]) => args[0]?.currency;
+    const args = [{ portfolio: 'P', currency: 'USD' }];
     const getEntity = MemoPolicy.getEntities({ A: { '1': root } });
-    // B is reachable; A only if fnB(args) happens to equal fnA(args)
-    expect(wem.get(root, getEntity, [{ team: 'x' }])[0]).toBe('B');
-    expect(wem.get(root, getEntity, [{ userId: 'bob' }])[0]).toBeUndefined();
-    // never the wrong value: an entry is validated against its own fn
+    wem.set(
+      [rootDep, { path: currency, entity: undefined }],
+      'A missing',
+      args,
+    );
+    wem.set(
+      [
+        rootDep,
+        { path: portfolio, entity: undefined },
+        { path: currency, entity: undefined },
+      ],
+      'A loaded',
+      args,
+    );
+    // both snapshots keep hitting as they alternate
+    for (let i = 0; i < 2; i++) {
+      expect(wem.get(root, getEntity, args)[0]).toBeDefined();
+    }
     expect(
-      wem.get(root, getEntity, [{ userId: 'bob', team: 'y' }])[0],
+      wem.get(root, getEntity, [{ portfolio: 'Q', currency: 'USD' }])[0],
+    ).toBe('A missing');
+    // never the wrong value: an entry is validated against its own fns
+    expect(
+      wem.get(root, getEntity, [{ portfolio: 'P', currency: 'EUR' }])[0],
     ).toBeUndefined();
-    // fnB routes to A's bucket, but A's own fnA rejects these args
-    expect(
-      wem.get(root, getEntity, [{ userId: 'alice', team: 'bob' }])[0],
-    ).toBeUndefined();
-    expect(
-      wem.get(root, getEntity, [{ userId: 'bob', team: 'bob' }])[0],
-    ).toBe('A');
   });
 
   it('a shorter dependency list at the same root is served when the longer one mismatches', () => {
