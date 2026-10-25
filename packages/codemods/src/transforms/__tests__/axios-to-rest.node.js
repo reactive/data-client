@@ -1227,6 +1227,32 @@ async function save() {
       {},
       `
 import axios from 'axios';
+const api = axios.create({ baseURL: '/api' });
+api.interceptors.response.use(response => response.data);
+export const list = async () => (await api.get('/items')).data;
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+
+class ApiEndpoint extends RestEndpoint {
+  urlPrefix = '/api';
+}
+
+// TODO(data-client): move this interceptor into \`ApiEndpoint\`: https://dataclient.io/rest/guides/axios-migration#base-endpoint
+api.interceptors.response.use(response => response.data);
+// TODO(data-client): \`api\` has a response interceptor, so check each \`.data\` read of this call: drop it if it read axios's response, keep it if it reads the body's own field: https://dataclient.io/rest/guides/axios-migration#base-endpoint
+export const list = async () => (await new ApiEndpoint({
+  path: '/items'
+})()).data;
+      `,
+      'keeps .data when a response interceptor may have unwrapped it',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
 const list = () => axios.get('https://user:pass@example.com/items');
 const api = axios.create({ baseURL: 'https://user:pass@example.com' });
       `,

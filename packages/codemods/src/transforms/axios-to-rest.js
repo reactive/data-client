@@ -1018,6 +1018,22 @@ function transformDirectCalls(
   let dirty = false;
   let marked = false;
   const callTargets = new Set([axiosLocalName, ...createToClass.keys()]);
+  // a response interceptor can change what `.data` refers to (often the
+  // body's own `data` field, after `response => response.data`)
+  const intercepted = new Set(
+    root
+      .find(j.MemberExpression, {
+        object: {
+          type: 'MemberExpression',
+          object: { type: 'Identifier' },
+          property: { name: 'interceptors' },
+        },
+        property: { name: 'response' },
+      })
+      .nodes()
+      .map(node => node.object.object.name)
+      .filter(name => callTargets.has(name)),
+  );
 
   // innermost calls first, so a call nested in another call's args converts
   // before its parent rebuilds around it
@@ -1078,7 +1094,14 @@ function transformDirectCalls(
     }
     for (const [message, anchor] of result.todos)
       markTodo(j, callPath, message, anchor);
-    if (!unwrapData(j, callPath)) {
+    if (intercepted.has(targetName)) {
+      markTodo(
+        j,
+        callPath,
+        `\`${targetName}\` has a response interceptor, so check each \`.data\` read of this call: drop it if it read axios's response, keep it if it reads the body's own field`,
+        'base-endpoint',
+      );
+    } else if (!unwrapData(j, callPath)) {
       markTodo(
         j,
         callPath,

@@ -134,6 +134,10 @@ export default class ApiEndpoint<
 Response interceptors that change the body, such as converting `snake_case` keys, go in
 [`process()`](./RestEndpoint.vue.md#process); see [snakes to camels](https://dataclient.io/rest/guides/network-transform#snakes-to-camels).
 
+When a response interceptor returned `response.data`, a caller's `.data` read a field of the body, not axios's response,
+so keep it. The codemod marks these calls when the interceptor is in the same file; if a global
+`axios.interceptors.response` lives in another file, check the `.data` it removed from calls there.
+
 #### Server error messages
 
 Axios codebases often show the user `error.response.data.error` or `.message`. Read it from the `Response` body once,
