@@ -1,5 +1,5 @@
 /** A page while it loads: its title and a paragraph drawn as skeletons
- * (design-system.css), standing where the content will land */
+ * (base.css), standing where the content will land */
 export function Loading() {
   return (
     <div className="skeletonPage" role="status" aria-label="Loading">

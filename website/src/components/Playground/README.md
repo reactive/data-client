@@ -337,7 +337,9 @@ DesignSystem/       demo styling (design-system.css) and components injected int
 ### Design system
 
 `DesignSystem/design-system.css` (scoped to `.playground-preview`, loaded with
-the preview) makes demo markup read as a real app in both themes. Doc
+the preview) makes demo markup read as a real app in both themes; its tokens
+and skeletons (`DesignSystem/base.css`) load with the Playground, so the
+first paint shows the app's own loading page (`preview/PendingSheet.tsx`). Doc
 examples use plain elements and these classes, never inline styles or
 imports: styling changes go here. Space separates things, not lines: add no
 borders or dividers (only form controls keep an edge). Tokens are `--ds-*`,

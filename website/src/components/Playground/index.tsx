@@ -300,7 +300,7 @@ function PreviewLoading({
       fixtures={fixtureContent}
       code={code}
     >
-      <div className={styles.playgroundPreview}>
+      <div className={`playground-preview ${styles.playgroundPreview}`}>
         <PendingSheet />
       </div>
       {row ? null : <StoreToggle />}
