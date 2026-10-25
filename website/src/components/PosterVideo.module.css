@@ -34,8 +34,8 @@
   box-shadow: 0 0 0 2px rgb(255 255 255 / 0.85);
   translate: -50% -50%;
   transition:
-    scale var(--ifm-transition-fast) ease,
-    background-color var(--ifm-transition-fast) ease;
+    scale var(--motion-snappy),
+    background-color var(--motion-snappy);
 }
 
 .icon::after {
