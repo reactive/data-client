@@ -6,10 +6,10 @@ alwaysApply: false
 
 # V8 optimization check
 
-When a change to code that runs per entity, per render or per request could affect how V8 optimizes it, measure its effect before and after, then weigh revisions on what you find. That includes object shapes or property order, polymorphic call sites, `try`/`catch`, `arguments`, `delete`, and closures or spreads in loops. Skip it for changes that don't alter executed hot code (comments, types, error messages, renames).
+When a change to code that runs per entity, per render or per request could affect how V8 optimizes it, measure its effect before and after, then weigh revisions on what you find. That includes object shapes or property order, polymorphic call sites, `try`/`catch`, `arguments`, `delete`, and closures or spreads in loops. Skip it for changes that don't alter executed hot code (comments, type declarations, error-message strings, renamed locals or functions; renamed object properties do change shapes).
 
 1. **Spawn a fast subagent** to measure: **Haiku** in Claude Code (Agent tool, `model: "haiku"`), **Grok 4.7 Fast** at medium reasoning in Cursor. Give it the changed functions, the base ref, and the benchmark to run.
-2. **It measures both sides** (base and change) for each changed hot function. In `examples/benchmark`, use `start:trace` or `start:deopt`, or call `node` directly with the extra V8 flags **before** `./index.js` (flags after it, as in `yarn start --flag`, become the suite and filter args and silently run nothing):
+2. **It measures both sides** (base and change) for each changed hot function. In `examples/benchmark`, use `start:trace` or `start:deopt`, or call `node` directly with the extra V8 flags **before** `./index.js` (flags after it, as in `yarn start --flag`, are read as the suite and filter args, so V8 never sees them):
 
    ```bash
    cd examples/benchmark && NODE_ENV=production node --allow-natives-syntax --trace-deopt --trace-turbo-inlining ./index.js normalizr denormalize
@@ -22,5 +22,5 @@ When a change to code that runs per entity, per render or per request could affe
    - **Throughput**: the relevant benchmark suite (see the benchmarking rule) or a `micro.js` case, same machine, same session.
 
    `examples/benchmark` exercises only the normalizr, core and endpoint packages. For `packages/react` and `packages/rest`, use `examples/benchmark-react`: `bench:trace` (`--trace-opt --trace-deopt`) and `bench:deopt` (`--prof`) pass V8 flags to Chromium. `printStatus.js`, `--log-ic`, `--log-maps` and inlining traces aren't wired up there, so report those as not measured. Vue has no benchmark, so this rule doesn't cover `packages/vue`.
-3. **Weigh revisions**: for any new deopt, IC going poly/megamorphic, shape instability or lost inlining, try a revision (stable property order, monomorphic helpers, hoisting `try`/`catch` out of the hot function) and re-measure. A throughput difference beyond the benchmark's run-to-run variance decides. Within the variance, keep the better V8 state, since benchmarks feed fewer shapes than real apps. Name any V8 regression you keep in the PR.
+3. **Weigh revisions**: for any new deopt, IC going poly/megamorphic, shape instability or lost inlining, try a revision (stable property order, monomorphic helpers, hoisting `try`/`catch` out of the hot function) and re-measure. If throughput differs beyond the benchmark's run-to-run variance (see the benchmarking rule's expected variance; repeat runs to confirm), the faster version wins. Within the variance, keep the better V8 state, since benchmarks feed fewer shapes than real apps. Name any V8 regression you keep in the PR.
 4. **Report** the before/after measurements in the PR description.
