@@ -1,0 +1,10 @@
+{
+  "version.label": {
+    "message": "0.1",
+    "description": "The label for version current"
+  },
+  "sidebar.docs.category.GraphQL API": {
+    "message": "GraphQL API",
+    "description": "The label for category 'GraphQL API' in sidebar 'docs'"
+  }
+}

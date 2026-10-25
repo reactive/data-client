@@ -121,15 +121,13 @@ export interface Resource<
     MutateEndpoint<{
       path: ShortenPath<O['path']>;
       schema: schema.Collection<[O['schema']]>['push'];
-      body: 'body' extends keyof O ? O['body']
-      : Partial<Denormalize<O['schema']>> | FormData;
+      body: CreateBody<O> | CreateBody<O>[] | FormData;
       searchParams: O['searchParams'];
     }>
   : MutateEndpoint<{
       path: ShortenPath<O['path']>;
       schema: schema.Collection<[O['schema']]>['push'];
-      body: 'body' extends keyof O ? O['body']
-      : Partial<Denormalize<O['schema']>> | FormData;
+      body: CreateBody<O> | CreateBody<O>[] | FormData;
     }>;
   /** Update an item (PUT)
    *
@@ -185,3 +183,7 @@ export interface ResourceInterface {
   partialUpdate: RestInstanceBase;
   delete: RestInstanceBase;
 }
+
+/** Matches getList.push's body, since create is getList.push at runtime */
+type CreateBody<O extends { body?: any; schema: Schema }> =
+  'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;

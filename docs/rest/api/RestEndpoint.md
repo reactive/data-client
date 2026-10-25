@@ -15,6 +15,7 @@ import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import Grid from '@site/src/components/Grid';
 import Link from '@docusaurus/Link';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import CollectionLists from '@site/src/components/CollectionLists';
 
 # RestEndpoint
 
@@ -757,6 +758,10 @@ to indicate there is no body.
 Prepares [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) used in fetch.
 This is sent to [fetchResponse](#fetchResponse)
 
+A plain object or array `body` is JSON-encoded, with a `Content-Type: application/json` header unless
+`requestInit` or [getHeaders](#getHeaders) sets one. Any other `body`, like `FormData`, `Blob`,
+`URLSearchParams` or a string, is passed to `fetch()` as-is.
+
 :::tip async
 
 <TypeScriptEditor>
@@ -1023,6 +1028,8 @@ const UserDetailNormalized = getUser.extend({
 These convenience accessors create new endpoints for common [Collection](./Collection.md) operations.
 They only work when the `RestEndpoint`'s schema contains a [Collection](./Collection.md).
 
+<CollectionLists />
+
 ### push
 
 Creates a POST endpoint that places newly created Entities at the _end_ of a [Collection](./Collection.md).
@@ -1065,6 +1072,13 @@ const newUser = await ctrl.fetch(
   UserResource.getList.push,
   { group: 'five' },
   { username: 'newuser', email: 'new@example.com' },
+);
+
+// Send an array to create several at once; they're added to the end in order
+await ctrl.fetch(
+  UserResource.getList.push,
+  { group: 'five' },
+  [{ username: 'ana' }, { username: 'bo' }],
 );
 ```
 

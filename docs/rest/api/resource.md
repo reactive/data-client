@@ -14,6 +14,7 @@ import StackBlitz from '@site/src/components/StackBlitz';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import DeleteProcess from './\_DeleteProcess.mdx';
+import CollectionLists from '@site/src/components/CollectionLists';
 
 # Resource
 
@@ -390,10 +391,12 @@ resource({ path: '/:owner/*path' }).getList.path === '/:owner';
 
 Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate), [Controller.expireAll](/docs/api/Controller#expireAll)
 
+<CollectionLists />
+
 ### getList.push {#push}
 
 [RestEndpoint.push](./RestEndpoint.md#push) creates a new entity and pushes it to the end of getList. Use [getList.unshift](#unshift)
-to place at the beginning instead.
+to place at the beginning instead. Pass an array as the body to create several at once.
 
 <EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'},body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
 
@@ -760,7 +763,7 @@ export const IssueResource= resource({
   searchParams: {} as IssueFilters | undefined,
 }).extend(BaseResource => ({
   search: BaseResource.getList.extend({
-    path: '/search/issues?{q=:q}%20repo\\::owner/:repo{&page=:page}',
+    path: '/search/issues?{q=:q}%20repo\\::owner/:repo%20is\\:issue{&page=:page}',
     schema: {
       results: {
         incompleteResults: false,

@@ -76,7 +76,7 @@ export default class Lazy<S extends Schema> implements SchemaSimple {
     return this._query;
   }
 
-  private _query: LazyQuery<S> | undefined;
+  declare private _query: LazyQuery<S> | undefined;
 
   declare _denormalizeNullable: (
     input: {},

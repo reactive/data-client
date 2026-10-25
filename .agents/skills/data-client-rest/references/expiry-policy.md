@@ -16,17 +16,17 @@ Data in this state is considered new enough that it doesn't need to fetch.
 
 Data is still allowed to be shown, however Reactive Data Client might attempt to revalidate by fetching again.
 
+### Invalid
+
+Data should not be shown. Any components needing this data will trigger fetch and suspense. If no components care about this
+data no action will be taken.
+
 [useSuspense()](https://dataclient.io/docs/api/useSuspense) considers fetching on mount as well as when its parameters change.
 In these cases it will fetch if the data is considered stale.
 
 > **Info: React Native**
 >
 > When using React Navigation, [focus events](https://reactnavigation.org/docs/use-focus-effect/) also trigger fetches for stale data.
-
-### Invalid
-
-Data should not be shown. Any components needing this data will trigger fetch and suspense. If no components care about this
-data no action will be taken.
 
 ## Expiry Time
 
@@ -38,6 +38,8 @@ to make it becomes [stale](#stale) almost instantly; or a very large number to s
 
 Toggling between 'first' and 'second' changes the parameters. If the data is still considered fresh
 you will continue to see the old time without any refresh.
+
+Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
@@ -64,11 +66,11 @@ import { lastUpdated } from './api/lastUpdated';
 export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 ```
 
-```tsx title="TimePage"
+```tsx title="TimePage" route="/time/:id" start="/time/1"
 import { useSuspense } from '@data-client/react';
 import { getUpdated } from './getUpdated';
 
-export default function TimePage({ id }) {
+export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
@@ -81,34 +83,21 @@ export default function TimePage({ id }) {
 }
 ```
 
-```tsx title="Navigator"
-import React from 'react';
-import { AsyncBoundary } from '@data-client/react';
-import TimePage from './TimePage';
-
-function Navigator() {
-  const [id, setId] = React.useState('1');
-  const handleChange = e => setId(e.currentTarget.value);
+```tsx title="Navigator" layout
+export default function Navigator({ children }) {
   return (
     <div>
-      <div>
-        <button value="1" onClick={handleChange}>
-          First
-        </button>
-        <button value="2" onClick={handleChange}>
-          Second
-        </button>
-      </div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
-        <TimePage id={id} />
-      </AsyncBoundary>
+      <nav>
+        <Link to="/time/1">First</Link>
+        <Link to="/time/2">Second</Link>
+      </nav>
+      {children}
       <div>
         Current Time: <CurrentTime />
       </div>
     </div>
   );
 }
-render(<Navigator />);
 ```
 
 <details>
@@ -166,8 +155,10 @@ const NoRetryResource = resource({
 [Endpoint.invalidIfStale](https://dataclient.io/rest/api/Endpoint#invalidifstale) eliminates the '[stale](#stale)' status, making data
 that expires immediately be considered '[invalid](#invalid)'.
 
-This is demonstrated by the component suspending once its data goes stale. If the data is still
-within the expiry time it just continues to display it.
+This is demonstrated by the page suspending once its data goes stale (navigation waits on the progress bar).
+If the data is still within the expiry time it just continues to display it.
+
+Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
@@ -197,11 +188,11 @@ export const getUpdated = lastUpdated.extend({
 });
 ```
 
-```tsx title="TimePage"
+```tsx title="TimePage" route="/time/:id" start="/time/1"
 import { useSuspense } from '@data-client/react';
 import { getUpdated } from './getUpdated';
 
-export default function TimePage({ id }) {
+export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
@@ -214,34 +205,21 @@ export default function TimePage({ id }) {
 }
 ```
 
-```tsx title="Navigator"
-import React from 'react';
-import { AsyncBoundary } from '@data-client/react';
-import TimePage from './TimePage';
-
-function Navigator() {
-  const [id, setId] = React.useState('1');
-  const handleChange = e => setId(e.currentTarget.value);
+```tsx title="Navigator" layout
+export default function Navigator({ children }) {
   return (
     <div>
-      <div>
-        <button value="1" onClick={handleChange}>
-          First
-        </button>
-        <button value="2" onClick={handleChange}>
-          Second
-        </button>
-      </div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
-        <TimePage id={id} />
-      </AsyncBoundary>
+      <nav>
+        <Link to="/time/1">First</Link>
+        <Link to="/time/2">Second</Link>
+      </nav>
+      {children}
       <div>
         Current Time: <CurrentTime />
       </div>
     </div>
   );
 }
-render(<Navigator />);
 ```
 
 ## Force refresh
@@ -375,7 +353,7 @@ render(<Demo />);
 
 ## Invalidate (re-suspend) {#invalidate}
 
-Both [endpoints](https://dataclient.io/rest/api/Endpoint) and [entities](./Entity.md) can be targetted to be invalidated.
+Both [endpoints](https://dataclient.io/rest/api/Endpoint) and [entities](https://dataclient.io/rest/api/Entity) can be targetted to be invalidated.
 
 ### A specific endpoint {#invalidate-endpoint}
 
@@ -461,7 +439,7 @@ render(<Demo />);
 
 ### Any endpoint with an entity {#invalidate-entity}
 
-Using the [Invalidate schema](https://dataclient.io/rest/api/Invalidate) allows us to invalidate _any_ endpoint that includes that relies on that [entity](./Entity.md) in their
+Using the [Invalidate schema](https://dataclient.io/rest/api/Invalidate) allows us to invalidate _any_ endpoint that includes that relies on that [entity](https://dataclient.io/rest/api/Entity) in their
 response. If the endpoint uses the entity in an [Array](https://dataclient.io/rest/api/Array), it will simply be removed from that [Array](https://dataclient.io/rest/api/Array).
 
 ```ts title="api/lastUpdated"
@@ -559,7 +537,7 @@ when we want to change the local store directly.
 #### Conditional Invalidation based on data
 
 If `invalidation` should happen only sometimes, based on the response data, we can
-return `undefined` from [Entity.process](./Entity.md#process).
+return `undefined` from [Entity.process](https://dataclient.io/rest/api/Entity#process).
 
 ```ts
 class PriceLevel extends Entity {

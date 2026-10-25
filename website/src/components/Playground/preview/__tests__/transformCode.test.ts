@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 
-import transformCode from '../transformCode';
+import transformCode, { defaultExportName } from '../transformCode';
 
 describe('transformCode', () => {
   test('removes Prettier multiline imports', () => {
@@ -101,5 +101,23 @@ const x = 'value';`,
     expect(transformCode(`export * as ns from './x';\nconst y = 1;`)).toBe(
       'const y = 1;',
     );
+  });
+});
+
+describe('defaultExportName', () => {
+  test.each([
+    ['export default function PostList() {}', 'PostList'],
+    ['export default async function Page() {}', 'Page'],
+    ['export default class Board extends React.Component {}', 'Board'],
+    ['const a = 1;\nexport default PostDetail;', 'PostDetail'],
+    ['export default function () {}', undefined],
+    ['export default class {}', undefined],
+    ['export default class extends React.Component {}', undefined],
+    ['export default memo(PostList);', undefined],
+    ['export default functionPage;', 'functionPage'],
+    ['export default function$x;', 'function$x'],
+    ['function PostList() {}', undefined],
+  ])('%s', (code, name) => {
+    expect(defaultExportName(code)).toBe(name);
   });
 });

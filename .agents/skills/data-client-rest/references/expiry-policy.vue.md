@@ -16,14 +16,14 @@ Data in this state is considered new enough that it doesn't need to fetch.
 
 Data is still allowed to be shown, however Reactive Data Client might attempt to revalidate by fetching again.
 
-[useSuspense()](https://dataclient.io/vue/api/useSuspense) considers fetching on mount as well as when its parameters change.
-In these cases it will fetch if the data is considered stale.
-
 ### Invalid
 
 Data should not be shown. Any components needing this data will trigger fetch
 ([mounted components keep their data](#invalidate) until it resolves). If no components care about this
 data no action will be taken.
+
+[useSuspense()](https://dataclient.io/vue/api/useSuspense) considers fetching on mount as well as when its parameters change.
+In these cases it will fetch if the data is considered stale.
 
 ## Expiry Time
 
@@ -35,6 +35,8 @@ to make it becomes [stale](#stale) almost instantly; or a very large number to s
 
 Toggling between 'first' and 'second' changes the parameters. If the data is still considered fresh
 you will continue to see the old time without any refresh.
+
+Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
@@ -61,7 +63,7 @@ import { lastUpdated } from './api/lastUpdated';
 export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 ```
 
-```html title="TimePage.vue"
+```html title="TimePage.vue" route="/time/:id" start="/time/1"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getUpdated } from './getUpdated';
@@ -78,25 +80,24 @@ export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 </template>
 ```
 
-```html title="Navigator.vue"
-<script setup lang="ts">
-  import { ref } from 'vue';
-  import TimePage from './TimePage.vue';
-
-  const id = ref('1');
-</script>
-
+```html title="Navigator.vue" layout
 <template>
   <div>
-    <div>
-      <button @click="id = '1'">First</button>
-      <button @click="id = '2'">Second</button>
-    </div>
-    <!-- :key remounts TimePage so it suspends for the new id -->
-    <Suspense timeout="0">
-      <TimePage :key="id" :id="id" />
-      <template #fallback><div>loading...</div></template>
-    </Suspense>
+    <nav>
+      <RouterLink to="/time/1">First</RouterLink>
+      <RouterLink to="/time/2">Second</RouterLink>
+    </nav>
+    <RouterView v-slot="{ Component, route }">
+      <!-- :key remounts TimePage so it suspends for the new id -->
+      <Suspense timeout="0">
+        <component
+          :is="Component"
+          :key="route.fullPath"
+          :id="route.params.id"
+        />
+        <template #fallback><div>loading...</div></template>
+      </Suspense>
+    </RouterView>
   </div>
 </template>
 ```
@@ -156,8 +157,10 @@ const NoRetryResource = resource({
 [Endpoint.invalidIfStale](https://dataclient.io/rest/api/Endpoint#invalidifstale) eliminates the '[stale](#stale)' status, making data
 that expires immediately be considered '[invalid](#invalid)'.
 
-This is demonstrated by the component suspending once its data goes stale. If the data is still
-within the expiry time it just continues to display it.
+This is demonstrated by the page suspending once its data goes stale.
+If the data is still within the expiry time it just continues to display it.
+
+Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
@@ -187,7 +190,7 @@ export const getUpdated = lastUpdated.extend({
 });
 ```
 
-```html title="TimePage.vue"
+```html title="TimePage.vue" route="/time/:id" start="/time/1"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getUpdated } from './getUpdated';
@@ -204,25 +207,24 @@ export const getUpdated = lastUpdated.extend({
 </template>
 ```
 
-```html title="Navigator.vue"
-<script setup lang="ts">
-  import { ref } from 'vue';
-  import TimePage from './TimePage.vue';
-
-  const id = ref('1');
-</script>
-
+```html title="Navigator.vue" layout
 <template>
   <div>
-    <div>
-      <button @click="id = '1'">First</button>
-      <button @click="id = '2'">Second</button>
-    </div>
-    <!-- :key remounts TimePage so it suspends for the new id -->
-    <Suspense timeout="0">
-      <TimePage :key="id" :id="id" />
-      <template #fallback><div>loading...</div></template>
-    </Suspense>
+    <nav>
+      <RouterLink to="/time/1">First</RouterLink>
+      <RouterLink to="/time/2">Second</RouterLink>
+    </nav>
+    <RouterView v-slot="{ Component, route }">
+      <!-- :key remounts TimePage so it suspends for the new id -->
+      <Suspense timeout="0">
+        <component
+          :is="Component"
+          :key="route.fullPath"
+          :id="route.params.id"
+        />
+        <template #fallback><div>loading...</div></template>
+      </Suspense>
+    </RouterView>
   </div>
 </template>
 ```
@@ -337,7 +339,7 @@ export const lastUpdated = new RestEndpoint({
 
 ## Invalidate {#invalidate}
 
-Both [endpoints](https://dataclient.io/rest/api/Endpoint) and [entities](./Entity.vue.md) can be targetted to be invalidated.
+Both [endpoints](https://dataclient.io/rest/api/Endpoint) and [entities](https://dataclient.io/rest/api/Entity) can be targetted to be invalidated.
 
 Invalidated data always refetches, even when it is fresh. Vue can't suspend a component again once its
 setup has run, so mounted components keep showing their previous data until the refetch resolves.
@@ -409,7 +411,7 @@ export const lastUpdated = new RestEndpoint({
 
 ### Any endpoint with an entity {#invalidate-entity}
 
-Using the [Invalidate schema](https://dataclient.io/rest/api/Invalidate) allows us to invalidate _any_ endpoint that includes that relies on that [entity](./Entity.vue.md) in their
+Using the [Invalidate schema](https://dataclient.io/rest/api/Invalidate) allows us to invalidate _any_ endpoint that includes that relies on that [entity](https://dataclient.io/rest/api/Entity) in their
 response. If the endpoint uses the entity in an [Array](https://dataclient.io/rest/api/Array), it will simply be removed from that [Array](https://dataclient.io/rest/api/Array).
 
 ```ts title="api/lastUpdated"
@@ -496,7 +498,7 @@ when we want to change the local store directly.
 #### Conditional Invalidation based on data
 
 If `invalidation` should happen only sometimes, based on the response data, we can
-return `undefined` from [Entity.process](./Entity.vue.md#process).
+return `undefined` from [Entity.process](https://dataclient.io/rest/api/Entity#process).
 
 ```ts
 class PriceLevel extends Entity {

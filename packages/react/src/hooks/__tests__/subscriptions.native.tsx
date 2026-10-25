@@ -200,7 +200,7 @@ describe.each([
     const fakeDispatch = jest.fn();
     const controller = new Controller({ dispatch: fakeDispatch });
 
-    const { rerender } = renderHook(
+    const { rerender } = await renderHook(
       () => {
         useSubscription(PollingArticleResource.getList, { id: 5 });
       },
@@ -216,7 +216,7 @@ describe.each([
     );
     expect(fakeDispatch.mock.calls.length).toBe(1);
     for (let i = 0; i < 2; ++i) {
-      rerender({});
+      await rerender({});
     }
     expect(fakeDispatch.mock.calls.length).toBe(1);
     await renderDataClient.allSettled();
@@ -226,7 +226,7 @@ describe.each([
     const fakeDispatch = jest.fn();
     const controller = new Controller({ dispatch: fakeDispatch });
 
-    const { rerender } = renderHook(
+    const { rerender } = await renderHook(
       ({ id }: { id: number | null }) => {
         useSubscription(PollingArticleResource.getList, id ? { id } : null);
       },
@@ -243,7 +243,7 @@ describe.each([
     );
     expect(fakeDispatch.mock.calls.length).toBe(1);
     for (let i = 0; i < 3; ++i) {
-      rerender({ id: null });
+      await rerender({ id: null });
     }
     expect(fakeDispatch.mock.calls.length).toBe(2);
     expect(fakeDispatch.mock.calls[0][0].type).toBe(actionTypes.SUBSCRIBE);

@@ -114,15 +114,15 @@
     "url": "https://github.com/reactive/data-client/issues"
   },
   "dependencies": {
-    "@babel/runtime": "^7.20.0"
+    "@babel/runtime": "^7.20.0 || ^8.0.0"
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
     "@data-client/endpoint": "workspace:*",
     "@types/jest": "30.0.0",
-    "@types/node": "^25.0.0",
+    "@types/node": "^26.0.0",
     "immutable": "5.1.9",
     "rollup-plugins": "workspace:*",
-    "temporal-polyfill": "^0.3.0"
+    "temporal-polyfill": "^1.0.0"
   }
 }

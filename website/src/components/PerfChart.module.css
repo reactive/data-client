@@ -15,7 +15,6 @@
 }
 
 .row {
-  position: relative;
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
@@ -25,45 +24,24 @@
 }
 
 .row:focus-visible,
-.active {
+.row[data-open] {
   outline: none;
   background: var(--ifm-color-emphasis-100);
 }
 
-/* exact numbers, revealed on hover, tap or keyboard focus */
-.tip {
-  position: absolute;
-  z-index: 1;
-  bottom: calc(100% + 0.25rem);
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0.25rem 0.5rem;
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: var(--ifm-global-radius);
-  font-size: 0.875rem;
-  white-space: nowrap;
-  color: var(--ifm-color-emphasis-900);
-  background: var(--ifm-background-surface-color);
-  box-shadow: var(--ifm-global-shadow-md);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s;
-}
-
-.row:focus-visible .tip,
-.active .tip {
-  opacity: 1;
-}
-
-/* only devices that really hover; on touch, a tap toggles .active instead */
 @media (hover: hover) {
   .row:hover {
     background: var(--ifm-color-emphasis-100);
   }
+}
 
-  .row:hover .tip {
-    opacity: 1;
-  }
+/* exact numbers, revealed on hover, tap or keyboard focus */
+.tip {
+  composes: tip from './tips.module.css';
+  left: 50%;
+  translate: -50%;
+  white-space: nowrap;
+  --tip-pointer-events: none;
 }
 
 .label {

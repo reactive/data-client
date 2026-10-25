@@ -64,7 +64,7 @@ import { useSuspense } from '@data-client/react';
 import { issueQuery } from './IssueQuery';
 
 function IssueList({ query, owner, repo }) {
-  const q = `${query} repo:${owner}/${repo}`;
+  const q = `${query} repo:${owner}/${repo} is:issue`;
   const response = useSuspense(issueQuery, { q });
   return (
     <>
@@ -107,8 +107,8 @@ export default function SearchIssues() {
       >
         <SearchIcon />
       </TextInput>
-      <AsyncBoundary fallback={<Loading />}>
-        <IssueList query={debouncedQuery} owner="facebook" repo="react" />
+      <AsyncBoundary fallback={<Loading />} errorComponent={ErrorMessage}>
+        <IssueList query={debouncedQuery} owner="react" repo="react" />
       </AsyncBoundary>
     </>
   );

@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 880" width="1600" height="880" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>How Data Client's agent skills work</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#7d8fa3"/>
+    </marker>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#111a24"/>
+      <stop offset="1" stop-color="#0c131b"/>
+    </linearGradient>
+    <style>
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .h { fill: #f2f6fa; font-weight: 600; }
+      .t { fill: #c9d4df; }
+      .m { fill: #8a9bad; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="880" rx="28" fill="url(#bg)"/>
+
+  <text x="60" y="78" class="h" font-size="40">How Data Client's agent skills work</text>
+  <text x="60" y="116" class="m" font-size="21">Each @data-client package ships the skills for its version. Your agent loads them as its own.</text>
+
+  <!-- 1. Set up once -->
+  <rect x="60" y="150" width="470" height="440" rx="18" fill="#141f2b" stroke="#3d97db" stroke-opacity="0.55" stroke-width="2"/>
+  <circle cx="100" cy="195" r="20" fill="#3d97db"/>
+  <text x="100" y="202" text-anchor="middle" font-size="20" font-weight="700" fill="#0c131b">1</text>
+  <text x="134" y="204" class="h" font-size="27">Set up once</text>
+  <text x="84" y="252" class="t" font-size="18">New app: the Claude Code plugin's</text>
+  <text x="84" y="276" class="t" font-size="18"><tspan class="mono h" font-size="17">data-client-setup</tspan> skill installs the</text>
+  <text x="84" y="300" class="t" font-size="18">packages and runs the command.</text>
+  <rect x="84" y="322" width="422" height="72" rx="10" fill="#0a1017"/>
+  <text x="102" y="352" class="mono" font-size="17"><tspan fill="#5f7183">$ </tspan><tspan fill="#c9d4df">claude plugin install</tspan></text>
+  <text x="122" y="378" class="mono" font-size="17" fill="#6cb8ef">data-client@data-client</text>
+  <text x="84" y="432" class="t" font-size="18">Existing app: run it yourself.</text>
+  <rect x="84" y="454" width="422" height="50" rx="10" fill="#0a1017"/>
+  <text x="102" y="486" class="mono" font-size="17"><tspan fill="#5f7183">$ </tspan><tspan fill="#c9d4df">npx --no </tspan><tspan fill="#6cb8ef">data-client-skills</tspan></text>
+  <text x="84" y="542" class="m" font-size="16">Commit the links. Setup also adds one line</text>
+  <text x="84" y="566" class="m" font-size="16">to AGENTS.md so agents rerun it on changes.</text>
+
+  <line x1="534" y1="370" x2="558" y2="370" stroke="#7d8fa3" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- 2. Links, not copies -->
+  <rect x="565" y="150" width="470" height="440" rx="18" fill="#141f2b" stroke="#e3a63b" stroke-opacity="0.5" stroke-width="2"/>
+  <circle cx="605" cy="195" r="20" fill="#e3a63b"/>
+  <text x="605" y="202" text-anchor="middle" font-size="20" font-weight="700" fill="#0c131b">2</text>
+  <text x="639" y="204" class="h" font-size="27">Links, not copies</text>
+  <text x="589" y="252" class="t" font-size="18">Each skill links into the package that</text>
+  <text x="589" y="276" class="t" font-size="18">ships it, so it is always the installed</text>
+  <text x="589" y="300" class="t" font-size="18">version's.</text>
+  <rect x="589" y="326" width="422" height="242" rx="10" fill="#0a1017"/>
+  <g class="mono" font-size="15">
+    <text x="609" y="358" class="h" font-size="18">.agents/skills/ <tspan class="m" font-size="14" font-weight="400" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">  ← .claude/skills links here</tspan></text>
+    <text x="609" y="392" fill="#7fd4a0">data-client-react →</text>
+    <text x="627" y="414" class="m">node_modules/@data-client/react/</text>
+    <text x="627" y="436" class="m">skills/data-client-react</text>
+    <text x="609" y="470" fill="#7fd4a0">data-client-rest →</text>
+    <text x="627" y="492" class="m">node_modules/@data-client/rest/…</text>
+    <text x="609" y="526" fill="#7fd4a0">data-client-manager →</text>
+    <text x="627" y="548" class="m">…/react/../core/… (works in pnpm)</text>
+  </g>
+
+  <line x1="1039" y1="370" x2="1063" y2="370" stroke="#7d8fa3" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- 3. Native skills -->
+  <rect x="1070" y="150" width="470" height="440" rx="18" fill="#141f2b" stroke="#4cc38a" stroke-opacity="0.5" stroke-width="2"/>
+  <circle cx="1110" cy="195" r="20" fill="#4cc38a"/>
+  <text x="1110" y="202" text-anchor="middle" font-size="20" font-weight="700" fill="#0c131b">3</text>
+  <text x="1144" y="204" class="h" font-size="27">Native skills</text>
+  <text x="1094" y="252" class="t" font-size="18">Claude Code, Cursor and Codex list them</text>
+  <text x="1094" y="276" class="t" font-size="18">and load the one the task needs, like</text>
+  <text x="1094" y="300" class="t" font-size="18">any skill you installed yourself.</text>
+  <rect x="1094" y="326" width="422" height="242" rx="10" fill="#0a1017"/>
+  <circle cx="1116" cy="346" r="5" fill="#f2665c"/>
+  <circle cx="1134" cy="346" r="5" fill="#f0bf62"/>
+  <circle cx="1152" cy="346" r="5" fill="#4cc38a"/>
+  <text x="1500" y="351" text-anchor="end" class="m" font-size="13">skills</text>
+  <g class="mono" font-size="16">
+    <text x="1112" y="392" fill="#7fd4a0">/data-client-react</text>
+    <text x="1112" y="422" fill="#7fd4a0">/data-client-rest</text>
+    <text x="1112" y="452" fill="#7fd4a0">/data-client-schema</text>
+    <text x="1112" y="482" fill="#7fd4a0">/data-client-manager</text>
+    <text x="1112" y="512" class="m">…</text>
+  </g>
+
+  <!-- Keeping current -->
+  <text x="60" y="660" class="h" font-size="23">Keeping them current</text>
+
+  <g>
+    <rect x="60" y="696" width="720" height="128" rx="16" fill="#122019" stroke="#4cc38a" stroke-opacity="0.45" stroke-width="2"/>
+    <rect x="84" y="716" width="150" height="30" rx="15" fill="#4cc38a" fill-opacity="0.2"/>
+    <text x="159" y="737" text-anchor="middle" font-size="15" font-weight="600" fill="#7fd4a0">Upgrades</text>
+    <text x="84" y="778" class="t" font-size="19">Nothing to do. The links follow node_modules, so</text>
+    <text x="84" y="804" class="t" font-size="19">npm update brings the new version's skills.</text>
+  </g>
+  <g>
+    <rect x="820" y="696" width="720" height="128" rx="16" fill="#1d1a12" stroke="#e3a63b" stroke-opacity="0.45" stroke-width="2"/>
+    <rect x="844" y="716" width="300" height="30" rx="15" fill="#e3a63b" fill-opacity="0.2"/>
+    <text x="994" y="737" text-anchor="middle" font-size="15" font-weight="600" fill="#f0bf62">Packages added or removed</text>
+    <text x="844" y="778" class="t" font-size="19">Rerun <tspan class="mono h" font-size="18">data-client-skills</tspan>. The AGENTS.md line</text>
+    <text x="844" y="804" class="t" font-size="19">and the data-client skill tell agents to.</text>
+  </g>
+</svg>

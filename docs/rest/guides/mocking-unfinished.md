@@ -9,7 +9,7 @@ but they are starting to code the same time as you. It would be nice to easily
 mock the endpoint and use it in a way such that when the endpoint is done
 you won't need to make major changes to your code.
 
-<HooksPlayground>
+<HooksPlayground row>
 
 ```typescript title="resources/Rating"
 import { Entity, resource } from '@data-client/rest';

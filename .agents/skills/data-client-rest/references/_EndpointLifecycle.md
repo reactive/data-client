@@ -39,6 +39,11 @@ When provided, any fetches with this endpoint will behave as though the `expecte
 from this function was a succesful network response. When the actual fetch completes (regardless
 of failure or success), the optimistic update will be replaced with the actual network response.
 
+`expectedResponse` is normalized with the endpoint's [schema](#schema), so TypeScript checks it like a
+[Controller.set()](https://dataclient.io/docs/api/Controller#set) value: an [Entity](https://dataclient.io/rest/api/Entity) takes any of its fields, and a
+[Collection](https://dataclient.io/rest/api/Collection) takes a list of them. When the endpoint resolves a specific type, like the return
+of [process()](./RestEndpoint.md#process), it must match that type instead.
+
 ```ts title="Post"
 import { Entity, EntityMixin } from '@data-client/rest';
 
@@ -60,7 +65,7 @@ export class Post extends Entity {
   };
 
   get img() {
-    return `//loremflickr.com/96/72/kitten,cat?lock=${this.id % 16}`;
+    return `https://picsum.photos/seed/${this.id % 16}/96/72`;
   }
 }
 ```
@@ -178,7 +183,7 @@ render(<PostList />);
 
 > **Tip**
 >
-> Try using [Collections](./Collection.md) instead.
+> Try using [Collections](https://dataclient.io/rest/api/Collection) instead.
 >
 > They are much easier to use and more robust!
 

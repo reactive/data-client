@@ -649,6 +649,10 @@ to inform `sideEffect` and whether the endpoint should use a `body` payload. Set
 Prepares [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) used in fetch.
 This is sent to [fetchResponse](#fetchResponse)
 
+A plain object or array `body` is JSON-encoded, with a `Content-Type: application/json` header unless
+`requestInit` or [getHeaders](#getHeaders) sets one. Any other `body`, like `FormData`, `Blob`,
+`URLSearchParams` or a string, is passed to `fetch()` as-is.
+
 > **Tip: async**
 >
 > ```ts
@@ -907,6 +911,11 @@ When provided, any fetches with this endpoint will behave as though the `expecte
 from this function was a succesful network response. When the actual fetch completes (regardless
 of failure or success), the optimistic update will be replaced with the actual network response.
 
+`expectedResponse` is normalized with the endpoint's [schema](#schema), so TypeScript checks it like a
+[Controller.set()](https://dataclient.io/vue/api/Controller#set) value: an [Entity](https://dataclient.io/rest/api/Entity) takes any of its fields, and a
+[Collection](https://dataclient.io/rest/api/Collection) takes a list of them. When the endpoint resolves a specific type, like the return
+of [process()](./RestEndpoint.vue.md#process), it must match that type instead.
+
 ```ts title="Post"
 import { Entity, EntityMixin } from '@data-client/rest';
 
@@ -928,7 +937,7 @@ export class Post extends Entity {
   };
 
   get img() {
-    return `//loremflickr.com/96/72/kitten,cat?lock=${this.id % 16}`;
+    return `https://picsum.photos/seed/${this.id % 16}/96/72`;
   }
 }
 ```
@@ -1167,6 +1176,13 @@ const newUser = await ctrl.fetch(
   UserResource.getList.push,
   { group: 'five' },
   { username: 'newuser', email: 'new@example.com' },
+);
+
+// Send an array to create several at once; they're added to the end in order
+await ctrl.fetch(
+  UserResource.getList.push,
+  { group: 'five' },
+  [{ username: 'ana' }, { username: 'bo' }],
 );
 ```
 

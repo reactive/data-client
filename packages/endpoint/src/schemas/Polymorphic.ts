@@ -3,7 +3,7 @@ import { Visit } from '../interface.js';
 
 export default class PolymorphicSchema {
   declare private _schemaAttribute: any;
-  protected schema: any;
+  declare protected schema: any;
 
   constructor(
     definition: any,

@@ -6,7 +6,7 @@ version: 2.1
 executors:
   node:
     docker: &docker
-      - image: cimg/node:26.10
+      - image: cimg/node:26.12
     environment:
       # the whole CI is reset each time anyway, so only track local cache
       YARN_ENABLE_GLOBAL_CACHE: false
@@ -28,10 +28,14 @@ commands:
       flag:
         type: enum
         enum: ["esmodule", "tests"]
+      on-missing:
+        type: enum
+        enum: ["continue", "halt"]
+        default: "continue"
     steps:
       - restore_cache:
           keys:
-            - ci-relevant-v2-{{ .Environment.CIRCLE_SHA1 }}
+            - ci-relevant-v4-{{ .Environment.CIRCLE_WORKFLOW_ID }}
       - run:
           name: Skip job if only non-<< parameters.flag >> paths changed
           command: |
@@ -41,6 +45,9 @@ commands:
               circleci-agent step halt
             elif [ "${FLAG}" = "true" ]; then
               echo "Relevant changes detected; continuing job."
+            elif [ "<< parameters.on-missing >>" = "halt" ]; then
+              echo "No relevance flag found; halting this job."
+              circleci-agent step halt
             else
               echo "No relevance flag found; failing open (continuing job)."
             fi
@@ -61,6 +68,23 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Check tree-passed requires every job
+          # Otherwise a tree gets marked passed without the missing job, and
+          # the merge queue and master skip it
+          command: |
+            # Temp files, not <(...): a failed yq must fail the step
+            yq '[.workflows.validation.jobs[] | (select(tag == "!!map") | keys | .[0]) // .] - ["setup", "tree-passed"] | sort | .[]' .circleci/config.yml > /tmp/ci-jobs
+            yq '.workflows.validation.jobs[].["tree-passed"].requires | select(.) | sort | .[]' .circleci/config.yml > /tmp/ci-tree-passed-requires
+            diff -u --label 'workflow jobs' --label 'tree-passed requires' /tmp/ci-jobs /tmp/ci-tree-passed-requires
+      - run:
+          name: Hash source tree
+          # File contents, not the commit: a squash merge and the merge queue
+          # commit it came from share a tree, so the same code runs once
+          command: git rev-parse 'HEAD^{tree}' > ~/project/.ci-tree
+      - restore_cache:
+          keys:
+            - ci-passed-v1-{{ checksum ".ci-tree" }}
+      - run:
           name: Detect relevant changes
           command: |
             # Compare against the default branch.
@@ -70,7 +94,15 @@ jobs:
             ESMODULE_RELEVANT=true
             TESTS_RELEVANT=true
 
-            if [ "${CIRCLE_BRANCH}" = "${BASE_BRANCH}" ]; then
+            # Only the queue and master trust a marker; PR reruns still run
+            if [ -f ~/project/.ci-tree-passed ] \
+              && [[ "${CIRCLE_BRANCH}" == "${BASE_BRANCH}" || "${CIRCLE_BRANCH}" == gh-readonly-queue/* ]]; then
+              # Saved by `tree-passed` once every job passed on this exact tree
+              echo "Every job already passed on tree $(cat ~/project/.ci-tree); halting all jobs."
+              ESMODULE_RELEVANT=false
+              TESTS_RELEVANT=false
+              DIFF_RANGE=""
+            elif [ "${CIRCLE_BRANCH}" = "${BASE_BRANCH}" ]; then
               # A push can land several commits (rebase-merge), so HEAD~1 isn't
               # the whole change; always run everything on the default branch.
               echo "On ${BASE_BRANCH}; running all jobs."
@@ -103,9 +135,9 @@ jobs:
                 ESMODULE_RELEVANT=false
               fi
               # Docs/website/tooling-only changes can't affect lint, typecheck or
-              # unit tests (Playground has unit tests, so it stays relevant).
+              # unit tests (Playground and motion have unit tests, so they stay relevant).
               if ! grep -Evq "^(${DOCS_ONLY})" /tmp/ci-changed-files \
-                && ! grep -q '^website/src/components/Playground/' /tmp/ci-changed-files; then
+                && ! grep -Eq '^website/src/components/(Playground|motion)/' /tmp/ci-changed-files; then
                 echo "Only docs/website/tooling paths changed; test jobs will halt."
                 TESTS_RELEVANT=false
               fi
@@ -118,10 +150,11 @@ jobs:
             # Later setup steps read these; the files are for downstream jobs.
             echo "export ESMODULE_RELEVANT=${ESMODULE_RELEVANT} TESTS_RELEVANT=${TESTS_RELEVANT}" >> "${BASH_ENV}"
       - save_cache:
-          key: ci-relevant-v2-{{ .Environment.CIRCLE_SHA1 }}
+          key: ci-relevant-v4-{{ .Environment.CIRCLE_WORKFLOW_ID }}
           paths:
             - .ci-esmodule-relevant
             - .ci-tests-relevant
+            - .ci-tree # tree-passed marks this
       - run:
           name: Halt setup if nothing downstream is relevant
           command: |
@@ -184,8 +217,10 @@ jobs:
             - project/node_modules
             - project/packages
             - project/scripts
-            # Playground unit tests (transformCode, codeModel); rest of website omitted
+            # Playground and motion unit tests; rest of website omitted
             - project/website/src/components/Playground
+            - project/website/src/components/motion
+            - project/website/src/utils
             - project/.yarnrc.yml
             - project/babel.config.js
             - project/eslint.config.mjs
@@ -251,12 +286,6 @@ jobs:
             npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
             yarn up react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
             yarn workspace @data-client/test add --dev @testing-library/react-hooks
-            elif [ "<< parameters.react-version >>" == "native" ]; then
-            yarn up react@19.2.3 react-test-renderer@19.2.3
-            elif [ "<< parameters.react-version >>" == "19.3" ]; then
-            npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
-            yarn up react@19.3.0 react-dom@19.3.0 react-test-renderer@19.3.0
-            node -e "for (const p of ['react','react-dom','react-test-renderer']) { const v=require(p+'/package.json').version; if (v !== '19.3.0') throw new Error(p+' resolved to '+v) }"
             fi
       - run:
           name: Running Jest
@@ -269,8 +298,15 @@ jobs:
               # No --maxWorkers here: the ReactNative suites are dominated by
               # fake-timer waits, and capping workers makes the heavy hook
               # suites contend enough to flake 5s test timeouts.
+              # React Native 0.88 bundles the React 19.3 renderer, so run on the installed React
               yarn test:ci --selectProjects ReactNative
-            elif [ "<< parameters.react-version >>" == "19.3" ]; then
+              # Previous React minor (19.2): these suites assert per-minor React behavior,
+              # and none of them load react-native, whose 0.88 peer is react ^19.3
+              V=19.2.3
+              npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
+              # test-renderer's minor tracks React's (1.2 pairs with React 19.2)
+              yarn up react@$V react-dom@$V react-test-renderer@$V test-renderer@~1.2.0
+              V=$V node -e "for (const p of ['react','react-dom','react-test-renderer']) { const v=require(p+'/package.json').version; if (v !== process.env.V) throw new Error(p+' resolved to '+v) }"
               yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPatterns 'packages/react/src/__tests__/concurrent-.*\.web\.tsx' 'packages/react/src/hooks/__tests__/useCacheState.web.tsx'
             elif [ "<< parameters.react-version >>" == "latest" ]; then
               # Coverage floors and projects live in the test:coverage script
@@ -340,7 +376,6 @@ jobs:
             yarn workspace @data-client/test add --dev @testing-library/react-hooks
             yarn up react@^18 react-dom@^18 react-test-renderer@^18
       - run:
-          # we must use npm because yarn 4 isn't compatible with legacy node versions
           # --maxWorkers matches resource_class (default medium = 2 vCPU); see unit_tests
           command: |
             ANANSI_JEST_TYPECHECK=false yarn test --ci --maxWorkers=2 --selectProjects Node
@@ -380,7 +415,8 @@ jobs:
       - run:
           name: Run Typecheck
           command: |
-            if [ "<< parameters.typescript-version >>" == "5.3" ] || [ "<< parameters.typescript-version >>" == "4.8" ]; then
+            # Full apps import linaria, whose types need TypeScript 5.0+
+            if [[ ! "<< parameters.typescript-version >>" < "5.0" ]]; then
             yarn run tsc --project examples/todo-app/tsconfig.json
             yarn run tsc --project examples/github-app/tsconfig.json
             fi
@@ -442,6 +478,36 @@ jobs:
             cd examples/normalizr-relationships
             yarn run start
 
+  tree-passed:
+    # Runs only once every job passed (a halted job counts), so later
+    # pipelines on the same tree (the merge queue, then master) skip the work
+    docker: *docker
+    resource_class: small
+    steps:
+      # Only vouch for trees whose jobs all ran: a path-filtered run only
+      # proves the change was irrelevant, and missing flags prove nothing
+      - halt-unless-relevant-change:
+          flag: tests
+          on-missing: halt
+      - halt-unless-relevant-change:
+          flag: esmodule
+          on-missing: halt
+      - run:
+          name: Mark tree passed
+          command: |
+            # Never for fork PRs (CIRCLE_PR_NUMBER is only set on those)
+            if [ -n "${CIRCLE_PR_NUMBER:-}" ]; then
+              echo "Fork PR; not marking this tree passed."
+              circleci-agent step halt
+              exit 0
+            fi
+            # Fail open: without setup's tree hash, later pipelines just run
+            cp ~/project/.ci-tree ~/project/.ci-tree-passed || circleci-agent step halt
+      - save_cache:
+          key: ci-passed-v1-{{ checksum ".ci-tree" }}
+          paths:
+            - .ci-tree-passed
+
 workflows:
   version: 2
   validation:
@@ -450,13 +516,14 @@ workflows:
       - unit_tests:
           matrix:
             parameters:
-              react-version: ["^17", "^18", "native", "latest", "19.3"]
+              react-version: ["^17", "^18", "native", "latest"]
           requires:
             - setup
       - node_matrix:
           matrix:
             parameters:
-              node-version: ["18.18", "20.12.2"]
+              # Babel 8 (our test transform) needs Node ^22.18 || >=24.11
+              node-version: ["22.18", "24.11"]
           requires:
             - setup
       - lint:
@@ -482,3 +549,12 @@ workflows:
               typescript-version: ["4.0", "4.1", "4.3", "4.8", "5.3"]
           requires:
             - setup
+      - tree-passed:
+          requires:
+            - unit_tests
+            - node_matrix
+            - lint
+            - typecheck
+            - validate-esmodule-browser-build
+            - esmodule-types-latest
+            - esmodule-types

@@ -17,11 +17,11 @@ Monorepo for `@data-client` high performance npm packages.
 - `yarn test` - Run tests (Jest projects: ReactDOM, Node, ReactNative)
 - `yarn lint` / `yarn format` - Linting and formatting
 - `yarn check:typeperf` - Type-check cost budget (CI `typecheck` job); run after `yarn ci:build:types` when changing public types, `--update` to re-record. See `scripts/typeperf/README.md`
-- `yarn copy:websitetypes` - Regenerates the website playground's Monaco types (`website/src/components/Playground/editor-types`, ~10s); commit the result when public types or a copied dependency (`scripts/copywebsitetypes.sh`) change. CI `editor-types` check fails when they're stale
-- `yarn check:doc-examples [react|vue]` - Type-checks the React and Vue code examples in `docs/` (CI `skills` check). See "Code examples" in `website/framework-docs/README.md`
-- Website: `yarn workspace rdc-website typecheck` / `yarn lint --quiet 'website/src/**/*.{ts,tsx}'` / `yarn workspace rdc-website build`; dev: `cd website && yarn start:vscode`
+- `yarn copy:websitetypes` - Regenerates the website playground's Monaco types (`website/src/components/Playground/editor-types`, ~10s); commit the result when public types or a copied dependency (`scripts/copywebsitetypes.sh`) change. CI `regenerate` check fails when they're stale
+- `yarn check:doc-examples [react|vue]` - Type-checks the React and Vue code examples in `docs/` (CI `regenerate` check). See "Code examples" in `website/framework-docs/README.md`
+- Website: `yarn workspace rdc-website typecheck` / `yarn lint --quiet 'website/{src,api}/**/*.{js,ts,tsx}'` / `yarn workspace rdc-website build`; dev: `cd website && yarn start:vscode`
 
-**Test naming**: `*.node.test.ts[x]` (Node), `*.native.test.ts[x]` (RN), `*.test.ts[x]` (regular)
+**Test naming**: in `__tests__/`, `*.node.ts[x]` (Node), `*.native.ts[x]` (RN), any other `*.ts[x]` (regular); elsewhere `*.test.node.ts[x]`, `*.test.native.ts[x]`, `*.test.ts[x]`
 
 **Targeted tests**: `yarn test --selectProjects ReactDOM --testPathPatterns packages/react` (project names: `ReactDOM`, `Node`, `ReactNative`)
 
@@ -36,6 +36,10 @@ Changing root `package.json` `workspaces` requires updating `.circleci/config.ym
 
 Any user-facing change in `packages/*` requires a changeset. Core packages are version-linked (bumping one bumps all). See skill "changeset" for full workflow.
 
+## Pull Requests
+
+Fill in `.github/PULL_REQUEST_TEMPLATE.md`. Its HTML comments are per-section instructions, not just layout (some agent tools treat templates as layout only). See skill "pr".
+
 ## File Organization
 
 - **API definitions**: `src/resources/` within examples/apps
@@ -44,9 +48,9 @@ Any user-facing change in `packages/*` requires a changeset. Core packages are v
 - **Tests**: `packages/*/src/**/__tests__`
 - **Benchmarks**: `examples/benchmark` (Node: core/normalizr/endpoint throughput), `examples/benchmark-react` (browser: React rendering and data-library comparison). See `.cursor/rules/benchmarking.mdc` and each example’s README.
 - **Skills**: `.agents/skills/` (Cursor, Codex, and other agents; `.claude/skills` links to it for Claude Code)
-  - `references/*.md` listed in a skill's `references.json` are generated from `docs/`; edit the doc, never the reference. `yarn build:skills` regenerates them (an agent pre-push hook makes sure they are committed) and the `skills` CI check fails on drift.
+  - `references/*.md` listed in a skill's `references.json` are generated from `docs/`; edit the doc, never the reference. `yarn build:skills` regenerates them (an agent pre-push hook makes sure they are committed) and the `regenerate` CI check fails on drift.
 - **Agent rules**: `.cursor/rules/*.mdc` (and nested `<dir>/.cursor/rules`) are the source for both Cursor and Claude Code. `yarn build:agent-rules` generates `.claude/rules/*.md` from them (`globs` become `paths`); never edit those. Every rule needs `globs` or `alwaysApply: true`; guidance pulled in by description alone belongs in a skill. The pre-push hook and the `agent-rules` CI check catch drift.
-- **Agent hooks**: `.cursor/hooks/` scripts are wired in both `.cursor/hooks.json` and `.claude/settings.json`: `eslint-fix.js` fixes uncommitted JS/TS once at the end of each turn and hands errors it can't fix back to the agent, and `pre-push.js` regenerates files and lint-fixes what a push includes. Keep hooks cheap: batch per turn or push, never per edit.
+- **Agent hooks**: `.cursor/hooks/` scripts are wired in both `.cursor/hooks.json` and `.claude/settings.json`: `eslint-fix.js` fixes uncommitted JS/TS once at the end of each turn and hands errors it can't fix back to the agent, and `pre-push.js` regenerates files, lint-fixes what a push includes, and runs `scripts/breaking-evals.mjs` (a minor or major changeset needs a skill eval; `.cursor/rules/breaking-changes.mdc`). Keep hooks cheap: batch per turn or push, never per edit.
 
 ## Key Principles
 

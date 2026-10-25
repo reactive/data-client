@@ -24,9 +24,9 @@ PlaygroundLiveEditor.tsx  editable react-live editor (mobile/bot fallback)
 resources/          sample resources (currently unreferenced; kept for future demos)
 Boundary.tsx        BrowserOnly + Suspense with one fallback for SSR and loading
 Header.tsx, TabList.tsx, styles.module.css   shared chrome (also used by HTTP/, Demo/)
+liveLabel.ts        "Live Preview" label text (PreviewWrapper, autorun/DemoLabel)
 editor/             code model + editor UI
   codeModel.ts        parse MDX fences/strings into documents; edits
-  EditorShell.tsx     react-live LiveProvider supplying the Prism theme
   EditorSurface.tsx   headers, file tabs, collapse state, per-file TextEditTab
   StaticEditor.tsx    SSR/crawler/loading markup (Prism, not editable)
   InteractiveEditor.tsx  client-only: Monaco, or editable react-live on mobile/bots
@@ -35,12 +35,17 @@ monaco/             everything Monaco-specific
   monaco.ts           loadMonaco(): Monaco's ESM build in three lazy stages
   workers.ts          MonacoEnvironment.getWorker: one webpack worker chunk per language service
   typeLibs.ts         raw .d.ts chunks from editor-types/ → addExtraLib
-  navigation.ts       cross-tab go-to-definition + import completions
+  navigation.ts       import completions
+  useDefinitionOpener.ts  cross-tab go-to-definition into this editor
   modelPath.ts        `/<id>/<file>` model URI scheme
+  models.ts           creates a surface's models together so cross-tab imports type-check
+  searchHotkey.ts     keeps DocSearch's "/" hotkey out of focused editors
   theme.ts, options.ts, language.ts, useAutoHeight.ts, highlightSelections.ts
 preview/            live execution (loaded lazily, never on the server)
   LivePreview.tsx     react-live LiveProvider with scope + transformCode
   Preview.tsx         DataProvider + MockResolver(fixtures) + Store inspector
+  StoreToggle.tsx     Store toggles + open state
+  autorun/            the `autoRun` demo player (see Auto-run)
   ...
 editor-types/       .d.ts bundles fed to Monaco (raw-loader)
 DesignSystem/       components injected into preview scope
@@ -52,12 +57,14 @@ DesignSystem/       components injected into preview scope
 
 - Open files' source is in the static HTML: `TextEditTab` renders
   `StaticEditor` on the server and during hydration (BrowserOnly fallback).
-  Collapsed/unselected files render nothing until opened.
-- The preview renders `previewLoading` (empty frame + Store toggle) on the
+  Collapsed/unselected files render nothing until opened, to keep the HTML
+  small, unless the document sets `ssr`: then its plain text is in the HTML,
+  hidden by CSS, for crawlers.
+- The preview renders `PreviewLoading` (empty frame + Store toggle) on the
   server, while loading, for bots, and while `hidden`.
-- Fixtures render server-side as JSON `CodeBlock`s; function responses are
-  BrowserOnly (a stringified function differs between server and client
-  bundles).
+- Fixtures render server-side as JSON `CodeBlock`s; function sources and
+  titles wait for `useIsBrowser` (a stringified function differs between
+  server and client bundles).
 - Never branch on `navigator`/user agent during render outside `BrowserOnly`
   (hydration mismatch). `isBot` is module-level and only read in the
   `lazy()` factory (and in StackBlitz after intersection); `isMobileOrBot()`
@@ -86,13 +93,24 @@ DesignSystem/       components injected into preview scope
   (check-only editor types such as `vue/test` stay out). Failed fetches
   degrade to empty libs.
 - Preview code is a lazy chunk (`PreviewWithScope`, prefetched) and
-  `PreviewBlock` a nested lazy chunk (preloaded with its parent).
+  `PreviewBlock` a nested lazy chunk (preloaded with its parent). The Store
+  inspector (`preview/StoreInspector.tsx`, `preview/store/`) lives in it.
+  ESLint treats all of `preview/` as lazy: from outside it, only `import()`,
+  `import type`, or an allowlisted eager file (`StoreToggle`,
+  `PreviewWrapper`, `FixturePreview`, which render in SSR and loading states)
+  may be imported, and those files may not statically import the rest.
+  `website/scripts/check-lazy-chunks.mjs` (run by the `website` CI job)
+  backs this up on the build: the Store UI must ship only in `PreviewWithScope`.
+- Docusaurus only shares modules used by half of all pages, so
+  `website/chunks-plugin.js` splits site source used by 2+ pages (the eagerly
+  loaded Playground modules among it) into shared chunks instead of a copy
+  per docs page.
 - Mobile and bots download none of Monaco or the type libs.
 
 ### Mobile and bots
 
 - Mobile: editable react-live editor instead of Monaco; live preview still runs.
-- Bots: same editor fallback; preview stays `previewLoading` (never loads
+- Bots: same editor fallback; preview stays `PreviewLoading` (never loads
   `LivePreview`); StackBlitz embeds never load.
 - `DiffEditor` shows a two-`CodeBlock` grid instead of Monaco, with callout
   markers appended as trailing comments; caption and callout legend are
@@ -107,8 +125,8 @@ DesignSystem/       components injected into preview scope
 
 ### Editor
 
-- Fence metastring: `title="…"`, `path="…"` (quotes optional), `collapsed`, `column`, `{1-3}`
-  highlight ranges (pre-selected in Monaco); `language-*` class. Element props
+- Fence metastring: `title="…"`, `path="…"` (quotes optional), `collapsed`, `column`,
+  `route="…"`, `start="…"` and `layout` (see Router), `{1-3}` highlight ranges (pre-selected in Monaco); `language-*` class. Element props
   override metastring values (Demo passes them directly). `defaultTab`
   overrides `collapsed`.
 - `row` layout: non-`column` files are tabs (focus switches tab); `column`
@@ -118,9 +136,15 @@ DesignSystem/       components injected into preview scope
   their Monaco models must exist for cross-file types, go-to-definition and
   to keep edits. Monaco is uncontrolled (`defaultValue`), so re-renders never
   reset the buffer.
+- After a `monaco-editor` bump, open a multi-file playground after page load
+  (e.g. a second homepage demo tab) whose importing file comes before the
+  file it imports, and check it shows no TS2307 (Cannot find module) marker.
+  `monaco/models.ts` relies on the TS worker answering requests in order,
+  which no test runs against real Monaco.
 - Fixtures are listed above the editor in stacked layout only.
-- Go-to-definition across files: focusing the target editor reveals its tab.
-  Relies on the `/<numeric id>/<path>` model URIs (`monaco/modelPath.ts`).
+- Go-to-definition across files: each editor registers an opener for its own
+  model (`monaco/useDefinitionOpener.ts`) that shows its tab, then selects and
+  focuses once the tab is visible (a `display: none` editor can't take focus).
 - Relative import completions list only the other files of the same
   playground (same model id).
 - Handlers passed to `InteractiveEditor` are referentially stable so unedited
@@ -129,16 +153,175 @@ DesignSystem/       components injected into preview scope
 
 ### Preview
 
-- All documents are concatenated (deferred with `useDeferredValue`),
+- All documents are concatenated with a `;` between them (so a half-typed
+  statement can't absorb the next document), deferred with `useDeferredValue`,
   stripped of imports/exports by `transformCode`, and run `noInline`
-  (`render(<App />)`) with `preview/scope.ts` as globals. Keep
+  (`render(<App />)`) with `preview/scope.ts` as globals, inside one block so
+  a demo may declare its own `Link` or `Avatar` (react-live passes the scope
+  as parameters, which a `const` or `class` can't redeclare). The documents
+  share that block, so two of them can't declare the same name. Keep
   `monaco/typeLibs.ts` declarations in sync with the scope: `globalScopeLib()`
   aliases library exports into `declare global`, and `Array`/`Object` keep
   their built-in types (they're type-only exports).
 - Each playground gets its own `DataProvider` store (`MockResolver` serves
   `fixtures`); `memo(Preview)` keeps it from re-rendering on code edits.
 - Store inspector open state persists per `groupId` via tab storage and
-  avoids scroll jumps; in `row` layout it replaces the result while open.
+  avoids scroll jumps. In `row` layout it slides over the code from the
+  preview's edge (portaled into a layer `EditorSurface` stacks on the code,
+  which goes `inert`), so the preview stays usable beside it; when the
+  layout stacks it opens upward over the code. It covers the file tabs
+  too, which only pick the file shown. Its toggle is `StoreBadge` in
+  the code's corner (rendered by `index.tsx` with the cover), which stays
+  put as the Store slides under it and names what it brings back (Store,
+  then Code); narrow, the preview header's icon takes over. Over the Store,
+  the header's selected control takes the Store's color so it still joins
+  what is under it.
+  It opens and closes as a drawer (`../motion`: the toggle glides, the panel
+  `Reveal`s); the panel's contents render a frame after it starts moving
+  (`useDeferredValue`).
+- The Store inspector logs every dispatch through
+  `preview/store/actionLog.ts`, which documents its limits and `LogOptions`
+  (the Playground's `actionLog` prop, over `DOCS_LOG` in `index.tsx`: a docs
+  page holds several playgrounds, so each keeps a shorter history than the
+  log's defaults, which suit a devtool for a whole site). Preview.tsx gives each store mount its
+  own `registry.log.connect(history, replacedHistory, skipLogging)` managers. Keep
+  `head` first and `tail` last when adding managers: the tail must see exactly
+  what reaches the store. `usePreviewReset` owns the `history` id: a fresh
+  store (see Reset) starts a new history, a store the retry restores continues
+  its own, and the panel shows only the current one. An action's chips open the
+  store as that action left it (see `Moment` in `preview/store/nav.tsx`).
+- The Store inspector navigates by two coordinates (see
+  `preview/store/nav.tsx`, both owned by `StorePanel`): the **moment** (the
+  action shown, or live; `NavStateContext` carries it down, with where a
+  step back or on lands (`earlier`, `later`), and `set` and
+  `show(seq)` back up: `show` also opens that action in the Action tab) and the **subject** (a
+  stack of levels over the store: a table, a record, a list of rows, with
+  breadcrumbs, Back and Escape). A moment can stand for one action or, when
+  a request's or subscription's row was picked (`whole`), every action of
+  that group up to it (`momentEntries` in `preview/store/actionGroups.ts`),
+  so an optimistic update and its response show as one effect. Two tabs at
+  the left end of the bar (`role="tablist"`), **State** and **Action**,
+  show the subject; the one picked, and State's Snapshot or Diff, are each
+  Playground's own (state of the panel), while the table or tree view is
+  shared across them (`useTabStorage`).
+  - **State** shows the subject at the moment, as one of two icon toggles
+    at the bar's right end says (`aria-pressed`, beside the table and tree
+    view switch); both share the subject's stack:
+    - **Snapshot**: the subject at the moment (table or tree); live, the
+      store as it is. A moment the store never saw (a fetch, a subscribe)
+      shows the store as the last action before it left it.
+    - **Diff**: only what the moment's action (or group) changed at that
+      level, from before its first action to the store the moment shows
+      (`diffModel` in `preview/store/diffModel.ts`, with the changes from
+      `log.spanChanges`, which merges a group's with `mergeChanges` so another
+      action's rows in between are left out, while a row both changed shows as
+      it ended up). The store and its lists keep only the rows it changed, a
+      removed one as it was, each row marked `data-change` through
+      `DiffContext` and each field it changed `data-changed` (`added` when
+      the update added it, fresh-colored like an added row), with the
+      sections it left empty hidden; a record, or a level it left alone, says what it did there with `SubjectChanges` from
+      `preview/store/ActionDetail.tsx`. Live, it shows the newest stored
+      action's whole group, so a response that stored nothing new still shows
+      its request's optimistic update (Live on the scrubber is marked as the
+      moment).
+  - **Action**: the moment's action at full width (`{ kind: 'action', seq }`,
+    `ActionDetail`: what it did to the subject, then the action's fields;
+    live, `seq: null`, the subject's newest action, garbage collection
+    aside, as its whole request when it has several actions, so an
+    optimistic update shows with its response, with "newest" by its crumb). A line above its crumbs, so they head the
+    action, and one stuck to the bottom (`ActionStep`) name the subject's actions before and after it (as ‹ ›
+    step, `stepMoment`; past the newest is live), and a click makes that the
+    moment, in the same level. Its stack opens at the action over the
+    subject's actions in full (`{ kind: 'actions' }`, `ActionsLevel` in
+    `preview/store/ActionList.tsx`, a `region` with its row count beside the
+    crumbs "Actions of <subject>"), which Back, its crumb and the
+    scrubber's list button go to, and picking the Action tab again leaves
+    for the moment's action; while it shows, a mark picked on the
+    timeline (the timelines' `onMark`) opens its action, as a row does, while ‹ › only move
+    the moment. Picking a step there sets the moment and
+    opens the action over the list; picking a row of several actions opens
+    the group (`whole`: what they did together, then its actions, each
+    opening its own). Chips drill on in the tab. Stepping the moment moves
+    that level to the new action, and going live to the newest
+    (`followMoment`).
+
+  Both stacks stay mounted while their tab is hidden, keeping their levels'
+  stores, scroll, pages and filters. A record's "changed by" names the kept
+  action that made the value shown (the latest at or before the moment, live
+  included; "actions not kept" when the log dropped it) and opens it, moving
+  the moment. A level a chip opened at an action shows that store, not the
+  diff, until the moment is set on purpose (`clearAt`), which outranks it.
+  The list is another way to see more of the timeline, so its button sits
+  at the scrubber's right end beside the ▾ ("Actions", `aria-pressed` while
+  the list shows): a click opens
+  the list in the Action tab, and the mouse resting on it, unless the list
+  shows, peeks at the same list (`ActionsPane`, an `aside` whose head counts
+  its rows): an overlay over the panel's right side (narrow, most of it),
+  dropping from right under the button,
+  that stays while the pointer is over either and goes as it leaves both,
+  with Escape or a press outside (each panel's own: a page holds several),
+  focus going back to the button. Picking a row or step there only moves
+  the moment, so the tab under it follows; its chips open in State.
+  Both list (`ActionList`) the actions that touched the subject
+  (`subjectFilter` in `preview/store/actionGroups.ts`: at the store every
+  action that reached it; on a record or list those that changed or stored
+  again a row it covers, and on a record the kept action each gap of
+  dropped actions was found at, noted once above a run of them), one row per
+  request or subscription; a row's ▸ lists its actions. The moment's row is marked (`aria-current`), opened and
+  scrolled to; nothing is marked while live. ↑ ↓ on a row or step move to
+  the next one, as the moment; a head of several actions stands for the whole
+  group, as clicking it does. A row renders
+  again only as its own group changes (`GroupRow` is memoized;
+  `subjectFilter` keeps its identity while the record's gaps do, and the
+  chips' `Nav` reads the model through a ref so it keeps its identity
+  across commits).
+  The scrubber across the top of the panel (`Scrubber` in
+  `preview/store/Timeline.tsx`, a `role="group"`) always shows the whole
+  history on one lane, fit to the panel: ‹ › and ←→ (from anywhere in the
+  panel without a use of its own for them, see `usesArrows`, or a
+  widget that took them with `preventDefault`; the panel alone handles them) step through the changes
+  to the subject (`subjectFilter`'s `hit`: every stored action at the store; below it the marks that left the subject alone
+  are dimmed, `data-dim`, and skipped; past the newest, and End, go live), a
+  mark lands on its action, "Live" lets go. Marks closer on the track than a
+  mark's width and a gap (`MERGE_PX`) draw as one, at the first of them
+  (`data-count`; dimmed only if all are), so fast polling stays readable. While the moment is set its second line says "After
+  <action> · <time>", which opens the action at full width. Its ▾ ("Timeline", `aria-expanded`) slides open the expanded
+  timeline under it (`Timeline`: the same history, a lane per key, requests
+  as spans, stepping as the scrubber does). By default it keeps the detailed
+  spacing (`timeScale`) and scrolls sideways; only the tracks scroll, the lane
+  labels kept beside them in a column of their own: while live they stay on
+  the newest, and picking an action or scrolling back lets go until "Live" or
+  End. The "Fit timeline" toggle in the axis's corner (`aria-pressed`, kept
+  per tab) squeezes the whole history to the strip's width instead (marks are
+  placed as fractions of the track, `--tl-f`, so nothing is measured; axis
+  labels thin out as it squeezes). Narrow (under `NARROW_WIDTH`), the
+  timeline opens as a sheet over the content instead of pushing it down,
+  closed by ✕, Escape or picking a mark. Where there is no level to open a
+  view from (the tree view, the peek's chips), `StorePanel` opens it over
+  the top level in the table view.
+
+- Router (`preview/router.tsx`): a demo with several pages gives each page's
+  fence a `route` (a path whose `:name` segments are params, `/posts/:id`) and writes no
+  navigation of its own. The page is that file's named default export, and
+  the path's params are its props. When any file has one, `routerTrailer`
+  appends the `render()` (so no file calls it): a router starting at `/` with
+  Back, Home and the current path in the preview's header (so pages need no
+  back links; `PreviewWrapper` gives the header slot through
+  `RouterControlsSlot`, and the router portals into it). Pages move with
+  `<Link to>` and `useNavigate()`, scope globals that stand in for the app's own router, like
+  the design system; Vue pages use `RouterLink` and `vue-router`'s
+  `useRouter()`, and keep the same `route` fences only to name their path
+  (Vue examples don't run).
+  A `layout` fence's default export wraps every page as its `children` and
+  stays mounted through navigation (links shared by every page, a clock to
+  compare against); `<Link>` marks the one to the current path
+  `aria-current="page"`. A `start="/time/1"` on a page's fence opens the router
+  there (and Home returns there) instead of `/`.
+  Navigation is a transition: the page stays until the next one is ready,
+  with a progress bar along the preview's top edge meanwhile, so a page needs
+  no `startTransition` of its own. Pages render in a Suspense boundary whose
+  fallback shows only before the first page is ready.
+  A reset (fresh store) starts again at `/`.
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's
@@ -146,10 +329,91 @@ DesignSystem/       components injected into preview scope
   stays hidden if that ever stops working. `website/profiling-loader.js` pins
   the build's DevTools check off, so only `<Profiler>` subtrees are ever timed
   (otherwise DevTools users would profile every page).
+- Reset: the header icon and the button under a render error remount the
+  preview with a fresh store (`usePreviewReset`). When a render error follows an
+  edit (e.g. a changed `Entity.key` leaves old data unreadable), the preview
+  retries once with a fresh store and restores the old store if the error
+  persists. It retries again only after the preview has rendered cleanly for a
+  second, so typing through a typo costs at most one retry. Compile and
+  evaluation errors never reset.
+- Managers: code defining `getManagers()` (as passed to `<DataProvider managers>`)
+  sets the store's managers; otherwise `getDefaultManagers()` without DevTools.
+  `ManagerHost` (`preview/managers.ts`) builds and guards them;
+  `useCodeManagers` is LivePreview's only hook into it.
+  [Data flow diagram](./managers-data-flow.png) (source: `managers-data-flow.svg`).
+  - Only editing `getManagers` or a document declaring a name it uses (e.g. its
+    Manager class) changes the managers: the store remounts with its data, so
+    other edits keep sockets open. Code that fails to run keeps the old ones.
+  - A manager that throws shows a "Manager error" card; the preview runs on
+    without that step.
+- Errors show in one `ErrorPanel` card (`Playground/ErrorPanel.tsx`) labeled by the stage that failed: amber
+  "Compile error" for react-live's `SyntaxError`s (the code never ran) and red
+  "Runtime error" for anything thrown while running. Demos rely on the reset
+  above to recover rather than encoding their own (e.g. a store-clearing error
+  fallback); say so in the prose next to a demo that needs it.
 - Third-party console noise is demoted only while previews are mounted
   (`usePlaygroundConsoleDemotion`); never add first-party matchers.
+
+### Auto-run
+
+A playground with `autoRun` (a `Step[]`, `preview/autorun/script.ts`) plays it
+by itself, like a video, the first time 60% of its preview (or of the
+viewport, for a taller preview) is in view; never by itself under reduced
+motion. The "Live Preview" label becomes its control (`DemoLabel`): pressing
+it replays the demo from a fresh store and scrolls the preview into view, and
+its red dot pulses while the demo plays.
+
+Writing a script:
+
+- No captions: the change on screen as the pointer acts is what draws the
+  eye, so pick steps whose effect shows and `wait` while it sinks in.
+- Declare it as a module-level `export const` (like `raceDemo` in
+  `docs/rest/shared/_optimisticTransform.mdx`). "Starts by itself once per
+  page load" is tracked by array identity, so an inline `autoRun={[…]}`
+  plays by itself again whenever the page's framework is switched away and
+  back.
+- Target Store UI with `in: 'store'`; the default scope is the preview.
+  Match `aria-label`s and `data-*` attributes over visible text, which copy
+  edits change.
+- The Store opens in the reader's saved view (table or tree), so a script
+  whose targets only one view shows names it: `{ store: 'open', view: 'table' }`
+  for `[data-table]` rows. Like the open itself, it isn't saved, and it holds
+  while the Store stays open, until the reader picks a view
+  (`useStoreOpen`, `store/storeView.ts`): once the demo or the reader closes it, and on
+  replay, the Store shows the reader's view again.
+- A target that doesn't appear within `FIND_TIMEOUT` ends the run, and only
+  the console says so (`Playground demo:`). Play every new or edited script
+  through in a browser, at a phone width too, where the Store opens above the
+  preview.
+- Step counts follow the fixtures: `raceDemo` presses Next once per change
+  its clicks make, so changing the fixture means recounting.
+
+Behavior to keep when changing the code:
+
+- The reader's own input (`isTrusted`) anywhere in the playground, a press, a
+  tap or a key, ends the run for good, since the rest of the script assumes a
+  state the reader just changed; the label starts it over. Scrolling,
+  hovering, a touch that starts a scroll and the demo's own controls
+  (`data-autorun-control`) don't count.
+- It pauses while neither the preview nor the playground is mostly in view,
+  or the tab is in the background, so it never scrolls the page back to a
+  reader who scrolled past.
+- A `store` step opens or closes the Store through `useStoreOpen`'s `showStore`,
+  without saving it: tab storage keeps the reader's own choice, shared by
+  every playground with the page's `groupId`.
+- It never calls `focus()`, which would take the page's focus from the
+  reader.
+- The player's state reaches React only in `DemoLabel`, so a run never
+  re-renders the playground.
+
+`player.ts` owns timing: a pausable clock, one step at a time, each looking
+its target up again before it acts (renders replace elements). `stage.ts` owns
+the DOM: locators, untrusted events and the pointer. `useAutoRun.ts` connects
+them to the preview's ref.
 
 ## Tests
 
 `yarn test --selectProjects ReactDOM --testPathPatterns website/src/components/Playground`
-(CI persists only this directory of the website for these tests.)
+(CI persists only this directory of the website for these tests, without the
+website's dependencies. `react-live` is also a root devDependency so the
+`PreviewError` test can pin the react-live behavior it relies on.)

@@ -47,7 +47,7 @@ import MyManager from './MyManager';
 
 const app = createApp(App);
 app.use(DataClientPlugin, {
-  managers: [...getDefaultManagers(), new MyManager()],
+  managers: [new MyManager(), ...getDefaultManagers()],
 });
 ```
 

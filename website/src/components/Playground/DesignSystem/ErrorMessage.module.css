@@ -1,0 +1,20 @@
+.error {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  padding: 0.75em 1em;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.message {
+  display: block;
+  margin-top: 0.25em;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.8em;
+  overflow-wrap: anywhere;
+  opacity: 0.85;
+}

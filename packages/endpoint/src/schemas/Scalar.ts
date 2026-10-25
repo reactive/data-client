@@ -41,10 +41,10 @@ interface ScalarOptions {
  * @see https://dataclient.io/rest/api/Scalar
  */
 export default class Scalar implements Mergeable {
-  readonly key: string;
-  readonly lensSelector: (args: readonly any[]) => string | undefined;
-  readonly entity: ScalarOptions['entity'];
-  readonly entityKey: string | undefined;
+  declare readonly key: string;
+  declare readonly lensSelector: (args: readonly any[]) => string | undefined;
+  declare readonly entity: ScalarOptions['entity'];
+  declare readonly entityKey: string | undefined;
   /**
    * Allow normalize to receive primitive field values.
    *

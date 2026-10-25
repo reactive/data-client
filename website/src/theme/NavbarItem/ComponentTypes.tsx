@@ -1,8 +1,10 @@
 import ComponentTypes from '@theme-original/NavbarItem/ComponentTypes';
 
-import FrameworkDocSidebarNavbarItem from './FrameworkDocSidebarNavbarItem';
+import DocsDropdownNavbarItem from './DocsDropdownNavbarItem';
+import PreferredDocSidebarNavbarItem from './PreferredDocSidebarNavbarItem';
 
 export default {
   ...ComponentTypes,
-  'custom-frameworkDocSidebar': FrameworkDocSidebarNavbarItem,
+  'custom-docsDropdown': DocsDropdownNavbarItem,
+  'custom-preferredDocSidebar': PreferredDocSidebarNavbarItem,
 };

@@ -72,7 +72,7 @@ args: [{ exchangePair: 'btc-usd' }],
 response: {
 exchangePair: 'btc-usd',
 price: '32982389239823983298329832.238923982389328932893298',
-updatedAt: new Date().toISOString(),
+updatedAt: '2026-01-01T12:00:00.000Z',
 },
 delay: 150,
 },

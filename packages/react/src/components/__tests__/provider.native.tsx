@@ -25,13 +25,9 @@ describe('<DataProvider />', () => {
   });
   afterEach(() => {
     warnspy.mockRestore();
-    try {
-      screen.unmount();
-      // eslint-disable-next-line no-empty
-    } catch (e) {}
   });
 
-  it('should warn users about missing Suspense', () => {
+  it('should warn users about missing Suspense', async () => {
     const Component = () => {
       const article = useSuspense(CoolerArticleResource.get, { id: 7 });
       return <Text testID="article">{article.title}</Text>;
@@ -41,7 +37,7 @@ describe('<DataProvider />', () => {
         <Component />
       </DataProvider>
     );
-    const { getByText } = render(tree);
+    const { getByText } = await render(tree);
     const msg = getByText('Uncaught Suspense.');
     expect(msg).toBeDefined();
     expect(warnspy).toHaveBeenCalled();
@@ -70,16 +66,15 @@ describe('<DataProvider />', () => {
         </MockResolver>
       </DataProvider>
     );
-    const { getByText, unmount } = render(tree);
-    const msg = getByText('loading');
-    expect(msg).toBeDefined();
+    // RNTL 14's render() flushes the resolved fixture, so the fallback is never observable
+    await render(tree);
     expect(warnspy).not.toHaveBeenCalled();
     const articleOutput = await screen.findByTestId('article');
     expect(articleOutput).toBeDefined();
     //expect(articleOutput.toJSON()).toMatchInlineSnapshot();
   });
 
-  it('should not change dispatch function on re-render', () => {
+  it('should not change dispatch function on re-render', async () => {
     let dispatch;
     let controller;
     let count = 0;
@@ -91,25 +86,24 @@ describe('<DataProvider />', () => {
     }
     const chil = <DispatchTester />;
     const tree = <DataProvider>{chil}</DataProvider>;
-    const { rerender } = render(tree);
+    const { rerender } = await render(tree);
     expect(dispatch).toBeDefined();
     let curDisp = dispatch;
-    let curController = controller;
-    rerender(tree);
+    await rerender(tree);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
-    rerender(<DataProvider>{chil}</DataProvider>);
+    await rerender(<DataProvider>{chil}</DataProvider>);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
     const managers: any[] = [new NetworkManager()];
-    rerender(<DataProvider managers={managers}>{chil}</DataProvider>);
+    await rerender(<DataProvider managers={managers}>{chil}</DataProvider>);
     expect(count).toBe(1);
     curDisp = dispatch;
-    curController = controller;
-    rerender(<DataProvider managers={managers}>{chil}</DataProvider>);
+    const curController = controller;
+    await rerender(<DataProvider managers={managers}>{chil}</DataProvider>);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
-    rerender(
+    await rerender(
       <ControllerContext.Provider
         value={new Controller({ dispatch: () => Promise.resolve() })}
       >
@@ -120,7 +114,7 @@ describe('<DataProvider />', () => {
     expect(count).toBe(2);
   });
 
-  it('should change state', () => {
+  it('should change state', async () => {
     let controller: any, state;
     let count = 0;
     function ContextTester() {
@@ -131,7 +125,7 @@ describe('<DataProvider />', () => {
     }
     const chil = <ContextTester />;
     const tree = <DataProvider>{chil}</DataProvider>;
-    render(tree);
+    await render(tree);
     expect(controller.dispatch).toBeDefined();
     expect(state).toBeDefined();
     const action: SetResponseAction = {
@@ -146,7 +140,7 @@ describe('<DataProvider />', () => {
         expiresAt: 55,
       },
     };
-    act(() => {
+    await act(() => {
       controller.dispatch(action);
     });
     expect(count).toBe(2);

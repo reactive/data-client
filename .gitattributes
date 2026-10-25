@@ -3,7 +3,7 @@
 
 # `yarn build:skills` (references.json); `yarn build:skills` fails if a hand-written reference isn't listed below
 .agents/skills/*/references/** linguist-generated
-.agents/skills/data-client-rest/references/RestEndpoint.js -linguist-generated
+.agents/skills/data-client/references/install.md -linguist-generated
 .agents/skills/data-client-rest-setup/references/fetch-migration.md -linguist-generated
 .agents/skills/data-client-rest-setup/references/got-migration.md -linguist-generated
 .agents/skills/data-client-rest-setup/references/ky-migration.md -linguist-generated
@@ -13,3 +13,7 @@
 
 # `yarn copy:websitetypes`
 website/src/components/Playground/editor-types/** linguist-generated
+
+# Docs translations (`website/translate`: translated by an agent, checked by translate.mjs) and Docusaurus UI strings
+website/i18n/** linguist-generated
+website/translate/lock/** linguist-generated

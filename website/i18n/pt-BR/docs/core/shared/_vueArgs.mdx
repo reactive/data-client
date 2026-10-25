@@ -1,0 +1,3 @@
+Os argumentos podem ser valores simples, [refs](https://vuejs.org/api/reactivity-core.html#ref) (incluindo [computed](https://vuejs.org/api/reactivity-core.html#computed)) ou funções getter
+como `() => ({ id: props.id })`. Um objeto simples como `{ id: props.id }` é lido uma única vez e não
+acompanha mudanças de props ou de rota, então use um getter ou `computed` quando um argumento puder mudar.

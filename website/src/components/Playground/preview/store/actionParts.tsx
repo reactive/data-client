@@ -1,0 +1,734 @@
+import { actionTypes, StateContext } from '@data-client/react';
+import clsx from 'clsx';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from 'react';
+
+import {
+  actionKey,
+  actionName,
+  pollFrequencyOf,
+  type ActionGroup,
+  type Change,
+  type RequestGroup,
+  type SubscriptionGroup,
+  type ChangeKind,
+} from './actionGroups';
+import type ActionLog from './actionLog';
+import { isRecordChange, type History, type LogEntry } from './actionLog';
+import { kindColor } from './dom';
+import {
+  ActionSpanContext,
+  type ActionSpan,
+  type Moment,
+  type Then,
+} from './nav';
+import styles from './store.module.css';
+import { CountChip, EndpointKey, EntityKey, RefChip } from './Value';
+import {
+  prefersReducedMotion,
+  springAt,
+  springEasing,
+  springs,
+} from '../../../motion';
+import { splitKey } from '../../splitKey';
+
+export interface Actions {
+  readonly log: ActionLog;
+  /** The shown store's actions */
+  readonly history: History;
+  /** `history.entries` as the timeline's rows */
+  readonly groups: readonly ActionGroup[];
+  /** The moment's action, while it is in the past */
+  readonly until?: number;
+  /** The store as an action left (or found) it, while the log has it */
+  readonly then: (at: Moment) => Then | undefined;
+}
+export const ActionsContext = createContext<Actions | null>(null);
+export const useActions = () => useContext(ActionsContext)!;
+
+/** `children` see the store as `then` holds it, and the actions up to it */
+export function AtMoment({
+  then,
+  children,
+}: {
+  then: Then;
+  children: React.ReactNode;
+}) {
+  const actions = useActions();
+  const value = useMemo(
+    () => ({ ...actions, until: then.until }),
+    [actions, then],
+  );
+  return (
+    <StateContext.Provider value={then.state}>
+      <ActionsContext.Provider value={value}>
+        {children}
+      </ActionsContext.Provider>
+    </StateContext.Provider>
+  );
+}
+/** What rows need; unlike `Actions`, stays the same as actions arrive */
+export const LogContext = createContext<{
+  readonly log: ActionLog;
+  /** When the shown history's first action was dispatched */
+  readonly since: number;
+  /** Its `dropped` counts */
+  readonly dropped?: ReadonlyMap<number, number>;
+} | null>(null);
+export const useLog = () => useContext(LogContext)!;
+
+/** Chips a row shows before `+N` */
+const CHIP_LIMIT = 6;
+/** Poll ticks a subscription row draws */
+const TICK_LIMIT = 12;
+/** Distance from the bottom (px) that still counts as following new rows */
+export const FOLLOW_SLACK = 24;
+/** How long a track let go of takes to catch up (ms, `--motion-snappy`) */
+export const CATCH_UP_MS = springEasing(springs.snappy).duration;
+
+const AXES = {
+  x: { size: 'scrollWidth', scroll: 'scrollLeft', client: 'clientWidth' },
+  y: { size: 'scrollHeight', scroll: 'scrollTop', client: 'clientHeight' },
+} as const;
+
+/** Keeps the newest row in view, unless the reader scrolled up (or, on
+ * the `x` axis, back) or it is `paused`; unpaused (back to live), it
+ * follows the newest again. While `sprung` (its rows catching up), it
+ * springs to where it is to be rather than jumps, in step with the rows'
+ * own move. Returns what scrolls to the newest and follows again */
+export function useFollow(
+  scroller: React.RefObject<HTMLElement | null>,
+  rows: unknown,
+  axis: 'x' | 'y' = 'y',
+  paused = false,
+  sprung = false,
+) {
+  const follow = useRef(true);
+  // the last row in view while not following, so rows trimmed from the
+  // start leave the reader's place where it is (the oldest go first: the
+  // last row in view outlasts the first)
+  const anchor = useRef<{ row: Element; at: number }>(undefined);
+  const wasPaused = useRef(paused);
+  // passive: the listeners can wait for paint
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const { size, scroll, client } = AXES[axis];
+    // a hidden tab has no height; its scroll position says nothing
+    let hidden = !el.clientHeight;
+    // a trackpad's first steps back are a few px, inside the slack: a row
+    // arriving then would pull them back to the end. A step back lets go at
+    // once, until the end is reached again
+    let away = false;
+    const onScroll = () => {
+      if (hidden) return;
+      // on every scroll, the follow's own included: one left over from
+      // before would pull the view back to it on the next pause
+      anchor.current = lastShown(el, axis);
+      // a catch-up's own frames fall short of the end on their way there:
+      // that's not the reader going back
+      if (paused || springing.has(el)) return;
+      const atEnd =
+        el[size] - el[scroll] - el[client] < (away ? 1 : FOLLOW_SLACK);
+      if (atEnd) away = false;
+      follow.current = atEnd;
+    };
+    // a scroller inside it (an open row's steps) takes the steps back it
+    // has room for
+    const nestedTakes = (target: EventTarget | null) => {
+      for (
+        let box = target instanceof Element ? target : null;
+        box && box !== el;
+        box = box.parentElement
+      )
+        if (box[size] > box[client] && box[scroll] > 0) return true;
+      return false;
+    };
+    // only a step this scroller takes: it has room to go back, and the
+    // gesture is mostly along its axis
+    const back = (
+      along: number,
+      across: number,
+      target: EventTarget | null,
+    ) => {
+      if (
+        along >= 0 ||
+        Math.abs(along) < Math.abs(across) ||
+        el[scroll] <= 0 ||
+        nestedTakes(target)
+      )
+        return;
+      away = true;
+      follow.current = false;
+      // the reader's own scroll takes over from a catch-up underway
+      stopSpring(el);
+    };
+    const onWheel = (e: WheelEvent) =>
+      axis === 'y' ?
+        back(e.deltaY, e.deltaX, e.target)
+      : back(e.deltaX, e.deltaY, e.target);
+    let touch: { x: number; y: number } | undefined;
+    const touchAt = (e: TouchEvent) =>
+      e.touches[0] && { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    const onTouchStart = (e: TouchEvent) => (touch = touchAt(e));
+    // a finger moving toward the end of the axis scrolls back, unless the
+    // move was cancelled, so nothing scrolled
+    const onTouchMove = (e: TouchEvent) => {
+      const at = touchAt(e);
+      if (at && touch && !e.defaultPrevented) {
+        const dx = touch.x - at.x;
+        const dy = touch.y - at.y;
+        if (axis === 'y') back(dy, dx, e.target);
+        else back(dx, dy, e.target);
+      }
+      touch = at;
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    el.addEventListener('wheel', onWheel, { passive: true });
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: true });
+    // rows added while hidden: catch up once the tab shows again
+    const observer =
+      typeof ResizeObserver === 'undefined' ? undefined : (
+        new ResizeObserver(() => {
+          const wasHidden = hidden;
+          hidden = !el.clientHeight;
+          if (wasHidden && !hidden && follow.current) el[scroll] = el[size];
+        })
+      );
+    observer?.observe(el);
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      el.removeEventListener('wheel', onWheel);
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
+      observer?.disconnect();
+    };
+  }, [scroller, axis, paused]);
+  useLayoutEffect(() => {
+    const el = scroller.current;
+    const { size, scroll } = AXES[axis];
+    const resumed = !paused && wasPaused.current;
+    wasPaused.current = paused;
+    // off, not just skipped, so showing a hidden tab doesn't catch up either;
+    // scrolls are ignored while paused, so it stays off. A moment picked mid
+    // catch-up is revealed where it is. Back to live, the newest comes into
+    // view and is followed again
+    if (paused) {
+      follow.current = false;
+      if (el) stopSpring(el);
+    }
+    if (!el) return;
+    // a change mid catch-up springs on from where it is rather than jumps;
+    // paused, the moment's reveal takes over from it
+    const spring = !paused && (sprung || springing.has(el));
+    if (!paused && (resumed || (el.clientHeight && follow.current))) {
+      follow.current = true;
+      scrollAlong(el, axis, el[size], spring);
+      return;
+    }
+    const last = anchor.current;
+    if (!last?.row.isConnected) return;
+    // only when the rows moved: any scroll assignment cancels a smooth one
+    // underway (the moment's reveal as the list leaves live)
+    const moved = startOf(last.row, axis) - startOf(el, axis) - last.at;
+    if (moved) scrollAlong(el, axis, el[scroll] + moved, spring);
+    // `sprung` says how the rows move, not that they did: its own change
+    // moves nothing
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scroller, rows, axis, paused]);
+  return useCallback(() => {
+    const el = scroller.current;
+    if (!el) return;
+    follow.current = true;
+    scrollAlong(el, axis, el[AXES[axis].size], false);
+  }, [scroller, axis]);
+}
+
+/** The spring scrolls underway, by scroller */
+const springing = new WeakMap<Element, number>();
+function stopSpring(el: Element) {
+  cancelAnimationFrame(springing.get(el) ?? 0);
+  springing.delete(el);
+}
+/** Scrolls `el` along `axis` to `to`: `sprung`, on the snappy spring (at
+ * once under reduced motion), as its rows catching up move
+ * (`[data-catchup]` in store.module.css); else at once */
+function scrollAlong(
+  el: HTMLElement,
+  axis: 'x' | 'y',
+  to: number,
+  sprung: boolean,
+) {
+  const { size, scroll, client } = AXES[axis];
+  stopSpring(el);
+  if (
+    !sprung ||
+    typeof requestAnimationFrame === 'undefined' ||
+    prefersReducedMotion()
+  ) {
+    el[scroll] = to;
+    return;
+  }
+  // as far as it goes, so the spring doesn't stop short of the end
+  to = Math.max(0, Math.min(to, el[size] - el[client]));
+  const from = el[scroll];
+  const start = performance.now();
+  const step = (now: number) => {
+    const { offset } = springAt(
+      springs.snappy,
+      { offset: from - to, velocity: 0 },
+      (now - start) / 1000,
+    );
+    // settled when the marks' own spring is: a bounce passes the target
+    // well before
+    const done = now - start >= CATCH_UP_MS;
+    el[scroll] = done ? to : to + offset;
+    if (done) springing.delete(el);
+    else springing.set(el, requestAnimationFrame(step));
+  };
+  springing.set(el, requestAnimationFrame(step));
+}
+
+const startOf = (el: Element, axis: 'x' | 'y') => {
+  const rect = el.getBoundingClientRect();
+  return axis === 'y' ? rect.top : rect.left;
+};
+
+/** The last row in `scroller`'s view, and where it starts in it */
+function lastShown(scroller: HTMLElement, axis: 'x' | 'y') {
+  const from = startOf(scroller, axis);
+  const to =
+    from + (axis === 'y' ? scroller.clientHeight : scroller.clientWidth);
+  const rows = scroller.querySelectorAll('[data-id]');
+  // a list's rows are in document order, the last in view found from the
+  // end (by place, an open row's steps clipped below its box would win); a
+  // timeline's marks are drawn by group, so the last is found by place
+  if (axis === 'y') {
+    for (let i = rows.length - 1; i >= 0; i--) {
+      const at = startOf(rows[i], axis);
+      if (at < to) return { row: rows[i], at: at - from };
+    }
+    return;
+  }
+  let last: { row: Element; at: number } | undefined;
+  for (const row of rows) {
+    const at = startOf(row, axis);
+    if (at < to && (!last || at >= last.at)) last = { row, at };
+  }
+  return last && { row: last.row, at: last.at - from };
+}
+
+/** `setResponse`, colored by kind; a fetch that changed the store applied
+ * an optimistic update */
+export function TypeName({ entry }: { entry: LogEntry }) {
+  const { log } = useLog();
+  const { action } = entry;
+  const optimistic = action.type === actionTypes.FETCH && log.changed(entry);
+  return (
+    <span className={clsx(styles.actType, typeClass(entry))}>
+      {actionName(action)}
+      {optimistic && <span className={styles.dim}> optimistic</span>}
+    </span>
+  );
+}
+
+export function typeClass(entry: LogEntry) {
+  const { action } = entry;
+  switch (action.type) {
+    case actionTypes.FETCH:
+      return styles.tFetch;
+    case actionTypes.SET_RESPONSE:
+      return failed(entry) ? styles.tError : styles.tResponse;
+    case actionTypes.SET:
+      return styles.tSet;
+    case actionTypes.INVALIDATE:
+    case actionTypes.INVALIDATEALL:
+    case actionTypes.RESET:
+      return styles.tError;
+    default:
+      return styles.tQuiet;
+  }
+}
+
+/** An endpoint key (`GET /posts`) or a schema key (`[Todo]`) */
+export function KeyLabel({ value }: { value: string }) {
+  if (!value) return null;
+  const { method, path } = splitKey(value);
+  return (
+    <span className={styles.actKey} title={value}>
+      {method ?
+        <EndpointKey method={method} path={path} />
+      : <span className={styles.type}>{value}</span>}
+    </span>
+  );
+}
+
+export function Time({ at }: { at: number }) {
+  const { since } = useLog();
+  return <span className={styles.actTime}>{seconds(at - since)}s</span>;
+}
+
+/** Elapsed `ms` in seconds, to as many places as fit: `1.23`, `12.3`, `123` */
+export function seconds(ms: number) {
+  const s = ms / 1000;
+  return (
+    s < 10 ? s.toFixed(2)
+    : s < 100 ? s.toFixed(1)
+    : String(Math.round(s))
+  );
+}
+
+/** What SubscriptionManager polls at: the fastest of the subscribers still
+ * active (or, once all left, the last ones) */
+function pollFrequency(group: SubscriptionGroup): number | undefined {
+  let active: number[] = [];
+  let last: number[] = [];
+  for (const { action } of group.entries) {
+    const frequency = pollFrequencyOf(action);
+    if (frequency === undefined) continue;
+    if (action.type === actionTypes.SUBSCRIBE) active.push(frequency);
+    else {
+      const i = active.indexOf(frequency);
+      if (i >= 0) active.splice(i, 1);
+    }
+    if (active.length) last = [...active];
+  }
+  if (!active.length) active = last;
+  return active.length ? Math.min(...active) : undefined;
+}
+
+const fetches = (group: RequestGroup) =>
+  group.entries.filter(e => e.action.type === actionTypes.FETCH);
+
+export function Tag({ group }: { group: ActionGroup }) {
+  if (group.kind === 'subscription') {
+    const frequency = pollFrequency(group);
+    // the interval in the title: the key comes first in a narrow row
+    return (
+      <span
+        className={styles.dim}
+        title={frequency ? `polls every ${frequency / 1000}s` : undefined}
+      >
+        {frequency ? 'polls' : 'subscribed'}
+      </span>
+    );
+  }
+  if (group.kind !== 'request') return null;
+  const shared = fetches(group).length;
+  return shared > 1 ?
+      <span
+        className={styles.dim}
+        title={`${shared} fetches shared this request`}
+      >
+        ×{shared}
+      </span>
+    : null;
+}
+
+/** Whether `Status` reports the request failed */
+export const statusFailed = (group: ActionGroup) =>
+  group.kind === 'request' &&
+  !group.cancelled &&
+  !!group.response &&
+  failed(group.response);
+
+export function Status({ group }: { group: ActionGroup }) {
+  if (group.kind === 'subscription') {
+    const n = group.requests.length;
+    const count = `${n} fetch${n === 1 ? '' : 'es'}`;
+    return group.open > 0 ?
+        <span className={styles.tFetch}>live · {count}</span>
+      : <span className={styles.dim}>ended · {count}</span>;
+  }
+  if (group.kind !== 'request') return null;
+  const { response } = group;
+  if (group.cancelled) return <span className={styles.tQuiet}>cancelled</span>;
+  if (!response) return <span className={styles.tFetch}>pending</span>;
+  return (
+    <span className={typeClass(response)}>
+      {failed(response) ? 'error' : `${response.at - group.entries[0].at} ms`}
+    </span>
+  );
+}
+
+/** How many earlier updates of the row the log no longer has, so its
+ * history reads as partial */
+export function Dropped({
+  group,
+  all,
+}: {
+  group: ActionGroup;
+  all: readonly LogEntry[];
+}) {
+  const n = droppedIn(all, useLog().dropped);
+  if (!n) return null;
+  const text = droppedText(group, n);
+  return <span className={styles.dim}>{text}</span>;
+}
+
+/** How many earlier updates of `entries` the log no longer has */
+export function droppedIn(
+  entries: readonly LogEntry[],
+  dropped: ReadonlyMap<number, number> | undefined,
+) {
+  return entries.reduce((sum, e) => sum + (dropped?.get(e.seq) ?? 0), 0);
+}
+/** `what`, and why it is gone */
+export const notKept = (what: string) => `${what}: the log keeps the newest`;
+
+/** What actions the log didn't keep did to a record (see `rowTimeline`),
+ * and why they are gone */
+export function gapText(change: ChangeKind) {
+  return notKept(`${missingText[change] ?? 'Changed'} by actions not kept`);
+}
+const missingText: Partial<Record<ChangeKind, string>> = {
+  refreshed: 'Stored again',
+  removed: 'Removed',
+  invalidated: 'Invalidated',
+  expired: 'Marked stale',
+  error: 'Failed',
+};
+
+/** `40 earlier polls not kept` */
+export function droppedText(group: ActionGroup, n: number) {
+  const noun =
+    group.kind === 'subscription' ? 'poll'
+    : group.entries[0].action.type === actionTypes.SET ? 'set'
+    : 'response';
+  return `${n.toLocaleString()} earlier ${noun}${n === 1 ? '' : 's'} not kept`;
+}
+
+/** Sent, optimistic, then resolved; or a subscription's poll ticks */
+export function Lifecycle({ group }: { group: ActionGroup }) {
+  const { log } = useLog();
+  if (group.kind === 'single')
+    return (
+      <span className={styles.life} aria-hidden="true">
+        <i className={typeClass(group.entries[0])} />
+      </span>
+    );
+  if (group.kind === 'subscription') {
+    const shown = group.requests.slice(-TICK_LIMIT);
+    return (
+      <span className={styles.life} aria-hidden="true">
+        {group.requests.length > shown.length && (
+          <span className={styles.dim}>… </span>
+        )}
+        {shown.map(r => (
+          <i
+            key={r.id}
+            className={clsx(
+              styles.tick,
+              r.entries.some(e => log.changes(e).some(isRecordChange)) &&
+                styles.tickChanged,
+            )}
+          />
+        ))}
+      </span>
+    );
+  }
+  const optimistic = log.changed(group.entries[0]);
+  const { response } = group;
+  return (
+    <span className={styles.life} aria-hidden="true">
+      <i className={styles.tFetch} />
+      {optimistic && (
+        <>
+          <s className={styles.short} />
+          <i className={styles.diamond} />
+        </>
+      )}
+      <s />
+      <i
+        className={
+          response ? typeClass(response)
+          : group.cancelled ?
+            styles.tQuiet
+          : styles.waiting
+        }
+      />
+    </span>
+  );
+}
+
+/** An error response, or a response the store failed to process */
+const failed = ({ action, store }: LogEntry) =>
+  action.type === actionTypes.SET_RESPONSE &&
+  (action.error || !!store?.after.meta[action.key]?.error);
+
+const MARK: Partial<Record<ChangeKind, string>> = {
+  added: '+',
+  updated: '~',
+  removed: '−',
+  invalidated: '✕',
+  error: '!',
+  expired: '◔',
+};
+
+/** A change's symbol, in its color */
+function ChangeMark({ kind }: { kind: ChangeKind }) {
+  const char = MARK[kind];
+  return (
+    char && (
+      <span className={styles.mark} style={{ color: kindColor(kind) }}>
+        {char}
+      </span>
+    )
+  );
+}
+
+/** What changed, as chips that open the row (several new rows of one table
+ * open as a list) */
+export function ChangeChips({
+  changes,
+  own,
+  ownError = false,
+}: {
+  changes: readonly Change[];
+  /** The row's own endpoint, whose status shows elsewhere */
+  own?: string;
+  /** Whether that status says the endpoint failed */
+  ownError?: boolean;
+}) {
+  const shown = changes.filter(
+    c =>
+      isRecordChange(c) &&
+      !(
+        'endpoint' in c &&
+        c.endpoint === own &&
+        (c.kind === 'added' ||
+          c.kind === 'updated' ||
+          (c.kind === 'error' && ownError))
+      ),
+  );
+  if (!shown.length)
+    return changes.length && !changes.some(isRecordChange) ?
+        <span className={styles.dim}>stored again, unchanged</span>
+      : null;
+  // a table's new rows share one chip, where its first one would be
+  const added = new Map<string, Change[]>();
+  const items: (Change | string)[] = [];
+  for (const c of shown) {
+    if (c.kind !== 'added' || !('table' in c)) items.push(c);
+    else if (added.has(c.table)) added.get(c.table)!.push(c);
+    else {
+      added.set(c.table, [c]);
+      items.push(c.table);
+    }
+  }
+  const chips = items.map(item => {
+    if (typeof item !== 'string')
+      return <ChangeChip key={item.id} change={item} />;
+    const rows = added.get(item)!;
+    if (rows.length === 1) return <ChangeChip key={item} change={rows[0]} />;
+    const pks = rows.map(c => ('pk' in c ? c.pk : c.id));
+    return (
+      <CountChip
+        key={item}
+        // styled as a row's chip, not a dim count
+        className=""
+        list={() => ({
+          kind: 'list',
+          label: `new ${item}`,
+          table: item,
+          pks,
+        })}
+      >
+        <ChangeMark kind="added" />
+        {pks.length} {item}
+      </CountChip>
+    );
+  });
+  const rest = chips.length - CHIP_LIMIT;
+  return (
+    <>
+      {rest > 1 ? chips.slice(0, CHIP_LIMIT) : chips}
+      {rest > 1 && <span className={styles.dim}>+{rest}</span>}
+    </>
+  );
+}
+
+/** The actions among `entries` that changed the store, if any did */
+export function spanOf(entries: readonly LogEntry[]): ActionSpan | undefined {
+  const stored = entries.filter(e => e.store);
+  return stored.length ?
+      { first: stored[0].seq, last: stored[stored.length - 1].seq }
+    : undefined;
+}
+
+export function ChangeChip({ change }: { change: Change }) {
+  const span = useContext(ActionSpanContext);
+  const label =
+    'endpoint' in change ?
+      <EndpointKey {...splitKey(change.endpoint)} />
+    : <EntityKey table={change.table} pk={change.pk} />;
+  const mark = <ChangeMark kind={change.kind} />;
+  const title =
+    'fields' in change && change.fields?.length ?
+      `${change.kind}: ${change.fields.join(', ')}`
+    : change.kind;
+  // a removed row opens as it was right before the action that removed it
+  if (change.kind === 'removed' && span)
+    return (
+      <RefChip
+        id={change.id}
+        className={styles.goneRef}
+        title={title}
+        at={{ seq: change.removedBy ?? span.first, before: true }}
+        label={
+          <>
+            {mark}
+            {label}
+          </>
+        }
+      />
+    );
+  if (change.kind === 'removed')
+    return (
+      <span
+        className={clsx(styles.ref, styles.goneRef)}
+        title={title}
+        onClick={e => e.stopPropagation()}
+      >
+        {mark}
+        {label}
+      </span>
+    );
+  return (
+    <RefChip
+      id={change.id}
+      className={'endpoint' in change ? styles.endpointRef : undefined}
+      title={title}
+      label={
+        <>
+          {mark}
+          {label}
+        </>
+      }
+    />
+  );
+}
+
+/** `setResponse GET /posts`, or `gc` for an action without a key */
+export function ActionName({ entry }: { entry: LogEntry }) {
+  const key = actionKey(entry.action);
+  return (
+    <>
+      <TypeName entry={entry} />
+      {key && (
+        <>
+          {' '}
+          <KeyLabel value={key} />
+        </>
+      )}
+    </>
+  );
+}

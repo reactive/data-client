@@ -28,7 +28,8 @@
     "web",
     "expo",
     "async",
-    "promise"
+    "promise",
+    "tanstack-intent"
   ],
   "sideEffects": false,
   "main": "dist/index.js",
@@ -96,7 +97,10 @@
     "node.mjs",
     "legacy",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "skills",
+    "bin",
+    "agents"
   ],
   "scripts": {
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' POLYFILL_TARGETS='chrome>88,safari>14' yarn g:babel --out-dir lib",
@@ -109,7 +113,7 @@
     "build:legacy-types": "yarn g:legacy-types 4.8 4.2 4.0",
     "dev": "run build:lib -w",
     "prepare": "run build:lib",
-    "prepack": "run prepare && run build:bundle && run build:legacy:lib",
+    "prepack": "run prepare && run build:bundle && run build:legacy:lib && node ../../scripts/pack-skills.mjs",
     "tsc:ci": "yarn g:tsc --project tsconfig.test.json",
     "typecheck": "run tsc:ci"
   },
@@ -118,24 +122,27 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/reactive/data-client.git",
+    "url": "git+https://github.com/reactive/data-client.git",
     "directory": "packages/endpoint"
   },
   "bugs": {
     "url": "https://github.com/reactive/data-client/issues"
   },
   "dependencies": {
-    "@babel/runtime": "^7.20.0"
+    "@babel/runtime": "^7.20.0 || ^8.0.0"
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
     "@data-client/core": "workspace:*",
     "@data-client/normalizr": "workspace:*",
     "@types/jest": "30.0.0",
-    "@types/node": "^25.0.0",
+    "@types/node": "^26.0.0",
     "immutable": "5.1.9",
     "nock": "13.3.1",
     "rollup-plugins": "workspace:*",
-    "temporal-polyfill": "^0.3.0"
+    "temporal-polyfill": "^1.0.0"
+  },
+  "bin": {
+    "data-client-skills": "./bin/data-client-skills.mjs"
   }
 }

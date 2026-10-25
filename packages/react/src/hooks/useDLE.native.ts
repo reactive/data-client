@@ -9,11 +9,11 @@ import type {
 } from '@data-client/core';
 import { ExpiryStatus } from '@data-client/core';
 import { useEffect, useMemo } from 'react';
-import { InteractionManager } from 'react-native';
 
 import useCacheState from './useCacheState.js';
 import useController from './useController.js';
 import useFocusEffect from './useFocusEffect.native.js';
+import idleCallback from '../idleCallback.native.js';
 
 type SchemaReturn<S extends Schema | undefined> =
   | {
@@ -119,14 +119,13 @@ export default function useDLE<
 
   useFocusEffect(() => {
     // revalidating non-suspending data is low priority, so make sure it doesn't stutter animations
-    const task = InteractionManager.runAfterInteractions(() => {
-      if (Date.now() > expiresAt && key) {
+    return idleCallback(() => {
+      if ((Date.now() > expiresAt || forceFetch) && key) {
         controller.fetch(endpoint, ...(args as Parameters<E>));
       }
     });
-
-    return () => task.cancel();
-  }, []);
+    // key stands in for endpoint and args, which change identity every render
+  }, [expiresAt, key, forceFetch]);
 
   const data = useMemo(() => {
     // if useSuspense() would suspend, don't include entities from cache

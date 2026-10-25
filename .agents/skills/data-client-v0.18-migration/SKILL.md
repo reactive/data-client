@@ -96,4 +96,4 @@ Unrelated to delegate signatures: v0.18 lets a single `Collection` carry both `a
 - New interfaces: [`IDenormalizeDelegate`](https://dataclient.io/rest/api/SchemaSimple), [`INormalizeDelegate`](https://dataclient.io/rest/api/SchemaSimple)
 - Built-in schema diffs: `packages/endpoint/src/schemas/{Array,Object,Values,Union,Query,Invalidate,Lazy,Collection}.ts`
 - Changesets: `.changeset/denormalize-delegate.md`, `.changeset/normalize-delegate.md`
-- Codemod source: [`website/static/codemods/v0.18.js`](https://github.com/reactive/data-client/blob/master/website/static/codemods/v0.18.js)
+- Codemod source: [`packages/codemods/src/transforms/v0.18.js`](https://github.com/reactive/data-client/blob/master/packages/codemods/src/transforms/v0.18.js)

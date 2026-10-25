@@ -1,0 +1,27 @@
+{
+  "skill_name": "data-client-rest",
+  "evals": [
+    {
+      "id": 1,
+      "name": "auth-header",
+      "prompt": "Every endpoint of our API (base `ApiEndpoint extends RestEndpoint` in src/resources/ApiEndpoint.ts) must send `Authorization: Bearer <token>` using `await getToken()` from src/lib/auth.ts. Implement it.",
+      "expected_output": "Overrides getHeaders (or getRequestInit) on the base endpoint; does not override fetch.",
+      "files": [],
+      "assertions": [
+        "Adds the header by overriding `getHeaders` or `getRequestInit`.",
+        "Does not override `fetch` or `fetchResponse`."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "shared-polling",
+      "prompt": "The dashboard shows `useLive(getTicker, { product_id })` with `pollFrequency: 5000`. The detail page needs the same product every 500ms. Add `getTickerFast = getTicker.extend({ pollFrequency: 500 })` for it; the dashboard should keep polling every 5s.",
+      "expected_output": "Explains that subscribers to the same args share one poll at the fastest frequency, so the dashboard would also poll at 500ms while the detail page is mounted.",
+      "files": [],
+      "assertions": [
+        "States that both views share one poll at the fastest frequency, so the dashboard speeds up too.",
+        "Does not claim the extended endpoint polls independently."
+      ]
+    }
+  ]
+}

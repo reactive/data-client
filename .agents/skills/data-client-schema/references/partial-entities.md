@@ -24,6 +24,8 @@ a subset of fields needed to summarize.
 In this case we can override [Entity.validate()](./Entity.md#validate) using [validateRequired()](https://dataclient.io/rest/api/validateRequired) to ensure
 we have the full and complete response when needed (detail views), while keeping our state [DRY](https://deviq.com/principles/dont-repeat-yourself) and normalized to ensure data integrity.
 
+Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
+
 ```typescript title="resources/Article" {13,25}
 import { validateRequired, Collection, Entity, resource } from '@data-client/rest';
 import { Temporal } from 'temporal-polyfill';
@@ -59,21 +61,33 @@ export const ArticleResource = resource({
 });
 ```
 
-```tsx title="ArticleDetail"
-import React from 'react';
+```tsx title="ArticleList" route="/"
 import { useSuspense } from '@data-client/react';
 import { ArticleResource } from './resources/Article';
 
-function ArticleDetail({ id, onHome }: Props) {
+export default function ArticleList() {
+  const articles = useSuspense(ArticleResource.getList);
+  return (
+    <div>
+      {articles.map(article => (
+        <div key={article.pk()}>
+          <Link to={`/articles/${article.id}`}>Click me: {article.title}</Link>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+```tsx title="ArticleDetail" route="/articles/:id"
+import { useSuspense } from '@data-client/react';
+import { ArticleResource } from './resources/Article';
+
+export default function ArticleDetail({ id }: { id: string }) {
   const article = useSuspense(ArticleResource.get, { id });
   return (
     <div>
-      <h4>
-        <a onClick={onHome} style={{ cursor: 'pointer' }}>
-          &lt;
-        </a>{' '}
-        {article.title}
-      </h4>
+      <h4>{article.title}</h4>
       <div>
         <p>{article.content}</p>
         <div>
@@ -86,32 +100,6 @@ function ArticleDetail({ id, onHome }: Props) {
     </div>
   );
 }
-interface Props {
-  id: string;
-  onHome: () => void;
-}
-function ArticleList() {
-  const [route, setRoute] = React.useState('');
-  const articles = useSuspense(ArticleResource.getList);
-  if (!route) {
-    return (
-      <div>
-        {articles.map(article => (
-          <div
-            key={article.pk()}
-            onClick={() => setRoute(article.id)}
-            style={{ cursor: 'pointer', textDecoration: 'underline' }}
-          >
-            Click me: {article.title}
-          </div>
-        ))}
-      </div>
-    );
-  }
-  return <ArticleDetail id={route} onHome={() => setRoute('')} />;
-}
-
-render(<ArticleList />);
 ```
 
 ## Detail data in nested entity

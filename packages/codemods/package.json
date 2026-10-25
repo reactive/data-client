@@ -1,0 +1,40 @@
+{
+  "name": "@data-client/codemods",
+  "version": "0.0.0",
+  "description": "Codemods that migrate code to new Reactive Data Client releases",
+  "homepage": "https://dataclient.io/blog",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reactive/data-client.git",
+    "directory": "packages/codemods"
+  },
+  "bugs": {
+    "url": "https://github.com/reactive/data-client/issues"
+  },
+  "keywords": [
+    "codemod",
+    "jscodeshift",
+    "migration",
+    "upgrade",
+    "data-client"
+  ],
+  "type": "commonjs",
+  "bin": {
+    "data-client-codemods": "./src/cli.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "src",
+    "!src/**/__tests__",
+    "LICENSE",
+    "README.md"
+  ],
+  "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
+  "funding": "https://github.com/sponsors/ntucker",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "jscodeshift": "^17.3.0"
+  }
+}

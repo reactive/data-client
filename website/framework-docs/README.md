@@ -85,7 +85,7 @@ no text left for a framework (e.g. only `:react[...]`) is dropped from that fram
 ### Code examples
 
 Code fences are copied verbatim into skill references and into readers' apps, so
-`yarn check:doc-examples` (`checkExamples.mjs`, run by the `skills` workflow) type-checks each
+`yarn check:doc-examples` (`checkExamples.mjs`, run by the `regenerate` check) type-checks each
 framework's rendering of the docs against the playground's editor types (`@data-client/react`,
 `@data-client/vue`, `@data-client/rest`, ...): React with TypeScript, Vue with `vue-tsc`. Pass
 `react` or `vue` to check one. It checks each playground as one app (for Vue, each that has a `.vue`
@@ -99,12 +99,18 @@ blocks or to stubs typed `any`.
   modules (`import { ArticleResource } from './resources/Article'`).
 - The playground's design system (`website/src/components/Playground/DesignSystem`: `Loading`,
   `Avatar`, `TextInput`, ...) stands for the app's own components and needs no import, like
-  `render()`, which mounts a React playground's app, and Vue's `RouterLink` and `RouterView`.
+  `render()`, which mounts a React playground's app, React's `Link` and `useNavigate()`, which
+  stand for the app's router (see "Router" in `website/src/components/Playground/README.md`), and
+  Vue's `RouterLink` and `RouterView`.
   `NumberFlow` is a real library: import it from `@number-flow/react` or `@number-flow/vue`.
 - Overview pages (`README.md`, like `docs/core/README.md`) may leave imports out of snippets for
   readability, so only their playgrounds are checked.
 - Add `nocheck` to a fence's meta (` ```tsx title="Foo" nocheck `) only for a deliberately partial
   fragment; it's dropped from the rendered page and skill references.
+- Add `docs-only` to a playground file that only makes the preview work, like its UI
+  (` ```tsx title="Prices" docs-only `). Skill references drop it, since agents pay for every line
+  and it teaches nothing about the API; the site, `llms.txt` pages and this check keep it. Keep
+  files the shown code imports, so the reference still reads as one example.
 
 React:
 
@@ -112,6 +118,8 @@ React:
   playground blocks use `import React from 'react'` and `React.useState()`. Other blocks import
   hooks by name.
 - Format `Temporal` values with `toLocaleString()`, not the playground's `DateTimeFormat`.
+- A playground can play a scripted demo by itself (`autoRun`). Before writing one, read "Auto-run"
+  in `website/src/components/Playground/README.md`.
 
 Vue:
 
@@ -120,6 +128,17 @@ Vue:
 - Use HTML elements Vue knows: `<center>` and `<strike>` resolve as (missing) components.
 - Template expressions only see Vue's allowed globals, not `FormData` or `window`; move such code
   into `<script setup>`.
+
+### Browser debugging snippets
+
+`yarn check:browser-snippets` (`checkBrowserSnippets.mjs`, run by the `regenerate` check) runs every
+` ```js ` block starting `// run in page` in `docs/core/_agents/devtools-debugging.md` against a small
+React app built from the workspace sources, in Chromium, each way that page's Browser Tools section says a tool can
+run them, with their parameters and the `__DC_RESULT__` recipe read from the page (a new way needs a runner in its
+`WAYS`). It also checks the `Runtime.evaluate` results the page describes. Snippets use the entity
+`Todo` (ids 1 to 5) and paths under `/todos`; each snippet is named (`// run in page — <name>`) and
+needs an entry under that name in its `EXPECT`, saying what it returns. Set `CHROMIUM_PATH` to use a Chromium
+other than Playwright's.
 
 ## How it works
 
@@ -134,9 +153,10 @@ Vue:
   (`FRAMEWORKS`) read routes and frameworks from it.
 - `index.js` `docsFor()` lists each framework's docs with their routes (honoring `slug`) and
   `framework_equivalent`; `remarkFramework.js` and `docsToMarkdown.mjs` link with those routes.
-- `FrameworkSelector` (in the breadcrumbs) switches to the same page in the other docs instance, or
-  its `framework_equivalent` (`customFields.frameworkEquivalents`), and disables a framework when
-  neither exists there.
+- `DocsSelector` (in the breadcrumbs) switches to the same page in the other docs instance of its
+  `group` (React/Vue, REST/GraphQL), or its `framework_equivalent` or instance `equivalents`
+  (`customFields.docsEquivalents`). It disables a framework when neither exists there, and hides
+  for REST/GraphQL pages without a counterpart (most REST pages, like schemas, serve GraphQL as is).
 
 ## Agent skill references
 
@@ -146,8 +166,8 @@ content resolved the same way (`remarkFramework.js`, front matter and `.vue.md` 
 `index.js`), Docusaurus' own MDX preprocessing, partials inlined, and playgrounds, tabs and embeds
 reduced to their code. The
 first framework in `frameworks` writes `<name>.md`; later ones write `<name>.<framework>.md` only when
-the page differs. Output is committed because skills install straight from the repo; the `skills`
-workflow runs `yarn build:skills --check`, which also fails when a `SKILL.md` links to a
+the page differs. Output is committed because skills install straight from the repo; the `regenerate`
+check reruns `yarn build:skills` and fails on drift; the generator also fails when a `SKILL.md` links to a
 `references/` file that no longer exists, a reference is a symlink or a hand-written copy of a doc (named after a
 `docs/` page), or a skill has `.vue.md` variants its
 `SKILL.md` never mentions. See `.cursor/rules/skills-sync.mdc` for what to update
@@ -159,8 +179,8 @@ skill's `SKILL.md` body becomes `references/<skill>.md`, with its relative links
 `references/<skill>/`, which holds copies of its references and scripts.
 
 Prose only for readers of the site, such as how to install or run a skill, goes in `<SiteOnly>`
-(`@site/src/components/SiteOnly`, around blocks or inline): skill references drop it, so a skill
-never tells an agent to install the skill it's running (`llms.txt` keeps it). Content only agents need goes in `docs/core/_agents/`.
+(`@site/src/components/SiteOnly`, around blocks or inline): skill references and `llms.txt` drop it,
+since their readers are agents, so a skill never tells an agent to install the skill it's running. Content only agents need goes in `docs/core/_agents/`.
 
 Partials can use `props` in `{...}` expressions; the generator evaluates them with the props passed
 where the partial is used. JSX inside an expression is only supported for `<CodeBlock>`; anything

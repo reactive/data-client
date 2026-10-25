@@ -1,11 +1,14 @@
 import React, { memo, Profiler, type ProfilerOnRenderCallback } from 'react';
-import { LiveError, LivePreview } from 'react-live';
+import { LivePreview } from 'react-live';
 
 import Boundary from '../Boundary';
+import PreviewError, { type PreviewErrorProps } from './PreviewError';
 import { Loading } from '../DesignSystem/Loading';
-import styles from '../styles.module.css';
 
-function PreviewBlock({ onCommit }: { onCommit?: ProfilerOnRenderCallback }) {
+function PreviewBlock({
+  onCommit,
+  ...errorProps
+}: PreviewErrorProps & { onCommit?: ProfilerOnRenderCallback }) {
   return (
     <>
       <Boundary fallback={<Loading />}>
@@ -15,7 +18,7 @@ function PreviewBlock({ onCommit }: { onCommit?: ProfilerOnRenderCallback }) {
           </Profiler>
         : <LivePreview />}
       </Boundary>
-      <LiveError className={styles.playgroundError} />
+      <PreviewError {...errorProps} />
     </>
   );
 }

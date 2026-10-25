@@ -1,4 +1,5 @@
 ---
+agent_setup: true
 id: README
 title: GraphQL Usage with Reactive Data Client
 sidebar_label: Usage
@@ -133,7 +134,7 @@ suspends.
 <details>
 <summary><b>SWAPI Demo</b></summary>
 
-<HooksPlayground>
+<HooksPlayground row>
 
 ```tsx
 import { useSuspense } from '@data-client/react';

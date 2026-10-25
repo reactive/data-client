@@ -34,8 +34,8 @@ interface EntityInterface<T = any> extends SchemaSimple {
     indexes?: any;
     schema: Record<string, Schema>;
     prototype: T;
-    cacheWith?: object;
-    maxEntityDepth?: number;
+    cacheWith?: object | undefined;
+    maxEntityDepth?: number | undefined;
 }
 interface Mergeable {
     key: string;
@@ -329,6 +329,74 @@ type StateInterface = {
 /** https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html#the-noinfer-utility-type */
 type NI<T> = NoInfer<T>;
 
+/** Value types for `Controller.set()`, including batch `set([Entity], rows)` */
+
+/** What one row normalizes to: a reference to one stored entity */
+type EntityRef = string | {
+    readonly id: string;
+    readonly schema: string;
+};
+/** Schemas that write each row to one stored entity: Entity, Union, or Invalidate (batch delete).
+ * Query, All and Collection don't: they normalize to lists, or Collection keys by args batch set() lacks. */
+type SetEntitySchema = EntityInterface | EntityRefSchema;
+/** Union or Invalidate */
+type EntityRefSchema = {
+    _normalizeNullable(): EntityRef | undefined;
+    pk?: never;
+};
+/** `[Entity]`, `schema.Array(Entity)` or `schema.Values(Entity)` (or of a Union or Invalidate) */
+type SetManySchema = readonly SetEntitySchema[] | {
+    readonly schema: SetEntitySchema | Record<string, EntityInterface>;
+    schemaKey(): string;
+    queryKey(...args: any): undefined;
+    pk?: never;
+};
+/** `new Invalidate(Entity)` (or of a Union): not Queryable, since its queryKey() returns undefined */
+type SetInvalidateSchema = EntityRefSchema & {
+    queryKey(...args: any): undefined;
+    query?: never;
+};
+type IsUnion<T, U = T> = T extends unknown ? [
+    U
+] extends [T] ? false : true : never;
+type FunctionKeys<U> = {
+    [K in keyof U]: U[K] extends (...args: any) => any ? K : never;
+}[keyof U];
+/** Raw input for one field: numbers and strings coerce (literals stay exact);
+ * objects are pre-normalize */
+type SetField<T> = T extends number ? number extends T ? T | string : T : T extends string ? string extends T ? T | number : T : T extends object ? unknown : T;
+/** Fields of one row (or a coerced primitive); like EntityFields, but distributive
+ * and without key remapping (TS 4.0). A Union gets one row per member, so a
+ * discriminator like `type` selects the member the other fields are checked against. */
+type SetRow<U> = 0 extends 1 & U ? {
+    readonly [k: string]: any;
+} : U extends object ? {
+    readonly [K in Exclude<keyof U, FunctionKeys<U>>]?: SetField<U[K]>;
+} : SetField<U>;
+/** Keeps S inferred from the schema alone: inferring it from the value too would
+ * walk the value's type against every conditional in SetValue (TS 5.4 has NoInfer) */
+type SkipInfer<T, S> = [T][S extends unknown ? 0 : never];
+type SetManyValue<S> = S extends readonly (infer E)[] ? true extends IsUnion<E> ? readonly {
+    'Use a Union schema for several Entity types': never;
+}[] : readonly SetRow<Denormalize<E>>[] : SetValue<S>;
+/** Raw input `set()` normalizes for a Queryable */
+type SetValue<S> = InputSchema<InputSchema<InputSchema<S>>> extends infer N ? N extends EntityInterface ? SetRow<Denormalize<N>> : SetInput<Denormalize<N>> : never;
+/** Query normalizes with its inner schema; its process() output is not input
+ *
+ * Applied three times in SetValue to unwrap nested Queries (TS 4.0 has no recursive aliases)
+ */
+type InputSchema<S> = S extends ({
+    readonly schema: infer Sch;
+    process(...args: any): any;
+    pk?: never;
+}) ? Sch : S;
+/** Raw input for a denormalized value, like a Collection's list or a Union's row */
+type SetInput<T> = 0 extends 1 & T ? any : [
+    T
+] extends [readonly (infer U)[]] ? readonly SetRow<U>[] : string extends keyof T ? {
+    readonly [k: string]: SetRow<T[keyof T]>;
+} : SetRow<T>;
+
 interface NetworkError extends Error {
     status: number;
     response?: Response;
@@ -416,74 +484,6 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 
 declare class AbortOptimistic extends Error {
 }
-
-/** Value types for `Controller.set()`, including batch `set([Entity], rows)` */
-
-/** What one row normalizes to: a reference to one stored entity */
-type EntityRef = string | {
-    readonly id: string;
-    readonly schema: string;
-};
-/** Schemas that write each row to one stored entity: Entity, Union, or Invalidate (batch delete).
- * Query, All and Collection don't: they normalize to lists, or Collection keys by args batch set() lacks. */
-type SetEntitySchema = EntityInterface | EntityRefSchema;
-/** Union or Invalidate */
-type EntityRefSchema = {
-    _normalizeNullable(): EntityRef | undefined;
-    pk?: never;
-};
-/** `[Entity]`, `schema.Array(Entity)` or `schema.Values(Entity)` (or of a Union or Invalidate) */
-type SetManySchema = readonly SetEntitySchema[] | {
-    readonly schema: SetEntitySchema | Record<string, EntityInterface>;
-    schemaKey(): string;
-    queryKey(...args: any): undefined;
-    pk?: never;
-};
-/** `new Invalidate(Entity)` (or of a Union): not Queryable, since its queryKey() returns undefined */
-type SetInvalidateSchema = EntityRefSchema & {
-    queryKey(...args: any): undefined;
-    query?: never;
-};
-type IsUnion<T, U = T> = T extends unknown ? [
-    U
-] extends [T] ? false : true : never;
-type FunctionKeys<U> = {
-    [K in keyof U]: U[K] extends (...args: any) => any ? K : never;
-}[keyof U];
-/** Raw input for one field: numbers and strings coerce (literals stay exact);
- * objects are pre-normalize */
-type SetField<T> = T extends number ? number extends T ? T | string : T : T extends string ? string extends T ? T | number : T : T extends object ? unknown : T;
-/** Fields of one row (or a coerced primitive); like EntityFields, but distributive
- * and without key remapping (TS 4.0). A Union gets one row per member, so a
- * discriminator like `type` selects the member the other fields are checked against. */
-type SetRow<U> = 0 extends 1 & U ? {
-    readonly [k: string]: any;
-} : U extends object ? {
-    readonly [K in Exclude<keyof U, FunctionKeys<U>>]?: SetField<U[K]>;
-} : SetField<U>;
-/** Keeps S inferred from the schema alone: inferring it from the value too would
- * walk the value's type against every conditional in SetValue (TS 5.4 has NoInfer) */
-type SkipInfer<T, S> = [T][S extends unknown ? 0 : never];
-type SetManyValue<S> = S extends readonly (infer E)[] ? true extends IsUnion<E> ? readonly {
-    'Use a Union schema for several Entity types': never;
-}[] : readonly SetRow<Denormalize<E>>[] : SetValue<S>;
-/** Raw input `set()` normalizes for a Queryable */
-type SetValue<S> = InputSchema<InputSchema<InputSchema<S>>> extends infer N ? N extends EntityInterface ? SetRow<Denormalize<N>> : SetInput<Denormalize<N>> : never;
-/** Query normalizes with its inner schema; its process() output is not input
- *
- * Applied three times in SetValue to unwrap nested Queries (TS 4.0 has no recursive aliases)
- */
-type InputSchema<S> = S extends ({
-    readonly schema: infer Sch;
-    process(...args: any): any;
-    pk?: never;
-}) ? Sch : S;
-/** Raw input for a denormalized value, like a Collection's list or a Union's row */
-type SetInput<T> = 0 extends 1 & T ? any : [
-    T
-] extends [readonly (infer U)[]] ? readonly SetRow<U>[] : string extends keyof T ? {
-    readonly [k: string]: SetRow<T[keyof T]>;
-} : SetRow<T>;
 
 type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined | null ? ResolveType<E> : Normalize<E['schema']>;
 type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source>, ...args: any) => {
@@ -690,10 +690,8 @@ interface State<T> {
  * @see https://dataclient.io/docs/api/Manager
  */
 interface Manager<Actions = ActionTypes> {
-    /** @see https://dataclient.io/docs/api/Manager#getmiddleware */
-    getMiddleware?(): Middleware<Actions>;
     /** @see https://dataclient.io/docs/api/Manager#middleware */
-    middleware?: Middleware<Actions>;
+    middleware: Middleware<Actions>;
     /** @see https://dataclient.io/docs/api/Manager#cleanup */
     cleanup(): void;
     /** @see https://dataclient.io/docs/api/Manager#init */
@@ -815,19 +813,21 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
         update?: EndpointUpdateFunction<E>;
     }>(endpoint: E, ...args: readonly [...Parameters<E>]) => E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
     /**
-     * Fetches only if endpoint is considered 'stale'; otherwise returns undefined
+     * Fetches only if endpoint is considered 'stale'; otherwise returns the cached data synchronously
      * @see https://dataclient.io/docs/api/Controller#fetchIfStale
      */
     fetchIfStale: <E extends EndpointInterface & {
         update?: EndpointUpdateFunction<E>;
     }>(endpoint: E, ...args: readonly [...Parameters<E>]) => E['schema'] extends undefined | null ? ReturnType<E> | ResolveType<E> : Promise<Denormalize<E['schema']>> | Denormalize<E['schema']>;
     /**
-     * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
+     * Forces refetching on useSuspense with the same Endpoint and parameters, suspending until it resolves
+     * (mounted Vue components keep their current data instead).
      * @see https://dataclient.io/docs/api/Controller#invalidate
      */
     invalidate: <E extends EndpointInterface>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
     /**
-     * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
+     * Forces refetching on useSuspense on all matching endpoint result keys, suspending until it resolves
+     * (mounted Vue components keep their current data instead).
      * @see https://dataclient.io/docs/api/Controller#invalidateAll
      * @returns Promise that resolves when invalidation is commited.
      */
@@ -1498,6 +1498,11 @@ interface EnhancerOptions {
 }
 interface DevToolsConfig extends EnhancerOptions {
     type?: string;
+    /** Actions kept in `__DC__.actions` for each key (endpoint and args) while it polls
+     *
+     * @default 4 (the last two polls)
+     */
+    maxPollingActions?: number;
 }
 
 /** Integrates with https://github.com/reduxjs/redux-devtools
@@ -1511,6 +1516,14 @@ declare class DevToolsManager implements Manager {
     protected devTools: undefined | any;
     protected started: boolean;
     protected actions: [ActionTypes, State<unknown>][];
+    /** Recent actions, kept in development whether or not the extension is connected */
+    protected actionLog: ActionTypes[];
+    /** Key this controller is registered under in `__DC__` */
+    protected registryKey?: string;
+    /** Subscriber count for each key that is polling; a key is removed when its count reaches 0 */
+    protected pollingSubscribers: Map<string, number>;
+    /** Actions kept in the log for each key while it polls (development only) */
+    maxPollingActions: number;
     protected controller: Controller;
     skipLogging?: (action: ActionTypes) => boolean;
     devtoolsName: string;

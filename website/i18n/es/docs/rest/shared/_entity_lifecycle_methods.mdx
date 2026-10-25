@@ -1,0 +1,389 @@
+import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+import CodeBlock from '@theme/CodeBlock';
+
+### static fromJS(props): Entity {#fromJS}
+
+Método de fábrica que copia las props a una nueva instancia. Úsalo en lugar de `new MyEntity()`,
+para asegurar que se sobrescriban las props por defecto.
+
+### static process(input, parent, key, args): processedEntity {#process}
+
+Se ejecuta al inicio de la normalización de esta entidad. El valor de retorno se guarda en el store
+y se envía a [pk()](#pk).
+
+**Por defecto** simplemente copia la respuesta (`{...input}`)
+
+Cómo sobrescribirlo para [construir búsquedas inversas para datos relacionales](../guides/relational-data.md#reverse-lookups)
+
+#### El caso del id faltante {#case-of-the-missing-id}
+
+{props?.entitySyntax === 'EntityMixin' ? (
+<CodeBlock language="ts">{`import { EntityMixin } from '@data-client/rest';
+
+class Stream {
+  username = '';
+  title = '';
+  game = '';
+  currentViewers = 0;
+  live = false;
+}
+
+class StreamEntity extends EntityMixin(Stream) {
+  static key = 'Stream';
+
+  static process(value, parent, key, args) {
+    // super.process creates a copy of value
+    const processed = super.process(value, parent, key, args);
+    processed.username = args[0]?.username;
+    return processed;
+  }
+}`}</CodeBlock>
+) : (
+<CodeBlock language="ts">{`class Stream extends Entity {
+  username = '';
+  title = '';
+  game = '';
+  currentViewers = 0;
+  live = false;
+
+  pk() {
+    return this.username;
+  }
+  static key = 'Stream';
+
+  static process(value, parent, key, args) {
+    // super.process creates a copy of value
+    const processed = super.process(value, parent, key, args);
+    processed.username = args[0]?.username;
+    return processed;
+  }
+}`}</CodeBlock>
+)}
+
+#### Invalidación dinámica {#dynamic-invalidation}
+
+Devolver `undefined` desde [Entity.process](#process)
+hará que la `Entity` sea [invalidada](/docs/concepts/expiry-policy#invalidate-entity).
+Esto nos permite invalidar de forma dinámica, según los datos particulares de la respuesta.
+
+{props?.entitySyntax === 'EntityMixin' ? (
+<CodeBlock language="ts">{`import { EntityMixin } from '@data-client/rest';
+
+class PriceLevel {
+  price = 0;
+  amount = 0;
+}
+
+class PriceLevelEntity extends EntityMixin(PriceLevel) {
+  static process(
+    input: [number, number],
+    parent: any,
+    key: string | undefined,
+  ): any {
+    const [price, amount] = input;
+    // highlight-next-line
+    if (amount === 0) return undefined;
+    return { price, amount };
+  }
+}`}</CodeBlock>
+) : (
+<CodeBlock language="ts">{`class PriceLevel extends Entity {
+  price = 0;
+  amount = 0;
+
+  pk() {
+    return this.price;
+  }
+
+  static process(
+    input: [number, number],
+    parent: any,
+    key: string | undefined,
+  ): any {
+    const [price, amount] = input;
+    // highlight-next-line
+    if (amount === 0) return undefined;
+    return { price, amount };
+  }
+}`}</CodeBlock>
+)}
+
+### static mergeWithStore(existingMeta, incomingMeta, existing, incoming): mergedValue {#mergeWithStore}
+
+```typescript
+static mergeWithStore(
+  existingMeta: {
+    date: number;
+    fetchedAt: number;
+  },
+  incomingMeta: { date: number; fetchedAt: number },
+  existing: any,
+  incoming: any,
+) {
+  const shouldUpdate = this.shouldUpdate(
+    existingMeta,
+    incomingMeta,
+    existing,
+    incoming,
+  );
+
+  if (shouldUpdate) {
+    // distinct types are not mergeable (like delete symbol), so just replace
+    if (typeof incoming !== typeof existing) {
+      return incoming;
+    } else {
+      return this.shouldReorder(
+        existingMeta,
+        incomingMeta,
+        existing,
+        incoming,
+      )
+        ? this.merge(incoming, existing)
+        : this.merge(existing, incoming);
+    }
+  } else {
+    return existing;
+  }
+}
+```
+
+`mergeWithStore()` se llama durante la normalización cuando una entidad procesada ya existe en el store.
+
+Esto llama a [shouldUpdate()](#shouldupdate), [shouldReorder()](#shouldreorder) y, potencialmente, a [merge()](#merge)
+
+### static shouldUpdate(existingMeta, incomingMeta, existing, incoming): boolean {#shouldupdate}
+
+```typescript
+static shouldUpdate(
+  existingMeta: { date: number; fetchedAt: number },
+  incomingMeta: { date: number; fetchedAt: number },
+  existing: any,
+  incoming: any,
+) {
+  return existingMeta.fetchedAt <= incomingMeta.fetchedAt;
+}
+```
+
+#### Evitar actualizaciones {#preventing-updates}
+
+shouldUpdate también se puede usar para interrumpir la actualización de una entidad.
+
+{props?.entitySyntax === 'EntityMixin' ? (
+<CodeBlock language="typescript">{`import deepEqual from 'deep-equal';
+import { EntityMixin } from '@data-client/rest';
+
+class Article {
+  id = '';
+  title = '';
+  content = '';
+  published = false;
+}
+
+class ArticleEntity extends EntityMixin(Article) {
+  static shouldUpdate(
+    existingMeta: { date: number; fetchedAt: number },
+    incomingMeta: { date: number; fetchedAt: number },
+    existing: any,
+    incoming: any,
+  ) {
+    return !deepEqual(incoming, existing);
+  }
+}`}</CodeBlock>
+) : (
+<CodeBlock language="typescript">{`import deepEqual from 'deep-equal';
+
+class Article extends Entity {
+  id = '';
+  title = '';
+  content = '';
+  published = false;
+
+  static shouldUpdate(
+    existingMeta: { date: number; fetchedAt: number },
+    incomingMeta: { date: number; fetchedAt: number },
+    existing: any,
+    incoming: any,
+  ) {
+    return !deepEqual(incoming, existing);
+  }
+}`}</CodeBlock>
+)}
+
+### static shouldReorder(existingMeta, incomingMeta, existing, incoming): boolean {#shouldreorder}
+
+```typescript
+static shouldReorder(
+  existingMeta: { date: number; fetchedAt: number },
+  incomingMeta: { date: number; fetchedAt: number },
+  existing: any,
+  incoming: any,
+) {
+  return incomingMeta.fetchedAt < existingMeta.fetchedAt;
+}
+```
+
+Un valor de retorno `true` invertirá el orden de los argumentos de la entidad entrante y la que está en el store en el merge. Con
+el merge por defecto, esto hará que los campos de las entidades existentes sobrescriban a los de las entrantes,
+en lugar de al revés.
+
+#### Ejemplo {#example}
+
+<TypeScriptEditor>
+
+{props?.entitySyntax === 'EntityMixin' ? (
+<CodeBlock language="typescript">{`import { EntityMixin } from '@data-client/rest';
+
+class LatestPrice {
+  id = '';
+  updatedAt = 0;
+  price = '0.0';
+  symbol = '';
+}
+
+class LatestPriceEntity extends EntityMixin(LatestPrice) {
+  static shouldReorder(
+    existingMeta: { date: number; fetchedAt: number },
+    incomingMeta: { date: number; fetchedAt: number },
+    existing: { updatedAt: number },
+    incoming: { updatedAt: number },
+  ) {
+    return incoming.updatedAt < existing.updatedAt;
+  }
+}`}</CodeBlock>
+) : (
+<CodeBlock language="typescript">{`class LatestPriceEntity extends Entity {
+  id = '';
+  updatedAt = 0;
+  price = '0.0';
+  symbol = '';
+
+  pk() {
+    return this.id;
+  }
+
+  static shouldReorder(
+    existingMeta: { date: number; fetchedAt: number },
+    incomingMeta: { date: number; fetchedAt: number },
+    existing: { updatedAt: number },
+    incoming: { updatedAt: number },
+  ) {
+    return incoming.updatedAt < existing.updatedAt;
+  }
+}`}</CodeBlock>
+)}
+
+</TypeScriptEditor>
+
+import StackBlitz from '@site/src/components/StackBlitz';
+
+<StackBlitz app="coin-app" file="src/resources/Ticker.ts" height="500" view="editor" />
+
+### static merge(existing, incoming): mergedValue {#merge}
+
+```typescript
+static merge(existing: any, incoming: any) {
+  return {
+    ...existing,
+    ...incoming,
+  };
+}
+```
+
+Merge se usa para manejar los casos en que ya existe una entidad entrante. Se llama directamente
+cuando se encuentra la misma entidad en una sola respuesta. Por defecto también se llama cuando [mergeWithStore()](#mergeWithStore)
+determina que la entidad entrante debe fusionarse con una entidad ya persistida en el store de Reactive Data Client.
+
+Cómo sobrescribirlo para [construir búsquedas inversas para datos relacionales](../guides/relational-data.md#reverse-lookups)
+
+### static mergeMetaWithStore(existingMeta, incomingMeta, existing, incoming): meta {#mergeMetaWithStore}
+
+```typescript
+static mergeMetaWithStore(
+  existingMeta: {
+    expiresAt: number;
+    date: number;
+    fetchedAt: number;
+  },
+  incomingMeta: { expiresAt: number; date: number; fetchedAt: number },
+  existing: any,
+  incoming: any,
+) {
+  return this.shouldReorder(existingMeta, incomingMeta, existing, incoming)
+    ? existingMeta
+    : incomingMeta;
+}
+```
+
+`mergeMetaWithStore()` se llama durante la normalización cuando una entidad procesada ya existe en el store.
+
+### static queryKey(args, queryKey, getEntity, getIndex): pk? {#queryKey}
+
+Este método permite que las `Entities` sean [Queryable](/rest/api/schema#queryable), es decir, que se pueda acceder al store sin un endpoint.
+
+Sobrescribirlo permite personalizar o deshabilitar por completo este comportamiento.
+
+Devolver `undefined` deshabilitará este comportamiento.
+
+Devolver un string `pk` intentará buscar esta entidad y usarla en la respuesta.
+
+Cuando se usa, la política de caducidad se calcula a partir de los metadatos propios de la entidad.
+
+Por **defecto** usa el primer argumento para buscar en [pk()](#pk) e [indexes](/rest/api/Entity#indexes)
+
+#### getEntity(key, pk?) {#getentitykey-pk}
+
+Obtiene todas las entidades de un tipo con un argumento, o una sola entidad con dos
+
+```ts title="One argument"
+const entitiesEntry = getEntity(this.schema.key);
+if (entitiesEntry === undefined) return INVALID;
+return Object.values(entitiesEntry).map(
+  entity => entity && this.schema.pk(entity),
+);
+```
+
+```ts title="Two arguments"
+if (getEntity(this.key, id)) return id;
+```
+
+#### getIndex(key, indexName, value) {#getindexkey-indexname-value}
+
+Devuelve la entrada del índice (mapa valor->pk)
+
+```ts
+const value = args[0][indexName];
+return getIndex(schema.key, indexName, value)[value];
+```
+
+### static createIfValid(processedEntity): Entity | undefined {#createIfValid}
+
+Se llama al desnormalizar una entidad. Crea una instancia de esta clase
+si se considera 'válida'.
+
+Un retorno `undefined` resultará en un [estado de caducidad Invalid](/docs/concepts/expiry-policy#expiry-status),
+like [Invalidate](/rest/api/Invalidate).
+
+La caducidad [`Invalid`](/docs/concepts/expiry-policy#expiry-status) generalmente significa que los :react[hooks]:vue[composables] entrarán en estado de carga e intentarán un nuevo fetch.
+
+```ts
+static createIfValid(props): AbstractInstanceType<this> | undefined {
+  if (this.validate(props)) {
+    return undefined as any;
+  }
+  return this.fromJS(props);
+}
+```
+
+### static validate(processedEntity): errorMessage? {#validate}
+
+Se ejecuta tanto en la normalización como en la desnormalización. Devolver un string indica un error (el string es el mensaje).
+
+Durante la normalización, un fallo de validación producirá un error para ese fetch.
+
+Durante la desnormalización, un fallo de validación marcará ese resultado como 'invalid' y, por tanto,
+bloqueará mientras se obtiene un resultado.
+
+Por **defecto** hace algunas comprobaciones básicas de existencia de campos, solo en modo de desarrollo. Sobrescríbelo para
+deshabilitarlo o personalizarlo.
+
+[Usar la validación en endpoints con campos incompletos](../guides/partial-entities.md)

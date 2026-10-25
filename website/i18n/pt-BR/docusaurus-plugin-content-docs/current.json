@@ -1,0 +1,46 @@
+{
+  "version.label": {
+    "message": "0.1",
+    "description": "The label for version current"
+  },
+  "sidebar.docs.category.Getting Started": {
+    "message": "Primeiros passos",
+    "description": "The label for category 'Getting Started' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Concepts": {
+    "message": "Conceitos",
+    "description": "The label for category 'Concepts' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Tooling": {
+    "message": "Ferramentas",
+    "description": "The label for category 'Tooling' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Guides": {
+    "message": "Guias",
+    "description": "The label for category 'Guides' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Performance": {
+    "message": "Desempenho",
+    "description": "The label for category 'Performance' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Legacy": {
+    "message": "Legado",
+    "description": "The label for category 'Legacy' in sidebar 'docs'"
+  },
+  "sidebar.api.category.Hooks": {
+    "message": "Hooks",
+    "description": "The label for category 'Hooks' in sidebar 'api'"
+  },
+  "sidebar.api.category.Components": {
+    "message": "Componentes",
+    "description": "The label for category 'Components' in sidebar 'api'"
+  },
+  "sidebar.api.category.Managers": {
+    "message": "Managers",
+    "description": "The label for category 'Managers' in sidebar 'api'"
+  },
+  "sidebar.api.category.Testing": {
+    "message": "Testes",
+    "description": "The label for category 'Testing' in sidebar 'api'"
+  }
+}

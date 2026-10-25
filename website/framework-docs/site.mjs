@@ -1,4 +1,5 @@
 /** Paths and URLs shared by the docs-to-markdown tools; no heavy imports */
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -9,3 +10,10 @@ export const ROOT = path.resolve(
 export const SITE = 'https://dataclient.io';
 /** Repo-relative path with forward slashes */
 export const rel = file => path.relative(ROOT, file).split(path.sep).join('/');
+/** Runs git in the repo root, returning its output */
+export const git = (...args) =>
+  execFileSync('git', args, {
+    cwd: ROOT,
+    encoding: 'utf8',
+    maxBuffer: 64 << 20,
+  });

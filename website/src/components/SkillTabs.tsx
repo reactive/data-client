@@ -3,86 +3,71 @@ import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import React from 'react';
 
-import marketplace from '../../../.claude-plugin/marketplace.json';
+import styles from './SkillTabs.module.css';
 import useFramework from './useFramework';
+import skillPackages from '../../../.agents/skill-packages.json';
+import setupReferences from '../../../.agents/skills/data-client-setup/references.json';
+import plugin from '../../../.claude-plugin/marketplace.json';
+import skillCommands from '../../framework-docs/skillCommands.mjs';
 
 interface Props {
   repo?: string;
   skill?: string;
+  /** Defaults to every skill for the current page's framework */
   skills?: string[];
-  /** Plugin from `.claude-plugin/marketplace.json` to install with its dependencies.
-   * Defaults to the current page's framework when no skills are given. */
-  plugin?: string;
+  /** false leaves out linking the packages' skills, which needs them installed first */
+  packages?: boolean;
+  /** headers on the commands, where the page has room (```bash framed) */
+  framed?: boolean;
 }
-
-const skillsDir = '.agents/skills';
 
 export default function SkillTabs({
-  repo = 'reactive/data-client',
+  repo,
   skill,
   skills,
-  plugin,
+  packages,
+  framed,
 }: Props) {
   const framework = useFramework();
-  if (!skills && skill) skills = [skill];
-  if (!skills) plugin ??= framework;
-  const allSkills = plugin ? pluginSkills(plugin) : (skills ?? []);
-  const skillsCommand = [
-    `npx skills add ${repo}`,
-    ...allSkills.map(s => `--skill ${s}`),
-  ].join(allSkills.length > 1 ? ' \\\n  ' : ' ');
-  // openskills has no --skill flag; it installs a single skill from its path
-  const openSkillsCommand = allSkills
-    .map(s => `npx openskills install ${repo}/${skillsDir}/${s}`)
-    .join('\n');
-  // Claude Code installs whole plugins, so install each one holding a listed skill
-  const claudePlugins =
-    plugin ? [plugin] : [...new Set(allSkills.map(pluginOf))];
-  const claudeCommand = [
-    `claude plugin marketplace add ${repo}`,
-    ...claudePlugins.map(p => `claude plugin install ${p}@${marketplace.name}`),
-  ].join('\n');
+  const metastring = framed ? 'framed' : undefined;
+  const commands = skillCommands(
+    { repo, skill, skills, packages, framework },
+    { skillPackages, setupSkills: setupReferences.skills, plugin },
+  );
+  // agents' own plugin installers first, then skills that update with the packages
+  const tabs = [
+    { label: 'Claude Code plugin', value: 'claude', code: commands.claude },
+    // typed into Cursor's Agent chat, not a terminal
+    {
+      label: 'Cursor plugin',
+      value: 'cursor',
+      code: commands.cursor,
+      language: 'prompt',
+      title: 'Cursor',
+    },
+    { label: 'Codex plugin', value: 'codex', code: commands.codex },
+    { label: 'Installed packages', value: 'packages', code: commands.packages },
+    { label: 'Skills CLI', value: 'skills', code: commands.skillsCli },
+    { label: 'OpenSkills', value: 'openskills', code: commands.openSkills },
+  ].filter(tab => tab.code);
   return (
     <Tabs
-      defaultValue="skills"
+      className={styles.tabs}
+      defaultValue={tabs[0].value}
       groupId="agent-skills-program"
-      values={[
-        { label: 'Skills', value: 'skills' },
-        { label: 'OpenSkills', value: 'openskills' },
-        { label: 'Claude Code', value: 'claude' },
-      ]}
+      values={tabs}
     >
-      <TabItem value="skills">
-        <CodeBlock className="language-bash">{skillsCommand}</CodeBlock>
-      </TabItem>
-      <TabItem value="openskills">
-        <CodeBlock className="language-bash">{openSkillsCommand}</CodeBlock>
-      </TabItem>
-      <TabItem value="claude">
-        <CodeBlock className="language-bash">{claudeCommand}</CodeBlock>
-      </TabItem>
+      {tabs.map(({ value, code, language = 'bash', title }) => (
+        <TabItem key={value} value={value}>
+          <CodeBlock
+            className={`language-${language}`}
+            metastring={metastring}
+            title={title}
+          >
+            {code}
+          </CodeBlock>
+        </TabItem>
+      ))}
     </Tabs>
   );
-}
-
-const plugins: { name: string; dependencies?: string[]; skills: string[] }[] =
-  marketplace.plugins;
-
-const skillName = (path: string) => path.slice(path.lastIndexOf('/') + 1);
-
-/** Skill names of a marketplace plugin, after those of its dependencies */
-function pluginSkills(name: string): string[] {
-  const plugin = plugins.find(p => p.name === name);
-  if (!plugin) throw new Error(`No plugin "${name}" in marketplace.json`);
-  return [
-    ...(plugin.dependencies ?? []).flatMap(pluginSkills),
-    ...plugin.skills.map(skillName),
-  ];
-}
-
-/** Name of the marketplace plugin that holds a skill */
-function pluginOf(skill: string): string {
-  const plugin = plugins.find(p => p.skills.some(s => skillName(s) === skill));
-  if (!plugin) throw new Error(`No plugin holds skill "${skill}"`);
-  return plugin.name;
 }

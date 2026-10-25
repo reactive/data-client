@@ -7,14 +7,13 @@ import {
   Controller,
   GCInterface,
 } from '@data-client/react';
+import { MockController, mockInitialState } from '@data-client/react/mock';
+import type { Interceptor, Fixture } from '@data-client/react/mock';
 import React, { memo, Suspense, useLayoutEffect, useState } from 'react';
 
 import { renderHook, act } from './renderHook.cjs';
 import type { RenderHookOptions } from './renderHookOptions.js';
 import type { RenderHookResult } from './renderHookTypes.js';
-import { Interceptor, Fixture } from '../fixtureTypes.js';
-import { MockController } from '../MockController.js';
-import mockInitialState from '../mockState.js';
 
 const activeCleanups = new Set<() => void>();
 

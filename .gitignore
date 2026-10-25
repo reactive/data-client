@@ -78,7 +78,21 @@ typings/
 
 # generated Vue mirror of docs/core (website/framework-docs)
 docs/.core-*
+# generated locale docs and blog (website/translate/localeDocs.js)
+website/i18n/*/docusaurus-plugin-content-docs*/current/
+website/i18n/*/docusaurus-plugin-content-blog/*
+# but its UI strings (`keep` in localeDocs.js)
+!website/i18n/*/docusaurus-plugin-content-blog/options.json
 
 # Claude Code
 .claude/worktrees/
 .claude/settings.local.json
+
+# Vercel CLI (vercel pull / vercel build)
+.vercel
+
+# agent skills copied in at pack time (scripts/pack-skills.mjs)
+packages/*/skills/
+# data-client-skills code copied in at pack time (from packages/core/agents)
+packages/*/agents/
+!packages/core/agents/

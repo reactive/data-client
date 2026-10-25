@@ -5,6 +5,11 @@ import type {
   Denormalize,
   Queryable,
   SchemaArgs,
+  SetInvalidateSchema,
+  SetManySchema,
+  SetManyValue,
+  SetValue,
+  SkipInfer,
 } from '@data-client/normalizr';
 import {
   ExpiryStatus,
@@ -33,13 +38,6 @@ import {
   createSetResponse,
 } from './actions/index.js';
 import ensurePojo from './ensurePojo.js';
-import type {
-  SkipInfer,
-  SetInvalidateSchema,
-  SetManySchema,
-  SetManyValue,
-  SetValue,
-} from './setManyTypes.js';
 import type { EndpointUpdateFunction } from './types.js';
 import { ReduxMiddlewareAPI } from '../manager/applyManager.js';
 import type { GCInterface } from '../state/GCPolicy.js';
@@ -168,7 +166,7 @@ export default class Controller<
   };
 
   /**
-   * Fetches only if endpoint is considered 'stale'; otherwise returns undefined
+   * Fetches only if endpoint is considered 'stale'; otherwise returns the cached data synchronously
    * @see https://dataclient.io/docs/api/Controller#fetchIfStale
    */
   fetchIfStale = <
@@ -189,7 +187,8 @@ export default class Controller<
   };
 
   /**
-   * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
+   * Forces refetching on useSuspense with the same Endpoint and parameters, suspending until it resolves
+   * (mounted Vue components keep their current data instead).
    * @see https://dataclient.io/docs/api/Controller#invalidate
    */
   invalidate = <E extends EndpointInterface>(
@@ -205,7 +204,8 @@ export default class Controller<
     : Promise.resolve();
 
   /**
-   * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
+   * Forces refetching on useSuspense on all matching endpoint result keys, suspending until it resolves
+   * (mounted Vue components keep their current data instead).
    * @see https://dataclient.io/docs/api/Controller#invalidateAll
    * @returns Promise that resolves when invalidation is commited.
    */
@@ -690,9 +690,9 @@ export type { ErrorTypes };
 class Snapshot<T = unknown> implements SnapshotInterface {
   static readonly abort = new AbortOptimistic();
 
-  private state: State<T>;
-  private controller: Controller;
-  readonly fetchedAt: number;
+  declare private state: State<T>;
+  declare private controller: Controller;
+  declare readonly fetchedAt: number;
   readonly abort = Snapshot.abort;
 
   constructor(controller: Controller, state: State<T>, fetchedAt = 0) {

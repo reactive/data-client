@@ -9,20 +9,22 @@
  * The first framework with the page writes `<name>.md`; later ones write
  * `<name>.<framework>.md` only when their page differs.
  *
+ * `"files": { "RestEndpoint.js": "packages/rest/src/RestEndpoint.js" }` copies
+ * source files in as they are.
+ *
  * `"skills": ["other-skill"]` bundles another skill so this one works without
  * it installed: its SKILL.md body becomes `references/other-skill.md` and its
  * other files (references, scripts) are copied under `references/other-skill/`.
  *
- * Usage: node website/framework-docs/skillReferences.mjs [--check]
+ * Usage: node website/framework-docs/skillReferences.mjs
  */
-import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
 import { frameworkInstance } from './docsInstances.js';
 import { docToMarkdown, routeOf } from './docsToMarkdown.mjs';
 import { FM, walk } from './index.js';
-import { ROOT, SITE, rel } from './site.mjs';
+import { ROOT, SITE, git, rel } from './site.mjs';
 
 const SKILLS = path.join(ROOT, '.agents/skills');
 const MANIFEST = 'references.json';
@@ -83,7 +85,7 @@ function generateSkill(skillDir) {
   return generated.get(skillDir);
 }
 
-function buildSkill(skillDir, { frameworks, docs, skills = [] }) {
+function buildSkill(skillDir, { frameworks, docs, files = {}, skills = [] }) {
   const out = new Map();
   // framework that rendered each file
   const renderedBy = new Map();
@@ -93,6 +95,10 @@ function buildSkill(skillDir, { frameworks, docs, skills = [] }) {
       throw new Error(`${rel(skillDir)}/${MANIFEST}: ${doc} is not in docs/`);
     if (!fs.existsSync(path.join(ROOT, doc)))
       throw new Error(`${rel(skillDir)}/${MANIFEST}: ${doc} does not exist`);
+  }
+  for (const source of Object.values(files)) {
+    if (!fs.existsSync(path.join(ROOT, source)))
+      throw new Error(`${rel(skillDir)}/${MANIFEST}: ${source} does not exist`);
   }
   for (const framework of frameworks) {
     const localRoutes = localRoutesFor(docs, framework);
@@ -105,7 +111,7 @@ function buildSkill(skillDir, { frameworks, docs, skills = [] }) {
     for (const [name, doc] of Object.entries(docs)) {
       const body = docToMarkdown(path.join(ROOT, doc), framework, {
         resolveRoute,
-        skipSiteOnly: true,
+        skill: true,
       });
       if (!body) continue;
       const content = `<!-- ${GENERATED} ${doc} (${framework}). Edit the source doc, not this file. -->\n\n${body}`;
@@ -138,13 +144,18 @@ function buildSkill(skillDir, { frameworks, docs, skills = [] }) {
       ),
     );
   }
+  // a copy, not a symlink, so it survives installs that copy only the skill
+  for (const [name, source] of Object.entries(files)) {
+    const file = path.join(ROOT, source);
+    out.set(
+      path.join(skillDir, 'references', name),
+      withHeader(file, fs.readFileSync(file, 'utf8')),
+    );
+  }
   for (const skill of skills)
     bundleSkill(path.join(SKILLS, skill), skillDir, out);
   return out;
 }
-
-const git = (...args) =>
-  execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' });
 
 /** Symlinks git tracks under the skills, even where checked out as plain files */
 const gitLinks = new Set(
@@ -224,24 +235,14 @@ for (const skill of fs.readdirSync(SKILLS).sort()) {
     if (current.get(file) !== content) changes.push([file, content]);
 }
 
-if (process.argv.includes('--check')) {
-  if (changes.length) {
-    console.error(
-      `Skill references are out of date with the docs or bundled skills:\n  ${changes.map(([f]) => rel(f)).join('\n  ')}\nRun \`yarn build:skills\` and commit the result.`,
-    );
-    process.exit(1);
-  }
-  console.log('Skill references are up to date.');
-} else {
-  for (const [file, content] of changes) {
-    // also replaces a symlink left from before references were generated
-    fs.rmSync(file, { force: true });
-    if (content === null) continue;
-    fs.mkdirSync(path.dirname(file), { recursive: true });
-    fs.writeFileSync(file, content);
-  }
-  console.log(`Updated ${changes.length} skill reference files.`);
+for (const [file, content] of changes) {
+  // also replaces a symlink left from before references were generated
+  fs.rmSync(file, { force: true });
+  if (content === null) continue;
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, content);
 }
+console.log(`Updated ${changes.length} skill reference files.`);
 
 /** A doc or reference's name without its framework variant suffix */
 const baseName = f =>

@@ -12,14 +12,17 @@ import { useEffect, useState } from 'react';
 
 import { isMobileOrBot } from '../userAgent';
 import { loadMonaco } from './monaco';
-import { registerEditorOpener, registerImportCompletions } from './navigation';
+import { registerImportCompletions } from './navigation';
+import { shieldEditorsFromSearchHotkey } from './searchHotkey';
 import { definePrismTheme } from './theme';
+import typeCheckFlags from './typeCheckFlags.json';
 import { addTypeLibs, fetchTypeLibs } from './typeLibs';
 
 let monacoReady = false;
 let monacoPromise: Promise<unknown> | undefined;
 
 if (typeof window !== 'undefined' && !isMobileOrBot()) {
+  shieldEditorsFromSearchHotkey();
   // Both start downloading now, in parallel; type libs apply once Monaco is ready
   const typeLibsPromise = fetchTypeLibs();
   monacoPromise = loadMonaco().then(monaco => {
@@ -29,19 +32,16 @@ if (typeof window !== 'undefined' && !isMobileOrBot()) {
       allowNonTsExtensions: true,
       target: monaco.typescript.ScriptTarget.ES2017,
       jsx: monaco.typescript.JsxEmit.ReactJSX,
-      strict: true,
-      strictNullChecks: true,
-      exactOptionalPropertyTypes: true,
+      // shared with the docs example check; noImplicitAny is off since examples
+      // leave out types readers don't need
+      ...typeCheckFlags,
       lib: ['dom', 'esnext'],
       module: monaco.typescript.ModuleKind.ESNext,
       moduleResolution: monaco.typescript.ModuleResolutionKind.NodeJs,
       allowSyntheticDefaultImports: true,
-      skipLibCheck: true,
       skipDefaultLibCheck: true,
-      noImplicitAny: false,
     });
     definePrismTheme(monaco);
-    registerEditorOpener(monaco);
     registerImportCompletions(monaco);
     monacoReady = true;
 

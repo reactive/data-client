@@ -3,51 +3,85 @@ on:
   pull_request:
     branches:
       - master
+  # Required check: no `paths` (see paths-gate.yml). The queue builds the
+  # merged site but never deploys it.
+  merge_group:
+  # Deploys production and refreshes the build cache that PRs restore from
+  push:
+    branches:
+      - master
     # Published site only. Keep in sync with website/scripts/vercel-ignore.sh.
     paths:
       - 'website/**'
       - 'docs/core/**'
       - 'docs/rest/**'
       - 'docs/graphql/**'
+      # Imported by website/src/components/SkillTabs.tsx
+      - '.agents/skill-packages.json'
+      - '.agents/skills/data-client-setup/references.json'
       - '.github/workflows/site-preview.yml'
-  # Refreshes the webpack cache that PRs restore from
-  push:
-    branches:
-      - master
-    paths:
-      - 'website/**'
-      - 'docs/core/**'
-      - 'docs/rest/**'
-      - 'docs/graphql/**'
-      - '.github/workflows/site-preview.yml'
+      - '.github/workflows/paths-gate.yml'
+  # Redeploys production from master, e.g. after a failed deploy
+  workflow_dispatch:
 
-# PRs cancel superseded runs. Push runs get their own group, so master never
-# shows a cancelled (red) run.
+# PRs get one group per branch, and a push cancels the older run, so only the
+# newest commit deploys. master pushes and dispatches queue in one group, so
+# production deploys in push order and master never shows a cancelled (red)
+# run. Queue entries get their own group.
 concurrency:
-  group: site-preview-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.event_name == 'pull_request' && format('site-preview-pr-{0}', github.head_ref) || github.event_name == 'merge_group' && format('site-preview-queue-{0}', github.run_id) || 'site-deploy-production' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  queue: ${{ github.event_name == 'pull_request' && 'single' || 'max' }}
+
+permissions:
+  contents: read
 
 jobs:
+  gate:
+    if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
+    uses: ./.github/workflows/paths-gate.yml
+
   # One job so the install happens once: the typecheck is short next to it
   build:
+    name: website
+    needs: gate
+    if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.decide.outputs.deploy }}
+      english-only: ${{ steps.locales.outputs.english-only }}
+      next: ${{ steps.next.outputs.next }}
+      target: ${{ steps.decide.outputs.target }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          fetch-depth: 1
+          # Deployed pages date themselves from git history ("Last updated").
+          # Never `git fetch --depth` below: it makes a full clone shallow.
+          fetch-depth: ${{ github.event_name == 'merge_group' && 1 || 0 }}
+          # Commits and trees are all the dates need; files missing from the
+          # checkout (old versions) download when read
+          filter: ${{ github.event_name != 'merge_group' && 'blob:none' || '' }}
       - name: Test Vercel ignore decision
         run: bash website/scripts/vercel-ignore.test.sh
-      - uses: actions/setup-node@v6
+      # While master is the next major (website/versionCurrent.json), its
+      # production build serves at /next/ and the `current` job builds the root.
+      # The queue builds it that way too, so it fails before the master push does.
+      - name: Check for a next version
+        id: next
+        if: github.event_name != 'pull_request'
+        run: |
+          [ ! -f website/versionCurrent.json ] || echo "next=1" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-node@v7
         with:
           node-version: '26'
           cache: 'yarn'
       - name: Check published blog posts are dated today
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
         run: |
-          git fetch --depth=1 origin "$BASE_SHA"
+          git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null || git fetch --depth=1 origin "$BASE_SHA"
           node website/scripts/blog-publish.mjs --check "$BASE_SHA"
       - name: Install packages
         run: ./scripts/ci-install.sh website
@@ -55,33 +89,377 @@ jobs:
         run: yarn ci:build:website
       - name: Typecheck website
         run: yarn workspace rdc-website typecheck
-      # Docusaurus' webpack cache (~73 MiB compressed). Only master saves it, so
-      # PRs share one fresh entry instead of each storing their own; stale
-      # modules just miss.
+      # CircleCI's lint job covers packages/ only; api/ is the Vercel functions
+      - name: Lint website
+        run: yarn lint --quiet 'website/{src,api}/**/*.{js,ts,tsx}'
+      - name: Check translations
+        run: |
+          node --test 'website/translate/*.test.mjs'
+          node website/translate/translate.mjs check
+      - name: Check sitemap robots.txt
+        run: node --test website/sitemap-robots-plugin.test.mjs
+      - name: Check Playground fixture source plugins
+        run: node --test website/fixture-source.test.mjs
+      # Each locale is a full build, so PRs build translations only when they
+      # could break one. The queue and master always build every locale.
+      - name: Pick locales
+        id: locales
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          # Translations, their tooling and the config that adds locales; a
+          # deleted (or renamed) doc, component or static file can leave a
+          # translation linking to or importing it. Fails open.
+          if changed="$(git diff --name-only --no-renames "$BASE_SHA" HEAD -- \
+                website/i18n website/translate website/framework-docs website/docusaurus.config.ts)" \
+            && deleted="$(git diff --name-only --no-renames --diff-filter=D "$BASE_SHA" HEAD -- docs website/src website/static)" \
+            && [ -z "$changed$deleted" ]; then
+            # PRs that don't deploy get no preview comment, so say it here too
+            echo "::notice title=English only::This PR doesn't touch translations; the merge queue builds every locale"
+            echo "english-only=true" >> "$GITHUB_OUTPUT"
+          fi
+      # Docusaurus Faster's Rspack cache. Only master saves it, so
+      # PRs share one fresh entry instead of each storing their own. Only
+      # restore one built from the same yarn.lock: Rspack doesn't invalidate
+      # modules whose dependencies changed, so a cache from older
+      # dependencies breaks the build.
       - uses: actions/cache/restore@v6
         with:
           path: website/node_modules/.cache
-          key: website-build-${{ hashFiles('yarn.lock') }}
+          key: website-rspack-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            website-build-${{ hashFiles('yarn.lock') }}-
-            website-build-
+            website-rspack-${{ hashFiles('yarn.lock') }}-
       - name: Build website
         env:
-          # Build drafts like the Vercel preview does
-          VERCEL_ENV: preview
+          # PRs build drafts. The queue and master build production, so a link
+          # to a draft fails here instead of on the master push.
+          VERCEL_ENV: ${{ github.event_name == 'pull_request' && 'preview' || 'production' }}
+          ENGLISH_ONLY: ${{ steps.locales.outputs.english-only }}
+          DOCS_NEXT: ${{ steps.next.outputs.next }}
         # explicit `shell: bash` adds pipefail, so a failed build isn't masked by tee
         shell: bash
         run: |
-          yarn workspace rdc-website build 2>&1 | tee build.log
-          # Warnings (broken links, webpack warnings) fail the check, but not
-          # the Vercel deploy, which only stops on errors
+          yarn workspace rdc-website build ${ENGLISH_ONLY:+--locale en} 2>&1 | tee build.log
+          # Warnings (broken links, bundler warnings) fail the check, but not
+          # the build itself, which only stops on errors
           if grep -E '\[(WARNING|ERROR)\]' build.log; then
             echo "::error::Website build logged warnings (listed above)"
             exit 1
           fi
+      - name: Check the Store inspector stays in its lazy chunk
+        run: node website/scripts/check-lazy-chunks.mjs
+      # Installed /next/ and locale apps serve only their own build offline
+      - name: Check pages load static files from their own build
+        env:
+          DOCS_NEXT: ${{ steps.next.outputs.next }}
+        run: node website/scripts/check-build-base.mjs
+      # The version menu's list stays at the root, where every version reads it
+      - name: Move the build under /next
+        if: steps.next.outputs.next
+        run: |
+          mv website/build website/next && mkdir website/build && mv website/next website/build/next
+          mv website/build/next/site-versions.json website/build/
+      # With no /next build, apps installed from it get a worker that
+      # unregisters (scripts/snapshot/README.md#current-and-next)
+      - name: Retire the /next service workers
+        if: ${{ !steps.next.outputs.next }}
+        working-directory: website/build
+        run: |
+          shopt -s nullglob
+          for sw in sw.js */sw.js; do
+            install -D ../scripts/snapshot/retiredSw.js "next/$sw"
+          done
       - if: github.event_name == 'push'
         uses: actions/cache/save@v6
         with:
           path: website/node_modules/.cache
           # Unique per run: an existing key can't be overwritten
-          key: website-build-${{ hashFiles('yarn.lock') }}-${{ github.run_id }}
+          key: website-rspack-${{ hashFiles('yarn.lock') }}-${{ github.run_id }}
+      - name: Decide docs deploy
+        id: decide
+        if: github.event_name != 'merge_group'
+        env:
+          EVENT: ${{ github.event_name }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_REF: ${{ github.head_ref }}
+          BEFORE: ${{ github.event.before }}
+          # Only whether they're set: the secrets stay out of this job
+          VERCEL_CONFIGURED: ${{ secrets.VERCEL_TOKEN != '' && secrets.VERCEL_ORG_ID != '' && secrets.VERCEL_PROJECT_ID != '' }}
+        run: |
+          skip() {
+            echo "::notice title=Docs deploy skipped::$1"
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+          if [ "$EVENT" = pull_request ]; then
+            echo "target=preview" >> "$GITHUB_OUTPUT"
+            [ "$HEAD_REPO" = "$GITHUB_REPOSITORY" ] || skip "Pull requests from forks build the site but don't deploy it"
+            [[ "$HEAD_REF" != renovate/* ]] || skip "Renovate branches build the site but don't deploy it"
+            export VERCEL_GIT_COMMIT_REF="$HEAD_REF" VERCEL_ENV=preview
+          else
+            echo "target=production" >> "$GITHUB_OUTPUT"
+            [ "$GITHUB_REF" = refs/heads/master ] || skip "Only master deploys to production"
+            # Empty on workflow_dispatch, so it always deploys
+            export VERCEL_GIT_COMMIT_REF=master VERCEL_ENV=production VERCEL_GIT_PREVIOUS_SHA="$BEFORE"
+          fi
+          [ "$VERCEL_CONFIGURED" = true ] ||
+            skip "Set the VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID repository secrets to deploy"
+          if ! bash website/scripts/vercel-ignore.sh; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          fi
+      # Frozen builds of older versions, served at <version>.dataclient.io
+      - name: Add archived versions
+        if: steps.decide.outputs.deploy == 'true'
+        run: website/scripts/snapshot/fetch.sh website/build
+      - name: Upload site for deploy
+        if: steps.decide.outputs.deploy == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: site-build
+          path: website/build
+          # static/.circleci ships with the site
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+          # A re-run of this job replaces the artifact
+          overwrite: true
+
+  # While master is the next major, the root serves the current version's
+  # docs, built from its branch the way an archive is (scripts/snapshot/README.md)
+  current:
+    name: current version's site
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      ref: ${{ steps.current.outputs.ref }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            website/versionCurrent.json
+            website/scripts/snapshot
+          sparse-checkout-cone-mode: false
+      - name: Read the current version
+        id: current
+        run: |
+          f=website/versionCurrent.json
+          [ -f "$f" ] || { echo "master is the latest version: nothing to build"; exit 0; }
+          ref="$(jq -r .ref "$f")"
+          sha="$(git ls-remote origin "refs/heads/$ref" | cut -f1)"
+          [ -n "$sha" ] || { echo "::error::No $ref branch to build the root from"; exit 1; }
+          { echo "version=$(jq -r .version "$f")"; echo "ref=$ref"; echo "sha=$sha"; } >> "$GITHUB_OUTPUT"
+      # Only the branch and the snapshot scripts change its build, so master
+      # pushes reuse it
+      - if: steps.current.outputs.sha
+        id: cache
+        uses: actions/cache/restore@v6
+        with:
+          path: current.tar.gz
+          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**') }}
+      - if: steps.current.outputs.sha && !steps.cache.outputs.cache-hit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.current.outputs.sha }}
+          path: current
+          persist-credentials: false
+          # Pages date themselves from git history ("Last updated")
+          fetch-depth: 0
+          filter: blob:none
+      # No dependency cache, like an archive build: the branch has its own lockfile
+      - if: steps.current.outputs.sha && !steps.cache.outputs.cache-hit
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+      - name: Build
+        if: steps.current.outputs.sha && !steps.cache.outputs.cache-hit
+        env:
+          SNAPSHOT_ROLE: current
+          VERSION: ${{ steps.current.outputs.version }}
+          VERCEL_ENV: production
+        run: |
+          corepack enable
+          website/scripts/snapshot/build.sh current "$VERSION" current.tar.gz
+      - if: steps.current.outputs.sha && !steps.cache.outputs.cache-hit
+        uses: actions/cache/save@v6
+        with:
+          path: current.tar.gz
+          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**') }}
+      - if: steps.current.outputs.sha
+        uses: actions/upload-artifact@v7
+        with:
+          name: current-site
+          path: current.tar.gz
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: true
+
+  # Not a required check: a Vercel outage mustn't block merging
+  deploy:
+    name: docs deploy
+    needs: [build, current]
+    # current is skipped on pull requests; it must not fail, or the root would be missing
+    if: ${{ !cancelled() && needs.build.result == 'success' && needs.build.outputs.deploy == 'true' && needs.current.result != 'failure' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    environment:
+      name: ${{ needs.build.outputs.target == 'production' && 'docs-production' || 'docs-preview' }}
+      url: ${{ steps.deploy.outputs.url }}
+    env:
+      # renovate: datasource=npm depName=vercel
+      VERCEL_CLI_VERSION: 63.1.2
+      TARGET: ${{ needs.build.outputs.target }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TELEMETRY_DISABLED: '1'
+    steps:
+      # Both jobs read versionCurrent.json, in parallel: a root without /next,
+      # or /next without a root, would ship a broken site
+      - name: Check the root and /next agree
+        env:
+          NEXT: ${{ needs.build.outputs.next }}
+          REF: ${{ needs.current.outputs.ref }}
+        run: |
+          [ "${NEXT:+1}" = "${REF:+1}" ] ||
+            { echo "::error::/next built: ${NEXT:-no}, but the root built from: ${REF:-nothing}"; exit 1; }
+      # vercel build reads the first three (api/ holds the site's functions,
+      # which it bundles); production also runs vercel-ignore.sh --superseded.
+      # No other repo scripts run: vercel build only runs vercel.json's guard
+      # command, and installs api/'s dependencies without their scripts. The
+      # token is still as exposed as same-repo push access, since vercel.json
+      # can change the command.
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            website/package.json
+            website/vercel.json
+            website/versionsArchived.json
+            website/api/
+            website/scripts/vercel-ignore.sh
+          sparse-checkout-cone-mode: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: site-build
+          path: website/build
+      - if: needs.current.outputs.ref
+        uses: actions/download-artifact@v8
+        with:
+          name: current-site
+      - name: Add the current version's site at the root
+        if: needs.current.outputs.ref
+        run: |
+          tar -xzf current.tar.gz -C website/build
+          # /next is served now, so it no longer redirects to the root
+          nextRedirect='.source | startswith("/next{/:path")'
+          jq -e ".redirects | map(select($nextRedirect)) | length == 1" website/vercel.json > /dev/null ||
+            { echo "::error::vercel.json has no single /next redirect to drop"; exit 1; }
+          jq ".redirects |= map(select($nextRedirect | not))" website/vercel.json > vercel.json.tmp
+          mv vercel.json.tmp website/vercel.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+      - run: npm install --global "vercel@$VERCEL_CLI_VERSION"
+      - name: Deploy
+        id: deploy
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          # vercel build runs npm install for api/'s functions
+          NPM_CONFIG_IGNORE_SCRIPTS: 'true'
+        run: |
+          # Checked here, not in `website`, so a re-run of this job can't roll
+          # production back to an older master commit
+          if [ "$TARGET" = production ]; then
+            rc=0
+            bash website/scripts/vercel-ignore.sh --superseded || rc=$?
+            case "$rc" in
+              0)
+                echo "::notice title=Docs deploy skipped::master moved on to a newer site, whose run deploys it"
+                exit 0 ;;
+              1) ;;
+              # couldn't fetch master: fail rather than risk a rollback
+              *) exit "$rc" ;;
+            esac
+          fi
+          vercel pull --yes --environment="$TARGET"
+          # Packages the downloaded build into .vercel/output
+          vercel build --yes --target="$TARGET"
+          # vercel.json's rewrites run after the file check, where the root's
+          # pages would answer an archive's host; serve its own files first
+          config=.vercel/output/config.json
+          jq 'def archive: .dest? // "" | startswith("/archives/");
+            .routes |= (
+              map(select(archive)) as $archive
+              | map(select(archive | not)) as $rest
+              | ($rest | map(.handle == "filesystem") | index(true)) as $fs
+              | if ($archive | length) != 1 then error("no single archive host rewrite to move")
+                elif $fs == null then error("no filesystem check to move it ahead of")
+                else $rest[:$fs] + $archive + $rest[$fs:] end)' "$config" > config.json.tmp ||
+            { echo "::error::Couldn't move $config's archive host rewrite"; exit 1; }
+          mv config.json.tmp "$config"
+          # A miss gets the root's 404.html, which is another site under /next/
+          # or a locale and has no styles on an archive's host; answer it with
+          # the 404.html of the build it's in. Archives first, as their hosts'
+          # paths look like the root's; then the longest prefix wins. An archive's
+          # route replaces src and adds its host
+          jq '
+            ($ARGS.positional | sort_by((startswith("archives/") | not), -length) | map(
+              { src: "^/\(.)/", dest: "/\(.)/404", status: 404 } + ((
+                split("/") | select(.[0] == "archives")
+                | (.[1] | gsub("\\."; "\\.")) as $v
+                | { src: "^(?:/archives/\($v))?/\(.[2:] | map(. + "/") | join("") | if . == "" then "(?!api(?:/|$))" end)",
+                    has: [{ type: "host", value: "\($v)\\.dataclient\\.io" }] }
+              ) // {}))) as $notFound
+            | (.routes | map(.handle == "error") | index(true)) as $errorPhase
+            | if $errorPhase == null then error("no error phase to add them to")
+              else .routes |= .[:$errorPhase + 1] + $notFound + .[$errorPhase + 1:] end' "$config" --args \
+            $(find website/build -mindepth 2 -name 404.html -printf '%h\n' | cut -d/ -f3-) > config.json.tmp ||
+            { echo "::error::Couldn't add each build's 404 page to $config"; exit 1; }
+          mv config.json.tmp "$config"
+          meta=()
+          # Ties the preview to its branch instead of the PR merge ref
+          [ -n "$HEAD_REF" ] && meta=(--meta githubDeployment=1 --meta "githubCommitRef=$HEAD_REF")
+          url="$(vercel deploy --prebuilt --archive=tgz --target="$TARGET" "${meta[@]}")"
+          echo "deployment=$url" >> "$GITHUB_OUTPUT"
+          # A preview's own URL changes on every push, so point the PR's
+          # alias at it: one link that always shows the PR's newest build
+          if [ -n "$PR_NUMBER" ]; then
+            alias="docs-site-pr-$PR_NUMBER-data-client.vercel.app"
+            # Unlike deploy, alias ignores VERCEL_ORG_ID and would look in the
+            # token's personal account
+            if vercel alias set "$url" "$alias" --scope "$VERCEL_ORG_ID"; then
+              url="https://$alias"
+            else
+              echo "::warning title=Docs preview alias::Couldn't point $alias at this deploy; linking the deploy itself"
+            fi
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          { echo "### Docs $TARGET deployment"; echo; echo "$url"; } >> "$GITHUB_STEP_SUMMARY"
+      # Each archived version serves at its own host (vercel.json), which the
+      # project needs as a domain. dataclient.io's DNS (Cloudflare) already sends
+      # every subdomain to Vercel; a failure only leaves that version's host unserved
+      - name: Add archived versions' domains
+        if: env.TARGET == 'production' && steps.deploy.outputs.url
+        run: |
+          for version in $(jq -r '.[].version' website/versionsArchived.json); do
+            domain="$version.dataclient.io"
+            # Exits 0 when the project already has it (vercel 63.1); --scope as for alias
+            vercel domains add "$domain" "$VERCEL_PROJECT_ID" --scope "$VERCEL_ORG_ID" --non-interactive ||
+              echo "::warning title=Archive domain::Couldn't add $domain to the Vercel project; add it by hand"
+          done
+      - if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v3
+        with:
+          header: docs-preview
+          message: |
+            **Docs preview:** ${{ steps.deploy.outputs.url }}
+
+            Built from ${{ github.event.pull_request.head.sha }} merged into `master` ([this build](${{ steps.deploy.outputs.deployment }})).${{ needs.build.outputs.english-only == 'true' && ' English only: this PR doesn''t touch translations.' || '' }}

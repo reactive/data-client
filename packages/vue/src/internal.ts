@@ -1,0 +1,12 @@
+import { __INTERNAL__ } from '@data-client/core';
+
+export {
+  createReducer,
+  applyManager,
+  initManager,
+  actions,
+} from '@data-client/core';
+
+export const initialState = __INTERNAL__.initialState;
+export const INVALID = __INTERNAL__.INVALID;
+export const MemoCache = __INTERNAL__.MemoCache;
