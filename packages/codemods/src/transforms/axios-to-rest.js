@@ -555,7 +555,9 @@ function resolveModule(fromFile, spec) {
       rest = spec.slice(prefix.length, spec.length - suffix.length);
     }
     for (const target of targets) {
-      const file = findFile(nodePath.resolve(root, target.replace('*', rest)));
+      const file = findFile(
+        nodePath.resolve(root, target.split('*').join(rest)),
+      );
       if (file) return file;
     }
   }
