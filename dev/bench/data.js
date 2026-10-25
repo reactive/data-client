@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792814524493,
+  "lastUpdate": 1792969965105,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -136193,6 +136193,324 @@ window.BENCHMARK_DATA = {
             "name": "setMany 500 batch",
             "value": 1398,
             "range": "±0.19%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "7adefeea939a693b19398666f4e395ad24e12be2",
+          "message": "internal: Add V8 optimization check rule for hot library code (#4468)\n\n* internal: Add V8 optimization check rule for hot library code\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01PYcFMe52E12UshMAqMQwya\n\n* internal: Tighten V8 rule trigger, tie-break, and reuse benchmarking scripts\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01PYcFMe52E12UshMAqMQwya\n\n* internal: Route react/rest V8 checks to benchmark-react, drop vue\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01PYcFMe52E12UshMAqMQwya\n\n* internal: State V8 rule trigger in-rule and gate V8 regressions\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01PYcFMe52E12UshMAqMQwya\n\n* internal: Fix start:trace passing V8 flags as script args; document flag placement\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01PYcFMe52E12UshMAqMQwya\n\n* internal: Make V8 rule trigger and revision tie-break unambiguous\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01PYcFMe52E12UshMAqMQwya\n\n* internal: Clarify V8 rule skip list, flag placement, and tie-break direction\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01PYcFMe52E12UshMAqMQwya\n\n* internal: Use benchmarking rule's significance thresholds in V8 tie-break\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01PYcFMe52E12UshMAqMQwya\n\n* internal: Tie V8 rule's tie-break to each benchmark's run-to-run spread\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01PYcFMe52E12UshMAqMQwya\n\n* internal: Use the session's measured spread for the V8 tie-break\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01PYcFMe52E12UshMAqMQwya\n\n* internal: Tighten V8 rule into a harness table, measurements list, and one gotcha\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01PYcFMe52E12UshMAqMQwya\n\n* internal: Fix printStatus bit labels for V8 12; make V8 rule steps runnable\n\nprintStatus.js labels were one bit behind from bit 5 on (V8 added Maglev),\nso a TurboFanned function printed as interpreted. The rule now covers the\nper-ref build, SHOW_OPTIMIZATION, an IC log grep, and separate throughput runs.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01PYcFMe52E12UshMAqMQwya\n\n* internal: Compare IC regressions per property key, not line position\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01PYcFMe52E12UshMAqMQwya\n\n* internal: Correct IC line format, worktree install, and printStatus suites in V8 rule\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01PYcFMe52E12UshMAqMQwya\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-25T23:04:52Z",
+          "tree_id": "45d9eba5e40206140b221a8c17c1471e7ed603ac",
+          "url": "https://github.com/reactive/data-client/commit/7adefeea939a693b19398666f4e395ad24e12be2"
+        },
+        "date": 1792969961989,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 693,
+            "range": "±3.56%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 607,
+            "range": "±1.11%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 544,
+            "range": "±2.39%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 1574,
+            "range": "±1.86%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 349,
+            "range": "±5.61%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 322,
+            "range": "±3.99%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1820,
+            "range": "±2.03%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 1151,
+            "range": "±5.18%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 1909,
+            "range": "±0.48%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 2462,
+            "range": "±1.91%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 899,
+            "range": "±7.30%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 9181,
+            "range": "±2.20%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 5359,
+            "range": "±0.74%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 98489,
+            "range": "±0.41%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 10256,
+            "range": "±5.77%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 335,
+            "range": "±6.11%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 12871,
+            "range": "±0.43%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 12670,
+            "range": "±1.00%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 9804,
+            "range": "±1.03%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 13747,
+            "range": "±0.99%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 7523,
+            "range": "±0.38%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 13111,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 10436,
+            "range": "±6.87%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 3035,
+            "range": "±1.13%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 7229,
+            "range": "±9.22%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 74415,
+            "range": "±0.62%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 6850,
+            "range": "±6.61%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 19028450,
+            "range": "±3.52%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 333,
+            "range": "±7.84%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 6392,
+            "range": "±0.50%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 4838,
+            "range": "±0.54%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 8037,
+            "range": "±2.20%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 6524,
+            "range": "±0.49%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 7759,
+            "range": "±5.02%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 737,
+            "range": "±0.35%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 415,
+            "range": "±1.86%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 443,
+            "range": "±1.35%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 1611,
+            "range": "±1.41%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 220,
+            "range": "±1.51%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 6279,
+            "range": "±0.55%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 22.67,
+            "range": "±0.44%",
+            "unit": "ops/sec",
+            "extra": "42 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 2821,
+            "range": "±0.35%",
             "unit": "ops/sec",
             "extra": "97 samples"
           }
