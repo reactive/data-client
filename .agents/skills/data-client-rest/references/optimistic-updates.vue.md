@@ -370,9 +370,9 @@ export const increment = new RestEndpoint({
 
   const ctrl = useController();
   const data = await useSuspense(getCount);
-  const n = ref(data.value.count);
+  const clicks = ref(data.value.count);
   const clickHandler = () => {
-    n.value += 1;
+    clicks.value += 1;
     return ctrl.fetch(increment);
   };
 </script>
@@ -390,7 +390,7 @@ export const increment = new RestEndpoint({
       </div>
       <div>
         <dt>Clicks</dt>
-        <dd><NumberFlow :value="n" /></dd>
+        <dd><NumberFlow :value="clicks" /></dd>
       </div>
     </dl>
   </div>

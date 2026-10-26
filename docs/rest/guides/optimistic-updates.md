@@ -427,9 +427,9 @@ import { increment } from './increment';
 function CounterPage() {
   const ctrl = useController();
   const { count } = useSuspense(getCount);
-  const [n, setN] = React.useState(count);
+  const [clicks, setClicks] = React.useState(count);
   const clickHandler = () => {
-    setN(n => n + 1);
+    setClicks(clicks => clicks + 1);
     return ctrl.fetch(increment);
   };
   return (
@@ -446,7 +446,7 @@ function CounterPage() {
           </div>
           <div>
             <dt>Clicks</dt>
-            <dd><NumberFlow value={n} /></dd>
+            <dd><NumberFlow value={clicks} /></dd>
           </div>
         </dl>
       </div>
@@ -470,9 +470,9 @@ render(<CounterPage />);
 
   const ctrl = useController();
   const data = await useSuspense(getCount);
-  const n = ref(data.value.count);
+  const clicks = ref(data.value.count);
   const clickHandler = () => {
-    n.value += 1;
+    clicks.value += 1;
     return ctrl.fetch(increment);
   };
 </script>
@@ -490,7 +490,7 @@ render(<CounterPage />);
       </div>
       <div>
         <dt>Clicks</dt>
-        <dd><NumberFlow :value="n" /></dd>
+        <dd><NumberFlow :value="clicks" /></dd>
       </div>
     </dl>
   </div>
