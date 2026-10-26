@@ -275,7 +275,7 @@ describe('manager attribution', () => {
     await act(async () => {
       store([new StreamManager(), new NetworkManager()], <SetsOnMount />);
     });
-    expect(registry.log.history(0).managers).toEqual([
+    expect(registry.log.history(0).managers?.map(stageName)).toEqual([
       'StreamManager',
       'NetworkManager',
     ]);
