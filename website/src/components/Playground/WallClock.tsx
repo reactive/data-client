@@ -12,7 +12,7 @@ export default function WallClock() {
   const seconds = useSyncExternalStore(subscribe, nowSeconds, serverSeconds);
   const date = seconds === null ? null : new Date(seconds * 1000);
   return (
-    <div className={styles.clockBar}>
+    <div className={styles.clockBar} data-clock>
       <div className={styles.wallClock} role="timer" aria-label={label}>
         <ClockFace date={date} />
         <span>{label}</span>
@@ -23,6 +23,11 @@ export default function WallClock() {
     </div>
   );
 }
+
+/** Whether an event's target is in the clock, which isn't the app's: a
+ * tap on it isn't the reader using the app */
+export const inClock = (target: EventTarget) =>
+  target instanceof Element && target.closest('[data-clock]') !== null;
 
 /** Whole seconds, so a snapshot only changes when the display does */
 const nowSeconds = () => Math.floor(Date.now() / 1000);

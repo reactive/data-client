@@ -125,3 +125,15 @@ describe('folded fixtures', () => {
     expect(container.textContent).toContain('/article/1');
   });
 });
+
+describe('clock', () => {
+  test('the loading frame holds the reader’s clock only with `clock`', () => {
+    const app = code('app', 'title="App"', DETAIL);
+    expect(renderToString(<Playground clock>{app}</Playground>)).toContain(
+      'role="timer"',
+    );
+    expect(renderToString(<Playground>{app}</Playground>)).not.toContain(
+      'role="timer"',
+    );
+  });
+});

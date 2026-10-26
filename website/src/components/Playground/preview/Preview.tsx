@@ -14,7 +14,7 @@ import { ManagerError, ManagersSync } from './ManagersSync';
 import PendingSheet from './PendingSheet';
 import type { PreviewErrorProps } from './PreviewError';
 import { previewSurfaceClassName } from './PreviewWrapper';
-import WallClock from '../WallClock';
+import WallClock, { inClock } from '../WallClock';
 import SchemaRegistry from './store/schemaRegistry';
 import StoreInspector from './StoreInspector';
 import type { PreviewProps } from '../types';
@@ -82,7 +82,9 @@ function Preview<T>({
         <MotionGroup layoutDependency={storeMoves}>
           <div
             className={previewSurfaceClassName}
-            onPointerDownCapture={onInteract}
+            onPointerDownCapture={e => {
+              if (!inClock(e.target)) onInteract();
+            }}
             onKeyDownCapture={onInteract}
           >
             <Boundary fallback={<PendingSheet />}>

@@ -5,7 +5,7 @@ import { act, render, screen } from '@testing-library/react';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 
-import WallClock from '../WallClock';
+import WallClock, { inClock } from '../WallClock';
 
 describe('WallClock', () => {
   beforeEach(() => {
@@ -31,5 +31,17 @@ describe('WallClock', () => {
     const html = renderToString(<WallClock />);
     expect(html).toContain('role="timer"');
     expect(html).not.toContain('<time');
+  });
+
+  test('knows a tap on itself from one on the app', () => {
+    const { container } = render(
+      <>
+        <button>app</button>
+        <WallClock />
+      </>,
+    );
+    expect(inClock(screen.getByRole('timer').querySelector('svg')!)).toBe(true);
+    expect(inClock(screen.getByRole('button'))).toBe(false);
+    expect(inClock(container)).toBe(false);
   });
 });
