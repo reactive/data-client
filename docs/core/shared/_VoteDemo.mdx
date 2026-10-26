@@ -65,7 +65,11 @@ export default function PostItem({ post }: Props) {
   };
   return (
     <article className="listItem">
-      <button className="upvote" onClick={handleVote} aria-label="Upvote">
+      <button
+        className="upvote"
+        onClick={handleVote}
+        aria-label={`Upvote, ${post.votes} votes`}
+      >
         <NumberFlow value={post.votes} />
       </button>
       <div>
@@ -151,7 +155,11 @@ render(<PostList />);
 
 <template>
   <article class="listItem">
-    <button class="upvote" @click="handleVote" aria-label="Upvote">
+    <button
+      class="upvote"
+      @click="handleVote"
+      :aria-label="`Upvote, ${post.votes} votes`"
+    >
       <NumberFlow :value="post.votes" />
     </button>
     <div>

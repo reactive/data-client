@@ -64,7 +64,11 @@ export const PostResource = resource({
 
 <template>
   <article class="listItem">
-    <button class="upvote" @click="handleVote" aria-label="Upvote">
+    <button
+      class="upvote"
+      @click="handleVote"
+      :aria-label="`Upvote, ${post.votes} votes`"
+    >
       <NumberFlow :value="post.votes" />
     </button>
     <div>

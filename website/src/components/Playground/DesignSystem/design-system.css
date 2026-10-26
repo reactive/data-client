@@ -389,6 +389,34 @@ div.playground-preview h1:first-child {
   width: 100%;
 }
 
+/* The vote markup the translated pages keep until the weekly translation
+   run carries `upvote` over (website/i18n); drop it once none use it */
+.playground-preview .voteBlock {
+  display: flex;
+  float: left;
+  gap: 0.5em;
+  margin-right: 0.5em;
+}
+.playground-preview .vote {
+  flex: 0 0 32px;
+  text-align: center;
+}
+.playground-preview .vote .up:hover {
+  color: var(--ds-accent);
+  background: url('../../../../static/img/up-arrow-outline-hover.svg') no-repeat
+    center;
+}
+.playground-preview .vote .up {
+  border: none;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  margin-bottom: -8px;
+  margin-right: 0;
+  background: url('../../../../static/img/up-arrow-outline.svg') no-repeat
+    center;
+  display: inline-block;
+}
 /* An upvote button (docs/core/shared/_VoteDemo.mdx): its arrow over the
    count it adds to, in a well a step off the sheet, so it leads its row
    like a ballot box; the press washes it in the accent. With no count
