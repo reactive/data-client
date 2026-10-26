@@ -505,11 +505,17 @@ div.playground-preview h1:first-child {
     font-size: var(--ds-text-xl);
   }
 }
+/* the action the figures add up to (Check out) stands off them */
+.playground-preview .stats + button {
+  margin-top: var(--ds-space-4);
+}
 /* A quantity stepper (a cart row's): − count + in one edge, the count
-   between its two buttons; hover and press as an upvote's. In a row the
-   text before it takes the slack, and a trailing `meta` (a line's price)
-   keeps one width so the rows' prices align */
+   between its two buttons; hover and press as an upvote's. With one button
+   (Add, at none) it keeps the same width, so a row doesn't shift. In a row
+   the text before it takes the slack, and a trailing `meta` (a line's
+   price) keeps one width so the rows' prices align */
 .playground-preview .stepper {
+  --stepper-button: 28px;
   flex: none;
   display: inline-flex;
   align-items: center;
@@ -517,8 +523,8 @@ div.playground-preview h1:first-child {
   border-radius: var(--ds-radius-sm);
 }
 .playground-preview .stepper > button {
-  width: 28px;
-  height: 28px;
+  width: var(--stepper-button);
+  height: var(--stepper-button);
   margin: 0;
   padding: 0;
   border: 0;
@@ -532,10 +538,15 @@ div.playground-preview h1:first-child {
 }
 /* a fingertip's target on touch screens */
 @media (pointer: coarse) {
-  .playground-preview .stepper > button {
-    width: 40px;
-    height: 40px;
+  .playground-preview .stepper {
+    --stepper-button: 40px;
   }
+}
+.playground-preview .stepper > button:only-child {
+  width: calc(2 * var(--stepper-button) + 1.5rem);
+  color: var(--ds-accent);
+  font-size: var(--ds-text-sm);
+  font-weight: 600;
 }
 /* inside the stepper's edge */
 .playground-preview .stepper > button:focus-visible {
@@ -553,6 +564,31 @@ div.playground-preview h1:first-child {
 .playground-preview .listItem:has(> .stepper) > .meta:last-child {
   min-width: 4rem;
   text-align: right;
+}
+/* A meter (progress toward free shipping): a thin rounded track a step
+   off the sheet, filled in the accent */
+.playground-preview progress {
+  display: block;
+  width: 100%;
+  height: 6px;
+  margin-top: var(--ds-space-2);
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ds-surface-2);
+  overflow: hidden;
+}
+.playground-preview progress::-webkit-progress-bar {
+  background: var(--ds-surface-2);
+}
+.playground-preview progress::-webkit-progress-value {
+  background: var(--ds-accent);
+  border-radius: 999px;
+  transition: inline-size var(--motion-snappy);
+}
+.playground-preview progress::-moz-progress-bar {
+  background: var(--ds-accent);
+  border-radius: 999px;
 }
 /* A board's columns (RestEndpoint's move demo): wells a step off the
    sheet, each holding its tasks as rows of the sheet's color (radius 8, no

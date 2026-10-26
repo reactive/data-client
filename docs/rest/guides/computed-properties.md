@@ -9,12 +9,15 @@ import {
 } from '@site/src/fixtures/cart';
 
 export const cartDemo = [
-  // $48 to $52: free shipping, and the total drops
+  // $48 to $52: the bar fills, and shipping turns free
   { delay: 1200, click: 'button[aria-label="Add one Paper filters"]' },
-  { wait: 2200 },
-  { click: 'button[aria-label="Remove one House blend"]' },
-  { wait: 2200 },
-  { click: 'button[aria-label="Add one House blend"]' },
+  { wait: 1800 },
+  { click: 'button[aria-label="Add Pour-over dripper"]' },
+  { wait: 1800 },
+  // the cart's totals are already there
+  { click: 'nav a[href="/cart"]' },
+  { wait: 2500 },
+  { click: 'button[aria-label="Remove one Pour-over dripper"]' },
 ];
 
 ## Singular computations
@@ -91,9 +94,10 @@ class User extends Entity {
 (an aggregate). Define it once, beside your resources, and read it from any component with
 [useQuery](/docs/api/useQuery).
 
-Here a cart's totals join each `CartItem`'s quantity with its `Product`'s price, and charge
-shipping under $50. The header's `CartBadge` and the `OrderSummary` under the items both read
-`getCartTotals`; change a quantity and both follow.
+In this store, `getCartTotals` joins each `CartItem`'s quantity with its `Product`'s price. Four
+components on two pages read it: the header's cart badge, the free-shipping bar on both pages,
+and the cart's order summary and checkout button. Add something in the shop, and every one of
+them moves at once.
 
 <FrameworkPlayground
 demo
@@ -111,7 +115,12 @@ export class Product extends Entity {
   name = '';
   price = 0;
 }
+export const ProductResource = resource({
+  path: '/products/:id',
+  schema: Product,
+});
 
+/** A line in the cart, keyed by its product's id */
 export class CartItem extends Entity {
   id = '';
   product = Product.fromJS();
@@ -123,7 +132,6 @@ export class CartItem extends Entity {
 
   static schema = { product: Product };
 }
-
 export const CartResource = resource({
   path: '/cart/items/:id',
   schema: CartItem,
@@ -133,17 +141,23 @@ export const CartResource = resource({
 export const usd = { style: 'currency', currency: 'USD' } as const;
 ```
 
-```ts title="getCartTotals" {4-11}
+```ts title="getCartTotals" {6-18}
 import { All, Query } from '@data-client/rest';
 import { CartItem } from './resources/Cart';
+
+export const freeShippingAt = 50;
 
 export const getCartTotals = new Query(new All(CartItem), items => {
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-  const toFreeShipping = Math.max(0, 50 - subtotal);
-  const shipping = toFreeShipping ? 5 : 0;
-  const total = subtotal + shipping;
-  return { count, subtotal, shipping, total, toFreeShipping };
+  const shipping = subtotal > 0 && subtotal < freeShippingAt ? 5 : 0;
+  return {
+    count,
+    subtotal,
+    shipping,
+    total: subtotal + shipping,
+    toFreeShipping: Math.max(0, freeShippingAt - subtotal),
+  };
 });
 ```
 
@@ -159,10 +173,33 @@ export default function CartBadge() {
   const totals = useQuery(getCartTotals);
   if (!totals) return null;
   return (
-    <span className="meta">
+    <Link to="/cart" className="meta">
       {totals.count} {totals.count === 1 ? 'item' : 'items'} ·{' '}
       <NumberFlow value={totals.subtotal} format={usd} />
-    </span>
+    </Link>
+  );
+}
+```
+
+```tsx title="FreeShipping" collapsed
+import { useQuery } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { freeShippingAt, getCartTotals } from './getCartTotals';
+import { usd } from './resources/Cart';
+
+export default function FreeShipping() {
+  const totals = useQuery(getCartTotals);
+  if (!totals) return null;
+  return (
+    <p className="meta">
+      {totals.toFreeShipping > 0 ?
+        <>
+          Add <NumberFlow value={totals.toFreeShipping} format={usd} /> more
+          for free shipping
+        </>
+      : 'Your order ships free'}
+      <progress value={totals.subtotal} max={freeShippingAt} />
+    </p>
   );
 }
 ```
@@ -177,95 +214,176 @@ export default function OrderSummary() {
   const totals = useQuery(getCartTotals);
   if (!totals) return null;
   return (
+    <dl className="stats">
+      <div>
+        <dt>Subtotal</dt>
+        <dd><NumberFlow value={totals.subtotal} format={usd} /></dd>
+      </div>
+      <div>
+        <dt>Shipping</dt>
+        <dd>
+          {totals.shipping ?
+            <NumberFlow value={totals.shipping} format={usd} />
+          : 'Free'}
+        </dd>
+      </div>
+      <div>
+        <dt>Total</dt>
+        <dd><NumberFlow value={totals.total} format={usd} /></dd>
+      </div>
+    </dl>
+  );
+}
+```
+
+```tsx title="CheckoutButton" collapsed
+import { useQuery } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { getCartTotals } from './getCartTotals';
+import { usd } from './resources/Cart';
+
+export default function CheckoutButton() {
+  const totals = useQuery(getCartTotals);
+  if (!totals) return null;
+  return (
+    <button className="primary">
+      Check out · <NumberFlow value={totals.total} format={usd} />
+    </button>
+  );
+}
+```
+
+```tsx title="QuantityStepper" collapsed
+import { useController, useQuery } from '@data-client/react';
+import { CartItem, CartResource, Product } from './resources/Cart';
+
+export default function QuantityStepper({ product }: { product: Product }) {
+  const ctrl = useController();
+  const item = useQuery(CartItem, { id: product.id });
+  const add = () =>
+    ctrl.fetch(CartResource.getList.push, {
+      id: product.id,
+      product,
+      quantity: 1,
+    });
+  const setQuantity = (quantity: number) =>
+    quantity ?
+      ctrl.fetch(CartResource.partialUpdate, { id: product.id }, { quantity })
+    : ctrl.fetch(CartResource.delete, { id: product.id });
+
+  if (!item)
+    return (
+      <span className="stepper">
+        <button aria-label={`Add ${product.name}`} onClick={add}>
+          Add
+        </button>
+      </span>
+    );
+  return (
+    <span className="stepper">
+      <button
+        aria-label={`Remove one ${product.name}`}
+        onClick={() => setQuantity(item.quantity - 1)}
+      >
+        −
+      </button>
+      <output>{item.quantity}</output>
+      <button
+        aria-label={`Add one ${product.name}`}
+        onClick={() => setQuantity(item.quantity + 1)}
+      >
+        +
+      </button>
+    </span>
+  );
+}
+```
+
+```tsx title="ShopPage" route="/"
+import { useSuspense } from '@data-client/react';
+import FreeShipping from './FreeShipping';
+import QuantityStepper from './QuantityStepper';
+import { CartResource, ProductResource, usd } from './resources/Cart';
+
+export default function ShopPage() {
+  const products = useSuspense(ProductResource.getList);
+  useSuspense(CartResource.getList);
+  return (
     <>
-      <p className="meta">
-        {totals.toFreeShipping > 0 ?
-          <>
-            Add <NumberFlow value={totals.toFreeShipping} format={usd} /> more
-            for free shipping
-          </>
-        : 'Your order ships free'}
-      </p>
-      <dl className="stats">
-        <div>
-          <dt>Subtotal</dt>
-          <dd><NumberFlow value={totals.subtotal} format={usd} /></dd>
-        </div>
-        <div>
-          <dt>Shipping</dt>
-          <dd>
-            {totals.shipping ?
-              <NumberFlow value={totals.shipping} format={usd} />
-            : 'Free'}
-          </dd>
-        </div>
-        <div>
-          <dt>Total</dt>
-          <dd><NumberFlow value={totals.total} format={usd} /></dd>
-        </div>
-      </dl>
+      <FreeShipping />
+      <div className="list">
+        {products.map(product => (
+          <div className="listItem" key={product.id}>
+            <div>
+              {product.name}
+              <div className="meta">
+                {product.price.toLocaleString('en-US', usd)}
+              </div>
+            </div>
+            <QuantityStepper product={product} />
+          </div>
+        ))}
+      </div>
     </>
   );
 }
 ```
 
-```tsx title="CartPage" collapsed
-import { useController, useSuspense } from '@data-client/react';
+```tsx title="CartPage" route="/cart" collapsed
+import { useSuspense } from '@data-client/react';
 import NumberFlow from '@number-flow/react';
-import CartBadge from './CartBadge';
+import CheckoutButton from './CheckoutButton';
+import FreeShipping from './FreeShipping';
 import OrderSummary from './OrderSummary';
-import { CartItem, CartResource, usd } from './resources/Cart';
+import QuantityStepper from './QuantityStepper';
+import { CartResource, usd } from './resources/Cart';
 
-function CartPage() {
+export default function CartPage() {
   const items = useSuspense(CartResource.getList);
-  const ctrl = useController();
-  const setQuantity = (item: CartItem, quantity: number) =>
-    quantity ?
-      ctrl.fetch(CartResource.partialUpdate, { id: item.id }, { quantity })
-    : ctrl.fetch(CartResource.delete, { id: item.id });
-
+  if (!items.length) return <p className="meta">Your cart is empty</p>;
   return (
     <>
-      <header className="appHeader">
-        <h1 className="appTitle">Daily Grind</h1>
-        <CartBadge />
-      </header>
-      <h2>Cart</h2>
       <div className="list">
         {items.map(item => (
           <div className="listItem" key={item.id}>
-            <div>
-              {item.product.name}
-              <div className="meta">
-                <NumberFlow value={item.product.price} format={usd} />
-              </div>
-            </div>
-            <span className="stepper">
-              <button
-                aria-label={`Remove one ${item.product.name}`}
-                onClick={() => setQuantity(item, item.quantity - 1)}
-              >
-                −
-              </button>
-              <output>{item.quantity}</output>
-              <button
-                aria-label={`Add one ${item.product.name}`}
-                onClick={() => setQuantity(item, item.quantity + 1)}
-              >
-                +
-              </button>
-            </span>
+            <div>{item.product.name}</div>
+            <QuantityStepper product={item.product} />
             <span className="meta">
               <NumberFlow value={item.total} format={usd} />
             </span>
           </div>
         ))}
       </div>
+      <FreeShipping />
       <OrderSummary />
+      <CheckoutButton />
     </>
   );
 }
-render(<CartPage />);
+```
+
+```tsx title="Store" layout collapsed
+import { useFetch } from '@data-client/react';
+import CartBadge from './CartBadge';
+import { CartResource } from './resources/Cart';
+
+export default function Store({ children }: { children: React.ReactNode }) {
+  // every page shows the cart's totals, so the cart loads with the app
+  useFetch(CartResource.getList);
+  return (
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Daily Grind</h1>
+        <CartBadge />
+      </header>
+      <nav>
+        <Link to="/">Shop</Link>
+        <Link to="/cart">Cart</Link>
+      </nav>
+      {children}
+    </>
+  );
+}
 ```
 
 :::
@@ -283,10 +401,32 @@ render(<CartPage />);
 </script>
 
 <template>
-  <span v-if="totals" class="meta">
+  <RouterLink v-if="totals" to="/cart" class="meta">
     {{ totals.count }} {{ totals.count === 1 ? 'item' : 'items' }} ·
     <NumberFlow :value="totals.subtotal" :format="usd" />
-  </span>
+  </RouterLink>
+</template>
+```
+
+```html title="FreeShipping.vue" collapsed
+<script setup lang="ts">
+  import { useQuery } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
+  import { freeShippingAt, getCartTotals } from './getCartTotals';
+  import { usd } from './resources/Cart';
+
+  const totals = useQuery(getCartTotals);
+</script>
+
+<template>
+  <p v-if="totals" class="meta">
+    <template v-if="totals.toFreeShipping > 0">
+      Add <NumberFlow :value="totals.toFreeShipping" :format="usd" /> more
+      for free shipping
+    </template>
+    <template v-else>Your order ships free</template>
+    <progress :value="totals.subtotal" :max="freeShippingAt" />
+  </p>
 </template>
 ```
 
@@ -301,53 +441,160 @@ render(<CartPage />);
 </script>
 
 <template>
-  <template v-if="totals">
-    <p class="meta">
-      <template v-if="totals.toFreeShipping > 0">
-        Add <NumberFlow :value="totals.toFreeShipping" :format="usd" /> more
-        for free shipping
-      </template>
-      <template v-else>Your order ships free</template>
-    </p>
-    <dl class="stats">
+  <dl v-if="totals" class="stats">
+    <div>
+      <dt>Subtotal</dt>
+      <dd><NumberFlow :value="totals.subtotal" :format="usd" /></dd>
+    </div>
+    <div>
+      <dt>Shipping</dt>
+      <dd>
+        <NumberFlow
+          v-if="totals.shipping"
+          :value="totals.shipping"
+          :format="usd"
+        />
+        <template v-else>Free</template>
+      </dd>
+    </div>
+    <div>
+      <dt>Total</dt>
+      <dd><NumberFlow :value="totals.total" :format="usd" /></dd>
+    </div>
+  </dl>
+</template>
+```
+
+```html title="CheckoutButton.vue" collapsed
+<script setup lang="ts">
+  import { useQuery } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
+  import { getCartTotals } from './getCartTotals';
+  import { usd } from './resources/Cart';
+
+  const totals = useQuery(getCartTotals);
+</script>
+
+<template>
+  <button v-if="totals" class="primary">
+    Check out · <NumberFlow :value="totals.total" :format="usd" />
+  </button>
+</template>
+```
+
+```html title="QuantityStepper.vue" collapsed
+<script setup lang="ts">
+  import { useController, useQuery } from '@data-client/vue';
+  import { CartItem, CartResource, Product } from './resources/Cart';
+
+  const props = defineProps<{ product: Product }>();
+  const ctrl = useController();
+  const item = useQuery(CartItem, () => ({ id: props.product.id }));
+  const add = () =>
+    ctrl.fetch(CartResource.getList.push, {
+      id: props.product.id,
+      product: props.product,
+      quantity: 1,
+    });
+  const setQuantity = (quantity: number) =>
+    quantity ?
+      ctrl.fetch(
+        CartResource.partialUpdate,
+        { id: props.product.id },
+        { quantity },
+      )
+    : ctrl.fetch(CartResource.delete, { id: props.product.id });
+</script>
+
+<template>
+  <span class="stepper">
+    <template v-if="item">
+      <button
+        :aria-label="`Remove one ${product.name}`"
+        @click="setQuantity(item.quantity - 1)"
+      >
+        −
+      </button>
+      <output>{{ item.quantity }}</output>
+      <button
+        :aria-label="`Add one ${product.name}`"
+        @click="setQuantity(item.quantity + 1)"
+      >
+        +
+      </button>
+    </template>
+    <button v-else :aria-label="`Add ${product.name}`" @click="add">
+      Add
+    </button>
+  </span>
+</template>
+```
+
+```html title="ShopPage.vue" route="/"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import FreeShipping from './FreeShipping.vue';
+  import QuantityStepper from './QuantityStepper.vue';
+  import { CartResource, ProductResource, usd } from './resources/Cart';
+
+  const products = await useSuspense(ProductResource.getList);
+  await useSuspense(CartResource.getList);
+</script>
+
+<template>
+  <FreeShipping />
+  <div class="list">
+    <div v-for="product in products" :key="product.id" class="listItem">
       <div>
-        <dt>Subtotal</dt>
-        <dd><NumberFlow :value="totals.subtotal" :format="usd" /></dd>
+        {{ product.name }}
+        <div class="meta">{{ product.price.toLocaleString('en-US', usd) }}</div>
       </div>
-      <div>
-        <dt>Shipping</dt>
-        <dd>
-          <NumberFlow
-            v-if="totals.shipping"
-            :value="totals.shipping"
-            :format="usd"
-          />
-          <template v-else>Free</template>
-        </dd>
+      <QuantityStepper :product="product" />
+    </div>
+  </div>
+</template>
+```
+
+```html title="CartPage.vue" route="/cart" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
+  import CheckoutButton from './CheckoutButton.vue';
+  import FreeShipping from './FreeShipping.vue';
+  import OrderSummary from './OrderSummary.vue';
+  import QuantityStepper from './QuantityStepper.vue';
+  import { CartResource, usd } from './resources/Cart';
+
+  const items = await useSuspense(CartResource.getList);
+</script>
+
+<template>
+  <p v-if="!items.length" class="meta">Your cart is empty</p>
+  <template v-else>
+    <div class="list">
+      <div v-for="item in items" :key="item.id" class="listItem">
+        <div>{{ item.product.name }}</div>
+        <QuantityStepper :product="item.product" />
+        <span class="meta">
+          <NumberFlow :value="item.total" :format="usd" />
+        </span>
       </div>
-      <div>
-        <dt>Total</dt>
-        <dd><NumberFlow :value="totals.total" :format="usd" /></dd>
-      </div>
-    </dl>
+    </div>
+    <FreeShipping />
+    <OrderSummary />
+    <CheckoutButton />
   </template>
 </template>
 ```
 
-```html title="CartPage.vue" collapsed
+```html title="Store.vue" layout collapsed
 <script setup lang="ts">
-  import { useController, useSuspense } from '@data-client/vue';
-  import NumberFlow from '@number-flow/vue';
+  import { useFetch } from '@data-client/vue';
   import CartBadge from './CartBadge.vue';
-  import OrderSummary from './OrderSummary.vue';
-  import { CartItem, CartResource, usd } from './resources/Cart';
+  import { CartResource } from './resources/Cart';
 
-  const items = await useSuspense(CartResource.getList);
-  const ctrl = useController();
-  const setQuantity = (item: CartItem, quantity: number) =>
-    quantity ?
-      ctrl.fetch(CartResource.partialUpdate, { id: item.id }, { quantity })
-    : ctrl.fetch(CartResource.delete, { id: item.id });
+  // every page shows the cart's totals, so the cart loads with the app
+  useFetch(CartResource.getList);
 </script>
 
 <template>
@@ -355,36 +602,16 @@ render(<CartPage />);
     <h1 class="appTitle">Daily Grind</h1>
     <CartBadge />
   </header>
-  <h2>Cart</h2>
-  <div class="list">
-    <div v-for="item in items" :key="item.id" class="listItem">
-      <div>
-        {{ item.product.name }}
-        <div class="meta">
-          <NumberFlow :value="item.product.price" :format="usd" />
-        </div>
-      </div>
-      <span class="stepper">
-        <button
-          :aria-label="`Remove one ${item.product.name}`"
-          @click="setQuantity(item, item.quantity - 1)"
-        >
-          −
-        </button>
-        <output>{{ item.quantity }}</output>
-        <button
-          :aria-label="`Add one ${item.product.name}`"
-          @click="setQuantity(item, item.quantity + 1)"
-        >
-          +
-        </button>
-      </span>
-      <span class="meta">
-        <NumberFlow :value="item.total" :format="usd" />
-      </span>
-    </div>
-  </div>
-  <OrderSummary />
+  <nav>
+    <RouterLink to="/">Shop</RouterLink>
+    <RouterLink to="/cart">Cart</RouterLink>
+  </nav>
+  <RouterView v-slot="{ Component }">
+    <Suspense timeout="0">
+      <component :is="Component" />
+      <template #fallback><Loading /></template>
+    </Suspense>
+  </RouterView>
 </template>
 ```
 
@@ -392,15 +619,16 @@ render(<CartPage />);
 
 </FrameworkPlayground>
 
-Computing these totals in a component instead would mean fetching both kinds of data
-there, repeating the math wherever totals show, or passing them down as props. With a
-`Query`:
+Computing these totals in each component instead would repeat the math in all four, each
+fetching or being passed both kinds of data, and free to drift (one rounds, one forgets the
+shipping rule). With a `Query`:
 
-- **One definition, read anywhere.** `CartBadge` and `OrderSummary` never pass totals to each
-  other, so they can't disagree. Showing the total somewhere new, like a checkout button, is one
-  `useQuery()` call.
+- **One definition, read anywhere.** The badge, the bar, the summary and the checkout button
+  never pass totals to each other, and they can't disagree. A fifth place that needs the total
+  is one `useQuery()` call.
 - **Computed once per change.** `useQuery()` results are memoized globally against the entities
   they read. However many components read `getCartTotals`, it runs once when a `CartItem` or
   `Product` changes, and otherwise returns the same object.
-- **Always current.** Any change to an item, like this demo's [optimistic](../api/resource.md#optimistic)
-  quantity updates, re-derives every total at once, with nothing to invalidate or sync.
+- **Always current.** Any change to the cart, from any page, like this demo's
+  [optimistic](../api/resource.md#optimistic) updates, re-derives every total at once, with
+  nothing to invalidate or sync.
