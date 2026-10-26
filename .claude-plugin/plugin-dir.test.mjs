@@ -10,10 +10,8 @@ import { test } from 'node:test';
 import { root } from './plugin-dir.mjs';
 
 const pluginRoot = path.join(root, '.agents/skills');
-const manifest = JSON.parse(
-  fs.readFileSync(path.join(pluginRoot, '.cursor-plugin/plugin.json'), 'utf8'),
-);
 const read = file => fs.readFileSync(path.join(pluginRoot, file), 'utf8');
+const manifest = JSON.parse(read('.cursor-plugin/plugin.json'));
 
 test('plugin skills are directories inside the plugin, named by SKILL.md', () => {
   for (const skill of manifest.skills) {

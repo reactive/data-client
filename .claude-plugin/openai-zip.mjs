@@ -24,6 +24,7 @@ try {
   for (const skill of manifest.skills)
     fs.cpSync(path.join(skills, skill), path.join(stage, 'skills', skill), {
       recursive: true,
+      dereference: true,
       // repo tooling, left out like scripts/pack-skills.mjs does
       filter: src => !['evals', 'references.json'].includes(path.basename(src)),
     });
