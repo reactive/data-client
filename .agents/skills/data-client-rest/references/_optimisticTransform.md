@@ -39,7 +39,8 @@ export const increment = new RestEndpoint({
 
 ```tsx title="CounterPage"
 import React from 'react';
-import { useController, useSuspense, useLoading } from '@data-client/react';
+import { useController, useSuspense } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
 import { getCount } from './count';
 import { increment } from './increment';
 
@@ -48,42 +49,35 @@ function CounterPage() {
   const { count } = useSuspense(getCount);
   const [stateCount, setStateCount] = React.useState(0);
   const [responseCount, setResponseCount] = React.useState(0);
-  const [clickHandler, loading, error] = useLoading(async () => {
+  const clickHandler = async () => {
     setStateCount(stateCount + 1);
     const val = await ctrl.fetch(increment);
     setResponseCount(val.count);
     setStateCount(val.count);
-  });
+  };
   return (
-    <div className="vote">
-      <p>
-        Click the button multiple times quickly to trigger the race
-        condition
-      </p>
-      <table>
-        <thead>
-          <td></td>
-          <td><small>Optimistic</small></td>
-          <td><small>Normal</small></td>
-        </thead>
-        <tbody>
-          <tr>
-            <th><abbr title="Reactive Data Client">Data Client</abbr>:</th>
-            <td>{count}</td>
-            <td></td>
-          </tr>
-          <tr>
-            <th><abbr title="Other libraries like React Query">Other</abbr>:</th>
-            <td>{stateCount}</td>
-            <td>{responseCount}</td>
-          </tr>
-        </tbody>
-      </table>
-      <button className="up" onClick={clickHandler}>
-        &nbsp;
-      </button>
-      <p>{loading ? ' ...loading' : ''}</p>
-    </div>
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Votes</h1>
+      </header>
+      <div className="listItem">
+        <button className="upvote" onClick={clickHandler} aria-label="Upvote" />
+        <dl className="stats">
+          <div>
+            <dt>Data Client</dt>
+            <dd><NumberFlow value={count} /></dd>
+          </div>
+          <div>
+            <dt>Other, optimistic</dt>
+            <dd><NumberFlow value={stateCount} /></dd>
+          </div>
+          <div>
+            <dt>Other, on response</dt>
+            <dd><NumberFlow value={responseCount} /></dd>
+          </div>
+        </dl>
+      </div>
+    </>
   );
 }
 render(<CounterPage />);

@@ -33,7 +33,8 @@ div.playground-preview h1:first-child {
   margin-bottom: var(--ifm-heading-margin-bottom);
 }
 .playground-preview small,
-.playground-preview .meta {
+.playground-preview .meta,
+.playground-preview .stats dt {
   font-size: var(--ds-text-sm);
   color: var(--ds-text-muted);
 }
@@ -238,7 +239,7 @@ div.playground-preview h1:first-child {
 }
 
 /* Controls. Base skin for plain ones and `primary` only; classed ones
-   (rt-*, vote arrows) keep their own chrome. :where() keeps specificity
+   (rt-*, upvote) keep their own chrome. :where() keeps specificity
    unchanged, so a demo's own class wins. */
 .playground-preview button {
   margin-bottom: 8px;
@@ -278,7 +279,8 @@ div.playground-preview h1:first-child {
     var(--ds-surface)
   );
 }
-.playground-preview button:where(:not([class]), .primary):focus-visible {
+.playground-preview
+  button:where(:not([class]), .primary, .upvote):focus-visible {
   outline: 2px solid var(--ds-accent);
   outline-offset: 2px;
 }
@@ -387,7 +389,8 @@ div.playground-preview h1:first-child {
   width: 100%;
 }
 
-/* Votes (docs/core/shared/_VoteDemo.mdx) */
+/* The vote markup the translated pages keep until the weekly translation
+   run carries `upvote` over (website/i18n); drop it once none use it */
 .playground-preview .voteBlock {
   display: flex;
   float: left;
@@ -413,6 +416,82 @@ div.playground-preview h1:first-child {
   background: url('../../../../static/img/up-arrow-outline.svg') no-repeat
     center;
   display: inline-block;
+}
+/* An upvote button (docs/core/shared/_VoteDemo.mdx): its arrow over the
+   count it adds to, in a well a step off the sheet, so it leads its row
+   like a ballot box; the press washes it in the accent. With no count
+   (empty) it's the arrow alone */
+.playground-preview button.upvote {
+  flex: none;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: var(--ds-radius-sm);
+  background: var(--ds-surface-2);
+  color: var(--ds-text);
+  font: 600 var(--ds-text-sm) / 1 var(--ifm-font-family-base);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-snappy),
+    color var(--motion-snappy);
+}
+/* in a list, at its row's top (a post's title) rather than centered */
+.playground-preview .listItem:has(> .upvote) {
+  align-items: flex-start;
+}
+.playground-preview button.upvote::before {
+  content: '';
+  width: 12px;
+  height: 7px;
+  background: currentColor;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+@media (hover: hover) {
+  .playground-preview button.upvote:hover {
+    background: var(--ds-accent-soft);
+    color: var(--ds-accent);
+  }
+}
+.playground-preview button.upvote:active {
+  background: color-mix(
+    in srgb,
+    var(--ds-accent) var(--ds-accent-press),
+    var(--ds-surface)
+  );
+  color: var(--ds-accent);
+}
+/* Figures side by side (`dl.stats`, each a div of dt then dd): the number
+   large over its muted label, so a figure that moves is what catches the
+   eye; one row of columns up to 9rem wide, whose labels wrap on a phone */
+.playground-preview .stats {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 9rem);
+  gap: var(--ds-space-4);
+  margin: 0;
+}
+.playground-preview .stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+/* above its label, so a label that wraps grows down and the figures stay
+   in line */
+.playground-preview .stats dd {
+  order: -1;
+  margin: 0;
+  font-size: var(--ds-text-2xl);
+  font-weight: 600;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
 /* A board's columns (RestEndpoint's move demo): wells a step off the
    sheet, each holding its tasks as rows of the sheet's color (radius 8, no
