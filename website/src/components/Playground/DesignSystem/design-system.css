@@ -517,6 +517,7 @@ div.playground-preview h1:first-child {
 .playground-preview .stepper {
   --stepper-button: 28px;
   flex: none;
+  min-width: calc(2 * var(--stepper-button) + 1.5rem);
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--ds-border-strong);
@@ -543,7 +544,7 @@ div.playground-preview h1:first-child {
   }
 }
 .playground-preview .stepper > button:only-child {
-  width: calc(2 * var(--stepper-button) + 1.5rem);
+  flex: 1;
   color: var(--ds-accent);
   font-size: var(--ds-text-sm);
   font-weight: 600;

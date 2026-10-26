@@ -120,13 +120,14 @@ export const freeShippingAt = 50;
 export const getCartTotals = new Query(new All(CartItem), items => {
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-  const shipping = subtotal > 0 && subtotal < freeShippingAt ? 5 : 0;
+  const toFreeShipping = Math.max(0, freeShippingAt - subtotal);
+  const shipping = subtotal && toFreeShipping ? 5 : 0;
   return {
     count,
     subtotal,
     shipping,
     total: subtotal + shipping,
-    toFreeShipping: Math.max(0, freeShippingAt - subtotal),
+    toFreeShipping,
   };
 });
 ```

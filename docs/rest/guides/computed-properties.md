@@ -150,13 +150,14 @@ export const freeShippingAt = 50;
 export const getCartTotals = new Query(new All(CartItem), items => {
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-  const shipping = subtotal > 0 && subtotal < freeShippingAt ? 5 : 0;
+  const toFreeShipping = Math.max(0, freeShippingAt - subtotal);
+  const shipping = subtotal && toFreeShipping ? 5 : 0;
   return {
     count,
     subtotal,
     shipping,
     total: subtotal + shipping,
-    toFreeShipping: Math.max(0, freeShippingAt - subtotal),
+    toFreeShipping,
   };
 });
 ```
@@ -271,29 +272,28 @@ export default function QuantityStepper({ product }: { product: Product }) {
       ctrl.fetch(CartResource.partialUpdate, { id: product.id }, { quantity })
     : ctrl.fetch(CartResource.delete, { id: product.id });
 
-  if (!item)
-    return (
-      <span className="stepper">
-        <button aria-label={`Add ${product.name}`} onClick={add}>
-          Add
-        </button>
-      </span>
-    );
   return (
     <span className="stepper">
-      <button
-        aria-label={`Remove one ${product.name}`}
-        onClick={() => setQuantity(item.quantity - 1)}
-      >
-        −
-      </button>
-      <output>{item.quantity}</output>
-      <button
-        aria-label={`Add one ${product.name}`}
-        onClick={() => setQuantity(item.quantity + 1)}
-      >
-        +
-      </button>
+      {item ?
+        <>
+          <button
+            aria-label={`Remove one ${product.name}`}
+            onClick={() => setQuantity(item.quantity - 1)}
+          >
+            −
+          </button>
+          <output>{item.quantity}</output>
+          <button
+            aria-label={`Add one ${product.name}`}
+            onClick={() => setQuantity(item.quantity + 1)}
+          >
+            +
+          </button>
+        </>
+      : <button aria-label={`Add ${product.name}`} onClick={add}>
+          Add
+        </button>
+      }
     </span>
   );
 }
