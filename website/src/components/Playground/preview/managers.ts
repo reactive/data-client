@@ -5,7 +5,6 @@ import {
   type Manager,
 } from '@data-client/react';
 
-import type { Wrap } from './store/wrapManager';
 import { takeSnapshot, type PreviewSnapshot } from './usePreviewReset';
 import type { CodeDocument } from '../editor/codeModel';
 import { declarationsIn } from '../editor/declarations';
@@ -85,7 +84,7 @@ export default class ManagerHost {
   create(): {
     managers: Manager[];
     network: NetworkManager;
-    reportFor: (manager: Manager) => Wrap['report'];
+    reportFor: (manager: Manager) => ((error: unknown) => void) | undefined;
   } {
     this.error = undefined;
     const declared = this.declared();

@@ -39,19 +39,18 @@ export function wrapManager(
   ): ((...args: A) => R) =>
     report ?
       (...args) => {
+        const fail = (error: unknown) => {
+          report(error);
+          return fallback(...args);
+        };
         let result;
         try {
           result = fn(...args);
         } catch (error) {
-          report(error);
-          return fallback(...args);
+          return fail(error);
         }
-        return result instanceof Promise ?
-            (result.catch(error => {
-              report(error);
-              return fallback(...args);
-            }) as R)
-          : result;
+        if (result instanceof Promise) return result.catch(fail) as R;
+        return result;
       }
     : fn;
   const skip = () => {};
@@ -78,7 +77,7 @@ export function wrapManager(
         // may be a prototype method that reads `this`
         return middleware.call(manager, own);
       },
-      () => next => next,
+      () => undefined,
     )();
     return next => {
       const passed = new WeakSet<object>();
@@ -102,11 +101,17 @@ export function wrapManager(
         return next(action);
       };
       // building the step may throw too
-      const step = attempt(withController, () => passOn)(passOn);
-      // a step that throws after passing the action on must not pass it twice
-      const dispatch = attempt(step, (action: ActionTypes) =>
-        passed.has(action) ? Promise.resolve() : passOn(action),
-      );
+      const step =
+        withController && attempt(withController, () => undefined)(passOn);
+      // a step that failed to build passes every action on, unguarded
+      const dispatch =
+        step ?
+          // a step that throws after passing the action on must not pass it
+          // twice
+          attempt(step, (action: ActionTypes) =>
+            passed.has(action) ? Promise.resolve() : passOn(action),
+          )
+        : passOn;
       return action => {
         const check = () => {
           if (passed.has(action)) return;

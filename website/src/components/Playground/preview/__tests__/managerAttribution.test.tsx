@@ -399,6 +399,23 @@ describe('manager attribution', () => {
     expect(report).toHaveBeenCalledWith(error);
     expect(next).toHaveBeenCalledWith(action);
   });
+
+  it("leaves what comes after a manager whose middleware won't build unguarded", async () => {
+    const log = new SchemaRegistry().log.connect(0);
+    const broken = { cleanup() {} } as unknown as Manager;
+    const report = jest.fn();
+    const [guarded] = log.track([broken], () => report);
+    const failed = new Error('request failed');
+    const dispatch = guarded.middleware({} as Controller)(() =>
+      Promise.reject(failed),
+    );
+    expect(report.mock.calls[0][0].message).toMatch(/has no middleware/);
+    // the store's own failure reaches the caller, not the manager error
+    await expect(
+      dispatch({ type: actionTypes.GC } as ActionTypes),
+    ).rejects.toBe(failed);
+    expect(report).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('stageFilter', () => {
