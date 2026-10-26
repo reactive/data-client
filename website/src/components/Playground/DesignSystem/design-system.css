@@ -518,7 +518,7 @@ div.playground-preview h1:first-child {
   --stepper-button: 28px;
   --stepper-count: 1.5rem;
   flex: none;
-  /* border-box, so the 2px of edge count too */
+  /* border-box: min-width includes the 1px border on each side */
   min-width: calc(2 * var(--stepper-button) + var(--stepper-count) + 2px);
   display: inline-flex;
   align-items: center;

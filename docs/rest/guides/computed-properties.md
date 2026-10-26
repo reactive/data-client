@@ -141,13 +141,15 @@ export const CartResource = resource({
 export const usd = { style: 'currency', currency: 'USD' } as const;
 ```
 
-```ts title="getCartTotals" {6-18}
+```ts title="getCartTotals" {8-20}
 import { All, Query } from '@data-client/rest';
 import { CartItem } from './resources/Cart';
 
 export const freeShippingAt = 50;
+// every line in the cart
+export const cartItems = new All(CartItem);
 
-export const getCartTotals = new Query(new All(CartItem), items => {
+export const getCartTotals = new Query(cartItems, items => {
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.total, 0);
   const toFreeShipping = Math.max(0, freeShippingAt - subtotal);
@@ -331,18 +333,17 @@ export default function ShopPage() {
 
 ```tsx title="CartPage" route="/cart" collapsed
 import { useQuery, useSuspense } from '@data-client/react';
-import { All } from '@data-client/rest';
 import NumberFlow from '@number-flow/react';
 import CheckoutButton from './CheckoutButton';
 import FreeShipping from './FreeShipping';
+import { cartItems } from './getCartTotals';
 import OrderSummary from './OrderSummary';
 import QuantityStepper from './QuantityStepper';
-import { CartItem, CartResource, usd } from './resources/Cart';
+import { CartResource, usd } from './resources/Cart';
 
 export default function CartPage() {
   useSuspense(CartResource.getList);
-  // the same lines getCartTotals adds up
-  const items = useQuery(new All(CartItem));
+  const items = useQuery(cartItems);
   if (!items?.length) return <p className="meta">Your cart is empty</p>;
   return (
     <>
@@ -560,18 +561,17 @@ export default function Store({ children }: { children: React.ReactNode }) {
 
 ```html title="CartPage.vue" route="/cart" collapsed
 <script setup lang="ts">
-  import { All } from '@data-client/rest';
   import { useQuery, useSuspense } from '@data-client/vue';
   import NumberFlow from '@number-flow/vue';
   import CheckoutButton from './CheckoutButton.vue';
   import FreeShipping from './FreeShipping.vue';
+  import { cartItems } from './getCartTotals';
   import OrderSummary from './OrderSummary.vue';
   import QuantityStepper from './QuantityStepper.vue';
-  import { CartItem, CartResource, usd } from './resources/Cart';
+  import { CartResource, usd } from './resources/Cart';
 
   await useSuspense(CartResource.getList);
-  // the same lines getCartTotals adds up
-  const items = useQuery(new All(CartItem));
+  const items = useQuery(cartItems);
 </script>
 
 <template>
