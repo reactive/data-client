@@ -125,10 +125,14 @@ describe('folded fixtures', () => {
     expect(container.textContent).toContain('/article/1');
   });
 
-  test('a click on the toggle also pins them open', () => {
+  test('the first click on the toggle pins them open, rows filled', () => {
     render(folded());
     const toggle = screen.getByRole('button', { name: 'Fixtures' });
     fireEvent.click(toggle);
-    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    const popover = document.getElementById(
+      toggle.getAttribute('aria-controls')!,
+    )!;
+    expect(popover.hasAttribute('data-open')).toBe(true);
+    expect(popover.textContent).toContain('/article/1');
   });
 });

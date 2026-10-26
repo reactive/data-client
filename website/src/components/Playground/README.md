@@ -177,9 +177,10 @@ callout markers as comments, its caption and legend outside the editor.
   frame after the drawer starts moving (`useDeferredValue`).
 - The Store animates only while the reader or a demo moves it: `useStoreOpen`
   counts moves, `useStoreMotion` turns them into `data-store-moving`, which
-  alone gives `--pg-store-*` their durations. Hydration, a tab showing the
-  playground, a resize, or another Store in the group closing this one must
-  land without animating (`StoreMotion.test.tsx`).
+  alone gives `--pg-store-*` their durations; the stacked `MotionGroup`
+  (`layoutDependency={storeMoves}`, `Preview.tsx`) keys on the same count.
+  Hydration, a tab showing the playground, a resize, or another Store in the
+  group closing this one must land without animating (`StoreMotion.test.tsx`).
 - `Preview.tsx` connects `registry.log` with `log.head` first and `log.tail`
   last; keep that order when adding managers (the head credits the sender,
   the tail sees what reaches the store). `usePreviewReset` owns the
@@ -205,9 +206,10 @@ nothing rather than a wrong count.
 
 A fence with `route="/posts/:id"` is a page: its default export, the path's
 params as props. When any file has one, `routerTrailer` appends the
-`render()`, so no file calls it. A `layout` fence wraps every page and stays mounted; `start` opens
-somewhere other than `/`. Pages move with the scope's `Link` and
-`useNavigate()`, already a transition, so they need no `startTransition`.
+`render()`, so no file calls it. A `layout` fence wraps every page and
+stays mounted; `start` opens somewhere other than `/`, and a reset starts
+over there. Pages move with the scope's `Link` and `useNavigate()`, already
+a transition, so they need no `startTransition`.
 Vue examples don't run; `checkExamples.mjs` declares `RouterLink` and
 `RouterView` for them.
 
@@ -262,8 +264,9 @@ Writing a script:
 Keep when changing the player: the reader's own input (`isTrusted`) ends
 the run for good, except scrolling, hovering, a touch that starts a scroll
 and `data-autorun-control`. It pauses while neither the preview nor the
-playground is mostly in view, or in a background tab, never calls `focus()`, and reaches React only in `DemoLabel`, so a run
-never re-renders the playground.
+playground is mostly in view, or in a background tab, never calls
+`focus()`, and reaches React only in `DemoLabel`, so a run never
+re-renders the playground.
 
 ## Verify
 
