@@ -375,7 +375,7 @@ function CounterPage() {
   const { count } = useSuspense(getCount);
   const [clicks, setClicks] = React.useState(count);
   const clickHandler = () => {
-    setClicks(clicks => clicks + 1);
+    setClicks(c => c + 1);
     return ctrl.fetch(increment);
   };
   return (
