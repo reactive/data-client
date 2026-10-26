@@ -81,6 +81,7 @@ import {
   type Step,
   type Then,
   useNavState,
+  usePipelineAt,
   type LevelView,
   type View,
 } from './nav';
@@ -1196,7 +1197,9 @@ function ActionLevel({
 function useShownAction(seq: number | null, scope: Scope, subject: View) {
   const { log, history, groups } = useActions();
   const { entries } = history;
-  const filter = useSubjectFilter(log, entries, subject);
+  // the action shown live is the newest of those the steps go through
+  const own = useSubjectFilter(log, entries, subject);
+  const filter = usePipelineAt(subject)?.filter ?? own;
   return useMemo(() => {
     const entry =
       seq === null ? newestOf(entries, filter.hit) : findEntry(entries, seq);

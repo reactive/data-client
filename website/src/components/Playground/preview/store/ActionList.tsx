@@ -44,7 +44,13 @@ import { routesOf, shownChain } from './attribution';
 import type { Header } from './DiveViews';
 import { byData, onActivateKey, revealIn, toggled } from './dom';
 import { actionId } from './model';
-import { ActionSpanContext, useNavState, type Scope, type View } from './nav';
+import {
+  ActionSpanContext,
+  useNavState,
+  usePipelineAt,
+  type Scope,
+  type View,
+} from './nav';
 import { Pipeline, StepPath } from './Pipeline';
 import styles from './store.module.css';
 
@@ -145,11 +151,8 @@ export function ActionsLevel({
 }) {
   const { history } = useActions();
   // at the store: who sent what, and the panel's own filter, as the stage
-  // picked narrows the steps and the timeline as it does the list. Those
-  // follow the State tab's subject, so the panel has a pipeline only while
-  // that is the store, and a store level over another subject draws none
-  const { pipeline: panelPipeline } = useNavState();
-  const pipeline = subject.kind === 'root' ? panelPipeline : null;
+  // picked narrows the steps and the timeline as it does the list
+  const pipeline = usePipelineAt(subject);
   const filter = pipeline?.filter ?? subjectFilter;
   const rows = useRows(filter);
   return (

@@ -955,6 +955,25 @@ describe('Store panel pipeline', () => {
     expect(stage(/^StreamManager/).getAttribute('aria-pressed')).toBe('false');
   });
 
+  it("shows the picked stage's newest action live", async () => {
+    const stream = new StreamManager();
+    const { ctrl } = mount([stream, new NetworkManager()], undefined, true);
+    await act(async () => {
+      void stream.push(1);
+      void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
+    });
+    const top = () =>
+      [...document.querySelectorAll<HTMLElement>('[data-level]')].find(
+        el => !el.closest('[hidden]') && !el.hasAttribute('data-covered'),
+      )!;
+    openActions();
+    fireEvent.click(stage(/^StreamManager/));
+    fireEvent.click(listed()[0]);
+    fireEvent.click(screen.getByRole('button', { name: 'Live' }));
+    // the newest the steps go through: StreamManager's, not the app's
+    expect(top().textContent).toContain('↑ sent it');
+  });
+
   it("tags the store's actions with the manager that sent them", async () => {
     const stream = new StreamManager();
     const { ctrl } = mount([stream, new NetworkManager()], undefined, true);

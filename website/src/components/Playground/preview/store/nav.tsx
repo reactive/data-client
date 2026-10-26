@@ -356,6 +356,15 @@ export const NavStateContext = createContext<NavState>({
 });
 export const useNavState = () => useContext(NavStateContext);
 
+/** The store's pipeline, at a level whose subject is the store. It follows
+ * the State tab's subject, as the steps and the timeline do, so the panel
+ * has one only while that is the store, and a store level over another
+ * subject draws none */
+export function usePipelineAt(subject: View): StorePipeline | null {
+  const { pipeline } = useNavState();
+  return subject.kind === 'root' ? pipeline : null;
+}
+
 /** How the moment changed each row it changed, by row id, while the Diff
  * tab shows it: rows mark it, and cells show what they were */
 export const DiffContext = createContext<ReadonlyMap<string, RowDiff> | null>(
