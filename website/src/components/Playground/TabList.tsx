@@ -116,7 +116,8 @@ export default function TabList({
 function useFlushEdges(
   list: RefObject<HTMLDivElement | null>,
   selected: number,
-  /** the tabs' keys: new tabs are new elements to observe */
+  /** the tabs' keys, joined (a dependency that changes only with them): new
+   * tabs are new elements to observe */
   keys: string,
   enabled: boolean,
 ) {
@@ -160,8 +161,8 @@ function useFlushEdges(
       if (!tab) return;
       // the row's scroll padding, so the next tab peeks past the fade (the
       // scroll clamps it away at the ends)
-      const right = tab.right + parseFloat(style.scrollPaddingRight);
-      const left = tab.left - parseFloat(style.scrollPaddingLeft);
+      const right = tab.right + (parseFloat(style.scrollPaddingRight) || 0);
+      const left = tab.left - (parseFloat(style.scrollPaddingLeft) || 0);
       if (right > view.right) row.scrollLeft += right - view.right;
       else if (left < view.left) row.scrollLeft -= view.left - left;
     };
