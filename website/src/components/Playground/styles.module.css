@@ -871,8 +871,8 @@ div.playgroundTextEdit > .playgroundHeader,
 
 /* More tabs than fit: the row scrolls with no bar (it would run under the
    tabs and part the open one from its card), and fades out at each edge that
-   has tabs past it (TabList's `data-more-*` marks), the selected one kept a
-   fade's width in so the next peeks out to tap */
+   has tabs past it (TabList's `data-more-*` marks), its scroll padding
+   keeping the selected one twice that in so the next peeks out to tap */
 @property --pg-fade-left {
   syntax: '<length>';
   inherits: false;
@@ -885,6 +885,7 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .tabs {
   --pg-tab-fade: 28px;
+  scroll-padding-inline: calc(2 * var(--pg-tab-fade));
   display: flex;
   overflow: auto;
   overscroll-behavior-x: contain;

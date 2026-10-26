@@ -35,7 +35,7 @@ export default function TabList({
   const list = useRef<HTMLDivElement>(null);
   const selected = tabs.findIndex(tab => tab.selected);
   const fileTabs = tabClassName === undefined;
-  useFlushEdges(list, selected, fileTabs);
+  useFlushEdges(list, selected, tabs.map(tab => tab.key).join(), fileTabs);
   // the selected tab is the one in the tab order; the arrows move from it
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     // modified keys keep their own meaning (Alt+← is Back)
@@ -107,8 +107,8 @@ export default function TabList({
   );
 }
 
-/** Scrolls the selected tab into the row's view, a neighbor peeking past it
- * where there is one, and marks the row `data-more-left` / `data-more-right`
+/** Scrolls the selected tab into the row's view with its scroll padding, and
+ * marks the row `data-more-left` / `data-more-right`
  * while tabs hide past that edge (where it fades) and `data-flush-left` /
  * `data-flush-right` while the selected tab is too near the header's edge
  * for its curve and the corner of what it rises from (`--pg-card-radius`
@@ -116,6 +116,8 @@ export default function TabList({
 function useFlushEdges(
   list: RefObject<HTMLDivElement | null>,
   selected: number,
+  /** the tabs' keys: new tabs are new elements to observe */
+  keys: string,
   enabled: boolean,
 ) {
   useLayoutEffect(() => {
@@ -140,9 +142,9 @@ function useFlushEdges(
         'data-flush-right',
         !!tab && tab.right > box.right - reach,
       );
-      // a pixel's slack: zoomed, scroll positions land between pixels
       const first = row.firstElementChild?.getBoundingClientRect();
       const last = row.lastElementChild?.getBoundingClientRect();
+      // a pixel's slack: zoomed, scroll positions land between pixels
       row.toggleAttribute(
         'data-more-left',
         !!first && first.left < view.left - 1,
@@ -152,30 +154,34 @@ function useFlushEdges(
         !!last && last.right > view.right + 1,
       );
     };
-    const tab = row.children[selected]?.getBoundingClientRect();
-    const view = row.getBoundingClientRect();
-    if (tab) {
-      // twice the fade past it on a side with tabs, so the next one shows as
-      // much again as fades out
-      const peek =
-        2 * (parseFloat(style.getPropertyValue('--pg-tab-fade')) || 0);
-      const first = row.firstElementChild!.getBoundingClientRect();
-      const last = row.lastElementChild!.getBoundingClientRect();
-      const right = tab.right + (last.right > tab.right ? peek : 0);
-      const left = tab.left - (first.left < tab.left ? peek : 0);
+    const reveal = () => {
+      const tab = row.children[selected]?.getBoundingClientRect();
+      const view = row.getBoundingClientRect();
+      if (!tab) return;
+      // the row's scroll padding, so the next tab peeks past the fade (the
+      // scroll clamps it away at the ends)
+      const right = tab.right + parseFloat(style.scrollPaddingRight);
+      const left = tab.left - parseFloat(style.scrollPaddingLeft);
       if (right > view.right) row.scrollLeft += right - view.right;
       else if (left < view.left) row.scrollLeft -= view.left - left;
-    }
+    };
+    reveal();
     mark();
     row.addEventListener('scroll', mark, { passive: true });
+    // the header resizing, or the tabs (their names widen when the web font
+    // lands), moves the selected one: reveal it again
     const observer =
       typeof ResizeObserver === 'undefined' ? undefined : (
-        new ResizeObserver(mark)
+        new ResizeObserver(() => {
+          reveal();
+          mark();
+        })
       );
     observer?.observe(edges);
+    for (const tab of row.children) observer?.observe(tab);
     return () => {
       row.removeEventListener('scroll', mark);
       observer?.disconnect();
     };
-  }, [list, selected, enabled]);
+  }, [list, selected, keys, enabled]);
 }
