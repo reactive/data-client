@@ -454,7 +454,7 @@ describe('manager attribution', () => {
     expect(next).toHaveBeenCalledTimes(2);
   });
 
-  it('guards a middleware that passes next itself', () => {
+  it('guards a middleware that passes next itself, passing an action on once when its step throws', () => {
     const log = new SchemaRegistry().log.connect(0);
     const report = jest.fn();
     const [guarded] = log.track(

@@ -54,9 +54,9 @@ export function wrapManager(
       }
     : fn;
   const skip = () => {};
-  /** `fn`, what the manager's middleware returned at one of its levels, or
-   * an error when it is no function: untyped playground code can forget to
-   * return one */
+  /** Returns `fn`, what one level of the manager's middleware returned, and
+   * throws when it is no function (untyped playground code can forget to
+   * return one) */
   const expectFunction = <F>(fn: F, shape: string): F => {
     if (typeof fn !== 'function')
       throw new Error(
