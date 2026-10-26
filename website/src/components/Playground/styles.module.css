@@ -718,8 +718,8 @@ div.playgroundTextEdit > .playgroundHeader,
   border-radius: var(--pg-body-radius) var(--pg-body-radius) 0 0;
 }
 /* The folder's layer: the stage's color, the whole playground's area under
-   the preview, clipped at the page's edge (its drawer overshoots that way,
-   shut) with room on the other sides for the shadow. Shut, its drawer
+   the preview, clipped at the playground's end (its drawer overshoots that
+   way, shut) with room on the other sides for the shadow. Shut, its drawer
    (../index.tsx; ./preview/StoreInspector.tsx portals the Store into it)
    parks behind the preview with only its handle out; `data-open` slides it
    out, one move for Store and handle. Nothing is hidden: shut, the drawer
@@ -1523,17 +1523,24 @@ div.fixtureJson + div.fixtureJson {
   /* clipped at the fold, but for the header's row, where the Store's
      header runs on over the preview's inset corner (--store-head-run): as
      the drawer slides shut, the Store's header corner travels across that
-     inset and lands on the preview's, the same shape */
+     inset and lands on the preview's, the same shape. A clip-path doesn't
+     bound the page's width, so overflow-x clips the shut drawer at the
+     playground's end; the box starts --pg-host-out (the handle drawn out
+     and its shadow) before the playground, so that edge cuts nothing */
   .row > .storeHost {
     grid-area: 1 / 1 / 3 / 3;
-    --pg-fold-head: calc(var(--pg-fold) + var(--pg-head-run));
+    --pg-host-out: 4rem;
+    --pg-host-fold: calc(var(--pg-host-out) + var(--pg-fold));
+    --pg-host-fold-head: calc(var(--pg-host-fold) + var(--pg-head-run));
+    margin-left: calc(-1 * var(--pg-host-out));
+    overflow-x: clip;
     clip-path: polygon(
-      -4rem -4rem,
-      var(--pg-fold-head) -4rem,
-      var(--pg-fold-head) var(--pg-row),
-      var(--pg-fold) var(--pg-row),
-      var(--pg-fold) calc(100% + 4rem),
-      -4rem calc(100% + 4rem)
+      0 -4rem,
+      var(--pg-host-fold-head) -4rem,
+      var(--pg-host-fold-head) var(--pg-row),
+      var(--pg-host-fold) var(--pg-row),
+      var(--pg-host-fold) calc(100% + 4rem),
+      0 calc(100% + 4rem)
     );
   }
   /* the drawer: the code's column and the gap, edge to edge, its handle
@@ -1541,7 +1548,7 @@ div.fixtureJson + div.fixtureJson {
      height */
   .row > .storeHost > .storeDrawer {
     position: absolute;
-    inset: 0 auto 0 0;
+    inset: 0 auto 0 var(--pg-host-out);
     width: var(--pg-fold);
     translate: 100% 0;
   }
