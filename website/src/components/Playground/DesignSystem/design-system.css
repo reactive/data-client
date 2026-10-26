@@ -455,12 +455,14 @@ div.playground-preview h1:first-child {
   clip-path: polygon(50% 0, 100% 100%, 0 100%);
 }
 @media (hover: hover) {
-  .playground-preview button.upvote:hover {
+  .playground-preview button.upvote:hover,
+  .playground-preview .stepper > button:hover {
     background: var(--ds-accent-soft);
     color: var(--ds-accent);
   }
 }
-.playground-preview button.upvote:active {
+.playground-preview button.upvote:active,
+.playground-preview .stepper > button:active {
   background: color-mix(
     in srgb,
     var(--ds-accent) var(--ds-accent-press),
@@ -470,21 +472,21 @@ div.playground-preview h1:first-child {
 }
 /* Figures side by side (`dl.stats`, each a div of dt then dd): the number
    large over its muted label, so a figure that moves is what catches the
-   eye; one row of columns up to 9rem wide, whose labels wrap on a phone */
+   eye; one row of columns up to 9rem wide, whose labels wrap on a phone.
+   The figures share one grid row and the labels another, so a figure in
+   plain text (Free) sits level with animated ones */
 .playground-preview .stats {
   display: grid;
+  grid-template-rows: auto auto;
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 9rem);
-  gap: var(--ds-space-4);
+  gap: 2px var(--ds-space-4);
   margin: 0;
 }
-/* at the foot of the row, so a figure in plain text (Free) keeps its
-   label in line with the animated ones' */
 .playground-preview .stats > div {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 2px;
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
 }
 /* above its label, so a label that wraps grows down and the figures stay
    in line */
@@ -494,11 +496,13 @@ div.playground-preview h1:first-child {
   font-size: var(--ds-text-2xl);
   font-weight: 600;
   line-height: 1.1;
+  align-self: center;
   font-variant-numeric: tabular-nums;
 }
 /* A quantity stepper (a cart row's): − count + in one edge, the count
-   between its two buttons. In a row it sits at the end, before a trailing
-   `meta` (a line's price), which keeps one width so the rows' prices align */
+   between its two buttons; hover and press as an upvote's. In a row the
+   text before it takes the slack, and a trailing `meta` (a line's price)
+   keeps one width so the rows' prices align */
 .playground-preview .stepper {
   flex: none;
   display: inline-flex;
@@ -516,27 +520,12 @@ div.playground-preview h1:first-child {
   background: none;
   color: var(--ds-text-muted);
   font: 500 1rem / 1 var(--ifm-font-family-base);
-  cursor: pointer;
   transition:
     background-color var(--motion-snappy),
     color var(--motion-snappy);
 }
-@media (hover: hover) {
-  .playground-preview .stepper > button:hover {
-    background: var(--ds-accent-soft);
-    color: var(--ds-accent);
-  }
-}
-.playground-preview .stepper > button:active {
-  background: color-mix(
-    in srgb,
-    var(--ds-accent) var(--ds-accent-press),
-    var(--ds-surface)
-  );
-  color: var(--ds-accent);
-}
+/* inside the stepper's edge */
 .playground-preview .stepper > button:focus-visible {
-  outline: 2px solid var(--ds-accent);
   outline-offset: -2px;
 }
 .playground-preview .stepper > output {
@@ -545,12 +534,11 @@ div.playground-preview h1:first-child {
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
-.playground-preview .listItem > .stepper {
-  margin-left: auto;
+.playground-preview .listItem:has(> .stepper) > :first-child {
+  flex: 1;
 }
-.playground-preview .listItem > .stepper + .meta:last-child {
+.playground-preview .listItem:has(> .stepper) > .meta:last-child {
   min-width: 4rem;
-  margin-left: 0;
   text-align: right;
 }
 /* A board's columns (RestEndpoint's move demo): wells a step off the

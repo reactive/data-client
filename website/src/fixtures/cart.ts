@@ -1,16 +1,6 @@
 import { Entity, resource } from '@data-client/rest';
 import type { Interceptor } from '@data-client/test';
 
-type CartItemData = {
-  id: string;
-  product: { id: string; name: string; price: number };
-  quantity: number;
-};
-
-type CartInterceptorState = {
-  items: Record<string, CartItemData>;
-};
-
 class Product extends Entity {
   id = '';
   name = '';
@@ -29,7 +19,7 @@ export const CartResource = resource({
 });
 
 // $48: one more filter pack crosses the $50 free shipping line
-const initialItems: Record<string, CartItemData> = {
+const initialItems = {
   '1': {
     id: '1',
     product: { id: 'house-blend', name: 'House blend', price: 16 },
@@ -45,6 +35,10 @@ const initialItems: Record<string, CartItemData> = {
     product: { id: 'filters', name: 'Paper filters', price: 4 },
     quantity: 1,
   },
+};
+
+type CartInterceptorState = {
+  items: Record<string, (typeof initialItems)[keyof typeof initialItems]>;
 };
 
 export const getInitialInterceptorData = (): CartInterceptorState => ({
