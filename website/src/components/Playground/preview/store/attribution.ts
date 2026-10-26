@@ -37,8 +37,13 @@ export const sharesWithConsole = (manager: Manager) =>
 export const startsRequests = (manager: Manager) =>
   manager instanceof NetworkManager;
 
-/** A manager of a store's chain, as the Store inspector records it */
+/** A manager of a store's chain, as the Store inspector records it: plain
+ * data, so a history keeps it through a copy (`structuredClone`, or a
+ * message to devtools) */
 export interface ManagerStage {
+  /** The same in every store whose chain has this class (and library or
+   * not) at this place among its class: what stages compare by */
+  readonly id: string;
   /** Its class's name */
   readonly className: string;
   /** Which of its class it is in the chain: 1 for the first, 2 for the next */
@@ -48,16 +53,23 @@ export interface ManagerStage {
   readonly library: boolean;
 }
 
-/** The stage before the chain: the app's own dispatches */
-export const APP = 'the app';
+/** The stage before the chain: the app's own dispatches. An entry it sent
+ * has no `origin` */
+export const APP = { id: 'app' } as const;
 /** A stage of the dispatch pipeline: the app, or a manager of the chain */
 export type Stage = ManagerStage | typeof APP;
+
+export const isApp = (stage: Stage): stage is typeof APP => stage.id === APP.id;
+/** Whether `a` and `b` are one stage (by `id`: a copied history's stages
+ * are new objects) */
+export const sameStage = (a: Stage, b: Stage | null | undefined) =>
+  a.id === b?.id;
 
 /** What the Store inspector calls `stage`: the app, or a manager's class,
  * with `#2` and on when a chain holds several of one class. Unique in its
  * chain */
 export const stageName = (stage: Stage) =>
-  stage === APP ? APP
+  isApp(stage) ? 'the app'
   : stage.n > 1 ? `${stage.className} #${stage.n}`
   : stage.className;
 
@@ -88,12 +100,12 @@ export function pipeline(
   entries: readonly Attributed[],
 ): readonly StageCount[] {
   const stages = new Map(
-    stagesOf(chain).map(stage => [stage, { stage, sent: 0, handled: 0 }]),
+    stagesOf(chain).map(stage => [stage.id, { stage, sent: 0, handled: 0 }]),
   );
   for (const entry of entries) {
-    const sender = stages.get(originOf(entry));
+    const sender = stages.get(originOf(entry).id);
     if (sender) sender.sent++;
-    const handler = entry.consumedBy && stages.get(entry.consumedBy);
+    const handler = entry.consumedBy && stages.get(entry.consumedBy.id);
     if (handler) handler.handled++;
   }
   return [...stages.values()];
@@ -107,8 +119,12 @@ export function routesOf(
   const seen = new Map<string, { entry: LogEntry; n: number }>();
   for (const entry of entries) {
     const { action, origin, consumedBy, store } = entry;
-    // stages by all their fields: a code class can share a library name
-    const key = JSON.stringify([action.type, origin, consumedBy, !!store]);
+    const key = JSON.stringify([
+      action.type,
+      origin?.id,
+      consumedBy?.id,
+      !!store,
+    ]);
     const route = seen.get(key);
     if (route) route.n++;
     else seen.set(key, { entry, n: 1 });
@@ -124,19 +140,15 @@ export const shownChain = (managers: readonly ManagerStage[] | undefined) =>
  * manager) those it kept from the rest of the chain */
 export function byStage(stage: Stage) {
   return (entry: Attributed) =>
-    originOf(entry) === stage || entry.consumedBy === stage;
+    sameStage(stage, originOf(entry)) || sameStage(stage, entry.consumedBy);
 }
 
-/** Each stage once: every store whose chain has the same class (by name,
- * and whether it is the library's or the code's) at the same place among
- * its class gets the same stage, so a history that spans stores
- * (one restored after an error, or remade when the code's managers change)
- * compares stages by identity, and a stage picked stays picked. There are a
- * few per manager class, so it is never cleared */
-const STAGES = new Map<string, ManagerStage>();
-
 /** Each manager of a chain as a stage: its class, and which of that class
- * it is */
+ * it is. Every store whose chain has the same class (by name, and whether
+ * it is the library's or the code's) at the same place among its class
+ * gives it the same `id`, so in a history that spans stores (one restored
+ * after an error, or remade when the code's managers change) a stage
+ * picked stays picked */
 export function managerStages(managers: readonly Manager[]): ManagerStage[] {
   const seen = new Map<string, number>();
   return managers.map(manager => {
@@ -145,10 +157,9 @@ export function managerStages(managers: readonly Manager[]): ManagerStage[] {
     const className = known || manager.constructor?.name || 'Manager';
     const n = (seen.get(className) ?? 0) + 1;
     seen.set(className, n);
-    const key = JSON.stringify([className, n, library]);
-    let stage = STAGES.get(key);
-    if (!stage) STAGES.set(key, (stage = { className, n, library }));
-    return stage;
+    // a code class can share a library name
+    const id = `${library ? 'lib' : 'code'}:${className}#${n}`;
+    return { id, className, n, library };
   });
 }
 

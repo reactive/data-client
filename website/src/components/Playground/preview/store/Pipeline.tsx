@@ -4,9 +4,10 @@ import React, { useMemo, useState } from 'react';
 import { actionName } from './actionGroups';
 import type { LogEntry } from './actionLog';
 import {
-  APP,
+  isApp,
   originOf,
   pipeline,
+  sameStage,
   stageName,
   stagesOf,
   type ManagerStage,
@@ -38,7 +39,7 @@ export function Pipeline({
       stages={stages.map(({ stage, sent, handled }) => ({
         id: stageName(stage),
         foldAs:
-          stage !== APP && !sent && !handled && picked !== stage ?
+          !isApp(stage) && !sent && !handled && !sameStage(stage, picked) ?
             'idle'
           : undefined,
         node: (
@@ -46,8 +47,8 @@ export function Pipeline({
             <button
               type="button"
               className={styles.stage}
-              aria-pressed={picked === stage}
-              onClick={() => onPick(picked === stage ? null : stage)}
+              aria-pressed={sameStage(stage, picked)}
+              onClick={() => onPick(sameStage(stage, picked) ? null : stage)}
             >
               {stageName(stage)}
               <span className={sent ? styles.number : styles.dim}>{sent}</span>
@@ -55,7 +56,7 @@ export function Pipeline({
                 <span className={styles.stageNote}>⊘ {handled}</span>
               )}
             </button>
-            {stage !== APP && <CodeLink stage={stage} />}
+            {!isApp(stage) && <CodeLink stage={stage} />}
           </>
         ),
       }))}
@@ -80,8 +81,9 @@ function ActionPath({
   const { seq, action, consumedBy, store } = entry;
   const origin = originOf(entry);
   // a manager's dispatch starts down the chain from its top, not the app
-  const stages = origin === APP ? stagesOf(chain) : chain;
-  const stop = consumedBy ? stages.indexOf(consumedBy) : -1;
+  const stages = isApp(origin) ? stagesOf(chain) : chain;
+  const stop =
+    consumedBy ? stages.findIndex(stage => sameStage(stage, consumedBy)) : -1;
   return (
     <Strip
       // another action's path starts folded
@@ -93,20 +95,20 @@ function ActionPath({
         return {
           id: stageName(stage),
           foldAs:
-            stage === origin || i === stop ? undefined
+            sameStage(stage, origin) || i === stop ? undefined
             : after ? 'never saw it'
             : 'passed',
           node: (
             <span
               className={clsx(
                 styles.stage,
-                stage === origin && styles.stageSender,
+                sameStage(stage, origin) && styles.stageSender,
                 i === stop && styles.stageStop,
                 after && styles.stageOff,
               )}
             >
-              {stage === APP ? APP : <ManagerName stage={stage} />}
-              {stage === origin && stage !== APP && (
+              {isApp(stage) ? stageName(stage) : <ManagerName stage={stage} />}
+              {sameStage(stage, origin) && !isApp(stage) && (
                 <span className={styles.stageNote}>↑ sent it</span>
               )}
               {i === stop && (

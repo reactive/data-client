@@ -152,10 +152,30 @@ describe('manager attribution', () => {
       stream.push(1);
     });
     expect(history().managers).toEqual([
-      { className: 'StreamManager', n: 1, library: false },
-      { className: 'StreamManager', n: 2, library: false },
-      { className: 'NetworkManager', n: 1, library: true },
-      { className: 'SubscriptionManager', n: 1, library: true },
+      {
+        id: 'code:StreamManager#1',
+        className: 'StreamManager',
+        n: 1,
+        library: false,
+      },
+      {
+        id: 'code:StreamManager#2',
+        className: 'StreamManager',
+        n: 2,
+        library: false,
+      },
+      {
+        id: 'lib:NetworkManager#1',
+        className: 'NetworkManager',
+        n: 1,
+        library: true,
+      },
+      {
+        id: 'lib:SubscriptionManager#1',
+        className: 'SubscriptionManager',
+        n: 1,
+        library: true,
+      },
     ]);
     expect(history().managers!.map(stageName)).toEqual([
       'StreamManager',
@@ -185,8 +205,13 @@ describe('manager attribution', () => {
           { middleware: () => (n: unknown) => n } as any,
         ]),
       ).toEqual([
-        { className: 'NetworkManager', n: 1, library: true },
-        { className: 'Object', n: 1, library: false },
+        {
+          id: 'lib:NetworkManager#1',
+          className: 'NetworkManager',
+          n: 1,
+          library: true,
+        },
+        { id: 'code:Object#1', className: 'Object', n: 1, library: false },
       ]);
     } finally {
       Object.defineProperty(NetworkManager, 'name', name);
@@ -199,7 +224,12 @@ describe('manager attribution', () => {
       new PollingNetwork(),
       new IdlingNetworkManager(),
     ]);
-    expect(own).toEqual({ className: 'PollingNetwork', n: 1, library: false });
+    expect(own).toEqual({
+      id: 'code:PollingNetwork#1',
+      className: 'PollingNetwork',
+      n: 1,
+      library: false,
+    });
     // the library's own subclass is the library's
     expect(idling.library).toBe(true);
   });
@@ -214,14 +244,15 @@ describe('manager attribution', () => {
       new StreamManager(),
       new StreamManager(),
     ]);
-    // a store restored or remade from the same code compares by identity
-    expect(b).toBe(a);
-    expect(second).not.toBe(a);
-    expect(managerStages([new NetworkManager()])[0]).toBe(network);
+    // a store restored or remade from the same code has the same stages
+    expect(b.id).toBe(a.id);
+    expect(second.id).not.toBe(a.id);
+    expect(managerStages([new NetworkManager()])[0].id).toBe(network.id);
   });
 
   it("doesn't take a class of the code's for the library's by its name", () => {
     expect(codeNetworkManagerStage()).toEqual({
+      id: 'code:NetworkManager#1',
       className: 'NetworkManager',
       n: 1,
       library: false,
@@ -584,8 +615,10 @@ describe('stageFilter', () => {
     lists: () => true,
     gaps: new Map(),
   };
-  const stream = { className: 'StreamManager', n: 1, library: false };
-  const network = { className: 'NetworkManager', n: 1, library: true };
+  const [stream, network] = managerStages([
+    new StreamManager(),
+    new NetworkManager(),
+  ]);
 
   it("lists all the store's actions, and stands on those the code's managers kept too", () => {
     const filter = stageFilter(base, [stream, network], null);
@@ -602,6 +635,18 @@ describe('stageFilter', () => {
     const filter = stageFilter(base, [stream, network], stream);
     expect(filter.lists({ origin: stream } as any)).toBe(true);
     expect(filter.lists({ store: {} } as any)).toBe(false);
+  });
+
+  it('matches stages of a copied history (as devtools would get it)', () => {
+    const [copied] = structuredClone([stream]);
+    expect(copied).not.toBe(stream);
+    const picked = stageFilter(base, [stream, network], copied);
+    expect(picked.lists({ origin: stream } as any)).toBe(true);
+    expect(
+      stageFilter(base, [stream, network], null).hit({
+        consumedBy: copied,
+      } as any),
+    ).toBe(true);
   });
 });
 
