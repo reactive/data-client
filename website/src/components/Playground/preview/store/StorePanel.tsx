@@ -50,7 +50,7 @@ import {
   useActions,
   type Actions,
 } from './actionParts';
-import { shownChain, stagesOf, type Stage } from './attribution';
+import { sameStage, shownChain, stagesOf, type Stage } from './attribution';
 import { NARROW_WIDTH } from './columns';
 import { diffModel, type RowDiff } from './diffModel';
 import { ListView, RecordLevel, type Header } from './DiveViews';
@@ -291,7 +291,10 @@ export default function StorePanel({
     subject.kind === 'root' ? shownChain(history.managers) : undefined;
   const pipelineShown = tab === 'action' && !!chain;
   const [stage, pickStage] = useState<Stage | null>(null);
-  if (stage !== null && !(pipelineShown && stagesOf(chain).includes(stage)))
+  if (
+    stage !== null &&
+    !(pipelineShown && stagesOf(chain).some(s => sameStage(s, stage)))
+  )
     pickStage(null);
   const filter = useMemo(
     () =>
