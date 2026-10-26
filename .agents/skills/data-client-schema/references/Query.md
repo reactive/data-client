@@ -318,6 +318,7 @@ export const StatsResource = resource({
 ```tsx title="PriceDisplay"
 import { Query } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
 import { TickerResource, Ticker } from './resources/Ticker';
 import { StatsResource, Stats } from './resources/Stats';
 
@@ -333,12 +334,20 @@ function PriceDisplay({ productId }: { productId: string }) {
   const price = useQuery(queryPrice, { product_id: productId });
   
   return (
-    <div>
-      Price:{' '}
-      {price === undefined ?
-        <span className="skeleton" />
-      : `$${price}`}
-    </div>
+    <dl className="stats">
+      <div>
+        <dt>{productId}</dt>
+        <dd>
+          {price === undefined ?
+            <span className="skeleton" />
+          : <NumberFlow
+              value={price}
+              format={{ style: 'currency', currency: 'USD' }}
+            />
+          }
+        </dd>
+      </div>
+    </dl>
   );
 }
 

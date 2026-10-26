@@ -48,12 +48,16 @@ export const getTicker = new RestEndpoint({
 </script>
 
 <template>
-  <div style="text-align: center">
-    {{ productId }}
-    <NumberFlow
-      :value="ticker.price"
-      :format="{ style: 'currency', currency: 'USD' }"
-    />
-  </div>
+  <dl class="stats">
+    <div>
+      <dt>{{ productId }}</dt>
+      <dd>
+        <NumberFlow
+          :value="ticker.price"
+          :format="{ style: 'currency', currency: 'USD' }"
+        />
+      </dd>
+    </div>
+  </dl>
 </template>
 ```

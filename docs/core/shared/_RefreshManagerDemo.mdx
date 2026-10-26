@@ -91,14 +91,15 @@ function RateRow({ currency }: { currency: string }) {
   const rate = useSuspense(getRate, { currency });
   return (
     <div className="listItem">
-      <strong>{currency}</strong>
+      <div>
+        <h4>{currency}</h4>
+        <small>fetched {new Date(rate.fetchedAt).toLocaleTimeString()}</small>
+      </div>
       <NumberFlow
+        className="value"
         value={rate.usd}
         format={{ style: 'currency', currency: 'USD' }}
       />
-      <small className="meta">
-        fetched {new Date(rate.fetchedAt).toLocaleTimeString()}
-      </small>
     </div>
   );
 }
@@ -133,14 +134,15 @@ render(
 
 <template>
   <div class="listItem">
-    <strong>{{ currency }}</strong>
+    <div>
+      <h4>{{ currency }}</h4>
+      <small>fetched {{ new Date(rate.fetchedAt).toLocaleTimeString() }}</small>
+    </div>
     <NumberFlow
+      class="value"
       :value="rate.usd"
       :format="{ style: 'currency', currency: 'USD' }"
     />
-    <small class="meta">
-      fetched {{ new Date(rate.fetchedAt).toLocaleTimeString() }}
-    </small>
   </div>
 </template>
 ```

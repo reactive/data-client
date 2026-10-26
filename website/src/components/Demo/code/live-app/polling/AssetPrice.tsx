@@ -4,14 +4,13 @@ export default function AssetPrice({ symbol }: { symbol: string }) {
   const productId = `${symbol}-USD`;
   const ticker = useLive(getTicker, { productId });
   return (
-    <tr>
-      <th>{symbol}</th>
-      <td align="right">
-        <NumberFlow
-          value={ticker.price}
-          format={{ style: 'currency', currency: 'USD' }}
-        />
-      </td>
-    </tr>
+    <div className="listItem">
+      <h4>{symbol}</h4>
+      <NumberFlow
+        className="value"
+        value={ticker.price}
+        format={{ style: 'currency', currency: 'USD' }}
+      />
+    </div>
   );
 }
