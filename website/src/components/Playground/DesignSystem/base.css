@@ -147,8 +147,8 @@ html[data-theme='dark'] .playground-preview {
 .playground-preview td > .skeleton {
   width: 3.5em;
 }
-/* a figure's (.stats): the 8em line, at a figure's size, would overrun
-   its column */
+/* a figure's (.stats): at a figure's size the 8em line would fill its
+   whole column; a price is about 5em */
 .playground-preview .stats dd > .skeleton {
   width: 5em;
 }
