@@ -461,7 +461,9 @@ export default class ActionLog {
     const due = appended.length - trimmed >= this.trimEvery;
     this.histories.set(id, {
       ...history,
-      ...(!history && { managers }),
+      // a store's first action brings its managers, also to a history an
+      // earlier store began (its own init may not have run yet)
+      ...(entry.newStore && { managers }),
       entries: appended,
       since: entries.length ? since : entry.at,
       ...(due && this.compact(appended, history)),

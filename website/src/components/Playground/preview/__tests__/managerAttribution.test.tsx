@@ -171,6 +171,40 @@ describe('manager attribution', () => {
     expect(isLibraryManager(idling)).toBe(true);
   });
 
+  it('names the managers of a store that took over a history before it acted', async () => {
+    const registry = new SchemaRegistry({ trimEvery: 1 });
+    /** Sets a ticker as it mounts: before the managers' init, which runs
+     * in DataProvider's effect, after its children's */
+    function SetsOnMount() {
+      const ctrl = useController();
+      React.useEffect(() => {
+        void ctrl.set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
+      }, [ctrl]);
+      return null;
+    }
+    const store = (own: Manager[], children: React.ReactNode = null) => {
+      const log = registry.log.connect(0);
+      return render(
+        <DataProvider
+          managers={[log.head, registry, ...log.track(own), log.tail]}
+          devButton={null}
+        >
+          {children}
+        </DataProvider>,
+      );
+    };
+    // the defaults start the history, with no action yet (the code's
+    // getManagers() registers after the first store mounts)
+    store([new NetworkManager()]).unmount();
+    await act(async () => {
+      store([new StreamManager(), new NetworkManager()], <SetsOnMount />);
+    });
+    expect(registry.log.history(0).managers).toEqual([
+      'StreamManager',
+      'NetworkManager',
+    ]);
+  });
+
   it("credits what a manager sends through its controller, not the app's", async () => {
     const stream = new StreamManager();
     const { ctrl, entries } = mount([stream, new NetworkManager()]);
