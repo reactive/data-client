@@ -416,6 +416,20 @@ describe('manager attribution', () => {
     ).rejects.toBe(failed);
     expect(report).toHaveBeenCalledTimes(1);
   });
+
+  it('reports a middleware that returns no function', () => {
+    const log = new SchemaRegistry().log.connect(0);
+    const report = jest.fn();
+    const [guarded] = log.track(
+      [{ middleware: () => undefined, cleanup() {} } as unknown as Manager],
+      () => report,
+    );
+    const next = jest.fn();
+    const action = { type: actionTypes.GC } as ActionTypes;
+    guarded.middleware({} as Controller)(next)(action);
+    expect(report.mock.calls[0][0].message).toMatch(/returned no function/);
+    expect(next).toHaveBeenCalledWith(action);
+  });
 });
 
 describe('stageFilter', () => {

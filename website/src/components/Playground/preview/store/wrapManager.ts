@@ -75,9 +75,15 @@ export function wrapManager(
             `${manager.constructor.name} has no middleware. Managers must define middleware.`,
           );
         // may be a prototype method that reads `this`
-        return middleware.call(manager, own);
+        const withNext = middleware.call(manager, own);
+        if (typeof withNext !== 'function')
+          throw new Error(
+            `${manager.constructor.name}'s middleware returned no function. It must return next => action => ….`,
+          );
+        return withNext;
       },
-      () => undefined,
+      // a step that passes every action on
+      () => next => next,
     )();
     return next => {
       const passed = new WeakSet<object>();
@@ -100,18 +106,17 @@ export function wrapManager(
         if (reported.has(action)) consumed(action);
         return next(action);
       };
-      // building the step may throw too
-      const step =
-        withController && attempt(withController, () => undefined)(passOn);
-      // a step that failed to build passes every action on, unguarded
+      // building the step may throw too (or find no function to call)
+      const step = attempt(withController, () => passOn)(passOn);
+      // one that failed to build passes every action on, unguarded, so
+      // what fails after it isn't reported as its error. A step that throws
+      // after passing the action on must not pass it twice
       const dispatch =
-        step ?
-          // a step that throws after passing the action on must not pass it
-          // twice
+        step === passOn ? passOn : (
           attempt(step, (action: ActionTypes) =>
             passed.has(action) ? Promise.resolve() : passOn(action),
           )
-        : passOn;
+        );
       return action => {
         const check = () => {
           if (passed.has(action)) return;
