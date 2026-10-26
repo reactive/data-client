@@ -89,6 +89,28 @@ div.playground-preview h1:first-child {
   border-radius: var(--ds-radius-xs);
 }
 
+/* The reader's clock (CurrentTime): the device's, not the app's, so in an
+   app header it's tucked into the sheet's top right corner, a pill of the
+   frame's ground, with the app's navigation on its own row under the
+   header beside the pages it switches */
+.playground-preview .currentTime {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: -0.625rem -0.625rem -0.625rem auto;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--pg-stage);
+  color: var(--ds-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.playground-preview .currentTime .secondHand {
+  stroke: var(--pg-live);
+}
+
 /* The app's header: its name at the left, its navigation or actions at the
    right; the space under it (28px), not a rule, sets the page off. The
    name is a small tracked wordmark in the muted color, so the title below

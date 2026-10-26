@@ -113,10 +113,12 @@ import { getUpdated } from './getUpdated';
 export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
-    <div className="listItem">
-      <span className="meta">API time for {id}</span>
-      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
-    </div>
+    <>
+      <h2>
+        <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'medium' })}</time>
+      </h2>
+      <span className="meta">Fetched for page {id}</span>
+    </>
   );
 }
 ```
@@ -124,17 +126,17 @@ export default function TimePage({ id }: { id: string }) {
 ```tsx title="Navigator" layout collapsed docs-only
 export default function Navigator({ children }) {
   return (
-    <div>
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Server time</h1>
+        <CurrentTime />
+      </header>
       <nav>
         <Link to="/time/1">First</Link>
         <Link to="/time/2">Second</Link>
       </nav>
       {children}
-      <div className="listItem">
-        <span className="meta">Current time</span>
-        <CurrentTime />
-      </div>
-    </div>
+    </>
   );
 }
 ```
@@ -153,36 +155,33 @@ export default function Navigator({ children }) {
 </script>
 
 <template>
-  <div class="listItem">
-    <span class="meta">API time for {{ id }}</span>
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-  </div>
+  <h2>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'medium' }) }}</time>
+  </h2>
+  <span class="meta">Fetched for page {{ id }}</span>
 </template>
 ```
 
 ```html title="Navigator.vue" layout collapsed docs-only
 <template>
-  <div>
-    <nav>
-      <RouterLink to="/time/1">First</RouterLink>
-      <RouterLink to="/time/2">Second</RouterLink>
-    </nav>
-    <RouterView v-slot="{ Component, route }">
-      <!-- :key remounts TimePage so it suspends for the new id -->
-      <Suspense timeout="0">
-        <component
-          :is="Component"
-          :key="route.fullPath"
-          :id="route.params.id"
-        />
-        <template #fallback><Loading /></template>
-      </Suspense>
-    </RouterView>
-    <div class="listItem">
-      <span class="meta">Current time</span>
-      <CurrentTime />
-    </div>
-  </div>
+  <header class="appHeader">
+    <h1 class="appTitle">Server time</h1>
+  </header>
+  <nav>
+    <RouterLink to="/time/1">First</RouterLink>
+    <RouterLink to="/time/2">Second</RouterLink>
+  </nav>
+  <RouterView v-slot="{ Component, route }">
+    <!-- :key remounts TimePage so it suspends for the new id -->
+    <Suspense timeout="0">
+      <component
+        :is="Component"
+        :key="route.fullPath"
+        :id="route.params.id"
+      />
+      <template #fallback><Loading /></template>
+    </Suspense>
+  </RouterView>
 </template>
 ```
 
@@ -301,10 +300,12 @@ import { getUpdated } from './getUpdated';
 export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
-    <div className="listItem">
-      <span className="meta">API time for {id}</span>
-      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
-    </div>
+    <>
+      <h2>
+        <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'medium' })}</time>
+      </h2>
+      <span className="meta">Fetched for page {id}</span>
+    </>
   );
 }
 ```
@@ -312,17 +313,17 @@ export default function TimePage({ id }: { id: string }) {
 ```tsx title="Navigator" layout collapsed docs-only
 export default function Navigator({ children }) {
   return (
-    <div>
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Server time</h1>
+        <CurrentTime />
+      </header>
       <nav>
         <Link to="/time/1">First</Link>
         <Link to="/time/2">Second</Link>
       </nav>
       {children}
-      <div className="listItem">
-        <span className="meta">Current time</span>
-        <CurrentTime />
-      </div>
-    </div>
+    </>
   );
 }
 ```
@@ -341,36 +342,33 @@ export default function Navigator({ children }) {
 </script>
 
 <template>
-  <div class="listItem">
-    <span class="meta">API time for {{ id }}</span>
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-  </div>
+  <h2>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'medium' }) }}</time>
+  </h2>
+  <span class="meta">Fetched for page {{ id }}</span>
 </template>
 ```
 
 ```html title="Navigator.vue" layout collapsed docs-only
 <template>
-  <div>
-    <nav>
-      <RouterLink to="/time/1">First</RouterLink>
-      <RouterLink to="/time/2">Second</RouterLink>
-    </nav>
-    <RouterView v-slot="{ Component, route }">
-      <!-- :key remounts TimePage so it suspends for the new id -->
-      <Suspense timeout="0">
-        <component
-          :is="Component"
-          :key="route.fullPath"
-          :id="route.params.id"
-        />
-        <template #fallback><Loading /></template>
-      </Suspense>
-    </RouterView>
-    <div class="listItem">
-      <span class="meta">Current time</span>
-      <CurrentTime />
-    </div>
-  </div>
+  <header class="appHeader">
+    <h1 class="appTitle">Server time</h1>
+  </header>
+  <nav>
+    <RouterLink to="/time/1">First</RouterLink>
+    <RouterLink to="/time/2">Second</RouterLink>
+  </nav>
+  <RouterView v-slot="{ Component, route }">
+    <!-- :key remounts TimePage so it suspends for the new id -->
+    <Suspense timeout="0">
+      <component
+        :is="Component"
+        :key="route.fullPath"
+        :id="route.params.id"
+      />
+      <template #fallback><Loading /></template>
+    </Suspense>
+  </RouterView>
 </template>
 ```
 
@@ -862,10 +860,9 @@ import { lastUpdated } from './api/lastUpdated';
 export default function TimePage({ id }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
   return (
-    <div className="listItem">
-      <span className="meta">API time for {id}</span>
-      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
-    </div>
+    <h2>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'medium' })}</time>
+    </h2>
   );
 }
 ```
@@ -891,20 +888,21 @@ function ShowTime() {
   );
   return (
     <div>
-      <AsyncBoundary
-        fallback={
-          <div className="listItem">
-            <span className="meta">API time for 1</span>
-            <span className="skeleton" />
-          </div>
-        }
-      >
-        <TimePage id="1" />
-      </AsyncBoundary>
-      <div className="listItem">
-        <span className="meta">Current time</span>
+      <header className="appHeader">
+        <h1 className="appTitle">Server time</h1>
         <CurrentTime />
-      </div>
+      </header>
+      <section>
+        <AsyncBoundary
+          fallback={
+            <h2>
+              <span className="skeleton" />
+            </h2>
+          }
+        >
+          <TimePage id="1" />
+        </AsyncBoundary>
+      </section>
       <div className="buttonGroup">
         <button onClick={handleDelete} aria-busy={loadingDelete}>
           Invalidate
@@ -946,10 +944,9 @@ render(<ShowTime />);
 </script>
 
 <template>
-  <div class="listItem">
-    <span class="meta">API time for {{ id }}</span>
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-  </div>
+  <h2>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'medium' }) }}</time>
+  </h2>
 </template>
 ```
 
@@ -975,15 +972,17 @@ render(<ShowTime />);
 
 <template>
   <div>
-    <Suspense>
-      <TimePage id="1" />
-      <template #fallback>
-        <div class="listItem">
-          <span class="meta">API time for 1</span>
-          <span class="skeleton" />
-        </div>
-      </template>
-    </Suspense>
+    <header class="appHeader">
+      <h1 class="appTitle">Server time</h1>
+    </header>
+    <section>
+      <Suspense>
+        <TimePage id="1" />
+        <template #fallback>
+          <h2><span class="skeleton" /></h2>
+        </template>
+      </Suspense>
+    </section>
     <div class="buttonGroup">
       <button @click="handleDelete" :aria-busy="loadingDelete">
         Invalidate

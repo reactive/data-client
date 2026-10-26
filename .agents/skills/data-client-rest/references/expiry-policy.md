@@ -73,10 +73,12 @@ import { getUpdated } from './getUpdated';
 export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
-    <div className="listItem">
-      <span className="meta">API time for {id}</span>
-      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
-    </div>
+    <>
+      <h2>
+        <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'medium' })}</time>
+      </h2>
+      <span className="meta">Fetched for page {id}</span>
+    </>
   );
 }
 ```
@@ -176,10 +178,12 @@ import { getUpdated } from './getUpdated';
 export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
-    <div className="listItem">
-      <span className="meta">API time for {id}</span>
-      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
-    </div>
+    <>
+      <h2>
+        <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'medium' })}</time>
+      </h2>
+      <span className="meta">Fetched for page {id}</span>
+    </>
   );
 }
 ```
@@ -441,10 +445,9 @@ import { lastUpdated } from './api/lastUpdated';
 export default function TimePage({ id }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
   return (
-    <div className="listItem">
-      <span className="meta">API time for {id}</span>
-      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
-    </div>
+    <h2>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'medium' })}</time>
+    </h2>
   );
 }
 ```
@@ -470,20 +473,21 @@ function ShowTime() {
   );
   return (
     <div>
-      <AsyncBoundary
-        fallback={
-          <div className="listItem">
-            <span className="meta">API time for 1</span>
-            <span className="skeleton" />
-          </div>
-        }
-      >
-        <TimePage id="1" />
-      </AsyncBoundary>
-      <div className="listItem">
-        <span className="meta">Current time</span>
+      <header className="appHeader">
+        <h1 className="appTitle">Server time</h1>
         <CurrentTime />
-      </div>
+      </header>
+      <section>
+        <AsyncBoundary
+          fallback={
+            <h2>
+              <span className="skeleton" />
+            </h2>
+          }
+        >
+          <TimePage id="1" />
+        </AsyncBoundary>
+      </section>
       <div className="buttonGroup">
         <button onClick={handleDelete} aria-busy={loadingDelete}>
           Invalidate
