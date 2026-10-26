@@ -516,8 +516,10 @@ div.playground-preview h1:first-child {
    price) keeps one width so the rows' prices align */
 .playground-preview .stepper {
   --stepper-button: 28px;
+  --stepper-count: 1.5rem;
   flex: none;
-  min-width: calc(2 * var(--stepper-button) + 1.5rem);
+  /* border-box, so the 2px of edge count too */
+  min-width: calc(2 * var(--stepper-button) + var(--stepper-count) + 2px);
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--ds-border-strong);
@@ -554,7 +556,7 @@ div.playground-preview h1:first-child {
   outline-offset: -2px;
 }
 .playground-preview .stepper > output {
-  min-width: 1.5rem;
+  min-width: var(--stepper-count);
   font-weight: 600;
   text-align: center;
   font-variant-numeric: tabular-nums;
