@@ -41,7 +41,13 @@ import {
   useFollow,
   useLog,
 } from './actionParts';
-import { routesOf, shownChain, stagesOf, type Stage } from './attribution';
+import {
+  routesOf,
+  sameStage,
+  shownChain,
+  stagesOf,
+  type Stage,
+} from './attribution';
 import type { Header } from './DiveViews';
 import { byData, onActivateKey, revealIn, toggled } from './dom';
 import { actionId } from './model';
@@ -151,7 +157,11 @@ export function ActionsLevel({
   const [chosen, setChosen] = useState<Stage | null>(null);
   // a stage the chain no longer has (the code changed) counts as none
   const picked =
-    chosen !== null && chain && stagesOf(chain).includes(chosen) ?
+    (
+      chosen !== null &&
+      chain &&
+      stagesOf(chain).some(s => sameStage(s, chosen))
+    ) ?
       chosen
     : null;
   const filter = useMemo(

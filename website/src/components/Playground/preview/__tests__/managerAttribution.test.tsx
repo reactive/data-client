@@ -862,6 +862,49 @@ describe('Store panel pipeline', () => {
     expect(listed()).toHaveLength(3);
   });
 
+  it('keeps a picked stage when the code remakes its managers', async () => {
+    const registry = new SchemaRegistry({ trimEvery: 1 });
+    render(<StorePanel registry={registry} history={0} />);
+    const store = (stream: StreamManager) => {
+      const log = registry.log.connect(0);
+      const ref: { ctrl?: Controller } = {};
+      function Grab() {
+        ref.ctrl = useController();
+        return null;
+      }
+      const view = render(
+        <DataProvider
+          managers={[
+            log.head,
+            registry,
+            ...log.track([stream, new NetworkManager()]),
+            log.tail,
+          ]}
+          devButton={null}
+        >
+          <Grab />
+        </DataProvider>,
+      );
+      return { view, ctrl: () => ref.ctrl! };
+    };
+    const first = new StreamManager();
+    const { view } = store(first);
+    await act(async () => {
+      void first.push(1);
+    });
+    openActions();
+    fireEvent.click(stage(/^StreamManager/));
+    view.unmount();
+    // the same code, remade: new managers, new stage objects, same places
+    const second = new StreamManager();
+    const remade = store(second);
+    await act(async () => {
+      void second.push(2);
+      void remade.ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
+    });
+    expect(stage(/^StreamManager/).getAttribute('aria-pressed')).toBe('true');
+  });
+
   it("tags the store's actions with the manager that sent them", async () => {
     const stream = new StreamManager();
     const { ctrl } = mount([stream, new NetworkManager()], undefined, true);
