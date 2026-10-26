@@ -12,26 +12,34 @@ import styles from './styles.module.css';
 interface TabItem {
   key: string;
   label: ReactNode;
+  title?: string;
   selected: boolean;
-  /** A click, or ← → Home End from the selected tab */
+  /** A click, Enter or Space, or ← → Home End from the selected tab */
   onSelect: () => void;
 }
 
 export default function TabList({
   tabs,
   className,
+  tabClassName,
   label,
 }: {
   tabs: readonly TabItem[];
   className?: string;
+  /** Replaces the file tabs' look (their classes and edge marks are
+   * dropped); style the picked one by `aria-selected` */
+  tabClassName?: string;
   /** Names the list for assistive tech */
   label?: string;
 }) {
   const list = useRef<HTMLDivElement>(null);
   const selected = tabs.findIndex(tab => tab.selected);
-  useFlushEdges(list, selected);
+  const fileTabs = tabClassName === undefined;
+  useFlushEdges(list, selected, fileTabs);
   // the selected tab is the one in the tab order; the arrows move from it
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    // modified keys keep their own meaning (Alt+← is Back)
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
     let to: number;
     switch (event.key) {
       case 'ArrowRight':
@@ -47,6 +55,21 @@ export default function TabList({
       case 'End':
         to = tabs.length - 1;
         break;
+      // the focused tab, as a click picks it (a picked tab may act again)
+      case 'Enter':
+      case ' ':
+        to = Array.prototype.indexOf.call(
+          event.currentTarget.children,
+          event.target,
+        );
+        // a control inside a tab keeps its keys
+        if (to < 0) return;
+        // a held key picks once (and doesn't scroll the page)
+        if (event.repeat) {
+          event.preventDefault();
+          return;
+        }
+        break;
       default:
         return;
     }
@@ -57,20 +80,25 @@ export default function TabList({
   return (
     <div
       ref={list}
-      className={clsx(styles.tabs, className)}
+      className={fileTabs ? clsx(styles.tabs, className) : className}
       role="tablist"
       aria-orientation="horizontal"
       aria-label={label}
       onKeyDown={onKeyDown}
     >
-      {tabs.map(({ key, label, selected, onSelect }) => (
+      {tabs.map(({ key, label, title, selected, onSelect }) => (
         <div
           role="tab"
           aria-selected={selected}
           tabIndex={selected ? 0 : -1}
           key={key}
+          title={title}
           onClick={onSelect}
-          className={clsx(styles.tab, { [styles.selected]: selected })}
+          className={
+            fileTabs ?
+              clsx(styles.tab, { [styles.selected]: selected })
+            : tabClassName
+          }
         >
           {label}
         </div>
@@ -86,8 +114,10 @@ export default function TabList({
 function useFlushEdges(
   list: RefObject<HTMLDivElement | null>,
   selected: number,
+  enabled: boolean,
 ) {
   useLayoutEffect(() => {
+    if (!enabled) return;
     const row = list.current;
     const edges = row?.parentElement;
     if (!row || !edges) return;
@@ -126,5 +156,5 @@ function useFlushEdges(
       row.removeEventListener('scroll', mark);
       observer?.disconnect();
     };
-  }, [list, selected]);
+  }, [list, selected, enabled]);
 }

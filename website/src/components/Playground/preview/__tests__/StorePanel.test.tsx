@@ -312,6 +312,43 @@ describe('StorePanel table view', () => {
     expect(crumbs()).toEqual([]);
   });
 
+  it('moves between and picks State and Action with the keyboard', () => {
+    mount();
+    const state = screen.getByRole('tab', { name: 'State' });
+    const actions = screen.getByRole('tab', { name: 'Action' });
+    expect(state.getAttribute('title')).toBe('The store at the moment');
+    state.focus();
+    fireEvent.keyDown(state, { key: 'ArrowRight' });
+    expect(actions.getAttribute('aria-selected')).toBe('true');
+    expect(document.activeElement).toBe(actions);
+    // modified arrows are left to the browser
+    fireEvent.keyDown(actions, { key: 'ArrowLeft', altKey: true });
+    expect(actions.getAttribute('aria-selected')).toBe('true');
+    fireEvent.keyDown(actions, { key: 'Home' });
+    expect(state.getAttribute('aria-selected')).toBe('true');
+    expect(document.activeElement).toBe(state);
+    actions.focus();
+    fireEvent.keyDown(actions, { key: 'Enter' });
+    expect(actions.getAttribute('aria-selected')).toBe('true');
+    state.focus();
+    fireEvent.keyDown(state, { key: ' ' });
+    expect(state.getAttribute('aria-selected')).toBe('true');
+    // held or modified, it leaves the pick alone
+    actions.focus();
+    expect(fireEvent.keyDown(actions, { key: ' ', repeat: true })).toBe(false);
+    fireEvent.keyDown(actions, { key: 'Enter', ctrlKey: true });
+    expect(state.getAttribute('aria-selected')).toBe('true');
+  });
+
+  it("puts State's view switches in the tab row", () => {
+    mount();
+    expect(
+      screen
+        .getByRole('tablist')
+        .parentElement!.contains(screen.getByLabelText('Tree view')),
+    ).toBe(true);
+  });
+
   it('keeps the levels open across the tree view, without replaying them', () => {
     mount();
     fireEvent.click(top().querySelector('[data-table=Post] tr[data-id]')!);

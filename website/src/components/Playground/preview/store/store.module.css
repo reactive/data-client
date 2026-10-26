@@ -162,20 +162,14 @@
 .barStart > .tab:first-child {
   border-top-left-radius: var(--pg-body-radius, 8px);
 }
-/* The sheet's head (State): the view's own switches, Snapshot or Diff and
-   table or tree, at its top edge */
-.sheetHead {
-  flex: none;
-  display: flex;
-  align-items: center;
-  min-height: 2.25rem;
-  padding: 0 0.5rem;
-}
+/* the bar's right end (State): the view's own switches, Snapshot or Diff
+   and table or tree, beside the tabs */
 .barEnd {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin-left: auto;
+  padding: 0 0.5rem;
 }
 .viewButtons {
   display: flex;
@@ -186,11 +180,7 @@
   display: inline-flex;
   align-items: center;
   padding: var(--pg-tab-pad);
-  border: 0;
   border-radius: var(--pg-tab-radius);
-  background: none;
-  color: inherit;
-  font: inherit;
   cursor: pointer;
   transition:
     background-color var(--motion-snappy),
