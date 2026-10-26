@@ -523,6 +523,10 @@ div.playgroundTextEdit > .playgroundHeader,
   letter-spacing: 0;
 }
 .row .tabs {
+  /* its fade's mask makes the row one layer: above the card, so the open
+     tab's paper covers the card's shadow as it joins it */
+  position: relative;
+  z-index: 1;
   height: 100%;
   /* the header's width, so a short row has room for the last tab's curve */
   flex: 1 1 auto;
