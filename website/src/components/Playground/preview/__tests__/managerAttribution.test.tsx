@@ -24,6 +24,7 @@ import { stageFilter } from '../store/actionGroups';
 import type { LogEntry } from '../store/actionLog';
 import {
   managerStages,
+  pipeline,
   routesOf,
   stageName,
   type ManagerStage,
@@ -647,6 +648,22 @@ describe('stageFilter', () => {
         consumedBy: copied,
       } as any),
     ).toBe(true);
+  });
+
+  it('counts and routes the stages of a copied history as its own', () => {
+    const fetched = (seq: number): LogEntry => ({
+      seq,
+      at: seq,
+      action: { type: actionTypes.FETCH } as ActionTypes,
+      origin: stream,
+      consumedBy: network,
+    });
+    const entries = [fetched(1), fetched(2)];
+    const copied = structuredClone(entries);
+    expect(pipeline([stream, network], copied)).toEqual(
+      pipeline([stream, network], entries),
+    );
+    expect(routesOf([...entries, ...copied]).map(({ n }) => n)).toEqual([4]);
   });
 });
 

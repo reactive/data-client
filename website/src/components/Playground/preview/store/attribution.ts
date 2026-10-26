@@ -54,7 +54,8 @@ export interface ManagerStage {
 }
 
 /** The stage before the chain: the app's own dispatches. An entry it sent
- * has no `origin` */
+ * has no `origin`. Its `id` is no manager's: theirs start `lib:` or
+ * `code:` */
 export const APP = { id: 'app' } as const;
 /** A stage of the dispatch pipeline: the app, or a manager of the chain */
 export type Stage = ManagerStage | typeof APP;
