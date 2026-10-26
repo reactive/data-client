@@ -127,14 +127,14 @@ export default function TimePage({ id }: { id: string }) {
 export default function Navigator({ children }) {
   return (
     <>
-      <CurrentTime />
       <header className="appHeader">
         <h1 className="appTitle">Server time</h1>
-        <nav>
-          <Link to="/time/1">First</Link>
-          <Link to="/time/2">Second</Link>
-        </nav>
+        <CurrentTime />
       </header>
+      <nav>
+        <Link to="/time/1">First</Link>
+        <Link to="/time/2">Second</Link>
+      </nav>
       {children}
     </>
   );
@@ -166,11 +166,11 @@ export default function Navigator({ children }) {
 <template>
   <header class="appHeader">
     <h1 class="appTitle">Server time</h1>
-    <nav>
-      <RouterLink to="/time/1">First</RouterLink>
-      <RouterLink to="/time/2">Second</RouterLink>
-    </nav>
   </header>
+  <nav>
+    <RouterLink to="/time/1">First</RouterLink>
+    <RouterLink to="/time/2">Second</RouterLink>
+  </nav>
   <RouterView v-slot="{ Component, route }">
     <!-- :key remounts TimePage so it suspends for the new id -->
     <Suspense timeout="0">
@@ -314,14 +314,14 @@ export default function TimePage({ id }: { id: string }) {
 export default function Navigator({ children }) {
   return (
     <>
-      <CurrentTime />
       <header className="appHeader">
         <h1 className="appTitle">Server time</h1>
-        <nav>
-          <Link to="/time/1">First</Link>
-          <Link to="/time/2">Second</Link>
-        </nav>
+        <CurrentTime />
       </header>
+      <nav>
+        <Link to="/time/1">First</Link>
+        <Link to="/time/2">Second</Link>
+      </nav>
       {children}
     </>
   );
@@ -353,11 +353,11 @@ export default function Navigator({ children }) {
 <template>
   <header class="appHeader">
     <h1 class="appTitle">Server time</h1>
-    <nav>
-      <RouterLink to="/time/1">First</RouterLink>
-      <RouterLink to="/time/2">Second</RouterLink>
-    </nav>
   </header>
+  <nav>
+    <RouterLink to="/time/1">First</RouterLink>
+    <RouterLink to="/time/2">Second</RouterLink>
+  </nav>
   <RouterView v-slot="{ Component, route }">
     <!-- :key remounts TimePage so it suspends for the new id -->
     <Suspense timeout="0">
@@ -888,9 +888,9 @@ function ShowTime() {
   );
   return (
     <div>
-      <CurrentTime />
       <header className="appHeader">
         <h1 className="appTitle">Server time</h1>
+        <CurrentTime />
       </header>
       <section>
         <AsyncBoundary
