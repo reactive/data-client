@@ -23,7 +23,6 @@ import type { AutoRunScript } from './preview/autorun/script';
 import FixturePreview from './preview/FixturePreview';
 import type LivePreviewType from './preview/LivePreview';
 import PendingSheet from './preview/PendingSheet';
-import WallClock from './WallClock';
 import PreviewWrapper, {
   PreviewHeaderControls,
   previewSurfaceClassName,
@@ -75,9 +74,6 @@ export interface PlaygroundProps<T = any> {
    * replays it). Declare it once at module level: its identity keys the
    * once-per-page autostart. */
   autoRun?: AutoRunScript;
-  /** The reader's clock in a bar under the app, apart from it: for demos
-   * whose data holds a time to read against now (how old it is) */
-  clock?: boolean;
 }
 
 /** A page holds several playgrounds: each keeps a short history (a
@@ -97,7 +93,6 @@ export default function Playground<T>({
   renderCount = false,
   actionLog: logOptions,
   autoRun,
-  clock,
 }: PlaygroundProps<T>) {
   // read once, as the preview first builds its log
   const actionLog = { ...DOCS_LOG, ...logOptions };
@@ -218,7 +213,6 @@ export default function Playground<T>({
             row={row}
             fixtureContent={previewFixtures}
             code={code}
-            clock={clock}
           />
         }
       >
@@ -239,7 +233,6 @@ export default function Playground<T>({
               showStore={showStore}
               storeMoves={storeMoves}
               code={code}
-              clock={clock}
             />
           </CodeOpenerContext.Provider>
         </DemoViewContext.Provider>
@@ -311,12 +304,10 @@ function PreviewLoading({
   row,
   fixtureContent,
   code,
-  clock,
 }: {
   row: boolean;
   fixtureContent?: React.ReactNode;
   code?: CodeControl;
-  clock?: boolean;
 }) {
   return (
     <PreviewWrapper
@@ -326,9 +317,6 @@ function PreviewLoading({
     >
       <div className={previewSurfaceClassName}>
         <PendingSheet />
-        {clock ?
-          <WallClock />
-        : null}
       </div>
       {row ? null : <StoreToggle />}
     </PreviewWrapper>

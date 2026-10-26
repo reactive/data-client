@@ -473,6 +473,7 @@ function ShowTime() {
   );
   return (
     <div>
+      <CurrentTime />
       <header className="appHeader">
         <h1 className="appTitle">Server time</h1>
       </header>

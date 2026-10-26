@@ -62,7 +62,7 @@ to make it becomes [stale](#stale) almost instantly; or a very large number to s
 Toggling between 'first' and 'second' changes the parameters. If the data is still considered fresh
 you will continue to see the old time without any refresh.
 
-<FrameworkPlayground row clock defaultTab="getUpdated" fixtures={[
+<FrameworkPlayground row defaultTab="getUpdated" fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -127,6 +127,7 @@ export default function TimePage({ id }: { id: string }) {
 export default function Navigator({ children }) {
   return (
     <>
+      <CurrentTime />
       <header className="appHeader">
         <h1 className="appTitle">Server time</h1>
         <nav>
@@ -245,7 +246,7 @@ that expires immediately be considered '[invalid](#invalid)'.
 This is demonstrated by the page suspending once its data goes stale:react[ (navigation waits on the progress bar)].
 If the data is still within the expiry time it just continues to display it.
 
-<FrameworkPlayground row clock defaultTab="getUpdated" fixtures={[
+<FrameworkPlayground row defaultTab="getUpdated" fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -313,6 +314,7 @@ export default function TimePage({ id }: { id: string }) {
 export default function Navigator({ children }) {
   return (
     <>
+      <CurrentTime />
       <header className="appHeader">
         <h1 className="appTitle">Server time</h1>
         <nav>
@@ -803,7 +805,7 @@ render(<Demo />);
 Using the [Invalidate schema](/rest/api/Invalidate) allows us to invalidate _any_ endpoint that includes that relies on that [entity](/rest/api/Entity) in their
 response. If the endpoint uses the entity in an [Array](/rest/api/Array), it will simply be removed from that [Array](/rest/api/Array).
 
-<FrameworkPlayground row clock fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -886,6 +888,7 @@ function ShowTime() {
   );
   return (
     <div>
+      <CurrentTime />
       <header className="appHeader">
         <h1 className="appTitle">Server time</h1>
       </header>

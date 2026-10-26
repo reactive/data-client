@@ -89,6 +89,29 @@ div.playground-preview h1:first-child {
   border-radius: var(--ds-radius-xs);
 }
 
+/* The reader's clock (CurrentTime), above the app's header as a phone's
+   clock is above whatever app is open: a pill of the frame's ground,
+   centered where nothing of the app's sits, so it's never one of the
+   app's pages */
+.playground-preview .currentTime {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  margin: -0.25rem auto var(--ds-space-5);
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--pg-stage);
+  color: var(--ds-text-muted);
+  font-size: var(--ds-text-sm);
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.playground-preview .currentTime .secondHand {
+  stroke: var(--pg-live);
+}
+
 /* The app's header: its name at the left, its navigation or actions at the
    right; the space under it (28px), not a rule, sets the page off. The
    name is a small tracked wordmark in the muted color, so the title below

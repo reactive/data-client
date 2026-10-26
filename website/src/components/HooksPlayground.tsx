@@ -16,7 +16,6 @@ const HooksPlayground = ({
   renderCount,
   actionLog,
   autoRun,
-  clock,
   getInitialInterceptorData = () => ({}),
 }: PlaygroundProps) => {
   const inHiddenTab = useContext(PlaygroundHiddenContext);
@@ -33,7 +32,6 @@ const HooksPlayground = ({
       renderCount={renderCount}
       actionLog={actionLog}
       autoRun={autoRun}
-      clock={clock}
     >
       {/* A single fence arrives as one <pre> element; unwrap it to its <code> */}
       {typeof children === 'string' ?

@@ -476,8 +476,6 @@ div.playgroundTextEdit > .playgroundHeader,
   --pg-tab-length: 3rem;
   /* the height of the row's loading page (a skeleton title and paragraph) */
   --pg-pending-sheet: 8.5rem;
-  /* the reader's clock under it (.clockBar), when the Playground has one */
-  --pg-clock-bar: 0px;
   /* how far the code card and the app's sheet reach toward the other's foot */
   --pg-card-foot: 6rem;
   /* the folder's header is narrower than its content: inset by this at
@@ -1421,14 +1419,8 @@ div.fixtureJson + div.fixtureJson {
   .row:has(.sheet[aria-busy]) {
     --pg-preview-gap: max(
       0px,
-      100% - var(--pg-row) - var(--pg-pending-sheet) - var(--pg-clock-bar) -
-        var(--pg-card-foot)
+      100% - var(--pg-row) - var(--pg-pending-sheet) - var(--pg-card-foot)
     );
-  }
-  .row:has(.clockBar) {
-    /* .clockBar's padding (the row's --pg-sheet-pad is 1.25rem; the row
-       can't read it from the wrapper) and .wallClock's height */
-    --pg-clock-bar: calc(6px + 40px + 1.25rem);
   }
   .row .sheet[aria-busy] {
     height: var(--pg-pending-sheet);
@@ -1928,43 +1920,8 @@ div.fixtureJson + div.fixtureJson {
   border-radius: 999px;
   background: var(--pg-hover);
   color: inherit;
-  font-variant-numeric: tabular-nums;
   cursor: pointer;
-}
-/* The reader's clock (WallClock.tsx, Playground `clock`): under the app's
-   sheet, so the times a demo fetched read against the world's, never as one
-   of the app's rows. A well of the frame's ground (the stage's color) with
-   the sheet's color round it, so it sits in the preview as its own segment */
-.clockBar {
-  /* its height is also --pg-clock-bar's, for the row's loading frame */
-  flex: none;
-  padding: 6px var(--pg-sheet-pad) var(--pg-sheet-pad);
-  background: var(--pg-panel);
-}
-.wallClock {
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: 8px;
-  padding: 0 14px;
-  height: 40px;
-  /* the token is the row layout's; the others take its value */
-  border-radius: var(--pg-card-radius, 10px);
-  background: var(--pg-stage);
-  color: var(--pg-muted);
-  font: 500 13px / 1 var(--ifm-font-family-base);
   font-variant-numeric: tabular-nums;
-}
-.wallClock > svg {
-  font-size: 16px;
-}
-.wallClock .secondHand {
-  stroke: var(--pg-live);
-}
-.wallClock > time {
-  margin-inline-start: auto;
-  color: var(--pg-text);
-  font-weight: 600;
 }
 .previewControls {
   display: flex;
