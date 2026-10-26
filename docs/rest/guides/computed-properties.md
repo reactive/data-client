@@ -261,20 +261,21 @@ import { CartItem, CartResource, Product } from './resources/Cart';
 export default function QuantityStepper({ product }: { product: Product }) {
   const ctrl = useController();
   const item = useQuery(CartItem, { id: product.id });
-  const add = () =>
-    ctrl.fetch(CartResource.getList.push, {
-      id: product.id,
-      product,
-      quantity: 1,
-    });
+  // a line stays in the cart at 0, so adding it again reuses that line
   const setQuantity = (quantity: number) =>
-    quantity ?
-      ctrl.fetch(CartResource.partialUpdate, { id: product.id }, { quantity })
-    : ctrl.fetch(CartResource.delete, { id: product.id });
+    ctrl.fetch(CartResource.partialUpdate, { id: product.id }, { quantity });
+  const add = () =>
+    item ?
+      setQuantity(1)
+    : ctrl.fetch(CartResource.getList.push, {
+        id: product.id,
+        product,
+        quantity: 1,
+      });
 
   return (
     <span className="stepper">
-      {item ?
+      {item?.quantity ?
         <>
           <button
             aria-label={`Remove one ${product.name}`}
@@ -339,7 +340,9 @@ import QuantityStepper from './QuantityStepper';
 import { CartResource, usd } from './resources/Cart';
 
 export default function CartPage() {
-  const items = useSuspense(CartResource.getList);
+  const items = useSuspense(CartResource.getList).filter(
+    item => item.quantity,
+  );
   if (!items.length) return <p className="meta">Your cart is empty</p>;
   return (
     <>
@@ -490,25 +493,26 @@ export default function Store({ children }: { children: React.ReactNode }) {
   const props = defineProps<{ product: Product }>();
   const ctrl = useController();
   const item = useQuery(CartItem, () => ({ id: props.product.id }));
-  const add = () =>
-    ctrl.fetch(CartResource.getList.push, {
-      id: props.product.id,
-      product: props.product,
-      quantity: 1,
-    });
+  // a line stays in the cart at 0, so adding it again reuses that line
   const setQuantity = (quantity: number) =>
-    quantity ?
-      ctrl.fetch(
-        CartResource.partialUpdate,
-        { id: props.product.id },
-        { quantity },
-      )
-    : ctrl.fetch(CartResource.delete, { id: props.product.id });
+    ctrl.fetch(
+      CartResource.partialUpdate,
+      { id: props.product.id },
+      { quantity },
+    );
+  const add = () =>
+    item.value ?
+      setQuantity(1)
+    : ctrl.fetch(CartResource.getList.push, {
+        id: props.product.id,
+        product: props.product,
+        quantity: 1,
+      });
 </script>
 
 <template>
   <span class="stepper">
-    <template v-if="item">
+    <template v-if="item?.quantity">
       <button
         :aria-label="`Remove one ${product.name}`"
         @click="setQuantity(item.quantity - 1)"
@@ -559,13 +563,15 @@ export default function Store({ children }: { children: React.ReactNode }) {
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import NumberFlow from '@number-flow/vue';
+  import { computed } from 'vue';
   import CheckoutButton from './CheckoutButton.vue';
   import FreeShipping from './FreeShipping.vue';
   import OrderSummary from './OrderSummary.vue';
   import QuantityStepper from './QuantityStepper.vue';
   import { CartResource, usd } from './resources/Cart';
 
-  const items = await useSuspense(CartResource.getList);
+  const cart = await useSuspense(CartResource.getList);
+  const items = computed(() => cart.value.filter(item => item.quantity));
 </script>
 
 <template>
