@@ -42,7 +42,7 @@ export const CommentResource = resource({
 });
 ```
 
-```html title="PostWithComments.vue" {7-15}
+```html title="PostWithComments.vue" {8-9}
 <script setup lang="ts">
   import { useFetch, useSuspense } from '@data-client/vue';
   import { PostResource, CommentResource } from './Resources';

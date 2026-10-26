@@ -7,7 +7,7 @@
 For instance [fetch](./Controller.md#fetch), [invalidate](./Controller.md#invalidate),
 and [setResponse](./Controller.md#setResponse)
 
-```tsx
+```tsx {6}
 import { useCallback } from 'react';
 import { useController } from '@data-client/react';
 import { MyResource } from './resources';

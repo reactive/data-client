@@ -10,7 +10,7 @@ vue_description: High performance async data rendering without overfetching. use
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
-import Tabs from '@theme/Tabs';
+import PlaygroundTabs from '@site/src/components/PlaygroundTabs';
 import TabItem from '@theme/TabItem';
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
@@ -19,7 +19,7 @@ import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { RestEndpoint } from '@data-client/rest';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import StackBlitz from '@site/src/components/StackBlitz';
-import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
+import { detailFixtures, gqlDetailFixtures, listFixtures } from '@site/src/fixtures/profiles';
 import VueArgs from '../shared/\_vueArgs.mdx';
 
 # useSuspense()
@@ -48,12 +48,13 @@ import VueArgs from '../shared/\_vueArgs.mdx';
 
 ## Usage
 
-<Tabs
+<PlaygroundTabs
 defaultValue="rest"
 groupId="protocol"
 values={[
-{ label: 'Rest', value: 'rest' },
-{ label: 'Promise', value: 'other' },
+{ label: 'REST', value: 'rest' },
+{ label: 'GraphQL', value: 'graphql' },
+{ label: 'Custom', value: 'other' },
 ]}>
 <TabItem value="rest">
 
@@ -79,7 +80,7 @@ export const ProfileResource = resource({
 
 :::react
 
-```tsx title="ProfileDetail"
+```tsx title="ProfileDetail" {5}
 import { useSuspense } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
 
@@ -102,7 +103,7 @@ render(<ProfileDetail />);
 
 :::vue
 
-```html title="ProfileDetail.vue"
+```html title="ProfileDetail.vue" {5}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { ProfileResource } from './ProfileResource';
@@ -116,6 +117,87 @@ render(<ProfileDetail />);
     <div>
       <h4>{{ profile.fullName }}</h4>
       <p>{{ profile.bio }}</p>
+    </div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
+
+</TabItem>
+<TabItem value="graphql">
+
+<FrameworkPlayground fixtures={gqlDetailFixtures} row>
+
+```typescript title="ProfileResource" collapsed
+import { GQLEndpoint, GQLEntity } from '@data-client/graphql';
+
+const gql = new GQLEndpoint('/');
+
+export class Profile extends GQLEntity {
+  avatar = '';
+  fullName = '';
+  bio = '';
+
+  static key = 'Profile';
+}
+
+export const ProfileResource = {
+  get: gql.query(
+    `query GetProfile($id: ID!) {
+    profile(id: $id) {
+      id
+      avatar
+      fullName
+      bio
+    }
+  }`,
+    { profile: Profile },
+  ),
+};
+```
+
+:::react
+
+```tsx title="ProfileDetail" {5}
+import { useSuspense } from '@data-client/react';
+import { ProfileResource } from './ProfileResource';
+
+function ProfileDetail() {
+  const { profile } = useSuspense(ProfileResource.get, { id: 1 });
+  return (
+    <div className="listItem">
+      <Avatar src={profile.avatar} />
+      <div>
+        <h4>{profile.fullName}</h4>
+        <p>{profile.bio}</p>
+      </div>
+    </div>
+  );
+}
+render(<ProfileDetail />);
+```
+
+:::
+
+:::vue
+
+```html title="ProfileDetail.vue" {5}
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { ProfileResource } from './ProfileResource';
+
+  const data = await useSuspense(ProfileResource.get, { id: 1 });
+</script>
+
+<template>
+  <div class="listItem">
+    <Avatar :src="data.profile.avatar" />
+    <div>
+      <h4>{{ data.profile.fullName }}</h4>
+      <p>{{ data.profile.bio }}</p>
     </div>
   </div>
 </template>
@@ -151,7 +233,7 @@ export const getProfile = new Endpoint(
 
 :::react
 
-```tsx title="ProfileDetail"
+```tsx title="ProfileDetail" {5}
 import { useSuspense } from '@data-client/react';
 import { getProfile } from './Profile';
 
@@ -174,7 +256,7 @@ render(<ProfileDetail />);
 
 :::vue
 
-```html title="ProfileDetail.vue"
+```html title="ProfileDetail.vue" {5}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getProfile } from './Profile';
@@ -198,7 +280,7 @@ render(<ProfileDetail />);
 </FrameworkPlayground>
 
 </TabItem>
-</Tabs>
+</PlaygroundTabs>
 
 ## Behavior
 
@@ -314,7 +396,7 @@ export const ProfileResource = resource({
 
 :::react
 
-```tsx title="ProfileList"  {5}
+```tsx title="ProfileList" {5}
 import { useSuspense } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
 
@@ -341,7 +423,7 @@ render(<ProfileList />);
 
 :::vue
 
-```html title="ProfileList.vue"
+```html title="ProfileList.vue" {5}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { ProfileResource } from './ProfileResource';
@@ -566,7 +648,7 @@ export default function ArticleList({ page }: { page: string }) {
 
 :::vue
 
-```html title="ArticleList.vue"
+```html title="ArticleList.vue" {11}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getPosts } from './api/Post';

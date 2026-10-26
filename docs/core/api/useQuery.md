@@ -173,7 +173,7 @@ render(<UsersPage />);
 
 :::vue
 
-```html title="UsersPage.vue" {22}
+```html title="UsersPage.vue" {24}
 <script setup lang="ts">
   import { Query, All } from '@data-client/rest';
   import { useQuery, useFetch } from '@data-client/vue';
@@ -274,7 +274,7 @@ export const DepartmentResource = resource({
 
 :::react
 
-```tsx title="DepartmentsPage" {8}
+```tsx title="DepartmentsPage" {6-9}
 import { All } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
 import { DepartmentResource, Department } from './Resources';

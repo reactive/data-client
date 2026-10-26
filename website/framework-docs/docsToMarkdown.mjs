@@ -449,7 +449,8 @@ function render(file, framework, props = {}) {
           ]),
         ];
       }
-      case 'Tabs': {
+      case 'Tabs':
+      case 'PlaygroundTabs': {
         tabLabels.push(
           Object.fromEntries((attrs.values ?? []).map(v => [v.value, v.label])),
         );

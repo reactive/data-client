@@ -21,7 +21,7 @@ and [setResponse](./Controller.md#setResponse)
 
 :::react
 
-```tsx
+```tsx {6}
 import { useCallback } from 'react';
 import { useController } from '@data-client/react';
 import { MyResource } from './resources';
@@ -56,7 +56,7 @@ function MyComponent({ id }: { id: string }) {
 
 :::vue
 
-```html
+```html {6}
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
   import { MyResource } from './resources';

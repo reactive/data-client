@@ -28,7 +28,7 @@ export const ProfileResource = resource({
 });
 ```
 
-```html title="ProfileList.vue"
+```html title="ProfileList.vue" {5}
 <script setup lang="ts">
   import { useDLE } from '@data-client/vue';
   import { ProfileResource } from './ProfileResource';
@@ -122,7 +122,7 @@ export const ProfileResource = resource({
 });
 ```
 
-```html title="ProfileDetail.vue"
+```html title="ProfileDetail.vue" {5-9}
 <script setup lang="ts">
   import { useDLE } from '@data-client/vue';
   import { ProfileResource } from './ProfileResource';
@@ -188,7 +188,7 @@ export const UserResource = resource({
 });
 ```
 
-```html title="PostWithAuthor.vue" {15-21}
+```html title="PostWithAuthor.vue" {18-24}
 <script setup lang="ts">
   import { computed } from 'vue';
   import { useDLE } from '@data-client/vue';
@@ -229,7 +229,7 @@ export const UserResource = resource({
 
 When entities are stored in [nested structures](https://dataclient.io/rest/guides/relational-data#nesting), that structure will remain.
 
-```typescript title="api/Post"
+```typescript title="api/Post" {14-18}
 import { Entity, RestEndpoint, Collection } from '@data-client/rest';
 
 export class PaginatedPost extends Entity {
@@ -251,7 +251,7 @@ export const getPosts = new RestEndpoint({
 });
 ```
 
-```html title="ArticleList.vue" {14}
+```html title="ArticleList.vue" {13}
 <script setup lang="ts">
   import { useDLE } from '@data-client/vue';
   import { getPosts } from './api/Post';

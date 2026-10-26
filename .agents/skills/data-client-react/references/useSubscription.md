@@ -34,7 +34,7 @@ export const getPrice = new RestEndpoint({
 });
 ```
 
-```tsx title="MasterPrice"
+```tsx title="MasterPrice" {6}
 import { useSuspense, useSubscription } from '@data-client/react';
 import { getPrice } from 'api/Price';
 
@@ -84,7 +84,7 @@ function useSubscription<
 
 ### Only subscribe while element is visible
 
-```tsx title="MasterPrice.tsx"
+```tsx title="MasterPrice.tsx" {9}
 import { useIntersectionObserver } from '@uidotdev/usehooks';
 import { useSuspense, useSubscription } from '@data-client/react';
 import { getPrice } from 'api/Price';
