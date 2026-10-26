@@ -94,6 +94,15 @@ const getTicker = new Endpoint(async () => ({ id: 'BTC', price: 1 }), {
   name: 'getTicker',
 });
 
+/** The stage of a class of the code's that shares the library's name */
+function codeNetworkManagerStage() {
+  class NetworkManager {
+    middleware = () => (next: unknown) => next;
+    cleanup() {}
+  }
+  return managerStages([new NetworkManager() as any])[0];
+}
+
 function mount(
   own: Manager[],
   preview?: React.ReactNode,
@@ -212,25 +221,29 @@ describe('manager attribution', () => {
   });
 
   it("doesn't take a class of the code's for the library's by its name", () => {
+    expect(codeNetworkManagerStage()).toEqual({
+      className: 'NetworkManager',
+      n: 1,
+      library: false,
+    });
+  });
+
+  it("keeps a code class's routes apart from the library's of its name", () => {
+    const own = codeNetworkManagerStage();
     const [library] = managerStages([new NetworkManager()]);
-    const [own] = (() => {
-      class NetworkManager {
-        middleware = () => (next: unknown) => next;
-        cleanup() {}
-      }
-      return managerStages([new NetworkManager() as any]);
-    })();
-    expect(own).toEqual({ className: 'NetworkManager', n: 1, library: false });
-    // nor groups their actions as one way
-    const fetched = (origin: ManagerStage, seq: number) =>
-      ({ seq, action: { type: actionTypes.FETCH }, origin }) as LogEntry;
+    const fetched = (seq: number, origin: ManagerStage): LogEntry => ({
+      seq,
+      at: seq,
+      action: { type: actionTypes.FETCH } as ActionTypes,
+      origin,
+    });
     expect(
-      routesOf([fetched(own, 1), fetched(library, 2), fetched(own, 3)]).map(
-        ({ entry, n }) => [entry.seq, n],
+      routesOf([fetched(1, own), fetched(2, library), fetched(3, own)]).map(
+        ({ entry, n }) => ({ seq: entry.seq, n }),
       ),
     ).toEqual([
-      [1, 2],
-      [2, 1],
+      { seq: 1, n: 2 },
+      { seq: 2, n: 1 },
     ]);
   });
 

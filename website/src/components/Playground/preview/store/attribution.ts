@@ -127,8 +127,9 @@ export function byStage(stage: Stage) {
     originOf(entry) === stage || entry.consumedBy === stage;
 }
 
-/** Each stage once: every store whose chain has the same class at the same
- * place among its class gets the same stage, so a history that spans stores
+/** Each stage once: every store whose chain has the same class (by name,
+ * and whether it is the library's or the code's) at the same place among
+ * its class gets the same stage, so a history that spans stores
  * (one restored after an error, or remade when the code's managers change)
  * compares stages by identity, and a stage picked stays picked. There are a
  * few per manager class, so it is never cleared */
