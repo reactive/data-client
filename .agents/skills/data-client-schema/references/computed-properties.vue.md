@@ -104,22 +104,17 @@ export const CartResource = resource({
 export const usd = { style: 'currency', currency: 'USD' } as const;
 ```
 
-```ts title="getCartTotals" {4-17}
+```ts title="getCartTotals" {4-11}
 import { All, Query } from '@data-client/rest';
 import { CartItem } from './resources/Cart';
 
 export const getCartTotals = new Query(new All(CartItem), items => {
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-  const freeShippingAt = 50;
-  const shipping = subtotal === 0 || subtotal >= freeShippingAt ? 0 : 5;
-  return {
-    count,
-    subtotal,
-    shipping,
-    total: subtotal + shipping,
-    toFreeShipping: Math.max(0, freeShippingAt - subtotal),
-  };
+  const toFreeShipping = Math.max(0, 50 - subtotal);
+  const shipping = toFreeShipping ? 5 : 0;
+  const total = subtotal + shipping;
+  return { count, subtotal, shipping, total, toFreeShipping };
 });
 ```
 

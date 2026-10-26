@@ -499,6 +499,12 @@ div.playground-preview h1:first-child {
   align-self: center;
   font-variant-numeric: tabular-nums;
 }
+/* the smallest phones: three prices ($52.00) still fit side by side */
+@media (max-width: 360px) {
+  .playground-preview .stats dd {
+    font-size: var(--ds-text-xl);
+  }
+}
 /* A quantity stepper (a cart row's): − count + in one edge, the count
    between its two buttons; hover and press as an upvote's. In a row the
    text before it takes the slack, and a trailing `meta` (a line's price)
@@ -523,6 +529,13 @@ div.playground-preview h1:first-child {
   transition:
     background-color var(--motion-snappy),
     color var(--motion-snappy);
+}
+/* a fingertip's target on touch screens */
+@media (pointer: coarse) {
+  .playground-preview .stepper > button {
+    width: 40px;
+    height: 40px;
+  }
 }
 /* inside the stepper's edge */
 .playground-preview .stepper > button:focus-visible {
