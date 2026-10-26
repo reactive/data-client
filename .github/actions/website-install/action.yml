@@ -5,7 +5,7 @@ description: >-
   master always install from scratch.
 inputs:
   save:
-    description: Save the install when no cache has it (`true` in one job per run)
+    description: Save the install when no cache has it (`true` in one job per workflow)
     default: 'false'
 outputs:
   libs-key:
@@ -22,7 +22,7 @@ runs:
         echo "libs=website-libs-${{ hashFiles('packages/*/src/**', 'packages/*/package.json', 'packages/*/rollup.config.*', 'scripts/rollup-plugins/**', 'babel.config.js', 'tsconfig*.json', 'packages/*/tsconfig*.json', 'package.json', 'yarn.lock') }}" >> "$GITHUB_OUTPUT"
     # Looks up only, off pull requests, to know whether to save
     - id: modules
-      if: github.event_name != 'merge_group'
+      if: github.event_name == 'pull_request' || (inputs.save == 'true' && github.event_name != 'merge_group')
       uses: actions/cache/restore@v6
       with:
         # Keep in sync with the save below

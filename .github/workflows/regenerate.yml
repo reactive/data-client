@@ -72,6 +72,9 @@ jobs:
       - name: Install packages
         # website provides bignumber.js, @number-flow/react, etc.
         uses: ./.github/actions/website-install
+        # Packages-only PRs skip site-preview.yml's checks, its other saver
+        with:
+          save: 'true'
       - name: Regenerate playground editor types
         run: yarn copy:websitetypes
       - name: Regenerate skill references

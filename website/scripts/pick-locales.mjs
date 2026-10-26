@@ -29,7 +29,7 @@ const REPRESENTATIVE = 'zh-Hans';
  * plugins. Leaves out what only translators and checks run (translate.mjs,
  * its glossaries and tests, the docs-example checks) and docs */
 const sharesEveryLocale = file =>
-  /^website\/([^/]+\.(js|cjs|mjs|ts)|(translate|framework-docs)\/.*)$/.test(
+  /^website\/(?:[^/]+\.(?:[cm]?js|ts)$|(?:translate|framework-docs)\/)/.test(
     file,
   ) &&
   !/\.md$|\.test\.mjs$/.test(file) &&
@@ -39,7 +39,7 @@ const sharesEveryLocale = file =>
 
 /** A locale's own files: its translations and its lock (which marks the
  * pages whose English changed since). Keep in sync with translationOf() and
- * lockFile() in translate/localeDocs.js, which this doesn't import to stay light */
+ * lockFile() in translate/localeDocs.js */
 const localeOf = file =>
   file.match(/^website\/i18n\/([^/]+)\//)?.[1] ??
   file.match(/^website\/translate\/lock\/([^/]+)\.json$/)?.[1];
@@ -64,8 +64,8 @@ const gitLines = (...args) => {
   }
 };
 
-/** Locales whose translations or lock mention any of `names` as a whole
- * word, by path or content */
+/** Locales whose translations or lock mention any of `names`: as a whole
+ * word in their content, or as a file or folder name in their path */
 export function gitMentions(names) {
   const files = gitLines(
     'grep',
@@ -77,12 +77,10 @@ export function gitMentions(names) {
     'website/i18n',
     'website/translate/lock',
   );
-  const paths = gitLines('ls-files', '--', 'website/i18n').filter(file =>
-    file
-      .replace(/\.[^/.]+$/, '')
-      .split('/')
-      .some(segment => names.includes(segment)),
-  );
+  const paths = gitLines('ls-files', '--', 'website/i18n').filter(file => {
+    const { dir, name } = path.posix.parse(file);
+    return [...dir.split('/'), name].some(part => names.includes(part));
+  });
   return new Set([...files, ...paths].map(localeOf).filter(Boolean));
 }
 
