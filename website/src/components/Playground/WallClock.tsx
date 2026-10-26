@@ -3,29 +3,24 @@ import React, { useSyncExternalStore } from 'react';
 
 import styles from './styles.module.css';
 
-// .wallClock's min-width fits this format's widest time
 const timeFormat = new Intl.DateTimeFormat('en-US', { timeStyle: 'medium' });
 const label = translate({ id: 'playground.clock', message: 'Your clock' });
 
-/** Playground `clock`: empty on the server, which can't know the reader's
- * time (the pill holds its width) */
+/** Playground `clock`: a bar under the app's sheet, apart from it. Empty on
+ * the server, which can't know the reader's time */
 export default function WallClock() {
   const seconds = useSyncExternalStore(subscribe, nowSeconds, serverSeconds);
   const date = seconds === null ? null : new Date(seconds * 1000);
   return (
-    <span
-      className={styles.wallClock}
-      role="timer"
-      title={label}
-      aria-label={label}
-    >
-      {date ?
-        <>
-          <ClockFace date={date} />
+    <div className={styles.clockBar}>
+      <div className={styles.wallClock} role="timer" aria-label={label}>
+        <ClockFace date={date} />
+        <span>{label}</span>
+        {date ?
           <time dateTime={date.toISOString()}>{timeFormat.format(date)}</time>
-        </>
-      : null}
-    </span>
+        : null}
+      </div>
+    </div>
   );
 }
 
@@ -45,9 +40,7 @@ const subscribe = (onChange: () => void) => {
 };
 
 /** A clock face whose hands show `date`: the second hand steps each second */
-function ClockFace({ date }: { date: Date }) {
-  const m = date.getMinutes();
-  const h = (date.getHours() % 12) + m / 60;
+function ClockFace({ date }: { date: Date | null }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -60,6 +53,18 @@ function ClockFace({ date }: { date: Date }) {
       aria-hidden="true"
     >
       <circle cx="12" cy="12" r="9.5" />
+      {date ?
+        <Hands date={date} />
+      : null}
+    </svg>
+  );
+}
+
+function Hands({ date }: { date: Date }) {
+  const m = date.getMinutes();
+  const h = (date.getHours() % 12) + m / 60;
+  return (
+    <>
       <path d="M12 12V7.5" transform={`rotate(${h * 30} 12 12)`} />
       <path d="M12 12V5" transform={`rotate(${m * 6} 12 12)`} />
       <path
@@ -68,6 +73,6 @@ function ClockFace({ date }: { date: Date }) {
         strokeWidth="1.25"
         transform={`rotate(${date.getSeconds() * 6} 12 12)`}
       />
-    </svg>
+    </>
   );
 }

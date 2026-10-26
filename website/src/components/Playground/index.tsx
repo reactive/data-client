@@ -23,6 +23,7 @@ import type { AutoRunScript } from './preview/autorun/script';
 import FixturePreview from './preview/FixturePreview';
 import type LivePreviewType from './preview/LivePreview';
 import PendingSheet from './preview/PendingSheet';
+import WallClock from './WallClock';
 import PreviewWrapper, {
   PreviewHeaderControls,
   previewSurfaceClassName,
@@ -74,7 +75,7 @@ export interface PlaygroundProps<T = any> {
    * replays it). Declare it once at module level: its identity keys the
    * once-per-page autostart. */
   autoRun?: AutoRunScript;
-  /** The reader's clock in the preview's header, outside the app: for demos
+  /** The reader's clock in a bar under the app, apart from it: for demos
    * whose data holds a time to read against now (how old it is) */
   clock?: boolean;
 }
@@ -322,10 +323,12 @@ function PreviewLoading({
       headerControls={<PreviewHeaderControls row={row} />}
       fixtures={fixtureContent}
       code={code}
-      clock={clock}
     >
       <div className={previewSurfaceClassName}>
         <PendingSheet />
+        {clock ?
+          <WallClock />
+        : null}
       </div>
       {row ? null : <StoreToggle />}
     </PreviewWrapper>

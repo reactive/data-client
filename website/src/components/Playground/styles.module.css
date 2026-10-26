@@ -1911,8 +1911,7 @@ div.fixtureJson + div.fixtureJson {
   justify-content: space-between;
   align-items: center;
 }
-.renderCount,
-.wallClock {
+.renderCount {
   /* a tonal pill, no edge */
   font: 500 12px / 1.7 var(--ifm-font-family-base);
   letter-spacing: normal;
@@ -1922,61 +1921,41 @@ div.fixtureJson + div.fixtureJson {
   background: var(--pg-hover);
   color: inherit;
   font-variant-numeric: tabular-nums;
-}
-.renderCount {
   cursor: pointer;
 }
-/* The reader's clock (WallClock.tsx, Playground `clock`): in the header,
-   apart from the app's sheet, so the times a demo fetched read against the
-   world's */
+/* The reader's clock (WallClock.tsx, Playground `clock`): a bar of the
+   frame's ground under the app's sheet, so the times a demo fetched read
+   against the world's, never as one of the app's rows. The sheet's color
+   runs round it, so it sits in the preview as its own segment */
+.clockBar {
+  flex: none;
+  padding: 6px var(--pg-sheet-pad) var(--pg-sheet-pad);
+  background: var(--pg-panel);
+}
 .wallClock {
-  display: inline-flex;
+  display: flex;
   flex: none;
   align-items: center;
-  gap: 5px;
-  /* fits WallClock's widest time (12:00:00 PM), so the pill neither grows
-     as the time arrives nor resizes as it ticks; the height is its line */
-  min-width: 9em;
-  min-height: 1.7em;
-  margin-inline: 0.75rem;
-  padding-inline-start: 0.5em;
-  color: var(--pg-text);
-  white-space: nowrap;
+  gap: 8px;
+  padding: 0 14px;
+  min-height: 40px;
+  border-radius: var(--pg-card-radius);
+  background: var(--pg-stage);
+  color: var(--pg-muted);
+  font: 500 13px / 1 var(--ifm-font-family-base);
+  font-variant-numeric: tabular-nums;
 }
 .wallClock > svg {
-  font-size: 14px;
-  color: var(--pg-muted);
+  font-size: 16px;
 }
 .wallClock .secondHand {
   stroke: var(--pg-live);
 }
-/* a tight header gives its room to the demo's path: a small gap after it,
-   and the router's controls close to the label's lone dot */
-@container previewHeader (max-width: 36rem) {
-  .wallClock {
-    margin-inline: 0.375rem 0;
-  }
-  .routerControls {
-    margin-inline-start: 0.375rem;
-  }
+.wallClock > time {
+  margin-inline-start: auto;
+  color: var(--pg-text);
+  font-weight: 600;
 }
-/* phones trade the fixed width for the path's room: the pill fits a
-   one-digit hour, widening a little from 10:00 to 12:59, and the
-   smallest drops the face */
-@container previewHeader (max-width: 22rem) {
-  .wallClock {
-    min-width: 8.25em;
-  }
-}
-@container previewHeader (max-width: 18rem) {
-  .wallClock {
-    min-width: 6.75em;
-  }
-  .wallClock > svg {
-    display: none;
-  }
-}
-
 .previewControls {
   display: flex;
   align-items: center;

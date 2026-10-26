@@ -14,6 +14,7 @@ import { ManagerError, ManagersSync } from './ManagersSync';
 import PendingSheet from './PendingSheet';
 import type { PreviewErrorProps } from './PreviewError';
 import { previewSurfaceClassName } from './PreviewWrapper';
+import WallClock from '../WallClock';
 import SchemaRegistry from './store/schemaRegistry';
 import StoreInspector from './StoreInspector';
 import type { PreviewProps } from '../types';
@@ -33,6 +34,7 @@ function Preview<T>({
   replacedHistory,
   managerHost,
   onInteract,
+  clock,
   ...errorProps
 }: PreviewProps<T> &
   PreviewErrorProps & {
@@ -45,6 +47,8 @@ function Preview<T>({
     history: number;
     /** A history that may still come back; the log drops any other */
     replacedHistory?: number;
+    /** Playground `clock`: the reader's clock under the app */
+    clock?: boolean;
     /** Managers the code declares with `getManagers()` */
     managerHost: ManagerHost;
     /** User pointer/keyboard input inside the result */
@@ -85,6 +89,9 @@ function Preview<T>({
               <PreviewBlockLazy onCommit={onCommit} {...errorProps} />
             </Boundary>
             <ManagerError host={managerHost} />
+            {clock ?
+              <WallClock />
+            : null}
           </div>
           <StoreInspector
             open={storeOpen}

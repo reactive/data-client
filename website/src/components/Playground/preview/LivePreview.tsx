@@ -97,7 +97,6 @@ export default function LivePreview<T>({
         }
         fixtures={fixtureContent}
         code={codeControl}
-        clock={clock}
         headerControls={
           <PreviewHeaderControls
             row={row}
@@ -124,6 +123,7 @@ export default function LivePreview<T>({
           replacedHistory={replacedHistory}
           managerHost={managers.host}
           onReset={reset}
+          clock={clock}
           {...handlers}
         />
       </PreviewWrapper>
