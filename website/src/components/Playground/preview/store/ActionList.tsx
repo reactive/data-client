@@ -145,10 +145,12 @@ export function ActionsLevel({
 }) {
   const { history } = useActions();
   // at the store: who sent what, and the panel's own filter, as the stage
-  // picked narrows the steps and the timeline as it does the list
+  // picked narrows the steps and the timeline as it does the list. Those
+  // follow the State tab's subject, so the panel has a pipeline only while
+  // that is the store, and a store level over another subject draws none
   const { pipeline: panelPipeline } = useNavState();
   const pipeline = subject.kind === 'root' ? panelPipeline : null;
-  const filter = pipeline?.actions ?? subjectFilter;
+  const filter = pipeline?.filter ?? subjectFilter;
   const rows = useRows(filter);
   return (
     <>

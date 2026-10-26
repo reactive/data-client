@@ -478,7 +478,7 @@ export default function StorePanel({
       set,
       step,
       show,
-      pipeline: chain ? { chain, stage, pickStage, actions: filter } : null,
+      pipeline: chain ? { chain, stage, pickStage, filter } : null,
     }),
     [
       momentSeq,

@@ -333,7 +333,7 @@ export interface NavState {
 }
 
 /** The store's dispatch pipeline, over its actions */
-export interface StorePipeline {
+interface StorePipeline {
   readonly chain: readonly ManagerStage[];
   /** The stage picked, which narrows the list, the steps and the timeline
    * to what it took part in */
@@ -341,7 +341,7 @@ export interface StorePipeline {
   readonly pickStage: (stage: Stage | null) => void;
   /** What the store's actions list, step through and mark: all of them,
    * or `stage`'s where it is picked */
-  readonly actions: SubjectFilter;
+  readonly filter: SubjectFilter;
 }
 export const NavStateContext = createContext<NavState>({
   seq: null,
