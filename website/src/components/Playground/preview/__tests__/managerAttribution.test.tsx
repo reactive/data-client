@@ -21,7 +21,13 @@ import React, { Suspense } from 'react';
 import { declarationsOf } from '../../editor/declarations';
 import { CodeOpenerContext, type CodeOpener } from '../../editor/openCode';
 import { stageFilter } from '../store/actionGroups';
-import { managerStages, stageName } from '../store/attribution';
+import type { LogEntry } from '../store/actionLog';
+import {
+  managerStages,
+  routesOf,
+  stageName,
+  type ManagerStage,
+} from '../store/attribution';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
 
@@ -206,12 +212,26 @@ describe('manager attribution', () => {
   });
 
   it("doesn't take a class of the code's for the library's by its name", () => {
-    class NetworkManager {
-      middleware = () => (next: unknown) => next;
-      cleanup() {}
-    }
-    const [own] = managerStages([new NetworkManager() as any]);
+    const [library] = managerStages([new NetworkManager()]);
+    const [own] = (() => {
+      class NetworkManager {
+        middleware = () => (next: unknown) => next;
+        cleanup() {}
+      }
+      return managerStages([new NetworkManager() as any]);
+    })();
     expect(own).toEqual({ className: 'NetworkManager', n: 1, library: false });
+    // nor groups their actions as one way
+    const fetched = (origin: ManagerStage, seq: number) =>
+      ({ seq, action: { type: actionTypes.FETCH }, origin }) as LogEntry;
+    expect(
+      routesOf([fetched(own, 1), fetched(library, 2), fetched(own, 3)]).map(
+        ({ entry, n }) => [entry.seq, n],
+      ),
+    ).toEqual([
+      [1, 2],
+      [2, 1],
+    ]);
   });
 
   it('names the managers of a store that took over a history before it acted', async () => {

@@ -833,10 +833,10 @@ export function stageFilter(
     const hit = byStage(picked);
     return { ...base, hit, lists: hit };
   }
-  const own = new Set(chain.filter(stage => !stage.library));
+  const codeStages = new Set(chain.filter(stage => !stage.library));
   return {
     ...base,
-    hit: e => base.hit(e) || (!!e.consumedBy && own.has(e.consumedBy)),
+    hit: e => base.hit(e) || (!!e.consumedBy && codeStages.has(e.consumedBy)),
   };
 }
 
