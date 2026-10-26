@@ -192,6 +192,7 @@
     color: var(--store-fg);
   }
 }
+/* one layer: picked tab + .tabPanel */
 .tab[aria-selected='true'] {
   background: var(--pg-panel);
   color: var(--store-fg);

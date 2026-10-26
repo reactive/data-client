@@ -35,7 +35,7 @@ export default function TabList({
   const list = useRef<HTMLDivElement>(null);
   const selected = tabs.findIndex(tab => tab.selected);
   const fileTabs = tabClassName === undefined;
-  useFlushEdges(list, selected, fileTabs);
+  useOverflowEdges(list, selected, tabs.map(tab => tab.key).join(), fileTabs);
   // the selected tab is the one in the tab order; the arrows move from it
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     // modified keys keep their own meaning (Alt+← is Back)
@@ -107,13 +107,18 @@ export default function TabList({
   );
 }
 
-/** Scrolls the selected tab into the row's view and marks the row
- * `data-flush-left` / `data-flush-right` while that tab is too near the
- * header's edge for its curve and the corner of what it rises from
- * (`--pg-card-radius` each) to fit between, so that corner squares to meet it */
-function useFlushEdges(
+/** Keeps the selected tab in the row's view (its scroll padding past it) and
+ * marks the row's edges: `data-more-left` / `data-more-right` while tabs hide
+ * past that edge (where it fades), `data-flush-left` / `data-flush-right`
+ * while the selected tab is too near the header's edge for its curve and the
+ * corner of what it rises from (`--pg-card-radius` each) to fit between, so
+ * that corner squares to meet it */
+function useOverflowEdges(
   list: RefObject<HTMLDivElement | null>,
   selected: number,
+  /** the tabs' keys, joined (a dependency that changes only with them): new
+   * tabs are new elements to observe */
+  keys: string,
   enabled: boolean,
 ) {
   useLayoutEffect(() => {
@@ -121,16 +126,20 @@ function useFlushEdges(
     const row = list.current;
     const edges = row?.parentElement;
     if (!row || !edges) return;
+    const style = getComputedStyle(row);
     const reach = Math.max(
       1,
-      2 *
-        (parseFloat(
-          getComputedStyle(row).getPropertyValue('--pg-card-radius'),
-        ) || 0),
+      2 * (parseFloat(style.getPropertyValue('--pg-card-radius')) || 0),
     );
+    const selectedTab = row.children[selected];
+    // the row's scroll padding, so the next tab peeks past the fade (the
+    // scroll clamps it away at the ends)
+    const padLeft = parseFloat(style.scrollPaddingLeft) || 0;
+    const padRight = parseFloat(style.scrollPaddingRight) || 0;
     const mark = () => {
-      const tab = row.children[selected]?.getBoundingClientRect();
+      const tab = selectedTab?.getBoundingClientRect();
       const box = edges.getBoundingClientRect();
+      const view = row.getBoundingClientRect();
       row.toggleAttribute(
         'data-flush-left',
         !!tab && tab.left < box.left + reach,
@@ -139,22 +148,44 @@ function useFlushEdges(
         'data-flush-right',
         !!tab && tab.right > box.right - reach,
       );
+      const first = row.firstElementChild?.getBoundingClientRect();
+      const last = row.lastElementChild?.getBoundingClientRect();
+      // a pixel's slack: zoomed, scroll positions land between pixels
+      row.toggleAttribute(
+        'data-more-left',
+        !!first && first.left < view.left - 1,
+      );
+      row.toggleAttribute(
+        'data-more-right',
+        !!last && last.right > view.right + 1,
+      );
     };
-    const tab = row.children[selected]?.getBoundingClientRect();
-    const view = row.getBoundingClientRect();
-    if (tab && tab.right > view.right) row.scrollLeft += tab.right - view.right;
-    else if (tab && tab.left < view.left)
-      row.scrollLeft -= view.left - tab.left;
+    const reveal = () => {
+      const tab = selectedTab?.getBoundingClientRect();
+      const view = row.getBoundingClientRect();
+      if (!tab) return;
+      const right = tab.right + padRight;
+      const left = tab.left - padLeft;
+      if (right > view.right) row.scrollLeft += right - view.right;
+      else if (left < view.left) row.scrollLeft -= view.left - left;
+    };
+    reveal();
     mark();
     row.addEventListener('scroll', mark, { passive: true });
+    // the header resizing, or the tabs (their names widen when the web font
+    // lands), moves the selected one: reveal it again
     const observer =
       typeof ResizeObserver === 'undefined' ? undefined : (
-        new ResizeObserver(mark)
+        new ResizeObserver(() => {
+          reveal();
+          mark();
+        })
       );
     observer?.observe(edges);
+    for (const tab of row.children) observer?.observe(tab);
     return () => {
       row.removeEventListener('scroll', mark);
       observer?.disconnect();
     };
-  }, [list, selected, enabled]);
+  }, [list, selected, keys, enabled]);
 }

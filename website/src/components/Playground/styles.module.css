@@ -523,6 +523,9 @@ div.playgroundTextEdit > .playgroundHeader,
   letter-spacing: 0;
 }
 .row .tabs {
+  /* one layer with the card: the mask stacks the row, so lift the row */
+  position: relative;
+  z-index: 1;
   height: 100%;
   /* the header's width, so a short row has room for the last tab's curve */
   flex: 1 1 auto;
@@ -552,10 +555,10 @@ div.playgroundTextEdit > .playgroundHeader,
    its shadow) and curving out into the card's top edge either side, the
    curves a pixel into the tab so no hairline shows between them (not
    below it: the tab row would scroll) */
+/* one layer: open tab + code card */
 .row .tab.selected,
 .row .tab.selected:hover {
   position: relative;
-  z-index: 1;
   --pg-fillet-color: var(--pg-tab-selected-bg);
   background: var(--pg-tab-selected-bg);
   color: var(--pg-tab-selected);
@@ -765,6 +768,7 @@ div.playgroundTextEdit > .playgroundHeader,
    past the preview's edge and, drawn out, the Store's; it curves into
    that edge either side as the open file's tab does into its card; over
    that edge's shadow, so the two read as one paper */
+/* one layer: handle + folder */
 .storeTab {
   position: absolute;
   z-index: 1;
@@ -869,9 +873,46 @@ div.playgroundTextEdit > .playgroundHeader,
   height: 100%;
 }
 
+/* More tabs than fit: the row scrolls with no bar (it would run under the
+   tabs and part the open one from its card), and fades out at each edge that
+   has tabs past it (TabList's `data-more-*` marks), its scroll padding
+   keeping the selected one twice that in so the next peeks out to tap */
+@property --pg-fade-left {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --pg-fade-right {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
 .tabs {
+  --pg-tab-fade: 28px;
+  scroll-padding-inline: calc(2 * var(--pg-tab-fade));
   display: flex;
   overflow: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--pg-fade-left),
+    #000 calc(100% - var(--pg-fade-right)),
+    transparent
+  );
+  transition:
+    --pg-fade-left var(--motion-snappy),
+    --pg-fade-right var(--motion-snappy);
+}
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+.tabs[data-more-left] {
+  --pg-fade-left: var(--pg-tab-fade);
+}
+.tabs[data-more-right] {
+  --pg-fade-right: var(--pg-tab-fade);
 }
 
 .tab {
@@ -967,6 +1008,7 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 /* the tab's foot, down to the header's bottom edge, curving out into the
    card's top edge */
+/* one layer: toggle + fixtures card */
 .row .fixturesToggle {
   --fixtures-tab: var(--pg-tab-selected-bg);
   --fixtures-foot: calc((var(--pg-row) - 2rem) / 2);
