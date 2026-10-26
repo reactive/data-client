@@ -428,7 +428,45 @@ describe('manager attribution', () => {
     const action = { type: actionTypes.GC } as ActionTypes;
     guarded.middleware({} as Controller)(next)(action);
     expect(report.mock.calls[0][0].message).toMatch(/returned no function/);
+    expect(report).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledWith(action);
+  });
+
+  it('reports a step that returns no function', () => {
+    const log = new SchemaRegistry().log.connect(0);
+    const report = jest.fn();
+    const [guarded] = log.track(
+      [
+        {
+          middleware: () => () => undefined,
+          cleanup() {},
+        } as unknown as Manager,
+      ],
+      () => report,
+    );
+    const next = jest.fn();
+    const dispatch = guarded.middleware({} as Controller)(next);
+    const action = { type: actionTypes.GC } as ActionTypes;
+    dispatch(action);
+    dispatch(action);
+    expect(report.mock.calls[0][0].message).toMatch(/must return action =>/);
+    expect(report).toHaveBeenCalledTimes(1);
+    expect(next).toHaveBeenCalledTimes(2);
+  });
+
+  it('guards a middleware that passes next itself', () => {
+    const log = new SchemaRegistry().log.connect(0);
+    const report = jest.fn();
+    const [guarded] = log.track(
+      [{ middleware: () => (next: unknown) => next, cleanup() {} } as any],
+      () => report,
+    );
+    const error = new Error('later');
+    const action = { type: actionTypes.GC } as ActionTypes;
+    guarded.middleware({} as Controller)(() => {
+      throw error;
+    })(action);
+    expect(report).toHaveBeenCalledWith(error);
   });
 });
 

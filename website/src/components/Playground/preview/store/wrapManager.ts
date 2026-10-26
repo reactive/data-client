@@ -54,6 +54,15 @@ export function wrapManager(
       }
     : fn;
   const skip = () => {};
+  /** `fn`, which a step of the manager's middleware returned; untyped
+   * playground code can forget to return one */
+  const returned = <F>(fn: F, shape: string): F => {
+    if (typeof fn !== 'function')
+      throw new Error(
+        `${manager.constructor.name}'s middleware returned no function where it must return ${shape}.`,
+      );
+    return fn;
+  };
   const wrapped: Manager = Object.create(manager);
   // with `this` the manager, as DataProvider would call them
   if (manager.init)
@@ -75,15 +84,9 @@ export function wrapManager(
             `${manager.constructor.name} has no middleware. Managers must define middleware.`,
           );
         // may be a prototype method that reads `this`
-        const withNext = middleware.call(manager, own);
-        if (typeof withNext !== 'function')
-          throw new Error(
-            `${manager.constructor.name}'s middleware returned no function. It must return next => action => ….`,
-          );
-        return withNext;
+        return returned(middleware.call(manager, own), 'next => action => …');
       },
-      // a step that passes every action on
-      () => next => next,
+      () => undefined,
     )();
     return next => {
       const passed = new WeakSet<object>();
@@ -106,17 +109,22 @@ export function wrapManager(
         if (reported.has(action)) consumed(action);
         return next(action);
       };
-      // building the step may throw too (or find no function to call)
-      const step = attempt(withController, () => passOn)(passOn);
-      // one that failed to build passes every action on, unguarded, so
-      // what fails after it isn't reported as its error. A step that throws
-      // after passing the action on must not pass it twice
+      const step =
+        withController &&
+        attempt(
+          () => returned(withController(passOn), 'action => …'),
+          () => undefined,
+        )();
+      // a step that failed to build passes every action on, unguarded, so
+      // what fails after it isn't reported as its error
       const dispatch =
-        step === passOn ? passOn : (
+        step ?
+          // a step that throws after passing the action on must not pass it
+          // twice
           attempt(step, (action: ActionTypes) =>
             passed.has(action) ? Promise.resolve() : passOn(action),
           )
-        );
+        : passOn;
       return action => {
         const check = () => {
           if (passed.has(action)) return;
