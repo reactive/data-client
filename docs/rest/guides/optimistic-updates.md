@@ -24,8 +24,8 @@ export const timingDemo = [
   // timeline holds every response
   { wait: 5000 },
   { click: { in: 'store', selector: 'button[aria-label="Diff"]' } },
-  // the first action (the count's load), then on through each change: the
-  // 4 clicks' optimistic updates and responses
+  // the first action (the count's load), then on through each change, time
+  // to read each diff: 8 = the 4 clicks' optimistic updates and responses
   {
     click: {
       in: 'store',
