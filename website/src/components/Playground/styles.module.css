@@ -555,7 +555,9 @@ div.playgroundTextEdit > .playgroundHeader,
 /* the open file's tab is the card's paper rising: over the card's edge (and
    its shadow) and curving out into the card's top edge either side, the
    curves a pixel into the tab so no hairline shows between them (not
-   below it: the tab row would scroll) */
+   below it: the tab row would scroll). Its z-index only reaches as far as
+   the row when the row is a stacking context (mask, opacity, filter,
+   transform), so .row .tabs keeps the row above the card */
 .row .tab.selected,
 .row .tab.selected:hover {
   position: relative;
