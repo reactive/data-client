@@ -110,14 +110,31 @@ export default class MetricsManager implements Manager {
 
 Show a toast when any [mutation](https://dataclient.io/rest/guides/side-effects) succeeds or fails.
 
-```typescript
+```ts title="TodoResource"
+import { Entity, resource } from '@data-client/rest';
+
+export class Todo extends Entity {
+  id = 0;
+  title = '';
+  completed = false;
+
+  static key = 'Todo';
+}
+export const TodoResource = resource({
+  path: '/todos/:id',
+  schema: Todo,
+  optimistic: true,
+});
+```
+
+```ts title="ToastManager"
 import {
   type Manager,
   type Middleware,
   actionTypes,
 } from '@data-client/react';
-import { toast } from './toast';
 
+// toast is the app's toast library, e.g. import { toast } from 'sonner'
 export default class ToastManager implements Manager {
   middleware: Middleware = controller => next => async action => {
     if (
@@ -134,13 +151,42 @@ export default class ToastManager implements Manager {
 }
 ```
 
+```ts title="getManagers"
+import { getDefaultManagers } from '@data-client/react';
+import ToastManager from './ToastManager';
+
+// the app's managers (DataProvider or DataClientPlugin)
+export default function getManagers() {
+  return [new ToastManager(), ...getDefaultManagers()];
+}
+```
+
 ### Refresh on focus or reconnect {#refresh-on-focus}
 
 [Controller.expireAll()](./Controller.md#expireAll) marks data as [Stale](https://dataclient.io/docs/concepts/expiry-policy#stale),
 triggering refetch of any _actively rendered_ data without suspending ([stale-while-revalidate](https://dataclient.io/docs/concepts/expiry-policy)).
 [init()](./Manager.md#init) and [cleanup()](./Manager.md#cleanup) manage the event listeners.
 
-```typescript
+```ts title="getRate"
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+export class Rate extends Entity {
+  currency = '';
+  usd = 0;
+  fetchedAt = '';
+
+  pk() {
+    return this.currency;
+  }
+  static key = 'Rate';
+}
+export const getRate = new RestEndpoint({
+  path: '/rates/:currency',
+  schema: Rate,
+});
+```
+
+```ts title="RefreshManager"
 import type { Manager, Middleware, Controller } from '@data-client/react';
 
 export default class RefreshManager implements Manager {
@@ -162,6 +208,16 @@ export default class RefreshManager implements Manager {
     window.removeEventListener('focus', this.handle);
     window.removeEventListener('online', this.handle);
   }
+}
+```
+
+```ts title="getManagers"
+import { getDefaultManagers } from '@data-client/react';
+import RefreshManager from './RefreshManager';
+
+// the app's managers (DataProvider or DataClientPlugin)
+export default function getManagers() {
+  return [new RefreshManager(), ...getDefaultManagers()];
 }
 ```
 
