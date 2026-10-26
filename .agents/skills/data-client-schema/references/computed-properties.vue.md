@@ -66,51 +66,188 @@ class User extends Entity {
 
 ## Global computations
 
-[Query](./Query.vue.md) can be used for computations of derived data from more than
-one entity. We generally call these aggregates.
+[Query](./Query.vue.md) derives data from many entities at once, such as a count or a total
+(an aggregate). Define it once, beside your resources, and read it from any component with
+[useQuery](https://dataclient.io/vue/api/useQuery).
 
-```ts title="resources/User"
+Here a cart's totals join each `CartItem`'s quantity with its `Product`'s price, and charge
+shipping under $50. The header's `CartBadge` and the `OrderSummary` under the items both read
+`getCartTotals`; change a quantity and both follow.
+
+```ts title="resources/Cart"
 import { Entity, resource } from '@data-client/rest';
 
-export class User extends Entity {
+export class Product extends Entity {
   id = '';
   name = '';
-  isAdmin = false;
+  price = 0;
 }
-export const UserResource = resource({
-  path: '/users/:id',
-  schema: User,
+
+export class CartItem extends Entity {
+  id = '';
+  product = Product.fromJS();
+  quantity = 1;
+
+  get total() {
+    return this.quantity * this.product.price;
+  }
+
+  static schema = { product: Product };
+}
+
+export const CartResource = resource({
+  path: '/cart/items/:id',
+  schema: CartItem,
+  optimistic: true,
+});
+
+export const usd = { style: 'currency', currency: 'USD' } as const;
+```
+
+```ts title="getCartTotals" {4-17}
+import { All, Query } from '@data-client/rest';
+import { CartItem } from './resources/Cart';
+
+export const getCartTotals = new Query(new All(CartItem), items => {
+  const count = items.reduce((sum, item) => sum + item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+  const freeShippingAt = 50;
+  const shipping = subtotal === 0 || subtotal >= freeShippingAt ? 0 : 5;
+  return {
+    count,
+    subtotal,
+    shipping,
+    total: subtotal + shipping,
+    toFreeShipping: Math.max(0, freeShippingAt - subtotal),
+  };
 });
 ```
 
-```html title="UsersPage.vue"
-<script lang="ts">
-  import { All, Query, schema } from '@data-client/rest';
-  import { UserResource, User } from './resources/User';
-
-  const getUserCount = new Query(
-    new All(User),
-    (entries, { isAdmin } = {}) => {
-      if (isAdmin !== undefined)
-        return entries.filter(user => user.isAdmin === isAdmin).length;
-      return entries.length;
-    },
-  );
-</script>
-
+```html title="CartBadge.vue"
 <script setup lang="ts">
-  import { useQuery, useSuspense } from '@data-client/vue';
+  import { useQuery } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
+  import { getCartTotals } from './getCartTotals';
+  import { usd } from './resources/Cart';
 
-  await useSuspense(UserResource.getList);
-  const userCount = useQuery(getUserCount);
-  const adminCount = useQuery(getUserCount, { isAdmin: true });
+  const totals = useQuery(getCartTotals);
 </script>
 
 <template>
-  <!-- userCount is never undefined since we suspense, but typescript does not know that -->
-  <div v-if="userCount !== undefined">
-    <div>Total users: {{ userCount }}</div>
-    <div>Total admins: {{ adminCount }}</div>
-  </div>
+  <span v-if="totals" class="meta">
+    {{ totals.count }} {{ totals.count === 1 ? 'item' : 'items' }} ·
+    <NumberFlow :value="totals.subtotal" :format="usd" />
+  </span>
 </template>
 ```
+
+```html title="OrderSummary.vue"
+<script setup lang="ts">
+  import { useQuery } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
+  import { getCartTotals } from './getCartTotals';
+  import { usd } from './resources/Cart';
+
+  const totals = useQuery(getCartTotals);
+</script>
+
+<template>
+  <template v-if="totals">
+    <p class="meta">
+      <template v-if="totals.toFreeShipping > 0">
+        Add <NumberFlow :value="totals.toFreeShipping" :format="usd" /> more
+        for free shipping
+      </template>
+      <template v-else>Your order ships free</template>
+    </p>
+    <dl class="stats">
+      <div>
+        <dt>Subtotal</dt>
+        <dd><NumberFlow :value="totals.subtotal" :format="usd" /></dd>
+      </div>
+      <div>
+        <dt>Shipping</dt>
+        <dd>
+          <NumberFlow
+            v-if="totals.shipping"
+            :value="totals.shipping"
+            :format="usd"
+          />
+          <template v-else>Free</template>
+        </dd>
+      </div>
+      <div>
+        <dt>Total</dt>
+        <dd><NumberFlow :value="totals.total" :format="usd" /></dd>
+      </div>
+    </dl>
+  </template>
+</template>
+```
+
+```html title="CartPage.vue"
+<script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
+  import CartBadge from './CartBadge.vue';
+  import OrderSummary from './OrderSummary.vue';
+  import { CartItem, CartResource, usd } from './resources/Cart';
+
+  const items = await useSuspense(CartResource.getList);
+  const ctrl = useController();
+  const setQuantity = (item: CartItem, quantity: number) =>
+    quantity ?
+      ctrl.fetch(CartResource.partialUpdate, { id: item.id }, { quantity })
+    : ctrl.fetch(CartResource.delete, { id: item.id });
+</script>
+
+<template>
+  <header class="appHeader">
+    <h1 class="appTitle">Daily Grind</h1>
+    <CartBadge />
+  </header>
+  <h2>Cart</h2>
+  <div class="list">
+    <div v-for="item in items" :key="item.id" class="listItem">
+      <div>
+        {{ item.product.name }}
+        <div class="meta">
+          <NumberFlow :value="item.product.price" :format="usd" />
+        </div>
+      </div>
+      <span class="stepper">
+        <button
+          :aria-label="`Remove one ${item.product.name}`"
+          @click="setQuantity(item, item.quantity - 1)"
+        >
+          −
+        </button>
+        <output>{{ item.quantity }}</output>
+        <button
+          :aria-label="`Add one ${item.product.name}`"
+          @click="setQuantity(item, item.quantity + 1)"
+        >
+          +
+        </button>
+      </span>
+      <span class="meta">
+        <NumberFlow :value="item.total" :format="usd" />
+      </span>
+    </div>
+  </div>
+  <OrderSummary />
+</template>
+```
+
+Computing these totals in a component instead would mean fetching both kinds of data
+there, repeating the math wherever totals show, or passing them down as props. With a
+`Query`:
+
+- **One definition, read anywhere.** `CartBadge` and `OrderSummary` never pass totals to each
+  other, so they can't disagree. Showing the total somewhere new, like a checkout button, is one
+  `useQuery()` call.
+- **Computed once per change.** `useQuery()` results are memoized globally against the entities
+  they read. However many components read `getCartTotals`, it runs once when a `CartItem` or
+  `Product` changes, and otherwise returns the same object.
+- **Always current.** Any change to an item, like this demo's [optimistic](https://dataclient.io/rest/api/resource#optimistic)
+  quantity updates, re-derives every total at once, with nothing to invalidate or sync.

@@ -478,9 +478,12 @@ div.playground-preview h1:first-child {
   gap: var(--ds-space-4);
   margin: 0;
 }
+/* at the foot of the row, so a figure in plain text (Free) keeps its
+   label in line with the animated ones' */
 .playground-preview .stats > div {
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   gap: 2px;
 }
 /* above its label, so a label that wraps grows down and the figures stay
@@ -492,6 +495,63 @@ div.playground-preview h1:first-child {
   font-weight: 600;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
+}
+/* A quantity stepper (a cart row's): − count + in one edge, the count
+   between its two buttons. In a row it sits at the end, before a trailing
+   `meta` (a line's price), which keeps one width so the rows' prices align */
+.playground-preview .stepper {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--ds-border-strong);
+  border-radius: var(--ds-radius-sm);
+}
+.playground-preview .stepper > button {
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ds-radius-sm);
+  background: none;
+  color: var(--ds-text-muted);
+  font: 500 1rem / 1 var(--ifm-font-family-base);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-snappy),
+    color var(--motion-snappy);
+}
+@media (hover: hover) {
+  .playground-preview .stepper > button:hover {
+    background: var(--ds-accent-soft);
+    color: var(--ds-accent);
+  }
+}
+.playground-preview .stepper > button:active {
+  background: color-mix(
+    in srgb,
+    var(--ds-accent) var(--ds-accent-press),
+    var(--ds-surface)
+  );
+  color: var(--ds-accent);
+}
+.playground-preview .stepper > button:focus-visible {
+  outline: 2px solid var(--ds-accent);
+  outline-offset: -2px;
+}
+.playground-preview .stepper > output {
+  min-width: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.playground-preview .listItem > .stepper {
+  margin-left: auto;
+}
+.playground-preview .listItem > .stepper + .meta:last-child {
+  min-width: 4rem;
+  margin-left: 0;
+  text-align: right;
 }
 /* A board's columns (RestEndpoint's move demo): wells a step off the
    sheet, each holding its tasks as rows of the sheet's color (radius 8, no

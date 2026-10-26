@@ -241,6 +241,7 @@ Styled elements: `h2` (page title), `button` (`primary` fills one;
 | `boardColumn`                              | a kanban column                                                                |
 | `upvote` (a button)                        | an upvote with its count; empty, the arrow alone                               |
 | `stats` (a `dl`)                           | figures side by side, each large over its label                                |
+| `stepper` (− `output` +)                   | a quantity's buttons around its count; in a row, before its trailing `meta`    |
 
 ## Auto-run
 
