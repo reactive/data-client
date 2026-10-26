@@ -32,11 +32,14 @@ type KeepUnion<A> = A | { readonly [K in keyof A]: never };
 
 /** Args of an endpoint whose schema adds to a list (like Collection.push) and has
  * call signatures with list bodies (like RestEndpoint.push); NoCall for every other endpoint */
-type AdderArgs<E extends (...args: any) => any, A> =
+type AdderArgs<E extends (...args: any) => any, List extends boolean> =
   E extends { schema: { _denormalizeList(): any } } ?
     [Extract<Parameters<E>, ListBodyArgs>] extends [never] ?
       NoCall
-    : KeepUnion<A>
+    : KeepUnion<
+        List extends true ? Extract<Parameters<E>, ListBodyArgs>
+        : Exclude<Parameters<E>, ListBodyArgs>
+      >
   : NoCall;
 
 /** Resolved value of a (union member) endpoint: its schema's, or its own when it has none */
@@ -56,7 +59,7 @@ export interface ControllerFetch {
     endpoint: E,
     // a single (or `any`) body on an endpoint that adds to a list;
     // other endpoints skip this signature by arity, so their errors stay those of the last one
-    ...args: AdderArgs<E, Exclude<Parameters<E>, ListBodyArgs>>
+    ...args: AdderArgs<E, false>
   ): Promise<SchemaResult<E>>;
   /**
    * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
@@ -67,7 +70,7 @@ export interface ControllerFetch {
    */
   <E extends (...args: any) => any>(
     endpoint: E,
-    ...args: AdderArgs<E, Extract<Parameters<E>, ListBodyArgs>>
+    ...args: AdderArgs<E, true>
   ): Promise<
     E extends { schema: { _denormalizeList(): infer L } } ? L : SchemaResult<E>
   >;

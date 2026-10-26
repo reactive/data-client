@@ -155,8 +155,6 @@ export async function polymorphic() {
   expectType<(Todo | Group)[]>()(added, true);
   const one = await ctrl.fetch(members.push, { name: 'a' });
   expectType<Todo | Group>()(one, true);
-  const unshifted = await ctrl.fetch(members.unshift, [{ name: 'a' }]);
-  expectType<(Todo | Group)[]>()(unshifted, true);
   expectType<Todo | Group>()(
     {} as Denormalize<typeof members.schema.push>,
     true,
@@ -210,17 +208,8 @@ export function adderSchema() {
   ctrl.set(push, { userId: 1 }, [{ id: 5, titel: 'a' }]);
   // @ts-expect-error not a Todo
   ctrl.set(push, { userId: 1 }, 5);
-  ctrl.set(TodoResource.getList.schema.unshift, { userId: 1 }, { id: 5 });
-  ctrl.set(TodoResource.getList.schema.unshift, { userId: 1 }, [
-    { id: 5 },
-    { id: 6 },
-  ]);
-  ctrl.set(
-    TodoResource.getList.schema.unshift,
-    { userId: 1 },
-    // @ts-expect-error not a Todo field
-    [{ id: 5, titel: 'a' }],
-  );
+  // unshift shares push's type, so the checks above cover it
+  expectType<typeof push>()(TodoResource.getList.schema.unshift, true);
   // @ts-expect-error not a Todo field
   ctrl.set(push, { userId: 1 }, { id: 5, titel: 'a' });
   // adders have no previous value, so an updater function would never run

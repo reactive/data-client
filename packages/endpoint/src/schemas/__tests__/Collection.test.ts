@@ -561,31 +561,12 @@ describe(`${schema.Collection.name} normalization`, () => {
 
   test('push without args only adds to collections without filter keys', () => {
     const todos = new Collection([Todo]);
-    const init = {
-      entities: {
-        [todos.key]: {
-          '{"userId":"1"}': ['5'],
-          '{}': ['6'],
-        },
-        Todo: {
-          '5': { id: '5', title: 'finish collections' },
-          '6': { id: '6', title: 'another todo' },
-        },
-      },
-      entitiesMeta: {
-        [todos.key]: {
-          '{"userId":"1"}': { date: 0, expiresAt: Infinity, fetchedAt: 0 },
-          '{}': { date: 0, expiresAt: Infinity, fetchedAt: 0 },
-        },
-      },
-      indexes: {},
+    let state = {
+      ...initialState,
+      ...normalize(todos, [{ id: '5' }], [{ userId: '1' }], initialState),
     };
-    const state = normalize(
-      todos.push,
-      [{ id: '10', title: 'create new items' }],
-      [],
-      init as any,
-    );
+    state = { ...state, ...normalize(todos, [{ id: '6' }], [], state) };
+    state = { ...state, ...normalize(todos.push, [{ id: '10' }], [], state) };
     expect(state.entities[todos.key]).toEqual({
       '{"userId":"1"}': ['5'],
       '{}': ['6', '10'],
