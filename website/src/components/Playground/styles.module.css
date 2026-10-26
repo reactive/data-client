@@ -869,9 +869,45 @@ div.playgroundTextEdit > .playgroundHeader,
   height: 100%;
 }
 
+/* More tabs than fit: the row scrolls with no bar (it would run under the
+   tabs and part the open one from its card), and fades out at each edge that
+   has tabs past it (TabList's `data-more-*` marks), the selected one kept a
+   fade's width in so the next peeks out to tap */
+@property --pg-fade-left {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --pg-fade-right {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
 .tabs {
+  --pg-tab-fade: 28px;
   display: flex;
   overflow: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--pg-fade-left),
+    #000 calc(100% - var(--pg-fade-right)),
+    transparent
+  );
+  transition:
+    --pg-fade-left var(--motion-snappy),
+    --pg-fade-right var(--motion-snappy);
+}
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+.tabs[data-more-left] {
+  --pg-fade-left: var(--pg-tab-fade);
+}
+.tabs[data-more-right] {
+  --pg-fade-right: var(--pg-tab-fade);
 }
 
 .tab {

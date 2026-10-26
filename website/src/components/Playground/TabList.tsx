@@ -107,10 +107,12 @@ export default function TabList({
   );
 }
 
-/** Scrolls the selected tab into the row's view and marks the row
- * `data-flush-left` / `data-flush-right` while that tab is too near the
- * header's edge for its curve and the corner of what it rises from
- * (`--pg-card-radius` each) to fit between, so that corner squares to meet it */
+/** Scrolls the selected tab into the row's view, a neighbor peeking past it
+ * where there is one, and marks the row `data-more-left` / `data-more-right`
+ * while tabs hide past that edge (where it fades) and `data-flush-left` /
+ * `data-flush-right` while the selected tab is too near the header's edge
+ * for its curve and the corner of what it rises from (`--pg-card-radius`
+ * each) to fit between, so that corner squares to meet it */
 function useFlushEdges(
   list: RefObject<HTMLDivElement | null>,
   selected: number,
@@ -121,16 +123,15 @@ function useFlushEdges(
     const row = list.current;
     const edges = row?.parentElement;
     if (!row || !edges) return;
+    const style = getComputedStyle(row);
     const reach = Math.max(
       1,
-      2 *
-        (parseFloat(
-          getComputedStyle(row).getPropertyValue('--pg-card-radius'),
-        ) || 0),
+      2 * (parseFloat(style.getPropertyValue('--pg-card-radius')) || 0),
     );
     const mark = () => {
       const tab = row.children[selected]?.getBoundingClientRect();
       const box = edges.getBoundingClientRect();
+      const view = row.getBoundingClientRect();
       row.toggleAttribute(
         'data-flush-left',
         !!tab && tab.left < box.left + reach,
@@ -139,12 +140,32 @@ function useFlushEdges(
         'data-flush-right',
         !!tab && tab.right > box.right - reach,
       );
+      // a pixel's slack: zoomed, scroll positions land between pixels
+      const first = row.firstElementChild?.getBoundingClientRect();
+      const last = row.lastElementChild?.getBoundingClientRect();
+      row.toggleAttribute(
+        'data-more-left',
+        !!first && first.left < view.left - 1,
+      );
+      row.toggleAttribute(
+        'data-more-right',
+        !!last && last.right > view.right + 1,
+      );
     };
     const tab = row.children[selected]?.getBoundingClientRect();
     const view = row.getBoundingClientRect();
-    if (tab && tab.right > view.right) row.scrollLeft += tab.right - view.right;
-    else if (tab && tab.left < view.left)
-      row.scrollLeft -= view.left - tab.left;
+    if (tab) {
+      // twice the fade past it on a side with tabs, so the next one shows as
+      // much again as fades out
+      const peek =
+        2 * (parseFloat(style.getPropertyValue('--pg-tab-fade')) || 0);
+      const first = row.firstElementChild!.getBoundingClientRect();
+      const last = row.lastElementChild!.getBoundingClientRect();
+      const right = tab.right + (last.right > tab.right ? peek : 0);
+      const left = tab.left - (first.left < tab.left ? peek : 0);
+      if (right > view.right) row.scrollLeft += right - view.right;
+      else if (left < view.left) row.scrollLeft -= view.left - left;
+    }
     mark();
     row.addEventListener('scroll', mark, { passive: true });
     const observer =
