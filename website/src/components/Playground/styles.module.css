@@ -95,19 +95,6 @@
   flex: 1 1 auto;
   min-width: 0;
 }
-/* EndpointPlayground: two code columns in one frame (side by side in
-   @container below) */
-.endpointPlayground.playgroundContainer > div:first-child {
-  background-color: var(--monoco-code-background);
-  border-bottom-left-radius: 0;
-  border-top-left-radius: calc(var(--ifm-global-radius) * 2);
-  border-top-right-radius: var(--ifm-global-radius);
-}
-.playgroundContainer.endpointPlayground
-  .playgroundHeader.tabControls:first-of-type {
-  border-top-right-radius: var(--ifm-global-radius);
-}
-
 .playgroundHeader {
   letter-spacing: 0.08rem;
   padding: 0.75rem;
@@ -186,11 +173,9 @@
    keeps its depth: the editor's bars a step above the code, and the
    preview's stage a step below its sheet, about as far, so the sheet stands
    out as clearly as the code does */
-:root[data-theme='dark'] .playgroundContainer:not(.endpointPlayground) {
+:root[data-theme='dark'] .playgroundContainer {
   --pg-bar: #292c34;
   --pg-tab-hover-bg: #343842;
-}
-:root[data-theme='dark'] .playgroundContainer {
   /* the sheet's wells a step above it */
   --pg-panel-2: #1d2635;
   --pg-line: #2a344c;
@@ -199,22 +184,13 @@
   --pg-shadow: rgba(0, 0, 0, 0.8);
   --pg-shadow-edge: rgba(0, 0, 0, 0.5);
 }
-/* EndpointPlayground's right column is code, so it always uses the dark bar */
-.endpointPlayground {
-  --pg-bar: hsl(229, 8%, 26%);
-  --pg-tab: rgb(191, 199, 213);
-  --pg-tab-hover-bg: hsl(229, 8%, 29%);
-  --pg-tab-hover: #e3e8f2;
-  --pg-bar-edge: hsl(229, 8%, 17%);
-}
 
 .playgroundHeader.tabControls,
 div.playgroundTextEdit > .playgroundHeader,
-.editorDocs > .playgroundHeader,
-.endpointPlayground .playgroundHeader {
+.editorDocs > .playgroundHeader {
   box-shadow: inset 0 -1px 0 var(--pg-bar-edge);
 }
-.playgroundContainer:not(.row, .demo, .endpointPlayground)
+.playgroundContainer:not(.row, .demo)
   > div.playgroundTextEdit
   > .playgroundHeader:first-child {
   border-top-right-radius: var(--ifm-global-radius);
@@ -241,7 +217,7 @@ div.playgroundTextEdit > .playgroundHeader,
 .playgroundEditor :global(.prism-code) {
   font: 13px / 19px var(--ifm-font-family-monospace) !important;
 }
-.playgroundContainer:not(.row, .demo, .endpointPlayground) {
+.playgroundContainer:not(.row, .demo) {
   background-color: var(--monoco-code-background);
 }
 .closed {
@@ -391,16 +367,21 @@ div.playgroundTextEdit > .playgroundHeader,
   inherits: true;
   initial-value: 0px;
 }
+/* The --store-* defaults above are the code's (the Fixtures panel keeps
+   them); on the preview's stage they read so: the Store drawer's, and an
+   HTTP exchange's (../HTTP) */
+.storePanel,
+.stageHues {
+  --store-muted: var(--pg-muted);
+  --store-dim: #6f7c93;
+}
 /* The Store drawer (painted before its contents render): on the preview's
    stage, in its palette, as part of the preview's folder (see .storeHost) or
-   beside the result on the same ground. The --store-* defaults above are the
-   code's (the Fixtures panel keeps them); here they read on the stage */
+   beside the result on the same ground */
 .storePanel {
   --store-top: var(--ifm-navbar-height);
   --store-bg: var(--pg-stage);
   --store-fg: #d9e0ea;
-  --store-muted: var(--pg-muted);
-  --store-dim: #6f7c93;
   --store-line: color-mix(in srgb, var(--pg-text) 8%, transparent);
   --store-line-strong: color-mix(in srgb, var(--pg-text) 15%, transparent);
   --store-hover: var(--pg-hover);
@@ -412,7 +393,7 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 /* Light: a light panel on the light stage, the syntax hues darkened to read
    on it */
-:root[data-theme='light'] .storePanel {
+:root[data-theme='light'] :is(.storePanel, .stageHues) {
   --store-fg: var(--pg-text);
   --store-dim: #6b7a90;
   --store-key: #2f5fc4;
@@ -616,6 +597,52 @@ div.playgroundTextEdit > .playgroundHeader,
   max-height: var(--pg-card-foot);
   border-radius: 0 0 var(--pg-card-radius) var(--pg-card-radius);
 }
+/* A column file (EndpointPlayground's Usage) lies under the code card: on a
+   layer a step deeper, tucked under the card's foot and running on below
+   it, its title a quiet label. The card lies close on it; one shadow goes
+   round both */
+.row .editorDocs:has(> .codeHeader) {
+  --pg-under: color-mix(in oklab, var(--monoco-code-background), #000 28%);
+  border-radius: var(--pg-card-radius);
+  box-shadow: var(--pg-card-shadow);
+}
+:root[data-theme='dark'] .row .editorDocs:has(> .codeHeader) {
+  --pg-under: color-mix(in oklab, var(--monoco-code-background), #000 34%);
+}
+.row .editorDocs > .playgroundEditor:has(~ .codeHeader) {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 12px;
+  border-radius: var(--pg-card-radius);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 4px 12px -2px rgba(0, 0, 0, 0.35);
+}
+.row .editorDocs > .codeHeader {
+  margin-top: calc(-1 * var(--pg-card-radius));
+  padding: calc(var(--pg-card-radius) + 12px) 10px 2px;
+  border: 0;
+  border-radius: 0;
+  background: var(--pg-under);
+  color: var(--store-muted);
+  font: 500 12px / 16px var(--ifm-font-family-base);
+  letter-spacing: 0.02em;
+}
+.row .codeHeader ~ .playgroundEditor {
+  padding-top: 2px;
+  border-radius: 0;
+  background: var(--pg-under);
+  box-shadow: none;
+}
+.row .codeHeader ~ .playgroundEditor :global(.monaco-editor),
+.row .codeHeader ~ .playgroundEditor :global(.monaco-editor-background),
+.row .codeHeader ~ .playgroundEditor :global(.monaco-editor) :global(.margin) {
+  background-color: var(--pg-under);
+}
+.row .editorDocs:has(> .codeHeader)::after {
+  background: var(--pg-under);
+  box-shadow: none;
+}
 /* the open file's tab at the card's edge runs straight into it */
 .row
   .tabControls:has(.tabs[data-flush-left], .tab:first-child.selected)
@@ -674,10 +701,21 @@ div.playgroundTextEdit > .playgroundHeader,
   background: var(--pg-stage);
   box-shadow: var(--pg-card-shadow);
 }
+/* another folder's header (../HTTP's request): the preview header's paper
+   and flare, inset as the parent sets; alone, a card */
+.row .folderHead {
+  position: relative;
+  border-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;
+  background: var(--pg-stage);
+  box-shadow: var(--pg-card-shadow);
+}
+.row .folderHead:only-child {
+  border-radius: var(--pg-card-radius);
+}
 /* the flare: under the content (.playgroundResult stacks above it), so it
    shows only beside the content's corner */
-.row .previewHeader::before,
-.row .previewHeader::after {
+.row :is(.previewHeader, .folderHead:not(:only-child))::before,
+.row :is(.previewHeader, .folderHead:not(:only-child))::after {
   content: '';
   position: absolute;
   bottom: calc(-1 * var(--pg-head-flare-drop));
@@ -685,7 +723,7 @@ div.playgroundTextEdit > .playgroundHeader,
   height: var(--pg-head-flare-depth);
   pointer-events: none;
 }
-.row .previewHeader::before {
+.row :is(.previewHeader, .folderHead)::before {
   right: calc(100% - 1px);
   background: radial-gradient(
     circle var(--pg-head-flare-radius) at
@@ -694,7 +732,7 @@ div.playgroundTextEdit > .playgroundHeader,
     var(--pg-stage) 100%
   );
 }
-.row .previewHeader::after {
+.row :is(.previewHeader, .folderHead)::after {
   left: calc(100% - 1px);
   background: radial-gradient(
     circle var(--pg-head-flare-radius) at
@@ -1384,12 +1422,6 @@ div.fixtureJson + div.fixtureJson {
 :global(.monaco-editor) :global(.inputarea.ime-input) {
   background-color: var(--monoco-code-background);
 }
-.endpointPlayground .playgroundEditor :global(.monaco-editor),
-.endpointPlayground .playgroundEditor :global(.monaco-editor-background),
-.endpointPlayground .playgroundEditor :global(.monaco-editor) :global(.margin),
-.endpointPlayground :global(.monaco-editor) :global(.inputarea.ime-input) {
-  border-bottom-left-radius: var(--ifm-global-radius);
-}
 .playgroundEditor
   :global(.monaco-editor)
   :global(.view-overlays)
@@ -1446,8 +1478,11 @@ div.fixtureJson + div.fixtureJson {
   .row .editorDocs {
     grid-row: 2;
   }
-  .row > .previewWrapper {
+  /* the preview's column, or what a playground puts in its place (../HTTP) */
+  .row > :is(.previewWrapper, .previewSlot) {
     grid-area: 1 / 2 / 3 / 3;
+  }
+  .row > .previewWrapper {
     /* unpositioned, so the fixtures hang from the playground's edge */
     position: static;
     /* ends at its sheet's foot: --pg-preview-gap is how far the row runs on
@@ -1632,31 +1667,6 @@ div.fixtureJson + div.fixtureJson {
     top: calc(100% - 1px);
     --pg-fillet-at: 0 100%;
   }
-  .playgroundContainer.endpointPlayground {
-    flex-direction: row;
-  }
-  .playgroundContainer.endpointPlayground > :last-child {
-    border-top-right-radius: var(--ifm-global-radius);
-    border-bottom-right-radius: var(--ifm-global-radius);
-    border-bottom-left-radius: 0;
-    border-left: 1px solid var(--pg-bar-edge);
-    min-width: 16rem;
-  }
-  .endpointPlayground.playgroundContainer > div:first-child {
-    border-bottom-left-radius: var(--ifm-global-radius);
-    border-top-right-radius: 0;
-    min-width: 16rem;
-  }
-  /* div element kept: must out-specify .endpointPlayground's div:first-child */
-  .playgroundContainer.endpointPlayground > div:first-child,
-  .playgroundContainer.endpointPlayground > div:last-child {
-    /* basis 0 — not auto — so content cannot steal the other's width */
-    flex: 50 1 0;
-  }
-  .playgroundContainer.endpointPlayground
-    .playgroundHeader.tabControls:first-of-type {
-    border-top-right-radius: 0;
-  }
 }
 /* Stacked row layout: the same folder turned to the stacking axis. The
    tabs' row and the code card, then the folder under them with the handle
@@ -1675,8 +1685,10 @@ div.fixtureJson + div.fixtureJson {
   }
   /* the fixtures hang on past its foot, over the page below (it stacks
      above that while they show), so the preview never moves */
-  .row > .previewWrapper {
+  .row > :is(.previewWrapper, .previewSlot) {
     grid-area: 2 / 1 / 3 / 2;
+  }
+  .row > .previewWrapper {
     overflow: visible;
   }
   /* the layer is the code's rows; the gap below it stays in view, and
@@ -1814,23 +1826,6 @@ div.fixtureJson + div.fixtureJson {
 .demo > .playgroundTextEdit {
   min-height: var(--pg-demo-min);
   background-color: var(--monoco-code-background);
-}
-
-/* EndpointPlayground: left tab bar and right fixture headers share one height */
-.endpointPlayground .playgroundHeader {
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
-  height: 34px;
-  padding: 0 0.75rem;
-  letter-spacing: 0.04rem;
-}
-.endpointPlayground .playgroundHeader.tabControls {
-  padding: 0;
-}
-.endpointPlayground .playgroundHeader .tab {
-  height: 33px;
-  padding: 0 0.75rem;
 }
 
 /* Slim Before/After labels above DiffEditor panes; offsets set from Monaco layout */

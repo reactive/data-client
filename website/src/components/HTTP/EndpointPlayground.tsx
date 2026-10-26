@@ -3,11 +3,14 @@ import React from 'react';
 
 import Request from './Request';
 import Response from './Response';
-import styles from './Wrapper.module.css';
+import styles from './styles.module.css';
 import { useCodeDocuments } from '../Playground/editor/codeModel';
 import EditorSurface from '../Playground/editor/EditorSurface';
 import playgroundstyles from '../Playground/styles.module.css';
 
+/** The code as a row playground's, and beside it (under it when narrow) the
+ * HTTP exchange it makes: a folder whose header is the request, curving out
+ * into the response's sheet */
 export default function EndpointPlayground({
   input,
   init,
@@ -21,13 +24,18 @@ export default function EndpointPlayground({
     <div className={playgroundstyles.playgroundQueryContainer}>
       <div
         className={clsx(
-          playgroundstyles.endpointPlayground,
           playgroundstyles.playgroundContainer,
+          playgroundstyles.row,
+          styles.exchange,
         )}
       >
         <EditorSurface {...model} layout="row" variant="standalone" />
         <div
-          className={clsx(styles.fixtureCol, playgroundstyles.previewWrapper)}
+          className={clsx(
+            playgroundstyles.previewSlot,
+            playgroundstyles.stageHues,
+            styles.folder,
+          )}
         >
           <Request input={input} init={init} />
           {status ?

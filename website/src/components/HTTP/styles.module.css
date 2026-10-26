@@ -1,0 +1,181 @@
+/* EndpointPlayground: the code as a row playground's (../Playground,
+   `.row`), and in the preview's place a folder of the stage's color whose
+   header is the request (a `.folderHead`, inset as the preview's is and
+   flaring out the same way into the response's sheet below: the curve is
+   where the request hands off to its response). A request with no response
+   is its header alone, a card. The text takes the Store's syntax colors on
+   the stage (`.stageHues`). */
+.exchange {
+  --ex-pad: 1.25rem;
+}
+.folder {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  align-self: start;
+}
+
+/* the header: the request */
+.request {
+  margin: 0 var(--pg-head-inset);
+  padding: 14px calc(var(--ex-pad) - var(--pg-head-inset)) 12px;
+  color: var(--pg-text);
+}
+.request:only-child {
+  margin: 0;
+  padding-inline: var(--ex-pad);
+}
+.requestLine {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  font: 600 13px / 20px var(--ifm-font-family-monospace);
+}
+.method {
+  flex: none;
+  font: 700 11px / 20px var(--ifm-font-family-base);
+  letter-spacing: 0.06em;
+  color: var(--store-fresh);
+}
+/* the chip keeps to the line's end */
+.url {
+  margin-right: auto;
+}
+.headers {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 1em;
+  row-gap: 2px;
+  margin: 0.5rem 0 0;
+  font: 12.5px / 20px var(--ifm-font-family-monospace);
+}
+.headers:empty {
+  display: none;
+}
+.headers dt {
+  color: var(--pg-muted);
+  font-weight: 400;
+}
+.headers dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+/* the response's sheet, the folder's paper (the stage) behind its corners;
+   over the header's shadow and flare */
+.response {
+  position: relative;
+  z-index: 1;
+  border-radius: var(--pg-card-radius);
+  background: var(--pg-stage);
+  box-shadow: var(--pg-card-shadow);
+  overflow: clip;
+}
+.sheet {
+  position: relative;
+  padding: 16px var(--ex-pad) 18px;
+  border-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;
+  background: var(--pg-panel);
+}
+/* on the body's first line ({ or [), at its end; alone (no body) in it */
+.status {
+  display: inline-block;
+  padding: 0 0.6em;
+  border-radius: 999px;
+  font: 600 11.5px / 22px var(--ifm-font-family-base);
+  font-variant-numeric: tabular-nums;
+  color: var(--store-fresh);
+  background: color-mix(in srgb, var(--store-fresh) 13%, transparent);
+}
+.status:not(:last-child) {
+  position: absolute;
+  top: 15px;
+  right: var(--ex-pad);
+}
+.status[data-error] {
+  color: var(--store-null);
+  background: color-mix(in srgb, var(--store-null) 13%, transparent);
+}
+
+.json {
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  font: 13px / 20px var(--ifm-font-family-monospace);
+  color: var(--store-dim);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+.json.requestBody {
+  margin-top: 0.6rem;
+}
+.key {
+  color: var(--store-key);
+}
+.string {
+  color: var(--store-string);
+}
+.number {
+  color: var(--store-number);
+}
+.literal {
+  color: var(--store-type);
+}
+
+/* `Clipped`: one line, clipped; the whole text floats over it, on the
+   header's paper raised (a ../tips.module.css tip, placed here) */
+.clipped {
+  min-width: 0;
+  font: inherit;
+  text-align: left;
+}
+.line {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.clipped > .full {
+  z-index: 3;
+  top: -5px;
+  bottom: auto;
+  left: -8px;
+  right: -8px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  background: var(--pg-stage);
+  box-shadow:
+    0 2px 6px -1px var(--pg-shadow-edge),
+    0 12px 28px -8px var(--pg-shadow);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+/* content-type: application/json, folded; the header drops below it */
+.chip {
+  flex: none;
+}
+.chip > .line {
+  padding: 0 0.55em;
+  border-radius: 999px;
+  background: var(--pg-hover);
+  color: var(--pg-muted);
+  font: 600 10px / 18px var(--ifm-font-family-base);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.chip > .full {
+  top: calc(100% + 6px);
+  left: auto;
+  right: -6px;
+  width: max-content;
+  font: 400 12.5px / 20px var(--ifm-font-family-monospace);
+}
+
+/* no file tabs: level with the code card */
+@container playground (min-width: 720px) {
+  .exchange:not(:has([role='tablist'])) > .folder {
+    grid-row: 2 / 3;
+  }
+}

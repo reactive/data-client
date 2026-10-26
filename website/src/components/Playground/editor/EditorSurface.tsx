@@ -106,7 +106,9 @@ export default function EditorSurface({
           onClick={() => handleTabToggle(index)}
           closed={closedList[index]}
           title={document.title}
-          collapsible={documents.length > 1 || fixtureContent != null}
+          // beside tabs (row), a column file is a label on the layer under
+          // the code card, never folded away
+          collapsible={!row && (documents.length > 1 || fixtureContent != null)}
         />
       : null}
       <TextEditTab
