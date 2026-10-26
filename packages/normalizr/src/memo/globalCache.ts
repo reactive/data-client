@@ -59,7 +59,10 @@ export default class GlobalCache implements Cache {
   }
 
   dependOn(pk: string, schema: EntityInterface, entity: unknown): void {
-    this.dependencies.push({ path: { key: schema.key, pk }, entity: entity as any });
+    this.dependencies.push({
+      path: { key: schema.key, pk },
+      entity: entity as any,
+    });
   }
 
   getEntity(
