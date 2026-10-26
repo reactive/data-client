@@ -523,10 +523,7 @@ div.playgroundTextEdit > .playgroundHeader,
   letter-spacing: 0;
 }
 .row .tabs {
-  /* its fade's mask makes the row one layer, so the open tab can rise over
-     the card (and its shadow) only as the row does: the row stacks above
-     the card. Anything else that makes a layer (opacity, filter, transform)
-     needs the same */
+  /* one layer with the card: the mask stacks the row, so lift the row */
   position: relative;
   z-index: 1;
   height: 100%;
@@ -557,7 +554,8 @@ div.playgroundTextEdit > .playgroundHeader,
 /* the open file's tab is the card's paper rising: over the card's edge (and
    its shadow) and curving out into the card's top edge either side, the
    curves a pixel into the tab so no hairline shows between them (not
-   below it: the tab row would scroll); .row .tabs lifts it over the card */
+   below it: the tab row would scroll) */
+/* one layer: open tab + code card */
 .row .tab.selected,
 .row .tab.selected:hover {
   position: relative;
@@ -770,6 +768,7 @@ div.playgroundTextEdit > .playgroundHeader,
    past the preview's edge and, drawn out, the Store's; it curves into
    that edge either side as the open file's tab does into its card; over
    that edge's shadow, so the two read as one paper */
+/* one layer: handle + folder */
 .storeTab {
   position: absolute;
   z-index: 1;
@@ -1009,6 +1008,7 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 /* the tab's foot, down to the header's bottom edge, curving out into the
    card's top edge */
+/* one layer: toggle + fixtures card */
 .row .fixturesToggle {
   --fixtures-tab: var(--pg-tab-selected-bg);
   --fixtures-foot: calc((var(--pg-row) - 2rem) / 2);
