@@ -14,6 +14,32 @@ import { todoFixtures } from '@site/src/fixtures/todos';
 import OptimisticTransform from '../shared/\_optimisticTransform.mdx';
 import OptimisticRace from '@site/src/components/OptimisticRace';
 
+export const timingDemo = [
+  { delay: 800, store: 'open' },
+  { delay: 1000, click: 'button.upvote' },
+  { delay: 250, click: 'button.upvote' },
+  { delay: 250, click: 'button.upvote' },
+  { delay: 250, click: 'button.upvote' },
+  // past the slowest increment response (the fixture's 4.7s), so the
+  // timeline holds every response
+  { wait: 5000 },
+  { click: { in: 'store', selector: 'button[aria-label="Diff"]' } },
+  // the first action (the count's load), then on through each change: the
+  // 4 clicks' optimistic updates and responses
+  {
+    click: {
+      in: 'store',
+      selector: '[role="group"][aria-label^="Scrubber"] button[data-id]',
+    },
+  },
+  ...Array.from({ length: 8 }, () => ({
+    delay: 1500,
+    click: { in: 'store', selector: 'button[aria-label="Next change"]' },
+  })),
+  // Store → Code: back to the code that did it
+  { delay: 2000, store: 'close' },
+];
+
 # Optimistic Updates
 
 Optimistic updates enable highly responsive and fast interfaces by avoiding network wait times.
@@ -363,6 +389,7 @@ delayCollapse:true,
 ]}
 getInitialInterceptorData={() => ({ count: 0 })}
 row
+autoRun={timingDemo}
 >
 
 ```ts title="count" {11-13} collapsed
