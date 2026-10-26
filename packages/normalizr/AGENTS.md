@@ -5,7 +5,7 @@ Non-obvious constraints when changing `src/memo/`, `src/denormalize/`, or `src/i
 ## Correctness constraints
 
 - **Referential equality is a contract.** Successive `MemoCache.denormalize` calls with identical inputs must return the same object reference. `useSuspense`/`useCache`/`useQuery` skip re-renders on `===`, and many tests assert `toBe`. Probe-and-discard caching schemes (write to a throwaway cache, "real" cache repopulates next call) silently break this.
-- **`WeakDependencyMap` entity links are identity-keyed.** Entity deps live on a `WeakMap` keyed by the entity object; `argsKey` deps live on a parallel `Map` keyed by `fn(args)` strings branching off a stable function ref (see `WeakDependencyMap.ts` `next` / `nextStr`). Cache hits on the entity segment depend on every ref in the recorded chain being `===` to the live walk's refs — anything that wraps/proxies refs on read defeats memoization. Variants that introduce new caches (buckets, scopes) must share the same `getEntity` (the `DenormGetEntity` from `IMemoPolicy.getEntities(entities)`) so chain refs stay coherent.
+- **`WeakDependencyMap` entries are identity-keyed.** The first dependency is a `WeakMap` key; the rest are stored on the entry and compared with `===` on `get`; `argsKey` results branch on a `Map` keyed by `fn(args)`, one branch per `argsKey` fn (a missing entity can change which fn comes first). Anything that wraps/proxies refs on read defeats memoization. Variants that introduce new caches (buckets, scopes) must share the same `getEntity` (the `DenormGetEntity` from `IMemoPolicy.getEntities(entities)`) so recorded refs stay coherent.
 - **Both MemoCache tiers must stay coherent** — `endpoints` (top-level) and `_getCache` (per-entity) walk against the same store. Any new caching dimension applies to both, or top-level hits return stale per-entity values.
 - **Cache lookup precedes traversal.** Pick `WeakDependencyMap` → look up → on miss, traverse and write. You can't decide which map to use *based on* what the traversal observes. Discover-then-lookup designs need either a separate pre-scan or a `setRaw`-style promotion primitive (doesn't exist yet).
 - **Storage shape is API.** `state.entities[key][pk]` is observed by snapshot tests, SSR payloads, and devtools. Shape changes are breaking even when normalize/denormalize round-trip correctly.
@@ -19,13 +19,21 @@ Every change to `src/memo/`, or to a schema's `denormalize`, must keep these. Te
 2. **Complete dependencies.** Every entity and `argsKey` a computation reads is recorded, including deps replayed from a nested hit, and including entities that are missing, `null` or `INVALID`.
 3. **Deterministic.** The same reads lead to the same further reads and an equal result. All args-dependence goes through a pure, referentially stable `argsKey` fn.
 4. **Complete journey.** The paths returned with a hit cover every entity the value depends on; subscriptions and GC count refs from them. Callers never mutate it.
-5. **Weak retention.** A cached value lives only while what it is keyed on is reachable.
+5. **Weak, bounded retention.** A value lives only while its first dependency is reachable, with at most `MAX_ENTRIES` values per first dependency and `argsKey` results.
 6. **Stable identity.** The same reads return the same object while it is cached.
+7. **One `WeakMap` level.** Never nest a `WeakMap` per dependency. Hermes resolves `WeakMap` entries one nesting level per stop-the-world marking pass, and each pass rescans every entry in the app, so N nested levels cost N passes (multi-second freezes). `yarn workspace example-benchmark start:ephemerons` measures it.
 
 Accepted limitations (intentional; don't "fix"):
 
 - The results cache is keyed by the input object, not the schema. Two schemas only see the same result object if two endpoints share a cache key, which is already a bug in the endpoints.
 - Entities past `MAX_ENTITY_DEPTH` (`src/denormalize/unvisit.ts`) are read but not tracked, so changes that deep don't invalidate ancestors.
+
+### Which versions to keep (React concurrency)
+
+- A render that applies a pending store update rebuilds every entity that update touches (`useReducer` has no eager state). Those reads are one-offs.
+- Within one committed store, a reader re-reads at most one version unchanged: renders read the committed `optimisticState`, managers and callbacks read `controller.getState()`. Every commit starts a new version. Rolling back an optimistic update returns to the older real entities.
+- So `WeakDependencyMap` keeps the most recently used entries plus the one the store last flipped back to. Bound: `useSuspense` serves urgent re-renders of an unchanged store from its own `useMemo`, so during a retrying transition a newly committed version can be recomputed once.
+- `yarn workspace example-benchmark start:memo-tradeoffs` measures hit rates and retained memory for these choices.
 
 ## Schema-tree traversal pattern
 
@@ -72,7 +80,7 @@ Contract:
 - Reading `delegate.args` directly does **not** contribute to memoization — only `argsKey` adds a dep.
 - Storage shape must let `denormalize` recover the right cell from the bucket key (typically by encoding it into `pk` at normalize time). `Scalar` is the reference implementation.
 
-Under the hood: `argsKey` pushes `{path: fn, entity: undefined}` onto the current `GlobalCache` frame; `WeakDependencyMap` branches function-typed paths via a lazy `Map<string, Link>` alongside the usual `WeakMap<K, Link>`. See `src/memo/WeakDependencyMap.ts` (`KeyFn`, `hasStringDeps`) and `src/memo/globalCache.ts` (`argsKey`, `_hasArgsKey`) for the fast-path gating.
+Under the hood: `argsKey` pushes `{path: fn, entity: undefined}` onto the current `GlobalCache` frame; `WeakDependencyMap` branches function-typed paths via a lazy `Map<string, Node>` under the root's `WeakMap` entry. See `src/memo/WeakDependencyMap.ts` (`KeyFn`, `hasStringDeps`) and `src/memo/globalCache.ts` (`argsKey`, `_hasArgsKey`) for the fast-path gating.
 
 Schemas without args-dependence need no opt-in. When no `argsKey` fires in a frame, `GlobalCache.paths`/`getResults` take the entity-only fast path (gated on `_hasArgsKey` and `WeakDependencyMap.hasStringDeps`).
 

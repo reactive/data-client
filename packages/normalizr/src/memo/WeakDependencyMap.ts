@@ -34,21 +34,29 @@ export function depKey(entity: unknown): object {
  *
  * Useful as a memoization cache for flat/normalized stores.
  *
- * Object dependencies are weakly referenced (via `WeakMap`), allowing
- * automatic garbage collection when the dependency is no longer used.
- * String-keyed dependencies (used by `argsKey`) sit on a `Map` keyed by the
- * value returned from `path(args)`, branching on a stable function reference.
+ * Only the first dependency is a `WeakMap` key, so a cached value is
+ * collected with it. The rest are stored on the entry and compared by
+ * identity on `get`. Keeping one level of `WeakMap` matters: garbage
+ * collectors resolve nested `WeakMap`s one level per marking pass, and
+ * Hermes rescans every `WeakMap` entry in the heap on each pass, so a chain
+ * as long as the dependency list stalls every old-generation collection.
+ *
+ * String-keyed dependencies (used by `argsKey`) branch on a `Map` keyed by
+ * the value `path(args)` returns, so each argument set keeps its own entries
+ * and a lookup only checks its own. A node keeps one branch per `argsKey`
+ * function: which one a computation reaches first can depend on the
+ * entities before it (a missing entity skips its nested `argsKey`).
+ *
+ * Invariants every change must keep: "Memo invariants" in
+ * `packages/normalizr/AGENTS.md`.
  */
 export default class WeakDependencyMap<
   Path,
   K extends object = object,
   V = any,
 > {
-  private readonly next = new WeakMap<K, Link<Path, K, V>>();
-  private nextPath: Path | KeyFn | undefined = undefined;
-  /** Sticky: true once any function-typed (`argsKey`) dep has been stored.
-   * Lets `get` pick the entity-only fast path when no schema in this map
-   * uses `argsKey` — avoids a polymorphic `typeof` branch per walk step. */
+  private readonly next = new WeakMap<K, Node<Path, V>>();
+  /** Sticky: true once any function-typed (`argsKey`) dep has been stored. */
   private hasStr = false;
 
   get(
@@ -56,38 +64,11 @@ export default class WeakDependencyMap<
     getDependency: GetDependency<Path, K | symbol>,
     args: readonly any[] = [],
   ) {
-    let curLink = this.next.get(depKey(entity) as K);
-    if (!curLink) return EMPTY;
-    if (this.hasStr) return this._getMixed(curLink, getDependency, args);
-    while (curLink.nextPath) {
-      const nextDependency = depKey(getDependency(curLink.nextPath as Path));
-      const nextLink = curLink.next.get(nextDependency as any);
-      if (!nextLink) return EMPTY;
-      curLink = nextLink;
-    }
-    // curLink exists, but has no path - so must have a value
-    return [curLink.value, curLink.journey] as readonly [V, Path[]];
-  }
-
-  /** Slow path: dep chain may interleave entity and `argsKey`-style deps. */
-  private _getMixed(
-    curLink: Link<Path, K, V>,
-    getDependency: GetDependency<Path, K | symbol>,
-    args: readonly any[],
-  ) {
-    while (curLink.nextPath) {
-      let nextLink: Link<Path, K, V> | undefined;
-      if (typeof curLink.nextPath === 'function') {
-        const keyValue = (curLink.nextPath as KeyFn)(args) ?? UNDEF_KEY;
-        nextLink = curLink.nextStr?.get(keyValue);
-      } else {
-        const nextDependency = depKey(getDependency(curLink.nextPath as Path));
-        nextLink = curLink.next.get(nextDependency as any);
-      }
-      if (!nextLink) return EMPTY;
-      curLink = nextLink;
-    }
-    return [curLink.value, curLink.journey] as readonly [V, Path[]];
+    const root = this.next.get(depKey(entity) as K);
+    const node = root && find(root, getDependency, args);
+    if (!node) return EMPTY;
+    const entry = node.entries[0];
+    return [entry.value, entry.journey] as readonly [V, Path[]];
   }
 
   set(
@@ -103,34 +84,68 @@ export default class WeakDependencyMap<
     journey?: Path[],
   ) {
     if (dependencies.length < 1) throw new KeySize();
-    let curLink: Link<Path, K, V> = this as any;
-    for (const dep of dependencies) {
-      let nextLink: Link<Path, K, V> | undefined;
+    const root = depKey(dependencies[0].entity) as K;
+    let node = this.next.get(root);
+    let top = node;
+    const paths = new Array<Path | KeyFn>(dependencies.length - 1);
+    const keys = new Array<unknown>(dependencies.length - 1);
+    for (let i = 1; i < dependencies.length; i++) {
+      const dep = dependencies[i];
+      paths[i - 1] = dep.path;
       if (typeof dep.path === 'function') {
         this.hasStr = true;
-        if (!curLink.nextStr) curLink.nextStr = new Map();
         const k = (dep.path as KeyFn)(args) ?? UNDEF_KEY;
-        nextLink = curLink.nextStr.get(k);
-        if (!nextLink) {
-          nextLink = new Link<Path, K, V>();
-          curLink.nextStr.set(k, nextLink);
+        keys[i - 1] = k;
+        if (!node) {
+          node = top = newNode(undefined);
+          this.next.set(root, node);
         }
+        if (!node.branches) node.branches = [];
+        let branch = node.branches.find(b => b.fn === dep.path);
+        if (!branch) {
+          // Missing entities change which argsKey comes next, so the routes
+          // under one root can multiply, and a lookup searches all of them.
+          // Past MAX_FORKS, start this root over instead.
+          if (node.branches.length && ++top!.forks > MAX_FORKS) {
+            this.next.delete(root);
+            return this.set(dependencies, value, args, journey);
+          }
+          branch = { fn: dep.path as KeyFn, children: new Map() };
+          node.branches.push(branch);
+        }
+        let child = branch.children.get(k);
+        if (!child) {
+          child = newNode(undefined);
+          branch.children.set(k, child);
+        }
+        node = child;
       } else {
-        const key = depKey(dep.entity) as K;
-        nextLink = curLink.next.get(key);
-        if (!nextLink) {
-          nextLink = new Link<Path, K, V>();
-          curLink.next.set(key, nextLink);
-        }
+        keys[i - 1] = depKey(dep.entity);
       }
-      curLink.nextPath = dep.path as any;
-      curLink = nextLink;
     }
-    // in case there used to be more
-    curLink.nextPath = undefined;
-    curLink.value = value;
-    // we could recompute this on get, but it would have a cost and we optimize for `get`
-    curLink.journey = journey ?? (dependencies.map(d => d.path) as Path[]);
+    const entry: Entry<Path, V> = {
+      paths,
+      keys,
+      value,
+      // we could recompute this on get, but it would have a cost and we optimize for `get`
+      journey: journey ?? (dependencies.map(d => d.path) as Path[]),
+    };
+    if (!node) {
+      this.next.set(root, newNode(entry));
+      return;
+    }
+    // A store can flip back to a version it already showed: React renders the
+    // committed store between retries of a pending transition, which build new
+    // entities each time, and rolling back an optimistic update returns to the
+    // entities from before it. So beyond the newest entries, keep the one the
+    // store last flipped back to (or the first one, until a flip happens).
+    const { entries } = node;
+    if (!node.kept) node.kept = entry;
+    entries.unshift(entry);
+    if (entries.length > MAX_ENTRIES) {
+      const last = entries.length - 1;
+      entries.splice(entries[last] === node.kept ? last - 1 : last, 1);
+    }
   }
 
   /** True once any `argsKey`-style dep has been written. Consumers can use
@@ -138,6 +153,72 @@ export default class WeakDependencyMap<
   get hasStringDeps(): boolean {
     return this.hasStr;
   }
+}
+
+/** The node at or below `node` with an entry that matches the store, if any;
+ * that entry is moved to the front of its entries. A loop, not recursion:
+ * a list can record one `argsKey` per row, so the nodes nest that deep. */
+function find<Path, K extends object, V>(
+  node: Node<Path, V> | undefined,
+  getDependency: GetDependency<Path, K | symbol>,
+  args: readonly any[],
+): Node<Path, V> | undefined {
+  // other branches to try, only allocated when a node has more than one
+  let pending: Node<Path, V>[] | undefined;
+  while (node) {
+    const { entries, branches } = node;
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      if (matches(entry, getDependency)) {
+        if (i > 0) {
+          // read back after something newer was cached: the store flipped
+          // back to this version, so it is the one to keep
+          node.kept = entry;
+          entries.splice(i, 1);
+          entries.unshift(entry);
+        }
+        return node;
+      }
+    }
+    let next: Node<Path, V> | undefined;
+    if (branches) {
+      for (let b = 0; b < branches.length; b++) {
+        const { fn, children } = branches[b];
+        const key = select(fn, args);
+        const child = key === undefined ? undefined : children.get(key);
+        if (!child) continue;
+        if (!next) next = child;
+        else (pending || (pending = [])).push(child);
+      }
+    }
+    node = next ?? pending?.pop();
+  }
+}
+
+/** A branch's `argsKey` result. A branch is tried before the entities that
+ * led to it are checked, so its selector can see args its own schema path
+ * would never reach with (say, a nested entity that is now missing): treat a
+ * throw as no match, since traversal wouldn't have called it. */
+function select(fn: KeyFn, args: readonly any[]): string | undefined {
+  try {
+    return fn(args) ?? UNDEF_KEY;
+  } catch {
+    return undefined;
+  }
+}
+
+function matches<Path, K extends object, V>(
+  entry: Entry<Path, V>,
+  getDependency: GetDependency<Path, K | symbol>,
+): boolean {
+  const { paths, keys } = entry;
+  for (let i = 0; i < paths.length; i++) {
+    const path = paths[i];
+    // the route to this entry already picked every argsKey result
+    if (typeof path === 'function') continue;
+    if (depKey(getDependency(path as Path)) !== keys[i]) return false;
+  }
+  return true;
 }
 
 export type GetDependency<Path, K = object | symbol> = (
@@ -151,14 +232,45 @@ export interface Dep<Path, K = object> {
 
 const EMPTY = [undefined, undefined] as const;
 
-/** Link in a chain */
-class Link<Path, K extends object, V> {
-  next = new WeakMap<K, Link<Path, K, V>>();
-  /** Lazily allocated branch for string-keyed (`argsKey`) deps. */
-  nextStr: Map<string, Link<Path, K, V>> | undefined = undefined;
-  nextPath: Path | KeyFn | undefined = undefined;
-  value: V | undefined = undefined;
-  journey: Path[] = [];
+/** Entries kept per (first dependency, `argsKey` results). */
+const MAX_ENTRIES = 3;
+
+/** Nodes under one first dependency that may gain a second `argsKey` branch. */
+const MAX_FORKS = 8;
+
+/** Entries for one set of `argsKey` results, most recently used first, and the
+ * branches on the next one. */
+interface Node<Path, V> {
+  entries: Entry<Path, V>[];
+  /** Never evicted: the entry most recently read back after a newer one. */
+  kept: Entry<Path, V> | undefined;
+  /** One per next `argsKey` dependency; its result picks the child. */
+  branches: Branch<Path, V>[] | undefined;
+  /** On a first dependency's node: extra branches made anywhere below it. */
+  forks: number;
+}
+
+interface Branch<Path, V> {
+  readonly fn: KeyFn;
+  readonly children: Map<string, Node<Path, V>>;
+}
+
+function newNode<Path, V>(entry: Entry<Path, V> | undefined): Node<Path, V> {
+  return {
+    entries: entry ? [entry] : [],
+    kept: entry,
+    branches: undefined,
+    forks: 0,
+  };
+}
+
+/** One cached value: the dependencies after the first, and what they resolved to. */
+interface Entry<Path, V> {
+  readonly paths: (Path | KeyFn)[];
+  /** `depKey()` of the entity for entity paths; `argsKey` result for function paths. */
+  readonly keys: unknown[];
+  readonly value: V;
+  readonly journey: Path[];
 }
 
 class KeySize extends Error {
