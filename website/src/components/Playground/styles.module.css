@@ -1911,7 +1911,8 @@ div.fixtureJson + div.fixtureJson {
   justify-content: space-between;
   align-items: center;
 }
-.renderCount {
+.renderCount,
+.wallClock {
   /* a tonal pill, no edge */
   font: 500 12px / 1.7 var(--ifm-font-family-base);
   letter-spacing: normal;
@@ -1920,8 +1921,48 @@ div.fixtureJson + div.fixtureJson {
   border-radius: 999px;
   background: var(--pg-hover);
   color: inherit;
-  cursor: pointer;
   font-variant-numeric: tabular-nums;
+}
+.renderCount {
+  cursor: pointer;
+}
+/* The reader's clock (WallClock.tsx, Playground `clock`): in the header,
+   apart from the app's sheet, so the times a demo fetched read against the
+   world's */
+.wallClock {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  margin-inline: 0.75rem;
+  padding-inline-start: 0.55em;
+  color: var(--pg-text);
+  white-space: nowrap;
+}
+.wallClock > svg {
+  font-size: 14px;
+  color: var(--pg-muted);
+}
+.wallClock .secondHand {
+  stroke: var(--pg-live);
+}
+.wallClock[data-pending] > * {
+  visibility: hidden;
+}
+/* a tight header gives its room to the demo's path */
+@container previewHeader (max-width: 36rem) {
+  .wallClock {
+    margin-inline: 0;
+  }
+}
+/* a phone's: the time alone, so the path still shows whole */
+@container previewHeader (max-width: 26rem) {
+  .wallClock {
+    padding-inline-start: 0.7em;
+  }
+  .wallClock > svg {
+    display: none;
+  }
 }
 .previewControls {
   display: flex;

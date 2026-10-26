@@ -7,6 +7,7 @@ import { editorLabel, liveLabel } from '../liveLabel';
 import NetworkIcon from '../NetworkIcon';
 import styles from '../styles.module.css';
 import type { CodeControl } from '../types';
+import WallClock from '../WallClock';
 import ResetButton from './ResetButton';
 import { RouterControlsSlot } from './routerSlot';
 import { CodeHeaderToggle, StoreHeaderToggle } from './StoreToggle';
@@ -17,6 +18,7 @@ export default function PreviewWrapper({
   label,
   fixtures,
   code,
+  clock,
   ref,
 }: Props) {
   const [routerSlot, setRouterSlot] = useState<HTMLElement | null>(null);
@@ -48,6 +50,9 @@ export default function PreviewWrapper({
           </span>
         : liveLabelNode}
         <span className={styles.routerSlot} ref={setRouterSlot} />
+        {clock ?
+          <WallClock />
+        : null}
         <span className={styles.previewControls}>
           {fixtures != null ?
             <button
@@ -170,5 +175,7 @@ interface Props {
    * the code shows in the result's place the header names it ("Editor") in
    * the label's */
   code?: CodeControl;
+  /** Playground `clock` */
+  clock?: boolean;
   ref?: React.Ref<HTMLDivElement>;
 }

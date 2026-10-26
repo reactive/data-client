@@ -62,7 +62,7 @@ to make it becomes [stale](#stale) almost instantly; or a very large number to s
 Toggling between 'first' and 'second' changes the parameters. If the data is still considered fresh
 you will continue to see the old time without any refresh.
 
-<FrameworkPlayground row defaultTab="getUpdated" fixtures={[
+<FrameworkPlayground row clock defaultTab="getUpdated" fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -113,10 +113,12 @@ import { getUpdated } from './getUpdated';
 export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
-    <div className="listItem">
-      <span className="meta">API time for {id}</span>
-      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
-    </div>
+    <>
+      <h2>
+        <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'medium' })}</time>
+      </h2>
+      <span className="meta">Fetched for page {id}</span>
+    </>
   );
 }
 ```
@@ -124,17 +126,16 @@ export default function TimePage({ id }: { id: string }) {
 ```tsx title="Navigator" layout collapsed docs-only
 export default function Navigator({ children }) {
   return (
-    <div>
-      <nav>
-        <Link to="/time/1">First</Link>
-        <Link to="/time/2">Second</Link>
-      </nav>
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Server time</h1>
+        <nav>
+          <Link to="/time/1">First</Link>
+          <Link to="/time/2">Second</Link>
+        </nav>
+      </header>
       {children}
-      <div className="listItem">
-        <span className="meta">Current time</span>
-        <CurrentTime />
-      </div>
-    </div>
+    </>
   );
 }
 ```
@@ -153,36 +154,33 @@ export default function Navigator({ children }) {
 </script>
 
 <template>
-  <div class="listItem">
-    <span class="meta">API time for {{ id }}</span>
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-  </div>
+  <h2>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'medium' }) }}</time>
+  </h2>
+  <span class="meta">Fetched for page {{ id }}</span>
 </template>
 ```
 
 ```html title="Navigator.vue" layout collapsed docs-only
 <template>
-  <div>
+  <header class="appHeader">
+    <h1 class="appTitle">Server time</h1>
     <nav>
       <RouterLink to="/time/1">First</RouterLink>
       <RouterLink to="/time/2">Second</RouterLink>
     </nav>
-    <RouterView v-slot="{ Component, route }">
-      <!-- :key remounts TimePage so it suspends for the new id -->
-      <Suspense timeout="0">
-        <component
-          :is="Component"
-          :key="route.fullPath"
-          :id="route.params.id"
-        />
-        <template #fallback><Loading /></template>
-      </Suspense>
-    </RouterView>
-    <div class="listItem">
-      <span class="meta">Current time</span>
-      <CurrentTime />
-    </div>
-  </div>
+  </header>
+  <RouterView v-slot="{ Component, route }">
+    <!-- :key remounts TimePage so it suspends for the new id -->
+    <Suspense timeout="0">
+      <component
+        :is="Component"
+        :key="route.fullPath"
+        :id="route.params.id"
+      />
+      <template #fallback><Loading /></template>
+    </Suspense>
+  </RouterView>
 </template>
 ```
 
@@ -247,7 +245,7 @@ that expires immediately be considered '[invalid](#invalid)'.
 This is demonstrated by the page suspending once its data goes stale:react[ (navigation waits on the progress bar)].
 If the data is still within the expiry time it just continues to display it.
 
-<FrameworkPlayground row defaultTab="getUpdated" fixtures={[
+<FrameworkPlayground row clock defaultTab="getUpdated" fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -301,10 +299,12 @@ import { getUpdated } from './getUpdated';
 export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
-    <div className="listItem">
-      <span className="meta">API time for {id}</span>
-      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
-    </div>
+    <>
+      <h2>
+        <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'medium' })}</time>
+      </h2>
+      <span className="meta">Fetched for page {id}</span>
+    </>
   );
 }
 ```
@@ -312,17 +312,16 @@ export default function TimePage({ id }: { id: string }) {
 ```tsx title="Navigator" layout collapsed docs-only
 export default function Navigator({ children }) {
   return (
-    <div>
-      <nav>
-        <Link to="/time/1">First</Link>
-        <Link to="/time/2">Second</Link>
-      </nav>
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Server time</h1>
+        <nav>
+          <Link to="/time/1">First</Link>
+          <Link to="/time/2">Second</Link>
+        </nav>
+      </header>
       {children}
-      <div className="listItem">
-        <span className="meta">Current time</span>
-        <CurrentTime />
-      </div>
-    </div>
+    </>
   );
 }
 ```
@@ -341,36 +340,33 @@ export default function Navigator({ children }) {
 </script>
 
 <template>
-  <div class="listItem">
-    <span class="meta">API time for {{ id }}</span>
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-  </div>
+  <h2>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'medium' }) }}</time>
+  </h2>
+  <span class="meta">Fetched for page {{ id }}</span>
 </template>
 ```
 
 ```html title="Navigator.vue" layout collapsed docs-only
 <template>
-  <div>
+  <header class="appHeader">
+    <h1 class="appTitle">Server time</h1>
     <nav>
       <RouterLink to="/time/1">First</RouterLink>
       <RouterLink to="/time/2">Second</RouterLink>
     </nav>
-    <RouterView v-slot="{ Component, route }">
-      <!-- :key remounts TimePage so it suspends for the new id -->
-      <Suspense timeout="0">
-        <component
-          :is="Component"
-          :key="route.fullPath"
-          :id="route.params.id"
-        />
-        <template #fallback><Loading /></template>
-      </Suspense>
-    </RouterView>
-    <div class="listItem">
-      <span class="meta">Current time</span>
-      <CurrentTime />
-    </div>
-  </div>
+  </header>
+  <RouterView v-slot="{ Component, route }">
+    <!-- :key remounts TimePage so it suspends for the new id -->
+    <Suspense timeout="0">
+      <component
+        :is="Component"
+        :key="route.fullPath"
+        :id="route.params.id"
+      />
+      <template #fallback><Loading /></template>
+    </Suspense>
+  </RouterView>
 </template>
 ```
 
@@ -807,7 +803,7 @@ render(<Demo />);
 Using the [Invalidate schema](/rest/api/Invalidate) allows us to invalidate _any_ endpoint that includes that relies on that [entity](/rest/api/Entity) in their
 response. If the endpoint uses the entity in an [Array](/rest/api/Array), it will simply be removed from that [Array](/rest/api/Array).
 
-<FrameworkPlayground row fixtures={[
+<FrameworkPlayground row clock fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -862,10 +858,9 @@ import { lastUpdated } from './api/lastUpdated';
 export default function TimePage({ id }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
   return (
-    <div className="listItem">
-      <span className="meta">API time for {id}</span>
-      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
-    </div>
+    <h2>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'medium' })}</time>
+    </h2>
   );
 }
 ```
@@ -891,20 +886,20 @@ function ShowTime() {
   );
   return (
     <div>
-      <AsyncBoundary
-        fallback={
-          <div className="listItem">
-            <span className="meta">API time for 1</span>
-            <span className="skeleton" />
-          </div>
-        }
-      >
-        <TimePage id="1" />
-      </AsyncBoundary>
-      <div className="listItem">
-        <span className="meta">Current time</span>
-        <CurrentTime />
-      </div>
+      <header className="appHeader">
+        <h1 className="appTitle">Server time</h1>
+      </header>
+      <section>
+        <AsyncBoundary
+          fallback={
+            <h2>
+              <span className="skeleton" />
+            </h2>
+          }
+        >
+          <TimePage id="1" />
+        </AsyncBoundary>
+      </section>
       <div className="buttonGroup">
         <button onClick={handleDelete} aria-busy={loadingDelete}>
           Invalidate
@@ -946,10 +941,9 @@ render(<ShowTime />);
 </script>
 
 <template>
-  <div class="listItem">
-    <span class="meta">API time for {{ id }}</span>
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-  </div>
+  <h2>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'medium' }) }}</time>
+  </h2>
 </template>
 ```
 
@@ -975,15 +969,17 @@ render(<ShowTime />);
 
 <template>
   <div>
-    <Suspense>
-      <TimePage id="1" />
-      <template #fallback>
-        <div class="listItem">
-          <span class="meta">API time for 1</span>
-          <span class="skeleton" />
-        </div>
-      </template>
-    </Suspense>
+    <header class="appHeader">
+      <h1 class="appTitle">Server time</h1>
+    </header>
+    <section>
+      <Suspense>
+        <TimePage id="1" />
+        <template #fallback>
+          <h2><span class="skeleton" /></h2>
+        </template>
+      </Suspense>
+    </section>
     <div class="buttonGroup">
       <button @click="handleDelete" :aria-busy="loadingDelete">
         Invalidate

@@ -73,10 +73,10 @@ export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 </script>
 
 <template>
-  <div class="listItem">
-    <span class="meta">API time for {{ id }}</span>
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-  </div>
+  <h2>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'medium' }) }}</time>
+  </h2>
+  <span class="meta">Fetched for page {{ id }}</span>
 </template>
 ```
 
@@ -178,10 +178,10 @@ export const getUpdated = lastUpdated.extend({
 </script>
 
 <template>
-  <div class="listItem">
-    <span class="meta">API time for {{ id }}</span>
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-  </div>
+  <h2>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'medium' }) }}</time>
+  </h2>
+  <span class="meta">Fetched for page {{ id }}</span>
 </template>
 ```
 
@@ -410,10 +410,9 @@ export const lastUpdated = new RestEndpoint({
 </script>
 
 <template>
-  <div class="listItem">
-    <span class="meta">API time for {{ id }}</span>
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-  </div>
+  <h2>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'medium' }) }}</time>
+  </h2>
 </template>
 ```
 
@@ -439,15 +438,17 @@ export const lastUpdated = new RestEndpoint({
 
 <template>
   <div>
-    <Suspense>
-      <TimePage id="1" />
-      <template #fallback>
-        <div class="listItem">
-          <span class="meta">API time for 1</span>
-          <span class="skeleton" />
-        </div>
-      </template>
-    </Suspense>
+    <header class="appHeader">
+      <h1 class="appTitle">Server time</h1>
+    </header>
+    <section>
+      <Suspense>
+        <TimePage id="1" />
+        <template #fallback>
+          <h2><span class="skeleton" /></h2>
+        </template>
+      </Suspense>
+    </section>
     <div class="buttonGroup">
       <button @click="handleDelete" :aria-busy="loadingDelete">
         Invalidate

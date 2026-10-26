@@ -28,6 +28,7 @@ export interface LivePreviewProps<T> extends PreviewProps<T> {
   showStore: ShowStore;
   /** Demo layout: the code in the result's place, and its toggle (../index.tsx) */
   code?: CodeControl;
+  clock?: boolean;
 }
 
 export default function LivePreview<T>({
@@ -45,6 +46,7 @@ export default function LivePreview<T>({
   autoRun,
   showStore,
   code: codeControl,
+  clock,
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
@@ -95,6 +97,7 @@ export default function LivePreview<T>({
         }
         fixtures={fixtureContent}
         code={codeControl}
+        clock={clock}
         headerControls={
           <PreviewHeaderControls
             row={row}
