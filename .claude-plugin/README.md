@@ -11,12 +11,28 @@ endpoint, rest, graphql, react and vue, implemented in `packages/core/agents/` a
 | File               | What                                                                                                                                                                                                                                                                            |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `marketplace.json` | The marketplace Claude Code reads (`claude plugin marketplace add reactive/data-client`). `data-client` is the plugin; `core`, `react`, `vue` and `migrations` are old names kept as copies so existing installs keep updating (`plans/next-breaking-release.md` removes them). |
-| `cursor.mjs`       | Writes Cursor's copy of the plugin (see below).                                                                                                                                                                                                                                 |
-| `*.test.mjs`       | `node --test '.claude-plugin/*.test.mjs'`: `marketplace.json` and the Cursor copy against the repo; READMEs against the site.                                                                                                                                                   |
+| `plugin-dir.mjs`   | Writes the manifests that make `.agents/skills` a self-contained copy of the plugin, for Cursor and Claude's plugin directory (see below).                                                                                                                                      |
+| `openai-zip.mjs`   | Packs the plugin as the ZIP OpenAI's plugin directory uploads (see below).                                                                                                                                                                                                      |
+| `*.test.mjs`       | `node --test '.claude-plugin/*.test.mjs'`: `marketplace.json` and the plugin directory copies against the repo; READMEs against the site.                                                                                                                                       |
 
 ## Codex and Cursor
 
-Codex reads `marketplace.json` as is (`codex plugin add data-client@data-client`). Cursor plugins can't reach files outside their folder, so `cursor.mjs` writes a copy of the `data-client` entry rooted at `.agents/skills` (`.cursor-plugin/marketplace.json`, `.agents/skills/.cursor-plugin/plugin.json`), and `marketplace.test.mjs` fails when they drift. The marketplace source is a `git-subdir` pinned to `master`: Cursor's `/add-plugin` otherwise checks out `main`, which this repo does not have. Cursor's published `marketplace.schema.json` still types `source` as a string; the object form comes from its plugin docs, and the Cursor agent's install resolved it.
+Codex reads `marketplace.json` as is (`codex plugin add data-client@data-client`). Cursor plugins can't reach files outside their folder, so `plugin-dir.mjs` writes a copy of the `data-client` entry rooted at `.agents/skills` (`.cursor-plugin/marketplace.json`, `.agents/skills/.cursor-plugin/plugin.json`, and the `.agents/skills/.claude-plugin/plugin.json` Claude's directory reads), and `marketplace.test.mjs` fails when they drift. The marketplace source is a `git-subdir` pinned to `master`: Cursor's `/add-plugin` otherwise checks out `main`, which this repo does not have. Cursor's published `marketplace.schema.json` still types `source` as a string; the object form comes from its plugin docs, and the Cursor agent's install resolved it.
+
+## Public listings
+
+Each listing reads the plugin from `.agents/skills`, whose `README.md` is the listing's description.
+
+- **Claude's plugin directory** ([claude.ai/directory/manage](https://claude.ai/directory/manage), plugin path
+  `.agents/skills`, branch `master`) reads `.agents/skills/.claude-plugin/plugin.json`, written without a `version` so
+  every commit is an update. The `agent-rules` workflow checks its manifest and skills with `claude plugin validate ./.agents/skills`; the
+  directory's safety scan and policy review run only on submission. The
+  directory refuses repositories whose GitHub archive passes 50 MiB.
+- **Cursor Marketplace** ([cursor.com/marketplace/publish](https://cursor.com/marketplace/publish)) reviews the
+  repository link and `.cursor-plugin/marketplace.json`.
+- **OpenAI's plugin directory** (ChatGPT and Codex) takes an uploaded ZIP, not the repository:
+  `node .claude-plugin/openai-zip.mjs` writes `data-client-plugin.zip`, versioned by its build time. Upload a new one
+  whenever the plugin's skills change.
 
 ## What it reads from the rest of the repo
 
@@ -28,5 +44,5 @@ Codex reads `marketplace.json` as is (`codex plugin add data-client@data-client`
 ## CI
 
 The `agent-rules` workflow runs these tests and the `data-client-skills` tests (`packages/core/agents/*.test.mjs`), with
-no install. Its `paths` cover this directory and the inputs above, and `marketplace.test.mjs` fails when the old names
-drift from `data-client` or a plugin skill goes missing or stops shipping in a package. `cursor-plugin.test.mjs` checks that the Cursor manifests still install.
+no install, then fetches a pinned Claude Code CLI for `claude plugin validate`. Its `paths` cover this directory and the inputs above, and `marketplace.test.mjs` fails when the old names
+drift from `data-client` or a plugin skill goes missing or stops shipping in a package. `plugin-dir.test.mjs` checks the skill names, logo and README the plugin directory listings read.
