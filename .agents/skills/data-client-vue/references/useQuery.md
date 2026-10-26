@@ -37,10 +37,6 @@ export class Post extends Entity {
       },
     ),
   };
-
-  get img() {
-    return `https://picsum.photos/seed/${this.id % 16}/96/72`;
-  }
 }
 ```
 
@@ -70,9 +66,10 @@ export const PostResource = resource({
 });
 ```
 
-```html title="PostItem.vue" {9}
+```html title="PostItem.vue" {10}
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
   import { PostResource, type Post } from './PostResource';
 
   const props = defineProps<{ post: Post }>();
@@ -84,26 +81,23 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <div>
-    <div class="voteBlock">
-      <small class="vote">
-        <button class="up" @click="handleVote">&nbsp;</button>
-        {{ post.votes }}
-      </small>
-      <img :src="post.img" width="70" height="52" />
-    </div>
+  <article class="listItem">
+    <button class="upvote" @click="handleVote" aria-label="Upvote">
+      <NumberFlow :value="post.votes" />
+    </button>
     <div>
       <h4>{{ post.title }}</h4>
-      <p>{{ post.body }}</p>
+      <p class="meta">{{ post.body }}</p>
     </div>
-  </div>
+  </article>
 </template>
 ```
 
-```html title="TotalVotes.vue" {12}
+```html title="TotalVotes.vue" {13}
 <script setup lang="ts">
   import { Query } from '@data-client/rest';
   import { useQuery } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
   import { PostResource } from './PostResource';
 
   const queryTotalVotes = new Query(
@@ -116,9 +110,9 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <div style="text-align: center">
-    <small>{{ totalVotes }} votes total</small>
-  </div>
+  <span v-if="totalVotes !== undefined" class="meta">
+    <NumberFlow :value="totalVotes" /> votes
+  </span>
 </template>
 ```
 
@@ -134,9 +128,12 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <div>
-    <PostItem v-for="post in posts" :key="post.pk()" :post="post" />
+  <header class="appHeader">
+    <h1 class="appTitle">Posts</h1>
     <TotalVotes :userId="userId" />
+  </header>
+  <div class="list">
+    <PostItem v-for="post in posts" :key="post.pk()" :post="post" />
   </div>
 </template>
 ```

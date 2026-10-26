@@ -22,10 +22,6 @@ export class Post extends Entity {
       },
     ),
   };
-
-  get img() {
-    return `https://picsum.photos/seed/${this.id % 16}/96/72`;
-  }
 }
 ```
 
@@ -57,8 +53,9 @@ export const PostResource = resource({
 
 :::react
 
-```tsx title="PostItem" {7} collapsed
+```tsx title="PostItem" {8} collapsed
 import { useController } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
 import { PostResource, type Post } from './PostResource';
 
 export default function PostItem({ post }: Props) {
@@ -67,21 +64,15 @@ export default function PostItem({ post }: Props) {
     ctrl.fetch(PostResource.vote, { id: post.id });
   };
   return (
-    <div>
-      <div className="voteBlock">
-        <small className="vote">
-          <button className="up" onClick={handleVote}>
-            &nbsp;
-          </button>
-          {post.votes}
-        </small>
-        <img src={post.img} width="70" height="52" />
-      </div>
+    <article className="listItem">
+      <button className="upvote" onClick={handleVote} aria-label="Upvote">
+        <NumberFlow value={post.votes} />
+      </button>
       <div>
         <h4>{post.title}</h4>
-        <p>{post.body}</p>
+        <p className="meta">{post.body}</p>
       </div>
-    </div>
+    </article>
   );
 }
 interface Props {
@@ -89,9 +80,10 @@ interface Props {
 }
 ```
 
-```tsx title="TotalVotes" collapsed {11}
+```tsx title="TotalVotes" collapsed {12}
 import { Query } from '@data-client/rest';
 import { useQuery } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
 import { PostResource } from './PostResource';
 
 const queryTotalVotes = new Query(
@@ -101,10 +93,11 @@ const queryTotalVotes = new Query(
 
 export default function TotalVotes({ userId }: Props) {
   const totalVotes = useQuery(queryTotalVotes, { userId });
+  if (totalVotes === undefined) return null;
   return (
-    <center>
-      <small>{totalVotes} votes total</small>
-    </center>
+    <span className="meta">
+      <NumberFlow value={totalVotes} /> votes
+    </span>
   );
 }
 interface Props {
@@ -122,12 +115,17 @@ function PostList() {
   const userId = 2;
   const posts = useSuspense(PostResource.getList, { userId });
   return (
-    <div>
-      {posts.map(post => (
-        <PostItem key={post.pk()} post={post} />
-      ))}
-      <TotalVotes userId={userId} />
-    </div>
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Posts</h1>
+        <TotalVotes userId={userId} />
+      </header>
+      <div className="list">
+        {posts.map(post => (
+          <PostItem key={post.pk()} post={post} />
+        ))}
+      </div>
+    </>
   );
 }
 render(<PostList />);
@@ -137,9 +135,10 @@ render(<PostList />);
 
 :::vue
 
-```html title="PostItem.vue" {9} collapsed
+```html title="PostItem.vue" {10} collapsed
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
   import { PostResource, type Post } from './PostResource';
 
   const props = defineProps<{ post: Post }>();
@@ -151,26 +150,23 @@ render(<PostList />);
 </script>
 
 <template>
-  <div>
-    <div class="voteBlock">
-      <small class="vote">
-        <button class="up" @click="handleVote">&nbsp;</button>
-        {{ post.votes }}
-      </small>
-      <img :src="post.img" width="70" height="52" />
-    </div>
+  <article class="listItem">
+    <button class="upvote" @click="handleVote" aria-label="Upvote">
+      <NumberFlow :value="post.votes" />
+    </button>
     <div>
       <h4>{{ post.title }}</h4>
-      <p>{{ post.body }}</p>
+      <p class="meta">{{ post.body }}</p>
     </div>
-  </div>
+  </article>
 </template>
 ```
 
-```html title="TotalVotes.vue" collapsed {12}
+```html title="TotalVotes.vue" collapsed {13}
 <script setup lang="ts">
   import { Query } from '@data-client/rest';
   import { useQuery } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
   import { PostResource } from './PostResource';
 
   const queryTotalVotes = new Query(
@@ -183,9 +179,9 @@ render(<PostList />);
 </script>
 
 <template>
-  <div style="text-align: center">
-    <small>{{ totalVotes }} votes total</small>
-  </div>
+  <span v-if="totalVotes !== undefined" class="meta">
+    <NumberFlow :value="totalVotes" /> votes
+  </span>
 </template>
 ```
 
@@ -201,9 +197,12 @@ render(<PostList />);
 </script>
 
 <template>
-  <div>
-    <PostItem v-for="post in posts" :key="post.pk()" :post="post" />
+  <header class="appHeader">
+    <h1 class="appTitle">Posts</h1>
     <TotalVotes :userId="userId" />
+  </header>
+  <div class="list">
+    <PostItem v-for="post in posts" :key="post.pk()" :post="post" />
   </div>
 </template>
 ```

@@ -337,10 +337,6 @@ export class Post extends Entity {
       },
     ),
   };
-
-  get img() {
-    return `https://picsum.photos/seed/${this.id % 16}/96/72`;
-  }
 }
 ```
 
@@ -370,8 +366,9 @@ export const PostResource = resource({
 });
 ```
 
-```tsx title="PostItem" {7}
+```tsx title="PostItem" {8}
 import { useController } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
 import { PostResource, type Post } from './PostResource';
 
 export default function PostItem({ post }: Props) {
@@ -380,21 +377,15 @@ export default function PostItem({ post }: Props) {
     ctrl.fetch(PostResource.vote, { id: post.id });
   };
   return (
-    <div>
-      <div className="voteBlock">
-        <small className="vote">
-          <button className="up" onClick={handleVote}>
-            &nbsp;
-          </button>
-          {post.votes}
-        </small>
-        <img src={post.img} width="70" height="52" />
-      </div>
+    <article className="listItem">
+      <button className="upvote" onClick={handleVote} aria-label="Upvote">
+        <NumberFlow value={post.votes} />
+      </button>
       <div>
         <h4>{post.title}</h4>
-        <p>{post.body}</p>
+        <p className="meta">{post.body}</p>
       </div>
-    </div>
+    </article>
   );
 }
 interface Props {
@@ -402,9 +393,10 @@ interface Props {
 }
 ```
 
-```tsx title="TotalVotes" {11}
+```tsx title="TotalVotes" {12}
 import { Query } from '@data-client/rest';
 import { useQuery } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
 import { PostResource } from './PostResource';
 
 const queryTotalVotes = new Query(
@@ -414,10 +406,11 @@ const queryTotalVotes = new Query(
 
 export default function TotalVotes({ userId }: Props) {
   const totalVotes = useQuery(queryTotalVotes, { userId });
+  if (totalVotes === undefined) return null;
   return (
-    <center>
-      <small>{totalVotes} votes total</small>
-    </center>
+    <span className="meta">
+      <NumberFlow value={totalVotes} /> votes
+    </span>
   );
 }
 interface Props {
@@ -435,12 +428,17 @@ function PostList() {
   const userId = 2;
   const posts = useSuspense(PostResource.getList, { userId });
   return (
-    <div>
-      {posts.map(post => (
-        <PostItem key={post.pk()} post={post} />
-      ))}
-      <TotalVotes userId={userId} />
-    </div>
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Posts</h1>
+        <TotalVotes userId={userId} />
+      </header>
+      <div className="list">
+        {posts.map(post => (
+          <PostItem key={post.pk()} post={post} />
+        ))}
+      </div>
+    </>
   );
 }
 render(<PostList />);

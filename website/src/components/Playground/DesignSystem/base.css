@@ -9,6 +9,8 @@
   --ds-text-base: 0.9375rem;
   --ds-text-lg: 1.125rem;
   --ds-text-xl: 1.375rem;
+  /* a figure (.stats) */
+  --ds-text-2xl: 1.75rem;
   --ds-space-1: 0.25rem;
   --ds-space-2: 0.5rem;
   --ds-space-3: 0.75rem;

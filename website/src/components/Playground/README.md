@@ -239,7 +239,8 @@ Styled elements: `h2` (page title), `button` (`primary` fills one;
 | `skeleton`                                 | a value still loading; `<Loading />`, the default fallback, draws a page       |
 | `toaster`, `toast`                         | notifications: render `<Toaster />`, call `toast.success()` or `toast.error()` |
 | `boardColumn`                              | a kanban column                                                                |
-| `voteBlock`, `vote`                        | a vote count with its buttons                                                  |
+| `upvote` (a button)                        | an upvote with its count; empty, the arrow alone                               |
+| `stats` (a `dl`)                           | figures side by side, each large over its label                                |
 
 ## Auto-run
 

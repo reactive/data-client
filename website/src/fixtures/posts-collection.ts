@@ -38,7 +38,7 @@ const entities: Record<string, EntityPost> = {
   },
   '2': {
     id: '2',
-    title: 'Why does user experince matter?',
+    title: 'Why does user experience matter?',
     body: 'Slow interactions, confusing inconsistent data, UI flickering great a mental burden on your customers. This reduces their productivity and their frustration can make them lose trust.',
     author: 'clara',
     group: 'react',

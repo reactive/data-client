@@ -13,10 +13,6 @@ export class Post extends Entity {
   votes = 0;
 
   static key = 'Post';
-
-  get img() {
-    return `https://picsum.photos/seed/${this.id % 16}/96/72`;
-  }
 }
 export const PostResource = resource({
   path: '/posts/:id',
@@ -31,15 +27,10 @@ import { PostResource } from './PostResource';
 export default function PostDetail({ id }) {
   const post = useSuspense(PostResource.get, { id });
   return (
-    <div>
-      <div className="voteBlock">
-        <img src={post.img} width="70" height="52" />
-      </div>
-      <div>
-        <h4>{post.title}</h4>
-        <p>{post.body}</p>
-      </div>
-    </div>
+    <article>
+      <h2>{post.title}</h2>
+      <p>{post.body}</p>
+    </article>
   );
 }
 ```
