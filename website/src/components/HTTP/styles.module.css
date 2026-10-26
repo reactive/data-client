@@ -16,6 +16,11 @@
   min-width: 0;
   align-self: start;
 }
+/* the playground's last child clips (../Playground), which would cut off
+   the cards' shadows */
+.exchange > .folder:last-child {
+  overflow: visible;
+}
 
 /* the header: the request */
 .request {
