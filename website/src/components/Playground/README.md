@@ -233,6 +233,7 @@ Styled elements: `h2` (page title), `button` (`primary` fills one;
 | `card`                                     | a group (no box: the sheet is the card)                                        |
 | `list`, `listItem` (`nogap`, `spaced`)     | rows; checkbox rows highlight and fade when done                               |
 | `meta`                                     | secondary text; last in a `listItem`, it sits at the row's end                 |
+| `value`                                    | a row's figure (a price); last in a `listItem`, at the row's end, tabular      |
 | `byline`, `author` (`Avatar` takes `size`) | who wrote something                                                            |
 | `buttonGroup`                              | a row of actions as one segmented control                                      |
 | `cancel` (`<CancelButton />`)              | a row's remove button                                                          |
@@ -240,7 +241,7 @@ Styled elements: `h2` (page title), `button` (`primary` fills one;
 | `toaster`, `toast`                         | notifications: render `<Toaster />`, call `toast.success()` or `toast.error()` |
 | `boardColumn`                              | a kanban column                                                                |
 | `upvote` (a button)                        | an upvote with its count; empty, the arrow alone                               |
-| `stats` (a `dl`)                           | figures side by side, each large over its label                                |
+| `stats` (a `dl`)                           | figures side by side, each large over its label; a lone one fills the row      |
 
 ## Auto-run
 
