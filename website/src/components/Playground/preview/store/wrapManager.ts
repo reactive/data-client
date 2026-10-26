@@ -54,9 +54,10 @@ export function wrapManager(
       }
     : fn;
   const skip = () => {};
-  /** `fn`, which a step of the manager's middleware returned; untyped
-   * playground code can forget to return one */
-  const returned = <F>(fn: F, shape: string): F => {
+  /** `fn`, what the manager's middleware returned at one of its levels, or
+   * an error when it is no function: untyped playground code can forget to
+   * return one */
+  const expectFunction = <F>(fn: F, shape: string): F => {
     if (typeof fn !== 'function')
       throw new Error(
         `${manager.constructor.name}'s middleware returned no function where it must return ${shape}.`,
@@ -84,7 +85,10 @@ export function wrapManager(
             `${manager.constructor.name} has no middleware. Managers must define middleware.`,
           );
         // may be a prototype method that reads `this`
-        return returned(middleware.call(manager, own), 'next => action => …');
+        return expectFunction(
+          middleware.call(manager, own),
+          'next => action => …',
+        );
       },
       () => undefined,
     )();
@@ -109,10 +113,11 @@ export function wrapManager(
         if (reported.has(action)) consumed(action);
         return next(action);
       };
+      // a middleware that failed to build (already reported) has no step
       const step =
         withController &&
         attempt(
-          () => returned(withController(passOn), 'action => …'),
+          () => expectFunction(withController(passOn), 'action => …'),
           () => undefined,
         )();
       // a step that failed to build passes every action on, unguarded, so

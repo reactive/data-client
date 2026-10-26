@@ -463,10 +463,13 @@ describe('manager attribution', () => {
     );
     const error = new Error('later');
     const action = { type: actionTypes.GC } as ActionTypes;
-    guarded.middleware({} as Controller)(() => {
+    const next = jest.fn(() => {
       throw error;
-    })(action);
+    });
+    guarded.middleware({} as Controller)(next)(action);
     expect(report).toHaveBeenCalledWith(error);
+    // passed on once, not again as the step fails
+    expect(next).toHaveBeenCalledTimes(1);
   });
 });
 
