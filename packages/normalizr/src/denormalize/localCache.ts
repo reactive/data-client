@@ -29,6 +29,8 @@ export default class LocalCache implements Cache {
     return localCacheKey.get(pk);
   }
 
+  dependOn(): void {}
+
   getResults(
     input: any,
     cachable: boolean,
