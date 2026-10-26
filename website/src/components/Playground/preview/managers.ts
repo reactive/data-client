@@ -81,11 +81,7 @@ export default class ManagerHost {
    * among them (the code's own, or one added for it). `reportFor` says
    * where a manager's errors go: the code's are guarded (`wrapManager`
    * skips a step that throws and reports it here); the library's aren't */
-  create(): {
-    managers: Manager[];
-    network: NetworkManager;
-    reportFor: (manager: Manager) => ((error: unknown) => void) | undefined;
-  } {
+  create() {
     this.error = undefined;
     const declared = this.declared();
     let managers = declared ?? getDefaultManagers({ devToolsManager: null });
@@ -94,9 +90,8 @@ export default class ManagerHost {
     );
     // DataProvider warns about this; keep the preview working meanwhile
     if (!network) managers = [...managers, (network = new NetworkManager())];
-    const guarded = new Set(declared);
     const reportFor = (manager: Manager) =>
-      guarded.has(manager) ? this.report : undefined;
+      declared?.includes(manager) ? this.report : undefined;
     return { managers, network, reportFor };
   }
 

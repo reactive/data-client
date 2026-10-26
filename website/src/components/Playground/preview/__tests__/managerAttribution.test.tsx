@@ -434,11 +434,17 @@ describe('manager attribution', () => {
     expect(next).toHaveBeenCalledWith(action);
   });
 
-  it("leaves what comes after a manager whose middleware won't build unguarded", async () => {
-    const log = new SchemaRegistry().log.connect(0);
-    const broken = { cleanup() {} } as unknown as Manager;
+  /** `manager`, tracked and guarded, with where it reports */
+  const guard = (manager: unknown) => {
     const report = jest.fn();
-    const [guarded] = log.track([broken], () => report);
+    const [guarded] = new SchemaRegistry().log
+      .connect(0)
+      .track([manager as Manager], () => report);
+    return { guarded, report };
+  };
+
+  it("leaves what comes after a manager whose middleware won't build unguarded", async () => {
+    const { guarded, report } = guard({ cleanup() {} });
     const failed = new Error('request failed');
     const dispatch = guarded.middleware({} as Controller)(() =>
       Promise.reject(failed),
@@ -452,12 +458,10 @@ describe('manager attribution', () => {
   });
 
   it('reports a middleware that returns no function', () => {
-    const log = new SchemaRegistry().log.connect(0);
-    const report = jest.fn();
-    const [guarded] = log.track(
-      [{ middleware: () => undefined, cleanup() {} } as unknown as Manager],
-      () => report,
-    );
+    const { guarded, report } = guard({
+      middleware: () => undefined,
+      cleanup() {},
+    });
     const next = jest.fn();
     const action = { type: actionTypes.GC } as ActionTypes;
     guarded.middleware({} as Controller)(next)(action);
@@ -467,17 +471,10 @@ describe('manager attribution', () => {
   });
 
   it('reports a step that returns no function', () => {
-    const log = new SchemaRegistry().log.connect(0);
-    const report = jest.fn();
-    const [guarded] = log.track(
-      [
-        {
-          middleware: () => () => undefined,
-          cleanup() {},
-        } as unknown as Manager,
-      ],
-      () => report,
-    );
+    const { guarded, report } = guard({
+      middleware: () => () => undefined,
+      cleanup() {},
+    });
     const next = jest.fn();
     const dispatch = guarded.middleware({} as Controller)(next);
     const action = { type: actionTypes.GC } as ActionTypes;
@@ -489,12 +486,10 @@ describe('manager attribution', () => {
   });
 
   it('guards a middleware that passes next itself, passing an action on once when its step throws', () => {
-    const log = new SchemaRegistry().log.connect(0);
-    const report = jest.fn();
-    const [guarded] = log.track(
-      [{ middleware: () => (next: unknown) => next, cleanup() {} } as any],
-      () => report,
-    );
+    const { guarded, report } = guard({
+      middleware: () => (next: unknown) => next,
+      cleanup() {},
+    });
     const error = new Error('later');
     const action = { type: actionTypes.GC } as ActionTypes;
     const next = jest.fn(() => {

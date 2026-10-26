@@ -31,25 +31,25 @@ export function wrapManager(
   manager: Manager,
   { name, attribution, consumed, report }: Wrap,
 ): Manager {
-  /** `fn`, or `fallback` once `fn` throws (or its promise rejects, as
-   * `async action => …` middleware does) when guarded */
+  /** `fn`, or `fallback` once it throws or rejects, when guarded */
   const attempt = <A extends unknown[], R>(
     fn: (...args: A) => R,
     fallback: (...args: A) => R,
   ): ((...args: A) => R) =>
     report ?
       (...args) => {
-        const fail = (error: unknown) => {
-          report(error);
-          return fallback(...args);
-        };
         let result;
         try {
           result = fn(...args);
         } catch (error) {
-          return fail(error);
+          report(error);
+          return fallback(...args);
         }
-        if (result instanceof Promise) return result.catch(fail) as R;
+        if (result instanceof Promise)
+          return result.catch((error: unknown) => {
+            report(error);
+            return fallback(...args);
+          }) as R;
         return result;
       }
     : fn;
@@ -63,7 +63,7 @@ export function wrapManager(
   const expectFunction = <F>(fn: F, shape: string): F => {
     if (typeof fn !== 'function')
       throw new Error(
-        `${manager.constructor.name}'s middleware returned no function where it must return ${shape}.`,
+        `${name}'s middleware returned no function where it must return ${shape}.`,
       );
     return fn;
   };
@@ -84,7 +84,7 @@ export function wrapManager(
       // untyped playground code can leave out the required middleware
       if (!middleware)
         throw new Error(
-          `${manager.constructor.name} has no middleware. Managers must define middleware.`,
+          `${name} has no middleware. Managers must define middleware.`,
         );
       // may be a prototype method that reads `this`
       return expectFunction(
