@@ -25,14 +25,15 @@ export const timingDemo = [
   { wait: 5000 },
   { click: { in: 'store', selector: 'button[aria-label="Diff"]' } },
   // the first action (the count's load), then on through each change, time
-  // to read each diff: 8 = the 4 clicks' optimistic updates and responses
+  // to read each diff: 5 = the changes the 4 clicks make, as Diff's "Next
+  // change" counts them (more would idle at the end before the close)
   {
     click: {
       in: 'store',
       selector: '[role="group"][aria-label^="Scrubber"] button[data-id]',
     },
   },
-  ...Array.from({ length: 8 }, () => ({
+  ...Array.from({ length: 5 }, () => ({
     delay: 1500,
     click: { in: 'store', selector: 'button[aria-label="Next change"]' },
   })),
