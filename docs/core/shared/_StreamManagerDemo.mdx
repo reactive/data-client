@@ -91,21 +91,33 @@ export default function getManagers() {
 
 ```tsx title="Prices" docs-only
 import { useQuery } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
 import { Ticker } from './Ticker';
 
 function Price({ product_id }: { product_id: string }) {
   const ticker = useQuery(Ticker, { product_id });
   return (
-    <div>
-      {product_id}:{' '}
-      {ticker ? `$${ticker.price.toLocaleString()}` : 'waiting…'}
+    <div className="listItem">
+      <h4>{product_id}</h4>
+      {ticker ?
+        <NumberFlow
+          className="value"
+          value={ticker.price}
+          format={{ style: 'currency', currency: 'USD' }}
+        />
+      : <span className="value skeleton" />}
     </div>
   );
 }
 render(
   <>
-    <Price product_id="BTC-USD" />
-    <Price product_id="ETH-USD" />
+    <header className="appHeader">
+      <h1 className="appTitle">Prices</h1>
+    </header>
+    <div className="list">
+      <Price product_id="BTC-USD" />
+      <Price product_id="ETH-USD" />
+    </div>
   </>,
 );
 ```

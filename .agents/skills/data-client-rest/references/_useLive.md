@@ -45,13 +45,17 @@ import { getTicker } from './Ticker';
 function AssetPrice({ productId }: Props) {
   const ticker = useLive(getTicker, { productId });
   return (
-    <center>
-      {productId}{' '}
-      <NumberFlow
-        value={ticker.price}
-        format={{ style: 'currency', currency: 'USD' }}
-      />
-    </center>
+    <dl className="stats">
+      <div>
+        <dt>{productId}</dt>
+        <dd>
+          <NumberFlow
+            value={ticker.price}
+            format={{ style: 'currency', currency: 'USD' }}
+          />
+        </dd>
+      </div>
+    </dl>
   );
 }
 interface Props {

@@ -602,39 +602,66 @@ export const newPrices = () =>
 ```tsx title="PriceStream"
 import React from 'react';
 import { useController, useQuery } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
 import { Ticker, newPrices } from './Ticker';
 
 function PriceStream() {
   const ctrl = useController();
-  const [timing, setTiming] = React.useState('');
+  const [perRowMs, setPerRowMs] = React.useState<number>();
+  const [batchMs, setBatchMs] = React.useState<number>();
   const first = useQuery(Ticker, { product_id: 'COIN-0' });
 
   const time = async (
-    label: string,
+    setMs: (ms: number) => void,
     write: (rows: ReturnType<typeof newPrices>) => Promise<unknown>,
   ) => {
     const rows = newPrices();
     const start = performance.now();
     await write(rows);
-    setTiming(`${label}: ${(performance.now() - start).toFixed(1)} ms`);
+    setMs(performance.now() - start);
   };
   const perRow = () =>
-    time('500 set() calls', rows =>
+    time(setPerRowMs, rows =>
       Promise.all(
         rows.map(row => ctrl.set(Ticker, { product_id: row.product_id }, row)),
       ),
     );
-  const batch = () => time('1 batch set()', rows => ctrl.set([Ticker], rows));
+  const batch = () => time(setBatchMs, rows => ctrl.set([Ticker], rows));
 
   return (
-    <div>
-      <button onClick={perRow}>set() per row</button>{' '}
-      <button onClick={batch}>batch set()</button>
-      <p>COIN-0: {first ? `$${first.price}` : 'no data yet'}</p>
-      <p>{timing}</p>
-    </div>
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Prices</h1>
+        {first && (
+          <span className="meta">
+            COIN-0{' '}
+            <NumberFlow
+              value={first.price}
+              format={{ style: 'currency', currency: 'USD' }}
+            />
+          </span>
+        )}
+      </header>
+      <dl className="stats">
+        <div>
+          <dt>500 set() calls</dt>
+          <dd>{perRowMs !== undefined && <Timing ms={perRowMs} />}</dd>
+        </div>
+        <div>
+          <dt>1 batch set()</dt>
+          <dd>{batchMs !== undefined && <Timing ms={batchMs} />}</dd>
+        </div>
+      </dl>
+      <div className="buttonGroup">
+        <button onClick={perRow}>set() per row</button>
+        <button onClick={batch}>batch set()</button>
+      </div>
+    </>
   );
 }
+const Timing = ({ ms }: { ms: number }) => (
+  <NumberFlow value={ms} format={{ maximumFractionDigits: 1 }} suffix=" ms" />
+);
 render(<PriceStream />);
 ```
 

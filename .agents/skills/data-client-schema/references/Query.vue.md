@@ -326,6 +326,7 @@ export const StatsResource = resource({
 
 <script setup lang="ts">
   import { useQuery, useFetch } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
 
   const props = defineProps<{ productId: string }>();
   useFetch(TickerResource.get, () => ({ product_id: props.productId }));
@@ -334,11 +335,19 @@ export const StatsResource = resource({
 </script>
 
 <template>
-  <div>
-    Price:
-    <span v-if="price === undefined" class="skeleton" />
-    <template v-else>${{ price }}</template>
-  </div>
+  <dl class="stats">
+    <div>
+      <dt>{{ productId }}</dt>
+      <dd>
+        <span v-if="price === undefined" class="skeleton" />
+        <NumberFlow
+          v-else
+          :value="price"
+          :format="{ style: 'currency', currency: 'USD' }"
+        />
+      </dd>
+    </div>
+  </dl>
 </template>
 ```
 
