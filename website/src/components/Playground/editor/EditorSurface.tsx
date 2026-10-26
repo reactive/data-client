@@ -21,7 +21,8 @@ export interface EditorSurfaceProps extends CodeModel {
   /** `demo`: tabs like `row`, under the preview's header (see ../index.tsx) */
   layout: 'row' | 'stacked' | 'demo';
   variant: 'playground' | 'standalone';
-  /** When false, keep static SSR-friendly editors (no Monaco). Defaults true. */
+  /** False until the code first shows: plain text for crawlers, no Monaco.
+   * Defaults true. */
   interactive?: boolean;
   fixtureContent?: React.ReactNode;
   /** The Store covers the code, which goes inert */
@@ -186,13 +187,17 @@ function TextEditTab({
   }) {
   // SSR + hydration markup: open tabs' source stays in the HTML for crawlers.
   // Collapsed tabs are left out to keep the HTML small, unless marked `ssr`:
-  // those keep their text, unhighlighted since it is never seen.
+  // those keep their text, unhighlighted since it is never seen. So does
+  // code not yet shown (a hidden playground, a demo's code), which also
+  // skips Monaco: highlighting costs a node per token.
   // Never branch on navigator / user agent outside BrowserOnly.
   const staticView =
-    !hidden ?
+    hidden ?
+      ssr ? <pre>{editorProps.code}</pre>
+      : null
+    : interactive ?
       <StaticEditor code={editorProps.code} language={editorProps.language} />
-    : ssr ? <pre>{editorProps.code}</pre>
-    : null;
+    : <pre>{editorProps.code}</pre>;
 
   return (
     <div
@@ -200,7 +205,6 @@ function TextEditTab({
         [styles.hidden]: hidden,
       })}
     >
-      {/* Not yet interactive (e.g. never-shown Demo tab): skip Monaco entirely */}
       {interactive ?
         <BrowserOnly fallback={staticView}>
           {() => <Editor {...editorProps} />}

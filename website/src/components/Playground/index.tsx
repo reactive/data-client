@@ -7,6 +7,7 @@ import React, {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from 'react';
 
 import Boundary from './Boundary';
@@ -169,8 +170,9 @@ export default function Playground<T>({
     [declared, openCode],
   );
 
-  // Hydrate Monaco on first show (a demo's code is first shown by its Code
-  // toggle) and keep it (preserves undo / go-to-def).
+  // Until first shown (a demo's code is first shown by its Code toggle) the
+  // code is plain text in the HTML; then Monaco hydrates and stays
+  // (preserves undo / go-to-def).
   const codeVisible = !hidden && (!demo || codeShown);
   const [editorInteractive, setEditorInteractive] = useState(codeVisible);
   if (codeVisible && !editorInteractive) setEditorInteractive(true);
@@ -178,7 +180,13 @@ export default function Playground<T>({
 
   const fixtureContent =
     fixtures.length ? <FixturePreview fixtures={fixtures} /> : undefined;
-  const previewFixtures = layout === 'stacked' ? undefined : fixtureContent;
+  // folded into the preview's header (row, demo), the fixtures render once
+  // the pointer, focus or a click reaches the playground (`Latch`)
+  const [nearLatch] = useState(createLatch);
+  const previewFixtures =
+    layout === 'stacked' || !fixtureContent ?
+      undefined
+    : <WhenNear latch={nearLatch}>{fixtureContent}</WhenNear>;
 
   const editor = (
     <EditorSurface
@@ -195,13 +203,19 @@ export default function Playground<T>({
   // the live preview has loaded
   const code: CodeControl | undefined =
     demo ? { shown: codeShown, toggle: toggleCode } : undefined;
-  // Live preview only while visible — unmounts when hidden (resets store).
-  const loading = (
-    <PreviewLoading row={row} fixtureContent={previewFixtures} code={code} />
-  );
+  // Live preview only while visible — unmounts when hidden (resets store);
+  // hidden, not even its frame is in the HTML
   const preview =
-    hidden ? loading : (
-      <Boundary fallback={loading}>
+    hidden ? null : (
+      <Boundary
+        fallback={
+          <PreviewLoading
+            row={row}
+            fixtureContent={previewFixtures}
+            code={code}
+          />
+        }
+      >
         <DemoViewContext.Provider value={demoView}>
           <CodeOpenerContext.Provider value={codeOpener}>
             <LivePreview
@@ -241,6 +255,10 @@ export default function Playground<T>({
         })}
         data-code={(demo && codeShown) || undefined}
         data-store-moving={storeMoving || undefined}
+        onPointerOver={nearLatch.set}
+        onFocus={nearLatch.set}
+        // also a click with neither (a script's, assistive tech's)
+        onClick={nearLatch.set}
       >
         {demo ?
           <>
@@ -252,7 +270,7 @@ export default function Playground<T>({
             {preview}
           </>
         }
-        {row ?
+        {row && !hidden ?
           <div
             id={storeId}
             className={styles.storeHost}
@@ -277,10 +295,11 @@ export default function Playground<T>({
   );
 }
 
-/** SSR, crawler, hidden and loading state: the preview's frame with a blank
+/** SSR, crawler and loading state: the preview's frame with a blank
  * sheet + Store toggle (the side strip; the row layout's is the folder's
- * handle, rendered with the folder above), and row's fixtures, already
- * usable; so is a demo's Code toggle. The reset holds its place, disabled */
+ * handle, rendered with the folder above), and the folded fixtures' toggle,
+ * already usable; so is a demo's Code toggle. The reset holds its place,
+ * disabled */
 function PreviewLoading({
   row,
   fixtureContent,
@@ -311,3 +330,43 @@ const LivePreview = lazy<typeof LivePreviewType>(() =>
       /* webpackChunkName: 'PreviewWithScope', webpackPrefetch: true */ './preview/LivePreview'
     ),
 );
+
+/** Set once the pointer, focus or a click reaches the playground. Outside
+ * React state, so setting it re-renders only what reads it (`WhenNear`),
+ * not the running app; and kept by `Playground`, so it outlives the
+ * preview's remounts (loading to live, a reset) */
+interface Latch {
+  set(): void;
+  subscribe(onSet: () => void): () => void;
+  get(): boolean;
+}
+function createLatch(): Latch {
+  let near = false;
+  const listeners = new Set<() => void>();
+  return {
+    set() {
+      if (near) return;
+      near = true;
+      listeners.forEach(listener => listener());
+    },
+    subscribe(onSet) {
+      listeners.add(onSet);
+      return () => listeners.delete(onSet);
+    },
+    get: () => near,
+  };
+}
+const serverNear = () => false;
+
+/** `children` once the latch is set: not in the HTML, nor the page before,
+ * yet in time for the fixtures toggle's hover preview to fade in */
+function WhenNear({
+  latch,
+  children,
+}: {
+  latch: Latch;
+  children: React.ReactNode;
+}) {
+  const near = useSyncExternalStore(latch.subscribe, latch.get, serverNear);
+  return near ? children : null;
+}
