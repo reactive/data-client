@@ -1,7 +1,7 @@
 /// <reference types="jest" />
 /// <reference types="@docusaurus/module-type-aliases" />
 
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 
@@ -78,8 +78,15 @@ describe('PreviewWrapper label', () => {
 });
 
 describe('PreviewWrapper clock', () => {
-  test('shows the reader’s time only with `clock`', () => {
-    const { rerender } = render(
+  beforeEach(() => {
+    jest.useFakeTimers({ now: Date.parse('2026-10-26T15:04:05.500Z') });
+  });
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  test('shows the reader’s time only with `clock`, ticking each second', () => {
+    const { rerender, unmount } = render(
       <PreviewWrapper>
         <div>result</div>
       </PreviewWrapper>,
@@ -91,10 +98,14 @@ describe('PreviewWrapper clock', () => {
         <div>result</div>
       </PreviewWrapper>,
     );
-    const time = screen.getByRole('timer').querySelector('time')!;
-    expect(
-      Math.abs(Date.parse(time.dateTime) - Date.now()),
-    ).toBeLessThanOrEqual(1000);
+    const time = () => screen.getByRole('timer').querySelector('time')!;
+    expect(time().dateTime).toBe('2026-10-26T15:04:05.000Z');
+
+    act(() => jest.advanceTimersByTime(500));
+    expect(time().dateTime).toBe('2026-10-26T15:04:06.000Z');
+
+    unmount();
+    expect(jest.getTimerCount()).toBe(0);
   });
 
   test('holds no time in the server HTML', () => {

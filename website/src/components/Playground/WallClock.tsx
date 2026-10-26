@@ -34,10 +34,12 @@ const serverSeconds = () => null;
 const untilNextSecond = () => 1000 - (Date.now() % 1000);
 /** Fires as each second turns over */
 const subscribe = (onChange: () => void) => {
-  let id = setTimeout(function tick() {
+  let id: ReturnType<typeof setTimeout>;
+  const tick = () => {
     onChange();
     id = setTimeout(tick, untilNextSecond());
-  }, untilNextSecond());
+  };
+  id = setTimeout(tick, untilNextSecond());
   return () => clearTimeout(id);
 };
 

@@ -1933,9 +1933,11 @@ div.fixtureJson + div.fixtureJson {
   display: inline-flex;
   flex: none;
   align-items: center;
+  justify-content: center;
   gap: 5px;
-  /* the time's width, before it arrives */
-  min-width: 8em;
+  /* the widest time's (12:00:00 PM), so the pill neither grows as the
+     time arrives nor resizes as it ticks; the height is the font's line */
+  min-width: 9em;
   min-height: 1.7em;
   margin-inline: 0.75rem;
   padding-inline-start: 0.5em;
@@ -1953,12 +1955,28 @@ div.fixtureJson + div.fixtureJson {
    and so do the router's controls beside the label's lone dot */
 @container previewHeader (max-width: 36rem) {
   .wallClock {
-    margin-inline: 0;
+    margin-inline: 0.375rem 0;
   }
   .routerControls {
     margin-inline-start: 0.375rem;
   }
 }
+/* a phone's fits a usual time (one-digit hours), and a small phone's
+   drops the face, so the demo's path keeps its room */
+@container previewHeader (max-width: 22rem) {
+  .wallClock {
+    min-width: 8.25em;
+  }
+}
+@container previewHeader (max-width: 18rem) {
+  .wallClock {
+    min-width: 6.75em;
+  }
+  .wallClock > svg {
+    display: none;
+  }
+}
+
 .previewControls {
   display: flex;
   align-items: center;
