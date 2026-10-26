@@ -7,6 +7,8 @@ import {
   useState,
 } from 'react';
 
+import type { SubjectFilter } from './actionGroups';
+import type { Stage } from './attribution';
 import type { RowDiff } from './diffModel';
 import {
   entityId,
@@ -326,6 +328,13 @@ export interface NavState {
    * in the Action tab: what it did to the subject, then the action itself
    * (or the group's actions) */
   readonly show: (seq: number, scope?: Scope) => void;
+  /** The pipeline stage picked over the store's actions, which narrows the
+   * list, the steps and the timeline to what it took part in */
+  readonly stage: Stage | null;
+  readonly pickStage: (stage: Stage | null) => void;
+  /** What the store's top level lists, steps through and marks: its
+   * subject's actions, narrowed to `stage`'s where it is picked */
+  readonly actions: SubjectFilter;
 }
 export const NavStateContext = createContext<NavState>({
   seq: null,
@@ -336,6 +345,9 @@ export const NavStateContext = createContext<NavState>({
   set: () => {},
   step: () => false,
   show: () => {},
+  stage: null,
+  actions: { hit: () => true, lists: () => true, gaps: new Map() },
+  pickStage: () => {},
 });
 export const useNavState = () => useContext(NavStateContext);
 

@@ -11,7 +11,6 @@ import React, {
 
 import {
   groupEntriesOf,
-  stageFilter,
   groupOf,
   joinedFetches,
   touches,
@@ -41,13 +40,7 @@ import {
   useFollow,
   useLog,
 } from './actionParts';
-import {
-  routesOf,
-  sameStage,
-  shownChain,
-  stagesOf,
-  type Stage,
-} from './attribution';
+import { routesOf, shownChain } from './attribution';
 import type { Header } from './DiveViews';
 import { byData, onActivateKey, revealIn, toggled } from './dom';
 import { actionId } from './model';
@@ -154,20 +147,10 @@ export function ActionsLevel({
   // at the store: who sent what
   const chain =
     subject.kind === 'root' ? shownChain(history.managers) : undefined;
-  const [chosen, setChosen] = useState<Stage | null>(null);
-  // a stage the chain no longer has (the code changed) counts as none
-  const picked =
-    (
-      chosen !== null &&
-      chain &&
-      stagesOf(chain).some(s => sameStage(s, chosen))
-    ) ?
-      chosen
-    : null;
-  const filter = useMemo(
-    () => (chain ? stageFilter(subjectFilter, chain, picked) : subjectFilter),
-    [chain, picked, subjectFilter],
-  );
+  // at the store, the panel's own filter: the stage picked narrows the
+  // steps and the timeline as it does the list (see StorePanel)
+  const { stage, pickStage, actions } = useNavState();
+  const filter = chain ? actions : subjectFilter;
   const rows = useRows(filter);
   return (
     <>
@@ -179,8 +162,8 @@ export function ActionsLevel({
           <Pipeline
             chain={chain}
             entries={history.entries}
-            picked={picked}
-            onPick={setChosen}
+            picked={stage}
+            onPick={pickStage}
           />
         )}
         <ActionList rows={rows} subject={subject} filter={filter} />

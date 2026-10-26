@@ -918,6 +918,43 @@ describe('Store panel pipeline', () => {
     expect(stage(/^StreamManager/).getAttribute('aria-pressed')).toBe('true');
   });
 
+  it("steps and marks only the picked stage's actions, until the State tab", async () => {
+    const stream = new StreamManager();
+    const { ctrl } = mount([stream, new NetworkManager()], undefined, true);
+    await act(async () => {
+      void stream.push(1);
+      void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
+      void stream.push(2);
+    });
+    const marks = () =>
+      within(screen.getAllByRole('group', { name: /^Scrubber/ })[0])
+        .getAllByRole('button', { name: /^set at/ })
+        .map(m => [!!m.dataset.dim, !!m.dataset.selected]);
+    openActions();
+    fireEvent.click(stage(/^StreamManager/));
+    // the app's set is dim on the timeline
+    expect(marks().map(([dim]) => dim)).toEqual([false, true, false]);
+    // and the steps go past it
+    const previous = screen.getByRole('button', { name: 'Previous change' });
+    fireEvent.click(previous);
+    expect(marks().map(([, selected]) => selected)).toEqual([
+      false,
+      false,
+      true,
+    ]);
+    fireEvent.click(previous);
+    expect(marks().map(([, selected]) => selected)).toEqual([
+      true,
+      false,
+      false,
+    ]);
+    // leaving the Action tab lets the pick go
+    fireEvent.click(screen.getByRole('tab', { name: 'State' }));
+    expect(marks().map(([dim]) => dim)).toEqual([false, false, false]);
+    fireEvent.click(screen.getByRole('tab', { name: 'Action' }));
+    expect(stage(/^StreamManager/).getAttribute('aria-pressed')).toBe('false');
+  });
+
   it("tags the store's actions with the manager that sent them", async () => {
     const stream = new StreamManager();
     const { ctrl } = mount([stream, new NetworkManager()], undefined, true);
