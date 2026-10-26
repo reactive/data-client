@@ -54,6 +54,9 @@ export function wrapManager(
       }
     : fn;
   const skip = () => {};
+  /** What `make` builds, or nothing once it throws (when guarded) */
+  const build = <T>(make: () => T): T | undefined =>
+    attempt<[], T | undefined>(make, () => undefined)();
   /** Returns `fn`, what one level of the manager's middleware returned, and
    * throws when it is no function (untyped playground code can forget to
    * return one) */
@@ -76,22 +79,19 @@ export function wrapManager(
   wrapped.middleware = controller => {
     const own =
       sends ? asDispatcher(controller, name, attribution) : controller;
-    const withController = attempt(
-      () => {
-        const { middleware } = manager;
-        // untyped playground code can leave out the required middleware
-        if (!middleware)
-          throw new Error(
-            `${manager.constructor.name} has no middleware. Managers must define middleware.`,
-          );
-        // may be a prototype method that reads `this`
-        return expectFunction(
-          middleware.call(manager, own),
-          'next => action => …',
+    const withController = build(() => {
+      const { middleware } = manager;
+      // untyped playground code can leave out the required middleware
+      if (!middleware)
+        throw new Error(
+          `${manager.constructor.name} has no middleware. Managers must define middleware.`,
         );
-      },
-      () => undefined,
-    )();
+      // may be a prototype method that reads `this`
+      return expectFunction(
+        middleware.call(manager, own),
+        'next => action => …',
+      );
+    });
     return next => {
       const passed = new WeakSet<object>();
       const reported = new WeakSet<object>();
@@ -116,10 +116,7 @@ export function wrapManager(
       // a middleware that failed to build (already reported) has no step
       const step =
         withController &&
-        attempt(
-          () => expectFunction(withController(passOn), 'action => …'),
-          () => undefined,
-        )();
+        build(() => expectFunction(withController(passOn), 'action => …'));
       // a step that failed to build passes every action on, unguarded, so
       // what fails after it isn't reported as its error
       const dispatch =

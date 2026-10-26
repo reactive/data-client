@@ -167,7 +167,7 @@ export function asDispatcher(
       // the same function each read, until the controller's changes
       const cached = wrapped.get(value);
       if (cached) return cached;
-      const asName = function (this: unknown, ...args: unknown[]) {
+      const asStage = function (this: unknown, ...args: unknown[]) {
         const outer = attribution.dispatching;
         attribution.dispatching = name;
         try {
@@ -176,8 +176,8 @@ export function asDispatcher(
           attribution.dispatching = outer;
         }
       };
-      wrapped.set(value, asName);
-      return asName;
+      wrapped.set(value, asStage);
+      return asStage;
     },
   });
 }
