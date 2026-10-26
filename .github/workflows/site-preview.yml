@@ -93,14 +93,14 @@ jobs:
       # Each locale is a full build, so PRs build only English and the
       # locales they could change or break (scripts/pick-locales.mjs). The
       # queue and master always build every locale.
+      # Versus the merge's first parent, the master it merged into: the event's
+      # base sha can be older, and its diff would include master's own changes
       - name: Pick locales
         id: locales
         if: github.event_name == 'pull_request'
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           # Fails open: every locale when the picker fails
-          if locales="$(node website/scripts/pick-locales.mjs "$BASE_SHA")" && [ -n "$locales" ]; then
+          if locales="$(node website/scripts/pick-locales.mjs HEAD^1)" && [ -n "$locales" ]; then
             # PRs that don't deploy get no preview comment, so say it here too
             echo "::notice title=Locales::This PR builds ${locales// /, }; the merge queue builds every locale"
             echo "locales=$locales" >> "$GITHUB_OUTPUT"
