@@ -363,32 +363,36 @@ export const increment = new RestEndpoint({
 ```html title="CounterPage.vue"
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useController, useSuspense, useLoading } from '@data-client/vue';
+  import { useController, useSuspense } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
   import { getCount } from './count';
   import { increment } from './increment';
 
   const ctrl = useController();
   const data = await useSuspense(getCount);
   const n = ref(data.value.count);
-  const [clickHandler, loading, error] = useLoading(() => {
+  const clickHandler = () => {
     n.value += 1;
     return ctrl.fetch(increment);
-  });
+  };
 </script>
 
 <template>
-  <div>
-    <p>
-      Click the button multiple times quickly to trigger the
-      potential race condition. This time our vector clock protects
-      us.
-    </p>
-    <div>
-      Data Client: {{ data.count }} Should be: {{ n }}
-      <br />
-      <button @click="clickHandler">+</button>
-      {{ loading ? ' ...loading' : '' }}
-    </div>
+  <header class="appHeader">
+    <h1 class="appTitle">Votes</h1>
+  </header>
+  <div class="listItem">
+    <button class="upvote" @click="clickHandler" aria-label="Upvote" />
+    <dl class="stats">
+      <div>
+        <dt>Data Client</dt>
+        <dd><NumberFlow :value="data.count" /></dd>
+      </div>
+      <div>
+        <dt>Clicks</dt>
+        <dd><NumberFlow :value="n" /></dd>
+      </div>
+    </dl>
   </div>
 </template>
 ```

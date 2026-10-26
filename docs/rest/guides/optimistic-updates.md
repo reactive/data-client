@@ -419,7 +419,8 @@ export const increment = new RestEndpoint({
 
 ```tsx title="CounterPage" collapsed
 import React from 'react';
-import { useController, useSuspense, useLoading } from '@data-client/react';
+import { useController, useSuspense } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
 import { getCount } from './count';
 import { increment } from './increment';
 
@@ -427,24 +428,29 @@ function CounterPage() {
   const ctrl = useController();
   const { count } = useSuspense(getCount);
   const [n, setN] = React.useState(count);
-  const [clickHandler, loading, error] = useLoading(() => {
+  const clickHandler = () => {
     setN(n => n + 1);
     return ctrl.fetch(increment);
-  });
+  };
   return (
-    <div>
-      <p>
-        Click the button multiple times quickly to trigger the
-        potential race condition. This time our vector clock protects
-        us.
-      </p>
-      <div>
-        Data Client: {count} Should be: {n}
-        <br />
-        <button onClick={clickHandler}>+</button>
-        {loading ? ' ...loading' : ''}
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Votes</h1>
+      </header>
+      <div className="listItem">
+        <button className="upvote" onClick={clickHandler} aria-label="Upvote" />
+        <dl className="stats">
+          <div>
+            <dt>Data Client</dt>
+            <dd><NumberFlow value={count} /></dd>
+          </div>
+          <div>
+            <dt>Clicks</dt>
+            <dd><NumberFlow value={n} /></dd>
+          </div>
+        </dl>
       </div>
-    </div>
+    </>
   );
 }
 render(<CounterPage />);
@@ -457,32 +463,36 @@ render(<CounterPage />);
 ```html title="CounterPage.vue" collapsed
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useController, useSuspense, useLoading } from '@data-client/vue';
+  import { useController, useSuspense } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
   import { getCount } from './count';
   import { increment } from './increment';
 
   const ctrl = useController();
   const data = await useSuspense(getCount);
   const n = ref(data.value.count);
-  const [clickHandler, loading, error] = useLoading(() => {
+  const clickHandler = () => {
     n.value += 1;
     return ctrl.fetch(increment);
-  });
+  };
 </script>
 
 <template>
-  <div>
-    <p>
-      Click the button multiple times quickly to trigger the
-      potential race condition. This time our vector clock protects
-      us.
-    </p>
-    <div>
-      Data Client: {{ data.count }} Should be: {{ n }}
-      <br />
-      <button @click="clickHandler">+</button>
-      {{ loading ? ' ...loading' : '' }}
-    </div>
+  <header class="appHeader">
+    <h1 class="appTitle">Votes</h1>
+  </header>
+  <div class="listItem">
+    <button class="upvote" @click="clickHandler" aria-label="Upvote" />
+    <dl class="stats">
+      <div>
+        <dt>Data Client</dt>
+        <dd><NumberFlow :value="data.count" /></dd>
+      </div>
+      <div>
+        <dt>Clicks</dt>
+        <dd><NumberFlow :value="n" /></dd>
+      </div>
+    </dl>
   </div>
 </template>
 ```
