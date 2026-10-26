@@ -3,6 +3,7 @@ import React, { useSyncExternalStore } from 'react';
 
 import styles from './styles.module.css';
 
+// .wallClock's min-width fits this format's widest time
 const timeFormat = new Intl.DateTimeFormat('en-US', { timeStyle: 'medium' });
 const label = translate({ id: 'playground.clock', message: 'Your clock' });
 
