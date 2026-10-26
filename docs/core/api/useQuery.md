@@ -173,7 +173,7 @@ render(<UsersPage />);
 
 :::vue
 
-```html title="UsersPage.vue" {22}
+```html title="UsersPage.vue" {24}
 <script setup lang="ts">
   import { Query, All } from '@data-client/rest';
   import { useQuery, useFetch } from '@data-client/vue';
@@ -274,7 +274,7 @@ export const DepartmentResource = resource({
 
 :::react
 
-```tsx title="DepartmentsPage" {8}
+```tsx title="DepartmentsPage" {6-9}
 import { All } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
 import { DepartmentResource, Department } from './Resources';
@@ -291,7 +291,7 @@ function BuildingList({ dept }: { dept: Department }) {
 function DepartmentsPage() {
   useFetch(DepartmentResource.getList);
   const departments = useQuery(new All(Department));
-  if (!departments) return <div>Loading...</div>;
+  if (!departments) return <Loading />;
   return (
     <div>
       {departments.map(dept => (
@@ -340,7 +340,7 @@ render(<DepartmentsPage />);
 </script>
 
 <template>
-  <div v-if="!departments">Loading...</div>
+  <Loading v-if="!departments" />
   <div v-else>
     <div v-for="dept in departments" :key="dept.pk()">
       <strong>{{ dept.name }}</strong>: <BuildingList :dept="dept" />

@@ -11,14 +11,16 @@ import { MotionGroup } from '../../motion';
 import Boundary from '../Boundary';
 import type ManagerHost from './managers';
 import { ManagerError, ManagersSync } from './ManagersSync';
+import PendingSheet from './PendingSheet';
 import type { PreviewErrorProps } from './PreviewError';
+import { previewSurfaceClassName } from './PreviewWrapper';
 import SchemaRegistry from './store/schemaRegistry';
 import StoreInspector from './StoreInspector';
-import styles from '../styles.module.css';
 import type { PreviewProps } from '../types';
 
 function Preview<T>({
   storeOpen,
+  storeMoves,
   toggleStore,
   row,
   storeHost,
@@ -73,13 +75,13 @@ function Preview<T>({
         getInitialInterceptorData={getInitialInterceptorData}
       >
         <ManagersSync host={managerHost} />
-        <MotionGroup layoutDependency={storeOpen}>
+        <MotionGroup layoutDependency={storeMoves}>
           <div
-            className={`playground-preview ${styles.playgroundPreview}`}
+            className={previewSurfaceClassName}
             onPointerDownCapture={onInteract}
             onKeyDownCapture={onInteract}
           >
-            <Boundary fallback={null}>
+            <Boundary fallback={<PendingSheet />}>
               <PreviewBlockLazy onCommit={onCommit} {...errorProps} />
             </Boundary>
             <ManagerError host={managerHost} />

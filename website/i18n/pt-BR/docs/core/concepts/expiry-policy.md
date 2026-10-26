@@ -113,17 +113,15 @@ import { getUpdated } from './getUpdated';
 export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
-    <div>
-      API time for {id}:{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
+    <div className="listItem">
+      <span className="meta">API time for {id}</span>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
     </div>
   );
 }
 ```
 
-```tsx title="Navigator" layout collapsed
+```tsx title="Navigator" layout collapsed docs-only
 export default function Navigator({ children }) {
   return (
     <div>
@@ -132,8 +130,9 @@ export default function Navigator({ children }) {
         <Link to="/time/2">Second</Link>
       </nav>
       {children}
-      <div>
-        Current Time: <CurrentTime />
+      <div className="listItem">
+        <span className="meta">Current time</span>
+        <CurrentTime />
       </div>
     </div>
   );
@@ -154,14 +153,14 @@ export default function Navigator({ children }) {
 </script>
 
 <template>
-  <div>
-    API time for {{ id }}:
+  <div class="listItem">
+    <span class="meta">API time for {{ id }}</span>
     <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```
 
-```html title="Navigator.vue" layout collapsed
+```html title="Navigator.vue" layout collapsed docs-only
 <template>
   <div>
     <nav>
@@ -176,9 +175,13 @@ export default function Navigator({ children }) {
           :key="route.fullPath"
           :id="route.params.id"
         />
-        <template #fallback><div>loading...</div></template>
+        <template #fallback><Loading /></template>
       </Suspense>
     </RouterView>
+    <div class="listItem">
+      <span class="meta">Current time</span>
+      <CurrentTime />
+    </div>
   </div>
 </template>
 ```
@@ -298,17 +301,15 @@ import { getUpdated } from './getUpdated';
 export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
-    <div>
-      API time for {id}:{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
+    <div className="listItem">
+      <span className="meta">API time for {id}</span>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
     </div>
   );
 }
 ```
 
-```tsx title="Navigator" layout collapsed
+```tsx title="Navigator" layout collapsed docs-only
 export default function Navigator({ children }) {
   return (
     <div>
@@ -317,8 +318,9 @@ export default function Navigator({ children }) {
         <Link to="/time/2">Second</Link>
       </nav>
       {children}
-      <div>
-        Current Time: <CurrentTime />
+      <div className="listItem">
+        <span className="meta">Current time</span>
+        <CurrentTime />
       </div>
     </div>
   );
@@ -339,14 +341,14 @@ export default function Navigator({ children }) {
 </script>
 
 <template>
-  <div>
-    API time for {{ id }}:
+  <div class="listItem">
+    <span class="meta">API time for {{ id }}</span>
     <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```
 
-```html title="Navigator.vue" layout collapsed
+```html title="Navigator.vue" layout collapsed docs-only
 <template>
   <div>
     <nav>
@@ -361,9 +363,13 @@ export default function Navigator({ children }) {
           :key="route.fullPath"
           :id="route.params.id"
         />
-        <template #fallback><div>loading...</div></template>
+        <template #fallback><Loading /></template>
       </Suspense>
     </RouterView>
+    <div class="listItem">
+      <span class="meta">Current time</span>
+      <CurrentTime />
+    </div>
   </div>
 </template>
 ```
@@ -427,14 +433,15 @@ function ShowTime() {
   const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
   const ctrl = useController();
   return (
-    <div>
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>{' '}
+    <>
+      <div className="listItem">
+        <span className="meta">API time</span>
+        <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
+      </div>
       <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>
         Refresh
       </button>
-    </div>
+    </>
   );
 }
 render(<ShowTime />);
@@ -454,10 +461,11 @@ render(<ShowTime />);
 </script>
 
 <template>
-  <div>
+  <div class="listItem">
+    <span class="meta">API time</span>
     <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-    <button @click="ctrl.fetch(lastUpdated, { id: '1' })">Refresh</button>
   </div>
+  <button @click="ctrl.fetch(lastUpdated, { id: '1' })">Refresh</button>
 </template>
 ```
 
@@ -515,11 +523,9 @@ export default function ShowTime({ id }: { id: string }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
   const ctrl = useController();
   return (
-    <div>
-      <b>{id}</b>{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
+    <div className="listItem">
+      <b>{id}</b>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
     </div>
   );
 }
@@ -527,7 +533,12 @@ export default function ShowTime({ id }: { id: string }) {
 
 ```tsx title="Loading" collapsed
 export default function Loading({ id }: { id: string }) {
-  return <div>{id} Loading...</div>;
+  return (
+    <div className="listItem">
+      <b>{id}</b>
+      <span className="skeleton" />
+    </div>
+  );
 }
 ```
 
@@ -552,12 +563,14 @@ function Demo() {
         <ShowTime id="3" />
       </AsyncBoundary>
 
-      <button onClick={() => ctrl.expireAll(lastUpdated)}>
-        Expire All
-      </button>
-      <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>
-        Force Refresh First
-      </button>
+      <div className="buttonGroup">
+        <button onClick={() => ctrl.expireAll(lastUpdated)}>
+          Expire All
+        </button>
+        <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>
+          Force Refresh First
+        </button>
+      </div>
     </div>
   );
 }
@@ -578,8 +591,9 @@ render(<Demo />);
 </script>
 
 <template>
-  <div>
-    <b>{{ id }}</b> <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+  <div class="listItem">
+    <b>{{ id }}</b>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```
@@ -597,13 +611,17 @@ render(<Demo />);
   <div>
     <Suspense v-for="id in ['1', '2', '3']" :key="id">
       <ShowTime :id="id" />
-      <template #fallback><div>{{ id }} Loading...</div></template>
+      <template #fallback>
+        <div class="listItem"><b>{{ id }}</b><span class="skeleton" /></div>
+      </template>
     </Suspense>
 
-    <button @click="ctrl.expireAll(lastUpdated)">Expire All</button>
-    <button @click="ctrl.fetch(lastUpdated, { id: '1' })">
-      Force Refresh First
-    </button>
+    <div class="buttonGroup">
+      <button @click="ctrl.expireAll(lastUpdated)">Expire All</button>
+      <button @click="ctrl.fetch(lastUpdated, { id: '1' })">
+        Force Refresh First
+      </button>
+    </div>
   </div>
 </template>
 ```
@@ -675,11 +693,9 @@ export default function ShowTime({ id }: { id: string }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
   const ctrl = useController();
   return (
-    <div>
-      <b>{id}</b>{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
+    <div className="listItem">
+      <b>{id}</b>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
     </div>
   );
 }
@@ -687,7 +703,12 @@ export default function ShowTime({ id }: { id: string }) {
 
 ```tsx title="Loading" collapsed
 export default function Loading({ id }: { id: string }) {
-  return <div>{id} Loading...</div>;
+  return (
+    <div className="listItem">
+      <b>{id}</b>
+      <span className="skeleton" />
+    </div>
+  );
 }
 ```
 
@@ -712,14 +733,16 @@ function Demo() {
         <ShowTime id="3" />
       </AsyncBoundary>
 
-      <button onClick={() => ctrl.invalidateAll(lastUpdated)}>
-        Invalidate All
-      </button>
-      <button
-        onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}
-      >
-        Invalidate First
-      </button>
+      <div className="buttonGroup">
+        <button onClick={() => ctrl.invalidateAll(lastUpdated)}>
+          Invalidate All
+        </button>
+        <button
+          onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}
+        >
+          Invalidate First
+        </button>
+      </div>
     </div>
   );
 }
@@ -740,8 +763,9 @@ render(<Demo />);
 </script>
 
 <template>
-  <div>
-    <b>{{ id }}</b> <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+  <div class="listItem">
+    <b>{{ id }}</b>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
 ```
@@ -759,13 +783,17 @@ render(<Demo />);
   <div>
     <Suspense v-for="id in ['1', '2', '3']" :key="id">
       <ShowTime :id="id" />
-      <template #fallback><div>{{ id }} Loading...</div></template>
+      <template #fallback>
+        <div class="listItem"><b>{{ id }}</b><span class="skeleton" /></div>
+      </template>
     </Suspense>
 
-    <button @click="ctrl.invalidateAll(lastUpdated)">Invalidate All</button>
-    <button @click="ctrl.invalidate(lastUpdated, { id: '1' })">
-      Invalidate First
-    </button>
+    <div class="buttonGroup">
+      <button @click="ctrl.invalidateAll(lastUpdated)">Invalidate All</button>
+      <button @click="ctrl.invalidate(lastUpdated, { id: '1' })">
+        Invalidate First
+      </button>
+    </div>
   </div>
 </template>
 ```
@@ -834,11 +862,9 @@ import { lastUpdated } from './api/lastUpdated';
 export default function TimePage({ id }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
   return (
-    <div>
-      API time for {id}:{' '}
-      <time>
-        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
-      </time>
+    <div className="listItem">
+      <span className="meta">API time for {id}</span>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
     </div>
   );
 }
@@ -865,31 +891,41 @@ function ShowTime() {
   );
   return (
     <div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
-        <TimePage id="1" />
-      </AsyncBoundary>
-      <div>
-        Current Time: <CurrentTime />
-      </div>
-      <button onClick={handleDelete}>
-        {loadingDelete ? 'loading...' : 'Invalidate'}
-      </button>
-      <button
-        onClick={() =>
-          ctrl.setResponse(
-            deleteLastUpdated,
-            { id: '1' },
-            { id: '1' },
-          )
+      <AsyncBoundary
+        fallback={
+          <div className="listItem">
+            <span className="meta">API time for 1</span>
+            <span className="skeleton" />
+          </div>
         }
       >
-        Invalidate (without fetching DELETE)
-      </button>
-      <button
-        onClick={() => ctrl.set([InvalidateTimedEntity], [{ id: '1' }])}
-      >
-        Invalidate Entity with ctrl.set
-      </button>
+        <TimePage id="1" />
+      </AsyncBoundary>
+      <div className="listItem">
+        <span className="meta">Current time</span>
+        <CurrentTime />
+      </div>
+      <div className="buttonGroup">
+        <button onClick={handleDelete} aria-busy={loadingDelete}>
+          Invalidate
+        </button>
+        <button
+          onClick={() =>
+            ctrl.setResponse(
+              deleteLastUpdated,
+              { id: '1' },
+              { id: '1' },
+            )
+          }
+        >
+          Invalidate (without fetching DELETE)
+        </button>
+        <button
+          onClick={() => ctrl.set([InvalidateTimedEntity], [{ id: '1' }])}
+        >
+          Invalidate Entity with ctrl.set
+        </button>
+      </div>
     </div>
   );
 }
@@ -910,8 +946,8 @@ render(<ShowTime />);
 </script>
 
 <template>
-  <div>
-    API time for {{ id }}:
+  <div class="listItem">
+    <span class="meta">API time for {{ id }}</span>
     <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
   </div>
 </template>
@@ -941,19 +977,26 @@ render(<ShowTime />);
   <div>
     <Suspense>
       <TimePage id="1" />
-      <template #fallback><div>loading...</div></template>
+      <template #fallback>
+        <div class="listItem">
+          <span class="meta">API time for 1</span>
+          <span class="skeleton" />
+        </div>
+      </template>
     </Suspense>
-    <button @click="handleDelete">
-      {{ loadingDelete ? 'loading...' : 'Invalidate' }}
-    </button>
-    <button
-      @click="ctrl.setResponse(deleteLastUpdated, { id: '1' }, { id: '1' })"
-    >
-      Invalidate (without fetching DELETE)
-    </button>
-    <button @click="ctrl.set([InvalidateTimedEntity], [{ id: '1' }])">
-      Invalidate Entity with ctrl.set
-    </button>
+    <div class="buttonGroup">
+      <button @click="handleDelete" :aria-busy="loadingDelete">
+        Invalidate
+      </button>
+      <button
+        @click="ctrl.setResponse(deleteLastUpdated, { id: '1' }, { id: '1' })"
+      >
+        Invalidate (without fetching DELETE)
+      </button>
+      <button @click="ctrl.set([InvalidateTimedEntity], [{ id: '1' }])">
+        Invalidate Entity with ctrl.set
+      </button>
+    </div>
   </div>
 </template>
 ```

@@ -400,7 +400,7 @@ export const PostResource = resource({
 </template>
 ```
 
-```html title="TotalVotes.vue" {13}
+```html title="TotalVotes.vue" {12}
 <script setup lang="ts">
   import { Query } from '@data-client/rest';
   import { useQuery } from '@data-client/vue';

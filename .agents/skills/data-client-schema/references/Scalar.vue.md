@@ -70,12 +70,8 @@ export const getPortfolioColumns = new RestEndpoint({
 
   defineProps<{ companies: readonly Company[] }>();
 
-  function formatPercent(value: number | undefined) {
-    return value === undefined ? 'loading...' : `${(value * 100).toFixed(1)}%`;
-  }
-
-  function formatShares(value: number | undefined) {
-    return value === undefined ? 'loading...' : value.toLocaleString();
+  function formatPercent(value: number) {
+    return `${(value * 100).toFixed(1)}%`;
   }
 </script>
 
@@ -93,8 +89,14 @@ export const getPortfolioColumns = new RestEndpoint({
       <tr v-for="c in companies" :key="c.pk()">
         <td>{{ c.name }}</td>
         <td align="right">${{ c.price.toFixed(2) }}</td>
-        <td align="right">{{ formatPercent(c.pct_equity) }}</td>
-        <td align="right">{{ formatShares(c.shares) }}</td>
+        <td align="right">
+          <span v-if="c.pct_equity === undefined" class="skeleton" />
+          <template v-else>{{ formatPercent(c.pct_equity) }}</template>
+        </td>
+        <td align="right">
+          <span v-if="c.shares === undefined" class="skeleton" />
+          <template v-else>{{ c.shares.toLocaleString() }}</template>
+        </td>
       </tr>
     </tbody>
   </table>

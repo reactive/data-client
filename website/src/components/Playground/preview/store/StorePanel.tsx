@@ -91,6 +91,7 @@ import { useStoreView } from './storeView';
 import Timeline, { Scrubber } from './Timeline';
 import TreeView from './TreeView';
 import { RowKey } from './Value';
+import TabList from '../../TabList';
 import Unfold from '../../Unfold';
 
 /** Breadcrumbs shown before the middle ones collapse to `…` */
@@ -602,28 +603,27 @@ export default function StorePanel({
               )}
               <div ref={content} className={styles.content} inert={covered}>
                 <div className={styles.bar}>
-                  <span className={styles.barStart} role="tablist">
-                    <button
-                      type="button"
-                      role="tab"
-                      className={styles.tab}
-                      title="The store at the moment"
-                      aria-selected={tab === 'state'}
-                      onClick={() => setTab('state')}
-                    >
-                      State
-                    </button>
-                    <button
-                      type="button"
-                      role="tab"
-                      className={styles.tab}
-                      title="The moment's action"
-                      aria-selected={tab === 'action'}
-                      onClick={openActionTab}
-                    >
-                      Action
-                    </button>
-                  </span>
+                  <TabList
+                    className={styles.barStart}
+                    tabClassName={styles.tab}
+                    label="Store"
+                    tabs={[
+                      {
+                        key: 'state',
+                        label: 'State',
+                        title: 'The store at the moment',
+                        selected: tab === 'state',
+                        onSelect: () => setTab('state'),
+                      },
+                      {
+                        key: 'action',
+                        label: 'Action',
+                        title: "The moment's action",
+                        selected: tab === 'action',
+                        onSelect: openActionTab,
+                      },
+                    ]}
+                  />
                   {tab === 'state' && (
                     <span className={styles.barEnd}>
                       <span

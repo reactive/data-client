@@ -4,7 +4,7 @@ import type { ForwardedRef } from 'react';
 import CodeProvider from './CodeProvider';
 import CodeTabContext from './CodeTabContext';
 import type { CodeTabValue } from './CodeTabContext';
-import PlaygroundHeaderControls from './PlaygroundHeaderControls';
+import ProtocolChoice from './ProtocolChoice';
 import HooksPlayground from '../HooksPlayground';
 
 function capitalizeFirstLetter(string: string) {
@@ -25,6 +25,7 @@ const DemoPlayground = memo(
 
     return (
       <div ref={ref}>
+        <ProtocolChoice />
         {values.map(
           ({
             value,
@@ -40,7 +41,6 @@ const DemoPlayground = memo(
               hidden={value !== selectedValue}
               fixtures={fixtures}
               getInitialInterceptorData={getInitialInterceptorData}
-              headerControls={<PlaygroundHeaderControls />}
             >
               {code.map(({ path, code: instanceCode, open, ssr }, i) => (
                 <PlaygroundCode

@@ -20,6 +20,8 @@ on:
       - '.agents/skill-packages.json'
       - '.agents/skills/data-client-setup/references.json'
       - '.github/workflows/site-preview.yml'
+      - '.github/workflows/docs-deploy.yml'
+      - '.github/actions/website-install/**'
       - '.github/workflows/paths-gate.yml'
   # Redeploys production from master, e.g. after a failed deploy
   workflow_dispatch:
@@ -41,15 +43,17 @@ jobs:
     if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
     uses: ./.github/workflows/paths-gate.yml
 
-  # One job so the install happens once: the typecheck is short next to it
+  # The preview's critical path: the preview deploys after this job alone.
+  # The checks run beside it in `checks`; `website` requires both, and
+  # production deploys only when both passed
   build:
-    name: website
+    name: website build
     needs: gate
     if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
     outputs:
       deploy: ${{ steps.decide.outputs.deploy }}
-      english-only: ${{ steps.locales.outputs.english-only }}
+      locales: ${{ steps.locales.outputs.locales }}
       next: ${{ steps.next.outputs.next }}
       target: ${{ steps.decide.outputs.target }}
     steps:
@@ -62,8 +66,6 @@ jobs:
           # Commits and trees are all the dates need; files missing from the
           # checkout (old versions) download when read
           filter: ${{ github.event_name != 'merge_group' && 'blob:none' || '' }}
-      - name: Test Vercel ignore decision
-        run: bash website/scripts/vercel-ignore.test.sh
       # While master is the next major (website/versionCurrent.json), its
       # production build serves at /next/ and the `current` job builds the root.
       # The queue builds it that way too, so it fails before the master push does.
@@ -72,52 +74,36 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           [ ! -f website/versionCurrent.json ] || echo "next=1" >> "$GITHUB_OUTPUT"
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '26'
-          cache: 'yarn'
-      - name: Check published blog posts are dated today
-        if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
-        run: |
-          git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null || git fetch --depth=1 origin "$BASE_SHA"
-          node website/scripts/blog-publish.mjs --check "$BASE_SHA"
+      # `checks` saves both caches, off this job's critical path
       - name: Install packages
-        run: ./scripts/ci-install.sh website
-      - name: Build package types and the packages the website imports
-        run: yarn ci:build:website
-      - name: Typecheck website
-        run: yarn workspace rdc-website typecheck
-      # CircleCI's lint job covers packages/ only; api/ is the Vercel functions
-      - name: Lint website
-        run: yarn lint --quiet 'website/{src,api}/**/*.{js,ts,tsx}'
-      - name: Check translations
-        run: |
-          node --test 'website/translate/*.test.mjs'
-          node website/translate/translate.mjs check
-      - name: Check sitemap robots.txt
-        run: node --test website/sitemap-robots-plugin.test.mjs
-      - name: Check Playground fixture source plugins
-        run: node --test website/fixture-source.test.mjs
-      # Each locale is a full build, so PRs build translations only when they
-      # could break one. The queue and master always build every locale.
+        id: install
+        uses: ./.github/actions/website-install
+      # The build needs only their JavaScript (`checks` builds the types).
+      # Pull requests reuse a build of the same sources, like the install.
+      - name: Restore the packages the website imports
+        id: libs
+        if: github.event_name == 'pull_request'
+        uses: actions/cache/restore@v6
+        with:
+          path: packages/*/lib
+          key: ${{ steps.install.outputs.libs-key }}
+      - name: Build the packages the website imports
+        if: steps.libs.outputs.cache-hit != 'true'
+        run: yarn ci:build:website-lib
+      # Each locale is a full build, so PRs build only English and the
+      # locales they could change or break (scripts/pick-locales.mjs). The
+      # queue and master always build every locale.
+      # Versus the merge's first parent, the master it merged into: the event's
+      # base sha can be older, and its diff would include master's own changes
       - name: Pick locales
         id: locales
         if: github.event_name == 'pull_request'
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          # Translations, their tooling and the config that adds locales; a
-          # deleted (or renamed) doc, component or static file can leave a
-          # translation linking to or importing it. Fails open.
-          if changed="$(git diff --name-only --no-renames "$BASE_SHA" HEAD -- \
-                website/i18n website/translate website/framework-docs website/docusaurus.config.ts)" \
-            && deleted="$(git diff --name-only --no-renames --diff-filter=D "$BASE_SHA" HEAD -- docs website/src website/static)" \
-            && [ -z "$changed$deleted" ]; then
+          # Fails open: every locale when the picker fails
+          if locales="$(node website/scripts/pick-locales.mjs HEAD^1)" && [ -n "$locales" ]; then
             # PRs that don't deploy get no preview comment, so say it here too
-            echo "::notice title=English only::This PR doesn't touch translations; the merge queue builds every locale"
-            echo "english-only=true" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Locales::This PR builds ${locales// /, }; the merge queue builds every locale"
+            echo "locales=$locales" >> "$GITHUB_OUTPUT"
           fi
       # Docusaurus Faster's Rspack cache. Only master saves it, so
       # PRs share one fresh entry instead of each storing their own. Only
@@ -135,12 +121,14 @@ jobs:
           # PRs build drafts. The queue and master build production, so a link
           # to a draft fails here instead of on the master push.
           VERCEL_ENV: ${{ github.event_name == 'pull_request' && 'preview' || 'production' }}
-          ENGLISH_ONLY: ${{ steps.locales.outputs.english-only }}
+          LOCALES: ${{ steps.locales.outputs.locales }}
           DOCS_NEXT: ${{ steps.next.outputs.next }}
         # explicit `shell: bash` adds pipefail, so a failed build isn't masked by tee
         shell: bash
         run: |
-          yarn workspace rdc-website build ${ENGLISH_ONLY:+--locale en} 2>&1 | tee build.log
+          args=()
+          for locale in $LOCALES; do args+=(--locale "$locale"); done
+          yarn workspace rdc-website build "${args[@]}" 2>&1 | tee build.log
           # Warnings (broken links, bundler warnings) fail the check, but not
           # the build itself, which only stops on errors
           if grep -E '\[(WARNING|ERROR)\]' build.log; then
@@ -226,6 +214,82 @@ jobs:
           retention-days: 1
           # A re-run of this job replaces the artifact
           overwrite: true
+          # Fastest zip: most of the bytes are videos and images, already compressed
+          compression-level: 1
+
+  # Off the preview's critical path: a failure here fails `website`, not the deploy
+  checks:
+    name: website checks
+    needs: gate
+    if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          # translate.mjs check reads the English its translations were made from
+          fetch-depth: ${{ github.event_name == 'merge_group' && 1 || 0 }}
+          filter: ${{ github.event_name != 'merge_group' && 'blob:none' || '' }}
+      - name: Test Vercel ignore decision
+        run: bash website/scripts/vercel-ignore.test.sh
+      - name: Install packages
+        id: install
+        uses: ./.github/actions/website-install
+        with:
+          save: 'true'
+      - name: Check published blog posts are dated today
+        if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+        run: |
+          git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null || git fetch --depth=1 origin "$BASE_SHA"
+          node website/scripts/blog-publish.mjs --check "$BASE_SHA"
+      # Pull requests reuse a build of the same sources, types included, like
+      # the install
+      - name: Restore package types and the packages the website imports
+        id: libs
+        if: github.event_name == 'pull_request'
+        uses: actions/cache/restore@v6
+        with:
+          path: packages/*/lib
+          key: ${{ steps.install.outputs.libs-key }}
+      - name: Build package types and the packages the website imports
+        if: steps.libs.outputs.cache-hit != 'true'
+        run: yarn ci:build:website
+      # Also for `build` on later runs; a save to an existing key does nothing
+      - if: github.event_name != 'merge_group' && steps.libs.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: packages/*/lib
+          key: ${{ steps.install.outputs.libs-key }}
+      - name: Typecheck website
+        run: yarn workspace rdc-website typecheck
+      # CircleCI's lint job covers packages/ only; api/ is the Vercel functions
+      - name: Lint website
+        run: yarn lint --quiet 'website/{src,api}/**/*.{js,ts,tsx}'
+      - name: Check translations
+        run: node website/translate/translate.mjs check
+      # Translation tooling, sitemap robots.txt, Playground fixture source
+      # plugins and the locale picker
+      - name: Test website scripts
+        run: node --test 'website/translate/*.test.mjs' website/*.test.mjs website/scripts/*.test.mjs
+
+  # The required check (branch protection matches this name): passes when the
+  # build and checks passed, or the gate skipped them
+  website:
+    name: website
+    needs: [build, checks]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          BUILD: ${{ needs.build.result }}
+          CHECKS: ${{ needs.checks.result }}
+        run: |
+          for result in "$BUILD" "$CHECKS"; do
+            [[ "$result" =~ ^(success|skipped)$ ]] ||
+              { echo "::error::website build: $BUILD, website checks: $CHECKS"; exit 1; }
+          done
 
   # While master is the next major, the root serves the current version's
   # docs, built from its branch the way an archive is (scripts/snapshot/README.md)
@@ -298,168 +362,30 @@ jobs:
           retention-days: 1
           overwrite: true
 
-  # Not a required check: a Vercel outage mustn't block merging
-  deploy:
-    name: docs deploy
-    needs: [build, current]
-    # current is skipped on pull requests; it must not fail, or the root would be missing
-    if: ${{ !cancelled() && needs.build.result == 'success' && needs.build.outputs.deploy == 'true' && needs.current.result != 'failure' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+  # Not required checks: a Vercel outage mustn't block merging. current is
+  # skipped on pull requests; it must not fail, or the root would be missing.
+  # A preview deploys even when a check failed, without waiting for them
+  preview:
+    needs: build
+    if: ${{ !cancelled() && github.event_name == 'pull_request' && needs.build.result == 'success' && needs.build.outputs.deploy == 'true' }}
     permissions:
       contents: read
       pull-requests: write
-    environment:
-      name: ${{ needs.build.outputs.target == 'production' && 'docs-production' || 'docs-preview' }}
-      url: ${{ steps.deploy.outputs.url }}
-    env:
-      # renovate: datasource=npm depName=vercel
-      VERCEL_CLI_VERSION: 63.1.2
-      TARGET: ${{ needs.build.outputs.target }}
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-      VERCEL_TELEMETRY_DISABLED: '1'
-    steps:
-      # Both jobs read versionCurrent.json, in parallel: a root without /next,
-      # or /next without a root, would ship a broken site
-      - name: Check the root and /next agree
-        env:
-          NEXT: ${{ needs.build.outputs.next }}
-          REF: ${{ needs.current.outputs.ref }}
-        run: |
-          [ "${NEXT:+1}" = "${REF:+1}" ] ||
-            { echo "::error::/next built: ${NEXT:-no}, but the root built from: ${REF:-nothing}"; exit 1; }
-      # vercel build reads the first three (api/ holds the site's functions,
-      # which it bundles); production also runs vercel-ignore.sh --superseded.
-      # No other repo scripts run: vercel build only runs vercel.json's guard
-      # command, and installs api/'s dependencies without their scripts. The
-      # token is still as exposed as same-repo push access, since vercel.json
-      # can change the command.
-      - uses: actions/checkout@v7
-        with:
-          sparse-checkout: |
-            website/package.json
-            website/vercel.json
-            website/versionsArchived.json
-            website/api/
-            website/scripts/vercel-ignore.sh
-          sparse-checkout-cone-mode: false
-      - uses: actions/download-artifact@v8
-        with:
-          name: site-build
-          path: website/build
-      - if: needs.current.outputs.ref
-        uses: actions/download-artifact@v8
-        with:
-          name: current-site
-      - name: Add the current version's site at the root
-        if: needs.current.outputs.ref
-        run: |
-          tar -xzf current.tar.gz -C website/build
-          # /next is served now, so it no longer redirects to the root
-          nextRedirect='.source | startswith("/next{/:path")'
-          jq -e ".redirects | map(select($nextRedirect)) | length == 1" website/vercel.json > /dev/null ||
-            { echo "::error::vercel.json has no single /next redirect to drop"; exit 1; }
-          jq ".redirects |= map(select($nextRedirect | not))" website/vercel.json > vercel.json.tmp
-          mv vercel.json.tmp website/vercel.json
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '26'
-      - run: npm install --global "vercel@$VERCEL_CLI_VERSION"
-      - name: Deploy
-        id: deploy
-        env:
-          HEAD_REF: ${{ github.head_ref }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          # vercel build runs npm install for api/'s functions
-          NPM_CONFIG_IGNORE_SCRIPTS: 'true'
-        run: |
-          # Checked here, not in `website`, so a re-run of this job can't roll
-          # production back to an older master commit
-          if [ "$TARGET" = production ]; then
-            rc=0
-            bash website/scripts/vercel-ignore.sh --superseded || rc=$?
-            case "$rc" in
-              0)
-                echo "::notice title=Docs deploy skipped::master moved on to a newer site, whose run deploys it"
-                exit 0 ;;
-              1) ;;
-              # couldn't fetch master: fail rather than risk a rollback
-              *) exit "$rc" ;;
-            esac
-          fi
-          vercel pull --yes --environment="$TARGET"
-          # Packages the downloaded build into .vercel/output
-          vercel build --yes --target="$TARGET"
-          # vercel.json's rewrites run after the file check, where the root's
-          # pages would answer an archive's host; serve its own files first
-          config=.vercel/output/config.json
-          jq 'def archive: .dest? // "" | startswith("/archives/");
-            .routes |= (
-              map(select(archive)) as $archive
-              | map(select(archive | not)) as $rest
-              | ($rest | map(.handle == "filesystem") | index(true)) as $fs
-              | if ($archive | length) != 1 then error("no single archive host rewrite to move")
-                elif $fs == null then error("no filesystem check to move it ahead of")
-                else $rest[:$fs] + $archive + $rest[$fs:] end)' "$config" > config.json.tmp ||
-            { echo "::error::Couldn't move $config's archive host rewrite"; exit 1; }
-          mv config.json.tmp "$config"
-          # A miss gets the root's 404.html, which is another site under /next/
-          # or a locale and has no styles on an archive's host; answer it with
-          # the 404.html of the build it's in. Archives first, as their hosts'
-          # paths look like the root's; then the longest prefix wins. An archive's
-          # route replaces src and adds its host
-          jq '
-            ($ARGS.positional | sort_by((startswith("archives/") | not), -length) | map(
-              { src: "^/\(.)/", dest: "/\(.)/404", status: 404 } + ((
-                split("/") | select(.[0] == "archives")
-                | (.[1] | gsub("\\."; "\\.")) as $v
-                | { src: "^(?:/archives/\($v))?/\(.[2:] | map(. + "/") | join("") | if . == "" then "(?!api(?:/|$))" end)",
-                    has: [{ type: "host", value: "\($v)\\.dataclient\\.io" }] }
-              ) // {}))) as $notFound
-            | (.routes | map(.handle == "error") | index(true)) as $errorPhase
-            | if $errorPhase == null then error("no error phase to add them to")
-              else .routes |= .[:$errorPhase + 1] + $notFound + .[$errorPhase + 1:] end' "$config" --args \
-            $(find website/build -mindepth 2 -name 404.html -printf '%h\n' | cut -d/ -f3-) > config.json.tmp ||
-            { echo "::error::Couldn't add each build's 404 page to $config"; exit 1; }
-          mv config.json.tmp "$config"
-          meta=()
-          # Ties the preview to its branch instead of the PR merge ref
-          [ -n "$HEAD_REF" ] && meta=(--meta githubDeployment=1 --meta "githubCommitRef=$HEAD_REF")
-          url="$(vercel deploy --prebuilt --archive=tgz --target="$TARGET" "${meta[@]}")"
-          echo "deployment=$url" >> "$GITHUB_OUTPUT"
-          # A preview's own URL changes on every push, so point the PR's
-          # alias at it: one link that always shows the PR's newest build
-          if [ -n "$PR_NUMBER" ]; then
-            alias="docs-site-pr-$PR_NUMBER-data-client.vercel.app"
-            # Unlike deploy, alias ignores VERCEL_ORG_ID and would look in the
-            # token's personal account
-            if vercel alias set "$url" "$alias" --scope "$VERCEL_ORG_ID"; then
-              url="https://$alias"
-            else
-              echo "::warning title=Docs preview alias::Couldn't point $alias at this deploy; linking the deploy itself"
-            fi
-          fi
-          echo "url=$url" >> "$GITHUB_OUTPUT"
-          { echo "### Docs $TARGET deployment"; echo; echo "$url"; } >> "$GITHUB_STEP_SUMMARY"
-      # Each archived version serves at its own host (vercel.json), which the
-      # project needs as a domain. dataclient.io's DNS (Cloudflare) already sends
-      # every subdomain to Vercel; a failure only leaves that version's host unserved
-      - name: Add archived versions' domains
-        if: env.TARGET == 'production' && steps.deploy.outputs.url
-        run: |
-          for version in $(jq -r '.[].version' website/versionsArchived.json); do
-            domain="$version.dataclient.io"
-            # Exits 0 when the project already has it (vercel 63.1); --scope as for alias
-            vercel domains add "$domain" "$VERCEL_PROJECT_ID" --scope "$VERCEL_ORG_ID" --non-interactive ||
-              echo "::warning title=Archive domain::Couldn't add $domain to the Vercel project; add it by hand"
-          done
-      - if: github.event_name == 'pull_request'
-        uses: marocchino/sticky-pull-request-comment@v3
-        with:
-          header: docs-preview
-          message: |
-            **Docs preview:** ${{ steps.deploy.outputs.url }}
+    uses: ./.github/workflows/docs-deploy.yml
+    secrets: inherit
+    with:
+      target: preview
+      locales: ${{ needs.build.outputs.locales }}
 
-            Built from ${{ github.event.pull_request.head.sha }} merged into `master` ([this build](${{ steps.deploy.outputs.deployment }})).${{ needs.build.outputs.english-only == 'true' && ' English only: this PR doesn''t touch translations.' || '' }}
+  production:
+    needs: [build, checks, current]
+    if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.build.result == 'success' && needs.build.outputs.deploy == 'true' && needs.checks.result == 'success' && needs.current.result != 'failure' }}
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/docs-deploy.yml
+    secrets: inherit
+    with:
+      target: production
+      next: ${{ needs.build.outputs.next }}
+      current-ref: ${{ needs.current.outputs.ref }}

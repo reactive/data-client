@@ -47,7 +47,7 @@ export const ProfileResource = resource({
 
 :::react
 
-```tsx title="ProfileList"
+```tsx title="ProfileList" {6}
 import React from 'react';
 import { useDLE } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
@@ -77,7 +77,7 @@ render(<ProfileList />);
 
 :::vue
 
-```html title="ProfileList.vue"
+```html title="ProfileList.vue" {5}
 <script setup lang="ts">
   import { useDLE } from '@data-client/vue';
   import { ProfileResource } from './ProfileResource';
@@ -225,7 +225,7 @@ export const ProfileResource = resource({
 
 :::react
 
-```tsx title="ProfileDetail"
+```tsx title="ProfileDetail" {6-10}
 import React from 'react';
 import { useDLE } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
@@ -255,7 +255,7 @@ render(<ProfileDetail />);
 
 :::vue
 
-```html title="ProfileDetail.vue"
+```html title="ProfileDetail.vue" {5-9}
 <script setup lang="ts">
   import { useDLE } from '@data-client/vue';
   import { ProfileResource } from './ProfileResource';
@@ -329,22 +329,22 @@ export const UserResource = resource({
 
 :::react
 
-```tsx title="PostWithAuthor"
+```tsx title="PostWithAuthor" {8-12}
 import { useDLE } from '@data-client/react';
 import { PostResource, UserResource } from './Resources';
 
 export default function PostWithAuthor({ id }: { id: string }) {
   const postDLE = useDLE(PostResource.get, { id });
-  if (postDLE.error) return <div>Error {`${postDLE.error.status}`}</div>;
-  if (postDLE.loading || !postDLE.data) return <Loading />;
   const authorDLE = useDLE(
     UserResource.get,
-    postDLE.data.userId
+    postDLE.data?.userId
       ? {
           id: postDLE.data.userId,
         }
       : null,
   );
+  if (postDLE.error) return <div>Error {`${postDLE.error.status}`}</div>;
+  if (postDLE.loading || !postDLE.data) return <Loading />;
   if (authorDLE.error)
     return <div>Error {`${authorDLE.error.status}`}</div>;
   if (authorDLE.loading || !authorDLE.data) return <Loading />;
@@ -357,7 +357,7 @@ export default function PostWithAuthor({ id }: { id: string }) {
 
 :::vue
 
-```html title="PostWithAuthor.vue" {15-21}
+```html title="PostWithAuthor.vue" {18-24}
 <script setup lang="ts">
   import { computed } from 'vue';
   import { useDLE } from '@data-client/vue';
@@ -404,7 +404,7 @@ When entities are stored in [nested structures](/rest/guides/relational-data#nes
 
 <TypeScriptEditor row={false}>
 
-```typescript title="api/Post"
+```typescript title="api/Post" {14-18}
 import { Entity, RestEndpoint, Collection } from '@data-client/rest';
 
 export class PaginatedPost extends Entity {
@@ -428,7 +428,7 @@ export const getPosts = new RestEndpoint({
 
 :::react
 
-```tsx title="ArticleList" {12}
+```tsx title="ArticleList" {8}
 import { useDLE } from '@data-client/react';
 import { getPosts } from './api/Post';
 
@@ -451,7 +451,7 @@ export default function ArticleList({ page }: { page: string }) {
 
 :::vue
 
-```html title="ArticleList.vue" {14}
+```html title="ArticleList.vue" {13}
 <script setup lang="ts">
   import { useDLE } from '@data-client/vue';
   import { getPosts } from './api/Post';

@@ -291,7 +291,7 @@ function BuildingList({ dept }: { dept: Department }) {
 function DepartmentsPage() {
   useFetch(DepartmentResource.getList);
   const departments = useQuery(new All(Department));
-  if (!departments) return <div>Loading...</div>;
+  if (!departments) return <Loading />;
   return (
     <div>
       {departments.map(dept => (
@@ -340,7 +340,7 @@ render(<DepartmentsPage />);
 </script>
 
 <template>
-  <div v-if="!departments">Loading...</div>
+  <Loading v-if="!departments" />
   <div v-else>
     <div v-for="dept in departments" :key="dept.pk()">
       <strong>{{ dept.name }}</strong>: <BuildingList :dept="dept" />

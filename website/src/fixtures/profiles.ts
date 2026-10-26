@@ -1,3 +1,4 @@
+import { GQLEndpoint } from '@data-client/graphql';
 import { Entity, resource } from '@data-client/rest';
 
 export class Profile extends Entity {
@@ -54,3 +55,24 @@ export const listFixtures = [
     delay,
   },
 ];
+
+// GraphQL fixtures key on the query text (whitespace aside), so keep it
+// identical to the useSuspense docs' ProfileResource.get
+const getGQLProfile = new GQLEndpoint('/').query(
+  `query GetProfile($id: ID!) {
+    profile(id: $id) {
+      id
+      avatar
+      fullName
+      bio
+    }
+  }`,
+);
+
+export const gqlDetailFixtures = detailFixtures.map(
+  ({ response, ...fixture }) => ({
+    ...fixture,
+    endpoint: getGQLProfile,
+    response: { profile: response },
+  }),
+);

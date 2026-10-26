@@ -48,7 +48,7 @@ export const getPrice = new RestEndpoint({
 
 :::react
 
-```tsx title="MasterPrice"
+```tsx title="MasterPrice" {6}
 import { useSuspense, useSubscription } from '@data-client/react';
 import { getPrice } from 'api/Price';
 
@@ -63,7 +63,7 @@ function MasterPrice({ symbol }: { symbol: string }) {
 
 :::vue
 
-```html title="MasterPrice.vue"
+```html title="MasterPrice.vue" {7}
 <script setup lang="ts">
   import { useSuspense, useSubscription } from '@data-client/vue';
   import { getPrice } from 'api/Price';
@@ -146,7 +146,7 @@ function useSubscription(
 
 :::react
 
-```tsx title="MasterPrice.tsx"
+```tsx title="MasterPrice.tsx" {9}
 import { useIntersectionObserver } from '@uidotdev/usehooks';
 import { useSuspense, useSubscription } from '@data-client/react';
 import { getPrice } from 'api/Price';
@@ -165,7 +165,7 @@ function MasterPrice({ symbol }: { symbol: string }) {
 
 :::vue
 
-```html title="MasterPrice.vue"
+```html title="MasterPrice.vue" {12-15}
 <script setup lang="ts">
   import { computed, useTemplateRef } from 'vue';
   import { useElementVisibility } from '@vueuse/core';

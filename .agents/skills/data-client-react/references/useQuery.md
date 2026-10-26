@@ -278,7 +278,7 @@ export const DepartmentResource = resource({
 });
 ```
 
-```tsx title="DepartmentsPage" {8}
+```tsx title="DepartmentsPage" {6-9}
 import { All } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
 import { DepartmentResource, Department } from './Resources';
@@ -295,7 +295,7 @@ function BuildingList({ dept }: { dept: Department }) {
 function DepartmentsPage() {
   useFetch(DepartmentResource.getList);
   const departments = useQuery(new All(Department));
-  if (!departments) return <div>Loading...</div>;
+  if (!departments) return <Loading />;
   return (
     <div>
       {departments.map(dept => (

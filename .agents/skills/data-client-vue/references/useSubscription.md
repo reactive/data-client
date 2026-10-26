@@ -34,7 +34,7 @@ export const getPrice = new RestEndpoint({
 });
 ```
 
-```html title="MasterPrice.vue"
+```html title="MasterPrice.vue" {7}
 <script setup lang="ts">
   import { useSuspense, useSubscription } from '@data-client/vue';
   import { getPrice } from 'api/Price';
@@ -81,7 +81,7 @@ follow prop or route changes, so use a getter or `computed` when an argument can
 
 ### Only subscribe while element is visible
 
-```html title="MasterPrice.vue"
+```html title="MasterPrice.vue" {12-15}
 <script setup lang="ts">
   import { computed, useTemplateRef } from 'vue';
   import { useElementVisibility } from '@vueuse/core';

@@ -7,7 +7,7 @@
 For instance [fetch](./Controller.md#fetch), [invalidate](./Controller.md#invalidate),
 and [setResponse](./Controller.md#setResponse)
 
-```html
+```html {6}
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
   import { MyResource } from './resources';

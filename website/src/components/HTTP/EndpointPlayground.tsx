@@ -23,7 +23,6 @@ export default function EndpointPlayground({
         className={clsx(
           playgroundstyles.endpointPlayground,
           playgroundstyles.playgroundContainer,
-          playgroundstyles.row,
         )}
       >
         <EditorSurface {...model} layout="row" variant="standalone" />

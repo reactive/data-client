@@ -1,10 +1,619 @@
-html[data-theme='light'] .playground-preview {
-  --ifm-color-formfield-active: var(--ifm-link-color);
+/* The demos' design system: what a demo app is made of, so it reads as a
+   real app inside the preview (`.playground-preview`, ../preview/Preview.tsx)
+   rather than as bare markup. Loaded with the preview, so only demo content
+   is styled here; the preview's frame is in ../styles.module.css.
+
+   Tokens (`--ds-*`) on the preview, in both themes; element styles for
+   headings, text, links and plain controls; and classes for the pieces most
+   demos need (an app header, cards, lists, bylines). Add a component
+   (./index.ts) only for markup every demo would repeat.
+
+   The look is quiet: no decorative lines anywhere. Rows are set apart by
+   space, groups by a label in weight and by their inset, and secondary text
+   by a muted color; one blue serves links, primary actions and focus. Only
+   form controls keep an edge (it is what makes them controls). The tokens
+   and the skeletons are in ./base.css, which loads with the Playground. */
+/* Text */
+.playground-preview h1,
+.playground-preview h2,
+.playground-preview h3 {
+  letter-spacing: -0.01em;
 }
-html[data-theme='dark'] .playground-preview {
-  --ifm-color-formfield-active: var(--ifm-link-color);
+/* A page's title (a post's): a step up from the body, with the byline
+   close under it */
+.playground-preview h2 {
+  line-height: var(--ds-h2-leading);
+  margin-bottom: 2px;
+}
+/* an app's h1 is no page title: outranks theme-classic's
+   `.markdown h1:first-child` (3rem, and a page's gap under it) */
+.playground-preview h1,
+div.playground-preview h1:first-child {
+  font-size: var(--ds-text-xl);
+  margin-bottom: var(--ifm-heading-margin-bottom);
+}
+.playground-preview small,
+.playground-preview .meta {
+  font-size: var(--ds-text-sm);
+  color: var(--ds-text-muted);
+}
+.playground-preview h4 + small {
+  display: block;
+}
+/* a clock's digits keep their width as it ticks */
+.playground-preview time {
+  font-variant-numeric: tabular-nums;
+}
+.playground-preview section {
+  margin-bottom: var(--ds-space-5);
+}
+.playground-preview section:last-child {
+  margin-bottom: 0;
+}
+/* A group's label over its rows (a section's "Comments", a board column's
+   name): small, muted and semibold, so weight alone marks the group. A
+   row's own title (a post's h3 in a list) stays a heading */
+.playground-preview section > h3,
+.playground-preview .boardColumn > h4 {
+  margin: 0 0 6px;
+  font: 600 var(--ds-text-sm) / 1.4 var(--ifm-font-family-base);
+  letter-spacing: 0;
+  color: var(--ds-text-muted);
+}
+/* A value that just changed: washed in the accent and ringed by it */
+.playground-preview mark {
+  padding: 1px 4px;
+  margin: -1px -4px;
+  border-radius: var(--ds-radius-xs);
+  background: var(--ds-accent-soft);
+  box-shadow: 0 0 0 1px var(--ds-accent);
+  color: inherit;
 }
 
+/* Links take the accent (Infima's `a` reads --ifm-link-color above); in a
+   heading they keep its color, with a faint underline that fills on hover,
+   so a title that opens a page still shows it */
+.playground-preview :is(h1, h2, h3, h4) a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
+  text-underline-offset: 0.15em;
+}
+.playground-preview :is(h1, h2, h3, h4) a:hover,
+.playground-preview :is(h1, h2, h3, h4) a:focus-visible {
+  text-decoration-color: currentColor;
+}
+.playground-preview a:focus-visible {
+  outline: 2px solid var(--ds-accent);
+  outline-offset: 2px;
+  border-radius: var(--ds-radius-xs);
+}
+
+/* The app's header: its name at the left, its navigation or actions at the
+   right; the space under it (28px), not a rule, sets the page off. The
+   name is a small tracked wordmark in the muted color, so the title below
+   carries the page */
+.playground-preview .appHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--ds-space-2) var(--ds-space-4);
+  margin-bottom: 1.25rem;
+}
+/* through .appHeader to outrank Infima's `.markdown h1:first-child` margin */
+.playground-preview .appHeader .appTitle {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ds-text-muted);
+}
+.playground-preview .appHeader nav {
+  margin-bottom: 0;
+}
+.playground-preview .appHeader button {
+  margin: 0;
+}
+
+/* A card: a group of content (a post list, a comment thread) with no box of
+   its own: the app's surface (the floating sheet the frame gives it, see
+   ../styles.module.css) is the card, so its rows sit in line with the
+   header and the space around the group marks it. Infima's .card is a
+   bordered flex column with a shadow; this replaces it */
+.playground-preview .card {
+  display: block;
+  overflow: visible;
+  margin-bottom: var(--ds-space-4);
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+.playground-preview .card > :last-child {
+  margin-bottom: 0;
+}
+
+/* A list (a todo list, prices): rows on the panel with no box or rules
+   between them, their text in line with the app header's; each row is a
+   rounded band reaching past its text, and a checkbox row lights up under
+   the pointer and fades once checked */
+.playground-preview .list {
+  margin-bottom: var(--ds-space-4);
+}
+.playground-preview .list > .listItem {
+  align-items: center;
+  margin: 0 calc(-1 * var(--ds-space-3));
+  padding: var(--ds-space-2) var(--ds-space-3);
+  border-radius: var(--ds-radius-sm);
+  transition: background-color var(--motion-snappy);
+}
+/* touch screens skip it: a tapped row would stay lit */
+@media (hover: hover) {
+  .playground-preview .list > .listItem:has(> label):hover {
+    background: var(--ds-hover);
+  }
+}
+.playground-preview
+  .list
+  > .listItem
+  > label:has(> input[type='checkbox']:checked) {
+  /* the faintest text that still reads (4.5:1); the box fades with it */
+  color: var(--ds-faint);
+}
+.playground-preview .list > .listItem > label > input[type='checkbox']:checked {
+  opacity: 0.7;
+}
+
+/* Rows: side by side (an avatar, a checkbox, then the text), set apart by
+   space alone: 16px from one row's content to the next's */
+.playground-preview .listItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ds-space-3);
+  padding: var(--ds-row-pad) 0;
+}
+.playground-preview .listItem > * {
+  min-width: 0;
+}
+.playground-preview .listItem p:last-child {
+  margin-bottom: 0;
+}
+.playground-preview .listItem.nogap {
+  align-items: center;
+  gap: 0;
+}
+/* kept for the demos written before rows had a gap of their own */
+.playground-preview .listItem.spaced {
+  gap: 1em;
+}
+.playground-preview .listItem > label {
+  flex: 1 1 100%;
+  line-height: 1.1;
+}
+.playground-preview .listItem > label input:is(:not([type]), [type='text']) {
+  width: calc(100% - 21px);
+}
+/* An avatar with a name: beside each other in a row (a post's author under
+   its title, muted at the body's secondary size), or the name under it
+   (`author`, a post's) */
+.playground-preview .byline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-space-2);
+  margin-bottom: var(--ds-space-4);
+  font-size: var(--ds-text-sm);
+  color: var(--ds-text-muted);
+}
+.playground-preview .author {
+  flex: none;
+  text-align: center;
+}
+.playground-preview .author small {
+  display: block;
+  line-height: 1.2;
+}
+
+/* Controls. Base skin for plain ones and `primary` only; classed ones
+   (rt-*, vote arrows) keep their own chrome. :where() keeps specificity
+   unchanged, so a demo's own class wins. */
+.playground-preview button {
+  margin-bottom: 8px;
+  margin-right: 8px;
+  padding: 2px 6px;
+}
+.playground-preview button:where(:not([class]), .primary),
+.playground-preview input:is(:not([type]), [type='text']):where(:not([class])),
+.playground-preview textarea:where(:not([class])) {
+  border: 1px solid var(--ds-border-strong);
+  border-radius: var(--ds-radius-sm);
+  background: var(--ds-surface);
+  color: var(--ds-text);
+  font: inherit;
+}
+.playground-preview button:where(:not([class]), .primary) {
+  padding: var(--ds-control-pad-y) var(--ds-control-pad-x);
+  font-size: var(--ds-text-sm);
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-snappy),
+    border-color var(--motion-snappy),
+    color var(--motion-snappy);
+}
+/* hover washes it in the accent; a press (touch too) deepens the wash */
+.playground-preview button:where(:not([class])):is(:hover, :active) {
+  border-color: var(--ds-accent);
+  background: var(--ds-accent-soft);
+  color: var(--ds-accent);
+}
+.playground-preview button:where(:not([class])):active {
+  background: color-mix(
+    in srgb,
+    var(--ds-accent) var(--ds-accent-press),
+    var(--ds-surface)
+  );
+}
+.playground-preview button:where(:not([class]), .primary):focus-visible {
+  outline: 2px solid var(--ds-accent);
+  outline-offset: 2px;
+}
+.playground-preview button:where(:not([class]), .primary):disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+/* the one action a page is for */
+.playground-preview button.primary {
+  background: var(--ds-accent);
+  border-color: var(--ds-accent);
+  color: var(--ds-on-accent);
+}
+.playground-preview button.primary:hover,
+.playground-preview button.primary:active {
+  background: var(--ds-accent-strong);
+  border-color: var(--ds-accent-strong);
+}
+.playground-preview input:is(:not([type]), [type='text']):where(:not([class])),
+.playground-preview textarea:where(:not([class])) {
+  padding: 0.3rem 0.625rem;
+  transition:
+    border-color var(--motion-snappy),
+    box-shadow var(--motion-snappy);
+}
+.playground-preview
+  input:is(:not([type]), [type='text']):where(:not([class])):focus-visible,
+.playground-preview textarea:where(:not([class])):focus-visible {
+  outline: none;
+  border-color: var(--ds-accent);
+  box-shadow: 0 0 0 3px var(--ds-accent-soft);
+}
+/* A demo's links between its pages (Link), the one shown marked as current */
+.playground-preview nav:where(:not([class])) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-bottom: 0.5rem;
+}
+.playground-preview nav a[aria-current='page'] {
+  color: var(--ds-text);
+  font-weight: 600;
+  text-decoration: underline 2px var(--ds-accent);
+  text-underline-offset: 0.35em;
+}
+/* Groups a form's fields so one `disabled` locks them all */
+.playground-preview fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.playground-preview fieldset:disabled,
+.playground-preview fieldset:disabled * {
+  cursor: progress;
+}
+/* While a form saves, a light traces its submit button's border; so too
+   for a button that is busy on its own (`aria-busy`, a pending action) */
+@property --pg-trace-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+.playground-preview form[aria-busy='true'] button[type='submit'],
+.playground-preview button[aria-busy='true'] {
+  /* a 2px border, out of the padding: same size, room for the light */
+  border: 2px solid transparent;
+  padding: calc(var(--ds-control-pad-y) + var(--ds-control-border) - 2px)
+    calc(var(--ds-control-pad-x) + var(--ds-control-border) - 2px);
+  background:
+    linear-gradient(var(--ds-surface), var(--ds-surface)) padding-box,
+    conic-gradient(
+        from var(--pg-trace-angle),
+        var(--ds-border) 0 45%,
+        var(--ds-accent) 75%,
+        var(--ds-border) 76%
+      )
+      border-box;
+  box-shadow: 0 0 0 3px var(--ds-accent-soft);
+  color: var(--ds-accent);
+  animation: ds-trace 1.2s linear infinite;
+}
+@keyframes ds-trace {
+  to {
+    --pg-trace-angle: 360deg;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .playground-preview form[aria-busy='true'] button[type='submit'],
+  .playground-preview button[aria-busy='true'] {
+    animation: none;
+  }
+}
+.playground-preview input[type='checkbox'] {
+  width: 1rem;
+  height: 1rem;
+  vertical-align: -2px;
+  accent-color: var(--ds-accent);
+}
+.playground-preview input[type='checkbox']:focus-visible {
+  outline: 2px solid var(--ds-accent);
+  outline-offset: 2px;
+}
+.playground-preview form input:is(:not([type]), [type='text']),
+.playground-preview form textarea {
+  width: 100%;
+}
+
+/* Votes (docs/core/shared/_VoteDemo.mdx) */
+.playground-preview .voteBlock {
+  display: flex;
+  float: left;
+  gap: 0.5em;
+  margin-right: 0.5em;
+}
+.playground-preview .vote {
+  flex: 0 0 32px;
+  text-align: center;
+}
+.playground-preview .vote .up:hover {
+  color: var(--ds-accent);
+  background: url('../../../../static/img/up-arrow-outline-hover.svg') no-repeat
+    center;
+}
+.playground-preview .vote .up {
+  border: none;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  margin-bottom: -8px;
+  margin-right: 0;
+  background: url('../../../../static/img/up-arrow-outline.svg') no-repeat
+    center;
+  display: inline-block;
+}
+/* A board's columns (RestEndpoint's move demo): wells a step off the
+   sheet, each holding its tasks as rows of the sheet's color (radius 8, no
+   edge), 6px apart */
+.playground-preview .boardColumn {
+  background: var(--ds-surface-2);
+  border-radius: var(--ds-radius);
+  padding: 6px;
+  margin-bottom: 6px;
+}
+.playground-preview .boardColumn > h4 {
+  padding: 0 var(--ds-space-1);
+}
+.playground-preview .boardColumn .listItem {
+  align-items: center;
+  background: var(--ds-surface);
+  border-radius: var(--ds-radius-sm);
+  padding: 7px 10px;
+  margin-bottom: var(--ds-space-1);
+}
+.playground-preview .boardColumn .listItem:last-child {
+  margin-bottom: 0;
+}
+.playground-preview .boardColumn button {
+  margin: 0;
+  padding: 0 4px;
+  line-height: 1;
+  background: none;
+  border: none;
+  border-radius: var(--ds-radius-xs);
+  color: var(--ds-text-muted);
+}
+.playground-preview .boardColumn button:is(:hover, :active) {
+  color: var(--ds-accent);
+}
+/* A checkbox row (a todo): the box sits in its label, so the whole row
+   toggles it; the box is a round one drawn in the accent (focus keeps the
+   checkbox ring above). The rules after this one need no :first-child:
+   they only show on the box it unstyles */
+.playground-preview
+  .listItem
+  > label:has(> input[type='checkbox']:first-child) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* the row's inset is the label's (6px, tighter than a row of text), so
+     the whole band toggles the box: 33px tall for a one-line title */
+  padding: 6px 0;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.playground-preview
+  .listItem:has(> label > input[type='checkbox']:first-child) {
+  padding-block: 0;
+}
+.playground-preview .listItem > label > input[type='checkbox']:first-child {
+  appearance: none;
+  flex: none;
+  display: grid;
+  place-content: center;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 1.5px solid var(--ds-border-strong);
+  border-radius: 50%;
+  background: var(--ds-surface);
+  transition:
+    background-color var(--motion-snappy),
+    border-color var(--motion-snappy);
+}
+.playground-preview .listItem > label > input[type='checkbox']::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: var(--ds-on-accent);
+  clip-path: polygon(14% 44%, 0 59%, 39% 96%, 100% 22%, 85% 8%, 38% 66%);
+  transform: scale(0);
+  transition: transform var(--motion-snappy);
+}
+.playground-preview .listItem > label > input[type='checkbox']:checked {
+  background: var(--ds-accent);
+  border-color: var(--ds-accent);
+}
+.playground-preview .listItem > label > input[type='checkbox']:checked::after {
+  transform: scale(1);
+}
+/* A row's trailing detail (when it was fetched, a count) sits at its end */
+.playground-preview .listItem > .meta:last-child {
+  margin-left: auto;
+}
+/* Actions on what is above it (Fail Soft, Fail Hard) as one segmented
+   control: one edge around them all, a hairline between each. On a phone
+   the segments wrap and stretch, so long labels stack into a list. The
+   hairlines are the group's own color showing through a 1px gap. */
+.playground-preview .buttonGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: var(--ds-space-2);
+  border: 1px solid var(--ds-border-strong);
+  border-radius: var(--ds-radius-sm);
+  background: var(--ds-border-strong);
+  overflow: hidden;
+}
+.playground-preview .buttonGroup > button {
+  --ds-control-border: 0px;
+  flex: 1 1 auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+/* opaque, so the hairlines don't show through the hover wash (a busy
+   segment keeps its light) */
+.playground-preview
+  .buttonGroup
+  > button:not([class], [aria-busy='true']):hover {
+  background: color-mix(
+    in srgb,
+    var(--ds-accent) var(--ds-accent-wash),
+    var(--ds-surface)
+  );
+}
+.playground-preview
+  .buttonGroup
+  > button:not([class], [aria-busy='true']):active {
+  background: color-mix(
+    in srgb,
+    var(--ds-accent) var(--ds-accent-press),
+    var(--ds-surface)
+  );
+}
+/* a busy segment's light runs inside the group's edge (outranking the
+   segment's border: 0) */
+.playground-preview .buttonGroup > button[aria-busy='true'] {
+  border: 2px solid transparent;
+}
+/* inside the group's edge, which clips anything outside it */
+.playground-preview .buttonGroup > button:focus-visible {
+  outline-offset: -2px;
+}
+/* Actions under rows (a clock's Refresh) stand 16px off the last one */
+.playground-preview .listItem + button {
+  margin-top: var(--ds-space-2);
+}
+/* A row led by its label (a clock's "API time", then its reading): the
+   label keeps a column of its own, so sibling rows' values line up, and the
+   row sits on the text's baseline */
+.playground-preview .listItem:has(> .meta:first-child) {
+  align-items: baseline;
+}
+.playground-preview .listItem > .meta:first-child {
+  flex: none;
+  min-width: 7rem;
+}
+/* A row's remove button (CancelButton): a 16px mark at the row's end whose
+   32px hit area reaches into the row's inset, so the row keeps its height */
+.playground-preview button.cancel {
+  flex: none;
+  margin: calc(-1 * var(--ds-row-pad)) calc(-1 * var(--ds-row-pad))
+    calc(-1 * var(--ds-row-pad)) auto;
+  padding: var(--ds-row-pad);
+  border: 0;
+  border-radius: var(--ds-radius-sm);
+  background: none;
+  line-height: 0;
+  cursor: pointer;
+  transition: background-color var(--motion-snappy);
+}
+.playground-preview button.cancel img {
+  display: block;
+}
+@media (hover: hover) {
+  .playground-preview button.cancel:hover {
+    background: var(--ds-hover);
+  }
+}
+.playground-preview button.cancel:focus-visible {
+  outline: 2px solid var(--ds-accent);
+  outline-offset: -2px;
+}
+/* with nothing to remove (a row being written) it only holds the place */
+.playground-preview button.cancel:disabled {
+  visibility: hidden;
+}
+
+/* Toasts (<Toaster />, ./Toaster.tsx): stacked under the app, each a tinted
+   row with an edge bar in its outcome's color: the live green for success,
+   red for an error */
+.playground-preview .toaster {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: var(--ds-space-3);
+}
+.playground-preview .toaster:empty {
+  display: none;
+}
+.playground-preview .toast {
+  --toast-color: var(--pg-live);
+  padding: var(--ds-space-2) var(--ds-space-3);
+  border-radius: var(--ds-radius-sm);
+  /* the edge bar: inset so the radius clips it */
+  box-shadow: inset 3px 0 0 var(--toast-color);
+  background: color-mix(in srgb, var(--toast-color) 8%, var(--ds-surface));
+  font-size: var(--ds-text-sm);
+  animation: ds-toast-in 160ms ease-out;
+}
+.playground-preview .toast[data-kind='error'] {
+  --toast-color: var(--ifm-color-danger);
+}
+@keyframes ds-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .playground-preview .toast {
+    animation: none;
+  }
+}
 /* Root container for the text field */
 .rt-TextFieldRoot {
   display: flex;
@@ -13,14 +622,13 @@ html[data-theme='dark'] .playground-preview {
   padding: 0.5em;
   background-color: var(--ifm-color-emphasis-0);
   border: 1px solid var(--ifm-color-emphasis-400);
-  border-radius: 4px;
+  border-radius: var(--ds-radius-sm);
   position: relative;
-  margin-bottom:1ex;
-  transition: opacity var(--motion-snappy);
-}
-html[data-theme='dark'] .rt-TextFieldRoot,
-html[data-theme='dark'] .rt-TextAreaRoot {
-  background-color: var(--ifm-color-emphasis-100);
+  margin-bottom: 1ex;
+  transition:
+    opacity var(--motion-snappy),
+    border-color var(--motion-snappy),
+    box-shadow var(--motion-snappy);
 }
 
 /* The slot element (left side) */
@@ -63,14 +671,18 @@ html[data-theme='dark'] .rt-TextAreaRoot {
   }
 }
 
-/* Placeholder or label styling */
+/* The floating label straddles the field's top edge, so it blends into both
+   (the panel above, the field's own background below) */
 .rt-TextFieldLabel {
   position: absolute;
   top: -0.75em;
   left: 0.75em;
-  background-color: var(--ifm-color-emphasis-0);
+  background: linear-gradient(
+    var(--ds-surface) 50%,
+    var(--ifm-color-emphasis-0) 50%
+  );
   padding: 0 0.25em;
-  font-size: 0.70rem;
+  font-size: 0.7rem;
   color: var(--ifm-color-emphasis-700);
   pointer-events: none;
 }
@@ -82,8 +694,8 @@ html[data-theme='dark'] .rt-TextAreaRoot {
 
 .rt-TextFieldRoot:focus-within {
   border-color: var(--ifm-color-formfield-active);
+  box-shadow: 0 0 0 3px var(--ds-accent-soft);
 }
-
 
 .large.rt-TextFieldRoot {
   font-size: 16px;
@@ -99,38 +711,30 @@ html[data-theme='dark'] .rt-TextAreaRoot {
 }
 .small.rt-TextFieldRoot {
   display: inline-flex;
-  border: 1px solid transparent;       /* Transparent borders on all sides */
-  border-bottom-color: var(--ifm-color-emphasis-500);           /* Visible bottom border */
+  border: 1px solid transparent; /* Transparent borders on all sides */
+  border-bottom-color: var(
+    --ifm-color-emphasis-500
+  ); /* Visible bottom border */
   background: none;
   outline: none;
-  padding: 5px;                        /* Consistent padding */
-  height: 30px;                        /* Fixed height to prevent shifting */
-  box-sizing: border-box;              /* Include padding and border in element's size */
-  transition: all 0.2s ease-in-out;    /* Quick animation for transitions */
+  padding: 5px; /* Consistent padding */
+  height: 30px; /* Fixed height to prevent shifting */
+  box-sizing: border-box; /* Include padding and border in element's size */
+  transition: all 0.2s ease-in-out; /* Quick animation for transitions */
   border-radius: 0;
-  margin-bottom:0;
-  margin-top:-4px;
-}
-html[data-theme='dark'] .small.rt-TextFieldRoot {
-  background: none;
+  margin-bottom: 0;
+  margin-top: -4px;
 }
 .small.rt-TextFieldRoot:hover,
 .small.rt-TextFieldRoot:focus-within {
   background-color: var(--ifm-color-emphasis-0);
-  border-color: var(--ifm-color-emphasis-400);                  /* Make all borders visible */
-  border-radius: 4px;
+  border-color: var(--ifm-color-emphasis-400); /* Make all borders visible */
+  border-radius: 6px;
 }
 .small.rt-TextFieldRoot:focus-within {
-  border-color: var(--ifm-color-formfield-active);                  /* Make all borders visible */
-}
-/* Dark: a faint lift over the panel instead of a near-black well, and the
-   same blue as the checked checkboxes for focus */
-html[data-theme='dark'] .small.rt-TextFieldRoot:hover,
-html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
-  background-color: rgba(255, 255, 255, 0.06);
-}
-html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
-  border-color: var(--ifm-color-primary);
+  border-color: var(
+    --ifm-color-formfield-active
+  ); /* Make all borders visible */
 }
 /* Typed text matches the todo titles beside it */
 .small .rt-TextFieldInput {
@@ -152,9 +756,6 @@ html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
   min-width: 0;
 }
 
-
-
-
 /* Disabled fields (on their own or in a disabled fieldset) fade back */
 .rt-TextFieldRoot:has(> .rt-TextFieldInput:disabled),
 .rt-TextAreaRoot:has(> .rt-TextAreaInput:disabled) {
@@ -167,11 +768,13 @@ html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
   width: 100%;
   background-color: var(--ifm-color-emphasis-0);
   border: 1px solid var(--ifm-color-emphasis-400);
-  border-radius: 4px;
-  padding-bottom:-5px;
+  border-radius: var(--ds-radius-sm);
   /* overflow: hidden; */
-  margin: 1.5ex 0 .5ex;
-  transition: opacity var(--motion-snappy);
+  margin: 1.5ex 0 0.5ex;
+  transition:
+    opacity var(--motion-snappy),
+    border-color var(--motion-snappy),
+    box-shadow var(--motion-snappy);
 }
 
 /* The textarea element inside the component */
@@ -180,6 +783,7 @@ html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
   width: 100%;
   border: none;
   outline: none;
+  font: inherit;
   font-size: 14px;
   color: var(--ifm-color-content);
   background: transparent;
@@ -189,7 +793,6 @@ html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
   margin-bottom: -4px;
 }
 
-
 /* Focus state for the textarea */
 .rt-TextAreaInput:focus + .rt-TextFieldLabel {
   color: var(--ifm-color-formfield-active);
@@ -197,4 +800,5 @@ html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
 
 .rt-TextAreaRoot:focus-within {
   border-color: var(--ifm-color-formfield-active);
+  box-shadow: 0 0 0 3px var(--ds-accent-soft);
 }

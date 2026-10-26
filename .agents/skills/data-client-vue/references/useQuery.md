@@ -100,7 +100,7 @@ export const PostResource = resource({
 </template>
 ```
 
-```html title="TotalVotes.vue" {13}
+```html title="TotalVotes.vue" {12}
 <script setup lang="ts">
   import { Query } from '@data-client/rest';
   import { useQuery } from '@data-client/vue';
@@ -199,7 +199,7 @@ export const UserResource = resource({
 });
 ```
 
-```html title="UsersPage.vue" {22}
+```html title="UsersPage.vue" {24}
 <script setup lang="ts">
   import { Query, All } from '@data-client/rest';
   import { useQuery, useFetch } from '@data-client/vue';
@@ -297,7 +297,7 @@ export const DepartmentResource = resource({
 </script>
 
 <template>
-  <div v-if="!departments">Loading...</div>
+  <Loading v-if="!departments" />
   <div v-else>
     <div v-for="dept in departments" :key="dept.pk()">
       <strong>{{ dept.name }}</strong>: <BuildingList :dept="dept" />
