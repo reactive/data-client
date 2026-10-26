@@ -374,6 +374,31 @@ describe('manager attribution', () => {
     });
     expect(entries()[0].origin).toBeUndefined();
   });
+
+  it('wraps each manager once, guarding those it reports for', () => {
+    const log = new SchemaRegistry().log.connect(0);
+    const error = new Error('broke');
+    const thrower: Manager = {
+      middleware: () => () => () => {
+        throw error;
+      },
+      cleanup() {},
+    };
+    const network = new NetworkManager();
+    const report = jest.fn();
+    const [guarded, tracked] = log.track([thrower, network], manager =>
+      manager === thrower ? report : undefined,
+    );
+    expect(Object.getPrototypeOf(guarded)).toBe(thrower);
+    expect(Object.getPrototypeOf(tracked)).toBe(network);
+
+    // the failed step is skipped: the action goes on to the next middleware
+    const next = jest.fn();
+    const action = { type: actionTypes.GC } as ActionTypes;
+    guarded.middleware({} as Controller)(next)(action);
+    expect(report).toHaveBeenCalledWith(error);
+    expect(next).toHaveBeenCalledWith(action);
+  });
 });
 
 describe('stageFilter', () => {

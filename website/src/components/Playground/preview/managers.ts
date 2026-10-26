@@ -3,9 +3,9 @@ import {
   NetworkManager,
   type Controller,
   type Manager,
-  type State,
 } from '@data-client/react';
 
+import type { Wrap } from './store/wrapManager';
 import { takeSnapshot, type PreviewSnapshot } from './usePreviewReset';
 import type { CodeDocument } from '../editor/codeModel';
 import { declarationsIn } from '../editor/declarations';
@@ -79,18 +79,26 @@ export default class ManagerHost {
   };
 
   /** Managers for a new store: the code's, or the defaults. `network` is
-   * among them (the code's own, or one added for it) */
-  create(): { managers: Manager[]; network: NetworkManager } {
+   * among them (the code's own, or one added for it). `reportFor` says
+   * where a manager's errors go: the code's are guarded (`wrapManager`
+   * skips a step that throws and reports it here); the library's aren't */
+  create(): {
+    managers: Manager[];
+    network: NetworkManager;
+    reportFor: (manager: Manager) => Wrap['report'];
+  } {
     this.error = undefined;
-    let managers =
-      this.declared()?.map(this.guard) ??
-      getDefaultManagers({ devToolsManager: null });
+    const declared = this.declared();
+    let managers = declared ?? getDefaultManagers({ devToolsManager: null });
     let network = managers.find(
       (manager): manager is NetworkManager => manager instanceof NetworkManager,
     );
     // DataProvider warns about this; keep the preview working meanwhile
     if (!network) managers = [...managers, (network = new NetworkManager())];
-    return { managers, network };
+    const guarded = new Set(declared);
+    const reportFor = (manager: Manager) =>
+      guarded.has(manager) ? this.report : undefined;
+    return { managers, network, reportFor };
   }
 
   /** What the code's `getManagers()` returns, if it returns managers */
@@ -116,65 +124,5 @@ export default class ManagerHost {
     this.error = error;
     // middleware may run while the store renders
     queueMicrotask(() => this.listeners.forEach(listener => listener()));
-  };
-
-  /** Keeps a throwing manager from taking the preview down: its failed
-   * step is skipped (actions go on to the next middleware). The prototype
-   * stays the manager, so `instanceof` checks still see its class. */
-  protected guard = (manager: Manager): Manager => {
-    /** `fn`, or `fallback` once `fn` throws (or its promise rejects, as
-     * `async action => …` middleware does) */
-    const attempt =
-      <A extends unknown[], R>(
-        fn: (...args: A) => R,
-        fallback: (...args: A) => R,
-      ) =>
-      (...args: A): R => {
-        const fail = (error: unknown) => {
-          this.report(error);
-          return fallback(...args);
-        };
-        try {
-          const result = fn(...args);
-          return result instanceof Promise ? (result.catch(fail) as R) : result;
-        } catch (error) {
-          return fail(error);
-        }
-      };
-    const skip = () => {};
-    const guarded: Manager = Object.create(manager);
-    guarded.init = attempt(
-      (state: State<unknown>) => manager.init?.(state),
-      skip,
-    );
-    guarded.cleanup = attempt(() => manager.cleanup(), skip);
-    guarded.middleware = attempt(
-      controller => {
-        const { middleware } = manager;
-        // untyped playground code can leave out the required middleware
-        if (!middleware)
-          throw new Error(
-            `${manager.constructor.name} has no middleware. Managers must define middleware.`,
-          );
-        // may be a prototype method that reads `this`
-        const withController = middleware.call(manager, controller);
-        return attempt(
-          next => {
-            // a step that throws after passing the action on must not pass it twice
-            const passed = new WeakSet<object>();
-            const dispatch = withController(action => {
-              passed.add(action);
-              return next(action);
-            });
-            return attempt(dispatch, action =>
-              passed.has(action) ? Promise.resolve() : next(action),
-            );
-          },
-          next => next,
-        );
-      },
-      () => next => next,
-    );
-    return guarded;
   };
 }

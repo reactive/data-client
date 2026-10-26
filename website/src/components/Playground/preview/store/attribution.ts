@@ -30,7 +30,7 @@ const KNOWN_NAMES = new Set(KNOWN.map(known => known.name));
  * classes; a subclass is the code's, named for itself */
 const libraryName = (manager: Manager) =>
   KNOWN.find(({ cls }) => manager.constructor === cls)?.name;
-const sharesWithConsole = (manager: Manager) =>
+export const sharesWithConsole = (manager: Manager) =>
   KNOWN.some(known => known.console && manager instanceof known.cls);
 
 /** A manager every store has unless the code chooses otherwise, by the
@@ -132,71 +132,6 @@ export interface Attribution {
   readonly copies: WeakMap<ActionTypes, ActionTypes>;
 }
 
-/** `manager`, telling `attribution` while it calls its controller (what it
- * dispatches through `set`, `fetch`, `dispatch` …), and `consumed` with each
- * action its middleware returned without passing on (when its promise
- * settles, for async middleware), or with no one when it passes one on later.
- * Passing on a copy (`next({ ...action })`) counts while the middleware
- * runs. The prototype stays the manager, so `instanceof` checks still see
- * its class */
-export function attributed(
-  manager: Manager,
-  name: string,
-  attribution: Attribution,
-  consumed: (action: ActionTypes, by?: string) => void,
-): Manager {
-  const tracked: Manager = Object.create(manager);
-  // with `this` the manager, as DataProvider would call them
-  if (manager.init) tracked.init = state => manager.init!(state);
-  tracked.cleanup = () => manager.cleanup();
-  const sends = !sharesWithConsole(manager);
-  tracked.middleware = controller => {
-    const own =
-      sends ? asDispatcher(controller, name, attribution) : controller;
-    const withController = manager.middleware.call(manager, own);
-    return next => {
-      const passed = new WeakSet<object>();
-      const reported = new WeakSet<object>();
-      /** The actions this middleware is running for, innermost last */
-      const running: ActionTypes[] = [];
-      const dispatch = withController(action => {
-        passed.add(action);
-        // one passed on in place of the action running (not besides it,
-        // nor a copy it came from) stands for it
-        const from = running.at(-1);
-        if (
-          from &&
-          !passed.has(from) &&
-          !copiedFrom(attribution, from, action)
-        ) {
-          passed.add(from);
-          attribution.copies.set(action, from);
-        }
-        if (reported.has(action)) consumed(action);
-        return next(action);
-      });
-      return action => {
-        const check = () => {
-          if (passed.has(action)) return;
-          reported.add(action);
-          consumed(action, name);
-        };
-        running.push(action);
-        let result;
-        try {
-          result = dispatch(action);
-        } finally {
-          running.pop();
-        }
-        if (result instanceof Promise) result.then(check, check);
-        else check();
-        return result;
-      };
-    };
-  };
-  return tracked;
-}
-
 /** `action`, then what it was copied from, and so on */
 export function* lineage(
   { copies }: Attribution,
@@ -207,7 +142,7 @@ export function* lineage(
 
 /** Whether `ancestor` is `action`, or what it was copied from (linking a
  * copy to its ancestor would loop) */
-function copiedFrom(
+export function copiedFrom(
   attribution: Attribution,
   action: ActionTypes,
   ancestor: ActionTypes,
@@ -219,7 +154,7 @@ function copiedFrom(
 type AnyFn = (...args: any[]) => any;
 
 /** `controller`, whose every call runs as `name` dispatching */
-function asDispatcher(
+export function asDispatcher(
   controller: Controller,
   name: string,
   attribution: Attribution,

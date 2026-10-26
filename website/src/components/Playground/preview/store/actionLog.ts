@@ -20,13 +20,13 @@ import {
   type RequestGroup,
 } from './actionGroups';
 import {
-  attributed,
   lineage,
   managerNames,
   startsRequests,
   type Attribution,
 } from './attribution';
 import type { Moment, Scope, Step } from './nav';
+import { wrapManager, type Wrap } from './wrapManager';
 
 const { createReducer } = __INTERNAL__;
 
@@ -352,21 +352,30 @@ export default class ActionLog {
       cleanup() {},
     };
     /** The store's own managers (between `head` and `tail`), each
-     * crediting what it dispatches and consumes to its name */
-    const track = (chain: readonly Manager[]): Manager[] => {
+     * crediting what it dispatches and consumes to its name. `reportFor`
+     * gives each its `report` (see `wrapManager`) */
+    const track = (
+      chain: readonly Manager[],
+      reportFor?: (manager: Manager) => Wrap['report'],
+    ): Manager[] => {
       const names = managerNames(chain);
       managers = names;
       return chain.map((manager, i) => {
         const requests = startsRequests(manager);
-        return attributed(manager, names[i], attribution, (action, by) => {
-          const seq = seqOf(action);
-          if (seq === undefined) return;
-          const requested =
-            requests && by !== undefined && action.type === actionTypes.FETCH;
-          this.patch(id, seq, {
-            consumedBy: by,
-            requested: requested || undefined,
-          });
+        return wrapManager(manager, {
+          name: names[i],
+          attribution,
+          consumed: (action, by) => {
+            const seq = seqOf(action);
+            if (seq === undefined) return;
+            const requested =
+              requests && by !== undefined && action.type === actionTypes.FETCH;
+            this.patch(id, seq, {
+              consumedBy: by,
+              requested: requested || undefined,
+            });
+          },
+          report: reportFor?.(manager),
         });
       });
     };
