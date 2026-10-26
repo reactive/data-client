@@ -1936,6 +1936,7 @@ div.fixtureJson + div.fixtureJson {
    of the app's rows. A well of the frame's ground (the stage's color) with
    the sheet's color round it, so it sits in the preview as its own segment */
 .clockBar {
+  /* its height is also --pg-clock-bar's, for the row's loading frame */
   flex: none;
   padding: 6px var(--pg-sheet-pad) var(--pg-sheet-pad);
   background: var(--pg-panel);
@@ -1947,6 +1948,7 @@ div.fixtureJson + div.fixtureJson {
   gap: 8px;
   padding: 0 14px;
   height: 40px;
+  /* the token is the row layout's; the others take its value */
   border-radius: var(--pg-card-radius, 10px);
   background: var(--pg-stage);
   color: var(--pg-muted);
