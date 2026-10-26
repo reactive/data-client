@@ -17,7 +17,7 @@ import {
   Time,
   useActions,
 } from './actionParts';
-import { shownChain } from './attribution';
+import { shownChain, stageName } from './attribution';
 import { EndpointBody } from './Details';
 import { errorText, findRow, isEndpointRow } from './model';
 import {
@@ -142,7 +142,7 @@ function unappliedNote({ action, consumedBy, requested }: LogEntry) {
   if (action.type === actionTypes.FETCH && (!consumedBy || requested))
     return 'Started the request; the store changes when its response arrives';
   return consumedBy ?
-      `Handled by ${consumedBy}; the store is unchanged`
+      `Handled by ${stageName(consumedBy)}; the store is unchanged`
     : 'Not passed on to the store (yet)';
 }
 

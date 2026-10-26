@@ -23,7 +23,7 @@ import {
 } from './actionGroups';
 import type ActionLog from './actionLog';
 import { isRecordChange, type History, type LogEntry } from './actionLog';
-import { notableAttribution } from './attribution';
+import { notableAttribution, stageName } from './attribution';
 import { kindColor } from './dom';
 import { ManagerName } from './ManagerName';
 import {
@@ -352,16 +352,16 @@ export function ManagerTags({ entries }: { entries: readonly LogEntry[] }) {
   return (
     <>
       {origin && (
-        <span className={styles.manager} title={`Sent by ${origin}`}>
-          ↑ <ManagerName name={origin} />
+        <span className={styles.manager} title={`Sent by ${stageName(origin)}`}>
+          ↑ <ManagerName stage={origin} />
         </span>
       )}
       {consumedBy && (
         <span
           className={styles.manager}
-          title={`${consumedBy} handled it without passing it on`}
+          title={`${stageName(consumedBy)} handled it without passing it on`}
         >
-          ⊘ handled by <ManagerName name={consumedBy} />
+          ⊘ handled by <ManagerName stage={consumedBy} />
         </span>
       )}
     </>

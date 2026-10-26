@@ -21,7 +21,8 @@ import {
 } from './actionGroups';
 import {
   lineage,
-  managerNames,
+  managerStages,
+  type ManagerStage,
   startsRequests,
   type Attribution,
 } from './attribution';
@@ -69,10 +70,10 @@ export interface LogEntry {
   readonly deduped?: boolean;
   /** The manager that dispatched it (through its controller); missing for
    * the app's own (a component's fetch, a button's set) */
-  readonly origin?: string;
+  readonly origin?: ManagerStage;
   /** The manager whose middleware handled it without passing it on, so the
    * managers after it (and the store) never saw it */
-  readonly consumedBy?: string;
+  readonly consumedBy?: ManagerStage;
   /** A fetch `consumedBy` a NetworkManager, which started its request */
   readonly requested?: true;
   /** The store's own state (pending optimistic updates not yet applied)
@@ -100,8 +101,8 @@ export interface History {
   /** By an entry's seq: how many earlier updates of its row `updateLimit`
    * dropped (see `capUpdates`) */
   readonly dropped?: ReadonlyMap<number, number>;
-  /** Its current store's managers in chain order, as `track` named them */
-  readonly managers?: readonly string[];
+  /** Its current store's managers in chain order */
+  readonly managers?: readonly ManagerStage[];
 }
 
 const EMPTY: History = { entries: [], since: 0 };
@@ -268,7 +269,7 @@ export default class ActionLog {
         if (seq !== undefined) return seq;
       }
     };
-    let managers: readonly string[] | undefined;
+    let managers: readonly ManagerStage[] | undefined;
     let first = true;
     /** An action reached the tail, which keeps the history's state since */
     let reached = false;
@@ -352,18 +353,17 @@ export default class ActionLog {
       cleanup() {},
     };
     /** The store's own managers (between `head` and `tail`), each
-     * crediting what it dispatches and consumes to its name. `reportFor`
+     * crediting what it dispatches and consumes to its stage. `reportFor`
      * gives each its `report` (see `wrapManager`) */
     const track = (
       chain: readonly Manager[],
       reportFor?: (manager: Manager) => Wrap['report'],
     ): Manager[] => {
-      const names = managerNames(chain);
-      managers = names;
+      const stages = (managers = managerStages(chain));
       return chain.map((manager, i) => {
         const requests = startsRequests(manager);
         return wrapManager(manager, {
-          name: names[i],
+          stage: stages[i],
           attribution,
           consumed: (action, by) => {
             const seq = seqOf(action);
@@ -452,7 +452,11 @@ export default class ActionLog {
     };
   };
 
-  private append(id: number, entry: LogEntry, managers?: readonly string[]) {
+  private append(
+    id: number,
+    entry: LogEntry,
+    managers?: readonly ManagerStage[],
+  ) {
     const history = this.histories.get(id);
     // only a store's first action starts a history; a dropped one stays gone
     if (!history && !entry.newStore) return;

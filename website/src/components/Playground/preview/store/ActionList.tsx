@@ -41,7 +41,7 @@ import {
   useFollow,
   useLog,
 } from './actionParts';
-import { routesOf, shownChain, stagesOf } from './attribution';
+import { routesOf, shownChain, stagesOf, type Stage } from './attribution';
 import type { Header } from './DiveViews';
 import { byData, onActivateKey, revealIn, toggled } from './dom';
 import { actionId } from './model';
@@ -148,14 +148,14 @@ export function ActionsLevel({
   // at the store: who sent what
   const chain =
     subject.kind === 'root' ? shownChain(history.managers) : undefined;
-  const [chosen, setChosen] = useState<string | null>(null);
+  const [chosen, setChosen] = useState<Stage | null>(null);
   // a stage the chain no longer has (the code changed) counts as none
   const picked =
     chosen !== null && chain && stagesOf(chain).includes(chosen) ?
       chosen
     : null;
   const filter = useMemo(
-    () => (chain ? stageFilter(subjectFilter, chain, picked) : subjectFilter),
+    () => (chain ? stageFilter(subjectFilter, picked) : subjectFilter),
     [chain, picked, subjectFilter],
   );
   const rows = useRows(filter);

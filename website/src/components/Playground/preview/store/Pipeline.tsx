@@ -3,7 +3,15 @@ import React, { useMemo, useState } from 'react';
 
 import { actionName } from './actionGroups';
 import type { LogEntry } from './actionLog';
-import { APP, originOf, pipeline, stagesOf } from './attribution';
+import {
+  APP,
+  originOf,
+  pipeline,
+  stageName,
+  stagesOf,
+  type ManagerStage,
+  type Stage,
+} from './attribution';
 import { CodeLink, ManagerName } from './ManagerName';
 import styles from './store.module.css';
 
@@ -17,35 +25,37 @@ export function Pipeline({
   picked,
   onPick,
 }: {
-  chain: readonly string[];
+  chain: readonly ManagerStage[];
   entries: readonly LogEntry[];
-  picked: string | null;
-  onPick: (stage: string | null) => void;
+  picked: Stage | null;
+  onPick: (stage: Stage | null) => void;
 }) {
   const stages = useMemo(() => pipeline(chain, entries), [chain, entries]);
   return (
     <Strip
       className={styles.pipelineBar}
       label="Pipeline: who sent the actions, and who handled them"
-      stages={stages.map(({ id, sent, handled }) => ({
-        id,
+      stages={stages.map(({ stage, sent, handled }) => ({
+        id: stageName(stage),
         foldAs:
-          id !== APP && !sent && !handled && picked !== id ? 'idle' : undefined,
+          stage !== APP && !sent && !handled && picked !== stage ?
+            'idle'
+          : undefined,
         node: (
           <>
             <button
               type="button"
               className={styles.stage}
-              aria-pressed={picked === id}
-              onClick={() => onPick(picked === id ? null : id)}
+              aria-pressed={picked === stage}
+              onClick={() => onPick(picked === stage ? null : stage)}
             >
-              {id}
+              {stageName(stage)}
               <span className={sent ? styles.number : styles.dim}>{sent}</span>
               {handled > 0 && (
                 <span className={styles.stageNote}>⊘ {handled}</span>
               )}
             </button>
-            <CodeLink name={id} />
+            {stage !== APP && <CodeLink stage={stage} />}
           </>
         ),
       }))}
@@ -62,7 +72,7 @@ function ActionPath({
   entry,
   children,
 }: {
-  chain: readonly string[];
+  chain: readonly ManagerStage[];
   entry: LogEntry;
   /** After the store, on its line */
   children?: React.ReactNode;
@@ -70,33 +80,33 @@ function ActionPath({
   const { seq, action, consumedBy, store } = entry;
   const origin = originOf(entry);
   // a manager's dispatch starts down the chain from its top, not the app
-  const ids = origin === APP ? stagesOf(chain) : chain;
-  const stop = consumedBy ? ids.indexOf(consumedBy) : -1;
+  const stages = origin === APP ? stagesOf(chain) : chain;
+  const stop = consumedBy ? stages.indexOf(consumedBy) : -1;
   return (
     <Strip
       // another action's path starts folded
       key={seq}
       label={'Path of ' + actionName(action) + ' through the managers'}
       stored={!!store}
-      stages={ids.map((id, i) => {
+      stages={stages.map((stage, i) => {
         const after = stop >= 0 && i > stop;
         return {
-          id,
+          id: stageName(stage),
           foldAs:
-            id === origin || i === stop ? undefined
+            stage === origin || i === stop ? undefined
             : after ? 'never saw it'
             : 'passed',
           node: (
             <span
               className={clsx(
                 styles.stage,
-                id === origin && styles.stageSender,
+                stage === origin && styles.stageSender,
                 i === stop && styles.stageStop,
                 after && styles.stageOff,
               )}
             >
-              <ManagerName name={id} />
-              {id === origin && id !== APP && (
+              {stage === APP ? APP : <ManagerName stage={stage} />}
+              {stage === origin && stage !== APP && (
                 <span className={styles.stageNote}>↑ sent it</span>
               )}
               {i === stop && (
@@ -119,7 +129,7 @@ export function StepPath({
   entry,
   n,
 }: {
-  chain: readonly string[];
+  chain: readonly ManagerStage[];
   entry: LogEntry;
   n: number;
 }) {

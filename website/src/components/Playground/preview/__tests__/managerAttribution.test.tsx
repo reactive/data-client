@@ -21,7 +21,7 @@ import React, { Suspense } from 'react';
 import { declarationsOf } from '../../editor/declarations';
 import { CodeOpenerContext, type CodeOpener } from '../../editor/openCode';
 import { stageFilter } from '../store/actionGroups';
-import { isLibraryManager, managerNames } from '../store/attribution';
+import { managerStages, stageName } from '../store/attribution';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
 
@@ -117,8 +117,8 @@ function mount(
     entries: () =>
       registry.log.history(0).entries.map(e => ({
         type: e.action.type,
-        origin: e.origin,
-        consumedBy: e.consumedBy,
+        origin: e.origin && stageName(e.origin),
+        consumedBy: e.consumedBy && stageName(e.consumedBy),
         requested: e.requested,
       })),
   };
@@ -137,6 +137,12 @@ describe('manager attribution', () => {
       stream.push(1);
     });
     expect(history().managers).toEqual([
+      { className: 'StreamManager', n: 1, library: false },
+      { className: 'StreamManager', n: 2, library: false },
+      { className: 'NetworkManager', n: 1, library: true },
+      { className: 'SubscriptionManager', n: 1, library: true },
+    ]);
+    expect(history().managers!.map(stageName)).toEqual([
       'StreamManager',
       'StreamManager #2',
       'NetworkManager',
@@ -144,16 +150,29 @@ describe('manager attribution', () => {
     ]);
   });
 
+  it('records the stage of each action it credits', async () => {
+    const stream = new StreamManager();
+    const { history } = mount([stream, new NetworkManager()]);
+    await act(async () => {
+      void stream.push(2);
+    });
+    // the same stage the history's chain holds
+    expect(history().entries[0].origin).toBe(history().managers![0]);
+  });
+
   it('knows library managers by class, not by their (minified) name', () => {
     const name = Object.getOwnPropertyDescriptor(NetworkManager, 'name')!;
     Object.defineProperty(NetworkManager, 'name', { value: 'e' });
     try {
       expect(
-        managerNames([
+        managerStages([
           new NetworkManager(),
           { middleware: () => (n: unknown) => n } as any,
         ]),
-      ).toEqual(['NetworkManager', 'Object']);
+      ).toEqual([
+        { className: 'NetworkManager', n: 1, library: true },
+        { className: 'Object', n: 1, library: false },
+      ]);
     } finally {
       Object.defineProperty(NetworkManager, 'name', name);
     }
@@ -161,14 +180,38 @@ describe('manager attribution', () => {
 
   it("names a subclass of the library's for itself: it is the code's", () => {
     class PollingNetwork extends NetworkManager {}
-    const [own, idling] = managerNames([
+    const [own, idling] = managerStages([
       new PollingNetwork(),
       new IdlingNetworkManager(),
     ]);
-    expect(own).toBe('PollingNetwork');
-    expect(isLibraryManager(own)).toBe(false);
+    expect(own).toEqual({ className: 'PollingNetwork', n: 1, library: false });
     // the library's own subclass is the library's
-    expect(isLibraryManager(idling)).toBe(true);
+    expect(idling.library).toBe(true);
+  });
+
+  it('gives the same place in every chain the same stage', () => {
+    const [a, , network] = managerStages([
+      new StreamManager(),
+      new StreamManager(),
+      new NetworkManager(),
+    ]);
+    const [b, second] = managerStages([
+      new StreamManager(),
+      new StreamManager(),
+    ]);
+    // a store restored or remade from the same code compares by identity
+    expect(b).toBe(a);
+    expect(second).not.toBe(a);
+    expect(managerStages([new NetworkManager()])[0]).toBe(network);
+  });
+
+  it("doesn't take a class of the code's for the library's by its name", () => {
+    class NetworkManager {
+      middleware = () => (next: unknown) => next;
+      cleanup() {}
+    }
+    const [own] = managerStages([new NetworkManager() as any]);
+    expect(own).toEqual({ className: 'NetworkManager', n: 1, library: false });
   });
 
   it('names the managers of a store that took over a history before it acted', async () => {
@@ -347,7 +390,7 @@ describe('manager attribution', () => {
       void ctrl().set(Ticker, { id: 'BTC' }, { id: 'BTC', price: 6 });
     });
     const [subscribe, set] = history().entries;
-    expect(subscribe.consumedBy).toBe('StreamManager');
+    expect(subscribe.consumedBy?.className).toBe('StreamManager');
     expect(set.store).toBeDefined();
   });
 
@@ -508,18 +551,19 @@ describe('stageFilter', () => {
     lists: () => true,
     gaps: new Map(),
   };
-  const chain = ['StreamManager', 'NetworkManager'];
+  const stream = { className: 'StreamManager', n: 1, library: false };
+  const network = { className: 'NetworkManager', n: 1, library: true };
 
   it("lists all the store's actions, and stands on those the code's managers kept too", () => {
-    const filter = stageFilter(base, chain, null);
+    const filter = stageFilter(base, null);
     expect(filter.lists).toBe(base.lists);
-    expect(filter.hit({ consumedBy: 'StreamManager' } as any)).toBe(true);
-    expect(filter.hit({ consumedBy: 'NetworkManager' } as any)).toBe(false);
+    expect(filter.hit({ consumedBy: stream } as any)).toBe(true);
+    expect(filter.hit({ consumedBy: network } as any)).toBe(false);
   });
 
   it("narrows to a picked stage's actions", () => {
-    const filter = stageFilter(base, chain, 'StreamManager');
-    expect(filter.lists({ origin: 'StreamManager' } as any)).toBe(true);
+    const filter = stageFilter(base, stream);
+    expect(filter.lists({ origin: stream } as any)).toBe(true);
     expect(filter.lists({ store: {} } as any)).toBe(false);
   });
 });
