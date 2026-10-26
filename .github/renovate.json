@@ -220,7 +220,7 @@
     {
       "description": "Vercel CLI pinned in the docs deploy job",
       "customType": "regex",
-      "managerFilePatterns": ["/^\\.github/workflows/site-preview\\.yml$/"],
+      "managerFilePatterns": ["/^\\.github/workflows/docs-deploy\\.yml$/"],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+VERCEL_CLI_VERSION: (?<currentValue>\\S+)"
       ]

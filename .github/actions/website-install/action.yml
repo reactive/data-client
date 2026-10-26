@@ -1,0 +1,61 @@
+name: Install the website's packages
+description: >-
+  Sets up Node and runs scripts/ci-install.sh website. Pull requests restore
+  an install of the same manifests and lockfile instead; the merge queue and
+  master always install from scratch.
+inputs:
+  save:
+    description: Save the install when no cache has it (`true` in one job per workflow)
+    default: 'false'
+outputs:
+  libs-key:
+    description: Cache key for the packages' built lib/, from everything ci:build:website reads
+    value: ${{ steps.keys.outputs.libs }}
+runs:
+  using: composite
+  steps:
+    - id: keys
+      shell: bash
+      run: |
+        # Everything scripts/ci-install.sh website reads
+        echo "modules=website-modules-node26-$RUNNER_OS-$RUNNER_ARCH-${{ hashFiles('yarn.lock', '.yarnrc.yml', '.yarn/releases/**', '.yarn/plugins/**', 'scripts/ci-install.sh', 'package.json', 'packages/*/package.json', 'scripts/rollup-plugins/package.json', 'website/package.json', 'website/scripts/generateMonacoPreloads.cjs') }}" >> "$GITHUB_OUTPUT"
+        echo "libs=website-libs-${{ hashFiles('packages/*/src/**', 'packages/*/package.json', 'packages/*/rollup.config.*', 'scripts/rollup-plugins/**', 'babel.config.js', 'tsconfig*.json', 'packages/*/tsconfig*.json', 'package.json', 'yarn.lock') }}" >> "$GITHUB_OUTPUT"
+    # Looks up only, off pull requests, to know whether to save
+    - id: modules
+      if: github.event_name == 'pull_request' || (inputs.save == 'true' && github.event_name != 'merge_group')
+      uses: actions/cache/restore@v6
+      with:
+        # Keep in sync with the save below
+        path: |
+          node_modules
+          packages/*/node_modules
+          scripts/rollup-plugins/node_modules
+          website/node_modules
+          !website/node_modules/.cache
+          .yarn/install-state.gz
+        key: ${{ steps.keys.outputs.modules }}
+        lookup-only: ${{ github.event_name != 'pull_request' }}
+    - uses: actions/setup-node@v7
+      with:
+        node-version: '26'
+        # Yarn's download cache, only when installing
+        cache: ${{ (github.event_name != 'pull_request' || steps.modules.outputs.cache-hit != 'true') && 'yarn' || '' }}
+    - if: github.event_name != 'pull_request' || steps.modules.outputs.cache-hit != 'true'
+      shell: bash
+      run: ./scripts/ci-install.sh website
+    # It writes outside node_modules
+    - name: Run the website's postinstall
+      if: github.event_name == 'pull_request' && steps.modules.outputs.cache-hit == 'true'
+      shell: bash
+      run: yarn workspace rdc-website run postinstall
+    - if: inputs.save == 'true' && steps.modules.outcome == 'success' && steps.modules.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v6
+      with:
+        path: |
+          node_modules
+          packages/*/node_modules
+          scripts/rollup-plugins/node_modules
+          website/node_modules
+          !website/node_modules/.cache
+          .yarn/install-state.gz
+        key: ${{ steps.keys.outputs.modules }}
