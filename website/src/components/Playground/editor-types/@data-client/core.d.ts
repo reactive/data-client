@@ -514,14 +514,16 @@ type KeepUnion<A> = A | {
     readonly [K in keyof A]: never;
 };
 /** Args of an endpoint whose schema adds to a list (like Collection.push) and has
- * call signatures with list bodies (like RestEndpoint.push); NoCall for every other endpoint */
-type AdderArgs<E extends (...args: any) => any, A> = E extends {
+ * call signatures with list bodies (like RestEndpoint.push); NoCall for every other endpoint
+ *
+ * ListBody: true for the signatures with a list body, false for the rest */
+type AdderArgs<E extends (...args: any) => any, ListBody extends boolean> = E extends {
     schema: {
         _denormalizeList(): any;
     };
 } ? [
     Extract<Parameters<E>, ListBodyArgs>
-] extends [never] ? NoCall : KeepUnion<A> : NoCall;
+] extends [never] ? NoCall : KeepUnion<ListBody extends true ? Extract<Parameters<E>, ListBodyArgs> : Exclude<Parameters<E>, ListBodyArgs>> : NoCall;
 /** Resolved value of a (union member) endpoint: its schema's, or its own when it has none */
 type SchemaResult<E extends (...args: any) => any> = E extends {
     schema: infer S;
@@ -533,7 +535,7 @@ interface ControllerFetch {
      * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
      * @see https://dataclient.io/docs/api/Controller#fetch
      */
-    <E extends (...args: any) => any>(endpoint: E, ...args: AdderArgs<E, Exclude<Parameters<E>, ListBodyArgs>>): Promise<SchemaResult<E>>;
+    <E extends (...args: any) => any>(endpoint: E, ...args: AdderArgs<E, false>): Promise<SchemaResult<E>>;
     /**
      * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
      *
@@ -541,7 +543,7 @@ interface ControllerFetch {
      * The body is the last argument, after at most one params argument.
      * @see https://dataclient.io/docs/api/Controller#fetch
      */
-    <E extends (...args: any) => any>(endpoint: E, ...args: AdderArgs<E, Extract<Parameters<E>, ListBodyArgs>>): Promise<E extends {
+    <E extends (...args: any) => any>(endpoint: E, ...args: AdderArgs<E, true>): Promise<E extends {
         schema: {
             _denormalizeList(): infer L;
         };
