@@ -106,13 +106,9 @@ export function routesOf(
 ): { entry: LogEntry; n: number }[] {
   const seen = new Map<string, { entry: LogEntry; n: number }>();
   for (const entry of entries) {
-    const { action, consumedBy, store } = entry;
-    const key = JSON.stringify([
-      action.type,
-      stageName(originOf(entry)),
-      consumedBy && stageName(consumedBy),
-      !!store,
-    ]);
+    const { action, origin, consumedBy, store } = entry;
+    // stages by all their fields: a code class can share a library name
+    const key = JSON.stringify([action.type, origin, consumedBy, !!store]);
     const route = seen.get(key);
     if (route) route.n++;
     else seen.set(key, { entry, n: 1 });
@@ -131,7 +127,8 @@ export function byStage(stage: Stage) {
     originOf(entry) === stage || entry.consumedBy === stage;
 }
 
-/** Each stage once: every store whose chain has the same class at the same
+/** Each stage once (a few per manager class, so never cleared): every
+ * store whose chain has the same class at the same
  * place among its class gets the same stage, so a history that spans
  * stores (one restored after an error, or remade when the code's managers
  * change) compares stages by identity, and a stage picked stays picked */
@@ -142,9 +139,9 @@ const STAGES = new Map<string, ManagerStage>();
 export function managerStages(managers: readonly Manager[]): ManagerStage[] {
   const seen = new Map<string, number>();
   return managers.map(manager => {
-    const library = !!libraryName(manager);
-    const className =
-      libraryName(manager) || manager.constructor?.name || 'Manager';
+    const known = libraryName(manager);
+    const library = !!known;
+    const className = known || manager.constructor?.name || 'Manager';
     const n = (seen.get(className) ?? 0) + 1;
     seen.set(className, n);
     const key = JSON.stringify([className, n, library]);

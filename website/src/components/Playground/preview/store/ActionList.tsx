@@ -155,7 +155,7 @@ export function ActionsLevel({
       chosen
     : null;
   const filter = useMemo(
-    () => (chain ? stageFilter(subjectFilter, picked) : subjectFilter),
+    () => (chain ? stageFilter(subjectFilter, chain, picked) : subjectFilter),
     [chain, picked, subjectFilter],
   );
   const rows = useRows(filter);

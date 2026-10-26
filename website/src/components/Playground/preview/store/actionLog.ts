@@ -359,7 +359,8 @@ export default class ActionLog {
       chain: readonly Manager[],
       reportFor?: (manager: Manager) => Wrap['report'],
     ): Manager[] => {
-      const stages = (managers = managerStages(chain));
+      const stages = managerStages(chain);
+      managers = stages;
       return chain.map((manager, i) => {
         const requests = startsRequests(manager);
         return wrapManager(manager, {

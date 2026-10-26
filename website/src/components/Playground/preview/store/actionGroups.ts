@@ -7,7 +7,7 @@ import {
 
 import type ActionLog from './actionLog';
 import type { LogEntry } from './actionLog';
-import { byStage, type Stage } from './attribution';
+import { byStage, type ManagerStage, type Stage } from './attribution';
 import { endpointId, entityId, parseRowId } from './model';
 import type { Scope, Step, View } from './nav';
 import { isPlainObject, temporalType } from './refs';
@@ -821,20 +821,22 @@ export function subjectFilter(
 }
 const NO_GAPS: ReadonlyMap<number, ChangeKind> = new Map();
 
-/** The store's filter (`base`) with its managers drawn as a pipeline: what
- * the `picked` stage took part in (see `byStage`), or, none
+/** The store's filter (`base`) with its managers (`chain`) drawn as a
+ * pipeline: what the `picked` stage took part in (see `byStage`), or, none
  * picked, also what the code's own managers kept from the store */
 export function stageFilter(
   base: SubjectFilter,
+  chain: readonly ManagerStage[],
   picked: Stage | null,
 ): SubjectFilter {
   if (picked !== null) {
     const hit = byStage(picked);
     return { ...base, hit, lists: hit };
   }
+  const own = new Set(chain.filter(stage => !stage.library));
   return {
     ...base,
-    hit: e => base.hit(e) || (!!e.consumedBy && !e.consumedBy.library),
+    hit: e => base.hit(e) || (!!e.consumedBy && own.has(e.consumedBy)),
   };
 }
 

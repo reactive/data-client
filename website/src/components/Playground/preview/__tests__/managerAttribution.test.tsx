@@ -555,14 +555,18 @@ describe('stageFilter', () => {
   const network = { className: 'NetworkManager', n: 1, library: true };
 
   it("lists all the store's actions, and stands on those the code's managers kept too", () => {
-    const filter = stageFilter(base, null);
+    const filter = stageFilter(base, [stream, network], null);
     expect(filter.lists).toBe(base.lists);
     expect(filter.hit({ consumedBy: stream } as any)).toBe(true);
     expect(filter.hit({ consumedBy: network } as any)).toBe(false);
+    // one the code no longer has isn't the code's managers' work
+    expect(
+      stageFilter(base, [network], null).hit({ consumedBy: stream } as any),
+    ).toBe(false);
   });
 
   it("narrows to a picked stage's actions", () => {
-    const filter = stageFilter(base, stream);
+    const filter = stageFilter(base, [stream, network], stream);
     expect(filter.lists({ origin: stream } as any)).toBe(true);
     expect(filter.lists({ store: {} } as any)).toBe(false);
   });
