@@ -5,6 +5,7 @@ sidebar_label: Desempenho
 
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import PosterVideo from '@site/src/components/PosterVideo';
 
 <head>
   <meta name="docsearch:pagerank" content="30"/>
@@ -54,6 +55,19 @@ orientar as otimizações da biblioteca e detectar regressões de desempenho ao 
 Desnormalização comparada com a biblioteca legada [normalizr](https://github.com/paularmstrong/normalizr).
 A memoização em nível de entity mantém a igualdade referencial global e
 acelera acessos repetidos, inclusive após [mutações](../getting-started/mutations.md).
+
+<PosterVideo
+  poster={useBaseUrl('/videos/docs/memocache-poster.jpg')}
+  duration="1:59"
+  volume={0.5}
+  alt="A desnormalização reconstrói cada post a partir dos ids, então, sem um cache, cada escrita entrega um novo objeto a cada linha. O MemoCache indexa cada resultado pelos objetos entity que leu, mantidos de forma fraca em um WeakDependencyMap. Renomear o User 7 reconstrói os posts 1 e 2, enquanto o post 3 mantém seu objeto, e o objeto antigo do usuário é coletado pelo garbage collector junto com os posts em cache que dependiam dele. Em comparação com o normalizr em uma lista grande, a desnormalização é 1,7× mais rápida sem o cache e 11,5× mais rápida em um cache hit."
+>
+  <source
+    src={useBaseUrl('/videos/docs/memocache.webm')}
+    type='video/webm; codecs="av01.0.08M.10, opus"'
+  />
+  <source src={useBaseUrl('/videos/docs/memocache.mp4')} type="video/mp4" />
+</PosterVideo>
 
 <center>
 

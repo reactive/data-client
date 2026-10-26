@@ -7,39 +7,49 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import SiteOnly from '@site/src/components/SiteOnly';
+import AgentOnly from '@site/src/components/AgentOnly';
+import DevtoolsDebugging from '../_agents/devtools-debugging.md';
+
+<SiteOnly>
 
 ## Depuração com agents {#debugging-with-agents}
 
-Para muitas tarefas de depuração, o caminho mais rápido é usar um agent que já conheça o fluxo de depuração do
-:react[`@data-client/react`]:vue[`@data-client/vue`].
+[`globalThis.__DC__`](../api/DevToolsManager.md#controllers) permite que agents inspecionem o store do Data Client do seu
+app em desenvolvimento: seu estado, ações e erros recentes, para que o seu agente de código depure o que você vê. Peça a ele:
 
-Instale a :react[[skill `data-client-react`](https://skills.sh/reactive/data-client/data-client-react)]:vue[[skill `data-client-vue`](https://skills.sh/reactive/data-client/data-client-vue)]
-no seu agent de código e então peça a ele que inspecione a página atual ou o estado do app.
+```prompt
+The todo list still shows the old title after I save. Find out why.
+```
 
-### Como funciona a depuração com agents {#how-agent-debugging-works}
+Com as [skills](./agent-skills.md) do Data Client configuradas, ele encontra a causa no store em vez de adivinhar pelo código. Ele
+precisa de uma ferramenta de navegador que execute JavaScript na página: o navegador do Cursor,
+o [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp),
+o [Playwright MCP](https://github.com/microsoft/playwright-mcp) ou o Claude in Chrome.
 
-No modo de desenvolvimento, o [DevToolsManager](../api/DevToolsManager.md) expõe instâncias ativas de `Controller` para que um agent possa inspecionar
-o estado do cache, os metadados dos endpoints e as actions despachadas diretamente do app em execução.
+Se a depuração não funcionar com o seu agent ou ferramenta de navegador, [abra uma issue](https://github.com/reactive/data-client/issues/new?template=bug_report.md&title=Agent%20debugging%3A%20)
+citando ambos para que possamos oferecer suporte. Ou peça ao seu agent que a escreva:
 
-Tecnicamente, esses controllers ficam armazenados em [`globalThis.__DC_CONTROLLERS__`](../api/DevToolsManager.md#controllers), que é um
-`Map` global do navegador. Você pode pensar nele como um registro temporário do modo de desenvolvimento que permite que ferramentas
-e agents localizem os stores ativos do :react[`DataProvider`]:vue[`DataClientPlugin`] da página atual.
+```prompt
+Debugging this app through globalThis.__DC__ didn't work with you and your browser tool. Search reactive/data-client issues for one about this pair; if there's none, draft a bug report from its .github/ISSUE_TEMPLATE/bug_report.md titled "Agent debugging: <agent> + <browser tool>" with both names and versions, the app's @data-client versions, whether globalThis.__DC__ was defined, what you ran and the exact error, and no app data or secrets. Show me the draft before filing it with gh issue create.
+```
 
-Em alto nível, o agent pode:
+</SiteOnly>
 
-- descobrir os controllers ativos do :react[`DataProvider`]:vue[`DataClientPlugin`]
-- ler o estado do cache normalizado ou desnormalizado
-- inspecionar fetches, respostas, erros e invalidações recentes
-- correlacionar mudanças no store com a atividade de rede do navegador
-- acionar operações seguras do controller, como invalidação ou expiração, para investigação
+<AgentOnly>
 
-Isso é útil quando você quer uma resposta rápida para perguntas como "por que isso não fez refetch?",
-"o que há no cache agora?" ou "qual action atualizou esta entity?" sem precisar
-navegar manualmente por cada painel do inspetor.
-
-A skill faz isso por meio do [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp).
+<DevtoolsDebugging />
 
 ## Depuração manual {#manual-debugging}
+
+Se o usuário quiser inspecionar o store por conta própria, envie-o para as etapas da extensão Redux DevTools em
+:react[https://dataclient.io/docs/getting-started/debugging#manual-debugging]:vue[https://dataclient.io/vue/getting-started/debugging#manual-debugging].
+
+</AgentOnly>
+
+<SiteOnly>
+
+## Depuração manual {#manual-debugging-1}
 
 Se você prefere inspecionar tudo por conta própria, o fluxo de devtools do navegador abaixo continua
 sendo o caminho manual padrão.
@@ -183,3 +193,5 @@ app.mount('#app');
 ```
 
 :::
+
+</SiteOnly>

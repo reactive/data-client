@@ -954,8 +954,8 @@
     "message": "延迟"
   },
   "agentPrompt.prompt": {
-    "message": "所有服务器状态都使用 `@data-client/{framework}`",
-    "description": "Prompt readers copy into their coding agent. Keep the backticks around package names: they keep each name on one line."
+    "message": "设置 `@data-client/{framework}`，并用它处理所有 API 数据。先安装它的 setup skill：`{command}`，然后按照它操作。",
+    "description": "Prompt readers copy into their coding agent; {command} is the shell command the agent runs. Keep the backticks around package names and the command: they keep each on one line."
   },
   "agentPrompt.copy": {
     "message": "复制给编程代理的提示词",
@@ -984,5 +984,9 @@
   "theme.CodeBlock.terminalTitle": {
     "message": "终端",
     "description": "Header of framed code blocks of shell commands"
+  },
+  "setupTabs.cursorNewChat": {
+    "message": "然后，在新的聊天中：",
+    "description": "Between Cursor's plugin install prompt and its setup prompt"
   }
 }

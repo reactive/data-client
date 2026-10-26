@@ -954,8 +954,8 @@
     "message": "retraso"
   },
   "agentPrompt.prompt": {
-    "message": "Usa `@data-client/{framework}` para todo el estado del servidor",
-    "description": "Prompt readers copy into their coding agent. Keep the backticks around package names: they keep each name on one line."
+    "message": "Configura `@data-client/{framework}` y úsalo para todos los datos de la API. Primero instala su skill de configuración: `{command}`, y luego síguela.",
+    "description": "Prompt readers copy into their coding agent; {command} is the shell command the agent runs. Keep the backticks around package names and the command: they keep each on one line."
   },
   "agentPrompt.copy": {
     "message": "Copiar el prompt para tu agente de programación",
@@ -984,5 +984,9 @@
   "theme.CodeBlock.terminalTitle": {
     "message": "Terminal",
     "description": "Header of framed code blocks of shell commands"
+  },
+  "setupTabs.cursorNewChat": {
+    "message": "Luego, en un chat nuevo:",
+    "description": "Between Cursor's plugin install prompt and its setup prompt"
   }
 }

@@ -7,39 +7,49 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import SiteOnly from '@site/src/components/SiteOnly';
+import AgentOnly from '@site/src/components/AgentOnly';
+import DevtoolsDebugging from '../_agents/devtools-debugging.md';
+
+<SiteOnly>
 
 ## 使用 agent 调试 {#debugging-with-agents}
 
-对于许多调试任务，最快的方式是使用一个已经掌握
-:react[`@data-client/react`]:vue[`@data-client/vue`] 调试流程的 agent。
+[`globalThis.__DC__`](../api/DevToolsManager.md#controllers) 让 agent 能够在开发环境中检查你应用的 Data Client
+store：它的状态、最近的 action 和错误，这样你的编程 agent 就能调试你所看到的问题。向它提问：
 
-在你的编程 agent 中安装 :react[[`data-client-react` skill](https://skills.sh/reactive/data-client/data-client-react)]:vue[[`data-client-vue` skill](https://skills.sh/reactive/data-client/data-client-vue)]，
-然后让它检查当前页面或应用的状态。
+```prompt
+The todo list still shows the old title after I save. Find out why.
+```
 
-### agent 调试的工作原理 {#how-agent-debugging-works}
+设置好 Data Client 的 [skill](./agent-skills.md) 后，它会在 store 中找到原因，而不是根据代码猜测。它
+需要一个能在页面中运行 JavaScript 的浏览器工具：Cursor 的浏览器、
+[Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp)、
+[Playwright MCP](https://github.com/microsoft/playwright-mcp) 或 Claude in Chrome。
 
-在开发模式下，[DevToolsManager](../api/DevToolsManager.md) 会暴露正在运行的 `Controller` 实例，让 agent 可以直接从运行中的应用里
-检查缓存状态、endpoint 元数据以及已 dispatch 的 action。
+如果调试无法在你的 agent 或浏览器工具上运行，请[提交 issue](https://github.com/reactive/data-client/issues/new?template=bug_report.md&title=Agent%20debugging%3A%20)
+并写明两者，以便我们提供支持。或者让你的 agent 来写：
 
-从技术上讲，这些 controller 存储在 [`globalThis.__DC_CONTROLLERS__`](../api/DevToolsManager.md#controllers) 上，它是一个
-浏览器全局的 `Map`。你可以把它看作一个临时的开发模式注册表，让工具
-和 agent 能够查找当前页面中活跃的 :react[`DataProvider`]:vue[`DataClientPlugin`] store。
+```prompt
+Debugging this app through globalThis.__DC__ didn't work with you and your browser tool. Search reactive/data-client issues for one about this pair; if there's none, draft a bug report from its .github/ISSUE_TEMPLATE/bug_report.md titled "Agent debugging: <agent> + <browser tool>" with both names and versions, the app's @data-client versions, whether globalThis.__DC__ was defined, what you ran and the exact error, and no app data or secrets. Show me the draft before filing it with gh issue create.
+```
 
-概括来说，agent 可以：
+</SiteOnly>
 
-- 发现活跃的 :react[`DataProvider`]:vue[`DataClientPlugin`] controller
-- 读取规范化或反规范化的缓存状态
-- 检查最近的请求、响应、错误和失效
-- 将 store 的变化与浏览器的网络活动关联起来
-- 为排查问题触发安全的 controller 操作，例如使数据失效或过期
+<AgentOnly>
 
-当你想快速回答“为什么这里没有重新获取？”、
-“缓存里现在有什么？”或“是哪个 action 更新了这个 Entity？”之类的问题，而又不想手动
-逐个点开检查面板时，这会非常有用。
-
-该 skill 通过 [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) 完成这些操作。
+<DevtoolsDebugging />
 
 ## 手动调试 {#manual-debugging}
+
+如果用户想自己检查 store，请引导他们参阅 Redux DevTools 扩展的步骤：
+:react[https://dataclient.io/docs/getting-started/debugging#manual-debugging]:vue[https://dataclient.io/vue/getting-started/debugging#manual-debugging]。
+
+</AgentOnly>
+
+<SiteOnly>
+
+## 手动调试 {#manual-debugging-1}
 
 如果你更愿意亲自检查一切，下面的浏览器 devtools 流程仍然是
 标准的手动方式。
@@ -183,3 +193,5 @@ app.mount('#app');
 ```
 
 :::
+
+</SiteOnly>

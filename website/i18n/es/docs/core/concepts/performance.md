@@ -5,6 +5,7 @@ sidebar_label: Performance
 
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import PosterVideo from '@site/src/components/PosterVideo';
 
 <head>
   <meta name="docsearch:pagerank" content="30"/>
@@ -18,6 +19,19 @@ mejoras de rendimiento significativas en aplicaciones interactivas ricas.
 
 Se mide el pipeline de renderizado completo (desde el fetch hasta el commit al DOM) en un navegador real mediante Playwright.[^setup]
 La línea base de React usa useEffect + useState de la documentación de React.[^config]
+
+<PosterVideo
+  poster={useBaseUrl('/videos/docs/memocache-poster.jpg')}
+  duration="1:59"
+  volume={0.5}
+  alt="La desnormalización reconstruye cada post a partir de ids, así que sin caché cada escritura entrega un objeto nuevo a cada fila. MemoCache indexa cada resultado por los objetos entity que leyó, retenidos débilmente en un WeakDependencyMap. Al renombrar al User 7 se reconstruyen los posts 1 y 2, mientras que el post 3 conserva su objeto, y el objeto de usuario anterior se recolecta como basura junto con los posts cacheados detrás de él. Frente a normalizr en una lista grande, desnormalizar es 1,7× más rápido sin la caché y 11,5× más rápido con un acierto de caché."
+>
+  <source
+    src={useBaseUrl('/videos/docs/memocache.webm')}
+    type='video/webm; codecs="av01.0.08M.10, opus"'
+  />
+  <source src={useBaseUrl('/videos/docs/memocache.mp4')} type="video/mp4" />
+</PosterVideo>
 
 <center>
 

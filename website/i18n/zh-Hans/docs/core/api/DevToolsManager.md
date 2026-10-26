@@ -88,26 +88,29 @@ const managers = getDefaultManagers({
 
 ## 以编程方式访问 store {#controllers}
 
-在开发模式下，`DevToolsManager` 会把每个 [Controller](/docs/api/Controller) 注册到
-`globalThis.__DC_CONTROLLERS__` 上，这是一个以 devtools 连接名为键的 `Map`。它还会以相同的键，在
-`globalThis.__DC_ACTIONS__` 上记录每个 Controller 最近派发的 action。无论是否安装了 Redux DevTools 扩展，它都适用于
-浏览器、React Native 和 Node。
+在开发模式下，`DevToolsManager` 会把页面的 store 放到 `globalThis.__DC__` 上：`__DC__.controller` 是它的
+[Controller](/docs/api/Controller)，`__DC__.actions` 是它最近派发的 action，包括页面加载期间派发的 action。无论是否安装了 Redux DevTools 扩展，它都适用于浏览器、React Native 和 Node。
 
 ```js title="Browser DevTools console"
-// List all registered providers
-__DC_CONTROLLERS__.keys();
+__DC__.controller.getState();
 
-// Get state from the first provider
-__DC_CONTROLLERS__.values().next().value.getState();
+// Last 10 actions
+__DC__.actions.slice(-10);
 
-// Get state by name
-__DC_CONTROLLERS__.get('Data Client: My App').getState();
+// Response for a key in the action log, without importing its endpoint
+const c = __DC__.controller;
+const a = __DC__.actions.findLast(
+  a => a.args && !a.endpoint?.sideEffect && a.key?.includes('/todos'),
+);
+c.getResponse(a.endpoint, ...a.args, c.getState()).data;
 
-// Last 10 actions, including the ones dispatched while the page loaded
-__DC_ACTIONS__.get('Data Client: My App').slice(-10);
+// With several stores, pick one by key
+__DC__.stores; // ['Data Client: My App', 'Data Client: My App (2)']
+__DC__.store = 'Data Client: My App (2)';
 ```
 
-这对使用 [Chrome DevTools MCP](https://developer.chrome.com/blog/chrome-devtools-mcp)
+这对使用能运行页面 JavaScript 的浏览器工具（例如
+Cursor 内置浏览器、[Chrome DevTools MCP](https://developer.chrome.com/blog/chrome-devtools-mcp) 或 [Playwright MCP](https://github.com/microsoft/playwright-mcp)）
 或 [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) 的 AI 编程助手很有用，它们可以借此以编程方式检查 store
 并与之交互。每个 :react[[DataProvider](/docs/api/DataProvider)]:vue[已安装的 [DataClientPlugin](./DataClientPlugin.md)] 都会独立注册，因此
 支持同一页面上存在多个 :react[provider]:vue[应用]。当某个名字已被占用时，下一个会注册为
@@ -116,8 +119,8 @@ __DC_ACTIONS__.get('Data Client: My App').slice(-10);
 
 action 日志最多保留 [`maxAge`](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#maxage) 两倍数量的
 action（默认 100 个），并像扩展一样跳过相同的重复 fetch。为了减少内存占用，只有
-最新的 20 个 action 会保留 `args` 和 `response`；更早的 action 只保留 `type`、`key`、`endpoint`、`meta` 和错误
-响应。当某个 endpoint 在[轮询](/rest/api/RestEndpoint#pollfrequency)时，日志对每个键（endpoint 与参数）只保留最后
+最新的 20 个 action 会保留 `response`；更早的 action 只保留 `type`、`key`、`endpoint`、`meta`、错误
+响应以及无副作用 endpoint 的 `args`。当某个 endpoint 在[轮询](/rest/api/RestEndpoint#pollfrequency)时，日志对每个键（endpoint 与参数）只保留最后
 `maxPollingActions` 个 action（默认 4 个，即最后两次轮询），这样轮询就不会把其他内容挤出去：
 
 <ProviderManagers imports={['getDefaultManagers']}>

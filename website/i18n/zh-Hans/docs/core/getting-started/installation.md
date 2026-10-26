@@ -12,33 +12,51 @@ import Installation from '../shared/\_installation.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
 import SiteOnly from '@site/src/components/SiteOnly';
-import AgentPrompt from '@site/src/components/AgentPrompt';
-import SkillTabs from '@site/src/components/SkillTabs';
+import SetupTabs from '@site/src/components/SetupTabs';
+import AgentOnly from '@site/src/components/AgentOnly';
 
 <SiteOnly>
 
-## 使用你的编程智能体 {#with-your-coding-agent}
+## 使用你的编程智能体进行设置 {#agent-setup}
 
-首先为你的编程智能体安装 Data Client 的 [skill](./agent-skills.md)。没有它们，智能体能把基础部分做对，
-但会遗漏其余部分，例如实时 manager 和测试 fixture。
+<SetupTabs />
 
-<SkillTabs intent={false} framed />
+无论你使用哪一种，你的智能体都会运行 Data Client 的设置 [skill](./agent-skills.md)，它会安装这些包、接好
+provider，并链接这些包附带的 skill，让你的智能体了解最新的 API，例如实时 manager 和测试
+fixture。这就是全部设置，你可以直接前往[定义数据](./resource)。
 
-然后告诉你的智能体：
+</SiteOnly>
 
-<AgentPrompt framed />
+<AgentOnly>
+
+要设置 Data Client，请在项目根目录安装它的设置 skill：
+
+```bash
+npx skills add reactive/data-client --skill data-client-setup -y
+```
+
+然后阅读 `.agents/skills/data-client-setup/SKILL.md` 并按照它操作。它会安装这些包、接好 provider，
+并链接这些包附带的 skill。下面的步骤是手动完成的相同设置。
+
+</AgentOnly>
+
+## 手动设置 {#manual-setup}
+
+<SiteOnly>
+
+这些步骤是不借助智能体的相同设置。如果你的智能体已运行了设置，请跳过它们：它已经完成了每一步。
 
 </SiteOnly>
 
 :::react
 
-## 手动安装 {#install-manually}
+### 安装包 {#install-manually}
 
 <PkgTabs pkgs="@data-client/react @data-client/test @data-client/rest" />
 
 :::
 
-## :react[在顶层组件中添加 provider]:vue[安装插件] {#add-provider-at-top-level-component}
+### :react[在顶层组件中添加 provider]:vue[安装插件] {#add-provider-at-top-level-component}
 
 :::vue
 
@@ -50,15 +68,31 @@ import SkillTabs from '@site/src/components/SkillTabs';
 
 <SiteOnly>
 
-你的编程智能体也可以通过 [TanStack Intent](https://tanstack.com/intent) 加载这些包附带的 skill，
-并与你安装的版本相匹配：
+### 链接智能体的 skill {#agent-skills}
+
+这些包为你的编程智能体附带了 skill，与你安装的版本相匹配。链接它们，让 Claude Code、
+Cursor 和 Codex 加载它们，并提交这些链接：
 
 ```bash
-npm install -D @tanstack/intent
-npx intent install
+npx --no data-client-skills
 ```
 
+在添加、移除或升级 `@data-client` 包后再次运行它。详情请参阅 [Agent Skills](./agent-skills.md)。
+
 </SiteOnly>
+
+<AgentOnly>
+
+然后在项目根目录链接已安装的包附带的 skill（与其版本相匹配），并提交这些
+链接：
+
+```bash
+npx --no data-client-skills
+```
+
+在添加、移除或升级 `@data-client` 包后再次运行它。
+
+</AgentOnly>
 
 <center>
 

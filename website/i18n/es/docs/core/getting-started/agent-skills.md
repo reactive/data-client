@@ -5,12 +5,20 @@ sidebar_label: Agent Skills
 ---
 
 import SkillTabs from '@site/src/components/SkillTabs';
+import AgentOnly from '@site/src/components/AgentOnly';
 
 ## Instala skills para obtener los mejores resultados {#install-skills-for-best-results}
 
 Los agentes aciertan con lo básico solo con el nombre del paquete. Las [skills](https://agentskills.io) les enseñan las
-APIs actuales para el resto, como los fixtures de prueba y los managers en tiempo real. Instala la skill
-[/data-client-setup](https://skills.sh/reactive/data-client/data-client-setup):
+APIs actuales para el resto, como los fixtures de prueba y los managers en tiempo real.
+
+Si tu aplicación ya tiene paquetes `@data-client`, enlaza las skills que incluyen, ajustadas a sus versiones:
+
+```bash framed
+npx --no data-client-skills
+```
+
+Si no, instala la skill [/data-client-setup](https://skills.sh/reactive/data-client/data-client-setup):
 
 <SkillTabs skill="data-client-setup" framed />
 
@@ -29,9 +37,11 @@ Para instalar ahora todas las skills de tu framework, sin dejar que tu agente ej
 
 <SkillTabs />
 
-En Claude Code, el plugin las instala en un solo paso. Con otros agentes,
-[TanStack Intent](https://tanstack.com/intent) carga las skills que cada paquete `@data-client/*` incluye para su versión,
-así que se actualizan con `npm update`. Su instalación añade una sección de carga de skills a tu `AGENTS.md`.
+La pestaña **Paquetes instalados** enlaza las skills que incluye cada paquete `@data-client/*` instalado en `.agents/skills`
+(con `.claude/skills` enlazando a esa carpeta), desde donde las cargan Claude Code, Cursor y Codex, ajustadas a la versión de ese paquete. Haz commit de los enlaces. Siguen a las actualizaciones,
+y al ejecutarlo de nuevo recoge las skills de los paquetes que añadas o actualices. En Windows, haz commit de los enlaces solo con el Modo de desarrollador activado y
+`git config core.symlinks true`; de lo contrario, déjalos sin commit y vuelve a ejecutar el comando después de instalar. Los plugins de Claude Code, Cursor y Codex configuran aplicaciones que aún no tienen Data
+Client. Si usas [TanStack Intent](https://tanstack.com/intent), este carga las mismas skills de los paquetes.
 
 ### Skills disponibles {#available-skills}
 
@@ -53,7 +63,7 @@ así que se actualizan con `npm update`. Su instalación añade una sección de 
 :::react
 
 - [**`/data-client-react`**](https://skills.sh/reactive/data-client/data-client-react) — usa `useSuspense`, `useFetch`, `useQuery`, `useLive`
-  y los hooks de mutación, y [depura tu aplicación en ejecución](./debugging.md#debugging-with-agents) con Chrome DevTools MCP.
+  y los hooks de mutación, y [depura tu aplicación en ejecución](./debugging.md#debugging-with-agents) desde una herramienta de navegador como el navegador de Cursor, Chrome DevTools MCP o Playwright MCP.
 - [**`/data-client-react-testing`**](https://skills.sh/reactive/data-client/data-client-react-testing) — escribe pruebas de React con `renderDataHook`,
   fixtures, interceptors y `nock`.
 
@@ -62,7 +72,7 @@ así que se actualizan con `npm update`. Su instalación añade una sección de 
 :::vue
 
 - [**`/data-client-vue`**](https://skills.sh/reactive/data-client/data-client-vue) — usa `useSuspense`, `useFetch`, `useQuery`, `useLive`
-  y los composables de mutación con `DataClientPlugin`, y [depura tu aplicación en ejecución](./debugging.md#debugging-with-agents) con Chrome DevTools MCP.
+  y los composables de mutación con `DataClientPlugin`, y [depura tu aplicación en ejecución](./debugging.md#debugging-with-agents) desde una herramienta de navegador como el navegador de Cursor, Chrome DevTools MCP o Playwright MCP.
 - [**`/data-client-vue-testing`**](https://skills.sh/reactive/data-client/data-client-vue-testing) — escribe pruebas de Vue con `renderDataCompose`,
   `mountDataClient`, fixtures y `nock`.
 
@@ -74,11 +84,10 @@ Explora el catálogo completo en [skills.sh/reactive/data-client](https://skills
 
 Para instalar los paquetes y añadir el provider tú mismo, sigue [Instalación](./installation.md).
 
-## Documentación para LLMs {#docs-for-llms}
+<AgentOnly>
 
-Los agentes sin skills pueden leer esta documentación como markdown simple, siguiendo la convención [llms.txt](https://llmstxt.org):
+Cada página de la documentación también está disponible como markdown añadiendo `.md` a su URL, por ejemplo :react[[/docs/api/useSuspense.md](https://dataclient.io/docs/api/useSuspense.md)]:vue[[/vue/api/useSuspense.md](https://dataclient.io/vue/api/useSuspense.md)].
+:react[[llms.txt](https://dataclient.io/llms.txt)]:vue[[llms.txt](https://dataclient.io/vue/llms.txt)] las lista todas, y
+:react[[llms-full.txt](https://dataclient.io/llms-full.txt)]:vue[[llms-full.txt](https://dataclient.io/vue/llms-full.txt)] contiene toda la documentación de :react[React]:vue[Vue], REST y GraphQL en un solo archivo.
 
-- :react[[llms.txt](https://dataclient.io/llms.txt)]:vue[[llms.txt](https://dataclient.io/vue/llms.txt)] — índice de todas las páginas, con enlaces al markdown de cada una
-- :react[[llms-full.txt](https://dataclient.io/llms-full.txt)]:vue[[llms-full.txt](https://dataclient.io/vue/llms-full.txt)] — toda la documentación de :react[React]:vue[Vue], REST y GraphQL en un solo archivo
-
-Cualquier página de la documentación también está disponible como markdown añadiendo `.md` a su URL, por ejemplo :react[[/docs/api/useSuspense.md](https://dataclient.io/docs/api/useSuspense.md)]:vue[[/vue/api/useSuspense.md](https://dataclient.io/vue/api/useSuspense.md)].
+</AgentOnly>

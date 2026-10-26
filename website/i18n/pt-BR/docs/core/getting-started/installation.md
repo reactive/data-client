@@ -12,33 +12,51 @@ import Installation from '../shared/\_installation.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
 import SiteOnly from '@site/src/components/SiteOnly';
-import AgentPrompt from '@site/src/components/AgentPrompt';
-import SkillTabs from '@site/src/components/SkillTabs';
+import SetupTabs from '@site/src/components/SetupTabs';
+import AgentOnly from '@site/src/components/AgentOnly';
 
 <SiteOnly>
 
-## Com o seu agente de código {#with-your-coding-agent}
+## Configurar com o seu agente de código {#agent-setup}
 
-Primeiro instale as [skills](./agent-skills.md) do Data Client para o seu agente de código. Sem elas, os agents acertam
-o básico, mas deixam passar o restante, como managers em tempo real e fixtures de teste.
+<SetupTabs />
 
-<SkillTabs intent={false} framed />
+Qualquer que seja a opção, o seu agent executa a [skill](./agent-skills.md) de configuração do Data Client, que instala os pacotes, configura o
+provider e vincula as skills que os pacotes incluem, para que o seu agent conheça as APIs atuais, como managers em tempo real e fixtures
+de teste. Essa é toda a configuração, então você pode ir direto para [Definir dados](./resource).
 
-Em seguida, diga ao seu agent:
+</SiteOnly>
 
-<AgentPrompt framed />
+<AgentOnly>
+
+Para configurar o Data Client, instale a skill de configuração a partir da raiz do projeto:
+
+```bash
+npx skills add reactive/data-client --skill data-client-setup -y
+```
+
+Em seguida, leia `.agents/skills/data-client-setup/SKILL.md` e siga-o. Ele instala os pacotes, configura o provider
+e vincula as skills que os pacotes incluem. As etapas abaixo são a mesma configuração feita manualmente.
+
+</AgentOnly>
+
+## Configurar manualmente {#manual-setup}
+
+<SiteOnly>
+
+Estas etapas são a mesma configuração sem um agent. Se o seu agent executou a configuração, pule-as: ele já fez cada uma delas.
 
 </SiteOnly>
 
 :::react
 
-## Instalar manualmente {#install-manually}
+### Instalar os pacotes {#install-manually}
 
 <PkgTabs pkgs="@data-client/react @data-client/test @data-client/rest" />
 
 :::
 
-## :react[Adicione o provider no componente de nível superior]:vue[Instale o plugin] {#add-provider-at-top-level-component}
+### :react[Adicione o provider no componente de nível superior]:vue[Instale o plugin] {#add-provider-at-top-level-component}
 
 :::vue
 
@@ -50,15 +68,32 @@ Instale o [plugin do Vue](https://vuejs.org/guide/reusability/plugins.html) ao c
 
 <SiteOnly>
 
-Seu agente de código também pode carregar as skills que esses pacotes incluem, correspondentes à versão que você instalou, com o
-[TanStack Intent](https://tanstack.com/intent):
+### Vincule as skills do seu agent {#agent-skills}
+
+Os pacotes incluem skills para o seu agente de código, correspondentes à versão que você instalou. Vincule-as para que o Claude Code,
+o Cursor e o Codex as carreguem, e faça commit dos links:
 
 ```bash
-npm install -D @tanstack/intent
-npx intent install
+npx --no data-client-skills
 ```
 
+Execute-o novamente depois de adicionar, remover ou atualizar pacotes `@data-client`. Veja [Agent Skills](./agent-skills.md) para
+mais detalhes.
+
 </SiteOnly>
+
+<AgentOnly>
+
+Em seguida, a partir da raiz do projeto, vincule as skills que os pacotes instalados incluem, correspondentes às suas versões, e faça commit dos
+links:
+
+```bash
+npx --no data-client-skills
+```
+
+Execute-o novamente depois de adicionar, remover ou atualizar pacotes `@data-client`.
+
+</AgentOnly>
 
 <center>
 

@@ -3,151 +3,164 @@ title: Migrar de Axios a Reactive Data Client
 sidebar_label: Migración desde Axios
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
-import SkillTabs from '@site/src/components/SkillTabs';
+import PkgTabs from '@site/src/components/PkgTabs';
+import DiffEditor from '@site/src/components/DiffEditor';
 import SiteOnly from '@site/src/components/SiteOnly';
+import AgentOnly from '@site/src/components/AgentOnly';
 
 # Migrar desde Axios
 
-[`@data-client/rest`](/rest) reemplaza axios con un enfoque declarativo y con tipado seguro para las APIs REST.
+[`@data-client/rest`](/rest) reemplaza las llamadas de axios con definiciones de endpoints tipadas. Los componentes siguen llamándolas directamente,
+así que la forma en que la aplicación carga y almacena los datos no cambia; solo cambia la forma de la llamada. Un [codemod](#codemod) convierte las llamadas; los
+[pasos](#steps) de abajo cubren el resto.
 
 <SiteOnly>
 
-## Migración asistida por IA {#skill}
+## Migra con tu agente de programación {#agent}
 
-Instala el skill de configuración de REST para automatizar la migración con tu asistente de programación con IA. Detecta automáticamente axios en tu proyecto y ejecuta el [codemod](#codemod) para las transformaciones deterministas; después te guía por los pasos manuales que requieren criterio (interceptores, manejo de errores, definiciones de schemas, etc.).
-
-<SkillTabs repo="reactive/data-client" skills={['data-client-schema', 'data-client-rest-setup', 'data-client-rest']} />
-
-Luego inicia la migración en el chat de tu agente. Detectará axios y aplicará automáticamente el subprocedimiento de migración adecuado.
+Pega esto en el chat de tu agente:
 
 ```prompt
-/data-client-rest-setup
+Replace this app's axios calls with `@data-client/rest` endpoints, without changing how components load or store data. Install the REST setup skill first: `npx skills add reactive/data-client --skill data-client-rest-setup -y`, then read `.agents/skills/data-client-rest-setup/SKILL.md` and follow it.
 ```
+
+La [skill](/docs/getting-started/agent-skills) de configuración de REST sigue esta guía: ejecuta el codemod y luego recorre
+los [pasos](#steps) que el codemod no puede hacer. Revisa su diff como el de un compañero de equipo.
 
 </SiteOnly>
 
+<AgentOnly>
+
+Para migrar una aplicación desde axios, instala la skill de configuración de REST desde la raíz del proyecto:
+
+```bash
+npx skills add reactive/data-client --skill data-client-rest-setup -y
+```
+
+Luego lee `.agents/skills/data-client-rest-setup/SKILL.md` y síguela; detecta axios y sigue los
+[pasos](#steps) de abajo. Reemplaza únicamente las llamadas de axios y sus definiciones: deja los componentes, la carga de datos y la gestión
+del estado como están, a menos que el usuario pida cambiarlos.
+
+</AgentOnly>
+
 ## ¿Por qué migrar? {#why-migrate}
 
-### Rutas con tipado seguro {#type-safe-paths}
+<DiffEditor caption="La URL se declara una sola vez: los parámetros de la ruta se tipan y codifican a partir de la plantilla `path`, y el resto pasa a la cadena de consulta. Las llamadas no cambian.">
 
-Con axios, las rutas de la API son cadenas opacas: los errores tipográficos y los parámetros que faltan solo se detectan en tiempo de ejecución:
+```ts title="Before"
+const getComments = ({
+  userId,
+  postId,
+  sort,
+}: {
+  userId: string;
+  postId: string;
+  sort?: 'newest' | 'top';
+}) =>
+  // callout: Each parameter is typed, encoded and placed by hand, and nothing checks the template against the type.
+  axios.get(
+    `/users/${encodeURIComponent(userId)}/posts/${encodeURIComponent(postId)}/comments`,
+    { params: { sort } },
+  );
 
-```ts
-// axios: no type checking — typo silently produces wrong URL
-axios.get(`/users/${usrId}`);
+getComments({ userId: user.id, postId: post.id, sort: 'newest' });
 ```
 
-Con [`RestEndpoint`](../api/RestEndpoint.md), los parámetros de la ruta se infieren de la plantilla `path` y se exigen en tiempo de compilación:
+```ts title="After"
+const getComments = new RestEndpoint({
+  // callout: `userId` and `postId` are typed and encoded from the template, so a missing or misspelled one is a compile error.
+  path: '/users/:userId/posts/:postId/comments',
+  searchParams: {} as { sort?: 'newest' | 'top' },
+});
 
-```ts
-const getUser = new RestEndpoint({ path: '/users/:id', schema: User });
-// TypeScript enforces { id: string } — typos are compile errors
-getUser({ id: '1' });
+getComments({ userId: user.id, postId: post.id, sort: 'newest' });
 ```
 
-Esto también significa que el autocompletado del IDE funciona para cada parámetro de la ruta.
+</DiffEditor>
 
-### Ventajas adicionales {#additional-benefits}
+- **Tipado de extremo a extremo**: los parámetros de la ruta, los cuerpos y las respuestas se tipan a partir de cada definición.
+- **Menos código**: [`resource()`](../api/resource.md) crea una API CRUD completa a partir de un `path` y un `schema`.
+- **Un solo lugar para el comportamiento de las peticiones**: los métodos de un endpoint base reemplazan a los interceptores y a la configuración por llamada.
+- **Listo para el store**: los mismos endpoints y schemas funcionan con [`useSuspense()`](/docs/api/useSuspense) y la
+  caché normalizada, cuando decidas adoptarlos.
 
-- **Caché normalizada** — las entidades compartidas se deduplican y se actualizan automáticamente en todas partes
-- **Dependencias de datos declarativas** — los componentes declaran qué datos necesitan mediante [`useSuspense()`](/docs/api/useSuspense), no cómo obtenerlos
-- **Actualizaciones optimistas** — respuesta instantánea en la interfaz antes de que responda el servidor
-- **Cero código repetitivo** — [`resource()`](../api/resource.md) genera una API CRUD completa a partir de un `path` y un `schema`
+## Migra paso a paso {#steps}
 
-## Referencia rápida {#quick-reference}
+<SiteOnly>
 
-| Axios                                    | @data-client/rest                                                                                                                                        |
-| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `baseURL`                                | [`urlPrefix`](../api/RestEndpoint.md#urlPrefix)                                                                                                          |
-| configuración `headers`                  | [`getHeaders()`](../api/RestEndpoint.md#getHeaders)                                                                                                      |
-| `interceptors.request`                   | [`getRequestInit()`](../api/RestEndpoint.md#getRequestInit) / [`getHeaders()`](../api/RestEndpoint.md#getHeaders)                                        |
-| `interceptors.response`                  | [`parseResponse()`](../api/RestEndpoint.md#parseResponse) / [`process()`](../api/RestEndpoint.md#process)                                                |
-| `timeout`                                | [`AbortSignal.timeout()`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/timeout_static) mediante `signal`                                  |
-| `params` / `paramsSerializer`            | [`searchParams`](../api/RestEndpoint.md#searchParams) / [`searchToString()`](../api/RestEndpoint.md#searchToString)                                      |
-| `cancelToken` / `signal`                 | `signal` ([AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController))                                                           |
-| `responseType: 'blob'` / `'arraybuffer'` | [`content: 'blob'`](../api/RestEndpoint.md#content) / `'arrayBuffer'` — consulta la [descarga de archivos](./network-transform.md#file-download)                        |
-| `auth: { username, password }`           | [`getHeaders()`](../api/RestEndpoint.md#getHeaders) con `btoa()`                                                                                          |
-| `xsrfCookieName` / `xsrfHeaderName`      | [`getHeaders()`](../api/RestEndpoint.md#getHeaders) — consulta la [integración con Django](./django.md)                                                              |
-| `transformRequest`                       | [`getRequestInit()`](../api/RestEndpoint.md#getRequestInit)                                                                                              |
-| `transformResponse`                      | [`process()`](../api/RestEndpoint.md#process)                                                                                                            |
-| `validateStatus`                         | [`fetchResponse()`](../api/RestEndpoint.md#fetchResponse) personalizado                                                                                  |
-| `onUploadProgress`                       | [`fetchResponse()`](../api/RestEndpoint.md#fetchResponse) personalizado con [XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) |
-| `isAxiosError` / `error.response`        | [`NetworkError`](../api/RestEndpoint.md#fetchResponse) con `.status` y `.response`                                                                    |
+Estos son los pasos que sigue tu agente. Haz commit antes de cada uno, para poder revisar su diff.
 
-## Ejemplos de migración {#migration-examples}
+</SiteOnly>
 
-### GET básico {#basic-get}
+### 1. Instala {#install}
 
-<Tabs
-defaultValue="before"
-values={[
-{ label: 'Before (axios)', value: 'before' },
-{ label: 'After (data-client)', value: 'after' },
-]}>
-<TabItem value="before">
+<PkgTabs pkgs="@data-client/rest" />
 
-```ts title="api.ts"
+### 2. Ejecuta el codemod {#codemod}
+
+Un codemod de [jscodeshift](https://github.com/facebook/jscodeshift) se encarga de la parte mecánica. Haz commit primero y luego ejecútalo en
+tus carpetas de código fuente, nunca en la raíz del repositorio:
+
+```bash
+npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/
+```
+
+<DiffEditor caption="Cada llamada de axios se convierte en una llamada a un endpoint. Los parámetros de la ruta, `params` y el cuerpo pasan a ser sus argumentos, y se resuelve con el cuerpo, por lo que `.data` desaparece.">
+
+```ts title="Before"
 import axios from 'axios';
 
-export const getUser = (id: string) =>
-  axios.get(`https://api.example.com/users/${id}`);
-```
+const api = axios.create({ baseURL: 'https://api.example.com' });
 
-```ts title="usage.ts"
-const { data } = await getUser('1');
-```
+export async function getPost(id: string) {
+  const res = await api.get(`/posts/${id}`);
+  return res.data;
+}
 
-</TabItem>
-<TabItem value="after">
-
-<EndpointPlayground input="https://api.example.com/users/1" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={{ "id": "1", "username": "alice", "email": "alice@example.com" }}>
-
-```ts title="User" collapsed
-import { Entity } from '@data-client/rest';
-
-export default class User extends Entity {
-  id = '';
-  username = '';
-  email = '';
-  static key = 'User';
+export async function createPost(body: { title: string }) {
+  const { data } = await api.post('/posts', body);
+  return data;
 }
 ```
 
-```ts title="api"
-import { RestEndpoint } from '@data-client/rest';
-import User from './User';
+```ts title="After"
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
 
-export const getUser = new RestEndpoint({
-  urlPrefix: 'https://api.example.com',
-  path: '/users/:id',
-  schema: User,
-});
+class ApiEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+  urlPrefix = 'https://api.example.com';
+}
+
+export async function getPost(id: string) {
+  const res = await new ApiEndpoint({ path: '/posts/:id' })({ id });
+  return res;
+}
+
+export async function createPost(body: { title: string }) {
+  const data = await new ApiEndpoint({ path: '/posts', method: 'POST' })(
+    body,
+  );
+  return data;
+}
 ```
 
-```ts title="Usage" column
-import { getUser } from './api';
-getUser({ id: '1' });
-```
+</DiffEditor>
 
-</EndpointPlayground>
+Lo que no puede convertir, como los interceptores, `timeout`, `isAxiosError()` o una función que devuelve la respuesta de axios
+a quienes la llaman, recibe un comentario `// TODO(data-client):` con un enlace a la sección de abajo que lo cubre. Busca
+`TODO(data-client)` y resuelve cada uno a medida que avanzas por los siguientes pasos.
 
-</TabItem>
-</Tabs>
+Si el proyecto envuelve axios en su propia clase o función y nunca llama a `axios.get()` o `.post()` directamente, o solo
+llama a `axios(config)`, el codemod tiene poco que hacer. Sáltalo y empieza en el [paso 3](#base-endpoint).
 
-### Instancia con URL base y cabeceras {#instance-with-base-url-and-headers}
+### 3. Mueve los interceptores a un endpoint base {#base-endpoint}
 
-<Tabs
-defaultValue="before"
-values={[
-{ label: 'Before (axios)', value: 'before' },
-{ label: 'After (data-client)', value: 'after' },
-]}>
-<TabItem value="before">
+Los interceptores de axios y la configuración de la instancia pasan a ser métodos de una subclase de `RestEndpoint` que extienden todos los endpoints. El
+codemod crea esta clase a partir de `axios.create()`; mueve los interceptores a ella.
 
-```ts title="api.ts"
+<DiffEditor caption="`RestEndpoint` analiza el JSON por sí mismo, así que un interceptor que solo extrae `response.data` ya no tiene nada que hacer.">
+
+```ts title="Before"
 import axios from 'axios';
 
 const api = axios.create({
@@ -155,158 +168,17 @@ const api = axios.create({
   headers: { 'X-API-Key': 'my-key' },
 });
 
-export const getPost = (id: string) => api.get(`/posts/${id}`);
-export const createPost = (data: any) => api.post('/posts', data);
-```
-
-</TabItem>
-<TabItem value="after">
-
-<EndpointPlayground input="https://api.example.com/posts/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'X-API-Key': 'my-key'}}} status={200} response={{ "id": "1", "title": "Hello World", "body": "First post" }}>
-
-```ts title="Post" collapsed
-import { Entity } from '@data-client/rest';
-
-export default class Post extends Entity {
-  id = '';
-  title = '';
-  body = '';
-  static key = 'Post';
-}
-```
-
-```ts title="ApiEndpoint"
-import { RestEndpoint, RestGenerics } from '@data-client/rest';
-
-export default class ApiEndpoint<
-  O extends RestGenerics = any,
-> extends RestEndpoint<O> {
-  urlPrefix = 'https://api.example.com';
-
-  getHeaders(headers: HeadersInit) {
-    return {
-      ...headers,
-      'X-API-Key': 'my-key',
-    };
-  }
-}
-```
-
-```ts title="PostResource" collapsed
-import { resource } from '@data-client/rest';
-import ApiEndpoint from './ApiEndpoint';
-import Post from './Post';
-
-export const PostResource = resource({
-  path: '/posts/:id',
-  schema: Post,
-  Endpoint: ApiEndpoint,
-});
-```
-
-```ts title="Usage" column
-import { PostResource } from './PostResource';
-PostResource.get({ id: '1' });
-```
-
-</EndpointPlayground>
-
-</TabItem>
-</Tabs>
-
-### Mutación POST {#post-mutation}
-
-<Tabs
-defaultValue="before"
-values={[
-{ label: 'Before (axios)', value: 'before' },
-{ label: 'After (data-client)', value: 'after' },
-]}>
-<TabItem value="before">
-
-```ts title="api.ts"
-import axios from 'axios';
-
-const api = axios.create({ baseURL: 'https://api.example.com' });
-
-export const createPost = (data: { title: string; body: string }) =>
-  api.post('/posts', data);
-```
-
-</TabItem>
-<TabItem value="after">
-
-<EndpointPlayground input="https://api.example.com/posts" init={{method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{"title":"New Post","body":"Content"}'}} status={201} response={{ "id": "2", "title": "New Post", "body": "Content" }}>
-
-```ts title="Post" collapsed
-import { Entity } from '@data-client/rest';
-
-export default class Post extends Entity {
-  id = '';
-  title = '';
-  body = '';
-  static key = 'Post';
-}
-```
-
-```ts title="PostResource"
-import { resource } from '@data-client/rest';
-import Post from './Post';
-
-export const PostResource = resource({
-  urlPrefix: 'https://api.example.com',
-  path: '/posts/:id',
-  schema: Post,
-});
-```
-
-```ts title="Usage" column
-import { PostResource } from './PostResource';
-PostResource.getList.push({
-  title: 'New Post',
-  body: 'Content',
-});
-```
-
-</EndpointPlayground>
-
-</TabItem>
-</Tabs>
-
-### Interceptores → métodos del ciclo de vida {#interceptors--lifecycle-methods}
-
-Los interceptores de axios se corresponden con los métodos del ciclo de vida de [RestEndpoint](../api/RestEndpoint.md):
-
-<Tabs
-defaultValue="before"
-values={[
-{ label: 'Before (axios)', value: 'before' },
-{ label: 'After (data-client)', value: 'after' },
-]}>
-<TabItem value="before">
-
-```ts title="api.ts"
-import axios from 'axios';
-
-const api = axios.create({ baseURL: 'https://api.example.com' });
-
-// Request interceptor — add auth token
 api.interceptors.request.use(config => {
   config.headers.Authorization = `Bearer ${getToken()}`;
   return config;
 });
 
-// Response interceptor — unwrap .data
-api.interceptors.response.use(
-  response => response.data,
-  error => Promise.reject(error),
-);
+api.interceptors.response.use(response => response.data);
+
+export default api;
 ```
 
-</TabItem>
-<TabItem value="after">
-
-```ts title="ApiEndpoint.ts"
+```ts title="After"
 import { RestEndpoint, RestGenerics } from '@data-client/rest';
 
 export default class ApiEndpoint<
@@ -314,79 +186,31 @@ export default class ApiEndpoint<
 > extends RestEndpoint<O> {
   urlPrefix = 'https://api.example.com';
 
-  // Equivalent to request interceptor
+  // callout: Runs before every request, like a request interceptor. It can be `async`, to refresh a token first.
   getHeaders(headers: HeadersInit) {
     return {
       ...headers,
+      'X-API-Key': 'my-key',
       Authorization: `Bearer ${getToken()}`,
     };
   }
-
-  // Equivalent to response interceptor (unwrap/transform)
-  process(value: any, ...args: any) {
-    return value;
-  }
 }
 ```
 
-</TabItem>
-</Tabs>
+</DiffEditor>
 
-:::tip
+Los interceptores de respuesta que modifican el cuerpo, como convertir claves `snake_case`, van en
+[`process()`](../api/RestEndpoint.md#process); consulta [de snake a camel](./network-transform.md#snakes-to-camels).
 
-`RestEndpoint` ya devuelve el JSON analizado de forma predeterminada; no hace falta ningún interceptor para extraer `response.data`.
-
-:::
-
-Los interceptores de respuesta que transforman el cuerpo, como convertir claves `snake_case`, pertenecen a [`process()`](../api/RestEndpoint.md#process). Consulta [de snake a camel](./network-transform.md#snakes-to-camels) para ver un ejemplo completo.
-
-### Manejo de errores {#error-handling}
-
-<Tabs
-defaultValue="before"
-values={[
-{ label: 'Before (axios)', value: 'before' },
-{ label: 'After (data-client)', value: 'after' },
-]}>
-<TabItem value="before">
-
-```ts
-import axios from 'axios';
-
-try {
-  const { data } = await axios.get('/users/1');
-} catch (err) {
-  if (axios.isAxiosError(err)) {
-    console.log(err.response?.status);
-    console.log(err.response?.data);
-  }
-}
-```
-
-</TabItem>
-<TabItem value="after">
-
-```ts
-import { NetworkError } from '@data-client/rest';
-
-try {
-  const user = await getUser({ id: '1' });
-} catch (err) {
-  if (err instanceof NetworkError) {
-    console.log(err.status);
-    console.log(err.response);
-  }
-}
-```
-
-[`NetworkError`](../api/RestEndpoint.md#fetchResponse) proporciona `.status` y `.response` (el objeto [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) sin procesar). Para reintentos suaves ante errores del servidor, consulta [`errorPolicy`](../api/RestEndpoint.md#errorpolicy).
-
-</TabItem>
-</Tabs>
+Cuando un interceptor de respuesta devolvía `response.data`, el `.data` de quien llamaba leía un campo del cuerpo, no la respuesta de axios,
+así que consérvalo. El codemod marca estas llamadas cuando el interceptor está en el mismo archivo; si un
+`axios.interceptors.response` global vive en otro archivo, revisa el `.data` que quitó de las llamadas de allí.
 
 #### Mensajes de error del servidor {#server-error-messages}
 
-Es habitual que las bases de código con axios muestren al usuario `error.response.data.error` o `.message`. En su lugar, léelo una sola vez del cuerpo de la `Response`, en el [`fetchResponse()`](../api/RestEndpoint.md#fetchResponse) de la clase base, de modo que los puntos de llamada lo obtengan de `error.message` sin analizar el cuerpo:
+Es habitual que las bases de código con axios muestren al usuario `error.response.data.error` o `.message`. Léelo una sola vez del cuerpo de la `Response`,
+en el [`fetchResponse()`](../api/RestEndpoint.md#fetchResponse) de la clase base, de modo que los puntos de llamada lo obtengan de
+`error.message`:
 
 ```ts title="ApiEndpoint.ts"
 import {
@@ -416,89 +240,396 @@ export default class ApiEndpoint<
 }
 ```
 
-### Cancelación {#cancellation}
+#### Abstracciones de endpoint existentes {#existing-endpoint-abstractions}
 
-<Tabs
-defaultValue="before"
-values={[
-{ label: 'Before (axios)', value: 'before' },
-{ label: 'After (data-client)', value: 'after' },
-]}>
-<TabItem value="before">
+Una clase de endpoint personalizada que envuelve axios (por ejemplo, una con `path`, `method` y un ayudante `toDynamicUrl()`) puede extender
+`RestEndpoint` en lugar de ser reemplazada. Conserva sus métodos retrocompatibles y gana
+[`url()`](../api/RestEndpoint.md#url), [`getRequestInit()`](../api/RestEndpoint.md#getRequestInit),
+[`fetchResponse()`](../api/RestEndpoint.md#fetchResponse) y [`parseResponse()`](../api/RestEndpoint.md#parseResponse):
 
 ```ts
-import axios from 'axios';
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
 
-const controller = new AbortController();
-axios.get('/users', { signal: controller.signal });
-controller.abort();
+export class LegacyEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  urlPrefix = API_ROOT;
+  declare queryKey?: string;
+
+  /** @deprecated use url() */
+  toDynamicUrl = this.url;
+}
+
+const getUser = new LegacyEndpoint({
+  path: '/users/:id',
+  queryKey: 'user',
+  schema: User,
+});
 ```
 
-O con el `CancelToken`, ya obsoleto:
+Pasa miembros adicionales como `queryKey` como opciones en lugar de usar un constructor personalizado, para que
+[`extend()`](../api/RestEndpoint.md#extend) (usado por `resource()`, `hookifyResource()` y `useCancelling()`) siga
+funcionando.
 
-```ts
-const source = axios.CancelToken.source();
-axios.get('/users', { cancelToken: source.token });
-source.cancel();
+#### Autenticación basada en contexto {#context-based-auth}
+
+Cuando los tokens provienen de :react[el contexto de React]:vue[`inject()`] (Okta, Auth0) en lugar del almacenamiento, `getHeaders()` no puede
+leerlos. Usa [`hookifyResource()`](../api/hookifyResource.md) para añadir las cabeceras mediante :react[un hook]:vue[un composable]. Consulta la
+[guía de autenticación](./auth.md) para este y otros patrones.
+
+### 4. Define entities y resources {#entities}
+
+El codemod crea endpoints sin `schema`. Define una [Entity](../api/Entity.md) para cada tipo que devuelve la API: sus
+campos, sus tipos y su clave primaria. Reemplaza las funciones CRUD de cada módulo que usan una misma ruta por un
+[`resource()`](../api/resource.md):
+
+<DiffEditor caption="Un solo `resource()` reemplaza a un módulo de funciones CRUD, y `schema` tipa cada respuesta.">
+
+```ts title="Before"
+import api from './api';
+
+export interface Post {
+  id: string;
+  title: string;
+  body: string;
+}
+
+export const getPosts = () => api.get<Post[]>('/posts');
+export const getPost = (id: string) => api.get<Post>(`/posts/${id}`);
+export const createPost = (data: Omit<Post, 'id'>) =>
+  api.post<Post>('/posts', data);
+export const updatePost = (id: string, data: Partial<Post>) =>
+  api.patch<Post>(`/posts/${id}`, data);
+export const deletePost = (id: string) => api.delete(`/posts/${id}`);
 ```
 
-</TabItem>
-<TabItem value="after">
+```ts title="After"
+import { Entity, resource } from '@data-client/rest';
+import ApiEndpoint from './ApiEndpoint';
 
-Ambos se corresponden con un `signal` de [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController). El hook [`useCancelling()`](/docs/api/useCancelling) cancela automáticamente las peticiones en curso cuando cambian los parámetros:
+export class Post extends Entity {
+  id = '';
+  title = '';
+  body = '';
+  static key = 'Post';
+}
 
-```tsx
-import { useSuspense } from '@data-client/react';
-import { useCancelling } from '@data-client/react';
-import { searchEndpoint } from './api/search';
-import ResultsList from './ResultsList';
+// callout: Gives `getList`, `get`, `getList.push`, `update`, `partialUpdate` and `delete`, all typed.
+export const PostResource = resource({
+  path: '/posts/:id',
+  schema: Post,
+  Endpoint: ApiEndpoint,
+});
+```
 
-function SearchResults({ query }: { query: string }) {
-  const results = useSuspense(useCancelling(searchEndpoint), { q: query });
-  return <ResultsList results={results} />;
+</DiffEditor>
+
+Prueba el resultado con una API simulada:
+
+<EndpointPlayground input="https://api.example.com/posts/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'X-API-Key': 'my-key'}}} status={200} response={{ "id": "1", "title": "Hello World", "body": "First post" }}>
+
+```ts title="Post" collapsed
+import { Entity } from '@data-client/rest';
+
+export default class Post extends Entity {
+  id = '';
+  title = '';
+  body = '';
+  static key = 'Post';
 }
 ```
 
-Para la cancelación manual, pasa `signal` directamente:
+```ts title="ApiEndpoint" collapsed
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
+
+export default class ApiEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  urlPrefix = 'https://api.example.com';
+
+  getHeaders(headers: HeadersInit) {
+    return {
+      ...headers,
+      'X-API-Key': 'my-key',
+    };
+  }
+}
+```
+
+```ts title="PostResource"
+import { resource } from '@data-client/rest';
+import ApiEndpoint from './ApiEndpoint';
+import Post from './Post';
+
+export const PostResource = resource({
+  path: '/posts/:id',
+  schema: Post,
+  Endpoint: ApiEndpoint,
+});
+```
+
+```ts title="Usage" column
+import { PostResource } from './PostResource';
+PostResource.get({ id: '1' });
+```
+
+</EndpointPlayground>
+
+Las rutas anidadas como `/projects/:projectId/tasks/:taskId` tienen su propio resource. Conserva `new ApiEndpoint()` independiente para
+las operaciones que no son CRUD, como la búsqueda, las acciones personalizadas y la autenticación.
+
+:::warning
+
+No definas clases Entity y luego dejes `schema` sin definir en los endpoints: sin `schema`, las respuestas pierden sus
+tipos y el store no puede normalizarlas cuando lo adoptes.
+
+:::
+
+#### Claves primarias no estándar {#non-standard-primary-keys}
+
+Muchas APIs (MongoDB, por ejemplo) usan `_id` en lugar de `id`. Sobrescribe [`pk()`](../api/Entity.md#pk):
 
 ```ts
-const controller = new AbortController();
-const getUser = new RestEndpoint({
-  path: '/users/:id',
-  signal: controller.signal,
+import { Entity } from '@data-client/rest';
+
+export class User extends Entity {
+  _id = '';
+  name = '';
+  email = '';
+  static key = 'User';
+
+  pk() {
+    return this._id;
+  }
+}
+```
+
+#### Tipado del cuerpo {#body-typing}
+
+Tipa el cuerpo de los endpoints `POST`, `PUT` y `PATCH` independientes con `body: {} as BodyType`. No uses
+`undefined as unknown as BodyType`: `RestEndpoint` trata [`body`](../api/RestEndpoint.md#body)`: undefined` como si no hubiera
+argumento de cuerpo. [`resource()`](../api/resource.md) tipa por sí mismo los cuerpos de sus endpoints.
+
+```ts
+const createUser = new ApiEndpoint({
+  path: '/users',
+  method: 'POST',
+  body: {} as { name: string; email: string },
+  schema: User,
 });
+```
+
+#### Convivir con Zod o Yup {#coexisting-with-zod-or-yup}
+
+Si la base de código ya valida las respuestas con Zod o Yup, elige un enfoque por tipo:
+
+- **Zod en `process()`** (recomendado): mantén la validación en tiempo de ejecución analizando en
+  [`process()`](../api/RestEndpoint.md#process), y deja que la Entity se encargue de la normalización:
+
+  ```ts
+  const getUser = new ApiEndpoint({
+    path: '/users/:id',
+    schema: User,
+    process(value: any) {
+      return userSchema.parse(value);
+    },
+  });
+  ```
+
+- **La Entity reemplaza a Zod**: mueve la forma de los campos a la clase Entity y elimina el schema de Zod. Los campos de la Entity aportan
+  tipos, no comprobaciones en tiempo de ejecución, así que añade [`static validate()`](../api/Entity.md#validate) para cualquier campo que el servidor pueda
+  enviar mal formado.
+- **Solo Zod, sin Entity**: deja `schema` sin definir y analiza manualmente. Hazlo solo en los endpoints que no se benefician de la
+  normalización (tokens de autenticación, respuestas puntuales).
+
+### 5. Actualiza los puntos de llamada {#call-sites}
+
+Los componentes y servicios conservan su propia carga y estado; solo cambia la llamada.
+
+<DiffEditor caption="Los endpoints se resuelven con el cuerpo ya analizado, por lo que `.data` desaparece, y los parámetros pasan a ser un único objeto.">
+
+```ts title="Before"
+import { createPost, getPost, getPosts } from './api/posts';
+
+const { data: posts } = await getPosts();
+const { data: post } = await getPost('1');
+const { data: created } = await createPost({ title: 'Hello', body: '' });
+```
+
+```ts title="After"
+import { PostResource } from './api/posts';
+
+const posts = await PostResource.getList();
+const post = await PostResource.get({ id: '1' });
+const created = await PostResource.getList.push({
+  title: 'Hello',
+  body: '',
+});
+```
+
+</DiffEditor>
+
+Leer estos endpoints a través del store, con [`useSuspense()`](/docs/api/useSuspense) y la caché normalizada, es un
+paso aparte que puedes dar más adelante; consulta [las dependencias de datos](/docs/getting-started/data-dependency).
+
+### 6. Migra el manejo de errores {#error-handling}
+
+<DiffEditor caption="`NetworkError` tiene el `status` y la `Response` sin procesar, en lugar del `error.response` de axios.">
+
+```ts title="Before"
+import axios from 'axios';
+import { getPost } from './api/posts';
+
+try {
+  const { data } = await getPost('1');
+} catch (err) {
+  if (axios.isAxiosError(err)) {
+    console.log(err.response?.status);
+    console.log(err.response?.data);
+  }
+}
+```
+
+```ts title="After"
+import { NetworkError } from '@data-client/rest';
+import { PostResource } from './api/posts';
+
+try {
+  const post = await PostResource.get({ id: '1' });
+} catch (err) {
+  if (err instanceof NetworkError) {
+    console.log(err.status);
+    console.log(err.response);
+  }
+}
+```
+
+</DiffEditor>
+
+Lee el mensaje de error de un servidor del cuerpo una sola vez, en el endpoint base; consulta
+[mensajes de error del servidor](#server-error-messages).
+
+### 7. Elimina axios {#remove-axios}
+
+Busca lo que aún usa axios:
+
+| Patrón                                     | Encuentra                 |
+| ------------------------------------------ | ------------------------- |
+| `TODO\(data-client\)`                      | lo que dejó el codemod     |
+| `import.*from ['"]axios['"]`               | sentencias import          |
+| `axios\.create`                            | creación de instancias     |
+| `axios\.(get\|post\|put\|patch\|delete)`   | llamadas directas          |
+| `\.interceptors\.(request\|response)\.use` | interceptores              |
+| `isAxiosError`                             | manejo de errores          |
+| `cancelToken\|CancelToken`                 | cancelación (obsoleta)     |
+| `onUploadProgress\|onDownloadProgress`     | callbacks de progreso      |
+
+Migra cada coincidencia con la [referencia](#quick-reference) de abajo. Cuando no quede ninguna, desinstala axios y ejecuta el
+verificador de tipos y las pruebas:
+
+```bash
+npm uninstall axios
+```
+
+## Referencia de opciones de axios {#quick-reference}
+
+| Axios                                    | @data-client/rest                                                                                                 |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `baseURL`                                | [`urlPrefix`](../api/RestEndpoint.md#urlPrefix)                                                                   |
+| `headers` config                         | [`getHeaders()`](../api/RestEndpoint.md#getHeaders)                                                               |
+| `interceptors.request`                   | [`getHeaders()`](../api/RestEndpoint.md#getHeaders) / [`getRequestInit()`](../api/RestEndpoint.md#getRequestInit) |
+| `interceptors.response`                  | [`parseResponse()`](../api/RestEndpoint.md#parseResponse) / [`process()`](../api/RestEndpoint.md#process)         |
+| `transformRequest`                       | [`getRequestInit()`](../api/RestEndpoint.md#getRequestInit)                                                       |
+| `transformResponse`                      | [`process()`](../api/RestEndpoint.md#process)                                                                     |
+| `isAxiosError` / `error.response`        | [`NetworkError`](#error-handling) con `.status` y `.response`                                                  |
+| `cancelToken` / `signal`                 | [`signal`](#cancellation)                                                                                         |
+| `timeout`                                | [`AbortSignal.timeout()`](#timeout) en `getRequestInit()`                                                         |
+| `responseType: 'blob'` / `'arraybuffer'` | [`content: 'blob'`](#binary-responses) / `'arrayBuffer'`                                                          |
+| `params` / `paramsSerializer`            | [`searchParams`](../api/RestEndpoint.md#searchParams) / [`searchToString()`](#query-serialization)                |
+| `auth: { username, password }`           | [`getHeaders()` con `btoa()`](#basic-auth)                                                                       |
+| `validateStatus`                         | [`fetchResponse()` personalizado](#accepting-error-statuses)                                                             |
+| `xsrfCookieName` / `xsrfHeaderName`      | [`getHeaders()`](#csrf-headers)                                                                                   |
+| `onUploadProgress`                       | [`fetchResponse()` personalizado con XMLHttpRequest](#upload-progress)                                                  |
+
+### Cancelación {#cancellation}
+
+Tanto el `signal` de axios como el obsoleto `CancelToken` se corresponden con un `signal` de
+[AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController):
+
+<DiffEditor>
+
+```ts title="Before"
+const source = axios.CancelToken.source();
+axios.get('/users/1', { cancelToken: source.token });
+source.cancel();
+```
+
+```ts title="After"
+const getUser = new ApiEndpoint({ path: '/users/:id' });
+const controller = new AbortController();
+// callout: `extend()` gives this one request its own signal; a `signal` set when the endpoint is created would abort all of its requests.
+getUser.extend({ signal: controller.signal })({ id: '1' });
 controller.abort();
 ```
 
-</TabItem>
-</Tabs>
+</DiffEditor>
 
-Consulta la [guía de abort](./abort.md) para ver más patrones.
+Consulta la [guía de cancelación](./abort.md) para ver más patrones.
 
 ### Tiempo de espera {#timeout}
 
-```ts title="Before (axios)"
+<DiffEditor>
+
+```ts title="Before"
 axios.get('/users', { timeout: 5000 });
 ```
 
-```ts title="After (data-client)"
-const getUsers = new RestEndpoint({
-  path: '/users',
-  signal: AbortSignal.timeout(5000),
-});
+```ts title="After"
+export default class ApiEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  // callout: Runs for each request, so each one gets its own 5 seconds. `AbortSignal.timeout()` passed to the constructor would start counting once, when the endpoint is created.
+  async getRequestInit(
+    body?: RequestInit['body'] | Record<string, unknown>,
+  ) {
+    const init = await super.getRequestInit(body);
+    const timeout = AbortSignal.timeout(5000);
+    // callout: Keeps `extend({ signal })` cancellation working: either signal aborts the request.
+    const signal = init.signal
+      ? AbortSignal.any([init.signal, timeout])
+      : timeout;
+    return { ...init, signal };
+  }
+}
 ```
+
+</DiffEditor>
 
 ### Respuestas binarias {#binary-responses}
 
-```ts title="Before (axios)"
+<DiffEditor>
+
+```ts title="Before"
 axios.get('/files/1', { responseType: 'blob' });
 ```
 
-Establece [`content`](../api/RestEndpoint.md#content) en `'blob'`, `'arrayBuffer'` o `'text'`. Consulta la [descarga de archivos](./network-transform.md#file-download) para ver el endpoint completo y cómo iniciar una descarga en el navegador.
+```ts title="After"
+const downloadFile = new RestEndpoint({
+  path: '/files/:id',
+  content: 'blob',
+});
+```
+
+</DiffEditor>
+
+[`content`](../api/RestEndpoint.md#content) también acepta `'arrayBuffer'` y `'text'`. Consulta la
+[descarga de archivos](./network-transform.md#file-download) para iniciar una descarga en el navegador.
 
 ### Serialización de la consulta {#query-serialization}
 
-```ts title="Before (axios)"
+<DiffEditor>
+
+```ts title="Before"
 axios.get('/users', {
   params: { ids: [1, 2, 3] },
   paramsSerializer: params =>
@@ -506,15 +637,34 @@ axios.get('/users', {
 });
 ```
 
-Sobrescribe [`searchToString()`](../api/RestEndpoint.md#searchToString) para serializar con `qs`; consulta [el uso de la librería `qs`](../api/RestEndpoint.md#searchToString).
+```ts title="After"
+export default class ApiEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  searchToString(searchParams: Record<string, any>) {
+    return qs.stringify(searchParams, {
+      arrayFormat: 'repeat',
+      skipNulls: true,
+    });
+  }
+}
+```
+
+</DiffEditor>
+
+axios omite los parámetros `null` y `undefined`, pero el `searchToString()` por defecto usa
+[URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams), que los envía como las cadenas
+`"null"` y `"undefined"`; `skipNulls` arriba los descarta. Consulta [`searchToString()`](../api/RestEndpoint.md#searchToString).
 
 ### Autenticación básica {#basic-auth}
 
-```ts title="Before (axios)"
+<DiffEditor>
+
+```ts title="Before"
 axios.get('/api', { auth: { username: 'user', password: 'pass' } });
 ```
 
-```ts title="After (data-client)"
+```ts title="After"
 export default class BasicAuthEndpoint<
   O extends RestGenerics = any,
 > extends RestEndpoint<O> {
@@ -527,15 +677,20 @@ export default class BasicAuthEndpoint<
 }
 ```
 
+</DiffEditor>
+
 ### Aceptar estados de error {#accepting-error-statuses}
 
-[`fetchResponse()`](../api/RestEndpoint.md#fetchResponse) lanza [`NetworkError`](../api/RestEndpoint.md#fetchResponse) para cualquier estado que no sea `ok`. Sobrescríbelo para cambiar qué se considera un error:
+[`fetchResponse()`](../api/RestEndpoint.md#fetchResponse) lanza [`NetworkError`](#error-handling) para cualquier estado que
+no sea `ok`. Sobrescríbelo para cambiar qué se considera un error:
 
-```ts title="Before (axios)"
+<DiffEditor>
+
+```ts title="Before"
 axios.get('/api', { validateStatus: status => status < 500 });
 ```
 
-```ts title="After (data-client)"
+```ts title="After"
 import {
   NetworkError,
   RestEndpoint,
@@ -553,28 +708,34 @@ export default class LenientEndpoint<
 }
 ```
 
+</DiffEditor>
+
 ### Cabeceras CSRF {#csrf-headers}
 
-```ts title="Before (axios)"
+```ts title="Before"
 axios.create({
   xsrfCookieName: 'csrftoken',
   xsrfHeaderName: 'X-CSRFToken',
 });
 ```
 
-Lee la cookie en [`getHeaders()`](../api/RestEndpoint.md#getHeaders) para las peticiones que no sean `GET`. Consulta la [integración con Django](./django.md) para ver la clase de endpoint completa.
+Lee la cookie en [`getHeaders()`](../api/RestEndpoint.md#getHeaders) para las peticiones que no sean `GET`. Consulta la
+[integración con Django](./django.md) para ver la clase de endpoint completa.
 
 ### Progreso de subida {#upload-progress}
 
-`fetch` no puede informar del progreso de subida, así que usa [XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) dentro de [`fetchResponse()`](../api/RestEndpoint.md#fetchResponse). El campo `onProgress` se pasa como una opción del endpoint, como cualquier otro miembro.
+`fetch` no puede informar del progreso de subida, así que usa
+[XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) dentro de
+[`fetchResponse()`](../api/RestEndpoint.md#fetchResponse). El campo `onProgress` se pasa como una opción del endpoint, como
+cualquier otro miembro.
 
-```ts title="Before (axios)"
+```ts title="Before"
 axios.post('/upload', formData, {
   onUploadProgress: e => console.log(e.loaded / e.total),
 });
 ```
 
-```ts title="After (data-client)"
+```ts title="UploadEndpoint.ts"
 import {
   NetworkError,
   RestEndpoint,
@@ -643,229 +804,9 @@ const uploadFile = new UploadEndpoint({
 });
 ```
 
-## Codemod {#codemod}
-
-Un codemod independiente de [jscodeshift](https://github.com/facebook/jscodeshift) se encarga de las partes mecánicas de la migración.<SiteOnly> Ejecútalo tú mismo si no usas flujos de trabajo con IA; el [skill de IA](#skill) de arriba lo ejecuta automáticamente como primer paso.</SiteOnly>
-
-```bash
-npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/
-```
-
-El codemod, de forma automática:
-
-- Reemplaza `import axios from 'axios'` por `import { RestEndpoint } from '@data-client/rest'`
-- Convierte `axios.create({ baseURL, headers })` en una subclase base de `RestEndpoint` con `urlPrefix` y `getHeaders()`
-- Transforma `axios.get()`, `.post()`, `.put()`, `.patch()`, `.delete()` en `new RestEndpoint({ path, method })`
-- Transforma las llamadas sobre una instancia creada (`api.post()` donde `api = axios.create(...)`) en `new CreatedClassName({ path, method })`
-
-El codemod tiene poco que hacer cuando el proyecto envuelve axios en su propia clase o función y nunca llama a `axios.get()`/`.post()` directamente, o solo llama a `axios(config)` sin nombre de método. En esos casos, sáltalo y empieza con [los pasos manuales](#after-the-codemod).
-
-El codemod **no** se encarga de:
-
-- Los interceptores — consulta los [métodos del ciclo de vida](#interceptors--lifecycle-methods)
-- El manejo de errores (`isAxiosError`, `error.response`) — consulta el [manejo de errores](#error-handling)
-- El resto de la [referencia rápida](#quick-reference) — consulta los [ejemplos de migración](#migration-examples) de arriba
-- Las definiciones de schemas de [Entity](../api/Entity.md) y la conversión de los puntos de llamada a hooks — consulta [más abajo](#after-the-codemod)
-
-### Encontrar el uso restante de axios {#finding-remaining-axios-usage}
-
-Patrones de búsqueda para localizar lo que aún falta por migrar:
-
-| Patrón                                     | Encuentra                 |
-| ------------------------------------------ | ------------------------- |
-| `import.*from ['"]axios['"]`               | sentencias import         |
-| `axios\.create`                            | creación de instancias    |
-| `axios\.(get\|post\|put\|patch\|delete)`   | llamadas directas         |
-| `\.interceptors\.(request\|response)\.use` | interceptores             |
-| `isAxiosError`                             | manejo de errores         |
-| `cancelToken\|CancelToken`                 | cancelación (obsoleta)    |
-| `onUploadProgress\|onDownloadProgress`     | callbacks de progreso     |
-
-## Después del codemod {#after-the-codemod}
-
-El codemod produce endpoints sin schemas. Definir schemas de [Entity](../api/Entity.md) y conectarlos a los endpoints habilita la normalización y el almacenamiento en caché, que es el valor central de Reactive Data Client.
-
-### Claves primarias no estándar {#non-standard-primary-keys}
-
-Muchas APIs (MongoDB, por ejemplo) usan `_id` en lugar de `id`. Sobrescribe [`pk()`](../api/Entity.md#pk):
-
-```ts
-import { Entity } from '@data-client/rest';
-
-export class User extends Entity {
-  _id = '';
-  name = '';
-  email = '';
-  static key = 'User';
-
-  pk() {
-    return this._id;
-  }
-}
-```
-
-### Agrupar endpoints CRUD con resource() {#group-crud-endpoints-with-resource}
-
-Cuando un módulo de axios tiene funciones separadas `getUsers`, `getUser`, `createUser`, `updateUser` y `deleteUser` para una misma ruta, reemplázalas por un único [`resource()`](../api/resource.md):
-
-```ts
-import { resource } from '@data-client/rest';
-import ApiEndpoint from './ApiEndpoint';
-import { User } from './User';
-
-export const UserResource = resource({
-  path: '/users/:id',
-  schema: User,
-  Endpoint: ApiEndpoint,
-});
-// UserResource.getList, .get, .getList.push, .update, .partialUpdate, .delete
-```
-
-Las rutas anidadas como `/projects/:projectId/tasks/:taskId` tienen su propio resource. Reserva `new ApiEndpoint()` independiente para las operaciones que no son CRUD (búsqueda, acciones personalizadas, autenticación).
-
-### Convivir con Zod o Yup {#coexisting-with-zod-or-yup}
-
-Si la base de código ya valida las respuestas con Zod o Yup, elige un enfoque por tipo:
-
-- **Zod en `process()`** (recomendado): mantén la validación en tiempo de ejecución analizando en [`process()`](../api/RestEndpoint.md#process) y deja que la Entity se encargue de la normalización:
-
-  ```ts
-  const getUser = new ApiEndpoint({
-    path: '/users/:id',
-    schema: User,
-    process(value: any) {
-      return userSchema.parse(value);
-    },
-  });
-  ```
-
-- **La Entity reemplaza a Zod**: mueve la forma de los campos a la clase Entity y elimina el schema de Zod. Los campos de la Entity aportan tipos, no comprobaciones en tiempo de ejecución, así que añade [`static validate()`](../api/Entity.md#validate) para cualquier campo que el servidor pueda enviar mal formado.
-- **Solo Zod, sin Entity**: deja `schema` sin definir y analiza manualmente. Hazlo solo en los endpoints que no se benefician de la normalización (tokens de autenticación, respuestas puntuales).
-
-:::warning
-
-No definas clases Entity y luego dejes `schema` sin definir en todos los endpoints: sin `schema`, nada se normaliza y la migración aporta poco respecto a axios.
-
-:::
-
-### Tipado del cuerpo {#body-typing}
-
-Tipa el cuerpo de los endpoints `POST`/`PUT`/`PATCH` independientes con `body: {} as BodyType`. No uses `undefined as unknown as BodyType`: `RestEndpoint` trata [`body`](../api/RestEndpoint.md#body)`: undefined` como si no hubiera argumento de cuerpo.
-
-```ts
-const createUser = new ApiEndpoint({
-  path: '/users',
-  method: 'POST',
-  body: {} as { name: string; email: string },
-  schema: User,
-});
-```
-
-[`resource()`](../api/resource.md) tipa sus endpoints CRUD automáticamente.
-
-### Convertir los puntos de llamada a hooks {#convert-call-sites-to-hooks}
-
-<Tabs
-defaultValue="before"
-values={[
-{ label: 'Before (axios)', value: 'before' },
-{ label: 'After (data-client)', value: 'after' },
-]}>
-<TabItem value="before">
-
-```tsx
-import { useEffect, useState } from 'react';
-import api from './lib/api';
-import { Spinner } from './Spinner';
-import type { User } from './User';
-
-function UserProfile({ id }: { id: string }) {
-  const [user, setUser] = useState<User | null>(null);
-  useEffect(() => {
-    api.get(`/users/${id}`).then(({ data }) => setUser(data));
-  }, [id]);
-  if (!user) return <Spinner />;
-  return <h1>{user.name}</h1>;
-}
-```
-
-</TabItem>
-<TabItem value="after">
-
-```tsx
-import { useSuspense } from '@data-client/react';
-import { UserResource } from './UserResource';
-
-function UserProfile({ id }: { id: string }) {
-  const user = useSuspense(UserResource.get, { id });
-  return <h1>{user.name}</h1>;
-}
-```
-
-</TabItem>
-</Tabs>
-
-Los estados de carga y de error pasan a [`AsyncBoundary`](/docs/api/AsyncBoundary). Consulta [`useSuspense()`](/docs/api/useSuspense) para más detalles.
-
-### Autenticación basada en contexto {#context-based-auth}
-
-Cuando los tokens provienen del contexto de React (Okta, Auth0) en lugar del almacenamiento, usa [`hookifyResource()`](../api/hookifyResource.md) para inyectar las cabeceras mediante un hook. Consulta la [guía de autenticación](./auth.md) para este y otros patrones.
-
-### Migración gradual {#gradual-migration}
-
-Si la aplicación usa TanStack Query o SWR y no puede convertirlo todo de una vez, conserva temporalmente esos hooks pero haz el fetch a través de [`controller.fetch()`](/docs/api/Controller#fetch). Llamar a un endpoint directamente solo ejecuta su fetch; pasar por el Controller también normaliza la respuesta en la caché compartida, de modo que los datos son consistentes desde el primer día:
-
-```ts
-import { useController } from '@data-client/react';
-import { useQuery } from '@tanstack/react-query';
-import ApiEndpoint from './ApiEndpoint';
-import { Project } from './Project';
-
-export const getProject = new ApiEndpoint({
-  path: '/projects/:id',
-  schema: Project,
-});
-
-export function useProject(id: string) {
-  const ctrl = useController();
-  return useQuery({
-    queryKey: ['project', id],
-    queryFn: () => ctrl.fetch(getProject, { id }),
-  });
-}
-```
-
-Más adelante, reemplaza `useProject(id)` por `useSuspense(getProject, { id })`.
-
-### Abstracciones de endpoint existentes {#existing-endpoint-abstractions}
-
-Las bases de código que ya tienen una clase de endpoint personalizada que envuelve axios (por ejemplo, una con `path`, `method` y un ayudante `toDynamicUrl()`) pueden extender `RestEndpoint` en lugar de reemplazarla, manteniendo los métodos retrocompatibles y ganando [`url()`](../api/RestEndpoint.md#url), [`getRequestInit()`](../api/RestEndpoint.md#getRequestInit), [`fetchResponse()`](../api/RestEndpoint.md#fetchResponse) and [`parseResponse()`](../api/RestEndpoint.md#parseResponse):
-
-```ts
-import { RestEndpoint, RestGenerics } from '@data-client/rest';
-
-export class LegacyEndpoint<
-  O extends RestGenerics = any,
-> extends RestEndpoint<O> {
-  urlPrefix = API_ROOT;
-  declare queryKey?: string;
-
-  /** @deprecated use url() */
-  toDynamicUrl = this.url;
-}
-
-const getUser = new LegacyEndpoint({
-  path: '/users/:id',
-  queryKey: 'user',
-  schema: User,
-});
-```
-
-Pasa los miembros adicionales como `queryKey` como opciones en lugar de mediante un constructor personalizado, para que [`extend()`](../api/RestEndpoint.md#extend) (usado por `resource()`, `hookifyResource()` y `useCancelling()`) siga funcionando.
-
 ## Guías relacionadas {#related-guides}
 
-- [Autenticación](./auth.md) — patrones de autenticación con tokens y cookies
-- [Cancelar el fetch](./abort.md) — cancelación y debouncing
-- [Transformar datos al hacer fetch](./network-transform.md) — transformaciones de respuestas, renombrado de campos, descargas de archivos
-- [Integración con Django](./django.md) — CSRF y autenticación por cookies para Django
+- [Autenticación](./auth.md): patrones de autenticación con tokens y cookies
+- [Cancelar el fetch](./abort.md): cancelación y debouncing
+- [Transformar datos al hacer fetch](./network-transform.md): transformaciones de respuestas, renombrado de campos, descargas de archivos
+- [Integración con Django](./django.md): CSRF y autenticación por cookies para Django
