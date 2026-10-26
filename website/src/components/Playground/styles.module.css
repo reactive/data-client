@@ -639,6 +639,14 @@ div.playgroundTextEdit > .playgroundHeader,
 .row .codeHeader ~ .playgroundEditor :global(.monaco-editor) :global(.margin) {
   background-color: var(--pg-under);
 }
+.row
+  .codeHeader
+  ~ .playgroundEditor
+  :global(.monaco-editor)
+  :global(.view-overlays)
+  :global(.current-line) {
+  border-color: color-mix(in oklab, var(--pg-under), #fff 6%);
+}
 .row .editorDocs:has(> .codeHeader)::after {
   background: var(--pg-under);
   box-shadow: none;

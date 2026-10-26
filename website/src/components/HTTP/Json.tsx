@@ -4,7 +4,7 @@ import React from 'react';
 import styles from './styles.module.css';
 
 const TOKEN =
-  /("(?:[^"\\]|\\.)*")(\s*:)?|(-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)|(true|false|null)/gi;
+  /("(?:[^"\\]|\\.)*")(\s*:)?|(-?\b\d+(?:\.\d+)?(?:e[+-]?\d+)?\b)|\b(true|false|null)\b/g;
 
 /** JSON in the Store's syntax colors for the theme (the sheet follows the
  * theme, so Prism's always-dark code colors don't fit) */

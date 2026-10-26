@@ -5,6 +5,7 @@ sidebar_label: Authentication
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import PlaygroundTabs from '@site/src/components/PlaygroundTabs';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 
 All network requests are run through the [getRequestInit](../api/RestEndpoint.md#getRequestInit) optionally
@@ -58,7 +59,7 @@ See [Django Integration](./django.md) for an example that also includes [CSRF pr
 
 ## Access Tokens or JWT
 
-<Tabs
+<PlaygroundTabs
 defaultValue="static"
 values={[
 { label: 'static member', value: 'static' },
@@ -344,7 +345,7 @@ MyResource.get({ id: 1 });
 </EndpointPlayground>
 
 </TabItem>
-</Tabs>
+</PlaygroundTabs>
 
 ## Auth Headers from :react[React Context]:vue[provide/inject] {#auth-headers-from-react-context}
 

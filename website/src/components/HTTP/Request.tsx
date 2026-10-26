@@ -1,4 +1,4 @@
-import Translate from '@docusaurus/Translate';
+import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, { memo } from 'react';
 
@@ -9,6 +9,7 @@ import playgroundstyles from '../Playground/styles.module.css';
 
 /** The folder's header: method and URL on one line, the headers that say
  * something, and the body */
+// EndpointPlayground re-renders as its code is edited; the exchange never changes
 export default memo(Request);
 
 function Request({ input, init }: Props) {
@@ -16,7 +17,11 @@ function Request({ input, init }: Props) {
   const url = `${input}`;
   const json = headers.find(isJson);
   return (
-    <div className={clsx(playgroundstyles.folderHead, styles.request)}>
+    <div
+      className={clsx(playgroundstyles.folderHead, styles.request)}
+      role="group"
+      aria-label={translate({ id: 'http.request', message: 'Request' })}
+    >
       <div className={styles.requestLine}>
         <span className={styles.method}>{init.method ?? 'GET'}</span>
         <Clipped className={styles.url} full={url}>

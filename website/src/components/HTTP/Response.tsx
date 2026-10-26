@@ -1,3 +1,4 @@
+import { translate } from '@docusaurus/Translate';
 import { memo } from 'react';
 
 import Json from './Json';
@@ -5,11 +6,16 @@ import styles from './styles.module.css';
 
 /** The sheet the request's header curves out into: the body, its status at
  * the end of the first line */
+// EndpointPlayground re-renders as its code is edited; the exchange never changes
 export default memo(Response);
 
 function Response({ response, status }: Props) {
   return (
-    <div className={styles.response}>
+    <div
+      className={styles.response}
+      role="group"
+      aria-label={translate({ id: 'http.response', message: 'Response' })}
+    >
       <div className={styles.sheet}>
         <span className={styles.status} data-error={status >= 400 || undefined}>
           {STATUS_TEXT[status] ? `${status} ${STATUS_TEXT[status]}` : status}

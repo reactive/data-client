@@ -9,6 +9,8 @@
   --ex-pad: 1.25rem;
 }
 .folder {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -62,20 +64,29 @@
   overflow-wrap: break-word;
 }
 
-/* the response's sheet, the folder's paper (the stage) behind its corners;
-   over the header's shadow and flare */
+/* the response's sheet, the folder's paper (the stage) behind its top
+   corners; over the header's shadow and flare. Its own shadow lies under
+   the header (::before, at the folder's bottom), so it never darkens the
+   join */
 .response {
   position: relative;
-  z-index: 1;
   border-radius: var(--pg-card-radius);
-  background: var(--pg-stage);
+  background: linear-gradient(var(--pg-stage) 0 0) top / 100%
+    var(--pg-card-radius) no-repeat;
+}
+.response::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
   box-shadow: var(--pg-card-shadow);
-  overflow: clip;
+  pointer-events: none;
 }
 .sheet {
   position: relative;
   padding: 16px var(--ex-pad) 18px;
-  border-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;
+  border-radius: var(--pg-card-radius);
   background: var(--pg-panel);
 }
 /* on the body's first line ({ or [), at its end; alone (no body) in it */
@@ -104,7 +115,7 @@
   border-radius: 0;
   background: none;
   font: 13px / 20px var(--ifm-font-family-monospace);
-  color: var(--store-dim);
+  color: var(--store-muted);
   white-space: pre-wrap;
   overflow-wrap: break-word;
 }
