@@ -144,13 +144,11 @@ export function ActionsLevel({
   header: Header;
 }) {
   const { history } = useActions();
-  // at the store: who sent what
-  const chain =
-    subject.kind === 'root' ? shownChain(history.managers) : undefined;
-  // at the store, the panel's own filter: the stage picked narrows the
-  // steps and the timeline as it does the list (see StorePanel)
-  const { stage, pickStage, actions } = useNavState();
-  const filter = chain ? actions : subjectFilter;
+  // at the store: who sent what, and the panel's own filter, as the stage
+  // picked narrows the steps and the timeline as it does the list
+  const { pipeline: panelPipeline } = useNavState();
+  const pipeline = subject.kind === 'root' ? panelPipeline : null;
+  const filter = pipeline?.actions ?? subjectFilter;
   const rows = useRows(filter);
   return (
     <>
@@ -158,12 +156,12 @@ export function ActionsLevel({
         <span className={styles.count}>{rows.length.toLocaleString()}</span>,
       )}
       <section className={styles.actionsLevel} aria-label="Actions">
-        {chain && (
+        {pipeline && (
           <Pipeline
-            chain={chain}
+            chain={pipeline.chain}
             entries={history.entries}
-            picked={stage}
-            onPick={pickStage}
+            picked={pipeline.stage}
+            onPick={pipeline.pickStage}
           />
         )}
         <ActionList rows={rows} subject={subject} filter={filter} />

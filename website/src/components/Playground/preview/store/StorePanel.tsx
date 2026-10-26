@@ -478,11 +478,21 @@ export default function StorePanel({
       set,
       step,
       show,
-      stage,
-      pickStage,
-      actions: filter,
+      pipeline: chain ? { chain, stage, pickStage, actions: filter } : null,
     }),
-    [momentSeq, scope, current, earlier, later, set, step, show, stage, filter],
+    [
+      momentSeq,
+      scope,
+      current,
+      earlier,
+      later,
+      set,
+      step,
+      show,
+      chain,
+      stage,
+      filter,
+    ],
   );
   // what the peek's chips open: over the State tab's top level, in the
   // table view, with the peek closed to show it
