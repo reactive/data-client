@@ -30,6 +30,26 @@ class Note extends Entity {
   text = '';
 }
 
+/** A single-entity read whose nested child changes while the parent object stays. */
+class Owner extends Entity {
+  id = '';
+  name = '';
+}
+class Project extends Entity {
+  id = '';
+  owner = Owner.fromJS();
+  static schema = { owner: Owner };
+}
+const getProject = new Endpoint(
+  ({ id }: { id: string }) =>
+    Promise.resolve({ id, owner: { id: 'o', name: 'v1' } }),
+  { schema: Project, name: 'getProject' },
+);
+const getOwner = new Endpoint(
+  ({ id }: { id: string }) => Promise.resolve({ id, name: id }),
+  { schema: Owner, name: 'getOwner' },
+);
+
 const ROWS = 50;
 const rows = (): TodoItem[] =>
   Array.from({ length: ROWS }, (_, i) => ({ id: `${i}`, title: `${i}` }));
@@ -99,6 +119,19 @@ function List() {
   return <div>{todos.length}</div>;
 }
 
+function ProjectView() {
+  const project = useSuspense(getProject, { id: 'p' });
+  const state = useCacheState();
+  const table = (key: string, pk: string) =>
+    idOf((state.entities[key] as Record<string, object>)[pk]);
+  reads.push({
+    versions: `p${table(Project.key, 'p')}:o${table(Owner.key, 'o')}`,
+    data: project,
+    who: 'project',
+  });
+  return <div>{project.owner.name}</div>;
+}
+
 function Detail({ id }: { id: string }) {
   const todo = useSuspense(getDetail, { id });
   return <div>{todo.title}</div>;
@@ -109,7 +142,13 @@ let startTransition: (fn: () => void) => void;
 let showDetail: (id: string) => void;
 let typeText: (text: string) => void;
 
-function App({ consumers }: { consumers: number }) {
+function App({
+  consumers,
+  project = false,
+}: {
+  consumers: number;
+  project?: boolean;
+}) {
   controller = useController();
   const [detail, setDetail] = useState<string[]>([]);
   const [text, setText] = useState('');
@@ -125,6 +164,7 @@ function App({ consumers }: { consumers: number }) {
         {Array.from({ length: consumers }, (_, i) => (
           <List key={i} />
         ))}
+        {project && <ProjectView />}
       </Suspense>
       <Suspense fallback={<p>loading detail</p>}>
         {detail.map(id => (
@@ -177,16 +217,21 @@ function trace(name: string) {
   );
 }
 
-function mount(consumers: number) {
+function mount(consumers: number, project = false) {
   return render(
     <DataProvider
       initialState={mockInitialState([
         { endpoint: getTodoList, args: [], response: rows() },
+        {
+          endpoint: getProject,
+          args: [{ id: 'p' }],
+          response: { id: 'p', owner: { id: 'o', name: 'v1' } },
+        },
       ])}
       devButton={null}
       managers={noDevManagers}
     >
-      <App consumers={consumers} />
+      <App consumers={consumers} project={project} />
     </DataProvider>,
   );
 }
@@ -338,11 +383,9 @@ describeConcurrent.each([1, 2])(
       await finishTransition('Y');
       trace('second transition');
       expect(flipBacks(reads)).toBeGreaterThan(0);
-      // The committed rows changed when the first write committed, and typing
-      // re-renders are served by useSuspense's useMemo, so the memo never
-      // sees them re-read before the transition's retries push them out.
-      // That costs one recompute, after which they are kept.
-      expect(avoidableMisses(reads)).toBeLessThanOrEqual(1);
+      // Typing re-renders are served by useSuspense's useMemo and never
+      // reach the memo, so only the commit signal keeps the new rows.
+      expect(avoidableMisses(reads)).toBe(0);
     });
 
     it('reads outside render during optimistic updates, across a resolved mutation', async () => {
@@ -393,11 +436,127 @@ describeConcurrent.each([1, 2])(
       await finishTransition('X');
       trace('typing after two committed writes');
       expect(flipBacks(reads)).toBeGreaterThan(0);
-      // The committed rows changed when the first write committed, and typing
-      // re-renders are served by useSuspense's useMemo, so the memo never
-      // sees them re-read before the transition's retries push them out.
-      // That costs one recompute, after which they are kept.
-      expect(avoidableMisses(reads)).toBeLessThanOrEqual(1);
+      // Typing re-renders are served by useSuspense's useMemo and never
+      // reach the memo, so only the commit signal keeps the new rows.
+      expect(avoidableMisses(reads)).toBe(0);
+    });
+
+    it('a single-entity read whose nested child each transition retry rewrites', async () => {
+      mount(consumers, true);
+      const writeOwner = (name: string) => {
+        controller.setResponse(getOwner, { id: 'o' }, { id: 'o', name });
+      };
+      act(() => writeOwner('v2'));
+      act(() => writeOwner('v3'));
+      act(() => {
+        startTransition(() => {
+          writeOwner('from transition');
+          showDetail('X');
+        });
+      });
+      for (let i = 0; i < 3; i++) act(() => typeText(`a${i}`));
+      await finishTransition('X');
+      const projectReads = reads.filter(r => r.who === 'project');
+      trace('single-entity read');
+      // a pk input: commit pins the top-level entity's own entry
+      expect(avoidableMisses(projectReads)).toBe(0);
+      expect(avoidableMisses(reads.filter(r => r.who !== 'project'))).toBe(0);
+    });
+
+    // Optimistic updates stack: each one rebuilds the entities it touches on
+    // every store change, so only the store from before all of them can be
+    // read again. However many are in flight, settling the last one must
+    // return to that result, and the list must show the right rows.
+
+    const SCRAMBLED = [3, 7, 1, 9, 0, 5, 2, 8, 4, 6];
+
+    /** `n` optimistic edits to rows 10.., with an unrelated write after each. */
+    function beginMany(n: number) {
+      for (let i = 0; i < n; i++) {
+        beginOptimistic(`${10 + i}`, `optimistic ${i}`);
+        writeNote(100 + i);
+      }
+    }
+
+    /** Titles the latest render showed. */
+    function lastTitles() {
+      const last = [...reads].reverse().find(r => r.who === 'render');
+      return (last?.data as { title: string }[]).map(todo => todo.title);
+    }
+
+    it('ten optimistic updates in flight, rolled back out of order', async () => {
+      mount(consumers);
+      beginMany(10);
+      for (const i of SCRAMBLED) {
+        await rollBack(`${10 + i}`, `optimistic ${i}`);
+        writeNote(200 + i);
+      }
+      trace('ten optimistic rolled back');
+      expect(lastTitles()).toEqual(rows().map(row => row.title));
+      expect(avoidableMisses(reads)).toBe(0);
+    });
+
+    it('ten optimistic updates in flight, half resolved and half rolled back', async () => {
+      mount(consumers);
+      beginMany(10);
+      for (const i of SCRAMBLED) {
+        if (i % 2) await rollBack(`${10 + i}`, `optimistic ${i}`);
+        else await resolveOptimistic(`${10 + i}`, `optimistic ${i}`);
+        writeNote(200 + i);
+      }
+      trace('ten optimistic resolved or rolled back');
+      expect(lastTitles()).toEqual(
+        rows().map(({ id, title }) => {
+          const i = Number(id) - 10;
+          return i >= 0 && i < 10 && i % 2 === 0 ? `optimistic ${i}` : title;
+        }),
+      );
+      expect(avoidableMisses(reads)).toBe(0);
+    });
+
+    it('ten optimistic updates rolled back, after earlier flips moved what the memo keeps', async () => {
+      mount(consumers);
+      beginTransition('5', 'X');
+      for (let i = 0; i < 3; i++) writeNote(i);
+      await finishTransition('X');
+      readRaw();
+      writeNote(3);
+      readRaw();
+      beginMany(10);
+      for (const i of SCRAMBLED) {
+        await rollBack(`${10 + i}`, `optimistic ${i}`);
+        readRaw();
+      }
+      trace('ten optimistic after flips');
+      expect(avoidableMisses(reads)).toBe(0);
+    });
+
+    it('ten optimistic updates rolled back while a transition is pending', async () => {
+      mount(consumers);
+      beginMany(5);
+      beginTransition('5', 'X');
+      for (let i = 5; i < 10; i++) {
+        beginOptimistic(`${10 + i}`, `optimistic ${i}`);
+        writeNote(100 + i);
+      }
+      for (const i of SCRAMBLED) await rollBack(`${10 + i}`, `optimistic ${i}`);
+      await finishTransition('X');
+      trace('ten optimistic during a transition');
+      expect(avoidableMisses(reads)).toBe(0);
+    });
+
+    it('fifty optimistic updates in flight still settle to the right rows', async () => {
+      mount(consumers);
+      for (let i = 0; i < 50; i++)
+        beginOptimistic(`${i % ROWS}`, `optimistic ${i}`);
+      for (let i = 49; i >= 0; i -= 2)
+        await rollBack(`${i % ROWS}`, `optimistic ${i}`);
+      for (let i = 0; i < 50; i += 2)
+        await rollBack(`${i % ROWS}`, `optimistic ${i}`);
+      writeNote(0);
+      trace('fifty optimistic');
+      expect(lastTitles()).toEqual(rows().map(row => row.title));
+      expect(avoidableMisses(reads)).toBe(0);
     });
   },
 );

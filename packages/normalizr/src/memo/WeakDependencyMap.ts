@@ -58,16 +58,28 @@ export default class WeakDependencyMap<
   private readonly next = new WeakMap<K, Node<Path, V>>();
   /** Sticky: true once any function-typed (`argsKey`) dep has been stored. */
   private hasStr = false;
+  /** The entry the latest `get` or `set` with `track` hit or wrote, for
+   * `trackLast()`/`keepLast()`. Only tracked calls record it, and their caller
+   * reads it right away: an entry recorded and never cleared would stay alive
+   * for as long as the map does. */
+  private lastNode: Node<Path, V> | undefined = undefined;
+  private lastEntry: Entry<Path, V> | undefined = undefined;
 
   get(
     entity: K,
     getDependency: GetDependency<Path, K | symbol>,
     args: readonly any[] = [],
+    /** record the hit for `trackLast()`/`keepLast()` */
+    track = false,
   ) {
     const root = this.next.get(depKey(entity) as K);
     const node = root && find(root, getDependency, args);
     if (!node) return EMPTY;
     const entry = node.entries[0];
+    if (track) {
+      this.lastNode = node;
+      this.lastEntry = entry;
+    }
     return [entry.value, entry.journey] as readonly [V, Path[]];
   }
 
@@ -82,6 +94,8 @@ export default class WeakDependencyMap<
      * payoff. The array becomes a shared reference held by every subsequent
      * cache hit; callers MUST NOT mutate it. */
     journey?: Path[],
+    /** record the write for `trackLast()`/`keepLast()` */
+    track = false,
   ) {
     if (dependencies.length < 1) throw new KeySize();
     const root = depKey(dependencies[0].entity) as K;
@@ -108,7 +122,7 @@ export default class WeakDependencyMap<
           // Past MAX_FORKS, start this root over instead.
           if (node.branches.length && ++top!.forks > MAX_FORKS) {
             this.next.delete(root);
-            return this.set(dependencies, value, args, journey);
+            return this.set(dependencies, value, args, journey, track);
           }
           branch = { fn: dep.path as KeyFn, children: new Map() };
           node.branches.push(branch);
@@ -130,10 +144,14 @@ export default class WeakDependencyMap<
       // we could recompute this on get, but it would have a cost and we optimize for `get`
       journey: journey ?? (dependencies.map(d => d.path) as Path[]),
     };
+    if (track) this.lastEntry = entry;
     if (!node) {
-      this.next.set(root, newNode(entry));
+      node = newNode(entry);
+      this.next.set(root, node);
+      if (track) this.lastNode = node;
       return;
     }
+    if (track) this.lastNode = node;
     // A store can flip back to a version it already showed: React renders the
     // committed store between retries of a pending transition, which build new
     // entities each time, and rolling back an optimistic update returns to the
@@ -142,9 +160,44 @@ export default class WeakDependencyMap<
     const { entries } = node;
     if (!node.kept) node.kept = entry;
     entries.unshift(entry);
-    if (entries.length > MAX_ENTRIES) {
-      const last = entries.length - 1;
-      entries.splice(entries[last] === node.kept ? last - 1 : last, 1);
+    // beyond the pinned entries, keep only the most recently used few
+    let unpinned = 0;
+    for (let i = 0; i < entries.length; i++) {
+      const e = entries[i];
+      if (e === node.kept || e === node.committed || e === node.settled)
+        continue;
+      if (++unpinned > UNPINNED) entries.splice(i--, 1);
+    }
+  }
+
+  /** Records the entry the latest `get` hit or `set` wrote into `reads`, to
+   * pass to `keep()` later. One per node (the last read wins), so repeat
+   * reads don't grow it. */
+  trackLast(reads: KeepReads): void {
+    const node = this.lastNode;
+    if (!node) return;
+    (reads as Map<Node<Path, V>, Entry<Path, V>>).set(node, this.lastEntry!);
+    this.lastNode = this.lastEntry = undefined;
+  }
+
+  /** Never evict the entry the latest `get` hit or `set` wrote; see `keep()`. */
+  keepLast(settled: boolean): void {
+    const node = this.lastNode;
+    if (!node) return;
+    node.committed = this.lastEntry;
+    if (settled) node.settled = this.lastEntry;
+    this.lastNode = this.lastEntry = undefined;
+  }
+
+  /** Never evict these entries: their results were committed. React serves
+   * re-renders of a committed store from hook memos without asking the
+   * cache, so recency alone can't tell a committed result from a one-off
+   * render of a pending transition. */
+  keep(reads: KeepReads, settled: boolean): void {
+    for (const [node, entry] of reads as Map<Node<Path, V>, Entry<Path, V>>) {
+      if (!node.entries.includes(entry)) continue;
+      node.committed = entry;
+      if (settled) node.settled = entry;
     }
   }
 
@@ -232,8 +285,13 @@ export interface Dep<Path, K = object> {
 
 const EMPTY = [undefined, undefined] as const;
 
-/** Entries kept per (first dependency, `argsKey` results). */
-const MAX_ENTRIES = 3;
+/** Opaque record of cached entries read, at most one per node; see
+ * `WeakDependencyMap.trackLast()`. */
+export type KeepReads = Map<object, object>;
+
+/** Unpinned entries kept per (first dependency, `argsKey` results), most
+ * recently used. Up to three more are pinned. */
+const UNPINNED = 2;
 
 /** Nodes under one first dependency that may gain a second `argsKey` branch. */
 const MAX_FORKS = 8;
@@ -244,6 +302,14 @@ interface Node<Path, V> {
   entries: Entry<Path, V>[];
   /** Never evicted: the entry most recently read back after a newer one. */
   kept: Entry<Path, V> | undefined;
+  /** Never evicted: the entry most recently read by a committed render. */
+  committed: Entry<Path, V> | undefined;
+  /** Never evicted: the entry most recently read by a committed render of a
+   * store with no optimistic updates. Every optimistic update rebuilds the
+   * entities it touches on each store change, so once the last one settles,
+   * this is the only earlier result the store can come back to, however
+   * many were in flight. */
+  settled: Entry<Path, V> | undefined;
   /** One per next `argsKey` dependency; its result picks the child. */
   branches: Branch<Path, V>[] | undefined;
   /** On a first dependency's node: extra branches made anywhere below it. */
@@ -259,6 +325,8 @@ function newNode<Path, V>(entry: Entry<Path, V> | undefined): Node<Path, V> {
   return {
     entries: entry ? [entry] : [],
     kept: entry,
+    committed: undefined,
+    settled: undefined,
     branches: undefined,
     forks: 0,
   };

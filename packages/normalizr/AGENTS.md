@@ -19,7 +19,7 @@ Every change to `src/memo/`, or to a schema's `denormalize`, must keep these. Te
 2. **Complete dependencies.** Every entity and `argsKey` a computation reads is recorded, including deps replayed from a nested hit, and including entities that are missing, `null` or `INVALID`.
 3. **Deterministic.** The same reads lead to the same further reads and an equal result. All args-dependence goes through a pure, referentially stable `argsKey` fn.
 4. **Complete journey.** The paths returned with a hit cover every entity the value depends on; subscriptions and GC count refs from them. Callers never mutate it.
-5. **Weak, bounded retention.** A value lives only while its first dependency is reachable, with at most `MAX_ENTRIES` values per first dependency and `argsKey` results.
+5. **Weak, bounded retention.** A value lives only while its first dependency is reachable, with at most the two most recently used values, plus three pinned ones, per first dependency and `argsKey` results.
 6. **Stable identity.** The same reads return the same object while it is cached.
 7. **One `WeakMap` level.** Never nest a `WeakMap` per dependency. Hermes resolves `WeakMap` entries one nesting level per stop-the-world marking pass, and each pass rescans every entry in the app, so N nested levels cost N passes (multi-second freezes). `yarn workspace example-benchmark start:ephemerons` measures it.
 
@@ -32,7 +32,9 @@ Accepted limitations (intentional; don't "fix"):
 
 - A render that applies a pending store update rebuilds every entity that update touches (`useReducer` has no eager state). Those reads are one-offs.
 - Within one committed store, a reader re-reads at most one version unchanged: renders read the committed `optimisticState`, managers and callbacks read `controller.getState()`. Every commit starts a new version. Rolling back an optimistic update returns to the older real entities.
-- So `WeakDependencyMap` keeps the most recently used entries plus the one the store last flipped back to. Bound: `useSuspense` serves urgent re-renders of an unchanged store from its own `useMemo`, so during a retrying transition a newly committed version can be recomputed once.
+- So `WeakDependencyMap` keeps the two most recently used entries, and never evicts three more: the one the store last flipped back to, the one a committed render last read, and the one a committed render of a store with no optimistic updates last read. Each optimistic update rebuilds the entities it touches on every store change, so once the last of any number in flight settles, that last one is the only earlier result the store can return to.
+- Commits come from `MemoCache.commit(entities, settled)`, which `DataStore` calls from an effect (effects never run for discarded renders). Reads are buffered per `entities` (one per node) until it commits; reads with the latest committed `entities` are kept right away, so late mounts are covered. Recency alone can't find the committed result: `useSuspense` serves urgent re-renders of an unchanged store from its own `useMemo`, so those reads never reach the memo.
+- Pins go on the result's own entry: in the endpoints tier, or in the top-level entity's map when the input is a pk (single-entity endpoints, entity and Collection queries). Only those `get`/`set` calls pass `track`, and `MemoCache` reads and clears the record right after. Nested entity maps never track: they live as long as the entity cache, so a recorded entry nobody clears would never be freed.
 - `yarn workspace example-benchmark start:memo-tradeoffs` measures hit rates and retained memory for these choices.
 
 ## Schema-tree traversal pattern

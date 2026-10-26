@@ -49,12 +49,18 @@ import type { ActionTypes, State } from '../types.js';
 export type GenericDispatch = (value: any) => Promise<void>;
 export type DataClientDispatch = (value: ActionTypes) => Promise<void>;
 
+/** Optional: lets the memo keep results from committed stores (see `MemoCache.commit`). */
+interface MemoCommit {
+  commit?(entities: object, settled?: boolean): void;
+}
+
 export interface ControllerConstructorProps<
   D extends GenericDispatch = DataClientDispatch,
 > {
   dispatch?: D;
   getState?: () => State<unknown>;
-  memo?: Pick<MemoCache, 'denormalize' | 'query' | 'buildQueryKey'>;
+  memo?: Pick<MemoCache, 'denormalize' | 'query' | 'buildQueryKey'> &
+    MemoCommit;
   gcPolicy?: GCInterface;
 }
 
@@ -98,7 +104,8 @@ export default class Controller<
   declare readonly memo: Pick<
     MemoCache,
     'denormalize' | 'query' | 'buildQueryKey'
-  >;
+  > &
+    MemoCommit;
 
   /**
    * Handles garbage collection
