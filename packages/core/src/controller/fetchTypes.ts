@@ -31,13 +31,15 @@ type NoCall = readonly [
 type KeepUnion<A> = A | { readonly [K in keyof A]: never };
 
 /** Args of an endpoint whose schema adds to a list (like Collection.push) and has
- * call signatures with list bodies (like RestEndpoint.push); NoCall for every other endpoint */
-type AdderArgs<E extends (...args: any) => any, List extends boolean> =
+ * call signatures with list bodies (like RestEndpoint.push); NoCall for every other endpoint
+ *
+ * ListBody: true for the signatures with a list body, false for the rest */
+type AdderArgs<E extends (...args: any) => any, ListBody extends boolean> =
   E extends { schema: { _denormalizeList(): any } } ?
     [Extract<Parameters<E>, ListBodyArgs>] extends [never] ?
       NoCall
     : KeepUnion<
-        List extends true ? Extract<Parameters<E>, ListBodyArgs>
+        ListBody extends true ? Extract<Parameters<E>, ListBodyArgs>
         : Exclude<Parameters<E>, ListBodyArgs>
       >
   : NoCall;
