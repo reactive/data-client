@@ -75,4 +75,12 @@ export const cartFixtures: Interceptor<CartInterceptorState>[] = [
     },
     delay: 300,
   },
+  {
+    endpoint: CartResource.delete,
+    response({ id }: Parameters<typeof CartResource.delete>[0]) {
+      delete this.items[id];
+      return { id };
+    },
+    delay: 300,
+  },
 ];

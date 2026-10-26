@@ -261,21 +261,20 @@ import { CartItem, CartResource, Product } from './resources/Cart';
 export default function QuantityStepper({ product }: { product: Product }) {
   const ctrl = useController();
   const item = useQuery(CartItem, { id: product.id });
-  // a line stays in the cart at 0, so adding it again reuses that line
-  const setQuantity = (quantity: number) =>
-    ctrl.fetch(CartResource.partialUpdate, { id: product.id }, { quantity });
   const add = () =>
-    item ?
-      setQuantity(1)
-    : ctrl.fetch(CartResource.getList.push, {
-        id: product.id,
-        product,
-        quantity: 1,
-      });
+    ctrl.fetch(CartResource.getList.push, {
+      id: product.id,
+      product,
+      quantity: 1,
+    });
+  const setQuantity = (quantity: number) =>
+    quantity ?
+      ctrl.fetch(CartResource.partialUpdate, { id: product.id }, { quantity })
+    : ctrl.fetch(CartResource.delete, { id: product.id });
 
   return (
     <span className="stepper">
-      {item?.quantity ?
+      {item ?
         <>
           <button
             aria-label={`Remove one ${product.name}`}
@@ -331,19 +330,20 @@ export default function ShopPage() {
 ```
 
 ```tsx title="CartPage" route="/cart" collapsed
-import { useSuspense } from '@data-client/react';
+import { useQuery, useSuspense } from '@data-client/react';
+import { All } from '@data-client/rest';
 import NumberFlow from '@number-flow/react';
 import CheckoutButton from './CheckoutButton';
 import FreeShipping from './FreeShipping';
 import OrderSummary from './OrderSummary';
 import QuantityStepper from './QuantityStepper';
-import { CartResource, usd } from './resources/Cart';
+import { CartItem, CartResource, usd } from './resources/Cart';
 
 export default function CartPage() {
-  const items = useSuspense(CartResource.getList).filter(
-    item => item.quantity,
-  );
-  if (!items.length) return <p className="meta">Your cart is empty</p>;
+  useSuspense(CartResource.getList);
+  // the same lines getCartTotals adds up
+  const items = useQuery(new All(CartItem));
+  if (!items?.length) return <p className="meta">Your cart is empty</p>;
   return (
     <>
       <div className="list">
@@ -493,26 +493,25 @@ export default function Store({ children }: { children: React.ReactNode }) {
   const props = defineProps<{ product: Product }>();
   const ctrl = useController();
   const item = useQuery(CartItem, () => ({ id: props.product.id }));
-  // a line stays in the cart at 0, so adding it again reuses that line
-  const setQuantity = (quantity: number) =>
-    ctrl.fetch(
-      CartResource.partialUpdate,
-      { id: props.product.id },
-      { quantity },
-    );
   const add = () =>
-    item.value ?
-      setQuantity(1)
-    : ctrl.fetch(CartResource.getList.push, {
-        id: props.product.id,
-        product: props.product,
-        quantity: 1,
-      });
+    ctrl.fetch(CartResource.getList.push, {
+      id: props.product.id,
+      product: props.product,
+      quantity: 1,
+    });
+  const setQuantity = (quantity: number) =>
+    quantity ?
+      ctrl.fetch(
+        CartResource.partialUpdate,
+        { id: props.product.id },
+        { quantity },
+      )
+    : ctrl.fetch(CartResource.delete, { id: props.product.id });
 </script>
 
 <template>
   <span class="stepper">
-    <template v-if="item?.quantity">
+    <template v-if="item">
       <button
         :aria-label="`Remove one ${product.name}`"
         @click="setQuantity(item.quantity - 1)"
@@ -561,21 +560,22 @@ export default function Store({ children }: { children: React.ReactNode }) {
 
 ```html title="CartPage.vue" route="/cart" collapsed
 <script setup lang="ts">
-  import { useSuspense } from '@data-client/vue';
+  import { All } from '@data-client/rest';
+  import { useQuery, useSuspense } from '@data-client/vue';
   import NumberFlow from '@number-flow/vue';
-  import { computed } from 'vue';
   import CheckoutButton from './CheckoutButton.vue';
   import FreeShipping from './FreeShipping.vue';
   import OrderSummary from './OrderSummary.vue';
   import QuantityStepper from './QuantityStepper.vue';
-  import { CartResource, usd } from './resources/Cart';
+  import { CartItem, CartResource, usd } from './resources/Cart';
 
-  const cart = await useSuspense(CartResource.getList);
-  const items = computed(() => cart.value.filter(item => item.quantity));
+  await useSuspense(CartResource.getList);
+  // the same lines getCartTotals adds up
+  const items = useQuery(new All(CartItem));
 </script>
 
 <template>
-  <p v-if="!items.length" class="meta">Your cart is empty</p>
+  <p v-if="!items?.length" class="meta">Your cart is empty</p>
   <template v-else>
     <div class="list">
       <div v-for="item in items" :key="item.id" class="listItem">

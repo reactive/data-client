@@ -232,26 +232,25 @@ export const getCartTotals = new Query(new All(CartItem), items => {
   const props = defineProps<{ product: Product }>();
   const ctrl = useController();
   const item = useQuery(CartItem, () => ({ id: props.product.id }));
-  // a line stays in the cart at 0, so adding it again reuses that line
-  const setQuantity = (quantity: number) =>
-    ctrl.fetch(
-      CartResource.partialUpdate,
-      { id: props.product.id },
-      { quantity },
-    );
   const add = () =>
-    item.value ?
-      setQuantity(1)
-    : ctrl.fetch(CartResource.getList.push, {
-        id: props.product.id,
-        product: props.product,
-        quantity: 1,
-      });
+    ctrl.fetch(CartResource.getList.push, {
+      id: props.product.id,
+      product: props.product,
+      quantity: 1,
+    });
+  const setQuantity = (quantity: number) =>
+    quantity ?
+      ctrl.fetch(
+        CartResource.partialUpdate,
+        { id: props.product.id },
+        { quantity },
+      )
+    : ctrl.fetch(CartResource.delete, { id: props.product.id });
 </script>
 
 <template>
   <span class="stepper">
-    <template v-if="item?.quantity">
+    <template v-if="item">
       <button
         :aria-label="`Remove one ${product.name}`"
         @click="setQuantity(item.quantity - 1)"
@@ -300,21 +299,22 @@ export const getCartTotals = new Query(new All(CartItem), items => {
 
 ```html title="CartPage.vue" route="/cart"
 <script setup lang="ts">
-  import { useSuspense } from '@data-client/vue';
+  import { All } from '@data-client/rest';
+  import { useQuery, useSuspense } from '@data-client/vue';
   import NumberFlow from '@number-flow/vue';
-  import { computed } from 'vue';
   import CheckoutButton from './CheckoutButton.vue';
   import FreeShipping from './FreeShipping.vue';
   import OrderSummary from './OrderSummary.vue';
   import QuantityStepper from './QuantityStepper.vue';
-  import { CartResource, usd } from './resources/Cart';
+  import { CartItem, CartResource, usd } from './resources/Cart';
 
-  const cart = await useSuspense(CartResource.getList);
-  const items = computed(() => cart.value.filter(item => item.quantity));
+  await useSuspense(CartResource.getList);
+  // the same lines getCartTotals adds up
+  const items = useQuery(new All(CartItem));
 </script>
 
 <template>
-  <p v-if="!items.length" class="meta">Your cart is empty</p>
+  <p v-if="!items?.length" class="meta">Your cart is empty</p>
   <template v-else>
     <div class="list">
       <div v-for="item in items" :key="item.id" class="listItem">
