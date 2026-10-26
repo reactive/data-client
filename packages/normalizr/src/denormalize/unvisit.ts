@@ -38,14 +38,9 @@ const getUnvisitEntity = (
       // A missing, null or INVALID entity is still a dependency of anything
       // nested above it, so those recompute once it changes. Blank ids can't
       // be looked up, so they aren't dependencies.
-      if (inputIsId && !isBlankPk(entityOrId)) {
-        return cache.getEntity(entityOrId, schema, entity, localCacheKey => {
-          localCacheKey.set(
-            entityOrId,
-            nonObjectValue(schema, entity, delegate),
-          );
-        });
-      }
+      // Only the dependency is needed: there is nothing worth caching.
+      if (inputIsId && !isBlankPk(entityOrId))
+        cache.dependOn(entityOrId, schema, entity);
       return nonObjectValue(schema, entity, delegate);
     }
 
