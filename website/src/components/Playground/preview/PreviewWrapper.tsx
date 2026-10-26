@@ -164,8 +164,7 @@ interface Props {
   /** In place of the "Live Preview" label (e.g. the demo's `DemoLabel`) */
   label?: React.ReactNode;
   /** Mock responses to inspect over the result, from a network icon in the
-   * header: previewed on hover, pinned open by a click or tap; `false`, the
-   * toggle without them, not yet rendered (../index.tsx) */
+   * header: previewed on hover, pinned open by a click or tap */
   fixtures?: React.ReactNode;
   /** Demo layout: the code's toggle joins the header's controls, and while
    * the code shows in the result's place the header names it ("Editor") in

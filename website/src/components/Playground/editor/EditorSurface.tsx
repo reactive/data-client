@@ -191,7 +191,13 @@ function TextEditTab({
   // code not yet shown (a hidden playground, a demo's code), which also
   // skips Monaco: highlighting costs a node per token.
   // Never branch on navigator / user agent outside BrowserOnly.
-  const text = !hidden || ssr ? <pre>{editorProps.code}</pre> : null;
+  const staticView =
+    hidden ?
+      ssr ? <pre>{editorProps.code}</pre>
+      : null
+    : interactive ?
+      <StaticEditor code={editorProps.code} language={editorProps.language} />
+    : <pre>{editorProps.code}</pre>;
 
   return (
     <div
@@ -200,19 +206,10 @@ function TextEditTab({
       })}
     >
       {interactive ?
-        <BrowserOnly
-          fallback={
-            hidden ? text : (
-              <StaticEditor
-                code={editorProps.code}
-                language={editorProps.language}
-              />
-            )
-          }
-        >
+        <BrowserOnly fallback={staticView}>
           {() => <Editor {...editorProps} />}
         </BrowserOnly>
-      : text}
+      : staticView}
     </div>
   );
 }

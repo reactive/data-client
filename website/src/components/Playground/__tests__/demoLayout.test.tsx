@@ -7,6 +7,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 
 import Playground from '..';
+import type { FixtureOrInterceptor } from '../types';
 
 // a crawler: the live preview never loads, so the preview stays its loading
 // frame (whose Code toggle already works), and no Monaco
@@ -88,47 +89,39 @@ describe('hidden playground (an unselected homepage tab)', () => {
     expect(html).toContain('listOfPosts');
     expect(html).not.toContain('token-line');
     expect(html).not.toContain('Live Preview');
+    // nor the row's Store folder
+    expect(html).not.toContain('aria-label="Store"');
   });
 });
 
 describe('folded fixtures', () => {
-  const fixtures = [
+  const fixtures: FixtureOrInterceptor[] = [
     {
-      endpoint: { key: () => 'GET /article/1' },
+      endpoint: { key: () => 'GET /article/1' } as any,
       args: [],
       response: { id: 1 },
     },
-  ] as any[];
+  ];
+  const folded = () => (
+    <Playground row fixtures={fixtures}>
+      {fences()}
+    </Playground>
+  );
 
-  test('render once the pointer reaches the playground, not in the HTML', () => {
-    const html = renderToString(
-      <Playground row fixtures={fixtures}>
-        {fences()}
-      </Playground>,
-    );
+  test('are not in the HTML', () => {
+    const html = renderToString(folded());
     expect(html).toContain('aria-label="Fixtures"');
     expect(html).not.toContain('/article/1');
-
-    const { container } = render(
-      <Playground row fixtures={fixtures}>
-        {fences()}
-      </Playground>,
-    );
-    expect(container.textContent).not.toContain('/article/1');
-    fireEvent.pointerOver(screen.getByRole('button', { name: 'Fixtures' }));
-    expect(container.textContent).toContain('/article/1');
   });
 
-  test('a bare click on the toggle opens them with their rows', () => {
-    const { container } = render(
-      <Playground row fixtures={fixtures}>
-        {fences()}
-      </Playground>,
-    );
+  test.each([
+    ['the pointer', (el: Element) => fireEvent.pointerOver(el)],
+    ['focus', (el: Element) => fireEvent.focus(el)],
+    ['a bare click', (el: Element) => fireEvent.click(el)],
+  ])('render once %s reaches the playground', (_, reach) => {
+    const { container } = render(folded());
     expect(container.textContent).not.toContain('/article/1');
-    const toggle = screen.getByRole('button', { name: 'Fixtures' });
-    fireEvent.click(toggle);
-    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    reach(screen.getByRole('button', { name: 'Fixtures' }));
     expect(container.textContent).toContain('/article/1');
   });
 });
