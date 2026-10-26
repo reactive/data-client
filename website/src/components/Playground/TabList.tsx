@@ -35,7 +35,7 @@ export default function TabList({
   const list = useRef<HTMLDivElement>(null);
   const selected = tabs.findIndex(tab => tab.selected);
   const fileTabs = tabClassName === undefined;
-  useFlushEdges(list, selected, tabs.map(tab => tab.key).join(), fileTabs);
+  useOverflowEdges(list, selected, tabs.map(tab => tab.key).join(), fileTabs);
   // the selected tab is the one in the tab order; the arrows move from it
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     // modified keys keep their own meaning (Alt+← is Back)
@@ -107,13 +107,13 @@ export default function TabList({
   );
 }
 
-/** Scrolls the selected tab into the row's view with its scroll padding, and
- * marks the row `data-more-left` / `data-more-right`
- * while tabs hide past that edge (where it fades) and `data-flush-left` /
- * `data-flush-right` while the selected tab is too near the header's edge
- * for its curve and the corner of what it rises from (`--pg-card-radius`
- * each) to fit between, so that corner squares to meet it */
-function useFlushEdges(
+/** Keeps the selected tab in the row's view (its scroll padding past it) and
+ * marks the row's edges: `data-more-left` / `data-more-right` while tabs hide
+ * past that edge (where it fades), `data-flush-left` / `data-flush-right`
+ * while the selected tab is too near the header's edge for its curve and the
+ * corner of what it rises from (`--pg-card-radius` each) to fit between, so
+ * that corner squares to meet it */
+function useOverflowEdges(
   list: RefObject<HTMLDivElement | null>,
   selected: number,
   /** the tabs' keys, joined (a dependency that changes only with them): new
