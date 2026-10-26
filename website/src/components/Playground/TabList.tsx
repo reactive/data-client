@@ -131,8 +131,13 @@ function useFlushEdges(
       1,
       2 * (parseFloat(style.getPropertyValue('--pg-card-radius')) || 0),
     );
+    const selectedTab = row.children[selected];
+    // the row's scroll padding, so the next tab peeks past the fade (the
+    // scroll clamps it away at the ends)
+    const padLeft = parseFloat(style.scrollPaddingLeft) || 0;
+    const padRight = parseFloat(style.scrollPaddingRight) || 0;
     const mark = () => {
-      const tab = row.children[selected]?.getBoundingClientRect();
+      const tab = selectedTab?.getBoundingClientRect();
       const box = edges.getBoundingClientRect();
       const view = row.getBoundingClientRect();
       row.toggleAttribute(
@@ -156,13 +161,11 @@ function useFlushEdges(
       );
     };
     const reveal = () => {
-      const tab = row.children[selected]?.getBoundingClientRect();
+      const tab = selectedTab?.getBoundingClientRect();
       const view = row.getBoundingClientRect();
       if (!tab) return;
-      // the row's scroll padding, so the next tab peeks past the fade (the
-      // scroll clamps it away at the ends)
-      const right = tab.right + (parseFloat(style.scrollPaddingRight) || 0);
-      const left = tab.left - (parseFloat(style.scrollPaddingLeft) || 0);
+      const right = tab.right + padRight;
+      const left = tab.left - padLeft;
       if (right > view.right) row.scrollLeft += right - view.right;
       else if (left < view.left) row.scrollLeft -= view.left - left;
     };
