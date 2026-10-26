@@ -22,10 +22,11 @@ and `editor/callouts.ts`.
 | Monaco: types, completions, go-to-definition | `monaco/` (`preloadManifest.ts` and `../editor-types/` are generated)                                   |
 | Running the code, scope globals              | `preview/LivePreview.tsx`, `preview/useCodeManagers.ts`, `preview/transformCode.ts`, `preview/scope.ts` |
 | Preview frame, Store open state and motion   | `preview/PreviewWrapper.tsx`, `preview/StoreToggle.tsx`, `preview/StoreInspector.tsx`                   |
-| Store inspector UI                           | `preview/store/` (`StorePanel.tsx` owns its state)                                                      |
+| Store inspector UI                           | `preview/store/` (`StorePanel.tsx` owns its state, `nav.tsx` moves it)                                  |
+| Store log, action credit                     | `preview/store/actionLog.ts`, `actionGroups.ts`, `attribution.ts` (names each action's manager)         |
 | Managers the code declares                   | `preview/managers.ts`; [data flow](./managers-data-flow.png) (source `.svg`)                            |
 | Multi-page demos, self-playing demos         | `preview/router.tsx`, `preview/autorun/`                                                                |
-| Demo markup's look                           | `DesignSystem/` ([Design system](#design-system))                                                       |
+| Demo markup's look                           | `DesignSystem/design-system.css`, tokens and skeletons in `base.css` ([Design system](#design-system))  |
 | Mobile and crawler gates                     | `userAgent.ts`                                                                                          |
 | Docusaurus stubs for tests                   | `testing/` (mapped in the root `jest.config.js`)                                                        |
 
@@ -137,14 +138,17 @@ callout markers as comments, its caption and legend outside the editor.
 - A design-system export is picked up from `DesignSystem/index.ts` by
   `preview/scope.ts` and `website/framework-docs/checkExamples.mjs`; declare
   its type by hand in `monaco/typeLibs.ts` (`PREVIEW_SCOPE_DECLARATIONS`).
-  Any other global goes in all three.
+  Any other global goes in all three. `globalScopeLib()` skips `Array` and
+  `Object` (`SKIP_NAMES`) so the built-ins keep their types.
 - Each playground has its own `DataProvider` with `MockResolver(fixtures)`;
   `memo(Preview)` keeps it from re-rendering on edits, so what reaches it
   must be stable.
 - A render error right after an edit retries once with a fresh store (a
   changed `Entity.key` leaves old data unreadable); if it persists, the old
   store comes back and no retry runs until a clean render held for
-  `HEALTHY_AFTER_MS`. Compile and evaluation errors never reset. Demos rely
+  `HEALTHY_AFTER_MS`. Compile and evaluation errors never reset. `ErrorPanel`
+  names the stage: compile (react-live `SyntaxError`, the code never ran),
+  runtime, or manager (the preview runs on without it). Demos rely
   on this instead of their own store-clearing fallbacks; say so in the prose
   beside a demo that needs it.
 - `usePlaygroundConsoleDemotion` demotes only React's recreate-tree report.
@@ -166,7 +170,11 @@ callout markers as comments, its caption and legend outside the editor.
 ## Store inspector
 
 - Open state persists per `groupId`; closing one Store closes every one in
-  the group.
+  the group, and toggling holds the page's scroll position.
+- Row: `StoreInspector` portals into the drawer (`FolderPanel`, an
+  `<Activity>` hidden once the sweep shuts, so reopening finds it as left).
+  Other layouts: a `Reveal` (`../motion/README.md`); the tree renders a
+  frame after the drawer starts moving (`useDeferredValue`).
 - The Store animates only while the reader or a demo moves it: `useStoreOpen`
   counts moves, `useStoreMotion` turns them into `data-store-moving`, which
   alone gives `--pg-store-*` their durations. Hydration, a tab showing the
@@ -174,12 +182,16 @@ callout markers as comments, its caption and legend outside the editor.
   land without animating (`StoreMotion.test.tsx`).
 - `Preview.tsx` connects `registry.log` with `log.head` first and `log.tail`
   last; keep that order when adding managers (the head credits the sender,
-  the tail sees what reaches the store). `DOCS_LOG` shortens the log's
-  defaults because a page holds several playgrounds.
+  the tail sees what reaches the store). `usePreviewReset` owns the
+  `history` id: a fresh store starts a new one, a retry-restored store
+  continues its own. `DOCS_LOG` shortens the log's defaults because a page
+  holds several playgrounds.
 - Navigation state lives in `StorePanel`; the moment moves only through
   `stepAt` and `pickAt`, and `unitOf` alone defines what a `scope` spans.
   Keep `GroupRow` memoized and `subjectFilter`'s result stable, or every row
   re-renders. Timeline marks are fractions (`--tl-f`), never measured.
+  ← → reach the panel only when the focused element has no use for them
+  (`usesArrows`).
 
 ## renderCount
 
@@ -192,8 +204,8 @@ nothing rather than a wrong count.
 ## Multi-page demos (router)
 
 A fence with `route="/posts/:id"` is a page: its default export, the path's
-params as props. `routerTrailer` appends the `render()`, so no file calls
-it. A `layout` fence wraps every page and stays mounted; `start` opens
+params as props. When any file has one, `routerTrailer` appends the
+`render()`, so no file calls it. A `layout` fence wraps every page and stays mounted; `start` opens
 somewhere other than `/`. Pages move with the scope's `Link` and
 `useNavigate()`, already a transition, so they need no `startTransition`.
 Vue examples don't run; `checkExamples.mjs` declares `RouterLink` and
@@ -249,8 +261,8 @@ Writing a script:
 
 Keep when changing the player: the reader's own input (`isTrusted`) ends
 the run for good, except scrolling, hovering, a touch that starts a scroll
-and `data-autorun-control`. It pauses while out of view or in a background
-tab, never calls `focus()`, and reaches React only in `DemoLabel`, so a run
+and `data-autorun-control`. It pauses while neither the preview nor the
+playground is mostly in view, or in a background tab, never calls `focus()`, and reaches React only in `DemoLabel`, so a run
 never re-renders the playground.
 
 ## Verify
@@ -258,7 +270,8 @@ never re-renders the playground.
 - Unit tests:
   `yarn test --selectProjects ReactDOM --testPathPatterns website/src/components/Playground`.
   CI persists only `Playground/`, `motion/` and `utils/` for these, without
-  the website's dependencies.
+  the website's dependencies; `react-live` is a root devDependency so
+  `PreviewError.test.tsx` can pin the behavior it relies on.
 - Lazy imports: `yarn lint website/src/components/Playground`.
 - Chunks, as the `website` job runs it:
   `yarn workspace rdc-website build && node website/scripts/check-lazy-chunks.mjs`.
@@ -269,4 +282,5 @@ never re-renders the playground.
 - In a browser: after a `monaco-editor` bump, open a multi-file playground
   after page load (a second homepage tab) whose importing file comes before
   the file it imports, and check for no TS2307 marker. Play any changed
-  auto-run script at desktop and phone widths.
+  auto-run script at desktop and phone widths (on a phone the Store opens
+  above the preview).

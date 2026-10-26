@@ -124,4 +124,11 @@ describe('folded fixtures', () => {
     reach(screen.getByRole('button', { name: 'Fixtures' }));
     expect(container.textContent).toContain('/article/1');
   });
+
+  test('a click on the toggle also pins them open', () => {
+    render(folded());
+    const toggle = screen.getByRole('button', { name: 'Fixtures' });
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+  });
 });
