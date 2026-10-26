@@ -3,6 +3,7 @@
 
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
+import { renderToString } from 'react-dom/server';
 
 import PreviewWrapper from '../PreviewWrapper';
 
@@ -73,5 +74,36 @@ describe('PreviewWrapper label', () => {
       </PreviewWrapper>,
     );
     expect(screen.queryByText('Editor')).toBeNull();
+  });
+});
+
+describe('PreviewWrapper clock', () => {
+  test('shows the reader’s time only with `clock`', () => {
+    const { rerender } = render(
+      <PreviewWrapper>
+        <div>result</div>
+      </PreviewWrapper>,
+    );
+    expect(screen.queryByRole('timer')).toBeNull();
+
+    rerender(
+      <PreviewWrapper clock>
+        <div>result</div>
+      </PreviewWrapper>,
+    );
+    const time = screen.getByRole('timer').querySelector('time')!;
+    expect(
+      Math.abs(Date.parse(time.dateTime) - Date.now()),
+    ).toBeLessThanOrEqual(1000);
+  });
+
+  test('holds no time in the server HTML', () => {
+    const html = renderToString(
+      <PreviewWrapper clock>
+        <div>result</div>
+      </PreviewWrapper>,
+    );
+    expect(html).toContain('role="timer"');
+    expect(html).not.toContain('<time');
   });
 });

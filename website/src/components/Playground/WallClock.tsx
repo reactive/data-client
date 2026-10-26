@@ -6,21 +6,24 @@ import styles from './styles.module.css';
 const timeFormat = new Intl.DateTimeFormat('en-US', { timeStyle: 'medium' });
 const label = translate({ id: 'playground.clock', message: 'Your clock' });
 
-/** Playground `clock`: blank on the server, which can't know the reader's
- * time, holding its width until the time arrives */
+/** Playground `clock`: empty on the server, which can't know the reader's
+ * time (the pill holds its width) */
 export default function WallClock() {
   const seconds = useSyncExternalStore(subscribe, nowSeconds, serverSeconds);
-  const date = new Date((seconds ?? 0) * 1000);
+  const date = seconds === null ? null : new Date(seconds * 1000);
   return (
     <span
       className={styles.wallClock}
       role="timer"
       title={label}
       aria-label={label}
-      data-pending={seconds === null || undefined}
     >
-      <ClockFace date={date} />
-      <time dateTime={date.toISOString()}>{timeFormat.format(date)}</time>
+      {date ?
+        <>
+          <ClockFace date={date} />
+          <time dateTime={date.toISOString()}>{timeFormat.format(date)}</time>
+        </>
+      : null}
     </span>
   );
 }
@@ -28,14 +31,13 @@ export default function WallClock() {
 /** Whole seconds, so a snapshot only changes when the display does */
 const nowSeconds = () => Math.floor(Date.now() / 1000);
 const serverSeconds = () => null;
+const untilNextSecond = () => 1000 - (Date.now() % 1000);
 /** Fires as each second turns over */
 const subscribe = (onChange: () => void) => {
-  let id: ReturnType<typeof setTimeout>;
-  const tick = () => {
+  let id = setTimeout(function tick() {
     onChange();
-    id = setTimeout(tick, 1000 - (Date.now() % 1000));
-  };
-  id = setTimeout(tick, 1000 - (Date.now() % 1000));
+    id = setTimeout(tick, untilNextSecond());
+  }, untilNextSecond());
   return () => clearTimeout(id);
 };
 
