@@ -4,6 +4,7 @@ import {
   asDispatcher,
   copiedFrom,
   sharesWithConsole,
+  stageName,
   type Attribution,
   type ManagerStage,
 } from './attribution';
@@ -64,7 +65,7 @@ export function wrapManager(
   const expectFunction = <F>(fn: F, shape: string): F => {
     if (typeof fn !== 'function')
       throw new Error(
-        `${name}'s middleware returned no function where it must return ${shape}.`,
+        `${stageName(stage)}'s middleware returned no function where it must return ${shape}.`,
       );
     return fn;
   };
@@ -85,7 +86,7 @@ export function wrapManager(
       // untyped playground code can leave out the required middleware
       if (!middleware)
         throw new Error(
-          `${name} has no middleware. Managers must define middleware.`,
+          `${stageName(stage)} has no middleware. Managers must define middleware.`,
         );
       // may be a prototype method that reads `this`
       return expectFunction(
