@@ -129,6 +129,7 @@ describe('folded fixtures', () => {
     render(folded());
     const toggle = screen.getByRole('button', { name: 'Fixtures' });
     fireEvent.click(toggle);
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
     const popover = document.getElementById(
       toggle.getAttribute('aria-controls')!,
     )!;
