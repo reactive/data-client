@@ -7,6 +7,14 @@ import type {
 import type { EndpointUpdateFunction } from './types.js';
 
 // not exported from the package: users call Controller.fetch, never name its type
+//
+// Workaround: the result depends on the args (a list body resolves a list), but a type can't
+// compute a function's result from given argument types, or pick one of an endpoint's overloads
+// by them (Parameters/ReturnType only see the last one). Only a call's own overloads can, so the
+// list signatures live here instead of on the endpoint or schema. Each fetch call tries them first,
+// which costs a few instantiations per call. Revisit if TypeScript adds such a type operator:
+// https://github.com/microsoft/TypeScript/issues/26043
+// https://github.com/microsoft/TypeScript/issues/40179
 
 /** Args ending in a list body: (body) or (params, body), like RestEndpoint's.
  * Fixed lengths since TS < 4.2 has no leading-rest tuples */
