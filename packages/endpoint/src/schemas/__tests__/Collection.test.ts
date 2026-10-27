@@ -938,6 +938,63 @@ describe(`${schema.Collection.name} normalization`, () => {
     ).toBe(100);
   });
 
+  test('two pushes in one response each add their item once', () => {
+    const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
+    const init = {
+      entities: {
+        [userTodos.key]: { '{"userId":"1"}': ['11', '5'] },
+        Todo: { '5': { id: '5', title: 'finish collections' }, '11': INVALID },
+      },
+      entitiesMeta: {
+        [userTodos.key]: { '{"userId":"1"}': meta },
+        Todo: { '5': meta, '11': meta },
+      },
+      indexes: {},
+    };
+    const state = normalize(
+      { first: userTodos.push, second: userTodos.push },
+      { first: [{ id: '10' }], second: [{ id: '11' }] },
+      [{ userId: '1' }],
+      init,
+    );
+    expect(state.entities[userTodos.key]['{"userId":"1"}']).toEqual([
+      '5',
+      '10',
+      '11',
+    ]);
+  });
+
+  test('push skips items whose process() invalidates them', () => {
+    class Draft extends IDEntity {
+      static key = 'Draft';
+      static process(input: any) {
+        return input.discard ? undefined : { ...input };
+      }
+    }
+    const drafts = new Collection([Draft]);
+    const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
+    const state = normalize(drafts.push, [{ id: '1', discard: true }], [{}], {
+      entities: { [drafts.key]: { '{}': ['1'] }, Draft: { '1': INVALID } },
+      entitiesMeta: { [drafts.key]: { '{}': meta }, Draft: { '1': meta } },
+      indexes: {},
+    });
+    expect(state.entities[drafts.key]['{}']).toEqual(['1', '1']);
+  });
+
+  test('push into a collection of nested objects appends', () => {
+    const assignments = new Collection([{ todo: Todo }]);
+    const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
+    const state = normalize(assignments.push, [{ todo: { id: '2' } }], [{}], {
+      entities: { [assignments.key]: { '{}': [{ todo: '1' }] } },
+      entitiesMeta: { [assignments.key]: { '{}': meta } },
+      indexes: {},
+    });
+    expect(state.entities[assignments.key]['{}']).toEqual([
+      { todo: '1' },
+      { todo: '2' },
+    ]);
+  });
+
   test('push of ids does not process them', () => {
     const process = jest.spyOn(Todo, 'process');
     const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
