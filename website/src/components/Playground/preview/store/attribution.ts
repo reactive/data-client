@@ -156,11 +156,12 @@ export function managerStages(managers: readonly Manager[]): ManagerStage[] {
     const known = libraryName(manager);
     const library = !!known;
     const className = known || manager.constructor?.name || 'Manager';
-    const n = (seen.get(className) ?? 0) + 1;
-    seen.set(className, n);
-    // a code class can share a library name
-    const id = `${library ? 'lib' : 'code'}:${className}#${n}`;
-    return { id, className, n, library };
+    // a code class can share a library name, so each is counted apart:
+    // adding one never renumbers the other
+    const kind = `${library ? 'lib' : 'code'}:${className}`;
+    const n = (seen.get(kind) ?? 0) + 1;
+    seen.set(kind, n);
+    return { id: `${kind}#${n}`, className, n, library };
   });
 }
 

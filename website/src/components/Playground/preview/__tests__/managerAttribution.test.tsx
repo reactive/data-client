@@ -95,13 +95,17 @@ const getTicker = new Endpoint(async () => ({ id: 'BTC', price: 1 }), {
   name: 'getTicker',
 });
 
-/** The stage of a class of the code's that shares the library's name */
-function codeNetworkManagerStage() {
+/** A manager of a class of the code's that shares the library's name */
+function codeNetworkManager(): Manager {
   class NetworkManager {
     middleware = () => (next: unknown) => next;
     cleanup() {}
   }
-  return managerStages([new NetworkManager() as any])[0];
+  return new NetworkManager() as any;
+}
+
+function codeNetworkManagerStage() {
+  return managerStages([codeNetworkManager()])[0];
 }
 
 /** A store of `own` managers that logs to `registry`'s history 0, as the
@@ -288,6 +292,15 @@ describe('manager attribution', () => {
       n: 1,
       library: false,
     });
+  });
+
+  it("numbers a code class apart from the library's of its name", () => {
+    // counted together, the library's would be #2 here and #1 without it
+    expect(
+      managerStages([codeNetworkManager(), new NetworkManager()]).map(
+        stage => stage.id,
+      ),
+    ).toEqual(['code:NetworkManager#1', 'lib:NetworkManager#1']);
   });
 
   it("keeps a code class's routes apart from the library's of its name", () => {
