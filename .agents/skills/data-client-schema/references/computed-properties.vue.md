@@ -106,15 +106,13 @@ export const CartResource = resource({
 export const usd = { style: 'currency', currency: 'USD' } as const;
 ```
 
-```ts title="getCartTotals" {8-20}
-import { All, Query } from '@data-client/rest';
-import { CartItem } from './resources/Cart';
+```ts title="getCartTotals" {6}
+import { Query } from '@data-client/rest';
+import { CartResource } from './resources/Cart';
 
 export const freeShippingAt = 50;
-// every line in the cart
-export const cartItems = new All(CartItem);
 
-export const getCartTotals = new Query(cartItems, items => {
+export const getCartTotals = new Query(CartResource.getList.schema, items => {
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.total, 0);
   const toFreeShipping = Math.max(0, freeShippingAt - subtotal);
@@ -296,21 +294,19 @@ export const getCartTotals = new Query(cartItems, items => {
 
 ```html title="CartPage.vue" route="/cart"
 <script setup lang="ts">
-  import { useQuery, useSuspense } from '@data-client/vue';
+  import { useSuspense } from '@data-client/vue';
   import NumberFlow from '@number-flow/vue';
   import CheckoutButton from './CheckoutButton.vue';
   import FreeShipping from './FreeShipping.vue';
-  import { cartItems } from './getCartTotals';
   import OrderSummary from './OrderSummary.vue';
   import QuantityStepper from './QuantityStepper.vue';
   import { CartResource, usd } from './resources/Cart';
 
-  await useSuspense(CartResource.getList);
-  const items = useQuery(cartItems);
+  const items = await useSuspense(CartResource.getList);
 </script>
 
 <template>
-  <p v-if="!items?.length" class="meta">Your cart is empty</p>
+  <p v-if="!items.length" class="meta">Your cart is empty</p>
   <template v-else>
     <div class="list">
       <div v-for="item in items" :key="item.id" class="listItem">

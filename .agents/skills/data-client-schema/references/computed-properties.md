@@ -106,15 +106,13 @@ export const CartResource = resource({
 export const usd = { style: 'currency', currency: 'USD' } as const;
 ```
 
-```ts title="getCartTotals" {8-20}
-import { All, Query } from '@data-client/rest';
-import { CartItem } from './resources/Cart';
+```ts title="getCartTotals" {6}
+import { Query } from '@data-client/rest';
+import { CartResource } from './resources/Cart';
 
 export const freeShippingAt = 50;
-// every line in the cart
-export const cartItems = new All(CartItem);
 
-export const getCartTotals = new Query(cartItems, items => {
+export const getCartTotals = new Query(CartResource.getList.schema, items => {
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.total, 0);
   const toFreeShipping = Math.max(0, freeShippingAt - subtotal);
@@ -295,19 +293,17 @@ export default function ShopPage() {
 ```
 
 ```tsx title="CartPage" route="/cart"
-import { useQuery, useSuspense } from '@data-client/react';
+import { useSuspense } from '@data-client/react';
 import NumberFlow from '@number-flow/react';
 import CheckoutButton from './CheckoutButton';
 import FreeShipping from './FreeShipping';
-import { cartItems } from './getCartTotals';
 import OrderSummary from './OrderSummary';
 import QuantityStepper from './QuantityStepper';
 import { CartResource, usd } from './resources/Cart';
 
 export default function CartPage() {
-  useSuspense(CartResource.getList);
-  const items = useQuery(cartItems);
-  if (!items?.length) return <p className="meta">Your cart is empty</p>;
+  const items = useSuspense(CartResource.getList);
+  if (!items.length) return <p className="meta">Your cart is empty</p>;
   return (
     <>
       <div className="list">
