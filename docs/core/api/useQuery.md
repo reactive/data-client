@@ -376,7 +376,7 @@ render(<UsersPage />);
 </template>
 ```
 
-```html title="UsersTable.vue" {34}
+```html title="UsersTable.vue" {34-37}
 <script lang="ts">
   import { All, Query } from '@data-client/rest';
   import { type Sort, User } from './resources/User';
@@ -406,19 +406,18 @@ render(<UsersPage />);
   import { UserResource } from './resources/User';
   import UsersTableView from './UsersTableView.vue';
 
-  const props = defineProps<Args>();
+  const props = defineProps<{ sort: Sort; isAdmin: boolean | undefined }>();
   defineEmits<{ sort: [sort: Sort] }>();
 
   await useSuspense(UserResource.getList);
-  const users = useQuery(sortedUsers, () => ({ ...props }));
+  const users = useQuery(sortedUsers, () => ({
+    ...props.sort,
+    isAdmin: props.isAdmin,
+  }));
 </script>
 
 <template>
-  <UsersTableView
-    :users="users ?? []"
-    :sort="{ sortBy, desc }"
-    @sort="$emit('sort', $event)"
-  />
+  <UsersTableView :users="users ?? []" :sort="sort" @sort="$emit('sort', $event)" />
 </template>
 ```
 
@@ -438,7 +437,7 @@ render(<UsersPage />);
     <h1 class="appTitle">Team</h1>
     <RoleFilter :is-admin="isAdmin" @change="isAdmin = $event" />
   </header>
-  <UsersTable v-bind="sort" :is-admin="isAdmin" @sort="sort = $event" />
+  <UsersTable :sort="sort" :is-admin="isAdmin" @sort="sort = $event" />
 </template>
 ```
 
