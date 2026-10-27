@@ -1,19 +1,24 @@
 import React from 'react';
 
 /** A round profile picture; 32px, or `size` to match the text beside it
- * (smaller in a byline or a comment). Given a `name` instead, the name's
+ * (smaller in a byline or a comment). Without a `src`, its `name`'s
  * initials on a disc (32px, 22px in a table row), hidden from screen readers
  * since the name is written beside it */
-export function Avatar(
-  props: ({ src: string } | { name: string }) & { size?: number },
-) {
-  if (!('src' in props))
+export function Avatar({
+  src,
+  name = '',
+  size = 32,
+}: {
+  src?: string;
+  name?: string;
+  size?: number;
+}) {
+  if (!src)
     return (
       <span className="avatar" aria-hidden>
-        {initials(props.name)}
+        {initials(name)}
       </span>
     );
-  const { src, size = 32 } = props;
   return (
     <span
       style={{

@@ -61,6 +61,11 @@
     var(--ds-surface)
   );
   --ds-on-accent: #fff;
+  /* a surface raised off a well (a segmented control's pill) */
+  --ds-raised: var(--ds-surface);
+  --ds-raised-shadow:
+    0 1px 2px var(--pg-shadow-edge),
+    0 0 0 1px color-mix(in srgb, var(--ds-text) 6%, transparent);
   /* Infima's own vars, re-pointed so what reads them (the rt-* fields, links,
      the error panel's text) follows this palette in both themes */
   --ifm-color-emphasis-0: var(--ds-surface);
@@ -99,6 +104,9 @@ html[data-theme='dark'] .playground-preview {
   --ds-accent-strong: #7cc1f4;
   --ds-accent-wash: 14%;
   --ds-on-accent: #04121f;
+  /* a step up from the well, with no shadow to cast */
+  --ds-raised: color-mix(in srgb, var(--ds-text) 14%, var(--ds-surface-2));
+  --ds-raised-shadow: none;
   /* fields sit in the well, a step above the panel */
   --ifm-color-emphasis-0: var(--ds-surface-2);
 }

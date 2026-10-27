@@ -772,16 +772,13 @@ div.playground-preview h1:first-child {
 .playground-preview .appHeader .buttonGroup {
   margin-top: 0;
 }
-/* A filter's choices (All, Admins, Members) as one segmented control: the
-   words on a track of the well's color, in equal segments, and the chosen
-   one (`aria-pressed`) in full ink on a pill of the sheet that slides
-   to it. The pill is the track's ::before, one segment wide, moved by the
-   chosen segment's index (counted by :has(), up to four segments). In an
-   app header it sits level with the wordmark; on a phone it fits beside it */
+/* A filter's choices (All, Admins, Members) on a track of the well's
+   color, in equal segments; the chosen one (`aria-pressed`) in full ink on a
+   pill that slides to it. The pill shares the first segment's grid cell and
+   moves by the chosen one's index. In an app header it sits level with the
+   wordmark; on a phone it fits beside it */
 .playground-preview .segmented {
-  --segments: 1;
   --segment: 0;
-  position: relative;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
@@ -790,15 +787,6 @@ div.playground-preview h1:first-child {
   padding: 2px;
   border-radius: 999px;
   background: var(--ds-surface-2);
-}
-.playground-preview .segmented:has(> :nth-child(2):last-child) {
-  --segments: 2;
-}
-.playground-preview .segmented:has(> :nth-child(3):last-child) {
-  --segments: 3;
-}
-.playground-preview .segmented:has(> :nth-child(4):last-child) {
-  --segments: 4;
 }
 .playground-preview .segmented:has(> :nth-child(2)[aria-pressed='true']) {
   --segment: 1;
@@ -809,23 +797,17 @@ div.playground-preview h1:first-child {
 .playground-preview .segmented:has(> :nth-child(4)[aria-pressed='true']) {
   --segment: 3;
 }
+.playground-preview .segmented::before,
+.playground-preview .segmented > :first-child {
+  grid-area: 1 / 1;
+}
 .playground-preview .segmented::before {
   content: '';
-  position: absolute;
-  inset: 2px auto 2px 2px;
-  width: calc((100% - 4px) / var(--segments));
   border-radius: 999px;
-  background: var(--ds-surface);
-  box-shadow:
-    0 1px 2px var(--pg-shadow-edge),
-    0 0 0 1px color-mix(in srgb, var(--ds-text) 6%, transparent);
+  background: var(--ds-raised);
+  box-shadow: var(--ds-raised-shadow);
   transform: translateX(calc(100% * var(--segment)));
   transition: transform var(--motion-snappy);
-}
-/* at night the pill is a step up from the track, with no shadow to cast */
-html[data-theme='dark'] .playground-preview .segmented::before {
-  background: color-mix(in srgb, var(--ds-text) 14%, var(--ds-surface-2));
-  box-shadow: none;
 }
 @media (prefers-reduced-motion: reduce) {
   .playground-preview .segmented::before {
@@ -833,6 +815,7 @@ html[data-theme='dark'] .playground-preview .segmented::before {
   }
 }
 .playground-preview .segmented > button {
+  /* above the pill, which its transform lifts over unpositioned siblings */
   position: relative;
   margin: 0;
   padding: 4px 12px;
@@ -840,19 +823,10 @@ html[data-theme='dark'] .playground-preview .segmented::before {
   border-radius: 999px;
   background: none;
   color: var(--ds-text-muted);
-  font: 500 var(--ds-text-sm) / 1.4 var(--ifm-font-family-base);
-  cursor: pointer;
-  transition: color var(--motion-snappy);
 }
 .playground-preview .segmented > button[aria-pressed='true'] {
   color: var(--ds-text);
   font-weight: 600;
-}
-/* a fingertip's target on touch screens: 40px with the track */
-@media (pointer: coarse) {
-  .playground-preview .segmented > button {
-    min-height: 36px;
-  }
 }
 @media (hover: hover) {
   .playground-preview .segmented > button:not([aria-pressed='true']):hover {
@@ -860,16 +834,12 @@ html[data-theme='dark'] .playground-preview .segmented::before {
   }
 }
 .playground-preview .segmented > button:focus-visible {
-  outline: 2px solid var(--ds-accent);
   outline-offset: -2px;
 }
 /* A table (a team's members): rows on the sheet with no rules, stripes or
-   hover (a row does nothing on a click, like a list row without a control),
-   set apart by space, its first and last columns flush with the app
-   header's text. Headers are a group's label; a sort arrow has no baseline,
-   so they sit at the UA's middle and every label stays level. `value` cells
-   (a count, a year) sit at the column's end. Infima's borders and stripes
-   are dropped */
+   hover, set apart by space, its first and last columns flush with the app
+   header's text. Headers are a group's label; `value` cells (a count, a
+   year) sit at the column's end. Infima's borders and stripes are dropped */
 .playground-preview table {
   --ifm-table-stripe-background: transparent;
   width: 100%;
