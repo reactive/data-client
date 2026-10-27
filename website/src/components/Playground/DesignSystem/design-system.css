@@ -226,9 +226,11 @@ div.playground-preview h1:first-child {
   min-width: 0;
 }
 /* a row is a flex box, which a first-line trim (the sheet's, for its first
-   row) doesn't reach into: its text takes the row's own; its controls keep
-   their boxes */
-.playground-preview .listItem > :not(button, input, select, textarea) {
+   row) doesn't reach into: its text takes the row's own; its controls and
+   NumberFlows keep their boxes */
+.playground-preview
+  .listItem
+  > :not(button, input, select, textarea, number-flow-react, number-flow-vue) {
   text-box: inherit;
 }
 .playground-preview .listItem p:last-child {
