@@ -370,6 +370,44 @@ describe(`${schema.Collection.name} normalization`, () => {
       ]);
     });
 
+    test('push of a deleted then re-created Union member adds it once', () => {
+      const collectionPK = collectionUnion.pk({}, {}, '', [
+        { completed: false },
+      ]);
+      const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
+      const init: State<unknown> = {
+        ...initialState,
+        entities: {
+          [collectionUnion.key]: {
+            [collectionPK]: [
+              null,
+              { id: '1', schema: 'users' },
+              { id: '2', schema: 'groups' },
+            ],
+          },
+          User: { '1': INVALID },
+          Group: { '2': { id: '2', type: 'groups' } },
+        },
+        entitiesMeta: {
+          [collectionUnion.key]: { [collectionPK]: meta },
+          User: { '1': meta },
+          Group: { '2': meta },
+        },
+        indexes: {},
+      };
+      const state = normalize(
+        collectionUnion.push,
+        [{ id: '1', type: 'users' }],
+        [{ completed: false }],
+        init,
+      );
+      expect(state.entities[collectionUnion.key]?.[collectionPK]).toEqual([
+        null,
+        { id: '2', schema: 'groups' },
+        { id: '1', schema: 'users' },
+      ]);
+    });
+
     test('remove works updates the correct collections', () => {
       const init = {
         entities: {
@@ -831,6 +869,37 @@ describe(`${schema.Collection.name} normalization`, () => {
       );
     },
   );
+
+  test('re-creating a deleted id leaves collections it is not added to alone', () => {
+    const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
+    const init = {
+      entities: {
+        [User.schema.todos.key]: {
+          '{"userId":"1"}': ['10'],
+          '{"userId":"2"}': ['10'],
+        },
+        Todo: { '10': INVALID },
+      },
+      entitiesMeta: {
+        [User.schema.todos.key]: {
+          '{"userId":"1"}': meta,
+          '{"userId":"2"}': meta,
+        },
+        Todo: { '10': meta },
+      },
+      indexes: {},
+    };
+    const state = normalize(
+      User.schema.todos.push,
+      [{ id: '10', title: 'recreated' }],
+      [{ userId: '1' }],
+      init,
+    );
+    expect(state.entities[User.schema.todos.key]).toEqual({
+      '{"userId":"1"}': ['10'],
+      '{"userId":"2"}': ['10'],
+    });
+  });
 
   test('push of an id already in the collection adds it again, like Array.push()', () => {
     const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
