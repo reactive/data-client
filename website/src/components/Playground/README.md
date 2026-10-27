@@ -249,6 +249,7 @@ Styled elements: `h2` (page title), `button` (`primary` fills one;
 | `pill`                                     | a label after a name (an admin), in the accent                                  |
 | `buttonGroup`                              | segmented actions (Fail Soft, Fail Hard)                                        |
 | `segmented`                                | a filter's 2-4 choices on a track; `aria-pressed` marks the pick, a pill slides |
+| `field` (a `label`)                        | its name over the `input` or `textarea` it holds                                |
 | `search` (a `label`)                       | `input type="search"`, `button.clear`; `aria-busy` spins its magnifier          |
 | `cancel` (`<CancelButton />`)              | a row's remove button                                                           |
 | `skeleton`                                 | a value still loading; `<Loading />`, the default fallback, draws a page        |
@@ -260,7 +261,10 @@ Styled elements: `h2` (page title), `button` (`primary` fills one;
 | `table` (`value` cells), `sort` (a button) | rule-free rows (no hover); a `th`'s `button.sort` sorts, `aria-sort` marks it   |
 
 A `search` input needs a `placeholder`: its clear button hides while the
-placeholder shows, the one way CSS can tell the field is empty.
+placeholder shows, the one way CSS can tell the field is empty. A text input
+in a `listItem` (a new todo) is the row's text until focused; give it a
+`placeholder` and an `aria-label`. `aria-busy` on a text input traces its
+border while its entry saves, like a busy button.
 
 ## Auto-run
 

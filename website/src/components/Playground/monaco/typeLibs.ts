@@ -190,8 +190,11 @@ const PREVIEW_SCOPE_DECLARATIONS = `declare function render(component:JSX.Elemen
         declare function CancelButton(props: { onClick?: () => void }):JSX.Element;
         declare function Avatar(props: { src: string; size?: number }):JSX.Element;
         declare function Formatted({ downColor, formatter, formatterFn, timeout, transition, transitionLength, upColor, value, stylePrefix, }: NumberProps):JSX.Element
+        /** @deprecated Kept for translated pages: use <label className="field"> around an input, or label.search */
         declare function TextInput(props:Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> & { label?: React.ReactNode; loading?: boolean; size?: 'large' | 'medium' | 'small'; }):JSX.Element;
+        /** @deprecated Kept for translated pages: use <label className="field"> around a textarea */
         declare function TextArea(props:React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: React.ReactNode;}):JSX.Element;
+        /** @deprecated Kept for translated pages: use label.search */
         declare function SearchIcon():JSX.Element;
         declare function Link(props: React.AnchorHTMLAttributes<HTMLAnchorElement> & { to: string }):JSX.Element;
         declare function useNavigate(): (to: string) => void;

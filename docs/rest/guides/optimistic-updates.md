@@ -128,7 +128,12 @@ export default function CreateTodo({ userId }: { userId: number }) {
     <div className="listItem nogap">
       <label>
         <input type="checkbox" name="new" checked={false} disabled />
-        <TextInput size="small" onKeyDown={handleKeyDown} />
+        <input
+          type="text"
+          aria-label="New todo"
+          placeholder="New todo"
+          onKeyDown={handleKeyDown}
+        />
       </label>
       <CancelButton />
     </div>
@@ -214,7 +219,12 @@ render(<TodoList />);
   <div class="listItem nogap">
     <label>
       <input type="checkbox" name="new" :checked="false" disabled />
-      <TextInput size="small" @keydown="handleKeyDown" />
+      <input
+        type="text"
+        aria-label="New todo"
+        placeholder="New todo"
+        @keydown="handleKeyDown"
+      />
     </label>
     <CancelButton />
   </div>

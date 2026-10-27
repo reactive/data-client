@@ -85,7 +85,12 @@ export const TodoResource = resource({
   <div class="listItem nogap">
     <label>
       <input type="checkbox" name="new" :checked="false" disabled />
-      <TextInput size="small" @keydown="handleKeyDown" />
+      <input
+        type="text"
+        aria-label="New todo"
+        placeholder="New todo"
+        @keydown="handleKeyDown"
+      />
     </label>
     <CancelButton />
   </div>
