@@ -1191,13 +1191,13 @@ div.playgroundTextEdit > .playgroundHeader,
    a list's hover band still has it). Chrome carries the trim only down a
    chain of first children with text, so past the router's progress bar
    and into a first row's or figure's items it is stated outright, and
-   every engine agrees. A row's controls and pictures keep their boxes */
+   every engine agrees */
 .sheet,
 .navProgress + * {
   text-box: trim-start cap alphabetic;
 }
 /* the first row: the page's first block, or the first in it or in its
-   first block (a list) */
+   first block (a list); its items take its trim (design-system.css) */
 :is(
   .sheet > :first-child,
   .navProgress + *,
@@ -1207,16 +1207,8 @@ div.playgroundTextEdit > .playgroundHeader,
   .navProgress + * > :first-child > :first-child
 ):global(.listItem) {
   margin-top: calc(-1 * var(--ds-row-pad));
+  text-box: trim-start cap alphabetic;
 }
-:is(
-    .sheet > :first-child,
-    .navProgress + *,
-    .sheet > :first-child > :first-child,
-    .navProgress + * > :first-child,
-    .sheet > :first-child > :first-child > :first-child,
-    .navProgress + * > :first-child > :first-child
-  ):global(.listItem)
-  > :not(button, input, select, textarea, :has(> img)),
 :is(
     .sheet > :first-child,
     .navProgress + *,
