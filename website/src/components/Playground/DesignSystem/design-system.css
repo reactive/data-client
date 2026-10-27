@@ -774,7 +774,7 @@ div.playground-preview h1:first-child {
 }
 /* A filter's choices (All, Admins, Members) as one segmented control: the
    words on a track of the well's color, in equal segments, and the chosen
-   one (`aria-pressed`) in the accent on a pill of the sheet that slides
+   one (`aria-pressed`) in full ink on a pill of the sheet that slides
    to it. The pill is the track's ::before, one segment wide, moved by the
    chosen segment's index (counted by :has(), up to four segments). In an
    app header it sits level with the wordmark; on a phone it fits beside it */
@@ -845,8 +845,14 @@ html[data-theme='dark'] .playground-preview .segmented::before {
   transition: color var(--motion-snappy);
 }
 .playground-preview .segmented > button[aria-pressed='true'] {
-  color: var(--ds-accent);
+  color: var(--ds-text);
   font-weight: 600;
+}
+/* a fingertip's target on touch screens: 40px with the track */
+@media (pointer: coarse) {
+  .playground-preview .segmented > button {
+    min-height: 36px;
+  }
 }
 @media (hover: hover) {
   .playground-preview .segmented > button:not([aria-pressed='true']):hover {
