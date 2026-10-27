@@ -529,7 +529,10 @@ export default class ActionLog {
       ...(i >= 0 && { entries: entries.with(i, { ...entries[i], ...fields }) }),
       ...historyFields,
     });
-    this.notify();
+    // a read sharing a request in flight comes from a suspended render's
+    // retry; showing it would render the panel, which retries it again (see
+    // `append`), so it shows with the response
+    if (i < 0 || !entries[i].deduped) this.notify();
   }
 
   /** Listeners hear once per task, never during the render that

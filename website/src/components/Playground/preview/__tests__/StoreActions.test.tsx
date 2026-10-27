@@ -13,7 +13,14 @@ import {
   type ActionTypes,
   type State,
 } from '@data-client/react';
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import React, { Suspense } from 'react';
 
 import {
@@ -1158,6 +1165,76 @@ describe('Store Actions pane', () => {
       env.IS_REACT_ACT_ENVIRONMENT = actEnvironment;
     }
     expect(rows()).toHaveLength(1);
+  });
+
+  it('lets a transition wait on new args without fetching again', async () => {
+    const responds = new Map<string, () => void>();
+    const search = new Endpoint(
+      ({ q }: { q: string }) =>
+        new Promise<void>(resolve => {
+          responds.set(q, resolve);
+        }).then(() => [{ id: q, title: q }]),
+      {
+        schema: [Post],
+        key: ({ q }: { q: string }) => `GET https://example.com/search?q=${q}`,
+      },
+    );
+    function Results({ q }: { q: string }) {
+      return <p>Results for {useSuspense(search, { q })[0].title}</p>;
+    }
+    let searchFor = (q: string) => {};
+    function Search() {
+      const [q, setQ] = React.useState('a');
+      searchFor = next => React.startTransition(() => setQ(next));
+      return (
+        <Suspense fallback="loading">
+          <Results q={q} />
+        </Suspense>
+      );
+    }
+    // wired as the preview wires it: NetworkManager tells which fetches it
+    // shares with a request in flight
+    const registry = new SchemaRegistry();
+    const network = new NetworkManager();
+    const log = registry.log.connect(0, undefined, action =>
+      network.skipLogging(action),
+    );
+    render(
+      <DataProvider
+        managers={[log.head, registry, ...log.track([network]), log.tail]}
+        devButton={null}
+      >
+        <Search />
+        <StorePanel registry={registry} history={0} />
+      </DataProvider>,
+    );
+    openPane();
+    const fetchesOf = (q: string) =>
+      registry.log
+        .history(0)
+        .entries.filter(
+          e =>
+            e.action.type === actionTypes.FETCH &&
+            e.action.key.endsWith(`q=${q}`),
+        );
+    const env = globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean };
+    const actEnvironment = env.IS_REACT_ACT_ENVIRONMENT;
+    env.IS_REACT_ACT_ENVIRONMENT = false;
+    try {
+      await waitFor(() => expect(responds.has('a')).toBe(true));
+      responds.get('a')!();
+      await screen.findByText('Results for a');
+      searchFor('b');
+      await new Promise(resolve => setTimeout(resolve, 100));
+      // the transition keeps showing "a" while "b" loads; were the panel to
+      // render on each fetch it shares, React would retry the transition on
+      // each render, and each retry would fetch again
+      expect(fetchesOf('b').length).toBeLessThanOrEqual(3);
+      responds.get('b')!();
+      await screen.findByText('Results for b');
+    } finally {
+      env.IS_REACT_ACT_ENVIRONMENT = actEnvironment;
+    }
   });
 
   it('shows a response the store failed to process as an error', async () => {
