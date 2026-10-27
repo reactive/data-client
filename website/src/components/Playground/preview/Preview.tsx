@@ -53,13 +53,13 @@ function Preview<T>({
   // DataProvider keeps its first managers, so build them once per mount
   // (create() runs the code's getManagers() and clears the last error)
   const [managers] = useState<Manager[]>(() => {
-    const { managers, network } = managerHost.create();
+    const { managers, network, reportFor } = managerHost.create();
     const log = registry.log.connect(history, replacedHistory, action =>
       network.skipLogging(action),
     );
     // the head goes first: it credits each action to the manager whose
     // controller call sent it
-    return [log.head, registry, ...log.track(managers), log.tail];
+    return [log.head, registry, ...log.track(managers, reportFor), log.tail];
   });
 
   return (

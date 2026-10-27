@@ -171,6 +171,40 @@ describe('manager attribution', () => {
     expect(isLibraryManager(idling)).toBe(true);
   });
 
+  it('names the managers of a store that took over a history before it acted', async () => {
+    const registry = new SchemaRegistry({ trimEvery: 1 });
+    /** Sets a ticker as it mounts: before the managers' init, which runs
+     * in DataProvider's effect, after its children's */
+    function SetsOnMount() {
+      const ctrl = useController();
+      React.useEffect(() => {
+        void ctrl.set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
+      }, [ctrl]);
+      return null;
+    }
+    const store = (own: Manager[], children: React.ReactNode = null) => {
+      const log = registry.log.connect(0);
+      return render(
+        <DataProvider
+          managers={[log.head, registry, ...log.track(own), log.tail]}
+          devButton={null}
+        >
+          {children}
+        </DataProvider>,
+      );
+    };
+    // the defaults start the history, with no action yet (the code's
+    // getManagers() registers after the first store mounts)
+    store([new NetworkManager()]).unmount();
+    await act(async () => {
+      store([new StreamManager(), new NetworkManager()], <SetsOnMount />);
+    });
+    expect(registry.log.history(0).managers).toEqual([
+      'StreamManager',
+      'NetworkManager',
+    ]);
+  });
+
   it("credits what a manager sends through its controller, not the app's", async () => {
     const stream = new StreamManager();
     const { ctrl, entries } = mount([stream, new NetworkManager()]);
@@ -373,6 +407,98 @@ describe('manager attribution', () => {
       );
     });
     expect(entries()[0].origin).toBeUndefined();
+  });
+
+  it('wraps each manager once, guarding those it reports for', () => {
+    const log = new SchemaRegistry().log.connect(0);
+    const error = new Error('broke');
+    const thrower: Manager = {
+      middleware: () => () => () => {
+        throw error;
+      },
+      cleanup() {},
+    };
+    const network = new NetworkManager();
+    const report = jest.fn();
+    const [guarded, tracked] = log.track([thrower, network], manager =>
+      manager === thrower ? report : undefined,
+    );
+    expect(Object.getPrototypeOf(guarded)).toBe(thrower);
+    expect(Object.getPrototypeOf(tracked)).toBe(network);
+
+    // the failed step is skipped: the action goes on to the next middleware
+    const next = jest.fn();
+    const action = { type: actionTypes.GC } as ActionTypes;
+    guarded.middleware({} as Controller)(next)(action);
+    expect(report).toHaveBeenCalledWith(error);
+    expect(next).toHaveBeenCalledWith(action);
+  });
+
+  /** `manager`, tracked and guarded, with where it reports */
+  const guard = (manager: unknown) => {
+    const report = jest.fn();
+    const [guarded] = new SchemaRegistry().log
+      .connect(0)
+      .track([manager as Manager], () => report);
+    return { guarded, report };
+  };
+
+  it("leaves what comes after a manager whose middleware won't build unguarded", async () => {
+    const { guarded, report } = guard({ cleanup() {} });
+    const failed = new Error('request failed');
+    const dispatch = guarded.middleware({} as Controller)(() =>
+      Promise.reject(failed),
+    );
+    expect(report.mock.calls[0][0].message).toMatch(/has no middleware/);
+    // the store's own failure reaches the caller, not the manager error
+    await expect(
+      dispatch({ type: actionTypes.GC } as ActionTypes),
+    ).rejects.toBe(failed);
+    expect(report).toHaveBeenCalledTimes(1);
+  });
+
+  it('reports a middleware that returns no function', () => {
+    const { guarded, report } = guard({
+      middleware: () => undefined,
+      cleanup() {},
+    });
+    const next = jest.fn();
+    const action = { type: actionTypes.GC } as ActionTypes;
+    guarded.middleware({} as Controller)(next)(action);
+    expect(report.mock.calls[0][0].message).toMatch(/returned no function/);
+    expect(report).toHaveBeenCalledTimes(1);
+    expect(next).toHaveBeenCalledWith(action);
+  });
+
+  it('reports a step that returns no function', () => {
+    const { guarded, report } = guard({
+      middleware: () => () => undefined,
+      cleanup() {},
+    });
+    const next = jest.fn();
+    const dispatch = guarded.middleware({} as Controller)(next);
+    const action = { type: actionTypes.GC } as ActionTypes;
+    dispatch(action);
+    dispatch(action);
+    expect(report.mock.calls[0][0].message).toMatch(/must return action =>/);
+    expect(report).toHaveBeenCalledTimes(1);
+    expect(next).toHaveBeenCalledTimes(2);
+  });
+
+  it('guards a middleware that passes next itself, passing an action on once when its step throws', () => {
+    const { guarded, report } = guard({
+      middleware: () => (next: unknown) => next,
+      cleanup() {},
+    });
+    const error = new Error('later');
+    const action = { type: actionTypes.GC } as ActionTypes;
+    const next = jest.fn(() => {
+      throw error;
+    });
+    guarded.middleware({} as Controller)(next)(action);
+    expect(report).toHaveBeenCalledWith(error);
+    // passed on once, not again as the step fails
+    expect(next).toHaveBeenCalledTimes(1);
   });
 });
 
