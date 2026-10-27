@@ -61,9 +61,9 @@ let patched = false;
  * Monaco's hover and suggest list pick above or below the line by room
  * measured from the page's top (scroll included) against the window's
  * height, so on a scrolled page they pick above; fixed, they land on the
- * line. Run them with scrollY 0 so they measure in the viewport. Patches the classes every editor shares, found
- * through the first editor's widgets; if an upgrade renames these private
- * methods, they just keep preferring above.
+ * line. Run them with scrollY 0 so they measure in the viewport. Patches the
+ * classes every editor shares, found through the first editor's widgets; if
+ * an upgrade renames these private methods, they just keep preferring above.
  */
 function measureInViewport(editor: Monaco.editor.ICodeEditor) {
   if (patched) return;
