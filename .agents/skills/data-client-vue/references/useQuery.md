@@ -336,10 +336,7 @@ export interface Sort {
 </script>
 
 <template>
-  <header class="appHeader">
-    <h1 class="appTitle">Team</h1>
-    <RoleFilter :is-admin="isAdmin" @change="isAdmin = $event" />
-  </header>
+  <RoleFilter :is-admin="isAdmin" @change="isAdmin = $event" />
   <UsersTable :sort="sort" :is-admin="isAdmin" @sort="sort = $event" />
 </template>
 ```

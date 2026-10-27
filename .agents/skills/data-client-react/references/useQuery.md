@@ -360,10 +360,7 @@ function UsersPage() {
   const [isAdmin, setIsAdmin] = React.useState<boolean>();
   return (
     <>
-      <header className="appHeader">
-        <h1 className="appTitle">Team</h1>
-        <RoleFilter isAdmin={isAdmin} onChange={setIsAdmin} />
-      </header>
+      <RoleFilter isAdmin={isAdmin} onChange={setIsAdmin} />
       <UsersTable sort={sort} isAdmin={isAdmin} onSort={setSort} />
     </>
   );

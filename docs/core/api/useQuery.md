@@ -293,10 +293,7 @@ function UsersPage() {
   const [isAdmin, setIsAdmin] = React.useState<boolean>();
   return (
     <>
-      <header className="appHeader">
-        <h1 className="appTitle">Team</h1>
-        <RoleFilter isAdmin={isAdmin} onChange={setIsAdmin} />
-      </header>
+      <RoleFilter isAdmin={isAdmin} onChange={setIsAdmin} />
       <UsersTable sort={sort} isAdmin={isAdmin} onSort={setSort} />
     </>
   );
@@ -434,10 +431,7 @@ render(<UsersPage />);
 </script>
 
 <template>
-  <header class="appHeader">
-    <h1 class="appTitle">Team</h1>
-    <RoleFilter :is-admin="isAdmin" @change="isAdmin = $event" />
-  </header>
+  <RoleFilter :is-admin="isAdmin" @change="isAdmin = $event" />
   <UsersTable :sort="sort" :is-admin="isAdmin" @sort="sort = $event" />
 </template>
 ```
