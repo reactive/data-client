@@ -294,13 +294,18 @@ describe('manager attribution', () => {
     });
   });
 
-  it("numbers a code class apart from the library's of its name", () => {
+  it("ids a code class apart from the library's of its name", () => {
     // counted together, the library's would be #2 here and #1 without it
-    expect(
-      managerStages([codeNetworkManager(), new NetworkManager()]).map(
-        stage => stage.id,
-      ),
-    ).toEqual(['code:NetworkManager#1', 'lib:NetworkManager#1']);
+    const stages = managerStages([codeNetworkManager(), new NetworkManager()]);
+    expect(stages.map(stage => stage.id)).toEqual([
+      'code:NetworkManager#1',
+      'lib:NetworkManager#1',
+    ]);
+    // while each still reads apart in the inspector
+    expect(stages.map(stageName)).toEqual([
+      'NetworkManager',
+      'NetworkManager #2',
+    ]);
   });
 
   it("keeps a code class's routes apart from the library's of its name", () => {

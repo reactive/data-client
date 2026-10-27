@@ -42,11 +42,13 @@ export const startsRequests = (manager: Manager) =>
  * message to devtools) */
 export interface ManagerStage {
   /** The same in every store whose chain has this class (and library or
-   * not) at this place among its class: what stages compare by */
+   * not) at this place among its class and kind: what stages compare by */
   readonly id: string;
   /** Its class's name */
   readonly className: string;
-  /** Which of its class it is in the chain: 1 for the first, 2 for the next */
+  /** Which of its class's name it is in the chain, the library's and the
+   * code's counted together: 1 for the first, 2 for the next. Only names
+   * it (the `id` counts each kind apart) */
   readonly n: number;
   /** One of the library's own managers, which every store has unless the
    * code chooses otherwise (a subclass is the code's) */
@@ -151,17 +153,27 @@ export function byStage(stage: Stage) {
  * after an error, or remade when the code's managers change) a stage
  * picked stays picked */
 export function managerStages(managers: readonly Manager[]): ManagerStage[] {
-  const seen = new Map<string, number>();
+  const named = new Map<string, number>();
+  const kept = new Map<string, number>();
+  const next = (seen: Map<string, number>, key: string) => {
+    const n = (seen.get(key) ?? 0) + 1;
+    seen.set(key, n);
+    return n;
+  };
   return managers.map(manager => {
     const known = libraryName(manager);
     const library = !!known;
     const className = known || manager.constructor?.name || 'Manager';
-    // a code class can share a library name, so each is counted apart:
-    // adding one never renumbers the other
-    const kind = `${library ? 'lib' : 'code'}:${className}`;
-    const n = (seen.get(kind) ?? 0) + 1;
-    seen.set(kind, n);
-    return { id: `${kind}#${n}`, className, n, library };
+    // a code class can share a library name: its name counts them together
+    // so each reads apart, its id counts them apart so adding one never
+    // re-ids the other
+    const classKey = `${library ? 'lib' : 'code'}:${className}`;
+    return {
+      id: `${classKey}#${next(kept, classKey)}`,
+      className,
+      n: next(named, className),
+      library,
+    };
   });
 }
 
