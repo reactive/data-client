@@ -14,7 +14,7 @@
     "@data-client/normalizr": "workspace:*"
   },
   "devDependencies": {
-    "@babel/core": "8.0.7",
+    "@babel/core": "8.0.9",
     "@babel/node": "8.0.6"
   }
 }
