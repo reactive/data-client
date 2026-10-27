@@ -629,23 +629,17 @@ div.playgroundTextEdit > .playgroundHeader,
   letter-spacing: 0.02em;
 }
 .row .codeHeader ~ .playgroundEditor {
+  /* the code's ground and Monaco's with it (--pg-under is resolved on
+     .editorDocs, from the code's) */
+  --monoco-code-background: var(--pg-under);
+  --monoco-code-lineHighlightBorder: color-mix(
+    in oklab,
+    var(--pg-under),
+    #fff 6%
+  );
   padding-top: 2px;
   border-radius: 0;
-  background: var(--pg-under);
   box-shadow: none;
-}
-.row .codeHeader ~ .playgroundEditor :global(.monaco-editor),
-.row .codeHeader ~ .playgroundEditor :global(.monaco-editor-background),
-.row .codeHeader ~ .playgroundEditor :global(.monaco-editor) :global(.margin) {
-  background-color: var(--pg-under);
-}
-.row
-  .codeHeader
-  ~ .playgroundEditor
-  :global(.monaco-editor)
-  :global(.view-overlays)
-  :global(.current-line) {
-  border-color: color-mix(in oklab, var(--pg-under), #fff 6%);
 }
 .row .editorDocs:has(> .codeHeader)::after {
   background: var(--pg-under);
@@ -719,6 +713,13 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .row .folderHead:only-child {
   border-radius: var(--pg-card-radius);
+}
+/* what a playground puts in the preview's place: its own layers (a sheet's
+   shadow under a .folderHead), their shadows uncut by the frame's
+   last-child rule */
+.row > .previewSlot {
+  isolation: isolate;
+  overflow: visible;
 }
 /* the flare: under the content (.playgroundResult stacks above it), so it
    shows only beside the content's corner */

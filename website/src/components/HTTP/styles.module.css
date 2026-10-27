@@ -9,28 +9,18 @@
   --ex-pad: 1.25rem;
 }
 .folder {
-  position: relative;
-  isolation: isolate;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
   align-self: start;
-}
-/* the playground's last child clips (../Playground), which would cut off
-   the cards' shadows */
-.exchange > .folder:last-child {
-  overflow: visible;
 }
 
 /* the header: the request */
 .request {
-  margin: 0 var(--pg-head-inset);
-  padding: 14px calc(var(--ex-pad) - var(--pg-head-inset)) 12px;
+  --inset: var(--pg-head-inset);
+  margin: 0 var(--inset);
+  padding: 14px calc(var(--ex-pad) - var(--inset)) 12px;
   color: var(--pg-text);
 }
 .request:only-child {
-  margin: 0;
-  padding-inline: var(--ex-pad);
+  --inset: 0px;
 }
 .requestLine {
   display: flex;
@@ -56,9 +46,6 @@
   margin: 0.5rem 0 0;
   font: 12.5px / 20px var(--ifm-font-family-monospace);
 }
-.headers:empty {
-  display: none;
-}
 .headers dt {
   color: var(--pg-muted);
   font-weight: 400;
@@ -69,22 +56,18 @@
   overflow-wrap: break-word;
 }
 
-/* the response's sheet, the folder's paper (the stage) behind its top
-   corners; over the header's shadow and flare. Its own shadow lies under
-   the header (::before, at the folder's bottom), so it never darkens the
-   join */
+/* the response's sheet, over the header's shadow and flare. Its own shadow
+   lies under the header (::before, at the bottom of the slot's layers), so
+   it never darkens the join */
 .response {
   position: relative;
-  border-radius: var(--pg-card-radius);
-  background: linear-gradient(var(--pg-stage) 0 0) top / 100%
-    var(--pg-card-radius) no-repeat;
 }
 .response::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
-  border-radius: inherit;
+  border-radius: var(--pg-card-radius);
   box-shadow: var(--pg-card-shadow);
   pointer-events: none;
 }
@@ -154,7 +137,6 @@
   text-overflow: ellipsis;
 }
 .clipped > .full {
-  z-index: 3;
   top: -5px;
   bottom: auto;
   left: -8px;

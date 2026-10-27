@@ -16,6 +16,7 @@ function Request({ input, init }: Props) {
   const headers = [...new Headers(init.headers)];
   const url = `${input}`;
   const json = headers.find(isJson);
+  const rest = headers.filter(header => !isJson(header));
   return (
     <div
       className={clsx(playgroundstyles.folderHead, styles.request)}
@@ -38,16 +39,16 @@ function Request({ input, init }: Props) {
           </Clipped>
         : null}
       </div>
-      <dl className={styles.headers}>
-        {headers
-          .filter(header => !isJson(header))
-          .map(([key, value]) => (
+      {rest.length ?
+        <dl className={styles.headers}>
+          {rest.map(([key, value]) => (
             <React.Fragment key={key}>
               <dt>{key}</dt>
               <dd>{value}</dd>
             </React.Fragment>
           ))}
-      </dl>
+        </dl>
+      : null}
       {typeof init.body === 'string' ?
         <Json className={styles.requestBody} text={pretty(init.body)} />
       : null}
