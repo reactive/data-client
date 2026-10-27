@@ -171,9 +171,9 @@
   font: 400 12.5px / 20px var(--ifm-font-family-monospace);
 }
 
-/* no file tabs: level with the code card */
 @container playground (min-width: 720px) {
-  .exchange:not(:has([role='tablist'])) > .folder {
+  /* a request alone is a card, not a header: level with the code card */
+  .exchange > .folder:has(> .request:only-child) {
     grid-row: 2 / 3;
   }
 }
