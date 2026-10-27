@@ -17,9 +17,14 @@ test('skill frontmatter values that need quotes have them', () => {
     const [, frontmatter] = fs.readFileSync(file, 'utf8').split('---\n');
     for (const line of frontmatter.split('\n')) {
       const [, key, value] = line.match(/^(\w[\w-]*): (.*)$/) ?? [];
-      // in a plain (unquoted) scalar, `: ` starts a mapping and ` #` a comment
-      if (value && !/^["'>|]/.test(value))
-        assert.doesNotMatch(value, /: | #/, `${skill} ${key}: quote it`);
+      // a plain (unquoted) scalar can't start with an indicator like `@`, and
+      // `: ` (or a trailing `:`) starts a mapping and ` #` a comment
+      if (value && !/^(["'][^]*["']|[>|]-?)$/.test(value))
+        assert.doesNotMatch(
+          value,
+          /^[-?:,[\]{}#&*!|>'"%@`]|: | #|:$/,
+          `${skill} ${key}: quote it`,
+        );
     }
   }
 });

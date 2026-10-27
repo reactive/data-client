@@ -27,9 +27,8 @@ export const claudePluginCommand = [
 const setupTask = framework =>
   `Set up \`@data-client/${framework}\` and use it for all API data`;
 
-/** Where setupCommand puts the setup skill for every agent (Claude Code's
- * .claude/skills links to it). Only users can invoke it (disable-model-invocation),
- * so agents' Skill tools refuse it and prompts have the agent read it by path */
+/** Where setupCommand puts the setup skill for every agent; prompts have the
+ * agent read it by path, since only users can invoke it by name */
 export const setupSkillFile = `${skillsDir}/data-client-setup/SKILL.md`;
 
 /** The prompt any agent takes: installs the setup skill, then reads and follows it.

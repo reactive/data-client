@@ -40,6 +40,7 @@ Each listing reads the plugin from `.agents/skills`, whose `README.md` is the li
 - `.agents/skill-packages.json`: which package ships which skill, so the test can check the plugin's skills also ship
   in a package.
 - `website/framework-docs/skillCommands.mjs` and the READMEs that copy its setup commands (root, react, vue, rest, graphql, endpoint), and `website/src/components/AgentPrompt.tsx`'s default prompt: `readme-commands.test.mjs`.
+- Every `.agents/skills/*/SKILL.md` frontmatter, which `npx skills add` parses as strict YAML: `skill-frontmatter.test.mjs`.
 
 ## CI
 
