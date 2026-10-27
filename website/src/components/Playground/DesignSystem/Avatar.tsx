@@ -15,7 +15,8 @@ export function Avatar({ src, size = 32 }: { src: string; size?: number }) {
         style={{
           borderRadius: '50%',
           overflow: 'hidden',
-          display: 'inline-block',
+          // no line box of its own, so a first-line trim can't lift it
+          display: 'block',
         }}
       />
     </span>
