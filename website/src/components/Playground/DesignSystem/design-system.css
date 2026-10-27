@@ -393,21 +393,12 @@ div.playground-preview h1:first-child {
   border-radius: 50%;
   background: none;
   mask: none;
-  animation: ds-spin 0.8s linear infinite;
+  animation: rt-spin 0.8s linear infinite;
 }
-@keyframes ds-spin {
-  to {
-    rotate: 360deg;
+@media (prefers-reduced-motion: reduce) {
+  .playground-preview .search[aria-busy='true']::before {
+    animation: none;
   }
-}
-/* under a row's title (an issue's author), snug */
-.playground-preview .listItem .byline {
-  margin: 2px 0 0;
-}
-/* in the app's header, it takes the room the wordmark leaves */
-.playground-preview .appHeader > .search {
-  flex: 1 1 12rem;
-  margin: 0;
 }
 
 /* Groups a form's fields so one `disabled` locks them all */

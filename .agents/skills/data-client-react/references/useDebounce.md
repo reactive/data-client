@@ -37,21 +37,21 @@ export const searchIssues = new RestEndpoint({
 import { useSuspense } from '@data-client/react';
 import { searchIssues } from './resources/Issue';
 
-export default function IssueList({ query, stale }: Props) {
+export default function IssueList({ search, stale }: Props) {
   const { items } = useSuspense(searchIssues, {
-    q: `${query} repo:facebook/react is:issue`,
+    q: `${search} repo:facebook/react is:issue`,
   });
   if (!items.length) return <p className="meta">No issues match</p>;
   return (
     <div className="list" aria-busy={stale}>
       {items.map(issue => (
         <div key={issue.pk()} className="listItem">
+          <Avatar src={issue.user.avatar_url} />
           <div>
             <h4>{issue.title}</h4>
-            <span className="byline">
-              <Avatar src={issue.user.avatar_url} size={20} />
-              {issue.user.login} · #{issue.number}
-            </span>
+            <small>
+              #{issue.number} by {issue.user.login}
+            </small>
           </div>
         </div>
       ))}
@@ -59,7 +59,7 @@ export default function IssueList({ query, stale }: Props) {
   );
 }
 interface Props {
-  query: string;
+  search: string;
   /** still the last search's: the query changed since (React's isPending
    * starts only once the new search does) */
   stale: boolean;
@@ -73,23 +73,23 @@ import IssueList from './IssueList';
 
 export default function SearchIssues() {
   const [query, setQuery] = React.useState('');
-  const [debouncedQuery, isPending] = useDebounce(query, 300);
+  const [debouncedQuery, isPending] = useDebounce(query, 200);
   return (
     <>
       <header className="appHeader">
         <h1 className="appTitle">Issues</h1>
-        <label className="search" aria-busy={isPending}>
-          <input
-            type="search"
-            aria-label="Search issues"
-            placeholder="Search issues"
-            value={query}
-            onChange={e => setQuery(e.currentTarget.value)}
-          />
-        </label>
       </header>
-      <AsyncBoundary fallback={<Loading />}>
-        <IssueList query={debouncedQuery} stale={query !== debouncedQuery} />
+      <label className="search" aria-busy={isPending}>
+        <input
+          type="search"
+          aria-label="Search issues"
+          placeholder="Search issues"
+          value={query}
+          onChange={e => setQuery(e.currentTarget.value)}
+        />
+      </label>
+      <AsyncBoundary fallback={<Loading />} errorComponent={ErrorMessage}>
+        <IssueList search={debouncedQuery} stale={query !== debouncedQuery} />
       </AsyncBoundary>
     </>
   );

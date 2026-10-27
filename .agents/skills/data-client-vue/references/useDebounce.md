@@ -40,12 +40,12 @@ export const searchIssues = new RestEndpoint({
   import { searchIssues } from './resources/Issue';
 
   const props = defineProps<{
-    query: string;
+    search: string;
     /** still the last search's: the query changed since */
     stale: boolean;
   }>();
   const response = await useSuspense(searchIssues, () => ({
-    q: `${props.query} repo:facebook/react is:issue`,
+    q: `${props.search} repo:facebook/react is:issue`,
   }));
 </script>
 
@@ -57,12 +57,10 @@ export const searchIssues = new RestEndpoint({
       :key="issue.pk()"
       class="listItem"
     >
+      <Avatar :src="issue.user.avatar_url" />
       <div>
         <h4>{{ issue.title }}</h4>
-        <span class="byline">
-          <Avatar :src="issue.user.avatar_url" :size="20" />
-          {{ issue.user.login }} · #{{ issue.number }}
-        </span>
+        <small>#{{ issue.number }} by {{ issue.user.login }}</small>
       </div>
     </div>
   </div>
@@ -76,7 +74,7 @@ export const searchIssues = new RestEndpoint({
   import IssueList from './IssueList.vue';
 
   const query = ref('');
-  const [debouncedQuery, isPending] = useDebounce(query, 300);
+  const [debouncedQuery, isPending] = useDebounce(query, 200);
 
   const error = ref<Error | null>(null);
   onErrorCaptured(e => {
@@ -88,22 +86,22 @@ export const searchIssues = new RestEndpoint({
 <template>
   <header class="appHeader">
     <h1 class="appTitle">Issues</h1>
-    <label class="search" :aria-busy="isPending">
-      <input
-        v-model="query"
-        type="search"
-        aria-label="Search issues"
-        placeholder="Search issues"
-      />
-    </label>
   </header>
+  <label class="search" :aria-busy="isPending">
+    <input
+      v-model="query"
+      type="search"
+      aria-label="Search issues"
+      placeholder="Search issues"
+    />
+  </label>
   <ErrorMessage
     v-if="error"
     :error="error"
     :resetErrorBoundary="() => (error = null)"
   />
   <Suspense v-else>
-    <IssueList :query="debouncedQuery" :stale="isPending" />
+    <IssueList :search="debouncedQuery" :stale="isPending" />
     <template #fallback><Loading /></template>
   </Suspense>
 </template>

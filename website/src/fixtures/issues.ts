@@ -115,12 +115,14 @@ export const issueFixtures = [
         .toLowerCase()
         .split(/\s+/)
         .filter(word => word && !word.includes(':'));
-      const items = issues
-        .filter(issue =>
-          words.every(word => issue.title.toLowerCase().includes(word)),
-        )
-        .slice(0, 5);
-      return { total_count: items.length, incomplete_results: false, items };
+      const matches = issues.filter(issue =>
+        words.every(word => issue.title.toLowerCase().includes(word)),
+      );
+      return {
+        total_count: matches.length,
+        incomplete_results: false,
+        items: matches.slice(0, 5),
+      };
     },
     delay: 300,
   },
