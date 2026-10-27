@@ -310,4 +310,5 @@ re-renders the playground.
   auto-run script at desktop and phone widths (on a phone the Store opens
   above the preview). After a `monaco-editor` bump, also hover a line near
   the viewport's top on a scrolled page and check the hover opens below it,
-  and right-click the code and check the menu has a background.
+  and right-click the code in light and dark themes and check the menu has a
+  background and draws over the file tabs.
