@@ -799,34 +799,34 @@ describe(`${schema.Collection.name} normalization`, () => {
     ]);
   });
 
+  const todo5 = { '5': { id: '5', title: 'finish collections' } };
+  /** User.schema.todos lists and Todo entities, each stored with `meta` */
+  const todosState = (
+    lists: Record<string, string[]>,
+    todos: Record<string, unknown>,
+    listMeta = meta,
+  ) => ({
+    entities: { [User.schema.todos.key]: lists, Todo: todos },
+    entitiesMeta: {
+      [User.schema.todos.key]: Object.fromEntries(
+        Object.keys(lists).map(pk => [pk, listMeta]),
+      ),
+      Todo: Object.fromEntries(Object.keys(todos).map(pk => [pk, meta])),
+    },
+    indexes: {},
+  });
+
   test.each<['push' | 'unshift', string[], string[]]>([
     ['push', ['10', '5'], ['5', '10']],
     ['unshift', ['5', '10'], ['10', '5']],
   ])(
     '%s of a deleted then re-created id adds it once',
     (method, before, after) => {
-      const init = {
-        entities: {
-          [User.schema.todos.key]: {
-            '{"userId":"1"}': before,
-          },
-          Todo: {
-            '5': { id: '5', title: 'finish collections' },
-            // deleted, so the collection still holds its id
-            '10': INVALID,
-          },
-        },
-        entitiesMeta: {
-          [User.schema.todos.key]: {
-            '{"userId":"1"}': meta,
-          },
-          Todo: {
-            '5': meta,
-            '10': meta,
-          },
-        },
-        indexes: {},
-      };
+      const init = todosState(
+        { '{"userId":"1"}': before },
+        // deleted, so the collection still holds its id
+        { ...todo5, '10': INVALID },
+      );
       const state = normalize(
         User.schema.todos[method],
         [{ id: '10', title: 'recreated' }],
@@ -840,20 +840,10 @@ describe(`${schema.Collection.name} normalization`, () => {
   );
 
   test('push drops only the deleted ids among several items', () => {
-    const init = {
-      entities: {
-        [User.schema.todos.key]: { '{"userId":"1"}': ['10', '5'] },
-        Todo: {
-          '5': { id: '5', title: 'finish collections' },
-          '10': INVALID,
-        },
-      },
-      entitiesMeta: {
-        [User.schema.todos.key]: { '{"userId":"1"}': meta },
-        Todo: { '5': meta, '10': meta },
-      },
-      indexes: {},
-    };
+    const init = todosState(
+      { '{"userId":"1"}': ['10', '5'] },
+      { ...todo5, '10': INVALID },
+    );
     const state = normalize(
       User.schema.todos.push,
       [
@@ -871,23 +861,10 @@ describe(`${schema.Collection.name} normalization`, () => {
   });
 
   test('re-creating a deleted id leaves collections it is not added to alone', () => {
-    const init = {
-      entities: {
-        [User.schema.todos.key]: {
-          '{"userId":"1"}': ['10'],
-          '{"userId":"2"}': ['10'],
-        },
-        Todo: { '10': INVALID },
-      },
-      entitiesMeta: {
-        [User.schema.todos.key]: {
-          '{"userId":"1"}': meta,
-          '{"userId":"2"}': meta,
-        },
-        Todo: { '10': meta },
-      },
-      indexes: {},
-    };
+    const init = todosState(
+      { '{"userId":"1"}': ['10'], '{"userId":"2"}': ['10'] },
+      { '10': INVALID },
+    );
     const state = normalize(
       User.schema.todos.push,
       [{ id: '10', title: 'recreated' }],
@@ -901,25 +878,11 @@ describe(`${schema.Collection.name} normalization`, () => {
   });
 
   test('re-creating a deleted id keeps newer collection meta', () => {
-    const init = {
-      entities: {
-        [User.schema.todos.key]: { '{"userId":"1"}': ['10', '5'] },
-        Todo: {
-          '5': { id: '5', title: 'finish collections' },
-          '10': INVALID,
-        },
-      },
-      entitiesMeta: {
-        [User.schema.todos.key]: {
-          '{"userId":"1"}': { date: 100, expiresAt: Infinity, fetchedAt: 100 },
-        },
-        Todo: {
-          '5': meta,
-          '10': meta,
-        },
-      },
-      indexes: {},
-    };
+    const init = todosState(
+      { '{"userId":"1"}': ['10', '5'] },
+      { ...todo5, '10': INVALID },
+      { date: 100, expiresAt: Infinity, fetchedAt: 100 },
+    );
     // a create response that was fetched before the list
     const state = normalize(
       User.schema.todos.push,
@@ -993,17 +956,7 @@ describe(`${schema.Collection.name} normalization`, () => {
 
   test('push of ids does not process them', () => {
     const process = jest.spyOn(Todo, 'process');
-    const init = {
-      entities: {
-        [User.schema.todos.key]: { '{"userId":"1"}': ['5'] },
-        Todo: { '5': { id: '5', title: 'finish collections' } },
-      },
-      entitiesMeta: {
-        [User.schema.todos.key]: { '{"userId":"1"}': meta },
-        Todo: { '5': meta },
-      },
-      indexes: {},
-    };
+    const init = todosState({ '{"userId":"1"}': ['5'] }, todo5);
     const state = normalize(
       User.schema.todos.push,
       ['5'],
@@ -1019,17 +972,7 @@ describe(`${schema.Collection.name} normalization`, () => {
   });
 
   test('push of an id already in the collection adds it again, like Array.push()', () => {
-    const init = {
-      entities: {
-        [User.schema.todos.key]: { '{"userId":"1"}': ['5'] },
-        Todo: { '5': { id: '5', title: 'finish collections' } },
-      },
-      entitiesMeta: {
-        [User.schema.todos.key]: { '{"userId":"1"}': meta },
-        Todo: { '5': meta },
-      },
-      indexes: {},
-    };
+    const init = todosState({ '{"userId":"1"}': ['5'] }, todo5);
     const state = normalize(
       User.schema.todos.push,
       [{ id: '5', title: 'finish collections' }],

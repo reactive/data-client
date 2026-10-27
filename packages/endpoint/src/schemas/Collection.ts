@@ -362,7 +362,7 @@ function normalizeCreate(
   }
   const isArray = this.schema instanceof ArraySchema;
   if (isArray && !Array.isArray(input)) input = [input];
-  // before normalizing input, which revives an entity re-created with a deleted pk
+  // before normalize, which revives the entity
   const deletedAt =
     isArray ? deletedIndexes(this.schema, input, parent, key, delegate) : [];
   const normalizedValue = this.schema.normalize(input, parent, key, delegate);
