@@ -237,11 +237,13 @@ div.playground-preview h1:first-child {
   line-height: 1.1;
 }
 /* A row's own text field (a new todo after its empty checkbox): the row's
-   text with no box, its placeholder saying what to type, until the pointer
-   finds it; focused, it is boxed like any other field */
+   text with no box, its placeholder saying what to type; hover washes it and
+   focus boxes it like any other field. A busy one keeps the trace below */
 .playground-preview
   .listItem
-  input:is(:not([type]), [type='text']):where(:not([class])) {
+  input:is(:not([type]), [type='text']):where(
+    :not([class], [aria-busy='true'])
+  ) {
   /* the same basis as a label beside it, so the two share the row */
   flex: 1 1 100%;
   min-width: 0;
@@ -263,7 +265,7 @@ div.playground-preview h1:first-child {
 .playground-preview
   .listItem
   input:is(:not([type]), [type='text']):where(:not([class])):focus-visible {
-  border-color: var(--ds-accent);
+  /* the base focus rule gives the accent border and ring */
   background: var(--ds-surface);
 }
 /* An avatar with a name: beside each other in a row (a post's author under
