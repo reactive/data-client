@@ -934,7 +934,7 @@ describe(`${schema.Collection.name} normalization`, () => {
       '5',
     ]);
     expect(
-      state.entitiesMeta[User.schema.todos.key]['{"userId":"1"}'].fetchedAt,
+      state.entitiesMeta[User.schema.todos.key]['{"userId":"1"}']?.fetchedAt,
     ).toBe(100);
   });
 
