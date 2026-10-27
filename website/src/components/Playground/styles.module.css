@@ -1180,6 +1180,10 @@ div.playgroundTextEdit > .playgroundHeader,
 .sheet {
   flex: 1 0 auto;
   padding: var(--pg-sheet-pad);
+  /* the first line's caps sit the inset from the top, as its text does from
+     the side: its leading above them would add to the padding (Firefox,
+     without text-box, keeps it) */
+  text-box: trim-start cap alphabetic;
   border-radius: var(--pg-sheet-radius) var(--pg-sheet-radius) 0 0;
   background: var(--pg-panel);
   /* the progress bar's corners stay inside the radius */
