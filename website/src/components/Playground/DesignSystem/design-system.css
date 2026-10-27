@@ -134,6 +134,11 @@ div.playground-preview h1:first-child {
   margin-block: 0;
   text-box: trim-both cap alphabetic;
 }
+/* a NumberFlow keeps its own box in a trimmed line: Firefox carries the
+   trim into it, which lowers its roll mask's top fade onto the digits */
+.playground-preview :is(number-flow-react, number-flow-vue) {
+  text-box: normal;
+}
 /* a NumberFlow's roll mask pads it above and below; taken back, so a count
    (a post list's votes) doesn't grow the header */
 .playground-preview .appHeader :is(number-flow-react, number-flow-vue) {
@@ -288,7 +293,7 @@ div.playground-preview h1:first-child {
 }
 /* the Avatar is a flex box (no line box to trim), so text-align can't
    center it */
-.playground-preview .author > span {
+.playground-preview .author > .avatar {
   width: fit-content;
   margin-inline: auto;
 }

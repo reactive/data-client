@@ -5,7 +5,7 @@ export function Avatar({ src, size = 32 }: { src: string; size?: number }) {
   return (
     // a flex box: the picture sits in no line box, so a first-line trim can't
     // lift it
-    <span style={{ flex: '0 0 auto', display: 'flex' }}>
+    <span className="avatar" style={{ flex: '0 0 auto', display: 'flex' }}>
       <img
         src={src}
         height={size}
