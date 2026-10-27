@@ -38,19 +38,21 @@ export function Pipeline({
       label="Pipeline: who sent the actions, and who handled them"
       stages={stages.map(({ stage, sent, handled }) => {
         const name = stageName(stage);
-        const on = sameStage(stage, picked);
+        const isPicked = sameStage(stage, picked);
         return {
           id: stage.id,
           name,
           foldAs:
-            !isApp(stage) && !sent && !handled && !on ? 'idle' : undefined,
+            !isApp(stage) && !sent && !handled && !isPicked ?
+              'idle'
+            : undefined,
           node: (
             <>
               <button
                 type="button"
                 className={styles.stage}
-                aria-pressed={on}
-                onClick={() => onPick(on ? null : stage)}
+                aria-pressed={isPicked}
+                onClick={() => onPick(isPicked ? null : stage)}
               >
                 {name}
                 <span className={sent ? styles.number : styles.dim}>
@@ -96,11 +98,13 @@ function ActionPath({
       label={'Path of ' + actionName(action) + ' through the managers'}
       stored={!!store}
       stages={stages.map((stage, i) => {
+        const name = stageName(stage);
+        const app = isApp(stage);
         const sender = sameStage(stage, origin);
         const after = stop >= 0 && i > stop;
         return {
           id: stage.id,
-          name: stageName(stage),
+          name,
           foldAs:
             sender || i === stop ? undefined
             : after ? 'never saw it'
@@ -114,8 +118,8 @@ function ActionPath({
                 after && styles.stageOff,
               )}
             >
-              {isApp(stage) ? stageName(stage) : <ManagerName stage={stage} />}
-              {sender && !isApp(stage) && (
+              {app ? name : <ManagerName stage={stage} />}
+              {sender && !app && (
                 <span className={styles.stageNote}>↑ sent it</span>
               )}
               {i === stop && (
