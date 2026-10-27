@@ -100,7 +100,7 @@ and the cart's order summary and checkout button. Add something in the shop, and
 them moves at once.
 
 <FrameworkPlayground
-demo
+row
 fixtures={cartFixtures}
 getInitialInterceptorData={getInitialInterceptorData}
 defaultTab="getCartTotals"
