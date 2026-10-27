@@ -66,14 +66,9 @@ class User extends Entity {
 
 ## Global computations
 
-[Query](./Query.vue.md) derives data from many entities at once, such as a count or a total
-(an aggregate). Define it once, beside your resources, and read it from any component with
-[useQuery](https://dataclient.io/vue/api/useQuery).
-
-In this store, `getCartTotals` joins each `CartItem`'s quantity with its `Product`'s price. Four
-components on two pages read it: the header's cart badge, the free-shipping bar on both pages,
-and the cart's order summary and checkout button. Add something in the shop, and every one of
-them moves at once.
+[Query](./Query.vue.md) derives data from many entities, like a cart's totals. This is known as an
+_aggregate_. Define it once beside your resources, then read it anywhere with
+[useQuery()](https://dataclient.io/vue/api/useQuery).
 
 Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
 
@@ -361,16 +356,9 @@ export const getCartTotals = new Query(cartItems, items => {
 </template>
 ```
 
-Computing these totals in each component instead would repeat the math in all four, each
-fetching or being passed both kinds of data, and free to drift (one rounds, one forgets the
-shipping rule). With a `Query`:
+Here the cart badge, free-shipping bar, order summary and checkout button all read `getCartTotals`.
+It runs once per change, however many components read it, and returns the same object until a
+`CartItem` or `Product` it read changes. So every view agrees, even mid
+[optimistic update](https://dataclient.io/rest/api/resource#optimistic).
 
-- **One definition, read anywhere.** The badge, the bar, the summary and the checkout button
-  never pass totals to each other, and they can't disagree. A fifth place that needs the total
-  is one `useQuery()` call.
-- **Computed once per change.** `useQuery()` results are memoized globally against the entities
-  they read. However many components read `getCartTotals`, it runs once when a `CartItem` or
-  `Product` changes, and otherwise returns the same object.
-- **Always current.** Any change to the cart, from any page, like this demo's
-  [optimistic](https://dataclient.io/rest/api/resource#optimistic) updates, re-derives every total at once, with
-  nothing to invalidate or sync.
+Do not compute aggregates in components, where each copy can drift. Instead, put them in a `Query`.
