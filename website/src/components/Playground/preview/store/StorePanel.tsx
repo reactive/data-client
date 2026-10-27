@@ -21,6 +21,7 @@ import {
   rowsOf,
   shownGroup,
   shownOf,
+  stageFilter,
   subjectFilter,
   subjectGaps,
   touches,
@@ -49,6 +50,7 @@ import {
   useActions,
   type Actions,
 } from './actionParts';
+import { sameStage, shownChain, stagesOf, type Stage } from './attribution';
 import { NARROW_WIDTH } from './columns';
 import { diffModel, type RowDiff } from './diffModel';
 import { ListView, RecordLevel, type Header } from './DiveViews';
@@ -79,6 +81,7 @@ import {
   type Step,
   type Then,
   useNavState,
+  usePipelineAt,
   type LevelView,
   type View,
 } from './nav';
@@ -279,7 +282,32 @@ export default function StorePanel({
   );
   // the store's top level: what the actions list and the steps follow
   const subject = subjectOf(levels.stack)!;
-  const filter = useSubjectFilter(log, known, subject);
+  const subjectActions = useSubjectFilter(log, known, subject);
+  // at the store, the Action tab draws the managers as a pipeline: a stage
+  // picked there narrows the list, the steps and the timeline's marks alike.
+  // Leaving the Action tab (or the store) lets it go, so the State tab
+  // counts every action again; so does a stage the chain no longer has
+  const chain =
+    subject.kind === 'root' ? shownChain(history.managers) : undefined;
+  const pipelineShown = tab === 'action' && !!chain;
+  const [stage, pickStage] = useState<Stage | null>(null);
+  if (
+    stage !== null &&
+    !(pipelineShown && stagesOf(chain).some(s => sameStage(s, stage)))
+  )
+    pickStage(null);
+  const filter = useMemo(
+    () =>
+      pipelineShown ?
+        stageFilter(subjectActions, chain, stage)
+      : subjectActions,
+    [pipelineShown, subjectActions, chain, stage],
+  );
+  // its own value, so a new action alone doesn't make it a new one
+  const pipeline = useMemo(
+    () => (chain ? { chain, stage, pickStage, filter } : null),
+    [chain, stage, filter],
+  );
   // a moment set on purpose outranks the store a chip opened a level at;
   // the action view follows it
   const { clearAt: clearStateAt } = levels;
@@ -389,7 +417,7 @@ export default function StorePanel({
   const actionShown = actionLevels.stack.some(e => e.view.kind === 'action');
   // what every step (‹ ›, ← →, Before and After) and a mark picked go
   // through: the subject's rows, the surface stepping by their requests
-  const { hit } = filter;
+  const { hit, lists } = filter;
   const listing = useMemo(() => {
     const rows = rowsOf(groups, hit);
     return {
@@ -398,8 +426,9 @@ export default function StorePanel({
       listed: new Set(rows),
       requests: requestsOf(rows, hit),
       hit,
+      lists,
     };
-  }, [known, groups, hit]);
+  }, [known, groups, hit, lists]);
   const mark = useCallback(
     (seq: number) => {
       const to = pickAt(listing.requests, seq, scope);
@@ -459,8 +488,9 @@ export default function StorePanel({
       set,
       step,
       show,
+      pipeline,
     }),
-    [momentSeq, scope, current, earlier, later, set, step, show],
+    [momentSeq, scope, current, earlier, later, set, step, show, pipeline],
   );
   // what the peek's chips open: over the State tab's top level, in the
   // table view, with the peek closed to show it
@@ -1164,7 +1194,9 @@ function ActionLevel({
 function useShownAction(seq: number | null, scope: Scope, subject: View) {
   const { log, history, groups } = useActions();
   const { entries } = history;
-  const filter = useSubjectFilter(log, entries, subject);
+  // the action shown live is the newest of those the steps go through
+  const own = useSubjectFilter(log, entries, subject);
+  const filter = usePipelineAt(subject)?.filter ?? own;
   return useMemo(() => {
     const entry =
       seq === null ? newestOf(entries, filter.hit) : findEntry(entries, seq);

@@ -722,6 +722,14 @@ describe('Store panel pipeline', () => {
     screen
       .getByRole('region', { name: 'Actions' })
       .querySelectorAll('[role="button"][aria-expanded]');
+  /** The steps an open row shows */
+  const steps = () =>
+    screen
+      .getByRole('region', { name: 'Actions' })
+      .querySelectorAll('[role="button"]:not([aria-expanded])');
+  /** Whether the timeline's mark for `name` is the moment's */
+  const selected = (name: RegExp) =>
+    !!screen.getByRole('button', { name }).dataset.selected;
 
   it('draws the app, the chain and the store, with what each sent and kept', async () => {
     const stream = new StreamManager();
@@ -916,6 +924,88 @@ describe('Store panel pipeline', () => {
       void remade.ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
     });
     expect(stage(/^StreamManager/).getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it("steps and marks only the picked stage's actions, until the State tab", async () => {
+    const stream = new StreamManager();
+    const { ctrl } = mount([stream, new NetworkManager()], undefined, true);
+    await act(async () => {
+      void stream.push(1);
+      void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
+      void stream.push(2);
+    });
+    const marks = () =>
+      within(screen.getAllByRole('group', { name: /^Scrubber/ })[0])
+        .getAllByRole('button', { name: /^set at/ })
+        .map(m => [!!m.dataset.dim, !!m.dataset.selected]);
+    openActions();
+    fireEvent.click(stage(/^StreamManager/));
+    // the app's set is dim on the timeline
+    expect(marks().map(([dim]) => dim)).toEqual([false, true, false]);
+    // and the steps go past it
+    const previous = screen.getByRole('button', { name: 'Previous change' });
+    fireEvent.click(previous);
+    expect(marks().map(([, selected]) => selected)).toEqual([
+      false,
+      false,
+      true,
+    ]);
+    fireEvent.click(previous);
+    expect(marks().map(([, selected]) => selected)).toEqual([
+      true,
+      false,
+      false,
+    ]);
+    // leaving the Action tab lets the pick go
+    fireEvent.click(screen.getByRole('tab', { name: 'State' }));
+    expect(marks().map(([dim]) => dim)).toEqual([false, false, false]);
+    fireEvent.click(screen.getByRole('tab', { name: 'Action' }));
+    expect(stage(/^StreamManager/).getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it("steps an action alone only through the picked stage's steps", async () => {
+    const { ctrl } = mount([new NetworkManager()], undefined, true);
+    await act(async () => {
+      await ctrl().fetch(getTicker);
+    });
+    openActions();
+    fireEvent.click(stage(/^the app/));
+    fireEvent.click(listed()[0]);
+    await screen.findAllByRole('group', { name: /^Path/ });
+    // the request's own steps: only the app's fetch, not NetworkManager's
+    // response
+    expect([...steps()].map(s => s.textContent)).toEqual([
+      expect.stringMatching(/fetch$/),
+    ]);
+    fireEvent.click(steps()[0]);
+    expect(selected(/^fetch at/)).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
+    // on past the hidden response, to live
+    expect(selected(/^fetch at/)).toBe(false);
+    expect(selected(/^setResponse at/)).toBe(false);
+    // and back from live past it, to the fetch
+    fireEvent.click(screen.getByRole('button', { name: 'Previous change' }));
+    expect(selected(/^fetch at/)).toBe(true);
+    expect(selected(/^setResponse at/)).toBe(false);
+  });
+
+  it("shows the picked stage's newest action live", async () => {
+    const stream = new StreamManager();
+    const { ctrl } = mount([stream, new NetworkManager()], undefined, true);
+    await act(async () => {
+      void stream.push(1);
+      void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
+    });
+    const top = () =>
+      [...document.querySelectorAll<HTMLElement>('[data-level]')].find(
+        el => !el.closest('[hidden]') && !el.hasAttribute('data-covered'),
+      )!;
+    openActions();
+    fireEvent.click(stage(/^StreamManager/));
+    fireEvent.click(listed()[0]);
+    fireEvent.click(screen.getByRole('button', { name: 'Live' }));
+    // the newest the steps go through: StreamManager's, not the app's
+    expect(top().textContent).toContain('↑ sent it');
   });
 
   it("tags the store's actions with the manager that sent them", async () => {

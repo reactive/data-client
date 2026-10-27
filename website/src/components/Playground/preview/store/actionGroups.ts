@@ -839,6 +839,8 @@ export function stageFilter(
     return { ...base, hit, lists: hit };
   }
   const codeStages = chain.filter(stage => !stage.library);
+  // a row the code's managers took part in is listed, but shows only the
+  // subject's own steps
   return {
     ...base,
     hit: e =>
