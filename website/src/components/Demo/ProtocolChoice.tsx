@@ -20,6 +20,7 @@ export function ProtocolSwitch({
     <TabList
       className={styles.segmented}
       label={translate({ id: 'demo.protocol', message: 'Protocol' })}
+      pill
       tabs={values.map(({ value, label }) => ({
         key: value,
         label: label ?? value,
