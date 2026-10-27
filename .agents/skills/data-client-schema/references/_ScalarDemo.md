@@ -45,26 +45,26 @@ import { type Company } from './api/Company';
 
 export default function CompanyGrid({ companies }: { companies: Company[] }) {
   return (
-    <table style={{ marginTop: 8, width: '100%' }}>
+    <table>
       <thead>
         <tr>
-          <th align="left">Name</th>
-          <th align="right">Price</th>
-          <th align="right">% Equity</th>
-          <th align="right">Shares</th>
+          <th>Name</th>
+          <th className="value">Price</th>
+          <th className="value">% Equity</th>
+          <th className="value">Shares</th>
         </tr>
       </thead>
       <tbody>
         {companies.map(c => (
           <tr key={c.pk()}>
             <td>{c.name}</td>
-            <td align="right">${c.price.toFixed(2)}</td>
-            <td align="right">
+            <td className="value">${c.price.toFixed(2)}</td>
+            <td className="value">
               {c.pct_equity === undefined ?
                 <span className="skeleton" />
               : formatPercent(c.pct_equity)}
             </td>
-            <td align="right">
+            <td className="value">
               {c.shares === undefined ?
                 <span className="skeleton" />
               : c.shares.toLocaleString()}

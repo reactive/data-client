@@ -182,15 +182,18 @@ interface Queryable {
 
 ### Sorting & Filtering
 
-[Query](https://dataclient.io/rest/api/Query) provides programmatic access to the Reactive Data Client store.
+[Query](https://dataclient.io/rest/api/Query) sorts and filters what is already in the store, so picking another column
+re-sorts the table without fetching again.
 
-```ts title="UserResource"
+```ts title="resources/User"
 import { Entity, resource } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
   name = '';
   isAdmin = false;
+  posts = 0;
+  joined = 0;
 
   static key = 'User';
 }
@@ -200,38 +203,99 @@ export const UserResource = resource({
 });
 ```
 
-```html title="UsersPage.vue" {24}
-<script setup lang="ts">
-  import { Query, All } from '@data-client/rest';
-  import { useQuery, useFetch } from '@data-client/vue';
-  import { UserResource, User } from './UserResource';
+```ts title="sortedUsers"
+import { All, Query } from '@data-client/rest';
+import { User } from './resources/User';
 
-  interface Args {
-    asc: boolean;
-    isAdmin?: boolean;
-  }
-  const sortedUsers = new Query(
-    new All(User),
-    (entries, { asc, isAdmin }: Args = { asc: false }) => {
-      let sorted = [...entries].sort((a, b) =>
-        a.name.localeCompare(b.name),
+export type SortBy = 'name' | 'posts' | 'joined';
+export interface Sort {
+  sortBy: SortBy;
+  desc: boolean;
+}
+interface Args extends Sort {
+  /** admins only (true), members only (false), or everyone */
+  isAdmin: boolean | undefined;
+}
+
+export const sortedUsers = new Query(
+  new All(User),
+  (entries, { sortBy, desc, isAdmin }: Args) => {
+    const users = entries
+      .filter(user => isAdmin === undefined || user.isAdmin === isAdmin)
+      .sort((a, b) =>
+        sortBy === 'name' ?
+          a.name.localeCompare(b.name)
+        : a[sortBy] - b[sortBy],
       );
-      if (isAdmin !== undefined)
-        sorted = sorted.filter(user => user.isAdmin === isAdmin);
-      if (asc) return sorted;
-      return sorted.reverse();
-    },
-  );
+    return desc ? users.reverse() : users;
+  },
+);
+```
 
-  useFetch(UserResource.getList);
-  const users = useQuery(sortedUsers, { asc: true });
+```html title="UsersPage.vue" {12-15}
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { useQuery, useSuspense } from '@data-client/vue';
+  import { UserResource } from './resources/User';
+  import { sortedUsers, type Sort, type SortBy } from './sortedUsers';
+
+  const filters = { All: undefined, Admins: true, Members: false };
+
+  await useSuspense(UserResource.getList);
+  const sort = ref<Sort>({ sortBy: 'name', desc: false });
+  const isAdmin = ref<boolean>();
+  const users = useQuery(sortedUsers, () => ({
+    ...sort.value,
+    isAdmin: isAdmin.value,
+  }));
+  function onSort(sortBy: SortBy) {
+    const desc = sort.value.sortBy === sortBy && !sort.value.desc;
+    sort.value = { sortBy, desc };
+  }
+  function ariaSort(column: SortBy) {
+    if (sort.value.sortBy !== column) return undefined;
+    return sort.value.desc ? 'descending' : 'ascending';
+  }
 </script>
 
 <template>
-  <div v-if="!users">No users in cache yet</div>
-  <div v-else>
-    <div v-for="user in users" :key="user.pk()">{{ user.name }}</div>
-  </div>
+  <header class="appHeader">
+    <h1 class="appTitle">Team</h1>
+    <div class="buttonGroup">
+      <button
+        v-for="(value, label) in filters"
+        :key="label"
+        :aria-pressed="isAdmin === value"
+        @click="isAdmin = value"
+      >
+        {{ label }}
+      </button>
+    </div>
+  </header>
+  <table>
+    <thead>
+      <tr>
+        <th :aria-sort="ariaSort('name')">
+          <button class="sort" @click="onSort('name')">Name</button>
+        </th>
+        <th>Role</th>
+        <th class="value" :aria-sort="ariaSort('posts')">
+          <button class="sort" @click="onSort('posts')">Posts</button>
+        </th>
+        <th class="value" :aria-sort="ariaSort('joined')">
+          <button class="sort" @click="onSort('joined')">Joined</button>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="user in users" :key="user.pk()">
+        <td>{{ user.name }}</td>
+        <td class="meta">{{ user.isAdmin ? 'Admin' : 'Member' }}</td>
+        <td class="value">{{ user.posts }}</td>
+        <td class="value">{{ user.joined }}</td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 ```
 

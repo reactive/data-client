@@ -189,15 +189,18 @@ interface Queryable {
 
 ### Sorting & Filtering
 
-[Query](https://dataclient.io/rest/api/Query) provides programmatic access to the Reactive Data Client store.
+[Query](https://dataclient.io/rest/api/Query) sorts and filters what is already in the store, so picking another column
+re-sorts the table without fetching again.
 
-```ts title="UserResource"
+```ts title="resources/User"
 import { Entity, resource } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
   name = '';
   isAdmin = false;
+  posts = 0;
+  joined = 0;
 
   static key = 'User';
 }
@@ -207,37 +210,129 @@ export const UserResource = resource({
 });
 ```
 
-```tsx title="UsersPage" {22}
+```ts title="sortedUsers"
 import { All, Query } from '@data-client/rest';
-import { useQuery, useFetch } from '@data-client/react';
-import { UserResource, User } from './UserResource';
+import { User } from './resources/User';
 
-interface Args {
-  asc: boolean;
-  isAdmin?: boolean;
+export type SortBy = 'name' | 'posts' | 'joined';
+export interface Sort {
+  sortBy: SortBy;
+  desc: boolean;
 }
-const sortedUsers = new Query(
+interface Args extends Sort {
+  /** admins only (true), members only (false), or everyone */
+  isAdmin: boolean | undefined;
+}
+
+export const sortedUsers = new Query(
   new All(User),
-  (entries, { asc, isAdmin }: Args = { asc: false }) => {
-    let sorted = [...entries].sort((a, b) => a.name.localeCompare(b.name));
-    if (isAdmin !== undefined)
-      sorted = sorted.filter(user => user.isAdmin === isAdmin);
-    if (asc) return sorted;
-    return sorted.reverse();
+  (entries, { sortBy, desc, isAdmin }: Args) => {
+    const users = entries
+      .filter(user => isAdmin === undefined || user.isAdmin === isAdmin)
+      .sort((a, b) =>
+        sortBy === 'name' ?
+          a.name.localeCompare(b.name)
+        : a[sortBy] - b[sortBy],
+      );
+    return desc ? users.reverse() : users;
   },
 );
+```
+
+```tsx title="UsersPage" {15}
+import React from 'react';
+import { useQuery, useSuspense } from '@data-client/react';
+import { UserResource } from './resources/User';
+import { sortedUsers, type Sort, type SortBy } from './sortedUsers';
+
+const filters = { All: undefined, Admins: true, Members: false };
 
 function UsersPage() {
-  useFetch(UserResource.getList);
-  const users = useQuery(sortedUsers, { asc: true });
-  if (!users) return <div>No users in cache yet</div>;
+  useSuspense(UserResource.getList);
+  const [sort, setSort] = React.useState<Sort>({
+    sortBy: 'name',
+    desc: false,
+  });
+  const [isAdmin, setIsAdmin] = React.useState<boolean>();
+  const users = useQuery(sortedUsers, { ...sort, isAdmin }) ?? [];
+  const onSort = (sortBy: SortBy) =>
+    setSort(prev => ({
+      sortBy,
+      desc: prev.sortBy === sortBy && !prev.desc,
+    }));
+
   return (
-    <div>
-      {users.map(user => (
-        <div key={user.pk()}>{user.name}</div>
-      ))}
-    </div>
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Team</h1>
+        <div className="buttonGroup">
+          {Object.entries(filters).map(([label, value]) => (
+            <button
+              key={label}
+              aria-pressed={isAdmin === value}
+              onClick={() => setIsAdmin(value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </header>
+      <table>
+        <thead>
+          <tr>
+            <SortHeader column="name" sort={sort} onSort={onSort}>
+              Name
+            </SortHeader>
+            <th>Role</th>
+            <SortHeader column="posts" sort={sort} onSort={onSort} numeric>
+              Posts
+            </SortHeader>
+            <SortHeader
+              column="joined"
+              sort={sort}
+              onSort={onSort}
+              numeric
+            >
+              Joined
+            </SortHeader>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map(user => (
+            <tr key={user.pk()}>
+              <td>{user.name}</td>
+              <td className="meta">{user.isAdmin ? 'Admin' : 'Member'}</td>
+              <td className="value">{user.posts}</td>
+              <td className="value">{user.joined}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
   );
+}
+
+function SortHeader({ column, sort, onSort, numeric, children }: Props) {
+  const sorted = sort.sortBy === column;
+  return (
+    <th
+      className={numeric ? 'value' : undefined}
+      aria-sort={
+        sorted ? (sort.desc ? 'descending' : 'ascending') : undefined
+      }
+    >
+      <button className="sort" onClick={() => onSort(column)}>
+        {children}
+      </button>
+    </th>
+  );
+}
+interface Props {
+  column: SortBy;
+  sort: Sort;
+  onSort: (column: SortBy) => void;
+  numeric?: boolean;
+  children: React.ReactNode;
 }
 render(<UsersPage />);
 ```
