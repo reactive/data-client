@@ -441,7 +441,7 @@ updates without network requests. For network-based mutations, see [RestEndpoint
 
 ### push
 
-A creation schema that places new item(s) at the _end_ of this collection.
+A creation schema that places new item(s) at the _end_ of this collection. An item already in it moves to the end.
 
 ```ts
 // Add a new todo to the end of the list (local only, no network request)
@@ -450,7 +450,7 @@ ctrl.set(getTodos.schema.push, { userId: '1' }, { id: '999', title: 'New Todo' }
 
 ### unshift
 
-A creation schema that places new item(s) at the _start_ of this collection.
+A creation schema that places new item(s) at the _start_ of this collection. An item already in it moves to the start.
 
 ```ts
 // Add a new todo to the beginning of the list (local only)
