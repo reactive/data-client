@@ -4,10 +4,11 @@ import { useCallback, useState } from 'react';
 import styles from '../styles.module.css';
 
 /**
- * Renders an editor's hovers, suggestions and parameter hints (Monaco's
- * overflow widgets) in a layer on <body>, so no playground stacking context
- * (tabs, Store, preview) paints over them and no clipping ancestor cuts them
- * off. One layer per editor: Monaco tracks focus inside it as the editor's.
+ * Renders an editor's hovers, suggestions, parameter hints and context menu
+ * (Monaco's overflow widgets) in a layer on <body>, so no playground stacking
+ * context (tabs, Store, preview) paints over them and no clipping ancestor
+ * cuts them off. One layer per editor: Monaco tracks focus inside it as the
+ * editor's.
  */
 export default function useOverflowWidgets() {
   const [options] = useState(() => {
@@ -26,6 +27,7 @@ export default function useOverflowWidgets() {
       followPageScroll(editor, node);
       // after mount: it creates widgets Monaco otherwise builds when idle
       setTimeout(() => measureInViewport(editor));
+      menuInLayer(editor);
     },
     [options],
   );
@@ -55,7 +57,7 @@ function followPageScroll(editor: Monaco.editor.ICodeEditor, node: Element) {
   if (editor.hasWidgetFocus()) start();
 }
 
-let patched = false;
+let viewportPatched = false;
 
 /**
  * Monaco's hover and suggest list pick above or below the line by room
@@ -66,7 +68,7 @@ let patched = false;
  * an upgrade renames these private methods, they just keep preferring above.
  */
 function measureInViewport(editor: Monaco.editor.ICodeEditor) {
-  if (patched) return;
+  if (viewportPatched) return;
   const hover = (
     editor.getContribution('editor.contrib.contentHover') as any
   )?._getOrCreateContentWidget?.()?.widget;
@@ -75,25 +77,72 @@ function measureInViewport(editor: Monaco.editor.ICodeEditor) {
   )?.widget?.value;
   // a disposed editor has none; the next one will
   if (!hover || !suggest) return;
-  patched = true;
-  patchMethod(hover, '_availableVerticalSpaceAbove');
-  patchMethod(hover, '_availableVerticalSpaceBelow');
-  patchMethod(suggest, '_layout');
+  viewportPatched = true;
+  patchMethod(hover, '_availableVerticalSpaceAbove', withScrollY0);
+  patchMethod(hover, '_availableVerticalSpaceBelow', withScrollY0);
+  patchMethod(suggest, '_layout', withScrollY0);
 }
 
-function patchMethod(instance: object, name: string) {
+let menuPatched = false;
+
+/**
+ * With fixed overflow widgets, Monaco puts the context menu's shadow root in
+ * the editor's container, outside `.monaco-editor`, so the theme's colors
+ * (CSS variables) don't reach it and the menu has no background. Keep it in
+ * the layer the editor hands it. Patches the context view service every
+ * editor shares; if an upgrade renames it, the menu loses its colors again.
+ */
+function menuInLayer(editor: Monaco.editor.ICodeEditor) {
+  if (menuPatched) return;
+  const service = (editor.getContribution('editor.contrib.contextmenu') as any)
+    ?._contextViewService;
+  if (!service) return;
+  menuPatched = true;
+  patchMethod(
+    service,
+    'showContextView',
+    (
+      original,
+      [delegate, container, shadowRoot, useWindowContainer, ...rest],
+    ) =>
+      original(
+        delegate,
+        container,
+        shadowRoot,
+        useWindowContainer &&
+          !(container as Element | undefined)?.classList.contains(
+            styles.overflowWidgets,
+          ),
+        ...rest,
+      ),
+  );
+}
+
+function withScrollY0(
+  original: (...args: unknown[]) => unknown,
+  args: unknown[],
+) {
+  // an own accessor in Chromium; a prototype one elsewhere
+  const scrollY = Object.getOwnPropertyDescriptor(window, 'scrollY');
+  Object.defineProperty(window, 'scrollY', { value: 0, configurable: true });
+  try {
+    return original(...args);
+  } finally {
+    if (scrollY) Object.defineProperty(window, 'scrollY', scrollY);
+    else delete (window as { scrollY?: number }).scrollY;
+  }
+}
+
+/** Wraps a method on `instance`'s prototype; skips it if it's gone */
+function patchMethod(
+  instance: object,
+  name: string,
+  wrap: (original: (...args: unknown[]) => unknown, args: unknown[]) => unknown,
+) {
   const proto = Object.getPrototypeOf(instance);
   const original = proto[name];
   if (typeof original !== 'function') return;
   proto[name] = function (this: unknown, ...args: unknown[]) {
-    // an own accessor in Chromium; a prototype one elsewhere
-    const scrollY = Object.getOwnPropertyDescriptor(window, 'scrollY');
-    Object.defineProperty(window, 'scrollY', { value: 0, configurable: true });
-    try {
-      return original.apply(this, args);
-    } finally {
-      if (scrollY) Object.defineProperty(window, 'scrollY', scrollY);
-      else delete (window as { scrollY?: number }).scrollY;
-    }
+    return wrap((...a) => original.apply(this, a), args);
   };
 }
