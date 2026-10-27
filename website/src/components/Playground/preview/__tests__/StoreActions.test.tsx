@@ -1223,6 +1223,7 @@ describe('Store Actions pane', () => {
       const [first, ...shared] = fetchesOf('b');
       expect(first.deduped).toBe(false);
       expect(shared.length).toBeLessThanOrEqual(1);
+      expect(shared.every(e => e.deduped)).toBe(true);
       responds.get('b')!();
       await screen.findByText('Results for b');
     });

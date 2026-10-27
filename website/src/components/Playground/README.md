@@ -249,7 +249,7 @@ Styled elements: `h2` (page title), `button` (`primary` fills one;
 | `pill` (`primary`)                         | a label on a row (a member's role); `primary` washes it in the accent           |
 | `buttonGroup`                              | segmented actions (Fail Soft, Fail Hard)                                        |
 | `segmented`                                | a filter's 2-4 choices on a track; `aria-pressed` marks the pick, a pill slides |
-| `search` (a `label`)                       | `input type="search"`, `button.clear`; `aria-busy` spins its magnifier          |
+| `search` (a `label`)                       | `input type="search" placeholder`, `button.clear`; `aria-busy` spins its icon   |
 | `cancel` (`<CancelButton />`)              | a row's remove button                                                           |
 | `skeleton`                                 | a value still loading; `<Loading />`, the default fallback, draws a page        |
 | `toaster`, `toast`                         | notifications: render `<Toaster />`, call `toast.success()` or `toast.error()`  |

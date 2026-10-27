@@ -461,7 +461,7 @@ div.playground-preview h1:first-child {
   outline: none;
   box-shadow: 0 0 0 2px var(--ds-accent);
 }
-/* nothing to clear: gone, Tab included */
+/* nothing to clear: gone, Tab included (the input needs a placeholder) */
 .playground-preview .search:has(> input:placeholder-shown) > .clear {
   visibility: hidden;
 }
