@@ -60,9 +60,7 @@ function InteractiveEditor({
   const overflowWidgets = useOverflowWidgets();
   const editorOptions = useMemo(
     () => ({ ...options, ...overflowWidgets.options, readOnly }),
-    // overflowWidgets.options is fixed for the editor's life
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [readOnly],
+    [overflowWidgets.options, readOnly],
   );
   const { height, handleMount: handleAutoMount } = useAutoHeight({
     initialContentHeight: code.split('\n').length * editorOptions.lineHeight,
