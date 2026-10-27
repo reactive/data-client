@@ -294,7 +294,7 @@ describe('manager attribution', () => {
     });
   });
 
-  it("ids a code class apart from the library's of its name", () => {
+  it("ids a code class apart from the library's of its name, and names it apart", () => {
     // counted together, the library's would be #2 here and #1 without it
     const stages = managerStages([codeNetworkManager(), new NetworkManager()]);
     expect(stages.map(stage => stage.id)).toEqual([

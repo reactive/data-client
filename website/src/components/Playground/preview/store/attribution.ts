@@ -46,9 +46,9 @@ export interface ManagerStage {
   readonly id: string;
   /** Its class's name */
   readonly className: string;
-  /** Which of its class's name it is in the chain, the library's and the
-   * code's counted together: 1 for the first, 2 for the next. Only names
-   * it (the `id` counts each kind apart) */
+  /** Its place among the chain's managers of this class name, the
+   * library's and the code's counted together: 1 for the first, 2 for the
+   * next. Only for its name; `id` counts each kind apart */
   readonly n: number;
   /** One of the library's own managers, which every store has unless the
    * code chooses otherwise (a subclass is the code's) */
@@ -148,16 +148,16 @@ export function byStage(stage: Stage) {
 
 /** Each manager of a chain as a stage: its class, and which of that class
  * it is. Every store whose chain has the same class (by name, and whether
- * it is the library's or the code's) at the same place among its class
- * gives it the same `id`, so in a history that spans stores (one restored
+ * it is the library's or the code's) at the same place among that class
+ * and kind gives it the same `id`, so in a history that spans stores (one restored
  * after an error, or remade when the code's managers change) a stage
  * picked stays picked */
 export function managerStages(managers: readonly Manager[]): ManagerStage[] {
-  const named = new Map<string, number>();
-  const kept = new Map<string, number>();
-  const next = (seen: Map<string, number>, key: string) => {
-    const n = (seen.get(key) ?? 0) + 1;
-    seen.set(key, n);
+  const nameCounts = new Map<string, number>();
+  const idCounts = new Map<string, number>();
+  const count = (counts: Map<string, number>, key: string) => {
+    const n = (counts.get(key) ?? 0) + 1;
+    counts.set(key, n);
     return n;
   };
   return managers.map(manager => {
@@ -169,9 +169,9 @@ export function managerStages(managers: readonly Manager[]): ManagerStage[] {
     // re-ids the other
     const classKey = `${library ? 'lib' : 'code'}:${className}`;
     return {
-      id: `${classKey}#${next(kept, classKey)}`,
+      id: `${classKey}#${count(idCounts, classKey)}`,
       className,
-      n: next(named, className),
+      n: count(nameCounts, className),
       library,
     };
   });
