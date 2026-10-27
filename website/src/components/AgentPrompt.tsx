@@ -5,7 +5,10 @@ import React, { useCallback, useId } from 'react';
 import styles from './AgentPrompt.module.css';
 import useFramework from './useFramework';
 import useTapped from './useTapped';
-import { setupCommand } from '../../framework-docs/skillCommands.mjs';
+import {
+  setupCommand,
+  setupSkillFile,
+} from '../../framework-docs/skillCommands.mjs';
 
 const FEEDBACK_MS = 2000;
 
@@ -27,11 +30,11 @@ export default function AgentPrompt({ prompt, title, framed }: Props) {
     {
       id: 'agentPrompt.prompt',
       message:
-        'Set up `@data-client/{framework}` and use it for all API data. Install its setup skill first: `{command}`, then follow it.',
+        'Set up `@data-client/{framework}` and use it for all API data. Install its setup skill first: `{command}`, then read `{skillFile}` and follow it.',
       description:
-        'Prompt readers copy into their coding agent; {command} is the shell command the agent runs. Keep the backticks around package names and the command: they keep each on one line.',
+        'Prompt readers copy into their coding agent; {command} is the shell command the agent runs and {skillFile} the file it then reads. Keep the backticks around package names and the command: they keep each on one line.',
     },
-    { framework, command: setupCommand },
+    { framework, command: setupCommand, skillFile: setupSkillFile },
   );
   const tipId = useId();
   // the check icon and the tooltip (which touch screens, lacking hover, need)

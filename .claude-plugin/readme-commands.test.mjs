@@ -15,6 +15,7 @@ import {
   cursorSetupPrompt,
   setupCommand,
   setupPrompt,
+  setupSkillFile,
 } from '../website/framework-docs/skillCommands.mjs';
 
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
@@ -60,7 +61,9 @@ for (const pkg of ['rest', 'graphql', 'endpoint']) {
 
 test("AgentPrompt's default prompt matches setupPrompt", () => {
   // its translate() literal can't import setupPrompt (i18n extraction needs a literal)
-  const message = setupPrompt('{framework}').replace(setupCommand, '{command}');
+  const message = setupPrompt('{framework}')
+    .replace(setupCommand, '{command}')
+    .replace(setupSkillFile, '{skillFile}');
   assert.ok(
     read('website/src/components/AgentPrompt.tsx').includes(`'${message}'`),
     message,

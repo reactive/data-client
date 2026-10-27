@@ -64,7 +64,7 @@ module.exports = function llmsPlugin(context) {
       if (context.i18n.currentLocale !== context.i18n.defaultLocale) return;
       const { docToMarkdown, agentReferenceUrl, ROOT } =
         await import('./framework-docs/docsToMarkdown.mjs');
-      const { setupCommand, linkCommand } =
+      const { setupCommand, setupSkillFile, linkCommand } =
         await import('./framework-docs/skillCommands.mjs');
 
       // docs instance id -> its folder and sidebar sections
@@ -139,7 +139,7 @@ module.exports = function llmsPlugin(context) {
           o => `Using ${o.name}? See ${url}${llmsTxtRoute(o.id)}`,
         );
       // the same steps the site's setup prompt gives (AgentPrompt)
-      const setupStep = `To add Data Client to an app, run \`${setupCommand}\` from the project root, then read \`.agents/skills/data-client-setup/SKILL.md\` and follow it.`;
+      const setupStep = `To add Data Client to an app, run \`${setupCommand}\` from the project root, then read \`${setupSkillFile}\` and follow it.`;
       /** Title, summary and intro of a docs instance's llms.txt */
       const header = instance => {
         const { id, name, framework } = instance;
