@@ -74,11 +74,8 @@
 :root[data-theme='dark'] .segmented > [role='tab']:hover {
   color: var(--pg-text);
 }
-:root[data-theme='dark'] /* over the file tab's own pick (TabList's .tab.selected) */
-.segmented > [role='tab'][aria-selected='true'] {
-  background: none;
+:root[data-theme='dark'] .segmented > [role='tab'][aria-selected='true'] {
   color: var(--pg-text);
-  box-shadow: none;
 }
 .segmented > [role='tab']:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
