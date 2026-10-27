@@ -135,17 +135,19 @@ export interface Listing {
   /** The rows' requests: where the surface steps */
   readonly requests: Requests;
   readonly hit: (entry: LogEntry) => boolean;
+  /** Which of a listed row's steps the list shows */
+  readonly lists: (entry: LogEntry) => boolean;
 }
 
 /** Where a step before (`-1`) or after (`1`) the moment at `entry` (the
  * newest, `live`) lands, at its depth (see `Scope`). An action alone steps
- * an action at a time through the rows listed, every step of theirs
- * included. Otherwise it steps a request at a time (see `requestsOf`), a
- * picked row stepping from its request at the moment. Live is a place past
+ * an action at a time through the steps the listed rows show. Otherwise it
+ * steps a request at a time (see `requestsOf`), a picked row stepping from
+ * its request at the moment. Live is a place past
  * the last request: stepping on from it reaches live, stepping back from
  * live the last request. `null` is live; `undefined` has nowhere to go */
 export function stepAt(
-  { entries, groups, listed, requests, hit }: Listing,
+  { entries, groups, listed, requests, hit, lists }: Listing,
   entry: LogEntry | undefined,
   live: boolean,
   scope: Scope,
@@ -155,7 +157,7 @@ export function stepAt(
   if (scope === 'action') {
     const next = nearestHit(entries, entry.seq, by, e => {
       const row = groupOf(groups, e.seq);
-      return row ? listed.has(row) : hit(e);
+      return row ? listed.has(row) && lists(e) : hit(e);
     });
     if (next) return { seq: next.seq, scope };
   } else {

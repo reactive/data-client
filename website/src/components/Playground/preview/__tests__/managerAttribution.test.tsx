@@ -955,6 +955,30 @@ describe('Store panel pipeline', () => {
     expect(stage(/^StreamManager/).getAttribute('aria-pressed')).toBe('false');
   });
 
+  it("steps an action alone only through the picked stage's steps", async () => {
+    const { ctrl } = mount([new NetworkManager()], undefined, true);
+    await act(async () => {
+      await ctrl().fetch(getTicker);
+    });
+    openActions();
+    fireEvent.click(stage(/^the app/));
+    fireEvent.click(listed()[0]);
+    await screen.findAllByRole('group', { name: /^Path/ });
+    // the request's own steps: only the app's fetch, not NetworkManager's
+    // response
+    const steps = screen
+      .getByRole('region', { name: 'Actions' })
+      .querySelectorAll('[role="button"]:not([aria-expanded])');
+    expect([...steps].map(s => s.textContent)).toEqual([
+      expect.stringMatching(/fetch$/),
+    ]);
+    fireEvent.click(steps[0]);
+    fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
+    // on past the hidden response, to live
+    const response = screen.getByRole('button', { name: /^setResponse at/ });
+    expect(response.dataset.selected).toBeUndefined();
+  });
+
   it("shows the picked stage's newest action live", async () => {
     const stream = new StreamManager();
     const { ctrl } = mount([stream, new NetworkManager()], undefined, true);

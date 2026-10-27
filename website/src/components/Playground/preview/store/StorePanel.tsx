@@ -417,7 +417,7 @@ export default function StorePanel({
   const actionShown = actionLevels.stack.some(e => e.view.kind === 'action');
   // what every step (‹ ›, ← →, Before and After) and a mark picked go
   // through: the subject's rows, the surface stepping by their requests
-  const { hit } = filter;
+  const { hit, lists } = filter;
   const listing = useMemo(() => {
     const rows = rowsOf(groups, hit);
     return {
@@ -426,8 +426,9 @@ export default function StorePanel({
       listed: new Set(rows),
       requests: requestsOf(rows, hit),
       hit,
+      lists,
     };
-  }, [known, groups, hit]);
+  }, [known, groups, hit, lists]);
   const mark = useCallback(
     (seq: number) => {
       const to = pickAt(listing.requests, seq, scope);
