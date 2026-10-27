@@ -74,7 +74,7 @@
   /* the preview header's curves fade in as it lands */
   --pg-store-fade: 120ms ease-out 180ms;
 }
-/* a row (../TypeScriptEditor.tsx with several files) keeps the row's own
+/* a row (../TypeScriptEditor.tsx unless row={false}) keeps the row's own
    sizing, so its tabs match every other row's */
 .playgroundContainer.standaloneEditor:not(.row) {
   --ifm-code-font-size: 14.4px;

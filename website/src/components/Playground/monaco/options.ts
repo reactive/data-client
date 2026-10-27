@@ -7,6 +7,11 @@ export const options = {
   lineNumbers: 'off',
   //glyphMargin: false,
   folding: false,
+  // no frame lines on the code card until someone edits: the current line's
+  // box shows only with focus, and the scrollbar's ruler never
+  renderLineHighlightOnlyWhenFocus: true,
+  overviewRulerLanes: 0,
+  overviewRulerBorder: false,
   // Undocumented see https://github.com/Microsoft/vscode/issues/30795#issuecomment-410998882
   //lineDecorationsWidth: 0,
   //lineNumbersMinChars: 0,

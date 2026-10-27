@@ -116,8 +116,8 @@ callout markers as comments, its caption and legend outside the editor.
   The result stays mounted so app state survives; both share
   `--pg-demo-min` so toggling doesn't move the page. The Code toggle ends an
   `autoRun`.
-- A `row` with no folder (`../TypeScriptEditor.tsx` with several files,
-  unless `row={false}`) is the tabs and the code card alone.
+- A `row` with no folder (`../TypeScriptEditor.tsx`, unless `row={false}`)
+  is the tabs (only with several files) and the code card alone.
 - `../HTTP/EndpointPlayground.tsx` is a `row` whose folder holds the HTTP
   exchange instead of a preview: the request is the inset header, the
   response the sheet (`../HTTP/styles.module.css`).
