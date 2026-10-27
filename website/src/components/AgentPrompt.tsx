@@ -27,7 +27,7 @@ export default function AgentPrompt({ prompt, title, framed }: Props) {
     {
       id: 'agentPrompt.prompt',
       message:
-        'Set up `@data-client/{framework}` and use it for all API data. Install its setup skill first: `{command}`, then follow it.',
+        'Set up `@data-client/{framework}` and use it for all API data. Install its setup skill first: `{command}`, then read `.agents/skills/data-client-setup/SKILL.md` and follow it.',
       description:
         'Prompt readers copy into their coding agent; {command} is the shell command the agent runs. Keep the backticks around package names and the command: they keep each on one line.',
     },

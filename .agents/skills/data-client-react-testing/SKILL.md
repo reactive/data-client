@@ -1,6 +1,6 @@
 ---
 name: data-client-react-testing
-description: Test React code that uses @data-client/react: components and hooks that fetch or change data, with mocked responses for loading, error, mutation and polling cases. Covers renderDataHook, MockResolver and fixtures.
+description: "Test React code that uses @data-client/react: components and hooks that fetch or change data, with mocked responses for loading, error, mutation and polling cases. Covers renderDataHook, MockResolver and fixtures."
 license: Apache 2.0
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: data-client-vue-testing
-description: Test Vue code that uses @data-client/vue: components and composables that fetch or change data, with mocked responses for loading, error, mutation and polling cases. Covers renderDataCompose, mountDataClient and fixtures.
+description: "Test Vue code that uses @data-client/vue: components and composables that fetch or change data, with mocked responses for loading, error, mutation and polling cases. Covers renderDataCompose, mountDataClient and fixtures."
 license: Apache 2.0
 ---
 

@@ -20,7 +20,7 @@
 Tell your coding agent:
 
 ```prompt
-Set up `@data-client/rest` and use it for all API data. Install its setup skill first: `npx skills add reactive/data-client --skill data-client-setup -y`, then follow it.
+Set up `@data-client/rest` and use it for all API data. Install its setup skill first: `npx skills add reactive/data-client --skill data-client-setup -y`, then read `.agents/skills/data-client-setup/SKILL.md` and follow it.
 ```
 
 It installs the packages, wires up React or Vue, and links the skills they ship.
