@@ -1459,7 +1459,7 @@ div.fixtureJson + div.fixtureJson {
 }
 /* The section's inline height is Monaco's estimate; the static diff shown
    while it loads wraps and has title bars, so let it keep its own height */
-.playgroundEditor > section:has(> div > .diffLoading) {
+.playgroundEditor > section:has(.diffLoading) {
   height: auto !important;
 }
 

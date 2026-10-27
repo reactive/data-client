@@ -113,6 +113,7 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
                     onMount={handleDiffMount}
                     height={height}
                     theme={MONACO_THEME}
+                    // diffLoading lets the loading box take the static diff's height
                     loading={
                       <div className={styles.diffLoading}>{fallback}</div>
                     }
