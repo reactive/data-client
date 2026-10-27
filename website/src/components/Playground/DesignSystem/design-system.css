@@ -113,23 +113,35 @@ div.playground-preview h1:first-child {
 }
 
 /* The app's header: its name at the left, its navigation or actions at the
-   right; the space under it (28px), not a rule, sets the page off. The
-   name is a small tracked wordmark in the muted color, so the title below
-   carries the page */
+   right; the space under it, not a rule, sets the page off. The name is a
+   small tracked wordmark in the muted color, so the title below carries
+   the page. Its caps sit the sheet's inset (--pg-sheet-pad) from its top,
+   as its left edge does from the side */
 .playground-preview .appHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--ds-space-2) var(--ds-space-4);
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--ds-space-4);
 }
-/* through .appHeader to outrank Infima's `.markdown h1:first-child` margin */
+/* no more room than the caps: set solid, then the space above the caps
+   and below the baseline taken back (about even in the site's font); not
+   text-box, which Firefox lacks. Outranks Infima's `.markdown
+   h1:first-child` margin */
+.playground-preview .appHeader > :is(.appTitle, .meta) {
+  line-height: 1;
+  margin-block: calc((1cap - 1em) / 2);
+}
+/* a NumberFlow's roll mask pads it above and below; taken back, so a count
+   (a post list's votes) doesn't grow the header */
+.playground-preview .appHeader :is(number-flow-react, number-flow-vue) {
+  margin-block: calc(-1 * var(--number-flow-mask-height, 0.25em));
+}
+/* through .appHeader to outrank `div.playground-preview h1:first-child` */
 .playground-preview .appHeader .appTitle {
-  margin: 0;
   font-size: 0.75rem;
   font-weight: 600;
-  line-height: 1.4;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ds-text-muted);
