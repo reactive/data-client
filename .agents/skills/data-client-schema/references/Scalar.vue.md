@@ -76,24 +76,24 @@ export const getPortfolioColumns = new RestEndpoint({
 </script>
 
 <template>
-  <table style="margin-top: 8px; width: 100%">
+  <table>
     <thead>
       <tr>
-        <th align="left">Name</th>
-        <th align="right">Price</th>
-        <th align="right">% Equity</th>
-        <th align="right">Shares</th>
+        <th>Name</th>
+        <th class="value">Price</th>
+        <th class="value">% Equity</th>
+        <th class="value">Shares</th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="c in companies" :key="c.pk()">
         <td>{{ c.name }}</td>
-        <td align="right">${{ c.price.toFixed(2) }}</td>
-        <td align="right">
+        <td class="value">${{ c.price.toFixed(2) }}</td>
+        <td class="value">
           <span v-if="c.pct_equity === undefined" class="skeleton" />
           <template v-else>{{ formatPercent(c.pct_equity) }}</template>
         </td>
-        <td align="right">
+        <td class="value">
           <span v-if="c.shares === undefined" class="skeleton" />
           <template v-else>{{ c.shares.toLocaleString() }}</template>
         </td>

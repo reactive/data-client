@@ -235,24 +235,28 @@ controls keep an edge). Before restyling a class, grep `docs/` and
 style to a new component.
 
 Styled elements: `h2` (page title), `button` (`primary` fills one;
-`aria-busy` shows pending), text inputs, `nav`, `fieldset`, `progress`.
+`aria-busy` shows pending), text inputs, `nav`, `fieldset`, `progress`,
+`table`.
 
-| Class                                      | Use for                                                                        |
-| ------------------------------------------ | ------------------------------------------------------------------------------ |
-| `appHeader` + `appTitle`                   | the app's top bar and wordmark                                                 |
-| `card`                                     | a group (no box: the sheet is the card)                                        |
-| `list`, `listItem` (`nogap`, `spaced`)     | rows; checkbox rows highlight and fade when done                               |
-| `meta`                                     | secondary text; last in a `listItem`, it sits at the row's end                 |
-| `value`                                    | a row's figure (a price); last in a `listItem`, at the row's end, tabular      |
-| `byline`, `author` (`Avatar` takes `size`) | who wrote something                                                            |
-| `buttonGroup`                              | a row of actions as one segmented control                                      |
-| `cancel` (`<CancelButton />`)              | a row's remove button                                                          |
-| `skeleton`                                 | a value still loading; `<Loading />`, the default fallback, draws a page       |
-| `toaster`, `toast`                         | notifications: render `<Toaster />`, call `toast.success()` or `toast.error()` |
-| `boardColumn`                              | a kanban column                                                                |
-| `upvote` (a button)                        | an upvote with its count; empty, the arrow alone                               |
-| `stats` (a `dl`)                           | figures side by side, each large over its label; a lone one fills the row      |
-| `stepper` (− `output` +)                   | a quantity's buttons around its count (one button alone: Add); in a row        |
+| Class                                      | Use for                                                                         |
+| ------------------------------------------ | ------------------------------------------------------------------------------- |
+| `appHeader` + `appTitle`                   | the app's top bar and wordmark                                                  |
+| `card`                                     | a group (no box: the sheet is the card)                                         |
+| `list`, `listItem` (`nogap`, `spaced`)     | rows; checkbox rows highlight and fade when done                                |
+| `meta`                                     | secondary text; last in a `listItem`, it sits at the row's end                  |
+| `value`                                    | a row's figure (a price); last in a `listItem`, at the row's end, tabular       |
+| `byline`, `author` (`Avatar` takes `size`) | who wrote something; `Avatar` with a `name` and no `src` draws its initials     |
+| `pill` (`primary`)                         | a label on a row (a member's role); `primary` washes it in the accent           |
+| `buttonGroup`                              | segmented actions (Fail Soft, Fail Hard)                                        |
+| `segmented`                                | a filter's 2-4 choices on a track; `aria-pressed` marks the pick, a pill slides |
+| `cancel` (`<CancelButton />`)              | a row's remove button                                                           |
+| `skeleton`                                 | a value still loading; `<Loading />`, the default fallback, draws a page        |
+| `toaster`, `toast`                         | notifications: render `<Toaster />`, call `toast.success()` or `toast.error()`  |
+| `boardColumn`                              | a kanban column                                                                 |
+| `upvote` (a button)                        | an upvote with its count; empty, the arrow alone                                |
+| `stats` (a `dl`)                           | figures side by side, each large over its label; a lone one fills the row       |
+| `stepper` (− `output` +)                   | a quantity's buttons around its count (one button alone: Add); in a row         |
+| `table` (`value` cells), `sort` (a button) | rule-free rows (no hover); a `th`'s `button.sort` sorts, `aria-sort` marks it   |
 
 ## Auto-run
 

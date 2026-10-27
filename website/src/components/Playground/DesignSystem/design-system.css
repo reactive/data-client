@@ -52,10 +52,12 @@ div.playground-preview h1:first-child {
   margin-bottom: 0;
 }
 /* A group's label over its rows (a section's "Comments", a board column's
-   name): small, muted and semibold, so weight alone marks the group. A
-   row's own title (a post's h3 in a list) stays a heading */
+   name, a table's column): small, muted and semibold, so weight alone
+   marks the group. A row's own title (a post's h3 in a list) stays a
+   heading */
 .playground-preview section > h3,
-.playground-preview .boardColumn > h4 {
+.playground-preview .boardColumn > h4,
+.playground-preview th {
   margin: 0 0 6px;
   font: 600 var(--ds-text-sm) / 1.4 var(--ifm-font-family-base);
   letter-spacing: 0;
@@ -285,14 +287,10 @@ div.playground-preview h1:first-child {
   color: var(--ds-accent);
 }
 .playground-preview button:where(:not([class])):active {
-  background: color-mix(
-    in srgb,
-    var(--ds-accent) var(--ds-accent-press),
-    var(--ds-surface)
-  );
+  background: var(--ds-accent-pressed);
 }
 .playground-preview
-  button:where(:not([class]), .primary, .upvote):focus-visible {
+  button:where(:not([class]), .primary, .upvote, .sort):focus-visible {
   outline: 2px solid var(--ds-accent);
   outline-offset: 2px;
 }
@@ -459,12 +457,16 @@ div.playground-preview h1:first-child {
 .playground-preview .listItem:has(> .upvote) {
   align-items: flex-start;
 }
-.playground-preview button.upvote::before {
+/* an arrow pointing up: an upvote's, a sorted column's (each sizes its own) */
+.playground-preview button.upvote::before,
+.playground-preview button.sort::after {
   content: '';
-  width: 12px;
-  height: 7px;
   background: currentColor;
   clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.playground-preview button.upvote::before {
+  width: 12px;
+  height: 7px;
 }
 @media (hover: hover) {
   .playground-preview button.upvote:hover,
@@ -475,11 +477,7 @@ div.playground-preview h1:first-child {
 }
 .playground-preview button.upvote:active,
 .playground-preview .stepper > button:active {
-  background: color-mix(
-    in srgb,
-    var(--ds-accent) var(--ds-accent-press),
-    var(--ds-surface)
-  );
+  background: var(--ds-accent-pressed);
   color: var(--ds-accent);
 }
 /* Figures side by side (`dl.stats`, each a div of dt then dd): the number
@@ -706,14 +704,18 @@ div.playground-preview h1:first-child {
 .playground-preview .listItem > :is(.meta, .value):last-child {
   margin-left: auto;
 }
-/* A row's figure (`value`: a watchlist row's price, a NumberFlow or a
-   skeleton holding its place): at the row's end in tabular digits, a step
-   up in weight, so a list of them reads as a column. The row's name is its
-   h4 (a coin's symbol), with a `small` line under it when it has one */
+/* A figure (`value`: a watchlist row's price, a table's count, a NumberFlow
+   or a skeleton holding its place): tabular digits, so a column of them
+   lines up */
+.playground-preview .value {
+  font-variant-numeric: tabular-nums;
+}
+/* in a list row, at the row's end and a step up in weight, so a list of
+   them reads as a column. The row's name is its h4 (a coin's symbol), with
+   a `small` line under it when it has one */
 .playground-preview .listItem > .value {
   flex: none;
   font-weight: 600;
-  font-variant-numeric: tabular-nums;
 }
 .playground-preview .listItem:has(> .value) h4 {
   margin-bottom: 0;
@@ -755,11 +757,7 @@ div.playground-preview h1:first-child {
 .playground-preview
   .buttonGroup
   > button:not([class], [aria-busy='true']):active {
-  background: color-mix(
-    in srgb,
-    var(--ds-accent) var(--ds-accent-press),
-    var(--ds-surface)
-  );
+  background: var(--ds-accent-pressed);
 }
 /* a busy segment's light runs inside the group's edge (outranking the
    segment's border: 0) */
@@ -769,6 +767,214 @@ div.playground-preview h1:first-child {
 /* inside the group's edge, which clips anything outside it */
 .playground-preview .buttonGroup > button:focus-visible {
   outline-offset: -2px;
+}
+/* in an app header, level with the wordmark */
+.playground-preview .appHeader .buttonGroup {
+  margin-top: 0;
+}
+/* A filter's choices (All, Admins, Members) on a track of the well's
+   color, in equal segments; the chosen one (`aria-pressed`) in full ink on a
+   pill that slides to it. The pill shares the first segment's grid cell and
+   moves by the chosen one's index (up to the fourth). In an app header it
+   sits level with the wordmark; on a phone it fits beside it */
+.playground-preview .segmented {
+  --segment: 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  width: fit-content;
+  max-width: 100%;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--ds-surface-2);
+}
+.playground-preview .segmented:has(> :nth-child(2)[aria-pressed='true']) {
+  --segment: 1;
+}
+.playground-preview .segmented:has(> :nth-child(3)[aria-pressed='true']) {
+  --segment: 2;
+}
+.playground-preview .segmented:has(> :nth-child(4)[aria-pressed='true']) {
+  --segment: 3;
+}
+.playground-preview .segmented::before,
+.playground-preview .segmented > :first-child {
+  grid-area: 1 / 1;
+}
+.playground-preview .segmented::before {
+  content: '';
+  border-radius: 999px;
+  background: var(--ds-raised);
+  box-shadow: var(--ds-raised-shadow);
+  transform: translateX(calc(100% * var(--segment)));
+  transition: transform var(--motion-snappy);
+}
+@media (prefers-reduced-motion: reduce) {
+  .playground-preview .segmented::before {
+    transition: none;
+  }
+}
+.playground-preview .segmented > button {
+  /* above the pill, which its transform lifts over unpositioned siblings */
+  position: relative;
+  margin: 0;
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ds-text-muted);
+}
+.playground-preview .segmented > button[aria-pressed='true'] {
+  color: var(--ds-text);
+  font-weight: 600;
+}
+@media (hover: hover) {
+  .playground-preview .segmented > button:not([aria-pressed='true']):hover {
+    color: var(--ds-text);
+  }
+}
+.playground-preview .segmented > button:focus-visible {
+  outline-offset: -2px;
+}
+/* A table (a team's members): rows on the sheet with no rules, stripes or
+   hover, set apart by space, its first and last columns flush with the app
+   header's text. Headers are a group's label; `value` cells (a count, a
+   year) sit at the column's end. Infima's borders and stripes are dropped */
+.playground-preview table {
+  --ifm-table-stripe-background: transparent;
+  width: 100%;
+  margin: 0 0 var(--ds-space-4);
+  border-collapse: separate;
+  border-spacing: 0;
+}
+/* under a control (a picker) it stands a step off */
+.playground-preview * + table {
+  margin-top: var(--ds-space-3);
+}
+.playground-preview :is(thead, tr, th, td) {
+  border: 0;
+}
+/* 8px between columns is what keeps a 4-column row on a phone's sheet
+   (a name with its avatar, a role's pill, two figures) */
+.playground-preview td {
+  padding: var(--ds-space-2);
+  vertical-align: baseline;
+}
+.playground-preview th {
+  padding: 0 var(--ds-space-2) var(--ds-space-1);
+  text-align: start;
+  white-space: nowrap;
+}
+.playground-preview :is(th, td):first-child {
+  padding-left: 0;
+}
+.playground-preview :is(th, td):last-child {
+  padding-right: 0;
+}
+.playground-preview :is(th, td).value {
+  text-align: end;
+}
+/* A person in a row (a team member): `Avatar` with a `name` draws the
+   name's initials on a disc, 32px on its own and 22px in a table cell,
+   where it leads the name and sits in the text's line, 6px before it */
+.playground-preview .avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ds-surface-2);
+  color: var(--ds-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  vertical-align: middle;
+}
+.playground-preview td > .avatar {
+  width: 22px;
+  height: 22px;
+  margin: -3px 6px -3px 0;
+  font-size: 0.625rem;
+}
+/* the name stays on one line, a step (12px) from what follows it */
+.playground-preview td:has(> .avatar) {
+  padding-right: var(--ds-space-3);
+  white-space: nowrap;
+}
+/* A label on a row (`pill`: a member's role): a small bold word on a disc
+   of the well's color, `primary` washed in the accent (an admin). Its disc
+   reaches past its text, so the word stays in line with its column's
+   header */
+.playground-preview .pill {
+  display: inline-block;
+  margin-inline: -7px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--ds-surface-2);
+  color: var(--ds-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.playground-preview .pill.primary {
+  background: var(--ds-accent-soft);
+  color: var(--ds-accent);
+}
+/* A sortable column's header (`button.sort` in its `th`, `aria-sort` on
+   the sorted one's): its label, then an arrow that points the way the
+   column runs, in the accent; the sorted column's label takes the text's
+   color. The arrow always holds its place, so a header never shifts; on
+   another column it shows faintly under the pointer. In a `value` column
+   it leads the label, so the label ends where the figures do */
+.playground-preview button.sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: -2px -4px;
+  padding: 2px 4px;
+  border: 0;
+  border-radius: var(--ds-radius-xs);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: color var(--motion-snappy);
+}
+.playground-preview th.value > button.sort {
+  flex-direction: row-reverse;
+}
+.playground-preview button.sort::after {
+  width: 8px;
+  height: 5px;
+  opacity: 0;
+  transition:
+    opacity var(--motion-snappy),
+    transform var(--motion-snappy);
+}
+.playground-preview button.sort:focus-visible {
+  outline-offset: 0;
+}
+.playground-preview button.sort:active,
+.playground-preview th[aria-sort] > button.sort {
+  color: var(--ds-text);
+}
+@media (hover: hover) {
+  .playground-preview button.sort:hover {
+    color: var(--ds-text);
+  }
+  .playground-preview button.sort:hover::after {
+    opacity: 0.4;
+  }
+}
+.playground-preview th[aria-sort] > button.sort::after {
+  background: var(--ds-accent);
+  opacity: 1;
+}
+.playground-preview th[aria-sort='descending'] > button.sort::after {
+  transform: rotate(180deg);
 }
 /* Actions under rows (a clock's Refresh) stand 16px off the last one */
 .playground-preview .listItem + button {
