@@ -1,6 +1,11 @@
 // eslint-env jest
 import { initialState, State } from '@data-client/core';
-import { normalize, denormalize, MemoCache } from '@data-client/normalizr';
+import {
+  normalize,
+  denormalize,
+  MemoCache,
+  INVALID,
+} from '@data-client/normalizr';
 import { ArticleResource, IDEntity } from '__tests__/new';
 import { Record } from 'immutable';
 
@@ -754,6 +759,46 @@ describe(`${schema.Collection.name} normalization`, () => {
       '5',
     ]);
   });
+
+  test.each([
+    ['push', ['10', '5'], ['5', '10']],
+    ['unshift', ['5', '10'], ['10', '5']],
+  ] as const)(
+    '%s of an id already in the collection moves it instead of adding a copy',
+    (method, before, after) => {
+      const init = {
+        entities: {
+          [User.schema.todos.key]: {
+            '{"userId":"1"}': [...before],
+          },
+          Todo: {
+            '5': { id: '5', title: 'finish collections' },
+            // deleted, so the collection still holds its id
+            '10': INVALID,
+          },
+        },
+        entitiesMeta: {
+          [User.schema.todos.key]: {
+            '{"userId":"1"}': { date: 0, expiresAt: Infinity, fetchedAt: 0 },
+          },
+          Todo: {
+            '5': { date: 0, expiresAt: Infinity, fetchedAt: 0 },
+            '10': { date: 0, expiresAt: Infinity, fetchedAt: 0 },
+          },
+        },
+        indexes: {},
+      };
+      const state = normalize(
+        User.schema.todos[method],
+        [{ id: '10', title: 'recreated' }],
+        [{ userId: '1' }],
+        init,
+      );
+      expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual(
+        after,
+      );
+    },
+  );
 
   describe('push should add only to collections matching filterArgumentKeys', () => {
     const initializingSchema = new Collection([Todo]);
