@@ -603,14 +603,27 @@ div.playgroundTextEdit > .playgroundHeader,
 .row > .previewWrapper::after {
   max-height: var(--pg-card-radius);
 }
-/* The code card's foot overlaps the empty 10px gutter under the last line
-   (Monaco's containerGutter, the static view's padding), so the space
-   below the code is the foot's, as deep as the padding above it. Its
-   shadow is clipped at its top edge, where its blur would darken the last
-   lines; the 4rem clears the shadow's reach at the sides and bottom */
+/* The code card's foot is drawn up over the empty 10px gutter under the
+   last line (Monaco's containerGutter, the static view's padding), so the
+   space below the code is the foot's, as deep as the padding above it. The
+   code's own box ends there too, so it rounds and clips its corners as the
+   foot does (Monaco paints its own square background). The foot's shadow
+   stops at its top edge, where its blur would darken the last lines (the
+   4rem clears its reach at the sides and bottom) */
+.row .editorDocs {
+  --pg-gutter-cut: 10px;
+}
+.row .editorDocs > .playgroundEditor:not(:has(~ .codeHeader)) {
+  border-bottom-left-radius: var(--pg-gutter-cut);
+  border-bottom-right-radius: var(--pg-gutter-cut);
+  overflow: clip;
+}
 .row .editorDocs::after {
-  margin-top: -10px;
-  clip-path: inset(0 -4rem -4rem);
+  margin-top: calc(-1 * var(--pg-gutter-cut));
+  /* cut a little into the foot, over the code's box: at a fractional
+     edge, a clip right at the top lets a dark hairline of its shadow
+     through */
+  clip-path: inset(min(2px, var(--pg-gutter-cut)) -4rem -4rem);
 }
 /* A column file (EndpointPlayground's Usage) lies under the code card: on a
    layer a step deeper, tucked under the card's foot and running on below
@@ -1725,8 +1738,8 @@ div.fixtureJson + div.fixtureJson {
   }
   /* the shut handle sticks up into the code card's foot: keep the gutter
      under the last line, so the handle doesn't sit on it */
-  .row:has(> .storeHost) .editorDocs::after {
-    margin-top: 0;
+  .row:has(> .storeHost) .editorDocs {
+    --pg-gutter-cut: 0px;
   }
   /* the fixtures hang on past its foot, over the page below (it stacks
      above that while they show), so the preview never moves */
