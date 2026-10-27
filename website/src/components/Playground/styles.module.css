@@ -1521,6 +1521,11 @@ div.fixtureJson + div.fixtureJson {
        for a response (see .fixturesPopover) */
     position: relative;
   }
+  /* an editor with no tabs (one untitled file) and no preview has no
+     header row to hold */
+  .row.standaloneEditor:not(:has(.tabControls)) {
+    grid-template-rows: 0 auto;
+  }
   .row > .playgroundTextEdit {
     grid-area: 1 / 1 / 3 / 2;
     display: grid;
