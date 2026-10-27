@@ -289,15 +289,22 @@ div.playground-preview h1:first-child {
   font-size: var(--ds-text-sm);
   color: var(--ds-text-muted);
 }
+/* a flex box: the picture sits in no line box, so a first-line trim can't
+   lift it */
+.playground-preview .avatar {
+  display: flex;
+  flex: none;
+}
+.playground-preview .avatar > img {
+  border-radius: 50%;
+}
 .playground-preview .author {
   flex: none;
   text-align: center;
 }
-/* the Avatar is a flex box (no line box to trim), so text-align can't
-   center it */
+/* text-align doesn't reach into the avatar's flex box */
 .playground-preview .author > .avatar {
-  width: fit-content;
-  margin-inline: auto;
+  justify-content: center;
 }
 .playground-preview .author small {
   display: block;
