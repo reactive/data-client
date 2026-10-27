@@ -15,7 +15,8 @@ type NormalizedRef = { id: string; schema: string } | string;
 
 const isShallowEqual = (a: NormalizedRef, b: NormalizedRef): boolean => {
   // TODO: make this extensible in the child's schema
-  if (typeof a === 'object' && typeof b === 'object') {
+  // arrays keep null members, and typeof null is 'object'
+  if (typeof a === 'object' && typeof b === 'object' && a && b) {
     return a.id === b.id && a.schema === b.schema;
   }
   return a === b;
