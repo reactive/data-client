@@ -96,26 +96,15 @@ function menuInLayer(editor: Monaco.editor.ICodeEditor) {
   if (menuPatched) return;
   const service = (editor.getContribution('editor.contrib.contextmenu') as any)
     ?._contextViewService;
-  if (!service) return warnUnpatched('_contextViewService');
+  // the service is shared: one try, whether or not it's there
   menuPatched = true;
-  patchMethod(
-    service,
-    'showContextView',
-    (
-      original,
-      [delegate, container, shadowRoot, useWindowContainer, ...rest],
-    ) =>
-      original(
-        delegate,
-        container,
-        shadowRoot,
-        useWindowContainer &&
-          !(container as Element | undefined)?.classList.contains(
-            styles.overflowWidgets,
-          ),
-        ...rest,
-      ),
-  );
+  if (!service) return warnUnpatched('_contextViewService');
+  // (delegate, container, shadowRoot, useWindowContainerForShadowRoot)
+  patchMethod(service, 'showContextView', (original, args) => {
+    const container = args[1] as Element | undefined;
+    if (container?.classList.contains(styles.overflowWidgets)) args[3] = false;
+    return original(...args);
+  });
 }
 
 function withScrollY0(

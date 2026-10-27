@@ -311,4 +311,5 @@ re-renders the playground.
   above the preview). After a `monaco-editor` bump, also hover a line near
   the viewport's top on a scrolled page and check the hover opens below it,
   and right-click the code in light and dark themes and check the menu has a
-  background and draws over the file tabs.
+  background and draws over the file tabs. In dev, the console warns
+  `useOverflowWidgets: Monaco has no …` when a patch found nothing to patch.
