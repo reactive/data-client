@@ -113,23 +113,35 @@ div.playground-preview h1:first-child {
 }
 
 /* The app's header: its name at the left, its navigation or actions at the
-   right; the space under it (28px), not a rule, sets the page off. The
-   name is a small tracked wordmark in the muted color, so the title below
-   carries the page */
+   right; the space under it, not a rule, sets the page off. The name is a
+   small tracked wordmark in the muted color, so the title below carries
+   the page. Its text is trimmed to the caps (set solid where text-box
+   isn't supported), so the wordmark's caps sit the sheet's inset (20px)
+   from its top, as its left edge does from the side, and a step more
+   (24px, with a row's own 8px inset) above what follows */
 .playground-preview .appHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--ds-space-2) var(--ds-space-4);
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--ds-space-4);
+}
+.playground-preview .appHeader > :is(.appTitle, .meta, small) {
+  line-height: 1;
+  text-box: trim-both cap alphabetic;
+}
+/* a NumberFlow's roll mask pads it 0.25em above and below
+   (--number-flow-mask-height); taken back, so a count (a post list's
+   votes) doesn't grow the header */
+.playground-preview .appHeader :is(number-flow-react, number-flow-vue) {
+  margin-block: -0.25em;
 }
 /* through .appHeader to outrank Infima's `.markdown h1:first-child` margin */
 .playground-preview .appHeader .appTitle {
   margin: 0;
   font-size: 0.75rem;
   font-weight: 600;
-  line-height: 1.4;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ds-text-muted);
