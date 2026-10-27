@@ -89,8 +89,9 @@ export default function EditorSurface({
 
   const createModels = useCreateModels(id, documents);
 
+  // a lone file's title is its tab
   const tabs =
-    row && documents.length > 1 ?
+    row && (documents.length > 1 || documents[0]?.title) ?
       <EditorTabs
         documents={documents}
         closedList={closedList}

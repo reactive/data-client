@@ -7,8 +7,8 @@ export const options = {
   lineNumbers: 'off',
   //glyphMargin: false,
   folding: false,
-  // no frame lines on the code card until someone edits: the current line's
-  // box shows only with focus, and the scrollbar's ruler never
+  // no frame lines on the code card: the current line's box only while
+  // focused, and no overview ruler
   renderLineHighlightOnlyWhenFocus: true,
   overviewRulerLanes: 0,
   overviewRulerBorder: false,
