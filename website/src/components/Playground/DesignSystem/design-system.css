@@ -238,19 +238,17 @@ div.playground-preview h1:first-child {
 }
 /* A row's own text field (a new todo after its empty checkbox): the row's
    text with no box, its placeholder saying what to type; hover washes it and
-   focus boxes it like any other field. A busy one keeps the trace below */
+   focus boxes it like any other field */
 .playground-preview
   .listItem
-  input:is(:not([type]), [type='text']):where(
-    :not([class], [aria-busy='true'])
-  ) {
+  input:is(:not([type]), [type='text']):where(:not([class])) {
   /* the same basis as a label beside it, so the two share the row */
   flex: 1 1 100%;
   min-width: 0;
   /* its text lines up with the titles above it; the box grows into the
      gap before it */
   margin-block: calc(-1 * var(--ds-control-pad-y));
-  margin-inline-start: calc(-0.375rem - 1px);
+  margin-inline-start: calc(-0.375rem - var(--ds-control-border));
   padding-inline: 0.375rem;
   border-color: transparent;
   background: transparent;
@@ -361,6 +359,9 @@ div.playground-preview h1:first-child {
 .playground-preview textarea:where(:not([class]))::placeholder,
 .playground-preview .search > input::placeholder {
   color: var(--ds-faint);
+}
+.playground-preview textarea:where(:not([class])) {
+  resize: vertical;
 }
 /* a busy field shows its traced border instead (below) */
 .playground-preview
@@ -531,9 +532,6 @@ div.playground-preview h1:first-child {
   font-size: var(--ds-text-base);
   font-weight: 400;
 }
-.playground-preview .field > textarea {
-  resize: vertical;
-}
 
 /* Groups a form's fields so one `disabled` locks them all */
 .playground-preview fieldset {
@@ -571,12 +569,14 @@ div.playground-preview h1:first-child {
       )
       border-box;
   box-shadow: 0 0 0 3px var(--ds-accent-soft);
-  color: var(--ds-accent);
   animation: ds-trace 1.2s linear infinite;
+}
+.playground-preview form[aria-busy='true'] button[type='submit'],
+.playground-preview button[aria-busy='true'] {
+  color: var(--ds-accent);
 }
 .playground-preview input[aria-busy='true'] {
   outline: none;
-  color: var(--ds-text);
 }
 @keyframes ds-trace {
   to {
