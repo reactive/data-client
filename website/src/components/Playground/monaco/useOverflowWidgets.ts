@@ -34,10 +34,10 @@ export default function useOverflowWidgets() {
           followScroll,
           { capture: true, passive: true },
         );
-      editor.onDidFocusEditorText(() => listen(true));
-      editor.onDidBlurEditorText(() => listen(false));
+      editor.onDidFocusEditorWidget(() => listen(true));
+      editor.onDidBlurEditorWidget(() => listen(false));
       // autoFocus focuses before this mount handler runs
-      if (editor.hasTextFocus()) listen(true);
+      if (editor.hasWidgetFocus()) listen(true);
       editor.onDidDispose(() => {
         listen(false);
         node.remove();
