@@ -41,11 +41,6 @@
     transform var(--motion-snappy),
     width var(--motion-snappy);
 }
-@media (prefers-reduced-motion: reduce) {
-  .segmented[data-pill-settled]::before {
-    transition: none;
-  }
-}
 .segmented > [role='tab'] {
   /* above the pill, which is positioned */
   position: relative;
