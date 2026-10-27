@@ -355,7 +355,8 @@ div.playground-preview h1:first-child {
 }
 .playground-preview .search > input {
   width: 100%;
-  padding: 0.5rem 1rem 0.5rem 2.5rem;
+  /* room for the magnifier at its start and the clear button at its end */
+  padding: 0.5rem 2.75rem 0.5rem 2.5rem;
   border: none;
   border-radius: 999px;
   background: var(--ds-surface-2);
@@ -399,6 +400,70 @@ div.playground-preview h1:first-child {
   .playground-preview .search[aria-busy='true']::before {
     animation: none;
   }
+}
+/* Its clear button (`button.clear` after the input): a soft circle in the
+   well's end, there only while the field has text. It fades in under the
+   pointer, or when Tab reaches it; touch has no hover, so there it stays */
+.playground-preview .search > input::-webkit-search-cancel-button {
+  appearance: none;
+}
+.playground-preview .search > .clear {
+  position: absolute;
+  top: 50%;
+  right: 0.25rem;
+  width: 2rem;
+  height: 2rem;
+  margin: -1rem 0 0;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ds-faint);
+  cursor: pointer;
+  opacity: 0;
+  scale: 0.8;
+  pointer-events: none;
+  transition:
+    opacity var(--motion-snappy),
+    scale var(--motion-snappy),
+    background-color var(--motion-snappy),
+    color var(--motion-snappy);
+}
+.playground-preview .search > .clear::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 0.75rem;
+  height: 0.75rem;
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round'%3E%3Cpath d='m2 2 8 8m0-8-8 8'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.playground-preview .search:hover > .clear,
+.playground-preview .search > .clear:focus-visible {
+  opacity: 1;
+  scale: 1;
+  pointer-events: auto;
+}
+@media (hover: none) {
+  .playground-preview .search > .clear {
+    opacity: 1;
+    scale: 1;
+    pointer-events: auto;
+  }
+}
+.playground-preview .search > .clear:is(:hover, :active) {
+  background: var(--ds-hover);
+  color: var(--ds-text);
+}
+.playground-preview .search > .clear:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ds-accent);
+}
+/* nothing to clear: gone, Tab included */
+.playground-preview .search:has(> input:placeholder-shown) > .clear {
+  visibility: hidden;
 }
 
 /* Groups a form's fields so one `disabled` locks them all */

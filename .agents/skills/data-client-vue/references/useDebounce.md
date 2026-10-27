@@ -76,6 +76,12 @@ export const searchIssues = new RestEndpoint({
   const query = ref('');
   const [debouncedQuery, isPending] = useDebounce(query, 200);
 
+  const input = ref<HTMLInputElement>();
+  function clear() {
+    query.value = '';
+    input.value?.focus();
+  }
+
   const error = ref<Error | null>(null);
   onErrorCaptured(e => {
     error.value = e;
@@ -89,10 +95,17 @@ export const searchIssues = new RestEndpoint({
   </header>
   <label class="search" :aria-busy="isPending">
     <input
+      ref="input"
       v-model="query"
       type="search"
       aria-label="Search issues"
       placeholder="Search issues"
+    />
+    <button
+      type="button"
+      class="clear"
+      aria-label="Clear search"
+      @click="clear"
     />
   </label>
   <ErrorMessage

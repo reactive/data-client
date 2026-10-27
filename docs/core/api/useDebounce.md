@@ -130,6 +130,7 @@ import IssueList from './IssueList';
 export default function SearchIssues() {
   const [query, setQuery] = React.useState('');
   const [debouncedQuery, isPending] = useDebounce(query, 200);
+  const input = React.useRef<HTMLInputElement>(null);
   return (
     <>
       <header className="appHeader">
@@ -137,11 +138,21 @@ export default function SearchIssues() {
       </header>
       <label className="search" aria-busy={isPending}>
         <input
+          ref={input}
           type="search"
           aria-label="Search issues"
           placeholder="Search issues"
           value={query}
           onChange={e => setQuery(e.currentTarget.value)}
+        />
+        <button
+          type="button"
+          className="clear"
+          aria-label="Clear search"
+          onClick={() => {
+            setQuery('');
+            input.current?.focus();
+          }}
         />
       </label>
       <AsyncBoundary fallback={<Loading />} errorComponent={ErrorMessage}>
@@ -200,6 +211,12 @@ render(<SearchIssues />);
   // highlight-next-line
   const [debouncedQuery, isPending] = useDebounce(query, 200);
 
+  const input = ref<HTMLInputElement>();
+  function clear() {
+    query.value = '';
+    input.value?.focus();
+  }
+
   const error = ref<Error | null>(null);
   onErrorCaptured(e => {
     error.value = e;
@@ -213,10 +230,17 @@ render(<SearchIssues />);
   </header>
   <label class="search" :aria-busy="isPending">
     <input
+      ref="input"
       v-model="query"
       type="search"
       aria-label="Search issues"
       placeholder="Search issues"
+    />
+    <button
+      type="button"
+      class="clear"
+      aria-label="Clear search"
+      @click="clear"
     />
   </label>
   <ErrorMessage
