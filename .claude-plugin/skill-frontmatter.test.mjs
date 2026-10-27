@@ -14,9 +14,11 @@ test('skill frontmatter values that need quotes have them', () => {
   for (const skill of fs.readdirSync(skills)) {
     const file = path.join(skills, skill, 'SKILL.md');
     if (!fs.existsSync(file)) continue;
-    const [, frontmatter = ''] =
-      fs.readFileSync(file, 'utf8').match(/^---\r?\n([^]*?)\r?\n---/) ?? [];
-    for (const line of frontmatter.split(/\r?\n/)) {
+    const match = fs
+      .readFileSync(file, 'utf8')
+      .match(/^---\r?\n([^]*?)\r?\n---\r?\n/);
+    assert.ok(match, `${skill}: frontmatter must open the file and close`);
+    for (const line of match[1].split(/\r?\n/)) {
       const [, key, value] = line.match(/^(\w[\w-]*): (.*)$/) ?? [];
       // a plain (unquoted) scalar can't start with an indicator like `@`, and
       // `: ` (or a trailing `:`) starts a mapping and ` #` a comment
