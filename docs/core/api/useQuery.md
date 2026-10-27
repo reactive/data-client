@@ -139,6 +139,13 @@ export const UserResource = resource({
   path: '/users/:id',
   schema: User,
 });
+
+/** A users list's order: by one column, reversed when `desc` */
+export type SortBy = 'name' | 'posts' | 'joined';
+export interface Sort {
+  sortBy: SortBy;
+  desc: boolean;
+}
 ```
 
 :::react
@@ -169,8 +176,7 @@ interface Props {
 
 ```tsx title="UsersTableView" collapsed
 import React from 'react';
-import { type User } from './resources/User';
-import { type Sort, type SortBy } from './UsersTable';
+import { type Sort, type SortBy, type User } from './resources/User';
 
 export default function UsersTableView({ users, sort, onSort }: Props) {
   return (
@@ -236,17 +242,12 @@ interface HeaderProps {
 }
 ```
 
-```tsx title="UsersTable" {32}
+```tsx title="UsersTable" {27}
 import { All, Query } from '@data-client/rest';
 import { useQuery, useSuspense } from '@data-client/react';
-import { User, UserResource } from './resources/User';
+import { type Sort, User, UserResource } from './resources/User';
 import UsersTableView from './UsersTableView';
 
-export type SortBy = 'name' | 'posts' | 'joined';
-export interface Sort {
-  sortBy: SortBy;
-  desc: boolean;
-}
 interface Args extends Sort {
   /** admins only (true), members only (false), or everyone */
   isAdmin: boolean | undefined;
@@ -281,7 +282,8 @@ interface Props {
 ```tsx title="UsersPage" collapsed
 import React from 'react';
 import RoleFilter from './RoleFilter';
-import UsersTable, { type Sort } from './UsersTable';
+import { type Sort } from './resources/User';
+import UsersTable from './UsersTable';
 
 function UsersPage() {
   const [sort, setSort] = React.useState<Sort>({
@@ -330,8 +332,7 @@ render(<UsersPage />);
 
 ```html title="UsersTableView.vue" collapsed
 <script setup lang="ts">
-  import { type User } from './resources/User';
-  import { type Sort, type SortBy } from './UsersTable.vue';
+  import { type Sort, type SortBy, type User } from './resources/User';
 
   const props = defineProps<{ users: readonly User[]; sort: Sort }>();
   const emit = defineEmits<{ sort: [sort: Sort] }>();
@@ -341,7 +342,7 @@ render(<UsersPage />);
     return props.sort.desc ? 'descending' : 'ascending';
   }
   // a second click on the sorted column reverses it
-  function sortBy(column: SortBy) {
+  function toggleSort(column: SortBy) {
     const desc = props.sort.sortBy === column && !props.sort.desc;
     emit('sort', { sortBy: column, desc });
   }
@@ -352,14 +353,14 @@ render(<UsersPage />);
     <thead>
       <tr>
         <th :aria-sort="ariaSort('name')">
-          <button class="sort" @click="sortBy('name')">Name</button>
+          <button class="sort" @click="toggleSort('name')">Name</button>
         </th>
         <th>Role</th>
         <th class="value" :aria-sort="ariaSort('posts')">
-          <button class="sort" @click="sortBy('posts')">Posts</button>
+          <button class="sort" @click="toggleSort('posts')">Posts</button>
         </th>
         <th class="value" :aria-sort="ariaSort('joined')">
-          <button class="sort" @click="sortBy('joined')">Joined</button>
+          <button class="sort" @click="toggleSort('joined')">Joined</button>
         </th>
       </tr>
     </thead>
@@ -375,16 +376,11 @@ render(<UsersPage />);
 </template>
 ```
 
-```html title="UsersTable.vue" {39}
+```html title="UsersTable.vue" {34}
 <script lang="ts">
   import { All, Query } from '@data-client/rest';
-  import { User } from './resources/User';
+  import { type Sort, User } from './resources/User';
 
-  export type SortBy = 'name' | 'posts' | 'joined';
-  export interface Sort {
-    sortBy: SortBy;
-    desc: boolean;
-  }
   interface Args extends Sort {
     /** admins only (true), members only (false), or everyone */
     isAdmin: boolean | undefined;
@@ -430,7 +426,8 @@ render(<UsersPage />);
 <script setup lang="ts">
   import { ref } from 'vue';
   import RoleFilter from './RoleFilter.vue';
-  import UsersTable, { type Sort } from './UsersTable.vue';
+  import { type Sort } from './resources/User';
+  import UsersTable from './UsersTable.vue';
 
   const sort = ref<Sort>({ sortBy: 'name', desc: false });
   const isAdmin = ref<boolean>();

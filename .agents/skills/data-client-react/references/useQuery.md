@@ -208,6 +208,13 @@ export const UserResource = resource({
   path: '/users/:id',
   schema: User,
 });
+
+/** A users list's order: by one column, reversed when `desc` */
+export type SortBy = 'name' | 'posts' | 'joined';
+export interface Sort {
+  sortBy: SortBy;
+  desc: boolean;
+}
 ```
 
 ```tsx title="RoleFilter"
@@ -236,8 +243,7 @@ interface Props {
 
 ```tsx title="UsersTableView"
 import React from 'react';
-import { type User } from './resources/User';
-import { type Sort, type SortBy } from './UsersTable';
+import { type Sort, type SortBy, type User } from './resources/User';
 
 export default function UsersTableView({ users, sort, onSort }: Props) {
   return (
@@ -303,17 +309,12 @@ interface HeaderProps {
 }
 ```
 
-```tsx title="UsersTable" {32}
+```tsx title="UsersTable" {27}
 import { All, Query } from '@data-client/rest';
 import { useQuery, useSuspense } from '@data-client/react';
-import { User, UserResource } from './resources/User';
+import { type Sort, User, UserResource } from './resources/User';
 import UsersTableView from './UsersTableView';
 
-export type SortBy = 'name' | 'posts' | 'joined';
-export interface Sort {
-  sortBy: SortBy;
-  desc: boolean;
-}
 interface Args extends Sort {
   /** admins only (true), members only (false), or everyone */
   isAdmin: boolean | undefined;
@@ -348,7 +349,8 @@ interface Props {
 ```tsx title="UsersPage"
 import React from 'react';
 import RoleFilter from './RoleFilter';
-import UsersTable, { type Sort } from './UsersTable';
+import { type Sort } from './resources/User';
+import UsersTable from './UsersTable';
 
 function UsersPage() {
   const [sort, setSort] = React.useState<Sort>({
