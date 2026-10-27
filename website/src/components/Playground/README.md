@@ -235,7 +235,8 @@ controls keep an edge). Before restyling a class, grep `docs/` and
 style to a new component.
 
 Styled elements: `h2` (page title), `button` (`primary` fills one;
-`aria-busy` shows pending), text inputs, `nav`, `fieldset`, `progress`.
+`aria-busy` shows pending), text inputs, `nav`, `fieldset`, `progress`,
+`table`.
 
 | Class                                      | Use for                                                                        |
 | ------------------------------------------ | ------------------------------------------------------------------------------ |
@@ -245,7 +246,7 @@ Styled elements: `h2` (page title), `button` (`primary` fills one;
 | `meta`                                     | secondary text; last in a `listItem`, it sits at the row's end                 |
 | `value`                                    | a row's figure (a price); last in a `listItem`, at the row's end, tabular      |
 | `byline`, `author` (`Avatar` takes `size`) | who wrote something                                                            |
-| `buttonGroup`                              | a row of actions as one segmented control                                      |
+| `buttonGroup`                              | segmented actions or a filter (`aria-pressed` marks its pick)                  |
 | `cancel` (`<CancelButton />`)              | a row's remove button                                                          |
 | `skeleton`                                 | a value still loading; `<Loading />`, the default fallback, draws a page       |
 | `toaster`, `toast`                         | notifications: render `<Toaster />`, call `toast.success()` or `toast.error()` |
@@ -253,6 +254,7 @@ Styled elements: `h2` (page title), `button` (`primary` fills one;
 | `upvote` (a button)                        | an upvote with its count; empty, the arrow alone                               |
 | `stats` (a `dl`)                           | figures side by side, each large over its label; a lone one fills the row      |
 | `stepper` (− `output` +)                   | a quantity's buttons around its count (one button alone: Add); in a row        |
+| `table` (`value` cells), `sort` (a button) | rule-free rows; a `th`'s `button.sort` sorts, `aria-sort` marks the sorted     |
 
 ## Auto-run
 

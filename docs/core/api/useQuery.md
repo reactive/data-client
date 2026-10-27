@@ -10,8 +10,20 @@ import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import StackBlitz from '@site/src/components/StackBlitz';
 import { RestEndpoint } from '@data-client/rest';
+import { teamFixtures } from '@site/src/fixtures/team';
 import VoteDemo from '../shared/\_VoteDemo.mdx';
 import VueArgs from '../shared/\_vueArgs.mdx';
+
+export const sortDemo = [
+  // most posts first: the rows reorder, nothing refetches
+  { delay: 1200, click: { selector: 'button.sort', hasText: 'Posts' } },
+  { wait: 1200 },
+  { click: { selector: 'button.sort', hasText: 'Posts' } },
+  { wait: 1800 },
+  { click: { selector: '.buttonGroup button', hasText: 'Admins' } },
+  { wait: 1800 },
+  { click: { selector: 'button.sort', hasText: 'Joined' } },
+];
 
 # useQuery()
 
@@ -101,28 +113,25 @@ interface Queryable {
 
 ### Sorting & Filtering
 
-[Query](/rest/api/Query) provides programmatic access to the Reactive Data Client store.
+[Query](/rest/api/Query) sorts and filters what is already in the store, so picking another column
+re-sorts the table without fetching again.
 
-<FrameworkPlayground fixtures={[
-{
-endpoint: new RestEndpoint({path: '/users'}),
-args: [],
-response: [
-{ id: '123', name: 'Jim' },
-{ id: '456', name: 'Jane' },
-{ id: '777', name: 'Albatras', isAdmin: true },
-],
-delay: 150,
-},
-]} row>
+<FrameworkPlayground
+fixtures={teamFixtures}
+row
+defaultTab="sortedUsers"
+autoRun={sortDemo}
+>
 
-```ts title="UserResource" collapsed
+```ts title="resources/User" collapsed
 import { Entity, resource } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
   name = '';
   isAdmin = false;
+  posts = 0;
+  joined = 0;
 
   static key = 'User';
 }
@@ -132,39 +141,131 @@ export const UserResource = resource({
 });
 ```
 
-:::react
-
-```tsx title="UsersPage" {22}
+```ts title="sortedUsers"
 import { All, Query } from '@data-client/rest';
-import { useQuery, useFetch } from '@data-client/react';
-import { UserResource, User } from './UserResource';
+import { User } from './resources/User';
 
-interface Args {
-  asc: boolean;
-  isAdmin?: boolean;
+export type SortBy = 'name' | 'posts' | 'joined';
+export interface Sort {
+  sortBy: SortBy;
+  desc: boolean;
 }
-const sortedUsers = new Query(
+interface Args extends Sort {
+  /** admins only (true), members only (false), or everyone */
+  isAdmin: boolean | undefined;
+}
+
+export const sortedUsers = new Query(
   new All(User),
-  (entries, { asc, isAdmin }: Args = { asc: false }) => {
-    let sorted = [...entries].sort((a, b) => a.name.localeCompare(b.name));
-    if (isAdmin !== undefined)
-      sorted = sorted.filter(user => user.isAdmin === isAdmin);
-    if (asc) return sorted;
-    return sorted.reverse();
+  (entries, { sortBy, desc, isAdmin }: Args) => {
+    const users = entries
+      .filter(user => isAdmin === undefined || user.isAdmin === isAdmin)
+      .sort((a, b) =>
+        sortBy === 'name' ?
+          a.name.localeCompare(b.name)
+        : a[sortBy] - b[sortBy],
+      );
+    return desc ? users.reverse() : users;
   },
 );
+```
+
+:::react
+
+```tsx title="UsersPage" {15}
+import React from 'react';
+import { useQuery, useSuspense } from '@data-client/react';
+import { UserResource } from './resources/User';
+import { sortedUsers, type Sort, type SortBy } from './sortedUsers';
+
+const filters = { All: undefined, Admins: true, Members: false };
 
 function UsersPage() {
-  useFetch(UserResource.getList);
-  const users = useQuery(sortedUsers, { asc: true });
-  if (!users) return <div>No users in cache yet</div>;
+  useSuspense(UserResource.getList);
+  const [sort, setSort] = React.useState<Sort>({
+    sortBy: 'name',
+    desc: false,
+  });
+  const [isAdmin, setIsAdmin] = React.useState<boolean>();
+  const users = useQuery(sortedUsers, { ...sort, isAdmin }) ?? [];
+  const onSort = (sortBy: SortBy) =>
+    setSort(prev => ({
+      sortBy,
+      desc: prev.sortBy === sortBy && !prev.desc,
+    }));
+
   return (
-    <div>
-      {users.map(user => (
-        <div key={user.pk()}>{user.name}</div>
-      ))}
-    </div>
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Team</h1>
+        <div className="buttonGroup">
+          {Object.entries(filters).map(([label, value]) => (
+            <button
+              key={label}
+              aria-pressed={isAdmin === value}
+              onClick={() => setIsAdmin(value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </header>
+      <table>
+        <thead>
+          <tr>
+            <SortHeader column="name" sort={sort} onSort={onSort}>
+              Name
+            </SortHeader>
+            <th>Role</th>
+            <SortHeader column="posts" sort={sort} onSort={onSort} numeric>
+              Posts
+            </SortHeader>
+            <SortHeader
+              column="joined"
+              sort={sort}
+              onSort={onSort}
+              numeric
+            >
+              Joined
+            </SortHeader>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map(user => (
+            <tr key={user.pk()}>
+              <td>{user.name}</td>
+              <td className="meta">{user.isAdmin ? 'Admin' : 'Member'}</td>
+              <td className="value">{user.posts}</td>
+              <td className="value">{user.joined}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
   );
+}
+
+function SortHeader({ column, sort, onSort, numeric, children }: Props) {
+  const sorted = sort.sortBy === column;
+  return (
+    <th
+      className={numeric ? 'value' : undefined}
+      aria-sort={
+        sorted ? (sort.desc ? 'descending' : 'ascending') : undefined
+      }
+    >
+      <button className="sort" onClick={() => onSort(column)}>
+        {children}
+      </button>
+    </th>
+  );
+}
+interface Props {
+  column: SortBy;
+  sort: Sort;
+  onSort: (column: SortBy) => void;
+  numeric?: boolean;
+  children: React.ReactNode;
 }
 render(<UsersPage />);
 ```
@@ -173,38 +274,70 @@ render(<UsersPage />);
 
 :::vue
 
-```html title="UsersPage.vue" {24}
+```html title="UsersPage.vue" {12-15}
 <script setup lang="ts">
-  import { Query, All } from '@data-client/rest';
-  import { useQuery, useFetch } from '@data-client/vue';
-  import { UserResource, User } from './UserResource';
+  import { ref } from 'vue';
+  import { useQuery, useSuspense } from '@data-client/vue';
+  import { UserResource } from './resources/User';
+  import { sortedUsers, type Sort, type SortBy } from './sortedUsers';
 
-  interface Args {
-    asc: boolean;
-    isAdmin?: boolean;
+  const filters = { All: undefined, Admins: true, Members: false };
+
+  await useSuspense(UserResource.getList);
+  const sort = ref<Sort>({ sortBy: 'name', desc: false });
+  const isAdmin = ref<boolean>();
+  const users = useQuery(sortedUsers, () => ({
+    ...sort.value,
+    isAdmin: isAdmin.value,
+  }));
+  function onSort(sortBy: SortBy) {
+    const desc = sort.value.sortBy === sortBy && !sort.value.desc;
+    sort.value = { sortBy, desc };
   }
-  const sortedUsers = new Query(
-    new All(User),
-    (entries, { asc, isAdmin }: Args = { asc: false }) => {
-      let sorted = [...entries].sort((a, b) =>
-        a.name.localeCompare(b.name),
-      );
-      if (isAdmin !== undefined)
-        sorted = sorted.filter(user => user.isAdmin === isAdmin);
-      if (asc) return sorted;
-      return sorted.reverse();
-    },
-  );
-
-  useFetch(UserResource.getList);
-  const users = useQuery(sortedUsers, { asc: true });
+  function ariaSort(column: SortBy) {
+    if (sort.value.sortBy !== column) return undefined;
+    return sort.value.desc ? 'descending' : 'ascending';
+  }
 </script>
 
 <template>
-  <div v-if="!users">No users in cache yet</div>
-  <div v-else>
-    <div v-for="user in users" :key="user.pk()">{{ user.name }}</div>
-  </div>
+  <header class="appHeader">
+    <h1 class="appTitle">Team</h1>
+    <div class="buttonGroup">
+      <button
+        v-for="(value, label) in filters"
+        :key="label"
+        :aria-pressed="isAdmin === value"
+        @click="isAdmin = value"
+      >
+        {{ label }}
+      </button>
+    </div>
+  </header>
+  <table>
+    <thead>
+      <tr>
+        <th :aria-sort="ariaSort('name')">
+          <button class="sort" @click="onSort('name')">Name</button>
+        </th>
+        <th>Role</th>
+        <th class="value" :aria-sort="ariaSort('posts')">
+          <button class="sort" @click="onSort('posts')">Posts</button>
+        </th>
+        <th class="value" :aria-sort="ariaSort('joined')">
+          <button class="sort" @click="onSort('joined')">Joined</button>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="user in users" :key="user.pk()">
+        <td>{{ user.name }}</td>
+        <td class="meta">{{ user.isAdmin ? 'Admin' : 'Member' }}</td>
+        <td class="value">{{ user.posts }}</td>
+        <td class="value">{{ user.joined }}</td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 ```
 

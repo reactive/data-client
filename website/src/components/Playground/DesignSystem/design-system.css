@@ -52,10 +52,12 @@ div.playground-preview h1:first-child {
   margin-bottom: 0;
 }
 /* A group's label over its rows (a section's "Comments", a board column's
-   name): small, muted and semibold, so weight alone marks the group. A
-   row's own title (a post's h3 in a list) stays a heading */
+   name, a table's column): small, muted and semibold, so weight alone
+   marks the group. A row's own title (a post's h3 in a list) stays a
+   heading */
 .playground-preview section > h3,
-.playground-preview .boardColumn > h4 {
+.playground-preview .boardColumn > h4,
+.playground-preview th {
   margin: 0 0 6px;
   font: 600 var(--ds-text-sm) / 1.4 var(--ifm-font-family-base);
   letter-spacing: 0;
@@ -285,14 +287,10 @@ div.playground-preview h1:first-child {
   color: var(--ds-accent);
 }
 .playground-preview button:where(:not([class])):active {
-  background: color-mix(
-    in srgb,
-    var(--ds-accent) var(--ds-accent-press),
-    var(--ds-surface)
-  );
+  background: var(--ds-accent-pressed);
 }
 .playground-preview
-  button:where(:not([class]), .primary, .upvote):focus-visible {
+  button:where(:not([class]), .primary, .upvote, .sort):focus-visible {
   outline: 2px solid var(--ds-accent);
   outline-offset: 2px;
 }
@@ -459,7 +457,9 @@ div.playground-preview h1:first-child {
 .playground-preview .listItem:has(> .upvote) {
   align-items: flex-start;
 }
-.playground-preview button.upvote::before {
+/* an arrow pointing up: an upvote's, a sorted column's */
+.playground-preview button.upvote::before,
+.playground-preview button.sort::after {
   content: '';
   width: 12px;
   height: 7px;
@@ -475,11 +475,7 @@ div.playground-preview h1:first-child {
 }
 .playground-preview button.upvote:active,
 .playground-preview .stepper > button:active {
-  background: color-mix(
-    in srgb,
-    var(--ds-accent) var(--ds-accent-press),
-    var(--ds-surface)
-  );
+  background: var(--ds-accent-pressed);
   color: var(--ds-accent);
 }
 /* Figures side by side (`dl.stats`, each a div of dt then dd): the number
@@ -755,11 +751,7 @@ div.playground-preview h1:first-child {
 .playground-preview
   .buttonGroup
   > button:not([class], [aria-busy='true']):active {
-  background: color-mix(
-    in srgb,
-    var(--ds-accent) var(--ds-accent-press),
-    var(--ds-surface)
-  );
+  background: var(--ds-accent-pressed);
 }
 /* a busy segment's light runs inside the group's edge (outranking the
    segment's border: 0) */
@@ -769,6 +761,114 @@ div.playground-preview h1:first-child {
 /* inside the group's edge, which clips anything outside it */
 .playground-preview .buttonGroup > button:focus-visible {
   outline-offset: -2px;
+}
+/* a filter's choice (All, Admins): the chosen segment washed in the
+   accent as a pressed one is, in the accent's color */
+.playground-preview .buttonGroup > button[aria-pressed='true']:not([class]) {
+  background: var(--ds-accent-pressed);
+  color: var(--ds-accent);
+}
+/* in an app header, level with the wordmark */
+.playground-preview .appHeader .buttonGroup {
+  margin-top: 0;
+}
+/* A table (a team's members): rows on the sheet with no rules or stripes,
+   set apart by space, their text in line with the app header's; under the
+   pointer a row is a rounded band reaching past its text, as a list's.
+   Headers are a group's label. `value` cells (a count, a year) sit at the
+   column's end. Infima's borders and stripes are dropped */
+.playground-preview table {
+  --ifm-table-stripe-background: transparent;
+  width: calc(100% + 2 * var(--ds-space-3));
+  margin: 0 calc(-1 * var(--ds-space-3)) var(--ds-space-4);
+  border-collapse: separate;
+  border-spacing: 0;
+}
+/* under a control (a picker) it stands a step off */
+.playground-preview * + table {
+  margin-top: var(--ds-space-3);
+}
+.playground-preview :is(thead, tr, th, td) {
+  border: 0;
+}
+.playground-preview td {
+  padding: var(--ds-space-2) var(--ds-space-3);
+  vertical-align: baseline;
+  transition: background-color var(--motion-snappy);
+}
+.playground-preview th {
+  padding: 0 var(--ds-space-3) var(--ds-space-1);
+  text-align: start;
+  /* a sort arrow has no baseline: centered, every label stays level */
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.playground-preview :is(th, td).value {
+  text-align: end;
+}
+@media (hover: hover) {
+  .playground-preview tbody tr:hover > td {
+    background: var(--ds-hover);
+  }
+}
+.playground-preview tbody td:first-child {
+  border-radius: var(--ds-radius-sm) 0 0 var(--ds-radius-sm);
+}
+.playground-preview tbody td:last-child {
+  border-radius: 0 var(--ds-radius-sm) var(--ds-radius-sm) 0;
+}
+/* A sortable column's header (`button.sort` in its `th`, `aria-sort` on
+   the sorted one's): its label, then an arrow that points the way the
+   column runs, in the accent; the sorted column's label takes the text's
+   color. The arrow always holds its place, so a header never shifts; on
+   another column it shows faintly under the pointer. In a `value` column
+   it leads the label, so the label ends where the figures do */
+.playground-preview button.sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: -2px -4px;
+  padding: 2px 4px;
+  border: 0;
+  border-radius: var(--ds-radius-xs);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: color var(--motion-snappy);
+}
+.playground-preview th.value > button.sort {
+  flex-direction: row-reverse;
+}
+.playground-preview button.sort::after {
+  width: 8px;
+  height: 5px;
+  opacity: 0;
+  transition:
+    opacity var(--motion-snappy),
+    transform var(--motion-snappy);
+}
+.playground-preview button.sort:focus-visible {
+  outline-offset: 0;
+}
+.playground-preview button.sort:active,
+.playground-preview th[aria-sort] > button.sort {
+  color: var(--ds-text);
+}
+@media (hover: hover) {
+  .playground-preview button.sort:hover {
+    color: var(--ds-text);
+  }
+  .playground-preview button.sort:hover::after {
+    opacity: 0.4;
+  }
+}
+.playground-preview th[aria-sort] > button.sort::after {
+  background: var(--ds-accent);
+  opacity: 1;
+}
+.playground-preview th[aria-sort='descending'] > button.sort::after {
+  transform: rotate(180deg);
 }
 /* Actions under rows (a clock's Refresh) stand 16px off the last one */
 .playground-preview .listItem + button {

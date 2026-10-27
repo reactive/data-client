@@ -54,6 +54,12 @@
     var(--ds-accent) var(--ds-accent-wash),
     transparent
   );
+  /* a pressed control's (or a chosen segment's) opaque wash */
+  --ds-accent-pressed: color-mix(
+    in srgb,
+    var(--ds-accent) var(--ds-accent-press),
+    var(--ds-surface)
+  );
   --ds-on-accent: #fff;
   /* Infima's own vars, re-pointed so what reads them (the rt-* fields, links,
      the error panel's text) follows this palette in both themes */
