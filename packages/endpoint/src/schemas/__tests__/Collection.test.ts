@@ -901,6 +901,71 @@ describe(`${schema.Collection.name} normalization`, () => {
     });
   });
 
+  test('re-creating a deleted id keeps newer collection meta', () => {
+    const init = {
+      entities: {
+        [User.schema.todos.key]: { '{"userId":"1"}': ['10', '5'] },
+        Todo: {
+          '5': { id: '5', title: 'finish collections' },
+          '10': INVALID,
+        },
+      },
+      entitiesMeta: {
+        [User.schema.todos.key]: {
+          '{"userId":"1"}': { date: 100, expiresAt: Infinity, fetchedAt: 100 },
+        },
+        Todo: {
+          '5': { date: 0, expiresAt: Infinity, fetchedAt: 0 },
+          '10': { date: 0, expiresAt: Infinity, fetchedAt: 0 },
+        },
+      },
+      indexes: {},
+    };
+    // a create response that was fetched before the list
+    const state = normalize(
+      User.schema.todos.push,
+      [{ id: '10', title: 'recreated' }],
+      [{ userId: '1' }],
+      init,
+      { date: 10, expiresAt: Infinity, fetchedAt: 10 },
+    );
+    expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
+      '10',
+      '5',
+    ]);
+    expect(
+      state.entitiesMeta[User.schema.todos.key]['{"userId":"1"}'].fetchedAt,
+    ).toBe(100);
+  });
+
+  test('push of ids does not process them', () => {
+    const process = jest.spyOn(Todo, 'process');
+    const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
+    const init = {
+      entities: {
+        [User.schema.todos.key]: { '{"userId":"1"}': ['5'] },
+        Todo: { '5': { id: '5', title: 'finish collections' } },
+      },
+      entitiesMeta: {
+        [User.schema.todos.key]: { '{"userId":"1"}': meta },
+        Todo: { '5': meta },
+      },
+      indexes: {},
+    };
+    const state = normalize(
+      User.schema.todos.push,
+      ['5'],
+      [{ userId: '1' }],
+      init,
+    );
+    expect(process).not.toHaveBeenCalled();
+    expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
+      '5',
+      '5',
+    ]);
+    process.mockRestore();
+  });
+
   test('push of an id already in the collection adds it again, like Array.push()', () => {
     const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
     const init = {
