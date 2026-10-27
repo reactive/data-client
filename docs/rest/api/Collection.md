@@ -135,7 +135,12 @@ export default function NewTodo({ userId }: { userId: string }) {
 
   return (
     <div className="listItem nogap">
-      <TextInput size="small" onKeyDown={handlePress} />
+      <input
+        type="text"
+        aria-label="New todo"
+        placeholder="New todo"
+        onKeyDown={handlePress}
+      />
       <label>
         <input
           type="checkbox"
@@ -220,7 +225,12 @@ render(<UserList />);
 
 <template>
   <div class="listItem nogap">
-    <TextInput size="small" @keydown="handlePress" />
+    <input
+      type="text"
+      aria-label="New todo"
+      placeholder="New todo"
+      @keydown="handlePress"
+    />
     <label>
       <input type="checkbox" v-model="unshift" />
       unshift
@@ -519,7 +529,10 @@ export default function PostListLayout({
           <input type="radio" value="clara" name="author" />
           Clara
         </label>
-        <TextInput defaultValue="New Post" name="title" label="Title" />
+        <label className="field">
+          Title
+          <input type="text" name="title" defaultValue="New Post" />
+        </label>
         <button type="submit" aria-busy={loading}>
           Push
         </button>
@@ -604,7 +617,10 @@ render(<PostList />);
         <input type="radio" value="clara" name="author" />
         Clara
       </label>
-      <TextInput value="New Post" name="title" label="Title" />
+      <label class="field">
+        Title
+        <input type="text" name="title" value="New Post" />
+      </label>
       <button type="submit" :aria-busy="loading">Push</button>
     </form>
   </div>

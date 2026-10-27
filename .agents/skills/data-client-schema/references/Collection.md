@@ -81,7 +81,12 @@ export default function NewTodo({ userId }: { userId: string }) {
 
   return (
     <div className="listItem nogap">
-      <TextInput size="small" onKeyDown={handlePress} />
+      <input
+        type="text"
+        aria-label="New todo"
+        placeholder="New todo"
+        onKeyDown={handlePress}
+      />
       <label>
         <input
           type="checkbox"
@@ -380,7 +385,10 @@ export default function PostListLayout({
           <input type="radio" value="clara" name="author" />
           Clara
         </label>
-        <TextInput defaultValue="New Post" name="title" label="Title" />
+        <label className="field">
+          Title
+          <input type="text" name="title" defaultValue="New Post" />
+        </label>
         <button type="submit" aria-busy={loading}>
           Push
         </button>

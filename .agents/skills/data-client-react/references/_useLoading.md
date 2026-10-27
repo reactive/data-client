@@ -45,18 +45,19 @@ export default function PostForm({ onSubmit, loading, error }) {
   return (
     <form onSubmit={handleSubmit} aria-busy={loading}>
       <fieldset disabled={loading}>
-        <TextInput
-          label="Title"
-          name="title"
-          defaultValue="My New Post"
-          required
-        />
-        <TextArea name="body" rows={12} label="Body" required>
-          After clicking 'save', the form is locked and the button animates
-          until the POST completes. Upon completion the newly
-          created post is displayed immediately as Reactive Data Client is
-          able to use the fetch response to populate the store.
-        </TextArea>
+        <label className="field">
+          Title
+          <input type="text" name="title" defaultValue="My New Post" required />
+        </label>
+        <label className="field">
+          Body
+          <textarea
+            name="body"
+            rows={12}
+            required
+            defaultValue="After clicking 'save', the form is locked and the button animates until the POST completes. Upon completion the newly created post is displayed immediately as Reactive Data Client is able to use the fetch response to populate the store."
+          />
+        </label>
         {error ? (
           <div className="alert alert--danger">{error.message}</div>
         ) : null}

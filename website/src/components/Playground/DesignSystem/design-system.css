@@ -236,8 +236,35 @@ div.playground-preview h1:first-child {
   flex: 1 1 100%;
   line-height: 1.1;
 }
-.playground-preview .listItem > label input:is(:not([type]), [type='text']) {
-  width: calc(100% - 21px);
+/* A row's own text field (a new todo after its empty checkbox): the row's
+   text with no box, its placeholder saying what to type; hover washes it and
+   focus boxes it like any other field */
+.playground-preview
+  .listItem
+  input:is(:not([type]), [type='text']):where(:not([class])) {
+  /* the same basis as a label beside it, so the two share the row */
+  flex: 1 1 100%;
+  min-width: 0;
+  /* its text lines up with the titles above it; the box grows into the
+     gap before it */
+  margin-block: calc(-1 * var(--ds-control-pad-y));
+  margin-inline-start: calc(-0.375rem - var(--ds-control-border));
+  padding-inline: 0.375rem;
+  border-color: transparent;
+  background: transparent;
+}
+@media (hover: hover) {
+  .playground-preview
+    .listItem
+    input:is(:not([type]), [type='text']):where(:not([class])):hover {
+    background: var(--ds-hover);
+  }
+}
+.playground-preview
+  .listItem
+  input:is(:not([type]), [type='text']):where(:not([class])):focus-visible {
+  /* the base focus rule gives the accent border and ring */
+  background: var(--ds-surface);
 }
 /* An avatar with a name: beside each other in a row (a post's author under
    its title, muted at the body's secondary size), or the name under it
@@ -318,13 +345,29 @@ div.playground-preview h1:first-child {
 }
 .playground-preview input:is(:not([type]), [type='text']):where(:not([class])),
 .playground-preview textarea:where(:not([class])) {
-  padding: 0.3rem 0.625rem;
+  /* tighter than a button's; the busy trace below reads these too */
+  --ds-control-pad-y: 0.3rem;
+  --ds-control-pad-x: 0.625rem;
+  padding: var(--ds-control-pad-y) var(--ds-control-pad-x);
   transition:
+    background-color var(--motion-snappy),
     border-color var(--motion-snappy),
     box-shadow var(--motion-snappy);
 }
 .playground-preview
-  input:is(:not([type]), [type='text']):where(:not([class])):focus-visible,
+  input:is(:not([type]), [type='text']):where(:not([class]))::placeholder,
+.playground-preview textarea:where(:not([class]))::placeholder,
+.playground-preview .search > input::placeholder {
+  color: var(--ds-faint);
+}
+.playground-preview textarea:where(:not([class])) {
+  resize: vertical;
+}
+/* a busy field shows its traced border instead (below) */
+.playground-preview
+  input:is(:not([type]), [type='text']):where(
+    :not([class], [aria-busy='true'])
+  ):focus-visible,
 .playground-preview textarea:where(:not([class])):focus-visible {
   outline: none;
   border-color: var(--ds-accent);
@@ -366,9 +409,6 @@ div.playground-preview h1:first-child {
   line-height: 1.5;
   transition: box-shadow var(--motion-snappy);
 }
-.playground-preview .search > input::placeholder {
-  color: var(--ds-faint);
-}
 .playground-preview .search > input:focus-visible {
   outline: none;
   box-shadow:
@@ -394,7 +434,12 @@ div.playground-preview h1:first-child {
   border-radius: 50%;
   background: none;
   mask: none;
-  animation: rt-spin 0.8s linear infinite;
+  animation: ds-spin 0.8s linear infinite;
+}
+@keyframes ds-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .playground-preview .search[aria-busy='true']::before {
@@ -466,6 +511,28 @@ div.playground-preview h1:first-child {
   visibility: hidden;
 }
 
+/* A labelled field (`label.field`): its name, small and muted, over the
+   `input` or `textarea` it holds; the name takes the accent while the field
+   has focus */
+.playground-preview .field {
+  display: block;
+  margin-bottom: var(--ds-space-4);
+  font-size: var(--ds-text-sm);
+  font-weight: 500;
+  color: var(--ds-text-muted);
+  transition: color var(--motion-snappy);
+}
+.playground-preview .field:focus-within {
+  color: var(--ds-accent);
+}
+.playground-preview .field > :is(input, textarea) {
+  display: block;
+  width: 100%;
+  margin-top: var(--ds-space-1);
+  font-size: var(--ds-text-base);
+  font-weight: 400;
+}
+
 /* Groups a form's fields so one `disabled` locks them all */
 .playground-preview fieldset {
   min-width: 0;
@@ -478,14 +545,16 @@ div.playground-preview h1:first-child {
   cursor: progress;
 }
 /* While a form saves, a light traces its submit button's border; so too
-   for a button that is busy on its own (`aria-busy`, a pending action) */
+   for a button or text field that is busy on its own (`aria-busy`: a
+   pending action, a field whose entry is saving) */
 @property --pg-trace-angle {
   syntax: '<angle>';
   inherits: false;
   initial-value: 0deg;
 }
 .playground-preview form[aria-busy='true'] button[type='submit'],
-.playground-preview button[aria-busy='true'] {
+.playground-preview button[aria-busy='true'],
+.playground-preview input[aria-busy='true'] {
   /* a 2px border, out of the padding: same size, room for the light */
   border: 2px solid transparent;
   padding: calc(var(--ds-control-pad-y) + var(--ds-control-border) - 2px)
@@ -500,8 +569,14 @@ div.playground-preview h1:first-child {
       )
       border-box;
   box-shadow: 0 0 0 3px var(--ds-accent-soft);
-  color: var(--ds-accent);
   animation: ds-trace 1.2s linear infinite;
+}
+.playground-preview form[aria-busy='true'] button[type='submit'],
+.playground-preview button[aria-busy='true'] {
+  color: var(--ds-accent);
+}
+.playground-preview input[aria-busy='true'] {
+  outline: none;
 }
 @keyframes ds-trace {
   to {
@@ -510,7 +585,8 @@ div.playground-preview h1:first-child {
 }
 @media (prefers-reduced-motion: reduce) {
   .playground-preview form[aria-busy='true'] button[type='submit'],
-  .playground-preview button[aria-busy='true'] {
+  .playground-preview button[aria-busy='true'],
+  .playground-preview input[aria-busy='true'] {
     animation: none;
   }
 }
@@ -1149,6 +1225,9 @@ div.playground-preview h1:first-child {
     animation: none;
   }
 }
+/* TextInput, TextArea and SearchIcon, which the translated pages keep until
+   the weekly translation run carries plain inputs, `field` and `search` over
+   (website/i18n); drop these rules and the components once none use them */
 /* Root container for the text field */
 .rt-TextFieldRoot {
   display: flex;
@@ -1196,14 +1275,7 @@ div.playground-preview h1:first-child {
   border: 2px solid var(--ifm-color-emphasis-400);
   border-top-color: var(--ifm-color-formfield-active);
   border-radius: 50%;
-  animation: rt-spin 1s linear infinite;
-}
-
-/* Spinner animation */
-@keyframes rt-spin {
-  to {
-    transform: rotate(360deg);
-  }
+  animation: ds-spin 1s linear infinite;
 }
 
 /* The floating label straddles the field's top edge, so it blends into both

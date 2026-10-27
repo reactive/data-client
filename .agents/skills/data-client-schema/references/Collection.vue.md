@@ -83,7 +83,12 @@ export const getUsers = new RestEndpoint({
 
 <template>
   <div class="listItem nogap">
-    <TextInput size="small" @keydown="handlePress" />
+    <input
+      type="text"
+      aria-label="New todo"
+      placeholder="New todo"
+      @keydown="handlePress"
+    />
     <label>
       <input type="checkbox" v-model="unshift" />
       unshift
@@ -366,7 +371,10 @@ export const getPosts = new RestEndpoint({
         <input type="radio" value="clara" name="author" />
         Clara
       </label>
-      <TextInput value="New Post" name="title" label="Title" />
+      <label class="field">
+        Title
+        <input type="text" name="title" value="New Post" />
+      </label>
       <button type="submit" :aria-busy="loading">Push</button>
     </form>
   </div>

@@ -15,7 +15,12 @@ export default function NewTodo({ userId }: { userId: number }) {
     <div className="listItem nogap">
       <label>
         <input type="checkbox" name="new" checked={false} disabled />
-        <TextInput size="small" onKeyDown={handleKeyDown} />
+        <input
+          type="text"
+          aria-label="New todo"
+          placeholder="New todo"
+          onKeyDown={handleKeyDown}
+        />
       </label>
       <CancelButton />
     </div>

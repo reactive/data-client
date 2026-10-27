@@ -80,7 +80,13 @@ export const getPosts = new RestEndpoint({
 </script>
 
 <template>
-  <TextInput @keydown="handlePress" :loading="loading" placeholder="Post title" />
+  <input
+    type="text"
+    aria-label="New post title"
+    placeholder="Post title"
+    :aria-busy="loading"
+    @keydown="handlePress"
+  />
 </template>
 ```
 
