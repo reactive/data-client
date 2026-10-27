@@ -11,19 +11,6 @@ import {
 import type { Values as ValuesType, Array as ArrayType } from '../schema.js';
 import type { DefaultArgs } from '../schemaTypes.js';
 
-const pushMerge = (existing: any, incoming: any) => {
-  return [...existing, ...incoming];
-};
-/** Collection merge that places incoming items at the start.
- *
- * @see https://dataclient.io/rest/api/Collection#moveWith
- */
-export const unshift = (existing: any, incoming: any) => {
-  return [...incoming, ...existing];
-};
-const valuesMerge = (existing: any, incoming: any) => {
-  return { ...existing, ...incoming };
-};
 type NormalizedRef = { id: string; schema: string } | string;
 
 const isShallowEqual = (a: NormalizedRef, b: NormalizedRef): boolean => {
@@ -36,6 +23,22 @@ const isShallowEqual = (a: NormalizedRef, b: NormalizedRef): boolean => {
 
 const removeMerge = (existing: NormalizedRef[], incoming: NormalizedRef[]) =>
   existing.filter(item => !incoming.some(inc => isShallowEqual(item, inc)));
+
+/** An item added again (like one deleted, then re-created with the same pk)
+ * moves to its new place instead of showing twice */
+const pushMerge = (existing: any, incoming: any) => {
+  return [...removeMerge(existing, incoming), ...incoming];
+};
+/** Collection merge that places incoming items at the start.
+ *
+ * @see https://dataclient.io/rest/api/Collection#moveWith
+ */
+export const unshift = (existing: any, incoming: any) => {
+  return [...incoming, ...removeMerge(existing, incoming)];
+};
+const valuesMerge = (existing: any, incoming: any) => {
+  return { ...existing, ...incoming };
+};
 
 const valuesRemoveMerge = (
   existing: Record<string, NormalizedRef>,
