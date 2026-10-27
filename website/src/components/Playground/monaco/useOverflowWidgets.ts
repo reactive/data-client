@@ -96,7 +96,7 @@ function menuInLayer(editor: Monaco.editor.ICodeEditor) {
   if (menuPatched) return;
   const service = (editor.getContribution('editor.contrib.contextmenu') as any)
     ?._contextViewService;
-  if (!service) return;
+  if (!service) return warnUnpatched('_contextViewService');
   menuPatched = true;
   patchMethod(
     service,
@@ -141,8 +141,14 @@ function patchMethod(
 ) {
   const proto = Object.getPrototypeOf(instance);
   const original = proto[name];
-  if (typeof original !== 'function') return;
+  if (typeof original !== 'function') return warnUnpatched(name);
   proto[name] = function (this: unknown, ...args: unknown[]) {
     return wrap((...a) => original.apply(this, a), args);
   };
+}
+
+/** A Monaco upgrade renamed a private member a patch needs: run Verify */
+function warnUnpatched(member: string) {
+  if (process.env.NODE_ENV !== 'production')
+    console.warn(`useOverflowWidgets: Monaco has no ${member}; patch skipped`);
 }
