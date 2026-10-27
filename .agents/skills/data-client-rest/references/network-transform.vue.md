@@ -96,12 +96,17 @@ export const getPrice = new RestEndpoint({
 </script>
 
 <template>
-  <div>
-    ${{ currentPrice.price.toFormat(2) }} as of
-    <time>
-      {{ currentPrice.updatedAt.toLocaleString('en-US', { dateStyle: 'medium' }) }}
-    </time>
-  </div>
+  <dl class="stats">
+    <div>
+      <dt>
+        {{ currentPrice.exchangePair.toUpperCase() }}, as of
+        <time>
+          {{ currentPrice.updatedAt.toLocaleString('en-US', { dateStyle: 'medium' }) }}
+        </time>
+      </dt>
+      <dd>${{ currentPrice.price.toFormat(2) }}</dd>
+    </div>
+  </dl>
 </template>
 ```
 
@@ -231,13 +236,17 @@ export const getTicker = new RestEndpoint({
 </script>
 
 <template>
-  <div style="text-align: center">
-    {{ productId }}
-    <NumberFlow
-      :value="ticker.price"
-      :format="{ style: 'currency', currency: 'USD' }"
-    />
-  </div>
+  <dl class="stats">
+    <div>
+      <dt>{{ productId }}</dt>
+      <dd>
+        <NumberFlow
+          :value="ticker.price"
+          :format="{ style: 'currency', currency: 'USD' }"
+        />
+      </dd>
+    </div>
+  </dl>
 </template>
 ```
 

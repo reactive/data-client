@@ -96,3 +96,4 @@ packages/*/skills/
 # data-client-skills code copied in at pack time (from packages/core/agents)
 packages/*/agents/
 !packages/core/agents/
+data-client-plugin.zip

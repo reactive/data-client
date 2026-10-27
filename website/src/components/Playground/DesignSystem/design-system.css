@@ -474,7 +474,9 @@ div.playground-preview h1:first-child {
    large over its muted label, so a figure that moves is what catches the
    eye; one row of columns up to 9rem wide, whose labels wrap on a phone.
    The figures share one grid row and the labels another, so a figure in
-   plain text (Free) sits level with animated ones */
+   plain text (Free) sits level with animated ones. A lone figure (a page's
+   one price) has the sheet's width, so a long number wraps at the sheet's
+   edge rather than a column's */
 .playground-preview .stats {
   display: grid;
   grid-template-rows: auto auto;
@@ -482,6 +484,13 @@ div.playground-preview h1:first-child {
   grid-auto-columns: minmax(0, 9rem);
   gap: 2px var(--ds-space-4);
   margin: 0;
+}
+/* what follows figures (a control) stands a row off them */
+.playground-preview .stats:not(:last-child) {
+  margin-bottom: var(--ds-space-4);
+}
+.playground-preview .stats:has(> div:only-child) {
+  grid-auto-columns: minmax(0, 1fr);
 }
 .playground-preview .stats > div {
   display: grid;
@@ -498,16 +507,19 @@ div.playground-preview h1:first-child {
   line-height: 1.1;
   align-self: center;
   font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+/* a figure not yet taken (a timing before its run) holds its line with a
+   faint dash; one still loading holds it with a skeleton instead */
+.playground-preview .stats dd:empty::before {
+  content: '\2014';
+  color: var(--ds-faint);
 }
 /* the smallest phones: three prices ($52.00) still fit side by side */
 @media (max-width: 360px) {
   .playground-preview .stats dd {
     font-size: var(--ds-text-xl);
   }
-}
-/* the action the figures add up to (Check out) stands off them */
-.playground-preview .stats + button {
-  margin-top: var(--ds-space-4);
 }
 /* A quantity stepper (a cart row's): − count + in one edge, the count
    between its two buttons; hover and press as an upvote's. With one button
@@ -679,8 +691,20 @@ div.playground-preview h1:first-child {
   transform: scale(1);
 }
 /* A row's trailing detail (when it was fetched, a count) sits at its end */
-.playground-preview .listItem > .meta:last-child {
+.playground-preview .listItem > :is(.meta, .value):last-child {
   margin-left: auto;
+}
+/* A row's figure (`value`: a watchlist row's price, a NumberFlow or a
+   skeleton holding its place): at the row's end in tabular digits, a step
+   up in weight, so a list of them reads as a column. The row's name is its
+   h4 (a coin's symbol), with a `small` line under it when it has one */
+.playground-preview .listItem > .value {
+  flex: none;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.playground-preview .listItem:has(> .value) h4 {
+  margin-bottom: 0;
 }
 /* Actions on what is above it (Fail Soft, Fail Hard) as one segmented
    control: one edge around them all, a hairline between each. On a phone

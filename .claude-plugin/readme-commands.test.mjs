@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 
-import { root } from './cursor.mjs';
+import { root } from './plugin-dir.mjs';
 import {
   claudePluginCommand,
   claudeSetupPrompt,
@@ -39,6 +39,17 @@ for (const [file, framework] of Object.entries({
       assert.ok(readme.includes(command), command);
   });
 }
+
+// the plugin directory listings' description
+test('.agents/skills/README.md plugin commands match skillCommands.mjs', () => {
+  const readme = read('.agents/skills/README.md');
+  for (const command of [
+    claudePluginCommand,
+    cursorPluginCommand,
+    codexPluginCommand,
+  ])
+    assert.ok(readme.includes(command), command);
+});
 
 // protocol READMEs carry only the prompt
 for (const pkg of ['rest', 'graphql', 'endpoint']) {

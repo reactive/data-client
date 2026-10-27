@@ -14,6 +14,33 @@ import { todoFixtures } from '@site/src/fixtures/todos';
 import OptimisticTransform from '../shared/\_optimisticTransform.mdx';
 import OptimisticRace from '@site/src/components/OptimisticRace';
 
+export const timingDemo = [
+  { delay: 800, store: 'open' },
+  { delay: 1000, click: 'button.upvote' },
+  { delay: 250, click: 'button.upvote' },
+  { delay: 250, click: 'button.upvote' },
+  { delay: 250, click: 'button.upvote' },
+  // past the slowest increment response (the fixture's 4.7s), so the
+  // timeline holds every response
+  { wait: 5000 },
+  { click: { in: 'store', selector: 'button[aria-label="Diff"]' } },
+  // the first action (the count's load), then on through each change, time
+  // to read each diff: 5 = the changes the 4 clicks make, as Diff's "Next
+  // change" counts them (more would idle at the end before the close)
+  {
+    click: {
+      in: 'store',
+      selector: '[role="group"][aria-label^="Scrubber"] button[data-id]',
+    },
+  },
+  ...Array.from({ length: 5 }, () => ({
+    delay: 1500,
+    click: { in: 'store', selector: 'button[aria-label="Next change"]' },
+  })),
+  // Store → Code: back to the code that did it
+  { delay: 2000, store: 'close' },
+];
+
 # Optimistic Updates
 
 Optimistic updates enable highly responsive and fast interfaces by avoiding network wait times.
@@ -363,6 +390,7 @@ delayCollapse:true,
 ]}
 getInitialInterceptorData={() => ({ count: 0 })}
 row
+autoRun={timingDemo}
 >
 
 ```ts title="count" {11-13} collapsed
@@ -419,32 +447,38 @@ export const increment = new RestEndpoint({
 
 ```tsx title="CounterPage" collapsed
 import React from 'react';
-import { useController, useSuspense, useLoading } from '@data-client/react';
+import { useController, useSuspense } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
 import { getCount } from './count';
 import { increment } from './increment';
 
 function CounterPage() {
   const ctrl = useController();
   const { count } = useSuspense(getCount);
-  const [n, setN] = React.useState(count);
-  const [clickHandler, loading, error] = useLoading(() => {
-    setN(n => n + 1);
+  const [clicks, setClicks] = React.useState(count);
+  const clickHandler = () => {
+    setClicks(c => c + 1);
     return ctrl.fetch(increment);
-  });
+  };
   return (
-    <div>
-      <p>
-        Click the button multiple times quickly to trigger the
-        potential race condition. This time our vector clock protects
-        us.
-      </p>
-      <div>
-        Data Client: {count} Should be: {n}
-        <br />
-        <button onClick={clickHandler}>+</button>
-        {loading ? ' ...loading' : ''}
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Votes</h1>
+      </header>
+      <div className="listItem">
+        <button className="upvote" onClick={clickHandler} aria-label="Upvote" />
+        <dl className="stats">
+          <div>
+            <dt>Data Client</dt>
+            <dd><NumberFlow value={count} /></dd>
+          </div>
+          <div>
+            <dt>Clicks</dt>
+            <dd><NumberFlow value={clicks} /></dd>
+          </div>
+        </dl>
       </div>
-    </div>
+    </>
   );
 }
 render(<CounterPage />);
@@ -457,32 +491,36 @@ render(<CounterPage />);
 ```html title="CounterPage.vue" collapsed
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useController, useSuspense, useLoading } from '@data-client/vue';
+  import { useController, useSuspense } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
   import { getCount } from './count';
   import { increment } from './increment';
 
   const ctrl = useController();
   const data = await useSuspense(getCount);
-  const n = ref(data.value.count);
-  const [clickHandler, loading, error] = useLoading(() => {
-    n.value += 1;
+  const clicks = ref(data.value.count);
+  const clickHandler = () => {
+    clicks.value += 1;
     return ctrl.fetch(increment);
-  });
+  };
 </script>
 
 <template>
-  <div>
-    <p>
-      Click the button multiple times quickly to trigger the
-      potential race condition. This time our vector clock protects
-      us.
-    </p>
-    <div>
-      Data Client: {{ data.count }} Should be: {{ n }}
-      <br />
-      <button @click="clickHandler">+</button>
-      {{ loading ? ' ...loading' : '' }}
-    </div>
+  <header class="appHeader">
+    <h1 class="appTitle">Votes</h1>
+  </header>
+  <div class="listItem">
+    <button class="upvote" @click="clickHandler" aria-label="Upvote" />
+    <dl class="stats">
+      <div>
+        <dt>Data Client</dt>
+        <dd><NumberFlow :value="data.count" /></dd>
+      </div>
+      <div>
+        <dt>Clicks</dt>
+        <dd><NumberFlow :value="clicks" /></dd>
+      </div>
+    </dl>
   </div>
 </template>
 ```
