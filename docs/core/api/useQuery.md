@@ -20,7 +20,7 @@ export const sortDemo = [
   { wait: 1200 },
   { click: { selector: 'button.sort', hasText: 'Posts' } },
   { wait: 1800 },
-  { click: { selector: '.buttonGroup button', hasText: 'Admins' } },
+  { click: { selector: '.segmented button', hasText: 'Admins' } },
   { wait: 1800 },
   { click: { selector: 'button.sort', hasText: 'Joined' } },
 ];
@@ -155,7 +155,7 @@ const roles = { All: undefined, Admins: true, Members: false };
 
 export default function RoleFilter({ isAdmin, onChange }: Props) {
   return (
-    <div className="buttonGroup" role="group" aria-label="Role">
+    <div className="segmented" role="group" aria-label="Role">
       {Object.entries(roles).map(([label, value]) => (
         <button
           key={label}
@@ -198,8 +198,15 @@ export default function UsersTableView({ users, sort, onSort }: Props) {
       <tbody>
         {users.map(user => (
           <tr key={user.pk()}>
-            <td>{user.name}</td>
-            <td className="meta">{user.isAdmin ? 'Admin' : 'Member'}</td>
+            <td>
+              <Avatar name={user.name} />
+              {user.name}
+            </td>
+            <td>
+              <span className={user.isAdmin ? 'pill primary' : 'pill'}>
+                {user.isAdmin ? 'Admin' : 'Member'}
+              </span>
+            </td>
             <td className="value">{user.posts}</td>
             <td className="value">{user.joined}</td>
           </tr>
@@ -317,7 +324,7 @@ render(<UsersPage />);
 </script>
 
 <template>
-  <div class="buttonGroup" role="group" aria-label="Role">
+  <div class="segmented" role="group" aria-label="Role">
     <button
       v-for="(value, label) in roles"
       :key="label"
@@ -366,8 +373,15 @@ render(<UsersPage />);
     </thead>
     <tbody>
       <tr v-for="user in users" :key="user.pk()">
-        <td>{{ user.name }}</td>
-        <td class="meta">{{ user.isAdmin ? 'Admin' : 'Member' }}</td>
+        <td>
+          <Avatar :name="user.name" />
+          {{ user.name }}
+        </td>
+        <td>
+          <span :class="user.isAdmin ? 'pill primary' : 'pill'">
+            {{ user.isAdmin ? 'Admin' : 'Member' }}
+          </span>
+        </td>
         <td class="value">{{ user.posts }}</td>
         <td class="value">{{ user.joined }}</td>
       </tr>

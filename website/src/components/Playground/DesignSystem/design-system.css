@@ -457,14 +457,16 @@ div.playground-preview h1:first-child {
 .playground-preview .listItem:has(> .upvote) {
   align-items: flex-start;
 }
-/* an arrow pointing up: an upvote's, a sorted column's */
+/* an arrow pointing up: an upvote's, a sorted column's (each sizes its own) */
 .playground-preview button.upvote::before,
 .playground-preview button.sort::after {
   content: '';
-  width: 12px;
-  height: 7px;
   background: currentColor;
   clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.playground-preview button.upvote::before {
+  width: 12px;
+  height: 7px;
 }
 @media (hover: hover) {
   .playground-preview button.upvote:hover,
@@ -702,14 +704,18 @@ div.playground-preview h1:first-child {
 .playground-preview .listItem > :is(.meta, .value):last-child {
   margin-left: auto;
 }
-/* A row's figure (`value`: a watchlist row's price, a NumberFlow or a
-   skeleton holding its place): at the row's end in tabular digits, a step
-   up in weight, so a list of them reads as a column. The row's name is its
-   h4 (a coin's symbol), with a `small` line under it when it has one */
+/* A figure (`value`: a watchlist row's price, a table's count, a NumberFlow
+   or a skeleton holding its place): tabular digits, so a column of them
+   lines up */
+.playground-preview .value {
+  font-variant-numeric: tabular-nums;
+}
+/* in a list row, at the row's end and a step up in weight, so a list of
+   them reads as a column. The row's name is its h4 (a coin's symbol), with
+   a `small` line under it when it has one */
 .playground-preview .listItem > .value {
   flex: none;
   font-weight: 600;
-  font-variant-numeric: tabular-nums;
 }
 .playground-preview .listItem:has(> .value) h4 {
   margin-bottom: 0;
@@ -762,25 +768,106 @@ div.playground-preview h1:first-child {
 .playground-preview .buttonGroup > button:focus-visible {
   outline-offset: -2px;
 }
-/* a filter's choice (All, Admins): the chosen segment washed in the
-   accent as a pressed one is, in the accent's color */
-.playground-preview .buttonGroup > button[aria-pressed='true']:not([class]) {
-  background: var(--ds-accent-pressed);
-  color: var(--ds-accent);
-}
 /* in an app header, level with the wordmark */
 .playground-preview .appHeader .buttonGroup {
   margin-top: 0;
 }
-/* A table (a team's members): rows on the sheet with no rules or stripes,
-   set apart by space, their text in line with the app header's; under the
-   pointer a row is a rounded band reaching past its text, as a list's.
-   Headers are a group's label. `value` cells (a count, a year) sit at the
-   column's end. Infima's borders and stripes are dropped */
+/* A filter's choices (All, Admins, Members) as one segmented control: the
+   words on a track of the well's color, in equal segments, and the chosen
+   one (`aria-pressed`) in the accent on a pill of the sheet that slides
+   to it. The pill is the track's ::before, one segment wide, moved by the
+   chosen segment's index (counted by :has(), up to four segments). In an
+   app header it sits level with the wordmark; on a phone it fits beside it */
+.playground-preview .segmented {
+  --segments: 1;
+  --segment: 0;
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  width: fit-content;
+  max-width: 100%;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--ds-surface-2);
+}
+.playground-preview .segmented:has(> :nth-child(2):last-child) {
+  --segments: 2;
+}
+.playground-preview .segmented:has(> :nth-child(3):last-child) {
+  --segments: 3;
+}
+.playground-preview .segmented:has(> :nth-child(4):last-child) {
+  --segments: 4;
+}
+.playground-preview .segmented:has(> :nth-child(2)[aria-pressed='true']) {
+  --segment: 1;
+}
+.playground-preview .segmented:has(> :nth-child(3)[aria-pressed='true']) {
+  --segment: 2;
+}
+.playground-preview .segmented:has(> :nth-child(4)[aria-pressed='true']) {
+  --segment: 3;
+}
+.playground-preview .segmented::before {
+  content: '';
+  position: absolute;
+  inset: 2px auto 2px 2px;
+  width: calc((100% - 4px) / var(--segments));
+  border-radius: 999px;
+  background: var(--ds-surface);
+  box-shadow:
+    0 1px 2px var(--pg-shadow-edge),
+    0 0 0 1px color-mix(in srgb, var(--ds-text) 6%, transparent);
+  transform: translateX(calc(100% * var(--segment)));
+  transition: transform var(--motion-snappy);
+}
+/* at night the pill is a step up from the track, with no shadow to cast */
+html[data-theme='dark'] .playground-preview .segmented::before {
+  background: color-mix(in srgb, var(--ds-text) 14%, var(--ds-surface-2));
+  box-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .playground-preview .segmented::before {
+    transition: none;
+  }
+}
+.playground-preview .segmented > button {
+  position: relative;
+  margin: 0;
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ds-text-muted);
+  font: 500 var(--ds-text-sm) / 1.4 var(--ifm-font-family-base);
+  cursor: pointer;
+  transition: color var(--motion-snappy);
+}
+.playground-preview .segmented > button[aria-pressed='true'] {
+  color: var(--ds-accent);
+  font-weight: 600;
+}
+@media (hover: hover) {
+  .playground-preview .segmented > button:not([aria-pressed='true']):hover {
+    color: var(--ds-text);
+  }
+}
+.playground-preview .segmented > button:focus-visible {
+  outline: 2px solid var(--ds-accent);
+  outline-offset: -2px;
+}
+/* A table (a team's members): rows on the sheet with no rules, stripes or
+   hover (a row does nothing on a click, like a list row without a control),
+   set apart by space, its first and last columns flush with the app
+   header's text. Headers are a group's label; a sort arrow has no baseline,
+   so they sit at the UA's middle and every label stays level. `value` cells
+   (a count, a year) sit at the column's end. Infima's borders and stripes
+   are dropped */
 .playground-preview table {
   --ifm-table-stripe-background: transparent;
-  width: calc(100% + 2 * var(--ds-space-3));
-  margin: 0 calc(-1 * var(--ds-space-3)) var(--ds-space-4);
+  width: 100%;
+  margin: 0 0 var(--ds-space-4);
   border-collapse: separate;
   border-spacing: 0;
 }
@@ -791,31 +878,74 @@ div.playground-preview h1:first-child {
 .playground-preview :is(thead, tr, th, td) {
   border: 0;
 }
+/* 8px between columns is what keeps a 4-column row on a phone's sheet
+   (a name with its avatar, a role's pill, two figures) */
 .playground-preview td {
-  padding: var(--ds-space-2) var(--ds-space-3);
+  padding: var(--ds-space-2);
   vertical-align: baseline;
-  transition: background-color var(--motion-snappy);
 }
 .playground-preview th {
-  padding: 0 var(--ds-space-3) var(--ds-space-1);
+  padding: 0 var(--ds-space-2) var(--ds-space-1);
   text-align: start;
-  /* a sort arrow has no baseline: centered, every label stays level */
-  vertical-align: middle;
   white-space: nowrap;
+}
+.playground-preview :is(th, td):first-child {
+  padding-left: 0;
+}
+.playground-preview :is(th, td):last-child {
+  padding-right: 0;
 }
 .playground-preview :is(th, td).value {
   text-align: end;
 }
-@media (hover: hover) {
-  .playground-preview tbody tr:hover > td {
-    background: var(--ds-hover);
-  }
+/* A person in a row (a team member): `Avatar` with a `name` draws the
+   name's initials on a disc, 32px on its own and 22px in a table cell,
+   where it leads the name and sits in the text's line, 6px before it */
+.playground-preview .avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ds-surface-2);
+  color: var(--ds-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  vertical-align: middle;
 }
-.playground-preview tbody td:first-child {
-  border-radius: var(--ds-radius-sm) 0 0 var(--ds-radius-sm);
+.playground-preview td > .avatar {
+  width: 22px;
+  height: 22px;
+  margin: -3px 6px -3px 0;
+  font-size: 0.625rem;
 }
-.playground-preview tbody td:last-child {
-  border-radius: 0 var(--ds-radius-sm) var(--ds-radius-sm) 0;
+/* the name stays on one line, a step (12px) from what follows it */
+.playground-preview td:has(> .avatar) {
+  padding-right: var(--ds-space-3);
+  white-space: nowrap;
+}
+/* A label on a row (`pill`: a member's role): a small bold word on a disc
+   of the well's color, `primary` washed in the accent (an admin). Its disc
+   reaches past its text, so the word stays in line with its column's
+   header */
+.playground-preview .pill {
+  display: inline-block;
+  margin-inline: -7px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--ds-surface-2);
+  color: var(--ds-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.playground-preview .pill.primary {
+  background: var(--ds-accent-soft);
+  color: var(--ds-accent);
 }
 /* A sortable column's header (`button.sort` in its `th`, `aria-sort` on
    the sorted one's): its label, then an arrow that points the way the

@@ -219,7 +219,7 @@ export interface Sort {
 </script>
 
 <template>
-  <div class="buttonGroup" role="group" aria-label="Role">
+  <div class="segmented" role="group" aria-label="Role">
     <button
       v-for="(value, label) in roles"
       :key="label"
@@ -268,8 +268,15 @@ export interface Sort {
     </thead>
     <tbody>
       <tr v-for="user in users" :key="user.pk()">
-        <td>{{ user.name }}</td>
-        <td class="meta">{{ user.isAdmin ? 'Admin' : 'Member' }}</td>
+        <td>
+          <Avatar :name="user.name" />
+          {{ user.name }}
+        </td>
+        <td>
+          <span :class="user.isAdmin ? 'pill primary' : 'pill'">
+            {{ user.isAdmin ? 'Admin' : 'Member' }}
+          </span>
+        </td>
         <td class="value">{{ user.posts }}</td>
         <td class="value">{{ user.joined }}</td>
       </tr>
@@ -278,7 +285,7 @@ export interface Sort {
 </template>
 ```
 
-```html title="UsersTable.vue" {34}
+```html title="UsersTable.vue" {34-37}
 <script lang="ts">
   import { All, Query } from '@data-client/rest';
   import { type Sort, User } from './resources/User';
@@ -308,19 +315,18 @@ export interface Sort {
   import { UserResource } from './resources/User';
   import UsersTableView from './UsersTableView.vue';
 
-  const props = defineProps<Args>();
+  const props = defineProps<{ sort: Sort; isAdmin: boolean | undefined }>();
   defineEmits<{ sort: [sort: Sort] }>();
 
   await useSuspense(UserResource.getList);
-  const users = useQuery(sortedUsers, () => ({ ...props }));
+  const users = useQuery(sortedUsers, () => ({
+    ...props.sort,
+    isAdmin: props.isAdmin,
+  }));
 </script>
 
 <template>
-  <UsersTableView
-    :users="users ?? []"
-    :sort="{ sortBy, desc }"
-    @sort="$emit('sort', $event)"
-  />
+  <UsersTableView :users="users ?? []" :sort="sort" @sort="$emit('sort', $event)" />
 </template>
 ```
 
@@ -340,7 +346,7 @@ export interface Sort {
     <h1 class="appTitle">Team</h1>
     <RoleFilter :is-admin="isAdmin" @change="isAdmin = $event" />
   </header>
-  <UsersTable v-bind="sort" :is-admin="isAdmin" @sort="sort = $event" />
+  <UsersTable :sort="sort" :is-admin="isAdmin" @sort="sort = $event" />
 </template>
 ```
 
