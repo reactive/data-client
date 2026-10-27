@@ -4,14 +4,8 @@ import React from 'react';
 export function Avatar({ src, size = 32 }: { src: string; size?: number }) {
   return (
     // a flex box: the picture sits in no line box, so a first-line trim can't
-    // lift it, and is centered where its line was (over a name in `.author`)
-    <span
-      style={{
-        flex: '0 0 auto',
-        display: 'flex',
-        justifyContent: 'center',
-      }}
-    >
+    // lift it
+    <span style={{ flex: '0 0 auto', display: 'flex' }}>
       <img
         src={src}
         height={size}
@@ -19,7 +13,6 @@ export function Avatar({ src, size = 32 }: { src: string; size?: number }) {
         style={{
           borderRadius: '50%',
           overflow: 'hidden',
-          display: 'block',
         }}
       />
     </span>

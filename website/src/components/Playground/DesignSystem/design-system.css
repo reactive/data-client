@@ -284,6 +284,9 @@ div.playground-preview h1:first-child {
 }
 .playground-preview .author {
   flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
 }
 .playground-preview .author small {
