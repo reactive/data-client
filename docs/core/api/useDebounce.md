@@ -87,10 +87,11 @@ export const searchIssues = new RestEndpoint({
 :::react
 
 ```tsx title="IssueList" collapsed
+import React from 'react';
 import { useSuspense } from '@data-client/react';
 import { searchIssues } from './resources/Issue';
 
-export default function IssueList({ search, stale }: Props) {
+function IssueList({ search, stale }: Props) {
   const { items } = useSuspense(searchIssues, {
     q: `${search} repo:facebook/react is:issue`,
   });
@@ -111,6 +112,8 @@ export default function IssueList({ search, stale }: Props) {
     </div>
   );
 }
+// re-renders when its props change, not on every keystroke
+export default React.memo(IssueList);
 interface Props {
   search: string;
   /** still the last search's: the query changed since (React's isPending
