@@ -16,12 +16,13 @@ export const searchDemo = [
     delay: 300,
     click: { in: 'store', selector: 'button[aria-label="Actions"]' },
   },
-  // the list fades while each word is typed; one search lands per pause
+  // the list fades while each word is typed; one search lands per pause:
+  // 17 keystrokes, three searches
   { delay: 1200, type: 'input[aria-label="Search issues"]', text: 'suspense' },
   { wait: 2000 },
   { type: 'input[aria-label="Search issues"]', text: ' fallback' },
   { wait: 2500 },
-  // 17 keystrokes, three searches. Store → Code: back to the code that did it
+  // Store → Code: back to the code that did it
   { store: 'close' },
 ];
 
