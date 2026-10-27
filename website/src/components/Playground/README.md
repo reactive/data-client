@@ -245,8 +245,8 @@ Styled elements: `h2` (page title), `button` (`primary` fills one;
 | `list`, `listItem` (`nogap`, `spaced`)     | rows; checkbox rows highlight and fade when done                                |
 | `meta`                                     | secondary text; last in a `listItem`, it sits at the row's end                  |
 | `value`                                    | a row's figure (a price); last in a `listItem`, at the row's end, tabular       |
-| `byline`, `author` (`Avatar` takes `size`) | who wrote something; `Avatar` with a `name` and no `src` draws its initials     |
-| `pill` (`primary`)                         | a label on a row (a member's role); `primary` washes it in the accent           |
+| `byline`, `author` (`Avatar` takes `size`) | who wrote something                                                             |
+| `pill`                                     | a label after a name (an admin), in the accent                                  |
 | `buttonGroup`                              | segmented actions (Fail Soft, Fail Hard)                                        |
 | `segmented`                                | a filter's 2-4 choices on a track; `aria-pressed` marks the pick, a pill slides |
 | `cancel` (`<CancelButton />`)              | a row's remove button                                                           |

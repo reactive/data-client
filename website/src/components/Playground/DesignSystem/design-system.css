@@ -775,8 +775,7 @@ div.playground-preview h1:first-child {
 /* A filter's choices (All, Admins, Members) on a track of the well's
    color, in equal segments; the chosen one (`aria-pressed`) in full ink on a
    pill that slides to it. The pill shares the first segment's grid cell and
-   moves by the chosen one's index (up to the fourth). In an app header it
-   sits level with the wordmark; on a phone it fits beside it */
+   moves by the chosen one's index (up to the fourth) */
 .playground-preview .segmented {
   --segment: 0;
   display: grid;
@@ -849,13 +848,12 @@ div.playground-preview h1:first-child {
 }
 /* under a control (a picker) it stands a step off */
 .playground-preview * + table {
-  margin-top: var(--ds-space-3);
+  margin-top: var(--ds-space-4);
 }
 .playground-preview :is(thead, tr, th, td) {
   border: 0;
 }
-/* 8px between columns is what keeps a 4-column row on a phone's sheet
-   (a name with its avatar, a role's pill, two figures) */
+/* 8px between columns, so a row fits a narrow sheet */
 .playground-preview td {
   padding: var(--ds-space-2);
   vertical-align: baseline;
@@ -874,54 +872,18 @@ div.playground-preview h1:first-child {
 .playground-preview :is(th, td).value {
   text-align: end;
 }
-/* A person in a row (a team member): `Avatar` with a `name` draws the
-   name's initials on a disc, 32px on its own and 22px in a table cell,
-   where it leads the name and sits in the text's line, 6px before it */
-.playground-preview .avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--ds-surface-2);
-  color: var(--ds-text-muted);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  line-height: 1;
-  vertical-align: middle;
-}
-.playground-preview td > .avatar {
-  width: 22px;
-  height: 22px;
-  margin: -3px 6px -3px 0;
-  font-size: 0.625rem;
-}
-/* the name stays on one line, a step (12px) from what follows it */
-.playground-preview td:has(> .avatar) {
-  padding-right: var(--ds-space-3);
-  white-space: nowrap;
-}
-/* A label on a row (`pill`: a member's role): a small bold word on a disc
-   of the well's color, `primary` washed in the accent (an admin). Its disc
-   reaches past its text, so the word stays in line with its column's
-   header */
+/* A label after a name (`pill`: an admin): a small bold word in the
+   accent on a disc of its wash. A space sets it off, so on a narrow row it
+   wraps under the name flush with it */
 .playground-preview .pill {
   display: inline-block;
-  margin-inline: -7px;
   padding: 1px 7px;
   border-radius: 999px;
-  background: var(--ds-surface-2);
-  color: var(--ds-text-muted);
+  background: var(--ds-accent-soft);
+  color: var(--ds-accent);
   font-size: 0.75rem;
   font-weight: 600;
   line-height: 1.5;
-}
-.playground-preview .pill.primary {
-  background: var(--ds-accent-soft);
-  color: var(--ds-accent);
 }
 /* A sortable column's header (`button.sort` in its `th`, `aria-sort` on
    the sorted one's): its label, then an arrow that points the way the
