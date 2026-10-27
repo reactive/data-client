@@ -130,6 +130,7 @@ div.playground-preview h1:first-child {
 /* no more room than the caps: trimmed to them, as the sheet trims a page's
    first line. Outranks Infima's `.markdown h1:first-child` margin */
 .playground-preview .appHeader > :is(.appTitle, .meta) {
+  line-height: 1;
   margin-block: 0;
   text-box: trim-both cap alphabetic;
 }

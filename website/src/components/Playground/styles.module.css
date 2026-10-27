@@ -1187,24 +1187,42 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 /* What starts the page sits the inset from the sheet's top, as its text
    does from the side: the first line's caps, not their leading, nor a row's
-   padding (that spaces it from the next row). Chrome carries the trim only
-   down a chain of first children with text, so past the router's progress
-   bar and into a row's or figures' items it is stated outright, and every
-   engine agrees. A row's picture keeps its box; a list's rows keep their
-   padding for the hover band; .appHeader trims its own caps */
+   padding (that spaces it from the next row; pulled up into the sheet's,
+   a list's hover band still has it). Chrome carries the trim only down a
+   chain of first children with text, so past the router's progress bar
+   and into a first row's or figure's items it is stated outright, and
+   every engine agrees. A row's controls and pictures keep their boxes */
 .sheet,
 .navProgress + * {
   text-box: trim-start cap alphabetic;
 }
-:is(.sheet, .sheet > :first-child, .navProgress + *):not(:global(.list))
-  > :global(.listItem):first-child {
-  padding-top: 0;
+/* the first row: the page's first block, or the first in it or in its
+   first block (a list) */
+:is(
+  .sheet > :first-child,
+  .navProgress + *,
+  .sheet > :first-child > :first-child,
+  .navProgress + * > :first-child,
+  .sheet > :first-child > :first-child > :first-child,
+  .navProgress + * > :first-child > :first-child
+):global(.listItem) {
+  margin-top: calc(-1 * var(--ds-row-pad));
 }
-:is(.sheet, .sheet > :first-child, .navProgress + *):not(:global(.list))
-  > :global(.listItem):first-child
-  > :not(:has(> img)),
-:is(.sheet, .sheet > :first-child, .navProgress + *)
-  > :global(.stats):first-child
+:is(
+    .sheet > :first-child,
+    .navProgress + *,
+    .sheet > :first-child > :first-child,
+    .navProgress + * > :first-child,
+    .sheet > :first-child > :first-child > :first-child,
+    .navProgress + * > :first-child > :first-child
+  ):global(.listItem)
+  > :not(button, input, select, textarea, :has(> img)),
+:is(
+    .sheet > :first-child,
+    .navProgress + *,
+    .sheet > :first-child > :first-child,
+    .navProgress + * > :first-child
+  ):global(.stats)
   dd {
   text-box: trim-start cap alphabetic;
 }
