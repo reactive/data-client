@@ -234,12 +234,12 @@ interface Props {
 }
 ```
 
-```tsx title="UsersTable"
+```tsx title="UsersTableView"
 import React from 'react';
 import { type User } from './resources/User';
-import { type Sort, type SortBy } from './UsersPage';
+import { type Sort, type SortBy } from './UsersTable';
 
-export default function UsersTable({ users, sort, onSort }: Props) {
+export default function UsersTableView({ users, sort, onSort }: Props) {
   return (
     <table>
       <thead>
@@ -303,13 +303,11 @@ interface HeaderProps {
 }
 ```
 
-```tsx title="UsersPage" {39}
-import React from 'react';
+```tsx title="UsersTable" {32}
 import { All, Query } from '@data-client/rest';
 import { useQuery, useSuspense } from '@data-client/react';
 import { User, UserResource } from './resources/User';
-import RoleFilter from './RoleFilter';
-import UsersTable from './UsersTable';
+import UsersTableView from './UsersTableView';
 
 export type SortBy = 'name' | 'posts' | 'joined';
 export interface Sort {
@@ -335,21 +333,36 @@ const sortedUsers = new Query(
   },
 );
 
-function UsersPage() {
+export default function UsersTable({ sort, isAdmin, onSort }: Props) {
   useSuspense(UserResource.getList);
+  const users = useQuery(sortedUsers, { ...sort, isAdmin }) ?? [];
+  return <UsersTableView users={users} sort={sort} onSort={onSort} />;
+}
+interface Props {
+  sort: Sort;
+  isAdmin: boolean | undefined;
+  onSort: (sort: Sort) => void;
+}
+```
+
+```tsx title="UsersPage"
+import React from 'react';
+import RoleFilter from './RoleFilter';
+import UsersTable, { type Sort } from './UsersTable';
+
+function UsersPage() {
   const [sort, setSort] = React.useState<Sort>({
     sortBy: 'name',
     desc: false,
   });
   const [isAdmin, setIsAdmin] = React.useState<boolean>();
-  const users = useQuery(sortedUsers, { ...sort, isAdmin }) ?? [];
   return (
     <>
       <header className="appHeader">
         <h1 className="appTitle">Team</h1>
         <RoleFilter isAdmin={isAdmin} onChange={setIsAdmin} />
       </header>
-      <UsersTable users={users} sort={sort} onSort={setSort} />
+      <UsersTable sort={sort} isAdmin={isAdmin} onSort={setSort} />
     </>
   );
 }

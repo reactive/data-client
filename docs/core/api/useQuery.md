@@ -119,7 +119,7 @@ re-sorts the table without fetching again.
 <FrameworkPlayground
 fixtures={teamFixtures}
 row
-defaultTab="UsersPage"
+defaultTab="UsersTable"
 autoRun={sortDemo}
 >
 
@@ -167,12 +167,12 @@ interface Props {
 }
 ```
 
-```tsx title="UsersTable" collapsed
+```tsx title="UsersTableView" collapsed
 import React from 'react';
 import { type User } from './resources/User';
-import { type Sort, type SortBy } from './UsersPage';
+import { type Sort, type SortBy } from './UsersTable';
 
-export default function UsersTable({ users, sort, onSort }: Props) {
+export default function UsersTableView({ users, sort, onSort }: Props) {
   return (
     <table>
       <thead>
@@ -236,13 +236,11 @@ interface HeaderProps {
 }
 ```
 
-```tsx title="UsersPage" {39}
-import React from 'react';
+```tsx title="UsersTable" {32}
 import { All, Query } from '@data-client/rest';
 import { useQuery, useSuspense } from '@data-client/react';
 import { User, UserResource } from './resources/User';
-import RoleFilter from './RoleFilter';
-import UsersTable from './UsersTable';
+import UsersTableView from './UsersTableView';
 
 export type SortBy = 'name' | 'posts' | 'joined';
 export interface Sort {
@@ -268,21 +266,36 @@ const sortedUsers = new Query(
   },
 );
 
-function UsersPage() {
+export default function UsersTable({ sort, isAdmin, onSort }: Props) {
   useSuspense(UserResource.getList);
+  const users = useQuery(sortedUsers, { ...sort, isAdmin }) ?? [];
+  return <UsersTableView users={users} sort={sort} onSort={onSort} />;
+}
+interface Props {
+  sort: Sort;
+  isAdmin: boolean | undefined;
+  onSort: (sort: Sort) => void;
+}
+```
+
+```tsx title="UsersPage" collapsed
+import React from 'react';
+import RoleFilter from './RoleFilter';
+import UsersTable, { type Sort } from './UsersTable';
+
+function UsersPage() {
   const [sort, setSort] = React.useState<Sort>({
     sortBy: 'name',
     desc: false,
   });
   const [isAdmin, setIsAdmin] = React.useState<boolean>();
-  const users = useQuery(sortedUsers, { ...sort, isAdmin }) ?? [];
   return (
     <>
       <header className="appHeader">
         <h1 className="appTitle">Team</h1>
         <RoleFilter isAdmin={isAdmin} onChange={setIsAdmin} />
       </header>
-      <UsersTable users={users} sort={sort} onSort={setSort} />
+      <UsersTable sort={sort} isAdmin={isAdmin} onSort={setSort} />
     </>
   );
 }
@@ -315,10 +328,10 @@ render(<UsersPage />);
 </template>
 ```
 
-```html title="UsersTable.vue" collapsed
+```html title="UsersTableView.vue" collapsed
 <script setup lang="ts">
   import { type User } from './resources/User';
-  import { type Sort, type SortBy } from './UsersPage.vue';
+  import { type Sort, type SortBy } from './UsersTable.vue';
 
   const props = defineProps<{ users: readonly User[]; sort: Sort }>();
   const emit = defineEmits<{ sort: [sort: Sort] }>();
@@ -362,7 +375,7 @@ render(<UsersPage />);
 </template>
 ```
 
-```html title="UsersPage.vue" {40-43}
+```html title="UsersTable.vue" {39}
 <script lang="ts">
   import { All, Query } from '@data-client/rest';
   import { User } from './resources/User';
@@ -393,19 +406,34 @@ render(<UsersPage />);
 </script>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
   import { useQuery, useSuspense } from '@data-client/vue';
   import { UserResource } from './resources/User';
-  import RoleFilter from './RoleFilter.vue';
-  import UsersTable from './UsersTable.vue';
+  import UsersTableView from './UsersTableView.vue';
+
+  const props = defineProps<Args>();
+  defineEmits<{ sort: [sort: Sort] }>();
 
   await useSuspense(UserResource.getList);
+  const users = useQuery(sortedUsers, () => ({ ...props }));
+</script>
+
+<template>
+  <UsersTableView
+    :users="users ?? []"
+    :sort="{ sortBy, desc }"
+    @sort="$emit('sort', $event)"
+  />
+</template>
+```
+
+```html title="UsersPage.vue" collapsed
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import RoleFilter from './RoleFilter.vue';
+  import UsersTable, { type Sort } from './UsersTable.vue';
+
   const sort = ref<Sort>({ sortBy: 'name', desc: false });
   const isAdmin = ref<boolean>();
-  const users = useQuery(sortedUsers, () => ({
-    ...sort.value,
-    isAdmin: isAdmin.value,
-  }));
 </script>
 
 <template>
@@ -413,7 +441,7 @@ render(<UsersPage />);
     <h1 class="appTitle">Team</h1>
     <RoleFilter :is-admin="isAdmin" @change="isAdmin = $event" />
   </header>
-  <UsersTable :users="users ?? []" :sort="sort" @sort="sort = $event" />
+  <UsersTable v-bind="sort" :is-admin="isAdmin" @sort="sort = $event" />
 </template>
 ```
 
