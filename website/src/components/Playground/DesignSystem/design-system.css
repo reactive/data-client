@@ -284,10 +284,13 @@ div.playground-preview h1:first-child {
 }
 .playground-preview .author {
   flex: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   text-align: center;
+}
+/* the Avatar is a flex box (no line box to trim), so text-align can't
+   center it */
+.playground-preview .author > span {
+  width: fit-content;
+  margin-inline: auto;
 }
 .playground-preview .author small {
   display: block;
