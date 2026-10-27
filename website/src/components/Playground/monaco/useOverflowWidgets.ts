@@ -22,26 +22,8 @@ export default function useOverflowWidgets() {
     (editor: Monaco.editor.ICodeEditor) => {
       const node = options.overflowWidgetsDomNode;
       document.body.append(node);
-      // fixed widgets only move when the editor renders, so a page scroll
-      // would leave an open suggest list or parameter hint behind its line
-      // (hovers close on the mouse move that follows a scroll)
-      const followScroll = () => {
-        if (node.querySelector('.visible')) editor.render(true);
-      };
-      const listen = (on: boolean) =>
-        window[on ? 'addEventListener' : 'removeEventListener'](
-          'scroll',
-          followScroll,
-          { capture: true, passive: true },
-        );
-      editor.onDidFocusEditorWidget(() => listen(true));
-      editor.onDidBlurEditorWidget(() => listen(false));
-      // autoFocus focuses before this mount handler runs
-      if (editor.hasWidgetFocus()) listen(true);
-      editor.onDidDispose(() => {
-        listen(false);
-        node.remove();
-      });
+      editor.onDidDispose(() => node.remove());
+      followPageScroll(editor, node);
       // after mount: it creates widgets Monaco otherwise builds when idle
       setTimeout(() => measureInViewport(editor));
     },
@@ -49,6 +31,26 @@ export default function useOverflowWidgets() {
   );
 
   return { options, handleMount };
+}
+
+/**
+ * Fixed widgets only move when the editor renders, so a page scroll would
+ * leave an open suggest list or parameter hint behind its line (hovers close
+ * on the mouse move that follows a scroll). Listens only while focus is in
+ * the editor or its widgets.
+ */
+function followPageScroll(editor: Monaco.editor.ICodeEditor, node: Element) {
+  const onScroll = () => {
+    if (node.querySelector('.visible')) editor.render(true);
+  };
+  const options = { capture: true, passive: true };
+  const start = () => window.addEventListener('scroll', onScroll, options);
+  const stop = () => window.removeEventListener('scroll', onScroll, options);
+  editor.onDidFocusEditorWidget(start);
+  editor.onDidBlurEditorWidget(stop);
+  editor.onDidDispose(stop);
+  // autoFocus focuses before the mount handler runs
+  if (editor.hasWidgetFocus()) start();
 }
 
 let patched = false;
