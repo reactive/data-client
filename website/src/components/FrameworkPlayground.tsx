@@ -18,7 +18,7 @@ export default function FrameworkPlayground(
     return (
       // a demo's code shows as row's tabs
       <TypeScriptEditor
-        row={props.row || props.demo}
+        row={props.demo || props.row}
         defaultTab={props.defaultTab}
       >
         {props.children}

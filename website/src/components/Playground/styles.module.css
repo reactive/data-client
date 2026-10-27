@@ -74,7 +74,9 @@
   /* the preview header's curves fade in as it lands */
   --pg-store-fade: 120ms ease-out 180ms;
 }
-.playgroundContainer.standaloneEditor {
+/* a row (../TypeScriptEditor.tsx unless row={false}) keeps the row's own
+   sizing, so its tabs match every other row's */
+.playgroundContainer.standaloneEditor:not(.row) {
   --ifm-code-font-size: 14.4px;
 }
 .playgroundContainer.standaloneEditor > :last-child {
@@ -203,7 +205,7 @@ div.playgroundTextEdit > .playgroundHeader,
   /* height: 100%; */
   padding-top: 8px;
 }
-.playgroundContainer.standaloneEditor .playgroundEditor {
+.playgroundContainer.standaloneEditor:not(.row) .playgroundEditor {
   padding-top: 12.8px;
   padding-left: 2.8px;
 }
@@ -600,6 +602,29 @@ div.playgroundTextEdit > .playgroundHeader,
 /* the app's sheet's foot is only its corners */
 .row > .previewWrapper::after {
   max-height: var(--pg-card-radius);
+}
+/* The code card's foot is drawn up over the empty 10px gutter under the
+   last line (Monaco's containerGutter, the static view's padding), so the
+   space below the code is the foot's, as deep as the padding above it. The
+   code's own box ends there too, so it rounds and clips the corners the
+   foot lays over it (Monaco paints its own square background; with no
+   gutter cut there is no overlap and nothing to round). The foot's shadow
+   is clipped just inside its top edge, where its blur would darken the
+   last lines (the 4rem clears its reach at the sides and bottom) */
+.row .editorDocs {
+  --pg-gutter-cut: 10px;
+}
+.row .editorDocs > .playgroundEditor:not(:has(~ .codeHeader)) {
+  border-bottom-left-radius: var(--pg-gutter-cut);
+  border-bottom-right-radius: var(--pg-gutter-cut);
+  overflow: clip;
+}
+.row .editorDocs::after {
+  margin-top: calc(-1 * var(--pg-gutter-cut));
+  /* cut a little into the foot, over the code's box: at a fractional
+     edge, a clip right at the top lets a dark hairline of its shadow
+     through; min() keeps no cut when there is no gutter */
+  clip-path: inset(min(2px, var(--pg-gutter-cut)) -4rem -4rem);
 }
 /* A column file (EndpointPlayground's Usage) lies under the code card: on a
    layer a step deeper, tucked under the card's foot and running on below
@@ -1485,13 +1510,21 @@ div.fixtureJson + div.fixtureJson {
        its shadow shows as a hairline) */
     --pg-head-run: calc(var(--pg-head-inset) + var(--pg-card-radius) + 1px);
     display: grid;
-    grid-template-columns: minmax(0, 1fr) var(--pg-preview-col);
+    /* the preview's column exists only once something takes it, so a row
+       with none (../TypeScriptEditor.tsx) is the tabs and code card alone */
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-columns: var(--pg-preview-col);
     /* the tabs' row is the preview header's row */
     grid-template-rows: var(--pg-row) auto;
     column-gap: var(--pg-gap);
     /* the fixtures span the whole playground: the preview column is too thin
        for a response (see .fixturesPopover) */
     position: relative;
+  }
+  /* an editor with no tabs (one untitled file) and no preview has no
+     header row to hold */
+  .row.standaloneEditor:not(:has(.tabControls)) {
+    grid-template-rows: 0 auto;
   }
   .row > .playgroundTextEdit {
     grid-area: 1 / 1 / 3 / 2;
@@ -1708,6 +1741,11 @@ div.fixtureJson + div.fixtureJson {
   }
   .row > .playgroundTextEdit {
     grid-area: 1 / 1 / 2 / 2;
+  }
+  /* the shut handle sticks up into the code card's foot: keep the gutter
+     under the last line, so the handle doesn't sit on it */
+  .row:has(> .storeHost) .editorDocs {
+    --pg-gutter-cut: 0px;
   }
   /* the fixtures hang on past its foot, over the page below (it stacks
      above that while they show), so the preview never moves */

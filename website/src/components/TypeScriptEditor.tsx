@@ -7,7 +7,7 @@ import styles from './Playground/styles.module.css';
 
 export default function TypeScriptEditor({
   children,
-  row,
+  row = true,
   defaultTab,
 }: {
   children: string | React.ReactNode | React.ReactNode[];
@@ -15,16 +15,17 @@ export default function TypeScriptEditor({
   defaultTab?: string;
 }) {
   const model = useCodeDocuments(children, defaultTab);
-  const isRow = row ?? model.documents.length > 1;
 
   return (
     <div className={styles.playgroundQueryContainer}>
       <div
-        className={clsx(styles.playgroundContainer, styles.standaloneEditor)}
+        className={clsx(styles.playgroundContainer, styles.standaloneEditor, {
+          [styles.row]: row,
+        })}
       >
         <EditorSurface
           {...model}
-          layout={isRow ? 'row' : 'stacked'}
+          layout={row ? 'row' : 'stacked'}
           variant="standalone"
         />
       </div>
