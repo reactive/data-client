@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1792814405437,
+  "lastUpdate": 1793068614340,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -11219,6 +11219,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 307.77,
             "range": "± 6.0%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "17458fb27503c6c93b2b8cc9bff72abe372bfbfa",
+          "message": "fix(core): Type push/unshift with a list in ctrl.fetch() and ctrl.set() (#4421)\n\n* fix(core): Type ctrl.fetch() of push/unshift with a list body as a list\n\nCollection.push/unshift schemas are typed as the Collection adders they\nare at runtime, marking that a list body resolves a list. Controller.fetch\ngets two overloads for those endpoints (single and list body), which\nother endpoints skip by arity so their errors are unchanged.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* docs: Format changeset\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* docs(blog): Note list result type for push\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* fix(endpoint): Export CollectionArrayAdder so inferred resource types can be emitted\n\nDeclaration emit of an inferred resource() type needs to name the push/unshift\nschema (TS2883 otherwise). Also share the Array Collection guard between push\nand unshift, and cover ctrl.set with unshift and a plain Collection's push.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* fix(endpoint): Keep casts between Collection types comparable on TS < 6\n\nThe adder's _denormalizeNullable() typed as DenormalizeNullable<S['schema']>\nmade TypeScript 4.x-5.x reject casts like Collection<[T]> -> Collection<T[]>\n(github-app's Base.ts, esmodule-types CI). Inferring the schema keeps them\ncomparable with the same result type.\n\nAlso covers Values Collections having no push/unshift.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* fix(endpoint): Type polymorphic Collection adders by the Collection's items\n\npush/unshift on a polymorphic Collection (schema.Array of an entity map)\ndenormalized to the map's shape; they now resolve the Collection's own item\ntype (e.g. Todo | Group), for one item or a list. Also keeps a non-adder's\nown result when ctrl.fetch() gets a union with an adder.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* fix(endpoint): Keep adder's nullable result as before; share fetch result type\n\nRestores the adder's _denormalizeNullable() to DenormalizeNullable of the\nitem, which keeps nested fields nullable (as on master) and Collection casts\ncomparable on TS 4-5. Also covers polymorphic unshift and Denormalize, and\nnotes polymorphic results in the changeset.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* fix(endpoint): Type a polymorphic adder's nullable result as one of its entities\n\nDenormalizeNullable of a polymorphic Collection's push/unshift gave the\nentity map's shape; it now gives one of its entities or undefined, like\nschema.Array. Single-entity adders keep DenormalizeNullable of the entity.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* feat(endpoint): Type ctrl.set() of Collection push/unshift with a list\n\nCollection.push and unshift take one row or a list of rows in ctrl.set(),\nread from the same _denormalizeList schema marker ctrl.fetch() uses.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* chore: Release normalizr with the ctrl.set list typing\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* test(rest): Type-test ctrl.set() of Collection unshift with a list\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* fix(core): Reject updater functions in ctrl.set() of Collection push/unshift\n\nAn adder has no previous value, so setReducer returned early and the\nupdater never ran. Also keeps ControllerFetch out of the package exports.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* fix(core): Keep a schema-less endpoint's result when fetched in a union with an adder\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* fix(endpoint): Don't throw when Collection.push/unshift writes without args\n\nThe default collection filter read args[0][key], so ctrl.set(collection.push, row)\nthrew once a filtered list was in the store, and the write was dropped.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* docs(changeset): Scope the argless push fix to the default filter\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* refactor: Simplify adder args typing and its tests\n\nSplit list/single args only for adder endpoints, drop unshift type\ntests that repeat push's, and build the argless push test's state\nwith normalize().\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* docs(blog): Add before/after for pushing a list of items\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* refactor: Name AdderArgs's list-body flag\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* chore: Regenerate playground editor types\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n* docs(core): Note why fetch's list signatures are a TypeScript workaround\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_012mADYcnnaj6N19k7H6nHte\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-27T02:31:13Z",
+          "tree_id": "819f80e7a5b6c948a4f4f4106dcea04365efa221",
+          "url": "https://github.com/reactive/data-client/commit/17458fb27503c6c93b2b8cc9bff72abe372bfbfa"
+        },
+        "date": 1793068611822,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 250,
+            "range": "± 8.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 81.63,
+            "range": "± 7.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 555.56,
+            "range": "± 11.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 690.48,
+            "range": "± 12.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 71.69,
+            "range": "± 9.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 526.32,
+            "range": "± 11.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 500,
+            "range": "± 13.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 22.08,
+            "range": "± 8.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 109.89,
+            "range": "± 9.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 68.03,
+            "range": "± 5.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 400,
+            "range": "± 3.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 555.56,
+            "range": "± 6.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 259.78,
+            "range": "± 7.9%",
             "unit": "ops/s"
           }
         ]
