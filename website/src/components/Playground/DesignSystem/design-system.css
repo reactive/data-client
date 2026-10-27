@@ -127,13 +127,17 @@ div.playground-preview h1:first-child {
   gap: var(--ds-space-2) var(--ds-space-4);
   margin-bottom: var(--ds-space-4);
 }
-/* no more room than the caps: set solid, then the space above the caps
-   and below the baseline taken back (about even in the site's font); not
-   text-box, which Firefox lacks. Outranks Infima's `.markdown
-   h1:first-child` margin */
+/* no more room than the caps: trimmed to them, as the sheet trims a page's
+   first line. Outranks Infima's `.markdown h1:first-child` margin */
 .playground-preview .appHeader > :is(.appTitle, .meta) {
   line-height: 1;
-  margin-block: calc((1cap - 1em) / 2);
+  margin-block: 0;
+  text-box: trim-both cap alphabetic;
+}
+/* a NumberFlow keeps its own box in a trimmed line: Firefox carries the
+   trim into it, which lowers its roll mask's top fade onto the digits */
+.playground-preview :is(number-flow-react, number-flow-vue) {
+  text-box: normal;
 }
 /* a NumberFlow's roll mask pads it above and below; taken back, so a count
    (a post list's votes) doesn't grow the header */
@@ -221,6 +225,14 @@ div.playground-preview h1:first-child {
 .playground-preview .listItem > * {
   min-width: 0;
 }
+/* a row is a flex box, which a first-line trim (the sheet's, for its first
+   row) doesn't reach into: its text takes the row's own; its controls and
+   NumberFlows keep their boxes */
+.playground-preview
+  .listItem
+  > :not(button, input, select, textarea, number-flow-react, number-flow-vue) {
+  text-box: inherit;
+}
 .playground-preview .listItem p:last-child {
   margin-bottom: 0;
 }
@@ -277,9 +289,22 @@ div.playground-preview h1:first-child {
   font-size: var(--ds-text-sm);
   color: var(--ds-text-muted);
 }
+/* a flex box: the picture sits in no line box, so a first-line trim can't
+   lift it */
+.playground-preview .avatar {
+  display: flex;
+  flex: none;
+}
+.playground-preview .avatar > img {
+  border-radius: 50%;
+}
 .playground-preview .author {
   flex: none;
   text-align: center;
+}
+/* text-align doesn't reach into the avatar's flex box */
+.playground-preview .author > .avatar {
+  justify-content: center;
 }
 .playground-preview .author small {
   display: block;
@@ -533,12 +558,11 @@ div.playground-preview h1:first-child {
   font-weight: 400;
 }
 
-/* Groups a form's fields so one `disabled` locks them all */
+/* Groups a form's fields so one `disabled` locks them all; no box of its
+   own, so the fields lay out as the form's (and the sheet's trim reaches
+   the first one's caps) */
 .playground-preview fieldset {
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
+  display: contents;
 }
 .playground-preview fieldset:disabled,
 .playground-preview fieldset:disabled * {
