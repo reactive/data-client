@@ -37,6 +37,17 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
   }
 }
 
+/* Navbar menus: the label takes the item's padding, so like a plain link its
+   whole box is the target, and that box reaches under the open menu */
+.navbar__item.dropdown {
+  padding: 0;
+}
+.navbar__item.dropdown > .navbar__link {
+  display: block;
+  padding: var(--ifm-navbar-item-padding-vertical)
+    var(--ifm-navbar-item-padding-horizontal);
+}
+
 /* Navbar menus: a fine chevron in place of Infima's solid triangle */
 .dropdown > .navbar__link:after {
   width: 0.7em;
