@@ -13,7 +13,14 @@ import {
   type ActionTypes,
   type State,
 } from '@data-client/react';
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import React, { Suspense } from 'react';
 
 import {
@@ -77,12 +84,15 @@ const updatePost = new Endpoint(
 /** `preview` renders beside the panel, as the live preview does */
 function mount(preview?: React.ReactNode, limit?: number) {
   const registry = new SchemaRegistry({ trimEvery: 1, limit });
-  const log = registry.log.connect(0);
+  // wired as the preview wires it (see Preview.tsx)
+  const network = new NetworkManager();
+  const log = registry.log.connect(0, undefined, action =>
+    network.skipLogging(action),
+  );
   const managers = [
     log.head,
     registry,
-    new NetworkManager(),
-    new SubscriptionManager(PollingSubscription),
+    ...log.track([network, new SubscriptionManager(PollingSubscription)]),
     log.tail,
   ];
   const ref: { ctrl?: Controller } = {};
@@ -105,6 +115,19 @@ function mount(preview?: React.ReactNode, limit?: number) {
     /** Shows another store's history */
     show: (history: number) => rerender(ui(history)),
   };
+}
+
+/** Runs `run` with React scheduling on its own, as it does in the browser,
+ * rather than inside act() */
+async function scheduledByReact(run: () => Promise<void>) {
+  const env = globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean };
+  const actEnvironment = env.IS_REACT_ACT_ENVIRONMENT;
+  env.IS_REACT_ACT_ENVIRONMENT = false;
+  try {
+    await run();
+  } finally {
+    env.IS_REACT_ACT_ENVIRONMENT = actEnvironment;
+  }
 }
 
 const subscribe = (key = 'k') => ({
@@ -1142,11 +1165,7 @@ describe('Store Actions pane', () => {
       history().entries.filter(e => e.action.type === actionTypes.FETCH);
     const { history } = mount(<Later />);
     openPane();
-    // React schedules on its own, as it does in the browser
-    const env = globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean };
-    const actEnvironment = env.IS_REACT_ACT_ENVIRONMENT;
-    env.IS_REACT_ACT_ENVIRONMENT = false;
-    try {
+    await scheduledByReact(async () => {
       read();
       await new Promise(resolve => setTimeout(resolve, 100));
       // React retries a suspended component once or twice on its own; were
@@ -1154,10 +1173,60 @@ describe('Store Actions pane', () => {
       expect(fetches().length).toBeLessThanOrEqual(3);
       respond();
       await screen.findByText('1 posts');
-    } finally {
-      env.IS_REACT_ACT_ENVIRONMENT = actEnvironment;
-    }
+    });
     expect(rows()).toHaveLength(1);
+  });
+
+  it('lets a transition wait on new args without a fetch loop', async () => {
+    const responds = new Map<string, () => void>();
+    const search = new Endpoint(
+      ({ q }: { q: string }) =>
+        new Promise<void>(resolve => {
+          responds.set(q, resolve);
+        }).then(() => [{ id: q, title: q }]),
+      {
+        schema: [Post],
+        key: ({ q }: { q: string }) => `GET https://example.com/search?q=${q}`,
+      },
+    );
+    function Results({ q }: { q: string }) {
+      return <p>Results for {useSuspense(search, { q })[0].title}</p>;
+    }
+    let searchFor = (q: string) => {};
+    function Search() {
+      const [q, setQ] = React.useState('a');
+      searchFor = next => React.startTransition(() => setQ(next));
+      return (
+        <Suspense fallback="loading">
+          <Results q={q} />
+        </Suspense>
+      );
+    }
+    const { history } = mount(<Search />);
+    const fetchesOf = (q: string) =>
+      history().entries.filter(
+        e =>
+          e.action.type === actionTypes.FETCH &&
+          e.action.key.endsWith(`q=${q}`),
+      );
+    openPane();
+    await scheduledByReact(async () => {
+      await waitFor(() => expect(responds.has('a')).toBe(true));
+      responds.get('a')!();
+      await screen.findByText('Results for a');
+      searchFor('b');
+      await new Promise(resolve => setTimeout(resolve, 100));
+      // the transition keeps showing "a" while "b" loads. The panel shows the
+      // request, React retries the transition for that render, and the retry
+      // shares the request (or React skips it). Were the panel to show that
+      // one too, each retry would bring another
+      const [first, ...shared] = fetchesOf('b');
+      expect(first.deduped).toBe(false);
+      expect(shared.length).toBeLessThanOrEqual(1);
+      expect(shared.every(e => e.deduped)).toBe(true);
+      responds.get('b')!();
+      await screen.findByText('Results for b');
+    });
   });
 
   it('shows a response the store failed to process as an error', async () => {

@@ -242,13 +242,14 @@ Styled elements: `h2` (page title), `button` (`primary` fills one;
 | ------------------------------------------ | ------------------------------------------------------------------------------- |
 | `appHeader` + `appTitle`                   | the app's top bar and wordmark                                                  |
 | `card`                                     | a group (no box: the sheet is the card)                                         |
-| `list`, `listItem` (`nogap`, `spaced`)     | rows; checkbox rows highlight and fade when done                                |
+| `list`, `listItem` (`nogap`, `spaced`)     | rows; checkbox rows highlight and fade when done; `aria-busy` fades stale rows  |
 | `meta`                                     | secondary text; last in a `listItem`, it sits at the row's end                  |
 | `value`                                    | a row's figure (a price); last in a `listItem`, at the row's end, tabular       |
 | `byline`, `author` (`Avatar` takes `size`) | who wrote something                                                             |
 | `pill`                                     | a label after a name (an admin), in the accent                                  |
 | `buttonGroup`                              | segmented actions (Fail Soft, Fail Hard)                                        |
 | `segmented`                                | a filter's 2-4 choices on a track; `aria-pressed` marks the pick, a pill slides |
+| `search` (a `label`)                       | `input type="search"`, `button.clear`; `aria-busy` spins its magnifier          |
 | `cancel` (`<CancelButton />`)              | a row's remove button                                                           |
 | `skeleton`                                 | a value still loading; `<Loading />`, the default fallback, draws a page        |
 | `toaster`, `toast`                         | notifications: render `<Toaster />`, call `toast.success()` or `toast.error()`  |
@@ -257,6 +258,9 @@ Styled elements: `h2` (page title), `button` (`primary` fills one;
 | `stats` (a `dl`)                           | figures side by side, each large over its label; a lone one fills the row       |
 | `stepper` (− `output` +)                   | a quantity's buttons around its count (one button alone: Add); in a row         |
 | `table` (`value` cells), `sort` (a button) | rule-free rows (no hover); a `th`'s `button.sort` sorts, `aria-sort` marks it   |
+
+A `search` input needs a `placeholder`: its clear button hides while the
+placeholder shows, the one way CSS can tell the field is empty.
 
 ## Auto-run
 

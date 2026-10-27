@@ -14,71 +14,55 @@ Useful to avoid spamming network requests when parameters might change quickly (
 
 ## Usage
 
-```ts title="IssueQuery"
-import { RestEndpoint, Entity, Collection } from '@data-client/rest';
-import { Temporal } from 'temporal-polyfill';
+```ts title="resources/Issue"
+import { Entity, RestEndpoint } from '@data-client/rest';
 
 export class Issue extends Entity {
+  id = 0;
   number = 0;
-  repository_url = '';
-  labels_url = '';
-  html_url = '';
-  body = '';
   title = '';
-  state: 'open' | 'closed' = 'open';
-  locked = false;
-  comments = 0;
-  created_at = Temporal.Instant.fromEpochMilliseconds(0);
-  updated_at = Temporal.Instant.fromEpochMilliseconds(0);
-  closed_at: Temporal.Instant | null = null;
-  authorAssociation = 'NONE';
-  pullRequest: Record<string, any> | null = null;
-  declare draft?: boolean;
+  user = { login: '', avatar_url: '' };
 
-  static schema = {
-    created_at: Temporal.Instant.from,
-    updated_at: Temporal.Instant.from,
-    closed_at: Temporal.Instant.from,
-  };
-
-  pk() {
-    return [this.repository_url, this.number].join(',');
-  }
+  static key = 'Issue';
 }
 
-export const issueQuery = new RestEndpoint({
+export const searchIssues = new RestEndpoint({
   urlPrefix: 'https://api.github.com',
   path: '/search/issues',
   searchParams: {} as { q: string },
-  paginationField: 'page',
-  schema: {
-    incomplete_results: false,
-    items: new Collection([Issue]),
-    total_count: 0,
-  },
+  schema: { items: [Issue] },
 });
 ```
 
 ```html title="IssueList.vue"
 <script setup lang="ts">
-  import { computed } from 'vue';
   import { useSuspense } from '@data-client/vue';
-  import { issueQuery } from './IssueQuery';
+  import { searchIssues } from './resources/Issue';
 
   const props = defineProps<{
-    query: string;
-    owner: string;
-    repo: string;
+    search: string;
+    /** still the last search's: the query changed since */
+    stale: boolean;
   }>();
-  const response = await useSuspense(issueQuery, computed(() => ({
-    q: `${props.query} repo:${props.owner}/${props.repo} is:issue`,
-  })));
+  const response = await useSuspense(searchIssues, () => ({
+    q: `${props.search} repo:facebook/react is:issue`,
+  }));
 </script>
 
 <template>
-  <small style="display: block">{{ response.total_count }} results</small>
-  <div v-for="issue in response.items.slice(0, 5)" :key="issue.pk()">
-    <a :href="issue.html_url" target="_blank">{{ issue.title }}</a>
+  <p v-if="!response.items.length" class="meta">No issues match</p>
+  <div v-else class="list" :aria-busy="stale">
+    <div
+      v-for="issue in response.items"
+      :key="issue.pk()"
+      class="listItem"
+    >
+      <Avatar :src="issue.user.avatar_url" />
+      <div>
+        <h4>{{ issue.title }}</h4>
+        <small>#{{ issue.number }} by {{ issue.user.login }}</small>
+      </div>
+    </div>
   </div>
 </template>
 ```
@@ -92,6 +76,12 @@ export const issueQuery = new RestEndpoint({
   const query = ref('');
   const [debouncedQuery, isPending] = useDebounce(query, 200);
 
+  const input = ref<HTMLInputElement>();
+  function clear() {
+    query.value = '';
+    input.value?.focus();
+  }
+
   const error = ref<Error | null>(null);
   onErrorCaptured(e => {
     error.value = e;
@@ -100,23 +90,31 @@ export const issueQuery = new RestEndpoint({
 </script>
 
 <template>
-  <TextInput
-    spellcheck="false"
-    placeholder="Search react issues"
-    v-model="query"
-    :loading="isPending"
-    autofocus
-    size="large"
-  >
-    <SearchIcon />
-  </TextInput>
+  <header class="appHeader">
+    <h1 class="appTitle">Issues</h1>
+  </header>
+  <label class="search" :aria-busy="isPending">
+    <input
+      ref="input"
+      v-model="query"
+      type="search"
+      aria-label="Search issues"
+      placeholder="Search issues"
+    />
+    <button
+      type="button"
+      class="clear"
+      aria-label="Clear search"
+      @click="clear"
+    />
+  </label>
   <ErrorMessage
     v-if="error"
     :error="error"
     :resetErrorBoundary="() => (error = null)"
   />
   <Suspense v-else>
-    <IssueList :query="debouncedQuery" owner="react" repo="react" />
+    <IssueList :search="debouncedQuery" :stale="isPending" />
     <template #fallback><Loading /></template>
   </Suspense>
 </template>

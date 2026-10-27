@@ -13,102 +13,97 @@ Useful to avoid spamming network requests when parameters might change quickly (
 
 ## Usage
 
-```ts title="IssueQuery"
-import { RestEndpoint, Entity, Collection } from '@data-client/rest';
-import { Temporal } from 'temporal-polyfill';
+```ts title="resources/Issue"
+import { Entity, RestEndpoint } from '@data-client/rest';
 
 export class Issue extends Entity {
+  id = 0;
   number = 0;
-  repository_url = '';
-  labels_url = '';
-  html_url = '';
-  body = '';
   title = '';
-  state: 'open' | 'closed' = 'open';
-  locked = false;
-  comments = 0;
-  created_at = Temporal.Instant.fromEpochMilliseconds(0);
-  updated_at = Temporal.Instant.fromEpochMilliseconds(0);
-  closed_at: Temporal.Instant | null = null;
-  authorAssociation = 'NONE';
-  pullRequest: Record<string, any> | null = null;
-  declare draft?: boolean;
+  user = { login: '', avatar_url: '' };
 
-  static schema = {
-    created_at: Temporal.Instant.from,
-    updated_at: Temporal.Instant.from,
-    closed_at: Temporal.Instant.from,
-  };
-
-  pk() {
-    return [this.repository_url, this.number].join(',');
-  }
+  static key = 'Issue';
 }
 
-export const issueQuery = new RestEndpoint({
+export const searchIssues = new RestEndpoint({
   urlPrefix: 'https://api.github.com',
   path: '/search/issues',
   searchParams: {} as { q: string },
-  paginationField: 'page',
-  schema: {
-    incomplete_results: false,
-    items: new Collection([Issue]),
-    total_count: 0,
-  },
+  schema: { items: [Issue] },
 });
 ```
 
 ```tsx title="IssueList"
 import React from 'react';
 import { useSuspense } from '@data-client/react';
-import { issueQuery } from './IssueQuery';
+import { searchIssues } from './resources/Issue';
 
-function IssueList({ query, owner, repo }) {
-  const q = `${query} repo:${owner}/${repo} is:issue`;
-  const response = useSuspense(issueQuery, { q });
+function IssueList({ search, stale }: Props) {
+  const { items } = useSuspense(searchIssues, {
+    q: `${search} repo:facebook/react is:issue`,
+  });
+  if (!items.length) return <p className="meta">No issues match</p>;
   return (
-    <>
-      <small style={{ display: 'block' }}>
-        {response.total_count} results
-      </small>
-      {response.items.slice(0, 5).map(issue => (
-        <div key={issue.pk()}>
-          <a href={issue.html_url} target="_blank">
-            {issue.title}
-          </a>
+    <div className="list" aria-busy={stale}>
+      {items.map(issue => (
+        <div key={issue.pk()} className="listItem">
+          <Avatar src={issue.user.avatar_url} />
+          <div>
+            <h4>{issue.title}</h4>
+            <small>
+              #{issue.number} by {issue.user.login}
+            </small>
+          </div>
         </div>
       ))}
-    </>
+    </div>
   );
 }
-export default React.memo(IssueList) as typeof IssueList;
+// re-renders when its props change, not on every keystroke
+export default React.memo(IssueList);
+interface Props {
+  search: string;
+  /** still the last search's: the query changed since (React's isPending
+   * starts only once the new search does) */
+  stale: boolean;
+}
 ```
 
-```tsx title="SearchIssues" {9}
+```tsx title="SearchIssues" {7}
 import React from 'react';
-import { AsyncBoundary } from '@data-client/react';
-import { useDebounce } from '@data-client/react';
+import { AsyncBoundary, useDebounce } from '@data-client/react';
 import IssueList from './IssueList';
 
 export default function SearchIssues() {
   const [query, setQuery] = React.useState('');
-  const handleChange = e => setQuery(e.currentTarget.value);
   const [debouncedQuery, isPending] = useDebounce(query, 200);
+  const input = React.useRef<HTMLInputElement>(null);
   return (
     <>
-      <TextInput
-        spellCheck="false"
-        placeholder="Search react issues"
-        value={query}
-        onChange={handleChange}
-        loading={isPending}
-        autoFocus
-        size="large"
-      >
-        <SearchIcon />
-      </TextInput>
+      <header className="appHeader">
+        <h1 className="appTitle">Issues</h1>
+      </header>
+      <label className="search" aria-busy={isPending}>
+        <input
+          ref={input}
+          type="search"
+          aria-label="Search issues"
+          placeholder="Search issues"
+          value={query}
+          onChange={e => setQuery(e.currentTarget.value)}
+        />
+        <button
+          type="button"
+          className="clear"
+          aria-label="Clear search"
+          onClick={() => {
+            setQuery('');
+            input.current?.focus();
+          }}
+        />
+      </label>
       <AsyncBoundary fallback={<Loading />} errorComponent={ErrorMessage}>
-        <IssueList query={debouncedQuery} owner="react" repo="react" />
+        <IssueList search={debouncedQuery} stale={query !== debouncedQuery} />
       </AsyncBoundary>
     </>
   );

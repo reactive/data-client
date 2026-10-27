@@ -529,7 +529,11 @@ export default class ActionLog {
       ...(i >= 0 && { entries: entries.with(i, { ...entries[i], ...fields }) }),
       ...historyFields,
     });
-    this.notify();
+    // A read that starts a request shows while it waits; rendering the panel
+    // for it retries a suspended render once, and that retry's read shares
+    // the request. Were that one shown too, each retry would bring another
+    // (see `append`), so a read sharing a request shows with the response
+    if (!entries[i]?.deduped) this.notify();
   }
 
   /** Listeners hear once per task, never during the render that
