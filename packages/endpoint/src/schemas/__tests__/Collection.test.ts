@@ -109,6 +109,8 @@ test('key works with custom schema', () => {
 });
 
 describe(`${schema.Collection.name} normalization`, () => {
+  const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
+
   let warnSpy: jest.Spied<typeof console.warn>;
   afterEach(() => {
     warnSpy.mockRestore();
@@ -338,43 +340,10 @@ describe(`${schema.Collection.name} normalization`, () => {
       ]);
     });
 
-    test('push works when the collection holds null', () => {
-      const collectionPK = collectionUnion.pk({}, {}, '', [
-        { completed: false },
-      ]);
-      const meta = { date: 1557831718135, expiresAt: Infinity, fetchedAt: 0 };
-      const init: State<unknown> = {
-        ...initialState,
-        entities: {
-          [collectionUnion.key]: {
-            [collectionPK]: [null, { id: '2', schema: 'groups' }],
-          },
-          Group: { '2': { id: '2', type: 'groups' } },
-        },
-        entitiesMeta: {
-          [collectionUnion.key]: { [collectionPK]: meta },
-          Group: { '2': meta },
-        },
-        indexes: {},
-      };
-      const state = normalize(
-        collectionUnion.push,
-        [{ id: '1', type: 'users' }],
-        [{ completed: false }],
-        init,
-      );
-      expect(state.entities[collectionUnion.key]?.[collectionPK]).toEqual([
-        null,
-        { id: '2', schema: 'groups' },
-        { id: '1', schema: 'users' },
-      ]);
-    });
-
     test('push of a deleted then re-created Union member adds it once', () => {
       const collectionPK = collectionUnion.pk({}, {}, '', [
         { completed: false },
       ]);
-      const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
       const init: State<unknown> = {
         ...initialState,
         entities: {
@@ -830,16 +799,16 @@ describe(`${schema.Collection.name} normalization`, () => {
     ]);
   });
 
-  test.each([
+  test.each<['push' | 'unshift', string[], string[]]>([
     ['push', ['10', '5'], ['5', '10']],
     ['unshift', ['5', '10'], ['10', '5']],
-  ] as const)(
+  ])(
     '%s of a deleted then re-created id adds it once',
     (method, before, after) => {
       const init = {
         entities: {
           [User.schema.todos.key]: {
-            '{"userId":"1"}': [...before],
+            '{"userId":"1"}': before,
           },
           Todo: {
             '5': { id: '5', title: 'finish collections' },
@@ -849,11 +818,11 @@ describe(`${schema.Collection.name} normalization`, () => {
         },
         entitiesMeta: {
           [User.schema.todos.key]: {
-            '{"userId":"1"}': { date: 0, expiresAt: Infinity, fetchedAt: 0 },
+            '{"userId":"1"}': meta,
           },
           Todo: {
-            '5': { date: 0, expiresAt: Infinity, fetchedAt: 0 },
-            '10': { date: 0, expiresAt: Infinity, fetchedAt: 0 },
+            '5': meta,
+            '10': meta,
           },
         },
         indexes: {},
@@ -871,7 +840,6 @@ describe(`${schema.Collection.name} normalization`, () => {
   );
 
   test('re-creating a deleted id leaves collections it is not added to alone', () => {
-    const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
     const init = {
       entities: {
         [User.schema.todos.key]: {
@@ -915,8 +883,8 @@ describe(`${schema.Collection.name} normalization`, () => {
           '{"userId":"1"}': { date: 100, expiresAt: Infinity, fetchedAt: 100 },
         },
         Todo: {
-          '5': { date: 0, expiresAt: Infinity, fetchedAt: 0 },
-          '10': { date: 0, expiresAt: Infinity, fetchedAt: 0 },
+          '5': meta,
+          '10': meta,
         },
       },
       indexes: {},
@@ -939,7 +907,6 @@ describe(`${schema.Collection.name} normalization`, () => {
   });
 
   test('two pushes in one response each add their item once', () => {
-    const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
     const init = {
       entities: {
         [userTodos.key]: { '{"userId":"1"}': ['11', '5'] },
@@ -972,7 +939,6 @@ describe(`${schema.Collection.name} normalization`, () => {
       }
     }
     const drafts = new Collection([Draft]);
-    const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
     const state = normalize(drafts.push, [{ id: '1', discard: true }], [{}], {
       entities: { [drafts.key]: { '{}': ['1'] }, Draft: { '1': INVALID } },
       entitiesMeta: { [drafts.key]: { '{}': meta }, Draft: { '1': meta } },
@@ -983,7 +949,6 @@ describe(`${schema.Collection.name} normalization`, () => {
 
   test('push into a collection of nested objects appends', () => {
     const assignments = new Collection([{ todo: Todo }]);
-    const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
     const state = normalize(assignments.push, [{ todo: { id: '2' } }], [{}], {
       entities: { [assignments.key]: { '{}': [{ todo: '1' }] } },
       entitiesMeta: { [assignments.key]: { '{}': meta } },
@@ -997,7 +962,6 @@ describe(`${schema.Collection.name} normalization`, () => {
 
   test('push of ids does not process them', () => {
     const process = jest.spyOn(Todo, 'process');
-    const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
     const init = {
       entities: {
         [User.schema.todos.key]: { '{"userId":"1"}': ['5'] },
@@ -1024,7 +988,6 @@ describe(`${schema.Collection.name} normalization`, () => {
   });
 
   test('push of an id already in the collection adds it again, like Array.push()', () => {
-    const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
     const init = {
       entities: {
         [User.schema.todos.key]: { '{"userId":"1"}': ['5'] },

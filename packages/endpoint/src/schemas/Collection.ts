@@ -1,6 +1,5 @@
 import ArraySchema from './Array.js';
 import { consistentSerialize } from './consistentSerialize.js';
-import { getValues } from './utils.js';
 import Values from './Values.js';
 import {
   IDenormalizeDelegate,
@@ -365,12 +364,18 @@ function normalizeCreate(
   if (isArray && !Array.isArray(input)) input = [input];
   // before normalizing input, which revives an entity re-created with a deleted pk
   const deleted =
-    isArray ? deletedRefs(this.schema, input, parent, key, delegate) : [];
+    isArray ? deletedIndexes(this.schema, input, parent, key, delegate) : [];
   const normalizedValue = this.schema.normalize(input, parent, key, delegate);
   // parent is args when not nested
   const filterCollections = (this.createCollectionFilter as any)(...args);
   // add to any collections that match this
-  const target = deleted.length ? withoutRefs(this, deleted) : this;
+  const target =
+    deleted.length ?
+      withoutRefs(
+        this,
+        deleted.map(i => normalizedValue[i]),
+      )
+    : this;
   const entities = delegate.getEntities(this.key);
   if (entities)
     for (const collectionKey of entities.keys()) {
@@ -380,20 +385,21 @@ function normalizeCreate(
   return normalizedValue as any;
 }
 
-/** Refs to the incoming items whose entity was deleted.
+/** Indexes of the incoming items whose entity was deleted.
  *
  * A deleted entity's ref stays in its collections, where denormalize skips it.
- * Re-creating that pk would show it twice, so those refs are dropped first.
+ * Re-creating that pk would show it twice, so its old ref is dropped first.
  */
-function deletedRefs(
+function deletedIndexes(
   members: any,
-  input: any,
+  input: any[],
   parent: any,
   key: string,
   delegate: INormalizeDelegate,
-): NormalizedRef[] {
-  const refs: NormalizedRef[] = [];
-  for (const item of getValues(input)) {
+): number[] {
+  const indexes: number[] = [];
+  for (let i = 0; i < input.length; i++) {
+    const item = input[i];
     // refs (ids) pass through normalize, so they can't revive an entity
     if (typeof item !== 'object' || item === null) continue;
     const schema = members.inferSchema(item, parent, key);
@@ -404,14 +410,9 @@ function deletedRefs(
     if (processed === undefined) continue;
     const pk = `${schema.pk(processed, parent, key, delegate.args)}`;
     // Invalidate stores a symbol in place of the entity
-    if (typeof delegate.getEntity(schema.key, pk) !== 'symbol') continue;
-    refs.push(
-      members.isSingleSchema ? pk : (
-        { id: pk, schema: members.getSchemaAttribute(item, parent, key) }
-      ),
-    );
+    if (typeof delegate.getEntity(schema.key, pk) === 'symbol') indexes.push(i);
   }
-  return refs;
+  return indexes;
 }
 
 /** Merges like `collection`, after dropping `refs` from the stored list */
