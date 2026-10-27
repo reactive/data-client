@@ -722,6 +722,14 @@ describe('Store panel pipeline', () => {
     screen
       .getByRole('region', { name: 'Actions' })
       .querySelectorAll('[role="button"][aria-expanded]');
+  /** The steps an open row shows */
+  const steps = () =>
+    screen
+      .getByRole('region', { name: 'Actions' })
+      .querySelectorAll('[role="button"]:not([aria-expanded])');
+  /** Whether the timeline's mark for `name` is the moment's */
+  const selected = (name: RegExp) =>
+    !!screen.getByRole('button', { name }).dataset.selected;
 
   it('draws the app, the chain and the store, with what each sent and kept', async () => {
     const stream = new StreamManager();
@@ -966,17 +974,19 @@ describe('Store panel pipeline', () => {
     await screen.findAllByRole('group', { name: /^Path/ });
     // the request's own steps: only the app's fetch, not NetworkManager's
     // response
-    const steps = screen
-      .getByRole('region', { name: 'Actions' })
-      .querySelectorAll('[role="button"]:not([aria-expanded])');
-    expect([...steps].map(s => s.textContent)).toEqual([
+    expect([...steps()].map(s => s.textContent)).toEqual([
       expect.stringMatching(/fetch$/),
     ]);
-    fireEvent.click(steps[0]);
+    fireEvent.click(steps()[0]);
+    expect(selected(/^fetch at/)).toBe(true);
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
     // on past the hidden response, to live
-    const response = screen.getByRole('button', { name: /^setResponse at/ });
-    expect(response.dataset.selected).toBeUndefined();
+    expect(selected(/^fetch at/)).toBe(false);
+    expect(selected(/^setResponse at/)).toBe(false);
+    // and back from live past it, to the fetch
+    fireEvent.click(screen.getByRole('button', { name: 'Previous change' }));
+    expect(selected(/^fetch at/)).toBe(true);
+    expect(selected(/^setResponse at/)).toBe(false);
   });
 
   it("shows the picked stage's newest action live", async () => {

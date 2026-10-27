@@ -135,7 +135,8 @@ export interface Listing {
   /** The rows' requests: where the surface steps */
   readonly requests: Requests;
   readonly hit: (entry: LogEntry) => boolean;
-  /** Which of a listed row's steps the list shows */
+  /** Which of a listed row's steps the list shows: an action alone steps
+   * through only these */
   readonly lists: (entry: LogEntry) => boolean;
 }
 
@@ -143,9 +144,9 @@ export interface Listing {
  * newest, `live`) lands, at its depth (see `Scope`). An action alone steps
  * an action at a time through the steps the listed rows show. Otherwise it
  * steps a request at a time (see `requestsOf`), a picked row stepping from
- * its request at the moment. Live is a place past
- * the last request: stepping on from it reaches live, stepping back from
- * live the last request. `null` is live; `undefined` has nowhere to go */
+ * its request at the moment. Live is a place past the last request:
+ * stepping on from it reaches live, stepping back from live the last
+ * request. `null` is live; `undefined` has nowhere to go */
 export function stepAt(
   { entries, groups, listed, requests, hit, lists }: Listing,
   entry: LogEntry | undefined,
