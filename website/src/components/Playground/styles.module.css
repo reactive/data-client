@@ -1374,13 +1374,13 @@ div.fixtureJson + div.fixtureJson {
   overflow-wrap: anywhere;
 }
 
-.playgroundEditor :global(.monaco-editor),
-.overflowWidgets {
+.playgroundEditor :global(.monaco-editor) {
   --monaco-monospace-font: var(--ifm-font-family-monospace);
 }
 /* the editors' hovers and suggestions (../monaco/useOverflowWidgets.ts): over
    everything, the navbar included */
 :global(.monaco-editor).overflowWidgets {
+  --monaco-monospace-font: var(--ifm-font-family-monospace);
   position: fixed;
   inset: 0 auto auto 0;
   z-index: calc(var(--ifm-z-index-overlay) + 1);

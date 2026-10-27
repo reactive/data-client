@@ -41,7 +41,9 @@ export default function useOverflowWidgets() {
  */
 function followPageScroll(editor: Monaco.editor.ICodeEditor, node: Element) {
   const onScroll = () => {
-    if (node.querySelector('.visible')) editor.render(true);
+    // set by Monaco on every content widget it is showing
+    if (node.querySelector('[monaco-visible-content-widget]'))
+      editor.render(true);
   };
   const options = { capture: true, passive: true };
   const start = () => window.addEventListener('scroll', onScroll, options);
@@ -57,9 +59,9 @@ let patched = false;
 
 /**
  * Monaco's hover and suggest list pick above or below the line by room
- * measured from the page's top (scroll included), so on a scrolled page they
- * pick above and, fixed, land on the line. Run them with scrollY 0 so they
- * measure in the viewport. Patches the classes every editor shares, found
+ * measured from the page's top (scroll included) against the window's
+ * height, so on a scrolled page they pick above; fixed, they land on the
+ * line. Run them with scrollY 0 so they measure in the viewport. Patches the classes every editor shares, found
  * through the first editor's widgets; if an upgrade renames these private
  * methods, they just keep preferring above.
  */
@@ -79,9 +81,9 @@ function measureInViewport(editor: Monaco.editor.ICodeEditor) {
   patchMethod(suggest, '_layout');
 }
 
-function patchMethod(instance: object | undefined, name: string) {
-  const proto = instance && Object.getPrototypeOf(instance);
-  const original = proto?.[name];
+function patchMethod(instance: object, name: string) {
+  const proto = Object.getPrototypeOf(instance);
+  const original = proto[name];
   if (typeof original !== 'function') return;
   proto[name] = function (this: unknown, ...args: unknown[]) {
     // an own accessor in Chromium; a prototype one elsewhere
