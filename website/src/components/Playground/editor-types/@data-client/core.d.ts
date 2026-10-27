@@ -380,7 +380,9 @@ type SetManyValue<S> = S extends readonly (infer E)[] ? true extends IsUnion<E> 
     'Use a Union schema for several Entity types': never;
 }[] : readonly SetRow<Denormalize<E>>[] : SetValue<S>;
 /** Raw input `set()` normalizes for a Queryable */
-type SetValue<S> = InputSchema<InputSchema<InputSchema<S>>> extends infer N ? N extends EntityInterface ? SetRow<Denormalize<N>> : SetInput<Denormalize<N>> : never;
+type SetValue<S> = InputSchema<InputSchema<InputSchema<S>>> extends infer N ? N extends EntityInterface ? SetRow<Denormalize<N>> : N extends {
+    _denormalizeList(): infer L;
+} ? SetInput<Denormalize<N>> | SetInput<L> : SetInput<Denormalize<N>> : never;
 /** Query normalizes with its inner schema; its process() output is not input
  *
  * Applied three times in SetValue to unwrap nested Queries (TS 4.0 has no recursive aliases)
@@ -489,6 +491,71 @@ type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined | 
 type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source>, ...args: any) => {
     [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
 };
+
+/** Args ending in a list body: (body) or (params, body), like RestEndpoint's.
+ * Fixed lengths since TS < 4.2 has no leading-rest tuples */
+type ListBodyArgs = readonly [readonly any[]] | readonly [any, readonly any[]];
+/** Rest args longer than any endpoint call's, so a signature using them is skipped by arity instead of reporting errors */
+type NoCall = readonly [
+    never,
+    never,
+    never,
+    never,
+    never,
+    never,
+    never,
+    never,
+    never,
+    never
+];
+/** Adds an all-never twin of each args member, so a union that would collapse to one member
+ * still reports errors over all args, like the endpoint's own (split by body) union does */
+type KeepUnion<A> = A | {
+    readonly [K in keyof A]: never;
+};
+/** Args of an endpoint whose schema adds to a list (like Collection.push) and has
+ * call signatures with list bodies (like RestEndpoint.push); NoCall for every other endpoint
+ *
+ * ListBody: true for the signatures with a list body, false for the rest */
+type AdderArgs<E extends (...args: any) => any, ListBody extends boolean> = E extends {
+    schema: {
+        _denormalizeList(): any;
+    };
+} ? [
+    Extract<Parameters<E>, ListBodyArgs>
+] extends [never] ? NoCall : KeepUnion<ListBody extends true ? Extract<Parameters<E>, ListBodyArgs> : Exclude<Parameters<E>, ListBodyArgs>> : NoCall;
+/** Resolved value of a (union member) endpoint: its schema's, or its own when it has none */
+type SchemaResult<E extends (...args: any) => any> = E extends {
+    schema: infer S;
+} ? [
+    S
+] extends [undefined | null] ? ResolveType<E> : Denormalize<S> : ResolveType<E>;
+interface ControllerFetch {
+    /**
+     * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
+     * @see https://dataclient.io/docs/api/Controller#fetch
+     */
+    <E extends (...args: any) => any>(endpoint: E, ...args: AdderArgs<E, false>): Promise<SchemaResult<E>>;
+    /**
+     * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
+     *
+     * A list body on a schema that adds to a list (like Collection.push) resolves a list.
+     * The body is the last argument, after at most one params argument.
+     * @see https://dataclient.io/docs/api/Controller#fetch
+     */
+    <E extends (...args: any) => any>(endpoint: E, ...args: AdderArgs<E, true>): Promise<E extends {
+        schema: {
+            _denormalizeList(): infer L;
+        };
+    } ? L : SchemaResult<E>>;
+    /**
+     * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
+     * @see https://dataclient.io/docs/api/Controller#fetch
+     */
+    <E extends EndpointInterface & {
+        update?: EndpointUpdateFunction<E>;
+    }>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
+}
 
 declare const FETCH: 'rdc/fetch';
 declare const SET: 'rdc/set';
@@ -809,9 +876,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
      * @see https://dataclient.io/docs/api/Controller#fetch
      */
-    fetch: <E extends EndpointInterface & {
-        update?: EndpointUpdateFunction<E>;
-    }>(endpoint: E, ...args: readonly [...Parameters<E>]) => E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
+    fetch: ControllerFetch;
     /**
      * Fetches only if endpoint is considered 'stale'; otherwise returns the cached data synchronously
      * @see https://dataclient.io/docs/api/Controller#fetchIfStale
@@ -853,7 +918,9 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     set<S extends Queryable>(schema: S, ...rest: readonly [
         ...SchemaArgs<S>,
-        SkipInfer<SetValue<S> | ((previousValue: Denormalize<S>) => SetValue<S>), S>
+        SkipInfer<SetValue<S> | (S extends {
+            _denormalizeList(): any;
+        } ? never : (previousValue: Denormalize<S>) => SetValue<S>), S>
     ]): Promise<void>;
     /**
      * Sets every row of an Array or Values of one Entity (or Union) in one normalize,

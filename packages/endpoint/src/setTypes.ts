@@ -33,8 +33,10 @@ type SetRow<U> =
 /** Raw input `set()` normalizes for a Queryable */
 export type SetValue<S> =
   InputSchema<InputSchema<InputSchema<S>>> extends infer N ?
-    N extends EntityInterface ?
-      SetRow<Denormalize<N>>
+    N extends EntityInterface ? SetRow<Denormalize<N>>
+    : // adding to a list (Collection.push) takes one item or a list
+    N extends { _denormalizeList(): infer L } ?
+      SetInput<Denormalize<N>> | SetInput<L>
     : SetInput<Denormalize<N>>
   : never;
 

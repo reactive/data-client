@@ -119,7 +119,9 @@ type SetRow<U> = 0 extends 1 & U ? {
     readonly [K in Exclude<keyof U, FunctionKeys<U>>]?: SetField<U[K]>;
 } : SetField<U>;
 /** Raw input `set()` normalizes for a Queryable */
-type SetValue<S> = InputSchema<InputSchema<InputSchema<S>>> extends infer N ? N extends EntityInterface ? SetRow<Denormalize<N>> : SetInput<Denormalize<N>> : never;
+type SetValue<S> = InputSchema<InputSchema<InputSchema<S>>> extends infer N ? N extends EntityInterface ? SetRow<Denormalize<N>> : N extends {
+    _denormalizeList(): infer L;
+} ? SetInput<Denormalize<N>> | SetInput<L> : SetInput<Denormalize<N>> : never;
 /** Query normalizes with its inner schema; its process() output is not input
  *
  * Applied three times in SetValue to unwrap nested Queries (TS 4.0 has no recursive aliases)
@@ -950,13 +952,23 @@ type CollectionOptions<Args extends any[] = DefaultArgs, Parent = any> = {
     nonFilterArgumentKeys?: ((key: string) => boolean) | string[] | RegExp;
 });
 
-/** Schema when adding to an Array Collection
- * Conceptually only returns a single item
+/** Schema when adding to an Array Collection (push, unshift)
+ * Denormalizes one item for a single input, or a list for a list input.
  */
-type CollectionArrayAdder<S extends PolymorphicInterface> = S extends ({
+interface CollectionArrayAdder<S extends PolymorphicInterface, Args extends any[] = any[], Parent = any> extends Omit<CollectionInterface<S, Args, Parent>, 'denormalize' | '_denormalizeNullable' | '_normalizeNullable'> {
+    /** A list input denormalizes to a list, like the Collection's */
+    denormalize(input: readonly any[], delegate: IDenormalizeDelegate): ReturnType<S['denormalize']>;
+    denormalize(input: any, delegate: IDenormalizeDelegate): ReturnType<S['denormalize']>[number];
+    _denormalizeNullable(): S extends {
+        schema: infer T;
+    } ? T extends EntityMap<infer U> ? U | undefined : DenormalizeNullable<T> : never;
+    _normalizeNullable(): NormalizeNullable<S['schema']>;
+    _denormalizeList(): ReturnType<S['denormalize']>;
+}
+/** CollectionArrayAdder for Array Collections; never for Values Collections */
+type ArrayAdder<S extends PolymorphicInterface, Args extends any[], Parent> = S extends {
     denormalize(...args: any): any[];
-    schema: infer T;
-}) ? T : never;
+} ? CollectionArrayAdder<S, Args, Parent> : never;
 /** Schema when assigning to a Values Collection
  * Conceptually only returns a single item
  */
@@ -1052,11 +1064,11 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
     /** Schema to place at the *end* of this Collection
      * @see https://dataclient.io/rest/api/Collection#push
      */
-    push: CollectionArrayAdder<S>;
+    push: ArrayAdder<S, Args, Parent>;
     /** Schema to place at the *beginning* of this Collection
      * @see https://dataclient.io/rest/api/Collection#unshift
      */
-    unshift: CollectionArrayAdder<S>;
+    unshift: ArrayAdder<S, Args, Parent>;
     /** Schema to merge with a Values Collection
      * @see https://dataclient.io/rest/api/Collection#assign
      */
@@ -1411,7 +1423,7 @@ type schema_d_All<S extends EntityMap | EntityInterface = EntityMap | EntityInte
 declare const schema_d_All: typeof All;
 type schema_d_Collection<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = Collection<S, Args, Parent>;
 declare const schema_d_Collection: typeof Collection;
-type schema_d_CollectionArrayAdder<S extends PolymorphicInterface> = CollectionArrayAdder<S>;
+type schema_d_CollectionArrayAdder<S extends PolymorphicInterface, Args extends any[] = any[], Parent = any> = CollectionArrayAdder<S, Args, Parent>;
 type schema_d_CollectionArrayOrValuesAdder<S extends PolymorphicInterface> = CollectionArrayOrValuesAdder<S>;
 type schema_d_CollectionConstructor = CollectionConstructor;
 type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = CollectionFromSchema<S, Args, Parent>;
@@ -2487,4 +2499,4 @@ declare function useController(): Controller;
 declare function useLive<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? ResolveType$1<E> : Denormalize$1<E['schema']>;
 declare function useLive<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E['schema'] extends undefined | null ? ResolveType$1<E> | undefined : DenormalizeNullable$1<E['schema']>;
 
-export { type AbstractInstanceType, type AddEndpoint, All, Array$1 as Array, _default as AsyncBoundary, type CheckLoop, Collection, type CollectionOptions, type ContentType, type CustomResource, DataProvider, type DefaultArgs, type Defaults, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, type EntitiesInterface, type EntitiesPath, Entity, type EntityFields, type EntityInterface, type EntityMap, EntityMixin, type EntityPath, type EntityTable, type ErrorTypes$1 as ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type ExtendableRestGenerics, type ExtendedResource, type FetchFunction, type FetchGet, type FetchMutate, type FromFallBack, type GetEndpoint, type GetEntity, type GetIndex, type HookResource, type HookableEndpointInterface, type IDenormalizeDelegate, type IEntityClass, type IEntityInstance, type INormalizeDelegate, type IQueryDelegate, type RestEndpoint$1 as IRestEndpoint, type IndexPath, Invalidate, type KeyofEndpointInstance, type KeyofRestEndpoint, type KeysToArgs, Lazy, type Mergeable, type MethodToSide, type MoveEndpoint, type MutateEndpoint, type NI, NetworkError, ErrorBoundary as NetworkErrorBoundary, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedIndex, type NormalizedNullableObject, Object$1 as Object, type ObjectArgs, type OptionsToFunction, type PaginationEndpoint, type PaginationFieldEndpoint, type ParamFetchNoBody, type ParamFetchWithBody, type ParamToArgs, type PartialRestGenerics, type PathArgs, type PathArgsAndSearch, type PathKeys, type PolymorphicInterface, Query, type Queryable, type ReadEndpoint, type RecordClass, type RemoveEndpoint, type ResolveType, type Resource, type ResourceEndpointExtensions, type ResourceExtension, type ResourceGenerics, type ResourceInterface, type ResourceOptions, RestEndpoint, type RestEndpointConstructor, type RestEndpointConstructorOptions, type RestEndpointExtendOptions, type RestEndpointOptions, type RestExtendedEndpoint, type RestFetch, type RestGenerics, type RestInstance, type RestInstanceBase, type RestType, type RestTypeNoBody, type RestTypeWithBody, Scalar, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type ShortenPath, type SnapshotInterface, Union, type UnknownError, Values, type Visit, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, unshift, useCache, useController, useDLE, useError, useFetch, useLive, useQuery, useSubscription, useSuspense, validateRequired };
+export { type AbstractInstanceType, type AddEndpoint, All, Array$1 as Array, _default as AsyncBoundary, type CheckLoop, Collection, type CollectionArrayAdder, type CollectionOptions, type ContentType, type CustomResource, DataProvider, type DefaultArgs, type Defaults, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, type EntitiesInterface, type EntitiesPath, Entity, type EntityFields, type EntityInterface, type EntityMap, EntityMixin, type EntityPath, type EntityTable, type ErrorTypes$1 as ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type ExtendableRestGenerics, type ExtendedResource, type FetchFunction, type FetchGet, type FetchMutate, type FromFallBack, type GetEndpoint, type GetEntity, type GetIndex, type HookResource, type HookableEndpointInterface, type IDenormalizeDelegate, type IEntityClass, type IEntityInstance, type INormalizeDelegate, type IQueryDelegate, type RestEndpoint$1 as IRestEndpoint, type IndexPath, Invalidate, type KeyofEndpointInstance, type KeyofRestEndpoint, type KeysToArgs, Lazy, type Mergeable, type MethodToSide, type MoveEndpoint, type MutateEndpoint, type NI, NetworkError, ErrorBoundary as NetworkErrorBoundary, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedIndex, type NormalizedNullableObject, Object$1 as Object, type ObjectArgs, type OptionsToFunction, type PaginationEndpoint, type PaginationFieldEndpoint, type ParamFetchNoBody, type ParamFetchWithBody, type ParamToArgs, type PartialRestGenerics, type PathArgs, type PathArgsAndSearch, type PathKeys, type PolymorphicInterface, Query, type Queryable, type ReadEndpoint, type RecordClass, type RemoveEndpoint, type ResolveType, type Resource, type ResourceEndpointExtensions, type ResourceExtension, type ResourceGenerics, type ResourceInterface, type ResourceOptions, RestEndpoint, type RestEndpointConstructor, type RestEndpointConstructorOptions, type RestEndpointExtendOptions, type RestEndpointOptions, type RestExtendedEndpoint, type RestFetch, type RestGenerics, type RestInstance, type RestInstanceBase, type RestType, type RestTypeNoBody, type RestTypeWithBody, Scalar, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type ShortenPath, type SnapshotInterface, Union, type UnknownError, Values, type Visit, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, unshift, useCache, useController, useDLE, useError, useFetch, useLive, useQuery, useSubscription, useSuspense, validateRequired };

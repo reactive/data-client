@@ -6,7 +6,11 @@ import type {
   IDenormalizeDelegate,
   INormalizeDelegate,
 } from './interface.js';
-import type { EntityMap } from './normal.js';
+import type {
+  EntityMap,
+  DenormalizeNullable,
+  NormalizeNullable,
+} from './normal.js';
 import { CollectionOptions } from './schemas/Collection.js';
 import { default as Invalidate } from './schemas/Invalidate.js';
 
@@ -14,20 +18,45 @@ export { EntityMap, Invalidate };
 
 export { EntityInterface } from './interface.js';
 
-/** Schema when adding to an Array Collection
- * Conceptually only returns a single item
+/** Schema when adding to an Array Collection (push, unshift)
+ * Denormalizes one item for a single input, or a list for a list input.
  */
-export type CollectionArrayAdder<S extends PolymorphicInterface> =
-  S extends (
-    {
-      // ensure we are an array type
-      denormalize(...args: any): any[];
-      // get what we are an array of
-      schema: infer T;
-    }
-  ) ?
-    // TODO: eventually we want to allow singular or list and infer the return based on arguments
-    T
+export interface CollectionArrayAdder<
+  S extends PolymorphicInterface,
+  Args extends any[] = any[],
+  Parent = any,
+> extends Omit<
+  CollectionInterface<S, Args, Parent>,
+  'denormalize' | '_denormalizeNullable' | '_normalizeNullable'
+> {
+  // results come from the Collection's denormalize, since S['schema'] of a polymorphic Collection is its entity map
+  /** A list input denormalizes to a list, like the Collection's */
+  denormalize(
+    input: readonly any[],
+    delegate: IDenormalizeDelegate,
+  ): ReturnType<S['denormalize']>;
+  // last overload is what Denormalize<> reads
+  denormalize(
+    input: any,
+    delegate: IDenormalizeDelegate,
+  ): ReturnType<S['denormalize']>[number];
+
+  // infer keeps casts between Collection types comparable on TS 4-5 (DenormalizeNullable<S['schema']> doesn't);
+  // an entity map (polymorphic) yields one of its entities, like schema.Array
+  _denormalizeNullable(): S extends { schema: infer T } ?
+    T extends EntityMap<infer U> ?
+      U | undefined
+    : DenormalizeNullable<T>
+  : never;
+  _normalizeNullable(): NormalizeNullable<S['schema']>;
+  // this is not an actual member, but tells Controller.fetch() that a list body resolves a list
+  _denormalizeList(): ReturnType<S['denormalize']>;
+}
+
+/** CollectionArrayAdder for Array Collections; never for Values Collections */
+type ArrayAdder<S extends PolymorphicInterface, Args extends any[], Parent> =
+  S extends { denormalize(...args: any): any[] } ?
+    CollectionArrayAdder<S, Args, Parent>
   : never;
 
 /** Schema when assigning to a Values Collection
@@ -191,12 +220,12 @@ export interface CollectionInterface<
   /** Schema to place at the *end* of this Collection
    * @see https://dataclient.io/rest/api/Collection#push
    */
-  push: CollectionArrayAdder<S>;
+  push: ArrayAdder<S, Args, Parent>;
 
   /** Schema to place at the *beginning* of this Collection
    * @see https://dataclient.io/rest/api/Collection#unshift
    */
-  unshift: CollectionArrayAdder<S>;
+  unshift: ArrayAdder<S, Args, Parent>;
 
   /** Schema to merge with a Values Collection
    * @see https://dataclient.io/rest/api/Collection#assign

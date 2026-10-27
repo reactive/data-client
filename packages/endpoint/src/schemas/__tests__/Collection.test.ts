@@ -559,6 +559,20 @@ describe(`${schema.Collection.name} normalization`, () => {
     expect(state).toMatchSnapshot();
   });
 
+  test('push without args only adds to collections without filter keys', () => {
+    const todos = new Collection([Todo]);
+    let state = {
+      ...initialState,
+      ...normalize(todos, [{ id: '5' }], [{ userId: '1' }], initialState),
+    };
+    state = { ...state, ...normalize(todos, [{ id: '6' }], [], state) };
+    state = { ...state, ...normalize(todos.push, [{ id: '10' }], [], state) };
+    expect(state.entities[todos.key]).toEqual({
+      '{"userId":"1"}': ['5'],
+      '{}': ['6', '10'],
+    });
+  });
+
   test('normalizes remove from collection', () => {
     const init = {
       entities: {

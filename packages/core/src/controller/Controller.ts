@@ -38,6 +38,7 @@ import {
   createSetResponse,
 } from './actions/index.js';
 import ensurePojo from './ensurePojo.js';
+import type { ControllerFetch } from './fetchTypes.js';
 import type { EndpointUpdateFunction } from './types.js';
 import { ReduxMiddlewareAPI } from '../manager/applyManager.js';
 import type { GCInterface } from '../state/GCPolicy.js';
@@ -145,13 +146,10 @@ export default class Controller<
    * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
    * @see https://dataclient.io/docs/api/Controller#fetch
    */
-  fetch = <
-    E extends EndpointInterface & { update?: EndpointUpdateFunction<E> },
-  >(
-    endpoint: E,
-    ...args: readonly [...Parameters<E>]
-  ): E['schema'] extends undefined | null ? ReturnType<E>
-  : Promise<Denormalize<E['schema']>> => {
+  fetch: ControllerFetch = (
+    endpoint: EndpointInterface,
+    ...args: readonly any[]
+  ): any => {
     const action = createFetch(endpoint, {
       args,
     });
@@ -235,7 +233,10 @@ export default class Controller<
     ...rest: readonly [
       ...SchemaArgs<S>,
       SkipInfer<
-        SetValue<S> | ((previousValue: Denormalize<S>) => SetValue<S>),
+        | SetValue<S>
+        // adders (Collection.push) have no previous value to update
+        | (S extends { _denormalizeList(): any } ? never
+          : (previousValue: Denormalize<S>) => SetValue<S>),
         S
       >,
     ]
