@@ -533,12 +533,11 @@ div.playground-preview h1:first-child {
   font-weight: 400;
 }
 
-/* Groups a form's fields so one `disabled` locks them all */
+/* Groups a form's fields so one `disabled` locks them all; no box of its
+   own, so the fields lay out as the form's (and the sheet's trim reaches
+   the first one's caps) */
 .playground-preview fieldset {
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
+  display: contents;
 }
 .playground-preview fieldset:disabled,
 .playground-preview fieldset:disabled * {

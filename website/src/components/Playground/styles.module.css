@@ -1180,14 +1180,37 @@ div.playgroundTextEdit > .playgroundHeader,
 .sheet {
   flex: 1 0 auto;
   padding: var(--pg-sheet-pad);
-  /* the first line's caps sit the inset from the top, as its text does from
-     the side: its leading above them would add to the padding. Stops at a
-     border or a flex box (.appHeader trims its own caps) */
-  text-box: trim-start cap alphabetic;
   border-radius: var(--pg-sheet-radius) var(--pg-sheet-radius) 0 0;
   background: var(--pg-panel);
   /* the progress bar's corners stay inside the radius */
   overflow: clip;
+}
+/* What starts the page sits the inset from the sheet's top, as its text
+   does from the side: the first line's caps, not their leading, nor a row's
+   padding (that spaces it from the next row). Chrome carries the trim only
+   down a chain of first children with text, so past the router's progress
+   bar and into a row's or figures' items it is stated outright, and every
+   engine agrees. A row's picture keeps its box; a list's rows keep their
+   padding for the hover band; .appHeader trims its own caps */
+.sheet,
+.navProgress + * {
+  text-box: trim-start cap alphabetic;
+}
+:is(.sheet, .sheet > :first-child, .navProgress + *):not(:global(.list))
+  > :global(.listItem):first-child {
+  padding-top: 0;
+}
+:is(.sheet, .sheet > :first-child, .navProgress + *):not(:global(.list))
+  > :global(.listItem):first-child
+  > :not(:has(> img)),
+:is(.sheet, .sheet > :first-child, .navProgress + *)
+  > :global(.stats):first-child
+  dd {
+  text-box: trim-start cap alphabetic;
+}
+/* a figure that ends the page: its label's baseline, as its caps above */
+:is(.sheet, .sheet > :last-child) > :global(.stats):last-child dt {
+  text-box: trim-end cap alphabetic;
 }
 .sheet:empty {
   display: none;
