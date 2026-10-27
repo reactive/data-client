@@ -238,6 +238,12 @@ describe('stage', () => {
     expect(stage.point(one)).toBe(true);
     expect(stage.point(one)).toBe(false);
     expect(stage.point(two)).toBe(true);
+    // the page scrolled under a target that stays put (a sticky Store):
+    // the layer moved, so the pointer must glide back onto it
+    const layer = root.lastElementChild as HTMLElement;
+    layer.getBoundingClientRect = () =>
+      ({ left: 0, top: -50, width: 0, height: 0 }) as DOMRect;
+    expect(stage.point(two)).toBe(true);
   });
 
   it('the pointer follows its target when the playground resizes', () => {

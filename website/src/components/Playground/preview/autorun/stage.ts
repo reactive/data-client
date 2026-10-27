@@ -20,11 +20,11 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
   let pointedAt: HTMLElement | undefined;
 
   /** Moves the pointer onto `el`, the tip at its center; false when it was
-   * there already */
+   * drawn there already (in the layer's coordinates, which scroll with the
+   * page) */
   const place = (el: HTMLElement) => {
     const box = el.getBoundingClientRect();
     const origin = layer.getBoundingClientRect();
-    const was = at;
     at = {
       x: box.left + box.width / 2,
       y: box.top + box.height / 2,
@@ -36,13 +36,14 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
       pointer.innerHTML = POINTER_SVG;
       layer.append(pointer);
     }
+    const previous = pointer.style.transform;
     pointer.style.transform = `translate(${at.x - origin.left}px, ${at.y - origin.top}px)`;
     // the first point fades in where it is, then glides from there
     if (first) {
       void pointer.offsetWidth;
       pointer.dataset.shown = '';
     }
-    return first || at.x !== was.x || at.y !== was.y;
+    return first || pointer.style.transform !== previous;
   };
   /** A press: a ring spreads from the tip (none without Web Animations,
    * e.g. jsdom) */
