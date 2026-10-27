@@ -303,6 +303,11 @@ export default function StorePanel({
       : subjectActions,
     [pipelineShown, subjectActions, chain, stage],
   );
+  // its own value, so a new action alone doesn't make it a new one
+  const pipeline = useMemo(
+    () => (chain ? { chain, stage, pickStage, filter } : null),
+    [chain, stage, filter],
+  );
   // a moment set on purpose outranks the store a chip opened a level at;
   // the action view follows it
   const { clearAt: clearStateAt } = levels;
@@ -482,21 +487,9 @@ export default function StorePanel({
       set,
       step,
       show,
-      pipeline: chain ? { chain, stage, pickStage, filter } : null,
+      pipeline,
     }),
-    [
-      momentSeq,
-      scope,
-      current,
-      earlier,
-      later,
-      set,
-      step,
-      show,
-      chain,
-      stage,
-      filter,
-    ],
+    [momentSeq, scope, current, earlier, later, set, step, show, pipeline],
   );
   // what the peek's chips open: over the State tab's top level, in the
   // table view, with the peek closed to show it
