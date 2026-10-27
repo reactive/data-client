@@ -262,8 +262,8 @@ Styled elements: `h2` (page title), `button` (`primary` fills one;
 
 A `search` input needs a `placeholder`: its clear button hides while the
 placeholder shows, the one way CSS can tell the field is empty. A text input
-in a `listItem` (a new todo) is the row's text until focused; give it a
-`placeholder` and an `aria-label`. `aria-busy` on a text input traces its
+in a `listItem` (a new todo) is an underline until hovered or focused; give
+it an `aria-label`. `aria-busy` on a text input traces its
 border while its entry saves, like a busy button.
 
 ## Auto-run

@@ -91,7 +91,6 @@ export const TodoResource = resource({
       <input
         type="text"
         aria-label="New todo"
-        placeholder="New todo"
         @keydown="handleKeyDown"
       />
     </label>

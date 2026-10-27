@@ -86,7 +86,6 @@ export const getUsers = new RestEndpoint({
     <input
       type="text"
       aria-label="New todo"
-      placeholder="New todo"
       @keydown="handlePress"
     />
     <label>
