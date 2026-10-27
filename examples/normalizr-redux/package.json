@@ -13,7 +13,7 @@
     "node": "^22.18.0 || >=24.11.0"
   },
   "devDependencies": {
-    "@babel/core": "8.0.7",
+    "@babel/core": "8.0.9",
     "@babel/node": "8.0.6",
     "@octokit/rest": "22.0.1",
     "inquirer": "^12.0.0",
