@@ -70,9 +70,9 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
   transform: rotate(180deg);
 }
 
-/* Language menu shows only its icon in the navbar (the dropdown in the
-   selector outranks the padded menu label above, so the icon stays centered) */
-.navbar__item.dropdown > .header-locale-dropdown {
+/* Language menu shows only its icon in the navbar; the selector outranks the
+   menu label rule above, so the icon stays centered wherever either one moves */
+.navbar__item.dropdown > .navbar__link.header-locale-dropdown {
   display: flex;
   align-items: center;
   font-size: 0;
