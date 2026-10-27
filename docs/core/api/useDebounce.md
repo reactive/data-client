@@ -10,19 +10,18 @@ import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { issueFixtures } from '@site/src/fixtures/issues';
 
 export const searchDemo = [
-  // the list fades while each word is typed; one search lands per pause
-  { delay: 1200, type: 'input[aria-label="Search issues"]', text: 'suspense' },
-  { wait: 2000 },
-  { type: 'input[aria-label="Search issues"]', text: ' fallback' },
-  { wait: 2000 },
-  // 17 keystrokes, three searches: straight to the Store's action list
-  { store: 'open' },
+  // the Store's action list first, so each search lands there as it's sent
+  { delay: 800, store: 'open' },
   {
     delay: 300,
     click: { in: 'store', selector: 'button[aria-label="Actions"]' },
   },
-  { wait: 4000 },
-  // Store → Code: back to the code that did it
+  // the list fades while each word is typed; one search lands per pause
+  { delay: 1200, type: 'input[aria-label="Search issues"]', text: 'suspense' },
+  { wait: 2000 },
+  { type: 'input[aria-label="Search issues"]', text: ' fallback' },
+  { wait: 2500 },
+  // 17 keystrokes, three searches. Store → Code: back to the code that did it
   { store: 'close' },
 ];
 
