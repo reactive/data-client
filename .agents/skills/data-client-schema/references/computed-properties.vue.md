@@ -66,51 +66,295 @@ class User extends Entity {
 
 ## Global computations
 
-[Query](./Query.vue.md) can be used for computations of derived data from more than
-one entity. We generally call these aggregates.
+[Query](./Query.vue.md) derives data from many entities, like a cart's totals. This is known as an
+_aggregate_. Define it once beside your resources, then read it anywhere with
+[useQuery()](https://dataclient.io/vue/api/useQuery).
 
-```ts title="resources/User"
+Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
+
+```ts title="resources/Cart"
 import { Entity, resource } from '@data-client/rest';
 
-export class User extends Entity {
+export class Product extends Entity {
   id = '';
   name = '';
-  isAdmin = false;
+  price = 0;
 }
-export const UserResource = resource({
-  path: '/users/:id',
-  schema: User,
+export const ProductResource = resource({
+  path: '/products/:id',
+  schema: Product,
+});
+
+/** A line in the cart, keyed by its product's id */
+export class CartItem extends Entity {
+  id = '';
+  product = Product.fromJS();
+  quantity = 1;
+
+  get total() {
+    return this.quantity * this.product.price;
+  }
+
+  static schema = { product: Product };
+}
+export const CartResource = resource({
+  path: '/cart/items/:id',
+  schema: CartItem,
+  optimistic: true,
+});
+
+export const usd = { style: 'currency', currency: 'USD' } as const;
+```
+
+```ts title="getCartTotals" {6}
+import { Query } from '@data-client/rest';
+import { CartResource } from './resources/Cart';
+
+export const freeShippingAt = 50;
+
+export const getCartTotals = new Query(CartResource.getList.schema, items => {
+  const count = items.reduce((sum, item) => sum + item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+  const toFreeShipping = Math.max(0, freeShippingAt - subtotal);
+  const shipping = subtotal && toFreeShipping ? 5 : 0;
+  return {
+    count,
+    subtotal,
+    shipping,
+    total: subtotal + shipping,
+    toFreeShipping,
+  };
 });
 ```
 
-```html title="UsersPage.vue"
-<script lang="ts">
-  import { All, Query, schema } from '@data-client/rest';
-  import { UserResource, User } from './resources/User';
-
-  const getUserCount = new Query(
-    new All(User),
-    (entries, { isAdmin } = {}) => {
-      if (isAdmin !== undefined)
-        return entries.filter(user => user.isAdmin === isAdmin).length;
-      return entries.length;
-    },
-  );
-</script>
-
+```html title="CartBadge.vue"
 <script setup lang="ts">
-  import { useQuery, useSuspense } from '@data-client/vue';
+  import { useQuery } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
+  import { getCartTotals } from './getCartTotals';
+  import { usd } from './resources/Cart';
 
-  await useSuspense(UserResource.getList);
-  const userCount = useQuery(getUserCount);
-  const adminCount = useQuery(getUserCount, { isAdmin: true });
+  const totals = useQuery(getCartTotals);
 </script>
 
 <template>
-  <!-- userCount is never undefined since we suspense, but typescript does not know that -->
-  <div v-if="userCount !== undefined">
-    <div>Total users: {{ userCount }}</div>
-    <div>Total admins: {{ adminCount }}</div>
+  <RouterLink v-if="totals" to="/cart" class="meta">
+    {{ totals.count }} {{ totals.count === 1 ? 'item' : 'items' }} ·
+    <NumberFlow :value="totals.subtotal" :format="usd" />
+  </RouterLink>
+</template>
+```
+
+```html title="FreeShipping.vue"
+<script setup lang="ts">
+  import { useQuery } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
+  import { freeShippingAt, getCartTotals } from './getCartTotals';
+  import { usd } from './resources/Cart';
+
+  const totals = useQuery(getCartTotals);
+</script>
+
+<template>
+  <p v-if="totals" class="meta">
+    <template v-if="totals.toFreeShipping > 0">
+      Add <NumberFlow :value="totals.toFreeShipping" :format="usd" /> more
+      for free shipping
+    </template>
+    <template v-else>Your order ships free</template>
+    <progress :value="totals.subtotal" :max="freeShippingAt" />
+  </p>
+</template>
+```
+
+```html title="OrderSummary.vue"
+<script setup lang="ts">
+  import { useQuery } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
+  import { getCartTotals } from './getCartTotals';
+  import { usd } from './resources/Cart';
+
+  const totals = useQuery(getCartTotals);
+</script>
+
+<template>
+  <dl v-if="totals" class="stats">
+    <div>
+      <dt>Subtotal</dt>
+      <dd><NumberFlow :value="totals.subtotal" :format="usd" /></dd>
+    </div>
+    <div>
+      <dt>Shipping</dt>
+      <dd>
+        <NumberFlow
+          v-if="totals.shipping"
+          :value="totals.shipping"
+          :format="usd"
+        />
+        <template v-else>Free</template>
+      </dd>
+    </div>
+    <div>
+      <dt>Total</dt>
+      <dd><NumberFlow :value="totals.total" :format="usd" /></dd>
+    </div>
+  </dl>
+</template>
+```
+
+```html title="CheckoutButton.vue"
+<script setup lang="ts">
+  import { useQuery } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
+  import { getCartTotals } from './getCartTotals';
+  import { usd } from './resources/Cart';
+
+  const totals = useQuery(getCartTotals);
+</script>
+
+<template>
+  <button v-if="totals" class="primary">
+    Check out · <NumberFlow :value="totals.total" :format="usd" />
+  </button>
+</template>
+```
+
+```html title="QuantityStepper.vue"
+<script setup lang="ts">
+  import { useController, useQuery } from '@data-client/vue';
+  import { CartItem, CartResource, Product } from './resources/Cart';
+
+  const props = defineProps<{ product: Product }>();
+  const ctrl = useController();
+  const item = useQuery(CartItem, () => ({ id: props.product.id }));
+  const add = () =>
+    ctrl.fetch(CartResource.getList.push, {
+      id: props.product.id,
+      product: props.product,
+      quantity: 1,
+    });
+  const setQuantity = (quantity: number) =>
+    quantity ?
+      ctrl.fetch(
+        CartResource.partialUpdate,
+        { id: props.product.id },
+        { quantity },
+      )
+    : ctrl.fetch(CartResource.delete, { id: props.product.id });
+</script>
+
+<template>
+  <span class="stepper">
+    <template v-if="item">
+      <button
+        :aria-label="`Remove one ${product.name}`"
+        @click="setQuantity(item.quantity - 1)"
+      >
+        −
+      </button>
+      <output>{{ item.quantity }}</output>
+      <button
+        :aria-label="`Add one ${product.name}`"
+        @click="setQuantity(item.quantity + 1)"
+      >
+        +
+      </button>
+    </template>
+    <button v-else :aria-label="`Add ${product.name}`" @click="add">
+      Add
+    </button>
+  </span>
+</template>
+```
+
+```html title="ShopPage.vue" route="/"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import FreeShipping from './FreeShipping.vue';
+  import QuantityStepper from './QuantityStepper.vue';
+  import { CartResource, ProductResource, usd } from './resources/Cart';
+
+  const products = await useSuspense(ProductResource.getList);
+  await useSuspense(CartResource.getList);
+</script>
+
+<template>
+  <FreeShipping />
+  <div class="list">
+    <div v-for="product in products" :key="product.id" class="listItem">
+      <div>
+        {{ product.name }}
+        <div class="meta">{{ product.price.toLocaleString('en-US', usd) }}</div>
+      </div>
+      <QuantityStepper :product="product" />
+    </div>
   </div>
 </template>
 ```
+
+```html title="CartPage.vue" route="/cart"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
+  import CheckoutButton from './CheckoutButton.vue';
+  import FreeShipping from './FreeShipping.vue';
+  import OrderSummary from './OrderSummary.vue';
+  import QuantityStepper from './QuantityStepper.vue';
+  import { CartResource, usd } from './resources/Cart';
+
+  const items = await useSuspense(CartResource.getList);
+</script>
+
+<template>
+  <p v-if="!items.length" class="meta">Your cart is empty</p>
+  <template v-else>
+    <div class="list">
+      <div v-for="item in items" :key="item.id" class="listItem">
+        <div>{{ item.product.name }}</div>
+        <QuantityStepper :product="item.product" />
+        <span class="meta">
+          <NumberFlow :value="item.total" :format="usd" />
+        </span>
+      </div>
+    </div>
+    <FreeShipping />
+    <OrderSummary />
+    <CheckoutButton />
+  </template>
+</template>
+```
+
+```html title="Store.vue" layout
+<script setup lang="ts">
+  import { useFetch } from '@data-client/vue';
+  import CartBadge from './CartBadge.vue';
+  import { CartResource } from './resources/Cart';
+
+  // every page shows the cart's totals, so the cart loads with the app
+  useFetch(CartResource.getList);
+</script>
+
+<template>
+  <header class="appHeader">
+    <h1 class="appTitle">Daily Grind</h1>
+    <CartBadge />
+  </header>
+  <nav>
+    <RouterLink to="/">Shop</RouterLink>
+    <RouterLink to="/cart">Cart</RouterLink>
+  </nav>
+  <RouterView v-slot="{ Component }">
+    <Suspense timeout="0">
+      <component :is="Component" />
+      <template #fallback><Loading /></template>
+    </Suspense>
+  </RouterView>
+</template>
+```
+
+Here the cart badge, free-shipping bar, order summary and checkout button all read `getCartTotals`.
+It runs once per change, however many components read it, and returns the same object until a
+`CartItem` or `Product` it read changes. So every view agrees, even mid
+[optimistic update](https://dataclient.io/rest/api/resource#optimistic).
+
+Do not compute aggregates in components, where each copy can drift. Instead, put them in a `Query`.

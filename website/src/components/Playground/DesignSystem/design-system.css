@@ -467,12 +467,14 @@ div.playground-preview h1:first-child {
   clip-path: polygon(50% 0, 100% 100%, 0 100%);
 }
 @media (hover: hover) {
-  .playground-preview button.upvote:hover {
+  .playground-preview button.upvote:hover,
+  .playground-preview .stepper > button:hover {
     background: var(--ds-accent-soft);
     color: var(--ds-accent);
   }
 }
-.playground-preview button.upvote:active {
+.playground-preview button.upvote:active,
+.playground-preview .stepper > button:active {
   background: color-mix(
     in srgb,
     var(--ds-accent) var(--ds-accent-press),
@@ -483,13 +485,16 @@ div.playground-preview h1:first-child {
 /* Figures side by side (`dl.stats`, each a div of dt then dd): the number
    large over its muted label, so a figure that moves is what catches the
    eye; one row of columns up to 9rem wide, whose labels wrap on a phone.
-   A lone figure (a page's one price) has the sheet's width, so a long
-   number wraps at the sheet's edge rather than a column's */
+   The figures share one grid row and the labels another, so a figure in
+   plain text (Free) sits level with animated ones. A lone figure (a page's
+   one price) has the sheet's width, so a long number wraps at the sheet's
+   edge rather than a column's */
 .playground-preview .stats {
   display: grid;
+  grid-template-rows: auto auto;
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 9rem);
-  gap: var(--ds-space-4);
+  gap: 2px var(--ds-space-4);
   margin: 0;
 }
 /* what follows figures (a control) stands a row off them */
@@ -500,9 +505,9 @@ div.playground-preview h1:first-child {
   grid-auto-columns: minmax(0, 1fr);
 }
 .playground-preview .stats > div {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
 }
 /* above its label, so a label that wraps grows down and the figures stay
    in line */
@@ -512,6 +517,7 @@ div.playground-preview h1:first-child {
   font-size: var(--ds-text-2xl);
   font-weight: 600;
   line-height: 1.1;
+  align-self: center;
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
@@ -520,6 +526,96 @@ div.playground-preview h1:first-child {
 .playground-preview .stats dd:empty::before {
   content: '\2014';
   color: var(--ds-faint);
+}
+/* the smallest phones: three prices ($52.00) still fit side by side */
+@media (max-width: 360px) {
+  .playground-preview .stats dd {
+    font-size: var(--ds-text-xl);
+  }
+}
+/* A quantity stepper (a cart row's): − count + in one edge, the count
+   between its two buttons; hover and press as an upvote's. With one button
+   (Add, at none) it keeps the same width, so a row doesn't shift. In a row
+   the text before it takes the slack, and a trailing `meta` (a line's
+   price) keeps one width so the rows' prices align */
+.playground-preview .stepper {
+  --stepper-button: 28px;
+  --stepper-count: 1.5rem;
+  flex: none;
+  /* border-box: min-width includes the 1px border on each side */
+  min-width: calc(2 * var(--stepper-button) + var(--stepper-count) + 2px);
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--ds-border-strong);
+  border-radius: var(--ds-radius-sm);
+}
+.playground-preview .stepper > button {
+  width: var(--stepper-button);
+  height: var(--stepper-button);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ds-radius-sm);
+  background: none;
+  color: var(--ds-text-muted);
+  font: 500 1rem / 1 var(--ifm-font-family-base);
+  transition:
+    background-color var(--motion-snappy),
+    color var(--motion-snappy);
+}
+/* a fingertip's target on touch screens */
+@media (pointer: coarse) {
+  .playground-preview .stepper {
+    --stepper-button: 40px;
+  }
+}
+.playground-preview .stepper > button:only-child {
+  flex: 1;
+  color: var(--ds-accent);
+  font-size: var(--ds-text-sm);
+  font-weight: 600;
+}
+/* inside the stepper's edge */
+.playground-preview .stepper > button:focus-visible {
+  outline-offset: -2px;
+}
+.playground-preview .stepper > output {
+  min-width: var(--stepper-count);
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.playground-preview .listItem:has(> .stepper) > :first-child {
+  flex: 1;
+}
+.playground-preview .listItem:has(> .stepper) > .meta:last-child {
+  min-width: 4rem;
+  text-align: right;
+}
+/* A meter (progress toward free shipping): a thin rounded track a step
+   off the sheet, filled in the accent */
+.playground-preview progress {
+  display: block;
+  width: 100%;
+  height: 6px;
+  margin-top: var(--ds-space-2);
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ds-surface-2);
+  overflow: hidden;
+}
+.playground-preview progress::-webkit-progress-bar {
+  background: var(--ds-surface-2);
+}
+.playground-preview progress::-webkit-progress-value {
+  background: var(--ds-accent);
+  border-radius: 999px;
+  transition: inline-size var(--motion-snappy);
+}
+.playground-preview progress::-moz-progress-bar {
+  background: var(--ds-accent);
+  border-radius: 999px;
 }
 /* A board's columns (RestEndpoint's move demo): wells a step off the
    sheet, each holding its tasks as rows of the sheet's color (radius 8, no

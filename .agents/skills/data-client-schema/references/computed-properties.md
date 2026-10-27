@@ -66,49 +66,292 @@ class User extends Entity {
 
 ## Global computations
 
-[Query](./Query.md) can be used for computations of derived data from more than
-one entity. We generally call these aggregates.
+[Query](./Query.md) derives data from many entities, like a cart's totals. This is known as an
+_aggregate_. Define it once beside your resources, then read it anywhere with
+[useQuery()](https://dataclient.io/docs/api/useQuery).
 
-```ts title="resources/User"
+Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
+
+```ts title="resources/Cart"
 import { Entity, resource } from '@data-client/rest';
 
-export class User extends Entity {
+export class Product extends Entity {
   id = '';
   name = '';
-  isAdmin = false;
+  price = 0;
 }
-export const UserResource = resource({
-  path: '/users/:id',
-  schema: User,
+export const ProductResource = resource({
+  path: '/products/:id',
+  schema: Product,
+});
+
+/** A line in the cart, keyed by its product's id */
+export class CartItem extends Entity {
+  id = '';
+  product = Product.fromJS();
+  quantity = 1;
+
+  get total() {
+    return this.quantity * this.product.price;
+  }
+
+  static schema = { product: Product };
+}
+export const CartResource = resource({
+  path: '/cart/items/:id',
+  schema: CartItem,
+  optimistic: true,
+});
+
+export const usd = { style: 'currency', currency: 'USD' } as const;
+```
+
+```ts title="getCartTotals" {6}
+import { Query } from '@data-client/rest';
+import { CartResource } from './resources/Cart';
+
+export const freeShippingAt = 50;
+
+export const getCartTotals = new Query(CartResource.getList.schema, items => {
+  const count = items.reduce((sum, item) => sum + item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+  const toFreeShipping = Math.max(0, freeShippingAt - subtotal);
+  const shipping = subtotal && toFreeShipping ? 5 : 0;
+  return {
+    count,
+    subtotal,
+    shipping,
+    total: subtotal + shipping,
+    toFreeShipping,
+  };
 });
 ```
 
-```tsx title="UsersPage"
-import { All, Query, schema } from '@data-client/rest';
-import { useQuery, useSuspense } from '@data-client/react';
-import { UserResource, User } from './resources/User';
+```tsx title="CartBadge"
+import { useQuery } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { getCartTotals } from './getCartTotals';
+import { usd } from './resources/Cart';
 
-const getUserCount = new Query(
-  new All(User),
-  (entries, { isAdmin } = {}) => {
-    if (isAdmin !== undefined)
-      return entries.filter(user => user.isAdmin === isAdmin).length;
-    return entries.length;
-  },
-);
-
-function UsersPage() {
-  useSuspense(UserResource.getList);
-  const userCount = useQuery(getUserCount);
-  const adminCount = useQuery(getUserCount, { isAdmin: true });
-  // this should never happen since we suspense but typescript does not know that
-  if (userCount === undefined) return null;
+export default function CartBadge() {
+  const totals = useQuery(getCartTotals);
+  if (!totals) return null;
   return (
-    <div>
-      <div>Total users: {userCount}</div>
-      <div>Total admins: {adminCount}</div>
-    </div>
+    <Link to="/cart" className="meta">
+      {totals.count} {totals.count === 1 ? 'item' : 'items'} ·{' '}
+      <NumberFlow value={totals.subtotal} format={usd} />
+    </Link>
   );
 }
-render(<UsersPage />);
 ```
+
+```tsx title="FreeShipping"
+import { useQuery } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { freeShippingAt, getCartTotals } from './getCartTotals';
+import { usd } from './resources/Cart';
+
+export default function FreeShipping() {
+  const totals = useQuery(getCartTotals);
+  if (!totals) return null;
+  return (
+    <p className="meta">
+      {totals.toFreeShipping > 0 ?
+        <>
+          Add <NumberFlow value={totals.toFreeShipping} format={usd} /> more
+          for free shipping
+        </>
+      : 'Your order ships free'}
+      <progress value={totals.subtotal} max={freeShippingAt} />
+    </p>
+  );
+}
+```
+
+```tsx title="OrderSummary"
+import { useQuery } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { getCartTotals } from './getCartTotals';
+import { usd } from './resources/Cart';
+
+export default function OrderSummary() {
+  const totals = useQuery(getCartTotals);
+  if (!totals) return null;
+  return (
+    <dl className="stats">
+      <div>
+        <dt>Subtotal</dt>
+        <dd><NumberFlow value={totals.subtotal} format={usd} /></dd>
+      </div>
+      <div>
+        <dt>Shipping</dt>
+        <dd>
+          {totals.shipping ?
+            <NumberFlow value={totals.shipping} format={usd} />
+          : 'Free'}
+        </dd>
+      </div>
+      <div>
+        <dt>Total</dt>
+        <dd><NumberFlow value={totals.total} format={usd} /></dd>
+      </div>
+    </dl>
+  );
+}
+```
+
+```tsx title="CheckoutButton"
+import { useQuery } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { getCartTotals } from './getCartTotals';
+import { usd } from './resources/Cart';
+
+export default function CheckoutButton() {
+  const totals = useQuery(getCartTotals);
+  if (!totals) return null;
+  return (
+    <button className="primary">
+      Check out · <NumberFlow value={totals.total} format={usd} />
+    </button>
+  );
+}
+```
+
+```tsx title="QuantityStepper"
+import { useController, useQuery } from '@data-client/react';
+import { CartItem, CartResource, Product } from './resources/Cart';
+
+export default function QuantityStepper({ product }: { product: Product }) {
+  const ctrl = useController();
+  const item = useQuery(CartItem, { id: product.id });
+  const add = () =>
+    ctrl.fetch(CartResource.getList.push, {
+      id: product.id,
+      product,
+      quantity: 1,
+    });
+  const setQuantity = (quantity: number) =>
+    quantity ?
+      ctrl.fetch(CartResource.partialUpdate, { id: product.id }, { quantity })
+    : ctrl.fetch(CartResource.delete, { id: product.id });
+
+  return (
+    <span className="stepper">
+      {item ?
+        <>
+          <button
+            aria-label={`Remove one ${product.name}`}
+            onClick={() => setQuantity(item.quantity - 1)}
+          >
+            −
+          </button>
+          <output>{item.quantity}</output>
+          <button
+            aria-label={`Add one ${product.name}`}
+            onClick={() => setQuantity(item.quantity + 1)}
+          >
+            +
+          </button>
+        </>
+      : <button aria-label={`Add ${product.name}`} onClick={add}>
+          Add
+        </button>
+      }
+    </span>
+  );
+}
+```
+
+```tsx title="ShopPage" route="/"
+import { useSuspense } from '@data-client/react';
+import FreeShipping from './FreeShipping';
+import QuantityStepper from './QuantityStepper';
+import { CartResource, ProductResource, usd } from './resources/Cart';
+
+export default function ShopPage() {
+  const products = useSuspense(ProductResource.getList);
+  useSuspense(CartResource.getList);
+  return (
+    <>
+      <FreeShipping />
+      <div className="list">
+        {products.map(product => (
+          <div className="listItem" key={product.id}>
+            <div>
+              {product.name}
+              <div className="meta">
+                {product.price.toLocaleString('en-US', usd)}
+              </div>
+            </div>
+            <QuantityStepper product={product} />
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+```
+
+```tsx title="CartPage" route="/cart"
+import { useSuspense } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import CheckoutButton from './CheckoutButton';
+import FreeShipping from './FreeShipping';
+import OrderSummary from './OrderSummary';
+import QuantityStepper from './QuantityStepper';
+import { CartResource, usd } from './resources/Cart';
+
+export default function CartPage() {
+  const items = useSuspense(CartResource.getList);
+  if (!items.length) return <p className="meta">Your cart is empty</p>;
+  return (
+    <>
+      <div className="list">
+        {items.map(item => (
+          <div className="listItem" key={item.id}>
+            <div>{item.product.name}</div>
+            <QuantityStepper product={item.product} />
+            <span className="meta">
+              <NumberFlow value={item.total} format={usd} />
+            </span>
+          </div>
+        ))}
+      </div>
+      <FreeShipping />
+      <OrderSummary />
+      <CheckoutButton />
+    </>
+  );
+}
+```
+
+```tsx title="Store" layout
+import { useFetch } from '@data-client/react';
+import CartBadge from './CartBadge';
+import { CartResource } from './resources/Cart';
+
+export default function Store({ children }: { children: React.ReactNode }) {
+  // every page shows the cart's totals, so the cart loads with the app
+  useFetch(CartResource.getList);
+  return (
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Daily Grind</h1>
+        <CartBadge />
+      </header>
+      <nav>
+        <Link to="/">Shop</Link>
+        <Link to="/cart">Cart</Link>
+      </nav>
+      {children}
+    </>
+  );
+}
+```
+
+Here the cart badge, free-shipping bar, order summary and checkout button all read `getCartTotals`.
+It runs once per change, however many components read it, and returns the same object until a
+`CartItem` or `Product` it read changes. So every view agrees, even mid
+[optimistic update](https://dataclient.io/rest/api/resource#optimistic).
+
+Do not compute aggregates in components, where each copy can drift. Instead, put them in a `Query`.

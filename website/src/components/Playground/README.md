@@ -235,7 +235,7 @@ controls keep an edge). Before restyling a class, grep `docs/` and
 style to a new component.
 
 Styled elements: `h2` (page title), `button` (`primary` fills one;
-`aria-busy` shows pending), text inputs, `nav`, `fieldset`.
+`aria-busy` shows pending), text inputs, `nav`, `fieldset`, `progress`.
 
 | Class                                      | Use for                                                                        |
 | ------------------------------------------ | ------------------------------------------------------------------------------ |
@@ -252,6 +252,7 @@ Styled elements: `h2` (page title), `button` (`primary` fills one;
 | `boardColumn`                              | a kanban column                                                                |
 | `upvote` (a button)                        | an upvote with its count; empty, the arrow alone                               |
 | `stats` (a `dl`)                           | figures side by side, each large over its label; a lone one fills the row      |
+| `stepper` (− `output` +)                   | a quantity's buttons around its count (one button alone: Add); in a row        |
 
 ## Auto-run
 
