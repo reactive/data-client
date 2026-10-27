@@ -6,7 +6,7 @@
 
 Fix Collection push and unshift showing an item twice after it was deleted and added back
 
-After an item was deleted, adding an item with the same id through [push](https://dataclient.io/rest/api/Collection#push) or [unshift](https://dataclient.io/rest/api/Collection#unshift) (for example `getList.push`) listed it twice, while [All](https://dataclient.io/rest/api/All) counted it once. This happens with lists keyed by another entity's id, like cart lines keyed by product or a list of followed users. Now an item already in the collection moves to the end (push) or start (unshift).
+After an item was deleted, adding an item with the same id through [push](https://dataclient.io/rest/api/Collection#push) or [unshift](https://dataclient.io/rest/api/Collection#unshift) (for example `getList.push`) listed it twice, while [All](https://dataclient.io/rest/api/All) counted it once. This happens with lists keyed by another entity's id, like cart lines keyed by product or a list of followed users. Now adding to a collection first drops the ids of deleted items it still holds, so the re-created item shows once: at the end (push) or start (unshift). Items that aren't deleted are untouched, so pushing an id the list already shows still adds it again, as `Array.push()` would.
 
 ```ts
 await ctrl.fetch(CartResource.delete, { id: 'mug' });

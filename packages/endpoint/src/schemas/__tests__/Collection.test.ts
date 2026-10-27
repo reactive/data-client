@@ -796,7 +796,7 @@ describe(`${schema.Collection.name} normalization`, () => {
     ['push', ['10', '5'], ['5', '10']],
     ['unshift', ['5', '10'], ['10', '5']],
   ] as const)(
-    '%s of an id already in the collection moves it instead of adding a copy',
+    '%s of a deleted then re-created id adds it once',
     (method, before, after) => {
       const init = {
         entities: {
@@ -831,6 +831,31 @@ describe(`${schema.Collection.name} normalization`, () => {
       );
     },
   );
+
+  test('push of an id already in the collection adds it again, like Array.push()', () => {
+    const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
+    const init = {
+      entities: {
+        [User.schema.todos.key]: { '{"userId":"1"}': ['5'] },
+        Todo: { '5': { id: '5', title: 'finish collections' } },
+      },
+      entitiesMeta: {
+        [User.schema.todos.key]: { '{"userId":"1"}': meta },
+        Todo: { '5': meta },
+      },
+      indexes: {},
+    };
+    const state = normalize(
+      User.schema.todos.push,
+      [{ id: '5', title: 'finish collections' }],
+      [{ userId: '1' }],
+      init,
+    );
+    expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
+      '5',
+      '5',
+    ]);
+  });
 
   describe('push should add only to collections matching filterArgumentKeys', () => {
     const initializingSchema = new Collection([Todo]);
