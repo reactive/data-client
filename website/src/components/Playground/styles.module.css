@@ -1522,7 +1522,8 @@ div.fixtureJson + div.fixtureJson {
     position: relative;
   }
   /* with no tabs (one untitled file) and no preview, nothing holds the
-     header row (../TypeScriptEditor.tsx, ../HTTP's exchange) */
+     header row (../TypeScriptEditor.tsx, ../HTTP/EndpointPlayground.tsx,
+     whose folder starts level with the code card) */
   .playgroundContainer.row:not(:has(.tabControls, > .previewWrapper)) {
     grid-template-rows: 0 auto;
   }
