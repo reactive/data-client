@@ -22,7 +22,10 @@ function fakeStage(
   const calls: string[] = [];
   const stage: Stage = {
     find: target => (target === STORE_TOGGLE ? toggle : found),
-    point: el => void calls.push(el === toggle ? 'point toggle' : 'point'),
+    point: el => {
+      calls.push(el === toggle ? 'point toggle' : 'point');
+      return true;
+    },
     click: () => void calls.push('click'),
     append: (_, text) => void calls.push(`append ${text}`),
     store: (open, { pressed, view } = {}) =>
@@ -57,6 +60,19 @@ it('plays steps in order, at their times', async () => {
   await done;
   expect(calls.slice(3)).toEqual(['store true', 'point', 'click', 'end']);
   expect(player.getState()).toBe('done');
+});
+
+it("clicks again without a glide when the pointer hasn't moved", async () => {
+  const player = createPlayer();
+  const { stage, calls } = fakeStage();
+  stage.point = () => {
+    calls.push('point');
+    return false;
+  };
+  const done = player.play([{ delay: 20, click: 'button' }], stage);
+  await jest.advanceTimersByTimeAsync(20);
+  await done;
+  expect(calls).toEqual(['point', 'click', 'end']);
 });
 
 it('pausing keeps the time left', async () => {
@@ -209,6 +225,19 @@ describe('stage', () => {
     } finally {
       delete (HTMLElement.prototype as any).animate;
     }
+  });
+
+  it('says whether the pointer moved', () => {
+    const root = playground();
+    const stage = createStage(root, () => {});
+    const [one, two] = root.querySelectorAll('button');
+    one.getBoundingClientRect = () =>
+      ({ left: 0, top: 0, width: 20, height: 20 }) as DOMRect;
+    two.getBoundingClientRect = () =>
+      ({ left: 40, top: 0, width: 20, height: 20 }) as DOMRect;
+    expect(stage.point(one)).toBe(true);
+    expect(stage.point(one)).toBe(false);
+    expect(stage.point(two)).toBe(true);
   });
 
   it('the pointer follows its target when the playground resizes', () => {

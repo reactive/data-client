@@ -19,10 +19,12 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
   let at = { x: 0, y: 0 };
   let pointedAt: HTMLElement | undefined;
 
-  /** Moves the pointer onto `el`, the tip at its center */
+  /** Moves the pointer onto `el`, the tip at its center; false when it was
+   * there already */
   const place = (el: HTMLElement) => {
     const box = el.getBoundingClientRect();
     const origin = layer.getBoundingClientRect();
+    const was = at;
     at = {
       x: box.left + box.width / 2,
       y: box.top + box.height / 2,
@@ -40,6 +42,7 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
       void pointer.offsetWidth;
       pointer.dataset.shown = '';
     }
+    return first || at.x !== was.x || at.y !== was.y;
   };
   /** A press: a ring spreads from the tip (none without Web Animations,
    * e.g. jsdom) */
@@ -87,7 +90,7 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
       revealIn(root, el);
       revealOnPage(el);
       pointedAt = el;
-      place(el);
+      return place(el);
     },
 
     click(el) {
