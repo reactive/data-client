@@ -20,7 +20,9 @@ export default function TypeScriptEditor({
   return (
     <div className={styles.playgroundQueryContainer}>
       <div
-        className={clsx(styles.playgroundContainer, styles.standaloneEditor)}
+        className={clsx(styles.playgroundContainer, styles.standaloneEditor, {
+          [styles.row]: isRow,
+        })}
       >
         <EditorSurface
           {...model}

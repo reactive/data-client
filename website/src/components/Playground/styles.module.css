@@ -80,6 +80,11 @@
 .playgroundContainer.standaloneEditor > :last-child {
   overflow: visible;
 }
+/* a row with no preview beside it (../TypeScriptEditor.tsx): the tabs and
+   the code card alone, at every width */
+.playgroundContainer.row.standaloneEditor {
+  display: flex;
+}
 .playgroundContainer .playgroundHeader.tabControls:first-of-type {
   border-top-left-radius: var(--ifm-global-radius);
   overflow: hidden;
