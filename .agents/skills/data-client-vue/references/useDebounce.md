@@ -14,109 +14,80 @@ Useful to avoid spamming network requests when parameters might change quickly (
 
 ## Usage
 
-```ts title="IssueQuery"
-import { RestEndpoint, Entity, Collection } from '@data-client/rest';
-import { Temporal } from 'temporal-polyfill';
+```ts title="resources/Issue"
+import { Entity, RestEndpoint } from '@data-client/rest';
 
 export class Issue extends Entity {
-  number = 0;
-  repository_url = '';
-  labels_url = '';
-  html_url = '';
-  body = '';
+  id = 0;
   title = '';
-  state: 'open' | 'closed' = 'open';
-  locked = false;
+  author = '';
   comments = 0;
-  created_at = Temporal.Instant.fromEpochMilliseconds(0);
-  updated_at = Temporal.Instant.fromEpochMilliseconds(0);
-  closed_at: Temporal.Instant | null = null;
-  authorAssociation = 'NONE';
-  pullRequest: Record<string, any> | null = null;
-  declare draft?: boolean;
 
-  static schema = {
-    created_at: Temporal.Instant.from,
-    updated_at: Temporal.Instant.from,
-    closed_at: Temporal.Instant.from,
-  };
-
-  pk() {
-    return [this.repository_url, this.number].join(',');
-  }
+  static key = 'Issue';
 }
 
-export const issueQuery = new RestEndpoint({
-  urlPrefix: 'https://api.github.com',
-  path: '/search/issues',
+export const searchIssues = new RestEndpoint({
+  path: '/issues',
   searchParams: {} as { q: string },
-  paginationField: 'page',
-  schema: {
-    incomplete_results: false,
-    items: new Collection([Issue]),
-    total_count: 0,
-  },
+  schema: [Issue],
 });
 ```
 
 ```html title="IssueList.vue"
 <script setup lang="ts">
-  import { computed } from 'vue';
   import { useSuspense } from '@data-client/vue';
-  import { issueQuery } from './IssueQuery';
+  import { searchIssues } from './resources/Issue';
 
   const props = defineProps<{
-    query: string;
-    owner: string;
-    repo: string;
+    q: string;
+    /** still the last search's: the query changed since */
+    stale: boolean;
   }>();
-  const response = await useSuspense(issueQuery, computed(() => ({
-    q: `${props.query} repo:${props.owner}/${props.repo} is:issue`,
-  })));
+  const issues = await useSuspense(searchIssues, () => ({ q: props.q }));
 </script>
 
 <template>
-  <small style="display: block">{{ response.total_count }} results</small>
-  <div v-for="issue in response.items.slice(0, 5)" :key="issue.pk()">
-    <a :href="issue.html_url" target="_blank">{{ issue.title }}</a>
+  <p v-if="!issues.length" class="meta">No issues match</p>
+  <div v-else class="list" :aria-busy="stale">
+    <div v-for="issue in issues" :key="issue.pk()" class="listItem">
+      <Avatar :name="issue.author" />
+      <div>
+        <h4>{{ issue.title }}</h4>
+        <small>
+          #{{ issue.id }} by {{ issue.author }} · {{ issue.comments }} comments
+        </small>
+      </div>
+    </div>
   </div>
 </template>
 ```
 
 ```html title="SearchIssues.vue"
 <script setup lang="ts">
-  import { onErrorCaptured, ref } from 'vue';
+  import { ref } from 'vue';
   import { useDebounce } from '@data-client/vue';
   import IssueList from './IssueList.vue';
 
   const query = ref('');
-  const [debouncedQuery, isPending] = useDebounce(query, 200);
-
-  const error = ref<Error | null>(null);
-  onErrorCaptured(e => {
-    error.value = e;
-    return false;
-  });
+  const [debouncedQuery, isPending] = useDebounce(query, 300);
 </script>
 
 <template>
+  <header class="appHeader">
+    <h1 class="appTitle">Issues</h1>
+  </header>
   <TextInput
+    aria-label="Search issues"
+    placeholder="Search issues"
     spellcheck="false"
-    placeholder="Search react issues"
     v-model="query"
     :loading="isPending"
-    autofocus
     size="large"
   >
     <SearchIcon />
   </TextInput>
-  <ErrorMessage
-    v-if="error"
-    :error="error"
-    :resetErrorBoundary="() => (error = null)"
-  />
-  <Suspense v-else>
-    <IssueList :query="debouncedQuery" owner="react" repo="react" />
+  <Suspense>
+    <IssueList :q="debouncedQuery" :stale="isPending" />
     <template #fallback><Loading /></template>
   </Suspense>
 </template>

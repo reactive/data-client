@@ -178,6 +178,12 @@ div.playground-preview h1:first-child {
    the pointer and fades once checked */
 .playground-preview .list {
   margin-bottom: var(--ds-space-4);
+  transition: opacity var(--motion-snappy);
+}
+/* rows that are about to be replaced (a search's results while its query is
+   still being typed): faded until the new ones land */
+.playground-preview .list[aria-busy='true'] {
+  opacity: 0.45;
 }
 .playground-preview .list > .listItem {
   align-items: center;

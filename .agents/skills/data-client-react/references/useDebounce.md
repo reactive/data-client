@@ -13,102 +13,81 @@ Useful to avoid spamming network requests when parameters might change quickly (
 
 ## Usage
 
-```ts title="IssueQuery"
-import { RestEndpoint, Entity, Collection } from '@data-client/rest';
-import { Temporal } from 'temporal-polyfill';
+```ts title="resources/Issue"
+import { Entity, RestEndpoint } from '@data-client/rest';
 
 export class Issue extends Entity {
-  number = 0;
-  repository_url = '';
-  labels_url = '';
-  html_url = '';
-  body = '';
+  id = 0;
   title = '';
-  state: 'open' | 'closed' = 'open';
-  locked = false;
+  author = '';
   comments = 0;
-  created_at = Temporal.Instant.fromEpochMilliseconds(0);
-  updated_at = Temporal.Instant.fromEpochMilliseconds(0);
-  closed_at: Temporal.Instant | null = null;
-  authorAssociation = 'NONE';
-  pullRequest: Record<string, any> | null = null;
-  declare draft?: boolean;
 
-  static schema = {
-    created_at: Temporal.Instant.from,
-    updated_at: Temporal.Instant.from,
-    closed_at: Temporal.Instant.from,
-  };
-
-  pk() {
-    return [this.repository_url, this.number].join(',');
-  }
+  static key = 'Issue';
 }
 
-export const issueQuery = new RestEndpoint({
-  urlPrefix: 'https://api.github.com',
-  path: '/search/issues',
+export const searchIssues = new RestEndpoint({
+  path: '/issues',
   searchParams: {} as { q: string },
-  paginationField: 'page',
-  schema: {
-    incomplete_results: false,
-    items: new Collection([Issue]),
-    total_count: 0,
-  },
+  schema: [Issue],
 });
 ```
 
 ```tsx title="IssueList"
-import React from 'react';
 import { useSuspense } from '@data-client/react';
-import { issueQuery } from './IssueQuery';
+import { searchIssues } from './resources/Issue';
 
-function IssueList({ query, owner, repo }) {
-  const q = `${query} repo:${owner}/${repo} is:issue`;
-  const response = useSuspense(issueQuery, { q });
+export default function IssueList({ q, stale }: Props) {
+  const issues = useSuspense(searchIssues, { q });
+  if (!issues.length) return <p className="meta">No issues match</p>;
   return (
-    <>
-      <small style={{ display: 'block' }}>
-        {response.total_count} results
-      </small>
-      {response.items.slice(0, 5).map(issue => (
-        <div key={issue.pk()}>
-          <a href={issue.html_url} target="_blank">
-            {issue.title}
-          </a>
+    <div className="list" aria-busy={stale}>
+      {issues.map(issue => (
+        <div key={issue.pk()} className="listItem">
+          <Avatar name={issue.author} />
+          <div>
+            <h4>{issue.title}</h4>
+            <small>
+              #{issue.id} by {issue.author} · {issue.comments} comments
+            </small>
+          </div>
         </div>
       ))}
-    </>
+    </div>
   );
 }
-export default React.memo(IssueList) as typeof IssueList;
+interface Props {
+  q: string;
+  /** still the last search's: the query changed since */
+  stale: boolean;
+}
 ```
 
-```tsx title="SearchIssues" {9}
+```tsx title="SearchIssues" {7}
 import React from 'react';
-import { AsyncBoundary } from '@data-client/react';
-import { useDebounce } from '@data-client/react';
+import { AsyncBoundary, useDebounce } from '@data-client/react';
 import IssueList from './IssueList';
 
 export default function SearchIssues() {
   const [query, setQuery] = React.useState('');
-  const handleChange = e => setQuery(e.currentTarget.value);
-  const [debouncedQuery, isPending] = useDebounce(query, 200);
+  const [debouncedQuery, isPending] = useDebounce(query, 300);
   return (
     <>
+      <header className="appHeader">
+        <h1 className="appTitle">Issues</h1>
+      </header>
       <TextInput
+        aria-label="Search issues"
+        placeholder="Search issues"
         spellCheck="false"
-        placeholder="Search react issues"
         value={query}
-        onChange={handleChange}
+        onChange={e => setQuery(e.currentTarget.value)}
         loading={isPending}
-        autoFocus
         size="large"
       >
         <SearchIcon />
       </TextInput>
-      <AsyncBoundary fallback={<Loading />} errorComponent={ErrorMessage}>
-        <IssueList query={debouncedQuery} owner="react" repo="react" />
+      <AsyncBoundary fallback={<Loading />}>
+        <IssueList q={debouncedQuery} stale={query !== debouncedQuery} />
       </AsyncBoundary>
     </>
   );
