@@ -11,12 +11,24 @@ import {
 import type { Values as ValuesType, Array as ArrayType } from '../schema.js';
 import type { DefaultArgs } from '../schemaTypes.js';
 
+const pushMerge = (existing: any, incoming: any) => {
+  return [...existing, ...incoming];
+};
+/** Collection merge that places incoming items at the start.
+ *
+ * @see https://dataclient.io/rest/api/Collection#moveWith
+ */
+export const unshift = (existing: any, incoming: any) => {
+  return [...incoming, ...existing];
+};
+const valuesMerge = (existing: any, incoming: any) => {
+  return { ...existing, ...incoming };
+};
 type NormalizedRef = { id: string; schema: string } | string;
 
 const isShallowEqual = (a: NormalizedRef, b: NormalizedRef): boolean => {
   // TODO: make this extensible in the child's schema
-  // arrays keep null members, and typeof null is 'object'
-  if (typeof a === 'object' && typeof b === 'object' && a && b) {
+  if (typeof a === 'object' && typeof b === 'object') {
     return a.id === b.id && a.schema === b.schema;
   }
   return a === b;
@@ -24,22 +36,6 @@ const isShallowEqual = (a: NormalizedRef, b: NormalizedRef): boolean => {
 
 const removeMerge = (existing: NormalizedRef[], incoming: NormalizedRef[]) =>
   existing.filter(item => !incoming.some(inc => isShallowEqual(item, inc)));
-
-/** An item added again (like one deleted, then re-created with the same pk)
- * moves to its new place instead of showing twice */
-const pushMerge = (existing: any, incoming: any) => {
-  return [...removeMerge(existing, incoming), ...incoming];
-};
-/** Collection merge that places incoming items at the start.
- *
- * @see https://dataclient.io/rest/api/Collection#moveWith
- */
-export const unshift = (existing: any, incoming: any) => {
-  return [...incoming, ...removeMerge(existing, incoming)];
-};
-const valuesMerge = (existing: any, incoming: any) => {
-  return { ...existing, ...incoming };
-};
 
 const valuesRemoveMerge = (
   existing: Record<string, NormalizedRef>,
@@ -363,6 +359,11 @@ function normalizeCreate(
     // visit instances are created on each normalize call so this will safely be reset
     visit.creating = true;
   }
+  // parent is args when not nested
+  const filterCollections = (this.createCollectionFilter as any)(...args);
+  // before normalizing input, which revives an entity re-created with a deleted pk
+  if (this.schema instanceof ArraySchema)
+    dropDeleted(this, filterCollections, delegate);
   const normalizedValue = this.schema.normalize(
     !(this.schema instanceof ArraySchema) || Array.isArray(input) ?
       input
@@ -371,8 +372,6 @@ function normalizeCreate(
     key,
     delegate,
   );
-  // parent is args when not nested
-  const filterCollections = (this.createCollectionFilter as any)(...args);
   // add to any collections that match this
   const entities = delegate.getEntities(this.key);
   if (entities)
@@ -381,6 +380,39 @@ function normalizeCreate(
       delegate.mergeEntity(this, collectionKey, normalizedValue);
     }
   return normalizedValue as any;
+}
+
+/** A deleted entity's ref stays in its collections, where denormalize skips it.
+ * Drop those refs, so re-creating that pk adds it once, like Array.push() would.
+ */
+function dropDeleted(
+  collection: CollectionSchema<any, any>,
+  filterCollections: (collectionKey: Record<string, string>) => boolean,
+  delegate: INormalizeDelegate,
+) {
+  const entities = delegate.getEntities(collection.key);
+  if (!entities) return;
+  const members = collection.schema;
+  // polymorphic refs are { id, schema }
+  const single = members.isSingleSchema ? members.schema : undefined;
+  const isDeleted = (ref: any) => {
+    const entity = single ?? (ref && members.schema[ref.schema]);
+    // Invalidate stores a symbol in place of the entity
+    return (
+      typeof entity?.key === 'string' &&
+      typeof delegate.getEntity(entity.key, single ? ref : ref.id) === 'symbol'
+    );
+  };
+  for (const collectionKey of entities.keys()) {
+    if (!filterCollections(JSON.parse(collectionKey))) continue;
+    const existing = delegate.getEntity(collection.key, collectionKey);
+    if (!Array.isArray(existing) || !existing.some(isDeleted)) continue;
+    delegate.setEntity(
+      collection,
+      collectionKey,
+      existing.filter(ref => !isDeleted(ref)),
+    );
+  }
 }
 
 function CreateMover<C extends CollectionSchema<any, any>>(
