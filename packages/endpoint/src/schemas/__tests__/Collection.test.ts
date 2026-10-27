@@ -839,6 +839,37 @@ describe(`${schema.Collection.name} normalization`, () => {
     },
   );
 
+  test('push drops only the deleted ids among several items', () => {
+    const init = {
+      entities: {
+        [User.schema.todos.key]: { '{"userId":"1"}': ['10', '5'] },
+        Todo: {
+          '5': { id: '5', title: 'finish collections' },
+          '10': INVALID,
+        },
+      },
+      entitiesMeta: {
+        [User.schema.todos.key]: { '{"userId":"1"}': meta },
+        Todo: { '5': meta, '10': meta },
+      },
+      indexes: {},
+    };
+    const state = normalize(
+      User.schema.todos.push,
+      [
+        { id: '5', title: 'again' },
+        { id: '10', title: 'recreated' },
+      ],
+      [{ userId: '1' }],
+      init,
+    );
+    expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
+      '5',
+      '5',
+      '10',
+    ]);
+  });
+
   test('re-creating a deleted id leaves collections it is not added to alone', () => {
     const init = {
       entities: {

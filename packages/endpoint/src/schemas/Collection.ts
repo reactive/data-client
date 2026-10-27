@@ -363,19 +363,15 @@ function normalizeCreate(
   const isArray = this.schema instanceof ArraySchema;
   if (isArray && !Array.isArray(input)) input = [input];
   // before normalizing input, which revives an entity re-created with a deleted pk
-  const deleted =
+  const deletedAt =
     isArray ? deletedIndexes(this.schema, input, parent, key, delegate) : [];
   const normalizedValue = this.schema.normalize(input, parent, key, delegate);
   // parent is args when not nested
   const filterCollections = (this.createCollectionFilter as any)(...args);
+  // ArraySchema.normalize maps input 1:1, so normalizedValue[i] is input[i]'s ref
+  const deletedRefs: NormalizedRef[] = deletedAt.map(i => normalizedValue[i]);
   // add to any collections that match this
-  const target =
-    deleted.length ?
-      withoutRefs(
-        this,
-        deleted.map(i => normalizedValue[i]),
-      )
-    : this;
+  const target = deletedRefs.length ? withoutRefs(this, deletedRefs) : this;
   const entities = delegate.getEntities(this.key);
   if (entities)
     for (const collectionKey of entities.keys()) {
