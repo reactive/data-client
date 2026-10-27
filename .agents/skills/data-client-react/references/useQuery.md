@@ -210,9 +210,106 @@ export const UserResource = resource({
 });
 ```
 
-```ts title="sortedUsers"
+```tsx title="RoleFilter"
+const roles = { All: undefined, Admins: true, Members: false };
+
+export default function RoleFilter({ isAdmin, onChange }: Props) {
+  return (
+    <div className="buttonGroup" role="group" aria-label="Role">
+      {Object.entries(roles).map(([label, value]) => (
+        <button
+          key={label}
+          aria-pressed={isAdmin === value}
+          onClick={() => onChange(value)}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+interface Props {
+  isAdmin: boolean | undefined;
+  onChange: (isAdmin: boolean | undefined) => void;
+}
+```
+
+```tsx title="UsersTable"
+import React from 'react';
+import { type User } from './resources/User';
+import { type Sort, type SortBy } from './UsersPage';
+
+export default function UsersTable({ users, sort, onSort }: Props) {
+  return (
+    <table>
+      <thead>
+        <tr>
+          <SortHeader column="name" sort={sort} onSort={onSort}>
+            Name
+          </SortHeader>
+          <th>Role</th>
+          <SortHeader column="posts" sort={sort} onSort={onSort} numeric>
+            Posts
+          </SortHeader>
+          <SortHeader column="joined" sort={sort} onSort={onSort} numeric>
+            Joined
+          </SortHeader>
+        </tr>
+      </thead>
+      <tbody>
+        {users.map(user => (
+          <tr key={user.pk()}>
+            <td>{user.name}</td>
+            <td className="meta">{user.isAdmin ? 'Admin' : 'Member'}</td>
+            <td className="value">{user.posts}</td>
+            <td className="value">{user.joined}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+interface Props {
+  users: User[];
+  sort: Sort;
+  onSort: (sort: Sort) => void;
+}
+
+/** A column's header: sorts by it, and a second click reverses it */
+function SortHeader({ column, sort, onSort, numeric, children }: HeaderProps) {
+  const sorted = sort.sortBy === column;
+  return (
+    <th
+      className={numeric ? 'value' : undefined}
+      aria-sort={
+        sorted ? (sort.desc ? 'descending' : 'ascending') : undefined
+      }
+    >
+      <button
+        className="sort"
+        onClick={() => onSort({ sortBy: column, desc: sorted && !sort.desc })}
+      >
+        {children}
+      </button>
+    </th>
+  );
+}
+interface HeaderProps {
+  column: SortBy;
+  sort: Sort;
+  onSort: (sort: Sort) => void;
+  numeric?: boolean;
+  children: React.ReactNode;
+}
+```
+
+```tsx title="UsersPage" {39}
+import React from 'react';
 import { All, Query } from '@data-client/rest';
-import { User } from './resources/User';
+import { useQuery, useSuspense } from '@data-client/react';
+import { User, UserResource } from './resources/User';
+import RoleFilter from './RoleFilter';
+import UsersTable from './UsersTable';
 
 export type SortBy = 'name' | 'posts' | 'joined';
 export interface Sort {
@@ -224,7 +321,7 @@ interface Args extends Sort {
   isAdmin: boolean | undefined;
 }
 
-export const sortedUsers = new Query(
+const sortedUsers = new Query(
   new All(User),
   (entries, { sortBy, desc, isAdmin }: Args) => {
     const users = entries
@@ -237,15 +334,6 @@ export const sortedUsers = new Query(
     return desc ? users.reverse() : users;
   },
 );
-```
-
-```tsx title="UsersPage" {15}
-import React from 'react';
-import { useQuery, useSuspense } from '@data-client/react';
-import { UserResource } from './resources/User';
-import { sortedUsers, type Sort, type SortBy } from './sortedUsers';
-
-const filters = { All: undefined, Admins: true, Members: false };
 
 function UsersPage() {
   useSuspense(UserResource.getList);
@@ -255,84 +343,15 @@ function UsersPage() {
   });
   const [isAdmin, setIsAdmin] = React.useState<boolean>();
   const users = useQuery(sortedUsers, { ...sort, isAdmin }) ?? [];
-  const onSort = (sortBy: SortBy) =>
-    setSort(prev => ({
-      sortBy,
-      desc: prev.sortBy === sortBy && !prev.desc,
-    }));
-
   return (
     <>
       <header className="appHeader">
         <h1 className="appTitle">Team</h1>
-        <div className="buttonGroup">
-          {Object.entries(filters).map(([label, value]) => (
-            <button
-              key={label}
-              aria-pressed={isAdmin === value}
-              onClick={() => setIsAdmin(value)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        <RoleFilter isAdmin={isAdmin} onChange={setIsAdmin} />
       </header>
-      <table>
-        <thead>
-          <tr>
-            <SortHeader column="name" sort={sort} onSort={onSort}>
-              Name
-            </SortHeader>
-            <th>Role</th>
-            <SortHeader column="posts" sort={sort} onSort={onSort} numeric>
-              Posts
-            </SortHeader>
-            <SortHeader
-              column="joined"
-              sort={sort}
-              onSort={onSort}
-              numeric
-            >
-              Joined
-            </SortHeader>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map(user => (
-            <tr key={user.pk()}>
-              <td>{user.name}</td>
-              <td className="meta">{user.isAdmin ? 'Admin' : 'Member'}</td>
-              <td className="value">{user.posts}</td>
-              <td className="value">{user.joined}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <UsersTable users={users} sort={sort} onSort={setSort} />
     </>
   );
-}
-
-function SortHeader({ column, sort, onSort, numeric, children }: Props) {
-  const sorted = sort.sortBy === column;
-  return (
-    <th
-      className={numeric ? 'value' : undefined}
-      aria-sort={
-        sorted ? (sort.desc ? 'descending' : 'ascending') : undefined
-      }
-    >
-      <button className="sort" onClick={() => onSort(column)}>
-        {children}
-      </button>
-    </th>
-  );
-}
-interface Props {
-  column: SortBy;
-  sort: Sort;
-  onSort: (column: SortBy) => void;
-  numeric?: boolean;
-  children: React.ReactNode;
 }
 render(<UsersPage />);
 ```

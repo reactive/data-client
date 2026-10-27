@@ -203,87 +203,60 @@ export const UserResource = resource({
 });
 ```
 
-```ts title="sortedUsers"
-import { All, Query } from '@data-client/rest';
-import { User } from './resources/User';
+```html title="RoleFilter.vue"
+<script setup lang="ts">
+  const roles = { All: undefined, Admins: true, Members: false };
 
-export type SortBy = 'name' | 'posts' | 'joined';
-export interface Sort {
-  sortBy: SortBy;
-  desc: boolean;
-}
-interface Args extends Sort {
-  /** admins only (true), members only (false), or everyone */
-  isAdmin: boolean | undefined;
-}
+  defineProps<{ isAdmin: boolean | undefined }>();
+  const emit = defineEmits<{ change: [isAdmin: boolean | undefined] }>();
+</script>
 
-export const sortedUsers = new Query(
-  new All(User),
-  (entries, { sortBy, desc, isAdmin }: Args) => {
-    const users = entries
-      .filter(user => isAdmin === undefined || user.isAdmin === isAdmin)
-      .sort((a, b) =>
-        sortBy === 'name' ?
-          a.name.localeCompare(b.name)
-        : a[sortBy] - b[sortBy],
-      );
-    return desc ? users.reverse() : users;
-  },
-);
+<template>
+  <div class="buttonGroup" role="group" aria-label="Role">
+    <button
+      v-for="(value, label) in roles"
+      :key="label"
+      :aria-pressed="isAdmin === value"
+      @click="emit('change', value)"
+    >
+      {{ label }}
+    </button>
+  </div>
+</template>
 ```
 
-```html title="UsersPage.vue" {12-15}
+```html title="UsersTable.vue"
 <script setup lang="ts">
-  import { ref } from 'vue';
-  import { useQuery, useSuspense } from '@data-client/vue';
-  import { UserResource } from './resources/User';
-  import { sortedUsers, type Sort, type SortBy } from './sortedUsers';
+  import { type User } from './resources/User';
+  import { type Sort, type SortBy } from './UsersPage.vue';
 
-  const filters = { All: undefined, Admins: true, Members: false };
+  const props = defineProps<{ users: readonly User[]; sort: Sort }>();
+  const emit = defineEmits<{ sort: [sort: Sort] }>();
 
-  await useSuspense(UserResource.getList);
-  const sort = ref<Sort>({ sortBy: 'name', desc: false });
-  const isAdmin = ref<boolean>();
-  const users = useQuery(sortedUsers, () => ({
-    ...sort.value,
-    isAdmin: isAdmin.value,
-  }));
-  function onSort(sortBy: SortBy) {
-    const desc = sort.value.sortBy === sortBy && !sort.value.desc;
-    sort.value = { sortBy, desc };
-  }
   function ariaSort(column: SortBy) {
-    if (sort.value.sortBy !== column) return undefined;
-    return sort.value.desc ? 'descending' : 'ascending';
+    if (props.sort.sortBy !== column) return undefined;
+    return props.sort.desc ? 'descending' : 'ascending';
+  }
+  // a second click on the sorted column reverses it
+  function sortBy(column: SortBy) {
+    const desc = props.sort.sortBy === column && !props.sort.desc;
+    emit('sort', { sortBy: column, desc });
   }
 </script>
 
 <template>
-  <header class="appHeader">
-    <h1 class="appTitle">Team</h1>
-    <div class="buttonGroup">
-      <button
-        v-for="(value, label) in filters"
-        :key="label"
-        :aria-pressed="isAdmin === value"
-        @click="isAdmin = value"
-      >
-        {{ label }}
-      </button>
-    </div>
-  </header>
   <table>
     <thead>
       <tr>
         <th :aria-sort="ariaSort('name')">
-          <button class="sort" @click="onSort('name')">Name</button>
+          <button class="sort" @click="sortBy('name')">Name</button>
         </th>
         <th>Role</th>
         <th class="value" :aria-sort="ariaSort('posts')">
-          <button class="sort" @click="onSort('posts')">Posts</button>
+          <button class="sort" @click="sortBy('posts')">Posts</button>
         </th>
         <th class="value" :aria-sort="ariaSort('joined')">
-          <button class="sort" @click="onSort('joined')">Joined</button>
+          <button class="sort" @click="sortBy('joined')">Joined</button>
         </th>
       </tr>
     </thead>
@@ -296,6 +269,61 @@ export const sortedUsers = new Query(
       </tr>
     </tbody>
   </table>
+</template>
+```
+
+```html title="UsersPage.vue" {40-43}
+<script lang="ts">
+  import { All, Query } from '@data-client/rest';
+  import { User } from './resources/User';
+
+  export type SortBy = 'name' | 'posts' | 'joined';
+  export interface Sort {
+    sortBy: SortBy;
+    desc: boolean;
+  }
+  interface Args extends Sort {
+    /** admins only (true), members only (false), or everyone */
+    isAdmin: boolean | undefined;
+  }
+
+  const sortedUsers = new Query(
+    new All(User),
+    (entries, { sortBy, desc, isAdmin }: Args) => {
+      const users = entries
+        .filter(user => isAdmin === undefined || user.isAdmin === isAdmin)
+        .sort((a, b) =>
+          sortBy === 'name' ?
+            a.name.localeCompare(b.name)
+          : a[sortBy] - b[sortBy],
+        );
+      return desc ? users.reverse() : users;
+    },
+  );
+</script>
+
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { useQuery, useSuspense } from '@data-client/vue';
+  import { UserResource } from './resources/User';
+  import RoleFilter from './RoleFilter.vue';
+  import UsersTable from './UsersTable.vue';
+
+  await useSuspense(UserResource.getList);
+  const sort = ref<Sort>({ sortBy: 'name', desc: false });
+  const isAdmin = ref<boolean>();
+  const users = useQuery(sortedUsers, () => ({
+    ...sort.value,
+    isAdmin: isAdmin.value,
+  }));
+</script>
+
+<template>
+  <header class="appHeader">
+    <h1 class="appTitle">Team</h1>
+    <RoleFilter :is-admin="isAdmin" @change="isAdmin = $event" />
+  </header>
+  <UsersTable :users="users ?? []" :sort="sort" @sort="sort = $event" />
 </template>
 ```
 
