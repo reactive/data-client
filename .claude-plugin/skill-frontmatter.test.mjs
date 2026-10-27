@@ -1,4 +1,4 @@
-// Keeps every skill's frontmatter valid YAML: `npx skills add` parses it strictly
+// Keeps every skill's top-level frontmatter values valid YAML: `npx skills add` parses it strictly
 // and skips a skill it can't parse, with only a warning:
 // node --test '.claude-plugin/*.test.mjs'
 import assert from 'node:assert/strict';
@@ -14,12 +14,13 @@ test('skill frontmatter values that need quotes have them', () => {
   for (const skill of fs.readdirSync(skills)) {
     const file = path.join(skills, skill, 'SKILL.md');
     if (!fs.existsSync(file)) continue;
-    const [, frontmatter] = fs.readFileSync(file, 'utf8').split('---\n');
-    for (const line of frontmatter.split('\n')) {
+    const [, frontmatter = ''] =
+      fs.readFileSync(file, 'utf8').match(/^---\r?\n([^]*?)\r?\n---/) ?? [];
+    for (const line of frontmatter.split(/\r?\n/)) {
       const [, key, value] = line.match(/^(\w[\w-]*): (.*)$/) ?? [];
       // a plain (unquoted) scalar can't start with an indicator like `@`, and
       // `: ` (or a trailing `:`) starts a mapping and ` #` a comment
-      if (value && !/^(["'][^]*["']|[>|]-?)$/.test(value))
+      if (value && !/^("(?:[^"\\]|\\.)*"|'(?:[^']|'')*'|[>|]-?)$/.test(value))
         assert.doesNotMatch(
           value,
           /^[-?:,[\]{}#&*!|>'"%@`]|: | #|:$/,
