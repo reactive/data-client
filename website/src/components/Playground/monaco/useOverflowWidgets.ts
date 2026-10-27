@@ -36,6 +36,8 @@ export default function useOverflowWidgets() {
         );
       editor.onDidFocusEditorText(() => listen(true));
       editor.onDidBlurEditorText(() => listen(false));
+      // autoFocus focuses before this mount handler runs
+      if (editor.hasTextFocus()) listen(true);
       editor.onDidDispose(() => {
         listen(false);
         node.remove();
@@ -61,13 +63,15 @@ let patched = false;
  */
 function measureInViewport(editor: Monaco.editor.ICodeEditor) {
   if (patched) return;
-  patched = true;
   const hover = (
     editor.getContribution('editor.contrib.contentHover') as any
   )?._getOrCreateContentWidget?.()?.widget;
   const suggest = (
     editor.getContribution('editor.contrib.suggestController') as any
   )?.widget?.value;
+  // a disposed editor has none; the next one will
+  if (!hover || !suggest) return;
+  patched = true;
   patchMethod(hover, '_availableVerticalSpaceAbove');
   patchMethod(hover, '_availableVerticalSpaceBelow');
   patchMethod(suggest, '_layout');
