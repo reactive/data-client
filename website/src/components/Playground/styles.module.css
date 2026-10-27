@@ -74,16 +74,11 @@
   /* the preview header's curves fade in as it lands */
   --pg-store-fade: 120ms ease-out 180ms;
 }
-.playgroundContainer.standaloneEditor {
+.playgroundContainer.standaloneEditor:not(.row) {
   --ifm-code-font-size: 14.4px;
 }
 .playgroundContainer.standaloneEditor > :last-child {
   overflow: visible;
-}
-/* a row with no preview beside it (../TypeScriptEditor.tsx): the tabs and
-   the code card alone, at every width */
-.playgroundContainer.row.standaloneEditor {
-  display: flex;
 }
 .playgroundContainer .playgroundHeader.tabControls:first-of-type {
   border-top-left-radius: var(--ifm-global-radius);
@@ -208,7 +203,7 @@ div.playgroundTextEdit > .playgroundHeader,
   /* height: 100%; */
   padding-top: 8px;
 }
-.playgroundContainer.standaloneEditor .playgroundEditor {
+.playgroundContainer.standaloneEditor:not(.row) .playgroundEditor {
   padding-top: 12.8px;
   padding-left: 2.8px;
 }
@@ -1490,7 +1485,10 @@ div.fixtureJson + div.fixtureJson {
        its shadow shows as a hairline) */
     --pg-head-run: calc(var(--pg-head-inset) + var(--pg-card-radius) + 1px);
     display: grid;
-    grid-template-columns: minmax(0, 1fr) var(--pg-preview-col);
+    /* the preview's column exists only once something takes it, so a row
+       with none (../TypeScriptEditor.tsx) is the tabs and code card alone */
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-columns: var(--pg-preview-col);
     /* the tabs' row is the preview header's row */
     grid-template-rows: var(--pg-row) auto;
     column-gap: var(--pg-gap);
