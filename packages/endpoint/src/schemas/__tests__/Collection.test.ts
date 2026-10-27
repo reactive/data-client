@@ -338,6 +338,38 @@ describe(`${schema.Collection.name} normalization`, () => {
       ]);
     });
 
+    test('push works when the collection holds null', () => {
+      const collectionPK = collectionUnion.pk({}, {}, '', [
+        { completed: false },
+      ]);
+      const meta = { date: 1557831718135, expiresAt: Infinity, fetchedAt: 0 };
+      const init: State<unknown> = {
+        ...initialState,
+        entities: {
+          [collectionUnion.key]: {
+            [collectionPK]: [null, { id: '2', schema: 'groups' }],
+          },
+          Group: { '2': { id: '2', type: 'groups' } },
+        },
+        entitiesMeta: {
+          [collectionUnion.key]: { [collectionPK]: meta },
+          Group: { '2': meta },
+        },
+        indexes: {},
+      };
+      const state = normalize(
+        collectionUnion.push,
+        [{ id: '1', type: 'users' }],
+        [{ completed: false }],
+        init,
+      );
+      expect(state.entities[collectionUnion.key]?.[collectionPK]).toEqual([
+        null,
+        { id: '2', schema: 'groups' },
+        { id: '1', schema: 'users' },
+      ]);
+    });
+
     test('remove works updates the correct collections', () => {
       const init = {
         entities: {
