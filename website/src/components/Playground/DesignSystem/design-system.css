@@ -127,13 +127,11 @@ div.playground-preview h1:first-child {
   gap: var(--ds-space-2) var(--ds-space-4);
   margin-bottom: var(--ds-space-4);
 }
-/* no more room than the caps: set solid, then the space above the caps
-   and below the baseline taken back (about even in the site's font); not
-   text-box, which Firefox lacks. Outranks Infima's `.markdown
-   h1:first-child` margin */
+/* no more room than the caps: trimmed to them, as the sheet trims a page's
+   first line. Outranks Infima's `.markdown h1:first-child` margin */
 .playground-preview .appHeader > :is(.appTitle, .meta) {
-  line-height: 1;
-  margin-block: calc((1cap - 1em) / 2);
+  margin-block: 0;
+  text-box: trim-both cap alphabetic;
 }
 /* a NumberFlow's roll mask pads it above and below; taken back, so a count
    (a post list's votes) doesn't grow the header */
