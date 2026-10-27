@@ -7,7 +7,12 @@ import {
 
 import type ActionLog from './actionLog';
 import type { LogEntry } from './actionLog';
-import { byStage, type ManagerStage, type Stage } from './attribution';
+import {
+  byStage,
+  sameStage,
+  type ManagerStage,
+  type Stage,
+} from './attribution';
 import { endpointId, entityId, parseRowId } from './model';
 import type { Scope, Step, View } from './nav';
 import { isPlainObject, temporalType } from './refs';
@@ -833,13 +838,11 @@ export function stageFilter(
     const hit = byStage(picked);
     return { ...base, hit, lists: hit };
   }
-  const codeStages = new Set(
-    chain.filter(stage => !stage.library).map(stage => stage.id),
-  );
+  const codeStages = chain.filter(stage => !stage.library);
   return {
     ...base,
     hit: e =>
-      base.hit(e) || (!!e.consumedBy && codeStages.has(e.consumedBy.id)),
+      base.hit(e) || codeStages.some(stage => sameStage(stage, e.consumedBy)),
   };
 }
 

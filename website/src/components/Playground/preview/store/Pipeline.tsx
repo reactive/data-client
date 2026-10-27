@@ -37,7 +37,8 @@ export function Pipeline({
       className={styles.pipelineBar}
       label="Pipeline: who sent the actions, and who handled them"
       stages={stages.map(({ stage, sent, handled }) => ({
-        id: stageName(stage),
+        id: stage.id,
+        name: stageName(stage),
         foldAs:
           !isApp(stage) && !sent && !handled && !sameStage(stage, picked) ?
             'idle'
@@ -93,7 +94,8 @@ function ActionPath({
       stages={stages.map((stage, i) => {
         const after = stop >= 0 && i > stop;
         return {
-          id: stageName(stage),
+          id: stage.id,
+          name: stageName(stage),
           foldAs:
             sameStage(stage, origin) || i === stop ? undefined
             : after ? 'never saw it'
@@ -152,8 +154,10 @@ export function StepPath({
 }
 
 interface Shown {
-  /** The stage's name */
+  /** The stage's `id` */
   readonly id: string;
+  /** Its name, as a fold lists it */
+  readonly name: string;
   /** What a run of stages like this one folds into ("3 idle"), if any:
    * only stages with the same label fold together */
   readonly foldAs?: string;
@@ -206,7 +210,7 @@ function Strip({
         const key = run[0].id;
         if (run.length === 1) return [<Step key={key}>{run[0].node}</Step>];
         const ids = run.map(stage => stage.id);
-        const names = ids.join(', ');
+        const names = run.map(stage => stage.name).join(', ');
         const open = isOpen(run);
         const text = open ? 'fold' : run.length + ' ' + run[0].foldAs;
         // its own keyed slot, open or folded, so the button pressed stays

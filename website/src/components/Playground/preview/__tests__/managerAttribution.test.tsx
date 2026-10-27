@@ -104,6 +104,31 @@ function codeNetworkManagerStage() {
   return managerStages([new NetworkManager() as any])[0];
 }
 
+/** A store of `own` managers that logs to `registry`'s history 0, as the
+ * playground's does */
+function connectStore(
+  registry: SchemaRegistry,
+  own: Manager[],
+  children: React.ReactNode = null,
+) {
+  const log = registry.log.connect(0);
+  const ref: { ctrl?: Controller } = {};
+  function Grab() {
+    ref.ctrl = useController();
+    return null;
+  }
+  const view = render(
+    <DataProvider
+      managers={[log.head, registry, ...log.track(own), log.tail]}
+      devButton={null}
+    >
+      <Grab />
+      {children}
+    </DataProvider>,
+  );
+  return { view, ctrl: () => ref.ctrl! };
+}
+
 function mount(
   own: Manager[],
   preview?: React.ReactNode,
@@ -111,24 +136,16 @@ function mount(
   opener: CodeOpener | null = null,
 ) {
   const registry = new SchemaRegistry({ trimEvery: 1 });
-  const log = registry.log.connect(0);
-  const managers = [log.head, registry, ...log.track(own), log.tail];
-  const ref: { ctrl?: Controller } = {};
-  function Grab() {
-    ref.ctrl = useController();
-    return null;
-  }
-  render(
+  const { ctrl } = connectStore(
+    registry,
+    own,
     <CodeOpenerContext.Provider value={opener}>
-      <DataProvider managers={managers} devButton={null}>
-        <Grab />
-        <Suspense fallback="loading">{preview}</Suspense>
-        {panel && <StorePanel registry={registry} history={0} />}
-      </DataProvider>
+      <Suspense fallback="loading">{preview}</Suspense>
+      {panel && <StorePanel registry={registry} history={0} />}
     </CodeOpenerContext.Provider>,
   );
   return {
-    ctrl: () => ref.ctrl!,
+    ctrl,
     history: () => registry.log.history(0),
     entries: () =>
       registry.log.history(0).entries.map(e => ({
@@ -139,6 +156,19 @@ function mount(
       })),
   };
 }
+
+/** A fetch the log recorded, sent and handled as given */
+const fetchEntry = (
+  seq: number,
+  origin?: ManagerStage,
+  consumedBy?: ManagerStage,
+): LogEntry => ({
+  seq,
+  at: seq,
+  action: { type: actionTypes.FETCH } as ActionTypes,
+  origin,
+  consumedBy,
+});
 
 describe('manager attribution', () => {
   it('names the chain in order, numbering repeats', () => {
@@ -263,16 +293,12 @@ describe('manager attribution', () => {
   it("keeps a code class's routes apart from the library's of its name", () => {
     const own = codeNetworkManagerStage();
     const [library] = managerStages([new NetworkManager()]);
-    const fetched = (seq: number, origin: ManagerStage): LogEntry => ({
-      seq,
-      at: seq,
-      action: { type: actionTypes.FETCH } as ActionTypes,
-      origin,
-    });
     expect(
-      routesOf([fetched(1, own), fetched(2, library), fetched(3, own)]).map(
-        ({ entry, n }) => ({ seq: entry.seq, n }),
-      ),
+      routesOf([
+        fetchEntry(1, own),
+        fetchEntry(2, library),
+        fetchEntry(3, own),
+      ]).map(({ entry, n }) => ({ seq: entry.seq, n })),
     ).toEqual([
       { seq: 1, n: 2 },
       { seq: 2, n: 1 },
@@ -290,22 +316,15 @@ describe('manager attribution', () => {
       }, [ctrl]);
       return null;
     }
-    const store = (own: Manager[], children: React.ReactNode = null) => {
-      const log = registry.log.connect(0);
-      return render(
-        <DataProvider
-          managers={[log.head, registry, ...log.track(own), log.tail]}
-          devButton={null}
-        >
-          {children}
-        </DataProvider>,
-      );
-    };
     // the defaults start the history, with no action yet (the code's
     // getManagers() registers after the first store mounts)
-    store([new NetworkManager()]).unmount();
+    connectStore(registry, [new NetworkManager()]).view.unmount();
     await act(async () => {
-      store([new StreamManager(), new NetworkManager()], <SetsOnMount />);
+      connectStore(
+        registry,
+        [new StreamManager(), new NetworkManager()],
+        <SetsOnMount />,
+      );
     });
     expect(registry.log.history(0).managers?.map(stageName)).toEqual([
       'StreamManager',
@@ -651,14 +670,10 @@ describe('stageFilter', () => {
   });
 
   it('counts and routes the stages of a copied history as its own', () => {
-    const fetched = (seq: number): LogEntry => ({
-      seq,
-      at: seq,
-      action: { type: actionTypes.FETCH } as ActionTypes,
-      origin: stream,
-      consumedBy: network,
-    });
-    const entries = [fetched(1), fetched(2)];
+    const entries = [
+      fetchEntry(1, stream, network),
+      fetchEntry(2, stream, network),
+    ];
     const copied = structuredClone(entries);
     expect(pipeline([stream, network], copied)).toEqual(
       pipeline([stream, network], entries),
@@ -865,28 +880,8 @@ describe('Store panel pipeline', () => {
   it('keeps a picked stage when the code remakes its managers', async () => {
     const registry = new SchemaRegistry({ trimEvery: 1 });
     render(<StorePanel registry={registry} history={0} />);
-    const store = (stream: StreamManager) => {
-      const log = registry.log.connect(0);
-      const ref: { ctrl?: Controller } = {};
-      function Grab() {
-        ref.ctrl = useController();
-        return null;
-      }
-      const view = render(
-        <DataProvider
-          managers={[
-            log.head,
-            registry,
-            ...log.track([stream, new NetworkManager()]),
-            log.tail,
-          ]}
-          devButton={null}
-        >
-          <Grab />
-        </DataProvider>,
-      );
-      return { view, ctrl: () => ref.ctrl! };
-    };
+    const store = (stream: StreamManager) =>
+      connectStore(registry, [stream, new NetworkManager()]);
     const first = new StreamManager();
     const { view } = store(first);
     await act(async () => {
