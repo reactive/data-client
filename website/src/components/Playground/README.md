@@ -312,4 +312,5 @@ re-renders the playground.
   the viewport's top on a scrolled page and check the hover opens below it,
   and right-click the code in light and dark themes and check the menu has a
   background and draws over the file tabs. In dev, the console warns
-  `useOverflowWidgets: Monaco has no …` when a patch found nothing to patch.
+  `useOverflowWidgets: Monaco has no …` when a patched method or the context
+  view service is gone (a missing hover or suggest widget stays silent).
