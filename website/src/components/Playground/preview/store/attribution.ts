@@ -149,9 +149,9 @@ export function byStage(stage: Stage) {
 /** Each manager of a chain as a stage: its class, and which of that class
  * it is. Every store whose chain has the same class (by name, and whether
  * it is the library's or the code's) at the same place among that class
- * and kind gives it the same `id`, so in a history that spans stores (one restored
- * after an error, or remade when the code's managers change) a stage
- * picked stays picked */
+ * and kind gives it the same `id`, so in a history that spans stores (one
+ * restored after an error, or remade when the code's managers change) a
+ * stage picked stays picked */
 export function managerStages(managers: readonly Manager[]): ManagerStage[] {
   const nameCounts = new Map<string, number>();
   const idCounts = new Map<string, number>();
