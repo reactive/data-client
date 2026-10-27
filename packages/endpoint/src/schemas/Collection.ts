@@ -370,12 +370,12 @@ function normalizeCreate(
   // parent is args when not nested
   const filterCollections = (this.createCollectionFilter as any)(...args);
   // add to any collections that match this
+  const target = deleted.length ? withoutRefs(this, deleted) : this;
   const entities = delegate.getEntities(this.key);
   if (entities)
     for (const collectionKey of entities.keys()) {
       if (!filterCollections(JSON.parse(collectionKey))) continue;
-      if (deleted.length) dropRefs(this, collectionKey, deleted, delegate);
-      delegate.mergeEntity(this, collectionKey, normalizedValue);
+      delegate.mergeEntity(target, collectionKey, normalizedValue);
     }
   return normalizedValue as any;
 }
@@ -394,7 +394,9 @@ function deletedRefs(
 ): NormalizedRef[] {
   const refs: NormalizedRef[] = [];
   for (const item of getValues(input)) {
-    const schema = item && members.inferSchema(item, parent, key);
+    // refs (ids) pass through normalize, so they can't revive an entity
+    if (typeof item !== 'object' || item === null) continue;
+    const schema = members.inferSchema(item, parent, key);
     // only entities have a pk; skip nested objects and unknown members
     if (typeof schema?.process !== 'function' || typeof schema.key !== 'string')
       continue;
@@ -412,15 +414,33 @@ function deletedRefs(
   return refs;
 }
 
-function dropRefs(
+/** Merges like `collection`, after dropping `refs` from the stored list */
+function withoutRefs(
   collection: CollectionSchema<any, any>,
-  collectionKey: string,
   refs: NormalizedRef[],
-  delegate: INormalizeDelegate,
 ) {
-  const existing = delegate.getEntity(collection.key, collectionKey);
-  if (Array.isArray(existing))
-    delegate.setEntity(collection, collectionKey, removeMerge(existing, refs));
+  const drop = (existing: any) =>
+    Array.isArray(existing) ? removeMerge(existing, refs) : existing;
+  return Object.create(collection, {
+    merge: {
+      value: (existing: any, incoming: any) =>
+        collection.merge(drop(existing), incoming),
+    },
+    mergeWithStore: {
+      value: (
+        existingMeta: any,
+        incomingMeta: any,
+        existing: any,
+        incoming: any,
+      ) =>
+        collection.mergeWithStore(
+          existingMeta,
+          incomingMeta,
+          drop(existing),
+          incoming,
+        ),
+    },
+  });
 }
 
 function CreateMover<C extends CollectionSchema<any, any>>(
