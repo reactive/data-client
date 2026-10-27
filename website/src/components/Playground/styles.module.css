@@ -590,6 +590,15 @@ div.playgroundTextEdit > .playgroundHeader,
   padding-top: 10px;
   border-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;
 }
+/* The foot overlaps the empty gutter under the last line (Monaco's
+   containerGutter, the static view's padding), so the space below the code
+   is the foot's, as deep as the space above it. Its shadow stops at its top
+   edge, or its blur shades the last lines (the code's own, below, the
+   foot's paper covers) */
+.row .editorDocs::after {
+  margin-top: -10px;
+  clip-path: inset(0 -4rem -4rem);
+}
 /* the code card's foot, and the app sheet's on the folder (see the top) */
 .row .editorDocs::after,
 .row > .previewWrapper::after {
@@ -1713,6 +1722,11 @@ div.fixtureJson + div.fixtureJson {
   }
   .row > .playgroundTextEdit {
     grid-area: 1 / 1 / 2 / 2;
+  }
+  /* the shut handle sticks up into the code card's foot: keep the gutter
+     under the last line, so the handle doesn't sit on it */
+  .row:has(> .storeHost) .editorDocs::after {
+    margin-top: 0;
   }
   /* the fixtures hang on past its foot, over the page below (it stacks
      above that while they show), so the preview never moves */
