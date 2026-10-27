@@ -10,6 +10,7 @@ import { options } from '../monaco/options';
 import { MONACO_THEME } from '../monaco/theme';
 import useAutoHeight from '../monaco/useAutoHeight';
 import useDefinitionOpener from '../monaco/useDefinitionOpener';
+import useOverflowWidgets from '../monaco/useOverflowWidgets';
 import PlaygroundLiveEditor from '../PlaygroundLiveEditor';
 import { isMobileOrBot } from '../userAgent';
 import type { CodeTarget } from './openCode';
@@ -56,7 +57,11 @@ function InteractiveEditor({
   readOnly = false,
   reveal,
 }: InteractiveEditorProps) {
-  const editorOptions = useMemo(() => ({ ...options, readOnly }), [readOnly]);
+  const overflowWidgets = useOverflowWidgets();
+  const editorOptions = useMemo(
+    () => ({ ...options, ...overflowWidgets.options, readOnly }),
+    [overflowWidgets.options, readOnly],
+  );
   const { height, handleMount: handleAutoMount } = useAutoHeight({
     initialContentHeight: code.split('\n').length * editorOptions.lineHeight,
     isFocused,
@@ -81,6 +86,7 @@ function InteractiveEditor({
       });
       handleAutoMount(editor);
       handleOpenerMount(editor, monaco);
+      overflowWidgets.handleMount(editor);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],

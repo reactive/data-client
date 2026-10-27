@@ -130,6 +130,11 @@ callout markers as comments, its caption and legend outside the editor.
 - `monaco/models.ts` creates a surface's models in one pass and relies on
   the TS worker answering in order. No test runs real Monaco: after a
   `monaco-editor` bump, see [Verify](#verify).
+- Hovers, suggestions and parameter hints render in a fixed layer on
+  `<body>` (`monaco/useOverflowWidgets.ts`), above every playground layer
+  and the navbar. Monaco measures their room above/below in page
+  coordinates, so that hook also patches its hover and suggest widgets to
+  measure in the viewport; after a `monaco-editor` bump, see [Verify](#verify).
 - A `display: none` editor can't take focus, so `reveal` (go-to-definition,
   Store links) waits until the tab shows, and `openCode` closes a covering
   Store in the same render.
@@ -293,4 +298,5 @@ re-renders the playground.
   after page load (a second homepage tab) whose importing file comes before
   the file it imports, and check for no TS2307 marker. Play any changed
   auto-run script at desktop and phone widths (on a phone the Store opens
-  above the preview).
+  above the preview). After a `monaco-editor` bump, also hover a line near
+  the viewport's top on a scrolled page and check the hover opens below it.
