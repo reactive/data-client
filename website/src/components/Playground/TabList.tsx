@@ -35,7 +35,7 @@ export default function TabList({
   label?: string;
   /** Lays a pill under the selected tab for `className` to draw and slide:
    * the list gets `data-pill` once placed, with `--pill-left` and
-   * `--pill-width` */
+   * `--pill-width`, and `data-pill-settled` once the pill may slide */
   pill?: boolean;
 }) {
   const list = useRef<HTMLDivElement>(null);
@@ -44,6 +44,7 @@ export default function TabList({
   const keys = tabs.map(tab => tab.key).join();
   useOverflowEdges(list, selected, keys, fileTabs);
   useSelectedPill(list, selected, keys, pill);
+  usePillSettled(list, pill);
   // the selected tab is the one in the tab order; the arrows move from it
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     // modified keys keep their own meaning (Alt+← is Back)
@@ -118,9 +119,7 @@ export default function TabList({
 /** Measures the selected tab into the list's `--pill-left` and
  * `--pill-width` (tabs' natural widths differ, so a pill can't step by equal
  * segments), again when a tab resizes (the web font landing). A hidden list
- * (no width) keeps the pill where it was. `data-pill-settled` lands two
- * frames after mount, so a pick restored as the page loads (a stored
- * `groupId`) places the pill without sliding it */
+ * (no width) keeps the pill where it was */
 function useSelectedPill(
   list: RefObject<HTMLDivElement | null>,
   selected: number,
@@ -144,8 +143,17 @@ function useSelectedPill(
     for (const tab of row.children) observer.observe(tab);
     return () => observer.disconnect();
   }, [list, selected, keys, enabled]);
+}
+
+/** Sets `data-pill-settled` two frames after mount, so a pick restored as
+ * the page loads (a stored `groupId`) places the pill without sliding it */
+function usePillSettled(
+  list: RefObject<HTMLDivElement | null>,
+  enabled: boolean,
+) {
   useEffect(() => {
     if (!enabled) return;
+    // holds the pending frame's id, the second once the first has run
     let frame = requestAnimationFrame(() => {
       frame = requestAnimationFrame(() =>
         list.current?.setAttribute('data-pill-settled', ''),

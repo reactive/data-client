@@ -11,6 +11,9 @@
    design system's filter does (`.segmented` in DesignSystem/design-system.css);
    until then (server render) the pick wears the sheet itself */
 .segmented {
+  /* the sheet: the pill, or the pick itself until the pill is placed */
+  --segmented-sheet: var(--pg-panel);
+  --segmented-sheet-shadow: 0 1px 2px rgba(15, 30, 60, 0.16);
   position: relative;
   width: fit-content;
   margin-bottom: 6px;
@@ -27,15 +30,20 @@
   left: 0;
   width: var(--pill-width);
   border-radius: 999px;
-  background: var(--pg-panel);
-  box-shadow: 0 1px 2px rgba(15, 30, 60, 0.16);
+  background: var(--segmented-sheet);
+  box-shadow: var(--segmented-sheet-shadow);
   transform: translateX(var(--pill-left));
 }
-@media (prefers-reduced-motion: no-preference) {
+/* slides only once settled (TabList sets it two frames after mount), so a
+   pick restored as the page loads lands in place */
+.segmented[data-pill-settled]::before {
+  transition:
+    transform var(--motion-snappy),
+    width var(--motion-snappy);
+}
+@media (prefers-reduced-motion: reduce) {
   .segmented[data-pill-settled]::before {
-    transition:
-      transform var(--motion-snappy),
-      width var(--motion-snappy);
+    transition: none;
   }
 }
 .segmented > [role='tab'] {
@@ -62,8 +70,8 @@
   box-shadow: none;
 }
 .segmented:not([data-pill]) > [role='tab'][aria-selected='true'] {
-  background: var(--pg-panel);
-  box-shadow: 0 1px 2px rgba(15, 30, 60, 0.16);
+  background: var(--segmented-sheet);
+  box-shadow: var(--segmented-sheet-shadow);
 }
 /* dark: the stage and sheet sit close, so the rest recede toward the
    stage while the pick takes the sheet's color, as in light */
