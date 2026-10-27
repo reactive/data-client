@@ -1521,9 +1521,10 @@ div.fixtureJson + div.fixtureJson {
        for a response (see .fixturesPopover) */
     position: relative;
   }
-  /* an editor with no tabs (one untitled file) and no preview has no
-     header row to hold */
-  .row.standaloneEditor:not(:has(.tabControls)) {
+  /* with no tabs (one untitled file) and no preview, nothing holds the
+     header row (../TypeScriptEditor.tsx, ../HTTP/EndpointPlayground.tsx,
+     whose folder starts level with the code card) */
+  .playgroundContainer.row:not(:has(.tabControls, > .previewWrapper)) {
     grid-template-rows: 0 auto;
   }
   .row > .playgroundTextEdit {
