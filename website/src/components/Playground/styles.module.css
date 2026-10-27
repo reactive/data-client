@@ -443,8 +443,8 @@ div.playgroundTextEdit > .playgroundHeader,
    content plus 6rem, so it is painted in pieces, its content and a foot that
    grows to fill at most 6rem, with one shadow that composes across them (no
    spread, so the seam is seamless). The folder is as tall as the row, since
-   the Store's layer parks behind it: the app's sheet runs 6rem toward the
-   code's foot at most, the folder on below it */
+   the Store's layer parks behind it: the app's sheet ends at its content,
+   the folder on below it */
 .playgroundContainer.row {
   --pg-gap: 12px;
   --pg-card-radius: 10px;
@@ -457,7 +457,7 @@ div.playgroundTextEdit > .playgroundHeader,
   --pg-tab-length: 3rem;
   /* the height of the row's loading page (a skeleton title and paragraph) */
   --pg-pending-sheet: 8.5rem;
-  /* how far the code card and the app's sheet reach toward the other's foot */
+  /* how far the code card reaches toward a taller preview's foot */
   --pg-card-foot: 6rem;
   /* the folder's header is narrower than its content: inset by this at
      each free side, its paper flaring out (concave, a circle's arc) to meet
@@ -597,6 +597,10 @@ div.playgroundTextEdit > .playgroundHeader,
   max-height: var(--pg-card-foot);
   border-radius: 0 0 var(--pg-card-radius) var(--pg-card-radius);
 }
+/* the app's sheet's foot is only its corners */
+.row > .previewWrapper::after {
+  max-height: var(--pg-card-radius);
+}
 /* A column file (EndpointPlayground's Usage) lies under the code card: on a
    layer a step deeper, tucked under the card's foot and running on below
    it, its title a quiet label. The card lies close on it; one shadow goes
@@ -659,8 +663,8 @@ div.playgroundTextEdit > .playgroundHeader,
   border-top-right-radius: 0;
 }
 /* the preview's folder: the row's height, its header and the app's sheet on
-   it; the sheet's foot runs on toward the code's by 6rem at most, its
-   corners the folder's where they meet. Its paper comes in parts, so the
+   it; the sheet ends at its content, its corners the folder's where they
+   meet. Its paper comes in parts, so the
    header can be narrower than the content: the header's own, the content's
    top edge (.playgroundResult, its corners turning down) and the folder's
    below that; its shadow likewise, the header's own and the content's box
@@ -1518,7 +1522,7 @@ div.fixtureJson + div.fixtureJson {
   .row:has(.sheet[aria-busy]) {
     --pg-preview-gap: max(
       0px,
-      100% - var(--pg-row) - var(--pg-pending-sheet) - var(--pg-card-foot)
+      100% - var(--pg-row) - var(--pg-pending-sheet) - var(--pg-card-radius)
     );
   }
   .row .sheet[aria-busy] {
