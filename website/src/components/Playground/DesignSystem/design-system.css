@@ -236,42 +236,35 @@ div.playground-preview h1:first-child {
   flex: 1 1 100%;
   line-height: 1.1;
 }
-/* A row's own text field (a new todo after its empty checkbox): an
-   underline that becomes a box when the pointer or focus finds it, the
-   same height as the row's text */
+/* A row's own text field (a new todo after its empty checkbox): the row's
+   text with no box, its placeholder saying what to type, until the pointer
+   finds it; focused, it is boxed like any other field */
 .playground-preview
   .listItem
   input:is(:not([type]), [type='text']):where(:not([class])) {
   /* the same basis as a label beside it, so the two share the row */
   flex: 1 1 100%;
   min-width: 0;
-  height: 30px;
-  margin-top: -4px;
-  padding: 5px;
+  /* its text lines up with the titles above it; the box grows into the
+     gap before it */
+  margin-block: calc(-1 * var(--ds-control-pad-y));
+  margin-inline-start: calc(-0.375rem - 1px);
+  padding-inline: 0.375rem;
   border-color: transparent;
-  border-bottom-color: var(--ifm-color-emphasis-500);
-  border-radius: 0;
-  background: none;
-  transition:
-    background-color var(--motion-snappy),
-    border-color var(--motion-snappy),
-    border-radius var(--motion-snappy),
-    box-shadow var(--motion-snappy);
+  background: transparent;
 }
-.playground-preview
-  .listItem
-  input:is(:not([type]), [type='text']):where(:not([class])):is(
-    :hover,
-    :focus-visible
-  ) {
-  border-color: var(--ifm-color-emphasis-400);
-  border-radius: 6px;
-  background: var(--ifm-color-emphasis-0);
+@media (hover: hover) {
+  .playground-preview
+    .listItem
+    input:is(:not([type]), [type='text']):where(:not([class])):hover {
+    background: var(--ds-hover);
+  }
 }
 .playground-preview
   .listItem
   input:is(:not([type]), [type='text']):where(:not([class])):focus-visible {
-  border-color: var(--ifm-color-formfield-active);
+  border-color: var(--ds-accent);
+  background: var(--ds-surface);
 }
 /* An avatar with a name: beside each other in a row (a post's author under
    its title, muted at the body's secondary size), or the name under it

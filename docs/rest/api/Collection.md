@@ -138,6 +138,7 @@ export default function NewTodo({ userId }: { userId: string }) {
       <input
         type="text"
         aria-label="New todo"
+        placeholder="New todo"
         onKeyDown={handlePress}
       />
       <label>
@@ -227,6 +228,7 @@ render(<UserList />);
     <input
       type="text"
       aria-label="New todo"
+      placeholder="New todo"
       @keydown="handlePress"
     />
     <label>

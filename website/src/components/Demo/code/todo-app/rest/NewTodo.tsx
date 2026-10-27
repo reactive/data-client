@@ -18,6 +18,7 @@ export default function NewTodo({ userId }: { userId: number }) {
         <input
           type="text"
           aria-label="New todo"
+          placeholder="New todo"
           onKeyDown={handleKeyDown}
         />
       </label>
