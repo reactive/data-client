@@ -468,41 +468,32 @@ searchToString(searchParams) {
 
 To encode complex objects in the searchParams, you can use the [qs](https://github.com/ljharb/qs) library.
 
-```typescript
-import { RestEndpoint, RestGenerics } from '@data-client/rest';
-import qs from 'qs';
-
-class QSEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
-  searchToString(searchParams) {
-    // highlight-next-line
-    return qs.stringify(searchParams);
-  }
-}
-```
-
 <EndpointPlayground input="/foo?a%5Bb%5D=c" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}}>
 
-```typescript title="QSEndpoint" collapsed {7}
-import { RestEndpoint, RestGenerics } from '@data-client/rest';
+```typescript title="QSEndpoint" {8}
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 import qs from 'qs';
 
 export default class QSEndpoint<
   O extends RestGenerics = any,
 > extends RestEndpoint<O> {
-  searchToString(searchParams) {
+  searchToString(searchParams: Record<string, any>) {
     return qs.stringify(searchParams);
   }
 }
 ```
 
-```typescript title="getFoo"
+```typescript title="getFoo" collapsed
 import QSEndpoint from './QSEndpoint';
 
-const getFoo = new QSEndpoint({
+export const getFoo = new QSEndpoint({
   path: '/foo',
   searchParams: {} as { a: Record<string, string> },
 });
+```
 
+```typescript title="Usage" column
+import { getFoo } from './getFoo';
 getFoo({ a: { b: 'c' } });
 ```
 
