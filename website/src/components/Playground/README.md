@@ -105,15 +105,20 @@ callout markers as comments, its caption and legend outside the editor.
   class. Element props override it; `defaultTab` overrides `collapsed`.
 - Stacked: titled files get headers, collapsible when there are several
   files or fixtures; fixtures list above the editor.
-- `row`: files are tabs over the code card (`column` files stack); the
-  preview is a folder beside it (under it below 720px container width) with
-  the Store on a layer behind (`.storeHost` > `.storeDrawer`, `StoreTab` as
-  handle). Open, the drawer covers the code, which goes `inert`.
+- `row`: files are tabs over the code card; `column` files (e.g.
+  EndpointPlayground's Usage) sit on a darker layer tucked under it,
+  labeled, never collapsible. The preview is a folder beside it (under it
+  below 720px container width) with the Store on a layer behind
+  (`.storeHost` > `.storeDrawer`, `StoreTab` as handle). Open, the drawer
+  covers the code, which goes `inert`.
 - `demo`: preview first, full width; the header's Code toggle swaps in the
   code (`data-code`). Never code and result together, nor code and Store.
   The result stays mounted so app state survives; both share
   `--pg-demo-min` so toggling doesn't move the page. The Code toggle ends an
   `autoRun`.
+- `../HTTP/EndpointPlayground.tsx` is a `row` whose folder holds the HTTP
+  exchange instead of a preview: the request is the inset header, the
+  response the sheet (`../HTTP/styles.module.css`).
 
 ## Editor
 

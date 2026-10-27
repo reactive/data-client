@@ -1,28 +1,29 @@
-import Translate from '@docusaurus/Translate';
-import CodeBlock from '@theme/CodeBlock';
-import clsx from 'clsx';
+import { translate } from '@docusaurus/Translate';
+import { memo } from 'react';
 
-import styles from './Wrapper.module.css';
-import Header from '../Playground/Header';
+import Json from './Json';
+import styles from './styles.module.css';
 
-export default function Response({ response, status }: Props) {
+/** The sheet the request's header curves out into: the body, its status at
+ * the end of the first line */
+// EndpointPlayground re-renders as its code is edited; the exchange never changes
+export default memo(Response);
+
+function Response({ response, status }: Props) {
   return (
-    <div>
-      <Header small className={clsx(styles.doubleTitle)}>
-        <span>
-          <Translate id="http.response">Response</Translate>
-        </span>
-        <span
-          className={clsx(styles.status, {
-            [styles.error]: status >= 400,
-          })}
-        >
+    <div
+      className={styles.response}
+      role="group"
+      aria-label={translate({ id: 'http.response', message: 'Response' })}
+    >
+      <div className={styles.sheet}>
+        <span className={styles.status} data-error={status >= 400 || undefined}>
           {STATUS_TEXT[status] ? `${status} ${STATUS_TEXT[status]}` : status}
         </span>
-      </Header>
-      <CodeBlock language="json" className={styles.containedCode}>
-        {response ? JSON.stringify(response, undefined, 2) : 'NO CONTENT'}
-      </CodeBlock>
+        {response !== undefined ?
+          <Json text={JSON.stringify(response, undefined, 2)} />
+        : null}
+      </div>
     </div>
   );
 }
