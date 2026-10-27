@@ -775,8 +775,8 @@ div.playground-preview h1:first-child {
 /* A filter's choices (All, Admins, Members) on a track of the well's
    color, in equal segments; the chosen one (`aria-pressed`) in full ink on a
    pill that slides to it. The pill shares the first segment's grid cell and
-   moves by the chosen one's index. In an app header it sits level with the
-   wordmark; on a phone it fits beside it */
+   moves by the chosen one's index (up to the fourth). In an app header it
+   sits level with the wordmark; on a phone it fits beside it */
 .playground-preview .segmented {
   --segment: 0;
   display: grid;
