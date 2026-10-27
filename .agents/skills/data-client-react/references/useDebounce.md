@@ -18,17 +18,18 @@ import { Entity, RestEndpoint } from '@data-client/rest';
 
 export class Issue extends Entity {
   id = 0;
+  number = 0;
   title = '';
-  author = '';
-  comments = 0;
+  user = { login: '', avatar_url: '' };
 
   static key = 'Issue';
 }
 
 export const searchIssues = new RestEndpoint({
-  path: '/issues',
+  urlPrefix: 'https://api.github.com',
+  path: '/search/issues',
   searchParams: {} as { q: string },
-  schema: [Issue],
+  schema: { items: [Issue] },
 });
 ```
 
@@ -36,19 +37,21 @@ export const searchIssues = new RestEndpoint({
 import { useSuspense } from '@data-client/react';
 import { searchIssues } from './resources/Issue';
 
-export default function IssueList({ q, stale }: Props) {
-  const issues = useSuspense(searchIssues, { q });
-  if (!issues.length) return <p className="meta">No issues match</p>;
+export default function IssueList({ query, stale }: Props) {
+  const { items } = useSuspense(searchIssues, {
+    q: `${query} repo:facebook/react is:issue`,
+  });
+  if (!items.length) return <p className="meta">No issues match</p>;
   return (
     <div className="list" aria-busy={stale}>
-      {issues.map(issue => (
+      {items.map(issue => (
         <div key={issue.pk()} className="listItem">
-          <Avatar name={issue.author} />
           <div>
             <h4>{issue.title}</h4>
-            <small>
-              #{issue.id} by {issue.author} · {issue.comments} comments
-            </small>
+            <span className="byline">
+              <Avatar src={issue.user.avatar_url} size={20} />
+              {issue.user.login} · #{issue.number}
+            </span>
           </div>
         </div>
       ))}
@@ -56,8 +59,9 @@ export default function IssueList({ q, stale }: Props) {
   );
 }
 interface Props {
-  q: string;
-  /** still the last search's: the query changed since */
+  query: string;
+  /** still the last search's: the query changed since (React's isPending
+   * starts only once the new search does) */
   stale: boolean;
 }
 ```
@@ -74,20 +78,18 @@ export default function SearchIssues() {
     <>
       <header className="appHeader">
         <h1 className="appTitle">Issues</h1>
+        <label className="search" aria-busy={isPending}>
+          <input
+            type="search"
+            aria-label="Search issues"
+            placeholder="Search issues"
+            value={query}
+            onChange={e => setQuery(e.currentTarget.value)}
+          />
+        </label>
       </header>
-      <TextInput
-        aria-label="Search issues"
-        placeholder="Search issues"
-        spellCheck="false"
-        value={query}
-        onChange={e => setQuery(e.currentTarget.value)}
-        loading={isPending}
-        size="large"
-      >
-        <SearchIcon />
-      </TextInput>
       <AsyncBoundary fallback={<Loading />}>
-        <IssueList q={debouncedQuery} stale={query !== debouncedQuery} />
+        <IssueList query={debouncedQuery} stale={query !== debouncedQuery} />
       </AsyncBoundary>
     </>
   );

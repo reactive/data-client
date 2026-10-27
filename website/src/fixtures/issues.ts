@@ -1,107 +1,126 @@
 import { RestEndpoint } from '@data-client/rest';
 
-// newest first; "suspense" fills the five rows, "suspense fallback" three
+// What GitHub's issue search answers, in its shape: newest first;
+// "suspense" fills the five rows, "suspense fallback" three
 const issues = [
   {
-    id: 31842,
+    id: 31842007,
+    number: 31842,
     title: 'Suspense fallback flashes on fast connections',
-    author: 'Maya Chen',
-    comments: 14,
+    user: { login: 'mayachen', avatar_url: 'https://i.pravatar.cc/64?img=5' },
   },
   {
-    id: 31807,
+    id: 31807007,
+    number: 31807,
     title: 'useTransition stays pending after the component unmounts',
-    author: 'Leo Fischer',
-    comments: 6,
+    user: {
+      login: 'leofischer',
+      avatar_url: 'https://i.pravatar.cc/64?img=12',
+    },
   },
   {
-    id: 31790,
+    id: 31790007,
+    number: 31790,
     title: 'Hydration mismatch for dates rendered on the server',
-    author: 'Ama Owusu',
-    comments: 23,
+    user: { login: 'amaowusu', avatar_url: 'https://i.pravatar.cc/64?img=45' },
   },
   {
-    id: 31766,
+    id: 31766007,
+    number: 31766,
     title: 'Suspense boundary resets scroll position when it resolves',
-    author: 'Ravi Kumar',
-    comments: 9,
+    user: { login: 'ravikumar', avatar_url: 'https://i.pravatar.cc/64?img=33' },
   },
   {
-    id: 31751,
+    id: 31751007,
+    number: 31751,
     title: 'useEffect cleanup runs twice in Strict Mode',
-    author: 'Hana Sato',
-    comments: 31,
+    user: { login: 'hanasato', avatar_url: 'https://i.pravatar.cc/64?img=47' },
   },
   {
-    id: 31733,
+    id: 31733007,
+    number: 31733,
     title: 'Nested Suspense boundaries reveal out of order',
-    author: 'Elias Berg',
-    comments: 4,
+    user: { login: 'eliasberg', avatar_url: 'https://i.pravatar.cc/64?img=68' },
   },
   {
-    id: 31728,
+    id: 31728007,
+    number: 31728,
     title: 'Suspense fallback is skipped during hydration',
-    author: 'Sofia Reyes',
-    comments: 7,
+    user: {
+      login: 'sofiareyes',
+      avatar_url: 'https://i.pravatar.cc/64?img=32',
+    },
   },
   {
-    id: 31720,
+    id: 31720007,
+    number: 31720,
     title: "useDeferredValue doesn't defer the first render",
-    author: 'Sofia Reyes',
-    comments: 12,
+    user: {
+      login: 'sofiareyes',
+      avatar_url: 'https://i.pravatar.cc/64?img=32',
+    },
   },
   {
-    id: 31704,
+    id: 31704007,
+    number: 31704,
     title: 'Hydration error when a browser extension edits the DOM',
-    author: 'Maya Chen',
-    comments: 47,
+    user: { login: 'mayachen', avatar_url: 'https://i.pravatar.cc/64?img=5' },
   },
   {
-    id: 31689,
+    id: 31689007,
+    number: 31689,
     title: 'useId differs between server and client',
-    author: 'Leo Fischer',
-    comments: 8,
+    user: {
+      login: 'leofischer',
+      avatar_url: 'https://i.pravatar.cc/64?img=12',
+    },
   },
   {
-    id: 31671,
+    id: 31671007,
+    number: 31671,
     title: 'Suspense fallback never shows inside a transition',
-    author: 'Ama Owusu',
-    comments: 17,
+    user: { login: 'amaowusu', avatar_url: 'https://i.pravatar.cc/64?img=45' },
   },
   {
-    id: 31663,
+    id: 31663007,
+    number: 31663,
     title: 'Lazy component inside Suspense loads twice',
-    author: 'Elias Berg',
-    comments: 2,
+    user: { login: 'eliasberg', avatar_url: 'https://i.pravatar.cc/64?img=68' },
   },
   {
-    id: 31652,
+    id: 31652007,
+    number: 31652,
     title: 'Context update re-renders every consumer',
-    author: 'Ravi Kumar',
-    comments: 5,
+    user: { login: 'ravikumar', avatar_url: 'https://i.pravatar.cc/64?img=33' },
   },
   {
-    id: 31640,
+    id: 31640007,
+    number: 31640,
     title: 'useOptimistic reverts before the action resolves',
-    author: 'Hana Sato',
-    comments: 11,
+    user: { login: 'hanasato', avatar_url: 'https://i.pravatar.cc/64?img=47' },
   },
 ];
 
-/** A search: the issues whose title holds every word of `q`, five at most */
+/** The issues whose title holds every word of `q` (its qualifiers, like
+ * `repo:`, aside), five at most */
 export const issueFixtures = [
   {
     endpoint: new RestEndpoint({
-      path: '/issues',
+      urlPrefix: 'https://api.github.com',
+      path: '/search/issues',
       searchParams: {} as { q: string },
     }),
     response({ q }: { q: string }) {
-      const words = q.toLowerCase().split(/\s+/).filter(Boolean);
-      return issues
+      const words = q
+        .toLowerCase()
+        .split(/\s+/)
+        .filter(word => word && !word.includes(':'));
+      const items = issues
         .filter(issue =>
           words.every(word => issue.title.toLowerCase().includes(word)),
         )
         .slice(0, 5);
+      return { total_count: items.length, incomplete_results: false, items };
     },
     delay: 300,
   },

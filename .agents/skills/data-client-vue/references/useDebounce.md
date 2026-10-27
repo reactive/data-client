@@ -19,17 +19,18 @@ import { Entity, RestEndpoint } from '@data-client/rest';
 
 export class Issue extends Entity {
   id = 0;
+  number = 0;
   title = '';
-  author = '';
-  comments = 0;
+  user = { login: '', avatar_url: '' };
 
   static key = 'Issue';
 }
 
 export const searchIssues = new RestEndpoint({
-  path: '/issues',
+  urlPrefix: 'https://api.github.com',
+  path: '/search/issues',
   searchParams: {} as { q: string },
-  schema: [Issue],
+  schema: { items: [Issue] },
 });
 ```
 
@@ -39,23 +40,29 @@ export const searchIssues = new RestEndpoint({
   import { searchIssues } from './resources/Issue';
 
   const props = defineProps<{
-    q: string;
+    query: string;
     /** still the last search's: the query changed since */
     stale: boolean;
   }>();
-  const issues = await useSuspense(searchIssues, () => ({ q: props.q }));
+  const response = await useSuspense(searchIssues, () => ({
+    q: `${props.query} repo:facebook/react is:issue`,
+  }));
 </script>
 
 <template>
-  <p v-if="!issues.length" class="meta">No issues match</p>
+  <p v-if="!response.items.length" class="meta">No issues match</p>
   <div v-else class="list" :aria-busy="stale">
-    <div v-for="issue in issues" :key="issue.pk()" class="listItem">
-      <Avatar :name="issue.author" />
+    <div
+      v-for="issue in response.items"
+      :key="issue.pk()"
+      class="listItem"
+    >
       <div>
         <h4>{{ issue.title }}</h4>
-        <small>
-          #{{ issue.id }} by {{ issue.author }} · {{ issue.comments }} comments
-        </small>
+        <span class="byline">
+          <Avatar :src="issue.user.avatar_url" :size="20" />
+          {{ issue.user.login }} · #{{ issue.number }}
+        </span>
       </div>
     </div>
   </div>
@@ -64,30 +71,39 @@ export const searchIssues = new RestEndpoint({
 
 ```html title="SearchIssues.vue"
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { onErrorCaptured, ref } from 'vue';
   import { useDebounce } from '@data-client/vue';
   import IssueList from './IssueList.vue';
 
   const query = ref('');
   const [debouncedQuery, isPending] = useDebounce(query, 300);
+
+  const error = ref<Error | null>(null);
+  onErrorCaptured(e => {
+    error.value = e;
+    return false;
+  });
 </script>
 
 <template>
   <header class="appHeader">
     <h1 class="appTitle">Issues</h1>
+    <label class="search" :aria-busy="isPending">
+      <input
+        v-model="query"
+        type="search"
+        aria-label="Search issues"
+        placeholder="Search issues"
+      />
+    </label>
   </header>
-  <TextInput
-    aria-label="Search issues"
-    placeholder="Search issues"
-    spellcheck="false"
-    v-model="query"
-    :loading="isPending"
-    size="large"
-  >
-    <SearchIcon />
-  </TextInput>
-  <Suspense>
-    <IssueList :q="debouncedQuery" :stale="isPending" />
+  <ErrorMessage
+    v-if="error"
+    :error="error"
+    :resetErrorBoundary="() => (error = null)"
+  />
+  <Suspense v-else>
+    <IssueList :query="debouncedQuery" :stale="isPending" />
     <template #fallback><Loading /></template>
   </Suspense>
 </template>
