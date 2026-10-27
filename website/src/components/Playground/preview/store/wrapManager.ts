@@ -4,17 +4,19 @@ import {
   asDispatcher,
   copiedFrom,
   sharesWithConsole,
+  stageName,
   type Attribution,
+  type ManagerStage,
 } from './attribution';
 
 export interface Wrap {
-  /** The manager's name (unique in its chain), credited with what it sends */
-  readonly name: string;
+  /** The manager's stage in its chain, credited with what it sends */
+  readonly stage: ManagerStage;
   readonly attribution: Attribution;
   /** Told of each action its middleware returned without passing on (when
    * its promise settles, for async middleware), or with no one when it
    * passes one on later */
-  readonly consumed: (action: ActionTypes, by?: string) => void;
+  readonly consumed: (action: ActionTypes, by?: ManagerStage) => void;
   /** Guards the manager (the code's own): a call that throws, or a promise
    * of its middleware that rejects, is reported here and its step skipped
    * (actions go on to the next middleware), so it can't take the preview
@@ -23,13 +25,13 @@ export interface Wrap {
 }
 
 /** `manager`, wrapped once for the Store inspector and, with `report`, the
- * guard. It runs as `name` while it calls its controller (what it
+ * guard. It runs as `stage` while it calls its controller (what it
  * dispatches through `set`, `fetch`, `dispatch` …). Passing on a copy
  * (`next({ ...action })`) counts while the middleware runs. The prototype
  * stays the manager, so `instanceof` checks still see its class */
 export function wrapManager(
   manager: Manager,
-  { name, attribution, consumed, report }: Wrap,
+  { stage, attribution, consumed, report }: Wrap,
 ): Manager {
   /** `fn`, or `fallback` once it throws or rejects, when guarded */
   const attempt = <A extends unknown[], R>(
@@ -63,7 +65,7 @@ export function wrapManager(
   const expectFunction = <F>(fn: F, shape: string): F => {
     if (typeof fn !== 'function')
       throw new Error(
-        `${name}'s middleware returned no function where it must return ${shape}.`,
+        `${stageName(stage)}'s middleware returned no function where it must return ${shape}.`,
       );
     return fn;
   };
@@ -78,13 +80,13 @@ export function wrapManager(
   const sends = !sharesWithConsole(manager);
   wrapped.middleware = controller => {
     const own =
-      sends ? asDispatcher(controller, name, attribution) : controller;
+      sends ? asDispatcher(controller, stage, attribution) : controller;
     const withController = build(() => {
       const { middleware } = manager;
       // untyped playground code can leave out the required middleware
       if (!middleware)
         throw new Error(
-          `${name} has no middleware. Managers must define middleware.`,
+          `${stageName(stage)} has no middleware. Managers must define middleware.`,
         );
       // may be a prototype method that reads `this`
       return expectFunction(
@@ -131,7 +133,7 @@ export function wrapManager(
         const check = () => {
           if (passed.has(action)) return;
           reported.add(action);
-          consumed(action, name);
+          consumed(action, stage);
         };
         running.push(action);
         let result;

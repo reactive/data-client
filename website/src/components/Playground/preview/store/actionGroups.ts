@@ -7,7 +7,12 @@ import {
 
 import type ActionLog from './actionLog';
 import type { LogEntry } from './actionLog';
-import { byStage, isLibraryManager } from './attribution';
+import {
+  byStage,
+  sameStage,
+  type ManagerStage,
+  type Stage,
+} from './attribution';
 import { endpointId, entityId, parseRowId } from './model';
 import type { Scope, Step, View } from './nav';
 import { isPlainObject, temporalType } from './refs';
@@ -826,17 +831,20 @@ const NO_GAPS: ReadonlyMap<number, ChangeKind> = new Map();
  * picked, also what the code's own managers kept from the store */
 export function stageFilter(
   base: SubjectFilter,
-  chain: readonly string[],
-  picked: string | null,
+  chain: readonly ManagerStage[],
+  picked: Stage | null,
 ): SubjectFilter {
   if (picked !== null) {
     const hit = byStage(picked);
     return { ...base, hit, lists: hit };
   }
-  const own = new Set(chain.filter(name => !isLibraryManager(name)));
+  const codeStages = chain.filter(stage => !stage.library);
+  // a row the code's managers took part in is listed, but shows only the
+  // subject's own steps
   return {
     ...base,
-    hit: e => base.hit(e) || (!!e.consumedBy && own.has(e.consumedBy)),
+    hit: e =>
+      base.hit(e) || codeStages.some(stage => sameStage(stage, e.consumedBy)),
   };
 }
 

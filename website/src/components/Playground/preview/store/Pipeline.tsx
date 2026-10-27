@@ -3,7 +3,16 @@ import React, { useMemo, useState } from 'react';
 
 import { actionName } from './actionGroups';
 import type { LogEntry } from './actionLog';
-import { APP, originOf, pipeline, stagesOf } from './attribution';
+import {
+  isApp,
+  originOf,
+  pipeline,
+  sameStage,
+  stageName,
+  stagesOf,
+  type ManagerStage,
+  type Stage,
+} from './attribution';
 import { CodeLink, ManagerName } from './ManagerName';
 import styles from './store.module.css';
 
@@ -17,38 +26,47 @@ export function Pipeline({
   picked,
   onPick,
 }: {
-  chain: readonly string[];
+  chain: readonly ManagerStage[];
   entries: readonly LogEntry[];
-  picked: string | null;
-  onPick: (stage: string | null) => void;
+  picked: Stage | null;
+  onPick: (stage: Stage | null) => void;
 }) {
   const stages = useMemo(() => pipeline(chain, entries), [chain, entries]);
   return (
     <Strip
       className={styles.pipelineBar}
       label="Pipeline: who sent the actions, and who handled them"
-      stages={stages.map(({ id, sent, handled }) => ({
-        id,
-        foldAs:
-          id !== APP && !sent && !handled && picked !== id ? 'idle' : undefined,
-        node: (
-          <>
-            <button
-              type="button"
-              className={styles.stage}
-              aria-pressed={picked === id}
-              onClick={() => onPick(picked === id ? null : id)}
-            >
-              {id}
-              <span className={sent ? styles.number : styles.dim}>{sent}</span>
-              {handled > 0 && (
-                <span className={styles.stageNote}>⊘ {handled}</span>
-              )}
-            </button>
-            <CodeLink name={id} />
-          </>
-        ),
-      }))}
+      stages={stages.map(({ stage, sent, handled }) => {
+        const name = stageName(stage);
+        const isPicked = sameStage(stage, picked);
+        return {
+          id: stage.id,
+          name,
+          foldAs:
+            !isApp(stage) && !sent && !handled && !isPicked ?
+              'idle'
+            : undefined,
+          node: (
+            <>
+              <button
+                type="button"
+                className={styles.stage}
+                aria-pressed={isPicked}
+                onClick={() => onPick(isPicked ? null : stage)}
+              >
+                {name}
+                <span className={sent ? styles.number : styles.dim}>
+                  {sent}
+                </span>
+                {handled > 0 && (
+                  <span className={styles.stageNote}>⊘ {handled}</span>
+                )}
+              </button>
+              {!isApp(stage) && <CodeLink stage={stage} />}
+            </>
+          ),
+        };
+      })}
     />
   );
 }
@@ -62,7 +80,7 @@ function ActionPath({
   entry,
   children,
 }: {
-  chain: readonly string[];
+  chain: readonly ManagerStage[];
   entry: LogEntry;
   /** After the store, on its line */
   children?: React.ReactNode;
@@ -70,33 +88,38 @@ function ActionPath({
   const { seq, action, consumedBy, store } = entry;
   const origin = originOf(entry);
   // a manager's dispatch starts down the chain from its top, not the app
-  const ids = origin === APP ? stagesOf(chain) : chain;
-  const stop = consumedBy ? ids.indexOf(consumedBy) : -1;
+  const stages = isApp(origin) ? stagesOf(chain) : chain;
+  const stop =
+    consumedBy ? stages.findIndex(stage => sameStage(stage, consumedBy)) : -1;
   return (
     <Strip
       // another action's path starts folded
       key={seq}
       label={'Path of ' + actionName(action) + ' through the managers'}
       stored={!!store}
-      stages={ids.map((id, i) => {
+      stages={stages.map((stage, i) => {
+        const name = stageName(stage);
+        const app = isApp(stage);
+        const sender = sameStage(stage, origin);
         const after = stop >= 0 && i > stop;
         return {
-          id,
+          id: stage.id,
+          name,
           foldAs:
-            id === origin || i === stop ? undefined
+            sender || i === stop ? undefined
             : after ? 'never saw it'
             : 'passed',
           node: (
             <span
               className={clsx(
                 styles.stage,
-                id === origin && styles.stageSender,
+                sender && styles.stageSender,
                 i === stop && styles.stageStop,
                 after && styles.stageOff,
               )}
             >
-              <ManagerName name={id} />
-              {id === origin && id !== APP && (
+              {app ? name : <ManagerName stage={stage} />}
+              {sender && !app && (
                 <span className={styles.stageNote}>↑ sent it</span>
               )}
               {i === stop && (
@@ -119,7 +142,7 @@ export function StepPath({
   entry,
   n,
 }: {
-  chain: readonly string[];
+  chain: readonly ManagerStage[];
   entry: LogEntry;
   n: number;
 }) {
@@ -140,8 +163,10 @@ export function StepPath({
 }
 
 interface Shown {
-  /** The stage's name */
+  /** The stage's `id` */
   readonly id: string;
+  /** Its name, as a fold lists it */
+  readonly name: string;
   /** What a run of stages like this one folds into ("3 idle"), if any:
    * only stages with the same label fold together */
   readonly foldAs?: string;
@@ -194,7 +219,7 @@ function Strip({
         const key = run[0].id;
         if (run.length === 1) return [<Step key={key}>{run[0].node}</Step>];
         const ids = run.map(stage => stage.id);
-        const names = ids.join(', ');
+        const names = run.map(stage => stage.name).join(', ');
         const open = isOpen(run);
         const text = open ? 'fold' : run.length + ' ' + run[0].foldAs;
         // its own keyed slot, open or folded, so the button pressed stays

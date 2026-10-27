@@ -21,7 +21,14 @@ import React, { Suspense } from 'react';
 import { declarationsOf } from '../../editor/declarations';
 import { CodeOpenerContext, type CodeOpener } from '../../editor/openCode';
 import { stageFilter } from '../store/actionGroups';
-import { isLibraryManager, managerNames } from '../store/attribution';
+import type { LogEntry } from '../store/actionLog';
+import {
+  managerStages,
+  pipeline,
+  routesOf,
+  stageName,
+  type ManagerStage,
+} from '../store/attribution';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
 
@@ -88,6 +95,44 @@ const getTicker = new Endpoint(async () => ({ id: 'BTC', price: 1 }), {
   name: 'getTicker',
 });
 
+/** A manager of a class of the code's that shares the library's name */
+function codeNetworkManager(): Manager {
+  class NetworkManager {
+    middleware = () => (next: unknown) => next;
+    cleanup() {}
+  }
+  return new NetworkManager() as any;
+}
+
+function codeNetworkManagerStage() {
+  return managerStages([codeNetworkManager()])[0];
+}
+
+/** A store of `own` managers that logs to `registry`'s history 0, as the
+ * playground's does */
+function connectStore(
+  registry: SchemaRegistry,
+  own: Manager[],
+  children: React.ReactNode = null,
+) {
+  const log = registry.log.connect(0);
+  const ref: { ctrl?: Controller } = {};
+  function Grab() {
+    ref.ctrl = useController();
+    return null;
+  }
+  const view = render(
+    <DataProvider
+      managers={[log.head, registry, ...log.track(own), log.tail]}
+      devButton={null}
+    >
+      <Grab />
+      {children}
+    </DataProvider>,
+  );
+  return { view, ctrl: () => ref.ctrl! };
+}
+
 function mount(
   own: Manager[],
   preview?: React.ReactNode,
@@ -95,34 +140,39 @@ function mount(
   opener: CodeOpener | null = null,
 ) {
   const registry = new SchemaRegistry({ trimEvery: 1 });
-  const log = registry.log.connect(0);
-  const managers = [log.head, registry, ...log.track(own), log.tail];
-  const ref: { ctrl?: Controller } = {};
-  function Grab() {
-    ref.ctrl = useController();
-    return null;
-  }
-  render(
+  const { ctrl } = connectStore(
+    registry,
+    own,
     <CodeOpenerContext.Provider value={opener}>
-      <DataProvider managers={managers} devButton={null}>
-        <Grab />
-        <Suspense fallback="loading">{preview}</Suspense>
-        {panel && <StorePanel registry={registry} history={0} />}
-      </DataProvider>
+      <Suspense fallback="loading">{preview}</Suspense>
+      {panel && <StorePanel registry={registry} history={0} />}
     </CodeOpenerContext.Provider>,
   );
   return {
-    ctrl: () => ref.ctrl!,
+    ctrl,
     history: () => registry.log.history(0),
     entries: () =>
       registry.log.history(0).entries.map(e => ({
         type: e.action.type,
-        origin: e.origin,
-        consumedBy: e.consumedBy,
+        origin: e.origin && stageName(e.origin),
+        consumedBy: e.consumedBy && stageName(e.consumedBy),
         requested: e.requested,
       })),
   };
 }
+
+/** A fetch the log recorded, sent and handled as given */
+const fetchEntry = (
+  seq: number,
+  origin?: ManagerStage,
+  consumedBy?: ManagerStage,
+): LogEntry => ({
+  seq,
+  at: seq,
+  action: { type: actionTypes.FETCH } as ActionTypes,
+  origin,
+  consumedBy,
+});
 
 describe('manager attribution', () => {
   it('names the chain in order, numbering repeats', () => {
@@ -137,6 +187,32 @@ describe('manager attribution', () => {
       stream.push(1);
     });
     expect(history().managers).toEqual([
+      {
+        id: 'code:StreamManager#1',
+        className: 'StreamManager',
+        n: 1,
+        library: false,
+      },
+      {
+        id: 'code:StreamManager#2',
+        className: 'StreamManager',
+        n: 2,
+        library: false,
+      },
+      {
+        id: 'lib:NetworkManager#1',
+        className: 'NetworkManager',
+        n: 1,
+        library: true,
+      },
+      {
+        id: 'lib:SubscriptionManager#1',
+        className: 'SubscriptionManager',
+        n: 1,
+        library: true,
+      },
+    ]);
+    expect(history().managers!.map(stageName)).toEqual([
       'StreamManager',
       'StreamManager #2',
       'NetworkManager',
@@ -144,16 +220,34 @@ describe('manager attribution', () => {
     ]);
   });
 
+  it('records the stage of each action it credits', async () => {
+    const stream = new StreamManager();
+    const { history } = mount([stream, new NetworkManager()]);
+    await act(async () => {
+      void stream.push(2);
+    });
+    // the same stage the history's chain holds
+    expect(history().entries[0].origin).toBe(history().managers![0]);
+  });
+
   it('knows library managers by class, not by their (minified) name', () => {
     const name = Object.getOwnPropertyDescriptor(NetworkManager, 'name')!;
     Object.defineProperty(NetworkManager, 'name', { value: 'e' });
     try {
       expect(
-        managerNames([
+        managerStages([
           new NetworkManager(),
           { middleware: () => (n: unknown) => n } as any,
         ]),
-      ).toEqual(['NetworkManager', 'Object']);
+      ).toEqual([
+        {
+          id: 'lib:NetworkManager#1',
+          className: 'NetworkManager',
+          n: 1,
+          library: true,
+        },
+        { id: 'code:Object#1', className: 'Object', n: 1, library: false },
+      ]);
     } finally {
       Object.defineProperty(NetworkManager, 'name', name);
     }
@@ -161,14 +255,72 @@ describe('manager attribution', () => {
 
   it("names a subclass of the library's for itself: it is the code's", () => {
     class PollingNetwork extends NetworkManager {}
-    const [own, idling] = managerNames([
+    const [own, idling] = managerStages([
       new PollingNetwork(),
       new IdlingNetworkManager(),
     ]);
-    expect(own).toBe('PollingNetwork');
-    expect(isLibraryManager(own)).toBe(false);
+    expect(own).toEqual({
+      id: 'code:PollingNetwork#1',
+      className: 'PollingNetwork',
+      n: 1,
+      library: false,
+    });
     // the library's own subclass is the library's
-    expect(isLibraryManager(idling)).toBe(true);
+    expect(idling.library).toBe(true);
+  });
+
+  it('gives the same place in every chain the same stage', () => {
+    const [a, , network] = managerStages([
+      new StreamManager(),
+      new StreamManager(),
+      new NetworkManager(),
+    ]);
+    const [b, second] = managerStages([
+      new StreamManager(),
+      new StreamManager(),
+    ]);
+    // a store restored or remade from the same code has the same stages
+    expect(b.id).toBe(a.id);
+    expect(second.id).not.toBe(a.id);
+    expect(managerStages([new NetworkManager()])[0].id).toBe(network.id);
+  });
+
+  it("doesn't take a class of the code's for the library's by its name", () => {
+    expect(codeNetworkManagerStage()).toEqual({
+      id: 'code:NetworkManager#1',
+      className: 'NetworkManager',
+      n: 1,
+      library: false,
+    });
+  });
+
+  it("ids a code class apart from the library's of its name, and names it apart", () => {
+    // counted together, the library's would be #2 here and #1 without it
+    const stages = managerStages([codeNetworkManager(), new NetworkManager()]);
+    expect(stages.map(stage => stage.id)).toEqual([
+      'code:NetworkManager#1',
+      'lib:NetworkManager#1',
+    ]);
+    // while each still reads apart in the inspector
+    expect(stages.map(stageName)).toEqual([
+      'NetworkManager',
+      'NetworkManager #2',
+    ]);
+  });
+
+  it("keeps a code class's routes apart from the library's of its name", () => {
+    const own = codeNetworkManagerStage();
+    const [library] = managerStages([new NetworkManager()]);
+    expect(
+      routesOf([
+        fetchEntry(1, own),
+        fetchEntry(2, library),
+        fetchEntry(3, own),
+      ]).map(({ entry, n }) => ({ seq: entry.seq, n })),
+    ).toEqual([
+      { seq: 1, n: 2 },
+      { seq: 2, n: 1 },
+    ]);
   });
 
   it('names the managers of a store that took over a history before it acted', async () => {
@@ -182,24 +334,17 @@ describe('manager attribution', () => {
       }, [ctrl]);
       return null;
     }
-    const store = (own: Manager[], children: React.ReactNode = null) => {
-      const log = registry.log.connect(0);
-      return render(
-        <DataProvider
-          managers={[log.head, registry, ...log.track(own), log.tail]}
-          devButton={null}
-        >
-          {children}
-        </DataProvider>,
-      );
-    };
     // the defaults start the history, with no action yet (the code's
     // getManagers() registers after the first store mounts)
-    store([new NetworkManager()]).unmount();
+    connectStore(registry, [new NetworkManager()]).view.unmount();
     await act(async () => {
-      store([new StreamManager(), new NetworkManager()], <SetsOnMount />);
+      connectStore(
+        registry,
+        [new StreamManager(), new NetworkManager()],
+        <SetsOnMount />,
+      );
     });
-    expect(registry.log.history(0).managers).toEqual([
+    expect(registry.log.history(0).managers?.map(stageName)).toEqual([
       'StreamManager',
       'NetworkManager',
     ]);
@@ -347,7 +492,7 @@ describe('manager attribution', () => {
       void ctrl().set(Ticker, { id: 'BTC' }, { id: 'BTC', price: 6 });
     });
     const [subscribe, set] = history().entries;
-    expect(subscribe.consumedBy).toBe('StreamManager');
+    expect(subscribe.consumedBy?.className).toBe('StreamManager');
     expect(set.store).toBeDefined();
   });
 
@@ -508,19 +653,50 @@ describe('stageFilter', () => {
     lists: () => true,
     gaps: new Map(),
   };
-  const chain = ['StreamManager', 'NetworkManager'];
+  const [stream, network] = managerStages([
+    new StreamManager(),
+    new NetworkManager(),
+  ]);
 
   it("lists all the store's actions, and stands on those the code's managers kept too", () => {
-    const filter = stageFilter(base, chain, null);
+    const filter = stageFilter(base, [stream, network], null);
     expect(filter.lists).toBe(base.lists);
-    expect(filter.hit({ consumedBy: 'StreamManager' } as any)).toBe(true);
-    expect(filter.hit({ consumedBy: 'NetworkManager' } as any)).toBe(false);
+    expect(filter.hit({ consumedBy: stream } as any)).toBe(true);
+    expect(filter.hit({ consumedBy: network } as any)).toBe(false);
+    // one the code no longer has isn't the code's managers' work
+    expect(
+      stageFilter(base, [network], null).hit({ consumedBy: stream } as any),
+    ).toBe(false);
   });
 
   it("narrows to a picked stage's actions", () => {
-    const filter = stageFilter(base, chain, 'StreamManager');
-    expect(filter.lists({ origin: 'StreamManager' } as any)).toBe(true);
+    const filter = stageFilter(base, [stream, network], stream);
+    expect(filter.lists({ origin: stream } as any)).toBe(true);
     expect(filter.lists({ store: {} } as any)).toBe(false);
+  });
+
+  it('matches stages of a copied history (as devtools would get it)', () => {
+    const [copied] = structuredClone([stream]);
+    expect(copied).not.toBe(stream);
+    const picked = stageFilter(base, [stream, network], copied);
+    expect(picked.lists({ origin: stream } as any)).toBe(true);
+    expect(
+      stageFilter(base, [stream, network], null).hit({
+        consumedBy: copied,
+      } as any),
+    ).toBe(true);
+  });
+
+  it('counts and routes the stages of a copied history as its own', () => {
+    const entries = [
+      fetchEntry(1, stream, network),
+      fetchEntry(2, stream, network),
+    ];
+    const copied = structuredClone(entries);
+    expect(pipeline([stream, network], copied)).toEqual(
+      pipeline([stream, network], entries),
+    );
+    expect(routesOf([...entries, ...copied]).map(({ n }) => n)).toEqual([4]);
   });
 });
 
@@ -546,6 +722,14 @@ describe('Store panel pipeline', () => {
     screen
       .getByRole('region', { name: 'Actions' })
       .querySelectorAll('[role="button"][aria-expanded]');
+  /** The steps an open row shows */
+  const steps = () =>
+    screen
+      .getByRole('region', { name: 'Actions' })
+      .querySelectorAll('[role="button"]:not([aria-expanded])');
+  /** Whether the timeline's mark for `name` is the moment's */
+  const selected = (name: RegExp) =>
+    !!screen.getByRole('button', { name }).dataset.selected;
 
   it('draws the app, the chain and the store, with what each sent and kept', async () => {
     const stream = new StreamManager();
@@ -717,6 +901,111 @@ describe('Store panel pipeline', () => {
     expect(listed()).toHaveLength(2);
     fireEvent.click(stage(/^the app/));
     expect(listed()).toHaveLength(3);
+  });
+
+  it('keeps a picked stage when the code remakes its managers', async () => {
+    const registry = new SchemaRegistry({ trimEvery: 1 });
+    render(<StorePanel registry={registry} history={0} />);
+    const store = (stream: StreamManager) =>
+      connectStore(registry, [stream, new NetworkManager()]);
+    const first = new StreamManager();
+    const { view } = store(first);
+    await act(async () => {
+      void first.push(1);
+    });
+    openActions();
+    fireEvent.click(stage(/^StreamManager/));
+    view.unmount();
+    // the same code, remade: new managers, new stage objects, same places
+    const second = new StreamManager();
+    const remade = store(second);
+    await act(async () => {
+      void second.push(2);
+      void remade.ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
+    });
+    expect(stage(/^StreamManager/).getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it("steps and marks only the picked stage's actions, until the State tab", async () => {
+    const stream = new StreamManager();
+    const { ctrl } = mount([stream, new NetworkManager()], undefined, true);
+    await act(async () => {
+      void stream.push(1);
+      void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
+      void stream.push(2);
+    });
+    const marks = () =>
+      within(screen.getAllByRole('group', { name: /^Scrubber/ })[0])
+        .getAllByRole('button', { name: /^set at/ })
+        .map(m => [!!m.dataset.dim, !!m.dataset.selected]);
+    openActions();
+    fireEvent.click(stage(/^StreamManager/));
+    // the app's set is dim on the timeline
+    expect(marks().map(([dim]) => dim)).toEqual([false, true, false]);
+    // and the steps go past it
+    const previous = screen.getByRole('button', { name: 'Previous change' });
+    fireEvent.click(previous);
+    expect(marks().map(([, selected]) => selected)).toEqual([
+      false,
+      false,
+      true,
+    ]);
+    fireEvent.click(previous);
+    expect(marks().map(([, selected]) => selected)).toEqual([
+      true,
+      false,
+      false,
+    ]);
+    // leaving the Action tab lets the pick go
+    fireEvent.click(screen.getByRole('tab', { name: 'State' }));
+    expect(marks().map(([dim]) => dim)).toEqual([false, false, false]);
+    fireEvent.click(screen.getByRole('tab', { name: 'Action' }));
+    expect(stage(/^StreamManager/).getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it("steps an action alone only through the picked stage's steps", async () => {
+    const { ctrl } = mount([new NetworkManager()], undefined, true);
+    await act(async () => {
+      await ctrl().fetch(getTicker);
+    });
+    openActions();
+    fireEvent.click(stage(/^the app/));
+    fireEvent.click(listed()[0]);
+    await screen.findAllByRole('group', { name: /^Path/ });
+    // the request's own steps: only the app's fetch, not NetworkManager's
+    // response
+    expect([...steps()].map(s => s.textContent)).toEqual([
+      expect.stringMatching(/fetch$/),
+    ]);
+    fireEvent.click(steps()[0]);
+    expect(selected(/^fetch at/)).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
+    // on past the hidden response, to live
+    expect(selected(/^fetch at/)).toBe(false);
+    expect(selected(/^setResponse at/)).toBe(false);
+    // and back from live past it, to the fetch
+    fireEvent.click(screen.getByRole('button', { name: 'Previous change' }));
+    expect(selected(/^fetch at/)).toBe(true);
+    expect(selected(/^setResponse at/)).toBe(false);
+  });
+
+  it("shows the picked stage's newest action live", async () => {
+    const stream = new StreamManager();
+    const { ctrl } = mount([stream, new NetworkManager()], undefined, true);
+    await act(async () => {
+      void stream.push(1);
+      void ctrl().set(Ticker, { id: 'ETH' }, { id: 'ETH', price: 3 });
+    });
+    const top = () =>
+      [...document.querySelectorAll<HTMLElement>('[data-level]')].find(
+        el => !el.closest('[hidden]') && !el.hasAttribute('data-covered'),
+      )!;
+    openActions();
+    fireEvent.click(stage(/^StreamManager/));
+    fireEvent.click(listed()[0]);
+    fireEvent.click(screen.getByRole('button', { name: 'Live' }));
+    // the newest the steps go through: StreamManager's, not the app's
+    expect(top().textContent).toContain('↑ sent it');
   });
 
   it("tags the store's actions with the manager that sent them", async () => {

@@ -11,7 +11,6 @@ import React, {
 
 import {
   groupEntriesOf,
-  stageFilter,
   groupOf,
   joinedFetches,
   touches,
@@ -41,11 +40,17 @@ import {
   useFollow,
   useLog,
 } from './actionParts';
-import { routesOf, shownChain, stagesOf } from './attribution';
+import { routesOf, shownChain } from './attribution';
 import type { Header } from './DiveViews';
 import { byData, onActivateKey, revealIn, toggled } from './dom';
 import { actionId } from './model';
-import { ActionSpanContext, useNavState, type Scope, type View } from './nav';
+import {
+  ActionSpanContext,
+  useNavState,
+  usePipelineAt,
+  type Scope,
+  type View,
+} from './nav';
 import { Pipeline, StepPath } from './Pipeline';
 import styles from './store.module.css';
 
@@ -145,19 +150,10 @@ export function ActionsLevel({
   header: Header;
 }) {
   const { history } = useActions();
-  // at the store: who sent what
-  const chain =
-    subject.kind === 'root' ? shownChain(history.managers) : undefined;
-  const [chosen, setChosen] = useState<string | null>(null);
-  // a stage the chain no longer has (the code changed) counts as none
-  const picked =
-    chosen !== null && chain && stagesOf(chain).includes(chosen) ?
-      chosen
-    : null;
-  const filter = useMemo(
-    () => (chain ? stageFilter(subjectFilter, chain, picked) : subjectFilter),
-    [chain, picked, subjectFilter],
-  );
+  // at the store: who sent what, and the panel's own filter, as the stage
+  // picked narrows the steps and the timeline as it does the list
+  const pipeline = usePipelineAt(subject);
+  const filter = pipeline?.filter ?? subjectFilter;
   const rows = useRows(filter);
   return (
     <>
@@ -165,12 +161,12 @@ export function ActionsLevel({
         <span className={styles.count}>{rows.length.toLocaleString()}</span>,
       )}
       <section className={styles.actionsLevel} aria-label="Actions">
-        {chain && (
+        {pipeline && (
           <Pipeline
-            chain={chain}
+            chain={pipeline.chain}
             entries={history.entries}
-            picked={picked}
-            onPick={setChosen}
+            picked={pipeline.stage}
+            onPick={pipeline.pickStage}
           />
         )}
         <ActionList rows={rows} subject={subject} filter={filter} />

@@ -7,6 +7,8 @@ import {
   useState,
 } from 'react';
 
+import type { SubjectFilter } from './actionGroups';
+import type { ManagerStage, Stage } from './attribution';
 import type { RowDiff } from './diffModel';
 import {
   entityId,
@@ -326,6 +328,20 @@ export interface NavState {
    * in the Action tab: what it did to the subject, then the action itself
    * (or the group's actions) */
   readonly show: (seq: number, scope?: Scope) => void;
+  /** The store's managers as a pipeline, while the store is the subject */
+  readonly pipeline: StorePipeline | null;
+}
+
+/** The store's dispatch pipeline, over its actions */
+interface StorePipeline {
+  readonly chain: readonly ManagerStage[];
+  /** The stage picked, which narrows the list, the steps and the timeline
+   * to what it took part in */
+  readonly stage: Stage | null;
+  readonly pickStage: (stage: Stage | null) => void;
+  /** What the store's actions list, step through and mark: all of them,
+   * or `stage`'s where it is picked */
+  readonly filter: SubjectFilter;
 }
 export const NavStateContext = createContext<NavState>({
   seq: null,
@@ -336,8 +352,18 @@ export const NavStateContext = createContext<NavState>({
   set: () => {},
   step: () => false,
   show: () => {},
+  pipeline: null,
 });
 export const useNavState = () => useContext(NavStateContext);
+
+/** The store's pipeline, at a level whose subject is the store. It follows
+ * the State tab's subject, as the steps and the timeline do, so the panel
+ * has one only while that is the store, and a store level over another
+ * subject draws none */
+export function usePipelineAt(subject: View): StorePipeline | null {
+  const { pipeline } = useNavState();
+  return subject.kind === 'root' ? pipeline : null;
+}
 
 /** How the moment changed each row it changed, by row id, while the Diff
  * tab shows it: rows mark it, and cells show what they were */

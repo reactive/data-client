@@ -25,7 +25,6 @@ const KNOWN: readonly {
   { cls: DevToolsManager, name: 'DevToolsManager', console: true },
   { cls: LogoutManager, name: 'LogoutManager' },
 ];
-const KNOWN_NAMES = new Set(KNOWN.map(known => known.name));
 /** The library's name for `manager`, when it is one of the library's own
  * classes; a subclass is the code's, named for itself */
 const libraryName = (manager: Manager) =>
@@ -33,51 +32,83 @@ const libraryName = (manager: Manager) =>
 export const sharesWithConsole = (manager: Manager) =>
   KNOWN.some(known => known.console && manager instanceof known.cls);
 
-/** A manager every store has unless the code chooses otherwise, by the
- * name `managerNames` gave it */
-export const isLibraryManager = (name: string) =>
-  KNOWN_NAMES.has(baseName(name));
-
 /** Whether a fetch it handles starts a request: a NetworkManager, the
  * library's or a subclass the code made of it */
 export const startsRequests = (manager: Manager) =>
   manager instanceof NetworkManager;
 
-/** Its class's name, without the `#2` a repeat gets */
-export const baseName = (name: string) => name.replace(/ #\d+$/, '');
-
-interface Stage {
-  /** The manager's name (unique in its chain) */
+/** A manager of a store's chain, as the Store inspector records it: plain
+ * data, so a history keeps it through a copy (`structuredClone`, or a
+ * message to devtools) */
+export interface ManagerStage {
+  /** The same in every store whose chain has this class (and library or
+   * not) at this place among its class and kind: what stages compare by */
   readonly id: string;
+  /** Its class's name */
+  readonly className: string;
+  /** Its place among the chain's managers of this class name, the
+   * library's and the code's counted together: 1 for the first, 2 for the
+   * next. Only for its name; `id` counts each kind apart */
+  readonly n: number;
+  /** One of the library's own managers, which every store has unless the
+   * code chooses otherwise (a subclass is the code's) */
+  readonly library: boolean;
+}
+
+/** The stage before the chain: the app's own dispatches. An entry it sent
+ * has no `origin`. Its `id` is no manager's: theirs start `lib:` or
+ * `code:` */
+export const APP = { id: 'app' } as const;
+/** A stage of the dispatch pipeline: the app, or a manager of the chain */
+export type Stage = ManagerStage | typeof APP;
+
+export const isApp = (stage: Stage): stage is typeof APP => stage.id === APP.id;
+/** Whether `a` and `b` are one stage (by `id`: a copied history's stages
+ * are new objects) */
+export const sameStage = (a: Stage, b: Stage | null | undefined) =>
+  a.id === b?.id;
+
+/** What the Store inspector calls `stage`: the app, or a manager's class,
+ * with `#2` and on when a chain holds several of one class. Unique in its
+ * chain */
+export const stageName = (stage: Stage) =>
+  isApp(stage) ? 'the app'
+  : stage.n > 1 ? `${stage.className} #${stage.n}`
+  : stage.className;
+
+interface StageCount {
+  readonly stage: Stage;
   /** Actions it dispatched */
-  readonly sent: number;
+  sent: number;
   /** Actions it kept from the rest of the chain */
-  readonly handled: number;
+  handled: number;
 }
 
 /** Who sent an action and who kept it from the rest of the chain */
 type Attributed = Pick<LogEntry, 'origin' | 'consumedBy'>;
 
-/** The stage before the chain: the app's own dispatches */
-export const APP = 'the app';
-/** Every stage a dispatch can start from, in order: the app, then the chain */
-export const stagesOf = (chain: readonly string[]) => [APP, ...chain];
+/** Every stage a dispatch can start from, in order: the app, then the
+ * chain */
+export const stagesOf = (chain: readonly ManagerStage[]): Stage[] => [
+  APP,
+  ...chain,
+];
 /** The stage that sent `entry`: a manager, or the app */
-export const originOf = (entry: Attributed) => entry.origin ?? APP;
+export const originOf = (entry: Attributed): Stage => entry.origin ?? APP;
 
 /** What the app and each manager of the chain, in order, did over
  * `entries` */
 export function pipeline(
-  chain: readonly string[],
+  chain: readonly ManagerStage[],
   entries: readonly Attributed[],
-): Stage[] {
+): readonly StageCount[] {
   const stages = new Map(
-    stagesOf(chain).map(id => [id, { id, sent: 0, handled: 0 }]),
+    stagesOf(chain).map(stage => [stage.id, { stage, sent: 0, handled: 0 }]),
   );
   for (const entry of entries) {
-    const sender = stages.get(originOf(entry));
+    const sender = stages.get(originOf(entry).id);
     if (sender) sender.sent++;
-    const handler = entry.consumedBy && stages.get(entry.consumedBy);
+    const handler = entry.consumedBy && stages.get(entry.consumedBy.id);
     if (handler) handler.handled++;
   }
   return [...stages.values()];
@@ -91,7 +122,12 @@ export function routesOf(
   const seen = new Map<string, { entry: LogEntry; n: number }>();
   for (const entry of entries) {
     const { action, origin, consumedBy, store } = entry;
-    const key = JSON.stringify([action.type, origin, consumedBy, !!store]);
+    const key = JSON.stringify([
+      action.type,
+      origin?.id,
+      consumedBy?.id,
+      !!store,
+    ]);
     const route = seen.get(key);
     if (route) route.n++;
     else seen.set(key, { entry, n: 1 });
@@ -100,25 +136,44 @@ export function routesOf(
 }
 
 /** The chain to draw, once the store has managers */
-export const shownChain = (managers: readonly string[] | undefined) =>
+export const shownChain = (managers: readonly ManagerStage[] | undefined) =>
   managers?.length ? managers : undefined;
 
 /** Whether `entry` is one `stage` took part in: those it sent, and (a
  * manager) those it kept from the rest of the chain */
-export function byStage(stage: string) {
+export function byStage(stage: Stage) {
   return (entry: Attributed) =>
-    originOf(entry) === stage || entry.consumedBy === stage;
+    sameStage(stage, originOf(entry)) || sameStage(stage, entry.consumedBy);
 }
 
-/** What the Store inspector calls each manager of a chain: its class, with
- * `#2` and on when a chain holds several of one class */
-export function managerNames(managers: readonly Manager[]): string[] {
-  const seen = new Map<string, number>();
+/** Each manager of a chain as a stage: its class, and which of that class
+ * it is. Every store whose chain has the same class (by name, and whether
+ * it is the library's or the code's) at the same place among that class
+ * and kind gives it the same `id`, so in a history that spans stores (one
+ * restored after an error, or remade when the code's managers change) a
+ * stage picked stays picked */
+export function managerStages(managers: readonly Manager[]): ManagerStage[] {
+  const nameCounts = new Map<string, number>();
+  const idCounts = new Map<string, number>();
+  const count = (counts: Map<string, number>, key: string) => {
+    const n = (counts.get(key) ?? 0) + 1;
+    counts.set(key, n);
+    return n;
+  };
   return managers.map(manager => {
-    const base = libraryName(manager) || manager.constructor?.name || 'Manager';
-    const n = (seen.get(base) ?? 0) + 1;
-    seen.set(base, n);
-    return n > 1 ? `${base} #${n}` : base;
+    const known = libraryName(manager);
+    const library = !!known;
+    const className = known || manager.constructor?.name || 'Manager';
+    // a code class can share a library name: its name counts them together
+    // so each reads apart, its id counts them apart so adding one never
+    // re-ids the other
+    const classKey = `${library ? 'lib' : 'code'}:${className}`;
+    return {
+      id: `${classKey}#${count(idCounts, classKey)}`,
+      className,
+      n: count(nameCounts, className),
+      library,
+    };
   });
 }
 
@@ -126,7 +181,7 @@ export interface Attribution {
   /** Who is dispatching right now: the manager whose controller call is on
    * the stack. The log's head reads it as each action arrives, and clears
    * it, so what else that dispatch sets off isn't credited to it too */
-  dispatching?: string;
+  dispatching?: ManagerStage;
   /** The action each copy a middleware passed on was made from, so whoever
    * handles the copy is credited on the action the log recorded */
   readonly copies: WeakMap<ActionTypes, ActionTypes>;
@@ -153,10 +208,10 @@ export function copiedFrom(
 
 type AnyFn = (...args: any[]) => any;
 
-/** `controller`, whose every call runs as `name` dispatching */
+/** `controller`, whose every call runs as `stage` dispatching */
 export function asDispatcher(
   controller: Controller,
-  name: string,
+  stage: ManagerStage,
   attribution: Attribution,
 ): Controller {
   const wrapped = new WeakMap<AnyFn, AnyFn>();
@@ -169,7 +224,7 @@ export function asDispatcher(
       if (cached) return cached;
       const asStage = function (this: unknown, ...args: unknown[]) {
         const outer = attribution.dispatching;
-        attribution.dispatching = name;
+        attribution.dispatching = stage;
         try {
           return value.apply(target, args);
         } finally {
@@ -187,8 +242,8 @@ export function asDispatcher(
  * managers, whose work every playground has, so the code's own stand out.
  * An action's path still says all */
 export function notableAttribution(entries: readonly Attributed[]): Attributed {
-  const notable = (name?: string) =>
-    name && !isLibraryManager(name) ? name : undefined;
+  const notable = (stage?: ManagerStage) =>
+    stage && !stage.library ? stage : undefined;
   return {
     origin: notable(entries[0]?.origin),
     consumedBy: entries.find(e => notable(e.consumedBy))?.consumedBy,
