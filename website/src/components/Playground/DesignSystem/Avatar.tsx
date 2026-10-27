@@ -3,9 +3,13 @@ import React from 'react';
 /** A round profile picture; 32px, or `size` to match the text beside it (smaller in a byline or a comment) */
 export function Avatar({ src, size = 32 }: { src: string; size?: number }) {
   return (
+    // a flex box: the picture sits in no line box, so a first-line trim can't
+    // lift it, and is centered where its line was (over a name in `.author`)
     <span
       style={{
         flex: '0 0 auto',
+        display: 'flex',
+        justifyContent: 'center',
       }}
     >
       <img
@@ -15,7 +19,6 @@ export function Avatar({ src, size = 32 }: { src: string; size?: number }) {
         style={{
           borderRadius: '50%',
           overflow: 'hidden',
-          // no line box of its own, so a first-line trim can't lift it
           display: 'block',
         }}
       />
