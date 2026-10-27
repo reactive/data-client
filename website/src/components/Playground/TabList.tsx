@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import {
+  useEffect,
   useLayoutEffect,
   useRef,
   type KeyboardEvent,
@@ -117,7 +118,9 @@ export default function TabList({
 /** Measures the selected tab into the list's `--pill-left` and
  * `--pill-width` (tabs' natural widths differ, so a pill can't step by equal
  * segments), again when a tab resizes (the web font landing). A hidden list
- * (no width) keeps the pill where it was */
+ * (no width) keeps the pill where it was. `data-pill-settled` lands two
+ * frames after mount, so a pick restored as the page loads (a stored
+ * `groupId`) places the pill without sliding it */
 function useSelectedPill(
   list: RefObject<HTMLDivElement | null>,
   selected: number,
@@ -141,6 +144,15 @@ function useSelectedPill(
     for (const tab of row.children) observer.observe(tab);
     return () => observer.disconnect();
   }, [list, selected, keys, enabled]);
+  useEffect(() => {
+    if (!enabled) return;
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() =>
+        list.current?.setAttribute('data-pill-settled', ''),
+      );
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [list, enabled]);
 }
 
 /** Keeps the selected tab in the row's view (its scroll padding past it) and

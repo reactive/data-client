@@ -30,13 +30,12 @@
   background: var(--pg-panel);
   box-shadow: 0 1px 2px rgba(15, 30, 60, 0.16);
   transform: translateX(var(--pill-left));
-  transition:
-    transform var(--motion-snappy),
-    width var(--motion-snappy);
 }
-@media (prefers-reduced-motion: reduce) {
-  .segmented[data-pill]::before {
-    transition: none;
+@media (prefers-reduced-motion: no-preference) {
+  .segmented[data-pill-settled]::before {
+    transition:
+      transform var(--motion-snappy),
+      width var(--motion-snappy);
   }
 }
 .segmented > [role='tab'] {
