@@ -802,8 +802,8 @@ describe(`${schema.Collection.name} normalization`, () => {
   const todo5 = { '5': { id: '5', title: 'finish collections' } };
   /** User.schema.todos lists and Todo entities, each stored with `meta` */
   const todosState = (
-    lists: Record<string, string[]>,
-    todos: Record<string, unknown>,
+    lists: { [pk: string]: string[] },
+    todos: { [pk: string]: unknown },
     listMeta = meta,
   ) => ({
     entities: { [User.schema.todos.key]: lists, Todo: todos },
