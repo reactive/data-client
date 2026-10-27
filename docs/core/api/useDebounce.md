@@ -16,7 +16,7 @@ export const searchDemo = [
   { type: 'input[aria-label="Search issues"]', text: ' fallback' },
   { wait: 2000 },
   // 17 keystrokes, three searches in the store
-  { store: 'open', view: 'table' },
+  { store: 'open' },
 ];
 
 # useDebounce()

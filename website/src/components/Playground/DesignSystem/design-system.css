@@ -183,7 +183,7 @@ div.playground-preview h1:first-child {
 /* rows that are about to be replaced (a search's results while its query is
    still being typed): faded until the new ones land */
 .playground-preview .list[aria-busy='true'] {
-  opacity: 0.45;
+  opacity: 0.5;
 }
 .playground-preview .list > .listItem {
   align-items: center;
