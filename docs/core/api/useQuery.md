@@ -186,7 +186,6 @@ export default function UsersTableView({ users, sort, onSort }: Props) {
           <SortHeader column="name" sort={sort} onSort={onSort}>
             Name
           </SortHeader>
-          <th>Role</th>
           <SortHeader column="posts" sort={sort} onSort={onSort} numeric>
             Posts
           </SortHeader>
@@ -199,13 +198,7 @@ export default function UsersTableView({ users, sort, onSort }: Props) {
         {users.map(user => (
           <tr key={user.pk()}>
             <td>
-              <Avatar name={user.name} />
-              {user.name}
-            </td>
-            <td>
-              <span className={user.isAdmin ? 'pill primary' : 'pill'}>
-                {user.isAdmin ? 'Admin' : 'Member'}
-              </span>
+              {user.name} {user.isAdmin && <span className="pill">Admin</span>}
             </td>
             <td className="value">{user.posts}</td>
             <td className="value">{user.joined}</td>
@@ -362,7 +355,6 @@ render(<UsersPage />);
         <th :aria-sort="ariaSort('name')">
           <button class="sort" @click="toggleSort('name')">Name</button>
         </th>
-        <th>Role</th>
         <th class="value" :aria-sort="ariaSort('posts')">
           <button class="sort" @click="toggleSort('posts')">Posts</button>
         </th>
@@ -374,13 +366,8 @@ render(<UsersPage />);
     <tbody>
       <tr v-for="user in users" :key="user.pk()">
         <td>
-          <Avatar :name="user.name" />
           {{ user.name }}
-        </td>
-        <td>
-          <span :class="user.isAdmin ? 'pill primary' : 'pill'">
-            {{ user.isAdmin ? 'Admin' : 'Member' }}
-          </span>
+          <span v-if="user.isAdmin" class="pill">Admin</span>
         </td>
         <td class="value">{{ user.posts }}</td>
         <td class="value">{{ user.joined }}</td>

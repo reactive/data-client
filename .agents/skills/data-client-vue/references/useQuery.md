@@ -257,7 +257,6 @@ export interface Sort {
         <th :aria-sort="ariaSort('name')">
           <button class="sort" @click="toggleSort('name')">Name</button>
         </th>
-        <th>Role</th>
         <th class="value" :aria-sort="ariaSort('posts')">
           <button class="sort" @click="toggleSort('posts')">Posts</button>
         </th>
@@ -269,13 +268,8 @@ export interface Sort {
     <tbody>
       <tr v-for="user in users" :key="user.pk()">
         <td>
-          <Avatar :name="user.name" />
           {{ user.name }}
-        </td>
-        <td>
-          <span :class="user.isAdmin ? 'pill primary' : 'pill'">
-            {{ user.isAdmin ? 'Admin' : 'Member' }}
-          </span>
+          <span v-if="user.isAdmin" class="pill">Admin</span>
         </td>
         <td class="value">{{ user.posts }}</td>
         <td class="value">{{ user.joined }}</td>

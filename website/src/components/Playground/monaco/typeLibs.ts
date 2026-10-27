@@ -188,7 +188,7 @@ const PREVIEW_SCOPE_DECLARATIONS = `declare function render(component:JSX.Elemen
         declare function uuid(): string;
         declare function CurrentTime(props: {}):JSX.Element;
         declare function CancelButton(props: { onClick?: () => void }):JSX.Element;
-        declare function Avatar(props: { src?: string; name?: string; size?: number }):JSX.Element;
+        declare function Avatar(props: { src: string; size?: number }):JSX.Element;
         declare function Formatted({ downColor, formatter, formatterFn, timeout, transition, transitionLength, upColor, value, stylePrefix, }: NumberProps):JSX.Element
         declare function TextInput(props:Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> & { label?: React.ReactNode; loading?: boolean; size?: 'large' | 'medium' | 'small'; }):JSX.Element;
         declare function TextArea(props:React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: React.ReactNode;}):JSX.Element;
