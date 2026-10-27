@@ -4,15 +4,16 @@ import {RestEndpoint} from '@data-client/rest';
 export const raceDemo = [
   { delay: 800, store: 'open' },
   { delay: 1000, click: 'button.upvote' },
-  { delay: 20, click: 'button.upvote' },
-  { delay: 20, click: 'button.upvote' },
-  { delay: 20, click: 'button.upvote' },
+  ...Array.from({ length: 4 }, () => ({
+    delay: 100,
+    click: 'button.upvote',
+  })),
   // past the slowest increment response (the fixture's 5s), so the
   // timeline holds every response
   { wait: 5500 },
   { click: { in: 'store', selector: 'button[aria-label="Diff"]' } },
   // the first action (the count's load), then on through each change, time
-  // to read each diff: 5 = the changes the 4 clicks make, as Diff's "Next
+  // to read each diff: 6 = the changes the 5 clicks make, as Diff's "Next
   // change" counts them (more would idle at the end before the close)
   {
     click: {
@@ -20,7 +21,7 @@ export const raceDemo = [
       selector: '[role="group"][aria-label^="Scrubber"] button[data-id]',
     },
   },
-  ...Array.from({ length: 5 }, () => ({
+  ...Array.from({ length: 6 }, () => ({
     delay: 1500,
     click: { in: 'store', selector: 'button[aria-label="Next change"]' },
   })),
