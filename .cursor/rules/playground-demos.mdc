@@ -14,17 +14,16 @@ A demo soft-sells Data Client first and teaches users and agents how to use it s
 
 - **Use case**: pick one that clearly shows the feature's advantage over the alternative (hand-rolled state, refetching, another library). If the preview doesn't make the advantage visible, pick another use case.
 - **Mechanism**: make it easy to see how it works and why it's better: the reader can point at what the feature did (the row that updated in place, one request instead of three, the entry in the Store).
-- **Look**: very beautiful, built from the playground design system so it reads as a real app.
+- **Look**: very beautiful, built from the playground design system so it reads as a real app. Styling goes in the design system, never inline styles or CSS in the example code, so a look changes in one place.
 - **Scope**: as simple as possible while still showing maximum value, utility and related features. Cut whatever doesn't serve the point; add a related feature only when it shows more of the value.
-- **New ideas**: coming up with a new demo idea needs at least high reasoning effort. Below that, ask to raise it (or hand the ideation to a subagent at high) before choosing.
+- **New ideas**: coming up with a new demo idea needs at least high reasoning effort, since the idea decides everything above. Below that, ask the user to raise it (or hand the ideation to a subagent at high) before choosing.
 
 ## Conventions from review
 
-- The demo makes its point by itself: no captions, narration or "watch this" text in the preview.
-- Loading states are skeletons (`<Loading />`, `skeleton`), never "Loading…" text.
+- The demo makes its point by itself: no captions, narration or "watch this" text in the preview. Needing one means the use case doesn't show the advantage yet.
+- Loading states are skeletons (`<Loading />`, `skeleton`), never "Loading…" text: the demo shows what a good app does.
 - A demo of a real public API keeps the real URL and response shape in its code and is intercepted by a fixture in `website/src/fixtures/`, so copied code returns real data. Live calls from the playground hit rate limits.
 - Code models what a careful app would do (`React.memo` on a list whose parent re-renders per keystroke, stable keys) even when the perf win is tiny, because readers copy it.
-- Styling lives in the design system, never inline styles or CSS in the example code.
-- Use `row` (code beside the preview) when the code is the lesson, even for routed or `autoRun` demos. Use `demo` (code behind a toggle) only when the point is purely visual, and ask first.
+- Use `row` (code beside the preview) when the code is the lesson, even for routed or `autoRun` demos. Use `demo` (code behind a toggle) only when the point is purely visual, and ask the user first.
 - Anything extra a demo needs (a clock, toasts) goes in the demo code using a design-system component or class, never a new Playground prop: the Playground is shared by every demo.
-- Check it at phone width and in both light and dark themes.
+- Check it at phone width and in both light and dark themes: readers see all of them, and the site must work on every one.
