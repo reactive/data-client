@@ -24,7 +24,7 @@ const DemoPlayground = memo(
     const { selectedValue, values } = useContext(CodeTabContext);
 
     return (
-      <div ref={ref}>
+      <div ref={ref} data-playground-group>
         <ProtocolChoice />
         {values.map(
           ({

@@ -71,6 +71,10 @@ while hidden, so its store resets. The homepage passes `hidden`; in MDX,
 `PlaygroundTabs` sets it through `PlaygroundHiddenContext`
 (`hiddenContext.ts`) for every playground under an unselected tab, nested
 groups included. An explicit prop wins.
+In `row`, the result never shrinks below its tallest (`useHeightRatchet`),
+shared by the playgrounds under one `data-playground-group` (the homepage's
+protocol switch, `PlaygroundTabs`), so a switched-in tab's loading page
+doesn't shorten it.
 
 Mobile and bots get an editable react-live editor instead of Monaco and
 download none of it. Mobile runs the preview; bots keep `PreviewLoading`

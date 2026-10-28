@@ -23,6 +23,7 @@ export default function PreviewWrapper({
   const [fixturesOpen, setFixturesOpen] = useState(false);
   const [result, setResult] = useState<HTMLDivElement | null>(null);
   usePreviewGap(result);
+  useHeightRatchet(result);
   const fixturesId = useId();
   const fixturesLabel = translate({
     id: 'playground.fixtures',
@@ -155,6 +156,34 @@ function usePreviewGap(result: HTMLElement | null) {
       observer.disconnect();
       row.style.removeProperty('--pg-preview-gap');
     };
+  }, [result]);
+}
+
+/** Row layout: the result never shrinks below the tallest it has been, as
+ * `--pg-result-min` on its playground, or on the group it switches within
+ * (`data-playground-group`, e.g. REST/GraphQL), so the shorter loading page
+ * doesn't flash the page's height on a remount or a switch. The row's
+ * editor sits apart, so it isn't held tall with it */
+const ratchet = '--pg-result-min';
+function useHeightRatchet(result: HTMLElement | null) {
+  useLayoutEffect(() => {
+    const holder =
+      result?.closest<HTMLElement>('[data-playground-group]') ??
+      result?.closest<HTMLElement>('[data-playground]');
+    if (
+      !result ||
+      !holder ||
+      !result.closest('.' + styles.row) ||
+      typeof ResizeObserver === 'undefined'
+    )
+      return;
+    const observer = new ResizeObserver(() => {
+      const height = result.offsetHeight;
+      if (height > (parseFloat(holder.style.getPropertyValue(ratchet)) || 0))
+        holder.style.setProperty(ratchet, `${height}px`);
+    });
+    observer.observe(result);
+    return () => observer.disconnect();
   }, [result]);
 }
 
