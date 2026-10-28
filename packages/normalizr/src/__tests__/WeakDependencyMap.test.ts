@@ -1,8 +1,9 @@
 import { Temporal } from 'temporal-polyfill';
 
+import { INVALID } from '../denormalize/symbol';
 import { EntityPath } from '../interface';
 import { MemoPolicy } from '../memo/Policy';
-import WeakDependencyMap from '../memo/WeakDependencyMap';
+import WeakDependencyMap, { depKey } from '../memo/WeakDependencyMap';
 
 describe('WeakDependencyMap', () => {
   const a = { hi: '5' };
@@ -91,6 +92,32 @@ describe('WeakDependencyMap', () => {
     expect(wem.get({}, getEntity)[0]).toBeUndefined();
   });
 
+  it.each<[string, any]>([
+    ['null', null],
+    ['INVALID', INVALID],
+  ])('tracks a %s dependency, as root or after it', (_, value) => {
+    const wem = new WeakDependencyMap<EntityPath>();
+    const withA = (entity: any) =>
+      MemoPolicy.getEntities({ ...state, A: { '1': entity } });
+    const depValue = { path: depA.path, entity: value };
+    wem.set([depValue], 'root');
+    wem.set([depB, depValue], 'child');
+    expect(wem.get(value, withA(value))[0]).toBe('root');
+    expect(wem.get(b, withA(value))[0]).toBe('child');
+    expect(wem.get(b, withA(a))[0]).toBeUndefined();
+    expect(wem.get(b, withA(undefined))[0]).toBeUndefined();
+  });
+
+  it('keys objects and functions by themselves, so they stay collectable', () => {
+    // an Entity class is a function, and is the first dependency of buildQueryKey
+    class Thing {}
+    const obj = {};
+    expect(depKey(Thing)).toBe(Thing);
+    expect(depKey(obj)).toBe(obj);
+    expect(depKey(null)).toBe(depKey(null));
+    expect(depKey(null)).not.toBe(depKey(INVALID));
+  });
+
   it('considers empty key list invalid', () => {
     const wem = new WeakDependencyMap<EntityPath>();
     expect(() => wem.set([], 'whatever')).toThrowErrorMatchingInlineSnapshot(
@@ -156,7 +183,7 @@ describe('WeakDependencyMap', () => {
       expect(wem.get(a, getEntity, [{ userId: 'alice' }])[0]).toBeUndefined();
 
       // removing entity `b` from the store makes the tail entity lookup
-      // resolve to the UNDEF sentinel in mixed mode, which doesn't match
+      // resolve to the undefined stand-in in mixed mode, which doesn't match
       // the originally-recorded reference → miss
       const getEntityMissingB = MemoPolicy.getEntities({ A: { '1': a } });
       expect(

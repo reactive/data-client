@@ -6,6 +6,7 @@ import {
   initialState,
   MemoCache,
   WeakDependencyMap,
+  INVALID,
 } from './dist/index.js';
 import { createAdd } from './filter.js';
 import { printStatus } from './printStatus.js';
@@ -38,6 +39,23 @@ const dataValues = {
   project: Object.fromEntries(data.project.map(p => [p.id, p])),
 };
 const valuesState = normalize(ProjectSchemaValues, dataValues);
+
+/** `entities` with every 4th nested BuildTypeDescription missing, or set to
+ * `hole`. Those are still dependencies of the projects that nest them. */
+function withNestedHoles(hole) {
+  const buildTypes = { ...entities.BuildTypeDescription };
+  Object.keys(buildTypes).forEach((id, i) => {
+    if (i % 4) return;
+    if (hole === 'missing') delete buildTypes[id];
+    else buildTypes[id] = hole;
+  });
+  return { ...entities, BuildTypeDescription: buildTypes };
+}
+const nestedHoles = [
+  ['missing', withNestedHoles('missing')],
+  ['null', withNestedHoles(null)],
+  ['INVALID', withNestedHoles(INVALID)],
+];
 
 let githubState = normalize(User, userData);
 
@@ -144,6 +162,11 @@ export default function addNormlizrSuite(suite, filter) {
   add('denormalizeLong donotcache', () => {
     return denormalize(ProjectSchema, result, entities);
   });
+  for (const [hole, holeEntities] of nestedHoles) {
+    add(`denormalizeLong nested 25% ${hole}`, () => {
+      return new MemoCache().denormalize(ProjectSchema, result, holeEntities);
+    });
+  }
   add('denormalizeLong Values donotcache', () => {
     return denormalize(
       ProjectSchemaValues,
@@ -202,6 +225,14 @@ export default function addNormlizrSuite(suite, filter) {
       },
     },
   );
+  for (const [hole, holeEntities] of nestedHoles) {
+    // one MemoCache each, so the variants don't evict each other's result
+    const memoHoles = new MemoCache();
+    memoHoles.denormalize(ProjectSchema, result, holeEntities, []);
+    add(`denormalizeLong nested 25% ${hole} withCache`, () => {
+      return memoHoles.denormalize(ProjectSchema, result, holeEntities, []);
+    });
+  }
   add('denormalizeLong Values withCache', () => {
     return memo.denormalize(
       ProjectSchemaValues,

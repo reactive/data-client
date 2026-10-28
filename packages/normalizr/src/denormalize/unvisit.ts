@@ -1,6 +1,5 @@
 import type Cache from './cache.js';
 import { INVALID } from './symbol.js';
-import { UNDEF } from './UNDEF.js';
 import type {
   EntityInterface,
   EntityPath,
@@ -10,6 +9,18 @@ import { isEntity } from '../isEntity.js';
 import type { DenormGetEntity } from '../memo/types.js';
 import { denormalize as arrayDenormalize } from '../schemas/Array.js';
 import { denormalize as objectDenormalize } from '../schemas/Object.js';
+
+/** Ids that can't be looked up, so they're never cached or tracked. */
+const isBlankPk = (pk: unknown) =>
+  pk === undefined || pk === '' || pk === 'undefined';
+
+/** What a missing, `null` or `INVALID` entity denormalizes to. */
+const nonObjectValue = (
+  schema: EntityInterface,
+  entity: unknown,
+  delegate: IDenormalizeDelegate,
+): any =>
+  typeof entity === 'symbol' ? schema.denormalize(entity, delegate) : entity;
 
 const getUnvisitEntity = (
   getEntity: DenormGetEntity,
@@ -23,28 +34,14 @@ const getUnvisitEntity = (
     const inputIsId = typeof entityOrId !== 'object';
     const entity =
       inputIsId ? getEntity({ key: schema.key, pk: entityOrId }) : entityOrId;
-    if (typeof entity === 'symbol') {
-      return schema.denormalize(entity, delegate);
-    }
-
-    if (
-      entity === undefined &&
-      inputIsId &&
-      // entityOrId cannot be undefined literal as this function wouldn't be called in that case
-      // however the blank strings can still occur
-      entityOrId !== '' &&
-      entityOrId !== 'undefined'
-    ) {
-      // we cannot perform WeakMap lookups with `undefined`, so we use a special object to represent undefined
-      // we're actually using this call to ensure we update the cache if a nested schema changes from `undefined`
-      // this is because cache.getEntity adds this key,pk as a dependency of anything it is nested under
-      return cache.getEntity(entityOrId, schema, UNDEF, localCacheKey => {
-        localCacheKey.set(entityOrId, undefined);
-      });
-    }
-
     if (typeof entity !== 'object' || entity === null) {
-      return entity as any;
+      // A missing, null or INVALID entity is still a dependency of anything
+      // nested above it, so those recompute once it changes. Blank ids can't
+      // be looked up, so they aren't dependencies.
+      // Only the dependency is needed: there is nothing worth caching.
+      if (inputIsId && !isBlankPk(entityOrId))
+        cache.dependOn(entityOrId, schema, entity);
+      return nonObjectValue(schema, entity, delegate);
     }
 
     let pk: string | number | undefined =
@@ -54,7 +51,7 @@ const getUnvisitEntity = (
 
     // if we can't generate a working pk we cannot do cache lookups properly,
     // so simply denormalize without caching
-    if (pk === undefined || pk === '' || pk === 'undefined') {
+    if (isBlankPk(pk)) {
       return noCacheGetEntity(localCacheKey =>
         unvisitEntityObject(schema, entity, '', localCacheKey, delegate),
       );
