@@ -111,6 +111,7 @@ export function MockController<
               if (!fixture) {
                 throw new Error('No fixture found');
               }
+              if (signal?.aborted) throw abortReason(signal);
               // delayCollapse determines when the fixture function is 'collapsed' (aka 'run')
               // collapsed: https://en.wikipedia.org/wiki/Copenhagen_interpretation
               if (fixture.delayCollapse) {
@@ -158,13 +159,7 @@ function wait(ms: number, signal?: AbortSignal) {
   return new Promise<void>((resolve, reject) => {
     const abort = () => {
       clearTimeout(timer);
-      // AbortSignal polyfills (React Native's) may not set reason
-      reject(
-        signal.reason ??
-          Object.assign(new Error('The operation was aborted.'), {
-            name: 'AbortError',
-          }),
-      );
+      reject(abortReason(signal));
     };
     const timer = setTimeout(() => {
       signal.removeEventListener('abort', abort);
@@ -173,4 +168,14 @@ function wait(ms: number, signal?: AbortSignal) {
     if (signal.aborted) abort();
     else signal.addEventListener('abort', abort, { once: true });
   });
+}
+
+function abortReason(signal: AbortSignal) {
+  // AbortSignal polyfills (React Native's) may not set reason
+  return (
+    signal.reason ??
+    Object.assign(new Error('The operation was aborted.'), {
+      name: 'AbortError',
+    })
+  );
 }

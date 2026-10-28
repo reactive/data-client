@@ -71,6 +71,17 @@ describe('MockController', () => {
       );
       await expect(promise).rejects.toMatchObject({ name: 'AbortError' });
     });
+
+    it('rejects when already aborted, even without a delay', async () => {
+      const abort = new AbortController();
+      abort.abort();
+      const promise = mockedFetch(
+        [{ ...fixtures[0], delay: undefined }],
+        ArticleResource.get.extend({ signal: abort.signal }),
+        { id: 5 },
+      );
+      await expect(promise).rejects.toMatchObject({ name: 'AbortError' });
+    });
   });
 
   it('awaits an async fetchResponse, which can read init.signal', async () => {

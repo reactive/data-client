@@ -1,7 +1,7 @@
+import { actionTypes, type Manager } from '@data-client/react';
 import { usePluralForm } from '@docusaurus/theme-common';
 import { translate } from '@docusaurus/Translate';
-import { actionTypes, type Manager } from '@data-client/react';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 
 import styles from '../styles.module.css';
 
@@ -13,13 +13,12 @@ import styles from '../styles.module.css';
  * Stays hidden until the first fetch, so a preview that never fetches shows
  * no badge. */
 export function useInFlightCount(enabled: boolean) {
-  const ref = useRef<HTMLSpanElement>(null);
   // a page's locale never changes; keep the first label (see RenderCount)
   const { selectMessage } = usePluralForm();
-  const [manager] = useState((): Manager => {
+  const [{ manager, attach }] = useState(() => {
     const keys = new Set<string>();
+    let badge: HTMLSpanElement | null = null;
     const show = () => {
-      const badge = ref.current;
       if (!badge) return;
       badge.textContent = selectMessage(
         keys.size,
@@ -34,7 +33,7 @@ export function useInFlightCount(enabled: boolean) {
       );
       badge.hidden = false;
     };
-    return {
+    const manager: Manager = {
       middleware: () => next => action => {
         switch (action.type) {
           case actionTypes.FETCH:
@@ -53,12 +52,19 @@ export function useInFlightCount(enabled: boolean) {
       // a remounted store starts with nothing in flight
       cleanup() {
         keys.clear();
+        show();
       },
     };
+    // the first fetches dispatch while the badge itself first renders
+    const attach = (span: HTMLSpanElement | null) => {
+      badge = span;
+      if (keys.size) show();
+    };
+    return { manager, attach };
   });
   if (!enabled) return {};
   const badge = (
-    <span ref={ref} hidden role="status" className={styles.inFlightCount} />
+    <span ref={attach} hidden role="status" className={styles.inFlightCount} />
   );
   return { manager, badge };
 }
