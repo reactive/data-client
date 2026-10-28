@@ -1,16 +1,13 @@
 ---
-paths:
-  - "docs/**/*.md"
-  - "docs/**/*.mdx"
-  - "website/src/fixtures/**"
-  - "website/src/components/Demo/code/**"
+name: playground-demos
+description: Choose and write live playground demos for the dataclient.io docs site and homepage (HooksPlayground examples, the homepage demo, their fixtures). Use when adding, redesigning or reviewing a docs demo, or coming up with a new demo idea for a feature.
+metadata:
+  internal: true
 ---
-<!-- Generated from .cursor/rules/playground-demos.mdc by `yarn build:agent-rules`. Edit the source. -->
-
 
 # Playground demos
 
-For adding or changing a live playground demo (`<HooksPlayground>`, the homepage's `Demo/code`). How playgrounds work (props, layouts, fixtures, design-system classes) is in the [Playground README](../../website/src/components/Playground/README.md).
+How playgrounds work (props, layouts, fixtures, design-system classes) is in the [Playground README](../../../website/src/components/Playground/README.md).
 
 ## Goal
 
