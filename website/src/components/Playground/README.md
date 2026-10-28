@@ -257,6 +257,7 @@ Styled elements: `h2` (page title), `button` (`primary` fills one;
 | `value`                                    | a row's figure (a price); last in a `listItem`, at the row's end, tabular       |
 | `byline`, `author` (`Avatar` takes `size`) | who wrote something                                                             |
 | `pill`                                     | a label after a name (an admin), in the accent                                  |
+| `assignee` (a `label`)                     | a row's owner: avatar and name in a pill; a `select` in it is the picker        |
 | `buttonGroup`                              | segmented actions (Fail Soft, Fail Hard)                                        |
 | `segmented`                                | a filter's 2-4 choices on a track; `aria-pressed` marks the pick, a pill slides |
 | `field` (a `label`)                        | its name over the `input` or `textarea` it holds                                |
@@ -288,6 +289,8 @@ Writing a script:
 - Declare it as a module-level `export const` (like `raceDemo` in
   `docs/rest/shared/_optimisticTransform.mdx`): once-per-page is keyed by
   array identity, so an inline array replays on every framework switch.
+- A `select` step picks an option by value; the browser's menu never shows,
+  so the pointer and its press mark the change.
 - Target Store UI with `in: 'store'`. Match `aria-label`s and `data-*`
   attributes, not visible text that copy edits change.
 - The Store opens in the reader's saved view; a script that needs one names

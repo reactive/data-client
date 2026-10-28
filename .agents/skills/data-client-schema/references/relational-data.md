@@ -104,7 +104,11 @@ render(<PostPage />);
 Nesting data when your endpoint doesn't.
 
 Even if the network responses don't nest data, we can perform client-side joins by specifying
-the relationship in [Entity.schema](./Entity.md#schema)
+the relationship in [Entity.schema](./Entity.md#schema).
+
+Here `/todos` only sends each todo's `userId`. [Entity.process()](./Entity.md#process) points
+`user` at that id, so `todo.user` is the whole `User` from `/users`, which loads in parallel. Assigning
+a todo to someone else sends just the new `userId`.
 
 ```ts title="resources/User"
 import { Entity, resource } from '@data-client/rest';
@@ -114,7 +118,10 @@ export class User extends Entity {
   username = '';
   name = '';
   email = '';
-  website = '';
+
+  get profileImage() {
+    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
+  }
 }
 export const UserResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -123,7 +130,7 @@ export const UserResource = resource({
 });
 ```
 
-```ts title="resources/Todo"
+```ts title="resources/Todo" {7,11-17}
 import { Entity, resource } from '@data-client/rest';
 import { User } from './User';
 
@@ -133,6 +140,8 @@ export class Todo extends Entity {
   user? = User.fromJS();
   title = '';
   completed = false;
+
+  // the API sends userId; join it to the User with that id
   static schema = {
     user: User,
   };
@@ -144,28 +153,78 @@ export const TodoResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
+  optimistic: true,
 });
 ```
 
-```tsx title="TodoJoined"
-import { useFetch, useSuspense } from '@data-client/react';
+```tsx title="TodoItem"
+import React from 'react';
+import { useController } from '@data-client/react';
+import { TodoResource, type Todo } from './resources/Todo';
+import type { User } from './resources/User';
+
+function TodoItem({ todo, users }: Props) {
+  const ctrl = useController();
+  const update = (body: Partial<Todo>) =>
+    ctrl.fetch(TodoResource.partialUpdate, { id: todo.id }, body);
+  return (
+    <div className="listItem">
+      <label>
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          onChange={e => update({ completed: e.currentTarget.checked })}
+        />
+        {todo.title}
+      </label>
+      {todo.user ?
+        <label className="assignee">
+          <Avatar src={todo.user.profileImage} size={20} />
+          {todo.user.name}
+          <select
+            aria-label={`Owner of ${todo.title}`}
+            value={todo.userId}
+            onChange={e => update({ userId: Number(e.currentTarget.value) })}
+          >
+            {users?.map(user => (
+              <option key={user.pk()} value={user.id}>
+                {user.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      : <span className="assignee skeleton" />}
+    </div>
+  );
+}
+export default React.memo(TodoItem);
+
+interface Props {
+  todo: Todo;
+  users: User[] | undefined;
+}
+```
+
+```tsx title="TodoList"
+import { useCache, useFetch, useSuspense } from '@data-client/react';
 import { TodoResource } from './resources/Todo';
 import { UserResource } from './resources/User';
+import TodoItem from './TodoItem';
 
-function TodosPage() {
+function TodoList() {
+  // both requests start at once; todos render without waiting for users
   useFetch(UserResource.getList);
   const todos = useSuspense(TodoResource.getList);
+  const users = useCache(UserResource.getList);
   return (
-    <div>
-      {todos.slice(17, 24).map(todo => (
-        <div key={todo.pk()}>
-          {todo.title} by <small>{todo.user?.name}</small>
-        </div>
+    <div className="list">
+      {todos.map(todo => (
+        <TodoItem key={todo.pk()} todo={todo} users={users} />
       ))}
     </div>
   );
 }
-render(<TodosPage />);
+render(<TodoList />);
 ```
 
 ### Key-based joins
