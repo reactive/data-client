@@ -7,24 +7,24 @@ metadata:
 
 # Playground demos
 
-How playgrounds work is in the [Playground README](../../../website/src/components/Playground/README.md); a demo author needs its [Layouts](../../../website/src/components/Playground/README.md#layouts) and [Design system](../../../website/src/components/Playground/README.md#design-system) sections.
+How playgrounds work is in the [Playground README](../../../website/src/components/Playground/README.md), mainly its Layouts and Design system sections.
 
 ## Goal
 
 A demo soft-sells Data Client first and teaches users and agents how to use it second. People copy what they see and agents copy the code, so both teach.
 
-- **Use case**: pick one whose preview clearly shows the feature's advantage over the alternative (hand-rolled state, refetching, another library).
-- **Mechanism**: make it easy to see how it works and why it's better: the reader can point at what the feature did (the row that updated in place, one request instead of three, the entry in the Store).
-- **Look**: very beautiful, built from the playground design system (never inline styles or CSS in the example code) so it reads as a real app.
-- **Scope**: as simple as possible while still showing maximum value, utility and related features. Cut whatever doesn't serve the point; add a related feature only when it shows more of the value.
-- **New ideas**: inventing a new demo idea needs at least high reasoning effort, since the idea decides everything above. At lower or unknown effort, hand the ideation to a high-effort subagent or ask the user to raise it.
+- **Use case**: one where the preview clearly shows the feature's advantage over the alternative.
+- **Mechanism**: easy to see how it works and why it's better.
+- **Look**: very beautiful, built from the playground design system, with no styling in the example code.
+- **Scope**: as simple as possible while still showing maximum value, utility and related features.
+- **New ideas**: inventing one needs at least high reasoning effort. At lower or unknown effort, hand the ideation to a high-effort subagent or ask the user.
 
-## Conventions from review
+## Conventions
 
-- The demo makes its point by itself: no captions, narration or "watch this" text in the preview. If it needs one, pick another use case.
-- Loading states are skeletons (`<Loading />`, `skeleton`), never "Loading…" text.
-- A demo of a real public API keeps the real URL and response shape in its code and is intercepted by a fixture in `website/src/fixtures/`, so copied code returns real data. Live calls from the playground hit rate limits.
-- Code models what a careful app would do (`React.memo` on a list whose parent re-renders per keystroke, stable keys) even when the perf win is tiny, because readers copy it.
-- Use `row` (code beside the preview) when the code is the lesson, even for routed or `autoRun` demos. Use `demo` (code behind a toggle) only when the point is purely visual, and ask the user first.
-- Anything extra a demo needs (a clock, toasts) goes in the demo code using a design-system component or class, never a new Playground prop: the Playground is shared by every demo.
-- Check it at phone width and in both light and dark themes.
+- The demo makes its point without captions or narration text. If it needs them, pick another use case.
+- Loading states are skeletons (`<Loading />`, `skeleton`), not "Loading…" text.
+- A demo of a real public API calls its real URL, intercepted by a fixture in `website/src/fixtures/`, so copied code works.
+- The code follows the practices a careful app would, even where the demo could skip them, because readers copy it.
+- Use the `row` layout when the code is the lesson. Ask the user before using `demo`, which hides the code.
+- Anything extra a demo needs goes in the demo code with a design-system component, never a new Playground prop.
+- Check phone width and both themes.
