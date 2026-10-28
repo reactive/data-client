@@ -495,7 +495,7 @@ export default class ActionLog {
     // a copied endpoint (see `fetchReason`) can't read its schema
     if (typeof endpoint?.key !== 'function') return new Set();
     // a fresh memo: one that met a nested entity invalid can still name
-    // only the outer one (REACT-15)
+    // only the outer one, until #4460 lands
     const { paths } = new MemoCache().denormalize(
       endpoint.schema,
       state.endpoints[key],
