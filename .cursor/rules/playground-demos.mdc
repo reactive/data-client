@@ -1,5 +1,5 @@
 ---
-description: How to choose and write live playground demos for the docs site (HooksPlayground examples, their fixtures and design-system markup)
+description: How to choose and write live playground demos for the docs site (HooksPlayground examples, the homepage demo, and their fixtures)
 globs: docs/**/*.md, docs/**/*.mdx, website/src/fixtures/**, website/src/components/Demo/code/**
 alwaysApply: false
 ---
