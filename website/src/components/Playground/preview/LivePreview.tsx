@@ -6,6 +6,7 @@ import type { AutoRunScript } from './autorun/script';
 import { useAutoRun } from './autorun/useAutoRun';
 import Preview from './Preview';
 import PreviewWrapper, { PreviewHeaderControls } from './PreviewWrapper';
+import { useInFlightCount } from './InFlightCount';
 import { useRenderCount } from './RenderCount';
 import { routerTrailer } from './router';
 import type { CodeDocument } from '../editor/codeModel';
@@ -23,6 +24,7 @@ export interface LivePreviewProps<T> extends PreviewProps<T> {
   /** Row's fixtures, folded into the header (see PreviewWrapper) */
   fixtureContent?: React.ReactNode;
   renderCount: boolean;
+  inFlight?: boolean;
   actionLog?: LogOptions;
   autoRun?: AutoRunScript;
   /** Opens or closes the Store for the demo, without saving it */
@@ -42,6 +44,7 @@ export default function LivePreview<T>({
   fixtures,
   getInitialInterceptorData,
   renderCount,
+  inFlight = false,
   actionLog,
   autoRun,
   showStore,
@@ -49,6 +52,7 @@ export default function LivePreview<T>({
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
+  const inFlightCount = useInFlightCount(inFlight);
   // `;` keeps a half-typed statement from absorbing the next document.
   const code = useMemo(
     () =>
@@ -102,7 +106,12 @@ export default function LivePreview<T>({
         headerControls={
           <PreviewHeaderControls
             row={row}
-            badge={badge}
+            badge={
+              <>
+                {inFlightCount.badge}
+                {badge}
+              </>
+            }
             storeOpen={storeOpen}
             toggleStore={toggleStore}
             reset={reset}
@@ -119,6 +128,7 @@ export default function LivePreview<T>({
           fixtures={fixtures}
           getInitialInterceptorData={getInterceptorData}
           onCommit={onCommit}
+          observer={inFlightCount.manager}
           initialState={restored?.state}
           registry={registry}
           history={history}

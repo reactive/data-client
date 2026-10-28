@@ -73,6 +73,9 @@ export interface PlaygroundProps<T = any> {
   defaultTab?: string;
   /** Show a badge counting the preview's React commits (e.g. one notification vs N) */
   renderCount?: boolean;
+  /** Show a badge counting the preview's fetches in flight (e.g. cancelled
+   * requests leave it, skipped ones pile up) */
+  inFlight?: boolean;
   /** How the Store's action log records (e.g. `{ recordFrom: 'open' }` for
    * a fast stream), over `DOCS_LOG` */
   actionLog?: LogOptions;
@@ -98,6 +101,7 @@ export default function Playground<T>({
   getInitialInterceptorData,
   defaultTab,
   renderCount = false,
+  inFlight = false,
   actionLog: logOptions,
   autoRun,
 }: PlaygroundProps<T>) {
@@ -240,6 +244,7 @@ export default function Playground<T>({
                 fixtures={fixtures}
                 getInitialInterceptorData={getInitialInterceptorData}
                 renderCount={renderCount}
+                inFlight={inFlight}
                 actionLog={actionLog}
                 autoRun={autoRun}
                 showStore={showStore}

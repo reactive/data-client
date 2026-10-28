@@ -2046,13 +2046,14 @@ div.fixtureJson + div.fixtureJson {
   }
 }
 
-/* Preview header badge (Playground `renderCount`) */
+/* Preview header badges (Playground `renderCount`, `inFlight`) */
 .previewHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.renderCount {
+.renderCount,
+.inFlightCount {
   /* a tonal pill, no edge */
   font: 500 12px / 1.7 var(--ifm-font-family-base);
   letter-spacing: normal;
@@ -2063,6 +2064,9 @@ div.fixtureJson + div.fixtureJson {
   color: inherit;
   cursor: pointer;
   font-variant-numeric: tabular-nums;
+}
+.inFlightCount {
+  cursor: default;
 }
 .previewControls {
   display: flex;

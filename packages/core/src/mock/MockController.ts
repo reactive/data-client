@@ -87,22 +87,26 @@ export function MockController<
                 endpoint: fixture.endpoint,
                 response(...args) {
                   const endpoint = (action.endpoint as any).extend({
-                    fetchResponse: (input: RequestInfo, init: RequestInit) => {
-                      const ret = fetchResponse.call(this, input, init);
-                      return Promise.resolve(
-                        new Response(JSON.stringify(ret), {
-                          status: 200,
-                          headers: new Headers({
-                            'Content-Type': 'application/json',
-                          }),
+                    fetchResponse: async (
+                      input: RequestInfo,
+                      init: RequestInit,
+                    ) => {
+                      const ret = await fetchResponse.call(this, input, init);
+                      return new Response(JSON.stringify(ret), {
+                        status: 200,
+                        headers: new Headers({
+                          'Content-Type': 'application/json',
                         }),
-                      );
+                      });
                     },
                   });
                   return (endpoint as any)(...args);
                 },
               };
             }
+            // like fetch(), an aborted signal rejects even while the fixture waits
+            const signal: AbortSignal | undefined = (action.endpoint as any)
+              .signal;
             const fetch = async () => {
               if (!fixture) {
                 throw new Error('No fixture found');
@@ -110,7 +114,7 @@ export function MockController<
               // delayCollapse determines when the fixture function is 'collapsed' (aka 'run')
               // collapsed: https://en.wikipedia.org/wiki/Copenhagen_interpretation
               if (fixture.delayCollapse) {
-                await new Promise(resolve => setTimeout(resolve, delayMs));
+                await wait(delayMs, signal);
               }
               const result = await collapseFixture(
                 fixture as any,
@@ -118,7 +122,7 @@ export function MockController<
                 this.interceptorData,
               );
               if (!fixture.delayCollapse && delayMs) {
-                await new Promise(resolve => setTimeout(resolve, delayMs));
+                await wait(delayMs, signal);
               }
               if (result.error) {
                 throw result.response;
@@ -146,4 +150,27 @@ export function MockController<
       }) as any;
     }
   };
+}
+
+/** Resolves after `ms`, or rejects with the signal's AbortError once aborted */
+function wait(ms: number, signal?: AbortSignal) {
+  if (!signal) return new Promise<void>(resolve => setTimeout(resolve, ms));
+  return new Promise<void>((resolve, reject) => {
+    const abort = () => {
+      clearTimeout(timer);
+      // AbortSignal polyfills (React Native's) may not set reason
+      reject(
+        signal.reason ??
+          Object.assign(new Error('The operation was aborted.'), {
+            name: 'AbortError',
+          }),
+      );
+    };
+    const timer = setTimeout(() => {
+      signal.removeEventListener('abort', abort);
+      resolve();
+    }, ms);
+    if (signal.aborted) abort();
+    else signal.addEventListener('abort', abort, { once: true });
+  });
 }

@@ -11,6 +11,7 @@ import React, {
 } from 'react';
 
 import {
+  aborted,
   actionKey,
   actionName,
   pollFrequencyOf,
@@ -374,7 +375,11 @@ export function typeClass(entry: LogEntry) {
     case actionTypes.FETCH:
       return styles.tFetch;
     case actionTypes.SET_RESPONSE:
-      return failed(entry) ? styles.tError : styles.tResponse;
+      return (
+        aborted(action) ? styles.tQuiet
+        : failed(entry) ? styles.tError
+        : styles.tResponse
+      );
     case actionTypes.SET:
       return styles.tSet;
     case actionTypes.INVALIDATE:
