@@ -28,7 +28,8 @@ type NormalizedRef = { id: string; schema: string } | string;
 
 const isShallowEqual = (a: NormalizedRef, b: NormalizedRef): boolean => {
   // TODO: make this extensible in the child's schema
-  if (typeof a === 'object' && typeof b === 'object') {
+  // arrays keep null members, and typeof null is 'object'
+  if (typeof a === 'object' && typeof b === 'object' && a && b) {
     return a.id === b.id && a.schema === b.schema;
   }
   return a === b;
@@ -359,24 +360,84 @@ function normalizeCreate(
     // visit instances are created on each normalize call so this will safely be reset
     visit.creating = true;
   }
-  const normalizedValue = this.schema.normalize(
-    !(this.schema instanceof ArraySchema) || Array.isArray(input) ?
-      input
-    : [input],
-    parent,
-    key,
-    delegate,
-  );
+  const isArray = this.schema instanceof ArraySchema;
+  if (isArray && !Array.isArray(input)) input = [input];
+  // before normalize, which revives the entity
+  const deletedAt =
+    isArray ? deletedIndexes(this.schema, input, parent, key, delegate) : [];
+  const normalizedValue = this.schema.normalize(input, parent, key, delegate);
   // parent is args when not nested
   const filterCollections = (this.createCollectionFilter as any)(...args);
+  // ArraySchema.normalize maps input 1:1, so normalizedValue[i] is input[i]'s ref
+  const deletedRefs: NormalizedRef[] = deletedAt.map(i => normalizedValue[i]);
   // add to any collections that match this
+  const target = deletedRefs.length ? withoutRefs(this, deletedRefs) : this;
   const entities = delegate.getEntities(this.key);
   if (entities)
     for (const collectionKey of entities.keys()) {
       if (!filterCollections(JSON.parse(collectionKey))) continue;
-      delegate.mergeEntity(this, collectionKey, normalizedValue);
+      delegate.mergeEntity(target, collectionKey, normalizedValue);
     }
   return normalizedValue as any;
+}
+
+/** Indexes of the incoming items whose entity was deleted.
+ *
+ * A deleted entity's ref stays in its collections, where denormalize skips it.
+ * Re-creating that pk would show it twice, so its old ref is dropped first.
+ */
+function deletedIndexes(
+  members: any,
+  input: any[],
+  parent: any,
+  key: string,
+  delegate: INormalizeDelegate,
+): number[] {
+  const indexes: number[] = [];
+  for (let i = 0; i < input.length; i++) {
+    const item = input[i];
+    // refs (ids) pass through normalize, so they can't revive an entity
+    if (typeof item !== 'object' || item === null) continue;
+    const schema = members.inferSchema(item, parent, key);
+    // only entities have a pk; skip nested objects and unknown members
+    if (typeof schema?.process !== 'function' || typeof schema.key !== 'string')
+      continue;
+    const processed = schema.process(item, parent, key, delegate.args);
+    if (processed === undefined) continue;
+    const pk = `${schema.pk(processed, parent, key, delegate.args)}`;
+    // Invalidate stores a symbol in place of the entity
+    if (typeof delegate.getEntity(schema.key, pk) === 'symbol') indexes.push(i);
+  }
+  return indexes;
+}
+
+/** Merges like `collection`, after dropping `refs` from the stored list */
+function withoutRefs(
+  collection: CollectionSchema<any, any>,
+  refs: NormalizedRef[],
+) {
+  const drop = (existing: any) =>
+    Array.isArray(existing) ? removeMerge(existing, refs) : existing;
+  return Object.create(collection, {
+    merge: {
+      value: (existing: any, incoming: any) =>
+        collection.merge(drop(existing), incoming),
+    },
+    mergeWithStore: {
+      value: (
+        existingMeta: any,
+        incomingMeta: any,
+        existing: any,
+        incoming: any,
+      ) =>
+        collection.mergeWithStore(
+          existingMeta,
+          incomingMeta,
+          drop(existing),
+          incoming,
+        ),
+    },
+  });
 }
 
 function CreateMover<C extends CollectionSchema<any, any>>(

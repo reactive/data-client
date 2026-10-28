@@ -1,6 +1,11 @@
 // eslint-env jest
 import { initialState, State } from '@data-client/core';
-import { normalize, denormalize, MemoCache } from '@data-client/normalizr';
+import {
+  normalize,
+  denormalize,
+  MemoCache,
+  INVALID,
+} from '@data-client/normalizr';
 import { ArticleResource, IDEntity } from '__tests__/new';
 import { Record } from 'immutable';
 
@@ -104,6 +109,8 @@ test('key works with custom schema', () => {
 });
 
 describe(`${schema.Collection.name} normalization`, () => {
+  const meta = { date: 0, expiresAt: Infinity, fetchedAt: 0 };
+
   let warnSpy: jest.Spied<typeof console.warn>;
   afterEach(() => {
     warnSpy.mockRestore();
@@ -330,6 +337,43 @@ describe(`${schema.Collection.name} normalization`, () => {
       expect(state.entities[collectionUnion.key]?.[collectionPK]).toEqual([
         { id: '2', schema: 'groups' },
         { id: '3', schema: 'groups' },
+      ]);
+    });
+
+    test('push of a deleted then re-created Union member adds it once', () => {
+      const collectionPK = collectionUnion.pk({}, {}, '', [
+        { completed: false },
+      ]);
+      const init: State<unknown> = {
+        ...initialState,
+        entities: {
+          [collectionUnion.key]: {
+            [collectionPK]: [
+              null,
+              { id: '1', schema: 'users' },
+              { id: '2', schema: 'groups' },
+            ],
+          },
+          User: { '1': INVALID },
+          Group: { '2': { id: '2', type: 'groups' } },
+        },
+        entitiesMeta: {
+          [collectionUnion.key]: { [collectionPK]: meta },
+          User: { '1': meta },
+          Group: { '2': meta },
+        },
+        indexes: {},
+      };
+      const state = normalize(
+        collectionUnion.push,
+        [{ id: '1', type: 'users' }],
+        [{ completed: false }],
+        init,
+      );
+      expect(state.entities[collectionUnion.key]?.[collectionPK]).toEqual([
+        null,
+        { id: '2', schema: 'groups' },
+        { id: '1', schema: 'users' },
       ]);
     });
 
@@ -765,6 +809,192 @@ describe(`${schema.Collection.name} normalization`, () => {
       init,
     );
     expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
+      '5',
+    ]);
+  });
+
+  const todo5 = { '5': { id: '5', title: 'finish collections' } };
+  /** User.schema.todos lists and Todo entities, each stored with `meta` */
+  const todosState = (
+    lists: { [pk: string]: string[] },
+    todos: { [pk: string]: unknown },
+    listMeta = meta,
+  ) => ({
+    entities: { [User.schema.todos.key]: lists, Todo: todos },
+    entitiesMeta: {
+      [User.schema.todos.key]: Object.fromEntries(
+        Object.keys(lists).map(pk => [pk, listMeta]),
+      ),
+      Todo: Object.fromEntries(Object.keys(todos).map(pk => [pk, meta])),
+    },
+    indexes: {},
+  });
+
+  test.each<['push' | 'unshift', string[], string[]]>([
+    ['push', ['10', '5'], ['5', '10']],
+    ['unshift', ['5', '10'], ['10', '5']],
+  ])(
+    '%s of a deleted then re-created id adds it once',
+    (method, before, after) => {
+      const init = todosState(
+        { '{"userId":"1"}': before },
+        // deleted, so the collection still holds its id
+        { ...todo5, '10': INVALID },
+      );
+      const state = normalize(
+        User.schema.todos[method],
+        [{ id: '10', title: 'recreated' }],
+        [{ userId: '1' }],
+        init,
+      );
+      expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual(
+        after,
+      );
+    },
+  );
+
+  test('push drops only the deleted ids among several items', () => {
+    const init = todosState(
+      { '{"userId":"1"}': ['10', '5'] },
+      { ...todo5, '10': INVALID },
+    );
+    const state = normalize(
+      User.schema.todos.push,
+      [
+        { id: '5', title: 'again' },
+        { id: '10', title: 'recreated' },
+      ],
+      [{ userId: '1' }],
+      init,
+    );
+    expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
+      '5',
+      '5',
+      '10',
+    ]);
+  });
+
+  test('re-creating a deleted id leaves collections it is not added to alone', () => {
+    const init = todosState(
+      { '{"userId":"1"}': ['10'], '{"userId":"2"}': ['10'] },
+      { '10': INVALID },
+    );
+    const state = normalize(
+      User.schema.todos.push,
+      [{ id: '10', title: 'recreated' }],
+      [{ userId: '1' }],
+      init,
+    );
+    expect(state.entities[User.schema.todos.key]).toEqual({
+      '{"userId":"1"}': ['10'],
+      '{"userId":"2"}': ['10'],
+    });
+  });
+
+  test('re-creating a deleted id keeps newer collection meta', () => {
+    const init = todosState(
+      { '{"userId":"1"}': ['10', '5'] },
+      { ...todo5, '10': INVALID },
+      { date: 100, expiresAt: Infinity, fetchedAt: 100 },
+    );
+    // a create response that was fetched before the list
+    const state = normalize(
+      User.schema.todos.push,
+      [{ id: '10', title: 'recreated' }],
+      [{ userId: '1' }],
+      init,
+      { date: 10, expiresAt: Infinity, fetchedAt: 10 },
+    );
+    expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
+      '10',
+      '5',
+    ]);
+    expect(
+      state.entitiesMeta[User.schema.todos.key]['{"userId":"1"}']?.fetchedAt,
+    ).toBe(100);
+  });
+
+  test('two pushes in one response each add their item once', () => {
+    const init = {
+      entities: {
+        [userTodos.key]: { '{"userId":"1"}': ['11', '5'] },
+        Todo: { '5': { id: '5', title: 'finish collections' }, '11': INVALID },
+      },
+      entitiesMeta: {
+        [userTodos.key]: { '{"userId":"1"}': meta },
+        Todo: { '5': meta, '11': meta },
+      },
+      indexes: {},
+    };
+    const state = normalize(
+      { first: userTodos.push, second: userTodos.push },
+      { first: [{ id: '10' }], second: [{ id: '11' }] },
+      [{ userId: '1' }],
+      init,
+    );
+    expect(state.entities[userTodos.key]['{"userId":"1"}']).toEqual([
+      '5',
+      '10',
+      '11',
+    ]);
+  });
+
+  test('push skips items whose process() invalidates them', () => {
+    class Draft extends IDEntity {
+      static key = 'Draft';
+      static process(input: any) {
+        return input.discard ? undefined : { ...input };
+      }
+    }
+    const drafts = new Collection([Draft]);
+    const state = normalize(drafts.push, [{ id: '1', discard: true }], [{}], {
+      entities: { [drafts.key]: { '{}': ['1'] }, Draft: { '1': INVALID } },
+      entitiesMeta: { [drafts.key]: { '{}': meta }, Draft: { '1': meta } },
+      indexes: {},
+    });
+    expect(state.entities[drafts.key]['{}']).toEqual(['1', '1']);
+  });
+
+  test('push into a collection of nested objects appends', () => {
+    const assignments = new Collection([{ todo: Todo }]);
+    const state = normalize(assignments.push, [{ todo: { id: '2' } }], [{}], {
+      entities: { [assignments.key]: { '{}': [{ todo: '1' }] } },
+      entitiesMeta: { [assignments.key]: { '{}': meta } },
+      indexes: {},
+    });
+    expect(state.entities[assignments.key]['{}']).toEqual([
+      { todo: '1' },
+      { todo: '2' },
+    ]);
+  });
+
+  test('push of ids does not process them', () => {
+    const process = jest.spyOn(Todo, 'process');
+    const init = todosState({ '{"userId":"1"}': ['5'] }, todo5);
+    const state = normalize(
+      User.schema.todos.push,
+      ['5'],
+      [{ userId: '1' }],
+      init,
+    );
+    expect(process).not.toHaveBeenCalled();
+    expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
+      '5',
+      '5',
+    ]);
+    process.mockRestore();
+  });
+
+  test('push of an id already in the collection adds it again, like Array.push()', () => {
+    const init = todosState({ '{"userId":"1"}': ['5'] }, todo5);
+    const state = normalize(
+      User.schema.todos.push,
+      [{ id: '5', title: 'finish collections' }],
+      [{ userId: '1' }],
+      init,
+    );
+    expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
+      '5',
       '5',
     ]);
   });
