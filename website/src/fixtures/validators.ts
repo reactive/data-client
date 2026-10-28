@@ -36,8 +36,7 @@ const validator = (
   min_self_delegation: '1',
 });
 
-// Made-up validators in the Cosmos Hub's response shape, in address order
-// like the real list
+// Made-up validators in the Cosmos Hub's response shape
 const validators = [
   validator(
     'a2kq7zm9d4xw3h8r5t6y0p2s4f7j9l3c8v5b1n',
