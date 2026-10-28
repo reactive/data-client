@@ -43,6 +43,7 @@ import {
 import { routesOf, shownChain } from './attribution';
 import type { Header } from './DiveViews';
 import { byData, onActivateKey, revealIn, toggled } from './dom';
+import { interactionsOf } from './interactions';
 import { actionId } from './model';
 import {
   ActionSpanContext,
@@ -53,7 +54,9 @@ import {
 } from './nav';
 import { Pipeline, StepPath } from './Pipeline';
 import styles from './store.module.css';
-import { RowWhy } from './Why';
+import { useActionsBy } from './storeView';
+import { InteractionHead, interactionLabel, RowWhy } from './Why';
+import type { ActionsBy } from '../StoreToggle';
 
 /** The groups with an action that touched the subject */
 export function useRows(filter: SubjectFilter) {
@@ -156,6 +159,7 @@ export function ActionsLevel({
   const pipeline = usePipelineAt(subject);
   const filter = pipeline?.filter ?? subjectFilter;
   const rows = useRows(filter);
+  const [by] = useActionsBy();
   return (
     <>
       {header(
@@ -170,7 +174,7 @@ export function ActionsLevel({
             onPick={pipeline.pickStage}
           />
         )}
-        <ActionList rows={rows} subject={subject} filter={filter} />
+        <ActionList rows={rows} subject={subject} filter={filter} by={by} />
       </section>
     </>
   );
@@ -185,11 +189,14 @@ function ActionList({
   rows,
   subject,
   filter,
+  by = 'request',
   onPick,
 }: {
   rows: readonly ActionGroup[];
   subject: View;
   filter: SubjectFilter;
+  /** One row per request, or rows under what started them */
+  by?: ActionsBy;
   /** What a row (`group`: its actions as one) or step (`action`) picked
    * does, by default open it */
   onPick?: (seq: number, scope?: Scope) => void;
@@ -203,6 +210,10 @@ function ActionList({
     .find(s => s !== undefined);
   const causeRow =
     causeSeq === undefined ? undefined : groupOf(groups, causeSeq);
+  const sections = useMemo(
+    () => (by === 'interaction' ? interactionsOf(rows, groups) : undefined),
+    [by, rows, groups],
+  );
   const scroller = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
   const toggle = useCallback(
@@ -251,6 +262,20 @@ function ActionList({
     // a step stands for its request up to it
     set(Number(next.dataset.seq), (next.dataset.scope as Scope) ?? 'request');
   };
+  const row = (group: ActionGroup) => (
+    <GroupRow
+      key={group.id}
+      group={group}
+      open={open.has(group.id)}
+      marked={group === current ? marked : undefined}
+      cause={group === causeRow}
+      refetches={refetchesOf(group, refetches)}
+      subject={subject}
+      filter={filter}
+      onToggle={toggle}
+      onSelect={onPick ?? show}
+    />
+  );
   return (
     <div ref={scroller} className={styles.actList} onKeyDown={onKeyDown}>
       {!rows.length && (
@@ -261,20 +286,18 @@ function ActionList({
           }
         </p>
       )}
-      {rows.map(group => (
-        <GroupRow
-          key={group.id}
-          group={group}
-          open={open.has(group.id)}
-          marked={group === current ? marked : undefined}
-          cause={group === causeRow}
-          refetches={refetchesOf(group, refetches)}
-          subject={subject}
-          filter={filter}
-          onToggle={toggle}
-          onSelect={onPick ?? show}
-        />
-      ))}
+      {sections ?
+        sections.map(section => (
+          <section
+            key={section.id}
+            className={styles.interaction}
+            aria-label={interactionLabel(section)}
+          >
+            <InteractionHead section={section} />
+            {section.rows.map(row)}
+          </section>
+        ))
+      : rows.map(row)}
     </div>
   );
 }

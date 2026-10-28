@@ -2114,3 +2114,28 @@ button.tlMark:hover {
 .actRow[data-cause] {
   background: color-mix(in srgb, var(--store-null) 9%, transparent);
 }
+
+/* the list by interaction: each click, render or manager over the rows it
+   started, which hang off a rail under it */
+.interaction + .interaction {
+  margin-top: 0.35rem;
+  box-shadow: inset 0 1px 0 var(--store-line);
+}
+.interactionHead {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  padding: 0.5rem 0.75rem 0.15rem;
+}
+.interactionHead > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+.interaction > .actGroup {
+  margin-left: 0.75rem;
+  box-shadow: inset 1.5px 0 0
+    color-mix(in srgb, var(--store-dim) 35%, transparent);
+}
+.interaction > .actGroup:last-child {
+  margin-bottom: 0.35rem;
+}

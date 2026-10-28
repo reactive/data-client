@@ -1,7 +1,11 @@
 import { useCallback, useContext } from 'react';
 
 import { useTabStorage } from '../../../../utils/tabStorage';
-import { DemoViewContext } from '../StoreToggle';
+import {
+  ActionsByContext,
+  DemoViewContext,
+  type ActionsBy,
+} from '../StoreToggle';
 
 export type StoreView = 'table' | 'tree';
 
@@ -23,4 +27,14 @@ export function useStoreView() {
     [setStored, drop],
   );
   return [view, setView] as const;
+}
+
+/** How the Action tab lists actions: the reader's choice, kept per
+ * playground group, else the playground's default */
+export function useActionsBy() {
+  const { groupId, defaultBy } = useContext(ActionsByContext);
+  const [stored, setStored] = useTabStorage(`${groupId}.actionsBy`);
+  const by: ActionsBy =
+    stored === 'request' || stored === 'interaction' ? stored : defaultBy;
+  return [by, setStored as (by: ActionsBy) => void] as const;
 }

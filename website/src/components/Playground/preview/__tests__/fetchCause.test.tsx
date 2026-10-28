@@ -17,9 +17,11 @@ import {
 } from '@testing-library/react';
 import React, { Suspense } from 'react';
 
+import { groupEntries } from '../store/actionGroups';
 import { findEntry, type LogEntry } from '../store/actionLog';
 import { asHook, callerNow, evaluatedFrames } from '../store/callSite';
 import { userEvent } from '../store/fetchCause';
+import { interactionsOf } from '../store/interactions';
 import SchemaRegistry from '../store/schemaRegistry';
 
 class Post extends Entity {
@@ -229,8 +231,55 @@ describe('why a fetch happened', () => {
     );
     expect(mutation?.reason).toBe('mutation');
     expect(mutation?.caller).toEqual({
-      event: { type: 'click', target: 'Save post' },
+      event: { type: 'click', target: 'Save post', at: expect.any(Number) },
     });
+  });
+});
+
+describe('actions by interaction', () => {
+  const sectionsOf = (entries: readonly LogEntry[]) => {
+    const groups = groupEntries(entries);
+    return interactionsOf(groups, groups).map(
+      ({ interaction, first, rows }) => ({
+        kind: interaction.kind,
+        first,
+        keys: rows.map(row => row.key),
+      }),
+    );
+  };
+
+  it('puts a mount and a click over the rows each started', async () => {
+    const { entries } = mount();
+    await screen.findByText('Post 1');
+    act(() => {
+      fireEvent.click(screen.getByText('Save post'));
+    });
+    await waitFor(() =>
+      expect(sectionsOf(entries()).map(s => s.kind)).toEqual([
+        'render',
+        'event',
+      ]),
+    );
+    expect(sectionsOf(entries())).toEqual([
+      { kind: 'render', first: true, keys: ['GET /posts/1'] },
+      { kind: 'event', first: false, keys: ['PATCH /posts/1'] },
+    ]);
+  });
+
+  it('puts a refetch under what invalidated its data', async () => {
+    const { ctrl, entries, fetches } = mount(<ShowComment />);
+    await screen.findByText('By Ann');
+    const before = fetches().length;
+    act(() => {
+      ctrl().fetch(deleteUser, { id: 'u1' });
+    });
+    await waitFor(() => expect(fetches().length).toBeGreaterThan(before));
+    await screen.findByText('By Ann');
+    const sections = sectionsOf(entries());
+    expect(sections[sections.length - 1].keys).toEqual([
+      'DELETE /users/u1',
+      'GET /comments/c1',
+    ]);
   });
 });
 
@@ -261,7 +310,7 @@ describe('callSite', () => {
     button.innerHTML = '<span>Invalidate</span>  First';
     const event = new MouseEvent('click');
     Object.defineProperty(event, 'target', { value: button.firstChild });
-    expect(userEvent(event)).toEqual({
+    expect(userEvent(event)).toMatchObject({
       type: 'click',
       target: 'Invalidate First',
     });
@@ -275,7 +324,10 @@ describe('callSite', () => {
     Object.defineProperty(event, 'target', {
       value: document.getElementById('pw'),
     });
-    expect(userEvent(event)).toEqual({ type: 'input', target: 'Password' });
+    expect(userEvent(event)).toMatchObject({
+      type: 'input',
+      target: 'Password',
+    });
     document.body.innerHTML = '';
   });
 });

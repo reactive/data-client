@@ -76,6 +76,9 @@ export interface CallerEvent {
   /** What it happened to, as a person would name it: a button's text, a
    * field's label */
   readonly target?: string;
+  /** When it happened (the event's `timeStamp`): tells one click from the
+   * next, as every action its handler sends shares it */
+  readonly at?: number;
 }
 
 /** Events a person makes: an action dispatched while one is handled is
@@ -110,7 +113,11 @@ const TARGET_MAX = 40;
 export function userEvent(event: Event | undefined): CallerEvent | undefined {
   if (!event || !USER_EVENTS.has(event.type)) return;
   const target = targetName(event.target);
-  return target ? { type: event.type, target } : { type: event.type };
+  return {
+    type: event.type,
+    ...(target && { target }),
+    at: event.timeStamp,
+  };
 }
 
 /** What a person can press or fill in */

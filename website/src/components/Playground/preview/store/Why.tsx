@@ -1,9 +1,12 @@
 import React, { type ReactNode } from 'react';
 
+import { groupEntriesOf } from './actionGroups';
 import { findEntry, type LogEntry } from './actionLog';
 import { ActionName, Time, useActions } from './actionParts';
+import { stageName } from './attribution';
 import { kindColor } from './dom';
 import type { CallerEvent, FetchReason } from './fetchCause';
+import type { InteractionSection } from './interactions';
 import { DeclaredName, ManagerName } from './ManagerName';
 import { useNavState } from './nav';
 import styles from './store.module.css';
@@ -217,4 +220,60 @@ function sendersOf(entries: readonly LogEntry[]) {
     else seen.set(key, { entry, n: 1 });
   }
   return [...seen.values()];
+}
+
+/** The most components a render's head names */
+const COMPONENTS_SHOWN = 3;
+
+/** What started a section of the list (`interactionsOf`): `click “Save”`,
+ * `mount <App> <List>`, a manager, with when */
+export function InteractionHead({ section }: { section: InteractionSection }) {
+  const { interaction } = section;
+  const at = groupEntriesOf(section.rows[0])[0]?.at;
+  return (
+    <div className={styles.interactionHead}>
+      <span className={styles.whySender}>
+        {interaction.kind === 'event' ?
+          <EventName event={interaction.event} />
+        : interaction.kind === 'render' ?
+          <>
+            <span className={styles.whyEvent}>
+              {section.first ? 'mount' : 'render'}
+            </span>
+            {interaction.components.slice(0, COMPONENTS_SHOWN).map(name => (
+              <DeclaredName key={name} name={name}>
+                <span className={styles.dim}>{`<${name}>`}</span>
+              </DeclaredName>
+            ))}
+            {interaction.components.length > COMPONENTS_SHOWN && (
+              <span className={styles.dim}>
+                +{interaction.components.length - COMPONENTS_SHOWN}
+              </span>
+            )}
+          </>
+        : interaction.kind === 'manager' ?
+          <span className={styles.whyEvent}>
+            <ManagerName stage={interaction.stage} />
+          </span>
+        : <span className={styles.whyEvent}>the app</span>}
+      </span>
+      {at !== undefined && <Time at={at} />}
+    </div>
+  );
+}
+
+/** `section`'s head as text, for its label */
+export function interactionLabel({ interaction, first }: InteractionSection) {
+  switch (interaction.kind) {
+    case 'event':
+      return [interaction.event.type, interaction.event.target]
+        .filter(Boolean)
+        .join(' ');
+    case 'render':
+      return [first ? 'mount' : 'render', ...interaction.components].join(' ');
+    case 'manager':
+      return stageName(interaction.stage);
+    case 'app':
+      return 'the app';
+  }
 }
