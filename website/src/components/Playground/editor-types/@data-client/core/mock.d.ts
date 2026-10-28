@@ -1026,7 +1026,7 @@ interface FetchInterceptor<T = any, E extends EndpointInterface & {
     extend(options: any): any;
 }> {
     readonly endpoint: E;
-    fetchResponse(this: T, input: RequestInfo, init: RequestInit): ResolveType<E>;
+    fetchResponse(this: T, input: RequestInfo, init: RequestInit): ResolveType<E> | Promise<ResolveType<E>>;
     /** Number of miliseconds (or function that returns) to wait before resolving */
     readonly delay?: number | ((...args: Parameters<E>) => number);
     /** Waits to run `response()` after `delay` time */

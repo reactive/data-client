@@ -1,61 +1,125 @@
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import { inboxFixtures } from '@site/src/fixtures/inbox';
 
-<HooksPlayground row>
+export const flipDemo = [
+  // the Store's action list first, so each request lands there as it's sent
+  { delay: 800, store: 'open' },
+  {
+    delay: 300,
+    click: { in: 'store', selector: 'button[aria-label="Actions"]' },
+  },
+  // flicks down the inbox, a message at a time, the way a reader skims it;
+  // the one it stops on opens as soon as it alone has downloaded
+  { delay: 1200, click: 'button.listItem:nth-child(2)' },
+  { delay: 0, click: 'button.listItem:nth-child(3)' },
+  { delay: 0, click: 'button.listItem:nth-child(4)' },
+  { delay: 0, click: 'button.listItem:nth-child(5)' },
+  { delay: 0, click: 'button.listItem:nth-child(6)' },
+  { wait: 3000 },
+  // Store → Code: back to the code that did it
+  { store: 'close' },
+];
 
-```tsx title="resources/Todo" collapsed
-import { Entity, resource } from '@data-client/rest';
+<HooksPlayground
+row
+fixtures={inboxFixtures}
+defaultTab="MessageView"
+autoRun={flipDemo}
+>
 
-export class Todo extends Entity {
+```ts title="resources/Message" collapsed
+import { Entity, resource, validateRequired } from '@data-client/rest';
+
+/** What the inbox lists */
+export class MessageSummary extends Entity {
   id = 0;
-  userId = 0;
-  title = '';
-  completed = false;
+  from = { name: '', avatar: '' };
+  subject = '';
 
-  static key = 'Todo';
+  static key = 'Message';
 }
-export const TodoResource = resource({
-  urlPrefix: 'https://jsonplaceholder.typicode.com',
-  path: '/todos/:id',
-  schema: Todo,
+
+/** The whole message, once opened */
+export class Message extends MessageSummary {
+  body: string[] = [];
+
+  // a summary in the store isn't the whole message: fetch it
+  static validate(processedEntity: any) {
+    return validateRequired(processedEntity, this.defaults);
+  }
+}
+
+export const MessageResource = resource({
+  urlPrefix: 'https://api.example.com',
+  path: '/messages/:id',
+  schema: Message,
+}).extend({
+  getList: { schema: [MessageSummary] },
 });
 ```
 
-```tsx title="TodoDetail" {5}
+```tsx title="MessageView" {5}
 import { useSuspense, useCancelling } from '@data-client/react';
-import { TodoResource } from './resources/Todo';
+import { MessageResource } from './resources/Message';
 
-export default function TodoDetail({ id }: { id: number }) {
-  const todo = useSuspense(useCancelling(TodoResource.get, { id }), {
+export default function MessageView({ id }: { id: number }) {
+  const message = useSuspense(useCancelling(MessageResource.get, { id }), {
     id,
   });
-  return <div>{todo.title}</div>;
+  return (
+    <article>
+      <h2>{message.subject}</h2>
+      <div className="byline">
+        <Avatar src={message.from.avatar} size={20} />
+        {message.from.name}
+      </div>
+      {message.body.map((paragraph, i) => (
+        <p key={i}>{paragraph}</p>
+      ))}
+    </article>
+  );
 }
 ```
 
-```tsx title="Demo" collapsed
+```tsx title="Inbox" collapsed
 import React from 'react';
-import { AsyncBoundary } from '@data-client/react';
-import TodoDetail from './TodoDetail';
+import { AsyncBoundary, useSuspense } from '@data-client/react';
+import { MessageResource } from './resources/Message';
+import MessageView from './MessageView';
 
-function AbortDemo() {
-  const [id, setId] = React.useState(1);
+export default function Inbox() {
+  const messages = useSuspense(MessageResource.getList);
+  const [openId, setOpenId] = React.useState(messages[0].id);
   return (
-    <div>
-      <AsyncBoundary fallback="...">
-        <TodoDetail id={id} />
-      </AsyncBoundary>
-      <div>
-        <button onClick={() => setId(id => Math.max(id - 1, 1))}>«</button>
-        {id} &nbsp;
-        <button onClick={() => setId(id => id + 1)}>»</button>
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Inbox</h1>
+      </header>
+      <div className="split">
+        <div className="list">
+          {messages.map(message => (
+            <button
+              key={message.pk()}
+              className="listItem"
+              aria-current={message.id === openId}
+              onClick={() => setOpenId(message.id)}
+            >
+              <Avatar src={message.from.avatar} />
+              <div>
+                <h4>{message.from.name}</h4>
+                <small>{message.subject}</small>
+              </div>
+            </button>
+          ))}
+        </div>
+        <AsyncBoundary fallback={<Loading />} errorComponent={ErrorMessage}>
+          <MessageView id={openId} />
+        </AsyncBoundary>
       </div>
-    </div>
+    </>
   );
 }
-render(<AbortDemo />);
+render(<Inbox />);
 ```
 
 </HooksPlayground>
-
-Try clicking the `»` very quickly. If you increment before it resolves the request will be cancelled and you should
-not see results in the store.

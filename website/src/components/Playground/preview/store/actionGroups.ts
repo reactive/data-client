@@ -257,6 +257,13 @@ export function mergeChanges(actions: readonly ActionChanges[]): Change[] {
   return merged;
 }
 
+/** The response to an aborted fetch (useCancelling(), an AbortSignal):
+ * the store ignores it */
+export const aborted = (action: ActionTypes) =>
+  action.type === actionTypes.SET_RESPONSE &&
+  !!action.error &&
+  (action.response as { name?: unknown } | undefined)?.name === 'AbortError';
+
 /** A fetch with everything that belongs to it: its optimistic update,
  * fetches that joined it while in flight, and its response */
 export interface RequestGroup {
@@ -265,7 +272,7 @@ export interface RequestGroup {
   readonly key: string;
   readonly entries: LogEntry[];
   response?: LogEntry;
-  /** A reset cancelled it before its response */
+  /** Aborted (its signal, or a reset) before it got its data */
   cancelled?: true;
 }
 
@@ -412,6 +419,7 @@ export function groupEntries(
         }
         request.entries.push(entry);
         request.response = entry;
+        if (aborted(action)) request.cancelled = true;
         if (pending.get(action.key) === request) pending.delete(action.key);
         break;
       }

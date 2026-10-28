@@ -2,8 +2,8 @@
 title: Aborting Fetch
 ---
 
-import HooksPlayground from '@site/src/components/HooksPlayground';
 import UseCancelling from '../shared/\_useCancelling.mdx';
+import UseCancellingWithout from '../shared/\_useCancellingWithout.mdx';
 
 [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) provides a new way of cancelling
 fetches that are no longer considered relevant. This can be hooked into fetch via the second `RequestInit` parameter.
@@ -58,11 +58,14 @@ abort.abort();
 
 ## Cancelling on params change
 
-Sometimes a user has the opportunity to fill out a field that is used to affect the results of a network call.
-If this is a text input, they could potentially type quite quickly, thus creating a lot of network requests.
+When params change quickly, like a reader skimming an inbox, every message they pass starts a download.
+Each response is stored under its own params, so a late one never replaces what's on screen. But the
+downloads they've left behind keep going, sharing a slow connection with the one they actually want.
 
-Using [useCancelling()](/docs/api/useCancelling) will automatically cancel in-flight requests if the parameters
-change before the request is resolved.
+<UseCancellingWithout />
+
+[useCancelling()](/docs/api/useCancelling) aborts the in-flight request as soon as the params change, so
+the message the reader stops on downloads alone.
 
 <UseCancelling />
 

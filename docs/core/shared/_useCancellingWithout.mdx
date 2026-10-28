@@ -1,0 +1,124 @@
+import HooksPlayground from '@site/src/components/HooksPlayground';
+import { inboxFixtures } from '@site/src/fixtures/inbox';
+
+export const flipDemoWithout = [
+  // the Store's action list first, so each request lands there as it's sent
+  { delay: 800, store: 'open' },
+  {
+    delay: 300,
+    click: { in: 'store', selector: 'button[aria-label="Actions"]' },
+  },
+  // flicks down the inbox, a message at a time, the way a reader skims it;
+  // every message it passes keeps downloading, sharing the slow link with
+  // the one it stops on
+  { delay: 1200, click: 'button.listItem:nth-child(2)' },
+  { delay: 0, click: 'button.listItem:nth-child(3)' },
+  { delay: 0, click: 'button.listItem:nth-child(4)' },
+  { delay: 0, click: 'button.listItem:nth-child(5)' },
+  { delay: 0, click: 'button.listItem:nth-child(6)' },
+  { wait: 6000 },
+  // Store → Code: back to the code that did it
+  { store: 'close' },
+];
+
+<HooksPlayground
+row
+fixtures={inboxFixtures}
+defaultTab="MessageView"
+autoRun={flipDemoWithout}
+>
+
+```ts title="resources/Message" collapsed
+import { Entity, resource, validateRequired } from '@data-client/rest';
+
+/** What the inbox lists */
+export class MessageSummary extends Entity {
+  id = 0;
+  from = { name: '', avatar: '' };
+  subject = '';
+
+  static key = 'Message';
+}
+
+/** The whole message, once opened */
+export class Message extends MessageSummary {
+  body: string[] = [];
+
+  // a summary in the store isn't the whole message: fetch it
+  static validate(processedEntity: any) {
+    return validateRequired(processedEntity, this.defaults);
+  }
+}
+
+export const MessageResource = resource({
+  urlPrefix: 'https://api.example.com',
+  path: '/messages/:id',
+  schema: Message,
+}).extend({
+  getList: { schema: [MessageSummary] },
+});
+```
+
+```tsx title="MessageView" {5}
+import { useSuspense } from '@data-client/react';
+import { MessageResource } from './resources/Message';
+
+export default function MessageView({ id }: { id: number }) {
+  const message = useSuspense(MessageResource.get, { id });
+  return (
+    <article>
+      <h2>{message.subject}</h2>
+      <div className="byline">
+        <Avatar src={message.from.avatar} size={20} />
+        {message.from.name}
+      </div>
+      {message.body.map((paragraph, i) => (
+        <p key={i}>{paragraph}</p>
+      ))}
+    </article>
+  );
+}
+```
+
+```tsx title="Inbox" collapsed
+import React from 'react';
+import { AsyncBoundary, useSuspense } from '@data-client/react';
+import { MessageResource } from './resources/Message';
+import MessageView from './MessageView';
+
+export default function Inbox() {
+  const messages = useSuspense(MessageResource.getList);
+  const [openId, setOpenId] = React.useState(messages[0].id);
+  return (
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Inbox</h1>
+      </header>
+      <div className="split">
+        <div className="list">
+          {messages.map(message => (
+            <button
+              key={message.pk()}
+              className="listItem"
+              aria-current={message.id === openId}
+              onClick={() => setOpenId(message.id)}
+            >
+              <Avatar src={message.from.avatar} />
+              <div>
+                <h4>{message.from.name}</h4>
+                <small>{message.subject}</small>
+              </div>
+            </button>
+          ))}
+        </div>
+        <AsyncBoundary fallback={<Loading />} errorComponent={ErrorMessage}>
+          <MessageView id={openId} />
+        </AsyncBoundary>
+      </div>
+    </>
+  );
+}
+render(<Inbox />);
+```
+
+</HooksPlayground>

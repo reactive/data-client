@@ -37,8 +37,7 @@ export interface SuccessFixture<
   readonly endpoint: E;
   readonly args: Readonly<Parameters<E>>;
   readonly response:
-    | ResolveType<E>
-    | ((...args: Parameters<E>) => ResolveType<E>);
+    ResolveType<E> | ((...args: Parameters<E>) => ResolveType<E>);
   readonly error?: false;
   /** Number of milliseconds to wait before resolving */
   readonly delay?: number;
@@ -72,7 +71,9 @@ export interface ErrorFixture {
 ```
 
 ```ts
-export interface ErrorFixture<E extends EndpointInterface = EndpointInterface> {
+export interface ErrorFixture<
+  E extends EndpointInterface = EndpointInterface,
+> {
   readonly endpoint: E;
   readonly args: Readonly<Parameters<E>>;
   readonly response: any;
@@ -118,7 +119,6 @@ interface FetchInterceptor {
 type Interceptor = ResponseInterceptor | FetchInterceptor;
 ```
 
-
 ```ts
 interface ResponseInterceptor<
   T = any,
@@ -140,23 +140,34 @@ interface FetchInterceptor<
   E extends EndpointInterface & {
     update?: Updater;
     testKey(key: string): boolean;
-    fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
+    fetchResponse(
+      input: RequestInfo,
+      init: RequestInit,
+    ): Promise<Response>;
     extend(options: any): any;
   } = EndpointInterface & {
     testKey(key: string): boolean;
-    fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
+    fetchResponse(
+      input: RequestInfo,
+      init: RequestInit,
+    ): Promise<Response>;
     extend(options: any): any;
   },
 > {
   readonly endpoint: E;
-  fetchResponse(this: T, input: RequestInfo, init: RequestInit): ResolveType<E>;
+  fetchResponse(
+    this: T,
+    input: RequestInfo,
+    init: RequestInit,
+  ): ResolveType<E>;
   /** Number of milliseconds (or function that returns) to wait before resolving */
   readonly delay?: number | ((...args: Parameters<E>) => number);
   /** Waits to run `response()` after `delay` time */
   readonly delayCollapse?: boolean;
 }
 
-type Interceptor<T, E> = ResponseInterceptor<T, E> | FetchInterceptor<T, E>;
+type Interceptor<T, E> =
+  ResponseInterceptor<T, E> | FetchInterceptor<T, E>;
 ```
 
 </GenericsTabs>
@@ -220,12 +231,19 @@ const incrementInterceptor = {
 
 This can be useful when you want to use the body generated in a custom [getRequestInit()](/rest/api/RestEndpoint#getRequestInit)
 
+It may return a promise, for example to simulate a slow server. `init.signal` is the fetch's
+[AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) (the endpoint's `signal`), so the
+interceptor can stop waiting when the fetch is aborted.
+
 ### delay: number {#delay}
 
 This is the number of milliseconds to wait before resolving the promise. This can be useful
 when simulating race conditions.
 
 When a function is sent, its return value is used as the number of milliseconds.
+
+Aborting the fetch's [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) during the delay
+rejects it with an `AbortError`, as `fetch()` would.
 
 ### delayCollapse: boolean {#delayCollapse}
 

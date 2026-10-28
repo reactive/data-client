@@ -1,5 +1,5 @@
 import type { EndpointInterface } from '@data-client/core';
-import { useMemo, useRef } from 'react';
+import { useRef } from 'react';
 
 /**
  * Builds an Endpoint that cancels fetch everytime params change
@@ -15,17 +15,25 @@ export default function useCancelling<
     extend: (o: { signal?: AbortSignal }) => any;
   },
 >(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E {
-  const abortRef = useRef<AbortController>(undefined);
+  const latest = useRef<{
+    key: string;
+    abort: AbortController;
+    endpoint: E;
+  }>(undefined);
 
   // send abort signal anytime the params change
   // if fetch is already completed signal goes nowhere
   const key = args[0] !== null ? endpoint.key(...args) : '';
-  return useMemo(() => {
-    if (abortRef.current) abortRef.current.abort();
-    abortRef.current = new AbortController();
-    return endpoint.extend({
-      signal: abortRef.current.signal,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  // kept in a ref, not useMemo: a render that suspends never commits its
+  // memo, so its retry would rebuild it and abort its own fetch
+  if (latest.current?.key !== key) {
+    latest.current?.abort.abort();
+    const abort = new AbortController();
+    latest.current = {
+      key,
+      abort,
+      endpoint: endpoint.extend({ signal: abort.signal }),
+    };
+  }
+  return latest.current.endpoint;
 }

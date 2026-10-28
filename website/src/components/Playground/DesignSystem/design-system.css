@@ -203,6 +203,46 @@ div.playground-preview h1:first-child {
     background: var(--ds-hover);
   }
 }
+/* A list and what it opens (an inbox and its open message): side by side
+   when there's room for both, the list above otherwise */
+.playground-preview .split {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--ds-space-4) var(--ds-space-5);
+}
+.playground-preview .split > * {
+  flex: 3 1 18rem;
+  min-width: 0;
+}
+.playground-preview .split > .list {
+  flex: 2 1 14rem;
+  margin-bottom: 0;
+}
+
+/* Rows that open something (an inbox's messages): the whole row is the
+   button, with the open one (`aria-current`) washed in the accent */
+.playground-preview .list > button.listItem {
+  width: calc(100% + 2 * var(--ds-space-3));
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .playground-preview .list > button.listItem:hover {
+    background: var(--ds-hover);
+  }
+}
+.playground-preview .list > button.listItem[aria-current='true'] {
+  background: var(--ds-accent-soft);
+}
+.playground-preview .list > button.listItem:focus-visible {
+  outline: 2px solid var(--ds-accent);
+  outline-offset: -2px;
+}
 .playground-preview
   .list
   > .listItem
