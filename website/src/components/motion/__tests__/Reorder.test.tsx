@@ -7,7 +7,11 @@ import { Reorder, useReorderItem } from '..';
 
 // jsdom has no layout or Web Animations: each box sits at its `data-y`, and
 // the animations started are recorded
-const animations: { el: Element; keyframes: Keyframe[] }[] = [];
+const animations: {
+  el: Element;
+  keyframes: Keyframe[];
+  finish: () => void;
+}[] = [];
 beforeEach(() => {
   animations.length = 0;
   jest
@@ -16,10 +20,13 @@ beforeEach(() => {
       return { left: 0, top: Number(this.dataset.y ?? 0) } as DOMRect;
     });
   HTMLElement.prototype.animate = function (keyframes: any) {
-    animations.push({ el: this, keyframes });
+    let finish!: () => void;
+    const finished = new Promise<void>(resolve => (finish = resolve));
+    animations.push({ el: this, keyframes, finish });
     return {
       playState: 'running',
       currentTime: null,
+      finished,
       cancel() {},
     } as unknown as Animation;
   };
@@ -106,6 +113,47 @@ it('lets an item ride along with the item it is in, travelling only the rest', (
   );
   expect(startOf(getByTestId('b'))?.translate).toBe('0px 50px');
   expect(startOf(getByTestId('x'))?.translate).toBe('0px 30px');
+});
+
+it('marks the items moving farthest as traveling until they land', async () => {
+  const { rerender, getByTestId } = render(
+    <Board
+      groups={[
+        {
+          name: 'a',
+          y: 0,
+          rows: [
+            { id: 'x', y: 10 },
+            { id: 'y', y: 40 },
+          ],
+        },
+        { name: 'b', y: 100, rows: [{ id: 'z', y: 110 }] },
+      ]}
+    />,
+  );
+  // x moves to b; y and b's heading shift up a little
+  rerender(
+    <Board
+      groups={[
+        { name: 'a', y: 0, rows: [{ id: 'y', y: 10 }] },
+        {
+          name: 'b',
+          y: 70,
+          rows: [
+            { id: 'z', y: 80 },
+            { id: 'x', y: 110 },
+          ],
+        },
+      ]}
+    />,
+  );
+  const x = getByTestId('x');
+  expect(x.dataset.traveling).toBe('');
+  expect(getByTestId('y').dataset.traveling).toBeUndefined();
+  expect(getByTestId('b').dataset.traveling).toBeUndefined();
+  animations.find(animation => animation.el === x)?.finish();
+  await Promise.resolve();
+  expect(x.dataset.traveling).toBeUndefined();
 });
 
 it('fades in a key it has not seen', () => {

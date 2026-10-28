@@ -27,11 +27,15 @@ export function measure(items: Items): Positions {
  * `translate` only, on the compositor), so an item React put under another
  * parent travels there too. An item inside another that moves rides along
  * with it, and only travels the rest of the way itself; a key `before` lacks
- * fades in. Layout-agnostic: it reads only where items are on screen.
+ * fades in. The items moving farthest are `data-traveling` until they land.
+ * Layout-agnostic: it reads only where items are on screen.
  */
 export function reorder(before: Positions, items: Items, spring: Spring) {
   // the final layout, without glides in flight, before measuring it
-  for (const el of items.values()) stop(el);
+  for (const el of items.values()) {
+    stop(el);
+    land(el);
+  }
   const moves = new Map<HTMLElement, { offset: Point; velocity: Point }>();
   const arrivals: HTMLElement[] = [];
   for (const [key, el] of items) {
@@ -47,12 +51,17 @@ export function reorder(before: Positions, items: Items, spring: Spring) {
     });
   }
   // every read is done: start the animations
-  for (const [el, { offset, velocity }] of moves) {
+  const glides = [...moves].map(([el, { offset, velocity }]) => {
     const carrier = carrierOf(el, moves);
     const carried = carrier && moves.get(carrier)?.offset;
     const from =
       carried ? { x: offset.x - carried.x, y: offset.y - carried.y } : offset;
-    glide(el, spring, { from, to: ORIGIN, velocity });
+    return { el, from, velocity };
+  });
+  const farthest = Math.max(0, ...glides.map(({ from }) => length(from)));
+  for (const { el, from, velocity } of glides) {
+    const animation = glide(el, spring, { from, to: ORIGIN, velocity });
+    if (animation && length(from) >= farthest / 2) travel(el, animation);
   }
   if (!arrivals.length) return;
   const easing = springEasing(spring);
@@ -60,6 +69,24 @@ export function reorder(before: Positions, items: Items, spring: Spring) {
 }
 
 const ARRIVE: Keyframe[] = [{ opacity: 0 }, { opacity: 1 }];
+
+/** Items crossing the others (the ones moving farthest) while they glide,
+ * marked `data-traveling` so their style can lift them over the rest */
+const travels = new WeakMap<HTMLElement, Animation>();
+function travel(el: HTMLElement, animation: Animation) {
+  travels.set(el, animation);
+  el.dataset.traveling = '';
+  const arrived = () => {
+    if (travels.get(el) === animation) land(el);
+  };
+  animation.finished.then(arrived, arrived);
+}
+function land(el: HTMLElement) {
+  if (!travels.delete(el)) return;
+  delete el.dataset.traveling;
+}
+
+const length = ({ x, y }: Point) => Math.hypot(x, y);
 
 function positionOf(el: HTMLElement): Point {
   const { left, top } = el.getBoundingClientRect();
