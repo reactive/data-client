@@ -31,10 +31,9 @@ import {
 import { fetchReason, type Caller, type FetchReason } from './fetchCause';
 import { entityId } from './model';
 import type { Moment, Scope, Step } from './nav';
-import { forEachRef, resolve } from './refs';
 import { wrapManager, type Wrap } from './wrapManager';
 
-const { createReducer } = __INTERNAL__;
+const { createReducer, MemoCache } = __INTERNAL__;
 
 /** Actions kept (`limit`); older ones drop off the front */
 const LOG_LIMIT = 500;
@@ -480,13 +479,30 @@ export default class ActionLog {
       if (!changes.length) continue;
       if (changes.some(c => 'endpoint' in c && c.endpoint === key))
         return earlier;
-      const held = heldEntities(
-        earlier.store?.before.endpoints[key],
-        action.endpoint.schema,
-      );
-      if (changes.some(c => 'table' in c && held.has(entityId(c.table, c.pk))))
+      const held =
+        earlier.store && this.heldEntities(earlier.store.before, action);
+      if (changes.some(c => 'table' in c && held?.has(entityId(c.table, c.pk))))
         return earlier;
     }
+  }
+
+  /** Every entity `action`'s stored data reads in `state`, nested ones
+   * too, as the library's memo tracks them */
+  private heldEntities(
+    state: State<unknown>,
+    { endpoint, key, args }: FetchAction,
+  ): ReadonlySet<string> {
+    // a copied endpoint (see `fetchReason`) can't read its schema
+    if (typeof endpoint?.key !== 'function') return new Set();
+    // a fresh memo: one that met a nested entity invalid can still name
+    // only the outer one (REACT-15)
+    const { paths } = new MemoCache().denormalize(
+      endpoint.schema,
+      state.endpoints[key],
+      state.entities,
+      args,
+    );
+    return new Set(paths.map(p => entityId(p.key, p.pk)));
   }
 
   /** By an action's seq, how many requests it caused (its fetches'
@@ -794,14 +810,4 @@ export function keepSameMap<K, V>(
   if (prev.size !== next.size) return next;
   for (const [key, value] of next) if (prev.get(key) !== value) return next;
   return prev;
-}
-
-/** The entities (by row id) a stored (normalized) response holds, read
- * through its endpoint's schema */
-function heldEntities(stored: unknown, schema: unknown): Set<string> {
-  const held = new Set<string>();
-  forEachRef(resolve(stored, schema), (table, pk) =>
-    held.add(entityId(table, pk)),
-  );
-  return held;
 }

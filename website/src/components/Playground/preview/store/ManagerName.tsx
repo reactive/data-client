@@ -6,7 +6,7 @@ import { CodeOpenerContext } from '../../editor/openCode';
 
 /** Opens where the playground's code declares `name` (a class, a
  * component), if it does */
-function useOpenDeclared(name: string | undefined) {
+function useOpenDeclared(name: string | null) {
   const opener = useContext(CodeOpenerContext);
   const target = name && opener?.declared.get(name);
   return opener && target ? () => opener.open(target) : undefined;
@@ -15,20 +15,20 @@ function useOpenDeclared(name: string | undefined) {
 /** Opens where the code declares `stage`'s class: the library's managers
  * are no code of the reader's */
 const useOpenManager = ({ className, library }: ManagerStage) =>
-  useOpenDeclared(library ? undefined : className);
+  useOpenDeclared(library ? null : className);
 
 const openLabel = (name: string) => 'Open ' + name + ' in the code';
 
 /** `children`, a link to where the code declares `declared` (`name` unless
- * said) when it does. Its click and keys stay its own inside a row that is
- * a button itself */
+ * said; `null` never links) when it does. Its click and keys stay its own
+ * inside a row that is a button itself */
 export function DeclaredName({
   name,
   declared = name,
   children,
 }: {
   name: string;
-  declared?: string;
+  declared?: string | null;
   children: React.ReactNode;
 }) {
   const open = useOpenDeclared(declared);
@@ -53,7 +53,7 @@ export function DeclaredName({
 export function ManagerName({ stage }: { stage: ManagerStage }) {
   const name = stageName(stage);
   return (
-    <DeclaredName name={name} declared={stage.library ? '' : stage.className}>
+    <DeclaredName name={name} declared={stage.library ? null : stage.className}>
       {name}
     </DeclaredName>
   );

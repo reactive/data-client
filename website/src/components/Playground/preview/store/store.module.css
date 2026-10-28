@@ -2099,11 +2099,16 @@ button.tlMark:hover {
   white-space: nowrap;
 }
 
-/* a row's why (RowWhy), after its changes */
+/* a row's why (RowWhy), after its changes: one line, a long name ends in
+   an ellipsis */
 .rowWhy {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
   color: var(--store-dim);
   font-size: 11px;
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
 /* the action that caused the moment's fetch */
 .actRow[data-cause] {

@@ -34,8 +34,9 @@ export function withHookNames<S extends Record<string, unknown>>(scope: S): S {
 }
 
 /** A stack frame of code the page evaluated, as the preview runs the
- * reader's code: V8's `at Name (eval at …)`, SpiderMonkey's and
- * JavaScriptCore's `Name@… > Function:…` */
+ * reader's code: V8's `at Name (eval at …)`, SpiderMonkey's
+ * `Name@… > Function:…`. Other engines (unchecked: JavaScriptCore) may name
+ * only the hook */
 const EVAL_FRAME =
   /^\s*at (?:async )?([\w$.]+) \(eval at |^([\w$.]+)@.*> (?:Function|eval):\d/;
 

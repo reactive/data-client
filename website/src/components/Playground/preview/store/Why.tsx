@@ -48,24 +48,17 @@ export function RowWhy({
   refetches: number;
 }) {
   const fetch = entries.find(e => e.reason);
-  const component = fetch?.caller?.component;
   return (
     <>
       {fetch?.reason && (
         <span className={styles.rowWhy}>
           ← <ReasonTag reason={fetch.reason} plain />
-          {fetch.origin ?
+          {(fetch.origin || fetch.caller?.component) && (
             <>
-              {' '}
-              · <ManagerName stage={fetch.origin} />
+              {' · '}
+              <SenderName entry={fetch} />
             </>
-          : component && (
-              <>
-                {' · '}
-                <DeclaredName name={component}>{`<${component}>`}</DeclaredName>
-              </>
-            )
-          }
+          )}
         </span>
       )}
       {refetches > 0 && (
@@ -173,20 +166,34 @@ function CauseLink({ entry }: { entry: LogEntry }) {
  * it fetched, with which hook, how many times */
 function Sender({ entry, n }: { entry: LogEntry; n: number }) {
   const { origin, caller, reason } = entry;
-  const component = caller?.component;
   return (
     <span className={styles.whySender}>
-      {origin ?
-        <ManagerName stage={origin} />
-      : component ?
-        <DeclaredName name={component}>
-          <span className={styles.whyComponent}>{`<${component}>`}</span>
-        </DeclaredName>
+      {origin || caller?.component ?
+        <SenderName entry={entry} className={styles.whyComponent} />
       : !caller?.event && <span className={styles.dim}>the app</span>}
       {reason && <ReasonTag reason={reason} />}
       {caller?.hook && <span className={styles.dim}>{caller.hook}</span>}
       {n > 1 && <span className={styles.dim}>×{n}</span>}
     </span>
+  );
+}
+
+/** Who sent `entry`, a manager or a component, linking to its code */
+function SenderName({
+  entry: { origin, caller },
+  className,
+}: {
+  entry: LogEntry;
+  /** A component's */
+  className?: string;
+}) {
+  if (origin) return <ManagerName stage={origin} />;
+  const component = caller?.component;
+  if (!component) return null;
+  return (
+    <DeclaredName name={component}>
+      <span className={className}>{`<${component}>`}</span>
+    </DeclaredName>
   );
 }
 

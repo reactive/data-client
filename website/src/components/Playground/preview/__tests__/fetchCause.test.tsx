@@ -1,5 +1,5 @@
 /// <reference types="jest" />
-import { Endpoint, Entity } from '@data-client/endpoint';
+import { Endpoint, Entity, schema } from '@data-client/endpoint';
 import {
   actionTypes,
   Controller,
@@ -43,6 +43,38 @@ const updatePost = new Endpoint(
     name: 'updatePost',
   },
 );
+class User extends Entity {
+  id = '';
+  name = '';
+}
+class Comment extends Entity {
+  id = '';
+  author = User.fromJS();
+  static schema = { author: User };
+}
+const getComment = new Endpoint(
+  async ({ id }: { id: string }) => ({ id, author: { id: 'u1', name: 'Ann' } }),
+  {
+    schema: Comment,
+    key: ({ id }: { id: string }) => `GET /comments/${id}`,
+    name: 'getComment',
+  },
+);
+const deleteUser = new Endpoint(async ({ id }: { id: string }) => ({ id }), {
+  schema: new schema.Invalidate(User),
+  sideEffect: true,
+  key: ({ id }: { id: string }) => `DELETE /users/${id}`,
+  name: 'deleteUser',
+});
+/** Fails while `failing.now` */
+const failing = { now: false };
+const getFlaky = new Endpoint(
+  async () => {
+    if (failing.now) throw new Error('down');
+    return { ok: true };
+  },
+  { key: () => 'GET /flaky', name: 'getFlaky' },
+);
 /** As the preview's scope gives it to the code */
 const useSuspenseNamed = asHook('useSuspense', useSuspense);
 
@@ -51,7 +83,12 @@ function ShowPost() {
   return <p>{post.title}</p>;
 }
 
-function mount() {
+function ShowComment() {
+  const comment = useSuspenseNamed(getComment, { id: 'c1' });
+  return <p>By {comment.author.name}</p>;
+}
+
+function mount(view: React.ReactNode = <ShowPost />) {
   const registry = new SchemaRegistry({ trimEvery: 1, caller: callerNow });
   const network = new NetworkManager();
   const log = registry.log.connect(0, undefined, action =>
@@ -70,9 +107,7 @@ function mount() {
   render(
     <DataProvider managers={managers} devButton={null}>
       <Buttons />
-      <Suspense fallback="loading">
-        <ShowPost />
-      </Suspense>
+      <Suspense fallback="loading">{view}</Suspense>
     </DataProvider>,
   );
   const entries = () => registry.log.history(0).entries;
@@ -127,6 +162,46 @@ describe('why a fetch happened', () => {
     expect(findEntry(entries(), refetch.causedBy!)?.action.type).toBe(
       actionTypes.EXPIREALL,
     );
+  });
+
+  it('links a refetch to an invalidated entity nested in its data', async () => {
+    const { ctrl, log, entries, fetches } = mount(<ShowComment />);
+    await screen.findByText('By Ann');
+    const before = fetches().length;
+    act(() => {
+      ctrl().fetch(deleteUser, { id: 'u1' });
+    });
+    await waitFor(() => expect(fetches().length).toBeGreaterThan(before));
+    const refetch = lastOf(fetches());
+    expect(refetch.reason).toBe('invalid');
+    const cause = findEntry(entries(), refetch.causedBy!);
+    expect(cause?.action.type).toBe(actionTypes.SET_RESPONSE);
+    expect(log.refetches(entries()).get(cause!.seq)).toBe(1);
+  });
+
+  it('says a retry came after an error, though data stayed', async () => {
+    const { ctrl, entries, fetches } = mount();
+    await screen.findByText('Post 1');
+    const responses = () =>
+      entries().filter(
+        e =>
+          e.action.type === actionTypes.SET_RESPONSE &&
+          e.action.key === 'GET /flaky',
+      ).length;
+    const flaky = async (fail: boolean) => {
+      failing.now = fail;
+      const before = responses();
+      act(() => {
+        ctrl()
+          .fetch(getFlaky)
+          .catch(() => undefined);
+      });
+      await waitFor(() => expect(responses()).toBeGreaterThan(before));
+    };
+    await flaky(false);
+    await flaky(true);
+    await flaky(false);
+    expect(lastOf(fetches()).reason).toBe('error');
   });
 
   it('says a fresh fetch was asked for anyway', async () => {
@@ -191,5 +266,16 @@ describe('callSite', () => {
       target: 'Invalidate First',
     });
     expect(userEvent(new Event('load'))).toBeUndefined();
+  });
+
+  it('never names a field by what a person typed into it', () => {
+    document.body.innerHTML =
+      '<label for="pw">Password</label><input id="pw" type="password" value="hunter2">';
+    const event = new Event('input');
+    Object.defineProperty(event, 'target', {
+      value: document.getElementById('pw'),
+    });
+    expect(userEvent(event)).toEqual({ type: 'input', target: 'Password' });
+    document.body.innerHTML = '';
   });
 });

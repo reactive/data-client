@@ -17,7 +17,7 @@ export type FetchReason =
   | 'invalid'
   /** Its data was past its expiry: components show it while it refetches */
   | 'stale'
-  /** Its last fetch failed, and the error expired */
+  /** Its last fetch failed (any data from before it stays) */
   | 'error'
   /** Its data was fresh: something asked for it anyway (a refresh button,
    * a manager, a poll) */
@@ -36,10 +36,12 @@ export function fetchReason(
   if (endpoint?.sideEffect) return 'mutation';
   const meta = state.meta[key];
   if (meta?.invalidated) return 'invalid';
+  // its last fetch failed, whether or not earlier data stayed
+  if (meta?.error) return 'error';
   // an endpoint that crossed a copy (a message to devtools) has no
   // methods: read its row alone, without the entities it holds
   if (typeof endpoint?.key !== 'function' || !Array.isArray(args)) {
-    if (!(key in state.endpoints)) return meta?.error ? 'error' : 'missing';
+    if (!(key in state.endpoints)) return 'missing';
     return now > (meta?.expiresAt ?? 0) ? 'stale' : 'fresh';
   }
   const { data, expiryStatus, expiresAt } = reader.getResponseMeta(
@@ -47,13 +49,11 @@ export function fetchReason(
     ...args,
     state,
   );
-  if (data === undefined) {
-    if (meta?.error) return 'error';
+  if (data === undefined)
     // stored, but an entity it holds was invalidated
     return key in state.endpoints && expiryStatus === ExpiryStatus.Invalid ?
         'invalid'
       : 'missing';
-  }
   if (expiryStatus === ExpiryStatus.Invalid) return 'invalid';
   return now > expiresAt ? 'stale' : 'fresh';
 }
@@ -113,17 +113,27 @@ export function userEvent(event: Event | undefined): CallerEvent | undefined {
   return target ? { type: event.type, target } : { type: event.type };
 }
 
+/** What a person can press or fill in */
+const CONTROLS =
+  'button, a, label, input, select, textarea, [role=button], [role=link], [role=tab], [role=menuitem], [role=option], [role=checkbox], [role=radio], [role=switch]';
+/** Inputs whose value is their label, not what a person typed */
+const BUTTON_INPUTS = new Set(['button', 'submit', 'reset']);
+
 /** What a person would call `target`: its label, else a control's text,
- * else its name, else its tag */
+ * else its name, else its tag. Never what a person typed into a field */
 function targetName(target: EventTarget | null): string | undefined {
   if (typeof Element === 'undefined' || !(target instanceof Element)) return;
-  const control = target.closest('button, a, label, [role], input, select');
+  const control = target.closest(CONTROLS);
   const el = control ?? target;
   const name =
     el.getAttribute('aria-label') ||
-    (el instanceof HTMLInputElement && el.type !== 'text' ? el.value
-    : control ? control.textContent
-    : '') ||
+    (el instanceof HTMLInputElement ?
+      BUTTON_INPUTS.has(el.type) ?
+        el.value
+      : el.labels?.[0]?.textContent
+    : el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement ?
+      el.labels?.[0]?.textContent
+    : control?.textContent) ||
     el.getAttribute('name') ||
     el.tagName.toLowerCase();
   const text = name.replace(/\s+/g, ' ').trim();

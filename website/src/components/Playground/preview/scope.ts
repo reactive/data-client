@@ -30,7 +30,8 @@ function mockFetch<T>(
   return fetch;
 }
 
-// the hooks that fetch say so, for the Store inspector to credit them
+// every hook is named while it runs, so the Store inspector can credit
+// the ones that dispatch (a fetch, a subscribe)
 export const previewScope = {
   ...withHookNames({ ...rhReact, ...rhReactNext }),
   ...graphql,
