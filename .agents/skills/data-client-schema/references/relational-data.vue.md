@@ -101,8 +101,10 @@ Even if the network responses don't nest data, we can perform client-side joins 
 the relationship in [Entity.schema](./Entity.vue.md#schema).
 
 Here `/todos` only sends each todo's `userId`. [Entity.process()](./Entity.vue.md#process) points
-`user` at that id, so `todo.user` is the whole `User` from `/users`, which loads in parallel. Assigning
-a todo to someone else sends just the new `userId`.
+`user` at that id, so every todo in the list carries its whole `User` from `/users`. A component
+could look up one user by id itself; joining puts the user in the list, so the list can group by
+person. Assign a task to someone else, and only its new `userId` goes to the server, yet it moves
+to that person's group.
 
 ```ts title="resources/User"
 import { Entity, resource } from '@data-client/rest';
@@ -157,7 +159,8 @@ export const TodoResource = resource({
   import { TodoResource, type Todo } from './resources/Todo';
   import type { User } from './resources/User';
 
-  const props = defineProps<{ todo: Todo; users: User[] | undefined }>();
+  const props = defineProps<{ todo: Todo; users: readonly User[] }>();
+  const reorderItem = useReorderItem(props.todo.pk());
   const ctrl = useController();
   const update = (body: Partial<Todo>) =>
     ctrl.fetch(TodoResource.partialUpdate, { id: props.todo.id }, body);
@@ -166,14 +169,13 @@ export const TodoResource = resource({
 </script>
 
 <template>
-  <div class="listItem">
+  <div class="listItem" :ref="reorderItem">
     <label>
       <input type="checkbox" :checked="todo.completed" @change="toggle" />
       {{ todo.title }}
     </label>
-    <label v-if="todo.user" class="assignee">
-      <Avatar :src="todo.user.profileImage" :size="20" />
-      {{ todo.user.name }}
+    <label class="assignee">
+      <Avatar v-if="todo.user" :src="todo.user.profileImage" :size="24" />
       <select
         :aria-label="`Owner of ${todo.title}`"
         :value="todo.userId"
@@ -184,33 +186,71 @@ export const TodoResource = resource({
         </option>
       </select>
     </label>
-    <span v-else class="assignee skeleton" />
   </div>
 </template>
 ```
 
-```html title="TodoList.vue"
+```html title="TodoGroup.vue"
 <script setup lang="ts">
-  import { useCache, useFetch, useSuspense } from '@data-client/vue';
-  import { TodoResource } from './resources/Todo';
-  import { UserResource } from './resources/User';
   import TodoItem from './TodoItem.vue';
+  import type { Todo } from './resources/Todo';
+  import type { User } from './resources/User';
 
-  // both requests start at once; todos render without waiting for users
-  useFetch(UserResource.getList);
-  const todos = await useSuspense(TodoResource.getList);
-  const users = useCache(UserResource.getList);
+  const props = defineProps<{
+    owner: User | undefined;
+    todos: readonly Todo[];
+    users: readonly User[];
+  }>();
+  const reorderItem = useReorderItem(`owner ${props.owner?.pk()}`);
 </script>
 
 <template>
-  <div class="list">
-    <TodoItem
-      v-for="todo in todos"
-      :key="todo.pk()"
-      :todo="todo"
+  <section :ref="reorderItem">
+    <h3>
+      <Avatar v-if="owner" :src="owner.profileImage" :size="20" />
+      {{ owner?.name ?? 'Unassigned' }}
+    </h3>
+    <div class="list">
+      <TodoItem
+        v-for="todo in todos"
+        :key="todo.pk()"
+        :todo="todo"
+        :users="users"
+      />
+    </div>
+  </section>
+</template>
+```
+
+```html title="TodoList.vue" {12-15}
+<script setup lang="ts">
+  import { computed } from 'vue';
+  import { useFetch, useSuspense } from '@data-client/vue';
+  import { TodoResource } from './resources/Todo';
+  import { UserResource } from './resources/User';
+  import TodoGroup from './TodoGroup.vue';
+
+  // both requests start at once
+  useFetch(UserResource.getList);
+  const todos = await useSuspense(TodoResource.getList);
+  const users = await useSuspense(UserResource.getList);
+  // every todo carries its user, so the list can group by it
+  const byOwner = computed(() =>
+    Map.groupBy(todos.value, todo => todo.user),
+  );
+</script>
+
+<template>
+  <!-- rows and groups glide to wherever a change moves them -->
+  <Reorder :layout-dependency="todos">
+    <TodoGroup
+      v-for="[owner, ownerTodos] in byOwner"
+      :key="owner?.pk()"
+      :owner="owner"
+      :todos="ownerTodos"
       :users="users"
     />
-  </div>
+  </Reorder>
 </template>
 ```
 

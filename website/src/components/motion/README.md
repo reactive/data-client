@@ -48,6 +48,35 @@ function Handle() {
 }
 ```
 
+**Lists that rearrange** (a sort, a filter, a row moving to another group):
+
+```tsx
+import { Reorder, useReorderItem } from '../motion';
+
+function Board({ todos }: { todos: Todo[] }) {
+  const byOwner = Map.groupBy(todos, todo => todo.user);
+  return (
+    // where the list is read; it renders no element of its own
+    <Reorder layoutDependency={todos}>
+      {[...byOwner].map(([owner, todos]) => (
+        <Group key={owner.id} owner={owner} todos={todos} />
+      ))}
+    </Reorder>
+  );
+}
+
+function Row({ todo }: { todo: Todo }) {
+  // keyed by id, so the row is followed when React remounts it in another group
+  return <li ref={useReorderItem(todo.id)}>{todo.title}</li>;
+}
+```
+
+Items are found by key, not by element, so a row React remounts under a new
+parent still glides there from where it was. An item inside another moving
+item (a row in a group that moves) rides along and travels only the rest of
+the way; a new key fades in. Use `MotionGroup` where things open and close in
+place, `Reorder` where items change places.
+
 `Reveal` follows the flex direction, so a panel that slides in sideways on
 desktop rises from the bottom when a container query stacks it. It slides
 over its siblings, and its contents fill it: clip it with `overflow: hidden`
@@ -89,6 +118,8 @@ css.ts            global CSS (springs as custom properties, Reveal's box),
 glide.ts          runs and retargets one element's translate (Web Animations)
 MotionGroup.tsx   measures before/after a commit; drives members; useLayoutMotion
 Reveal.tsx        presence: mount, slide in, slide out, hide (state kept)
+reorder.ts        lists that rearrange, DOM only: measure, then glide items by key
+Reorder.tsx       its React binding: snapshots each commit; useReorderItem
 ```
 
 Tests: `yarn test --selectProjects ReactDOM --testPathPatterns website/src/components/motion`

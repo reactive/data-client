@@ -130,10 +130,14 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
     },
 
     pick(el, value) {
+      if (!(el instanceof HTMLSelectElement))
+        throw new Error(
+          `a select step needs a <select>, not <${el.localName}>`,
+        );
       ring();
       // React reads a select's value on its change event (no value tracker,
       // unlike an input)
-      (el as HTMLSelectElement).value = value;
+      el.value = value;
       el.dispatchEvent(new Event('input', { bubbles: true }));
       el.dispatchEvent(new Event('change', { bubbles: true }));
     },

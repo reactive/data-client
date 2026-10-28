@@ -40,8 +40,8 @@ const EXT = { ts: '.ts', typescript: '.ts', tsx: '.tsx', html: '.vue' };
 const DESIGN_SYSTEM = [
   ...fs
     .readFileSync(path.join(PLAYGROUND, 'DesignSystem/index.ts'), 'utf8')
-    // its own modules (`./Avatar`), not the re-exported library
-    .matchAll(/^export \{ ([\w, ]+) \} from '\.\//gm),
+    // the site's own modules (`./Avatar`, `../../motion`), not a library
+    .matchAll(/^export \{ ([\w, ]+) \} from '\.\.?\//gm),
 ].flatMap(([, names]) => names.split(/,\s*/));
 // by name: components are capitalized (`Toaster`), helpers aren't (`toast`)
 const PLACEHOLDERS = DESIGN_SYSTEM.filter(name => /^[A-Z]/.test(name));

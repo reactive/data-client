@@ -107,8 +107,10 @@ Even if the network responses don't nest data, we can perform client-side joins 
 the relationship in [Entity.schema](./Entity.md#schema).
 
 Here `/todos` only sends each todo's `userId`. [Entity.process()](./Entity.md#process) points
-`user` at that id, so `todo.user` is the whole `User` from `/users`, which loads in parallel. Assigning
-a todo to someone else sends just the new `userId`.
+`user` at that id, so every todo in the list carries its whole `User` from `/users`. A component
+could look up one user by id itself; joining puts the user in the list, so the list can group by
+person. Assign a task to someone else, and only its new `userId` goes to the server, yet it moves
+to that person's group.
 
 ```ts title="resources/User"
 import { Entity, resource } from '@data-client/rest';
@@ -168,7 +170,7 @@ function TodoItem({ todo, users }: Props) {
   const update = (body: Partial<Todo>) =>
     ctrl.fetch(TodoResource.partialUpdate, { id: todo.id }, body);
   return (
-    <div className="listItem">
+    <div className="listItem" ref={useReorderItem(todo.pk())}>
       <label>
         <input
           type="checkbox"
@@ -177,23 +179,20 @@ function TodoItem({ todo, users }: Props) {
         />
         {todo.title}
       </label>
-      {todo.user ?
-        <label className="assignee">
-          <Avatar src={todo.user.profileImage} size={20} />
-          {todo.user.name}
-          <select
-            aria-label={`Owner of ${todo.title}`}
-            value={todo.userId}
-            onChange={e => update({ userId: Number(e.currentTarget.value) })}
-          >
-            {users?.map(user => (
-              <option key={user.pk()} value={user.id}>
-                {user.name}
-              </option>
-            ))}
-          </select>
-        </label>
-      : <span className="assignee skeleton" />}
+      <label className="assignee">
+        {todo.user && <Avatar src={todo.user.profileImage} size={24} />}
+        <select
+          aria-label={`Owner of ${todo.title}`}
+          value={todo.userId}
+          onChange={e => update({ userId: Number(e.currentTarget.value) })}
+        >
+          {users.map(user => (
+            <option key={user.pk()} value={user.id}>
+              {user.name}
+            </option>
+          ))}
+        </select>
+      </label>
     </div>
   );
 }
@@ -201,27 +200,63 @@ export default React.memo(TodoItem);
 
 interface Props {
   todo: Todo;
-  users: User[] | undefined;
+  users: User[];
 }
 ```
 
-```tsx title="TodoList"
-import { useCache, useFetch, useSuspense } from '@data-client/react';
+```tsx title="TodoGroup"
+import TodoItem from './TodoItem';
+import type { Todo } from './resources/Todo';
+import type { User } from './resources/User';
+
+export default function TodoGroup({ owner, todos, users }: Props) {
+  return (
+    <section ref={useReorderItem(`owner ${owner?.pk()}`)}>
+      <h3>
+        {owner && <Avatar src={owner.profileImage} size={20} />}
+        {owner?.name ?? 'Unassigned'}
+      </h3>
+      <div className="list">
+        {todos.map(todo => (
+          <TodoItem key={todo.pk()} todo={todo} users={users} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+interface Props {
+  owner: User | undefined;
+  todos: Todo[];
+  users: User[];
+}
+```
+
+```tsx title="TodoList" {11-12}
+import { useFetch, useSuspense } from '@data-client/react';
 import { TodoResource } from './resources/Todo';
 import { UserResource } from './resources/User';
-import TodoItem from './TodoItem';
+import TodoGroup from './TodoGroup';
 
 function TodoList() {
-  // both requests start at once; todos render without waiting for users
+  // both requests start at once
   useFetch(UserResource.getList);
   const todos = useSuspense(TodoResource.getList);
-  const users = useCache(UserResource.getList);
+  const users = useSuspense(UserResource.getList);
+  // every todo carries its user, so the list can group by it
+  const byOwner = Map.groupBy(todos, todo => todo.user);
   return (
-    <div className="list">
-      {todos.map(todo => (
-        <TodoItem key={todo.pk()} todo={todo} users={users} />
+    // rows and groups glide to wherever a change moves them
+    <Reorder layoutDependency={todos}>
+      {[...byOwner].map(([owner, ownerTodos]) => (
+        <TodoGroup
+          key={owner?.pk()}
+          owner={owner}
+          todos={ownerTodos}
+          users={users}
+        />
       ))}
-    </div>
+    </Reorder>
   );
 }
 render(<TodoList />);

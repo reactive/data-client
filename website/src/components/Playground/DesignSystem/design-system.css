@@ -63,6 +63,12 @@ div.playground-preview h1:first-child {
   letter-spacing: 0;
   color: var(--ds-text-muted);
 }
+/* a person's group: their avatar beside the label */
+.playground-preview section > h3:has(> .avatar) {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-2);
+}
 /* A value that just changed: washed in the accent and ringed by it */
 .playground-preview mark {
   padding: 1px 4px;
@@ -1221,40 +1227,20 @@ div.playground-preview h1:first-child {
   flex: none;
   min-width: 7rem;
 }
-/* Who a row belongs to (`assignee`, a label: a task's owner): their avatar
-   and name in a soft pill at the row's end. A `select` inside it is laid
-   invisibly over the pill, so the pill is the picker and the browser's own
-   menu (a phone's wheel) changes it. A `skeleton` holds its place while
-   the people load */
+/* Who a row belongs to (`assignee`, a label around their avatar): a ring
+   around the face at the row's end. A `select` inside it is laid invisibly
+   over it, so the face is the picker and the browser's own menu (a phone's
+   wheel) changes it */
 /* a label, which a row would otherwise stretch like its title's */
 .playground-preview .listItem > .assignee {
   flex: none;
 }
 .playground-preview .assignee {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ds-space-2);
-  padding: 3px 10px 3px 3px;
-  border-radius: 999px;
-  background: var(--ds-surface-2);
-  font-size: var(--ds-text-sm);
-  line-height: 20px;
-  color: var(--ds-text-muted);
-  white-space: nowrap;
-  transition:
-    background-color var(--motion-snappy),
-    color var(--motion-snappy);
-}
-.playground-preview .assignee.skeleton {
-  width: 6.75rem;
-  height: 26px;
-  padding: 0;
-  background: none;
-}
-.playground-preview .assignee.skeleton::after {
-  height: auto;
-  border-radius: inherit;
+  display: flex;
+  padding: 3px;
+  border-radius: 50%;
+  transition: background-color var(--motion-snappy);
 }
 .playground-preview .assignee > select {
   position: absolute;
@@ -1269,23 +1255,11 @@ div.playground-preview h1:first-child {
 @media (hover: hover) {
   .playground-preview .assignee:has(> select):hover {
     background: var(--ds-accent-soft);
-    color: var(--ds-accent);
   }
 }
 .playground-preview .assignee:has(> select:focus-visible) {
   outline: 2px solid var(--ds-accent);
-  outline-offset: 2px;
-}
-/* a face arriving (once the people load) settles in; at once under reduced
-   motion, where --motion-snappy is 0s */
-.playground-preview .assignee > .avatar {
-  animation: ds-arrive var(--motion-snappy);
-}
-@keyframes ds-arrive {
-  from {
-    opacity: 0;
-    transform: scale(0.6);
-  }
+  outline-offset: 1px;
 }
 
 /* A row's remove button (CancelButton): a 16px mark at the row's end whose

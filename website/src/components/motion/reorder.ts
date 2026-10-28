@@ -1,0 +1,73 @@
+import { glide, stop, velocityOf, ORIGIN, type Point } from './glide';
+import { springEasing, type Spring } from './spring';
+
+/** Elements that move as a list changes, each under a key that stays the
+ * same from one render to the next (an item's id), even when the element
+ * doesn't */
+export type Items = ReadonlyMap<unknown, HTMLElement>;
+
+/** Where an item was on screen (including any glide in flight), and how
+ * fast it was moving */
+export interface Position {
+  at: Point;
+  velocity: Point;
+}
+export type Positions = ReadonlyMap<unknown, Position>;
+
+/** Reads where `items` are, before a change moves them */
+export function measure(items: Items): Positions {
+  const positions = new Map<unknown, Position>();
+  for (const [key, el] of items)
+    positions.set(key, { at: positionOf(el), velocity: velocityOf(el) });
+  return positions;
+}
+
+/**
+ * Glides each item from where `before` saw its key to where it is now (FLIP,
+ * `translate` only, on the compositor), so an item React put under another
+ * parent travels there too. An item inside another that moves rides along
+ * with it, and only travels the rest of the way itself; a key `before` lacks
+ * fades in. Layout-agnostic: it reads only where items are on screen.
+ */
+export function reorder(before: Positions, items: Items, spring: Spring) {
+  // the final layout, without glides in flight, before measuring it
+  for (const el of items.values()) stop(el);
+  const moves = new Map<HTMLElement, { offset: Point; velocity: Point }>();
+  const arrivals: HTMLElement[] = [];
+  for (const [key, el] of items) {
+    const was = before.get(key);
+    if (!was) {
+      arrivals.push(el);
+      continue;
+    }
+    const at = positionOf(el);
+    moves.set(el, {
+      offset: { x: was.at.x - at.x, y: was.at.y - at.y },
+      velocity: was.velocity,
+    });
+  }
+  // every read is done: start the animations
+  for (const [el, { offset, velocity }] of moves) {
+    const carrier = carrierOf(el, moves);
+    const carried = carrier && moves.get(carrier)?.offset;
+    const from =
+      carried ? { x: offset.x - carried.x, y: offset.y - carried.y } : offset;
+    glide(el, spring, { from, to: ORIGIN, velocity });
+  }
+  if (!arrivals.length) return;
+  const easing = springEasing(spring);
+  for (const el of arrivals) el.animate?.(ARRIVE, easing);
+}
+
+const ARRIVE: Keyframe[] = [{ opacity: 0 }, { opacity: 1 }];
+
+function positionOf(el: HTMLElement): Point {
+  const { left, top } = el.getBoundingClientRect();
+  return { x: left, y: top };
+}
+
+/** The nearest moving item `el` is inside, if any */
+function carrierOf(el: HTMLElement, moving: ReadonlyMap<HTMLElement, unknown>) {
+  for (let up = el.parentElement; up; up = up.parentElement)
+    if (moving.has(up)) return up;
+}

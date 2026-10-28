@@ -33,13 +33,12 @@ export const assigneeFixtures: Interceptor<AssigneeState>[] = [
     },
     delay: 150,
   },
-  // later than the todos, so they show first and their people fill in
   {
     endpoint: UserResource.getList,
     response() {
       return users;
     },
-    delay: 900,
+    delay: 250,
   },
   {
     endpoint: TodoResource.partialUpdate,
