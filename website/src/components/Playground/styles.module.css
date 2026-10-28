@@ -782,6 +782,8 @@ div.playgroundTextEdit > .playgroundHeader,
 .row .playgroundResult {
   flex: none;
   height: auto;
+  /* never shorter than it has been (useHeightRatchet) */
+  min-height: var(--pg-result-min);
   border-radius: var(--pg-body-radius) var(--pg-body-radius) 0 0;
   background: var(--pg-stage);
 }

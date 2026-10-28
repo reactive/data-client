@@ -28,7 +28,7 @@ export default function PlaygroundTabs(props: TabsProps) {
   return (
     // remount after hydration, as Docusaurus Tabs do (facebook/docusaurus#5653)
     <TabsProvider value={value} key={String(isBrowser)}>
-      <div ref={container}>
+      <div ref={container} data-playground-group>
         <ProtocolSwitch
           values={value.tabValues}
           selectedValue={value.selectedValue}
