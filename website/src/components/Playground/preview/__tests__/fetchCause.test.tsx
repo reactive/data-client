@@ -281,6 +281,23 @@ describe('actions by interaction', () => {
       'GET /comments/c1',
     ]);
   });
+
+  it('keeps a refetch with its cause when a click came between', async () => {
+    const { ctrl, entries, fetches } = mount();
+    await screen.findByText('Post 1');
+    const before = fetches().length;
+    act(() => {
+      ctrl().invalidate(getPost, { id: '1' });
+      fireEvent.click(screen.getByText('Save post'));
+    });
+    await waitFor(() => expect(fetches().length).toBeGreaterThan(before));
+    await screen.findByText(/Post 1|Saved/);
+    const sections = sectionsOf(entries());
+    expect(sections.map(s => s.kind)).toEqual(['render', 'app', 'event']);
+    expect(sections[1].keys).toHaveLength(2);
+    expect(sections[1].keys[1]).toBe('GET /posts/1');
+    expect(sections[2].keys).toEqual(['PATCH /posts/1']);
+  });
 });
 
 describe('callSite', () => {

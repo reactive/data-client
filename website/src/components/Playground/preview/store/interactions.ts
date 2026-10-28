@@ -40,12 +40,11 @@ export function interactionsOf(
     let root = roots.get(row);
     if (!root) {
       seen.add(row);
-      const sent = sentEntry(row);
-      const cause =
-        sent?.causedBy === undefined ?
-          undefined
-        : groupOf(groups, sent.causedBy);
-      root = cause && !seen.has(cause) ? rootOf(cause, seen) : ownRoot(sent);
+      const cause = causeOf(row, groups);
+      root =
+        cause && !seen.has(cause) ?
+          rootOf(cause, seen)
+        : ownRoot(sentEntry(row));
       roots.set(row, root);
     }
     return root;
@@ -59,31 +58,39 @@ export function interactionsOf(
     components: Set<string>;
   }[] = [];
   const byId = new Map<string, (typeof sections)[number]>();
+  // a row's section, so what it caused goes there too, whatever came between
+  const sectionOf = new Map<ActionGroup, (typeof sections)[number]>();
   let last: (typeof sections)[number] | undefined;
   for (const row of rows) {
-    const root = rootOf(row, new Set());
-    const id =
-      !root.joins ? root.id
-      : last?.id.startsWith(`${root.id}#`) ? last.id
-      : `${root.id}#${sections.length}`;
-    let section = byId.get(id);
+    const cause = causeOf(row, groups);
+    let section = cause && sectionOf.get(cause);
     if (!section) {
-      section = {
-        id,
-        interaction: root.interaction,
-        first: !sections.length,
-        rows: [],
-        components: new Set(),
-      };
-      sections.push(section);
-      byId.set(id, section);
+      const root = rootOf(row, new Set());
+      const id =
+        !root.joins ? root.id
+        : last?.id.startsWith(`${root.id}#`) ? last.id
+        : `${root.id}#${sections.length}`;
+      section = byId.get(id);
+      if (!section) {
+        section = {
+          id,
+          interaction: root.interaction,
+          first: !sections.length,
+          rows: [],
+          components: new Set(),
+        };
+        sections.push(section);
+        byId.set(id, section);
+      }
+      // what comes next may join it; not an earlier section a refetch went to
+      last = section;
     }
     section.rows.push(row);
-    if (root.interaction.kind === 'render')
+    sectionOf.set(row, section);
+    if (section.interaction.kind === 'render')
       for (const entry of groupEntriesOf(row))
         if (entry.caller?.component)
           section.components.add(entry.caller.component);
-    last = section;
   }
   return sections.map(({ components, ...section }) =>
     section.interaction.kind === 'render' ?
@@ -93,6 +100,12 @@ export function interactionsOf(
       }
     : section,
   );
+}
+
+/** The row of `groups` whose action left `row`'s data invalid or stale */
+function causeOf(row: ActionGroup, groups: readonly ActionGroup[]) {
+  const causedBy = sentEntry(row)?.causedBy;
+  return causedBy === undefined ? undefined : groupOf(groups, causedBy);
 }
 
 /** The action of `row` that says who sent it: one the log knows a reason
