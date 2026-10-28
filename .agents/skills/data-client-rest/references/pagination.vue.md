@@ -136,7 +136,7 @@ Example app: [github-app](https://github.com/reactive/data-client/tree/master/ex
 
 ### Using RestEndpoint Directly
 
-Here we explore a real world example using [cosmos validators list](https://rest.cosmos.directory/stargaze/cosmos/staking/v1beta1/validators).
+Here we explore a real world example using [Cosmos Hub validators list](https://rest.cosmos.directory/cosmoshub/cosmos/staking/v1beta1/validators).
 
 Since validators only have one Endpoint, we use [RestEndpoint](./RestEndpoint.vue.md) instead of [resource](./resource.vue.md). By using [Collections](https://dataclient.io/rest/api/Collection) and [paginationField](./RestEndpoint.vue.md#paginationfield), we can call [RestEndpoint.getPage](./RestEndpoint.vue.md#getpage)
 to append the next page of validators to our list.
@@ -161,7 +161,7 @@ export class Validator extends Entity {
   };
   unbonding_height = '0';
   unbonding_time = Temporal.Instant.fromEpochMilliseconds(0);
-  comission = {
+  commission = {
     commission_rates: { rate: 0, max_rate: 0, max_change_rate: 0 },
     update_time: Temporal.Instant.fromEpochMilliseconds(0),
   };
@@ -173,7 +173,7 @@ export class Validator extends Entity {
 
   static schema = {
     unbonding_time: Temporal.Instant.from,
-    comission: {
+    commission: {
       commission_rates: {
         rate: Number,
         max_rate: Number,
@@ -186,7 +186,7 @@ export class Validator extends Entity {
 
 export const getValidators = new RestEndpoint({
   urlPrefix: 'https://rest.cosmos.directory',
-  path: '/stargaze/cosmos/staking/v1beta1/validators',
+  path: '/cosmoshub/cosmos/staking/v1beta1/validators',
   searchParams: {} as { 'pagination.limit': string },
   paginationField: 'pagination.key',
   schema: {

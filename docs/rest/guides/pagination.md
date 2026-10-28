@@ -10,6 +10,7 @@ sidebar_label: Pagination
 import StackBlitz from '@site/src/components/StackBlitz';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import PaginationDemo from '../../core/shared/\_pagination.mdx';
+import { validatorFixtures } from '@site/src/fixtures/validators';
 
 # Rest Pagination
 
@@ -44,12 +45,12 @@ Scroll to the bottom of the preview to click _"Load more"_ to append the next pa
 
 ### Using RestEndpoint Directly
 
-Here we explore a real world example using [cosmos validators list](https://rest.cosmos.directory/stargaze/cosmos/staking/v1beta1/validators).
+Here we explore a real world example using [Cosmos Hub validators list](https://rest.cosmos.directory/cosmoshub/cosmos/staking/v1beta1/validators).
 
 Since validators only have one Endpoint, we use [RestEndpoint](../api/RestEndpoint.md) instead of [resource](../api/resource.md). By using [Collections](../api/Collection.md) and [paginationField](../api/RestEndpoint.md#paginationfield), we can call [RestEndpoint.getPage](../api/RestEndpoint.md#getpage)
 to append the next page of validators to our list.
 
-<FrameworkPlayground defaultOpen="n" row>
+<FrameworkPlayground defaultOpen="n" row fixtures={validatorFixtures}>
 
 ```ts title="Validator" {47-51} collapsed
 import { Collection, Entity, RestEndpoint, schema } from '@data-client/rest';
@@ -71,7 +72,7 @@ export class Validator extends Entity {
   };
   unbonding_height = '0';
   unbonding_time = Temporal.Instant.fromEpochMilliseconds(0);
-  comission = {
+  commission = {
     commission_rates: { rate: 0, max_rate: 0, max_change_rate: 0 },
     update_time: Temporal.Instant.fromEpochMilliseconds(0),
   };
@@ -83,7 +84,7 @@ export class Validator extends Entity {
 
   static schema = {
     unbonding_time: Temporal.Instant.from,
-    comission: {
+    commission: {
       commission_rates: {
         rate: Number,
         max_rate: Number,
@@ -96,7 +97,7 @@ export class Validator extends Entity {
 
 export const getValidators = new RestEndpoint({
   urlPrefix: 'https://rest.cosmos.directory',
-  path: '/stargaze/cosmos/staking/v1beta1/validators',
+  path: '/cosmoshub/cosmos/staking/v1beta1/validators',
   searchParams: {} as { 'pagination.limit': string },
   paginationField: 'pagination.key',
   schema: {
