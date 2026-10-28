@@ -3,6 +3,7 @@ import React, {
   memo,
   useCallback,
   useEffect,
+  useId,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -43,7 +44,7 @@ import {
 import { routesOf, shownChain } from './attribution';
 import type { Header } from './DiveViews';
 import { byData, onActivateKey, revealIn, toggled } from './dom';
-import { interactionLabel, interactionsOf } from './interactions';
+import { interactionsOf } from './interactions';
 import { actionId } from './model';
 import {
   ActionSpanContext,
@@ -211,9 +212,11 @@ function ActionList({
   const causeRow =
     causeSeq === undefined ? undefined : groupOf(groups, causeSeq);
   const sections = useMemo(
-    () => (by === 'interaction' ? interactionsOf(rows, groups) : undefined),
-    [by, rows, groups],
+    () =>
+      by === 'interaction' ? interactionsOf(rows, history.entries) : undefined,
+    [by, rows, history.entries],
   );
+  const headId = useId();
   const scroller = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
   const toggle = useCallback(
@@ -287,13 +290,13 @@ function ActionList({
         </p>
       )}
       {sections ?
-        sections.map(section => (
+        sections.map((section, i) => (
           <section
             key={section.id}
             className={styles.interaction}
-            aria-label={interactionLabel(section)}
+            aria-labelledby={headId + i}
           >
-            <InteractionHead section={section} />
+            <InteractionHead section={section} id={headId + i} />
             {section.rows.map(row)}
           </section>
         ))

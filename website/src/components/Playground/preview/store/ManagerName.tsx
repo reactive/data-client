@@ -12,10 +12,14 @@ function useOpenDeclared(name: string | null) {
   return opener && target ? () => opener.open(target) : undefined;
 }
 
-/** Opens where the code declares `stage`'s class: the library's managers
- * are no code of the reader's */
-const useOpenManager = ({ className, library }: ManagerStage) =>
-  useOpenDeclared(library ? null : className);
+/** The class the code declares for `stage`: none for the library's
+ * managers, which are no code of the reader's */
+const declaredClass = ({ className, library }: ManagerStage) =>
+  library ? null : className;
+
+/** Opens where the code declares `stage`'s class */
+const useOpenManager = (stage: ManagerStage) =>
+  useOpenDeclared(declaredClass(stage));
 
 const openLabel = (name: string) => 'Open ' + name + ' in the code';
 
@@ -53,7 +57,7 @@ export function DeclaredName({
 export function ManagerName({ stage }: { stage: ManagerStage }) {
   const name = stageName(stage);
   return (
-    <DeclaredName name={name} declared={stage.library ? null : stage.className}>
+    <DeclaredName name={name} declared={declaredClass(stage)}>
       {name}
     </DeclaredName>
   );

@@ -255,15 +255,23 @@ describe('actions by interaction', () => {
     const cause = findEntry(entries(), refetch.causedBy!);
     expect(cause?.action.type).toBe(actionTypes.SET_RESPONSE);
     expect(cause?.caller?.event).toBeUndefined();
-    expect(rootEvent(refetch, groupEntries(entries()))).toMatchObject({
+    expect(rootEvent(entries(), refetch)).toMatchObject({
       type: 'click',
       target: 'Delete user',
+    });
+    // and lists it under the click, though the list leaves the mutation out
+    const shown = groupEntries(entries()).filter(
+      row => row.key !== 'DELETE /users/u1',
+    );
+    const sections = interactionsOf(shown, entries());
+    expect(sections[sections.length - 1].interaction).toMatchObject({
+      kind: 'event',
+      event: { type: 'click', target: 'Delete user' },
     });
   });
 
   const sectionsOf = (entries: readonly LogEntry[]) => {
-    const groups = groupEntries(entries);
-    return interactionsOf(groups, groups).map(
+    return interactionsOf(groupEntries(entries), entries).map(
       ({ interaction, first, rows }) => ({
         kind: interaction.kind,
         first,

@@ -5,6 +5,7 @@ import {
   type ActionTypes,
   type FetchAction,
   type Manager,
+  type SetResponseAction,
   type State,
 } from '@data-client/react';
 
@@ -85,6 +86,10 @@ export interface LogEntry {
   readonly reason?: FetchReason;
   /** A refetch's: the action that left its data invalid or stale */
   readonly causedBy?: number;
+  /** The action that started it, when that was another: a response's
+   * fetch, or whatever started the action a refetch's `causedBy` names. Its
+   * `caller` or `origin` says who */
+  readonly root?: number;
   /** The manager whose middleware handled it without passing it on, so the
    * managers after it (and the store) never saw it */
   readonly consumedBy?: ManagerStage;
@@ -123,6 +128,29 @@ const EMPTY: History = { entries: [], since: 0 };
 
 export const findEntry = (entries: readonly LogEntry[], seq: number) =>
   entries.find(e => e.seq === seq);
+
+/** The action that started `entry` (see `LogEntry.root`): itself, unless
+ * the log says another */
+export const rootEntry = (entries: readonly LogEntry[], entry: LogEntry) =>
+  (entry.root === undefined ? undefined : findEntry(entries, entry.root)) ??
+  entry;
+
+/** `root` for an action that `entry` started */
+const rootOf = (entry: LogEntry | undefined) =>
+  entry && { root: entry.root ?? entry.seq };
+
+/** The fetch whose request `response` answers, the latest first */
+function requestOf(entries: readonly LogEntry[], response: SetResponseAction) {
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const { action } = entries[i];
+    if (
+      action.type === actionTypes.FETCH &&
+      action.key === response.key &&
+      action.meta.fetchedAt === response.meta.fetchedAt
+    )
+      return entries[i];
+  }
+}
 
 /** The nearest action before (`-1`) or after (`1`) `seq` that `hit` says
  * touched the subject, by seq (`seq` may have dropped off the log); `null`
@@ -256,6 +284,7 @@ export default class ActionLog {
     readonly LogEntry[],
     ReadonlyMap<number, number>
   >();
+
   private readonly listeners = new Set<() => void>();
   /** A notification is due this task */
   private queued = false;
@@ -333,8 +362,10 @@ export default class ActionLog {
             }),
           ...(origin && { origin }),
           ...(caller && { caller }),
-          ...(action.type === actionTypes.FETCH &&
-            this.why(id, action, controller)),
+          ...(action.type === actionTypes.FETCH ?
+            this.why(id, action, controller)
+          : action.type === actionTypes.SET_RESPONSE &&
+            rootOf(requestOf(this.history(id).entries, action))),
         };
         first = false;
         recorded.set(action, entry.seq);
@@ -421,7 +452,7 @@ export default class ActionLog {
     id: number,
     action: FetchAction,
     controller: { getState: () => State<unknown> },
-  ): Pick<LogEntry, 'reason' | 'causedBy'> {
+  ): Pick<LogEntry, 'reason' | 'causedBy' | 'root'> {
     const { state, entries } = this.history(id);
     const reason = fetchReason(
       this.reader,
@@ -429,8 +460,10 @@ export default class ActionLog {
       action,
       action.meta.fetchedAt,
     );
-    const causedBy = this.causeOf(entries, action, reason)?.seq;
-    return causedBy === undefined ? { reason } : { reason, causedBy };
+    const cause = this.causeOf(entries, action, reason);
+    return cause ?
+        { reason, causedBy: cause.seq, ...rootOf(cause) }
+      : { reason };
   }
 
   /** State as components read it: pending optimistic updates applied */
@@ -479,10 +512,11 @@ export default class ActionLog {
       if (!changes.length) continue;
       if (changes.some(c => 'endpoint' in c && c.endpoint === key))
         return earlier;
-      const held =
-        earlier.store && this.heldEntities(earlier.store.before, action);
-      if (changes.some(c => 'table' in c && held?.has(entityId(c.table, c.pk))))
-        return earlier;
+      // only an entity invalidated shows in a table; read what it holds then
+      const rows = changes.filter(c => 'table' in c);
+      if (!rows.length || !earlier.store) continue;
+      const held = this.heldEntities(earlier.store.before, action);
+      if (rows.some(c => held.has(entityId(c.table, c.pk)))) return earlier;
     }
   }
 

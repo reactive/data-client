@@ -55,12 +55,7 @@ export function RowWhy({
       {fetch?.reason && (
         <span className={styles.rowWhy}>
           ← <ReasonTag reason={fetch.reason} plain />
-          {(fetch.origin || fetch.caller?.component) && (
-            <>
-              {' · '}
-              <SenderName entry={fetch} />
-            </>
-          )}
+          <SenderName entry={fetch} before=" · " />
         </span>
       )}
       {refetches > 0 && (
@@ -77,7 +72,7 @@ export function RowWhy({
  * stale, then who fetched and why. Nothing for actions the log knows no
  * reason or sender for */
 export function Why({ entries }: { entries: readonly LogEntry[] }) {
-  const { history, groups } = useActions();
+  const { history } = useActions();
   const senders = sendersOf(entries);
   if (!senders.length) return null;
   const sent = senders[0].entry;
@@ -85,7 +80,7 @@ export function Why({ entries }: { entries: readonly LogEntry[] }) {
     sent.causedBy === undefined ?
       undefined
     : findEntry(history.entries, sent.causedBy);
-  const event = rootEvent(sent, groups);
+  const event = rootEvent(history.entries, sent);
   // an action the app sent from a handler has no sender to name beyond it
   const named = senders.some(
     ({ entry: e }) =>
@@ -178,22 +173,33 @@ function Sender({ entry, n }: { entry: LogEntry; n: number }) {
   );
 }
 
-/** Who sent `entry`, a manager or a component, linking to its code */
+/** Who sent `entry`, a manager or a component, linking to its code, after
+ * `before`; nothing when neither did */
 function SenderName({
   entry: { origin, caller },
   className,
+  before,
 }: {
   entry: LogEntry;
   /** A component's */
   className?: string;
+  before?: string;
 }) {
-  if (origin) return <ManagerName stage={origin} />;
   const component = caller?.component;
-  if (!component) return null;
+  const name =
+    origin ? <ManagerName stage={origin} />
+    : component ?
+      <DeclaredName name={component}>
+        <span className={className}>{`<${component}>`}</span>
+      </DeclaredName>
+    : null;
   return (
-    <DeclaredName name={component}>
-      <span className={className}>{`<${component}>`}</span>
-    </DeclaredName>
+    name && (
+      <>
+        {before}
+        {name}
+      </>
+    )
   );
 }
 
@@ -224,11 +230,18 @@ const COMPONENTS_SHOWN = 3;
 
 /** What started a section of the list (`interactionsOf`): `click “Save”`,
  * `mount <App> <List>`, a manager, with when */
-export function InteractionHead({ section }: { section: InteractionSection }) {
+export function InteractionHead({
+  section,
+  id,
+}: {
+  section: InteractionSection;
+  /** Its section's label */
+  id: string;
+}) {
   const { interaction } = section;
   const at = groupEntriesOf(section.rows[0])[0]?.at;
   return (
-    <div className={styles.interactionHead}>
+    <div id={id} className={styles.interactionHead}>
       <span className={styles.whySender}>
         {interaction.kind === 'event' ?
           <EventName event={interaction.event} />

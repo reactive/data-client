@@ -1,6 +1,6 @@
-import { groupEntriesOf, groupOf, type ActionGroup } from './actionGroups';
-import type { LogEntry } from './actionLog';
-import { stageName, type ManagerStage } from './attribution';
+import { groupEntriesOf, type ActionGroup } from './actionGroups';
+import { rootEntry, type LogEntry } from './actionLog';
+import type { ManagerStage } from './attribution';
 import type { CallerEvent } from './fetchCause';
 
 /** What started a run of actions: a person's event, components rendering
@@ -28,28 +28,13 @@ interface Root {
   readonly joins: boolean;
 }
 
-/** `rows` (some of `groups`) under the interactions that started them. A
- * row a cause set off (a refetch after an invalidate) goes with its cause's
- * interaction, wherever that is in the list */
+/** `rows` under the interactions that started them. A row another action
+ * started (a refetch after an invalidate, see `LogEntry.root`) goes with
+ * that action's, wherever it is in the list */
 export function interactionsOf(
   rows: readonly ActionGroup[],
-  groups: readonly ActionGroup[],
+  entries: readonly LogEntry[],
 ): InteractionSection[] {
-  const roots = new Map<ActionGroup, Root>();
-  const rootOf = (row: ActionGroup, seen: Set<ActionGroup>): Root => {
-    let root = roots.get(row);
-    if (!root) {
-      seen.add(row);
-      const cause = causeOf(row, groups);
-      root =
-        cause && !seen.has(cause) ?
-          rootOf(cause, seen)
-        : ownRoot(sentEntry(row));
-      roots.set(row, root);
-    }
-    return root;
-  };
-
   type Section = InteractionSection & { rows: ActionGroup[] };
   const sections: Section[] = [];
   const byId = new Map<string, Section>();
@@ -73,18 +58,18 @@ export function interactionsOf(
     return section;
   };
 
-  const sectionOf = new Map<ActionGroup, Section>();
+  /** By the action that started their rows */
+  const byRoot = new Map<number, Section>();
   for (const row of rows) {
-    const cause = causeOf(row, groups);
-    // what a row caused goes where it went, whatever came between
-    let section = cause && sectionOf.get(cause);
+    const root = rootEntry(entries, groupEntriesOf(row)[0]);
+    let section = byRoot.get(root.seq);
     if (!section) {
-      section = sectionFor(rootOf(row, new Set()));
+      section = sectionFor(ownRoot(root));
+      byRoot.set(root.seq, section);
       // the next row may join only a section that ends the list so far
       last = section;
     }
     section.rows.push(row);
-    sectionOf.set(row, section);
   }
   return sections.map(section =>
     section.interaction.kind === 'render' ?
@@ -105,35 +90,13 @@ const componentsOf = (rows: readonly ActionGroup[]) => [
   ),
 ];
 
-/** The row of `groups` whose action left `row`'s data invalid or stale */
-function causeOf(row: ActionGroup, groups: readonly ActionGroup[]) {
-  const causedBy = sentEntry(row)?.causedBy;
-  return causedBy === undefined ? undefined : groupOf(groups, causedBy);
-}
-
-/** The user event `entry` came of: its own, or, when an action left its
- * data invalid or stale, the one that sent that action's request (a
- * mutation's response comes from the network, its fetch from the click) */
-export function rootEvent(
-  entry: LogEntry,
-  groups: readonly ActionGroup[],
-): CallerEvent | undefined {
-  const cause =
-    entry.causedBy === undefined ? undefined : groupOf(groups, entry.causedBy);
-  return (cause ? sentEntry(cause) : entry)?.caller?.event;
-}
-
-/** The action of `row` that says who sent it: one the log knows a reason
- * or caller for, else its first */
-function sentEntry(row: ActionGroup): LogEntry | undefined {
-  const entries = groupEntriesOf(row);
-  return entries.find(e => e.reason || e.caller) ?? entries[0];
-}
+/** The user event that started `entry`, if one did */
+export const rootEvent = (entries: readonly LogEntry[], entry: LogEntry) =>
+  rootEntry(entries, entry).caller?.event;
 
 const APP: Root = { id: 'app', interaction: { kind: 'app' }, joins: true };
 
-function ownRoot(entry: LogEntry | undefined): Root {
-  if (!entry) return APP;
+function ownRoot(entry: LogEntry): Root {
   const { caller, origin } = entry;
   if (caller?.event) {
     const { event } = caller;
@@ -157,22 +120,4 @@ function ownRoot(entry: LogEntry | undefined): Root {
       joins: true,
     };
   return APP;
-}
-
-/** `event` in words: `click “Save”` */
-export const eventLabel = ({ type, target }: CallerEvent) =>
-  target ? `${type} “${target}”` : type;
-
-/** `section`'s head as text, for its label */
-export function interactionLabel({ interaction, first }: InteractionSection) {
-  switch (interaction.kind) {
-    case 'event':
-      return eventLabel(interaction.event);
-    case 'render':
-      return [first ? 'mount' : 'render', ...interaction.components].join(' ');
-    case 'manager':
-      return stageName(interaction.stage);
-    case 'app':
-      return 'the app';
-  }
 }
