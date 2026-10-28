@@ -3,7 +3,6 @@ import React, { type ReactNode } from 'react';
 import { groupEntriesOf } from './actionGroups';
 import { findEntry, type LogEntry } from './actionLog';
 import { ActionName, Time, useActions } from './actionParts';
-import { stageName } from './attribution';
 import { kindColor } from './dom';
 import type { CallerEvent, FetchReason } from './fetchCause';
 import type { InteractionSection } from './interactions';
@@ -260,20 +259,4 @@ export function InteractionHead({ section }: { section: InteractionSection }) {
       {at !== undefined && <Time at={at} />}
     </div>
   );
-}
-
-/** `section`'s head as text, for its label */
-export function interactionLabel({ interaction, first }: InteractionSection) {
-  switch (interaction.kind) {
-    case 'event':
-      return [interaction.event.type, interaction.event.target]
-        .filter(Boolean)
-        .join(' ');
-    case 'render':
-      return [first ? 'mount' : 'render', ...interaction.components].join(' ');
-    case 'manager':
-      return stageName(interaction.stage);
-    case 'app':
-      return 'the app';
-  }
 }

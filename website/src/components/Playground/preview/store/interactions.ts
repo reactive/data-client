@@ -1,6 +1,6 @@
 import { groupEntriesOf, groupOf, type ActionGroup } from './actionGroups';
 import type { LogEntry } from './actionLog';
-import type { ManagerStage } from './attribution';
+import { stageName, type ManagerStage } from './attribution';
 import type { CallerEvent } from './fetchCause';
 
 /** What started a run of actions: a person's event, components rendering
@@ -129,4 +129,22 @@ function ownRoot(entry: LogEntry | undefined): Root {
       joins: true,
     };
   return APP;
+}
+
+/** `event` in words: `click “Save”` */
+export const eventLabel = ({ type, target }: CallerEvent) =>
+  target ? `${type} “${target}”` : type;
+
+/** `section`'s head as text, for its label */
+export function interactionLabel({ interaction, first }: InteractionSection) {
+  switch (interaction.kind) {
+    case 'event':
+      return eventLabel(interaction.event);
+    case 'render':
+      return [first ? 'mount' : 'render', ...interaction.components].join(' ');
+    case 'manager':
+      return stageName(interaction.stage);
+    case 'app':
+      return 'the app';
+  }
 }

@@ -43,7 +43,7 @@ import {
 import { routesOf, shownChain } from './attribution';
 import type { Header } from './DiveViews';
 import { byData, onActivateKey, revealIn, toggled } from './dom';
-import { interactionsOf } from './interactions';
+import { interactionLabel, interactionsOf } from './interactions';
 import { actionId } from './model';
 import {
   ActionSpanContext,
@@ -55,7 +55,7 @@ import {
 import { Pipeline, StepPath } from './Pipeline';
 import styles from './store.module.css';
 import { useActionsBy } from './storeView';
-import { InteractionHead, interactionLabel, RowWhy } from './Why';
+import { InteractionHead, RowWhy } from './Why';
 import type { ActionsBy } from '../StoreToggle';
 
 /** The groups with an action that touched the subject */

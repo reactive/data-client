@@ -36,5 +36,6 @@ export function useActionsBy() {
   const [stored, setStored] = useTabStorage(`${groupId}.actionsBy`);
   const by: ActionsBy =
     stored === 'request' || stored === 'interaction' ? stored : defaultBy;
-  return [by, setStored as (by: ActionsBy) => void] as const;
+  const setBy = useCallback((next: ActionsBy) => setStored(next), [setStored]);
+  return [by, setBy] as const;
 }
