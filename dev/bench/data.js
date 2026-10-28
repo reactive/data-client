@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793131411700,
+  "lastUpdate": 1793230949547,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -137467,6 +137467,324 @@ window.BENCHMARK_DATA = {
             "range": "±3.47%",
             "unit": "ops/sec",
             "extra": "96 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7b5e2bb5ef9e79df6c5c2c586ff5cee242c8481e",
+          "message": "docs: Show useCancelling as an inbox you skim on a slow connection (#4516)\n\n* docs: Show useCancelling as an inbox you skim on a slow connection\n\nThe abort guide and the useCancelling() page showed a todo pager with\n« » buttons. Its only cue was the Store, and clicking fast could leave\nit loading forever.\n\nThe demo is now an inbox. The autorun clicks down five messages. Each\nmessage is a 150 KB download over a 100 KB/s link that open downloads\nshare. Without cancelling (new first demo on the abort guide), the one\nit stops on opens about 5 s after the last click. With useCancelling(),\nit opens in about 1.5 s. The Store lists each skipped download as\ncancelled.\n\n- useCancelling(): a suspended render's retry rebuilt its memo and\n  aborted the request it was waiting on, so with slow requests the\n  component could stay suspended forever. The controller is now kept per\n  params key in a ref. Regression test included.\n- Fixtures: a fetch's AbortSignal rejects the fixture delay with an\n  AbortError. fetchResponse() interceptors can be async and read\n  init.signal.\n- Store inspector: aborted responses read \"cancelled\" instead of a red\n  error.\n- Design system: `.split` (list beside what it opens when there's room)\n  and button rows with an `aria-current` wash.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: One useCancelling demo per page, without autoplay; simplify cleanups\n\nDrops the abort guide's duplicate \"without\" demo and the autorun.\nCleanups: fixture-abort tests reuse ArticleResource and createFetch;\nslowLink removes its abort listener once a download finishes; the\nbutton-row hover and focus ring join the existing rules; Fixtures.md\nkeeps its original wrapping.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Count fetches in flight in the useCancelling demo; open message on a tinted pane\n\nPlaygrounds take `inFlight`: a header badge counting requests in\nflight, one per endpoint key from its fetch until its response or abort.\nSkimming the inbox keeps it at 1 with useCancelling(); without it, every\nskipped message piles on. The open message sits on a tinted pane, apart\nfrom the list.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Regenerate skill references for async fetchResponse\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-28T23:33:52Z",
+          "tree_id": "5792a6a78af1736b2cb903e6c52b04ce387dacf8",
+          "url": "https://github.com/reactive/data-client/commit/7b5e2bb5ef9e79df6c5c2c586ff5cee242c8481e"
+        },
+        "date": 1793230945899,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 425,
+            "range": "±3.54%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 381,
+            "range": "±0.39%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 343,
+            "range": "±2.29%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 872,
+            "range": "±0.25%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 233,
+            "range": "±6.29%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 213,
+            "range": "±5.09%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1041,
+            "range": "±0.69%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 745,
+            "range": "±0.22%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 1135,
+            "range": "±0.37%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1333,
+            "range": "±2.50%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 561,
+            "range": "±6.77%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 7316,
+            "range": "±0.12%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 3254,
+            "range": "±0.80%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 53795,
+            "range": "±1.09%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 6208,
+            "range": "±2.80%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 204,
+            "range": "±7.12%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 6918,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 6885,
+            "range": "±0.90%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 6458,
+            "range": "±1.38%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 7506,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 5497,
+            "range": "±1.32%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 6149,
+            "range": "±2.36%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 6429,
+            "range": "±2.36%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1592,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 4261,
+            "range": "±9.42%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 43466,
+            "range": "±0.18%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 5066,
+            "range": "±5.47%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 9769311,
+            "range": "±1.60%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 192,
+            "range": "±8.52%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 3879,
+            "range": "±1.60%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 2964,
+            "range": "±3.77%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 5116,
+            "range": "±4.85%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 3200,
+            "range": "±0.35%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 5894,
+            "range": "±3.13%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 435,
+            "range": "±1.45%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 247,
+            "range": "±1.45%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 266,
+            "range": "±0.61%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 853,
+            "range": "±2.01%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 137,
+            "range": "±0.33%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 3669,
+            "range": "±0.50%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 14.07,
+            "range": "±0.38%",
+            "unit": "ops/sec",
+            "extra": "39 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 1412,
+            "range": "±3.01%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
           }
         ]
       }
