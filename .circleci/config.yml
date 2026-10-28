@@ -6,7 +6,7 @@ version: 2.1
 executors:
   node:
     docker: &docker
-      - image: cimg/node:26.12
+      - image: cimg/node:26.13
     environment:
       # the whole CI is reset each time anyway, so only track local cache
       YARN_ENABLE_GLOBAL_CACHE: false
@@ -328,7 +328,7 @@ jobs:
                   # before it ever sees CODECOV_TOKEN.
                   # https://docs.codecov.com/docs/codecov-uploader#integrity-checking-the-uploader
                   # renovate: datasource=github-releases depName=codecov/codecov-cli
-                  CLI=https://cli.codecov.io/v11.3.1/linux/codecov
+                  CLI=https://cli.codecov.io/v11.3.2/linux/codecov
                   KEY_FINGERPRINT=27034E7FDB850E0BBC2C62FF806BB28AED779869
                   if [ ! -f coverage/lcov.info ]; then
                     echo "No coverage report; skipping upload"
