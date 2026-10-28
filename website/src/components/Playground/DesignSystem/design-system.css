@@ -230,6 +230,12 @@ div.playground-preview h1:first-child {
   flex: 2 1 14rem;
   margin-bottom: 0;
 }
+/* what's open sits on its own tinted pane, set apart from the list */
+.playground-preview .split > :not(.list) {
+  padding: var(--ds-space-4) var(--ds-space-5);
+  border-radius: var(--ds-radius);
+  background: var(--ds-surface-2);
+}
 
 /* Rows that open something (an inbox's messages): the whole row is the
    button, with the open one (`aria-current`) washed in the accent */

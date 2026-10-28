@@ -15,6 +15,7 @@ const HooksPlayground = ({
   fixtures = [],
   defaultTab,
   renderCount,
+  inFlight,
   actionLog,
   autoRun,
   getInitialInterceptorData = () => ({}),
@@ -32,6 +33,7 @@ const HooksPlayground = ({
       getInitialInterceptorData={getInitialInterceptorData}
       defaultTab={defaultTab}
       renderCount={renderCount}
+      inFlight={inFlight}
       actionLog={actionLog}
       autoRun={autoRun}
     >

@@ -27,6 +27,7 @@ function Preview<T>({
   fixtures,
   getInitialInterceptorData,
   onCommit,
+  observer,
   initialState,
   registry,
   history,
@@ -38,6 +39,8 @@ function Preview<T>({
   PreviewErrorProps & {
     /** Called on every React commit of the live result (enables a `<Profiler>`) */
     onCommit?: ProfilerOnRenderCallback;
+    /** Watches actions before the code's managers (e.g. `inFlight`) */
+    observer?: Manager;
     initialState?: State<unknown>;
     /** Schemas the Store inspector has seen */
     registry: SchemaRegistry;
@@ -59,7 +62,13 @@ function Preview<T>({
     );
     // the head goes first: it credits each action to the manager whose
     // controller call sent it
-    return [log.head, registry, ...log.track(managers, reportFor), log.tail];
+    return [
+      log.head,
+      registry,
+      ...(observer ? [observer] : []),
+      ...log.track(managers, reportFor),
+      log.tail,
+    ];
   });
 
   return (
