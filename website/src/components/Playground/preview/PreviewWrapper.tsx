@@ -176,8 +176,9 @@ function useHeightRatchet(result: HTMLElement | null) {
       typeof ResizeObserver === 'undefined'
     )
       return;
-    const observer = new ResizeObserver(() => {
-      const { height } = result.getBoundingClientRect();
+    // fractional, unlike offsetHeight: a floor rounded down dips a subpixel
+    const observer = new ResizeObserver(([entry]) => {
+      const { height } = entry.contentRect;
       const held =
         parseFloat(holder.style.getPropertyValue('--pg-result-min')) || 0;
       if (height > held)
