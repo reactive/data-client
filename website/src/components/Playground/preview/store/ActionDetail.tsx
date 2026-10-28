@@ -39,6 +39,7 @@ import {
   Inline,
   ValueChange,
 } from './Value';
+import { Why } from './Why';
 
 /** One action, headed by when it was dispatched and the way it took
  * through the managers (its crumb names it, so no section of their own),
@@ -61,6 +62,7 @@ export function ActionDetail({
         <Time at={entry.at} />
         {chain && <StepPath chain={chain} entry={entry} n={1} />}
       </div>
+      <Why entries={[entry]} />
       <h3 className={styles.sectionLabel}>Store changes</h3>
       <SubjectChanges entries={[entry]} subject={subject} gap={gap} />
       <h3 className={styles.sectionLabel}>Action</h3>

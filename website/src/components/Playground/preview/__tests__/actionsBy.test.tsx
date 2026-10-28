@@ -1,0 +1,60 @@
+/// <reference types="jest" />
+import { act, render, screen } from '@testing-library/react';
+import React from 'react';
+
+import { useActionsBy } from '../store/storeView';
+import { ActionsByContext, type ActionsBy } from '../StoreToggle';
+
+/** Storage shared by every hook, by key, as the browser's is */
+const mockStored = new Map<string, string>();
+jest.mock('../../../../utils/tabStorage', () => ({
+  useTabStorage: (key: string) => {
+    const { useState, useCallback } = require('react');
+    const [value, setValue] = useState(mockStored.get(key) ?? null);
+    const set = useCallback(
+      (next: string) => {
+        mockStored.set(key, next);
+        setValue(next);
+      },
+      [key],
+    );
+    return [value, set];
+  },
+}));
+
+function Shown({ id }: { id: string }) {
+  const [by, setBy] = useActionsBy();
+  return (
+    <button data-testid={id} onClick={() => setBy('interaction')}>
+      {by}
+    </button>
+  );
+}
+
+const mount = (id: string, groupId: string, defaultBy: ActionsBy) =>
+  render(
+    <ActionsByContext.Provider value={{ groupId, defaultBy }}>
+      <Shown id={id} />
+    </ActionsByContext.Provider>,
+  );
+
+describe('useActionsBy', () => {
+  beforeEach(() => mockStored.clear());
+
+  it("starts at the playground's default", () => {
+    mount('a', 'docs', 'interaction');
+    expect(screen.getByTestId('a').textContent).toBe('interaction');
+  });
+
+  it("keeps the reader's choice per group, over the default", () => {
+    mount('a', 'docs', 'request');
+    act(() => screen.getByTestId('a').click());
+    expect(screen.getByTestId('a').textContent).toBe('interaction');
+    // the same group, mounted again: the choice holds
+    mount('b', 'docs', 'request');
+    expect(screen.getByTestId('b').textContent).toBe('interaction');
+    // another group keeps its own default
+    mount('c', 'other', 'request');
+    expect(screen.getByTestId('c').textContent).toBe('request');
+  });
+});

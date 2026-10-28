@@ -1580,6 +1580,7 @@ div.joined {
    playground's code declares, which opens it there */
 .momentAction,
 .managerLink,
+.whyLink,
 .codeLink {
   min-width: 0;
   padding: 0;
@@ -1590,7 +1591,8 @@ div.joined {
   cursor: pointer;
 }
 .momentAction,
-.managerLink {
+.managerLink,
+.whyLink {
   text-decoration: underline dotted;
   text-underline-offset: 2px;
 }
@@ -1598,7 +1600,8 @@ div.joined {
 .codeLink:hover {
   color: var(--store-fg);
 }
-.managerLink:hover {
+.managerLink:hover,
+.whyLink:hover {
   text-decoration-style: solid;
 }
 /* beside a pipeline stage, whose own click picks it */
@@ -2015,4 +2018,124 @@ button.tlMark:hover {
 .liveText {
   color: var(--store-fresh);
   font-weight: 500;
+}
+
+/* Why an action was sent (Why.tsx): its causes as a chain, root first, on
+   a rail */
+.why {
+  margin: 0;
+  padding: 0.15rem 0.75rem 0.5rem;
+  list-style: none;
+}
+.whyStep {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.75em;
+  padding: 0.15rem 0 0.15rem 1.25rem;
+}
+.whyStep::before {
+  content: '';
+  position: absolute;
+  top: calc(0.15rem + 0.8em - 4px);
+  left: 0.15rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--store-dim);
+}
+.whyStep[data-root]::before {
+  background: none;
+  box-shadow: inset 0 0 0 1.5px var(--store-fg);
+}
+.whyStep:last-child::before {
+  background: var(--store-key);
+}
+/* the rail, from each dot down to the next */
+.whyStep:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: calc(0.15rem + 0.8em + 6px);
+  bottom: calc(-0.15rem - 0.8em + 6px);
+  left: calc(0.15rem + 3.25px);
+  width: 1.5px;
+  background: color-mix(in srgb, var(--store-dim) 45%, transparent);
+}
+.whyWhat {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.whyEvent,
+.whyComponent {
+  font-weight: 600;
+}
+.whyLink {
+  /* one line: a long key ends in an ellipsis */
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+  text-align: start;
+}
+/* a sender's parts, spaced */
+.whySender {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.6em;
+}
+.reasonText {
+  color: var(--reason);
+}
+.reason {
+  padding: 0 0.4em;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--reason) 13%, transparent);
+  color: var(--reason);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* a row's why (RowWhy), after its changes: one line, a long name ends in
+   an ellipsis */
+.rowWhy {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--store-dim);
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* the action that caused the moment's fetch */
+.actRow[data-cause] {
+  background: color-mix(in srgb, var(--store-null) 9%, transparent);
+}
+
+/* the list by interaction: each click, render or manager over the rows it
+   started, which hang off a rail under it */
+.interaction + .interaction {
+  margin-top: 0.35rem;
+  box-shadow: inset 0 1px 0 var(--store-line);
+}
+.interactionHead {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  padding: 0.5rem 0.75rem 0.15rem;
+}
+.interactionHead > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+.interaction > .actGroup {
+  margin-left: 0.75rem;
+  box-shadow: inset 1.5px 0 0
+    color-mix(in srgb, var(--store-dim) 35%, transparent);
+}
+.interaction > .actGroup:last-child {
+  margin-bottom: 0.35rem;
 }

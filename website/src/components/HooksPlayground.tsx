@@ -9,6 +9,7 @@ const HooksPlayground = ({
   groupId,
   hidden,
   defaultOpen = 'n',
+  defaultActionsBy = 'request',
   row = false,
   demo = false,
   fixtures = [],
@@ -23,6 +24,7 @@ const HooksPlayground = ({
     <Playground
       groupId={groupId}
       defaultOpen={defaultOpen}
+      defaultActionsBy={defaultActionsBy}
       row={row}
       demo={demo}
       hidden={hidden ?? inHiddenTab}

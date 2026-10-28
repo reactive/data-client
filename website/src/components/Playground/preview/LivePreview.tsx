@@ -11,6 +11,7 @@ import { routerTrailer } from './router';
 import type { CodeDocument } from '../editor/codeModel';
 import type { CodeControl, PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
+import { callerNow } from './store/callSite';
 import SchemaRegistry from './store/schemaRegistry';
 import type { ShowStore } from './store/storeView';
 import { useCodeManagers } from './useCodeManagers';
@@ -66,7 +67,10 @@ export default function LivePreview<T>({
     ...handlers
   } = usePreviewReset(code);
   // outlives remounts, so a restored store keeps its schemas and actions
-  const [registry] = useState(() => new SchemaRegistry(actionLog));
+  const [registry] = useState(
+    // credits the app's actions to the hook, component or event sending them
+    () => new SchemaRegistry({ caller: callerNow, ...actionLog }),
+  );
   const managers = useCodeManagers(documents, remount);
   const demo = useAutoRun(autoRun, reset, showStore);
   const getInterceptorData = useMemo(

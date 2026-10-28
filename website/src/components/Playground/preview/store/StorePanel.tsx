@@ -90,10 +90,11 @@ import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
 import styles from './store.module.css';
 import { StoreUIProvider } from './StoreUI';
-import { useStoreView } from './storeView';
+import { useActionsBy, useStoreView } from './storeView';
 import Timeline, { Scrubber } from './Timeline';
 import TreeView from './TreeView';
 import { RowKey } from './Value';
+import { Why } from './Why';
 import TabList from '../../TabList';
 import Unfold from '../../Unfold';
 
@@ -116,6 +117,7 @@ export default function StorePanel({
   const history = useSyncExternalStore(log.subscribe, getHistory, getHistory);
   const { entries } = history;
   const [view, setView] = useStoreView();
+  const [actionsBy, setActionsBy] = useActionsBy();
   const tree = view === 'tree';
   // the subject at the moment (`state`), or the moment's action; and the
   // state as a whole, or (`diffMode`) only what the moment changed (its
@@ -706,6 +708,34 @@ export default function StorePanel({
                       </span>
                     </span>
                   )}
+                  {tab === 'action' && (
+                    <span className={styles.barEnd}>
+                      <span
+                        className={styles.viewButtons}
+                        role="group"
+                        aria-label="Actions listed"
+                      >
+                        <button
+                          type="button"
+                          aria-label="By request"
+                          title="By request: each fetch with its response"
+                          aria-pressed={actionsBy === 'request'}
+                          onClick={() => setActionsBy('request')}
+                        >
+                          <RequestsIcon />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="By interaction"
+                          title="By interaction: under the click or render that started them"
+                          aria-pressed={actionsBy === 'interaction'}
+                          onClick={() => setActionsBy('interaction')}
+                        >
+                          <InteractionsIcon />
+                        </button>
+                      </span>
+                    </span>
+                  )}
                 </div>
                 <div className={styles.tabPanel} role="tabpanel">
                   {/* both stay mounted, so each keeps the stores its levels
@@ -1168,6 +1198,7 @@ function ActionLevel({
           <div className={styles.actScroll}>
             {group && span ?
               <div className={styles.actBody}>
+                <Why entries={span} />
                 <h3 className={styles.sectionLabel}>Steps</h3>
                 <GroupActions group={group} subject={subject} filter={filter} />
                 <h3 className={styles.sectionLabel}>Store changes</h3>
@@ -1456,6 +1487,22 @@ function TreeIcon() {
   return (
     <svg viewBox="0 0 16 16" aria-hidden="true">
       <path d="M3 3.5h10M4.5 5.5v7M4.5 8.5h8.5M4.5 12.5h8.5" />
+    </svg>
+  );
+}
+/** Rows, one per request */
+function RequestsIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M2.5 4h11M2.5 8h11M2.5 12h11" />
+    </svg>
+  );
+}
+/** Rows under what started them */
+function InteractionsIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M2.5 3.5h8M5.5 7h8M5.5 10.5h8M3 6v6" />
     </svg>
   );
 }

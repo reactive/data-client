@@ -3,6 +3,7 @@ import React, {
   memo,
   useCallback,
   useEffect,
+  useId,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -43,6 +44,7 @@ import {
 import { routesOf, shownChain } from './attribution';
 import type { Header } from './DiveViews';
 import { byData, onActivateKey, revealIn, toggled } from './dom';
+import { interactionsOf } from './interactions';
 import { actionId } from './model';
 import {
   ActionSpanContext,
@@ -53,6 +55,9 @@ import {
 } from './nav';
 import { Pipeline, StepPath } from './Pipeline';
 import styles from './store.module.css';
+import { useActionsBy } from './storeView';
+import { InteractionHead, RowWhy } from './Why';
+import type { ActionsBy } from '../StoreToggle';
 
 /** The groups with an action that touched the subject */
 export function useRows(filter: SubjectFilter) {
@@ -155,6 +160,7 @@ export function ActionsLevel({
   const pipeline = usePipelineAt(subject);
   const filter = pipeline?.filter ?? subjectFilter;
   const rows = useRows(filter);
+  const [by] = useActionsBy();
   return (
     <>
       {header(
@@ -169,7 +175,7 @@ export function ActionsLevel({
             onPick={pipeline.pickStage}
           />
         )}
-        <ActionList rows={rows} subject={subject} filter={filter} />
+        <ActionList rows={rows} subject={subject} filter={filter} by={by} />
       </section>
     </>
   );
@@ -184,17 +190,33 @@ function ActionList({
   rows,
   subject,
   filter,
+  by = 'request',
   onPick,
 }: {
   rows: readonly ActionGroup[];
   subject: View;
   filter: SubjectFilter;
+  /** One row per request, or rows under what started them */
+  by?: ActionsBy;
   /** What a row (`group`: its actions as one) or step (`action`) picked
    * does, by default open it */
   onPick?: (seq: number, scope?: Scope) => void;
 }) {
-  const { history, groups } = useActions();
+  const { log, history, groups } = useActions();
   const { seq, current: marked, set, show } = useNavState();
+  const refetches = log.refetches(history.entries);
+  // the row that caused the moment's fetch, tinted
+  const causeSeq = [...marked]
+    .map(s => findEntry(history.entries, s)?.causedBy)
+    .find(s => s !== undefined);
+  const causeRow =
+    causeSeq === undefined ? undefined : groupOf(groups, causeSeq);
+  const sections = useMemo(
+    () =>
+      by === 'interaction' ? interactionsOf(rows, history.entries) : undefined,
+    [by, rows, history.entries],
+  );
+  const headId = useId();
   const scroller = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
   const toggle = useCallback(
@@ -243,6 +265,20 @@ function ActionList({
     // a step stands for its request up to it
     set(Number(next.dataset.seq), (next.dataset.scope as Scope) ?? 'request');
   };
+  const row = (group: ActionGroup) => (
+    <GroupRow
+      key={group.id}
+      group={group}
+      open={open.has(group.id)}
+      marked={group === current ? marked : undefined}
+      cause={group === causeRow}
+      refetches={refetchesOf(group, refetches)}
+      subject={subject}
+      filter={filter}
+      onToggle={toggle}
+      onSelect={onPick ?? show}
+    />
+  );
   return (
     <div ref={scroller} className={styles.actList} onKeyDown={onKeyDown}>
       {!rows.length && (
@@ -253,20 +289,30 @@ function ActionList({
           }
         </p>
       )}
-      {rows.map(group => (
-        <GroupRow
-          key={group.id}
-          group={group}
-          open={open.has(group.id)}
-          marked={group === current ? marked : undefined}
-          subject={subject}
-          filter={filter}
-          onToggle={toggle}
-          onSelect={onPick ?? show}
-        />
-      ))}
+      {sections ?
+        sections.map((section, i) => (
+          <section
+            key={section.id}
+            className={styles.interaction}
+            aria-labelledby={headId + i}
+          >
+            <InteractionHead section={section} id={headId + i} />
+            {section.rows.map(row)}
+          </section>
+        ))
+      : rows.map(row)}
     </div>
   );
+}
+
+/** Requests the actions of `group` caused */
+function refetchesOf(
+  group: ActionGroup,
+  effects: ReadonlyMap<number, number>,
+): number {
+  let n = 0;
+  for (const entry of groupEntriesOf(group)) n += effects.get(entry.seq) ?? 0;
+  return n;
 }
 
 /** Where actions the log didn't keep changed the record, before the kept
@@ -349,6 +395,8 @@ const GroupRow = memo(function GroupRow({
   group,
   open,
   marked,
+  cause,
+  refetches,
   subject,
   filter,
   onToggle,
@@ -356,6 +404,10 @@ const GroupRow = memo(function GroupRow({
 }: {
   group: ActionGroup;
   open: boolean;
+  /** Its action caused the moment's fetch */
+  cause: boolean;
+  /** Requests its actions caused */
+  refetches: number;
   /** The actions the moment stands for, when it is at this row */
   marked?: ReadonlySet<number>;
   subject: View;
@@ -385,6 +437,7 @@ const GroupRow = memo(function GroupRow({
         tabIndex={0}
         aria-expanded={open}
         aria-current={!!marked || undefined}
+        data-cause={cause || undefined}
         data-id={rowId(group)}
         data-seq={seq}
         data-scope={scope}
@@ -427,6 +480,7 @@ const GroupRow = memo(function GroupRow({
               ownError={statusFailed(group)}
             />
           </ActionSpanContext.Provider>
+          <RowWhy entries={all} refetches={refetches} />
         </span>
       </div>
       {open && (

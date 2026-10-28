@@ -29,7 +29,9 @@ import PreviewWrapper, {
 } from './preview/PreviewWrapper';
 import type { LogOptions } from './preview/store/actionLog';
 import {
+  ActionsByContext,
   DemoViewContext,
+  type ActionsBy,
   StoreTab,
   StoreToggle,
   useStoreMotion,
@@ -45,6 +47,10 @@ export interface PlaygroundProps<T = any> {
   groupId?: string;
   /** Store inspector open by default */
   defaultOpen?: 'y' | 'n';
+  /** How the Store's Action tab lists actions until the reader picks (kept
+   * per `groupId`): by request, or under the interaction that started them
+   * (a click, a render), which teaches cause and effect */
+  defaultActionsBy?: ActionsBy;
   /** Files as tabs over a code card, the preview a folder beside it (when
    * wide enough; under it otherwise), with the Store behind the preview: its
    * tab opens it over the code. Use when the code is one tall open file and
@@ -84,6 +90,7 @@ export default function Playground<T>({
   children,
   groupId = 'playground',
   defaultOpen = 'n',
+  defaultActionsBy = 'request',
   row: rowLayout = false,
   demo = false,
   hidden = false,
@@ -107,6 +114,10 @@ export default function Playground<T>({
   const row = layout === 'row';
   const [storeOpen, toggleStore, showStore, demoView, storeMoves] =
     useStoreOpen(groupId, defaultOpen);
+  const actionsBy = useMemo(
+    () => ({ groupId, defaultBy: defaultActionsBy }),
+    [groupId, defaultActionsBy],
+  );
   // the Store animates only while the reader or a demo moves it, never as
   // the playground shows or its layout changes
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
@@ -217,24 +228,26 @@ export default function Playground<T>({
         }
       >
         <DemoViewContext.Provider value={demoView}>
-          <CodeOpenerContext.Provider value={codeOpener}>
-            <LivePreview
-              documents={documents}
-              fixtureContent={previewFixtures}
-              storeOpen={storeOpen}
-              toggleStore={toggleStoreInPreview}
-              row={row}
-              storeHost={storeHost}
-              fixtures={fixtures}
-              getInitialInterceptorData={getInitialInterceptorData}
-              renderCount={renderCount}
-              actionLog={actionLog}
-              autoRun={autoRun}
-              showStore={showStore}
-              storeMoves={storeMoves}
-              code={code}
-            />
-          </CodeOpenerContext.Provider>
+          <ActionsByContext.Provider value={actionsBy}>
+            <CodeOpenerContext.Provider value={codeOpener}>
+              <LivePreview
+                documents={documents}
+                fixtureContent={previewFixtures}
+                storeOpen={storeOpen}
+                toggleStore={toggleStoreInPreview}
+                row={row}
+                storeHost={storeHost}
+                fixtures={fixtures}
+                getInitialInterceptorData={getInitialInterceptorData}
+                renderCount={renderCount}
+                actionLog={actionLog}
+                autoRun={autoRun}
+                showStore={showStore}
+                storeMoves={storeMoves}
+                code={code}
+              />
+            </CodeOpenerContext.Provider>
+          </ActionsByContext.Provider>
         </DemoViewContext.Provider>
       </Boundary>
     );

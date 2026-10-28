@@ -3,11 +3,14 @@ import {
   actionTypes,
   Controller,
   type ActionTypes,
+  type FetchAction,
   type Manager,
+  type SetResponseAction,
   type State,
 } from '@data-client/react';
 
 import {
+  actionKey,
   diffStates,
   groupEntries,
   groupEntriesOf,
@@ -26,10 +29,12 @@ import {
   startsRequests,
   type Attribution,
 } from './attribution';
+import { fetchReason, type Caller, type FetchReason } from './fetchCause';
+import { entityId } from './model';
 import type { Moment, Scope, Step } from './nav';
 import { wrapManager, type Wrap } from './wrapManager';
 
-const { createReducer } = __INTERNAL__;
+const { createReducer, MemoCache } = __INTERNAL__;
 
 /** Actions kept (`limit`); older ones drop off the front */
 const LOG_LIMIT = 500;
@@ -55,6 +60,9 @@ export interface LogOptions {
    * Store panel first opens, which saves a fast stream's bookkeeping until
    * someone looks */
   readonly recordFrom?: 'load' | 'open';
+  /** Who is dispatching right now, asked as the app's own actions arrive
+   * (the preview's: `callerNow`) */
+  readonly caller?: () => Caller | undefined;
 }
 
 export interface LogEntry {
@@ -71,6 +79,17 @@ export interface LogEntry {
   /** The manager that dispatched it (through its controller); missing for
    * the app's own (a component's fetch, a button's set) */
   readonly origin?: ManagerStage;
+  /** The app's own: the hook and component, or the user event, it was
+   * dispatched from, as far as the page could tell */
+  readonly caller?: Caller;
+  /** A fetch's: why it fetched, from the store as it stood before it */
+  readonly reason?: FetchReason;
+  /** A refetch's: the action that left its data invalid or stale */
+  readonly causedBy?: number;
+  /** The action that started it, when that was another: a response's
+   * fetch, or whatever started the action a refetch's `causedBy` names. Its
+   * `caller` or `origin` says who */
+  readonly root?: number;
   /** The manager whose middleware handled it without passing it on, so the
    * managers after it (and the store) never saw it */
   readonly consumedBy?: ManagerStage;
@@ -107,8 +126,45 @@ export interface History {
 
 const EMPTY: History = { entries: [], since: 0 };
 
-export const findEntry = (entries: readonly LogEntry[], seq: number) =>
-  entries.find(e => e.seq === seq);
+/** The entry `seq` names, if the log still has it: entries go oldest
+ * first, so a binary search, as the list asks for one per row */
+export function findEntry(
+  entries: readonly LogEntry[],
+  seq: number,
+): LogEntry | undefined {
+  let lo = 0;
+  let hi = entries.length - 1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    const at = entries[mid].seq;
+    if (at === seq) return entries[mid];
+    if (at < seq) lo = mid + 1;
+    else hi = mid - 1;
+  }
+}
+
+/** The action that started `entry` (see `LogEntry.root`): itself, unless
+ * the log says another */
+export const rootEntry = (entries: readonly LogEntry[], entry: LogEntry) =>
+  (entry.root === undefined ? undefined : findEntry(entries, entry.root)) ??
+  entry;
+
+/** `root` for an action that `entry` started */
+const rootOf = (entry: LogEntry | undefined) =>
+  entry && { root: entry.root ?? entry.seq };
+
+/** The fetch whose request `response` answers, the latest first */
+function requestOf(entries: readonly LogEntry[], response: SetResponseAction) {
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const { action } = entries[i];
+    if (
+      action.type === actionTypes.FETCH &&
+      action.key === response.key &&
+      action.meta.fetchedAt === response.meta.fetchedAt
+    )
+      return entries[i];
+  }
+}
 
 /** The nearest action before (`-1`) or after (`1`) `seq` that `hit` says
  * touched the subject, by seq (`seq` may have dropped off the log); `null`
@@ -231,10 +287,18 @@ export default class ActionLog {
   private start?: () => void;
   private readonly histories = new Map<number, History>();
   private nextSeq = 1;
-  /** Applies pending optimistic updates for `view` */
-  private readonly reducer = createReducer(new Controller());
+  private readonly caller: () => Caller | undefined;
+  /** Reads a store's state: applies pending optimistic updates for
+   * `view`, and says why a fetch fetched */
+  private readonly reader = new Controller();
+  private readonly reducer = createReducer(this.reader);
   private readonly views = new WeakMap<State<unknown>, State<unknown>>();
   private readonly diffs = new WeakMap<LogEntry, readonly Change[]>();
+  private readonly refetchCounts = new WeakMap<
+    readonly LogEntry[],
+    ReadonlyMap<number, number>
+  >();
+
   private readonly listeners = new Set<() => void>();
   /** A notification is due this task */
   private queued = false;
@@ -244,7 +308,9 @@ export default class ActionLog {
     updateLimit = UPDATE_LIMIT,
     trimEvery = TRIM_EVERY,
     recordFrom = 'load',
+    caller = () => undefined,
   }: LogOptions = {}) {
+    this.caller = caller;
     this.limit = limit;
     this.updateLimit = updateLimit;
     this.trimEvery = trimEvery;
@@ -292,10 +358,11 @@ export default class ActionLog {
       this.notify();
     };
     const head: Manager<ActionTypes> = {
-      middleware: () => next => action => {
+      middleware: controller => next => action => {
         const origin = attribution.dispatching;
         attribution.dispatching = undefined;
         if (!this.recording) return next(action);
+        const caller = origin ? undefined : this.caller();
         // the first action recorded starts the history
         if (first) dropOthers();
         const entry: LogEntry = {
@@ -308,6 +375,11 @@ export default class ActionLog {
               deduped: deduped(action),
             }),
           ...(origin && { origin }),
+          ...(caller && { caller }),
+          ...(action.type === actionTypes.FETCH ?
+            this.why(id, action, controller)
+          : action.type === actionTypes.SET_RESPONSE &&
+            rootOf(requestOf(this.history(id).entries, action))),
         };
         first = false;
         recorded.set(action, entry.seq);
@@ -388,6 +460,26 @@ export default class ActionLog {
 
   history = (id: number): History => this.histories.get(id) ?? EMPTY;
 
+  /** Why `action` fetched, and the action of history `id` that caused it,
+   * from the store as the log ran it (it commits its state in batches) */
+  private why(
+    id: number,
+    action: FetchAction,
+    controller: { getState: () => State<unknown> },
+  ): Pick<LogEntry, 'reason' | 'causedBy' | 'root'> {
+    const { state, entries } = this.history(id);
+    const reason = fetchReason(
+      this.reader,
+      this.view(state ?? controller.getState()),
+      action,
+      action.meta.fetchedAt,
+    );
+    const cause = this.causeOf(entries, action, reason);
+    return cause ?
+        { reason, causedBy: cause.seq, ...rootOf(cause) }
+      : { reason };
+  }
+
   /** State as components read it: pending optimistic updates applied */
   view(state: State<unknown>): State<unknown> {
     if (!state.optimistic.length) return state;
@@ -411,6 +503,72 @@ export default class ActionLog {
       this.diffs.set(entry, changes);
     }
     return changes;
+  }
+
+  /** The latest of `entries` that left `action`'s data invalid or stale
+   * (`reason`): an `invalidate`, an `expireAll`, or one that invalidated an
+   * entity its data holds. Looks back only to the last response stored for
+   * its key, which replaced what any earlier action did to it. None when
+   * time alone made it stale, or the log no longer has the action */
+  private causeOf(
+    entries: readonly LogEntry[],
+    action: FetchAction,
+    reason: FetchReason,
+  ): LogEntry | undefined {
+    if (reason !== 'invalid' && reason !== 'stale') return;
+    const kind = reason === 'invalid' ? 'invalidated' : 'expired';
+    const { key } = action;
+    for (let i = entries.length - 1; i >= 0; i--) {
+      const earlier = entries[i];
+      const done = earlier.action;
+      if (done.type === actionTypes.SET_RESPONSE && done.key === key) return;
+      const changes = this.changes(earlier).filter(c => c.kind === kind);
+      if (!changes.length) continue;
+      if (changes.some(c => 'endpoint' in c && c.endpoint === key))
+        return earlier;
+      // only an entity invalidated shows in a table; read what it holds then
+      const rows = changes.filter(c => 'table' in c);
+      if (!rows.length || !earlier.store) continue;
+      const held = this.heldEntities(earlier.store.before, action);
+      if (rows.some(c => held.has(entityId(c.table, c.pk)))) return earlier;
+    }
+  }
+
+  /** Every entity `action`'s stored data reads in `state`, nested ones
+   * too, as the library's memo tracks them */
+  private heldEntities(
+    state: State<unknown>,
+    { endpoint, key, args }: FetchAction,
+  ): ReadonlySet<string> {
+    // a copied endpoint (see `fetchReason`) can't read its schema
+    if (typeof endpoint?.key !== 'function') return new Set();
+    // a fresh memo: one that met a nested entity invalid can still name
+    // only the outer one, until #4460 lands
+    const { paths } = new MemoCache().denormalize(
+      endpoint.schema,
+      state.endpoints[key],
+      state.entities,
+      args,
+    );
+    return new Set(paths.map(p => entityId(p.key, p.pk)));
+  }
+
+  /** By an action's seq, how many requests it caused (its fetches'
+   * `causedBy`): one per key, however many fetches shared it */
+  refetches(entries: readonly LogEntry[]): ReadonlyMap<number, number> {
+    let counts = this.refetchCounts.get(entries);
+    if (!counts) {
+      const keys = new Map<number, Set<string>>();
+      for (const { causedBy, action } of entries) {
+        if (causedBy === undefined) continue;
+        const refetched = keys.get(causedBy) ?? new Set();
+        refetched.add(actionKey(action));
+        keys.set(causedBy, refetched);
+      }
+      counts = new Map([...keys].map(([seq, set]) => [seq, set.size]));
+      this.refetchCounts.set(entries, counts);
+    }
+    return counts;
   }
 
   /** Whether the action changed the store */
