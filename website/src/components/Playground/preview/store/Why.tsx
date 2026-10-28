@@ -1,31 +1,35 @@
-import { actionTypes } from '@data-client/react';
-import React, { useContext, useMemo, type ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 
-import type { LogEntry } from './actionLog';
+import { findEntry, type LogEntry } from './actionLog';
 import { ActionName, Time, useActions } from './actionParts';
-import { stageName } from './attribution';
-import type { Caller, CallerEvent, FetchReason } from './fetchCause';
-import { ManagerName } from './ManagerName';
+import { kindColor } from './dom';
+import type { CallerEvent, FetchReason } from './fetchCause';
+import { DeclaredName, ManagerName } from './ManagerName';
 import { useNavState } from './nav';
 import styles from './store.module.css';
-import { CodeOpenerContext } from '../../editor/openCode';
 
-/** What each reason reads as, and its color (a change's, see
- * `CHANGE_KINDS`) */
+/** What each reason reads as, in the color of the change that leads to it */
 const REASONS: Record<FetchReason, { label: string; color: string }> = {
-  missing: { label: 'no data', color: 'var(--store-kind-added)' },
-  invalid: { label: 'invalid', color: 'var(--store-kind-invalidated)' },
-  stale: { label: 'stale', color: 'var(--store-kind-expired)' },
-  error: { label: 'after error', color: 'var(--store-kind-error)' },
-  fresh: { label: 'fresh', color: 'var(--store-dim)' },
+  missing: { label: 'no data', color: kindColor('added') },
+  invalid: { label: 'invalid', color: kindColor('invalidated') },
+  stale: { label: 'stale', color: kindColor('expired') },
+  error: { label: 'after error', color: kindColor('error') },
+  fresh: { label: 'fresh', color: kindColor('refreshed') },
   mutation: { label: 'mutation', color: 'var(--store-type)' },
 };
 
-export function ReasonTag({ reason }: { reason: FetchReason }) {
+/** `reason`, as a pill, or `plain` text in its color */
+export function ReasonTag({
+  reason,
+  plain,
+}: {
+  reason: FetchReason;
+  plain?: boolean;
+}) {
   const { label, color } = REASONS[reason];
   return (
     <span
-      className={styles.reason}
+      className={plain ? styles.reasonText : styles.reason}
       style={{ '--reason': color } as React.CSSProperties}
     >
       {label}
@@ -44,19 +48,24 @@ export function RowWhy({
   refetches: number;
 }) {
   const fetch = entries.find(e => e.reason);
-  const sender =
-    fetch?.origin ? stageName(fetch.origin)
-    : fetch?.caller?.component ? `<${fetch.caller.component}>`
-    : undefined;
+  const component = fetch?.caller?.component;
   return (
     <>
       {fetch?.reason && (
         <span className={styles.rowWhy}>
-          ←{' '}
-          <span style={{ color: REASONS[fetch.reason].color }}>
-            {REASONS[fetch.reason].label}
-          </span>
-          {sender && <> · {sender}</>}
+          ← <ReasonTag reason={fetch.reason} plain />
+          {fetch.origin ?
+            <>
+              {' '}
+              · <ManagerName stage={fetch.origin} />
+            </>
+          : component && (
+              <>
+                {' · '}
+                <DeclaredName name={component}>{`<${component}>`}</DeclaredName>
+              </>
+            )
+          }
         </span>
       )}
       {refetches > 0 && (
@@ -73,19 +82,21 @@ export function RowWhy({
  * stale, then who fetched and why. Nothing for actions the log knows no
  * reason or sender for */
 export function Why({ entries }: { entries: readonly LogEntry[] }) {
-  const { log, history } = useActions();
-  const sent = entries.find(isSent);
-  const cause = useMemo(
-    () => sent && log.causeOf(history.entries, sent),
-    [log, history.entries, sent],
-  );
-  if (!sent) return null;
+  const { history } = useActions();
+  const senders = sendersOf(entries);
+  if (!senders.length) return null;
+  const sent = senders[0].entry;
+  const cause =
+    sent.causedBy === undefined ?
+      undefined
+    : findEntry(history.entries, sent.causedBy);
   // the event belongs to whatever ran inside it: the cause, when the fetch
   // came of a render it set off
   const event = (cause ?? sent).caller?.event;
   // an action the app sent from a handler has no sender to name beyond it
-  const named = entries.some(
-    e => e.reason || e.origin || e.caller?.component || e.caller?.hook,
+  const named = senders.some(
+    ({ entry: e }) =>
+      e.reason || e.origin || e.caller?.component || e.caller?.hook,
   );
   return (
     <>
@@ -103,17 +114,18 @@ export function Why({ entries }: { entries: readonly LogEntry[] }) {
         )}
         {named && (
           <WhyStep>
-            <Sender entries={entries} />
+            {senders.map(({ entry, n }, i) => (
+              <React.Fragment key={entry.seq}>
+                {i > 0 && <span className={styles.dim}>, </span>}
+                <Sender entry={entry} n={n} />
+              </React.Fragment>
+            ))}
           </WhyStep>
         )}
       </ol>
     </>
   );
 }
-
-/** One the log knows why it was sent: a fetch, or one the app sent from a
- * hook or a user event (a manager's other actions, its path says) */
-const isSent = (entry: LogEntry) => !!(entry.reason || entry.caller);
 
 function WhyStep({
   root,
@@ -156,77 +168,46 @@ function CauseLink({ entry }: { entry: LogEntry }) {
   );
 }
 
-/** Who sent `entries` and, a fetch, why: each distinct sender once, with
- * how many of the request's fetches it sent */
-function Sender({ entries }: { entries: readonly LogEntry[] }) {
-  const senders = useMemo(() => sendersOf(entries), [entries]);
+/** One sender: a manager, a component (linking to its code), or the app
+ * when nothing names it (the event before it says where, if any); then why
+ * it fetched, with which hook, how many times */
+function Sender({ entry, n }: { entry: LogEntry; n: number }) {
+  const { origin, caller, reason } = entry;
+  const component = caller?.component;
   return (
-    <>
-      {senders.map(({ entry, n }, i) => (
-        <React.Fragment key={entry.seq}>
-          {i > 0 && <span className={styles.dim}>, </span>}
-          {entry.origin ?
-            <ManagerName stage={entry.origin} />
-          : <CallerName caller={entry.caller} />}
-          {entry.reason && (
-            <>
-              {entry.origin || entry.caller?.component || !entry.caller ?
-                ' '
-              : null}
-              <ReasonTag reason={entry.reason} />
-            </>
-          )}
-          {entry.caller?.hook && (
-            <span className={styles.dim}> {entry.caller.hook}</span>
-          )}
-          {n > 1 && <span className={styles.dim}> ×{n}</span>}
-        </React.Fragment>
-      ))}
-    </>
+    <span className={styles.whySender}>
+      {origin ?
+        <ManagerName stage={origin} />
+      : component ?
+        <DeclaredName name={component}>
+          <span className={styles.whyComponent}>{`<${component}>`}</span>
+        </DeclaredName>
+      : !caller?.event && <span className={styles.dim}>the app</span>}
+      {reason && <ReasonTag reason={reason} />}
+      {caller?.hook && <span className={styles.dim}>{caller.hook}</span>}
+      {n > 1 && <span className={styles.dim}>×{n}</span>}
+    </span>
   );
 }
 
-/** Fetches `entries` holds, one per sender and reason, with how many */
+/** What `entries` sent with a reason or a sender the log knows (a
+ * manager's other actions, its path says), one per sender and reason, with
+ * how many */
 function sendersOf(entries: readonly LogEntry[]) {
   const seen = new Map<string, { entry: LogEntry; n: number }>();
   for (const entry of entries) {
-    if (entries.length > 1 && entry.action.type !== actionTypes.FETCH) continue;
-    if (!isSent(entry)) continue;
     const { origin, caller, reason } = entry;
-    const key = JSON.stringify([
+    if (!reason && !caller) continue;
+    const key = [
       origin?.id,
       caller?.component,
       caller?.hook,
       caller?.event?.type,
       reason,
-    ]);
+    ].join('\0');
     const sender = seen.get(key);
     if (sender) sender.n++;
     else seen.set(key, { entry, n: 1 });
   }
   return [...seen.values()];
-}
-
-/** A component, linking to where the code declares it; else the event, or
- * the app */
-function CallerName({ caller }: { caller?: Caller }) {
-  const opener = useContext(CodeOpenerContext);
-  const component = caller?.component;
-  // sent from a handler: the event before it says where
-  if (!component)
-    return caller?.event ? null : <span className={styles.dim}>the app</span>;
-  const target = opener?.declared.get(component);
-  const name = `<${component}>`;
-  if (!opener || !target)
-    return <span className={styles.whyComponent}>{name}</span>;
-  return (
-    <button
-      type="button"
-      className={styles.whyLink}
-      title={`Open ${component} in the code`}
-      onClick={() => opener.open(target)}
-    >
-      <span className={styles.whyComponent}>{name}</span>
-    </button>
-  );
 }

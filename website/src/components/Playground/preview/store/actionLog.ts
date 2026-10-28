@@ -3,6 +3,7 @@ import {
   actionTypes,
   Controller,
   type ActionTypes,
+  type FetchAction,
   type Manager,
   type State,
 } from '@data-client/react';
@@ -27,9 +28,10 @@ import {
   startsRequests,
   type Attribution,
 } from './attribution';
-import { callerNow } from './callSite';
 import { fetchReason, type Caller, type FetchReason } from './fetchCause';
+import { entityId } from './model';
 import type { Moment, Scope, Step } from './nav';
+import { forEachRef, resolve } from './refs';
 import { wrapManager, type Wrap } from './wrapManager';
 
 const { createReducer } = __INTERNAL__;
@@ -59,7 +61,7 @@ export interface LogOptions {
    * someone looks */
   readonly recordFrom?: 'load' | 'open';
   /** Who is dispatching right now, asked as the app's own actions arrive
-   * (default: the preview's hooks and user events, `callerNow`) */
+   * (the preview's: `callerNow`) */
   readonly caller?: () => Caller | undefined;
 }
 
@@ -82,6 +84,8 @@ export interface LogEntry {
   readonly caller?: Caller;
   /** A fetch's: why it fetched, from the store as it stood before it */
   readonly reason?: FetchReason;
+  /** A refetch's: the action that left its data invalid or stale */
+  readonly causedBy?: number;
   /** The manager whose middleware handled it without passing it on, so the
    * managers after it (and the store) never saw it */
   readonly consumedBy?: ManagerStage;
@@ -94,14 +98,6 @@ export interface LogEntry {
     readonly before: State<unknown>;
     readonly after: State<unknown>;
   };
-}
-
-/** A log's refetches and what caused them (see `ActionLog.causeOf`) */
-export interface Causes {
-  /** By a fetch's seq: the action that caused it */
-  readonly of: ReadonlyMap<number, LogEntry>;
-  /** By an action's seq: how many requests it caused */
-  readonly effects: ReadonlyMap<number, number>;
 }
 
 /** One store's actions, continued by a store that error recovery restores
@@ -257,7 +253,10 @@ export default class ActionLog {
   private readonly reducer = createReducer(this.reader);
   private readonly views = new WeakMap<State<unknown>, State<unknown>>();
   private readonly diffs = new WeakMap<LogEntry, readonly Change[]>();
-  private readonly causeMaps = new WeakMap<readonly LogEntry[], Causes>();
+  private readonly refetchCounts = new WeakMap<
+    readonly LogEntry[],
+    ReadonlyMap<number, number>
+  >();
   private readonly listeners = new Set<() => void>();
   /** A notification is due this task */
   private queued = false;
@@ -267,7 +266,7 @@ export default class ActionLog {
     updateLimit = UPDATE_LIMIT,
     trimEvery = TRIM_EVERY,
     recordFrom = 'load',
-    caller = callerNow,
+    caller = () => undefined,
   }: LogOptions = {}) {
     this.caller = caller;
     this.limit = limit;
@@ -335,15 +334,8 @@ export default class ActionLog {
             }),
           ...(origin && { origin }),
           ...(caller && { caller }),
-          ...(action.type === actionTypes.FETCH && {
-            reason: fetchReason(
-              this.reader,
-              // as the log ran it: the store commits its state in batches
-              this.view(this.history(id).state ?? controller.getState()),
-              action,
-              action.meta.fetchedAt,
-            ),
-          }),
+          ...(action.type === actionTypes.FETCH &&
+            this.why(id, action, controller)),
         };
         first = false;
         recorded.set(action, entry.seq);
@@ -424,6 +416,24 @@ export default class ActionLog {
 
   history = (id: number): History => this.histories.get(id) ?? EMPTY;
 
+  /** Why `action` fetched, and the action of history `id` that caused it,
+   * from the store as the log ran it (it commits its state in batches) */
+  private why(
+    id: number,
+    action: FetchAction,
+    controller: { getState: () => State<unknown> },
+  ): Pick<LogEntry, 'reason' | 'causedBy'> {
+    const { state, entries } = this.history(id);
+    const reason = fetchReason(
+      this.reader,
+      this.view(state ?? controller.getState()),
+      action,
+      action.meta.fetchedAt,
+    );
+    const causedBy = this.causeOf(entries, action, reason)?.seq;
+    return causedBy === undefined ? { reason } : { reason, causedBy };
+  }
+
   /** State as components read it: pending optimistic updates applied */
   view(state: State<unknown>): State<unknown> {
     if (!state.optimistic.length) return state;
@@ -449,56 +459,52 @@ export default class ActionLog {
     return changes;
   }
 
-  /** The earlier action of `entries` that left a fetch's data invalid or
-   * stale: an `invalidate`, an `expireAll`, or one that invalidated an
+  /** The latest of `entries` that left `action`'s data invalid or stale
+   * (`reason`): an `invalidate`, an `expireAll`, or one that invalidated an
    * entity its data holds. Looks back only to the last response stored for
    * its key, which replaced what any earlier action did to it. None when
    * time alone made it stale, or the log no longer has the action */
-  causeOf(entries: readonly LogEntry[], entry: LogEntry): LogEntry | undefined {
-    const { action, reason } = entry;
-    if (action.type !== actionTypes.FETCH) return;
+  private causeOf(
+    entries: readonly LogEntry[],
+    action: FetchAction,
+    reason: FetchReason,
+  ): LogEntry | undefined {
     if (reason !== 'invalid' && reason !== 'stale') return;
     const kind = reason === 'invalid' ? 'invalidated' : 'expired';
     const { key } = action;
-    for (let i = entries.indexOf(entry) - 1; i >= 0; i--) {
+    for (let i = entries.length - 1; i >= 0; i--) {
       const earlier = entries[i];
       const done = earlier.action;
       if (done.type === actionTypes.SET_RESPONSE && done.key === key) return;
-      const stored = earlier.store?.before.endpoints[key];
-      const caused = this.changes(earlier).some(
-        change =>
-          change.kind === kind &&
-          ('endpoint' in change ?
-            change.endpoint === key
-          : holds(stored, change.pk)),
+      const changes = this.changes(earlier).filter(c => c.kind === kind);
+      if (!changes.length) continue;
+      if (changes.some(c => 'endpoint' in c && c.endpoint === key))
+        return earlier;
+      const held = heldEntities(
+        earlier.store?.before.endpoints[key],
+        action.endpoint.schema,
       );
-      if (caused) return earlier;
+      if (changes.some(c => 'table' in c && held.has(entityId(c.table, c.pk))))
+        return earlier;
     }
   }
 
-  /** Each refetch of `entries` with its cause (see `causeOf`), both ways */
-  causes(entries: readonly LogEntry[]): Causes {
-    let causes = this.causeMaps.get(entries);
-    if (!causes) {
-      const of = new Map<number, LogEntry>();
-      // by the cause's seq, the keys it refetched: one request each, however
-      // many fetches shared it (a key's next response ends what it caused)
+  /** By an action's seq, how many requests it caused (its fetches'
+   * `causedBy`): one per key, however many fetches shared it */
+  refetches(entries: readonly LogEntry[]): ReadonlyMap<number, number> {
+    let counts = this.refetchCounts.get(entries);
+    if (!counts) {
       const keys = new Map<number, Set<string>>();
-      for (const entry of entries) {
-        const cause = this.causeOf(entries, entry);
-        if (!cause) continue;
-        of.set(entry.seq, cause);
-        const refetched = keys.get(cause.seq) ?? new Set();
-        refetched.add(actionKey(entry.action));
-        keys.set(cause.seq, refetched);
+      for (const { causedBy, action } of entries) {
+        if (causedBy === undefined) continue;
+        const refetched = keys.get(causedBy) ?? new Set();
+        refetched.add(actionKey(action));
+        keys.set(causedBy, refetched);
       }
-      const effects = new Map(
-        [...keys].map(([seq, refetched]) => [seq, refetched.size]),
-      );
-      causes = { of, effects };
-      this.causeMaps.set(entries, causes);
+      counts = new Map([...keys].map(([seq, set]) => [seq, set.size]));
+      this.refetchCounts.set(entries, counts);
     }
-    return causes;
+    return counts;
   }
 
   /** Whether the action changed the store */
@@ -790,11 +796,12 @@ export function keepSameMap<K, V>(
   return prev;
 }
 
-/** Whether a stored (normalized) response holds the entity `pk`: an
- * entity's place in it is its pk */
-function holds(stored: unknown, pk: string): boolean {
-  if (typeof stored === 'string' || typeof stored === 'number')
-    return `${stored}` === pk;
-  if (!stored || typeof stored !== 'object') return false;
-  return Object.values(stored).some(value => holds(value, pk));
+/** The entities (by row id) a stored (normalized) response holds, read
+ * through its endpoint's schema */
+function heldEntities(stored: unknown, schema: unknown): Set<string> {
+  const held = new Set<string>();
+  forEachRef(resolve(stored, schema), (table, pk) =>
+    held.add(entityId(table, pk)),
+  );
+  return held;
 }

@@ -196,9 +196,11 @@ function ActionList({
 }) {
   const { log, history, groups } = useActions();
   const { seq, current: marked, set, show } = useNavState();
-  const causes = log.causes(history.entries);
+  const refetches = log.refetches(history.entries);
   // the row that caused the moment's fetch, tinted
-  const causeSeq = [...marked].map(s => causes.of.get(s)?.seq).find(Boolean);
+  const causeSeq = [...marked]
+    .map(s => findEntry(history.entries, s)?.causedBy)
+    .find(s => s !== undefined);
   const causeRow =
     causeSeq === undefined ? undefined : groupOf(groups, causeSeq);
   const scroller = useRef<HTMLDivElement>(null);
@@ -266,7 +268,7 @@ function ActionList({
           open={open.has(group.id)}
           marked={group === current ? marked : undefined}
           cause={group === causeRow}
-          refetches={refetchesOf(group, causes.effects)}
+          refetches={refetchesOf(group, refetches)}
           subject={subject}
           filter={filter}
           onToggle={toggle}

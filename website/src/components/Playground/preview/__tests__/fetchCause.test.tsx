@@ -17,7 +17,7 @@ import {
 } from '@testing-library/react';
 import React, { Suspense } from 'react';
 
-import type { LogEntry } from '../store/actionLog';
+import { findEntry, type LogEntry } from '../store/actionLog';
 import { asHook, callerNow, evaluatedFrames } from '../store/callSite';
 import { userEvent } from '../store/fetchCause';
 import SchemaRegistry from '../store/schemaRegistry';
@@ -52,7 +52,7 @@ function ShowPost() {
 }
 
 function mount() {
-  const registry = new SchemaRegistry({ trimEvery: 1 });
+  const registry = new SchemaRegistry({ trimEvery: 1, caller: callerNow });
   const network = new NetworkManager();
   const log = registry.log.connect(0, undefined, action =>
     network.skipLogging(action),
@@ -108,16 +108,14 @@ describe('why a fetch happened', () => {
     await screen.findByText('Post 1');
     const refetch = lastOf(fetches());
     expect(refetch.reason).toBe('invalid');
-    const cause = log.causeOf(entries(), refetch);
+    const cause = findEntry(entries(), refetch.causedBy!);
     expect(cause?.action.type).toBe(actionTypes.INVALIDATE);
     // one request, however many fetches shared it
-    const causes = log.causes(entries());
-    expect(causes.of.get(refetch.seq)).toBe(cause);
-    expect(causes.effects.get(cause!.seq)).toBe(1);
+    expect(log.refetches(entries()).get(cause!.seq)).toBe(1);
   });
 
   it('links a refetch to the expireAll that made it stale', async () => {
-    const { ctrl, log, entries, fetches } = mount();
+    const { ctrl, entries, fetches } = mount();
     await screen.findByText('Post 1');
     const before = fetches().length;
     act(() => {
@@ -126,13 +124,13 @@ describe('why a fetch happened', () => {
     await waitFor(() => expect(fetches().length).toBeGreaterThan(before));
     const refetch = lastOf(fetches());
     expect(refetch.reason).toBe('stale');
-    expect(log.causeOf(entries(), refetch)?.action.type).toBe(
+    expect(findEntry(entries(), refetch.causedBy!)?.action.type).toBe(
       actionTypes.EXPIREALL,
     );
   });
 
   it('says a fresh fetch was asked for anyway', async () => {
-    const { ctrl, fetches, log, entries } = mount();
+    const { ctrl, fetches } = mount();
     await screen.findByText('Post 1');
     const before = fetches().length;
     act(() => {
@@ -142,7 +140,7 @@ describe('why a fetch happened', () => {
     const again = lastOf(fetches());
     expect(again.reason).toBe('fresh');
     expect(again.caller).toBeUndefined();
-    expect(log.causeOf(entries(), again)).toBeUndefined();
+    expect(again.causedBy).toBeUndefined();
   });
 
   it('credits a mutation to the click that sent it', async () => {

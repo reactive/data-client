@@ -22,21 +22,13 @@ export function asHook<F extends (...args: any[]) => any>(
   } as F;
 }
 
-/** Hooks that dispatch while a component renders (a fetch, a subscribe) */
-const DISPATCHING_HOOKS = [
-  'useSuspense',
-  'useFetch',
-  'useDLE',
-  'useLive',
-  'useSubscription',
-] as const;
-
-/** `scope` with its dispatching hooks wrapped by `asHook` */
+/** `scope` with its hooks wrapped by `asHook`: those that dispatch while a
+ * component renders (a fetch, a subscribe) are credited */
 export function withHookNames<S extends Record<string, unknown>>(scope: S): S {
   const named: Record<string, unknown> = { ...scope };
-  for (const name of DISPATCHING_HOOKS) {
-    const hook = scope[name];
-    if (typeof hook === 'function') named[name] = asHook(name, hook as any);
+  for (const [name, hook] of Object.entries(scope)) {
+    if (/^use[A-Z]/.test(name) && typeof hook === 'function')
+      named[name] = asHook(name, hook as any);
   }
   return named as S;
 }

@@ -1580,6 +1580,7 @@ div.joined {
    playground's code declares, which opens it there */
 .momentAction,
 .managerLink,
+.whyLink,
 .codeLink {
   min-width: 0;
   padding: 0;
@@ -1590,7 +1591,8 @@ div.joined {
   cursor: pointer;
 }
 .momentAction,
-.managerLink {
+.managerLink,
+.whyLink {
   text-decoration: underline dotted;
   text-underline-offset: 2px;
 }
@@ -1598,7 +1600,8 @@ div.joined {
 .codeLink:hover {
   color: var(--store-fg);
 }
-.managerLink:hover {
+.managerLink:hover,
+.whyLink:hover {
   text-decoration-style: solid;
 }
 /* beside a pipeline stage, whose own click picks it */
@@ -2075,18 +2078,17 @@ button.tlMark:hover {
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: bottom;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
   text-align: start;
-  cursor: pointer;
-  text-decoration: underline dotted;
-  text-underline-offset: 2px;
 }
-.whyLink:hover {
-  text-decoration-style: solid;
+/* a sender's parts, spaced */
+.whySender {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.6em;
+}
+.reasonText {
+  color: var(--reason);
 }
 .reason {
   padding: 0 0.4em;

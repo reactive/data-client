@@ -68,8 +68,6 @@ export interface Caller {
   readonly hook?: string;
   /** The user event being handled when it was dispatched */
   readonly event?: CallerEvent;
-  /** Where in the code it was dispatched */
-  readonly source?: SourceLocation;
 }
 
 export interface CallerEvent {
@@ -78,16 +76,6 @@ export interface CallerEvent {
   /** What it happened to, as a person would name it: a button's text, a
    * field's label */
   readonly target?: string;
-}
-
-export interface SourceLocation {
-  /** The function on the stack: a component, a handler (`onClick`) */
-  readonly fn?: string;
-  /** The file, as the code names it */
-  readonly file: string;
-  /** 1-based */
-  readonly line: number;
-  readonly column?: number;
 }
 
 /** Events a person makes: an action dispatched while one is handled is
@@ -125,17 +113,17 @@ export function userEvent(event: Event | undefined): CallerEvent | undefined {
   return target ? { type: event.type, target } : { type: event.type };
 }
 
-/** What a person would call `target`: its label, else its text, else its
- * name, else its tag */
+/** What a person would call `target`: its label, else a control's text,
+ * else its name, else its tag */
 function targetName(target: EventTarget | null): string | undefined {
   if (typeof Element === 'undefined' || !(target instanceof Element)) return;
-  const el =
-    target.closest('button, a, label, [role], input, select') ?? target;
+  const control = target.closest('button, a, label, [role], input, select');
+  const el = control ?? target;
   const name =
     el.getAttribute('aria-label') ||
-    (el instanceof HTMLInputElement && el.type !== 'text' ?
-      el.value
-    : el.textContent) ||
+    (el instanceof HTMLInputElement && el.type !== 'text' ? el.value
+    : control ? control.textContent
+    : '') ||
     el.getAttribute('name') ||
     el.tagName.toLowerCase();
   const text = name.replace(/\s+/g, ' ').trim();
