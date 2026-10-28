@@ -154,22 +154,23 @@ export function MockController<
 
 /** Resolves after `ms`, or rejects with the signal's AbortError once aborted */
 function wait(ms: number, signal?: AbortSignal) {
+  if (!signal) return new Promise<void>(resolve => setTimeout(resolve, ms));
   return new Promise<void>((resolve, reject) => {
     const abort = () => {
       clearTimeout(timer);
       // AbortSignal polyfills (React Native's) may not set reason
       reject(
-        signal?.reason ??
+        signal.reason ??
           Object.assign(new Error('The operation was aborted.'), {
             name: 'AbortError',
           }),
       );
     };
     const timer = setTimeout(() => {
-      signal?.removeEventListener('abort', abort);
+      signal.removeEventListener('abort', abort);
       resolve();
     }, ms);
-    if (signal?.aborted) abort();
-    else signal?.addEventListener('abort', abort, { once: true });
+    if (signal.aborted) abort();
+    else signal.addEventListener('abort', abort, { once: true });
   });
 }

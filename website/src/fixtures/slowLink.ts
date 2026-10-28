@@ -23,25 +23,28 @@ export function slowLink(bytesPerMs: number) {
     }
     change?.();
     clearTimeout(timer);
-    if (open.size) {
-      const next = Math.min(...[...open].map(download => download.left));
-      timer = setTimeout(settle, (next * open.size) / bytesPerMs);
-    }
+    let next = Infinity;
+    for (const download of open) next = Math.min(next, download.left);
+    if (open.size) timer = setTimeout(settle, (next * open.size) / bytesPerMs);
   }
 
   return function download(bytes: number, signal?: AbortSignal | null) {
     return new Promise<void>((resolve, reject) => {
       if (signal?.aborted) return reject(signal.reason);
-      const download = { left: bytes, done: resolve };
+      const cancel = () =>
+        settle(() => {
+          open.delete(download);
+          reject(signal?.reason);
+        });
+      const download = {
+        left: bytes,
+        done() {
+          signal?.removeEventListener('abort', cancel);
+          resolve();
+        },
+      };
       settle(() => open.add(download));
-      signal?.addEventListener(
-        'abort',
-        () =>
-          settle(() => {
-            if (open.delete(download)) reject(signal.reason);
-          }),
-        { once: true },
-      );
+      signal?.addEventListener('abort', cancel, { once: true });
     });
   };
 }

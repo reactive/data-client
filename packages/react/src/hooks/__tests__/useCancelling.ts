@@ -80,34 +80,41 @@ describe('useCancelling()', () => {
     expect(result.current).toBe(lastendpoint);
   });
 
-  it('keeps the fetch of a render that suspended and is retried', async () => {
-    jest.useRealTimers();
-    const fetched: number[] = [];
-    const fixtures = [
-      {
-        endpoint: ArticleResource.get,
-        response({ id }: { id: number }) {
-          fetched.push(id);
-          return { id, title: `article ${id}` };
-        },
-        delay: 50,
-      },
-    ];
-    const { result, rerender, waitForNextUpdate } = renderDataHook(
-      ({ id }: { id: number; tick: number }) =>
-        useSuspense(useCancelling(ArticleResource.get, { id }), { id }),
-      { initialProps: { id: 6, tick: 0 }, resolverFixtures: fixtures },
-    );
-    await waitForNextUpdate();
-    expect(result.current.title).toBe('article 6');
+  describe('with real timers', () => {
+    beforeEach(() => {
+      jest.useRealTimers();
+    });
+    afterEach(() => {
+      jest.useFakeTimers({ legacyFakeTimers: true });
+    });
 
-    // suspends on id 7; a parent re-render retries it while its fetch is open
-    act(() => rerender({ id: 7, tick: 1 }));
-    act(() => rerender({ id: 7, tick: 2 }));
-    await waitForNextUpdate();
-    expect(result.current.title).toBe('article 7');
-    // the retry reused the open fetch instead of aborting it for a new one
-    expect(fetched).toEqual([6, 7]);
-    jest.useFakeTimers({ legacyFakeTimers: true });
+    it('keeps the fetch of a render that suspended and is retried', async () => {
+      const fetched: number[] = [];
+      const fixtures = [
+        {
+          endpoint: ArticleResource.get,
+          response({ id }: { id: number }) {
+            fetched.push(id);
+            return { id, title: `article ${id}` };
+          },
+          delay: 50,
+        },
+      ];
+      const { result, rerender, waitForNextUpdate } = renderDataHook(
+        ({ id }: { id: number; tick: number }) =>
+          useSuspense(useCancelling(ArticleResource.get, { id }), { id }),
+        { initialProps: { id: 6, tick: 0 }, resolverFixtures: fixtures },
+      );
+      await waitForNextUpdate();
+      expect(result.current.title).toBe('article 6');
+
+      // suspends on id 7; a parent re-render retries it while its fetch is open
+      act(() => rerender({ id: 7, tick: 1 }));
+      act(() => rerender({ id: 7, tick: 2 }));
+      await waitForNextUpdate();
+      expect(result.current.title).toBe('article 7');
+      // the retry reused the open fetch instead of aborting it for a new one
+      expect(fetched).toEqual([6, 7]);
+    });
   });
 });

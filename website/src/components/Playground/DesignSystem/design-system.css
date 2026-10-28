@@ -199,10 +199,21 @@ div.playground-preview h1:first-child {
 }
 /* touch screens skip it: a tapped row would stay lit */
 @media (hover: hover) {
-  .playground-preview .list > .listItem:has(> label):hover {
+  .playground-preview .list > .listItem:is(:has(> label), button):hover {
     background: var(--ds-hover);
   }
 }
+.playground-preview
+  .list
+  > .listItem
+  > label:has(> input[type='checkbox']:checked) {
+  /* the faintest text that still reads (4.5:1); the box fades with it */
+  color: var(--ds-faint);
+}
+.playground-preview .list > .listItem > label > input[type='checkbox']:checked {
+  opacity: 0.7;
+}
+
 /* A list and what it opens (an inbox and its open message): side by side
    when there's room for both, the list above otherwise */
 .playground-preview .split {
@@ -231,27 +242,8 @@ div.playground-preview h1:first-child {
   text-align: start;
   cursor: pointer;
 }
-@media (hover: hover) {
-  .playground-preview .list > button.listItem:hover {
-    background: var(--ds-hover);
-  }
-}
 .playground-preview .list > button.listItem[aria-current='true'] {
   background: var(--ds-accent-soft);
-}
-.playground-preview .list > button.listItem:focus-visible {
-  outline: 2px solid var(--ds-accent);
-  outline-offset: -2px;
-}
-.playground-preview
-  .list
-  > .listItem
-  > label:has(> input[type='checkbox']:checked) {
-  /* the faintest text that still reads (4.5:1); the box fades with it */
-  color: var(--ds-faint);
-}
-.playground-preview .list > .listItem > label > input[type='checkbox']:checked {
-  opacity: 0.7;
 }
 
 /* Rows: side by side (an avatar, a checkbox, then the text), set apart by
@@ -1244,7 +1236,7 @@ div.playground-preview h1:first-child {
     background: var(--ds-hover);
   }
 }
-.playground-preview button.cancel:focus-visible {
+.playground-preview :is(button.cancel, .list > button.listItem):focus-visible {
   outline: 2px solid var(--ds-accent);
   outline-offset: -2px;
 }

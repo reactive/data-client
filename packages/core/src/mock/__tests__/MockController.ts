@@ -1,42 +1,17 @@
-import { Endpoint } from '@data-client/endpoint';
+import { ArticleResource } from '__tests__/new';
 
-import { FETCH } from '../../actionTypes';
+import { createFetch } from '../../controller/actions';
 import Controller from '../../controller/Controller';
 import { MockController } from '../MockController';
 
 /** Runs the endpoint the mock dispatches, as NetworkManager would */
-function mockedFetch(
-  fixtures: any[],
-  endpoint: any,
-  ...args: any[]
-): Promise<any> {
+function mockedFetch(fixtures: any[], endpoint: any, ...args: any[]) {
   const Mocked = MockController(Controller, { fixtures });
   const controller = new Mocked({
     dispatch: (action: any) => action.endpoint(...action.args),
   } as any);
-  return controller.dispatch({
-    type: FETCH,
-    key: endpoint.key(...args),
-    args,
-    endpoint,
-  } as any);
+  return controller.dispatch(createFetch(endpoint, { args })) as Promise<any>;
 }
-
-/** Minimal RestEndpoint stand-in: fetchResponse and signal members */
-const getThing = new Endpoint(
-  function (this: any, { id }: { id: number }): Promise<{ id: number }> {
-    return this.fetchResponse(`/things/${id}`, { signal: this.signal }).then(
-      (res: Response) => res.json(),
-    );
-  },
-  {
-    key: ({ id }: { id: number }) => `/things/${id}`,
-    testKey: (key: string) => key.startsWith('/things/'),
-    fetchResponse: (input: RequestInfo, init: RequestInit) =>
-      fetch(input, init),
-    signal: undefined as AbortSignal | undefined,
-  },
-);
 
 describe('MockController', () => {
   it('accepts a Controller subclass with its own members', () => {
@@ -53,9 +28,9 @@ describe('MockController', () => {
   describe('AbortSignal', () => {
     const fixtures = [
       {
-        endpoint: getThing,
+        endpoint: ArticleResource.get,
         args: [{ id: 5 }],
-        response: { id: 5 },
+        response: { id: 5, title: 'five' },
         delay: 1000,
       },
     ];
@@ -68,16 +43,16 @@ describe('MockController', () => {
     });
 
     it('resolves after delay without a signal', async () => {
-      const promise = mockedFetch(fixtures, getThing, { id: 5 });
+      const promise = mockedFetch(fixtures, ArticleResource.get, { id: 5 });
       await jest.advanceTimersByTimeAsync(1000);
-      await expect(promise).resolves.toEqual({ id: 5 });
+      await expect(promise).resolves.toMatchObject({ id: 5 });
     });
 
     it('rejects with AbortError when aborted during delay', async () => {
       const abort = new AbortController();
       const promise = mockedFetch(
         fixtures,
-        getThing.extend({ signal: abort.signal }),
+        ArticleResource.get.extend({ signal: abort.signal }),
         { id: 5 },
       );
       await jest.advanceTimersByTimeAsync(500);
@@ -91,7 +66,7 @@ describe('MockController', () => {
       abort.abort();
       const promise = mockedFetch(
         [{ ...fixtures[0], delayCollapse: true }],
-        getThing.extend({ signal: abort.signal }),
+        ArticleResource.get.extend({ signal: abort.signal }),
         { id: 5 },
       );
       await expect(promise).rejects.toMatchObject({ name: 'AbortError' });
@@ -102,18 +77,20 @@ describe('MockController', () => {
     const abort = new AbortController();
     const seen: (AbortSignal | null | undefined)[] = [];
     const interceptor = {
-      endpoint: getThing,
+      endpoint: ArticleResource.get,
       async fetchResponse(input: RequestInfo, init: RequestInit) {
         seen.push(init.signal);
         await Promise.resolve();
-        return { id: Number(`${input}`.split('/').pop()) };
+        return { id: Number(`${input}`.split('/').pop()), title: 'seven' };
       },
     };
     await expect(
-      mockedFetch([interceptor], getThing.extend({ signal: abort.signal }), {
-        id: 7,
-      }),
-    ).resolves.toEqual({ id: 7 });
+      mockedFetch(
+        [interceptor],
+        ArticleResource.get.extend({ signal: abort.signal }),
+        { id: 7 },
+      ),
+    ).resolves.toMatchObject({ id: 7, title: 'seven' });
     expect(seen).toEqual([abort.signal]);
   });
 });
