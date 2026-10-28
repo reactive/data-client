@@ -21,7 +21,7 @@ import { groupEntries } from '../store/actionGroups';
 import { findEntry, type LogEntry } from '../store/actionLog';
 import { asHook, callerNow, evaluatedFrames } from '../store/callSite';
 import { userEvent } from '../store/fetchCause';
-import { interactionsOf } from '../store/interactions';
+import { interactionsOf, rootEvent } from '../store/interactions';
 import SchemaRegistry from '../store/schemaRegistry';
 
 class Post extends Entity {
@@ -101,9 +101,14 @@ function mount(view: React.ReactNode = <ShowPost />) {
   function Buttons() {
     const ctrl = (ref.ctrl = useController());
     return (
-      <button onClick={() => ctrl.fetch(updatePost, { id: '1' })}>
-        Save post
-      </button>
+      <>
+        <button onClick={() => ctrl.fetch(updatePost, { id: '1' })}>
+          Save post
+        </button>
+        <button onClick={() => ctrl.fetch(deleteUser, { id: 'u1' })}>
+          Delete user
+        </button>
+      </>
     );
   }
   render(
@@ -237,6 +242,25 @@ describe('why a fetch happened', () => {
 });
 
 describe('actions by interaction', () => {
+  it('traces a refetch to the click that sent the mutation', async () => {
+    const { entries, fetches } = mount(<ShowComment />);
+    await screen.findByText('By Ann');
+    const before = fetches().length;
+    act(() => {
+      fireEvent.click(screen.getByText('Delete user'));
+    });
+    await waitFor(() => expect(fetches().length).toBeGreaterThan(before));
+    const refetch = lastOf(fetches());
+    // the response that invalidated it came from the network, not the click
+    const cause = findEntry(entries(), refetch.causedBy!);
+    expect(cause?.action.type).toBe(actionTypes.SET_RESPONSE);
+    expect(cause?.caller?.event).toBeUndefined();
+    expect(rootEvent(refetch, groupEntries(entries()))).toMatchObject({
+      type: 'click',
+      target: 'Delete user',
+    });
+  });
+
   const sectionsOf = (entries: readonly LogEntry[]) => {
     const groups = groupEntries(entries);
     return interactionsOf(groups, groups).map(

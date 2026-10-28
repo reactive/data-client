@@ -111,6 +111,18 @@ function causeOf(row: ActionGroup, groups: readonly ActionGroup[]) {
   return causedBy === undefined ? undefined : groupOf(groups, causedBy);
 }
 
+/** The user event `entry` came of: its own, or, when an action left its
+ * data invalid or stale, the one that sent that action's request (a
+ * mutation's response comes from the network, its fetch from the click) */
+export function rootEvent(
+  entry: LogEntry,
+  groups: readonly ActionGroup[],
+): CallerEvent | undefined {
+  const cause =
+    entry.causedBy === undefined ? undefined : groupOf(groups, entry.causedBy);
+  return (cause ? sentEntry(cause) : entry)?.caller?.event;
+}
+
 /** The action of `row` that says who sent it: one the log knows a reason
  * or caller for, else its first */
 function sentEntry(row: ActionGroup): LogEntry | undefined {

@@ -5,7 +5,7 @@ import { findEntry, type LogEntry } from './actionLog';
 import { ActionName, Time, useActions } from './actionParts';
 import { kindColor } from './dom';
 import type { CallerEvent, FetchReason } from './fetchCause';
-import type { InteractionSection } from './interactions';
+import { rootEvent, type InteractionSection } from './interactions';
 import { DeclaredName, ManagerName } from './ManagerName';
 import { useNavState } from './nav';
 import styles from './store.module.css';
@@ -77,7 +77,7 @@ export function RowWhy({
  * stale, then who fetched and why. Nothing for actions the log knows no
  * reason or sender for */
 export function Why({ entries }: { entries: readonly LogEntry[] }) {
-  const { history } = useActions();
+  const { history, groups } = useActions();
   const senders = sendersOf(entries);
   if (!senders.length) return null;
   const sent = senders[0].entry;
@@ -85,9 +85,7 @@ export function Why({ entries }: { entries: readonly LogEntry[] }) {
     sent.causedBy === undefined ?
       undefined
     : findEntry(history.entries, sent.causedBy);
-  // the event belongs to whatever ran inside it: the cause, when the fetch
-  // came of a render it set off
-  const event = (cause ?? sent).caller?.event;
+  const event = rootEvent(sent, groups);
   // an action the app sent from a handler has no sender to name beyond it
   const named = senders.some(
     ({ entry: e }) =>
