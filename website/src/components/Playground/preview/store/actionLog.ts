@@ -126,8 +126,22 @@ export interface History {
 
 const EMPTY: History = { entries: [], since: 0 };
 
-export const findEntry = (entries: readonly LogEntry[], seq: number) =>
-  entries.find(e => e.seq === seq);
+/** The entry `seq` names, if the log still has it: entries go oldest
+ * first, so a binary search, as the list asks for one per row */
+export function findEntry(
+  entries: readonly LogEntry[],
+  seq: number,
+): LogEntry | undefined {
+  let lo = 0;
+  let hi = entries.length - 1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    const at = entries[mid].seq;
+    if (at === seq) return entries[mid];
+    if (at < seq) lo = mid + 1;
+    else hi = mid - 1;
+  }
+}
 
 /** The action that started `entry` (see `LogEntry.root`): itself, unless
  * the log says another */
