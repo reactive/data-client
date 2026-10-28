@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793131311310,
+  "lastUpdate": 1793230850974,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -11525,6 +11525,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 172.41,
             "range": "± 7.2%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7b5e2bb5ef9e79df6c5c2c586ff5cee242c8481e",
+          "message": "docs: Show useCancelling as an inbox you skim on a slow connection (#4516)\n\n* docs: Show useCancelling as an inbox you skim on a slow connection\n\nThe abort guide and the useCancelling() page showed a todo pager with\n« » buttons. Its only cue was the Store, and clicking fast could leave\nit loading forever.\n\nThe demo is now an inbox. The autorun clicks down five messages. Each\nmessage is a 150 KB download over a 100 KB/s link that open downloads\nshare. Without cancelling (new first demo on the abort guide), the one\nit stops on opens about 5 s after the last click. With useCancelling(),\nit opens in about 1.5 s. The Store lists each skipped download as\ncancelled.\n\n- useCancelling(): a suspended render's retry rebuilt its memo and\n  aborted the request it was waiting on, so with slow requests the\n  component could stay suspended forever. The controller is now kept per\n  params key in a ref. Regression test included.\n- Fixtures: a fetch's AbortSignal rejects the fixture delay with an\n  AbortError. fetchResponse() interceptors can be async and read\n  init.signal.\n- Store inspector: aborted responses read \"cancelled\" instead of a red\n  error.\n- Design system: `.split` (list beside what it opens when there's room)\n  and button rows with an `aria-current` wash.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: One useCancelling demo per page, without autoplay; simplify cleanups\n\nDrops the abort guide's duplicate \"without\" demo and the autorun.\nCleanups: fixture-abort tests reuse ArticleResource and createFetch;\nslowLink removes its abort listener once a download finishes; the\nbutton-row hover and focus ring join the existing rules; Fixtures.md\nkeeps its original wrapping.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Count fetches in flight in the useCancelling demo; open message on a tinted pane\n\nPlaygrounds take `inFlight`: a header badge counting requests in\nflight, one per endpoint key from its fetch until its response or abort.\nSkimming the inbox keeps it at 1 with useCancelling(); without it, every\nskipped message piles on. The open message sits on a tinted pane, apart\nfrom the list.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Regenerate skill references for async fetchResponse\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-28T23:33:52Z",
+          "tree_id": "5792a6a78af1736b2cb903e6c52b04ce387dacf8",
+          "url": "https://github.com/reactive/data-client/commit/7b5e2bb5ef9e79df6c5c2c586ff5cee242c8481e"
+        },
+        "date": 1793230848052,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 150.38,
+            "range": "± 9.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 46.73,
+            "range": "± 6.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 307.77,
+            "range": "± 7.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 322.58,
+            "range": "± 6.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 49.54,
+            "range": "± 8.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 277.99,
+            "range": "± 7.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 281.75,
+            "range": "± 8.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 9.02,
+            "range": "± 9.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 78.12,
+            "range": "± 9.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 34.72,
+            "range": "± 4.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 217.39,
+            "range": "± 4.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 274.02,
+            "range": "± 9.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 181.82,
+            "range": "± 6.8%",
             "unit": "ops/s"
           }
         ]
