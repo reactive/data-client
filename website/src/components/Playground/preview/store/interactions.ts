@@ -50,57 +50,60 @@ export function interactionsOf(
     return root;
   };
 
-  const sections: {
-    id: string;
-    interaction: Interaction;
-    first: boolean;
-    rows: ActionGroup[];
-    components: Set<string>;
-  }[] = [];
-  const byId = new Map<string, (typeof sections)[number]>();
-  // a row's section, so what it caused goes there too, whatever came between
-  const sectionOf = new Map<ActionGroup, (typeof sections)[number]>();
-  let last: (typeof sections)[number] | undefined;
+  type Section = InteractionSection & { rows: ActionGroup[] };
+  const sections: Section[] = [];
+  const byId = new Map<string, Section>();
+  let last: Section | undefined;
+  const sectionFor = (root: Root) => {
+    const id =
+      !root.joins ? root.id
+      : last?.id.startsWith(`${root.id}#`) ? last.id
+      : `${root.id}#${sections.length}`;
+    let section = byId.get(id);
+    if (!section) {
+      section = {
+        id,
+        interaction: root.interaction,
+        first: !sections.length,
+        rows: [],
+      };
+      sections.push(section);
+      byId.set(id, section);
+    }
+    return section;
+  };
+
+  const sectionOf = new Map<ActionGroup, Section>();
   for (const row of rows) {
     const cause = causeOf(row, groups);
+    // what a row caused goes where it went, whatever came between
     let section = cause && sectionOf.get(cause);
     if (!section) {
-      const root = rootOf(row, new Set());
-      const id =
-        !root.joins ? root.id
-        : last?.id.startsWith(`${root.id}#`) ? last.id
-        : `${root.id}#${sections.length}`;
-      section = byId.get(id);
-      if (!section) {
-        section = {
-          id,
-          interaction: root.interaction,
-          first: !sections.length,
-          rows: [],
-          components: new Set(),
-        };
-        sections.push(section);
-        byId.set(id, section);
-      }
-      // what comes next may join it; not an earlier section a refetch went to
+      section = sectionFor(rootOf(row, new Set()));
+      // the next row may join only a section that ends the list so far
       last = section;
     }
     section.rows.push(row);
     sectionOf.set(row, section);
-    if (section.interaction.kind === 'render')
-      for (const entry of groupEntriesOf(row))
-        if (entry.caller?.component)
-          section.components.add(entry.caller.component);
   }
-  return sections.map(({ components, ...section }) =>
+  return sections.map(section =>
     section.interaction.kind === 'render' ?
       {
         ...section,
-        interaction: { kind: 'render', components: [...components] },
+        interaction: { kind: 'render', components: componentsOf(section.rows) },
       }
     : section,
   );
 }
+
+/** The components whose hooks sent `rows`, first seen first */
+const componentsOf = (rows: readonly ActionGroup[]) => [
+  ...new Set(
+    rows
+      .flatMap(groupEntriesOf)
+      .flatMap(({ caller }) => caller?.component ?? []),
+  ),
+];
 
 /** The row of `groups` whose action left `row`'s data invalid or stale */
 function causeOf(row: ActionGroup, groups: readonly ActionGroup[]) {
