@@ -15,9 +15,9 @@ A demo soft-sells Data Client first and teaches users and agents how to use it s
 
 - **Use case**: pick one that clearly shows the feature's advantage over the alternative (hand-rolled state, refetching, another library). If the preview doesn't make the advantage visible, pick another use case.
 - **Mechanism**: make it easy to see how it works and why it's better: the reader can point at what the feature did (the row that updated in place, one request instead of three, the entry in the Store).
-- **Look**: very beautiful, built from the playground design system so it reads as a real app. Styling goes in the design system, never inline styles or CSS in the example code, so a look changes in one place.
+- **Look**: very beautiful, built from the playground [design system](../../../website/src/components/Playground/README.md#design-system) so it reads as a real app. Styling goes in the design system, never inline styles or CSS in the example code, so a look changes in one place.
 - **Scope**: as simple as possible while still showing maximum value, utility and related features. Cut whatever doesn't serve the point; add a related feature only when it shows more of the value.
-- **New ideas**: coming up with a new demo idea needs at least high reasoning effort, since the idea decides everything above. Below that, ask the user to raise it (or hand the ideation to a subagent at high) before choosing.
+- **New ideas**: coming up with a new demo idea needs at least high reasoning effort, since the idea decides everything above. If your effort is lower or unknown, hand the ideation to a subagent at high effort, or ask the user to raise it, before choosing.
 
 ## Conventions from review
 
