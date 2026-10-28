@@ -177,7 +177,7 @@ function useHeightRatchet(result: HTMLElement | null) {
     )
       return;
     const observer = new ResizeObserver(() => {
-      const height = result.offsetHeight;
+      const { height } = result.getBoundingClientRect();
       const held =
         parseFloat(holder.style.getPropertyValue('--pg-result-min')) || 0;
       if (height > held)
