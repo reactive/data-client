@@ -1044,7 +1044,7 @@ describe('Store panel pipeline', () => {
     );
   });
 
-  it('heads a request with its steps, then its store changes', async () => {
+  it('heads a request with why it was sent, its steps, then its store changes', async () => {
     const { ctrl } = mount([new NetworkManager()], undefined, true);
     await act(async () => {
       await ctrl().fetch(getTicker);
@@ -1054,7 +1054,7 @@ describe('Store panel pipeline', () => {
     await screen.findAllByRole('group', { name: /^Path/ });
     expect(
       screen.getAllByRole('heading', { level: 3 }).map(h => h.textContent),
-    ).toEqual(['Steps', 'Store changes']);
+    ).toEqual(['Why', 'Steps', 'Store changes']);
   });
 
   it('draws the path of a deduped fetch that went its own way', async () => {

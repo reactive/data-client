@@ -2016,3 +2016,94 @@ button.tlMark:hover {
   color: var(--store-fresh);
   font-weight: 500;
 }
+
+/* Why an action was sent (Why.tsx): its causes as a chain, root first, on
+   a rail */
+.why {
+  margin: 0;
+  padding: 0.15rem 0.75rem 0.5rem;
+  list-style: none;
+}
+.whyStep {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.75em;
+  padding: 0.15rem 0 0.15rem 1.25rem;
+}
+.whyStep::before {
+  content: '';
+  position: absolute;
+  top: calc(0.15rem + 0.8em - 4px);
+  left: 0.15rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--store-dim);
+}
+.whyStep[data-root]::before {
+  background: none;
+  box-shadow: inset 0 0 0 1.5px var(--store-fg);
+}
+.whyStep:last-child::before {
+  background: var(--store-key);
+}
+/* the rail, from each dot down to the next */
+.whyStep:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: calc(0.15rem + 0.8em + 6px);
+  bottom: calc(-0.15rem - 0.8em + 6px);
+  left: calc(0.15rem + 3.25px);
+  width: 1.5px;
+  background: color-mix(in srgb, var(--store-dim) 45%, transparent);
+}
+.whyWhat {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.whyEvent,
+.whyComponent {
+  font-weight: 600;
+}
+.whyLink {
+  /* one line: a long key ends in an ellipsis */
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+.whyLink:hover {
+  text-decoration-style: solid;
+}
+.reason {
+  padding: 0 0.4em;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--reason) 13%, transparent);
+  color: var(--reason);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* a row's why (RowWhy), after its changes */
+.rowWhy {
+  color: var(--store-dim);
+  font-size: 11px;
+  white-space: nowrap;
+}
+/* the action that caused the moment's fetch */
+.actRow[data-cause] {
+  background: color-mix(in srgb, var(--store-null) 9%, transparent);
+}

@@ -1729,7 +1729,7 @@ describe('Store action level', () => {
     fireEvent.click(step('Before'));
     fireEvent.click(step('Before'));
     const request = top();
-    expect(headings()).toEqual(['Steps', 'Store changes']);
+    expect(headings()).toEqual(['Why', 'Steps', 'Store changes']);
     // a step itself opens alone, a level deeper
     fireEvent.click(
       top().querySelector<HTMLElement>('[role="button"][data-seq="2"]')!,
@@ -1790,7 +1790,7 @@ describe('Store action level', () => {
     // marked
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     expect(crumbs()).toEqual(['Actions', 'GET /posts']);
-    expect(headings()).toEqual(['Steps', 'Store changes']);
+    expect(headings()).toEqual(['Why', 'Steps', 'Store changes']);
     expect(
       [
         ...top().querySelectorAll<HTMLElement>('[role="button"][aria-current]'),

@@ -14,21 +14,22 @@ renders `index.tsx`. `../TypeScriptEditor.tsx` and
 (`variant="standalone"`); `../DiffEditor.tsx` reuses `editor/codeModel.ts`
 and `editor/callouts.ts`.
 
-| Task                                         | Where                                                                                                   |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Props, layouts, Store placement, `hidden`    | `index.tsx` (`PlaygroundProps` documents each prop)                                                     |
-| Fence metastring, file list                  | `editor/codeModel.ts`                                                                                   |
-| Editor chrome, SSR markup                    | `editor/EditorSurface.tsx`, `editor/StaticEditor.tsx`, `editor/InteractiveEditor.tsx`                   |
-| Monaco: types, completions, go-to-definition | `monaco/` (`preloadManifest.ts` and `../editor-types/` are generated)                                   |
-| Running the code, scope globals              | `preview/LivePreview.tsx`, `preview/useCodeManagers.ts`, `preview/transformCode.ts`, `preview/scope.ts` |
-| Preview frame, Store open state and motion   | `preview/PreviewWrapper.tsx`, `preview/StoreToggle.tsx`, `preview/StoreInspector.tsx`                   |
-| Store inspector UI                           | `preview/store/` (`StorePanel.tsx` owns its state, `nav.tsx` moves it)                                  |
-| Store log, action credit                     | `preview/store/actionLog.ts`, `actionGroups.ts`, `attribution.ts` (names each action's manager)         |
-| Managers the code declares                   | `preview/managers.ts`; [data flow](./managers-data-flow.png) (source `.svg`)                            |
-| Multi-page demos, self-playing demos         | `preview/router.tsx`, `preview/autorun/`                                                                |
-| Demo markup's look                           | `DesignSystem/design-system.css`, tokens and skeletons in `base.css` ([Design system](#design-system))  |
-| Mobile and crawler gates                     | `userAgent.ts`                                                                                          |
-| Docusaurus stubs for tests                   | `testing/` (mapped in the root `jest.config.js`)                                                        |
+| Task                                         | Where                                                                                                      |
+| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Props, layouts, Store placement, `hidden`    | `index.tsx` (`PlaygroundProps` documents each prop)                                                        |
+| Fence metastring, file list                  | `editor/codeModel.ts`                                                                                      |
+| Editor chrome, SSR markup                    | `editor/EditorSurface.tsx`, `editor/StaticEditor.tsx`, `editor/InteractiveEditor.tsx`                      |
+| Monaco: types, completions, go-to-definition | `monaco/` (`preloadManifest.ts` and `../editor-types/` are generated)                                      |
+| Running the code, scope globals              | `preview/LivePreview.tsx`, `preview/useCodeManagers.ts`, `preview/transformCode.ts`, `preview/scope.ts`    |
+| Preview frame, Store open state and motion   | `preview/PreviewWrapper.tsx`, `preview/StoreToggle.tsx`, `preview/StoreInspector.tsx`                      |
+| Store inspector UI                           | `preview/store/` (`StorePanel.tsx` owns its state, `nav.tsx` moves it)                                     |
+| Store log, action credit                     | `preview/store/actionLog.ts`, `actionGroups.ts`, `attribution.ts` (names each action's manager)            |
+| Why a fetch happened                         | `preview/store/fetchCause.ts` (reason, playground-free), `callSite.ts` (hook, component, event), `Why.tsx` |
+| Managers the code declares                   | `preview/managers.ts`; [data flow](./managers-data-flow.png) (source `.svg`)                               |
+| Multi-page demos, self-playing demos         | `preview/router.tsx`, `preview/autorun/`                                                                   |
+| Demo markup's look                           | `DesignSystem/design-system.css`, tokens and skeletons in `base.css` ([Design system](#design-system))     |
+| Mobile and crawler gates                     | `userAgent.ts`                                                                                             |
+| Docusaurus stubs for tests                   | `testing/` (mapped in the root `jest.config.js`)                                                           |
 
 `resources/` is referenced by nothing.
 

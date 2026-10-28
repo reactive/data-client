@@ -94,6 +94,7 @@ import { useStoreView } from './storeView';
 import Timeline, { Scrubber } from './Timeline';
 import TreeView from './TreeView';
 import { RowKey } from './Value';
+import { Why } from './Why';
 import TabList from '../../TabList';
 import Unfold from '../../Unfold';
 
@@ -1168,6 +1169,7 @@ function ActionLevel({
           <div className={styles.actScroll}>
             {group && span ?
               <div className={styles.actBody}>
+                <Why entries={span} />
                 <h3 className={styles.sectionLabel}>Steps</h3>
                 <GroupActions group={group} subject={subject} filter={filter} />
                 <h3 className={styles.sectionLabel}>Store changes</h3>

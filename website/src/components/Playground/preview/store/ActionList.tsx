@@ -53,6 +53,7 @@ import {
 } from './nav';
 import { Pipeline, StepPath } from './Pipeline';
 import styles from './store.module.css';
+import { RowWhy } from './Why';
 
 /** The groups with an action that touched the subject */
 export function useRows(filter: SubjectFilter) {
@@ -193,8 +194,13 @@ function ActionList({
    * does, by default open it */
   onPick?: (seq: number, scope?: Scope) => void;
 }) {
-  const { history, groups } = useActions();
+  const { log, history, groups } = useActions();
   const { seq, current: marked, set, show } = useNavState();
+  const causes = log.causes(history.entries);
+  // the row that caused the moment's fetch, tinted
+  const causeSeq = [...marked].map(s => causes.of.get(s)?.seq).find(Boolean);
+  const causeRow =
+    causeSeq === undefined ? undefined : groupOf(groups, causeSeq);
   const scroller = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
   const toggle = useCallback(
@@ -259,6 +265,8 @@ function ActionList({
           group={group}
           open={open.has(group.id)}
           marked={group === current ? marked : undefined}
+          cause={group === causeRow}
+          refetches={refetchesOf(group, causes.effects)}
           subject={subject}
           filter={filter}
           onToggle={toggle}
@@ -267,6 +275,16 @@ function ActionList({
       ))}
     </div>
   );
+}
+
+/** Requests the actions of `group` caused */
+function refetchesOf(
+  group: ActionGroup,
+  effects: ReadonlyMap<number, number>,
+): number {
+  let n = 0;
+  for (const entry of groupEntriesOf(group)) n += effects.get(entry.seq) ?? 0;
+  return n;
 }
 
 /** Where actions the log didn't keep changed the record, before the kept
@@ -349,6 +367,8 @@ const GroupRow = memo(function GroupRow({
   group,
   open,
   marked,
+  cause,
+  refetches,
   subject,
   filter,
   onToggle,
@@ -356,6 +376,10 @@ const GroupRow = memo(function GroupRow({
 }: {
   group: ActionGroup;
   open: boolean;
+  /** Its action caused the moment's fetch */
+  cause: boolean;
+  /** Requests its actions caused */
+  refetches: number;
   /** The actions the moment stands for, when it is at this row */
   marked?: ReadonlySet<number>;
   subject: View;
@@ -385,6 +409,7 @@ const GroupRow = memo(function GroupRow({
         tabIndex={0}
         aria-expanded={open}
         aria-current={!!marked || undefined}
+        data-cause={cause || undefined}
         data-id={rowId(group)}
         data-seq={seq}
         data-scope={scope}
@@ -427,6 +452,7 @@ const GroupRow = memo(function GroupRow({
               ownError={statusFailed(group)}
             />
           </ActionSpanContext.Provider>
+          <RowWhy entries={all} refetches={refetches} />
         </span>
       </div>
       {open && (
