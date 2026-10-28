@@ -21,7 +21,7 @@ A demo soft-sells Data Client first and teaches users and agents how to use it s
 
 ## Conventions from review
 
-- The demo makes its point by itself: no captions, narration or "watch this" text in the preview.
+- The demo makes its point by itself: no captions, narration or "watch this" text in the preview. If it needs one, pick another use case.
 - Loading states are skeletons (`<Loading />`, `skeleton`), never "Loading…" text.
 - A demo of a real public API keeps the real URL and response shape in its code and is intercepted by a fixture in `website/src/fixtures/`, so copied code returns real data. Live calls from the playground hit rate limits.
 - Code models what a careful app would do (`React.memo` on a list whose parent re-renders per keystroke, stable keys) even when the perf win is tiny, because readers copy it.
