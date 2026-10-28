@@ -36,7 +36,8 @@ const validator = (
   min_self_delegation: '1',
 });
 
-// What the Cosmos Hub's validator list answers, in its shape: address order
+// Made-up validators in the Cosmos Hub's response shape, in address order
+// like the real list
 const validators = [
   validator(
     'a2kq7zm9d4xw3h8r5t6y0p2s4f7j9l3c8v5b1n',
@@ -104,7 +105,8 @@ const validators = [
 ];
 
 /** Pages of `pagination.limit` validators, continued from `pagination.key`
- * (the previous page's `next_key`) */
+ * (the previous page's `next_key`). The endpoint must match `getValidators`
+ * in docs/rest/guides/pagination.md */
 export const validatorFixtures = [
   {
     endpoint: new RestEndpoint({
