@@ -220,7 +220,8 @@ div.playground-preview h1:first-child {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  gap: var(--ds-space-4) var(--ds-space-5);
+  /* the rows' highlights and the pane each bleed space-3 into the gap */
+  gap: var(--ds-space-4) calc(var(--ds-space-5) + 2 * var(--ds-space-3));
 }
 .playground-preview .split > * {
   flex: 3 1 18rem;
@@ -230,8 +231,10 @@ div.playground-preview h1:first-child {
   flex: 2 1 14rem;
   margin-bottom: 0;
 }
-/* what's open sits on its own tinted pane, set apart from the list */
+/* what's open sits on its own tinted pane, set apart from the list; its
+   edges line up with the rows' highlights, which bleed past the text */
 .playground-preview .split > :not(.list) {
+  margin-inline: calc(-1 * var(--ds-space-3));
   padding: var(--ds-space-4) var(--ds-space-5);
   border-radius: var(--ds-radius);
   background: var(--ds-surface-2);

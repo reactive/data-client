@@ -16,10 +16,12 @@ export function useInFlightCount(enabled: boolean) {
   // a page's locale never changes; keep the first label (see RenderCount)
   const { selectMessage } = usePluralForm();
   const [{ manager, attach }] = useState(() => {
-    const keys = new Set<string>();
+    // each store (Reset remounts it) counts its own; the badge shows the newest
+    const stores = new WeakMap<object, Set<string>>();
+    let keys = new Set<string>();
     let badge: HTMLSpanElement | null = null;
-    const show = () => {
-      if (!badge) return;
+    const show = (reveal = false) => {
+      if (!badge || (badge.hidden && !reveal)) return;
       badge.textContent = selectMessage(
         keys.size,
         translate(
@@ -34,31 +36,36 @@ export function useInFlightCount(enabled: boolean) {
       badge.hidden = false;
     };
     const manager: Manager = {
-      middleware: () => next => action => {
-        switch (action.type) {
-          case actionTypes.FETCH:
-            keys.add(action.key);
-            show();
-            break;
-          case actionTypes.SET_RESPONSE:
-            if (keys.delete(action.key)) show();
-            break;
-          case actionTypes.RESET:
-            keys.clear();
-            show();
-        }
-        return next(action);
+      middleware: controller => {
+        const own = stores.get(controller) ?? new Set<string>();
+        stores.set(controller, own);
+        keys = own;
+        show();
+        return next => action => {
+          switch (action.type) {
+            case actionTypes.FETCH:
+              own.add(action.key);
+              show(true);
+              break;
+            case actionTypes.SET_RESPONSE:
+              if (own.delete(action.key)) show();
+              break;
+            case actionTypes.RESET:
+              own.clear();
+              show();
+          }
+          return next(action);
+        };
       },
-      // a remounted store starts with nothing in flight
+      // a Reset's new store has already taken the badge over
       cleanup() {
-        keys.clear();
         show();
       },
     };
     // the first fetches dispatch while the badge itself first renders
     const attach = (span: HTMLSpanElement | null) => {
       badge = span;
-      if (keys.size) show();
+      if (keys.size) show(true);
     };
     return { manager, attach };
   });
