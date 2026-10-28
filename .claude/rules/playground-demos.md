@@ -4,7 +4,6 @@ paths:
   - "docs/**/*.mdx"
   - "website/src/fixtures/**"
   - "website/src/components/Demo/code/**"
-  - "website/src/components/Playground/DesignSystem/**"
 ---
 <!-- Generated from .cursor/rules/playground-demos.mdc by `yarn build:agent-rules`. Edit the source. -->
 
