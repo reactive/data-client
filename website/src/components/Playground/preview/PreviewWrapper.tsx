@@ -164,7 +164,6 @@ function usePreviewGap(result: HTMLElement | null) {
  * (`data-playground-group`, e.g. REST/GraphQL), so the shorter loading page
  * doesn't flash the page's height on a remount or a switch. The row's
  * editor sits apart, so it isn't held tall with it */
-const ratchet = '--pg-result-min';
 function useHeightRatchet(result: HTMLElement | null) {
   useLayoutEffect(() => {
     const holder =
@@ -179,8 +178,10 @@ function useHeightRatchet(result: HTMLElement | null) {
       return;
     const observer = new ResizeObserver(() => {
       const height = result.offsetHeight;
-      if (height > (parseFloat(holder.style.getPropertyValue(ratchet)) || 0))
-        holder.style.setProperty(ratchet, `${height}px`);
+      const held =
+        parseFloat(holder.style.getPropertyValue('--pg-result-min')) || 0;
+      if (height > held)
+        holder.style.setProperty('--pg-result-min', `${height}px`);
     });
     observer.observe(result);
     return () => observer.disconnect();
