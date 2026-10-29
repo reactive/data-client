@@ -1,0 +1,189 @@
+/* columns: [data type (rowSpan, first row of a group)], mutable, schema, description, queryable */
+.schemaTable {
+  --hairline: 1px solid var(--ifm-color-emphasis-200);
+  margin: 1.25rem 0 2rem;
+}
+
+.schemaTable table {
+  font-size: 0.9375rem;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.schemaTable :is(thead, th, td) {
+  border: 0;
+  background: none;
+}
+/* doubled to beat Infima's `table tr:nth-child(2n)` stripes */
+.schemaTable.schemaTable tr {
+  border: 0;
+  background: none;
+}
+
+.schemaTable th {
+  padding: 0 0.75rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: left;
+  white-space: nowrap;
+  color: var(--ifm-color-emphasis-600);
+}
+.schemaTable th a {
+  color: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+.schemaTable th:is(:nth-child(2), :nth-child(5)) {
+  text-align: center;
+}
+
+.schemaTable td {
+  padding: 0.55rem 0.75rem;
+  vertical-align: baseline;
+  color: var(--ifm-color-emphasis-800);
+}
+.schemaTable td code {
+  white-space: nowrap;
+}
+/* data type */
+.schemaTable td[rowspan] {
+  vertical-align: top;
+  font-weight: 600;
+  color: var(--ifm-font-color-base);
+}
+.schemaTable td[rowspan] a {
+  color: inherit;
+}
+/* schema */
+.schemaTable td:nth-last-child(3) {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ✅/🛑 stay in the text for screen readers and copying, drawn as a check or a dash */
+.schemaTable td[data-mark] {
+  font-size: 0;
+  vertical-align: middle;
+}
+.schemaTable td[data-mark]::before {
+  content: '';
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  background: var(--ifm-color-primary);
+  /* AgentPrompt's CheckIcon */
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 6 9 17l-5-5' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.schemaTable td[data-mark='no']::before {
+  width: 0.6rem;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--ifm-color-emphasis-400);
+  mask: none;
+  vertical-align: middle;
+}
+
+/* a hairline over each data type is the only line */
+@container doc (min-width: 641px) {
+  .schemaTable tbody tr:has(td[rowspan]) td {
+    border-top: var(--hairline);
+    padding-top: 0.9rem;
+  }
+  .schemaTable tbody tr:has(+ tr td[rowspan]) td,
+  .schemaTable tbody tr:last-child td {
+    padding-bottom: 0.9rem;
+  }
+}
+@media (hover: hover) {
+  @container doc (min-width: 641px) {
+    .schemaTable tbody tr:hover td:not([rowspan]) {
+      background: color-mix(in srgb, var(--ifm-color-primary) 6%, transparent);
+    }
+  }
+}
+
+/* narrow: each row stacks its schema over its description with both marks on
+ * the right, and the data type labels its group, so nothing scrolls sideways */
+@container doc (max-width: 640px) {
+  .schemaTable :is(table, thead, tbody, td) {
+    display: block;
+  }
+  .schemaTable tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 4rem 5rem;
+    align-items: start;
+  }
+  .schemaTable th {
+    padding-bottom: 0.5rem;
+    font-size: 0.6875rem;
+  }
+  /* the mark headers are wider than their padded columns */
+  .schemaTable th:is(:nth-child(2), :nth-child(5)) {
+    padding-inline: 0;
+  }
+  /* visually hidden but kept in the accessibility tree (store.module.css .srOnly) */
+  .schemaTable th:is(:nth-child(1), :nth-child(4)) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .schemaTable th:nth-child(2) {
+    grid-area: 1 / 2;
+  }
+  .schemaTable th:nth-child(3) {
+    grid-area: 1 / 1;
+  }
+  .schemaTable th:nth-child(5) {
+    grid-area: 1 / 3;
+  }
+
+  .schemaTable td {
+    padding: 0 0.75rem;
+  }
+  .schemaTable td[rowspan] {
+    grid-area: 1 / 1 / 2 / -1;
+    padding-bottom: 0.25rem;
+  }
+  .schemaTable td:nth-last-child(4) {
+    grid-area: 2 / 2;
+    text-align: center;
+  }
+  .schemaTable td:nth-last-child(3) {
+    grid-area: 2 / 1;
+    padding-top: 0.5rem;
+  }
+  .schemaTable td:nth-last-child(2) {
+    grid-area: 3 / 1 / 4 / 3;
+    padding-bottom: 0.5rem;
+    font-size: 0.875rem;
+  }
+  .schemaTable td:last-child {
+    grid-area: 2 / 3;
+    text-align: center;
+  }
+  /* centered on the schema name's line */
+  .schemaTable td[data-mark] {
+    line-height: 0;
+    padding-top: 0.7rem;
+  }
+  .schemaTable td[data-mark='no'] {
+    padding-top: 1.15rem;
+  }
+
+  .schemaTable tbody tr:has(td[rowspan]) {
+    border-top: var(--hairline);
+    padding-top: 0.9rem;
+  }
+  .schemaTable tbody tr:has(+ tr td[rowspan]),
+  .schemaTable tbody tr:last-child {
+    padding-bottom: 0.6rem;
+  }
+}

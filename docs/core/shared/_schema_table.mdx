@@ -1,4 +1,6 @@
-<div className="table-scroll">
+import SchemaTable from '@site/src/components/SchemaTable';
+
+<SchemaTable>
 <table>
 <thead>
 <tr>
@@ -11,80 +13,80 @@
 </thead>
 <tbody><tr>
 <td rowSpan={4}><a href="https://en.wikipedia.org/wiki/Object_(computer_science)">Object</a></td>
-<td align="center">✅</td>
+<td align="center" data-mark="yes">✅</td>
 <td>[Entity](/rest/api/Entity)</td>
 <td>single <em>unique</em> object</td>
-<td align="center">✅</td>
+<td align="center" data-mark="yes">✅</td>
 </tr>
 <tr>
-<td align="center">✅</td>
+<td align="center" data-mark="yes">✅</td>
 <td>[Union(Entity)](/rest/api/Union)</td>
 <td>polymorphic objects (<code>A | B</code>)</td>
-<td align="center">✅</td>
+<td align="center" data-mark="yes">✅</td>
 </tr>
 <tr>
-<td align="center">🛑</td>
+<td align="center" data-mark="no">🛑</td>
 <td>[Object](/rest/api/Object)</td>
 <td>statically known keys</td>
-<td align="center">🛑</td>
+<td align="center" data-mark="no">🛑</td>
 </tr>
 <tr>
 <td align="center"></td>
 <td>[Invalidate(Entity)](/rest/api/Invalidate)</td>
 <td>[delete an entity](../concepts/expiry-policy.md#invalidate-entity)</td>
-<td align="center">🛑</td>
+<td align="center" data-mark="no">🛑</td>
 </tr>
 <tr>
 <td rowSpan={3}><a href="https://en.wikipedia.org/wiki/List_(abstract_data_type)">List</a></td>
-<td align="center">✅</td>
+<td align="center" data-mark="yes">✅</td>
 <td>[Collection(Array)](/rest/api/Collection)</td>
 <td>growable lists</td>
-<td align="center">✅</td>
+<td align="center" data-mark="yes">✅</td>
 </tr>
 <tr>
-<td align="center">🛑</td>
+<td align="center" data-mark="no">🛑</td>
 <td>[Array](/rest/api/Array)</td>
 <td>immutable lists</td>
-<td align="center">🛑</td>
+<td align="center" data-mark="no">🛑</td>
 </tr>
 <tr>
 <td align="center"> </td>
 <td>[All](/rest/api/All)</td>
 <td>list of all entities of a kind</td>
-<td align="center">✅</td>
+<td align="center" data-mark="yes">✅</td>
 </tr>
 <tr>
 <td rowSpan={2}><a href="https://en.wikipedia.org/wiki/Associative_array">Map</a></td>
-<td align="center">✅</td>
+<td align="center" data-mark="yes">✅</td>
 <td>[Collection(Values)](/rest/api/Collection)</td>
 <td>growable maps</td>
-<td align="center">✅</td>
+<td align="center" data-mark="yes">✅</td>
 </tr>
 <tr>
-<td align="center">🛑</td>
+<td align="center" data-mark="no">🛑</td>
 <td>[Values](/rest/api/Values)</td>
 <td>immutable maps</td>
-<td align="center">🛑</td>
+<td align="center" data-mark="no">🛑</td>
 </tr>
 <tr>
 <td rowSpan={1}><a href="https://en.wikipedia.org/wiki/Scalar_(mathematics)">Scalar</a></td>
-<td align="center">✅</td>
+<td align="center" data-mark="yes">✅</td>
 <td>[Scalar](/rest/api/Scalar)</td>
 <td>lens-dependent entity fields</td>
-<td align="center">✅</td>
+<td align="center" data-mark="yes">✅</td>
 </tr>
 <tr>
 <td rowSpan={2}>any</td>
 <td align="center"></td>
 <td>[Query(Queryable)](/rest/api/Query)</td>
 <td>memoized custom transforms</td>
-<td align="center">✅</td>
+<td align="center" data-mark="yes">✅</td>
 </tr>
 <tr>
 <td align="center"></td>
 <td>[Lazy(Schema)](/rest/api/Lazy)</td>
 <td>deferred denormalization</td>
-<td align="center">✅</td>
+<td align="center" data-mark="yes">✅</td>
 </tr>
 </tbody></table>
-</div>
+</SchemaTable>
