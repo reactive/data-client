@@ -247,7 +247,8 @@ style to a new component.
 Styled elements: `h2` (page title), `button` (`primary` fills one;
 `aria-busy` shows pending), text inputs, `nav`, `fieldset`, `progress`,
 `table`. A `section` holding an `h3` then a `list` (a person's tasks) is a
-group: a hairline between groups, its label leading it.
+group: its label leads it, and a person's rows hang under their avatar on a
+line.
 
 | Class                                      | Use for                                                                         |
 | ------------------------------------------ | ------------------------------------------------------------------------------- |

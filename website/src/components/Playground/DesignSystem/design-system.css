@@ -63,10 +63,9 @@ div.playground-preview h1:first-child {
   letter-spacing: 0;
   color: var(--ds-text-muted);
 }
-/* Groups of rows under a label (a person's tasks): a hairline between
-   them marks where one group ends and the next begins, and the label leads
-   its rows in the text's color. As a drop target, its ring rounds and
-   stands just off the rows */
+/* Groups of rows under a label (a person's tasks): the label leads its
+   rows in the text's color. As a drop target, its ring rounds and stands
+   just off the rows */
 .playground-preview section:has(> h3 + .list) {
   margin-bottom: var(--ds-space-4);
 }
@@ -74,23 +73,26 @@ div.playground-preview h1:first-child {
   border-radius: var(--ds-radius-sm);
   outline-offset: 4px;
 }
-.playground-preview section:has(> h3 + .list) + section:has(> h3 + .list) {
-  padding-top: var(--ds-space-3);
-  border-top: 1px solid var(--ds-border);
-}
 .playground-preview section:has(> h3 + .list):last-child,
 .playground-preview section > h3 + .list {
   margin-bottom: 0;
 }
 .playground-preview section > h3:has(+ .list) {
-  padding-inline: var(--ds-space-2);
   color: var(--ds-text);
 }
-/* a person's group: their avatar beside the label */
+/* a person's group: their avatar beside the label, and a line dropping
+   from the avatar's center down beside their rows, which sit under the
+   name (past the 20px avatar) */
 .playground-preview section > h3:has(> .avatar) {
   display: flex;
   align-items: center;
   gap: var(--ds-space-2);
+}
+.playground-preview section > h3:has(> .avatar) + .list {
+  --rail: 1.5px;
+  margin-inline-start: calc(10px - var(--rail) / 2);
+  padding-inline-start: calc(10px - var(--rail) / 2 + var(--ds-space-2));
+  border-inline-start: var(--rail) solid var(--ds-border);
 }
 /* A value that just changed: washed in the accent and ringed by it */
 .playground-preview mark {
