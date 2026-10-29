@@ -18,6 +18,10 @@ import { definePrismTheme } from './theme';
 import typeCheckFlags from './typeCheckFlags.json';
 import { addTypeLibs, fetchTypeLibs } from './typeLibs';
 
+/** TS1375: 'await' expressions are only allowed at the top level of a file
+ * when that file is a module */
+const TOP_LEVEL_AWAIT_IN_SCRIPT = 1375;
+
 if (typeof window !== 'undefined' && !isMobileOrBot()) {
   injectMonacoResourceHints();
   shieldEditorsFromSearchHotkey();
@@ -61,7 +65,3 @@ if (typeof window !== 'undefined' && !isMobileOrBot()) {
     monaco.typescript.typescriptDefaults.setEagerModelSync(true);
   });
 }
-
-/** TS1375: 'await' expressions are only allowed at the top level of a file
- * when that file is a module */
-const TOP_LEVEL_AWAIT_IN_SCRIPT = 1375;

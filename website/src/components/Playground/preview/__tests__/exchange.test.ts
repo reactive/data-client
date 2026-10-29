@@ -85,15 +85,13 @@ function run(
     undefined,
     call => calls.push(call),
   );
+  // callers that don't await `done` leave its rejection handled
+  done.catch(() => undefined);
   return { calls, done };
 }
 
-function exchanges(...args: Parameters<typeof run>) {
-  const { calls, done } = run(...args);
-  // an endpoint's failure shows in its exchange
-  done.catch(() => undefined);
-  return calls;
-}
+/** The calls `usage` makes; an endpoint's failure shows in its exchange */
+const exchanges = (...args: Parameters<typeof run>) => run(...args).calls;
 
 describe('runExchanges', () => {
   test('records the request the code builds, answered by its interceptor', async () => {

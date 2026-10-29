@@ -112,8 +112,8 @@ const noCheck = ({ raw }) =>
   raw.includes('<script') ?
     raw.replace(/<script\b[^>]*>/, '$&\n// @ts-nocheck')
   : `// @ts-nocheck\n${raw}`;
-/** The editor's globals: the libraries' exports, which code without imports
- * uses as the playground editor types them */
+/** The editor's globals (Playground/monaco/typeLibs.ts parses them the same
+ * way): the libraries' exports, which code without imports uses */
 const EDITOR_GLOBALS = path.join(PLAYGROUND, 'editor-types/globals');
 const GLOBAL_NAMES = [
   ...fs
@@ -133,15 +133,10 @@ const GLOBAL_NAMES = [
  * preview, which runs them in order as one async function) gives one scope */
 const isScriptApp = blocks =>
   blocks.every(({ value }) => !/^\s*(?:import|export)\b/m.test(value));
-/** A script playground as the one module it runs as: its files in order,
- * after an import of the globals they use */
+/** A script playground as the one module it runs as: the editor's globals,
+ * then its files in order, each a segment starting at its `row` */
 function scriptApp(blocks) {
   const code = blocks.map(({ raw }) => raw.replace(/\n$/, ''));
-  const used = GLOBAL_NAMES.filter(name =>
-    new RegExp(`(?<![\\w$.])${name.replaceAll('$', '\\$')}(?![\\w$])`).test(
-      code.join('\n'),
-    ),
-  );
   // after the header's row
   let row = 2;
   const segments = code.map((text, i) => {
@@ -150,7 +145,7 @@ function scriptApp(blocks) {
     return segment;
   });
   return {
-    header: `import { ${used.join(', ')} } from '${EDITOR_GLOBALS}';`,
+    header: `import { ${GLOBAL_NAMES.join(', ')} } from '${EDITOR_GLOBALS}';`,
     code: code.join('\n'),
     segments,
   };
@@ -268,7 +263,7 @@ function check(framework, examples) {
   const OUT = fs.mkdtempSync(
     path.join(ROOT, `node_modules/.cache/${framework}-examples-`),
   );
-  /** written file -> its fence */
+  /** written file -> its fences, each from its first row */
   const sources = new Map();
   /** Imports with no types here: the app's own modules (`resources/Post`) and libraries we don't install */
   const untyped = new Map();
@@ -298,7 +293,7 @@ function check(framework, examples) {
       const file = path.join(dir, name);
       fs.mkdirSync(path.dirname(file), { recursive: true });
       fs.writeFileSync(file, block.nocheck ? noCheck(block) : block.raw);
-      sources.set(file, block);
+      sources.set(file, [{ block, row: 1 }]);
       for (const { clause, from } of importsOf(block.value)) {
         if (!isRelative(from)) {
           if (!installed(from)) add(untyped, from, clause);
@@ -392,19 +387,18 @@ function check(framework, examples) {
       .map(line => {
         const match = line.match(/^(.+?)\((\d+),(\d+)\): (.*)$/s);
         if (!match) return line;
-        let [, file, row, column, message] = match;
+        const [, file, fileRow, column, message] = match;
         const written = path.resolve(OUT, file);
-        const source = sources.get(written);
-        if (!source) return `${rel(written)}:${row}:${column}: ${message}`;
         // a script playground's file holds its blocks one after another
-        const { block, row: first = 1 } =
-          Array.isArray(source) ?
-            source.findLast(segment => segment.row <= Number(row))
-          : { block: source };
-        row = Number(row) - first + 1;
+        const segment = sources
+          .get(written)
+          ?.findLast(({ row }) => row <= Number(fileRow));
+        if (!segment) return `${rel(written)}:${fileRow}:${column}: ${message}`;
+        const { block } = segment;
+        const row = Number(fileRow) - segment.row + 1;
         const where =
           block.line ?
-            `${rel(block.file)}:${block.line + Number(row)}:${column}`
+            `${rel(block.file)}:${block.line + row}:${column}`
           : `${rel(block.file)} (${titleOf(block) ?? 'CodeBlock'}:${row}:${column})`;
         return `${where}: ${message}`;
       }),
