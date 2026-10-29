@@ -13,6 +13,7 @@ import { registerImportCompletions } from './navigation';
 import { MONACO_CDN_VS } from './preloadManifest';
 import { injectMonacoResourceHints } from './resourceHints';
 import { shieldEditorsFromSearchHotkey } from './searchHotkey';
+import { recheckSiblingsOnChange } from './siblingDiagnostics';
 import { definePrismTheme } from './theme';
 import typeCheckFlags from './typeCheckFlags.json';
 import { addTypeLibs, fetchTypeLibs } from './typeLibs';
@@ -48,6 +49,7 @@ if (typeof window !== 'undefined' && !isMobileOrBot()) {
     });
     definePrismTheme(monaco);
     registerImportCompletions(monaco);
+    recheckSiblingsOnChange(monaco);
 
     addTypeLibs(monaco, await typeLibsPromise);
     monaco.typescript.typescriptDefaults.setEagerModelSync(true);
