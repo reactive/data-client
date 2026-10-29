@@ -20,12 +20,6 @@ function surfaceOf(fileName) {
   return /^\w+:\/\/(\/\d+\/)/.exec(fileName)?.[1];
 }
 
-/** Whether `text` is a module: it imports or exports. A script's
- * declarations are global */
-function isModule(text) {
-  return /^\s*(import|export)\b/m.test(text);
-}
-
 self.customTSWorkerFactory = TypeScriptWorker =>
   class SurfaceWorker extends TypeScriptWorker {
     constructor(ctx, createData) {
@@ -34,20 +28,21 @@ self.customTSWorkerFactory = TypeScriptWorker =>
       const registry = self.ts.createDocumentRegistry();
       /** Language service of each scope (see scopes) */
       const services = new Map();
-      let libsVersion = 0;
-      this.updateExtraLibs = async extraLibs => {
-        libsVersion++;
-        this._extraLibs = extraLibs;
-      };
 
-      /** isModule() of each model, by the version it was read at */
+      /** Whether each model imports or exports (a script's declarations
+       * are global), by the version it was read at */
       const modules = new WeakMap();
       const readIsModule = model => {
         let read = modules.get(model);
         if (read?.version !== model.version) {
+          const source = self.ts.createSourceFile(
+            model.uri.toString(),
+            model.getValue(),
+            self.ts.ScriptTarget.Latest,
+          );
           read = {
             version: model.version,
-            isModule: isModule(model.getValue()),
+            isModule: self.ts.isExternalModule(source),
           };
           modules.set(model, read);
         }
@@ -57,25 +52,30 @@ self.customTSWorkerFactory = TypeScriptWorker =>
       /** Each model's file name, with its scope: the models of a surface
        * with a script share its scope; every other module is in MODULES */
       const scopes = () => {
-        const models = this._ctx.getMirrorModels();
-        const withScript = new Set();
-        for (const model of models)
-          if (!readIsModule(model))
-            withScript.add(surfaceOf(model.uri.toString()) ?? model);
-        return models.map(model => {
+        const files = this._ctx.getMirrorModels().map(model => {
           const name = model.uri.toString();
-          const surface = surfaceOf(name);
-          const scope =
-            withScript.has(surface) ? surface
-            : withScript.has(model) ? name
-            : MODULES;
-          return { name, version: model.version, scope };
+          return {
+            name,
+            version: model.version,
+            // a script outside any surface is a scope of its own
+            surface: surfaceOf(name) ?? name,
+            isModule: readIsModule(model),
+          };
         });
+        const withScript = new Set(
+          files.filter(file => !file.isModule).map(file => file.surface),
+        );
+        for (const file of files)
+          file.scope = withScript.has(file.surface) ? file.surface : MODULES;
+        return files;
       };
 
+      /** scopes() as of the call being answered: every call reads them
+       * first (serviceFor), then TypeScript asks the host for them */
+      let current = [];
       const createService = scope => {
         const host = Object.create(this);
-        const files = () => scopes().filter(file => file.scope === scope);
+        const files = () => current.filter(file => file.scope === scope);
         host.getScriptFileNames = () =>
           files()
             .map(file => file.name)
@@ -83,19 +83,21 @@ self.customTSWorkerFactory = TypeScriptWorker =>
         // lets TypeScript skip re-syncing a program whose files are as they
         // were (Monaco's host leaves it out, so every call re-syncs)
         host.getProjectVersion = () =>
-          `${libsVersion}|${files()
+          Object.entries(this._extraLibs)
+            .map(([name, lib]) => ({ name, version: lib.version }))
+            .concat(files())
             .map(file => `${file.name}@${file.version}`)
-            .join()}`;
+            .join();
         return self.ts.createLanguageService(host, registry);
       };
 
       const serviceFor = fileName => {
-        const all = scopes();
+        current = scopes();
         const scope =
-          all.find(file => file.name === fileName)?.scope ?? MODULES;
+          current.find(file => file.name === fileName)?.scope ?? MODULES;
         if (!services.has(scope)) {
           // free the programs of scopes that no longer have models
-          const live = new Set(all.map(file => file.scope)).add(MODULES);
+          const live = new Set(current.map(file => file.scope)).add(MODULES);
           for (const [old, service] of services)
             if (!live.has(old)) {
               service.dispose();
