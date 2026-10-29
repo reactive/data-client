@@ -22,7 +22,7 @@ function fakeStage(
   const calls: string[] = [];
   const stage: Stage = {
     find: target => (target === STORE_TOGGLE ? toggle : found),
-    point: el => {
+    point: async el => {
       calls.push(el === toggle ? 'point toggle' : 'point');
       return true;
     },
@@ -65,7 +65,7 @@ it('plays steps in order, at their times', async () => {
 it("clicks again without a glide when the pointer hasn't moved", async () => {
   const player = createPlayer();
   const { stage, calls } = fakeStage();
-  stage.point = () => {
+  stage.point = async () => {
     calls.push('point');
     return false;
   };
@@ -181,7 +181,7 @@ describe('stage', () => {
     expect(stage.find('select')).toBeNull();
   });
 
-  it('types and clicks through React-visible, untrusted events', () => {
+  it('types and clicks through React-visible, untrusted events', async () => {
     const root = playground();
     const stage = createStage(root, () => {});
     const input = root.querySelector('input')!;
@@ -192,7 +192,7 @@ describe('stage', () => {
     expect(onInput).toHaveReturnedWith(false);
 
     const button = root.querySelector('button')!;
-    stage.point(button);
+    await stage.point(button);
     const seen: string[] = [];
     for (const type of ['pointerdown', 'mousedown', 'mouseup', 'click'])
       button.addEventListener(type, () => seen.push(type));
@@ -200,7 +200,7 @@ describe('stage', () => {
     expect(seen).toEqual(['pointerdown', 'mousedown', 'mouseup', 'click']);
   });
 
-  it('opens the Store without its click, ringing only for a press', () => {
+  it('opens the Store without its click, ringing only for a press', async () => {
     const animate = jest.fn();
     HTMLElement.prototype.animate = animate;
     try {
@@ -210,7 +210,7 @@ describe('stage', () => {
       const toggle = root.querySelector('button')!;
       const onClick = jest.fn();
       toggle.addEventListener('click', onClick);
-      stage.point(toggle);
+      await stage.point(toggle);
       stage.store(true);
       expect(animate).not.toHaveBeenCalled();
       stage.store(false, { pressed: true });
@@ -227,7 +227,7 @@ describe('stage', () => {
     }
   });
 
-  it('says whether the pointer moved', () => {
+  it('says whether the pointer moved', async () => {
     const root = playground();
     const stage = createStage(root, () => {});
     const [one, two] = root.querySelectorAll('button');
@@ -235,26 +235,30 @@ describe('stage', () => {
       ({ left: 0, top: 0, width: 20, height: 20 }) as DOMRect;
     two.getBoundingClientRect = () =>
       ({ left: 40, top: 0, width: 20, height: 20 }) as DOMRect;
-    expect(stage.point(one)).toBe(true);
-    expect(stage.point(one)).toBe(false);
-    expect(stage.point(two)).toBe(true);
+    expect(await stage.point(one)).toBe(true);
+    expect(await stage.point(one)).toBe(false);
+    expect(await stage.point(two)).toBe(true);
     // the page scrolled under a target that stays put (a sticky Store):
     // the layer moved, so the pointer must glide back onto it
     const layer = root.lastElementChild as HTMLElement;
     layer.getBoundingClientRect = () =>
       ({ left: 0, top: -50, width: 0, height: 0 }) as DOMRect;
-    expect(stage.point(two)).toBe(true);
+    expect(await stage.point(two)).toBe(true);
   });
 
-  it('the pointer follows its target when the playground resizes', () => {
-    let resized: () => void = () => {};
-    (globalThis as any).ResizeObserver = class {
-      constructor(callback: () => void) {
-        resized = callback;
-      }
-
-      observe() {}
-      disconnect() {}
+  it('the pointer follows its target as it moves, until the run ends', async () => {
+    let next: FrameRequestCallback | undefined;
+    const raf = jest
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation(callback => {
+        next = callback;
+        return 1;
+      });
+    const caf = jest.spyOn(window, 'cancelAnimationFrame');
+    const frame = () => {
+      const callback = next!;
+      next = undefined;
+      callback(0);
     };
     try {
       const root = playground();
@@ -263,19 +267,29 @@ describe('stage', () => {
       let top = 100;
       button.getBoundingClientRect = () =>
         ({ left: 0, top, width: 20, height: 20 }) as DOMRect;
-      stage.point(button);
+      await stage.point(button);
       const pointer = root.querySelector<HTMLElement>('svg')!.parentElement!;
       expect(pointer.style.transform).toBe('translate(10px, 110px)');
       top = 400;
-      resized();
+      frame();
       expect(pointer.style.transform).toBe('translate(10px, 410px)');
+      // the press lands where the pointer is
+      top = 500;
+      const onDown = jest.fn((e: MouseEvent) => e.clientY);
+      button.addEventListener('pointerdown', onDown);
+      stage.click(button);
+      expect(onDown).toHaveReturnedWith(510);
+      expect(pointer.style.transform).toBe('translate(10px, 510px)');
       // a render took it away: the pointer stays where it was
       button.remove();
       top = 0;
-      resized();
-      expect(pointer.style.transform).toBe('translate(10px, 410px)');
+      frame();
+      expect(pointer.style.transform).toBe('translate(10px, 510px)');
+      stage.end();
+      expect(caf).toHaveBeenCalledWith(1);
     } finally {
-      delete (globalThis as any).ResizeObserver;
+      raf.mockRestore();
+      caf.mockRestore();
     }
   });
 
@@ -295,6 +309,25 @@ describe('stage', () => {
     }
     // under the navbar (30) and below the viewport (900), not in view (100)
     expect(scrolled).toHaveBeenCalledTimes(2);
+  });
+
+  it('moves the pointer once the page stops scrolling', async () => {
+    const root = playground();
+    const stage = createStage(root, () => {});
+    const button = root.querySelector('button')!;
+    button.scrollIntoView = () => {};
+    let top = 900;
+    button.getBoundingClientRect = () =>
+      ({ left: 0, top, bottom: top + 20, width: 20, height: 20 }) as DOMRect;
+    const pointed = stage.point(button);
+    await Promise.resolve();
+    expect(root.querySelector('svg')).toBeNull();
+    // the scroll carried a sticky target elsewhere than it measured first
+    top = 300;
+    window.dispatchEvent(new Event('scrollend'));
+    expect(await pointed).toBe(true);
+    const pointer = root.querySelector<HTMLElement>('svg')!.parentElement!;
+    expect(pointer.style.transform).toBe('translate(10px, 310px)');
   });
 
   it('end() takes its layer away', () => {

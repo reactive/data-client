@@ -26,6 +26,7 @@
 }
 .pointer svg {
   display: block;
+  overflow: visible;
   fill: #fff;
   stroke: #1c1e21;
   stroke-width: 1.5;

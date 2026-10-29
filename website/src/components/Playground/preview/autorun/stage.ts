@@ -51,16 +51,17 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
     if (typeof pointer?.animate === 'function' && !prefersReducedMotion())
       pointer.animate(PRESS, PRESS_TIMING);
   };
-  // the layer sits at the playground's foot, so content growing above it
-  // (the Store opening) moves the pointer's origin: follow the target,
-  // unless a render took it away (it would measure at the viewport's corner)
-  const resized =
-    typeof ResizeObserver === 'function' ?
-      new ResizeObserver(() => {
-        if (pointedAt?.isConnected && visible(pointedAt)) place(pointedAt);
-      })
-    : undefined;
-  resized?.observe(root);
+  // the target can move under a pointer already on it: content growing
+  // above the layer (the Store opening), a sticky Store header as the page
+  // scrolls, a scroller still gliding to it. Follow it every frame until the
+  // run ends, unless a render took it away (it would measure at the
+  // viewport's corner)
+  let frame = 0;
+  let ended = false;
+  const follow = () => {
+    if (pointedAt?.isConnected && visible(pointedAt)) place(pointedAt);
+    frame = requestAnimationFrame(follow);
+  };
 
   return {
     find(target) {
@@ -86,15 +87,22 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
       return null;
     },
 
-    point(el) {
+    async point(el) {
       // root only bounds the walk: the scrollers inside it do the moving
       revealIn(root, el);
-      revealOnPage(el);
+      // glide once the page holds still: a sticky target (the Store's
+      // header) moves against the page as it scrolls
+      if (revealOnPage(el)) await scrolled();
+      if (ended) return false;
+      if (!pointedAt && typeof requestAnimationFrame === 'function')
+        frame = requestAnimationFrame(follow);
       pointedAt = el;
       return place(el);
     },
 
     click(el) {
+      // onto where it is now, which the press reports
+      if (el === pointedAt) place(el);
       ring();
       const init = {
         bubbles: true,
@@ -136,7 +144,8 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
     },
 
     end() {
-      resized?.disconnect();
+      ended = true;
+      if (frame) cancelAnimationFrame(frame);
       layer.dataset.ended = '';
       setTimeout(() => layer.remove(), END_MS);
     },
@@ -170,23 +179,41 @@ function scopeOf(root: HTMLElement, scope: Scope) {
  * opens above the preview on a phone; replay brings the preview back), clear
  * of the sticky navbar. Past both edges, it already fills the view, so it
  * stays put. The pointer is placed relative to the page, so it scrolls
- * along. */
+ * along. True when it scrolls. */
 export function revealOnPage(el: HTMLElement) {
   const navbar = document.querySelector('.navbar')?.getBoundingClientRect();
   const { top, bottom } = el.getBoundingClientRect();
   // a navbar hidden on scroll reports a bottom above the viewport
   const above = top < Math.max(0, navbar?.bottom ?? 0);
   const below = bottom > innerHeight;
-  if (above !== below)
-    el.scrollIntoView({
-      block: 'center',
-      behavior: prefersReducedMotion() ? 'instant' : 'smooth',
-    });
+  if (above === below) return false;
+  el.scrollIntoView({
+    block: 'center',
+    behavior: prefersReducedMotion() ? 'instant' : 'smooth',
+  });
+  return true;
 }
+
+/** Resolves when the page's scroll ends, or after `SCROLL_MS` where
+ * `scrollend` never comes (older Safari, or a scroll that didn't move) */
+function scrolled() {
+  return new Promise<void>(resolve => {
+    const done = () => {
+      clearTimeout(timeout);
+      removeEventListener('scrollend', done);
+      resolve();
+    };
+    const timeout = setTimeout(done, SCROLL_MS);
+    addEventListener('scrollend', done);
+  });
+}
+/** ms: the longest a smooth page scroll takes */
+const SCROLL_MS = 1000;
 
 // jsdom lacks checkVisibility
 const visible = (el: HTMLElement) => el.checkVisibility?.() ?? true;
 
-/** An arrow pointer, its tip at the SVG's top left (placed on the target) */
+/** An arrow pointer, its tip at the SVG's top left (placed on the target);
+ * its outline spills past the box (`overflow: visible`) */
 const POINTER_SVG =
-  '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 2l17 10.5-7.4 1.4L9 21z" /></svg>';
+  '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M0 0l17 10.5-7.4 1.4L6 19z" /></svg>';
