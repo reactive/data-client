@@ -154,7 +154,7 @@ export function useReorderItem(
   key: unknown,
   options: ItemOptions = {},
 ): RefCallback<HTMLElement> {
-  const reorder = useContext(ReorderContext);
+  const list = useContext(ReorderContext);
   const latest = useRef(options);
   // runs before a drop could read it
   useLayoutEffect(() => {
@@ -164,9 +164,9 @@ export function useReorderItem(
   const group = options.dropValue !== undefined;
   return useCallback(
     (el: HTMLElement | null) => {
-      if (el && reorder) return reorder.add(key, el, latest, { drags, group });
+      if (el && list) return list.add(key, el, latest, { drags, group });
     },
-    [reorder, key, drags, group],
+    [list, key, drags, group],
   );
 }
 

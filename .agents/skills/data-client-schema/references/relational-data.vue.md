@@ -205,7 +205,7 @@ export const TodoResource = resource({
 <template>
   <section>
     <h3>
-      <Avatar :src="owner.profileImage" :size="20" />
+      <Avatar :src="owner.profileImage" />
       {{ owner.name }}
     </h3>
     <div class="list">

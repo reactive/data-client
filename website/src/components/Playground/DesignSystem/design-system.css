@@ -80,18 +80,27 @@ div.playground-preview h1:first-child {
 .playground-preview section > h3:has(+ .list) {
   color: var(--ds-text);
 }
-/* a person's group: their avatar beside the label, and a line dropping
-   from the avatar's center down beside their rows, which sit under the
-   name (past the 20px avatar) */
+/* a person's group: their avatar beside the label, sized to it, and a
+   line dropping from the avatar's center down beside their rows, which sit
+   under the name */
+.playground-preview section:has(> h3 > .avatar) {
+  --face: 20px;
+}
 .playground-preview section > h3:has(> .avatar) {
   display: flex;
   align-items: center;
   gap: var(--ds-space-2);
 }
+.playground-preview section > h3 > .avatar > img {
+  width: var(--face);
+  height: var(--face);
+}
 .playground-preview section > h3:has(> .avatar) + .list {
   --rail: 1.5px;
-  margin-inline-start: calc(10px - var(--rail) / 2);
-  padding-inline-start: calc(10px - var(--rail) / 2 + var(--ds-space-2));
+  margin-inline-start: calc((var(--face) - var(--rail)) / 2);
+  padding-inline-start: calc(
+    (var(--face) - var(--rail)) / 2 + var(--ds-space-2)
+  );
   border-inline-start: var(--rail) solid var(--ds-border);
 }
 /* A value that just changed: washed in the accent and ringed by it */

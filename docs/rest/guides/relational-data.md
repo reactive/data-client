@@ -338,7 +338,7 @@ export default function TodoGroup({ owner, todos, users }: Props) {
       ref={useReorderItem(`owner ${owner.pk()}`, { dropValue: owner.id })}
     >
       <h3>
-        <Avatar src={owner.profileImage} size={20} />
+        <Avatar src={owner.profileImage} />
         {owner.name}
       </h3>
       <div className="list">
@@ -443,7 +443,7 @@ render(<TodoList />);
 <template>
   <section>
     <h3>
-      <Avatar :src="owner.profileImage" :size="20" />
+      <Avatar :src="owner.profileImage" />
       {{ owner.name }}
     </h3>
     <div class="list">
