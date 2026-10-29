@@ -21,13 +21,7 @@ export function recheckSiblingsOnChange(monaco: typeof Monaco) {
     let timer: ReturnType<typeof setTimeout> | undefined;
     model.onDidChangeContent(() => {
       clearTimeout(timer);
-      timer = setTimeout(
-        () =>
-          // a sibling disposed mid-check (its demo unmounted) fails in the
-          // worker; nothing is left to mark
-          recheckSiblings(monaco, model).catch(() => undefined),
-        SETTLE_MS,
-      );
+      timer = setTimeout(() => void recheckSiblings(monaco, model), SETTLE_MS);
     });
     model.onWillDispose(() => clearTimeout(timer));
   };
@@ -72,15 +66,25 @@ async function recheck(
   { model, version }: { model: Monaco.editor.ITextModel; version: number },
 ) {
   const fileName = model.uri.toString();
-  const diagnostics = (
-    await Promise.all([
-      noSyntaxValidation ? [] : worker.getSyntacticDiagnostics(fileName),
-      noSemanticValidation ? [] : worker.getSemanticDiagnostics(fileName),
-      noSuggestionDiagnostics ? [] : worker.getSuggestionDiagnostics(fileName),
-    ])
-  )
-    .flat()
-    .filter(({ code }) => !diagnosticCodesToIgnore.includes(code));
+  let diagnostics: Monaco.typescript.Diagnostic[];
+  try {
+    diagnostics = (
+      await Promise.all([
+        noSyntaxValidation ? [] : worker.getSyntacticDiagnostics(fileName),
+        noSemanticValidation ? [] : worker.getSemanticDiagnostics(fileName),
+        noSuggestionDiagnostics ?
+          []
+        : worker.getSuggestionDiagnostics(fileName),
+      ])
+    ).flat();
+  } catch (error) {
+    // its demo unmounted mid-check, so the worker no longer has the file
+    if (model.isDisposed()) return;
+    throw error;
+  }
+  diagnostics = diagnostics.filter(
+    ({ code }) => !diagnosticCodesToIgnore.includes(code),
+  );
   // edited meanwhile: Monaco's own check of that edit is the newer one
   if (model.isDisposed() || model.getVersionId() !== version) return;
   monaco.editor.setModelMarkers(

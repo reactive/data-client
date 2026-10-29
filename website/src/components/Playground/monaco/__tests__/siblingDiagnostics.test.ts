@@ -7,15 +7,19 @@ import { recheckSiblingsOnChange } from '../siblingDiagnostics';
 function fakeModel(path: string, language = 'typescript') {
   const changeListeners: (() => void)[] = [];
   let version = 1;
+  let disposed = false;
   return {
     uri: { path, toString: () => `file://${path}` },
     getLanguageId: () => language,
     getVersionId: () => version,
-    isDisposed: () => false,
+    isDisposed: () => disposed,
     getPositionAt: (offset: number) => ({ lineNumber: 1, column: offset + 1 }),
     onDidChangeContent: (listener: () => void) =>
       changeListeners.push(listener),
     onWillDispose: jest.fn(),
+    dispose() {
+      disposed = true;
+    },
     edit() {
       version++;
       changeListeners.forEach(listener => listener());
@@ -25,13 +29,15 @@ function fakeModel(path: string, language = 'typescript') {
 
 function fakeMonaco(
   models: ReturnType<typeof fakeModel>[],
-  { suggestions = [] as unknown[], diagnosticsOptions = {}, fail = false } = {},
+  { suggestions = [] as unknown[], diagnosticsOptions = {} } = {},
 ) {
   const markers: Record<string, unknown[]> = {};
   const checked: string[] = [];
   const worker = {
     getSyntacticDiagnostics: async () => [],
     getSemanticDiagnostics: async (fileName: string) => {
+      if (models.find(model => model.uri.toString() === fileName)?.isDisposed())
+        throw new Error('Could not find source file');
       checked.push(fileName);
       return [
         {
@@ -68,10 +74,7 @@ function fakeMonaco(
       },
     },
     typescript: {
-      getTypeScriptWorker: async () => async () => {
-        if (fail) throw new Error('Could not find source file');
-        return worker;
-      },
+      getTypeScriptWorker: async () => async () => worker,
       typescriptDefaults: { getDiagnosticsOptions: () => diagnosticsOptions },
     },
   } as unknown as typeof Monaco;
@@ -198,15 +201,24 @@ describe('recheckSiblingsOnChange', () => {
     ]);
   });
 
-  test('a failed check writes no markers and does not reject', async () => {
+  test('a sibling disposed mid-check is skipped without a rejection', async () => {
+    const rejections = jest.fn();
+    process.on('unhandledRejection', rejections);
     const api = fakeModel('/1/api.ts');
     const usage = fakeModel('/1/usage.tsx');
-    const { monaco, markers } = fakeMonaco([api, usage], { fail: true });
+    const types = fakeModel('/1/types.ts');
+    const { monaco, markers } = fakeMonaco([api, usage, types]);
     recheckSiblingsOnChange(monaco);
 
     api.edit();
+    jest.advanceTimersByTime(500);
+    usage.dispose();
     await jest.runAllTimersAsync();
+    jest.useRealTimers();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    process.off('unhandledRejection', rejections);
 
-    expect(markers).toEqual({});
+    expect(Object.keys(markers)).toEqual(['typescript /1/types.ts']);
+    expect(rejections).not.toHaveBeenCalled();
   });
 });
