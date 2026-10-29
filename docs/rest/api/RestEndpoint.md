@@ -293,7 +293,7 @@ interface TodoInterface {
   title: string;
   completed: boolean;
 }
-const getTypedTodo = new RestEndpoint({
+const getTodo = new RestEndpoint({
   path: '/',
   process(value): TodoInterface {
     return value;
@@ -301,10 +301,10 @@ const getTypedTodo = new RestEndpoint({
 });
 async () => {
   // todo is TodoInterface
-  const todo = await getTypedTodo();
+  const todo = await getTodo();
 
   const ctrl = useController();
-  const todo2 = await ctrl.fetch(getTypedTodo);
+  const todo2 = await ctrl.fetch(getTodo);
 };
 ```
 
@@ -350,6 +350,10 @@ value sent does not matter. `undefined` value can be used to 'disable' the secon
 <TypeScriptEditor>
 
 ```ts path=body.ts
+interface TodoInterface {
+  title: string;
+  completed: boolean;
+}
 export const update = new RestEndpoint({
   path: '/:id',
   method: 'PUT',
