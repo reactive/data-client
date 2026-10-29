@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793230850974,
+  "lastUpdate": 1793236054144,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -11627,6 +11627,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 181.82,
             "range": "± 6.8%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "90462bc43fce5ec31a574860a3a6cea0d212580f",
+          "message": "fix: Mocked fetches reject when already aborted; useCancelling demo polish (#4518)\n\n* docs: Show useCancelling as an inbox you skim on a slow connection\n\nThe abort guide and the useCancelling() page showed a todo pager with\n« » buttons. Its only cue was the Store, and clicking fast could leave\nit loading forever.\n\nThe demo is now an inbox. The autorun clicks down five messages. Each\nmessage is a 150 KB download over a 100 KB/s link that open downloads\nshare. Without cancelling (new first demo on the abort guide), the one\nit stops on opens about 5 s after the last click. With useCancelling(),\nit opens in about 1.5 s. The Store lists each skipped download as\ncancelled.\n\n- useCancelling(): a suspended render's retry rebuilt its memo and\n  aborted the request it was waiting on, so with slow requests the\n  component could stay suspended forever. The controller is now kept per\n  params key in a ref. Regression test included.\n- Fixtures: a fetch's AbortSignal rejects the fixture delay with an\n  AbortError. fetchResponse() interceptors can be async and read\n  init.signal.\n- Store inspector: aborted responses read \"cancelled\" instead of a red\n  error.\n- Design system: `.split` (list beside what it opens when there's room)\n  and button rows with an `aria-current` wash.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: One useCancelling demo per page, without autoplay; simplify cleanups\n\nDrops the abort guide's duplicate \"without\" demo and the autorun.\nCleanups: fixture-abort tests reuse ArticleResource and createFetch;\nslowLink removes its abort listener once a download finishes; the\nbutton-row hover and focus ring join the existing rules; Fixtures.md\nkeeps its original wrapping.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Count fetches in flight in the useCancelling demo; open message on a tinted pane\n\nPlaygrounds take `inFlight`: a header badge counting requests in\nflight, one per endpoint key from its fetch until its response or abort.\nSkimming the inbox keeps it at 1 with useCancelling(); without it, every\nskipped message piles on. The open message sits on a tinted pane, apart\nfrom the list.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Regenerate skill references for async fetchResponse\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* fix: Mocked fetches reject when already aborted; in-flight badge repaints on mount and reset\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Line the open message up with the inbox rows; count in-flight fetches per store\n\nThe reading pane bleeds as far as the rows' highlights, the badges stay on\none line, and a Reset's new store keeps its own in-flight count instead of\nthe old store's cleanup clearing it.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Line the stacked message's text up with the inbox avatars; test the in-flight badge\n\nMocked fetches also reject when aborted during an async fetchResponse that\nignores the signal.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Changeset covers aborts during an async fetchResponse\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Side by side, the open message sits as far from the inbox as from the edge\n\nBelow the wrap point the pane is forced onto its own line, so the stacked\ninset and the layout switch at the same width.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Read the sheet inset through a design-system token\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Simplify the in-flight badge's reveal\n\nKeep whether a fetch has happened as one flag instead of reading it back\nfrom the badge's hidden attribute, make the Manager's required cleanup an\nexplicit no-op, and say why the fixture checks for an abort up front.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Stacked, the open message's text sits an even inset from every edge\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: When to use useCancelling() vs useDebounce()\n\nCompares when each starts a fetch, what it sends and what it adds to the\nwait, shows them combined for a search, and fixes useDebounce()'s React\nreturn type (a [value, isPending] tuple).\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Stacked, the open message docks under the inbox\n\nA tinted band across the sheet's whole width and down to its foot, in\nplace of a card floating inside it; side by side keeps the card.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Cut useCancelling() vs useDebounce() to the rule\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Regenerate skill references for useDebounce()\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Title the section Cancel vs Debounce\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T01:03:40Z",
+          "tree_id": "5e611388f226db6cec41d97c57b60ad4b3b7aa0f",
+          "url": "https://github.com/reactive/data-client/commit/90462bc43fce5ec31a574860a3a6cea0d212580f"
+        },
+        "date": 1793236051142,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 166.67,
+            "range": "± 8.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 53.05,
+            "range": "± 4.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 344.83,
+            "range": "± 6.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 408.33,
+            "range": "± 9.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 52.26,
+            "range": "± 7.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 285.71,
+            "range": "± 8.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 317.54,
+            "range": "± 8.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 10.53,
+            "range": "± 8.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 81.97,
+            "range": "± 9.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 41.32,
+            "range": "± 6.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 256.41,
+            "range": "± 0.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 333.33,
+            "range": "± 9.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 196.08,
+            "range": "± 7.7%",
             "unit": "ops/s"
           }
         ]
