@@ -14,15 +14,21 @@ const uri = (id: string, file: string) => `file://${modelPath(id, file)}`;
 class FakeWorker {
   declare _languageService: ts.LanguageService;
   constructor(readonly files: Record<string, string>) {
+    this.models = Object.entries(files).map(([name, text]) => ({
+      uri: { toString: () => name },
+      version: 1,
+      getValue: () => text,
+    }));
     this._languageService = ts.createLanguageService(this as any);
   }
 
   _extraLibs = {};
 
   _ctx = {
-    getMirrorModels: () =>
-      Object.keys(this.files).map(uri => ({ uri: { toString: () => uri } })),
+    getMirrorModels: () => this.models,
   };
+
+  declare models: { uri: object; version: number; getValue(): string }[];
 
   getScriptFileNames = () => Object.keys(this.files);
   getScriptVersion = () => '1';
@@ -74,6 +80,16 @@ describe('surfaceWorker', () => {
     });
     expect(check('file:///original.ts')).toEqual([]);
     expect(check('file:///modified.ts')).toEqual([]);
+  });
+
+  it("keeps a playground's modules apart from other playgrounds' scripts", () => {
+    const check = surfaceWorker({
+      [uri('1', 'api.ts')]: 'const getTodo = 1;',
+      [uri('2', 'Usage.ts')]: 'export const todo = getTodo;',
+    });
+    expect(check(uri('2', 'Usage.ts'))).toEqual([
+      "Cannot find name 'getTodo'.",
+    ]);
   });
 
   it('keeps names shared within one playground', () => {

@@ -3,7 +3,9 @@ import { useMemo } from 'react';
 /**
  * Monaco models are shared page-wide, so each editor surface namespaces its
  * files as `/<numeric id>/<file path>`. Go-to-definition and import
- * completions (./navigation.ts) rely on this shape.
+ * completions (./navigation.ts) rely on this shape, and so does the TS
+ * worker's program per playground (./surfaceWorker.js, which can't import
+ * this).
  */
 const MODEL_ID_ROOT = /^\/\d+\//;
 
