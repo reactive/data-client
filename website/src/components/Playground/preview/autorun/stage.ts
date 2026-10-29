@@ -19,9 +19,9 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
   let at = { x: 0, y: 0 };
   let pointedAt: HTMLElement | undefined;
 
-  /** Moves the pointer onto `el`, the tip at its center; false when it was
-   * drawn there already (in the layer's coordinates, which scroll with the
-   * page) */
+  /** Puts the pointer's tip on `el`'s center at once (in the layer's
+   * coordinates, which scroll with the page); false when it was there
+   * already */
   const place = (el: HTMLElement) => {
     const box = el.getBoundingClientRect();
     const origin = layer.getBoundingClientRect();
@@ -29,38 +29,63 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
       x: box.left + box.width / 2,
       y: box.top + box.height / 2,
     };
-    const first = !pointer;
     if (!pointer) {
       pointer = document.createElement('div');
       pointer.className = styles.pointer;
       pointer.innerHTML = POINTER_SVG;
       layer.append(pointer);
-    }
-    const previous = pointer.style.transform;
-    pointer.style.transform = `translate(${at.x - origin.left}px, ${at.y - origin.top}px)`;
-    // the first point fades in where it is, then glides from there
-    if (first) {
+      // the first point fades in where it is
       void pointer.offsetWidth;
       pointer.dataset.shown = '';
     }
-    return first || pointer.style.transform !== previous;
+    const previous = pointer.style.translate;
+    pointer.style.translate = `${at.x - origin.left}px ${at.y - origin.top}px`;
+    return pointer.style.translate !== previous;
   };
-  /** A press: a ring spreads from the tip (none without Web Animations,
-   * e.g. jsdom) */
+  let gliding: Animation | undefined;
+  /** Moves the pointer onto `el`: placed there at once, then animated in from
+   * where it was drawn by the difference, so it lands on the target however
+   * the target moves meanwhile */
+  const glide = (el: HTMLElement) => {
+    const from = pointer?.getBoundingClientRect();
+    const moved = place(el);
+    // a move starts a new glide from where the old one has drawn it; one
+    // already heading there runs on
+    if (moved) gliding?.cancel();
+    if (from && moved && canAnimate()) {
+      const to = pointer!.getBoundingClientRect();
+      gliding = pointer!.animate(
+        [
+          {
+            transform: `translate(${from.left - to.left}px, ${from.top - to.top}px)`,
+          },
+          { transform: 'none' },
+        ],
+        springEasing(springs.smooth),
+      );
+    }
+    return moved;
+  };
+  const canAnimate = () =>
+    typeof pointer?.animate === 'function' && !prefersReducedMotion();
+  /** A press: a ring spreads from the tip */
   const ring = () => {
-    if (typeof pointer?.animate === 'function' && !prefersReducedMotion())
-      pointer.animate(PRESS, PRESS_TIMING);
+    if (canAnimate()) pointer!.animate(PRESS, PRESS_TIMING);
   };
-  // the layer sits at the playground's foot, so content growing above it
-  // (the Store opening) moves the pointer's origin: follow the target,
-  // unless a render took it away (it would measure at the viewport's corner)
+  // the target can move under the pointer: content growing above the layer
+  // (the Store opening), a sticky Store header as the page scrolls, a
+  // scroller gliding to it. Follow it, unless a render took it away (it would
+  // measure at the viewport's corner)
+  const follow = () => {
+    if (pointedAt && followable(pointedAt)) place(pointedAt);
+  };
   const resized =
     typeof ResizeObserver === 'function' ?
-      new ResizeObserver(() => {
-        if (pointedAt?.isConnected && visible(pointedAt)) place(pointedAt);
-      })
+      new ResizeObserver(follow)
     : undefined;
   resized?.observe(root);
+  const scrolled = { capture: true, passive: true };
+  document.addEventListener('scroll', follow, scrolled);
 
   return {
     find(target) {
@@ -91,10 +116,18 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
       revealIn(root, el);
       revealOnPage(el);
       pointedAt = el;
-      return place(el);
+      return glide(el);
     },
 
     click(el) {
+      // the press lands where the pointer is drawn, not where it's heading
+      gliding?.cancel();
+      // onto where it is now (it may have moved with no scroll or resize),
+      // which the press reports; not onto a target gone from view
+      if (followable(el)) {
+        pointedAt = el;
+        place(el);
+      }
       ring();
       const init = {
         bubbles: true,
@@ -137,6 +170,7 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
 
     end() {
       resized?.disconnect();
+      document.removeEventListener('scroll', follow, scrolled);
       layer.dataset.ended = '';
       setTimeout(() => layer.remove(), END_MS);
     },
@@ -186,7 +220,11 @@ export function revealOnPage(el: HTMLElement) {
 
 // jsdom lacks checkVisibility
 const visible = (el: HTMLElement) => el.checkVisibility?.() ?? true;
+/** Still shown: a removed or hidden element measures at the viewport's
+ * corner */
+const followable = (el: HTMLElement) => el.isConnected && visible(el);
 
-/** An arrow pointer, its tip at the SVG's top left (placed on the target) */
+/** An arrow pointer, its tip at the SVG's top left (placed on the target);
+ * its outline spills past the box (`overflow: visible`) */
 const POINTER_SVG =
-  '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 2l17 10.5-7.4 1.4L9 21z" /></svg>';
+  '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M0 0l17 10.5-7.4 1.4L6 19z" /></svg>';

@@ -246,7 +246,51 @@ describe('stage', () => {
     expect(stage.point(two)).toBe(true);
   });
 
-  it('the pointer follows its target when the playground resizes', () => {
+  it('glides from where the pointer was drawn, after placing it', () => {
+    const animate = jest.fn();
+    HTMLElement.prototype.animate = animate;
+    try {
+      const root = playground();
+      const stage = createStage(root, () => {});
+      const [one, two] = root.querySelectorAll('button');
+      one.getBoundingClientRect = () =>
+        ({ left: 0, top: 0, width: 20, height: 20 }) as DOMRect;
+      two.getBoundingClientRect = () =>
+        ({ left: 40, top: 0, width: 20, height: 20 }) as DOMRect;
+      // the first point appears in place
+      stage.point(one);
+      expect(animate).not.toHaveBeenCalled();
+      const pointer = root.querySelector<HTMLElement>('svg')!.parentElement!;
+      // drawn where its translate puts it (jsdom has no layout)
+      pointer.getBoundingClientRect = () => {
+        const [x, y] = pointer.style.translate.split(' ').map(parseFloat);
+        return { left: x, top: y } as DOMRect;
+      };
+      const cancel = jest.fn();
+      animate.mockReturnValue({ cancel });
+      stage.point(two);
+      expect(pointer.style.translate).toBe('50px 10px');
+      expect(animate.mock.calls[0][0]).toEqual([
+        { transform: 'translate(-40px, 0px)' },
+        { transform: 'none' },
+      ]);
+      // a press mid-glide lands the pointer where it presses
+      stage.click(two);
+      expect(cancel).toHaveBeenCalled();
+      // not onto a target a render took away
+      two.remove();
+      two.getBoundingClientRect = () =>
+        ({ left: 0, top: 0, width: 0, height: 0 }) as DOMRect;
+      cancel.mockClear();
+      stage.click(two);
+      expect(cancel).toHaveBeenCalled();
+      expect(pointer.style.translate).toBe('50px 10px');
+    } finally {
+      delete (HTMLElement.prototype as any).animate;
+    }
+  });
+
+  it('the pointer follows its target as the playground resizes or scrolls', () => {
     let resized: () => void = () => {};
     (globalThis as any).ResizeObserver = class {
       constructor(callback: () => void) {
@@ -265,15 +309,34 @@ describe('stage', () => {
         ({ left: 0, top, width: 20, height: 20 }) as DOMRect;
       stage.point(button);
       const pointer = root.querySelector<HTMLElement>('svg')!.parentElement!;
-      expect(pointer.style.transform).toBe('translate(10px, 110px)');
+      expect(pointer.style.translate).toBe('10px 110px');
       top = 400;
       resized();
-      expect(pointer.style.transform).toBe('translate(10px, 410px)');
+      expect(pointer.style.translate).toBe('10px 410px');
+      // a sticky target, as an inner scroller moves
+      top = 300;
+      root.dispatchEvent(new Event('scroll'));
+      expect(pointer.style.translate).toBe('10px 310px');
+      // it moved with no scroll or resize: the press finds it
+      top = 350;
+      const onDown = jest.fn((e: MouseEvent) => e.clientY);
+      button.addEventListener('pointerdown', onDown);
+      stage.click(button);
+      expect(onDown).toHaveReturnedWith(360);
+      expect(pointer.style.translate).toBe('10px 360px');
+      top = 300;
+      resized();
       // a render took it away: the pointer stays where it was
       button.remove();
       top = 0;
       resized();
-      expect(pointer.style.transform).toBe('translate(10px, 410px)');
+      expect(pointer.style.translate).toBe('10px 310px');
+      // the run is over: it stops following
+      stage.end();
+      document.body.append(button);
+      top = 50;
+      document.dispatchEvent(new Event('scroll'));
+      expect(pointer.style.translate).toBe('10px 310px');
     } finally {
       delete (globalThis as any).ResizeObserver;
     }
