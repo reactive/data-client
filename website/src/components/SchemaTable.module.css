@@ -114,6 +114,7 @@
   }
   .schemaTable tr {
     display: grid;
+    /* each row is its own grid; fixed mark columns line up with their headers */
     grid-template-columns: minmax(0, 1fr) 4rem 5rem;
     align-items: start;
   }
@@ -156,9 +157,14 @@
     grid-area: 2 / 2;
     text-align: center;
   }
+  /* no right padding: the name can run up to the centered marks. Below a
+   * ~286px doc column the longest names break rather than run under them */
   .schemaTable td:nth-last-child(3) {
     grid-area: 2 / 1;
     padding-top: 0.5rem;
+    padding-right: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
   .schemaTable td:nth-last-child(2) {
     grid-area: 3 / 1 / 4 / 3;
@@ -185,5 +191,12 @@
   .schemaTable tbody tr:has(+ tr td[rowspan]),
   .schemaTable tbody tr:last-child {
     padding-bottom: 0.6rem;
+  }
+  /* the longest names (Invalidate(Entity)) need ~307px at 14px; at 12px they
+   * fit down to ~286px, the doc column of a 320px phone being 288px */
+  @container doc (max-width: 306px) {
+    .schemaTable td:nth-last-child(3) {
+      font-size: 0.75rem;
+    }
   }
 }
