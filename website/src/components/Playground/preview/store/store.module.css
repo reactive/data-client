@@ -232,7 +232,8 @@
   display: flex;
   flex-direction: column;
 }
-/* a row's ▸: its actions, without opening it */
+/* a row's ▸: its actions, without opening it. It takes the row's whole
+   left gutter, full height, so the rest of the row opens the action */
 .stepsToggle {
   flex: none;
   width: 1rem;
@@ -243,9 +244,33 @@
   color: var(--store-dim);
   font: inherit;
   cursor: pointer;
+}
+.stepsToggle::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 1.7rem;
+}
+.stepsToggle:focus-visible {
+  outline: none;
+}
+.stepsToggle:focus-visible::before {
+  outline: 2px solid var(--store-key);
+  outline-offset: -2px;
+}
+@media (hover: hover) {
+  .stepsToggle:hover {
+    color: var(--store-fg);
+  }
+  .stepsToggle:hover::before {
+    background: var(--store-hover);
+  }
+}
+.stepsArrow {
+  display: inline-block;
   transition: transform var(--motion-snappy);
 }
-.stepsToggle[aria-expanded='true'] {
+.stepsToggle[aria-expanded='true'] > .stepsArrow {
   transform: rotate(90deg);
 }
 /* the list scrolls on its own, following the newest while live */
@@ -569,7 +594,8 @@ div.row[data-change='removed'] {
   background: var(--store-selected);
 }
 @media (hover: hover) {
-  .row:not(.inertRow):hover,
+  /* over an action row's ▸ gutter, only the gutter lights up */
+  .row:not(.inertRow, :has(.stepsToggle:hover)):hover,
   .row:not(.inertRow):hover > td,
   .groupHeader:hover {
     background-color: var(--store-hover);
@@ -1064,10 +1090,15 @@ div.row[data-change='removed'] {
   background: var(--store-record);
 }
 div.actRow {
+  position: relative;
   flex-direction: column;
   align-items: stretch;
   gap: 0.1rem;
   padding: 0.35rem 0.75rem;
+}
+/* the summary hangs under the headline, clear of the ▸'s gutter */
+.actRow[data-steps] > .actSum {
+  padding-left: 1.2rem;
 }
 /* where actions the log dropped changed the record */
 div.gapRow {
