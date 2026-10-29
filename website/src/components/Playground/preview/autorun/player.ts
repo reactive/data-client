@@ -7,7 +7,7 @@ export interface Stage {
   find(target: Target): HTMLElement | null;
   /** Brings `el` into view and moves the pointer onto it; false when it
    * was there already (a repeated click), so there's no glide to wait out */
-  point(el: HTMLElement): Promise<boolean>;
+  point(el: HTMLElement): boolean;
   click(el: HTMLElement): void;
   append(el: HTMLElement, text: string): void;
   /** Opens or closes the Store, in `view` if given; `pressed`: the pointer
@@ -96,7 +96,7 @@ async function perform(
     // onto the Store's toggle first, as a reader would; where the layout
     // shows one
     const toggle = stage.find(STORE_TOGGLE);
-    if (toggle && (await stage.point(toggle))) await sleep(MOVE_MS);
+    if (toggle && stage.point(toggle)) await sleep(MOVE_MS);
     return stage.store(step.store === 'open', {
       pressed: !!toggle,
       view: step.view,
@@ -113,7 +113,7 @@ async function perform(
     throw new Error(`nothing matches ${JSON.stringify(target)}`);
   };
   const target = 'click' in step ? step.click : step.type;
-  if (await stage.point(await find(target))) await sleep(MOVE_MS);
+  if (stage.point(await find(target))) await sleep(MOVE_MS);
   if ('click' in step) return stage.click(await find(target));
   for (const char of step.text) {
     stage.append(await find(target), char);

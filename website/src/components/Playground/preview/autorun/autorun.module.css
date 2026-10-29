@@ -17,9 +17,8 @@
   top: 0;
   left: 0;
   opacity: 0;
-  transition:
-    transform var(--motion-smooth),
-    opacity var(--motion-snappy);
+  /* placed by `translate`, glided by a transform animation (stage.ts) */
+  transition: opacity var(--motion-snappy);
 }
 .pointer[data-shown] {
   opacity: 1;
