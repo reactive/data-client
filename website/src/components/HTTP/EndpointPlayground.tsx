@@ -20,8 +20,9 @@ import playgroundstyles from '../Playground/styles.module.css';
  *
  * Live, the code runs as it is edited: the request is what its endpoints
  * send, the response what `fixtures` answer (no fixtures: the request alone).
- * Until every demo is live, `input` and `init` show a fixed request instead,
- * with `status` and `response` its response. */
+ * Until the translations (website/i18n) catch up with the live docs, their
+ * `input` and `init` show a fixed request instead, with `status` and
+ * `response` its response. */
 export default function EndpointPlayground(props: Props) {
   const model = useCodeDocuments(props.children);
   // in a hidden tab (PlaygroundTabs) the code is plain text until first shown
