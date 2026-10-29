@@ -294,8 +294,6 @@ Writing a script:
 - Declare it as a module-level `export const` (like `raceDemo` in
   `docs/rest/shared/_optimisticTransform.mdx`): once-per-page is keyed by
   array identity, so an inline array replays on every framework switch.
-- A `select` step picks an option by value; the browser's menu never shows,
-  so the pointer and its press mark the change.
 - Target Store UI with `in: 'store'`. Match `aria-label`s and `data-*`
   attributes, not visible text that copy edits change.
 - The Store opens in the reader's saved view; a script that needs one names

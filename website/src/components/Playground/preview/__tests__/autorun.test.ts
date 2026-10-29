@@ -28,7 +28,6 @@ function fakeStage(
     },
     click: () => void calls.push('click'),
     append: (_, text) => void calls.push(`append ${text}`),
-    pick: (_, value) => void calls.push(`pick ${value}`),
     store: (open, { pressed, view } = {}) =>
       void calls.push(
         `store ${open}${pressed ? ' pressed' : ''}${view ? ` ${view}` : ''}`,
@@ -61,20 +60,6 @@ it('plays steps in order, at their times', async () => {
   await done;
   expect(calls.slice(3)).toEqual(['store true', 'point', 'click', 'end']);
   expect(player.getState()).toBe('done');
-});
-
-it('glides onto a select, then picks its option', async () => {
-  const player = createPlayer();
-  const { stage, calls } = fakeStage();
-  const done = player.play(
-    [{ delay: 20, select: 'select', value: '2' }],
-    stage,
-  );
-  await jest.advanceTimersByTimeAsync(20);
-  expect(calls).toEqual(['point']);
-  await jest.advanceTimersByTimeAsync(MOVE_MS);
-  await done;
-  expect(calls).toEqual(['point', 'pick 2', 'end']);
 });
 
 it("clicks again without a glide when the pointer hasn't moved", async () => {
@@ -173,7 +158,6 @@ describe('stage', () => {
     root.innerHTML = `
       <div class="playground-preview">
         <span><input value="Ann" /><label>Name</label></span>
-        <select><option value="1">Ann</option><option value="2">Bo</option></select>
         <button>One</button><button>Two</button>
       </div>
       <div data-store-panel><button>Two</button></div>`;
@@ -194,7 +178,7 @@ describe('stage', () => {
     expect(stage.find({ selector: 'button', hasText: 'Two' })).toBe(previewTwo);
     expect(stage.find({ in: 'store', selector: 'button' })).toBe(storeTwo);
     expect(stage.find({ label: 'Name' })).toBe(root.querySelector('input'));
-    expect(stage.find('textarea')).toBeNull();
+    expect(stage.find('select')).toBeNull();
   });
 
   it('types and clicks through React-visible, untrusted events', () => {
@@ -214,14 +198,6 @@ describe('stage', () => {
       button.addEventListener(type, () => seen.push(type));
     stage.click(button);
     expect(seen).toEqual(['pointerdown', 'mousedown', 'mouseup', 'click']);
-
-    const select = root.querySelector('select')!;
-    const onChange = jest.fn(
-      (e: Event) => (e.target as HTMLSelectElement).value,
-    );
-    select.addEventListener('change', onChange);
-    stage.pick(select, '2');
-    expect(onChange).toHaveReturnedWith('2');
   });
 
   it('opens the Store without its click, ringing only for a press', () => {

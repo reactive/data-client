@@ -10,8 +10,6 @@ export interface Stage {
   point(el: HTMLElement): boolean;
   click(el: HTMLElement): void;
   append(el: HTMLElement, text: string): void;
-  /** Chooses `value` in a `select` */
-  pick(el: HTMLElement, value: string): void;
   /** Opens or closes the Store, in `view` if given; `pressed`: the pointer
    * is on the Store's toggle, so the stage shows a press there */
   store(open: boolean, options?: { pressed?: boolean; view?: StoreView }): void;
@@ -114,13 +112,9 @@ async function perform(
     }
     throw new Error(`nothing matches ${JSON.stringify(target)}`);
   };
-  const target =
-    'click' in step ? step.click
-    : 'select' in step ? step.select
-    : step.type;
+  const target = 'click' in step ? step.click : step.type;
   if (stage.point(await find(target))) await sleep(MOVE_MS);
   if ('click' in step) return stage.click(await find(target));
-  if ('select' in step) return stage.pick(await find(target), step.value);
   for (const char of step.text) {
     stage.append(await find(target), char);
     await sleep(KEY_MS);

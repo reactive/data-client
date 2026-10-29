@@ -14,10 +14,6 @@ export type Step =
         | { click: Target }
         /** Appends `text` to an input, a character at a time */
         | { type: Target; text: string }
-        /** Picks the option whose value is `value` in a `select`, as a
-         * reader choosing it from the menu would (the menu itself, the
-         * browser's, never shows) */
-        | { select: Target; value: string }
         /** Opens or closes the Store, without changing the reader's own
          * choice; `view` shows it in the table or tree view, also unsaved,
          * for a script whose targets only one of them shows */

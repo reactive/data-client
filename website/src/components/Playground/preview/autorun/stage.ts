@@ -129,19 +129,6 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
       input.dispatchEvent(new Event('input', { bubbles: true }));
     },
 
-    pick(el, value) {
-      if (!(el instanceof HTMLSelectElement))
-        throw new Error(
-          `a select step needs a <select>, not <${el.localName}>`,
-        );
-      ring();
-      // React reads a select's value on its change event (no value tracker,
-      // unlike an input)
-      el.value = value;
-      el.dispatchEvent(new Event('input', { bubbles: true }));
-      el.dispatchEvent(new Event('change', { bubbles: true }));
-    },
-
     store(open, { pressed, view } = {}) {
       if (pressed) ring();
       // not the toggle's own click, which would save the reader's choice

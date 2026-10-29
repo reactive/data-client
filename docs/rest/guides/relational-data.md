@@ -9,19 +9,6 @@ import { Collection, RestEndpoint } from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
 import { assigneeFixtures, getInitialInterceptorData } from '@site/src/fixtures/assignees';
 
-export const joinDemo = [
-  // each reassignment sends only a userId; the row moves to its new owner
-  {
-    delay: 1500,
-    select: 'select[aria-label="Owner of Onboarding demo"]',
-    value: '3',
-  },
-  { wait: 1200 },
-  { select: 'select[aria-label="Owner of Sprint planning"]', value: '4' },
-  { wait: 1200 },
-  { select: 'select[aria-label="Owner of API changelog"]', value: '1' },
-];
-
 # Relational data
 
 Reactive Data Client handles one-to-one, many-to-one and many-to-many relationships on [entities][1]
@@ -238,7 +225,6 @@ to that person's group.
 row
 fixtures={assigneeFixtures}
 getInitialInterceptorData={getInitialInterceptorData}
-autoRun={joinDemo}
 >
 
 ```ts title="resources/User" collapsed
