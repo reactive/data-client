@@ -218,8 +218,8 @@ the relationship in [Entity.schema](../api/Entity.md#schema).
 Here `/todos` only sends each todo's `userId`. [Entity.process()](../api/Entity.md#process) points
 `user` at that id, so every todo in the list carries its whole `User` from `/users`. A component
 could look up one user by id itself; joining puts the user in the list, so the list can group by
-person. Assign a task to someone else, and only its new `userId` goes to the server, yet it moves
-to that person's group.
+person. Assign a task to someone else (pick their face, or drag the task into their group), and
+only its new `userId` goes to the server, yet it moves to that person's group.
 
 <FrameworkPlayground
 row
@@ -287,7 +287,13 @@ function TodoItem({ todo, users }: Props) {
   const update = (body: Partial<Todo>) =>
     ctrl.fetch(TodoResource.partialUpdate, { id: todo.id }, body);
   return (
-    <div className="listItem" ref={useReorderItem(todo.pk())}>
+    <div
+      className="listItem"
+      // dragged into a person's group, the todo is theirs
+      ref={useReorderItem(todo.pk(), {
+        onDrop: (userId: number) => update({ userId }),
+      })}
+    >
       <label>
         <input
           type="checkbox"
@@ -328,7 +334,11 @@ import type { User } from './resources/User';
 
 export default function TodoGroup({ owner, todos, users }: Props) {
   return (
-    <section ref={useReorderItem(`owner ${owner?.pk()}`)}>
+    <section
+      ref={useReorderItem(`owner ${owner?.pk()}`, {
+        dropValue: owner?.id,
+      })}
+    >
       <h3>
         {owner && <Avatar src={owner.profileImage} size={20} />}
         {owner?.name ?? 'Unassigned'}

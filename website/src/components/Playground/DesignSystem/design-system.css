@@ -203,23 +203,56 @@ div.playground-preview h1:first-child {
   border-radius: var(--ds-radius-sm);
   transition: background-color var(--motion-snappy);
 }
-/* an item crossing the others (`<Reorder>` moving a row or a group) is
-   lifted over them on the sheet's own color while it glides, so their text
-   never overprints; a row is raised visibly */
-.playground-preview [data-traveling] {
+/* an item crossing the others (`<Reorder>` moving a row or a group) or
+   carried by the reader is lifted over them on the sheet's own color, so
+   their text never overprints; a row is raised visibly. The surface is
+   opaque at once (only the shadow eases in), or the text it crosses would
+   show through it */
+.playground-preview :is([data-traveling], [data-dragging]) {
   position: relative;
   z-index: 1;
   background: var(--ds-surface);
 }
-.playground-preview .listItem[data-traveling] {
+.playground-preview .listItem:is([data-traveling], [data-dragging]) {
   background: var(--ds-raised);
   box-shadow: var(--ds-raised-shadow);
+  transition: box-shadow var(--motion-snappy);
+}
+/* A row the reader can drag into another group (`useReorderItem` with
+   `onDrop`): a held finger lifts it rather than selecting its text */
+.playground-preview [data-draggable] {
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.playground-preview :is([data-dragging], [data-dragging] *) {
+  cursor: grabbing;
+}
+/* While a row is carried, the groups it can go to are outlined, and the one
+   under it fills whole: the row drops into the group, wherever the group's
+   order puts it, not at a spot in it */
+.playground-preview [data-drop-target] {
+  border-radius: var(--ds-radius-sm);
+  outline: 1.5px dashed var(--ds-border);
+  outline-offset: var(--ds-space-2);
+  transition:
+    background-color var(--motion-snappy),
+    box-shadow var(--motion-snappy),
+    outline-color var(--motion-snappy);
+}
+.playground-preview [data-drop-over] {
+  outline: 2px solid var(--ds-accent);
+  background: var(--ds-accent-soft);
+  /* the fill reaches the outline */
+  box-shadow: 0 0 0 var(--ds-space-2) var(--ds-accent-soft);
 }
 /* touch screens skip it: a tapped row would stay lit */
 @media (hover: hover) {
   .playground-preview
     .list
-    > .listItem:is(:has(> label), button):hover:not([data-traveling]) {
+    > .listItem:is(:has(> label), button):hover:not(
+      [data-traveling],
+      [data-dragging]
+    ) {
     background: var(--ds-hover);
   }
 }

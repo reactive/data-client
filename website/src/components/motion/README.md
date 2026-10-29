@@ -80,6 +80,15 @@ as far as the farthest) carry `data-traveling` until they land, for a style that
 (`position: relative`, a `z-index`, a background). Use `MotionGroup` where things open and close in
 place, `Reorder` where items change places.
 
+**Dragging into groups**: `useReorderItem(id, { onDrop })` lets the reader
+drag an item, and `useReorderItem(key, { dropValue })` makes an item a group
+to drop it in; `onDrop` gets that group's `dropValue`, and the list's change
+glides the item on from where it was let go. A mouse lifts it once it moves,
+a finger after a short still hold (a swipe still scrolls); presses on its
+controls stay theirs, and Escape puts it back. While carried it is
+`data-dragging`, the groups it can go to `data-drop-target` and the one under
+it `data-drop-over`. A drop lands in the group, not at a place in it.
+
 `Reveal` follows the flex direction, so a panel that slides in sideways on
 desktop rises from the bottom when a container query stacks it. It slides
 over its siblings, and its contents fill it: clip it with `overflow: hidden`
@@ -122,8 +131,9 @@ glide.ts          runs and retargets one element's translate (Web Animations)
 MotionGroup.tsx   measures before/after a commit; drives members; useLayoutMotion
 Reveal.tsx        presence: mount, slide in, slide out, hide (state kept)
 reorder.ts        lists that rearrange, DOM only: measure, then glide items by key
+drag.ts           carrying an element under the pointer, DOM only
 Reorder.tsx       its React binding: measures when layoutDependency changes;
-                  useReorderItem
+                  useReorderItem; drag into groups
 ```
 
 Tests: `yarn test --selectProjects ReactDOM --testPathPatterns website/src/components/motion`
