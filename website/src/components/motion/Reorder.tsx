@@ -52,11 +52,13 @@ interface Props {
 export default class Reorder extends Component<Props> {
   private items = new Map<unknown, HTMLElement>();
   private groups = new Map<HTMLElement, OptionsRef>();
-  /** Items let go in another group, held where they were dropped until the
-   * list changes; each by its latest drop */
-  private dropped = new Map<HTMLElement, object>();
-  /** Keys of the items those are, which settle on `springs.drop` */
-  private landing = new Map<unknown, Spring>();
+  /** Items let go in another group, by key: held where they were dropped
+   * until the list changes, then settling on `springs.drop`; `done` is what
+   * their latest drop set off */
+  private held = new Map<
+    unknown,
+    { el: HTMLElement; done: Promise<unknown> }
+  >();
 
   getSnapshotBeforeUpdate(prev: Props): Positions | null {
     if (!this.changed(prev) || prefersReducedMotion()) return null;
@@ -65,10 +67,19 @@ export default class Reorder extends Component<Props> {
 
   componentDidUpdate(prev: Props, _state: unknown, before: Positions | null) {
     if (!this.changed(prev)) return;
-    for (const el of this.dropped.keys()) settle(el);
-    this.dropped.clear();
-    if (before) reorder(before, loose(this.items), this.spring(), this.landing);
-    this.landing.clear();
+    const own = new Map<unknown, Spring>();
+    for (const [key, { el }] of this.held) {
+      settle(el);
+      own.set(key, springs.drop);
+    }
+    this.held.clear();
+    if (before)
+      reorder(
+        before,
+        loose(this.items),
+        this.props.spring ?? springs.brisk,
+        own,
+      );
   }
 
   render() {
@@ -85,9 +96,7 @@ export default class Reorder extends Component<Props> {
     this.items.set(key, el);
     if (group) this.groups.set(el, options);
     const undrag =
-      drags ?
-        draggable(el, () => this.carrier(key, el, options), dropSpring)
-      : undefined;
+      drags ? draggable(el, () => this.carrier(key, el, options)) : undefined;
     return () => {
       undrag?.();
       this.groups.delete(el);
@@ -98,8 +107,6 @@ export default class Reorder extends Component<Props> {
   private changed(prev: Props) {
     return !Object.is(prev.layoutDependency, this.props.layoutDependency);
   }
-
-  private spring = () => this.props.spring ?? springs.brisk;
 
   /** Carrying `el` into a group hands its `dropValue` to `onDrop`, and
    * holds `el` where it was let go until the list follows */
@@ -115,27 +122,25 @@ export default class Reorder extends Component<Props> {
       ...carrier,
       lift: () => {
         // picked up again before the list followed its last drop
-        this.dropped.delete(el);
+        this.held.delete(key);
         carrier.lift();
       },
     };
   }
 
-  private hold(key: unknown, el: HTMLElement, done: unknown) {
-    const drop = {};
-    this.dropped.set(el, drop);
-    this.landing.set(key, springs.drop);
+  private hold(key: unknown, el: HTMLElement, result: unknown) {
+    const done = Promise.resolve(result);
+    this.held.set(key, { el, done });
     // a drop the list didn't follow (nothing changed) goes back, once what
     // it set off has settled and React has committed what that caused; an
     // earlier drop of the same item settling leaves this one held
     const release = () =>
       setTimeout(() => {
-        if (this.dropped.get(el) !== drop) return;
-        this.dropped.delete(el);
-        this.landing.delete(key);
-        if (el.isConnected) sendHome(el, springs.drop);
+        if (this.held.get(key)?.done !== done) return;
+        this.held.delete(key);
+        if (el.isConnected) sendHome(el);
       });
-    Promise.resolve(done).then(release, release);
+    done.then(release, release);
   }
 }
 
@@ -164,8 +169,6 @@ export function useReorderItem(
     [reorder, key, drags, group],
   );
 }
-
-const dropSpring = () => springs.drop;
 
 /** The items not in the reader's hand: a carried one stays under the
  * pointer whatever the list does */

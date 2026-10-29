@@ -63,6 +63,30 @@ div.playground-preview h1:first-child {
   letter-spacing: 0;
   color: var(--ds-text-muted);
 }
+/* Groups of rows under a label (a person's tasks): each a well a step off
+   the sheet, holding its label and rows, so where one group ends and the
+   next begins shows at a glance, closer together than bare sections. The
+   label leads it in the text's color; rows fill it, 6px in */
+.playground-preview section:has(> h3 + .list) {
+  margin-bottom: var(--ds-space-2);
+  padding: 6px;
+  border-radius: var(--ds-radius);
+  background: var(--ds-surface-2);
+}
+.playground-preview section:has(> h3 + .list):last-child {
+  margin-bottom: 0;
+}
+.playground-preview section > h3:has(+ .list) {
+  margin: 0;
+  padding: 6px var(--ds-space-3) 2px;
+  color: var(--ds-text);
+}
+.playground-preview section > h3 + .list {
+  margin-bottom: 0;
+}
+.playground-preview section > h3 + .list > .listItem {
+  margin-inline: 0;
+}
 /* a person's group: their avatar beside the label */
 .playground-preview section > h3:has(> .avatar) {
   display: flex;
@@ -207,10 +231,13 @@ div.playground-preview h1:first-child {
    carried by the reader is lifted over them on the sheet's own color, so
    their text never overprints; a row is raised visibly. The surface is
    opaque at once (only the shadow eases in), or the text it crosses would
-   show through it */
+   show through it. An item with a surface of its own (a group's well)
+   keeps it */
 .playground-preview :is([data-traveling], [data-dragging]) {
   position: relative;
   z-index: 1;
+}
+.playground-preview :where([data-traveling], [data-dragging]) {
   background: var(--ds-surface);
 }
 .playground-preview .listItem:is([data-traveling], [data-dragging]) {
@@ -227,23 +254,26 @@ div.playground-preview h1:first-child {
 .playground-preview :is([data-dragging], [data-dragging] *) {
   cursor: grabbing;
 }
-/* While a row is carried, the groups it can go to are outlined, and the one
-   under it fills whole: the row drops into the group, wherever the group's
-   order puts it, not at a spot in it */
+/* moved every frame by script: its own layer, so it isn't repainted */
+.playground-preview [data-dragging] {
+  will-change: translate;
+}
+/* While a row is carried, the groups it can go to are ringed inside their
+   edge, and the one under it is washed in the accent whole: the row drops
+   into the group, wherever the group's order puts it, not at a spot in it */
 .playground-preview [data-drop-target] {
-  border-radius: var(--ds-radius-sm);
-  outline: 1.5px dashed var(--ds-border);
-  outline-offset: var(--ds-space-2);
-  transition:
-    background-color var(--motion-snappy),
-    box-shadow var(--motion-snappy),
-    outline-color var(--motion-snappy);
+  outline: 1.5px dashed var(--ds-border-strong);
+  outline-offset: -1.5px;
+  transition: outline-color var(--motion-snappy);
 }
 .playground-preview [data-drop-over] {
   outline: 2px solid var(--ds-accent);
-  background: var(--ds-accent-soft);
-  /* the fill reaches the outline */
-  box-shadow: 0 0 0 var(--ds-space-2) var(--ds-accent-soft);
+  outline-offset: -2px;
+  /* over the group's own surface */
+  background-image: linear-gradient(
+    var(--ds-accent-soft),
+    var(--ds-accent-soft)
+  );
 }
 /* touch screens skip it: a tapped row would stay lit */
 @media (hover: hover) {

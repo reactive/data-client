@@ -246,7 +246,8 @@ style to a new component.
 
 Styled elements: `h2` (page title), `button` (`primary` fills one;
 `aria-busy` shows pending), text inputs, `nav`, `fieldset`, `progress`,
-`table`.
+`table`. A `section` holding an `h3` then a `list` (a person's tasks) is a
+group: a well off the sheet, its label leading it.
 
 | Class                                      | Use for                                                                         |
 | ------------------------------------------ | ------------------------------------------------------------------------------- |

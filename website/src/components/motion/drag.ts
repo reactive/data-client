@@ -1,6 +1,6 @@
 import { glide, prefersReducedMotion, stop, ORIGIN, type Point } from './glide';
 import { travel } from './reorder';
-import type { Spring } from './spring';
+import { springs } from './tokens';
 
 /** What carrying one element does, from lifting it to letting go */
 export interface Carrier {
@@ -25,16 +25,12 @@ export interface Carrier {
  * even as the page scrolls under it. Presses on its controls stay theirs.
  * Returns the cleanup.
  */
-export function draggable(
-  el: HTMLElement,
-  carrier: () => Carrier,
-  spring: () => Spring,
-): () => void {
+export function draggable(el: HTMLElement, carrier: () => Carrier): () => void {
   const onDown = (down: PointerEvent) => {
     if (press || down.button !== 0 || !down.isPrimary) return;
     const control = (down.target as Element).closest(CONTROLS);
     if (control && el.contains(control)) return;
-    press = { el, putBack: follow(el, down, carrier(), spring) };
+    press = { el, putBack: follow(el, down, carrier()) };
   };
   // a carried touch must not scroll the page; the listener has to be in
   // place (and not passive) before the touch starts
@@ -46,19 +42,18 @@ export function draggable(
   const onHold = (e: Event) => {
     if (press?.el === el) e.preventDefault();
   };
+  const listening = new AbortController();
+  const { signal } = listening;
   el.dataset.draggable = '';
-  el.addEventListener('pointerdown', onDown);
-  el.addEventListener('touchmove', onTouchMove, { passive: false });
-  el.addEventListener('contextmenu', onHold);
-  el.addEventListener('dragstart', onHold);
+  el.addEventListener('pointerdown', onDown, { signal });
+  el.addEventListener('touchmove', onTouchMove, { passive: false, signal });
+  el.addEventListener('contextmenu', onHold, { signal });
+  el.addEventListener('dragstart', onHold, { signal });
   return () => {
     // unmounted mid-press: nothing is carried any more
     if (press?.el === el) press.putBack();
     delete el.dataset.draggable;
-    el.removeEventListener('pointerdown', onDown);
-    el.removeEventListener('touchmove', onTouchMove);
-    el.removeEventListener('contextmenu', onHold);
-    el.removeEventListener('dragstart', onHold);
+    listening.abort();
   };
 }
 
@@ -74,11 +69,11 @@ export function settle(el: HTMLElement) {
 }
 
 /** Glides an element let go of back to its layout position */
-export function sendHome(el: HTMLElement, spring: Spring) {
+export function sendHome(el: HTMLElement) {
   const from = carried.get(el) ?? ORIGIN;
   settle(el);
   if (prefersReducedMotion()) return;
-  const animation = glide(el, spring, { from, to: ORIGIN });
+  const animation = glide(el, springs.drop, { from, to: ORIGIN });
   // lifted over the others until it lands
   if (animation) travel(el, animation);
 }
@@ -91,12 +86,7 @@ const carried = new WeakMap<HTMLElement, Point>();
 
 /** Follows the press `down` on `el`: lifts it, carries it, lets it go.
  * Returns what puts it back */
-function follow(
-  el: HTMLElement,
-  down: PointerEvent,
-  carrier: Carrier,
-  spring: () => Spring,
-) {
+function follow(el: HTMLElement, down: PointerEvent, carrier: Carrier) {
   const { pointerId } = down;
   const touch = down.pointerType === 'touch';
   const start = clientOf(down);
@@ -136,7 +126,7 @@ function follow(
     clearTimeout(hold);
     listening.abort();
     press = undefined;
-    if (anchor && !dropped) sendHome(el, spring());
+    if (anchor && !dropped) sendHome(el);
   }
 
   const onMove = (e: PointerEvent) => {
