@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793230949547,
+  "lastUpdate": 1793236145065,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -137783,6 +137783,324 @@ window.BENCHMARK_DATA = {
             "name": "setMany 500 batch",
             "value": 1412,
             "range": "±3.01%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "90462bc43fce5ec31a574860a3a6cea0d212580f",
+          "message": "fix: Mocked fetches reject when already aborted; useCancelling demo polish (#4518)\n\n* docs: Show useCancelling as an inbox you skim on a slow connection\n\nThe abort guide and the useCancelling() page showed a todo pager with\n« » buttons. Its only cue was the Store, and clicking fast could leave\nit loading forever.\n\nThe demo is now an inbox. The autorun clicks down five messages. Each\nmessage is a 150 KB download over a 100 KB/s link that open downloads\nshare. Without cancelling (new first demo on the abort guide), the one\nit stops on opens about 5 s after the last click. With useCancelling(),\nit opens in about 1.5 s. The Store lists each skipped download as\ncancelled.\n\n- useCancelling(): a suspended render's retry rebuilt its memo and\n  aborted the request it was waiting on, so with slow requests the\n  component could stay suspended forever. The controller is now kept per\n  params key in a ref. Regression test included.\n- Fixtures: a fetch's AbortSignal rejects the fixture delay with an\n  AbortError. fetchResponse() interceptors can be async and read\n  init.signal.\n- Store inspector: aborted responses read \"cancelled\" instead of a red\n  error.\n- Design system: `.split` (list beside what it opens when there's room)\n  and button rows with an `aria-current` wash.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: One useCancelling demo per page, without autoplay; simplify cleanups\n\nDrops the abort guide's duplicate \"without\" demo and the autorun.\nCleanups: fixture-abort tests reuse ArticleResource and createFetch;\nslowLink removes its abort listener once a download finishes; the\nbutton-row hover and focus ring join the existing rules; Fixtures.md\nkeeps its original wrapping.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Count fetches in flight in the useCancelling demo; open message on a tinted pane\n\nPlaygrounds take `inFlight`: a header badge counting requests in\nflight, one per endpoint key from its fetch until its response or abort.\nSkimming the inbox keeps it at 1 with useCancelling(); without it, every\nskipped message piles on. The open message sits on a tinted pane, apart\nfrom the list.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Regenerate skill references for async fetchResponse\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* fix: Mocked fetches reject when already aborted; in-flight badge repaints on mount and reset\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Line the open message up with the inbox rows; count in-flight fetches per store\n\nThe reading pane bleeds as far as the rows' highlights, the badges stay on\none line, and a Reset's new store keeps its own in-flight count instead of\nthe old store's cleanup clearing it.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Line the stacked message's text up with the inbox avatars; test the in-flight badge\n\nMocked fetches also reject when aborted during an async fetchResponse that\nignores the signal.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Changeset covers aborts during an async fetchResponse\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Side by side, the open message sits as far from the inbox as from the edge\n\nBelow the wrap point the pane is forced onto its own line, so the stacked\ninset and the layout switch at the same width.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Read the sheet inset through a design-system token\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Simplify the in-flight badge's reveal\n\nKeep whether a fetch has happened as one flag instead of reading it back\nfrom the badge's hidden attribute, make the Manager's required cleanup an\nexplicit no-op, and say why the fixture checks for an abort up front.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Stacked, the open message's text sits an even inset from every edge\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: When to use useCancelling() vs useDebounce()\n\nCompares when each starts a fetch, what it sends and what it adds to the\nwait, shows them combined for a search, and fixes useDebounce()'s React\nreturn type (a [value, isPending] tuple).\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Stacked, the open message docks under the inbox\n\nA tinted band across the sheet's whole width and down to its foot, in\nplace of a card floating inside it; side by side keeps the card.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Cut useCancelling() vs useDebounce() to the rule\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Regenerate skill references for useDebounce()\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n* docs: Title the section Cancel vs Debounce\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9gQVAeRRVdEHvTjRW\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-29T01:03:40Z",
+          "tree_id": "5e611388f226db6cec41d97c57b60ad4b3b7aa0f",
+          "url": "https://github.com/reactive/data-client/commit/90462bc43fce5ec31a574860a3a6cea0d212580f"
+        },
+        "date": 1793236142271,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 748,
+            "range": "±3.97%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 671,
+            "range": "±0.76%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 587,
+            "range": "±2.89%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 1652,
+            "range": "±0.55%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 358,
+            "range": "±6.15%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 359,
+            "range": "±4.01%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1900,
+            "range": "±1.32%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 1367,
+            "range": "±1.26%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 2006,
+            "range": "±0.62%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 2632,
+            "range": "±1.61%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 979,
+            "range": "±6.62%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 9909,
+            "range": "±0.59%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 4717,
+            "range": "±1.68%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 97990,
+            "range": "±2.58%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 10040,
+            "range": "±6.96%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 333,
+            "range": "±6.39%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 13408,
+            "range": "±0.73%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 13323,
+            "range": "±1.62%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 10327,
+            "range": "±1.73%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 14513,
+            "range": "±1.49%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 7988,
+            "range": "±0.43%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 13001,
+            "range": "±1.41%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 10518,
+            "range": "±6.20%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 3015,
+            "range": "±3.31%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 7121,
+            "range": "±8.95%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 71053,
+            "range": "±1.11%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 7223,
+            "range": "±5.36%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 17959208,
+            "range": "±7.35%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 252,
+            "range": "±12.74%",
+            "unit": "ops/sec",
+            "extra": "69 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 6191,
+            "range": "±1.71%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 5101,
+            "range": "±1.85%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 8520,
+            "range": "±1.69%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 6054,
+            "range": "±0.24%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 8531,
+            "range": "±4.95%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 781,
+            "range": "±0.34%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 434,
+            "range": "±2.00%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 470,
+            "range": "±0.58%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 1628,
+            "range": "±2.03%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 221,
+            "range": "±0.66%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 6240,
+            "range": "±1.54%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 22.76,
+            "range": "±0.68%",
+            "unit": "ops/sec",
+            "extra": "42 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 2831,
+            "range": "±1.27%",
             "unit": "ops/sec",
             "extra": "98 samples"
           }
