@@ -243,7 +243,7 @@ This enables their use in these additional cases:
 - [memo.query()](#memoquery)
 - Improve performance of [useSuspense](/docs/api/useSuspense), [useDLE](/docs/api/useDLE) by rendering before endpoint resolution
 
-`Querables` include [Entity](./Entity.md), [All](./All.md), [Collection](./Collection.md), [Query](./Query.md),
+`Querables` include [Entity](./Entity.md), [Object](./Object.md), [All](./All.md), [Collection](./Collection.md), [Query](./Query.md),
 [Union](./Union.md), and [Scalar](./Scalar.md). [Lazy](./Lazy.md) fields produce a Queryable via their [`.query`](./Lazy.md#query) accessor.
 
 ```ts
