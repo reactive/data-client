@@ -48,8 +48,9 @@ export interface PlaygroundProps<T = any> {
   /** Store inspector open by default */
   defaultOpen?: 'y' | 'n';
   /** How the Store's Action tab lists actions until the reader picks (kept
-   * per `groupId`): by request, or under the interaction that started them
-   * (a click, a render), which teaches cause and effect */
+   * per `groupId`): under the interaction that started them (a click, a
+   * render), which teaches cause and effect, or every action in dispatch
+   * order, which shows overlapping requests */
   defaultActionsBy?: ActionsBy;
   /** Files as tabs over a code card, the preview a folder beside it (when
    * wide enough; under it otherwise), with the Store behind the preview: its
@@ -94,7 +95,7 @@ export default function Playground<T>({
   children,
   groupId = 'playground',
   defaultOpen = 'n',
-  defaultActionsBy = 'request',
+  defaultActionsBy = 'interaction',
   row: rowLayout = false,
   demo = false,
   hidden = false,

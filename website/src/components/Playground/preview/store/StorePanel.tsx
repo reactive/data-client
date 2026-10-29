@@ -18,6 +18,7 @@ import {
   momentEntries,
   pickAt,
   requestsOf,
+  actionsOf,
   rowsOf,
   shownGroup,
   shownOf,
@@ -418,19 +419,23 @@ export default function StorePanel({
   // stepping on keeps focus on the timeline); narrow, it closes the sheet
   const actionShown = actionLevels.stack.some(e => e.view.kind === 'action');
   // what every step (‹ ›, ← →, Before and After) and a mark picked go
-  // through: the subject's rows, the surface stepping by their requests
+  // through: the subject's rows, the surface stepping by their requests, or
+  // by each action when the list shows every action
   const { hit, lists } = filter;
   const listing = useMemo(() => {
     const rows = rowsOf(groups, hit);
+    const every = actionsBy === 'action';
     return {
-      entries: shownOf(groups, known).shown,
+      // every action listed is a step, the fetches deduped into a request
+      // in flight included
+      entries: every ? known : shownOf(groups, known).shown,
       groups,
       listed: new Set(rows),
-      requests: requestsOf(rows, hit),
+      requests: every ? actionsOf(rows, lists) : requestsOf(rows, hit),
       hit,
       lists,
     };
-  }, [known, groups, hit, lists]);
+  }, [known, groups, hit, lists, actionsBy]);
   const mark = useCallback(
     (seq: number) => {
       const to = pickAt(listing.requests, seq, scope);
@@ -717,21 +722,21 @@ export default function StorePanel({
                       >
                         <button
                           type="button"
-                          aria-label="By request"
-                          title="By request: each fetch with its response"
-                          aria-pressed={actionsBy === 'request'}
-                          onClick={() => setActionsBy('request')}
-                        >
-                          <RequestsIcon />
-                        </button>
-                        <button
-                          type="button"
                           aria-label="By interaction"
                           title="By interaction: under the click or render that started them"
                           aria-pressed={actionsBy === 'interaction'}
                           onClick={() => setActionsBy('interaction')}
                         >
                           <InteractionsIcon />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Every action"
+                          title="Every action: in dispatch order, each fetch apart from its response"
+                          aria-pressed={actionsBy === 'action'}
+                          onClick={() => setActionsBy('action')}
+                        >
+                          <ActionsIcon />
                         </button>
                       </span>
                     </span>
@@ -1490,8 +1495,8 @@ function TreeIcon() {
     </svg>
   );
 }
-/** Rows, one per request */
-function RequestsIcon() {
+/** Rows, one per action */
+function ActionsIcon() {
   return (
     <svg viewBox="0 0 16 16" aria-hidden="true">
       <path d="M2.5 4h11M2.5 8h11M2.5 12h11" />

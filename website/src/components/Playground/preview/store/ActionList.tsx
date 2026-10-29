@@ -11,6 +11,7 @@ import React, {
 } from 'react';
 
 import {
+  actionRowsOf,
   groupEntriesOf,
   groupOf,
   joinedFetches,
@@ -57,13 +58,16 @@ import { Pipeline, StepPath } from './Pipeline';
 import styles from './store.module.css';
 import { useActionsBy } from './storeView';
 import { InteractionHead, RowWhy } from './Why';
-import type { ActionsBy } from '../StoreToggle';
 
 /** The groups with an action that touched the subject */
 export function useRows(filter: SubjectFilter) {
   const { groups } = useActions();
-  const { hit } = filter;
-  return useMemo(() => rowsOf(groups, hit), [groups, hit]);
+  const [by] = useActionsBy();
+  const { hit, lists } = filter;
+  return useMemo(() => {
+    const rows = rowsOf(groups, hit);
+    return by === 'action' ? actionRowsOf(rows, lists) : rows;
+  }, [groups, hit, lists, by]);
 }
 
 /** A peek at `subject`'s actions as the mouse rests on the scrubber's list
@@ -160,7 +164,6 @@ export function ActionsLevel({
   const pipeline = usePipelineAt(subject);
   const filter = pipeline?.filter ?? subjectFilter;
   const rows = useRows(filter);
-  const [by] = useActionsBy();
   return (
     <>
       {header(
@@ -175,14 +178,15 @@ export function ActionsLevel({
             onPick={pipeline.pickStage}
           />
         )}
-        <ActionList rows={rows} subject={subject} filter={filter} by={by} />
+        <ActionList rows={rows} subject={subject} filter={filter} />
       </section>
     </>
   );
 }
 
-/** The actions that touched the subject, folded into requests and
- * subscriptions, following new rows while scrolled to the bottom. A row or
+/** The actions that touched the subject (`rows`, see `useRows`): folded into
+ * requests and subscriptions under the interaction that started them, or
+ * each its own row, following new rows while scrolled to the bottom. A row or
  * step picked (`onPick`, by default opening its action at full width)
  * moves the moment there; the moment's row is marked and open. ↑ ↓ move
  * between rows, as the moment */
@@ -190,27 +194,24 @@ function ActionList({
   rows,
   subject,
   filter,
-  by = 'request',
   onPick,
 }: {
   rows: readonly ActionGroup[];
   subject: View;
   filter: SubjectFilter;
-  /** One row per request, or rows under what started them */
-  by?: ActionsBy;
   /** What a row (`group`: its actions as one) or step (`action`) picked
    * does, by default open it */
   onPick?: (seq: number, scope?: Scope) => void;
 }) {
   const { log, history, groups } = useActions();
   const { seq, current: marked, set, show } = useNavState();
+  const [by] = useActionsBy();
   const refetches = log.refetches(history.entries);
   // the row that caused the moment's fetch, tinted
   const causeSeq = [...marked]
     .map(s => findEntry(history.entries, s)?.causedBy)
     .find(s => s !== undefined);
-  const causeRow =
-    causeSeq === undefined ? undefined : groupOf(groups, causeSeq);
+  const causeRow = causeSeq === undefined ? undefined : groupOf(rows, causeSeq);
   const sections = useMemo(
     () =>
       by === 'interaction' ? interactionsOf(rows, history.entries) : undefined,
@@ -227,11 +228,8 @@ function ActionList({
   // when the row is open. One the list leaves out (its whole group, or an
   // action of a listed group that left the subject alone) marks nothing
   const entry = seq === null ? undefined : findEntry(history.entries, seq);
-  const group = seq === null ? undefined : groupOf(groups, seq);
-  const current =
-    group && entry && rows.includes(group) && filter.lists(entry) ?
-      group
-    : undefined;
+  const group = seq === null ? undefined : groupOf(rows, seq);
+  const current = group && entry && filter.lists(entry) ? group : undefined;
   // as the moment comes to a row: it opens, and may be closed again while
   // the moment stays among its actions. A lone action's row is its own
   // step (see `rowId`): marking it is enough
@@ -275,6 +273,7 @@ function ActionList({
       refetches={refetchesOf(group, refetches)}
       subject={subject}
       filter={filter}
+      alone={by === 'action'}
       onToggle={toggle}
       onSelect={onPick ?? show}
     />
@@ -399,6 +398,7 @@ const GroupRow = memo(function GroupRow({
   refetches,
   subject,
   filter,
+  alone = false,
   onToggle,
   onSelect,
 }: {
@@ -412,6 +412,8 @@ const GroupRow = memo(function GroupRow({
   marked?: ReadonlySet<number>;
   subject: View;
   filter: SubjectFilter;
+  /** Its action opens alone, not as part of its request */
+  alone?: boolean;
   onToggle: (id: string) => void;
   /** Opens an action (or the row's, `group`), as the moment */
   onSelect: (seq: number, scope?: Scope) => void;
@@ -421,7 +423,10 @@ const GroupRow = memo(function GroupRow({
   // what it did to the subject (at the store, everything)
   const changes = log.mergedChanges(all).filter(c => touches(subject, c));
   const first = all[0];
-  const { seq, scope } = rowMoment(group, filter.hit);
+  const { seq, scope } =
+    alone ?
+      { seq: first.seq, scope: 'action' as const }
+    : rowMoment(group, filter.hit);
   const steps = !isLone(group);
   // the row stands for all its actions, what they did together
   const select = () => onSelect(seq, scope);

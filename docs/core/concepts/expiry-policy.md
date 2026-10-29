@@ -62,7 +62,7 @@ to make it becomes [stale](#stale) almost instantly; or a very large number to s
 Toggling between 'first' and 'second' changes the parameters. If the data is still considered fresh
 you will continue to see the old time without any refresh.
 
-<FrameworkPlayground row defaultActionsBy="interaction" defaultTab="getUpdated" fixtures={[
+<FrameworkPlayground row defaultTab="getUpdated" fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -246,7 +246,7 @@ that expires immediately be considered '[invalid](#invalid)'.
 This is demonstrated by the page suspending once its data goes stale:react[ (navigation waits on the progress bar)].
 If the data is still within the expiry time it just continues to display it.
 
-<FrameworkPlayground row defaultActionsBy="interaction" defaultTab="getUpdated" fixtures={[
+<FrameworkPlayground row defaultTab="getUpdated" fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -385,7 +385,7 @@ We sometimes want to fetch new data; while continuing to show the old (stale) da
 [Controller.fetch](../api/Controller#fetch) can be used to trigger a fetch while still showing
 the previous data. This can be done even with 'fresh' data.
 
-<FrameworkPlayground row defaultActionsBy="interaction" fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -475,7 +475,7 @@ render(<ShowTime />);
 
 [Controller.expireAll()](../api/Controller.md#expireAll) sets all responses' [expiry status](#expiry-status) matching `testKey` to [Stale](#stale).
 
-<FrameworkPlayground row defaultActionsBy="interaction" fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -645,7 +645,7 @@ is `true`. Components mounted after invalidation suspend until the new data arri
 
 In this example [invalidating the endpoint](../api/Controller.md#invalidate) :react[shows the loading fallback since the data is not allowed to be displayed]:vue[refetches it, even though its data is still fresh].
 
-<FrameworkPlayground row defaultActionsBy="interaction" fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -805,7 +805,7 @@ render(<Demo />);
 Using the [Invalidate schema](/rest/api/Invalidate) allows us to invalidate _any_ endpoint that includes that relies on that [entity](/rest/api/Entity) in their
 response. If the endpoint uses the entity in an [Array](/rest/api/Array), it will simply be removed from that [Array](/rest/api/Array).
 
-<FrameworkPlayground row defaultActionsBy="interaction" fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',

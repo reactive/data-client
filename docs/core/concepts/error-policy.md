@@ -40,7 +40,7 @@ A soft error keeps showing the last data. Hard errors (and soft ones with nothin
 
 </SiteOnly>
 
-<FrameworkPlayground row defaultActionsBy="interaction" fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
