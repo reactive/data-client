@@ -128,24 +128,34 @@ const GLOBAL_NAMES = [
       .split(/\s+as\s+/)
       .pop(),
   )
+  // `Array` and `Object` are the library's schemas, which would shadow the
+  // built-ins (the editor skips them too)
   .filter(name => name && !['default', 'Array', 'Object'].includes(name));
 /** Files without imports or exports are scripts, which the editor (and the
  * preview, which runs them in order as one async function) gives one scope */
 const isScriptApp = blocks =>
-  blocks.every(({ value }) => !/^\s*(?:import|export)\b/m.test(value));
+  blocks.every(
+    ({ lang, value }) =>
+      lang !== 'html' && !/^\s*(?:import|export)\b/m.test(value),
+  );
 /** A script playground as the one module it runs as: the editor's globals,
  * then its files in order, each a segment starting at its `row` */
 function scriptApp(blocks) {
   const code = blocks.map(({ raw }) => raw.replace(/\n$/, ''));
-  // after the header's row
-  let row = 2;
+  const header = [
+    // one partial fragment leaves the program it is part of unchecked
+    ...(blocks.some(({ nocheck }) => nocheck) ? ['// @ts-nocheck'] : []),
+    `import { ${GLOBAL_NAMES.join(', ')} } from '${EDITOR_GLOBALS}';`,
+  ];
+  // after the header's rows
+  let row = header.length + 1;
   const segments = code.map((text, i) => {
     const segment = { block: blocks[i], row };
     row += text.split('\n').length;
     return segment;
   });
   return {
-    header: `import { ${GLOBAL_NAMES.join(', ')} } from '${EDITOR_GLOBALS}';`,
+    header: header.join('\n'),
     code: code.join('\n'),
     segments,
   };

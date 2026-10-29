@@ -53,8 +53,9 @@ if (typeof window !== 'undefined' && !isMobileOrBot()) {
     });
     monaco.typescript.typescriptDefaults.setDiagnosticsOptions({
       ...monaco.typescript.typescriptDefaults.getDiagnosticsOptions(),
-      // a playground's code runs as an async function, so a file without
-      // imports (a script, sharing the other files' names) may still `await`
+      // EndpointPlayground's code runs as an async function, so it may
+      // `await` at the top level even in a file without imports, which TS
+      // reads as a script (modules never raise this)
       diagnosticCodesToIgnore: [TOP_LEVEL_AWAIT_IN_SCRIPT],
     });
     definePrismTheme(monaco);

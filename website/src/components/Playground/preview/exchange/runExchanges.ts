@@ -18,6 +18,10 @@ export function compileExchanges(documents: readonly CodeDocument[]): string {
   }).code;
 }
 
+/** `Function`, for async function bodies: it has no global name */
+const AsyncFunction = (async () => undefined)
+  .constructor as FunctionConstructor;
+
 /** Runs `program` as the live preview would, its endpoints answered by
  * `fixtures`, each run against fresh interceptor data. `onCall` gets each
  * endpoint call's exchange in call order, including calls the code makes
@@ -45,9 +49,6 @@ export function runExchanges(
     ...Object.values(scope),
   );
 }
-
-const AsyncFunction = (async () => undefined)
-  .constructor as FunctionConstructor;
 
 /** Runs `program`, reporting the exchange its last call makes (a call made
  * later, after an await, takes over, and a superseded call's answer is
