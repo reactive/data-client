@@ -44,10 +44,9 @@ const escapeHtml = text =>
 
 /** Labels for the TOC's headings by id; only headings whose label changes */
 function tocLabels(headings) {
-  const signatures = headings.map(({ id, text }) => ({
-    id,
-    text,
-    signature: parseSignature(text),
+  const signatures = headings.map(h => ({
+    ...h,
+    signature: parseSignature(h.text),
   }));
   const count = new Map();
   for (const { text, signature } of signatures) {
@@ -63,17 +62,20 @@ function tocLabels(headings) {
   return labels;
 }
 
-const propertyName = property => property.key.name ?? property.key.value;
-
 /** `export const toc = [...]` that Docusaurus adds to every page */
 function tocArray(node) {
   const declaration = node.data?.estree?.body?.[0]?.declaration;
   const declarator = declaration?.declarations?.[0];
-  if (declarator?.id?.name !== 'toc') return;
-  return declarator.init?.type === 'ArrayExpression' ?
-      declarator.init
-    : undefined;
+  if (
+    declarator?.id?.name === 'toc' &&
+    declarator.init?.type === 'ArrayExpression'
+  )
+    return declarator.init;
 }
+
+/** `{ value, id, level }` property of a TOC item */
+const property = (item, key) =>
+  item.properties.find(p => (p.key.name ?? p.key.value) === key);
 
 function relabel(tree, file) {
   // the levels the page's TOC shows, so hidden headings don't count as clashes
@@ -100,9 +102,8 @@ function relabel(tree, file) {
     if (!toc) continue;
     for (const item of toc.elements) {
       if (item?.type !== 'ObjectExpression') continue;
-      const props = new Map(item.properties.map(p => [propertyName(p), p]));
-      const label = labels.get(props.get('id')?.value.value);
-      const value = props.get('value');
+      const label = labels.get(property(item, 'id')?.value.value);
+      const value = property(item, 'value');
       if (label === undefined || !value) continue;
       value.value = { type: 'Literal', value: escapeHtml(label) };
     }
