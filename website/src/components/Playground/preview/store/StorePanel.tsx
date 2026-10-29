@@ -18,6 +18,7 @@ import {
   momentEntries,
   pickAt,
   requestsOf,
+  actionsOf,
   rowsOf,
   shownGroup,
   shownOf,
@@ -418,7 +419,8 @@ export default function StorePanel({
   // stepping on keeps focus on the timeline); narrow, it closes the sheet
   const actionShown = actionLevels.stack.some(e => e.view.kind === 'action');
   // what every step (‹ ›, ← →, Before and After) and a mark picked go
-  // through: the subject's rows, the surface stepping by their requests
+  // through: the subject's rows, the surface stepping by their requests, or
+  // by each action when the list shows every action
   const { hit, lists } = filter;
   const listing = useMemo(() => {
     const rows = rowsOf(groups, hit);
@@ -426,11 +428,12 @@ export default function StorePanel({
       entries: shownOf(groups, known).shown,
       groups,
       listed: new Set(rows),
-      requests: requestsOf(rows, hit),
+      requests:
+        actionsBy === 'action' ? actionsOf(rows, lists) : requestsOf(rows, hit),
       hit,
       lists,
     };
-  }, [known, groups, hit, lists]);
+  }, [known, groups, hit, lists, actionsBy]);
   const mark = useCallback(
     (seq: number) => {
       const to = pickAt(listing.requests, seq, scope);

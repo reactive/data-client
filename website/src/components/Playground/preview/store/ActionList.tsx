@@ -423,9 +423,10 @@ const GroupRow = memo(function GroupRow({
   // what it did to the subject (at the store, everything)
   const changes = log.mergedChanges(all).filter(c => touches(subject, c));
   const first = all[0];
-  const moment = rowMoment(group, filter.hit);
-  const { seq } = moment;
-  const scope = alone ? 'action' : moment.scope;
+  const { seq, scope } =
+    alone ?
+      { seq: first.seq, scope: 'action' as const }
+    : rowMoment(group, filter.hit);
   const steps = !isLone(group);
   // the row stands for all its actions, what they did together
   const select = () => onSelect(seq, scope);

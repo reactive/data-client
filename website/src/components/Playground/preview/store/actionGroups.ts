@@ -312,13 +312,7 @@ export function groupEntries(
    * after its response arrives (until the store commits it) */
   const lastRead = new Map<string, RequestGroup>();
   const subscriptions = new Map<string, SubscriptionGroup>();
-  const single = (entry: LogEntry) =>
-    groups.push({
-      kind: 'single',
-      id: `a${entry.seq}`,
-      key: actionKey(entry.action),
-      entries: [entry],
-    });
+  const single = (entry: LogEntry) => groups.push(singleOf(entry));
   /** Requests still waiting will get no response */
   const cancelOpen = () => {
     for (const list of requests.values())
@@ -487,12 +481,13 @@ export const actionRowsOf = (
     .flatMap(groupEntriesOf)
     .filter(lists)
     .sort((a, b) => a.seq - b.seq)
-    .map(actionRow);
+    .map(singleOf);
 
 /** Kept per action, so its row can skip rendering */
-const actionRows = new WeakMap<LogEntry, SingleGroup>();
-function actionRow(entry: LogEntry): SingleGroup {
-  let row = actionRows.get(entry);
+const singles = new WeakMap<LogEntry, SingleGroup>();
+/** The row of `entry` alone */
+function singleOf(entry: LogEntry): SingleGroup {
+  let row = singles.get(entry);
   if (!row) {
     row = {
       kind: 'single',
@@ -500,9 +495,22 @@ function actionRow(entry: LogEntry): SingleGroup {
       key: actionKey(entry.action),
       entries: [entry],
     };
-    actionRows.set(entry, row);
+    singles.set(entry, row);
   }
   return row;
+}
+
+/** The places of `rows` when each action is a row of its own: every action
+ * `lists` keeps, alone, in dispatch order */
+export function actionsOf(
+  rows: readonly ActionGroup[],
+  lists: SubjectFilter['lists'],
+): Requests {
+  const entries = actionRowsOf(rows, lists).map(row => row.entries[0]);
+  return {
+    moments: entries.map(({ seq }) => ({ seq, scope: 'action' })),
+    of: new Map(entries.map(({ seq }, i) => [seq, i])),
+  };
 }
 
 /** A row of one action: it has no steps */

@@ -2,25 +2,13 @@
 import { act, render, screen } from '@testing-library/react';
 import React from 'react';
 
+import { clearTabStorage } from '../../testing/tabStorage';
 import { useActionsBy } from '../store/storeView';
 import { ActionsByContext, type ActionsBy } from '../StoreToggle';
 
-/** Storage shared by every hook, by key, as the browser's is */
-const mockStored = new Map<string, string>();
-jest.mock('../../../../utils/tabStorage', () => ({
-  useTabStorage: (key: string) => {
-    const { useState, useCallback } = require('react');
-    const [value, setValue] = useState(mockStored.get(key) ?? null);
-    const set = useCallback(
-      (next: string) => {
-        mockStored.set(key, next);
-        setValue(next);
-      },
-      [key],
-    );
-    return [value, set];
-  },
-}));
+jest.mock('../../../../utils/tabStorage', () =>
+  require('../../testing/tabStorage'),
+);
 
 function Shown({ id }: { id: string }) {
   const [by, setBy] = useActionsBy();
@@ -39,7 +27,7 @@ const mount = (id: string, groupId: string, defaultBy: ActionsBy) =>
   );
 
 describe('useActionsBy', () => {
-  beforeEach(() => mockStored.clear());
+  beforeEach(clearTabStorage);
 
   it("starts at the playground's default", () => {
     mount('a', 'docs', 'interaction');

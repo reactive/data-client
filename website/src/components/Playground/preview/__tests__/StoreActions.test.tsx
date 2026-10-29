@@ -23,6 +23,7 @@ import {
 } from '@testing-library/react';
 import React, { Suspense } from 'react';
 
+import { clearTabStorage } from '../../testing/tabStorage';
 import {
   diffStates,
   groupEntries,
@@ -39,31 +40,10 @@ import { endpointId, entityId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
 
-/** Storage shared by every hook, by key, as the browser's is; each test
- * starts empty */
-const mockStored = new Map<string, string>();
-const mockListeners = new Set<() => void>();
-jest.mock('../../../../utils/tabStorage', () => ({
-  useTabStorage: (key: string) => {
-    const { useSyncExternalStore, useCallback } = require('react');
-    const value = useSyncExternalStore(
-      (listener: () => void) => {
-        mockListeners.add(listener);
-        return () => mockListeners.delete(listener);
-      },
-      () => mockStored.get(key) ?? null,
-    );
-    const set = useCallback(
-      (next: string) => {
-        mockStored.set(key, next);
-        mockListeners.forEach(listener => listener());
-      },
-      [key],
-    );
-    return [value, set];
-  },
-}));
-beforeEach(() => mockStored.clear());
+jest.mock('../../../../utils/tabStorage', () =>
+  require('../../testing/tabStorage'),
+);
+beforeEach(clearTabStorage);
 
 const { createReducer, initialState } = __INTERNAL__;
 
@@ -788,7 +768,13 @@ describe('Store Actions pane', () => {
     expect(listed).toHaveLength(2);
     expect(listed[0]).toContain('fetch');
     expect(listed[1]).toContain('setResponse');
-    fireEvent.click(screen.getByRole('button', { name: 'By interaction' }));
+    // stepping back goes an action at a time: the response, then its fetch
+    const current = () =>
+      rows().findIndex(row => row.getAttribute('aria-current') === 'true');
+    previous();
+    expect(current()).toBe(1);
+    previous();
+    expect(current()).toBe(0);
   });
 
   it('marks the moment’s action in the list, with its row open', async () => {

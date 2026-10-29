@@ -257,7 +257,8 @@ describe('every action', () => {
         ),
       ).toHaveLength(2),
     );
-    const rows = actionRowsOf(groupEntries(entries()), () => true);
+    const all = () => actionRowsOf(groupEntries(entries()), () => true);
+    const rows = all();
     const seqs = rows.map(row => row.entries[0].seq);
     expect(seqs).toEqual([...seqs].sort((a, b) => a - b));
     expect(
@@ -271,8 +272,7 @@ describe('every action', () => {
       [actionTypes.SET_RESPONSE, 'GET /posts/3'],
     ]);
     // each row stays the same object, so it can skip rendering
-    expect(actionRowsOf(groupEntries(entries()), () => true)).toEqual(rows);
-    expect(actionRowsOf(groupEntries(entries()), () => true)[0]).toBe(rows[0]);
+    all().forEach((row, i) => expect(row).toBe(rows[i]));
   });
 });
 
