@@ -9,7 +9,7 @@ const HooksPlayground = ({
   groupId,
   hidden,
   defaultOpen = 'n',
-  defaultActionsBy = 'request',
+  defaultActionsBy,
   row = false,
   demo = false,
   fixtures = [],

@@ -312,13 +312,7 @@ export function groupEntries(
    * after its response arrives (until the store commits it) */
   const lastRead = new Map<string, RequestGroup>();
   const subscriptions = new Map<string, SubscriptionGroup>();
-  const single = (entry: LogEntry) =>
-    groups.push({
-      kind: 'single',
-      id: `a${entry.seq}`,
-      key: actionKey(entry.action),
-      entries: [entry],
-    });
+  const single = (entry: LogEntry) => groups.push(singleOf(entry));
   /** Requests still waiting will get no response */
   const cancelOpen = () => {
     for (const list of requests.values())
@@ -476,6 +470,48 @@ export const rowsOf = (
   groups: readonly ActionGroup[],
   hit: SubjectFilter['hit'],
 ) => groups.filter(g => groupEntriesOf(g).some(hit));
+
+/** Each action of `rows` that `lists` keeps as a row of its own, in
+ * dispatch order: fetches apart from their responses, every poll */
+export const actionRowsOf = (
+  rows: readonly ActionGroup[],
+  lists: SubjectFilter['lists'],
+): SingleGroup[] =>
+  rows
+    .flatMap(groupEntriesOf)
+    .filter(lists)
+    .sort((a, b) => a.seq - b.seq)
+    .map(singleOf);
+
+/** Kept per action, so its row can skip rendering */
+const singles = new WeakMap<LogEntry, SingleGroup>();
+/** The row of `entry` alone */
+function singleOf(entry: LogEntry): SingleGroup {
+  let row = singles.get(entry);
+  if (!row) {
+    row = {
+      kind: 'single',
+      id: `a${entry.seq}`,
+      key: actionKey(entry.action),
+      entries: [entry],
+    };
+    singles.set(entry, row);
+  }
+  return row;
+}
+
+/** The places of `rows` when each action is a row of its own: every action
+ * `lists` keeps, alone, in dispatch order */
+export function actionsOf(
+  rows: readonly ActionGroup[],
+  lists: SubjectFilter['lists'],
+): Requests {
+  const entries = actionRowsOf(rows, lists).map(row => row.entries[0]);
+  return {
+    moments: entries.map(({ seq }) => ({ seq, scope: 'action' })),
+    of: new Map(entries.map(({ seq }, i) => [seq, i])),
+  };
+}
 
 /** A row of one action: it has no steps */
 export const isLone = (group: ActionGroup) =>

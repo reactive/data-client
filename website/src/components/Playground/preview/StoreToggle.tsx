@@ -37,15 +37,15 @@ export interface DemoView {
 }
 export const DemoViewContext = createContext<DemoView>({ drop() {} });
 
-/** How the Action tab lists actions: by request, or under the interaction
- * that started them (a click, a render) */
-export type ActionsBy = 'request' | 'interaction';
+/** How the Action tab lists actions: under the interaction that started
+ * them (a click, a render), or every action as its own row */
+export type ActionsBy = 'interaction' | 'action';
 /** The playground's group, whose readers' choice of `ActionsBy` is kept,
  * and the playground's own default (see `useActionsBy`) */
 export const ActionsByContext = createContext<{
   groupId: string;
   defaultBy: ActionsBy;
-}>({ groupId: 'playground', defaultBy: 'request' });
+}>({ groupId: 'playground', defaultBy: 'interaction' });
 
 /** Store open state, persisted per `groupId`; toggling keeps the page from
  * scrolling, also as each Store it closes leaves the layout (`heldToggle`).

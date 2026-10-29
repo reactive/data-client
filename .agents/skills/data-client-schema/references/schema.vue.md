@@ -234,7 +234,7 @@ This enables their use in these additional cases:
 - [memo.query()](#memoquery)
 - Improve performance of [useSuspense](https://dataclient.io/vue/api/useSuspense), [useDLE](https://dataclient.io/vue/api/useDLE) by rendering before endpoint resolution
 
-`Querables` include [Entity](./Entity.vue.md), [All](./All.vue.md), [Collection](./Collection.vue.md), [Query](./Query.vue.md),
+`Querables` include [Entity](./Entity.vue.md), [Object](./Object.vue.md), [All](./All.vue.md), [Collection](./Collection.vue.md), [Query](./Query.vue.md),
 [Union](./Union.vue.md), and [Scalar](./Scalar.vue.md). [Lazy](./Lazy.vue.md) fields produce a Queryable via their [`.query`](./Lazy.vue.md#query) accessor.
 
 ```ts
@@ -255,7 +255,7 @@ interface Queryable {
 | ------------------------------------------------------------------- | ------- | ------------------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------- |
 | [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | ✅       | [Entity](./Entity.vue.md)                 | single _unique_ object                                                                 | ✅                                  |
 | [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | ✅       | [Union(Entity)](./Union.vue.md)           | polymorphic objects (`A \| B`)                                                         | ✅                                  |
-| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | 🛑      | [Object](./Object.vue.md)                 | statically known keys                                                                  | 🛑                                 |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | 🛑      | [Object](./Object.vue.md)                 | statically known keys                                                                  | ✅                                  |
 | [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) |         | [Invalidate(Entity)](./Invalidate.vue.md) | [delete an entity](https://dataclient.io/vue/concepts/expiry-policy#invalidate-entity) | 🛑                                 |
 | [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   | ✅       | [Collection(Array)](./Collection.vue.md)  | growable lists                                                                         | ✅                                  |
 | [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   | 🛑      | [Array](./Array.vue.md)                   | immutable lists                                                                        | 🛑                                 |

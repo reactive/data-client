@@ -23,7 +23,7 @@ thus operates on POJOs rather than an instance of the class.
 
 Here we can make sure the title field is included, and of the expected type.
 
-<FrameworkPlayground row defaultActionsBy="interaction" fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({path: '/article/:id'}),
 args: [{ id: 1 }],
@@ -102,7 +102,7 @@ render(<ArticlePage id="2" />);
 
 [validateRequired()](/rest/api/validateRequired) can be used to check if all defined fields are present.
 
-<FrameworkPlayground row defaultActionsBy="interaction" fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({path: '/article/:id'}),
 args: [{ id: 1 }],
@@ -183,7 +183,7 @@ useful when some fields consume lots of bandwidth or are computationally expensi
 
 Consider using [validateRequired](/rest/api/validateRequired) to reduce code.
 
-<FrameworkPlayground row defaultActionsBy="interaction" fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({path: '/article'}),
 args: [],

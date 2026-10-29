@@ -443,7 +443,7 @@ For the small price of 9kb gzipped. &nbsp;&nbsp; [🏁Get started now](https://d
 <td align="center">🛑</td>
 <td><a href="https://dataclient.io/rest/api/Object">Object</a></td>
 <td>statically known keys</td>
-<td align="center">🛑</td>
+<td align="center">✅</td>
 </tr>
 <tr>
 <td align="center"></td>

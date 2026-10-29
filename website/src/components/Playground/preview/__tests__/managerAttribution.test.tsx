@@ -1094,10 +1094,11 @@ describe('Store panel pipeline', () => {
     openActions();
     const target = { path: 'StreamManager.ts', line: 3 };
     const links = () => screen.getAllByTitle('Open StreamManager in the code');
-    // the pipeline's, and the tag on its action's row
-    expect(links()).toHaveLength(2);
+    // the pipeline's, the head of the section it started, and the tag on
+    // its action's row
+    expect(links()).toHaveLength(3);
     for (const link of links()) fireEvent.click(link);
-    expect(open.mock.calls).toEqual([[target], [target]]);
+    expect(open.mock.calls).toEqual([[target], [target], [target]]);
     // the tag's click opens no action
     expect(screen.queryByRole('group', { name: /^Path/ })).toBeNull();
     // nor do the library's managers, which the code doesn't declare

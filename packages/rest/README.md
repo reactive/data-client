@@ -200,7 +200,7 @@ supports inferring argument types from the path templates.
 <td align="center">🛑</td>
 <td><a href="https://dataclient.io/rest/api/Object">Object</a></td>
 <td>statically known keys</td>
-<td align="center">🛑</td>
+<td align="center">✅</td>
 </tr>
 <tr>
 <td align="center"></td>

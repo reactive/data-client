@@ -26,6 +26,7 @@ and `editor/callouts.ts`.
 | Store log, action credit                     | `preview/store/actionLog.ts`, `actionGroups.ts`, `attribution.ts` (names each action's manager)                    |
 | Why a fetch happened                         | `preview/store/fetchCause.ts` (reason, playground-free), `callSite.ts` (hook, component, event), `Why.tsx`         |
 | Actions by interaction (`defaultActionsBy`)  | `preview/store/interactions.ts` (sections, playground-free), `useActionsBy` in `storeView.ts` (kept per `groupId`) |
+| Actions listed (`defaultActionsBy`)          | `preview/store/interactions.ts` (sections), `actionRowsOf` (`actionGroups.ts`), `useActionsBy` (`storeView.ts`) |
 | Managers the code declares                   | `preview/managers.ts`; [data flow](./managers-data-flow.png) (source `.svg`)                                       |
 | EndpointPlayground's live exchange           | `preview/exchange/` (runs the code, its endpoints answered by fixtures); `../HTTP/` draws it                       |
 | Multi-page demos, self-playing demos         | `preview/router.tsx`, `preview/autorun/`                                                                           |

@@ -294,7 +294,7 @@ Available from [@data-client/endpoint](https://www.npmjs.com/package/@data-clien
 <td align="center">🛑</td>
 <td><a href="https://dataclient.io/rest/api/Object">Object</a></td>
 <td>statically known keys</td>
-<td align="center">🛑</td>
+<td align="center">✅</td>
 </tr>
 <tr>
 <td align="center"></td>
