@@ -223,7 +223,7 @@ div.playground-preview h1:first-child {
   align-items: flex-start;
   /* side by side, the open pane sits as far from the rows' highlights (which
      bleed space-3) as from the sheet's edge */
-  gap: var(--ds-space-4) calc(var(--pg-sheet-pad, 1.25rem) + var(--ds-space-3));
+  gap: var(--ds-space-4) calc(var(--ds-sheet-pad) + var(--ds-space-3));
 }
 .playground-preview .split > * {
   flex: 3 1 18rem;
@@ -239,8 +239,10 @@ div.playground-preview h1:first-child {
   border-radius: var(--ds-radius);
   background: var(--ds-surface-2);
 }
-/* stacked under the list (below both bases plus the gap: 14 + 18 + 2rem),
-   it spans the rows' highlights and its text starts where their avatars do */
+/* stacked under the list (below both bases plus the gap: 14 + 18 + 2rem at
+   the sheet's usual 1.25rem inset), it spans the rows' highlights and its
+   text starts where their avatars do; its own line, since its negative
+   margins would otherwise let it squeeze in beside the list */
 @container split (width < 34rem) {
   .playground-preview .split > :not(.list) {
     flex-basis: 100%;

@@ -20,6 +20,8 @@
   --ds-radius: 12px;
   --ds-radius-sm: 8px;
   --ds-radius-xs: 4px;
+  /* the sheet's inset around the app (the frame's) */
+  --ds-sheet-pad: var(--pg-sheet-pad);
   /* a row's inset above and below (a row's button reaches into it) */
   --ds-row-pad: var(--ds-space-2);
   /* a button's or a field's inset */
