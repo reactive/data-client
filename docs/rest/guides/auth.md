@@ -69,7 +69,7 @@ values={[
 ]}>
 <TabItem value="static">
 
-<EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'Access-Token': 'mytoken'}}} status={200} response={{  "id": "1","title": "this post"}}>
+<EndpointPlayground fixtures={myPostFixtures} setup="AuthdEndpoint.accessToken = 'mytoken';">
 
 ```ts title="login" collapsed
 export const login = async (data: FormData) =>
@@ -159,7 +159,7 @@ MyResource.get({ id: 1 });
 </TabItem>
 <TabItem value="async">
 
-<EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'Access-Token': 'mytoken'}}} status={200} response={{  "id": "1","title": "this post"}}>
+<EndpointPlayground fixtures={myPostFixtures} setup="setAuthToken('mytoken');">
 
 ```ts title="login" collapsed
 export const login = async (data: FormData) =>
@@ -254,7 +254,7 @@ MyResource.get({ id: 1 });
 </TabItem>
 <TabItem value="function">
 
-<EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'Access-Token': 'mytoken'}}} status={200} response={{  "id": "1","title": "this post"}}>
+<EndpointPlayground fixtures={myPostFixtures} setup="setAuthToken('mytoken');">
 
 ```ts title="login" collapsed
 export const login = async (data: FormData) =>

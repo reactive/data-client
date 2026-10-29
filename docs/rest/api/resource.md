@@ -12,6 +12,7 @@ description: Resources are a collection of RestEndpoints that operate on a commo
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import StackBlitz from '@site/src/components/StackBlitz';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
+import { groupPostFixtures } from '@site/src/fixtures/group-posts';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import DeleteProcess from './\_DeleteProcess.mdx';
 import CollectionLists from '@site/src/components/CollectionLists';
@@ -293,7 +294,7 @@ const PostResource = resource({
 
 Retrieve a singular entity.
 
-<EndpointPlayground input="/react/posts/1" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={{  "id": "1","group": "react","title": "this post",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -339,7 +340,7 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 
 Retrieve a list of entities.
 
-<EndpointPlayground input="/react/posts?author=clara" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={[{ "id": "1","group": "react","title": "this post",author: 'clara',}]}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -398,7 +399,7 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 [RestEndpoint.push](./RestEndpoint.md#push) creates a new entity and pushes it to the end of getList. Use [getList.unshift](#unshift)
 to place at the beginning instead. Pass an array as the body to create several at once.
 
-<EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'},body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -446,7 +447,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 [RestEndpoint.unshift](./RestEndpoint.md#unshift) creates a new entity and pushes it to the beginning of getList.
 
-<EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -496,7 +497,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 This member is only available when [paginationField](#paginationfield) is specified.
 
-<EndpointPlayground input="/react/posts?author=clara&page=2" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={[{ "id": "5","group": "react","title": "second page",author: 'clara',}]}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -549,7 +550,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 [RestEndpoint.move](./RestEndpoint.md#move) moves an entity between [Collections](./Collection.md) by removing it from
 collections matching its old state and adding it to collections matching the new values from the body.
 
-<EndpointPlayground input="/react/posts/1" init={{method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "group": "vue" })}} status={200} response={{  "id": "1","group": "vue","title": "this post",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -596,7 +597,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 Update an entity.
 
-<EndpointPlayground input="/react/posts/1" init={{method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "updated title", author: 'clara' })}} status={200} response={{  "id": "1","group": "react","title": "updated title",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -643,7 +644,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 Update some subset of fields of an entity.
 
-<EndpointPlayground input="/react/posts/1" init={{method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "updated title" })}} status={200} response={{  "id": "1","group": "react","title": "updated title",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -690,7 +691,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 Deletes an entity.
 
-<EndpointPlayground input="/react/posts/1" init={{method: 'DELETE', headers: {'Content-Type': 'application/json', }}} status={200} response={{ "id": "1" }}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';

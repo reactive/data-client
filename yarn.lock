@@ -27817,6 +27817,7 @@ __metadata:
     monaco-editor: "npm:^0.57.0"
     parse-numeric-range: "npm:^1.3.0"
     playwright: "npm:1.64.0"
+    qs: "npm:^6.16.0"
     raw-loader: "npm:^4.0.2"
     react: "npm:^19.0.0"
     react-dom: "npm:^19.0.0"

@@ -6,6 +6,7 @@ sidebar_label: Django Integration
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
+import { myPostFixtures } from '@site/src/fixtures/my-posts';
 
 # Django Integration
 
@@ -16,7 +17,7 @@ Django add protection against Cross Site Request Forgery, by [requiring the 'X-C
 Additionally Django's authentication uses [cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies), so we need to send credentials [fetch credentials](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#sending_a_request_with_credentials_included). If you use
 an auth type other than the default 'django.contrib.auth', see [authentication guide](./auth.md) for more examples.
 
-<EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'X-CSRFToken': 'xyz', 'Cookie': 'session=abc;'}}} status={200} response={{  "id": "1","title": "this post"}}>
+<EndpointPlayground fixtures={myPostFixtures} setup="const document = { cookie: 'csrftoken=xyz' };">
 
 ```ts title="getCookie" collapsed
 export default function getCookie(name): string {
@@ -77,7 +78,7 @@ export const MyResource = resource({
 
 ```ts title="Usage" column
 import { MyResource } from './MyResource';
-MyResource.get({ id: 1 });
+MyResource.partialUpdate({ id: 1 }, { title: 'Signing in with cookies' });
 ```
 
 </EndpointPlayground>

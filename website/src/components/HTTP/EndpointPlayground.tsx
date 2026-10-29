@@ -1,11 +1,14 @@
 import clsx from 'clsx';
-import React, { useContext, useDeferredValue, useState } from 'react';
+import React, { useContext, useDeferredValue, useMemo, useState } from 'react';
 
 import LiveFolder from './LiveFolder';
 import Request from './Request';
 import Response from './Response';
 import styles from './styles.module.css';
-import { useCodeDocuments } from '../Playground/editor/codeModel';
+import {
+  type CodeDocument,
+  useCodeDocuments,
+} from '../Playground/editor/codeModel';
 import EditorSurface from '../Playground/editor/EditorSurface';
 import { PlaygroundHiddenContext } from '../Playground/hiddenContext';
 import type { LiveProps } from '../Playground/preview/exchange/LiveExchange';
@@ -27,6 +30,8 @@ export default function EndpointPlayground(props: Props) {
   if (!hidden && !interactive) setInteractive(true);
   // the editor stays responsive while the exchange reruns
   const documents = useDeferredValue(model.documents);
+  const setup = 'setup' in props ? props.setup : undefined;
+  const run = useMemo(() => withSetup(documents, setup), [documents, setup]);
 
   return (
     <div className={playgroundstyles.playgroundQueryContainer}>
@@ -52,7 +57,7 @@ export default function EndpointPlayground(props: Props) {
           </div>
         : <LiveFolder
             className={folder}
-            documents={documents}
+            documents={run}
             fixtures={props.fixtures}
             getInitialInterceptorData={props.getInitialInterceptorData}
           />
@@ -68,7 +73,25 @@ const folder = clsx(
   styles.folder,
 );
 
-type Props = (LiveProps | FixedProps) & { children: React.ReactNode };
+/** `setup` runs before the last file, where nobody copies it from */
+function withSetup(documents: readonly CodeDocument[], setup?: string) {
+  if (!setup) return documents;
+  return [
+    ...documents.slice(0, -1),
+    { value: setup, path: 'setup.ts', language: 'ts', collapsed: true },
+    ...documents.slice(-1),
+  ];
+}
+
+type Props = (LivePlaygroundProps | FixedProps) & {
+  children: React.ReactNode;
+};
+
+interface LivePlaygroundProps extends LiveProps {
+  /** Hidden code run before the last file, for state the demo assumes
+   * (a signed-in token, a cookie) */
+  setup?: string;
+}
 
 interface FixedProps {
   input: RequestInfo;

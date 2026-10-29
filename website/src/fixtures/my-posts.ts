@@ -8,13 +8,24 @@ const posts: Record<string, { id: string; title: string }> = {
   '3': { id: '3', title: 'Signing in with cookies' },
 };
 
+function find({ id }: { id: string | number }) {
+  const post = posts[id];
+  if (!post) throw { status: 404, message: `No post ${id}` };
+  return post;
+}
+const edit = (params: { id: string | number }, body: object) => ({
+  ...find(params),
+  ...body,
+});
+
 export const myPostFixtures: Interceptor[] = [
+  { endpoint: new RestEndpoint({ path: '/my/:id' }), response: find },
   {
-    endpoint: new RestEndpoint({ path: '/my/:id' }),
-    response({ id }: { id: string | number }) {
-      const post = posts[id];
-      if (!post) throw { status: 404, message: `No post ${id}` };
-      return post;
-    },
+    endpoint: new RestEndpoint({ path: '/my/:id', method: 'PUT' }),
+    response: edit,
+  },
+  {
+    endpoint: new RestEndpoint({ path: '/my/:id', method: 'PATCH' }),
+    response: edit,
   },
 ];

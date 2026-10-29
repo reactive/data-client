@@ -1,3 +1,4 @@
+import qs from 'qs';
 import React from 'react';
 import { transform } from 'sucrase';
 
@@ -34,6 +35,8 @@ export function runExchanges(
   const scope: Record<string, unknown> = {
     React,
     ...previewScope,
+    // what endpoint demos import beside the library
+    qs,
     ...networkScope({
       fixtures,
       interceptorData: getInitialInterceptorData(),
