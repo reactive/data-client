@@ -234,7 +234,7 @@ This enables their use in these additional cases:
 - [memo.query()](#memoquery)
 - Improve performance of [useSuspense](https://dataclient.io/docs/api/useSuspense), [useDLE](https://dataclient.io/docs/api/useDLE) by rendering before endpoint resolution
 
-`Querables` include [Entity](./Entity.md), [All](./All.md), [Collection](./Collection.md), [Query](./Query.md),
+`Querables` include [Entity](./Entity.md), [Object](./Object.md), [All](./All.md), [Collection](./Collection.md), [Query](./Query.md),
 [Union](./Union.md), and [Scalar](./Scalar.md). [Lazy](./Lazy.md) fields produce a Queryable via their [`.query`](./Lazy.md#query) accessor.
 
 ```ts
@@ -255,7 +255,7 @@ interface Queryable {
 | ------------------------------------------------------------------- | ------- | ------------------------------------- | --------------------------------------------------------------------------------------- | ---------------------------------- |
 | [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | ✅       | [Entity](./Entity.md)                 | single _unique_ object                                                                  | ✅                                  |
 | [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | ✅       | [Union(Entity)](./Union.md)           | polymorphic objects (`A \| B`)                                                          | ✅                                  |
-| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | 🛑      | [Object](./Object.md)                 | statically known keys                                                                   | 🛑                                 |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | 🛑      | [Object](./Object.md)                 | statically known keys                                                                   | ✅                                  |
 | [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) |         | [Invalidate(Entity)](./Invalidate.md) | [delete an entity](https://dataclient.io/docs/concepts/expiry-policy#invalidate-entity) | 🛑                                 |
 | [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   | ✅       | [Collection(Array)](./Collection.md)  | growable lists                                                                          | ✅                                  |
 | [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   | 🛑      | [Array](./Array.md)                   | immutable lists                                                                         | 🛑                                 |
