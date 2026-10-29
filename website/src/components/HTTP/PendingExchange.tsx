@@ -4,8 +4,9 @@ import { ResponseSheet } from './Response';
 import styles from './styles.module.css';
 import playgroundstyles from '../Playground/styles.module.css';
 
-/** The page's first paint and the code's first run: the request, and its
- * response if there will be one, in skeletons */
+/** An exchange the code hasn't made yet (after a client navigation, the
+ * page's HTML holds none): the request, and its response if there will be
+ * one, in skeletons */
 export default function PendingExchange({ answered }: { answered: boolean }) {
   return (
     <>

@@ -37,10 +37,7 @@ export default function LiveFolder({
   const hydrated = useIsBrowser();
 
   const answered = !!fixtures;
-  const settled =
-    initial ?
-      <Live state={initial} answered={answered} />
-    : <PendingExchange answered={answered} />;
+  const settled = <Live state={initial ?? NONE} answered={answered} />;
   return (
     <div
       className={className}
@@ -64,6 +61,8 @@ export default function LiveFolder({
 }
 
 const onServer = typeof document === 'undefined';
+/** No exchange yet: after a client navigation, until the code first runs */
+const NONE: LiveState = { stale: false };
 
 /** The first exchange: run on the server, read from the page's HTML on the
  * client (absent after a client navigation, which never got it) */
