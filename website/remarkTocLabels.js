@@ -52,8 +52,8 @@ function tocArray(node) {
 const property = (item, key) =>
   item.properties.find(p => (p.key.name ?? p.key.value) === key);
 
-function relabel(tree) {
-  // heading id -> name, for signature headings only
+/** Heading id -> member name, for signature headings */
+function signatureLabels(tree) {
   const labels = new Map();
   const visit = node => {
     const name = node.type === 'heading' && signatureName(toText(node));
@@ -61,19 +61,26 @@ function relabel(tree) {
     node.children?.forEach(visit);
   };
   visit(tree);
-  if (!labels.size) return;
+  return labels;
+}
 
+/** Sets each item's `value` to its label, when it has one */
+function relabelToc(toc, labels) {
+  for (const item of toc.elements) {
+    if (item?.type !== 'ObjectExpression') continue;
+    const label = labels.get(property(item, 'id')?.value.value);
+    const valueProperty = property(item, 'value');
+    if (label && valueProperty)
+      valueProperty.value = { type: 'Literal', value: label };
+  }
+}
+
+function relabel(tree) {
+  const labels = signatureLabels(tree);
+  if (!labels.size) return;
   for (const node of tree.children) {
-    if (node.type !== 'mdxjsEsm') continue;
-    const toc = tocArray(node);
-    if (!toc) continue;
-    for (const item of toc.elements) {
-      if (item?.type !== 'ObjectExpression') continue;
-      const label = labels.get(property(item, 'id')?.value.value);
-      const value = property(item, 'value');
-      if (label === undefined || !value) continue;
-      value.value = { type: 'Literal', value: label };
-    }
+    const toc = node.type === 'mdxjsEsm' && tocArray(node);
+    if (toc) relabelToc(toc, labels);
   }
 }
 
