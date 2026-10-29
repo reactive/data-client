@@ -1647,13 +1647,22 @@ describe('RestEndpoint.fetch()', () => {
   });
 
   it('resource.delete sends no body when the resource declares one', async () => {
+    let lastBody: any;
+    nock(/.*/)
+      .defaultReplyHeaders({ 'Access-Control-Allow-Origin': '*' })
+      .delete('/article-cooler/77')
+      .reply(200, function (uri, requestBody) {
+        lastBody = requestBody;
+        return { id: 77 };
+      });
     const PostResource = resource({
       path: '/article-cooler/:id',
       schema: CoolerArticle,
       body: {} as { title: string },
     });
-    const res = await PostResource.delete({ id: payload.id });
-    expect(res).toEqual({ id });
+    const res = await PostResource.delete({ id: 77 });
+    expect(res).toEqual({ id: 77 });
+    expect(lastBody).toBe('');
   });
 
   it('should PUT', async () => {

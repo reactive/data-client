@@ -60,7 +60,8 @@ export default class RestEndpoint extends Endpoint {
     if (this.urlPrefix === undefined) {
       this.urlPrefix = '';
     }
-    // GET never sends a body; DELETE only when one is declared
+    // GET never sends a body, DELETE only when `body` is declared, and other
+    // methods unless `body: undefined`
     this.#hasBody =
       this.method === 'DELETE' ?
         'body' in this && this.body !== undefined
