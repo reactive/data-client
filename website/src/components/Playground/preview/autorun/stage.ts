@@ -42,6 +42,7 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
     pointer.style.translate = `${at.x - origin.left}px ${at.y - origin.top}px`;
     return pointer.style.translate !== previous;
   };
+  let gliding: Animation | undefined;
   /** Moves the pointer onto `el`: placed there at once, then animated in from
    * where it was drawn by the difference, so it lands on the target however
    * the target moves meanwhile */
@@ -49,8 +50,10 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
     const from = pointer?.getBoundingClientRect();
     const moved = place(el);
     if (from && moved && canAnimate()) {
+      // where it lands, without what's left of a glide still running
+      gliding?.cancel();
       const to = pointer!.getBoundingClientRect();
-      pointer!.animate(
+      gliding = pointer!.animate(
         [
           {
             transform: `translate(${from.left - to.left}px, ${from.top - to.top}px)`,
@@ -116,6 +119,10 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
     },
 
     click(el) {
+      // onto where it is now (it may have moved with no scroll or resize),
+      // which the press reports
+      pointedAt = el;
+      place(el);
       ring();
       const init = {
         bubbles: true,

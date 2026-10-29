@@ -304,6 +304,15 @@ describe('stage', () => {
       top = 300;
       root.dispatchEvent(new Event('scroll'));
       expect(pointer.style.translate).toBe('10px 310px');
+      // it moved with no scroll or resize: the press finds it
+      top = 350;
+      const onDown = jest.fn((e: MouseEvent) => e.clientY);
+      button.addEventListener('pointerdown', onDown);
+      stage.click(button);
+      expect(onDown).toHaveReturnedWith(360);
+      expect(pointer.style.translate).toBe('10px 360px');
+      top = 300;
+      resized();
       // a render took it away: the pointer stays where it was
       button.remove();
       top = 0;
