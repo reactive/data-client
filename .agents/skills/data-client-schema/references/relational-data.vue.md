@@ -196,7 +196,7 @@ export const TodoResource = resource({
   import type { User } from './resources/User';
 
   defineProps<{
-    owner: User | undefined;
+    owner: User;
     todos: readonly Todo[];
     users: readonly User[];
   }>();
@@ -205,8 +205,8 @@ export const TodoResource = resource({
 <template>
   <section>
     <h3>
-      <Avatar v-if="owner" :src="owner.profileImage" :size="20" />
-      {{ owner?.name ?? 'Unassigned' }}
+      <Avatar :src="owner.profileImage" :size="20" />
+      {{ owner.name }}
     </h3>
     <div class="list">
       <TodoItem
@@ -240,10 +240,10 @@ export const TodoResource = resource({
 
 <template>
   <TodoGroup
-    v-for="[owner, ownerTodos] in byOwner"
-    :key="owner?.pk() ?? 'unassigned'"
-    :owner="owner"
-    :todos="ownerTodos"
+    v-for="user in users"
+    :key="user.pk()"
+    :owner="user"
+    :todos="byOwner.get(user) ?? []"
     :users="users"
   />
 </template>

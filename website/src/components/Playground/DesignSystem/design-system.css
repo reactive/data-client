@@ -63,29 +63,28 @@ div.playground-preview h1:first-child {
   letter-spacing: 0;
   color: var(--ds-text-muted);
 }
-/* Groups of rows under a label (a person's tasks): each a well a step off
-   the sheet, holding its label and rows, so where one group ends and the
-   next begins shows at a glance, closer together than bare sections. The
-   label leads it in the text's color; rows fill it, 6px in */
+/* Groups of rows under a label (a person's tasks): a hairline between
+   them marks where one group ends and the next begins, and the label leads
+   its rows in the text's color. As a drop target, its ring rounds and
+   stands just off the rows */
 .playground-preview section:has(> h3 + .list) {
-  margin-bottom: var(--ds-space-2);
-  padding: 6px;
-  border-radius: var(--ds-radius);
-  background-color: var(--ds-surface-2);
+  margin-bottom: var(--ds-space-4);
 }
-.playground-preview section:has(> h3 + .list):last-child {
-  margin-bottom: 0;
+.playground-preview section:has(> h3 + .list)[data-drop-target] {
+  border-radius: var(--ds-radius-sm);
+  outline-offset: 4px;
 }
-.playground-preview section > h3:has(+ .list) {
-  margin: 0;
-  padding: 6px var(--ds-space-3) 2px;
-  color: var(--ds-text);
+.playground-preview section:has(> h3 + .list) + section:has(> h3 + .list) {
+  padding-top: var(--ds-space-3);
+  border-top: 1px solid var(--ds-border);
 }
+.playground-preview section:has(> h3 + .list):last-child,
 .playground-preview section > h3 + .list {
   margin-bottom: 0;
 }
-.playground-preview section > h3 + .list > .listItem {
-  margin-inline: 0;
+.playground-preview section > h3:has(+ .list) {
+  padding-inline: var(--ds-space-2);
+  color: var(--ds-text);
 }
 /* a person's group: their avatar beside the label */
 .playground-preview section > h3:has(> .avatar) {
@@ -231,8 +230,7 @@ div.playground-preview h1:first-child {
    carried by the reader is lifted over them on the sheet's own color, so
    their text never overprints; a row is raised visibly. The surface is
    opaque at once (only the shadow eases in), or the text it crosses would
-   show through it. An item with a surface of its own (a group's well)
-   keeps it */
+   show through it. An item with a surface of its own keeps it */
 .playground-preview :is([data-traveling], [data-dragging]) {
   position: relative;
   z-index: 1;

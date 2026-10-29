@@ -218,13 +218,11 @@ import type { User } from './resources/User';
 export default function TodoGroup({ owner, todos, users }: Props) {
   return (
     <section
-      ref={useReorderItem(`owner ${owner?.pk()}`, {
-        dropValue: owner?.id,
-      })}
+      ref={useReorderItem(`owner ${owner.pk()}`, { dropValue: owner.id })}
     >
       <h3>
-        {owner && <Avatar src={owner.profileImage} size={20} />}
-        {owner?.name ?? 'Unassigned'}
+        <Avatar src={owner.profileImage} size={20} />
+        {owner.name}
       </h3>
       <div className="list">
         {todos.map(todo => (
@@ -236,7 +234,7 @@ export default function TodoGroup({ owner, todos, users }: Props) {
 }
 
 interface Props {
-  owner: User | undefined;
+  owner: User;
   todos: Todo[];
   users: User[];
 }
@@ -256,13 +254,13 @@ function TodoList() {
   // every todo carries its user, so the list can group by it
   const byOwner = Map.groupBy(todos, todo => todo.user);
   return (
-    // rows and groups glide to wherever a change moves them
+    // rows glide to wherever a change moves them
     <Reorder layoutDependency={todos}>
-      {[...byOwner].map(([owner, ownerTodos]) => (
+      {users.map(user => (
         <TodoGroup
-          key={owner?.pk() ?? 'unassigned'}
-          owner={owner}
-          todos={ownerTodos}
+          key={user.pk()}
+          owner={user}
+          todos={byOwner.get(user) ?? []}
           users={users}
         />
       ))}
