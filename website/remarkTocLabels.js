@@ -70,6 +70,7 @@ function relabelToc(toc, labels) {
     if (item?.type !== 'ObjectExpression') continue;
     const label = labels.get(property(item, 'id')?.value.value);
     const valueProperty = property(item, 'value');
+    // `value` is HTML; a name is an identifier, so it needs no escaping
     if (label && valueProperty)
       valueProperty.value = { type: 'Literal', value: label };
   }

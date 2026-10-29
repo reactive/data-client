@@ -44,32 +44,55 @@ describe('signatureName', () => {
 });
 
 describe('remarkTocLabels', () => {
-  it("relabels Docusaurus' toc export, keeping heading and id", async () => {
-    const {
-      createTOCExportNodeAST,
-    } = require('@docusaurus/mdx-loader/lib/remark/toc/utils.js');
-    const text = 'static process(input, parent, key, args): processedEntity';
-    const heading = {
-      type: 'heading',
-      depth: 3,
-      data: { id: 'process' },
-      children: [{ type: 'text', value: text }],
-    };
+  // Docusaurus' own toc builder (an internal path), so an upgrade that
+  // changes the export's shape fails here instead of silently
+  const {
+    createTOCExportNodeAST,
+  } = require('@docusaurus/mdx-loader/lib/remark/toc/utils.js');
+  const heading = (id, text) => ({
+    type: 'heading',
+    depth: 3,
+    data: { id },
+    children: [{ type: 'text', value: text }],
+  });
+
+  it("relabels Docusaurus' toc export, keeping headings and ids", async () => {
+    const headings = [
+      heading('process', 'static process(input, parent): processedEntity'),
+      heading('paginated', 'paginated(paginationfield)'),
+      heading('paginated-function', 'paginated(removeCursor)'),
+      heading('usage', 'Usage'),
+    ];
     const toc = await createTOCExportNodeAST({
       tocExportName: 'toc',
-      tocItems: [{ type: 'heading', heading }],
+      tocItems: headings.map(h => ({ type: 'heading', heading: h })),
     });
-    const tree = { type: 'root', children: [heading, toc] };
+    const texts = headings.map(h => h.children[0].value);
 
-    remarkTocLabels()(tree);
+    remarkTocLabels()({ type: 'root', children: [...headings, toc] });
 
-    const item =
-      toc.data.estree.body[0].declaration.declarations[0].init.elements[0];
-    const prop = key =>
-      item.properties.find(p => (p.key.name ?? p.key.value) === key).value
-        .value;
-    assert.equal(prop('value'), 'process');
-    assert.equal(prop('id'), 'process');
-    assert.equal(heading.children[0].value, text);
+    const items =
+      toc.data.estree.body[0].declaration.declarations[0].init.elements.map(
+        item =>
+          Object.fromEntries(
+            item.properties.map(p => [
+              p.key.name ?? p.key.value,
+              p.value.value,
+            ]),
+          ),
+      );
+    assert.deepEqual(
+      items.map(({ id, value }) => [id, value]),
+      [
+        ['process', 'process'],
+        ['paginated', 'paginated'],
+        ['paginated-function', 'paginated'],
+        ['usage', 'Usage'],
+      ],
+    );
+    assert.deepEqual(
+      headings.map(h => h.children[0].value),
+      texts,
+    );
   });
 });
