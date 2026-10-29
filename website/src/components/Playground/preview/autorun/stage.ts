@@ -43,17 +43,14 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
     return pointer.style.translate !== previous;
   };
   let gliding: Animation | undefined;
-  /** Places the pointer on `el`, without what's left of a glide */
-  const settle = (el: HTMLElement) => {
-    gliding?.cancel();
-    return place(el);
-  };
   /** Moves the pointer onto `el`: placed there at once, then animated in from
    * where it was drawn by the difference, so it lands on the target however
    * the target moves meanwhile */
   const glide = (el: HTMLElement) => {
     const from = pointer?.getBoundingClientRect();
-    const moved = settle(el);
+    const moved = place(el);
+    // a new glide starts from where the old one has drawn it
+    if (moved) gliding?.cancel();
     if (from && moved && canAnimate()) {
       const to = pointer!.getBoundingClientRect();
       gliding = pointer!.animate(
@@ -124,9 +121,11 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
     click(el) {
       // onto where it is now (it may have moved with no scroll or resize),
       // which the press reports
+      gliding?.cancel();
+      // not onto a target gone from view, which measures at the corner
       if (followable(el)) {
         pointedAt = el;
-        settle(el);
+        place(el);
       }
       ring();
       const init = {
@@ -220,7 +219,8 @@ export function revealOnPage(el: HTMLElement) {
 
 // jsdom lacks checkVisibility
 const visible = (el: HTMLElement) => el.checkVisibility?.() ?? true;
-/** Still on the page: a removed element measures at the viewport's corner */
+/** Still shown: a removed or hidden element measures at the viewport's
+ * corner */
 const followable = (el: HTMLElement) => el.isConnected && visible(el);
 
 /** An arrow pointer, its tip at the SVG's top left (placed on the target);

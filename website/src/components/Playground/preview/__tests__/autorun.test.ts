@@ -277,6 +277,12 @@ describe('stage', () => {
       // a press mid-glide lands the pointer where it presses
       stage.click(two);
       expect(cancel).toHaveBeenCalled();
+      // not onto a target a render took away
+      two.remove();
+      two.getBoundingClientRect = () =>
+        ({ left: 0, top: 0, width: 0, height: 0 }) as DOMRect;
+      stage.click(two);
+      expect(pointer.style.translate).toBe('50px 10px');
     } finally {
       delete (HTMLElement.prototype as any).animate;
     }
