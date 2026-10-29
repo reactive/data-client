@@ -39,9 +39,31 @@ import { endpointId, entityId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
 
+/** Storage shared by every hook, by key, as the browser's is; each test
+ * starts empty */
+const mockStored = new Map<string, string>();
+const mockListeners = new Set<() => void>();
 jest.mock('../../../../utils/tabStorage', () => ({
-  useTabStorage: () => require('react').useState(null),
+  useTabStorage: (key: string) => {
+    const { useSyncExternalStore, useCallback } = require('react');
+    const value = useSyncExternalStore(
+      (listener: () => void) => {
+        mockListeners.add(listener);
+        return () => mockListeners.delete(listener);
+      },
+      () => mockStored.get(key) ?? null,
+    );
+    const set = useCallback(
+      (next: string) => {
+        mockStored.set(key, next);
+        mockListeners.forEach(listener => listener());
+      },
+      [key],
+    );
+    return [value, set];
+  },
 }));
+beforeEach(() => mockStored.clear());
 
 const { createReducer, initialState } = __INTERNAL__;
 
@@ -253,6 +275,12 @@ function rowsBelow() {
       const top = (this as HTMLElement).dataset?.id ? 500 : 0;
       return { top, bottom: top + 28, height: 28 } as DOMRect;
     });
+}
+
+/** The pane's scrolling list holding `row`, through any section it's in */
+function listOf(row: Element) {
+  const above = row.parentElement!.parentElement!;
+  return above.tagName === 'SECTION' ? above.parentElement! : above;
 }
 
 describe('Store Actions pane detail', () => {
@@ -748,6 +776,21 @@ describe('Store Actions pane', () => {
     expect(top().textContent).not.toContain('"One"');
   });
 
+  it('lists every action as its own row, fetches apart from responses', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    openAction();
+    openPane();
+    // by interaction: the request is one row, under the app that sent it
+    expect(rows()).toHaveLength(1);
+    fireEvent.click(screen.getByRole('button', { name: 'Every action' }));
+    const listed = rows().map(row => row.textContent);
+    expect(listed).toHaveLength(2);
+    expect(listed[0]).toContain('fetch');
+    expect(listed[1]).toContain('setResponse');
+    fireEvent.click(screen.getByRole('button', { name: 'By interaction' }));
+  });
+
   it('marks the moment’s action in the list, with its row open', async () => {
     const scrollTo = jest.fn();
     Element.prototype.scrollTo = scrollTo;
@@ -757,7 +800,7 @@ describe('Store Actions pane', () => {
       await act(() => ctrl().fetch(getPosts));
       await act(() => ctrl().fetch(getPosts));
       openPane();
-      const list = rows()[0].parentElement!.parentElement!;
+      const list = listOf(rows()[0]);
       Object.defineProperty(list, 'clientHeight', { value: 100 });
       const marked = () =>
         [...list.querySelectorAll<HTMLElement>('[aria-current="true"]')].map(
@@ -859,7 +902,7 @@ describe('Store Actions pane', () => {
         });
       await sets(0, 20);
       openPane();
-      list = rows()[0].parentElement!.parentElement!;
+      list = listOf(rows()[0]);
       Object.defineProperty(list, 'scrollHeight', {
         value: 2000,
         configurable: true,
@@ -887,7 +930,7 @@ describe('Store Actions pane', () => {
       const { ctrl } = mount();
       await act(() => ctrl().fetch(getPosts));
       openPane();
-      const list = rows()[0].parentElement!.parentElement!;
+      const list = listOf(rows()[0]);
       Object.defineProperty(list, 'scrollHeight', {
         value: 900,
         configurable: true,
@@ -983,7 +1026,7 @@ describe('Store Actions pane', () => {
       expect(rows()[1].getAttribute('aria-expanded')).toBe('false');
       expect(document.activeElement).not.toBe(rows()[1]);
       // new rows don't push it out of view; live, the newest is followed again
-      const list = rows()[0].parentElement!.parentElement!;
+      const list = listOf(rows()[0]);
       Object.defineProperty(list, 'scrollHeight', { value: 900 });
       list.scrollTop = 0;
       await act(() =>

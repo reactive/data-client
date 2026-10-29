@@ -17,7 +17,7 @@ import {
 } from '@testing-library/react';
 import React, { Suspense } from 'react';
 
-import { groupEntries } from '../store/actionGroups';
+import { actionRowsOf, groupEntries } from '../store/actionGroups';
 import { findEntry, type LogEntry } from '../store/actionLog';
 import { asHook, callerNow, evaluatedFrames } from '../store/callSite';
 import { userEvent } from '../store/fetchCause';
@@ -238,6 +238,41 @@ describe('why a fetch happened', () => {
     expect(mutation?.caller).toEqual({
       event: { type: 'click', target: 'Save post', at: expect.any(Number) },
     });
+  });
+});
+
+describe('every action', () => {
+  it('lists overlapping fetches and responses apart, in dispatch order', async () => {
+    const { ctrl, entries } = mount();
+    await screen.findByText('Post 1');
+    const from = lastOf(entries()).seq;
+    act(() => {
+      ctrl().fetch(getPost, { id: '2' });
+      ctrl().fetch(getPost, { id: '3' });
+    });
+    await waitFor(() =>
+      expect(
+        entries().filter(
+          e => e.seq > from && e.action.type === actionTypes.SET_RESPONSE,
+        ),
+      ).toHaveLength(2),
+    );
+    const rows = actionRowsOf(groupEntries(entries()), () => true);
+    const seqs = rows.map(row => row.entries[0].seq);
+    expect(seqs).toEqual([...seqs].sort((a, b) => a - b));
+    expect(
+      rows
+        .filter(row => row.entries[0].seq > from)
+        .map(row => [row.entries[0].action.type, row.key]),
+    ).toEqual([
+      [actionTypes.FETCH, 'GET /posts/2'],
+      [actionTypes.FETCH, 'GET /posts/3'],
+      [actionTypes.SET_RESPONSE, 'GET /posts/2'],
+      [actionTypes.SET_RESPONSE, 'GET /posts/3'],
+    ]);
+    // each row stays the same object, so it can skip rendering
+    expect(actionRowsOf(groupEntries(entries()), () => true)).toEqual(rows);
+    expect(actionRowsOf(groupEntries(entries()), () => true)[0]).toBe(rows[0]);
   });
 });
 

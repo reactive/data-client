@@ -477,6 +477,34 @@ export const rowsOf = (
   hit: SubjectFilter['hit'],
 ) => groups.filter(g => groupEntriesOf(g).some(hit));
 
+/** Each action of `rows` that `lists` keeps as a row of its own, in
+ * dispatch order: fetches apart from their responses, every poll */
+export const actionRowsOf = (
+  rows: readonly ActionGroup[],
+  lists: SubjectFilter['lists'],
+): SingleGroup[] =>
+  rows
+    .flatMap(groupEntriesOf)
+    .filter(lists)
+    .sort((a, b) => a.seq - b.seq)
+    .map(actionRow);
+
+/** Kept per action, so its row can skip rendering */
+const actionRows = new WeakMap<LogEntry, SingleGroup>();
+function actionRow(entry: LogEntry): SingleGroup {
+  let row = actionRows.get(entry);
+  if (!row) {
+    row = {
+      kind: 'single',
+      id: `a${entry.seq}`,
+      key: actionKey(entry.action),
+      entries: [entry],
+    };
+    actionRows.set(entry, row);
+  }
+  return row;
+}
+
 /** A row of one action: it has no steps */
 export const isLone = (group: ActionGroup) =>
   groupEntriesOf(group).length === 1;

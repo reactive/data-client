@@ -47,14 +47,14 @@ describe('useActionsBy', () => {
   });
 
   it("keeps the reader's choice per group, over the default", () => {
-    mount('a', 'docs', 'request');
+    mount('a', 'docs', 'action');
     act(() => screen.getByTestId('a').click());
     expect(screen.getByTestId('a').textContent).toBe('interaction');
     // the same group, mounted again: the choice holds
-    mount('b', 'docs', 'request');
+    mount('b', 'docs', 'action');
     expect(screen.getByTestId('b').textContent).toBe('interaction');
     // another group keeps its own default
-    mount('c', 'other', 'request');
-    expect(screen.getByTestId('c').textContent).toBe('request');
+    mount('c', 'other', 'action');
+    expect(screen.getByTestId('c').textContent).toBe('action');
   });
 });
