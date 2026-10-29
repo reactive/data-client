@@ -135,8 +135,9 @@ callout markers as comments, its caption and legend outside the editor.
   answer each call from `fixtures`, found as MockResolver finds them (exact
   fixture, then the first matching interceptor; none is a 404), and shows the
   last call's exchange. The code runs as an async function, so it may
-  `await` at the top level (its editor, `topLevelAwait`, drops TS1375,
-  which only files without imports raise; other playgrounds keep it), and an awaited call's error answer shows as its exchange rather
+  `await` at the top level (its editor passes `topLevelAwait`, which drops
+  TS1375, raised only in files without imports; other playgrounds keep
+  it), and an awaited call's error answer shows as its exchange rather
   than as a throw. A bare `fetch()` throws, so no demo reaches the
   network. The first exchange is rendered on the server (`../HTTP/LiveFolder.tsx`
   runs the code during SSR, outside any Suspense boundary so React writes it

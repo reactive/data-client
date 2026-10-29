@@ -1,12 +1,11 @@
 import type * as Monaco from 'monaco-editor';
 
 import { modelIdSegment, modelPath } from './modelPath';
+import { MARKER_OWNER } from './siblingDiagnostics';
 
 /** TS1375: 'await' expressions are only allowed at the top level of a file
  * when that file is a module (a file without imports, TS's script) */
 const TOP_LEVEL_AWAIT_IN_SCRIPT = '1375';
-/** Monaco's TS checker writes its markers under the language id */
-const MARKER_OWNER = 'typescript';
 
 /** Editor surfaces (their model id segments) whose code runs as an async
  * function, as EndpointPlayground's does */

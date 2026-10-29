@@ -5,7 +5,7 @@ import { isSameSurface } from './modelPath';
 /** Monaco's own wait after an edit before it re-checks the edited file */
 const SETTLE_MS = 500;
 /** Monaco's TS checker writes its markers under the language id */
-const MARKER_OWNER = 'typescript';
+export const MARKER_OWNER = 'typescript';
 
 /**
  * Monaco re-checks only the file that changed, so the files that import it
