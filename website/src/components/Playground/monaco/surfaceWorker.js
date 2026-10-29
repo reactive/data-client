@@ -1,4 +1,3 @@
-/* global self */
 /**
  * Runs inside Monaco's TypeScript worker, loaded as its `customWorkerPath`
  * (see ./setup.ts). Plain JS, since it is loaded as text.
