@@ -1,4 +1,5 @@
-import { lazy, Suspense, use, useEffect, useId, useState } from 'react';
+import useIsBrowser from '@docusaurus/useIsBrowser';
+import { lazy, Suspense, use, useId, useState } from 'react';
 
 import PendingExchange from './PendingExchange';
 import Request from './Request';
@@ -26,16 +27,14 @@ export default function LiveFolder({
   getInitialInterceptorData,
 }: Props) {
   const id = useId();
-  const [firstDocuments] = useState(documents);
   const initial = useFirstExchange(
     id,
-    firstDocuments,
+    documents,
     fixtures,
     getInitialInterceptorData,
   );
   // hydration renders what the server did; the live code takes over after
-  const [hydrated, setHydrated] = useState(false);
-  useEffect(() => setHydrated(true), []);
+  const hydrated = useIsBrowser();
 
   const answered = !!fixtures;
   const settled =
@@ -64,6 +63,8 @@ export default function LiveFolder({
   );
 }
 
+const onServer = typeof document === 'undefined';
+
 /** The first exchange: run on the server, read from the page's HTML on the
  * client (absent after a client navigation, which never got it) */
 function useFirstExchange(
@@ -83,8 +84,6 @@ function useFirstExchange(
   const { firstExchange } = use(loadLiveExchange());
   return use(firstExchange(documents, fixtures, getInitialInterceptorData));
 }
-
-const onServer = typeof document === 'undefined';
 
 /** The exchange as JSON, the same text in the client's render as in the
  * server's (headers as a plain object) */

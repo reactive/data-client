@@ -54,34 +54,43 @@ function useLiveExchange(
   const [state, setState] = useState(initial);
 
   useEffect(() => {
-    const fail = (error?: unknown) =>
-      setState(last => ({
-        ...last,
-        stale: true,
-        error: error === undefined ? undefined : `${error}`,
-      }));
+    if (program === first) {
+      setState(initial);
+      return;
+    }
+    const fail = (error: unknown) =>
+      setState(last => ({ ...last, stale: true, error: `${error}` }));
+    // half typed, or no call: the last exchange stays, dimmed
+    const keepLast = () =>
+      setState(last => ({ ...last, stale: true, error: undefined }));
+    if (program === undefined) return keepLast();
+
     let current = true;
+    let threw = false;
     let lastCall: Promise<Exchange> | undefined;
     // shown as the code's last call: one it makes later (after an await)
-    // takes over; every call is handled, so a superseded failure is dropped
+    // takes over; every call is handled, so a superseded failure is dropped.
+    // A throw outlasts the call's answer.
     const show = (call: Promise<Exchange>) => {
       lastCall = call;
       call.then(
         exchange =>
-          current && call === lastCall && setState({ exchange, stale: false }),
-        error => current && call === lastCall && fail(error),
+          current &&
+          !threw &&
+          call === lastCall &&
+          setState({ exchange, stale: false }),
+        error => current && !threw && call === lastCall && fail(error),
       );
     };
-    if (program === first) return setState(initial);
-    if (program === undefined) return fail();
     // dimmed until this run's call is answered
     setState(last => (last.stale ? last : { ...last, stale: true }));
     try {
       runExchanges(program, fixtures, show, getInitialInterceptorData);
     } catch (error) {
+      threw = true;
       fail(error);
     }
-    if (!lastCall) fail();
+    if (!lastCall && !threw) keepLast();
     return () => {
       current = false;
     };
@@ -119,6 +128,8 @@ const FIRST_RUNS = new WeakMap<
   Map<string | undefined, Promise<LiveState>>
 >();
 
+/** The first paint's exchange: the last call the code makes as it first
+ * runs (a call made later, after an await, shows once the code is edited) */
 async function settle(
   program: string | undefined,
   fixtures: readonly FixtureOrInterceptor[],
@@ -127,6 +138,7 @@ async function settle(
   if (program === undefined) return { stale: false };
   let lastCall: Promise<Exchange> | undefined;
   try {
+    // throws before awaiting, so a throw wins over an answer, as when live
     runExchanges(
       program,
       fixtures,

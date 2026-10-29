@@ -3,6 +3,7 @@ import { RestEndpoint } from '@data-client/rest';
 
 import type { CodeDocument } from '../../editor/codeModel';
 import type { FixtureOrInterceptor } from '../../types';
+import { firstExchange } from '../exchange/LiveExchange';
 import type { Exchange } from '../exchange/network';
 import { compileExchanges, runExchanges } from '../exchange/runExchanges';
 
@@ -52,6 +53,12 @@ const fixtures: FixtureOrInterceptor[] = [
     endpoint: new RestEndpoint({ path: '/:group/posts', method: 'POST' }),
     response(params: object, body: object) {
       return { id: '2', ...params, ...body };
+    },
+  },
+  {
+    endpoint: new RestEndpoint({ path: '/broken' }),
+    response() {
+      throw 'down';
     },
   },
   {
@@ -114,6 +121,14 @@ describe('runExchanges', () => {
     expect((await unmatched).body).toBeUndefined();
   });
 
+  test('a thrown non-object answers 500 with its message', async () => {
+    const [exchange] = exchanges(
+      `new RestEndpoint({ path: '/broken' })().catch(() => {});`,
+    );
+    const { status, body } = await exchange;
+    expect([status, body]).toEqual([500, { message: 'down' }]);
+  });
+
   test('an empty answer is a 204', async () => {
     const [exchange] = exchanges(
       `PostResource.delete({ group: 'react', id: '1' });`,
@@ -155,6 +170,31 @@ describe('runExchanges', () => {
     expect((await calls[1]).input).toBe('/b/posts/1');
   });
 
+  test('answers a GraphQL operation 200, not 201 for its POST', async () => {
+    const calls: Promise<Exchange>[] = [];
+    runExchanges(
+      compileExchanges([
+        file(`
+          new GQLEndpoint('/graphql').query(
+            'query GetUser($id: ID!) { user(id: $id) { id } }',
+          )({ id: '5' });
+        `),
+      ]),
+      [
+        {
+          endpoint: { testKey: () => true } as any,
+          response: ({ id }: { id: string }) => ({ user: { id } }),
+        },
+      ],
+      call => calls.push(call),
+    );
+    expect(await calls[0]).toMatchObject({
+      init: { method: 'POST' },
+      status: 200,
+      body: { user: { id: '5' } },
+    });
+  });
+
   test('answers a GQLEndpoint from fixtures too', async () => {
     const [exchange] = exchanges(`
       const getUser = new GQLEndpoint('/graphql').query(
@@ -188,5 +228,32 @@ describe('runExchanges', () => {
   test('throws what the code throws, and a SyntaxError for code that does not compile', () => {
     expect(() => exchanges(`throw new Error('boom');`)).toThrow('boom');
     expect(() => compileExchanges([file('PostResource.get({')])).toThrow();
+  });
+});
+
+describe('firstExchange', () => {
+  const first = (usage: string) =>
+    firstExchange([resourceFile, file(usage)], fixtures);
+
+  test("is the last call's exchange as the code first runs", async () => {
+    const { exchange, error } = await first(`
+      PostResource.get({ group: 'a', id: '1' });
+      PostResource.get({ group: 'b', id: '1' });
+    `);
+    expect([exchange?.input, error]).toEqual(['/b/posts/1', undefined]);
+  });
+
+  test('a throw wins, before or after a call', async () => {
+    expect((await first(`throw new Error('before');`)).error).toBe(
+      'Error: before',
+    );
+    expect(
+      (
+        await first(`
+          PostResource.get({ group: 'a', id: '1' });
+          throw new Error('after');
+        `)
+      ).error,
+    ).toBe('Error: after');
   });
 });

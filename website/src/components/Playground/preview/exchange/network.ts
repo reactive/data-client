@@ -26,23 +26,18 @@ export interface Network {
 /** The endpoint names the code gets in place of the library's: the same
  * endpoints, except that requests go to `network`'s fixtures. The endpoints
  * still build each request themselves (url, getRequestInit, getHeaders), so
- * an exchange is what the code would send. A request made any other way
- * fails, never reaching the network. */
+ * an exchange is what the code would send. A bare `fetch()` throws, so a
+ * demo's own requests don't reach the network either. */
 export function networkScope(network: Network) {
   const answer = fixtureAnswerer(network.fixtures, network.interceptorData);
-  const RecordingEndpoint = recording(
-    RestEndpoint,
-    answer,
-    network,
-    toResponse,
-  );
+  const RecordingEndpoint = recording(RestEndpoint, answer, network, REST);
   const recordingResource = (options: any) =>
     resource({ Endpoint: RecordingEndpoint, ...options });
   return {
     RestEndpoint: RecordingEndpoint,
     resource: recordingResource,
     createResource: recordingResource,
-    GQLEndpoint: recording(GQLEndpoint, answer, network, toGQLData),
+    GQLEndpoint: recording(GQLEndpoint, answer, network, GRAPHQL),
     fetch() {
       throw new Error('Live demos answer only requests their endpoints send');
     },
@@ -52,13 +47,13 @@ export function networkScope(network: Network) {
 /** On a recording endpoint's fetch: the fetch it wraps */
 const SEND = Symbol('send');
 
-/** `Endpoint`, its requests answered by `answer`; `respond` turns an answer
- * into what the endpoint's own fetchResponse() resolves or rejects with */
+/** `Endpoint`, its requests answered by `answer` as `protocol`'s server
+ * would */
 function recording(
   Endpoint: new (...options: any[]) => any,
   answer: ReturnType<typeof fixtureAnswerer>,
   { onCall }: Network,
-  respond: (status: number, body: unknown) => unknown,
+  { success, respond }: Protocol,
 ) {
   return class RecordingEndpoint extends Endpoint {
     constructor(...options: any[]) {
@@ -77,7 +72,13 @@ function recording(
         // the call's args, as MockResolver answers
         const endpoint = this.extend({
           fetchResponse: async (input: string, init: RequestInit) => {
-            const answered = await answer(this.key(...args), args, input, init);
+            const answered = await answer(
+              this.key(...args),
+              args,
+              input,
+              init,
+              success(init),
+            );
             resolve({ input, init, ...answered });
             return respond(answered.status, answered.body);
           },
@@ -94,8 +95,7 @@ function recording(
 
 /** Finds the fixture as MockResolver does: the exact fixture for the call's
  * key, else the first interceptor whose endpoint matches it. With no match
- * the answer is a 404, never a real request. Statuses are what a server
- * would send: 201 for a POST, 204 for an empty answer. */
+ * the answer is a 404, never a real request; an empty answer is a 204. */
 function fixtureAnswerer(
   fixtures: readonly FixtureOrInterceptor[],
   interceptorData: unknown,
@@ -106,6 +106,7 @@ function fixtureAnswerer(
     args: unknown[],
     input: string,
     init: RequestInit,
+    success: number,
   ): Promise<{ status: number; body?: unknown }> => {
     const fixture =
       exact.get(key) ??
@@ -124,7 +125,7 @@ function fixtureAnswerer(
     );
     if (error) return errorAnswer(response);
     if (response == null) return { status: 204 };
-    return { status: init.method === 'POST' ? 201 : 200, body: response };
+    return { status: success, body: response };
   };
 }
 
@@ -133,25 +134,42 @@ function fixtureAnswerer(
 function errorAnswer(thrown: any) {
   if (thrown instanceof Error)
     return { status: 500, body: { message: thrown.message } };
-  if (typeof thrown !== 'object' || thrown === null)
+  if (thrown == null) return { status: 500 };
+  if (typeof thrown !== 'object')
     return { status: 500, body: { message: String(thrown) } };
   const { status = 500, ...body } = thrown;
   return { status, body };
 }
 
-/** Resolves or rejects as RestEndpoint's own fetchResponse() would */
-function toResponse(status: number, body: unknown) {
-  const response = new Response(
-    body === undefined ? null : JSON.stringify(body),
-    { status, headers: { 'content-type': 'application/json' } },
-  );
-  if (!response.ok) throw new NetworkError(response);
-  return response;
+/** How an endpoint's server answers */
+interface Protocol {
+  /** The status of an answer with a body */
+  success(init: RequestInit): number;
+  /** What the endpoint's own fetchResponse() resolves or rejects with */
+  respond(status: number, body: unknown): unknown;
 }
 
-/** Resolves or rejects as GQLEndpoint's own fetchResponse() would */
-function toGQLData(status: number, body: any) {
-  if (status >= 400)
-    throw new GQLNetworkError([body ?? { message: `${status}` }]);
-  return body;
-}
+const REST: Protocol = {
+  // a POST creates
+  success: init => (init.method === 'POST' ? 201 : 200),
+  respond(status, body) {
+    const response = new Response(
+      body === undefined ? null : JSON.stringify(body),
+      { status, headers: { 'content-type': 'application/json' } },
+    );
+    if (!response.ok) throw new NetworkError(response);
+    return response;
+  },
+};
+
+const GRAPHQL: Protocol = {
+  // every operation is a POST, answered 200
+  success: () => 200,
+  // a GraphQL fixture answers with the data the endpoint resolves with
+  // (GQLEndpoint's fetchResponse() unwraps the server's `data`)
+  respond(status, body: any) {
+    if (status >= 400)
+      throw new GQLNetworkError([body ?? { message: `${status}` }]);
+    return body;
+  },
+};
