@@ -51,13 +51,13 @@ export function runLive(
   program: string,
   fixtures: readonly FixtureOrInterceptor[],
   getInitialInterceptorData: (() => unknown) | undefined,
-  report: (outcome: { exchange?: Exchange; error?: string }) => void,
+  report: (outcome: LiveOutcome) => void,
 ): () => void {
-  let current = true;
+  let reporting = true;
   let threw = false;
   let lastCall: Promise<Exchange> | undefined;
-  const shown = (call: Promise<Exchange>) =>
-    current && !threw && call === lastCall;
+  const isLatest = (call: Promise<Exchange>) =>
+    reporting && !threw && call === lastCall;
   try {
     runExchanges(
       program,
@@ -66,8 +66,8 @@ export function runLive(
         lastCall = call;
         // every call is handled, so a superseded failure is dropped
         call.then(
-          exchange => shown(call) && report({ exchange }),
-          error => shown(call) && report({ error: `${error}` }),
+          exchange => isLatest(call) && report({ exchange }),
+          error => isLatest(call) && report({ error: `${error}` }),
         );
       },
       getInitialInterceptorData,
@@ -78,8 +78,14 @@ export function runLive(
   }
   if (!lastCall && !threw) report({});
   return () => {
-    current = false;
+    reporting = false;
   };
+}
+
+/** What a run shows: its last call's exchange, or what it threw */
+export interface LiveOutcome {
+  exchange?: Exchange;
+  error?: string;
 }
 
 /** Other files (a Vue SFC beside the endpoints) are for reading */

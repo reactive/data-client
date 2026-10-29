@@ -1,7 +1,6 @@
 import { type ReactNode, use, useEffect, useMemo, useState } from 'react';
 
-import type { Exchange } from './network';
-import { compileExchanges, runLive } from './runExchanges';
+import { compileExchanges, type LiveOutcome, runLive } from './runExchanges';
 import type { CodeDocument } from '../../editor/codeModel';
 import type { FixtureOrInterceptor } from '../../types';
 
@@ -33,12 +32,9 @@ export function firstExchange(
 
 /** While an edit makes no request (half typed, or no call), the last
  * exchange stays, stale; an edit that fails as it runs has an error */
-export interface LiveState {
-  exchange?: Exchange;
+export interface LiveState extends LiveOutcome {
   /** The code no longer makes `exchange` */
   stale: boolean;
-  /** What the code threw as it ran, or as its last call built its request */
-  error?: string;
 }
 
 function useLiveExchange(
@@ -112,7 +108,8 @@ const FIRST_RUNS = new WeakMap<
 
 /** The first paint's exchange: the code's outcome once its calls are
  * answered. Fixtures answer within microtasks, so a macrotask with no new
- * report means the code has made its last call, as an edit would show. */
+ * report means the code has made its last call, as an edit would show. Code
+ * that waits on a timer before a call shows the exchange before it. */
 function settle(
   program: string | undefined,
   fixtures: readonly FixtureOrInterceptor[],
