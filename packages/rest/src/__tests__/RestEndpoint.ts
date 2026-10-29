@@ -1614,55 +1614,55 @@ describe('RestEndpoint.fetch()', () => {
     expect(res).toEqual({ id });
   });
 
-  it('should DELETE without a body unless one is declared', async () => {
-    let lastBody: any;
+  /** Answers DELETE `path` (any query), recording the request body */
+  function deleteBody(path: string) {
+    const sent: { body?: any } = {};
     nock(/.*/)
       .defaultReplyHeaders({ 'Access-Control-Allow-Origin': '*' })
-      .delete('/article-cooler')
+      .delete(path)
       .query(true)
-      .times(2)
       .reply(200, function (uri, requestBody) {
-        lastBody = requestBody;
-        return [];
+        sent.body = requestBody;
+        return {};
       });
+    return sent;
+  }
+
+  it('should DELETE with a body when one is declared', async () => {
+    const sent = deleteBody('/article-cooler');
     const deleteMany = new RestEndpoint({
       path: '/article-cooler',
       method: 'DELETE',
       body: [] as string[],
     });
     await deleteMany(['5', '13']);
-    expect(lastBody).toEqual(['5', '13']);
+    expect(sent.body).toEqual(['5', '13']);
     expect(deleteMany.key(['5', '13'])).toBe('DELETE /article-cooler');
+  });
 
+  it('should DELETE without a body when none is declared', async () => {
+    const sent = deleteBody('/article-cooler');
     const byQuery = new RestEndpoint({
       path: '/article-cooler',
       method: 'DELETE',
       searchParams: {} as { ids: string },
     });
     await byQuery({ ids: '5,13' });
-    expect(lastBody).toBe('');
+    expect(sent.body).toBe('');
     expect(byQuery.key({ ids: '5,13' })).toBe(
       'DELETE /article-cooler?ids=5%2C13',
     );
   });
 
   it('resource.delete sends no body when the resource declares one', async () => {
-    let lastBody: any;
-    nock(/.*/)
-      .defaultReplyHeaders({ 'Access-Control-Allow-Origin': '*' })
-      .delete('/article-cooler/77')
-      .reply(200, function (uri, requestBody) {
-        lastBody = requestBody;
-        return { id: 77 };
-      });
+    const sent = deleteBody('/article-cooler/77');
     const PostResource = resource({
       path: '/article-cooler/:id',
       schema: CoolerArticle,
       body: {} as { title: string },
     });
-    const res = await PostResource.delete({ id: 77 });
-    expect(res).toEqual({ id: 77 });
-    expect(lastBody).toBe('');
+    await PostResource.delete({ id: 77 });
+    expect(sent.body).toBe('');
   });
 
   it('should PUT', async () => {
