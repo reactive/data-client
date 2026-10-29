@@ -115,7 +115,7 @@ it('lets an item ride along with the item it is in, travelling only the rest', (
   expect(startOf(getByTestId('x'))?.translate).toBe('0px 30px');
 });
 
-it('marks the items moving farthest as traveling until they land', async () => {
+it('marks the items crossing the others as traveling until they land', async () => {
   const { rerender, getByTestId } = render(
     <Board
       groups={[
@@ -154,6 +154,31 @@ it('marks the items moving farthest as traveling until they land', async () => {
   animations.find(animation => animation.el === x)?.finish();
   await Promise.resolve();
   expect(x.dataset.traveling).toBeUndefined();
+});
+
+it('keeps a newer mark when a glide it replaced settles', async () => {
+  const at = (y: number) => [{ name: 'a', y: 0, rows: [{ id: 'x', y }] }];
+  const { rerender, getByTestId } = render(<Board groups={at(10)} />);
+  const x = getByTestId('x');
+  rerender(<Board groups={at(110)} />);
+  const first = animations.at(-1);
+  // sent back mid-glide
+  rerender(<Board groups={at(10)} />);
+  expect(animations.at(-1)).not.toBe(first);
+  expect(x.dataset.traveling).toBe('');
+  first?.finish();
+  await Promise.resolve();
+  expect(x.dataset.traveling).toBe('');
+});
+
+it('does not mark a nudge too small to cross anything', () => {
+  const { rerender, getByTestId } = render(
+    <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
+  );
+  rerender(
+    <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10.5 }] }]} />,
+  );
+  expect(getByTestId('x').dataset.traveling).toBeUndefined();
 });
 
 it('fades in a key it has not seen', () => {

@@ -57,7 +57,8 @@ export interface PlaygroundProps<T = any> {
    * the preview is short; row folds fixtures behind a toggle in the
    * preview's header. Stay stacked when the Store opens by default (it would
    * cover the code), or when the preview renders a long list (it gets tall
-   * in the narrow column). */
+   * in the narrow column). Leave one file uncollapsed: each open file is a
+   * selected tab. */
   row?: boolean;
   /** Preview first, at full width, with room for a realistic app; the code
    * waits behind a Code toggle in its header (file tabs like `row`) and

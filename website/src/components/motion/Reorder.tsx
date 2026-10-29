@@ -43,8 +43,7 @@ export default class Reorder extends Component<Props> {
   }
 
   componentDidUpdate(_props: Props, _state: unknown, before: Positions | null) {
-    if (before)
-      reorder(before, this.items, this.props.spring ?? springs.smooth);
+    if (before) reorder(before, this.items, this.props.spring ?? springs.brisk);
   }
 
   render() {

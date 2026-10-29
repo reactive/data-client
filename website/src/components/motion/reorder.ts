@@ -27,11 +27,12 @@ export function measure(items: Items): Positions {
  * `translate` only, on the compositor), so an item React put under another
  * parent travels there too. An item inside another that moves rides along
  * with it, and only travels the rest of the way itself; a key `before` lacks
- * fades in. The items moving farthest are `data-traveling` until they land.
+ * fades in. Items crossing the others are `data-traveling` until they land.
  * Layout-agnostic: it reads only where items are on screen.
  */
 export function reorder(before: Positions, items: Items, spring: Spring) {
-  // the final layout, without glides in flight, before measuring it
+  // the final layout, without glides (or their marks) in flight, before
+  // measuring it
   for (const el of items.values()) {
     stop(el);
     land(el);
@@ -58,11 +59,11 @@ export function reorder(before: Positions, items: Items, spring: Spring) {
       carried ? { x: offset.x - carried.x, y: offset.y - carried.y } : offset;
     return { el, from, velocity };
   });
-  const farthest = Math.max(0, ...glides.map(({ from }) => length(from)));
-  for (const { el, from, velocity } of glides) {
+  const crosses = crossing(glides.map(({ from }) => distance(from)));
+  glides.forEach(({ el, from, velocity }, i) => {
     const animation = glide(el, spring, { from, to: ORIGIN, velocity });
-    if (animation && length(from) >= farthest / 2) travel(el, animation);
-  }
+    if (animation && crosses[i]) travel(el, animation);
+  });
   if (!arrivals.length) return;
   const timing = springEasing(spring);
   for (const el of arrivals) el.animate?.(ARRIVE, timing);
@@ -70,12 +71,24 @@ export function reorder(before: Positions, items: Items, spring: Spring) {
 
 const ARRIVE: Keyframe[] = [{ opacity: 0 }, { opacity: 1 }];
 
-/** Items crossing the others (the ones moving farthest) while they glide,
- * marked `data-traveling` so their style can lift them over the rest */
+/** Which moves cross the others: those at least half as long as the
+ * longest (the row going to another group, not the rows it nudges), and
+ * more than a nudge themselves */
+function crossing(distances: number[]) {
+  let farthest = 0;
+  for (const d of distances) farthest = Math.max(farthest, d);
+  return distances.map(d => d >= farthest / 2 && d > NUDGE);
+}
+/** px: a move this short crosses nothing */
+const NUDGE = 1;
+
+/** Items crossing the others while they glide, marked `data-traveling` so
+ * their style can lift them over the rest */
 const travels = new WeakMap<HTMLElement, Animation>();
 function travel(el: HTMLElement, animation: Animation) {
   travels.set(el, animation);
   el.dataset.traveling = '';
+  // a glide another reorder replaced leaves the newer mark alone
   const arrived = () => {
     if (travels.get(el) === animation) land(el);
   };
@@ -86,7 +99,7 @@ function land(el: HTMLElement) {
   delete el.dataset.traveling;
 }
 
-const length = ({ x, y }: Point) => Math.hypot(x, y);
+const distance = ({ x, y }: Point) => Math.hypot(x, y);
 
 function positionOf(el: HTMLElement): Point {
   const { left, top } = el.getBoundingClientRect();

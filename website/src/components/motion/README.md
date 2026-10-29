@@ -12,6 +12,7 @@ Pick motion by what moves, never by milliseconds:
 | Token            | For                                         |
 | ---------------- | ------------------------------------------- |
 | `springs.snappy` | small, light things: arrows, chips, toggles |
+| `springs.brisk`  | items trading places in a list (`Reorder`)  |
 | `springs.smooth` | panels and drawers that carry content       |
 
 **CSS transitions** (state changes styled by a class, like a rotating arrow):
@@ -74,8 +75,8 @@ function Row({ todo }: { todo: Todo }) {
 Items are found by key, not by element, so a row React remounts under a new
 parent still glides there from where it was. An item inside another moving
 item (a row in a group that moves) rides along and travels only the rest of
-the way; a new key fades in. The items moving farthest carry
-`data-traveling` until they land, for a style that lifts them over the rest
+the way; a new key fades in. Items crossing the others (moving at least half
+as far as the farthest) carry `data-traveling` until they land, for a style that lifts them over the rest
 (`position: relative`, a `z-index`, a background). Use `MotionGroup` where things open and close in
 place, `Reorder` where items change places.
 

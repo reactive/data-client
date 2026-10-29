@@ -261,7 +261,7 @@ export const UserResource = resource({
 });
 ```
 
-```ts title="resources/Todo" {7,11-17}
+```ts title="resources/Todo" collapsed {7,11-17}
 import { Entity, resource } from '@data-client/rest';
 import { User } from './User';
 

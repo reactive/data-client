@@ -7,6 +7,9 @@ import type { Spring } from './spring';
 export const springs = {
   /** Small, light things: arrows, chips, toggles */
   snappy: { duration: 0.25, bounce: 0.15 },
+  /** Items trading places in a list (`<Reorder>`): quick off the mark, with
+   * a touch of settle so a row lands rather than stops */
+  brisk: { duration: 0.3, bounce: 0.1 },
   /** Panels and drawers that carry content; no overshoot past their edge */
   smooth: { duration: 0.4, bounce: 0 },
   /** A big surface pulled a long way, so the travel reads as deliberate:

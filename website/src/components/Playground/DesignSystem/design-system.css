@@ -203,17 +203,22 @@ div.playground-preview h1:first-child {
   border-radius: var(--ds-radius-sm);
   transition: background-color var(--motion-snappy);
 }
-/* a row crossing the others (`<Reorder>` moving it to another group) is
-   lifted over them while it glides, so their text never overprints */
-.playground-preview .list > .listItem[data-traveling] {
+/* an item crossing the others (`<Reorder>` moving a row to another group)
+   is lifted over them while it glides, so their text never overprints; a
+   row (or card) gets an opaque surface */
+.playground-preview [data-traveling] {
   position: relative;
   z-index: 1;
+}
+.playground-preview .listItem[data-traveling] {
   background: var(--ds-raised);
   box-shadow: var(--ds-raised-shadow);
 }
 /* touch screens skip it: a tapped row would stay lit */
 @media (hover: hover) {
-  .playground-preview .list > .listItem:is(:has(> label), button):hover {
+  .playground-preview
+    .list
+    > .listItem:is(:has(> label), button):hover:not([data-traveling]) {
     background: var(--ds-hover);
   }
 }
@@ -961,7 +966,8 @@ div.playground-preview h1:first-child {
   margin: 0;
   border: 1.5px solid var(--ds-border-strong);
   border-radius: 50%;
-  background: var(--ds-surface);
+  /* hollow on any row surface: hovered, or lifted while it moves */
+  background: transparent;
   transition:
     background-color var(--motion-snappy),
     border-color var(--motion-snappy);
