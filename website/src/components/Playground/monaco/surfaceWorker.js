@@ -15,9 +15,10 @@ function scopeOf(fileName) {
   return /^\w+:\/\/\/(\d+)\//.exec(fileName)?.[1] ?? fileName;
 }
 
-/** Frees the programs of scopes that no longer have models */
+/** Frees the programs of scopes that no longer have models (the type libs'
+ * own, `''`, stays) */
 function dropUnmounted(services, modelNames) {
-  const mounted = new Set(modelNames.map(scopeOf));
+  const mounted = new Set(modelNames.map(scopeOf)).add('');
   for (const [scope, service] of services) {
     if (!mounted.has(scope)) {
       service.dispose();
