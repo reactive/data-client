@@ -3,11 +3,11 @@ import { createRequire } from 'node:module';
 import { describe, it } from 'node:test';
 
 const require = createRequire(import.meta.url);
-const { parseSignature, tocLabels } = require('./remarkTocLabels.js');
+const remarkTocLabels = require('./remarkTocLabels.js');
 
-const name = text => parseSignature(text)?.name;
+const name = remarkTocLabels.signatureName;
 
-describe('parseSignature', () => {
+describe('signatureName', () => {
   it('drops static, params and return type', () => {
     assert.equal(
       name('static process(input, parent, key, args): processedEntity'),
@@ -25,6 +25,7 @@ describe('parseSignature', () => {
     assert.equal(name('useSuspense()'), 'useSuspense');
     assert.equal(name('Endpoint.extend()'), 'Endpoint.extend');
     assert.equal(name('createCollectionFilter?'), 'createCollectionFilter');
+    assert.equal(name('paginated(removeCursor)'), 'paginated');
   });
 
   it('leaves prose headings alone', () => {
@@ -38,25 +39,37 @@ describe('parseSignature', () => {
       'useGetList().push',
       'Schema.infer() -> Schema.queryKey()',
     ])
-      assert.equal(parseSignature(text), undefined, text);
+      assert.equal(name(text), undefined, text);
   });
 });
 
-describe('tocLabels', () => {
-  it('keeps params when names clash', () => {
-    const labels = tocLabels([
-      { id: 'paginated', text: 'paginated(paginationfield)' },
-      { id: 'paginated-function', text: 'paginated(removeCursor)' },
-      { id: 'extend', text: 'extend(options): RestEndpoint' },
-      { id: 'usage', text: 'Usage' },
-    ]);
-    assert.deepEqual(
-      labels,
-      new Map([
-        ['paginated', 'paginated(paginationfield)'],
-        ['paginated-function', 'paginated(removeCursor)'],
-        ['extend', 'extend'],
-      ]),
-    );
+describe('remarkTocLabels', () => {
+  it("relabels Docusaurus' toc export, keeping heading and id", async () => {
+    const {
+      createTOCExportNodeAST,
+    } = require('@docusaurus/mdx-loader/lib/remark/toc/utils.js');
+    const text = 'static process(input, parent, key, args): processedEntity';
+    const heading = {
+      type: 'heading',
+      depth: 3,
+      data: { id: 'process' },
+      children: [{ type: 'text', value: text }],
+    };
+    const toc = await createTOCExportNodeAST({
+      tocExportName: 'toc',
+      tocItems: [{ type: 'heading', heading }],
+    });
+    const tree = { type: 'root', children: [heading, toc] };
+
+    remarkTocLabels()(tree);
+
+    const item =
+      toc.data.estree.body[0].declaration.declarations[0].init.elements[0];
+    const prop = key =>
+      item.properties.find(p => (p.key.name ?? p.key.value) === key).value
+        .value;
+    assert.equal(prop('value'), 'process');
+    assert.equal(prop('id'), 'process');
+    assert.equal(heading.children[0].value, text);
   });
 });
