@@ -288,15 +288,12 @@ async () => {
 
 <TypeScriptEditor>
 
-```ts path="process.ts" framework-imports
-import { useController } from '@data-client/react';
-import { RestEndpoint } from '@data-client/rest';
-
+```ts path="process.ts"
 interface TodoInterface {
   title: string;
   completed: boolean;
 }
-const getTodo = new RestEndpoint({
+const getTypedTodo = new RestEndpoint({
   path: '/',
   process(value): TodoInterface {
     return value;
@@ -304,10 +301,10 @@ const getTodo = new RestEndpoint({
 });
 async () => {
   // todo is TodoInterface
-  const todo = await getTodo();
+  const todo = await getTypedTodo();
 
   const ctrl = useController();
-  const todo2 = await ctrl.fetch(getTodo);
+  const todo2 = await ctrl.fetch(getTypedTodo);
 };
 ```
 
