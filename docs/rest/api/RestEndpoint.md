@@ -288,7 +288,7 @@ async () => {
 
 <TypeScriptEditor>
 
-```ts path="process.ts"
+```ts path="process.ts" framework-imports
 import { useController } from '@data-client/react';
 import { RestEndpoint } from '@data-client/rest';
 

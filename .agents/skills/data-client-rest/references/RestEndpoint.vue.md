@@ -194,7 +194,7 @@ async () => {
 `RestEndpoints` without a schema, it also determines the return type of [composables](https://dataclient.io/vue/api/useSuspense) and [Controller.fetch](https://dataclient.io/vue/api/Controller#fetch).
 
 ```ts path="process.ts"
-import { useController } from '@data-client/react';
+import { useController } from '@data-client/vue';
 import { RestEndpoint } from '@data-client/rest';
 
 interface TodoInterface {
