@@ -574,8 +574,9 @@ div.playgroundTextEdit > .playgroundHeader,
   outline-offset: -2px;
 }
 /* the code card: the file shown and its foot (see the top), one box with
-   one shadow. Its foot is padding: at least a corner's depth under the
-   code (wide, as deep as a taller row lets it, up to --pg-card-foot) */
+   one shadow. Its foot is padding: with the code's empty gutter, at least a
+   corner's depth (wide, as deep as a taller row lets it, up to
+   --pg-card-foot) */
 .row .editorDocs {
   display: flex;
   flex-direction: column;
@@ -587,6 +588,7 @@ div.playgroundTextEdit > .playgroundHeader,
   box-shadow: var(--pg-card-shadow);
   /* the code's own layers (Monaco's) stay under the fixtures floating over it */
   isolation: isolate;
+  --pg-gutter-cut: 10px;
   /* the card's top corners, squared where the open tab runs into them */
   --pg-card-top-left: var(--pg-card-radius);
   --pg-card-top-right: var(--pg-card-radius);
@@ -605,12 +607,10 @@ div.playgroundTextEdit > .playgroundHeader,
   border-radius: 0 0 var(--pg-card-radius) var(--pg-card-radius);
 }
 /* The code card's foot takes in the empty 10px gutter under the last line
-   (Monaco's containerGutter, the static view's padding), so the space below
-   the code is as deep as the padding above it. The code's own box rounds
-   and clips its corners there (Monaco paints its own square background) */
-.row .editorDocs {
-  --pg-gutter-cut: 10px;
-}
+   (Monaco's containerGutter, the static view's padding; --pg-gutter-cut),
+   so the space below the code is as deep as the padding above it. The
+   code's own box rounds and clips its corners there (Monaco paints its own
+   square background) */
 .row .editorDocs > .playgroundEditor:not(:has(~ .codeHeader)) {
   border-bottom-left-radius: var(--pg-gutter-cut);
   border-bottom-right-radius: var(--pg-gutter-cut);
