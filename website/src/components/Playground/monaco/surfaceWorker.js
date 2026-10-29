@@ -95,16 +95,14 @@ self.customTSWorkerFactory = TypeScriptWorker =>
         current = scopes();
         const scope =
           current.find(file => file.name === fileName)?.scope ?? MODULES;
-        if (!services.has(scope)) {
-          // free the programs of scopes that no longer have models
-          const live = new Set(current.map(file => file.scope)).add(MODULES);
-          for (const [old, service] of services)
-            if (!live.has(old)) {
-              service.dispose();
-              services.delete(old);
-            }
-          services.set(scope, createService(scope));
-        }
+        // free the programs of scopes that no longer have models
+        const live = new Set(current.map(file => file.scope)).add(MODULES);
+        for (const [old, service] of services)
+          if (!live.has(old)) {
+            service.dispose();
+            services.delete(old);
+          }
+        if (!services.has(scope)) services.set(scope, createService(scope));
         return services.get(scope);
       };
 

@@ -44,8 +44,11 @@ class FakeWorker {
   readFile = (name: string) => this.files[name];
 }
 
-function surfaceWorker(files: Record<string, string>) {
-  const self: any = { ts };
+function surfaceWorker(
+  files: Record<string, string>,
+  createLanguageService = ts.createLanguageService,
+) {
+  const self: any = { ts: { ...ts, createLanguageService } };
   const source = fs.readFileSync(
     path.join(__dirname, '../surfaceWorker.js'),
     'utf8',
@@ -54,12 +57,13 @@ function surfaceWorker(files: Record<string, string>) {
   const Worker = self.customTSWorkerFactory(FakeWorker);
   // Monaco passes (ctx, createData); here FakeWorker's files
   const worker = new Worker(files);
-  return (file: string) =>
+  const check = (file: string): string[] =>
     worker._languageService
       .getSemanticDiagnostics(file)
       .map((d: ts.Diagnostic) =>
         ts.flattenDiagnosticMessageText(d.messageText, ''),
       );
+  return Object.assign(check, { worker });
 }
 
 describe('surfaceWorker', () => {
@@ -90,6 +94,30 @@ describe('surfaceWorker', () => {
     expect(check(uri('2', 'Usage.ts'))).toEqual([
       "Cannot find name 'getTodo'.",
     ]);
+  });
+
+  it('frees the program of a playground that went away', () => {
+    const services: ts.LanguageService[] = [];
+    const check = surfaceWorker(
+      {
+        [uri('1', 'api.ts')]: 'const getTodo = 1;',
+        [uri('2', 'Usage.ts')]: 'export const todo = 1;',
+      },
+      (...args) => {
+        const service = ts.createLanguageService(...args);
+        service.dispose = jest.fn(service.dispose);
+        services.push(service);
+        return service;
+      },
+    );
+    check(uri('1', 'api.ts'));
+    check(uri('2', 'Usage.ts'));
+    check.worker.models.shift();
+    check(uri('2', 'Usage.ts'));
+    // playground 1's program is freed; the modules' program stays
+    expect(
+      services.map(service => (service.dispose as jest.Mock).mock.calls.length),
+    ).toEqual([1, 0]);
   });
 
   it('keeps names shared within one playground', () => {
