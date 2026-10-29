@@ -43,15 +43,18 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
     return pointer.style.translate !== previous;
   };
   let gliding: Animation | undefined;
+  /** Places the pointer on `el`, without what's left of a glide */
+  const settle = (el: HTMLElement) => {
+    gliding?.cancel();
+    return place(el);
+  };
   /** Moves the pointer onto `el`: placed there at once, then animated in from
    * where it was drawn by the difference, so it lands on the target however
    * the target moves meanwhile */
   const glide = (el: HTMLElement) => {
     const from = pointer?.getBoundingClientRect();
-    const moved = place(el);
+    const moved = settle(el);
     if (from && moved && canAnimate()) {
-      // where it lands, without what's left of a glide still running
-      gliding?.cancel();
       const to = pointer!.getBoundingClientRect();
       gliding = pointer!.animate(
         [
@@ -76,7 +79,7 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
   // scroller gliding to it. Follow it, unless a render took it away (it would
   // measure at the viewport's corner)
   const follow = () => {
-    if (pointedAt?.isConnected && visible(pointedAt)) place(pointedAt);
+    if (pointedAt && followable(pointedAt)) place(pointedAt);
   };
   const resized =
     typeof ResizeObserver === 'function' ?
@@ -121,8 +124,10 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
     click(el) {
       // onto where it is now (it may have moved with no scroll or resize),
       // which the press reports
-      pointedAt = el;
-      place(el);
+      if (followable(el)) {
+        pointedAt = el;
+        settle(el);
+      }
       ring();
       const init = {
         bubbles: true,
@@ -215,6 +220,8 @@ export function revealOnPage(el: HTMLElement) {
 
 // jsdom lacks checkVisibility
 const visible = (el: HTMLElement) => el.checkVisibility?.() ?? true;
+/** Still on the page: a removed element measures at the viewport's corner */
+const followable = (el: HTMLElement) => el.isConnected && visible(el);
 
 /** An arrow pointer, its tip at the SVG's top left (placed on the target);
  * its outline spills past the box (`overflow: visible`) */

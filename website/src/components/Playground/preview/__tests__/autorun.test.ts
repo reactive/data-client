@@ -266,12 +266,17 @@ describe('stage', () => {
         const [x, y] = pointer.style.translate.split(' ').map(parseFloat);
         return { left: x, top: y } as DOMRect;
       };
+      const cancel = jest.fn();
+      animate.mockReturnValue({ cancel });
       stage.point(two);
       expect(pointer.style.translate).toBe('50px 10px');
       expect(animate.mock.calls[0][0]).toEqual([
         { transform: 'translate(-40px, 0px)' },
         { transform: 'none' },
       ]);
+      // a press mid-glide lands the pointer where it presses
+      stage.click(two);
+      expect(cancel).toHaveBeenCalled();
     } finally {
       delete (HTMLElement.prototype as any).animate;
     }
