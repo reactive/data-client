@@ -21,9 +21,10 @@ export function useInFlightCount(enabled: boolean) {
     const stores = new WeakMap<object, Set<string>>();
     // the badge shows the store whose middleware was built last
     let newest = new Set<string>();
+    let fetched = false;
     let span: HTMLSpanElement | null = null;
-    const show = (reveal = false) => {
-      if (!span || (span.hidden && !reveal)) return;
+    const show = () => {
+      if (!span || !fetched) return;
       span.textContent = selectMessage(
         newest.size,
         translate(
@@ -47,7 +48,8 @@ export function useInFlightCount(enabled: boolean) {
           switch (action.type) {
             case actionTypes.FETCH:
               own.add(action.key);
-              show(true);
+              fetched = true;
+              show();
               break;
             case actionTypes.SET_RESPONSE:
               if (own.delete(action.key)) show();
@@ -59,15 +61,15 @@ export function useInFlightCount(enabled: boolean) {
           return next(action);
         };
       },
-      // an old store's teardown leaves the newest store's count showing
       cleanup() {
-        show();
+        // each store's set goes with its controller; the badge already shows
+        // the newest
       },
     };
     // the first fetches dispatch while the badge itself first renders
     const attach = (el: HTMLSpanElement | null) => {
       span = el;
-      if (newest.size) show(true);
+      show();
     };
     return { manager, attach };
   });

@@ -111,6 +111,7 @@ export function MockController<
               if (!fixture) {
                 throw new Error('No fixture found');
               }
+              // as with fetch(), an aborted request never reaches its fixture
               if (signal?.aborted) throw abortReason(signal);
               // delayCollapse determines when the fixture function is 'collapsed' (aka 'run')
               // collapsed: https://en.wikipedia.org/wiki/Copenhagen_interpretation

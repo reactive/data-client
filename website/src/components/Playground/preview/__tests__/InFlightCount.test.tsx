@@ -47,7 +47,7 @@ describe('useInFlightCount', () => {
     expect(screen.getByRole('status').textContent).toBe('1 fetch in flight');
   });
 
-  test("a Reset's new store keeps its count through the old one's cleanup", () => {
+  test("a Reset's new store keeps its count after the old one's cleanup", () => {
     render(<Harness mounted />);
     const old = store();
     old.fetch('a');
