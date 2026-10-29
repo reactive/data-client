@@ -581,7 +581,7 @@ div.playgroundTextEdit > .playgroundHeader,
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding-bottom: calc(var(--pg-card-radius) - var(--pg-gutter-cut));
+  padding-bottom: var(--pg-code-foot);
   border-radius: var(--pg-card-top-left) var(--pg-card-top-right)
     var(--pg-card-radius) var(--pg-card-radius);
   background: var(--monoco-code-background);
@@ -589,6 +589,9 @@ div.playgroundTextEdit > .playgroundHeader,
   /* the code's own layers (Monaco's) stay under the fixtures floating over it */
   isolation: isolate;
   --pg-gutter-cut: 10px;
+  /* under the code, as deep as the space above it: a corner's depth, less
+     the empty gutter under the last line (see below) */
+  --pg-code-foot: calc(var(--pg-card-radius) - var(--pg-gutter-cut));
   /* the card's top corners, squared where the open tab runs into them */
   --pg-card-top-left: var(--pg-card-radius);
   --pg-card-top-right: var(--pg-card-radius);
@@ -632,10 +635,13 @@ div.playgroundTextEdit > .playgroundHeader,
 :root[data-theme='dark'] .row .editorDocs:has(> .codeHeader) {
   --pg-under: color-mix(in oklab, var(--monoco-code-background), #000 34%);
 }
+/* The code card over it ends as a lone card does (its foot, the code's
+   gutter clipped round with it) */
 .row .editorDocs > .playgroundEditor:has(~ .codeHeader) {
   position: relative;
   z-index: 1;
-  padding-bottom: 12px;
+  padding-bottom: var(--pg-code-foot);
+  overflow: clip;
   border-radius: var(--pg-card-top-left) var(--pg-card-top-right)
     var(--pg-card-radius) var(--pg-card-radius);
   box-shadow:
@@ -1574,7 +1580,7 @@ div.fixtureJson + div.fixtureJson {
   /* beside an HTTP exchange (../HTTP), the card ends at its code: there a
      foot reaching toward a taller response is only empty space */
   .row:has(> .previewSlot) .editorDocs {
-    padding-bottom: calc(var(--pg-card-radius) - var(--pg-gutter-cut));
+    padding-bottom: var(--pg-code-foot);
     margin-bottom: 0;
   }
   /* the preview's column, or what a playground puts in its place (../HTTP) */
