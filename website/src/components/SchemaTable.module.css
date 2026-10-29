@@ -147,8 +147,13 @@ html[data-theme='dark'] .schemaTable {
     padding-bottom: 0.5rem;
     font-size: 0.6875rem;
   }
+  /* visually hidden, so screen readers still name these columns */
   .schemaTable th:is(:nth-child(1), :nth-child(4)) {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
   .schemaTable th:nth-child(2) {
     grid-area: 1 / 2;
