@@ -424,12 +424,14 @@ export default function StorePanel({
   const { hit, lists } = filter;
   const listing = useMemo(() => {
     const rows = rowsOf(groups, hit);
+    const every = actionsBy === 'action';
     return {
-      entries: shownOf(groups, known).shown,
+      // every action listed is a step, the fetches deduped into a request
+      // in flight included
+      entries: every ? known : shownOf(groups, known).shown,
       groups,
       listed: new Set(rows),
-      requests:
-        actionsBy === 'action' ? actionsOf(rows, lists) : requestsOf(rows, hit),
+      requests: every ? actionsOf(rows, lists) : requestsOf(rows, hit),
       hit,
       lists,
     };

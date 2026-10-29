@@ -758,19 +758,25 @@ describe('Store Actions pane', () => {
 
   it('lists every action as its own row, fetches apart from responses', async () => {
     const { ctrl } = mount();
-    await act(() => ctrl().fetch(getPosts));
+    // two reads at once: the second joins the first's request
+    await act(() =>
+      Promise.all([ctrl().fetch(getPosts), ctrl().fetch(getPosts)]),
+    );
     openAction();
     openPane();
     // by interaction: the request is one row, under the app that sent it
     expect(rows()).toHaveLength(1);
     fireEvent.click(screen.getByRole('button', { name: 'Every action' }));
     const listed = rows().map(row => row.textContent);
-    expect(listed).toHaveLength(2);
+    expect(listed).toHaveLength(3);
     expect(listed[0]).toContain('fetch');
-    expect(listed[1]).toContain('setResponse');
-    // stepping back goes an action at a time: the response, then its fetch
+    expect(listed[1]).toContain('fetch');
+    expect(listed[2]).toContain('setResponse');
+    // stepping back goes an action at a time, the joined fetch included
     const current = () =>
       rows().findIndex(row => row.getAttribute('aria-current') === 'true');
+    previous();
+    expect(current()).toBe(2);
     previous();
     expect(current()).toBe(1);
     previous();
