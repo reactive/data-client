@@ -57,12 +57,13 @@ export function reorder(before: Positions, items: Items, spring: Spring) {
     const carried = carrier && moves.get(carrier)?.offset;
     const from =
       carried ? { x: offset.x - carried.x, y: offset.y - carried.y } : offset;
-    return { el, from, velocity };
+    return { el, from, velocity, length: distance(from) };
   });
-  const crosses = crossing(glides.map(({ from }) => distance(from)));
-  for (const { el, from, velocity } of glides) {
+  let farthest = 0;
+  for (const { length } of glides) farthest = Math.max(farthest, length);
+  for (const { el, from, velocity, length } of glides) {
     const animation = glide(el, spring, { from, to: ORIGIN, velocity });
-    if (animation && crosses(distance(from))) travel(el, animation);
+    if (animation && crosses(length, farthest)) travel(el, animation);
   }
   if (!arrivals.length) return;
   const timing = springEasing(spring);
@@ -71,14 +72,11 @@ export function reorder(before: Positions, items: Items, spring: Spring) {
 
 const ARRIVE: Keyframe[] = [{ opacity: 0 }, { opacity: 1 }];
 
-/** Which moves cross the others: those at least half as long as the
+/** Whether a move crosses the others: at least half as long as the
  * longest (the row going to another group, not the rows it nudges), and
- * more than a nudge themselves */
-function crossing(distances: number[]) {
-  let farthest = 0;
-  for (const d of distances) farthest = Math.max(farthest, d);
-  return (d: number) => d >= farthest / 2 && d > NUDGE;
-}
+ * more than a nudge itself */
+const crosses = (length: number, farthest: number) =>
+  length >= farthest / 2 && length > NUDGE;
 /** px: a move this short crosses nothing */
 const NUDGE = 1;
 
