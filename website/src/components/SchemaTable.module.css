@@ -1,13 +1,7 @@
 /* columns: [data type (rowSpan, first row of a group)], mutable, schema, description, queryable */
 .schemaTable {
-  --group: color-mix(in srgb, var(--ifm-color-primary) 6%, transparent);
-  --group-hover: color-mix(in srgb, var(--ifm-color-primary) 12%, transparent);
-  --gap: 0.5rem;
-  --r: calc(var(--ifm-global-radius) * 2);
+  --hairline: 1px solid var(--ifm-color-emphasis-200);
   margin: 1.25rem 0 2rem;
-}
-html[data-theme='dark'] .schemaTable {
-  --group: color-mix(in srgb, var(--ifm-color-primary) 9%, transparent);
 }
 
 .schemaTable table {
@@ -93,41 +87,21 @@ html[data-theme='dark'] .schemaTable {
   vertical-align: middle;
 }
 
-/* each data type is a tinted, rounded group; a transparent top border opens
- * the gap between groups, and taller vertical radii keep the corners round */
+/* a hairline over each data type is the only line */
 @container doc (min-width: 641px) {
-  .schemaTable tbody td {
-    background: var(--group);
-    background-clip: padding-box;
-  }
   .schemaTable tbody tr:has(td[rowspan]) td {
-    padding-top: 0.85rem;
-  }
-  .schemaTable tbody tr:has(td[rowspan]):not(:first-child) td {
-    --top: var(--r) calc(var(--r) + var(--gap));
-    border-top: var(--gap) solid transparent;
+    border-top: var(--hairline);
+    padding-top: 0.9rem;
   }
   .schemaTable tbody tr:has(+ tr td[rowspan]) td,
   .schemaTable tbody tr:last-child td {
-    padding-bottom: 0.85rem;
-  }
-  .schemaTable td[rowspan] {
-    border-top-left-radius: var(--top, var(--r));
-    border-bottom-left-radius: var(--r);
-  }
-  .schemaTable tbody tr:has(td[rowspan]) td:last-child {
-    border-top-right-radius: var(--top, var(--r));
-  }
-  .schemaTable tbody tr:has(+ tr td[rowspan]) td:last-child,
-  .schemaTable tbody tr:last-child td:last-child {
-    border-bottom-right-radius: var(--r);
+    padding-bottom: 0.9rem;
   }
 }
-
 @media (hover: hover) {
   @container doc (min-width: 641px) {
     .schemaTable tbody tr:hover td:not([rowspan]) {
-      background-color: var(--group-hover);
+      background: color-mix(in srgb, var(--ifm-color-primary) 6%, transparent);
     }
   }
 }
@@ -147,13 +121,19 @@ html[data-theme='dark'] .schemaTable {
     padding-bottom: 0.5rem;
     font-size: 0.6875rem;
   }
-  /* visually hidden, so screen readers still name these columns */
+  /* the mark headers are wider than their padded columns */
+  .schemaTable th:is(:nth-child(2), :nth-child(5)) {
+    padding-inline: 0;
+  }
+  /* visually hidden but kept in the accessibility tree (store.module.css .srOnly) */
   .schemaTable th:is(:nth-child(1), :nth-child(4)) {
     position: absolute;
     width: 1px;
     height: 1px;
+    padding: 0;
     overflow: hidden;
     clip-path: inset(50%);
+    white-space: nowrap;
   }
   .schemaTable th:nth-child(2) {
     grid-area: 1 / 2;
@@ -198,19 +178,12 @@ html[data-theme='dark'] .schemaTable {
     padding-top: 1.15rem;
   }
 
-  .schemaTable.schemaTable tbody tr {
-    background: var(--group);
-  }
   .schemaTable tbody tr:has(td[rowspan]) {
-    margin-top: var(--gap);
-    padding-top: 0.75rem;
-    border-top-left-radius: var(--r);
-    border-top-right-radius: var(--r);
+    border-top: var(--hairline);
+    padding-top: 0.9rem;
   }
   .schemaTable tbody tr:has(+ tr td[rowspan]),
   .schemaTable tbody tr:last-child {
-    padding-bottom: 0.5rem;
-    border-bottom-left-radius: var(--r);
-    border-bottom-right-radius: var(--r);
+    padding-bottom: 0.6rem;
   }
 }
