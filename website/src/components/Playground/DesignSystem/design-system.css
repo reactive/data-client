@@ -244,17 +244,22 @@ div.playground-preview h1:first-child {
   margin-bottom: 0;
 }
 /* stacked under the list (below both bases plus the gap: 14 + 18 + 2rem at
-   the sheet's usual 1.25rem inset), it spans the rows' highlights and its
-   text starts where their avatars do; its own line, since its negative
-   margins would otherwise let it squeeze in beside the list */
+   the sheet's usual 1.25rem inset), it docks: a band across the sheet's
+   whole width, down to its foot (the sheet clips the band's outset, which
+   also fills a preview taller than the message), its text at the sheet's
+   inset, so it starts where the avatars do. Its own line, since its
+   negative margins would otherwise let it squeeze in beside the list */
 @container split (width < 34rem) {
   .playground-preview .split > :not(.list) {
     flex-basis: 100%;
-    margin-inline: calc(-1 * var(--ds-space-3));
-    /* an even inset to the ink: less the title's leading above its capitals
-       and the last line's below its descenders */
-    padding: calc(var(--ds-space-3) - 0.375rem) var(--ds-space-3)
-      calc(var(--ds-space-3) - 0.1875rem);
+    margin-inline: calc(-1 * var(--ds-sheet-pad));
+    /* the same inset to the ink as at the sides: less the title's leading
+       above its capitals and the last line's below its descenders */
+    padding: calc(var(--ds-sheet-pad) - 0.375rem) var(--ds-sheet-pad)
+      calc(var(--ds-sheet-pad) - 0.1875rem);
+    border-radius: 0;
+    border-image: linear-gradient(var(--ds-surface-2) 0 0) fill 0 / 0 / 0 0
+      100vh;
   }
 }
 
