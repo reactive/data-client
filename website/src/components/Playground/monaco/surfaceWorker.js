@@ -91,17 +91,21 @@ self.customTSWorkerFactory = TypeScriptWorker =>
         return self.ts.createLanguageService(host, registry);
       };
 
+      /** Frees the programs of scopes that no longer have models */
+      const disposeGoneScopes = () => {
+        const live = new Set(current.map(file => file.scope)).add(MODULES);
+        for (const [scope, service] of services)
+          if (!live.has(scope)) {
+            service.dispose();
+            services.delete(scope);
+          }
+      };
+
       const serviceFor = fileName => {
         current = scopes();
+        disposeGoneScopes();
         const scope =
           current.find(file => file.name === fileName)?.scope ?? MODULES;
-        // free the programs of scopes that no longer have models
-        const live = new Set(current.map(file => file.scope)).add(MODULES);
-        for (const [old, service] of services)
-          if (!live.has(old)) {
-            service.dispose();
-            services.delete(old);
-          }
         if (!services.has(scope)) services.set(scope, createService(scope));
         return services.get(scope);
       };
