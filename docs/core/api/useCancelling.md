@@ -29,23 +29,13 @@ which means you might end up canceling a fetch that another component still care
 
 ## useCancelling() or useDebounce()?
 
-Both keep params that change quickly from wasting the network. They differ in when a fetch starts.
+Use `useCancelling()` when the user stops on each value, like a list they arrow through. It fetches at
+once and aborts the previous fetch.
 
-|                                  | useCancelling()                                    | [useDebounce()](./useDebounce.md)            |
-| -------------------------------- | -------------------------------------------------- | -------------------------------------------- |
-| Fetch starts                     | at once, on every change                           | once the value has held still for `delay` ms |
-| Requests sent                    | one per value, each aborted when the params change | one per value the user pauses on             |
-| Wait before the last value loads | none                                               | `delay`                                      |
+Use [useDebounce()](./useDebounce.md) when the user types. It waits until typing stops, so it sends
+fewer requests.
 
-Use `useCancelling()` when each value is somewhere the user lands: arrowing through a list, switching
-tabs or pages. Whichever one they stop on starts downloading at once, with the connection to itself.
-
-Use [useDebounce()](./useDebounce.md) when the values in between aren't wanted at all, like each letter
-of a word typed into a search. Those requests never go out. An abort only stops the download, so the
-server has usually already received the request and may still do the work.
-
-They also work together. Debounce what's typed, and abort a search that is still loading when the next
-one starts:
+For a search, use both:
 
 ```tsx
 import {

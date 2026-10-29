@@ -34,8 +34,7 @@ Useful to avoid spamming network requests when parameters might change quickly (
 
 ::::react
 
-To start every value's fetch at once instead, aborting the one it replaces, use
-[useCancelling()](./useCancelling.md) ([which to use](./useCancelling.md#usecancelling-or-usedebounce)).
+To fetch at once and abort the previous fetch, use [useCancelling()](./useCancelling.md#usecancelling-or-usedebounce).
 
 :::tip[React 18+]
 
@@ -274,8 +273,7 @@ function useDebounce<T>(
 ): [T, boolean];
 ```
 
-Returns a tuple of `[debouncedValue, isPending]`. When `updatable` is `false`, the debounced value stops
-updating.
+Returns `[debouncedValue, isPending]`. When `updatable` is `false`, the debounced value does not update.
 
 :::
 
