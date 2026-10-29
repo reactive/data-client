@@ -71,7 +71,7 @@ div.playground-preview h1:first-child {
   margin-bottom: var(--ds-space-2);
   padding: 6px;
   border-radius: var(--ds-radius);
-  background: var(--ds-surface-2);
+  background-color: var(--ds-surface-2);
 }
 .playground-preview section:has(> h3 + .list):last-child {
   margin-bottom: 0;
