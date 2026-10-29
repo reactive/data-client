@@ -238,7 +238,8 @@
 .stepsToggle {
   flex: none;
   width: 1rem;
-  margin-left: -1.5rem;
+  /* back into the gutter, 0.45rem from the row's edge */
+  margin-left: calc(0.45rem - var(--steps-indent));
   border: 0;
   padding: 0;
   background: none;
@@ -250,7 +251,7 @@
   content: '';
   position: absolute;
   inset: 0 auto 0 0;
-  width: 1.7rem;
+  width: calc(var(--steps-indent) - 0.25rem);
 }
 .stepsToggle:focus-visible {
   outline: none;
@@ -1098,10 +1099,10 @@ div.actRow {
   gap: 0.1rem;
   padding: 0.35rem 0.75rem;
 }
-/* every line (a wrapped headline's too) starts clear of the ▸'s 1.7rem
-   gutter; the ▸ sits back in it */
+/* every line (a wrapped headline's too) starts clear of the ▸'s gutter */
 div.actRow[data-steps] {
-  padding-left: 1.95rem;
+  --steps-indent: 1.95rem;
+  padding-left: var(--steps-indent);
 }
 /* where actions the log dropped changed the record */
 div.gapRow {
