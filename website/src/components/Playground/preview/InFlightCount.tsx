@@ -16,30 +16,32 @@ export function useInFlightCount(enabled: boolean) {
   // a page's locale never changes; keep the first label (see RenderCount)
   const { selectMessage } = usePluralForm();
   const [{ manager, attach }] = useState(() => {
-    // each store (Reset remounts it) counts its own; the badge shows the newest
+    // each store counts its own (a Reset makes a new one); its middleware can
+    // be built more than once, so a store's set is kept by its controller
     const stores = new WeakMap<object, Set<string>>();
-    let keys = new Set<string>();
-    let badge: HTMLSpanElement | null = null;
+    // the badge shows the store whose middleware was built last
+    let newest = new Set<string>();
+    let span: HTMLSpanElement | null = null;
     const show = (reveal = false) => {
-      if (!badge || (badge.hidden && !reveal)) return;
-      badge.textContent = selectMessage(
-        keys.size,
+      if (!span || (span.hidden && !reveal)) return;
+      span.textContent = selectMessage(
+        newest.size,
         translate(
           {
             id: 'playground.inFlight',
             description: 'Plural forms, separated by |',
             message: '{count} fetch in flight|{count} fetches in flight',
           },
-          { count: keys.size },
+          { count: newest.size },
         ),
       );
-      badge.hidden = false;
+      span.hidden = false;
     };
     const manager: Manager = {
       middleware: controller => {
         const own = stores.get(controller) ?? new Set<string>();
         stores.set(controller, own);
-        keys = own;
+        newest = own;
         show();
         return next => action => {
           switch (action.type) {
@@ -57,15 +59,15 @@ export function useInFlightCount(enabled: boolean) {
           return next(action);
         };
       },
-      // a Reset's new store has already taken the badge over
+      // an old store's teardown leaves the newest store's count showing
       cleanup() {
         show();
       },
     };
     // the first fetches dispatch while the badge itself first renders
-    const attach = (span: HTMLSpanElement | null) => {
-      badge = span;
-      if (keys.size) show(true);
+    const attach = (el: HTMLSpanElement | null) => {
+      span = el;
+      if (newest.size) show(true);
     };
     return { manager, attach };
   });

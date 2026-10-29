@@ -125,6 +125,8 @@ export function MockController<
               if (!fixture.delayCollapse && delayMs) {
                 await wait(delayMs, signal);
               }
+              // an async fetchResponse may have ignored the signal
+              if (signal?.aborted) throw abortReason(signal);
               if (result.error) {
                 throw result.response;
               }

@@ -104,4 +104,23 @@ describe('MockController', () => {
     ).resolves.toMatchObject({ id: 7, title: 'seven' });
     expect(seen).toEqual([abort.signal]);
   });
+
+  it('rejects when aborted during an async fetchResponse that ignores it', async () => {
+    const abort = new AbortController();
+    const interceptor = {
+      endpoint: ArticleResource.get,
+      async fetchResponse() {
+        abort.abort();
+        await Promise.resolve();
+        return { id: 7, title: 'seven' };
+      },
+    };
+    await expect(
+      mockedFetch(
+        [interceptor],
+        ArticleResource.get.extend({ signal: abort.signal }),
+        { id: 7 },
+      ),
+    ).rejects.toMatchObject({ name: 'AbortError' });
+  });
 });

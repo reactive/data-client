@@ -217,6 +217,7 @@ div.playground-preview h1:first-child {
 /* A list and what it opens (an inbox and its open message): side by side
    when there's room for both, the list above otherwise */
 .playground-preview .split {
+  container: split / inline-size;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
@@ -238,6 +239,13 @@ div.playground-preview h1:first-child {
   padding: var(--ds-space-4) var(--ds-space-5);
   border-radius: var(--ds-radius);
   background: var(--ds-surface-2);
+}
+/* stacked under the list (the two bases and the gap no longer fit), its
+   text starts where the rows' avatars do */
+@container split (width < 35rem) {
+  .playground-preview .split > :not(.list) {
+    padding-inline: var(--ds-space-3);
+  }
 }
 
 /* Rows that open something (an inbox's messages): the whole row is the
