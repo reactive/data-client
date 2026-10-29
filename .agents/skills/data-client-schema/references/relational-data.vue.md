@@ -220,7 +220,7 @@ export const TodoResource = resource({
 </template>
 ```
 
-```html title="TodoList.vue" {12-15}
+```html title="TodoList.vue" {12-16}
 <script setup lang="ts">
   import { computed } from 'vue';
   import { useFetch, useSuspense } from '@data-client/vue';
@@ -232,7 +232,8 @@ export const TodoResource = resource({
   useFetch(UserResource.getList);
   const todos = await useSuspense(TodoResource.getList);
   const users = await useSuspense(UserResource.getList);
-  // every todo carries its user, so the list can group by it
+  // every todo carries its user, the same object as in users, so
+  // the list can group by it
   const byOwner = computed(() =>
     Map.groupBy(todos.value, todo => todo.user),
   );

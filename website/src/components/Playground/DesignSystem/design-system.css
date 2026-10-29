@@ -63,33 +63,19 @@ div.playground-preview h1:first-child {
   letter-spacing: 0;
   color: var(--ds-text-muted);
 }
-/* Groups of rows under a label (a person's tasks): the label leads its
-   rows in the text's color. As a drop target, its ring rounds and stands
-   just off the rows */
-.playground-preview section:has(> h3 + .list) {
-  margin-bottom: var(--ds-space-4);
-}
-.playground-preview section:has(> h3 + .list)[data-drop-target] {
-  border-radius: var(--ds-radius-sm);
-  outline-offset: 4px;
-}
-.playground-preview section:has(> h3 + .list):last-child,
-.playground-preview section > h3 + .list {
-  margin-bottom: 0;
-}
-.playground-preview section > h3:has(+ .list) {
-  color: var(--ds-text);
-}
-/* a person's group: their avatar beside the label, sized to it, and a
-   line dropping from the avatar's center down beside their rows, which sit
-   under the name */
-.playground-preview section:has(> h3 > .avatar) {
+/* A person's group (a section whose label holds their avatar): the label
+   leads in the text's color with the avatar sized to it, and a line drops
+   from the avatar's center down beside their rows, which sit under the
+   name */
+.playground-preview section:where(:has(> h3 > .avatar)) {
   --face: 20px;
+  margin-bottom: var(--ds-space-4);
 }
 .playground-preview section > h3:has(> .avatar) {
   display: flex;
   align-items: center;
   gap: var(--ds-space-2);
+  color: var(--ds-text);
 }
 .playground-preview section > h3 > .avatar > img {
   width: var(--face);
@@ -97,6 +83,7 @@ div.playground-preview h1:first-child {
 }
 .playground-preview section > h3:has(> .avatar) + .list {
   --rail: 1.5px;
+  margin-bottom: 0;
   margin-inline-start: calc((var(--face) - var(--rail)) / 2);
   padding-inline-start: calc(
     (var(--face) - var(--rail)) / 2 + var(--ds-space-2)
@@ -241,12 +228,10 @@ div.playground-preview h1:first-child {
    carried by the reader is lifted over them on the sheet's own color, so
    their text never overprints; a row is raised visibly. The surface is
    opaque at once (only the shadow eases in), or the text it crosses would
-   show through it. An item with a surface of its own keeps it */
+   show through it */
 .playground-preview :is([data-traveling], [data-dragging]) {
   position: relative;
   z-index: 1;
-}
-.playground-preview :where([data-traveling], [data-dragging]) {
   background: var(--ds-surface);
 }
 .playground-preview .listItem:is([data-traveling], [data-dragging]) {
@@ -267,22 +252,19 @@ div.playground-preview h1:first-child {
 .playground-preview [data-dragging] {
   will-change: translate;
 }
-/* While a row is carried, the groups it can go to are ringed inside their
-   edge, and the one under it is washed in the accent whole: the row drops
-   into the group, wherever the group's order puts it, not at a spot in it */
+/* While a row is carried, the groups it can go to are ringed just off
+   their edge, and the one under it is washed in the accent whole: the row
+   drops into the group, wherever the group's order puts it, not at a spot
+   in it */
 .playground-preview [data-drop-target] {
   outline: 1.5px dashed var(--ds-border-strong);
-  outline-offset: -1.5px;
+  outline-offset: var(--ds-space-1);
+  border-radius: var(--ds-radius-sm);
   transition: outline-color var(--motion-snappy);
 }
 .playground-preview [data-drop-over] {
   outline: 2px solid var(--ds-accent);
-  outline-offset: -2px;
-  /* over the group's own surface */
-  background-image: linear-gradient(
-    var(--ds-accent-soft),
-    var(--ds-accent-soft)
-  );
+  background-color: var(--ds-accent-soft);
 }
 /* touch screens skip it: a tapped row would stay lit */
 @media (hover: hover) {

@@ -240,7 +240,7 @@ interface Props {
 }
 ```
 
-```tsx title="TodoList" {11-12}
+```tsx title="TodoList" {11-13}
 import { useFetch, useSuspense } from '@data-client/react';
 import { TodoResource } from './resources/Todo';
 import { UserResource } from './resources/User';
@@ -251,7 +251,8 @@ function TodoList() {
   useFetch(UserResource.getList);
   const todos = useSuspense(TodoResource.getList);
   const users = useSuspense(UserResource.getList);
-  // every todo carries its user, so the list can group by it
+  // every todo carries its user, the same object as in users, so
+  // the list can group by it
   const byOwner = Map.groupBy(todos, todo => todo.user);
   return (
     // rows glide to wherever a change moves them

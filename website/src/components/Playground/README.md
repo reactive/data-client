@@ -246,9 +246,9 @@ style to a new component.
 
 Styled elements: `h2` (page title), `button` (`primary` fills one;
 `aria-busy` shows pending), text inputs, `nav`, `fieldset`, `progress`,
-`table`. A `section` holding an `h3` then a `list` (a person's tasks) is a
-group: its label leads it, and with an `Avatar` in the label (sized for
-you), the rows hang under it on a line.
+`table`. A `section` whose `h3` holds an `Avatar` (a person's tasks) is a
+person's group: the label leads it, the avatar sized for you, and the rows
+hang under it on a line.
 
 | Class                                      | Use for                                                                         |
 | ------------------------------------------ | ------------------------------------------------------------------------------- |

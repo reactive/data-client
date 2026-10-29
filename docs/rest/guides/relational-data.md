@@ -357,7 +357,7 @@ interface Props {
 }
 ```
 
-```tsx title="TodoList" collapsed {11-12}
+```tsx title="TodoList" collapsed {11-13}
 import { useFetch, useSuspense } from '@data-client/react';
 import { TodoResource } from './resources/Todo';
 import { UserResource } from './resources/User';
@@ -368,7 +368,8 @@ function TodoList() {
   useFetch(UserResource.getList);
   const todos = useSuspense(TodoResource.getList);
   const users = useSuspense(UserResource.getList);
-  // every todo carries its user, so the list can group by it
+  // every todo carries its user, the same object as in users, so
+  // the list can group by it
   const byOwner = Map.groupBy(todos, todo => todo.user);
   return (
     // rows glide to wherever a change moves them
@@ -458,7 +459,7 @@ render(<TodoList />);
 </template>
 ```
 
-```html title="TodoList.vue" collapsed {12-15}
+```html title="TodoList.vue" collapsed {12-16}
 <script setup lang="ts">
   import { computed } from 'vue';
   import { useFetch, useSuspense } from '@data-client/vue';
@@ -470,7 +471,8 @@ render(<TodoList />);
   useFetch(UserResource.getList);
   const todos = await useSuspense(TodoResource.getList);
   const users = await useSuspense(UserResource.getList);
-  // every todo carries its user, so the list can group by it
+  // every todo carries its user, the same object as in users, so
+  // the list can group by it
   const byOwner = computed(() =>
     Map.groupBy(todos.value, todo => todo.user),
   );
