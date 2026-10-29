@@ -58,42 +58,24 @@ function useLiveExchange(
       setState(initial);
       return;
     }
-    const fail = (error: unknown) =>
-      setState(last => ({ ...last, stale: true, error: `${error}` }));
-    // half typed, or no call: the last exchange stays, dimmed
-    const keepLast = () =>
+    // half typed: the last exchange stays, dimmed
+    if (program === undefined) {
       setState(last => ({ ...last, stale: true, error: undefined }));
-    if (program === undefined) return keepLast();
-
-    let current = true;
-    let threw = false;
-    let lastCall: Promise<Exchange> | undefined;
-    // shown as the code's last call: one it makes later (after an await)
-    // takes over; every call is handled, so a superseded failure is dropped.
-    // A throw outlasts the call's answer.
-    const show = (call: Promise<Exchange>) => {
-      lastCall = call;
-      call.then(
-        exchange =>
-          current &&
-          !threw &&
-          call === lastCall &&
-          setState({ exchange, stale: false }),
-        error => current && !threw && call === lastCall && fail(error),
-      );
-    };
+      return;
+    }
     // dimmed until this run's call is answered
     setState(last => (last.stale ? last : { ...last, stale: true }));
-    try {
-      runExchanges(program, fixtures, show, getInitialInterceptorData);
-    } catch (error) {
-      threw = true;
-      fail(error);
-    }
-    if (!lastCall && !threw) keepLast();
-    return () => {
-      current = false;
-    };
+    return runLive(
+      program,
+      fixtures,
+      getInitialInterceptorData,
+      ({ exchange, error }) =>
+        setState(last =>
+          exchange ?
+            { exchange, stale: false }
+          : { ...last, stale: true, error },
+        ),
+    );
   }, [program, first, initial, fixtures, getInitialInterceptorData]);
 
   return state;
@@ -128,31 +110,57 @@ const FIRST_RUNS = new WeakMap<
   Map<string | undefined, Promise<LiveState>>
 >();
 
-/** The first paint's exchange: the last call the code makes as it first
- * runs (a call made later, after an await, shows once the code is edited) */
-async function settle(
+/** The first paint's exchange: the code's first outcome */
+function settle(
   program: string | undefined,
   fixtures: readonly FixtureOrInterceptor[],
   getInitialInterceptorData?: () => unknown,
 ): Promise<LiveState> {
-  if (program === undefined) return { stale: false };
+  if (program === undefined) return Promise.resolve({ stale: false });
+  return new Promise(resolve =>
+    runLive(program, fixtures, getInitialInterceptorData, outcome =>
+      resolve({ ...outcome, stale: false }),
+    ),
+  );
+}
+
+/** Runs `program`, reporting the exchange its last call makes (a call made
+ * later, after an await, takes over, and a superseded call's answer is
+ * dropped) or the error it threw, which outlasts any answer. With no call
+ * it reports `{}`. Returns a function that stops the reports. */
+export function runLive(
+  program: string,
+  fixtures: readonly FixtureOrInterceptor[],
+  getInitialInterceptorData: (() => unknown) | undefined,
+  report: (outcome: Pick<LiveState, 'exchange' | 'error'>) => void,
+): () => void {
+  let current = true;
+  let threw = false;
   let lastCall: Promise<Exchange> | undefined;
+  const shown = (call: Promise<Exchange>) =>
+    current && !threw && call === lastCall;
   try {
-    // throws before awaiting, so a throw wins over an answer, as when live
     runExchanges(
       program,
       fixtures,
       call => {
         lastCall = call;
-        // only the last call's failure is shown
-        call.catch(() => undefined);
+        // every call is handled, so a superseded failure is dropped
+        call.then(
+          exchange => shown(call) && report({ exchange }),
+          error => shown(call) && report({ error: `${error}` }),
+        );
       },
       getInitialInterceptorData,
     );
-    return { exchange: await lastCall, stale: false };
   } catch (error) {
-    return { stale: false, error: `${error}` };
+    threw = true;
+    report({ error: `${error}` });
   }
+  if (!lastCall && !threw) report({});
+  return () => {
+    current = false;
+  };
 }
 
 /** Stable, so the exchange reruns only as the code changes */

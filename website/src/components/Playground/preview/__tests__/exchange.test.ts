@@ -3,7 +3,7 @@ import { RestEndpoint } from '@data-client/rest';
 
 import type { CodeDocument } from '../../editor/codeModel';
 import type { FixtureOrInterceptor } from '../../types';
-import { firstExchange } from '../exchange/LiveExchange';
+import { firstExchange, runLive } from '../exchange/LiveExchange';
 import type { Exchange } from '../exchange/network';
 import { compileExchanges, runExchanges } from '../exchange/runExchanges';
 
@@ -255,5 +255,44 @@ describe('firstExchange', () => {
         `)
       ).error,
     ).toBe('Error: after');
+  });
+});
+
+describe('runLive', () => {
+  const outcomes = async (usage: string) => {
+    const reports: unknown[] = [];
+    runLive(
+      compileExchanges([resourceFile, file(usage)]),
+      fixtures,
+      undefined,
+      outcome => reports.push(outcome),
+    );
+    await new Promise(resolve => setTimeout(resolve, 10));
+    return reports;
+  };
+
+  test("a throw after a call outlasts the call's answer", async () => {
+    expect(
+      await outcomes(`
+        PostResource.get({ group: 'a', id: '1' });
+        throw new Error('after');
+      `),
+    ).toEqual([{ error: 'Error: after' }]);
+  });
+
+  test("a later call's exchange replaces the first's", async () => {
+    const reports = await outcomes(`
+      PostResource.get({ group: 'a', id: '1' }).then(() =>
+        PostResource.get({ group: 'b', id: '1' }),
+      );
+    `);
+    expect(reports.map((r: any) => r.exchange.input)).toEqual([
+      '/a/posts/1',
+      '/b/posts/1',
+    ]);
+  });
+
+  test('no call reports nothing to show', async () => {
+    expect(await outcomes(`const x = 1;`)).toEqual([{}]);
   });
 });

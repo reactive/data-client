@@ -47,13 +47,13 @@ export function networkScope(network: Network) {
 /** On a recording endpoint's fetch: the fetch it wraps */
 const SEND = Symbol('send');
 
-/** `Endpoint`, its requests answered by `answer` as `protocol`'s server
- * would */
+/** `Endpoint`, its requests answered by `answer` as its `Protocol`'s
+ * server would */
 function recording(
   Endpoint: new (...options: any[]) => any,
   answer: ReturnType<typeof fixtureAnswerer>,
   { onCall }: Network,
-  { success, respond }: Protocol,
+  { successStatus, respond }: Protocol,
 ) {
   return class RecordingEndpoint extends Endpoint {
     constructor(...options: any[]) {
@@ -77,7 +77,7 @@ function recording(
               args,
               input,
               init,
-              success(init),
+              successStatus(init),
             );
             resolve({ input, init, ...answered });
             return respond(answered.status, answered.body);
@@ -106,7 +106,7 @@ function fixtureAnswerer(
     args: unknown[],
     input: string,
     init: RequestInit,
-    success: number,
+    successStatus: number,
   ): Promise<{ status: number; body?: unknown }> => {
     const fixture =
       exact.get(key) ??
@@ -125,7 +125,7 @@ function fixtureAnswerer(
     );
     if (error) return errorAnswer(response);
     if (response == null) return { status: 204 };
-    return { status: success, body: response };
+    return { status: successStatus, body: response };
   };
 }
 
@@ -134,8 +134,7 @@ function fixtureAnswerer(
 function errorAnswer(thrown: any) {
   if (thrown instanceof Error)
     return { status: 500, body: { message: thrown.message } };
-  if (thrown == null) return { status: 500 };
-  if (typeof thrown !== 'object')
+  if (typeof thrown !== 'object' || thrown === null)
     return { status: 500, body: { message: String(thrown) } };
   const { status = 500, ...body } = thrown;
   return { status, body };
@@ -144,14 +143,14 @@ function errorAnswer(thrown: any) {
 /** How an endpoint's server answers */
 interface Protocol {
   /** The status of an answer with a body */
-  success(init: RequestInit): number;
+  successStatus(init: RequestInit): number;
   /** What the endpoint's own fetchResponse() resolves or rejects with */
   respond(status: number, body: unknown): unknown;
 }
 
 const REST: Protocol = {
   // a POST creates
-  success: init => (init.method === 'POST' ? 201 : 200),
+  successStatus: init => (init.method === 'POST' ? 201 : 200),
   respond(status, body) {
     const response = new Response(
       body === undefined ? null : JSON.stringify(body),
@@ -164,7 +163,7 @@ const REST: Protocol = {
 
 const GRAPHQL: Protocol = {
   // every operation is a POST, answered 200
-  success: () => 200,
+  successStatus: () => 200,
   // a GraphQL fixture answers with the data the endpoint resolves with
   // (GQLEndpoint's fetchResponse() unwraps the server's `data`)
   respond(status, body: any) {
