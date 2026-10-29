@@ -233,11 +233,12 @@
   flex-direction: column;
 }
 /* a row's ▸: its actions, without opening it. It takes the row's whole
-   left gutter, full height, so the rest of the row opens the action */
+   left gutter, full height (the row is its containing block), so the rest
+   of the row opens the action; the row's content starts past it */
 .stepsToggle {
   flex: none;
   width: 1rem;
-  margin-left: -0.3rem;
+  margin-left: -1.5rem;
   border: 0;
   padding: 0;
   background: none;
@@ -1090,15 +1091,17 @@ div.row[data-change='removed'] {
   background: var(--store-record);
 }
 div.actRow {
+  /* holds the ▸'s full-height gutter */
   position: relative;
   flex-direction: column;
   align-items: stretch;
   gap: 0.1rem;
   padding: 0.35rem 0.75rem;
 }
-/* the summary hangs under the headline, clear of the ▸'s gutter */
-.actRow[data-steps] > .actSum {
-  padding-left: 1.2rem;
+/* every line (a wrapped headline's too) starts clear of the ▸'s 1.7rem
+   gutter; the ▸ sits back in it */
+div.actRow[data-steps] {
+  padding-left: 1.95rem;
 }
 /* where actions the log dropped changed the record */
 div.gapRow {
