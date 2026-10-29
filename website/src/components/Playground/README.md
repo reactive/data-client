@@ -151,6 +151,13 @@ callout markers as comments, its caption and legend outside the editor.
   re-renders never reset the buffer.
 - Handlers passed to `InteractiveEditor` must stay referentially stable, or
   every keystroke re-renders every tab.
+- Each editor surface is its own TypeScript program
+  (`monaco/surfaceWorker.js`, Monaco's `customWorkerPath`): files without
+  imports share their global names with the other files of their
+  playground, never with another playground's. A diff editor's sides are
+  checked apart too. The worker overrides Monaco's private
+  `TypeScriptWorker._languageService`; after a `monaco-editor` bump, see
+  [Verify](#verify).
 - `monaco/models.ts` creates a surface's models in one pass and relies on
   the TS worker answering in order. No test runs real Monaco: after a
   `monaco-editor` bump, see [Verify](#verify).
@@ -350,6 +357,8 @@ re-renders the playground.
   above the preview). After a `monaco-editor` bump, also hover a line near
   the viewport's top on a scrolled page and check the hover opens below it,
   and right-click the code in light and dark themes and check the menu has a
-  background and draws over the file tabs. In dev, the console warns
-  `useOverflowWidgets: Monaco has no …` when a patched method or the context
-  view service is gone (a missing hover or suggest widget stays silent).
+  background and draws over the file tabs. On /rest/api/RestEndpoint, check
+  no `getTodo` redeclaration marker shows (two playgrounds declare it). In
+  dev, the console warns `useOverflowWidgets: Monaco has no …` when a
+  patched method or the context view service is gone (a missing hover or
+  suggest widget stays silent).

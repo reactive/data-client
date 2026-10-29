@@ -19,6 +19,8 @@ import { ignoreTopLevelAwaitWhereAllowed } from './topLevelAwait';
 import typeCheckFlags from './typeCheckFlags.json';
 import { addTypeLibs, fetchTypeLibs } from './typeLibs';
 
+import surfaceWorker from '!!raw-loader!./surfaceWorker.js';
+
 if (typeof window !== 'undefined' && !isMobileOrBot()) {
   injectMonacoResourceHints();
   shieldEditorsFromSearchHotkey();
@@ -47,6 +49,10 @@ if (typeof window !== 'undefined' && !isMobileOrBot()) {
       moduleResolution: monaco.typescript.ModuleResolutionKind.NodeJs,
       allowSyntheticDefaultImports: true,
       skipDefaultLibCheck: true,
+    });
+    // each playground is checked as its own program
+    monaco.typescript.typescriptDefaults.setWorkerOptions({
+      customWorkerPath: `data:text/javascript;charset=utf-8,${encodeURIComponent(surfaceWorker)}`,
     });
     definePrismTheme(monaco);
     registerImportCompletions(monaco);
