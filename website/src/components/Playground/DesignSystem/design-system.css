@@ -221,8 +221,9 @@ div.playground-preview h1:first-child {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  /* the rows' highlights and the pane each bleed space-3 into the gap */
-  gap: var(--ds-space-4) calc(var(--ds-space-5) + 2 * var(--ds-space-3));
+  /* side by side, the open pane sits as far from the rows' highlights (which
+     bleed space-3) as from the sheet's edge */
+  gap: var(--ds-space-4) calc(var(--pg-sheet-pad, 1.25rem) + var(--ds-space-3));
 }
 .playground-preview .split > * {
   flex: 3 1 18rem;
@@ -232,18 +233,18 @@ div.playground-preview h1:first-child {
   flex: 2 1 14rem;
   margin-bottom: 0;
 }
-/* what's open sits on its own tinted pane, set apart from the list; its
-   edges line up with the rows' highlights, which bleed past the text */
+/* what's open sits on its own tinted pane, set apart from the list */
 .playground-preview .split > :not(.list) {
-  margin-inline: calc(-1 * var(--ds-space-3));
   padding: var(--ds-space-4) var(--ds-space-5);
   border-radius: var(--ds-radius);
   background: var(--ds-surface-2);
 }
-/* stacked under the list (the two bases and the gap no longer fit), its
-   text starts where the rows' avatars do */
-@container split (width < 35rem) {
+/* stacked under the list (below both bases plus the gap: 14 + 18 + 2rem),
+   it spans the rows' highlights and its text starts where their avatars do */
+@container split (width < 34rem) {
   .playground-preview .split > :not(.list) {
+    flex-basis: 100%;
+    margin-inline: calc(-1 * var(--ds-space-3));
     padding-inline: var(--ds-space-3);
   }
 }
