@@ -82,7 +82,7 @@ export default class Post extends Entity {
 }
 ```
 
-```typescript title="Resource" {9}
+```typescript title="Resource" {9-10,13-15}
 import { resource, Invalidate } from '@data-client/rest';
 import Post from './Post';
 
@@ -91,20 +91,24 @@ export const PostResource = resource({
   path: '/posts/:id',
 }).extend('deleteMany', {
   path: '/posts',
-  body: [] as string[],
+  searchParams: {} as { ids: string[] },
+  body: undefined,
   method: 'DELETE',
   schema: [new Invalidate(Post)],
+  searchToString({ ids }) {
+    return `ids=${ids.join(',')}`;
+  },
 });
 ```
 
 ```typescript title="Usage" column
 import { PostResource } from './Resource';
-PostResource.deleteMany(['5', '13', '7']);
+PostResource.deleteMany({ ids: ['5', '13', '7'] });
 ```
 
 Sometimes our backend returns nothing for 'DELETE'. In this
 case, we can use [process](https://dataclient.io/rest/api/RestEndpoint#process) to build
-a usable response from the argument `body`.
+a usable response from the `ids` sent.
 
 ```typescript title="Post"
 import { Entity } from '@data-client/rest';
@@ -116,7 +120,7 @@ export default class Post extends Entity {
 }
 ```
 
-```typescript title="Resource" {10-13}
+```typescript title="Resource" {9-10,13-19}
 import { resource, Invalidate } from '@data-client/rest';
 import Post from './Post';
 
@@ -125,19 +129,23 @@ export const PostResource = resource({
   path: '/posts/:id',
 }).extend('deleteMany', {
   path: '/posts',
-  body: [] as string[],
+  searchParams: {} as { ids: string[] },
+  body: undefined,
   method: 'DELETE',
   schema: [new Invalidate(Post)],
-  process(value, body) {
-    // use the body payload to inform which entities to delete
-    return body.map(id => ({ id }));
-  }
+  searchToString({ ids }) {
+    return `ids=${ids.join(',')}`;
+  },
+  process(value, { ids }) {
+    // use the ids sent to inform which entities to delete
+    return ids.map(id => ({ id }));
+  },
 });
 ```
 
 ```typescript title="Usage" column
 import { PostResource } from './Resource';
-PostResource.deleteMany(['5', '13', '7']);
+PostResource.deleteMany({ ids: ['5', '13', '7'] });
 ```
 
 To delete many entities without an endpoint, such as from a websocket message, pass the same schema to

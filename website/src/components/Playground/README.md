@@ -14,23 +14,24 @@ renders `index.tsx`. `../TypeScriptEditor.tsx` and
 (`variant="standalone"`); `../DiffEditor.tsx` reuses `editor/codeModel.ts`
 and `editor/callouts.ts`.
 
-| Task                                         | Where                                                                                                           |
-| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Props, layouts, Store placement, `hidden`    | `index.tsx` (`PlaygroundProps` documents each prop)                                                             |
-| Fence metastring, file list                  | `editor/codeModel.ts`                                                                                           |
-| Editor chrome, SSR markup                    | `editor/EditorSurface.tsx`, `editor/StaticEditor.tsx`, `editor/InteractiveEditor.tsx`                           |
-| Monaco: types, completions, go-to-definition | `monaco/` (`preloadManifest.ts` and `../editor-types/` are generated)                                           |
-| Running the code, scope globals              | `preview/LivePreview.tsx`, `preview/useCodeManagers.ts`, `preview/transformCode.ts`, `preview/scope.ts`         |
-| Preview frame, Store open state and motion   | `preview/PreviewWrapper.tsx`, `preview/StoreToggle.tsx`, `preview/StoreInspector.tsx`                           |
-| Store inspector UI                           | `preview/store/` (`StorePanel.tsx` owns its state, `nav.tsx` moves it)                                          |
-| Store log, action credit                     | `preview/store/actionLog.ts`, `actionGroups.ts`, `attribution.ts` (names each action's manager)                 |
-| Why a fetch happened                         | `preview/store/fetchCause.ts` (reason, playground-free), `callSite.ts` (hook, component, event), `Why.tsx`      |
+| Task                                         | Where                                                                                                              |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Props, layouts, Store placement, `hidden`    | `index.tsx` (`PlaygroundProps` documents each prop)                                                                |
+| Fence metastring, file list                  | `editor/codeModel.ts`                                                                                              |
+| Editor chrome, SSR markup                    | `editor/EditorSurface.tsx`, `editor/StaticEditor.tsx`, `editor/InteractiveEditor.tsx`                              |
+| Monaco: types, completions, go-to-definition | `monaco/` (`preloadManifest.ts` and `../editor-types/` are generated)                                              |
+| Running the code, scope globals              | `preview/LivePreview.tsx`, `preview/useCodeManagers.ts`, `preview/transformCode.ts`, `preview/scope.ts`            |
+| Preview frame, Store open state and motion   | `preview/PreviewWrapper.tsx`, `preview/StoreToggle.tsx`, `preview/StoreInspector.tsx`                              |
+| Store inspector UI                           | `preview/store/` (`StorePanel.tsx` owns its state, `nav.tsx` moves it)                                             |
+| Store log, action credit                     | `preview/store/actionLog.ts`, `actionGroups.ts`, `attribution.ts` (names each action's manager)                    |
+| Why a fetch happened                         | `preview/store/fetchCause.ts` (reason, playground-free), `callSite.ts` (hook, component, event), `Why.tsx`         |
 | Actions listed (`defaultActionsBy`)          | `preview/store/interactions.ts` (sections), `actionRowsOf` (`actionGroups.ts`), `useActionsBy` (`storeView.ts`) |
-| Managers the code declares                   | `preview/managers.ts`; [data flow](./managers-data-flow.png) (source `.svg`)                                    |
-| Multi-page demos, self-playing demos         | `preview/router.tsx`, `preview/autorun/`                                                                        |
-| Demo markup's look                           | `DesignSystem/design-system.css`, tokens and skeletons in `base.css` ([Design system](#design-system))          |
-| Mobile and crawler gates                     | `userAgent.ts`                                                                                                  |
-| Docusaurus stubs for tests                   | `testing/` (mapped in the root `jest.config.js`)                                                                |
+| Managers the code declares                   | `preview/managers.ts`; [data flow](./managers-data-flow.png) (source `.svg`)                                       |
+| EndpointPlayground's live exchange           | `preview/exchange/` (runs the code, its endpoints answered by fixtures); `../HTTP/` draws it                       |
+| Multi-page demos, self-playing demos         | `preview/router.tsx`, `preview/autorun/`                                                                           |
+| Demo markup's look                           | `DesignSystem/design-system.css`, tokens and skeletons in `base.css` ([Design system](#design-system))             |
+| Mobile and crawler gates                     | `userAgent.ts`                                                                                                     |
+| Docusaurus stubs for tests                   | `testing/` (mapped in the root `jest.config.js`)                                                                   |
 
 `resources/` is referenced by nothing.
 
@@ -127,7 +128,16 @@ callout markers as comments, its caption and legend outside the editor.
   a title; untitled, the card has no header row above it.
 - `../HTTP/EndpointPlayground.tsx` is a `row` whose folder holds the HTTP
   exchange instead of a preview: the request is the inset header, the
-  response the sheet (`../HTTP/styles.module.css`).
+  response the sheet (`../HTTP/styles.module.css`). Live, it runs the code
+  (`preview/exchange/`, the preview's lazy chunk) with `RestEndpoint`,
+  `resource`, `createResource` and `GQLEndpoint` swapped for endpoints that
+  answer each call from `fixtures`, found as MockResolver finds them (exact
+  fixture, then the first matching interceptor; none is a 404), and shows the
+  last call's exchange. A bare `fetch()` throws, so no demo reaches the
+  network. The first exchange is rendered on the server (`../HTTP/LiveFolder.tsx`
+  runs the code during SSR, outside any Suspense boundary so React writes it
+  in place) and read back from the folder's `data-first-exchange` for
+  hydration; the browser only runs the code once it is edited.
 
 ## Editor
 

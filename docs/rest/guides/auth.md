@@ -7,6 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PlaygroundTabs from '@site/src/components/PlaygroundTabs';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
+import { myPostFixtures } from '@site/src/fixtures/my-posts';
 
 All network requests are run through the [getRequestInit](../api/RestEndpoint.md#getRequestInit) optionally
 defined in your [RestEndpoint](../api/RestEndpoint.md).
@@ -15,7 +16,7 @@ defined in your [RestEndpoint](../api/RestEndpoint.md).
 
 Here's an example using simple [cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies) auth by sending [fetch credentials](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#sending_a_request_with_credentials_included):
 
-<EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'Cookie': 'session=abc;'}}} status={200} response={{  "id": "1","title": "this post"}}>
+<EndpointPlayground fixtures={myPostFixtures}>
 
 ```ts title="AuthdEndpoint" {9}
 import { RestEndpoint, type RestGenerics } from '@data-client/rest';
@@ -68,7 +69,7 @@ values={[
 ]}>
 <TabItem value="static">
 
-<EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'Access-Token': 'mytoken'}}} status={200} response={{  "id": "1","title": "this post"}}>
+<EndpointPlayground fixtures={myPostFixtures} setup="AuthdEndpoint.accessToken = 'mytoken';">
 
 ```ts title="login" collapsed
 export const login = async (data: FormData) =>
@@ -158,7 +159,7 @@ MyResource.get({ id: 1 });
 </TabItem>
 <TabItem value="async">
 
-<EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'Access-Token': 'mytoken'}}} status={200} response={{  "id": "1","title": "this post"}}>
+<EndpointPlayground fixtures={myPostFixtures} setup="setAuthToken('mytoken');">
 
 ```ts title="login" collapsed
 export const login = async (data: FormData) =>
@@ -253,7 +254,7 @@ MyResource.get({ id: 1 });
 </TabItem>
 <TabItem value="function">
 
-<EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'Access-Token': 'mytoken'}}} status={200} response={{  "id": "1","title": "this post"}}>
+<EndpointPlayground fixtures={myPostFixtures} setup="setAuthToken('mytoken');">
 
 ```ts title="login" collapsed
 export const login = async (data: FormData) =>

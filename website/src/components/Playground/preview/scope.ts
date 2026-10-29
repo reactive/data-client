@@ -3,6 +3,7 @@ import * as rhReact from '@data-client/react';
 import * as rhReactNext from '@data-client/react/next';
 import * as rest from '@data-client/rest';
 import BigNumber from 'bignumber.js';
+import qs from 'qs';
 import { Suspense, use } from 'react';
 // uses native Temporal (and its Intl) when the browser has it
 import { Temporal, Intl } from 'temporal-polyfill';
@@ -39,6 +40,7 @@ export const previewScope = {
   use,
   Suspense,
   uuid,
+  qs,
   randomFloatInRange,
   mockFetch,
   BigNumber,

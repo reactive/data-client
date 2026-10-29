@@ -468,7 +468,7 @@ searchToString(searchParams) {
 
 To encode complex objects in the searchParams, you can use the [qs](https://github.com/ljharb/qs) library.
 
-<EndpointPlayground input="/foo?a%5Bb%5D=c" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}}>
+<EndpointPlayground>
 
 ```typescript title="QSEndpoint" {8}
 import { RestEndpoint, type RestGenerics } from '@data-client/rest';
@@ -615,7 +615,7 @@ and [body](#body).
 
 The actual **value is not used** in any way - this only determines [typing](#typing).
 
-<EndpointPlayground input="https://site.com/cool?isReact=true" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}}>
+<EndpointPlayground>
 
 ```typescript title="getFoo"
 import { RestEndpoint } from '@data-client/rest';
@@ -637,7 +637,7 @@ used** in any way - this only determines [typing](#typing).
 
 This is only used by endpoings with a method that uses body: 'POST', 'PUT', 'PATCH'.
 
-<EndpointPlayground input="https://site.com/cool" init={{method: 'POST', body: '{ "url": "/" }', headers: {'Content-Type': 'application/json'}}}>
+<EndpointPlayground>
 
 ```ts {6}
 import { RestEndpoint } from '@data-client/rest';

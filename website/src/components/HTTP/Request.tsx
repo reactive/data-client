@@ -9,10 +9,11 @@ import playgroundstyles from '../Playground/styles.module.css';
 
 /** The folder's header: method and URL on one line, the headers that say
  * something, and the body */
-// EndpointPlayground re-renders as its code is edited; the exchange never changes
+// EndpointPlayground re-renders as its code is edited, the exchange only
+// when the code's request changes
 export default memo(Request);
 
-function Request({ input, init }: Props) {
+function Request({ input, init, busy }: Props) {
   const headers = [...new Headers(init.headers)];
   const url = `${input}`;
   const json = headers.find(isJson);
@@ -22,6 +23,7 @@ function Request({ input, init }: Props) {
       className={clsx(playgroundstyles.folderHead, styles.request)}
       role="group"
       aria-label={translate({ id: 'http.request', message: 'Request' })}
+      aria-busy={busy || undefined}
     >
       <div className={styles.requestLine}>
         <span className={styles.method}>{init.method ?? 'GET'}</span>
@@ -36,6 +38,27 @@ function Request({ input, init }: Props) {
             >
               json
             </Translate>
+          </Clipped>
+        : null}
+        {init.credentials ?
+          <Clipped
+            className={styles.chip}
+            full={`credentials: ${init.credentials}`}
+            always
+          >
+            {init.credentials === 'omit' ?
+              translate({
+                id: 'http.credentials.omit',
+                message: 'no cookies',
+                description: "Chip for fetch's credentials: 'omit' option",
+              })
+            : translate({
+                id: 'http.credentials',
+                message: 'cookies',
+                description:
+                  "Chip for fetch's credentials option, which sends the browser's cookies",
+              })
+            }
           </Clipped>
         : null}
       </div>
@@ -71,4 +94,6 @@ function pretty(body: string) {
 interface Props {
   input: RequestInfo;
   init: RequestInit;
+  /** The code changed and no longer makes this request */
+  busy?: boolean;
 }
