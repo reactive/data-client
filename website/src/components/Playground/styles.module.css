@@ -1567,21 +1567,18 @@ div.fixtureJson + div.fixtureJson {
   .row > .playgroundTextEdit > .tabControls {
     grid-row: 1;
   }
-  /* the code card grows toward a taller preview by at most --pg-card-foot:
-     its padding is that far, the row's height (max-height) caps it, and its
-     margin keeps the padding out of the height it asks of the row */
   .row .editorDocs {
     grid-row: 2;
     align-self: start;
     max-height: 100%;
+  }
+  /* beside a preview, the code card grows toward a taller one by at most
+     --pg-card-foot: its padding is that far, the row's height (max-height)
+     caps it, and its margin keeps the padding out of the height it asks of
+     the row. Elsewhere (an HTTP exchange, no preview) it ends at its code */
+  .row:has(> .previewWrapper) .editorDocs {
     padding-bottom: calc(var(--pg-card-foot) - var(--pg-gutter-cut));
     margin-bottom: calc(var(--pg-card-radius) - var(--pg-card-foot));
-  }
-  /* beside an HTTP exchange (../HTTP), the card ends at its code: there a
-     foot reaching toward a taller response is only empty space */
-  .row:has(> .previewSlot) .editorDocs {
-    padding-bottom: var(--pg-code-foot);
-    margin-bottom: 0;
   }
   /* the preview's column, or what a playground puts in its place (../HTTP) */
   .row > :is(.previewWrapper, .previewSlot) {
