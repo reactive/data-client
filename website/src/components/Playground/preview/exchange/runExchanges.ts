@@ -1,7 +1,7 @@
 import React from 'react';
 import { transform } from 'sucrase';
 
-import { networkScope, type Exchange } from './network';
+import { isAnsweredFailure, networkScope, type Exchange } from './network';
 import type { CodeDocument } from '../../editor/codeModel';
 import type { FixtureOrInterceptor } from '../../types';
 import { previewScope } from '../scope';
@@ -18,19 +18,24 @@ export function compileExchanges(documents: readonly CodeDocument[]): string {
   }).code;
 }
 
+/** `Function`, for async function bodies: it has no global name */
+const AsyncFunction = (async () => undefined)
+  .constructor as FunctionConstructor;
+
 /** Runs `program` as the live preview would, its endpoints answered by
  * `fixtures`, each run against fresh interceptor data. `onCall` gets each
  * endpoint call's exchange in call order, including calls the code makes
- * later (after an await).
+ * later (after an await). It runs as an async function, so its code can
+ * `await` at the top level.
  *
- * @throws what the code throws as it first runs
+ * @returns the run, rejecting with what the code throws
  */
 export function runExchanges(
   program: string,
   fixtures: readonly FixtureOrInterceptor[],
   getInitialInterceptorData: (() => unknown) | undefined,
   onCall: (exchange: Promise<Exchange>) => void,
-): void {
+): Promise<void> {
   const scope: Record<string, unknown> = {
     React,
     ...previewScope,
@@ -40,7 +45,9 @@ export function runExchanges(
       onCall,
     }),
   };
-  new Function(...Object.keys(scope), program)(...Object.values(scope));
+  return new AsyncFunction(...Object.keys(scope), program)(
+    ...Object.values(scope),
+  );
 }
 
 /** Runs `program`, reporting the exchange its last call makes (a call made
@@ -56,6 +63,12 @@ export function runLive(
   let reporting = true;
   let lastCall: Promise<Exchange> | undefined;
   const isLatest = (call: Promise<Exchange>) => reporting && call === lastCall;
+  // what the code threw outlasts any answer
+  const fail = (error: unknown) => {
+    if (!reporting) return;
+    reporting = false;
+    report({ error: `${error}` });
+  };
   try {
     runExchanges(program, fixtures, getInitialInterceptorData, call => {
       lastCall = call;
@@ -64,13 +77,18 @@ export function runLive(
         exchange => isLatest(call) && report({ exchange }),
         error => isLatest(call) && report({ error: `${error}` }),
       );
+    }).catch(error => {
+      // an awaited endpoint's error answer (a 404): its exchange shows it
+      if (!isAnsweredFailure(error)) fail(error);
     });
   } catch (error) {
-    // what the code threw outlasts any answer
-    reporting = false;
-    report({ error: `${error}` });
+    // code that doesn't parse
+    fail(error);
   }
-  if (!lastCall && reporting) report({});
+  // after a throw before any await, whose rejection is already queued
+  queueMicrotask(() => {
+    if (!lastCall && reporting) report({});
+  });
   return () => {
     reporting = false;
   };

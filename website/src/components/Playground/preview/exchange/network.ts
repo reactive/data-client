@@ -44,6 +44,11 @@ export function networkScope(network: Network) {
   };
 }
 
+/** Whether `error` is an endpoint's error answer (a 404), which its
+ * exchange shows, rather than a failure of the code that awaited it */
+export const isAnsweredFailure = (error: unknown) =>
+  error instanceof NetworkError || error instanceof GQLNetworkError;
+
 /** On a recording endpoint's fetch: the fetch it wraps */
 const SEND = Symbol('send');
 

@@ -1,4 +1,4 @@
-import { Entity, Collection, resource } from '@data-client/rest';
+import { Entity, Collection, resource, RestEndpoint } from '@data-client/rest';
 import type { Interceptor } from '@data-client/test';
 import { v4 as uuid } from 'uuid';
 
@@ -83,3 +83,16 @@ export const todoFixtures: Interceptor[] = [
 function randomId() {
   return Number.parseInt(uuid().slice(0, 8), 16);
 }
+
+/** RestEndpoint's simplest retrieval: `path: '/todos/:id'`, with no `urlPrefix` */
+export const todoByIdFixtures: Interceptor[] = [
+  {
+    endpoint: new RestEndpoint({ path: '/todos/:id' }),
+    response: ({ id }: { id: string | number }) => ({
+      userId: 1,
+      id: Number(id),
+      title: 'delectus aut autem',
+      completed: false,
+    }),
+  },
+];

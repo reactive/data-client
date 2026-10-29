@@ -3,11 +3,18 @@ import Translate, { translate } from '@docusaurus/Translate';
 import useIsomorphicLayoutEffect from '@docusaurus/useIsomorphicLayoutEffect';
 import clsx from 'clsx';
 import type * as Monaco from 'monaco-editor';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import Header from '../Header';
 import { modelPath, useModelId } from '../monaco/modelPath';
 import { createMissingModels } from '../monaco/models';
+import { allowTopLevelAwait } from '../monaco/topLevelAwait';
 import NetworkIcon from '../NetworkIcon';
 import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
@@ -30,6 +37,9 @@ export interface EditorSurfaceProps extends CodeModel {
   /** A line to show, handed to its file's editor, which opens its tab and
    * puts the cursor there (each new object, once) */
   reveal?: CodeTarget | null;
+  /** The code runs as an async function, so its files may `await` at the
+   * top level */
+  topLevelAwait?: boolean;
 }
 
 export default function EditorSurface({
@@ -41,8 +51,12 @@ export default function EditorSurface({
   fixtureContent,
   covered = false,
   reveal,
+  topLevelAwait = false,
 }: EditorSurfaceProps) {
   const id = useModelId();
+  useEffect(() => {
+    if (topLevelAwait) return allowTopLevelAwait(id);
+  }, [id, topLevelAwait]);
   const row = layout !== 'stacked';
   const [closedList, setClosed] = useState(() =>
     documents.map(({ collapsed }) => collapsed),
@@ -89,12 +103,11 @@ export default function EditorSurface({
 
   const createModels = useCreateModels(id, documents);
 
-  // a lone file's title is its tab; a column file is a label, never a tab
+  // a lone file's title is its tab, and an untitled one has none; a column
+  // file is a label, never a tab
+  const tabbed = documents.filter(document => !document.col);
   const tabs =
-    (
-      row &&
-      (documents.length > 1 || (documents[0]?.title && !documents[0].col))
-    ) ?
+    row && (tabbed.length > 1 || tabbed[0]?.title) ?
       <EditorTabs
         documents={documents}
         closedList={closedList}

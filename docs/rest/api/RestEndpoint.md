@@ -12,7 +12,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
-import Grid from '@site/src/components/Grid';
+import { todoByIdFixtures } from '@site/src/fixtures/todos';
 import Link from '@docusaurus/Link';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import CollectionLists from '@site/src/components/CollectionLists';
@@ -120,7 +120,7 @@ All options are supported as arguments to the constructor, [extend](#extend), an
 
 ### Simplest retrieval
 
-<Grid>
+<EndpointPlayground fixtures={todoByIdFixtures}>
 
 ```ts
 const getTodo = new RestEndpoint({
@@ -128,11 +128,11 @@ const getTodo = new RestEndpoint({
 });
 ```
 
-```ts
+```ts title="Usage" column
 const todo = await getTodo({ id: 1 });
 ```
 
-</Grid>
+</EndpointPlayground>
 
 ### Configuration sharing
 
@@ -293,7 +293,7 @@ interface TodoInterface {
   title: string;
   completed: boolean;
 }
-const getTodo = new RestEndpoint({
+const getTypedTodo = new RestEndpoint({
   path: '/',
   process(value): TodoInterface {
     return value;
@@ -301,10 +301,10 @@ const getTodo = new RestEndpoint({
 });
 async () => {
   // todo is TodoInterface
-  const todo = await getTodo();
+  const todo = await getTypedTodo();
 
   const ctrl = useController();
-  const todo2 = await ctrl.fetch(getTodo);
+  const todo2 = await ctrl.fetch(getTypedTodo);
 };
 ```
 

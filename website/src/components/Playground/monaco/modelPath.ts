@@ -17,7 +17,7 @@ export function stripModelId(path: string) {
 }
 
 /** `/123/src/api.ts` → `/123/` (undefined when there is no id segment) */
-function modelIdSegment(path: string) {
+export function modelIdSegment(path: string) {
   return MODEL_ID_ROOT.exec(path)?.[0];
 }
 
