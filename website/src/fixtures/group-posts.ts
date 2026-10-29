@@ -27,6 +27,11 @@ function find({ group, id }: ItemParams) {
   return post;
 }
 
+const edit = (params: ItemParams, body: Partial<Post>) => ({
+  ...find(params),
+  ...body,
+});
+
 export const groupPostFixtures: Interceptor[] = [
   {
     endpoint: new RestEndpoint({ path: '/:group/posts/:id' }),
@@ -34,17 +39,11 @@ export const groupPostFixtures: Interceptor[] = [
   },
   {
     endpoint: new RestEndpoint({ path: '/:group/posts/:id', method: 'PUT' }),
-    response: (params: ItemParams, body: Partial<Post>) => ({
-      ...find(params),
-      ...body,
-    }),
+    response: edit,
   },
   {
     endpoint: new RestEndpoint({ path: '/:group/posts/:id', method: 'PATCH' }),
-    response: (params: ItemParams, body: Partial<Post>) => ({
-      ...find(params),
-      ...body,
-    }),
+    response: edit,
   },
   {
     endpoint: new RestEndpoint({ path: '/:group/posts/:id', method: 'DELETE' }),
@@ -52,11 +51,12 @@ export const groupPostFixtures: Interceptor[] = [
   },
   {
     endpoint: new RestEndpoint({ path: '/:group/posts' }),
-    response({ group, author, page = 1 }: ListParams) {
+    response({ group, author, page }: ListParams) {
       const list = posts.filter(
         post => post.group === group && (!author || post.author === author),
       );
-      return list.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+      // paginated only when a page is asked for (getList.getPage)
+      return page ? list.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) : list;
     },
   },
   {

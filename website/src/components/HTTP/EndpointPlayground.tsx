@@ -73,7 +73,8 @@ const folder = clsx(
   styles.folder,
 );
 
-/** `setup` runs before the last file, where nobody copies it from */
+/** Inserts `setup` as a hidden file before the last one (the Usage), so it
+ * runs after the definitions it touches */
 function withSetup(documents: readonly CodeDocument[], setup?: string) {
   if (!setup) return documents;
   return [
