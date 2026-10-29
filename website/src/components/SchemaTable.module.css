@@ -192,7 +192,8 @@
   .schemaTable tbody tr:last-child {
     padding-bottom: 0.6rem;
   }
-  /* the doc column of a 320px phone: smaller names so the longest fit */
+  /* the longest names (Invalidate(Entity)) need ~307px at 14px; at 12px they
+   * fit down to ~286px, the doc column of a 320px phone being 288px */
   @container doc (max-width: 306px) {
     .schemaTable td:nth-last-child(3) {
       font-size: 0.75rem;
