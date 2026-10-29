@@ -203,12 +203,13 @@ div.playground-preview h1:first-child {
   border-radius: var(--ds-radius-sm);
   transition: background-color var(--motion-snappy);
 }
-/* an item crossing the others (`<Reorder>` moving a row to another group)
-   is lifted over them while it glides, so their text never overprints; a
-   row (or card) gets an opaque surface */
+/* an item crossing the others (`<Reorder>` moving a row or a group) is
+   lifted over them on the sheet's own color while it glides, so their text
+   never overprints; a row is raised visibly */
 .playground-preview [data-traveling] {
   position: relative;
   z-index: 1;
+  background: var(--ds-surface);
 }
 .playground-preview .listItem[data-traveling] {
   background: var(--ds-raised);

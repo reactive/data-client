@@ -60,10 +60,10 @@ export function reorder(before: Positions, items: Items, spring: Spring) {
     return { el, from, velocity };
   });
   const crosses = crossing(glides.map(({ from }) => distance(from)));
-  glides.forEach(({ el, from, velocity }, i) => {
+  for (const { el, from, velocity } of glides) {
     const animation = glide(el, spring, { from, to: ORIGIN, velocity });
-    if (animation && crosses[i]) travel(el, animation);
-  });
+    if (animation && crosses(distance(from))) travel(el, animation);
+  }
   if (!arrivals.length) return;
   const timing = springEasing(spring);
   for (const el of arrivals) el.animate?.(ARRIVE, timing);
@@ -77,7 +77,7 @@ const ARRIVE: Keyframe[] = [{ opacity: 0 }, { opacity: 1 }];
 function crossing(distances: number[]) {
   let farthest = 0;
   for (const d of distances) farthest = Math.max(farthest, d);
-  return distances.map(d => d >= farthest / 2 && d > NUDGE);
+  return (d: number) => d >= farthest / 2 && d > NUDGE;
 }
 /** px: a move this short crosses nothing */
 const NUDGE = 1;
