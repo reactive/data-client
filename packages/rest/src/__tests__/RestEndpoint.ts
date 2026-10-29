@@ -11,6 +11,7 @@ import RestEndpoint, {
   RestEndpointConstructorOptions,
   RestGenerics,
 } from '../RestEndpoint';
+import resource from '../resource';
 import {
   payload,
   createPayload,
@@ -1611,6 +1612,57 @@ describe('RestEndpoint.fetch()', () => {
       id: payload.id,
     });
     expect(res).toEqual({ id });
+  });
+
+  /** Answers DELETE `path` (any query), recording the request body */
+  function deleteBody(path: string) {
+    const sent: { body?: any } = {};
+    nock(/.*/)
+      .defaultReplyHeaders({ 'Access-Control-Allow-Origin': '*' })
+      .delete(path)
+      .query(true)
+      .reply(200, function (uri, requestBody) {
+        sent.body = requestBody;
+        return {};
+      });
+    return sent;
+  }
+
+  it('should DELETE with a body when one is declared', async () => {
+    const sent = deleteBody('/article-cooler');
+    const deleteMany = new RestEndpoint({
+      path: '/article-cooler',
+      method: 'DELETE',
+      body: [] as string[],
+    });
+    await deleteMany(['5', '13']);
+    expect(sent.body).toEqual(['5', '13']);
+    expect(deleteMany.key(['5', '13'])).toBe('DELETE /article-cooler');
+  });
+
+  it('should DELETE without a body when none is declared', async () => {
+    const sent = deleteBody('/article-cooler');
+    const byQuery = new RestEndpoint({
+      path: '/article-cooler',
+      method: 'DELETE',
+      searchParams: {} as { ids: string },
+    });
+    await byQuery({ ids: '5,13' });
+    expect(sent.body).toBe('');
+    expect(byQuery.key({ ids: '5,13' })).toBe(
+      'DELETE /article-cooler?ids=5%2C13',
+    );
+  });
+
+  it('resource.delete sends no body when the resource declares one', async () => {
+    const sent = deleteBody('/article-cooler/77');
+    const PostResource = resource({
+      path: '/article-cooler/:id',
+      schema: CoolerArticle,
+      body: {} as { title: string },
+    });
+    await PostResource.delete({ id: 77 });
+    expect(sent.body).toBe('');
   });
 
   it('should PUT', async () => {

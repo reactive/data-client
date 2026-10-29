@@ -141,6 +141,8 @@ This warning will not show in production.`,
           new Invalidate(schema as any)
         : schema,
       method: 'DELETE',
+      // a `body` in the resource's options is for its other mutations
+      body: undefined,
       name: getName('delete'),
       process(res: any, params: any) {
         return res && Object.keys(res).length ? res : params;

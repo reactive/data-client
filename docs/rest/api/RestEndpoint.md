@@ -711,7 +711,7 @@ to inform `sideEffect` and whether the endpoint should use a `body` payload. Set
 
 `GET` is 'readonly', other methods imply sideEffects.
 
-`GET` and `DELETE` both default to no `body`.
+`GET` and `DELETE` both default to no `body`. Set [body](#body) on a `DELETE` endpoint to send one.
 
 :::tip[How method affects function Parameters]
 
