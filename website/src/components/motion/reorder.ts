@@ -27,7 +27,7 @@ export function measure(items: Items): Positions {
  * `translate` only, on the compositor), so an item React put under another
  * parent travels there too. An item inside another that moves rides along
  * with it, and only travels the rest of the way itself; a key `before` lacks
- * fades in. Items crossing the others are `data-traveling` until they land.
+ * fades in (unless an item moves in with it). Items crossing the others are `data-traveling` until they land.
  * Layout-agnostic: it reads only where items are on screen.
  */
 export function reorder(before: Positions, items: Items, spring: Spring) {
@@ -65,9 +65,14 @@ export function reorder(before: Positions, items: Items, spring: Spring) {
     const animation = glide(el, spring, { from, to: ORIGIN, velocity });
     if (animation && crosses(length, farthest)) travel(el, animation);
   }
-  if (!arrivals.length) return;
+  // an arrival holding an item that moves in (a row into a group that
+  // wasn't there) shows at once, or its fade would hide that item's glide
+  const fades = arrivals.filter(
+    el => !glides.some(({ el: item }) => el.contains(item)),
+  );
+  if (!fades.length) return;
   const timing = springEasing(spring);
-  for (const el of arrivals) el.animate?.(ARRIVE, timing);
+  for (const el of fades) el.animate?.(ARRIVE, timing);
 }
 
 const ARRIVE: Keyframe[] = [{ opacity: 0 }, { opacity: 1 }];
@@ -83,7 +88,7 @@ const NUDGE = 1;
 /** Items crossing the others while they glide, marked `data-traveling` so
  * their style can lift them over the rest */
 const travels = new WeakMap<HTMLElement, Animation>();
-function travel(el: HTMLElement, animation: Animation) {
+export function travel(el: HTMLElement, animation: Animation) {
   travels.set(el, animation);
   el.dataset.traveling = '';
   // a glide another reorder replaced leaves the newer mark alone

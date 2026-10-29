@@ -214,27 +214,106 @@ it('puts a carried row back on Escape', () => {
   expect(getByTestId('ann').contains(x)).toBe(true);
 });
 
-it('sends a drop the list never follows home', () => {
-  function Stuck() {
-    return (
-      <Reorder layoutDependency={0}>
-        <Group owner="ann" y={0}>
-          <Row id="x" y={20} onDrop={() => {}} />
-        </Group>
+// a list whose drops do nothing (or `onDrop` says): bo is empty
+function Fixed({
+  onDrop = () => {},
+  bo = true,
+}: {
+  onDrop?: (owner: string) => unknown;
+  bo?: boolean;
+}) {
+  return (
+    <Reorder layoutDependency={0}>
+      <Group owner="ann" y={0}>
+        <Row id="x" y={20} onDrop={onDrop} />
+      </Group>
+      {bo && (
         <Group owner="bo" y={100}>
           {null}
         </Group>
-      </Reorder>
-    );
-  }
-  const { getByTestId } = render(<Stuck />);
-  const x = getByTestId('x');
+      )}
+    </Reorder>
+  );
+}
+const carryToBo = (x: HTMLElement) => {
   pointer('pointerdown', x, 25);
   pointer('pointermove', window, 140);
+};
+const settle = () =>
+  act(async () => {
+    await Promise.resolve();
+    jest.runOnlyPendingTimers();
+  });
+
+it('holds a drop until what it set off settles, then sends it home if the list never followed', async () => {
+  let resolve!: () => void;
+  const { getByTestId } = render(
+    <Fixed onDrop={() => new Promise<void>(r => (resolve = r))} />,
+  );
+  const x = getByTestId('x');
+  carryToBo(x);
   pointer('pointerup', window, 140);
-  // held where it was let go, waiting for the list
+  await settle();
+  // the fetch is still out: held where it was let go
   expect(x.style.translate).toBe('0px 115px');
-  act(() => void jest.advanceTimersByTime(1000));
+  resolve();
+  await settle();
   expect(x.style.translate).toBe('');
   expect(startOf(x)?.translate).toBe('0px 115px');
+});
+
+it('puts back a row whose target group went away while carried', () => {
+  const onDrop = jest.fn();
+  const { getByTestId, rerender } = render(<Fixed onDrop={onDrop} />);
+  const x = getByTestId('x');
+  carryToBo(x);
+  rerender(<Fixed onDrop={onDrop} bo={false} />);
+  pointer('pointerup', window, 140);
+  expect(onDrop).not.toHaveBeenCalled();
+  expect(x.style.translate).toBe('');
+});
+
+it('lets go of a press whose row unmounts', () => {
+  const { getByTestId, rerender } = render(<Board initial={{ x: 'ann' }} />);
+  carryToBo(getByTestId('x'));
+  rerender(<Board initial={{}} key="empty" />);
+  expect(getByTestId('bo').dataset.dropTarget).toBeUndefined();
+  // a new press works
+  rerender(<Board initial={{ y: 'ann' }} key="again" />);
+  const y = getByTestId('y');
+  pointer('pointerdown', y, 25);
+  pointer('pointermove', window, 60);
+  expect(y.dataset.dragging).toBe('');
+});
+
+it('recovers from an onDrop that throws', () => {
+  const { getByTestId } = render(
+    <Fixed
+      onDrop={() => {
+        throw new Error('nope');
+      }}
+    />,
+  );
+  const x = getByTestId('x');
+  carryToBo(x);
+  // the browser reports it; the drag still ends
+  const reported = jest.fn((e: Event) => e.preventDefault());
+  window.addEventListener('error', reported, { once: true });
+  pointer('pointerup', window, 140);
+  expect(reported).toHaveBeenCalled();
+  carryToBo(x);
+  expect(x.dataset.dragging).toBe('');
+});
+
+it('treats a still finger let go after the hold as a tap', () => {
+  const { getByTestId } = render(<Board initial={{ x: 'ann' }} />);
+  const x = getByTestId('x');
+  const clicked = jest.fn();
+  x.addEventListener('click', clicked);
+  pointer('pointerdown', x, 25, 'touch');
+  act(() => void jest.advanceTimersByTime(300));
+  pointer('pointerup', window, 26, 'touch');
+  x.click();
+  expect(clicked).toHaveBeenCalled();
+  expect(x.style.translate).toBe('');
 });

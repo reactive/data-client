@@ -82,8 +82,9 @@ place, `Reorder` where items change places.
 
 **Dragging into groups**: `useReorderItem(id, { onDrop })` lets the reader
 drag an item, and `useReorderItem(key, { dropValue })` makes an item a group
-to drop it in; `onDrop` gets that group's `dropValue`, and the list's change
-glides the item on from where it was let go. A mouse lifts it once it moves,
+to drop it in; `onDrop` gets that group's `dropValue`. The item waits where
+it was let go until the list changes (then glides on from there), or until
+the promise `onDrop` returns settles without a change (then goes home). A mouse lifts it once it moves,
 a finger after a short still hold (a swipe still scrolls); presses on its
 controls stay theirs, and Escape puts it back. While carried it is
 `data-dragging`, the groups it can go to `data-drop-target` and the one under
@@ -132,6 +133,7 @@ MotionGroup.tsx   measures before/after a commit; drives members; useLayoutMotio
 Reveal.tsx        presence: mount, slide in, slide out, hide (state kept)
 reorder.ts        lists that rearrange, DOM only: measure, then glide items by key
 drag.ts           carrying an element under the pointer, DOM only
+groups.ts         where a carried element can drop: whole groups (data-drop-*)
 Reorder.tsx       its React binding: measures when layoutDependency changes;
                   useReorderItem; drag into groups
 ```

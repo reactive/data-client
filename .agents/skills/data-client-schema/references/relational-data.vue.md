@@ -103,8 +103,8 @@ the relationship in [Entity.schema](./Entity.vue.md#schema).
 Here `/todos` only sends each todo's `userId`. [Entity.process()](./Entity.vue.md#process) points
 `user` at that id, so every todo in the list carries its whole `User` from `/users`. A component
 could look up one user by id itself; joining puts the user in the list, so the list can group by
-person. Assign a task to someone else (pick their face, or drag the task into their group), and
-only its new `userId` goes to the server, yet it moves to that person's group.
+person. Assign a task to someone else (pick their face),
+and only its new `userId` goes to the server, yet it moves to that person's group.
 
 ```ts title="resources/User"
 import { Entity, resource } from '@data-client/rest';

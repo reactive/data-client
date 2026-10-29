@@ -9,21 +9,26 @@ import React, {
   type RefObject,
 } from 'react';
 
-import { draggable, sendHome, settle, type Carrier } from './drag';
-import { prefersReducedMotion, type Point } from './glide';
+import { draggable, inHand, sendHome, settle, type Carrier } from './drag';
+import { prefersReducedMotion } from './glide';
+import { intoGroups } from './groups';
 import { measure, reorder, type Positions } from './reorder';
 import type { Spring } from './spring';
 import { springs } from './tokens';
 
-export interface ItemOptions<V> {
+export interface ItemOptions {
   /** Lets the reader drag the item into a group (an item with a
-   * `dropValue`); called with that group's value */
-  onDrop?: (value: V) => void;
+   * `dropValue`); called with that group's value. The item stays where it
+   * was let go until the list changes, or the promise it returns (a fetch)
+   * settles without moving it */
+  onDrop?: (value: any) => unknown;
   /** Makes the item a group others can be dropped in, standing for this
-   * value. A drop lands in the group, not at a place in it */
-  dropValue?: V;
+   * value (`undefined`: not a group). A drop lands in the group, not at a
+   * place in it */
+  dropValue?: unknown;
 }
-type Options = RefObject<ItemOptions<any>>;
+/** An item's latest options, read when a drag needs them */
+type OptionsRef = RefObject<ItemOptions>;
 
 const ReorderContext = createContext<Reorder | null>(null);
 
@@ -46,26 +51,22 @@ interface Props {
  */
 export default class Reorder extends Component<Props> {
   private items = new Map<unknown, HTMLElement>();
-  private groups = new Map<HTMLElement, Options>();
+  private groups = new Map<HTMLElement, OptionsRef>();
   /** Items let go in another group, held where they were dropped until the
    * list changes */
   private dropped = new Set<HTMLElement>();
 
   getSnapshotBeforeUpdate(prev: Props): Positions | null {
-    if (
-      Object.is(prev.layoutDependency, this.props.layoutDependency) ||
-      prefersReducedMotion()
-    )
-      return null;
-    return measure(this.items);
+    if (!this.changed(prev) || prefersReducedMotion()) return null;
+    return measure(loose(this.items));
   }
 
   componentDidUpdate(prev: Props, _state: unknown, before: Positions | null) {
-    if (!Object.is(prev.layoutDependency, this.props.layoutDependency)) {
+    if (this.changed(prev)) {
       for (const el of this.dropped) settle(el);
       this.dropped.clear();
     }
-    if (before) reorder(before, this.items, this.spring());
+    if (before) reorder(before, loose(this.items), this.spring());
   }
 
   render() {
@@ -76,7 +77,7 @@ export default class Reorder extends Component<Props> {
   add(
     key: unknown,
     el: HTMLElement,
-    options: Options,
+    options: OptionsRef,
     { drags, group }: { drags: boolean; group: boolean },
   ) {
     this.items.set(key, el);
@@ -92,44 +93,42 @@ export default class Reorder extends Component<Props> {
     };
   }
 
+  private changed(prev: Props) {
+    return !Object.is(prev.layoutDependency, this.props.layoutDependency);
+  }
+
   private spring = () => this.props.spring ?? springs.brisk;
 
-  /** Carrying `el` marks the groups it can go to (`data-drop-target`) and
-   * the one under the pointer (`data-drop-over`) */
-  private carrier(el: HTMLElement, options: Options): Carrier {
-    // its own group isn't somewhere to go
-    const targets = [...this.groups.keys()].filter(
-      group => !group.contains(el),
-    );
-    let over: HTMLElement | undefined;
+  /** Carrying `el` into a group hands its `dropValue` to `onDrop`, and
+   * holds `el` where it was let go until the list follows */
+  private carrier(el: HTMLElement, options: OptionsRef): Carrier {
+    const carrier = intoGroups(el, this.groups.keys(), group => {
+      // gone since it was hovered: nowhere to land
+      const target = this.groups.get(group);
+      if (!target) return false;
+      this.hold(el, options.current.onDrop?.(target.current.dropValue));
+      return true;
+    });
     return {
-      lift() {
-        for (const group of targets) group.dataset.dropTarget = '';
-      },
-      move(point) {
-        const hit = groupAt(targets, point);
-        if (hit === over) return;
-        if (over) delete over.dataset.dropOver;
-        if (hit) hit.dataset.dropOver = '';
-        over = hit;
-      },
-      drop: point => {
-        for (const group of targets) {
-          delete group.dataset.dropTarget;
-          delete group.dataset.dropOver;
-        }
-        const group = point && over;
-        if (!group) return false;
-        this.dropped.add(el);
-        // a drop the list doesn't follow (nothing changed) goes back
-        setTimeout(() => {
-          if (this.dropped.delete(el) && el.isConnected)
-            sendHome(el, this.spring());
-        }, DROP_WAIT_MS);
-        options.current.onDrop?.(this.groups.get(group)?.current.dropValue);
-        return true;
+      ...carrier,
+      lift: () => {
+        // picked up again before the list followed its last drop
+        this.dropped.delete(el);
+        carrier.lift();
       },
     };
+  }
+
+  private hold(el: HTMLElement, done: unknown) {
+    this.dropped.add(el);
+    // a drop the list didn't follow (nothing changed) goes back, once what
+    // it set off has settled and React has committed what that caused
+    const release = () =>
+      setTimeout(() => {
+        if (this.dropped.delete(el) && el.isConnected)
+          sendHome(el, this.spring());
+      });
+    Promise.resolve(done).then(release, release);
   }
 }
 
@@ -139,9 +138,9 @@ export default class Reorder extends Component<Props> {
  * it elsewhere; keys share one space within a `<Reorder>`. `options` make it
  * draggable, or a group to drag items into.
  */
-export function useReorderItem<V>(
+export function useReorderItem(
   key: unknown,
-  options: ItemOptions<V> = {},
+  options: ItemOptions = {},
 ): RefCallback<HTMLElement> {
   const reorder = useContext(ReorderContext);
   const latest = useRef(options);
@@ -159,16 +158,8 @@ export function useReorderItem<V>(
   );
 }
 
-/** The innermost group under `point` */
-function groupAt(groups: HTMLElement[], { x, y }: Point) {
-  let hit: HTMLElement | undefined;
-  for (const group of groups) {
-    const { left, right, top, bottom } = group.getBoundingClientRect();
-    if (x < left || x > right || y < top || y > bottom) continue;
-    if (!hit || hit.contains(group)) hit = group;
-  }
-  return hit;
+/** The items not in the reader's hand: a carried one stays under the
+ * pointer whatever the list does */
+function loose(items: Map<unknown, HTMLElement>) {
+  return new Map([...items].filter(([, el]) => !inHand(el)));
 }
-
-/** ms a drop waits for the list to change before going back */
-const DROP_WAIT_MS = 500;
