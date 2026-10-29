@@ -43,14 +43,20 @@ function useLiveExchange(
   fixtures: readonly FixtureOrInterceptor[] = NO_FIXTURES,
   getInitialInterceptorData?: () => unknown,
 ): LiveState {
-  const program = useMemo(() => compile(documents), [documents]);
-  const [first] = useState(program);
+  // the page's own code, whose exchange is `initial`: it runs only if edited
+  const [first] = useState(documents);
   const initial =
-    initialState ?? use(firstRun(first, fixtures, getInitialInterceptorData));
+    initialState ??
+    use(firstExchange(first, fixtures, getInitialInterceptorData));
   const [state, setState] = useState(initial);
+  const edited = documents !== first;
+  const program = useMemo(
+    () => (edited ? compile(documents) : undefined),
+    [edited, documents],
+  );
 
   useEffect(() => {
-    if (program === first) {
+    if (!edited) {
       setState(initial);
       return;
     }
@@ -59,20 +65,28 @@ function useLiveExchange(
       setState(last => ({ ...last, stale: true, error: undefined }));
       return;
     }
-    // dimmed until this run's call is answered
-    setState(last => (last.stale ? last : { ...last, stale: true }));
-    return runLive(
+    // dimmed only while this run's call waits past the fixtures' microtasks
+    const dim = setTimeout(() =>
+      setState(last => (last.stale ? last : { ...last, stale: true })),
+    );
+    const stop = runLive(
       program,
       fixtures,
       getInitialInterceptorData,
-      ({ exchange, error }) =>
+      ({ exchange, error }) => {
+        clearTimeout(dim);
         setState(last =>
           exchange ?
             { exchange, stale: false }
           : { ...last, stale: true, error },
-        ),
+        );
+      },
     );
-  }, [program, first, initial, fixtures, getInitialInterceptorData]);
+    return () => {
+      clearTimeout(dim);
+      stop();
+    };
+  }, [edited, program, initial, fixtures, getInitialInterceptorData]);
 
   return state;
 }

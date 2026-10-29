@@ -28,15 +28,15 @@ export function compileExchanges(documents: readonly CodeDocument[]): string {
 export function runExchanges(
   program: string,
   fixtures: readonly FixtureOrInterceptor[],
+  getInitialInterceptorData: (() => unknown) | undefined,
   onCall: (exchange: Promise<Exchange>) => void,
-  getInitialInterceptorData: () => unknown = () => ({}),
 ): void {
   const scope: Record<string, unknown> = {
     React,
     ...previewScope,
     ...networkScope({
       fixtures,
-      interceptorData: getInitialInterceptorData(),
+      interceptorData: getInitialInterceptorData?.() ?? {},
       onCall,
     }),
   };
@@ -54,29 +54,23 @@ export function runLive(
   report: (outcome: LiveOutcome) => void,
 ): () => void {
   let reporting = true;
-  let threw = false;
   let lastCall: Promise<Exchange> | undefined;
-  const isLatest = (call: Promise<Exchange>) =>
-    reporting && !threw && call === lastCall;
+  const isLatest = (call: Promise<Exchange>) => reporting && call === lastCall;
   try {
-    runExchanges(
-      program,
-      fixtures,
-      call => {
-        lastCall = call;
-        // every call is handled, so a superseded failure is dropped
-        call.then(
-          exchange => isLatest(call) && report({ exchange }),
-          error => isLatest(call) && report({ error: `${error}` }),
-        );
-      },
-      getInitialInterceptorData,
-    );
+    runExchanges(program, fixtures, getInitialInterceptorData, call => {
+      lastCall = call;
+      // every call is handled, so a superseded failure is dropped
+      call.then(
+        exchange => isLatest(call) && report({ exchange }),
+        error => isLatest(call) && report({ error: `${error}` }),
+      );
+    });
   } catch (error) {
-    threw = true;
+    // what the code threw outlasts any answer
+    reporting = false;
     report({ error: `${error}` });
   }
-  if (!lastCall && !threw) report({});
+  if (!lastCall && reporting) report({});
   return () => {
     reporting = false;
   };

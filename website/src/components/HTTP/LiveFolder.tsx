@@ -1,5 +1,6 @@
+import ExecutionEnvironment from '@docusaurus/ExecutionEnvironment';
 import useIsBrowser from '@docusaurus/useIsBrowser';
-import { lazy, Suspense, use, useId, useState } from 'react';
+import { lazy, Suspense, use, useId, useMemo, useState } from 'react';
 
 import PendingExchange from './PendingExchange';
 import Request from './Request';
@@ -36,14 +37,12 @@ export default function LiveFolder({
   // hydration renders what the server did; the live code takes over after
   const hydrated = useIsBrowser();
 
+  // constant after the first render, while the code is edited
+  const firstJson = useMemo(() => initial && toJson(initial), [initial]);
   const answered = !!fixtures;
   const settled = <Live state={initial ?? NONE} answered={answered} />;
   return (
-    <div
-      className={className}
-      id={id}
-      data-first-exchange={initial ? toJson(initial) : undefined}
-    >
+    <div className={className} id={id} data-first-exchange={firstJson}>
       {hydrated ?
         <Suspense fallback={settled}>
           <LiveExchange
@@ -60,7 +59,7 @@ export default function LiveFolder({
   );
 }
 
-const onServer = typeof document === 'undefined';
+const onServer = !ExecutionEnvironment.canUseDOM;
 /** No exchange yet: after a client navigation, until the code first runs */
 const NONE: LiveState = { stale: false };
 

@@ -73,10 +73,17 @@ const fixtures: FixtureOrInterceptor[] = [
   },
 ];
 
-function exchanges(usage: string, documents = [resourceFile]) {
+function exchanges(
+  usage: string,
+  documents = [resourceFile],
+  answers: FixtureOrInterceptor[] = fixtures,
+) {
   const calls: Promise<Exchange>[] = [];
-  runExchanges(compileExchanges([...documents, file(usage)]), fixtures, call =>
-    calls.push(call),
+  runExchanges(
+    compileExchanges([...documents, file(usage)]),
+    answers,
+    undefined,
+    call => calls.push(call),
   );
   return calls;
 }
@@ -175,22 +182,19 @@ describe('runExchanges', () => {
   });
 
   test('answers a GraphQL operation 200, not 201 for its POST', async () => {
-    const calls: Promise<Exchange>[] = [];
-    runExchanges(
-      compileExchanges([
-        file(`
-          new GQLEndpoint('/graphql').query(
-            'query GetUser($id: ID!) { user(id: $id) { id } }',
-          )({ id: '5' });
-        `),
-      ]),
+    const calls = exchanges(
+      `
+        new GQLEndpoint('/graphql').query(
+          'query GetUser($id: ID!) { user(id: $id) { id } }',
+        )({ id: '5' });
+      `,
+      [],
       [
         {
           endpoint: { testKey: () => true } as any,
           response: ({ id }: { id: string }) => ({ user: { id } }),
         },
       ],
-      call => calls.push(call),
     );
     expect(await calls[0]).toMatchObject({
       init: { method: 'POST' },
