@@ -441,12 +441,10 @@ div.playgroundTextEdit > .playgroundHeader,
    leading, until it covers them edge to edge, the handle out past the
    playground's edge, drawn out. The code card
    stretches toward a taller preview by at most 6rem (so a tall preview
-   doesn't drag a short file down the page): CSS can't cap a box at its own
-   content plus 6rem, so it is painted in pieces, its content and a foot that
-   grows to fill at most 6rem, with one shadow that composes across them (no
-   spread, so the seam is seamless). The folder is as tall as the row, since
-   the Store's layer parks behind it: the app's sheet ends at its content,
-   the folder on below it */
+   doesn't drag a short file down the page): its content and a foot that
+   grows to fill at most 6rem, on one paper with one shadow. The folder is
+   as tall as the row, since the Store's layer parks behind it: the app's
+   sheet ends at its content, the folder on below it */
 .playgroundContainer.row {
   --pg-gap: 12px;
   --pg-card-radius: 10px;
@@ -489,9 +487,11 @@ div.playgroundTextEdit > .playgroundHeader,
   box-shadow: none;
   background: none;
 }
+/* dark, a shadow reads heavier: lighter, so the cards lift as subtly as
+   light mode's */
 :root[data-theme='dark'] .playgroundContainer.row {
   --pg-card-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.45), 0 14px 36px rgba(0, 0, 0, 0.5);
+    0 1px 3px rgba(0, 0, 0, 0.3), 0 14px 36px rgba(0, 0, 0, 0.3);
 }
 /* the file tabs: on the page, the open file rising as a tab from the card */
 .row .playgroundHeader.tabControls {
@@ -573,44 +573,41 @@ div.playgroundTextEdit > .playgroundHeader,
   outline: 2px solid var(--ifm-color-primary);
   outline-offset: -2px;
 }
-/* the code card: the file shown and its foot (see the top) */
+/* the code card: the file shown and its foot (see the top), one box with
+   one shadow. Its foot is padding: at least a corner's depth under the
+   code (wide, as deep as a taller row lets it, up to --pg-card-foot) */
 .row .editorDocs {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  /* the code's own layers (Monaco's) stay under the fixtures floating over it */
-  isolation: isolate;
-}
-.row .editorDocs > .playgroundEditor,
-.row .editorDocs::after {
+  padding-bottom: calc(var(--pg-card-radius) - var(--pg-gutter-cut));
+  border-radius: var(--pg-card-top-left) var(--pg-card-top-right)
+    var(--pg-card-radius) var(--pg-card-radius);
   background: var(--monoco-code-background);
   box-shadow: var(--pg-card-shadow);
+  /* the code's own layers (Monaco's) stay under the fixtures floating over it */
+  isolation: isolate;
+  /* the card's top corners, squared where the open tab runs into them */
+  --pg-card-top-left: var(--pg-card-radius);
+  --pg-card-top-right: var(--pg-card-radius);
 }
 .row .editorDocs > .playgroundEditor {
   padding-top: 10px;
-  border-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;
+  background: var(--monoco-code-background);
+  border-radius: var(--pg-card-top-left) var(--pg-card-top-right) 0 0;
 }
-/* the code card's foot, and the app sheet's on the folder (see the top) */
-.row .editorDocs::after,
+/* the app's sheet's foot on the folder (see the top): only its corners */
 .row > .previewWrapper::after {
   content: '';
   flex: 1 1 0;
   min-height: var(--pg-card-radius);
-  max-height: var(--pg-card-foot);
+  max-height: var(--pg-card-radius);
   border-radius: 0 0 var(--pg-card-radius) var(--pg-card-radius);
 }
-/* the app's sheet's foot is only its corners */
-.row > .previewWrapper::after {
-  max-height: var(--pg-card-radius);
-}
-/* The code card's foot is drawn up over the empty 10px gutter under the
-   last line (Monaco's containerGutter, the static view's padding), so the
-   space below the code is the foot's, as deep as the padding above it. The
-   code's own box ends there too, so it rounds and clips the corners the
-   foot lays over it (Monaco paints its own square background; with no
-   gutter cut there is no overlap and nothing to round). The foot's shadow
-   is clipped just inside its top edge, where its blur would darken the
-   last lines (the 4rem clears its reach at the sides and bottom) */
+/* The code card's foot takes in the empty 10px gutter under the last line
+   (Monaco's containerGutter, the static view's padding), so the space below
+   the code is as deep as the padding above it. The code's own box rounds
+   and clips its corners there (Monaco paints its own square background) */
 .row .editorDocs {
   --pg-gutter-cut: 10px;
 }
@@ -619,12 +616,10 @@ div.playgroundTextEdit > .playgroundHeader,
   border-bottom-right-radius: var(--pg-gutter-cut);
   overflow: clip;
 }
-.row .editorDocs::after {
-  margin-top: calc(-1 * var(--pg-gutter-cut));
-  /* cut a little into the foot, over the code's box: at a fractional
-     edge, a clip right at the top lets a dark hairline of its shadow
-     through; min() keeps no cut when there is no gutter */
-  clip-path: inset(min(2px, var(--pg-gutter-cut)) -4rem -4rem);
+/* A playground with no preview (../TypeScriptEditor.tsx) is a code block:
+   no shadow, as the page's other code blocks have none */
+.standaloneEditor.row .editorDocs {
+  box-shadow: none;
 }
 /* A column file (EndpointPlayground's Usage) lies under the code card: on a
    layer a step deeper, tucked under the card's foot and running on below
@@ -632,8 +627,7 @@ div.playgroundTextEdit > .playgroundHeader,
    round both */
 .row .editorDocs:has(> .codeHeader) {
   --pg-under: color-mix(in oklab, var(--monoco-code-background), #000 28%);
-  border-radius: var(--pg-card-radius);
-  box-shadow: var(--pg-card-shadow);
+  background: var(--pg-under);
 }
 :root[data-theme='dark'] .row .editorDocs:has(> .codeHeader) {
   --pg-under: color-mix(in oklab, var(--monoco-code-background), #000 34%);
@@ -642,7 +636,8 @@ div.playgroundTextEdit > .playgroundHeader,
   position: relative;
   z-index: 1;
   padding-bottom: 12px;
-  border-radius: var(--pg-card-radius);
+  border-radius: var(--pg-card-top-left) var(--pg-card-top-right)
+    var(--pg-card-radius) var(--pg-card-radius);
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.3),
     0 4px 12px -2px rgba(0, 0, 0, 0.35);
@@ -670,22 +665,14 @@ div.playgroundTextEdit > .playgroundHeader,
   border-radius: 0;
   box-shadow: none;
 }
-.row .editorDocs:has(> .codeHeader)::after {
-  background: var(--pg-under);
-  box-shadow: none;
-}
 /* the open file's tab at the card's edge runs straight into it */
 .row
   .tabControls:has(.tabs[data-flush-left], .tab:first-child.selected)
-  + .editorDocs
-  > .playgroundEditor {
-  border-top-left-radius: 0;
+  + .editorDocs {
+  --pg-card-top-left: 0px;
 }
-.row
-  .tabControls:has(.tabs[data-flush-right])
-  + .editorDocs
-  > .playgroundEditor {
-  border-top-right-radius: 0;
+.row .tabControls:has(.tabs[data-flush-right]) + .editorDocs {
+  --pg-card-top-right: 0px;
 }
 /* the preview's folder: the row's height, its header and the app's sheet on
    it; the sheet ends at its content, its corners the folder's where they
@@ -1574,8 +1561,15 @@ div.fixtureJson + div.fixtureJson {
   .row > .playgroundTextEdit > .tabControls {
     grid-row: 1;
   }
+  /* the code card grows toward a taller preview by at most --pg-card-foot:
+     its padding is that far, the row's height (max-height) caps it, and its
+     margin keeps the padding out of the height it asks of the row */
   .row .editorDocs {
     grid-row: 2;
+    align-self: start;
+    max-height: 100%;
+    padding-bottom: calc(var(--pg-card-foot) - var(--pg-gutter-cut));
+    margin-bottom: calc(var(--pg-card-radius) - var(--pg-card-foot));
   }
   /* the preview's column, or what a playground puts in its place (../HTTP) */
   .row > :is(.previewWrapper, .previewSlot) {
@@ -1682,15 +1676,13 @@ div.fixtureJson + div.fixtureJson {
   }
   /* under it, the code card's own shadow would deepen the Store's, and the
      file tabs would show past the Store header's inset */
-  .row .editorDocs > .playgroundEditor,
-  .row .editorDocs::after {
+  .row .editorDocs {
     transition: box-shadow var(--pg-store-drawer);
   }
   .row .tabControls {
     transition: opacity var(--pg-store-drawer);
   }
-  .row:has(> .storeHost[data-open]) .editorDocs > .playgroundEditor,
-  .row:has(> .storeHost[data-open]) .editorDocs::after {
+  .row:has(> .storeHost[data-open]) .editorDocs {
     box-shadow: none;
   }
   .row:has(> .storeHost[data-open]) .tabControls {
