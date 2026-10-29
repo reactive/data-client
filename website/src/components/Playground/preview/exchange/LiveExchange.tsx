@@ -1,7 +1,7 @@
 import { type ReactNode, use, useEffect, useMemo, useState } from 'react';
 
 import type { Exchange } from './network';
-import { compileExchanges, runExchanges } from './runExchanges';
+import { compileExchanges, runLive } from './runExchanges';
 import type { CodeDocument } from '../../editor/codeModel';
 import type { FixtureOrInterceptor } from '../../types';
 
@@ -110,57 +110,22 @@ const FIRST_RUNS = new WeakMap<
   Map<string | undefined, Promise<LiveState>>
 >();
 
-/** The first paint's exchange: the code's first outcome */
+/** The first paint's exchange: the code's outcome once its calls are
+ * answered. Fixtures answer within microtasks, so a macrotask with no new
+ * report means the code has made its last call, as an edit would show. */
 function settle(
   program: string | undefined,
   fixtures: readonly FixtureOrInterceptor[],
   getInitialInterceptorData?: () => unknown,
 ): Promise<LiveState> {
   if (program === undefined) return Promise.resolve({ stale: false });
-  return new Promise(resolve =>
-    runLive(program, fixtures, getInitialInterceptorData, outcome =>
-      resolve({ ...outcome, stale: false }),
-    ),
-  );
-}
-
-/** Runs `program`, reporting the exchange its last call makes (a call made
- * later, after an await, takes over, and a superseded call's answer is
- * dropped) or the error it threw, which outlasts any answer. With no call
- * it reports `{}`. Returns a function that stops the reports. */
-export function runLive(
-  program: string,
-  fixtures: readonly FixtureOrInterceptor[],
-  getInitialInterceptorData: (() => unknown) | undefined,
-  report: (outcome: Pick<LiveState, 'exchange' | 'error'>) => void,
-): () => void {
-  let current = true;
-  let threw = false;
-  let lastCall: Promise<Exchange> | undefined;
-  const shown = (call: Promise<Exchange>) =>
-    current && !threw && call === lastCall;
-  try {
-    runExchanges(
-      program,
-      fixtures,
-      call => {
-        lastCall = call;
-        // every call is handled, so a superseded failure is dropped
-        call.then(
-          exchange => shown(call) && report({ exchange }),
-          error => shown(call) && report({ error: `${error}` }),
-        );
-      },
-      getInitialInterceptorData,
-    );
-  } catch (error) {
-    threw = true;
-    report({ error: `${error}` });
-  }
-  if (!lastCall && !threw) report({});
-  return () => {
-    current = false;
-  };
+  return new Promise(resolve => {
+    let quiet: ReturnType<typeof setTimeout> | undefined;
+    runLive(program, fixtures, getInitialInterceptorData, outcome => {
+      clearTimeout(quiet);
+      quiet = setTimeout(() => resolve({ ...outcome, stale: false }));
+    });
+  });
 }
 
 /** Stable, so the exchange reruns only as the code changes */

@@ -43,6 +43,45 @@ export function runExchanges(
   new Function(...Object.keys(scope), program)(...Object.values(scope));
 }
 
+/** Runs `program`, reporting the exchange its last call makes (a call made
+ * later, after an await, takes over, and a superseded call's answer is
+ * dropped) or the error it threw, which outlasts any answer. With no call
+ * it reports `{}`. Returns a function that stops the reports. */
+export function runLive(
+  program: string,
+  fixtures: readonly FixtureOrInterceptor[],
+  getInitialInterceptorData: (() => unknown) | undefined,
+  report: (outcome: { exchange?: Exchange; error?: string }) => void,
+): () => void {
+  let current = true;
+  let threw = false;
+  let lastCall: Promise<Exchange> | undefined;
+  const shown = (call: Promise<Exchange>) =>
+    current && !threw && call === lastCall;
+  try {
+    runExchanges(
+      program,
+      fixtures,
+      call => {
+        lastCall = call;
+        // every call is handled, so a superseded failure is dropped
+        call.then(
+          exchange => shown(call) && report({ exchange }),
+          error => shown(call) && report({ error: `${error}` }),
+        );
+      },
+      getInitialInterceptorData,
+    );
+  } catch (error) {
+    threw = true;
+    report({ error: `${error}` });
+  }
+  if (!lastCall && !threw) report({});
+  return () => {
+    current = false;
+  };
+}
+
 /** Other files (a Vue SFC beside the endpoints) are for reading */
 const isScript = ({ language }: CodeDocument) =>
   /^(tsx?|jsx?|typescript|javascript)$/.test(language);

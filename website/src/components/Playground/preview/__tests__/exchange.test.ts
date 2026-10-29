@@ -3,9 +3,13 @@ import { RestEndpoint } from '@data-client/rest';
 
 import type { CodeDocument } from '../../editor/codeModel';
 import type { FixtureOrInterceptor } from '../../types';
-import { firstExchange, runLive } from '../exchange/LiveExchange';
+import { firstExchange } from '../exchange/LiveExchange';
 import type { Exchange } from '../exchange/network';
-import { compileExchanges, runExchanges } from '../exchange/runExchanges';
+import {
+  compileExchanges,
+  runExchanges,
+  runLive,
+} from '../exchange/runExchanges';
 
 // the real scope pulls in the website's design system and dependencies
 jest.mock('../scope', () => ({
@@ -243,6 +247,15 @@ describe('firstExchange', () => {
     expect([exchange?.input, error]).toEqual(['/b/posts/1', undefined]);
   });
 
+  test('waits for a call made after an await, as an edit shows', async () => {
+    const { exchange } = await first(`
+      PostResource.get({ group: 'a', id: '1' }).then(() =>
+        PostResource.get({ group: 'b', id: '1' }),
+      );
+    `);
+    expect(exchange?.input).toBe('/b/posts/1');
+  });
+
   test('a throw wins, before or after a call', async () => {
     expect((await first(`throw new Error('before');`)).error).toBe(
       'Error: before',
@@ -292,7 +305,7 @@ describe('runLive', () => {
     ]);
   });
 
-  test('no call reports nothing to show', async () => {
+  test('with no call, reports one empty outcome', async () => {
     expect(await outcomes(`const x = 1;`)).toEqual([{}]);
   });
 });
