@@ -1,5 +1,4 @@
 import { translate } from '@docusaurus/Translate';
-import clsx from 'clsx';
 import { memo } from 'react';
 
 import Json from './Json';
@@ -12,23 +11,13 @@ import styles from './styles.module.css';
 export default memo(Response);
 
 function Response({ status, response, busy }: Props) {
-  const body = response === undefined ? undefined : JSON.stringify(response);
   return (
     <ResponseSheet busy={busy}>
-      {/* keyed, so a new answer replays its flash */}
-      <span
-        key={status}
-        className={clsx(styles.status, styles.fresh)}
-        data-error={status >= 400 || undefined}
-      >
+      <span className={styles.status} data-error={status >= 400 || undefined}>
         {STATUS_TEXT[status] ? `${status} ${STATUS_TEXT[status]}` : status}
       </span>
-      {body !== undefined ?
-        <Json
-          key={body}
-          className={styles.fresh}
-          text={JSON.stringify(response, undefined, 2)}
-        />
+      {response !== undefined ?
+        <Json text={JSON.stringify(response, undefined, 2)} />
       : null}
     </ResponseSheet>
   );

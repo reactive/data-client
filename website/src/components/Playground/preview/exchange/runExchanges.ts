@@ -19,28 +19,28 @@ export function compileExchanges(documents: readonly CodeDocument[]): string {
 }
 
 /** Runs `program` as the live preview would, its endpoints answered by
- * `fixtures`, each run against fresh interceptor data.
+ * `fixtures`, each run against fresh interceptor data. `onCall` gets each
+ * endpoint call's exchange in call order, including calls the code makes
+ * later (after an await).
  *
- * @returns each endpoint call's exchange, in call order
- * @throws what the code throws as it runs
+ * @throws what the code throws as it first runs
  */
 export function runExchanges(
   program: string,
   fixtures: readonly FixtureOrInterceptor[],
+  onCall: (exchange: Promise<Exchange>) => void,
   getInitialInterceptorData: () => unknown = () => ({}),
-): Promise<Exchange>[] {
-  const calls: Promise<Exchange>[] = [];
+): void {
   const scope: Record<string, unknown> = {
     React,
     ...previewScope,
     ...networkScope({
       fixtures,
       interceptorData: getInitialInterceptorData(),
-      onCall: exchange => calls.push(exchange),
+      onCall,
     }),
   };
   new Function(...Object.keys(scope), program)(...Object.values(scope));
-  return calls;
 }
 
 /** Other files (a Vue SFC beside the endpoints) are for reading */

@@ -130,9 +130,14 @@ callout markers as comments, its caption and legend outside the editor.
   exchange instead of a preview: the request is the inset header, the
   response the sheet (`../HTTP/styles.module.css`). Live, it runs the code
   (`preview/exchange/`, the preview's lazy chunk) with `RestEndpoint`,
-  `resource` and `createResource` swapped for endpoints that answer each
-  call from `fixtures` as MockResolver would (exact fixture, then the first
-  matching interceptor; none is a 404), and shows the last call's exchange.
+  `resource`, `createResource` and `GQLEndpoint` swapped for endpoints that
+  answer each call from `fixtures`, found as MockResolver finds them (exact
+  fixture, then the first matching interceptor; none is a 404), and shows the
+  last call's exchange. A bare `fetch()` throws, so no demo reaches the
+  network. The first exchange is rendered on the server (`../HTTP/LiveFolder.tsx`
+  runs the code during SSR, outside any Suspense boundary so React writes it
+  in place) and read back from the folder's `data-first-exchange` for
+  hydration; the browser only runs the code once it is edited.
 
 ## Editor
 

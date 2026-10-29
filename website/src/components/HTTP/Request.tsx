@@ -27,12 +27,7 @@ function Request({ input, init, busy }: Props) {
     >
       <div className={styles.requestLine}>
         <span className={styles.method}>{init.method ?? 'GET'}</span>
-        {/* keyed, so a new URL replays its flash */}
-        <Clipped
-          key={url}
-          className={clsx(styles.url, styles.fresh)}
-          full={url}
-        >
+        <Clipped className={styles.url} full={url}>
           {url}
         </Clipped>
         {json ?
@@ -78,11 +73,7 @@ function Request({ input, init, busy }: Props) {
         </dl>
       : null}
       {typeof init.body === 'string' ?
-        <Json
-          key={init.body}
-          className={clsx(styles.requestBody, styles.fresh)}
-          text={pretty(init.body)}
-        />
+        <Json className={styles.requestBody} text={pretty(init.body)} />
       : null}
     </div>
   );

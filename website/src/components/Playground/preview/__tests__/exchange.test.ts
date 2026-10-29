@@ -3,6 +3,7 @@ import { RestEndpoint } from '@data-client/rest';
 
 import type { CodeDocument } from '../../editor/codeModel';
 import type { FixtureOrInterceptor } from '../../types';
+import type { Exchange } from '../exchange/network';
 import { compileExchanges, runExchanges } from '../exchange/runExchanges';
 
 // the real scope pulls in the website's design system and dependencies
@@ -62,7 +63,11 @@ const fixtures: FixtureOrInterceptor[] = [
 ];
 
 function exchanges(usage: string, documents = [resourceFile]) {
-  return runExchanges(compileExchanges([...documents, file(usage)]), fixtures);
+  const calls: Promise<Exchange>[] = [];
+  runExchanges(compileExchanges([...documents, file(usage)]), fixtures, call =>
+    calls.push(call),
+  );
+  return calls;
 }
 
 describe('runExchanges', () => {
@@ -136,6 +141,38 @@ describe('runExchanges', () => {
       broken();
     `);
     await expect(exchange).rejects.toThrow('no token');
+  });
+
+  test('records calls the code makes later, after an await', async () => {
+    const calls = exchanges(`
+      PostResource.get({ group: 'a', id: '1' }).then(() =>
+        PostResource.get({ group: 'b', id: '1' }),
+      );
+    `);
+    await calls[0];
+    await new Promise(resolve => setTimeout(resolve));
+    expect(calls).toHaveLength(2);
+    expect((await calls[1]).input).toBe('/b/posts/1');
+  });
+
+  test('answers a GQLEndpoint from fixtures too', async () => {
+    const [exchange] = exchanges(`
+      const getUser = new GQLEndpoint('/graphql').query(
+        'query GetUser($id: ID!) { user(id: $id) { id } }',
+      );
+      getUser({ id: '5' });
+    `);
+    expect(await exchange).toMatchObject({
+      input: '/graphql',
+      init: { method: 'POST' },
+      status: 404,
+    });
+  });
+
+  test('a bare fetch() fails instead of reaching the network', () => {
+    expect(() => exchanges(`fetch('https://example.com');`)).toThrow(
+      'Live demos answer only requests their endpoints send',
+    );
   });
 
   test('skips files that are not scripts', async () => {

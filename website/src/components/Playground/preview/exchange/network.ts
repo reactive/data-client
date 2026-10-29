@@ -1,3 +1,4 @@
+import { GQLEndpoint, GQLNetworkError } from '@data-client/graphql';
 import { collapseFixture, createFixtureMap } from '@data-client/react/mock';
 import { NetworkError, RestEndpoint, resource } from '@data-client/rest';
 
@@ -8,7 +9,7 @@ export interface Exchange {
   input: string;
   init: RequestInit;
   status: number;
-  /** Parsed JSON; undefined for an empty body */
+  /** The fixture's answer, as plain data; undefined for an empty one */
   body?: unknown;
 }
 
@@ -16,38 +17,52 @@ export interface Network {
   fixtures: readonly FixtureOrInterceptor[];
   /** `this` of the fixtures' `response()` and `fetchResponse()` */
   interceptorData: unknown;
-  /** Called as the code calls an endpoint, in call order. The exchange
-   * settles once the request is answered, or rejects when the endpoint fails
-   * before sending it. */
+  /** Called as the code calls an endpoint, in call order, for as long as the
+   * code runs. The exchange settles once the request is answered, or rejects
+   * when the endpoint fails before sending it. */
   onCall(exchange: Promise<Exchange>): void;
 }
 
-/** The `@data-client/rest` names the code gets in place of the library's:
- * the same endpoints, except that requests go to `network`'s fixtures. The
- * endpoints still build each request themselves (url, getRequestInit,
- * getHeaders), so an exchange is what the code would send. */
+/** The endpoint names the code gets in place of the library's: the same
+ * endpoints, except that requests go to `network`'s fixtures. The endpoints
+ * still build each request themselves (url, getRequestInit, getHeaders), so
+ * an exchange is what the code would send. A request made any other way
+ * fails, never reaching the network. */
 export function networkScope(network: Network) {
-  const RecordingEndpoint = recordingEndpoint(network);
+  const answer = fixtureAnswerer(network.fixtures, network.interceptorData);
+  const RecordingEndpoint = recording(
+    RestEndpoint,
+    answer,
+    network,
+    toResponse,
+  );
   const recordingResource = (options: any) =>
     resource({ Endpoint: RecordingEndpoint, ...options });
   return {
     RestEndpoint: RecordingEndpoint,
     resource: recordingResource,
     createResource: recordingResource,
+    GQLEndpoint: recording(GQLEndpoint, answer, network, toGQLData),
+    fetch() {
+      throw new Error('Live demos answer only requests their endpoints send');
+    },
   };
 }
 
 /** On a recording endpoint's fetch: the fetch it wraps */
 const SEND = Symbol('send');
 
-function recordingEndpoint({ fixtures, interceptorData, onCall }: Network) {
-  const answer = fixtureAnswerer(fixtures, interceptorData);
-
-  return class RecordingEndpoint extends (RestEndpoint as new (
-    options: any,
-  ) => any) {
-    constructor(options: any) {
-      super(options);
+/** `Endpoint`, its requests answered by `answer`; `respond` turns an answer
+ * into what the endpoint's own fetchResponse() resolves or rejects with */
+function recording(
+  Endpoint: new (...options: any[]) => any,
+  answer: ReturnType<typeof fixtureAnswerer>,
+  { onCall }: Network,
+  respond: (status: number, body: unknown) => unknown,
+) {
+  return class RecordingEndpoint extends Endpoint {
+    constructor(...options: any[]) {
+      super(...options);
       // extend() passes the wrapped fetch to its copy; wrap the original
       const send = this.fetch[SEND] ?? this.fetch;
       const call = function (this: any, ...args: any[]) {
@@ -64,7 +79,7 @@ function recordingEndpoint({ fixtures, interceptorData, onCall }: Network) {
           fetchResponse: async (input: string, init: RequestInit) => {
             const answered = await answer(this.key(...args), args, input, init);
             resolve({ input, init, ...answered });
-            return toResponse(answered.status, answered.body);
+            return respond(answered.status, answered.body);
           },
         });
         const sent: Promise<unknown> = send.apply(endpoint, args);
@@ -77,9 +92,10 @@ function recordingEndpoint({ fixtures, interceptorData, onCall }: Network) {
   };
 }
 
-/** Answers as MockResolver does: the exact fixture for the call's key, else
- * the first interceptor whose endpoint matches it. With no match the answer
- * is a 404, never a real request. */
+/** Finds the fixture as MockResolver does: the exact fixture for the call's
+ * key, else the first interceptor whose endpoint matches it. With no match
+ * the answer is a 404, never a real request. Statuses are what a server
+ * would send: 201 for a POST, 204 for an empty answer. */
 function fixtureAnswerer(
   fixtures: readonly FixtureOrInterceptor[],
   interceptorData: unknown,
@@ -117,11 +133,13 @@ function fixtureAnswerer(
 function errorAnswer(thrown: any) {
   if (thrown instanceof Error)
     return { status: 500, body: { message: thrown.message } };
-  const { status = 500, ...body } = thrown ?? {};
+  if (typeof thrown !== 'object' || thrown === null)
+    return { status: 500, body: { message: String(thrown) } };
+  const { status = 500, ...body } = thrown;
   return { status, body };
 }
 
-/** Resolves or rejects as the endpoint's own fetchResponse() would */
+/** Resolves or rejects as RestEndpoint's own fetchResponse() would */
 function toResponse(status: number, body: unknown) {
   const response = new Response(
     body === undefined ? null : JSON.stringify(body),
@@ -129,4 +147,11 @@ function toResponse(status: number, body: unknown) {
   );
   if (!response.ok) throw new NetworkError(response);
   return response;
+}
+
+/** Resolves or rejects as GQLEndpoint's own fetchResponse() would */
+function toGQLData(status: number, body: any) {
+  if (status >= 400)
+    throw new GQLNetworkError([body ?? { message: `${status}` }]);
+  return body;
 }

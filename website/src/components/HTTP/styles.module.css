@@ -176,30 +176,7 @@
 .request[aria-busy] > *,
 .response[aria-busy] > .sheet > * {
   opacity: 0.45;
-  transition: opacity 0.2s ease;
-}
-
-/* live: what an edit changed (a new URL, body or answer) flashes as the
-   Store's updates do, tying the edit to its effect; a fixed exchange never
-   remounts, so never flashes */
-.folder[data-live] .fresh {
-  animation: fresh 1.2s ease-out;
-}
-.folder[data-live] .fresh:not(.status) {
-  border-radius: 4px;
-}
-/* a whole body is a block: a fainter wash */
-.folder[data-live] .json.fresh {
-  --fresh-wash: 10%;
-}
-@keyframes fresh {
-  from {
-    background-color: color-mix(
-      in srgb,
-      var(--store-stale) var(--fresh-wash, 22%),
-      transparent
-    );
-  }
+  transition: opacity var(--motion-snappy);
 }
 
 /* PendingExchange: the request line and the body's lines in skeletons,
@@ -244,7 +221,6 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .folder[data-live] .fresh,
   .skeleton {
     animation: none;
   }
