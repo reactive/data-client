@@ -49,7 +49,8 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
   const glide = (el: HTMLElement) => {
     const from = pointer?.getBoundingClientRect();
     const moved = place(el);
-    // a new glide starts from where the old one has drawn it
+    // a move starts a new glide from where the old one has drawn it; one
+    // already heading there runs on
     if (moved) gliding?.cancel();
     if (from && moved && canAnimate()) {
       const to = pointer!.getBoundingClientRect();
@@ -119,10 +120,10 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
     },
 
     click(el) {
-      // onto where it is now (it may have moved with no scroll or resize),
-      // which the press reports
+      // the press lands where the pointer is drawn, not where it's heading
       gliding?.cancel();
-      // not onto a target gone from view, which measures at the corner
+      // onto where it is now (it may have moved with no scroll or resize),
+      // which the press reports; not onto a target gone from view
       if (followable(el)) {
         pointedAt = el;
         place(el);

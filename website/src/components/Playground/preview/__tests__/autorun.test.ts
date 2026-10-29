@@ -281,7 +281,9 @@ describe('stage', () => {
       two.remove();
       two.getBoundingClientRect = () =>
         ({ left: 0, top: 0, width: 0, height: 0 }) as DOMRect;
+      cancel.mockClear();
       stage.click(two);
+      expect(cancel).toHaveBeenCalled();
       expect(pointer.style.translate).toBe('50px 10px');
     } finally {
       delete (HTMLElement.prototype as any).animate;
