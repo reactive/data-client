@@ -2060,6 +2060,7 @@ div.fixtureJson + div.fixtureJson {
   padding: 0 0.7em;
   border: 0;
   border-radius: 999px;
+  white-space: nowrap;
   background: var(--pg-hover);
   color: inherit;
   cursor: pointer;

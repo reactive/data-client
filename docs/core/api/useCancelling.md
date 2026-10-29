@@ -27,6 +27,31 @@ which means you might end up canceling a fetch that another component still care
 
 :::
 
+## Cancel vs Debounce
+
+Use `useCancelling()` when the user stops on each value, like a list they arrow through. It fetches at
+once and aborts the previous fetch.
+
+Use [useDebounce()](./useDebounce.md) when the user types. It waits until typing stops, so it sends
+fewer requests.
+
+For a search, use both:
+
+```tsx
+import {
+  useCancelling,
+  useDebounce,
+  useSuspense,
+} from '@data-client/react';
+import { searchIssues } from './resources/Issue';
+
+function IssueList({ query }: { query: string }) {
+  const [q] = useDebounce(query, 200);
+  const { items } = useSuspense(useCancelling(searchIssues, { q }), { q });
+  // ...
+}
+```
+
 ## Types
 
 ```typescript

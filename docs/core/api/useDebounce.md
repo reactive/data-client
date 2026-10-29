@@ -34,6 +34,8 @@ Useful to avoid spamming network requests when parameters might change quickly (
 
 ::::react
 
+To fetch at once and abort the previous fetch, use [useCancelling()](./useCancelling.md#cancel-vs-debounce).
+
 :::tip[React 18+]
 
 When loading new data, the [AsyncBoundary](./AsyncBoundary.md) will continue rendering the previous data until it is ready.
@@ -264,8 +266,14 @@ render(<SearchIssues />);
 :::react
 
 ```typescript
-function useDebounce<T>(value: T, delay: number, updatable?: boolean): T;
+function useDebounce<T>(
+  value: T,
+  delay: number,
+  updatable?: boolean,
+): [T, boolean];
 ```
+
+Returns `[debouncedValue, isPending]`. When `updatable` is `false`, the debounced value does not update.
 
 :::
 

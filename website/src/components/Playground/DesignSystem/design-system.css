@@ -217,10 +217,13 @@ div.playground-preview h1:first-child {
 /* A list and what it opens (an inbox and its open message): side by side
    when there's room for both, the list above otherwise */
 .playground-preview .split {
+  container: split / inline-size;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  gap: var(--ds-space-4) var(--ds-space-5);
+  /* side by side, the open pane sits as far from the rows' highlights (which
+     bleed space-3) as from the sheet's edge */
+  gap: var(--ds-space-4) calc(var(--ds-sheet-pad) + var(--ds-space-3));
 }
 .playground-preview .split > * {
   flex: 3 1 18rem;
@@ -235,6 +238,29 @@ div.playground-preview h1:first-child {
   padding: var(--ds-space-4) var(--ds-space-5);
   border-radius: var(--ds-radius);
   background: var(--ds-surface-2);
+}
+/* its padding alone sets the inset under the last line */
+.playground-preview .split > :not(.list) > :last-child {
+  margin-bottom: 0;
+}
+/* stacked under the list (below both bases plus the gap: 14 + 18 + 2rem at
+   the sheet's usual 1.25rem inset), it docks: a band across the sheet's
+   whole width, down to its foot (the sheet clips the band's outset, which
+   also fills a preview taller than the message), its text at the sheet's
+   inset, so it starts where the avatars do. Its own line, since its
+   negative margins would otherwise let it squeeze in beside the list */
+@container split (width < 34rem) {
+  .playground-preview .split > :not(.list) {
+    flex-basis: 100%;
+    margin-inline: calc(-1 * var(--ds-sheet-pad));
+    /* the same inset to the ink as at the sides: less the title's leading
+       above its capitals and the last line's below its descenders */
+    padding: calc(var(--ds-sheet-pad) - 0.375rem) var(--ds-sheet-pad)
+      calc(var(--ds-sheet-pad) - 0.1875rem);
+    border-radius: 0;
+    border-image: linear-gradient(var(--ds-surface-2) 0 0) fill 0 / 0 / 0 0
+      100vh;
+  }
 }
 
 /* Rows that open something (an inbox's messages): the whole row is the
