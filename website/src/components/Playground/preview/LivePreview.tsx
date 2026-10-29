@@ -4,9 +4,9 @@ import { LiveProvider } from 'react-live';
 import DemoLabel from './autorun/DemoLabel';
 import type { AutoRunScript } from './autorun/script';
 import { useAutoRun } from './autorun/useAutoRun';
+import { useInFlightCount } from './InFlightCount';
 import Preview from './Preview';
 import PreviewWrapper, { PreviewHeaderControls } from './PreviewWrapper';
-import { useInFlightCount } from './InFlightCount';
 import { useRenderCount } from './RenderCount';
 import { routerTrailer } from './router';
 import type { CodeDocument } from '../editor/codeModel';
@@ -15,6 +15,7 @@ import type { LogOptions } from './store/actionLog';
 import { callerNow } from './store/callSite';
 import SchemaRegistry from './store/schemaRegistry';
 import type { ShowStore } from './store/storeView';
+import { joinDocuments } from './transformCode';
 import { useCodeManagers } from './useCodeManagers';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
 import { usePreviewReset } from './usePreviewReset';
@@ -53,11 +54,8 @@ export default function LivePreview<T>({
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
   const inFlightCount = useInFlightCount(inFlight);
-  // `;` keeps a half-typed statement from absorbing the next document.
   const code = useMemo(
-    () =>
-      documents.map(document => document.value).join('\n;\n') +
-      routerTrailer(documents),
+    () => joinDocuments(documents) + routerTrailer(documents),
     [documents],
   );
   const {

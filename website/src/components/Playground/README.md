@@ -27,6 +27,7 @@ and `editor/callouts.ts`.
 | Why a fetch happened                         | `preview/store/fetchCause.ts` (reason, playground-free), `callSite.ts` (hook, component, event), `Why.tsx`         |
 | Actions by interaction (`defaultActionsBy`)  | `preview/store/interactions.ts` (sections, playground-free), `useActionsBy` in `storeView.ts` (kept per `groupId`) |
 | Managers the code declares                   | `preview/managers.ts`; [data flow](./managers-data-flow.png) (source `.svg`)                                       |
+| EndpointPlayground's live exchange           | `preview/exchange/` (runs the code, its endpoints answered by fixtures); `../HTTP/` draws it                       |
 | Multi-page demos, self-playing demos         | `preview/router.tsx`, `preview/autorun/`                                                                           |
 | Demo markup's look                           | `DesignSystem/design-system.css`, tokens and skeletons in `base.css` ([Design system](#design-system))             |
 | Mobile and crawler gates                     | `userAgent.ts`                                                                                                     |
@@ -127,7 +128,11 @@ callout markers as comments, its caption and legend outside the editor.
   a title; untitled, the card has no header row above it.
 - `../HTTP/EndpointPlayground.tsx` is a `row` whose folder holds the HTTP
   exchange instead of a preview: the request is the inset header, the
-  response the sheet (`../HTTP/styles.module.css`).
+  response the sheet (`../HTTP/styles.module.css`). Live, it runs the code
+  (`preview/exchange/`, the preview's lazy chunk) with `RestEndpoint`,
+  `resource` and `createResource` swapped for endpoints that answer each
+  call from `fixtures` as MockResolver would (exact fixture, then the first
+  matching interceptor; none is a 404), and shows the last call's exchange.
 
 ## Editor
 

@@ -171,6 +171,85 @@
   font: 400 12.5px / 20px var(--ifm-font-family-monospace);
 }
 
+/* live (../Playground/preview/exchange): an edit that no longer makes this
+   exchange dims it until the code makes one again */
+.request[aria-busy] > *,
+.response[aria-busy] > .sheet > * {
+  opacity: 0.45;
+  transition: opacity 0.2s ease;
+}
+
+/* live: what an edit changed (a new URL, body or answer) flashes as the
+   Store's updates do, tying the edit to its effect; a fixed exchange never
+   remounts, so never flashes */
+.folder[data-live] .fresh {
+  animation: fresh 1.2s ease-out;
+}
+.folder[data-live] .fresh:not(.status) {
+  border-radius: 4px;
+}
+/* a whole body is a block: a fainter wash */
+.folder[data-live] .json.fresh {
+  --fresh-wash: 10%;
+}
+@keyframes fresh {
+  from {
+    background-color: color-mix(
+      in srgb,
+      var(--store-stale) var(--fresh-wash, 22%),
+      transparent
+    );
+  }
+}
+
+/* PendingExchange: the request line and the body's lines in skeletons,
+   drawn as the app's (../Playground/DesignSystem/base.css) */
+.skeleton {
+  display: inline-block;
+  width: 12em;
+  max-width: 100%;
+  height: 0.7em;
+  border-radius: 4px;
+  background: linear-gradient(
+      100deg,
+      transparent 35%,
+      var(--pg-hover) 50%,
+      transparent 65%
+    )
+    var(--pg-hover);
+  background-size: 300% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+.short {
+  width: 2.5em;
+}
+.skeletonBody {
+  display: grid;
+  justify-items: start;
+  row-gap: calc(20px - 0.7em);
+  padding-block: calc((20px - 0.7em) / 2);
+}
+.skeletonBody > .skeleton:nth-child(2) {
+  width: 16em;
+}
+.skeletonBody > .skeleton:last-child {
+  width: 9em;
+}
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .folder[data-live] .fresh,
+  .skeleton {
+    animation: none;
+  }
+}
+
 @container playground (min-width: 720px) {
   /* a request alone is a card, not a header: level with the code card */
   .exchange > .folder:has(> .request:only-child) {

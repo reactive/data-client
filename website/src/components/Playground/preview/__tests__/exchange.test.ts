@@ -1,0 +1,155 @@
+/// <reference types="jest" />
+import { RestEndpoint } from '@data-client/rest';
+
+import type { CodeDocument } from '../../editor/codeModel';
+import type { FixtureOrInterceptor } from '../../types';
+import { compileExchanges, runExchanges } from '../exchange/runExchanges';
+
+// the real scope pulls in the website's design system and dependencies
+jest.mock('../scope', () => ({
+  previewScope: { ...require('@data-client/rest') },
+}));
+
+const file = (value: string, language = 'ts'): CodeDocument => ({
+  value,
+  language,
+  path: `${language}-${value.length}.${language}`,
+  collapsed: false,
+});
+
+const resourceFile =
+  file(`import { resource, Entity, RestEndpoint, type RestGenerics } from '@data-client/rest';
+
+class AuthdEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+  async getRequestInit(body: any): Promise<RequestInit> {
+    return { ...(await super.getRequestInit(body)), credentials: 'same-origin' };
+  }
+}
+class Post extends Entity {
+  id = '';
+  title = '';
+}
+export const PostResource = resource({
+  path: '/:group/posts/:id',
+  searchParams: {} as { author?: string },
+  schema: Post,
+  Endpoint: AuthdEndpoint,
+});`);
+
+const posts: Record<string, { id: string; title: string }> = {
+  '1': { id: '1', title: 'first' },
+};
+const fixtures: FixtureOrInterceptor[] = [
+  {
+    endpoint: new RestEndpoint({ path: '/:group/posts/:id' }),
+    response({ id }: { id: string }) {
+      if (!posts[id]) throw { status: 404, message: 'missing' };
+      return posts[id];
+    },
+  },
+  {
+    endpoint: new RestEndpoint({ path: '/:group/posts', method: 'POST' }),
+    response(params: object, body: object) {
+      return { id: '2', ...params, ...body };
+    },
+  },
+  {
+    endpoint: new RestEndpoint({ path: '/:group/posts/:id', method: 'DELETE' }),
+    response() {
+      return null;
+    },
+  },
+];
+
+function exchanges(usage: string, documents = [resourceFile]) {
+  return runExchanges(compileExchanges([...documents, file(usage)]), fixtures);
+}
+
+describe('runExchanges', () => {
+  test('records the request the code builds, answered by its interceptor', async () => {
+    const [exchange] = exchanges(
+      `PostResource.get({ group: 'react', id: '1' });`,
+    );
+    expect(await exchange).toEqual({
+      input: '/react/posts/1',
+      init: expect.objectContaining({
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+      }),
+      status: 200,
+      body: posts['1'],
+    });
+  });
+
+  test("passes a mutation's args, and answers a create with 201", async () => {
+    const [exchange] = exchanges(
+      `PostResource.getList.push({ group: 'react', author: 'clara' }, { title: 'new' });`,
+    );
+    expect(await exchange).toMatchObject({
+      input: '/react/posts?author=clara',
+      init: { method: 'POST', body: '{"title":"new"}' },
+      status: 201,
+      body: { id: '2', group: 'react', author: 'clara', title: 'new' },
+    });
+  });
+
+  test('a thrown answer is its error status; nothing to answer is a 404', async () => {
+    const [missing, unmatched] = exchanges(`
+      PostResource.get({ group: 'react', id: '7' });
+      PostResource.partialUpdate({ group: 'react', id: '1' }, { title: 'x' });
+    `);
+    // the thrown status is the answer's, the rest its body
+    const { status, body } = await missing;
+    expect([status, body]).toEqual([404, { message: 'missing' }]);
+    expect(await unmatched).toMatchObject({
+      init: { method: 'PATCH' },
+      status: 404,
+    });
+    expect((await unmatched).body).toBeUndefined();
+  });
+
+  test('an empty answer is a 204', async () => {
+    const [exchange] = exchanges(
+      `PostResource.delete({ group: 'react', id: '1' });`,
+    );
+    const { status, body } = await exchange;
+    expect([status, body]).toEqual([204, undefined]);
+  });
+
+  test('lists every call in order, and one per call through extend()', async () => {
+    const calls = exchanges(`
+      PostResource.get({ group: 'a', id: '1' });
+      PostResource.get.extend({ name: 'again' })({ group: 'b', id: '1' });
+    `);
+    expect(calls).toHaveLength(2);
+    expect((await calls[1]).input).toBe('/b/posts/1');
+  });
+
+  test('rejects the exchange when the endpoint fails before sending', async () => {
+    const [exchange] = exchanges(`
+      const broken = new RestEndpoint({ path: '/x' }).extend({
+        getHeaders() {
+          throw new Error('no token');
+        },
+      });
+      broken();
+    `);
+    await expect(exchange).rejects.toThrow('no token');
+  });
+
+  test('skips files that are not scripts', async () => {
+    const vue = file('<template><AuthForm /></template>', 'html');
+    expect(
+      exchanges(`PostResource.get({ group: 'a', id: '1' });`, [
+        resourceFile,
+        vue,
+      ]),
+    ).toHaveLength(1);
+  });
+
+  test('throws what the code throws, and a SyntaxError for code that does not compile', () => {
+    expect(() => exchanges(`throw new Error('boom');`)).toThrow('boom');
+    expect(() => compileExchanges([file('PostResource.get({')])).toThrow();
+  });
+});

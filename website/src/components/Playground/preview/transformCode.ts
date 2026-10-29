@@ -29,6 +29,20 @@ export function defaultExportName(code: string): string | undefined {
     .find(name => name !== undefined);
 }
 
+/** The documents as one program, in order. `;` keeps a half-typed statement
+ * from absorbing the next document. */
+export function joinDocuments(documents: readonly { value: string }[]) {
+  return documents.map(document => document.value).join('\n;\n');
+}
+
+/** `transformCode`, as one block for react-live's scope function, whose
+ * parameters are the scope: a block lets the code declare its own `Link` or
+ * `Avatar` with `const` or `class` (a SyntaxError beside a parameter), and
+ * the opening brace on the code's first line keeps error line numbers. */
+export function scopeBlock(code: string): string {
+  return `{${transformCode(code)}\n}`;
+}
+
 export default function transformCode(code: string): string {
   return code
     .replaceAll(STATIC_IMPORT, '')

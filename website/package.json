@@ -87,6 +87,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-live": "^5.0.0",
+    "sucrase": "^3.35.1",
     "temporal-polyfill": "^1.0.0",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "uuid": "^14.0.0"
