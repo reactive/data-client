@@ -29,11 +29,15 @@ export function siblingFilePaths(
   currentPath: string,
   modelPaths: readonly string[],
 ): string[] {
-  const id = modelIdSegment(currentPath);
-  if (!id) return [];
   return modelPaths
-    .filter(path => path !== currentPath && modelIdSegment(path) === id)
+    .filter(path => path !== currentPath && isSameSurface(currentPath, path))
     .map(stripModelId);
+}
+
+/** Whether both model paths belong to one editor surface (never when `path` has no id) */
+export function isSameSurface(path: string, otherPath: string) {
+  const id = modelIdSegment(path);
+  return id !== undefined && modelIdSegment(otherPath) === id;
 }
 
 /** Stable per-mount id. Also runs during SSR, but the id only reaches Monaco (inside BrowserOnly), never markup, so randomness cannot cause hydration mismatches. */
