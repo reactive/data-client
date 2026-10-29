@@ -23,7 +23,10 @@ function fakeModel(path: string, language = 'typescript') {
   };
 }
 
-function fakeMonaco(models: ReturnType<typeof fakeModel>[]) {
+function fakeMonaco(
+  models: ReturnType<typeof fakeModel>[],
+  { suggestions = [] as unknown[], diagnosticsOptions = {}, fail = false } = {},
+) {
   const markers: Record<string, unknown[]> = {};
   const checked: string[] = [];
   const worker = {
@@ -45,7 +48,7 @@ function fakeMonaco(models: ReturnType<typeof fakeModel>[]) {
         },
       ];
     },
-    getSuggestionDiagnostics: async () => [],
+    getSuggestionDiagnostics: async () => suggestions,
   };
   const monaco = {
     MarkerSeverity: { Hint: 1, Info: 2, Warning: 4, Error: 8 },
@@ -53,7 +56,8 @@ function fakeMonaco(models: ReturnType<typeof fakeModel>[]) {
     Uri: { parse: (path: string) => path },
     editor: {
       getModels: () => models,
-      getModel: () => null,
+      getModel: (uri: string) =>
+        models.find(model => model.uri.toString() === uri) ?? null,
       onDidCreateModel: jest.fn(),
       setModelMarkers: (
         model: ReturnType<typeof fakeModel>,
@@ -64,8 +68,11 @@ function fakeMonaco(models: ReturnType<typeof fakeModel>[]) {
       },
     },
     typescript: {
-      getTypeScriptWorker: async () => async () => worker,
-      typescriptDefaults: { getDiagnosticsOptions: () => ({}) },
+      getTypeScriptWorker: async () => async () => {
+        if (fail) throw new Error('Could not find source file');
+        return worker;
+      },
+      typescriptDefaults: { getDiagnosticsOptions: () => diagnosticsOptions },
     },
   } as unknown as typeof Monaco;
   return { monaco, markers, checked };
@@ -126,5 +133,80 @@ describe('recheckSiblingsOnChange', () => {
     expect(markers['typescript /1/usage.tsx']).toBeUndefined();
     // usage's own edit re-checks api in turn
     expect(markers['typescript /1/api.ts']).toHaveLength(1);
+  });
+
+  test('keeps tags and related files open on the page, and drops ignored codes', async () => {
+    const api = fakeModel('/1/api.ts');
+    const usage = fakeModel('/1/usage.tsx');
+    const { monaco, markers } = fakeMonaco([api, usage], {
+      diagnosticsOptions: { diagnosticCodesToIgnore: [2305] },
+      suggestions: [
+        {
+          category: 2,
+          code: 6133,
+          start: 0,
+          length: 0,
+          messageText: "'user' is declared but never read.",
+          reportsUnnecessary: {},
+          relatedInformation: [
+            {
+              category: 3,
+              code: 1,
+              start: 2,
+              length: 1,
+              messageText: 'Declared here.',
+              file: { fileName: 'file:///1/api.ts' },
+            },
+            {
+              category: 3,
+              code: 1,
+              start: 0,
+              length: 1,
+              messageText: 'In a lib.',
+              file: { fileName: 'file:///node_modules/lib.d.ts' },
+            },
+          ],
+        },
+      ],
+    });
+    recheckSiblingsOnChange(monaco);
+
+    api.edit();
+    await jest.runAllTimersAsync();
+
+    expect(markers['typescript /1/usage.tsx']).toEqual([
+      {
+        startLineNumber: 1,
+        startColumn: 1,
+        endLineNumber: 1,
+        endColumn: 2,
+        severity: 1,
+        message: "'user' is declared but never read.",
+        code: '6133',
+        tags: [1],
+        relatedInformation: [
+          {
+            resource: api.uri,
+            startLineNumber: 1,
+            startColumn: 3,
+            endLineNumber: 1,
+            endColumn: 4,
+            message: 'Declared here.',
+          },
+        ],
+      },
+    ]);
+  });
+
+  test('a failed check writes no markers and does not reject', async () => {
+    const api = fakeModel('/1/api.ts');
+    const usage = fakeModel('/1/usage.tsx');
+    const { monaco, markers } = fakeMonaco([api, usage], { fail: true });
+    recheckSiblingsOnChange(monaco);
+
+    api.edit();
+    await jest.runAllTimersAsync();
+
+    expect(markers).toEqual({});
   });
 });

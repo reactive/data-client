@@ -17,11 +17,17 @@ const MARKER_OWNER = 'typescript';
  */
 export function recheckSiblingsOnChange(monaco: typeof Monaco) {
   const watch = (model: Monaco.editor.ITextModel) => {
-    if (model.getLanguageId() !== 'typescript') return;
+    if (!isTypeScript(model)) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
     model.onDidChangeContent(() => {
       clearTimeout(timer);
-      timer = setTimeout(() => void recheckSiblings(monaco, model), SETTLE_MS);
+      timer = setTimeout(
+        () =>
+          // a sibling disposed mid-check (its demo unmounted) fails in the
+          // worker; nothing is left to mark
+          recheckSiblings(monaco, model).catch(() => undefined),
+        SETTLE_MS,
+      );
     });
     model.onWillDispose(() => clearTimeout(timer));
   };
@@ -38,21 +44,19 @@ async function recheckSiblings(
     .filter(
       model =>
         model !== changed &&
-        model.getLanguageId() === 'typescript' &&
+        isTypeScript(model) &&
         isSameSurface(changed.uri.path, model.uri.path),
-    );
+    )
+    .map(model => ({ model, version: model.getVersionId() }));
   if (!siblings.length) return;
-  const versions = siblings.map(model => model.getVersionId());
   const getWorker = await monaco.typescript.getTypeScriptWorker();
   const worker = await getWorker(
     changed.uri,
-    ...siblings.map(model => model.uri),
+    ...siblings.map(({ model }) => model.uri),
   );
   const options = monaco.typescript.typescriptDefaults.getDiagnosticsOptions();
   await Promise.all(
-    siblings.map((model, i) =>
-      recheck(monaco, worker, options, model, versions[i]),
-    ),
+    siblings.map(sibling => recheck(monaco, worker, options, sibling)),
   );
 }
 
@@ -65,8 +69,7 @@ async function recheck(
     noSuggestionDiagnostics,
     diagnosticCodesToIgnore = [],
   }: Monaco.typescript.DiagnosticsOptions,
-  model: Monaco.editor.ITextModel,
-  version: number,
+  { model, version }: { model: Monaco.editor.ITextModel; version: number },
 ) {
   const fileName = model.uri.toString();
   const diagnostics = (
@@ -87,7 +90,11 @@ async function recheck(
   );
 }
 
-/** Mirrors Monaco's own conversion (DiagnosticsAdapter in its TS language features) */
+function isTypeScript(model: Monaco.editor.ITextModel) {
+  return model.getLanguageId() === 'typescript';
+}
+
+/** Mirrors Monaco's own conversion (DiagnosticsAdapter in its TS language features, 0.57) */
 function toMarker(
   monaco: typeof Monaco,
   model: Monaco.editor.ITextModel,
@@ -136,6 +143,7 @@ function toSeverity(
   monaco: typeof Monaco,
   category: Monaco.typescript.Diagnostic['category'],
 ) {
+  // TypeScript's DiagnosticCategory: Warning 0, Error 1, Suggestion 2, Message 3
   switch (category) {
     case 1:
       return monaco.MarkerSeverity.Error;
