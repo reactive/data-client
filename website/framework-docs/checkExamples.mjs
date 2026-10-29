@@ -112,6 +112,49 @@ const noCheck = ({ raw }) =>
   raw.includes('<script') ?
     raw.replace(/<script\b[^>]*>/, '$&\n// @ts-nocheck')
   : `// @ts-nocheck\n${raw}`;
+/** The editor's globals: the libraries' exports, which code without imports
+ * uses as the playground editor types them */
+const EDITOR_GLOBALS = path.join(PLAYGROUND, 'editor-types/globals');
+const GLOBAL_NAMES = [
+  ...fs
+    .readFileSync(`${EDITOR_GLOBALS}.d.ts`, 'utf8')
+    .matchAll(/^export\s*\{([^}]*)\}\s*;/gm),
+]
+  .flatMap(([, list]) => list.split(','))
+  .map(specifier =>
+    specifier
+      .trim()
+      .replace(/^type\s+/, '')
+      .split(/\s+as\s+/)
+      .pop(),
+  )
+  .filter(name => name && !['default', 'Array', 'Object'].includes(name));
+/** Files without imports or exports are scripts, which the editor (and the
+ * preview, which runs them in order as one async function) gives one scope */
+const isScriptApp = blocks =>
+  blocks.every(({ value }) => !/^\s*(?:import|export)\b/m.test(value));
+/** A script playground as the one module it runs as: its files in order,
+ * after an import of the globals they use */
+function scriptApp(blocks) {
+  const code = blocks.map(({ raw }) => raw.replace(/\n$/, ''));
+  const used = GLOBAL_NAMES.filter(name =>
+    new RegExp(`(?<![\\w$.])${name.replaceAll('$', '\\$')}(?![\\w$])`).test(
+      code.join('\n'),
+    ),
+  );
+  // after the header's row
+  let row = 2;
+  const segments = code.map((text, i) => {
+    const segment = { block: blocks[i], row };
+    row += text.split('\n').length;
+    return segment;
+  });
+  return {
+    header: `import { ${used.join(', ')} } from '${EDITOR_GLOBALS}';`,
+    code: code.join('\n'),
+    segments,
+  };
+}
 const importsOf = value =>
   [
     ...value.matchAll(
@@ -231,6 +274,15 @@ function check(framework, examples) {
   const untyped = new Map();
   examples.forEach(({ doc, blocks, loose }, n) => {
     const dir = path.join(OUT, rel(doc).replace(/\.mdx?$/, ''), String(n));
+    if (!loose && isScriptApp(blocks)) {
+      const { header, code, segments } = scriptApp(blocks);
+      const tsx = blocks.some(({ lang }) => lang === 'tsx');
+      const file = path.join(dir, tsx ? 'app.tsx' : 'app.ts');
+      fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(file, `${header}\n${code}\n`);
+      sources.set(file, segments);
+      return;
+    }
     const files = new Map();
     blocks.forEach((b, i) => {
       const name = fileName(b, i);
@@ -340,10 +392,16 @@ function check(framework, examples) {
       .map(line => {
         const match = line.match(/^(.+?)\((\d+),(\d+)\): (.*)$/s);
         if (!match) return line;
-        const [, file, row, column, message] = match;
+        let [, file, row, column, message] = match;
         const written = path.resolve(OUT, file);
-        const block = sources.get(written);
-        if (!block) return `${rel(written)}:${row}:${column}: ${message}`;
+        const source = sources.get(written);
+        if (!source) return `${rel(written)}:${row}:${column}: ${message}`;
+        // a script playground's file holds its blocks one after another
+        const { block, row: first = 1 } =
+          Array.isArray(source) ?
+            source.findLast(segment => segment.row <= Number(row))
+          : { block: source };
+        row = Number(row) - first + 1;
         const where =
           block.line ?
             `${rel(block.file)}:${block.line + Number(row)}:${column}`

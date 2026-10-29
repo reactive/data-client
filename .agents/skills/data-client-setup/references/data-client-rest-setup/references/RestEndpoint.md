@@ -98,7 +98,7 @@ const getTodo = new RestEndpoint({
 });
 ```
 
-```ts
+```ts title="Usage" column
 const todo = await getTodo({ id: 1 });
 ```
 
@@ -194,6 +194,9 @@ async () => {
 `RestEndpoints` without a schema, it also determines the return type of [hooks](https://dataclient.io/docs/api/useSuspense) and [Controller.fetch](https://dataclient.io/docs/api/Controller#fetch).
 
 ```ts path="process.ts"
+import { useController } from '@data-client/react';
+import { RestEndpoint } from '@data-client/rest';
+
 interface TodoInterface {
   title: string;
   completed: boolean;

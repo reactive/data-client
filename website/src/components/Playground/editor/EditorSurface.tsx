@@ -89,12 +89,11 @@ export default function EditorSurface({
 
   const createModels = useCreateModels(id, documents);
 
-  // a lone file's title is its tab; a column file is a label, never a tab
+  // a lone file's title is its tab, and an untitled one has none; a column
+  // file is a label, never a tab
+  const tabbed = documents.filter(document => !document.col);
   const tabs =
-    (
-      row &&
-      (documents.length > 1 || (documents[0]?.title && !documents[0].col))
-    ) ?
+    row && (tabbed.length > 1 || tabbed[0]?.title) ?
       <EditorTabs
         documents={documents}
         closedList={closedList}

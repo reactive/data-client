@@ -73,18 +73,25 @@ const fixtures: FixtureOrInterceptor[] = [
   },
 ];
 
-function exchanges(
+function run(
   usage: string,
   documents = [resourceFile],
   answers: FixtureOrInterceptor[] = fixtures,
 ) {
   const calls: Promise<Exchange>[] = [];
-  runExchanges(
+  const done = runExchanges(
     compileExchanges([...documents, file(usage)]),
     answers,
     undefined,
     call => calls.push(call),
   );
+  return { calls, done };
+}
+
+function exchanges(...args: Parameters<typeof run>) {
+  const { calls, done } = run(...args);
+  // an endpoint's failure shows in its exchange
+  done.catch(() => undefined);
   return calls;
 }
 
@@ -217,8 +224,8 @@ describe('runExchanges', () => {
     });
   });
 
-  test('a bare fetch() fails instead of reaching the network', () => {
-    expect(() => exchanges(`fetch('https://example.com');`)).toThrow(
+  test('a bare fetch() fails instead of reaching the network', async () => {
+    await expect(run(`fetch('https://example.com');`).done).rejects.toThrow(
       'Live demos answer only requests their endpoints send',
     );
   });
@@ -233,9 +240,21 @@ describe('runExchanges', () => {
     ).toHaveLength(1);
   });
 
-  test('throws what the code throws, and a SyntaxError for code that does not compile', () => {
-    expect(() => exchanges(`throw new Error('boom');`)).toThrow('boom');
+  test('rejects with what the code throws, and compiling throws a SyntaxError for code that does not compile', async () => {
+    await expect(run(`throw new Error('boom');`).done).rejects.toThrow('boom');
     expect(() => compileExchanges([file('PostResource.get({')])).toThrow();
+  });
+
+  test('awaits at the top level', async () => {
+    const { calls, done } = run(`
+      const post = await PostResource.get({ group: 'a', id: '1' });
+      PostResource.get({ group: post.title, id: '1' });
+    `);
+    await done;
+    expect((await Promise.all(calls)).map(({ input }) => input)).toEqual([
+      '/a/posts/1',
+      '/first/posts/1',
+    ]);
   });
 });
 
@@ -306,6 +325,21 @@ describe('runLive', () => {
     expect(reports.map((r: any) => r.exchange.input)).toEqual([
       '/a/posts/1',
       '/b/posts/1',
+    ]);
+  });
+
+  test("an awaited call's error answer shows as its exchange, not a throw", async () => {
+    const reports = await outcomes(
+      `await PostResource.get({ group: 'a', id: 'missing' });`,
+    );
+    expect(reports).toEqual([
+      { exchange: expect.objectContaining({ status: 404 }) },
+    ]);
+  });
+
+  test('a throw before any call is the one outcome', async () => {
+    expect(await outcomes(`throw new Error('before');`)).toEqual([
+      { error: 'Error: before' },
     ]);
   });
 

@@ -104,6 +104,9 @@ blocks or to stubs typed `any`.
   stand for the app's router (see "Router" in `website/src/components/Playground/README.md`), and
   Vue's `RouterLink` and `RouterView`.
   `NumberFlow` is a real library: import it from `@number-flow/react` or `@number-flow/vue`.
+- A playground whose files neither import nor export (RestEndpoint's "Simplest retrieval") is
+  checked as it runs: its files in order as one module, using the editor's globals, so it may
+  `await` at the top level.
 - Overview pages (`README.md`, like `docs/core/README.md`) may leave imports out of snippets for
   readability, so only their playgrounds are checked.
 - Add `nocheck` to a fence's meta (` ```tsx title="Foo" nocheck `) only for a deliberately partial

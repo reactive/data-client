@@ -124,8 +124,9 @@ callout markers as comments, its caption and legend outside the editor.
   `--pg-demo-min` so toggling doesn't move the page. The Code toggle ends an
   `autoRun`.
 - A `row` with no folder (`../TypeScriptEditor.tsx`, unless `row={false}`)
-  is the tabs and the code card alone. A lone file is a tab only if it has
-  a title; untitled, the card has no header row above it.
+  is the tabs and the code card alone. A lone file (beside `column` files)
+  is a tab only if it has a title; untitled, the card has no header row
+  above it.
 - `../HTTP/EndpointPlayground.tsx` is a `row` whose folder holds the HTTP
   exchange instead of a preview: the request is the inset header, the
   response the sheet (`../HTTP/styles.module.css`). Live, it runs the code
@@ -133,7 +134,10 @@ callout markers as comments, its caption and legend outside the editor.
   `resource`, `createResource` and `GQLEndpoint` swapped for endpoints that
   answer each call from `fixtures`, found as MockResolver finds them (exact
   fixture, then the first matching interceptor; none is a 404), and shows the
-  last call's exchange. A bare `fetch()` throws, so no demo reaches the
+  last call's exchange. The code runs as an async function, so it may
+  `await` at the top level (the editor ignores TS1375 for files without
+  imports), and an awaited call's error answer shows as its exchange rather
+  than as a throw. A bare `fetch()` throws, so no demo reaches the
   network. The first exchange is rendered on the server (`../HTTP/LiveFolder.tsx`
   runs the code during SSR, outside any Suspense boundary so React writes it
   in place) and read back from the folder's `data-first-exchange` for

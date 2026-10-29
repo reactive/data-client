@@ -44,6 +44,12 @@ export function networkScope(network: Network) {
   };
 }
 
+/** Whether `error` is an endpoint's answer (a 404), which its exchange
+ * shows, rather than a failure of the code that awaited it */
+export const isAnsweredFailure = (error: unknown) =>
+  typeof error === 'object' && error !== null && answeredFailures.has(error);
+const answeredFailures = new WeakSet<object>();
+
 /** On a recording endpoint's fetch: the fetch it wraps */
 const SEND = Symbol('send');
 
@@ -80,12 +86,18 @@ function recording(
               successStatus(init),
             );
             resolve({ input, init, ...answered });
+            isAnswered = true;
             return respond(answered.status, answered.body);
           },
         });
+        let isAnswered = false;
         const sent: Promise<unknown> = send.apply(endpoint, args);
         // the exchange shows a failure, so the code needn't handle it
-        sent.catch(reject);
+        sent.catch(error => {
+          if (isAnswered && typeof error === 'object' && error !== null)
+            answeredFailures.add(error);
+          reject(error);
+        });
         return sent;
       };
       this.fetch = Object.assign(call, { [SEND]: send });

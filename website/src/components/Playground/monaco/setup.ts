@@ -47,6 +47,12 @@ if (typeof window !== 'undefined' && !isMobileOrBot()) {
       allowSyntheticDefaultImports: true,
       skipDefaultLibCheck: true,
     });
+    monaco.typescript.typescriptDefaults.setDiagnosticsOptions({
+      ...monaco.typescript.typescriptDefaults.getDiagnosticsOptions(),
+      // a playground's code runs as an async function, so a file without
+      // imports (a script, sharing the other files' names) may still `await`
+      diagnosticCodesToIgnore: [TOP_LEVEL_AWAIT_IN_SCRIPT],
+    });
     definePrismTheme(monaco);
     registerImportCompletions(monaco);
     recheckSiblingsOnChange(monaco);
@@ -55,3 +61,7 @@ if (typeof window !== 'undefined' && !isMobileOrBot()) {
     monaco.typescript.typescriptDefaults.setEagerModelSync(true);
   });
 }
+
+/** TS1375: 'await' expressions are only allowed at the top level of a file
+ * when that file is a module */
+const TOP_LEVEL_AWAIT_IN_SCRIPT = 1375;
