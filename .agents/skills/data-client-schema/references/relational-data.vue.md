@@ -160,7 +160,6 @@ export const TodoResource = resource({
   import type { User } from './resources/User';
 
   const props = defineProps<{ todo: Todo; users: readonly User[] }>();
-  const reorderItem = useReorderItem(props.todo.pk());
   const ctrl = useController();
   const update = (body: Partial<Todo>) =>
     ctrl.fetch(TodoResource.partialUpdate, { id: props.todo.id }, body);
@@ -169,7 +168,7 @@ export const TodoResource = resource({
 </script>
 
 <template>
-  <div class="listItem" :ref="reorderItem">
+  <div class="listItem">
     <label>
       <input type="checkbox" :checked="todo.completed" @change="toggle" />
       {{ todo.title }}
@@ -196,16 +195,15 @@ export const TodoResource = resource({
   import type { Todo } from './resources/Todo';
   import type { User } from './resources/User';
 
-  const props = defineProps<{
+  defineProps<{
     owner: User | undefined;
     todos: readonly Todo[];
     users: readonly User[];
   }>();
-  const reorderItem = useReorderItem(`owner ${props.owner?.pk()}`);
 </script>
 
 <template>
-  <section :ref="reorderItem">
+  <section>
     <h3>
       <Avatar v-if="owner" :src="owner.profileImage" :size="20" />
       {{ owner?.name ?? 'Unassigned' }}
@@ -241,16 +239,13 @@ export const TodoResource = resource({
 </script>
 
 <template>
-  <!-- rows and groups glide to wherever a change moves them -->
-  <Reorder :layout-dependency="todos">
-    <TodoGroup
-      v-for="[owner, ownerTodos] in byOwner"
-      :key="owner?.pk()"
-      :owner="owner"
-      :todos="ownerTodos"
-      :users="users"
-    />
-  </Reorder>
+  <TodoGroup
+    v-for="[owner, ownerTodos] in byOwner"
+    :key="owner?.pk() ?? 'unassigned'"
+    :owner="owner"
+    :todos="ownerTodos"
+    :users="users"
+  />
 </template>
 ```
 

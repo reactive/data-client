@@ -54,12 +54,12 @@ function Handle() {
 import { Reorder, useReorderItem } from '../motion';
 
 function Board({ todos }: { todos: Todo[] }) {
-  const byOwner = Map.groupBy(todos, todo => todo.user);
+  const byOwner = Map.groupBy(todos, todo => todo.userId);
   return (
     // where the list is read; it renders no element of its own
     <Reorder layoutDependency={todos}>
-      {[...byOwner].map(([owner, todos]) => (
-        <Group key={owner.id} owner={owner} todos={todos} />
+      {[...byOwner].map(([userId, ownerTodos]) => (
+        <Group key={userId} userId={userId} todos={ownerTodos} />
       ))}
     </Reorder>
   );
@@ -121,7 +121,8 @@ glide.ts          runs and retargets one element's translate (Web Animations)
 MotionGroup.tsx   measures before/after a commit; drives members; useLayoutMotion
 Reveal.tsx        presence: mount, slide in, slide out, hide (state kept)
 reorder.ts        lists that rearrange, DOM only: measure, then glide items by key
-Reorder.tsx       its React binding: snapshots each commit; useReorderItem
+Reorder.tsx       its React binding: measures when layoutDependency changes;
+                  useReorderItem
 ```
 
 Tests: `yarn test --selectProjects ReactDOM --testPathPatterns website/src/components/motion`

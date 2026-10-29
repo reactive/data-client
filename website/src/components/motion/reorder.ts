@@ -64,8 +64,8 @@ export function reorder(before: Positions, items: Items, spring: Spring) {
     if (animation && length(from) >= farthest / 2) travel(el, animation);
   }
   if (!arrivals.length) return;
-  const easing = springEasing(spring);
-  for (const el of arrivals) el.animate?.(ARRIVE, easing);
+  const timing = springEasing(spring);
+  for (const el of arrivals) el.animate?.(ARRIVE, timing);
 }
 
 const ARRIVE: Keyframe[] = [{ opacity: 0 }, { opacity: 1 }];

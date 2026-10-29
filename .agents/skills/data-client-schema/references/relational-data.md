@@ -250,7 +250,7 @@ function TodoList() {
     <Reorder layoutDependency={todos}>
       {[...byOwner].map(([owner, ownerTodos]) => (
         <TodoGroup
-          key={owner?.pk()}
+          key={owner?.pk() ?? 'unassigned'}
           owner={owner}
           todos={ownerTodos}
           users={users}
