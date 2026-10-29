@@ -13,6 +13,7 @@ Pick motion by what moves, never by milliseconds:
 | ---------------- | ------------------------------------------- |
 | `springs.snappy` | small, light things: arrows, chips, toggles |
 | `springs.brisk`  | items trading places in a list (`Reorder`)  |
+| `springs.drop`   | an item the reader lets go, into its place  |
 | `springs.smooth` | panels and drawers that carry content       |
 
 **CSS transitions** (state changes styled by a class, like a rotating arrow):

@@ -27,17 +27,27 @@ export function measure(items: Items): Positions {
  * `translate` only, on the compositor), so an item React put under another
  * parent travels there too. An item inside another that moves rides along
  * with it, and only travels the rest of the way itself; a key `before` lacks
- * fades in (unless an item moves in with it). Items crossing the others are `data-traveling` until they land.
- * Layout-agnostic: it reads only where items are on screen.
+ * fades in (unless an item moves in with it). Items crossing the others are
+ * `data-traveling` until they land. `own` gives some keys their own spring
+ * (an item the reader dropped settles quicker). Layout-agnostic: it reads
+ * only where items are on screen.
  */
-export function reorder(before: Positions, items: Items, spring: Spring) {
+export function reorder(
+  before: Positions,
+  items: Items,
+  spring: Spring,
+  own: ReadonlyMap<unknown, Spring> = new Map(),
+) {
   // the final layout, without glides (or their marks) in flight, before
   // measuring it
   for (const el of items.values()) {
     stop(el);
     land(el);
   }
-  const moves = new Map<HTMLElement, { offset: Point; velocity: Point }>();
+  const moves = new Map<
+    HTMLElement,
+    { offset: Point; velocity: Point; spring: Spring }
+  >();
   const arrivals: HTMLElement[] = [];
   for (const [key, el] of items) {
     const was = before.get(key);
@@ -49,19 +59,20 @@ export function reorder(before: Positions, items: Items, spring: Spring) {
     moves.set(el, {
       offset: { x: was.at.x - at.x, y: was.at.y - at.y },
       velocity: was.velocity,
+      spring: own.get(key) ?? spring,
     });
   }
   // every read is done: start the animations
-  const glides = [...moves].map(([el, { offset, velocity }]) => {
+  const glides = [...moves].map(([el, { offset, velocity, spring }]) => {
     const carrier = carrierOf(el, moves);
     const carried = carrier && moves.get(carrier)?.offset;
     const from =
       carried ? { x: offset.x - carried.x, y: offset.y - carried.y } : offset;
-    return { el, from, velocity, length: distance(from) };
+    return { el, from, velocity, spring, length: distance(from) };
   });
   let farthest = 0;
   for (const { length } of glides) farthest = Math.max(farthest, length);
-  for (const { el, from, velocity, length } of glides) {
+  for (const { el, from, velocity, spring, length } of glides) {
     const animation = glide(el, spring, { from, to: ORIGIN, velocity });
     if (animation && crosses(length, farthest)) travel(el, animation);
   }

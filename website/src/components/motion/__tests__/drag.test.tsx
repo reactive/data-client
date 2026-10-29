@@ -262,6 +262,24 @@ it('holds a drop until what it set off settles, then sends it home if the list n
   expect(startOf(x)?.translate).toBe('0px 115px');
 });
 
+it('keeps a drop held while an earlier drop of it settles', async () => {
+  const fetches: (() => void)[] = [];
+  const { getByTestId } = render(
+    <Fixed onDrop={() => new Promise<void>(r => fetches.push(r))} />,
+  );
+  const x = getByTestId('x');
+  carryToBo(x);
+  pointer('pointerup', window, 140);
+  carryToBo(x);
+  pointer('pointerup', window, 140);
+  fetches[0]();
+  await settle();
+  expect(x.style.translate).not.toBe('');
+  fetches[1]();
+  await settle();
+  expect(x.style.translate).toBe('');
+});
+
 it('puts back a row whose target group went away while carried', () => {
   const onDrop = jest.fn();
   const { getByTestId, rerender } = render(<Fixed onDrop={onDrop} />);

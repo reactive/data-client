@@ -10,6 +10,9 @@ export const springs = {
   /** Items trading places in a list (`<Reorder>`): quick off the mark, with
    * a touch of settle so a row lands rather than stops */
   brisk: { duration: 0.3, bounce: 0.1 },
+  /** An item the reader lets go, settling into its place: it was already
+   * near, in their hand, so it lands at once */
+  drop: { duration: 0.2, bounce: 0.1 },
   /** Panels and drawers that carry content; no overshoot past their edge */
   smooth: { duration: 0.4, bounce: 0 },
   /** A big surface pulled a long way, so the travel reads as deliberate:
