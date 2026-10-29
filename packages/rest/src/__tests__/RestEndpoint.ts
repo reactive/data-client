@@ -11,6 +11,7 @@ import RestEndpoint, {
   RestEndpointConstructorOptions,
   RestGenerics,
 } from '../RestEndpoint';
+import resource from '../resource';
 import {
   payload,
   createPayload,
@@ -1610,6 +1611,48 @@ describe('RestEndpoint.fetch()', () => {
     const res = await CoolerArticleResource.delete({
       id: payload.id,
     });
+    expect(res).toEqual({ id });
+  });
+
+  it('should DELETE without a body unless one is declared', async () => {
+    let lastBody: any;
+    nock(/.*/)
+      .defaultReplyHeaders({ 'Access-Control-Allow-Origin': '*' })
+      .delete('/article-cooler')
+      .query(true)
+      .times(2)
+      .reply(200, function (uri, requestBody) {
+        lastBody = requestBody;
+        return [];
+      });
+    const deleteMany = new RestEndpoint({
+      path: '/article-cooler',
+      method: 'DELETE',
+      body: [] as string[],
+    });
+    await deleteMany(['5', '13']);
+    expect(lastBody).toEqual(['5', '13']);
+    expect(deleteMany.key(['5', '13'])).toBe('DELETE /article-cooler');
+
+    const byQuery = new RestEndpoint({
+      path: '/article-cooler',
+      method: 'DELETE',
+      searchParams: {} as { ids: string },
+    });
+    await byQuery({ ids: '5,13' });
+    expect(lastBody).toBe('');
+    expect(byQuery.key({ ids: '5,13' })).toBe(
+      'DELETE /article-cooler?ids=5%2C13',
+    );
+  });
+
+  it('resource.delete sends no body when the resource declares one', async () => {
+    const PostResource = resource({
+      path: '/article-cooler/:id',
+      schema: CoolerArticle,
+      body: {} as { title: string },
+    });
+    const res = await PostResource.delete({ id: payload.id });
     expect(res).toEqual({ id });
   });
 
