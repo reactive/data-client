@@ -81,5 +81,10 @@ export function stop(el: Element) {
   glides.delete(el);
 }
 
+// same as @docusaurus/theme-common's, but safe without matchMedia (jsdom)
+export function prefersReducedMotion() {
+  return !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+}
+
 /** Sub-pixel: settles once the remaining motion is invisible */
 const PRECISION = 0.25;

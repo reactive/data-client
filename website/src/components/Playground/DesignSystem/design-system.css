@@ -63,6 +63,33 @@ div.playground-preview h1:first-child {
   letter-spacing: 0;
   color: var(--ds-text-muted);
 }
+/* A person's group (a section whose label holds their avatar): the label
+   leads in the text's color with the avatar sized to it, and a line drops
+   from the avatar's center down beside their rows, which sit under the
+   name */
+.playground-preview section:where(:has(> h3 > .avatar)) {
+  --face: 20px;
+  margin-bottom: var(--ds-space-4);
+}
+.playground-preview section > h3:has(> .avatar) {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-2);
+  color: var(--ds-text);
+}
+.playground-preview section > h3 > .avatar > img {
+  width: var(--face);
+  height: var(--face);
+}
+.playground-preview section > h3:has(> .avatar) + .list {
+  --rail: 1.5px;
+  margin-bottom: 0;
+  margin-inline-start: calc((var(--face) - var(--rail)) / 2);
+  padding-inline-start: calc(
+    (var(--face) - var(--rail)) / 2 + var(--ds-space-2)
+  );
+  border-inline-start: var(--rail) solid var(--ds-border);
+}
 /* A value that just changed: washed in the accent and ringed by it */
 .playground-preview mark {
   padding: 1px 4px;
@@ -197,9 +224,56 @@ div.playground-preview h1:first-child {
   border-radius: var(--ds-radius-sm);
   transition: background-color var(--motion-snappy);
 }
+/* an item crossing the others (`<Reorder>` moving a row or a group) or
+   carried by the reader is lifted over them on the sheet's own color, so
+   their text never overprints; a row is raised visibly. The surface is
+   opaque at once (only the shadow eases in), or the text it crosses would
+   show through it */
+.playground-preview :is([data-traveling], [data-dragging]) {
+  position: relative;
+  z-index: 1;
+  background: var(--ds-surface);
+}
+.playground-preview .listItem:is([data-traveling], [data-dragging]) {
+  background: var(--ds-raised);
+  box-shadow: var(--ds-raised-shadow);
+  transition: box-shadow var(--motion-snappy);
+}
+/* A row the reader can drag into another group (`useReorderItem` with
+   `onDrop`): a held finger lifts it rather than selecting its text */
+.playground-preview [data-draggable] {
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.playground-preview :is([data-dragging], [data-dragging] *) {
+  cursor: grabbing;
+}
+/* moved every frame by script: its own layer, so it isn't repainted */
+.playground-preview [data-dragging] {
+  will-change: translate;
+}
+/* While a row is carried, the groups it can go to are ringed just off
+   their edge, and the one under it is washed in the accent whole: the row
+   drops into the group, wherever the group's order puts it, not at a spot
+   in it */
+.playground-preview [data-drop-target] {
+  outline: 1.5px dashed var(--ds-border-strong);
+  outline-offset: var(--ds-space-1);
+  border-radius: var(--ds-radius-sm);
+  transition: outline-color var(--motion-snappy);
+}
+.playground-preview [data-drop-over] {
+  outline: 2px solid var(--ds-accent);
+  background-color: var(--ds-accent-soft);
+}
 /* touch screens skip it: a tapped row would stay lit */
 @media (hover: hover) {
-  .playground-preview .list > .listItem:is(:has(> label), button):hover {
+  .playground-preview
+    .list
+    > .listItem:is(:has(> label), button):hover:not(
+      [data-traveling],
+      [data-dragging]
+    ) {
     background: var(--ds-hover);
   }
 }
@@ -973,7 +1047,8 @@ div.playground-preview h1:first-child {
   margin: 0;
   border: 1.5px solid var(--ds-border-strong);
   border-radius: 50%;
-  background: var(--ds-surface);
+  /* hollow on any row surface: hovered, or lifted while it moves */
+  background: transparent;
   transition:
     background-color var(--motion-snappy),
     border-color var(--motion-snappy);
@@ -994,8 +1069,9 @@ div.playground-preview h1:first-child {
 .playground-preview .listItem > label > input[type='checkbox']:checked::after {
   transform: scale(1);
 }
-/* A row's trailing detail (when it was fetched, a count) sits at its end */
-.playground-preview .listItem > :is(.meta, .value):last-child {
+/* A row's trailing detail (when it was fetched, a count, its owner) sits at
+   its end */
+.playground-preview .listItem > :is(.meta, .value, .assignee):last-child {
   margin-left: auto;
 }
 /* A figure (`value`: a watchlist row's price, a table's count, a NumberFlow
@@ -1246,6 +1322,41 @@ div.playground-preview h1:first-child {
   flex: none;
   min-width: 7rem;
 }
+/* Who a row belongs to (`assignee`, a label around their avatar): a ring
+   around the face at the row's end. A `select` inside it is laid invisibly
+   over it, so the face is the picker and the browser's own menu (a phone's
+   wheel) changes it */
+/* a label, which a row would otherwise stretch like its title's */
+.playground-preview .listItem > .assignee {
+  flex: none;
+}
+.playground-preview .assignee {
+  position: relative;
+  display: flex;
+  padding: 3px;
+  border-radius: 50%;
+  transition: background-color var(--motion-snappy);
+}
+.playground-preview .assignee > select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  font: inherit;
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .playground-preview .assignee:has(> select):hover {
+    background: var(--ds-accent-soft);
+  }
+}
+.playground-preview .assignee:has(> select:focus-visible) {
+  outline: 2px solid var(--ds-accent);
+  outline-offset: 1px;
+}
+
 /* A row's remove button (CancelButton): a 16px mark at the row's end whose
    32px hit area reaches into the row's inset, so the row keeps its height */
 .playground-preview button.cancel {

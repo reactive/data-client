@@ -9,7 +9,14 @@ import React, {
   type RefObject,
 } from 'react';
 
-import { glide, velocityOf, stop, ORIGIN, type Point } from './glide';
+import {
+  glide,
+  prefersReducedMotion,
+  velocityOf,
+  stop,
+  ORIGIN,
+  type Point,
+} from './glide';
 import type { Spring } from './spring';
 import { springs } from './tokens';
 
@@ -212,11 +219,6 @@ function unpin(el: HTMLElement) {
   if (cssText === undefined) return;
   el.style.cssText = cssText;
   unpinned.delete(el);
-}
-
-// same as @docusaurus/theme-common's, but safe without matchMedia (jsdom)
-export function prefersReducedMotion() {
-  return !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 }
 
 /** Ref for an element that glides to its new place instead of jumping */

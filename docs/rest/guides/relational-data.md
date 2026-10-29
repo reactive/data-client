@@ -7,6 +7,7 @@ sidebar_label: Relational data
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { Collection, RestEndpoint } from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
+import { assigneeFixtures, getInitialInterceptorData } from '@site/src/fixtures/assignees';
 
 # Relational data
 
@@ -212,9 +213,19 @@ render(<PostPage />);
 Nesting data when your endpoint doesn't.
 
 Even if the network responses don't nest data, we can perform client-side joins by specifying
-the relationship in [Entity.schema](../api/Entity.md#schema)
+the relationship in [Entity.schema](../api/Entity.md#schema).
 
-<FrameworkPlayground row>
+Here `/todos` only sends each todo's `userId`. [Entity.process()](../api/Entity.md#process) points
+`user` at that id, so every todo in the list carries its whole `User` from `/users`. A component
+could look up one user by id itself; joining puts the user in the list, so the list can group by
+person. Assign a task to someone else (pick their face:react[, or drag the task into their group]),
+and only its new `userId` goes to the server, yet it moves to that person's group.
+
+<FrameworkPlayground
+row
+fixtures={assigneeFixtures}
+getInitialInterceptorData={getInitialInterceptorData}
+>
 
 ```ts title="resources/User" collapsed
 import { Entity, resource } from '@data-client/rest';
@@ -224,7 +235,10 @@ export class User extends Entity {
   username = '';
   name = '';
   email = '';
-  website = '';
+
+  get profileImage() {
+    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
+  }
 }
 export const UserResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
@@ -233,7 +247,7 @@ export const UserResource = resource({
 });
 ```
 
-```ts title="resources/Todo"
+```ts title="resources/Todo" {7,11-17}
 import { Entity, resource } from '@data-client/rest';
 import { User } from './User';
 
@@ -243,6 +257,8 @@ export class Todo extends Entity {
   user? = User.fromJS();
   title = '';
   completed = false;
+
+  // the API sends userId; join it to the User with that id
   static schema = {
     user: User,
   };
@@ -254,52 +270,222 @@ export const TodoResource = resource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
+  optimistic: true,
 });
 ```
 
 :::react
 
-```tsx title="TodoJoined" collapsed
-import { useFetch, useSuspense } from '@data-client/react';
-import { TodoResource } from './resources/Todo';
-import { UserResource } from './resources/User';
+```tsx title="TodoItem" collapsed
+import React from 'react';
+import { useController } from '@data-client/react';
+import { TodoResource, type Todo } from './resources/Todo';
+import type { User } from './resources/User';
 
-function TodosPage() {
-  useFetch(UserResource.getList);
-  const todos = useSuspense(TodoResource.getList);
+function TodoItem({ todo, users }: Props) {
+  const ctrl = useController();
+  const update = (body: Partial<Todo>) =>
+    ctrl.fetch(TodoResource.partialUpdate, { id: todo.id }, body);
   return (
-    <div>
-      {todos.slice(17, 24).map(todo => (
-        <div key={todo.pk()}>
-          {todo.title} by <small>{todo.user?.name}</small>
-        </div>
-      ))}
+    <div
+      className="listItem"
+      // dragged into a person's group, the todo is theirs
+      ref={useReorderItem(todo.pk(), {
+        onDrop: (userId: number) => update({ userId }),
+      })}
+    >
+      <label>
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          onChange={e => update({ completed: e.currentTarget.checked })}
+        />
+        {todo.title}
+      </label>
+      <label className="assignee">
+        {todo.user && <Avatar src={todo.user.profileImage} size={24} />}
+        <select
+          aria-label={`Owner of ${todo.title}`}
+          value={todo.userId}
+          onChange={e => update({ userId: Number(e.currentTarget.value) })}
+        >
+          {users.map(user => (
+            <option key={user.pk()} value={user.id}>
+              {user.name}
+            </option>
+          ))}
+        </select>
+      </label>
     </div>
   );
 }
-render(<TodosPage />);
+export default React.memo(TodoItem);
+
+interface Props {
+  todo: Todo;
+  users: User[];
+}
+```
+
+```tsx title="TodoGroup" collapsed
+import TodoItem from './TodoItem';
+import type { Todo } from './resources/Todo';
+import type { User } from './resources/User';
+
+export default function TodoGroup({ owner, todos, users }: Props) {
+  return (
+    <section
+      ref={useReorderItem(`owner ${owner.pk()}`, { dropValue: owner.id })}
+    >
+      <h3>
+        <Avatar src={owner.profileImage} />
+        {owner.name}
+      </h3>
+      <div className="list">
+        {todos.map(todo => (
+          <TodoItem key={todo.pk()} todo={todo} users={users} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+interface Props {
+  owner: User;
+  todos: Todo[];
+  users: User[];
+}
+```
+
+```tsx title="TodoList" collapsed {11-13}
+import { useFetch, useSuspense } from '@data-client/react';
+import { TodoResource } from './resources/Todo';
+import { UserResource } from './resources/User';
+import TodoGroup from './TodoGroup';
+
+function TodoList() {
+  // both requests start at once
+  useFetch(UserResource.getList);
+  const todos = useSuspense(TodoResource.getList);
+  const users = useSuspense(UserResource.getList);
+  // every todo carries its user, the same object as in users, so
+  // the list can group by it
+  const byOwner = Map.groupBy(todos, todo => todo.user);
+  return (
+    // rows glide to wherever a change moves them
+    <Reorder layoutDependency={todos}>
+      {users.map(user => (
+        <TodoGroup
+          key={user.pk()}
+          owner={user}
+          todos={byOwner.get(user) ?? []}
+          users={users}
+        />
+      ))}
+    </Reorder>
+  );
+}
+render(<TodoList />);
 ```
 
 :::
 
 :::vue
 
-```html title="TodoJoined.vue" collapsed
+```html title="TodoItem.vue" collapsed
 <script setup lang="ts">
-  import { useFetch, useSuspense } from '@data-client/vue';
-  import { TodoResource } from './resources/Todo';
-  import { UserResource } from './resources/User';
+  import { useController } from '@data-client/vue';
+  import { TodoResource, type Todo } from './resources/Todo';
+  import type { User } from './resources/User';
 
-  useFetch(UserResource.getList);
-  const todos = await useSuspense(TodoResource.getList);
+  const props = defineProps<{ todo: Todo; users: readonly User[] }>();
+  const ctrl = useController();
+  const update = (body: Partial<Todo>) =>
+    ctrl.fetch(TodoResource.partialUpdate, { id: props.todo.id }, body);
+  const toggle = e => update({ completed: e.currentTarget.checked });
+  const assign = e => update({ userId: Number(e.currentTarget.value) });
 </script>
 
 <template>
-  <div>
-    <div v-for="todo in todos.slice(17, 24)" :key="todo.pk()">
-      {{ todo.title }} by <small>{{ todo.user?.name }}</small>
-    </div>
+  <div class="listItem">
+    <label>
+      <input type="checkbox" :checked="todo.completed" @change="toggle" />
+      {{ todo.title }}
+    </label>
+    <label class="assignee">
+      <Avatar v-if="todo.user" :src="todo.user.profileImage" :size="24" />
+      <select
+        :aria-label="`Owner of ${todo.title}`"
+        :value="todo.userId"
+        @change="assign"
+      >
+        <option v-for="user in users" :key="user.pk()" :value="user.id">
+          {{ user.name }}
+        </option>
+      </select>
+    </label>
   </div>
+</template>
+```
+
+```html title="TodoGroup.vue" collapsed
+<script setup lang="ts">
+  import TodoItem from './TodoItem.vue';
+  import type { Todo } from './resources/Todo';
+  import type { User } from './resources/User';
+
+  defineProps<{
+    owner: User;
+    todos: readonly Todo[];
+    users: readonly User[];
+  }>();
+</script>
+
+<template>
+  <section>
+    <h3>
+      <Avatar :src="owner.profileImage" />
+      {{ owner.name }}
+    </h3>
+    <div class="list">
+      <TodoItem
+        v-for="todo in todos"
+        :key="todo.pk()"
+        :todo="todo"
+        :users="users"
+      />
+    </div>
+  </section>
+</template>
+```
+
+```html title="TodoList.vue" collapsed {12-16}
+<script setup lang="ts">
+  import { computed } from 'vue';
+  import { useFetch, useSuspense } from '@data-client/vue';
+  import { TodoResource } from './resources/Todo';
+  import { UserResource } from './resources/User';
+  import TodoGroup from './TodoGroup.vue';
+
+  // both requests start at once
+  useFetch(UserResource.getList);
+  const todos = await useSuspense(TodoResource.getList);
+  const users = await useSuspense(UserResource.getList);
+  // every todo carries its user, the same object as in users, so
+  // the list can group by it
+  const byOwner = computed(() =>
+    Map.groupBy(todos.value, todo => todo.user),
+  );
+</script>
+
+<template>
+  <TodoGroup
+    v-for="user in users"
+    :key="user.pk()"
+    :owner="user"
+    :todos="byOwner.get(user) ?? []"
+    :users="users"
+  />
 </template>
 ```
 

@@ -246,7 +246,9 @@ style to a new component.
 
 Styled elements: `h2` (page title), `button` (`primary` fills one;
 `aria-busy` shows pending), text inputs, `nav`, `fieldset`, `progress`,
-`table`.
+`table`. A `section` whose `h3` holds an `Avatar` (a person's tasks) is a
+person's group: the label leads it, the avatar sized for you, and the rows
+hang under it on a line.
 
 | Class                                      | Use for                                                                         |
 | ------------------------------------------ | ------------------------------------------------------------------------------- |
@@ -257,6 +259,7 @@ Styled elements: `h2` (page title), `button` (`primary` fills one;
 | `value`                                    | a row's figure (a price); last in a `listItem`, at the row's end, tabular       |
 | `byline`, `author` (`Avatar` takes `size`) | who wrote something                                                             |
 | `pill`                                     | a label after a name (an admin), in the accent                                  |
+| `assignee` (a `label`)                     | a row's owner: their avatar in a ring; a `select` in it is the picker           |
 | `buttonGroup`                              | segmented actions (Fail Soft, Fail Hard)                                        |
 | `segmented`                                | a filter's 2-4 choices on a track; `aria-pressed` marks the pick, a pill slides |
 | `field` (a `label`)                        | its name over the `input` or `textarea` it holds                                |
@@ -275,6 +278,14 @@ placeholder shows, the one way CSS can tell the field is empty. A text input
 in a `listItem` (a new todo) is the row's text until hovered or focused;
 give it a `placeholder` and an `aria-label`. `aria-busy` on a text input outside a row traces
 its border while its entry saves, like a busy button.
+
+A list whose rows change place (a sort, a filter, a row moving to another
+group) wraps them in `<Reorder layoutDependency={list}>` and gives each row
+`ref={useReorderItem(row.pk())}`: rows glide to their new place, whatever the
+layout. `{ onDrop }` on a row and `{ dropValue }` on a group let the reader
+drag rows into groups as well (the joins demo: a todo into its new owner's
+group, beside the `assignee` picker). These are the site's own motion
+(`../motion`).
 
 ## Auto-run
 

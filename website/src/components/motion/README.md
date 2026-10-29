@@ -12,6 +12,8 @@ Pick motion by what moves, never by milliseconds:
 | Token            | For                                         |
 | ---------------- | ------------------------------------------- |
 | `springs.snappy` | small, light things: arrows, chips, toggles |
+| `springs.brisk`  | items trading places in a list (`Reorder`)  |
+| `springs.drop`   | an item the reader lets go, into its place  |
 | `springs.smooth` | panels and drawers that carry content       |
 
 **CSS transitions** (state changes styled by a class, like a rotating arrow):
@@ -47,6 +49,47 @@ function Handle() {
   return <div ref={ref} className={styles.handle} />;
 }
 ```
+
+**Lists that rearrange** (a sort, a filter, a row moving to another group):
+
+```tsx
+import { Reorder, useReorderItem } from '../motion';
+
+function Board({ todos }: { todos: Todo[] }) {
+  const byOwner = Map.groupBy(todos, todo => todo.userId);
+  return (
+    // where the list is read; it renders no element of its own
+    <Reorder layoutDependency={todos}>
+      {[...byOwner].map(([userId, ownerTodos]) => (
+        <Group key={userId} userId={userId} todos={ownerTodos} />
+      ))}
+    </Reorder>
+  );
+}
+
+function Row({ todo }: { todo: Todo }) {
+  // keyed by id, so the row is followed when React remounts it in another group
+  return <li ref={useReorderItem(todo.id)}>{todo.title}</li>;
+}
+```
+
+Items are found by key, not by element, so a row React remounts under a new
+parent still glides there from where it was. An item inside another moving
+item (a row in a group that moves) rides along and travels only the rest of
+the way; a new key fades in. Items crossing the others (moving at least half
+as far as the farthest) carry `data-traveling` until they land, for a style that lifts them over the rest
+(`position: relative`, a `z-index`, a background). Use `MotionGroup` where things open and close in
+place, `Reorder` where items change places.
+
+**Dragging into groups**: `useReorderItem(id, { onDrop })` lets the reader
+drag an item, and `useReorderItem(key, { dropValue })` makes an item a group
+to drop it in; `onDrop` gets that group's `dropValue`. The item waits where
+it was let go until the list changes (then glides on from there), or until
+the promise `onDrop` returns settles without a change (then goes home). A mouse lifts it once it moves,
+a finger after a short still hold (a swipe still scrolls); presses on its
+controls stay theirs, and Escape puts it back. While carried it is
+`data-dragging`, the groups it can go to `data-drop-target` and the one under
+it `data-drop-over`. A drop lands in the group, not at a place in it.
 
 `Reveal` follows the flex direction, so a panel that slides in sideways on
 desktop rises from the bottom when a container query stacks it. It slides
@@ -89,6 +132,11 @@ css.ts            global CSS (springs as custom properties, Reveal's box),
 glide.ts          runs and retargets one element's translate (Web Animations)
 MotionGroup.tsx   measures before/after a commit; drives members; useLayoutMotion
 Reveal.tsx        presence: mount, slide in, slide out, hide (state kept)
+reorder.ts        lists that rearrange, DOM only: measure, then glide items by key
+drag.ts           carrying an element under the pointer, DOM only
+groups.ts         where a carried element can drop: whole groups (data-drop-*)
+Reorder.tsx       its React binding: measures when layoutDependency changes;
+                  useReorderItem; drag into groups
 ```
 
 Tests: `yarn test --selectProjects ReactDOM --testPathPatterns website/src/components/motion`
