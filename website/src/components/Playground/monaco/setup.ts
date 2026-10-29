@@ -15,12 +15,9 @@ import { injectMonacoResourceHints } from './resourceHints';
 import { shieldEditorsFromSearchHotkey } from './searchHotkey';
 import { recheckSiblingsOnChange } from './siblingDiagnostics';
 import { definePrismTheme } from './theme';
+import { ignoreTopLevelAwaitWhereAllowed } from './topLevelAwait';
 import typeCheckFlags from './typeCheckFlags.json';
 import { addTypeLibs, fetchTypeLibs } from './typeLibs';
-
-/** TS1375: 'await' expressions are only allowed at the top level of a file
- * when that file is a module */
-const TOP_LEVEL_AWAIT_IN_SCRIPT = 1375;
 
 if (typeof window !== 'undefined' && !isMobileOrBot()) {
   injectMonacoResourceHints();
@@ -51,16 +48,10 @@ if (typeof window !== 'undefined' && !isMobileOrBot()) {
       allowSyntheticDefaultImports: true,
       skipDefaultLibCheck: true,
     });
-    monaco.typescript.typescriptDefaults.setDiagnosticsOptions({
-      ...monaco.typescript.typescriptDefaults.getDiagnosticsOptions(),
-      // EndpointPlayground's code runs as an async function, so it may
-      // `await` at the top level even in a file without imports, which TS
-      // reads as a script (modules never raise this)
-      diagnosticCodesToIgnore: [TOP_LEVEL_AWAIT_IN_SCRIPT],
-    });
     definePrismTheme(monaco);
     registerImportCompletions(monaco);
     recheckSiblingsOnChange(monaco);
+    ignoreTopLevelAwaitWhereAllowed(monaco);
 
     addTypeLibs(monaco, await typeLibsPromise);
     monaco.typescript.typescriptDefaults.setEagerModelSync(true);

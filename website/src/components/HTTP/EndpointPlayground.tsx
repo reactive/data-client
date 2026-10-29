@@ -48,6 +48,7 @@ export default function EndpointPlayground(props: Props) {
           layout="row"
           variant="standalone"
           interactive={interactive}
+          topLevelAwait
         />
         {'input' in props ?
           <div className={folder}>
