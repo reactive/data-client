@@ -438,6 +438,7 @@ const GroupRow = memo(function GroupRow({
         aria-expanded={open}
         aria-current={!!marked || undefined}
         data-cause={cause || undefined}
+        data-steps={steps || undefined}
         data-id={rowId(group)}
         data-seq={seq}
         data-scope={scope}
@@ -458,7 +459,7 @@ const GroupRow = memo(function GroupRow({
               }}
               onKeyDown={e => e.stopPropagation()}
             >
-              ▸
+              <span className={styles.stepsArrow}>▸</span>
             </button>
           )}
           {group.kind === 'single' && <TypeName entry={first} />}
