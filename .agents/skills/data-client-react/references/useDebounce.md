@@ -6,7 +6,7 @@ Delays updating the parameters by [debouncing](https://css-tricks.com/debouncing
 
 Useful to avoid spamming network requests when parameters might change quickly (like a typeahead field).
 
-To fetch at once and abort the previous fetch, use [useCancelling()](https://dataclient.io/docs/api/useCancelling#usecancelling-or-usedebounce).
+To fetch at once and abort the previous fetch, use [useCancelling()](https://dataclient.io/docs/api/useCancelling#cancel-vs-debounce).
 
 > **Tip: React 18+**
 >

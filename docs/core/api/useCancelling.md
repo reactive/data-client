@@ -27,7 +27,7 @@ which means you might end up canceling a fetch that another component still care
 
 :::
 
-## useCancelling() or useDebounce()?
+## Cancel vs Debounce
 
 Use `useCancelling()` when the user stops on each value, like a list they arrow through. It fetches at
 once and aborts the previous fetch.

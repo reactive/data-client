@@ -34,7 +34,7 @@ Useful to avoid spamming network requests when parameters might change quickly (
 
 ::::react
 
-To fetch at once and abort the previous fetch, use [useCancelling()](./useCancelling.md#usecancelling-or-usedebounce).
+To fetch at once and abort the previous fetch, use [useCancelling()](./useCancelling.md#cancel-vs-debounce).
 
 :::tip[React 18+]
 
