@@ -114,9 +114,8 @@
   }
   .schemaTable tr {
     display: grid;
-    /* each row is its own grid, so the mark columns are fixed to line up with
-     * their headers; a name too long to fit scrolls instead of running under them */
-    grid-template-columns: minmax(min-content, 1fr) 4rem 5rem;
+    /* each row is its own grid; fixed mark columns line up with their headers */
+    grid-template-columns: minmax(0, 1fr) 4rem 5rem;
     align-items: start;
   }
   .schemaTable th {
@@ -158,10 +157,14 @@
     grid-area: 2 / 2;
     text-align: center;
   }
+  /* no right padding: the name can run up to the centered marks. Below a
+   * ~286px doc column the longest names break rather than run under them */
   .schemaTable td:nth-last-child(3) {
     grid-area: 2 / 1;
     padding-top: 0.5rem;
     padding-right: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
   .schemaTable td:nth-last-child(2) {
     grid-area: 3 / 1 / 4 / 3;
@@ -189,10 +192,10 @@
   .schemaTable tbody tr:last-child {
     padding-bottom: 0.6rem;
   }
-}
-/* the longest names fit a 320px phone */
-@container doc (max-width: 320px) {
-  .schemaTable td:nth-last-child(3) {
-    font-size: 0.75rem;
+  /* the doc column of a 320px phone: smaller names so the longest fit */
+  @container doc (max-width: 306px) {
+    .schemaTable td:nth-last-child(3) {
+      font-size: 0.75rem;
+    }
   }
 }
