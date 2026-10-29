@@ -25,6 +25,6 @@ A demo soft-sells Data Client first and teaches users and agents how to use it s
 - Loading states are skeletons (`<Loading />`, `skeleton`), not "Loading…" text.
 - A demo of a real public API calls its real URL, intercepted by a fixture in `website/src/fixtures/`, so copied code works.
 - The code follows the practices a careful app would, even where the demo could skip them, because readers copy it.
-- Use the `row` layout when the code is the lesson. Use `demo`, which hides the code, only when the point is purely visual, and ask the user first.
+- Use the `row` layout, with one uncollapsed file, when the code is the lesson. Use `demo`, which hides the code, only when the point is purely visual, and ask the user first.
 - Anything extra a demo needs goes in the demo code with a design-system component, never a new Playground prop.
 - Check phone width and both themes.

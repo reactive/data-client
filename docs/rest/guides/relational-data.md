@@ -261,7 +261,7 @@ export const UserResource = resource({
 });
 ```
 
-```ts title="resources/Todo" collapsed {7,11-17}
+```ts title="resources/Todo" {7,11-17}
 import { Entity, resource } from '@data-client/rest';
 import { User } from './User';
 
@@ -363,7 +363,7 @@ interface Props {
 }
 ```
 
-```tsx title="TodoList" {11-12}
+```tsx title="TodoList" collapsed {11-12}
 import { useFetch, useSuspense } from '@data-client/react';
 import { TodoResource } from './resources/Todo';
 import { UserResource } from './resources/User';
@@ -464,7 +464,7 @@ render(<TodoList />);
 </template>
 ```
 
-```html title="TodoList.vue" {12-15}
+```html title="TodoList.vue" collapsed {12-15}
 <script setup lang="ts">
   import { computed } from 'vue';
   import { useFetch, useSuspense } from '@data-client/vue';
