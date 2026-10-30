@@ -209,6 +209,8 @@ const sameView = (a: LevelView, b: LevelView) =>
     ('table' in a ? a.table : undefined) ===
       ('table' in b ? b.table : undefined) &&
     ('pks' in a && !!a.pks) === ('pks' in b && !!b.pks) &&
+    // a field keyed `Endpoints` with no owner is no endpoint list
+    'endpoints' in a === 'endpoints' in b &&
     a.of === b.of
   : a.kind === b.kind && a.kind === 'root';
 
