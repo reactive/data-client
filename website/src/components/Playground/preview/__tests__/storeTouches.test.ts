@@ -1,11 +1,11 @@
 /// <reference types="jest" />
 import { touches, type Change } from '../store/actionGroups';
-import { entityId } from '../store/model';
+import { endpointId, entityId } from '../store/model';
 import { ENDPOINTS, tableList } from '../store/nav';
 
 const endpointChange: Change = {
   kind: 'updated',
-  id: 'endpoint:GET /posts',
+  id: endpointId('GET /posts'),
   endpoint: 'GET /posts',
 };
 const rowChange: Change = {
@@ -25,5 +25,9 @@ describe('touches', () => {
     expect(touches(tableList('Post'), rowChange)).toBe(true);
     expect(touches(tableList('User'), rowChange)).toBe(false);
     expect(touches(tableList('Post'), endpointChange)).toBe(false);
+    // a list of some rows counts only theirs
+    const some = { ...tableList('Post'), pks: ['2'] };
+    expect(touches(some, rowChange)).toBe(false);
+    expect(touches({ ...some, pks: ['1'] }, rowChange)).toBe(true);
   });
 });
