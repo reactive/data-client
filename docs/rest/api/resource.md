@@ -329,7 +329,7 @@ PostResource.get({
 
 </EndpointPlayground>
 
-<MethodInfo>
+<MethodInfo method="GET">
 
 | Field  | Value             |
 | :----: | ----------------- |
@@ -379,7 +379,7 @@ PostResource.getList({
 
 </EndpointPlayground>
 
-<MethodInfo>
+<MethodInfo method="GET">
 
 |      Field      | Value                                                |
 | :-------------: | ---------------------------------------------------- |
@@ -442,7 +442,7 @@ PostResource.getList.push(
 
 </EndpointPlayground>
 
-<MethodInfo>
+<MethodInfo method="POST">
 
 |    Field     | Value                                       |
 | :----------: | ------------------------------------------- |
@@ -494,7 +494,7 @@ PostResource.getList.unshift(
 
 </EndpointPlayground>
 
-<MethodInfo>
+<MethodInfo method="POST">
 
 |    Field     | Value                                             |
 | :----------: | ------------------------------------------------- |
@@ -550,7 +550,7 @@ PostResource.getList.getPage({
 
 </EndpointPlayground>
 
-<MethodInfo>
+<MethodInfo method="GET">
 
 |      Field      | Value                                               |
 | :-------------: | --------------------------------------------------- |
@@ -605,7 +605,7 @@ PostResource.getList.move(
 
 </EndpointPlayground>
 
-<MethodInfo>
+<MethodInfo method="PATCH">
 
 |    Field     | Value                                       |
 | :----------: | ------------------------------------------- |
@@ -656,7 +656,7 @@ PostResource.update(
 
 </EndpointPlayground>
 
-<MethodInfo>
+<MethodInfo method="PUT">
 
 | Field  | Value             |
 | :----: | ----------------- |
@@ -707,7 +707,7 @@ PostResource.partialUpdate(
 
 </EndpointPlayground>
 
-<MethodInfo>
+<MethodInfo method="PATCH">
 
 | Field  | Value             |
 | :----: | ----------------- |
@@ -755,7 +755,7 @@ PostResource.delete({ group: 'react', id: '1' });
 
 </EndpointPlayground>
 
-<MethodInfo>
+<MethodInfo method="DELETE">
 
 |  Field  | Value                                            |
 | :-----: | ------------------------------------------------ |
