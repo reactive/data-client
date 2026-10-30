@@ -11,7 +11,7 @@ export const FENCED = /(^```[\s\S]*?^```)/m;
 /**
  * `content` rendered for `framework`, written with the docs' markers
  * (website/framework-docs/README.md) but applied to the text as written, so the
- * output keeps the source's exact markdown: `vue_<key>` front matter overrides
+ * output keeps the source's exact markdown (with LF line endings): `vue_<key>` front matter overrides
  * `<key>`; lines between `:::react` / `:::vue` and `:::` are kept for that
  * framework only (the marker lines are dropped, so blocks can sit inside
  * lists); `:react[...]` / `:vue[...]` pick inline text outside code fences.
@@ -20,6 +20,7 @@ export const FENCED = /(^```[\s\S]*?^```)/m;
  * `where` names the source in errors.
  */
 export function renderSkillMd(content, framework, where) {
+  // a CRLF checkout must render the same LF output
   content = content.replace(/\r\n?/g, '\n');
   const other = FRAMEWORKS.filter(f => f !== framework).join('|');
   const [frontMatter] =
