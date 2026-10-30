@@ -1,48 +1,20 @@
 /* columns: [data type (rowSpan, first row of a group)], mutable, schema, description, queryable */
 .schemaTable {
-  --hairline: 1px solid var(--ifm-color-emphasis-200);
+  --hairline: 1px solid var(--ifm-table-border-color);
   margin: 1.25rem 0 2rem;
 }
 
+/* separate borders: Infima's `table tr` line (the row hairline root.css keeps)
+ * doesn't draw here, so only the cells over each group get one */
 .schemaTable table {
-  font-size: 0.9375rem;
   border-collapse: separate;
   border-spacing: 0;
 }
-.schemaTable :is(thead, th, td) {
-  border: 0;
-  background: none;
-}
-/* doubled to beat Infima's `table tr:nth-child(2n)` stripes */
-.schemaTable.schemaTable tr {
-  border: 0;
-  background: none;
-}
 
-.schemaTable th {
-  padding: 0 0.75rem 0.6rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  text-align: left;
-  white-space: nowrap;
-  color: var(--ifm-color-emphasis-600);
-}
-.schemaTable th a {
-  color: inherit;
-  text-decoration: underline dotted;
-  text-underline-offset: 3px;
-}
 .schemaTable th:is(:nth-child(2), :nth-child(5)) {
   text-align: center;
 }
 
-.schemaTable td {
-  padding: 0.55rem 0.75rem;
-  vertical-align: baseline;
-  color: var(--ifm-color-emphasis-800);
-}
 .schemaTable td code {
   white-space: nowrap;
 }
@@ -63,30 +35,6 @@
   white-space: nowrap;
 }
 
-/* ✅/🛑 stay in the text for screen readers and copying, drawn as a check or a dash */
-.schemaTable td[data-mark] {
-  font-size: 0;
-  vertical-align: middle;
-}
-.schemaTable td[data-mark]::before {
-  content: '';
-  display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  background: var(--ifm-color-primary);
-  /* AgentPrompt's CheckIcon */
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 6 9 17l-5-5' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
-    center / contain no-repeat;
-}
-.schemaTable td[data-mark='no']::before {
-  width: 0.6rem;
-  height: 2px;
-  border-radius: 1px;
-  background: var(--ifm-color-emphasis-400);
-  mask: none;
-  vertical-align: middle;
-}
-
 /* a hairline over each data type is the only line */
 @container doc (min-width: 641px) {
   .schemaTable tbody tr:has(td[rowspan]) td {
@@ -98,13 +46,6 @@
     padding-bottom: 0.9rem;
   }
 }
-@media (hover: hover) {
-  @container doc (min-width: 641px) {
-    .schemaTable tbody tr:hover td:not([rowspan]) {
-      background: color-mix(in srgb, var(--ifm-color-primary) 6%, transparent);
-    }
-  }
-}
 
 /* narrow: each row stacks its schema over its description with both marks on
  * the right, and the data type labels its group, so nothing scrolls sideways */
@@ -113,6 +54,7 @@
     display: block;
   }
   .schemaTable tr {
+    border: 0;
     display: grid;
     /* each row is its own grid; fixed mark columns line up with their headers */
     grid-template-columns: minmax(0, 1fr) 4rem 5rem;
@@ -148,6 +90,10 @@
 
   .schemaTable td {
     padding: 0 0.75rem;
+  }
+  /* stacked rows aren't highlighted */
+  .schemaTable tbody tr:hover td {
+    background: none;
   }
   .schemaTable td[rowspan] {
     grid-area: 1 / 1 / 2 / -1;
