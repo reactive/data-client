@@ -37,16 +37,6 @@
   display: block;
   font: 0.875rem / 1.5rem var(--ifm-font-family-monospace);
 }
-/* the keys label each row; the header stays for screen readers
- * (SchemaTable.module.css's visually hidden recipe) */
-.methodInfo thead {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
 .methodInfo tbody {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
@@ -69,9 +59,17 @@
   color: var(--ifm-color-emphasis-600);
 }
 
-/* the request line: the method's value under the path's, both across the card */
+/* the request line: the method's value under the path's, both across the
+ * card. Their keys, like the header, stay only for screen readers */
+.methodInfo thead,
 .methodInfo tr:nth-child(-n + 2) td:first-child {
-  display: none;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .methodInfo tr:nth-child(-n + 2) td:last-child {
   grid-area: 1 / 1 / 2 / -1;
@@ -86,7 +84,8 @@
   font-size: 0;
 }
 .methodInfo tr:nth-child(1) td:last-child::before {
-  content: var(--method);
+  /* empty alt text: screen readers read the cell's own 'GET' */
+  content: var(--method) / '';
   font: 700 0.75rem / 1.5rem var(--ifm-font-family-base);
   letter-spacing: 0.06em;
   color: var(--verb);
