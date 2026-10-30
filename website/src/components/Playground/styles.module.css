@@ -439,10 +439,9 @@ div.playgroundTextEdit > .playgroundHeader,
    edge by its foot (stacked, out of its top edge). Pulled, the layer slides
    out over the code card and its tabs with the Store on it, the handle
    leading, until it covers them edge to edge, the handle out past the
-   playground's edge, drawn out. The code card
-   stretches toward a taller preview by at most 6rem (so a tall preview
-   doesn't drag a short file down the page): its content and a foot that
-   grows to fill at most 6rem, on one paper with one shadow. The folder is
+   playground's edge, drawn out. The code card ends at its code, however
+   tall the preview (a tall preview doesn't drag a short file down the
+   page), its content and foot on one paper with one shadow. The folder is
    as tall as the row, since the Store's layer parks behind it: the app's
    sheet ends at its content, the folder on below it */
 .playgroundContainer.row {
@@ -457,8 +456,6 @@ div.playgroundTextEdit > .playgroundHeader,
   --pg-tab-length: 3rem;
   /* the height of the row's loading page (a skeleton title and paragraph) */
   --pg-pending-sheet: 8.5rem;
-  /* how far the code card reaches toward a taller preview's foot */
-  --pg-card-foot: 6rem;
   /* the folder's header is narrower than its content: inset by this at
      each free side, its paper flaring out (concave, a circle's arc) to meet
      the content's corner (convex, as round as the code card's) partway
@@ -574,9 +571,8 @@ div.playgroundTextEdit > .playgroundHeader,
   outline-offset: -2px;
 }
 /* the code card: the file shown and its foot (see the top), one box with
-   one shadow. Its foot is padding: with the code's empty gutter, at least a
-   corner's depth (wide, as deep as a taller row lets it, up to
-   --pg-card-foot) */
+   one shadow. Its foot is padding: with the code's empty gutter, a corner's
+   depth */
 .row .editorDocs {
   display: flex;
   flex-direction: column;
@@ -1567,18 +1563,11 @@ div.fixtureJson + div.fixtureJson {
   .row > .playgroundTextEdit > .tabControls {
     grid-row: 1;
   }
+  /* ends at its code, however tall the preview beside it */
   .row .editorDocs {
     grid-row: 2;
     align-self: start;
     max-height: 100%;
-  }
-  /* beside a preview, the code card grows toward a taller one by at most
-     --pg-card-foot: its padding is that far, the row's height (max-height)
-     caps it, and its margin keeps the padding out of the height it asks of
-     the row. Elsewhere (an HTTP exchange, no preview) it ends at its code */
-  .row:has(> .previewWrapper) .editorDocs {
-    padding-bottom: calc(var(--pg-card-foot) - var(--pg-gutter-cut));
-    margin-bottom: calc(var(--pg-card-radius) - var(--pg-card-foot));
   }
   /* the preview's column, or what a playground puts in its place (../HTTP) */
   .row > :is(.previewWrapper, .previewSlot) {
