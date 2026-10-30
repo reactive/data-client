@@ -1,14 +1,15 @@
 ---
 description: Keep agent skills (.agents/skills) in sync when docs or public APIs change
-globs: docs/**, .agents/skills/**, packages/*/src/index.ts
+globs: docs/**, .agents/skills/**, .agents/skill-sources/**, packages/*/src/index.ts
 alwaysApply: false
 ---
 
 # Skills sync
 
-Skill `references/*.md` files listed in a skill's `references.json` are generated from `docs/` by `yarn build:skills` (an agent hook runs it before `git push`; the `regenerate` CI check fails on drift and on dead `references/` links in `SKILL.md`). Everything else in a skill (`SKILL.md`, references without the generated header) is hand-written and only changes when you change it. A skill's `references.json` can also list `skills` to bundle: their `SKILL.md`, references and scripts are copied (with the generated header) under its `references/`, so edit the source skill and regenerate.
+Skill `references/*.md` files listed in a skill's `references.json` are generated from `docs/` by `yarn build:skills` (an agent hook runs it before `git push`; the `regenerate` CI check fails on drift and on dead `references/` links in `SKILL.md`). A `SKILL.md` whose skill's `references.json` names a `skillMd` source is generated too (it has the generated header). Everything else in a skill (other `SKILL.md` files, references without the generated header) is hand-written and only changes when you change it. A skill's `references.json` can also list `skills` to bundle: their `SKILL.md`, references and scripts are copied (with the generated header) under its `references/`, so edit the source skill and regenerate.
 
 - **Editing a doc**: never edit the generated reference. Edit the doc; references regenerate.
+- **Editing a generated `SKILL.md`** (data-client-react and data-client-vue share `.agents/skill-sources/data-client-framework.md`): edit the source and run `yarn build:skills`. Shared text is written once; `:::react` / `:::vue` lines wrap one framework's lines (they can split a list), `:react[...]` / `:vue[...]` pick inline text, and `vue_<key>` front matter overrides `<key>`. Unlike docs, the source is markdown kept as written, not MDX.
 - **Adding a doc**: if a skill covers that API or topic (match by skill `description`), add the page to its `references.json` and link it from the skill's reference list in `SKILL.md`. New partials (`_foo.mdx`) need nothing; they're inlined.
 - **Renaming, moving or deleting a doc**: update every `references.json` entry and `SKILL.md` link to it (`grep -rn '<old path or name>' .agents/skills`). The generator fails on a missing source.
 - **Changing a public API** (rename, signature, new option, deprecation): grep `.agents/skills` for the old name and update `SKILL.md` examples and hand-written references in the same PR. Generated references only follow the docs.

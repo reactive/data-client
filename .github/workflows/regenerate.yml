@@ -29,6 +29,7 @@ on:
       - 'tsconfig*.json'
       - 'docs/**'
       - '.agents/skills/**'
+      - '.agents/skill-sources/**'
       - 'website/framework-docs/**'
       - 'website/scripts/workspaceSources.mjs'
       - '.gitattributes'

@@ -16,14 +16,18 @@
  * it installed: its SKILL.md body becomes `references/other-skill.md` and its
  * other files (references, scripts) are copied under `references/other-skill/`.
  *
+ * `"skillMd": ".agents/skill-sources/foo.md"` generates SKILL.md itself from a
+ * source shared with other skills, rendered for this skill's first framework
+ * (see renderSkillMd).
+ *
  * Usage: node website/framework-docs/skillReferences.mjs
  */
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { frameworkInstance } from './docsInstances.js';
+import { FRAMEWORKS, frameworkInstance } from './docsInstances.js';
 import { docToMarkdown, routeOf } from './docsToMarkdown.mjs';
-import { FM, walk } from './index.js';
+import { FM, rewriteFrontMatter, walk } from './index.js';
 import { ROOT, SITE, git, rel } from './site.mjs';
 
 const SKILLS = path.join(ROOT, '.agents/skills');
@@ -74,6 +78,84 @@ const localRoutesFor = (docs, framework) =>
       .map(([name, doc]) => [routeOf(path.join(ROOT, doc), framework), name]),
   );
 
+/**
+ * A SKILL.md source rendered for one framework, written with the docs' markers
+ * (website/framework-docs/README.md) but applied to the text as written, so the
+ * output keeps the source's exact markdown: `vue_<key>` front matter overrides
+ * `<key>`; `:::react` / `:::vue` lines open a block that the next line of as
+ * many colons closes (the marker lines are dropped, so blocks can sit inside
+ * lists); `:react[...]` / `:vue[...]` pick inline text outside code fences.
+ */
+function renderSkillMd(source, framework) {
+  const other = FRAMEWORKS.filter(f => f !== framework).join('|');
+  const content = rewriteFrontMatter(fs.readFileSync(source, 'utf8'), framework)
+    // other frameworks' overrides
+    .replace(FM, fm => fm.replace(new RegExp(`^(${other})_.*\\n`, 'gm'), ''));
+  const [frontMatter] = content.match(FM);
+  const firstLine = frontMatter.split('\n').length;
+  // runs of prose and of fenced code, so inline markers can wrap lines
+  const runs = [];
+  let block, fence;
+  for (const [i, line] of content
+    .slice(frontMatter.length)
+    .split('\n')
+    .entries()) {
+    const where = `${rel(source)}:${firstLine + i}`;
+    const isFence = /^\s*(```|~~~)/.test(line);
+    if (!fence && block && line === block.colons) {
+      block = undefined;
+      continue;
+    }
+    if (!fence && line.startsWith(':::')) {
+      const [, colons, name] = line.match(/^(:{3,})(\w+)\s*$/) ?? [];
+      if (!FRAMEWORKS.includes(name))
+        throw new Error(
+          `${where}: only :::react and :::vue blocks are supported`,
+        );
+      if (block) throw new Error(`${where}: framework blocks can't nest`);
+      block = { colons, name };
+      continue;
+    }
+    const code = Boolean(fence || isFence);
+    if (isFence)
+      fence =
+        !fence ? line.trimStart().slice(0, 3)
+        : line.trimStart().startsWith(fence) ? undefined
+        : fence;
+    if (block && block.name !== framework) continue;
+    if (runs.at(-1)?.code === code) runs.at(-1).lines.push(line);
+    else runs.push({ code, lines: [line], where });
+  }
+  if (block) throw new Error(`${rel(source)}: unclosed :::${block.name}`);
+  const body = runs
+    .map(({ code, lines, where }) =>
+      code ?
+        lines.join('\n')
+      : inlineFrameworks(lines.join('\n'), framework, where),
+    )
+    .join('\n');
+  const header = `<!-- ${GENERATED} ${rel(source)} (${framework}). Edit the source, not this file. -->`;
+  return `${frontMatter}${header}\n${body}`;
+}
+
+/** `:react[...]` / `:vue[...]` in prose: this framework's text, without the marker */
+function inlineFrameworks(text, framework, where) {
+  const marker = new RegExp(`:(${FRAMEWORKS.join('|')})\\[`, 'g');
+  let out = '';
+  let from = 0;
+  for (let match; (match = marker.exec(text));) {
+    let depth = 1;
+    let end = marker.lastIndex;
+    for (; end < text.length && depth; end++)
+      depth += { '[': 1, ']': -1 }[text[end]] ?? 0;
+    if (depth) throw new Error(`${where}: unclosed :${match[1]}[`);
+    out += text.slice(from, match.index);
+    if (match[1] === framework) out += text.slice(marker.lastIndex, end - 1);
+    from = marker.lastIndex = end;
+  }
+  return out + text.slice(from);
+}
+
 const generated = new Map();
 
 /** Map of reference path -> content for one skill; undefined without a manifest */
@@ -85,8 +167,22 @@ function generateSkill(skillDir) {
   return generated.get(skillDir);
 }
 
-function buildSkill(skillDir, { frameworks, docs, files = {}, skills = [] }) {
+function buildSkill(
+  skillDir,
+  { frameworks, docs, files = {}, skills = [], skillMd },
+) {
   const out = new Map();
+  if (skillMd) {
+    const source = path.join(ROOT, skillMd);
+    if (!fs.existsSync(source))
+      throw new Error(
+        `${rel(skillDir)}/${MANIFEST}: ${skillMd} does not exist`,
+      );
+    out.set(
+      path.join(skillDir, 'SKILL.md'),
+      renderSkillMd(source, frameworks[0]),
+    );
+  }
   // framework that rendered each file
   const renderedBy = new Map();
   for (const doc of Object.values(docs)) {
@@ -183,9 +279,14 @@ function bundleSkill(sourceDir, skillDir, out) {
   const skillMd = path.join(sourceDir, 'SKILL.md');
   if (!fs.existsSync(skillMd))
     throw new Error(`${rel(skillDir)}/${MANIFEST}: no skill ${skill}`);
-  const body = fs
-    .readFileSync(skillMd, 'utf8')
+  // its generated references come from their sources, so they can't be stale
+  const sourceGenerated = generateSkill(sourceDir) ?? new Map();
+  const body = (
+    sourceGenerated.get(skillMd) ?? fs.readFileSync(skillMd, 'utf8')
+  )
     .replace(FM, '')
+    // a generated SKILL.md's header; withHeader names the copy's source
+    .replace(/^<!--.*\n/, line => (isGenerated(line) ? '' : line))
     .trimStart()
     // relative links now resolve from references/, next to the copied files;
     // fenced code (odd split indexes) is left as is
@@ -197,10 +298,9 @@ function bundleSkill(sourceDir, skillDir, out) {
     )
     .join('');
   out.set(`${dest}.md`, withHeader(skillMd, body));
-  // its generated references come from their sources, so they can't be stale
-  const sourceGenerated = generateSkill(sourceDir) ?? new Map();
   for (const [file, content] of sourceGenerated)
-    out.set(path.join(dest, path.relative(sourceDir, file)), content);
+    if (file !== skillMd)
+      out.set(path.join(dest, path.relative(sourceDir, file)), content);
   for (const name of walk(sourceDir)) {
     const file = path.join(sourceDir, name);
     if (name === 'SKILL.md' || name === MANIFEST || sourceGenerated.has(file))
@@ -229,6 +329,9 @@ for (const skill of fs.readdirSync(SKILLS).sort()) {
   const out = generateSkill(skillDir);
   if (!out) continue;
   const current = generatedFiles(path.join(skillDir, 'references'));
+  const skillMd = path.join(skillDir, 'SKILL.md');
+  if (out.has(skillMd) && fs.existsSync(skillMd))
+    current.set(skillMd, fs.readFileSync(skillMd, 'utf8'));
   for (const file of current.keys())
     if (!out.has(file)) changes.push([file, null]);
   for (const [file, content] of out)

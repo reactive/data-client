@@ -39,7 +39,7 @@ const commitsAll =
     command.replace(/"(?:\\.|[^"\\])*"|'[^']*'/g, "''"),
   );
 
-/** Docs some skill renders or source files it copies, and skills another bundles */
+/** Docs some skill renders, source files it copies or its SKILL.md source, and skills another bundles */
 let skillDocs, bundledSkills;
 function readManifests() {
   const skills = path.join(projectDir, '.agents/skills');
@@ -49,9 +49,10 @@ function readManifests() {
     .filter(manifest => fs.existsSync(manifest))
     .map(manifest => JSON.parse(fs.readFileSync(manifest, 'utf8')));
   skillDocs = new Set(
-    manifests.flatMap(({ docs, files = {} }) => [
+    manifests.flatMap(({ docs, files = {}, skillMd }) => [
       ...Object.values(docs),
       ...Object.values(files),
+      ...(skillMd ? [skillMd] : []),
     ]),
   );
   bundledSkills = new Set(manifests.flatMap(({ skills = [] }) => skills));
@@ -224,7 +225,7 @@ const message = [
     script: 'website/framework-docs/skillReferences.mjs',
     command: 'yarn build:skills',
     isInput: isSkillInput,
-    outputs: ['.agents/skills/*/references/*'],
+    outputs: ['.agents/skills/*/references/*', '.agents/skills/*/SKILL.md'],
   }),
   ...regenerate({
     what: 'Claude Code rules',
