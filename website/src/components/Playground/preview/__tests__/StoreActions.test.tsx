@@ -36,6 +36,7 @@ import ActionLog, {
   type LogEntry,
   type LogOptions,
 } from '../store/actionLog';
+import { byData } from '../store/dom';
 import { endpointId, entityId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
@@ -1491,10 +1492,7 @@ describe('Store diff', () => {
       ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
     );
     fireEvent.click(screen.getByLabelText('Tree view'));
-    const post = () =>
-      [...top().querySelectorAll<HTMLElement>('[data-id]')].find(
-        el => el.dataset.id === entityId('Post', '1'),
-      )!;
+    const post = () => byData(top(), 'id', entityId('Post', '1'))!;
     fireEvent.click(post());
     expect(post().getAttribute('aria-expanded')).toBe('true');
     // the diff shows the tree anew, with only the changed row

@@ -755,7 +755,7 @@ export default function StorePanel({
                         hidden={tab !== 'action'}
                       />
                       <StoreViewContext.Provider value={view}>
-                        <TreeStateProvider model={model}>
+                        <TreeStateProvider>
                           <Levels
                             model={model}
                             width={width}

@@ -1,5 +1,11 @@
 import clsx from 'clsx';
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import { EndpointDetail, EntityDetail, Status } from './Details';
 import { changeProps, onActivateKey } from './dom';
@@ -42,7 +48,14 @@ import { splitKey } from '../../splitKey';
 export default function TreeView() {
   const { model } = useNav();
   const shown = useShownSections(model);
-  const { section, groupDefaults } = useTreeState();
+  const { section, groupDefaults: known, setGroupDefaults } = useTreeState();
+  // a group's default is fixed when it first appears in a tree, so tables
+  // arriving later (Suspense loads them one by one) never reshuffle what is
+  // open; recorded after render, so this one shows them as they will be
+  const groupDefaults = withNewGroups(known, model.tables);
+  useLayoutEffect(() => {
+    if (groupDefaults !== known) setGroupDefaults(groupDefaults);
+  }, [groupDefaults, known, setGroupDefaults]);
   const endpoints = preview(model.endpoints);
   return (
     <>
@@ -101,6 +114,7 @@ interface TreeState {
   >;
   /** Whether each group, by table key, starts open */
   readonly groupDefaults: ReadonlyMap<string, boolean>;
+  readonly setGroupDefaults: (next: ReadonlyMap<string, boolean>) => void;
 }
 const TreeStateContext = createContext<TreeState | null>(null);
 function useTreeState() {
@@ -109,32 +123,31 @@ function useTreeState() {
   return state;
 }
 
-/** Keeps the tree view's open state above what remounts it (the Diff toggle,
- * a moment that changed nothing), so it shows again as the reader left it */
-export function TreeStateProvider({
-  model,
-  children,
-}: {
-  model: StoreModel;
-  children: React.ReactNode;
-}) {
+/** `defaults` with each table it lacks: open while fewer than
+ * `OPEN_GROUPS` are known; `defaults` itself when it lacks none */
+function withNewGroups(
+  defaults: ReadonlyMap<string, boolean>,
+  tables: readonly EntityTable[],
+) {
+  const fresh = tables.filter(t => !defaults.has(t.key));
+  if (!fresh.length) return defaults;
+  const next = new Map(defaults);
+  for (const t of fresh) next.set(t.key, next.size < OPEN_GROUPS);
+  return next;
+}
+
+/** Keeps the tree view's open state above what remounts it (the Snapshot
+ * and Diff toggle), so it shows again as the reader left it */
+export function TreeStateProvider({ children }: { children: React.ReactNode }) {
   const section = useSectionProps();
   const [choices, setChoices] = useState<ReadonlyMap<string, boolean>>(
     () => new Map(),
   );
-  // a group's default is fixed when it first appears, so tables arriving
-  // later (Suspense loads them one by one) never reshuffle what is open
   const [groupDefaults, setGroupDefaults] = useState<
     ReadonlyMap<string, boolean>
   >(() => new Map());
-  const fresh = model.tables.filter(t => !groupDefaults.has(t.key));
-  if (fresh.length) {
-    const next = new Map(groupDefaults);
-    for (const t of fresh) next.set(t.key, next.size < OPEN_GROUPS);
-    setGroupDefaults(next);
-  }
   const value = useMemo(
-    () => ({ section, choices, setChoices, groupDefaults }),
+    () => ({ section, choices, setChoices, groupDefaults, setGroupDefaults }),
     [section, choices, groupDefaults],
   );
   return (
