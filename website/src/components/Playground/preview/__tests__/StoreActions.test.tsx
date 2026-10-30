@@ -349,10 +349,10 @@ describe('Store Actions pane detail', () => {
     fireEvent.click(rows()[0]);
     // a record the action added, opened from it
     fireEvent.click(within(top()).getByRole('button', { name: '+ Post 1' }));
-    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'Post2', '1']);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'Post', '1']);
     // the action under the record follows to the newest: its request's
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
-    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'Post2', '1']);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'Post', '1']);
   });
 
   it('scopes the changes to the subject it is over', async () => {
@@ -384,7 +384,7 @@ describe('Store Actions pane detail', () => {
     fireEvent.click(screen.getByTitle('Show action'));
     expect(crumbs()).toEqual([
       'Actions',
-      'new Post2',
+      'new Post',
       'Actions of new Post2',
       'set Post',
     ]);
@@ -394,7 +394,7 @@ describe('Store Actions pane detail', () => {
     fireEvent.click(screen.getByTitle('Show action'));
     expect(crumbs()).toEqual(['Actions', 'set Post']);
     fireEvent.click(within(top()).getByRole('button', { name: '+ Post 3' }));
-    expect(crumbs()).toEqual(['Actions', 'set Post', 'Post3', '3']);
+    expect(crumbs()).toEqual(['Actions', 'set Post', 'Post', '3']);
     expect(top().textContent).toContain('"Third"');
   });
 
@@ -415,13 +415,13 @@ describe('Store Actions pane detail', () => {
     expect(crumbs()).toEqual(['Actions', 'GET /posts']);
     // a record its chip opened over it: the action under it steps too
     fireEvent.click(within(top()).getByRole('button', { name: '+ Post 1' }));
-    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'Post2', '1']);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'Post', '1']);
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
-    expect(crumbs()).toEqual(['Actions', 'set Post', 'Post2', '1']);
+    expect(crumbs()).toEqual(['Actions', 'set Post', 'Post', '1']);
     // past the newest, live: the action view shows the newest
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
     expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
-    expect(crumbs()).toEqual(['Actions', 'set Post', 'Post2', '1']);
+    expect(crumbs()).toEqual(['Actions', 'set Post', 'Post', '1']);
   });
 
   it('opens the action from the scrubber’s label and a record’s last change, with focus', async () => {
@@ -585,7 +585,7 @@ describe('Store Actions pane detail', () => {
     expect(scrubber().textContent).toContain('After GET /posts');
     // the diff shows what it did to the record
     openDiff();
-    expect(crumbs()).toEqual(['Store', 'Post2', '1']);
+    expect(crumbs()).toEqual(['Store', 'Post', '1']);
     expect(top().textContent).toContain('+Post 1id: "1", title: "One"');
     expect(actionsToggle().getAttribute('aria-pressed')).toBe('false');
   });

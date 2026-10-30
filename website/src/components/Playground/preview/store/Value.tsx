@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useContext, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 import { fitChips, INLINE_LIMIT, isTimeField } from './columns';
 import { entityId, isEndpointRow, prettyPk, type AnyRow } from './model';
@@ -433,8 +433,26 @@ function Parts({
   );
 }
 
-/** Full value: nested objects indent, long lists show more on request */
-export function Block({ node, name }: { node: VNode; name?: string }) {
+/** The row whose value a `Block` shows, which its ref lists sit under */
+const OwnerContext = createContext<string | undefined>(undefined);
+
+/** Full value: nested objects indent, long lists show more on request;
+ * `of`: the row it is the value of */
+export function Block({
+  node,
+  name,
+  of,
+}: {
+  node: VNode;
+  name?: string;
+  of?: string;
+}) {
+  if (of)
+    return (
+      <OwnerContext.Provider value={of}>
+        <Block node={node} name={name} />
+      </OwnerContext.Provider>
+    );
   if (node.t === 'obj') {
     if (!node.entries.length) return <span className={styles.dim}>{'{}'}</span>;
     return (
@@ -482,6 +500,7 @@ function BlockList({
   name?: string;
 }) {
   const [all, setAll] = useState(false);
+  const of = useContext(OwnerContext);
   // long lists of refs dive in instead of growing
   if (isRefList(node))
     return (
@@ -489,7 +508,7 @@ function BlockList({
         chips={node.items.map((item, i) => (
           <Inline key={i} node={item} />
         ))}
-        list={() => refsList(node.items, name)}
+        list={() => refsList(node.items, name, of)}
       />
     );
   const shown = all ? node.items : node.items.slice(0, BLOCK_LIMIT);

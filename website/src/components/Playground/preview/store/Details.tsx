@@ -96,7 +96,7 @@ export function EndpointBody({ row }: { row: EndpointRow }) {
       )}
       {view === 'returns' && record ?
         <Returns record={record} />
-      : <Block node={row.value} />}
+      : <Block node={row.value} of={row.id} />}
     </>
   );
 }
@@ -177,7 +177,7 @@ export function EntityDetail({
 }) {
   return (
     <div className={styles.detail}>
-      <Block node={row.value} />
+      <Block node={row.value} of={row.id} />
       <RowMeta row={row} model={model} collapsed={collapsedMeta} />
     </div>
   );

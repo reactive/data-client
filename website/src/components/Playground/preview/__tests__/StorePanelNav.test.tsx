@@ -152,10 +152,10 @@ describe('StorePanel navigation', () => {
     fireEvent.click(chip('Post 1'));
     fireEvent.click(chip('User 1'));
     fireEvent.click(chip('Post 1'));
-    expect(crumbs()).toEqual(['Store', '›', 'Post12', '›', '1']);
+    expect(crumbs()).toEqual(['Store', '›', 'Post', '›', '1']);
     // Back retraces the dive
     fireEvent.click(within(top()).getByLabelText('Back'));
-    expect(crumbs()).toEqual(['Store', '›', 'User1', '›', '1']);
+    expect(crumbs()).toEqual(['Store', '›', 'User', '›', '1']);
     fireEvent.click(
       within(top().querySelector('nav')!).getByRole('button', {
         name: 'Store',
@@ -217,7 +217,7 @@ describe('StorePanel navigation', () => {
     expect(crumbs()).toEqual([
       'Store',
       '›',
-      'User1',
+      'User',
       '›',
       '1',
       '›',

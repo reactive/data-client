@@ -335,7 +335,7 @@ export function RecordLevel({
             <div className={styles.detail}>
               {isEndpointRow(row) ?
                 <EndpointBody row={row} />
-              : <Block node={row.value} />}
+              : <Block node={row.value} of={row.id} />}
             </div>
           </div>
         </>

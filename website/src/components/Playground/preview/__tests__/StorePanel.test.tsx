@@ -166,14 +166,14 @@ describe('StorePanel table view', () => {
   it('dives into a record and back', () => {
     mount();
     fireEvent.click(within(top()).getByText('"Paul"'));
-    expect(crumbs()).toEqual(['Store', '›', 'User1', '›', '1']);
+    expect(crumbs()).toEqual(['Store', '›', 'User', '›', '1']);
     expect(within(top()).getByText('used by')).toBeTruthy();
     // a ref chip dives further
     fireEvent.click(within(top()).getByRole('button', { name: 'Post 1' }));
     // where it lives in the store, not where it was opened from
-    expect(crumbs()).toEqual(['Store', '›', 'Post12', '›', '1']);
+    expect(crumbs()).toEqual(['Store', '›', 'Post', '›', '1']);
     act(() => press('Escape'));
-    expect(crumbs()).toEqual(['Store', '›', 'User1', '›', '1']);
+    expect(crumbs()).toEqual(['Store', '›', 'User', '›', '1']);
     // its table's crumb opens the table
     fireEvent.click(
       within(top().querySelector('nav')!).getByRole('button', {
@@ -182,7 +182,7 @@ describe('StorePanel table view', () => {
     );
     expect(crumbs()).toEqual(['Store', '›', 'User1']);
     fireEvent.click(within(top()).getByLabelText('Back'));
-    expect(crumbs()).toEqual(['Store', '›', 'User1', '›', '1']);
+    expect(crumbs()).toEqual(['Store', '›', 'User', '›', '1']);
     fireEvent.click(within(top()).getByLabelText('Back'));
     expect(top().querySelector('nav')).toBeNull();
   });
@@ -191,7 +191,7 @@ describe('StorePanel table view', () => {
     mount();
     fireEvent.click(screen.getByText('7 more'));
     fireEvent.click(within(top()).getAllByText(/number 1 that/)[0]);
-    expect(crumbs()).toEqual(['Store', '›', 'Post12', '›', '1']);
+    expect(crumbs()).toEqual(['Store', '›', 'Post', '›', '1']);
     fireEvent.click(
       within(top().querySelector('nav')!).getByRole('button', {
         name: /^Post/,
@@ -251,9 +251,26 @@ describe('StorePanel table view', () => {
     const collection = within(top().querySelector('[data-table="[Comment]"]')!);
     // a Collection's +N opens its own record: the member table and its meta
     fireEvent.click(collection.getByText(/^\+\d+$/));
-    expect(crumbs().slice(2)).toEqual(['[Comment]1', '›', 'all']);
+    expect(crumbs().slice(2)).toEqual(['[Comment]', '›', 'all']);
     expect(top().querySelectorAll('tr[data-id]').length).toBeGreaterThan(0);
     expect(within(top()).getByText('used by')).toBeTruthy();
+  });
+
+  it("puts a record's long ref list under the record", () => {
+    mount();
+    fireEvent.click(
+      byData(top(), 'id', endpointId('GET https://example.com/posts'))!,
+    );
+    fireEvent.click(within(top()).getByRole('button', { name: /^\+\d+$/ }));
+    expect(crumbs()).toEqual([
+      'Store',
+      '›',
+      'Endpoints',
+      '›',
+      'GET /posts',
+      '›',
+      'items12',
+    ]);
   });
 
   it('opens a Collection as a table of its members', () => {
@@ -295,7 +312,7 @@ describe('StorePanel table view', () => {
     fireEvent.click(
       within(top()).getAllByRole('button', { name: 'User 1' })[0],
     );
-    expect(crumbs()).toEqual(['Store', '›', 'User1', '›', '1']);
+    expect(crumbs()).toEqual(['Store', '›', 'User', '›', '1']);
     fireEvent.click(within(top()).getByLabelText('Back'));
     expect(top().querySelector('nav')).toBeNull();
     // the tree is as it was left
