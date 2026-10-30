@@ -34,8 +34,15 @@ describe('renderSkillMd', () => {
     );
   });
 
-  it('accepts markers with trailing whitespace or CRLF', () => {
-    assert.equal(render(':::vue \r\nx\r\n:::\r\ny'), '---\nname: a\n---\ny');
+  it('accepts trailing whitespace on markers and renders CRLF sources as LF', () => {
+    assert.equal(
+      renderSkillMd(
+        '---\r\nname: a\r\n---\r\n:::vue \r\nx\r\n:::\r\ny\r\nz\r\n',
+        'react',
+        'src.md',
+      ),
+      '---\nname: a\n---\ny\nz\n',
+    );
   });
 
   it('leaves markers in code fences as written', () => {
