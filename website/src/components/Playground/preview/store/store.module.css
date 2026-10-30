@@ -792,7 +792,7 @@ div.row[data-change='removed'] {
 .record {
   padding: 0.5rem 0;
 }
-.showAll,
+.treeMore,
 .more {
   border: 0;
   background: none;
@@ -802,11 +802,11 @@ div.row[data-change='removed'] {
   color: var(--store-key);
   cursor: pointer;
 }
-.showAll {
+.treeMore {
   display: block;
   padding: 0.15rem 0.75rem 0.2rem 2rem;
 }
-.showAll:hover,
+.treeMore:hover,
 .more:hover {
   text-decoration: underline;
 }
