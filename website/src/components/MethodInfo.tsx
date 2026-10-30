@@ -23,9 +23,7 @@ export default function MethodInfo({
   const fields = fieldsOf(tbodyOf(parts[tableAt]));
   const field = (key: string) => fields.find(f => f.key === key);
   const options = fields.filter(f => !CARD_KEYS.includes(f.key));
-  const response = [field('schema'), field('process')].filter(
-    (f): f is Field => !!f,
-  );
+  const response = RESPONSE_KEYS.map(field).filter((f): f is Field => !!f);
   const verb = field('method')?.text.replace(/'/g, '');
   return (
     <>
@@ -44,6 +42,7 @@ export default function MethodInfo({
           <ul className={styles.options}>
             {options.map(({ key, value, text }) => (
               <li key={key}>
+                {/* a value like [body](#body) already names its key */}
                 {text === key ? null : <i>{key} </i>}
                 {value}
               </li>
@@ -69,7 +68,8 @@ export default function MethodInfo({
   );
 }
 
-const CARD_KEYS = ['method', 'path', 'schema', 'process'];
+const RESPONSE_KEYS = ['schema', 'process'];
+const CARD_KEYS = ['method', 'path', ...RESPONSE_KEYS];
 
 interface Field {
   key: string;
