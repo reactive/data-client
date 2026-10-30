@@ -648,6 +648,11 @@ describe('Store Actions pane detail', () => {
     expect(crumbs()).toEqual([]);
     // at the store, the page goes back
     expect(back()).toBe(false);
+    // unless the peek is open there
+    hover(actionsToggle(), true);
+    wait();
+    expect(back()).toBe(true);
+    expect(peek()).toBeNull();
   });
 
   it('keeps the action open in its tab while State changes view', async () => {

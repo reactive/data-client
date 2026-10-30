@@ -587,7 +587,8 @@ export default function StorePanel({
     : storeShown ? levels
     : undefined;
   const depth = covered || !shownLevels ? 0 : shownLevels.stack.length - 1;
-  const peeking = pane && !covered;
+  // the peek as shown, and not under the timeline sheet
+  const peeking = pane && !listed && !covered;
   useMouseBack(panel, peeking || depth > 0, () =>
     peeking ? closePane() : shownLevels?.back(depth),
   );
@@ -603,7 +604,7 @@ export default function StorePanel({
             onKeyDownCapture={e => {
               // the peek shuts first: before a level under it takes the
               // Escape to go back. Under the sheet, the sheet does
-              if (e.key !== 'Escape' || !pane || covered) return;
+              if (e.key !== 'Escape' || !peeking) return;
               e.preventDefault();
               e.stopPropagation();
               closePane();
