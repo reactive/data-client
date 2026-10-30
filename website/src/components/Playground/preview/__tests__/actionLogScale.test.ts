@@ -245,11 +245,22 @@ describe('the action log at scale', () => {
           ),
         ),
       );
+    const changed = (type: string, endpoint: unknown) =>
+      log
+        .changes(
+          stored.find(
+            e =>
+              e.action.type === type &&
+              'endpoint' in e.action &&
+              e.action.endpoint === endpoint,
+          )!,
+        )
+        .map(c => c.id);
     // the update's own list and the optimistic title both show
-    expect(log.changes(stored[1]).map(c => c.id)).toContain(
+    expect(changed(actionTypes.SET_RESPONSE, createPost)).toContain(
       endpointId('GET /posts'),
     );
-    expect(log.changes(stored[2]).map(c => c.id)).toContain(
+    expect(changed(actionTypes.FETCH, renamePost)).toContain(
       entityId('Post', '1'),
     );
   });
@@ -303,5 +314,37 @@ describe('the action log at scale', () => {
     } finally {
       denormalize.mockRestore();
     }
+  });
+
+  it('reads what a key holds by each schema that reads it', () => {
+    /** Comment c1, as each endpoint for it reads it */
+    const commentBy = (schema: Record<string, typeof User>) =>
+      class extends Entity {
+        id = '';
+        author = User.fromJS();
+        editor = User.fromJS();
+        static key = 'Comment';
+        static schema = schema;
+      };
+    const getBy = (schema: Record<string, typeof User>) =>
+      new Endpoint(async ({ id }: { id: string }) => ({ id }), {
+        schema: commentBy(schema),
+        key: ({ id }: { id: string }) => `GET /comments/${id}`,
+        name: 'getComment',
+      });
+    const { controller, entries } = store(1);
+    controller.setResponse(
+      getBy({ author: User, editor: User }),
+      { id: 'c1' },
+      { id: 'c1', author: { id: 'u1' }, editor: { id: 'u2' } },
+    );
+    controller.setResponse(deleteUser, { id: 'u1' }, { id: 'u1' });
+    controller.setResponse(deleteUser, { id: 'u2' }, { id: 'u2' });
+    const [deleteU1, deleteU2] = entries().slice(-2);
+    controller.fetch(getBy({ editor: User }), { id: 'c1' });
+    controller.fetch(getBy({ author: User }), { id: 'c1' });
+    const [byEditor, byAuthor] = entries().slice(-2);
+    expect(byEditor.causedBy).toBe(deleteU2.seq);
+    expect(byAuthor.causedBy).toBe(deleteU1.seq);
   });
 });

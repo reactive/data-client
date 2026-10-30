@@ -98,8 +98,9 @@ export interface LogEntry {
   /** A fetch `consumedBy` a NetworkManager, which started its request */
   readonly requested?: true;
   /** The store's own state (pending optimistic updates not yet applied)
-   * right before and after this action. Missing when a manager handled the
-   * action without passing it on (a plain fetch, a subscribe) */
+   * right before and after this action, and the action it reduced. Missing
+   * when a manager handled the action without passing it on (a plain fetch,
+   * a subscribe) */
   readonly store?: {
     readonly before: State<unknown>;
     readonly after: State<unknown>;
@@ -299,11 +300,11 @@ export default class ActionLog {
   private readonly reducer = createReducer(this.reader);
   private readonly views = new WeakMap<State<unknown>, State<unknown>>();
   private readonly diffs = new WeakMap<LogEntry, readonly Change[]>();
-  /** By state, then fetch key: what `heldEntities` found (the fetches a
-   * refetch sends share it) */
+  /** By state, then schema and fetch key: what `heldEntities` found (the
+   * fetches a refetch sends share it) */
   private readonly held = new WeakMap<
     State<unknown>,
-    Map<string, ReadonlySet<string>>
+    Map<unknown, Map<string, ReadonlySet<string>>>
   >();
 
   private readonly refetchCounts = new WeakMap<
@@ -555,8 +556,10 @@ export default class ActionLog {
   ): ReadonlySet<string> {
     // a copied endpoint (see `fetchReason`) can't read its schema
     if (typeof endpoint?.key !== 'function') return new Set();
-    let byKey = this.held.get(state);
-    if (!byKey) this.held.set(state, (byKey = new Map()));
+    let bySchema = this.held.get(state);
+    if (!bySchema) this.held.set(state, (bySchema = new Map()));
+    let byKey = bySchema.get(endpoint.schema);
+    if (!byKey) bySchema.set(endpoint.schema, (byKey = new Map()));
     let held = byKey.get(key);
     if (!held) {
       // a fresh memo: one that met a nested entity invalid can still name
