@@ -1411,7 +1411,9 @@ function subjectLabel(subject: View, model: StoreModel): React.ReactNode {
     subject.kind === 'record' ? findRow(model, subject.id)
     : subject.kind === 'list' && subject.of ? findRow(model, subject.of)
     : undefined;
-  if (!row || isEndpointRow(row)) return crumbLabel(subject, model);
+  // an endpoint record's key already names it
+  if (!row || (subject.kind === 'record' && isEndpointRow(row)))
+    return crumbLabel(subject, model);
   return (
     <span className={styles.crumbName}>
       {subject.kind === 'list' ?

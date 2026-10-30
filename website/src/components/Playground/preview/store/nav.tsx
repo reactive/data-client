@@ -60,12 +60,13 @@ export function refsList(
     : { kind: 'list', label, ids: keys, of };
 }
 
-/** The list of every endpoint, and of a table's rows, "N more" dives into */
+/** The list of every endpoint "N more" dives into */
 export const ENDPOINTS: ListView = {
   kind: 'list',
   label: 'Endpoints',
   endpoints: true,
 };
+/** The list of a table's rows "N more" dives into */
 export const tableList = (key: string): ListView => ({
   kind: 'list',
   table: key,

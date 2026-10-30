@@ -812,7 +812,7 @@ export function touches(subject: View, change: Change): boolean {
     case 'record':
       return change.id === subject.id;
     case 'list':
-      if ('endpoints' in subject) return !('table' in change);
+      if ('endpoints' in subject) return 'endpoint' in change;
       if ('ids' in subject) return subject.ids.includes(change.id);
       return (
         'table' in change &&
