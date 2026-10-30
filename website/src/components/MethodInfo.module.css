@@ -121,14 +121,18 @@
   }
 }
 
-/* a value that passes a resource() option through: a dashed chip, which the
-   legend names */
+/* a value's in-page link, one of resource()'s #arguments passed through: a
+   dashed chip, which the legend names (shown only when one is there) */
+.row dd a[href^='#'],
 .inherited {
   display: inline-block;
   padding: 0 0.4em;
   border: 1px dashed color-mix(in srgb, currentColor 45%, transparent);
   border-radius: 6px;
   line-height: 1.35;
+}
+.card:not(:has(.row dd a[href^='#'])) .legend {
+  display: none;
 }
 .legend .inherited {
   padding: 0.05rem 0.5em;

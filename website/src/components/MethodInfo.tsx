@@ -8,8 +8,8 @@ import playgroundstyles from './Playground/styles.module.css';
 /** Wraps a Resource member's description, EndpointPlayground and the
  * Field/Value table after it (docs/rest/api/resource.md). The site shows the
  * table's rows as a card above the description: a property grid where there
- * is room, Request and Response groups of rows on a phone. Values that pass a
- * resource() option through unchanged (links to its #arguments) are marked.
+ * is room, Request and Response groups of rows on a phone. A value's in-page
+ * link is one of resource()'s #arguments, passed through: CSS marks it.
  * The .md pages agents read keep the table. */
 export default function MethodInfo({
   children,
@@ -21,7 +21,9 @@ export default function MethodInfo({
   if (tableAt < 1) return <>{children}</>;
 
   const fields = fieldsOf(tbodyOf(parts[tableAt]));
-  const response = fields.filter(f => RESPONSE_KEYS.includes(f.key));
+  const isResponse = (f: Field) => RESPONSE_KEYS.includes(f.key);
+  const request = fields.filter(f => !isResponse(f));
+  const response = fields.filter(isResponse);
   const verb = fields
     .find(f => f.key === 'method')
     ?.text.replace(/'/g, '')
@@ -35,7 +37,7 @@ export default function MethodInfo({
       <dd>
         {key === 'method' ?
           <span className={styles.method}>{verb}</span>
-        : markInherited(value)}
+        : value}
       </dd>
     </div>
   );
@@ -47,55 +49,31 @@ export default function MethodInfo({
       >
         <div className={styles.group}>
           <h4 className={styles.groupHead}>
-            {translate({ id: 'methodInfo.request', message: 'Request' })}
+            {translate({ id: 'http.request', message: 'Request' })}
           </h4>
-          <dl>{fields.filter(f => !response.includes(f)).map(row)}</dl>
+          <dl>{request.map(row)}</dl>
         </div>
-        <div className={styles.group}>
-          <h4 className={styles.groupHead}>
-            {translate({ id: 'methodInfo.response', message: 'Response' })}
-          </h4>
-          <dl>{response.map(row)}</dl>
-        </div>
-        {fields.some(f => hasInherited(f.value)) ?
-          <p className={styles.legend}>
-            <span className={styles.inherited}>
-              {translate({
-                id: 'methodInfo.inherited',
-                message: 'from resource()',
-              })}
-            </span>
-          </p>
+        {response.length ?
+          <div className={styles.group}>
+            <h4 className={styles.groupHead}>
+              {translate({ id: 'http.response', message: 'Response' })}
+            </h4>
+            <dl>{response.map(row)}</dl>
+          </div>
         : null}
+        <p className={styles.legend}>
+          <span className={styles.inherited}>
+            {translate({
+              id: 'methodInfo.inherited',
+              message: 'from resource()',
+            })}
+          </span>
+        </p>
       </section>
       {parts.slice(0, tableAt)}
       {parts.slice(tableAt + 1)}
     </>
   );
-}
-
-/** a link to one of resource()'s #arguments: the option passes through */
-const isInherited = (node: React.ReactNode): node is MdxElement =>
-  React.isValidElement(node) &&
-  `${(node.props as { href?: unknown }).href ?? ''}`.startsWith('#');
-
-const hasInherited = (node: React.ReactNode): boolean =>
-  React.Children.toArray(node).some(
-    child =>
-      isInherited(child) ||
-      (React.isValidElement(child) &&
-        hasInherited((child as MdxElement).props.children)),
-  );
-
-function markInherited(node: React.ReactNode): React.ReactNode {
-  return React.Children.map(node, child => {
-    if (isInherited(child))
-      return <span className={styles.inherited}>{child}</span>;
-    const el = child as MdxElement;
-    return React.isValidElement(child) && el.props.children ?
-        React.cloneElement(el, undefined, markInherited(el.props.children))
-      : child;
-  });
 }
 
 const RESPONSE_KEYS = ['schema', 'process'];
