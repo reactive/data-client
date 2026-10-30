@@ -268,7 +268,7 @@ function RemovedValue({ id, seq }: { id: string; seq: number }) {
         <span className={styles.dim}>Removed; it was:</span>
         {isEndpointRow(row) ?
           <EndpointBody row={row} />
-        : <Block node={row.value} />}
+        : <Block node={row.value} of={row.id} />}
       </NavContext.Provider>
     </AtMoment>
   );

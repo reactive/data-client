@@ -180,7 +180,7 @@ describe('StorePanel table view', () => {
         name: /^User/,
       }),
     );
-    expect(crumbs()).toEqual(['Store', '›', 'User1']);
+    expect(crumbs()).toEqual(['Store', '›', 'User']);
     fireEvent.click(within(top()).getByLabelText('Back'));
     expect(crumbs()).toEqual(['Store', '›', 'User', '›', '1']);
     fireEvent.click(within(top()).getByLabelText('Back'));
@@ -197,7 +197,7 @@ describe('StorePanel table view', () => {
         name: /^Post/,
       }),
     );
-    expect(crumbs()).toEqual(['Store', '›', 'Post12']);
+    expect(crumbs()).toEqual(['Store', '›', 'Post']);
     fireEvent.click(within(top()).getByLabelText('Back'));
     expect(top().querySelector('nav')).toBeNull();
   });
@@ -205,7 +205,7 @@ describe('StorePanel table view', () => {
   it('lists a whole table with a filter', () => {
     mount();
     fireEvent.click(screen.getByText('7 more'));
-    expect(crumbs()).toEqual(['Store', '›', 'Post12']);
+    expect(crumbs()).toEqual(['Store', '›', 'Post']);
     const rows = () =>
       [...top().querySelectorAll('tr[data-id]')].map(r => {
         const ref = parseRowId(r.getAttribute('data-id')!);
@@ -269,7 +269,7 @@ describe('StorePanel table view', () => {
       '›',
       'GET /posts',
       '›',
-      'items12',
+      'items',
     ]);
   });
 
@@ -325,7 +325,7 @@ describe('StorePanel table view', () => {
     expect(post().getAttribute('aria-expanded')).toBe('true');
     // so do the rows a group leaves out
     fireEvent.click(within(top()).getByText('7 more'));
-    expect(crumbs()).toEqual(['Store', '›', 'Post12']);
+    expect(crumbs()).toEqual(['Store', '›', 'Post']);
   });
 
   it("shows a demo's view over the reader's while the Store stays open", () => {

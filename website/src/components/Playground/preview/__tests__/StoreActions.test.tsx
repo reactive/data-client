@@ -380,12 +380,12 @@ describe('Store Actions pane detail', () => {
     fireEvent.click(
       within(rows()[0]).getByRole('button', { name: '+ 2 Post' }),
     );
-    expect(crumbs()).toEqual(['Actions', 'new Post2']);
+    expect(crumbs()).toEqual(['Actions', 'new Post']);
     fireEvent.click(screen.getByTitle('Show action'));
     expect(crumbs()).toEqual([
       'Actions',
       'new Post',
-      'Actions of new Post2',
+      'Actions of new Post',
       'set Post',
     ]);
     expect(top().textContent).toContain('No change to these rows');

@@ -878,15 +878,10 @@ function Levels({
 
   const subjectAt = (depth: number) =>
     subjectOf(stack.slice(0, depth)) ?? under ?? ROOT;
-  const label = (
-    view: LevelView,
-    depth: number,
-    model: StoreModel,
-    trail: 'last' | 'inner',
-  ) =>
+  const label = (view: LevelView, depth: number, model: StoreModel) =>
     view.kind === 'actions' ?
       <ActionsCrumb subject={subjectAt(depth)} model={model} />
-    : crumbLabel(view, model, subjectAt(depth), trail);
+    : crumbLabel(view, model, subjectAt(depth), true);
   const crumbs = (depth: number, tools?: React.ReactNode) => {
     const { at } = stack[depth];
     // one opened at an action the log no longer has shows the store as it is
@@ -897,6 +892,8 @@ function Levels({
       stack.slice(0, depth + 1).map(e => e.view),
       model,
     );
+    const crumbAt = (i: number) =>
+      label(shown[i].view, shown[i].depth ?? depth, model);
     const items =
       shown.length > CRUMBS ?
         [0, -1, shown.length - 2, shown.length - 1]
@@ -921,7 +918,7 @@ function Levels({
                 <span className={styles.sep}>…</span>
               : i === shown.length - 1 ?
                 <span className={styles.crumbCurrent} aria-current="page">
-                  {label(shown[i].view, shown[i].depth ?? depth, model, 'last')}
+                  {crumbAt(i)}
                 </span>
               : <button
                   type="button"
@@ -933,12 +930,7 @@ function Levels({
                     else back(d + 1);
                   }}
                 >
-                  {label(
-                    shown[i].view,
-                    shown[i].depth ?? depth,
-                    model,
-                    'inner',
-                  )}
+                  {crumbAt(i)}
                 </button>
               }
             </React.Fragment>
@@ -1387,11 +1379,9 @@ function crumbLabel(
   /** Whose actions an action view steps through */
   subject: View = ROOT,
   /** In the crumbs (`trail`): under what holds it, so a record by its pk
-   * and a field's list by the field alone. `inner`: another crumb follows,
-   * so a list without its count, which would read as the next crumb's id */
-  trail?: 'last' | 'inner',
+   * and a field's list by the field alone */
+  inTrail = false,
 ): React.ReactNode {
-  const inTrail = trail !== undefined;
   switch (view.kind) {
     case 'root':
       return 'Store';
@@ -1400,20 +1390,12 @@ function crumbLabel(
         <ActionCrumb seq={view.seq} scope={view.scope} subject={subject} />
       );
     case 'list': {
-      const count =
-        'ids' in view ? view.ids.length
-        : view.pks ? view.pks.length
-        : (model.table(view.table)?.rows.length ?? 0);
+      // no count: `User 3` would read as a record
       const owner = !inTrail && view.of ? findRow(model, view.of) : undefined;
       return (
-        <>
-          <span className={styles.crumbName}>
-            {owner ? `${rowLabel(owner)} ${view.label}` : view.label}
-          </span>
-          {trail !== 'inner' && (
-            <span className={styles.count}>{count.toLocaleString()}</span>
-          )}
-        </>
+        <span className={styles.crumbName}>
+          {owner ? `${rowLabel(owner)} ${view.label}` : view.label}
+        </span>
       );
     }
     case 'record': {
