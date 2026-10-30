@@ -556,10 +556,13 @@ export default class ActionLog {
     action: FetchAction,
   ): ReadonlySet<string> {
     const { endpoint, key } = action;
+    // a copied endpoint (see `fetchReason`) has no `key` method: it can't
+    // say which entities its response holds
+    if (typeof endpoint?.key !== 'function') return new Set();
     let bySchema = this.held.get(state);
     if (!bySchema) this.held.set(state, (bySchema = new Map()));
-    let byKey = bySchema.get(endpoint?.schema);
-    if (!byKey) bySchema.set(endpoint?.schema, (byKey = new Map()));
+    let byKey = bySchema.get(endpoint.schema);
+    if (!byKey) bySchema.set(endpoint.schema, (byKey = new Map()));
     let held = byKey.get(key);
     if (!held) byKey.set(key, (held = entitiesRead(state, action)));
     return held;
@@ -840,8 +843,6 @@ function entitiesRead(
   state: State<unknown>,
   { endpoint, key, args }: FetchAction,
 ): ReadonlySet<string> {
-  // a copied endpoint (see `fetchReason`) can't read its schema
-  if (typeof endpoint?.key !== 'function') return new Set();
   // a fresh memo: one that met a nested entity invalid can still name only
   // the outer one, until #4460 lands
   const { paths } = new MemoCache().denormalize(
