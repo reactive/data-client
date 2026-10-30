@@ -209,7 +209,6 @@ const sameView = (a: LevelView, b: LevelView) =>
     ('table' in a ? a.table : undefined) ===
       ('table' in b ? b.table : undefined) &&
     ('pks' in a && !!a.pks) === ('pks' in b && !!b.pks) &&
-    'endpoints' in a === 'endpoints' in b &&
     a.of === b.of
   : a.kind === b.kind && a.kind === 'root';
 
