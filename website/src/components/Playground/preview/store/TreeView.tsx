@@ -8,27 +8,17 @@ import React, {
 } from 'react';
 
 import { EndpointDetail, EntityDetail, Status } from './Details';
-import type { Header } from './DiveViews';
 import { changeProps, onActivateKey } from './dom';
 import {
-  findRow,
   groupId,
-  isEndpointRow,
   optimisticId,
   prettyPk,
-  type AnyRow,
   type EndpointRow,
   type EntityRow,
   type EntityTable,
   type StoreModel,
 } from './model';
-import {
-  DiffContext,
-  endpointsList,
-  tableList,
-  useNav,
-  type ListView,
-} from './nav';
+import { DiffContext, endpointsList, tableList, useNav } from './nav';
 import { plain, type VNode } from './refs';
 import {
   Chevron,
@@ -110,48 +100,6 @@ export default function TreeView() {
         <SectionBlock {...section('Internals')} chevron>
           <Internals model={model} />
         </SectionBlock>
-      )}
-    </>
-  );
-}
-
-/** Rows a tree list level shows at first, and adds per "N more" */
-const LIST_PAGE = 100;
-
-/** A list level in the tree view: its rows as the tree shows them */
-export function TreeList({ view, header }: { view: ListView; header: Header }) {
-  const { model } = useNav();
-  const [shown, setShown] = useState(LIST_PAGE);
-  const rows = useMemo((): readonly AnyRow[] => {
-    if (!('table' in view))
-      return view.ids.flatMap(id => findRow(model, id) ?? []);
-    const table = model.table(view.table);
-    if (!table) return [];
-    return view.pks ? view.pks.flatMap(pk => table.get(pk) ?? []) : table.rows;
-  }, [model, view]);
-  // a list of one table names its rows by pk, as its crumb names the table
-  const named = !('table' in view);
-  return (
-    <>
-      {header(null)}
-      {rows.slice(0, shown).map(row => {
-        if (isEndpointRow(row))
-          return <EndpointTreeRow key={row.id} row={row} />;
-        const table = model.table(row.table);
-        return (
-          table && (
-            <EntityTreeRow key={row.id} row={row} table={table} named={named} />
-          )
-        );
-      })}
-      {rows.length > shown && (
-        <button
-          type="button"
-          className={styles.treeMore}
-          onClick={() => setShown(n => n + LIST_PAGE)}
-        >
-          {(rows.length - shown).toLocaleString()} more
-        </button>
       )}
     </>
   );
@@ -264,7 +212,7 @@ function OptimisticRow({
   );
 }
 
-function EndpointTreeRow({ row }: { row: EndpointRow }) {
+export function EndpointTreeRow({ row }: { row: EndpointRow }) {
   const { open, props } = useRowProps(row.id);
   return (
     <>
@@ -318,15 +266,15 @@ function EntityTreeGroup({
   );
 }
 
-function EntityTreeRow({
+export function EntityTreeRow({
   row,
   table,
-  named = false,
+  withTable = false,
 }: {
   row: EntityRow;
   table: EntityTable;
   /** Keyed by table and pk, among rows of other tables */
-  named?: boolean;
+  withTable?: boolean;
 }) {
   const { model } = useNav();
   const { open, props } = useRowProps(row.id);
@@ -344,7 +292,7 @@ function EntityTreeRow({
       <div {...props}>
         <Chevron open={open} />
         <span className={styles.key}>
-          {named ?
+          {withTable ?
             <RowKey row={row} />
           : prettyPk(row.pk)}
         </span>

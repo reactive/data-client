@@ -1,4 +1,5 @@
 import React, {
+  useContext,
   useDeferredValue,
   useLayoutEffect,
   useMemo,
@@ -14,9 +15,11 @@ import {
   prettyPk,
   type AnyRow,
   type EntityTable,
+  type StoreModel,
 } from './model';
 import { membersOf, useNav, type ListView as List } from './nav';
 import styles from './store.module.css';
+import { StoreViewContext } from './storeView';
 import {
   endpointColumns,
   mixedColumns,
@@ -26,6 +29,7 @@ import {
   useChangedFields,
   type Column,
 } from './Table';
+import { EndpointTreeRow, EntityTreeRow } from './TreeView';
 import { Block } from './Value';
 
 export type Header = (tools: React.ReactNode) => React.ReactNode;
@@ -47,21 +51,98 @@ export function ListView({
   header: Header;
 }) {
   const { model } = useNav();
+  // the State tab's tree view lays out every list as a tree too
+  const tree = useContext(StoreViewContext) === 'tree';
   if ('table' in view) {
     const table = model.table(view.table);
-    return table ?
-        <TableList
+    return (
+      !table ?
+        <>
+          {header(null)}
+          <Gone />
+        </>
+      : tree ? <TreeList view={view} table={table} header={header} />
+      : <TableList
           table={table}
           pks={view.pks}
           scroller={scroller}
           header={header}
         />
-      : <>
-          {header(null)}
-          <Gone />
-        </>;
+    );
   }
-  return <IdList ids={view.ids} scroller={scroller} header={header} />;
+  return tree ?
+      <TreeList view={view} header={header} />
+    : <IdList ids={view.ids} scroller={scroller} header={header} />;
+}
+
+const tableRows = (table: EntityTable, pks: readonly string[] | undefined) =>
+  pks ? pks.flatMap(pk => table.get(pk) ?? []) : table.rows;
+const idRows = (model: StoreModel, ids: readonly string[]) =>
+  ids.flatMap(id => findRow(model, id) ?? []);
+
+/** Rows a tree list shows at first, and adds per "N more" */
+const TREE_PAGE = 100;
+
+/** A list as tree rows that expand in place, with a filter */
+function TreeList({
+  view,
+  table,
+  header,
+}: {
+  view: List;
+  /** The one table a list of `pks` holds */
+  table?: EntityTable;
+  header: Header;
+}) {
+  const { model } = useNav();
+  const [filter, setFilter] = useState('');
+  const query = useDeferredValue(filter.trim().toLowerCase());
+  const [shown, setShown] = useState(TREE_PAGE);
+  const rows = useMemo(() => {
+    const all: readonly AnyRow[] =
+      table ? tableRows(table, 'pks' in view ? view.pks : undefined)
+      : 'ids' in view ? idRows(model, view.ids)
+      : [];
+    return query ? all.filter(row => searchText(row).includes(query)) : all;
+  }, [model, view, table, query]);
+  return (
+    <>
+      {header(
+        <input
+          className={styles.filter}
+          value={filter}
+          onChange={e => setFilter(e.target.value)}
+          placeholder="filter"
+          aria-label="Filter rows"
+        />,
+      )}
+      {rows.slice(0, shown).map(row => {
+        if (isEndpointRow(row))
+          return <EndpointTreeRow key={row.id} row={row} />;
+        const rowTable = table ?? model.table(row.table);
+        return (
+          rowTable && (
+            <EntityTreeRow
+              key={row.id}
+              row={row}
+              table={rowTable}
+              // among rows of several tables, each names its own
+              withTable={!table}
+            />
+          )
+        );
+      })}
+      {rows.length > shown && (
+        <button
+          type="button"
+          className={styles.treeMore}
+          onClick={() => setShown(n => n + TREE_PAGE)}
+        >
+          {(rows.length - shown).toLocaleString()} more
+        </button>
+      )}
+    </>
+  );
 }
 
 /** Rows of one table: its columns, paged, with `+N` and meta columns */
@@ -78,10 +159,7 @@ function TableList({
 }) {
   const { model, width } = useNav();
   const [page, setPage] = useState(0);
-  const rows = useMemo(
-    () => (pks ? pks.flatMap(pk => table.get(pk) ?? []) : table.rows),
-    [table, pks],
-  );
+  const rows = useMemo(() => tableRows(table, pks), [table, pks]);
   const changed = useChangedFields(rows);
   const { columns, pages, more } = useMemo(
     () => tableColumns(table, rows, width, page, { withMeta: true, changed }),
@@ -111,10 +189,7 @@ function IdList({
   header: Header;
 }) {
   const { model, width } = useNav();
-  const rows = useMemo(
-    () => ids.flatMap(id => findRow(model, id) ?? []),
-    [model, ids],
-  );
+  const rows = useMemo(() => idRows(model, ids), [model, ids]);
   const columns = useMemo(
     () =>
       rows.every(isEndpointRow) ?

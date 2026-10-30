@@ -332,6 +332,27 @@ describe('StorePanel table view', () => {
     expect(last().getAttribute('aria-expanded')).toBe('false');
     fireEvent.click(last());
     expect(last().getAttribute('aria-expanded')).toBe('true');
+    fireEvent.change(within(top()).getByLabelText('Filter rows'), {
+      target: { value: 'number 11' },
+    });
+    expect(byData(top(), 'id', entityId('Post', '12'))).toBeUndefined();
+    expect(byData(top(), 'id', entityId('Post', '11'))).toBeTruthy();
+  });
+
+  it("lays out a Collection's members as a tree in the tree view", () => {
+    mount();
+    const collection = within(top().querySelector('[data-table="[Comment]"]')!);
+    fireEvent.click(collection.getByText(/^\+\d+$/));
+    expect(top().querySelector('table')).toBeTruthy();
+    // the open record follows the toggle
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    expect(crumbs()).toEqual(['Store', '›', '[Comment]', '›', 'all']);
+    expect(top().querySelector('table')).toBeNull();
+    expect(
+      byData(top(), 'id', entityId('Comment', '1'))!.getAttribute(
+        'aria-expanded',
+      ),
+    ).toBe('false');
   });
 
   it("shows a demo's view over the reader's while the Store stays open", () => {
