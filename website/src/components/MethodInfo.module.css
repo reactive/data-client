@@ -1,11 +1,10 @@
-/* a Resource member's card (./MethodInfo): path and method, its description,
-   the options it reads, and what reads its response */
+/* a Resource member's card (./MethodInfo): its Field/Value table's rows */
 .card {
   --verb: var(--ifm-color-primary);
   --rule: 1px solid var(--ifm-table-border-color);
   --label: color-mix(in srgb, var(--ifm-font-color-base) 55%, transparent);
   margin: 0 0 1.5rem;
-  padding: 1.1rem 1.25rem 1rem;
+  padding: 1.25rem;
   border: var(--rule);
   border-radius: 14px;
   background: var(--ifm-background-surface-color);
@@ -31,28 +30,112 @@
 .card a {
   text-decoration: none;
 }
-.card > p:last-of-type {
-  margin-bottom: 0;
-}
 
-.head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.6rem;
+/* where there is room, one property grid: labels above values, the groups'
+   rows in one flow */
+.card {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.1rem 1.5rem;
 }
-.path {
-  padding: 0;
-  border: 0;
-  background: none;
-  font-size: 1.125rem;
-  font-weight: 600;
+.group,
+.group dl {
+  display: contents;
+}
+.groupHead {
+  display: none;
+}
+.row dt {
+  margin-bottom: 0.3rem;
+  font: 400 0.75rem / 1.4 var(--ifm-font-family-monospace);
+  color: var(--label);
+}
+.row dd {
+  margin: 0;
+  font: 500 0.9375rem / 1.5 var(--ifm-font-family-monospace);
   overflow-wrap: anywhere;
 }
+/* process's code takes the full width */
+.block {
+  grid-column: 1 / -1;
+}
+.block :global(.theme-code-block) {
+  margin: 0;
+  box-shadow: none;
+}
+.legend {
+  grid-column: 1 / -1;
+  justify-self: end;
+  margin: -0.4rem 0 0;
+  font: 0.75rem / 1.4 var(--ifm-font-family-monospace);
+  color: var(--label);
+}
+
+/* on a phone, the inspector: Request and Response groups of rows, the label
+   left and the value right */
+@container doc (max-width: 640px) {
+  .card {
+    display: block;
+    padding: 0.35rem 1.1rem 0.9rem;
+  }
+  .group {
+    display: block;
+  }
+  .group dl {
+    display: block;
+    margin: 0;
+  }
+  .groupHead {
+    display: block;
+    margin: 0.7rem 0 0.2rem;
+    padding-bottom: 0.35rem;
+    border-bottom: var(--rule);
+    font-size: 0.875rem;
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.3rem 0;
+  }
+  .row dt {
+    margin: 0;
+  }
+  .row dd {
+    font-size: 0.8125rem;
+    text-align: right;
+  }
+  .block {
+    display: block;
+  }
+  .block dt {
+    margin-bottom: 0.35rem;
+  }
+  .block dd {
+    text-align: left;
+  }
+  .legend {
+    margin: 0.6rem 0 0;
+    text-align: right;
+  }
+}
+
+/* a value that passes a resource() option through: a dashed chip, which the
+   legend names */
+.inherited {
+  display: inline-block;
+  padding: 0 0.4em;
+  border: 1px dashed color-mix(in srgb, currentColor 45%, transparent);
+  border-radius: 6px;
+  line-height: 1.35;
+}
+.legend .inherited {
+  padding: 0.05rem 0.5em;
+}
+
 .method {
   display: inline-flex;
-  flex: none;
   align-items: center;
   gap: 0.4em;
   padding: 0.15rem 0.65rem;
@@ -60,8 +143,7 @@
   border-radius: 999px;
   background: color-mix(in srgb, var(--verb) 12%, transparent);
   color: var(--verb);
-  font-size: 0.75rem;
-  font-weight: 700;
+  font: 700 0.75rem / 1.4 var(--ifm-font-family-base);
   letter-spacing: 0.06em;
 }
 .method::before {
@@ -70,51 +152,4 @@
   height: 0.45rem;
   border-radius: 50%;
   background: currentColor;
-}
-
-.options,
-.response {
-  font-family: var(--ifm-font-family-monospace);
-}
-.options {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.4rem 1.25rem;
-  margin: 0.75rem 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.875rem;
-  --ifm-list-item-margin: 0;
-}
-.options li::before {
-  content: '◇ ';
-  color: var(--label);
-}
-.options i,
-.response dt {
-  font-style: normal;
-  font-weight: 400;
-  color: var(--label);
-}
-
-.response {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.35rem 0.6rem;
-  align-items: baseline;
-  margin: 0.75rem 0 0;
-  font-size: 0.8125rem;
-}
-.response dd {
-  margin: 0;
-  overflow-wrap: anywhere;
-}
-/* process's code takes the full width, its key above it */
-.response .block {
-  grid-column: 1 / -1;
-}
-.response :global(.theme-code-block) {
-  margin: 0;
-  box-shadow: none;
 }

@@ -1,3 +1,4 @@
+import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React from 'react';
 
@@ -6,9 +7,10 @@ import playgroundstyles from './Playground/styles.module.css';
 
 /** Wraps a Resource member's description, EndpointPlayground and the
  * Field/Value table after it (docs/rest/api/resource.md). The site shows the
- * table's rows as a card around the description: the path as its title, the
- * method as a pill, the other options as chips and what reads the response at
- * its foot. The .md pages agents read keep the table. */
+ * table's rows as a card above the description: a property grid where there
+ * is room, Request and Response groups of rows on a phone. Values that pass a
+ * resource() option through unchanged (links to its #arguments) are marked.
+ * The .md pages agents read keep the table. */
 export default function MethodInfo({
   children,
 }: {
@@ -18,58 +20,85 @@ export default function MethodInfo({
   const tableAt = parts.findIndex(part => tbodyOf(part));
   if (tableAt < 1) return <>{children}</>;
 
-  const description = parts.slice(0, tableAt - 1);
-  const playground = parts[tableAt - 1];
   const fields = fieldsOf(tbodyOf(parts[tableAt]));
-  const field = (key: string) => fields.find(f => f.key === key);
-  const options = fields.filter(f => !CARD_KEYS.includes(f.key));
-  const response = RESPONSE_KEYS.map(field).filter((f): f is Field => !!f);
-  const verb = field('method')?.text.replace(/'/g, '');
+  const response = fields.filter(f => RESPONSE_KEYS.includes(f.key));
+  const verb = fields
+    .find(f => f.key === 'method')
+    ?.text.replace(/'/g, '')
+    .trim();
+  const row = ({ key, value }: Field) => (
+    <div
+      key={key}
+      className={clsx(styles.row, key === 'process' && styles.block)}
+    >
+      <dt>{key}</dt>
+      <dd>
+        {key === 'method' ?
+          <span className={styles.method}>{verb}</span>
+        : markInherited(value)}
+      </dd>
+    </div>
+  );
   return (
     <>
       <section
         className={clsx(styles.card, playgroundstyles.stageHues)}
         data-method={verb}
       >
-        <div className={styles.head}>
-          <code className={styles.path}>{field('path')?.value}</code>
-          {verb ?
-            <span className={styles.method}>{verb}</span>
-          : null}
+        <div className={styles.group}>
+          <h4 className={styles.groupHead}>
+            {translate({ id: 'methodInfo.request', message: 'Request' })}
+          </h4>
+          <dl>{fields.filter(f => !response.includes(f)).map(row)}</dl>
         </div>
-        {description}
-        {options.length ?
-          <ul className={styles.options}>
-            {options.map(({ key, value, text }) => (
-              <li key={key}>
-                {/* a value like [body](#body) already names its key */}
-                {text === key ? null : <i>{key} </i>}
-                {value}
-              </li>
-            ))}
-          </ul>
-        : null}
-        {response.length ?
-          <dl className={styles.response}>
-            {response.map(({ key, value }) => (
-              <React.Fragment key={key}>
-                <dt>{key}</dt>
-                <dd className={key === 'process' ? styles.block : undefined}>
-                  {value}
-                </dd>
-              </React.Fragment>
-            ))}
-          </dl>
+        <div className={styles.group}>
+          <h4 className={styles.groupHead}>
+            {translate({ id: 'methodInfo.response', message: 'Response' })}
+          </h4>
+          <dl>{response.map(row)}</dl>
+        </div>
+        {fields.some(f => hasInherited(f.value)) ?
+          <p className={styles.legend}>
+            <span className={styles.inherited}>
+              {translate({
+                id: 'methodInfo.inherited',
+                message: 'from resource()',
+              })}
+            </span>
+          </p>
         : null}
       </section>
-      {playground}
+      {parts.slice(0, tableAt)}
       {parts.slice(tableAt + 1)}
     </>
   );
 }
 
+/** a link to one of resource()'s #arguments: the option passes through */
+const isInherited = (node: React.ReactNode): node is MdxElement =>
+  React.isValidElement(node) &&
+  `${(node.props as { href?: unknown }).href ?? ''}`.startsWith('#');
+
+const hasInherited = (node: React.ReactNode): boolean =>
+  React.Children.toArray(node).some(
+    child =>
+      isInherited(child) ||
+      (React.isValidElement(child) &&
+        hasInherited((child as MdxElement).props.children)),
+  );
+
+function markInherited(node: React.ReactNode): React.ReactNode {
+  return React.Children.map(node, child => {
+    if (isInherited(child))
+      return <span className={styles.inherited}>{child}</span>;
+    const el = child as MdxElement;
+    return React.isValidElement(child) && el.props.children ?
+        React.cloneElement(el, undefined, markInherited(el.props.children))
+      : child;
+  });
+}
+
 const RESPONSE_KEYS = ['schema', 'process'];
-const CARD_KEYS = ['method', 'path', ...RESPONSE_KEYS];
 
 interface Field {
   key: string;
