@@ -48,14 +48,16 @@ import { splitKey } from '../../splitKey';
 export default function TreeView() {
   const { model } = useNav();
   const shown = useShownSections(model);
-  const { section, groupDefaults: known, setGroupDefaults } = useTreeState();
+  const { section, groupDefaults: recorded, setGroupDefaults } = useTreeState();
   // a group's default is fixed when it first appears in a tree, so tables
   // arriving later (Suspense loads them one by one) never reshuffle what is
-  // open; recorded after render, so this one shows them as they will be
-  const groupDefaults = withNewGroups(known, model.tables);
+  // open. The shown store (a diff, a moment) can hold tables the live one
+  // lacks, so this view records them; it shows them as they will be meanwhile
+  const groupDefaults = withNewGroups(recorded, model.tables);
   useLayoutEffect(() => {
-    if (groupDefaults !== known) setGroupDefaults(groupDefaults);
-  }, [groupDefaults, known, setGroupDefaults]);
+    if (groupDefaults !== recorded)
+      setGroupDefaults(prev => withNewGroups(prev, model.tables));
+  }, [groupDefaults, recorded, setGroupDefaults, model.tables]);
   const endpoints = preview(model.endpoints);
   return (
     <>
@@ -114,7 +116,10 @@ interface TreeState {
   >;
   /** Whether each group, by table key, starts open */
   readonly groupDefaults: ReadonlyMap<string, boolean>;
-  readonly setGroupDefaults: (next: ReadonlyMap<string, boolean>) => void;
+  /** Set by the tree view, the one that knows which store it shows */
+  readonly setGroupDefaults: React.Dispatch<
+    React.SetStateAction<ReadonlyMap<string, boolean>>
+  >;
 }
 const TreeStateContext = createContext<TreeState | null>(null);
 function useTreeState() {
