@@ -1,6 +1,5 @@
 /**
- * User-agent gates for the playground's heavy client code, and for what
- * engines differ on (`isGecko`).
+ * User-agent gates for the playground's heavy client code.
  *
  * - Bots/crawlers: never load Monaco or the live preview; the SSG markup
  *   (static code + empty preview frame) is what gets indexed.
@@ -28,9 +27,4 @@ export const isBot = BOT_UA.test(userAgent());
 export function isMobileOrBot(): boolean {
   const ua = userAgent();
   return BOT_UA.test(ua) || MOBILE_UA.test(ua);
-}
-
-/** True in Firefox, whose UA alone names Gecko with its build date */
-export function isGecko(): boolean {
-  return /\bGecko\/\d/.test(userAgent());
 }
