@@ -36,6 +36,8 @@ import { wrapManager, type Wrap } from './wrapManager';
 
 const { createReducer, MemoCache } = __INTERNAL__;
 
+type GCAction = Extract<ActionTypes, { type: typeof actionTypes.GC }>;
+
 /** Actions kept (`limit`); older ones drop off the front */
 const LOG_LIMIT = 500;
 /** Updates kept per row (`updateLimit`): a subscription's polls, or pushed
@@ -294,6 +296,13 @@ export default class ActionLog {
   private readonly reducer = createReducer(this.reader);
   private readonly views = new WeakMap<State<unknown>, State<unknown>>();
   private readonly diffs = new WeakMap<LogEntry, readonly Change[]>();
+  /** By state, then fetch key: what `heldEntities` found (the fetches a
+   * refetch sends share it) */
+  private readonly held = new WeakMap<
+    State<unknown>,
+    Map<string, ReadonlySet<string>>
+  >();
+
   private readonly refetchCounts = new WeakMap<
     readonly LogEntry[],
     ReadonlyMap<number, number>
@@ -411,7 +420,7 @@ export default class ActionLog {
           // the store's reducer deletes garbage in place, from tables earlier
           // states share (copying them all is fine: GC runs rarely)
           state = reduce(
-            action.type === actionTypes.GC ? detach(before) : before,
+            action.type === actionTypes.GC ? detach(before, action) : before,
             action,
           );
           // the state it left (one sent before recording started has no
@@ -496,9 +505,11 @@ export default class ActionLog {
     if (!entry.store) return [];
     let changes = this.diffs.get(entry);
     if (!changes) {
+      const { before, after } = entry.store;
       changes = diffStates(
-        this.view(entry.store.before),
-        this.view(entry.store.after),
+        this.view(before),
+        this.view(after),
+        endpointsWritten(entry.action, before, after),
       );
       this.diffs.set(entry, changes);
     }
@@ -542,15 +553,22 @@ export default class ActionLog {
   ): ReadonlySet<string> {
     // a copied endpoint (see `fetchReason`) can't read its schema
     if (typeof endpoint?.key !== 'function') return new Set();
-    // a fresh memo: one that met a nested entity invalid can still name
-    // only the outer one, until #4460 lands
-    const { paths } = new MemoCache().denormalize(
-      endpoint.schema,
-      state.endpoints[key],
-      state.entities,
-      args,
-    );
-    return new Set(paths.map(p => entityId(p.key, p.pk)));
+    let byKey = this.held.get(state);
+    if (!byKey) this.held.set(state, (byKey = new Map()));
+    let held = byKey.get(key);
+    if (!held) {
+      // a fresh memo: one that met a nested entity invalid can still name
+      // only the outer one, until #4460 lands
+      const { paths } = new MemoCache().denormalize(
+        endpoint.schema,
+        state.endpoints[key],
+        state.entities,
+        args,
+      );
+      held = new Set(paths.map(p => entityId(p.key, p.pk)));
+      byKey.set(key, held);
+    }
+    return held;
   }
 
   /** By an action's seq, how many requests it caused (its fetches'
@@ -823,19 +841,63 @@ function trim(
 }
 
 /** `state` with tables of its own: the store's reducer deletes garbage from
- * its tables in place, which states built from them share */
-function detach(state: State<unknown>): State<unknown> {
-  const copy = <T>(tables: Record<string, T>) =>
-    Object.fromEntries(
-      Object.entries(tables).map(([key, table]) => [key, { ...table }]),
-    );
+ * its tables in place, which states built from them share. With `gc`, only
+ * the tables it deletes from */
+function detach(state: State<unknown>, gc?: GCAction): State<unknown> {
+  const names = gc && new Set(gc.entities.map(e => e.key));
+  const copy = <T>(tables: Record<string, T>) => {
+    const own = { ...tables };
+    for (const key in own)
+      if (!names || names.has(key)) own[key] = { ...own[key] };
+    return own;
+  };
   return {
     ...state,
     entities: copy(state.entities),
     entitiesMeta: copy(state.entitiesMeta),
-    endpoints: { ...state.endpoints },
-    meta: { ...state.meta },
+    ...((!gc || gc.endpoints.length) && {
+      endpoints: { ...state.endpoints },
+      meta: { ...state.meta },
+    }),
   };
+}
+
+/** The endpoint keys whose row `action` can change, as components see
+ * them (with the pending optimistic updates of `before` and `after`, which
+ * write their own keys), or `undefined` when it can change any: one that
+ * matches keys (`invalidateAll`, `expireAll`), a reset, or an endpoint's
+ * `update`, which writes keys of its choosing */
+function endpointsWritten(
+  action: ActionTypes,
+  before: State<unknown>,
+  after: State<unknown>,
+): Set<string> | undefined {
+  const keys = new Set<string>();
+  switch (action.type) {
+    case actionTypes.SET_RESPONSE:
+    case actionTypes.OPTIMISTIC:
+      if (action.endpoint.update) return;
+    // eslint-disable-next-line no-fallthrough
+    case actionTypes.INVALIDATE:
+      keys.add(action.key);
+      break;
+    case actionTypes.GC:
+      action.endpoints.forEach(key => keys.add(key));
+      break;
+    // write no endpoint of their own
+    case actionTypes.FETCH:
+    case actionTypes.SET:
+    case actionTypes.SUBSCRIBE:
+    case actionTypes.UNSUBSCRIBE:
+      break;
+    default:
+      return;
+  }
+  for (const pending of [...before.optimistic, ...after.optimistic]) {
+    if (pending.endpoint.update) return;
+    keys.add(pending.key);
+  }
+  return keys;
 }
 
 /** `next`, or `prev` when it holds the same, so what is built on the set

@@ -50,19 +50,23 @@ export type Change =
       readonly fields?: readonly string[];
     };
 
-/** Rows whose stored value or meta differs, endpoints first */
+/** Rows whose stored value or meta differs, endpoints first. `endpoints`:
+ * the only endpoint keys that can differ, when known */
 export function diffStates(
   prev: State<unknown>,
   next: State<unknown>,
+  endpoints?: Iterable<string>,
 ): Change[] {
   const changes: Change[] = [];
   if (prev.endpoints !== next.endpoints || prev.meta !== next.meta) {
-    const keys = new Set([
-      ...Object.keys(prev.endpoints),
-      ...Object.keys(prev.meta),
-      ...Object.keys(next.endpoints),
-      ...Object.keys(next.meta),
-    ]);
+    const keys =
+      endpoints ??
+      new Set([
+        ...Object.keys(prev.endpoints),
+        ...Object.keys(prev.meta),
+        ...Object.keys(next.endpoints),
+        ...Object.keys(next.meta),
+      ]);
     for (const key of keys) {
       const kind = endpointChange(prev, next, key);
       if (kind) changes.push({ kind, id: endpointId(key), endpoint: key });
