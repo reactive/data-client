@@ -4,8 +4,8 @@
   margin: 1.25rem 0 2rem;
 }
 
-/* separate borders: rows draw no line here (unlike root.css's row hairlines),
- * so only the cells over each group get one */
+/* separate borders: Infima's `table tr` line (the row hairline root.css keeps)
+ * doesn't draw here, so only the cells over each group get one */
 .schemaTable table {
   border-collapse: separate;
   border-spacing: 0;
