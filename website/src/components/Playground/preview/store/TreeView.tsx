@@ -51,6 +51,17 @@ export default function TreeView() {
     () => new Map(),
   );
   const open = useMemo(() => ({ choices, setChoices }), [choices]);
+  // a group's default is fixed when it first appears, so tables arriving
+  // later (Suspense loads them one by one) never reshuffle what is open
+  const [groupDefaults, setGroupDefaults] = useState<
+    ReadonlyMap<string, boolean>
+  >(() => new Map());
+  const fresh = model.tables.filter(t => !groupDefaults.has(t.key));
+  if (fresh.length) {
+    const next = new Map(groupDefaults);
+    for (const t of fresh) next.set(t.key, next.size < OPEN_GROUPS);
+    setGroupDefaults(next);
+  }
   return (
     <OpenContext.Provider value={open}>
       {model.optimistic.length > 0 && (
@@ -77,11 +88,11 @@ export default function TreeView() {
       )}
       {shown.entities && (
         <SectionBlock {...section('Entities', shown.entityCount)} chevron>
-          {model.tables.map((table, i) => (
+          {model.tables.map(table => (
             <EntityTreeGroup
               key={table.key}
               table={table}
-              defaultOpen={i < OPEN_GROUPS}
+              defaultOpen={!!groupDefaults.get(table.key)}
             />
           ))}
         </SectionBlock>
@@ -95,7 +106,7 @@ export default function TreeView() {
   );
 }
 
-/** Entity types open as they first appear (Suspense loads them one by one) */
+/** The first Entity types to appear start open */
 const OPEN_GROUPS = 3;
 
 /** The reader's open and closed choices, by row or group id */
