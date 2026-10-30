@@ -65,6 +65,7 @@ import {
   rowLabel,
   type StoreModel,
 } from './model';
+import { useMouseBack } from './mouseBack';
 import {
   ACTIONS,
   DiffContext,
@@ -579,6 +580,13 @@ export default function StorePanel({
   // changed the store
   const shownDiff = tab === 'state' && diffMode ? diff : undefined;
   const storeShown = tab === 'state' && (!diffMode || !!diff);
+  // the mouse's back button goes back a level while over the panel
+  const shownLevels =
+    tab === 'action' ? actionsShown
+    : storeShown ? levels
+    : undefined;
+  const depth = covered || !shownLevels ? 0 : shownLevels.stack.length - 1;
+  useMouseBack(panel, depth > 0, () => shownLevels?.back(depth));
 
   return (
     <ActionsContext.Provider value={actions}>

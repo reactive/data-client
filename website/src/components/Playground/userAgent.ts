@@ -28,3 +28,8 @@ export function isMobileOrBot(): boolean {
   const ua = userAgent();
   return BOT_UA.test(ua) || MOBILE_UA.test(ua);
 }
+
+/** True in Firefox, whose UA alone names Gecko with its build date */
+export function isGecko(): boolean {
+  return /\bGecko\/\d/.test(userAgent());
+}
