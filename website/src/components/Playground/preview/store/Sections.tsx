@@ -1,6 +1,7 @@
 import clsx from 'clsx';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 
+import { toggled } from './dom';
 import type { EntityTable, StoreModel } from './model';
 import { DiffContext } from './nav';
 import { plain } from './refs';
@@ -31,6 +32,27 @@ export function Chevron({ open }: { open: boolean }) {
   return (
     <span className={clsx(styles.chevron, open && styles.chevronOpen)}>▶</span>
   );
+}
+
+/** Rows a table shows before "N more"; tables this short show them all */
+const PREVIEW_ROWS = 5;
+const SHOW_ALL_UNDER = 8;
+
+export const preview = <T,>(rows: readonly T[]) =>
+  rows.length > SHOW_ALL_UNDER ? rows.slice(0, PREVIEW_ROWS) : rows;
+
+/** `SectionBlock` props by title, each open until toggled (Internals
+ * closed) */
+export function useSectionToggles() {
+  const [closed, setClosed] = useState<ReadonlySet<string>>(
+    () => new Set(['Internals']),
+  );
+  return (title: string, count?: number) => ({
+    title,
+    count,
+    open: !closed.has(title),
+    onToggle: () => setClosed(prev => toggled(prev, title)),
+  });
 }
 
 /** Collapsible block with a sticky header */

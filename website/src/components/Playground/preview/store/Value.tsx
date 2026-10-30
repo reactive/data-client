@@ -20,7 +20,6 @@ import {
   type VNode,
 } from './refs';
 import styles from './store.module.css';
-import { useStoreUI } from './StoreUI';
 import { valueDiff, type Part } from './valueDiff';
 
 /** Fields a bare preview shows (the row truncates long before) */
@@ -45,7 +44,6 @@ export function RefChip({
    * summarizes left it */
   at?: Moment;
 }) {
-  const { reveal } = useStoreUI();
   const nav = useNav();
   const spanAt = useSpanEnd();
   return (
@@ -55,8 +53,7 @@ export function RefChip({
       title={title}
       onClick={e => {
         e.stopPropagation();
-        if (nav) nav.push({ kind: 'record', id }, at ?? spanAt);
-        else reveal(id);
+        nav?.push({ kind: 'record', id }, at ?? spanAt);
       }}
     >
       {label}
@@ -132,7 +129,7 @@ export function CountChip({
   );
 }
 
-/** The first `RECORD_REFS` chips; the table view dives into the rest */
+/** The first `RECORD_REFS` chips, then a count chip diving into the rest */
 export function RefList({
   chips,
   list,
@@ -140,8 +137,7 @@ export function RefList({
   chips: readonly React.ReactNode[];
   list: () => ListView;
 }) {
-  const nav = useNav();
-  const cut = nav && chips.length > RECORD_REFS;
+  const cut = chips.length > RECORD_REFS;
   return (
     <span className={styles.wrapList}>
       {cut ? chips.slice(0, RECORD_REFS) : chips}
@@ -486,9 +482,8 @@ function BlockList({
   name?: string;
 }) {
   const [all, setAll] = useState(false);
-  const nav = useNav();
-  // the table view dives into long lists of refs instead of growing them
-  if (nav && isRefList(node))
+  // long lists of refs dive in instead of growing
+  if (isRefList(node))
     return (
       <RefList
         chips={node.items.map((item, i) => (

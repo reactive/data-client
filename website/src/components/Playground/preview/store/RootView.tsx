@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 
 import { TIME_WIDTH } from './columns';
 import { EntityDetail } from './Details';
-import { byData, offsetIn, toggled, type Scroller } from './dom';
+import { byData, offsetIn, type Scroller } from './dom';
 import {
   optimisticId,
   type EntityRow,
@@ -14,7 +14,9 @@ import { plain } from './refs';
 import {
   GroupLabel,
   Internals,
+  preview,
   SectionBlock,
+  useSectionToggles,
   useShownSections,
 } from './Sections';
 import styles from './store.module.css';
@@ -29,28 +31,14 @@ import {
 import { EndpointKey, Inline, Primitive } from './Value';
 import { splitKey } from '../../splitKey';
 
-/** Rows a table shows before "N more"; tables this short show them all */
-const PREVIEW_ROWS = 5;
-const SHOW_ALL_UNDER = 8;
 /** Tables needed before a jump list of them is worth its line */
 const INDEX_OVER = 5;
-
-const preview = <T,>(rows: readonly T[]) =>
-  rows.length > SHOW_ALL_UNDER ? rows.slice(0, PREVIEW_ROWS) : rows;
 
 /** The whole store at a glance: a few rows of everything */
 export default function RootView({ scroller }: { scroller: Scroller }) {
   const { model, width, push } = useNav()!;
   const shown = useShownSections(model);
-  const [closed, setClosed] = useState<ReadonlySet<string>>(
-    () => new Set(['Internals']),
-  );
-  const section = (title: string, count?: number) => ({
-    title,
-    count,
-    open: !closed.has(title),
-    onToggle: () => setClosed(prev => toggled(prev, title)),
-  });
+  const section = useSectionToggles();
   const endpoints = preview(model.endpoints);
   const hiddenEndpoints = model.endpoints.length - endpoints.length;
   // stays once seen (holding a row's space), so an optimistic update

@@ -496,7 +496,6 @@
 .section + .section {
   margin-top: 0.35rem;
 }
-/* ~32px tall: HEADER_HEIGHT in dom.ts, what scrollToRow leaves above a row */
 .sectionHeader {
   position: sticky;
   top: 0;

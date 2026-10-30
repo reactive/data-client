@@ -404,7 +404,6 @@ export interface Nav {
   readonly push: (view: View, at?: Moment) => void;
 }
 
-/** Set by the table view's levels and the peek; the tree view expands in
- * place instead */
+/** Set by each level and the peek */
 export const NavContext = createContext<Nav | null>(null);
 export const useNav = () => useContext(NavContext);

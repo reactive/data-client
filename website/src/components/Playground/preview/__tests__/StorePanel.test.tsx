@@ -5,7 +5,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import { byData } from '../store/dom';
-import { endpointId, parseRowId } from '../store/model';
+import { endpointId, entityId, parseRowId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
 import { DemoViewContext, StoreToggle, useStoreOpen } from '../StoreToggle';
@@ -248,6 +248,27 @@ describe('StorePanel table view', () => {
       screen.getByLabelText('Tree view').getAttribute('aria-pressed'),
     ).toBe('true');
     expect(document.querySelector('[data-table]')).toBeNull();
+  });
+
+  it('dives in from the tree view as the table does, and back', () => {
+    mount();
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    const post = () => byData(top(), 'id', entityId('Post', '1'))!;
+    // a row expands in place
+    fireEvent.click(post());
+    expect(post().getAttribute('aria-expanded')).toBe('true');
+    // its references dive into the record
+    fireEvent.click(
+      within(top()).getAllByRole('button', { name: 'User 1' })[0],
+    );
+    expect(crumbs()).toEqual(['Store', '›', 'User 1']);
+    fireEvent.click(within(top()).getByLabelText('Back'));
+    expect(top().querySelector('nav')).toBeNull();
+    // the tree is as it was left
+    expect(post().getAttribute('aria-expanded')).toBe('true');
+    // so do the rows a group leaves out
+    fireEvent.click(within(top()).getByText('7 more'));
+    expect(crumbs()).toEqual(['Store', '›', 'Post12']);
   });
 
   it("shows a demo's view over the reader's while the Store stays open", () => {

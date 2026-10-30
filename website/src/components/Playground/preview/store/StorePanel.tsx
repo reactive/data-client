@@ -55,7 +55,7 @@ import { sameStage, shownChain, stagesOf, type Stage } from './attribution';
 import { NARROW_WIDTH } from './columns';
 import { diffModel, type RowDiff } from './diffModel';
 import { ListView, RecordLevel, type Header } from './DiveViews';
-import { flash, scrollToRow, slide, useWidth, type Scroller } from './dom';
+import { flash, slide, useWidth, type Scroller } from './dom';
 import {
   buildModel,
   findRow,
@@ -90,8 +90,7 @@ import { Preview, usePreview } from './Preview';
 import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
 import styles from './store.module.css';
-import { StoreUIProvider } from './StoreUI';
-import { useActionsBy, useStoreView } from './storeView';
+import { StoreViewContext, useActionsBy, useStoreView } from './storeView';
 import Timeline, { Scrubber } from './Timeline';
 import TreeView from './TreeView';
 import { RowKey } from './Value';
@@ -755,20 +754,15 @@ export default function StorePanel({
                         subject={subject}
                         hidden={tab !== 'action'}
                       />
-                      <DiffContext.Provider value={shownDiff?.rows ?? null}>
-                        {tree ?
-                          storeShown && (
-                            <TreeLevel model={model} diff={shownDiff} />
-                          )
-                        : <Levels
-                            model={model}
-                            width={width}
-                            levels={levels}
-                            diff={shownDiff}
-                            hidden={!storeShown}
-                          />
-                        }
-                      </DiffContext.Provider>
+                      <StoreViewContext.Provider value={view}>
+                        <Levels
+                          model={model}
+                          width={width}
+                          levels={levels}
+                          diff={shownDiff}
+                          hidden={!storeShown}
+                        />
+                      </StoreViewContext.Provider>
                     </ShownTimeContext.Provider>
                   </StateContext.Provider>
                   {tab === 'state' && diffMode && !diff && (
@@ -1122,8 +1116,12 @@ function SubjectLevel({
   scroller: Scroller;
   header: Header;
 }) {
+  const storeView = useContext(StoreViewContext);
   return (
-    view.kind === 'root' ? <RootView scroller={scroller} />
+    view.kind === 'root' ?
+      storeView === 'tree' ?
+        <TreeView />
+      : <RootView scroller={scroller} />
     : view.kind === 'list' ?
       <ListView view={view} scroller={scroller} header={header} />
     : <RecordLevel id={view.id} scroller={scroller} header={header} />
@@ -1420,31 +1418,6 @@ function ActionCrumb({
     entry ? <MomentName entry={entry} scope={scope} />
     : seq === null ? <>Newest</>
     : <>…</>
-  );
-}
-
-/** The explorer: everything expands in place; at a moment, only what its
- * action changed, or what it did instead when it changed no row */
-function TreeLevel({ model, diff }: { model: StoreModel; diff?: Diff }) {
-  const scroller = useRef<HTMLDivElement>(null);
-  const [pending, setPending] = useState<string | null>(null);
-  useEffect(() => {
-    if (!pending || !scroller.current) return;
-    scrollToRow(scroller.current, pending);
-    setPending(null);
-  }, [pending]);
-  return (
-    <StoreUIProvider model={diff?.model ?? model} onReveal={setPending}>
-      <div className={styles.levels}>
-        <div className={styles.level} ref={scroller} data-level tabIndex={-1}>
-          {!diff ?
-            <TreeView model={model} />
-          : diff.rows.size ?
-            <TreeView model={diff.model} />
-          : <SubjectChanges entries={diff.entries} subject={ROOT} />}
-        </div>
-      </div>
-    </StoreUIProvider>
   );
 }
 
