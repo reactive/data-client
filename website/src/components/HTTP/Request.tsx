@@ -3,13 +3,12 @@ import clsx from 'clsx';
 import React, { memo } from 'react';
 
 import Clipped from './Clipped';
-import { RequestDefinition } from './Definition';
 import Json from './Json';
 import styles from './styles.module.css';
 import playgroundstyles from '../Playground/styles.module.css';
 
-/** The folder's header: method and URL on one line, the options it is made
- * from (a Resource member's), the headers that say something, and the body */
+/** The folder's header: method and URL on one line, the headers that say
+ * something, and the body */
 // EndpointPlayground re-renders as its code is edited, the exchange only
 // when the code's request changes
 export default memo(Request);
@@ -63,7 +62,6 @@ function Request({ input, init, busy }: Props) {
           </Clipped>
         : null}
       </div>
-      <RequestDefinition />
       {rest.length ?
         <dl className={styles.headers}>
           {rest.map(([key, value]) => (

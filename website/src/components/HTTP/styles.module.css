@@ -56,50 +56,6 @@
   overflow-wrap: break-word;
 }
 
-/* a Resource member's options (./Definition): under the request line, what
-   it is made from; at the response's foot, what reads it. A dashed rule
-   parts them from the exchange's own lines */
-.definition {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 1.1em;
-  margin-top: 0.45rem;
-  padding-top: 0.45rem;
-  border-top: var(--definition-rule);
-  font: 12.5px / 20px var(--ifm-font-family-monospace);
-}
-.definition,
-.responseDefinition {
-  --definition-rule: 1px dashed
-    color-mix(in srgb, var(--pg-text) 16%, transparent);
-}
-.definition i {
-  font-style: normal;
-  color: var(--pg-muted);
-}
-.definition a,
-.responseDefinition a {
-  color: var(--store-key);
-}
-/* a .headers list (declared after it, to override its margin), in the
-   stage's ink, parted from the body by a rule */
-.responseDefinition {
-  color: var(--pg-text);
-  row-gap: 0.35rem;
-  align-items: start;
-  margin-top: 0.8rem;
-  padding-top: 0.65rem;
-  border-top: var(--definition-rule);
-}
-/* process's code, its key on the code's first line */
-.responseDefinition dt:has(+ dd pre) {
-  padding-top: var(--ifm-pre-padding);
-}
-.responseDefinition dd :global(.theme-code-block) {
-  margin: 0;
-  box-shadow: none;
-}
-
 /* the response's sheet, over the header's shadow and flare. Its own shadow
    lies under the header (::before, at the bottom of the slot's layers), so
    it never darkens the join */
@@ -131,7 +87,7 @@
   color: var(--store-fresh);
   background: color-mix(in srgb, var(--store-fresh) 13%, transparent);
 }
-.status:has(+ .json) {
+.status:not(:last-child) {
   position: absolute;
   top: 15px;
   right: var(--ex-pad);

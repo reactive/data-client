@@ -1,24 +1,71 @@
 import React from 'react';
 
-import { DefinitionContext, type Field } from './HTTP/Definition';
+import styles from './MethodInfo.module.css';
 
-/** Wraps a Resource member's EndpointPlayground and the Field/Value table
- * after it (docs/rest/api/resource.md). The site renders the playground
- * alone and shows the table's rows in its exchange, where each acts
- * (./HTTP/Definition); the .md pages agents read keep the table. */
+/** Wraps a Resource member's description, EndpointPlayground and the
+ * Field/Value table after it (docs/rest/api/resource.md). The site shows the
+ * table's rows as a card around the description: the path as its title, the
+ * method as a pill, the other options as chips and what reads the response at
+ * its foot. The .md pages agents read keep the table. */
 export default function MethodInfo({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const parts = React.Children.toArray(children);
-  const table = parts.find(part => tbodyOf(part));
-  const fields = table ? fieldsOf(tbodyOf(table)) : null;
-  return (
-    <DefinitionContext.Provider value={fields}>
-      {parts.filter(part => part !== table)}
-    </DefinitionContext.Provider>
+  const tableAt = parts.findIndex(part => tbodyOf(part));
+  if (tableAt < 1) return <>{children}</>;
+
+  const fields = fieldsOf(tbodyOf(parts[tableAt]));
+  const [method, path, schema, process] = CARD_KEYS.map(key =>
+    fields.find(f => f.key === key),
   );
+  const options = fields.filter(f => !CARD_KEYS.includes(f.key));
+  const verb = method && textOf(method.value).replace(/'/g, '').trim();
+  return (
+    <>
+      <section className={styles.card} data-method={verb}>
+        <div className={styles.head}>
+          <code className={styles.path}>{path?.value}</code>
+          {verb ?
+            <span className={styles.method}>{verb}</span>
+          : null}
+        </div>
+        {parts.slice(0, tableAt - 1)}
+        {options.length ?
+          <ul className={styles.options}>
+            {options.map(({ key, value, same }) => (
+              <li key={key}>
+                {same ? null : <i>{key} </i>}
+                {value}
+              </li>
+            ))}
+          </ul>
+        : null}
+        <dl className={styles.response}>
+          {[schema, process].map(f =>
+            f ?
+              <React.Fragment key={f.key}>
+                <dt>{f.key}</dt>
+                <dd>{f.value}</dd>
+              </React.Fragment>
+            : null,
+          )}
+        </dl>
+      </section>
+      {parts[tableAt - 1]}
+      {parts.slice(tableAt + 1)}
+    </>
+  );
+}
+
+const CARD_KEYS = ['method', 'path', 'schema', 'process'];
+
+interface Field {
+  key: string;
+  value: React.ReactNode;
+  /** the value reads as its key, e.g. [body](#body) */
+  same: boolean;
 }
 
 type MdxElement = React.ReactElement<{ children?: React.ReactNode }>;

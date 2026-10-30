@@ -293,9 +293,9 @@ const PostResource = resource({
 
 ### get
 
-Retrieve a singular entity.
-
 <MethodInfo>
+
+Retrieve a singular entity.
 
 <EndpointPlayground fixtures={groupPostFixtures}>
 
@@ -343,9 +343,9 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 
 ### getList
 
-Retrieve a list of entities.
-
 <MethodInfo>
+
+Retrieve a list of entities.
 
 <EndpointPlayground fixtures={groupPostFixtures}>
 
@@ -405,10 +405,10 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 
 ### getList.push {#push}
 
+<MethodInfo>
+
 [RestEndpoint.push](./RestEndpoint.md#push) creates a new entity and pushes it to the end of getList. Use [getList.unshift](#unshift)
 to place at the beginning instead. Pass an array as the body to create several at once.
-
-<MethodInfo>
 
 <EndpointPlayground fixtures={groupPostFixtures}>
 
@@ -458,9 +458,9 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### getList.unshift {#unshift}
 
-[RestEndpoint.unshift](./RestEndpoint.md#unshift) creates a new entity and pushes it to the beginning of getList.
-
 <MethodInfo>
+
+[RestEndpoint.unshift](./RestEndpoint.md#unshift) creates a new entity and pushes it to the beginning of getList.
 
 <EndpointPlayground fixtures={groupPostFixtures}>
 
@@ -510,11 +510,11 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### getList.getPage {#getpage}
 
+<MethodInfo>
+
 [RestEndpoint.getPage](./RestEndpoint.md#getpage) retrieves another [page](../guides/pagination.md#infinite-scrolling) appending to getList ensuring there are no duplicates.
 
 This member is only available when [paginationField](#paginationfield) is specified.
-
-<MethodInfo>
 
 <EndpointPlayground fixtures={groupPostFixtures}>
 
@@ -568,10 +568,10 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### getList.move {#move}
 
+<MethodInfo>
+
 [RestEndpoint.move](./RestEndpoint.md#move) moves an entity between [Collections](./Collection.md) by removing it from
 collections matching its old state and adding it to collections matching the new values from the body.
-
-<MethodInfo>
 
 <EndpointPlayground fixtures={groupPostFixtures}>
 
@@ -620,9 +620,9 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### update
 
-Update an entity.
-
 <MethodInfo>
+
+Update an entity.
 
 <EndpointPlayground fixtures={groupPostFixtures}>
 
@@ -671,9 +671,9 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### partialUpdate
 
-Update some subset of fields of an entity.
-
 <MethodInfo>
+
+Update some subset of fields of an entity.
 
 <EndpointPlayground fixtures={groupPostFixtures}>
 
@@ -722,9 +722,9 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### delete
 
-Deletes an entity.
-
 <MethodInfo>
+
+Deletes an entity.
 
 <EndpointPlayground fixtures={groupPostFixtures}>
 
