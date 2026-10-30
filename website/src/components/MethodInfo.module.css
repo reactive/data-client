@@ -37,9 +37,15 @@
   display: block;
   font: 0.875rem / 1.5rem var(--ifm-font-family-monospace);
 }
-/* the keys label each row; the header only names the columns */
+/* the keys label each row; the header stays for screen readers
+ * (SchemaTable.module.css's visually hidden recipe) */
 .methodInfo thead {
-  display: none;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .methodInfo tbody {
   display: grid;
