@@ -12,30 +12,43 @@ import type { ManagerStage, Stage } from './attribution';
 import type { RowDiff } from './diffModel';
 import {
   entityId,
+  findRow,
   isEndpointRow,
-  rowLabel,
   type AnyRow,
   type EntityTable,
   type StoreModel,
 } from './model';
 import { memberRefs, type RefNode } from './refs';
 
-/** Rows of one table (all, or just `pks`), or rows of any kind by id */
+/** Rows of one table (all, or just `pks`), rows of any kind by id, or
+ * every endpoint; `of`: the row whose field (`label`) refers to them */
 export type ListView =
   | {
       readonly kind: 'list';
       readonly label: string;
       readonly table: string;
       readonly pks?: readonly string[];
+      readonly of?: string;
     }
   | {
       readonly kind: 'list';
       readonly label: string;
       readonly ids: readonly string[];
+      readonly of?: string;
+    }
+  | {
+      readonly kind: 'list';
+      readonly label: string;
+      readonly endpoints: true;
+      readonly of?: undefined;
     };
 
 /** The list a count chip dives into: one table's rows when they share one */
-export function refsList(items: readonly RefNode[], label: string): ListView {
+export function refsList(
+  items: readonly RefNode[],
+  label: string,
+  of?: string,
+): ListView {
   const table = items[0].key;
   const same = items.every(i => i.key === table);
   // a row lists once however often it is referenced
@@ -43,9 +56,22 @@ export function refsList(items: readonly RefNode[], label: string): ListView {
     ...new Set(items.map(i => (same ? i.pk : entityId(i.key, i.pk)))),
   ];
   return same ?
-      { kind: 'list', label, table, pks: keys }
-    : { kind: 'list', label, ids: keys };
+      { kind: 'list', label, table, pks: keys, of }
+    : { kind: 'list', label, ids: keys, of };
 }
+
+/** The list of every endpoint "N more" dives into */
+export const ENDPOINTS: ListView = {
+  kind: 'list',
+  label: 'Endpoints',
+  endpoints: true,
+};
+/** The list of a table's rows "N more" dives into */
+export const tableList = (key: string): ListView => ({
+  kind: 'list',
+  table: key,
+  label: key,
+});
 
 /** A Collection row's members, which its record shows as their own table */
 export function membersOf(
@@ -68,7 +94,7 @@ export const cellDive =
   (items: readonly RefNode[]): View =>
     table?.kind === 'collection' ?
       { kind: 'record', id: row.id }
-    : refsList(items, `${rowLabel(row)} ${name}`);
+    : refsList(items, name, row.id);
 
 /** A subject of the store: what a level shows, the Action tab lists the
  * actions of and the steps follow */
@@ -116,6 +142,77 @@ export type LevelView = View | ActionsView | ActionView;
 
 const isSubject = (view: LevelView): view is View =>
   view.kind !== 'action' && view.kind !== 'actions';
+
+/** A breadcrumb: a view on the way to a level, at `depth` when the stack
+ * holds it; one it doesn't is a place in the store, to open */
+export type Crumb =
+  | { readonly view: LevelView; readonly depth: number }
+  | { readonly view: View; readonly depth?: undefined };
+
+/** The crumbs to the top of `views`: each subject under where it lives in
+ * the store (`Store › User › 1`), whatever opened it, so they teach the
+ * store's shape; under an action, where it lives in the store that action
+ * left (`Actions › GET /posts › Post › 1`). Actions, and lists that are no
+ * place in the store, stay under what opened them */
+export function trail(views: readonly LevelView[], model: StoreModel) {
+  let crumbs: Crumb[] = [];
+  views.forEach((view, depth) => {
+    const place = isSubject(view) ? placeOf(view, model) : undefined;
+    if (place) {
+      const action = crumbs.findLastIndex(c => !isSubject(c.view));
+      crumbs = [
+        ...crumbs.slice(0, action + 1),
+        ...(action < 0 ? place : place.slice(1)).map(v =>
+          crumbOf(v, views.slice(0, depth)),
+        ),
+      ];
+    }
+    crumbs.push({ view, depth });
+  });
+  return crumbs;
+}
+
+/** `view`'s crumb, at the stack's level showing it if one below does */
+function crumbOf(view: View, below: readonly LevelView[]): Crumb {
+  const depth = below.findLastIndex(w => sameView(view, w));
+  return depth < 0 ? { view } : { view, depth };
+}
+
+/** What holds `view` in the store, from the root down; `undefined` when it
+ * is no place in it */
+function placeOf(view: View, model: StoreModel): View[] | undefined {
+  switch (view.kind) {
+    case 'root':
+      return [];
+    case 'record': {
+      const row = findRow(model, view.id);
+      if (!row) return undefined;
+      return [ROOT, isEndpointRow(row) ? ENDPOINTS : tableList(row.table)];
+    }
+    case 'list': {
+      if (view.of) {
+        const of: View = { kind: 'record', id: view.of };
+        const place = placeOf(of, model);
+        return place && [...place, of];
+      }
+      const whole = 'table' in view ? !view.pks : 'endpoints' in view;
+      return whole ? [ROOT] : undefined;
+    }
+  }
+}
+
+const sameView = (a: LevelView, b: LevelView) =>
+  a.kind === 'record' ? b.kind === 'record' && a.id === b.id
+  : a.kind === 'list' ?
+    b.kind === 'list' &&
+    a.label === b.label &&
+    ('table' in a ? a.table : undefined) ===
+      ('table' in b ? b.table : undefined) &&
+    ('pks' in a && !!a.pks) === ('pks' in b && !!b.pks) &&
+    // a field keyed `Endpoints` with no owner is no endpoint list
+    'endpoints' in a === 'endpoints' in b &&
+    a.of === b.of
+  : a.kind === b.kind && a.kind === 'root';
 
 /** The subject of the stack's top: the nearest level that is one, if any */
 export function subjectOf(stack: readonly StackEntry[]): View | undefined {
@@ -288,6 +385,7 @@ export function useLevelStack(
     followMoment,
   };
 }
+export const ROOT: View = { kind: 'root' };
 export const ACTIONS: ActionsView = { kind: 'actions' };
 /** The newest action, followed while live */
 export const NEWEST: ActionView = {
@@ -404,7 +502,10 @@ export interface Nav {
   readonly push: (view: View, at?: Moment) => void;
 }
 
-/** Set by the table view's levels and the peek; the tree view expands in
- * place instead */
+/** Set by each level and the peek */
 export const NavContext = createContext<Nav | null>(null);
-export const useNav = () => useContext(NavContext);
+export function useNav(): Nav {
+  const nav = useContext(NavContext);
+  if (!nav) throw new Error('useNav outside a level or the peek');
+  return nav;
+}

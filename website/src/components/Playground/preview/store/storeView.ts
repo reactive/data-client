@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { createContext, useCallback, useContext } from 'react';
 
 import { useTabStorage } from '../../../../utils/tabStorage';
 import {
@@ -8,6 +8,9 @@ import {
 } from '../StoreToggle';
 
 export type StoreView = 'table' | 'tree';
+
+/** The view the State tab's store level lays out in */
+export const StoreViewContext = createContext<StoreView>('table');
 
 /** Opens or closes the Store for a demo; opening in `view` shows that view
  * over the reader's while the Store stays open */

@@ -146,27 +146,16 @@ function mount(s = state, r = registry()) {
 }
 
 describe('StorePanel navigation', () => {
-  it('collapses breadcrumbs past four levels and jumps back by crumb', () => {
+  it('shows where a record lives however deep the dive, and jumps by crumb', () => {
     mount();
     fireEvent.click(within(top()).getByText('"Paul"'));
     fireEvent.click(chip('Post 1'));
     fireEvent.click(chip('User 1'));
     fireEvent.click(chip('Post 1'));
-    expect(crumbs()).toEqual(['Store', '›', '…', '›', 'User 1', '›', 'Post 1']);
-    fireEvent.click(
-      within(top().querySelector('nav')!).getByRole('button', {
-        name: 'User 1',
-      }),
-    );
-    expect(crumbs()).toEqual([
-      'Store',
-      '›',
-      'User 1',
-      '›',
-      'Post 1',
-      '›',
-      'User 1',
-    ]);
+    expect(crumbs()).toEqual(['Store', '›', 'Post', '›', '1']);
+    // Back retraces the dive
+    fireEvent.click(within(top()).getByLabelText('Back'));
+    expect(crumbs()).toEqual(['Store', '›', 'User', '›', '1']);
     fireEvent.click(
       within(top().querySelector('nav')!).getByRole('button', {
         name: 'Store',
@@ -225,24 +214,24 @@ describe('StorePanel navigation', () => {
       within(top()).getAllByRole('button', { name: /^Post \d+$/ }),
     ).toHaveLength(9);
     fireEvent.click(chip('+3'));
-    expect(crumbs()).toEqual(['Store', '›', 'User 1', '›', 'used by13']);
+    expect(crumbs()).toEqual(['Store', '›', 'User', '›', '1', '›', 'used by']);
     expect(headers()).toEqual(['row', 'value']);
     expect(top().querySelectorAll('tr[data-id]')).toHaveLength(13);
     fireEvent.click(row(entityId('Post', '3')));
-    expect(crumbs().at(-1)).toBe('Post 3');
+    expect(crumbs().at(-1)).toBe('3');
   });
 
   it('lists every endpoint past the preview and opens one with Enter', () => {
     mount();
     expect(within(top()).getByText('6 more')).toBeTruthy();
     fireEvent.click(within(top()).getByText('6 more'));
-    expect(crumbs()).toEqual(['Store', '›', 'Endpoints11']);
+    expect(crumbs()).toEqual(['Store', '›', 'Endpoints']);
     expect(headers()).toEqual(['key', 'status', 'value']);
     expect(top().querySelectorAll('tr[data-id]')).toHaveLength(11);
     const target = row(endpointId(NUMBERS));
     // keys from a chip inside the row are its own
     fireEvent.keyDown(within(target).getByText('0'), { key: 'Enter' });
-    expect(crumbs()).toEqual(['Store', '›', 'Endpoints11']);
+    expect(crumbs()).toEqual(['Store', '›', 'Endpoints']);
     fireEvent.keyDown(target, { key: 'Enter' });
     expect(crumbs().at(-1)).toBe('GET /numbers');
   });
@@ -267,7 +256,7 @@ describe('StorePanel navigation', () => {
     expect(within(top()).getAllByTitle(String(NOW)).length).toBeGreaterThan(0);
     fireEvent.click(within(show).getByText('Stored'));
     fireEvent.click(chip('+2'));
-    expect(crumbs().at(-1)).toBe('items12');
+    expect(crumbs().at(-1)).toBe('items');
   });
 
   it('explains when what an endpoint returns cannot be computed', () => {
@@ -296,7 +285,7 @@ describe('StorePanel navigation', () => {
     mount();
     fireEvent.click(row(endpointId(FEED)));
     fireEvent.click(chip('+2'));
-    expect(crumbs().at(-1)).toBe('items12');
+    expect(crumbs().at(-1)).toBe('items');
     expect(headers()).toEqual(['row', 'value']);
     expect(row(entityId('User', '1'))).toBeTruthy();
     expect(row(entityId('Post', '11'))).toBeTruthy();
@@ -308,7 +297,7 @@ describe('StorePanel navigation', () => {
     const { Post: _, ...entities } = state.entities as any;
     update({ ...state, entities } as State<unknown>);
     expect(within(top()).getByText('No longer in the store')).toBeTruthy();
-    expect(crumbs()).toEqual(['Store', '›', 'Post0']);
+    expect(crumbs()).toEqual(['Store', '›', 'Post']);
     fireEvent.click(within(top()).getByLabelText('Back'));
     fireEvent.click(within(top()).getByText('"Paul"'));
     const { User: __, ...rest } = entities;

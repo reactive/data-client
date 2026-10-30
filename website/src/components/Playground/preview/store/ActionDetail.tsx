@@ -248,7 +248,7 @@ function ChangeBody({
  * links to opens at that store too */
 function RemovedValue({ id, seq }: { id: string; seq: number }) {
   const { then } = useActions();
-  const nav = useNav()!;
+  const nav = useNav();
   const shown = then({ seq, before: true });
   const atNav = useMemo<Nav | undefined>(
     () =>
@@ -268,7 +268,7 @@ function RemovedValue({ id, seq }: { id: string; seq: number }) {
         <span className={styles.dim}>Removed; it was:</span>
         {isEndpointRow(row) ?
           <EndpointBody row={row} />
-        : <Block node={row.value} />}
+        : <Block node={row.value} of={row.id} />}
       </NavContext.Provider>
     </AtMoment>
   );

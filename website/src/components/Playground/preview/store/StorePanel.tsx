@@ -55,12 +55,14 @@ import { sameStage, shownChain, stagesOf, type Stage } from './attribution';
 import { NARROW_WIDTH } from './columns';
 import { diffModel, type RowDiff } from './diffModel';
 import { ListView, RecordLevel, type Header } from './DiveViews';
-import { flash, scrollToRow, slide, useWidth, type Scroller } from './dom';
+import { flash, slide, useWidth, type Scroller } from './dom';
 import {
   buildModel,
   findRow,
   isEndpointRow,
   pendingIn,
+  prettyPk,
+  rowLabel,
   type StoreModel,
 } from './model';
 import {
@@ -69,8 +71,10 @@ import {
   NEWEST,
   NavContext,
   NavStateContext,
+  ROOT,
   ShownTimeContext,
   subjectOf,
+  trail,
   useLevelStack,
   type LevelStack,
   type Moment,
@@ -90,10 +94,9 @@ import { Preview, usePreview } from './Preview';
 import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
 import styles from './store.module.css';
-import { StoreUIProvider } from './StoreUI';
-import { useActionsBy, useStoreView } from './storeView';
+import { StoreViewContext, useActionsBy, useStoreView } from './storeView';
 import Timeline, { Scrubber } from './Timeline';
-import TreeView from './TreeView';
+import TreeView, { TreeStateProvider } from './TreeView';
 import { RowKey } from './Value';
 import { Why } from './Why';
 import TabList from '../../TabList';
@@ -755,20 +758,17 @@ export default function StorePanel({
                         subject={subject}
                         hidden={tab !== 'action'}
                       />
-                      <DiffContext.Provider value={shownDiff?.rows ?? null}>
-                        {tree ?
-                          storeShown && (
-                            <TreeLevel model={model} diff={shownDiff} />
-                          )
-                        : <Levels
+                      <StoreViewContext.Provider value={view}>
+                        <TreeStateProvider>
+                          <Levels
                             model={model}
                             width={width}
                             levels={levels}
                             diff={shownDiff}
                             hidden={!storeShown}
                           />
-                        }
-                      </DiffContext.Provider>
+                        </TreeStateProvider>
+                      </StoreViewContext.Provider>
                     </ShownTimeContext.Provider>
                   </StateContext.Provider>
                   {tab === 'state' && diffMode && !diff && (
@@ -789,7 +789,9 @@ export default function StorePanel({
                   subject={subject}
                   filter={filter}
                   label={
-                    subject.kind === 'root' ? null : crumbLabel(subject, model)
+                    subject.kind === 'root' ?
+                      null
+                    : subjectLabel(subject, model)
                   }
                   narrow={narrow}
                   toggle={listButton}
@@ -807,7 +809,6 @@ export default function StorePanel({
   );
 }
 
-const ROOT: View = { kind: 'root' };
 type Tab = 'state' | 'action';
 /** How long the pointer rests on the list button before the list peeks,
  * and is away from both before a peek closes (ms) */
@@ -846,11 +847,6 @@ function Levels({
   diff?: Diff;
 }) {
   const { then } = useActions();
-  // levels shown before (the view toggled back to the table) show at once;
-  // only those new since slide in
-  useLayoutEffect(() => {
-    for (const entry of stack) shownLevels.add(entry);
-  });
   // each level's nav; one showing an action's store keeps its own as the
   // live store changes
   const [navs] = useState(
@@ -884,17 +880,23 @@ function Levels({
 
   const subjectAt = (depth: number) =>
     subjectOf(stack.slice(0, depth)) ?? under ?? ROOT;
-  const label = (view: LevelView, depth: number, model: StoreModel) =>
-    view.kind === 'actions' ?
-      <ActionsCrumb subject={subjectAt(depth)} model={model} />
-    : crumbLabel(view, model, subjectAt(depth));
   const crumbs = (depth: number, tools?: React.ReactNode) => {
-    const shown = stack.slice(0, depth + 1);
     const { at } = stack[depth];
     // one opened at an action the log no longer has shows the store as it is
     const { nav, then } = levelOf(stack[depth]);
     const { model } = nav;
     const shownAt = then && at;
+    const shown = trail(
+      stack.slice(0, depth + 1).map(e => e.view),
+      model,
+    );
+    const crumbAt = (i: number) => {
+      const { view, depth: d = depth } = shown[i];
+      const subject = subjectAt(d);
+      return view.kind === 'actions' ?
+          <ActionsCrumb subject={subject} model={model} />
+        : crumbLabel(view, model, subject);
+    };
     const items =
       shown.length > CRUMBS ?
         [0, -1, shown.length - 2, shown.length - 1]
@@ -917,16 +919,21 @@ function Levels({
               {n > 0 && <span className={styles.sep}>›</span>}
               {i < 0 ?
                 <span className={styles.sep}>…</span>
-              : i === depth ?
+              : i === shown.length - 1 ?
                 <span className={styles.crumbCurrent} aria-current="page">
-                  {label(shown[i].view, i, model)}
+                  {crumbAt(i)}
                 </span>
               : <button
                   type="button"
                   className={styles.crumb}
-                  onClick={() => back(i + 1)}
+                  onClick={() => {
+                    const crumb = shown[i];
+                    // a place the stack skipped opens over it
+                    if (crumb.depth === undefined) push(crumb.view, at);
+                    else back(crumb.depth + 1);
+                  }}
                 >
-                  {label(shown[i].view, i, model)}
+                  {crumbAt(i)}
                 </button>
               }
             </React.Fragment>
@@ -970,7 +977,7 @@ function Levels({
             nav={level.nav}
             then={level.then}
             depth={depth}
-            pushed={depth > 0 && !entry.quiet && !shownLevels.has(entry)}
+            pushed={depth > 0 && !entry.quiet}
             top={depth === stack.length - 1}
             hidden={hidden}
             under={under}
@@ -1005,10 +1012,6 @@ function Levels({
   );
 }
 
-/** The stack entries a `Levels` has shown, so one remounted shows those as
- * they were */
-const shownLevels = new WeakSet<StackEntry>();
-
 /** One scrolling level; slides in when pushed, and back in from the other
  * side when what covered it closes */
 function Level({
@@ -1030,8 +1033,7 @@ function Level({
   /** The store this level shows, when not the one `StateContext` holds */
   then?: Then;
   depth: number;
-  /** Not shown before; one shown before (in a `Levels` since remounted)
-   * shows without sliding in or taking focus */
+  /** Opened on purpose: slides in and takes focus as it first shows */
   pushed: boolean;
   top: boolean;
   /** Its tab isn't shown: covered, though still on top of its stack */
@@ -1123,11 +1125,18 @@ function SubjectLevel({
   header: Header;
 }) {
   return (
-    view.kind === 'root' ? <RootView scroller={scroller} />
+    view.kind === 'root' ? <StoreLevel scroller={scroller} />
     : view.kind === 'list' ?
       <ListView view={view} scroller={scroller} header={header} />
     : <RecordLevel id={view.id} scroller={scroller} header={header} />
   );
+}
+
+/** The whole store, in the State tab's view */
+function StoreLevel({ scroller }: { scroller: Scroller }) {
+  return useContext(StoreViewContext) === 'tree' ?
+      <TreeView />
+    : <RootView scroller={scroller} />;
 }
 
 /** What the moment's action changed of a subject: the store and its lists
@@ -1362,11 +1371,13 @@ function ActionsCrumb({
       'Actions'
     : <>
         Actions <span className={styles.dim}>of</span>{' '}
-        {crumbLabel(subject, model)}
+        {subjectLabel(subject, model)}
       </>;
 }
 
-/** What a breadcrumb shows for a view (the actions' is `ActionsCrumb`) */
+/** What a breadcrumb shows for a view, under what holds it: a record by
+ * its pk, a field's list by the field alone (the actions' is
+ * `ActionsCrumb`) */
 function crumbLabel(
   view: Exclude<LevelView, { kind: 'actions' }>,
   model: StoreModel,
@@ -1380,28 +1391,36 @@ function crumbLabel(
       return (
         <ActionCrumb seq={view.seq} scope={view.scope} subject={subject} />
       );
-    case 'list': {
-      const count =
-        'ids' in view ? view.ids.length
-        : view.pks ? view.pks.length
-        : (model.table(view.table)?.rows.length ?? 0);
-      return (
-        <>
-          <span className={styles.crumbName}>{view.label}</span>
-          <span className={styles.count}>{count.toLocaleString()}</span>
-        </>
-      );
-    }
+    case 'list':
+      // no count: `User 3` would read as a record
+      return <span className={styles.crumbName}>{view.label}</span>;
     case 'record': {
       const row = findRow(model, view.id);
       if (!row) return '…';
       return isEndpointRow(row) ?
           <RowKey row={row} />
-        : <span className={styles.crumbName}>
-            <RowKey row={row} />
-          </span>;
+        : <span className={styles.crumbName}>{prettyPk(row.pk)}</span>;
     }
   }
+}
+
+/** A subject named on its own, with no trail above it: a record by its
+ * table and pk, a field's list with its owner */
+function subjectLabel(subject: View, model: StoreModel): React.ReactNode {
+  const row =
+    subject.kind === 'record' ? findRow(model, subject.id)
+    : subject.kind === 'list' && subject.of ? findRow(model, subject.of)
+    : undefined;
+  // an endpoint record's key already names it
+  if (!row || (subject.kind === 'record' && isEndpointRow(row)))
+    return crumbLabel(subject, model);
+  return (
+    <span className={styles.crumbName}>
+      {subject.kind === 'list' ?
+        `${rowLabel(row)} ${subject.label}`
+      : <RowKey row={row} />}
+    </span>
+  );
 }
 
 /** `setResponse GET /posts`, or where the log no longer has it; `null`:
@@ -1420,31 +1439,6 @@ function ActionCrumb({
     entry ? <MomentName entry={entry} scope={scope} />
     : seq === null ? <>Newest</>
     : <>…</>
-  );
-}
-
-/** The explorer: everything expands in place; at a moment, only what its
- * action changed, or what it did instead when it changed no row */
-function TreeLevel({ model, diff }: { model: StoreModel; diff?: Diff }) {
-  const scroller = useRef<HTMLDivElement>(null);
-  const [pending, setPending] = useState<string | null>(null);
-  useEffect(() => {
-    if (!pending || !scroller.current) return;
-    scrollToRow(scroller.current, pending);
-    setPending(null);
-  }, [pending]);
-  return (
-    <StoreUIProvider model={diff?.model ?? model} onReveal={setPending}>
-      <div className={styles.levels}>
-        <div className={styles.level} ref={scroller} data-level tabIndex={-1}>
-          {!diff ?
-            <TreeView model={model} />
-          : diff.rows.size ?
-            <TreeView model={diff.model} />
-          : <SubjectChanges entries={diff.entries} subject={ROOT} />}
-        </div>
-      </div>
-    </StoreUIProvider>
   );
 }
 

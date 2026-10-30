@@ -423,10 +423,6 @@
 .crumbCurrent b {
   font-weight: 500;
 }
-.crumb .count,
-.crumbCurrent .count {
-  margin-left: 0.35em;
-}
 .sep {
   color: var(--store-dim);
   opacity: 0.6;
@@ -496,7 +492,6 @@
 .section + .section {
   margin-top: 0.35rem;
 }
-/* ~32px tall: HEADER_HEIGHT in dom.ts, what scrollToRow leaves above a row */
 .sectionHeader {
   position: sticky;
   top: 0;
@@ -793,7 +788,7 @@ div.row[data-change='removed'] {
 .record {
   padding: 0.5rem 0;
 }
-.showAll,
+.treeMore,
 .more {
   border: 0;
   background: none;
@@ -803,11 +798,11 @@ div.row[data-change='removed'] {
   color: var(--store-key);
   cursor: pointer;
 }
-.showAll {
+.treeMore {
   display: block;
   padding: 0.15rem 0.75rem 0.2rem 2rem;
 }
-.showAll:hover,
+.treeMore:hover,
 .more:hover {
   text-decoration: underline;
 }

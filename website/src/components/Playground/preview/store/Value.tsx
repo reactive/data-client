@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useContext, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 import { fitChips, INLINE_LIMIT, isTimeField } from './columns';
 import { entityId, isEndpointRow, prettyPk, type AnyRow } from './model';
@@ -20,7 +20,6 @@ import {
   type VNode,
 } from './refs';
 import styles from './store.module.css';
-import { useStoreUI } from './StoreUI';
 import { valueDiff, type Part } from './valueDiff';
 
 /** Fields a bare preview shows (the row truncates long before) */
@@ -45,7 +44,6 @@ export function RefChip({
    * summarizes left it */
   at?: Moment;
 }) {
-  const { reveal } = useStoreUI();
   const nav = useNav();
   const spanAt = useSpanEnd();
   return (
@@ -55,8 +53,7 @@ export function RefChip({
       title={title}
       onClick={e => {
         e.stopPropagation();
-        if (nav) nav.push({ kind: 'record', id }, at ?? spanAt);
-        else reveal(id);
+        nav.push({ kind: 'record', id }, at ?? spanAt);
       }}
     >
       {label}
@@ -124,7 +121,7 @@ export function CountChip({
       className={clsx(styles.ref, className)}
       onClick={e => {
         e.stopPropagation();
-        nav?.push(list(), at);
+        nav.push(list(), at);
       }}
     >
       {children}
@@ -132,7 +129,7 @@ export function CountChip({
   );
 }
 
-/** The first `RECORD_REFS` chips; the table view dives into the rest */
+/** The first `RECORD_REFS` chips, then a count chip diving into the rest */
 export function RefList({
   chips,
   list,
@@ -140,8 +137,7 @@ export function RefList({
   chips: readonly React.ReactNode[];
   list: () => ListView;
 }) {
-  const nav = useNav();
-  const cut = nav && chips.length > RECORD_REFS;
+  const cut = chips.length > RECORD_REFS;
   return (
     <span className={styles.wrapList}>
       {cut ? chips.slice(0, RECORD_REFS) : chips}
@@ -437,8 +433,26 @@ function Parts({
   );
 }
 
-/** Full value: nested objects indent, long lists show more on request */
-export function Block({ node, name }: { node: VNode; name?: string }) {
+/** The row whose value a `Block` shows, which its ref lists sit under */
+const OwnerContext = createContext<string | undefined>(undefined);
+
+/** Full value: nested objects indent, long lists show more on request;
+ * `of`: the row it is the value of */
+export function Block({
+  node,
+  name,
+  of,
+}: {
+  node: VNode;
+  name?: string;
+  of?: string;
+}) {
+  if (of)
+    return (
+      <OwnerContext.Provider value={of}>
+        <Block node={node} name={name} />
+      </OwnerContext.Provider>
+    );
   if (node.t === 'obj') {
     if (!node.entries.length) return <span className={styles.dim}>{'{}'}</span>;
     return (
@@ -486,15 +500,15 @@ function BlockList({
   name?: string;
 }) {
   const [all, setAll] = useState(false);
-  const nav = useNav();
-  // the table view dives into long lists of refs instead of growing them
-  if (nav && isRefList(node))
+  const of = useContext(OwnerContext);
+  // long lists of refs dive in instead of growing
+  if (isRefList(node))
     return (
       <RefList
         chips={node.items.map((item, i) => (
           <Inline key={i} node={item} />
         ))}
-        list={() => refsList(node.items, name)}
+        list={() => refsList(node.items, name, of)}
       />
     );
   const shown = all ? node.items : node.items.slice(0, BLOCK_LIMIT);

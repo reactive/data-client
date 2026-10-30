@@ -1,8 +1,9 @@
 import clsx from 'clsx';
-import React, { useContext } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 
+import { toggled } from './dom';
 import type { EntityTable, StoreModel } from './model';
-import { DiffContext } from './nav';
+import { DiffContext, useNav, type ListView } from './nav';
 import { plain } from './refs';
 import styles from './store.module.css';
 import { Field } from './Value';
@@ -30,6 +31,49 @@ export function GroupLabel({
 export function Chevron({ open }: { open: boolean }) {
   return (
     <span className={clsx(styles.chevron, open && styles.chevronOpen)}>▶</span>
+  );
+}
+
+/** Rows a table shows before "N more"; tables this short show them all */
+const PREVIEW_ROWS = 5;
+const SHOW_ALL_UNDER = 8;
+
+export const preview = <T,>(rows: readonly T[]) =>
+  rows.length > SHOW_ALL_UNDER ? rows.slice(0, PREVIEW_ROWS) : rows;
+
+/** Dives into the `hidden` rows a preview leaves out */
+export function More({
+  hidden,
+  list,
+  className,
+}: {
+  hidden: number;
+  list: ListView;
+  className?: string;
+}) {
+  const { push } = useNav();
+  if (hidden <= 0) return null;
+  return (
+    <button type="button" className={className} onClick={() => push(list)}>
+      {hidden.toLocaleString()} more
+    </button>
+  );
+}
+
+/** `SectionBlock` props by title, each open until toggled (Internals
+ * closed) */
+export function useSectionProps() {
+  const [closed, setClosed] = useState<ReadonlySet<string>>(
+    () => new Set(['Internals']),
+  );
+  return useCallback(
+    (title: string, count?: number) => ({
+      title,
+      count,
+      open: !closed.has(title),
+      onToggle: () => setClosed(prev => toggled(prev, title)),
+    }),
+    [closed],
   );
 }
 

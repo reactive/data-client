@@ -1,9 +1,16 @@
 import clsx from 'clsx';
-import React, { useContext } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import { EndpointDetail, EntityDetail, Status } from './Details';
 import { changeProps, onActivateKey } from './dom';
 import {
+  groupId,
   optimisticId,
   prettyPk,
   type EndpointRow,
@@ -11,23 +18,19 @@ import {
   type EntityTable,
   type StoreModel,
 } from './model';
-import { DiffContext } from './nav';
+import { DiffContext, ENDPOINTS, tableList, useNav } from './nav';
 import { plain, type VNode } from './refs';
 import {
   Chevron,
   GroupLabel,
   Internals,
+  More,
+  preview,
   SectionBlock,
+  useSectionProps,
   useShownSections,
 } from './Sections';
 import styles from './store.module.css';
-import {
-  groupId,
-  ROW_LIMIT,
-  sectionId,
-  showAllId,
-  useStoreUI,
-} from './StoreUI';
 import {
   CellChange,
   changesByField,
@@ -36,79 +39,137 @@ import {
   field,
   FieldChange,
   Inline,
+  RowKey,
 } from './Value';
 import { splitKey } from '../../splitKey';
 
-/** Explorer: one line per row with a preview of its fields */
-export default function TreeView({ model }: { model: StoreModel }) {
-  return (
-    <StoreSections
-      model={model}
-      endpoints={<EndpointTreeRows rows={model.endpoints} />}
-      renderTable={table => (
-        <EntityTreeGroup key={table.key} table={table} model={model} />
-      )}
-    />
-  );
-}
-
-/** The same sections as the table view; only how rows lay out differs */
-function StoreSections({
-  model,
-  endpoints,
-  renderTable,
-}: {
-  model: StoreModel;
-  endpoints: React.ReactNode;
-  renderTable: (table: EntityTable) => React.ReactNode;
-}) {
+/** Explorer: one line per row with a preview of its fields, which expands
+ * in place; references, "N more" and long lists dive in, as in the table
+ * view */
+export default function TreeView() {
+  const { model } = useNav();
   const shown = useShownSections(model);
+  const { section, groupDefaults: recorded, setGroupDefaults } = useTreeState();
+  // a group's default is fixed when it first appears in a tree, so tables
+  // arriving later (Suspense loads them one by one) never reshuffle what is
+  // open. The shown store (a diff, a moment) can hold tables the live one
+  // lacks, so this view records them; it shows them as they will be meanwhile
+  const groupDefaults = withNewGroups(recorded, model.tables);
+  // this render already shows them, so recording can wait until after paint
+  useEffect(() => {
+    if (groupDefaults !== recorded)
+      setGroupDefaults(prev => withNewGroups(prev, model.tables));
+  }, [groupDefaults, recorded, setGroupDefaults, model.tables]);
+  const endpoints = preview(model.endpoints);
   return (
     <>
-      <OptimisticSection model={model} />
-      {shown.endpoints && (
-        <Section
-          name="endpoints"
-          title="Endpoints"
-          count={model.endpoints.length}
+      {model.optimistic.length > 0 && (
+        <SectionBlock
+          {...section('Optimistic', model.optimistic.length)}
+          chevron
         >
-          {endpoints}
-        </Section>
+          {model.optimistic.map(action => (
+            <OptimisticRow key={optimisticId(action)} action={action} />
+          ))}
+        </SectionBlock>
+      )}
+      {shown.endpoints && (
+        <SectionBlock {...section('Endpoints', model.endpoints.length)} chevron>
+          {endpoints.map(row => (
+            <EndpointTreeRow key={row.id} row={row} />
+          ))}
+          <More
+            hidden={model.endpoints.length - endpoints.length}
+            list={ENDPOINTS}
+            className={styles.treeMore}
+          />
+        </SectionBlock>
       )}
       {shown.entities && (
-        <Section name="entities" title="Entities" count={shown.entityCount}>
-          {model.tables.map(renderTable)}
-        </Section>
+        <SectionBlock {...section('Entities', shown.entityCount)} chevron>
+          {model.tables.map(table => (
+            <EntityTreeGroup
+              key={table.key}
+              table={table}
+              defaultOpen={!!groupDefaults.get(table.key)}
+            />
+          ))}
+        </SectionBlock>
       )}
-      {shown.internals && <InternalsSection model={model} />}
+      {shown.internals && (
+        <SectionBlock {...section('Internals')} chevron>
+          <Internals model={model} />
+        </SectionBlock>
+      )}
     </>
   );
 }
 
-/** Collapsible block with a sticky header; the tree view's open state */
-function Section({
-  name,
-  ...props
-}: Omit<React.ComponentProps<typeof SectionBlock>, 'open' | 'onToggle'> & {
-  name: string;
-}) {
-  const { isOpen, toggle } = useStoreUI();
-  const id = sectionId(name);
+/** The first Entity types to appear start open */
+const OPEN_GROUPS = 3;
+
+/** What the reader opened and closed in the tree view */
+interface TreeState {
+  readonly section: ReturnType<typeof useSectionProps>;
+  /** Rows' and groups' open state, by id, where the reader toggled it */
+  readonly choices: ReadonlyMap<string, boolean>;
+  readonly setChoices: React.Dispatch<
+    React.SetStateAction<ReadonlyMap<string, boolean>>
+  >;
+  /** Whether each group, by table key, starts open */
+  readonly groupDefaults: ReadonlyMap<string, boolean>;
+  /** Set by the tree view, the one that knows which store it shows */
+  readonly setGroupDefaults: React.Dispatch<
+    React.SetStateAction<ReadonlyMap<string, boolean>>
+  >;
+}
+const TreeStateContext = createContext<TreeState | null>(null);
+function useTreeState() {
+  const state = useContext(TreeStateContext);
+  if (!state) throw new Error('TreeView outside a TreeStateProvider');
+  return state;
+}
+
+/** `defaults` with each table it lacks: open while fewer than
+ * `OPEN_GROUPS` are known; `defaults` itself when it lacks none */
+function withNewGroups(
+  defaults: ReadonlyMap<string, boolean>,
+  tables: readonly EntityTable[],
+) {
+  const fresh = tables.filter(t => !defaults.has(t.key));
+  if (!fresh.length) return defaults;
+  const next = new Map(defaults);
+  for (const t of fresh) next.set(t.key, next.size < OPEN_GROUPS);
+  return next;
+}
+
+/** Keeps the tree view's open state above what remounts it (the Snapshot
+ * and Diff toggle), so it shows again as the reader left it */
+export function TreeStateProvider({ children }: { children: React.ReactNode }) {
+  const section = useSectionProps();
+  const [choices, setChoices] = useState<ReadonlyMap<string, boolean>>(
+    () => new Map(),
+  );
+  const [groupDefaults, setGroupDefaults] = useState<
+    ReadonlyMap<string, boolean>
+  >(() => new Map());
+  const value = useMemo(
+    () => ({ section, choices, setChoices, groupDefaults, setGroupDefaults }),
+    [section, choices, groupDefaults],
+  );
   return (
-    <SectionBlock
-      {...props}
-      open={isOpen(id)}
-      onToggle={() => toggle(id)}
-      chevron
-    />
+    <TreeStateContext.Provider value={value}>
+      {children}
+    </TreeStateContext.Provider>
   );
 }
 
 /** Props making a row (tr or div) expand on click or Enter/Space */
-function useRowProps(id: string, className?: string) {
-  const { isOpen, toggle, selected } = useStoreUI();
+function useRowProps(id: string, defaultOpen = false) {
+  const { choices, setChoices } = useTreeState();
+  const open = choices.get(id) ?? defaultOpen;
   const change = useContext(DiffContext)?.get(id)?.kind;
-  const open = isOpen(id);
+  const toggle = () => setChoices(prev => new Map(prev).set(id, !open));
   return {
     open,
     props: {
@@ -116,63 +177,11 @@ function useRowProps(id: string, className?: string) {
       ...changeProps(change),
       tabIndex: 0,
       'aria-expanded': open,
-      className: clsx(
-        styles.row,
-        className,
-        selected === id && styles.selected,
-      ),
-      onClick: () => toggle(id),
-      onKeyDown: onActivateKey(() => toggle(id)),
+      className: styles.row,
+      onClick: toggle,
+      onKeyDown: onActivateKey(toggle),
     },
   };
-}
-
-function EndpointTreeRows({ rows }: { rows: readonly EndpointRow[] }) {
-  const { shown, footer } = useLimitedRows(
-    showAllId(sectionId('endpoints')),
-    rows,
-  );
-  return (
-    <>
-      {shown.map(row => (
-        <EndpointTreeRow key={row.id} row={row} />
-      ))}
-      {footer}
-    </>
-  );
-}
-
-/** Rows capped at ROW_LIMIT until "Show all" (`showAll` toggles it) */
-function useLimitedRows<T>(showAll: string, rows: readonly T[]) {
-  const { isOpen, toggle } = useStoreUI();
-  const all = isOpen(showAll);
-  const shown = all ? rows : rows.slice(0, ROW_LIMIT);
-  const footer =
-    rows.length > ROW_LIMIT ?
-      <button
-        type="button"
-        className={styles.showAll}
-        onClick={() => toggle(showAll)}
-      >
-        {all ? 'Show fewer' : `Show all ${rows.length}`}
-      </button>
-    : null;
-  return { shown, footer };
-}
-
-function OptimisticSection({ model }: { model: StoreModel }) {
-  if (!model.optimistic.length) return null;
-  return (
-    <Section
-      name="optimistic"
-      title="Optimistic"
-      count={model.optimistic.length}
-    >
-      {model.optimistic.map(action => (
-        <OptimisticRow key={optimisticId(action)} action={action} />
-      ))}
-    </Section>
-  );
 }
 
 function OptimisticRow({
@@ -203,16 +212,7 @@ function OptimisticRow({
   );
 }
 
-/** Bookkeeping most people never need, collapsed by default */
-function InternalsSection({ model }: { model: StoreModel }) {
-  return (
-    <Section name="internals" title="Internals">
-      <Internals model={model} />
-    </Section>
-  );
-}
-
-function EndpointTreeRow({ row }: { row: EndpointRow }) {
+export function EndpointTreeRow({ row }: { row: EndpointRow }) {
   const { open, props } = useRowProps(row.id);
   return (
     <>
@@ -238,16 +238,13 @@ function EndpointLabel({ row, open }: { row: EndpointRow; open: boolean }) {
 
 function EntityTreeGroup({
   table,
-  model,
+  defaultOpen,
 }: {
   table: EntityTable;
-  model: StoreModel;
+  defaultOpen: boolean;
 }) {
-  const { open, props } = useRowProps(groupId(table.key));
-  const { shown, footer } = useLimitedRows(
-    showAllId(groupId(table.key)),
-    table.rows,
-  );
+  const { open, props } = useRowProps(groupId(table.key), defaultOpen);
+  const rows = preview(table.rows);
   return (
     <>
       <div {...props}>
@@ -255,25 +252,31 @@ function EntityTreeGroup({
       </div>
       {open && (
         <div className={styles.indent}>
-          {shown.map(row => (
-            <EntityTreeRow key={row.id} row={row} table={table} model={model} />
+          {rows.map(row => (
+            <EntityTreeRow key={row.id} row={row} table={table} />
           ))}
-          {footer}
+          <More
+            hidden={table.rows.length - rows.length}
+            list={tableList(table.key)}
+            className={styles.treeMore}
+          />
         </div>
       )}
     </>
   );
 }
 
-function EntityTreeRow({
+export function EntityTreeRow({
   row,
   table,
-  model,
+  withTable = false,
 }: {
   row: EntityRow;
   table: EntityTable;
-  model: StoreModel;
+  /** Keyed by table and pk, among rows of other tables */
+  withTable?: boolean;
 }) {
+  const { model } = useNav();
   const { open, props } = useRowProps(row.id);
   const change = useContext(DiffContext)?.get(row.id);
   // the pk is the row's key, so its field would only repeat it
@@ -288,7 +291,11 @@ function EntityTreeRow({
     <>
       <div {...props}>
         <Chevron open={open} />
-        <span className={styles.key}>{prettyPk(row.pk)}</span>
+        <span className={styles.key}>
+          {withTable ?
+            <RowKey row={row} />
+          : prettyPk(row.pk)}
+        </span>
         <span className={styles.trunc}>
           {(
             change?.fields &&

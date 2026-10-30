@@ -2,19 +2,22 @@ import React, { useMemo, useState } from 'react';
 
 import { TIME_WIDTH } from './columns';
 import { EntityDetail } from './Details';
-import { byData, offsetIn, toggled, type Scroller } from './dom';
+import { byData, offsetIn, type Scroller } from './dom';
 import {
   optimisticId,
   type EntityRow,
   type EntityTable,
   type StoreModel,
 } from './model';
-import { useNav } from './nav';
+import { ENDPOINTS, tableList, useNav } from './nav';
 import { plain } from './refs';
 import {
   GroupLabel,
   Internals,
+  More,
+  preview,
   SectionBlock,
+  useSectionProps,
   useShownSections,
 } from './Sections';
 import styles from './store.module.css';
@@ -29,28 +32,14 @@ import {
 import { EndpointKey, Inline, Primitive } from './Value';
 import { splitKey } from '../../splitKey';
 
-/** Rows a table shows before "N more"; tables this short show them all */
-const PREVIEW_ROWS = 5;
-const SHOW_ALL_UNDER = 8;
 /** Tables needed before a jump list of them is worth its line */
 const INDEX_OVER = 5;
 
-const preview = <T,>(rows: readonly T[]) =>
-  rows.length > SHOW_ALL_UNDER ? rows.slice(0, PREVIEW_ROWS) : rows;
-
 /** The whole store at a glance: a few rows of everything */
 export default function RootView({ scroller }: { scroller: Scroller }) {
-  const { model, width, push } = useNav()!;
+  const { model, width, push } = useNav();
   const shown = useShownSections(model);
-  const [closed, setClosed] = useState<ReadonlySet<string>>(
-    () => new Set(['Internals']),
-  );
-  const section = (title: string, count?: number) => ({
-    title,
-    count,
-    open: !closed.has(title),
-    onToggle: () => setClosed(prev => toggled(prev, title)),
-  });
+  const section = useSectionProps();
   const endpoints = preview(model.endpoints);
   const hiddenEndpoints = model.endpoints.length - endpoints.length;
   // stays once seen (holding a row's space), so an optimistic update
@@ -77,18 +66,7 @@ export default function RootView({ scroller }: { scroller: Scroller }) {
               onOpen={row => push({ kind: 'record', id: row.id })}
               foot={
                 hiddenEndpoints > 0 && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      push({
-                        kind: 'list',
-                        label: 'Endpoints',
-                        ids: model.endpoints.map(e => e.id),
-                      })
-                    }
-                  >
-                    {hiddenEndpoints.toLocaleString()} more
-                  </button>
+                  <More hidden={hiddenEndpoints} list={ENDPOINTS} />
                 )
               }
             />
@@ -148,17 +126,17 @@ function TableIndex({
 /** One table: a few rows, its fields paged to fit (the pager shows on hover,
  * or after tapping the header on touch) */
 function Group({ table }: { table: EntityTable }) {
-  const { model, width, push } = useNav()!;
+  const { model, width, push } = useNav();
   const [page, setPage] = useState(0);
   const [inline, setInline] = useState<string | null>(null);
   const [active, setActive] = useState(false);
   const rows = preview(table.rows);
+  const hidden = table.rows.length - rows.length;
   const changed = useChangedFields(table.rows);
   const { columns, pages, more } = useMemo(
     () => tableColumns(table, table.rows, width, page, { changed }),
     [table, width, page, changed],
   );
-  const hidden = table.rows.length - rows.length;
   return (
     <div
       className={styles.group}
@@ -180,16 +158,7 @@ function Group({ table }: { table: EntityTable }) {
         onInline={setInline}
         record={row => <EntityDetail row={row} model={model} />}
         foot={
-          hidden > 0 && (
-            <button
-              type="button"
-              onClick={() =>
-                push({ kind: 'list', table: table.key, label: table.key })
-              }
-            >
-              {hidden.toLocaleString()} more
-            </button>
-          )
+          hidden > 0 && <More hidden={hidden} list={tableList(table.key)} />
         }
       />
     </div>

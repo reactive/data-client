@@ -9,10 +9,6 @@ import React, {
 import type { ChangeKind } from './actionGroups';
 import { prefersReducedMotion, springEasing, springs } from '../../../motion';
 
-/** What `scrollToRow` leaves above a revealed row, for the sticky section
- * header (`.sectionHeader` in store.module.css) */
-const HEADER_HEIGHT = 32;
-
 /** The element in `scope` whose `data-<key>` is `value`; compares the
  * attribute, so ids need no selector escaping */
 export const byData = (scope: ParentNode, key: 'id' | 'table', value: string) =>
@@ -97,17 +93,6 @@ export function flash(
  * effect reading a ref would find nothing and never look again, while one
  * that depends on the element runs again once it is there */
 export type Scroller = HTMLElement | null;
-
-/** Scrolls row `id` into view below the section header and focuses it */
-export function scrollToRow(scroller: HTMLElement, id: string) {
-  const row = byData(scroller, 'id', id);
-  if (!row) return;
-  scroller.scrollTo({
-    top: Math.max(0, offsetIn(scroller, row) - HEADER_HEIGHT),
-    behavior: 'smooth',
-  });
-  row.focus({ preventScroll: true });
-}
 
 /** Scrolls `row` just into view of `scroller`, and of any scroller between
  * them (an open row's steps), leaving it be where it already shows */

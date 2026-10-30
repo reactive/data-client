@@ -1432,7 +1432,7 @@ describe('Store Actions pane', () => {
     fireEvent.click(within(rows()[0]).getByRole('button', { name: /Post 1/ }));
     expect(pane()).toBeNull();
     expect(top()!.querySelector('[aria-current="page"]')!.textContent).toBe(
-      'Post 1',
+      '1',
     );
     expect(top()!.contains(document.activeElement)).toBe(true);
     // a row moves the moment to its whole request, and it stays
@@ -1450,7 +1450,7 @@ describe('Store Actions pane', () => {
     expect(pane()).toBeNull();
     showTab('Snapshot');
     expect(top()!.querySelector('[aria-current="page"]')!.textContent).toBe(
-      'Post 1',
+      '1',
     );
   });
 

@@ -5,7 +5,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import { byData } from '../store/dom';
-import { endpointId, parseRowId } from '../store/model';
+import { endpointId, entityId, groupId, parseRowId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
 import { DemoViewContext, StoreToggle, useStoreOpen } from '../StoreToggle';
@@ -166,13 +166,38 @@ describe('StorePanel table view', () => {
   it('dives into a record and back', () => {
     mount();
     fireEvent.click(within(top()).getByText('"Paul"'));
-    expect(crumbs()).toEqual(['Store', '›', 'User 1']);
+    expect(crumbs()).toEqual(['Store', '›', 'User', '›', '1']);
     expect(within(top()).getByText('used by')).toBeTruthy();
     // a ref chip dives further
     fireEvent.click(within(top()).getByRole('button', { name: 'Post 1' }));
-    expect(crumbs()).toEqual(['Store', '›', 'User 1', '›', 'Post 1']);
+    // where it lives in the store, not where it was opened from
+    expect(crumbs()).toEqual(['Store', '›', 'Post', '›', '1']);
     act(() => press('Escape'));
-    expect(crumbs()).toEqual(['Store', '›', 'User 1']);
+    expect(crumbs()).toEqual(['Store', '›', 'User', '›', '1']);
+    // its table's crumb opens the table
+    fireEvent.click(
+      within(top().querySelector('nav')!).getByRole('button', {
+        name: /^User/,
+      }),
+    );
+    expect(crumbs()).toEqual(['Store', '›', 'User']);
+    fireEvent.click(within(top()).getByLabelText('Back'));
+    expect(crumbs()).toEqual(['Store', '›', 'User', '›', '1']);
+    fireEvent.click(within(top()).getByLabelText('Back'));
+    expect(top().querySelector('nav')).toBeNull();
+  });
+
+  it("goes back to a record's table by its crumb when the table opened it", () => {
+    mount();
+    fireEvent.click(screen.getByText('7 more'));
+    fireEvent.click(within(top()).getAllByText(/number 1 that/)[0]);
+    expect(crumbs()).toEqual(['Store', '›', 'Post', '›', '1']);
+    fireEvent.click(
+      within(top().querySelector('nav')!).getByRole('button', {
+        name: /^Post/,
+      }),
+    );
+    expect(crumbs()).toEqual(['Store', '›', 'Post']);
     fireEvent.click(within(top()).getByLabelText('Back'));
     expect(top().querySelector('nav')).toBeNull();
   });
@@ -180,7 +205,7 @@ describe('StorePanel table view', () => {
   it('lists a whole table with a filter', () => {
     mount();
     fireEvent.click(screen.getByText('7 more'));
-    expect(crumbs()).toEqual(['Store', '›', 'Post12']);
+    expect(crumbs()).toEqual(['Store', '›', 'Post']);
     const rows = () =>
       [...top().querySelectorAll('tr[data-id]')].map(r => {
         const ref = parseRowId(r.getAttribute('data-id')!);
@@ -226,9 +251,26 @@ describe('StorePanel table view', () => {
     const collection = within(top().querySelector('[data-table="[Comment]"]')!);
     // a Collection's +N opens its own record: the member table and its meta
     fireEvent.click(collection.getByText(/^\+\d+$/));
-    expect(crumbs()[2]).toMatch(/^\[Comment\] all$/);
+    expect(crumbs().slice(2)).toEqual(['[Comment]', '›', 'all']);
     expect(top().querySelectorAll('tr[data-id]').length).toBeGreaterThan(0);
     expect(within(top()).getByText('used by')).toBeTruthy();
+  });
+
+  it("puts a record's long ref list under the record", () => {
+    mount();
+    fireEvent.click(
+      byData(top(), 'id', endpointId('GET https://example.com/posts'))!,
+    );
+    fireEvent.click(within(top()).getByRole('button', { name: /^\+\d+$/ }));
+    expect(crumbs()).toEqual([
+      'Store',
+      '›',
+      'Endpoints',
+      '›',
+      'GET /posts',
+      '›',
+      'items',
+    ]);
   });
 
   it('opens a Collection as a table of its members', () => {
@@ -248,6 +290,75 @@ describe('StorePanel table view', () => {
       screen.getByLabelText('Tree view').getAttribute('aria-pressed'),
     ).toBe('true');
     expect(document.querySelector('[data-table]')).toBeNull();
+  });
+
+  it('dives in from the tree view as the table does, and back', () => {
+    mount();
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    const post = () => byData(top(), 'id', entityId('Post', '1'))!;
+    const opened = (key: string) =>
+      byData(top(), 'id', groupId(key))!.getAttribute('aria-expanded');
+    // the first three types to appear start open
+    expect(['User', 'Post', 'Comment', '[Comment]'].map(opened)).toEqual([
+      'true',
+      'true',
+      'true',
+      'false',
+    ]);
+    // a row expands in place
+    fireEvent.click(post());
+    expect(post().getAttribute('aria-expanded')).toBe('true');
+    // its references dive into the record
+    fireEvent.click(
+      within(top()).getAllByRole('button', { name: 'User 1' })[0],
+    );
+    expect(crumbs()).toEqual(['Store', '›', 'User', '›', '1']);
+    fireEvent.click(within(top()).getByLabelText('Back'));
+    expect(top().querySelector('nav')).toBeNull();
+    // the tree is as it was left
+    expect(post().getAttribute('aria-expanded')).toBe('true');
+    // and stays so while its group is shut and opened again
+    const group = byData(top(), 'id', groupId('Post'))!;
+    fireEvent.click(group);
+    expect(byData(top(), 'id', entityId('Post', '1'))).toBeUndefined();
+    fireEvent.click(group);
+    expect(post().getAttribute('aria-expanded')).toBe('true');
+    // so do the rows a group leaves out
+    fireEvent.click(within(top()).getByText('7 more'));
+    expect(crumbs()).toEqual(['Store', '›', 'Post']);
+    // the list it opens is laid out as a tree too, every row expandable
+    expect(top().querySelector('table')).toBeNull();
+    const last = () => byData(top(), 'id', entityId('Post', '12'))!;
+    expect(last().getAttribute('aria-expanded')).toBe('false');
+    fireEvent.click(last());
+    expect(last().getAttribute('aria-expanded')).toBe('true');
+    fireEvent.change(within(top()).getByLabelText('Filter rows'), {
+      target: { value: 'number 11' },
+    });
+    expect(byData(top(), 'id', entityId('Post', '12'))).toBeUndefined();
+    expect(byData(top(), 'id', entityId('Post', '11'))).toBeTruthy();
+    // and says how many match, as the table does
+    expect(within(top()).getByText('1 of 12')).toBeTruthy();
+    fireEvent.change(within(top()).getByLabelText('Filter rows'), {
+      target: { value: 'nothing like this' },
+    });
+    expect(within(top()).getByText('no matches')).toBeTruthy();
+  });
+
+  it("lays out a Collection's members as a tree in the tree view", () => {
+    mount();
+    const collection = within(top().querySelector('[data-table="[Comment]"]')!);
+    fireEvent.click(collection.getByText(/^\+\d+$/));
+    expect(top().querySelector('table')).toBeTruthy();
+    // the open record follows the toggle
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    expect(crumbs()).toEqual(['Store', '›', '[Comment]', '›', 'all']);
+    expect(top().querySelector('table')).toBeNull();
+    expect(
+      byData(top(), 'id', entityId('Comment', '1'))!.getAttribute(
+        'aria-expanded',
+      ),
+    ).toBe('false');
   });
 
   it("shows a demo's view over the reader's while the Store stays open", () => {
