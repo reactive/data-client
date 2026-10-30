@@ -1,11 +1,13 @@
 import { translate } from '@docusaurus/Translate';
 import { memo } from 'react';
 
+import { ResponseDefinition } from './Definition';
 import Json from './Json';
 import styles from './styles.module.css';
 
 /** The sheet the request's header curves out into: the body, its status at
- * the end of the first line */
+ * the end of the first line, and the options that read it (a Resource
+ * member's schema and process) */
 // EndpointPlayground re-renders as its code is edited, the exchange only
 // when the code's request changes
 export default memo(Response);
@@ -19,6 +21,7 @@ function Response({ status, response, busy }: Props) {
       {response !== undefined ?
         <Json text={JSON.stringify(response, undefined, 2)} />
       : null}
+      <ResponseDefinition />
     </ResponseSheet>
   );
 }

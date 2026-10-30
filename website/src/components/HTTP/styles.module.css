@@ -56,6 +56,56 @@
   overflow-wrap: break-word;
 }
 
+/* a Resource member's options (./Definition): under the request line, what
+   it is made from; at the response's foot, what reads it. A dashed rule
+   parts them from the exchange's own lines */
+.definition,
+.responseDefinition {
+  --definition-rule: 1px dashed
+    color-mix(in srgb, var(--pg-text) 16%, transparent);
+  font: 12.5px / 20px var(--ifm-font-family-monospace);
+  color: var(--pg-text);
+}
+.definition {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.1em;
+  margin-top: 0.45rem;
+  padding-top: 0.45rem;
+  border-top: var(--definition-rule);
+}
+.definition i,
+.responseDefinition dt {
+  font-style: normal;
+  font-weight: 400;
+  color: var(--pg-muted);
+}
+.definition a,
+.responseDefinition a {
+  color: var(--store-key);
+}
+.responseDefinition {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.35rem 1em;
+  align-items: start;
+  margin: 0.8rem 0 0;
+  padding-top: 0.65rem;
+  border-top: var(--definition-rule);
+}
+.responseDefinition dd {
+  min-width: 0;
+  margin: 0;
+}
+/* process's code, its key on the code's first line */
+.responseDefinition dt:has(+ dd pre) {
+  padding-top: var(--ifm-pre-padding);
+}
+.responseDefinition dd :global(.theme-code-block) {
+  margin: 0;
+  box-shadow: none;
+}
+
 /* the response's sheet, over the header's shadow and flare. Its own shadow
    lies under the header (::before, at the bottom of the slot's layers), so
    it never darkens the join */

@@ -295,6 +295,8 @@ const PostResource = resource({
 
 Retrieve a singular entity.
 
+<MethodInfo>
+
 <EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
@@ -329,8 +331,6 @@ PostResource.get({
 
 </EndpointPlayground>
 
-<MethodInfo method="GET">
-
 | Field  | Value             |
 | :----: | ----------------- |
 | method | 'GET'             |
@@ -344,6 +344,8 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 ### getList
 
 Retrieve a list of entities.
+
+<MethodInfo>
 
 <EndpointPlayground fixtures={groupPostFixtures}>
 
@@ -379,8 +381,6 @@ PostResource.getList({
 
 </EndpointPlayground>
 
-<MethodInfo method="GET">
-
 |      Field      | Value                                                |
 | :-------------: | ---------------------------------------------------- |
 |     method      | 'GET'                                                |
@@ -407,6 +407,8 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 
 [RestEndpoint.push](./RestEndpoint.md#push) creates a new entity and pushes it to the end of getList. Use [getList.unshift](#unshift)
 to place at the beginning instead. Pass an array as the body to create several at once.
+
+<MethodInfo>
 
 <EndpointPlayground fixtures={groupPostFixtures}>
 
@@ -442,8 +444,6 @@ PostResource.getList.push(
 
 </EndpointPlayground>
 
-<MethodInfo method="POST">
-
 |    Field     | Value                                       |
 | :----------: | ------------------------------------------- |
 |    method    | 'POST'                                      |
@@ -459,6 +459,8 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 ### getList.unshift {#unshift}
 
 [RestEndpoint.unshift](./RestEndpoint.md#unshift) creates a new entity and pushes it to the beginning of getList.
+
+<MethodInfo>
 
 <EndpointPlayground fixtures={groupPostFixtures}>
 
@@ -494,8 +496,6 @@ PostResource.getList.unshift(
 
 </EndpointPlayground>
 
-<MethodInfo method="POST">
-
 |    Field     | Value                                             |
 | :----------: | ------------------------------------------------- |
 |    method    | 'POST'                                            |
@@ -513,6 +513,8 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 [RestEndpoint.getPage](./RestEndpoint.md#getpage) retrieves another [page](../guides/pagination.md#infinite-scrolling) appending to getList ensuring there are no duplicates.
 
 This member is only available when [paginationField](#paginationfield) is specified.
+
+<MethodInfo>
 
 <EndpointPlayground fixtures={groupPostFixtures}>
 
@@ -550,8 +552,6 @@ PostResource.getList.getPage({
 
 </EndpointPlayground>
 
-<MethodInfo method="GET">
-
 |      Field      | Value                                               |
 | :-------------: | --------------------------------------------------- |
 |     method      | 'GET'                                               |
@@ -570,6 +570,8 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 [RestEndpoint.move](./RestEndpoint.md#move) moves an entity between [Collections](./Collection.md) by removing it from
 collections matching its old state and adding it to collections matching the new values from the body.
+
+<MethodInfo>
 
 <EndpointPlayground fixtures={groupPostFixtures}>
 
@@ -605,8 +607,6 @@ PostResource.getList.move(
 
 </EndpointPlayground>
 
-<MethodInfo method="PATCH">
-
 |    Field     | Value                                       |
 | :----------: | ------------------------------------------- |
 |    method    | 'PATCH'                                     |
@@ -621,6 +621,8 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 ### update
 
 Update an entity.
+
+<MethodInfo>
 
 <EndpointPlayground fixtures={groupPostFixtures}>
 
@@ -656,8 +658,6 @@ PostResource.update(
 
 </EndpointPlayground>
 
-<MethodInfo method="PUT">
-
 | Field  | Value             |
 | :----: | ----------------- |
 | method | 'PUT'             |
@@ -672,6 +672,8 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 ### partialUpdate
 
 Update some subset of fields of an entity.
+
+<MethodInfo>
 
 <EndpointPlayground fixtures={groupPostFixtures}>
 
@@ -707,8 +709,6 @@ PostResource.partialUpdate(
 
 </EndpointPlayground>
 
-<MethodInfo method="PATCH">
-
 | Field  | Value             |
 | :----: | ----------------- |
 | method | 'PATCH'           |
@@ -723,6 +723,8 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 ### delete
 
 Deletes an entity.
+
+<MethodInfo>
 
 <EndpointPlayground fixtures={groupPostFixtures}>
 
@@ -754,8 +756,6 @@ PostResource.delete({ group: 'react', id: '1' });
 ```
 
 </EndpointPlayground>
-
-<MethodInfo method="DELETE">
 
 |  Field  | Value                                            |
 | :-----: | ------------------------------------------------ |
