@@ -61,6 +61,7 @@ import {
   findRow,
   isEndpointRow,
   pendingIn,
+  prettyPk,
   type StoreModel,
 } from './model';
 import {
@@ -69,8 +70,10 @@ import {
   NEWEST,
   NavContext,
   NavStateContext,
+  ROOT,
   ShownTimeContext,
   subjectOf,
+  trail,
   useLevelStack,
   type LevelStack,
   type Moment,
@@ -803,7 +806,6 @@ export default function StorePanel({
   );
 }
 
-const ROOT: View = { kind: 'root' };
 type Tab = 'state' | 'action';
 /** How long the pointer rests on the list button before the list peeks,
  * and is away from both before a peek closes (ms) */
@@ -880,16 +882,26 @@ function Levels({
       <ActionsCrumb subject={subjectAt(depth)} model={model} />
     : crumbLabel(view, model, subjectAt(depth));
   const crumbs = (depth: number, tools?: React.ReactNode) => {
-    const shown = stack.slice(0, depth + 1);
     const { at } = stack[depth];
     // one opened at an action the log no longer has shows the store as it is
     const { nav, then } = levelOf(stack[depth]);
     const { model } = nav;
     const shownAt = then && at;
+    const shown = trail(
+      stack.slice(0, depth + 1).map(e => e.view),
+      model,
+    );
     const items =
       shown.length > CRUMBS ?
         [0, -1, shown.length - 2, shown.length - 1]
       : shown.map((_, i) => i);
+    const crumbAt = ({ view, depth: d }: (typeof shown)[number]) => {
+      // a record shows under its table, so by its pk alone
+      const row = view.kind === 'record' && findRow(model, view.id);
+      return row && !isEndpointRow(row) ?
+          <span className={styles.crumbName}>{prettyPk(row.pk)}</span>
+        : label(view, d ?? depth, model);
+    };
     return (
       <div className={styles.crumbs}>
         {depth > 0 && (
@@ -908,16 +920,21 @@ function Levels({
               {n > 0 && <span className={styles.sep}>›</span>}
               {i < 0 ?
                 <span className={styles.sep}>…</span>
-              : i === depth ?
+              : i === shown.length - 1 ?
                 <span className={styles.crumbCurrent} aria-current="page">
-                  {label(shown[i].view, i, model)}
+                  {crumbAt(shown[i])}
                 </span>
               : <button
                   type="button"
                   className={styles.crumb}
-                  onClick={() => back(i + 1)}
+                  onClick={() => {
+                    const { view, depth: d } = shown[i];
+                    // a place the stack skipped opens over it
+                    if (d === undefined) push(view as View, at);
+                    else back(d + 1);
+                  }}
                 >
-                  {label(shown[i].view, i, model)}
+                  {crumbAt(shown[i])}
                 </button>
               }
             </React.Fragment>

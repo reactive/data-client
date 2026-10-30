@@ -12,30 +12,37 @@ import type { ManagerStage, Stage } from './attribution';
 import type { RowDiff } from './diffModel';
 import {
   entityId,
+  findRow,
   isEndpointRow,
-  rowLabel,
   type AnyRow,
   type EntityTable,
   type StoreModel,
 } from './model';
 import { memberRefs, type RefNode } from './refs';
 
-/** Rows of one table (all, or just `pks`), or rows of any kind by id */
+/** Rows of one table (all, or just `pks`), or rows of any kind by id;
+ * `of`: the row whose field (`label`) refers to them */
 export type ListView =
   | {
       readonly kind: 'list';
       readonly label: string;
       readonly table: string;
       readonly pks?: readonly string[];
+      readonly of?: string;
     }
   | {
       readonly kind: 'list';
       readonly label: string;
       readonly ids: readonly string[];
+      readonly of?: string;
     };
 
 /** The list a count chip dives into: one table's rows when they share one */
-export function refsList(items: readonly RefNode[], label: string): ListView {
+export function refsList(
+  items: readonly RefNode[],
+  label: string,
+  of?: string,
+): ListView {
   const table = items[0].key;
   const same = items.every(i => i.key === table);
   // a row lists once however often it is referenced
@@ -43,20 +50,21 @@ export function refsList(items: readonly RefNode[], label: string): ListView {
     ...new Set(items.map(i => (same ? i.pk : entityId(i.key, i.pk)))),
   ];
   return same ?
-      { kind: 'list', label, table, pks: keys }
-    : { kind: 'list', label, ids: keys };
+      { kind: 'list', label, table, pks: keys, of }
+    : { kind: 'list', label, ids: keys, of };
 }
 
 /** The list of every endpoint, and of a table's rows, "N more" dives into */
+const ENDPOINTS = 'Endpoints';
 export const endpointsList = (model: StoreModel): ListView => ({
   kind: 'list',
-  label: 'Endpoints',
+  label: ENDPOINTS,
   ids: model.endpoints.map(e => e.id),
 });
-export const tableList = (table: EntityTable): ListView => ({
+export const tableList = (key: string): ListView => ({
   kind: 'list',
-  table: table.key,
-  label: table.key,
+  table: key,
+  label: key,
 });
 
 /** A Collection row's members, which its record shows as their own table */
@@ -80,7 +88,7 @@ export const cellDive =
   (items: readonly RefNode[]): View =>
     table?.kind === 'collection' ?
       { kind: 'record', id: row.id }
-    : refsList(items, `${rowLabel(row)} ${name}`);
+    : refsList(items, name, row.id);
 
 /** A subject of the store: what a level shows, the Action tab lists the
  * actions of and the steps follow */
@@ -128,6 +136,73 @@ export type LevelView = View | ActionsView | ActionView;
 
 const isSubject = (view: LevelView): view is View =>
   view.kind !== 'action' && view.kind !== 'actions';
+
+/** A breadcrumb: a view on the way to a level, at `depth` when the stack
+ * holds it */
+export interface Crumb {
+  readonly view: LevelView;
+  readonly depth?: number;
+}
+
+/** The crumbs to the top of `views`: each subject under where it lives in
+ * the store (`Store › User › 1`), whatever opened it, so they teach the
+ * store's shape; under an action, where it lives in the store that action
+ * left (`Actions › GET /posts › Post › 1`). Actions, and lists that are no
+ * place in the store, stay under what opened them */
+export function trail(views: readonly LevelView[], model: StoreModel) {
+  let crumbs: Crumb[] = [];
+  views.forEach((view, depth) => {
+    const place = isSubject(view) ? placeOf(view, model) : undefined;
+    if (place) {
+      const action = crumbs.findLastIndex(c => !isSubject(c.view));
+      crumbs = [
+        ...crumbs.slice(0, action + 1),
+        ...(action < 0 ? place : place.slice(1)).map(v => {
+          const at = views.slice(0, depth).findLastIndex(w => sameView(v, w));
+          return at < 0 ? { view: v } : { view: v, depth: at };
+        }),
+      ];
+    }
+    crumbs.push({ view, depth });
+  });
+  return crumbs;
+}
+
+/** What holds `view` in the store, from the root down; `undefined` when it
+ * is no place in it */
+function placeOf(view: View, model: StoreModel): View[] | undefined {
+  switch (view.kind) {
+    case 'root':
+      return [];
+    case 'record': {
+      const row = findRow(model, view.id);
+      if (!row) return undefined;
+      return [
+        ROOT,
+        isEndpointRow(row) ? endpointsList(model) : tableList(row.table),
+      ];
+    }
+    case 'list': {
+      if (view.of) {
+        const of: View = { kind: 'record', id: view.of };
+        const place = placeOf(of, model);
+        return place && [...place, of];
+      }
+      const whole = 'table' in view ? !view.pks : view.label === ENDPOINTS;
+      return whole ? [ROOT] : undefined;
+    }
+  }
+}
+
+const sameView = (a: LevelView, b: LevelView) =>
+  a.kind === 'record' ? b.kind === 'record' && a.id === b.id
+  : a.kind === 'list' ?
+    b.kind === 'list' &&
+    a.label === b.label &&
+    ('table' in a ? a.table : undefined) ===
+      ('table' in b ? b.table : undefined) &&
+    a.of === b.of
+  : a.kind === b.kind && a.kind === 'root';
 
 /** The subject of the stack's top: the nearest level that is one, if any */
 export function subjectOf(stack: readonly StackEntry[]): View | undefined {
@@ -300,6 +375,7 @@ export function useLevelStack(
     followMoment,
   };
 }
+export const ROOT: View = { kind: 'root' };
 export const ACTIONS: ActionsView = { kind: 'actions' };
 /** The newest action, followed while live */
 export const NEWEST: ActionView = {

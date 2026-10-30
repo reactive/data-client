@@ -256,7 +256,7 @@ function EntityTreeGroup({
           ))}
           <More
             hidden={table.rows.length - rows.length}
-            list={() => tableList(table)}
+            list={() => tableList(table.key)}
             className={styles.treeMore}
           />
         </div>

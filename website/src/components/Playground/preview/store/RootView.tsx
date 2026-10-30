@@ -161,7 +161,9 @@ function Group({ table }: { table: EntityTable }) {
         onInline={setInline}
         record={row => <EntityDetail row={row} model={model} />}
         foot={
-          hidden > 0 && <More hidden={hidden} list={() => tableList(table)} />
+          hidden > 0 && (
+            <More hidden={hidden} list={() => tableList(table.key)} />
+          )
         }
       />
     </div>
