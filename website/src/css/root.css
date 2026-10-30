@@ -61,11 +61,72 @@ table {
   width: 100%;
   font-variant-numeric: tabular-nums;
 }
-/* MDX tables are wrapped (theme/MDXComponents) so wide ones scroll instead of widening the page */
+/* MDX tables are wrapped (theme/MDXComponents) so wide ones scroll instead of
+   widening the page. Hairline look: one line between rows; no grid, stripes, or
+   header fill */
 .table-scroll {
   overflow-x: auto;
   margin-bottom: var(--ifm-spacing-vertical);
+  font-size: 0.9375rem;
+  --ifm-table-border-color: var(--ifm-color-emphasis-200);
+  --ifm-table-stripe-background: transparent;
+  --ifm-table-cell-padding: 0.55rem 0.75rem;
+  --ifm-table-cell-color: var(--ifm-color-emphasis-800);
+  --ifm-table-head-color: var(--ifm-color-emphasis-600);
+  --ifm-table-head-font-weight: 500;
 }
 .table-scroll > table {
   margin-bottom: 0;
+}
+.table-scroll :is(th, td),
+.table-scroll thead tr {
+  border: 0;
+}
+/* :where() keeps these just above Infima's `table th`/`td`, so components restyle them */
+.table-scroll :where(th) {
+  padding-top: 0;
+  padding-bottom: 0.6rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: left;
+  white-space: nowrap;
+}
+.table-scroll th a {
+  color: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+.table-scroll td {
+  vertical-align: baseline;
+}
+/* a cell spanning rows doesn't light up with just one of them */
+@media (hover: hover) {
+  .table-scroll tbody tr:hover > :where(td:not([rowspan])) {
+    background: color-mix(in srgb, var(--ifm-color-primary) 6%, transparent);
+  }
+}
+
+/* ✅/🛑 stay in the text for screen readers and copying, drawn as a check or a dash */
+.table-scroll td[data-mark] {
+  font-size: 0;
+  vertical-align: middle;
+}
+.table-scroll td[data-mark]::before {
+  content: '';
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  background: var(--ifm-color-primary);
+  /* AgentPrompt's CheckIcon */
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 6 9 17l-5-5' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.table-scroll td[data-mark='no']::before {
+  width: 0.6rem;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--ifm-color-emphasis-400);
+  mask: none;
+  vertical-align: middle;
 }
