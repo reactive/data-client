@@ -62,6 +62,7 @@ import {
   isEndpointRow,
   pendingIn,
   prettyPk,
+  rowLabel,
   type StoreModel,
 } from './model';
 import {
@@ -880,7 +881,7 @@ function Levels({
   const label = (view: LevelView, depth: number, model: StoreModel) =>
     view.kind === 'actions' ?
       <ActionsCrumb subject={subjectAt(depth)} model={model} />
-    : crumbLabel(view, model, subjectAt(depth));
+    : crumbLabel(view, model, subjectAt(depth), true);
   const crumbs = (depth: number, tools?: React.ReactNode) => {
     const { at } = stack[depth];
     // one opened at an action the log no longer has shows the store as it is
@@ -895,13 +896,8 @@ function Levels({
       shown.length > CRUMBS ?
         [0, -1, shown.length - 2, shown.length - 1]
       : shown.map((_, i) => i);
-    const crumbAt = ({ view, depth: d }: (typeof shown)[number]) => {
-      // a record shows under its table, so by its pk alone
-      const row = view.kind === 'record' && findRow(model, view.id);
-      return row && !isEndpointRow(row) ?
-          <span className={styles.crumbName}>{prettyPk(row.pk)}</span>
-        : label(view, d ?? depth, model);
-    };
+    const crumbAt = ({ view, depth: d }: (typeof shown)[number]) =>
+      label(view, d ?? depth, model);
     return (
       <div className={styles.crumbs}>
         {depth > 0 && (
@@ -1382,6 +1378,9 @@ function crumbLabel(
   model: StoreModel,
   /** Whose actions an action view steps through */
   subject: View = ROOT,
+  /** Under what holds it (`trail`), so a record by its pk and a field's
+   * list by the field alone */
+  inTrail = false,
 ): React.ReactNode {
   switch (view.kind) {
     case 'root':
@@ -1395,9 +1394,12 @@ function crumbLabel(
         'ids' in view ? view.ids.length
         : view.pks ? view.pks.length
         : (model.table(view.table)?.rows.length ?? 0);
+      const of = !inTrail && view.of && findRow(model, view.of);
       return (
         <>
-          <span className={styles.crumbName}>{view.label}</span>
+          <span className={styles.crumbName}>
+            {of ? `${rowLabel(of)} ${view.label}` : view.label}
+          </span>
           <span className={styles.count}>{count.toLocaleString()}</span>
         </>
       );
@@ -1405,11 +1407,13 @@ function crumbLabel(
     case 'record': {
       const row = findRow(model, view.id);
       if (!row) return '…';
-      return isEndpointRow(row) ?
-          <RowKey row={row} />
+      return (
+        isEndpointRow(row) ? <RowKey row={row} />
+        : inTrail ? <span className={styles.crumbName}>{prettyPk(row.pk)}</span>
         : <span className={styles.crumbName}>
             <RowKey row={row} />
-          </span>;
+          </span>
+      );
     }
   }
 }

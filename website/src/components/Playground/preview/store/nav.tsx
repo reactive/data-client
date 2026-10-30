@@ -35,6 +35,8 @@ export type ListView =
       readonly label: string;
       readonly ids: readonly string[];
       readonly of?: string;
+      /** Every endpoint: a place in the store */
+      readonly endpoints?: true;
     };
 
 /** The list a count chip dives into: one table's rows when they share one */
@@ -55,11 +57,11 @@ export function refsList(
 }
 
 /** The list of every endpoint, and of a table's rows, "N more" dives into */
-const ENDPOINTS = 'Endpoints';
 export const endpointsList = (model: StoreModel): ListView => ({
   kind: 'list',
-  label: ENDPOINTS,
+  label: 'Endpoints',
   ids: model.endpoints.map(e => e.id),
+  endpoints: true,
 });
 export const tableList = (key: string): ListView => ({
   kind: 'list',
@@ -188,7 +190,7 @@ function placeOf(view: View, model: StoreModel): View[] | undefined {
         const place = placeOf(of, model);
         return place && [...place, of];
       }
-      const whole = 'table' in view ? !view.pks : view.label === ENDPOINTS;
+      const whole = 'table' in view ? !view.pks : view.endpoints;
       return whole ? [ROOT] : undefined;
     }
   }
