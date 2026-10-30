@@ -556,12 +556,10 @@ export default class ActionLog {
     action: FetchAction,
   ): ReadonlySet<string> {
     const { endpoint, key } = action;
-    // a copied endpoint (see `fetchReason`) can't read its schema
-    if (typeof endpoint?.key !== 'function') return new Set();
     let bySchema = this.held.get(state);
     if (!bySchema) this.held.set(state, (bySchema = new Map()));
-    let byKey = bySchema.get(endpoint.schema);
-    if (!byKey) bySchema.set(endpoint.schema, (byKey = new Map()));
+    let byKey = bySchema.get(endpoint?.schema);
+    if (!byKey) bySchema.set(endpoint?.schema, (byKey = new Map()));
     let held = byKey.get(key);
     if (!held) byKey.set(key, (held = entitiesRead(state, action)));
     return held;
@@ -842,6 +840,8 @@ function entitiesRead(
   state: State<unknown>,
   { endpoint, key, args }: FetchAction,
 ): ReadonlySet<string> {
+  // a copied endpoint (see `fetchReason`) can't read its schema
+  if (typeof endpoint?.key !== 'function') return new Set();
   // a fresh memo: one that met a nested entity invalid can still name only
   // the outer one, until #4460 lands
   const { paths } = new MemoCache().denormalize(
@@ -855,41 +855,38 @@ function entitiesRead(
 
 /** `state` with tables of its own: the store's reducer deletes garbage from
  * its tables in place, which states built from them share */
-const detach = (state: State<unknown>) =>
-  withOwnTables(
-    state,
-    [...Object.keys(state.entities), ...Object.keys(state.entitiesMeta)],
-    true,
-  );
+const detach = (state: State<unknown>): State<unknown> => ({
+  ...state,
+  entities: copyTables(state.entities),
+  entitiesMeta: copyTables(state.entitiesMeta),
+  endpoints: { ...state.endpoints },
+  meta: { ...state.meta },
+});
 
 /** `state` with its own copy of each table `gc` deletes from (see
- * `detach`) */
-const detachGarbage = (state: State<unknown>, gc: GCAction) =>
-  withOwnTables(
-    state,
-    gc.entities.map(e => e.key),
-    gc.endpoints.length > 0,
-  );
-
-/** `state` with its own copy of the entity `tables` it has, and of its
- * endpoint tables when `endpoints` */
-function withOwnTables(
-  state: State<unknown>,
-  tables: readonly string[],
-  endpoints: boolean,
-): State<unknown> {
-  const copy = <T>(all: Record<string, T>) => {
-    const own = { ...all };
-    for (const key of tables) if (key in own) own[key] = { ...own[key] };
-    return own;
-  };
+ * `detach`): the entity tables it names, and the endpoint tables when it
+ * names endpoints */
+function detachGarbage(state: State<unknown>, gc: GCAction): State<unknown> {
+  const tables = gc.entities.map(e => e.key);
+  const endpoints = gc.endpoints.length > 0;
   return {
     ...state,
-    entities: copy(state.entities),
-    entitiesMeta: copy(state.entitiesMeta),
+    entities: copyTables(state.entities, tables),
+    entitiesMeta: copyTables(state.entitiesMeta, tables),
     endpoints: endpoints ? { ...state.endpoints } : state.endpoints,
     meta: endpoints ? { ...state.meta } : state.meta,
   };
+}
+
+/** `all` with its own copy of each of `tables` it has (every one, by
+ * default) */
+function copyTables<T>(
+  all: Record<string, T>,
+  tables: Iterable<string> = Object.keys(all),
+): Record<string, T> {
+  const own = { ...all };
+  for (const key of tables) if (key in own) own[key] = { ...own[key] };
+  return own;
 }
 
 /** The endpoint keys whose row `action` can change, as components see

@@ -292,6 +292,22 @@ describe('the action log at scale', () => {
     ]);
   });
 
+  it('keeps what garbage collection deletes from endpoints in the state before', () => {
+    const { controller, log, last } = store(3);
+    controller.dispatch({
+      type: actionTypes.GC,
+      entities: [],
+      endpoints: [getPost.key({ id: '1' })],
+    });
+    const { before, after } = last().store!;
+    expect(before.endpoints[getPost.key({ id: '1' })]).toBeDefined();
+    expect(after.endpoints[getPost.key({ id: '1' })]).toBeUndefined();
+    expect(after.entities.Post).toBe(before.entities.Post);
+    expect(log.changes(last()).map(c => [c.id, c.kind])).toEqual([
+      [endpointId(getPost.key({ id: '1' })), 'removed'],
+    ]);
+  });
+
   it('reads what a key holds once for the fetches a refetch shares', () => {
     const { controller, entries } = store(1);
     storeComment(controller);
