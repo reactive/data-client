@@ -15,6 +15,8 @@ export const FENCED = /(^```[\s\S]*?^```)/m;
  * `<key>`; lines between `:::react` / `:::vue` and `:::` are kept for that
  * framework only (the marker lines are dropped, so blocks can sit inside
  * lists); `:react[...]` / `:vue[...]` pick inline text outside code fences.
+ * remarkFramework.js would parse the same markers, but its remark-stringify
+ * output reformats the markdown, so marker changes go in both.
  * `where` names the source in errors.
  */
 export function renderSkillMd(content, framework, where) {
@@ -30,7 +32,7 @@ export function renderSkillMd(content, framework, where) {
   for (const line of content.replace(FM, '').split('\n')) {
     if (line.startsWith('```')) fence = !fence;
     else if (!fence && line.startsWith(':::')) {
-      const [, name] = line.match(/^:::(\w*)$/) ?? [];
+      const [, name] = line.match(/^:::(\w*)\s*$/) ?? [];
       if (name === undefined || (name && !FRAMEWORKS.includes(name)))
         throw new Error(`${where}: "${line}" isn't :::react, :::vue or :::`);
       if (Boolean(name) === Boolean(block))

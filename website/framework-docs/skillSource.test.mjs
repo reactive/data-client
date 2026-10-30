@@ -34,6 +34,10 @@ describe('renderSkillMd', () => {
     );
   });
 
+  it('accepts markers with trailing whitespace or CRLF', () => {
+    assert.equal(render(':::vue \r\nx\r\n:::\r\ny'), '---\nname: a\n---\ny');
+  });
+
   it('leaves markers in code fences as written', () => {
     const body = '```ts\n:::vue\nf(:vue[x]);\n```';
     assert.equal(render(body), `---\nname: a\n---\n${body}`);
