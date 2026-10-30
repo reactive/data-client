@@ -40,14 +40,21 @@ const commitsAll =
   );
 
 /** Docs some skill renders, source files it copies or its SKILL.md source, and skills another bundles */
-let skillDocs, bundledSkills;
+let skillDocs, bundledSkills, generatedSkillMds;
 function readManifests() {
   const skills = path.join(projectDir, '.agents/skills');
   // checks every changed file, so tolerate checkouts without skills
   const manifests = (fs.existsSync(skills) ? fs.readdirSync(skills) : [])
-    .map(skill => path.join(skills, skill, 'references.json'))
-    .filter(manifest => fs.existsSync(manifest))
-    .map(manifest => JSON.parse(fs.readFileSync(manifest, 'utf8')));
+    .map(skill => [skill, path.join(skills, skill, 'references.json')])
+    .filter(([, manifest]) => fs.existsSync(manifest))
+    .map(([skill, manifest]) => ({
+      skill,
+      ...JSON.parse(fs.readFileSync(manifest, 'utf8')),
+    }));
+  // only these SKILL.md are generated; the rest are hand-written inputs
+  generatedSkillMds = manifests
+    .filter(({ skillMd }) => skillMd)
+    .map(({ skill }) => `.agents/skills/${skill}/SKILL.md`);
   skillDocs = new Set(
     manifests.flatMap(({ docs, files = {}, skillMd }) => [
       ...Object.values(docs),
@@ -56,6 +63,11 @@ function readManifests() {
     ]),
   );
   bundledSkills = new Set(manifests.flatMap(({ skills = [] }) => skills));
+}
+/** SKILL.md files the generator writes (references.json `skillMd`) */
+function skillMdOutputs() {
+  if (!generatedSkillMds) readManifests();
+  return generatedSkillMds;
 }
 /** a doc or source file some skill renders; partials (`_foo.mdx`) may be inlined anywhere */
 function isSkillDoc(file) {
@@ -225,7 +237,7 @@ const message = [
     script: 'website/framework-docs/skillReferences.mjs',
     command: 'yarn build:skills',
     isInput: isSkillInput,
-    outputs: ['.agents/skills/*/references/*', '.agents/skills/*/SKILL.md'],
+    outputs: ['.agents/skills/*/references/*', ...skillMdOutputs()],
   }),
   ...regenerate({
     what: 'Claude Code rules',
