@@ -30,7 +30,7 @@ import {
   type ManagerStage,
 } from '../store/attribution';
 import SchemaRegistry from '../store/schemaRegistry';
-import StorePanel from '../store/StorePanel';
+import { InspectedPanel } from '../testing/inspected';
 
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
@@ -145,7 +145,7 @@ function mount(
     own,
     <CodeOpenerContext.Provider value={opener}>
       <Suspense fallback="loading">{preview}</Suspense>
-      {panel && <StorePanel registry={registry} history={0} />}
+      {panel && <InspectedPanel registry={registry} history={0} />}
     </CodeOpenerContext.Provider>,
   );
   return {
@@ -701,13 +701,9 @@ describe('stageFilter', () => {
 });
 
 describe('Store panel pipeline', () => {
+  /** Pulls the Actions tab: the drawer opens at the actions list */
   const openActions = () =>
-    fireEvent.click(
-      within(screen.getAllByRole('group', { name: /^Scrubber/ })[0]).getByRole(
-        'button',
-        { name: 'Actions' },
-      ),
-    );
+    fireEvent.click(screen.getAllByRole('tab', { name: 'Actions' })[0]);
   const pipeline = () => screen.getByRole('group', { name: /^Pipeline/ });
   /** The pipeline's stages (and folds), as they read */
   const stages = () =>
@@ -905,7 +901,7 @@ describe('Store panel pipeline', () => {
 
   it('keeps a picked stage when the code remakes its managers', async () => {
     const registry = new SchemaRegistry({ trimEvery: 1 });
-    render(<StorePanel registry={registry} history={0} />);
+    render(<InspectedPanel registry={registry} history={0} />);
     const store = (stream: StreamManager) =>
       connectStore(registry, [stream, new NetworkManager()]);
     const first = new StreamManager();
@@ -926,7 +922,7 @@ describe('Store panel pipeline', () => {
     expect(stage(/^StreamManager/).getAttribute('aria-pressed')).toBe('true');
   });
 
-  it("steps and marks only the picked stage's actions, until the State tab", async () => {
+  it("steps and marks only the picked stage's actions, until the Store tab", async () => {
     const stream = new StreamManager();
     const { ctrl } = mount([stream, new NetworkManager()], undefined, true);
     await act(async () => {
@@ -956,10 +952,10 @@ describe('Store panel pipeline', () => {
       false,
       false,
     ]);
-    // leaving the Action tab lets the pick go
-    fireEvent.click(screen.getByRole('tab', { name: 'State' }));
+    // leaving the Actions tab lets the pick go
+    fireEvent.click(screen.getByRole('tab', { name: 'Store' }));
     expect(marks().map(([dim]) => dim)).toEqual([false, false, false]);
-    fireEvent.click(screen.getByRole('tab', { name: 'Action' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Actions' }));
     expect(stage(/^StreamManager/).getAttribute('aria-pressed')).toBe('false');
   });
 

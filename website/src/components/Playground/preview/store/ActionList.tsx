@@ -70,68 +70,23 @@ export function useRows(filter: SubjectFilter) {
   }, [groups, hit, lists, by]);
 }
 
-/** A peek at `subject`'s actions as the mouse rests on the scrubber's list
- * button, to move the moment by: the list, under a head naming the subject
- * (`label`, none at the store) and counting them, dropping from under that
- * button (`toggle`) over the panel's right side (`narrow`,
- * most of it). Picking an action moves the moment
- * there, and the tab under it follows. It goes as the pointer leaves it, on
- * Escape or a press outside */
-export function ActionsPane({
+/** `subject`'s actions as a quick look (./QuickLook.tsx): their count, then
+ * the list, kept on the newest */
+export function ActionsLook({
   subject,
   filter,
   label,
-  narrow,
-  toggle,
-  onHover,
   onPick,
-  onClose,
 }: {
   subject: View;
   filter: SubjectFilter;
   label: React.ReactNode;
-  narrow: boolean;
-  /** Its button, which opens the list in full: a press there is not
-   * outside, and the pane drops from under its row */
-  toggle: React.RefObject<HTMLElement | null>;
-  /** The pointer came into it (`true`) or left it */
-  onHover: (inside: boolean, e: React.PointerEvent) => void;
-  /** A row (`group`) or step (`action`) was picked: moves the moment there */
+  /** A row (`group`) or step (`action`) was picked */
   onPick: (seq: number, scope?: Scope) => void;
-  onClose: () => void;
 }) {
   const rows = useRows(filter);
-  const ref = useRef<HTMLElement>(null);
-  // drops from right under its button's row; set on the node, so placing
-  // it re-renders nothing
-  useLayoutEffect(() => {
-    const pane = ref.current;
-    const row = toggle.current?.parentElement;
-    const frame = pane?.offsetParent;
-    if (pane && row && frame)
-      pane.style.top = `${
-        row.getBoundingClientRect().bottom - frame.getBoundingClientRect().top
-      }px`;
-  }, [toggle]);
-  // a press outside closes it (another panel's toggle included)
-  useEffect(() => {
-    const onPress = (e: PointerEvent) => {
-      const target = e.target as Node | null;
-      if (ref.current?.contains(target) || toggle.current?.contains(target))
-        return;
-      onClose();
-    };
-    document.addEventListener('pointerdown', onPress);
-    return () => document.removeEventListener('pointerdown', onPress);
-  }, [onClose, toggle]);
   return (
-    <aside
-      ref={ref}
-      className={clsx(styles.pane, narrow && styles.paneNarrow)}
-      aria-label="Actions"
-      onPointerEnter={e => onHover(true, e)}
-      onPointerLeave={e => onHover(false, e)}
-    >
+    <>
       <div className={styles.paneHead}>
         Actions
         {label && <span className={styles.paneSubject}>{label}</span>}
@@ -142,12 +97,13 @@ export function ActionsPane({
         subject={subject}
         filter={filter}
         onPick={onPick}
+        live
       />
-    </aside>
+    </>
   );
 }
 
-/** `subject`'s actions at full width, the Action tab's first level:
+/** `subject`'s actions at full width, the Actions tab's first level:
  * `header` (the crumbs) with their count, then the list */
 export function ActionsLevel({
   subject,
@@ -195,6 +151,7 @@ function ActionList({
   subject,
   filter,
   onPick,
+  live = false,
 }: {
   rows: readonly ActionGroup[];
   subject: View;
@@ -202,6 +159,8 @@ function ActionList({
   /** What a row (`group`: its actions as one) or step (`action`) picked
    * does, by default open it */
   onPick?: (seq: number, scope?: Scope) => void;
+  /** Kept on the newest, wherever the moment is */
+  live?: boolean;
 }) {
   const { log, history, groups } = useActions();
   const { seq, current: marked, set, show } = useNavState();
@@ -240,10 +199,10 @@ function ActionList({
     if (current && !isLone(current) && !open.has(current.id))
       setOpen(new Set([...open, current.id]));
   }
-  useReveal(scroller, seq, current?.id);
+  useReveal(scroller, live ? null : seq, current?.id);
   // new rows would push the marked action off the screen; live again, the
   // newest is back in view and followed
-  useFollow(scroller, rows, 'y', seq !== null);
+  useFollow(scroller, rows, 'y', !live && seq !== null);
   // ↑ ↓ move to the head or step before or after, as the moment's: a head
   // of several actions stands for them all, as clicking it does
   const onKeyDown = (e: React.KeyboardEvent) => {

@@ -836,9 +836,14 @@ div.playgroundTextEdit > .playgroundHeader,
    that edge either side as the open file's tab does into its card; over
    that edge's shadow, so the two read as one paper */
 /* one layer: handle + folder */
-.storeTab {
+.drawerTabs {
   position: absolute;
   z-index: 1;
+  display: flex;
+  gap: var(--pg-card-radius);
+}
+.storeTab {
+  position: relative;
   display: grid;
   place-items: center;
   --pg-fillet-color: var(--pg-stage);
@@ -848,7 +853,7 @@ div.playgroundTextEdit > .playgroundHeader,
   cursor: pointer;
   transition: color var(--motion-snappy);
 }
-.storeTab[aria-expanded='true'] {
+.storeTab[aria-selected='true'] {
   color: var(--ifm-color-primary);
 }
 @media (hover: hover) {
@@ -1737,11 +1742,14 @@ div.fixtureJson + div.fixtureJson {
   .row > .storeHost:not([data-open]) .storePanel {
     --store-head-ink: 0;
   }
-  /* by the preview's foot, its curve clear of the corner's: open, it
-     stays level with that foot, however far the Store runs on below */
-  .storeTab {
+  /* by the preview's foot, its curve clear of the corner's: open, they
+     stay level with that foot, however far the Store runs on below */
+  .drawerTabs {
     right: 100%;
     bottom: calc(var(--pg-preview-gap, 0px) + 2 * var(--pg-card-radius));
+    flex-direction: column;
+  }
+  .storeTab {
     width: var(--pg-tab-width);
     height: var(--pg-tab-length);
     border-radius: var(--pg-card-radius) 0 0 var(--pg-card-radius);
@@ -1755,6 +1763,22 @@ div.fixtureJson + div.fixtureJson {
     right: -1px;
     top: calc(100% - 1px);
     --pg-fillet-at: 0 100%;
+  }
+}
+/* A drawer tab's quick look (./preview/store/QuickLook.tsx): shut, over
+   the code beside the handles, its foot level with theirs; open, over the
+   drawer's own edge, the handles past it */
+@container playground (min-width: 720px) {
+  .row > .storeHost [data-quick-look] {
+    right: calc(100% + var(--pg-tab-width) + 0.5rem);
+    bottom: calc(var(--pg-preview-gap, 0px) + var(--pg-card-radius));
+    max-height: calc(
+      100% - var(--pg-preview-gap, 0px) - var(--pg-card-radius) - 0.5rem
+    );
+  }
+  .row > .storeHost[data-open] [data-quick-look] {
+    right: auto;
+    left: 0.5rem;
   }
 }
 /* Stacked row layout: the same folder turned to the stacking axis. The
@@ -1869,9 +1893,11 @@ div.fixtureJson + div.fixtureJson {
   /* up from the header's top edge at its right end (the thumb's side,
      clear of anything laid out at the left above the preview), past the
      header's inset, its curve clear of the corner's */
-  .storeTab {
+  .drawerTabs {
     bottom: 100%;
     right: calc(var(--pg-head-inset) + 2 * var(--pg-card-radius));
+  }
+  .storeTab {
     width: var(--pg-tab-length);
     height: var(--pg-tab-width);
     border-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;

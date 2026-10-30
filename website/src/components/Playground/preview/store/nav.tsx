@@ -96,7 +96,7 @@ export const cellDive =
       { kind: 'record', id: row.id }
     : refsList(items, name, row.id);
 
-/** A subject of the store: what a level shows, the Action tab lists the
+/** A subject of the store: what a level shows, the Actions tab lists the
  * actions of and the steps follow */
 export type View =
   | { readonly kind: 'root' }
@@ -262,20 +262,17 @@ export interface LevelStack {
   ) => void;
 }
 
-/** A stack of views over `root`, opening at `over` (on top of it) */
-export function useLevelStack(
-  root: LevelView,
-  ...over: readonly LevelView[]
-): LevelStack {
+/** A stack of views over `root` */
+export function useLevelStack(root: LevelView): LevelStack {
   // the record a level was opened from flashes once that level is back on top
   const [{ stack, returnTo }, setLevels] = useState<{
     readonly stack: readonly StackEntry[];
     readonly returnTo: string | null;
   }>(() => ({
-    stack: [root, ...over].map((view, key) => ({ key, view, quiet: true })),
+    stack: [{ key: 0, view: root, quiet: true }],
     returnTo: null,
   }));
-  const nextKey = useRef(1 + over.length);
+  const nextKey = useRef(1);
   const push = useCallback((view: View, at?: Moment) => {
     const key = nextKey.current++;
     setLevels(prev => ({
@@ -387,12 +384,6 @@ export function useLevelStack(
 }
 export const ROOT: View = { kind: 'root' };
 export const ACTIONS: ActionsView = { kind: 'actions' };
-/** The newest action, followed while live */
-export const NEWEST: ActionView = {
-  kind: 'action',
-  seq: null,
-  scope: 'request',
-};
 
 /** The store as an action left it, or (`before`) found it (a removed row
  * shows as it was). A level pushed at a Moment shows that store, and so does
@@ -423,7 +414,7 @@ export interface NavState {
    * one: says whether it moved */
   readonly step: (by: -1 | 1) => boolean;
   /** Moves the moment to action `seq` (as much as `scope` says) and opens it
-   * in the Action tab: what it did to the subject, then the action itself
+   * in the Actions tab: what it did to the subject, then the action itself
    * (or the group's actions) */
   readonly show: (seq: number, scope?: Scope) => void;
   /** The store's managers as a pipeline, while the store is the subject */
@@ -455,7 +446,7 @@ export const NavStateContext = createContext<NavState>({
 export const useNavState = () => useContext(NavStateContext);
 
 /** The store's pipeline, at a level whose subject is the store. It follows
- * the State tab's subject, as the steps and the timeline do, so the panel
+ * the Store tab's subject, as the steps and the timeline do, so the panel
  * has one only while that is the store, and a store level over another
  * subject draws none */
 export function usePipelineAt(subject: View): StorePipeline | null {

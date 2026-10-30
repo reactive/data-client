@@ -162,10 +162,10 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
       input.dispatchEvent(new Event('input', { bubbles: true }));
     },
 
-    store(open, { pressed, view } = {}) {
+    store(open, { pressed, tab, view } = {}) {
       if (pressed) ring();
       // not the toggle's own click, which would save the reader's choice
-      showStore(open, view);
+      showStore(open, view, tab);
     },
 
     end() {

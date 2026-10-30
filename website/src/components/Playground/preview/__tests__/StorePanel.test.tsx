@@ -7,8 +7,8 @@ import React from 'react';
 import { byData } from '../store/dom';
 import { endpointId, entityId, groupId, parseRowId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
-import StorePanel from '../store/StorePanel';
 import { DemoViewContext, StoreToggle, useStoreOpen } from '../StoreToggle';
+import { InspectedPanel } from '../testing/inspected';
 
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
@@ -104,7 +104,7 @@ const press = (key: string) =>
 function mount(s = state, r = registry()) {
   return render(
     <StateContext.Provider value={s}>
-      <StorePanel registry={r} history={0} />
+      <InspectedPanel registry={r} history={0} />
     </StateContext.Provider>,
   );
 }
@@ -380,7 +380,7 @@ describe('StorePanel table view', () => {
     render(
       <Demo>
         <StateContext.Provider value={state}>
-          <StorePanel registry={registry()} history={0} />
+          <InspectedPanel registry={registry()} history={0} />
         </StateContext.Provider>
       </Demo>,
     );
@@ -413,50 +413,54 @@ describe('StorePanel table view', () => {
   it('leaves focus alone as the overview first shows, and on the tab picked', () => {
     mount();
     expect(document.activeElement).toBe(document.body);
-    const actions = screen.getByRole('tab', { name: 'Action' });
+    const actions = screen.getByRole('tab', { name: 'Actions' });
     actions.focus();
     fireEvent.click(actions);
     expect(actions.getAttribute('aria-selected')).toBe('true');
     expect(document.activeElement).toBe(actions);
-    fireEvent.click(screen.getByRole('tab', { name: 'State' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Store' }));
     expect(actions.getAttribute('aria-selected')).toBe('false');
     expect(crumbs()).toEqual([]);
   });
 
-  it('moves between and picks State and Action with the keyboard', () => {
+  it("shows which view is open on the drawer's tabs, and names it over the content", () => {
     mount();
-    const state = screen.getByRole('tab', { name: 'State' });
-    const actions = screen.getByRole('tab', { name: 'Action' });
-    expect(state.getAttribute('title')).toBe('The store at the moment');
-    state.focus();
-    fireEvent.keyDown(state, { key: 'ArrowRight' });
+    const store = screen.getByRole('tab', { name: 'Store' });
+    const actions = screen.getByRole('tab', { name: 'Actions' });
+    expect(store.getAttribute('aria-selected')).toBe('true');
+    expect(store.getAttribute('title')).toBe('Hide Store');
+    expect(actions.getAttribute('aria-selected')).toBe('false');
+    expect(actions.getAttribute('title')).toBe('Show Actions');
+    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('Store');
+    // the other tab takes over
+    fireEvent.click(actions);
     expect(actions.getAttribute('aria-selected')).toBe('true');
-    expect(document.activeElement).toBe(actions);
-    // modified arrows are left to the browser
-    fireEvent.keyDown(actions, { key: 'ArrowLeft', altKey: true });
-    expect(actions.getAttribute('aria-selected')).toBe('true');
-    fireEvent.keyDown(actions, { key: 'Home' });
-    expect(state.getAttribute('aria-selected')).toBe('true');
-    expect(document.activeElement).toBe(state);
-    actions.focus();
-    fireEvent.keyDown(actions, { key: 'Enter' });
-    expect(actions.getAttribute('aria-selected')).toBe('true');
-    state.focus();
-    fireEvent.keyDown(state, { key: ' ' });
-    expect(state.getAttribute('aria-selected')).toBe('true');
-    // held or modified, it leaves the pick alone
-    actions.focus();
-    expect(fireEvent.keyDown(actions, { key: ' ', repeat: true })).toBe(false);
-    fireEvent.keyDown(actions, { key: 'Enter', ctrlKey: true });
-    expect(state.getAttribute('aria-selected')).toBe('true');
+    expect(store.getAttribute('aria-selected')).toBe('false');
+    expect(store.getAttribute('title')).toBe('Show Store');
+    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe(
+      'Actions',
+    );
+    // the tab showing shuts the drawer: neither is selected
+    fireEvent.click(actions);
+    expect(actions.getAttribute('aria-selected')).toBe('false');
+    expect(store.getAttribute('aria-selected')).toBe('false');
+    expect(actions.getAttribute('title')).toBe('Show Actions');
   });
 
-  it("puts State's view switches in the tab row", () => {
+  it("puts the Store's view switches in the bar over its content", () => {
     mount();
     expect(
       screen
-        .getByRole('tablist')
+        .getByRole('heading', { level: 2 })
         .parentElement!.contains(screen.getByLabelText('Tree view')),
+    ).toBe(true);
+    // the Actions tab has its own
+    fireEvent.click(screen.getByRole('tab', { name: 'Actions' }));
+    expect(screen.queryByLabelText('Tree view')).toBeNull();
+    expect(
+      screen
+        .getByRole('heading', { level: 2 })
+        .parentElement!.contains(screen.getByLabelText('Every action')),
     ).toBe(true);
   });
 

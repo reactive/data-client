@@ -32,7 +32,9 @@ import {
   ActionsByContext,
   DemoViewContext,
   type ActionsBy,
-  StoreTab,
+  DrawerTabs,
+  InspectorContext,
+  type InspectorOpen,
   StoreToggle,
   useStoreMotion,
   useStoreOpen,
@@ -45,9 +47,10 @@ export interface PlaygroundProps<T = any> {
   children: React.ReactNode;
   /** Tab-storage key for the Store inspector's open/closed choice */
   groupId?: string;
-  /** Store inspector open by default */
-  defaultOpen?: 'y' | 'n';
-  /** How the Store's Action tab lists actions until the reader picks (kept
+  /** The Store inspector open by default, showing the store (`'store'`, or
+   * `'y'`) or its actions (`'actions'`); `'n'`, shut */
+  defaultOpen?: InspectorOpen;
+  /** How the Store's Actions tab lists actions until the reader picks (kept
    * per `groupId`): under the interaction that started them (a click, a
    * render), which teaches cause and effect, or every action in dispatch
    * order, which shows overlapping requests */
@@ -118,7 +121,7 @@ export default function Playground<T>({
     : rowLayout ? 'row'
     : 'stacked';
   const row = layout === 'row';
-  const [storeOpen, toggleStore, showStore, demoView, storeMoves] =
+  const [storeOpen, toggleStore, showStore, demoView, storeMoves, inspector] =
     useStoreOpen(groupId, defaultOpen);
   const actionsBy = useMemo(
     () => ({ groupId, defaultBy: defaultActionsBy }),
@@ -235,25 +238,27 @@ export default function Playground<T>({
       >
         <DemoViewContext.Provider value={demoView}>
           <ActionsByContext.Provider value={actionsBy}>
-            <CodeOpenerContext.Provider value={codeOpener}>
-              <LivePreview
-                documents={documents}
-                fixtureContent={previewFixtures}
-                storeOpen={storeOpen}
-                toggleStore={toggleStoreInPreview}
-                row={row}
-                storeHost={storeHost}
-                fixtures={fixtures}
-                getInitialInterceptorData={getInitialInterceptorData}
-                renderCount={renderCount}
-                inFlight={inFlight}
-                actionLog={actionLog}
-                autoRun={autoRun}
-                showStore={showStore}
-                storeMoves={storeMoves}
-                code={code}
-              />
-            </CodeOpenerContext.Provider>
+            <InspectorContext.Provider value={inspector}>
+              <CodeOpenerContext.Provider value={codeOpener}>
+                <LivePreview
+                  documents={documents}
+                  fixtureContent={previewFixtures}
+                  storeOpen={storeOpen}
+                  toggleStore={toggleStoreInPreview}
+                  row={row}
+                  storeHost={storeHost}
+                  fixtures={fixtures}
+                  getInitialInterceptorData={getInitialInterceptorData}
+                  renderCount={renderCount}
+                  inFlight={inFlight}
+                  actionLog={actionLog}
+                  autoRun={autoRun}
+                  showStore={showStore}
+                  storeMoves={storeMoves}
+                  code={code}
+                />
+              </CodeOpenerContext.Provider>
+            </InspectorContext.Provider>
           </ActionsByContext.Provider>
         </DemoViewContext.Provider>
       </Boundary>
@@ -301,10 +306,11 @@ export default function Playground<T>({
               className={styles.storeDrawer}
               onKeyDown={shutStore}
             >
-              <StoreTab
+              <DrawerTabs
                 ref={handle}
                 open={storeOpen}
-                onClick={toggleStore}
+                inspector={inspector}
+                onToggle={toggleStore}
                 controls={storeId}
               />
             </div>

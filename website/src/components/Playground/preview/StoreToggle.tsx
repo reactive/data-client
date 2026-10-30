@@ -7,11 +7,13 @@ import clsx from 'clsx';
 import React, {
   createContext,
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from 'react';
 
 import type { ShowStore, StoreView } from './store/storeView';
@@ -37,7 +39,7 @@ export interface DemoView {
 }
 export const DemoViewContext = createContext<DemoView>({ drop() {} });
 
-/** How the Action tab lists actions: under the interaction that started
+/** How the Actions tab lists actions: under the interaction that started
  * them (a click, a render), or every action as its own row */
 export type ActionsBy = 'interaction' | 'action';
 /** The playground's group, whose readers' choice of `ActionsBy` is kept,
@@ -47,23 +49,62 @@ export const ActionsByContext = createContext<{
   defaultBy: ActionsBy;
 }>({ groupId: 'playground', defaultBy: 'interaction' });
 
-/** Store open state, persisted per `groupId`; toggling keeps the page from
- * scrolling, also as each Store it closes leaves the layout (`heldToggle`).
- * `showStore` opens or closes it for a demo without persisting, until the
- * reader toggles it; opening it in a view shows that view (`demoView`) while
- * the Store stays open, until the reader picks one. */
-export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
+/** What the Store drawer shows: the store, or the actions that changed it.
+ * Each has its own tab on the drawer's edge */
+export type Inspect = 'store' | 'actions';
+/** Shut, or open showing one; `'y'` is `'store'`, from before the actions
+ * had a tab of their own */
+export type InspectorOpen = Inspect | 'n' | 'y';
+const inspectOf = (choice: string | null | undefined) =>
+  choice === 'y' || choice === 'store' ? 'store'
+  : choice === 'actions' ? 'actions'
+  : choice === 'n' ? null
+  : undefined;
+
+/** Which of the drawer's tabs shows, and the quick look its other tab's
+ * hover opens (`peek`); `select` shows a tab, opening the drawer if shut.
+ * `listed` counts the Actions tab's handle pulled, each of which opens the
+ * actions at their list */
+export interface Inspector {
+  readonly tab: Inspect;
+  select(tab: Inspect): void;
+  readonly peek: Peek;
+  readonly listed: number;
+}
+export const InspectorContext = createContext<Inspector>({
+  tab: 'store',
+  select() {},
+  peek: createPeek(),
+  listed: 0,
+});
+
+/** Store open state, persisted per `groupId` with the tab it shows;
+ * toggling keeps the page from scrolling, also as each Store it closes
+ * leaves the layout (`heldToggle`). `showStore` opens or closes it for a
+ * demo without persisting, until the reader toggles it; opening it in a
+ * view shows that view (`demoView`) while the Store stays open, until the
+ * reader picks one. */
+export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
   const [choice, setChoice] = useTabStorage(groupId);
-  const [shown, show] = useState<{ open: boolean; view?: StoreView } | null>(
-    null,
-  );
-  const open =
-    shown?.open ??
-    (choice === 'y' || choice === 'n' ? choice : defaultOpen) === 'y';
+  const [shown, show] = useState<{
+    open: boolean;
+    tab?: Inspect;
+    view?: StoreView;
+  } | null>(null);
+  const stored = inspectOf(choice);
+  const opened = stored === undefined ? inspectOf(defaultOpen) : stored;
+  const open = shown?.open ?? !!opened;
+  // shut, the tab it last showed: what the header's toggle opens
+  const [lastTab, setLastTab] = useState<Inspect>(() => opened ?? 'store');
+  const tab = shown?.tab ?? opened ?? lastTab;
   // moves made here, by the reader or a demo: only these animate the Store
   // (`useStoreMotion`); the stored choice arriving, or another Store in the
   // group closing this one, just lands
   const [moves, setMoves] = useState(0);
+  const [listed, setListed] = useState(0);
+  // every open, shut or switch of tab closes the quick look
+  const [peek] = useState(createPeek);
+  useEffect(() => peek.close, [peek]);
   // a demo's run holds one showStore from its start (./autorun/stage.ts), so
   // it reads the state as it is now
   const latestOpen = useRef(open);
@@ -72,37 +113,123 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   });
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
+  // pressed on the tab it shows, the drawer shuts; on the other, open or
+  // shut, it shows that one
   const toggle = useCallback(
-    (event: { currentTarget: HTMLElement }) => {
+    (event: { currentTarget: HTMLElement }, to: Inspect = tab) => {
       clicked = event.currentTarget;
       blockElementScrollPositionUntilNextRender(clicked);
-      setChoice(open ? 'n' : 'y');
+      const shut = open && to === tab;
+      setChoice(shut ? 'n' : to);
+      setLastTab(to);
       show(null);
-      setMoves(n => n + 1);
+      peek.close();
+      if (!open || shut) setMoves(n => n + 1);
+      if (!shut && to === 'actions') setListed(n => n + 1);
     },
-    [blockElementScrollPositionUntilNextRender, open, setChoice],
+    [blockElementScrollPositionUntilNextRender, open, tab, setChoice, peek],
+  );
+  // from inside the drawer (a link to an action or a record): shows that
+  // tab, sliding the drawer open if it was shut (a quick look's link)
+  const select = useCallback(
+    (to: Inspect) => {
+      clicked = undefined;
+      setChoice(to);
+      setLastTab(to);
+      peek.close();
+      if (!latestOpen.current) {
+        show(null);
+        setMoves(n => n + 1);
+      } else show(prev => (prev?.tab ? { ...prev, tab: undefined } : prev));
+    },
+    [setChoice, peek],
   );
   // a demo's open or close is no reader's click: forget the last one, so it
   // doesn't pin a toggle the reader clicked earlier
-  const showStore = useCallback<ShowStore>((demoOpen, view) => {
-    clicked = undefined;
-    if (demoOpen !== latestOpen.current) setMoves(n => n + 1);
-    show(prev => {
-      const next = demoOpen ? (view ?? prev?.view) : undefined;
-      // unchanged: the playground's children don't re-render
-      return prev?.open === demoOpen && prev.view === next ?
-          prev
-        : { open: demoOpen, view: next };
-    });
-  }, []);
-  // the reader picked a view: the demo's goes, its open stays
+  const showStore = useCallback<ShowStore>(
+    (demoOpen, view, demoTab) => {
+      clicked = undefined;
+      peek.close();
+      if (demoOpen !== latestOpen.current) setMoves(n => n + 1);
+      show(prev => {
+        const next = demoOpen ? (view ?? prev?.view) : undefined;
+        const nextTab = demoOpen ? (demoTab ?? prev?.tab) : undefined;
+        // unchanged: the playground's children don't re-render
+        return (
+            prev?.open === demoOpen &&
+              prev.view === next &&
+              prev.tab === nextTab
+          ) ?
+            prev
+          : { open: demoOpen, tab: nextTab, view: next };
+      });
+    },
+    [peek],
+  );
+  // the reader picked a view: the demo's goes, its open and tab stay
   const drop = useCallback(
-    () => show(prev => (prev?.view ? { open: prev.open } : prev)),
+    () => show(prev => (prev?.view ? { ...prev, view: undefined } : prev)),
     [],
   );
   const view = shown?.view;
   const demoView = useMemo<DemoView>(() => ({ view, drop }), [view, drop]);
-  return [open, toggle, showStore, demoView, moves] as const;
+  const inspector = useMemo<Inspector>(
+    () => ({ tab, select, peek, listed }),
+    [tab, select, peek, listed],
+  );
+  return [open, toggle, showStore, demoView, moves, inspector] as const;
+}
+
+/** The tab whose quick look shows */
+export function useLook(): Inspect | null {
+  const { peek } = useContext(InspectorContext);
+  return useSyncExternalStore(peek.subscribe, peek.get, noLook);
+}
+const noLook = () => null;
+
+/** How long the pointer rests on a tab before its quick look opens, and is
+ * away from both before it closes (ms) */
+const PEEK_OPEN_MS = 150;
+const PEEK_CLOSE_MS = 300;
+
+/** The quick look a drawer tab's hover opens: outside React state, so a
+ * hover re-renders only what shows it (../StoreInspector.tsx), not the
+ * playground. Mouse only: a tap on the tab opens the drawer itself */
+export interface Peek {
+  get(): Inspect | null;
+  subscribe(onChange: () => void): () => void;
+  /** The pointer came onto (`true`) or left a tab's handle or its quick look */
+  hover(tab: Inspect, inside: boolean, e: React.PointerEvent): void;
+  close(): void;
+}
+export function createPeek(): Peek {
+  let shown: Inspect | null = null;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const listeners = new Set<() => void>();
+  const set = (next: Inspect | null) => {
+    clearTimeout(timer);
+    if (next === shown) return;
+    shown = next;
+    listeners.forEach(listener => listener());
+  };
+  return {
+    get: () => shown,
+    subscribe(onChange) {
+      listeners.add(onChange);
+      return () => listeners.delete(onChange);
+    },
+    hover(tab, inside, e) {
+      if (e.pointerType !== 'mouse') return;
+      clearTimeout(timer);
+      // straight from one tab's quick look to the other's
+      if (inside && shown !== null && shown !== tab) return set(tab);
+      timer = setTimeout(
+        () => set(inside ? tab : null),
+        inside ? PEEK_OPEN_MS : PEEK_CLOSE_MS,
+      );
+    },
+    close: () => set(null),
+  };
 }
 
 /** Whether the Store is moving for one of `moves` (`useStoreOpen`), as
@@ -207,7 +334,7 @@ export function StoreHeaderToggle({
   return (
     <HeaderToggle
       className={styles.storeHeaderToggle}
-      title={toggleTitle(open)}
+      title={tabTitle('store', open)}
       label={translate({ id: 'playground.store', message: 'Store' })}
       open={open}
       data-store-toggle
@@ -282,44 +409,93 @@ function HeaderToggle({
   );
 }
 
-/** The folder's handle (../index.tsx renders it on the folder's drawer): a
- * pull tab in the folder's color sticking out of the preview's left edge by
- * its foot (stacked, out of its bottom edge). Pulled, it draws the folder's
- * layer out over the code with the Store on it, and stays outside the
- * Store's edge, drawn out (see .storeDrawer in ../styles.module.css) */
-export function StoreTab({
-  onClick,
+/** The folder's handles (../index.tsx renders them on the folder's drawer):
+ * pull tabs in the folder's color sticking out of the preview's left edge
+ * by its foot, Actions over Store (stacked, out of its top edge). Pulled,
+ * one draws the folder's layer out over the code showing its view, and
+ * both stay outside the drawer's edge, drawn out, the one showing joined
+ * to it (see .storeDrawer in ../styles.module.css). Resting on one opens
+ * its quick look (`Peek`) */
+export function DrawerTabs({
   open,
+  inspector: { tab, peek },
+  onToggle,
   controls,
   ref,
 }: {
-  onClick: React.MouseEventHandler<HTMLElement>;
   open: boolean;
+  inspector: Inspector;
+  onToggle: (event: React.MouseEvent<HTMLElement>, to: Inspect) => void;
   /** The folder's id */
   controls: string;
+  /** The tab showing, which Escape on the drawer shuts */
   ref?: React.Ref<HTMLButtonElement>;
 }) {
   return (
-    <button
-      ref={ref}
-      type="button"
-      className={clsx('clean-btn', styles.storeTab)}
-      title={toggleTitle(open)}
-      aria-label={translate({ id: 'playground.store', message: 'Store' })}
-      aria-expanded={open}
-      aria-controls={controls}
-      onClick={onClick}
-      data-store-toggle
+    <div
+      className={styles.drawerTabs}
+      role="tablist"
+      aria-orientation="vertical"
     >
-      <StoreIcon />
-    </button>
+      {INSPECTS.map(to => {
+        const selected = open && tab === to;
+        return (
+          <button
+            key={to}
+            ref={tab === to ? ref : undefined}
+            type="button"
+            role="tab"
+            className={clsx('clean-btn', styles.storeTab)}
+            title={tabTitle(to, selected)}
+            aria-label={tabLabel(to)}
+            aria-selected={selected}
+            aria-controls={controls}
+            onClick={e => onToggle(e, to)}
+            onPointerEnter={e => !selected && peek.hover(to, true, e)}
+            onPointerLeave={e => peek.hover(to, false, e)}
+            data-store-toggle={to}
+          >
+            {to === 'store' ?
+              <StoreIcon />
+            : <ActionsIcon />}
+          </button>
+        );
+      })}
+    </div>
   );
 }
+const INSPECTS = ['actions', 'store'] as const satisfies readonly Inspect[];
 
-const toggleTitle = (open: boolean) =>
-  open ?
-    translate({ id: 'playground.store.hide', message: 'Hide Store' })
-  : translate({ id: 'playground.store.show', message: 'Show Store' });
+export const tabLabel = (tab: Inspect) =>
+  tab === 'store' ?
+    translate({ id: 'playground.store', message: 'Store' })
+  : translate({ id: 'playground.actions', message: 'Actions' });
+const tabTitle = (tab: Inspect, shown: boolean) =>
+  tab === 'store' ?
+    shown ? translate({ id: 'playground.store.hide', message: 'Hide Store' })
+    : translate({ id: 'playground.store.show', message: 'Show Store' })
+  : shown ?
+    translate({ id: 'playground.actions.hide', message: 'Hide Actions' })
+  : translate({ id: 'playground.actions.show', message: 'Show Actions' });
+
+/** A log: rows of entries, each marked at its start (Lucide `logs`) */
+function ActionsIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="1em"
+      height="1em"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M13 12h8M13 18h8M13 6h8M3 12h1M3 18h1M3 6h1M8 12h1M8 18h1M8 6h1" />
+    </svg>
+  );
+}
 
 /** Angle brackets around a slash */
 function CodeIcon({ className }: { className?: string }) {
