@@ -7,7 +7,7 @@ import playgroundstyles from './Playground/styles.module.css';
 
 /** Wraps a Resource member's description, EndpointPlayground and the
  * Field/Value table after it (docs/rest/api/resource.md). The site shows the
- * table's rows as a card between the description and the playground: a
+ * table's rows as a card in the table's place, after the playground: a
  * property grid where there is room, Request and Response groups of rows on a
  * phone. A value's in-page link is one of resource()'s #arguments, passed
  * through: CSS marks it.
@@ -44,7 +44,7 @@ export default function MethodInfo({
   );
   return (
     <>
-      {parts.slice(0, tableAt - 1)}
+      {parts.slice(0, tableAt)}
       <section
         className={clsx(styles.card, playgroundstyles.stageHues)}
         data-method={verb}
@@ -72,7 +72,6 @@ export default function MethodInfo({
           </span>
         </p>
       </section>
-      {parts.slice(tableAt - 1, tableAt)}
       {parts.slice(tableAt + 1)}
     </>
   );
