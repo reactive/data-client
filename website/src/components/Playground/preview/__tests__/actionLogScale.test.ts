@@ -245,22 +245,21 @@ describe('the action log at scale', () => {
           ),
         ),
       );
-    const changed = (type: string, endpoint: unknown) =>
-      log
-        .changes(
-          stored.find(
-            e =>
-              e.action.type === type &&
-              'endpoint' in e.action &&
-              e.action.endpoint === endpoint,
-          )!,
-        )
-        .map(c => c.id);
+    const changedIds = (type: string, endpoint: unknown) => {
+      const entry = stored.find(
+        e =>
+          e.action.type === type &&
+          'endpoint' in e.action &&
+          e.action.endpoint === endpoint,
+      );
+      expect(entry).toBeDefined();
+      return log.changes(entry!).map(c => c.id);
+    };
     // the update's own list and the optimistic title both show
-    expect(changed(actionTypes.SET_RESPONSE, createPost)).toContain(
+    expect(changedIds(actionTypes.SET_RESPONSE, createPost)).toContain(
       endpointId('GET /posts'),
     );
-    expect(changed(actionTypes.FETCH, renamePost)).toContain(
+    expect(changedIds(actionTypes.FETCH, renamePost)).toContain(
       entityId('Post', '1'),
     );
   });
