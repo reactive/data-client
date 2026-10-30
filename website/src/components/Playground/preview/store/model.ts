@@ -58,6 +58,8 @@ export const nodeId = (kind: string, ...parts: readonly string[]) =>
 /** Row ids shared by both views, selection and flashes */
 export const endpointId = (key: string) => nodeId('e', key);
 export const entityId = (key: string, pk: string) => nodeId('n', key, pk);
+/** An Entity or Collection table's group in the tree view */
+export const groupId = (key: string) => nodeId('g', key);
 /** An action's row in the timeline list; not a store row */
 export const actionId = (seq: number) => nodeId('a', `${seq}`);
 /** Stable while other optimistic updates settle around it */

@@ -266,6 +266,14 @@ describe('StorePanel table view', () => {
     expect(top().querySelector('nav')).toBeNull();
     // the tree is as it was left
     expect(post().getAttribute('aria-expanded')).toBe('true');
+    // and stays so while its group is shut and opened again
+    const group = within(top())
+      .getByText('Post')
+      .closest<HTMLElement>('[aria-expanded]')!;
+    fireEvent.click(group);
+    expect(byData(top(), 'id', entityId('Post', '1'))).toBeUndefined();
+    fireEvent.click(group);
+    expect(post().getAttribute('aria-expanded')).toBe('true');
     // so do the rows a group leaves out
     fireEvent.click(within(top()).getByText('7 more'));
     expect(crumbs()).toEqual(['Store', '›', 'Post12']);

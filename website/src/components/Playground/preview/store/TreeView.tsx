@@ -1,9 +1,10 @@
 import clsx from 'clsx';
-import React, { useContext, useState } from 'react';
+import React, { createContext, useContext, useMemo, useState } from 'react';
 
 import { EndpointDetail, EntityDetail, Status } from './Details';
 import { changeProps, onActivateKey } from './dom';
 import {
+  groupId,
   optimisticId,
   prettyPk,
   type EndpointRow,
@@ -45,8 +46,13 @@ export default function TreeView() {
   const shown = useShownSections(model);
   const section = useSectionToggles();
   const endpoints = preview(model.endpoints);
+  // kept here, so a row hidden with its group or section reopens as left
+  const [choices, setChoices] = useState<ReadonlyMap<string, boolean>>(
+    () => new Map(),
+  );
+  const open = useMemo(() => ({ choices, setChoices }), [choices]);
   return (
-    <>
+    <OpenContext.Provider value={open}>
       {model.optimistic.length > 0 && (
         <SectionBlock
           {...section('Optimistic', model.optimistic.length)}
@@ -85,20 +91,27 @@ export default function TreeView() {
           <Internals model={model} />
         </SectionBlock>
       )}
-    </>
+    </OpenContext.Provider>
   );
 }
 
 /** Entity types open as they first appear (Suspense loads them one by one) */
 const OPEN_GROUPS = 3;
 
-/** Props making a row (tr or div) expand on click or Enter/Space; `id`, the
- * record's, marks how the moment changed it */
-function useRowProps(id: string | undefined, defaultOpen = false) {
-  const [open, setOpen] = useState(defaultOpen);
-  const diff = useContext(DiffContext);
-  const change = id === undefined ? undefined : diff?.get(id)?.kind;
-  const toggle = () => setOpen(o => !o);
+/** The reader's open and closed choices, by row or group id */
+const OpenContext = createContext<{
+  readonly choices: ReadonlyMap<string, boolean>;
+  readonly setChoices: React.Dispatch<
+    React.SetStateAction<ReadonlyMap<string, boolean>>
+  >;
+}>({ choices: new Map(), setChoices: () => {} });
+
+/** Props making a row (tr or div) expand on click or Enter/Space */
+function useRowProps(id: string, defaultOpen = false) {
+  const { choices, setChoices } = useContext(OpenContext);
+  const open = choices.get(id) ?? defaultOpen;
+  const change = useContext(DiffContext)?.get(id)?.kind;
+  const toggle = () => setChoices(prev => new Map(prev).set(id, !open));
   return {
     open,
     props: {
@@ -172,7 +185,7 @@ function EntityTreeGroup({
   table: EntityTable;
   defaultOpen: boolean;
 }) {
-  const { open, props } = useRowProps(undefined, defaultOpen);
+  const { open, props } = useRowProps(groupId(table.key), defaultOpen);
   const rows = preview(table.rows);
   return (
     <>
