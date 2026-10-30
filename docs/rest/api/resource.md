@@ -16,6 +16,7 @@ import { groupPostFixtures } from '@site/src/fixtures/group-posts';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import DeleteProcess from './\_DeleteProcess.mdx';
 import CollectionLists from '@site/src/components/CollectionLists';
+import MethodInfo from '@site/src/components/MethodInfo';
 
 # Resource
 
@@ -328,11 +329,15 @@ PostResource.get({
 
 </EndpointPlayground>
 
+<MethodInfo>
+
 | Field  | Value             |
 | :----: | ----------------- |
 | method | 'GET'             |
 |  path  | [path](#path)     |
 | schema | [schema](#schema) |
+
+</MethodInfo>
 
 Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate), [Controller.expireAll](/docs/api/Controller#expireAll)
 
@@ -374,6 +379,8 @@ PostResource.getList({
 
 </EndpointPlayground>
 
+<MethodInfo>
+
 |      Field      | Value                                                |
 | :-------------: | ---------------------------------------------------- |
 |     method      | 'GET'                                                |
@@ -381,6 +388,8 @@ PostResource.getList({
 |  searchParams   | [searchParams](#searchparams)                        |
 | paginationField | [paginationField](#paginationfield)                  |
 |     schema      | [new Collection(\[schema\])](./Collection.md) |
+
+</MethodInfo>
 
 <!-- prettier-ignore-start -->
 ```ts
@@ -433,6 +442,8 @@ PostResource.getList.push(
 
 </EndpointPlayground>
 
+<MethodInfo>
+
 |    Field     | Value                                       |
 | :----------: | ------------------------------------------- |
 |    method    | 'POST'                                      |
@@ -440,6 +451,8 @@ PostResource.getList.push(
 | searchParams | [searchParams](#searchparams)               |
 |     body     | [body](#body)                               |
 |    schema    | getList.[schema.push](./Collection.md#push) |
+
+</MethodInfo>
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
@@ -481,6 +494,8 @@ PostResource.getList.unshift(
 
 </EndpointPlayground>
 
+<MethodInfo>
+
 |    Field     | Value                                             |
 | :----------: | ------------------------------------------------- |
 |    method    | 'POST'                                            |
@@ -488,6 +503,8 @@ PostResource.getList.unshift(
 | searchParams | [searchParams](#searchparams)                     |
 |     body     | [body](#body)                                     |
 |    schema    | getList.[schema.unshift](./Collection.md#unshift) |
+
+</MethodInfo>
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
@@ -533,6 +550,8 @@ PostResource.getList.getPage({
 
 </EndpointPlayground>
 
+<MethodInfo>
+
 |      Field      | Value                                               |
 | :-------------: | --------------------------------------------------- |
 |     method      | 'GET'                                               |
@@ -540,6 +559,8 @@ PostResource.getList.getPage({
 |  searchParams   | [searchParams](#searchparams)                       |
 | paginationField | [paginationField](#paginationfield)                 |
 |     schema      | [getList.schema.addWith](./Collection.md#addWith) |
+
+</MethodInfo>
 
 args: `PathToArgs(shortenPath(path)) & searchParams & \{ [paginationField]: string | number \}`
 
@@ -584,12 +605,16 @@ PostResource.getList.move(
 
 </EndpointPlayground>
 
+<MethodInfo>
+
 |    Field     | Value                                       |
 | :----------: | ------------------------------------------- |
 |    method    | 'PATCH'                                     |
 |     path     | [path](#path)                               |
 |     body     | [body](#body)                               |
 |    schema    | getList.[schema.move](./Collection.md#move) |
+
+</MethodInfo>
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
@@ -631,12 +656,16 @@ PostResource.update(
 
 </EndpointPlayground>
 
+<MethodInfo>
+
 | Field  | Value             |
 | :----: | ----------------- |
 | method | 'PUT'             |
 |  path  | [path](#path)     |
 |  body  | [body](#body)     |
 | schema | [schema](#schema) |
+
+</MethodInfo>
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
@@ -678,12 +707,16 @@ PostResource.partialUpdate(
 
 </EndpointPlayground>
 
+<MethodInfo>
+
 | Field  | Value             |
 | :----: | ----------------- |
 | method | 'PATCH'           |
 |  path  | [path](#path)     |
 |  body  | [body](#body)     |
 | schema | [schema](#schema) |
+
+</MethodInfo>
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
@@ -722,12 +755,16 @@ PostResource.delete({ group: 'react', id: '1' });
 
 </EndpointPlayground>
 
+<MethodInfo>
+
 |  Field  | Value                                            |
 | :-----: | ------------------------------------------------ |
 | method  | 'DELETE'                                         |
 |  path   | [path](#path)                                    |
 | schema  | [new Invalidate(schema)](./Invalidate.md) |
 | process | <DeleteProcess />                                |
+
+</MethodInfo>
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 

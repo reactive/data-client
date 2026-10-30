@@ -1,0 +1,121 @@
+/* rows: method, path, then the other fields. Method and path share the
+ * request line; the rest are key/value rows below it */
+.methodInfo {
+  --hairline: 1px solid var(--ifm-color-emphasis-200);
+  --verb: var(--ifm-color-primary-darker);
+  margin: 1.25rem 0 1.75rem;
+  border: var(--hairline);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.methodInfo[data-method='GET'] {
+  --verb: #1d8049;
+}
+.methodInfo[data-method='PUT'],
+.methodInfo[data-method='PATCH'] {
+  --verb: #a15c07;
+}
+.methodInfo[data-method='DELETE'] {
+  --verb: #c0362c;
+}
+[data-theme='dark'] .methodInfo {
+  --verb: var(--ifm-color-primary-light);
+}
+[data-theme='dark'] .methodInfo[data-method='GET'] {
+  --verb: #7fd1a0;
+}
+[data-theme='dark'] .methodInfo:is([data-method='PUT'], [data-method='PATCH']) {
+  --verb: #f0b45a;
+}
+[data-theme='dark'] .methodInfo[data-method='DELETE'] {
+  --verb: #f08a80;
+}
+
+.methodInfo :global(.table-scroll) {
+  margin: 0;
+}
+.methodInfo table {
+  display: block;
+  margin: 0;
+  font: 0.875rem / 1.5rem var(--ifm-font-family-monospace);
+}
+/* the keys label each row; the header only names the columns */
+.methodInfo thead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.methodInfo tbody {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: baseline;
+  padding-bottom: 0.5rem;
+}
+/* doubled to beat Infima's `table tr:nth-child(2n)` stripes */
+.methodInfo.methodInfo tr {
+  display: contents;
+}
+.methodInfo td {
+  padding: 0.3rem 1rem 0.3rem 0;
+  border: 0;
+  background: none;
+  text-align: left !important;
+}
+.methodInfo td:first-child {
+  padding-left: 1rem;
+  padding-right: 1.5rem;
+  font-size: 0.8125rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+/* the request line: the method's value under the path's, both across the card */
+.methodInfo tr:is(:nth-child(1), :nth-child(2)) td:first-child {
+  display: none;
+}
+.methodInfo tr:is(:nth-child(1), :nth-child(2)) td:last-child {
+  grid-area: 1 / 1 / 2 / -1;
+  padding: 0.75rem 1rem 0.75rem 5.25rem;
+}
+.methodInfo tr:nth-child(1) td:last-child {
+  align-self: stretch;
+  margin-bottom: 0.45rem;
+  padding-left: 1rem;
+  border-bottom: var(--hairline);
+  background: var(--ifm-color-emphasis-100);
+  /* 'GET' stays in the text for screen readers and copying, shown as GET */
+  font-size: 0;
+}
+.methodInfo tr:nth-child(1) td:last-child::before {
+  content: var(--method);
+  font: 700 0.75rem / 1.5rem var(--ifm-font-family-base);
+  letter-spacing: 0.06em;
+  color: var(--verb);
+}
+.methodInfo tr:nth-child(2) td:last-child {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+/* a code value (process) */
+.methodInfo td:has(pre) {
+  align-self: start;
+}
+.methodInfo td:first-child:has(+ td pre) {
+  align-self: start;
+  padding-top: 0.9rem;
+}
+.methodInfo td :global(.theme-code-block) {
+  margin: 0.3rem 0;
+}
+
+@container doc (max-width: 480px) {
+  .methodInfo td:first-child {
+    padding-right: 1rem;
+  }
+  .methodInfo td:not(:has(pre)) {
+    font-size: 0.8125rem;
+  }
+}
