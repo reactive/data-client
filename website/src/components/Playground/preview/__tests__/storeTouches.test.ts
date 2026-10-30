@@ -25,9 +25,11 @@ describe('touches', () => {
     expect(touches(tableList('Post'), rowChange)).toBe(true);
     expect(touches(tableList('User'), rowChange)).toBe(false);
     expect(touches(tableList('Post'), endpointChange)).toBe(false);
-    // a list of some rows counts only theirs
-    const some = { ...tableList('Post'), pks: ['2'] };
-    expect(touches(some, rowChange)).toBe(false);
-    expect(touches({ ...some, pks: ['1'] }, rowChange)).toBe(true);
+  });
+
+  it('counts only the rows a list of pks names', () => {
+    const posts = (...pks: string[]) => ({ ...tableList('Post'), pks });
+    expect(touches(posts('1'), rowChange)).toBe(true);
+    expect(touches(posts('2'), rowChange)).toBe(false);
   });
 });
