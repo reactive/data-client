@@ -625,6 +625,31 @@ describe('Store Actions pane detail', () => {
     expect(crumbs()).toEqual([]);
   });
 
+  it("shuts with the mouse's back button before a level under it goes back", async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    jest.useFakeTimers();
+    openPost('1');
+    hover(actionsToggle(), true);
+    wait();
+    const back = () => {
+      const event = new MouseEvent('mouseup', {
+        bubbles: true,
+        cancelable: true,
+        button: 3,
+      });
+      fireEvent(peek() ?? top(), event);
+      return event.defaultPrevented;
+    };
+    expect(back()).toBe(true);
+    expect(peek()).toBeNull();
+    expect(current()).toBe('1');
+    expect(back()).toBe(true);
+    expect(crumbs()).toEqual([]);
+    // at the store, the page goes back
+    expect(back()).toBe(false);
+  });
+
   it('keeps the action open in its tab while State changes view', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
