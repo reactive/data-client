@@ -48,20 +48,17 @@ import { splitKey } from '../../splitKey';
 export default function TreeView() {
   const { model } = useNav();
   const shown = useShownSections(model);
-  const {
-    section,
-    groupDefaults: recorded,
-    setGroupDefaults,
-  } = useRequired(TreeStateContext);
+  const { section, groupDefaults: recorded, setGroupDefaults } = useTreeState();
   // a group's default is fixed when it first appears in a tree, so tables
   // arriving later (Suspense loads them one by one) never reshuffle what is
   // open. The shown store (a diff, a moment) can hold tables the live one
   // lacks, so this view records them; it shows them as they will be meanwhile
   const groupDefaults = withNewGroups(recorded, model.tables);
-  useEffect(
-    () => setGroupDefaults(prev => withNewGroups(prev, model.tables)),
-    [setGroupDefaults, model.tables],
-  );
+  // this render already shows them, so recording can wait until after paint
+  useEffect(() => {
+    if (groupDefaults !== recorded)
+      setGroupDefaults(prev => withNewGroups(prev, model.tables));
+  }, [groupDefaults, recorded, setGroupDefaults, model.tables]);
   const endpoints = preview(model.endpoints);
   return (
     <>
@@ -110,10 +107,14 @@ export default function TreeView() {
 /** The first Entity types to appear start open */
 const OPEN_GROUPS = 3;
 
-/** What the reader opened and closed in the tree view's sections and
- * groups, which only the tree view reads */
+/** What the reader opened and closed in the tree view */
 interface TreeState {
   readonly section: ReturnType<typeof useSectionProps>;
+  /** Rows' and groups' open state, by id, where the reader toggled it */
+  readonly choices: ReadonlyMap<string, boolean>;
+  readonly setChoices: React.Dispatch<
+    React.SetStateAction<ReadonlyMap<string, boolean>>
+  >;
   /** Whether each group, by table key, starts open */
   readonly groupDefaults: ReadonlyMap<string, boolean>;
   /** Set by the tree view, the one that knows which store it shows */
@@ -121,20 +122,11 @@ interface TreeState {
     React.SetStateAction<ReadonlyMap<string, boolean>>
   >;
 }
-/** Rows' and groups' open state, by id, where the reader toggled it; apart
- * from `TreeState` so a section toggle doesn't re-render every row */
-interface Choices {
-  readonly choices: ReadonlyMap<string, boolean>;
-  readonly setChoices: React.Dispatch<
-    React.SetStateAction<ReadonlyMap<string, boolean>>
-  >;
-}
 const TreeStateContext = createContext<TreeState | null>(null);
-const ChoicesContext = createContext<Choices | null>(null);
-function useRequired<T>(context: React.Context<T | null>) {
-  const value = useContext(context);
-  if (!value) throw new Error('TreeView outside a TreeStateProvider');
-  return value;
+function useTreeState() {
+  const state = useContext(TreeStateContext);
+  if (!state) throw new Error('TreeView outside a TreeStateProvider');
+  return state;
 }
 
 /** `defaults` with each table it lacks: open while fewer than
@@ -160,21 +152,20 @@ export function TreeStateProvider({ children }: { children: React.ReactNode }) {
   const [groupDefaults, setGroupDefaults] = useState<
     ReadonlyMap<string, boolean>
   >(() => new Map());
-  const state = useMemo(
-    () => ({ section, groupDefaults, setGroupDefaults }),
-    [section, groupDefaults],
+  const value = useMemo(
+    () => ({ section, choices, setChoices, groupDefaults, setGroupDefaults }),
+    [section, choices, groupDefaults],
   );
-  const rows = useMemo(() => ({ choices, setChoices }), [choices]);
   return (
-    <TreeStateContext.Provider value={state}>
-      <ChoicesContext.Provider value={rows}>{children}</ChoicesContext.Provider>
+    <TreeStateContext.Provider value={value}>
+      {children}
     </TreeStateContext.Provider>
   );
 }
 
 /** Props making a row (tr or div) expand on click or Enter/Space */
 function useRowProps(id: string, defaultOpen = false) {
-  const { choices, setChoices } = useRequired(ChoicesContext);
+  const { choices, setChoices } = useTreeState();
   const open = choices.get(id) ?? defaultOpen;
   const change = useContext(DiffContext)?.get(id)?.kind;
   const toggle = () => setChoices(prev => new Map(prev).set(id, !open));
