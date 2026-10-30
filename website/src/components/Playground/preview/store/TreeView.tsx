@@ -4,7 +4,6 @@ import React, { useContext, useState } from 'react';
 import { EndpointDetail, EntityDetail, Status } from './Details';
 import { changeProps, onActivateKey } from './dom';
 import {
-  nodeId,
   optimisticId,
   prettyPk,
   type EndpointRow,
@@ -17,9 +16,12 @@ import { plain, type VNode } from './refs';
 import {
   Chevron,
   GroupLabel,
+  endpointsList,
   Internals,
+  More,
   preview,
   SectionBlock,
+  tableList,
   useSectionToggles,
   useShownSections,
 } from './Sections';
@@ -39,7 +41,7 @@ import { splitKey } from '../../splitKey';
  * in place; references, "N more" and long lists dive in, as in the table
  * view */
 export default function TreeView() {
-  const { model, push } = useNav()!;
+  const { model } = useNav();
   const shown = useShownSections(model);
   const section = useSectionToggles();
   const endpoints = preview(model.endpoints);
@@ -62,13 +64,8 @@ export default function TreeView() {
           ))}
           <More
             hidden={model.endpoints.length - endpoints.length}
-            onClick={() =>
-              push({
-                kind: 'list',
-                label: 'Endpoints',
-                ids: model.endpoints.map(e => e.id),
-              })
-            }
+            list={() => endpointsList(model)}
+            className={styles.showAll}
           />
         </SectionBlock>
       )}
@@ -95,10 +92,12 @@ export default function TreeView() {
 /** Entity types open as they first appear (Suspense loads them one by one) */
 const OPEN_GROUPS = 3;
 
-/** Props making a row (tr or div) expand on click or Enter/Space */
-function useRowProps(id: string, defaultOpen = false) {
+/** Props making a row (tr or div) expand on click or Enter/Space; `id`, the
+ * record's, marks how the moment changed it */
+function useRowProps(id: string | undefined, defaultOpen = false) {
   const [open, setOpen] = useState(defaultOpen);
-  const change = useContext(DiffContext)?.get(id)?.kind;
+  const diff = useContext(DiffContext);
+  const change = id === undefined ? undefined : diff?.get(id)?.kind;
   const toggle = () => setOpen(o => !o);
   return {
     open,
@@ -112,16 +111,6 @@ function useRowProps(id: string, defaultOpen = false) {
       onKeyDown: onActivateKey(toggle),
     },
   };
-}
-
-/** Dives into the rows a group leaves out */
-function More({ hidden, onClick }: { hidden: number; onClick: () => void }) {
-  if (hidden <= 0) return null;
-  return (
-    <button type="button" className={styles.showAll} onClick={onClick}>
-      {hidden.toLocaleString()} more
-    </button>
-  );
 }
 
 function OptimisticRow({
@@ -183,8 +172,7 @@ function EntityTreeGroup({
   table: EntityTable;
   defaultOpen: boolean;
 }) {
-  const { push } = useNav()!;
-  const { open, props } = useRowProps(nodeId('g', table.key), defaultOpen);
+  const { open, props } = useRowProps(undefined, defaultOpen);
   const rows = preview(table.rows);
   return (
     <>
@@ -198,9 +186,8 @@ function EntityTreeGroup({
           ))}
           <More
             hidden={table.rows.length - rows.length}
-            onClick={() =>
-              push({ kind: 'list', table: table.key, label: table.key })
-            }
+            list={() => tableList(table)}
+            className={styles.showAll}
           />
         </div>
       )}
@@ -209,7 +196,7 @@ function EntityTreeGroup({
 }
 
 function EntityTreeRow({ row, table }: { row: EntityRow; table: EntityTable }) {
-  const { model } = useNav()!;
+  const { model } = useNav();
   const { open, props } = useRowProps(row.id);
   const change = useContext(DiffContext)?.get(row.id);
   // the pk is the row's key, so its field would only repeat it

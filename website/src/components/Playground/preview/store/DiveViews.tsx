@@ -46,7 +46,7 @@ export function ListView({
   scroller: Scroller;
   header: Header;
 }) {
-  const { model } = useNav()!;
+  const { model } = useNav();
   if ('table' in view) {
     const table = model.table(view.table);
     return table ?
@@ -76,7 +76,7 @@ function TableList({
   scroller: Scroller;
   header: Header;
 }) {
-  const { model, width } = useNav()!;
+  const { model, width } = useNav();
   const [page, setPage] = useState(0);
   const rows = useMemo(
     () => (pks ? pks.flatMap(pk => table.get(pk) ?? []) : table.rows),
@@ -110,7 +110,7 @@ function IdList({
   scroller: Scroller;
   header: Header;
 }) {
-  const { model, width } = useNav()!;
+  const { model, width } = useNav();
   const rows = useMemo(
     () => ids.flatMap(id => findRow(model, id) ?? []),
     [model, ids],
@@ -150,7 +150,7 @@ function FilteredRows<R extends AnyRow>({
   header: Header;
   tools?: React.ReactNode;
 }) {
-  const { push } = useNav()!;
+  const { push } = useNav();
   const [filter, setFilter] = useState('');
   const query = useDeferredValue(filter.trim().toLowerCase());
   const [inline, setInline] = useState<string | null>(null);
@@ -315,7 +315,7 @@ export function RecordLevel({
   scroller: Scroller;
   header: Header;
 }) {
-  const { model } = useNav()!;
+  const { model } = useNav();
   const row = findRow(model, id);
   const members = useMemo(() => row && membersOf(model, row), [model, row]);
   if (!row)

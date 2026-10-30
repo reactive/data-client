@@ -248,7 +248,7 @@ function ChangeBody({
  * links to opens at that store too */
 function RemovedValue({ id, seq }: { id: string; seq: number }) {
   const { then } = useActions();
-  const nav = useNav()!;
+  const nav = useNav();
   const shown = then({ seq, before: true });
   const atNav = useMemo<Nav | undefined>(
     () =>

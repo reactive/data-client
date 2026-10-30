@@ -406,4 +406,8 @@ export interface Nav {
 
 /** Set by each level and the peek */
 export const NavContext = createContext<Nav | null>(null);
-export const useNav = () => useContext(NavContext);
+export function useNav(): Nav {
+  const nav = useContext(NavContext);
+  if (!nav) throw new Error('useNav outside a level or the peek');
+  return nav;
+}

@@ -840,11 +840,6 @@ function Levels({
   diff?: Diff;
 }) {
   const { then } = useActions();
-  // levels shown before (the view toggled back to the table) show at once;
-  // only those new since slide in
-  useLayoutEffect(() => {
-    for (const entry of stack) shownLevels.add(entry);
-  });
   // each level's nav; one showing an action's store keeps its own as the
   // live store changes
   const [navs] = useState(
@@ -964,7 +959,7 @@ function Levels({
             nav={level.nav}
             then={level.then}
             depth={depth}
-            pushed={depth > 0 && !entry.quiet && !shownLevels.has(entry)}
+            pushed={depth > 0 && !entry.quiet}
             top={depth === stack.length - 1}
             hidden={hidden}
             under={under}
@@ -999,10 +994,6 @@ function Levels({
   );
 }
 
-/** The stack entries a `Levels` has shown, so one remounted shows those as
- * they were */
-const shownLevels = new WeakSet<StackEntry>();
-
 /** One scrolling level; slides in when pushed, and back in from the other
  * side when what covered it closes */
 function Level({
@@ -1024,8 +1015,7 @@ function Level({
   /** The store this level shows, when not the one `StateContext` holds */
   then?: Then;
   depth: number;
-  /** Not shown before; one shown before (in a `Levels` since remounted)
-   * shows without sliding in or taking focus */
+  /** Opened on purpose: slides in and takes focus as it first shows */
   pushed: boolean;
   top: boolean;
   /** Its tab isn't shown: covered, though still on top of its stack */
@@ -1116,16 +1106,19 @@ function SubjectLevel({
   scroller: Scroller;
   header: Header;
 }) {
-  const storeView = useContext(StoreViewContext);
   return (
-    view.kind === 'root' ?
-      storeView === 'tree' ?
-        <TreeView />
-      : <RootView scroller={scroller} />
+    view.kind === 'root' ? <StoreLevel scroller={scroller} />
     : view.kind === 'list' ?
       <ListView view={view} scroller={scroller} header={header} />
     : <RecordLevel id={view.id} scroller={scroller} header={header} />
   );
+}
+
+/** The whole store, in the State tab's view */
+function StoreLevel({ scroller }: { scroller: Scroller }) {
+  return useContext(StoreViewContext) === 'tree' ?
+      <TreeView />
+    : <RootView scroller={scroller} />;
 }
 
 /** What the moment's action changed of a subject: the store and its lists

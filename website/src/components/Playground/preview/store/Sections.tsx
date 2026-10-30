@@ -3,7 +3,7 @@ import React, { useContext, useState } from 'react';
 
 import { toggled } from './dom';
 import type { EntityTable, StoreModel } from './model';
-import { DiffContext } from './nav';
+import { DiffContext, useNav, type ListView } from './nav';
 import { plain } from './refs';
 import styles from './store.module.css';
 import { Field } from './Value';
@@ -40,6 +40,37 @@ const SHOW_ALL_UNDER = 8;
 
 export const preview = <T,>(rows: readonly T[]) =>
   rows.length > SHOW_ALL_UNDER ? rows.slice(0, PREVIEW_ROWS) : rows;
+
+/** The list of every endpoint, and of a table's rows, "N more" dives into */
+export const endpointsList = (model: StoreModel): ListView => ({
+  kind: 'list',
+  label: 'Endpoints',
+  ids: model.endpoints.map(e => e.id),
+});
+export const tableList = (table: EntityTable): ListView => ({
+  kind: 'list',
+  table: table.key,
+  label: table.key,
+});
+
+/** Dives into the `hidden` rows a preview leaves out */
+export function More({
+  hidden,
+  list,
+  className,
+}: {
+  hidden: number;
+  list: () => ListView;
+  className?: string;
+}) {
+  const { push } = useNav();
+  if (hidden <= 0) return null;
+  return (
+    <button type="button" className={className} onClick={() => push(list())}>
+      {hidden.toLocaleString()} more
+    </button>
+  );
+}
 
 /** `SectionBlock` props by title, each open until toggled (Internals
  * closed) */

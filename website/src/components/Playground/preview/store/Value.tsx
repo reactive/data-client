@@ -53,7 +53,7 @@ export function RefChip({
       title={title}
       onClick={e => {
         e.stopPropagation();
-        nav?.push({ kind: 'record', id }, at ?? spanAt);
+        nav.push({ kind: 'record', id }, at ?? spanAt);
       }}
     >
       {label}
@@ -121,7 +121,7 @@ export function CountChip({
       className={clsx(styles.ref, className)}
       onClick={e => {
         e.stopPropagation();
-        nav?.push(list(), at);
+        nav.push(list(), at);
       }}
     >
       {children}

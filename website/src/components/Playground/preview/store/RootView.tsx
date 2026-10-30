@@ -12,10 +12,13 @@ import {
 import { useNav } from './nav';
 import { plain } from './refs';
 import {
+  endpointsList,
   GroupLabel,
   Internals,
+  More,
   preview,
   SectionBlock,
+  tableList,
   useSectionToggles,
   useShownSections,
 } from './Sections';
@@ -36,7 +39,7 @@ const INDEX_OVER = 5;
 
 /** The whole store at a glance: a few rows of everything */
 export default function RootView({ scroller }: { scroller: Scroller }) {
-  const { model, width, push } = useNav()!;
+  const { model, width, push } = useNav();
   const shown = useShownSections(model);
   const section = useSectionToggles();
   const endpoints = preview(model.endpoints);
@@ -65,18 +68,10 @@ export default function RootView({ scroller }: { scroller: Scroller }) {
               onOpen={row => push({ kind: 'record', id: row.id })}
               foot={
                 hiddenEndpoints > 0 && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      push({
-                        kind: 'list',
-                        label: 'Endpoints',
-                        ids: model.endpoints.map(e => e.id),
-                      })
-                    }
-                  >
-                    {hiddenEndpoints.toLocaleString()} more
-                  </button>
+                  <More
+                    hidden={hiddenEndpoints}
+                    list={() => endpointsList(model)}
+                  />
                 )
               }
             />
@@ -136,17 +131,17 @@ function TableIndex({
 /** One table: a few rows, its fields paged to fit (the pager shows on hover,
  * or after tapping the header on touch) */
 function Group({ table }: { table: EntityTable }) {
-  const { model, width, push } = useNav()!;
+  const { model, width, push } = useNav();
   const [page, setPage] = useState(0);
   const [inline, setInline] = useState<string | null>(null);
   const [active, setActive] = useState(false);
   const rows = preview(table.rows);
+  const hidden = table.rows.length - rows.length;
   const changed = useChangedFields(table.rows);
   const { columns, pages, more } = useMemo(
     () => tableColumns(table, table.rows, width, page, { changed }),
     [table, width, page, changed],
   );
-  const hidden = table.rows.length - rows.length;
   return (
     <div
       className={styles.group}
@@ -168,16 +163,7 @@ function Group({ table }: { table: EntityTable }) {
         onInline={setInline}
         record={row => <EntityDetail row={row} model={model} />}
         foot={
-          hidden > 0 && (
-            <button
-              type="button"
-              onClick={() =>
-                push({ kind: 'list', table: table.key, label: table.key })
-              }
-            >
-              {hidden.toLocaleString()} more
-            </button>
-          )
+          hidden > 0 && <More hidden={hidden} list={() => tableList(table)} />
         }
       />
     </div>
