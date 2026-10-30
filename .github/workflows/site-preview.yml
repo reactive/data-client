@@ -270,9 +270,9 @@ jobs:
       - name: Check translations
         run: node website/translate/translate.mjs check
       # Translation tooling, sitemap robots.txt, Playground fixture source
-      # plugins and the locale picker
+      # plugins, the locale picker and the skill source renderer
       - name: Test website scripts
-        run: node --test 'website/translate/*.test.mjs' website/*.test.mjs website/scripts/*.test.mjs
+        run: node --test 'website/translate/*.test.mjs' website/*.test.mjs website/scripts/*.test.mjs website/framework-docs/*.test.mjs
 
   # The required check (branch protection matches this name): passes when the
   # build and checks passed, or the gate skipped them

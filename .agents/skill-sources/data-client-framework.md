@@ -1,0 +1,289 @@
+---
+name: data-client-react
+vue_name: data-client-vue
+description: "Read, change and render async and shared state in React with @data-client/react: any data from an API or other async source, and global state shared across components (it has to persist somewhere, which makes it async). Use it for loading and error states, mutations and forms, filtered or derived views, and debugging data that looks wrong or stale on screen. Use it in place of fetch in useEffect, or app-wide useState and context; its main hooks are useSuspense, useQuery and useController."
+vue_description: "Read, change and render async and shared state in Vue with @data-client/vue: any data from an API or other async source, and global state shared across components (it has to persist somewhere, which makes it async). Use it for loading and error states, mutations and forms, filtered or derived views, and debugging data that looks wrong or stale on screen. Use it in place of fetch in onMounted or watch, or app-wide refs and provide/inject; its main composables are useSuspense, useQuery and useController."
+license: Apache 2.0
+---
+:::vue
+## Setup
+
+Install [DataClientPlugin](references/DataClientPlugin.md) once with `app.use(DataClientPlugin)` ([installation](references/installation.md);
+apply the skill "data-client-setup" to set it up). Composables only work inside `<script setup>` of components
+below it. Awaiting composables (`await useSuspense()`) requires `<script setup>`: in a hand-written
+`async setup()`, composables called after the first `await` lose the component instance.
+
+:::
+## Rendering
+
+:::react
+```ts
+// GET https://jsonplaceholder.typicode.com/todos/5
+const todo = useSuspense(TodoResource.get, { id: 5 });
+// GET https://jsonplaceholder.typicode.com/todos
+const todoList = useSuspense(TodoResource.getList);
+// GET https://jsonplaceholder.typicode.com/todos?userId=1
+const todoListByUser = useSuspense(TodoResource.getList, { userId: 1 });
+// subscriptions with polling, websockets or SSE
+const todo = useLive(TodoResource.get, { id: 5 });
+// without fetch
+const todo = useCache(TodoResource.get, { id: 5 });
+const todo = useQuery(Todo, { id: 5 });
+// fetch without Suspense - returns { data, loading, error }
+const { data, loading, error } = useDLE(TodoResource.get, { id: 5 });
+// subscribe without Suspense (use with useSuspense or useDLE)
+useSubscription(TodoResource.get, { id: 5 });
+// parallel fetches with React.use()
+const postPromise = useFetch(PostResource.get, { id });
+const commentsPromise = useFetch(CommentResource.getList, { postId: id });
+const post = use(postPromise);
+const comments = use(commentsPromise);
+```
+
+Sequential `useSuspense` calls waterfall, so load 2+ endpoints with `useFetch` as above. Before React 19,
+read them with `useSuspense` instead of `use()`.
+:::
+:::vue
+```ts
+// GET https://jsonplaceholder.typicode.com/todos/5
+const todo = await useSuspense(TodoResource.get, { id: 5 });
+// GET https://jsonplaceholder.typicode.com/todos
+const todoList = await useSuspense(TodoResource.getList);
+// GET https://jsonplaceholder.typicode.com/todos?userId=1
+const todoListByUser = await useSuspense(TodoResource.getList, { userId: 1 });
+// subscriptions with polling, websockets or SSE
+const todo = await useLive(TodoResource.get, { id: 5 });
+// without fetch (not awaited)
+const todo = useCache(TodoResource.get, { id: 5 });
+const todo = useQuery(Todo, { id: 5 });
+// fetch without Suspense - returns { data, loading, error } refs
+const { data, loading, error } = useDLE(TodoResource.get, { id: 5 });
+// subscribe without Suspense (use with useSuspense or useDLE)
+useSubscription(TodoResource.get, { id: 5 });
+// parallel fetches: start both, then await
+useFetch(PostResource.get, { id });
+useFetch(CommentResource.getList, { postId: id });
+const post = await useSuspense(PostResource.get, { id });
+const comments = await useSuspense(CommentResource.getList, { postId: id });
+// conditional: null skips fetching and binding
+const user = await useSuspense(UserResource.get, () => (userId.value ? { id: userId.value } : null));
+```
+:::
+
+For API definitions (like TodoResource), apply the skill "data-client-rest".
+:::vue
+
+### Return values are refs
+
+- `useSuspense()` and `useLive()` return a `Promise` of a readonly `ComputedRef`: `await` them at the top
+  level of `<script setup>`. `useCache()`, `useQuery()`, and each of `useDLE()`'s `data`/`loading`/`error`
+  are `ComputedRef`s.
+- Templates unwrap them (`{{ todo.title }}`); in script read `.value` (`todo.value.title`).
+
+### Reactive arguments
+
+A plain object like `{ id: props.id }` is read once and won't follow prop or route changes. When an
+argument can change, pass a getter (or a `ref`/`computed`) ([arguments](references/_vueArgs.md)):
+
+```ts
+const props = defineProps<{ id: number }>();
+// refetches when props.id changes
+const todo = await useSuspense(TodoResource.get, () => ({ id: props.id }));
+```
+
+When arguments change, `useSuspense()` and `useLive()` keep the previous data until the new fetch resolves
+(no `v-if` guard needed); a failed fetch for the new arguments reaches `onErrorCaptured()`.
+:::
+
+## Mutations
+
+```ts
+const ctrl = useController();
+// PUT https://jsonplaceholder.typicode.com/todos/5
+const updateTodo = todo => ctrl.fetch(TodoResource.update, { id }, todo);
+// PATCH https://jsonplaceholder.typicode.com/todos/5
+const partialUpdateTodo = todo =>
+  ctrl.fetch(TodoResource.partialUpdate, { id }, todo);
+// POST https://jsonplaceholder.typicode.com/todos
+const addTodoToBeginning = todo =>
+  ctrl.fetch(TodoResource.getList.unshift, todo);
+// POST https://jsonplaceholder.typicode.com/todos?userId=1
+const addTodoToEnd = todo => ctrl.fetch(TodoResource.getList.push, { userId: 1 }, todo);
+// DELETE https://jsonplaceholder.typicode.com/todos/5
+const deleteTodo = id => ctrl.fetch(TodoResource.delete, { id });
+// GET https://jsonplaceholder.typicode.com/todos?userId=1&page=2
+const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId: 1, page })
+```
+:::vue
+
+Read reactive values (`props.todo.id`, `title.value`) inside the handler so each call uses current state.
+The Controller is also available as `$dataClient` in any template (and `this.$dataClient` in the Options API).
+:::
+
+## Helpful :react[hooks]:vue[composables]
+
+:::react
+```tsx
+const [handleSubmit, loading, error] = useLoading(
+  async data => {
+    const post = await ctrl.fetch(PostResource.getList.push, data);
+    navigateToPost(post.id);
+  },
+  [ctrl],
+);
+```
+
+```tsx
+const [query, setQuery] = React.useState('');
+const handleChange = e => setQuery(e.currentTarget.value);
+const [debouncedQuery, isPending] = useDebounce(query, 200);
+
+return (
+  <AsyncBoundary fallback={<Loading />}>
+    <IssueList query={debouncedQuery} owner="react" repo="react" />
+  </AsyncBoundary>
+)
+```
+
+## Components
+
+Prefer using [AsyncBoundary](references/AsyncBoundary.md) for error handling and loading states unless the codebase has
+a custom AsyncBoundary that already combines Suspense and ErrorBoundary.
+Its props are `fallback`, `errorComponent`, `errorClassName`, and `listen`. It can be used to wrap any component that fetches data.
+
+```tsx
+<AsyncBoundary listen={history.listen}>
+  <TodoList />
+</AsyncBoundary>
+```
+:::
+:::vue
+```ts
+const ctrl = useController();
+const [handleSubmit, loading, error] = useLoading(async (data: FormData) => {
+  const post = await ctrl.fetch(PostResource.getList.push, data);
+  router.push(`/posts/${post.id}`);
+});
+// loading and error are refs
+```
+
+```ts
+const query = ref(''); // bound with v-model
+const [debouncedQuery, isPending] = useDebounce(query, 200);
+// pass debouncedQuery to the component that fetches, inside <Suspense>
+```
+
+## Loading and error boundaries
+
+There is no `AsyncBoundary` component in Vue. A component that `await`s `useSuspense()` or `useLive()`
+must render inside Vue's [`<Suspense>`](https://vuejs.org/guide/built-ins/suspense.html); its
+`#fallback` slot is the loading state. Catch fetch errors in an ancestor with
+[`onErrorCaptured()`](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured).
+Reuse the codebase's existing boundary component if it has one; otherwise follow the
+[boundary example](references/_AsyncBoundary.md) (`onErrorCaptured` stores the error and returns `false`;
+the template shows it or renders `<Suspense>`). Place boundaries around route views or sections, not around
+each data-bound component ([boundaries](references/data-dependency.md#boundaries)).
+:::
+
+## Type-safe imperative actions
+
+[Controller](references/Controller.md) is returned from `useController()`. It has:
+ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.invalidateAll(), ctrl.setResponse(), ctrl.set(),
+ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
+
+| To refresh or update | Call |
+|---|---|
+| You already have the new value | `ctrl.set()` / `ctrl.setResponse()` (no network) |
+| One endpoint+args | `ctrl.fetch(endpoint, args)` |
+| All cached args of an endpoint | `ctrl.expireAll(endpoint)`: fetching :react[hooks]:vue[composables] refetch; `useCache`/`useQuery` don't |
+| Current data must not show while refetching | `ctrl.invalidate()` / `ctrl.invalidateAll()`:react[: `useSuspense` suspends]:vue[, rendering `useDLE`'s `loading`; mounted `useSuspense` keeps its last data] |
+
+Write many entities without a fetch with one `ctrl.set([Entity], rows)`. Never loop `ctrl.set(Entity, args, row)` per row, and never add an endpoint or `setResponse()` just to batch.
+
+## Programmatic queries
+
+```ts
+const queryRemainingTodos = new Query(
+  TodoResource.getList.schema,
+  entries => entries.filter(todo => !todo.completed).length,
+);
+
+const allRemainingTodos = useQuery(queryRemainingTodos);
+const firstUserRemainingTodos = useQuery(queryRemainingTodos, { userId: 1 });
+```
+
+```ts
+const groupTodoByUser = new Query(
+  TodoResource.getList.schema,
+  todos => Object.groupBy(todos, todo => todo.userId),
+);
+const todosByUser = useQuery(groupTodoByUser);
+```
+
+---
+
+## Debugging wrong or stale data in a running app
+
+When the running app shows the wrong data, inspect the page's store before reading code for the cause. In dev mode,
+`__DC__.controller` is the page's Controller and `__DC__.actions` its recent [actions](references/Actions.md), reachable
+from any browser tool that runs JavaScript in the page. [devtools-debugging](references/devtools-debugging.md) maps
+symptoms to what to check and links the setup for your browser tool.
+
+## Managers
+
+Custom [Managers](https://dataclient.io/docs/api/Manager) allow for global side effect handling.
+This is useful for websockets, SSE, logging, etc.:vue[ Pass them to `DataClientPlugin` with
+[getDefaultManagers](references/getDefaultManagers.md).] Always use the skill "data-client-manager" when writing managers.
+
+## Best Practices & Notes
+
+- [useDebounce(query, timeout)](references/useDebounce.md) when rendering async data based on user field inputs
+- [[handleSubmit, loading, error] = useLoading()](references/useLoading.md) when tracking async mutations
+- Prefer smaller :react[React]:vue[Vue] components that do one thing
+- **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill. Pass ids/args, not fetched data a component only hands down (a list passing each item to its row is fine); bindings with the same endpoint and args share one fetch and store entry
+- **Don't hide data bindings inside custom :react[hooks]:vue[composables]**: wrapping them obfuscates a component's data dependencies and couples data logic to view code, causing drift. Put tightly coupled data transformations in a `Query` schema (with the data model, e.g. `src/resources/`) so they stay reusable and evolve independently of views
+:::vue
+- Don't copy results into `ref()`/`reactive()` state; render the returned refs directly so updates flow through
+:::
+- `undefined` from `useCache`, or `useQuery` on an Entity, means "not loaded yet", not "doesn't exist"; a deep link or refresh starts empty. Read required data with `useSuspense`/`useDLE`, which fetch only when the cache is missing, stale or invalidated; use `useCache`/`useQuery` for data other code loads
+- For tests, apply the skill "data-client-:react[react]:vue[vue]-testing"
+
+# References
+
+For detailed API documentation, see the [references](references/) directory:
+
+- [useSuspense](references/useSuspense.md);[_pagination.md](references/_pagination.md) - Fetch with Suspense
+:::vue
+- [_vueArgs](references/_vueArgs.md) - Plain, ref, computed, and getter arguments
+:::
+- [useFetch](references/useFetch.md) - :react[Fetch for React.use() and parallel loading]:vue[Start fetches early for parallel loading]
+- [useQuery](references/useQuery.md) - Read from cache without fetch
+- [useCache](references/useCache.md) - Read from cache (nullable)
+- [useLive](references/useLive.md);[_useLive.md](references/_useLive.md) - Fetch + subscribe to updates
+- [useDLE](references/useDLE.md) - Fetch without Suspense (returns data/loading/error)
+- [useSubscription](references/useSubscription.md) - Subscribe to updates (polling/websocket/SSE)
+- [useController](references/useController.md) - Access Controller
+- [Controller](references/Controller.md) - Imperative actions
+:::react
+- [AsyncBoundary](references/AsyncBoundary.md);[_AsyncBoundary.md](references/_AsyncBoundary.md) - Error/loading boundary
+:::
+:::vue
+- [_AsyncBoundary.md](references/_AsyncBoundary.md) - Suspense and onErrorCaptured boundaries
+:::
+- [useLoading](references/useLoading.md);[_useLoading.md](references/_useLoading.md) - Track async mutation state
+- [useDebounce](references/useDebounce.md) - Debounce values
+:::react
+- [DataProvider](references/DataProvider.md) - Root provider
+:::
+:::vue
+- [DataClientPlugin](references/DataClientPlugin.md) - Plugin options (managers, initialState, gcPolicy) and `$dataClient`
+- [installation](references/installation.md) - Install `DataClientPlugin`
+- [getDefaultManagers](references/getDefaultManagers.md) - Configure `DataClientPlugin` managers
+:::
+- [data-dependency](references/data-dependency.md) - Rendering guide
+- [mutations](references/mutations.md);[_VoteDemo.md](references/_VoteDemo.md) - Mutations guide
+- [Actions](references/Actions.md) - Store action types (FETCH, SET, etc.)
+- [devtools-debugging](references/devtools-debugging.md) - Debug the running app from a browser tool
+- [browser-cursor.md](references/browser-cursor.md);[browser-chrome-devtools-mcp.md](references/browser-chrome-devtools-mcp.md);[browser-playwright-mcp.md](references/browser-playwright-mcp.md);[browser-claude-in-chrome.md](references/browser-claude-in-chrome.md) - Setup for one browser tool; read only yours
+
+**ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via skill "data-client-schema" definitions.**

@@ -2,6 +2,7 @@
   "frameworks": [
     "react"
   ],
+  "skillMd": ".agents/skill-sources/data-client-framework.md",
   "docs": {
     "Actions.md": "docs/core/api/Actions.md",
     "AsyncBoundary.md": "docs/core/api/AsyncBoundary.md",

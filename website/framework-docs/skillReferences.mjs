@@ -16,6 +16,10 @@
  * it installed: its SKILL.md body becomes `references/other-skill.md` and its
  * other files (references, scripts) are copied under `references/other-skill/`.
  *
+ * `"skillMd": ".agents/skill-sources/foo.md"` generates SKILL.md itself from a
+ * source shared with other skills, rendered for this skill's first framework
+ * (see skillSource.mjs).
+ *
  * Usage: node website/framework-docs/skillReferences.mjs
  */
 import fs from 'node:fs';
@@ -25,6 +29,7 @@ import { frameworkInstance } from './docsInstances.js';
 import { docToMarkdown, routeOf } from './docsToMarkdown.mjs';
 import { FM, walk } from './index.js';
 import { ROOT, SITE, git, rel } from './site.mjs';
+import { FENCED, renderSkillMd } from './skillSource.mjs';
 
 const SKILLS = path.join(ROOT, '.agents/skills');
 const MANIFEST = 'references.json';
@@ -43,7 +48,12 @@ const readManifest = skillDir => {
 /** content marked as generated, in that file type's comment syntax */
 function withHeader(file, content) {
   const text = `${GENERATED} ${rel(file)}. Edit the source, not this file.`;
-  if (MD.test(file)) return `<!-- ${text} -->\n\n${content}`;
+  // after front matter, which must stay first
+  if (MD.test(file))
+    return content.replace(
+      /^(---\r?\n[\s\S]*?\r?\n---\r?\n)?/,
+      `$1<!-- ${text} -->\n\n`,
+    );
   if (!/\.[cm]?[jt]s$/.test(file))
     throw new Error(`${rel(file)}: can't mark this file type as generated`);
   // after a shebang, which must stay the first line
@@ -51,9 +61,12 @@ function withHeader(file, content) {
   return `${shebang}// ${text}\n${rest}`;
 }
 
-/** The header is the first line, or the second after a shebang */
+/** The header is the first line, or the second after a shebang, after any front matter */
 const isGenerated = content =>
-  content.split('\n', 2).some(line => line.includes(GENERATED));
+  content
+    .replace(FM, '')
+    .split('\n', 2)
+    .some(line => line.includes(GENERATED));
 
 /**
  * Content ignoring the header, which framework's docs links point to, and the
@@ -85,8 +98,24 @@ function generateSkill(skillDir) {
   return generated.get(skillDir);
 }
 
-function buildSkill(skillDir, { frameworks, docs, files = {}, skills = [] }) {
+function buildSkill(
+  skillDir,
+  { frameworks, docs, files = {}, skills = [], skillMd },
+) {
   const out = new Map();
+  if (skillMd) {
+    const source = path.join(ROOT, skillMd);
+    if (!fs.existsSync(source))
+      throw new Error(
+        `${rel(skillDir)}/${MANIFEST}: ${skillMd} does not exist`,
+      );
+    const content = renderSkillMd(
+      fs.readFileSync(source, 'utf8'),
+      frameworks[0],
+      rel(source),
+    );
+    out.set(path.join(skillDir, 'SKILL.md'), withHeader(source, content));
+  }
   // framework that rendered each file
   const renderedBy = new Map();
   for (const doc of Object.values(docs)) {
@@ -183,13 +212,18 @@ function bundleSkill(sourceDir, skillDir, out) {
   const skillMd = path.join(sourceDir, 'SKILL.md');
   if (!fs.existsSync(skillMd))
     throw new Error(`${rel(skillDir)}/${MANIFEST}: no skill ${skill}`);
-  const body = fs
-    .readFileSync(skillMd, 'utf8')
+  // its generated references come from their sources, so they can't be stale
+  const sourceGenerated = generateSkill(sourceDir) ?? new Map();
+  const body = (
+    sourceGenerated.get(skillMd) ?? fs.readFileSync(skillMd, 'utf8')
+  )
     .replace(FM, '')
+    // a generated SKILL.md's header; withHeader names the copy's source
+    .replace(new RegExp(`^<!-- ${GENERATED}.*\\n`), '')
     .trimStart()
     // relative links now resolve from references/, next to the copied files;
     // fenced code (odd split indexes) is left as is
-    .split(/(^```[\s\S]*?^```)/m)
+    .split(FENCED)
     .map((part, i) =>
       i % 2 ? part : (
         part.replace(/\]\((?![a-z]+:|[#/])(?:\.\/)?/g, `](./${skill}/`)
@@ -197,10 +231,9 @@ function bundleSkill(sourceDir, skillDir, out) {
     )
     .join('');
   out.set(`${dest}.md`, withHeader(skillMd, body));
-  // its generated references come from their sources, so they can't be stale
-  const sourceGenerated = generateSkill(sourceDir) ?? new Map();
   for (const [file, content] of sourceGenerated)
-    out.set(path.join(dest, path.relative(sourceDir, file)), content);
+    if (file !== skillMd)
+      out.set(path.join(dest, path.relative(sourceDir, file)), content);
   for (const name of walk(sourceDir)) {
     const file = path.join(sourceDir, name);
     if (name === 'SKILL.md' || name === MANIFEST || sourceGenerated.has(file))
@@ -228,7 +261,7 @@ for (const skill of fs.readdirSync(SKILLS).sort()) {
   const skillDir = path.join(SKILLS, skill);
   const out = generateSkill(skillDir);
   if (!out) continue;
-  const current = generatedFiles(path.join(skillDir, 'references'));
+  const current = generatedFiles(skillDir);
   for (const file of current.keys())
     if (!out.has(file)) changes.push([file, null]);
   for (const [file, content] of out)
