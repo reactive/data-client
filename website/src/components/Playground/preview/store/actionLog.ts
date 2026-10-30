@@ -867,7 +867,8 @@ const detach = (state: State<unknown>): State<unknown> => ({
  * `detach`): the entity tables it names, and the endpoint tables when it
  * names endpoints */
 function detachGarbage(state: State<unknown>, gc: GCAction): State<unknown> {
-  const tables = gc.entities.map(e => e.key);
+  // a sweep names a table once per row it collects
+  const tables = new Set(gc.entities.map(e => e.key));
   const endpoints = gc.endpoints.length > 0;
   return {
     ...state,

@@ -277,17 +277,22 @@ describe('the action log at scale', () => {
     storeComment(controller);
     controller.dispatch({
       type: actionTypes.GC,
-      entities: [{ key: 'Post', pk: '2' }],
+      entities: [
+        { key: 'Post', pk: '1' },
+        { key: 'Post', pk: '2' },
+      ],
       endpoints: [],
     });
     const { before, after } = last().store!;
     // the state before still has what it deleted
     expect(before.entities.Post?.['2']).toBeDefined();
+    expect(after.entities.Post?.['1']).toBeUndefined();
     expect(after.entities.Post?.['2']).toBeUndefined();
     expect(after.entities.User).toBe(before.entities.User);
     expect(after.entitiesMeta.User).toBe(before.entitiesMeta.User);
     expect(after.endpoints).toBe(before.endpoints);
     expect(log.changes(last()).map(c => [c.id, c.kind])).toEqual([
+      [entityId('Post', '1'), 'removed'],
       [entityId('Post', '2'), 'removed'],
     ]);
   });
