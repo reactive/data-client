@@ -49,7 +49,15 @@ const deleteUser = new Endpoint(async ({ id }: { id: string }) => ({ id }), {
   name: 'deleteUser',
 });
 
-/** A store already holding `posts` responses (and a comment by u1), its
+/** Stores comment c1, by user u1 */
+const storeComment = (controller: Controller) =>
+  controller.setResponse(
+    getComment,
+    { id: 'c1' },
+    { id: 'c1', author: { id: 'u1', name: 'Ann' } },
+  );
+
+/** A store already holding `posts` responses, its
  * actions logged by the log's own head and tail */
 function store(posts: number) {
   const log = new ActionLog({ trimEvery: 10_000 });
@@ -79,11 +87,12 @@ function store(posts: number) {
       return Promise.resolve();
     }),
   );
+  const entries = () => log.history(0).entries;
   return {
     controller,
     log,
-    entries: () => log.history(0).entries,
-    last: () => log.history(0).entries.at(-1)!,
+    entries,
+    last: () => entries().at(-1)!,
   };
 }
 
@@ -157,14 +166,7 @@ describe('the action log at scale', () => {
 
   it('copies only the tables garbage collection deletes from', () => {
     const { controller, log, last } = store(3);
-    controller.setResponse(
-      getComment,
-      { id: 'c1' },
-      {
-        id: 'c1',
-        author: { id: 'u1', name: 'Ann' },
-      },
-    );
+    storeComment(controller);
     controller.dispatch({
       type: actionTypes.GC,
       entities: [{ key: 'Post', pk: '2' }],
@@ -184,14 +186,7 @@ describe('the action log at scale', () => {
 
   it('reads what a key holds once for the fetches a refetch shares', () => {
     const { controller, entries } = store(1);
-    controller.setResponse(
-      getComment,
-      { id: 'c1' },
-      {
-        id: 'c1',
-        author: { id: 'u1', name: 'Ann' },
-      },
-    );
+    storeComment(controller);
     controller.setResponse(deleteUser, { id: 'u1' }, { id: 'u1' });
     const cause = entries().at(-1)!;
     const denormalize = jest.spyOn(MemoCache.prototype, 'denormalize');

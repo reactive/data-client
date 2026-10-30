@@ -418,7 +418,7 @@ export default class ActionLog {
           reached = true;
           const before = (state ??= detach(controller.getState()));
           // the store's reducer deletes garbage in place, from tables earlier
-          // states share (copying them all is fine: GC runs rarely)
+          // states share
           state = reduce(
             action.type === actionTypes.GC ? detach(before, action) : before,
             action,
@@ -505,11 +505,10 @@ export default class ActionLog {
     if (!entry.store) return [];
     let changes = this.diffs.get(entry);
     if (!changes) {
-      const { before, after } = entry.store;
       changes = diffStates(
-        this.view(before),
-        this.view(after),
-        endpointsWritten(entry.action, before, after),
+        this.view(entry.store.before),
+        this.view(entry.store.after),
+        endpointsWritten(entry.action, entry.store),
       );
       this.diffs.set(entry, changes);
     }
@@ -847,57 +846,54 @@ function detach(state: State<unknown>, gc?: GCAction): State<unknown> {
   const names = gc && new Set(gc.entities.map(e => e.key));
   const copy = <T>(tables: Record<string, T>) => {
     const own = { ...tables };
-    for (const key in own)
-      if (!names || names.has(key)) own[key] = { ...own[key] };
+    for (const key of names ?? Object.keys(own))
+      if (key in own) own[key] = { ...own[key] };
     return own;
   };
+  const endpoints = !gc || gc.endpoints.length > 0;
   return {
     ...state,
     entities: copy(state.entities),
     entitiesMeta: copy(state.entitiesMeta),
-    ...((!gc || gc.endpoints.length) && {
-      endpoints: { ...state.endpoints },
-      meta: { ...state.meta },
-    }),
+    endpoints: endpoints ? { ...state.endpoints } : state.endpoints,
+    meta: endpoints ? { ...state.meta } : state.meta,
   };
 }
 
 /** The endpoint keys whose row `action` can change, as components see
- * them (with the pending optimistic updates of `before` and `after`, which
- * write their own keys), or `undefined` when it can change any: one that
- * matches keys (`invalidateAll`, `expireAll`), a reset, or an endpoint's
- * `update`, which writes keys of its choosing */
+ * them: what it writes, and what the pending optimistic updates before and
+ * after it write (see `writtenBy`) */
 function endpointsWritten(
   action: ActionTypes,
-  before: State<unknown>,
-  after: State<unknown>,
-): Set<string> | undefined {
+  { before, after }: NonNullable<LogEntry['store']>,
+) {
   const keys = new Set<string>();
+  for (const written of [action, ...before.optimistic, ...after.optimistic]) {
+    const writes = writtenBy(written);
+    if (!writes) return;
+    writes.forEach(key => keys.add(key));
+  }
+  return keys;
+}
+
+/** The endpoint keys `action` writes, or `undefined` when it can write any:
+ * one that matches keys (`invalidateAll`, `expireAll`), a reset, or an
+ * endpoint's `update`, which writes keys of its choosing */
+function writtenBy(action: ActionTypes): readonly string[] | undefined {
   switch (action.type) {
     case actionTypes.SET_RESPONSE:
     case actionTypes.OPTIMISTIC:
-      if (action.endpoint.update) return;
-    // eslint-disable-next-line no-fallthrough
     case actionTypes.INVALIDATE:
-      keys.add(action.key);
-      break;
+      if ('endpoint' in action && action.endpoint.update) return;
+      return [action.key];
     case actionTypes.GC:
-      action.endpoints.forEach(key => keys.add(key));
-      break;
-    // write no endpoint of their own
+      return action.endpoints;
     case actionTypes.FETCH:
     case actionTypes.SET:
     case actionTypes.SUBSCRIBE:
     case actionTypes.UNSUBSCRIBE:
-      break;
-    default:
-      return;
+      return [];
   }
-  for (const pending of [...before.optimistic, ...after.optimistic]) {
-    if (pending.endpoint.update) return;
-    keys.add(pending.key);
-  }
-  return keys;
 }
 
 /** `next`, or `prev` when it holds the same, so what is built on the set
