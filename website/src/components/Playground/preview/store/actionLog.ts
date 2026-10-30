@@ -103,6 +103,9 @@ export interface LogEntry {
   readonly store?: {
     readonly before: State<unknown>;
     readonly after: State<unknown>;
+    /** The action as the store reduced it: a manager may pass on another
+     * in its place */
+    readonly action: ActionTypes;
   };
 }
 
@@ -428,7 +431,7 @@ export default class ActionLog {
           this.patch(
             id,
             seqOf(action),
-            { store: { before, after: state } },
+            { store: { before, after: state, action } },
             { state },
           );
           return next(action);
@@ -508,7 +511,7 @@ export default class ActionLog {
       changes = diffStates(
         this.view(entry.store.before),
         this.view(entry.store.after),
-        endpointsWritten(entry.action, entry.store),
+        endpointsWritten(entry.store),
       );
       this.diffs.set(entry, changes);
     }
@@ -863,10 +866,11 @@ function detach(state: State<unknown>, gc?: GCAction): State<unknown> {
 /** The endpoint keys whose row `action` can change, as components see
  * them: what it writes, and what the pending optimistic updates before and
  * after it write (see `writtenBy`) */
-function endpointsWritten(
-  action: ActionTypes,
-  { before, after }: NonNullable<LogEntry['store']>,
-) {
+function endpointsWritten({
+  action,
+  before,
+  after,
+}: NonNullable<LogEntry['store']>) {
   const keys = new Set<string>();
   for (const written of [action, ...before.optimistic, ...after.optimistic]) {
     const writes = writtenBy(written);
@@ -883,8 +887,8 @@ function writtenBy(action: ActionTypes): readonly string[] | undefined {
   switch (action.type) {
     case actionTypes.SET_RESPONSE:
     case actionTypes.OPTIMISTIC:
+      return action.endpoint.update ? undefined : [action.key];
     case actionTypes.INVALIDATE:
-      if ('endpoint' in action && action.endpoint.update) return;
       return [action.key];
     case actionTypes.GC:
       return action.endpoints;
@@ -893,6 +897,8 @@ function writtenBy(action: ActionTypes): readonly string[] | undefined {
     case actionTypes.SUBSCRIBE:
     case actionTypes.UNSUBSCRIBE:
       return [];
+    default:
+      return undefined;
   }
 }
 

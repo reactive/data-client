@@ -5,9 +5,11 @@ import {
   actionTypes,
   Controller,
   type ActionTypes,
+  type Manager,
   type State,
 } from '@data-client/react';
 
+import { diffStates } from '../store/actionGroups';
 import ActionLog, { type LogEntry } from '../store/actionLog';
 import { endpointId, entityId } from '../store/model';
 
@@ -49,6 +51,40 @@ const deleteUser = new Endpoint(async ({ id }: { id: string }) => ({ id }), {
   name: 'deleteUser',
 });
 
+const getPosts = new Endpoint(async () => [] as { id: string }[], {
+  schema: [Post],
+  key: () => 'GET /posts',
+  name: 'getPosts',
+});
+/** Adds its post to `getPosts`' list, as `update` does */
+const createPost = new Endpoint(
+  async (body: { id: string; title: string }) => body,
+  {
+    schema: Post,
+    sideEffect: true,
+    key: () => 'POST /posts',
+    name: 'createPost',
+    update: (id: string) => ({
+      [getPosts.key()]: (ids: string[] = []) => [...ids, id],
+    }),
+  },
+);
+/** Shows its title at once, before the server answers */
+const renamePost = new Endpoint(
+  async ({ id }: { id: string }, body: { title: string }) => ({ id, ...body }),
+  {
+    schema: Post,
+    sideEffect: true,
+    key: ({ id }: { id: string }) => `PATCH /posts/${id}`,
+    name: 'renamePost',
+    getOptimisticResponse: (
+      _snap: unknown,
+      { id }: { id: string },
+      body: { title: string },
+    ) => ({ id, ...body }),
+  },
+);
+
 /** Stores comment c1, by user u1 */
 const storeComment = (controller: Controller) =>
   controller.setResponse(
@@ -57,11 +93,11 @@ const storeComment = (controller: Controller) =>
     { id: 'c1', author: { id: 'u1', name: 'Ann' } },
   );
 
-/** A store already holding `posts` responses, its
- * actions logged by the log's own head and tail */
-function store(posts: number) {
+/** A store already holding `posts` responses, its actions logged by the
+ * log's own head and tail, around `managers` */
+function store(posts: number, managers: Manager[] = []) {
   const log = new ActionLog({ trimEvery: 10_000 });
-  const { head, tail } = log.connect(0);
+  const { head, tail, track } = log.connect(0);
   let state: State<unknown> = initialState;
   const controller = new Controller({
     getState: () => state,
@@ -81,11 +117,12 @@ function store(posts: number) {
       response: { id: `${i}`, title: `Post ${i}` },
       meta: { date: now, fetchedAt: now, expiresAt: now + 60_000 },
     } as ActionTypes);
-  const chain = head.middleware(controller)(
-    tail.middleware(controller)(action => {
+  const chain = [head, ...track(managers), tail].reduceRight(
+    (next, manager) => manager.middleware(controller)(next),
+    (action: ActionTypes) => {
       state = reduce(state, action);
       return Promise.resolve();
-    }),
+    },
   );
   const entries = () => log.history(0).entries;
   return {
@@ -127,7 +164,11 @@ function diffReads(log: ActionLog, entry: LogEntry) {
   const { before, after } = entry.store!;
   log.changes({
     ...entry,
-    store: { before: counted(before, count), after: counted(after, count) },
+    store: {
+      ...entry.store!,
+      before: counted(before, count),
+      after: counted(after, count),
+    },
   });
   return count.reads;
 }
@@ -155,6 +196,63 @@ describe('the action log at scale', () => {
       expect(reads[1]).toBe(reads[0]);
     },
   );
+
+  it('diffs the action a manager passed on in place of the one sent', () => {
+    const redirect: Manager = {
+      middleware: () => next => action =>
+        next(
+          action.type === actionTypes.INVALIDATE ?
+            { ...action, key: getPost.key({ id: '2' }) }
+          : action,
+        ),
+      cleanup() {},
+    };
+    const { controller, log, last } = store(3, [redirect]);
+    controller.invalidate(getPost, { id: '1' });
+    expect(last().action).toMatchObject({ key: getPost.key({ id: '1' }) });
+    expect(log.changes(last()).map(c => [c.id, c.kind])).toEqual([
+      [endpointId(getPost.key({ id: '2' })), 'invalidated'],
+    ]);
+  });
+
+  it('finds the rows a full diff finds, with updates and optimistic ones', () => {
+    const { controller, log, entries } = store(3);
+    controller.setResponse(getPosts, [{ id: '0', title: 'Post 0' }]);
+    controller.setResponse(
+      createPost,
+      { id: '9', title: 'New' },
+      { id: '9', title: 'New' },
+    );
+    void controller.fetch(renamePost, { id: '1' }, { title: 'Soon' });
+    controller.set(Post, { id: '2' }, { id: '2', title: 'Set' });
+    controller.invalidate(getPost, { id: '0' });
+    controller.setResponse(
+      renamePost,
+      { id: '1' },
+      { title: 'Soon' },
+      { id: '1', title: 'Saved' },
+    );
+    const byId = (changes: readonly { id: string }[]) =>
+      [...changes].sort((a, b) => a.id.localeCompare(b.id));
+    const stored = entries().filter(e => e.store);
+    expect(stored.length).toBe(6);
+    for (const entry of stored)
+      expect(byId(log.changes(entry))).toEqual(
+        byId(
+          diffStates(
+            log.view(entry.store!.before),
+            log.view(entry.store!.after),
+          ),
+        ),
+      );
+    // the update's own list and the optimistic title both show
+    expect(log.changes(stored[1]).map(c => c.id)).toContain(
+      endpointId('GET /posts'),
+    );
+    expect(log.changes(stored[2]).map(c => c.id)).toContain(
+      entityId('Post', '1'),
+    );
+  });
 
   it('still diffs every endpoint an expireAll matched', () => {
     const { controller, log, last } = store(5);
