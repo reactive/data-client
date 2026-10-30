@@ -96,7 +96,7 @@ import type SchemaRegistry from './schemaRegistry';
 import styles from './store.module.css';
 import { StoreViewContext, useActionsBy, useStoreView } from './storeView';
 import Timeline, { Scrubber } from './Timeline';
-import TreeView, { TreeStateProvider } from './TreeView';
+import TreeView, { TreeList, TreeStateProvider } from './TreeView';
 import { RowKey } from './Value';
 import { Why } from './Why';
 import TabList from '../../TabList';
@@ -1125,12 +1125,23 @@ function SubjectLevel({
   return (
     view.kind === 'root' ? <StoreLevel scroller={scroller} />
     : view.kind === 'list' ?
-      <ListView view={view} scroller={scroller} header={header} />
+      <StoreList view={view} scroller={scroller} header={header} />
     : <RecordLevel id={view.id} scroller={scroller} header={header} />
   );
 }
 
 /** The whole store, in the State tab's view */
+/** A list level in the State tab's view */
+function StoreList(props: {
+  view: Extract<View, { kind: 'list' }>;
+  scroller: Scroller;
+  header: Header;
+}) {
+  return useContext(StoreViewContext) === 'tree' ?
+      <TreeList view={props.view} header={props.header} />
+    : <ListView {...props} />;
+}
+
 function StoreLevel({ scroller }: { scroller: Scroller }) {
   return useContext(StoreViewContext) === 'tree' ?
       <TreeView />

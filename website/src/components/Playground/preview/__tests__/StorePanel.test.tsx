@@ -326,6 +326,12 @@ describe('StorePanel table view', () => {
     // so do the rows a group leaves out
     fireEvent.click(within(top()).getByText('7 more'));
     expect(crumbs()).toEqual(['Store', '›', 'Post']);
+    // the list it opens is laid out as a tree too, every row expandable
+    expect(top().querySelector('table')).toBeNull();
+    const last = () => byData(top(), 'id', entityId('Post', '12'))!;
+    expect(last().getAttribute('aria-expanded')).toBe('false');
+    fireEvent.click(last());
+    expect(last().getAttribute('aria-expanded')).toBe('true');
   });
 
   it("shows a demo's view over the reader's while the Store stays open", () => {
