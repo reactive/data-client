@@ -586,7 +586,7 @@ export default function StorePanel({
     : storeShown ? levels
     : undefined;
   const depth = covered || !shownLevels ? 0 : shownLevels.stack.length - 1;
-  useMouseBack(panel, depth > 0, () => shownLevels?.back(depth));
+  useMouseBack(panel, depth, () => shownLevels?.back(depth));
 
   return (
     <ActionsContext.Provider value={actions}>

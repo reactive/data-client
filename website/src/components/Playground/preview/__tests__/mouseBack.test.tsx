@@ -11,7 +11,7 @@ jest.mock('../../userAgent', () => ({ isGecko: () => mockGecko }));
 function Panel({ start }: { start: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const [depth, setDepth] = useState(start);
-  useMouseBack(ref, depth > 0, () => setDepth(d => d - 1));
+  useMouseBack(ref, depth, () => setDepth(d => d - 1));
   return (
     <div ref={ref} data-testid="panel">
       {depth}

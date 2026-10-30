@@ -1,5 +1,6 @@
 /**
- * User-agent gates for the playground's heavy client code.
+ * User-agent gates for the playground's heavy client code, and for what
+ * engines differ on (`isGecko`).
  *
  * - Bots/crawlers: never load Monaco or the live preview; the SSG markup
  *   (static code + empty preview frame) is what gets indexed.

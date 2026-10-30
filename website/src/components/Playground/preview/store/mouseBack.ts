@@ -7,7 +7,8 @@ const OURS = '__storeBack';
 const UNDER = '__storeBackUnder';
 
 /** The mouse's back button (and, in Firefox, any Back) goes `back` instead of
- * leaving the page, while the mouse is over `ref` and `canGoBack` holds.
+ * leaving the page, while the mouse is over `ref` and it is `depth` levels
+ * deep.
  *
  * Chromium sends the button to the page as a `mouseup` with `button` 3, and
  * cancelling it keeps the page. Firefox sends the page no events for it (its
@@ -17,54 +18,56 @@ const UNDER = '__storeBackUnder';
  * site's router never sees it. The entry goes as the mouse leaves. */
 export function useMouseBack(
   ref: React.RefObject<HTMLElement | null>,
-  canGoBack: boolean,
+  depth: number,
   back: () => void,
 ) {
-  const latest = useRef({ canGoBack, back });
-  latest.current = { canGoBack, back };
-  // adds or removes Firefox's entry as `canGoBack` changes
-  const sync = useRef<() => void>(undefined);
-  useEffect(() => sync.current?.(), [canGoBack]);
+  const latest = useRef({ depth, back });
+  latest.current = { depth, back };
+  // Firefox's entry, added or removed as the depth changes: each Back
+  // changes it, so the next entry waits for the level it goes back to
+  const update = useRef<() => void>(undefined);
+  useEffect(() => update.current?.(), [depth]);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const onMouseUp = (e: MouseEvent) => {
-      if (e.button !== 3 || !latest.current.canGoBack) return;
-      e.preventDefault();
-      latest.current.back();
-    };
-    el.addEventListener('mouseup', onMouseUp);
-    if (!isGecko()) return () => el.removeEventListener('mouseup', onMouseUp);
+    if (!isGecko()) {
+      const onMouseUp = (e: MouseEvent) => {
+        if (e.button !== 3 || !latest.current.depth) return;
+        e.preventDefault();
+        latest.current.back();
+      };
+      el.addEventListener('mouseup', onMouseUp);
+      return () => el.removeEventListener('mouseup', onMouseUp);
+    }
 
     let over = false;
     // while our entry is the current one: the token the entry under it
     // carries, so Back to it is told from Back further, left to the page
     let under: { token: string; restoration: ScrollRestoration } | null = null;
-    // our own Back, taking the entry away
-    let leaving = false;
-    let unmounted = false;
+    // our own Back, taking the entry away; once unmounted, the listener goes
+    // as it lands
+    let leaving: false | 'leave' | 'unmount' = false;
     const add = () => {
-      under = {
-        token: Math.random().toString(36).slice(2),
-        restoration: history.scrollRestoration,
-      };
+      const token = Math.random().toString(36).slice(2);
+      under = { token, restoration: history.scrollRestoration };
       // landing on it must not scroll the page to where it was now
       history.scrollRestoration = 'manual';
-      history.replaceState({ ...history.state, [UNDER]: under.token }, '');
-      history.pushState({ ...history.state, [OURS]: under.token }, '');
+      const base = history.state;
+      history.replaceState({ ...base, [UNDER]: token }, '');
+      history.pushState({ ...base, [OURS]: token }, '');
     };
     const remove = () => {
       if (!under || leaving || history.state?.[OURS] !== under.token) return;
-      leaving = true;
+      leaving = 'leave';
       history.back();
     };
-    const update = () => {
-      if (over && latest.current.canGoBack) {
+    const sync = () => {
+      if (over && latest.current.depth) {
         if (!under) add();
       } else remove();
     };
-    sync.current = update;
+    update.current = sync;
     const stop = () => window.removeEventListener('popstate', onPopState, true);
     function onPopState(e: PopStateEvent) {
       if (!under) return;
@@ -75,39 +78,33 @@ export function useMouseBack(
       }
       under = null;
       if (leaving) {
+        const how = leaving;
         leaving = false;
-        if (unmounted) stop();
-        else update();
-        return;
-      }
-      if (!landed) return;
-      latest.current.back();
-      // one more level to go back to, until the panel says otherwise
-      update();
+        if (how === 'unmount') stop();
+        else sync();
+      } else if (landed) latest.current.back();
     }
     const onEnter = (e: PointerEvent) => {
       if (e.pointerType !== 'mouse') return;
       over = true;
-      update();
+      sync();
     };
     const onLeave = () => {
       over = false;
-      update();
+      sync();
     };
     // ahead of the router's own listener, so it can stop it
     window.addEventListener('popstate', onPopState, true);
     el.addEventListener('pointerenter', onEnter);
     el.addEventListener('pointerleave', onLeave);
     return () => {
-      unmounted = true;
-      over = false;
-      sync.current = undefined;
-      el.removeEventListener('mouseup', onMouseUp);
       el.removeEventListener('pointerenter', onEnter);
       el.removeEventListener('pointerleave', onLeave);
-      // its own Back is still to come, for the listener to take
+      over = false;
       remove();
-      if (!leaving) stop();
+      // its own Back is still to come, for the listener to take
+      if (leaving) leaving = 'unmount';
+      else stop();
     };
   }, [ref]);
 }
