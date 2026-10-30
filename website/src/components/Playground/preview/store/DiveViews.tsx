@@ -61,7 +61,13 @@ export function ListView({
           {header(null)}
           <Gone />
         </>
-      : tree ? <TreeList view={view} table={table} header={header} />
+      : tree ?
+        <TreeList
+          view={view}
+          table={table}
+          scroller={scroller}
+          header={header}
+        />
       : <TableList
           table={table}
           pks={view.pks}
@@ -71,7 +77,7 @@ export function ListView({
     );
   }
   return tree ?
-      <TreeList view={view} header={header} />
+      <TreeList view={view} scroller={scroller} header={header} />
     : <IdList ids={view.ids} scroller={scroller} header={header} />;
 }
 
@@ -87,35 +93,30 @@ const TREE_PAGE = 100;
 function TreeList({
   view,
   table,
+  scroller,
   header,
 }: {
   view: List;
   /** The one table a list of `pks` holds */
   table?: EntityTable;
+  scroller: Scroller;
   header: Header;
 }) {
   const { model } = useNav();
-  const [filter, setFilter] = useState('');
-  const query = useDeferredValue(filter.trim().toLowerCase());
   const [shown, setShown] = useState(TREE_PAGE);
-  const rows = useMemo(() => {
-    const all: readonly AnyRow[] =
+  const all = useMemo(
+    (): readonly AnyRow[] =>
       table ? tableRows(table, 'pks' in view ? view.pks : undefined)
       : 'ids' in view ? idRows(model, view.ids)
-      : [];
-    return query ? all.filter(row => searchText(row).includes(query)) : all;
-  }, [model, view, table, query]);
+      : [],
+    [model, view, table],
+  );
+  // "N more" counts the rows that match the filter
+  const { matches: rows, input, count } = useRowFilter(all, scroller);
   return (
     <>
-      {header(
-        <input
-          className={styles.filter}
-          value={filter}
-          onChange={e => setFilter(e.target.value)}
-          placeholder="filter"
-          aria-label="Filter rows"
-        />,
-      )}
+      {header(input)}
+      {count && <div className={styles.dim}>{count}</div>}
       {rows.slice(0, shown).map(row => {
         if (isEndpointRow(row))
           return <EndpointTreeRow key={row.id} row={row} />;
@@ -226,13 +227,8 @@ function FilteredRows<R extends AnyRow>({
   tools?: React.ReactNode;
 }) {
   const { push } = useNav();
-  const [filter, setFilter] = useState('');
-  const query = useDeferredValue(filter.trim().toLowerCase());
+  const { matches, input, count } = useRowFilter(rows, scroller);
   const [inline, setInline] = useState<string | null>(null);
-  const matches = useMemo(
-    () => (query ? rows.filter(row => searchText(row).includes(query)) : rows),
-    [rows, query],
-  );
   const openIndex = useMemo(
     () => (inline ? matches.findIndex(row => row.id === inline) : -1),
     [matches, inline],
@@ -242,22 +238,11 @@ function FilteredRows<R extends AnyRow>({
     matches.length,
     openIndex,
   );
-  // a new filter starts from the top
-  useLayoutEffect(() => {
-    if (scroller) scroller.scrollTop = 0;
-  }, [scroller, query]);
-
   return (
     <>
       {header(
         <>
-          <input
-            className={styles.filter}
-            value={filter}
-            onChange={e => setFilter(e.target.value)}
-            placeholder="filter"
-            aria-label="Filter rows"
-          />
+          {input}
           {tools}
         </>,
       )}
@@ -272,18 +257,43 @@ function FilteredRows<R extends AnyRow>({
         inline={inline}
         onInline={setInline}
         record={record}
-        foot={
-          query ?
-            <span>
-              {matches.length ?
-                `${matches.length.toLocaleString()} of ${rows.length.toLocaleString()}`
-              : 'no matches'}
-            </span>
-          : null
-        }
+        foot={count && <span>{count}</span>}
       />
     </>
   );
+}
+
+/** The filter box over `rows`: its input, the rows that match, and how
+ * many while a filter is set */
+function useRowFilter<R extends AnyRow>(
+  rows: readonly R[],
+  scroller: Scroller,
+) {
+  const [filter, setFilter] = useState('');
+  const query = useDeferredValue(filter.trim().toLowerCase());
+  const matches = useMemo(
+    () => (query ? rows.filter(row => searchText(row).includes(query)) : rows),
+    [rows, query],
+  );
+  // a new filter starts from the top
+  useLayoutEffect(() => {
+    if (scroller) scroller.scrollTop = 0;
+  }, [scroller, query]);
+  const input = (
+    <input
+      className={styles.filter}
+      value={filter}
+      onChange={e => setFilter(e.target.value)}
+      placeholder="filter"
+      aria-label="Filter rows"
+    />
+  );
+  const count =
+    !query ? null
+    : matches.length ?
+      `${matches.length.toLocaleString()} of ${rows.length.toLocaleString()}`
+    : 'no matches';
+  return { matches, input, count };
 }
 
 const Gone = () => (

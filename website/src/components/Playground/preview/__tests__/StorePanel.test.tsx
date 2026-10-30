@@ -337,6 +337,12 @@ describe('StorePanel table view', () => {
     });
     expect(byData(top(), 'id', entityId('Post', '12'))).toBeUndefined();
     expect(byData(top(), 'id', entityId('Post', '11'))).toBeTruthy();
+    // and says how many match, as the table does
+    expect(within(top()).getByText('1 of 12')).toBeTruthy();
+    fireEvent.change(within(top()).getByLabelText('Filter rows'), {
+      target: { value: 'nothing like this' },
+    });
+    expect(within(top()).getByText('no matches')).toBeTruthy();
   });
 
   it("lays out a Collection's members as a tree in the tree view", () => {
