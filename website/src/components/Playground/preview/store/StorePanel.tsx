@@ -927,10 +927,10 @@ function Levels({
                   type="button"
                   className={styles.crumb}
                   onClick={() => {
-                    const { view, depth: d } = shown[i];
+                    const crumb = shown[i];
                     // a place the stack skipped opens over it
-                    if (d === undefined) push(view as View, at);
-                    else back(d + 1);
+                    if (crumb.depth === undefined) push(crumb.view, at);
+                    else back(crumb.depth + 1);
                   }}
                 >
                   {crumbAt(i)}

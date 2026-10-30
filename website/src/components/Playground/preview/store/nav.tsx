@@ -144,11 +144,10 @@ const isSubject = (view: LevelView): view is View =>
   view.kind !== 'action' && view.kind !== 'actions';
 
 /** A breadcrumb: a view on the way to a level, at `depth` when the stack
- * holds it */
-export interface Crumb {
-  readonly view: LevelView;
-  readonly depth?: number;
-}
+ * holds it; one it doesn't is a place in the store, to open */
+export type Crumb =
+  | { readonly view: LevelView; readonly depth: number }
+  | { readonly view: View; readonly depth?: undefined };
 
 /** The crumbs to the top of `views`: each subject under where it lives in
  * the store (`Store › User › 1`), whatever opened it, so they teach the
@@ -163,15 +162,20 @@ export function trail(views: readonly LevelView[], model: StoreModel) {
       const action = crumbs.findLastIndex(c => !isSubject(c.view));
       crumbs = [
         ...crumbs.slice(0, action + 1),
-        ...(action < 0 ? place : place.slice(1)).map(v => {
-          const at = views.slice(0, depth).findLastIndex(w => sameView(v, w));
-          return at < 0 ? { view: v } : { view: v, depth: at };
-        }),
+        ...(action < 0 ? place : place.slice(1)).map(v =>
+          crumbOf(v, views.slice(0, depth)),
+        ),
       ];
     }
     crumbs.push({ view, depth });
   });
   return crumbs;
+}
+
+/** `view`'s crumb, at the stack's level showing it if one below does */
+function crumbOf(view: View, below: readonly LevelView[]): Crumb {
+  const depth = below.findLastIndex(w => sameView(view, w));
+  return depth < 0 ? { view } : { view, depth };
 }
 
 /** What holds `view` in the store, from the root down; `undefined` when it
@@ -205,6 +209,7 @@ const sameView = (a: LevelView, b: LevelView) =>
     ('table' in a ? a.table : undefined) ===
       ('table' in b ? b.table : undefined) &&
     ('pks' in a && !!a.pks) === ('pks' in b && !!b.pks) &&
+    'endpoints' in a === 'endpoints' in b &&
     a.of === b.of
   : a.kind === b.kind && a.kind === 'root';
 
