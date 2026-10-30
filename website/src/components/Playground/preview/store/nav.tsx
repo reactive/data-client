@@ -20,8 +20,8 @@ import {
 } from './model';
 import { memberRefs, type RefNode } from './refs';
 
-/** Rows of one table (all, or just `pks`), or rows of any kind by id;
- * `of`: the row whose field (`label`) refers to them */
+/** Rows of one table (all, or just `pks`), rows of any kind by id, or
+ * every endpoint; `of`: the row whose field (`label`) refers to them */
 export type ListView =
   | {
       readonly kind: 'list';
@@ -35,8 +35,12 @@ export type ListView =
       readonly label: string;
       readonly ids: readonly string[];
       readonly of?: string;
-      /** Every endpoint: a place in the store */
-      readonly endpoints?: true;
+    }
+  | {
+      readonly kind: 'list';
+      readonly label: string;
+      readonly endpoints: true;
+      readonly of?: undefined;
     };
 
 /** The list a count chip dives into: one table's rows when they share one */
@@ -57,12 +61,11 @@ export function refsList(
 }
 
 /** The list of every endpoint, and of a table's rows, "N more" dives into */
-export const endpointsList = (model: StoreModel): ListView => ({
+export const ENDPOINTS: ListView = {
   kind: 'list',
   label: 'Endpoints',
-  ids: model.endpoints.map(e => e.id),
   endpoints: true,
-});
+};
 export const tableList = (key: string): ListView => ({
   kind: 'list',
   table: key,
@@ -179,10 +182,7 @@ function placeOf(view: View, model: StoreModel): View[] | undefined {
     case 'record': {
       const row = findRow(model, view.id);
       if (!row) return undefined;
-      return [
-        ROOT,
-        isEndpointRow(row) ? endpointsList(model) : tableList(row.table),
-      ];
+      return [ROOT, isEndpointRow(row) ? ENDPOINTS : tableList(row.table)];
     }
     case 'list': {
       if (view.of) {
@@ -190,7 +190,7 @@ function placeOf(view: View, model: StoreModel): View[] | undefined {
         const place = placeOf(of, model);
         return place && [...place, of];
       }
-      const whole = 'table' in view ? !view.pks : view.endpoints;
+      const whole = 'table' in view ? !view.pks : 'endpoints' in view;
       return whole ? [ROOT] : undefined;
     }
   }

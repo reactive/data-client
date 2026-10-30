@@ -78,13 +78,16 @@ export function ListView({
   }
   return tree ?
       <TreeList view={view} scroller={scroller} header={header} />
-    : <IdList ids={view.ids} scroller={scroller} header={header} />;
+    : <IdList view={view} scroller={scroller} header={header} />;
 }
 
 const tableRows = (table: EntityTable, pks: readonly string[] | undefined) =>
   pks ? pks.flatMap(pk => table.get(pk) ?? []) : table.rows;
-const idRows = (model: StoreModel, ids: readonly string[]) =>
-  ids.flatMap(id => findRow(model, id) ?? []);
+/** Rows of a list that isn't one table's */
+const idRows = (model: StoreModel, view: List): readonly AnyRow[] =>
+  'endpoints' in view ? model.endpoints
+  : 'ids' in view ? view.ids.flatMap(id => findRow(model, id) ?? [])
+  : [];
 
 /** Rows a tree list shows at first, and adds per "N more" */
 const TREE_PAGE = 100;
@@ -106,18 +109,16 @@ function TreeList({
   const [shown, setShown] = useState(TREE_PAGE);
   const all = useMemo(
     (): readonly AnyRow[] =>
-      table ? tableRows(table, 'pks' in view ? view.pks : undefined)
-      : 'ids' in view ? idRows(model, view.ids)
-      : [],
+      table ?
+        tableRows(table, 'pks' in view ? view.pks : undefined)
+      : idRows(model, view),
     [model, view, table],
   );
-  // "N more" counts the rows that match the filter
-  const { matches: rows, input, count } = useRowFilter(all, scroller);
+  const { matches, input, status } = useRowFilter(all, scroller);
   return (
     <>
       {header(input)}
-      {count && <div className={styles.dim}>{count}</div>}
-      {rows.slice(0, shown).map(row => {
+      {matches.slice(0, shown).map(row => {
         if (isEndpointRow(row))
           return <EndpointTreeRow key={row.id} row={row} />;
         const rowTable = table ?? model.table(row.table);
@@ -133,15 +134,16 @@ function TreeList({
           )
         );
       })}
-      {rows.length > shown && (
+      {matches.length > shown && (
         <button
           type="button"
           className={styles.treeMore}
           onClick={() => setShown(n => n + TREE_PAGE)}
         >
-          {(rows.length - shown).toLocaleString()} more
+          {(matches.length - shown).toLocaleString()} more
         </button>
       )}
+      {status && <div className={styles.dim}>{status}</div>}
     </>
   );
 }
@@ -181,16 +183,16 @@ function TableList({
 
 /** Rows by id: endpoints, or a mix of tables */
 function IdList({
-  ids,
+  view,
   scroller,
   header,
 }: {
-  ids: readonly string[];
+  view: List;
   scroller: Scroller;
   header: Header;
 }) {
   const { model, width } = useNav();
-  const rows = useMemo(() => idRows(model, ids), [model, ids]);
+  const rows = useMemo(() => idRows(model, view), [model, view]);
   const columns = useMemo(
     () =>
       rows.every(isEndpointRow) ?
@@ -227,7 +229,7 @@ function FilteredRows<R extends AnyRow>({
   tools?: React.ReactNode;
 }) {
   const { push } = useNav();
-  const { matches, input, count } = useRowFilter(rows, scroller);
+  const { matches, input, status } = useRowFilter(rows, scroller);
   const [inline, setInline] = useState<string | null>(null);
   const openIndex = useMemo(
     () => (inline ? matches.findIndex(row => row.id === inline) : -1),
@@ -257,7 +259,7 @@ function FilteredRows<R extends AnyRow>({
         inline={inline}
         onInline={setInline}
         record={record}
-        foot={count && <span>{count}</span>}
+        foot={status && <span>{status}</span>}
       />
     </>
   );
@@ -288,12 +290,12 @@ function useRowFilter<R extends AnyRow>(
       aria-label="Filter rows"
     />
   );
-  const count =
+  const status =
     !query ? null
     : matches.length ?
       `${matches.length.toLocaleString()} of ${rows.length.toLocaleString()}`
     : 'no matches';
-  return { matches, input, count };
+  return { matches, input, status };
 }
 
 const Gone = () => (

@@ -9,7 +9,7 @@ import {
   type EntityTable,
   type StoreModel,
 } from './model';
-import { endpointsList, tableList, useNav } from './nav';
+import { ENDPOINTS, tableList, useNav } from './nav';
 import { plain } from './refs';
 import {
   GroupLabel,
@@ -66,10 +66,7 @@ export default function RootView({ scroller }: { scroller: Scroller }) {
               onOpen={row => push({ kind: 'record', id: row.id })}
               foot={
                 hiddenEndpoints > 0 && (
-                  <More
-                    hidden={hiddenEndpoints}
-                    list={() => endpointsList(model)}
-                  />
+                  <More hidden={hiddenEndpoints} list={ENDPOINTS} />
                 )
               }
             />
@@ -161,9 +158,7 @@ function Group({ table }: { table: EntityTable }) {
         onInline={setInline}
         record={row => <EntityDetail row={row} model={model} />}
         foot={
-          hidden > 0 && (
-            <More hidden={hidden} list={() => tableList(table.key)} />
-          )
+          hidden > 0 && <More hidden={hidden} list={tableList(table.key)} />
         }
       />
     </div>

@@ -18,7 +18,7 @@ import {
   type EntityTable,
   type StoreModel,
 } from './model';
-import { DiffContext, endpointsList, tableList, useNav } from './nav';
+import { DiffContext, ENDPOINTS, tableList, useNav } from './nav';
 import { plain, type VNode } from './refs';
 import {
   Chevron,
@@ -80,7 +80,7 @@ export default function TreeView() {
           ))}
           <More
             hidden={model.endpoints.length - endpoints.length}
-            list={() => endpointsList(model)}
+            list={ENDPOINTS}
             className={styles.treeMore}
           />
         </SectionBlock>
@@ -257,7 +257,7 @@ function EntityTreeGroup({
           ))}
           <More
             hidden={table.rows.length - rows.length}
-            list={() => tableList(table.key)}
+            list={tableList(table.key)}
             className={styles.treeMore}
           />
         </div>

@@ -789,7 +789,9 @@ export default function StorePanel({
                   subject={subject}
                   filter={filter}
                   label={
-                    subject.kind === 'root' ? null : crumbLabel(subject, model)
+                    subject.kind === 'root' ?
+                      null
+                    : subjectLabel(subject, model)
                   }
                   narrow={narrow}
                   toggle={listButton}
@@ -893,7 +895,7 @@ function Levels({
       const subject = subjectAt(d);
       return view.kind === 'actions' ?
           <ActionsCrumb subject={subject} model={model} />
-        : crumbLabel(view, model, subject, /* inTrail */ true);
+        : crumbLabel(view, model, subject);
     };
     const items =
       shown.length > CRUMBS ?
@@ -1369,19 +1371,18 @@ function ActionsCrumb({
       'Actions'
     : <>
         Actions <span className={styles.dim}>of</span>{' '}
-        {crumbLabel(subject, model)}
+        {subjectLabel(subject, model)}
       </>;
 }
 
-/** What a breadcrumb shows for a view (the actions' is `ActionsCrumb`) */
+/** What a breadcrumb shows for a view, under what holds it: a record by
+ * its pk, a field's list by the field alone (the actions' is
+ * `ActionsCrumb`) */
 function crumbLabel(
   view: Exclude<LevelView, { kind: 'actions' }>,
   model: StoreModel,
   /** Whose actions an action view steps through */
   subject: View = ROOT,
-  /** In a breadcrumb, under what holds it: a record by its pk, a field's
-   * list by the field alone */
-  inTrail = false,
 ): React.ReactNode {
   switch (view.kind) {
     case 'root':
@@ -1390,27 +1391,34 @@ function crumbLabel(
       return (
         <ActionCrumb seq={view.seq} scope={view.scope} subject={subject} />
       );
-    case 'list': {
+    case 'list':
       // no count: `User 3` would read as a record
-      const owner = !inTrail && view.of ? findRow(model, view.of) : undefined;
-      return (
-        <span className={styles.crumbName}>
-          {owner ? `${rowLabel(owner)} ${view.label}` : view.label}
-        </span>
-      );
-    }
+      return <span className={styles.crumbName}>{view.label}</span>;
     case 'record': {
       const row = findRow(model, view.id);
       if (!row) return '…';
-      return (
-        isEndpointRow(row) ? <RowKey row={row} />
-        : inTrail ? <span className={styles.crumbName}>{prettyPk(row.pk)}</span>
-        : <span className={styles.crumbName}>
-            <RowKey row={row} />
-          </span>
-      );
+      return isEndpointRow(row) ?
+          <RowKey row={row} />
+        : <span className={styles.crumbName}>{prettyPk(row.pk)}</span>;
     }
   }
+}
+
+/** A subject named on its own, with no trail above it: a record by its
+ * table and pk, a field's list with its owner */
+function subjectLabel(subject: View, model: StoreModel): React.ReactNode {
+  const row =
+    subject.kind === 'record' ? findRow(model, subject.id)
+    : subject.kind === 'list' && subject.of ? findRow(model, subject.of)
+    : undefined;
+  if (!row || isEndpointRow(row)) return crumbLabel(subject, model);
+  return (
+    <span className={styles.crumbName}>
+      {subject.kind === 'list' ?
+        `${rowLabel(row)} ${subject.label}`
+      : <RowKey row={row} />}
+    </span>
+  );
 }
 
 /** `setResponse GET /posts`, or where the log no longer has it; `null`:

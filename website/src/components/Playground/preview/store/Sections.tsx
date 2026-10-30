@@ -48,13 +48,13 @@ export function More({
   className,
 }: {
   hidden: number;
-  list: () => ListView;
+  list: ListView;
   className?: string;
 }) {
   const { push } = useNav();
   if (hidden <= 0) return null;
   return (
-    <button type="button" className={className} onClick={() => push(list())}>
+    <button type="button" className={className} onClick={() => push(list)}>
       {hidden.toLocaleString()} more
     </button>
   );
