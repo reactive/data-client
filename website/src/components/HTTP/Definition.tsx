@@ -1,4 +1,5 @@
 import { translate } from '@docusaurus/Translate';
+import clsx from 'clsx';
 import React, { createContext, useContext } from 'react';
 
 import styles from './styles.module.css';
@@ -49,7 +50,7 @@ export function ResponseDefinition() {
   );
   if (!fields?.length) return null;
   return (
-    <dl className={styles.responseDefinition}>
+    <dl className={clsx(styles.headers, styles.responseDefinition)}>
       {fields.map(({ key, value }) => (
         <React.Fragment key={key}>
           <dt>{key}</dt>

@@ -2,6 +2,7 @@ import ExecutionEnvironment from '@docusaurus/ExecutionEnvironment';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 import { lazy, Suspense, use, useId, useMemo, useState } from 'react';
 
+import { ResponseDefinition } from './Definition';
 import PendingExchange from './PendingExchange';
 import Request from './Request';
 import Response, { ResponseSheet } from './Response';
@@ -126,6 +127,7 @@ function Live({ state, answered }: { state: LiveState; answered: boolean }) {
       {error ?
         <ResponseSheet>
           <ErrorPanel kind="runtime">{error}</ErrorPanel>
+          <ResponseDefinition />
         </ResponseSheet>
       : exchange && answered ?
         <Response
