@@ -1,6 +1,8 @@
+import clsx from 'clsx';
 import React from 'react';
 
 import styles from './MethodInfo.module.css';
+import playgroundstyles from './Playground/styles.module.css';
 
 /** Wraps a Resource member's description, EndpointPlayground and the
  * Field/Value table after it (docs/rest/api/resource.md). The site shows the
@@ -16,44 +18,52 @@ export default function MethodInfo({
   const tableAt = parts.findIndex(part => tbodyOf(part));
   if (tableAt < 1) return <>{children}</>;
 
+  const description = parts.slice(0, tableAt - 1);
+  const playground = parts[tableAt - 1];
   const fields = fieldsOf(tbodyOf(parts[tableAt]));
-  const [method, path, schema, process] = CARD_KEYS.map(key =>
-    fields.find(f => f.key === key),
-  );
+  const field = (key: string) => fields.find(f => f.key === key);
   const options = fields.filter(f => !CARD_KEYS.includes(f.key));
-  const verb = method && textOf(method.value).replace(/'/g, '').trim();
+  const response = [field('schema'), field('process')].filter(
+    (f): f is Field => !!f,
+  );
+  const verb = field('method')?.text.replace(/'/g, '');
   return (
     <>
-      <section className={styles.card} data-method={verb}>
+      <section
+        className={clsx(styles.card, playgroundstyles.stageHues)}
+        data-method={verb}
+      >
         <div className={styles.head}>
-          <code className={styles.path}>{path?.value}</code>
+          <code className={styles.path}>{field('path')?.value}</code>
           {verb ?
             <span className={styles.method}>{verb}</span>
           : null}
         </div>
-        {parts.slice(0, tableAt - 1)}
+        {description}
         {options.length ?
           <ul className={styles.options}>
-            {options.map(({ key, value, same }) => (
+            {options.map(({ key, value, text }) => (
               <li key={key}>
-                {same ? null : <i>{key} </i>}
+                {text === key ? null : <i>{key} </i>}
                 {value}
               </li>
             ))}
           </ul>
         : null}
-        <dl className={styles.response}>
-          {[schema, process].map(f =>
-            f ?
-              <React.Fragment key={f.key}>
-                <dt>{f.key}</dt>
-                <dd>{f.value}</dd>
+        {response.length ?
+          <dl className={styles.response}>
+            {response.map(({ key, value }) => (
+              <React.Fragment key={key}>
+                <dt>{key}</dt>
+                <dd className={key === 'process' ? styles.block : undefined}>
+                  {value}
+                </dd>
               </React.Fragment>
-            : null,
-          )}
-        </dl>
+            ))}
+          </dl>
+        : null}
       </section>
-      {parts[tableAt - 1]}
+      {playground}
       {parts.slice(tableAt + 1)}
     </>
   );
@@ -64,8 +74,7 @@ const CARD_KEYS = ['method', 'path', 'schema', 'process'];
 interface Field {
   key: string;
   value: React.ReactNode;
-  /** the value reads as its key, e.g. [body](#body) */
-  same: boolean;
+  text: string;
 }
 
 type MdxElement = React.ReactElement<{ children?: React.ReactNode }>;
@@ -88,8 +97,7 @@ function fieldsOf(tbody: MdxElement | undefined): Field[] {
     const [key, value] = elements(row.props.children).map(
       cell => cell.props.children,
     );
-    const name = textOf(key).trim();
-    return { key: name, value, same: textOf(value).trim() === name };
+    return { key: textOf(key).trim(), value, text: textOf(value).trim() };
   });
 }
 

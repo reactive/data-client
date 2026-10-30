@@ -13,33 +13,20 @@
     0 1px 2px rgb(15 30 60 / 5%),
     0 10px 28px -14px rgb(15 30 60 / 20%);
 }
-[data-theme='dark'] .card {
-  background: #232425;
-  box-shadow: none;
-}
+/* the stage's hues (../Playground .stageHues), as the playground's own
+   request line takes them. Only the light stage declares them outside a
+   playground, so the fallbacks are the dark stage's (.playgroundContainer) */
 .card[data-method='GET'] {
-  --verb: #1d8049;
+  --verb: var(--store-fresh, #7fd1a0);
 }
 .card[data-method='POST'] {
-  --verb: #2f5fc4;
+  --verb: var(--store-key, rgb(130 170 255));
 }
 .card:is([data-method='PUT'], [data-method='PATCH']) {
-  --verb: #a26600;
+  --verb: var(--store-stale, #ffcb6b);
 }
 .card[data-method='DELETE'] {
-  --verb: #cc2b4b;
-}
-[data-theme='dark'] .card[data-method='GET'] {
-  --verb: #7fd1a0;
-}
-[data-theme='dark'] .card[data-method='POST'] {
-  --verb: rgb(130 170 255);
-}
-[data-theme='dark'] .card:is([data-method='PUT'], [data-method='PATCH']) {
-  --verb: #ffcb6b;
-}
-[data-theme='dark'] .card[data-method='DELETE'] {
-  --verb: rgb(255 88 116);
+  --verb: var(--store-null, rgb(255 88 116));
 }
 .card a {
   text-decoration: none;
@@ -98,11 +85,7 @@
   padding: 0;
   list-style: none;
   font-size: 0.875rem;
-}
-/* over the markdown list's li + li gap */
-.options li,
-.options li + li {
-  margin: 0;
+  --ifm-list-item-margin: 0;
 }
 .options li::before {
   content: '◇ ';
@@ -128,7 +111,7 @@
   overflow-wrap: anywhere;
 }
 /* process's code takes the full width, its key above it */
-.response dd:has(pre) {
+.response .block {
   grid-column: 1 / -1;
 }
 .response :global(.theme-code-block) {
