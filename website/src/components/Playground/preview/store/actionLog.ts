@@ -36,6 +36,8 @@ import { wrapManager, type Wrap } from './wrapManager';
 
 const { createReducer, MemoCache } = __INTERNAL__;
 
+type GCAction = Extract<ActionTypes, { type: typeof actionTypes.GC }>;
+
 /** Actions kept (`limit`); older ones drop off the front */
 const LOG_LIMIT = 500;
 /** Updates kept per row (`updateLimit`): a subscription's polls, or pushed
@@ -96,11 +98,15 @@ export interface LogEntry {
   /** A fetch `consumedBy` a NetworkManager, which started its request */
   readonly requested?: true;
   /** The store's own state (pending optimistic updates not yet applied)
-   * right before and after this action. Missing when a manager handled the
-   * action without passing it on (a plain fetch, a subscribe) */
+   * right before and after this action, and the action it reduced. Missing
+   * when a manager handled the action without passing it on (a plain fetch,
+   * a subscribe) */
   readonly store?: {
     readonly before: State<unknown>;
     readonly after: State<unknown>;
+    /** The action as the store reduced it: a manager may pass on another
+     * in its place */
+    readonly action: ActionTypes;
   };
 }
 
@@ -294,6 +300,12 @@ export default class ActionLog {
   private readonly reducer = createReducer(this.reader);
   private readonly views = new WeakMap<State<unknown>, State<unknown>>();
   private readonly diffs = new WeakMap<LogEntry, readonly Change[]>();
+  /** By state, then schema and fetch key: what `heldEntities` found */
+  private readonly held = new WeakMap<
+    State<unknown>,
+    Map<unknown, Map<string, ReadonlySet<string>>>
+  >();
+
   private readonly refetchCounts = new WeakMap<
     readonly LogEntry[],
     ReadonlyMap<number, number>
@@ -409,9 +421,11 @@ export default class ActionLog {
           reached = true;
           const before = (state ??= detach(controller.getState()));
           // the store's reducer deletes garbage in place, from tables earlier
-          // states share (copying them all is fine: GC runs rarely)
+          // states share
           state = reduce(
-            action.type === actionTypes.GC ? detach(before) : before,
+            action.type === actionTypes.GC ?
+              detachGarbage(before, action)
+            : before,
             action,
           );
           // the state it left (one sent before recording started has no
@@ -419,7 +433,7 @@ export default class ActionLog {
           this.patch(
             id,
             seqOf(action),
-            { store: { before, after: state } },
+            { store: { before, after: state, action } },
             { state },
           );
           return next(action);
@@ -499,6 +513,7 @@ export default class ActionLog {
       changes = diffStates(
         this.view(entry.store.before),
         this.view(entry.store.after),
+        endpointsWritten(entry.store),
       );
       this.diffs.set(entry, changes);
     }
@@ -534,23 +549,23 @@ export default class ActionLog {
     }
   }
 
-  /** Every entity `action`'s stored data reads in `state`, nested ones
-   * too, as the library's memo tracks them */
+  /** What `entitiesRead` finds, once per state, schema and key: the
+   * fetches a refetch sends share it */
   private heldEntities(
     state: State<unknown>,
-    { endpoint, key, args }: FetchAction,
+    action: FetchAction,
   ): ReadonlySet<string> {
-    // a copied endpoint (see `fetchReason`) can't read its schema
+    const { endpoint, key } = action;
+    // a copied endpoint (see `fetchReason`) has no `key` method: it can't
+    // say which entities its response holds
     if (typeof endpoint?.key !== 'function') return new Set();
-    // a fresh memo: one that met a nested entity invalid can still name
-    // only the outer one, until #4460 lands
-    const { paths } = new MemoCache().denormalize(
-      endpoint.schema,
-      state.endpoints[key],
-      state.entities,
-      args,
-    );
-    return new Set(paths.map(p => entityId(p.key, p.pk)));
+    let bySchema = this.held.get(state);
+    if (!bySchema) this.held.set(state, (bySchema = new Map()));
+    let byKey = bySchema.get(endpoint.schema);
+    if (!byKey) bySchema.set(endpoint.schema, (byKey = new Map()));
+    let held = byKey.get(key);
+    if (!held) byKey.set(key, (held = entitiesRead(state, action)));
+    return held;
   }
 
   /** By an action's seq, how many requests it caused (its fetches'
@@ -822,20 +837,97 @@ function trim(
   return entries.filter(e => !dropped(e) || anchors.has(e));
 }
 
+/** Every entity `action`'s stored data reads in `state`, nested ones too,
+ * as the library's memo tracks them */
+function entitiesRead(
+  state: State<unknown>,
+  { endpoint, key, args }: FetchAction,
+): ReadonlySet<string> {
+  // a fresh memo: one that met a nested entity invalid can still name only
+  // the outer one, until #4460 lands
+  const { paths } = new MemoCache().denormalize(
+    endpoint.schema,
+    state.endpoints[key],
+    state.entities,
+    args,
+  );
+  return new Set(paths.map(p => entityId(p.key, p.pk)));
+}
+
 /** `state` with tables of its own: the store's reducer deletes garbage from
  * its tables in place, which states built from them share */
-function detach(state: State<unknown>): State<unknown> {
-  const copy = <T>(tables: Record<string, T>) =>
-    Object.fromEntries(
-      Object.entries(tables).map(([key, table]) => [key, { ...table }]),
-    );
+const detach = (state: State<unknown>): State<unknown> => ({
+  ...state,
+  entities: copyTables(state.entities),
+  entitiesMeta: copyTables(state.entitiesMeta),
+  endpoints: { ...state.endpoints },
+  meta: { ...state.meta },
+});
+
+/** `state` with its own copy of each table `gc` deletes from (see
+ * `detach`): the entity tables it names, and the endpoint tables when it
+ * names endpoints */
+function detachGarbage(state: State<unknown>, gc: GCAction): State<unknown> {
+  // a sweep names a table once per row it collects
+  const tables = new Set(gc.entities.map(e => e.key));
+  const endpoints = gc.endpoints.length > 0;
   return {
     ...state,
-    entities: copy(state.entities),
-    entitiesMeta: copy(state.entitiesMeta),
-    endpoints: { ...state.endpoints },
-    meta: { ...state.meta },
+    entities: copyTables(state.entities, tables),
+    entitiesMeta: copyTables(state.entitiesMeta, tables),
+    endpoints: endpoints ? { ...state.endpoints } : state.endpoints,
+    meta: endpoints ? { ...state.meta } : state.meta,
   };
+}
+
+/** `all` with its own copy of each of `tables` it has (every one, by
+ * default) */
+function copyTables<T>(
+  all: Record<string, T>,
+  tables: Iterable<string> = Object.keys(all),
+): Record<string, T> {
+  const own = { ...all };
+  for (const key of tables) if (key in own) own[key] = { ...own[key] };
+  return own;
+}
+
+/** The endpoint keys whose row `action` can change, as components see
+ * them: what it writes, and what the pending optimistic updates before and
+ * after it write (see `writtenBy`) */
+function endpointsWritten({
+  action,
+  before,
+  after,
+}: NonNullable<LogEntry['store']>) {
+  const keys = new Set<string>();
+  for (const written of [action, ...before.optimistic, ...after.optimistic]) {
+    const writes = writtenBy(written);
+    if (!writes) return;
+    writes.forEach(key => keys.add(key));
+  }
+  return keys;
+}
+
+/** The endpoint keys `action` writes, or `undefined` when it can write any:
+ * one that matches keys (`invalidateAll`, `expireAll`), a reset, or an
+ * endpoint's `update`, which writes keys of its choosing */
+function writtenBy(action: ActionTypes): readonly string[] | undefined {
+  switch (action.type) {
+    case actionTypes.SET_RESPONSE:
+    case actionTypes.OPTIMISTIC:
+      return action.endpoint.update ? undefined : [action.key];
+    case actionTypes.INVALIDATE:
+      return [action.key];
+    case actionTypes.GC:
+      return action.endpoints;
+    case actionTypes.FETCH:
+    case actionTypes.SET:
+    case actionTypes.SUBSCRIBE:
+    case actionTypes.UNSUBSCRIBE:
+      return [];
+    default:
+      return undefined;
+  }
 }
 
 /** `next`, or `prev` when it holds the same, so what is built on the set

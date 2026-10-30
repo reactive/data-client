@@ -2487,7 +2487,11 @@ describe('Store Actions pane on a record', () => {
 });
 
 describe('storeAt', () => {
-  const store = { before: initialState, after: initialState };
+  const store = {
+    before: initialState,
+    after: initialState,
+    action: unsubscribe() as any,
+  };
   const entries: LogEntry[] = [
     { seq: 1, at: 0, action: subscribe() as any, newStore: true },
     { seq: 2, at: 1, action: unsubscribe() as any, store },
