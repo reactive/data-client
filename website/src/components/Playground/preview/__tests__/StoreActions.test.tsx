@@ -625,13 +625,11 @@ describe('Store Actions pane detail', () => {
     expect(crumbs()).toEqual([]);
   });
 
-  it("shuts with the mouse's back button before a level under it goes back", async () => {
+  it("goes back with the mouse's back button, shutting the peek first", async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
-    jest.useFakeTimers();
     openPost('1');
-    hover(actionsToggle(), true);
-    wait();
+    peekIn();
     const back = () => {
       const event = new MouseEvent('mouseup', {
         bubbles: true,
@@ -649,8 +647,7 @@ describe('Store Actions pane detail', () => {
     // at the store, the page goes back
     expect(back()).toBe(false);
     // unless the peek is open there
-    hover(actionsToggle(), true);
-    wait();
+    peekIn();
     expect(back()).toBe(true);
     expect(peek()).toBeNull();
   });
