@@ -47,7 +47,12 @@ const readManifest = skillDir => {
 /** content marked as generated, in that file type's comment syntax */
 function withHeader(file, content) {
   const text = `${GENERATED} ${rel(file)}. Edit the source, not this file.`;
-  if (MD.test(file)) return `<!-- ${text} -->\n\n${content}`;
+  // after front matter, which must stay first
+  if (MD.test(file))
+    return content.replace(
+      /^(---\r?\n[\s\S]*?\r?\n---\r?\n)?/,
+      `$1<!-- ${text} -->\n\n`,
+    );
   if (!/\.[cm]?[jt]s$/.test(file))
     throw new Error(`${rel(file)}: can't mark this file type as generated`);
   // after a shebang, which must stay the first line
@@ -55,9 +60,12 @@ function withHeader(file, content) {
   return `${shebang}// ${text}\n${rest}`;
 }
 
-/** The header is the first line, or the second after a shebang */
+/** The header is the first line, or the second after a shebang, after any front matter */
 const isGenerated = content =>
-  content.split('\n', 2).some(line => line.includes(GENERATED));
+  content
+    .replace(FM, '')
+    .split('\n', 2)
+    .some(line => line.includes(GENERATED));
 
 /**
  * Content ignoring the header, which framework's docs links point to, and the
@@ -78,12 +86,15 @@ const localRoutesFor = (docs, framework) =>
       .map(([name, doc]) => [routeOf(path.join(ROOT, doc), framework), name]),
   );
 
+/** Splits markdown so fenced code is at odd indexes */
+const FENCED = /(^```[\s\S]*?^```)/m;
+
 /**
  * A SKILL.md source rendered for one framework, written with the docs' markers
  * (website/framework-docs/README.md) but applied to the text as written, so the
  * output keeps the source's exact markdown: `vue_<key>` front matter overrides
- * `<key>`; `:::react` / `:::vue` lines open a block that the next line of as
- * many colons closes (the marker lines are dropped, so blocks can sit inside
+ * `<key>`; lines between `:::react` / `:::vue` and `:::` are kept for that
+ * framework only (the marker lines are dropped, so blocks can sit inside
  * lists); `:react[...]` / `:vue[...]` pick inline text outside code fences.
  */
 function renderSkillMd(source, framework) {
@@ -92,50 +103,32 @@ function renderSkillMd(source, framework) {
     // other frameworks' overrides
     .replace(FM, fm => fm.replace(new RegExp(`^(${other})_.*\\n`, 'gm'), ''));
   const [frontMatter] = content.match(FM);
-  const firstLine = frontMatter.split('\n').length;
-  // runs of prose and of fenced code, so inline markers can wrap lines
-  const runs = [];
+  const lines = [];
   let block, fence;
-  for (const [i, line] of content
-    .slice(frontMatter.length)
-    .split('\n')
-    .entries()) {
-    const where = `${rel(source)}:${firstLine + i}`;
-    const isFence = /^\s*(```|~~~)/.test(line);
-    if (!fence && block && line === block.colons) {
-      block = undefined;
-      continue;
-    }
-    if (!fence && line.startsWith(':::')) {
-      const [, colons, name] = line.match(/^(:{3,})(\w+)\s*$/) ?? [];
-      if (!FRAMEWORKS.includes(name))
+  for (const line of content.slice(frontMatter.length).split('\n')) {
+    if (line.startsWith('```')) fence = !fence;
+    else if (!fence && line.startsWith(':::')) {
+      const [, name] = line.match(/^:::(\w*)\s*$/) ?? [];
+      if (name && !FRAMEWORKS.includes(name))
+        throw new Error(`${rel(source)}: "${line}" isn't a framework block`);
+      if (Boolean(name) === Boolean(block))
         throw new Error(
-          `${where}: only :::react and :::vue blocks are supported`,
+          `${rel(source)}: "${line}" ${block ? `inside :::${block}` : 'closes no block'}`,
         );
-      if (block) throw new Error(`${where}: framework blocks can't nest`);
-      block = { colons, name };
+      block = name;
       continue;
     }
-    const code = Boolean(fence || isFence);
-    if (isFence)
-      fence =
-        !fence ? line.trimStart().slice(0, 3)
-        : line.trimStart().startsWith(fence) ? undefined
-        : fence;
-    if (block && block.name !== framework) continue;
-    if (runs.at(-1)?.code === code) runs.at(-1).lines.push(line);
-    else runs.push({ code, lines: [line], where });
+    if (!block || block === framework) lines.push(line);
   }
-  if (block) throw new Error(`${rel(source)}: unclosed :::${block.name}`);
-  const body = runs
-    .map(({ code, lines, where }) =>
-      code ?
-        lines.join('\n')
-      : inlineFrameworks(lines.join('\n'), framework, where),
+  if (block) throw new Error(`${rel(source)}: unclosed :::${block}`);
+  const body = lines
+    .join('\n')
+    .split(FENCED)
+    .map((part, i) =>
+      i % 2 ? part : inlineFrameworks(part, framework, rel(source)),
     )
-    .join('\n');
-  const header = `<!-- ${GENERATED} ${rel(source)} (${framework}). Edit the source, not this file. -->`;
-  return `${frontMatter}${header}\n${body}`;
+    .join('');
+  return withHeader(source, frontMatter + body);
 }
 
 /** `:react[...]` / `:vue[...]` in prose: this framework's text, without the marker */
@@ -286,11 +279,11 @@ function bundleSkill(sourceDir, skillDir, out) {
   )
     .replace(FM, '')
     // a generated SKILL.md's header; withHeader names the copy's source
-    .replace(/^<!--.*\n/, line => (isGenerated(line) ? '' : line))
+    .replace(new RegExp(`^<!-- ${GENERATED}.*\\n`), '')
     .trimStart()
     // relative links now resolve from references/, next to the copied files;
     // fenced code (odd split indexes) is left as is
-    .split(/(^```[\s\S]*?^```)/m)
+    .split(FENCED)
     .map((part, i) =>
       i % 2 ? part : (
         part.replace(/\]\((?![a-z]+:|[#/])(?:\.\/)?/g, `](./${skill}/`)
@@ -328,10 +321,7 @@ for (const skill of fs.readdirSync(SKILLS).sort()) {
   const skillDir = path.join(SKILLS, skill);
   const out = generateSkill(skillDir);
   if (!out) continue;
-  const current = generatedFiles(path.join(skillDir, 'references'));
-  const skillMd = path.join(skillDir, 'SKILL.md');
-  if (out.has(skillMd) && fs.existsSync(skillMd))
-    current.set(skillMd, fs.readFileSync(skillMd, 'utf8'));
+  const current = generatedFiles(skillDir);
   for (const file of current.keys())
     if (!out.has(file)) changes.push([file, null]);
   for (const [file, content] of out)

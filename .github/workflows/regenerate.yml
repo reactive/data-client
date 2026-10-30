@@ -83,7 +83,7 @@ jobs:
       - name: Diff generated files
         run: |
           STALE="$(git status --porcelain --untracked-files=all -- \
-            website/src/components/Playground/editor-types '.agents/skills/*/references/*')"
+            website/src/components/Playground/editor-types '.agents/skills/*/references/*' '.agents/skills/*/SKILL.md')"
           if [ -n "$STALE" ]; then
             echo "$STALE"
             echo "::error::Generated files are stale: merge master, run 'yarn copy:websitetypes' and 'yarn build:skills', and commit the result."
