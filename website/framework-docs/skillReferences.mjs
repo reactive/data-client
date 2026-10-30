@@ -18,17 +18,18 @@
  *
  * `"skillMd": ".agents/skill-sources/foo.md"` generates SKILL.md itself from a
  * source shared with other skills, rendered for this skill's first framework
- * (see renderSkillMd).
+ * (see skillSource.mjs).
  *
  * Usage: node website/framework-docs/skillReferences.mjs
  */
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { FRAMEWORKS, frameworkInstance } from './docsInstances.js';
+import { frameworkInstance } from './docsInstances.js';
 import { docToMarkdown, routeOf } from './docsToMarkdown.mjs';
-import { FM, rewriteFrontMatter, walk } from './index.js';
+import { FM, walk } from './index.js';
 import { ROOT, SITE, git, rel } from './site.mjs';
+import { FENCED, renderSkillMd } from './skillSource.mjs';
 
 const SKILLS = path.join(ROOT, '.agents/skills');
 const MANIFEST = 'references.json';
@@ -86,69 +87,6 @@ const localRoutesFor = (docs, framework) =>
       .map(([name, doc]) => [routeOf(path.join(ROOT, doc), framework), name]),
   );
 
-/** Splits markdown so fenced code is at odd indexes */
-const FENCED = /(^```[\s\S]*?^```)/m;
-
-/**
- * A SKILL.md source rendered for one framework, written with the docs' markers
- * (website/framework-docs/README.md) but applied to the text as written, so the
- * output keeps the source's exact markdown: `vue_<key>` front matter overrides
- * `<key>`; lines between `:::react` / `:::vue` and `:::` are kept for that
- * framework only (the marker lines are dropped, so blocks can sit inside
- * lists); `:react[...]` / `:vue[...]` pick inline text outside code fences.
- */
-function renderSkillMd(source, framework) {
-  const other = FRAMEWORKS.filter(f => f !== framework).join('|');
-  const content = rewriteFrontMatter(fs.readFileSync(source, 'utf8'), framework)
-    // other frameworks' overrides
-    .replace(FM, fm => fm.replace(new RegExp(`^(${other})_.*\\n`, 'gm'), ''));
-  const [frontMatter] = content.match(FM);
-  const lines = [];
-  let block, fence;
-  for (const line of content.slice(frontMatter.length).split('\n')) {
-    if (line.startsWith('```')) fence = !fence;
-    else if (!fence && line.startsWith(':::')) {
-      const [, name] = line.match(/^:::(\w*)\s*$/) ?? [];
-      if (name && !FRAMEWORKS.includes(name))
-        throw new Error(`${rel(source)}: "${line}" isn't a framework block`);
-      if (Boolean(name) === Boolean(block))
-        throw new Error(
-          `${rel(source)}: "${line}" ${block ? `inside :::${block}` : 'closes no block'}`,
-        );
-      block = name;
-      continue;
-    }
-    if (!block || block === framework) lines.push(line);
-  }
-  if (block) throw new Error(`${rel(source)}: unclosed :::${block}`);
-  const body = lines
-    .join('\n')
-    .split(FENCED)
-    .map((part, i) =>
-      i % 2 ? part : inlineFrameworks(part, framework, rel(source)),
-    )
-    .join('');
-  return withHeader(source, frontMatter + body);
-}
-
-/** `:react[...]` / `:vue[...]` in prose: this framework's text, without the marker */
-function inlineFrameworks(text, framework, where) {
-  const marker = new RegExp(`:(${FRAMEWORKS.join('|')})\\[`, 'g');
-  let out = '';
-  let from = 0;
-  for (let match; (match = marker.exec(text));) {
-    let depth = 1;
-    let end = marker.lastIndex;
-    for (; end < text.length && depth; end++)
-      depth += { '[': 1, ']': -1 }[text[end]] ?? 0;
-    if (depth) throw new Error(`${where}: unclosed :${match[1]}[`);
-    out += text.slice(from, match.index);
-    if (match[1] === framework) out += text.slice(marker.lastIndex, end - 1);
-    from = marker.lastIndex = end;
-  }
-  return out + text.slice(from);
-}
-
 const generated = new Map();
 
 /** Map of reference path -> content for one skill; undefined without a manifest */
@@ -171,10 +109,12 @@ function buildSkill(
       throw new Error(
         `${rel(skillDir)}/${MANIFEST}: ${skillMd} does not exist`,
       );
-    out.set(
-      path.join(skillDir, 'SKILL.md'),
-      renderSkillMd(source, frameworks[0]),
+    const content = renderSkillMd(
+      fs.readFileSync(source, 'utf8'),
+      frameworks[0],
+      rel(source),
     );
+    out.set(path.join(skillDir, 'SKILL.md'), withHeader(source, content));
   }
   // framework that rendered each file
   const renderedBy = new Map();
