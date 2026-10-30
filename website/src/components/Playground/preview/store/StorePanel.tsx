@@ -878,10 +878,6 @@ function Levels({
 
   const subjectAt = (depth: number) =>
     subjectOf(stack.slice(0, depth)) ?? under ?? ROOT;
-  const label = (view: LevelView, depth: number, model: StoreModel) =>
-    view.kind === 'actions' ?
-      <ActionsCrumb subject={subjectAt(depth)} model={model} />
-    : crumbLabel(view, model, subjectAt(depth), true);
   const crumbs = (depth: number, tools?: React.ReactNode) => {
     const { at } = stack[depth];
     // one opened at an action the log no longer has shows the store as it is
@@ -892,8 +888,13 @@ function Levels({
       stack.slice(0, depth + 1).map(e => e.view),
       model,
     );
-    const crumbAt = (i: number) =>
-      label(shown[i].view, shown[i].depth ?? depth, model);
+    const crumbAt = (i: number) => {
+      const { view, depth: d = depth } = shown[i];
+      const subject = subjectAt(d);
+      return view.kind === 'actions' ?
+          <ActionsCrumb subject={subject} model={model} />
+        : crumbLabel(view, model, subject, /* inTrail */ true);
+    };
     const items =
       shown.length > CRUMBS ?
         [0, -1, shown.length - 2, shown.length - 1]
@@ -1378,8 +1379,8 @@ function crumbLabel(
   model: StoreModel,
   /** Whose actions an action view steps through */
   subject: View = ROOT,
-  /** In the crumbs (`trail`): under what holds it, so a record by its pk
-   * and a field's list by the field alone */
+  /** In a breadcrumb, under what holds it: a record by its pk, a field's
+   * list by the field alone */
   inTrail = false,
 ): React.ReactNode {
   switch (view.kind) {

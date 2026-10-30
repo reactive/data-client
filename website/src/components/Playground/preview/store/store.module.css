@@ -423,10 +423,6 @@
 .crumbCurrent b {
   font-weight: 500;
 }
-.crumb .count,
-.crumbCurrent .count {
-  margin-left: 0.35em;
-}
 .sep {
   color: var(--store-dim);
   opacity: 0.6;
