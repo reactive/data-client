@@ -16,6 +16,7 @@ import { groupPostFixtures } from '@site/src/fixtures/group-posts';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import DeleteProcess from './\_DeleteProcess.mdx';
 import CollectionLists from '@site/src/components/CollectionLists';
+import MethodInfo from '@site/src/components/MethodInfo';
 
 # Resource
 
@@ -292,6 +293,8 @@ const PostResource = resource({
 
 ### get
 
+<MethodInfo>
+
 Retrieve a singular entity.
 
 <EndpointPlayground fixtures={groupPostFixtures}>
@@ -334,9 +337,13 @@ PostResource.get({
 |  path  | [path](#path)     |
 | schema | [schema](#schema) |
 
+</MethodInfo>
+
 Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate), [Controller.expireAll](/docs/api/Controller#expireAll)
 
 ### getList
+
+<MethodInfo>
 
 Retrieve a list of entities.
 
@@ -382,6 +389,8 @@ PostResource.getList({
 | paginationField | [paginationField](#paginationfield)                  |
 |     schema      | [new Collection(\[schema\])](./Collection.md) |
 
+</MethodInfo>
+
 <!-- prettier-ignore-start -->
 ```ts
 resource({ path: '/:first/:second' }).getList.path === '/:first';
@@ -395,6 +404,8 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 <CollectionLists />
 
 ### getList.push {#push}
+
+<MethodInfo>
 
 [RestEndpoint.push](./RestEndpoint.md#push) creates a new entity and pushes it to the end of getList. Use [getList.unshift](#unshift)
 to place at the beginning instead. Pass an array as the body to create several at once.
@@ -441,9 +452,13 @@ PostResource.getList.push(
 |     body     | [body](#body)                               |
 |    schema    | getList.[schema.push](./Collection.md#push) |
 
+</MethodInfo>
+
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### getList.unshift {#unshift}
+
+<MethodInfo>
 
 [RestEndpoint.unshift](./RestEndpoint.md#unshift) creates a new entity and pushes it to the beginning of getList.
 
@@ -489,9 +504,13 @@ PostResource.getList.unshift(
 |     body     | [body](#body)                                     |
 |    schema    | getList.[schema.unshift](./Collection.md#unshift) |
 
+</MethodInfo>
+
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### getList.getPage {#getpage}
+
+<MethodInfo>
 
 [RestEndpoint.getPage](./RestEndpoint.md#getpage) retrieves another [page](../guides/pagination.md#infinite-scrolling) appending to getList ensuring there are no duplicates.
 
@@ -541,11 +560,15 @@ PostResource.getList.getPage({
 | paginationField | [paginationField](#paginationfield)                 |
 |     schema      | [getList.schema.addWith](./Collection.md#addWith) |
 
+</MethodInfo>
+
 args: `PathToArgs(shortenPath(path)) & searchParams & \{ [paginationField]: string | number \}`
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### getList.move {#move}
+
+<MethodInfo>
 
 [RestEndpoint.move](./RestEndpoint.md#move) moves an entity between [Collections](./Collection.md) by removing it from
 collections matching its old state and adding it to collections matching the new values from the body.
@@ -591,9 +614,13 @@ PostResource.getList.move(
 |     body     | [body](#body)                               |
 |    schema    | getList.[schema.move](./Collection.md#move) |
 
+</MethodInfo>
+
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### update
+
+<MethodInfo>
 
 Update an entity.
 
@@ -638,9 +665,13 @@ PostResource.update(
 |  body  | [body](#body)     |
 | schema | [schema](#schema) |
 
+</MethodInfo>
+
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### partialUpdate
+
+<MethodInfo>
 
 Update some subset of fields of an entity.
 
@@ -685,9 +716,13 @@ PostResource.partialUpdate(
 |  body  | [body](#body)     |
 | schema | [schema](#schema) |
 
+</MethodInfo>
+
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### delete
+
+<MethodInfo>
 
 Deletes an entity.
 
@@ -728,6 +763,8 @@ PostResource.delete({ group: 'react', id: '1' });
 |  path   | [path](#path)                                    |
 | schema  | [new Invalidate(schema)](./Invalidate.md) |
 | process | <DeleteProcess />                                |
+
+</MethodInfo>
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 

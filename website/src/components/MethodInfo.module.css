@@ -1,0 +1,165 @@
+/* a Resource member's card (./MethodInfo): its Field/Value table's rows */
+.card {
+  --verb: var(--ifm-color-primary);
+  --rule: 1px solid var(--ifm-table-border-color);
+  --label: color-mix(in srgb, var(--ifm-font-color-base) 55%, transparent);
+  margin: 0 0 1.5rem;
+  padding: 1.25rem;
+  border: var(--rule);
+  border-radius: 14px;
+  background: var(--ifm-background-surface-color);
+  box-shadow:
+    0 1px 2px rgb(15 30 60 / 5%),
+    0 10px 28px -14px rgb(15 30 60 / 20%);
+}
+/* the stage's hues (../Playground .stageHues), as the playground's own
+   request line takes them. Only the light stage declares them outside a
+   playground, so the fallbacks are the dark stage's (.playgroundContainer) */
+.card[data-method='GET'] {
+  --verb: var(--store-fresh, #7fd1a0);
+}
+.card[data-method='POST'] {
+  --verb: var(--store-key, rgb(130 170 255));
+}
+.card:is([data-method='PUT'], [data-method='PATCH']) {
+  --verb: var(--store-stale, #ffcb6b);
+}
+.card[data-method='DELETE'] {
+  --verb: var(--store-null, rgb(255 88 116));
+}
+.card a {
+  text-decoration: none;
+}
+
+/* where there is room, one property grid: labels above values, the groups'
+   rows in one flow */
+.card {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.1rem 1.5rem;
+}
+.group,
+.group dl {
+  display: contents;
+}
+.groupHead {
+  display: none;
+}
+.row dt {
+  margin-bottom: 0.3rem;
+  font: 400 0.75rem / 1.4 var(--ifm-font-family-monospace);
+  color: var(--label);
+}
+.row dd {
+  margin: 0;
+  font: 500 0.9375rem / 1.5 var(--ifm-font-family-monospace);
+  overflow-wrap: anywhere;
+}
+/* process's code takes the full width */
+.block {
+  grid-column: 1 / -1;
+}
+.block :global(.theme-code-block) {
+  margin: 0;
+  box-shadow: none;
+}
+.legend {
+  grid-column: 1 / -1;
+  justify-self: end;
+  margin: -0.4rem 0 0;
+  font: 0.75rem / 1.4 var(--ifm-font-family-monospace);
+  color: var(--label);
+}
+
+/* on a phone, the inspector: Request and Response groups of rows, the label
+   left and the value right */
+@container doc (max-width: 640px) {
+  .card {
+    display: block;
+    padding: 0.35rem 1.1rem 0.9rem;
+  }
+  .group {
+    display: block;
+  }
+  .group dl {
+    display: block;
+    margin: 0;
+  }
+  .groupHead {
+    display: block;
+    margin: 0.7rem 0 0.2rem;
+    padding-bottom: 0.35rem;
+    border-bottom: var(--rule);
+    font-size: 0.875rem;
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.3rem 0;
+  }
+  .row dt {
+    margin: 0;
+  }
+  .row dd {
+    font-size: 0.8125rem;
+    text-align: right;
+  }
+  .block {
+    display: block;
+  }
+  .block dt {
+    margin-bottom: 0.35rem;
+  }
+  .block dd {
+    text-align: left;
+  }
+  .legend {
+    margin: 0.6rem 0 0;
+    text-align: right;
+  }
+}
+
+/* a value's in-page link, one of resource()'s #arguments passed through: an
+   up-left arrow (it comes from resource(), documented above), which the
+   legend names (shown only when one is there) */
+.row dd a[href^='#']::before,
+.inherited::before {
+  content: '';
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-right: 0.2em;
+  vertical-align: -0.05em;
+  background: currentColor;
+  opacity: 0.7;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 9 9 4 4 9'/%3E%3Cpath d='M20 20h-7a4 4 0 0 1-4-4V4'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.inherited::before {
+  opacity: 1;
+}
+.card:not(:has(.row dd a[href^='#'])) .legend {
+  display: none;
+}
+
+.method {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.15rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--verb) 35%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--verb) 12%, transparent);
+  color: var(--verb);
+  font: 700 0.75rem / 1.4 var(--ifm-font-family-base);
+  letter-spacing: 0.06em;
+}
+.method::before {
+  content: '';
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: currentColor;
+}
