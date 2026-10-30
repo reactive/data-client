@@ -81,8 +81,10 @@
 .responseDefinition a {
   color: var(--store-key);
 }
-/* a .headers list */
+/* a .headers list (declared after it, to override its margin), in the
+   stage's ink, parted from the body by a rule */
 .responseDefinition {
+  color: var(--pg-text);
   row-gap: 0.35rem;
   align-items: start;
   margin-top: 0.8rem;
