@@ -5,7 +5,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import { byData } from '../store/dom';
-import { endpointId, entityId, parseRowId } from '../store/model';
+import { endpointId, entityId, groupId, parseRowId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
 import { DemoViewContext, StoreToggle, useStoreOpen } from '../StoreToggle';
@@ -254,6 +254,15 @@ describe('StorePanel table view', () => {
     mount();
     fireEvent.click(screen.getByLabelText('Tree view'));
     const post = () => byData(top(), 'id', entityId('Post', '1'))!;
+    const opened = (key: string) =>
+      byData(top(), 'id', groupId(key))!.getAttribute('aria-expanded');
+    // the first three types to appear start open
+    expect(['User', 'Post', 'Comment', '[Comment]'].map(opened)).toEqual([
+      'true',
+      'true',
+      'true',
+      'false',
+    ]);
     // a row expands in place
     fireEvent.click(post());
     expect(post().getAttribute('aria-expanded')).toBe('true');

@@ -47,6 +47,18 @@ export function refsList(items: readonly RefNode[], label: string): ListView {
     : { kind: 'list', label, ids: keys };
 }
 
+/** The list of every endpoint, and of a table's rows, "N more" dives into */
+export const endpointsList = (model: StoreModel): ListView => ({
+  kind: 'list',
+  label: 'Endpoints',
+  ids: model.endpoints.map(e => e.id),
+});
+export const tableList = (table: EntityTable): ListView => ({
+  kind: 'list',
+  table: table.key,
+  label: table.key,
+});
+
 /** A Collection row's members, which its record shows as their own table */
 export function membersOf(
   model: StoreModel,

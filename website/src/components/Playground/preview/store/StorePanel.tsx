@@ -92,7 +92,7 @@ import type SchemaRegistry from './schemaRegistry';
 import styles from './store.module.css';
 import { StoreViewContext, useActionsBy, useStoreView } from './storeView';
 import Timeline, { Scrubber } from './Timeline';
-import TreeView from './TreeView';
+import TreeView, { TreeStateProvider } from './TreeView';
 import { RowKey } from './Value';
 import { Why } from './Why';
 import TabList from '../../TabList';
@@ -755,13 +755,15 @@ export default function StorePanel({
                         hidden={tab !== 'action'}
                       />
                       <StoreViewContext.Provider value={view}>
-                        <Levels
-                          model={model}
-                          width={width}
-                          levels={levels}
-                          diff={shownDiff}
-                          hidden={!storeShown}
-                        />
+                        <TreeStateProvider model={model}>
+                          <Levels
+                            model={model}
+                            width={width}
+                            levels={levels}
+                            diff={shownDiff}
+                            hidden={!storeShown}
+                          />
+                        </TreeStateProvider>
                       </StoreViewContext.Provider>
                     </ShownTimeContext.Provider>
                   </StateContext.Provider>

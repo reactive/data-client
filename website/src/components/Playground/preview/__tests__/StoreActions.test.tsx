@@ -1484,6 +1484,26 @@ describe('Store diff', () => {
     ]);
   });
 
+  it('keeps what the tree view opened across Snapshot and Diff', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    const post = () =>
+      [...top().querySelectorAll<HTMLElement>('[data-id]')].find(
+        el => el.dataset.id === entityId('Post', '1'),
+      )!;
+    fireEvent.click(post());
+    expect(post().getAttribute('aria-expanded')).toBe('true');
+    // the diff shows the tree anew, with only the changed row
+    openDiff();
+    expect(post().getAttribute('aria-expanded')).toBe('true');
+    openState();
+    expect(post().getAttribute('aria-expanded')).toBe('true');
+  });
+
   it('shows the diff in the tree view too, or what the action did instead', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));

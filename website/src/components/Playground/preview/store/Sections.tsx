@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 
 import { toggled } from './dom';
 import type { EntityTable, StoreModel } from './model';
@@ -41,18 +41,6 @@ const SHOW_ALL_UNDER = 8;
 export const preview = <T,>(rows: readonly T[]) =>
   rows.length > SHOW_ALL_UNDER ? rows.slice(0, PREVIEW_ROWS) : rows;
 
-/** The list of every endpoint, and of a table's rows, "N more" dives into */
-export const endpointsList = (model: StoreModel): ListView => ({
-  kind: 'list',
-  label: 'Endpoints',
-  ids: model.endpoints.map(e => e.id),
-});
-export const tableList = (table: EntityTable): ListView => ({
-  kind: 'list',
-  table: table.key,
-  label: table.key,
-});
-
 /** Dives into the `hidden` rows a preview leaves out */
 export function More({
   hidden,
@@ -74,16 +62,19 @@ export function More({
 
 /** `SectionBlock` props by title, each open until toggled (Internals
  * closed) */
-export function useSectionToggles() {
+export function useSectionProps() {
   const [closed, setClosed] = useState<ReadonlySet<string>>(
     () => new Set(['Internals']),
   );
-  return (title: string, count?: number) => ({
-    title,
-    count,
-    open: !closed.has(title),
-    onToggle: () => setClosed(prev => toggled(prev, title)),
-  });
+  return useCallback(
+    (title: string, count?: number) => ({
+      title,
+      count,
+      open: !closed.has(title),
+      onToggle: () => setClosed(prev => toggled(prev, title)),
+    }),
+    [closed],
+  );
 }
 
 /** Collapsible block with a sticky header */

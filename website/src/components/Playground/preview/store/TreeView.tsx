@@ -12,18 +12,16 @@ import {
   type EntityTable,
   type StoreModel,
 } from './model';
-import { DiffContext, useNav } from './nav';
+import { DiffContext, endpointsList, tableList, useNav } from './nav';
 import { plain, type VNode } from './refs';
 import {
   Chevron,
   GroupLabel,
-  endpointsList,
   Internals,
   More,
   preview,
   SectionBlock,
-  tableList,
-  useSectionToggles,
+  useSectionProps,
   useShownSections,
 } from './Sections';
 import styles from './store.module.css';
@@ -44,26 +42,10 @@ import { splitKey } from '../../splitKey';
 export default function TreeView() {
   const { model } = useNav();
   const shown = useShownSections(model);
-  const section = useSectionToggles();
+  const { section, groupDefaults } = useTreeState();
   const endpoints = preview(model.endpoints);
-  // kept here, so a row hidden with its group or section reopens as left
-  const [choices, setChoices] = useState<ReadonlyMap<string, boolean>>(
-    () => new Map(),
-  );
-  const open = useMemo(() => ({ choices, setChoices }), [choices]);
-  // a group's default is fixed when it first appears, so tables arriving
-  // later (Suspense loads them one by one) never reshuffle what is open
-  const [groupDefaults, setGroupDefaults] = useState<
-    ReadonlyMap<string, boolean>
-  >(() => new Map());
-  const fresh = model.tables.filter(t => !groupDefaults.has(t.key));
-  if (fresh.length) {
-    const next = new Map(groupDefaults);
-    for (const t of fresh) next.set(t.key, next.size < OPEN_GROUPS);
-    setGroupDefaults(next);
-  }
   return (
-    <OpenContext.Provider value={open}>
+    <>
       {model.optimistic.length > 0 && (
         <SectionBlock
           {...section('Optimistic', model.optimistic.length)}
@@ -102,24 +84,69 @@ export default function TreeView() {
           <Internals model={model} />
         </SectionBlock>
       )}
-    </OpenContext.Provider>
+    </>
   );
 }
 
 /** The first Entity types to appear start open */
 const OPEN_GROUPS = 3;
 
-/** The reader's open and closed choices, by row or group id */
-const OpenContext = createContext<{
+/** What the reader opened and closed in the tree view */
+interface TreeState {
+  readonly section: ReturnType<typeof useSectionProps>;
+  /** Rows' and groups' open state, by id, where the reader toggled it */
   readonly choices: ReadonlyMap<string, boolean>;
   readonly setChoices: React.Dispatch<
     React.SetStateAction<ReadonlyMap<string, boolean>>
   >;
-}>({ choices: new Map(), setChoices: () => {} });
+  /** Whether each group, by table key, starts open */
+  readonly groupDefaults: ReadonlyMap<string, boolean>;
+}
+const TreeStateContext = createContext<TreeState | null>(null);
+function useTreeState() {
+  const state = useContext(TreeStateContext);
+  if (!state) throw new Error('TreeView outside a TreeStateProvider');
+  return state;
+}
+
+/** Keeps the tree view's open state above what remounts it (the Diff toggle,
+ * a moment that changed nothing), so it shows again as the reader left it */
+export function TreeStateProvider({
+  model,
+  children,
+}: {
+  model: StoreModel;
+  children: React.ReactNode;
+}) {
+  const section = useSectionProps();
+  const [choices, setChoices] = useState<ReadonlyMap<string, boolean>>(
+    () => new Map(),
+  );
+  // a group's default is fixed when it first appears, so tables arriving
+  // later (Suspense loads them one by one) never reshuffle what is open
+  const [groupDefaults, setGroupDefaults] = useState<
+    ReadonlyMap<string, boolean>
+  >(() => new Map());
+  const fresh = model.tables.filter(t => !groupDefaults.has(t.key));
+  if (fresh.length) {
+    const next = new Map(groupDefaults);
+    for (const t of fresh) next.set(t.key, next.size < OPEN_GROUPS);
+    setGroupDefaults(next);
+  }
+  const value = useMemo(
+    () => ({ section, choices, setChoices, groupDefaults }),
+    [section, choices, groupDefaults],
+  );
+  return (
+    <TreeStateContext.Provider value={value}>
+      {children}
+    </TreeStateContext.Provider>
+  );
+}
 
 /** Props making a row (tr or div) expand on click or Enter/Space */
 function useRowProps(id: string, defaultOpen = false) {
-  const { choices, setChoices } = useContext(OpenContext);
+  const { choices, setChoices } = useTreeState();
   const open = choices.get(id) ?? defaultOpen;
   const change = useContext(DiffContext)?.get(id)?.kind;
   const toggle = () => setChoices(prev => new Map(prev).set(id, !open));

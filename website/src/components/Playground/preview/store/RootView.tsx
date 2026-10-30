@@ -9,17 +9,15 @@ import {
   type EntityTable,
   type StoreModel,
 } from './model';
-import { useNav } from './nav';
+import { endpointsList, tableList, useNav } from './nav';
 import { plain } from './refs';
 import {
-  endpointsList,
   GroupLabel,
   Internals,
   More,
   preview,
   SectionBlock,
-  tableList,
-  useSectionToggles,
+  useSectionProps,
   useShownSections,
 } from './Sections';
 import styles from './store.module.css';
@@ -41,7 +39,7 @@ const INDEX_OVER = 5;
 export default function RootView({ scroller }: { scroller: Scroller }) {
   const { model, width, push } = useNav();
   const shown = useShownSections(model);
-  const section = useSectionToggles();
+  const section = useSectionProps();
   const endpoints = preview(model.endpoints);
   const hiddenEndpoints = model.endpoints.length - endpoints.length;
   // stays once seen (holding a row's space), so an optimistic update
