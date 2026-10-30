@@ -121,21 +121,27 @@
   }
 }
 
-/* a value's in-page link, one of resource()'s #arguments passed through: a
-   dashed chip, which the legend names (shown only when one is there) */
-.row dd a[href^='#'],
-.inherited {
+/* a value's in-page link, one of resource()'s #arguments passed through: an
+   up-left arrow (it comes from resource(), documented above), which the
+   legend names (shown only when one is there) */
+.row dd a[href^='#']::before,
+.inherited::before {
+  content: '';
   display: inline-block;
-  padding: 0 0.4em;
-  border: 1px dashed color-mix(in srgb, currentColor 45%, transparent);
-  border-radius: 6px;
-  line-height: 1.35;
+  width: 0.8em;
+  height: 0.8em;
+  margin-right: 0.2em;
+  vertical-align: -0.05em;
+  background: currentColor;
+  opacity: 0.7;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 9 9 4 4 9'/%3E%3Cpath d='M20 20h-7a4 4 0 0 1-4-4V4'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.inherited::before {
+  opacity: 1;
 }
 .card:not(:has(.row dd a[href^='#'])) .legend {
   display: none;
-}
-.legend .inherited {
-  padding: 0.05rem 0.5em;
 }
 
 .method {
