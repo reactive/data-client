@@ -1130,7 +1130,6 @@ function SubjectLevel({
   );
 }
 
-/** The whole store, in the State tab's view */
 /** A list level in the State tab's view */
 function StoreList(props: {
   view: Extract<View, { kind: 'list' }>;
@@ -1142,6 +1141,7 @@ function StoreList(props: {
     : <ListView {...props} />;
 }
 
+/** The whole store, in the State tab's view */
 function StoreLevel({ scroller }: { scroller: Scroller }) {
   return useContext(StoreViewContext) === 'tree' ?
       <TreeView />
