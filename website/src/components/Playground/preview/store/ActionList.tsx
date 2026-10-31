@@ -58,7 +58,7 @@ import { Pipeline, StepPath } from './Pipeline';
 import styles from './store.module.css';
 import { useActionsBy } from './storeView';
 import { InteractionHead, RowWhy } from './Why';
-import { tabLabel } from '../StoreToggle';
+import { tabLabel } from '../inspector';
 
 /** The groups with an action that touched the subject */
 export function useRows(filter: SubjectFilter) {
@@ -73,7 +73,7 @@ export function useRows(filter: SubjectFilter) {
 
 /** `subject`'s actions as a quick look (./QuickLook.tsx): their count, then
  * the list, kept on the newest */
-export function ActionsLook({
+export function ActionsQuickLook({
   subject,
   filter,
   label,

@@ -1,0 +1,133 @@
+// The Store drawer's state: which tab shows, the quick look its other tab's
+// hover opens, a demo's Store view, and how the Actions tab groups actions.
+// The toggles (./StoreToggle.tsx) and the Store UI (./store/) both read it;
+// it lives apart from both and imports neither, so the Store UI imports it
+// without the toggles, and ../index.tsx without the Store UI
+
+import { translate } from '@docusaurus/Translate';
+import {
+  createContext,
+  type PointerEvent,
+  useContext,
+  useSyncExternalStore,
+} from 'react';
+
+/** How the Store tab's store level lays out */
+export type StoreView = 'table' | 'tree';
+
+/** What the Store drawer shows: the store, or the actions that changed it.
+ * Each has its own tab on the drawer's edge */
+export type Inspect = 'store' | 'actions';
+/** Shut, or open showing one */
+export type InspectorOpen = Inspect | 'n';
+/** A tab's name */
+export const tabLabel = (tab: Inspect) =>
+  tab === 'store' ?
+    translate({ id: 'playground.store', message: 'Store' })
+  : translate({ id: 'playground.actions', message: 'Actions' });
+
+/** Which of the drawer's tabs shows, and the quick look its other tab's
+ * hover opens (`quickLook`); `select` shows a tab, opening the drawer if
+ * shut. `listed` counts the Actions tab's handle pulled, each of which opens
+ * the actions at their list */
+export interface Inspector {
+  readonly tab: Inspect;
+  select(tab: Inspect): void;
+  readonly quickLook: QuickLookStore;
+  readonly listed: number;
+}
+
+export const InspectorContext = createContext<Inspector>({
+  tab: 'store',
+  select() {},
+  quickLook: createQuickLook(),
+  listed: 0,
+});
+
+/** A demo's Store view, shown over the reader's saved one without saving it
+ * (see `useStoreOpen`); `drop()` gives theirs back. Here, not with
+ * `useStoreView` in ./store/storeView.ts: ../index.tsx provides it, and is in
+ * every page chunk (see ./StoreToggle.tsx), so it must load the Store UI's
+ * lazy chunk only with `import()` */
+export interface DemoView {
+  view?: StoreView;
+  drop(): void;
+}
+export const DemoViewContext = createContext<DemoView>({ drop() {} });
+
+/** How the Actions tab lists actions: under the interaction that started
+ * them (a click, a render), or every action as its own row */
+export type ActionsBy = 'interaction' | 'action';
+/** The playground's group, whose readers' choice of `ActionsBy` is kept,
+ * and the playground's own default (see `useActionsBy`) */
+export const ActionsByContext = createContext<{
+  groupId: string;
+  defaultBy: ActionsBy;
+}>({ groupId: 'playground', defaultBy: 'interaction' });
+
+/** Where the preview's header shows its toggles' quick look (stacked,
+ * ./PreviewWrapper.tsx): over the code, above the header. Without one, the
+ * header's toggles open none */
+export const QuickLookHost = createContext<HTMLElement | null>(null);
+
+/** The tab whose quick look shows */
+export function useQuickLook(): Inspect | null {
+  const { quickLook } = useContext(InspectorContext);
+  return useSyncExternalStore(quickLook.subscribe, quickLook.get, noQuickLook);
+}
+const noQuickLook = () => null;
+
+/** Whether a quick look shows, whichever tab's */
+export function useQuickLookShown(): boolean {
+  const { quickLook } = useContext(InspectorContext);
+  return useSyncExternalStore(
+    quickLook.subscribe,
+    () => quickLook.get() !== null,
+    () => false,
+  );
+}
+
+/** How long the pointer rests on a tab before its quick look opens, and is
+ * away from both before it closes (ms) */
+const QUICK_LOOK_OPEN_MS = 150;
+const QUICK_LOOK_CLOSE_MS = 300;
+
+/** The quick look a drawer tab's hover opens: outside React state, so a
+ * hover re-renders only what shows it (./StoreInspector.tsx), not the
+ * playground. Mouse only: a tap on the tab opens the drawer itself */
+export interface QuickLookStore {
+  get(): Inspect | null;
+  subscribe(onChange: () => void): () => void;
+  /** The pointer came onto (`true`) or left a tab's handle or its quick look */
+  hover(tab: Inspect, inside: boolean, e: PointerEvent): void;
+  close(): void;
+}
+export function createQuickLook(): QuickLookStore {
+  let shown: Inspect | null = null;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const listeners = new Set<() => void>();
+  const set = (next: Inspect | null) => {
+    clearTimeout(timer);
+    if (next === shown) return;
+    shown = next;
+    listeners.forEach(listener => listener());
+  };
+  return {
+    get: () => shown,
+    subscribe(onChange) {
+      listeners.add(onChange);
+      return () => listeners.delete(onChange);
+    },
+    hover(tab, inside, e) {
+      if (e.pointerType !== 'mouse') return;
+      clearTimeout(timer);
+      // straight from one tab's quick look to the other's
+      if (inside && shown !== null && shown !== tab) return set(tab);
+      timer = setTimeout(
+        () => set(inside ? tab : null),
+        inside ? QUICK_LOOK_OPEN_MS : QUICK_LOOK_CLOSE_MS,
+      );
+    },
+    close: () => set(null),
+  };
+}

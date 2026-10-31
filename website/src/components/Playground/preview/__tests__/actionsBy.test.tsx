@@ -3,8 +3,8 @@ import { act, render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { clearTabStorage } from '../../testing/tabStorage';
+import { ActionsByContext, type ActionsBy } from '../inspector';
 import { useActionsBy } from '../store/storeView';
-import { ActionsByContext, type ActionsBy } from '../StoreToggle';
 
 jest.mock('../../../../utils/tabStorage', () =>
   require('../../testing/tabStorage'),

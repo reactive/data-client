@@ -2,27 +2,32 @@ import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import type { SubjectFilter } from './actionGroups';
-import { ActionsLook } from './ActionList';
+import { ActionsQuickLook } from './ActionList';
 import { useWidth } from './dom';
 import type { StoreModel } from './model';
 import { useMouseBack } from './mouseBack';
 import { NavContext, type Nav, type Scope, type View } from './nav';
 import RootView from './RootView';
 import styles from './store.module.css';
-import { tabLabel, useLook, type Inspect, type Peek } from '../StoreToggle';
+import {
+  type Inspect,
+  type QuickLookStore,
+  tabLabel,
+  useQuickLook,
+} from '../inspector';
 
 /** Its width (px) until measured (store.module.css sets it) */
-const LOOK_WIDTH = 352;
+const QUICK_LOOK_WIDTH = 352;
 
 /** Where a tab's quick look shows, portaled into `host` while one does: it
- * alone follows the look, so a hover doesn't render the panel around it */
+ * alone follows the quick look, so a hover doesn't render the panel around it */
 export const QuickLookSlot = memo(function QuickLookSlot({
   host,
   ...props
 }: Omit<React.ComponentProps<typeof QuickLook>, 'tab'> & {
   host: HTMLElement | null;
 }) {
-  const tab = useLook();
+  const tab = useQuickLook();
   return tab && host && createPortal(<QuickLook tab={tab} {...props} />, host);
 });
 
@@ -32,7 +37,7 @@ export const QuickLookSlot = memo(function QuickLookSlot({
  * pick opens the drawer there */
 export function QuickLook({
   tab,
-  peek,
+  quickLook,
   subject,
   filter,
   label,
@@ -42,7 +47,7 @@ export function QuickLook({
   sheetOver,
 }: {
   tab: Inspect;
-  peek: Peek;
+  quickLook: QuickLookStore;
   subject: View;
   filter: SubjectFilter;
   /** The actions' subject, when not the whole store */
@@ -62,7 +67,7 @@ export function QuickLook({
   // level under it (they skip a prevented Escape) takes it
   useEffect(() => {
     const onPress = (e: PointerEvent) => {
-      if (!ref.current?.contains(e.target as Node | null)) peek.close();
+      if (!ref.current?.contains(e.target as Node | null)) quickLook.close();
     };
     const onKey = (e: KeyboardEvent) => {
       // the sheet's own, from in the panel under it
@@ -74,7 +79,7 @@ export function QuickLook({
       )
         return;
       e.preventDefault();
-      peek.close();
+      quickLook.close();
     };
     document.addEventListener('pointerdown', onPress);
     document.addEventListener('keydown', onKey, true);
@@ -82,34 +87,34 @@ export function QuickLook({
       document.removeEventListener('pointerdown', onPress);
       document.removeEventListener('keydown', onKey, true);
     };
-  }, [peek, sheetOver]);
+  }, [quickLook, sheetOver]);
   // and the mouse's back button over it, which would leave the page
-  useMouseBack(ref, true, peek.close);
+  useMouseBack(ref, true, quickLook.close);
   // the tables lay out for it
-  const width = useWidth(ref, LOOK_WIDTH);
+  const width = useWidth(ref, QUICK_LOOK_WIDTH);
   return (
     <aside
       ref={ref}
       className={styles.quickLook}
       data-quick-look
       aria-label={tabLabel(tab)}
-      onPointerEnter={e => peek.hover(tab, true, e)}
-      onPointerLeave={e => peek.hover(tab, false, e)}
+      onPointerEnter={e => quickLook.hover(tab, true, e)}
+      onPointerLeave={e => quickLook.hover(tab, false, e)}
     >
       {tab === 'actions' ?
-        <ActionsLook
+        <ActionsQuickLook
           subject={subject}
           filter={filter}
           label={label}
           onPick={onPick}
         />
-      : <StoreLook model={model} width={width} onOpen={onOpen} />}
+      : <StoreQuickLook model={model} width={width} onOpen={onOpen} />}
     </aside>
   );
 }
 
 /** The live store's tables */
-function StoreLook({
+function StoreQuickLook({
   model,
   width,
   onOpen,
@@ -129,7 +134,7 @@ function StoreLook({
         {tabLabel('store')}
         <span className={styles.liveText}>Live</span>
       </div>
-      <div ref={setScroller} className={styles.lookBody}>
+      <div ref={setScroller} className={styles.quickLookBody}>
         <NavContext.Provider value={nav}>
           <RootView scroller={scroller} />
         </NavContext.Provider>

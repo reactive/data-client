@@ -2,6 +2,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
+import type { ShowStore } from '../store/storeView';
 import { useStoreMotion, useStoreOpen } from '../StoreToggle';
 
 // one stored choice for the group, as the page's storage slot is
@@ -25,9 +26,9 @@ jest.mock('../../../../utils/tabStorage', () => ({
   },
 }));
 
-let showStore: ReturnType<typeof useStoreOpen>[2] = () => {};
+let showStore: ShowStore = () => {};
 function Store() {
-  const [open, toggle, show, , moves] = useStoreOpen('test', 'n');
+  const { open, toggle, showStore: show, moves } = useStoreOpen('test', 'n');
   showStore = show;
   const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
   const moving = useStoreMotion(container, moves, open);

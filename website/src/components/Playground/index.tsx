@@ -23,6 +23,14 @@ import {
 } from './editor/openCode';
 import type { AutoRunScript } from './preview/autorun/script';
 import FixturePreview from './preview/FixturePreview';
+import {
+  ActionsByContext,
+  DemoViewContext,
+  InspectorContext,
+  type ActionsBy,
+  type Inspect,
+  type InspectorOpen,
+} from './preview/inspector';
 import type LivePreviewType from './preview/LivePreview';
 import PendingSheet from './preview/PendingSheet';
 import PreviewWrapper, {
@@ -32,13 +40,7 @@ import PreviewWrapper, {
 import { routerStartOf } from './preview/routerSlot';
 import type { LogOptions } from './preview/store/actionLog';
 import {
-  ActionsByContext,
-  DemoViewContext,
-  type ActionsBy,
   DrawerTabs,
-  InspectorContext,
-  type Inspect,
-  type InspectorOpen,
   StoreToggle,
   useStoreMotion,
   useStoreOpen,
@@ -131,8 +133,14 @@ export default function Playground<T>({
     demo ? 'demo'
     : rowLayout ? 'row'
     : 'stacked';
-  const [storeOpen, toggleStore, showStore, demoView, storeMoves, inspector] =
-    useStoreOpen(groupId, defaultOpen);
+  const {
+    open: storeOpen,
+    toggle: toggleStore,
+    showStore,
+    demoView,
+    moves: storeMoves,
+    inspector,
+  } = useStoreOpen(groupId, defaultOpen);
   const actionsBy = useMemo(
     () => ({ groupId, defaultBy: defaultActionsBy }),
     [groupId, defaultActionsBy],
