@@ -48,22 +48,25 @@ export const UserResource = resource({
 
 /** A todo as jsonplaceholder sends it */
 export type TodoData = Pick<Todo, 'id' | 'userId' | 'title' | 'completed'>;
-/** The demo's server: every todo it has sent, by id, with every edit since.
- * jsonplaceholder doesn't store edits, so lists are built from these. */
-export type TodoServer = Record<number, TodoData>;
+/** The demo's server: every todo it has sent, by id, with every edit since
+ * (`null` once deleted). jsonplaceholder doesn't store changes, so lists are
+ * built from these. */
+export type TodoServer = Record<number, TodoData | null>;
+
+/** New todos get ids after jsonplaceholder's 200 */
+const LAST_SEEDED_ID = 200;
 
 /** Adds the `todos` this server hasn't seen. It keeps its own copy of the
  * rest, since jsonplaceholder sends their originals again on a refetch. */
 export function rememberTodos(server: TodoServer, todos: TodoData[]) {
-  for (const todo of todos) server[todo.id] ??= todo;
+  for (const todo of todos) if (!(todo.id in server)) server[todo.id] = todo;
 }
 
 /** The server's todos, oldest first; only `userId`'s when given */
 export function todosOf(server: TodoServer, userId?: number | string) {
-  const todos = Object.values(server);
-  return userId === undefined ? todos : (
-      todos.filter(todo => todo.userId === Number(userId))
-    );
+  const todos = Object.values(server).filter(todo => todo !== null);
+  if (userId === undefined) return todos;
+  return todos.filter(todo => todo.userId === Number(userId));
 }
 
 /** The todo endpoints, for demos that bring their own user list */
@@ -83,7 +86,8 @@ export const todoEndpointFixtures: Interceptor<TodoServer>[] = [
       body: Parameters<typeof TodoResource.partialUpdate>[1],
     ) {
       const pk = Number(id);
-      const todo = { ...this[pk], ...body, id: pk };
+      // a deleted todo can't be edited, since the demo no longer lists it
+      const todo = { ...(this[pk] as TodoData), ...body, id: pk };
       this[pk] = todo;
       return todo;
     },
@@ -96,11 +100,19 @@ export const todoEndpointFixtures: Interceptor<TodoServer>[] = [
       const todo = {
         ...(await TodoResource.getList.push(...args)),
         // after every id the server has, so todos list in creation order
-        id: Math.max(...Object.keys(this).map(Number), MAX_ID) + 1,
+        id: Math.max(...Object.keys(this).map(Number), LAST_SEEDED_ID) + 1,
       };
       this[todo.id] = todo;
       return todo;
     },
+  },
+  {
+    endpoint: TodoResource.delete,
+    response({ id }: Parameters<typeof TodoResource.delete>[0]) {
+      this[Number(id)] = null;
+      return { id: Number(id) };
+    },
+    delay: 150,
   },
 ];
 
@@ -113,9 +125,6 @@ export const todoFixtures: Interceptor<TodoServer>[] = [
   },
   ...todoEndpointFixtures,
 ];
-/** jsonplaceholder's last todo id */
-const MAX_ID = 200;
-
 /** RestEndpoint's simplest retrieval: `path: '/todos/:id'`, with no `urlPrefix` */
 export const todoByIdFixtures: Interceptor[] = [
   {
