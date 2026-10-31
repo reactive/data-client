@@ -1,7 +1,8 @@
-// The Store drawer's model: which tab shows, and the quick look its other
-// tab's hover opens. The toggles (./StoreToggle.tsx) and the Store UI
-// (./store/) both read it; it lives apart from both, so the Store UI imports
-// it without the toggles
+// The Store drawer's state: which tab shows, the quick look its other tab's
+// hover opens, a demo's Store view, and how the Actions tab groups actions.
+// The toggles (./StoreToggle.tsx) and the Store UI (./store/) both read it;
+// it lives apart from both and imports neither, so the Store UI imports it
+// without the toggles, and ../index.tsx without the Store UI
 
 import { translate } from '@docusaurus/Translate';
 import {
@@ -11,7 +12,8 @@ import {
   useSyncExternalStore,
 } from 'react';
 
-import type { StoreView } from './store/storeView';
+/** How the Store tab's store level lays out */
+export type StoreView = 'table' | 'tree';
 
 /** What the Store drawer shows: the store, or the actions that changed it.
  * Each has its own tab on the drawer's edge */

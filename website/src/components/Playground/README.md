@@ -22,7 +22,7 @@ and `editor/callouts.ts`.
 | Monaco: types, completions, go-to-definition | `monaco/` (`preloadManifest.ts` and `../editor-types/` are generated)                                           |
 | Running the code, scope globals              | `preview/LivePreview.tsx`, `preview/useCodeManagers.ts`, `preview/transformCode.ts`, `preview/scope.ts`         |
 | Preview frame, Store open state and motion   | `preview/PreviewWrapper.tsx`, `preview/StoreToggle.tsx`, `preview/StoreInspector.tsx`                           |
-| Drawer state: tab, quick look, demo view     | `preview/inspector.ts`                                                                                          |
+| Drawer state, Actions grouping               | `preview/inspector.ts`                                                                                          |
 | Store inspector UI                           | `preview/store/` (`StorePanel.tsx` owns its state, `nav.tsx` moves it)                                          |
 | Store log, action credit                     | `preview/store/actionLog.ts`, `actionGroups.ts`, `attribution.ts` (names each action's manager)                 |
 | Why a fetch happened                         | `preview/store/fetchCause.ts` (reason, playground-free), `callSite.ts` (hook, component, event), `Why.tsx`      |

@@ -24,8 +24,9 @@ import {
   QuickLookHost,
   tabLabel,
   type QuickLookStore,
+  type StoreView,
 } from './inspector';
-import type { ShowStore, StoreView } from './store/storeView';
+import type { ShowStore } from './store/storeView';
 import { useTabStorage } from '../../../utils/tabStorage';
 import { useLayoutMotion } from '../../motion';
 import StoreIcon from '../StoreIcon';
