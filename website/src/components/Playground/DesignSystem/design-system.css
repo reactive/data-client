@@ -257,8 +257,9 @@ div.playground-preview h1:first-child {
    drops into the group, wherever the group's order puts it, not at a spot
    in it */
 .playground-preview [data-drop-target] {
+  --drop-gap: var(--ds-space-1);
   outline: 1.5px dashed var(--ds-border-strong);
-  outline-offset: var(--ds-space-1);
+  outline-offset: var(--drop-gap);
   border-radius: var(--ds-radius-sm);
   transition: outline-color var(--motion-snappy);
 }
@@ -266,7 +267,7 @@ div.playground-preview h1:first-child {
   outline: 2px solid var(--ds-accent);
   background-color: var(--ds-accent-soft);
   /* the wash fills the gap out to the ring */
-  box-shadow: 0 0 0 var(--ds-space-1) var(--ds-accent-soft);
+  box-shadow: 0 0 0 var(--drop-gap) var(--ds-accent-soft);
 }
 /* touch screens skip it: a tapped row would stay lit. A row whose leading
    box is disabled (a new todo's) toggles nothing; its field washes itself */
