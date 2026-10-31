@@ -617,6 +617,20 @@ describe('Store Actions pane detail', () => {
     expect(showing(actionsTab())).toBe(true);
   });
 
+  it("closes the quick look with the mouse's back button, keeping the page", async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    peekIn();
+    const back = new MouseEvent('mouseup', {
+      button: 3,
+      bubbles: true,
+      cancelable: true,
+    });
+    fireEvent(peek()!, back);
+    expect(back.defaultPrevented).toBe(true);
+    expect(peek()).toBeNull();
+  });
+
   it('opens a row picked in the quick look in the Actions tab, as the moment', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));

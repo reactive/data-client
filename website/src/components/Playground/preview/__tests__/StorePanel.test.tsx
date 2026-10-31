@@ -475,6 +475,33 @@ describe('StorePanel table view', () => {
     expect([pressed('Actions'), pressed('Store')]).toEqual([false, false]);
   });
 
+  it('moves focus along the strip with the arrows, picking nothing', () => {
+    function Strip() {
+      const [open, toggle, , , , inspector] = useStoreOpen('keys', 'n');
+      return (
+        <InspectorContext.Provider value={inspector}>
+          <StoreToggle onToggle={toggle} open={open} />
+        </InspectorContext.Provider>
+      );
+    }
+    render(<Strip />);
+    const tab = (name: string) => screen.getByRole('tab', { name });
+    // one stop in the tab order: the tab it would open
+    expect([tab('Actions').tabIndex, tab('Store').tabIndex]).toEqual([-1, 0]);
+    tab('Store').focus();
+    fireEvent.keyDown(tab('Store'), { key: 'ArrowUp' });
+    expect(document.activeElement).toBe(tab('Actions'));
+    fireEvent.keyDown(tab('Actions'), { key: 'End' });
+    expect(document.activeElement).toBe(tab('Store'));
+    fireEvent.keyDown(tab('Store'), { key: 'Home' });
+    expect(document.activeElement).toBe(tab('Actions'));
+    // modified keys keep their own meaning
+    fireEvent.keyDown(tab('Actions'), { key: 'ArrowDown', altKey: true });
+    expect(document.activeElement).toBe(tab('Actions'));
+    expect(tab('Actions').getAttribute('aria-selected')).toBe('false');
+    expect(tab('Store').getAttribute('aria-selected')).toBe('false');
+  });
+
   it('leaves focus alone as the overview first shows, and on the tab picked', () => {
     mount();
     expect(document.activeElement).toBe(document.body);

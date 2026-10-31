@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 import type { SubjectFilter } from './actionGroups';
 import { ActionsLook } from './ActionList';
@@ -6,10 +7,23 @@ import type { StoreModel } from './model';
 import { NavContext, type Nav, type Scope, type View } from './nav';
 import RootView from './RootView';
 import styles from './store.module.css';
-import { tabLabel, type Inspect, type Peek } from '../StoreToggle';
+import { useMouseBack } from './mouseBack';
+import { tabLabel, useLook, type Inspect, type Peek } from '../StoreToggle';
 
 /** Its width (px), at most the viewport's: the tables lay out for it */
 const LOOK_WIDTH = 352;
+
+/** Where a tab's quick look shows, portaled into `host` while one does: it
+ * alone follows the look, so a hover doesn't render the panel around it */
+export const QuickLookSlot = memo(function QuickLookSlot({
+  host,
+  ...props
+}: Omit<React.ComponentProps<typeof QuickLook>, 'tab'> & {
+  host: HTMLElement | null;
+}) {
+  const tab = useLook();
+  return tab && host && createPortal(<QuickLook tab={tab} {...props} />, host);
+});
 
 /** A drawer tab's quick look, as the pointer rests on its handle: what the
  * tab would show now, live whatever moment the panel holds. The store's
@@ -68,6 +82,8 @@ export function QuickLook({
       document.removeEventListener('keydown', onKey, true);
     };
   }, [peek, sheetOver]);
+  // and the mouse's back button over it, which would leave the page
+  useMouseBack(ref, true, peek.close);
   return (
     <aside
       ref={ref}

@@ -10,7 +10,6 @@ import React, {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { createPortal } from 'react-dom';
 
 import { ActionDetail, SubjectChanges } from './ActionDetail';
 import {
@@ -92,7 +91,7 @@ import {
   type View,
 } from './nav';
 import { Preview, usePreview } from './Preview';
-import { QuickLook } from './QuickLook';
+import { QuickLookSlot } from './QuickLook';
 import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
 import styles from './store.module.css';
@@ -102,7 +101,7 @@ import TreeView, { TreeStateProvider } from './TreeView';
 import { RowKey } from './Value';
 import { Why } from './Why';
 import Unfold from '../../Unfold';
-import { InspectorContext, tabLabel, useLook } from '../StoreToggle';
+import { InspectorContext, tabLabel } from '../StoreToggle';
 
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
@@ -133,7 +132,6 @@ export default function StorePanel({
   // only what the moment changed (its request's actions up to it, see
   // `Scope`). Each Playground's own, unlike the table or tree view
   const { tab, select: setTab, peek, listed } = useContext(InspectorContext);
-  const look = useLook();
   const [diffMode, setDiffMode] = useState(false);
   // the timeline the scrubber expands into, above the content; it stays
   // mounted while it slides shut, until the slide ends
@@ -278,6 +276,11 @@ export default function StorePanel({
   );
   // the store's top level: what the actions list and the steps follow
   const subject = subjectOf(levels.stack)!;
+  // the quick look's subject, its actions' head
+  const lookLabel = useMemo(
+    () => (subject.kind === 'root' ? null : subjectLabel(subject, model)),
+    [subject, model],
+  );
   const subjectActions = useSubjectFilter(log, known, subject);
   // at the store, the Actions tab draws the managers as a pipeline: a stage
   // picked there narrows the list, the steps and the timeline's marks alike.
@@ -738,26 +741,17 @@ export default function StorePanel({
               </div>
             </div>
             <NavContext.Provider value={chipNav}>
-              {look &&
-                lookHost &&
-                createPortal(
-                  <QuickLook
-                    tab={look}
-                    peek={peek}
-                    subject={subject}
-                    filter={filter}
-                    label={
-                      subject.kind === 'root' ?
-                        null
-                      : subjectLabel(subject, model)
-                    }
-                    model={liveRows}
-                    onPick={show}
-                    onOpen={openView}
-                    sheetOver={narrow && timelineOpen}
-                  />,
-                  lookHost,
-                )}
+              <QuickLookSlot
+                host={lookHost}
+                peek={peek}
+                subject={subject}
+                filter={filter}
+                label={lookLabel}
+                model={liveRows}
+                onPick={show}
+                onOpen={openView}
+                sheetOver={narrow && timelineOpen}
+              />
               <Preview store={preview} subject={subject} />
             </NavContext.Provider>
           </div>

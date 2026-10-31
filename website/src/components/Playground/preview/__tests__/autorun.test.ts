@@ -126,6 +126,14 @@ it('glides onto the Store toggle before opening the Store', async () => {
   expect(calls).toEqual(['point toggle', 'store true pressed store', 'end']);
 });
 
+it('closes a shut Store without gliding onto any toggle', async () => {
+  const player = createPlayer();
+  const { stage, calls } = fakeStage(null, document.createElement('button'));
+  player.play([{ delay: 0, store: 'close' }], stage);
+  await jest.runAllTimersAsync();
+  expect(calls).toEqual(['store false', 'end']);
+});
+
 it('opens the Store in the view a step names', async () => {
   const player = createPlayer();
   const { stage, calls } = fakeStage();

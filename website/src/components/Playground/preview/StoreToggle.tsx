@@ -101,7 +101,8 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
   const stored = inspectOf(choice);
   const opened = stored === undefined ? inspectOf(defaultOpen) : stored;
   const open = shown?.open ?? !!opened;
-  // shut, the tab it last showed: what the header's toggle opens
+  // shut, the tab it last showed: the one in the tab order, which Escape
+  // focuses
   const [lastTab, setLastTab] = useState<Inspect>(() => opened ?? 'store');
   const tab = shown?.tab ?? opened ?? lastTab;
   // moves made here, by the reader or a demo: only these animate the Store
@@ -109,7 +110,8 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
   // group closing this one, just lands
   const [moves, setMoves] = useState(0);
   const [listed, setListed] = useState(0);
-  // every open, shut or switch of tab closes the quick look
+  // (every open, shut or switch of tab below closes the quick look; going,
+  // so does the playground, its timer with it)
   const [peek] = useState(createPeek);
   useEffect(() => peek.close, [peek]);
   // a demo's run holds one showStore from its start (./autorun/stage.ts), so
@@ -331,6 +333,7 @@ export function StoreToggle({
       className={styles.debugToggles}
       role="tablist"
       aria-orientation="vertical"
+      onKeyDown={onTabKeys}
     >
       {INSPECTS.map(to => {
         const selected = open && tab === to;
@@ -342,6 +345,7 @@ export function StoreToggle({
             className={clsx('clean-btn', styles.debugToggle)}
             title={tabTitle(to, selected)}
             aria-selected={selected}
+            tabIndex={tab === to ? 0 : -1}
             disabled={!onToggle}
             onClick={onToggle && (e => onToggle(e, to))}
             data-store-toggle={to}
@@ -486,6 +490,7 @@ export function DrawerTabs({
       className={styles.drawerTabs}
       role="tablist"
       aria-orientation="vertical"
+      onKeyDown={onTabKeys}
     >
       {INSPECTS.map(to => {
         const selected = open && tab === to;
@@ -499,6 +504,7 @@ export function DrawerTabs({
             title={tabTitle(to, selected)}
             aria-label={tabLabel(to)}
             aria-selected={selected}
+            tabIndex={tab === to ? 0 : -1}
             aria-controls={controls}
             onClick={e => onToggle(e, to)}
             onPointerEnter={e => !selected && peek.hover(to, true, e)}
@@ -514,8 +520,34 @@ export function DrawerTabs({
 }
 const INSPECTS = ['actions', 'store'] as const satisfies readonly Inspect[];
 
+/** A strip of the drawer's tabs: the arrows, Home and End move focus along
+ * it from the one in the tab order (the tab it shows, or last showed);
+ * Enter or Space picks the focused one, as a click. Moving picks nothing,
+ * so it never opens the drawer */
+function onTabKeys(event: React.KeyboardEvent<HTMLElement>) {
+  // modified keys keep their own meaning (Alt+← is Back)
+  if (event.altKey || event.ctrlKey || event.metaKey) return;
+  const tabs = [
+    ...event.currentTarget.querySelectorAll<HTMLElement>('[role="tab"]'),
+  ];
+  const at = tabs.indexOf(event.target as HTMLElement);
+  if (at < 0) return;
+  const step =
+    event.key === 'ArrowDown' || event.key === 'ArrowRight' ? 1
+    : event.key === 'ArrowUp' || event.key === 'ArrowLeft' ? -1
+    : 0;
+  const to =
+    event.key === 'Home' ? 0
+    : event.key === 'End' ? tabs.length - 1
+    : step ? (at + step + tabs.length) % tabs.length
+    : -1;
+  if (to < 0) return;
+  event.preventDefault();
+  tabs[to].focus();
+}
+
 const tabIcon = (tab: Inspect) =>
-  tab === 'store' ? <StoreIcon /> : <ActionsIcon />;
+  tab === 'store' ? <StoreIcon /> : <LogsIcon />;
 export const tabLabel = (tab: Inspect) =>
   tab === 'store' ?
     translate({ id: 'playground.store', message: 'Store' })
@@ -529,7 +561,7 @@ const tabTitle = (tab: Inspect, shown: boolean) =>
   : translate({ id: 'playground.actions.show', message: 'Show Actions' });
 
 /** A log: rows of entries, each marked at its start (Lucide `logs`) */
-function ActionsIcon() {
+function LogsIcon() {
   return (
     <svg
       viewBox="0 0 24 24"

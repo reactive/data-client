@@ -109,7 +109,7 @@ async function perform(
           tab ?
             `[data-store-toggle="${tab}"]`
           : '[data-store-toggle]:is([aria-selected="true"], [aria-pressed="true"])',
-      }) ?? stage.find(STORE_TOGGLE);
+      }) ?? (open ? stage.find(STORE_TOGGLE) : null);
     if (toggle && stage.point(toggle)) await sleep(MOVE_MS);
     return stage.store(open, { pressed: !!toggle, tab, view: step.view });
   }
