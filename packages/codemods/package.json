@@ -1,6 +1,6 @@
 {
   "name": "@data-client/codemods",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Codemods that migrate code to new Reactive Data Client releases",
   "homepage": "https://dataclient.io/blog",
   "repository": {
