@@ -9,14 +9,18 @@ import { useMouseBack } from './mouseBack';
 import { NavContext, type Nav, type Scope, type View } from './nav';
 import RootView from './RootView';
 import styles from './store.module.css';
-import { type Inspect, type QuickLookStore, useQuickLook } from '../inspector';
-import { tabLabel } from '../StoreToggle';
+import {
+  type Inspect,
+  type QuickLookStore,
+  tabLabel,
+  useQuickLook,
+} from '../inspector';
 
 /** Its width (px) until measured (store.module.css sets it) */
 const QUICK_LOOK_WIDTH = 352;
 
 /** Where a tab's quick look shows, portaled into `host` while one does: it
- * alone follows the look, so a hover doesn't render the panel around it */
+ * alone follows the quick look, so a hover doesn't render the panel around it */
 export const QuickLookSlot = memo(function QuickLookSlot({
   host,
   ...props

@@ -116,7 +116,7 @@ function FolderPanel({
   host: HTMLElement;
   ref: React.Ref<HTMLDivElement>;
   /** A tab's quick look shows, from the panel: it stays visible to the
-   * look, though shut */
+   * quick look, though shut */
   quickLookShown: boolean;
   children: React.ReactNode;
 }) {

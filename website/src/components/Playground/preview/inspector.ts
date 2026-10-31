@@ -1,7 +1,8 @@
 // The Store drawer's model: which tab shows, and the quick look its other
-// tab's hover opens. Light, as ../index.tsx provides it and is statically in
-// every page chunk that embeds a Playground (see ./StoreToggle.tsx)
+// tab's hover opens. The toggles (./StoreToggle.tsx) and the Store UI
+// (./store/) both read it; apart from either, so the Store UI needs no toggle
 
+import { translate } from '@docusaurus/Translate';
 import {
   createContext,
   type PointerEvent,
@@ -14,6 +15,11 @@ import {
 export type Inspect = 'store' | 'actions';
 /** Shut, or open showing one */
 export type InspectorOpen = Inspect | 'n';
+/** A tab's name */
+export const tabLabel = (tab: Inspect) =>
+  tab === 'store' ?
+    translate({ id: 'playground.store', message: 'Store' })
+  : translate({ id: 'playground.actions', message: 'Actions' });
 
 /** Which of the drawer's tabs shows, and the quick look its other tab's
  * hover opens (`quickLook`); `select` shows a tab, opening the drawer if

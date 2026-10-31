@@ -5,10 +5,15 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import { drawerToggle } from '../autorun/player';
-import { InspectorContext, QuickLookHost } from '../inspector';
+import {
+  InspectorContext,
+  QuickLookHost,
+  type QuickLookStore,
+} from '../inspector';
 import { byData } from '../store/dom';
 import { endpointId, entityId, groupId, parseRowId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
+import type { ShowStore } from '../store/storeView';
 import {
   DemoViewContext,
   StoreHeaderToggle,
@@ -369,7 +374,7 @@ describe('StorePanel table view', () => {
   });
 
   it("shows a demo's view over the reader's while the Store stays open", () => {
-    let showStore: ReturnType<typeof useStoreOpen>['showStore'] = () => {};
+    let showStore: ShowStore = () => {};
     let renders = 0;
     function Demo({ children }: { children: React.ReactNode }) {
       renders++;
@@ -443,7 +448,7 @@ describe('StorePanel table view', () => {
   });
 
   it("opens a demo's Actions tab at the list, as its handle does", () => {
-    let showStore: ReturnType<typeof useStoreOpen>['showStore'] = () => {};
+    let showStore: ShowStore = () => {};
     let listed = 0;
     function Demo() {
       const { showStore: show, inspector } = useStoreOpen(
@@ -490,8 +495,7 @@ describe('StorePanel table view', () => {
   });
 
   it("opens a quick look as the mouse rests on a stacked header's toggle", () => {
-    let quickLook:
-      ReturnType<typeof useStoreOpen>['inspector']['quickLook'] | undefined;
+    let quickLook: QuickLookStore | undefined;
     function Header() {
       const { open, toggle, inspector } = useStoreOpen('quick-looks', 'store');
       quickLook = inspector.quickLook;

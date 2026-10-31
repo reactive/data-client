@@ -22,6 +22,7 @@ import {
   type Inspector,
   InspectorContext,
   QuickLookHost,
+  tabLabel,
   type QuickLookStore,
 } from './inspector';
 import type { ShowStore, StoreView } from './store/storeView';
@@ -487,10 +488,6 @@ function onTabKeys(event: React.KeyboardEvent<HTMLElement>) {
 
 const tabIcon = (tab: Inspect) =>
   tab === 'store' ? <StoreIcon /> : <LogsIcon />;
-export const tabLabel = (tab: Inspect) =>
-  tab === 'store' ?
-    translate({ id: 'playground.store', message: 'Store' })
-  : translate({ id: 'playground.actions', message: 'Actions' });
 const tabTitle = (tab: Inspect, shown: boolean) =>
   tab === 'store' ?
     shown ? translate({ id: 'playground.store.hide', message: 'Hide Store' })

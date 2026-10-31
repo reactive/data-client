@@ -58,7 +58,7 @@ import { Pipeline, StepPath } from './Pipeline';
 import styles from './store.module.css';
 import { useActionsBy } from './storeView';
 import { InteractionHead, RowWhy } from './Why';
-import { tabLabel } from '../StoreToggle';
+import { tabLabel } from '../inspector';
 
 /** The groups with an action that touched the subject */
 export function useRows(filter: SubjectFilter) {

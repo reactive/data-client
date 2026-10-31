@@ -175,14 +175,14 @@
   background: var(--store-bg);
   box-shadow: var(--pg-card-shadow, 0 10px 24px var(--pg-shadow));
   overflow: clip;
-  animation: lookIn var(--motion-snappy);
+  animation: quickLookIn var(--motion-snappy);
 }
 .quickLookBody {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
 }
-@keyframes lookIn {
+@keyframes quickLookIn {
   from {
     opacity: 0;
     translate: 0.5rem 0;
