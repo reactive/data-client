@@ -8,13 +8,11 @@ hide_title: true
 ---
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import PlaygroundTabs from '@site/src/components/PlaygroundTabs';
-import Link from '@docusaurus/Link';
 import SiteOnly from '@site/src/components/SiteOnly';
 import AgentOnly from '@site/src/components/AgentOnly';
 
@@ -344,7 +342,7 @@ When using TypeScript (optional), version 4.0 or above is required.
 
 :::
 
-## REST Agent Skills
+## Set up with your coding agent {#agent-setup}
 
 <SiteOnly>
 
@@ -353,15 +351,6 @@ Paste this into your agent's chat:
 ```prompt
 Use `@data-client/rest` endpoints for this app's REST APIs, without changing how components load or store data. Install the REST setup skill first: `npx skills add reactive/data-client --skill data-client-rest-setup -y`, then read `.agents/skills/data-client-rest-setup/SKILL.md` and follow it.
 ```
-
-<div style={{ textAlign: 'center' }}>
-<Link className="button button--secondary button--sm" to="https://skills.sh/reactive/data-client/data-client-rest"><img src={useBaseUrl('/img/anthropic.svg')} alt="REST Codegen Skill" style={{
-          height: '1em',
-          verticalAlign: '-0.125em',
-          display: 'inline',
-        }}
-/> REST Codegen Skill</Link>
-</div>
 
 </SiteOnly>
 
