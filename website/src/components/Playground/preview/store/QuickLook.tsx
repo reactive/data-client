@@ -58,7 +58,7 @@ export function QuickLook({
       ref={ref}
       className={styles.quickLook}
       style={{ width: LOOK_WIDTH }}
-      data-quick-look
+      data-quick-look={tab}
       aria-label={tabLabel(tab)}
       onPointerEnter={e => peek.hover(tab, true, e)}
       onPointerLeave={e => peek.hover(tab, false, e)}

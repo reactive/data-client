@@ -1818,20 +1818,81 @@ div.fixtureJson + div.fixtureJson {
     --pg-fillet-at: 0 100%;
   }
 }
-/* A drawer tab's quick look (./preview/store/QuickLook.tsx): shut, over
-   the code beside the handles, its foot level with theirs; open, over the
-   drawer's own edge, the handles past it */
+/* A drawer tab's quick look (./preview/store/QuickLook.tsx): the sheet its
+   tab pulls out, joined to it. The tab comes all the way out in the look's
+   paper; shut, the look hangs off its tip over the code; open, it lies over
+   the drawer's sheet from the tab's base. Either way the tab meets the look
+   curving into its edge */
+.tabTip {
+  display: none;
+}
 @container playground (min-width: 720px) {
   .row > .storeHost [data-quick-look] {
-    right: calc(100% + var(--pg-tab-width) + 0.5rem);
-    bottom: calc(var(--pg-preview-gap, 0px) + var(--pg-card-radius));
-    max-height: calc(
-      100% - var(--pg-preview-gap, 0px) - var(--pg-card-radius) - 0.5rem
+    --pg-look-foot: calc(var(--pg-preview-gap, 0px) + var(--pg-card-radius));
+    /* a pixel under the tab's tip, so no seam shows between them */
+    right: calc(100% + var(--pg-tab-width) - 1px);
+    bottom: var(--pg-look-foot);
+    max-height: calc(100% - var(--pg-look-foot) - 0.5rem);
+    clip-path: inset(-3rem 0 -3rem -3rem);
+  }
+  .row > .storeHost [data-quick-look='actions'] {
+    --pg-look-foot: calc(
+      var(--pg-preview-gap, 0px) + 2 * var(--pg-card-radius) +
+        var(--pg-tab-length)
     );
   }
+  /* open, it reaches past the tab's base fillets, which curve into its edge */
   .row > .storeHost[data-open] [data-quick-look] {
     right: auto;
-    left: 0.5rem;
+    left: 0;
+    bottom: calc(var(--pg-look-foot) - var(--pg-card-radius));
+    clip-path: inset(-3rem -3rem -3rem 0);
+  }
+  .row > .storeHost:not([data-open]) [data-quick-look] {
+    border-top-right-radius: var(--pg-sheet-radius, 8px);
+  }
+  .row > .storeHost .storeTab[data-look] {
+    --pg-tab-out: var(--pg-tab-width);
+    --pg-fillet-color: var(--pg-panel);
+    background: var(--pg-panel);
+    color: var(--pg-text);
+    filter: none;
+  }
+  /* (out of the open sheet's shadow) */
+  .row > .storeHost[data-open] .storeTab[data-look] {
+    box-shadow: none;
+  }
+  .row > .storeHost[data-open] .storeTab[data-look]::before,
+  .row > .storeHost[data-open] .storeTab[data-look]::after {
+    content: '';
+  }
+  /* shut, its tip joins the look: square, curving into the look's edge */
+  .row > .storeHost:not([data-open]) .storeTab[data-look] {
+    border-radius: 0;
+  }
+  .row > .storeHost:not([data-open]) .storeTab[data-look] > .tabTip {
+    display: block;
+  }
+  .tabTip::before,
+  .tabTip::after {
+    content: '';
+    position: absolute;
+    left: -1px;
+    width: calc(var(--pg-card-radius) + 1px);
+    height: calc(var(--pg-card-radius) + 1px);
+    background: radial-gradient(
+      circle at var(--pg-fillet-at),
+      transparent calc(var(--pg-card-radius) - 0.5px),
+      var(--pg-panel) var(--pg-card-radius)
+    );
+  }
+  .tabTip::before {
+    bottom: calc(100% - 1px);
+    --pg-fillet-at: 100% 0;
+  }
+  .tabTip::after {
+    top: calc(100% - 1px);
+    --pg-fillet-at: 100% 100%;
   }
 }
 /* Stacked row layout: the same folder turned to the stacking axis. The
