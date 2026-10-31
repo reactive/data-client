@@ -5,7 +5,6 @@ import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
 import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, {
-  createContext,
   useCallback,
   useContext,
   useEffect,
@@ -17,6 +16,7 @@ import React, {
 
 import {
   createQuickLook,
+  type DemoView,
   type Inspect,
   type InspectorOpen,
   type Inspector,
@@ -36,27 +36,6 @@ let clicked: HTMLElement | undefined;
 /** The Store toggle the reader clicked last, while on the page: held in place
  * on screen as the Stores it closed slide out and leave the layout */
 export const heldToggle = () => (clicked?.isConnected ? clicked : undefined);
-
-/** A demo's Store view, shown over the reader's saved one without saving it
- * (see `useStoreOpen`); `drop()` gives theirs back. Here, not with
- * `useStoreView` in ./store/storeView.ts: ../index.tsx provides it, and is in
- * every page chunk (see the top), so it must load the Store UI's lazy chunk
- * only with `import()` */
-export interface DemoView {
-  view?: StoreView;
-  drop(): void;
-}
-export const DemoViewContext = createContext<DemoView>({ drop() {} });
-
-/** How the Actions tab lists actions: under the interaction that started
- * them (a click, a render), or every action as its own row */
-export type ActionsBy = 'interaction' | 'action';
-/** The playground's group, whose readers' choice of `ActionsBy` is kept,
- * and the playground's own default (see `useActionsBy`) */
-export const ActionsByContext = createContext<{
-  groupId: string;
-  defaultBy: ActionsBy;
-}>({ groupId: 'playground', defaultBy: 'interaction' });
 
 /** Opens the drawer on tab `to` (the one showing, unless named), or shuts
  * it when that one shows */

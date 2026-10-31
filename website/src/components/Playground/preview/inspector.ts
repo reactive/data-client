@@ -11,6 +11,8 @@ import {
   useSyncExternalStore,
 } from 'react';
 
+import type { StoreView } from './store/storeView';
+
 /** What the Store drawer shows: the store, or the actions that changed it.
  * Each has its own tab on the drawer's edge */
 export type Inspect = 'store' | 'actions';
@@ -39,6 +41,27 @@ export const InspectorContext = createContext<Inspector>({
   quickLook: createQuickLook(),
   listed: 0,
 });
+
+/** A demo's Store view, shown over the reader's saved one without saving it
+ * (see `useStoreOpen`); `drop()` gives theirs back. Here, not with
+ * `useStoreView` in ./store/storeView.ts: ../index.tsx provides it, and is in
+ * every page chunk (see ./StoreToggle.tsx), so it must load the Store UI's
+ * lazy chunk only with `import()` */
+export interface DemoView {
+  view?: StoreView;
+  drop(): void;
+}
+export const DemoViewContext = createContext<DemoView>({ drop() {} });
+
+/** How the Actions tab lists actions: under the interaction that started
+ * them (a click, a render), or every action as its own row */
+export type ActionsBy = 'interaction' | 'action';
+/** The playground's group, whose readers' choice of `ActionsBy` is kept,
+ * and the playground's own default (see `useActionsBy`) */
+export const ActionsByContext = createContext<{
+  groupId: string;
+  defaultBy: ActionsBy;
+}>({ groupId: 'playground', defaultBy: 'interaction' });
 
 /** Where the preview's header shows its toggles' quick look (stacked,
  * ./PreviewWrapper.tsx): over the code, above the header. Without one, the

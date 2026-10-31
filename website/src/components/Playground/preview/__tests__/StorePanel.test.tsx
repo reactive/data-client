@@ -6,6 +6,7 @@ import React from 'react';
 
 import { drawerToggle } from '../autorun/player';
 import {
+  DemoViewContext,
   InspectorContext,
   QuickLookHost,
   type QuickLookStore,
@@ -14,12 +15,7 @@ import { byData } from '../store/dom';
 import { endpointId, entityId, groupId, parseRowId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import type { ShowStore } from '../store/storeView';
-import {
-  DemoViewContext,
-  StoreHeaderToggle,
-  StoreToggle,
-  useStoreOpen,
-} from '../StoreToggle';
+import { StoreHeaderToggle, StoreToggle, useStoreOpen } from '../StoreToggle';
 import { InspectedPanel } from '../testing/inspected';
 
 jest.mock('../../../../utils/tabStorage', () => ({
