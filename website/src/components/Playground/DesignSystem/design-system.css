@@ -266,15 +266,15 @@ div.playground-preview h1:first-child {
   outline: 2px solid var(--ds-accent);
   background-color: var(--ds-accent-soft);
 }
-/* touch screens skip it: a tapped row would stay lit. A row whose box is
-   disabled (a new todo's) toggles nothing; its field washes itself */
+/* touch screens skip it: a tapped row would stay lit. A row whose leading
+   box is disabled (a new todo's) toggles nothing; its field washes itself */
 @media (hover: hover) {
   .playground-preview
     .list
     > .listItem:is(:has(> label), button):hover:not(
       [data-traveling],
       [data-dragging],
-      :has(> label > :disabled)
+      :has(> label > input[type='checkbox']:first-child:disabled)
     ) {
     background: var(--ds-hover);
   }
@@ -1034,6 +1034,12 @@ div.playground-preview h1:first-child {
   padding: 6px 0;
   line-height: 1.4;
   cursor: pointer;
+}
+/* a disabled box (a new todo's) toggles nothing */
+.playground-preview
+  .listItem
+  > label:has(> input[type='checkbox']:first-child:disabled) {
+  cursor: auto;
 }
 .playground-preview
   .listItem:has(> label > input[type='checkbox']:first-child) {
