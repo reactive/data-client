@@ -265,6 +265,8 @@ div.playground-preview h1:first-child {
 .playground-preview [data-drop-over] {
   outline: 2px solid var(--ds-accent);
   background-color: var(--ds-accent-soft);
+  /* the wash fills the gap out to the ring */
+  box-shadow: 0 0 0 var(--ds-space-1) var(--ds-accent-soft);
 }
 /* touch screens skip it: a tapped row would stay lit. A row whose leading
    box is disabled (a new todo's) toggles nothing; its field washes itself */
