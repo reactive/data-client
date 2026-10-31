@@ -93,13 +93,14 @@ export default function AgentPrompt({ prompt, title, framed }: Props) {
         {framed && <span className={styles.label}>{header}</span>}
         <span className={styles.text}>
           {/* markdown code spans mark package names and commands, which never
-           break at a hyphen; commands still wrap between their words */}
+           break at a hyphen; commands still wrap between their words, and a
+           path wraps after each '/' so it doesn't widen the page */}
           {prompt.split('`').map((part, i) =>
             i % 2 ?
               part.split(' ').map((word, j) => (
                 <React.Fragment key={`${i}.${j}`}>
                   {j > 0 && ' '}
-                  <span className={styles.pkg}>{word}</span>
+                  <PkgWord word={word} />
                 </React.Fragment>
               ))
             : part,
@@ -120,6 +121,23 @@ export default function AgentPrompt({ prompt, title, framed }: Props) {
         : copyTip}
       </span>
     </div>
+  );
+}
+
+/** One backtick token. `white-space: nowrap` keeps `@data-client/rest` from
+ * breaking at the hyphen; a `<wbr>` after each `/` lets a long path wrap. */
+function PkgWord({ word }: { word: string }) {
+  const segments = word.split('/');
+  return (
+    <span className={styles.pkg}>
+      {segments.map((segment, index) => (
+        <React.Fragment key={index}>
+          {index > 0 && '/'}
+          {index > 0 && <wbr />}
+          {segment}
+        </React.Fragment>
+      ))}
+    </span>
   );
 }
 
