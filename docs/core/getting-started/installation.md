@@ -17,7 +17,7 @@ import AgentOnly from '@site/src/components/AgentOnly';
 
 <SiteOnly>
 
-## Set up with your coding agent {#agent-setup}
+## Coding agent setup {#agent-setup}
 
 <SetupTabs />
 
