@@ -1,6 +1,5 @@
 import { Entity, Collection, resource, RestEndpoint } from '@data-client/rest';
 import type { Interceptor } from '@data-client/test';
-import { v4 as uuid } from 'uuid';
 
 export class Todo extends Entity {
   id = 0;
@@ -49,13 +48,22 @@ export const UserResource = resource({
 
 /** A todo as jsonplaceholder sends it */
 export type TodoData = Pick<Todo, 'id' | 'userId' | 'title' | 'completed'>;
-/** The demo's server: every todo it has sent, by id */
+/** The demo's server: every todo it has sent, by id, with every edit since.
+ * jsonplaceholder doesn't store edits, so lists are built from these. */
 export type TodoServer = Record<number, TodoData>;
 
-/** The server's copy of `todo`, with every edit made since it first saw it.
- * jsonplaceholder sends the original again on a refetch, so keep ours. */
-export function rememberTodo(server: TodoServer, todo: TodoData) {
-  return (server[todo.id] ??= todo);
+/** Adds the `todos` this server hasn't seen. It keeps its own copy of the
+ * rest, since jsonplaceholder sends their originals again on a refetch. */
+export function rememberTodos(server: TodoServer, todos: TodoData[]) {
+  for (const todo of todos) server[todo.id] ??= todo;
+}
+
+/** The server's todos, oldest first; only `userId`'s when given */
+export function todosOf(server: TodoServer, userId?: number | string) {
+  const todos = Object.values(server);
+  return userId === undefined ? todos : (
+      todos.filter(todo => todo.userId === Number(userId))
+    );
 }
 
 /** The todo endpoints, for demos that bring their own user list */
@@ -63,13 +71,11 @@ export const todoEndpointFixtures: Interceptor<TodoServer>[] = [
   {
     endpoint: TodoResource.getList,
     async response(...args: Parameters<typeof TodoResource.getList>) {
-      return (await TodoResource.getList(...args))
-        .slice(0, 7)
-        .map((todo: TodoData) => rememberTodo(this, todo));
+      rememberTodos(this, (await TodoResource.getList(...args)).slice(0, 7));
+      return todosOf(this, args[0]?.userId);
     },
   },
-  // also answers getList.move (the same PATCH). jsonplaceholder doesn't
-  // store edits, so each one merges into the todo as this server last sent it
+  // also answers getList.move (the same PATCH)
   {
     endpoint: TodoResource.partialUpdate,
     response(
@@ -77,7 +83,9 @@ export const todoEndpointFixtures: Interceptor<TodoServer>[] = [
       body: Parameters<typeof TodoResource.partialUpdate>[1],
     ) {
       const pk = Number(id);
-      return (this[pk] = { ...this[pk], ...body, id: pk });
+      const todo = { ...this[pk], ...body, id: pk };
+      this[pk] = todo;
+      return todo;
     },
     // stands in for the round trip it no longer makes
     delay: 150,
@@ -85,10 +93,13 @@ export const todoEndpointFixtures: Interceptor<TodoServer>[] = [
   {
     endpoint: TodoResource.getList.push,
     async response(...args: Parameters<typeof TodoResource.getList.push>) {
-      return rememberTodo(this, {
+      const todo = {
         ...(await TodoResource.getList.push(...args)),
-        id: randomId(),
-      });
+        // after every id the server has, so todos list in creation order
+        id: Math.max(...Object.keys(this).map(Number), MAX_ID) + 1,
+      };
+      this[todo.id] = todo;
+      return todo;
     },
   },
 ];
@@ -102,9 +113,8 @@ export const todoFixtures: Interceptor<TodoServer>[] = [
   },
   ...todoEndpointFixtures,
 ];
-function randomId() {
-  return Number.parseInt(uuid().slice(0, 8), 16);
-}
+/** jsonplaceholder's last todo id */
+const MAX_ID = 200;
 
 /** RestEndpoint's simplest retrieval: `path: '/todos/:id'`, with no `urlPrefix` */
 export const todoByIdFixtures: Interceptor[] = [
