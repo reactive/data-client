@@ -401,6 +401,48 @@ describe('stage', () => {
     expect(scrolled).toHaveBeenCalledTimes(2);
   });
 
+  it('scrolls a sideways lane just enough to show a target off either edge', () => {
+    const root = playground();
+    root.insertAdjacentHTML(
+      'beforeend',
+      '<div class="lane" style="overflow-x: auto"><button>Dot</button></div>',
+    );
+    const lane = root.querySelector<HTMLElement>('.lane')!;
+    const dot = lane.querySelector('button')!;
+    Object.defineProperties(lane, {
+      clientWidth: { value: 200 },
+      scrollLeft: { value: 300 },
+    });
+    lane.getBoundingClientRect = () =>
+      ({ left: 100, top: 0, width: 200, height: 20 }) as DOMRect;
+    // 160px left of the lane's edge
+    dot.getBoundingClientRect = () =>
+      ({ left: -60, top: 0, width: 10, height: 10 }) as DOMRect;
+    const scrolled = jest.fn();
+    lane.scrollTo = scrolled;
+    const stage = createStage(root, () => {});
+    stage.point(dot);
+    expect(scrolled).toHaveBeenLastCalledWith({
+      top: undefined,
+      left: 140,
+      behavior: 'instant',
+    });
+    // off its right edge: its right side lines up with the lane's
+    dot.getBoundingClientRect = () =>
+      ({ left: 330, top: 0, width: 10, height: 10 }) as DOMRect;
+    stage.point(dot);
+    expect(scrolled).toHaveBeenLastCalledWith({
+      top: undefined,
+      left: 340,
+      behavior: 'instant',
+    });
+    // in view: the lane stays put
+    dot.getBoundingClientRect = () =>
+      ({ left: 150, top: 0, width: 10, height: 10 }) as DOMRect;
+    stage.point(dot);
+    expect(scrolled).toHaveBeenCalledTimes(2);
+  });
+
   it('end() takes its layer away', () => {
     const root = playground();
     const before = [...root.children];
