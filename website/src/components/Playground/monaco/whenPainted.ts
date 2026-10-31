@@ -8,7 +8,7 @@ import { hasLayoutWidth } from './useAutoHeight';
  * highlighted (its language's tokenizer can load after it). Checked each
  * frame; Monaco paints in a frame of its own, so it counts once true for two
  * in a row. Also called when the editor gains focus, or `MAX_MS` after it is
- * first laid out (code with nothing to highlight). Returns a cancel.
+ * first laid out (code its tokenizer leaves plain). Returns a cancel.
  */
 export function whenPainted(
   editor: Monaco.editor.ICodeEditor,
@@ -46,6 +46,8 @@ export function whenPainted(
 const MAX_MS = 6000;
 
 function painted(editor: Monaco.editor.ICodeEditor) {
+  // nothing to highlight (an empty side of a diff)
+  if (!editor.getModel()?.getValue().trim()) return true;
   // Monaco highlights from the top down, drawing the lines it has yet to
   // reach in plain text: the last line with text, drawn with a token in any
   // color but plain text's (mtk1), means all of them are

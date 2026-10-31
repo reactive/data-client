@@ -68,7 +68,7 @@ function InteractiveEditor({
     initialContentHeight: code.split('\n').length * editorOptions.lineHeight,
     isFocused,
   });
-  const { covered, coverRef, cover } = useEditorCover();
+  const { covered, coverRef, revealWhenPainted } = useEditorCover();
   const handleOpenerMount = useDefinitionOpener({
     isVisible: isFocused,
     onOpen: () => onFocus(tabIndex),
@@ -90,7 +90,7 @@ function InteractiveEditor({
       handleAutoMount(editor);
       handleOpenerMount(editor, monaco);
       overflowWidgets.handleMount(editor);
-      cover([editor]);
+      revealWhenPainted([editor]);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],

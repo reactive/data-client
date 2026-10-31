@@ -2392,9 +2392,10 @@ div.fixtureJson + div.fixtureJson {
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
-/* Match the space below the last line */
+/* Match the space below the last line, in the code's color */
 .playgroundContainer.standaloneEditor .diffLabels + .playgroundEditor {
   padding-top: 10px;
+  background: var(--monoco-code-background);
 }
 .diffLabels > span {
   position: absolute;

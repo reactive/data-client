@@ -20,6 +20,7 @@ function fakeEditor() {
 /** Ends `editor`'s whenPainted wait, as when it has painted or gained focus */
 function finish(editor: Monaco.editor.ICodeEditor) {
   const call = jest.mocked(whenPainted).mock.calls.find(([e]) => e === editor);
+  expect(call).toBeDefined();
   act(() => call?.[1]());
 }
 
@@ -30,7 +31,7 @@ describe('useEditorCover', () => {
   test('stays until every editor has painted', () => {
     const { result } = renderHook(() => useEditorCover());
     const panes = [fakeEditor(), fakeEditor()];
-    act(() => result.current.cover(panes));
+    act(() => result.current.revealWhenPainted(panes));
     finish(panes[0]);
     expect(result.current.covered).toBe(true);
     finish(panes[1]);
@@ -40,11 +41,13 @@ describe('useEditorCover', () => {
   test('goes at once when any editor gains focus, and stops the others waiting', () => {
     const { result } = renderHook(() => useEditorCover());
     const panes = [fakeEditor(), fakeEditor()];
-    act(() => result.current.cover(panes));
+    act(() => result.current.revealWhenPainted(panes));
     panes[1].state.focused = true;
     finish(panes[1]);
     expect(result.current.covered).toBe(false);
-    const stopOriginal = jest.mocked(whenPainted).mock.results[0].value;
+    const { mock } = jest.mocked(whenPainted);
+    const stopOriginal =
+      mock.results[mock.calls.findIndex(([e]) => e === panes[0])].value;
     expect(stopOriginal).toHaveBeenCalled();
   });
 });

@@ -28,7 +28,7 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
       options.lineHeight,
   });
 
-  const { covered, coverRef, cover } = useEditorCover();
+  const { covered, coverRef, revealWhenPainted } = useEditorCover();
 
   // Left edge of each pane's code, so labels line up with the first column
   const [labelOffsets, setLabelOffsets] = useState<number[]>();
@@ -39,7 +39,7 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
       // Side-by-side forces a glyph margin on the original pane; nothing
       // renders there in this read-only diff, so it only indents the code
       panes[0].updateOptions({ glyphMargin: false });
-      cover(panes);
+      revealWhenPainted(panes);
       const updateOffsets = () => {
         const left = editor.getContainerDomNode().getBoundingClientRect().left;
         const next = panes.map(
@@ -78,7 +78,7 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
         );
       });
     },
-    [handleMount, cover, sides],
+    [handleMount, revealWhenPainted, sides],
   );
 
   return (
