@@ -12,8 +12,18 @@ export default function TodoItem({ todo }: { todo: Todo }) {
     controller.fetch(TodoResource.delete, {
       id: todo.id,
     });
+  // dropped on another user's list, it moves to theirs
+  const handleDrop = (userId: number) =>
+    controller.fetch(
+      TodoResource.getList.move,
+      { id: todo.id },
+      { userId },
+    );
   return (
-    <div className="listItem nogap">
+    <div
+      className="listItem nogap"
+      ref={useReorderItem(todo.pk(), { onDrop: handleDrop })}
+    >
       <label>
         <input
           type="checkbox"

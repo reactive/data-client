@@ -257,14 +257,23 @@ div.playground-preview h1:first-child {
    drops into the group, wherever the group's order puts it, not at a spot
    in it */
 .playground-preview [data-drop-target] {
+  --drop-gap: var(--ds-space-1);
+  /* half a highlighted row's wash: the ring marks it, the wash only tints */
+  --drop-wash: color-mix(
+    in srgb,
+    var(--ds-accent) calc(var(--ds-accent-wash) / 2),
+    transparent
+  );
   outline: 1.5px dashed var(--ds-border-strong);
-  outline-offset: var(--ds-space-1);
+  outline-offset: var(--drop-gap);
   border-radius: var(--ds-radius-sm);
   transition: outline-color var(--motion-snappy);
 }
 .playground-preview [data-drop-over] {
   outline: 2px solid var(--ds-accent);
-  background-color: var(--ds-accent-soft);
+  background-color: var(--drop-wash);
+  /* the wash fills the gap out to the ring */
+  box-shadow: 0 0 0 var(--drop-gap) var(--drop-wash);
 }
 /* touch screens skip it: a tapped row would stay lit. A row whose leading
    box is disabled (a new todo's) toggles nothing; its field washes itself */
