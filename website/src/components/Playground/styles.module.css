@@ -1856,8 +1856,8 @@ div.fixtureJson + div.fixtureJson {
     top: 0;
     right: calc(100% + var(--pg-tab-width) + 0.5rem);
     bottom: calc(var(--pg-preview-gap, 0px) + var(--pg-card-radius));
-    /* (fit-content too: where align-self doesn't place it, it still fits
-       its content, from the top, rather than stretch to the room) */
+    /* its content's height, not the stretch from top to bottom (so a
+       browser without align-self here still sizes it, from the top) */
     height: fit-content;
     align-self: safe end;
   }
