@@ -2035,8 +2035,8 @@ div.fixtureJson + div.fixtureJson {
 }
 /* under the app, its toggles stay buttons */
 @container playground (max-width: 559px) {
-  .stacked .storeHeaderToggle::before,
-  .stacked .storeHeaderToggle::after {
+  .stacked .storeHeaderToggle[aria-pressed='true']::before,
+  .stacked .storeHeaderToggle[aria-pressed='true']::after {
     content: none;
   }
 }
