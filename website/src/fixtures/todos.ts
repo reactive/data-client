@@ -52,10 +52,10 @@ export type TodoData = Pick<Todo, 'id' | 'userId' | 'title' | 'completed'>;
 /** The demo's server: every todo it has sent, by id */
 export type TodoServer = Record<number, TodoData>;
 
-/** Keeps `todo` on the server, so later edits merge into it */
+/** The server's copy of `todo`, with every edit made since it first saw it.
+ * jsonplaceholder sends the original again on a refetch, so keep ours. */
 export function rememberTodo(server: TodoServer, todo: TodoData) {
-  server[todo.id] = todo;
-  return todo;
+  return (server[todo.id] ??= todo);
 }
 
 /** The todo endpoints, for demos that bring their own user list */
@@ -77,7 +77,7 @@ export const todoEndpointFixtures: Interceptor<TodoServer>[] = [
       body: Parameters<typeof TodoResource.partialUpdate>[1],
     ) {
       const pk = Number(id);
-      return rememberTodo(this, { ...this[pk], ...body, id: pk });
+      return (this[pk] = { ...this[pk], ...body, id: pk });
     },
     // stands in for the round trip it no longer makes
     delay: 150,
