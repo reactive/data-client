@@ -191,6 +191,26 @@ it('fades in a key it has not seen', () => {
   expect(startOf(getByTestId('x'))).toEqual({ opacity: 0 });
 });
 
+it('shows a new key at once in the spot a key just left (an id the server assigned)', () => {
+  const { rerender, getByTestId } = render(
+    <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'temp', y: 10 }] }]} />,
+  );
+  rerender(
+    <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
+  );
+  expect(startOf(getByTestId('x'))).toBeUndefined();
+});
+
+it('fades in a new key away from where a key left', () => {
+  const { rerender, getByTestId } = render(
+    <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'gone', y: 10 }] }]} />,
+  );
+  rerender(
+    <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 40 }] }]} />,
+  );
+  expect(startOf(getByTestId('x'))).toEqual({ opacity: 0 });
+});
+
 it('shows a new group at once when an item moves into it, so its glide shows', () => {
   const { rerender, getByTestId } = render(
     <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,

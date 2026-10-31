@@ -27,7 +27,9 @@ export function measure(items: Items): Positions {
  * `translate` only, on the compositor), so an item React put under another
  * parent travels there too. An item inside another that moves rides along
  * with it, and only travels the rest of the way itself; a key `before` lacks
- * fades in (unless an item moves in with it). Items crossing the others are
+ * fades in (unless an item moves in with it, or it takes the exact spot of
+ * a key that just left: the same item under a new id, like an optimistic
+ * create the server answered). Items crossing the others are
  * `data-traveling` until they land. `own` gives some keys their own spring
  * (an item the reader dropped settles quicker). Layout-agnostic: it reads
  * only where items are on screen.
@@ -49,10 +51,13 @@ export function reorder(
     { offset: Point; velocity: Point; spring: Spring }
   >();
   const arrivals: HTMLElement[] = [];
+  const left = [...before]
+    .filter(([key]) => !items.has(key))
+    .map(([, { at }]) => at);
   for (const [key, el] of items) {
     const was = before.get(key);
     if (!was) {
-      arrivals.push(el);
+      if (!takeSpot(left, positionOf(el))) arrivals.push(el);
       continue;
     }
     const at = positionOf(el);
@@ -114,6 +119,16 @@ function land(el: HTMLElement) {
 }
 
 const distance = ({ x, y }: Point) => Math.hypot(x, y);
+
+/** Whether `at` is where one of `spots` was (removing it, so it's taken
+ * once) */
+function takeSpot(spots: Point[], at: Point) {
+  const i = spots.findIndex(
+    spot => distance({ x: spot.x - at.x, y: spot.y - at.y }) <= NUDGE,
+  );
+  if (i !== -1) spots.splice(i, 1);
+  return i !== -1;
+}
 
 function positionOf(el: HTMLElement): Point {
   const { left, top } = el.getBoundingClientRect();
