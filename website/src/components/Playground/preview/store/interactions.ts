@@ -48,7 +48,7 @@ export function interactionsOf(
   const sectionFor = (root: Root) => {
     const id =
       !root.joins ? root.id
-      : isOf(last, root) ? last.id
+      : last && isSectionOf(last, root) ? last.id
       : `${root.id}#${sections.length}`;
     let section = byId.get(id);
     if (!section) {
@@ -60,7 +60,7 @@ export function interactionsOf(
           // its page's first, as one page's sections share a root
           (root.interaction.kind === 'render' &&
             root.interaction.path !== undefined &&
-            !sections.some(earlier => isOf(earlier, root))),
+            !sections.some(earlier => isSectionOf(earlier, root))),
         rows: [],
       };
       sections.push(section);
@@ -96,10 +96,8 @@ export function interactionsOf(
 }
 
 /** A joining root's sections are `<root id>#<n>` */
-const isOf = (
-  section: InteractionSection | undefined,
-  root: Root,
-): section is InteractionSection => !!section?.id.startsWith(`${root.id}#`);
+const isSectionOf = (section: InteractionSection, root: Root) =>
+  section.id.startsWith(`${root.id}#`);
 
 /** The components whose hooks sent `rows`, first seen first */
 const componentsOf = (rows: readonly ActionGroup[]) => [
