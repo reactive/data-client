@@ -119,13 +119,6 @@ export function flash(
  * that depends on the element runs again once it is there */
 export type Scroller = HTMLElement | null;
 
-/** The spring scrolls underway (a Timeline catching up), by scroller */
-export const springing = new WeakMap<Element, number>();
-export function stopSpring(el: Element) {
-  cancelAnimationFrame(springing.get(el) ?? 0);
-  springing.delete(el);
-}
-
 /** An overflow style that scrolls */
 const SCROLLABLE = /auto|scroll/;
 
@@ -142,12 +135,9 @@ export function revealIn(scroller: HTMLElement, row: HTMLElement) {
       : undefined;
     const left =
       SCROLLABLE.test(overflowX) ? scrollToShow(box, row, 'x') : undefined;
-    // inner ones jump, so the outer one measures where the row ends up;
-    // a catch-up underway would scroll it away again
-    if (top !== undefined || left !== undefined) {
-      stopSpring(box);
+    // inner ones jump, so the outer one measures where the row ends up
+    if (top !== undefined || left !== undefined)
       box.scrollTo({ top, left, behavior: outer ? 'smooth' : 'instant' });
-    }
     if (outer) return;
   }
 }

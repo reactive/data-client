@@ -912,6 +912,14 @@ describe('Store timeline hold', () => {
     expect(track.scrollLeft).toBe(40);
   });
 
+  it('leaves a mark revealed mid catch-up in view', async () => {
+    const { track } = await catchingUp();
+    // the autoplay scrolls an old mark into view: the catch-up stops there
+    track.scrollLeft = 40;
+    act(() => jest.advanceTimersByTime(1000));
+    expect(track.scrollLeft).toBe(40);
+  });
+
   it('holds the lanes as the mouse rests on them', async () => {
     // the lanes measure their strip as they open
     const off = observeAt(90);

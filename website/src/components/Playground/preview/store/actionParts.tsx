@@ -25,14 +25,7 @@ import {
 import type ActionLog from './actionLog';
 import { isRecordChange, type History, type LogEntry } from './actionLog';
 import { notableAttribution, stageName } from './attribution';
-import {
-  AXES,
-  type Axis,
-  kindColor,
-  springing,
-  startOf,
-  stopSpring,
-} from './dom';
+import { AXES, type Axis, kindColor, startOf } from './dom';
 import { ManagerName } from './ManagerName';
 import {
   ActionSpanContext,
@@ -259,6 +252,12 @@ export function useFollow(
   }, [scroller, axis]);
 }
 
+/** The spring scrolls underway, by scroller */
+const springing = new WeakMap<Element, number>();
+function stopSpring(el: Element) {
+  cancelAnimationFrame(springing.get(el) ?? 0);
+  springing.delete(el);
+}
 /** Scrolls `el` along `axis` to `to`: `sprung`, on the snappy spring (at
  * once under reduced motion), as its rows catching up move
  * (`[data-catchup]` in store.module.css); else at once */
@@ -276,8 +275,14 @@ function scrollAlong(el: HTMLElement, axis: Axis, to: number, sprung: boolean) {
   // as far as it goes, so the spring doesn't stop short of the end
   to = Math.max(0, Math.min(to, el[size] - el[client]));
   const from = el[scroll];
+  let at = from;
   const start = performance.now();
   const step = (now: number) => {
+    // another scroll moved it (a target revealed in it): that one stays
+    if (Math.abs(el[scroll] - at) > 1) {
+      springing.delete(el);
+      return;
+    }
     const { offset } = springAt(
       springs.snappy,
       { offset: from - to, velocity: 0 },
@@ -287,6 +292,8 @@ function scrollAlong(el: HTMLElement, axis: Axis, to: number, sprung: boolean) {
     // well before
     const done = now - start >= CATCH_UP_MS;
     el[scroll] = done ? to : to + offset;
+    // as the browser keeps it: within the scroll range, to whole pixels
+    at = el[scroll];
     if (done) springing.delete(el);
     else springing.set(el, requestAnimationFrame(step));
   };
@@ -296,8 +303,7 @@ function scrollAlong(el: HTMLElement, axis: Axis, to: number, sprung: boolean) {
 /** The last row in `scroller`'s view, and where it starts in it */
 function lastShown(scroller: HTMLElement, axis: Axis) {
   const from = startOf(scroller, axis);
-  const to =
-    from + (axis === 'y' ? scroller.clientHeight : scroller.clientWidth);
+  const to = from + scroller[AXES[axis].client];
   const rows = scroller.querySelectorAll('[data-id]');
   // a list's rows are in document order, the last in view found from the
   // end (by place, an open row's steps clipped below its box would win); a
