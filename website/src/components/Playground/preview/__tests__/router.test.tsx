@@ -7,6 +7,7 @@ import React from 'react';
 import type { CodeDocument } from '../../editor/codeModel';
 import PreviewWrapper from '../PreviewWrapper';
 import { Link, Router, routerTrailer, useNavigate } from '../router';
+import { routerStartOf } from '../routerSlot';
 
 jest.mock('../../DesignSystem/Loading', () => ({ Loading: () => null }));
 
@@ -61,6 +62,18 @@ describe('routerTrailer', () => {
   });
 });
 
+describe('routerStartOf', () => {
+  test('is undefined without routes', () => {
+    expect(routerStartOf([doc('render(<App />);')])).toBeUndefined();
+  });
+
+  test("is the start document's, or the root", () => {
+    const page = doc('export default function Page() {}', '/p/:id');
+    expect(routerStartOf([page])).toBe('/');
+    expect(routerStartOf([{ ...page, start: '/p/1' }])).toBe('/p/1');
+  });
+});
+
 describe('Router', () => {
   afterEach(() => jest.restoreAllMocks());
   /** renders `ui` in the preview, whose header holds the router's controls */
@@ -78,6 +91,35 @@ describe('Router', () => {
     ['/', List],
     ['/posts/:id', Detail],
   ] as const;
+
+  test("the header holds the start page's controls until the router's own", async () => {
+    const { rerender } = render(
+      <PreviewWrapper layout="stacked" routerStart="/posts/5">
+        <div />
+      </PreviewWrapper>,
+    );
+    const [held] = screen.getAllByRole('navigation', { name: 'Preview pages' });
+    expect(held.textContent).toBe('/posts/5');
+    expect(screen.getByRole('button', { name: 'Back' })).toHaveProperty(
+      'disabled',
+      true,
+    );
+
+    await act(async () => {
+      rerender(
+        <PreviewWrapper layout="stacked" routerStart="/posts/5">
+          <Router routes={routes} start="/posts/5" />
+        </PreviewWrapper>,
+      );
+    });
+    // the router's follow, and the held ones give way to them (CSS)
+    const controls = screen.getAllByRole('navigation', {
+      name: 'Preview pages',
+    });
+    expect(controls).toHaveLength(2);
+    expect(controls[0]).toBe(held);
+    expect(held.parentElement!.lastElementChild).toBe(controls[1]);
+  });
 
   test('navigates with params as props, and Back returns', async () => {
     renderInPreview(<Router routes={routes} />);

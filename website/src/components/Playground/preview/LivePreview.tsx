@@ -9,6 +9,7 @@ import Preview from './Preview';
 import PreviewWrapper, { PreviewHeaderControls } from './PreviewWrapper';
 import { useRenderCount } from './RenderCount';
 import { routerTrailer } from './router';
+import { routerStartOf } from './routerSlot';
 import { usePreviewReset } from './usePreviewReset';
 import type { CodeDocument } from '../editor/codeModel';
 import type { CodeControl, PreviewProps } from '../types';
@@ -59,6 +60,7 @@ export default function LivePreview<T>({
     () => joinDocuments(documents) + routerTrailer(documents),
     [documents],
   );
+  const routerStart = routerStartOf(documents);
   const {
     key,
     storeKey,
@@ -103,6 +105,7 @@ export default function LivePreview<T>({
         }
         fixtures={fixtureContent}
         code={codeControl}
+        routerStart={routerStart}
         headerControls={
           <PreviewHeaderControls
             layout={layout}

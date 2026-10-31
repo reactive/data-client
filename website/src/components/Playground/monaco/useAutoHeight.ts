@@ -42,10 +42,7 @@ export default function useAutoHeight({
       const primary = editors[editors.length - 1];
 
       const updateHeight = () => {
-        // Hidden tabs (display:none) report width 0; a crushed pane during
-        // flex transitions can be nearly as bad — word-wrap invents thousands
-        // of lines. Skip until the editor has a real layout width.
-        if (primary.getLayoutInfo().width < 40) return;
+        if (!hasLayoutWidth(primary)) return;
 
         setHeight(
           Math.max(...editors.map(e => e.getContentHeight())) + containerGutter,
@@ -64,4 +61,11 @@ export default function useAutoHeight({
   );
 
   return { height, handleMount };
+}
+
+/** Whether `editor` has a real width to lay out in: hidden tabs
+ * (display:none) report 0, and a crushed pane during flex transitions can be
+ * nearly as bad, where word-wrap invents thousands of lines */
+export function hasLayoutWidth(editor: Monaco.editor.ICodeEditor) {
+  return editor.getLayoutInfo().width >= 40;
 }

@@ -28,6 +28,7 @@ import PreviewWrapper, {
   PreviewHeaderControls,
   previewSurfaceClassName,
 } from './preview/PreviewWrapper';
+import { routerStartOf } from './preview/routerSlot';
 import type { LogOptions } from './preview/store/actionLog';
 import {
   ActionsByContext,
@@ -244,6 +245,7 @@ export default function Playground<T>({
               fixtureContent={previewFixtures}
               code={code}
               storeOpen={storeOpen}
+              routerStart={routerStartOf(documents)}
             />
           </InspectorContext.Provider>
         }
@@ -358,22 +360,27 @@ function useNarrow(el: HTMLElement | null) {
 }
 const NARROW_PX = 720;
 
-/** SSR, crawler and loading state: the preview's frame with a blank
- * sheet + drawer toggles (the header's; a demo's side strip too; the row
- * layout's is the folder's handle, rendered with the folder above), and the
- * folded fixtures' toggle, already usable; so is a demo's Code toggle. The
- * reset holds its place, disabled. Stacked, an open Store's tab shows as
- * open, over a blank sheet in its place, so the app takes its width now */
+/** SSR, crawler and loading state: the preview's frame as the live one
+ * will draw it, its pages still loading: a router's controls at its start
+ * page, the app's sheet + drawer toggles (the header's; a demo's side strip
+ * too; the row layout's is the folder's handle, rendered with the folder
+ * above), and the folded fixtures' toggle, already usable; so is a demo's
+ * Code toggle. The reset holds its place, disabled. Stacked, an open
+ * Store's tab shows as open, its sheet loading in its place, so the app
+ * takes its width now */
 function PreviewLoading({
   layout,
   fixtureContent,
   code,
   storeOpen,
+  routerStart,
 }: {
   layout: Layout;
   fixtureContent?: React.ReactNode;
   code?: CodeControl;
   storeOpen?: boolean;
+  /** Where the app's router opens, if it has one */
+  routerStart?: string;
 }) {
   return (
     <PreviewWrapper
@@ -383,13 +390,17 @@ function PreviewLoading({
       }
       fixtures={fixtureContent}
       code={code}
+      routerStart={routerStart}
     >
       <div className={previewSurfaceClassName}>
         <PendingSheet />
       </div>
       {layout === 'stacked' && storeOpen ?
         <div className={styles.storePanel} data-visible>
-          <div />
+          {/* its sheet, loading as the app's does (one status for both) */}
+          <div className="playground-preview" aria-hidden>
+            <PendingSheet />
+          </div>
         </div>
       : null}
       {layout === 'demo' ?

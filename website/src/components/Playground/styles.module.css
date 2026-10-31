@@ -1328,6 +1328,11 @@ div.playgroundTextEdit > .playgroundHeader {
   flex: 1;
   min-width: 0;
 }
+/* the ones shown while the app loads (preview/PreviewWrapper.tsx), until
+   the router's own follow them */
+.routerSlot > .routerControls:not(:last-child) {
+  display: none;
+}
 .routerControls {
   display: flex;
   align-items: center;
@@ -1541,7 +1546,30 @@ div.fixtureJson + div.fixtureJson {
   border-color: var(--monoco-code-lineHighlightBorder);
 }
 
-/* override bad loading styles for monaco editor */
+/* The playground's code as the page first drew it, over Monaco until
+   Monaco shows the same, laid out and highlighted (monaco/whenPainted.ts),
+   so the code never changes look as the editor loads. Monaco lays out
+   under it at full width from the start, not crushed to nothing; its own
+   placeholder goes unused */
+.editorHost {
+  position: relative;
+}
+.editorHost > section > div:not(:last-child) {
+  display: none !important;
+}
+.editorHost > section > div:last-child {
+  display: block !important;
+}
+.editorCover {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--monoco-code-background);
+  /* a click goes through to the editor, which shows it at once */
+  pointer-events: none;
+}
+
+/* override bad loading styles for monaco editor (DiffEditorMonaco.tsx) */
 .playgroundEditor > section > div {
   display: block !important;
 }
@@ -2025,11 +2053,23 @@ div.fixtureJson + div.fixtureJson {
    width as the Store slides in over the end (and takes it back as it
    leaves), on the slide's spring */
 @container playground (min-width: 720px) {
-  /* one paper's shadow for all of it, cast from what it paints: the
-     folder, its header, and the Store's sheet running on past it. Nothing
-     on it casts its own */
   .stacked > .previewWrapper {
-    --pg-store-side: calc(100% * 2 / 3 - var(--pg-gap) * 4 / 9);
+    /* of the result, as wide as the playground */
+    --pg-store-side: calc(100cqw * 2 / 3 - var(--pg-gap) * 4 / 9);
+    /* the Store's sheet beside the app fits its content from a little
+       under the drawer's usual least, as does a tab's quick look there */
+    --store-min: min(16rem, 70svh);
+    /* the app's loading card: the row's loading page and its foot */
+    --pg-pending-card: calc(var(--pg-pending-sheet) + var(--pg-card-radius));
+    /* the boxes useAppBox measures, as the loading frame draws them, so
+       they are known before the page hydrates */
+    --pg-app-width: calc(100cqw - var(--pg-store-side) - var(--pg-gap));
+    --pg-app-height: var(--pg-pending-card);
+    --pg-app-end: calc(var(--pg-row) + var(--pg-app-height));
+    --pg-store-height: var(--store-min);
+    /* one paper's shadow for all of it, cast from what it paints: the
+       folder, its header, and the Store's sheet running on past it.
+       Nothing on it casts its own */
     filter: var(--pg-card-drop);
   }
   .stacked > .previewWrapper::before {
@@ -2039,9 +2079,6 @@ div.fixtureJson + div.fixtureJson {
     box-shadow: none;
   }
   .stacked .playgroundResult {
-    /* the Store's sheet beside the app fits its content from a little
-       under the drawer's usual least, as does a tab's quick look there */
-    --store-min: min(16rem, 70svh);
     align-items: flex-start;
     min-height: 0;
     transition: min-height var(--pg-store-smooth);
@@ -2053,7 +2090,7 @@ div.fixtureJson + div.fixtureJson {
   }
   /* as tall as the Store's sheet (useAppBox, preview/PreviewWrapper.tsx) */
   .stacked:has(.storeHeaderToggle[aria-pressed='true']) .playgroundResult {
-    min-height: var(--pg-store-height, var(--store-min));
+    min-height: var(--pg-store-height);
   }
   .stacked:has(.storeHeaderToggle[aria-pressed='true']) .playgroundPreview {
     width: calc(100% - var(--pg-store-side) - var(--pg-gap));
@@ -2074,7 +2111,7 @@ div.fixtureJson + div.fixtureJson {
     align-self: flex-start;
     min-height: max(
       var(--store-min),
-      min(var(--pg-app-height, 0px), 100svh - var(--store-top))
+      min(var(--pg-app-height), 100svh - var(--store-top))
     );
   }
   /* the strip's curve at the app's foot, on under the sheet's edge (the
@@ -2083,11 +2120,11 @@ div.fixtureJson + div.fixtureJson {
     --pg-fillet-at: 0 100%;
     --pg-fillet-r: clamp(
       0px,
-      var(--pg-store-height, 0px) - var(--pg-app-height, 0px),
+      var(--pg-store-height) - var(--pg-app-height),
       var(--pg-card-radius)
     );
-    left: calc(var(--pg-app-width, 0px) + var(--pg-gap) - var(--pg-fillet-r));
-    top: var(--pg-app-height, 0px);
+    left: calc(var(--pg-app-width) + var(--pg-gap) - var(--pg-fillet-r));
+    top: var(--pg-app-height);
     z-index: -1;
     height: var(--pg-fillet-r);
   }
@@ -2122,6 +2159,13 @@ div.fixtureJson + div.fixtureJson {
     border-radius: var(--pg-body-radius) var(--pg-body-radius)
       var(--pg-card-radius) var(--pg-card-radius);
   }
+  /* its loading page is one height, so the app's box is known before the
+     page hydrates (as the row's, .row:not(.stacked) .sheet[aria-busy]) */
+  .stacked
+    .playgroundResult:has(> .storePanel[data-visible])
+    .sheet[aria-busy] {
+    height: var(--pg-pending-card);
+  }
   .stacked
     > .previewWrapper:has(
       > .playgroundResult > .storePanel[data-visible]
@@ -2138,13 +2182,11 @@ div.fixtureJson + div.fixtureJson {
     > .previewWrapper:has(> .playgroundResult > .storePanel[data-visible]) {
     background:
       linear-gradient(var(--pg-stage) 0 0)
-        calc(var(--pg-app-width, 0px) - var(--pg-sheet-radius)) var(--pg-row) /
+        calc(var(--pg-app-width) - var(--pg-sheet-radius)) var(--pg-row) /
         calc(var(--pg-gap) + 2 * var(--pg-sheet-radius))
-        calc(var(--pg-app-end, 100%) - var(--pg-row)) no-repeat,
+        calc(var(--pg-app-end) - var(--pg-row)) no-repeat,
       linear-gradient(var(--pg-stage) 0 0) 0 var(--pg-paper-at) / 100%
-        calc(
-          var(--pg-app-end, 100%) - var(--pg-sheet-radius) - var(--pg-paper-at)
-        )
+        calc(var(--pg-app-end) - var(--pg-sheet-radius) - var(--pg-paper-at))
         no-repeat;
   }
 }

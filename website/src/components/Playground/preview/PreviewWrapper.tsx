@@ -8,7 +8,7 @@ import NetworkIcon from '../NetworkIcon';
 import styles from '../styles.module.css';
 import type { CodeControl, Layout } from '../types';
 import ResetButton from './ResetButton';
-import { RouterControlsSlot } from './routerSlot';
+import { RouterControls, RouterControlsSlot } from './routerSlot';
 import {
   CodeHeaderToggle,
   LookSlot,
@@ -23,6 +23,7 @@ export default function PreviewWrapper({
   fixtures,
   code,
   layout,
+  routerStart,
   ref,
 }: Props) {
   const [routerSlot, setRouterSlot] = useState<HTMLElement | null>(null);
@@ -60,7 +61,11 @@ export default function PreviewWrapper({
             <span aria-hidden={!code.shown}>{editorLabel()}</span>
           </span>
         : liveLabelNode}
-        <span className={styles.routerSlot} ref={setRouterSlot} />
+        <span className={styles.routerSlot} ref={setRouterSlot}>
+          {routerStart !== undefined && (
+            <RouterControls path={routerStart} atRoot pending={false} />
+          )}
+        </span>
         <span className={styles.previewControls}>
           {fixtures != null ?
             <button
@@ -285,5 +290,8 @@ interface Props {
    * the code shows in the result's place the header names it ("Editor") in
    * the label's */
   code?: CodeControl;
+  /** Where the app's router opens, if it has one: its controls show there
+   * while the app loads */
+  routerStart?: string;
   ref?: React.Ref<HTMLDivElement>;
 }

@@ -1,8 +1,9 @@
 import Editor from '@monaco-editor/react';
 import type * as Monaco from 'monaco-editor';
 import rangeParser from 'parse-numeric-range';
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 
+import { prefersReducedMotion, springEasing, springs } from '../../motion';
 import '../monaco/setup';
 import { highlightSelections } from '../monaco/highlightSelections';
 import { extensionToMonacoLanguage } from '../monaco/language';
@@ -11,7 +12,9 @@ import { MONACO_THEME } from '../monaco/theme';
 import useAutoHeight from '../monaco/useAutoHeight';
 import useDefinitionOpener from '../monaco/useDefinitionOpener';
 import useOverflowWidgets from '../monaco/useOverflowWidgets';
+import { whenPainted } from '../monaco/whenPainted';
 import PlaygroundLiveEditor from '../PlaygroundLiveEditor';
+import styles from '../styles.module.css';
 import { isMobileOrBot } from '../userAgent';
 import type { CodeTarget } from './openCode';
 import StaticEditor from './StaticEditor';
@@ -66,6 +69,8 @@ function InteractiveEditor({
     initialContentHeight: code.split('\n').length * editorOptions.lineHeight,
     isFocused,
   });
+  const [covered, setCovered] = useState(true);
+  const coverRef = useRef<HTMLDivElement>(null);
   const handleOpenerMount = useDefinitionOpener({
     isVisible: isFocused,
     onOpen: () => onFocus(tabIndex),
@@ -87,13 +92,18 @@ function InteractiveEditor({
       handleAutoMount(editor);
       handleOpenerMount(editor, monaco);
       overflowWidgets.handleMount(editor);
+      editor.onDidDispose(
+        whenPainted(editor, () =>
+          fadeOut(coverRef.current, () => setCovered(false)),
+        ),
+      );
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 
-  // loading only shows the initial snapshot, so it need not track code changes
-  const loading = useMemo(
+  // the cover shows only the initial snapshot; need not track code
+  const staticCode = useMemo(
     () => <StaticEditor language={language} code={code} />,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [language],
@@ -111,19 +121,36 @@ function InteractiveEditor({
     );
   }
 
+  // the cover: the code as the page first drew it (styles.module.css)
   return (
-    <Editor
-      path={path}
-      beforeMount={beforeMount}
-      defaultLanguage={extensionToMonacoLanguage(language)}
-      onChange={onChange}
-      defaultValue={code}
-      options={editorOptions}
-      theme={MONACO_THEME}
-      onMount={handleMount}
-      height={height}
-      loading={loading}
-    />
+    <div className={styles.editorHost}>
+      <Editor
+        path={path}
+        beforeMount={beforeMount}
+        defaultLanguage={extensionToMonacoLanguage(language)}
+        onChange={onChange}
+        defaultValue={code}
+        options={editorOptions}
+        theme={MONACO_THEME}
+        onMount={handleMount}
+        height={height}
+        loading={null}
+      />
+      {covered ?
+        <div ref={coverRef} className={styles.editorCover}>
+          {staticCode}
+        </div>
+      : null}
+    </div>
+  );
+}
+
+/** Fades `el` out, then calls `done` (at once under reduced motion) */
+function fadeOut(el: HTMLElement | null, done: () => void) {
+  if (!el?.animate || prefersReducedMotion()) return done();
+  el.animate({ opacity: [1, 0] }, springEasing(springs.snappy)).finished.then(
+    done,
+    done,
   );
 }
 export default memo(InteractiveEditor);
