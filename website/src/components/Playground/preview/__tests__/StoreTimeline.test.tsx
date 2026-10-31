@@ -79,8 +79,8 @@ const toggle = () =>
   fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
 /** The expanded timeline: the lanes */
 const lanes = () => screen.getByRole('group', { name: /^Timeline/ });
-/** The bar over the content: the tab's name, and the Store's view switch */
-const stateBar = () => screen.getByRole('heading', { level: 2 }).parentElement!;
+/** The bar over the content: the Store's view switches */
+const stateBar = () => screen.getByRole('tabpanel').previousElementSibling!;
 /** The Actions tab's handle on the drawer: a click shows the subject's
  * actions at full width, the mouse resting on it opens a quick look at them */
 const paneToggle = () => screen.getAllByRole('tab', { name: 'Actions' })[0];

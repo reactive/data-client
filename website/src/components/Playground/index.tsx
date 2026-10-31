@@ -34,6 +34,7 @@ import {
   type ActionsBy,
   DrawerTabs,
   InspectorContext,
+  type Inspect,
   type InspectorOpen,
   StoreToggle,
   useStoreMotion,
@@ -47,8 +48,8 @@ export interface PlaygroundProps<T = any> {
   children: React.ReactNode;
   /** Tab-storage key for the Store inspector's open/closed choice */
   groupId?: string;
-  /** The Store inspector open by default, showing the store (`'store'`, or
-   * `'y'`) or its actions (`'actions'`); `'n'`, shut */
+  /** The Store inspector open by default, showing the store (`'store'`) or
+   * its actions (`'actions'`); `'n'`, shut */
   defaultOpen?: InspectorOpen;
   /** How the Store's Actions tab lists actions until the reader picks (kept
    * per `groupId`): under the interaction that started them (a click, a
@@ -154,9 +155,9 @@ export default function Playground<T>({
   // the preview back along with what it says (Show Store, Hide Store); with
   // no code shown that is a no-op
   const toggleStoreInPreview = useCallback(
-    (event: { currentTarget: HTMLElement }) => {
+    (event: { currentTarget: HTMLElement }, to?: Inspect) => {
       setCodeShown(false);
-      toggleStore(event);
+      toggleStore(event, to);
     },
     [toggleStore],
   );

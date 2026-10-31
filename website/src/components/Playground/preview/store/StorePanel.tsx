@@ -613,7 +613,6 @@ export default function StorePanel({
               )}
               <div ref={content} className={styles.content} inert={covered}>
                 <div className={styles.bar}>
-                  <h2 className={styles.barTitle}>{tabLabel(tab)}</h2>
                   {tab === 'store' && (
                     <span className={styles.barEnd}>
                       <span
@@ -695,7 +694,11 @@ export default function StorePanel({
                     </span>
                   )}
                 </div>
-                <div className={styles.tabPanel} role="tabpanel">
+                <div
+                  className={styles.tabPanel}
+                  role="tabpanel"
+                  aria-label={tabLabel(tab)}
+                >
                   {/* both stay mounted, so each keeps the stores its levels
                       show, their scroll, pages and filters; both read the
                       moment's state where they show the moment's store */}
@@ -747,7 +750,7 @@ export default function StorePanel({
                         null
                       : subjectLabel(subject, model)
                     }
-                    model={liveModel}
+                    model={liveRows}
                     onPick={show}
                     onOpen={openView}
                   />,

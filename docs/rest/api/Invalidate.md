@@ -35,7 +35,7 @@ new Invalidate(entityMap, schemaAttribute)
 
 ## Usage
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],

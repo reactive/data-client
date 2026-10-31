@@ -7,7 +7,12 @@ import React from 'react';
 import { byData } from '../store/dom';
 import { endpointId, entityId, groupId, parseRowId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
-import { DemoViewContext, StoreToggle, useStoreOpen } from '../StoreToggle';
+import {
+  DemoViewContext,
+  InspectorContext,
+  StoreToggle,
+  useStoreOpen,
+} from '../StoreToggle';
 import { InspectedPanel } from '../testing/inspected';
 
 jest.mock('../../../../utils/tabStorage', () => ({
@@ -366,17 +371,17 @@ describe('StorePanel table view', () => {
     let renders = 0;
     function Demo({ children }: { children: React.ReactNode }) {
       renders++;
-      const [open, toggle, show, demoView] = useStoreOpen('test', 'y');
+      const [open, toggle, show, demoView] = useStoreOpen('test', 'store');
       showStore = show;
       return (
         <DemoViewContext.Provider value={demoView}>
-          <StoreToggle onClick={toggle} open={open} />
+          <StoreToggle onToggle={toggle} open={open} />
           {children}
         </DemoViewContext.Provider>
       );
     }
     const readerToggle = () =>
-      fireEvent.click(document.querySelector('[data-store-toggle]')!);
+      fireEvent.click(document.querySelector('[data-store-toggle="store"]')!);
     render(
       <Demo>
         <StateContext.Provider value={state}>
@@ -410,6 +415,26 @@ describe('StorePanel table view', () => {
     expect(table()).toBeNull();
   });
 
+  it('switches the stacked strip between the Actions and Store tabs', () => {
+    function Strip() {
+      const [open, toggle, , , , inspector] = useStoreOpen('strip', 'store');
+      return (
+        <InspectorContext.Provider value={inspector}>
+          <StoreToggle onToggle={toggle} open={open} />
+        </InspectorContext.Provider>
+      );
+    }
+    render(<Strip />);
+    const tab = (name: string) => screen.getByRole('tab', { name });
+    expect(tab('Store').getAttribute('aria-selected')).toBe('true');
+    fireEvent.click(tab('Actions'));
+    expect(tab('Actions').getAttribute('aria-selected')).toBe('true');
+    expect(tab('Store').getAttribute('aria-selected')).toBe('false');
+    // the tab showing shuts the Store
+    fireEvent.click(tab('Actions'));
+    expect(tab('Actions').getAttribute('aria-selected')).toBe('false');
+  });
+
   it('leaves focus alone as the overview first shows, and on the tab picked', () => {
     mount();
     expect(document.activeElement).toBe(document.body);
@@ -423,7 +448,7 @@ describe('StorePanel table view', () => {
     expect(crumbs()).toEqual([]);
   });
 
-  it("shows which view is open on the drawer's tabs, and names it over the content", () => {
+  it("shows which view is open on the drawer's tabs, which name the sheet under them", () => {
     mount();
     const store = screen.getByRole('tab', { name: 'Store' });
     const actions = screen.getByRole('tab', { name: 'Actions' });
@@ -431,15 +456,13 @@ describe('StorePanel table view', () => {
     expect(store.getAttribute('title')).toBe('Hide Store');
     expect(actions.getAttribute('aria-selected')).toBe('false');
     expect(actions.getAttribute('title')).toBe('Show Actions');
-    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('Store');
+    expect(screen.getByRole('tabpanel', { name: 'Store' })).toBeTruthy();
     // the other tab takes over
     fireEvent.click(actions);
     expect(actions.getAttribute('aria-selected')).toBe('true');
     expect(store.getAttribute('aria-selected')).toBe('false');
     expect(store.getAttribute('title')).toBe('Show Store');
-    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe(
-      'Actions',
-    );
+    expect(screen.getByRole('tabpanel', { name: 'Actions' })).toBeTruthy();
     // the tab showing shuts the drawer: neither is selected
     fireEvent.click(actions);
     expect(actions.getAttribute('aria-selected')).toBe('false');
@@ -449,19 +472,12 @@ describe('StorePanel table view', () => {
 
   it("puts the Store's view switches in the bar over its content", () => {
     mount();
-    expect(
-      screen
-        .getByRole('heading', { level: 2 })
-        .parentElement!.contains(screen.getByLabelText('Tree view')),
-    ).toBe(true);
+    const bar = () => screen.getByRole('tabpanel').previousElementSibling!;
+    expect(bar().contains(screen.getByLabelText('Tree view'))).toBe(true);
     // the Actions tab has its own
     fireEvent.click(screen.getByRole('tab', { name: 'Actions' }));
     expect(screen.queryByLabelText('Tree view')).toBeNull();
-    expect(
-      screen
-        .getByRole('heading', { level: 2 })
-        .parentElement!.contains(screen.getByLabelText('Every action')),
-    ).toBe(true);
+    expect(bar().contains(screen.getByLabelText('Every action'))).toBe(true);
   });
 
   it('keeps the levels open across the tree view, without replaying them', () => {

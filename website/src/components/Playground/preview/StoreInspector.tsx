@@ -10,6 +10,7 @@ import { createPortal } from 'react-dom';
 
 import { Reveal } from '../../motion';
 import styles from '../styles.module.css';
+import type { PreviewProps } from '../types';
 import type SchemaRegistry from './store/schemaRegistry';
 import StorePanel from './store/StorePanel';
 import { heldToggle, StoreToggle, useLook } from './StoreToggle';
@@ -23,7 +24,7 @@ function StoreInspector({
   host,
 }: {
   open: boolean;
-  toggle: React.MouseEventHandler<HTMLElement>;
+  toggle: PreviewProps['toggleStore'];
   registry: SchemaRegistry;
   history: number;
   /** On the preview's folder (`host`), which opens over the code, instead
@@ -62,7 +63,7 @@ function StoreInspector({
   }
   return (
     <>
-      <StoreToggle onClick={toggle} open={open} />
+      <StoreToggle onToggle={toggle} open={open} />
       <Reveal show={open} className={styles.storePanel} hold={heldToggle}>
         {tree}
       </Reveal>

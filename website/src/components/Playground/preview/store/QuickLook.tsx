@@ -37,7 +37,7 @@ export function QuickLook({
   filter: SubjectFilter;
   /** The actions' subject, when not the whole store */
   label: React.ReactNode;
-  /** The live store, optimistic updates applied */
+  /** The live store, optimistic updates applied (so none shows pending) */
   model: StoreModel;
   /** An action picked: opens it in the Actions tab */
   onPick: (seq: number, scope?: Scope) => void;

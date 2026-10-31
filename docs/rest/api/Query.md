@@ -40,7 +40,7 @@ response for use with [useQuery](/docs/api/useQuery)
 
 ### Aggregates
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],
@@ -324,7 +324,7 @@ render(<TodosPage />);
 
 `Query` can take [Object Schemas](/rest/api/Object), enabling joins across multiple entity types. This allows you to combine data from different entities in a single query.
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/tickers/:product_id'}),
 args: [{ product_id: 'BTC-USD' }],

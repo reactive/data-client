@@ -345,6 +345,16 @@ div.playgroundTextEdit > .playgroundHeader,
   isolation: isolate;
 }
 
+/* the stacked layout's tabs for the Store's sheets, Actions over Store,
+   the one showing in the primary color */
+.debugToggles {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+}
+.debugToggle[aria-selected='true'] {
+  color: var(--ifm-color-primary);
+}
 .debugToggle {
   writing-mode: vertical-rl;
   text-orientation: upright;
@@ -451,9 +461,15 @@ div.playgroundTextEdit > .playgroundHeader,
     0 1px 3px rgba(15, 30, 60, 0.08), 0 14px 36px rgba(15, 30, 60, 0.12);
   /* the file tabs' row, and the preview's header beside it */
   --pg-row: 48px;
-  /* the handle: how far it sticks out, and its length along the edge */
+  /* the handles: how far one sticks out, its length along the edge, and how
+     far back one sits until pulled (../preview/StoreToggle.tsx DrawerTabs) */
   --pg-tab-width: 2.5rem;
   --pg-tab-length: 3rem;
+  --pg-tab-back: 0.5rem;
+  --pg-tab-pulled: color-mix(in srgb, var(--pg-stage), var(--pg-panel));
+  --pg-tab-lift: drop-shadow(
+    0 1px 3px color-mix(in srgb, var(--pg-shadow) 45%, transparent)
+  );
   /* the height of the row's loading page (a skeleton title and paragraph) */
   --pg-pending-sheet: 8.5rem;
   /* the folder's header is narrower than its content: inset by this at
@@ -831,15 +847,19 @@ div.playgroundTextEdit > .playgroundHeader,
 .row > .storeHost:has(.storePanel[data-visible]) {
   min-height: var(--store-min);
 }
-/* The handle: a pull tab of the folder's paper on the drawer's edge, out
-   past the preview's edge and, drawn out, the Store's; it curves into
-   that edge either side as the open file's tab does into its card; over
-   that edge's shadow, so the two read as one paper */
-/* one layer: handle + folder */
+/* The handles: the drawer's tabs, one per sheet it shows (Actions, Store),
+   pull tabs of the folder's paper on its edge, out past the preview's edge
+   and, drawn out, the Store's; each curves into that edge either side as
+   the open file's tab does into its card, over that edge's shadow, so the
+   two read as one paper. Each sits back by --pg-tab-back; the mouse on one
+   pulls it partway, and the one showing its sheet is all the way out, that
+   sheet's own paper (one layer: tab + sheet). The other, while the drawer
+   is open, is tucked behind that sheet, in its shadow */
 .drawerTabs {
   position: absolute;
   z-index: 1;
   display: flex;
+  align-items: flex-end;
   gap: var(--pg-card-radius);
 }
 .storeTab {
@@ -847,18 +867,45 @@ div.playgroundTextEdit > .playgroundHeader,
   display: grid;
   place-items: center;
   --pg-fillet-color: var(--pg-stage);
+  --pg-tab-out: calc(var(--pg-tab-width) - var(--pg-tab-back));
   background: var(--pg-stage);
   color: var(--pg-muted);
   font-size: 1.1rem;
   cursor: pointer;
-  transition: color var(--motion-snappy);
-}
-.storeTab[aria-selected='true'] {
-  color: var(--ifm-color-primary);
+  transition:
+    color var(--motion-snappy),
+    background-color var(--motion-snappy),
+    width var(--motion-snappy),
+    height var(--motion-snappy);
 }
 @media (hover: hover) {
-  .storeTab:hover {
+  /* partway out, toward its sheet's paper */
+  .storeTab:not([aria-selected='true']):hover {
+    --pg-tab-out: calc(var(--pg-tab-width) - var(--pg-tab-back) / 3);
+    --pg-fillet-color: var(--pg-tab-pulled);
+    background: var(--pg-tab-pulled);
     color: var(--pg-text);
+    filter: var(--pg-tab-lift);
+  }
+}
+.storeTab[aria-selected='true'] {
+  --pg-tab-out: var(--pg-tab-width);
+  --pg-fillet-color: var(--pg-panel);
+  background: var(--pg-panel);
+  color: var(--ifm-color-primary);
+}
+/* pulled out, a tab lifts off what's behind it: a shadow round its paper
+   and fillets, cut at the edge it joins */
+.storeTab[aria-selected='true'] {
+  filter: var(--pg-tab-lift);
+}
+.row > .storeHost[data-open] .storeTab:not([aria-selected='true'])::before,
+.row > .storeHost[data-open] .storeTab:not([aria-selected='true'])::after {
+  content: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .storeTab {
+    transition: none;
   }
 }
 .storeTab:focus-visible {
@@ -888,7 +935,7 @@ div.playgroundTextEdit > .playgroundHeader,
   );
 }
 
-.debugToggle:hover {
+.debugToggle:not(:disabled):hover {
   background-color: var(--pg-tab-hover-bg);
   color: var(--pg-tab-hover);
 }
@@ -1750,9 +1797,15 @@ div.fixtureJson + div.fixtureJson {
     flex-direction: column;
   }
   .storeTab {
-    width: var(--pg-tab-width);
+    width: var(--pg-tab-out);
     height: var(--pg-tab-length);
     border-radius: var(--pg-card-radius) 0 0 var(--pg-card-radius);
+  }
+  .row > .storeHost[data-open] .storeTab:not([aria-selected='true']) {
+    box-shadow: inset -0.5rem 0 0.5rem -0.5rem var(--pg-shadow);
+  }
+  .storeTab {
+    clip-path: inset(-2rem -1px -2rem -2rem);
   }
   .storeTab::before {
     right: -1px;
@@ -1897,10 +1950,22 @@ div.fixtureJson + div.fixtureJson {
     bottom: 100%;
     right: calc(var(--pg-head-inset) + 2 * var(--pg-card-radius));
   }
+  /* on the folder's header: the one showing is the folder's paper, its
+     sheet below the header */
   .storeTab {
     width: var(--pg-tab-length);
-    height: var(--pg-tab-width);
+    height: var(--pg-tab-out);
     border-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;
+  }
+  .storeTab[aria-selected='true'] {
+    --pg-fillet-color: var(--pg-stage);
+    background: var(--pg-stage);
+  }
+  .row > .storeHost[data-open] .storeTab:not([aria-selected='true']) {
+    box-shadow: inset 0 -0.5rem 0.5rem -0.5rem var(--pg-shadow);
+  }
+  .storeTab {
+    clip-path: inset(-2rem -2rem -1px -2rem);
   }
   .storeTab::before {
     right: calc(100% - 1px);

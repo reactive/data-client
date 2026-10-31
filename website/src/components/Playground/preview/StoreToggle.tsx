@@ -2,7 +2,7 @@
 // chunk that embeds a Playground, while the Store UI loads with LivePreview
 
 import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
-import Translate, { translate } from '@docusaurus/Translate';
+import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, {
   createContext,
@@ -52,9 +52,10 @@ export const ActionsByContext = createContext<{
 /** What the Store drawer shows: the store, or the actions that changed it.
  * Each has its own tab on the drawer's edge */
 export type Inspect = 'store' | 'actions';
-/** Shut, or open showing one; `'y'` is `'store'`, from before the actions
- * had a tab of their own */
-export type InspectorOpen = Inspect | 'n' | 'y';
+/** Shut, or open showing one */
+export type InspectorOpen = Inspect | 'n';
+// a reader's choice saved as `'y'` is from before the actions had a tab of
+// their own: the store
 const inspectOf = (choice: string | null | undefined) =>
   choice === 'y' || choice === 'store' ? 'store'
   : choice === 'actions' ? 'actions'
@@ -291,29 +292,50 @@ export function useStoreMotion(
   return moving;
 }
 
-/** Toggle row; also rendered (inert) by the preview loading fallback in ../index.tsx */
+/** The strip beside the result: the drawer's tabs, Actions over Store, as
+ * the stacked layout shows them; also rendered (inert) by the preview
+ * loading fallback in ../index.tsx */
 export function StoreToggle({
-  onClick,
+  onToggle,
   open = true,
 }: {
-  onClick?: React.MouseEventHandler<HTMLElement>;
+  onToggle?: (event: React.MouseEvent<HTMLElement>, to: Inspect) => void;
   open?: boolean;
 }) {
   const ref = useLayoutMotion();
+  const { tab } = useContext(InspectorContext);
   return (
     <div
-      className={styles.debugToggle}
-      onClick={onClick}
       ref={ref}
-      data-store-toggle
+      className={styles.debugToggles}
+      role="tablist"
+      aria-orientation="vertical"
     >
-      <Translate id="playground.store">Store</Translate>
+      {INSPECTS.map(to => {
+        const selected = open && tab === to;
+        return (
+          <button
+            key={to}
+            type="button"
+            role="tab"
+            className={clsx('clean-btn', styles.debugToggle)}
+            title={tabTitle(to, selected)}
+            aria-selected={selected}
+            disabled={!onToggle}
+            onClick={onToggle && (e => onToggle(e, to))}
+            data-store-toggle={to}
+          >
+            {tabLabel(to)}
+          </button>
+        );
+      })}
       <span
         className={clsx(
           styles.arrow,
           open ? styles.right : styles.left,
           styles.vertical,
         )}
+        aria-hidden="true"
       >
         ▶
       </span>

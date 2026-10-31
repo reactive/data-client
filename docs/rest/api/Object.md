@@ -27,7 +27,7 @@ Define a plain object mapping that has values needing to be normalized into Enti
 
 #### Usage
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],

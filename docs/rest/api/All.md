@@ -25,7 +25,7 @@ Retrieves all entities in cache as an Array.
 
 To describe a simple array of a singular entity type:
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],

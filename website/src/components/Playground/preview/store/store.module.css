@@ -1,8 +1,8 @@
 /* Store inspector, on the preview's folder (.storePanel paints it, and sets
    the palette, --store-*, for each theme: ../../styles.module.css). The
-   folder holds the chrome: the scrubber's row across its top, and the shown
-   tab's name (.barTitle) on it. What the drawer's tab shows sits on a sheet
-   (.tabPanel), the app's sheet's color and corners, that its name joins */
+   folder holds the chrome: the scrubber's row across its top, and the
+   view's switches. What the drawer's tab shows sits on a sheet (.tabPanel),
+   the app's sheet's color and corners, that the tab joins */
 .store {
   position: relative;
   display: flex;
@@ -120,9 +120,7 @@
     calc(100% - var(--store-folder-end, 0px)) no-repeat;
 }
 
-/* The bar: the sheet's name, as its own tab on the folder (as the open
-   file is a tab on the page over the code, ../../styles.module.css,
-   .row .tab), and the view's switches */
+/* The bar: the view's switches, on the folder over the sheet */
 .bar {
   flex: none;
   display: flex;
@@ -140,8 +138,8 @@
 }
 /* The sheet: what the drawer's tab shows, to the folder's foot (rounded by
    --store-sheet-foot where the folder runs on past it); what paints over its
-   rows as they scroll (headings, crumbs) takes its color. Its name's tab
-   runs straight into it at its corner */
+   rows as they scroll (headings, crumbs) takes its color. The drawer's tab
+   showing it is its paper (../../styles.module.css, .storeTab) */
 .tabPanel {
   --store-bg: var(--pg-panel);
   position: relative;
@@ -150,23 +148,10 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  border-radius: 0 var(--pg-sheet-radius) var(--store-sheet-foot, 0)
-    var(--store-sheet-foot, 0);
+  border-radius: var(--pg-sheet-radius) var(--pg-sheet-radius)
+    var(--store-sheet-foot, 0) var(--store-sheet-foot, 0);
   background: var(--store-bg);
   overflow: clip;
-}
-/* the sheet's name: its paper, rising from it, in the body's corner (the
-   row layout's radius) */
-/* one layer: .barTitle + .tabPanel */
-.barTitle {
-  display: flex;
-  align-items: center;
-  margin: 0;
-  padding: var(--pg-tab-pad);
-  border-radius: var(--pg-body-radius, 8px) var(--pg-tab-radius) 0 0;
-  background: var(--pg-panel);
-  color: var(--store-fg);
-  font: inherit;
 }
 /* the bar's right end: the view's own switches (Store: Snapshot or Diff,
    table or tree; Actions: by interaction or every action) */

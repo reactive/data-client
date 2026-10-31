@@ -117,7 +117,11 @@ callout markers as comments, its caption and legend outside the editor.
   labeled, never collapsible. The preview is a folder beside it (under it
   below 720px container width) with the Store on a layer behind
   (`.storeHost` > `.storeDrawer`, `DrawerTabs` as handles: Actions over
-  Store). Open, the drawer covers the code, which goes `inert`.
+  Store). The handle showing is pulled all the way out, its sheet's paper
+  (`.tabPanel`, no name tab of its own); hover pulls one partway; the other
+  tucks behind. Open, the drawer covers the code, which goes `inert`.
+  Stacked, the strip beside the result (`StoreToggle`) holds the same two
+  tabs.
 - `demo`: preview first, full width; the header's Code toggle swaps in the
   code (`data-code`). Never code and result together, nor code and Store.
   The result stays mounted so app state survives; both share
@@ -211,11 +215,11 @@ callout markers as comments, its caption and legend outside the editor.
 ## Store inspector
 
 - Open state persists per `groupId`, with the tab it shows (`Inspect`:
-  `store` or `actions`; `defaultOpen` takes either, `y` is `store`);
+  `store` or `actions`; `defaultOpen` takes either, or `n`);
   closing one Store closes every one in the group, and toggling holds the
   page's scroll position. The drawer's tabs pick the view
-  (`InspectorContext`; `StorePanel` has no tabs of its own): the shown one
-  shuts the drawer, the other switches it. The Actions tab opens at the
+  (`InspectorContext`; `StorePanel` has no tabs or title of its own): the
+  shown one shuts the drawer, the other switches it. The Actions tab opens at the
   list; links inside the panel (`select`) open where they point.
 - Resting the mouse on a tab not shown opens its quick look
   (`store/QuickLook.tsx`), live whatever moment the panel holds: the store's

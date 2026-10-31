@@ -639,6 +639,27 @@ describe('Store Actions pane detail', () => {
     expect(top().textContent).toContain('"One"');
   });
 
+  it('looks at the store with optimistic updates applied, none left pending', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    let done: Promise<unknown> = Promise.resolve();
+    await act(async () => {
+      done = ctrl().fetch(updatePost, { id: '1' }, { title: 'Edited' });
+    });
+    openPane();
+    jest.useFakeTimers();
+    hover(storeTab(), true);
+    wait();
+    const look = storeLook()!;
+    expect(look.textContent).toContain('"Edited"');
+    expect(look.textContent).not.toContain('Optimistic');
+    jest.useRealTimers();
+    await act(async () => {
+      release(undefined);
+      await done;
+    });
+  });
+
   it('closes at a press outside it, not one in it', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));

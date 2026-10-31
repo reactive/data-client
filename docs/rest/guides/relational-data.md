@@ -35,7 +35,7 @@ erDiagram
 <div style={{clear: 'both'}}>&nbsp;</div>
 </details>
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({ path: '/posts' }),
 response: [
@@ -571,7 +571,7 @@ may need overriding to ensure deep merging of those expected fields.
 This allows you to traverse the relationship after processing only one fetch request, rather than having to fetch
 each time you want access to a different view.
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({ path: '/posts' }),
 response: [
