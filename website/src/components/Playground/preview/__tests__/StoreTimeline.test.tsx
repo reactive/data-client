@@ -79,8 +79,8 @@ const toggle = () =>
   fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
 /** The expanded timeline: the lanes */
 const lanes = () => screen.getByRole('group', { name: /^Timeline/ });
-/** The bar over the content: the Store's view switches */
-const stateBar = () => screen.getByRole('tabpanel').previousElementSibling!;
+/** The shown tab's sheet */
+const sheet = () => screen.getByRole('tabpanel');
 /** The Actions tab's handle on the drawer: a click shows the subject's
  * actions at full width, the mouse resting on it opens a quick look at them */
 const paneToggle = () => screen.getAllByRole('tab', { name: 'Actions' })[0];
@@ -299,11 +299,11 @@ describe('Store scrubber', () => {
       (screen.getByRole('button', { name: 'Next change' }) as HTMLButtonElement)
         .disabled,
     ).toBe(true);
-    // before the Store's bar, with its view switch
-    expect(bar.compareDocumentPosition(stateBar())).toBe(
+    // over the Store's sheet, with its view switches
+    expect(bar.compareDocumentPosition(sheet())).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(screen.getByRole('group', { name: 'Store view' })).toBeTruthy();
+    expect(within(bar).getByRole('group', { name: 'Store view' })).toBeTruthy();
     await act(() => ctrl().fetch(getPosts));
     await act(() => ctrl().fetch(getPosts));
     // every action can be picked, those the store never saw too (hollow)
@@ -1006,7 +1006,7 @@ describe('Store Timeline lanes', () => {
     expect(scrubber().compareDocumentPosition(timeline)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(timeline.compareDocumentPosition(stateBar())).toBe(
+    expect(timeline.compareDocumentPosition(sheet())).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
     // its scroller is kept from before the first action, so it follows from it
@@ -1322,13 +1322,13 @@ describe('Store Timeline sheet', () => {
     toggle();
     const timeline = lanes();
     const close = screen.getByRole('button', { name: 'Close timeline' });
-    // in the content's box, before it, not between the scrubber and the bar
-    const body = stateBar().parentElement!.parentElement!;
+    // in the content's box, before it, not between the scrubber and the sheet
+    const body = sheet().parentElement!.parentElement!;
     expect(body.contains(timeline)).toBe(true);
     expect(body.contains(scrubber())).toBe(false);
     expect(revealBox(timeline).contains(close)).toBe(true);
-    // the bar and content stay put under it, inert
-    const tabs = stateBar();
+    // the sheet stays put under it, inert
+    const tabs = sheet();
     expect(tabs.closest('[inert]')).toBeTruthy();
     // ✕ closes it
     fireEvent.click(close);

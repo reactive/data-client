@@ -562,6 +562,96 @@ export default function StorePanel({
   const depth = covered || !shownLevels ? 0 : shownLevels.stack.length - 1;
   useMouseBack(panel, depth > 0, () => shownLevels?.back(depth));
 
+  // the shown tab's view switches, in the scrubber's row (memoized, as the
+  // scrubber is)
+  const views = useMemo(
+    () => (
+      <>
+        {tab === 'store' && (
+          <span className={styles.barEnd}>
+            <span
+              className={styles.viewButtons}
+              role="group"
+              aria-label="Store shown"
+            >
+              <button
+                type="button"
+                aria-label="Snapshot"
+                title="Snapshot: the store at the moment"
+                aria-pressed={!diffMode}
+                onClick={() => setDiffMode(false)}
+              >
+                <SnapshotIcon />
+              </button>
+              <button
+                type="button"
+                aria-label="Diff"
+                title="Diff: only what the moment changed"
+                aria-pressed={diffMode}
+                onClick={() => setDiffMode(true)}
+              >
+                <DiffIcon />
+              </button>
+            </span>
+            <span
+              className={styles.viewButtons}
+              role="group"
+              aria-label="Store view"
+            >
+              <button
+                type="button"
+                aria-label="Table view"
+                title="Table view"
+                aria-pressed={!tree}
+                onClick={() => setView('table')}
+              >
+                <TableIcon />
+              </button>
+              <button
+                type="button"
+                aria-label="Tree view"
+                title="Tree view"
+                aria-pressed={tree}
+                onClick={() => setView('tree')}
+              >
+                <TreeIcon />
+              </button>
+            </span>
+          </span>
+        )}
+        {tab === 'actions' && (
+          <span className={styles.barEnd}>
+            <span
+              className={styles.viewButtons}
+              role="group"
+              aria-label="Actions listed"
+            >
+              <button
+                type="button"
+                aria-label="By interaction"
+                title="By interaction: under the click or render that started them"
+                aria-pressed={actionsBy === 'interaction'}
+                onClick={() => setActionsBy('interaction')}
+              >
+                <InteractionsIcon />
+              </button>
+              <button
+                type="button"
+                aria-label="Every action"
+                title="Every action: in dispatch order, each fetch apart from its response"
+                aria-pressed={actionsBy === 'action'}
+                onClick={() => setActionsBy('action')}
+              >
+                <ActionsIcon />
+              </button>
+            </span>
+          </span>
+        )}
+      </>
+    ),
+    [tab, diffMode, tree, setView, actionsBy, setActionsBy],
+  );
+
   return (
     <ActionsContext.Provider value={actions}>
       <LogContext.Provider value={logContext}>
@@ -602,6 +692,7 @@ export default function StorePanel({
               onExpand={setTimelineOpen}
               onMark={mark}
               onPreview={onPreview}
+              views={views}
             />
             <div className={styles.body}>
               {/* one place in the tree either way, so crossing the narrow
@@ -612,88 +703,6 @@ export default function StorePanel({
                 </div>
               )}
               <div ref={content} className={styles.content} inert={covered}>
-                <div className={styles.bar}>
-                  {tab === 'store' && (
-                    <span className={styles.barEnd}>
-                      <span
-                        className={styles.viewButtons}
-                        role="group"
-                        aria-label="Store shown"
-                      >
-                        <button
-                          type="button"
-                          aria-label="Snapshot"
-                          title="Snapshot: the store at the moment"
-                          aria-pressed={!diffMode}
-                          onClick={() => setDiffMode(false)}
-                        >
-                          <SnapshotIcon />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="Diff"
-                          title="Diff: only what the moment changed"
-                          aria-pressed={diffMode}
-                          onClick={() => setDiffMode(true)}
-                        >
-                          <DiffIcon />
-                        </button>
-                      </span>
-                      <span
-                        className={styles.viewButtons}
-                        role="group"
-                        aria-label="Store view"
-                      >
-                        <button
-                          type="button"
-                          aria-label="Table view"
-                          title="Table view"
-                          aria-pressed={!tree}
-                          onClick={() => setView('table')}
-                        >
-                          <TableIcon />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="Tree view"
-                          title="Tree view"
-                          aria-pressed={tree}
-                          onClick={() => setView('tree')}
-                        >
-                          <TreeIcon />
-                        </button>
-                      </span>
-                    </span>
-                  )}
-                  {tab === 'actions' && (
-                    <span className={styles.barEnd}>
-                      <span
-                        className={styles.viewButtons}
-                        role="group"
-                        aria-label="Actions listed"
-                      >
-                        <button
-                          type="button"
-                          aria-label="By interaction"
-                          title="By interaction: under the click or render that started them"
-                          aria-pressed={actionsBy === 'interaction'}
-                          onClick={() => setActionsBy('interaction')}
-                        >
-                          <InteractionsIcon />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="Every action"
-                          title="Every action: in dispatch order, each fetch apart from its response"
-                          aria-pressed={actionsBy === 'action'}
-                          onClick={() => setActionsBy('action')}
-                        >
-                          <ActionsIcon />
-                        </button>
-                      </span>
-                    </span>
-                  )}
-                </div>
                 <div
                   className={styles.tabPanel}
                   role="tabpanel"

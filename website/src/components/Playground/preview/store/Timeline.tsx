@@ -565,6 +565,7 @@ export const Scrubber = memo(function Scrubber({
   expandRef,
   onExpand,
   onPreview,
+  views,
 }: {
   /** The moment's action; missing while live */
   entry?: LogEntry;
@@ -578,6 +579,8 @@ export const Scrubber = memo(function Scrubber({
   expandRef?: React.Ref<HTMLButtonElement>;
   onExpand: (expanded: boolean) => void;
   onPreview: OnPreview;
+  /** The shown tab's view switches, before Live */
+  views?: React.ReactNode;
 }) {
   // the track scrolls sideways, on the moment as the timeline's does
   const track = useRef<HTMLDivElement>(null);
@@ -660,6 +663,7 @@ export const Scrubber = memo(function Scrubber({
             </div>
           )}
         </div>
+        {views}
         {entry ?
           <button type="button" className={styles.liveButton} onClick={live}>
             Live

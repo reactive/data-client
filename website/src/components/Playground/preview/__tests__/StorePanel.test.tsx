@@ -470,9 +470,9 @@ describe('StorePanel table view', () => {
     expect(actions.getAttribute('title')).toBe('Show Actions');
   });
 
-  it("puts the Store's view switches in the bar over its content", () => {
+  it("puts the shown tab's view switches in the scrubber's row", () => {
     mount();
-    const bar = () => screen.getByRole('tabpanel').previousElementSibling!;
+    const bar = () => screen.getByRole('group', { name: /^Scrubber/ });
     expect(bar().contains(screen.getByLabelText('Tree view'))).toBe(true);
     // the Actions tab has its own
     fireEvent.click(screen.getByRole('tab', { name: 'Actions' }));

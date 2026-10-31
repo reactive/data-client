@@ -120,16 +120,7 @@
     calc(100% - var(--store-folder-end, 0px)) no-repeat;
 }
 
-/* The bar: the view's switches, on the folder over the sheet */
-.bar {
-  flex: none;
-  display: flex;
-  align-items: stretch;
-  height: 2.5rem;
-  color: var(--store-muted);
-  font: 600 var(--ifm-code-font-size) / 1 var(--ifm-font-family-base);
-}
-/* The bar and the sheet: inert under the timeline's sheet */
+/* The sheet: inert under the timeline's sheet */
 .content {
   flex: 1 1 auto;
   min-height: 0;
@@ -153,8 +144,8 @@
   background: var(--store-bg);
   overflow: clip;
 }
-/* the bar's right end: the view's own switches (Store: Snapshot or Diff,
-   table or tree; Actions: by interaction or every action) */
+/* The shown tab's view switches, in the scrubber's row before Live (Store:
+   Snapshot or Diff, table or tree; Actions: by interaction or every action) */
 .barEnd {
   display: flex;
   align-items: center;
