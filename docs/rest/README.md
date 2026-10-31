@@ -367,17 +367,15 @@ Use `@data-client/rest` endpoints for this app's REST APIs, without changing how
 
 <AgentOnly>
 
-To define this app's REST APIs with `@data-client/rest`, install the REST setup skill from the project root:
+To add `@data-client/rest` endpoints without changing how the app loads or stores data, install the REST setup skill
+from the project root:
 
 ```bash
 npx skills add reactive/data-client --skill data-client-rest-setup -y
 ```
 
-Then read `.agents/skills/data-client-rest-setup/SKILL.md` and follow it. Only replace the API calls and their definitions:
-leave components, data loading and state management as they are, unless the user asks to change them.
+Then read `.agents/skills/data-client-rest-setup/SKILL.md` and follow it.
 
 </AgentOnly>
 
-### Migrating from Axios
-
-See the [Axios Migration Guide](./guides/axios-migration.md).
+The skill detects axios and follows the [Axios Migration Guide](./guides/axios-migration.md).
