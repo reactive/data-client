@@ -3,7 +3,7 @@ import { TodoResource, type Todo } from './api';
 export default function TodoItem({ todo }: { todo: Todo }) {
   const controller = useController();
   return (
-    <div>
+    <div className="listItem nogap">
       <label>
         <input
           type="checkbox"

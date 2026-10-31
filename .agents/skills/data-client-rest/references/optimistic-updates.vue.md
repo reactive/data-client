@@ -55,8 +55,7 @@ export const TodoResource = resource({
   <div class="listItem nogap">
     <label>
       <input type="checkbox" :checked="todo.completed" @change="handleChange" />
-      <s v-if="todo.completed">{{ todo.title }}</s>
-      <template v-else>{{ todo.title }}</template>
+      {{ todo.title }}
     </label>
     <CancelButton @click="handleDelete" />
   </div>
@@ -109,7 +108,7 @@ export const TodoResource = resource({
 </script>
 
 <template>
-  <div>
+  <div class="list">
     <TodoItem v-for="todo in todos" :key="todo.pk()" :todo="todo" />
     <CreateTodo :userId="userId" />
   </div>
