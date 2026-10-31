@@ -38,6 +38,13 @@ export const STORE_TOGGLE: Target = {
   selector: '[data-store-toggle]',
 };
 
+/** The toggle of the drawer's tab `tab`, or (none named) of the one showing:
+ * a handle or the strip's tab (selected), or a header's toggle (pressed) */
+export const drawerToggle = (tab?: Inspect) =>
+  tab ?
+    `[data-store-toggle="${tab}"]`
+  : ':is([aria-selected="true"], [aria-pressed="true"])[data-store-toggle]';
+
 /** Plays scripts one at a time on a clock that pauses (out of view) without
  * losing its place. `stop()` ends a run for good: a reader who takes over
  * changes what the rest of the script assumes. */
@@ -98,17 +105,14 @@ async function perform(
   await sleep(step.delay ?? STEP_DELAY);
   if ('store' in step) {
     // onto the Store's toggle first, as a reader would; where the layout
-    // shows one. A drawer's handles: the tab it opens (the Store's unless
-    // named), or the one showing, which shuts it
+    // shows one. A drawer's handles or the header's toggles: the tab it
+    // opens (the Store's unless named), or the one showing, which shuts it
     const open = step.store === 'open';
     const tab = open ? (step.tab ?? 'store') : undefined;
     const toggle =
       stage.find({
         in: 'playground',
-        selector:
-          tab ?
-            `[data-store-toggle="${tab}"]`
-          : '[data-store-toggle]:is([aria-selected="true"], [aria-pressed="true"])',
+        selector: drawerToggle(tab),
       }) ?? (open ? stage.find(STORE_TOGGLE) : null);
     if (toggle && stage.point(toggle)) await sleep(MOVE_MS);
     return stage.store(open, { pressed: !!toggle, tab, view: step.view });

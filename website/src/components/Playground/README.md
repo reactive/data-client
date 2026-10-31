@@ -48,8 +48,7 @@ nothing else: DOM size counts against the page.
 | Preview                                               | `PreviewLoading`: frame, `PendingSheet`, Store toggle. Same for bots and while the chunk loads                                                                         |
 | Preview and row Store folder of a `hidden` playground | Nothing; they mount when it shows                                                                                                                                      |
 | Store tree                                            | Never: it loads with the live preview                                                                                                                                  |
-| Folded fixtures (row, demo)                           | The toggle only. Rows render once pointer, focus or a click reaches the playground (`WhenNear`, `index.tsx`: survives the preview's remounts, re-renders nothing else) |
-| Stacked fixtures list                                 | Yes (visible)                                                                                                                                                          |
+| Folded fixtures                                       | The toggle only. Rows render once pointer, focus or a click reaches the playground (`WhenNear`, `index.tsx`: survives the preview's remounts, re-renders nothing else) |
 
 Gotchas:
 
@@ -62,10 +61,17 @@ Gotchas:
   function sources wait for `useIsBrowser` (the bundles stringify them
   differently), and a fixture holding `Date.now()` is safe only folded.
 - Loading goes straight to loaded: first paint, chunk load and the app
-  waiting on data all draw `preview/PendingSheet.tsx`, and
-  `PreviewHeaderControls` gives loading and live headers the same controls.
-  In `row`, keep `--pg-pending-sheet` equal to what `usePreviewGap` then
-  measures, or the folder jumps at hydration.
+  waiting on data all draw `preview/PendingSheet.tsx` (an open stacked
+  Store too). `PreviewHeaderControls` and the router's start controls
+  (`preview/routerSlot.tsx`) make the loading and live headers the same.
+- Keep each box the loading frame draws equal to what the live preview
+  measures, or the preview jumps at hydration: `--pg-pending-sheet` in
+  `row` (`usePreviewGap`); the `--pg-app-*` and `--pg-store-height`
+  defaults in stacked (`useAppBox`).
+- Monaco mounts under the Prism code (`InteractiveEditor`'s cover), which
+  lifts once `monaco/whenPainted.ts` sees it laid out and highlighted to
+  its last line. Never give Monaco's container zero width while it mounts:
+  it lays out one letter per line.
 
 `hidden` (unselected protocol tabs): every tab stays mounted, so all
 sources are in the HTML. The editor latches interactive on first show, so
@@ -75,10 +81,10 @@ while hidden, so its store resets. The homepage passes `hidden`; in MDX,
 (`hiddenContext.ts`) for every playground under an unselected tab, nested
 groups included. An explicit prop wins. `TypeScriptEditor` in one of those
 tabs latches the same way (plain text until first shown).
-In `row`, the result never shrinks below its tallest (`useHeightRatchet`),
-shared by the playgrounds under one `data-playground-group` (the homepage's
-protocol switch, `PlaygroundTabs`), so a switched-in tab's loading page
-doesn't shorten it.
+In `row` (not stacked), the result never shrinks below its tallest
+(`useHeightRatchet`), shared by the playgrounds under one
+`data-playground-group` (the homepage's protocol switch, `PlaygroundTabs`),
+so a switched-in tab's loading page doesn't shorten it.
 
 Mobile and bots get an editable react-live editor instead of Monaco and
 download none of it. Mobile runs the preview; bots keep `PreviewLoading`
@@ -106,13 +112,27 @@ callout markers as comments, its caption and legend outside the editor.
 
 ## Layouts
 
-`index.tsx` picks `demo`, else `row`, else stacked.
+`index.tsx` picks `demo`, else `row`, else stacked. Choose by where the
+Store goes:
+
+- `row`: preview beside the code. Its Store covers the code, so keep it
+  closed by default (no `defaultOpen="y"`).
+- Stacked: preview under the code, Store beside the app. Use it to show
+  the Store with the code in view, or to give the app the full width.
+
+One open file shows as tabs over a code card (any layout); several open
+files (stacked only) show as one card each. Fixtures fold behind the
+preview header's toggle in every layout.
 
 - Fence metastring: `title`, `path`, `collapsed`, `column`, `route`,
   `start`, `layout`, `{1-3}` (pre-selected lines) and the `language-*`
   class. Element props override it; `defaultTab` overrides `collapsed`.
-- Stacked: titled files get headers, collapsible when there are several
-  files or fixtures; fixtures list above the editor.
+- Stacked: the `row`'s paper turned vertical (`.row.stacked`). The
+  header's Actions and Store toggles open the drawer beside the app; hover
+  opens a quick look in its place (`LookSlot`). Below 720px container width
+  it is the narrow `row` (`useNarrow`). Open files are `FileCard`s
+  (`editor/EditorSurface.tsx`), each name a caption that folds its card;
+  two to a line from 900px container width, a card alone takes the line.
 - `row`: files are tabs over the code card; `column` files (e.g.
   EndpointPlayground's Usage) sit on a darker layer tucked under it,
   labeled, never collapsible. The preview is a folder beside it (under it
@@ -120,17 +140,19 @@ callout markers as comments, its caption and legend outside the editor.
   (`.storeHost` > `.storeDrawer`, `DrawerTabs` as handles: Actions over
   Store). The shown handle is pulled fully out as its sheet's paper; hover
   pulls one partway. Open, the drawer covers the code, which goes `inert`.
-  Other layouts show the same two tabs in the strip beside the result
-  (`StoreToggle`), or in the header below 560px (`StoreHeaderToggle`).
+  A tab's quick look floats beside the handles, or under them when narrow.
+  A demo shows the same two tabs in the strip beside the result
+  (`StoreToggle`), or in the preview's header (`StoreHeaderToggle`) below
+  560px.
 - `demo`: preview first, full width; the header's Code toggle swaps in the
   code (`data-code`). Never code and result together, nor code and Store.
   The result stays mounted so app state survives; both share
   `--pg-demo-min` so toggling doesn't move the page. The Code toggle ends an
   `autoRun`.
-- A `row` with no folder (`../TypeScriptEditor.tsx`, unless `row={false}`)
-  is the tabs and the code card alone. A lone file (beside `column` files)
-  is a tab only if it has a title; untitled, the card has no header row
-  above it.
+- A `row` with no folder (`../TypeScriptEditor.tsx`) is the tabs and the
+  code card alone; `row={false}` is a stacked one's code (several open
+  files are cards). A lone file is a tab only if it has a title; untitled,
+  the card has no header row above it.
 - `../HTTP/EndpointPlayground.tsx` is a `row` whose folder holds the HTTP
   exchange instead of a preview: the request is the inset header, the
   response the sheet (`../HTTP/styles.module.css`). Live, it runs the code
@@ -366,6 +388,9 @@ re-renders the playground.
 - Server HTML: after changing what renders on the server, build and check
   the browser console for React #418/#423 (hydration) on a page with each
   layout and on the homepage.
+- Hard refresh: after changing what loads or hydrates, reload a stacked
+  and a `row` page with the cache off and CPU throttled 4×; no frame
+  between the server HTML and the live preview may move anything.
 - In a browser: after a `monaco-editor` bump, open a multi-file playground
   after page load (a second homepage tab) whose importing file comes before
   the file it imports, and check for no TS2307 marker. Play any changed

@@ -24,6 +24,7 @@ jest.mock('../preview/LivePreview', () => {
         PreviewWrapper,
         {
           code,
+          layout: 'demo',
           headerControls: createElement(StoreHeaderToggle, {
             open: storeOpen,
             onClick: toggleStore,

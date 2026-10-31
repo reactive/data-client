@@ -22,8 +22,9 @@ function Preview<T>({
   storeOpen,
   storeMoves,
   toggleStore,
-  row,
+  layout,
   storeHost,
+  narrow,
   fixtures,
   getInitialInterceptorData,
   onCommit,
@@ -100,8 +101,9 @@ function Preview<T>({
             toggle={toggleStore}
             registry={registry}
             history={history}
-            row={row}
+            layout={layout}
             host={storeHost}
+            narrow={narrow}
           />
         </MotionGroup>
       </MockResolver>

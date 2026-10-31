@@ -78,6 +78,11 @@ export interface Inspector {
   readonly peek: Peek;
   readonly listed: number;
 }
+/** Where the preview's header shows its toggles' quick look (stacked,
+ * ./PreviewWrapper.tsx): over the code, above the header. Without one, the
+ * header's toggles open none */
+export const LookSlot = createContext<HTMLElement | null>(null);
+
 export const InspectorContext = createContext<Inspector>({
   tab: 'store',
   select() {},
@@ -380,7 +385,9 @@ export function StoreHeaderToggle({
   onClick?: ToggleStore;
   open?: boolean;
 }) {
-  const { tab } = useContext(InspectorContext);
+  const { tab, peek } = useContext(InspectorContext);
+  // the mouse resting on one opens its quick look, as on the folder's handles
+  const peeks = useContext(LookSlot) !== null && onClick;
   return INSPECTS.map(to => {
     const shown = open && tab === to;
     return (
@@ -392,6 +399,7 @@ export function StoreHeaderToggle({
         open={shown}
         data-store-toggle={to}
         onClick={onClick && (e => onClick(e, to))}
+        {...(peeks && peekOn(peek, to, shown))}
       >
         {tabIcon(to)}
       </HeaderToggle>
@@ -444,6 +452,8 @@ function HeaderToggle({
   label: string;
   open: boolean;
   onClick?: React.MouseEventHandler<HTMLElement>;
+  onPointerEnter?: React.PointerEventHandler<HTMLElement>;
+  onPointerLeave?: React.PointerEventHandler<HTMLElement>;
   children: React.ReactNode;
   'data-store-toggle'?: Inspect;
 }) {
@@ -507,8 +517,7 @@ export function DrawerTabs({
             tabIndex={tab === to ? 0 : -1}
             aria-controls={controls}
             onClick={e => onToggle(e, to)}
-            onPointerEnter={e => !selected && peek.hover(to, true, e)}
-            onPointerLeave={e => peek.hover(to, false, e)}
+            {...peekOn(peek, to, selected)}
             data-store-toggle={to}
           >
             {tabIcon(to)}
@@ -519,6 +528,12 @@ export function DrawerTabs({
   );
 }
 const INSPECTS = ['actions', 'store'] as const satisfies readonly Inspect[];
+
+/** A tab's handlers for its quick look: none while it shows */
+const peekOn = (peek: Peek, to: Inspect, shown: boolean) => ({
+  onPointerEnter: (e: React.PointerEvent) => !shown && peek.hover(to, true, e),
+  onPointerLeave: (e: React.PointerEvent) => peek.hover(to, false, e),
+});
 
 /** A strip of the drawer's tabs: the arrows, Home and End move focus along
  * it from the one in the tab order (the tab it shows, or last showed);

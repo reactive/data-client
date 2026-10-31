@@ -9,7 +9,7 @@ import PreviewWrapper from '../PreviewWrapper';
 describe('PreviewWrapper fixtures', () => {
   test('float over the result from a header toggle', () => {
     render(
-      <PreviewWrapper fixtures={<div>GET /article/1</div>}>
+      <PreviewWrapper layout="stacked" fixtures={<div>GET /article/1</div>}>
         <div>result</div>
       </PreviewWrapper>,
     );
@@ -31,7 +31,7 @@ describe('PreviewWrapper fixtures', () => {
 
   test('no toggle without fixtures', () => {
     render(
-      <PreviewWrapper>
+      <PreviewWrapper layout="stacked">
         <div>result</div>
       </PreviewWrapper>,
     );
@@ -42,7 +42,10 @@ describe('PreviewWrapper fixtures', () => {
 describe('PreviewWrapper label', () => {
   test("names the code in the label's place while it shows", () => {
     const { rerender } = render(
-      <PreviewWrapper code={{ shown: false, toggle: () => {} }}>
+      <PreviewWrapper
+        layout="stacked"
+        code={{ shown: false, toggle: () => {} }}
+      >
         <div>result</div>
       </PreviewWrapper>,
     );
@@ -56,7 +59,7 @@ describe('PreviewWrapper label', () => {
     expect(editor.getAttribute('aria-hidden')).toBe('true');
 
     rerender(
-      <PreviewWrapper code={{ shown: true, toggle: () => {} }}>
+      <PreviewWrapper layout="stacked" code={{ shown: true, toggle: () => {} }}>
         <div>result</div>
       </PreviewWrapper>,
     );
@@ -68,7 +71,7 @@ describe('PreviewWrapper label', () => {
 
   test('is the label alone where the code never shows', () => {
     render(
-      <PreviewWrapper>
+      <PreviewWrapper layout="stacked">
         <div>result</div>
       </PreviewWrapper>,
     );

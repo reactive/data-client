@@ -1,7 +1,7 @@
 /// <reference types="jest" />
 
 import { act, render, screen } from '@testing-library/react';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { MotionGroup, Reveal, useLayoutMotion } from '..';
 import { blocked } from '../../Playground/testing/docusaurusThemeCommonInternal';
@@ -158,6 +158,31 @@ it('hides at once when no group slides it out', () => {
   const { rerender } = render(<Reveal show>alone</Reveal>);
   rerender(<Reveal show={false}>alone</Reveal>);
   expectHidden();
+});
+
+it('keeps its children live while `active`, though hidden', () => {
+  const live: boolean[] = [];
+  function Child() {
+    useEffect(() => {
+      live.push(true);
+      return () => void live.push(false);
+    }, []);
+    return 'panel';
+  }
+  // never shown, it mounts them for a portal of theirs
+  const { rerender } = render(
+    <Reveal show={false} active>
+      <Child />
+    </Reveal>,
+  );
+  expectHidden();
+  expect(live).toEqual([true]);
+  rerender(
+    <Reveal show={false}>
+      <Child />
+    </Reveal>,
+  );
+  expect(live).toEqual([true, false]);
 });
 
 it('hides on its own when the group ignores the change', async () => {

@@ -62,7 +62,8 @@ sidebar_label: Display Name
 
 2. **Description** - What the API does
 
-3. **Usage examples** - Code examples showing how to use it
+3. **Usage examples** - Code examples showing how to use it. Pick a live playground's layout
+   by `website/src/components/Playground/README.md` (Layouts)
 
 4. **Parameters/Options** - Document all parameters, options, and return types
 

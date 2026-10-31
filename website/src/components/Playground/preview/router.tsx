@@ -1,6 +1,4 @@
 import { ErrorBoundary } from '@data-client/react';
-import { translate } from '@docusaurus/Translate';
-import clsx from 'clsx';
 import React, {
   createContext,
   Suspense,
@@ -13,7 +11,12 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 
-import { RouterControlsSlot } from './routerSlot';
+import {
+  DEFAULT_START,
+  RouterControls,
+  RouterControlsSlot,
+  routerStartOf,
+} from './routerSlot';
 import { PageContext } from './store/callSite';
 import type { CallerPage } from './store/fetchCause';
 import { defaultExportName } from './transformCode';
@@ -44,14 +47,14 @@ export function routerTrailer(documents: readonly CodeDocument[]) {
     );
   if (!routes.length) return '';
   const layout = documents.find(document => document.layout);
-  const start = documents.find(document => document.start)?.start;
+  const start = routerStartOf(documents);
   const props = [
     `routes={[${routes.join(', ')}]}`,
     // null, unlike a missing layout, reports an unnamed export
     ...(layout ?
       [`layout={${defaultExportName(layout.value) ?? 'null'}}`]
     : []),
-    ...(start ? [`start={${JSON.stringify(start)}}`] : []),
+    ...(start !== DEFAULT_START ? [`start={${JSON.stringify(start)}}`] : []),
   ];
   return `\n;render(<${ROUTER} ${props.join(' ')} />);`;
 }
@@ -97,7 +100,7 @@ interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
 export function Router({
   routes,
   layout: Layout = Fragment,
-  start = '/',
+  start = DEFAULT_START,
 }: {
   routes: readonly Route[];
   layout?: ComponentType<{ children: React.ReactNode }> | null;
@@ -185,58 +188,6 @@ let visits = 0;
 /** A new visit's number (a click that changes nothing leaves a gap) */
 const nextVisit = () => ++visits;
 
-/** Back, Home and the page shown */
-function RouterControls({
-  path,
-  atRoot,
-  pending,
-  onBack,
-  onHome,
-}: {
-  path: string;
-  atRoot: boolean;
-  pending: boolean;
-  onBack: () => void;
-  onHome: () => void;
-}) {
-  const back = translate({ id: 'playground.router.back', message: 'Back' });
-  const home = translate({ id: 'playground.router.home', message: 'Home' });
-  return (
-    <nav
-      className={styles.routerControls}
-      aria-label={translate({
-        id: 'playground.router.pages',
-        message: 'Preview pages',
-      })}
-      aria-busy={pending}
-    >
-      <button
-        type="button"
-        className={clsx('clean-btn', styles.headerButton)}
-        title={back}
-        aria-label={back}
-        disabled={atRoot}
-        onClick={onBack}
-      >
-        <BackIcon />
-      </button>
-      <button
-        type="button"
-        className={clsx('clean-btn', styles.headerButton)}
-        title={home}
-        aria-label={home}
-        disabled={atRoot}
-        onClick={onHome}
-      >
-        <HomeIcon />
-      </button>
-      <span className={styles.routerPath} title={path}>
-        {path}
-      </span>
-    </nav>
-  );
-}
-
 function Page({ routes, path }: { routes: readonly Route[]; path: string }) {
   for (const [pattern, Component] of routes) {
     const params = matchPath(pattern, path);
@@ -262,40 +213,4 @@ function matchPath(pattern: string, path: string) {
     else if (segment !== parts[i]) return;
   }
   return params;
-}
-
-function BackIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="1em"
-      height="1em"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.25"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M19 12H5m6-6-6 6 6 6" />
-    </svg>
-  );
-}
-
-function HomeIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="1em"
-      height="1em"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.25"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M4 11.5 12 5l8 6.5M6.5 9.5V19h11V9.5" />
-    </svg>
-  );
 }

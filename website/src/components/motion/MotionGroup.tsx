@@ -202,9 +202,15 @@ function exitOffset(el: HTMLElement): Point {
 }
 
 const unpinned = new WeakMap<HTMLElement, string>();
-/** Takes an exiting element out of flow, so siblings take its space at once */
+/** Takes an exiting element out of flow, so siblings take its space at once.
+ * One already out of flow takes none, so it keeps its own box, which may
+ * follow its container's as that resizes */
 function pin(el: HTMLElement, { left, top, width, height }: Box) {
-  if (!unpinned.has(el)) unpinned.set(el, el.style.cssText);
+  if (!unpinned.has(el)) {
+    const { position } = getComputedStyle(el);
+    if (position === 'absolute' || position === 'fixed') return;
+    unpinned.set(el, el.style.cssText);
+  }
   Object.assign(el.style, {
     position: 'absolute',
     boxSizing: 'border-box',

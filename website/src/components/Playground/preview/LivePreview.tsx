@@ -9,6 +9,8 @@ import Preview from './Preview';
 import PreviewWrapper, { PreviewHeaderControls } from './PreviewWrapper';
 import { useRenderCount } from './RenderCount';
 import { routerTrailer } from './router';
+import { routerStartOf } from './routerSlot';
+import { usePreviewReset } from './usePreviewReset';
 import type { CodeDocument } from '../editor/codeModel';
 import type { CodeControl, PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
@@ -18,7 +20,6 @@ import type { ShowStore } from './store/storeView';
 import { joinDocuments } from './transformCode';
 import { useCodeManagers } from './useCodeManagers';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
-import { usePreviewReset } from './usePreviewReset';
 
 export interface LivePreviewProps<T> extends PreviewProps<T> {
   documents: readonly CodeDocument[];
@@ -40,8 +41,9 @@ export default function LivePreview<T>({
   storeOpen,
   storeMoves,
   toggleStore,
-  row,
+  layout,
   storeHost,
+  narrow,
   fixtures,
   getInitialInterceptorData,
   renderCount,
@@ -58,6 +60,7 @@ export default function LivePreview<T>({
     () => joinDocuments(documents) + routerTrailer(documents),
     [documents],
   );
+  const routerStart = routerStartOf(documents);
   const {
     key,
     storeKey,
@@ -94,6 +97,7 @@ export default function LivePreview<T>({
     >
       <PreviewWrapper
         ref={demo.watch}
+        layout={layout}
         label={
           autoRun ?
             <DemoLabel player={demo.player} onPlay={demo.replay} />
@@ -101,9 +105,10 @@ export default function LivePreview<T>({
         }
         fixtures={fixtureContent}
         code={codeControl}
+        routerStart={routerStart}
         headerControls={
           <PreviewHeaderControls
-            row={row}
+            layout={layout}
             badge={
               <>
                 {inFlightCount.badge}
@@ -121,8 +126,9 @@ export default function LivePreview<T>({
           storeOpen={storeOpen}
           storeMoves={storeMoves}
           toggleStore={toggleStore}
-          row={row}
+          layout={layout}
           storeHost={storeHost}
+          narrow={narrow}
           fixtures={fixtures}
           getInitialInterceptorData={getInterceptorData}
           onCommit={onCommit}

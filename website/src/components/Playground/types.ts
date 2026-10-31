@@ -12,15 +12,29 @@ export interface CodeControl {
   toggle: () => void;
 }
 
+/** Where the preview and the Store go (../index.tsx): `row`, the preview
+ * beside the code and the Store over it; `stacked`, the preview under the
+ * code and the Store beside the app; `demo`, the preview first */
+export type Layout = 'row' | 'stacked' | 'demo';
+/** Whether the Store is on the preview's folder, its drawer opening over
+ * the code: the row layout, and stacked while `narrow` (it collapses to
+ * the narrow row's) */
+export const storeOnFolder = (layout: Layout, narrow: boolean) =>
+  layout === 'row' || (layout === 'stacked' && narrow);
+
 export interface PreviewProps<T = any> {
   storeOpen: boolean;
   /** Counts the reader's and demos' Store moves (`useStoreOpen`): the Store
    * animates only for these */
   storeMoves: number;
   toggleStore: ToggleStore;
-  row: boolean;
-  /** Row layout: the layer over the code the Store slides into */
+  layout: Layout;
+  /** Row layout: the layer over the code the Store slides into; stacked
+   * too, while `narrow` */
   storeHost: HTMLElement | null;
+  /** Narrower than the row's breakpoint (720px container width), where
+   * the stacked layout collapses to the narrow row's */
+  narrow: boolean;
   fixtures: FixtureOrInterceptor<T>[];
   getInitialInterceptorData?: () => T;
 }

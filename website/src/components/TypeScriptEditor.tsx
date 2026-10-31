@@ -25,9 +25,14 @@ export default function TypeScriptEditor({
   return (
     <div className={styles.playgroundQueryContainer}>
       <div
-        className={clsx(styles.playgroundContainer, styles.standaloneEditor, {
-          [styles.row]: row,
-        })}
+        // row={false}: as a stacked playground's code (several files open
+        // at once show side by side)
+        className={clsx(
+          styles.playgroundContainer,
+          styles.standaloneEditor,
+          styles.row,
+          { [styles.stacked]: !row },
+        )}
       >
         <EditorSurface
           {...model}

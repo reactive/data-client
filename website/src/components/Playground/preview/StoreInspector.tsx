@@ -2,6 +2,7 @@ import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
 import React, {
   Activity,
   memo,
+  useContext,
   useDeferredValue,
   useEffect,
   useState,
@@ -10,47 +11,60 @@ import { createPortal } from 'react-dom';
 
 import { Reveal } from '../../motion';
 import styles from '../styles.module.css';
-import type { PreviewProps } from '../types';
+import { storeOnFolder, type Layout, type PreviewProps } from '../types';
 import type SchemaRegistry from './store/schemaRegistry';
 import StorePanel from './store/StorePanel';
-import { heldToggle, StoreToggle, useLooking } from './StoreToggle';
+import { heldToggle, LookSlot, StoreToggle, useLooking } from './StoreToggle';
 
 function StoreInspector({
   toggle,
   open,
   registry,
   history,
-  row,
+  layout,
   host,
+  narrow,
 }: {
   open: boolean;
   toggle: PreviewProps['toggleStore'];
   registry: SchemaRegistry;
   history: number;
-  /** On the preview's folder (`host`), which opens over the code, instead
-   * of beside the result; its toggle is the folder's tab (../index.tsx) */
-  row: boolean;
+  /** `layout === 'row'` (and stacked while `narrow`): on the preview's
+   * folder (`host`), which opens over the code, its toggle the folder's tab
+   * (../index.tsx). Otherwise beside the result, toggled from the preview's
+   * header, and by the side strip in `demo` */
+  layout: Layout;
   host: HTMLElement | null;
+  narrow: boolean;
 }) {
   // the empty drawer starts moving at once; the tree renders a frame later,
-  // then stays, so reopening finds the Store as it was left. A row Store
-  // renders it with the click instead: where the row playground stacks, that
+  // then stays, so reopening finds the Store as it was left. A folder's Store
+  // renders it with the click instead: where the playground stacks, that
   // Store grows to fit the tree, and growing a frame later would move the
   // page after the click's scroll hold. Beside the result, its height follows
   // the result, not the tree
+  const folder = storeOnFolder(layout, narrow);
   const deferred = useDeferredValue(open);
   // a tab's quick look shows from the panel, mounting it if it never was
   const looking = useLooking();
-  const ready = (row ? open : deferred) || looking;
+  const ready = (folder ? open : deferred) || looking;
   const [showTree, setShowTree] = useState(false);
   if (ready && !showTree) setShowTree(true);
-  // the quick look goes on the drawer's panel, in its palette
+  // the quick look goes on the drawer's panel, in its palette: beside the
+  // folder's handles, or under them while open; else on the result, under
+  // its tabs (PreviewWrapper's slot for it)
   const [panelEl, setPanelEl] = useState<HTMLDivElement | null>(null);
+  const lookSlot = useContext(LookSlot);
+  const onPanel = folder && (open || !narrow);
   const tree =
     showTree ?
-      <StorePanel registry={registry} history={history} lookHost={panelEl} />
+      <StorePanel
+        registry={registry}
+        history={history}
+        lookHost={onPanel ? panelEl : lookSlot}
+      />
     : null;
-  if (row) {
+  if (folder) {
     return (
       host &&
       createPortal(
@@ -63,8 +77,15 @@ function StoreInspector({
   }
   return (
     <>
-      <StoreToggle onToggle={toggle} open={open} />
-      <Reveal show={open} className={styles.storePanel} hold={heldToggle}>
+      {layout === 'demo' ?
+        <StoreToggle onToggle={toggle} open={open} />
+      : null}
+      <Reveal
+        show={open}
+        className={styles.storePanel}
+        hold={heldToggle}
+        active={looking}
+      >
         {tree}
       </Reveal>
     </>
