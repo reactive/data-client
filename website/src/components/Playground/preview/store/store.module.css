@@ -1236,10 +1236,15 @@ button.stage:focus-visible {
 }
 /* the list's newest row */
 .latest {
-  composes: pill from '../../styles.module.css';
-  margin-left: auto;
+  composes: pill;
   color: var(--store-key);
+}
+/* a faint edge; two classes outrank the composed pill's edge (and the
+   tint of `.store .pill`) whatever order the build gives the files */
+.store .actSum .latest,
+.actSum .latest {
   border-color: color-mix(in srgb, currentColor 40%, transparent);
+  background: none;
 }
 .actSum {
   display: flex;

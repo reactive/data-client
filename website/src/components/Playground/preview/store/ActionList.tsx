@@ -2,8 +2,8 @@ import clsx from 'clsx';
 import React, {
   createContext,
   memo,
-  useContext,
   useCallback,
+  useContext,
   useEffect,
   useId,
   useLayoutEffect,
@@ -272,8 +272,8 @@ function ActionList({
  * interaction put it */
 const LatestContext = createContext<ActionGroup | undefined>(undefined);
 
-/** Marks the list's newest row; only this renders again as a new row
- * comes, not the rows it is in */
+/** Marks the list's newest row. A new row renders each row's marker
+ * again (a compare, null but on the newest), not the memoized rows */
 function Latest({ group }: { group: ActionGroup }) {
   return useContext(LatestContext) === group ?
       <span className={styles.latest}>latest</span>
