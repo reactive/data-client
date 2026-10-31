@@ -1774,7 +1774,8 @@ div.fixtureJson + div.fixtureJson {
     --pg-host-fold-head: calc(var(--pg-host-fold) + var(--pg-head-run));
     margin-left: calc(-1 * var(--pg-host-out));
     overflow-x: clip;
-    /* below, room for a quick look past a short playground's foot */
+    /* below, room for a quick look past a short playground's foot: at
+       most its own cap */
     clip-path: polygon(
       0 -4rem,
       var(--pg-host-fold-head) -4rem,
@@ -1854,6 +1855,8 @@ div.fixtureJson + div.fixtureJson {
     top: 0;
     right: calc(100% + var(--pg-tab-width) + 0.5rem);
     bottom: calc(var(--pg-preview-gap, 0px) + var(--pg-card-radius));
+    /* (fit-content too: where align-self doesn't place it, it still fits
+       its content, from the top, rather than stretch to the room) */
     height: fit-content;
     align-self: safe end;
   }

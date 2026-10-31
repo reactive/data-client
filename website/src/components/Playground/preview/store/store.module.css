@@ -169,8 +169,8 @@
   max-width: 90vw;
   /* as tall as what it shows, within its own bounds whatever the
      preview's height (a layout may let that make it taller) */
-  min-height: var(--store-quick-look-min, 12rem);
-  max-height: var(--store-cap, 32rem);
+  min-height: var(--store-quick-look-min);
+  max-height: var(--store-cap);
   display: flex;
   flex-direction: column;
   border-radius: var(--pg-sheet-radius, 8px);
