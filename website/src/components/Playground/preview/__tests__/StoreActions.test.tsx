@@ -807,6 +807,27 @@ describe('Store Actions pane detail', () => {
 });
 
 describe('Store Actions pane', () => {
+  it('marks the latest row and explains its times', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() => ctrl().fetch(getPosts));
+    openPane();
+    // by interaction, the newest row's interaction head carries it
+    const [tag] = screen.getAllByText('latest');
+    expect(screen.getAllByText('latest')).toHaveLength(1);
+    expect(rows().some(r => r.contains(tag))).toBe(false);
+    expect(tag.closest('section')?.contains(rows()[1])).toBe(true);
+    const [ms] = within(rows()[0]).getAllByTitle(/ms from fetch to response$/);
+    expect(ms.textContent).toMatch(/^\d+ ms$/);
+    expect(
+      within(rows()[0]).getByTitle(/s after the first action$/).textContent,
+    ).toMatch(/^\d+\.\d+s$/);
+    // each action its own row: the newest row carries it
+    fireEvent.click(screen.getByRole('button', { name: 'Every action' }));
+    const latest = rows().map(r => r.textContent?.includes('latest'));
+    expect(latest).toEqual([false, false, false, true]);
+  });
+
   it('folds a fetch and its response into one row with what it added', async () => {
     const { ctrl } = mount();
     // a second read while the first is in flight is deduped into it

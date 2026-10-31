@@ -1234,6 +1234,19 @@ button.stage:focus-visible {
   font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
+/* the list's newest row (by interaction, its interaction), before its
+   time */
+.latest {
+  composes: pill from '../../styles.module.css';
+  align-self: center;
+  color: var(--store-key);
+}
+/* a faint edge: two classes outrank the composed one whatever order the
+   build gives the files */
+.actMeta .latest,
+.interactionHead .latest {
+  border-color: color-mix(in srgb, currentColor 40%, transparent);
+}
 .actSum {
   display: flex;
   flex-wrap: wrap;

@@ -1,7 +1,9 @@
 import clsx from 'clsx';
 import React, {
+  createContext,
   memo,
   useCallback,
+  useContext,
   useEffect,
   useId,
   useLayoutEffect,
@@ -30,6 +32,7 @@ import {
   Dropped,
   gapText,
   KeyLabel,
+  LatestTag,
   Lifecycle,
   ManagerTags,
   spanOf,
@@ -177,6 +180,7 @@ function ActionList({
       by === 'interaction' ? interactionsOf(rows, history.entries) : undefined,
     [by, rows, history.entries],
   );
+  const newest = rows[rows.length - 1];
   const headId = useId();
   const scroller = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
@@ -239,29 +243,45 @@ function ActionList({
     />
   );
   return (
-    <div ref={scroller} className={styles.actList} onKeyDown={onKeyDown}>
-      {!rows.length && (
-        <p className={styles.empty}>
-          {groups.length ?
-            'No action touched this yet.'
-          : 'Nothing dispatched yet. Fetches, responses and other store actions show here as the preview runs.'
-          }
-        </p>
-      )}
-      {sections ?
-        sections.map((section, i) => (
-          <section
-            key={section.id}
-            className={styles.interaction}
-            aria-labelledby={headId + i}
-          >
-            <InteractionHead section={section} id={headId + i} />
-            {section.rows.map(row)}
-          </section>
-        ))
-      : rows.map(row)}
-    </div>
+    <LatestContext.Provider value={sections ? undefined : newest}>
+      <div ref={scroller} className={styles.actList} onKeyDown={onKeyDown}>
+        {!rows.length && (
+          <p className={styles.empty}>
+            {groups.length ?
+              'No action touched this yet.'
+            : 'Nothing dispatched yet. Fetches, responses and other store actions show here as the preview runs.'
+            }
+          </p>
+        )}
+        {sections ?
+          sections.map((section, i) => (
+            <section
+              key={section.id}
+              className={styles.interaction}
+              aria-labelledby={headId + i}
+            >
+              <InteractionHead
+                section={section}
+                id={headId + i}
+                latest={section.rows.at(-1) === newest}
+              />
+              {section.rows.map(row)}
+            </section>
+          ))
+        : rows.map(row)}
+      </div>
+    </LatestContext.Provider>
   );
+}
+
+/** The list's newest row (the one that started last), when it marks its
+ * own row: by interaction, its interaction's head is marked instead */
+const LatestContext = createContext<ActionGroup | undefined>(undefined);
+
+/** Marks the list's newest row. It reads the newest from context, so a
+ * new row re-renders each row's marker, not the memoized rows */
+function Latest({ group }: { group: ActionGroup }) {
+  return useContext(LatestContext) === group ? <LatestTag /> : null;
 }
 
 /** Requests the actions of `group` caused */
@@ -432,6 +452,7 @@ const GroupRow = memo(function GroupRow({
           <Tag group={group} />
           <ManagerTags entries={all} />
           <span className={styles.actMeta}>
+            <Latest group={group} />
             <Status group={group} />
             <Time at={first.at} />
           </span>
