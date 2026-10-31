@@ -13,7 +13,7 @@ import styles from '../styles.module.css';
 import type { PreviewProps } from '../types';
 import type SchemaRegistry from './store/schemaRegistry';
 import StorePanel from './store/StorePanel';
-import { heldToggle, StoreToggle, useLook } from './StoreToggle';
+import { heldToggle, StoreToggle, useLooking } from './StoreToggle';
 
 function StoreInspector({
   toggle,
@@ -40,7 +40,7 @@ function StoreInspector({
   // the result, not the tree
   const deferred = useDeferredValue(open);
   // a tab's quick look shows from the panel, mounting it if it never was
-  const looking = !!useLook();
+  const looking = useLooking();
   const ready = (row ? open : deferred) || looking;
   const [showTree, setShowTree] = useState(false);
   if (ready && !showTree) setShowTree(true);

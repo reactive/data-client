@@ -104,8 +104,8 @@
     var(--store-bg) 100%
   );
 }
-/* Under the scrubber: the bar, and (narrow) the sheet the lanes open in
-   over what follows */
+/* Under the scrubber: the sheet, and (narrow) the sheet the lanes open in
+   over it */
 .body {
   position: relative;
   flex: 1 1 auto;

@@ -1,6 +1,6 @@
 import type { Fixture, Interceptor } from '@data-client/test';
 
-import type { Inspect } from './preview/StoreToggle';
+import type { ToggleStore } from './preview/StoreToggle';
 
 export type FixtureOrInterceptor<T = any> = Fixture | Interceptor<T>;
 
@@ -17,9 +17,7 @@ export interface PreviewProps<T = any> {
   /** Counts the reader's and demos' Store moves (`useStoreOpen`): the Store
    * animates only for these */
   storeMoves: number;
-  /** Opens the drawer on tab `to` (the one showing, unless named), or shuts
-   * it when that one shows */
-  toggleStore: (event: React.MouseEvent<HTMLElement>, to?: Inspect) => void;
+  toggleStore: ToggleStore;
   row: boolean;
   /** Row layout: the layer over the code the Store slides into */
   storeHost: HTMLElement | null;

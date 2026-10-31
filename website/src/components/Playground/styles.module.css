@@ -888,15 +888,13 @@ div.playgroundTextEdit > .playgroundHeader,
     filter: var(--pg-tab-lift);
   }
 }
+/* pulled out, a tab lifts off what's behind it: a shadow round its paper
+   and fillets, cut at the edge it joins */
 .storeTab[aria-selected='true'] {
   --pg-tab-out: var(--pg-tab-width);
   --pg-fillet-color: var(--pg-panel);
   background: var(--pg-panel);
   color: var(--ifm-color-primary);
-}
-/* pulled out, a tab lifts off what's behind it: a shadow round its paper
-   and fillets, cut at the edge it joins */
-.storeTab[aria-selected='true'] {
   filter: var(--pg-tab-lift);
 }
 .row > .storeHost[data-open] .storeTab:not([aria-selected='true'])::before,
@@ -1796,21 +1794,19 @@ div.fixtureJson + div.fixtureJson {
     bottom: calc(var(--pg-preview-gap, 0px) + 2 * var(--pg-card-radius));
     flex-direction: column;
   }
+  /* its shadow cut at the edge it joins; the selected one reaches a pixel
+     into its sheet, so its paper covers the seam */
   .storeTab {
     width: var(--pg-tab-out);
     height: var(--pg-tab-length);
     border-radius: var(--pg-card-radius) 0 0 var(--pg-card-radius);
-  }
-  .row > .storeHost[data-open] .storeTab:not([aria-selected='true']) {
-    box-shadow: inset -0.5rem 0 0.5rem -0.5rem var(--pg-shadow);
-  }
-  /* its shadow cut at the edge it joins; the selected one reaches a pixel
-     into its sheet, so its paper covers the seam */
-  .storeTab {
     clip-path: inset(-2rem 0 -2rem -2rem);
   }
   .storeTab[aria-selected='true'] {
     margin-right: -1px;
+  }
+  .row > .storeHost[data-open] .storeTab:not([aria-selected='true']) {
+    box-shadow: inset -0.5rem 0 0.5rem -0.5rem var(--pg-shadow);
   }
   .storeTab::before {
     right: -1px;
@@ -1971,24 +1967,21 @@ div.fixtureJson + div.fixtureJson {
     right: calc(var(--pg-head-inset) + 2 * var(--pg-card-radius));
   }
   /* on the folder's header: the one showing is the folder's paper, its
-     sheet below the header */
+     sheet below the header (a pixel into it, over the seam); the shadows
+     cut at that edge */
   .storeTab {
     width: var(--pg-tab-length);
     height: var(--pg-tab-out);
     border-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;
+    clip-path: inset(-2rem -2rem 0 -2rem);
   }
   .storeTab[aria-selected='true'] {
     --pg-fillet-color: var(--pg-stage);
     background: var(--pg-stage);
+    margin-bottom: -1px;
   }
   .row > .storeHost[data-open] .storeTab:not([aria-selected='true']) {
     box-shadow: inset 0 -0.5rem 0.5rem -0.5rem var(--pg-shadow);
-  }
-  .storeTab[aria-selected='true'] {
-    margin-bottom: -1px;
-  }
-  .storeTab {
-    clip-path: inset(-2rem -2rem 0 -2rem);
   }
   .storeTab::before {
     right: calc(100% - 1px);

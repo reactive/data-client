@@ -377,11 +377,7 @@ export default function StorePanel({
     if (!covered) focusLevel.current = false;
     if (covered && (lost || content.current?.contains(active)))
       expand.current?.focus({ preventScroll: true });
-    else if (toLevel)
-      panel.current
-        ?.querySelector<HTMLElement>('[data-level]:not([data-covered])')
-        ?.focus({ preventScroll: true });
-    else if (lost)
+    else if (toLevel || lost)
       panel.current
         ?.querySelector<HTMLElement>('[data-level]:not([data-covered])')
         ?.focus({ preventScroll: true });
@@ -566,9 +562,9 @@ export default function StorePanel({
   // scrubber is)
   const views = useMemo(
     () => (
-      <>
-        {tab === 'store' && (
-          <span className={styles.barEnd}>
+      <span className={styles.barEnd}>
+        {tab === 'store' ?
+          <>
             <span
               className={styles.viewButtons}
               role="group"
@@ -617,37 +613,33 @@ export default function StorePanel({
                 <TreeIcon />
               </button>
             </span>
-          </span>
-        )}
-        {tab === 'actions' && (
-          <span className={styles.barEnd}>
-            <span
-              className={styles.viewButtons}
-              role="group"
-              aria-label="Actions listed"
+          </>
+        : <span
+            className={styles.viewButtons}
+            role="group"
+            aria-label="Actions listed"
+          >
+            <button
+              type="button"
+              aria-label="By interaction"
+              title="By interaction: under the click or render that started them"
+              aria-pressed={actionsBy === 'interaction'}
+              onClick={() => setActionsBy('interaction')}
             >
-              <button
-                type="button"
-                aria-label="By interaction"
-                title="By interaction: under the click or render that started them"
-                aria-pressed={actionsBy === 'interaction'}
-                onClick={() => setActionsBy('interaction')}
-              >
-                <InteractionsIcon />
-              </button>
-              <button
-                type="button"
-                aria-label="Every action"
-                title="Every action: in dispatch order, each fetch apart from its response"
-                aria-pressed={actionsBy === 'action'}
-                onClick={() => setActionsBy('action')}
-              >
-                <ActionsIcon />
-              </button>
-            </span>
+              <InteractionsIcon />
+            </button>
+            <button
+              type="button"
+              aria-label="Every action"
+              title="Every action: in dispatch order, each fetch apart from its response"
+              aria-pressed={actionsBy === 'action'}
+              onClick={() => setActionsBy('action')}
+            >
+              <ActionsIcon />
+            </button>
           </span>
-        )}
-      </>
+        }
+      </span>
     ),
     [tab, diffMode, tree, setView, actionsBy, setActionsBy],
   );

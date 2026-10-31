@@ -58,6 +58,7 @@ import { Pipeline, StepPath } from './Pipeline';
 import styles from './store.module.css';
 import { useActionsBy } from './storeView';
 import { InteractionHead, RowWhy } from './Why';
+import { tabLabel } from '../StoreToggle';
 
 /** The groups with an action that touched the subject */
 export function useRows(filter: SubjectFilter) {
@@ -88,7 +89,7 @@ export function ActionsLook({
   return (
     <>
       <div className={styles.paneHead}>
-        Actions
+        {tabLabel('actions')}
         {label && <span className={styles.paneSubject}>{label}</span>}
         <span className={styles.count}>{rows.length.toLocaleString()}</span>
       </div>

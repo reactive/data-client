@@ -12,7 +12,7 @@ import { RouterControlsSlot } from './routerSlot';
 import {
   CodeHeaderToggle,
   StoreHeaderToggle,
-  type Inspect,
+  type ToggleStore,
 } from './StoreToggle';
 
 export default function PreviewWrapper({
@@ -114,7 +114,7 @@ export function PreviewHeaderControls({
   row: boolean;
   badge?: React.ReactNode;
   storeOpen?: boolean;
-  toggleStore?: (event: React.MouseEvent<HTMLElement>, to: Inspect) => void;
+  toggleStore?: ToggleStore;
   reset?: () => void;
 }) {
   return (

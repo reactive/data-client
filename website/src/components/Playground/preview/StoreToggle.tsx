@@ -54,6 +54,12 @@ export const ActionsByContext = createContext<{
 export type Inspect = 'store' | 'actions';
 /** Shut, or open showing one */
 export type InspectorOpen = Inspect | 'n';
+/** Opens the drawer on tab `to` (the one showing, unless named), or shuts
+ * it when that one shows */
+export type ToggleStore = (
+  event: React.MouseEvent<HTMLElement>,
+  to?: Inspect,
+) => void;
 // a reader's choice saved as `'y'` is from before the actions had a tab of
 // their own: the store
 const inspectOf = (choice: string | null | undefined) =>
@@ -107,20 +113,23 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
   const [peek] = useState(createPeek);
   useEffect(() => peek.close, [peek]);
   // a demo's run holds one showStore from its start (./autorun/stage.ts), so
-  // it reads the state as it is now
+  // it reads the state as it is now; the toggles read the tab so, keeping
+  // their identity as it switches
   const latestOpen = useRef(open);
+  const latestTab = useRef(tab);
   useLayoutEffect(() => {
     latestOpen.current = open;
+    latestTab.current = tab;
   });
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
   // pressed on the tab it shows, the drawer shuts; on the other, open or
   // shut, it shows that one
   const toggle = useCallback(
-    (event: { currentTarget: HTMLElement }, to: Inspect = tab) => {
+    (event: { currentTarget: HTMLElement }, to = latestTab.current) => {
       clicked = event.currentTarget;
       blockElementScrollPositionUntilNextRender(clicked);
-      const shut = open && to === tab;
+      const shut = open && to === latestTab.current;
       setChoice(shut ? 'n' : to);
       setLastTab(to);
       show(null);
@@ -128,7 +137,7 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
       if (!open || shut) setMoves(n => n + 1);
       if (!shut && to === 'actions') setListed(n => n + 1);
     },
-    [blockElementScrollPositionUntilNextRender, open, tab, setChoice, peek],
+    [blockElementScrollPositionUntilNextRender, open, setChoice, peek],
   );
   // from inside the drawer (a link to an action or a record): shows that
   // tab, sliding the drawer open if it was shut (a quick look's link)
@@ -189,6 +198,16 @@ export function useLook(): Inspect | null {
   return useSyncExternalStore(peek.subscribe, peek.get, noLook);
 }
 const noLook = () => null;
+
+/** Whether a quick look shows, whichever tab's */
+export function useLooking(): boolean {
+  const { peek } = useContext(InspectorContext);
+  return useSyncExternalStore(
+    peek.subscribe,
+    () => peek.get() !== null,
+    () => false,
+  );
+}
 
 /** How long the pointer rests on a tab before its quick look opens, and is
  * away from both before it closes (ms) */
@@ -301,7 +320,7 @@ export function StoreToggle({
   onToggle,
   open = true,
 }: {
-  onToggle?: (event: React.MouseEvent<HTMLElement>, to: Inspect) => void;
+  onToggle?: ToggleStore;
   open?: boolean;
 }) {
   const ref = useLayoutMotion();
@@ -354,7 +373,7 @@ export function StoreHeaderToggle({
   onClick,
   open = false,
 }: {
-  onClick?: (event: React.MouseEvent<HTMLElement>, to: Inspect) => void;
+  onClick?: ToggleStore;
   open?: boolean;
 }) {
   const { tab } = useContext(InspectorContext);
@@ -367,12 +386,10 @@ export function StoreHeaderToggle({
         title={tabTitle(to, shown)}
         label={tabLabel(to)}
         open={shown}
-        data-store-toggle
+        data-store-toggle={to}
         onClick={onClick && (e => onClick(e, to))}
       >
-        {to === 'store' ?
-          <StoreIcon />
-        : <ActionsIcon />}
+        {tabIcon(to)}
       </HeaderToggle>
     );
   });
@@ -424,7 +441,7 @@ function HeaderToggle({
   open: boolean;
   onClick?: React.MouseEventHandler<HTMLElement>;
   children: React.ReactNode;
-  'data-store-toggle'?: true;
+  'data-store-toggle'?: Inspect;
 }) {
   return (
     <button
@@ -458,7 +475,7 @@ export function DrawerTabs({
 }: {
   open: boolean;
   inspector: Inspector;
-  onToggle: (event: React.MouseEvent<HTMLElement>, to: Inspect) => void;
+  onToggle: ToggleStore;
   /** The folder's id */
   controls: string;
   /** The tab showing, which Escape on the drawer shuts */
@@ -488,9 +505,7 @@ export function DrawerTabs({
             onPointerLeave={e => peek.hover(to, false, e)}
             data-store-toggle={to}
           >
-            {to === 'store' ?
-              <StoreIcon />
-            : <ActionsIcon />}
+            {tabIcon(to)}
           </button>
         );
       })}
@@ -499,6 +514,8 @@ export function DrawerTabs({
 }
 const INSPECTS = ['actions', 'store'] as const satisfies readonly Inspect[];
 
+const tabIcon = (tab: Inspect) =>
+  tab === 'store' ? <StoreIcon /> : <ActionsIcon />;
 export const tabLabel = (tab: Inspect) =>
   tab === 'store' ?
     translate({ id: 'playground.store', message: 'Store' })

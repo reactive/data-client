@@ -3,13 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { SubjectFilter } from './actionGroups';
 import { ActionsLook } from './ActionList';
 import type { StoreModel } from './model';
-import {
-  NavContext,
-  type Nav,
-  type Moment,
-  type Scope,
-  type View,
-} from './nav';
+import { NavContext, type Nav, type Scope, type View } from './nav';
 import RootView from './RootView';
 import styles from './store.module.css';
 import { tabLabel, type Inspect, type Peek } from '../StoreToggle';
@@ -44,7 +38,8 @@ export function QuickLook({
   onPick: (seq: number, scope?: Scope) => void;
   /** A record or list picked: opens it in the Store tab */
   onOpen: (view: View) => void;
-  /** The narrow timeline's sheet is open over it, so Escape shuts that first */
+  /** The narrow timeline's sheet is open over it: Escape from the panel
+   * shuts that first */
   sheetOver: boolean;
 }) {
   const ref = useRef<HTMLElement>(null);
@@ -55,7 +50,14 @@ export function QuickLook({
       if (!ref.current?.contains(e.target as Node | null)) peek.close();
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape' || sheetOver) return;
+      // the sheet's own, from in the panel under it
+      if (
+        e.key !== 'Escape' ||
+        (sheetOver &&
+          e.target instanceof Element &&
+          e.target.closest('[data-store-panel]'))
+      )
+        return;
       e.preventDefault();
       peek.close();
     };
