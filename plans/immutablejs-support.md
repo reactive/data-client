@@ -61,6 +61,21 @@ Creates the *value-shape* policy seam. Prerequisite for B1 (and the F-track bund
   - Must hold ≤2% on cached `normalizr` benches; no optional delegate fields.
 - **F0.3 — Kill path for cell ③ (decision recorded: drop it).** Main entries today accidentally support POJO tables + immutable *input* (endpoint Object/Union inline checks). Nobody wants this combination; F1 drops it rather than building a hybrid policy. Remaining spike work is only the exit ramp: a loud dev-mode error when immutable input reaches main-entry denormalize (cheap detection at the error site only, not the hot path), and a changelog migration note (convert values, or move fully to `/imm` cell ②).
 
+### F0.2 design outcome (recorded)
+
+**Decision: value policy resolved at `getUnvisit` construction, surfaced as two required delegate members.**
+
+- `getUnvisit(getEntity, cache, args, valuePolicy = PlainValuePolicy)` — main entries rely on the default; `denormalize.imm` passes `ImmValuePolicy`; `MemoCache` forwards `this.policy.valuePolicy` (optional on `IMemoPolicy`, so external custom policies keep working; `undefined` resolves to the default parameter — one-time, not hot path).
+- The delegate object literal gains two **always-present** members (single hidden class per policy; no optional fields):
+  - `unvisitObject(schema, input)` — object-node denormalization. Plain policy: the consolidated POJO loop. Imm policy: `isImmutable(input) ? denormalizeImmutable(…) : POJO loop`.
+  - `getField(value, key)` — normalized-reference field access (polymorphic `schema`/`id` discriminator reads). Plain: `value[key]`. Imm: `isImmutable(value) ? value.get(key) : value[key]`.
+- The shorthand object dispatch in `unvisit.ts` routes through the same policy, so normalizr and endpoint share one object-denormalize implementation.
+- **Symbol-semantics resolution** (the `ImmutableUtils` drift): consolidate on *propagate the first symbol encountered* (endpoint's semantics). Symbols cross the package boundary, so minting a package-local `INVALID` would break identity checks in the caller; in practice the only symbol in flight is normalizr's `INVALID`, so observable behavior is unchanged for both packages. Test asserts propagation.
+- **Cross-version compatibility** (endpoint has no runtime dep on normalizr — interfaces are structural): endpoint schemas capability-check the delegate. `ObjectSchema.denormalize`: `delegate.unvisitObject ? delegate.unvisitObject(this.schema, input) : <legacy inline POJO loop>`. `Polymorphic.denormalizeValue` signature changes `(value, unvisit)` → `(value, delegate)` (endpoint-internal callers all updated; noted in changeset) and reads discriminators via `delegate.getField ? delegate.getField(value, 'schema') : value.schema`. Old endpoint + new normalizr needs nothing (old endpoint keeps its self-contained inline checks). Endpoint's `IDenormalizeDelegate` declares the two members optional (documenting cross-version reality); normalizr's declares them required.
+- **Detection decision**: keep duck-typing (own `__ownerID`, present on v4–v5 collections and Records) — no new peer dependency; code now lives only on the `/imm` path. Supported range: immutable v4–v5 (devDep pins 5.x, B3 adds the v4 CI cell). The legacy `_map.__ownerID` fallback (v3 Records) was dropped — v3 is not supported.
+- **Dev-mode loud error**: in the plain policy's `unvisitObject` (and endpoint's legacy fallback loop), a `NODE_ENV !== 'production'`-guarded immutable-input check throws with a migration pointer — zero prod hot-path cost, prod-stripped from bundles so the CI no-immutable-code grep passes.
+- **Explicit non-goals**: shorthand-array denormalize keeps its generic `input.map` duck-dispatch (works for Immutable List incidentally; not immutable-specific code). `Values` with immutable normalized-map *input* was never supported (no existing branch) and stays unsupported.
+
 ### Work items
 
 1. Move the immutable branches of normalizr `Object.ts`, endpoint `Object.ts`, and endpoint `Polymorphic.ts` behind the value policy; POJO policy performs no check.
