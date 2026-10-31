@@ -23,11 +23,7 @@ export default function TypeScriptEditor({
   if (!hidden && !interactive) setInteractive(true);
 
   return (
-    <div
-      className={clsx(styles.playgroundQueryContainer, {
-        [styles.hidden]: hidden,
-      })}
-    >
+    <div className={styles.playgroundQueryContainer}>
       <div
         className={clsx(styles.playgroundContainer, styles.standaloneEditor, {
           [styles.row]: row,
