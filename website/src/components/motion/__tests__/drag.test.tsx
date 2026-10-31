@@ -3,7 +3,7 @@
 import { act, render } from '@testing-library/react';
 import React, { useState } from 'react';
 
-import { Reorder, useReorderItem } from '..';
+import { Reorder, useDropGroup, useReorderItem } from '..';
 
 // jsdom has no layout, Web Animations or PointerEvent: each box sits at its
 // `data-y`, `data-h` tall, moved by its `translate`; animations are recorded
@@ -95,7 +95,7 @@ function Group({
       data-testid={owner}
       data-y={y}
       data-h={80}
-      ref={useReorderItem(owner, { dropValue: owner })}
+      ref={useDropGroup(owner)}
     >
       {children}
     </section>
@@ -334,4 +334,32 @@ it('treats a still finger let go after the hold as a tap', () => {
   x.click();
   expect(clicked).toHaveBeenCalled();
   expect(x.style.translate).toBe('');
+});
+
+it("keeps a group's value apart from the items' keys", () => {
+  // the group stands for 'x', and the row's key is 'x' too
+  function Group({ y }: { y: number }) {
+    return (
+      <section
+        data-testid="group"
+        data-y={y}
+        data-h={80}
+        ref={useDropGroup('x')}
+      />
+    );
+  }
+  function Row() {
+    return <p data-testid="row" data-y={200} ref={useReorderItem('x')} />;
+  }
+  const shared = (y: number) => (
+    <Reorder layoutDependency={y}>
+      <Group y={y} />
+      <Row />
+    </Reorder>
+  );
+  const { getByTestId, rerender } = render(shared(100));
+  rerender(shared(0));
+  // the group glides up from where it was; the row stayed put
+  expect(startOf(getByTestId('group'))?.translate).toBe('0px 100px');
+  expect(startOf(getByTestId('row'))).toBeUndefined();
 });

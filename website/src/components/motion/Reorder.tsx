@@ -17,16 +17,16 @@ import type { Spring } from './spring';
 import { springs } from './tokens';
 
 export interface ItemOptions {
-  /** Lets the reader drag the item into a group (an item with a
-   * `dropValue`); called with that group's value. The item stays where it
-   * was let go until the list changes, or the promise it returns (a fetch)
-   * settles without moving it */
+  /** Lets the reader drag the item into a group (`useDropGroup`); called
+   * with that group's value. The item stays where it was let go until the
+   * list changes, or the promise it returns (a fetch) settles without moving
+   * it */
   onDrop?: (value: any) => unknown;
-  /** Makes the item a group others can be dropped in, standing for this
-   * value (`undefined`: not a group). A drop lands in the group, not at a
-   * place in it */
-  dropValue?: unknown;
 }
+/** The id a group stands for (`null` or `undefined`: a group of none, like
+ * "Unassigned"). Never an object: an entity changes identity when it
+ * updates, which would make it a new group */
+type GroupId = string | number | null | undefined;
 /** An item's latest options, read when a drag needs them */
 type OptionsRef = RefObject<ItemOptions>;
 
@@ -51,7 +51,11 @@ interface Props {
  */
 export default class Reorder extends Component<Props> {
   private items = new Map<unknown, HTMLElement>();
-  private groups = new Map<HTMLElement, OptionsRef>();
+  /** Groups to drop items in, with the value each stands for */
+  private groups = new Map<HTMLElement, GroupId>();
+  /** Each group's item key, by its value: apart from the items' own keys,
+   * and the same whichever element shows the group */
+  private groupKeys = new Map<GroupId, object>();
   /** Items let go in another group, by key: held where they were dropped
    * until the list changes, then settling on `springs.drop`; `done` is what
    * their latest drop set off */
@@ -86,21 +90,27 @@ export default class Reorder extends Component<Props> {
     return <ReorderContext value={this}>{this.props.children}</ReorderContext>;
   }
 
-  /** Joins `el` under `key`; returns the cleanup */
-  add(
-    key: unknown,
-    el: HTMLElement,
-    options: OptionsRef,
-    { drags, group }: { drags: boolean; group: boolean },
-  ) {
+  /** Joins `el` under `key`, which the reader can carry into a group when
+   * it has `options` (its latest); returns the cleanup */
+  add(key: unknown, el: HTMLElement, options?: OptionsRef) {
     this.items.set(key, el);
-    if (group) this.groups.set(el, options);
     const undrag =
-      drags ? draggable(el, () => this.carrier(key, el, options)) : undefined;
+      options && draggable(el, () => this.carrier(key, el, options));
     return () => {
       undrag?.();
-      this.groups.delete(el);
       if (this.items.get(key) === el) this.items.delete(key);
+    };
+  }
+
+  /** Joins `el` as the group standing for `value`; returns the cleanup */
+  addGroup(value: GroupId, el: HTMLElement) {
+    let key = this.groupKeys.get(value);
+    if (!key) this.groupKeys.set(value, (key = {}));
+    const leave = this.add(key, el);
+    this.groups.set(el, value);
+    return () => {
+      this.groups.delete(el);
+      leave();
     };
   }
 
@@ -108,14 +118,13 @@ export default class Reorder extends Component<Props> {
     return !Object.is(prev.layoutDependency, this.props.layoutDependency);
   }
 
-  /** Carrying `el` into a group hands its `dropValue` to `onDrop`, and
+  /** Carrying `el` into a group hands that group's value to `onDrop`, and
    * holds `el` where it was let go until the list follows */
   private carrier(key: unknown, el: HTMLElement, options: OptionsRef): Carrier {
     const carrier = intoGroups(el, this.groups.keys(), group => {
       // gone since it was hovered: nowhere to land
-      const target = this.groups.get(group);
-      if (!target) return false;
-      this.hold(key, el, options.current.onDrop?.(target.current.dropValue));
+      if (!this.groups.has(group)) return false;
+      this.hold(key, el, options.current.onDrop?.(this.groups.get(group)));
       return true;
     });
     return {
@@ -147,8 +156,8 @@ export default class Reorder extends Component<Props> {
 /**
  * Ref making its element an item of the nearest `<Reorder>`. `key` names the
  * item across renders (its id), so it is followed even when React remounts
- * it elsewhere; keys share one space within a `<Reorder>`. `options` make it
- * draggable, or a group to drag items into.
+ * it elsewhere; keys share one space within a `<Reorder>`. `onDrop` lets the
+ * reader drag it into a group (`useDropGroup`).
  */
 export function useReorderItem(
   key: unknown,
@@ -161,12 +170,29 @@ export function useReorderItem(
     latest.current = options;
   });
   const drags = !!options.onDrop;
-  const group = options.dropValue !== undefined;
   return useCallback(
     (el: HTMLElement | null) => {
-      if (el && list) return list.add(key, el, latest, { drags, group });
+      if (el && list) return list.add(key, el, drags ? latest : undefined);
     },
-    [list, key, drags, group],
+    [list, key, drags],
+  );
+}
+
+/**
+ * Ref making its element a group of the nearest `<Reorder>` that items
+ * (`useReorderItem` with `onDrop`) can be dragged into, standing for `value`:
+ * a drop hands it to the item's `onDrop`. A drop lands in the group, not at a
+ * place in it. The group is an item too, gliding as the list changes;
+ * `value` names it across renders, apart from the items' keys, so it is an
+ * id: an object would be a new group each time it changes identity.
+ */
+export function useDropGroup(value: GroupId): RefCallback<HTMLElement> {
+  const list = useContext(ReorderContext);
+  return useCallback(
+    (el: HTMLElement | null) => {
+      if (el && list) return list.addGroup(value, el);
+    },
+    [list, value],
   );
 }
 

@@ -202,8 +202,10 @@ const PREVIEW_SCOPE_DECLARATIONS = `declare function render(component:JSX.Elemen
         declare function Toaster():JSX.Element;
         /** Glides its items (\`useReorderItem\`) to wherever a change moves them, when \`layoutDependency\` changes */
         declare function Reorder(props: { layoutDependency: unknown; children?: React.ReactNode }):JSX.Element;
-        /** Ref making its element an item of the nearest \`<Reorder>\`; \`key\` names it across renders. \`onDrop\` lets the reader drag it into a group (an item with a \`dropValue\`), called with that value; a drop lands in the group, not at a place in it */
-        declare function useReorderItem(key: unknown, options?: { onDrop?: (value: any) => unknown; dropValue?: unknown }): React.RefCallback<HTMLElement>;
+        /** Ref making its element an item of the nearest \`<Reorder>\`; \`key\` names it across renders. \`onDrop\` lets the reader drag it into a group (\`useDropGroup\`), called with that group's value */
+        declare function useReorderItem(key: unknown, options?: { onDrop?: (value: any) => unknown }): React.RefCallback<HTMLElement>;
+        /** Ref making its element a group of the nearest \`<Reorder>\` to drag items into, standing for the id \`value\` (handed to the item's \`onDrop\`); a drop lands in the group, not at a place in it */
+        declare function useDropGroup(value: string | number | null | undefined): React.RefCallback<HTMLElement>;
         declare const toast: { success(message: string): void; error(message: string): void };
         declare function ErrorMessage(props: { error: Error & { status?: number }; resetErrorBoundary?: () => void; className?: string }):JSX.Element;
         declare function randomFloatInRange(min: number, max: number, decimals?: number): number;

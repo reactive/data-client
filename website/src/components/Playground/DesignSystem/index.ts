@@ -12,5 +12,5 @@ export { SearchIcon } from './SearchIcon';
 export { Loading } from './Loading';
 export { Toaster, toast } from './Toaster';
 // the site's own motion, so a demo's list glides when it changes
-export { Reorder, useReorderItem } from '../../motion';
+export { Reorder, useDropGroup, useReorderItem } from '../../motion';
 export { default as NumberFlow } from '@number-flow/react';
