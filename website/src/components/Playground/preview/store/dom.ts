@@ -46,9 +46,11 @@ export function useWidth(
   useEffect(() => {
     const el = ref.current;
     if (!el || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(([entry]) =>
-      setWidth(Math.round(entry.contentRect.width)),
-    );
+    // hidden (no box), it keeps the width it last laid out at
+    const observer = new ResizeObserver(([entry]) => {
+      const next = Math.round(entry.contentRect.width);
+      if (next) setWidth(next);
+    });
     observer.observe(el);
     return () => observer.disconnect();
   }, [ref]);

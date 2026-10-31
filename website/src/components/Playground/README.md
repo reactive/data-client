@@ -123,7 +123,10 @@ its own card.
   class. Element props override it; `defaultTab` overrides `collapsed`.
 - Stacked: the `row`'s paper (`.row.stacked`), turned to the stacking axis at
   any width; its header's Actions and Store toggles open the drawer on that
-  tab beside the app (under it below 560px). Files that start open together are code cards
+  tab beside the app (under it below 560px), a sheet of the app's paper.
+  Beside the app, the toggle showing is that sheet's tab, run down from the
+  header into it; hover pulls the other partway down and opens its quick
+  look over the code (`LookSlot`). Files that start open together are code cards
   (`FileCard`), each under its name: a caption on the page, on the code's
   first column, that folds the card to just the name and back. Two to a
   line from 900px container width (narrower, wrapped lines would fill

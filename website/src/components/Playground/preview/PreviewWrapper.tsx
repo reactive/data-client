@@ -11,6 +11,7 @@ import ResetButton from './ResetButton';
 import { RouterControlsSlot } from './routerSlot';
 import {
   CodeHeaderToggle,
+  LookSlot,
   StoreHeaderToggle,
   type ToggleStore,
 } from './StoreToggle';
@@ -25,6 +26,8 @@ export default function PreviewWrapper({
   ref,
 }: Props) {
   const [routerSlot, setRouterSlot] = useState<HTMLElement | null>(null);
+  // stacked, the header's toggles' quick look, over the code above it
+  const [lookSlot, setLookSlot] = useState<HTMLElement | null>(null);
   const [fixturesOpen, setFixturesOpen] = useState(false);
   const [result, setResult] = useState<HTMLDivElement | null>(null);
   // the row's folder (beside the code) ends with its sheet
@@ -77,8 +80,14 @@ export default function PreviewWrapper({
           {code ?
             <CodeHeaderToggle open={code.shown} onClick={code.toggle} />
           : null}
-          {headerControls}
+          <LookSlot value={lookSlot}>{headerControls}</LookSlot>
         </span>
+        {layout === 'stacked' ?
+          <span
+            className={clsx(styles.lookSlot, styles.stageHues)}
+            ref={setLookSlot}
+          />
+        : null}
       </Header>
       {fixtures != null ?
         <div className={styles.fixturesAnchor}>
@@ -93,7 +102,7 @@ export default function PreviewWrapper({
       : null}
       <RouterControlsSlot value={routerSlot}>
         <div className={styles.playgroundResult} ref={setResult}>
-          {children}
+          <LookSlot value={lookSlot}>{children}</LookSlot>
         </div>
       </RouterControlsSlot>
     </div>

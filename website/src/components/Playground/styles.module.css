@@ -526,15 +526,19 @@ div.playgroundTextEdit > .playgroundHeader {
   box-shadow: none;
 }
 .row .tab.selected::before,
-.row .tab.selected::after {
+.row .tab.selected::after,
+.stacked .storeHeaderToggle[aria-pressed='true']::before,
+.stacked .storeHeaderToggle[aria-pressed='true']::after {
   bottom: 0;
   height: var(--pg-card-radius);
 }
-.row .tab.selected::before {
+.row .tab.selected::before,
+.stacked .storeHeaderToggle[aria-pressed='true']::before {
   right: calc(100% - 1px);
   --pg-fillet-at: 0 0;
 }
-.row .tab.selected::after {
+.row .tab.selected::after,
+.stacked .storeHeaderToggle[aria-pressed='true']::after {
   left: calc(100% - 1px);
   --pg-fillet-at: 100% 0;
 }
@@ -885,7 +889,9 @@ div.playgroundTextEdit > .playgroundHeader {
 .row .tab.selected::before,
 .row .tab.selected::after,
 .storeTab::before,
-.storeTab::after {
+.storeTab::after,
+.stacked .storeHeaderToggle[aria-pressed='true']::before,
+.stacked .storeHeaderToggle[aria-pressed='true']::after {
   content: '';
   position: absolute;
   width: calc(var(--pg-fillet-r, var(--pg-card-radius)) + 1px);
@@ -2003,6 +2009,9 @@ div.fixtureJson + div.fixtureJson {
   }
 }
 .stacked .playgroundResult > .storePanel {
+  /* a sheet of the app's paper */
+  --store-bg: var(--pg-panel);
+  border-radius: var(--pg-sheet-radius);
   align-self: stretch;
   /* its header lies flat on the folder */
   --pg-card-shadow: none;
@@ -2016,6 +2025,58 @@ div.fixtureJson + div.fixtureJson {
     > .playgroundResult > .storePanel[data-visible]
   )::after {
   background: var(--pg-stage);
+}
+/* The drawer is a sheet of the app's paper. Beside the app, its toggles in
+   the header are the sheet's tabs: the one showing runs down from the
+   header into it, curving out at its foot, and the mouse resting on the
+   other pulls that one partway down, toward it */
+.stacked .storeHeaderToggle {
+  position: relative;
+}
+/* under the app, its toggles stay buttons */
+@container playground (max-width: 559px) {
+  .stacked .storeHeaderToggle::before,
+  .stacked .storeHeaderToggle::after {
+    content: none;
+  }
+}
+@container playground (min-width: 560px) {
+  .stacked .previewControls {
+    align-self: stretch;
+  }
+  .stacked .headerButton.storeHeaderToggle[aria-pressed='true'] {
+    --pg-fillet-color: var(--pg-panel);
+    align-self: stretch;
+    height: auto;
+    margin: 0.25rem 0 0;
+    border-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;
+    background: var(--pg-panel);
+  }
+  @media (hover: hover) {
+    .stacked
+      .headerButton.storeHeaderToggle:not(
+        [aria-pressed='true'],
+        :disabled
+      ):hover {
+      align-self: stretch;
+      height: auto;
+      margin: 0.25rem 0 0.375rem;
+      border-radius: var(--pg-card-radius) var(--pg-card-radius)
+        var(--ifm-global-radius) var(--ifm-global-radius);
+      background: var(--pg-tab-pulled);
+      filter: var(--pg-tab-lift);
+    }
+  }
+}
+/* the header's toggles' quick look (preview/PreviewWrapper.tsx): over the
+   code, its foot just above the header, at its end */
+.lookSlot {
+  position: absolute;
+  inset: 0 0 auto;
+}
+.lookSlot [data-quick-look] {
+  right: 0;
+  bottom: 0.5rem;
 }
 
 /* Several files open at once: each its own code card under its name, a

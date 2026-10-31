@@ -11,6 +11,7 @@ import SchemaRegistry from '../store/schemaRegistry';
 import {
   DemoViewContext,
   InspectorContext,
+  LookSlot,
   StoreHeaderToggle,
   StoreToggle,
   useStoreOpen,
@@ -479,6 +480,39 @@ describe('StorePanel table view', () => {
     // the tab showing shuts the Store
     fireEvent.click(button('Store'));
     expect([pressed('Actions'), pressed('Store')]).toEqual([false, false]);
+  });
+
+  it("opens a quick look as the mouse rests on a stacked header's toggle", () => {
+    let peek: ReturnType<typeof useStoreOpen>[5]['peek'] | undefined;
+    function Header() {
+      const [open, toggle, , , , inspector] = useStoreOpen('peeks', 'store');
+      peek = inspector.peek;
+      return (
+        <InspectorContext.Provider value={inspector}>
+          <LookSlot value={document.body}>
+            <StoreHeaderToggle onClick={toggle} open={open} />
+          </LookSlot>
+        </InspectorContext.Provider>
+      );
+    }
+    render(<Header />);
+    const rest = (name: string, pointerType: string) => {
+      const event = new MouseEvent('pointerover', { bubbles: true });
+      Object.assign(event, { pointerType });
+      fireEvent(screen.getByRole('button', { name }), event);
+      act(() => jest.advanceTimersByTime(500));
+    };
+    jest.useFakeTimers();
+    try {
+      // not the tab showing, nor from a touch: a tap opens the drawer
+      rest('Store', 'mouse');
+      rest('Actions', 'touch');
+      expect(peek!.get()).toBeNull();
+      rest('Actions', 'mouse');
+      expect(peek!.get()).toBe('actions');
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('moves focus along the strip with the arrows, picking nothing', () => {

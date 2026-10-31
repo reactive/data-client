@@ -2,6 +2,7 @@ import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
 import React, {
   Activity,
   memo,
+  useContext,
   useDeferredValue,
   useEffect,
   useState,
@@ -13,7 +14,7 @@ import styles from '../styles.module.css';
 import type { Layout, PreviewProps } from '../types';
 import type SchemaRegistry from './store/schemaRegistry';
 import StorePanel from './store/StorePanel';
-import { heldToggle, StoreToggle, useLooking } from './StoreToggle';
+import { heldToggle, LookSlot, StoreToggle, useLooking } from './StoreToggle';
 
 function StoreInspector({
   toggle,
@@ -46,11 +47,17 @@ function StoreInspector({
   const ready = (row ? open : deferred) || looking;
   const [showTree, setShowTree] = useState(false);
   if (ready && !showTree) setShowTree(true);
-  // the quick look goes on the drawer's panel, in its palette
+  // the quick look goes on the drawer's panel, in its palette; stacked, on
+  // the header's slot for it
   const [panelEl, setPanelEl] = useState<HTMLDivElement | null>(null);
+  const lookSlot = useContext(LookSlot);
   const tree =
     showTree ?
-      <StorePanel registry={registry} history={history} lookHost={panelEl} />
+      <StorePanel
+        registry={registry}
+        history={history}
+        lookHost={row ? panelEl : lookSlot}
+      />
     : null;
   if (row) {
     return (
@@ -68,7 +75,12 @@ function StoreInspector({
       {layout === 'demo' ?
         <StoreToggle onToggle={toggle} open={open} />
       : null}
-      <Reveal show={open} className={styles.storePanel} hold={heldToggle}>
+      <Reveal
+        show={open}
+        className={styles.storePanel}
+        hold={heldToggle}
+        active={looking}
+      >
         {tree}
       </Reveal>
     </>
