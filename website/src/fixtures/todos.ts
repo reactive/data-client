@@ -57,7 +57,8 @@ export type TodoServer = Record<number, TodoData | null>;
 const LAST_SEEDED_ID = 200;
 
 /** Adds the `todos` this server hasn't seen. It keeps its own copy of the
- * rest, since jsonplaceholder sends their originals again on a refetch. */
+ * rest, deleted ones included, since jsonplaceholder sends their originals
+ * again on a refetch. */
 export function rememberTodos(server: TodoServer, todos: TodoData[]) {
   for (const todo of todos) if (!(todo.id in server)) server[todo.id] = todo;
 }
@@ -86,8 +87,10 @@ export const todoEndpointFixtures: Interceptor<TodoServer>[] = [
       body: Parameters<typeof TodoResource.partialUpdate>[1],
     ) {
       const pk = Number(id);
-      // a deleted todo can't be edited, since the demo no longer lists it
-      const todo = { ...(this[pk] as TodoData), ...body, id: pk };
+      const stored = this[pk];
+      // an edit sent just after a delete, like a real server's 404
+      if (!stored) throw new Error(`Todo ${pk} not found`);
+      const todo = { ...stored, ...body, id: pk };
       this[pk] = todo;
       return todo;
     },
