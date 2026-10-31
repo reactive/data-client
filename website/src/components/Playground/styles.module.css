@@ -13,6 +13,7 @@
      the playground, a container query resolving late, a resize) animates.
      Every Store-linked transition uses them */
   --pg-store-drawer: 0s;
+  --pg-store-smooth: 0s;
   --pg-store-snappy: 0s;
   --pg-store-fade: 0s;
   /* the Store's size, for it and every layout that holds it: room to
@@ -70,6 +71,8 @@
 }
 .playgroundContainer[data-store-moving] {
   --pg-store-drawer: var(--motion-drawer);
+  /* the stacked Store's slide (its MotionGroup's spring) */
+  --pg-store-smooth: var(--motion-smooth);
   --pg-store-snappy: var(--motion-snappy);
   /* the preview header's curves fade in as it lands */
   --pg-store-fade: 120ms ease-out 180ms;
@@ -804,6 +807,11 @@ div.playgroundTextEdit > .playgroundHeader {
   height: 100%;
   min-height: 0;
   background: none;
+}
+/* open before the Store loads (with the live preview), its paper waits
+   blank, as the preview's sheet does, rather than show the code through */
+.row > .storeHost[data-open] > .storeDrawer:not(:has(.storePanel)) {
+  background: var(--pg-stage);
 }
 /* fills the drawer instead of its usual cap */
 .row > .storeHost .storePanel > * {
@@ -1877,6 +1885,9 @@ div.fixtureJson + div.fixtureJson {
   .row > .storeHost[data-open] > .storeDrawer {
     translate: 0 0;
   }
+  .row > .storeHost > .storeDrawer:not(:has(.storePanel)) {
+    border-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;
+  }
   /* its header edge to edge, rounded as the code card under it is: an
      inset would show the code through its sides; its sheet ends short of
      the foot, rounded as its top is */
@@ -1999,34 +2010,56 @@ div.fixtureJson + div.fixtureJson {
   }
 }
 /* the fixtures hang on past its foot, over the page below; the Store
-   slides in and out behind the result's edge instead, and a tab's quick
-   look runs on past the foot */
+   slides in and out behind the result's edge instead (and, leaving, its
+   foot as the result shrinks back), while a tab's quick look on a shut
+   one runs on past the foot */
 .stacked > .previewWrapper {
   overflow: visible;
 }
 .stacked .playgroundResult {
   overflow-x: clip;
 }
+.stacked .playgroundResult:has(> .storePanel[data-visible]) {
+  overflow: clip;
+}
 /* open, the Store is a column of the folder beside the app, the folder's
    paper between them: the app's sheet ends at its content, the Store's
-   runs on to the foot */
+   runs on to the foot, the result as tall as either. The app gives up its
+   width as the Store slides in over the end (and takes it back as it
+   leaves), on the slide's spring */
 @container playground (min-width: 720px) {
   .stacked .playgroundResult {
-    gap: var(--pg-gap);
+    --pg-store-side: calc(100% * 2 / 3 - var(--pg-gap) * 4 / 9);
     align-items: flex-start;
+    min-height: 0;
+    transition: min-height var(--pg-store-smooth);
   }
   .stacked .playgroundPreview {
-    flex: 5 1 0;
+    flex: none;
+    width: 100%;
+    transition: width var(--pg-store-smooth);
+  }
+  .stacked:has(.storeHeaderToggle[aria-pressed='true']) .playgroundResult {
+    min-height: var(--store-min);
+  }
+  .stacked:has(.storeHeaderToggle[aria-pressed='true']) .playgroundPreview {
+    width: calc(100% - var(--pg-store-side) - var(--pg-gap));
+  }
+  .stacked .playgroundResult > .storePanel {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: var(--pg-store-side);
   }
 }
 .stacked .playgroundResult > .storePanel {
   /* a sheet of the app's paper */
   --store-bg: var(--pg-panel);
   border-radius: var(--pg-sheet-radius);
-  align-self: stretch;
   /* its header lies flat on the folder */
   --pg-card-shadow: none;
   --store-sheet-foot: var(--pg-sheet-radius);
+  /* its contents within its rounded corners */
+  overflow: clip;
 }
 .stacked .playgroundResult:has(> .storePanel[data-visible]) .sheet {
   border-radius: var(--pg-sheet-radius);
@@ -2094,7 +2127,7 @@ div.fixtureJson + div.fixtureJson {
   .stacked .lookSlot [data-quick-look] {
     top: 0;
     right: 0;
-    width: calc(100% * 2 / 3 - var(--pg-gap) * 4 / 9);
+    width: var(--pg-store-side);
     max-width: none;
     height: clamp(var(--store-min), 100%, var(--store-cap));
   }
