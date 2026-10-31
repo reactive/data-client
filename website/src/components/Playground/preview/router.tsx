@@ -6,7 +6,6 @@ import React, {
   Suspense,
   use,
   useCallback,
-  useRef,
   useState,
   useTransition,
   Fragment,
@@ -111,17 +110,15 @@ export function Router({
   const [history, setHistory] = useState<readonly CallerPage[]>([
     { path: start, visit: 0 },
   ]);
-  const visits = useRef(0);
   const [pending, startTransition] = useTransition();
-  const navigate = useCallback(
-    (to: string) =>
-      startTransition(() =>
-        setHistory(pages =>
-          pages.at(-1)?.path === to ? pages : [...pages, nextVisit(visits, to)],
-        ),
+  const navigate = useCallback((to: string) => {
+    const page = { path: to, visit: nextVisit() };
+    startTransition(() =>
+      setHistory(pages =>
+        pages.at(-1)?.path === to ? pages : [...pages, page],
       ),
-    [],
-  );
+    );
+  }, []);
   const controlsSlot = use(RouterControlsSlot);
   const page = history[history.length - 1];
   const { path } = page;
@@ -134,22 +131,21 @@ export function Router({
             path={path}
             atRoot={atRoot}
             pending={pending}
-            onBack={() =>
+            onBack={() => {
+              const visit = nextVisit();
               // a second click can land before the first commits
               startTransition(() =>
                 setHistory(pages =>
                   pages.length > 1 ?
-                    [
-                      ...pages.slice(0, -2),
-                      nextVisit(visits, pages.at(-2)!.path),
-                    ]
+                    [...pages.slice(0, -2), { path: pages.at(-2)!.path, visit }]
                   : pages,
                 ),
-              )
-            }
-            onHome={() =>
-              startTransition(() => setHistory([nextVisit(visits, start)]))
-            }
+              );
+            }}
+            onHome={() => {
+              const page = { path: start, visit: nextVisit() };
+              startTransition(() => setHistory([page]));
+            }}
           />,
           controlsSlot,
         )}
@@ -175,11 +171,12 @@ export function Router({
   );
 }
 
-/** A new visit to `path`, counted by `visits` */
-const nextVisit = (visits: { current: number }, path: string): CallerPage => ({
-  path,
-  visit: ++visits.current,
-});
+/** Visits so far, across routers: a store's history outlives the preview
+ * remounting its router */
+let visits = 0;
+/** A new visit's number, taken once per navigation, as a transition's state
+ * updater can run again when the page it opens suspends */
+const nextVisit = () => ++visits;
 
 /** Back, Home and the page shown */
 function RouterControls({
