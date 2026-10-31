@@ -2090,21 +2090,13 @@ div.fixtureJson + div.fixtureJson {
 .stacked .playgroundResult > .storePanel > * {
   border-radius: var(--pg-sheet-radius);
   background: var(--store-bg);
+  box-shadow: var(--pg-sheet-shadow);
   overflow: clip;
-}
-/* its shadow from a box behind it that starts a row down, so none falls
-   on its tab, which runs into it as one paper, nor shows along the edge
-   they share */
-@container playground (min-width: 720px) {
-  .stacked .playgroundResult > .storePanel::before {
-    content: '';
-    position: absolute;
-    inset: var(--pg-row) 0 0 var(--pg-gap);
-    z-index: -1;
-    border-radius: var(--pg-sheet-radius);
-    box-shadow: var(--pg-sheet-shadow);
-    pointer-events: none;
-  }
+  /* none of its shadow up over its tab, which runs into it as one paper,
+     nor along the edge they share: where that falls off the pixel grid,
+     the shadow's edge would show there as a line. Its first pixel goes
+     with it, under the tab (below) */
+  clip-path: inset(1px -3rem -3rem);
 }
 /* Beside the app, the folder ends with the app's card (useAppBox,
    preview/PreviewWrapper.tsx), the Store's sheet running on below it, the
@@ -2183,16 +2175,16 @@ div.fixtureJson + div.fixtureJson {
     --pg-fillet-color: var(--pg-panel);
     align-self: stretch;
     height: auto;
-    /* a pixel on into the sheet, it and its curves: where they meet off
-       the pixel grid, two half-covered edges would show a line between */
-    margin: 0.25rem 0 -1px;
+    /* on into the sheet past its clipped first pixel, it and its curves,
+       so it alone covers the pixel where they meet */
+    margin: 0.25rem 0 -2px;
     border-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;
     background: var(--pg-panel);
   }
   .stacked .storeHeaderToggle[aria-pressed='true']::before,
   .stacked .storeHeaderToggle[aria-pressed='true']::after {
-    bottom: -1px;
-    height: calc(var(--pg-card-radius) + 1px);
+    bottom: -2px;
+    height: calc(var(--pg-card-radius) + 2px);
   }
   @media (hover: hover) {
     .stacked
