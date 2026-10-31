@@ -11,15 +11,18 @@ export function ProtocolSwitch({
   values,
   selectedValue,
   onSelect,
+  label,
 }: {
   values: readonly { value: string; label?: string }[];
   selectedValue: string;
   onSelect: (value: string) => void;
+  /** Accessible name. The homepage's REST / GraphQL switch is "Protocol". */
+  label?: string;
 }) {
   return (
     <TabList
       className={styles.segmented}
-      label={translate({ id: 'demo.protocol', message: 'Protocol' })}
+      label={label ?? translate({ id: 'demo.protocol', message: 'Protocol' })}
       pill
       tabs={values.map(({ value, label }) => ({
         key: value,

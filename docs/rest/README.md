@@ -13,6 +13,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+import PlaygroundTabs from '@site/src/components/PlaygroundTabs';
 import Link from '@docusaurus/Link';
 
 <PkgTabs pkgs="@data-client/rest" />
@@ -23,8 +24,9 @@ import Link from '@docusaurus/Link';
 [RestEndpoint](./api/RestEndpoint.md) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) on
 that data.
 
-<Tabs
+<PlaygroundTabs
 defaultValue="Class"
+label="Entity definition"
 values={[
 { label: 'Class', value: 'Class' },
 { label: 'Mixin', value: 'Mixin' },
@@ -129,7 +131,7 @@ export const ArticleResource = resource({
 
 </TabItem>
 
-</Tabs>
+</PlaygroundTabs>
 
 [Entity](./api/Entity.md) is a kind of schema that [has a primary key (pk)](/docs/concepts/normalization). This is what allows us
 to [avoid state duplication](https://react.dev/learn/choosing-the-state-structure#principles-for-structuring-state), which
