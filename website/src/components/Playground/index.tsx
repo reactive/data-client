@@ -238,11 +238,14 @@ export default function Playground<T>({
     hidden ? null : (
       <Boundary
         fallback={
-          <PreviewLoading
-            layout={layout}
-            fixtureContent={previewFixtures}
-            code={code}
-          />
+          <InspectorContext.Provider value={inspector}>
+            <PreviewLoading
+              layout={layout}
+              fixtureContent={previewFixtures}
+              code={code}
+              storeOpen={storeOpen}
+            />
+          </InspectorContext.Provider>
         }
       >
         <DemoViewContext.Provider value={demoView}>
@@ -359,26 +362,36 @@ const NARROW_PX = 720;
  * sheet + drawer toggles (the header's; a demo's side strip too; the row
  * layout's is the folder's handle, rendered with the folder above), and the
  * folded fixtures' toggle, already usable; so is a demo's Code toggle. The
- * reset holds its place, disabled */
+ * reset holds its place, disabled. Stacked, an open Store's tab shows as
+ * open, over a blank sheet in its place, so the app takes its width now */
 function PreviewLoading({
   layout,
   fixtureContent,
   code,
+  storeOpen,
 }: {
   layout: Layout;
   fixtureContent?: React.ReactNode;
   code?: CodeControl;
+  storeOpen?: boolean;
 }) {
   return (
     <PreviewWrapper
       layout={layout}
-      headerControls={<PreviewHeaderControls layout={layout} />}
+      headerControls={
+        <PreviewHeaderControls layout={layout} storeOpen={storeOpen} />
+      }
       fixtures={fixtureContent}
       code={code}
     >
       <div className={previewSurfaceClassName}>
         <PendingSheet />
       </div>
+      {layout === 'stacked' && storeOpen ?
+        <div className={styles.storePanel} data-visible>
+          <div />
+        </div>
+      : null}
       {layout === 'demo' ?
         <StoreToggle />
       : null}
