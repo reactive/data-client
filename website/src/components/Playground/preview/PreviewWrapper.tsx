@@ -7,11 +7,11 @@ import { editorLabel, liveLabel } from '../liveLabel';
 import NetworkIcon from '../NetworkIcon';
 import styles from '../styles.module.css';
 import type { CodeControl, Layout } from '../types';
+import { QuickLookHost } from './inspector';
 import ResetButton from './ResetButton';
 import { RouterControls, RouterControlsSlot } from './routerSlot';
 import {
   CodeHeaderToggle,
-  LookSlot,
   StoreHeaderToggle,
   type ToggleStore,
 } from './StoreToggle';
@@ -29,7 +29,7 @@ export default function PreviewWrapper({
   const [routerSlot, setRouterSlot] = useState<HTMLElement | null>(null);
   // a tab's quick look on the result, under its tabs: the header's
   // (stacked), or the narrow folder's while shut (StoreInspector.tsx)
-  const [lookSlot, setLookSlot] = useState<HTMLElement | null>(null);
+  const [quickLookHost, setQuickLookHost] = useState<HTMLElement | null>(null);
   const [fixturesOpen, setFixturesOpen] = useState(false);
   const [result, setResult] = useState<HTMLDivElement | null>(null);
   // the row's folder (beside the code) ends with its sheet
@@ -87,7 +87,7 @@ export default function PreviewWrapper({
           {code ?
             <CodeHeaderToggle open={code.shown} onClick={code.toggle} />
           : null}
-          <LookSlot value={lookSlot}>{headerControls}</LookSlot>
+          <QuickLookHost value={quickLookHost}>{headerControls}</QuickLookHost>
         </span>
       </Header>
       {fixtures != null ?
@@ -103,11 +103,11 @@ export default function PreviewWrapper({
       : null}
       <RouterControlsSlot value={routerSlot}>
         <div className={styles.playgroundResult} ref={setResult}>
-          <LookSlot value={lookSlot}>{children}</LookSlot>
+          <QuickLookHost value={quickLookHost}>{children}</QuickLookHost>
           {layout === 'demo' ? null : (
             <div
-              className={clsx(styles.lookSlot, styles.stageHues)}
-              ref={setLookSlot}
+              className={clsx(styles.quickLookHost, styles.stageHues)}
+              ref={setQuickLookHost}
             />
           )}
         </div>

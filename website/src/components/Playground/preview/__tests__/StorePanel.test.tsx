@@ -5,13 +5,12 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import { drawerToggle } from '../autorun/player';
+import { InspectorContext, QuickLookHost } from '../inspector';
 import { byData } from '../store/dom';
 import { endpointId, entityId, groupId, parseRowId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import {
   DemoViewContext,
-  InspectorContext,
-  LookSlot,
   StoreHeaderToggle,
   StoreToggle,
   useStoreOpen,
@@ -370,11 +369,16 @@ describe('StorePanel table view', () => {
   });
 
   it("shows a demo's view over the reader's while the Store stays open", () => {
-    let showStore: ReturnType<typeof useStoreOpen>[2] = () => {};
+    let showStore: ReturnType<typeof useStoreOpen>['showStore'] = () => {};
     let renders = 0;
     function Demo({ children }: { children: React.ReactNode }) {
       renders++;
-      const [open, toggle, show, demoView] = useStoreOpen('test', 'store');
+      const {
+        open,
+        toggle,
+        showStore: show,
+        demoView,
+      } = useStoreOpen('test', 'store');
       showStore = show;
       return (
         <DemoViewContext.Provider value={demoView}>
@@ -420,7 +424,7 @@ describe('StorePanel table view', () => {
 
   it('switches the stacked strip between the Actions and Store tabs', () => {
     function Strip() {
-      const [open, toggle, , , , inspector] = useStoreOpen('strip', 'store');
+      const { open, toggle, inspector } = useStoreOpen('strip', 'store');
       return (
         <InspectorContext.Provider value={inspector}>
           <StoreToggle onToggle={toggle} open={open} />
@@ -439,10 +443,13 @@ describe('StorePanel table view', () => {
   });
 
   it("opens a demo's Actions tab at the list, as its handle does", () => {
-    let showStore: ReturnType<typeof useStoreOpen>[2] = () => {};
+    let showStore: ReturnType<typeof useStoreOpen>['showStore'] = () => {};
     let listed = 0;
     function Demo() {
-      const [, , show, , , inspector] = useStoreOpen('demo-actions', 'store');
+      const { showStore: show, inspector } = useStoreOpen(
+        'demo-actions',
+        'store',
+      );
       showStore = show;
       listed = inspector.listed;
       return null;
@@ -457,7 +464,7 @@ describe('StorePanel table view', () => {
 
   it("switches tabs from a narrow playground's header, as the strip does", () => {
     function Header() {
-      const [open, toggle, , , , inspector] = useStoreOpen('header', 'n');
+      const { open, toggle, inspector } = useStoreOpen('header', 'n');
       return (
         <InspectorContext.Provider value={inspector}>
           <StoreHeaderToggle onClick={toggle} open={open} />
@@ -483,15 +490,16 @@ describe('StorePanel table view', () => {
   });
 
   it("opens a quick look as the mouse rests on a stacked header's toggle", () => {
-    let peek: ReturnType<typeof useStoreOpen>[5]['peek'] | undefined;
+    let quickLook:
+      ReturnType<typeof useStoreOpen>['inspector']['quickLook'] | undefined;
     function Header() {
-      const [open, toggle, , , , inspector] = useStoreOpen('peeks', 'store');
-      peek = inspector.peek;
+      const { open, toggle, inspector } = useStoreOpen('quick-looks', 'store');
+      quickLook = inspector.quickLook;
       return (
         <InspectorContext.Provider value={inspector}>
-          <LookSlot value={document.body}>
+          <QuickLookHost value={document.body}>
             <StoreHeaderToggle onClick={toggle} open={open} />
-          </LookSlot>
+          </QuickLookHost>
         </InspectorContext.Provider>
       );
     }
@@ -507,9 +515,9 @@ describe('StorePanel table view', () => {
       // not the tab showing, nor from a touch: a tap opens the drawer
       rest('Store', 'mouse');
       rest('Actions', 'touch');
-      expect(peek!.get()).toBeNull();
+      expect(quickLook!.get()).toBeNull();
       rest('Actions', 'mouse');
-      expect(peek!.get()).toBe('actions');
+      expect(quickLook!.get()).toBe('actions');
     } finally {
       jest.useRealTimers();
     }
@@ -517,7 +525,7 @@ describe('StorePanel table view', () => {
 
   it('moves focus along the strip with the arrows, picking nothing', () => {
     function Strip() {
-      const [open, toggle, , , , inspector] = useStoreOpen('keys', 'n');
+      const { open, toggle, inspector } = useStoreOpen('keys', 'n');
       return (
         <InspectorContext.Provider value={inspector}>
           <StoreToggle onToggle={toggle} open={open} />

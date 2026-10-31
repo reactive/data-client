@@ -25,9 +25,9 @@ jest.mock('../../../../utils/tabStorage', () => ({
   },
 }));
 
-let showStore: ReturnType<typeof useStoreOpen>[2] = () => {};
+let showStore: ReturnType<typeof useStoreOpen>['showStore'] = () => {};
 function Store() {
-  const [open, toggle, show, , moves] = useStoreOpen('test', 'n');
+  const { open, toggle, showStore: show, moves } = useStoreOpen('test', 'n');
   showStore = show;
   const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
   const moving = useStoreMotion(container, moves, open);

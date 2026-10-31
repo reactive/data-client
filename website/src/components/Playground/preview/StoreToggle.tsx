@@ -13,9 +13,17 @@ import React, {
   useMemo,
   useRef,
   useState,
-  useSyncExternalStore,
 } from 'react';
 
+import {
+  createQuickLook,
+  type Inspect,
+  type InspectorOpen,
+  type Inspector,
+  InspectorContext,
+  QuickLookHost,
+  type QuickLookStore,
+} from './inspector';
 import type { ShowStore, StoreView } from './store/storeView';
 import { useTabStorage } from '../../../utils/tabStorage';
 import { useLayoutMotion } from '../../motion';
@@ -49,11 +57,6 @@ export const ActionsByContext = createContext<{
   defaultBy: ActionsBy;
 }>({ groupId: 'playground', defaultBy: 'interaction' });
 
-/** What the Store drawer shows: the store, or the actions that changed it.
- * Each has its own tab on the drawer's edge */
-export type Inspect = 'store' | 'actions';
-/** Shut, or open showing one */
-export type InspectorOpen = Inspect | 'n';
 /** Opens the drawer on tab `to` (the one showing, unless named), or shuts
  * it when that one shows */
 export type ToggleStore = (
@@ -67,28 +70,6 @@ const inspectOf = (choice: string | null | undefined) =>
   : choice === 'actions' ? 'actions'
   : choice === 'n' ? null
   : undefined;
-
-/** Which of the drawer's tabs shows, and the quick look its other tab's
- * hover opens (`peek`); `select` shows a tab, opening the drawer if shut.
- * `listed` counts the Actions tab's handle pulled, each of which opens the
- * actions at their list */
-export interface Inspector {
-  readonly tab: Inspect;
-  select(tab: Inspect): void;
-  readonly peek: Peek;
-  readonly listed: number;
-}
-/** Where the preview's header shows its toggles' quick look (stacked,
- * ./PreviewWrapper.tsx): over the code, above the header. Without one, the
- * header's toggles open none */
-export const LookSlot = createContext<HTMLElement | null>(null);
-
-export const InspectorContext = createContext<Inspector>({
-  tab: 'store',
-  select() {},
-  peek: createPeek(),
-  listed: 0,
-});
 
 /** Store open state, persisted per `groupId` with the tab it shows;
  * toggling keeps the page from scrolling, also as each Store it closes
@@ -117,8 +98,8 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
   const [listed, setListed] = useState(0);
   // (every open, shut or switch of tab below closes the quick look; going,
   // so does the playground, its timer with it)
-  const [peek] = useState(createPeek);
-  useEffect(() => peek.close, [peek]);
+  const [quickLook] = useState(createQuickLook);
+  useEffect(() => quickLook.close, [quickLook]);
   // a demo's run holds one showStore from its start (./autorun/stage.ts), so
   // it reads the state as it is now; the toggles read the tab so, keeping
   // their identity as it switches
@@ -140,11 +121,11 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
       setChoice(shut ? 'n' : to);
       setLastTab(to);
       show(null);
-      peek.close();
+      quickLook.close();
       if (!open || shut) setMoves(n => n + 1);
       if (!shut && to === 'actions') setListed(n => n + 1);
     },
-    [blockElementScrollPositionUntilNextRender, open, setChoice, peek],
+    [blockElementScrollPositionUntilNextRender, open, setChoice, quickLook],
   );
   // from inside the drawer (a link to an action or a record): shows that
   // tab, sliding the drawer open if it was shut (a quick look's link)
@@ -153,20 +134,20 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
       clicked = undefined;
       setChoice(to);
       setLastTab(to);
-      peek.close();
+      quickLook.close();
       if (!latestOpen.current) {
         show(null);
         setMoves(n => n + 1);
       } else show(prev => (prev?.tab ? { ...prev, tab: undefined } : prev));
     },
-    [setChoice, peek],
+    [setChoice, quickLook],
   );
   // a demo's open or close is no reader's click: forget the last one, so it
   // doesn't pin a toggle the reader clicked earlier
   const showStore = useCallback<ShowStore>(
     (demoOpen, view, demoTab) => {
       clicked = undefined;
-      peek.close();
+      quickLook.close();
       if (demoOpen !== latestOpen.current) setMoves(n => n + 1);
       // opening the actions, as their handle does, it shows their list
       if (demoOpen && demoTab === 'actions') setListed(n => n + 1);
@@ -183,7 +164,7 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
           : { open: demoOpen, tab: nextTab, view: next };
       });
     },
-    [peek],
+    [quickLook],
   );
   // the reader picked a view: the demo's goes, its open and tab stay
   const drop = useCallback(
@@ -193,72 +174,10 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
   const view = shown?.view;
   const demoView = useMemo<DemoView>(() => ({ view, drop }), [view, drop]);
   const inspector = useMemo<Inspector>(
-    () => ({ tab, select, peek, listed }),
-    [tab, select, peek, listed],
+    () => ({ tab, select, quickLook, listed }),
+    [tab, select, quickLook, listed],
   );
-  return [open, toggle, showStore, demoView, moves, inspector] as const;
-}
-
-/** The tab whose quick look shows */
-export function useLook(): Inspect | null {
-  const { peek } = useContext(InspectorContext);
-  return useSyncExternalStore(peek.subscribe, peek.get, noLook);
-}
-const noLook = () => null;
-
-/** Whether a quick look shows, whichever tab's */
-export function useLooking(): boolean {
-  const { peek } = useContext(InspectorContext);
-  return useSyncExternalStore(
-    peek.subscribe,
-    () => peek.get() !== null,
-    () => false,
-  );
-}
-
-/** How long the pointer rests on a tab before its quick look opens, and is
- * away from both before it closes (ms) */
-const PEEK_OPEN_MS = 150;
-const PEEK_CLOSE_MS = 300;
-
-/** The quick look a drawer tab's hover opens: outside React state, so a
- * hover re-renders only what shows it (../StoreInspector.tsx), not the
- * playground. Mouse only: a tap on the tab opens the drawer itself */
-export interface Peek {
-  get(): Inspect | null;
-  subscribe(onChange: () => void): () => void;
-  /** The pointer came onto (`true`) or left a tab's handle or its quick look */
-  hover(tab: Inspect, inside: boolean, e: React.PointerEvent): void;
-  close(): void;
-}
-export function createPeek(): Peek {
-  let shown: Inspect | null = null;
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const listeners = new Set<() => void>();
-  const set = (next: Inspect | null) => {
-    clearTimeout(timer);
-    if (next === shown) return;
-    shown = next;
-    listeners.forEach(listener => listener());
-  };
-  return {
-    get: () => shown,
-    subscribe(onChange) {
-      listeners.add(onChange);
-      return () => listeners.delete(onChange);
-    },
-    hover(tab, inside, e) {
-      if (e.pointerType !== 'mouse') return;
-      clearTimeout(timer);
-      // straight from one tab's quick look to the other's
-      if (inside && shown !== null && shown !== tab) return set(tab);
-      timer = setTimeout(
-        () => set(inside ? tab : null),
-        inside ? PEEK_OPEN_MS : PEEK_CLOSE_MS,
-      );
-    },
-    close: () => set(null),
-  };
+  return { open, toggle, showStore, demoView, moves, inspector };
 }
 
 /** Whether the Store is moving for one of `moves` (`useStoreOpen`), as
@@ -385,9 +304,9 @@ export function StoreHeaderToggle({
   onClick?: ToggleStore;
   open?: boolean;
 }) {
-  const { tab, peek } = useContext(InspectorContext);
+  const { tab, quickLook } = useContext(InspectorContext);
   // the mouse resting on one opens its quick look, as on the folder's handles
-  const peeks = useContext(LookSlot) !== null && onClick;
+  const quickLooks = useContext(QuickLookHost) !== null && onClick;
   return INSPECTS.map(to => {
     const shown = open && tab === to;
     return (
@@ -399,7 +318,7 @@ export function StoreHeaderToggle({
         open={shown}
         data-store-toggle={to}
         onClick={onClick && (e => onClick(e, to))}
-        {...(peeks && peekOn(peek, to, shown))}
+        {...(quickLooks && quickLookOn(quickLook, to, shown))}
       >
         {tabIcon(to)}
       </HeaderToggle>
@@ -479,10 +398,10 @@ function HeaderToggle({
  * one draws the folder's layer out over the code showing its view, and
  * both stay outside the drawer's edge, drawn out, the one showing joined
  * to it (see .storeDrawer in ../styles.module.css). Resting on one opens
- * its quick look (`Peek`) */
+ * its quick look (`QuickLookStore`) */
 export function DrawerTabs({
   open,
-  inspector: { tab, peek },
+  inspector: { tab, quickLook },
   onToggle,
   controls,
   ref,
@@ -517,7 +436,7 @@ export function DrawerTabs({
             tabIndex={tab === to ? 0 : -1}
             aria-controls={controls}
             onClick={e => onToggle(e, to)}
-            {...peekOn(peek, to, selected)}
+            {...quickLookOn(quickLook, to, selected)}
             data-store-toggle={to}
           >
             {tabIcon(to)}
@@ -530,9 +449,14 @@ export function DrawerTabs({
 const INSPECTS = ['actions', 'store'] as const satisfies readonly Inspect[];
 
 /** A tab's handlers for its quick look: none while it shows */
-const peekOn = (peek: Peek, to: Inspect, shown: boolean) => ({
-  onPointerEnter: (e: React.PointerEvent) => !shown && peek.hover(to, true, e),
-  onPointerLeave: (e: React.PointerEvent) => peek.hover(to, false, e),
+const quickLookOn = (
+  quickLook: QuickLookStore,
+  to: Inspect,
+  shown: boolean,
+) => ({
+  onPointerEnter: (e: React.PointerEvent) =>
+    !shown && quickLook.hover(to, true, e),
+  onPointerLeave: (e: React.PointerEvent) => quickLook.hover(to, false, e),
 });
 
 /** A strip of the drawer's tabs: the arrows, Home and End move focus along

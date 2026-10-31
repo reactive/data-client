@@ -12,9 +12,10 @@ import { createPortal } from 'react-dom';
 import { Reveal } from '../../motion';
 import styles from '../styles.module.css';
 import { storeOnFolder, type Layout, type PreviewProps } from '../types';
+import { QuickLookHost, useQuickLookShown } from './inspector';
 import type SchemaRegistry from './store/schemaRegistry';
 import StorePanel from './store/StorePanel';
-import { heldToggle, LookSlot, StoreToggle, useLooking } from './StoreToggle';
+import { heldToggle, StoreToggle } from './StoreToggle';
 
 function StoreInspector({
   toggle,
@@ -46,29 +47,34 @@ function StoreInspector({
   const folder = storeOnFolder(layout, narrow);
   const deferred = useDeferredValue(open);
   // a tab's quick look shows from the panel, mounting it if it never was
-  const looking = useLooking();
-  const ready = (folder ? open : deferred) || looking;
+  const quickLookShown = useQuickLookShown();
+  const ready = (folder ? open : deferred) || quickLookShown;
   const [showTree, setShowTree] = useState(false);
   if (ready && !showTree) setShowTree(true);
   // the quick look goes on the drawer's panel, in its palette: beside the
   // folder's handles, or under them while open; else on the result, under
   // its tabs (PreviewWrapper's slot for it)
   const [panelEl, setPanelEl] = useState<HTMLDivElement | null>(null);
-  const lookSlot = useContext(LookSlot);
+  const quickLookHost = useContext(QuickLookHost);
   const onPanel = folder && (open || !narrow);
   const tree =
     showTree ?
       <StorePanel
         registry={registry}
         history={history}
-        lookHost={onPanel ? panelEl : lookSlot}
+        quickLookHost={onPanel ? panelEl : quickLookHost}
       />
     : null;
   if (folder) {
     return (
       host &&
       createPortal(
-        <FolderPanel open={open} host={host} peeking={looking} ref={setPanelEl}>
+        <FolderPanel
+          open={open}
+          host={host}
+          quickLookShown={quickLookShown}
+          ref={setPanelEl}
+        >
           {tree}
         </FolderPanel>,
         host,
@@ -84,7 +90,7 @@ function StoreInspector({
         show={open}
         className={styles.storePanel}
         hold={heldToggle}
-        active={looking}
+        active={quickLookShown}
       >
         {tree}
       </Reveal>
@@ -102,7 +108,7 @@ export default memo(StoreInspector);
 function FolderPanel({
   open,
   host,
-  peeking,
+  quickLookShown,
   ref,
   children,
 }: {
@@ -111,7 +117,7 @@ function FolderPanel({
   ref: React.Ref<HTMLDivElement>;
   /** A tab's quick look shows, from the panel: it stays visible to the
    * look, though shut */
-  peeking: boolean;
+  quickLookShown: boolean;
   children: React.ReactNode;
 }) {
   const [shut, setShut] = useState(!open);
@@ -142,7 +148,7 @@ function FolderPanel({
       className={styles.storePanel}
       data-visible={!shut || undefined}
     >
-      <Activity mode={shut && !peeking ? 'hidden' : 'visible'}>
+      <Activity mode={shut && !quickLookShown ? 'hidden' : 'visible'}>
         {children}
       </Activity>
     </div>

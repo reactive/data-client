@@ -493,10 +493,10 @@ export interface Nav {
   readonly push: (view: View, at?: Moment) => void;
 }
 
-/** Set by each level and the peek */
+/** Set by each level and the quick look */
 export const NavContext = createContext<Nav | null>(null);
 export function useNav(): Nav {
   const nav = useContext(NavContext);
-  if (!nav) throw new Error('useNav outside a level or the peek');
+  if (!nav) throw new Error('useNav outside a level or the quick look');
   return nav;
 }

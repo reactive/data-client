@@ -182,15 +182,17 @@ const toRoot = () => {
 /** At a moment, the whole store the action left, not its diff */
 const showAfter = openState;
 /** The quick look at the actions, as the mouse rests on their tab */
-const peek = () => screen.queryByRole('complementary', { name: 'Actions' });
+const quickLook = () =>
+  screen.queryByRole('complementary', { name: 'Actions' });
 /** The quick look at the live store, as the mouse rests on the Store tab */
-const storeLook = () => screen.queryByRole('complementary', { name: 'Store' });
+const storeQuickLook = () =>
+  screen.queryByRole('complementary', { name: 'Store' });
 /** The actions shown: the quick look, else the full-width list on top */
 const pane = () =>
-  peek() ?? within(top()).getByRole('region', { name: 'Actions' });
+  quickLook() ?? within(top()).getByRole('region', { name: 'Actions' });
 /** The quick look's head: `Actions`, the subject below the store, and the
  * count */
-const paneHead = () => peek()!.firstElementChild!.textContent!;
+const paneHead = () => quickLook()!.firstElementChild!.textContent!;
 /** The full-width list's count, beside its crumbs */
 const listCount = () =>
   within(top()).getByRole('navigation', { name: 'Store location' })
@@ -207,7 +209,7 @@ const hover = (el: Element, inside: boolean, pointerType = 'mouse') => {
 /** Past the quick look's delays (with fake timers) */
 const wait = () => act(() => jest.advanceTimersByTime(500));
 /** Looks at the subject's actions from their tab, with fake timers from here */
-const peekIn = () => {
+const quickLookIn = () => {
   jest.useFakeTimers();
   hover(actionsTab(), true);
   wait();
@@ -231,7 +233,7 @@ const crumbs = () =>
   ].map(el => el.textContent);
 /** The rows of the actions shown */
 const rows = () => [
-  ...(peek() ?? top()).querySelectorAll<HTMLElement>(
+  ...(quickLook() ?? top()).querySelectorAll<HTMLElement>(
     '[role="button"][aria-expanded]',
   ),
 ];
@@ -545,10 +547,10 @@ describe('Store Actions pane detail', () => {
     // a touch shows nothing: a tap is a click
     hover(tab, true, 'touch');
     wait();
-    expect(peek()).toBeNull();
+    expect(quickLook()).toBeNull();
     // the mouse resting on it, after a moment
     hover(tab, true);
-    expect(peek()).toBeNull();
+    expect(quickLook()).toBeNull();
     wait();
     expect(paneHead()).toBe('Actions' + '1');
     expect(showing(tab)).toBe(false);
@@ -557,38 +559,40 @@ describe('Store Actions pane detail', () => {
     expect(crumbs()).toEqual([]);
     // from the tab into it, it stays
     hover(tab, false);
-    hover(peek()!, true);
+    hover(quickLook()!, true);
     wait();
-    expect(peek()).toBeTruthy();
+    expect(quickLook()).toBeTruthy();
     // away from both, it goes after a moment
-    hover(peek()!, false);
+    hover(quickLook()!, false);
     act(() => jest.advanceTimersByTime(100));
-    expect(peek()).toBeTruthy();
+    expect(quickLook()).toBeTruthy();
     wait();
-    expect(peek()).toBeNull();
+    expect(quickLook()).toBeNull();
     // a click opens the tab instead, at the list, and the tab showing looks
     // no more
     hover(tab, true);
     wait();
     fireEvent.click(tab);
-    expect(peek()).toBeNull();
+    expect(quickLook()).toBeNull();
     expect(crumbs()).toEqual([]);
     expect(rows()).toHaveLength(1);
     expect(showing(tab)).toBe(true);
     hover(tab, false);
     hover(tab, true);
     wait();
-    expect(peek()).toBeNull();
+    expect(quickLook()).toBeNull();
     // the Store tab's handle looks at the live store meanwhile
     hover(storeTab(), true);
     wait();
-    expect(storeLook()!.firstElementChild!.textContent).toBe('Store' + 'Live');
+    expect(storeQuickLook()!.firstElementChild!.textContent).toBe(
+      'Store' + 'Live',
+    );
     hover(storeTab(), false);
     wait();
-    expect(storeLook()).toBeNull();
+    expect(storeQuickLook()).toBeNull();
     // nor does the Actions tab's as the Store shows again
     openState();
-    expect(peek()).toBeNull();
+    expect(quickLook()).toBeNull();
     expect(crumbs()).toEqual([]);
     expect(showing(tab)).toBe(false);
   });
@@ -604,7 +608,7 @@ describe('Store Actions pane detail', () => {
     jest.useFakeTimers();
     hover(storeTab(), true);
     wait();
-    expect(storeLook()).toBeTruthy();
+    expect(storeQuickLook()).toBeTruthy();
     const escape = new KeyboardEvent('keydown', {
       key: 'Escape',
       bubbles: true,
@@ -612,7 +616,7 @@ describe('Store Actions pane detail', () => {
     });
     fireEvent(top(), escape);
     expect(escape.defaultPrevented).toBe(true);
-    expect(storeLook()).toBeNull();
+    expect(storeQuickLook()).toBeNull();
     expect(crumbs()).toEqual(dived);
     expect(showing(actionsTab())).toBe(true);
   });
@@ -620,15 +624,15 @@ describe('Store Actions pane detail', () => {
   it("closes the quick look with the mouse's back button, keeping the page", async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
-    peekIn();
+    quickLookIn();
     const back = new MouseEvent('mouseup', {
       button: 3,
       bubbles: true,
       cancelable: true,
     });
-    fireEvent(peek()!, back);
+    fireEvent(quickLook()!, back);
     expect(back.defaultPrevented).toBe(true);
-    expect(peek()).toBeNull();
+    expect(quickLook()).toBeNull();
   });
 
   it('opens a row picked in the quick look in the Actions tab, as the moment', async () => {
@@ -641,7 +645,7 @@ describe('Store Actions pane detail', () => {
     wait();
     expect(paneHead()).toBe('ActionsPost 1' + '1');
     fireEvent.click(rows()[0]);
-    expect(peek()).toBeNull();
+    expect(quickLook()).toBeNull();
     expect(showing(actionsTab())).toBe(true);
     expect(crumbs()).toEqual(['Actions of Post 1', 'GET /posts']);
     expect(scrubber().textContent).toContain('After GET /posts');
@@ -664,14 +668,14 @@ describe('Store Actions pane detail', () => {
     jest.useFakeTimers();
     hover(storeTab(), true);
     wait();
-    const look = storeLook()!;
+    const look = storeQuickLook()!;
     expect(look.firstElementChild!.textContent).toBe('Store' + 'Live');
     // the store as it is now, not as the moment left it
     expect(look.textContent).toContain('"Edited"');
     expect(look.textContent).not.toContain('"One"');
     // a record picked opens in the Store tab, at the moment
     fireEvent.click(within(look).getByText('"Edited"'));
-    expect(storeLook()).toBeNull();
+    expect(storeQuickLook()).toBeNull();
     expect(showing(storeTab())).toBe(true);
     expect(current()).toBe('1');
     expect(top().textContent).toContain('"One"');
@@ -688,7 +692,7 @@ describe('Store Actions pane detail', () => {
     jest.useFakeTimers();
     hover(storeTab(), true);
     wait();
-    const look = storeLook()!;
+    const look = storeQuickLook()!;
     expect(look.textContent).toContain('"Edited"');
     expect(look.textContent).not.toContain('Optimistic');
     jest.useRealTimers();
@@ -704,12 +708,12 @@ describe('Store Actions pane detail', () => {
     jest.useFakeTimers();
     hover(actionsTab(), true);
     wait();
-    fireEvent.pointerDown(peek()!);
-    expect(peek()).toBeTruthy();
+    fireEvent.pointerDown(quickLook()!);
+    expect(quickLook()).toBeTruthy();
     fireEvent.pointerDown(rows()[0]);
-    expect(peek()).toBeTruthy();
+    expect(quickLook()).toBeTruthy();
     fireEvent.pointerDown(top());
-    expect(peek()).toBeNull();
+    expect(quickLook()).toBeNull();
   });
 
   it("goes back with the mouse's back button", async () => {
@@ -1494,7 +1498,7 @@ describe('Store diff', () => {
       [entityId('Post', '1'), 'updated'],
     ];
     expect(tableRows()).toEqual(effect);
-    peekIn();
+    quickLookIn();
     const request = () => rows().find(r => r.textContent!.includes('PATCH'))!;
     fireEvent.click(request());
     expect(scrubber().textContent).toContain('After PATCH /posts/1');
@@ -1509,10 +1513,10 @@ describe('Store diff', () => {
     expect(top().textContent).toMatch(/title: "One" → "Edited!"/);
     // a step of it alone (its row open in the quick look, as the moment is
     // at it): just that action
-    peekIn();
+    quickLookIn();
     expect(request().getAttribute('aria-expanded')).toBe('true');
     fireEvent.click(
-      within(peek()!)
+      within(quickLook()!)
         .getByText('optimistic')
         .closest<HTMLElement>('[data-seq]')!,
     );
@@ -1592,7 +1596,7 @@ describe('Store diff', () => {
     openDiff();
     expect(tableRows()).toEqual([[entityId('Post', '1'), 'updated']]);
     // the response's rows, as it left them
-    peekIn();
+    quickLookIn();
     fireEvent.click(
       within(rows()[0]).getByRole('button', { name: '+ 2 Post' }),
     );
@@ -1638,9 +1642,9 @@ describe('Store diff', () => {
     expect(top().textContent).not.toContain('Endpoints');
     expect(top().textContent).not.toContain('Internals');
     // the fetch changed no row: it says what it did
-    peekIn();
+    quickLookIn();
     fireEvent.click(expander(rows()[0]));
-    fireEvent.click(peek()!.querySelector<HTMLElement>('[data-seq="1"]')!);
+    fireEvent.click(quickLook()!.querySelector<HTMLElement>('[data-seq="1"]')!);
     expect(scrubber().textContent).toContain('fetch');
     openDiff();
     expect(marks()).toEqual([]);
@@ -2328,7 +2332,7 @@ describe('Store Actions pane on a record', () => {
     });
     openPost('1');
     // beside the record, which says what changed it
-    peekIn();
+    quickLookIn();
     const gap = () =>
       within(pane()).getByText(
         'Changed by actions not kept: the log keeps the newest',
@@ -2373,7 +2377,7 @@ describe('Store Actions pane on a record', () => {
     );
     expect(top().textContent).not.toContain('No change to this record');
     openState();
-    peekIn();
+    quickLookIn();
     previous();
     expect(rows()[0].getAttribute('aria-current')).toBe('true');
     expect(changedBy()).toContain('setResponse');
@@ -2480,7 +2484,7 @@ describe('Store Actions pane on a record', () => {
     fireEvent.click(
       top().querySelector<HTMLElement>(`tr[data-id="${endpointId(POSTS)}"]`)!,
     );
-    peekIn();
+    quickLookIn();
     expect(pane().textContent).toContain('Changed by actions not kept');
     expect(pane().textContent).toContain('stored again, unchanged');
     // with no kept change to name

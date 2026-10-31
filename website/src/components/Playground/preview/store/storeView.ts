@@ -1,11 +1,11 @@
 import { createContext, useCallback, useContext } from 'react';
 
 import { useTabStorage } from '../../../../utils/tabStorage';
+import type { Inspect } from '../inspector';
 import {
   ActionsByContext,
   DemoViewContext,
   type ActionsBy,
-  type Inspect,
 } from '../StoreToggle';
 
 export type StoreView = 'table' | 'tree';

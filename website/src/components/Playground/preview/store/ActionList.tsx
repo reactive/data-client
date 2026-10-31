@@ -73,7 +73,7 @@ export function useRows(filter: SubjectFilter) {
 
 /** `subject`'s actions as a quick look (./QuickLook.tsx): their count, then
  * the list, kept on the newest */
-export function ActionsLook({
+export function ActionsQuickLook({
   subject,
   filter,
   label,

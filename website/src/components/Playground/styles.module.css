@@ -1857,11 +1857,13 @@ div.fixtureJson + div.fixtureJson {
    the app (on the result, preview/PreviewWrapper.tsx); open, over the
    drawer's own edge */
 @container playground (max-width: 719px) {
-  .row :is(.storeHost, .lookSlot) [data-quick-look] {
-    --pg-look-side: calc(var(--pg-head-inset) + 2 * var(--pg-card-radius));
+  .row :is(.storeHost, .quickLookHost) [data-quick-look] {
+    --pg-quick-look-side: calc(
+      var(--pg-head-inset) + 2 * var(--pg-card-radius)
+    );
     top: 0.5rem;
-    right: var(--pg-look-side);
-    max-width: calc(100% - 2 * var(--pg-look-side));
+    right: var(--pg-quick-look-side);
+    max-width: calc(100% - 2 * var(--pg-quick-look-side));
   }
   .row > .storeHost[data-open] [data-quick-look] {
     max-height: calc(100% - 1rem);
@@ -2240,16 +2242,16 @@ div.fixtureJson + div.fixtureJson {
    its tabs. Stacked, in the open drawer's place, over the app instead of
    beside it: as tall as the result, within the Store's own bounds (past a
    short result's foot; a long one's newest actions still in view) */
-.lookSlot {
+.quickLookHost {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
-.lookSlot [data-quick-look] {
+.quickLookHost [data-quick-look] {
   pointer-events: auto;
 }
 @container playground (min-width: 720px) {
-  .stacked .lookSlot [data-quick-look] {
+  .stacked .quickLookHost [data-quick-look] {
     top: 0;
     right: 0;
     width: var(--pg-store-side);

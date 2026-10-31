@@ -14,24 +14,25 @@ renders `index.tsx`. `../TypeScriptEditor.tsx` and
 (`variant="standalone"`); `../DiffEditor.tsx` reuses `editor/codeModel.ts`
 and `editor/callouts.ts`.
 
-| Task                                         | Where                                                                                                              |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Props, layouts, Store placement, `hidden`    | `index.tsx` (`PlaygroundProps` documents each prop)                                                                |
-| Fence metastring, file list                  | `editor/codeModel.ts`                                                                                              |
-| Editor chrome, SSR markup                    | `editor/EditorSurface.tsx`, `editor/StaticEditor.tsx`, `editor/InteractiveEditor.tsx`                              |
-| Monaco: types, completions, go-to-definition | `monaco/` (`preloadManifest.ts` and `../editor-types/` are generated)                                              |
-| Running the code, scope globals              | `preview/LivePreview.tsx`, `preview/useCodeManagers.ts`, `preview/transformCode.ts`, `preview/scope.ts`            |
-| Preview frame, Store open state and motion   | `preview/PreviewWrapper.tsx`, `preview/StoreToggle.tsx`, `preview/StoreInspector.tsx`                              |
-| Store inspector UI                           | `preview/store/` (`StorePanel.tsx` owns its state, `nav.tsx` moves it)                                             |
-| Store log, action credit                     | `preview/store/actionLog.ts`, `actionGroups.ts`, `attribution.ts` (names each action's manager)                    |
-| Why a fetch happened                         | `preview/store/fetchCause.ts` (reason, playground-free), `callSite.ts` (hook, component, event), `Why.tsx`         |
+| Task                                         | Where                                                                                                           |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Props, layouts, Store placement, `hidden`    | `index.tsx` (`PlaygroundProps` documents each prop)                                                             |
+| Fence metastring, file list                  | `editor/codeModel.ts`                                                                                           |
+| Editor chrome, SSR markup                    | `editor/EditorSurface.tsx`, `editor/StaticEditor.tsx`, `editor/InteractiveEditor.tsx`                           |
+| Monaco: types, completions, go-to-definition | `monaco/` (`preloadManifest.ts` and `../editor-types/` are generated)                                           |
+| Running the code, scope globals              | `preview/LivePreview.tsx`, `preview/useCodeManagers.ts`, `preview/transformCode.ts`, `preview/scope.ts`         |
+| Preview frame, Store open state and motion   | `preview/PreviewWrapper.tsx`, `preview/StoreToggle.tsx`, `preview/StoreInspector.tsx`                           |
+| Drawer tab shown, quick look state           | `preview/inspector.ts`                                                                                          |
+| Store inspector UI                           | `preview/store/` (`StorePanel.tsx` owns its state, `nav.tsx` moves it)                                          |
+| Store log, action credit                     | `preview/store/actionLog.ts`, `actionGroups.ts`, `attribution.ts` (names each action's manager)                 |
+| Why a fetch happened                         | `preview/store/fetchCause.ts` (reason, playground-free), `callSite.ts` (hook, component, event), `Why.tsx`      |
 | Actions listed (`defaultActionsBy`)          | `preview/store/interactions.ts` (sections), `actionRowsOf` (`actionGroups.ts`), `useActionsBy` (`storeView.ts`) |
-| Managers the code declares                   | `preview/managers.ts`; [data flow](./managers-data-flow.png) (source `.svg`)                                       |
-| EndpointPlayground's live exchange           | `preview/exchange/` (runs the code, its endpoints answered by fixtures); `../HTTP/` draws it                       |
-| Multi-page demos, self-playing demos         | `preview/router.tsx`, `preview/autorun/`                                                                           |
-| Demo markup's look                           | `DesignSystem/design-system.css`, tokens and skeletons in `base.css` ([Design system](#design-system))             |
-| Mobile and crawler gates                     | `userAgent.ts`                                                                                                     |
-| Docusaurus stubs for tests                   | `testing/` (mapped in the root `jest.config.js`)                                                                   |
+| Managers the code declares                   | `preview/managers.ts`; [data flow](./managers-data-flow.png) (source `.svg`)                                    |
+| EndpointPlayground's live exchange           | `preview/exchange/` (runs the code, its endpoints answered by fixtures); `../HTTP/` draws it                    |
+| Multi-page demos, self-playing demos         | `preview/router.tsx`, `preview/autorun/`                                                                        |
+| Demo markup's look                           | `DesignSystem/design-system.css`, tokens and skeletons in `base.css` ([Design system](#design-system))          |
+| Mobile and crawler gates                     | `userAgent.ts`                                                                                                  |
+| Docusaurus stubs for tests                   | `testing/` (mapped in the root `jest.config.js`)                                                                |
 
 `resources/` is referenced by nothing.
 
@@ -129,7 +130,7 @@ preview header's toggle in every layout.
   class. Element props override it; `defaultTab` overrides `collapsed`.
 - Stacked: the `row`'s paper turned vertical (`.row.stacked`). The
   header's Actions and Store toggles open the drawer beside the app; hover
-  opens a quick look in its place (`LookSlot`). Below 720px container width
+  opens a quick look in its place (`QuickLookHost`). Below 720px container width
   it is the narrow `row` (`useNarrow`). Open files are `FileCard`s
   (`editor/EditorSurface.tsx`), each name a caption that folds its card;
   two to a line from 900px container width, a card alone takes the line.
@@ -239,7 +240,7 @@ preview header's toggle in every layout.
 - Open state and its tab (`Inspect`: `store` or `actions`) persist per
   `groupId`; `defaultOpen` takes either, or `n`. Closing one Store closes
   every one in the group. Toggling holds the page's scroll position.
-- The drawer's tabs (`InspectorContext`) are the only tabs; `StorePanel`
+- The drawer's tabs (`InspectorContext`, `preview/inspector.ts`) are the only tabs; `StorePanel`
   has none. The shown tab shuts the drawer; the other switches to it.
   Actions always opens at its list: every way in bumps `listed`, which
   `StorePanel` resets on. Links in the panel (`select`) open where they
@@ -247,7 +248,7 @@ preview header's toggle in every layout.
 - Quick look (`store/QuickLook.tsx`): a mouse resting on a tab not shown
   opens a card beside the tabs with that tab's live view (the store with
   optimistic updates applied, or the newest actions). Touch has none. Its
-  state lives outside React (`createPeek`). Escape closes it before the
+  state lives outside React (`createQuickLook`). Escape closes it before the
   drawer or a level takes the key, except from inside the panel while the
   narrow timeline's sheet is open.
 - Row: `StoreInspector` portals into the drawer (`FolderPanel`, an
