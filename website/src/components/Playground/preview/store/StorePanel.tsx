@@ -762,6 +762,7 @@ export default function StorePanel({
                     model={liveRows}
                     onPick={show}
                     onOpen={openView}
+                    sheetOver={narrow && timelineOpen}
                   />,
                   lookHost,
                 )}
@@ -1060,7 +1061,7 @@ function Level({
       inert={!top || hidden}
       tabIndex={-1}
       onKeyDown={e => {
-        if (e.key === 'Escape' && depth > 0) {
+        if (e.key === 'Escape' && depth > 0 && !e.defaultPrevented) {
           e.preventDefault();
           onBack(depth);
         }

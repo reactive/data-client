@@ -1861,20 +1861,68 @@ div.fixtureJson + div.fixtureJson {
     border-bottom-left-radius: 0;
     clip-path: inset(-3rem -3rem -3rem 0);
   }
-  /* pulled forward while its look shows, the pointer on it or not */
-  .row > .storeHost .storeTab[data-look] {
-    --pg-tab-out: calc(var(--pg-tab-width) - var(--pg-tab-back) / 3);
-    --pg-fillet-color: var(--pg-tab-pulled);
-    background: var(--pg-tab-pulled);
-    color: var(--pg-text);
-    filter: var(--pg-tab-lift);
+}
+/* Stacked, the same turned to the stacking axis: up from behind the
+   folder's top edge (the preview's, shut; the drawer's, open, where it
+   comes down over the sheet), its side level with its tab's */
+@container playground (max-width: 719px) {
+  .row > .storeHost [data-quick-look] {
+    /* its tab's far side */
+    --pg-look-side: calc(var(--pg-head-inset) + 2 * var(--pg-card-radius));
+    --pg-look-in: var(--pg-card-radius);
+    z-index: 0;
+    right: var(--pg-look-side);
+    bottom: calc(100% - var(--pg-look-in));
+    max-width: calc(100% - var(--pg-look-side));
+    max-height: calc(100% - 0.5rem);
+    clip-path: inset(-3rem -3rem var(--pg-look-in) -3rem);
   }
+  .row > .storeHost:not([data-open]) [data-quick-look] {
+    animation-name: lookUp;
+  }
+  .row > .storeHost [data-quick-look='actions'] {
+    --pg-look-side: calc(
+      var(--pg-head-inset) + 3 * var(--pg-card-radius) + var(--pg-tab-length)
+    );
+  }
+  .row > .storeHost[data-open] [data-quick-look] {
+    z-index: 6;
+    top: 0;
+    bottom: auto;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    clip-path: inset(0 -3rem -3rem -3rem);
+    animation-name: lookDown;
+  }
+  .row > .storeHost[data-open] .storeTab[data-look] {
+    box-shadow: none;
+  }
+}
+/* pulled forward while its look shows, the pointer on it or not */
+.row > .storeHost .storeTab[data-look] {
+  --pg-tab-out: calc(var(--pg-tab-width) - var(--pg-tab-back) / 3);
+  --pg-fillet-color: var(--pg-tab-pulled);
+  background: var(--pg-tab-pulled);
+  color: var(--pg-text);
+  filter: var(--pg-tab-lift);
 }
 /* sliding out from under the edge it's cut at, the cut held still */
 @keyframes lookOut {
   from {
     translate: 2rem 0;
     clip-path: inset(-3rem calc(var(--pg-look-in) + 2rem) -3rem -3rem);
+  }
+}
+@keyframes lookUp {
+  from {
+    translate: 0 2rem;
+    clip-path: inset(-3rem -3rem calc(var(--pg-look-in) + 2rem) -3rem);
+  }
+}
+@keyframes lookDown {
+  from {
+    opacity: 0;
+    translate: 0 -0.5rem;
   }
 }
 /* Stacked row layout: the same folder turned to the stacking axis. The

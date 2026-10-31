@@ -30,6 +30,7 @@ export function QuickLook({
   model,
   onPick,
   onOpen,
+  sheetOver,
 }: {
   tab: Inspect;
   peek: Peek;
@@ -43,16 +44,28 @@ export function QuickLook({
   onPick: (seq: number, scope?: Scope) => void;
   /** A record or list picked: opens it in the Store tab */
   onOpen: (view: View) => void;
+  /** The narrow timeline's sheet is open over it, so Escape shuts that first */
+  sheetOver: boolean;
 }) {
   const ref = useRef<HTMLElement>(null);
-  // a press outside closes it
+  // a press outside closes it, and Escape anywhere, before the drawer or a
+  // level under it (they skip a prevented Escape) takes it
   useEffect(() => {
     const onPress = (e: PointerEvent) => {
       if (!ref.current?.contains(e.target as Node | null)) peek.close();
     };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || sheetOver) return;
+      e.preventDefault();
+      peek.close();
+    };
     document.addEventListener('pointerdown', onPress);
-    return () => document.removeEventListener('pointerdown', onPress);
-  }, [peek]);
+    document.addEventListener('keydown', onKey, true);
+    return () => {
+      document.removeEventListener('pointerdown', onPress);
+      document.removeEventListener('keydown', onKey, true);
+    };
+  }, [peek, sheetOver]);
   return (
     <aside
       ref={ref}

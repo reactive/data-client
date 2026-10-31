@@ -226,7 +226,8 @@ callout markers as comments, its caption and legend outside the editor.
   tables (optimistic updates applied), or the actions kept on the newest. Its
   open state lives outside React (`createPeek`), so a hover re-renders only
   `StoreInspector`, which mounts the panel for it. Touch has none: a tap
-  opens the drawer.
+  opens the drawer. Escape dismisses it before the drawer or a level takes
+  the key (only the narrow timeline's sheet, open over it, comes first).
 - Row: `StoreInspector` portals into the drawer (`FolderPanel`, an
   `<Activity>` hidden once the sweep shuts, so reopening finds it as left).
   Other layouts: a `Reveal` (`../motion/README.md`); the tree renders a

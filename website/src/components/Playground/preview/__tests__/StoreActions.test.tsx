@@ -593,6 +593,30 @@ describe('Store Actions pane detail', () => {
     expect(showing(tab)).toBe(false);
   });
 
+  it('dismisses the quick look with Escape, before the drawer or a level takes it', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    // dived into a row of the shown Actions tab, the keys on its handle
+    openPane();
+    fireEvent.click(rows()[0]);
+    const dived = crumbs();
+    expect(dived).not.toEqual([]);
+    jest.useFakeTimers();
+    hover(storeTab(), true);
+    wait();
+    expect(storeLook()).toBeTruthy();
+    const escape = new KeyboardEvent('keydown', {
+      key: 'Escape',
+      bubbles: true,
+      cancelable: true,
+    });
+    fireEvent(top(), escape);
+    expect(escape.defaultPrevented).toBe(true);
+    expect(storeLook()).toBeNull();
+    expect(crumbs()).toEqual(dived);
+    expect(showing(actionsTab())).toBe(true);
+  });
+
   it('opens a row picked in the quick look in the Actions tab, as the moment', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
