@@ -6,9 +6,8 @@ import {
   DemoViewContext,
   type ActionsBy,
   type Inspect,
-} from '../StoreToggle';
-
-export type StoreView = 'table' | 'tree';
+  type StoreView,
+} from '../inspector';
 
 /** The view the Store tab's store level lays out in */
 export const StoreViewContext = createContext<StoreView>('table');

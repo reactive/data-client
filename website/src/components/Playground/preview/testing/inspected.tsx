@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
 
+import { InspectorContext, type InspectorOpen } from '../inspector';
 import type SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
-import {
-  DrawerTabs,
-  InspectorContext,
-  useStoreOpen,
-  type InspectorOpen,
-} from '../StoreToggle';
+import { DrawerTabs, useStoreOpen } from '../StoreToggle';
 
 let nextGroup = 0;
 
@@ -24,7 +20,7 @@ export function InspectedPanel({
   defaultOpen?: InspectorOpen;
 }) {
   const [group] = useState(() => `inspected${nextGroup++}`);
-  const [open, toggle, , , , inspector] = useStoreOpen(group, defaultOpen);
+  const { open, toggle, inspector } = useStoreOpen(group, defaultOpen);
   const [host, setHost] = useState<HTMLDivElement | null>(null);
   return (
     <InspectorContext.Provider value={inspector}>
@@ -35,7 +31,11 @@ export function InspectedPanel({
         controls={group}
       />
       <div ref={setHost} id={group}>
-        <StorePanel registry={registry} history={history} lookHost={host} />
+        <StorePanel
+          registry={registry}
+          history={history}
+          quickLookHost={host}
+        />
       </div>
     </InspectorContext.Provider>
   );

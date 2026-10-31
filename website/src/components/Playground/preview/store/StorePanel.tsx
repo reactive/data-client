@@ -101,7 +101,7 @@ import TreeView, { TreeStateProvider } from './TreeView';
 import { RowKey } from './Value';
 import { Why } from './Why';
 import Unfold from '../../Unfold';
-import { InspectorContext, tabLabel } from '../StoreToggle';
+import { InspectorContext, tabLabel } from '../inspector';
 
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
@@ -111,13 +111,13 @@ const UNDER = ['request', 'group'] as const satisfies readonly Scope[];
 export default function StorePanel({
   registry,
   history: id,
-  lookHost = null,
+  quickLookHost = null,
 }: {
   registry: SchemaRegistry;
   /** Whose actions to show (see `ActionLog`) */
   history: number;
   /** Where the quick look goes: the drawer its tabs are on */
-  lookHost?: HTMLElement | null;
+  quickLookHost?: HTMLElement | null;
 }) {
   const live = useContext(StateContext);
   const { log } = registry;
@@ -131,7 +131,12 @@ export default function StorePanel({
   // tabs pick, see `Inspector`); and the store as a whole, or (`diffMode`)
   // only what the moment changed (its request's actions up to it, see
   // `Scope`). Each Playground's own, unlike the table or tree view
-  const { tab, select: setTab, peek, listed } = useContext(InspectorContext);
+  const {
+    tab,
+    select: setTab,
+    quickLook,
+    listed,
+  } = useContext(InspectorContext);
   const [diffMode, setDiffMode] = useState(false);
   // the timeline the scrubber expands into, above the content; it stays
   // mounted while it slides shut, until the slide ends
@@ -277,7 +282,7 @@ export default function StorePanel({
   // the store's top level: what the actions list and the steps follow
   const subject = subjectOf(levels.stack)!;
   // the quick look's subject, its actions' head
-  const lookLabel = useMemo(
+  const quickLookLabel = useMemo(
     () => (subject.kind === 'root' ? null : subjectLabel(subject, model)),
     [subject, model],
   );
@@ -742,11 +747,11 @@ export default function StorePanel({
             </div>
             <NavContext.Provider value={chipNav}>
               <QuickLookSlot
-                host={lookHost}
-                peek={peek}
+                host={quickLookHost}
+                quickLook={quickLook}
                 subject={subject}
                 filter={filter}
-                label={lookLabel}
+                label={quickLookLabel}
                 model={liveRows}
                 onPick={show}
                 onOpen={openView}
