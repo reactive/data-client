@@ -382,6 +382,20 @@ div.playground-preview h1:first-child {
   > :not(button, input, select, textarea, number-flow-react, number-flow-vue) {
   text-box: inherit;
 }
+/* A list's first row when it starts the page (its first block, or up to two
+   first children into it): its caps at the sheet's inset, as the page's
+   text, pulled up by its own padding (its hover band keeps it). `.sheet` and
+   `.navProgress` are the preview's global hooks (../preview/PendingSheet.tsx,
+   ../preview/router.tsx) */
+.playground-preview
+  :is(
+    :is(.sheet > :first-child, .navProgress + *),
+    :is(.sheet > :first-child, .navProgress + *) > :first-child,
+    :is(.sheet > :first-child, .navProgress + *) > :first-child > :first-child
+  ).listItem {
+  margin-top: calc(-1 * var(--ds-row-pad));
+  text-box: trim-start cap alphabetic;
+}
 .playground-preview .listItem p:last-child {
   margin-bottom: 0;
 }
@@ -897,6 +911,20 @@ div.playground-preview h1:first-child {
   align-self: center;
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
+}
+/* figures that start the page (in it or in its first block): their caps at
+   the sheet's inset (see the first row's, above); a grid, so the sheet's
+   trim doesn't reach them. Ending the page: their labels' baselines */
+.playground-preview
+  :is(
+    :is(.sheet > :first-child, .navProgress + *),
+    :is(.sheet > :first-child, .navProgress + *) > :first-child
+  ).stats
+  dd {
+  text-box: trim-start cap alphabetic;
+}
+.playground-preview :is(.sheet, .sheet > :last-child) > .stats:last-child dt {
+  text-box: trim-end cap alphabetic;
 }
 /* a figure not yet taken (a timing before its run) holds its line with a
    faint dash; one still loading holds it with a skeleton instead */
