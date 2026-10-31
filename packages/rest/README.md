@@ -15,7 +15,7 @@
 
 </div>
 
-## Let your coding agent set it up
+## Coding agent setup
 
 Tell your coding agent:
 
