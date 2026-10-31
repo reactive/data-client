@@ -482,7 +482,6 @@ export function DrawerTabs({
             {to === 'store' ?
               <StoreIcon />
             : <ActionsIcon />}
-            <span className={styles.tabTip} aria-hidden="true" />
           </button>
         );
       })}
