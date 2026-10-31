@@ -25,7 +25,7 @@ import {
 import type ActionLog from './actionLog';
 import { isRecordChange, type History, type LogEntry } from './actionLog';
 import { notableAttribution, stageName } from './attribution';
-import { kindColor } from './dom';
+import { AXES, kindColor, startOf } from './dom';
 import { ManagerName } from './ManagerName';
 import {
   ActionSpanContext,
@@ -97,11 +97,6 @@ const TICK_LIMIT = 12;
 export const FOLLOW_SLACK = 24;
 /** How long a track let go of takes to catch up (ms, `--motion-snappy`) */
 export const CATCH_UP_MS = springEasing(springs.snappy).duration;
-
-const AXES = {
-  x: { size: 'scrollWidth', scroll: 'scrollLeft', client: 'clientWidth' },
-  y: { size: 'scrollHeight', scroll: 'scrollTop', client: 'clientHeight' },
-} as const;
 
 /** Keeps the newest row in view, unless the reader scrolled up (or, on
  * the `x` axis, back) or it is `paused`; unpaused (back to live), it
@@ -301,11 +296,6 @@ function scrollAlong(
   };
   springing.set(el, requestAnimationFrame(step));
 }
-
-const startOf = (el: Element, axis: 'x' | 'y') => {
-  const rect = el.getBoundingClientRect();
-  return axis === 'y' ? rect.top : rect.left;
-};
 
 /** The last row in `scroller`'s view, and where it starts in it */
 function lastShown(scroller: HTMLElement, axis: 'x' | 'y') {
