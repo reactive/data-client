@@ -7,9 +7,8 @@ import React, {
 import { LiveContext, LivePreview } from 'react-live';
 
 import Boundary from '../Boundary';
-import PendingSheet from './PendingSheet';
+import PendingSheet, { sheetClassName } from './PendingSheet';
 import PreviewError, { type PreviewErrorProps } from './PreviewError';
-import styles from '../styles.module.css';
 
 function PreviewBlock({
   onCommit,
@@ -36,7 +35,7 @@ function LiveSheet() {
   const { newCode, error } = useContext(LiveContext);
   return newCode === undefined && !error ?
       <PendingSheet />
-    : <LivePreview className={styles.sheet} />;
+    : <LivePreview className={sheetClassName} />;
 }
 // memo: Store inspector toggles re-render Preview; they must not reach the
 // profiled tree (or bump the render badge).

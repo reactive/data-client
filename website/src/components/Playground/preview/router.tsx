@@ -161,7 +161,7 @@ export function Router({
           controlsSlot,
         )}
       <div
-        className={styles.navProgress}
+        className={`${styles.navProgress} navProgress`}
         data-pending={pending || undefined}
         aria-hidden="true"
       />
