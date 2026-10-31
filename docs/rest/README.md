@@ -15,6 +15,8 @@ import PkgTabs from '@site/src/components/PkgTabs';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import PlaygroundTabs from '@site/src/components/PlaygroundTabs';
 import Link from '@docusaurus/Link';
+import SiteOnly from '@site/src/components/SiteOnly';
+import AgentOnly from '@site/src/components/AgentOnly';
 
 <PkgTabs pkgs="@data-client/rest" />
 
@@ -344,14 +346,12 @@ When using TypeScript (optional), version 4.0 or above is required.
 
 ## REST Agent Skills
 
-import SkillTabs from '@site/src/components/SkillTabs';
+<SiteOnly>
 
-<SkillTabs repo="reactive/data-client" skills={['data-client-schema', 'data-client-rest-setup', 'data-client-rest']} />
-
-Then migrate by running it in your agent's chat:
+Paste this into your agent's chat:
 
 ```prompt
-/data-client-rest-setup
+Use `@data-client/rest` endpoints for this app's REST APIs, without changing how components load or store data. Install the REST setup skill first: `npx skills add reactive/data-client --skill data-client-rest-setup -y`, then read `.agents/skills/data-client-rest-setup/SKILL.md` and follow it.
 ```
 
 <div style={{ textAlign: 'center' }}>
@@ -363,8 +363,21 @@ Then migrate by running it in your agent's chat:
 /> REST Codegen Skill</Link>
 </div>
 
+</SiteOnly>
+
+<AgentOnly>
+
+To define this app's REST APIs with `@data-client/rest`, install the REST setup skill from the project root:
+
+```bash
+npx skills add reactive/data-client --skill data-client-rest-setup -y
+```
+
+Then read `.agents/skills/data-client-rest-setup/SKILL.md` and follow it. Only replace the API calls and their definitions:
+leave components, data loading and state management as they are, unless the user asks to change them.
+
+</AgentOnly>
+
 ### Migrating from Axios
 
-The `data-client-rest-setup` skill automatically detects axios usage and applies the axios migration — including the [codemod](./guides/axios-migration.md#codemod), interceptor conversion, and error handling migration.
-
-See the full [Axios Migration Guide](./guides/axios-migration.md) for step-by-step examples, a quick reference table, and a standalone codemod.
+See the [Axios Migration Guide](./guides/axios-migration.md).
