@@ -2,7 +2,7 @@
 /// <reference types="@docusaurus/module-type-aliases" />
 /// <reference types="@docusaurus/theme-classic" />
 
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import Playground from '..';
@@ -39,7 +39,9 @@ describe('stacked layout: the files', () => {
         {[fence('Types', 'collapsed'), fence('Api'), fence('App')]}
       </Playground>,
     );
-    expect(screen.queryByRole('tab')).toBeNull();
+    // (the Store's drawer has tabs of its own)
+    for (const name of ['Types', 'Api', 'App'])
+      expect(screen.queryByRole('tab', { name })).toBeNull();
     const types = screen.getByRole('button', { name: 'Types' });
     const api = screen.getByRole('button', { name: 'Api' });
     expect(types.getAttribute('aria-expanded')).toBe('false');
@@ -61,7 +63,10 @@ describe('stacked layout: the files', () => {
     render(
       <Playground>{[fence('Api', 'collapsed'), fence('App')]}</Playground>,
     );
-    const tabs = screen.getAllByRole('tab');
+    const files = screen
+      .getByRole('tab', { name: 'App' })
+      .closest<HTMLElement>('[role="tablist"]');
+    const tabs = within(files!).getAllByRole('tab');
     expect(tabs.map(tab => tab.textContent)).toEqual(['Api', 'App']);
     expect(tabs[1].getAttribute('aria-selected')).toBe('true');
     expect(screen.queryByRole('button', { name: 'Api' })).toBeNull();

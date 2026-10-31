@@ -42,6 +42,7 @@ export default function LivePreview<T>({
   toggleStore,
   layout,
   storeHost,
+  narrow,
   fixtures,
   getInitialInterceptorData,
   renderCount,
@@ -124,6 +125,7 @@ export default function LivePreview<T>({
           toggleStore={toggleStore}
           layout={layout}
           storeHost={storeHost}
+          narrow={narrow}
           fixtures={fixtures}
           getInitialInterceptorData={getInterceptorData}
           onCommit={onCommit}

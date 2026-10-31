@@ -1816,19 +1816,18 @@ div.fixtureJson + div.fixtureJson {
     left: 0.5rem;
   }
 }
-/* Narrow row: shut, over the code above the handles, its side level with
-   theirs; open, over the drawer's own edge, under them */
+/* Narrow row: under the handles, its side level with theirs; shut, over
+   the app (on the result, preview/PreviewWrapper.tsx); open, over the
+   drawer's own edge */
 @container playground (max-width: 719px) {
-  .row > .storeHost [data-quick-look] {
+  .row :is(.storeHost, .lookSlot) [data-quick-look] {
     --pg-look-side: calc(var(--pg-head-inset) + 2 * var(--pg-card-radius));
+    top: 0.5rem;
     right: var(--pg-look-side);
-    bottom: calc(100% + var(--pg-tab-width) + 0.5rem);
-    max-width: calc(100% - var(--pg-look-side));
-    max-height: calc(100% - var(--pg-tab-width) - 1rem);
+    max-width: calc(100% - 2 * var(--pg-look-side));
   }
   .row > .storeHost[data-open] [data-quick-look] {
-    top: 0.5rem;
-    bottom: auto;
+    max-height: calc(100% - 1rem);
   }
 }
 /* Narrow row: the same folder turned to the stacking axis. The
@@ -1979,29 +1978,41 @@ div.fixtureJson + div.fixtureJson {
 /* Stacked layout: the row's paper turned to the stacking axis at any width,
    the preview's folder under the code, its app given the full width. The
    Store opens beside the app on the folder instead of over the code, so
-   both stay in view; its Actions and Store toggles are the header's */
+   both stay in view; its Actions and Store toggles are the header's tabs.
+   Narrower than that has room for, it is the narrow row: the Store in the
+   folder's drawer (.storeHost), pulled up over the code by its handles */
 .playgroundContainer.row.stacked {
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   row-gap: var(--pg-gap);
 }
+@container playground (min-width: 720px) {
+  .stacked > .storeHost {
+    display: none;
+  }
+}
+@container playground (max-width: 719px) {
+  .playgroundContainer.stacked .headerButton.storeHeaderToggle,
+  .stacked .playgroundResult > .storePanel {
+    display: none;
+  }
+}
 /* the fixtures hang on past its foot, over the page below; the Store
-   slides in and out behind the result's edge instead */
+   slides in and out behind the result's edge instead, and a tab's quick
+   look runs on past the foot */
 .stacked > .previewWrapper {
   overflow: visible;
 }
 .stacked .playgroundResult {
-  overflow: clip;
+  overflow-x: clip;
 }
-/* open, the Store is a column of the folder beside the app (under it when
-   narrow), the folder's paper between them: the app's sheet ends at its
-   content, the Store's runs on to the foot */
-.stacked .playgroundResult {
-  gap: var(--pg-gap);
-}
-@container playground (min-width: 560px) {
+/* open, the Store is a column of the folder beside the app, the folder's
+   paper between them: the app's sheet ends at its content, the Store's
+   runs on to the foot */
+@container playground (min-width: 720px) {
   .stacked .playgroundResult {
+    gap: var(--pg-gap);
     align-items: flex-start;
   }
   .stacked .playgroundPreview {
@@ -2033,14 +2044,13 @@ div.fixtureJson + div.fixtureJson {
 .stacked .storeHeaderToggle {
   position: relative;
 }
-/* under the app, its toggles stay buttons */
-@container playground (max-width: 559px) {
+@container playground (max-width: 719px) {
   .stacked .storeHeaderToggle[aria-pressed='true']::before,
   .stacked .storeHeaderToggle[aria-pressed='true']::after {
     content: none;
   }
 }
-@container playground (min-width: 560px) {
+@container playground (min-width: 720px) {
   .stacked .previewControls {
     align-self: stretch;
   }
@@ -2068,15 +2078,26 @@ div.fixtureJson + div.fixtureJson {
     }
   }
 }
-/* the header's toggles' quick look (preview/PreviewWrapper.tsx): over the
-   code, its foot just above the header, at its end */
+/* A tab's quick look on the result (preview/PreviewWrapper.tsx), under
+   its tabs. Stacked, in the open drawer's place, over the app instead of
+   beside it: as tall as the result, within the Store's own bounds (past a
+   short result's foot; a long one's newest actions still in view) */
 .lookSlot {
   position: absolute;
-  inset: 0 0 auto;
+  inset: 0;
+  pointer-events: none;
 }
 .lookSlot [data-quick-look] {
-  right: 0;
-  bottom: 0.5rem;
+  pointer-events: auto;
+}
+@container playground (min-width: 720px) {
+  .stacked .lookSlot [data-quick-look] {
+    top: 0;
+    right: 0;
+    width: calc(100% * 2 / 3 - var(--pg-gap) * 4 / 9);
+    max-width: none;
+    height: clamp(var(--store-min), 100%, var(--store-cap));
+  }
 }
 
 /* Several files open at once: each its own code card under its name, a
@@ -2358,8 +2379,15 @@ div.fixtureJson + div.fixtureJson {
     color: var(--pg-tab-hover);
   }
 }
-.resetButton {
+/* at the header's end (stacked, the drawer's tabs follow it, but for
+   narrow), its icon on the content's edge */
+.resetButton:last-child {
   margin-right: -0.5rem;
+}
+@container playground (max-width: 719px) {
+  .stacked .resetButton {
+    margin-right: -0.5rem;
+  }
 }
 /* Narrow playgrounds' drawer toggles (in place of the side strip): an icon
    each, Actions and Store, that reads pressed while its tab shows.

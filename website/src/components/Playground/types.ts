@@ -24,8 +24,12 @@ export interface PreviewProps<T = any> {
   storeMoves: number;
   toggleStore: ToggleStore;
   layout: Layout;
-  /** Row layout: the layer over the code the Store slides into */
+  /** Row layout: the layer over the code the Store slides into; stacked
+   * too, while `narrow` */
   storeHost: HTMLElement | null;
+  /** Narrower than the row's breakpoint (720px container width), where
+   * the stacked layout collapses to the narrow row's */
+  narrow: boolean;
   fixtures: FixtureOrInterceptor<T>[];
   getInitialInterceptorData?: () => T;
 }

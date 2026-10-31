@@ -122,11 +122,13 @@ its own card.
   `start`, `layout`, `{1-3}` (pre-selected lines) and the `language-*`
   class. Element props override it; `defaultTab` overrides `collapsed`.
 - Stacked: the `row`'s paper (`.row.stacked`), turned to the stacking axis at
-  any width; its header's Actions and Store toggles open the drawer on that
-  tab beside the app (under it below 560px), a sheet of the app's paper.
-  Beside the app, the toggle showing is that sheet's tab, run down from the
-  header into it; hover pulls the other partway down and opens its quick
-  look over the code (`LookSlot`). Files that start open together are code cards
+  any width; its header's Actions and Store toggles, after the reset, open
+  the drawer on that tab beside the app, a sheet of the app's paper. The
+  toggle showing is that sheet's tab, run down from the header into it;
+  hover pulls the other partway down and opens its quick look in the
+  drawer's place, over the app (`LookSlot`, on the result). Below 720px
+  container width it is the narrow `row` (`useNarrow`): the same folder
+  drawer and handles. Files that start open together are code cards
   (`FileCard`), each under its name: a caption on the page, on the code's
   first column, that folds the card to just the name and back. Two to a
   line from 900px container width (narrower, wrapped lines would fill
@@ -139,9 +141,10 @@ its own card.
   (`.storeHost` > `.storeDrawer`, `DrawerTabs` as handles: Actions over
   Store). The shown handle is pulled fully out as its sheet's paper; hover
   pulls one partway. Open, the drawer covers the code, which goes `inert`.
+  A tab's quick look floats beside the handles, or under them when narrow.
   A demo shows the same two tabs in the strip beside the result
   (`StoreToggle`), or in the preview's header (`StoreHeaderToggle`) below
-  560px; stacked, always in the header.
+  560px.
 - `demo`: preview first, full width; the header's Code toggle swaps in the
   code (`data-code`). Never code and result together, nor code and Store.
   The result stays mounted so app state survives; both share

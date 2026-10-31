@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useDeferredValue,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -123,7 +124,6 @@ export default function Playground<T>({
     demo ? 'demo'
     : rowLayout ? 'row'
     : 'stacked';
-  const row = layout === 'row';
   const [storeOpen, toggleStore, showStore, demoView, storeMoves, inspector] =
     useStoreOpen(groupId, defaultOpen);
   const actionsBy = useMemo(
@@ -136,10 +136,12 @@ export default function Playground<T>({
   const storeMoving = useStoreMotion(container, storeMoves, storeOpen);
   // Row layout: the preview is a folder with the Store behind it, which its
   // handle pulls out over the code (the folder's layer, .storeHost), leaving
-  // the preview usable
+  // the preview usable. Narrow, stacked collapses to the same
+  const narrow = useNarrow(container);
+  const folder = layout === 'row' || (layout === 'stacked' && narrow);
   const [storeHost, setStoreHost] = useState<HTMLDivElement | null>(null);
   const storeId = useId();
-  const codeCovered = row && storeOpen;
+  const codeCovered = folder && storeOpen;
   // the folder's handle: Escape anywhere on the folder pushes it shut
   const handle = useRef<HTMLButtonElement>(null);
   const shutStore = (event: React.KeyboardEvent) => {
@@ -249,6 +251,7 @@ export default function Playground<T>({
                   toggleStore={toggleStoreInPreview}
                   layout={layout}
                   storeHost={storeHost}
+                  narrow={narrow}
                   fixtures={fixtures}
                   getInitialInterceptorData={getInitialInterceptorData}
                   renderCount={renderCount}
@@ -299,7 +302,9 @@ export default function Playground<T>({
             {preview}
           </>
         }
-        {row && !hidden ?
+        {/* stacked shows it only while narrow (styles.module.css), so the
+            server's HTML has it for a phone */}
+        {!demo && !hidden ?
           <div
             id={storeId}
             className={styles.storeHost}
@@ -324,6 +329,26 @@ export default function Playground<T>({
     </div>
   );
 }
+
+/** Whether the playground (`el`, in its query container) is narrower than
+ * the row's breakpoint (720px, styles.module.css), where the stacked layout
+ * collapses to the narrow row's. False until measured, as on the server;
+ * measured before the first paint, so a phone never shows the wide one */
+function useNarrow(el: HTMLElement | null) {
+  const [narrow, setNarrow] = useState(false);
+  useLayoutEffect(() => {
+    const query = el?.parentElement;
+    if (!query) return;
+    const measure = () => setNarrow(query.clientWidth < NARROW_PX);
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(query);
+    return () => observer.disconnect();
+  }, [el]);
+  return narrow;
+}
+const NARROW_PX = 720;
 
 /** SSR, crawler and loading state: the preview's frame with a blank
  * sheet + drawer toggles (the header's; a demo's side strip too; the row

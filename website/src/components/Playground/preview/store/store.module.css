@@ -165,9 +165,10 @@
   --store-bg: var(--pg-panel);
   position: absolute;
   z-index: 6;
-  /* (its width: QuickLook.tsx) */
+  width: 22rem;
   max-width: 90vw;
-  height: 20rem;
+  /* the open drawer's least */
+  height: var(--store-min, 24rem);
   display: flex;
   flex-direction: column;
   border-radius: var(--pg-sheet-radius, 8px);

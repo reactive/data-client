@@ -23,43 +23,48 @@ function StoreInspector({
   history,
   layout,
   host,
+  narrow,
 }: {
   open: boolean;
   toggle: PreviewProps['toggleStore'];
   registry: SchemaRegistry;
   history: number;
-  /** `layout === 'row'`: on the preview's folder (`host`), which opens over the code,
-   * its toggle the folder's tab (../index.tsx). Otherwise beside the result,
-   * toggled from the preview's header, and by the side strip in `demo` */
+  /** `layout === 'row'` (and stacked while `narrow`): on the preview's
+   * folder (`host`), which opens over the code, its toggle the folder's tab
+   * (../index.tsx). Otherwise beside the result, toggled from the preview's
+   * header, and by the side strip in `demo` */
   layout: Layout;
   host: HTMLElement | null;
+  narrow: boolean;
 }) {
   // the empty drawer starts moving at once; the tree renders a frame later,
-  // then stays, so reopening finds the Store as it was left. A row Store
-  // renders it with the click instead: where the row playground stacks, that
+  // then stays, so reopening finds the Store as it was left. A folder's Store
+  // renders it with the click instead: where the playground stacks, that
   // Store grows to fit the tree, and growing a frame later would move the
   // page after the click's scroll hold. Beside the result, its height follows
   // the result, not the tree
-  const row = layout === 'row';
+  const folder = layout === 'row' || (layout === 'stacked' && narrow);
   const deferred = useDeferredValue(open);
   // a tab's quick look shows from the panel, mounting it if it never was
   const looking = useLooking();
-  const ready = (row ? open : deferred) || looking;
+  const ready = (folder ? open : deferred) || looking;
   const [showTree, setShowTree] = useState(false);
   if (ready && !showTree) setShowTree(true);
-  // the quick look goes on the drawer's panel, in its palette; stacked, on
-  // the header's slot for it
+  // the quick look goes on the drawer's panel, in its palette: beside the
+  // folder's handles, or under them while open; else on the result, under
+  // its tabs (PreviewWrapper's slot for it)
   const [panelEl, setPanelEl] = useState<HTMLDivElement | null>(null);
   const lookSlot = useContext(LookSlot);
+  const onPanel = folder && (open || !narrow);
   const tree =
     showTree ?
       <StorePanel
         registry={registry}
         history={history}
-        lookHost={row ? panelEl : lookSlot}
+        lookHost={onPanel ? panelEl : lookSlot}
       />
     : null;
-  if (row) {
+  if (folder) {
     return (
       host &&
       createPortal(

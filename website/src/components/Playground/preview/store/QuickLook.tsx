@@ -3,14 +3,15 @@ import { createPortal } from 'react-dom';
 
 import type { SubjectFilter } from './actionGroups';
 import { ActionsLook } from './ActionList';
+import { useWidth } from './dom';
 import type { StoreModel } from './model';
+import { useMouseBack } from './mouseBack';
 import { NavContext, type Nav, type Scope, type View } from './nav';
 import RootView from './RootView';
 import styles from './store.module.css';
-import { useMouseBack } from './mouseBack';
 import { tabLabel, useLook, type Inspect, type Peek } from '../StoreToggle';
 
-/** Its width (px), at most the viewport's: the tables lay out for it */
+/** Its width (px) until measured (store.module.css sets it) */
 const LOOK_WIDTH = 352;
 
 /** Where a tab's quick look shows, portaled into `host` while one does: it
@@ -84,11 +85,12 @@ export function QuickLook({
   }, [peek, sheetOver]);
   // and the mouse's back button over it, which would leave the page
   useMouseBack(ref, true, peek.close);
+  // the tables lay out for it
+  const width = useWidth(ref, LOOK_WIDTH);
   return (
     <aside
       ref={ref}
       className={styles.quickLook}
-      style={{ width: LOOK_WIDTH }}
       data-quick-look
       aria-label={tabLabel(tab)}
       onPointerEnter={e => peek.hover(tab, true, e)}
@@ -101,7 +103,7 @@ export function QuickLook({
           label={label}
           onPick={onPick}
         />
-      : <StoreLook model={model} onOpen={onOpen} />}
+      : <StoreLook model={model} width={width} onOpen={onOpen} />}
     </aside>
   );
 }
@@ -109,15 +111,17 @@ export function QuickLook({
 /** The live store's tables */
 function StoreLook({
   model,
+  width,
   onOpen,
 }: {
   model: StoreModel;
+  width: number;
   onOpen: (view: View) => void;
 }) {
   const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
   const nav = useMemo<Nav>(
-    () => ({ model, width: LOOK_WIDTH, push: view => onOpen(view) }),
-    [model, onOpen],
+    () => ({ model, width, push: view => onOpen(view) }),
+    [model, width, onOpen],
   );
   return (
     <>

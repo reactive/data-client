@@ -26,7 +26,8 @@ export default function PreviewWrapper({
   ref,
 }: Props) {
   const [routerSlot, setRouterSlot] = useState<HTMLElement | null>(null);
-  // stacked, the header's toggles' quick look, over the code above it
+  // a tab's quick look on the result, under its tabs: the header's
+  // (stacked), or the narrow folder's while shut (StoreInspector.tsx)
   const [lookSlot, setLookSlot] = useState<HTMLElement | null>(null);
   const [fixturesOpen, setFixturesOpen] = useState(false);
   const [result, setResult] = useState<HTMLDivElement | null>(null);
@@ -82,12 +83,6 @@ export default function PreviewWrapper({
           : null}
           <LookSlot value={lookSlot}>{headerControls}</LookSlot>
         </span>
-        {layout === 'stacked' ?
-          <span
-            className={clsx(styles.lookSlot, styles.stageHues)}
-            ref={setLookSlot}
-          />
-        : null}
       </Header>
       {fixtures != null ?
         <div className={styles.fixturesAnchor}>
@@ -103,6 +98,12 @@ export default function PreviewWrapper({
       <RouterControlsSlot value={routerSlot}>
         <div className={styles.playgroundResult} ref={setResult}>
           <LookSlot value={lookSlot}>{children}</LookSlot>
+          {layout === 'demo' ? null : (
+            <div
+              className={clsx(styles.lookSlot, styles.stageHues)}
+              ref={setLookSlot}
+            />
+          )}
         </div>
       </RouterControlsSlot>
     </div>
@@ -115,7 +116,8 @@ export const previewSurfaceClassName = `playground-preview ${styles.playgroundPr
 /** The header's controls, live (./LivePreview.tsx) or held by the loading
  * frame (../index.tsx) so the header doesn't move as the preview loads:
  * without handlers each holds its place, disabled. Row layout has no Store
- * toggle here (the folder's handle is it) */
+ * toggles here (the folder's handles are them); stacked, they are the tabs
+ * of the drawer under them, at the header's end */
 export function PreviewHeaderControls({
   layout,
   badge,
@@ -129,13 +131,13 @@ export function PreviewHeaderControls({
   toggleStore?: ToggleStore;
   reset?: () => void;
 }) {
+  const toggles = <StoreHeaderToggle open={storeOpen} onClick={toggleStore} />;
   return (
     <>
       {badge}
-      {layout === 'row' ? null : (
-        <StoreHeaderToggle open={storeOpen} onClick={toggleStore} />
-      )}
+      {layout === 'demo' ? toggles : null}
       <ResetButton onClick={reset} />
+      {layout === 'stacked' ? toggles : null}
     </>
   );
 }
