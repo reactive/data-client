@@ -40,7 +40,7 @@ export const AXES = {
 export const startOf = (el: Element, axis: Axis) =>
   el.getBoundingClientRect()[AXES[axis].start];
 
-/** Where `el` sits in `scroller`'s scrolled content, in px */
+/** Where `el` sits in `scroller`'s scrolled content on `axis`, in px */
 export const offsetIn = (
   scroller: HTMLElement,
   el: Element,
@@ -119,6 +119,16 @@ export function flash(
  * that depends on the element runs again once it is there */
 export type Scroller = HTMLElement | null;
 
+/** The spring scrolls underway (a Timeline catching up), by scroller */
+export const springing = new WeakMap<Element, number>();
+export function stopSpring(el: Element) {
+  cancelAnimationFrame(springing.get(el) ?? 0);
+  springing.delete(el);
+}
+
+/** An overflow style that scrolls */
+const SCROLLABLE = /auto|scroll/;
+
 /** Scrolls `row` just into view of `scroller`, and of any scroller between
  * them (an open row's steps, the Timeline's sideways lane), leaving it be
  * where it already shows */
@@ -127,19 +137,20 @@ export function revealIn(scroller: HTMLElement, row: HTMLElement) {
     const outer = box === scroller;
     const { overflowX, overflowY } = getComputedStyle(box);
     const top =
-      outer || SCROLLS.test(overflowY) ?
+      outer || SCROLLABLE.test(overflowY) ?
         scrollToShow(box, row, 'y')
       : undefined;
     const left =
-      SCROLLS.test(overflowX) ? scrollToShow(box, row, 'x') : undefined;
-    // inner ones jump, so the outer one measures where the row ends up
-    if (top !== undefined || left !== undefined)
+      SCROLLABLE.test(overflowX) ? scrollToShow(box, row, 'x') : undefined;
+    // inner ones jump, so the outer one measures where the row ends up;
+    // a catch-up underway would scroll it away again
+    if (top !== undefined || left !== undefined) {
+      stopSpring(box);
       box.scrollTo({ top, left, behavior: outer ? 'smooth' : 'instant' });
+    }
     if (outer) return;
   }
 }
-
-const SCROLLS = /auto|scroll/;
 
 /** Where `box` scrolls on `axis` to just show `el`, undefined when it shows
  * already */

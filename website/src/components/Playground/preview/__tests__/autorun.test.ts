@@ -401,7 +401,7 @@ describe('stage', () => {
     expect(scrolled).toHaveBeenCalledTimes(2);
   });
 
-  it('scrolls a sideways lane to a target off its left edge', () => {
+  it('scrolls a sideways lane just enough to show a target off either edge', () => {
     const root = playground();
     root.insertAdjacentHTML(
       'beforeend',
@@ -420,12 +420,27 @@ describe('stage', () => {
       ({ left: -60, top: 0, width: 10, height: 10 }) as DOMRect;
     const scrolled = jest.fn();
     lane.scrollTo = scrolled;
-    createStage(root, () => {}).point(dot);
-    expect(scrolled).toHaveBeenCalledWith({
+    const stage = createStage(root, () => {});
+    stage.point(dot);
+    expect(scrolled).toHaveBeenLastCalledWith({
       top: undefined,
       left: 140,
       behavior: 'instant',
     });
+    // off its right edge: its right side lines up with the lane's
+    dot.getBoundingClientRect = () =>
+      ({ left: 330, top: 0, width: 10, height: 10 }) as DOMRect;
+    stage.point(dot);
+    expect(scrolled).toHaveBeenLastCalledWith({
+      top: undefined,
+      left: 340,
+      behavior: 'instant',
+    });
+    // in view: the lane stays put
+    dot.getBoundingClientRect = () =>
+      ({ left: 150, top: 0, width: 10, height: 10 }) as DOMRect;
+    stage.point(dot);
+    expect(scrolled).toHaveBeenCalledTimes(2);
   });
 
   it('end() takes its layer away', () => {

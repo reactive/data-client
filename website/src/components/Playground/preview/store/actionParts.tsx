@@ -25,7 +25,14 @@ import {
 import type ActionLog from './actionLog';
 import { isRecordChange, type History, type LogEntry } from './actionLog';
 import { notableAttribution, stageName } from './attribution';
-import { AXES, kindColor, startOf } from './dom';
+import {
+  AXES,
+  type Axis,
+  kindColor,
+  springing,
+  startOf,
+  stopSpring,
+} from './dom';
 import { ManagerName } from './ManagerName';
 import {
   ActionSpanContext,
@@ -106,7 +113,7 @@ export const CATCH_UP_MS = springEasing(springs.snappy).duration;
 export function useFollow(
   scroller: React.RefObject<HTMLElement | null>,
   rows: unknown,
-  axis: 'x' | 'y' = 'y',
+  axis: Axis = 'y',
   paused = false,
   sprung = false,
 ) {
@@ -252,21 +259,10 @@ export function useFollow(
   }, [scroller, axis]);
 }
 
-/** The spring scrolls underway, by scroller */
-const springing = new WeakMap<Element, number>();
-function stopSpring(el: Element) {
-  cancelAnimationFrame(springing.get(el) ?? 0);
-  springing.delete(el);
-}
 /** Scrolls `el` along `axis` to `to`: `sprung`, on the snappy spring (at
  * once under reduced motion), as its rows catching up move
  * (`[data-catchup]` in store.module.css); else at once */
-function scrollAlong(
-  el: HTMLElement,
-  axis: 'x' | 'y',
-  to: number,
-  sprung: boolean,
-) {
+function scrollAlong(el: HTMLElement, axis: Axis, to: number, sprung: boolean) {
   const { size, scroll, client } = AXES[axis];
   stopSpring(el);
   if (
@@ -298,7 +294,7 @@ function scrollAlong(
 }
 
 /** The last row in `scroller`'s view, and where it starts in it */
-function lastShown(scroller: HTMLElement, axis: 'x' | 'y') {
+function lastShown(scroller: HTMLElement, axis: Axis) {
   const from = startOf(scroller, axis);
   const to =
     from + (axis === 'y' ? scroller.clientHeight : scroller.clientWidth);
