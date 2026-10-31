@@ -167,8 +167,10 @@
   z-index: 6;
   width: 22rem;
   max-width: 90vw;
-  /* the open drawer's least */
-  height: var(--store-min, 24rem);
+  /* as tall as what it shows, within its own bounds whatever the
+     preview's height (a layout may let that make it taller) */
+  min-height: var(--store-quick-look-min, 12rem);
+  max-height: var(--store-cap, 32rem);
   display: flex;
   flex-direction: column;
   border-radius: var(--pg-sheet-radius, 8px);

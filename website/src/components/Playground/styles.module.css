@@ -21,6 +21,8 @@
      takes when its own content sets the height */
   --store-min: min(24rem, 70svh);
   --store-cap: min(32rem, 70svh);
+  /* a tab's quick look, sized by what it shows */
+  --store-quick-look-min: min(12rem, 70svh);
   /* the app's sheet's corners, which the Store's sheet shares */
   --pg-sheet-radius: 12px;
   /* a tab rising from its card: the files', the Store's and the fixtures' */
@@ -1772,13 +1774,14 @@ div.fixtureJson + div.fixtureJson {
     --pg-host-fold-head: calc(var(--pg-host-fold) + var(--pg-head-run));
     margin-left: calc(-1 * var(--pg-host-out));
     overflow-x: clip;
+    /* below, room for a quick look past a short playground's foot */
     clip-path: polygon(
       0 -4rem,
       var(--pg-host-fold-head) -4rem,
       var(--pg-host-fold-head) var(--pg-row),
       var(--pg-host-fold) var(--pg-row),
-      var(--pg-host-fold) calc(100% + 4rem),
-      0 calc(100% + 4rem)
+      var(--pg-host-fold) calc(100% + var(--store-cap)),
+      0 calc(100% + var(--store-cap))
     );
   }
   /* the drawer: the code's column and the gap, edge to edge, its handle
@@ -1843,14 +1846,16 @@ div.fixtureJson + div.fixtureJson {
 }
 /* A drawer tab's quick look (./preview/store/QuickLook.tsx): shut, over
    the code beside the handles, its foot level with theirs; open, over the
-   drawer's own edge, the handles past it */
+   drawer's own edge, the handles past it. Taller than the room above that
+   foot (a short preview), it starts at the playground's top and runs on
+   down past it instead */
 @container playground (min-width: 720px) {
   .row > .storeHost [data-quick-look] {
+    top: 0;
     right: calc(100% + var(--pg-tab-width) + 0.5rem);
     bottom: calc(var(--pg-preview-gap, 0px) + var(--pg-card-radius));
-    max-height: calc(
-      100% - var(--pg-preview-gap, 0px) - var(--pg-card-radius) - 0.5rem
-    );
+    height: fit-content;
+    align-self: safe end;
   }
   .row > .storeHost[data-open] [data-quick-look] {
     right: auto;
@@ -2063,7 +2068,7 @@ div.fixtureJson + div.fixtureJson {
     /* of the result, as wide as the playground */
     --pg-store-side: calc(100cqw * 2 / 3 - var(--pg-gap) * 4 / 9);
     /* the Store's sheet beside the app fits its content from a little
-       under the drawer's usual least, as does a tab's quick look there */
+       under the drawer's usual least */
     --store-min: min(16rem, 70svh);
     /* the app's loading card: the row's loading page and its foot */
     --pg-pending-card: calc(var(--pg-pending-sheet) + var(--pg-card-radius));
@@ -2244,8 +2249,9 @@ div.fixtureJson + div.fixtureJson {
 }
 /* A tab's quick look on the result (preview/PreviewWrapper.tsx), under
    its tabs. Stacked, in the open drawer's place, over the app instead of
-   beside it: as tall as the result, within the Store's own bounds (past a
-   short result's foot; a long one's newest actions still in view) */
+   beside it: as tall as what it shows, or the result when that is taller,
+   within its own bounds (past a short result's foot; a long one's newest
+   actions still in view) */
 .quickLookHost {
   position: absolute;
   inset: 0;
@@ -2260,7 +2266,7 @@ div.fixtureJson + div.fixtureJson {
     right: 0;
     width: var(--pg-store-side);
     max-width: none;
-    height: clamp(var(--store-min), 100%, var(--store-cap));
+    min-height: clamp(var(--store-quick-look-min), 100%, var(--store-cap));
   }
 }
 
