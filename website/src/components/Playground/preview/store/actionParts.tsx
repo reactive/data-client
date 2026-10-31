@@ -396,9 +396,15 @@ export function KeyLabel({ value }: { value: string }) {
   );
 }
 
+/** When `at` was, in seconds since the first action logged */
 export function Time({ at }: { at: number }) {
   const { since } = useLog();
-  return <span className={styles.actTime}>{seconds(at - since)}s</span>;
+  const s = seconds(at - since);
+  return (
+    <span className={styles.actTime} title={`${s}s after the first action`}>
+      {s}s
+    </span>
+  );
 }
 
 /** Elapsed `ms` in seconds, to as many places as fit: `1.23`, `12.3`, `123` */
@@ -477,9 +483,15 @@ export function Status({ group }: { group: ActionGroup }) {
   const { response } = group;
   if (group.cancelled) return <span className={styles.tQuiet}>cancelled</span>;
   if (!response) return <span className={styles.tFetch}>pending</span>;
+  if (failed(response))
+    return <span className={typeClass(response)}>error</span>;
+  const ms = response.at - group.entries[0].at;
   return (
-    <span className={typeClass(response)}>
-      {failed(response) ? 'error' : `${response.at - group.entries[0].at} ms`}
+    <span
+      className={typeClass(response)}
+      title={`${ms} ms from fetch to response`}
+    >
+      {ms} ms
     </span>
   );
 }

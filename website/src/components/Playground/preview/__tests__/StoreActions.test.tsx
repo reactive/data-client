@@ -807,6 +807,20 @@ describe('Store Actions pane detail', () => {
 });
 
 describe('Store Actions pane', () => {
+  it('marks the newest row latest and explains its times', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() => ctrl().fetch(getPosts));
+    openPane();
+    const latest = () => rows().map(r => r.textContent?.includes('latest'));
+    expect(latest()).toEqual([false, true]);
+    const [ms] = within(rows()[0]).getAllByTitle(/ms from fetch to response$/);
+    expect(ms.textContent).toMatch(/^\d+ ms$/);
+    expect(
+      within(rows()[0]).getByTitle(/s after the first action$/).textContent,
+    ).toMatch(/^\d+\.\d+s$/);
+  });
+
   it('folds a fetch and its response into one row with what it added', async () => {
     const { ctrl } = mount();
     // a second read while the first is in flight is deduped into it
