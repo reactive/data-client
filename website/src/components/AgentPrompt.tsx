@@ -94,7 +94,7 @@ export default function AgentPrompt({ prompt, title, framed }: Props) {
         <span className={styles.text}>
           {/* markdown code spans mark package names and commands, which never
            break at a hyphen; commands still wrap between their words, and a
-           path wraps after each '/' so it doesn't widen the page */}
+           path wraps after each '/' */}
           {prompt.split('`').map((part, i) =>
             i % 2 ?
               part.split(' ').map((word, j) => (
@@ -124,21 +124,19 @@ export default function AgentPrompt({ prompt, title, framed }: Props) {
   );
 }
 
-/** One backtick token. `white-space: nowrap` keeps `@data-client/rest` from
- * breaking at the hyphen; a `<wbr>` after each `/` lets a long path wrap. */
+/** One backtick token. Each `/` segment is its own nowrap span, so a name
+ * like `@data-client/rest` doesn't break at the hyphen. The `<wbr>` sits
+ * between those spans: Firefox ignores a break inside `white-space: nowrap`. */
 function PkgWord({ word }: { word: string }) {
   const segments = word.split('/');
-  return (
-    <span className={styles.pkg}>
-      {segments.map((segment, index) => (
-        <React.Fragment key={index}>
-          {index > 0 && '/'}
-          {index > 0 && <wbr />}
-          {segment}
-        </React.Fragment>
-      ))}
-    </span>
-  );
+  return segments.map((segment, i) => (
+    <React.Fragment key={i}>
+      {i > 0 && <wbr />}
+      <span className={styles.pkg}>
+        {i < segments.length - 1 ? `${segment}/` : segment}
+      </span>
+    </React.Fragment>
+  ));
 }
 
 // Lucide icons (ISC): sparkles, copy, check
