@@ -820,8 +820,9 @@ div.playgroundTextEdit > .playgroundHeader {
 .row > .storeHost[data-open] > .storeDrawer:not(:has(.storePanel)) {
   background: var(--pg-stage);
 }
-/* fills the drawer instead of its usual cap */
-.row > .storeHost .storePanel > * {
+/* fills the drawer instead of its usual cap (a tab's quick look, also
+   there, keeps its own bounds) */
+.row > .storeHost .storePanel > :not([data-quick-look]) {
   flex: 1 1 auto;
   min-height: 0;
   max-height: none;
