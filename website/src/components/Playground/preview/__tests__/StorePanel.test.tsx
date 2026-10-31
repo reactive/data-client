@@ -10,6 +10,7 @@ import SchemaRegistry from '../store/schemaRegistry';
 import {
   DemoViewContext,
   InspectorContext,
+  StoreHeaderToggle,
   StoreToggle,
   useStoreOpen,
 } from '../StoreToggle';
@@ -450,6 +451,28 @@ describe('StorePanel table view', () => {
     expect(listed).toBe(before + 1);
     act(() => showStore(true, undefined, 'store'));
     expect(listed).toBe(before + 1);
+  });
+
+  it("switches tabs from a narrow playground's header, as the strip does", () => {
+    function Header() {
+      const [open, toggle, , , , inspector] = useStoreOpen('header', 'n');
+      return (
+        <InspectorContext.Provider value={inspector}>
+          <StoreHeaderToggle onClick={toggle} open={open} />
+        </InspectorContext.Provider>
+      );
+    }
+    render(<Header />);
+    const button = (name: string) => screen.getByRole('button', { name });
+    const pressed = (name: string) =>
+      button(name).getAttribute('aria-pressed') === 'true';
+    fireEvent.click(button('Actions'));
+    expect([pressed('Actions'), pressed('Store')]).toEqual([true, false]);
+    fireEvent.click(button('Store'));
+    expect([pressed('Actions'), pressed('Store')]).toEqual([false, true]);
+    // the tab showing shuts the Store
+    fireEvent.click(button('Store'));
+    expect([pressed('Actions'), pressed('Store')]).toEqual([false, false]);
   });
 
   it('leaves focus alone as the overview first shows, and on the tab picked', () => {

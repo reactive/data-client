@@ -9,7 +9,11 @@ import styles from '../styles.module.css';
 import type { CodeControl } from '../types';
 import ResetButton from './ResetButton';
 import { RouterControlsSlot } from './routerSlot';
-import { CodeHeaderToggle, StoreHeaderToggle } from './StoreToggle';
+import {
+  CodeHeaderToggle,
+  StoreHeaderToggle,
+  type Inspect,
+} from './StoreToggle';
 
 export default function PreviewWrapper({
   children,
@@ -110,7 +114,7 @@ export function PreviewHeaderControls({
   row: boolean;
   badge?: React.ReactNode;
   storeOpen?: boolean;
-  toggleStore?: React.MouseEventHandler<HTMLElement>;
+  toggleStore?: (event: React.MouseEvent<HTMLElement>, to: Inspect) => void;
   reset?: () => void;
 }) {
   return (

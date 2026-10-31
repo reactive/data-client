@@ -345,28 +345,37 @@ export function StoreToggle({
   );
 }
 
-/** The Store toggle in the preview's header, which narrow playgrounds show
- * instead of the side strip (see styles.module.css); also rendered, disabled,
- * by the preview loading fallback in ../index.tsx to hold the layout */
+/** The drawer's tabs in the preview's header, Actions then Store, which
+ * narrow playgrounds show instead of the side strip (see
+ * styles.module.css): each opens the Store on its tab, or shuts it while
+ * that tab shows; also rendered, disabled, by the preview loading fallback
+ * in ../index.tsx to hold the layout */
 export function StoreHeaderToggle({
   onClick,
   open = false,
 }: {
-  onClick?: React.MouseEventHandler<HTMLElement>;
+  onClick?: (event: React.MouseEvent<HTMLElement>, to: Inspect) => void;
   open?: boolean;
 }) {
-  return (
-    <HeaderToggle
-      className={styles.storeHeaderToggle}
-      title={tabTitle('store', open)}
-      label={translate({ id: 'playground.store', message: 'Store' })}
-      open={open}
-      data-store-toggle
-      onClick={onClick}
-    >
-      <StoreIcon />
-    </HeaderToggle>
-  );
+  const { tab } = useContext(InspectorContext);
+  return INSPECTS.map(to => {
+    const shown = open && tab === to;
+    return (
+      <HeaderToggle
+        key={to}
+        className={styles.storeHeaderToggle}
+        title={tabTitle(to, shown)}
+        label={tabLabel(to)}
+        open={shown}
+        data-store-toggle
+        onClick={onClick && (e => onClick(e, to))}
+      >
+        {to === 'store' ?
+          <StoreIcon />
+        : <ActionsIcon />}
+      </HeaderToggle>
+    );
+  });
 }
 
 /** The Code toggle in the preview's header (the demo layout, ../index.tsx):
