@@ -261,13 +261,22 @@ export const lastUpdated = new RestEndpoint({
 });
 ```
 
-```tsx title="ShowTime"
-import { useSuspense, useController } from '@data-client/react';
+```tsx title="TimeList"
+import { AsyncBoundary, useSuspense } from '@data-client/react';
 import { lastUpdated } from './api/lastUpdated';
 
-export default function ShowTime({ id }: { id: string }) {
+const ids = ['1', '2', '3'];
+
+export default function TimeList() {
+  return ids.map(id => (
+    <AsyncBoundary key={id} fallback={<TimeSkeleton id={id} />}>
+      <TimeRow id={id} />
+    </AsyncBoundary>
+  ));
+}
+
+function TimeRow({ id }: { id: string }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
-  const ctrl = useController();
   return (
     <div className="listItem">
       <b>{id}</b>
@@ -275,10 +284,8 @@ export default function ShowTime({ id }: { id: string }) {
     </div>
   );
 }
-```
 
-```tsx title="Loading"
-export default function Loading({ id }: { id: string }) {
+function TimeSkeleton({ id }: { id: string }) {
   return (
     <div className="listItem">
       <b>{id}</b>
@@ -289,26 +296,15 @@ export default function Loading({ id }: { id: string }) {
 ```
 
 ```tsx title="Demo"
-import { AsyncBoundary, useController } from '@data-client/react';
-
+import { useController } from '@data-client/react';
 import { lastUpdated } from './api/lastUpdated';
-import ShowTime from './ShowTime';
-import Loading from './Loading';
+import TimeList from './TimeList';
 
 function Demo() {
   const ctrl = useController();
   return (
     <div>
-      <AsyncBoundary fallback={<Loading id="1" />}>
-        <ShowTime id="1" />
-      </AsyncBoundary>
-      <AsyncBoundary fallback={<Loading id="2" />}>
-        <ShowTime id="2" />
-      </AsyncBoundary>
-      <AsyncBoundary fallback={<Loading id="3" />}>
-        <ShowTime id="3" />
-      </AsyncBoundary>
-
+      <TimeList />
       <div className="buttonGroup">
         <button onClick={() => ctrl.expireAll(lastUpdated)}>
           Expire All
@@ -350,13 +346,22 @@ export const lastUpdated = new RestEndpoint({
 });
 ```
 
-```tsx title="ShowTime"
-import { useSuspense, useController } from '@data-client/react';
+```tsx title="TimeList"
+import { AsyncBoundary, useSuspense } from '@data-client/react';
 import { lastUpdated } from './api/lastUpdated';
 
-export default function ShowTime({ id }: { id: string }) {
+const ids = ['1', '2', '3'];
+
+export default function TimeList() {
+  return ids.map(id => (
+    <AsyncBoundary key={id} fallback={<TimeSkeleton id={id} />}>
+      <TimeRow id={id} />
+    </AsyncBoundary>
+  ));
+}
+
+function TimeRow({ id }: { id: string }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
-  const ctrl = useController();
   return (
     <div className="listItem">
       <b>{id}</b>
@@ -364,10 +369,8 @@ export default function ShowTime({ id }: { id: string }) {
     </div>
   );
 }
-```
 
-```tsx title="Loading"
-export default function Loading({ id }: { id: string }) {
+function TimeSkeleton({ id }: { id: string }) {
   return (
     <div className="listItem">
       <b>{id}</b>
@@ -378,33 +381,20 @@ export default function Loading({ id }: { id: string }) {
 ```
 
 ```tsx title="Demo"
-import { AsyncBoundary, useController } from '@data-client/react';
-
+import { useController } from '@data-client/react';
 import { lastUpdated } from './api/lastUpdated';
-import ShowTime from './ShowTime';
-import Loading from './Loading';
+import TimeList from './TimeList';
 
 function Demo() {
   const ctrl = useController();
   return (
     <div>
-      <AsyncBoundary fallback={<Loading id="1" />}>
-        <ShowTime id="1" />
-      </AsyncBoundary>
-      <AsyncBoundary fallback={<Loading id="2" />}>
-        <ShowTime id="2" />
-      </AsyncBoundary>
-      <AsyncBoundary fallback={<Loading id="3" />}>
-        <ShowTime id="3" />
-      </AsyncBoundary>
-
+      <TimeList />
       <div className="buttonGroup">
         <button onClick={() => ctrl.invalidateAll(lastUpdated)}>
           Invalidate All
         </button>
-        <button
-          onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}
-        >
+        <button onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}>
           Invalidate First
         </button>
       </div>
@@ -420,7 +410,7 @@ Using the [Invalidate schema](https://dataclient.io/rest/api/Invalidate) allows 
 response. If the endpoint uses the entity in an [Array](https://dataclient.io/rest/api/Array), it will simply be removed from that [Array](https://dataclient.io/rest/api/Array).
 
 ```ts title="api/lastUpdated"
-import { Entity, RestEndpoint } from '@data-client/rest';
+import { Entity, Invalidate, RestEndpoint } from '@data-client/rest';
 import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
@@ -436,43 +426,23 @@ export const lastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   schema: TimedEntity,
 });
-```
 
-```tsx title="TimePage"
-import { useSuspense } from '@data-client/react';
-import { lastUpdated } from './api/lastUpdated';
+export const InvalidateTimedEntity = new Invalidate(TimedEntity);
 
-export default function TimePage({ id }) {
-  const { updatedAt } = useSuspense(lastUpdated, { id });
-  return (
-    <h2>
-      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'medium' })}</time>
-    </h2>
-  );
-}
-```
-
-```tsx title="ShowTime"
-import { Invalidate, RestEndpoint } from '@data-client/rest';
-import { AsyncBoundary, useController, useLoading } from '@data-client/react';
-import { TimedEntity } from './api/lastUpdated';
-import TimePage from './TimePage';
-
-const InvalidateTimedEntity = new Invalidate(TimedEntity);
 export const deleteLastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   method: 'DELETE',
   schema: InvalidateTimedEntity,
 });
+```
 
-function ShowTime() {
-  const ctrl = useController();
-  const [handleDelete, loadingDelete] = useLoading(
-    () => ctrl.fetch(deleteLastUpdated, { id: '1' }),
-    [],
-  );
+```tsx title="ServerTime"
+import { AsyncBoundary, useSuspense } from '@data-client/react';
+import { lastUpdated } from './api/lastUpdated';
+
+export default function ServerTime({ id }: { id: string }) {
   return (
-    <div>
+    <>
       <header className="appHeader">
         <h1 className="appTitle">Server time</h1>
         <CurrentTime />
@@ -485,20 +455,47 @@ function ShowTime() {
             </h2>
           }
         >
-          <TimePage id="1" />
+          <TimeReadout id={id} />
         </AsyncBoundary>
       </section>
+    </>
+  );
+}
+
+function TimeReadout({ id }: { id: string }) {
+  const { updatedAt } = useSuspense(lastUpdated, { id });
+  return (
+    <h2>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'medium' })}</time>
+    </h2>
+  );
+}
+```
+
+```tsx title="ShowTime"
+import { useController, useLoading } from '@data-client/react';
+import {
+  InvalidateTimedEntity,
+  deleteLastUpdated,
+} from './api/lastUpdated';
+import ServerTime from './ServerTime';
+
+function ShowTime() {
+  const ctrl = useController();
+  const [handleDelete, loadingDelete] = useLoading(
+    () => ctrl.fetch(deleteLastUpdated, { id: '1' }),
+    [],
+  );
+  return (
+    <div>
+      <ServerTime id="1" />
       <div className="buttonGroup">
         <button onClick={handleDelete} aria-busy={loadingDelete}>
           Invalidate
         </button>
         <button
           onClick={() =>
-            ctrl.setResponse(
-              deleteLastUpdated,
-              { id: '1' },
-              { id: '1' },
-            )
+            ctrl.setResponse(deleteLastUpdated, { id: '1' }, { id: '1' })
           }
         >
           Invalidate (without fetching DELETE)
