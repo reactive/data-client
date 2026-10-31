@@ -46,7 +46,7 @@ app.use(DataClientPlugin);
 app.mount('#app');
 ```
 
-### Set up with your coding agent (recommended)
+### Coding agent setup (recommended)
 
 Or skip the steps above and paste this into your coding agent's chat. It installs Data Client's setup skill, which adds the packages, wires up the provider and links the skills they ship:
 

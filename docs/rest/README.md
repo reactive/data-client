@@ -8,13 +8,13 @@ hide_title: true
 ---
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import PlaygroundTabs from '@site/src/components/PlaygroundTabs';
-import Link from '@docusaurus/Link';
+import SiteOnly from '@site/src/components/SiteOnly';
+import AgentOnly from '@site/src/components/AgentOnly';
 
 <PkgTabs pkgs="@data-client/rest" />
 
@@ -342,29 +342,29 @@ When using TypeScript (optional), version 4.0 or above is required.
 
 :::
 
-## REST Agent Skills
+## Coding agent setup {#agent-setup}
 
-import SkillTabs from '@site/src/components/SkillTabs';
+<SiteOnly>
 
-<SkillTabs repo="reactive/data-client" skills={['data-client-schema', 'data-client-rest-setup', 'data-client-rest']} />
-
-Then migrate by running it in your agent's chat:
+Paste this into your agent's chat:
 
 ```prompt
-/data-client-rest-setup
+Use `@data-client/rest` endpoints for this app's REST APIs, without changing how components load or store data. Install the REST setup skill first: `npx skills add reactive/data-client --skill data-client-rest-setup -y`, then read `.agents/skills/data-client-rest-setup/SKILL.md` and follow it.
 ```
 
-<div style={{ textAlign: 'center' }}>
-<Link className="button button--secondary button--sm" to="https://skills.sh/reactive/data-client/data-client-rest"><img src={useBaseUrl('/img/anthropic.svg')} alt="REST Codegen Skill" style={{
-          height: '1em',
-          verticalAlign: '-0.125em',
-          display: 'inline',
-        }}
-/> REST Codegen Skill</Link>
-</div>
+</SiteOnly>
 
-### Migrating from Axios
+<AgentOnly>
 
-The `data-client-rest-setup` skill automatically detects axios usage and applies the axios migration — including the [codemod](./guides/axios-migration.md#codemod), interceptor conversion, and error handling migration.
+To add `@data-client/rest` endpoints without changing how the app loads or stores data, install the REST setup skill
+from the project root:
 
-See the full [Axios Migration Guide](./guides/axios-migration.md) for step-by-step examples, a quick reference table, and a standalone codemod.
+```bash
+npx skills add reactive/data-client --skill data-client-rest-setup -y
+```
+
+Then read `.agents/skills/data-client-rest-setup/SKILL.md` and follow it.
+
+</AgentOnly>
+
+The skill detects axios and follows the [Axios Migration Guide](./guides/axios-migration.md).

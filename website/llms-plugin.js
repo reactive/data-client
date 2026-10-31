@@ -161,7 +161,7 @@ module.exports = function llmsPlugin(context) {
             `Packages: ${packages.join(', ')}.`,
             ...seeFrameworks(instance),
           ].join(' '),
-          `## Set up with a coding agent
+          `## Coding agent setup
 
 ${setupStep} It installs \`@data-client/${framework}\` and the API packages the app needs, wires up the provider, and links the skills those packages ship, matched to their versions.
 

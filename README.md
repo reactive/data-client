@@ -38,7 +38,7 @@ npm install --save @data-client/react @data-client/rest @data-client/test
 
 Then [add the provider](https://dataclient.io/docs/getting-started/installation#add-provider-at-top-level-component) at your app's root.
 
-### Set up with your coding agent (recommended)
+### Coding agent setup (recommended)
 
 Or skip the steps above and paste this into your coding agent's chat. It installs Data Client's setup skill, which adds the packages, wires up the provider and links the skills they ship:
 

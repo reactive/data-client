@@ -15,7 +15,7 @@ Declarative, strongly typed, reusable network definitions for networking librari
 
 </div>
 
-## Let your coding agent set it up
+## Coding agent setup
 
 Tell your coding agent:
 
