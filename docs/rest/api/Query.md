@@ -10,6 +10,7 @@ sidebar_label: Query
 import { RestEndpoint } from '@data-client/rest';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import SortDemo from '../shared/\_SortDemo.mdx';
+import { assigneeFixtures, getInitialInterceptorData } from '@site/src/fixtures/assignees';
 
 # Query
 
@@ -140,7 +141,10 @@ render(<UsersPage />);
 
 ### Rearranging data with groupBy aggregations {#groupby}
 
-<FrameworkPlayground>
+<FrameworkPlayground
+fixtures={assigneeFixtures}
+getInitialInterceptorData={getInitialInterceptorData}
+>
 
 ```ts title="resources/User" collapsed
 import { Entity, resource } from '@data-client/rest';
@@ -238,7 +242,7 @@ function TodosPage() {
   if (!todosByUser) return <div>Todos not found</div>;
   return (
     <div>
-      {Object.keys(todosByUser).slice(5).map(userId => (
+      {Object.keys(todosByUser).map(userId => (
         <TodoByUser
           key={userId}
           userId={userId}
@@ -307,7 +311,7 @@ render(<TodosPage />);
   <div v-if="!todosByUser">Todos not found</div>
   <div v-else>
     <TodoByUser
-      v-for="userId in Object.keys(todosByUser).slice(5)"
+      v-for="userId in Object.keys(todosByUser)"
       :key="userId"
       :userId="userId"
       :todos="todosByUser[userId]"
