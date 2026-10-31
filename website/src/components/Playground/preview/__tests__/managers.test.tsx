@@ -45,7 +45,7 @@ function renderPlayground(documents: string[]) {
       storeMoves: 0,
       toggleStore: () => {},
       storeHost: null,
-      row: false,
+      layout: 'stacked' as const,
       fixtures: [],
       renderCount: false,
       showStore: () => {},

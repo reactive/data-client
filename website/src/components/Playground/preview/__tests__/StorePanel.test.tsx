@@ -4,6 +4,7 @@ import { StateContext, type State } from '@data-client/react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
+import { drawerToggle } from '../autorun/player';
 import { byData } from '../store/dom';
 import { endpointId, entityId, groupId, parseRowId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
@@ -470,6 +471,11 @@ describe('StorePanel table view', () => {
     expect([pressed('Actions'), pressed('Store')]).toEqual([true, false]);
     fireEvent.click(button('Store'));
     expect([pressed('Actions'), pressed('Store')]).toEqual([false, true]);
+    // a demo finds each by its tab, and the one showing to shut it
+    const find = (tab?: 'store' | 'actions') =>
+      document.querySelector(drawerToggle(tab));
+    expect(find('actions')).toBe(button('Actions'));
+    expect(find()).toBe(button('Store'));
     // the tab showing shuts the Store
     fireEvent.click(button('Store'));
     expect([pressed('Actions'), pressed('Store')]).toEqual([false, false]);

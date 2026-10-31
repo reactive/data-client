@@ -65,7 +65,7 @@ describe('Router', () => {
   afterEach(() => jest.restoreAllMocks());
   /** renders `ui` in the preview, whose header holds the router's controls */
   function renderInPreview(ui: React.ReactElement) {
-    return render(<PreviewWrapper>{ui}</PreviewWrapper>);
+    return render(<PreviewWrapper layout="stacked">{ui}</PreviewWrapper>);
   }
   function List() {
     return <Link to="/posts/5">Post 5</Link>;

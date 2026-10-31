@@ -6,7 +6,7 @@ import Header from '../Header';
 import { editorLabel, liveLabel } from '../liveLabel';
 import NetworkIcon from '../NetworkIcon';
 import styles from '../styles.module.css';
-import type { CodeControl } from '../types';
+import type { CodeControl, Layout } from '../types';
 import ResetButton from './ResetButton';
 import { RouterControlsSlot } from './routerSlot';
 import {
@@ -21,13 +21,16 @@ export default function PreviewWrapper({
   label,
   fixtures,
   code,
+  layout,
   ref,
 }: Props) {
   const [routerSlot, setRouterSlot] = useState<HTMLElement | null>(null);
   const [fixturesOpen, setFixturesOpen] = useState(false);
   const [result, setResult] = useState<HTMLDivElement | null>(null);
-  usePreviewGap(result);
-  useHeightRatchet(result);
+  // the row's folder (beside the code) ends with its sheet
+  const rowResult = layout === 'row' ? result : null;
+  usePreviewGap(rowResult);
+  useHeightRatchet(rowResult);
   const fixturesId = useId();
   const fixturesLabel = translate({
     id: 'playground.fixtures',
@@ -105,13 +108,13 @@ export const previewSurfaceClassName = `playground-preview ${styles.playgroundPr
  * without handlers each holds its place, disabled. Row layout has no Store
  * toggle here (the folder's handle is it) */
 export function PreviewHeaderControls({
-  row,
+  layout,
   badge,
   storeOpen,
   toggleStore,
   reset,
 }: {
-  row: boolean;
+  layout: Layout;
   badge?: React.ReactNode;
   storeOpen?: boolean;
   toggleStore?: ToggleStore;
@@ -120,7 +123,7 @@ export function PreviewHeaderControls({
   return (
     <>
       {badge}
-      {row ? null : (
+      {layout === 'row' ? null : (
         <StoreHeaderToggle open={storeOpen} onClick={toggleStore} />
       )}
       <ResetButton onClick={reset} />
@@ -137,12 +140,7 @@ function usePreviewGap(result: HTMLElement | null) {
   useLayoutEffect(() => {
     const wrapper = result?.parentElement;
     const row = wrapper?.parentElement;
-    if (
-      !result ||
-      !wrapper ||
-      !row?.classList.contains(styles.row) ||
-      typeof ResizeObserver === 'undefined'
-    )
+    if (!result || !wrapper || !row || typeof ResizeObserver === 'undefined')
       return;
     const measure = () => {
       const foot =
@@ -173,13 +171,7 @@ function useHeightRatchet(result: HTMLElement | null) {
     const holder =
       result?.closest<HTMLElement>('[data-playground-group]') ??
       result?.closest<HTMLElement>('[data-playground]');
-    if (
-      !result ||
-      !holder ||
-      !result.closest('.' + styles.row) ||
-      typeof ResizeObserver === 'undefined'
-    )
-      return;
+    if (!result || !holder || typeof ResizeObserver === 'undefined') return;
     // fractional, unlike offsetHeight: a floor rounded down dips a subpixel
     const observer = new ResizeObserver(([entry]) => {
       const { height } = entry.contentRect;
@@ -198,6 +190,9 @@ interface Props {
   headerControls?: React.ReactNode;
   /** In place of the "Live Preview" label (e.g. the demo's `DemoLabel`) */
   label?: React.ReactNode;
+  /** `layout === 'row'`: the folder ends with the app's sheet, which never
+   * shrinks (the stacked Store shares the result's height, so it may) */
+  layout: Layout;
   /** Mock responses to inspect over the result, from a network icon in the
    * header: previewed on hover, pinned open by a click or tap */
   fixtures?: React.ReactNode;

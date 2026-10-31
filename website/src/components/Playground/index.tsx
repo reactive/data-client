@@ -41,7 +41,7 @@ import {
   useStoreOpen,
 } from './preview/StoreToggle';
 import styles from './styles.module.css';
-import type { CodeControl, FixtureOrInterceptor } from './types';
+import type { CodeControl, FixtureOrInterceptor, Layout } from './types';
 import { isBot } from './userAgent';
 
 export interface PlaygroundProps<T = any> {
@@ -56,14 +56,16 @@ export interface PlaygroundProps<T = any> {
    * render), which teaches cause and effect, or every action in dispatch
    * order, which shows overlapping requests */
   defaultActionsBy?: ActionsBy;
-  /** Files as tabs over a code card, the preview a folder beside it (when
-   * wide enough; under it otherwise), with the Store behind the preview: its
-   * tab opens it over the code. Use when the code is one tall open file and
-   * the preview is short; row folds fixtures behind a toggle in the
-   * preview's header. Stay stacked when the Store opens by default (it would
-   * cover the code), or when the preview renders a long list (it gets tall
-   * in the narrow column). Only one file may be uncollapsed: each open file
-   * is a selected tab. */
+  /** The preview a folder beside the code (when wide enough; under it
+   * otherwise), with the Store behind it: its tab opens it over the code.
+   * Only one file may start open in a row: each open file is a selected tab.
+   * Without it (stacked), the preview is always under the code and the
+   * Store opens beside the app, so pick stacked to show the Store with the
+   * code in view (`defaultOpen="y"`), to give the app the full width (a
+   * long list gets tall in a row's narrow column), or to show several files
+   * at once: they start open as cards side by side (one starting open is a
+   * tab, as in a row). Fixtures fold behind a toggle in the preview's
+   * header either way. */
   row?: boolean;
   /** Preview first, at full width, with room for a realistic app; the code
    * waits behind a Code toggle in its header (file tabs like `row`) and
@@ -117,7 +119,7 @@ export default function Playground<T>({
   // Defer preview transpilation so editor input remains responsive.
   const documents = useDeferredValue(model.documents);
 
-  const layout =
+  const layout: Layout =
     demo ? 'demo'
     : rowLayout ? 'row'
     : 'stacked';
@@ -199,15 +201,15 @@ export default function Playground<T>({
   if (codeVisible && !editorInteractive) setEditorInteractive(true);
   const toggleCode = useCallback(() => setCodeShown(shown => !shown), []);
 
-  const fixtureContent =
-    fixtures.length ? <FixturePreview fixtures={fixtures} /> : undefined;
-  // folded into the preview's header (row, demo), the fixtures render once
-  // the pointer, focus or a click reaches the playground (`Latch`)
+  // folded into the preview's header, the fixtures render once the pointer,
+  // focus or a click reaches the playground (`Latch`)
   const [nearLatch] = useState(createLatch);
   const previewFixtures =
-    layout === 'stacked' || !fixtureContent ?
-      undefined
-    : <WhenNear latch={nearLatch}>{fixtureContent}</WhenNear>;
+    fixtures.length ?
+      <WhenNear latch={nearLatch}>
+        <FixturePreview fixtures={fixtures} />
+      </WhenNear>
+    : undefined;
 
   const editor = (
     <EditorSurface
@@ -215,7 +217,6 @@ export default function Playground<T>({
       interactive={editorInteractive}
       layout={layout}
       variant="playground"
-      fixtureContent={fixtureContent}
       covered={codeCovered}
       reveal={codeTarget}
     />
@@ -231,7 +232,7 @@ export default function Playground<T>({
       <Boundary
         fallback={
           <PreviewLoading
-            row={row}
+            layout={layout}
             fixtureContent={previewFixtures}
             code={code}
           />
@@ -246,7 +247,7 @@ export default function Playground<T>({
                   fixtureContent={previewFixtures}
                   storeOpen={storeOpen}
                   toggleStore={toggleStoreInPreview}
-                  row={row}
+                  layout={layout}
                   storeHost={storeHost}
                   fixtures={fixtures}
                   getInitialInterceptorData={getInitialInterceptorData}
@@ -275,8 +276,10 @@ export default function Playground<T>({
     >
       <div
         ref={setContainer}
+        // stacked is the row's paper with the preview always under the code
         className={clsx(styles.playgroundContainer, {
-          [styles.row]: row,
+          [styles.row]: !demo,
+          [styles.stacked]: layout === 'stacked',
           [styles.demo]: demo,
         })}
         data-code={(demo && codeShown) || undefined}
@@ -323,29 +326,32 @@ export default function Playground<T>({
 }
 
 /** SSR, crawler and loading state: the preview's frame with a blank
- * sheet + Store toggle (the side strip; the row layout's is the folder's
- * handle, rendered with the folder above), and the folded fixtures' toggle,
- * already usable; so is a demo's Code toggle. The reset holds its place,
- * disabled */
+ * sheet + drawer toggles (the header's; a demo's side strip too; the row
+ * layout's is the folder's handle, rendered with the folder above), and the
+ * folded fixtures' toggle, already usable; so is a demo's Code toggle. The
+ * reset holds its place, disabled */
 function PreviewLoading({
-  row,
+  layout,
   fixtureContent,
   code,
 }: {
-  row: boolean;
+  layout: Layout;
   fixtureContent?: React.ReactNode;
   code?: CodeControl;
 }) {
   return (
     <PreviewWrapper
-      headerControls={<PreviewHeaderControls row={row} />}
+      layout={layout}
+      headerControls={<PreviewHeaderControls layout={layout} />}
       fixtures={fixtureContent}
       code={code}
     >
       <div className={previewSurfaceClassName}>
         <PendingSheet />
       </div>
-      {row ? null : <StoreToggle />}
+      {layout === 'demo' ?
+        <StoreToggle />
+      : null}
     </PreviewWrapper>
   );
 }

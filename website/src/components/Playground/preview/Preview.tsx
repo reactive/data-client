@@ -22,7 +22,7 @@ function Preview<T>({
   storeOpen,
   storeMoves,
   toggleStore,
-  row,
+  layout,
   storeHost,
   fixtures,
   getInitialInterceptorData,
@@ -100,7 +100,7 @@ function Preview<T>({
             toggle={toggleStore}
             registry={registry}
             history={history}
-            row={row}
+            layout={layout}
             host={storeHost}
           />
         </MotionGroup>

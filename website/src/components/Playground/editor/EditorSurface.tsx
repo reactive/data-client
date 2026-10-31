@@ -1,5 +1,5 @@
 import BrowserOnly from '@docusaurus/BrowserOnly';
-import Translate, { translate } from '@docusaurus/Translate';
+import { translate } from '@docusaurus/Translate';
 import useIsomorphicLayoutEffect from '@docusaurus/useIsomorphicLayoutEffect';
 import clsx from 'clsx';
 import type * as Monaco from 'monaco-editor';
@@ -15,23 +15,23 @@ import Header from '../Header';
 import { modelPath, useModelId } from '../monaco/modelPath';
 import { createMissingModels } from '../monaco/models';
 import { allowTopLevelAwait } from '../monaco/topLevelAwait';
-import NetworkIcon from '../NetworkIcon';
 import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
 import TabList from '../TabList';
+import type { Layout } from '../types';
 import type { CodeDocument, CodeModel } from './codeModel';
 import type { InteractiveEditorProps } from './InteractiveEditor';
 import type { CodeTarget } from './openCode';
 import StaticEditor from './StaticEditor';
 
 export interface EditorSurfaceProps extends CodeModel {
-  /** `demo`: tabs like `row`, under the preview's header (see ../index.tsx) */
-  layout: 'row' | 'stacked' | 'demo';
+  /** `demo`: tabs like `row`, under the preview's header (see ../index.tsx).
+   * `stacked`: tabs too, unless several files start open */
+  layout: Layout;
   variant: 'playground' | 'standalone';
   /** False until the code first shows: plain text for crawlers, no Monaco.
    * Defaults true. */
   interactive?: boolean;
-  fixtureContent?: React.ReactNode;
   /** The Store covers the code, which goes inert */
   covered?: boolean;
   /** A line to show, handed to its file's editor, which opens its tab and
@@ -48,7 +48,6 @@ export default function EditorSurface({
   layout,
   variant,
   interactive = true,
-  fixtureContent,
   covered = false,
   reveal,
   topLevelAwait = false,
@@ -57,7 +56,6 @@ export default function EditorSurface({
   useEffect(() => {
     if (topLevelAwait) return allowTopLevelAwait(id);
   }, [id, topLevelAwait]);
-  const row = layout !== 'stacked';
   const [closedList, setClosed] = useState(() =>
     documents.map(({ collapsed }) => collapsed),
   );
@@ -67,6 +65,11 @@ export default function EditorSurface({
   // stability is what lets memo(InteractiveEditor) skip re-rendering
   // unedited tabs on every keystroke.
   const colFlags = useRef(documents.map(({ col }) => col)).current;
+  // stacked files that start open together stay so: each its own card,
+  // folding on its own; otherwise the files are tabs over one card
+  const cards =
+    layout === 'stacked' &&
+    documents.filter(({ collapsed, col }) => !collapsed && !col).length > 1;
   const handleTabSwitch = useCallback(
     (index: number) => {
       setClosed(closed => {
@@ -107,7 +110,7 @@ export default function EditorSurface({
   // file is a label, never a tab
   const tabbed = documents.filter(document => !document.col);
   const tabs =
-    row && (tabbed.length > 1 || tabbed[0]?.title) ?
+    !cards && (tabbed.length > 1 || tabbed[0]?.title) ?
       <EditorTabs
         documents={documents}
         closedList={closedList}
@@ -116,25 +119,15 @@ export default function EditorSurface({
         subtabs={layout === 'demo'}
       />
     : null;
-  const code = documents.map((document, index) => (
-    <React.Fragment key={`${document.path}:${index}`}>
-      {(!row || document.col) && document.title ?
-        <CodeTabHeader
-          onClick={() => handleTabToggle(index)}
-          closed={closedList[index]}
-          title={document.title}
-          // beside tabs (row), a column file is a label on the layer under
-          // the code card, never folded away
-          collapsible={!row && (documents.length > 1 || fixtureContent != null)}
-        />
-      : null}
+  const code = documents.map((document, index) => {
+    const editor = (
       <TextEditTab
         hidden={closedList[index]}
         ssr={document.ssr}
         interactive={interactive}
         tabIndex={index}
         onFocus={
-          row && !document.col && documents.length > 1 ?
+          !cards && !document.col && documents.length > 1 ?
             handleTabSwitch
           : handleTabOpen
         }
@@ -148,23 +141,38 @@ export default function EditorSurface({
         autoFocus={document.autoFocus}
         reveal={reveal?.path === document.path ? reveal : undefined}
       />
-    </React.Fragment>
-  ));
+    );
+    const key = `${document.path}:${index}`;
+    if (cards)
+      return (
+        <FileCard
+          key={key}
+          title={document.title}
+          closed={closedList[index]}
+          onToggle={() => handleTabToggle(index)}
+        >
+          {editor}
+        </FileCard>
+      );
+    return (
+      <React.Fragment key={key}>
+        {/* beside tabs, a column file is a label on the layer under the
+            code card, never folded away */}
+        {document.col && document.title ?
+          <div className={styles.codeHeader}>{document.title}</div>
+        : null}
+        {editor}
+      </React.Fragment>
+    );
+  });
   return (
     // the Store covers the file tabs and the code card alike
     <div className={styles.playgroundTextEdit} inert={covered}>
-      {!row && fixtureContent != null ?
-        <>
-          <Header small className={styles.fixturesHeader}>
-            <NetworkIcon />
-            <Translate id="playground.fixtures">Fixtures</Translate>
-          </Header>
-          {fixtureContent}
-        </>
-      : null}
       {tabs}
-      {/* the files: the code card in row layout */}
-      <div className={styles.editorDocs}>{code}</div>
+      {/* the files: the code card, or a card each */}
+      <div className={clsx(styles.editorDocs, { [styles.fileCards]: cards })}>
+        {code}
+      </div>
     </div>
   );
 }
@@ -233,25 +241,47 @@ function TextEditTab({
   );
 }
 
-function CodeTabHeader({
-  onClick,
-  closed,
+/** One of several files open at once: its code card under its name, which
+ * folds it to just that name and back */
+function FileCard({
   title,
-  collapsible,
+  closed,
+  onToggle,
+  children,
 }: {
-  onClick: () => void;
+  title?: string;
   closed: boolean;
-  title: React.ReactNode;
-  collapsible: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
 }) {
-  if (!collapsible) return <div className={styles.codeHeader}>{title}</div>;
+  // the folder steps back, so the file's own name reads first
+  const slash = title ? title.lastIndexOf('/') + 1 : 0;
   return (
-    <Header small onClick={onClick}>
-      <span className={clsx(styles.arrow, closed ? styles.right : styles.down)}>
-        ▶
-      </span>
-      {title}
-    </Header>
+    <section className={styles.fileCard} data-closed={closed || undefined}>
+      {title ?
+        <button
+          type="button"
+          className={clsx('clean-btn', styles.fileName)}
+          aria-expanded={!closed}
+          onClick={onToggle}
+        >
+          {slash ?
+            <span className={styles.fileDir}>{title.slice(0, slash)}</span>
+          : null}
+          {title.slice(slash)}
+          <svg
+            className={styles.fileChevron}
+            viewBox="0 0 16 16"
+            width="16"
+            height="16"
+            aria-hidden
+          >
+            <path d="M4.5 6.25 8 9.75l3.5-3.5" />
+          </svg>
+        </button>
+      : null}
+      {children}
+    </section>
   );
 }
 

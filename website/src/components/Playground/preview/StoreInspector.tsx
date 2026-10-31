@@ -10,7 +10,7 @@ import { createPortal } from 'react-dom';
 
 import { Reveal } from '../../motion';
 import styles from '../styles.module.css';
-import type { PreviewProps } from '../types';
+import type { Layout, PreviewProps } from '../types';
 import type SchemaRegistry from './store/schemaRegistry';
 import StorePanel from './store/StorePanel';
 import { heldToggle, StoreToggle, useLooking } from './StoreToggle';
@@ -20,16 +20,17 @@ function StoreInspector({
   open,
   registry,
   history,
-  row,
+  layout,
   host,
 }: {
   open: boolean;
   toggle: PreviewProps['toggleStore'];
   registry: SchemaRegistry;
   history: number;
-  /** On the preview's folder (`host`), which opens over the code, instead
-   * of beside the result; its toggle is the folder's tab (../index.tsx) */
-  row: boolean;
+  /** `layout === 'row'`: on the preview's folder (`host`), which opens over the code,
+   * its toggle the folder's tab (../index.tsx). Otherwise beside the result,
+   * toggled from the preview's header, and by the side strip in `demo` */
+  layout: Layout;
   host: HTMLElement | null;
 }) {
   // the empty drawer starts moving at once; the tree renders a frame later,
@@ -38,6 +39,7 @@ function StoreInspector({
   // Store grows to fit the tree, and growing a frame later would move the
   // page after the click's scroll hold. Beside the result, its height follows
   // the result, not the tree
+  const row = layout === 'row';
   const deferred = useDeferredValue(open);
   // a tab's quick look shows from the panel, mounting it if it never was
   const looking = useLooking();
@@ -63,7 +65,9 @@ function StoreInspector({
   }
   return (
     <>
-      <StoreToggle onToggle={toggle} open={open} />
+      {layout === 'demo' ?
+        <StoreToggle onToggle={toggle} open={open} />
+      : null}
       <Reveal show={open} className={styles.storePanel} hold={heldToggle}>
         {tree}
       </Reveal>

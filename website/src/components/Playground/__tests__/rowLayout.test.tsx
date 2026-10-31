@@ -17,7 +17,7 @@ jest.mock('../preview/LivePreview', () => {
   const PreviewWrapper = require('../preview/PreviewWrapper').default;
   return {
     __esModule: true,
-    default: () => createElement(PreviewWrapper, {}, 'the app'),
+    default: () => createElement(PreviewWrapper, { layout: 'row' }, 'the app'),
   };
 });
 

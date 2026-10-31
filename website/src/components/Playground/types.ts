@@ -12,13 +12,18 @@ export interface CodeControl {
   toggle: () => void;
 }
 
+/** Where the preview and the Store go (../index.tsx): `row`, the preview
+ * beside the code and the Store over it; `stacked`, the preview under the
+ * code and the Store beside the app; `demo`, the preview first */
+export type Layout = 'row' | 'stacked' | 'demo';
+
 export interface PreviewProps<T = any> {
   storeOpen: boolean;
   /** Counts the reader's and demos' Store moves (`useStoreOpen`): the Store
    * animates only for these */
   storeMoves: number;
   toggleStore: ToggleStore;
-  row: boolean;
+  layout: Layout;
   /** Row layout: the layer over the code the Store slides into */
   storeHost: HTMLElement | null;
   fixtures: FixtureOrInterceptor<T>[];

@@ -74,11 +74,6 @@
   /* the preview header's curves fade in as it lands */
   --pg-store-fade: 120ms ease-out 180ms;
 }
-/* a row (../TypeScriptEditor.tsx unless row={false}) keeps the row's own
-   sizing, so its tabs match every other row's */
-.playgroundContainer.standaloneEditor:not(.row) {
-  --ifm-code-font-size: 14.4px;
-}
 .playgroundContainer.standaloneEditor > :last-child {
   overflow: visible;
 }
@@ -111,19 +106,6 @@
   font-size: 80%;
   font-weight: 500;
   padding: 0.4rem 0.75rem;
-}
-/* the network icon row's preview toggle uses, so readers learn it */
-.fixturesHeader {
-  display: flex;
-  align-items: center;
-  gap: 0.4em;
-}
-.playgroundHeader.clickable {
-  cursor: pointer;
-}
-.playgroundHeader.clickable:hover {
-  background-color: var(--pg-tab-hover-bg);
-  color: var(--pg-tab-hover);
 }
 .playgroundHeader.noupper {
   text-transform: none;
@@ -188,15 +170,8 @@
 }
 
 .playgroundHeader.tabControls,
-div.playgroundTextEdit > .playgroundHeader,
-.editorDocs > .playgroundHeader {
+div.playgroundTextEdit > .playgroundHeader {
   box-shadow: inset 0 -1px 0 var(--pg-bar-edge);
-}
-.playgroundContainer:not(.row, .demo)
-  > div.playgroundTextEdit
-  > .playgroundHeader:first-child {
-  border-top-right-radius: var(--ifm-global-radius);
-  border-top-left-radius: var(--ifm-global-radius);
 }
 
 .playgroundEditor {
@@ -204,10 +179,6 @@ div.playgroundTextEdit > .playgroundHeader,
   direction: ltr;
   /* height: 100%; */
   padding-top: 8px;
-}
-.playgroundContainer.standaloneEditor:not(.row) .playgroundEditor {
-  padding-top: 12.8px;
-  padding-left: 2.8px;
 }
 .playgroundEditor :global(.prism-code) {
   --ifm-pre-background: var(--monoco-code-background);
@@ -218,12 +189,6 @@ div.playgroundTextEdit > .playgroundHeader,
 .playgroundEditor,
 .playgroundEditor :global(.prism-code) {
   font: 13px / 19px var(--ifm-font-family-monospace) !important;
-}
-.playgroundContainer:not(.row, .demo) {
-  background-color: var(--monoco-code-background);
-}
-.closed {
-  display: none;
 }
 
 .arrow {
@@ -1468,7 +1433,8 @@ div.playgroundTextEdit > .playgroundHeader,
   background-color: color-mix(in srgb, var(--store-null) 16%, transparent);
   font-weight: 600;
 }
-.fixtureToggle:focus-visible {
+.fixtureToggle:focus-visible,
+.fileName:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
   outline-offset: -2px;
 }
@@ -1575,7 +1541,7 @@ div.fixtureJson + div.fixtureJson {
    tabs' row over the code card, the folder beside the card, and the folder's
    layer over the card's row, its Store in the card's column */
 @container playground (min-width: 720px) {
-  .playgroundContainer.row {
+  .playgroundContainer.row:not(.stacked) {
     /* where the Store runs on below the preview: its corner and the
        preview's foot curving into it, no deeper than that run */
     --pg-foot-curve: min(var(--pg-card-radius), var(--pg-preview-gap, 0px));
@@ -1602,28 +1568,30 @@ div.fixtureJson + div.fixtureJson {
   /* with no tabs (one untitled file) and no preview, nothing holds the
      header row (../TypeScriptEditor.tsx, ../HTTP/EndpointPlayground.tsx,
      whose folder starts level with the code card) */
-  .playgroundContainer.row:not(:has(.tabControls, > .previewWrapper)) {
+  .playgroundContainer.row:not(.stacked):not(
+      :has(.tabControls, > .previewWrapper)
+    ) {
     grid-template-rows: 0 auto;
   }
-  .row > .playgroundTextEdit {
+  .row:not(.stacked) > .playgroundTextEdit {
     grid-area: 1 / 1 / 3 / 2;
     display: grid;
     grid-template-rows: subgrid;
   }
-  .row > .playgroundTextEdit > .tabControls {
+  .row:not(.stacked) > .playgroundTextEdit > .tabControls {
     grid-row: 1;
   }
   /* ends at its code, however tall the preview beside it */
-  .row .editorDocs {
+  .row:not(.stacked) .editorDocs {
     grid-row: 2;
     align-self: start;
     max-height: 100%;
   }
   /* the preview's column, or what a playground puts in its place (../HTTP) */
-  .row > :is(.previewWrapper, .previewSlot) {
+  .row:not(.stacked) > :is(.previewWrapper, .previewSlot) {
     grid-area: 1 / 2 / 3 / 3;
   }
-  .row > .previewWrapper {
+  .row:not(.stacked) > .previewWrapper {
     /* unpositioned, so the fixtures hang from the playground's edge */
     position: static;
     /* ends at its sheet's foot: --pg-preview-gap is how far the row runs on
@@ -1634,78 +1602,85 @@ div.fixtureJson + div.fixtureJson {
      before the page hydrates and PreviewWrapper.tsx measures the same; in
      row heights (100%), so only the folder's own rules may read it before
      then, never the Store's (it shows only once hydrated) */
-  .row:has(.sheet[aria-busy]) {
+  .row:not(.stacked):has(.sheet[aria-busy]) {
     --pg-preview-gap: max(
       0px,
       100% - var(--pg-row) - var(--pg-pending-sheet) - var(--pg-card-radius)
     );
   }
-  .row .sheet[aria-busy] {
+  .row:not(.stacked) .sheet[aria-busy] {
     height: var(--pg-pending-sheet);
   }
   /* The content's shadow, from boxes that run out over the Store with the
      drawer, so the open Store and the preview are one paper with one
      shadow (the headers cast their own): the preview's content, edge to
-     edge (here), and the Store's sheet below it (.row::before) */
-  .row > .previewWrapper::before,
-  .row::before {
+     edge (here), and the Store's sheet below it (.row:not(.stacked)::before) */
+  .row:not(.stacked) > .previewWrapper::before,
+  .row:not(.stacked)::before {
     content: '';
     position: absolute;
     left: var(--pg-fold);
     box-shadow: var(--pg-card-shadow);
     pointer-events: none;
   }
-  .row > .previewWrapper::before {
+  .row:not(.stacked) > .previewWrapper::before {
     inset-block: var(--pg-row) var(--pg-preview-gap, 0px);
     right: 0;
   }
-  .row::before {
+  .row:not(.stacked)::before {
     top: calc(100% - var(--pg-preview-gap, 0px));
     bottom: 0;
     right: calc(var(--pg-preview-col) + var(--pg-gap));
     border-radius: 0 0 var(--pg-card-radius) var(--pg-card-radius);
   }
-  .row:has(> .storeHost[data-open]) > .previewWrapper::before,
-  .row:has(> .storeHost[data-open])::before {
+  .row:not(.stacked):has(> .storeHost[data-open]) > .previewWrapper::before,
+  .row:not(.stacked):has(> .storeHost[data-open])::before {
     left: 0;
   }
-  .row > .previewWrapper::before,
-  .row::before {
+  .row:not(.stacked) > .previewWrapper::before,
+  .row:not(.stacked)::before {
     transition: left var(--pg-store-drawer);
   }
-  .row:has(> .storeHost .storePanel[data-visible]) > .previewWrapper {
+  .row:not(.stacked):has(> .storeHost .storePanel[data-visible])
+    > .previewWrapper {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
   /* its foot's paper a pixel on under the Store's edge, so no seam shows
      (not its content's: the Store's sheet meets it, square) */
-  .row:has(> .storeHost .storePanel[data-visible]) > .previewWrapper::after {
+  .row:not(.stacked):has(> .storeHost .storePanel[data-visible])
+    > .previewWrapper::after {
     box-shadow: -1px 0 var(--pg-stage);
   }
   /* its content runs on from the Store's strip (its header stays inset:
      the Store's covers that, see .storeHost) */
-  .row .playgroundResult,
-  .row .sheet {
+  .row:not(.stacked) .playgroundResult,
+  .row:not(.stacked) .sheet {
     transition: border-top-left-radius var(--pg-store-snappy);
   }
-  .row:has(> .storeHost .storePanel[data-visible]) .playgroundResult {
+  .row:not(.stacked):has(> .storeHost .storePanel[data-visible])
+    .playgroundResult {
     border-top-left-radius: 0;
   }
   /* sliding shut, the Store's sheet meets the app's at the fold: square,
      the two read as one bar until it has slid behind */
-  .row:has(> .storeHost:not([data-open]) .storePanel[data-visible]) .sheet {
+  .row:not(.stacked):has(
+      > .storeHost:not([data-open]) .storePanel[data-visible]
+    )
+    .sheet {
     border-top-left-radius: 0;
   }
   /* the Store running on below the preview: its corner there squares
      where the two boxes meet */
-  .row:has(> .storeHost .storePanel[data-visible]) > .previewWrapper::before {
+  .row:not(.stacked):has(> .storeHost .storePanel[data-visible])
+    > .previewWrapper::before {
     border-bottom-left-radius: calc(
       var(--pg-card-radius) - var(--pg-foot-curve)
     );
   }
   /* and the strip between the two sheets, ending at the preview's foot,
      curves into the Store's sheet's edge, as a tab does into its card */
-  .row:has(> .storeHost .storePanel[data-visible])::after {
+  .row:not(.stacked):has(> .storeHost .storePanel[data-visible])::after {
     content: '';
     position: absolute;
     /* a pixel on under the sheet's edge */
@@ -1724,16 +1699,16 @@ div.fixtureJson + div.fixtureJson {
   }
   /* under it, the code card's own shadow would deepen the Store's, and the
      file tabs would show past the Store header's inset */
-  .row .editorDocs {
+  .row:not(.stacked) .editorDocs {
     transition: box-shadow var(--pg-store-drawer);
   }
-  .row .tabControls {
+  .row:not(.stacked) .tabControls {
     transition: opacity var(--pg-store-drawer);
   }
-  .row:has(> .storeHost[data-open]) .editorDocs {
+  .row:not(.stacked):has(> .storeHost[data-open]) .editorDocs {
     box-shadow: none;
   }
-  .row:has(> .storeHost[data-open]) .tabControls {
+  .row:not(.stacked):has(> .storeHost[data-open]) .tabControls {
     opacity: 0;
   }
   /* clipped at the fold, but for the header's row, where the Store's
@@ -1743,7 +1718,7 @@ div.fixtureJson + div.fixtureJson {
      bound the page's width, so overflow-x clips the shut drawer at the
      playground's end; the box starts --pg-host-out (the handle drawn out
      and its shadow) before the playground, so that edge cuts nothing */
-  .row > .storeHost {
+  .row:not(.stacked) > .storeHost {
     grid-area: 1 / 1 / 3 / 3;
     --pg-host-out: 4rem;
     --pg-host-fold: calc(var(--pg-host-out) + var(--pg-fold));
@@ -1762,19 +1737,19 @@ div.fixtureJson + div.fixtureJson {
   /* the drawer: the code's column and the gap, edge to edge, its handle
      out past the playground's edge; the Store scrolls within the row's
      height */
-  .row > .storeHost > .storeDrawer {
+  .row:not(.stacked) > .storeHost > .storeDrawer {
     position: absolute;
     inset: 0 auto 0 var(--pg-host-out);
     width: var(--pg-fold);
     translate: 100% 0;
   }
-  .row > .storeHost[data-open] > .storeDrawer {
+  .row:not(.stacked) > .storeHost[data-open] > .storeDrawer {
     translate: 0 0;
   }
   /* its paper runs on into the preview's, square where they meet; the
      Store's sheet keeps the gap from the preview's, a strip of the folder
      that ends with the preview's foot: below that, only the sheet runs on */
-  .row > .storeHost .storePanel {
+  .row:not(.stacked) > .storeHost .storePanel {
     /* its sheet to the foot, as the preview's is, rounded with the folder */
     --store-sheet-foot: var(--pg-card-radius);
     --store-folder-foot: var(--pg-card-radius);
@@ -1784,7 +1759,7 @@ div.fixtureJson + div.fixtureJson {
   }
   /* sliding shut, what its header holds would pass that run, beside the
      preview's label: it fades as the drawer goes */
-  .row > .storeHost:not([data-open]) .storePanel {
+  .row:not(.stacked) > .storeHost:not([data-open]) .storePanel {
     --store-head-ink: 0;
   }
   /* by the preview's foot, its curve clear of the corner's: open, they
@@ -1835,7 +1810,7 @@ div.fixtureJson + div.fixtureJson {
     left: 0.5rem;
   }
 }
-/* Stacked: shut, over the code above the handles, its side level with
+/* Narrow row: shut, over the code above the handles, its side level with
    theirs; open, over the drawer's own edge, under them */
 @container playground (max-width: 719px) {
   .row > .storeHost [data-quick-look] {
@@ -1850,7 +1825,7 @@ div.fixtureJson + div.fixtureJson {
     bottom: auto;
   }
 }
-/* Stacked row layout: the same folder turned to the stacking axis. The
+/* Narrow row: the same folder turned to the stacking axis. The
    tabs' row and the code card, then the folder under them with the handle
    out of its top edge; pulled up, the drawer rises over the code and its
    tabs, edge to edge, the handle above the Store. The gap between the two
@@ -1993,6 +1968,137 @@ div.fixtureJson + div.fixtureJson {
     bottom: -1px;
     --pg-fillet-at: 100% 0;
   }
+}
+
+/* Stacked layout: the row's paper turned to the stacking axis at any width,
+   the preview's folder under the code, its app given the full width. The
+   Store opens beside the app on the folder instead of over the code, so
+   both stay in view; its Actions and Store toggles are the header's */
+.playgroundContainer.row.stacked {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--pg-gap);
+}
+/* the fixtures hang on past its foot, over the page below; the Store
+   slides in and out behind the result's edge instead */
+.stacked > .previewWrapper {
+  overflow: visible;
+}
+.stacked .playgroundResult {
+  overflow: clip;
+}
+/* open, the Store is a column of the folder beside the app (under it when
+   narrow), the folder's paper between them: the app's sheet ends at its
+   content, the Store's runs on to the foot */
+.stacked .playgroundResult {
+  gap: var(--pg-gap);
+}
+@container playground (min-width: 560px) {
+  .stacked .playgroundResult {
+    align-items: flex-start;
+  }
+  .stacked .playgroundPreview {
+    flex: 5 1 0;
+  }
+}
+.stacked .playgroundResult > .storePanel {
+  align-self: stretch;
+  /* its header lies flat on the folder */
+  --pg-card-shadow: none;
+  --store-sheet-foot: var(--pg-sheet-radius);
+}
+.stacked .playgroundResult:has(> .storePanel[data-visible]) .sheet {
+  border-radius: var(--pg-sheet-radius);
+}
+.stacked
+  > .previewWrapper:has(
+    > .playgroundResult > .storePanel[data-visible]
+  )::after {
+  background: var(--pg-stage);
+}
+
+/* Several files open at once: each its own code card under its name, a
+   caption on the page in the file tabs' type, on the code's first column.
+   The name folds its card away to just the name, stepped back as a tab not
+   shown is, and back. Two to a line where they fit; an open card alone on
+   its line takes the whole line, so folding one of a pair gives the other
+   its room */
+.row .editorDocs.fileCards {
+  flex-flow: row wrap;
+  gap: var(--pg-gap);
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.fileCard {
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+@container playground (min-width: 900px) {
+  .fileCard:not([data-closed]) {
+    flex-basis: calc(50% - var(--pg-gap) / 2);
+  }
+}
+/* the code card (see the row's): its foot, and its corners clipping the
+   code's own square background */
+.fileCard > .playgroundEditor {
+  align-self: stretch;
+  padding: 10px 0 var(--pg-code-foot);
+  border-radius: var(--pg-card-radius);
+  background: var(--monoco-code-background);
+  box-shadow: var(--pg-card-shadow);
+  overflow: clip;
+}
+.standaloneEditor .fileCard > .playgroundEditor {
+  box-shadow: none;
+}
+.fileName {
+  display: inline-flex;
+  align-items: center;
+  /* the name on the code's column (the editor's 10px inset) */
+  padding: 0 4px 8px 10px;
+  border-radius: 4px;
+  color: var(--ifm-font-color-base);
+  font: 600 0.95rem / 1.4 var(--ifm-font-family-base);
+  text-align: start;
+  transition: color var(--motion-snappy);
+}
+.fileCard[data-closed] > .fileName {
+  padding-bottom: 0;
+  color: var(--ifm-color-emphasis-700);
+}
+:root[data-theme='dark'] .fileCard[data-closed] > .fileName {
+  color: var(--pg-muted);
+}
+@media (hover: hover) {
+  .fileCard[data-closed] > .fileName:hover {
+    color: var(--ifm-font-color-base);
+  }
+}
+.fileDir,
+.fileChevron {
+  opacity: 0.6;
+}
+.fileDir {
+  font-weight: 500;
+}
+.fileChevron {
+  flex: none;
+  margin-inline-start: 2px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: rotate var(--motion-snappy);
+}
+.fileCard[data-closed] .fileChevron {
+  rotate: -90deg;
 }
 
 /* Demo layout: the preview first, at the playground's full width, with room
@@ -2194,14 +2300,15 @@ div.fixtureJson + div.fixtureJson {
 .resetButton {
   margin-right: -0.5rem;
 }
-/* Narrow playgrounds' Store toggle (in place of the side strip): an icon
-   that reads pressed while the Store is open. Compound, so it outranks
-   .headerButton however the build orders them */
+/* Narrow playgrounds' drawer toggles (in place of the side strip): an icon
+   each, Actions and Store, that reads pressed while its tab shows.
+   Compound, so it outranks .headerButton however the build orders them */
 .headerButton.storeHeaderToggle {
   display: none;
 }
-/* over a demo's code the side strip hides with the preview, so the header's
-   toggle stands in for it */
+/* stacked, and over a demo's code (where the side strip hides with the
+   preview), the header's toggles stand in for the side strip */
+.stacked .headerButton.storeHeaderToggle,
 .demo[data-code] .headerButton.storeHeaderToggle {
   display: inline-flex;
 }
