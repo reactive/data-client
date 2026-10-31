@@ -16,6 +16,11 @@ export interface CodeControl {
  * beside the code and the Store over it; `stacked`, the preview under the
  * code and the Store beside the app; `demo`, the preview first */
 export type Layout = 'row' | 'stacked' | 'demo';
+/** Whether the Store is on the preview's folder, its drawer opening over
+ * the code: the row layout, and stacked while `narrow` (it collapses to
+ * the narrow row's) */
+export const storeOnFolder = (layout: Layout, narrow: boolean) =>
+  layout === 'row' || (layout === 'stacked' && narrow);
 
 export interface PreviewProps<T = any> {
   storeOpen: boolean;

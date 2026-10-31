@@ -11,7 +11,7 @@ import { createPortal } from 'react-dom';
 
 import { Reveal } from '../../motion';
 import styles from '../styles.module.css';
-import type { Layout, PreviewProps } from '../types';
+import { storeOnFolder, type Layout, type PreviewProps } from '../types';
 import type SchemaRegistry from './store/schemaRegistry';
 import StorePanel from './store/StorePanel';
 import { heldToggle, LookSlot, StoreToggle, useLooking } from './StoreToggle';
@@ -43,7 +43,7 @@ function StoreInspector({
   // Store grows to fit the tree, and growing a frame later would move the
   // page after the click's scroll hold. Beside the result, its height follows
   // the result, not the tree
-  const folder = layout === 'row' || (layout === 'stacked' && narrow);
+  const folder = storeOnFolder(layout, narrow);
   const deferred = useDeferredValue(open);
   // a tab's quick look shows from the panel, mounting it if it never was
   const looking = useLooking();

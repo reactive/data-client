@@ -42,7 +42,12 @@ import {
   useStoreOpen,
 } from './preview/StoreToggle';
 import styles from './styles.module.css';
-import type { CodeControl, FixtureOrInterceptor, Layout } from './types';
+import {
+  storeOnFolder,
+  type CodeControl,
+  type FixtureOrInterceptor,
+  type Layout,
+} from './types';
 import { isBot } from './userAgent';
 
 export interface PlaygroundProps<T = any> {
@@ -138,7 +143,7 @@ export default function Playground<T>({
   // handle pulls out over the code (the folder's layer, .storeHost), leaving
   // the preview usable. Narrow, stacked collapses to the same
   const narrow = useNarrow(container);
-  const folder = layout === 'row' || (layout === 'stacked' && narrow);
+  const folder = storeOnFolder(layout, narrow);
   const [storeHost, setStoreHost] = useState<HTMLDivElement | null>(null);
   const storeId = useId();
   const codeCovered = folder && storeOpen;
