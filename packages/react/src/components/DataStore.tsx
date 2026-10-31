@@ -8,6 +8,7 @@ import type { Middleware as GenericMiddleware } from '@data-client/use-enhanced-
 import React, { useEffect, useMemo, memo } from 'react';
 
 import BackupLoading from './BackupLoading.js';
+import type ClientStore from './ClientStore.js';
 import UniversalSuspense from './UniversalSuspense.js';
 import { StateContext } from '../context.js';
 
@@ -17,6 +18,7 @@ interface StoreProps {
   middlewares: GenericMiddleware[];
   initialState: State<unknown>;
   controller: Controller;
+  store?: ClientStore;
 }
 /**
  * This part of the provider concerns only the parts that matter for store changes
@@ -28,11 +30,20 @@ function DataStore({
   middlewares,
   initialState,
   controller,
+  store,
 }: StoreProps) {
-  const masterReducer = useMemo(() => createReducer(controller), [controller]);
+  const masterReducer = useMemo(
+    () => store?.reducer ?? createReducer(controller),
+    [store, controller],
+  );
 
   // we don't need `dispatch` here, since applyManager() assigns the dispatch to controller
-  const [state] = useEnhancedReducer(masterReducer, initialState, middlewares);
+  // a provider keeps or lacks its store for its whole life, so the hooks stay the same
+  const state =
+    store ?
+      store.useState()
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+    : useEnhancedReducer(masterReducer, initialState, middlewares)[0];
 
   const optimisticState = useMemo(
     () => state.optimistic.reduce(masterReducer, state),
