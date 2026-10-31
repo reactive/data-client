@@ -263,7 +263,7 @@ function ActionList({
               <InteractionHead
                 section={section}
                 id={headId + i}
-                latest={section.rows.includes(newest!)}
+                latest={section.rows.at(-1) === newest}
               />
               {section.rows.map(row)}
             </section>

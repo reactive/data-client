@@ -397,7 +397,9 @@ export function KeyLabel({ value }: { value: string }) {
 }
 
 /** Marks the list's newest row, or by interaction its interaction */
-export const LatestTag = () => <span className={styles.latest}>latest</span>;
+export function LatestTag() {
+  return <span className={styles.latest}>latest</span>;
+}
 
 /** When `at` was, in seconds since the first action logged */
 export function Time({ at }: { at: number }) {
