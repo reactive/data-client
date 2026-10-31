@@ -1,8 +1,8 @@
 /* Store inspector, on the preview's folder (.storePanel paints it, and sets
    the palette, --store-*, for each theme: ../../styles.module.css). The
-   folder holds the chrome: the scrubber's row across its top, and State and
-   Action as tabs on it. What a tab shows sits on a sheet (.tabPanel), the
-   app's sheet's color and corners, that the picked tab joins */
+   folder holds the chrome: the scrubber's row across its top, and the
+   view's switches. What the drawer's tab shows sits on a sheet (.tabPanel),
+   the app's sheet's color and corners, that the tab joins */
 .store {
   position: relative;
   display: flex;
@@ -11,6 +11,9 @@
   /* (see --store-min in ../../styles.module.css) */
   min-height: var(--store-min);
   max-height: var(--store-cap);
+}
+.store,
+.quickLook {
   color: var(--store-fg);
   font: 12px / 1.6 var(--ifm-font-family-monospace);
 }
@@ -19,7 +22,8 @@
    re-declared (the light timeline) */
 .store,
 .scrubber,
-.lanes {
+.lanes,
+.quickLook {
   /* each change's color (CHANGE_KINDS in actionGroups.ts): its bar, mark
      and flash. Invalidating drops the data, so it's nearer a removal's red
      than an update's yellow, but apart from an error's */
@@ -100,8 +104,8 @@
     var(--store-bg) 100%
   );
 }
-/* Under the scrubber: the tab bar, and (narrow) the sheet the lanes open in
-   over what follows */
+/* Under the scrubber: the sheet, and (narrow) the sheet the lanes open in
+   over it */
 .body {
   position: relative;
   flex: 1 1 auto;
@@ -116,27 +120,17 @@
     calc(100% - var(--store-folder-end, 0px)) no-repeat;
 }
 
-/* The State and Action tabs: on the folder, as the files are tabs on the
-   page over the code (../../styles.module.css, .row .tab), the picked one
-   the sheet's color, running into it */
-.bar {
-  flex: none;
-  display: flex;
-  align-items: stretch;
-  height: 2.5rem;
-  color: var(--store-muted);
-  font: 600 var(--ifm-code-font-size) / 1 var(--ifm-font-family-base);
-}
-/* The bar, the tabs' content and the peek: inert under the sheet */
+/* The sheet: inert under the timeline's sheet */
 .content {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
 }
-/* The sheet: the picked tab's content, to the folder's foot (rounded by
+/* The sheet: what the drawer's tab shows, to the folder's foot (rounded by
    --store-sheet-foot where the folder runs on past it); what paints over its
-   rows as they scroll (headings, crumbs) takes its color */
+   rows as they scroll (headings, crumbs) takes its color. The drawer's tab
+   showing it is its paper (../../styles.module.css, .storeTab) */
 .tabPanel {
   --store-bg: var(--pg-panel);
   position: relative;
@@ -150,20 +144,8 @@
   background: var(--store-bg);
   overflow: clip;
 }
-/* the first tab picked: its edge runs straight into the sheet */
-.bar:has(.tab:first-child[aria-selected='true']) + .tabPanel {
-  border-top-left-radius: 0;
-}
-/* the bar's left end: the State and Action tabs, its full height */
-.barStart {
-  display: flex;
-}
-/* the first sits in the body's corner (the row layout): its radius */
-.barStart > .tab:first-child {
-  border-top-left-radius: var(--pg-body-radius, 8px);
-}
-/* the bar's right end (State): the view's own switches, Snapshot or Diff
-   and table or tree, beside the tabs */
+/* The shown tab's view switches, in the scrubber's row before Live (Store:
+   Snapshot or Diff, table or tree; Actions: by interaction or every action) */
 .barEnd {
   display: flex;
   align-items: center;
@@ -176,50 +158,39 @@
   align-items: center;
   gap: 2px;
 }
-.tab {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--pg-tab-pad);
-  border-radius: var(--pg-tab-radius);
-  cursor: pointer;
-  transition:
-    background-color var(--motion-snappy),
-    color var(--motion-snappy);
-}
-@media (hover: hover) {
-  .tab:not([aria-selected='true']):hover {
-    background: var(--store-hover);
-    color: var(--store-fg);
-  }
-}
-/* one layer: picked tab + .tabPanel */
-.tab[aria-selected='true'] {
-  background: var(--pg-panel);
-  color: var(--store-fg);
-}
-.tab:focus-visible {
-  outline: 2px solid var(--ifm-color-primary);
-  outline-offset: -2px;
-}
-/* The peek: the subject's actions as an overlay over the panel's right
-   side (narrow, most of it), dropping from right under the scrubber's list
-   button that opens it (its top set from there), with a scroll of its own */
-.pane {
+/* A drawer tab's quick look (QuickLook.tsx): a card beside its handle,
+   placed by the layout (../../styles.module.css); the sheet's paper, its
+   body scrolling */
+.quickLook {
+  --store-bg: var(--pg-panel);
   position: absolute;
-  right: 0;
-  bottom: 0;
-  z-index: 4;
-  width: clamp(16rem, 40%, 26rem);
-  max-width: 100%;
+  z-index: 6;
+  /* (its width: QuickLook.tsx) */
+  max-width: 90vw;
+  height: 20rem;
   display: flex;
   flex-direction: column;
+  border-radius: var(--pg-sheet-radius, 8px);
   background: var(--store-bg);
-  box-shadow:
-    inset 1px 0 0 var(--store-line-strong),
-    -10px 0 24px var(--pg-shadow);
+  box-shadow: var(--pg-card-shadow, 0 10px 24px var(--pg-shadow));
+  overflow: clip;
+  animation: lookIn var(--motion-snappy);
 }
-.pane.paneNarrow {
-  width: min(100%, 22rem);
+.lookBody {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+@keyframes lookIn {
+  from {
+    opacity: 0;
+    translate: 0.5rem 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .quickLook {
+    animation: none;
+  }
 }
 /* views that fill the level and scroll inside it, unlike its other
  * children: the subject's actions, and one action between its steps */
@@ -390,7 +361,7 @@
 .crumbList {
   display: contents;
 }
-/* with no Back before them (the Action tab's first level) */
+/* with no Back before them (the Actions tab's first level) */
 .crumbList:first-child > :first-child {
   margin-left: 0.5rem;
 }
@@ -549,7 +520,7 @@ div.row {
 .row:focus-visible {
   outline: 2px solid var(--store-key);
 }
-/* State's diff: how the action changed each row (a table's
+/* The Store's diff: how the action changed each row (a table's
    first cell, or the tree's whole line) */
 .row[data-change] > td:first-child,
 div.row[data-change] {
@@ -1586,12 +1557,8 @@ div.joined {
   color: inherit;
 }
 .expand:hover,
-.expand[aria-expanded='true'],
-.expand[aria-pressed='true'] {
+.expand[aria-expanded='true'] {
   opacity: 1;
-}
-.expand[aria-pressed='true'] {
-  background: var(--store-pressed);
 }
 .expand svg {
   width: 14px;
@@ -1989,7 +1956,7 @@ button.tlMark:hover {
   padding: 0.3rem 0.6rem 0.45rem;
 }
 
-/* the Action tab's action between the ones before and after it: columns
+/* the Actions tab's action between the ones before and after it: columns
    down its edges, as the timeline runs, take none of its height, and only
    the action between them scrolls */
 .level > .actFrame {

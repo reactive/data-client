@@ -16,7 +16,6 @@ import { groupEntries } from '../store/actionGroups';
 import type { LogEntry } from '../store/actionLog';
 import { FOLLOW_SLACK, type Actions } from '../store/actionParts';
 import SchemaRegistry from '../store/schemaRegistry';
-import StorePanel from '../store/StorePanel';
 import {
   axisLabels,
   lanesOf,
@@ -24,6 +23,7 @@ import {
   still,
   timeScale,
 } from '../store/Timeline';
+import { InspectedPanel } from '../testing/inspected';
 
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
@@ -55,7 +55,7 @@ function mount(limit?: number) {
       devButton={null}
     >
       <Grab />
-      <StorePanel registry={registry} history={0} />
+      <InspectedPanel registry={registry} history={0} />
     </DataProvider>,
   );
   return { ctrl: () => ref.ctrl! };
@@ -79,27 +79,26 @@ const toggle = () =>
   fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
 /** The expanded timeline: the lanes */
 const lanes = () => screen.getByRole('group', { name: /^Timeline/ });
-/** The bar over the content: State's view switch, and the tabs */
-const stateBar = () => screen.getByRole('tablist').parentElement!;
-/** The scrubber's list button: a click shows the subject's actions at full
- * width, the mouse resting on it peeks at them */
-const paneToggle = () =>
-  within(screen.getByRole('group', { name: /^Scrubber/ })).getByRole('button', {
-    name: 'Actions',
-  });
-/** Shows the State tab as `Snapshot` or `Diff`, or the actions' list */
+/** The shown tab's sheet */
+const sheet = () => screen.getByRole('tabpanel');
+/** The Actions tab's handle on the drawer: a click shows the subject's
+ * actions at full width, the mouse resting on it opens a quick look at them */
+const paneToggle = () => screen.getAllByRole('tab', { name: 'Actions' })[0];
+/** Shows the Store tab as `Snapshot` or `Diff`, or the Actions tab's list
+ * (a handle pulled while its tab shows would shut the drawer instead) */
 const showTab = (name: 'Snapshot' | 'Diff' | 'Actions') => {
   if (name === 'Actions') {
     fireEvent.click(paneToggle());
     return;
   }
-  fireEvent.click(screen.getByRole('tab', { name: 'State' }));
+  const store = screen.getAllByRole('tab', { name: 'Store' })[0];
+  if (store.getAttribute('aria-selected') !== 'true') fireEvent.click(store);
   fireEvent.click(screen.getByRole('button', { name }));
 };
-/** The actions peeking beside State */
+/** The quick look at the actions, over the Store */
 const pane = () => screen.queryByRole('complementary', { name: 'Actions' });
-/** The mouse coming onto `el` (`inside`), or leaving it, and the peek's
- * delay passing (with fake timers) */
+/** The mouse coming onto `el` (`inside`), or leaving it, and the quick
+ * look's delay passing (with fake timers) */
 const hover = (el: Element, inside: boolean) => {
   const event = new MouseEvent(inside ? 'pointerover' : 'pointerout', {
     bubbles: true,
@@ -289,7 +288,7 @@ describe('lanesOf', () => {
 });
 
 describe('Store scrubber', () => {
-  it('shows the whole history on one lane, live, over the tabs', async () => {
+  it('shows the whole history on one lane, live, over the bar', async () => {
     const { ctrl } = mount();
     const bar = scrubber();
     // live: nothing to step to, and Live is said, not offered
@@ -300,11 +299,11 @@ describe('Store scrubber', () => {
       (screen.getByRole('button', { name: 'Next change' }) as HTMLButtonElement)
         .disabled,
     ).toBe(true);
-    // before State's bar, with its view switch
-    expect(bar.compareDocumentPosition(stateBar())).toBe(
+    // over the Store's sheet, with its view switches
+    expect(bar.compareDocumentPosition(sheet())).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(screen.getByRole('group', { name: 'Store view' })).toBeTruthy();
+    expect(within(bar).getByRole('group', { name: 'Store view' })).toBeTruthy();
     await act(() => ctrl().fetch(getPosts));
     await act(() => ctrl().fetch(getPosts));
     // every action can be picked, those the store never saw too (hollow)
@@ -408,7 +407,7 @@ describe('Store scrubber', () => {
     }
   });
 
-  it('shows State as it was after the mark picked, and says which action', async () => {
+  it('shows the Store as it was after the mark picked, and says which action', async () => {
     const { ctrl } = mount();
     title = 'One';
     await act(() => ctrl().fetch(getPosts));
@@ -1007,7 +1006,7 @@ describe('Store Timeline lanes', () => {
     expect(scrubber().compareDocumentPosition(timeline)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(timeline.compareDocumentPosition(stateBar())).toBe(
+    expect(timeline.compareDocumentPosition(sheet())).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
     // its scroller is kept from before the first action, so it follows from it
@@ -1029,7 +1028,7 @@ describe('Store Timeline lanes', () => {
     expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
   });
 
-  it('shows State as it was after the action picked on a lane', async () => {
+  it('shows the Store as it was after the action picked on a lane', async () => {
     const { ctrl } = mount();
     title = 'One';
     await act(() => ctrl().fetch(getPosts));
@@ -1076,7 +1075,8 @@ describe('Store Timeline lanes', () => {
     expect(tracks(timeline).scrollLeft).toBe(900);
     fireEvent.keyDown(timeline, { key: 'ArrowLeft' });
 
-    // the lanes stay above the Actions tab; State's view switch is State's
+    // the lanes stay above the Actions tab; the Store's view switch is the
+    // Store's
     showTab('Actions');
     expect(lanes()).toBe(timeline);
     expect(screen.queryByRole('group', { name: 'Store view' })).toBeNull();
@@ -1322,13 +1322,13 @@ describe('Store Timeline sheet', () => {
     toggle();
     const timeline = lanes();
     const close = screen.getByRole('button', { name: 'Close timeline' });
-    // in the content's box, before it, not between the scrubber and the bar
-    const body = stateBar().parentElement!.parentElement!;
+    // in the content's box, before it, not between the scrubber and the sheet
+    const body = sheet().parentElement!.parentElement!;
     expect(body.contains(timeline)).toBe(true);
     expect(body.contains(scrubber())).toBe(false);
     expect(revealBox(timeline).contains(close)).toBe(true);
-    // the bar and content stay put under it, inert
-    const tabs = stateBar();
+    // the sheet stays put under it, inert
+    const tabs = sheet();
     expect(tabs.closest('[inert]')).toBeTruthy();
     // ✕ closes it
     fireEvent.click(close);
@@ -1408,46 +1408,49 @@ describe('Store Timeline sheet', () => {
   });
 });
 
-describe('Store Actions pane', () => {
+describe('Store Actions quick look', () => {
   afterEach(() => jest.useRealTimers());
 
-  it('peeks over State’s right side on a wide panel, most of it when narrow', async () => {
+  it('opens over the Store as the mouse rests on the Actions tab, however wide', async () => {
     const { ctrl } = mountAt(800);
     await act(() => ctrl().fetch(getPosts));
     jest.useFakeTimers();
     expect(pane()).toBeNull();
-    const button = paneToggle();
-    hover(button, true);
-    expect(button.getAttribute('aria-pressed')).toBe('false');
+    const tab = paneToggle();
+    hover(tab, true);
+    expect(tab.getAttribute('aria-selected')).toBe('false');
     expect(pane()).toBeTruthy();
     expect(top()).toBeTruthy();
     expect(top()!.closest('[inert]')).toBeNull();
     expect(rows()).toHaveLength(1);
-    // narrow, State stays under it just the same
+    // narrow, the Store stays under it just the same
     resize(360);
     expect(pane()).toBeTruthy();
     expect(top()).toBeTruthy();
     expect(top()!.closest('[inert]')).toBeNull();
-    // a chip closes it, drilling into what the action changed, with focus
+    // a chip closes it, drilling into what the action changed in the Store
+    // tab, with focus
     fireEvent.click(within(rows()[0]).getByRole('button', { name: /Post 1/ }));
     expect(pane()).toBeNull();
     expect(top()!.querySelector('[aria-current="page"]')!.textContent).toBe(
       '1',
     );
     expect(top()!.contains(document.activeElement)).toBe(true);
-    // a row moves the moment to its whole request, and it stays
-    hover(button, true);
+    // a row opens its whole request in the Actions tab, as the moment
+    hover(tab, true);
     fireEvent.click(rows()[0]);
-    expect(pane()).toBeTruthy();
+    expect(pane()).toBeNull();
+    expect(tab.getAttribute('aria-selected')).toBe('true');
     expect(scrubber().textContent).toContain('After GET /posts');
-    // the tab shows them at full width instead, and peeks no more
-    showTab('Actions');
-    expect(pane()).toBeNull();
-    expect(button.getAttribute('aria-pressed')).toBe('true');
+    expect(top()!.querySelector('[aria-current="page"]')!.textContent).toBe(
+      'GET /posts',
+    );
+    // the tab showing looks no more
     resize(800);
-    hover(button, false);
-    hover(button, true);
+    hover(tab, false);
+    hover(tab, true);
     expect(pane()).toBeNull();
+    // the record stays open in the Store tab
     showTab('Snapshot');
     expect(top()!.querySelector('[aria-current="page"]')!.textContent).toBe(
       '1',
@@ -1482,16 +1485,5 @@ describe('Store Actions pane', () => {
     fireEvent.keyDown(lanes(), { key: 'Escape' });
     expect(screen.queryByRole('button', { name: 'Close timeline' })).toBeNull();
     expect(pane()).toBeTruthy();
-  });
-
-  it('gives focus back to its toggle as it closes under it', async () => {
-    const { ctrl } = mountAt(800);
-    await act(() => ctrl().fetch(getPosts));
-    jest.useFakeTimers();
-    hover(paneToggle(), true);
-    rows()[0].focus();
-    hover(paneToggle(), false);
-    expect(pane()).toBeNull();
-    expect(document.activeElement).toBe(paneToggle());
   });
 });

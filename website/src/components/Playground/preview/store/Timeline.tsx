@@ -555,10 +555,8 @@ function useTrackFollow(
 /** The whole history in one lane, scrolling sideways, with the moment
  * on it: ‹ › and the arrow keys step through the actions `hit` says
  * touched the subject (past the newest is live, as End is), a mark lands on
- * its action. Its actions as a list sit beside the ▾: they peek as the mouse rests
- * there, and open in full on a click. Says which action the moment is
- * after, while it is in the past, opening it in the Action tab; `▾` expands
- * the timeline */
+ * its action. Says which action the moment is after, while it is in the
+ * past, opening it in the Actions tab; `▾` expands the timeline */
 export const Scrubber = memo(function Scrubber({
   entry,
   hit,
@@ -566,11 +564,8 @@ export const Scrubber = memo(function Scrubber({
   expanded,
   expandRef,
   onExpand,
-  listed,
-  listRef,
-  onList,
-  onListHover,
   onPreview,
+  views,
 }: {
   /** The moment's action; missing while live */
   entry?: LogEntry;
@@ -583,14 +578,9 @@ export const Scrubber = memo(function Scrubber({
   /** The ▾, for focus to return to as the timeline shuts */
   expandRef?: React.Ref<HTMLButtonElement>;
   onExpand: (expanded: boolean) => void;
-  /** The list is shown in full */
-  listed: boolean;
-  /** The list's button, which a press outside the peek leaves it open on */
-  listRef?: React.Ref<HTMLButtonElement>;
-  onList: () => void;
-  /** The pointer came onto the list's button (`true`) or left it */
-  onListHover: (inside: boolean, e: React.PointerEvent) => void;
   onPreview: OnPreview;
+  /** The shown tab's view switches, before Live */
+  views?: React.ReactNode;
 }) {
   // the track scrolls sideways, on the moment as the timeline's does
   const track = useRef<HTMLDivElement>(null);
@@ -673,6 +663,7 @@ export const Scrubber = memo(function Scrubber({
             </div>
           )}
         </div>
+        {views}
         {entry ?
           <button type="button" className={styles.liveButton} onClick={live}>
             Live
@@ -685,19 +676,6 @@ export const Scrubber = memo(function Scrubber({
             Live
           </span>
         }
-        <button
-          type="button"
-          ref={listRef}
-          className={styles.expand}
-          aria-label="Actions"
-          title="Actions"
-          aria-pressed={listed}
-          onPointerEnter={e => !listed && onListHover(true, e)}
-          onPointerLeave={e => onListHover(false, e)}
-          onClick={onList}
-        >
-          <ListIcon />
-        </button>
         <button
           type="button"
           ref={expandRef}
@@ -991,15 +969,6 @@ function ChevronIcon() {
   return (
     <svg viewBox="0 0 16 16" aria-hidden="true">
       <path d="M4 6.5l4 4 4-4" />
-    </svg>
-  );
-}
-
-/** Rows of text */
-function ListIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M2.5 4h2M6.5 4h7M2.5 8h2M6.5 8h7M2.5 12h2M6.5 12h7" />
     </svg>
   );
 }

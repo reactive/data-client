@@ -5,16 +5,21 @@ import {
   ActionsByContext,
   DemoViewContext,
   type ActionsBy,
+  type Inspect,
 } from '../StoreToggle';
 
 export type StoreView = 'table' | 'tree';
 
-/** The view the State tab's store level lays out in */
+/** The view the Store tab's store level lays out in */
 export const StoreViewContext = createContext<StoreView>('table');
 
-/** Opens or closes the Store for a demo; opening in `view` shows that view
- * over the reader's while the Store stays open */
-export type ShowStore = (open: boolean, view?: StoreView) => void;
+/** Opens or closes the Store for a demo; opening on `tab`, or in `view`,
+ * shows that over the reader's while the Store stays open */
+export type ShowStore = (
+  open: boolean,
+  view?: StoreView,
+  tab?: Inspect,
+) => void;
 
 /** The table or tree view: the reader's choice, kept for every Playground,
  * unless a demo shows its own (`DemoViewContext`) */
@@ -32,7 +37,7 @@ export function useStoreView() {
   return [view, setView] as const;
 }
 
-/** How the Action tab lists actions: the reader's choice, kept per
+/** How the Actions tab lists actions: the reader's choice, kept per
  * playground group, else the playground's default */
 export function useActionsBy() {
   const { groupId, defaultBy } = useContext(ActionsByContext);

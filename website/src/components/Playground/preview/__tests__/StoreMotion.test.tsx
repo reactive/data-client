@@ -47,7 +47,7 @@ beforeEach(() => {
 it('moves only for the reader or a demo', async () => {
   render(<Store />);
   // the stored choice arriving, or another Store in the group, just lands
-  act(() => mockSetStored('y'));
+  act(() => mockSetStored('store'));
   expect(button().textContent).toBe('open');
   expect(moving()).toBe(false);
 

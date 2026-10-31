@@ -1,7 +1,7 @@
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { companyFixtures } from '@site/src/fixtures/companies';
 
-<FrameworkPlayground fixtures={companyFixtures} row={props.row ?? false} groupId="schema" defaultOpen={props.defaultOpen ?? "y"} defaultTab={props.defaultTab} renderCount={props.renderCount}>
+<FrameworkPlayground fixtures={companyFixtures} row={props.row ?? false} groupId="schema" defaultOpen={props.defaultOpen ?? "store"} defaultTab={props.defaultTab} renderCount={props.renderCount}>
 
 ```ts title="api/Company" {11-20,26-28,34-36}
 import { Collection, Entity, RestEndpoint, Scalar } from '@data-client/rest';

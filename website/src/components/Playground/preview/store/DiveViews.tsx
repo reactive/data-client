@@ -51,7 +51,7 @@ export function ListView({
   header: Header;
 }) {
   const { model } = useNav();
-  // the State tab's tree view lays out every list as a tree too
+  // the Store tab's tree view lays out every list as a tree too
   const tree = useContext(StoreViewContext) === 'tree';
   if ('table' in view) {
     const table = model.table(view.table);

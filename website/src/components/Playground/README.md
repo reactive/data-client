@@ -116,8 +116,11 @@ callout markers as comments, its caption and legend outside the editor.
   EndpointPlayground's Usage) sit on a darker layer tucked under it,
   labeled, never collapsible. The preview is a folder beside it (under it
   below 720px container width) with the Store on a layer behind
-  (`.storeHost` > `.storeDrawer`, `StoreTab` as handle). Open, the drawer
-  covers the code, which goes `inert`.
+  (`.storeHost` > `.storeDrawer`, `DrawerTabs` as handles: Actions over
+  Store). The shown handle is pulled fully out as its sheet's paper; hover
+  pulls one partway. Open, the drawer covers the code, which goes `inert`.
+  Other layouts show the same two tabs in the strip beside the result
+  (`StoreToggle`), or in the header below 560px (`StoreHeaderToggle`).
 - `demo`: preview first, full width; the header's Code toggle swaps in the
   code (`data-code`). Never code and result together, nor code and Store.
   The result stays mounted so app state survives; both share
@@ -210,8 +213,20 @@ callout markers as comments, its caption and legend outside the editor.
 
 ## Store inspector
 
-- Open state persists per `groupId`; closing one Store closes every one in
-  the group, and toggling holds the page's scroll position.
+- Open state and its tab (`Inspect`: `store` or `actions`) persist per
+  `groupId`; `defaultOpen` takes either, or `n`. Closing one Store closes
+  every one in the group. Toggling holds the page's scroll position.
+- The drawer's tabs (`InspectorContext`) are the only tabs; `StorePanel`
+  has none. The shown tab shuts the drawer; the other switches to it.
+  Actions always opens at its list: every way in bumps `listed`, which
+  `StorePanel` resets on. Links in the panel (`select`) open where they
+  point.
+- Quick look (`store/QuickLook.tsx`): a mouse resting on a tab not shown
+  opens a card beside the tabs with that tab's live view (the store with
+  optimistic updates applied, or the newest actions). Touch has none. Its
+  state lives outside React (`createPeek`). Escape closes it before the
+  drawer or a level takes the key, except from inside the panel while the
+  narrow timeline's sheet is open.
 - Row: `StoreInspector` portals into the drawer (`FolderPanel`, an
   `<Activity>` hidden once the sweep shuts, so reopening finds it as left).
   Other layouts: a `Reveal` (`../motion/README.md`); the tree renders a
@@ -322,8 +337,9 @@ Writing a script:
   array identity, so an inline array replays on every framework switch.
 - Target Store UI with `in: 'store'`. Match `aria-label`s and `data-*`
   attributes, not visible text that copy edits change.
-- The Store opens in the reader's saved view; a script that needs one names
-  it (`{ store: 'open', view: 'table' }`). Neither is saved.
+- The Store opens in the reader's saved view and tab. A script that needs
+  one names it (`{ store: 'open', view: 'table' }`,
+  `{ store: 'open', tab: 'actions' }`); neither is saved.
 - A missing target ends the run after `FIND_TIMEOUT`, and only the console
   says so (`Playground demo:`). Step counts follow the fixtures, so a
   fixture change means recounting.

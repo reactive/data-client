@@ -10,9 +10,10 @@ import { createPortal } from 'react-dom';
 
 import { Reveal } from '../../motion';
 import styles from '../styles.module.css';
+import type { PreviewProps } from '../types';
 import type SchemaRegistry from './store/schemaRegistry';
 import StorePanel from './store/StorePanel';
-import { heldToggle, StoreToggle } from './StoreToggle';
+import { heldToggle, StoreToggle, useLooking } from './StoreToggle';
 
 function StoreInspector({
   toggle,
@@ -23,7 +24,7 @@ function StoreInspector({
   host,
 }: {
   open: boolean;
-  toggle: React.MouseEventHandler<HTMLElement>;
+  toggle: PreviewProps['toggleStore'];
   registry: SchemaRegistry;
   history: number;
   /** On the preview's folder (`host`), which opens over the code, instead
@@ -38,16 +39,22 @@ function StoreInspector({
   // page after the click's scroll hold. Beside the result, its height follows
   // the result, not the tree
   const deferred = useDeferredValue(open);
-  const ready = row ? open : deferred;
+  // a tab's quick look shows from the panel, mounting it if it never was
+  const looking = useLooking();
+  const ready = (row ? open : deferred) || looking;
   const [showTree, setShowTree] = useState(false);
   if (ready && !showTree) setShowTree(true);
+  // the quick look goes on the drawer's panel, in its palette
+  const [panelEl, setPanelEl] = useState<HTMLDivElement | null>(null);
   const tree =
-    showTree ? <StorePanel registry={registry} history={history} /> : null;
+    showTree ?
+      <StorePanel registry={registry} history={history} lookHost={panelEl} />
+    : null;
   if (row) {
     return (
       host &&
       createPortal(
-        <FolderPanel open={open} host={host}>
+        <FolderPanel open={open} host={host} peeking={looking} ref={setPanelEl}>
           {tree}
         </FolderPanel>,
         host,
@@ -56,7 +63,7 @@ function StoreInspector({
   }
   return (
     <>
-      <StoreToggle onClick={toggle} open={open} />
+      <StoreToggle onToggle={toggle} open={open} />
       <Reveal show={open} className={styles.storePanel} hold={heldToggle}>
         {tree}
       </Reveal>
@@ -74,10 +81,16 @@ export default memo(StoreInspector);
 function FolderPanel({
   open,
   host,
+  peeking,
+  ref,
   children,
 }: {
   open: boolean;
   host: HTMLElement;
+  ref: React.Ref<HTMLDivElement>;
+  /** A tab's quick look shows, from the panel: it stays visible to the
+   * look, though shut */
+  peeking: boolean;
   children: React.ReactNode;
 }) {
   const [shut, setShut] = useState(!open);
@@ -103,8 +116,14 @@ function FolderPanel({
     };
   }, [open, shut, host, blockElementScrollPositionUntilNextRender]);
   return (
-    <div className={styles.storePanel} data-visible={!shut || undefined}>
-      <Activity mode={shut ? 'hidden' : 'visible'}>{children}</Activity>
+    <div
+      ref={ref}
+      className={styles.storePanel}
+      data-visible={!shut || undefined}
+    >
+      <Activity mode={shut && !peeking ? 'hidden' : 'visible'}>
+        {children}
+      </Activity>
     </div>
   );
 }

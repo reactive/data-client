@@ -11,11 +11,7 @@ import { issueFixtures } from '@site/src/fixtures/issues';
 
 export const searchDemo = [
   // the Store's action list first, so each search lands there as it's sent
-  { delay: 800, store: 'open' },
-  {
-    delay: 300,
-    click: { in: 'store', selector: 'button[aria-label="Actions"]' },
-  },
+  { delay: 800, store: 'open', tab: 'actions' },
   // the list fades while each word is typed; one search lands per pause:
   // 17 keystrokes, three searches
   { delay: 1200, type: 'input[aria-label="Search issues"]', text: 'suspense' },

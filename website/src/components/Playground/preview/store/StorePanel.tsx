@@ -31,7 +31,7 @@ import {
   type SubjectFilter,
   changeOf,
 } from './actionGroups';
-import { ActionsLevel, ActionsPane, GroupActions } from './ActionList';
+import { ActionsLevel, GroupActions } from './ActionList';
 import {
   findEntry,
   isRecordChange,
@@ -69,7 +69,6 @@ import { useMouseBack } from './mouseBack';
 import {
   ACTIONS,
   DiffContext,
-  NEWEST,
   NavContext,
   NavStateContext,
   ROOT,
@@ -92,6 +91,7 @@ import {
   type View,
 } from './nav';
 import { Preview, usePreview } from './Preview';
+import { QuickLookSlot } from './QuickLook';
 import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
 import styles from './store.module.css';
@@ -100,8 +100,8 @@ import Timeline, { Scrubber } from './Timeline';
 import TreeView, { TreeStateProvider } from './TreeView';
 import { RowKey } from './Value';
 import { Why } from './Why';
-import TabList from '../../TabList';
 import Unfold from '../../Unfold';
+import { InspectorContext, tabLabel } from '../StoreToggle';
 
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
@@ -111,10 +111,13 @@ const UNDER = ['request', 'group'] as const satisfies readonly Scope[];
 export default function StorePanel({
   registry,
   history: id,
+  lookHost = null,
 }: {
   registry: SchemaRegistry;
   /** Whose actions to show (see `ActionLog`) */
   history: number;
+  /** Where the quick look goes: the drawer its tabs are on */
+  lookHost?: HTMLElement | null;
 }) {
   const live = useContext(StateContext);
   const { log } = registry;
@@ -124,28 +127,12 @@ export default function StorePanel({
   const [view, setView] = useStoreView();
   const [actionsBy, setActionsBy] = useActionsBy();
   const tree = view === 'tree';
-  // the subject at the moment (`state`), or the moment's action; and the
-  // state as a whole, or (`diffMode`) only what the moment changed (its
-  // request's actions up to it, see `Scope`).
-  // Each Playground's own, unlike the table or tree view
-  const [tab, setTab] = useState<Tab>('state');
+  // the subject at the moment (the Store), or its actions (the drawer's
+  // tabs pick, see `Inspector`); and the store as a whole, or (`diffMode`)
+  // only what the moment changed (its request's actions up to it, see
+  // `Scope`). Each Playground's own, unlike the table or tree view
+  const { tab, select: setTab, peek, listed } = useContext(InspectorContext);
   const [diffMode, setDiffMode] = useState(false);
-  // the peek: the subject's actions over the store's right side, to move the
-  // moment by, as the mouse rests on the scrubber's list button; gone as it
-  // leaves both. Each panel's own: a page holds several, and a press
-  // outside one closes it
-  const [pane, setPane] = useState(false);
-  const closePane = useCallback(() => setPane(false), []);
-  const peekTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const hoverPane = useCallback((inside: boolean, e: React.PointerEvent) => {
-    if (e.pointerType !== 'mouse') return;
-    clearTimeout(peekTimer.current);
-    peekTimer.current = setTimeout(
-      () => setPane(inside),
-      inside ? PEEK_OPEN_MS : PEEK_CLOSE_MS,
-    );
-  }, []);
-  useEffect(() => () => clearTimeout(peekTimer.current), []);
   // the timeline the scrubber expands into, above the content; it stays
   // mounted while it slides shut, until the slide ends
   const [timelineOpen, setTimelineOpen] = useState(false);
@@ -154,8 +141,8 @@ export default function StorePanel({
   const hideTimeline = useCallback(() => setTimelineMounted(false), []);
 
   const levels = useLevelStack(ROOT);
-  // the Action tab opens at the moment's action, over the list Back goes to
-  const actionLevels = useLevelStack(ACTIONS, NEWEST);
+  // the Actions tab opens at the list, as the Store's does at the store
+  const actionLevels = useLevelStack(ACTIONS);
   // the moment: right after one action, until "Live" (`null`); a new store
   // (a reset) starts live, with no action of the old one left showing. It
   // stands for its request up to it, unless its row (the group) or its step
@@ -289,14 +276,19 @@ export default function StorePanel({
   );
   // the store's top level: what the actions list and the steps follow
   const subject = subjectOf(levels.stack)!;
+  // the quick look's subject, its actions' head
+  const lookLabel = useMemo(
+    () => (subject.kind === 'root' ? null : subjectLabel(subject, model)),
+    [subject, model],
+  );
   const subjectActions = useSubjectFilter(log, known, subject);
-  // at the store, the Action tab draws the managers as a pipeline: a stage
+  // at the store, the Actions tab draws the managers as a pipeline: a stage
   // picked there narrows the list, the steps and the timeline's marks alike.
-  // Leaving the Action tab (or the store) lets it go, so the State tab
+  // Leaving the Actions tab (or the store) lets it go, so the Store tab
   // counts every action again; so does a stage the chain no longer has
   const chain =
     subject.kind === 'root' ? shownChain(history.managers) : undefined;
-  const pipelineShown = tab === 'action' && !!chain;
+  const pipelineShown = tab === 'actions' && !!chain;
   const [stage, pickStage] = useState<Stage | null>(null);
   if (
     stage !== null &&
@@ -374,51 +366,40 @@ export default function StorePanel({
   const narrow = width < NARROW_WIDTH;
   const covered = narrow && timelineMounted;
   const content = useRef<HTMLDivElement>(null);
-  const listButton = useRef<HTMLButtonElement>(null);
-  // as these change: focus left under the sheet moves to the ▾, and lost as
-  // it closes goes to the level; focus lost as the pane closes (a row it
-  // held unmounts) goes back to its toggle
-  // an action shown from the sheet takes focus once it is uncovered
+  // as it changes: focus left under the sheet moves to the ▾, and lost as
+  // it closes goes to the level; an action shown from the sheet takes focus
+  // once it is uncovered
   const focusLevel = useRef(false);
-  const layout = useRef({ covered, pane });
+  const wasCovered = useRef(covered);
   useLayoutEffect(() => {
-    const was = layout.current;
-    layout.current = { covered, pane };
-    if (was.covered === covered && was.pane === pane) return;
+    if (wasCovered.current === covered) return;
+    wasCovered.current = covered;
     const active = document.activeElement;
     const lost = !active || active === document.body;
     const toLevel = !covered && focusLevel.current;
     if (!covered) focusLevel.current = false;
     if (covered && (lost || content.current?.contains(active)))
       expand.current?.focus({ preventScroll: true });
-    else if (toLevel)
+    else if (toLevel || lost)
       panel.current
         ?.querySelector<HTMLElement>('[data-level]:not([data-covered])')
         ?.focus({ preventScroll: true });
-    else if (lost)
-      (was.pane && !pane ?
-        listButton.current
-      : panel.current?.querySelector<HTMLElement>(
-          '[data-level]:not([data-covered])',
-        )
-      )?.focus({ preventScroll: true });
-  }, [covered, pane]);
+  }, [covered]);
   const collapse = useCallback(() => setTimelineOpen(false), []);
-  // showing an action opens it in the Action tab, as the moment, over the
-  // subject's actions (closing the peek and, narrow, the sheet)
+  // showing an action opens it in the Actions tab, as the moment, over the
+  // subject's actions (closing the quick look and, narrow, the sheet)
   const show = useCallback(
     (seq: number, to: Scope = 'request') => {
       setPinned({ seq, scope: to });
       clearAt();
-      setTab('action');
+      setTab('actions');
       showAction(seq, to);
-      closePane();
       if (covered) focusLevel.current = true;
       if (narrow) collapse();
     },
-    [clearAt, showAction, closePane, covered, narrow, collapse],
+    [clearAt, setTab, showAction, covered, narrow, collapse],
   );
-  // a mark picked on the timeline while the Action tab lists the actions
+  // a mark picked on the timeline while the Actions tab lists the actions
   // opens the one picked there, as the list's own rows do (in place, so
   // stepping on keeps focus on the timeline); narrow, it closes the sheet
   const actionShown = actionLevels.stack.some(e => e.view.kind === 'action');
@@ -444,7 +425,7 @@ export default function StorePanel({
     (seq: number) => {
       const to = pickAt(listing.requests, seq, scope);
       set(to.seq, to.scope);
-      if (tab === 'action' && !actionShown) showAction(to.seq, to.scope, true);
+      if (tab === 'actions' && !actionShown) showAction(to.seq, to.scope, true);
     },
     [listing, scope, set, tab, actionShown, showAction],
   );
@@ -503,34 +484,26 @@ export default function StorePanel({
     }),
     [momentSeq, scope, current, earlier, later, set, step, show, pipeline],
   );
-  // what the peek's chips open: over the State tab's top level, in the
-  // table view, with the peek closed to show it
+  // what the chips of an action, or the store's quick look, open: over the
+  // Store tab's top level, in the table view
   const { push } = levels;
   const openView = useCallback(
     (view: View, at?: Moment) => {
-      setTab('state');
+      setTab('store');
       setView('table');
       push(view, at);
-      closePane();
     },
-    [setView, push, closePane],
+    [setTab, setView, push],
   );
-  // the subject's actions in full: the Action tab's first level
-  const listed =
-    tab === 'action' && actionLevels.stack.at(-1)!.view.kind === 'actions';
+  // the Actions tab's handle opens the subject's actions in full, its
+  // first level; its own picks (a link to an action, a record) show where
+  // they point
   const { back: actionsBack } = actionLevels;
-  const openList = useCallback(() => {
-    clearTimeout(peekTimer.current);
-    closePane();
-    setTab('action');
+  const [shownListed, setShownListed] = useState(listed);
+  if (shownListed !== listed) {
+    setShownListed(listed);
     actionsBack(1);
-  }, [closePane, actionsBack]);
-  // the tab shows the moment's action: picked again over the list, it goes
-  // back to that
-  const openActionTab = () => {
-    if (listed) showAction(momentSeq, scope);
-    setTab('action');
-  };
+  }
   // the chips only push, so the model comes through a ref: the value keeps
   // its identity across store commits and the memoized rows holding chips
   // skip them
@@ -578,19 +551,100 @@ export default function StorePanel({
   useFlashChanges(panel, state, moment && diff?.rows);
   // the subject's levels show as a snapshot, and as a diff once an action
   // changed the store
-  const shownDiff = tab === 'state' && diffMode ? diff : undefined;
-  const storeShown = tab === 'state' && (!diffMode || !!diff);
-  // the mouse's back button goes back a level while over the panel; like
-  // Escape, it shuts the peek first
+  const shownDiff = tab === 'store' && diffMode ? diff : undefined;
+  const storeShown = tab === 'store' && (!diffMode || !!diff);
+  // the mouse's back button goes back a level while over the panel
   const shownLevels =
-    tab === 'action' ? actionsShown
+    tab === 'actions' ? actionsShown
     : storeShown ? levels
     : undefined;
   const depth = covered || !shownLevels ? 0 : shownLevels.stack.length - 1;
-  // the peek as shown, and not under the timeline sheet
-  const peeking = pane && !listed && !covered;
-  useMouseBack(panel, peeking || depth > 0, () =>
-    peeking ? closePane() : shownLevels?.back(depth),
+  useMouseBack(panel, depth > 0, () => shownLevels?.back(depth));
+
+  // the shown tab's view switches, in the scrubber's row (memoized, as the
+  // scrubber is)
+  const views = useMemo(
+    () => (
+      <span className={styles.barEnd}>
+        {tab === 'store' ?
+          <>
+            <span
+              className={styles.viewButtons}
+              role="group"
+              aria-label="Store shown"
+            >
+              <button
+                type="button"
+                aria-label="Snapshot"
+                title="Snapshot: the store at the moment"
+                aria-pressed={!diffMode}
+                onClick={() => setDiffMode(false)}
+              >
+                <SnapshotIcon />
+              </button>
+              <button
+                type="button"
+                aria-label="Diff"
+                title="Diff: only what the moment changed"
+                aria-pressed={diffMode}
+                onClick={() => setDiffMode(true)}
+              >
+                <DiffIcon />
+              </button>
+            </span>
+            <span
+              className={styles.viewButtons}
+              role="group"
+              aria-label="Store view"
+            >
+              <button
+                type="button"
+                aria-label="Table view"
+                title="Table view"
+                aria-pressed={!tree}
+                onClick={() => setView('table')}
+              >
+                <TableIcon />
+              </button>
+              <button
+                type="button"
+                aria-label="Tree view"
+                title="Tree view"
+                aria-pressed={tree}
+                onClick={() => setView('tree')}
+              >
+                <TreeIcon />
+              </button>
+            </span>
+          </>
+        : <span
+            className={styles.viewButtons}
+            role="group"
+            aria-label="Actions listed"
+          >
+            <button
+              type="button"
+              aria-label="By interaction"
+              title="By interaction: under the click or render that started them"
+              aria-pressed={actionsBy === 'interaction'}
+              onClick={() => setActionsBy('interaction')}
+            >
+              <InteractionsIcon />
+            </button>
+            <button
+              type="button"
+              aria-label="Every action"
+              title="Every action: in dispatch order, each fetch apart from its response"
+              aria-pressed={actionsBy === 'action'}
+              onClick={() => setActionsBy('action')}
+            >
+              <ActionsIcon />
+            </button>
+          </span>
+        }
+      </span>
+    ),
+    [tab, diffMode, tree, setView, actionsBy, setActionsBy],
   );
 
   return (
@@ -601,14 +655,6 @@ export default function StorePanel({
             className={styles.store}
             ref={panel}
             data-store-panel
-            onKeyDownCapture={e => {
-              // the peek shuts first: before a level under it takes the
-              // Escape to go back. Under the sheet, the sheet does
-              if (e.key !== 'Escape' || !peeking) return;
-              e.preventDefault();
-              e.stopPropagation();
-              closePane();
-            }}
             onKeyDown={e => {
               if (e.defaultPrevented) return;
               // ← → step the timeline (the scrubber's and the expanded one's
@@ -640,11 +686,8 @@ export default function StorePanel({
               expandRef={expand}
               onExpand={setTimelineOpen}
               onMark={mark}
-              listed={listed}
-              listRef={listButton}
-              onList={openList}
-              onListHover={hoverPane}
               onPreview={onPreview}
+              views={views}
             />
             <div className={styles.body}>
               {/* one place in the tree either way, so crossing the narrow
@@ -655,110 +698,11 @@ export default function StorePanel({
                 </div>
               )}
               <div ref={content} className={styles.content} inert={covered}>
-                <div className={styles.bar}>
-                  <TabList
-                    className={styles.barStart}
-                    tabClassName={styles.tab}
-                    label="Store"
-                    tabs={[
-                      {
-                        key: 'state',
-                        label: 'State',
-                        title: 'The store at the moment',
-                        selected: tab === 'state',
-                        onSelect: () => setTab('state'),
-                      },
-                      {
-                        key: 'action',
-                        label: 'Action',
-                        title: "The moment's action",
-                        selected: tab === 'action',
-                        onSelect: openActionTab,
-                      },
-                    ]}
-                  />
-                  {tab === 'state' && (
-                    <span className={styles.barEnd}>
-                      <span
-                        className={styles.viewButtons}
-                        role="group"
-                        aria-label="State shown"
-                      >
-                        <button
-                          type="button"
-                          aria-label="Snapshot"
-                          title="Snapshot: the store at the moment"
-                          aria-pressed={!diffMode}
-                          onClick={() => setDiffMode(false)}
-                        >
-                          <SnapshotIcon />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="Diff"
-                          title="Diff: only what the moment changed"
-                          aria-pressed={diffMode}
-                          onClick={() => setDiffMode(true)}
-                        >
-                          <DiffIcon />
-                        </button>
-                      </span>
-                      <span
-                        className={styles.viewButtons}
-                        role="group"
-                        aria-label="Store view"
-                      >
-                        <button
-                          type="button"
-                          aria-label="Table view"
-                          title="Table view"
-                          aria-pressed={!tree}
-                          onClick={() => setView('table')}
-                        >
-                          <TableIcon />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="Tree view"
-                          title="Tree view"
-                          aria-pressed={tree}
-                          onClick={() => setView('tree')}
-                        >
-                          <TreeIcon />
-                        </button>
-                      </span>
-                    </span>
-                  )}
-                  {tab === 'action' && (
-                    <span className={styles.barEnd}>
-                      <span
-                        className={styles.viewButtons}
-                        role="group"
-                        aria-label="Actions listed"
-                      >
-                        <button
-                          type="button"
-                          aria-label="By interaction"
-                          title="By interaction: under the click or render that started them"
-                          aria-pressed={actionsBy === 'interaction'}
-                          onClick={() => setActionsBy('interaction')}
-                        >
-                          <InteractionsIcon />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="Every action"
-                          title="Every action: in dispatch order, each fetch apart from its response"
-                          aria-pressed={actionsBy === 'action'}
-                          onClick={() => setActionsBy('action')}
-                        >
-                          <ActionsIcon />
-                        </button>
-                      </span>
-                    </span>
-                  )}
-                </div>
-                <div className={styles.tabPanel} role="tabpanel">
+                <div
+                  className={styles.tabPanel}
+                  role="tabpanel"
+                  aria-label={tabLabel(tab)}
+                >
                   {/* both stay mounted, so each keeps the stores its levels
                       show, their scroll, pages and filters; both read the
                       moment's state where they show the moment's store */}
@@ -769,7 +713,7 @@ export default function StorePanel({
                         width={width}
                         levels={actionsShown}
                         subject={subject}
-                        hidden={tab !== 'action'}
+                        hidden={tab !== 'actions'}
                       />
                       <StoreViewContext.Provider value={view}>
                         <TreeStateProvider>
@@ -784,7 +728,7 @@ export default function StorePanel({
                       </StoreViewContext.Provider>
                     </ShownTimeContext.Provider>
                   </StateContext.Provider>
-                  {tab === 'state' && diffMode && !diff && (
+                  {tab === 'store' && diffMode && !diff && (
                     <div className={styles.levels}>
                       <div className={styles.level} data-level tabIndex={-1}>
                         <p className={styles.empty}>
@@ -797,22 +741,17 @@ export default function StorePanel({
               </div>
             </div>
             <NavContext.Provider value={chipNav}>
-              {pane && !listed && (
-                <ActionsPane
-                  subject={subject}
-                  filter={filter}
-                  label={
-                    subject.kind === 'root' ?
-                      null
-                    : subjectLabel(subject, model)
-                  }
-                  narrow={narrow}
-                  toggle={listButton}
-                  onHover={hoverPane}
-                  onPick={set}
-                  onClose={closePane}
-                />
-              )}
+              <QuickLookSlot
+                host={lookHost}
+                peek={peek}
+                subject={subject}
+                filter={filter}
+                label={lookLabel}
+                model={liveRows}
+                onPick={show}
+                onOpen={openView}
+                sheetOver={narrow && timelineOpen}
+              />
               <Preview store={preview} subject={subject} />
             </NavContext.Provider>
           </div>
@@ -821,12 +760,6 @@ export default function StorePanel({
     </ActionsContext.Provider>
   );
 }
-
-type Tab = 'state' | 'action';
-/** How long the pointer rests on the list button before the list peeks,
- * and is away from both before a peek closes (ms) */
-const PEEK_OPEN_MS = 150;
-const PEEK_CLOSE_MS = 300;
 
 /** What the moment changed, which the diff shows in place of the store it
  * left */
@@ -1114,7 +1047,7 @@ function Level({
       inert={!top || hidden}
       tabIndex={-1}
       onKeyDown={e => {
-        if (e.key === 'Escape' && depth > 0) {
+        if (e.key === 'Escape' && depth > 0 && !e.defaultPrevented) {
           e.preventDefault();
           onBack(depth);
         }
@@ -1145,7 +1078,7 @@ function SubjectLevel({
   );
 }
 
-/** The whole store, in the State tab's view */
+/** The whole store, in the Store tab's view */
 function StoreLevel({ scroller }: { scroller: Scroller }) {
   return useContext(StoreViewContext) === 'tree' ?
       <TreeView />
@@ -1265,7 +1198,7 @@ function useShownAction(seq: number | null, scope: Scope, subject: View) {
   }, [entries, groups, filter, seq, scope]);
 }
 
-/** The newest of the subject's actions: what the Action tab shows live, as
+/** The newest of the subject's actions: what the Actions tab shows live, as
  * its request's when it has one (see `useShownAction`).
  * Garbage collection is the store's housekeeping, not something the code
  * did, unless it is all there is */

@@ -1,6 +1,7 @@
 import type { AutoRunScript, Step, Target } from './script';
 import { springEasing, springs } from '../../../motion';
 import type { StoreView } from '../store/storeView';
+import type { Inspect } from '../StoreToggle';
 
 /** What a script acts on: the playground's DOM (./stage.ts) */
 export interface Stage {
@@ -12,7 +13,10 @@ export interface Stage {
   append(el: HTMLElement, text: string): void;
   /** Opens or closes the Store, in `view` if given; `pressed`: the pointer
    * is on the Store's toggle, so the stage shows a press there */
-  store(open: boolean, options?: { pressed?: boolean; view?: StoreView }): void;
+  store(
+    open: boolean,
+    options?: { pressed?: boolean; tab?: Inspect; view?: StoreView },
+  ): void;
   /** The run is over: the pointer goes */
   end(): void;
 }
@@ -94,13 +98,20 @@ async function perform(
   await sleep(step.delay ?? STEP_DELAY);
   if ('store' in step) {
     // onto the Store's toggle first, as a reader would; where the layout
-    // shows one
-    const toggle = stage.find(STORE_TOGGLE);
+    // shows one. A drawer's handles: the tab it opens (the Store's unless
+    // named), or the one showing, which shuts it
+    const open = step.store === 'open';
+    const tab = open ? (step.tab ?? 'store') : undefined;
+    const toggle =
+      stage.find({
+        in: 'playground',
+        selector:
+          tab ?
+            `[data-store-toggle="${tab}"]`
+          : '[data-store-toggle]:is([aria-selected="true"], [aria-pressed="true"])',
+      }) ?? (open ? stage.find(STORE_TOGGLE) : null);
     if (toggle && stage.point(toggle)) await sleep(MOVE_MS);
-    return stage.store(step.store === 'open', {
-      pressed: !!toggle,
-      view: step.view,
-    });
+    return stage.store(open, { pressed: !!toggle, tab, view: step.view });
   }
 
   // look the target up again before each act: a render may have replaced it

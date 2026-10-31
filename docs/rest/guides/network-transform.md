@@ -65,7 +65,7 @@ or multiplying two numbers.
 
 In this case, simply use the [static schema](../api/Entity.md#schema) with [Temporal.Instant](https://tc39.es/proposal-temporal/) and [BigNumber](https://github.com/MikeMcl/bignumber.js)
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/price/:exchangePair'}),
 args: [{ exchangePair: 'btc-usd' }],

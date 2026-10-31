@@ -21,16 +21,27 @@ function fakeStage(
 ) {
   const calls: string[] = [];
   const stage: Stage = {
-    find: target => (target === STORE_TOGGLE ? toggle : found),
+    find: target =>
+      target === STORE_TOGGLE ? toggle
+        // a drawer's handles: none, unless a test adds them
+      : (
+        typeof target === 'object' &&
+        'selector' in target &&
+        target.selector.includes('data-store-toggle')
+      ) ?
+        null
+      : found,
     point: el => {
       calls.push(el === toggle ? 'point toggle' : 'point');
       return true;
     },
     click: () => void calls.push('click'),
     append: (_, text) => void calls.push(`append ${text}`),
-    store: (open, { pressed, view } = {}) =>
+    store: (open, { pressed, tab, view } = {}) =>
       void calls.push(
-        `store ${open}${pressed ? ' pressed' : ''}${view ? ` ${view}` : ''}`,
+        `store ${open}${pressed ? ' pressed' : ''}${tab ? ` ${tab}` : ''}${
+          view ? ` ${view}` : ''
+        }`,
       ),
     end: () => void calls.push('end'),
   };
@@ -58,7 +69,7 @@ it('plays steps in order, at their times', async () => {
   expect(calls.at(-1)).toBe('append b');
   await jest.runAllTimersAsync();
   await done;
-  expect(calls.slice(3)).toEqual(['store true', 'point', 'click', 'end']);
+  expect(calls.slice(3)).toEqual(['store true store', 'point', 'click', 'end']);
   expect(player.getState()).toBe('done');
 });
 
@@ -87,7 +98,7 @@ it('pausing keeps the time left', async () => {
   await jest.advanceTimersByTimeAsync(399);
   expect(calls).toEqual([]);
   await jest.advanceTimersByTimeAsync(1);
-  expect(calls).toEqual(['store true', 'end']);
+  expect(calls).toEqual(['store true store', 'end']);
 });
 
 it('stop ends the run where it is', async () => {
@@ -112,7 +123,15 @@ it('glides onto the Store toggle before opening the Store', async () => {
   await jest.advanceTimersByTimeAsync(0);
   expect(calls).toEqual(['point toggle']);
   await jest.advanceTimersByTimeAsync(MOVE_MS);
-  expect(calls).toEqual(['point toggle', 'store true pressed', 'end']);
+  expect(calls).toEqual(['point toggle', 'store true pressed store', 'end']);
+});
+
+it('closes a shut Store without gliding onto any toggle', async () => {
+  const player = createPlayer();
+  const { stage, calls } = fakeStage(null, document.createElement('button'));
+  player.play([{ delay: 0, store: 'close' }], stage);
+  await jest.runAllTimersAsync();
+  expect(calls).toEqual(['store false', 'end']);
 });
 
 it('opens the Store in the view a step names', async () => {
@@ -120,7 +139,29 @@ it('opens the Store in the view a step names', async () => {
   const { stage, calls } = fakeStage();
   player.play([{ delay: 0, store: 'open', view: 'table' }], stage);
   await jest.runAllTimersAsync();
-  expect(calls).toEqual(['store true table', 'end']);
+  expect(calls).toEqual(['store true store table', 'end']);
+});
+
+it("glides onto the tab a step names, opening the Store's drawer on it", async () => {
+  const player = createPlayer();
+  const actionsTab = document.createElement('button');
+  const { stage, calls } = fakeStage(null, document.createElement('button'));
+  const find = stage.find;
+  stage.find = target =>
+    (
+      typeof target === 'object' &&
+      'selector' in target &&
+      target.selector === '[data-store-toggle="actions"]'
+    ) ?
+      actionsTab
+    : find(target);
+  stage.point = el => {
+    calls.push(el === actionsTab ? 'point actions' : 'point');
+    return true;
+  };
+  player.play([{ delay: 0, store: 'open', tab: 'actions' }], stage);
+  await jest.runAllTimersAsync();
+  expect(calls).toEqual(['point actions', 'store true pressed actions', 'end']);
 });
 
 it('a wait holds for its own time only', async () => {
@@ -130,7 +171,7 @@ it('a wait holds for its own time only', async () => {
   await jest.advanceTimersByTimeAsync(599);
   expect(calls).toEqual([]);
   await jest.advanceTimersByTimeAsync(1);
-  expect(calls).toEqual(['store true', 'end']);
+  expect(calls).toEqual(['store true store', 'end']);
 });
 
 it('stopping an idle player leaves it idle', () => {
@@ -477,7 +518,7 @@ describe('useAutoRun', () => {
     see(0.6);
     expect(result.current.player.getState()).toBe('playing');
     await jest.runAllTimersAsync();
-    expect(showStore).toHaveBeenCalledWith(true, undefined);
+    expect(showStore).toHaveBeenCalledWith(true, undefined, 'store');
   });
 
   it('starts a preview taller than the viewport once it fills most of it', () => {
@@ -498,7 +539,7 @@ describe('useAutoRun', () => {
     expect(showStore).not.toHaveBeenCalled();
     see(0.6);
     await jest.runAllTimersAsync();
-    expect(showStore).toHaveBeenCalledWith(true, undefined);
+    expect(showStore).toHaveBeenCalledWith(true, undefined, 'store');
   });
 
   it('plays on while the preview shows, the Store opened above it', async () => {
@@ -510,7 +551,7 @@ describe('useAutoRun', () => {
     see(1);
     seeOnly(playground, 0.5);
     await jest.runAllTimersAsync();
-    expect(showStore).toHaveBeenLastCalledWith(false, undefined);
+    expect(showStore).toHaveBeenLastCalledWith(false, undefined, undefined);
   });
 
   it('plays on while the playground shows, the preview gone from view', async () => {
@@ -519,7 +560,7 @@ describe('useAutoRun', () => {
     see(1);
     seeOnly(preview, 0);
     await jest.runAllTimersAsync();
-    expect(showStore).toHaveBeenCalledWith(true, undefined);
+    expect(showStore).toHaveBeenCalledWith(true, undefined, 'store');
   });
 
   it('an unmount leaves an idle player free to start', () => {
@@ -618,7 +659,7 @@ describe('useAutoRun', () => {
     act(() => result.current.replay());
     expect(preview.scrollIntoView).toHaveBeenCalled();
     await jest.runAllTimersAsync();
-    expect(showStore).toHaveBeenLastCalledWith(true, undefined);
+    expect(showStore).toHaveBeenLastCalledWith(true, undefined, 'store');
   });
 
   it('replay leaves a preview that fills the view where it is', () => {

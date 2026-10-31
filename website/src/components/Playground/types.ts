@@ -1,5 +1,6 @@
 import type { Fixture, Interceptor } from '@data-client/test';
-import type { MouseEventHandler } from 'react';
+
+import type { ToggleStore } from './preview/StoreToggle';
 
 export type FixtureOrInterceptor<T = any> = Fixture | Interceptor<T>;
 
@@ -16,7 +17,7 @@ export interface PreviewProps<T = any> {
   /** Counts the reader's and demos' Store moves (`useStoreOpen`): the Store
    * animates only for these */
   storeMoves: number;
-  toggleStore: MouseEventHandler<HTMLElement>;
+  toggleStore: ToggleStore;
   row: boolean;
   /** Row layout: the layer over the code the Store slides into */
   storeHost: HTMLElement | null;

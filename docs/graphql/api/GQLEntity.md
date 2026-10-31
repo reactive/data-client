@@ -334,7 +334,7 @@ to ensure default props are overridden.
 Defines [related entity](/rest/guides/relational-data) members, or
 [field deserialization](/rest/guides/network-transform#deserializing-fields) like Date and BigNumber.
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<HooksPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: getPost,
 args: [{ id: '123' }],

@@ -41,7 +41,7 @@ its schemas are used for the value of an Object.
 
 ## Usage
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/items'}),
 args: [],

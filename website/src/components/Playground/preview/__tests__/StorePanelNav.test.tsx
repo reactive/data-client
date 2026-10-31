@@ -6,7 +6,7 @@ import React from 'react';
 
 import { endpointId, entityId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
-import StorePanel from '../store/StorePanel';
+import { InspectedPanel } from '../testing/inspected';
 
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
@@ -135,7 +135,7 @@ const headers = () =>
 function mount(s = state, r = registry()) {
   const ui = (s: State<unknown>) => (
     <StateContext.Provider value={s}>
-      <StorePanel registry={r} history={0} />
+      <InspectedPanel registry={r} history={0} />
     </StateContext.Provider>
   );
   const result = render(ui(s));

@@ -7,8 +7,14 @@ import React from 'react';
 import { byData } from '../store/dom';
 import { endpointId, entityId, groupId, parseRowId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
-import StorePanel from '../store/StorePanel';
-import { DemoViewContext, StoreToggle, useStoreOpen } from '../StoreToggle';
+import {
+  DemoViewContext,
+  InspectorContext,
+  StoreHeaderToggle,
+  StoreToggle,
+  useStoreOpen,
+} from '../StoreToggle';
+import { InspectedPanel } from '../testing/inspected';
 
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
@@ -104,7 +110,7 @@ const press = (key: string) =>
 function mount(s = state, r = registry()) {
   return render(
     <StateContext.Provider value={s}>
-      <StorePanel registry={r} history={0} />
+      <InspectedPanel registry={r} history={0} />
     </StateContext.Provider>,
   );
 }
@@ -366,21 +372,21 @@ describe('StorePanel table view', () => {
     let renders = 0;
     function Demo({ children }: { children: React.ReactNode }) {
       renders++;
-      const [open, toggle, show, demoView] = useStoreOpen('test', 'y');
+      const [open, toggle, show, demoView] = useStoreOpen('test', 'store');
       showStore = show;
       return (
         <DemoViewContext.Provider value={demoView}>
-          <StoreToggle onClick={toggle} open={open} />
+          <StoreToggle onToggle={toggle} open={open} />
           {children}
         </DemoViewContext.Provider>
       );
     }
     const readerToggle = () =>
-      fireEvent.click(document.querySelector('[data-store-toggle]')!);
+      fireEvent.click(document.querySelector('[data-store-toggle="store"]')!);
     render(
       <Demo>
         <StateContext.Provider value={state}>
-          <StorePanel registry={registry()} history={0} />
+          <InspectedPanel registry={registry()} history={0} />
         </StateContext.Provider>
       </Demo>,
     );
@@ -410,54 +416,135 @@ describe('StorePanel table view', () => {
     expect(table()).toBeNull();
   });
 
+  it('switches the stacked strip between the Actions and Store tabs', () => {
+    function Strip() {
+      const [open, toggle, , , , inspector] = useStoreOpen('strip', 'store');
+      return (
+        <InspectorContext.Provider value={inspector}>
+          <StoreToggle onToggle={toggle} open={open} />
+        </InspectorContext.Provider>
+      );
+    }
+    render(<Strip />);
+    const tab = (name: string) => screen.getByRole('tab', { name });
+    expect(tab('Store').getAttribute('aria-selected')).toBe('true');
+    fireEvent.click(tab('Actions'));
+    expect(tab('Actions').getAttribute('aria-selected')).toBe('true');
+    expect(tab('Store').getAttribute('aria-selected')).toBe('false');
+    // the tab showing shuts the Store
+    fireEvent.click(tab('Actions'));
+    expect(tab('Actions').getAttribute('aria-selected')).toBe('false');
+  });
+
+  it("opens a demo's Actions tab at the list, as its handle does", () => {
+    let showStore: ReturnType<typeof useStoreOpen>[2] = () => {};
+    let listed = 0;
+    function Demo() {
+      const [, , show, , , inspector] = useStoreOpen('demo-actions', 'store');
+      showStore = show;
+      listed = inspector.listed;
+      return null;
+    }
+    render(<Demo />);
+    const before = listed;
+    act(() => showStore(true, undefined, 'actions'));
+    expect(listed).toBe(before + 1);
+    act(() => showStore(true, undefined, 'store'));
+    expect(listed).toBe(before + 1);
+  });
+
+  it("switches tabs from a narrow playground's header, as the strip does", () => {
+    function Header() {
+      const [open, toggle, , , , inspector] = useStoreOpen('header', 'n');
+      return (
+        <InspectorContext.Provider value={inspector}>
+          <StoreHeaderToggle onClick={toggle} open={open} />
+        </InspectorContext.Provider>
+      );
+    }
+    render(<Header />);
+    const button = (name: string) => screen.getByRole('button', { name });
+    const pressed = (name: string) =>
+      button(name).getAttribute('aria-pressed') === 'true';
+    fireEvent.click(button('Actions'));
+    expect([pressed('Actions'), pressed('Store')]).toEqual([true, false]);
+    fireEvent.click(button('Store'));
+    expect([pressed('Actions'), pressed('Store')]).toEqual([false, true]);
+    // the tab showing shuts the Store
+    fireEvent.click(button('Store'));
+    expect([pressed('Actions'), pressed('Store')]).toEqual([false, false]);
+  });
+
+  it('moves focus along the strip with the arrows, picking nothing', () => {
+    function Strip() {
+      const [open, toggle, , , , inspector] = useStoreOpen('keys', 'n');
+      return (
+        <InspectorContext.Provider value={inspector}>
+          <StoreToggle onToggle={toggle} open={open} />
+        </InspectorContext.Provider>
+      );
+    }
+    render(<Strip />);
+    const tab = (name: string) => screen.getByRole('tab', { name });
+    // one stop in the tab order: the tab it would open
+    expect([tab('Actions').tabIndex, tab('Store').tabIndex]).toEqual([-1, 0]);
+    tab('Store').focus();
+    fireEvent.keyDown(tab('Store'), { key: 'ArrowUp' });
+    expect(document.activeElement).toBe(tab('Actions'));
+    fireEvent.keyDown(tab('Actions'), { key: 'End' });
+    expect(document.activeElement).toBe(tab('Store'));
+    fireEvent.keyDown(tab('Store'), { key: 'Home' });
+    expect(document.activeElement).toBe(tab('Actions'));
+    // modified keys keep their own meaning
+    fireEvent.keyDown(tab('Actions'), { key: 'ArrowDown', altKey: true });
+    expect(document.activeElement).toBe(tab('Actions'));
+    expect(tab('Actions').getAttribute('aria-selected')).toBe('false');
+    expect(tab('Store').getAttribute('aria-selected')).toBe('false');
+  });
+
   it('leaves focus alone as the overview first shows, and on the tab picked', () => {
     mount();
     expect(document.activeElement).toBe(document.body);
-    const actions = screen.getByRole('tab', { name: 'Action' });
+    const actions = screen.getByRole('tab', { name: 'Actions' });
     actions.focus();
     fireEvent.click(actions);
     expect(actions.getAttribute('aria-selected')).toBe('true');
     expect(document.activeElement).toBe(actions);
-    fireEvent.click(screen.getByRole('tab', { name: 'State' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Store' }));
     expect(actions.getAttribute('aria-selected')).toBe('false');
     expect(crumbs()).toEqual([]);
   });
 
-  it('moves between and picks State and Action with the keyboard', () => {
+  it("shows which view is open on the drawer's tabs, which name the sheet under them", () => {
     mount();
-    const state = screen.getByRole('tab', { name: 'State' });
-    const actions = screen.getByRole('tab', { name: 'Action' });
-    expect(state.getAttribute('title')).toBe('The store at the moment');
-    state.focus();
-    fireEvent.keyDown(state, { key: 'ArrowRight' });
+    const store = screen.getByRole('tab', { name: 'Store' });
+    const actions = screen.getByRole('tab', { name: 'Actions' });
+    expect(store.getAttribute('aria-selected')).toBe('true');
+    expect(store.getAttribute('title')).toBe('Hide Store');
+    expect(actions.getAttribute('aria-selected')).toBe('false');
+    expect(actions.getAttribute('title')).toBe('Show Actions');
+    expect(screen.getByRole('tabpanel', { name: 'Store' })).toBeTruthy();
+    // the other tab takes over
+    fireEvent.click(actions);
     expect(actions.getAttribute('aria-selected')).toBe('true');
-    expect(document.activeElement).toBe(actions);
-    // modified arrows are left to the browser
-    fireEvent.keyDown(actions, { key: 'ArrowLeft', altKey: true });
-    expect(actions.getAttribute('aria-selected')).toBe('true');
-    fireEvent.keyDown(actions, { key: 'Home' });
-    expect(state.getAttribute('aria-selected')).toBe('true');
-    expect(document.activeElement).toBe(state);
-    actions.focus();
-    fireEvent.keyDown(actions, { key: 'Enter' });
-    expect(actions.getAttribute('aria-selected')).toBe('true');
-    state.focus();
-    fireEvent.keyDown(state, { key: ' ' });
-    expect(state.getAttribute('aria-selected')).toBe('true');
-    // held or modified, it leaves the pick alone
-    actions.focus();
-    expect(fireEvent.keyDown(actions, { key: ' ', repeat: true })).toBe(false);
-    fireEvent.keyDown(actions, { key: 'Enter', ctrlKey: true });
-    expect(state.getAttribute('aria-selected')).toBe('true');
+    expect(store.getAttribute('aria-selected')).toBe('false');
+    expect(store.getAttribute('title')).toBe('Show Store');
+    expect(screen.getByRole('tabpanel', { name: 'Actions' })).toBeTruthy();
+    // the tab showing shuts the drawer: neither is selected
+    fireEvent.click(actions);
+    expect(actions.getAttribute('aria-selected')).toBe('false');
+    expect(store.getAttribute('aria-selected')).toBe('false');
+    expect(actions.getAttribute('title')).toBe('Show Actions');
   });
 
-  it("puts State's view switches in the tab row", () => {
+  it("puts the shown tab's view switches in the scrubber's row", () => {
     mount();
-    expect(
-      screen
-        .getByRole('tablist')
-        .parentElement!.contains(screen.getByLabelText('Tree view')),
-    ).toBe(true);
+    const bar = () => screen.getByRole('group', { name: /^Scrubber/ });
+    expect(bar().contains(screen.getByLabelText('Tree view'))).toBe(true);
+    // the Actions tab has its own
+    fireEvent.click(screen.getByRole('tab', { name: 'Actions' }));
+    expect(screen.queryByLabelText('Tree view')).toBeNull();
+    expect(bar().contains(screen.getByLabelText('Every action'))).toBe(true);
   });
 
   it('keeps the levels open across the tree view, without replaying them', () => {
