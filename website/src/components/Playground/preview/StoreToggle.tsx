@@ -453,7 +453,6 @@ export function DrawerTabs({
   /** The tab showing, which Escape on the drawer shuts */
   ref?: React.Ref<HTMLButtonElement>;
 }) {
-  const look = useSyncExternalStore(peek.subscribe, peek.get, noLook);
   return (
     <div
       className={styles.drawerTabs}
@@ -477,7 +476,6 @@ export function DrawerTabs({
             onPointerEnter={e => !selected && peek.hover(to, true, e)}
             onPointerLeave={e => peek.hover(to, false, e)}
             data-store-toggle={to}
-            data-look={look === to || undefined}
           >
             {to === 'store' ?
               <StoreIcon />
