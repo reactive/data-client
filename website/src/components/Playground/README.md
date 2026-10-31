@@ -73,7 +73,8 @@ undo and go-to-definition survive tab switches; the live preview unmounts
 while hidden, so its store resets. The homepage passes `hidden`; in MDX,
 `PlaygroundTabs` sets it through `PlaygroundHiddenContext`
 (`hiddenContext.ts`) for every playground under an unselected tab, nested
-groups included. An explicit prop wins.
+groups included. An explicit prop wins. `TypeScriptEditor` in one of those
+tabs latches the same way (plain text until first shown).
 In `row`, the result never shrinks below its tallest (`useHeightRatchet`),
 shared by the playgrounds under one `data-playground-group` (the homepage's
 protocol switch, `PlaygroundTabs`), so a switched-in tab's loading page
