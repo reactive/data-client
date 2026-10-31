@@ -1,7 +1,6 @@
 import type { AutoRunScript, Step, Target } from './script';
 import { springEasing, springs } from '../../../motion';
-import type { Inspect } from '../inspector';
-import type { StoreView } from '../inspector';
+import type { Inspect, StoreView } from '../inspector';
 
 /** What a script acts on: the playground's DOM (./stage.ts) */
 export interface Stage {

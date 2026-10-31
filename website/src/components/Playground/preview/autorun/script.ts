@@ -1,5 +1,4 @@
-import type { Inspect } from '../inspector';
-import type { StoreView } from '../inspector';
+import type { Inspect, StoreView } from '../inspector';
 
 /** A demo a playground plays by itself: what to do, step by step, as a
  * reader would (see "Auto-run" in ../../README.md). Plain data, so docs can
