@@ -385,12 +385,13 @@ div.playground-preview h1:first-child {
 /* A list's first row when it starts the page (its first block, or up to two
    first children into it): its caps at the sheet's inset, as the page's
    text, pulled up by its own padding (its hover band keeps it). `.sheet` and
-   `.navProgress` are the preview's global hooks (../styles.module.css) */
+   `.navProgress` are the preview's global hooks (../preview/PendingSheet.tsx,
+   ../preview/router.tsx) */
 .playground-preview
   :is(
     :is(.sheet > :first-child, .navProgress + *),
-    :is(.sheet > :first-child, .navProgress + *)
-      > :is(:first-child, :first-child > :first-child)
+    :is(.sheet > :first-child, .navProgress + *) > :first-child,
+    :is(.sheet > :first-child, .navProgress + *) > :first-child > :first-child
   ).listItem {
   margin-top: calc(-1 * var(--ds-row-pad));
   text-box: trim-start cap alphabetic;
