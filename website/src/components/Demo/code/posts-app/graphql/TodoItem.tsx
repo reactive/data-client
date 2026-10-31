@@ -14,7 +14,7 @@ export default function TodoItem({ todo }: { todo: Todo }) {
             })
           }
         />
-        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
+        {todo.title}
       </label>
     </div>
   );

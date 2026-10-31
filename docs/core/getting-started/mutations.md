@@ -74,7 +74,7 @@ export default function TodoItem({ todo }: { todo: Todo }) {
           checked={todo.completed}
           onChange={handleChange}
         />
-        {todo.completed ? <s>{todo.title}</s> : todo.title}
+        {todo.title}
       </label>
       <CancelButton onClick={handleDelete} />
     </div>
@@ -124,7 +124,7 @@ function TodoList() {
   const userId = 1;
   const todos = useSuspense(TodoResource.getList, { userId });
   return (
-    <div>
+    <div className="list">
       {todos.map(todo => (
         <TodoItem key={todo.pk()} todo={todo} />
       ))}
@@ -167,8 +167,7 @@ render(<TodoList />);
         :checked="todo.completed"
         @change="handleChange"
       />
-      <s v-if="todo.completed">{{ todo.title }}</s>
-      <template v-else>{{ todo.title }}</template>
+      {{ todo.title }}
     </label>
     <CancelButton @click="handleDelete" />
   </div>
@@ -222,7 +221,7 @@ render(<TodoList />);
 </script>
 
 <template>
-  <div>
+  <div class="list">
     <TodoItem v-for="todo in todos" :key="todo.pk()" :todo="todo" />
     <CreateTodo :userId="userId" />
   </div>
