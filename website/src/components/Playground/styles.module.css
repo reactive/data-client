@@ -21,9 +21,6 @@
      takes when its own content sets the height */
   --store-min: min(24rem, 70svh);
   --store-cap: min(32rem, 70svh);
-  /* stacked, the Store's sheet beside the app fits its content from here,
-     and a tab's quick look in its place is at least as tall */
-  --pg-stacked-store-min: min(16rem, 70svh);
   /* the app's sheet's corners, which the Store's sheet shares */
   --pg-sheet-radius: 12px;
   /* a tab rising from its card: the files', the Store's and the fixtures' */
@@ -430,6 +427,9 @@ div.playgroundTextEdit > .playgroundHeader {
   --pg-card-radius: 10px;
   --pg-card-shadow:
     0 1px 3px rgba(15, 30, 60, 0.08), 0 14px 36px rgba(15, 30, 60, 0.12);
+  /* the same, cast from whatever several papers paint as one */
+  --pg-card-drop: drop-shadow(0 1px 3px rgba(15, 30, 60, 0.08))
+    drop-shadow(0 14px 36px rgba(15, 30, 60, 0.12));
   /* the file tabs' row, and the preview's header beside it */
   --pg-row: 48px;
   /* the handles: how far one sticks out, its length along the edge, and how
@@ -476,6 +476,8 @@ div.playgroundTextEdit > .playgroundHeader {
 :root[data-theme='dark'] .playgroundContainer.row {
   --pg-card-shadow:
     0 1px 3px rgba(0, 0, 0, 0.3), 0 14px 36px rgba(0, 0, 0, 0.3);
+  --pg-card-drop: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3))
+    drop-shadow(0 14px 36px rgba(0, 0, 0, 0.3));
 }
 /* the file tabs: on the page, the open file rising as a tab from the card */
 .row .playgroundHeader.tabControls {
@@ -532,9 +534,7 @@ div.playgroundTextEdit > .playgroundHeader {
   box-shadow: none;
 }
 .row .tab.selected::before,
-.row .tab.selected::after,
-.stacked .storeHeaderToggle[aria-pressed='true']::before,
-.stacked .storeHeaderToggle[aria-pressed='true']::after {
+.row .tab.selected::after {
   bottom: 0;
   height: var(--pg-card-radius);
 }
@@ -683,8 +683,10 @@ div.playgroundTextEdit > .playgroundHeader {
   border-radius: var(--pg-card-radius);
   /* room for its header's shadow */
   overflow-clip-margin: 3rem;
-  background: linear-gradient(var(--pg-stage) 0 0) 0
-    calc(var(--pg-row) + var(--pg-body-radius)) / 100% 100% no-repeat;
+  /* where the folder's paper starts, under its header's corners */
+  --pg-paper-at: calc(var(--pg-row) + var(--pg-body-radius));
+  background: linear-gradient(var(--pg-stage) 0 0) 0 var(--pg-paper-at) / 100%
+    100% no-repeat;
 }
 .row > .previewWrapper::before {
   content: '';
@@ -2022,15 +2024,28 @@ div.fixtureJson + div.fixtureJson {
   overflow-x: clip;
 }
 /* open, the Store is a column of the folder beside the app, the folder's
-   paper between them: the app's sheet ends at its content, the Store's
-   runs on to the foot, the result as tall as either. The app gives up its
+   paper between them: each sheet ends at its content, the result as tall
+   as the Store's. The app gives up its
    width as the Store slides in over the end (and takes it back as it
    leaves), on the slide's spring */
 @container playground (min-width: 720px) {
+  /* one paper's shadow for all of it, cast from what it paints: the
+     folder, its header, and the Store's sheet running on past it. Nothing
+     on it casts its own */
   .stacked > .previewWrapper {
     --pg-store-side: calc(100% * 2 / 3 - var(--pg-gap) * 4 / 9);
+    filter: var(--pg-card-drop);
+  }
+  .stacked > .previewWrapper::before {
+    content: none;
+  }
+  .stacked .playgroundHeader.previewHeader {
+    box-shadow: none;
   }
   .stacked .playgroundResult {
+    /* the Store's sheet beside the app fits its content from a little
+       under the drawer's usual least, as does a tab's quick look there */
+    --store-min: min(16rem, 70svh);
     align-items: flex-start;
     min-height: 0;
     transition: min-height var(--pg-store-smooth);
@@ -2056,17 +2071,15 @@ div.fixtureJson + div.fixtureJson {
     padding-left: var(--pg-gap);
     background: none;
   }
-  /* its own height, from its content, a little under the drawer's usual
-     least up to its cap; at least as tall as the app's card beside it,
-     within the screen */
+  /* its own height, from its content, up to its cap; at least as tall as
+     the app's card beside it, within the screen */
   .stacked .playgroundResult > .storePanel > * {
     /* not stretched to the panel's height (the result's, from its own) */
     align-self: flex-start;
     min-height: max(
-      var(--pg-stacked-store-min),
+      var(--store-min),
       min(var(--pg-app-height, 0px), 100svh - var(--store-top))
     );
-    max-height: var(--store-cap);
   }
   /* moving, it is cut to the result as that grows or shrinks, its corners
      rounded */
@@ -2081,22 +2094,11 @@ div.fixtureJson + div.fixtureJson {
   --pg-card-shadow: none;
   --store-sheet-foot: var(--pg-sheet-radius);
 }
-/* the sheet, its contents within its rounded corners; past the folder's
-   end, it casts the folder's shadow (the panel resets the card's for its
-   header) */
-.stacked .playgroundResult {
-  --pg-sheet-shadow: var(--pg-card-shadow);
-}
+/* the sheet, its contents within its rounded corners */
 .stacked .playgroundResult > .storePanel > * {
   border-radius: var(--pg-sheet-radius);
   background: var(--store-bg);
-  box-shadow: var(--pg-sheet-shadow);
   overflow: clip;
-  /* none of its shadow up over its tab, which runs into it as one paper,
-     nor along the edge they share: where that falls off the pixel grid,
-     the shadow's edge would show there as a line. Its first pixel goes
-     with it, under the tab (below) */
-  clip-path: inset(1px -3rem -3rem);
 }
 /* Beside the app, the folder ends with the app's card (useAppBox,
    preview/PreviewWrapper.tsx), the Store's sheet running on below it, the
@@ -2116,15 +2118,6 @@ div.fixtureJson + div.fixtureJson {
     )::after {
     display: none;
   }
-  .stacked
-    > .previewWrapper:has(
-      > .playgroundResult > .storePanel[data-visible]
-    )::before {
-    bottom: auto;
-    height: calc(var(--pg-app-end, 100%) - var(--pg-row));
-    border-radius: var(--pg-body-radius) var(--pg-body-radius) 0
-      var(--pg-card-radius);
-  }
   /* the folder's paper: behind the header's foot and the app's card (but
      its foot's corners), the strip beside it on under the Store's corner,
      and that strip's curve at its foot */
@@ -2133,7 +2126,6 @@ div.fixtureJson + div.fixtureJson {
   }
   .stacked
     > .previewWrapper:has(> .playgroundResult > .storePanel[data-visible]) {
-    --pg-paper-at: calc(var(--pg-row) + var(--pg-body-radius));
     background:
       radial-gradient(
           circle at 0 100%,
@@ -2161,12 +2153,6 @@ div.fixtureJson + div.fixtureJson {
 .stacked .storeHeaderToggle {
   position: relative;
 }
-@container playground (max-width: 719px) {
-  .stacked .storeHeaderToggle[aria-pressed='true']::before,
-  .stacked .storeHeaderToggle[aria-pressed='true']::after {
-    content: none;
-  }
-}
 @container playground (min-width: 720px) {
   .stacked .previewControls {
     align-self: stretch;
@@ -2175,8 +2161,8 @@ div.fixtureJson + div.fixtureJson {
     --pg-fillet-color: var(--pg-panel);
     align-self: stretch;
     height: auto;
-    /* on into the sheet past its clipped first pixel, it and its curves,
-       so it alone covers the pixel where they meet */
+    /* on into the sheet, it and its curves, so it alone covers the pixel
+       where they meet */
     margin: 0.25rem 0 -2px;
     border-radius: var(--pg-card-radius) var(--pg-card-radius) 0 0;
     background: var(--pg-panel);
@@ -2220,7 +2206,7 @@ div.fixtureJson + div.fixtureJson {
     right: 0;
     width: var(--pg-store-side);
     max-width: none;
-    height: clamp(var(--pg-stacked-store-min), 100%, var(--store-cap));
+    height: clamp(var(--store-min), 100%, var(--store-cap));
   }
 }
 
@@ -2254,6 +2240,8 @@ div.fixtureJson + div.fixtureJson {
    code's own square background */
 .fileCard > .playgroundEditor {
   align-self: stretch;
+  /* down to the line's end with the tallest card beside it */
+  flex-grow: 1;
   padding: 10px 0 var(--pg-code-foot);
   border-radius: var(--pg-card-radius);
   background: var(--monoco-code-background);

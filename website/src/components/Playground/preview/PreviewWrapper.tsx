@@ -178,33 +178,29 @@ function usePreviewGap(result: HTMLElement | null) {
  * folder, and the Store's sheet's height, as `--pg-store-height`: beside
  * the open Store, the folder ends with the app's card, the Store's sheet
  * runs on below it, and the result is as tall as that sheet. The app's
- * sheet is the result's first child, the loading page's and then the live
- * one's; the Store's mounts in its panel as it opens */
+ * sheet is the loading page's and then the live one's; the Store's mounts
+ * in its panel as it opens */
 function useAppBox(result: HTMLElement | null) {
   useLayoutEffect(() => {
     const wrapper = result?.parentElement;
     if (!result || !wrapper || typeof ResizeObserver === 'undefined') return;
-    const panel = () =>
-      result.querySelector<HTMLElement>(`:scope > .${styles.storePanel}`);
-    const storeSheet = () => panel()?.firstElementChild;
+    // found again whenever the result's or the drawer's children change
+    let app: HTMLElement | null = null;
+    let storeSheet: Element | null | undefined = null;
     const measureApp = () => {
-      const app = result.firstElementChild;
-      if (!(app instanceof HTMLElement)) return;
+      if (!app) return;
+      // read before writing: each write invalidates layout
       const { offsetWidth: width, offsetHeight: height } = app;
+      const end = result.offsetTop + height;
       wrapper.style.setProperty('--pg-app-width', `${width}px`);
       wrapper.style.setProperty('--pg-app-height', `${height}px`);
-      wrapper.style.setProperty(
-        '--pg-app-end',
-        `${result.offsetTop + height}px`,
-      );
+      wrapper.style.setProperty('--pg-app-end', `${end}px`);
     };
+    // shut, it is hidden, not unmounted: it keeps its last height to open at
     const measureStore = () => {
-      const sheet = storeSheet();
-      if (sheet instanceof HTMLElement)
-        wrapper.style.setProperty(
-          '--pg-store-height',
-          `${sheet.offsetHeight}px`,
-        );
+      const height =
+        storeSheet instanceof HTMLElement && storeSheet.offsetHeight;
+      if (height) wrapper.style.setProperty('--pg-store-height', `${height}px`);
     };
     // the Store's height resizes the result, and the playground around it,
     // whose own observers (useNarrow) would loop if it changed while they
@@ -217,26 +213,24 @@ function useAppBox(result: HTMLElement | null) {
     });
     // the app's sheet swaps in, and the Store's mounts in its panel: that
     // one is measured at once, before the frame is drawn
-    const children = new MutationObserver(() => {
+    const refresh = () => {
       watch();
       measureStore();
-    });
+    };
+    const children = new MutationObserver(refresh);
     const watch = () => {
       sizes.disconnect();
       children.disconnect();
+      app = result.querySelector(`:scope > .${styles.playgroundPreview}`);
+      const drawer = result.querySelector(`:scope > .${styles.storePanel}`);
+      storeSheet = drawer?.firstElementChild;
       children.observe(result, { childList: true });
-      const drawer = panel();
       if (drawer) children.observe(drawer, { childList: true });
       // the header sets the result's top
-      for (const el of [
-        wrapper.firstElementChild,
-        result.firstElementChild,
-        storeSheet(),
-      ])
+      for (const el of [wrapper.firstElementChild, app, storeSheet])
         if (el) sizes.observe(el);
     };
-    watch();
-    measureStore();
+    refresh();
     return () => {
       cancelAnimationFrame(frame);
       sizes.disconnect();
@@ -282,7 +276,7 @@ interface Props {
   /** In place of the "Live Preview" label (e.g. the demo's `DemoLabel`) */
   label?: React.ReactNode;
   /** `layout === 'row'`: the folder ends with the app's sheet, which never
-   * shrinks (the stacked Store shares the result's height, so it may) */
+   * shrinks (beside the stacked Store, the result is as tall as it, so may) */
   layout: Layout;
   /** Mock responses to inspect over the result, from a network icon in the
    * header: previewed on hover, pinned open by a click or tap */
