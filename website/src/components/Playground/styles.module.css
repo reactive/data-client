@@ -2009,18 +2009,20 @@ div.fixtureJson + div.fixtureJson {
     display: none;
   }
 }
-/* the fixtures hang on past its foot, over the page below; the Store
-   slides in and out behind the result's edge instead (and, leaving, its
-   foot as the result shrinks back), while a tab's quick look on a shut
-   one runs on past the foot */
+/* the fixtures hang on past its foot, over the page below, as does a
+   tab's quick look on a shut Store, and the open Store's shadow; while the
+   Store moves, it slides in and out behind the result's edge, its sheet as
+   tall as the result as that grows or shrinks, so its foot keeps its
+   corners */
 .stacked > .previewWrapper {
   overflow: visible;
 }
-.stacked .playgroundResult {
+.stacked[data-store-moving] .playgroundResult {
   overflow-x: clip;
 }
-.stacked .playgroundResult:has(> .storePanel[data-visible]) {
-  overflow: clip;
+.stacked[data-store-moving] .playgroundResult > .storePanel > * {
+  height: 100%;
+  min-height: 0;
 }
 /* open, the Store is a column of the folder beside the app, the folder's
    paper between them: the app's sheet ends at its content, the Store's
@@ -2045,30 +2047,82 @@ div.fixtureJson + div.fixtureJson {
   .stacked:has(.storeHeaderToggle[aria-pressed='true']) .playgroundPreview {
     width: calc(100% - var(--pg-store-side) - var(--pg-gap));
   }
+  /* the gap before it rides with it, so it slides as far as the app's
+     edge moves, the gap between them held all the way */
   .stacked .playgroundResult > .storePanel {
     position: absolute;
     inset: 0 0 0 auto;
-    width: var(--pg-store-side);
+    width: calc(var(--pg-store-side) + var(--pg-gap));
+    padding-left: var(--pg-gap);
+    background: none;
   }
 }
 .stacked .playgroundResult > .storePanel {
   /* a sheet of the app's paper */
   --store-bg: var(--pg-panel);
-  border-radius: var(--pg-sheet-radius);
   /* its header lies flat on the folder */
   --pg-card-shadow: none;
   --store-sheet-foot: var(--pg-sheet-radius);
-  /* its contents within its rounded corners */
+}
+/* the sheet, its contents within its rounded corners; past the folder's
+   end, it casts the folder's shadow (the panel resets the card's for its
+   header) */
+.stacked .playgroundResult {
+  --pg-sheet-shadow: var(--pg-card-shadow);
+}
+.stacked .playgroundResult > .storePanel > * {
+  border-radius: var(--pg-sheet-radius);
+  background: var(--store-bg);
+  box-shadow: var(--pg-sheet-shadow);
   overflow: clip;
 }
 .stacked .playgroundResult:has(> .storePanel[data-visible]) .sheet {
   border-radius: var(--pg-sheet-radius);
 }
-.stacked
-  > .previewWrapper:has(
-    > .playgroundResult > .storePanel[data-visible]
-  )::after {
-  background: var(--pg-stage);
+/* Beside the app, the folder ends with the app's sheet (useAppBox,
+   preview/PreviewWrapper.tsx), the Store's sheet running on below it, the
+   strip between them curving into its edge: no folder under the app's
+   foot or the Store's */
+@container playground (min-width: 720px) {
+  .stacked
+    > .previewWrapper:has(> .playgroundResult > .storePanel[data-visible]) {
+    background: none;
+  }
+  .stacked
+    > .previewWrapper:has(
+      > .playgroundResult > .storePanel[data-visible]
+    )::before {
+    bottom: auto;
+    height: calc(var(--pg-app-end, 100%) - var(--pg-row));
+    border-radius: var(--pg-body-radius) var(--pg-body-radius) 0
+      var(--pg-sheet-radius);
+  }
+  .stacked
+    > .previewWrapper:has(
+      > .playgroundResult > .storePanel[data-visible]
+    )::after {
+    display: none;
+  }
+  /* the folder's paper: behind the app's sheet (but its foot's corner,
+     the folder's), the strip beside it on under the Store's corner, and
+     that strip's curve at its foot */
+  .stacked .playgroundResult:has(> .storePanel[data-visible]) {
+    --pg-strip-at: calc(var(--pg-app-width, 0px) - var(--pg-sheet-radius));
+    --pg-strip-width: calc(var(--pg-gap) + 2 * var(--pg-sheet-radius));
+    background:
+      radial-gradient(
+          circle at 0 100%,
+          transparent calc(var(--pg-card-radius) - 0.5px),
+          var(--pg-stage) var(--pg-card-radius)
+        )
+        calc(var(--pg-app-width, 0px) + var(--pg-gap) - var(--pg-card-radius))
+        var(--pg-app-height, 0px) / var(--pg-card-radius) var(--pg-card-radius)
+        no-repeat,
+      linear-gradient(var(--pg-stage) 0 0) var(--pg-strip-at) 0 /
+        var(--pg-strip-width) var(--pg-app-height, 100%) no-repeat,
+      linear-gradient(var(--pg-stage) 0 0) 0 0 / 100%
+        calc(var(--pg-app-height, 100%) - var(--pg-sheet-radius)) no-repeat;
+  }
 }
 /* The drawer is a sheet of the app's paper. Beside the app, its toggles in
    the header are the sheet's tabs: the one showing runs down from the

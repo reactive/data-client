@@ -35,6 +35,7 @@ export default function PreviewWrapper({
   const rowResult = layout === 'row' ? result : null;
   usePreviewGap(rowResult);
   useHeightRatchet(rowResult);
+  useAppBox(layout === 'stacked' ? result : null);
   const fixturesId = useId();
   const fixturesLabel = translate({
     id: 'playground.fixtures',
@@ -171,6 +172,44 @@ function usePreviewGap(result: HTMLElement | null) {
     };
   }, [result]);
 }
+
+/** Stacked layout: the app's sheet's box, as `--pg-app-width`,
+ * `--pg-app-height` (from the result's top) and `--pg-app-end` (from the
+ * folder's) on the folder: beside the open Store, the folder ends with the
+ * app's sheet, and the Store's sheet runs on below it. The sheet is the
+ * result's first child, the loading page's and then the live one's */
+function useAppBox(result: HTMLElement | null) {
+  useLayoutEffect(() => {
+    const wrapper = result?.parentElement;
+    if (!result || !wrapper || typeof ResizeObserver === 'undefined') return;
+    const measure = () => {
+      const app = result.firstElementChild;
+      if (!(app instanceof HTMLElement)) return;
+      const { offsetWidth: width, offsetHeight: height } = app;
+      wrapper.style.setProperty('--pg-app-width', `${width}px`);
+      wrapper.style.setProperty('--pg-app-height', `${height}px`);
+      wrapper.style.setProperty(
+        '--pg-app-end',
+        `${result.offsetTop + height}px`,
+      );
+    };
+    const sizes = new ResizeObserver(measure);
+    const watch = () => {
+      sizes.disconnect();
+      sizes.observe(result);
+      if (result.firstElementChild) sizes.observe(result.firstElementChild);
+    };
+    watch();
+    const children = new MutationObserver(watch);
+    children.observe(result, { childList: true });
+    return () => {
+      sizes.disconnect();
+      children.disconnect();
+      for (const name of APP_BOX) wrapper.style.removeProperty(name);
+    };
+  }, [result]);
+}
+const APP_BOX = ['--pg-app-width', '--pg-app-height', '--pg-app-end'];
 
 /** Row layout: the result never shrinks below the tallest it has been, as
  * `--pg-result-min` on its playground, or on the group it switches within
