@@ -274,7 +274,7 @@ export const TodoResource = resource({
   <div v-if="!todosByUser">Todos not found</div>
   <div v-else>
     <TodoByUser
-      v-for="userId in Object.keys(todosByUser).slice(5)"
+      v-for="userId in Object.keys(todosByUser)"
       :key="userId"
       :userId="userId"
       :todos="todosByUser[userId]"
