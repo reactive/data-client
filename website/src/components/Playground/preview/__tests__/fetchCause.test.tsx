@@ -312,7 +312,10 @@ describe('actions by interaction', () => {
     return interactionsOf(groupEntries(entries), entries).map(
       ({ interaction, first, rows }) => ({
         kind: interaction.kind,
-        path: interaction.kind === 'render' ? interaction.path : undefined,
+        ...(interaction.kind === 'render' && {
+          components: interaction.components,
+          path: interaction.path,
+        }),
         first,
         keys: rows.map(row => row.key),
       }),
@@ -332,7 +335,7 @@ describe('actions by interaction', () => {
       ]),
     );
     expect(sectionsOf(entries())).toEqual([
-      { kind: 'render', first: true, keys: ['GET /posts/1'] },
+      { kind: 'render', components: [], first: true, keys: ['GET /posts/1'] },
       { kind: 'event', first: false, keys: ['PATCH /posts/1'] },
     ]);
   });
@@ -372,9 +375,21 @@ describe('actions by interaction', () => {
     fireEvent.click(screen.getByText('Next'));
     await screen.findByText('Post 3');
     expect(sectionsOf(entries())).toEqual([
-      { kind: 'render', first: true, keys: ['GET /posts/1'] },
-      { kind: 'render', path: '/posts/2', first: true, keys: ['GET /posts/2'] },
-      { kind: 'render', path: '/posts/3', first: true, keys: ['GET /posts/3'] },
+      { kind: 'render', components: [], first: true, keys: ['GET /posts/1'] },
+      {
+        kind: 'render',
+        components: [],
+        path: '/posts/2',
+        first: true,
+        keys: ['GET /posts/2'],
+      },
+      {
+        kind: 'render',
+        components: [],
+        path: '/posts/3',
+        first: true,
+        keys: ['GET /posts/3'],
+      },
     ]);
   });
 

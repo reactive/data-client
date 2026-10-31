@@ -208,6 +208,33 @@ describe('Router', () => {
     );
   });
 
+  test('mounts the page anew on Home, though its path is shown', async () => {
+    const mounts = jest.fn();
+    function Root() {
+      React.useEffect(mounts, []);
+      return <Link to="/a">A</Link>;
+    }
+    renderInPreview(
+      <Router
+        routes={[
+          ['/', Root],
+          ['/a', () => <Link to="/">Root</Link>],
+        ]}
+      />,
+    );
+    await act(async () => {
+      fireEvent.click(screen.getByText('A'));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByText('Root'));
+    });
+    expect(mounts).toHaveBeenCalledTimes(2);
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Home' }));
+    });
+    expect(mounts).toHaveBeenCalledTimes(3);
+  });
+
   test('stops at the first page when Back is pressed twice', async () => {
     renderInPreview(<Router routes={routes} />);
     await act(async () => {

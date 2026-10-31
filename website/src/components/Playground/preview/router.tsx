@@ -112,10 +112,10 @@ export function Router({
   ]);
   const [pending, startTransition] = useTransition();
   const navigate = useCallback((to: string) => {
-    const page = { path: to, visit: nextVisit() };
+    const next = { path: to, visit: nextVisit() };
     startTransition(() =>
       setHistory(pages =>
-        pages.at(-1)?.path === to ? pages : [...pages, page],
+        pages.at(-1)?.path === to ? pages : [...pages, next],
       ),
     );
   }, []);
@@ -143,8 +143,8 @@ export function Router({
               );
             }}
             onHome={() => {
-              const page = { path: start, visit: nextVisit() };
-              startTransition(() => setHistory([page]));
+              const home = { path: start, visit: nextVisit() };
+              startTransition(() => setHistory([home]));
             }}
           />,
           controlsSlot,
@@ -174,8 +174,9 @@ export function Router({
 /** Visits so far, across routers: a store's history outlives the preview
  * remounting its router */
 let visits = 0;
-/** A new visit's number, taken once per navigation, as a transition's state
- * updater can run again when the page it opens suspends */
+/** A new visit's number, taken per click (one that changes nothing leaves a
+ * gap) outside the state updater, which a transition can run again when the
+ * page it opens suspends */
 const nextVisit = () => ++visits;
 
 /** Back, Home and the page shown */
