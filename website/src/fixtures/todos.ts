@@ -47,38 +47,60 @@ export const UserResource = resource({
   optimistic: true,
 });
 
-export const todoFixtures: Interceptor[] = [
+/** A todo as jsonplaceholder sends it */
+export type TodoData = Pick<Todo, 'id' | 'userId' | 'title' | 'completed'>;
+/** The demo's server: every todo it has sent, by id */
+export type TodoServer = Record<number, TodoData>;
+
+/** Keeps `todo` on the server, so later edits merge into it */
+export function rememberTodo(server: TodoServer, todo: TodoData) {
+  server[todo.id] = todo;
+  return todo;
+}
+
+/** The todo endpoints, for demos that bring their own user list */
+export const todoEndpointFixtures: Interceptor<TodoServer>[] = [
+  {
+    endpoint: TodoResource.getList,
+    async response(...args: Parameters<typeof TodoResource.getList>) {
+      return (await TodoResource.getList(...args))
+        .slice(0, 7)
+        .map((todo: TodoData) => rememberTodo(this, todo));
+    },
+  },
+  // also answers getList.move (the same PATCH). jsonplaceholder doesn't
+  // store edits, so each one merges into the todo as this server last sent it
+  {
+    endpoint: TodoResource.partialUpdate,
+    response(
+      { id }: Parameters<typeof TodoResource.partialUpdate>[0],
+      body: Parameters<typeof TodoResource.partialUpdate>[1],
+    ) {
+      const pk = Number(id);
+      return rememberTodo(this, { ...this[pk], ...body, id: pk });
+    },
+    // stands in for the round trip it no longer makes
+    delay: 150,
+  },
+  {
+    endpoint: TodoResource.getList.push,
+    async response(...args: Parameters<typeof TodoResource.getList.push>) {
+      return rememberTodo(this, {
+        ...(await TodoResource.getList.push(...args)),
+        id: randomId(),
+      });
+    },
+  },
+];
+
+export const todoFixtures: Interceptor<TodoServer>[] = [
   {
     endpoint: UserResource.getList,
     async response(...args: Parameters<typeof UserResource.getList>) {
       return (await UserResource.getList(...args)).slice(0, 3);
     },
   },
-  {
-    endpoint: TodoResource.getList,
-    async response(...args: Parameters<typeof TodoResource.getList>) {
-      return (await TodoResource.getList(...args)).slice(0, 7);
-    },
-  },
-  {
-    endpoint: TodoResource.partialUpdate,
-    async response(...args: Parameters<typeof TodoResource.partialUpdate>) {
-      return {
-        ...(await TodoResource.partialUpdate(...args)),
-        id: args?.[0]?.id,
-      };
-    },
-  },
-  {
-    endpoint: TodoResource.getList.push,
-    async response(...args: Parameters<typeof TodoResource.getList.push>) {
-      //await new Promise(resolve => setTimeout(resolve, 500));
-      return {
-        ...(await TodoResource.getList.push(...args)),
-        id: randomId(),
-      };
-    },
-  },
+  ...todoEndpointFixtures,
 ];
 function randomId() {
   return Number.parseInt(uuid().slice(0, 8), 16);

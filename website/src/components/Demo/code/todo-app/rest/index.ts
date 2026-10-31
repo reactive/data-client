@@ -1,7 +1,12 @@
 import type { Interceptor } from '@data-client/test';
-import { v4 as uuid } from 'uuid';
 
 import { TodoResource, UserResource } from './resources';
+import {
+  rememberTodo,
+  todoEndpointFixtures,
+  type TodoData,
+  type TodoServer,
+} from '../../../../../fixtures/todos';
 
 import NewTodo from '!!raw-loader!./NewTodo.tsx';
 import resources from '!!raw-loader!./resources.ts';
@@ -13,7 +18,7 @@ type UserData = Awaited<
   ReturnType<typeof UserResource.getList>
 >[number];
 
-const fixtures: Interceptor[] = [
+const fixtures: Interceptor<TodoServer>[] = [
   {
     endpoint: UserResource.getList,
     async response(...args: Parameters<typeof UserResource.getList>) {
@@ -29,40 +34,15 @@ const fixtures: Interceptor[] = [
         const result = todos[i];
         user.todos =
           result.status === 'fulfilled'
-            ? result.value.slice(0, 3)
+            ? result.value
+                .slice(0, 3)
+                .map((todo: TodoData) => rememberTodo(this, todo))
             : [];
       });
       return users;
     },
   },
-  {
-    endpoint: TodoResource.getList,
-    async response(...args: Parameters<typeof TodoResource.getList>) {
-      return (await TodoResource.getList(...args)).slice(0, 7);
-    },
-  },
-  {
-    endpoint: TodoResource.partialUpdate,
-    async response(
-      ...args: Parameters<typeof TodoResource.partialUpdate>
-    ) {
-      return {
-        ...(await TodoResource.partialUpdate(...args)),
-        id: args?.[0]?.id,
-      };
-    },
-  },
-  {
-    endpoint: TodoResource.getList.push,
-    async response(
-      ...args: Parameters<typeof TodoResource.getList.push>
-    ) {
-      return {
-        ...(await TodoResource.getList.push(...args)),
-        id: randomId(),
-      };
-    },
-  },
+  ...todoEndpointFixtures,
 ];
 
 export default {
@@ -93,6 +73,3 @@ export default {
   ],
   fixtures,
 };
-function randomId() {
-  return Number.parseInt(uuid().slice(0, 8), 16);
-}
