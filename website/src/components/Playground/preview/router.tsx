@@ -63,8 +63,6 @@ const exportOf = (document: CodeDocument) =>
 const NavigateContext = createContext<(to: string) => void>(() => {
   throw new Error('useNavigate() only works in a page with a `route`');
 });
-/** The path shown, which Links to it mark as current */
-const PathContext = createContext<string | undefined>(undefined);
 
 /** Opens `to` in the preview's router */
 export function useNavigate() {
@@ -76,7 +74,7 @@ export function Link({ to, onClick, ...props }: LinkProps) {
   return (
     <a
       href={to}
-      aria-current={use(PathContext) === to ? 'page' : undefined}
+      aria-current={use(PageContext)?.path === to ? 'page' : undefined}
       {...props}
       onClick={event => {
         onClick?.(event);
@@ -119,9 +117,7 @@ export function Router({
     (to: string) =>
       startTransition(() =>
         setHistory(pages =>
-          pages.at(-1)?.path === to ?
-            pages
-          : [...pages, { path: to, visit: ++visits.current }],
+          pages.at(-1)?.path === to ? pages : [...pages, nextVisit(visits, to)],
         ),
       ),
     [],
@@ -145,16 +141,14 @@ export function Router({
                   pages.length > 1 ?
                     [
                       ...pages.slice(0, -2),
-                      { path: pages.at(-2)!.path, visit: ++visits.current },
+                      nextVisit(visits, pages.at(-2)!.path),
                     ]
                   : pages,
                 ),
               )
             }
             onHome={() =>
-              startTransition(() =>
-                setHistory([{ path: start, visit: ++visits.current }]),
-              )
+              startTransition(() => setHistory([nextVisit(visits, start)]))
             }
           />,
           controlsSlot,
@@ -164,7 +158,7 @@ export function Router({
         data-pending={pending || undefined}
         aria-hidden="true"
       />
-      <PathContext value={path}>
+      <PageContext value={page}>
         <Layout>
           <Suspense fallback={<Loading />}>
             {/* the header's controls stay usable when a page throws, so
@@ -172,16 +166,20 @@ export function Router({
                 outside this key: a newly mounted one would show its fallback
                 rather than hold the page */}
             <ErrorBoundary key={path} fallbackComponent={ErrorMessage}>
-              <PageContext value={page.visit ? page : undefined}>
-                <Page routes={routes} path={path} />
-              </PageContext>
+              <Page routes={routes} path={path} />
             </ErrorBoundary>
           </Suspense>
         </Layout>
-      </PathContext>
+      </PageContext>
     </NavigateContext>
   );
 }
+
+/** A new visit to `path`, counted by `visits` */
+const nextVisit = (visits: { current: number }, path: string): CallerPage => ({
+  path,
+  visit: ++visits.current,
+});
 
 /** Back, Home and the page shown */
 function RouterControls({

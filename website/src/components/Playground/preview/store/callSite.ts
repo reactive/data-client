@@ -2,16 +2,14 @@ import { createContext, use } from 'react';
 
 import { userEvent, type Caller, type CallerPage } from './fetchCause';
 
-/** The page a component renders in, once the preview's router navigated
- * (./router.tsx): the app's own first render has none */
+/** The page of the preview's router (./router.tsx) a component renders in.
+ * Its first page (visit 0) is the app's own first render, not a navigation */
 export const PageContext = createContext<CallerPage | undefined>(undefined);
 
 /** The library hook the preview's code is calling right now (see
- * `asHook`): an action dispatched meanwhile is that hook's, from the
- * component rendering */
-let calling: string | undefined;
-/** The page the component calling it renders in */
-let page: CallerPage | undefined;
+ * `asHook`), with the page its component renders in: an action dispatched
+ * meanwhile is that hook's, from the component rendering */
+let calling: { hook: string; page?: CallerPage } | undefined;
 
 /** `hook`, named `name` while it runs, so what it dispatches is credited
  * to it (a production build minifies the library's own names) */
@@ -21,14 +19,12 @@ export function asHook<F extends (...args: any[]) => any>(
 ): F {
   return function (this: unknown, ...args: unknown[]) {
     const outer = calling;
-    const outerPage = page;
-    calling = name;
-    page = use(PageContext);
+    // a hook within a hook renders in the same page
+    calling = { hook: name, page: outer ? outer.page : use(PageContext) };
     try {
       return hook.apply(this, args);
     } finally {
       calling = outer;
-      page = outerPage;
     }
   } as F;
 }
@@ -88,10 +84,11 @@ const isComponentName = (name: string) => /^[A-Z]/.test(name);
 export function callerNow(): Caller | undefined {
   if (calling) {
     const component = evaluatedFrames(deepStack()).find(isComponentName);
+    const { hook, page } = calling;
     return {
-      hook: calling,
+      hook,
       ...(component && { component }),
-      ...(page && { page }),
+      ...(page?.visit && { page }),
     };
   }
   const event = userEvent(

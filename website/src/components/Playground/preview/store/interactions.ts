@@ -32,8 +32,6 @@ interface Root {
   readonly id: string;
   readonly interaction: Interaction;
   readonly joins: boolean;
-  /** Its router page's visit */
-  readonly visit?: number;
 }
 
 /** `rows` under the interactions that started them. A row another action
@@ -47,7 +45,6 @@ export function interactionsOf(
   const sections: Section[] = [];
   const byId = new Map<string, Section>();
   let last: Section | undefined;
-  const visits = new Set<number>();
   const sectionFor = (root: Root) => {
     const id =
       !root.joins ? root.id
@@ -60,12 +57,14 @@ export function interactionsOf(
         interaction: root.interaction,
         first:
           !sections.length ||
-          (root.visit !== undefined && !visits.has(root.visit)),
+          // its page's first, as one page's sections share a root
+          (root.interaction.kind === 'render' &&
+            root.interaction.path !== undefined &&
+            !sections.some(({ id }) => id.startsWith(`${root.id}#`))),
         rows: [],
       };
       sections.push(section);
       byId.set(id, section);
-      if (root.visit !== undefined) visits.add(root.visit);
     }
     return section;
   };
@@ -135,7 +134,6 @@ function ownRoot(entry: LogEntry): Root {
       id: `page ${visit}`,
       interaction: { kind: 'render', components: [], path },
       joins: true,
-      visit,
     };
   }
   if (caller?.hook)
