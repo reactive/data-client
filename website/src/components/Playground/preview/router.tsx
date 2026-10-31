@@ -14,6 +14,8 @@ import React, {
 import { createPortal } from 'react-dom';
 
 import { RouterControlsSlot } from './routerSlot';
+import { PageContext } from './store/callSite';
+import type { CallerPage } from './store/fetchCause';
 import { defaultExportName } from './transformCode';
 import { ErrorMessage } from '../DesignSystem/ErrorMessage';
 import { Loading } from '../DesignSystem/Loading';
@@ -60,8 +62,6 @@ const exportOf = (document: CodeDocument) =>
 const NavigateContext = createContext<(to: string) => void>(() => {
   throw new Error('useNavigate() only works in a page with a `route`');
 });
-/** The path shown, which Links to it mark as current */
-const PathContext = createContext<string | undefined>(undefined);
 
 /** Opens `to` in the preview's router */
 export function useNavigate() {
@@ -73,7 +73,7 @@ export function Link({ to, onClick, ...props }: LinkProps) {
   return (
     <a
       href={to}
-      aria-current={use(PathContext) === to ? 'page' : undefined}
+      aria-current={use(PageContext)?.path === to ? 'page' : undefined}
       {...props}
       onClick={event => {
         onClick?.(event);
@@ -105,17 +105,37 @@ export function Router({
 }) {
   if (Layout === null)
     throw new Error("The layout must be its file's named default export");
-  const [history, setHistory] = useState([start]);
+  // each page opened is a new visit, so what it fetches on mounting is
+  // told from the last page's (the app's own first render isn't one)
+  const [history, setHistory] = useState<readonly CallerPage[]>([
+    { path: start, visit: 0 },
+  ]);
   const [pending, startTransition] = useTransition();
-  const navigate = useCallback(
-    (to: string) =>
-      startTransition(() =>
-        setHistory(paths => (paths.at(-1) === to ? paths : [...paths, to])),
-      ),
+  /** Moves through the history as a transition, opening a new visit. The
+   * visit is taken before the updater, which a transition can run again when
+   * the page it opens suspends */
+  const go = useCallback(
+    (
+      update: (
+        pages: readonly CallerPage[],
+        visit: number,
+      ) => readonly CallerPage[],
+    ) => {
+      const visit = nextVisit();
+      startTransition(() => setHistory(pages => update(pages, visit)));
+    },
     [],
   );
+  const navigate = useCallback(
+    (to: string) =>
+      go((pages, visit) =>
+        pages.at(-1)?.path === to ? pages : [...pages, { path: to, visit }],
+      ),
+    [go],
+  );
   const controlsSlot = use(RouterControlsSlot);
-  const path = history[history.length - 1];
+  const page = history[history.length - 1];
+  const { path } = page;
   const atRoot = history.length === 1;
   return (
     <NavigateContext value={navigate}>
@@ -127,13 +147,13 @@ export function Router({
             pending={pending}
             onBack={() =>
               // a second click can land before the first commits
-              startTransition(() =>
-                setHistory(paths =>
-                  paths.length > 1 ? paths.slice(0, -1) : paths,
-                ),
+              go((pages, visit) =>
+                pages.length > 1 ?
+                  [...pages.slice(0, -2), { path: pages.at(-2)!.path, visit }]
+                : pages,
               )
             }
-            onHome={() => startTransition(() => setHistory([start]))}
+            onHome={() => go((_, visit) => [{ path: start, visit }])}
           />,
           controlsSlot,
         )}
@@ -142,22 +162,28 @@ export function Router({
         data-pending={pending || undefined}
         aria-hidden="true"
       />
-      <PathContext value={path}>
+      <PageContext value={page}>
         <Layout>
           <Suspense fallback={<Loading />}>
             {/* the header's controls stay usable when a page throws, so
-                Back recovers; a new path clears the error. Suspense stays
-                outside this key: a newly mounted one would show its fallback
-                rather than hold the page */}
-            <ErrorBoundary key={path} fallbackComponent={ErrorMessage}>
+                Back recovers; each visit mounts the page anew, clearing the
+                error. Suspense stays outside this key: a newly mounted one
+                would show its fallback rather than hold the page */}
+            <ErrorBoundary key={page.visit} fallbackComponent={ErrorMessage}>
               <Page routes={routes} path={path} />
             </ErrorBoundary>
           </Suspense>
         </Layout>
-      </PathContext>
+      </PageContext>
     </NavigateContext>
   );
 }
+
+/** Visits so far, across routers: a store's history outlives the preview
+ * remounting its router */
+let visits = 0;
+/** A new visit's number (a click that changes nothing leaves a gap) */
+const nextVisit = () => ++visits;
 
 /** Back, Home and the page shown */
 function RouterControls({

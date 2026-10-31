@@ -229,7 +229,7 @@ function sendersOf(entries: readonly LogEntry[]) {
 const COMPONENTS_SHOWN = 3;
 
 /** What started a section of the list (`interactionsOf`): `click “Save”`,
- * `mount <App> <List>`, a manager, with when */
+ * `mount <App> <List>`, `mount /posts/1 <Post>`, a manager, with when */
 export function InteractionHead({
   section,
   id,
@@ -250,6 +250,9 @@ export function InteractionHead({
             <span className={styles.whyEvent}>
               {section.first ? 'mount' : 'render'}
             </span>
+            {interaction.path && (
+              <span className={styles.dim}>{interaction.path}</span>
+            )}
             {interaction.components.slice(0, COMPONENTS_SHOWN).map(name => (
               <DeclaredName key={name} name={name}>
                 <span className={styles.dim}>{`<${name}>`}</span>

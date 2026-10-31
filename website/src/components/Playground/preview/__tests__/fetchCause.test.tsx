@@ -17,12 +17,15 @@ import {
 } from '@testing-library/react';
 import React, { Suspense } from 'react';
 
+import { Link, Router } from '../router';
 import { actionRowsOf, groupEntries } from '../store/actionGroups';
 import { findEntry, type LogEntry } from '../store/actionLog';
 import { asHook, callerNow, evaluatedFrames } from '../store/callSite';
 import { userEvent } from '../store/fetchCause';
 import { interactionsOf, rootEvent } from '../store/interactions';
 import SchemaRegistry from '../store/schemaRegistry';
+
+jest.mock('../../DesignSystem/Loading', () => ({ Loading: () => null }));
 
 class Post extends Entity {
   id = '';
@@ -309,6 +312,10 @@ describe('actions by interaction', () => {
     return interactionsOf(groupEntries(entries), entries).map(
       ({ interaction, first, rows }) => ({
         kind: interaction.kind,
+        ...(interaction.kind === 'render' && {
+          components: interaction.components,
+          path: interaction.path,
+        }),
         first,
         keys: rows.map(row => row.key),
       }),
@@ -328,7 +335,7 @@ describe('actions by interaction', () => {
       ]),
     );
     expect(sectionsOf(entries())).toEqual([
-      { kind: 'render', first: true, keys: ['GET /posts/1'] },
+      { kind: 'render', components: [], first: true, keys: ['GET /posts/1'] },
       { kind: 'event', first: false, keys: ['PATCH /posts/1'] },
     ]);
   });
@@ -346,6 +353,43 @@ describe('actions by interaction', () => {
     expect(sections[sections.length - 1].keys).toEqual([
       'DELETE /users/u1',
       'GET /comments/c1',
+    ]);
+  });
+
+  it('puts each page navigated to under its own mount', async () => {
+    function PostPage({ id }: { id: string }) {
+      const post = useSuspenseNamed(getPost, { id });
+      return (
+        <>
+          <p>{post.title}</p>
+          <Link to={`/posts/${Number(id) + 1}`}>Next</Link>
+        </>
+      );
+    }
+    const { entries } = mount(
+      <Router routes={[['/posts/:id', PostPage]]} start="/posts/1" />,
+    );
+    await screen.findByText('Post 1');
+    fireEvent.click(screen.getByText('Next'));
+    await screen.findByText('Post 2');
+    fireEvent.click(screen.getByText('Next'));
+    await screen.findByText('Post 3');
+    expect(sectionsOf(entries())).toEqual([
+      { kind: 'render', components: [], first: true, keys: ['GET /posts/1'] },
+      {
+        kind: 'render',
+        components: [],
+        path: '/posts/2',
+        first: true,
+        keys: ['GET /posts/2'],
+      },
+      {
+        kind: 'render',
+        components: [],
+        path: '/posts/3',
+        first: true,
+        keys: ['GET /posts/3'],
+      },
     ]);
   });
 
