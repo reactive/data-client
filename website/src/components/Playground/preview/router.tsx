@@ -111,14 +111,28 @@ export function Router({
     { path: start, visit: 0 },
   ]);
   const [pending, startTransition] = useTransition();
-  const navigate = useCallback((to: string) => {
-    const next = { path: to, visit: nextVisit() };
-    startTransition(() =>
-      setHistory(pages =>
-        pages.at(-1)?.path === to ? pages : [...pages, next],
+  /** Moves through the history as a transition, opening a new visit. The
+   * visit is taken before the updater, which a transition can run again when
+   * the page it opens suspends */
+  const go = useCallback(
+    (
+      update: (
+        pages: readonly CallerPage[],
+        visit: number,
+      ) => readonly CallerPage[],
+    ) => {
+      const visit = nextVisit();
+      startTransition(() => setHistory(pages => update(pages, visit)));
+    },
+    [],
+  );
+  const navigate = useCallback(
+    (to: string) =>
+      go((pages, visit) =>
+        pages.at(-1)?.path === to ? pages : [...pages, { path: to, visit }],
       ),
-    );
-  }, []);
+    [go],
+  );
   const controlsSlot = use(RouterControlsSlot);
   const page = history[history.length - 1];
   const { path } = page;
@@ -131,21 +145,15 @@ export function Router({
             path={path}
             atRoot={atRoot}
             pending={pending}
-            onBack={() => {
-              const visit = nextVisit();
+            onBack={() =>
               // a second click can land before the first commits
-              startTransition(() =>
-                setHistory(pages =>
-                  pages.length > 1 ?
-                    [...pages.slice(0, -2), { path: pages.at(-2)!.path, visit }]
-                  : pages,
-                ),
-              );
-            }}
-            onHome={() => {
-              const home = { path: start, visit: nextVisit() };
-              startTransition(() => setHistory([home]));
-            }}
+              go((pages, visit) =>
+                pages.length > 1 ?
+                  [...pages.slice(0, -2), { path: pages.at(-2)!.path, visit }]
+                : pages,
+              )
+            }
+            onHome={() => go((_, visit) => [{ path: start, visit }])}
           />,
           controlsSlot,
         )}
@@ -174,9 +182,7 @@ export function Router({
 /** Visits so far, across routers: a store's history outlives the preview
  * remounting its router */
 let visits = 0;
-/** A new visit's number, taken per click (one that changes nothing leaves a
- * gap) outside the state updater, which a transition can run again when the
- * page it opens suspends */
+/** A new visit's number (a click that changes nothing leaves a gap) */
 const nextVisit = () => ++visits;
 
 /** Back, Home and the page shown */

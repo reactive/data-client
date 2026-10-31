@@ -45,10 +45,13 @@ export function interactionsOf(
   const sections: Section[] = [];
   const byId = new Map<string, Section>();
   let last: Section | undefined;
+  /** A joining root's sections are `<root id>#<n>` */
+  const isOf = (section: Section | undefined, root: Root) =>
+    !!section?.id.startsWith(`${root.id}#`);
   const sectionFor = (root: Root) => {
     const id =
       !root.joins ? root.id
-      : last?.id.startsWith(`${root.id}#`) ? last.id
+      : isOf(last, root) ? last!.id
       : `${root.id}#${sections.length}`;
     let section = byId.get(id);
     if (!section) {
@@ -60,7 +63,7 @@ export function interactionsOf(
           // its page's first, as one page's sections share a root
           (root.interaction.kind === 'render' &&
             root.interaction.path !== undefined &&
-            !sections.some(({ id }) => id.startsWith(`${root.id}#`))),
+            !sections.some(section => isOf(section, root))),
         rows: [],
       };
       sections.push(section);
