@@ -342,7 +342,7 @@ When using TypeScript (optional), version 4.0 or above is required.
 
 :::
 
-## Set up with your coding agent {#agent-setup}
+## Coding agent setup {#agent-setup}
 
 <SiteOnly>
 
