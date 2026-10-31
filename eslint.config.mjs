@@ -4,8 +4,8 @@ import globals from 'globals';
 
 // Playground/preview/ is the lazy PreviewWithScope chunk (live execution,
 // Store inspector). A static import from outside copies it into every docs page
-// with a Playground, so only these eager files (SSR and loading-state chrome)
-// may be imported.
+// with a Playground, so only these eager files (SSR and loading-state chrome,
+// and the Store drawer's model, `inspector`) may be imported.
 const EAGER_PREVIEW = [
   'FixturePreview',
   'inspector',

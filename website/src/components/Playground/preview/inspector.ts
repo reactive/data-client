@@ -1,6 +1,7 @@
 // The Store drawer's model: which tab shows, and the quick look its other
 // tab's hover opens. The toggles (./StoreToggle.tsx) and the Store UI
-// (./store/) both read it; apart from either, so the Store UI needs no toggle
+// (./store/) both read it; it lives apart from both, so the Store UI imports
+// it without the toggles
 
 import { translate } from '@docusaurus/Translate';
 import {

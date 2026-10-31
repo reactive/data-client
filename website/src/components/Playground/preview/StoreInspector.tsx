@@ -53,7 +53,7 @@ function StoreInspector({
   if (ready && !showTree) setShowTree(true);
   // the quick look goes on the drawer's panel, in its palette: beside the
   // folder's handles, or under them while open; else on the result, under
-  // its tabs (PreviewWrapper's slot for it)
+  // its tabs (PreviewWrapper's `QuickLookHost`)
   const [panelEl, setPanelEl] = useState<HTMLDivElement | null>(null);
   const quickLookHost = useContext(QuickLookHost);
   const onPanel = folder && (open || !narrow);

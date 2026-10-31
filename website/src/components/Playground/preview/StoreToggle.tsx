@@ -307,7 +307,7 @@ export function StoreHeaderToggle({
 }) {
   const { tab, quickLook } = useContext(InspectorContext);
   // the mouse resting on one opens its quick look, as on the folder's handles
-  const quickLooks = useContext(QuickLookHost) !== null && onClick;
+  const opensQuickLook = useContext(QuickLookHost) !== null && onClick;
   return INSPECTS.map(to => {
     const shown = open && tab === to;
     return (
@@ -319,7 +319,7 @@ export function StoreHeaderToggle({
         open={shown}
         data-store-toggle={to}
         onClick={onClick && (e => onClick(e, to))}
-        {...(quickLooks && quickLookOn(quickLook, to, shown))}
+        {...(opensQuickLook && quickLookOn(quickLook, to, shown))}
       >
         {tabIcon(to)}
       </HeaderToggle>
