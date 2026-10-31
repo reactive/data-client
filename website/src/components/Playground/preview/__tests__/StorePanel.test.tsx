@@ -435,6 +435,23 @@ describe('StorePanel table view', () => {
     expect(tab('Actions').getAttribute('aria-selected')).toBe('false');
   });
 
+  it("opens a demo's Actions tab at the list, as its handle does", () => {
+    let showStore: ReturnType<typeof useStoreOpen>[2] = () => {};
+    let listed = 0;
+    function Demo() {
+      const [, , show, , , inspector] = useStoreOpen('demo-actions', 'store');
+      showStore = show;
+      listed = inspector.listed;
+      return null;
+    }
+    render(<Demo />);
+    const before = listed;
+    act(() => showStore(true, undefined, 'actions'));
+    expect(listed).toBe(before + 1);
+    act(() => showStore(true, undefined, 'store'));
+    expect(listed).toBe(before + 1);
+  });
+
   it('leaves focus alone as the overview first shows, and on the tab picked', () => {
     mount();
     expect(document.activeElement).toBe(document.body);

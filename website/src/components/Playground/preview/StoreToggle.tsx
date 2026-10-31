@@ -152,6 +152,8 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
       clicked = undefined;
       peek.close();
       if (demoOpen !== latestOpen.current) setMoves(n => n + 1);
+      // opening the actions, as their handle does, it shows their list
+      if (demoOpen && demoTab === 'actions') setListed(n => n + 1);
       show(prev => {
         const next = demoOpen ? (view ?? prev?.view) : undefined;
         const nextTab = demoOpen ? (demoTab ?? prev?.tab) : undefined;
