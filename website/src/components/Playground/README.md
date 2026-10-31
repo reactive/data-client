@@ -117,11 +117,10 @@ callout markers as comments, its caption and legend outside the editor.
   labeled, never collapsible. The preview is a folder beside it (under it
   below 720px container width) with the Store on a layer behind
   (`.storeHost` > `.storeDrawer`, `DrawerTabs` as handles: Actions over
-  Store). The handle showing is pulled all the way out, its sheet's paper
-  (`.tabPanel`, no name tab of its own); hover pulls one partway; the other
-  tucks behind. Open, the drawer covers the code, which goes `inert`.
-  Stacked, the strip beside the result (`StoreToggle`) holds the same two
-  tabs.
+  Store). The shown handle is pulled fully out as its sheet's paper; hover
+  pulls one partway. Open, the drawer covers the code, which goes `inert`.
+  Other layouts show the same two tabs in the strip beside the result
+  (`StoreToggle`), or in the header below 560px (`StoreHeaderToggle`).
 - `demo`: preview first, full width; the header's Code toggle swaps in the
   code (`data-code`). Never code and result together, nor code and Store.
   The result stays mounted so app state survives; both share
@@ -214,20 +213,20 @@ callout markers as comments, its caption and legend outside the editor.
 
 ## Store inspector
 
-- Open state persists per `groupId`, with the tab it shows (`Inspect`:
-  `store` or `actions`; `defaultOpen` takes either, or `n`);
-  closing one Store closes every one in the group, and toggling holds the
-  page's scroll position. The drawer's tabs pick the view
-  (`InspectorContext`; `StorePanel` has no tabs or title of its own): the
-  shown one shuts the drawer, the other switches it. The Actions tab opens at the
-  list; links inside the panel (`select`) open where they point.
-- Resting the mouse on a tab not shown opens its quick look
-  (`store/QuickLook.tsx`), live whatever moment the panel holds: the store's
-  tables (optimistic updates applied), or the actions kept on the newest. Its
-  open state lives outside React (`createPeek`), so a hover re-renders only
-  `StoreInspector`, which mounts the panel for it. Touch has none: a tap
-  opens the drawer. Escape dismisses it before the drawer or a level takes
-  the key (only the narrow timeline's sheet, open over it, comes first).
+- Open state and its tab (`Inspect`: `store` or `actions`) persist per
+  `groupId`; `defaultOpen` takes either, or `n`. Closing one Store closes
+  every one in the group. Toggling holds the page's scroll position.
+- The drawer's tabs (`InspectorContext`) are the only tabs; `StorePanel`
+  has none. The shown tab shuts the drawer; the other switches to it.
+  Actions always opens at its list: every way in bumps `listed`, which
+  `StorePanel` resets on. Links in the panel (`select`) open where they
+  point.
+- Quick look (`store/QuickLook.tsx`): a mouse resting on a tab not shown
+  opens a card beside the tabs with that tab's live view (the store with
+  optimistic updates applied, or the newest actions). Touch has none. Its
+  state lives outside React (`createPeek`). Escape closes it before the
+  drawer or a level takes the key, except from inside the panel while the
+  narrow timeline's sheet is open.
 - Row: `StoreInspector` portals into the drawer (`FolderPanel`, an
   `<Activity>` hidden once the sweep shuts, so reopening finds it as left).
   Other layouts: a `Reveal` (`../motion/README.md`); the tree renders a
@@ -338,9 +337,9 @@ Writing a script:
   array identity, so an inline array replays on every framework switch.
 - Target Store UI with `in: 'store'`. Match `aria-label`s and `data-*`
   attributes, not visible text that copy edits change.
-- The Store opens in the reader's saved view; a script that needs one names
-  it (`{ store: 'open', view: 'table' }`), and one that starts on the
-  actions says so (`{ store: 'open', tab: 'actions' }`). None is saved.
+- The Store opens in the reader's saved view and tab. A script that needs
+  one names it (`{ store: 'open', view: 'table' }`,
+  `{ store: 'open', tab: 'actions' }`); neither is saved.
 - A missing target ends the run after `FIND_TIMEOUT`, and only the console
   says so (`Playground demo:`). Step counts follow the fixtures, so a
   fixture change means recounting.
