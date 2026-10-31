@@ -88,8 +88,8 @@ export const todoEndpointFixtures: Interceptor<TodoServer>[] = [
     ) {
       const pk = Number(id);
       const stored = this[pk];
-      // an edit sent just after a delete, like a real server's 404
-      if (!stored) throw new Error(`Todo ${pk} not found`);
+      // deleted, or never sent: answer like a real server
+      if (!stored) throw { status: 404, message: `No todo ${pk}` };
       const todo = { ...stored, ...body, id: pk };
       this[pk] = todo;
       return todo;
