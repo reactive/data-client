@@ -88,6 +88,7 @@ export function callerNow(): Caller | undefined {
     return {
       hook,
       ...(component && { component }),
+      // the app's own first render (visit 0) is no navigation
       ...(page?.visit && { page }),
     };
   }

@@ -158,10 +158,10 @@ export function Router({
         <Layout>
           <Suspense fallback={<Loading />}>
             {/* the header's controls stay usable when a page throws, so
-                Back recovers; a new path clears the error. Suspense stays
-                outside this key: a newly mounted one would show its fallback
-                rather than hold the page */}
-            <ErrorBoundary key={path} fallbackComponent={ErrorMessage}>
+                Back recovers; each visit mounts the page anew, clearing the
+                error. Suspense stays outside this key: a newly mounted one
+                would show its fallback rather than hold the page */}
+            <ErrorBoundary key={page.visit} fallbackComponent={ErrorMessage}>
               <Page routes={routes} path={path} />
             </ErrorBoundary>
           </Suspense>
