@@ -217,9 +217,7 @@ import type { User } from './resources/User';
 
 export default function TodoGroup({ owner, todos, users }: Props) {
   return (
-    <section
-      ref={useReorderItem(`owner ${owner.pk()}`, { dropValue: owner.id })}
-    >
+    <section ref={useDropGroup(owner.id)}>
       <h3>
         <Avatar src={owner.profileImage} />
         {owner.name}
