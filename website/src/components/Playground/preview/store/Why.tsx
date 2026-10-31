@@ -2,7 +2,7 @@ import React, { type ReactNode } from 'react';
 
 import { groupEntriesOf } from './actionGroups';
 import { findEntry, type LogEntry } from './actionLog';
-import { ActionName, Time, useActions } from './actionParts';
+import { ActionName, LatestTag, Time, useActions } from './actionParts';
 import { kindColor } from './dom';
 import type { CallerEvent, FetchReason } from './fetchCause';
 import { rootEvent, type InteractionSection } from './interactions';
@@ -233,10 +233,13 @@ const COMPONENTS_SHOWN = 3;
 export function InteractionHead({
   section,
   id,
+  latest,
 }: {
   section: InteractionSection;
   /** Its section's label */
   id: string;
+  /** It holds the list's newest row */
+  latest: boolean;
 }) {
   const { interaction } = section;
   const at = groupEntriesOf(section.rows[0])[0]?.at;
@@ -270,6 +273,7 @@ export function InteractionHead({
           </span>
         : <span className={styles.whyEvent}>the app</span>}
       </span>
+      {latest && <LatestTag />}
       {at !== undefined && <Time at={at} />}
     </div>
   );

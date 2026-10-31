@@ -32,6 +32,7 @@ import {
   Dropped,
   gapText,
   KeyLabel,
+  LatestTag,
   Lifecycle,
   ManagerTags,
   spanOf,
@@ -179,6 +180,7 @@ function ActionList({
       by === 'interaction' ? interactionsOf(rows, history.entries) : undefined,
     [by, rows, history.entries],
   );
+  const newest = rows[rows.length - 1];
   const headId = useId();
   const scroller = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
@@ -241,7 +243,7 @@ function ActionList({
     />
   );
   return (
-    <LatestContext.Provider value={rows[rows.length - 1]}>
+    <LatestContext.Provider value={sections ? undefined : newest}>
       <div ref={scroller} className={styles.actList} onKeyDown={onKeyDown}>
         {!rows.length && (
           <p className={styles.empty}>
@@ -258,7 +260,11 @@ function ActionList({
               className={styles.interaction}
               aria-labelledby={headId + i}
             >
-              <InteractionHead section={section} id={headId + i} />
+              <InteractionHead
+                section={section}
+                id={headId + i}
+                latest={section.rows.includes(newest!)}
+              />
               {section.rows.map(row)}
             </section>
           ))
@@ -268,16 +274,14 @@ function ActionList({
   );
 }
 
-/** The list's newest row: the one that started last, wherever its
- * interaction put it */
+/** The list's newest row (the one that started last), when it marks its
+ * own row: by interaction, its interaction's head is marked instead */
 const LatestContext = createContext<ActionGroup | undefined>(undefined);
 
 /** Marks the list's newest row. It reads the newest from context, so a
  * new row re-renders each row's marker, not the memoized rows */
 function Latest({ group }: { group: ActionGroup }) {
-  return useContext(LatestContext) === group ?
-      <span className={styles.latest}>latest</span>
-    : null;
+  return useContext(LatestContext) === group ? <LatestTag /> : null;
 }
 
 /** Requests the actions of `group` caused */
@@ -448,6 +452,7 @@ const GroupRow = memo(function GroupRow({
           <Tag group={group} />
           <ManagerTags entries={all} />
           <span className={styles.actMeta}>
+            <Latest group={group} />
             <Status group={group} />
             <Time at={first.at} />
           </span>
@@ -463,7 +468,6 @@ const GroupRow = memo(function GroupRow({
             />
           </ActionSpanContext.Provider>
           <RowWhy entries={all} refetches={refetches} />
-          <Latest group={group} />
         </span>
       </div>
       {open && (
