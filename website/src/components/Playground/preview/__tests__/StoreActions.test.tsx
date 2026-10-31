@@ -625,6 +625,33 @@ describe('Store Actions pane detail', () => {
     expect(crumbs()).toEqual([]);
   });
 
+  it("goes back with the mouse's back button, shutting the peek first", async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    openPost('1');
+    peekIn();
+    const back = () => {
+      const event = new MouseEvent('mouseup', {
+        bubbles: true,
+        cancelable: true,
+        button: 3,
+      });
+      fireEvent(peek() ?? top(), event);
+      return event.defaultPrevented;
+    };
+    expect(back()).toBe(true);
+    expect(peek()).toBeNull();
+    expect(current()).toBe('1');
+    expect(back()).toBe(true);
+    expect(crumbs()).toEqual([]);
+    // at the store, the page goes back
+    expect(back()).toBe(false);
+    // unless the peek is open there
+    peekIn();
+    expect(back()).toBe(true);
+    expect(peek()).toBeNull();
+  });
+
   it('keeps the action open in its tab while State changes view', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));

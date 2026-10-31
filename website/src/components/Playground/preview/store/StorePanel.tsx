@@ -65,6 +65,7 @@ import {
   rowLabel,
   type StoreModel,
 } from './model';
+import { useMouseBack } from './mouseBack';
 import {
   ACTIONS,
   DiffContext,
@@ -579,6 +580,18 @@ export default function StorePanel({
   // changed the store
   const shownDiff = tab === 'state' && diffMode ? diff : undefined;
   const storeShown = tab === 'state' && (!diffMode || !!diff);
+  // the mouse's back button goes back a level while over the panel; like
+  // Escape, it shuts the peek first
+  const shownLevels =
+    tab === 'action' ? actionsShown
+    : storeShown ? levels
+    : undefined;
+  const depth = covered || !shownLevels ? 0 : shownLevels.stack.length - 1;
+  // the peek as shown, and not under the timeline sheet
+  const peeking = pane && !listed && !covered;
+  useMouseBack(panel, peeking || depth > 0, () =>
+    peeking ? closePane() : shownLevels?.back(depth),
+  );
 
   return (
     <ActionsContext.Provider value={actions}>
@@ -591,7 +604,7 @@ export default function StorePanel({
             onKeyDownCapture={e => {
               // the peek shuts first: before a level under it takes the
               // Escape to go back. Under the sheet, the sheet does
-              if (e.key !== 'Escape' || !pane || covered) return;
+              if (e.key !== 'Escape' || !peeking) return;
               e.preventDefault();
               e.stopPropagation();
               closePane();
