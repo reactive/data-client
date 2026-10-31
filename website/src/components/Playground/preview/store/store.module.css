@@ -1237,7 +1237,7 @@ button.stage:focus-visible {
 /* the list's newest row */
 .latest {
   composes: pill from '../../styles.module.css';
-  align-self: center;
+  margin-left: auto;
   color: var(--store-key);
   border-color: color-mix(in srgb, currentColor 40%, transparent);
 }

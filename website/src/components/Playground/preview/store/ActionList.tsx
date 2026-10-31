@@ -448,7 +448,6 @@ const GroupRow = memo(function GroupRow({
           <Tag group={group} />
           <ManagerTags entries={all} />
           <span className={styles.actMeta}>
-            <Latest group={group} />
             <Status group={group} />
             <Time at={first.at} />
           </span>
@@ -464,6 +463,7 @@ const GroupRow = memo(function GroupRow({
             />
           </ActionSpanContext.Provider>
           <RowWhy entries={all} refetches={refetches} />
+          <Latest group={group} />
         </span>
       </div>
       {open && (
