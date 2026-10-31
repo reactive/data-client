@@ -137,7 +137,7 @@ reorder.ts        lists that rearrange, DOM only: measure, then glide items by k
 drag.ts           carrying an element under the pointer, DOM only
 groups.ts         where a carried element can drop: whole groups (data-drop-*)
 Reorder.tsx       its React binding: measures when layoutDependency changes;
-                  useReorderItem; drag into groups
+                  useReorderItem; useDropGroup; drag into groups
 ```
 
 Tests: `yarn test --selectProjects ReactDOM --testPathPatterns website/src/components/motion`
