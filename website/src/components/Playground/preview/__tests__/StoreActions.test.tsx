@@ -807,7 +807,7 @@ describe('Store Actions pane detail', () => {
 });
 
 describe('Store Actions pane', () => {
-  it('marks the newest row latest and explains its times', async () => {
+  it('marks the latest row and explains its times', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
     await act(() => ctrl().fetch(getPosts));
