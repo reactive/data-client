@@ -271,24 +271,35 @@ export const lastUpdated = new RestEndpoint({
 </template>
 ```
 
+```html title="TimeList.vue"
+<script setup lang="ts">
+  import ShowTime from './ShowTime.vue';
+
+  const ids = ['1', '2', '3'];
+</script>
+
+<template>
+  <Suspense v-for="id in ids" :key="id">
+    <ShowTime :id="id" />
+    <template #fallback>
+      <div class="listItem"><b>{{ id }}</b><span class="skeleton" /></div>
+    </template>
+  </Suspense>
+</template>
+```
+
 ```html title="Demo.vue"
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
   import { lastUpdated } from './api/lastUpdated';
-  import ShowTime from './ShowTime.vue';
+  import TimeList from './TimeList.vue';
 
   const ctrl = useController();
 </script>
 
 <template>
   <div>
-    <Suspense v-for="id in ['1', '2', '3']" :key="id">
-      <ShowTime :id="id" />
-      <template #fallback>
-        <div class="listItem"><b>{{ id }}</b><span class="skeleton" /></div>
-      </template>
-    </Suspense>
-
+    <TimeList />
     <div class="buttonGroup">
       <button @click="ctrl.expireAll(lastUpdated)">Expire All</button>
       <button @click="ctrl.fetch(lastUpdated, { id: '1' })">
@@ -348,26 +359,39 @@ export const lastUpdated = new RestEndpoint({
 </template>
 ```
 
+```html title="TimeList.vue"
+<script setup lang="ts">
+  import ShowTime from './ShowTime.vue';
+
+  const ids = ['1', '2', '3'];
+</script>
+
+<template>
+  <Suspense v-for="id in ids" :key="id">
+    <ShowTime :id="id" />
+    <template #fallback>
+      <div class="listItem"><b>{{ id }}</b><span class="skeleton" /></div>
+    </template>
+  </Suspense>
+</template>
+```
+
 ```html title="Demo.vue"
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
   import { lastUpdated } from './api/lastUpdated';
-  import ShowTime from './ShowTime.vue';
+  import TimeList from './TimeList.vue';
 
   const ctrl = useController();
 </script>
 
 <template>
   <div>
-    <Suspense v-for="id in ['1', '2', '3']" :key="id">
-      <ShowTime :id="id" />
-      <template #fallback>
-        <div class="listItem"><b>{{ id }}</b><span class="skeleton" /></div>
-      </template>
-    </Suspense>
-
+    <TimeList />
     <div class="buttonGroup">
-      <button @click="ctrl.invalidateAll(lastUpdated)">Invalidate All</button>
+      <button @click="ctrl.invalidateAll(lastUpdated)">
+        Invalidate All
+      </button>
       <button @click="ctrl.invalidate(lastUpdated, { id: '1' })">
         Invalidate First
       </button>
@@ -382,7 +406,7 @@ Using the [Invalidate schema](https://dataclient.io/rest/api/Invalidate) allows 
 response. If the endpoint uses the entity in an [Array](https://dataclient.io/rest/api/Array), it will simply be removed from that [Array](https://dataclient.io/rest/api/Array).
 
 ```ts title="api/lastUpdated"
-import { Entity, RestEndpoint } from '@data-client/rest';
+import { Entity, Invalidate, RestEndpoint } from '@data-client/rest';
 import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
@@ -397,6 +421,14 @@ export class TimedEntity extends Entity {
 export const lastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   schema: TimedEntity,
+});
+
+export const InvalidateTimedEntity = new Invalidate(TimedEntity);
+
+export const deleteLastUpdated = new RestEndpoint({
+  path: '/api/currentTime/:id',
+  method: 'DELETE',
+  schema: InvalidateTimedEntity,
 });
 ```
 
@@ -416,19 +448,36 @@ export const lastUpdated = new RestEndpoint({
 </template>
 ```
 
-```html title="ShowTime.vue"
+```html title="ServerTime.vue"
 <script setup lang="ts">
-  import { Invalidate, RestEndpoint } from '@data-client/rest';
-  import { useController, useLoading } from '@data-client/vue';
-  import { TimedEntity } from './api/lastUpdated';
   import TimePage from './TimePage.vue';
 
-  const InvalidateTimedEntity = new Invalidate(TimedEntity);
-  const deleteLastUpdated = new RestEndpoint({
-    path: '/api/currentTime/:id',
-    method: 'DELETE',
-    schema: InvalidateTimedEntity,
-  });
+  defineProps<{ id: string }>();
+</script>
+
+<template>
+  <header class="appHeader">
+    <h1 class="appTitle">Server time</h1>
+  </header>
+  <section>
+    <Suspense>
+      <TimePage :id="id" />
+      <template #fallback>
+        <h2><span class="skeleton" /></h2>
+      </template>
+    </Suspense>
+  </section>
+</template>
+```
+
+```html title="ShowTime.vue"
+<script setup lang="ts">
+  import { useController, useLoading } from '@data-client/vue';
+  import {
+    InvalidateTimedEntity,
+    deleteLastUpdated,
+  } from './api/lastUpdated';
+  import ServerTime from './ServerTime.vue';
 
   const ctrl = useController();
   const [handleDelete, loadingDelete] = useLoading(() =>
@@ -438,17 +487,7 @@ export const lastUpdated = new RestEndpoint({
 
 <template>
   <div>
-    <header class="appHeader">
-      <h1 class="appTitle">Server time</h1>
-    </header>
-    <section>
-      <Suspense>
-        <TimePage id="1" />
-        <template #fallback>
-          <h2><span class="skeleton" /></h2>
-        </template>
-      </Suspense>
-    </section>
+    <ServerTime id="1" />
     <div class="buttonGroup">
       <button @click="handleDelete" :aria-busy="loadingDelete">
         Invalidate
