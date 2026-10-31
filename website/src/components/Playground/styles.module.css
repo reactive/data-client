@@ -897,14 +897,17 @@ div.playgroundTextEdit > .playgroundHeader {
   height: calc(var(--pg-card-radius) + 1px);
 }
 /* Concave fillets: a selected tab's or the handle's paper curving out into
-   the edge it rises from, at --pg-fillet-at in its own --pg-fillet-color,
-   --pg-fillet-r round */
+   the edge it rises from, or the folder's strip between the app and the
+   Store into the Store's edge at the app's foot, at --pg-fillet-at in its
+   own --pg-fillet-color, --pg-fillet-r round */
 .row .tab.selected::before,
 .row .tab.selected::after,
 .storeTab::before,
 .storeTab::after,
 .stacked .storeHeaderToggle[aria-pressed='true']::before,
-.stacked .storeHeaderToggle[aria-pressed='true']::after {
+.stacked .storeHeaderToggle[aria-pressed='true']::after,
+.row:not(.stacked):has(> .storeHost .storePanel[data-visible])::after,
+.stacked .playgroundResult:has(> .storePanel[data-visible])::after {
   content: '';
   position: absolute;
   width: calc(var(--pg-fillet-r, var(--pg-card-radius)) + 1px);
@@ -1700,21 +1703,14 @@ div.fixtureJson + div.fixtureJson {
   /* and the strip between the two sheets, ending at the preview's foot,
      curves into the Store's sheet's edge, as a tab does into its card */
   .row:not(.stacked):has(> .storeHost .storePanel[data-visible])::after {
-    content: '';
-    position: absolute;
+    --pg-fillet-at: 100% 100%;
+    --pg-fillet-r: var(--pg-foot-curve);
     /* a pixel on under the sheet's edge */
     left: calc(var(--pg-fold) - var(--pg-gap) - 1px);
     top: calc(100% - var(--pg-preview-gap, 0px));
     /* over the preview's shadow (a grid item, it stacks by its z-index) */
     z-index: 2;
-    width: calc(var(--pg-foot-curve) + 1px);
-    height: var(--pg-foot-curve);
-    pointer-events: none;
-    background: radial-gradient(
-      circle at 100% 100%,
-      transparent calc(var(--pg-foot-curve) - 0.5px),
-      var(--pg-stage) var(--pg-foot-curve)
-    );
+    height: var(--pg-fillet-r);
   }
   /* under it, the code card's own shadow would deepen the Store's, and the
      file tabs would show past the Store header's inset */
@@ -2081,6 +2077,20 @@ div.fixtureJson + div.fixtureJson {
       min(var(--pg-app-height, 0px), 100svh - var(--store-top))
     );
   }
+  /* the strip's curve at the app's foot, on under the sheet's edge (the
+     sheet over it), no deeper than the sheet runs on below the app */
+  .stacked .playgroundResult:has(> .storePanel[data-visible])::after {
+    --pg-fillet-at: 0 100%;
+    --pg-fillet-r: clamp(
+      0px,
+      var(--pg-store-height, 0px) - var(--pg-app-height, 0px),
+      var(--pg-card-radius)
+    );
+    left: calc(var(--pg-app-width, 0px) + var(--pg-gap) - var(--pg-fillet-r));
+    top: var(--pg-app-height, 0px);
+    z-index: -1;
+    height: var(--pg-fillet-r);
+  }
   /* moving, it is cut to the result as that grows or shrinks, its corners
      rounded */
   .stacked[data-store-moving] .playgroundResult > .storePanel {
@@ -2119,22 +2129,14 @@ div.fixtureJson + div.fixtureJson {
     display: none;
   }
   /* the folder's paper: behind the header's foot and the app's card (but
-     its foot's corners), the strip beside it on under the Store's corner,
-     and that strip's curve at its foot */
+     its foot's corners), and the strip beside it on under the Store's
+     corner */
   .stacked .playgroundResult:has(> .storePanel[data-visible]) {
     background: none;
   }
   .stacked
     > .previewWrapper:has(> .playgroundResult > .storePanel[data-visible]) {
     background:
-      radial-gradient(
-          circle at 0 100%,
-          transparent calc(var(--pg-card-radius) - 0.5px),
-          var(--pg-stage) var(--pg-card-radius)
-        )
-        calc(var(--pg-app-width, 0px) + var(--pg-gap) - var(--pg-card-radius))
-        var(--pg-app-end, 0px) / var(--pg-card-radius) var(--pg-card-radius)
-        no-repeat,
       linear-gradient(var(--pg-stage) 0 0)
         calc(var(--pg-app-width, 0px) - var(--pg-sheet-radius)) var(--pg-row) /
         calc(var(--pg-gap) + 2 * var(--pg-sheet-radius))
