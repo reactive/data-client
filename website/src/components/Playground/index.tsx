@@ -13,6 +13,7 @@ import React, {
 
 import Boundary from './Boundary';
 import { useCodeDocuments } from './editor/codeModel';
+import type { CodeDocument } from './editor/codeModel';
 import { declarationsOf, keepSameDeclarations } from './editor/declarations';
 import EditorSurface from './editor/EditorSurface';
 import {
@@ -245,7 +246,7 @@ export default function Playground<T>({
               fixtureContent={previewFixtures}
               code={code}
               storeOpen={storeOpen}
-              routerStart={routerStartOf(documents)}
+              documents={documents}
             />
           </InspectorContext.Provider>
         }
@@ -373,14 +374,15 @@ function PreviewLoading({
   fixtureContent,
   code,
   storeOpen,
-  routerStart,
+  documents,
 }: {
   layout: Layout;
   fixtureContent?: React.ReactNode;
   code?: CodeControl;
   storeOpen?: boolean;
-  /** Where the app's router opens, if it has one */
-  routerStart?: string;
+  /** The app's code: where its router, if it has one, opens. Bots get
+   * LivePreview's props, so this is the prop it takes too */
+  documents?: readonly CodeDocument[];
 }) {
   return (
     <PreviewWrapper
@@ -390,7 +392,7 @@ function PreviewLoading({
       }
       fixtures={fixtureContent}
       code={code}
-      routerStart={routerStart}
+      routerStart={documents && routerStartOf(documents)}
     >
       <div className={previewSurfaceClassName}>
         <PendingSheet />

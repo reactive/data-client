@@ -2154,7 +2154,10 @@ div.fixtureJson + div.fixtureJson {
    ::after, whose place the result holds), as deep and as round, so the
    card is the same when the Store has gone and the foot is back */
 @container playground (min-width: 720px) {
-  .stacked .playgroundResult:has(> .storePanel[data-visible]) .sheet {
+  .stacked
+    .playgroundResult:has(> .storePanel[data-visible])
+    .playgroundPreview
+    .sheet {
     padding-bottom: var(--pg-sheet-pad);
     border-radius: var(--pg-body-radius) var(--pg-body-radius)
       var(--pg-card-radius) var(--pg-card-radius);
@@ -2163,6 +2166,7 @@ div.fixtureJson + div.fixtureJson {
      page hydrates (as the row's, .row:not(.stacked) .sheet[aria-busy]) */
   .stacked
     .playgroundResult:has(> .storePanel[data-visible])
+    .playgroundPreview
     .sheet[aria-busy] {
     height: var(--pg-pending-card);
   }
