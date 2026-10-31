@@ -1,9 +1,8 @@
 import Editor from '@monaco-editor/react';
 import type * as Monaco from 'monaco-editor';
 import rangeParser from 'parse-numeric-range';
-import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 
-import { prefersReducedMotion, springEasing, springs } from '../../motion';
 import '../monaco/setup';
 import { highlightSelections } from '../monaco/highlightSelections';
 import { extensionToMonacoLanguage } from '../monaco/language';
@@ -11,8 +10,8 @@ import { options } from '../monaco/options';
 import { MONACO_THEME } from '../monaco/theme';
 import useAutoHeight from '../monaco/useAutoHeight';
 import useDefinitionOpener from '../monaco/useDefinitionOpener';
+import useEditorCover from '../monaco/useEditorCover';
 import useOverflowWidgets from '../monaco/useOverflowWidgets';
-import { whenPainted } from '../monaco/whenPainted';
 import PlaygroundLiveEditor from '../PlaygroundLiveEditor';
 import styles from '../styles.module.css';
 import { isMobileOrBot } from '../userAgent';
@@ -69,8 +68,7 @@ function InteractiveEditor({
     initialContentHeight: code.split('\n').length * editorOptions.lineHeight,
     isFocused,
   });
-  const [covered, setCovered] = useState(true);
-  const coverRef = useRef<HTMLDivElement>(null);
+  const { covered, coverRef, cover } = useEditorCover();
   const handleOpenerMount = useDefinitionOpener({
     isVisible: isFocused,
     onOpen: () => onFocus(tabIndex),
@@ -92,11 +90,7 @@ function InteractiveEditor({
       handleAutoMount(editor);
       handleOpenerMount(editor, monaco);
       overflowWidgets.handleMount(editor);
-      editor.onDidDispose(
-        whenPainted(editor, () =>
-          fadeOut(coverRef.current, () => setCovered(false)),
-        ),
-      );
+      cover([editor]);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
@@ -145,12 +139,4 @@ function InteractiveEditor({
   );
 }
 
-/** Fades `el` out, then calls `done` (at once under reduced motion) */
-function fadeOut(el: HTMLElement | null, done: () => void) {
-  if (!el?.animate || prefersReducedMotion()) return done();
-  el.animate({ opacity: [1, 0] }, springEasing(springs.snappy)).finished.then(
-    done,
-    done,
-  );
-}
 export default memo(InteractiveEditor);

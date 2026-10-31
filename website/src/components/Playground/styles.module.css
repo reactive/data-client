@@ -1569,21 +1569,25 @@ div.fixtureJson + div.fixtureJson {
   pointer-events: none;
 }
 
-/* override bad loading styles for monaco editor (DiffEditorMonaco.tsx) */
-.playgroundEditor > section > div {
-  display: block !important;
+/* DiffEditorMonaco's cover: each pane's code where Monaco's split view
+   draws it (code inset by its line decorations, wrapped short of its
+   scrollbar). Wrapped lines make Monaco's first height a guess, so the box
+   takes the taller of the two rather than cutting the cover off */
+.diffHost {
+  display: grid;
 }
-.playgroundEditor > section > div:not(:first-child) {
-  width: 0;
-  flex: 0 0 0;
+.diffHost > * {
+  grid-area: 1 / 1;
 }
-.playgroundEditor > section {
-  position: auto !important;
+.diffCover {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-/* The section's inline height is Monaco's estimate; the static diff shown
-   while it loads wraps and has title bars, so let it keep its own height */
-.playgroundEditor > section:has(.diffLoading) {
-  height: auto !important;
+.diffCover :global(.prism-code) {
+  padding: 0 14px 0 10px !important;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 /* Side by side when the playground itself has enough width (docs sidebar
