@@ -5,13 +5,14 @@ import { whenPainted } from '../whenPainted';
 
 /** An editor `width` wide; `draw(lines)` renders its view lines, each a
  * list of token classes */
-function fakeEditor(width: number) {
+function fakeEditor(width: number, value = 'code') {
   const dom = document.createElement('div');
   let onFocus = () => {};
   let onLayout = () => {};
   const editor = {
     getLayoutInfo: () => ({ width }),
     getDomNode: () => dom,
+    getModel: () => ({ getValue: () => value }),
     onDidFocusEditorText: (listener: () => void) => {
       onFocus = listener;
       return { dispose: () => (onFocus = () => {}) };
@@ -64,6 +65,14 @@ describe('whenPainted', () => {
     frames(1);
     expect(done).toHaveBeenCalledTimes(1);
     frames(4);
+    expect(done).toHaveBeenCalledTimes(1);
+  });
+
+  test('at once laid out when it has no code', () => {
+    const { editor } = fakeEditor(600, '\n');
+    const done = jest.fn();
+    whenPainted(editor, done);
+    frames(2);
     expect(done).toHaveBeenCalledTimes(1);
   });
 

@@ -8,11 +8,13 @@ import { type editor } from 'monaco-editor';
 import { useCallback, useState } from 'react';
 
 import type { DiffSide } from './Playground/editor/callouts';
+import StaticEditor from './Playground/editor/StaticEditor';
 import { extensionToMonacoLanguage } from './Playground/monaco/language';
 import { options } from './Playground/monaco/options';
 import './Playground/monaco/setup';
 import { MONACO_THEME } from './Playground/monaco/theme';
 import useAutoHeight from './Playground/monaco/useAutoHeight';
+import useEditorCover from './Playground/monaco/useEditorCover';
 import styles from './Playground/styles.module.css';
 import { isMobileOrBot } from './Playground/userAgent';
 
@@ -26,6 +28,8 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
       options.lineHeight,
   });
 
+  const { covered, coverRef, revealWhenPainted } = useEditorCover();
+
   // Left edge of each pane's code, so labels line up with the first column
   const [labelOffsets, setLabelOffsets] = useState<number[]>();
   const handleDiffMount = useCallback(
@@ -35,6 +39,7 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
       // Side-by-side forces a glyph margin on the original pane; nothing
       // renders there in this read-only diff, so it only indents the code
       panes[0].updateOptions({ glyphMargin: false });
+      revealWhenPainted(panes);
       const updateOffsets = () => {
         const left = editor.getContainerDomNode().getBoundingClientRect().left;
         const next = panes.map(
@@ -73,7 +78,7 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
         );
       });
     },
-    [handleMount, sides],
+    [handleMount, revealWhenPainted, sides],
   );
 
   return (
@@ -105,23 +110,36 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
                   ))}
                 </div>
                 <div className={styles.playgroundEditor}>
-                  <BaseDiffEditor
-                    language={extensionToMonacoLanguage(sides[0].language)}
-                    original={original}
-                    modified={modified}
-                    options={DIFF_OPTIONS}
-                    onMount={handleDiffMount}
-                    height={height}
-                    theme={MONACO_THEME}
-                    // diffLoading lets the loading box take the static diff's height
-                    loading={
-                      <div className={styles.diffLoading}>{fallback}</div>
-                    }
-                    // Prevent "TextModel got disposed before DiffEditorWidget model got reset" error
-                    // by not letting @monaco-editor/react manage model disposal
-                    keepCurrentOriginalModel
-                    keepCurrentModifiedModel
-                  />
+                  <div className={clsx(styles.editorHost, styles.diffHost)}>
+                    <BaseDiffEditor
+                      language={extensionToMonacoLanguage(sides[0].language)}
+                      original={original}
+                      modified={modified}
+                      options={DIFF_OPTIONS}
+                      onMount={handleDiffMount}
+                      height={height}
+                      theme={MONACO_THEME}
+                      loading={null}
+                      // Prevent "TextModel got disposed before DiffEditorWidget model got reset" error
+                      // by not letting @monaco-editor/react manage model disposal
+                      keepCurrentOriginalModel
+                      keepCurrentModifiedModel
+                    />
+                    {covered ?
+                      <div
+                        ref={coverRef}
+                        className={clsx(styles.editorCover, styles.diffCover)}
+                      >
+                        {sides.map(({ language, editorValue }, i) => (
+                          <StaticEditor
+                            key={i}
+                            language={language}
+                            code={editorValue}
+                          />
+                        ))}
+                      </div>
+                    : null}
+                  </div>
                 </div>
               </div>
             </div>
