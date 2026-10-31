@@ -38,7 +38,8 @@
   white-space: pre-wrap;
 }
 
-/* package names never break at their hyphen */
+/* package names never break at their hyphen. The break after '/' sits
+   between these spans, not inside one. */
 .pkg {
   white-space: nowrap;
 }
