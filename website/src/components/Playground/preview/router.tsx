@@ -6,6 +6,7 @@ import React, {
   Suspense,
   use,
   useCallback,
+  useRef,
   useState,
   useTransition,
   Fragment,
@@ -14,6 +15,8 @@ import React, {
 import { createPortal } from 'react-dom';
 
 import { RouterControlsSlot } from './routerSlot';
+import { PageContext } from './store/callSite';
+import type { CallerPage } from './store/fetchCause';
 import { defaultExportName } from './transformCode';
 import { ErrorMessage } from '../DesignSystem/ErrorMessage';
 import { Loading } from '../DesignSystem/Loading';
@@ -105,17 +108,27 @@ export function Router({
 }) {
   if (Layout === null)
     throw new Error("The layout must be its file's named default export");
-  const [history, setHistory] = useState([start]);
+  // each page opened is a new visit, so what it fetches on mounting is
+  // told from the last page's (the app's own first render isn't one)
+  const [history, setHistory] = useState<readonly CallerPage[]>([
+    { path: start, visit: 0 },
+  ]);
+  const visits = useRef(0);
   const [pending, startTransition] = useTransition();
   const navigate = useCallback(
     (to: string) =>
       startTransition(() =>
-        setHistory(paths => (paths.at(-1) === to ? paths : [...paths, to])),
+        setHistory(pages =>
+          pages.at(-1)?.path === to ?
+            pages
+          : [...pages, { path: to, visit: ++visits.current }],
+        ),
       ),
     [],
   );
   const controlsSlot = use(RouterControlsSlot);
-  const path = history[history.length - 1];
+  const page = history[history.length - 1];
+  const { path } = page;
   const atRoot = history.length === 1;
   return (
     <NavigateContext value={navigate}>
@@ -128,12 +141,21 @@ export function Router({
             onBack={() =>
               // a second click can land before the first commits
               startTransition(() =>
-                setHistory(paths =>
-                  paths.length > 1 ? paths.slice(0, -1) : paths,
+                setHistory(pages =>
+                  pages.length > 1 ?
+                    [
+                      ...pages.slice(0, -2),
+                      { path: pages.at(-2)!.path, visit: ++visits.current },
+                    ]
+                  : pages,
                 ),
               )
             }
-            onHome={() => startTransition(() => setHistory([start]))}
+            onHome={() =>
+              startTransition(() =>
+                setHistory([{ path: start, visit: ++visits.current }]),
+              )
+            }
           />,
           controlsSlot,
         )}
@@ -150,7 +172,9 @@ export function Router({
                 outside this key: a newly mounted one would show its fallback
                 rather than hold the page */}
             <ErrorBoundary key={path} fallbackComponent={ErrorMessage}>
-              <Page routes={routes} path={path} />
+              <PageContext value={page.visit ? page : undefined}>
+                <Page routes={routes} path={path} />
+              </PageContext>
             </ErrorBoundary>
           </Suspense>
         </Layout>

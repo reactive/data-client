@@ -68,6 +68,15 @@ export interface Caller {
   readonly hook?: string;
   /** The user event being handled when it was dispatched */
   readonly event?: CallerEvent;
+  /** The page the component renders in, after a navigation */
+  readonly page?: CallerPage;
+}
+
+/** A visit to a page of the app's router */
+export interface CallerPage {
+  readonly path: string;
+  /** Tells one navigation from the next, though both open `path` */
+  readonly visit: number;
 }
 
 export interface CallerEvent {

@@ -7,7 +7,12 @@ import type { CallerEvent } from './fetchCause';
  * (their hooks fetching), a manager, or the app with nothing more to say */
 export type Interaction =
   | { readonly kind: 'event'; readonly event: CallerEvent }
-  | { readonly kind: 'render'; readonly components: readonly string[] }
+  | {
+      readonly kind: 'render';
+      readonly components: readonly string[];
+      /** The router page they render in, once it navigated */
+      readonly path?: string;
+    }
   | { readonly kind: 'manager'; readonly stage: ManagerStage }
   | { readonly kind: 'app' };
 
@@ -15,7 +20,8 @@ export type Interaction =
 export interface InteractionSection {
   readonly id: string;
   readonly interaction: Interaction;
-  /** It came before any other: a render then is the app mounting */
+  /** It came before any other, or any other of its page: a render then is
+   * the app, or the page navigated to, mounting */
   readonly first: boolean;
   readonly rows: readonly ActionGroup[];
 }
@@ -26,6 +32,8 @@ interface Root {
   readonly id: string;
   readonly interaction: Interaction;
   readonly joins: boolean;
+  /** Its router page's visit */
+  readonly visit?: number;
 }
 
 /** `rows` under the interactions that started them. A row another action
@@ -39,6 +47,7 @@ export function interactionsOf(
   const sections: Section[] = [];
   const byId = new Map<string, Section>();
   let last: Section | undefined;
+  const visits = new Set<number>();
   const sectionFor = (root: Root) => {
     const id =
       !root.joins ? root.id
@@ -49,11 +58,14 @@ export function interactionsOf(
       section = {
         id,
         interaction: root.interaction,
-        first: !sections.length,
+        first:
+          !sections.length ||
+          (root.visit !== undefined && !visits.has(root.visit)),
         rows: [],
       };
       sections.push(section);
       byId.set(id, section);
+      if (root.visit !== undefined) visits.add(root.visit);
     }
     return section;
   };
@@ -75,7 +87,10 @@ export function interactionsOf(
     section.interaction.kind === 'render' ?
       {
         ...section,
-        interaction: { kind: 'render', components: componentsOf(section.rows) },
+        interaction: {
+          ...section.interaction,
+          components: componentsOf(section.rows),
+        },
       }
     : section,
   );
@@ -113,6 +128,16 @@ function ownRoot(entry: LogEntry): Root {
       interaction: { kind: 'manager', stage: origin },
       joins: true,
     };
+  if (caller?.page) {
+    const { path, visit } = caller.page;
+    // a page navigated to mounts apart from the one before it
+    return {
+      id: `page ${visit}`,
+      interaction: { kind: 'render', components: [], path },
+      joins: true,
+      visit,
+    };
+  }
   if (caller?.hook)
     return {
       id: 'render',

@@ -1,9 +1,17 @@
-import { userEvent, type Caller } from './fetchCause';
+import { createContext, use } from 'react';
+
+import { userEvent, type Caller, type CallerPage } from './fetchCause';
+
+/** The page a component renders in, once the preview's router navigated
+ * (./router.tsx): the app's own first render has none */
+export const PageContext = createContext<CallerPage | undefined>(undefined);
 
 /** The library hook the preview's code is calling right now (see
  * `asHook`): an action dispatched meanwhile is that hook's, from the
  * component rendering */
 let calling: string | undefined;
+/** The page the component calling it renders in */
+let page: CallerPage | undefined;
 
 /** `hook`, named `name` while it runs, so what it dispatches is credited
  * to it (a production build minifies the library's own names) */
@@ -13,11 +21,14 @@ export function asHook<F extends (...args: any[]) => any>(
 ): F {
   return function (this: unknown, ...args: unknown[]) {
     const outer = calling;
+    const outerPage = page;
     calling = name;
+    page = use(PageContext);
     try {
       return hook.apply(this, args);
     } finally {
       calling = outer;
+      page = outerPage;
     }
   } as F;
 }
@@ -77,7 +88,11 @@ const isComponentName = (name: string) => /^[A-Z]/.test(name);
 export function callerNow(): Caller | undefined {
   if (calling) {
     const component = evaluatedFrames(deepStack()).find(isComponentName);
-    return component ? { hook: calling, component } : { hook: calling };
+    return {
+      hook: calling,
+      ...(component && { component }),
+      ...(page && { page }),
+    };
   }
   const event = userEvent(
     typeof window === 'undefined' ? undefined : window.event,
