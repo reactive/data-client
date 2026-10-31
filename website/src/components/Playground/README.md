@@ -61,10 +61,17 @@ Gotchas:
   function sources wait for `useIsBrowser` (the bundles stringify them
   differently), and a fixture holding `Date.now()` is safe only folded.
 - Loading goes straight to loaded: first paint, chunk load and the app
-  waiting on data all draw `preview/PendingSheet.tsx`, and
-  `PreviewHeaderControls` gives loading and live headers the same controls.
-  In `row`, keep `--pg-pending-sheet` equal to what `usePreviewGap` then
-  measures, or the folder jumps at hydration.
+  waiting on data all draw `preview/PendingSheet.tsx` (an open stacked
+  Store too). `PreviewHeaderControls` and the router's start controls
+  (`preview/routerSlot.tsx`) make the loading and live headers the same.
+- Keep each box the loading frame draws equal to what the live preview
+  measures, or the preview jumps at hydration: `--pg-pending-sheet` in
+  `row` (`usePreviewGap`); the `--pg-app-*` and `--pg-store-height`
+  defaults in stacked (`useAppBox`).
+- Monaco mounts under the Prism code (`InteractiveEditor`'s cover), which
+  lifts once `monaco/whenPainted.ts` sees it laid out and highlighted to
+  its last line. Never give Monaco's container zero width while it mounts:
+  it lays out one letter per line.
 
 `hidden` (unselected protocol tabs): every tab stays mounted, so all
 sources are in the HTML. The editor latches interactive on first show, so
@@ -74,10 +81,10 @@ while hidden, so its store resets. The homepage passes `hidden`; in MDX,
 (`hiddenContext.ts`) for every playground under an unselected tab, nested
 groups included. An explicit prop wins. `TypeScriptEditor` in one of those
 tabs latches the same way (plain text until first shown).
-In `row` (not stacked), the result never shrinks below its tallest (`useHeightRatchet`),
-shared by the playgrounds under one `data-playground-group` (the homepage's
-protocol switch, `PlaygroundTabs`), so a switched-in tab's loading page
-doesn't shorten it.
+In `row` (not stacked), the result never shrinks below its tallest
+(`useHeightRatchet`), shared by the playgrounds under one
+`data-playground-group` (the homepage's protocol switch, `PlaygroundTabs`),
+so a switched-in tab's loading page doesn't shorten it.
 
 Mobile and bots get an editable react-live editor instead of Monaco and
 download none of it. Mobile runs the preview; bots keep `PreviewLoading`
@@ -105,36 +112,28 @@ callout markers as comments, its caption and legend outside the editor.
 
 ## Layouts
 
-`index.tsx` picks `demo`, else `row`, else stacked. Pick by where the
-preview and Store go:
+`index.tsx` picks `demo`, else `row`, else stacked. Choose by where the
+Store goes:
 
-- `row`: the preview beside the code when there's room. Its Store covers
-  the code, so keep it closed by default (no `defaultOpen="y"`).
-- Stacked: the preview always under the code, the Store beside the app.
-  Use it to show the Store with the code in view (`defaultOpen="y"`), or to
-  give the app the full width without hiding the code.
+- `row`: preview beside the code. Its Store covers the code, so keep it
+  closed by default (no `defaultOpen="y"`).
+- Stacked: preview under the code, Store beside the app. Use it to show
+  the Store with the code in view, or to give the app the full width.
 
-How many files start open picks the editor: one, and the files are tabs
-over a code card (any layout); several (stacked), and each open file is
-its own card.
+One open file shows as tabs over a code card (any layout); several open
+files (stacked only) show as one card each. Fixtures fold behind the
+preview header's toggle in every layout.
 
 - Fence metastring: `title`, `path`, `collapsed`, `column`, `route`,
   `start`, `layout`, `{1-3}` (pre-selected lines) and the `language-*`
   class. Element props override it; `defaultTab` overrides `collapsed`.
-- Stacked: the `row`'s paper (`.row.stacked`), turned to the stacking axis at
-  any width; its header's Actions and Store toggles, after the reset, open
-  the drawer on that tab beside the app, a sheet of the app's paper. The
-  toggle showing is that sheet's tab, run down from the header into it;
-  hover pulls the other partway down and opens its quick look in the
-  drawer's place, over the app (`LookSlot`, on the result). Below 720px
-  container width it is the narrow `row` (`useNarrow`): the same folder
-  drawer and handles. Files that start open together are code cards
-  (`FileCard`), each under its name: a caption on the page, on the code's
-  first column, that folds the card to just the name and back. Two to a
-  line from 900px container width (narrower, wrapped lines would fill
-  them); an open card alone on its line takes the line.
-- `row`: files are tabs over the code card, fixtures folded behind the
-  preview header's toggle (in every layout); `column` files (e.g.
+- Stacked: the `row`'s paper turned vertical (`.row.stacked`). The
+  header's Actions and Store toggles open the drawer beside the app; hover
+  opens a quick look in its place (`LookSlot`). Below 720px container width
+  it is the narrow `row` (`useNarrow`). Open files are `FileCard`s
+  (`editor/EditorSurface.tsx`), each name a caption that folds its card;
+  two to a line from 900px container width, a card alone takes the line.
+- `row`: files are tabs over the code card; `column` files (e.g.
   EndpointPlayground's Usage) sit on a darker layer tucked under it,
   labeled, never collapsible. The preview is a folder beside it (under it
   below 720px container width) with the Store on a layer behind
@@ -389,6 +388,9 @@ re-renders the playground.
 - Server HTML: after changing what renders on the server, build and check
   the browser console for React #418/#423 (hydration) on a page with each
   layout and on the homepage.
+- Hard refresh: after changing what loads or hydrates, reload a stacked
+  and a `row` page with the cache off and CPU throttled 4×; no frame
+  between the server HTML and the live preview may move anything.
 - In a browser: after a `monaco-editor` bump, open a multi-file playground
   after page load (a second homepage tab) whose importing file comes before
   the file it imports, and check for no TS2307 marker. Play any changed
