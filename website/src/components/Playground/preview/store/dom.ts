@@ -16,11 +16,36 @@ export const byData = (scope: ParentNode, key: 'id' | 'table', value: string) =>
     el => el.dataset[key] === value,
   );
 
+export type Axis = 'x' | 'y';
+
+/** Each axis's names for a box's edge, its length, and its scroll */
+export const AXES = {
+  x: {
+    start: 'left',
+    extent: 'width',
+    size: 'scrollWidth',
+    scroll: 'scrollLeft',
+    client: 'clientWidth',
+  },
+  y: {
+    start: 'top',
+    extent: 'height',
+    size: 'scrollHeight',
+    scroll: 'scrollTop',
+    client: 'clientHeight',
+  },
+} as const;
+
+/** Where `el`'s edge is in the viewport, on `axis` */
+export const startOf = (el: Element, axis: Axis) =>
+  el.getBoundingClientRect()[AXES[axis].start];
+
 /** Where `el` sits in `scroller`'s scrolled content, in px */
-export const offsetIn = (scroller: HTMLElement, el: Element) =>
-  el.getBoundingClientRect().top -
-  scroller.getBoundingClientRect().top +
-  scroller.scrollTop;
+export const offsetIn = (
+  scroller: HTMLElement,
+  el: Element,
+  axis: Axis = 'y',
+) => startOf(el, axis) - startOf(scroller, axis) + scroller[AXES[axis].scroll];
 
 const smooth = springEasing(springs.smooth);
 
@@ -95,23 +120,38 @@ export function flash(
 export type Scroller = HTMLElement | null;
 
 /** Scrolls `row` just into view of `scroller`, and of any scroller between
- * them (an open row's steps), leaving it be where it already shows */
+ * them (an open row's steps, the Timeline's sideways lane), leaving it be
+ * where it already shows */
 export function revealIn(scroller: HTMLElement, row: HTMLElement) {
   for (let box = row.parentElement; box; box = box.parentElement) {
     const outer = box === scroller;
-    if (outer || /auto|scroll/.test(getComputedStyle(box).overflowY)) {
-      const top = offsetIn(box, row);
-      const bottom = top + row.getBoundingClientRect().height;
-      const to =
-        top < box.scrollTop ? top
-        : bottom > box.scrollTop + box.clientHeight ? bottom - box.clientHeight
-        : undefined;
-      // inner ones jump, so the outer one measures where the row ends up
-      if (to !== undefined)
-        box.scrollTo({ top: to, behavior: outer ? 'smooth' : 'instant' });
-    }
+    const { overflowX, overflowY } = getComputedStyle(box);
+    const top =
+      outer || SCROLLS.test(overflowY) ?
+        scrollToShow(box, row, 'y')
+      : undefined;
+    const left =
+      SCROLLS.test(overflowX) ? scrollToShow(box, row, 'x') : undefined;
+    // inner ones jump, so the outer one measures where the row ends up
+    if (top !== undefined || left !== undefined)
+      box.scrollTo({ top, left, behavior: outer ? 'smooth' : 'instant' });
     if (outer) return;
   }
+}
+
+const SCROLLS = /auto|scroll/;
+
+/** Where `box` scrolls on `axis` to just show `el`, undefined when it shows
+ * already */
+function scrollToShow(box: HTMLElement, el: Element, axis: Axis) {
+  const { extent, scroll, client } = AXES[axis];
+  const from = offsetIn(box, el, axis);
+  const to = from + el.getBoundingClientRect()[extent];
+  return (
+    from < box[scroll] ? from
+    : to > box[scroll] + box[client] ? to - box[client]
+    : undefined
+  );
 }
 
 /** keydown for an element acting as a button: Enter or Space on the element

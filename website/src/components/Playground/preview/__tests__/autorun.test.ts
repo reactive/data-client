@@ -401,6 +401,33 @@ describe('stage', () => {
     expect(scrolled).toHaveBeenCalledTimes(2);
   });
 
+  it('scrolls a sideways lane to a target off its left edge', () => {
+    const root = playground();
+    root.insertAdjacentHTML(
+      'beforeend',
+      '<div class="lane" style="overflow-x: auto"><button>Dot</button></div>',
+    );
+    const lane = root.querySelector<HTMLElement>('.lane')!;
+    const dot = lane.querySelector('button')!;
+    Object.defineProperties(lane, {
+      clientWidth: { value: 200 },
+      scrollLeft: { value: 300 },
+    });
+    lane.getBoundingClientRect = () =>
+      ({ left: 100, top: 0, width: 200, height: 20 }) as DOMRect;
+    // 160px left of the lane's edge
+    dot.getBoundingClientRect = () =>
+      ({ left: -60, top: 0, width: 10, height: 10 }) as DOMRect;
+    const scrolled = jest.fn();
+    lane.scrollTo = scrolled;
+    createStage(root, () => {}).point(dot);
+    expect(scrolled).toHaveBeenCalledWith({
+      top: undefined,
+      left: 140,
+      behavior: 'instant',
+    });
+  });
+
   it('end() takes its layer away', () => {
     const root = playground();
     const before = [...root.children];
