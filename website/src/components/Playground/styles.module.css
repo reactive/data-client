@@ -1804,8 +1804,13 @@ div.fixtureJson + div.fixtureJson {
   .row > .storeHost[data-open] .storeTab:not([aria-selected='true']) {
     box-shadow: inset -0.5rem 0 0.5rem -0.5rem var(--pg-shadow);
   }
+  /* its shadow cut at the edge it joins; the selected one reaches a pixel
+     into its sheet, so its paper covers the seam */
   .storeTab {
-    clip-path: inset(-2rem -1px -2rem -2rem);
+    clip-path: inset(-2rem 0 -2rem -2rem);
+  }
+  .storeTab[aria-selected='true'] {
+    margin-right: -1px;
   }
   .storeTab::before {
     right: -1px;
@@ -2002,8 +2007,11 @@ div.fixtureJson + div.fixtureJson {
   .row > .storeHost[data-open] .storeTab:not([aria-selected='true']) {
     box-shadow: inset 0 -0.5rem 0.5rem -0.5rem var(--pg-shadow);
   }
+  .storeTab[aria-selected='true'] {
+    margin-bottom: -1px;
+  }
   .storeTab {
-    clip-path: inset(-2rem -2rem -1px -2rem);
+    clip-path: inset(-2rem -2rem 0 -2rem);
   }
   .storeTab::before {
     right: calc(100% - 1px);
