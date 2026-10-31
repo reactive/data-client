@@ -23,9 +23,10 @@ export interface ItemOptions {
    * it */
   onDrop?: (value: any) => unknown;
 }
-/** What a group stands for: an id, never an object (an entity changes
- * identity when it updates, which would make it a new group) */
-type GroupValue = PropertyKey | boolean | null | undefined;
+/** The id a group stands for (`null` or `undefined`: a group of none, like
+ * "Unassigned"). Never an object: an entity changes identity when it
+ * updates, which would make it a new group */
+type GroupId = string | number | null | undefined;
 /** An item's latest options, read when a drag needs them */
 type OptionsRef = RefObject<ItemOptions>;
 
@@ -51,10 +52,10 @@ interface Props {
 export default class Reorder extends Component<Props> {
   private items = new Map<unknown, HTMLElement>();
   /** Groups to drop items in, with the value each stands for */
-  private groups = new Map<HTMLElement, GroupValue>();
+  private groups = new Map<HTMLElement, GroupId>();
   /** Each group's item key, by its value: apart from the items' own keys,
    * and the same whichever element shows the group */
-  private groupKeys = new Map<GroupValue, object>();
+  private groupKeys = new Map<GroupId, object>();
   /** Items let go in another group, by key: held where they were dropped
    * until the list changes, then settling on `springs.drop`; `done` is what
    * their latest drop set off */
@@ -102,7 +103,7 @@ export default class Reorder extends Component<Props> {
   }
 
   /** Joins `el` as the group standing for `value`; returns the cleanup */
-  addGroup(value: GroupValue, el: HTMLElement) {
+  addGroup(value: GroupId, el: HTMLElement) {
     let key = this.groupKeys.get(value);
     if (!key) this.groupKeys.set(value, (key = {}));
     const leave = this.add(key, el);
@@ -182,9 +183,10 @@ export function useReorderItem(
  * (`useReorderItem` with `onDrop`) can be dragged into, standing for `value`:
  * a drop hands it to the item's `onDrop`. A drop lands in the group, not at a
  * place in it. The group is an item too, gliding as the list changes;
- * `value` (an id) names it across renders, apart from the items' keys.
+ * `value` names it across renders, apart from the items' keys, so it is an
+ * id: an object would be a new group each time it changes identity.
  */
-export function useDropGroup(value: GroupValue): RefCallback<HTMLElement> {
+export function useDropGroup(value: GroupId): RefCallback<HTMLElement> {
   const list = useContext(ReorderContext);
   return useCallback(
     (el: HTMLElement | null) => {
