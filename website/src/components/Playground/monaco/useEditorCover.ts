@@ -15,16 +15,15 @@ export default function useEditorCover() {
   const coverRef = useRef<HTMLDivElement>(null);
   const cover = useCallback((editors: Monaco.editor.ICodeEditor[]) => {
     let waiting = editors.length;
-    const done = (all = false) => {
-      if (waiting <= 0 || (!all && --waiting)) return;
-      waiting = 0;
-      fadeOut(coverRef.current, () => setCovered(false));
-    };
-    for (const editor of editors) {
-      editor.onDidDispose(whenPainted(editor, done));
-      // a click on any pane shows the editor
-      editor.onDidFocusEditorText(() => done(true));
-    }
+    const stops = editors.map(editor =>
+      whenPainted(editor, () => {
+        // whenPainted ends on focus too: a click on any pane shows the editor
+        if (--waiting && !editor.hasTextFocus()) return;
+        stops.forEach(stop => stop());
+        fadeOut(coverRef.current, () => setCovered(false));
+      }),
+    );
+    editors.forEach((editor, i) => editor.onDidDispose(stops[i]));
   }, []);
   return { covered, coverRef, cover };
 }

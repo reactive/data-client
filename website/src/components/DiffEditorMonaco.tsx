@@ -5,7 +5,7 @@ import {
 } from '@monaco-editor/react';
 import clsx from 'clsx';
 import { type editor } from 'monaco-editor';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import type { DiffSide } from './Playground/editor/callouts';
 import StaticEditor from './Playground/editor/StaticEditor';
@@ -29,14 +29,6 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
   });
 
   const { covered, coverRef, cover } = useEditorCover();
-  // Each pane's code, highlighted, where Monaco will draw it
-  const staticPanes = useMemo(
-    () =>
-      sides.map(({ language, editorValue }, i) => (
-        <StaticEditor key={i} language={language} code={editorValue} />
-      )),
-    [sides],
-  );
 
   // Left edge of each pane's code, so labels line up with the first column
   const [labelOffsets, setLabelOffsets] = useState<number[]>();
@@ -138,7 +130,13 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
                         ref={coverRef}
                         className={clsx(styles.editorCover, styles.diffCover)}
                       >
-                        {staticPanes}
+                        {sides.map(({ language, editorValue }, i) => (
+                          <StaticEditor
+                            key={i}
+                            language={language}
+                            code={editorValue}
+                          />
+                        ))}
                       </div>
                     : null}
                   </div>
