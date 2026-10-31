@@ -82,8 +82,9 @@ as far as the farthest) carry `data-traveling` until they land, for a style that
 place, `Reorder` where items change places.
 
 **Dragging into groups**: `useReorderItem(id, { onDrop })` lets the reader
-drag an item, and `useReorderItem(key, { dropValue })` makes an item a group
-to drop it in; `onDrop` gets that group's `dropValue`. The item waits where
+drag an item, and `useDropGroup(value)` makes an element a group to drop it
+in; `onDrop` gets that group's `value`. A group glides with the list too,
+named by its `value` (its keys don't meet the items'). The item waits where
 it was let go until the list changes (then glides on from there), or until
 the promise `onDrop` returns settles without a change (then goes home). A mouse lifts it once it moves,
 a finger after a short still hold (a swipe still scrolls); presses on its

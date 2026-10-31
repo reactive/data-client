@@ -319,7 +319,7 @@ its border while its entry saves, like a busy button.
 A list whose rows change place (a sort, a filter, a row moving to another
 group) wraps them in `<Reorder layoutDependency={list}>` and gives each row
 `ref={useReorderItem(row.pk())}`: rows glide to their new place, whatever the
-layout. `{ onDrop }` on a row and `{ dropValue }` on a group let the reader
+layout. `{ onDrop }` on a row and `ref={useDropGroup(value)}` on a group let the reader
 drag rows into groups as well (the joins demo: a todo into its new owner's
 group, beside the `assignee` picker). These are the site's own motion
 (`../motion`).
