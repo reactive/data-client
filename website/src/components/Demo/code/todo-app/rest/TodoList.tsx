@@ -4,7 +4,7 @@ import TodoItem from './TodoItem';
 
 export default function TodoList({ todos, userId }: Props) {
   return (
-    <div>
+    <div className="list">
       {todos.map(todo => (
         <TodoItem key={todo.pk()} todo={todo} />
       ))}

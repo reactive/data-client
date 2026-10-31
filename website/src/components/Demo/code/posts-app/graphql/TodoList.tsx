@@ -7,9 +7,11 @@ function TodoList() {
   return (
     <div>
       <TodoStats />
-      {todos.map(todo => (
-        <TodoItem key={todo.pk()} todo={todo} />
-      ))}
+      <div className="list">
+        {todos.map(todo => (
+          <TodoItem key={todo.pk()} todo={todo} />
+        ))}
+      </div>
     </div>
   );
 }

@@ -53,7 +53,7 @@ export default function TodoItem({ todo }: { todo: Todo }) {
           checked={todo.completed}
           onChange={handleChange}
         />
-        {todo.completed ? <s>{todo.title}</s> : todo.title}
+        {todo.title}
       </label>
       <CancelButton onClick={handleDelete} />
     </div>
@@ -103,7 +103,7 @@ function TodoList() {
   const userId = 1;
   const todos = useSuspense(TodoResource.getList, { userId });
   return (
-    <div>
+    <div className="list">
       {todos.map(todo => (
         <TodoItem key={todo.pk()} todo={todo} />
       ))}
