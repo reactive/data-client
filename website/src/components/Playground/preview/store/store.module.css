@@ -1234,13 +1234,13 @@ button.stage:focus-visible {
   font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
-/* the list's newest row */
+/* the list's newest row: the local .pill's place at the row's end, with a
+   faint edge instead of its tint. Under .store to outrank `.store .pill`;
+   bare for a quick look outside it, outranking the composed edge */
 .latest {
   composes: pill;
   color: var(--store-key);
 }
-/* a faint edge; two classes outrank the composed pill's edge (and the
-   tint of `.store .pill`) whatever order the build gives the files */
 .store .actSum .latest,
 .actSum .latest {
   border-color: color-mix(in srgb, currentColor 40%, transparent);

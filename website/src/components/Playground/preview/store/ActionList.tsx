@@ -272,8 +272,8 @@ function ActionList({
  * interaction put it */
 const LatestContext = createContext<ActionGroup | undefined>(undefined);
 
-/** Marks the list's newest row. A new row renders each row's marker
- * again (a compare, null but on the newest), not the memoized rows */
+/** Marks the list's newest row. It reads the newest from context, so a
+ * new row re-renders each row's marker, not the memoized rows */
 function Latest({ group }: { group: ActionGroup }) {
   return useContext(LatestContext) === group ?
       <span className={styles.latest}>latest</span>
