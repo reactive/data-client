@@ -1,0 +1,5 @@
+/* Docusaurus zeroes the margin of a tab panel's last child and puts it on
+   its Tabs container instead; this container stands in for that one */
+.group {
+  margin-bottom: var(--ifm-leading);
+}

@@ -11,6 +11,7 @@ import React, { useContext, useRef } from 'react';
 
 import { ProtocolSwitch } from './Demo/ProtocolChoice';
 import { PlaygroundHiddenContext } from './Playground/hiddenContext';
+import styles from './PlaygroundTabs.module.css';
 
 /** Docusaurus `<Tabs>` with the homepage's segmented switch, for tabs that
  * each hold a playground or a standalone editor. Takes the same props and
@@ -32,7 +33,7 @@ export default function PlaygroundTabs({
   return (
     // remount after hydration, as Docusaurus Tabs do (facebook/docusaurus#5653)
     <TabsProvider value={value} key={String(isBrowser)}>
-      <div ref={container} data-playground-group>
+      <div ref={container} className={styles.group} data-playground-group>
         <ProtocolSwitch
           label={label}
           values={value.tabValues}
