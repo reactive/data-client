@@ -174,15 +174,20 @@ function usePreviewGap(result: HTMLElement | null) {
 }
 
 /** Stacked layout: the app's sheet's box, as `--pg-app-width`,
- * `--pg-app-height` (from the result's top) and `--pg-app-end` (from the
- * folder's) on the folder: beside the open Store, the folder ends with the
- * app's sheet, and the Store's sheet runs on below it. The sheet is the
- * result's first child, the loading page's and then the live one's */
+ * `--pg-app-height` and `--pg-app-end` (from the folder's top) on the
+ * folder, and the Store's sheet's height, as `--pg-store-height`: beside
+ * the open Store, the folder ends with the app's card, the Store's sheet
+ * runs on below it, and the result is as tall as that sheet. The app's
+ * sheet is the result's first child, the loading page's and then the live
+ * one's; the Store's mounts in its panel as it opens */
 function useAppBox(result: HTMLElement | null) {
   useLayoutEffect(() => {
     const wrapper = result?.parentElement;
     if (!result || !wrapper || typeof ResizeObserver === 'undefined') return;
-    const measure = () => {
+    const panel = () =>
+      result.querySelector<HTMLElement>(`:scope > .${styles.storePanel}`);
+    const storeSheet = () => panel()?.firstElementChild;
+    const measureApp = () => {
       const app = result.firstElementChild;
       if (!(app instanceof HTMLElement)) return;
       const { offsetWidth: width, offsetHeight: height } = app;
@@ -193,23 +198,59 @@ function useAppBox(result: HTMLElement | null) {
         `${result.offsetTop + height}px`,
       );
     };
-    const sizes = new ResizeObserver(measure);
+    const measureStore = () => {
+      const sheet = storeSheet();
+      if (sheet instanceof HTMLElement)
+        wrapper.style.setProperty(
+          '--pg-store-height',
+          `${sheet.offsetHeight}px`,
+        );
+    };
+    // the Store's height resizes the result, and the playground around it,
+    // whose own observers (useNarrow) would loop if it changed while they
+    // are notified: it follows its sheet's resizes a frame later
+    let frame = 0;
+    const sizes = new ResizeObserver(() => {
+      measureApp();
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(measureStore);
+    });
+    // the app's sheet swaps in, and the Store's mounts in its panel: that
+    // one is measured at once, before the frame is drawn
+    const children = new MutationObserver(() => {
+      watch();
+      measureStore();
+    });
     const watch = () => {
       sizes.disconnect();
-      sizes.observe(result);
-      if (result.firstElementChild) sizes.observe(result.firstElementChild);
+      children.disconnect();
+      children.observe(result, { childList: true });
+      const drawer = panel();
+      if (drawer) children.observe(drawer, { childList: true });
+      // the header sets the result's top
+      for (const el of [
+        wrapper.firstElementChild,
+        result.firstElementChild,
+        storeSheet(),
+      ])
+        if (el) sizes.observe(el);
     };
     watch();
-    const children = new MutationObserver(watch);
-    children.observe(result, { childList: true });
+    measureStore();
     return () => {
+      cancelAnimationFrame(frame);
       sizes.disconnect();
       children.disconnect();
       for (const name of APP_BOX) wrapper.style.removeProperty(name);
     };
   }, [result]);
 }
-const APP_BOX = ['--pg-app-width', '--pg-app-height', '--pg-app-end'];
+const APP_BOX = [
+  '--pg-app-width',
+  '--pg-app-height',
+  '--pg-app-end',
+  '--pg-store-height',
+];
 
 /** Row layout: the result never shrinks below the tallest it has been, as
  * `--pg-result-min` on its playground, or on the group it switches within
