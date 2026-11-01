@@ -3,7 +3,7 @@ Object.hasOwn =
   /* istanbul ignore next */ function hasOwn(it, key) {
     return Object.prototype.hasOwnProperty.call(it, key);
   };
-export { Controller, ExpiryStatus, actionTypes } from '@data-client/core';
+export { Controller, ExpiryStatus, actionTypes } from './coreExports.js';
 export type {
   EndpointExtraOptions,
   FetchFunction,
@@ -50,5 +50,5 @@ export * from './components/index.js';
 export * from './hooks/index.js';
 export { StateContext, ControllerContext, StoreContext } from './context.js';
 export type { Store } from './context.js';
-export * as __INTERNAL__ from './internal.js';
+export { __INTERNAL__ } from './internalNamespace.js';
 export { usePromisifiedDispatch } from '@data-client/use-enhanced-reducer';

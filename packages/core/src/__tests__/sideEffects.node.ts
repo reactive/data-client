@@ -6,10 +6,6 @@ import path from 'path';
  * missing from the list still works, but makes bundles larger.
  */
 const packagesDir = path.join(__dirname, '../../..');
-/* Except react: its index re-exports `__INTERNAL__` as a namespace, which
- * Turbopack keeps (+1004 B gzip) once the index is marked side-effectful.
- */
-const indexSideEffectFree = '@data-client/react';
 
 /** Entry files bundlers resolve: `module`, `react-native` and `exports` targets */
 function entryFiles(pkg: any): string[] {
@@ -32,14 +28,12 @@ function entryFiles(pkg: any): string[] {
   ];
 }
 
-const allPackages = fs
+const packages = fs
   .readdirSync(packagesDir)
   .map(name => path.join(packagesDir, name, 'package.json'))
   .filter(file => fs.existsSync(file))
-  .map(file => JSON.parse(fs.readFileSync(file, 'utf8')));
-const packages = allPackages.filter(
-  pkg => Array.isArray(pkg.sideEffects) && pkg.name !== indexSideEffectFree,
-);
+  .map(file => JSON.parse(fs.readFileSync(file, 'utf8')))
+  .filter(pkg => Array.isArray(pkg.sideEffects));
 
 test('packages with sideEffects arrays', () => {
   expect(packages.map(pkg => pkg.name)).toEqual(
@@ -48,16 +42,10 @@ test('packages with sideEffects arrays', () => {
       '@data-client/endpoint',
       '@data-client/graphql',
       '@data-client/normalizr',
+      '@data-client/react',
       '@data-client/rest',
     ]),
   );
-});
-
-test(`${indexSideEffectFree} keeps its entry files side-effect free`, () => {
-  const react = allPackages.find(pkg => pkg.name === indexSideEffectFree);
-  expect(
-    react.sideEffects.filter(file => entryFiles(react).includes(file)),
-  ).toEqual([]);
 });
 
 test.each(packages.map(pkg => [pkg.name, pkg]))(
