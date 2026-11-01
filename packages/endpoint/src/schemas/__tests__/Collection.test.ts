@@ -974,6 +974,25 @@ describe(`${schema.Collection.name} normalization`, () => {
     ]);
   });
 
+  test('remove of a deleted id in an older response still removes it', () => {
+    const state = normalize(
+      User.schema.todos.remove,
+      [{ id: '10' }],
+      [{ userId: '1' }],
+      todosState(
+        { '{"userId":"1"}': ['10'] },
+        { '10': INVALID },
+        {
+          date: 100,
+          expiresAt: Infinity,
+          fetchedAt: 100,
+        },
+      ),
+      { date: 10, expiresAt: Infinity, fetchedAt: 10 },
+    );
+    expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([]);
+  });
+
   test('addWith() drops the deleted id before its own merge', () => {
     const merge = jest.fn((existing: string[], incoming: string[]) => [
       ...existing,

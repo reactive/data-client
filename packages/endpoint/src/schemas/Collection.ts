@@ -362,9 +362,11 @@ function normalizeCreate(
   }
   const isArray = this.schema instanceof ArraySchema;
   if (isArray && !Array.isArray(input)) input = [input];
-  // before normalize, which revives the entity
+  // before normalize, which revives the entity; remove drops the ref itself
   const deletedAt =
-    isArray ? deletedIndexes(this.schema, input, parent, key, delegate) : [];
+    isArray && this.merge !== removeMerge ?
+      deletedIndexes(this.schema, input, parent, key, delegate)
+    : [];
   const normalizedValue = this.schema.normalize(input, parent, key, delegate);
   // parent is args when not nested
   const filterCollections = (this.createCollectionFilter as any)(...args);
