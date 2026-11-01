@@ -55,17 +55,7 @@
   ],
   "sideEffects": [
     "./lib/hooks/useFocusEffect.native.js",
-    "./native/hooks/useFocusEffect.native.js",
-    "./lib/index.js",
-    "./legacy/index.js",
-    "./native/index.js",
-    "./lib/next/index.js",
-    "./native/next/index.js",
-    "./lib/server/index.js",
-    "./lib/server/nextjs/index.js",
-    "./lib/server/redux/index.js",
-    "./native/server/redux/index.js",
-    "./lib/mock/index.js"
+    "./native/hooks/useFocusEffect.native.js"
   ],
   "main": "dist/index.js",
   "react-native": "native/index.js",
