@@ -23,7 +23,7 @@ fi
 
 build=1
 if [ "${1:-}" = --no-build ]; then build=0; shift; fi
-label=${1:-$(git -C "$repo" describe --always --dirty)}
+label=${1:-$(git -C "$repo" describe --always --dirty --exclude='*')}
 # reinstall when the lockfile changed since the last install
 [ "$here/node_modules/.package-lock.json" -nt "$here/package-lock.json" ] || (cd "$here" && npm ci)
 
