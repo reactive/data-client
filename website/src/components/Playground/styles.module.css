@@ -535,6 +535,15 @@ div.playgroundTextEdit > .playgroundHeader {
   color: var(--pg-tab-selected);
   box-shadow: none;
 }
+/* dark, the open tab's paper is near the page's shade: a faint glow along
+   its rounded top marks it open, fading out before the card it joins */
+:root[data-theme='dark'] .row .tab.selected {
+  box-shadow:
+    inset 0 1px 0
+      color-mix(in srgb, var(--ifm-color-primary-light) 40%, transparent),
+    inset 0 6px 8px -6px
+      color-mix(in srgb, var(--ifm-color-primary) 35%, transparent);
+}
 .row .tab.selected::before,
 .row .tab.selected::after {
   bottom: 0;
