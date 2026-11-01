@@ -357,8 +357,8 @@ function addWithStore(
 /** Removal always applies to the stored list, however new it is */
 function removeWithStore(
   this: CollectionSchema<any, any>,
-  _existingMeta: { date: number; fetchedAt: number },
-  _incomingMeta: { date: number; fetchedAt: number },
+  _existingMeta: unknown,
+  _incomingMeta: unknown,
   existing: any,
   incoming: any,
 ) {
@@ -369,10 +369,9 @@ function CreateRemover(
   collection: CollectionSchema<any, any>,
   merge: (existing: any, incoming: any) => any,
 ) {
-  return Object.create(collection, {
-    ...derivedProperties(collection, merge, normalizeCreate),
-    mergeWithStore: { value: removeWithStore },
-  });
+  const properties = derivedProperties(collection, merge, normalizeCreate);
+  properties.mergeWithStore = { value: removeWithStore };
+  return Object.create(collection, properties);
 }
 
 function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(

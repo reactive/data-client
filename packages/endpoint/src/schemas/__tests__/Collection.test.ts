@@ -2894,9 +2894,8 @@ describe('Collection responses older than the stored list', () => {
   const todos = new Collection([Todo]);
   const values = new Collection(new schema.Values(Todo));
   const at = (t: number) => ({ date: t, expiresAt: Infinity, fetchedAt: t });
-  const pk = '{}';
   const list = (state: any, collection: any = todos) =>
-    state.entities[collection.key][pk];
+    state.entities[collection.key]['{}'];
 
   test.each<['push' | 'unshift', string[]]>([
     ['push', ['1', '2', 'B', 'A']],
