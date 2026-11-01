@@ -11,7 +11,8 @@ export function paginatedMerge(existing: any[], incoming: any[]) {
 
 /** A page adds to the stored list even when that list is newer than the page.
  *
- * paginatedMerge already skips ids the newer list has.
+ * Collection.mergeWithStore() would call merge(incoming, existing) for an older page,
+ * putting the page first. paginatedMerge already skips ids the newer list has.
  */
 function paginatedMergeWithStore(
   _existingMeta: unknown,

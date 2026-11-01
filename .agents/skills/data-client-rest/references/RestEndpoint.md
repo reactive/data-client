@@ -1443,6 +1443,9 @@ return (
 );
 ```
 
+A page adds to the end of the current list and skips items the list already has, even when the list was
+refetched while the page loaded.
+
 See [pagination guide](./pagination.md) for more info.
 
 ### paginated(paginationfield) {#paginated}
