@@ -35,6 +35,6 @@ leaving out the `Object.hasOwn` fallback in the entry files:
 Vite (Rollup and Rolldown) already concatenates each chunk into one scope, so `sideEffects` doesn't change its
 output. Single-chunk rspack builds change by under 50 B.
 
-To re-measure, build a page-split app with each bundler against packed packages, toggle the `sideEffects` arrays
-in the installed `package.json` files, and compare gzipped totals. Clear bundler caches between runs: webpack's
-cache misses `package.json` edits.
+To re-measure, run `scripts/bundler-compare/measure.sh` on a branch that changes the `sideEffects` arrays and on
+its base, then `--compare` the two runs. It covers rspack, Vite 8 and Turbopack. For webpack, build this app with
+the webpack cache off: it misses `package.json` edits.
