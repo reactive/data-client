@@ -12,7 +12,7 @@
     "build": "webpack --mode=production",
     "build:server": "webpack --mode=production --target=node --env entrypath=index.server.tsx",
     "build:analyze": "BABEL_DISABLE_CACHE=1 BROWSERSLIST_ENV='modern' webpack --mode=production --env analyze",
-    "build:sizecompare": "BABEL_DISABLE_CACHE=1 BROWSERSLIST_ENV='modern' webpack --mode=production --env nohash",
+    "build:sizecompare": "BABEL_DISABLE_CACHE=1 WEBPACK_NO_CACHE=true BROWSERSLIST_ENV='modern' webpack --mode=production --env nohash",
     "build:profile": "webpack --mode=production --env profile",
     "test:pkg": "webpack --env check=nobuild",
     "postinstall": "rm -rf node_modules/.cache"
