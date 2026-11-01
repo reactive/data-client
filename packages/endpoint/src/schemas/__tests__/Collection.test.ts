@@ -1182,6 +1182,49 @@ describe(`${schema.Collection.name} normalization`, () => {
     ]);
   });
 
+  test('re-creating a deleted id from an older response keeps it when the newer list dropped it', () => {
+    const init = todosState(
+      { '{"userId":"1"}': ['5'] },
+      { ...todo5, '10': INVALID },
+      { date: 100, expiresAt: Infinity, fetchedAt: 100 },
+    );
+    const state = normalize(
+      User.schema.todos.push,
+      [{ id: '10', title: 'recreated' }],
+      [{ userId: '1' }],
+      init,
+      { date: 10, expiresAt: Infinity, fetchedAt: 10 },
+    );
+    expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
+      '10',
+      '5',
+    ]);
+  });
+
+  test('re-creating a deleted id from an older response keeps its stored position with ImmutableJS state', () => {
+    const newer = { date: 100, expiresAt: Infinity, fetchedAt: 100 };
+    const state = normalizeImm(
+      User.schema.todos.push,
+      [{ id: '10', title: 'recreated' }],
+      [{ userId: '1' }],
+      {
+        entities: fromJS({
+          [User.schema.todos.key]: { '{"userId":"1"}': ['5', '10'] },
+          Todo: { '5': { id: '5', title: 'finish collections' } },
+        }).setIn(['Todo', '10'], INVALID),
+        indexes: fromJS({}),
+        entitiesMeta: fromJS({
+          [User.schema.todos.key]: { '{"userId":"1"}': newer },
+          Todo: { '5': meta, '10': meta },
+        }),
+      },
+      { date: 10, expiresAt: Infinity, fetchedAt: 10 },
+    );
+    expect([
+      ...state.entities.getIn([User.schema.todos.key, '{"userId":"1"}']),
+    ]).toEqual(['5', '10']);
+  });
+
   test('two pushes in one response each add their item once', () => {
     const init = {
       entities: {

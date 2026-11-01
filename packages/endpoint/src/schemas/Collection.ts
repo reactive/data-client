@@ -416,10 +416,11 @@ function deletedIndexes(
   return indexes;
 }
 
-/** Collection that merges like `collection`, but first drops `refs` from the stored list
+/** Collection that merges like `collection`, but drops the older copy of `refs`
  *
- * mergeWithStore() calls merge() too. When the stored list is newer, it swaps the
- * arguments, so `refs` drop from the incoming list instead; either way one remains.
+ * mergeWithStore() calls merge() too. It passes the stored list first, unless the
+ * stored list is newer, when it passes the incoming list first. A ref drops from the
+ * first list only when the second list has it.
  */
 function CreateDropper(
   collection: CollectionSchema<any, any>,
@@ -427,9 +428,17 @@ function CreateDropper(
 ) {
   return Object.create(collection, {
     merge: {
-      // existing is an Immutable List when the store is ImmutableJS
-      value: (existing: any, incoming: any) =>
-        collection.merge(removeMerge(existing, refs), incoming),
+      // either list is an Immutable List when the store is ImmutableJS
+      value: (first: any, second: any) =>
+        collection.merge(
+          removeMerge(
+            first,
+            refs.filter(ref =>
+              second.some((item: any) => isShallowEqual(item, ref)),
+            ),
+          ),
+          second,
+        ),
     },
   });
 }
