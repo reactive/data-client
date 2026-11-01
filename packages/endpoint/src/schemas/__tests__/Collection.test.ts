@@ -1162,6 +1162,26 @@ describe(`${schema.Collection.name} normalization`, () => {
     ).toBe(100);
   });
 
+  test('re-creating a deleted id from an older response keeps its stored position', () => {
+    const init = todosState(
+      { '{"userId":"1"}': ['5', '10'] },
+      { ...todo5, '10': INVALID },
+      { date: 100, expiresAt: Infinity, fetchedAt: 100 },
+    );
+    // the stored list is newer, so its order wins
+    const state = normalize(
+      User.schema.todos.push,
+      [{ id: '10', title: 'recreated' }],
+      [{ userId: '1' }],
+      init,
+      { date: 10, expiresAt: Infinity, fetchedAt: 10 },
+    );
+    expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
+      '5',
+      '10',
+    ]);
+  });
+
   test('two pushes in one response each add their item once', () => {
     const init = {
       entities: {
