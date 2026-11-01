@@ -40,6 +40,12 @@ const isShallowEqual = (a: NormalizedRef, b: NormalizedRef): boolean => {
 const removeMerge = (list: NormalizedRef[], toRemove: NormalizedRef[]) =>
   list.filter(item => !toRemove.some(inc => isShallowEqual(item, inc)));
 
+// a string ref only equals the same string, so the native search does
+const hasRef = (list: NormalizedRef[], ref: NormalizedRef) =>
+  typeof ref === 'object' && ref ?
+    list.some(item => isShallowEqual(ref, item))
+  : list.includes(ref);
+
 const valuesRemoveMerge = (
   existing: Record<string, NormalizedRef>,
   incoming: Record<string, NormalizedRef>,
@@ -344,7 +350,7 @@ function addWithStore(
   incoming: any[],
 ) {
   if (this.shouldReorder(existingMeta, incomingMeta, existing, incoming))
-    incoming = removeMerge(incoming, existing);
+    incoming = incoming.filter(ref => !hasRef(existing, ref));
   return this.merge(existing, incoming);
 }
 
@@ -473,9 +479,7 @@ function CreateDropper(
         collection.merge(
           removeMerge(
             existing,
-            refs.filter(ref =>
-              incoming.some((item: any) => isShallowEqual(item, ref)),
-            ),
+            refs.filter(ref => hasRef(incoming, ref)),
           ),
           incoming,
         ),
