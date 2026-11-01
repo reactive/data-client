@@ -38,9 +38,9 @@ const isShallowEqual = (a: NormalizedRef, b: NormalizedRef): boolean => {
 };
 
 const removeMerge = (list: NormalizedRef[], toRemove: NormalizedRef[]) =>
-  list.filter(item => !toRemove.some(inc => isShallowEqual(item, inc)));
+  list.filter(item => !toRemove.some(ref => isShallowEqual(item, ref)));
 
-// a string ref only equals the same string, so the native search does
+// isShallowEqual() compares string refs with ===, which native includes() does faster
 const hasRef = (list: NormalizedRef[], ref: NormalizedRef) =>
   typeof ref === 'object' && ref ?
     list.some(item => isShallowEqual(ref, item))
