@@ -1,7 +1,7 @@
 # bundler-compare
 
-Builds a two-page app (one lazy chunk per page) from this checkout's packages and prints its gzipped JS with
-one bundler per family. Each one is the fastest of its family:
+Builds a two-page app (one lazy chunk per page) from this checkout's packages and prints its gzipped and brotli JS
+with one bundler per family. Each one is the fastest of its family:
 
 | Family    | Bundler           | Stands in for  |
 | --------- | ----------------- | -------------- |
@@ -24,7 +24,8 @@ code cost about the same in every bundler.
 
 ## Usage
 
-Needs `yarn` (the repo's) and `npm`. The first run installs this folder's dependencies with `npm ci`.
+Needs `yarn` (the repo's) and `npm`. The first run installs this folder's dependencies with `npm ci`. From the
+repository root:
 
 ```bash
 git checkout master && scripts/bundler-compare/measure.sh before
@@ -37,4 +38,6 @@ scripts/bundler-compare/measure.sh --compare before after
 `Object.hasOwn` fallback at the top of the entry files, since apps get polyfills elsewhere. One run takes about 25
 seconds.
 
-Absolute totals depend on the bundler versions it prints, so compare two runs made with the same install.
+Compare runs of one bundler with each other, not across bundlers: the Next.js app uses `@data-client/react/nextjs`'s
+`DataProvider`, and absolute totals depend on the bundler versions. `--compare` warns when two runs used different
+versions.

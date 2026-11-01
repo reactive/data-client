@@ -47,10 +47,6 @@ export class User extends Entity {
   website = '';
   todos: Todo[] = [];
 
-  get profileImage() {
-    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
-  }
-
   static schema = {
     todos: new Collection([Todo], {
       nestKey: parent => ({
