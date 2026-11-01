@@ -40,7 +40,7 @@ text .user2 {
   font-weight: 600;
 }
 
-/* the segmented control: push / unshift / remove / move */
+/* the segmented control: push / unshift / remove / move / getPage */
 .controls {
   display: flex;
   /* only at large text sizes on a phone */
@@ -78,10 +78,10 @@ text .user2 {
   outline: 2px solid var(--ifm-color-primary);
   outline-offset: 1px;
 }
-/* taller for a finger */
+/* taller for a finger; narrower sides keep all five on one line at phone width */
 @media (pointer: coarse) {
   .controls button {
-    padding: 8px 14px;
+    padding: 8px 10px;
   }
 }
 
@@ -224,6 +224,23 @@ text .user2 {
   100% {
     opacity: 0;
     transform: none;
+  }
+}
+
+/* getPage's paginationField fades with the lists that fail: it isn't in the pk.
+   compare's timing, but on fill-opacity, since opacity doesn't apply to a tspan */
+.cursor {
+  animation-name: ignore;
+}
+@keyframes ignore {
+  0%,
+  12%,
+  100% {
+    fill-opacity: 1;
+  }
+  20%,
+  92% {
+    fill-opacity: 0.4;
   }
 }
 
