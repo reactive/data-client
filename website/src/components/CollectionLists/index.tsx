@@ -41,7 +41,7 @@ const LISTS: List[] = [
 const TODO = { id: '9', userId: '1' as User };
 /** getTodos' paginationField: getPage's lists leave it out of their pk */
 const PAGINATION_FIELD = 'page';
-/** How many todos the page getPage fetches holds */
+/** How many todos getPage's page brings, one chip each */
 const PAGE_SIZE = 2;
 /** push and unshift's arguments */
 const CREATE: Record<string, string>[] = [

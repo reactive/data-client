@@ -84,6 +84,11 @@ text .user2 {
     padding: 8px 10px;
   }
 }
+@media (pointer: coarse) and (max-width: 359px) {
+  .controls button {
+    padding: 8px 6px;
+  }
+}
 
 .call text {
   fill: var(--ifm-font-color-base);
@@ -227,8 +232,8 @@ text .user2 {
   }
 }
 
-/* getPage's paginationField fades with the lists that fail: it isn't in the pk.
-   compare's timing, but on fill-opacity, since opacity doesn't apply to a tspan */
+/* the call's paginationField isn't in the pk, so it fades while the lists are
+   compared: compare's timing, on fill-opacity since opacity doesn't apply to a tspan */
 .cursor {
   animation-name: ignore;
 }
