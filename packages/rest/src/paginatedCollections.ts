@@ -9,6 +9,19 @@ export function paginatedMerge(existing: any[], incoming: any[]) {
   return mergedList;
 }
 
+/** A page adds to the stored list even when that list is newer than the page.
+ *
+ * paginatedMerge already skips ids the newer list has.
+ */
+function paginatedMergeWithStore(
+  _existingMeta: unknown,
+  _incomingMeta: unknown,
+  existing: any[],
+  incoming: any[],
+) {
+  return paginatedMerge(existing, incoming);
+}
+
 export function createPaginationSchema(
   removeCursor: (...args: readonly any[]) => any[],
   collection: schema.Collection,
@@ -19,6 +32,9 @@ export function createPaginationSchema(
     },
     merge: {
       value: paginatedMerge,
+    },
+    mergeWithStore: {
+      value: paginatedMergeWithStore,
     },
     pk: {
       value: function (value: any, parent: any, key: any, args: any[]) {

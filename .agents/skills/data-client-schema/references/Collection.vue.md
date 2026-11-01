@@ -610,8 +610,8 @@ the default merge, this will cause the fields of existing entities to override t
 rather than the other way around.
 
 Collection updates ([push](#push), [unshift](#unshift), [remove](#remove), [move](#move) and
-[addWith](#addWith) on Arrays) still apply to a newer stored list. An older `push` or `unshift`
-leaves out the items the newer list already has and adds the rest at its end.
+[addWith](#addWith) on Arrays, and [getPage](https://dataclient.io/rest/api/RestEndpoint#getpage)) still apply to a newer stored list.
+An older `push`, `unshift` or `getPage` leaves out the items the newer list already has and adds the rest at its end.
 
 ### static merge(existing, incoming): mergedValue {#merge}
 
