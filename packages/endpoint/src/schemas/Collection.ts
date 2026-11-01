@@ -326,6 +326,7 @@ function derivedProperties(
   if (collection.schema instanceof ArraySchema) {
     properties.createIfValid = { value: createIfValid };
     properties.denormalize = { value: denormalize };
+    // Values keep Collection's swap: for an older assign, the newer stored value wins a key conflict
     properties.mergeWithStore = { value: addWithStore };
   }
   return properties;
