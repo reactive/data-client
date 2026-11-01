@@ -37,8 +37,8 @@ const isShallowEqual = (a: NormalizedRef, b: NormalizedRef): boolean => {
   return a === b;
 };
 
-const removeMerge = (existing: NormalizedRef[], incoming: NormalizedRef[]) =>
-  existing.filter(item => !incoming.some(inc => isShallowEqual(item, inc)));
+const removeMerge = (list: NormalizedRef[], toRemove: NormalizedRef[]) =>
+  list.filter(item => !toRemove.some(inc => isShallowEqual(item, inc)));
 
 const valuesRemoveMerge = (
   existing: Record<string, NormalizedRef>,

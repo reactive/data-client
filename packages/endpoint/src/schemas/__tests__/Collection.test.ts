@@ -2895,8 +2895,6 @@ describe('Collection responses older than the stored list', () => {
   const values = new Collection(new schema.Values(Todo));
   const at = (t: number) => ({ date: t, expiresAt: Infinity, fetchedAt: t });
   const pk = '{}';
-  const base = (collection: any, input: any) =>
-    normalize(collection, input, [{}], undefined, at(0));
   const list = (state: any, collection: any = todos) =>
     state.entities[collection.key][pk];
 
@@ -2910,7 +2908,7 @@ describe('Collection responses older than the stored list', () => {
         todos[method],
         [{ id: 'B' }],
         [{}],
-        base(todos, [{ id: '1' }, { id: '2' }]),
+        normalize(todos, [{ id: '1' }, { id: '2' }], [{}], undefined, at(0)),
         at(20),
       );
       state = normalize(todos[method], [{ id: 'A' }], [{}], state, at(10));
@@ -2918,44 +2916,26 @@ describe('Collection responses older than the stored list', () => {
     },
   );
 
-  test.each<['push' | 'unshift', string[], string[]]>([
-    ['push', ['1', '2', 'X'], ['1', '2', 'X']],
-    ['unshift', ['1', '2', 'X'], ['X', '1', '2']],
+  test.each<['push' | 'unshift', string, string[], string[]]>([
+    // the list refetch read the server after the create
+    ['push', 'after', ['1', '2', 'X'], ['1', '2', 'X']],
+    ['unshift', 'after', ['1', '2', 'X'], ['1', '2', 'X']],
+    // the list refetch read the server before the create
+    ['push', 'before', ['1', '2'], ['1', '2', 'X']],
+    ['unshift', 'before', ['1', '2'], ['X', '1', '2']],
   ])(
-    'an older %s skips an item the newer list already has',
-    (method, withX, withoutX) => {
-      const refetched = (input: any) =>
-        normalize(
-          todos,
-          input,
-          [{}],
-          base(todos, [{ id: '1' }, { id: '2' }]),
-          at(50),
-        );
-      // the list refetch read the server after the create
+    'an older %s skips an item the newer list already has (refetch %s the create)',
+    (method, _when, refetched, expected) => {
+      const state = normalize(
+        todos,
+        refetched.map(id => ({ id })),
+        [{}],
+        undefined,
+        at(50),
+      );
       expect(
-        list(
-          normalize(
-            todos[method],
-            [{ id: 'X' }],
-            [{}],
-            refetched([{ id: '1' }, { id: '2' }, { id: 'X' }]),
-            at(10),
-          ),
-        ),
-      ).toEqual(withX);
-      // the list refetch read the server before the create
-      expect(
-        list(
-          normalize(
-            todos[method],
-            [{ id: 'X' }],
-            [{}],
-            refetched([{ id: '1' }, { id: '2' }]),
-            at(10),
-          ),
-        ),
-      ).toEqual(withoutX);
+        list(normalize(todos[method], [{ id: 'X' }], [{}], state, at(10))),
+      ).toEqual(expected);
     },
   );
 
@@ -2995,8 +2975,13 @@ describe('Collection responses older than the stored list', () => {
   });
 
   test('an older list response keeps the newer stored list', () => {
-    let state = base(todos, [{ id: '1' }]);
-    state = normalize(todos, [{ id: '1' }, { id: '2' }], [{}], state, at(50));
+    let state = normalize(
+      todos,
+      [{ id: '1' }, { id: '2' }],
+      [{}],
+      undefined,
+      at(50),
+    );
     state = normalize(todos, [{ id: '3' }], [{}], state, at(10));
     expect(list(state)).toEqual(['1', '2']);
   });
@@ -3015,8 +3000,13 @@ describe('Collection responses older than the stored list', () => {
   });
 
   test('an older remove still removes only that item', () => {
-    let state = base(todos, [{ id: '1' }, { id: '2' }]);
-    state = normalize(todos, [{ id: '1' }, { id: '2' }], [{}], state, at(50));
+    let state = normalize(
+      todos,
+      [{ id: '1' }, { id: '2' }],
+      [{}],
+      undefined,
+      at(50),
+    );
     state = normalize(todos.remove, [{ id: '1' }], [{}], state, at(10));
     expect(list(state)).toEqual(['2']);
   });
