@@ -1,5 +1,4 @@
 import PolymorphicSchema from './Polymorphic.js';
-import { pkOf } from './utils.js';
 import type {
   EntityInterface,
   IDenormalizeDelegate,
@@ -71,11 +70,13 @@ export default class Invalidate<
     if (typeof input === 'string' || typeof input === 'number') {
       pk = input;
     } else {
-      pk = pkOf(entitySchema, input, parent, key, args);
+      // Must call process() to get correct pk
+      const processedEntity = entitySchema.process(input, parent, key, args);
+      pk = entitySchema.pk(processedEntity ?? input, parent, key, args);
 
       if (
         process.env.NODE_ENV !== 'production' &&
-        (pk === '' || pk === 'undefined')
+        (pk === undefined || pk === '' || pk === 'undefined')
       ) {
         const error = new Error(
           `Missing usable primary key when normalizing response.
