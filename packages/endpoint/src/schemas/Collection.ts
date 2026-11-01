@@ -31,7 +31,8 @@ const isShallowEqual = (a: NormalizedRef, b: NormalizedRef): boolean => {
   // TODO: make this extensible in the child's schema
   // arrays keep null members, and typeof null is 'object'
   if (typeof a === 'object' && typeof b === 'object' && a && b) {
-    return a.id === b.id && a.schema === b.schema;
+    // nested-object members like `{ todo: '5' }` have no id, so they never match
+    return a.id !== undefined && a.id === b.id && a.schema === b.schema;
   }
   return a === b;
 };
@@ -341,40 +342,30 @@ function addWithStore(
   existing: any,
   incoming: any[],
 ) {
-  return this.merge(
-    existing,
-    this.shouldReorder(existingMeta, incomingMeta, existing, incoming) ?
-      incoming.filter(
-        item =>
-          !isRef(item) ||
-          !existing.some((ref: NormalizedRef) => isShallowEqual(ref, item)),
-      )
-    : incoming,
-  );
+  if (this.shouldReorder(existingMeta, incomingMeta, existing, incoming))
+    incoming = removeMerge(incoming, existing);
+  return this.merge(existing, incoming);
 }
-
-/** Ids and Union refs; nested-object members like `{ todo: '5' }` have no id */
-const isRef = (item: any) =>
-  typeof item !== 'object' || (item !== null && item.id !== undefined);
 
 /** Removal always applies to the stored list, however new it is */
 function removeWithStore(
   this: CollectionSchema<any, any>,
-  existingMeta: unknown,
-  incomingMeta: unknown,
+  _existingMeta: { date: number; fetchedAt: number },
+  _incomingMeta: { date: number; fetchedAt: number },
   existing: any,
   incoming: any,
 ) {
   return this.merge(existing, incoming);
 }
 
-function CreateRemover<C extends CollectionSchema<any, any>>(
-  collection: C,
+function CreateRemover(
+  collection: CollectionSchema<any, any>,
   merge: (existing: any, incoming: any) => any,
 ) {
-  const properties = derivedProperties(collection, merge, normalizeCreate);
-  properties.mergeWithStore = { value: removeWithStore };
-  return Object.create(collection, properties);
+  return Object.create(collection, {
+    ...derivedProperties(collection, merge, normalizeCreate),
+    mergeWithStore: { value: removeWithStore },
+  });
 }
 
 function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(
