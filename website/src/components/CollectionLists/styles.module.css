@@ -84,9 +84,10 @@ text .user2 {
     padding: 8px 10px;
   }
 }
-@media (pointer: coarse) and (max-width: 359px) {
+/* and narrower still below the 360px phone class, so all five fit at 320px */
+@media (max-width: 359px) {
   .controls button {
-    padding: 8px 6px;
+    padding-inline: 6px;
   }
 }
 
