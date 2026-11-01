@@ -7,9 +7,13 @@
 '@data-client/rest': patch
 ---
 
-Smaller bundles with webpack when Data Client is in its own chunk
+Smaller bundles with webpack and rspack when Data Client is in its own chunk
 
-Apps that split vendor code into separate chunks (webpack `splitChunks`, as Next.js does) now get smaller Data Client
-bundles: about 1.5 kB less gzipped across our bundle-size test app. Each package's entry files are now listed in
-`sideEffects`, so webpack keeps them and can hoist each package into one module. Every other file is still
-side-effect free, so code you don't use, like [Lazy](https://dataclient.io/rest/api/Lazy), is still left out.
+Apps that split vendor code into separate chunks with webpack or rspack (`splitChunks`) now get 440–710 B (gzip)
+less Data Client code. Each package's entry files are now listed in `sideEffects`, so webpack keeps them and can
+hoist each package into one module. Every other file is still side-effect free, so code you don't use, like
+[Lazy](https://dataclient.io/rest/api/Lazy), is still left out.
+
+The `Object.hasOwn` fallback in the package entry files now runs in bundled apps too. Before, webpack, rspack and
+Vite 8 dropped it, so browsers without `Object.hasOwn` (before Chrome 93 or Safari 15.4) threw
+`Object.hasOwn is not a function` unless the app loaded its own polyfill.
