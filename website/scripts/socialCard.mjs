@@ -5,7 +5,7 @@
  * Usage (from repo root):
  *   yarn workspace rdc-website social-card blog/2026-10-03-v0.19-batch-set.md
  *   yarn workspace rdc-website social-card 0.19 --force   # overwrite existing
- *   yarn workspace rdc-website social-card coding-agents  # non-release post, by slug
+ *   yarn workspace rdc-website social-card <slug>         # non-release post, by slug
  *
  * Release posts (titled `vX.Y: ...`) write X.Y-card.png with a RELEASE pill and
  * a visual per headline feature. Other posts write <slug>-card.png with their
@@ -724,7 +724,7 @@ function cardHtml({
     margin-top: 26px; width: 680px; font-size: 28px; font-weight: 300; line-height: 1.35; color: #b4bfd0;
     display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
   }
-  .agents { display: flex; align-items: center; gap: 26px; margin-top: 30px; color: #b4bfd0; }
+  .agents { display: flex; align-items: center; gap: 26px; margin-top: 24px; color: #b4bfd0; }
   .agents span { font-size: 18px; font-weight: 500; letter-spacing: 0.2em; color: #6f82a0; margin-right: 6px; }
   .agents svg { width: 36px; height: 36px; opacity: 0.85; }
   .panel {
@@ -876,6 +876,15 @@ async function render(html, outFile, feature) {
         )
           box.style.fontSize = --size + 'px';
       }
+      // Clamp the tagline shorter until the agent row (posts tagged `agents`) fits
+      const tagline = document.querySelector('.tagline');
+      const agentRow = document.querySelector('.agents');
+      let lines = parseInt(getComputedStyle(tagline).webkitLineClamp);
+      while (
+        agentRow?.getBoundingClientRect().bottom > innerHeight - 16 &&
+        lines > 1
+      )
+        tagline.style.webkitLineClamp = String(--lines);
     });
     await page.screenshot({ path: outFile });
   } finally {
