@@ -156,12 +156,12 @@ export default class CollectionSchema<
       this.createIfValid = createArray;
       this.push = CreateAdder(this, pushMerge);
       this.unshift = CreateAdder(this, unshift);
-      this.remove = CreateAdder(this, removeMerge);
+      this.remove = CreateRemover(this, removeMerge);
       this.move = CreateMover(this, pushMerge, removeMerge);
     } else if (schema instanceof Values) {
       this.createIfValid = createValue;
       this.assign = CreateAdder(this, valuesMerge);
-      this.remove = CreateAdder(this, valuesRemoveMerge);
+      this.remove = CreateRemover(this, valuesRemoveMerge);
       this.move = CreateMover(this, valuesMerge, valuesRemoveMerge);
     }
   }
@@ -325,8 +325,56 @@ function derivedProperties(
   if (collection.schema instanceof ArraySchema) {
     properties.createIfValid = { value: createIfValid };
     properties.denormalize = { value: denormalize };
+    properties.mergeWithStore = { value: addWithStore };
   }
   return properties;
+}
+
+/** Adds to the stored list even when it is newer than this response.
+ *
+ * The newer list already places any ref it has, so only the others are added.
+ */
+function addWithStore(
+  this: CollectionSchema<any, any>,
+  existingMeta: { date: number; fetchedAt: number },
+  incomingMeta: { date: number; fetchedAt: number },
+  existing: any,
+  incoming: any[],
+) {
+  return this.merge(
+    existing,
+    this.shouldReorder(existingMeta, incomingMeta, existing, incoming) ?
+      incoming.filter(
+        item =>
+          !isRef(item) ||
+          !existing.some((ref: NormalizedRef) => isShallowEqual(ref, item)),
+      )
+    : incoming,
+  );
+}
+
+/** Ids and Union refs; nested-object members like `{ todo: '5' }` have no id */
+const isRef = (item: any) =>
+  typeof item !== 'object' || (item !== null && item.id !== undefined);
+
+/** Removal always applies to the stored list, however new it is */
+function removeWithStore(
+  this: CollectionSchema<any, any>,
+  existingMeta: unknown,
+  incomingMeta: unknown,
+  existing: any,
+  incoming: any,
+) {
+  return this.merge(existing, incoming);
+}
+
+function CreateRemover<C extends CollectionSchema<any, any>>(
+  collection: C,
+  merge: (existing: any, incoming: any) => any,
+) {
+  const properties = derivedProperties(collection, merge, normalizeCreate);
+  properties.mergeWithStore = { value: removeWithStore };
+  return Object.create(collection, properties);
 }
 
 function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(
@@ -416,11 +464,11 @@ function deletedIndexes(
   return indexes;
 }
 
-/** Collection that merges like `collection`, but drops the older copy of `refs`
+/** Collection that merges like `collection`, but first drops `refs` from the stored list
  *
- * mergeWithStore() calls merge() too. It passes the stored list first, unless the
- * stored list is newer, when it passes the incoming list first. A ref drops from the
- * first list only when the second list has it.
+ * A ref drops only when the incoming list still has it: when the stored list is newer
+ * and already has the ref, addWithStore() leaves it out of the incoming list instead,
+ * so the item keeps its stored position.
  */
 function CreateDropper(
   collection: CollectionSchema<any, any>,
@@ -428,16 +476,16 @@ function CreateDropper(
 ) {
   return Object.create(collection, {
     merge: {
-      // either list is an Immutable List when the store is ImmutableJS
-      value: (first: any, second: any) =>
+      // existing is an Immutable List when the store is ImmutableJS
+      value: (existing: any, incoming: any) =>
         collection.merge(
           removeMerge(
-            first,
+            existing,
             refs.filter(ref =>
-              second.some((item: any) => isShallowEqual(item, ref)),
+              incoming.some((item: any) => isShallowEqual(item, ref)),
             ),
           ),
-          second,
+          incoming,
         ),
     },
   });
@@ -477,6 +525,7 @@ function CreateMover<C extends CollectionSchema<any, any>>(
   // per-call Object.create (which causes V8 hidden-class polymorphism).
   mover._removeSchema = Object.create(mover, {
     merge: { value: removeMerge },
+    mergeWithStore: { value: removeWithStore },
   });
   return mover;
 }

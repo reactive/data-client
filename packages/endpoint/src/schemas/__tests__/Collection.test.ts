@@ -1196,8 +1196,8 @@ describe(`${schema.Collection.name} normalization`, () => {
       { date: 10, expiresAt: Infinity, fetchedAt: 10 },
     );
     expect(state.entities[User.schema.todos.key]['{"userId":"1"}']).toEqual([
-      '10',
       '5',
+      '10',
     ]);
   });
 
@@ -2887,5 +2887,139 @@ describe(`${schema.Collection.name} denormalization`, () => {
     ).not.toEqual(
       ArticleResource.getList.schema.pk([], undefined, '', [filtersB]),
     );
+  });
+});
+
+describe('Collection responses older than the stored list', () => {
+  const todos = new Collection([Todo]);
+  const values = new Collection(new schema.Values(Todo));
+  const at = (t: number) => ({ date: t, expiresAt: Infinity, fetchedAt: t });
+  const pk = '{}';
+  const base = (collection: any, input: any) =>
+    normalize(collection, input, [{}], undefined, at(0));
+  const list = (state: any, collection: any = todos) =>
+    state.entities[collection.key][pk];
+
+  test.each<['push' | 'unshift', string[]]>([
+    ['push', ['1', '2', 'B', 'A']],
+    ['unshift', ['A', 'B', '1', '2']],
+  ])(
+    'an older %s that lands after a newer one still adds at its end',
+    (method, expected) => {
+      let state = normalize(
+        todos[method],
+        [{ id: 'B' }],
+        [{}],
+        base(todos, [{ id: '1' }, { id: '2' }]),
+        at(20),
+      );
+      state = normalize(todos[method], [{ id: 'A' }], [{}], state, at(10));
+      expect(list(state)).toEqual(expected);
+    },
+  );
+
+  test.each<['push' | 'unshift', string[], string[]]>([
+    ['push', ['1', '2', 'X'], ['1', '2', 'X']],
+    ['unshift', ['1', '2', 'X'], ['X', '1', '2']],
+  ])(
+    'an older %s skips an item the newer list already has',
+    (method, withX, withoutX) => {
+      const refetched = (input: any) =>
+        normalize(
+          todos,
+          input,
+          [{}],
+          base(todos, [{ id: '1' }, { id: '2' }]),
+          at(50),
+        );
+      // the list refetch read the server after the create
+      expect(
+        list(
+          normalize(
+            todos[method],
+            [{ id: 'X' }],
+            [{}],
+            refetched([{ id: '1' }, { id: '2' }, { id: 'X' }]),
+            at(10),
+          ),
+        ),
+      ).toEqual(withX);
+      // the list refetch read the server before the create
+      expect(
+        list(
+          normalize(
+            todos[method],
+            [{ id: 'X' }],
+            [{}],
+            refetched([{ id: '1' }, { id: '2' }]),
+            at(10),
+          ),
+        ),
+      ).toEqual(withoutX);
+    },
+  );
+
+  test('an older push keeps nested-object members', () => {
+    const tasks = new Collection([{ todo: Todo }]);
+    let state = normalize(
+      tasks,
+      [{ todo: { id: '1' } }],
+      [{}],
+      undefined,
+      at(50),
+    );
+    state = normalize(tasks.push, [{ todo: { id: '2' } }], [{}], state, at(10));
+    expect(list(state, tasks)).toEqual([{ todo: '1' }, { todo: '2' }]);
+  });
+
+  test('an older remove still removes only that item', () => {
+    let state = base(todos, [{ id: '1' }, { id: '2' }]);
+    state = normalize(todos, [{ id: '1' }, { id: '2' }], [{}], state, at(50));
+    state = normalize(todos.remove, [{ id: '1' }], [{}], state, at(10));
+    expect(list(state)).toEqual(['2']);
+  });
+
+  test('an older remove from a Values collection removes only that item', () => {
+    let state = normalize(
+      values,
+      { a: { id: '1' }, b: { id: '2' } },
+      [{}],
+      undefined,
+      at(50),
+    );
+    state = normalize(values.remove, { a: { id: '1' } }, [{}], state, at(10));
+    expect(list(state, values)).toEqual({ b: '2' });
+  });
+
+  test('an older move keeps the rest of the source list', () => {
+    const byUser = new Collection([Todo], {
+      argsKey: ({ userId }: { userId: string }) => ({ userId }),
+    });
+    let state = normalize(
+      byUser,
+      [
+        { id: '10', userId: 1 },
+        { id: '5', userId: 1 },
+      ],
+      [{ userId: '1' }],
+      undefined,
+      at(100),
+    );
+    state = normalize(
+      byUser,
+      [{ id: '7', userId: 2 }],
+      [{ userId: '2' }],
+      state,
+      at(100),
+    );
+    state = normalize(
+      byUser.move,
+      { id: '10', userId: 2 },
+      [{ id: '10' }, { userId: '2' }],
+      state,
+      at(10),
+    );
+    expect(state.entities[byUser.key]['{"userId":"1"}']).toEqual(['5']);
+    expect(state.entities[byUser.key]['{"userId":"2"}']).toEqual(['7', '10']);
   });
 });
