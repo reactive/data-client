@@ -1,5 +1,6 @@
 import ArraySchema from './Array.js';
 import { consistentSerialize } from './consistentSerialize.js';
+import { pkOf } from './utils.js';
 import Values from './Values.js';
 import {
   IDenormalizeDelegate,
@@ -28,7 +29,8 @@ type NormalizedRef = { id: string; schema: string } | string;
 
 const isShallowEqual = (a: NormalizedRef, b: NormalizedRef): boolean => {
   // TODO: make this extensible in the child's schema
-  if (typeof a === 'object' && typeof b === 'object') {
+  // arrays keep null members, and typeof null is 'object'
+  if (typeof a === 'object' && typeof b === 'object' && a && b) {
     return a.id === b.id && a.schema === b.schema;
   }
   return a === b;
@@ -359,24 +361,86 @@ function normalizeCreate(
     // visit instances are created on each normalize call so this will safely be reset
     visit.creating = true;
   }
-  const normalizedValue = this.schema.normalize(
-    !(this.schema instanceof ArraySchema) || Array.isArray(input) ?
-      input
-    : [input],
-    parent,
-    key,
-    delegate,
-  );
+  const isArray = this.schema instanceof ArraySchema;
+  if (isArray && !Array.isArray(input)) input = [input];
+  // before normalize, which revives the entity; remove drops the ref itself
+  const deletedAt =
+    isArray && this.merge !== removeMerge ?
+      deletedIndexes(this.schema, input, parent, key, delegate)
+    : [];
+  const normalizedValue = this.schema.normalize(input, parent, key, delegate);
   // parent is args when not nested
   const filterCollections = (this.createCollectionFilter as any)(...args);
+  // ArraySchema.normalize maps input 1:1, so normalizedValue[i] is input[i]'s ref
+  const deletedRefs: NormalizedRef[] = deletedAt.map(i => normalizedValue[i]);
   // add to any collections that match this
+  const targetCollection =
+    deletedRefs.length ? CreateDropper(this, deletedRefs) : this;
   const entities = delegate.getEntities(this.key);
   if (entities)
     for (const collectionKey of entities.keys()) {
       if (!filterCollections(JSON.parse(collectionKey))) continue;
-      delegate.mergeEntity(this, collectionKey, normalizedValue);
+      delegate.mergeEntity(targetCollection, collectionKey, normalizedValue);
     }
   return normalizedValue as any;
+}
+
+/** Indexes of the incoming items whose entity was deleted.
+ *
+ * A deleted entity's ref stays in its collections, where denormalize skips it.
+ * Re-creating that pk would show it twice, so its old ref is dropped first.
+ */
+function deletedIndexes(
+  members: any,
+  input: any[],
+  parent: any,
+  key: string,
+  delegate: INormalizeDelegate,
+): number[] {
+  const indexes: number[] = [];
+  // TODO(breaking): remove; @data-client/normalizr < 0.19 has no delegate.INVALID
+  if (!delegate.INVALID) return indexes;
+  for (let i = 0; i < input.length; i++) {
+    const item = input[i];
+    // an id passes through normalize, so it can't revive an entity. A Union ref
+    // ({ id, schema }) is an object, but matches no member, so it is skipped below
+    if (typeof item !== 'object' || item === null) continue;
+    const schema = members.inferSchema(item, parent, key);
+    // only entities have a pk; skip nested objects and unknown members
+    if (typeof schema?.process !== 'function' || typeof schema.key !== 'string')
+      continue;
+    const pk = pkOf(schema, item, parent, key, delegate.args);
+    if (delegate.getEntity(schema.key, pk) === delegate.INVALID)
+      indexes.push(i);
+  }
+  return indexes;
+}
+
+/** Collection that merges like `collection`, but drops the older copy of `refs`
+ *
+ * mergeWithStore() calls merge() too. It passes the stored list first, unless the
+ * stored list is newer, when it passes the incoming list first. A ref drops from the
+ * first list only when the second list has it.
+ */
+function CreateDropper(
+  collection: CollectionSchema<any, any>,
+  refs: NormalizedRef[],
+) {
+  return Object.create(collection, {
+    merge: {
+      // either list is an Immutable List when the store is ImmutableJS
+      value: (first: any, second: any) =>
+        collection.merge(
+          removeMerge(
+            first,
+            refs.filter(ref =>
+              second.some((item: any) => isShallowEqual(item, ref)),
+            ),
+          ),
+          second,
+        ),
+    },
+  });
 }
 
 function CreateMover<C extends CollectionSchema<any, any>>(

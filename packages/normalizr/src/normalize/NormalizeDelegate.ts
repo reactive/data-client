@@ -26,6 +26,7 @@ export class NormalizeDelegate
   declare visit: INormalizeDelegate['visit'];
   declare checkLoop: (entityKey: string, pk: string, input: object) => boolean;
 
+  readonly INVALID = INVALID;
   protected newEntities = new Map<string, Map<string, any>>();
   protected newIndexes = new Map<string, Map<string, any>>();
 

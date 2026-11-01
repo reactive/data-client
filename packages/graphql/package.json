@@ -40,7 +40,10 @@
     "react",
     "json"
   ],
-  "sideEffects": false,
+  "sideEffects": [
+    "./lib/index.js",
+    "./legacy/index.js"
+  ],
   "main": "dist/index.js",
   "react-native": "legacy/index.js",
   "module": "legacy/index.js",

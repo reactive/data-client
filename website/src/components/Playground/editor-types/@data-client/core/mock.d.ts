@@ -130,6 +130,8 @@ interface INormalizeDelegate {
     invalidate(schema: {
         key: string;
     }, pk: string): void;
+    /** What getEntity() returns for an invalidated entity */
+    readonly INVALID: symbol;
     /** Returns true when we're in a cycle, so we should not continue recursing */
     checkLoop(key: string, pk: string, input: object): boolean;
 }

@@ -26,6 +26,13 @@ Type and API cleanups deferred because they would break users or mixed package v
 - **Remove `waitForNextUpdate`** from `renderDataCompose()`'s return value, along with the `resolveNextUpdate` bookkeeping in its test component.
   - Breaks: tests that destructure or call `waitForNextUpdate()`. Migration: `await result` for a Promise result; after changing props or calling the controller, `await allSettled()`.
 
+## Collection's deleted-entity check
+
+[#4487](https://github.com/reactive/data-client/pull/4487) added `delegate.INVALID` to the normalize delegate. Since endpoint can run with an older `@data-client/normalizr`, `deletedIndexes()` in `packages/endpoint/src/schemas/Collection.ts` returns early when the delegate lacks it, so re-adding a deleted item still shows it twice there.
+
+- **Remove the `if (!delegate.INVALID)` early return** and its "without delegate.INVALID" test.
+  - Breaks: endpoint with `@data-client/normalizr` older than 0.19, which would then drop refs to entities that were never stored. Migration: install matching `@data-client/*` versions.
+
 ## Old Claude Code plugin names
 
 [#4410](https://github.com/reactive/data-client/pull/4410) merged the `core`, `react`, `vue` and `migrations` plugins into one `data-client` plugin. `.claude-plugin/marketplace.json` keeps the old names as copies of `data-client` (`.claude-plugin/marketplace.test.mjs` keeps them in lockstep) so existing installs keep updating.

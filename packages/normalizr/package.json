@@ -24,7 +24,11 @@
     "reactive",
     "json"
   ],
-  "sideEffects": false,
+  "sideEffects": [
+    "./lib/index.js",
+    "./legacy/index.js",
+    "./lib/imm.js"
+  ],
   "main": "dist/normalizr.js",
   "react-native": "legacy/index.js",
   "module": "legacy/index.js",
