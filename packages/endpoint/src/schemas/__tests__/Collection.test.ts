@@ -1168,7 +1168,7 @@ describe(`${schema.Collection.name} normalization`, () => {
     ]);
   });
 
-  test('push skips items whose process() invalidates them', () => {
+  test('push of an item whose process() invalidates it keeps one ref', () => {
     class Draft extends IDEntity {
       static key = 'Draft';
       static process(input: any) {
@@ -1181,7 +1181,8 @@ describe(`${schema.Collection.name} normalization`, () => {
       entitiesMeta: { [drafts.key]: { '{}': meta }, Draft: { '1': meta } },
       indexes: {},
     });
-    expect(state.entities[drafts.key]['{}']).toEqual(['1', '1']);
+    expect(state.entities[drafts.key]['{}']).toEqual(['1']);
+    expect(state.entities.Draft['1']).toBe(INVALID);
   });
 
   test('push into a collection of nested objects appends', () => {

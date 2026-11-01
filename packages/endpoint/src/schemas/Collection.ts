@@ -1,5 +1,6 @@
 import ArraySchema from './Array.js';
 import { consistentSerialize } from './consistentSerialize.js';
+import { pkOf } from './utils.js';
 import Values from './Values.js';
 import {
   IDenormalizeDelegate,
@@ -404,9 +405,7 @@ function deletedIndexes(
     // only entities have a pk; skip nested objects and unknown members
     if (typeof schema?.process !== 'function' || typeof schema.key !== 'string')
       continue;
-    const processed = schema.process(item, parent, key, delegate.args);
-    if (processed === undefined) continue;
-    const pk = `${schema.pk(processed, parent, key, delegate.args)}`;
+    const pk = pkOf(schema, item, parent, key, delegate.args);
     if (delegate.getEntity(schema.key, pk) === delegate.INVALID)
       indexes.push(i);
   }
