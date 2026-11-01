@@ -51,6 +51,8 @@ List of [Manager](./Manager.md)s use. This is the main extensibility point of th
 
 [getDefaultManagers()](./getDefaultManagers.md) can be used to extend the default managers.
 
+On React Native, [CommitGateManager](./CommitGateManager.md) is added first unless `managers` already includes it.
+
 Default Production:
 
 ```typescript
