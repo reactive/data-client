@@ -373,7 +373,7 @@ function normalizeCreate(
   // ArraySchema.normalize maps input 1:1, so normalizedValue[i] is input[i]'s ref
   const deletedRefs: NormalizedRef[] = deletedAt.map(i => normalizedValue[i]);
   // add to any collections that match this
-  const target = deletedRefs.length ? withoutRefs(this, deletedRefs) : this;
+  const target = deletedRefs.length ? CreateDropper(this, deletedRefs) : this;
   const entities = delegate.getEntities(this.key);
   if (entities)
     for (const collectionKey of entities.keys()) {
@@ -415,8 +415,8 @@ function deletedIndexes(
   return indexes;
 }
 
-/** Merges like `collection`, after dropping `refs` from the stored list */
-function withoutRefs(
+/** Collection that merges like `collection`, but first drops `refs` from the stored list */
+function CreateDropper(
   collection: CollectionSchema<any, any>,
   refs: NormalizedRef[],
 ) {
