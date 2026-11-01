@@ -2959,6 +2959,48 @@ describe('Collection responses older than the stored list', () => {
     },
   );
 
+  test('an older push onto a Union collection skips only the refs the newer list has', () => {
+    class Member extends IDEntity {
+      type = 'members';
+      static key = 'Member';
+    }
+    class Team extends IDEntity {
+      type = 'teams';
+      static key = 'Team';
+    }
+    const union = new Collection([
+      new Union({ members: Member, teams: Team }, 'type'),
+    ]);
+    let state = normalize(
+      union,
+      [{ id: '1', type: 'members' }],
+      [{}],
+      undefined,
+      at(50),
+    );
+    state = normalize(
+      union.push,
+      [
+        { id: '1', type: 'members' },
+        { id: '1', type: 'teams' },
+      ],
+      [{}],
+      state,
+      at(10),
+    );
+    expect(list(state, union)).toEqual([
+      { id: '1', schema: 'members' },
+      { id: '1', schema: 'teams' },
+    ]);
+  });
+
+  test('an older list response keeps the newer stored list', () => {
+    let state = base(todos, [{ id: '1' }]);
+    state = normalize(todos, [{ id: '1' }, { id: '2' }], [{}], state, at(50));
+    state = normalize(todos, [{ id: '3' }], [{}], state, at(10));
+    expect(list(state)).toEqual(['1', '2']);
+  });
+
   test('an older push keeps nested-object members', () => {
     const tasks = new Collection([{ todo: Todo }]);
     let state = normalize(
