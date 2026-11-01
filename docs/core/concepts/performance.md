@@ -56,19 +56,6 @@ Denormalization compared with the legacy [normalizr](https://github.com/paularms
 library. Entity-level memoization maintains global referential equality and
 speeds up repeated access, including after [mutations](../getting-started/mutations.md).
 
-<PosterVideo
-  poster={useBaseUrl('/videos/docs/memocache-poster.jpg')}
-  duration="1:59"
-  volume={0.5}
-  alt="Denormalizing rebuilds each post from ids, so without a cache every write hands every row a new object. MemoCache keys each result on the entity objects it read, held weakly in a WeakDependencyMap. Renaming User 7 rebuilds posts 1 and 2 while post 3 keeps its object, and the old user object is garbage collected with the posts cached behind it. Against normalizr on a large list, denormalizing is 1.7× faster without the cache and 11.5× faster on a cache hit."
->
-  <source
-    src={useBaseUrl('/videos/docs/memocache.webm')}
-    type='video/webm; codecs="av01.0.08M.10, opus"'
-  />
-  <source src={useBaseUrl('/videos/docs/memocache.mp4')} type="video/mp4" />
-</PosterVideo>
-
 <center>
 
 <ThemedImage
@@ -83,3 +70,16 @@ sources={{
 [View benchmark source](https://github.com/reactive/data-client/blob/master/examples/benchmark) · [Methodology](https://github.com/reactive/data-client/blob/master/examples/benchmark-react/METHODOLOGY.md#normalization-benchmarks)
 
 </center>
+
+<PosterVideo
+  poster={useBaseUrl('/videos/docs/memocache-poster.jpg')}
+  duration="1:59"
+  volume={0.5}
+  alt="Denormalizing rebuilds each post from ids, so without a cache every write hands every row a new object. MemoCache keys each result on the entity objects it read, held weakly in a WeakDependencyMap. Renaming User 7 rebuilds posts 1 and 2 while post 3 keeps its object, and the old user object is garbage collected with the posts cached behind it. Against normalizr on a large list, denormalizing is 1.7× faster without the cache and 11.5× faster on a cache hit."
+>
+  <source
+    src={useBaseUrl('/videos/docs/memocache.webm')}
+    type='video/webm; codecs="av01.0.08M.10, opus"'
+  />
+  <source src={useBaseUrl('/videos/docs/memocache.mp4')} type="video/mp4" />
+</PosterVideo>
