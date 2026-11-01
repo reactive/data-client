@@ -402,7 +402,8 @@ function deletedIndexes(
   if (!delegate.INVALID) return indexes;
   for (let i = 0; i < input.length; i++) {
     const item = input[i];
-    // refs (ids) pass through normalize, so they can't revive an entity
+    // an id passes through normalize, so it can't revive an entity. A Union ref
+    // ({ id, schema }) is an object, but matches no member, so it is skipped below
     if (typeof item !== 'object' || item === null) continue;
     const schema = members.inferSchema(item, parent, key);
     // only entities have a pk; skip nested objects and unknown members
