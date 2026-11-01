@@ -24,7 +24,7 @@ export default function DataProvider({
 
 type ProviderProps = Omit<
   Partial<ComponentProps<typeof DataProviderClient>>,
-  'initialState'
+  'initialState' | 'store'
 > & {
   children: React.ReactNode;
 };
