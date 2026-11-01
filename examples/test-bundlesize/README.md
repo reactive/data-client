@@ -16,8 +16,10 @@ Next.js 16.4 (Turbopack and webpack). Bundlers change, so re-measure before reve
   listed.
 - Turbopack keeps whatever a side-effectful index re-exports as a namespace (`export * as`) or from another
   package. `@data-client/react`'s index cost +1004 B until it re-exported `__INTERNAL__` and core's values through
-  side-effect-free local files (`internalNamespace.ts`, `coreExports.ts`). Doing the same in core's index cost
-  Turbopack +870 B, so measure rather than apply it everywhere.
+  side-effect-free local files (`internalNamespace.ts`, `coreExports.ts`): +44 B against leaving react out, while webpack saves 472 B.
+  Wrapping `usePromisifiedDispatch` too saved 3 B, so it stays. The `/redux` and `/mock` entries re-export core
+  directly and weren't measured. Doing the same in core's index cost Turbopack +870 B, so measure rather than
+  apply it everywhere.
 
 Total gzipped JS (gzip -9) for a two-page app with lazy routes, and the same app in Next.js, before and after,
 leaving out the `Object.hasOwn` fallback in the entry files:
