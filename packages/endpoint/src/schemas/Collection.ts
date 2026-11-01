@@ -373,12 +373,13 @@ function normalizeCreate(
   // ArraySchema.normalize maps input 1:1, so normalizedValue[i] is input[i]'s ref
   const deletedRefs: NormalizedRef[] = deletedAt.map(i => normalizedValue[i]);
   // add to any collections that match this
-  const target = deletedRefs.length ? CreateDropper(this, deletedRefs) : this;
+  const targetCollection =
+    deletedRefs.length ? CreateDropper(this, deletedRefs) : this;
   const entities = delegate.getEntities(this.key);
   if (entities)
     for (const collectionKey of entities.keys()) {
       if (!filterCollections(JSON.parse(collectionKey))) continue;
-      delegate.mergeEntity(target, collectionKey, normalizedValue);
+      delegate.mergeEntity(targetCollection, collectionKey, normalizedValue);
     }
   return normalizedValue as any;
 }
