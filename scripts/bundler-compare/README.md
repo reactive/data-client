@@ -33,10 +33,10 @@ git checkout my-branch && scripts/bundler-compare/measure.sh after
 scripts/bundler-compare/measure.sh --compare before after
 ```
 
-`measure.sh` builds every package's `lib/` (pass `--no-build` to reuse them), installs them into
-`node_modules/@data-client` as npm would, and saves the totals to `results/<label>.txt`. It leaves out the
-`Object.hasOwn` fallback at the top of the entry files, since apps get polyfills elsewhere. One run takes about 25
-seconds.
+`measure.sh` builds the `lib/` of the six packages the app uses (pass `--no-build` to reuse them), installs them
+into `node_modules/@data-client` as npm would, and saves the totals to `results/<label>.txt`. It leaves out the
+`Object.hasOwn` fallback at the top of the entry files, since apps get polyfills elsewhere. The app's endpoints and
+entities are `examples/test-bundlesize/src/resources.ts`, copied in on each run. One run takes about 20 seconds.
 
 Compare runs of one bundler with each other, not across bundlers: the Next.js app uses `@data-client/react/nextjs`'s
 `DataProvider`, and absolute totals depend on the bundler versions. `--compare` warns when two runs used different

@@ -1,8 +1,12 @@
-import Client from './Client';
+'use client';
+import { AsyncBoundary } from '@data-client/react';
 
-// the pages fetch, so render them per request instead of at build time
-export const dynamic = 'force-dynamic';
+import Todos from '../../../src/pages/Todos';
 
 export default function Page() {
-  return <Client />;
+  return (
+    <AsyncBoundary>
+      <Todos />
+    </AsyncBoundary>
+  );
 }

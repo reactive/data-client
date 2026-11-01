@@ -3,9 +3,6 @@
   "private": true,
   "description": "Gzipped and brotli size of a page-split app with rspack, Vite 8 and Next.js Turbopack, built from this checkout's packages",
   "type": "module",
-  "scripts": {
-    "measure": "./measure.sh"
-  },
   "dependencies": {
     "@babel/runtime": "^8.0.10",
     "@rspack/cli": "^2.3.0",

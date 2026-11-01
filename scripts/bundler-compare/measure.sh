@@ -22,31 +22,43 @@ if [ "${1:-}" = --compare ]; then
 fi
 
 build=1
+pkgs='core endpoint normalizr react rest use-enhanced-reducer'
 if [ "${1:-}" = --no-build ]; then build=0; shift; fi
 label=${1:-$(git -C "$repo" describe --always --dirty --exclude='*')}
 # reinstall when the lockfile changed since the last install
 [ "$here/node_modules/.package-lock.json" -nt "$here/package-lock.json" ] || (cd "$here" && npm ci)
 
 if [ $build = 1 ]; then
-  (cd "$repo" && yarn workspaces foreach -Wpti --no-private run build:lib >"$here/results/build.log" 2>&1) ||
+  (cd "$repo" && yarn workspaces foreach -Wpi $(printf -- '--include @data-client/%s ' $pkgs) run build:lib \
+    >"$here/results/build.log" 2>&1) ||
     { tail -20 "$here/results/build.log"; exit 1; }
 fi
 
 # install this checkout's packages as if from npm
 dst=$here/node_modules/@data-client
 rm -rf "$dst" && mkdir -p "$dst"
-for p in core endpoint normalizr react rest use-enhanced-reducer; do
+for p in $pkgs; do
   mkdir -p "$dst/$p"
   cp "$repo/packages/$p/package.json" "$dst/$p/"
   cp -r "$repo/packages/$p/lib" "$dst/$p/"
 done
 find "$dst" -path '*/lib/*' -name index.js -exec node "$here/strip-hasown.mjs" {} +
 
+# the app uses test-bundlesize's resources, so both measure the same library surface
+cp "$repo/examples/test-bundlesize/src/resources.ts" "$here/app/src/"
+
 bin=$here/node_modules/.bin
 cd "$here/app"
-"$bin/rspack" build -c rspack.config.mjs >/dev/null
-"$bin/vite" build >/dev/null
-(cd next && rm -rf .next && NEXT_TELEMETRY_DISABLED=1 "$bin/next" build --turbopack >/dev/null)
+# independent outputs, so build them at once; wait on each to catch a failure
+"$bin/rspack" build -c rspack.config.mjs >/dev/null &
+rspack=$!
+"$bin/vite" build >/dev/null &
+vite=$!
+(cd next && rm -rf .next && NEXT_TELEMETRY_DISABLED=1 "$bin/next" build --turbopack >/dev/null) &
+next=$!
+wait $rspack
+wait $vite
+wait $next
 for p in @rspack/core vite next; do
   echo "$p $(node -p "require('$here/node_modules/$p/package.json').version")"
 done | tee "$here/results/$label.versions"

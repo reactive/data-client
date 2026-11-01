@@ -1,5 +1,6 @@
-node_modules/
 app/dist/
 app/next/.next/
 app/next/next-env.d.ts
+app/next/tsconfig.json
+app/src/resources.ts
 results/

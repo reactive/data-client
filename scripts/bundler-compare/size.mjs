@@ -4,8 +4,8 @@ import { join } from 'path';
 import { brotliCompressSync, constants, gzipSync } from 'zlib';
 
 const [name, dir] = process.argv.slice(2);
-const files = readdirSync(dir, { recursive: true }).filter(
-  file => file.endsWith('.js') && !file.split(/[\\/]/).includes('server'),
+const files = readdirSync(dir, { recursive: true }).filter(file =>
+  file.endsWith('.js'),
 );
 if (!files.length)
   throw new Error(`no JS in ${dir}: did the ${name} build fail?`);
