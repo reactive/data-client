@@ -394,6 +394,8 @@ function deletedIndexes(
   delegate: INormalizeDelegate,
 ): number[] {
   const indexes: number[] = [];
+  // TODO(breaking): remove; @data-client/normalizr < 0.19 has no delegate.INVALID
+  if (!delegate.INVALID) return indexes;
   for (let i = 0; i < input.length; i++) {
     const item = input[i];
     // refs (ids) pass through normalize, so they can't revive an entity
@@ -405,8 +407,8 @@ function deletedIndexes(
     const processed = schema.process(item, parent, key, delegate.args);
     if (processed === undefined) continue;
     const pk = `${schema.pk(processed, parent, key, delegate.args)}`;
-    // Invalidate stores a symbol in place of the entity
-    if (typeof delegate.getEntity(schema.key, pk) === 'symbol') indexes.push(i);
+    if (delegate.getEntity(schema.key, pk) === delegate.INVALID)
+      indexes.push(i);
   }
   return indexes;
 }
@@ -416,8 +418,8 @@ function withoutRefs(
   collection: CollectionSchema<any, any>,
   refs: NormalizedRef[],
 ) {
-  const drop = (existing: any) =>
-    Array.isArray(existing) ? removeMerge(existing, refs) : existing;
+  // existing is an Immutable List when the store is ImmutableJS
+  const drop = (existing: any) => removeMerge(existing, refs);
   return Object.create(collection, {
     merge: {
       value: (existing: any, incoming: any) =>
