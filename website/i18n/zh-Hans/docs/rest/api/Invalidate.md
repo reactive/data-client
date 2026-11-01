@@ -6,6 +6,10 @@ sidebar_label: Invalidate
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { RestEndpoint } from '@data-client/rest';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
+import {
+  deleteManyFixtures,
+  deleteManyEmptyFixtures,
+} from '@site/src/fixtures/bulk-delete-posts';
 
 # Invalidate
 
@@ -31,7 +35,7 @@ new Invalidate(entityMap, schemaAttribute)
 
 ## 用法 {#usage}
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],
@@ -134,17 +138,7 @@ render(<UsersPage />);
 这里我们通过把 `Invalidate` 包裹在数组中，再添加一个可一次删除多个 Entity 的 endpoint。
 这样 `Data Client` 就能对响应中的每个 Entity 执行 `invalidate`。
 
-<EndpointPlayground
-input="/posts"
-init={
-  {
-    method: 'DELETE',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(['5', '13', '7']),
-  }
-}
-status={200}
-response={[{ id: '5' }, { id: '13' }, { id: '7' }]}>
+<EndpointPlayground fixtures={deleteManyFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -156,7 +150,7 @@ export default class Post extends Entity {
 }
 ```
 
-```typescript title="Resource" {9}
+```typescript title="Resource" {9-10,13-15}
 import { resource, Invalidate } from '@data-client/rest';
 import Post from './Post';
 
@@ -165,34 +159,28 @@ export const PostResource = resource({
   path: '/posts/:id',
 }).extend('deleteMany', {
   path: '/posts',
-  body: [] as string[],
+  searchParams: {} as { ids: string[] },
+  body: undefined,
   method: 'DELETE',
   schema: [new Invalidate(Post)],
+  searchToString({ ids }) {
+    return `ids=${ids.join(',')}`;
+  },
 });
 ```
 
 ```typescript title="Usage" column
 import { PostResource } from './Resource';
-PostResource.deleteMany(['5', '13', '7']);
+PostResource.deleteMany({ ids: ['5', '13', '7'] });
 ```
 
 </EndpointPlayground>
 
 有时后端对 'DELETE' 请求什么也不返回。这种
-情况下，我们可以使用 [process](./RestEndpoint.md#process)，根据参数 `body`
+情况下，我们可以使用 [process](./RestEndpoint.md#process)，根据发送的 `ids`
 构造一个可用的响应。
 
-<EndpointPlayground
-input="/posts"
-init={
-  {
-    method: 'DELETE',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(['5', '13', '7']),
-  }
-}
-status={204}
-response={undefined}>
+<EndpointPlayground fixtures={deleteManyEmptyFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -204,7 +192,7 @@ export default class Post extends Entity {
 }
 ```
 
-```typescript title="Resource" {10-13}
+```typescript title="Resource" {9-10,13-19}
 import { resource, Invalidate } from '@data-client/rest';
 import Post from './Post';
 
@@ -213,19 +201,23 @@ export const PostResource = resource({
   path: '/posts/:id',
 }).extend('deleteMany', {
   path: '/posts',
-  body: [] as string[],
+  searchParams: {} as { ids: string[] },
+  body: undefined,
   method: 'DELETE',
   schema: [new Invalidate(Post)],
-  process(value, body) {
-    // use the body payload to inform which entities to delete
-    return body.map(id => ({ id }));
-  }
+  searchToString({ ids }) {
+    return `ids=${ids.join(',')}`;
+  },
+  process(value, { ids }) {
+    // use the ids sent to inform which entities to delete
+    return ids.map(id => ({ id }));
+  },
 });
 ```
 
 ```typescript title="Usage" column
 import { PostResource } from './Resource';
-PostResource.deleteMany(['5', '13', '7']);
+PostResource.deleteMany({ ids: ['5', '13', '7'] });
 ```
 
 </EndpointPlayground>

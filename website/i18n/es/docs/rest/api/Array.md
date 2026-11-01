@@ -41,7 +41,7 @@ Hazlo mutable (se pueden agregar nuevos elementos con [push](./Collection.md#pus
 
 Para describir un array simple de un único tipo de entidad:
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],

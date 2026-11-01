@@ -148,9 +148,10 @@ queryKey(args: readonly any[], unvisit: (schema: any, args: readonly any[]) => a
 | `mergeEntity(schema, pk, entity)`      | 通过 Entity 的合并生命周期来存储它                                                      |
 | `setEntity(schema, pk, entity, meta?)` | 存储一个 Entity，替换原有内容                                                           |
 | `invalidate(schema, pk)`               | 将 Entity 标记为无效，使需要它的组件挂起                                                |
+| `INVALID`                              | `getEntity()` 对已失效的 Entity 返回的值                                                |
 | `checkLoop(key, pk, input)`            | 若该输入在本次调用中已作为 (key, pk) 规范化过，则为 `true`；此时应停止递归              |
 
-从 `getEntity` 到 `invalidate` 这些成员，只有
+从 `getEntity` 到 `INVALID` 这些成员，只有
 [类 Entity 的 schema](#entity-like-schemas) 才需要。
 
 ### IDenormalizeDelegate {#idenormalizedelegate}

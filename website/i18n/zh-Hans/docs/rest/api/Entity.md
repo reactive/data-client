@@ -264,7 +264,7 @@ class User extends Entity {
 定义[关联 Entity](/rest/guides/relational-data) 成员，或
 [字段反序列化](/rest/guides/network-transform#deserializing-fields)，例如 Date 和 BigNumber。
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/posts/:id'}),
 args: [{ id: '123' }],

@@ -12,7 +12,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
-import Grid from '@site/src/components/Grid';
+import { todoByIdFixtures } from '@site/src/fixtures/todos';
 import Link from '@docusaurus/Link';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import CollectionLists from '@site/src/components/CollectionLists';
@@ -120,7 +120,7 @@ class Endpoint<F extends (...args: any) => Promise<any>> {
 
 ### 最简单的获取 {#simplest-retrieval}
 
-<Grid>
+<EndpointPlayground fixtures={todoByIdFixtures}>
 
 ```ts
 const getTodo = new RestEndpoint({
@@ -128,11 +128,11 @@ const getTodo = new RestEndpoint({
 });
 ```
 
-```ts
+```ts title="Usage" column
 const todo = await getTodo({ id: 1 });
 ```
 
-</Grid>
+</EndpointPlayground>
 
 ### 共享配置 {#configuration-sharing}
 
@@ -350,6 +350,10 @@ update({ id: 5 }, { title: 'updated', completed: true });
 <TypeScriptEditor>
 
 ```ts path=body.ts
+interface TodoInterface {
+  title: string;
+  completed: boolean;
+}
 export const update = new RestEndpoint({
   path: '/:id',
   method: 'PUT',
@@ -468,41 +472,32 @@ searchToString(searchParams) {
 
 要在 searchParams 中编码复杂对象，可以使用 [qs](https://github.com/ljharb/qs) 库。
 
-```typescript
-import { RestEndpoint, RestGenerics } from '@data-client/rest';
-import qs from 'qs';
+<EndpointPlayground>
 
-class QSEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
-  searchToString(searchParams) {
-    // highlight-next-line
-    return qs.stringify(searchParams);
-  }
-}
-```
-
-<EndpointPlayground input="/foo?a%5Bb%5D=c" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}}>
-
-```typescript title="QSEndpoint" collapsed {7}
-import { RestEndpoint, RestGenerics } from '@data-client/rest';
+```typescript title="QSEndpoint" {8}
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 import qs from 'qs';
 
 export default class QSEndpoint<
   O extends RestGenerics = any,
 > extends RestEndpoint<O> {
-  searchToString(searchParams) {
+  searchToString(searchParams: Record<string, any>) {
     return qs.stringify(searchParams);
   }
 }
 ```
 
-```typescript title="getFoo"
+```typescript title="getFoo" collapsed
 import QSEndpoint from './QSEndpoint';
 
-const getFoo = new QSEndpoint({
+export const getFoo = new QSEndpoint({
   path: '/foo',
   searchParams: {} as { a: Record<string, string> },
 });
+```
 
+```typescript title="Usage" column
+import { getFoo } from './getFoo';
 getFoo({ a: { b: 'c' } });
 ```
 
@@ -624,7 +619,7 @@ search({ q: 'test', page: 1 });
 
 其实际的**值不会以任何方式被使用**——它只决定[类型](#typing)。
 
-<EndpointPlayground input="https://site.com/cool?isReact=true" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}}>
+<EndpointPlayground>
 
 ```typescript title="getFoo"
 import { RestEndpoint } from '@data-client/rest';
@@ -646,7 +641,7 @@ getReactSite({ slug: 'cool', isReact: true });
 
 它只用于 method 会携带 body 的 endpoint：'POST'、'PUT'、'PATCH'。
 
-<EndpointPlayground input="https://site.com/cool" init={{method: 'POST', body: '{ "url": "/" }', headers: {'Content-Type': 'application/json'}}}>
+<EndpointPlayground>
 
 ```ts {6}
 import { RestEndpoint } from '@data-client/rest';
@@ -720,7 +715,7 @@ REST 协议用它来表示操作的类型。因此，RestEndpoint 会据此
 
 `GET` 是“只读”的，其他 method 则意味着存在副作用。
 
-`GET` 和 `DELETE` 默认都没有 `body`。
+`GET` 和 `DELETE` 默认都没有 `body`。在 `DELETE` endpoint 上设置 [body](#body) 即可发送 body。
 
 :::tip[method 如何影响函数参数]
 
@@ -1073,8 +1068,9 @@ const newUser = await ctrl.fetch(
   { username: 'newuser', email: 'new@example.com' },
 );
 
-// Send an array to create several at once; they're added to the end in order
-await ctrl.fetch(
+// Send an array to create several at once; they're added to the end in order,
+// and it resolves the created Users as an array
+const [ana, bo] = await ctrl.fetch(
   UserResource.getList.push,
   { group: 'five' },
   [{ username: 'ana' }, { username: 'bo' }],

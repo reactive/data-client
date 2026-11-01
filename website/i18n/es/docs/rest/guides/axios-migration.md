@@ -4,6 +4,7 @@ sidebar_label: Migración desde Axios
 ---
 
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
+import { apiPostFixtures } from '@site/src/fixtures/api-posts';
 import PkgTabs from '@site/src/components/PkgTabs';
 import DiffEditor from '@site/src/components/DiffEditor';
 import SiteOnly from '@site/src/components/SiteOnly';
@@ -326,7 +327,7 @@ export const PostResource = resource({
 
 Prueba el resultado con una API simulada:
 
-<EndpointPlayground input="https://api.example.com/posts/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'X-API-Key': 'my-key'}}} status={200} response={{ "id": "1", "title": "Hello World", "body": "First post" }}>
+<EndpointPlayground fixtures={apiPostFixtures}>
 
 ```ts title="Post" collapsed
 import { Entity } from '@data-client/rest';

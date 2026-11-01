@@ -954,8 +954,8 @@
     "message": "延迟"
   },
   "agentPrompt.prompt": {
-    "message": "设置 `@data-client/{framework}`，并用它处理所有 API 数据。先安装它的 setup skill：`{command}`，然后按照它操作。",
-    "description": "Prompt readers copy into their coding agent; {command} is the shell command the agent runs. Keep the backticks around package names and the command: they keep each on one line."
+    "message": "设置 `@data-client/{framework}`，并用它处理所有 API 数据。先安装它的 setup skill：`{command}`，然后阅读 `{skillFile}` 并按照它操作。",
+    "description": "Prompt readers copy into their coding agent; {command} is the shell command the agent runs and {skillFile} the file it then reads. Keep the backticks around package names and the command: they keep each on one line."
   },
   "agentPrompt.copy": {
     "message": "复制给编程代理的提示词",
@@ -988,5 +988,39 @@
   "setupTabs.cursorNewChat": {
     "message": "然后，在新的聊天中：",
     "description": "Between Cursor's plugin install prompt and its setup prompt"
+  },
+  "methodInfo.inherited": {
+    "message": "来自 resource()"
+  },
+  "demo.protocol": {
+    "message": "协议"
+  },
+  "playground.files": {
+    "message": "文件"
+  },
+  "playground.inFlight": {
+    "message": "{count} 个请求进行中",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.actions.hide": {
+    "message": "隐藏 Actions"
+  },
+  "playground.actions.show": {
+    "message": "显示 Actions"
+  },
+  "playground.actions": {
+    "message": "Actions"
+  },
+  "http.json": {
+    "message": "json",
+    "description": "Chip for the content-type: application/json header"
+  },
+  "http.credentials.omit": {
+    "message": "不带 cookie",
+    "description": "Chip for fetch's credentials: 'omit' option"
+  },
+  "http.credentials": {
+    "message": "cookie",
+    "description": "Chip for fetch's credentials option, which sends the browser's cookies"
   }
 }

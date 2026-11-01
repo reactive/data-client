@@ -5,7 +5,9 @@ sidebar_label: Autenticação
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import PlaygroundTabs from '@site/src/components/PlaygroundTabs';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
+import { myPostFixtures } from '@site/src/fixtures/my-posts';
 
 Todas as requisições de rede passam pelo [getRequestInit](../api/RestEndpoint.md#getRequestInit) que pode ser
 definido no seu [RestEndpoint](../api/RestEndpoint.md).
@@ -14,7 +16,7 @@ definido no seu [RestEndpoint](../api/RestEndpoint.md).
 
 Aqui está um exemplo de autenticação simples por [cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies), enviando [credenciais no fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#sending_a_request_with_credentials_included):
 
-<EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'Cookie': 'session=abc;'}}} status={200} response={{  "id": "1","title": "this post"}}>
+<EndpointPlayground fixtures={myPostFixtures}>
 
 ```ts title="AuthdEndpoint" {9}
 import { RestEndpoint, type RestGenerics } from '@data-client/rest';
@@ -58,7 +60,7 @@ Veja [Integração com Django](./django.md) para um exemplo que também inclui [
 
 ## Access tokens ou JWT {#access-tokens-or-jwt}
 
-<Tabs
+<PlaygroundTabs
 defaultValue="static"
 values={[
 { label: 'static member', value: 'static' },
@@ -67,7 +69,7 @@ values={[
 ]}>
 <TabItem value="static">
 
-<EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'Access-Token': 'mytoken'}}} status={200} response={{  "id": "1","title": "this post"}}>
+<EndpointPlayground fixtures={myPostFixtures} setup="AuthdEndpoint.accessToken = 'mytoken';">
 
 ```ts title="login" collapsed
 export const login = async (data: FormData) =>
@@ -157,7 +159,7 @@ MyResource.get({ id: 1 });
 </TabItem>
 <TabItem value="async">
 
-<EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'Access-Token': 'mytoken'}}} status={200} response={{  "id": "1","title": "this post"}}>
+<EndpointPlayground fixtures={myPostFixtures} setup="setAuthToken('mytoken');">
 
 ```ts title="login" collapsed
 export const login = async (data: FormData) =>
@@ -252,7 +254,7 @@ MyResource.get({ id: 1 });
 </TabItem>
 <TabItem value="function">
 
-<EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'Access-Token': 'mytoken'}}} status={200} response={{  "id": "1","title": "this post"}}>
+<EndpointPlayground fixtures={myPostFixtures} setup="setAuthToken('mytoken');">
 
 ```ts title="login" collapsed
 export const login = async (data: FormData) =>
@@ -344,7 +346,7 @@ MyResource.get({ id: 1 });
 </EndpointPlayground>
 
 </TabItem>
-</Tabs>
+</PlaygroundTabs>
 
 ## Headers de autenticação a partir de :react[React Context]:vue[provide/inject] {#auth-headers-from-react-context}
 

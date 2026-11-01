@@ -95,7 +95,7 @@ export default function Authorized({ user }: { user: User }) {
 }
 ```
 
-```tsx title="Entry"
+```tsx title="Entry" {8}
 import { useCache } from '@data-client/react';
 import { UserResource } from './UserResource';
 import Unauthed from './Unauthed';
@@ -154,7 +154,7 @@ render(<AuthorizedPage />);
 </template>
 ```
 
-```html title="AuthorizedPage.vue"
+```html title="AuthorizedPage.vue" {8}
 <script setup lang="ts">
   import { useCache } from '@data-client/vue';
   import { UserResource } from './UserResource';

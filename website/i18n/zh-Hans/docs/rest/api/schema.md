@@ -243,7 +243,7 @@ const data = memo.query(
 - [memo.query()](#memoquery)
 - 在 endpoint 解析之前就进行渲染，从而提升 [useSuspense](/docs/api/useSuspense)、[useDLE](/docs/api/useDLE) 的性能
 
-`Querables` 包括 [Entity](./Entity.md)、[All](./All.md)、[Collection](./Collection.md)、[Query](./Query.md)、
+`Querables` 包括 [Entity](./Entity.md)、[Object](./Object.md)、[All](./All.md)、[Collection](./Collection.md)、[Query](./Query.md)、
 [Union](./Union.md) 和 [Scalar](./Scalar.md)。[Lazy](./Lazy.md) 字段可以通过其 [`.query`](./Lazy.md#query) 访问器得到一个 Queryable。
 
 ```ts

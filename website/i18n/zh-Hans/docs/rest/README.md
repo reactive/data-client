@@ -8,12 +8,13 @@ hide_title: true
 ---
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
-import Link from '@docusaurus/Link';
+import PlaygroundTabs from '@site/src/components/PlaygroundTabs';
+import SiteOnly from '@site/src/components/SiteOnly';
+import AgentOnly from '@site/src/components/AgentOnly';
 
 <PkgTabs pkgs="@data-client/rest" />
 
@@ -23,8 +24,9 @@ import Link from '@docusaurus/Link';
 [RestEndpoint](./api/RestEndpoint.md) 则是作用于这些数据的
 [_方法_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>)。
 
-<Tabs
+<PlaygroundTabs
 defaultValue="Class"
+label="Entity 定义"
 values={[
 { label: 'Class', value: 'Class' },
 { label: 'Mixin', value: 'Mixin' },
@@ -129,7 +131,7 @@ export const ArticleResource = resource({
 
 </TabItem>
 
-</Tabs>
+</PlaygroundTabs>
 
 [Entity](./api/Entity.md) 是一种[拥有主键（pk）](/docs/concepts/normalization)的 schema。正是它让我们
 能够[避免状态重复](https://react.dev/learn/choosing-the-state-structure#principles-for-structuring-state)，这
@@ -340,29 +342,29 @@ export default function ArticleWithDelete({
 
 :::
 
-## REST Agent Skills {#rest-agent-skills}
+## 编程智能体设置 {#agent-setup}
 
-import SkillTabs from '@site/src/components/SkillTabs';
+<SiteOnly>
 
-<SkillTabs repo="reactive/data-client" skills={['data-client-schema', 'data-client-rest-setup', 'data-client-rest']} />
-
-然后在你的智能体聊天中运行它进行迁移：
+将以下内容粘贴到你的智能体聊天中：
 
 ```prompt
-/data-client-rest-setup
+Use `@data-client/rest` endpoints for this app's REST APIs, without changing how components load or store data. Install the REST setup skill first: `npx skills add reactive/data-client --skill data-client-rest-setup -y`, then read `.agents/skills/data-client-rest-setup/SKILL.md` and follow it.
 ```
 
-<div style={{ textAlign: 'center' }}>
-<Link className="button button--secondary button--sm" to="https://skills.sh/reactive/data-client/data-client-rest"><img src={useBaseUrl('/img/anthropic.svg')} alt="REST Codegen Skill" style={{
-          height: '1em',
-          verticalAlign: '-0.125em',
-          display: 'inline',
-        }}
-/> REST Codegen Skill</Link>
-</div>
+</SiteOnly>
 
-### 从 Axios 迁移 {#migrating-from-axios}
+<AgentOnly>
 
-`data-client-rest-setup` skill 会自动检测 axios 的使用情况并执行 axios 迁移——包括 [codemod](./guides/axios-migration.md#codemod)、interceptor 转换以及错误处理的迁移。
+要在不改变应用加载或存储数据方式的前提下添加 `@data-client/rest` endpoint，请在项目根目录
+安装 REST setup skill：
 
-请参阅完整的 [Axios 迁移指南](./guides/axios-migration.md)，其中包含分步示例、速查表以及独立的 codemod。
+```bash
+npx skills add reactive/data-client --skill data-client-rest-setup -y
+```
+
+然后阅读 `.agents/skills/data-client-rest-setup/SKILL.md` 并按照它操作。
+
+</AgentOnly>
+
+该 skill 会检测 axios，并遵循 [Axios 迁移指南](./guides/axios-migration.md)。

@@ -25,7 +25,7 @@ import { RestEndpoint } from '@data-client/rest';
 
 描述由单一 Entity 类型组成的简单数组：
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],

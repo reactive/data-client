@@ -333,7 +333,7 @@ para asegurar que se sobrescriban las props por defecto.
 Define los miembros de [entidades relacionadas](/rest/guides/relational-data), o la
 [deserialización de campos](/rest/guides/network-transform#deserializing-fields) como Date y BigNumber.
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<HooksPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: getPost,
 args: [{ id: '123' }],

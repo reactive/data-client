@@ -11,6 +11,9 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import StackBlitz from '@site/src/components/StackBlitz';
 import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 import StreamManagerDemo from '../shared/\_StreamManagerDemo.mdx';
+import ToastManagerDemo from '../shared/\_ToastManagerDemo.mdx';
+import RefreshManagerDemo from '../shared/\_RefreshManagerDemo.mdx';
+import SiteOnly from '@site/src/components/SiteOnly';
 
 <head>
   <meta name="docsearch:pagerank" content="40"/>
@@ -166,29 +169,18 @@ export default class MetricsManager implements Manager {
 
 Exiba um toast quando qualquer [mutação](/rest/guides/side-effects) for bem-sucedida ou falhar.
 
-```typescript framework-imports
-import {
-  type Manager,
-  type Middleware,
-  actionTypes,
-} from '@data-client/react';
-import { toast } from './toast';
+<ToastManagerDemo />
 
-export default class ToastManager implements Manager {
-  middleware: Middleware = controller => next => async action => {
-    if (
-      action.type === actionTypes.SET_RESPONSE &&
-      action.endpoint.sideEffect
-    ) {
-      if (action.error) toast.error(`${action.endpoint.name} failed`);
-      else toast.success(`${action.endpoint.name} succeeded`);
-    }
-    return next(action);
-  };
+<SiteOnly>
 
-  cleanup() {}
-}
-```
+:::react
+
+O servidor rejeita alterações na tarefa arquivada, então marcá-la como concluída é revertido com um toast de erro.
+Marque uma tarefa para experimentar. Edite as mensagens em `ToastManager` e o preview executa a sua versão.
+
+:::
+
+</SiteOnly>
 
 ### Atualizar ao focar ou reconectar {#refresh-on-focus}
 
@@ -196,30 +188,18 @@ export default class ToastManager implements Manager {
 disparando um novo fetch de qualquer dado _renderizado ativamente_ sem suspender ([stale-while-revalidate](./expiry-policy.md)).
 [init()](../api/Manager.md#init) e [cleanup()](../api/Manager.md#cleanup) gerenciam os event listeners.
 
-```typescript framework-imports
-import type { Manager, Middleware, Controller } from '@data-client/react';
+<RefreshManagerDemo />
 
-export default class RefreshManager implements Manager {
-  declare protected controller: Controller;
-  protected handle = () =>
-    this.controller.expireAll({ testKey: () => true });
+<SiteOnly>
 
-  middleware: Middleware = controller => {
-    this.controller = controller;
-    return next => async action => next(action);
-  };
+:::react
 
-  init() {
-    window.addEventListener('focus', this.handle);
-    window.addEventListener('online', this.handle);
-  }
+Cada vez que a janela recupera o foco ou volta a ficar online, cada rate faz um novo fetch e seu horário de fetch
+é atualizado, sem estado de carregamento. Troque para outra aba ou app e volte para experimentar.
 
-  cleanup() {
-    window.removeEventListener('focus', this.handle);
-    window.removeEventListener('online', this.handle);
-  }
-}
-```
+:::
+
+</SiteOnly>
 
 ### Sincronização entre abas {#cross-tab-sync}
 

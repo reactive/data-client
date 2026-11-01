@@ -41,7 +41,7 @@ import { RestEndpoint } from '@data-client/rest';
 
 ## 用法 {#usage}
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/items'}),
 args: [],
