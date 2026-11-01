@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793251830159,
+  "lastUpdate": 1793564990553,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -11831,6 +11831,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 294.12,
             "range": "± 7.1%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "33d98f2637172ecda58364bd92ffcec76e656629",
+          "message": "fix(endpoint): Show a re-added item once in a Collection (#4487)\n\n* fix(endpoint): Show a re-added item once in a Collection\n\nDeleting an item invalidates its entity but leaves its id in each Collection\nthat held it. Pushing (or unshifting) an item with the same id then appended a\nsecond copy of the id, so the list showed the item twice while All() counted it\nonce. push and unshift now drop an id already in the list before adding it, so\nthe item moves to the end or start.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* docs: Note the Collection re-add fix in the v0.19 post\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* fix(endpoint): Keep Collection push working when it holds null\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* docs: Regenerate Collection skill references\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* fix(endpoint): Keep Array push semantics; drop deleted ids before adding\n\npush and unshift append like Array.push() again. Before adding, a create\ndrops refs to deleted (INVALID) entities from the matching collections, so\nan item re-created with a deleted pk shows once.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* perf(endpoint): Only look for deleted refs of the items being added\n\nChecks each incoming item's pk before normalizing it, so a create into a\nlarge collection no longer scans every member when nothing was deleted.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* fix(endpoint): Keep Collection meta and skip id refs when dropping deleted refs\n\nDrop the deleted refs inside the merge, so the stored list keeps its meta\nand out-of-order responses still reorder. Ids passed as refs aren't\nprocessed, since normalize passes them through.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* test(endpoint): Cover Collection create paths for deleted refs\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* test(endpoint): Fix possibly undefined meta in Collection test\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* refactor(endpoint): Take deleted refs from the normalized output\n\nRecord which incoming items were deleted, then drop the refs normalize\nproduced for them, so the ref format lives in one place. Hoist the test\nmeta fixture and drop a test the Union deletion test already covers.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* refactor(endpoint): Name deleted indexes and refs separately\n\nState that ArraySchema.normalize keeps one ref per input item, and test a\npush where a deleted item follows a live one.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* test(endpoint): Share Collection push test state\n\nBuild the repeated todos lists and their meta with one helper, and drop a\ncall-site comment the helper's docblock already covers.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* test(endpoint): Avoid immutable's Record in Collection test types\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* feat(normalizr): Add delegate.INVALID to the normalize delegate\n\nCollection compares getEntity() to delegate.INVALID instead of checking\nfor any symbol. With an older normalizr, which lacks it, push keeps its\nold behavior. Also drop deleted refs from ImmutableJS Lists, and test\nUnion, Values, remove, addWith, repeated ids and Invalidate in the same\nresponse.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* chore: Add delegate.INVALID to the playground editor types\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* refactor: Share the pk-before-normalize step with Invalidate\n\nCollection's deleted-id check and Invalidate both find an input's pk\nwithout normalizing it. pkOf() gives both the rule EntityMixin.normalize\nuses (process() result, or the input when process() returns undefined).\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* refactor: Inline the deleted-id pk step again\n\npkOf() grew rdcEndpoint by 68 B in the bundle-size check: Invalidate and\nCollection both importing utils.js keeps webpack from concatenating it.\nKeep its behavior inline instead: like EntityMixin.normalize(), take the\npk from the input when process() returns undefined.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* fix(endpoint): Skip the deleted-id drop for Collection remove\n\nremove shares normalizeCreate. Dropping the deleted ref first left\nnothing for remove to remove, and an older response's reordered merge\nthen kept the ref: removeMerge(['10'], []) gave ['10'].\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* refactor: Rename withoutRefs to CreateDropper\n\nLike CreateAdder and CreateMover, it derives a Collection from another.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* refactor: Name the merge schema targetCollection\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* perf: List package entry files in sideEffects\n\nWith every file side-effect free, webpack skips each package's index\nand links app imports to the files that define them. When the library\nis in its own chunk, each of those files must stay addressable from\nthe app chunk, so webpack splits the package into several\nconcatenation groups and wraps the modules they share.\n\nListing only the entry files keeps webpack at the index, so it hoists\neach package into one group. Unused files are still dropped.\ntest-bundlesize: 112216 to 110669 B gzipped.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* test: Check that package entry files are listed in sideEffects\n\nA new subpath export missing from sideEffects still works, but makes\nbundles larger, and only test-bundlesize would show it.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* ci: Build test-bundlesize without the webpack cache\n\ncompressed-size-action builds the PR, then the base branch in the same\ncheckout. The base build reused the PR build's webpack cache, which\ndoesn't see package.json changes like sideEffects, so the size comment\ncompared the PR against itself in part.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* docs: Measure the sideEffects change with webpack, rspack and Vite\n\nAdd it to the v0.19 blog with real numbers. The Object.hasOwn fallback\nin the entry files now runs in bundled apps, so the installation guide\nno longer gives it as an example of a missing polyfill.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* docs: Regenerate skill references for the installation guide\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* docs: Show the vendor-chunk sizes with PerfTable\n\nShorter sentences for why the change helped, and the changeset keeps\nto what users see.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* perf: Keep @data-client/react's index side-effect free\n\nIts index re-exports __INTERNAL__ as a namespace. Once the index is\nmarked side-effectful, Turbopack keeps that namespace and grows a\ntwo-page Next.js app by 172 B instead of saving 814 B. Without react,\nevery bundler measured gets smaller or stays the same.\n\nThe Object.hasOwn fallback in react's index is dropped again, so the\ninstallation guide keeps its polyfill example.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* test: Keep discovering sideEffects packages, and check react's exception\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* pkg: List react's entry files in sideEffects, and record why\n\nreact's index now re-exports `__INTERNAL__` and core's values through\nside-effect-free local files, so Turbopack no longer keeps them once the\nindex is listed. Against react left out: webpack -472 B, rspack -360 B,\nVite 0, Turbopack +44 B, Next.js webpack -97 B.\n\nexamples/test-bundlesize/README.md records the reasons, the bundler\nversions validated and the numbers; packages/AGENTS.md points to it.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* docs: Match packages/AGENTS.md sideEffects note to the measurements\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* docs: Record react's remaining Turbopack cost and unmeasured entries\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* refactor: Share the pk-before-normalize step with Invalidate again\n\npkOf() cost webpack 57-68 B while each package split into several\nconcatenation groups. With entry files in sideEffects each package is one\ngroup, and pkOf() measures about even on a two-page app: rspack +8 B,\nVite 8 -1 B, Turbopack -12 B (gzip).\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* enhance: Collection re-add overrides only merge()\n\nmergeWithStore() already calls merge(), so the dropper needs one override.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* docs: Note how deletedIndexes skips Union refs\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* test: Re-added id from an older response keeps its stored position\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* fix: Keep a re-added id when the newer stored list dropped it\n\nmergeWithStore() passes the incoming list first when the stored list is\nnewer, so drop a ref from the first list only when the second has it.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-01T20:22:58Z",
+          "tree_id": "a62721f0b6754f0e532b74a8b930f1e37762208f",
+          "url": "https://github.com/reactive/data-client/commit/33d98f2637172ecda58364bd92ffcec76e656629"
+        },
+        "date": 1793564987512,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 155.12,
+            "range": "± 9.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 51.02,
+            "range": "± 4.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 357.14,
+            "range": "± 4.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 400,
+            "range": "± 5.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 53.62,
+            "range": "± 7.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 312.5,
+            "range": "± 8.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 333.33,
+            "range": "± 6.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 11.01,
+            "range": "± 7.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 78.43,
+            "range": "± 10.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 41.93,
+            "range": "± 5.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 238.1,
+            "range": "± 4.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 357.14,
+            "range": "± 11.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 192.31,
+            "range": "± 6.7%",
             "unit": "ops/s"
           }
         ]
