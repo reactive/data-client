@@ -10,6 +10,7 @@ function isDiffEditor(
 
 export default function useAutoHeight({
   initialContentHeight,
+  // DiffEditor's first paint leaves the same space (--diff-gutter)
   containerGutter = 10,
   isFocused = true,
 }: {

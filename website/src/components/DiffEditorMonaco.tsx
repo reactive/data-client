@@ -51,7 +51,8 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
       panes[0].updateOptions({ glyphMargin: false });
       // Reveal the diff whole: its marks and the blank rows that line the
       // panes up come with its first computation, maybe after the tokens.
-      // Bounded, in case that never reports
+      // Bounded, in case that never reports; Monaco's own computation gives
+      // up and reports sooner (maxComputationTime, 5 s by default)
       const reveal = () => {
         diffReady.dispose();
         clearTimeout(diffTimeout);
