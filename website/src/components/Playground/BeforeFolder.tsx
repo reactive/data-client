@@ -77,7 +77,6 @@ export default function BeforeFolder({
               <button
                 type="button"
                 className={clsx('clean-btn', styles.endButton)}
-                data-primary
                 // a demo control: pressing it doesn't end a run as the
                 // reader's input does, it starts one over
                 data-autorun-control

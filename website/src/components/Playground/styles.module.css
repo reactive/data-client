@@ -2596,15 +2596,24 @@ div.fixtureJson + div.fixtureJson {
   opacity: 0;
   visibility: hidden;
 }
-/* one capsule, its buttons split by a rule */
+/* one capsule, its buttons split by a rule: a video player's controls,
+   dark in either theme */
 .endControls {
   display: inline-flex;
   overflow: hidden;
   border-radius: 999px;
-  background: var(--ifm-background-surface-color);
+  background: rgb(18 22 32 / 82%);
+  backdrop-filter: blur(6px);
   box-shadow:
-    0 6px 20px rgba(15, 30, 60, 0.18),
-    0 0 0 1px var(--ifm-color-emphasis-200);
+    0 6px 20px rgb(0 0 0 / 25%),
+    0 0 0 1px rgb(255 255 255 / 10%);
+}
+:root[data-theme='dark'] .endControls {
+  /* a step above the dark page, edged in light, so it stands off it */
+  background: rgb(66 74 92 / 92%);
+  box-shadow:
+    0 6px 24px rgb(0 0 0 / 55%),
+    0 0 0 1px rgb(255 255 255 / 28%);
 }
 .endButton {
   position: relative;
@@ -2613,7 +2622,7 @@ div.fixtureJson + div.fixtureJson {
   gap: 0.5em;
   height: 2.75rem;
   padding: 0 1.15rem;
-  color: var(--ifm-color-emphasis-900);
+  color: #fff;
   font-size: 0.9375rem;
   font-weight: 600;
   transition: background-color var(--motion-snappy);
@@ -2623,23 +2632,19 @@ div.fixtureJson + div.fixtureJson {
   position: absolute;
   inset: 25% auto 25% 0;
   width: 1px;
-  background: var(--ifm-color-emphasis-300);
-}
-/* the main action: its mark in the brand color */
-.endButton[data-primary] > svg {
-  color: var(--ifm-color-primary);
+  background: rgb(255 255 255 / 25%);
 }
 .endButton:focus-visible {
-  outline: 2px solid var(--ifm-color-primary);
+  outline: 2px solid var(--ifm-color-primary-light);
   outline-offset: -2px;
 }
 @media (hover: hover) {
   .endButton:hover {
-    background-color: var(--ifm-color-emphasis-100);
+    background-color: rgb(255 255 255 / 10%);
   }
 }
 .endButton:active {
-  background-color: var(--ifm-color-emphasis-200);
+  background-color: rgb(255 255 255 / 16%);
 }
 /* the demo plays for the watcher: the folder's handles wait until it's
    over (unless it opened the Store) */
