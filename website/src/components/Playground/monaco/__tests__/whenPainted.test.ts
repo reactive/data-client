@@ -7,18 +7,11 @@ import { whenPainted } from '../whenPainted';
  * list of token classes */
 function fakeEditor(width: number, value = 'code') {
   const dom = document.createElement('div');
-  let focused = false;
-  let onFocus = () => {};
   let onLayout = () => {};
   const editor = {
     getLayoutInfo: () => ({ width }),
     getDomNode: () => dom,
     getModel: () => ({ getValue: () => value }),
-    hasTextFocus: () => focused,
-    onDidFocusEditorText: (listener: () => void) => {
-      onFocus = listener;
-      return { dispose: () => (onFocus = () => {}) };
-    },
     onDidLayoutChange: (listener: () => void) => {
       onLayout = listener;
       return { dispose: () => (onLayout = () => {}) };
@@ -48,10 +41,6 @@ function fakeEditor(width: number, value = 'code') {
     editor,
     draw,
     resize,
-    focus: () => {
-      focused = true;
-      onFocus();
-    },
   };
 }
 
@@ -99,16 +88,6 @@ describe('whenPainted', () => {
     expect(done).toHaveBeenCalledTimes(1);
   });
 
-  test('at once when it gains focus', () => {
-    const { editor, focus } = fakeEditor(600);
-    const done = jest.fn();
-    whenPainted(editor, done);
-    focus();
-    expect(done).toHaveBeenCalledTimes(1);
-    frames(4);
-    expect(done).toHaveBeenCalledTimes(1);
-  });
-
   test('a while after its first colored token, though the rest stay plain', () => {
     const { editor, draw } = fakeEditor(600);
     draw([['mtk1'], ['mtk1']]);
@@ -136,23 +115,12 @@ describe('whenPainted', () => {
     expect(done).toHaveBeenCalledTimes(1);
   });
 
-  test('at once when it had focus before it was called', () => {
-    const { editor, draw, focus } = fakeEditor(600);
-    draw([['mtk1']]);
-    focus();
-    const done = jest.fn();
-    whenPainted(editor, done);
-    frames(1);
-    expect(done).toHaveBeenCalledTimes(1);
-  });
-
   test('never once cancelled', () => {
-    const { editor, draw, focus } = fakeEditor(600);
+    const { editor, draw } = fakeEditor(600);
     draw([['mtk5']]);
     const done = jest.fn();
     whenPainted(editor, done)();
     frames(4);
-    focus();
     expect(done).not.toHaveBeenCalled();
   });
 });

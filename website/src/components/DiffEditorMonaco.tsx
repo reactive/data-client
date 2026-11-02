@@ -51,7 +51,7 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
       panes[0].updateOptions({ glyphMargin: false });
       // Reveal the diff whole: its marks and the blank rows that line the
       // panes up come with its first computation, maybe after the tokens
-      whenDiffComputed(editor, () => revealWhenPainted(panes));
+      revealWhenPainted(panes, start => whenDiffComputed(editor, start));
       const updateOffsets = () => {
         const left = editor.getContainerDomNode().getBoundingClientRect().left;
         const next = panes.map(

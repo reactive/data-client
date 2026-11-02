@@ -7,9 +7,9 @@ import { hasLayoutWidth } from './useAutoHeight';
  * box's width (a hidden tab has none; it waits, at no cost, until shown) and
  * highlighted (its language's tokenizer can load after it). Checked each
  * frame; Monaco paints in a frame of its own, so it counts once true for two
- * in a row. Also called when the editor has or gains focus, and regardless once
- * colored tokens have shown for `MAX_MS` (code its tokenizer leaves plain)
- * or none have shown for `NO_TOKENS_MS` after layout (no tokenizer). A
+ * in a row; regardless once colored tokens have shown for `MAX_MS` (code
+ * its tokenizer leaves plain) or none have for `NO_TOKENS_MS` after layout
+ * (no tokenizer). A
  * tokenizer loads on demand, so on a slow machine its tokens can come long
  * after the layout. Returns a cancel.
  */
@@ -23,8 +23,6 @@ export function whenPainted(
   let frame = 0;
   const check = () => {
     frame = 0;
-    // focused before this started (as when a caller waits to start it)
-    if (editor.hasTextFocus()) return finish();
     if (!hasLayoutWidth(editor)) return;
     const now = performance.now();
     laidOutAt ??= now;
@@ -41,14 +39,11 @@ export function whenPainted(
   const resume = () => {
     if (!frame) frame = requestAnimationFrame(check);
   };
-  const subscriptions = [
-    editor.onDidLayoutChange(resume),
-    editor.onDidFocusEditorText(() => finish()),
-  ];
+  const layout = editor.onDidLayoutChange(resume);
   resume();
   const stop = () => {
     cancelAnimationFrame(frame);
-    for (const subscription of subscriptions) subscription.dispose();
+    layout.dispose();
   };
   function finish() {
     stop();
