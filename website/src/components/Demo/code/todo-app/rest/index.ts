@@ -2,9 +2,9 @@ import type { Interceptor } from '@data-client/test';
 
 import { TodoResource, UserResource } from './resources';
 import {
-  rememberTodo,
+  rememberTodos,
+  todosOf,
   todoEndpointFixtures,
-  type TodoData,
   type TodoServer,
 } from '../../../../../fixtures/todos';
 
@@ -32,12 +32,9 @@ const fixtures: Interceptor<TodoServer>[] = [
         delete user.address;
         delete user.company;
         const result = todos[i];
-        user.todos =
-          result.status === 'fulfilled'
-            ? result.value
-                .slice(0, 3)
-                .map((todo: TodoData) => rememberTodo(this, todo))
-            : [];
+        if (result.status === 'fulfilled')
+          rememberTodos(this, result.value.slice(0, 3));
+        user.todos = todosOf(this, user.id);
       });
       return users;
     },

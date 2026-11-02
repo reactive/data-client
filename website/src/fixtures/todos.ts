@@ -1,6 +1,5 @@
 import { Entity, Collection, resource, RestEndpoint } from '@data-client/rest';
 import type { Interceptor } from '@data-client/test';
-import { v4 as uuid } from 'uuid';
 
 export class Todo extends Entity {
   id = 0;
@@ -49,13 +48,26 @@ export const UserResource = resource({
 
 /** A todo as jsonplaceholder sends it */
 export type TodoData = Pick<Todo, 'id' | 'userId' | 'title' | 'completed'>;
-/** The demo's server: every todo it has sent, by id */
-export type TodoServer = Record<number, TodoData>;
+/** The demo's server: every todo it has sent, by id, with every edit since
+ * (`null` once deleted). jsonplaceholder doesn't store changes, so lists are
+ * built from these. */
+export type TodoServer = Record<number, TodoData | null>;
 
-/** Keeps `todo` on the server, so later edits merge into it */
-export function rememberTodo(server: TodoServer, todo: TodoData) {
-  server[todo.id] = todo;
-  return todo;
+/** jsonplaceholder's last todo id */
+const LAST_SEEDED_ID = 200;
+
+/** Adds the `todos` this server hasn't seen. It keeps its own copy of the
+ * rest, deleted ones included, since jsonplaceholder sends their originals
+ * again on a refetch. */
+export function rememberTodos(server: TodoServer, todos: TodoData[]) {
+  for (const todo of todos) if (!(todo.id in server)) server[todo.id] = todo;
+}
+
+/** The server's todos, oldest first; only `userId`'s when given */
+export function todosOf(server: TodoServer, userId?: number | string) {
+  const todos = Object.values(server).filter(todo => todo !== null);
+  if (userId === undefined) return todos;
+  return todos.filter(todo => todo.userId === Number(userId));
 }
 
 /** The todo endpoints, for demos that bring their own user list */
@@ -63,13 +75,11 @@ export const todoEndpointFixtures: Interceptor<TodoServer>[] = [
   {
     endpoint: TodoResource.getList,
     async response(...args: Parameters<typeof TodoResource.getList>) {
-      return (await TodoResource.getList(...args))
-        .slice(0, 7)
-        .map((todo: TodoData) => rememberTodo(this, todo));
+      rememberTodos(this, (await TodoResource.getList(...args)).slice(0, 7));
+      return todosOf(this, args[0]?.userId);
     },
   },
-  // also answers getList.move (the same PATCH). jsonplaceholder doesn't
-  // store edits, so each one merges into the todo as this server last sent it
+  // also answers getList.move (the same PATCH)
   {
     endpoint: TodoResource.partialUpdate,
     response(
@@ -77,7 +87,12 @@ export const todoEndpointFixtures: Interceptor<TodoServer>[] = [
       body: Parameters<typeof TodoResource.partialUpdate>[1],
     ) {
       const pk = Number(id);
-      return rememberTodo(this, { ...this[pk], ...body, id: pk });
+      const stored = this[pk];
+      // deleted, or never sent: answer like a real server
+      if (!stored) throw { status: 404, message: `No todo ${pk}` };
+      const todo = { ...stored, ...body, id: pk };
+      this[pk] = todo;
+      return todo;
     },
     // stands in for the round trip it no longer makes
     delay: 150,
@@ -85,11 +100,23 @@ export const todoEndpointFixtures: Interceptor<TodoServer>[] = [
   {
     endpoint: TodoResource.getList.push,
     async response(...args: Parameters<typeof TodoResource.getList.push>) {
-      return rememberTodo(this, {
+      const todo = {
         ...(await TodoResource.getList.push(...args)),
-        id: randomId(),
-      });
+        // after every id, stored or jsonplaceholder's, so todos list in creation order
+        id: Math.max(...Object.keys(this).map(Number), LAST_SEEDED_ID) + 1,
+      };
+      this[todo.id] = todo;
+      return todo;
     },
+  },
+  {
+    endpoint: TodoResource.delete,
+    response({ id }: Parameters<typeof TodoResource.delete>[0]) {
+      const pk = Number(id);
+      this[pk] = null;
+      return { id: pk };
+    },
+    delay: 150,
   },
 ];
 
@@ -102,10 +129,6 @@ export const todoFixtures: Interceptor<TodoServer>[] = [
   },
   ...todoEndpointFixtures,
 ];
-function randomId() {
-  return Number.parseInt(uuid().slice(0, 8), 16);
-}
-
 /** RestEndpoint's simplest retrieval: `path: '/todos/:id'`, with no `urlPrefix` */
 export const todoByIdFixtures: Interceptor[] = [
   {
