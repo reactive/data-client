@@ -155,7 +155,7 @@ preview header's toggle in every layout.
   the width (above the app when narrow); the code waits behind a Show code
   button and replaces it once shown. The replay is inert: the preview's
   `autoRun` plays in it too (`mirrorStage` in `preview/autorun/stage.ts`),
-  restarting it (`BEFORE_RESTART`) on each run. `CompareBar.tsx`, under
+  restarting it (`BEFORE_RESTART`) on each run. `CompareBar.tsx`, above
   both, holds Show code and a Replay button that replays the demo in both
   (`DEMO_REPLAY`, as the Live Preview label does).
 - A `row` with no folder (`../TypeScriptEditor.tsx`) is the tabs and the

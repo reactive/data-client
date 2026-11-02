@@ -14,7 +14,7 @@ import './DesignSystem/design-system.css';
  * (above it when narrow), with an app showing the old behavior. It is
  * watched, not used: its app is inert, and the preview's `autoRun` plays in
  * it step for step (./preview/autorun/stage.ts `mirrorStage`), from the start
- * on each run. Its controls are under both (./CompareBar.tsx) */
+ * on each run. Its controls are above both (./CompareBar.tsx) */
 export default function BeforeFolder({
   label,
   children,

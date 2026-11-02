@@ -126,7 +126,7 @@ describe("row layout: the Store on the preview's folder", () => {
 });
 
 describe('row layout: a `before` replay', () => {
-  test('Show code, under both, swaps the code in for the replay and back', () => {
+  test('Show code, above both, swaps the code in for the replay and back', () => {
     const { container } = render(
       <Playground before={<div>the old app</div>} beforeLabel="v0.18">
         {APP}
@@ -141,7 +141,7 @@ describe('row layout: a `before` replay', () => {
     expect(row.contains(toggle)).toBe(false);
     fireEvent.click(toggle);
     expect(row.hasAttribute('data-code')).toBe(true);
-    expect(toggle.textContent).toBe('Hide code');
+    expect(screen.getByRole('button', { name: 'Hide code' })).toBe(toggle);
     fireEvent.click(toggle);
     expect(row.hasAttribute('data-code')).toBe(false);
   });

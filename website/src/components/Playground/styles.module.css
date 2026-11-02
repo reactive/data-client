@@ -2575,12 +2575,12 @@ div.fixtureJson + div.fixtureJson {
     color: var(--pg-tab-hover);
   }
 }
-/* A `before` replay's controls, under both apps (./CompareBar.tsx) */
+/* A `before` replay's controls, above both apps (./CompareBar.tsx) */
 .compareBar {
   display: flex;
   justify-content: center;
   gap: 0.5rem;
-  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 .compareButton {
   display: inline-flex;
@@ -2610,6 +2610,15 @@ div.fixtureJson + div.fixtureJson {
 }
 .compareButton:active {
   background-color: var(--ifm-color-emphasis-200);
+}
+.compareLabel {
+  display: inline-grid;
+}
+.compareLabel > * {
+  grid-area: 1 / 1;
+}
+.compareLabel > [aria-hidden='true'] {
+  visibility: hidden;
 }
 /* at the header's end (stacked, the drawer's tabs follow it, but for
    narrow), its icon on the content's edge */

@@ -254,7 +254,7 @@ export default function Playground<T>({
     />
   );
   // the demo layout's Code toggle: in the preview's header whether or not
-  // the live preview has loaded (a `before` replay's is under both)
+  // the live preview has loaded (a `before` replay's is above both)
   const code: CodeControl | undefined =
     demo ? { shown: codeShown, toggle: toggleCode } : undefined;
   // Live preview only while visible — unmounts when hidden (resets store);
@@ -311,6 +311,14 @@ export default function Playground<T>({
         [styles.hidden]: hidden,
       })}
     >
+      {/* above: opening the code, taller than the replay, never moves it */}
+      {comparing && !hidden ?
+        <CompareBar
+          replayable={!!autoRun}
+          codeShown={codeShown}
+          onToggleCode={toggleCode}
+        />
+      : null}
       <div
         ref={setContainer}
         // stacked is the row's paper with the preview always under the code
@@ -371,13 +379,6 @@ export default function Playground<T>({
           </div>
         : null}
       </div>
-      {comparing && !hidden ?
-        <CompareBar
-          replayable={!!autoRun}
-          codeShown={codeShown}
-          onToggleCode={toggleCode}
-        />
-      : null}
     </div>
   );
 }

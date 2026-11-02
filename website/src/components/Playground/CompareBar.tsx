@@ -6,7 +6,7 @@ import { CodeIcon } from './preview/StoreToggle';
 import styles from './styles.module.css';
 import { DEMO_REPLAY } from './types';
 
-/** A `before` replay's controls (../index.tsx), under both apps since they
+/** A `before` replay's controls (../index.tsx), above both apps since they
  * act on both: Replay (with an `autoRun`) plays the demo again in each, and
  * Show code swaps the code in for the replay */
 export default function CompareBar({
@@ -46,9 +46,16 @@ export default function CompareBar({
         onClick={onToggleCode}
       >
         <CodeIcon />
-        {codeShown ?
-          translate({ id: 'playground.code.hide', message: 'Hide code' })
-        : translate({ id: 'playground.code.show', message: 'Show code' })}
+        {/* both names in one cell, so the button never resizes (the bar is
+            centered: a wider name would move it) */}
+        <span className={styles.compareLabel}>
+          <span aria-hidden={codeShown}>
+            {translate({ id: 'playground.code.show', message: 'Show code' })}
+          </span>
+          <span aria-hidden={!codeShown}>
+            {translate({ id: 'playground.code.hide', message: 'Hide code' })}
+          </span>
+        </span>
       </button>
     </div>
   );
