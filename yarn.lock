@@ -5259,6 +5259,7 @@ __metadata:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.20.0 || ^8.0.0"
     "@data-client/endpoint": "workspace:^"
+    "@data-client/normalizr": "workspace:*"
     "@data-client/react": "workspace:*"
     "@data-client/test": "workspace:*"
     "@types/jest": "npm:30.0.0"

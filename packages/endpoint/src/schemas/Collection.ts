@@ -31,13 +31,20 @@ const isShallowEqual = (a: NormalizedRef, b: NormalizedRef): boolean => {
   // TODO: make this extensible in the child's schema
   // arrays keep null members, and typeof null is 'object'
   if (typeof a === 'object' && typeof b === 'object' && a && b) {
-    return a.id === b.id && a.schema === b.schema;
+    // nested-object members like `{ todo: '5' }` have no id, so they never match
+    return a.id !== undefined && a.id === b.id && a.schema === b.schema;
   }
   return a === b;
 };
 
-const removeMerge = (existing: NormalizedRef[], incoming: NormalizedRef[]) =>
-  existing.filter(item => !incoming.some(inc => isShallowEqual(item, inc)));
+const removeMerge = (list: NormalizedRef[], toRemove: NormalizedRef[]) =>
+  list.filter(item => !toRemove.some(ref => isShallowEqual(item, ref)));
+
+// isShallowEqual() compares string refs with ===, which native includes() does faster
+const hasRef = (list: NormalizedRef[], ref: NormalizedRef) =>
+  typeof ref === 'object' && ref ?
+    list.some(item => isShallowEqual(ref, item))
+  : list.includes(ref);
 
 const valuesRemoveMerge = (
   existing: Record<string, NormalizedRef>,
@@ -156,12 +163,12 @@ export default class CollectionSchema<
       this.createIfValid = createArray;
       this.push = CreateAdder(this, pushMerge);
       this.unshift = CreateAdder(this, unshift);
-      this.remove = CreateAdder(this, removeMerge);
+      this.remove = CreateRemover(this, removeMerge);
       this.move = CreateMover(this, pushMerge, removeMerge);
     } else if (schema instanceof Values) {
       this.createIfValid = createValue;
       this.assign = CreateAdder(this, valuesMerge);
-      this.remove = CreateAdder(this, valuesRemoveMerge);
+      this.remove = CreateRemover(this, valuesRemoveMerge);
       this.move = CreateMover(this, valuesMerge, valuesRemoveMerge);
     }
   }
@@ -325,8 +332,46 @@ function derivedProperties(
   if (collection.schema instanceof ArraySchema) {
     properties.createIfValid = { value: createIfValid };
     properties.denormalize = { value: denormalize };
+    // Values keep Collection's swap: for an older assign, the newer stored value wins a key conflict
+    properties.mergeWithStore = { value: addWithStore };
   }
   return properties;
+}
+
+/** Adds to the stored list even when it is newer than this response.
+ *
+ * The newer list already places any ref it has, so only the others are added.
+ */
+function addWithStore(
+  this: CollectionSchema<any, any>,
+  existingMeta: { date: number; fetchedAt: number },
+  incomingMeta: { date: number; fetchedAt: number },
+  existing: any,
+  incoming: any[],
+) {
+  if (this.shouldReorder(existingMeta, incomingMeta, existing, incoming))
+    incoming = incoming.filter(ref => !hasRef(existing, ref));
+  return this.merge(existing, incoming);
+}
+
+/** Removal always applies to the stored list, however new it is */
+function removeWithStore(
+  this: CollectionSchema<any, any>,
+  _existingMeta: unknown,
+  _incomingMeta: unknown,
+  existing: any,
+  incoming: any,
+) {
+  return this.merge(existing, incoming);
+}
+
+function CreateRemover(
+  collection: CollectionSchema<any, any>,
+  merge: (existing: any, incoming: any) => any,
+) {
+  const properties = derivedProperties(collection, merge, normalizeCreate);
+  properties.mergeWithStore = { value: removeWithStore };
+  return Object.create(collection, properties);
 }
 
 function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(
@@ -416,11 +461,11 @@ function deletedIndexes(
   return indexes;
 }
 
-/** Collection that merges like `collection`, but drops the older copy of `refs`
+/** Collection that merges like `collection`, but first drops `refs` from the stored list
  *
- * mergeWithStore() calls merge() too. It passes the stored list first, unless the
- * stored list is newer, when it passes the incoming list first. A ref drops from the
- * first list only when the second list has it.
+ * A ref drops only when the incoming list still has it: when the stored list is newer
+ * and already has the ref, addWithStore() leaves it out of the incoming list instead,
+ * so the item keeps its stored position.
  */
 function CreateDropper(
   collection: CollectionSchema<any, any>,
@@ -428,16 +473,14 @@ function CreateDropper(
 ) {
   return Object.create(collection, {
     merge: {
-      // either list is an Immutable List when the store is ImmutableJS
-      value: (first: any, second: any) =>
+      // existing is an Immutable List when the store is ImmutableJS
+      value: (existing: any, incoming: any) =>
         collection.merge(
           removeMerge(
-            first,
-            refs.filter(ref =>
-              second.some((item: any) => isShallowEqual(item, ref)),
-            ),
+            existing,
+            refs.filter(ref => hasRef(incoming, ref)),
           ),
-          second,
+          incoming,
         ),
     },
   });
@@ -477,6 +520,7 @@ function CreateMover<C extends CollectionSchema<any, any>>(
   // per-call Object.create (which causes V8 hidden-class polymorphism).
   mover._removeSchema = Object.create(mover, {
     merge: { value: removeMerge },
+    mergeWithStore: { value: removeWithStore },
   });
   return mover;
 }

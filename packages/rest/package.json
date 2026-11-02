@@ -149,6 +149,7 @@
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
+    "@data-client/normalizr": "workspace:*",
     "@data-client/react": "workspace:*",
     "@data-client/test": "workspace:*",
     "@types/jest": "30.0.0",

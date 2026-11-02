@@ -1467,6 +1467,9 @@ must also contain a [Collection](https://dataclient.io/rest/api/Collection)
 </template>
 ```
 
+A page adds to the end of the current list and skips items the list already has, even when the list was
+refetched while the page loaded.
+
 See [pagination guide](https://dataclient.io/rest/guides/pagination) for more info.
 
 ### paginated(paginationfield) {#paginated}
