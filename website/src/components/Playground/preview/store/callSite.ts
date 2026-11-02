@@ -148,22 +148,18 @@ const isComponentName = (name: string) => /^[A-Z]/.test(name);
 /** Where line `line` of the evaluated program is in the playground's files */
 type LocateLine = (line: number) => CallerSource | undefined;
 
+/** The line of the reader's code that is dispatching right now: a manager
+ * of the code's (the hook, Controller method or event on hand belong to
+ * whatever set the manager off) */
+export function sourceNow(locate: LocateLine): CallerSource | undefined {
+  return sourceOf(evaluatedFrames(deepStack()), locate);
+}
+
 /** Who is dispatching right now: while a hook renders, it and its
  * component (the event a render runs within is the action's that caused
  * it, not this one's); otherwise the user event being handled. With
- * `locate`, also the line of the reader's code that dispatched it.
- *
- * @param fromManager a manager of the code's is dispatching: only its line
- * counts, as the hook, Controller method or event on hand belong to what
- * set the manager off */
-export function callerNow(
-  locate?: LocateLine,
-  fromManager?: boolean,
-): Caller | undefined {
-  if (fromManager) {
-    const source = locate && sourceOf(evaluatedFrames(deepStack()), locate);
-    return source && { source };
-  }
+ * `locate`, also the line of the reader's code that dispatched it */
+export function callerNow(locate?: LocateLine): Caller | undefined {
   const frames = calling || locate ? evaluatedFrames(deepStack()) : [];
   const source = locate && sourceOf(frames, locate);
   const component =

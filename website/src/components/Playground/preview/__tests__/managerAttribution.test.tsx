@@ -1178,10 +1178,11 @@ describe('Store panel pipeline', () => {
 
   it("names a code manager's Controller method and line, not the library's", async () => {
     const source = { path: 'StreamManager.ts', line: 30 };
-    const caller = jest.fn((fromManager?: boolean) =>
-      fromManager ? { source } : { method: 'fetch' },
-    );
-    const registry = new SchemaRegistry({ trimEvery: 1, caller });
+    const registry = new SchemaRegistry({
+      trimEvery: 1,
+      caller: () => ({ method: 'fetch' }),
+      managerSource: () => source,
+    });
     const stream = new StreamManager();
     const { ctrl } = connectStore(
       registry,

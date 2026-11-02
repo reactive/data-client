@@ -29,7 +29,12 @@ import {
   startsRequests,
   type Attribution,
 } from './attribution';
-import { fetchReason, type Caller, type FetchReason } from './fetchCause';
+import {
+  fetchReason,
+  type Caller,
+  type CallerSource,
+  type FetchReason,
+} from './fetchCause';
 import { entityId } from './model';
 import type { Moment, Scope, Step } from './nav';
 import { wrapManager, type Wrap } from './wrapManager';
@@ -62,10 +67,12 @@ export interface LogOptions {
    * Store panel first opens, which saves a fast stream's bookkeeping until
    * someone looks */
   readonly recordFrom?: 'load' | 'open';
-  /** Who is dispatching right now, asked as each action of the app's or
-   * of the code's own managers arrives (the preview's: `callerNow`). With
-   * `fromManager`, a manager is: only the line of its code counts */
-  readonly caller?: (fromManager?: boolean) => Caller | undefined;
+  /** Who is dispatching right now, asked as the app's own actions arrive
+   * (the preview's: `callerNow`) */
+  readonly caller?: () => Caller | undefined;
+  /** The line of a manager of the code's that is dispatching right now,
+   * asked as its actions arrive (the preview's: `sourceNow`) */
+  readonly managerSource?: () => CallerSource | undefined;
 }
 
 export interface LogEntry {
@@ -161,9 +168,11 @@ export const rootEntry = (entries: readonly LogEntry[], entry: LogEntry) =>
  * the line of its code that called it */
 function managerCaller(
   method: string | undefined,
-  found: Caller | undefined,
+  source: CallerSource | undefined,
 ): Caller | undefined {
-  return method ? { method, ...found } : found;
+  return method || source ?
+      { ...(method && { method }), ...(source && { source }) }
+    : undefined;
 }
 
 /** `root` for an action that `entry` started */
@@ -305,6 +314,7 @@ export default class ActionLog {
   private readonly histories = new Map<number, History>();
   private nextSeq = 1;
   private readonly caller: NonNullable<LogOptions['caller']>;
+  private readonly managerSource: NonNullable<LogOptions['managerSource']>;
   /** Reads a store's state: applies pending optimistic updates for
    * `view`, and says why a fetch fetched */
   private readonly reader = new Controller();
@@ -332,8 +342,10 @@ export default class ActionLog {
     trimEvery = TRIM_EVERY,
     recordFrom = 'load',
     caller = () => undefined,
+    managerSource = () => undefined,
   }: LogOptions = {}) {
     this.caller = caller;
+    this.managerSource = managerSource;
     this.limit = limit;
     this.updateLimit = updateLimit;
     this.trimEvery = trimEvery;
@@ -390,7 +402,7 @@ export default class ActionLog {
           !origin ? this.caller()
             // the library's managers' calls are the same in every playground
           : origin.library ? undefined
-          : managerCaller(dispatching.method, this.caller(true));
+          : managerCaller(dispatching.method, this.managerSource());
         // the first action recorded starts the history
         if (first) dropOthers();
         const entry: LogEntry = {
