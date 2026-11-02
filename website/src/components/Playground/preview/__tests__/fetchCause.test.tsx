@@ -487,6 +487,26 @@ render(Demo({ id: '1' }));`,
     ]);
   });
 
+  it('names the Controller methods a subclass inherits, but not internals', () => {
+    class Base {
+      set() {
+        return callerNow()?.method;
+      }
+    }
+    class Mocked extends Base {
+      fetch = () => this.set();
+      _dispatch() {
+        return callerNow()?.method;
+      }
+    }
+    const ctrl = withMethodNames(new Mocked());
+    expect(ctrl.set()).toBe('set');
+    // the method the code called, not the ones it calls in turn
+    expect(ctrl.fetch()).toBe('fetch');
+    expect(ctrl._dispatch()).toBeUndefined();
+    expect(withMethodNames(new Mocked())).not.toBe(ctrl);
+  });
+
   it('names no caller outside a hook or a user event', () => {
     expect(callerNow()).toBeUndefined();
   });

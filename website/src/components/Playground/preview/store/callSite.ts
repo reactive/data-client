@@ -58,19 +58,27 @@ export function withMethodNames<C extends object>(controller: C): C {
   let wrapped = named.get(controller);
   if (!wrapped) {
     const own: Record<string, unknown> = Object.create(controller);
-    const proto = Object.getPrototypeOf(controller);
-    // every method: one that doesn't dispatch is named for nothing
-    const names = new Set([
-      ...Object.keys(controller),
-      ...Object.getOwnPropertyNames(proto),
-    ]);
-    names.delete('constructor');
-    for (const name of names) {
-      // a getter (`dispatch`) stays the controller's
-      const fn =
-        Object.getOwnPropertyDescriptor(controller, name)?.value ??
-        Object.getOwnPropertyDescriptor(proto, name)?.value;
-      if (typeof fn !== 'function') continue;
+    // every public method, the playground's subclasses' (MockedController)
+    // and Controller's own: one that doesn't dispatch is named for nothing
+    const methods = new Map<string, (...args: unknown[]) => unknown>();
+    for (
+      let at: object | null = controller;
+      at && at !== Object.prototype;
+      at = Object.getPrototypeOf(at)
+    ) {
+      for (const name of Object.getOwnPropertyNames(at)) {
+        // a getter (`dispatch`) stays the controller's
+        const fn = Object.getOwnPropertyDescriptor(at, name)?.value;
+        if (
+          typeof fn === 'function' &&
+          name !== 'constructor' &&
+          !name.startsWith('_') &&
+          !methods.has(name)
+        )
+          methods.set(name, fn);
+      }
+    }
+    for (const [name, fn] of methods) {
       // the original runs, so a method it calls (`fetchIfStale` calls
       // `fetch`) isn't named over it
       own[name] = (...args: unknown[]) => {
