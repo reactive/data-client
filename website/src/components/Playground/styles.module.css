@@ -1571,7 +1571,7 @@ div.fixtureJson + div.fixtureJson {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .diffCover :global(.prism-code) {
-  padding: 0 14px 0 10px !important;
+  padding: 0 14px var(--diff-gutter) var(--diff-inset) !important;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -2376,25 +2376,62 @@ div.fixtureJson + div.fixtureJson {
   background-color: var(--monoco-code-background);
 }
 
-/* Slim Before/After labels above DiffEditor panes; offsets set from Monaco layout */
+/* The diff editor's look, shared with the panes DiffEditor draws before it
+   (../DiffEditor.module.css .staticDiff) so the two stay one picture: its
+   Before/After labels (a dot in each pane's diff color), the code's inset
+   (Monaco's line decorations) and the space above and below the code
+   (useAutoHeight's gutter) */
+.standaloneEditor {
+  --diff-label-height: 30px;
+  --diff-label-rule: 1px solid rgba(255, 255, 255, 0.06);
+  --diff-label-color: rgba(191, 199, 213, 0.9);
+  --diff-label-font: 600 12.5px / 30px var(--ifm-font-family-base);
+  --diff-label-tracking: 0.01em;
+  /* each label's dot: its pane's color in the diff */
+  --diff-before: #f07178;
+  --diff-after: #c3e88d;
+  --diff-inset: 10px;
+  --diff-gutter: 10px;
+}
+/* the frame keeps its rounded corners; hovers render outside it
+   (monaco/useOverflowWidgets.ts) */
+.playgroundContainer.diffFrame {
+  overflow: clip;
+}
+/* offsets set from Monaco layout */
 .diffLabels {
   position: relative;
-  height: 22px;
+  height: var(--diff-label-height);
   background: var(--monoco-code-background);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  color: rgba(191, 199, 213, 0.55);
-  font: 500 11px / 22px var(--ifm-font-family-base);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  border-bottom: var(--diff-label-rule);
+  color: var(--diff-label-color);
+  font: var(--diff-label-font);
+  letter-spacing: var(--diff-label-tracking);
 }
 /* Match the space below the last line, in the code's color */
 .playgroundContainer.standaloneEditor .diffLabels + .playgroundEditor {
-  padding-top: 10px;
+  padding-top: var(--diff-gutter);
   background: var(--monoco-code-background);
 }
 .diffLabels > span {
   position: absolute;
-  left: 0.75rem;
+  /* on the code's column until Monaco measures it */
+  left: var(--diff-inset);
+}
+.diffLabels > span + span {
+  left: calc(50% + var(--diff-inset));
+}
+.diffLabels > span::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin: 0 7px 1px 0;
+  border-radius: 50%;
+  background: var(--diff-before);
+}
+.diffLabels > span + span::before {
+  background: var(--diff-after);
 }
 
 /* Live Preview label: a live dot (drawn, so it renders the same on every
