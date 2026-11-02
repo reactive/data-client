@@ -1,5 +1,6 @@
 import { createContext, use } from 'react';
 
+import { wrapCalls } from './attribution';
 import {
   userEvent,
   type Caller,
@@ -50,52 +51,25 @@ let method: string | undefined;
 
 const named = new WeakMap<object, object>();
 
-/** `controller`, its methods named while they run, so what they
+/** `controller`, its public methods named while they run, so what they
  * dispatch is credited to them (a production build minifies their names).
  * The same object for the same controller, so it stays one dependency */
 export function withMethodNames<C extends object>(controller: C): C {
-  if (!controller || typeof controller !== 'object') return controller;
   let wrapped = named.get(controller);
   if (!wrapped) {
-    const own: Record<string, unknown> = Object.create(controller);
-    for (const [name, fn] of publicMethods(controller)) {
-      // the original runs, so a method it calls (`fetchIfStale` calls
-      // `fetch`) isn't named over it
-      own[name] = (...args: unknown[]) => {
-        const outer = method;
-        method = name;
-        try {
-          return fn.apply(controller, args);
-        } finally {
-          method = outer;
-        }
-      };
-    }
-    named.set(controller, (wrapped = own));
+    wrapped = wrapCalls(controller, (name, call) => {
+      if (typeof name !== 'string' || name.startsWith('_')) return call();
+      const outer = method;
+      method = name;
+      try {
+        return call();
+      } finally {
+        method = outer;
+      }
+    });
+    named.set(controller, wrapped);
   }
   return wrapped as C;
-}
-
-/** `object`'s public methods by name, its subclasses' and its base classes':
- * the most derived definition wins, and a getter (`dispatch`) hides a
- * method of the same name */
-function publicMethods(object: object) {
-  const methods = new Map<string, (...args: unknown[]) => unknown>();
-  const seen = new Set<string>(['constructor']);
-  for (
-    let at: object | null = object;
-    at && at !== Object.prototype;
-    at = Object.getPrototypeOf(at)
-  ) {
-    for (const name of Object.getOwnPropertyNames(at)) {
-      if (seen.has(name)) continue;
-      seen.add(name);
-      const fn = Object.getOwnPropertyDescriptor(at, name)?.value;
-      if (typeof fn === 'function' && !name.startsWith('_'))
-        methods.set(name, fn);
-    }
-  }
-  return methods;
 }
 
 /** A stack frame of code the page evaluated, as the preview runs the
@@ -112,7 +86,7 @@ function evalFrame(text: string) {
   return (
     groups && {
       name: groups.v8 ?? groups.sm,
-      at: groups.v8Line ?? groups.smLine,
+      line: Number(groups.v8Line ?? groups.smLine) || undefined,
     }
   );
 }
@@ -131,10 +105,10 @@ export function evaluatedFrames(stack: string | undefined): EvaluatedFrame[] {
   for (const text of stack.split('\n')) {
     const frame = evalFrame(text);
     if (!frame) continue;
-    const { name, at } = frame;
+    const { name, line } = frame;
     frames.push({
       name: name.slice(name.lastIndexOf('.') + 1),
-      ...(at && { line: Number(at) - programStart() + 1 }),
+      ...(line && { line: line - programStart() + 1 }),
     });
   }
   return frames;
@@ -147,8 +121,7 @@ let bodyLine: number | undefined;
 function programStart() {
   if (bodyLine === undefined) {
     const stack: string = new Function('a', 'b', 'return new Error().stack')();
-    const at = stack.split('\n').map(evalFrame).find(Boolean)?.at;
-    bodyLine = Number(at ?? 1);
+    bodyLine = stack.split('\n').map(evalFrame).find(Boolean)?.line ?? 1;
   }
   return bodyLine;
 }

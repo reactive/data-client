@@ -28,9 +28,14 @@ import {
   withMethodNames,
 } from '../store/callSite';
 import { userEvent } from '../store/fetchCause';
-import { documentLine, joinDocuments, scopeBlock } from '../transformCode';
 import { interactionsOf, rootEvent } from '../store/interactions';
 import SchemaRegistry from '../store/schemaRegistry';
+import {
+  documentLine,
+  joinDocuments,
+  layoutOf,
+  scopeBlock,
+} from '../transformCode';
 
 jest.mock('../../DesignSystem/Loading', () => ({ Loading: () => null }));
 
@@ -470,7 +475,9 @@ render(Demo({ id: '1' }));`,
     ];
     const sources: unknown[] = [];
     const dispatch = () =>
-      sources.push(callerNow(line => documentLine(documents, line))?.source);
+      sources.push(
+        callerNow(line => documentLine(layoutOf(documents), line))?.source,
+      );
     // as the live preview runs it (react-live with TypeScript, noInline)
     const program = transform(scopeBlock(joinDocuments(documents)), {
       transforms: ['jsx', 'typescript', 'imports'],
@@ -500,17 +507,22 @@ render(Demo({ id: '1' }));`,
       _dispatch() {
         return callerNow()?.method;
       }
+
       // a getter over a method stays the getter
       get flush() {
         return 'flushed';
       }
     }
-    const ctrl = withMethodNames(new Mocked());
+    const mocked = new Mocked();
+    const ctrl = withMethodNames(mocked);
     expect(ctrl.set()).toBe('set');
     // the method the code called, not the ones it calls in turn
     expect(ctrl.fetch()).toBe('fetch');
     expect(ctrl._dispatch()).toBeUndefined();
     expect(ctrl.flush).toBe('flushed');
+    // one wrapper per controller, so it stays one dependency
+    expect(withMethodNames(mocked)).toBe(ctrl);
+    expect(withMethodNames(new Mocked())).not.toBe(ctrl);
   });
 
   it('names no caller outside a hook or a user event', () => {

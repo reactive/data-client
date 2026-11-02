@@ -38,18 +38,32 @@ export function joinDocuments(documents: readonly { value: string }[]) {
   return documents.map(document => document.value).join(JOINER);
 }
 
-/** Where line `line` (1-based) of `joinDocuments(documents)` is: its
+/** A document's place in the program: its path and how many lines it has */
+export interface DocumentSpan {
+  readonly path: string;
+  readonly lines: number;
+}
+
+/** Where each of `documents` is in `joinDocuments(documents)` */
+export const layoutOf = (
+  documents: readonly { value: string; path: string }[],
+): DocumentSpan[] =>
+  documents.map(({ path, value }) => ({
+    path,
+    lines: value.split('\n').length,
+  }));
+
+/** Where line `line` (1-based) of the program `layout` describes is: its
  * document's path and line there. Nothing for a joiner's line or one past
  * the documents (a trailer). `transformCode` keeps lines, so it holds for the
  * code that runs */
 export function documentLine(
-  documents: readonly { value: string; path: string }[],
+  layout: readonly DocumentSpan[],
   line: number,
 ): { path: string; line: number } | undefined {
   let start = 1;
-  for (const { value, path } of documents) {
+  for (const { path, lines } of layout) {
     if (line < start) return;
-    const lines = value.split('\n').length;
     if (line < start + lines) return { path, line: line - start + 1 };
     // the joiner's `;` takes a line of its own
     start += lines + 1;

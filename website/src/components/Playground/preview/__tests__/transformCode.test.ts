@@ -3,6 +3,7 @@
 import transformCode, {
   defaultExportName,
   documentLine,
+  layoutOf,
   joinDocuments,
 } from '../transformCode';
 
@@ -132,9 +133,10 @@ describe('documentLine', () => {
       path: 'App.tsx',
     },
   ];
+  const layout = layoutOf(documents);
   const program = joinDocuments(documents).split('\n');
   const at = (line: number) => {
-    const found = documentLine(documents, line);
+    const found = documentLine(layout, line);
     return found && [found.path, found.line];
   };
 
@@ -146,7 +148,7 @@ describe('documentLine', () => {
     expect(at(9)).toEqual(['App.tsx', 4]);
     // every program line maps to the same text in its document
     program.forEach((text, i) => {
-      const found = documentLine(documents, i + 1);
+      const found = documentLine(layout, i + 1);
       const document = documents.find(d => d.path === found?.path);
       if (found) expect(document?.value.split('\n')[found.line - 1]).toBe(text);
     });

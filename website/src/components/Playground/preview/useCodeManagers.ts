@@ -1,8 +1,12 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import ManagerHost, { managersVersion } from './managers';
 import { previewScope } from './scope';
-import { scopeBlock } from './transformCode';
+import transformCode, {
+  documentLine,
+  layoutOf,
+  type DocumentSpan,
+} from './transformCode';
 import type { PreviewSnapshot } from './usePreviewReset';
 import type { CodeDocument } from '../editor/codeModel';
 
@@ -12,67 +16,90 @@ import type { CodeDocument } from '../editor/codeModel';
  *
  * @param remount gives the store new managers, keeping its data
  * @returns `scope` and `transformCode` for react-live, `host` for the store,
- * `ran` the files of the code that last ran to its end
+ * `locate` where a line of the running code is in its files
  */
 export function useCodeManagers(
   documents: readonly CodeDocument[],
   remount: (snapshot: PreviewSnapshot) => void,
 ) {
   const version = useMemo(() => managersVersion(documents), [documents]);
+  const layout = useMemo(() => layoutOf(documents), [documents]);
   // outlives remounts, so a new store gets the last registered getManagers()
   const host = useMemo(() => new ManagerHost(remount), [remount]);
-  // the files of the last code that ran to its end: code that fails keeps
-  // running the code before it, whose stack lines map into its own files
-  const ran = useRef(documents);
-  const latest = useRef(documents);
-  latest.current = documents;
-  // the files each transformed code came from, until it runs
-  const [transformed] = useState(
-    () => new Map<number, readonly CodeDocument[]>(),
-  );
+  const [files] = useState(() => new RunningFiles(layout));
   const scope = useMemo(
     () => ({
       ...previewScope,
+      [RUN_START]: files.start,
       [REGISTER_MANAGERS]: (
         getManagers: Parameters<ManagerHost['register']>[0],
-        version: string,
-        run: number,
+        managersSource: string,
       ) => {
-        const files = transformed.get(run);
-        if (files) ran.current = files;
-        for (const older of transformed.keys())
-          if (older <= run) transformed.delete(older);
-        host.register(getManagers, version);
+        files.ran();
+        host.register(getManagers, managersSource);
       },
+      [RUN_END]: files.end,
     }),
-    [host, transformed],
+    [host, files],
   );
   // changes only along with the code, so it never re-runs the code by itself
   const transformWithManagers = useCallback(
-    (code: string) => {
-      // react-live transforms the code as it commits, so `latest` is its files
-      const run = nextRun++;
-      transformed.set(run, latest.current);
-      return scopeBlock(code + managersTrailer(version, run));
-    },
-    [version, transformed],
+    (code: string) =>
+      // the try block is the scope block (see `scopeBlock`), opened on the
+      // code's first line, so its lines keep their numbers
+      `${RUN_START}(${JSON.stringify(layout)});try{${transformCode(code + managersTrailer(version))}\n}finally{${RUN_END}()}`,
+    [version, layout],
   );
-  return { host, scope, transformCode: transformWithManagers, ran };
+  return {
+    host,
+    scope,
+    transformCode: transformWithManagers,
+    locate: files.locate,
+  };
 }
 
-/** Tells one transformed code from the next */
-let nextRun = 0;
+/** The files of the code that runs: the code evaluating now, else the last
+ * code that ran to its end. Code that fails keeps running the code before
+ * it, whose stack lines are in its own files */
+class RunningFiles {
+  private last: readonly DocumentSpan[];
+  private running: readonly DocumentSpan[] | undefined;
 
-/** Scope name the code's trailer calls; never typed by users */
+  constructor(layout: readonly DocumentSpan[]) {
+    this.last = layout;
+  }
+
+  /** The code of `layout`'s files starts evaluating */
+  readonly start = (layout: readonly DocumentSpan[]) => {
+    this.running = layout;
+  };
+
+  /** The evaluating code ran to its end */
+  readonly ran = () => {
+    if (this.running) this.last = this.running;
+  };
+
+  /** The evaluating code is done, run to its end or not */
+  readonly end = () => {
+    this.running = undefined;
+  };
+
+  /** Where line `line` of the code that runs is in its files */
+  readonly locate = (line: number) =>
+    documentLine(this.running ?? this.last, line);
+}
+
+/** Scope names the transformed code calls; never typed by users */
+const RUN_START = '__runStart';
 const REGISTER_MANAGERS = '__registerManagers';
+const RUN_END = '__runEnd';
 
 /** Appended to the preview's code: hands `getManagers()` (if the code defines
  * one) to the host. Only reached when the whole code ran, so code that fails
  * keeps the managers it had.
  *
  * @param version identifies the source of the documents `getManagers()` uses
- * @param run identifies the transform, so the files that ran are known
  */
-function managersTrailer(version: string, run: number) {
-  return `\n;${REGISTER_MANAGERS}(typeof getManagers === 'function' ? getManagers : undefined, ${JSON.stringify(version)}, ${run});`;
+function managersTrailer(version: string) {
+  return `\n;${REGISTER_MANAGERS}(typeof getManagers === 'function' ? getManagers : undefined, ${JSON.stringify(version)});`;
 }

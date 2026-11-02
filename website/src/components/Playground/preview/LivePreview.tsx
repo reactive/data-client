@@ -17,7 +17,7 @@ import type { LogOptions } from './store/actionLog';
 import { callerNow } from './store/callSite';
 import SchemaRegistry from './store/schemaRegistry';
 import type { ShowStore } from './store/storeView';
-import { documentLine, joinDocuments } from './transformCode';
+import { joinDocuments } from './transformCode';
 import { useCodeManagers } from './useCodeManagers';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
 
@@ -72,14 +72,13 @@ export default function LivePreview<T>({
     ...handlers
   } = usePreviewReset(code);
   const managers = useCodeManagers(documents, remount);
-  const { ran } = managers;
   // outlives remounts, so a restored store keeps its schemas and actions
   const [registry] = useState(
     // credits the app's actions to the hook, component or event sending
-    // them, and the line of the code that did, in the files that ran
+    // them, and the line of the code that did
     () =>
       new SchemaRegistry({
-        caller: () => callerNow(line => documentLine(ran.current, line)),
+        caller: () => callerNow(managers.locate),
         ...actionLog,
       }),
   );

@@ -92,7 +92,7 @@ function SourcePeek({ code, line }: { code: string; line: number }) {
   const indent = Math.min(
     ...lines
       .filter(text => text.trim())
-      .map(text => /^\s*/.exec(text)![0].length),
+      .map(text => text.length - text.trimStart().length),
   );
   return (
     <span className={styles.sourcePeek} aria-hidden>
