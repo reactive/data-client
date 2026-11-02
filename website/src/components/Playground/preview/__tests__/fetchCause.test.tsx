@@ -479,7 +479,7 @@ render(Demo({ id: '1' }));`,
     const locate = (line: number) => documentLine(layoutOf(documents), line);
     const dispatch = () => {
       sources.push(callerNow(locate)?.source);
-      // a manager's dispatch finds the same line
+      // sourceNow (what a manager's dispatch asks) maps the same stack
       managerSources.push(sourceNow(locate));
     };
     // as the live preview runs it (react-live with TypeScript, noInline)

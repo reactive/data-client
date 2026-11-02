@@ -28,6 +28,7 @@ import {
   type ManagerStage,
   startsRequests,
   type Attribution,
+  type Dispatching,
 } from './attribution';
 import {
   fetchReason,
@@ -163,17 +164,6 @@ export function findEntry(
 export const rootEntry = (entries: readonly LogEntry[], entry: LogEntry) =>
   (entry.root === undefined ? undefined : findEntry(entries, entry.root)) ??
   entry;
-
-/** What a manager of the code's sent: the Controller method it called, and
- * the line of its code that called it */
-function managerCaller(
-  method: string | undefined,
-  source: CallerSource | undefined,
-): Caller | undefined {
-  return method || source ?
-      { ...(method && { method }), ...(source && { source }) }
-    : undefined;
-}
 
 /** `root` for an action that `entry` started */
 const rootOf = (entry: LogEntry | undefined) =>
@@ -352,6 +342,18 @@ export default class ActionLog {
     this.recording = recordFrom === 'load';
   }
 
+  /** What a manager's dispatch is credited with: for one of the code's,
+   * the Controller method it called and the line of its code that called
+   * it. None for the library's, whose calls are the same in every
+   * playground */
+  private managerCaller({ stage, method }: Dispatching): Caller | undefined {
+    if (stage.library) return;
+    const source = this.managerSource();
+    return method || source ?
+        { ...(method && { method }), ...(source && { source }) }
+      : undefined;
+  }
+
   /** Managers that log one store's actions into history `id`: `head` goes
    * first in the manager chain, `tail` last (it sees what actually reaches
    * the store). Once the store dispatches, histories other than `id` and
@@ -399,10 +401,7 @@ export default class ActionLog {
         if (!this.recording) return next(action);
         const origin = dispatching?.stage;
         const caller =
-          !origin ? this.caller()
-            // the library's managers' calls are the same in every playground
-          : origin.library ? undefined
-          : managerCaller(dispatching.method, this.managerSource());
+          dispatching ? this.managerCaller(dispatching) : this.caller();
         // the first action recorded starts the history
         if (first) dropOthers();
         const entry: LogEntry = {
