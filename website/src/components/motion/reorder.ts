@@ -16,6 +16,8 @@ export interface Position {
   parent: HTMLElement | null;
   width: number;
   height: number;
+  /** ms since it arrived, while it still calls attention to that */
+  arrived?: number;
 }
 export type Positions = ReadonlyMap<unknown, Position>;
 
@@ -31,6 +33,7 @@ export function measure(items: Items): Positions {
       parent: el.parentElement,
       width,
       height,
+      arrived: sinceArrival(el),
     });
   }
   return positions;
@@ -44,8 +47,8 @@ export function measure(items: Items): Positions {
  * fades in, marked `data-arrived` for a style that calls attention to it
  * (unless an item moves in with it, or it takes the exact spot of a key
  * that just left: the same item under a new id, like an optimistic create
- * the server answered). A key that left fades out where it was, as the
- * others glide into its place. Items crossing the others (going past one,
+ * the server answered, which carries on that key's arrival). A key that
+ * left fades out where it was, as the others glide into its place. Items crossing the others (going past one,
  * not only into a gap) are `data-traveling` until they land. `own` gives some keys their own spring
  * (an item the reader dropped settles quicker). Layout-agnostic: it reads
  * only where items are on screen.
@@ -67,13 +70,16 @@ export function reorder(
     { offset: Point; velocity: Point; spring: Spring; was: Point; at: Point }
   >();
   const arrivals: HTMLElement[] = [];
+  const handovers: [el: HTMLElement, arrived: number][] = [];
   const left = [...before]
     .filter(([key]) => !items.has(key))
     .map(([, position]) => position);
   for (const [key, el] of items) {
     const was = before.get(key);
     if (!was) {
-      if (!takeSpot(left, positionOf(el))) arrivals.push(el);
+      const spot = takeSpot(left, positionOf(el));
+      if (!spot) arrivals.push(el);
+      else if (spot.arrived !== undefined) handovers.push([el, spot.arrived]);
       continue;
     }
     const at = positionOf(el);
@@ -106,19 +112,38 @@ export function reorder(
     el => !glides.some(({ el: item }) => el.contains(item)),
   );
   for (const position of left) leave(position);
-  if (!fades.length) return;
+  if (!fades.length && !handovers.length) return;
   const timing = springEasing(spring);
   for (const el of fades) arrive(el, timing);
+  for (const [el, arrived] of handovers) arrive(el, timing, arrived);
 }
 
 const ARRIVE: Keyframe[] = [{ opacity: 0 }, { opacity: 1 }];
 
-function arrive(el: HTMLElement, timing: KeyframeAnimationOptions) {
+/** When each arriving item arrived (`performance.now()`) */
+const arrivedAt = new WeakMap<HTMLElement, number>();
+function sinceArrival(el: HTMLElement) {
+  const at = arrivedAt.get(el);
+  if (at === undefined || el.dataset.arrived === undefined) return;
+  return performance.now() - at;
+}
+
+/** Fades `el` in, and marks it; `elapsed` (ms) picks up an arrival the
+ * item made under the key it replaces, so it doesn't start over or cut off */
+function arrive(
+  el: HTMLElement,
+  timing: KeyframeAnimationOptions,
+  elapsed = 0,
+) {
   if (typeof el.animate !== 'function') return;
+  arrivedAt.set(el, performance.now() - elapsed);
   el.animate(ARRIVE, timing);
   // until the style that calls attention to it is over (a move restarts a
   // CSS animation)
   el.dataset.arrived = '';
+  if (elapsed)
+    for (const animation of el.getAnimations?.() ?? [])
+      animation.currentTime = elapsed;
   const over = () => delete el.dataset.arrived;
   el.addEventListener('animationend', over, { once: true });
   el.addEventListener('animationcancel', over, { once: true });
@@ -215,14 +240,13 @@ function land(el: HTMLElement) {
 
 const distance = ({ x, y }: Point) => Math.hypot(x, y);
 
-/** Whether `at` is where one of `spots` was (removing it, so it's taken
+/** The one of `spots` that was at `at`, if any (removing it, so it's taken
  * once) */
 function takeSpot(spots: Position[], at: Point) {
   const i = spots.findIndex(
     ({ at: spot }) => distance({ x: spot.x - at.x, y: spot.y - at.y }) <= NUDGE,
   );
-  if (i !== -1) spots.splice(i, 1);
-  return i !== -1;
+  if (i !== -1) return spots.splice(i, 1)[0];
 }
 
 function positionOf(el: HTMLElement): Point {

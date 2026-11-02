@@ -291,6 +291,27 @@ it('shows a new key at once in the spot a key just left (an id the server assign
   expect(startOf(getByTestId('x'))).toBeUndefined();
 });
 
+it('carries on the arrival of a key whose spot it takes, so its highlight does not cut off', () => {
+  const now = jest.spyOn(performance, 'now').mockReturnValue(1000);
+  const { rerender, getByTestId } = render(
+    <Board groups={[{ name: 'a', y: 0, rows: [] }]} />,
+  );
+  rerender(
+    <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'temp', y: 10 }] }]} />,
+  );
+  now.mockReturnValue(1300);
+  const resumed: Partial<Animation>[] = [{}, {}];
+  HTMLElement.prototype.getAnimations = () => resumed as Animation[];
+  rerender(
+    <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
+  );
+  delete (HTMLElement.prototype as any).getAnimations;
+  const x = getByTestId('x');
+  expect(x.dataset.arrived).toBe('');
+  expect(startOf(x)).toEqual({ opacity: 0 });
+  expect(resumed.map(animation => animation.currentTime)).toEqual([300, 300]);
+});
+
 it('fades in a new key away from where a key left', () => {
   const { rerender, getByTestId } = render(
     <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'gone', y: 10 }] }]} />,
