@@ -40,8 +40,9 @@ export function ReasonTag({
 }
 
 /** A row's why, after what it changed: the reason its first fetch went
- * out and who sent it (`← invalid · <ShowTime>`), and how many fetches it
- * caused (`→ 1 refetch`) */
+ * out and who sent it with what (`← invalid · <ShowTime> useSuspense`), or
+ * what the app called (`← ctrl.invalidate`); and how many fetches it caused
+ * (`→ 1 refetch`) */
 export function RowWhy({
   entries,
   refetches,
@@ -50,14 +51,19 @@ export function RowWhy({
   refetches: number;
 }) {
   const fetch = entries.find(e => e.reason);
+  const sent = fetch ?? entries[0];
+  // the hook or Controller method that sent it, as the Why names it
+  const { hook, method } = sent.caller ?? {};
+  const call = hook ?? (method && `ctrl.${method}`);
   return (
     <>
-      {fetch?.reason && (
+      {fetch?.reason ?
         <span className={styles.rowWhy}>
           ← <ReasonTag reason={fetch.reason} plain />
           <SenderName entry={fetch} before=" · " />
+          {call && ` ${call}`}
         </span>
-      )}
+      : call && !sent.origin && <span className={styles.rowWhy}>← {call}</span>}
       {refetches > 0 && (
         <span className={styles.rowWhy}>
           → {refetches} refetch{refetches === 1 ? '' : 'es'}

@@ -22,6 +22,7 @@ import { declarationsOf } from '../../editor/declarations';
 import { CodeOpenerContext, type CodeOpener } from '../../editor/openCode';
 import { stageFilter } from '../store/actionGroups';
 import type { LogEntry } from '../store/actionLog';
+import type { Caller } from '../store/fetchCause';
 import {
   managerStages,
   pipeline,
@@ -1148,6 +1149,31 @@ describe('Store panel pipeline', () => {
     );
     fireEvent.click(link);
     expect(open).toHaveBeenCalledWith(source);
+  });
+
+  it('names what sent each row: the hook, or the Controller method', async () => {
+    let caller: Caller = { method: 'invalidate' };
+    const registry = new SchemaRegistry({ trimEvery: 1, caller: () => caller });
+    const { ctrl } = connectStore(
+      registry,
+      [new NetworkManager()],
+      <InspectedPanel registry={registry} history={0} />,
+    );
+    await act(async () => {
+      await ctrl().invalidate(getTicker);
+    });
+    caller = { hook: 'useSuspense', component: 'Ticker' };
+    await act(async () => {
+      await ctrl().fetchIfStale(getTicker);
+    });
+    openActions();
+    const rows = Array.from(listed(), row => row.textContent);
+    expect(rows.find(text => text?.includes('invalidate'))).toContain(
+      '← ctrl.invalidate',
+    );
+    expect(rows.find(text => text?.includes('<Ticker>'))).toContain(
+      '<Ticker> useSuspense',
+    );
   });
 
   it("draws an action's path: who sent it and where it stopped", async () => {
