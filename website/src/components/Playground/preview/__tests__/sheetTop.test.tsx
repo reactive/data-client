@@ -2,7 +2,7 @@
 import { act, render } from '@testing-library/react';
 import React, { useRef } from 'react';
 
-import { useSheetTop } from '../store/StorePanel';
+import { useSheetTop } from '../store/dom';
 
 // what each observer was handed, so a test can report a resize
 let callbacks: (() => void)[] = [];

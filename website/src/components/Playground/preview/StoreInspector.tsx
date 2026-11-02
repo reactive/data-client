@@ -63,6 +63,7 @@ function StoreInspector({
         registry={registry}
         history={history}
         quickLookHost={onPanel ? panelEl : quickLookHost}
+        // the drawer (`host`) sits in the folder's layer (../index.tsx)
         layer={folder ? (host?.parentElement ?? null) : null}
       />
     : null;

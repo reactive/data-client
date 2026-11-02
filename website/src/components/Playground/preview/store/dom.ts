@@ -82,6 +82,37 @@ export function useWidth(
   return width;
 }
 
+/** How far down the folder's `layer` (.storeHost) the Store's `sheet`
+ * starts, as `--store-sheet-top` on the layer: the scrubber's row, then the
+ * moment's label and the expanded timeline as they show, push it down. The
+ * drawer's tabs follow it there rather than stick out beside the header,
+ * and the layer grows to keep room for them beside it (.drawerTabs in
+ * ../../styles.module.css) */
+export function useSheetTop(
+  layer: HTMLElement | null,
+  sheet: React.RefObject<HTMLElement | null>,
+) {
+  useLayoutEffect(() => {
+    const el = sheet.current;
+    if (!layer || !el || typeof ResizeObserver === 'undefined') return;
+    // the sheet fills the layer under the header, so a header growing
+    // shrinks it (and the layer growing to keep room for the tabs grows
+    // it back). Not the layer: what this writes can resize it, from its
+    // own callback, which the browser reports as a loop
+    const measure = () =>
+      layer.style.setProperty(
+        '--store-sheet-top',
+        `${el.getBoundingClientRect().top - layer.getBoundingClientRect().top}px`,
+      );
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      layer.style.removeProperty('--store-sheet-top');
+    };
+  }, [layer, sheet]);
+}
+
 /** A change's color, as every view marks it */
 export const kindColor = (kind: ChangeKind) => `var(--store-kind-${kind})`;
 

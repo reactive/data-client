@@ -439,6 +439,8 @@ div.playgroundTextEdit > .playgroundHeader {
   --pg-tab-width: 2.5rem;
   --pg-tab-length: 3rem;
   --pg-tab-back: 0.5rem;
+  /* their column: both, and the gap between (.drawerTabs) */
+  --pg-tabs-span: calc(2 * var(--pg-tab-length) + var(--pg-card-radius));
   --pg-tab-pulled: color-mix(in srgb, var(--pg-stage), var(--pg-panel));
   --pg-tab-lift: drop-shadow(
     0 1px 3px color-mix(in srgb, var(--pg-shadow) 45%, transparent)
@@ -1835,35 +1837,37 @@ div.fixtureJson + div.fixtureJson {
     transition: bottom var(--pg-store-snappy);
   }
   /* unless the Store's header (the moment's label, the timeline) pushes its
-     sheet's top (--store-sheet-top, ./preview/store/StorePanel.tsx) below
-     where they'd start: then they move down the sheet's edge, on past the
-     preview's foot as the sheet does, their curve clear of its corner, as
-     far as the drawer's foot */
+     sheet's top (--store-sheet-top, ./preview/store/dom.ts useSheetTop)
+     below where they'd start: then they move down the sheet's edge, their
+     curve clear of its corner (2 radii), on past the preview's foot as the
+     sheet does, and no nearer the drawer's foot than they'd sit at the
+     preview's (2 radii) */
   .row:not(.stacked) > .storeHost[data-open] .drawerTabs {
     bottom: max(
       2 * var(--pg-card-radius),
       min(
         var(--pg-tabs-foot),
-        100% - var(--store-sheet-top, 0px) - 2 * var(--pg-tab-length) - 3 *
+        100% - var(--store-sheet-top, 0px) - var(--pg-tabs-span) - 2 *
           var(--pg-card-radius)
       )
     );
   }
-  /* and the Store keeps room for them under its header, however tall the
-     timeline */
+  /* and the Store keeps that room for them under its header, however tall
+     the timeline: 2 radii above them and 2 below (over the rule for every
+     layout's, --store-min) */
   .row:not(.stacked) > .storeHost:has(.storePanel[data-visible]) {
     min-height: max(
       var(--store-min),
-      var(--store-sheet-top, 0px) + 2 * var(--pg-tab-length) + 5 *
+      var(--store-sheet-top, 0px) + var(--pg-tabs-span) + 4 *
         var(--pg-card-radius)
     );
   }
-  /* shut, they sit on the preview's edge: tall enough for both, each
-     curve clear of a corner (the foot's below) */
+  /* shut, they sit on the preview's edge: 2 radii clear of its top corner
+     and of its foot's, the foot (1 radius) below the result */
   .row:not(.stacked) .playgroundResult {
     min-height: max(
       var(--pg-result-min, 0px),
-      2 * var(--pg-tab-length) + 4 * var(--pg-card-radius)
+      var(--pg-tabs-span) + 3 * var(--pg-card-radius)
     );
   }
   /* its shadow cut at the edge it joins; the selected one reaches a pixel

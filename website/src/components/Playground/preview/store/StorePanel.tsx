@@ -55,7 +55,7 @@ import { sameStage, shownChain, stagesOf, type Stage } from './attribution';
 import { NARROW_WIDTH } from './columns';
 import { diffModel, type RowDiff } from './diffModel';
 import { ListView, RecordLevel, type Header } from './DiveViews';
-import { flash, slide, useWidth, type Scroller } from './dom';
+import { flash, slide, useSheetTop, useWidth, type Scroller } from './dom';
 import {
   buildModel,
   findRow,
@@ -102,36 +102,6 @@ import { RowKey } from './Value';
 import { Why } from './Why';
 import Unfold from '../../Unfold';
 import { InspectorContext, tabLabel } from '../inspector';
-
-/** How far down the folder's `layer` (.storeHost) the Store's `sheet`
- * starts, as `--store-sheet-top` on the layer: the scrubber's row, then the
- * moment's label and the expanded timeline as they show, push it down. The
- * drawer's tabs follow it there rather than stick out beside the header,
- * and the layer grows to keep room for them beside it (.drawerTabs in
- * ../../styles.module.css) */
-export function useSheetTop(
-  layer: HTMLElement | null,
-  sheet: React.RefObject<HTMLElement | null>,
-) {
-  useLayoutEffect(() => {
-    const el = sheet.current;
-    if (!layer || !el || typeof ResizeObserver === 'undefined') return;
-    // the sheet fills the layer under the header, so a header growing
-    // shrinks it; the layer too, as it may grow by as much
-    const measure = () =>
-      layer.style.setProperty(
-        '--store-sheet-top',
-        `${el.getBoundingClientRect().top - layer.getBoundingClientRect().top}px`,
-      );
-    const observer = new ResizeObserver(measure);
-    observer.observe(el);
-    observer.observe(layer);
-    return () => {
-      observer.disconnect();
-      layer.style.removeProperty('--store-sheet-top');
-    };
-  }, [layer, sheet]);
-}
 
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
