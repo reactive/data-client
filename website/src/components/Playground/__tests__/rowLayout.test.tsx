@@ -124,3 +124,25 @@ describe("row layout: the Store on the preview's folder", () => {
     );
   });
 });
+
+describe('row layout: a `before` replay', () => {
+  test('Show code, under both, swaps the code in for the replay and back', () => {
+    const { container } = render(
+      <Playground before={<div>the old app</div>} beforeLabel="v0.18">
+        {APP}
+      </Playground>,
+    );
+    const row = container.querySelector('[data-comparing]')!;
+    expect(row.hasAttribute('data-code')).toBe(false);
+    // no autoRun: nothing to replay
+    expect(screen.queryByRole('button', { name: 'Replay' })).toBeNull();
+    const toggle = screen.getByRole('button', { name: 'Show code' });
+    // under both, not in either header
+    expect(row.contains(toggle)).toBe(false);
+    fireEvent.click(toggle);
+    expect(row.hasAttribute('data-code')).toBe(true);
+    expect(toggle.textContent).toBe('Hide code');
+    fireEvent.click(toggle);
+    expect(row.hasAttribute('data-code')).toBe(false);
+  });
+});

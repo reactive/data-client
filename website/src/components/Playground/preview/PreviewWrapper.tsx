@@ -286,9 +286,9 @@ interface Props {
   /** Mock responses to inspect over the result, from a network icon in the
    * header: previewed on hover, pinned open by a click or tap */
   fixtures?: React.ReactNode;
-  /** The code's toggle joins the header's controls (demo layout, or a
-   * `before` replay's row); a demo's code shows in the result's place, so
-   * meanwhile the header names it ("Editor") in the label's */
+  /** The demo layout's: the code's toggle joins the header's controls, and
+   * the code shows in the result's place, so meanwhile the header names it
+   * ("Editor") in the label's */
   code?: CodeControl;
   /** Where the app's router opens, if it has one: its controls show there
    * while the app loads */

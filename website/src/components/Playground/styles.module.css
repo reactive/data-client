@@ -2575,23 +2575,41 @@ div.fixtureJson + div.fixtureJson {
     color: var(--pg-tab-hover);
   }
 }
-/* A `before` replay's Replay button: the demo again, in both apps; a
-   header button with its name beside the icon. Compound, so it outranks
-   .headerButton however the build orders them */
-.headerButton.replayButton {
-  width: auto;
+/* A `before` replay's controls, under both apps (./CompareBar.tsx) */
+.compareBar {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.compareButton {
+  display: inline-flex;
+  align-items: center;
   gap: 0.45em;
-  margin-right: -0.5rem;
-  padding: 0 0.75rem;
+  height: 2.25rem;
+  padding: 0 1rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
   border-radius: 999px;
-  font: inherit;
-  letter-spacing: inherit;
+  background: var(--ifm-background-surface-color);
+  color: var(--ifm-color-emphasis-800);
+  font-size: 0.875rem;
+  font-weight: 500;
   transition:
     background-color var(--motion-snappy),
     color var(--motion-snappy);
 }
-.headerButton.replayButton:active {
-  background: var(--pg-hover);
+.compareButton:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  .compareButton:hover {
+    background-color: var(--ifm-color-emphasis-100);
+    color: var(--ifm-color-emphasis-900);
+  }
+}
+.compareButton:active {
+  background-color: var(--ifm-color-emphasis-200);
 }
 /* at the header's end (stacked, the drawer's tabs follow it, but for
    narrow), its icon on the content's edge */

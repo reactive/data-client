@@ -14,6 +14,7 @@ import React, {
 
 import BeforeFolder from './BeforeFolder';
 import Boundary from './Boundary';
+import CompareBar from './CompareBar';
 import { useCodeDocuments } from './editor/codeModel';
 import type { CodeDocument } from './editor/codeModel';
 import { declarationsOf, keepSameDeclarations } from './editor/declarations';
@@ -253,9 +254,9 @@ export default function Playground<T>({
     />
   );
   // the demo layout's Code toggle: in the preview's header whether or not
-  // the live preview has loaded
+  // the live preview has loaded (a `before` replay's is under both)
   const code: CodeControl | undefined =
-    codeClosed ? { shown: codeShown, toggle: toggleCode } : undefined;
+    demo ? { shown: codeShown, toggle: toggleCode } : undefined;
   // Live preview only while visible — unmounts when hidden (resets store);
   // hidden, not even its frame is in the HTML
   const preview =
@@ -334,7 +335,6 @@ export default function Playground<T>({
         : <>
             {comparing && !hidden ?
               <BeforeFolder
-                replayable={!!autoRun}
                 label={
                   beforeLabel ??
                   translate({ id: 'playground.before', message: 'Before' })
@@ -371,6 +371,13 @@ export default function Playground<T>({
           </div>
         : null}
       </div>
+      {comparing && !hidden ?
+        <CompareBar
+          replayable={!!autoRun}
+          codeShown={codeShown}
+          onToggleCode={toggleCode}
+        />
+      : null}
     </div>
   );
 }
