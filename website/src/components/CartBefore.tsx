@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 
 import { initialItems } from '../fixtures/cart';
 import { CancelButton } from './Playground/DesignSystem/CancelButton';
+// the demo's styles load with its preview's chunk; the replay shows (and is
+// in the HTML) before that, and without it for crawlers
+import './Playground/DesignSystem/design-system.css';
 
 /** The v0.19 blog's cart demo as v0.18 showed it, for its playground's
  * `before` replay: the same markup, with the old Collection behavior. A
