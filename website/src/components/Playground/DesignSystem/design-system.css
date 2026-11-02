@@ -1415,9 +1415,7 @@ div.playground-preview h1:first-child {
   color: var(--ds-faint);
   line-height: 0;
   cursor: pointer;
-  transition:
-    color var(--motion-snappy),
-    background-color var(--motion-snappy);
+  transition: color var(--motion-snappy);
 }
 .playground-preview button.cancel svg {
   display: block;
@@ -1433,12 +1431,10 @@ div.playground-preview h1:first-child {
 @media (hover: hover) {
   .playground-preview button.cancel:hover {
     color: var(--ifm-color-danger);
-    background: color-mix(in srgb, var(--ifm-color-danger) 10%, transparent);
   }
 }
 .playground-preview button.cancel:active {
   color: var(--ifm-color-danger);
-  background: color-mix(in srgb, var(--ifm-color-danger) 16%, transparent);
 }
 .playground-preview :is(button.cancel, .list > button.listItem):focus-visible {
   outline: 2px solid var(--ds-accent);
