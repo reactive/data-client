@@ -76,9 +76,10 @@ function Row({ todo }: { todo: Todo }) {
 Items are found by key, not by element, so a row React remounts under a new
 parent still glides there from where it was. An item inside another moving
 item (a row in a group that moves) rides along and travels only the rest of
-the way. A new key fades in. Inside `[data-mark-arrivals]` (a playground
-sets it while its demo autoplays) it is also marked `data-arrived`, cleared
-when a CSS animation on it ends, for a style that calls attention to it. A
+the way. A new key just shows, unless it is inside `[data-mark-arrivals]` (a
+playground sets it while its demo autoplays): then it fades in, marked
+`data-arrived` (cleared when a CSS animation on it ends) for a style that
+calls attention to it. A
 new key taking the exact spot of a key that just left (an optimistic create
 getting its server id) carries on that key's fade and mark from where they
 were, so a highlight doesn't cut off. A key that leaves fades out where it was, put back

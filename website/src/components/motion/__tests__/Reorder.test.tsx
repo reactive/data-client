@@ -255,7 +255,7 @@ it('marks a new key data-arrived until the style calling attention to it ends', 
   expect(x.dataset.arrived).toBeUndefined();
 });
 
-it('fades in a new key unmarked outside [data-mark-arrivals] (the reader caused it)', () => {
+it('shows a new key at once outside [data-mark-arrivals] (the reader caused it)', () => {
   document.body.removeAttribute('data-mark-arrivals');
   const { rerender, getByTestId } = render(
     <Board groups={[{ name: 'a', y: 0, rows: [] }]} />,
@@ -264,7 +264,7 @@ it('fades in a new key unmarked outside [data-mark-arrivals] (the reader caused 
     <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
   );
   const x = getByTestId('x');
-  expect(startOf(x)).toEqual({ opacity: 0 });
+  expect(startOf(x)).toBeUndefined();
   expect(x.dataset.arrived).toBeUndefined();
 });
 

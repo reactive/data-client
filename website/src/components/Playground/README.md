@@ -366,7 +366,8 @@ of the preview (or viewport) is in view, never under reduced motion. The
 "Live Preview" label becomes its replay control (`DemoLabel`). `player.ts`
 owns timing, `stage.ts` the DOM, `useAutoRun.ts` connects them. While it
 plays, the playground carries `data-mark-arrivals`, so rows it brings into a
-`<Reorder>` light up for the watcher; rows the reader adds don't.
+`<Reorder>` fade in and light up for the watcher; rows the reader adds just
+show.
 
 Writing a script:
 
