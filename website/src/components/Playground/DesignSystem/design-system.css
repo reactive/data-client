@@ -1415,11 +1415,12 @@ div.playground-preview h1:first-child {
   color: var(--ds-faint);
   line-height: 0;
   cursor: pointer;
-  transition: color var(--motion-snappy);
+  transition:
+    color var(--motion-snappy),
+    filter var(--motion-snappy);
 }
 .playground-preview button.cancel svg {
   display: block;
-  transition: filter var(--motion-snappy);
 }
 /* after a row's figure, it keeps a step from it */
 .playground-preview .listItem > .value + button.cancel {
@@ -1429,25 +1430,20 @@ div.playground-preview h1:first-child {
   margin-left: auto;
 }
 /* pointing at it says what it does: removing, in the danger color, with a
-   faint glow */
-.playground-preview button.cancel {
-  --cancel-glow: drop-shadow(
-    0 0 3px color-mix(in srgb, var(--ifm-color-danger) 45%, transparent)
-  );
-}
+   faint glow (it paints no background, so only the X glows) */
 @media (hover: hover) {
   .playground-preview button.cancel:hover {
     color: var(--ifm-color-danger);
-  }
-  .playground-preview button.cancel:hover svg {
-    filter: var(--cancel-glow);
+    filter: drop-shadow(
+      0 0 3px color-mix(in srgb, var(--ifm-color-danger) 45%, transparent)
+    );
   }
 }
 .playground-preview button.cancel:active {
   color: var(--ifm-color-danger);
-}
-.playground-preview button.cancel:active svg {
-  filter: var(--cancel-glow);
+  filter: drop-shadow(
+    0 0 3px color-mix(in srgb, var(--ifm-color-danger) 45%, transparent)
+  );
 }
 .playground-preview :is(button.cancel, .list > button.listItem):focus-visible {
   outline: 2px solid var(--ds-accent);
