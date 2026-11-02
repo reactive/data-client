@@ -55,7 +55,7 @@ describe('useEditorCover', () => {
     expect(stopModified).toHaveBeenCalled();
   });
 
-  test('waits to start until waitFor says, though focus reveals meanwhile', () => {
+  test('waits to start until `after` says, though focus reveals meanwhile', () => {
     const { result } = renderHook(() => useEditorCover());
     const panes = [fakeEditor()];
     let start = () => {};

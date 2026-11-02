@@ -49,8 +49,9 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
       // Side-by-side forces a glyph margin on the original pane; nothing
       // renders there in this read-only diff, so it only indents the code
       panes[0].updateOptions({ glyphMargin: false });
-      // Reveal the diff whole: its marks and the blank rows that line the
-      // panes up come with its first computation, maybe after the tokens
+      // Reveal the diff whole (unless a pane is clicked first): its marks
+      // and the blank rows that line the panes up come with its first
+      // computation, maybe after the tokens
       revealWhenPainted(panes, start => whenDiffComputed(editor, start));
       const updateOffsets = () => {
         const left = editor.getContainerDomNode().getBoundingClientRect().left;

@@ -9,9 +9,8 @@ import { hasLayoutWidth } from './useAutoHeight';
  * frame; Monaco paints in a frame of its own, so it counts once true for two
  * in a row; regardless once colored tokens have shown for `MAX_MS` (code
  * its tokenizer leaves plain) or none have for `NO_TOKENS_MS` after layout
- * (no tokenizer). A
- * tokenizer loads on demand, so on a slow machine its tokens can come long
- * after the layout. Returns a cancel.
+ * (no tokenizer). A tokenizer loads on demand, so on a slow machine its
+ * tokens can come long after the layout. Returns a cancel.
  */
 export function whenPainted(
   editor: Monaco.editor.ICodeEditor,
