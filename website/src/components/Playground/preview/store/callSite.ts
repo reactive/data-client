@@ -1,6 +1,6 @@
 import { createContext, use } from 'react';
 
-import { wrapCalls } from './attribution';
+import { isPublicMethod, wrapCalls } from './attribution';
 import {
   userEvent,
   type Caller,
@@ -58,7 +58,7 @@ export function withMethodNames<C extends object>(controller: C): C {
   let wrapped = named.get(controller);
   if (!wrapped) {
     wrapped = wrapCalls(controller, (name, call) => {
-      if (typeof name !== 'string' || name.startsWith('_')) return call();
+      if (!isPublicMethod(name)) return call();
       const outer = method;
       method = name;
       try {
@@ -147,6 +147,13 @@ const isComponentName = (name: string) => /^[A-Z]/.test(name);
 
 /** Where line `line` of the evaluated program is in the playground's files */
 type LocateLine = (line: number) => CallerSource | undefined;
+
+/** The line of the reader's code that is dispatching right now: a manager
+ * of the code's (the hook, Controller method or event on hand belong to
+ * whatever set the manager off) */
+export function sourceNow(locate: LocateLine): CallerSource | undefined {
+  return sourceOf(evaluatedFrames(deepStack()), locate);
+}
 
 /** Who is dispatching right now: while a hook renders, it and its
  * component (the event a render runs within is the action's that caused

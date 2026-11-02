@@ -14,7 +14,7 @@ import { usePreviewReset } from './usePreviewReset';
 import type { CodeDocument } from '../editor/codeModel';
 import type { CodeControl, PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
-import { callerNow } from './store/callSite';
+import { callerNow, sourceNow } from './store/callSite';
 import SchemaRegistry from './store/schemaRegistry';
 import type { ShowStore } from './store/storeView';
 import { joinDocuments } from './transformCode';
@@ -79,6 +79,7 @@ export default function LivePreview<T>({
     () =>
       new SchemaRegistry({
         caller: () => callerNow(managers.locate),
+        managerSource: () => sourceNow(managers.locate),
         ...actionLog,
       }),
   );

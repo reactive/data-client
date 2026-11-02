@@ -25,6 +25,7 @@ import {
   asHook,
   callerNow,
   evaluatedFrames,
+  sourceNow,
   withMethodNames,
 } from '../store/callSite';
 import { userEvent } from '../store/fetchCause';
@@ -474,10 +475,13 @@ render(Demo({ id: '1' }));`,
       },
     ];
     const sources: unknown[] = [];
-    const dispatch = () =>
-      sources.push(
-        callerNow(line => documentLine(layoutOf(documents), line))?.source,
-      );
+    const managerSources: unknown[] = [];
+    const locate = (line: number) => documentLine(layoutOf(documents), line);
+    const dispatch = () => {
+      sources.push(callerNow(locate)?.source);
+      // sourceNow (what a manager's dispatch asks) maps the same stack
+      managerSources.push(sourceNow(locate));
+    };
     // as the live preview runs it (react-live with TypeScript, noInline)
     const program = transform(scopeBlock(joinDocuments(documents)), {
       transforms: ['jsx', 'typescript', 'imports'],
@@ -492,6 +496,7 @@ render(Demo({ id: '1' }));`,
       { path: 'Demo.tsx', line: 8 },
       { path: 'api.ts', line: 2 },
     ]);
+    expect(managerSources).toEqual(sources);
   });
 
   it('names the Controller methods a subclass inherits, but not internals', () => {

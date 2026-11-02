@@ -28,8 +28,14 @@ import {
   type ManagerStage,
   startsRequests,
   type Attribution,
+  type Dispatching,
 } from './attribution';
-import { fetchReason, type Caller, type FetchReason } from './fetchCause';
+import {
+  fetchReason,
+  type Caller,
+  type CallerSource,
+  type FetchReason,
+} from './fetchCause';
 import { entityId } from './model';
 import type { Moment, Scope, Step } from './nav';
 import { wrapManager, type Wrap } from './wrapManager';
@@ -65,6 +71,9 @@ export interface LogOptions {
   /** Who is dispatching right now, asked as the app's own actions arrive
    * (the preview's: `callerNow`) */
   readonly caller?: () => Caller | undefined;
+  /** The line of a manager of the code's that is dispatching right now,
+   * asked as its actions arrive (the preview's: `sourceNow`) */
+  readonly managerSource?: () => CallerSource | undefined;
 }
 
 export interface LogEntry {
@@ -82,7 +91,8 @@ export interface LogEntry {
    * the app's own (a component's fetch, a button's set) */
   readonly origin?: ManagerStage;
   /** The app's own: the hook and component, or the user event, it was
-   * dispatched from, as far as the page could tell */
+   * dispatched from, as far as the page could tell. A manager of the
+   * code's: the Controller method it called and the line that called it */
   readonly caller?: Caller;
   /** A fetch's: why it fetched, from the store as it stood before it */
   readonly reason?: FetchReason;
@@ -293,7 +303,8 @@ export default class ActionLog {
   private start?: () => void;
   private readonly histories = new Map<number, History>();
   private nextSeq = 1;
-  private readonly caller: () => Caller | undefined;
+  private readonly caller: NonNullable<LogOptions['caller']>;
+  private readonly managerSource: NonNullable<LogOptions['managerSource']>;
   /** Reads a store's state: applies pending optimistic updates for
    * `view`, and says why a fetch fetched */
   private readonly reader = new Controller();
@@ -321,12 +332,26 @@ export default class ActionLog {
     trimEvery = TRIM_EVERY,
     recordFrom = 'load',
     caller = () => undefined,
+    managerSource = () => undefined,
   }: LogOptions = {}) {
     this.caller = caller;
+    this.managerSource = managerSource;
     this.limit = limit;
     this.updateLimit = updateLimit;
     this.trimEvery = trimEvery;
     this.recording = recordFrom === 'load';
+  }
+
+  /** What a manager's dispatch is credited with: for one of the code's,
+   * the Controller method it called and the line of its code that called
+   * it. None for the library's, whose calls are the same in every
+   * playground */
+  private managerCaller({ stage, method }: Dispatching): Caller | undefined {
+    if (stage.library) return;
+    const source = this.managerSource();
+    return method || source ?
+        { ...(method && { method }), ...(source && { source }) }
+      : undefined;
   }
 
   /** Managers that log one store's actions into history `id`: `head` goes
@@ -371,10 +396,12 @@ export default class ActionLog {
     };
     const head: Manager<ActionTypes> = {
       middleware: controller => next => action => {
-        const origin = attribution.dispatching;
+        const dispatching = attribution.dispatching;
         attribution.dispatching = undefined;
         if (!this.recording) return next(action);
-        const caller = origin ? undefined : this.caller();
+        const origin = dispatching?.stage;
+        const caller =
+          dispatching ? this.managerCaller(dispatching) : this.caller();
         // the first action recorded starts the history
         if (first) dropOthers();
         const entry: LogEntry = {
