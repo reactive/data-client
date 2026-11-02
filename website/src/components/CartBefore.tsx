@@ -3,11 +3,9 @@
 import React, { useState } from 'react';
 
 import { type CartItemData, initialItems } from '../fixtures/cart';
+import { Reorder, useReorderItem } from './motion';
 import { CancelButton } from './Playground/DesignSystem/CancelButton';
 import { formatters } from './Playground/DesignSystem/formatters';
-// the demo's styles load with its preview's chunk; the replay shows (and is
-// in the HTML) before that, and without it for crawlers
-import './Playground/DesignSystem/design-system.css';
 
 /** The v0.19 blog's cart demo as v0.18 showed it, for its playground's
  * `before` replay: the same markup, with the old Collection behavior. A
@@ -26,27 +24,16 @@ export default function CartBefore() {
         <span className="meta">{shown.length} in cart</span>
       </header>
       <div className="list">
-        {shown.map((id, i) => {
-          const {
-            product: { name, price },
-            quantity,
-          } = ITEMS[id];
-          return (
-            <div className="listItem" key={`${id}:${i}`}>
-              <div>
-                {name}
-                <div className="meta">
-                  {quantity} × {usd(price)}
-                </div>
-              </div>
-              <span className="value">{usd(quantity * price)}</span>
-              <CancelButton
-                label={`Remove ${name}`}
-                onClick={() => setRemoved(id)}
-              />
-            </div>
-          );
-        })}
+        <Reorder layoutDependency={shown}>
+          {rowKeys(shown).map((key, i) => (
+            <CartRow
+              key={key}
+              rowKey={key}
+              id={shown[i]}
+              onRemove={() => setRemoved(shown[i])}
+            />
+          ))}
+        </Reorder>
       </div>
       {/* not the design system's `toast`: its toasts are module state the
           live app's <Toaster /> shows, so this one would show there too */}
@@ -68,6 +55,44 @@ export default function CartBefore() {
       </div>
     </>
   );
+}
+
+function CartRow({
+  rowKey,
+  id,
+  onRemove,
+}: {
+  rowKey: string;
+  id: string;
+  onRemove: () => void;
+}) {
+  const {
+    product: { name, price },
+    quantity,
+  } = ITEMS[id];
+  return (
+    <div className="listItem" ref={useReorderItem(rowKey)}>
+      <div>
+        {name}
+        <div className="meta">
+          {quantity} × {usd(price)}
+        </div>
+      </div>
+      <span className="value">{usd(quantity * price)}</span>
+      <CancelButton label={`Remove ${name}`} onClick={onRemove} />
+    </div>
+  );
+}
+
+/** Each row's key: its id, and its count for a repeat ("mug", then
+ * "mug 2"), so the rows the list kept keep theirs */
+function rowKeys(ids: string[]) {
+  const seen = new Map<string, number>();
+  return ids.map(id => {
+    const n = (seen.get(id) ?? 0) + 1;
+    seen.set(id, n);
+    return n === 1 ? id : `${id} ${n}`;
+  });
 }
 
 // the demo's own cart, as its fixtures serve it

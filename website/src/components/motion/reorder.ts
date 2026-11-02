@@ -7,18 +7,32 @@ import { springEasing, type Spring } from './spring';
 export type Items = ReadonlyMap<unknown, HTMLElement>;
 
 /** Where an item was on screen (including any glide in flight), and how
- * fast it was moving */
+ * fast it was moving; with its element, its list and its size, so if the
+ * change takes it away it can fade out where it was */
 export interface Position {
   at: Point;
   velocity: Point;
+  el: HTMLElement;
+  parent: HTMLElement | null;
+  width: number;
+  height: number;
 }
 export type Positions = ReadonlyMap<unknown, Position>;
 
 /** Reads where `items` are, before a change moves them */
 export function measure(items: Items): Positions {
   const positions = new Map<unknown, Position>();
-  for (const [key, el] of items)
-    positions.set(key, { at: positionOf(el), velocity: velocityOf(el) });
+  for (const [key, el] of items) {
+    const { left, top, width, height } = el.getBoundingClientRect();
+    positions.set(key, {
+      at: { x: left, y: top },
+      velocity: velocityOf(el),
+      el,
+      parent: el.parentElement,
+      width,
+      height,
+    });
+  }
   return positions;
 }
 
@@ -27,9 +41,11 @@ export function measure(items: Items): Positions {
  * `translate` only, on the compositor), so an item React put under another
  * parent travels there too. An item inside another that moves rides along
  * with it, and only travels the rest of the way itself; a key `before` lacks
- * fades in (unless an item moves in with it, or it takes the exact spot of
- * a key that just left: the same item under a new id, like an optimistic
- * create the server answered). Items crossing the others are
+ * fades in, marked `data-arrived` for a style that calls attention to it
+ * (unless an item moves in with it, or it takes the exact spot of a key
+ * that just left: the same item under a new id, like an optimistic create
+ * the server answered). A key that left fades out where it was, as the
+ * others glide into its place. Items crossing the others are
  * `data-traveling` until they land. `own` gives some keys their own spring
  * (an item the reader dropped settles quicker). Layout-agnostic: it reads
  * only where items are on screen.
@@ -53,7 +69,7 @@ export function reorder(
   const arrivals: HTMLElement[] = [];
   const left = [...before]
     .filter(([key]) => !items.has(key))
-    .map(([, { at }]) => at);
+    .map(([, position]) => position);
   for (const [key, el] of items) {
     const was = before.get(key);
     if (!was) {
@@ -86,12 +102,67 @@ export function reorder(
   const fades = arrivals.filter(
     el => !glides.some(({ el: item }) => el.contains(item)),
   );
+  for (const position of left) leave(position);
   if (!fades.length) return;
   const timing = springEasing(spring);
-  for (const el of fades) el.animate?.(ARRIVE, timing);
+  for (const el of fades) arrive(el, timing);
 }
 
 const ARRIVE: Keyframe[] = [{ opacity: 0 }, { opacity: 1 }];
+
+function arrive(el: HTMLElement, timing: KeyframeAnimationOptions) {
+  if (typeof el.animate !== 'function') return;
+  el.animate(ARRIVE, timing);
+  // until the style that calls attention to it is over (a move restarts a
+  // CSS animation)
+  el.dataset.arrived = '';
+  const over = () => delete el.dataset.arrived;
+  el.addEventListener('animationend', over, { once: true });
+  el.addEventListener('animationcancel', over, { once: true });
+}
+
+// quicker than the glide into its place, so its text is mostly gone before
+// the item taking its place gets there (they'd overprint)
+const LEAVE: Keyframe[] = [
+  { opacity: 1 },
+  { opacity: 0, translate: '-12px 0' },
+];
+const LEAVE_TIMING: KeyframeAnimationOptions = {
+  duration: 160,
+  easing: 'ease-out',
+  fill: 'forwards',
+};
+
+/** Puts an item that left back where it was, out of the flow (so the
+ * others still take its place) and out of reach, while it fades out */
+function leave({ el, parent, at, width, height }: Position) {
+  // React kept it (it moved under another key), or its list left too
+  if (el.isConnected || !parent?.isConnected) return;
+  if (typeof el.animate !== 'function') return;
+  stop(el);
+  land(el);
+  delete el.dataset.arrived;
+  el.inert = true;
+  el.setAttribute('aria-hidden', 'true');
+  Object.assign(el.style, {
+    position: 'absolute',
+    boxSizing: 'border-box',
+    margin: '0',
+    left: '0',
+    top: '0',
+    width: `${width}px`,
+    height: `${height}px`,
+    pointerEvents: 'none',
+    // over the others gliding into its place (a crossing one is lifted)
+    zIndex: '2',
+  });
+  parent.append(el);
+  const origin = positionOf(el);
+  el.style.left = `${at.x - origin.x}px`;
+  el.style.top = `${at.y - origin.y}px`;
+  const gone = () => el.remove();
+  el.animate(LEAVE, LEAVE_TIMING).finished.then(gone, gone);
+}
 
 /** Whether a move crosses the others: at least half as long as the
  * longest (the row going to another group, not the rows it nudges), and
@@ -122,9 +193,9 @@ const distance = ({ x, y }: Point) => Math.hypot(x, y);
 
 /** Whether `at` is where one of `spots` was (removing it, so it's taken
  * once) */
-function takeSpot(spots: Point[], at: Point) {
+function takeSpot(spots: Position[], at: Point) {
   const i = spots.findIndex(
-    spot => distance({ x: spot.x - at.x, y: spot.y - at.y }) <= NUDGE,
+    ({ at: spot }) => distance({ x: spot.x - at.x, y: spot.y - at.y }) <= NUDGE,
   );
   if (i !== -1) spots.splice(i, 1);
   return i !== -1;

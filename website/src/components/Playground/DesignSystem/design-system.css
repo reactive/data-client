@@ -239,6 +239,18 @@ div.playground-preview h1:first-child {
   box-shadow: var(--ds-raised-shadow);
   transition: box-shadow var(--motion-snappy);
 }
+/* a row a change just brought (`<Reorder>` marks it `data-arrived`) lights
+   up in the accent, then settles, so someone watching (not the one who
+   clicked) sees where it landed */
+.playground-preview .listItem[data-arrived] {
+  animation: ds-arrive 1.6s ease-out;
+}
+@keyframes ds-arrive {
+  from,
+  25% {
+    background-color: color-mix(in srgb, var(--ds-accent) 22%, transparent);
+  }
+}
 /* A row the reader can drag into another group (`useReorderItem` with
    `onDrop`): a held finger lifts it rather than selecting its text */
 .playground-preview [data-draggable] {
@@ -1431,19 +1443,20 @@ div.playground-preview h1:first-child {
 }
 /* pointing at it says what it does: removing, in the danger color, with a
    faint glow (it paints no background, so only the X glows) */
+.playground-preview button.cancel {
+  --cancel-glow: drop-shadow(
+    0 0 3px color-mix(in srgb, var(--ifm-color-danger) 45%, transparent)
+  );
+}
 @media (hover: hover) {
   .playground-preview button.cancel:hover {
     color: var(--ifm-color-danger);
-    filter: drop-shadow(
-      0 0 3px color-mix(in srgb, var(--ifm-color-danger) 45%, transparent)
-    );
+    filter: var(--cancel-glow);
   }
 }
 .playground-preview button.cancel:active {
   color: var(--ifm-color-danger);
-  filter: drop-shadow(
-    0 0 3px color-mix(in srgb, var(--ifm-color-danger) 45%, transparent)
-  );
+  filter: var(--cancel-glow);
 }
 .playground-preview :is(button.cancel, .list > button.listItem):focus-visible {
   outline: 2px solid var(--ds-accent);
