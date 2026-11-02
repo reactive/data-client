@@ -493,10 +493,16 @@ render(Demo({ id: '1' }));`,
         return callerNow()?.method;
       }
     }
+    // a method the subclass turns into a getter
+    Object.defineProperty(Base.prototype, 'flush', { value() {} });
     class Mocked extends Base {
       fetch = () => this.set();
       _dispatch() {
         return callerNow()?.method;
+      }
+      // a getter over a method stays the getter
+      get flush() {
+        return 'flushed';
       }
     }
     const ctrl = withMethodNames(new Mocked());
@@ -504,7 +510,7 @@ render(Demo({ id: '1' }));`,
     // the method the code called, not the ones it calls in turn
     expect(ctrl.fetch()).toBe('fetch');
     expect(ctrl._dispatch()).toBeUndefined();
-    expect(withMethodNames(new Mocked())).not.toBe(ctrl);
+    expect(ctrl.flush).toBe('flushed');
   });
 
   it('names no caller outside a hook or a user event', () => {

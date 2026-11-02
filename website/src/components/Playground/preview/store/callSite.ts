@@ -61,6 +61,8 @@ export function withMethodNames<C extends object>(controller: C): C {
     // every public method, the playground's subclasses' (MockedController)
     // and Controller's own: one that doesn't dispatch is named for nothing
     const methods = new Map<string, (...args: unknown[]) => unknown>();
+    // the most derived definition wins, a getter's too
+    const seen = new Set<string>(['constructor']);
     for (
       let at: object | null = controller;
       at && at !== Object.prototype;
@@ -69,12 +71,9 @@ export function withMethodNames<C extends object>(controller: C): C {
       for (const name of Object.getOwnPropertyNames(at)) {
         // a getter (`dispatch`) stays the controller's
         const fn = Object.getOwnPropertyDescriptor(at, name)?.value;
-        if (
-          typeof fn === 'function' &&
-          name !== 'constructor' &&
-          !name.startsWith('_') &&
-          !methods.has(name)
-        )
+        if (seen.has(name)) continue;
+        seen.add(name);
+        if (typeof fn === 'function' && !name.startsWith('_'))
           methods.set(name, fn);
       }
     }

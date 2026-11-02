@@ -105,9 +105,7 @@ export function Why({ entries }: { entries: readonly LogEntry[] }) {
             <span className={styles.whySender}>
               <CauseLink entry={cause} />
               {/* who sent it, as its own view's chain names them */}
-              {(cause.caller || cause.origin) && (
-                <Sender entry={cause} n={1} />
-              )}
+              {(cause.caller || cause.origin) && <Sender entry={cause} n={1} />}
             </span>
           </WhyStep>
         )}
@@ -171,7 +169,7 @@ function CauseLink({ entry }: { entry: LogEntry }) {
  * when nothing names it (the event before it says where, if any); then why
  * it fetched, with which hook or Controller method, how many times, and
  * the line of code that sent it */
-function Sender({ entry, n }: { entry: LogEntry; n: number }) {
+function Sender({ entry, n = 1 }: { entry: LogEntry; n?: number }) {
   const { origin, caller, reason } = entry;
   return (
     <span className={styles.whySender}>

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { LiveProvider } from 'react-live';
 
 import DemoLabel from './autorun/DemoLabel';
@@ -71,22 +71,18 @@ export default function LivePreview<T>({
     remount,
     ...handlers
   } = usePreviewReset(code);
-  // the latest files, for the registry made once: it maps each dispatch's
-  // stack line into them (code that fails keeps running the files before)
-  const documentsRef = useRef(documents);
-  documentsRef.current = documents;
+  const managers = useCodeManagers(documents, remount);
+  const { ran } = managers;
   // outlives remounts, so a restored store keeps its schemas and actions
   const [registry] = useState(
     // credits the app's actions to the hook, component or event sending
-    // them, and the line of the code that did
+    // them, and the line of the code that did, in the files that ran
     () =>
       new SchemaRegistry({
-        caller: () =>
-          callerNow(line => documentLine(documentsRef.current, line)),
+        caller: () => callerNow(line => documentLine(ran.current, line)),
         ...actionLog,
       }),
   );
-  const managers = useCodeManagers(documents, remount);
   const demo = useAutoRun(autoRun, reset, showStore);
   const getInterceptorData = useMemo(
     () =>
