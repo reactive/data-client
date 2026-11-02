@@ -1,6 +1,6 @@
 import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 
 import Header from './Header';
 import { sheetClassName } from './preview/PendingSheet';
@@ -40,7 +40,9 @@ export default function BeforeFolder({
   const [run, setRun] = useState(0);
   // with nothing to play, there's nothing to wait for
   const [ended, setEnded] = useState(!replayable);
-  useEffect(() => {
+  // listening by layout time: the demo's preview, after it in the same
+  // commit, may say at its ref that it won't play
+  useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
     // the latest run: a restart outdates an end still settling
