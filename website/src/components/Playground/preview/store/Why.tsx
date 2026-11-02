@@ -4,9 +4,9 @@ import { groupEntriesOf } from './actionGroups';
 import { findEntry, type LogEntry } from './actionLog';
 import { ActionName, LatestTag, Time, useActions } from './actionParts';
 import { kindColor } from './dom';
-import type { CallerEvent, FetchReason } from './fetchCause';
+import type { Caller, CallerEvent, FetchReason } from './fetchCause';
 import { rootEvent, type InteractionSection } from './interactions';
-import { DeclaredName, ManagerName } from './ManagerName';
+import { DeclaredName, ManagerName, SourceLink } from './ManagerName';
 import { useNavState } from './nav';
 import styles from './store.module.css';
 
@@ -40,8 +40,9 @@ export function ReasonTag({
 }
 
 /** A row's why, after what it changed: the reason its first fetch went
- * out and who sent it (`← invalid · <ShowTime>`), and how many fetches it
- * caused (`→ 1 refetch`) */
+ * out and who sent it with what (`← invalid · <ShowTime> useSuspense`), or
+ * what the app called (`← ctrl.invalidate`); and how many fetches it caused
+ * (`→ 1 refetch`) */
 export function RowWhy({
   entries,
   refetches,
@@ -50,12 +51,20 @@ export function RowWhy({
   refetches: number;
 }) {
   const fetch = entries.find(e => e.reason);
+  const call = callOf((fetch ?? entries[0]).caller);
   return (
     <>
-      {fetch?.reason && (
+      {(fetch?.reason || call) && (
         <span className={styles.rowWhy}>
-          ← <ReasonTag reason={fetch.reason} plain />
-          <SenderName entry={fetch} before=" · " />
+          ←{' '}
+          {fetch?.reason && (
+            <>
+              <ReasonTag reason={fetch.reason} plain />
+              <SenderName entry={fetch} before=" · " />
+              {call && ' '}
+            </>
+          )}
+          {call}
         </span>
       )}
       {refetches > 0 && (
@@ -66,6 +75,11 @@ export function RowWhy({
     </>
   );
 }
+
+/** The hook or Controller method that sent an action (`useSuspense`,
+ * `ctrl.invalidate`) */
+const callOf = (caller: Caller | undefined) =>
+  caller?.hook ?? (caller?.method && `ctrl.${caller.method}`);
 
 /** Why `entries` (one action, or a request's) were sent, root first: the
  * user event that started it, the action that left the data invalid or
@@ -84,7 +98,12 @@ export function Why({ entries }: { entries: readonly LogEntry[] }) {
   // an action the app sent from a handler has no sender to name beyond it
   const named = senders.some(
     ({ entry: e }) =>
-      e.reason || e.origin || e.caller?.component || e.caller?.hook,
+      e.reason ||
+      e.origin ||
+      e.caller?.component ||
+      e.caller?.hook ||
+      e.caller?.method ||
+      e.caller?.source,
   );
   return (
     <>
@@ -97,7 +116,11 @@ export function Why({ entries }: { entries: readonly LogEntry[] }) {
         )}
         {cause && (
           <WhyStep at={cause}>
-            <CauseLink entry={cause} />
+            <span className={styles.whySender}>
+              <CauseLink entry={cause} />
+              {/* who sent it, as its own view's chain names them */}
+              {(cause.caller || cause.origin) && <Sender entry={cause} />}
+            </span>
           </WhyStep>
         )}
         {named && (
@@ -158,17 +181,20 @@ function CauseLink({ entry }: { entry: LogEntry }) {
 
 /** One sender: a manager, a component (linking to its code), or the app
  * when nothing names it (the event before it says where, if any); then why
- * it fetched, with which hook, how many times */
-function Sender({ entry, n }: { entry: LogEntry; n: number }) {
+ * it fetched, with which hook or Controller method, how many times, and
+ * the line of code that sent it */
+function Sender({ entry, n = 1 }: { entry: LogEntry; n?: number }) {
   const { origin, caller, reason } = entry;
+  const call = callOf(caller);
   return (
     <span className={styles.whySender}>
       {origin || caller?.component ?
         <SenderName entry={entry} className={styles.whyComponent} />
       : !caller?.event && <span className={styles.dim}>the app</span>}
       {reason && <ReasonTag reason={reason} />}
-      {caller?.hook && <span className={styles.dim}>{caller.hook}</span>}
+      {call && <span className={styles.dim}>{call}</span>}
       {n > 1 && <span className={styles.dim}>×{n}</span>}
+      {caller?.source && <SourceLink source={caller.source} />}
     </span>
   );
 }
@@ -204,8 +230,8 @@ function SenderName({
 }
 
 /** What `entries` sent with a reason or a sender the log knows (a
- * manager's other actions, its path says), one per sender and reason, with
- * how many */
+ * manager's other actions, its path says), one per sender, reason and line
+ * of code, with how many */
 function sendersOf(entries: readonly LogEntry[]) {
   const seen = new Map<string, { entry: LogEntry; n: number }>();
   for (const entry of entries) {
@@ -215,8 +241,10 @@ function sendersOf(entries: readonly LogEntry[]) {
       origin?.id,
       caller?.component,
       caller?.hook,
+      caller?.method,
       caller?.event?.type,
       reason,
+      caller?.source && `${caller.source.path}:${caller.source.line}`,
     ].join('\0');
     const sender = seen.get(key);
     if (sender) sender.n++;

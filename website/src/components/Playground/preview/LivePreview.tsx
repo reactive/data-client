@@ -71,12 +71,17 @@ export default function LivePreview<T>({
     remount,
     ...handlers
   } = usePreviewReset(code);
+  const managers = useCodeManagers(documents, remount);
   // outlives remounts, so a restored store keeps its schemas and actions
   const [registry] = useState(
-    // credits the app's actions to the hook, component or event sending them
-    () => new SchemaRegistry({ caller: callerNow, ...actionLog }),
+    // credits the app's actions to the hook, component or event sending
+    // them, and the line of the code that did
+    () =>
+      new SchemaRegistry({
+        caller: () => callerNow(managers.locate),
+        ...actionLog,
+      }),
   );
-  const managers = useCodeManagers(documents, remount);
   const demo = useAutoRun(autoRun, reset, showStore);
   const getInterceptorData = useMemo(
     () =>

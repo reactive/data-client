@@ -211,7 +211,10 @@ preview header's toggle in every layout.
 - Files are joined with `\n;\n` (a half-typed statement can't absorb the
   next), stripped of imports and exports, wrapped in one `{}` block (so a
   demo can declare its own `Link` with `const`) and run `noInline`. Two files
-  can't declare the same name.
+  can't declare the same name. Stripped lines stay blank, so a stack line
+  maps back to its file (`documentLine`); the live preview's block is a
+  `try` that names its files' layout first, so the Store inspector maps
+  each dispatch into the code that sent it.
 - A design-system export is picked up from `DesignSystem/index.ts` by
   `preview/scope.ts` and `website/framework-docs/checkExamples.mjs`; declare
   its type by hand in `monaco/typeLibs.ts` (`PREVIEW_SCOPE_DECLARATIONS`).

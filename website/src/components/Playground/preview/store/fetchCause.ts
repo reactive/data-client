@@ -66,10 +66,20 @@ export interface Caller {
   readonly component?: string;
   /** The hook that dispatched it (`useSuspense`, `useFetch` …) */
   readonly hook?: string;
+  /** The Controller method that dispatched it (`fetch`, `invalidate` …) */
+  readonly method?: string;
   /** The user event being handled when it was dispatched */
   readonly event?: CallerEvent;
   /** The page the component renders in, after a navigation */
   readonly page?: CallerPage;
+  /** The line of the playground's code that dispatched it */
+  readonly source?: CallerSource;
+}
+
+/** A line of one of the playground's files */
+export interface CallerSource {
+  readonly path: string;
+  readonly line: number;
 }
 
 /** A visit to a page of the app's router */

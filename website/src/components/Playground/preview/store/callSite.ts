@@ -1,6 +1,12 @@
 import { createContext, use } from 'react';
 
-import { userEvent, type Caller, type CallerPage } from './fetchCause';
+import { wrapCalls } from './attribution';
+import {
+  userEvent,
+  type Caller,
+  type CallerPage,
+  type CallerSource,
+} from './fetchCause';
 
 /** The page of the preview's router (./router.tsx) a component renders in.
  * Its first page (visit 0) is the app's own first render, not a navigation */
@@ -40,23 +46,84 @@ export function withHookNames<S extends Record<string, unknown>>(scope: S): S {
   return named as S;
 }
 
-/** A stack frame of code the page evaluated, as the preview runs the
- * reader's code: V8's `at Name (eval at …)`, SpiderMonkey's
- * `Name@… > Function:…`. Other engines (unchecked: JavaScriptCore) may name
- * only the hook */
-const EVAL_FRAME =
-  /^\s*at (?:async )?([\w$.]+) \(eval at |^([\w$.]+)@.*> (?:Function|eval):\d/;
+/** The Controller method the preview's code is calling right now */
+let method: string | undefined;
 
-/** Names of the reader's functions on `stack`, innermost first */
-export function evaluatedFrames(stack: string | undefined): string[] {
-  if (!stack) return [];
-  const names: string[] = [];
-  for (const line of stack.split('\n')) {
-    const match = EVAL_FRAME.exec(line);
-    const name = match?.[1] ?? match?.[2];
-    if (name) names.push(name.slice(name.lastIndexOf('.') + 1));
+const named = new WeakMap<object, object>();
+
+/** `controller`, its public methods named while they run, so what they
+ * dispatch is credited to them (a production build minifies their names).
+ * The same object for the same controller, so it stays one dependency */
+export function withMethodNames<C extends object>(controller: C): C {
+  let wrapped = named.get(controller);
+  if (!wrapped) {
+    wrapped = wrapCalls(controller, (name, call) => {
+      if (typeof name !== 'string' || name.startsWith('_')) return call();
+      const outer = method;
+      method = name;
+      try {
+        return call();
+      } finally {
+        method = outer;
+      }
+    });
+    named.set(controller, wrapped);
   }
-  return names;
+  return wrapped as C;
+}
+
+/** A stack frame of code the page evaluated, as the preview runs the
+ * reader's code: V8's `at Name (eval at …, <anonymous>:line:col)`,
+ * SpiderMonkey's `Name@… > Function:line:col`. Other engines (unchecked:
+ * JavaScriptCore) may name only the hook */
+const EVAL_FRAME =
+  /^\s*at (?:async )?(?<v8>[\w$.]+) \(eval at .*?(?:<anonymous>:(?<v8Line>\d+):\d+\))?$|^(?<sm>[\w$.]*)@.*> (?:Function|eval):(?<smLine>\d+):\d+/;
+
+/** `text`'s function name (empty when anonymous) and line, if it is a frame
+ * of evaluated code */
+function evalFrame(text: string) {
+  const groups = EVAL_FRAME.exec(text)?.groups;
+  return (
+    groups && {
+      name: groups.v8 ?? groups.sm,
+      line: Number(groups.v8Line ?? groups.smLine) || undefined,
+    }
+  );
+}
+
+/** A function of the reader's on the stack, and the line it was on in the
+ * program the preview evaluated (counted from the program's first line) */
+export interface EvaluatedFrame {
+  readonly name: string;
+  readonly line?: number;
+}
+
+/** The reader's frames on `stack`, innermost first */
+export function evaluatedFrames(stack: string | undefined): EvaluatedFrame[] {
+  if (!stack) return [];
+  const frames: EvaluatedFrame[] = [];
+  for (const text of stack.split('\n')) {
+    const frame = evalFrame(text);
+    if (!frame) continue;
+    const { name, line } = frame;
+    frames.push({
+      name: name.slice(name.lastIndexOf('.') + 1),
+      ...(line && { line: line - programStart() + 1 }),
+    });
+  }
+  return frames;
+}
+
+let bodyLine: number | undefined;
+/** The line a `new Function` body starts on in its frames: the engine puts
+ * the `function anonymous(…) {` header it builds before it (react-live
+ * evaluates the program so) */
+function programStart() {
+  if (bodyLine === undefined) {
+    const stack: string = new Function('a', 'b', 'return new Error().stack')();
+    bodyLine = stack.split('\n').map(evalFrame).find(Boolean)?.line ?? 1;
+  }
+  return bodyLine;
 }
 
 /** Frames from the library's dispatch down to the component */
@@ -78,22 +145,38 @@ function deepStack(): string | undefined {
  * and the library's isn't */
 const isComponentName = (name: string) => /^[A-Z]/.test(name);
 
+/** Where line `line` of the evaluated program is in the playground's files */
+type LocateLine = (line: number) => CallerSource | undefined;
+
 /** Who is dispatching right now: while a hook renders, it and its
  * component (the event a render runs within is the action's that caused
- * it, not this one's); otherwise the user event being handled */
-export function callerNow(): Caller | undefined {
-  if (calling) {
-    const component = evaluatedFrames(deepStack()).find(isComponentName);
-    const { hook, page } = calling;
-    return {
-      hook,
-      ...(component && { component }),
-      // the app's own first render (visit 0) is no navigation
-      ...(page?.visit && { page }),
-    };
+ * it, not this one's); otherwise the user event being handled. With
+ * `locate`, also the line of the reader's code that dispatched it */
+export function callerNow(locate?: LocateLine): Caller | undefined {
+  const frames = calling || locate ? evaluatedFrames(deepStack()) : [];
+  const source = locate && sourceOf(frames, locate);
+  const component =
+    calling && frames.find(frame => isComponentName(frame.name))?.name;
+  const event =
+    !calling &&
+    userEvent(typeof window === 'undefined' ? undefined : window.event);
+  const caller: Caller = {
+    ...(calling && { hook: calling.hook }),
+    ...(method && { method }),
+    ...(component && { component }),
+    // the app's own first render (visit 0) is no navigation
+    ...(calling?.page?.visit && { page: calling.page }),
+    ...(event && { event }),
+    ...(source && { source }),
+  };
+  return Object.keys(caller).length ? caller : undefined;
+}
+
+/** The innermost line of the reader's files on the stack: the call into the
+ * library that dispatched */
+function sourceOf(frames: readonly EvaluatedFrame[], locate: LocateLine) {
+  for (const { line } of frames) {
+    const source = line && locate(line);
+    if (source) return source;
   }
-  const event = userEvent(
-    typeof window === 'undefined' ? undefined : window.event,
-  );
-  return event && { event };
 }

@@ -214,25 +214,36 @@ export function asDispatcher(
   stage: ManagerStage,
   attribution: Attribution,
 ): Controller {
-  const wrapped = new WeakMap<AnyFn, AnyFn>();
-  return new Proxy(controller, {
+  return wrapCalls(controller, (_name, call) => {
+    const outer = attribution.dispatching;
+    attribution.dispatching = stage;
+    try {
+      return call();
+    } finally {
+      attribution.dispatching = outer;
+    }
+  });
+}
+
+/** `object`, each of its methods calling through `around` with its name.
+ * The method runs on `object` itself, so the methods it calls in turn don't */
+export function wrapCalls<T extends object>(
+  object: T,
+  around: (name: PropertyKey, call: () => unknown) => unknown,
+): T {
+  // by name, as one function can have two (`dispatch` is `_dispatch`)
+  const wrapped = new Map<PropertyKey, { value: AnyFn; call: AnyFn }>();
+  return new Proxy(object, {
     get(target, key) {
-      const value = Reflect.get(target, key, target);
+      const value: unknown = Reflect.get(target, key, target);
       if (typeof value !== 'function') return value;
-      // the same function each read, until the controller's changes
-      const cached = wrapped.get(value);
-      if (cached) return cached;
-      const asStage = function (this: unknown, ...args: unknown[]) {
-        const outer = attribution.dispatching;
-        attribution.dispatching = stage;
-        try {
-          return value.apply(target, args);
-        } finally {
-          attribution.dispatching = outer;
-        }
-      };
-      wrapped.set(value, asStage);
-      return asStage;
+      // the same function each read, until the object's changes
+      const cached = wrapped.get(key);
+      if (cached?.value === value) return cached.call;
+      const call = (...args: unknown[]) =>
+        around(key, () => value.apply(target, args));
+      wrapped.set(key, { value: value as AnyFn, call });
+      return call;
     },
   });
 }

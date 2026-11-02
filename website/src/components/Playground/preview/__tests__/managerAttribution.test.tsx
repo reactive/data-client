@@ -22,6 +22,7 @@ import { declarationsOf } from '../../editor/declarations';
 import { CodeOpenerContext, type CodeOpener } from '../../editor/openCode';
 import { stageFilter } from '../store/actionGroups';
 import type { LogEntry } from '../store/actionLog';
+import type { Caller } from '../store/fetchCause';
 import {
   managerStages,
   pipeline,
@@ -1103,6 +1104,76 @@ describe('Store panel pipeline', () => {
     const path = await screen.findByRole('group', { name: /^Path/ });
     fireEvent.click(within(path).getByTitle('Open StreamManager in the code'));
     expect(open).toHaveBeenLastCalledWith(target);
+  });
+
+  it('opens the line of code that sent an action', async () => {
+    const open = jest.fn();
+    const source = { path: 'src/Demo.tsx', line: 14 };
+    const registry = new SchemaRegistry({
+      trimEvery: 1,
+      caller: () => ({ method: 'fetch', source }),
+    });
+    const { ctrl } = connectStore(
+      registry,
+      [new NetworkManager()],
+      <CodeOpenerContext.Provider
+        value={{
+          declared: new Map(),
+          open,
+          code: path =>
+            path === source.path ?
+              Array.from({ length: 20 }, (_, i) => `  line${i + 1}();`).join(
+                '\n',
+              )
+            : undefined,
+        }}
+      >
+        <InspectedPanel registry={registry} history={0} />
+      </CodeOpenerContext.Provider>,
+    );
+    await act(async () => {
+      await ctrl().fetch(getTicker);
+    });
+    openActions();
+    fireEvent.click(listed()[0]);
+    const link = await screen.findByRole('button', {
+      name: 'Open Demo.tsx:14 in the code',
+    });
+    expect(link.textContent).toBe('Demo.tsx:14');
+    expect(link.parentElement?.previousElementSibling?.textContent).toBe(
+      'ctrl.fetch',
+    );
+    // hovered, the lines around it, their indent gone
+    expect(link.nextElementSibling?.textContent).toBe(
+      '12line12();13line13();14line14();15line15();16line16();',
+    );
+    fireEvent.click(link);
+    expect(open).toHaveBeenCalledWith(source);
+  });
+
+  it('names what sent each row: the hook, or the Controller method', async () => {
+    let caller: Caller = { method: 'invalidate' };
+    const registry = new SchemaRegistry({ trimEvery: 1, caller: () => caller });
+    const { ctrl } = connectStore(
+      registry,
+      [new NetworkManager()],
+      <InspectedPanel registry={registry} history={0} />,
+    );
+    await act(async () => {
+      await ctrl().invalidate(getTicker);
+    });
+    caller = { hook: 'useSuspense', component: 'Ticker' };
+    await act(async () => {
+      await ctrl().fetchIfStale(getTicker);
+    });
+    openActions();
+    const rows = Array.from(listed(), row => row.textContent);
+    expect(rows.find(text => text?.includes('invalidate'))).toContain(
+      '← ctrl.invalidate',
+    );
+    expect(rows.find(text => text?.includes('<Ticker>'))).toContain(
+      '<Ticker> useSuspense',
+    );
   });
 
   it("draws an action's path: who sent it and where it stopped", async () => {
