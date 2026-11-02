@@ -22,6 +22,18 @@ describe('Toaster', () => {
     expect(screen.queryByText('Failed')).toBeNull();
   });
 
+  it("runs a toast's action and dismisses it", () => {
+    const onClick = jest.fn();
+    render(<Toaster />);
+    act(() => toast.info('Mug removed', { label: 'Undo', onClick }));
+    expect(screen.getByText('Mug removed').dataset.kind).toBe('info');
+
+    act(() => screen.getByRole('button', { name: 'Undo' }).click());
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText('Mug removed')).toBeNull();
+    act(() => jest.advanceTimersByTime(SHOW_MS));
+  });
+
   it('shows toasts sent before it mounted', () => {
     toast.success('Early');
     render(<Toaster />);

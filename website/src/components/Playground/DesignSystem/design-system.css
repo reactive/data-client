@@ -1412,17 +1412,33 @@ div.playground-preview h1:first-child {
   border: 0;
   border-radius: var(--ds-radius-sm);
   background: none;
+  color: var(--ds-faint);
   line-height: 0;
   cursor: pointer;
-  transition: background-color var(--motion-snappy);
+  transition:
+    color var(--motion-snappy),
+    background-color var(--motion-snappy);
 }
-.playground-preview button.cancel img {
+.playground-preview button.cancel svg {
   display: block;
 }
+/* after a row's figure, it keeps a step from it */
+.playground-preview .listItem > .value + button.cancel {
+  margin-left: var(--ds-space-2);
+}
+.playground-preview .listItem > .value:has(+ button.cancel:last-child) {
+  margin-left: auto;
+}
+/* pointing at it says what it does: removing, in the danger color */
 @media (hover: hover) {
   .playground-preview button.cancel:hover {
-    background: var(--ds-hover);
+    color: var(--ifm-color-danger);
+    background: color-mix(in srgb, var(--ifm-color-danger) 10%, transparent);
   }
+}
+.playground-preview button.cancel:active {
+  color: var(--ifm-color-danger);
+  background: color-mix(in srgb, var(--ifm-color-danger) 16%, transparent);
 }
 .playground-preview :is(button.cancel, .list > button.listItem):focus-visible {
   outline: 2px solid var(--ds-accent);
@@ -1452,11 +1468,33 @@ div.playground-preview h1:first-child {
   /* the edge bar: inset so the radius clips it */
   box-shadow: inset 3px 0 0 var(--toast-color);
   background: color-mix(in srgb, var(--toast-color) 8%, var(--ds-surface));
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-3);
   font-size: var(--ds-text-sm);
   animation: ds-toast-in 160ms ease-out;
 }
 .playground-preview .toast[data-kind='error'] {
   --toast-color: var(--ifm-color-danger);
+}
+/* neutral news (an item removed), in the muted color */
+.playground-preview .toast[data-kind='info'] {
+  --toast-color: var(--ds-text-muted);
+}
+/* its action (Undo) at the end */
+.playground-preview .toast > button {
+  margin: -4px -6px -4px auto;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: var(--ds-radius-xs);
+  background: none;
+  color: var(--ds-accent);
+  font-weight: 600;
+}
+@media (hover: hover) {
+  .playground-preview .toast > button:hover {
+    background: var(--ds-accent-soft);
+  }
 }
 @keyframes ds-toast-in {
   from {

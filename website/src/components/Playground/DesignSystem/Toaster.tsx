@@ -1,9 +1,16 @@
 import { useSyncExternalStore } from 'react';
 
+/** A button on the toast (Undo); pressing it also dismisses the toast */
+export interface ToastAction {
+  label: string;
+  onClick: () => void;
+}
+
 interface Toast {
   id: number;
-  kind: 'success' | 'error';
+  kind: 'success' | 'error' | 'info';
   message: string;
+  action?: ToastAction;
 }
 
 /** How long a toast stays on screen */
@@ -21,16 +28,23 @@ function setToasts(next: readonly Toast[]) {
   listeners.forEach(listener => listener());
 }
 
-function show(kind: Toast['kind'], message: string) {
-  const added = { id: nextId++, kind, message };
+const dismiss = (shown: Toast) => setToasts(toasts.filter(t => t !== shown));
+
+function show(kind: Toast['kind'], message: string, action?: ToastAction) {
+  const added = { id: nextId++, kind, message, action };
   setToasts([...toasts, added]);
-  setTimeout(() => setToasts(toasts.filter(t => t !== added)), SHOW_MS);
+  setTimeout(() => dismiss(added), SHOW_MS);
 }
 
-/** The app's notifications, as a toast library (e.g. sonner) gives a real app */
+/** The app's notifications, as a toast library (e.g. sonner) gives a real app.
+ * `info` is neutral news, like a removal its `action` can undo */
 export const toast = {
-  success: (message: string) => show('success', message),
-  error: (message: string) => show('error', message),
+  success: (message: string, action?: ToastAction) =>
+    show('success', message, action),
+  error: (message: string, action?: ToastAction) =>
+    show('error', message, action),
+  info: (message: string, action?: ToastAction) =>
+    show('info', message, action),
 };
 
 const subscribe = (listener: () => void) => {
@@ -49,6 +63,17 @@ export function Toaster() {
       {list.map(t => (
         <div key={t.id} className="toast" data-kind={t.kind}>
           {t.message}
+          {t.action && (
+            <button
+              type="button"
+              onClick={() => {
+                dismiss(t);
+                t.action?.onClick();
+              }}
+            >
+              {t.action.label}
+            </button>
+          )}
         </div>
       ))}
     </div>
