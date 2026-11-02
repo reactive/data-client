@@ -2,8 +2,9 @@
    live demo's code (never translated) renders it beside this */
 import React, { useState } from 'react';
 
-import { initialItems } from '../fixtures/cart';
+import { type CartItemData, initialItems } from '../fixtures/cart';
 import { CancelButton } from './Playground/DesignSystem/CancelButton';
+import { formatters } from './Playground/DesignSystem/formatters';
 // the demo's styles load with its preview's chunk; the replay shows (and is
 // in the HTML) before that, and without it for crawlers
 import './Playground/DesignSystem/design-system.css';
@@ -47,6 +48,8 @@ export default function CartBefore() {
           );
         })}
       </div>
+      {/* not the design system's `toast`: its toasts are module state the
+          live app's <Toaster /> shows, so this one would show there too */}
       <div className="toaster" role="status">
         {removed ?
           <div className="toast" data-kind="info">
@@ -68,8 +71,6 @@ export default function CartBefore() {
 }
 
 // the demo's own cart, as its fixtures serve it
-const ITEMS: Record<string, (typeof initialItems)[keyof typeof initialItems]> =
-  initialItems;
+const ITEMS: Record<string, CartItemData> = initialItems;
 
-const usd = (value: number) =>
-  value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+const usd = formatters.currency;
