@@ -74,11 +74,12 @@ export function withMethodNames<C extends object>(controller: C): C {
       // the original runs, so a method it calls (`fetchIfStale` calls
       // `fetch`) isn't named over it
       own[name] = (...args: unknown[]) => {
+        const outer = method;
         method = name;
         try {
           return fn.apply(controller, args);
         } finally {
-          method = undefined;
+          method = outer;
         }
       };
     }
@@ -92,7 +93,19 @@ export function withMethodNames<C extends object>(controller: C): C {
  * SpiderMonkey's `Name@… > Function:line:col`. Other engines (unchecked:
  * JavaScriptCore) may name only the hook */
 const EVAL_FRAME =
-  /^\s*at (?:async )?([\w$.]+) \(eval at .*?(?:<anonymous>:(\d+):\d+\))?$|^([\w$.]*)@.*> (?:Function|eval):(\d+):\d+/;
+  /^\s*at (?:async )?(?<v8>[\w$.]+) \(eval at .*?(?:<anonymous>:(?<v8Line>\d+):\d+\))?$|^(?<sm>[\w$.]*)@.*> (?:Function|eval):(?<smLine>\d+):\d+/;
+
+/** `text`'s function name (empty when anonymous) and line, if it is a frame
+ * of evaluated code */
+function evalFrame(text: string) {
+  const groups = EVAL_FRAME.exec(text)?.groups;
+  return (
+    groups && {
+      name: groups.v8 ?? groups.sm,
+      at: groups.v8Line ?? groups.smLine,
+    }
+  );
+}
 
 /** A function of the reader's on the stack, and the line it was on in the
  * program the preview evaluated (counted from the program's first line) */
@@ -106,10 +119,9 @@ export function evaluatedFrames(stack: string | undefined): EvaluatedFrame[] {
   if (!stack) return [];
   const frames: EvaluatedFrame[] = [];
   for (const text of stack.split('\n')) {
-    const match = EVAL_FRAME.exec(text);
-    if (!match) continue;
-    const name = match[1] ?? match[3];
-    const at = match[2] ?? match[4];
+    const frame = evalFrame(text);
+    if (!frame) continue;
+    const { name, at } = frame;
     frames.push({
       name: name.slice(name.lastIndexOf('.') + 1),
       ...(at && { line: Number(at) - programStart() + 1 }),
@@ -125,11 +137,8 @@ let bodyLine: number | undefined;
 function programStart() {
   if (bodyLine === undefined) {
     const stack: string = new Function('a', 'b', 'return new Error().stack')();
-    const at = stack
-      .split('\n')
-      .map(text => EVAL_FRAME.exec(text))
-      .find(Boolean);
-    bodyLine = Number(at?.[2] ?? at?.[4] ?? 1);
+    const at = stack.split('\n').map(evalFrame).find(Boolean)?.at;
+    bodyLine = Number(at ?? 1);
   }
   return bodyLine;
 }
@@ -154,7 +163,7 @@ function deepStack(): string | undefined {
 const isComponentName = (name: string) => /^[A-Z]/.test(name);
 
 /** Where line `line` of the evaluated program is in the playground's files */
-export type LocateLine = (line: number) => CallerSource | undefined;
+type LocateLine = (line: number) => CallerSource | undefined;
 
 /** Who is dispatching right now: while a hook renders, it and its
  * component (the event a render runs within is the action's that caused

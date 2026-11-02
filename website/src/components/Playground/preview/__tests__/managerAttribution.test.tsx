@@ -1110,7 +1110,7 @@ describe('Store panel pipeline', () => {
     const source = { path: 'src/Demo.tsx', line: 14 };
     const registry = new SchemaRegistry({
       trimEvery: 1,
-      caller: () => ({ source }),
+      caller: () => ({ method: 'fetch', source }),
     });
     const { ctrl } = connectStore(
       registry,
@@ -1139,6 +1139,9 @@ describe('Store panel pipeline', () => {
       name: 'Open Demo.tsx:14 in the code',
     });
     expect(link.textContent).toBe('Demo.tsx:14');
+    expect(link.parentElement?.previousElementSibling?.textContent).toBe(
+      'ctrl.fetch',
+    );
     // hovered, the lines around it, their indent gone
     expect(link.nextElementSibling?.textContent).toBe(
       '12line12();13line13();14line14();15line15();16line16();',

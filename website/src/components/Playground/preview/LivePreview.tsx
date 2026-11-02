@@ -71,7 +71,8 @@ export default function LivePreview<T>({
     remount,
     ...handlers
   } = usePreviewReset(code);
-  // the files the running code came from, for the registry made once
+  // the latest files, for the registry made once: it maps each dispatch's
+  // stack line into them (code that fails keeps running the files before)
   const documentsRef = useRef(documents);
   documentsRef.current = documents;
   // outlives remounts, so a restored store keeps its schemas and actions

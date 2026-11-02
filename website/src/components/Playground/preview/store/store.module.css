@@ -1627,8 +1627,7 @@ div.joined {
   color: var(--store-muted);
 }
 @media (pointer: coarse) {
-  .codeLink,
-  .sourceLink {
+  .codeLink {
     padding: 0.35rem 0.2rem;
   }
 }
@@ -2122,10 +2121,9 @@ button.tlMark:hover {
   color: var(--store-muted);
   font-size: 11px;
 }
-/* the lines around it, as a pointer rests on it or keys focus it; a tap
-   opens the code itself */
-/* under its Why step (positioned), the step's width, so it fits however
-   far along the line the link is */
+/* the lines around it, as a pointer rests on it or keys focus it (a tap
+   opens the code itself); under its Why step (positioned), the step's
+   width, so it fits however far along the line the link is */
 .sourcePeek {
   position: absolute;
   z-index: 3;
