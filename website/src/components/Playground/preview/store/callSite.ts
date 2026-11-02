@@ -58,26 +58,7 @@ export function withMethodNames<C extends object>(controller: C): C {
   let wrapped = named.get(controller);
   if (!wrapped) {
     const own: Record<string, unknown> = Object.create(controller);
-    // every public method, the playground's subclasses' (MockedController)
-    // and Controller's own: one that doesn't dispatch is named for nothing
-    const methods = new Map<string, (...args: unknown[]) => unknown>();
-    // the most derived definition wins, a getter's too
-    const seen = new Set<string>(['constructor']);
-    for (
-      let at: object | null = controller;
-      at && at !== Object.prototype;
-      at = Object.getPrototypeOf(at)
-    ) {
-      for (const name of Object.getOwnPropertyNames(at)) {
-        // a getter (`dispatch`) stays the controller's
-        const fn = Object.getOwnPropertyDescriptor(at, name)?.value;
-        if (seen.has(name)) continue;
-        seen.add(name);
-        if (typeof fn === 'function' && !name.startsWith('_'))
-          methods.set(name, fn);
-      }
-    }
-    for (const [name, fn] of methods) {
+    for (const [name, fn] of publicMethods(controller)) {
       // the original runs, so a method it calls (`fetchIfStale` calls
       // `fetch`) isn't named over it
       own[name] = (...args: unknown[]) => {
@@ -93,6 +74,28 @@ export function withMethodNames<C extends object>(controller: C): C {
     named.set(controller, (wrapped = own));
   }
   return wrapped as C;
+}
+
+/** `object`'s public methods by name, its subclasses' and its base classes':
+ * the most derived definition wins, and a getter (`dispatch`) hides a
+ * method of the same name */
+function publicMethods(object: object) {
+  const methods = new Map<string, (...args: unknown[]) => unknown>();
+  const seen = new Set<string>(['constructor']);
+  for (
+    let at: object | null = object;
+    at && at !== Object.prototype;
+    at = Object.getPrototypeOf(at)
+  ) {
+    for (const name of Object.getOwnPropertyNames(at)) {
+      if (seen.has(name)) continue;
+      seen.add(name);
+      const fn = Object.getOwnPropertyDescriptor(at, name)?.value;
+      if (typeof fn === 'function' && !name.startsWith('_'))
+        methods.set(name, fn);
+    }
+  }
+  return methods;
 }
 
 /** A stack frame of code the page evaluated, as the preview runs the
