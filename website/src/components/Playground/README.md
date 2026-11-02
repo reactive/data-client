@@ -310,28 +310,28 @@ Styled elements: `h2` (page title), `button` (`primary` fills one;
 person's group: the label leads it, the avatar sized for you, and the rows
 hang under it on a line.
 
-| Class                                      | Use for                                                                                                              |
-| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
-| `appHeader` + `appTitle`                   | the app's top bar and wordmark                                                                                       |
-| `card`                                     | a group (no box: the sheet is the card)                                                                              |
-| `list`, `listItem` (`nogap`, `spaced`)     | rows; checkbox rows highlight and fade when done; `aria-busy` fades stale rows                                       |
-| `meta`                                     | secondary text; last in a `listItem`, it sits at the row's end                                                       |
-| `value`                                    | a row's figure (a price); last in a `listItem`, at the row's end, tabular                                            |
-| `byline`, `author` (`Avatar` takes `size`) | who wrote something                                                                                                  |
-| `pill`                                     | a label after a name (an admin), in the accent                                                                       |
-| `assignee` (a `label`)                     | a row's owner: their avatar in a ring; a `select` in it is the picker                                                |
-| `buttonGroup`                              | segmented actions (Fail Soft, Fail Hard)                                                                             |
-| `segmented`                                | a filter's 2-4 choices on a track; `aria-pressed` marks the pick, a pill slides                                      |
-| `field` (a `label`)                        | its name over the `input` or `textarea` it holds                                                                     |
-| `search` (a `label`)                       | `input type="search"`, `button.clear`; `aria-busy` spins its magnifier                                               |
-| `cancel` (`<CancelButton />`)              | a row's remove button; `label` names what it removes, red on hover                                                   |
-| `skeleton`                                 | a value still loading; `<Loading />`, the default fallback, draws a page                                             |
-| `toaster`, `toast`                         | notifications: render `<Toaster />`, call `toast.success()`, `error()` or `info()`; an `action` adds a button (Undo) |
-| `boardColumn`                              | a kanban column                                                                                                      |
-| `upvote` (a button)                        | an upvote with its count; empty, the arrow alone                                                                     |
-| `stats` (a `dl`)                           | figures side by side, each large over its label; a lone one fills the row                                            |
-| `stepper` (− `output` +)                   | a quantity's buttons around its count (one button alone: Add); in a row                                              |
-| `table` (`value` cells), `sort` (a button) | rule-free rows (no hover); a `th`'s `button.sort` sorts, `aria-sort` marks it                                        |
+| Class                                      | Use for                                                                                                                                                 |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `appHeader` + `appTitle`                   | the app's top bar and wordmark                                                                                                                          |
+| `card`                                     | a group (no box: the sheet is the card)                                                                                                                 |
+| `list`, `listItem` (`nogap`, `spaced`)     | rows; checkbox rows highlight and fade when done; `aria-busy` fades stale rows                                                                          |
+| `meta`                                     | secondary text; last in a `listItem`, it sits at the row's end                                                                                          |
+| `value`                                    | a row's figure (a price); last in a `listItem`, at the row's end, tabular                                                                               |
+| `byline`, `author` (`Avatar` takes `size`) | who wrote something                                                                                                                                     |
+| `pill`                                     | a label after a name (an admin), in the accent                                                                                                          |
+| `assignee` (a `label`)                     | a row's owner: their avatar in a ring; a `select` in it is the picker                                                                                   |
+| `buttonGroup`                              | segmented actions (Fail Soft, Fail Hard)                                                                                                                |
+| `segmented`                                | a filter's 2-4 choices on a track; `aria-pressed` marks the pick, a pill slides                                                                         |
+| `field` (a `label`)                        | its name over the `input` or `textarea` it holds                                                                                                        |
+| `search` (a `label`)                       | `input type="search"`, `button.clear`; `aria-busy` spins its magnifier                                                                                  |
+| `cancel` (`<CancelButton />`)              | a row's remove button; `label` names what it removes, red on hover                                                                                      |
+| `skeleton`                                 | a value still loading; `<Loading />`, the default fallback, draws a page                                                                                |
+| `toaster`, `toast`                         | notifications: render `<Toaster />`, call `toast.success()`, `error()` or `info()`; an `action` adds a button (Undo), and keeps the toast until pressed |
+| `boardColumn`                              | a kanban column                                                                                                                                         |
+| `upvote` (a button)                        | an upvote with its count; empty, the arrow alone                                                                                                        |
+| `stats` (a `dl`)                           | figures side by side, each large over its label; a lone one fills the row                                                                               |
+| `stepper` (− `output` +)                   | a quantity's buttons around its count (one button alone: Add); in a row                                                                                 |
+| `table` (`value` cells), `sort` (a button) | rule-free rows (no hover); a `th`'s `button.sort` sorts, `aria-sort` marks it                                                                           |
 
 A `search` input needs a `placeholder`: its clear button hides while the
 placeholder shows, the one way CSS can tell the field is empty. A text input

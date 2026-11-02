@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 
 /** A button on the toast (Undo); pressing it also dismisses the toast */
 export interface ToastAction {
@@ -13,7 +13,7 @@ interface Toast {
   action?: ToastAction;
 }
 
-/** How long a toast stays on screen */
+/** How long a toast without an action stays on screen */
 export const SHOW_MS = 4000;
 
 // Module state, like a toast library's: the preview's code re-runs on every
@@ -30,10 +30,19 @@ function setToasts(next: readonly Toast[]) {
 
 const dismiss = (shown: Toast) => setToasts(toasts.filter(t => t !== shown));
 
+const withoutActions = () => toasts.filter(t => !t.action);
+
+// A toast with an action (Undo) stays until it is pressed, a newer one
+// replaces it, or its <Toaster /> unmounts, so a reader (or a paused
+// auto-run) never finds it gone, and a reset never offers the old app's undo
 function show(kind: Toast['kind'], message: string, action?: ToastAction) {
   const added = { id: nextId++, kind, message, action };
-  setToasts([...toasts, added]);
-  setTimeout(() => dismiss(added), SHOW_MS);
+  if (action) {
+    setToasts([...withoutActions(), added]);
+  } else {
+    setToasts([...toasts, added]);
+    setTimeout(() => dismiss(added), SHOW_MS);
+  }
 }
 
 /** The app's notifications, as a toast library (e.g. sonner) gives a real app.
@@ -58,6 +67,7 @@ const getToasts = () => toasts;
 /** Shows what `toast` sends: render it once, where the app's toasts go */
 export function Toaster() {
   const list = useSyncExternalStore(subscribe, getToasts, getToasts);
+  useEffect(() => () => setToasts(withoutActions()), []);
   return (
     <div className="toaster" role="status">
       {list.map(t => (
