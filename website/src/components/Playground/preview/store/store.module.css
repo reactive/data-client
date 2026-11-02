@@ -1594,7 +1594,8 @@ div.joined {
 .momentAction,
 .managerLink,
 .whyLink,
-.codeLink {
+.codeLink,
+.sourceLink {
   min-width: 0;
   padding: 0;
   border: 0;
@@ -1605,16 +1606,19 @@ div.joined {
 }
 .momentAction,
 .managerLink,
-.whyLink {
+.whyLink,
+.sourceLink {
   text-decoration: underline dotted;
   text-underline-offset: 2px;
 }
 .momentAction:hover,
-.codeLink:hover {
+.codeLink:hover,
+.sourceLink:hover {
   color: var(--store-fg);
 }
 .managerLink:hover,
-.whyLink:hover {
+.whyLink:hover,
+.sourceLink:hover {
   text-decoration-style: solid;
 }
 /* beside a pipeline stage, whose own click picks it */
@@ -2110,6 +2114,57 @@ button.tlMark:hover {
   color: var(--reason);
   font-size: 11px;
   white-space: nowrap;
+}
+
+/* the line of code that sent an action, which opens it there */
+.sourceLink {
+  color: var(--store-muted);
+  font-size: 11px;
+}
+/* the lines around it, as a pointer rests on it or keys focus it (a tap
+   opens the code itself); under its Why step (positioned), the step's
+   width, so it fits however far along the line the link is */
+.sourcePeek {
+  position: absolute;
+  z-index: 3;
+  top: calc(100% + 2px);
+  right: 0;
+  left: 1.25rem;
+  display: none;
+  padding: 0.35rem 0;
+  border: 1px solid var(--store-line);
+  border-radius: 6px;
+  background: var(--store-bg);
+  box-shadow: var(--pg-card-shadow, 0 10px 24px var(--pg-shadow));
+  font-size: 11px;
+  line-height: 1.6;
+  pointer-events: none;
+}
+@media (hover: hover) {
+  .sourcePeekHost:hover .sourcePeek,
+  .sourcePeekHost:has(:focus-visible) .sourcePeek {
+    display: block;
+  }
+}
+.peekLine {
+  display: block;
+  overflow: hidden;
+  padding: 0 0.75rem 0 0;
+  color: var(--store-muted);
+  text-overflow: ellipsis;
+  white-space: pre;
+}
+.peekLine[data-at] {
+  background: color-mix(in srgb, var(--store-key) 14%, transparent);
+  color: var(--store-fg);
+}
+.peekNumber {
+  display: inline-block;
+  min-width: 2.5em;
+  margin-right: 0.75em;
+  padding-right: 0.5em;
+  color: var(--store-dim);
+  text-align: end;
 }
 
 /* a row's why (RowWhy), after its changes: one line, a long name ends in

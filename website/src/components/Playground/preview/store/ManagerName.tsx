@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 
 import { stageName, type ManagerStage } from './attribution';
 import styles from './store.module.css';
-import { CodeOpenerContext } from '../../editor/openCode';
+import { CodeOpenerContext, type CodeTarget } from '../../editor/openCode';
 
 /** Opens where the playground's code declares `name` (a class, a
  * component), if it does */
@@ -50,6 +50,63 @@ export function DeclaredName({
     >
       {children}
     </button>
+  );
+}
+
+/** `Demo.tsx:14`: the line of the playground's code `source` names, a link
+ * to it when the playground can open its code. Hovered, it shows the lines
+ * around it */
+export function SourceLink({ source }: { source: CodeTarget }) {
+  const opener = useContext(CodeOpenerContext);
+  const label = `${source.path.slice(source.path.lastIndexOf('/') + 1)}:${source.line}`;
+  if (!opener) return <span className={styles.sourceLink}>{label}</span>;
+  const code = opener.code?.(source.path);
+  return (
+    <span className={styles.sourcePeekHost}>
+      <button
+        type="button"
+        className={styles.sourceLink}
+        title={code === undefined ? openLabel(label) : undefined}
+        aria-label={openLabel(label)}
+        onClick={e => {
+          e.stopPropagation();
+          opener.open(source);
+        }}
+        onKeyDown={e => e.stopPropagation()}
+      >
+        {label}
+      </button>
+      {code !== undefined && <SourcePeek code={code} line={source.line} />}
+    </span>
+  );
+}
+
+/** Lines shown on each side of a peeked line */
+const PEEK_AROUND = 2;
+
+/** The lines of `code` around `line`, it marked, their shared indent gone */
+function SourcePeek({ code, line }: { code: string; line: number }) {
+  const all = code.split('\n');
+  const from = Math.max(1, line - PEEK_AROUND);
+  const lines = all.slice(from - 1, line + PEEK_AROUND);
+  const indent = Math.min(
+    ...lines
+      .filter(text => text.trim())
+      .map(text => /^\s*/.exec(text)![0].length),
+  );
+  return (
+    <span className={styles.sourcePeek} aria-hidden>
+      {lines.map((text, i) => (
+        <span
+          key={from + i}
+          className={styles.peekLine}
+          data-at={from + i === line || undefined}
+        >
+          <span className={styles.peekNumber}>{from + i}</span>
+          {text.slice(indent) || ' '}
+        </span>
+      ))}
+    </span>
   );
 }
 

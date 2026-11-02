@@ -29,10 +29,31 @@ export function defaultExportName(code: string): string | undefined {
     .find(name => name !== undefined);
 }
 
-/** The documents as one program, in order. `;` keeps a half-typed statement
- * from absorbing the next document. */
+/** Between documents in the program: `;` keeps a half-typed statement from
+ * absorbing the next document */
+const JOINER = '\n;\n';
+
+/** The documents as one program, in order. */
 export function joinDocuments(documents: readonly { value: string }[]) {
-  return documents.map(document => document.value).join('\n;\n');
+  return documents.map(document => document.value).join(JOINER);
+}
+
+/** Where line `line` (1-based) of `joinDocuments(documents)` is: its
+ * document's path and line there. Nothing for a joiner's line or one past
+ * the documents (a trailer). `transformCode` keeps lines, so it holds for the
+ * code that runs */
+export function documentLine(
+  documents: readonly { value: string; path: string }[],
+  line: number,
+): { path: string; line: number } | undefined {
+  let start = 1;
+  for (const { value, path } of documents) {
+    if (line < start) return;
+    const lines = value.split('\n').length;
+    if (line < start + lines) return { path, line: line - start + 1 };
+    // the joiner's `;` takes a line of its own
+    start += lines + 1;
+  }
 }
 
 /** `transformCode`, as one block for react-live's scope function, whose
@@ -43,9 +64,15 @@ export function scopeBlock(code: string): string {
   return `{${transformCode(code)}\n}`;
 }
 
+/** The line breaks in what a removed statement took, so the code after it
+ * keeps its line numbers */
+const keepLines = (removed: string) => removed.replace(/[^\n]/g, '');
+
+/** The code without its import and export statements (export lists and
+ * re-exports go; declarations lose their `export`), on the lines it had */
 export default function transformCode(code: string): string {
   return code
-    .replaceAll(STATIC_IMPORT, '')
-    .replaceAll(EXPORT_LIST, '')
+    .replaceAll(STATIC_IMPORT, keepLines)
+    .replaceAll(EXPORT_LIST, keepLines)
     .replaceAll(EXPORT_PREFIX, '');
 }

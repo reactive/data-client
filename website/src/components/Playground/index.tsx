@@ -205,8 +205,17 @@ export default function Playground<T>({
       )),
     [documents],
   );
+  // `code` reads the latest files while the opener keeps its identity, so
+  // an edit alone re-renders none of the Store's links
+  const documentsRef = useRef(documents);
+  documentsRef.current = documents;
   const codeOpener = useMemo<CodeOpener>(
-    () => ({ declared, open: openCode }),
+    () => ({
+      declared,
+      open: openCode,
+      code: path =>
+        documentsRef.current.find(document => document.path === path)?.value,
+    }),
     [declared, openCode],
   );
 

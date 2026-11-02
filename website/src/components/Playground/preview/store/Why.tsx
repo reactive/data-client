@@ -6,7 +6,7 @@ import { ActionName, LatestTag, Time, useActions } from './actionParts';
 import { kindColor } from './dom';
 import type { CallerEvent, FetchReason } from './fetchCause';
 import { rootEvent, type InteractionSection } from './interactions';
-import { DeclaredName, ManagerName } from './ManagerName';
+import { DeclaredName, ManagerName, SourceLink } from './ManagerName';
 import { useNavState } from './nav';
 import styles from './store.module.css';
 
@@ -84,7 +84,12 @@ export function Why({ entries }: { entries: readonly LogEntry[] }) {
   // an action the app sent from a handler has no sender to name beyond it
   const named = senders.some(
     ({ entry: e }) =>
-      e.reason || e.origin || e.caller?.component || e.caller?.hook,
+      e.reason ||
+      e.origin ||
+      e.caller?.component ||
+      e.caller?.hook ||
+      e.caller?.method ||
+      e.caller?.source,
   );
   return (
     <>
@@ -158,7 +163,8 @@ function CauseLink({ entry }: { entry: LogEntry }) {
 
 /** One sender: a manager, a component (linking to its code), or the app
  * when nothing names it (the event before it says where, if any); then why
- * it fetched, with which hook, how many times */
+ * it fetched, with which hook or Controller method, how many times, and
+ * the line of code that sent it */
 function Sender({ entry, n }: { entry: LogEntry; n: number }) {
   const { origin, caller, reason } = entry;
   return (
@@ -168,7 +174,11 @@ function Sender({ entry, n }: { entry: LogEntry; n: number }) {
       : !caller?.event && <span className={styles.dim}>the app</span>}
       {reason && <ReasonTag reason={reason} />}
       {caller?.hook && <span className={styles.dim}>{caller.hook}</span>}
+      {caller?.method && (
+        <span className={styles.dim}>ctrl.{caller.method}</span>
+      )}
       {n > 1 && <span className={styles.dim}>×{n}</span>}
+      {caller?.source && <SourceLink source={caller.source} />}
     </span>
   );
 }
@@ -204,8 +214,8 @@ function SenderName({
 }
 
 /** What `entries` sent with a reason or a sender the log knows (a
- * manager's other actions, its path says), one per sender and reason, with
- * how many */
+ * manager's other actions, its path says), one per sender, reason and line
+ * of code, with how many */
 function sendersOf(entries: readonly LogEntry[]) {
   const seen = new Map<string, { entry: LogEntry; n: number }>();
   for (const entry of entries) {
@@ -215,8 +225,10 @@ function sendersOf(entries: readonly LogEntry[]) {
       origin?.id,
       caller?.component,
       caller?.hook,
+      caller?.method,
       caller?.event?.type,
       reason,
+      caller?.source && `${caller.source.path}:${caller.source.line}`,
     ].join('\0');
     const sender = seen.get(key);
     if (sender) sender.n++;

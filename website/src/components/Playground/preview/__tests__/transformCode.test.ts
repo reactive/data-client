@@ -1,6 +1,10 @@
 /// <reference types="jest" />
 
-import transformCode, { defaultExportName } from '../transformCode';
+import transformCode, {
+  defaultExportName,
+  documentLine,
+  joinDocuments,
+} from '../transformCode';
 
 describe('transformCode', () => {
   test('removes Prettier multiline imports', () => {
@@ -12,7 +16,7 @@ describe('transformCode', () => {
 } from '@data-client/graphql';
 const x = 1;`,
       ),
-    ).toBe('const x = 1;');
+    ).toBe('\n\n\n\nconst x = 1;');
   });
 
   test('removes type-bearing and relative imports', () => {
@@ -21,7 +25,7 @@ const x = 1;`,
         `import { type Post, PostResource } from './resources';
 render(PostResource);`,
       ),
-    ).toBe('render(PostResource);');
+    ).toBe('\nrender(PostResource);');
   });
 
   test('removes side-effect and import-type statements', () => {
@@ -31,7 +35,7 @@ render(PostResource);`,
 import type { User } from './types'
 const user: User = value;`,
       ),
-    ).toBe('const user: User = value;');
+    ).toBe('\n\nconst user: User = value;');
   });
 
   test('strips export prefixes from declarations', () => {
@@ -57,7 +61,7 @@ export type { User };
 export { Y } from './y';
 export * from './z';`,
       ),
-    ).toBe('const X = 1;\n');
+    ).toBe('const X = 1;\n\n\n\n');
   });
 
   test('keeps GraphQL resource bodies after multiline import strip', () => {
@@ -99,8 +103,68 @@ const x = 'value';`,
 
   test('removes namespace re-exports', () => {
     expect(transformCode(`export * as ns from './x';\nconst y = 1;`)).toBe(
-      'const y = 1;',
+      '\nconst y = 1;',
     );
+  });
+
+  test('keeps every line where it was', () => {
+    const input = `import {
+  useSuspense,
+} from '@data-client/react';
+import { getTodo } from './api';
+export { getTodo };
+
+export default function TodoDetail() {
+  return useSuspense(getTodo);
+}`;
+    const output = transformCode(input).split('\n');
+    expect(output).toHaveLength(input.split('\n').length);
+    expect(output[7]).toBe('  return useSuspense(getTodo);');
+  });
+});
+
+describe('documentLine', () => {
+  const documents = [
+    { value: 'import a from "a";\nconst one = 1;', path: 'api.ts' },
+    { value: 'const two = 2;', path: 'util.ts' },
+    {
+      value: 'import b from "b";\n\nfunction App() {\n  return two;\n}',
+      path: 'App.tsx',
+    },
+  ];
+  const program = joinDocuments(documents).split('\n');
+  const at = (line: number) => {
+    const found = documentLine(documents, line);
+    return found && [found.path, found.line];
+  };
+
+  test('finds each document’s lines past the joiners', () => {
+    expect(at(1)).toEqual(['api.ts', 1]);
+    expect(at(2)).toEqual(['api.ts', 2]);
+    expect(at(4)).toEqual(['util.ts', 1]);
+    expect(at(6)).toEqual(['App.tsx', 1]);
+    expect(at(9)).toEqual(['App.tsx', 4]);
+    // every program line maps to the same text in its document
+    program.forEach((text, i) => {
+      const found = documentLine(documents, i + 1);
+      const document = documents.find(d => d.path === found?.path);
+      if (found) expect(document?.value.split('\n')[found.line - 1]).toBe(text);
+    });
+  });
+
+  test('finds nothing on a joiner or past the documents', () => {
+    expect(program[2]).toBe(';');
+    expect(at(3)).toBeUndefined();
+    expect(at(5)).toBeUndefined();
+    expect(at(11)).toBeUndefined();
+    expect(at(0)).toBeUndefined();
+  });
+
+  test('holds for the code that runs, imports stripped', () => {
+    const running = transformCode(joinDocuments(documents)).split('\n');
+    expect(running).toHaveLength(program.length);
+    expect(running[8]).toBe('  return two;');
+    expect(at(9)).toEqual(['App.tsx', 4]);
   });
 });
 
