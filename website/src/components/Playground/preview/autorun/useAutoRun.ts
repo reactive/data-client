@@ -92,19 +92,17 @@ export function useAutoRun(
         player.stop();
         syncBefore();
       };
-      // while it plays, rows it brings are pointed out (`<Reorder>` marks
-      // them): the watcher didn't cause them. The reader's own aren't
-      const syncPlaying = () =>
+      // while it plays, `<Reorder>` marks the rows it brings so a watcher
+      // sees where they land; rows the reader brings stay unmarked
+      const sync = () => {
+        syncBefore();
         playground.toggleAttribute(
           'data-mark-arrivals',
           player.getState() === 'playing',
         );
-      syncBefore();
-      syncPlaying();
-      const unsubscribe = player.subscribe(() => {
-        syncBefore();
-        syncPlaying();
-      });
+      };
+      sync();
+      const unsubscribe = player.subscribe(sync);
       const observer = new IntersectionObserver(
         entries => {
           // a late callback may hold several per element: the last is current

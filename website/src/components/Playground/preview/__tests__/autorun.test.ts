@@ -666,6 +666,18 @@ describe('useAutoRun', () => {
     expect(showStore).toHaveBeenCalledWith(true, undefined, 'store');
   });
 
+  it('marks the playground data-mark-arrivals only while it plays', async () => {
+    const { result, see, playground, unwatch } = mount([{ store: 'open' }]);
+    expect(playground.hasAttribute('data-mark-arrivals')).toBe(false);
+    see(1);
+    expect(playground.hasAttribute('data-mark-arrivals')).toBe(true);
+    // the reader takes over: what they do next is theirs
+    act(() => result.current.player.stop());
+    expect(playground.hasAttribute('data-mark-arrivals')).toBe(false);
+    unwatch();
+    expect(playground.hasAttribute('data-mark-arrivals')).toBe(false);
+  });
+
   it('an unmount leaves an idle player free to start', () => {
     const { result, unmount, unwatch } = mount();
     const { player } = result.current;
