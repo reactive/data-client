@@ -41,15 +41,19 @@ export function useAutoRun(
     const { script, showStore } = latest.current;
     const playground = playgroundOf(preview.current);
     if (!script || !playground) return;
-    const stage = createStage(playground, showStore);
-    // a `before` replay plays the same script beside it, from the start
-    const before = playground.querySelector<HTMLElement>('[data-before]');
-    if (!before) return void player.play(script, stage);
+    // a `before` replay plays the same script beside it, from the start;
+    // the pair scrolls into view as one (`mirrorStage`)
+    const before = beforeOf(playground);
+    if (!before)
+      return void player.play(script, createStage(playground, showStore));
     before.dispatchEvent(new Event(BEFORE_RESTART));
     void player
       .play(
         script,
-        mirrorStage(stage, createStage(before, showStore, { scroll: false })),
+        mirrorStage(
+          createStage(playground, showStore, { scroll: false }),
+          createStage(before, showStore, { scroll: false }),
+        ),
       )
       // over, unless a newer run took its place
       .then(() => {
@@ -77,11 +81,20 @@ export function useAutoRun(
       const syncPaused = () =>
         player.setPaused(!(previewShown || aroundShown) || document.hidden);
 
+      // a `before` replay waits for the demo to show its end screen: tell
+      // it when the demo never started and now won't by itself
+      const wontStart = () => {
+        if (player.getState() === 'idle')
+          beforeOf(playground)?.dispatchEvent(new Event(BEFORE_END));
+      };
       const onInput = (event: Event) => {
         if (!isReaderInput(event)) return;
         if (latest.current.script) played.add(latest.current.script);
+        wontStart();
         player.stop();
       };
+      if (played.has(latest.current.script) || prefersReducedMotion())
+        wontStart();
       const observer = new IntersectionObserver(
         entries => {
           // a late callback may hold several per element: the last is current
@@ -136,7 +149,10 @@ export function useAutoRun(
     // start() takes over from a run in progress: playing aborts it
     reset();
     // the reader asked to watch: bring it into view, which it plays in
-    if (preview.current) revealOnPage(preview.current);
+    // (with its `before` replay, which it plays beside)
+    const before = beforeOf(playgroundOf(preview.current));
+    if (preview.current)
+      revealOnPage(preview.current, ...(before ? [before] : []));
     // the demo shows the Store opening, if it does
     if (script?.some(step => 'store' in step && step.store === 'open'))
       showStore(false);
@@ -149,6 +165,8 @@ export function useAutoRun(
 
 const playgroundOf = (el: HTMLElement | null) =>
   el?.closest<HTMLElement>('[data-playground]');
+const beforeOf = (playground: HTMLElement | null | undefined) =>
+  playground?.querySelector<HTMLElement>('[data-before]');
 
 /** Scripts that played by themselves, or that the reader took over or
  * replayed: the playground remounts (say, the page's framework switched

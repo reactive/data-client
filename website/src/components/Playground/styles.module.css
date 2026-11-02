@@ -2592,7 +2592,7 @@ div.fixtureJson + div.fixtureJson {
     opacity var(--motion-smooth),
     visibility var(--motion-smooth);
 }
-.beforeFolder[data-playing] .endScreen {
+.beforeFolder:not([data-ended]) .endScreen {
   opacity: 0;
   visibility: hidden;
 }
@@ -2646,14 +2646,14 @@ div.fixtureJson + div.fixtureJson {
 .endButton:active {
   background-color: rgb(255 255 255 / 16%);
 }
-/* the demo plays for the watcher: the folder's handles wait until it's
-   over (unless it opened the Store) */
+/* the demo plays for the watcher: the folder's handles wait with the end
+   screen (unless it opened the Store) */
 .row[data-comparing] > .storeHost .drawerTabs {
   transition:
     opacity var(--motion-smooth),
     visibility var(--motion-smooth);
 }
-.row:has(> .beforeFolder[data-playing])
+.row:has(> .beforeFolder:not([data-ended]))
   > .storeHost:not([data-open])
   .drawerTabs {
   opacity: 0;

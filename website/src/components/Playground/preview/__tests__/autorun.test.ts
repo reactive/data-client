@@ -11,7 +11,7 @@ import {
   type Stage,
 } from '../autorun/player';
 import type { AutoRunScript } from '../autorun/script';
-import { createStage, mirrorStage } from '../autorun/stage';
+import { createStage, mirrorStage, revealOnPage } from '../autorun/stage';
 import { isReaderInput, useAutoRun } from '../autorun/useAutoRun';
 
 function fakeStage(
@@ -487,6 +487,33 @@ describe('mirrorStage', () => {
     const only = stage.find('b')!;
     stage.click(only);
     expect(clicked.slice(2)).toEqual([only]);
+  });
+});
+
+describe('revealOnPage', () => {
+  const box = (top: number, bottom: number) => {
+    const el = document.createElement('div');
+    el.getBoundingClientRect = () => ({ top, bottom }) as DOMRect;
+    return el;
+  };
+  beforeEach(() => (window.scrollBy = jest.fn()));
+
+  it('shows a `before` replay with its preview as one span', () => {
+    // fits: centered
+    revealOnPage(box(500, 700), box(750, 900));
+    expect(window.scrollBy).toHaveBeenLastCalledWith({
+      top: (500 + 900 - innerHeight) / 2,
+      behavior: 'smooth',
+    });
+    // taller than the view (stacked, on a phone): from its top
+    revealOnPage(box(650, 1200), box(100, 600));
+    expect(window.scrollBy).toHaveBeenLastCalledWith({
+      top: 100,
+      behavior: 'smooth',
+    });
+    // already filling the view: stays put
+    revealOnPage(box(-10, 400), box(450, innerHeight + 10));
+    expect(window.scrollBy).toHaveBeenCalledTimes(2);
   });
 });
 

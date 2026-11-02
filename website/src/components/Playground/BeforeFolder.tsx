@@ -16,9 +16,11 @@ import './DesignSystem/design-system.css';
  * (above it when narrow), with an app showing the old behavior. It is
  * watched, not used: its app is inert, and the preview's `autoRun` plays in
  * it step for step (./preview/autorun/stage.ts `mirrorStage`), from the start
- * on each run (`data-playing` while it does). Between runs, its end screen
- * offers Play (Replay once it has played), with `replayable`, and Show code,
- * which shows the code in its place */
+ * on each run. Once a run is over and what it set moving has settled, a
+ * beat later, its end screen (`data-ended`) offers Play (Replay once it has
+ * played), with `replayable`, and Show code, which shows the code in its
+ * place. Until the demo has played (or won't play by itself), it shows
+ * none */
 export default function BeforeFolder({
   label,
   replayable,
@@ -36,18 +38,27 @@ export default function BeforeFolder({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [run, setRun] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  // with nothing to play, there's nothing to wait for
+  const [ended, setEnded] = useState(!replayable);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // the latest restart or end: a restart outdates an end still settling
+    let latest = 0;
     const restart = () => {
+      latest++;
       setRun(n => n + 1);
-      setPlaying(true);
+      setEnded(false);
     };
-    const end = () => setPlaying(false);
+    const end = async () => {
+      const mine = ++latest;
+      await settled(el.closest('[data-playground]') ?? el);
+      if (mine === latest) setEnded(true);
+    };
     el.addEventListener(BEFORE_RESTART, restart);
     el.addEventListener(BEFORE_END, end);
     return () => {
+      latest++;
       el.removeEventListener(BEFORE_RESTART, restart);
       el.removeEventListener(BEFORE_END, end);
     };
@@ -57,7 +68,7 @@ export default function BeforeFolder({
       ref={ref}
       className={clsx(styles.previewWrapper, styles.beforeFolder)}
       data-before
-      data-playing={playing || undefined}
+      data-ended={ended || undefined}
     >
       <Header className={styles.previewHeader}>
         <span className={clsx(styles.liveLabel, styles.beforeLabel)}>
@@ -71,7 +82,7 @@ export default function BeforeFolder({
           </div>
         </div>
         {/* over the replay, like a video's: gone while it plays */}
-        <div className={styles.endScreen} inert={playing}>
+        <div className={styles.endScreen} inert={!ended}>
           <div className={styles.endControls}>
             {replayable ?
               <button
@@ -119,3 +130,20 @@ function PlayIcon() {
     </svg>
   );
 }
+
+/** Once what moves in `root` has stopped (a row's highlight, a toast
+ * fading out), and a beat after: the last step lands before the end screen
+ * covers it. Animations that loop (a pulsing dot) never stop, so don't
+ * count; jsdom has none */
+async function settled(root: Element) {
+  // what the last step set off starts on the next frames
+  await new Promise(resolve =>
+    requestAnimationFrame(() => requestAnimationFrame(resolve)),
+  );
+  const moving = (root.getAnimations?.({ subtree: true }) ?? []).filter(
+    animation => animation.effect?.getComputedTiming().endTime !== Infinity,
+  );
+  await Promise.allSettled(moving.map(animation => animation.finished));
+  await new Promise(resolve => setTimeout(resolve, BEAT));
+}
+const BEAT = 500;

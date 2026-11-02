@@ -226,7 +226,11 @@ export function mirrorStage(main: Stage, twin: Stage): Stage {
     },
     point(el) {
       if (mirrored) twin.point(mirrored);
-      return main.point(el);
+      const gliding = main.point(el);
+      // the watcher compares the two: both in view (neither stage scrolls
+      // the page itself)
+      revealOnPage(el, ...(mirrored ? [mirrored] : []));
+      return gliding;
     },
     click(el) {
       if (mirrored) twin.click(mirrored);
@@ -248,18 +252,29 @@ export function mirrorStage(main: Stage, twin: Stage): Stage {
  * opens above the preview on a phone; replay brings the preview back), clear
  * of the sticky navbar. Past both edges, it already fills the view, so it
  * stays put. The pointer is placed relative to the page, so it scrolls
- * along. */
-export function revealOnPage(el: HTMLElement) {
+ * along.
+ *
+ * With `more` (a `before` replay's, stacked over the preview on a phone),
+ * it shows them all as one span: centered if it fits under the navbar,
+ * else from its top, the first a watcher reads. */
+export function revealOnPage(el: HTMLElement, ...more: HTMLElement[]) {
   const navbar = document.querySelector('.navbar')?.getBoundingClientRect();
-  const { top, bottom } = el.getBoundingClientRect();
   // a navbar hidden on scroll reports a bottom above the viewport
-  const above = top < Math.max(0, navbar?.bottom ?? 0);
-  const below = bottom > innerHeight;
-  if (above !== below)
-    el.scrollIntoView({
-      block: 'center',
-      behavior: prefersReducedMotion() ? 'instant' : 'smooth',
-    });
+  const clear = Math.max(0, navbar?.bottom ?? 0);
+  const boxes = [el, ...more].map(each => each.getBoundingClientRect());
+  const top = Math.min(...boxes.map(box => box.top));
+  const bottom = Math.max(...boxes.map(box => box.bottom));
+  if (top < clear === bottom > innerHeight) return;
+  const behavior = prefersReducedMotion() ? 'instant' : 'smooth';
+  if (!more.length) return el.scrollIntoView({ block: 'center', behavior });
+  const room = innerHeight - clear;
+  window.scrollBy({
+    top:
+      bottom - top <= room ?
+        (top + bottom - clear - innerHeight) / 2
+      : top - clear,
+    behavior,
+  });
 }
 
 // jsdom lacks checkVisibility
