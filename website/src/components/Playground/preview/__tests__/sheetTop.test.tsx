@@ -4,16 +4,18 @@ import React, { useRef } from 'react';
 
 import { useSheetTop } from '../store/dom';
 
-// what each observer was handed, so a test can report a resize
+// what each observer was handed, so a test can report a resize, and what
+// it watches
 let callbacks: (() => void)[] = [];
+let observed: Element[] = [];
 let disconnected = 0;
 class Observer {
-  constructor(private cb: () => void) {
+  constructor(cb: () => void) {
     callbacks.push(cb);
   }
 
-  observe() {
-    this.cb();
+  observe(el: Element) {
+    observed.push(el);
   }
 
   disconnect() {
@@ -35,6 +37,7 @@ describe('useSheetTop', () => {
   let layer: HTMLElement;
   beforeEach(() => {
     callbacks = [];
+    observed = [];
     disconnected = 0;
     (globalThis as any).ResizeObserver = Observer;
     layer = document.createElement('div');
@@ -48,12 +51,16 @@ describe('useSheetTop', () => {
     jest.restoreAllMocks();
   });
 
-  it('puts the sheet top on the layer, following it as the header grows', () => {
+  it('puts the sheet top on the layer, following it as the header grows', async () => {
     const { getByTestId } = render(<Sheet layer={layer} />);
     expect(layer.style.getPropertyValue('--store-sheet-top')).toBe('70px');
-    // the expanded timeline pushes the sheet down
+    // only the sheet: the layer resizes from what this writes
+    expect(observed).toEqual([getByTestId('sheet')]);
+    // the expanded timeline pushes the sheet down: written the next frame
     at(getByTestId('sheet'), 230);
     act(() => callbacks.forEach(cb => cb()));
+    expect(layer.style.getPropertyValue('--store-sheet-top')).toBe('70px');
+    await act(() => new Promise<void>(r => requestAnimationFrame(() => r())));
     expect(layer.style.getPropertyValue('--store-sheet-top')).toBe('130px');
   });
 

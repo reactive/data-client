@@ -95,18 +95,24 @@ export function useSheetTop(
   useLayoutEffect(() => {
     const el = sheet.current;
     if (!layer || !el || typeof ResizeObserver === 'undefined') return;
-    // the sheet fills the layer under the header, so a header growing
-    // shrinks it (and the layer growing to keep room for the tabs grows
-    // it back). Not the layer: what this writes can resize it, from its
-    // own callback, which the browser reports as a loop
-    const measure = () =>
+    const write = () =>
       layer.style.setProperty(
         '--store-sheet-top',
-        `${el.getBoundingClientRect().top - layer.getBoundingClientRect().top}px`,
+        `${startOf(el, 'y') - startOf(layer, 'y')}px`,
       );
-    const observer = new ResizeObserver(measure);
+    write();
+    // the sheet fills the layer under the header, so a header growing
+    // shrinks it. Written a frame later: the layer growing to keep room
+    // for the tabs grows the sheet back, which from its own callback the
+    // browser would report as a loop
+    let frame = 0;
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(write);
+    });
     observer.observe(el);
     return () => {
+      cancelAnimationFrame(frame);
       observer.disconnect();
       layer.style.removeProperty('--store-sheet-top');
     };
