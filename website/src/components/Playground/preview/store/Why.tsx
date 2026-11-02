@@ -4,7 +4,7 @@ import { groupEntriesOf } from './actionGroups';
 import { findEntry, type LogEntry } from './actionLog';
 import { ActionName, LatestTag, Time, useActions } from './actionParts';
 import { kindColor } from './dom';
-import type { CallerEvent, FetchReason } from './fetchCause';
+import type { Caller, CallerEvent, FetchReason } from './fetchCause';
 import { rootEvent, type InteractionSection } from './interactions';
 import { DeclaredName, ManagerName, SourceLink } from './ManagerName';
 import { useNavState } from './nav';
@@ -51,19 +51,22 @@ export function RowWhy({
   refetches: number;
 }) {
   const fetch = entries.find(e => e.reason);
-  const sent = fetch ?? entries[0];
-  // the hook or Controller method that sent it, as the Why names it
-  const { hook, method } = sent.caller ?? {};
-  const call = hook ?? (method && `ctrl.${method}`);
+  const call = callOf((fetch ?? entries[0]).caller);
   return (
     <>
-      {fetch?.reason ?
+      {(fetch?.reason || call) && (
         <span className={styles.rowWhy}>
-          ← <ReasonTag reason={fetch.reason} plain />
-          <SenderName entry={fetch} before=" · " />
-          {call && ` ${call}`}
+          ←{' '}
+          {fetch?.reason && (
+            <>
+              <ReasonTag reason={fetch.reason} plain />
+              <SenderName entry={fetch} before=" · " />
+              {call && ' '}
+            </>
+          )}
+          {call}
         </span>
-      : call && !sent.origin && <span className={styles.rowWhy}>← {call}</span>}
+      )}
       {refetches > 0 && (
         <span className={styles.rowWhy}>
           → {refetches} refetch{refetches === 1 ? '' : 'es'}
@@ -72,6 +75,11 @@ export function RowWhy({
     </>
   );
 }
+
+/** The hook or Controller method that sent an action (`useSuspense`,
+ * `ctrl.invalidate`) */
+const callOf = (caller: Caller | undefined) =>
+  caller?.hook ?? (caller?.method && `ctrl.${caller.method}`);
 
 /** Why `entries` (one action, or a request's) were sent, root first: the
  * user event that started it, the action that left the data invalid or
@@ -177,16 +185,14 @@ function CauseLink({ entry }: { entry: LogEntry }) {
  * the line of code that sent it */
 function Sender({ entry, n = 1 }: { entry: LogEntry; n?: number }) {
   const { origin, caller, reason } = entry;
+  const call = callOf(caller);
   return (
     <span className={styles.whySender}>
       {origin || caller?.component ?
         <SenderName entry={entry} className={styles.whyComponent} />
       : !caller?.event && <span className={styles.dim}>the app</span>}
       {reason && <ReasonTag reason={reason} />}
-      {caller?.hook && <span className={styles.dim}>{caller.hook}</span>}
-      {caller?.method && (
-        <span className={styles.dim}>ctrl.{caller.method}</span>
-      )}
+      {call && <span className={styles.dim}>{call}</span>}
       {n > 1 && <span className={styles.dim}>×{n}</span>}
       {caller?.source && <SourceLink source={caller.source} />}
     </span>
