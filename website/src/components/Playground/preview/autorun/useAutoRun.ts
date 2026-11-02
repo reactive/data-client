@@ -28,11 +28,14 @@ export function useAutoRun(
   showStore: ShowStore,
 ) {
   const [player] = useState(createPlayer);
-  // read when a run starts, so `watch` and `replay` keep their identity
-  const latest = useRef({ script, showStore });
-  latest.current = { script, showStore };
+  // read when a run starts (or a Replay button asks for one), so `watch`
+  // and `replay` keep their identity; set once `replay` is, below
+  const latest = useRef<{
+    script: AutoRunScript | undefined;
+    showStore: ShowStore;
+    replay?: () => void;
+  }>({ script, showStore });
   const preview = useRef<HTMLElement | null>(null);
-  const latestReplay = useRef<() => void>(undefined);
 
   const start = useCallback(() => {
     const { script, showStore } = latest.current;
@@ -105,7 +108,7 @@ export function useAutoRun(
       observer.observe(playground);
       observer.observe(el);
       // a `before` replay's Replay button
-      const onReplay = () => latestReplay.current?.();
+      const onReplay = () => latest.current.replay?.();
       for (const type of INPUT)
         playground.addEventListener(type, onInput, true);
       playground.addEventListener(DEMO_REPLAY, onReplay);
@@ -134,8 +137,7 @@ export function useAutoRun(
       showStore(false);
     start();
   }, [reset, start]);
-  // read by the Replay button's listener, which `watch` adds once
-  latestReplay.current = replay;
+  latest.current = { script, showStore, replay };
 
   return { player, watch, replay };
 }

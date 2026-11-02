@@ -85,10 +85,10 @@ export interface PlaygroundProps<T = any> {
    * happens on screen, not the code, or the app needs the room. The Store
    * opens beside the result as when stacked; `row` is ignored. */
   demo?: boolean;
-  /** A behavior change, side by side (`row`): an app replaying the old
-   * behavior, in a folder like the preview's where the code goes. The code
-   * waits behind a Code toggle in the preview's header and takes the
-   * replay's place once shown. `autoRun` plays in both at once */
+  /** A behavior change, side by side (it implies `row`): an app replaying
+   * the old behavior, in a folder like the preview's where the code goes.
+   * The code waits behind a Code toggle in the preview's header and takes
+   * the replay's place once shown. `autoRun` plays in both at once */
   before?: React.ReactNode;
   /** The replay's label, in its header (default "Before") */
   beforeLabel?: string;
@@ -142,7 +142,7 @@ export default function Playground<T>({
 
   const layout: Layout =
     demo ? 'demo'
-    : rowLayout ? 'row'
+    : rowLayout || before ? 'row'
     : 'stacked';
   const {
     open: storeOpen,
@@ -180,7 +180,7 @@ export default function Playground<T>({
   };
 
   // Demo layout: the code takes the result's place while shown; with a
-  // `before` replay (row), the replay's
+  // `before` replay (row), it takes the replay's
   const [codeShown, setCodeShown] = useState(false);
   const comparing = !!before && layout === 'row';
   const codeClosed = demo || comparing;

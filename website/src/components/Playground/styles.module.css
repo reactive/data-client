@@ -1587,9 +1587,6 @@ div.fixtureJson + div.fixtureJson {
 .row > .previewWrapper.beforeFolder {
   z-index: 1;
 }
-.row > .previewWrapper.beforeFolder::after {
-  background: var(--pg-panel);
-}
 
 /* Side by side when the playground itself has enough width (docs sidebar
    no longer forces an incorrect stack on homepage/blog): a grid, the file
@@ -2481,52 +2478,12 @@ div.fixtureJson + div.fixtureJson {
     white-space: nowrap;
   }
 }
-/* A `before` replay's label (../BeforeFolder.tsx): the live label's
-   shape, its dot hollow and muted: a recording, not the app you use */
-.beforeLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
+/* A `before` replay's label (../BeforeFolder.tsx): the live label, its dot
+   hollow and muted: a recording, not the app you use */
 .beforeLabel::before {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex: none;
-  margin-inline-start: 3px;
+  background: none;
   box-shadow: inset 0 0 0 1.5px currentColor;
   opacity: 0.7;
-}
-/* A `before` replay's Replay button: the demo again, in both apps */
-.replayButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45em;
-  height: 2rem;
-  margin: -0.5rem -0.5rem -0.5rem 0;
-  padding: 0 0.75rem;
-  border-radius: 999px;
-  font: inherit;
-  letter-spacing: inherit;
-  color: inherit;
-  cursor: pointer;
-  transition:
-    background-color var(--motion-snappy),
-    color var(--motion-snappy);
-}
-@media (hover: hover) {
-  .replayButton:hover {
-    background: var(--pg-hover);
-    color: var(--pg-text);
-  }
-}
-.replayButton:active {
-  background: var(--pg-hover);
-}
-.replayButton:focus-visible {
-  outline: 2px solid var(--ifm-color-primary);
-  outline-offset: -2px;
 }
 /* A playground with a demo (autorun/DemoLabel): the label replays it, and
    its dot breathes while it plays */
@@ -2617,6 +2574,24 @@ div.fixtureJson + div.fixtureJson {
     background-color: var(--pg-tab-hover-bg);
     color: var(--pg-tab-hover);
   }
+}
+/* A `before` replay's Replay button: the demo again, in both apps; a
+   header button with its name beside the icon. Compound, so it outranks
+   .headerButton however the build orders them */
+.headerButton.replayButton {
+  width: auto;
+  gap: 0.45em;
+  margin-right: -0.5rem;
+  padding: 0 0.75rem;
+  border-radius: 999px;
+  font: inherit;
+  letter-spacing: inherit;
+  transition:
+    background-color var(--motion-snappy),
+    color var(--motion-snappy);
+}
+.headerButton.replayButton:active {
+  background: var(--pg-hover);
 }
 /* at the header's end (stacked, the drawer's tabs follow it, but for
    narrow), its icon on the content's edge */

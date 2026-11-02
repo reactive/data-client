@@ -6,7 +6,8 @@ export type FixtureOrInterceptor<T = any> = Fixture | Interceptor<T>;
 
 /** The demo layout's code, as the preview's header shows it (../index.tsx) */
 export interface CodeControl {
-  /** The code shows in the result's place */
+  /** The code shows: in the result's place (demo layout), or in a `before`
+   * replay's (row) */
   shown: boolean;
   /** Shows or hides it (the header's Code toggle) */
   toggle: () => void;

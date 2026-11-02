@@ -215,3 +215,10 @@ small {
     --ifm-col-width: calc(8 / 12 * 100%);
   }
 }
+
+/* A video in a page sized by its `width` attribute shrinks to fit a narrow
+   column instead of pushing the page wider than the screen */
+.markdown video {
+  max-width: 100%;
+  height: auto;
+}

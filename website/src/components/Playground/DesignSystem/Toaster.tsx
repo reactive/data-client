@@ -67,25 +67,33 @@ const getToasts = () => toasts;
 /** Shows what `toast` sends: render it once, where the app's toasts go */
 export function Toaster() {
   const list = useSyncExternalStore(subscribe, getToasts, getToasts);
-  useEffect(() => () => setToasts(withoutActions()), []);
+  useEffect(
+    () => () => {
+      if (toasts.some(t => t.action)) setToasts(withoutActions());
+    },
+    [],
+  );
   return (
     <div className="toaster" role="status">
-      {list.map(t => (
-        <div key={t.id} className="toast" data-kind={t.kind}>
-          {t.message}
-          {t.action && (
-            <button
-              type="button"
-              onClick={() => {
-                dismiss(t);
-                t.action?.onClick();
-              }}
-            >
-              {t.action.label}
-            </button>
-          )}
-        </div>
-      ))}
+      {list.map(t => {
+        const { action } = t;
+        return (
+          <div key={t.id} className="toast" data-kind={t.kind}>
+            {t.message}
+            {action && (
+              <button
+                type="button"
+                onClick={() => {
+                  dismiss(t);
+                  action.onClick();
+                }}
+              >
+                {action.label}
+              </button>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -7,6 +7,9 @@ import { sheetClassName } from './preview/PendingSheet';
 import { previewSurfaceClassName } from './preview/PreviewWrapper';
 import styles from './styles.module.css';
 import { BEFORE_RESTART, DEMO_REPLAY } from './types';
+// its app is drawn in the design system's classes, like the preview's; it
+// shows from the HTML on, before the preview's own chunk loads them
+import './DesignSystem/design-system.css';
 
 /** A `before` replay (../index.tsx): a folder like the preview's, beside it
  * (above it when narrow), with an app showing the old behavior. It is
@@ -39,11 +42,17 @@ export default function BeforeFolder({
       data-before
     >
       <Header className={styles.previewHeader}>
-        <span className={styles.beforeLabel}>{label}</span>
+        <span className={clsx(styles.liveLabel, styles.beforeLabel)}>
+          {label}
+        </span>
         {replayable ?
           <button
             type="button"
-            className={clsx('clean-btn', styles.replayButton)}
+            className={clsx(
+              'clean-btn',
+              styles.headerButton,
+              styles.replayButton,
+            )}
             // a demo control: pressing it doesn't end a run as the reader's
             // input does, it starts one over
             data-autorun-control
