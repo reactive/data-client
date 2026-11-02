@@ -24,7 +24,7 @@ const products = {
 };
 
 // $48: one more filter pack crosses the $50 free shipping line
-const initialItems = {
+export const initialItems = {
   'house-blend': {
     id: 'house-blend',
     product: products['house-blend'],

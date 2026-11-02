@@ -2,6 +2,7 @@
    live demo's code (never translated) renders it beside this */
 import React, { useState } from 'react';
 
+import { initialItems } from '../fixtures/cart';
 import { CancelButton } from './Playground/DesignSystem/CancelButton';
 
 /** The v0.19 blog's cart demo as v0.18 showed it, for its playground's
@@ -10,7 +11,7 @@ import { CancelButton } from './Playground/DesignSystem/CancelButton';
  * back showed it in its old place and again at the end */
 export default function CartBefore() {
   // the list's ids, a removed one kept; and the one removed
-  const [ids, setIds] = useState(['house-blend', 'mug', 'filters']);
+  const [ids, setIds] = useState<string[]>(() => Object.keys(ITEMS));
   const [removed, setRemoved] = useState<string | null>(null);
   const shown = ids.filter(id => id !== removed);
 
@@ -22,7 +23,10 @@ export default function CartBefore() {
       </header>
       <div className="list">
         {shown.map((id, i) => {
-          const { name, price, quantity } = ITEMS[id];
+          const {
+            product: { name, price },
+            quantity,
+          } = ITEMS[id];
           return (
             <div className="listItem" key={`${id}:${i}`}>
               <div>
@@ -43,7 +47,7 @@ export default function CartBefore() {
       <div className="toaster" role="status">
         {removed ?
           <div className="toast" data-kind="info">
-            {ITEMS[removed].name} removed
+            {ITEMS[removed].product.name} removed
             <button
               type="button"
               onClick={() => {
@@ -60,12 +64,9 @@ export default function CartBefore() {
   );
 }
 
-const ITEMS: Record<string, { name: string; price: number; quantity: number }> =
-  {
-    'house-blend': { name: 'House blend', price: 16, quantity: 2 },
-    mug: { name: 'Ceramic mug', price: 12, quantity: 1 },
-    filters: { name: 'Paper filters', price: 4, quantity: 1 },
-  };
+// the demo's own cart, as its fixtures serve it
+const ITEMS: Record<string, (typeof initialItems)[keyof typeof initialItems]> =
+  initialItems;
 
 const usd = (value: number) =>
   value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
