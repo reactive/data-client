@@ -48,8 +48,9 @@ export function measure(items: Items): Positions {
  * (unless an item moves in with it, or it takes the exact spot of a key
  * that just left: the same item under a new id, like an optimistic create
  * the server answered, which carries on that key's arrival). A key that
- * left fades out where it was, as the others glide into its place. Items crossing the others (going past one,
- * not only into a gap) are `data-traveling` until they land. `own` gives some keys their own spring
+ * left fades out where it was, as the others glide into its place. Items
+ * crossing the others (going past one, not only into a gap) are
+ * `data-traveling` until they land. `own` gives some keys their own spring
  * (an item the reader dropped settles quicker). Layout-agnostic: it reads
  * only where items are on screen.
  */
@@ -69,7 +70,7 @@ export function reorder(
     HTMLElement,
     { offset: Point; velocity: Point; spring: Spring; was: Point; at: Point }
   >();
-  // with how far into its arrival it already is (the key it replaces)
+  // with the ms since the key it replaces arrived, carried on
   const arrivals: [el: HTMLElement, elapsed?: number][] = [];
   const left = [...before]
     .filter(([key]) => !items.has(key))
@@ -141,7 +142,7 @@ function arrive(
   el.dataset.arrived = String(performance.now() - elapsed);
   const over = () => {
     delete el.dataset.arrived;
-    el.style.removeProperty('animation-delay');
+    if (elapsed) el.style.removeProperty('animation-delay');
   };
   el.addEventListener('animationend', over, { once: true });
   el.addEventListener('animationcancel', over, { once: true });

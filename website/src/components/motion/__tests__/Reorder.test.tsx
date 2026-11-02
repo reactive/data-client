@@ -238,6 +238,7 @@ it('fades in a key it has not seen', () => {
 });
 
 it('marks a new key data-arrived until the style calling attention to it ends', () => {
+  jest.spyOn(performance, 'now').mockReturnValue(1000);
   const { rerender, getByTestId } = render(
     <Board groups={[{ name: 'a', y: 0, rows: [] }]} />,
   );
@@ -245,7 +246,8 @@ it('marks a new key data-arrived until the style calling attention to it ends', 
     <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
   );
   const x = getByTestId('x');
-  expect(x.dataset.arrived).toBeDefined();
+  // when it arrived
+  expect(x.dataset.arrived).toBe('1000');
   x.dispatchEvent(new Event('animationend'));
   expect(x.dataset.arrived).toBeUndefined();
 });
