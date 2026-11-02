@@ -7,11 +7,10 @@ import { prefersReducedMotion, springEasing, springs } from '../../motion';
 /**
  * The code as the page first drew it, kept over Monaco until each of
  * `editors` shows the same (laid out and highlighted, see whenPainted), then
- * faded out; at once when the reader focuses, presses a key in or clicks one (not
- * on autoFocus alone, which would show it unhighlighted). Render the cover
- * while `covered`, with `coverRef`, and call `revealWhenPainted` from the
- * editor's onMount. Its `after` holds off the paint wait until it calls
- * `start`.
+ * faded out; at once when the reader focuses, presses a key in or clicks
+ * one (not on autoFocus alone, which would show it unhighlighted). Render
+ * the cover while `covered`, with `coverRef`, and call `revealWhenPainted`
+ * from the editor's onMount.
  */
 export default function useEditorCover() {
   const [covered, setCovered] = useState(true);
@@ -19,27 +18,27 @@ export default function useEditorCover() {
   const revealWhenPainted = useCallback(
     (
       editors: Monaco.editor.ICodeEditor[],
+      /** holds off the paint wait until it calls `start` */
       after: (start: () => void) => void = start => start(),
     ) => {
       let ended = false;
       let stops: (() => void)[] = [];
-      // the reader using any pane shows the editor, whatever is pending: an
-      // autoFocused one has focus already, so its keys and clicks count too
-      const interactions = editors.flatMap(editor => [
-        editor.onDidFocusEditorText(() => reveal()),
-        editor.onKeyDown(() => reveal()),
-        editor.onMouseDown(() => reveal()),
-      ]);
-      const end = () => {
+      function end() {
         ended = true;
         stops.forEach(stop => stop());
         interactions.forEach(interaction => interaction.dispose());
-      };
-      const reveal = () => {
-        if (ended) return;
+      }
+      function reveal() {
         end();
         fadeOut(coverRef.current, () => setCovered(false));
-      };
+      }
+      // the reader using any pane shows the editor, whatever is pending: an
+      // autoFocused one has focus already, so its keys and clicks count too
+      const interactions = editors.flatMap(editor => [
+        editor.onDidFocusEditorText(reveal),
+        editor.onKeyDown(reveal),
+        editor.onMouseDown(reveal),
+      ]);
       editors.forEach(editor => editor.onDidDispose(end));
       after(() => {
         if (ended) return;

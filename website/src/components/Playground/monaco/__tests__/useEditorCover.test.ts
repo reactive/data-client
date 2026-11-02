@@ -18,7 +18,7 @@ function fakeEditor() {
     onDidFocusEditorText: on('focus'),
     onKeyDown: on('key'),
     onMouseDown: on('click'),
-    onDidDispose: () => ({ dispose: jest.fn() }),
+    onDidDispose: () => ({ dispose() {} }),
   } as unknown as Monaco.editor.ICodeEditor;
   const fire = (event: string) => () => act(() => listeners[event]?.());
   return Object.assign(editor, {
@@ -49,7 +49,7 @@ describe('useEditorCover', () => {
     expect(result.current.covered).toBe(false);
   });
 
-  test('goes at once when any editor gains focus, and stops the others waiting', () => {
+  test('goes at once when a painted editor gains focus, and stops the others waiting', () => {
     const { result } = renderHook(() => useEditorCover());
     const panes = [fakeEditor(), fakeEditor()];
     act(() => result.current.revealWhenPainted(panes));
@@ -63,33 +63,26 @@ describe('useEditorCover', () => {
     expect(stopModified).toHaveBeenCalled();
   });
 
-  test('waits to start until `after` says, though focus reveals meanwhile', () => {
+  test('starts the paint wait when `after` says', () => {
     const { result } = renderHook(() => useEditorCover());
     const panes = [fakeEditor()];
     let start = () => {};
-    act(() =>
-      result.current.revealWhenPainted(panes, s => {
-        start = s;
-      }),
-    );
+    act(() => result.current.revealWhenPainted(panes, s => (start = s)));
     expect(whenPainted).not.toHaveBeenCalled();
     act(() => start());
     finish(panes[0]);
     expect(result.current.covered).toBe(false);
+  });
 
-    const second = renderHook(() => useEditorCover());
-    const late = [fakeEditor()];
-    act(() =>
-      second.result.current.revealWhenPainted(late, s => {
-        start = s;
-      }),
-    );
-    late[0].focus();
-    expect(second.result.current.covered).toBe(false);
+  test('goes at once on focus before `after` says, and never starts', () => {
+    const { result } = renderHook(() => useEditorCover());
+    const panes = [fakeEditor()];
+    let start = () => {};
+    act(() => result.current.revealWhenPainted(panes, s => (start = s)));
+    panes[0].focus();
+    expect(result.current.covered).toBe(false);
     act(() => start());
-    expect(
-      jest.mocked(whenPainted).mock.calls.some(([e]) => e === late[0]),
-    ).toBe(false);
+    expect(whenPainted).not.toHaveBeenCalled();
   });
 
   test.each(['key', 'click'] as const)(
