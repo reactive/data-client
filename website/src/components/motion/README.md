@@ -79,10 +79,9 @@ item (a row in a group that moves) rides along and travels only the rest of
 the way. A new key just shows, unless it is inside `[data-mark-arrivals]` (a
 playground sets it while its demo autoplays): then it fades in, marked
 `data-arrived` (cleared when a CSS animation on it ends) for a style that
-calls attention to it. A
-new key taking the exact spot of a key that just left (an optimistic create
-getting its server id) carries on that key's fade and mark from where they
-were, so a highlight doesn't cut off. A key that leaves fades out where it was, put back
+calls attention to it. A new key taking the exact spot of a key that just
+left (an optimistic create getting its server id) carries on that key's fade
+and mark from where they were, so a highlight doesn't cut off. A key that leaves fades out where it was, put back
 out of the flow and inert while the others glide into its place. Items crossing the others (going past one, not only into a gap, and moving at least half
 as far as the farthest) carry `data-traveling` until they land, for a style that lifts them over the rest
 (`position: relative`, a `z-index`, a background). Use `MotionGroup` where things open and close in

@@ -43,13 +43,13 @@ export function measure(items: Items): Positions {
  * Glides each item from where `before` saw its key to where it is now (FLIP,
  * `translate` only, on the compositor), so an item React put under another
  * parent travels there too. An item inside another that moves rides along
- * with it, and only travels the rest of the way itself; a key `before` lacks
- * fades in (inside `[data-mark-arrivals]`; elsewhere it just shows), marked
- * `data-arrived` for a style that calls attention to it (unless an item moves in with it, or it
- * takes the exact spot of a key that just left: the same item under a new
- * id, like an optimistic create the server answered, which carries on that
- * key's arrival). A key that
- * left fades out where it was, as the others glide into its place. Items
+ * with it, and only travels the rest of the way itself. A key `before`
+ * lacks just shows, except inside `[data-mark-arrivals]`: there it fades in,
+ * marked `data-arrived` for a style that calls attention to it (unless an
+ * item moves in with it). A key taking the exact spot of a key that just
+ * left (the same item under a new id, like an optimistic create the server
+ * answered) carries on that key's arrival, if it had one. A key that left
+ * fades out where it was, as the others glide into its place. Items
  * crossing the others (going past one, not only into a gap) are
  * `data-traveling` until they land. `own` gives some keys their own spring
  * (an item the reader dropped settles quicker). Layout-agnostic: it reads
@@ -128,10 +128,11 @@ function sinceArrival(el: HTMLElement) {
   if (at !== undefined) return performance.now() - Number(at);
 }
 
-/** Fades `el` in and marks it, inside `[data-mark-arrivals]` only: there no
- * one watching caused the change, so it needs pointing out. Elsewhere the
- * reader did, and it just shows. `elapsed` (ms) picks up an arrival the
- * item made under the key it replaces, so it doesn't start over or cut off */
+/** Fades `el` in and marks it inside `[data-mark-arrivals]`, where no one
+ * watching caused the change, so it needs pointing out. Elsewhere the
+ * reader did, and it just shows. `elapsed` (ms) carries on the arrival of
+ * the key it replaces, wherever it is now, so it doesn't start over or cut
+ * off */
 function arrive(
   el: HTMLElement,
   timing: KeyframeAnimationOptions,
