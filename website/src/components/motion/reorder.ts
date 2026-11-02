@@ -45,8 +45,8 @@ export function measure(items: Items): Positions {
  * (unless an item moves in with it, or it takes the exact spot of a key
  * that just left: the same item under a new id, like an optimistic create
  * the server answered). A key that left fades out where it was, as the
- * others glide into its place. Items crossing the others are
- * `data-traveling` until they land. `own` gives some keys their own spring
+ * others glide into its place. Items crossing the others (going past one,
+ * not only into a gap) are `data-traveling` until they land. `own` gives some keys their own spring
  * (an item the reader dropped settles quicker). Layout-agnostic: it reads
  * only where items are on screen.
  */
@@ -64,7 +64,7 @@ export function reorder(
   }
   const moves = new Map<
     HTMLElement,
-    { offset: Point; velocity: Point; spring: Spring }
+    { offset: Point; velocity: Point; spring: Spring; was: Point; at: Point }
   >();
   const arrivals: HTMLElement[] = [];
   const left = [...before]
@@ -81,6 +81,8 @@ export function reorder(
       offset: { x: was.at.x - at.x, y: was.at.y - at.y },
       velocity: was.velocity,
       spring: own.get(key) ?? spring,
+      was: was.at,
+      at,
     });
   }
   // every read is done: start the animations
@@ -95,7 +97,8 @@ export function reorder(
   for (const { length } of glides) farthest = Math.max(farthest, length);
   for (const { el, from, velocity, spring, length } of glides) {
     const animation = glide(el, spring, { from, to: ORIGIN, velocity });
-    if (animation && crosses(length, farthest)) travel(el, animation);
+    if (animation && crosses(length, farthest) && passesAnother(el, moves))
+      travel(el, animation);
   }
   // an arrival holding an item that moves in (a row into a group that
   // wasn't there) shows at once, or its fade would hide that item's glide
@@ -155,6 +158,8 @@ function leave({ el, parent, at, width, height }: Position) {
     pointerEvents: 'none',
     // over the others gliding into its place (a crossing one is lifted)
     zIndex: '2',
+    // put back, it would play its CSS entrance again
+    animation: 'none',
   });
   parent.append(el);
   const origin = positionOf(el);
@@ -171,6 +176,25 @@ const crosses = (length: number, farthest: number) =>
   length >= farthest / 2 && length > NUDGE;
 /** px: a move this short crosses nothing */
 const NUDGE = 1;
+
+/** Whether `el` changed sides with another item that stayed (it went past
+ * it), not only slid into a gap one left or out of the way of one that came */
+function passesAnother(
+  el: HTMLElement,
+  items: ReadonlyMap<HTMLElement, { was: Point; at: Point }>,
+) {
+  const { was, at } = items.get(el)!;
+  for (const [other, them] of items) {
+    if (other === el || other.contains(el) || el.contains(other)) continue;
+    for (const axis of ['x', 'y'] as const) {
+      const before = side(was[axis] - them.was[axis]);
+      const after = side(at[axis] - them.at[axis]);
+      if (before && after && before !== after) return true;
+    }
+  }
+  return false;
+}
+const side = (d: number) => (Math.abs(d) <= NUDGE ? 0 : Math.sign(d));
 
 /** Items crossing the others while they glide, marked `data-traveling` so
  * their style can lift them over the rest */

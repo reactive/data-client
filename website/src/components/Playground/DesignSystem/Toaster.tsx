@@ -1,4 +1,6 @@
-import { useEffect, useSyncExternalStore } from 'react';
+import React, { useEffect, useSyncExternalStore } from 'react';
+
+import { Reorder, useReorderItem } from '../../motion';
 
 /** A button on the toast (Undo); pressing it also dismisses the toast */
 export interface ToastAction {
@@ -74,26 +76,61 @@ export function Toaster() {
     [],
   );
   return (
-    <div className="toaster" role="status">
+    <ToastList layoutDependency={list}>
       {list.map(t => {
         const { action } = t;
         return (
-          <div key={t.id} className="toast" data-kind={t.kind}>
-            {t.message}
-            {action && (
-              <button
-                type="button"
-                onClick={() => {
+          <ToastView
+            key={t.id}
+            {...t}
+            action={
+              action && {
+                ...action,
+                onClick: () => {
                   dismiss(t);
                   action.onClick();
-                }}
-              >
-                {action.label}
-              </button>
-            )}
-          </div>
+                },
+              }
+            }
+          />
         );
       })}
+    </ToastList>
+  );
+}
+
+/** Where toasts stack (`<Toaster />`'s, or an app's own): one that goes
+ * fades out where it was, and the rest glide into place
+ * (`layoutDependency` changes with the toasts) */
+export function ToastList({
+  layoutDependency,
+  children,
+}: {
+  layoutDependency: unknown;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="toaster" role="status">
+      <Reorder layoutDependency={layoutDependency}>{children}</Reorder>
+    </div>
+  );
+}
+
+/** One toast, in a `<ToastList>`; `id` names it there */
+export function ToastView({
+  id,
+  kind,
+  message,
+  action,
+}: Omit<Toast, 'id'> & { id: unknown }) {
+  return (
+    <div className="toast" data-kind={kind} ref={useReorderItem(id)}>
+      {message}
+      {action && (
+        <button type="button" onClick={action.onClick}>
+          {action.label}
+        </button>
+      )}
     </div>
   );
 }

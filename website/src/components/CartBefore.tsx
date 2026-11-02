@@ -6,6 +6,7 @@ import { type CartItemData, initialItems } from '../fixtures/cart';
 import { Reorder, useReorderItem } from './motion';
 import { CancelButton } from './Playground/DesignSystem/CancelButton';
 import { formatters } from './Playground/DesignSystem/formatters';
+import { ToastList, ToastView } from './Playground/DesignSystem/Toaster';
 
 /** The v0.19 blog's cart demo as v0.18 showed it, for its playground's
  * `before` replay: the same markup, with the old Collection behavior. A
@@ -37,22 +38,22 @@ export default function CartBefore() {
       </div>
       {/* not the design system's `toast`: its toasts are module state the
           live app's <Toaster /> shows, so this one would show there too */}
-      <div className="toaster" role="status">
+      <ToastList layoutDependency={removed}>
         {removed ?
-          <div className="toast" data-kind="info">
-            {ITEMS[removed].product.name} removed
-            <button
-              type="button"
-              onClick={() => {
+          <ToastView
+            id={removed}
+            kind="info"
+            message={`${ITEMS[removed].product.name} removed`}
+            action={{
+              label: 'Undo',
+              onClick: () => {
                 setIds(list => [...list, removed]);
                 setRemoved(null);
-              }}
-            >
-              Undo
-            </button>
-          </div>
+              },
+            }}
+          />
         : null}
-      </div>
+      </ToastList>
     </>
   );
 }

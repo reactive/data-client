@@ -157,7 +157,17 @@ it('marks the items crossing the others as traveling until they land', async () 
 });
 
 it('keeps a newer mark when a glide it replaced settles', async () => {
-  const at = (y: number) => [{ name: 'a', y: 0, rows: [{ id: 'x', y }] }];
+  // x goes past y and back
+  const at = (y: number) => [
+    {
+      name: 'a',
+      y: 0,
+      rows: [
+        { id: 'x', y },
+        { id: 'y', y: 60 },
+      ],
+    },
+  ];
   const { rerender, getByTestId } = render(<Board groups={at(10)} />);
   const x = getByTestId('x');
   rerender(<Board groups={at(110)} />);
@@ -169,6 +179,40 @@ it('keeps a newer mark when a glide it replaced settles', async () => {
   first?.finish();
   await Promise.resolve();
   expect(x.dataset.traveling).toBe('');
+});
+
+it('does not mark an item sliding into a gap, past nothing', () => {
+  const { rerender, getByTestId } = render(
+    <Board
+      groups={[
+        {
+          name: 'a',
+          y: 0,
+          rows: [
+            { id: 'x', y: 10 },
+            { id: 'gone', y: 40 },
+            { id: 'y', y: 70 },
+          ],
+        },
+      ]}
+    />,
+  );
+  rerender(
+    <Board
+      groups={[
+        {
+          name: 'a',
+          y: 0,
+          rows: [
+            { id: 'x', y: 10 },
+            { id: 'y', y: 40 },
+          ],
+        },
+      ]}
+    />,
+  );
+  expect(startOf(getByTestId('y'))?.translate).toBe('0px 30px');
+  expect(getByTestId('y').dataset.traveling).toBeUndefined();
 });
 
 it('does not mark a nudge too small to cross anything', () => {
