@@ -334,6 +334,7 @@ export default function Playground<T>({
         : <>
             {comparing && !hidden ?
               <BeforeFolder
+                replayable={!!autoRun}
                 label={
                   beforeLabel ??
                   translate({ id: 'playground.before', message: 'Before' })

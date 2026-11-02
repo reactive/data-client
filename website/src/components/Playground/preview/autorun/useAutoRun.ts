@@ -4,7 +4,7 @@ import { createPlayer } from './player';
 import type { AutoRunScript } from './script';
 import { createStage, mirrorStage, revealOnPage } from './stage';
 import { prefersReducedMotion } from '../../../motion';
-import { BEFORE_RESTART } from '../../types';
+import { BEFORE_RESTART, DEMO_REPLAY } from '../../types';
 import type { ShowStore } from '../store/storeView';
 
 /** Plays `script` in the playground (`[data-playground]`) around the
@@ -32,6 +32,7 @@ export function useAutoRun(
   const latest = useRef({ script, showStore });
   latest.current = { script, showStore };
   const preview = useRef<HTMLElement | null>(null);
+  const latestReplay = useRef<() => void>(undefined);
 
   const start = useCallback(() => {
     const { script, showStore } = latest.current;
@@ -103,13 +104,17 @@ export function useAutoRun(
       );
       observer.observe(playground);
       observer.observe(el);
+      // a `before` replay's Replay button
+      const onReplay = () => latestReplay.current?.();
       for (const type of INPUT)
         playground.addEventListener(type, onInput, true);
+      playground.addEventListener(DEMO_REPLAY, onReplay);
       document.addEventListener('visibilitychange', syncPaused);
       return () => {
         observer.disconnect();
         for (const type of INPUT)
           playground.removeEventListener(type, onInput, true);
+        playground.removeEventListener(DEMO_REPLAY, onReplay);
         document.removeEventListener('visibilitychange', syncPaused);
       };
     },
@@ -129,6 +134,8 @@ export function useAutoRun(
       showStore(false);
     start();
   }, [reset, start]);
+  // read by the Replay button's listener, which `watch` adds once
+  latestReplay.current = replay;
 
   return { player, watch, replay };
 }
