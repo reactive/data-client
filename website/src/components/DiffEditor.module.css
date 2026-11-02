@@ -36,7 +36,7 @@
     margin: 0;
   }
   /* each title, as the editor's labels (.diffLabels) */
-  .staticDiff :global(.theme-code-block) > :first-child:not(:last-child) {
+  .staticDiff :global(.theme-code-block) > :first-child {
     height: var(--diff-label-height);
     padding: 0 var(--diff-inset);
     border-bottom: var(--diff-label-rule);
@@ -44,21 +44,19 @@
     font: var(--diff-label-font);
     letter-spacing: var(--diff-label-tracking);
   }
-  .staticDiff
-    :global(.theme-code-block)
-    > :first-child:not(:last-child)::before {
+  .staticDiff :global(.theme-code-block) > :first-child::before {
     content: '';
     display: inline-block;
     width: var(--diff-dot-size);
     height: var(--diff-dot-size);
-    margin: 0 7px 1px 0;
+    margin: 0 var(--diff-dot-gap) 1px 0;
     border-radius: 50%;
     background: var(--diff-before);
   }
   .staticDiff
     :global(.theme-code-block)
     + :global(.theme-code-block)
-    > :first-child:not(:last-child)::before {
+    > :first-child::before {
     background: var(--diff-after);
   }
   /* the code, as the editor's cover (.diffCover) */

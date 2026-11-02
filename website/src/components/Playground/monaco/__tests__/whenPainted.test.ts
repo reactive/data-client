@@ -7,12 +7,14 @@ import { whenPainted } from '../whenPainted';
  * list of token classes */
 function fakeEditor(width: number, value = 'code') {
   const dom = document.createElement('div');
+  let focused = false;
   let onFocus = () => {};
   let onLayout = () => {};
   const editor = {
     getLayoutInfo: () => ({ width }),
     getDomNode: () => dom,
     getModel: () => ({ getValue: () => value }),
+    hasTextFocus: () => focused,
     onDidFocusEditorText: (listener: () => void) => {
       onFocus = listener;
       return { dispose: () => (onFocus = () => {}) };
@@ -46,7 +48,10 @@ function fakeEditor(width: number, value = 'code') {
     editor,
     draw,
     resize,
-    focus: () => onFocus(),
+    focus: () => {
+      focused = true;
+      onFocus();
+    },
   };
 }
 
@@ -128,6 +133,16 @@ describe('whenPainted', () => {
     jest.advanceTimersByTime(19900);
     expect(done).not.toHaveBeenCalled();
     jest.advanceTimersByTime(200);
+    expect(done).toHaveBeenCalledTimes(1);
+  });
+
+  test('at once when it had focus before it was called', () => {
+    const { editor, draw, focus } = fakeEditor(600);
+    draw([['mtk1']]);
+    focus();
+    const done = jest.fn();
+    whenPainted(editor, done);
+    frames(1);
     expect(done).toHaveBeenCalledTimes(1);
   });
 

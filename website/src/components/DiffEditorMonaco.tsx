@@ -182,7 +182,7 @@ function whenDiffComputed(editor: MonacoDiffEditor, done: () => void) {
   editor.onDidDispose(() => clearTimeout(timeout));
 }
 
-/** Longest the cover waits for the first diff before it waits on the panes */
+/** Longest whenDiffComputed waits for Monaco's first diff */
 const DIFF_WAIT_MS = 6000;
 
 const DIFF_OPTIONS: editor.IDiffEditorConstructionOptions = {
