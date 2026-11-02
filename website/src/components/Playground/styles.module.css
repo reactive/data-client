@@ -1839,7 +1839,7 @@ div.fixtureJson + div.fixtureJson {
      where they'd start: then they move down the sheet's edge, on past the
      preview's foot as the sheet does, their curve clear of its corner, as
      far as the drawer's foot */
-  .row > .storeHost[data-open] .drawerTabs {
+  .row:not(.stacked) > .storeHost[data-open] .drawerTabs {
     bottom: max(
       2 * var(--pg-card-radius),
       min(
@@ -1847,6 +1847,15 @@ div.fixtureJson + div.fixtureJson {
         100% - var(--store-sheet-top, 0px) - 2 * var(--pg-tab-length) - 3 *
           var(--pg-card-radius)
       )
+    );
+  }
+  /* and the Store keeps room for them under its header, however tall the
+     timeline */
+  .row:not(.stacked) > .storeHost:has(.storePanel[data-visible]) {
+    min-height: max(
+      var(--store-min),
+      var(--store-sheet-top, 0px) + 2 * var(--pg-tab-length) + 5 *
+        var(--pg-card-radius)
     );
   }
   /* shut, they sit on the preview's edge: tall enough for both, each
