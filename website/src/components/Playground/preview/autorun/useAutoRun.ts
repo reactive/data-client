@@ -2,8 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { createPlayer } from './player';
 import type { AutoRunScript } from './script';
-import { createStage, revealOnPage } from './stage';
+import { createStage, mirrorStage, revealOnPage } from './stage';
 import { prefersReducedMotion } from '../../../motion';
+import { BEFORE_RESTART, DEMO_REPLAY } from '../../types';
 import type { ShowStore } from '../store/storeView';
 
 /** Plays `script` in the playground (`[data-playground]`) around the
@@ -27,16 +28,29 @@ export function useAutoRun(
   showStore: ShowStore,
 ) {
   const [player] = useState(createPlayer);
-  // read when a run starts, so `watch` and `replay` keep their identity
-  const latest = useRef({ script, showStore });
-  latest.current = { script, showStore };
+  // read when a run starts (or a Replay button asks for one), so `watch`
+  // and `replay` keep their identity; set once `replay` is, below
+  const latest = useRef<{
+    script: AutoRunScript | undefined;
+    showStore: ShowStore;
+    replay?: () => void;
+  }>({ script, showStore });
   const preview = useRef<HTMLElement | null>(null);
 
   const start = useCallback(() => {
     const { script, showStore } = latest.current;
     const playground = playgroundOf(preview.current);
-    if (script && playground)
-      player.play(script, createStage(playground, showStore));
+    if (!script || !playground) return;
+    const stage = createStage(playground, showStore);
+    // a `before` replay plays the same script beside it, from the start
+    const before = playground.querySelector<HTMLElement>('[data-before]');
+    if (before) before.dispatchEvent(new Event(BEFORE_RESTART));
+    player.play(
+      script,
+      before ?
+        mirrorStage(stage, createStage(before, showStore, { scroll: false }))
+      : stage,
+    );
   }, [player]);
 
   // ends a run with the preview; an idle player stays idle
@@ -93,13 +107,17 @@ export function useAutoRun(
       );
       observer.observe(playground);
       observer.observe(el);
+      // a `before` replay's Replay button
+      const onReplay = () => latest.current.replay?.();
       for (const type of INPUT)
         playground.addEventListener(type, onInput, true);
+      playground.addEventListener(DEMO_REPLAY, onReplay);
       document.addEventListener('visibilitychange', syncPaused);
       return () => {
         observer.disconnect();
         for (const type of INPUT)
           playground.removeEventListener(type, onInput, true);
+        playground.removeEventListener(DEMO_REPLAY, onReplay);
         document.removeEventListener('visibilitychange', syncPaused);
       };
     },
@@ -119,6 +137,7 @@ export function useAutoRun(
       showStore(false);
     start();
   }, [reset, start]);
+  latest.current = { script, showStore, replay };
 
   return { player, watch, replay };
 }

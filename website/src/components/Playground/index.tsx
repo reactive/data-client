@@ -1,3 +1,4 @@
+import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, {
   lazy,
@@ -11,7 +12,9 @@ import React, {
   useSyncExternalStore,
 } from 'react';
 
+import BeforeFolder from './BeforeFolder';
 import Boundary from './Boundary';
+import CompareBar from './CompareBar';
 import { useCodeDocuments } from './editor/codeModel';
 import type { CodeDocument } from './editor/codeModel';
 import { declarationsOf, keepSameDeclarations } from './editor/declarations';
@@ -83,6 +86,13 @@ export interface PlaygroundProps<T = any> {
    * happens on screen, not the code, or the app needs the room. The Store
    * opens beside the result as when stacked; `row` is ignored. */
   demo?: boolean;
+  /** A behavior change, side by side (it implies `row`): an app replaying
+   * the old behavior, in a folder like the preview's where the code goes.
+   * The code waits behind a Code toggle in the preview's header and takes
+   * the replay's place once shown. `autoRun` plays in both at once */
+  before?: React.ReactNode;
+  /** The replay's label, in its header (default "Before") */
+  beforeLabel?: string;
   /** Inactive (e.g. unselected Demo tab): no Monaco until first shown, no preview */
   hidden?: boolean;
   fixtures?: FixtureOrInterceptor<T>[];
@@ -114,6 +124,8 @@ export default function Playground<T>({
   defaultActionsBy = 'interaction',
   row: rowLayout = false,
   demo = false,
+  before,
+  beforeLabel,
   hidden = false,
   fixtures = [],
   getInitialInterceptorData,
@@ -131,7 +143,7 @@ export default function Playground<T>({
 
   const layout: Layout =
     demo ? 'demo'
-    : rowLayout ? 'row'
+    : rowLayout || before ? 'row'
     : 'stacked';
   const {
     open: storeOpen,
@@ -168,8 +180,11 @@ export default function Playground<T>({
     tab.focus();
   };
 
-  // Demo layout: the code takes the result's place while shown
+  // Demo layout: the code takes the result's place while shown; with a
+  // `before` replay (row), it takes the replay's
   const [codeShown, setCodeShown] = useState(false);
+  const comparing = !!before && layout === 'row';
+  const codeClosed = demo || comparing;
   // the Store lives with the result, so over a demo's code its toggle brings
   // the preview back along with what it says (Show Store, Hide Store); with
   // no code shown that is a no-op
@@ -213,7 +228,7 @@ export default function Playground<T>({
   // Until first shown (a demo's code is first shown by its Code toggle) the
   // code is plain text in the HTML; then Monaco hydrates and stays
   // (preserves undo / go-to-def).
-  const codeVisible = !hidden && (!demo || codeShown);
+  const codeVisible = !hidden && (!codeClosed || codeShown);
   const [editorInteractive, setEditorInteractive] = useState(codeVisible);
   if (codeVisible && !editorInteractive) setEditorInteractive(true);
   const toggleCode = useCallback(() => setCodeShown(shown => !shown), []);
@@ -239,7 +254,7 @@ export default function Playground<T>({
     />
   );
   // the demo layout's Code toggle: in the preview's header whether or not
-  // the live preview has loaded
+  // the live preview has loaded (a `before` replay's is under both)
   const code: CodeControl | undefined =
     demo ? { shown: codeShown, toggle: toggleCode } : undefined;
   // Live preview only while visible — unmounts when hidden (resets store);
@@ -304,7 +319,8 @@ export default function Playground<T>({
           [styles.stacked]: layout === 'stacked',
           [styles.demo]: demo,
         })}
-        data-code={(demo && codeShown) || undefined}
+        data-code={(codeClosed && codeShown) || undefined}
+        data-comparing={comparing || undefined}
         data-store-moving={storeMoving || undefined}
         onPointerOver={nearLatch.set}
         onFocus={nearLatch.set}
@@ -317,6 +333,16 @@ export default function Playground<T>({
             {editor}
           </>
         : <>
+            {comparing && !hidden ?
+              <BeforeFolder
+                label={
+                  beforeLabel ??
+                  translate({ id: 'playground.before', message: 'Before' })
+                }
+              >
+                {before}
+              </BeforeFolder>
+            : null}
             {editor}
             {preview}
           </>
@@ -345,6 +371,13 @@ export default function Playground<T>({
           </div>
         : null}
       </div>
+      {comparing && !hidden ?
+        <CompareBar
+          replayable={!!autoRun}
+          codeShown={codeShown}
+          onToggleCode={toggleCode}
+        />
+      : null}
     </div>
   );
 }

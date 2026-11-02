@@ -6,7 +6,7 @@ export type FixtureOrInterceptor<T = any> = Fixture | Interceptor<T>;
 
 /** The demo layout's code, as the preview's header shows it (../index.tsx) */
 export interface CodeControl {
-  /** The code shows in the result's place */
+  /** The code shows, in the result's place */
   shown: boolean;
   /** Shows or hides it (the header's Code toggle) */
   toggle: () => void;
@@ -38,3 +38,12 @@ export interface PreviewProps<T = any> {
   fixtures: FixtureOrInterceptor<T>[];
   getInitialInterceptorData?: () => T;
 }
+
+/** Dispatched on a `before` replay (./BeforeFolder.tsx) as a demo's run
+ * starts (./preview/autorun/useAutoRun.ts): it starts over */
+export const BEFORE_RESTART = 'playground:beforerestart';
+
+/** Dispatched (bubbling) by a `before` replay's Replay button
+ * (./CompareBar.tsx): the playground's demo replays, in both
+ * (./preview/autorun/useAutoRun.ts) */
+export const DEMO_REPLAY = 'playground:demoreplay';
