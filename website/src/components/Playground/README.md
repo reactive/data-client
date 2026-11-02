@@ -152,12 +152,13 @@ preview header's toggle in every layout.
   `autoRun`.
 - `before` (implies `row`; not with `demo`): a behavior change, side by side. `BeforeFolder.tsx`
   draws the replay as a folder like the preview's in the code's place, half
-  the width (above the app when narrow); the code waits behind a Show code
-  button and replaces it once shown. The replay is inert: the preview's
+  the width (above the app when narrow). The replay is inert: the preview's
   `autoRun` plays in it too (`mirrorStage` in `preview/autorun/stage.ts`),
-  restarting it (`BEFORE_RESTART`) on each run. `CompareBar.tsx`, above
-  both, holds Show code and a Replay button that replays the demo in both
-  (`DEMO_REPLAY`, as the Live Preview label does).
+  restarting it (`BEFORE_RESTART`) on each run, until it ends
+  (`BEFORE_END`). Meanwhile the folder's handles hide. Between runs, an end
+  screen over the replay offers Play/Replay (`DEMO_REPLAY`, as the Live
+  Preview label does) and Show code, which shows the code in the replay's
+  place; a tab named for the replay, before the files', brings it back.
 - A `row` with no folder (`../TypeScriptEditor.tsx`) is the tabs and the
   code card alone; `row={false}` is a stacked one's code (several open
   files are cards). A lone file is a tab only if it has a title; untitled,

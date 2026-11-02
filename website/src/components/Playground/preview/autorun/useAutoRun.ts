@@ -4,7 +4,7 @@ import { createPlayer } from './player';
 import type { AutoRunScript } from './script';
 import { createStage, mirrorStage, revealOnPage } from './stage';
 import { prefersReducedMotion } from '../../../motion';
-import { BEFORE_RESTART, DEMO_REPLAY } from '../../types';
+import { BEFORE_END, BEFORE_RESTART, DEMO_REPLAY } from '../../types';
 import type { ShowStore } from '../store/storeView';
 
 /** Plays `script` in the playground (`[data-playground]`) around the
@@ -44,13 +44,18 @@ export function useAutoRun(
     const stage = createStage(playground, showStore);
     // a `before` replay plays the same script beside it, from the start
     const before = playground.querySelector<HTMLElement>('[data-before]');
-    if (before) before.dispatchEvent(new Event(BEFORE_RESTART));
-    player.play(
-      script,
-      before ?
-        mirrorStage(stage, createStage(before, showStore, { scroll: false }))
-      : stage,
-    );
+    if (!before) return void player.play(script, stage);
+    before.dispatchEvent(new Event(BEFORE_RESTART));
+    void player
+      .play(
+        script,
+        mirrorStage(stage, createStage(before, showStore, { scroll: false })),
+      )
+      // over, unless a newer run took its place
+      .then(() => {
+        if (player.getState() === 'done')
+          before.dispatchEvent(new Event(BEFORE_END));
+      });
   }, [player]);
 
   // ends a run with the preview; an idle player stays idle

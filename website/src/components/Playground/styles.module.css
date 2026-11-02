@@ -2575,49 +2575,83 @@ div.fixtureJson + div.fixtureJson {
     color: var(--pg-tab-hover);
   }
 }
-/* A `before` replay's controls, above both apps (./CompareBar.tsx) */
-.compareBar {
+/* A `before` replay's end screen (./BeforeFolder.tsx), over its app like a
+   video's: a light dim that keeps the result readable, and its buttons in
+   the middle. Gone while the replay plays */
+.endScreen {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-.compareButton {
-  display: inline-flex;
   align-items: center;
-  gap: 0.45em;
-  height: 2.25rem;
-  padding: 0 1rem;
-  border: 1px solid var(--ifm-color-emphasis-300);
+  justify-content: center;
+  padding: 1rem;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--ifm-background-color) 40%, transparent);
+  transition:
+    opacity var(--motion-smooth),
+    visibility var(--motion-smooth);
+}
+.beforeFolder[data-playing] .endScreen {
+  opacity: 0;
+  visibility: hidden;
+}
+/* one capsule, its buttons split by a rule */
+.endControls {
+  display: inline-flex;
+  overflow: hidden;
   border-radius: 999px;
   background: var(--ifm-background-surface-color);
-  color: var(--ifm-color-emphasis-800);
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition:
-    background-color var(--motion-snappy),
-    color var(--motion-snappy);
+  box-shadow:
+    0 6px 20px rgba(15, 30, 60, 0.18),
+    0 0 0 1px var(--ifm-color-emphasis-200);
 }
-.compareButton:focus-visible {
+.endButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  height: 2.75rem;
+  padding: 0 1.15rem;
+  color: var(--ifm-color-emphasis-900);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: background-color var(--motion-snappy);
+}
+.endButton + .endButton::before {
+  content: '';
+  position: absolute;
+  inset: 25% auto 25% 0;
+  width: 1px;
+  background: var(--ifm-color-emphasis-300);
+}
+/* the main action: its mark in the brand color */
+.endButton[data-primary] > svg {
+  color: var(--ifm-color-primary);
+}
+.endButton:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
-  outline-offset: 2px;
+  outline-offset: -2px;
 }
 @media (hover: hover) {
-  .compareButton:hover {
+  .endButton:hover {
     background-color: var(--ifm-color-emphasis-100);
-    color: var(--ifm-color-emphasis-900);
   }
 }
-.compareButton:active {
+.endButton:active {
   background-color: var(--ifm-color-emphasis-200);
 }
-.compareLabel {
-  display: inline-grid;
+/* the demo plays for the watcher: the folder's handles wait until it's
+   over (unless it opened the Store) */
+.row[data-comparing] > .storeHost .drawerTabs {
+  transition:
+    opacity var(--motion-smooth),
+    visibility var(--motion-smooth);
 }
-.compareLabel > * {
-  grid-area: 1 / 1;
-}
-.compareLabel > [aria-hidden='true'] {
+.row:has(> .beforeFolder[data-playing])
+  > .storeHost:not([data-open])
+  .drawerTabs {
+  opacity: 0;
   visibility: hidden;
 }
 /* at the header's end (stacked, the drawer's tabs follow it, but for

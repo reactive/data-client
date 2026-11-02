@@ -126,7 +126,7 @@ describe("row layout: the Store on the preview's folder", () => {
 });
 
 describe('row layout: a `before` replay', () => {
-  test('Show code, above both, swaps the code in for the replay and back', () => {
+  test('its end screen shows the code in its place, and its tab brings it back', () => {
     const { container } = render(
       <Playground before={<div>the old app</div>} beforeLabel="v0.18">
         {APP}
@@ -134,15 +134,20 @@ describe('row layout: a `before` replay', () => {
     );
     const row = container.querySelector('[data-comparing]')!;
     expect(row.hasAttribute('data-code')).toBe(false);
-    // no autoRun: nothing to replay
-    expect(screen.queryByRole('button', { name: 'Replay' })).toBeNull();
-    const toggle = screen.getByRole('button', { name: 'Show code' });
-    // under both, not in either header
-    expect(row.contains(toggle)).toBe(false);
-    fireEvent.click(toggle);
+    // no autoRun: nothing to play
+    expect(screen.queryByRole('button', { name: /play/i })).toBeNull();
+    const show = screen.getByRole('button', { name: 'Show code' });
+    expect(show.closest('[data-before]')).not.toBeNull();
+    show.focus();
+    fireEvent.click(show);
     expect(row.hasAttribute('data-code')).toBe(true);
-    expect(screen.getByRole('button', { name: 'Hide code' })).toBe(toggle);
-    fireEvent.click(toggle);
+    // the replay's tab leads the files'; focus moved on from the hidden
+    // button to the file showing
+    const tab = screen.getByRole('tab', { name: 'v0.18' });
+    expect(tab.getAttribute('aria-selected')).toBe('false');
+    expect(document.activeElement?.getAttribute('aria-selected')).toBe('true');
+    fireEvent.click(tab);
     expect(row.hasAttribute('data-code')).toBe(false);
+    expect(document.activeElement).toBe(show);
   });
 });

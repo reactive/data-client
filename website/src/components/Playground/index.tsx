@@ -14,7 +14,6 @@ import React, {
 
 import BeforeFolder from './BeforeFolder';
 import Boundary from './Boundary';
-import CompareBar from './CompareBar';
 import { useCodeDocuments } from './editor/codeModel';
 import type { CodeDocument } from './editor/codeModel';
 import { declarationsOf, keepSameDeclarations } from './editor/declarations';
@@ -232,6 +231,34 @@ export default function Playground<T>({
   const [editorInteractive, setEditorInteractive] = useState(codeVisible);
   if (codeVisible && !editorInteractive) setEditorInteractive(true);
   const toggleCode = useCallback(() => setCodeShown(shown => !shown), []);
+  // a `before` replay's: its end screen's Show code, and the replay's tab
+  // before the files', each hidden by what it shows, so focus moves on to
+  // the other (the selected file's tab, or Show code)
+  const showCodeButton = useRef<HTMLButtonElement>(null);
+  const focusSwapped = useRef(false);
+  const swapCode = useCallback(
+    (shown: boolean) => {
+      focusSwapped.current = !!container?.contains(document.activeElement);
+      setCodeShown(shown);
+    },
+    [container],
+  );
+  useLayoutEffect(() => {
+    if (!focusSwapped.current) return;
+    focusSwapped.current = false;
+    // the code follows the replay's folder
+    const code =
+      showCodeButton.current?.closest('[data-before]')?.nextElementSibling;
+    const to =
+      codeShown ?
+        (code?.querySelector<HTMLElement>(
+          '[role="tab"][aria-selected="true"]',
+        ) ?? code?.querySelector<HTMLElement>('[role="tab"]'))
+      : showCodeButton.current;
+    to?.focus();
+  }, [codeShown, container]);
+  const beforeName =
+    beforeLabel ?? translate({ id: 'playground.before', message: 'Before' });
 
   // folded into the preview's header, the fixtures render once the pointer,
   // focus or a click reaches the playground (`Latch`)
@@ -251,10 +278,15 @@ export default function Playground<T>({
       variant="playground"
       covered={codeCovered}
       reveal={codeTarget}
+      leadTab={
+        comparing ?
+          { label: beforeName, onSelect: () => swapCode(false) }
+        : undefined
+      }
     />
   );
   // the demo layout's Code toggle: in the preview's header whether or not
-  // the live preview has loaded (a `before` replay's is above both)
+  // the live preview has loaded (a `before` replay's is on its end screen)
   const code: CodeControl | undefined =
     demo ? { shown: codeShown, toggle: toggleCode } : undefined;
   // Live preview only while visible — unmounts when hidden (resets store);
@@ -311,14 +343,6 @@ export default function Playground<T>({
         [styles.hidden]: hidden,
       })}
     >
-      {/* above: opening the code, taller than the replay, never moves it */}
-      {comparing && !hidden ?
-        <CompareBar
-          replayable={!!autoRun}
-          codeShown={codeShown}
-          onToggleCode={toggleCode}
-        />
-      : null}
       <div
         ref={setContainer}
         // stacked is the row's paper with the preview always under the code
@@ -343,10 +367,10 @@ export default function Playground<T>({
         : <>
             {comparing && !hidden ?
               <BeforeFolder
-                label={
-                  beforeLabel ??
-                  translate({ id: 'playground.before', message: 'Before' })
-                }
+                label={beforeName}
+                replayable={!!autoRun}
+                onShowCode={() => swapCode(true)}
+                showCodeRef={showCodeButton}
               >
                 {before}
               </BeforeFolder>

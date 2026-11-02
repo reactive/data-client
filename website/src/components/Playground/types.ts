@@ -43,7 +43,11 @@ export interface PreviewProps<T = any> {
  * starts (./preview/autorun/useAutoRun.ts): it starts over */
 export const BEFORE_RESTART = 'playground:beforerestart';
 
+/** Dispatched on a `before` replay once the run it plays is over: played
+ * through, or taken over by the reader */
+export const BEFORE_END = 'playground:beforeend';
+
 /** Dispatched (bubbling) by a `before` replay's Replay button
- * (./CompareBar.tsx): the playground's demo replays, in both
+ * (./BeforeFolder.tsx): the playground's demo replays, in both
  * (./preview/autorun/useAutoRun.ts) */
 export const DEMO_REPLAY = 'playground:demoreplay';
