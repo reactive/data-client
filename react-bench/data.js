@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793564990553,
+  "lastUpdate": 1793582122088,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -11933,6 +11933,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 192.31,
             "range": "± 6.7%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "6c0d662843b5eb1a6d4dd719e7038e2637b6ec83",
+          "message": "fix(endpoint): Apply Collection updates to a newer stored list (#4566)\n\n* fix: Collection updates apply to a newer stored list\n\nAn older push/unshift added at the wrong end and duplicated items the\nnewer list had; an older remove/move emptied the list (REACT-20).\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* docs: Regenerate skill references for Collection docs\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* test: Cover Union refs and older list responses in Collection reorder\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* enhance: Simplify Collection reorder merges\n\nisShallowEqual no longer matches two id-less members, so addWithStore\nreuses removeMerge.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* fix(rest): Append an older getPage response to a newer stored list\n\nA page whose request started before a list refetch put its items at the\nstart of the list, because Collection's mergeWithStore swapped the merge.\npaginatedMerge already skips ids the stored list has, so a page now\nalways merges into the stored list.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* docs: Describe getPage's merge with a refetched list\n\n- RestEndpoint getPage docs say a page adds to the end of the current\n  list and skips items it has, even after a refetch.\n- Release blog draft lists the Collection and getPage race fix.\n- paginatedMergeWithStore's comment names the swap it prevents.\n- rest declares @data-client/normalizr, which its new test imports.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* docs(endpoint): Say why Values adders keep the Collection merge swap\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* enhance: Simplify Collection reorder tests and pagination merge\n\n- Tests start from the newer list directly, and the skip test covers\n  each refetch timing as its own case.\n- paginatedMergeWithStore calls this.merge, like removeWithStore.\n- removeMerge names its params by role, since addWithStore calls it\n  with the incoming list first.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* enhance: Check string refs with includes() in Collection dedupes\n\naddWithStore and CreateDropper ask whether a list has a ref. For a\nstring ref that is a plain ===, so the native includes() replaces a\nclosure per stored item: the dedupe step runs about 2x faster on a\n100-item list. removeMerge keeps its loop, which measured faster for\nremoving one ref from a long list.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* internal: Name Collection ref helpers for what they compare\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* internal: Build Collection removers like adders\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* docs(blog): Group Collection update changes in one section\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-02T01:08:26Z",
+          "tree_id": "ac96fee5fd09d22a4427bdc8cb296c61650217de",
+          "url": "https://github.com/reactive/data-client/commit/6c0d662843b5eb1a6d4dd719e7038e2637b6ec83"
+        },
+        "date": 1793582118884,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 162.61,
+            "range": "± 8.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 49.08,
+            "range": "± 7.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 454.55,
+            "range": "± 6.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 384.62,
+            "range": "± 7.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 54.2,
+            "range": "± 8.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 294.12,
+            "range": "± 4.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 322.58,
+            "range": "± 6.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 10.56,
+            "range": "± 10.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 77.52,
+            "range": "± 9.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 42.02,
+            "range": "± 5.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 263.16,
+            "range": "± 4.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 339.08,
+            "range": "± 9.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 208.33,
+            "range": "± 8.1%",
             "unit": "ops/s"
           }
         ]
