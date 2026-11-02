@@ -7,7 +7,7 @@ import { whenPainted } from '../whenPainted';
 
 jest.mock('../whenPainted', () => ({ whenPainted: jest.fn(() => jest.fn()) }));
 
-/** An editor the reader can `focus()`, `type()` in or `click()` */
+/** An editor the reader can `focus()`, `key()` in or `click()` */
 function fakeEditor() {
   const listeners: Record<string, () => void> = {};
   const on = (event: string) => (listener: () => void) => {
@@ -16,14 +16,14 @@ function fakeEditor() {
   };
   const editor = {
     onDidFocusEditorText: on('focus'),
-    onKeyDown: on('type'),
+    onKeyDown: on('key'),
     onMouseDown: on('click'),
     onDidDispose: () => ({ dispose: jest.fn() }),
   } as unknown as Monaco.editor.ICodeEditor;
   const fire = (event: string) => () => act(() => listeners[event]?.());
   return Object.assign(editor, {
     focus: fire('focus'),
-    type: fire('type'),
+    key: fire('key'),
     click: fire('click'),
   });
 }
@@ -92,8 +92,8 @@ describe('useEditorCover', () => {
     ).toBe(false);
   });
 
-  test.each(['type', 'click'] as const)(
-    'goes at once when the reader uses an autoFocused editor (%s)',
+  test.each(['key', 'click'] as const)(
+    'goes at once on a %s, which an autoFocused editor gets with no focus event',
     action => {
       const { result } = renderHook(() => useEditorCover());
       const panes = [fakeEditor()];

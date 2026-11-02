@@ -7,7 +7,7 @@ import { prefersReducedMotion, springEasing, springs } from '../../motion';
 /**
  * The code as the page first drew it, kept over Monaco until each of
  * `editors` shows the same (laid out and highlighted, see whenPainted), then
- * faded out; at once when the reader focuses, types in or clicks one (not
+ * faded out; at once when the reader focuses, presses a key in or clicks one (not
  * on autoFocus alone, which would show it unhighlighted). Render the cover
  * while `covered`, with `coverRef`, and call `revealWhenPainted` from the
  * editor's onMount. Its `after` holds off the paint wait until it calls
