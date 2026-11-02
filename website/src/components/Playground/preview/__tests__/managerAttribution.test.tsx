@@ -22,7 +22,6 @@ import { declarationsOf } from '../../editor/declarations';
 import { CodeOpenerContext, type CodeOpener } from '../../editor/openCode';
 import { stageFilter } from '../store/actionGroups';
 import type { LogEntry } from '../store/actionLog';
-import type { Caller } from '../store/fetchCause';
 import {
   managerStages,
   pipeline,
@@ -30,6 +29,7 @@ import {
   stageName,
   type ManagerStage,
 } from '../store/attribution';
+import type { Caller } from '../store/fetchCause';
 import SchemaRegistry from '../store/schemaRegistry';
 import { InspectedPanel } from '../testing/inspected';
 
@@ -1174,6 +1174,42 @@ describe('Store panel pipeline', () => {
     expect(rows.find(text => text?.includes('<Ticker>'))).toContain(
       '<Ticker> useSuspense',
     );
+  });
+
+  it("names a code manager's Controller method and line, not the library's", async () => {
+    const source = { path: 'StreamManager.ts', line: 30 };
+    const caller = jest.fn((fromManager?: boolean) =>
+      fromManager ? { source } : { method: 'fetch' },
+    );
+    const registry = new SchemaRegistry({ trimEvery: 1, caller });
+    const stream = new StreamManager();
+    const { ctrl } = connectStore(
+      registry,
+      [stream, new NetworkManager()],
+      <InspectedPanel registry={registry} history={0} />,
+    );
+    await act(async () => {
+      await stream.push(2);
+    });
+    await act(async () => {
+      await ctrl().fetch(getTicker);
+    });
+    const entries = registry.log.history(0).entries;
+    const set = entries.find(e => e.action.type === actionTypes.SET);
+    expect(set?.origin?.className).toBe('StreamManager');
+    expect(set?.caller).toEqual({ method: 'set', source });
+    // NetworkManager's response is the same in every playground
+    const response = entries.find(
+      e => e.action.type === actionTypes.SET_RESPONSE,
+    );
+    expect(response?.origin?.className).toBe('NetworkManager');
+    expect(response?.caller).toBeUndefined();
+    openActions();
+    fireEvent.click(
+      Array.from(listed()).find(row => row.textContent?.includes('set'))!,
+    );
+    const why = (await screen.findByText('Why')).nextElementSibling;
+    expect(why?.textContent).toBe('StreamManagerctrl.setStreamManager.ts:30');
   });
 
   it("draws an action's path: who sent it and where it stopped", async () => {

@@ -109,7 +109,10 @@ function ShowComment() {
 }
 
 function mount(view: React.ReactNode = <ShowPost />) {
-  const registry = new SchemaRegistry({ trimEvery: 1, caller: callerNow });
+  const registry = new SchemaRegistry({
+    trimEvery: 1,
+    caller: () => callerNow(),
+  });
   const network = new NetworkManager();
   const log = registry.log.connect(0, undefined, action =>
     network.skipLogging(action),

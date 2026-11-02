@@ -62,9 +62,10 @@ export interface LogOptions {
    * Store panel first opens, which saves a fast stream's bookkeeping until
    * someone looks */
   readonly recordFrom?: 'load' | 'open';
-  /** Who is dispatching right now, asked as the app's own actions arrive
-   * (the preview's: `callerNow`) */
-  readonly caller?: () => Caller | undefined;
+  /** Who is dispatching right now, asked as each action of the app's or
+   * of the code's own managers arrives (the preview's: `callerNow`). With
+   * `fromManager`, a manager is: only the line of its code counts */
+  readonly caller?: (fromManager?: boolean) => Caller | undefined;
 }
 
 export interface LogEntry {
@@ -82,7 +83,8 @@ export interface LogEntry {
    * the app's own (a component's fetch, a button's set) */
   readonly origin?: ManagerStage;
   /** The app's own: the hook and component, or the user event, it was
-   * dispatched from, as far as the page could tell */
+   * dispatched from, as far as the page could tell. A manager of the
+   * code's: the Controller method it called and the line that called it */
   readonly caller?: Caller;
   /** A fetch's: why it fetched, from the store as it stood before it */
   readonly reason?: FetchReason;
@@ -154,6 +156,15 @@ export function findEntry(
 export const rootEntry = (entries: readonly LogEntry[], entry: LogEntry) =>
   (entry.root === undefined ? undefined : findEntry(entries, entry.root)) ??
   entry;
+
+/** What a manager of the code's sent: the Controller method it called, and
+ * the line of its code that called it */
+function managerCaller(
+  method: string | undefined,
+  found: Caller | undefined,
+): Caller | undefined {
+  return method ? { method, ...found } : found;
+}
 
 /** `root` for an action that `entry` started */
 const rootOf = (entry: LogEntry | undefined) =>
@@ -293,7 +304,7 @@ export default class ActionLog {
   private start?: () => void;
   private readonly histories = new Map<number, History>();
   private nextSeq = 1;
-  private readonly caller: () => Caller | undefined;
+  private readonly caller: NonNullable<LogOptions['caller']>;
   /** Reads a store's state: applies pending optimistic updates for
    * `view`, and says why a fetch fetched */
   private readonly reader = new Controller();
@@ -371,10 +382,15 @@ export default class ActionLog {
     };
     const head: Manager<ActionTypes> = {
       middleware: controller => next => action => {
-        const origin = attribution.dispatching;
+        const dispatching = attribution.dispatching;
         attribution.dispatching = undefined;
         if (!this.recording) return next(action);
-        const caller = origin ? undefined : this.caller();
+        const origin = dispatching?.stage;
+        const caller =
+          !origin ? this.caller()
+            // the library's managers' calls are the same in every playground
+          : origin.library ? undefined
+          : managerCaller(dispatching.method, this.caller(true));
         // the first action recorded starts the history
         if (first) dropOthers();
         const entry: LogEntry = {

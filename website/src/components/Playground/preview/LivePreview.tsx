@@ -78,7 +78,7 @@ export default function LivePreview<T>({
     // them, and the line of the code that did
     () =>
       new SchemaRegistry({
-        caller: () => callerNow(managers.locate),
+        caller: fromManager => callerNow(managers.locate, fromManager),
         ...actionLog,
       }),
   );

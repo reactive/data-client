@@ -179,9 +179,10 @@ export function managerStages(managers: readonly Manager[]): ManagerStage[] {
 
 export interface Attribution {
   /** Who is dispatching right now: the manager whose controller call is on
-   * the stack. The log's head reads it as each action arrives, and clears
-   * it, so what else that dispatch sets off isn't credited to it too */
-  dispatching?: ManagerStage;
+   * the stack, and that call's Controller method. The log's head reads it as
+   * each action arrives, and clears it, so what else that dispatch sets off
+   * isn't credited to it too */
+  dispatching?: Dispatching;
   /** The action each copy a middleware passed on was made from, so whoever
    * handles the copy is credited on the action the log recorded */
   readonly copies: WeakMap<ActionTypes, ActionTypes>;
@@ -206,7 +207,19 @@ export function copiedFrom(
   return false;
 }
 
+/** A manager's controller call in progress */
+export interface Dispatching {
+  readonly stage: ManagerStage;
+  /** The Controller method it called (`set`, `fetch` …), when public */
+  readonly method?: string;
+}
+
 type AnyFn = (...args: any[]) => any;
+
+/** Whether `name` is a Controller method the code calls by name, not one of
+ * its internals (`_dispatch`) */
+export const isPublicMethod = (name: PropertyKey): name is string =>
+  typeof name === 'string' && !name.startsWith('_');
 
 /** `controller`, whose every call runs as `stage` dispatching */
 export function asDispatcher(
@@ -214,9 +227,10 @@ export function asDispatcher(
   stage: ManagerStage,
   attribution: Attribution,
 ): Controller {
-  return wrapCalls(controller, (_name, call) => {
+  return wrapCalls(controller, (name, call) => {
     const outer = attribution.dispatching;
-    attribution.dispatching = stage;
+    attribution.dispatching =
+      isPublicMethod(name) ? { stage, method: name } : { stage };
     try {
       return call();
     } finally {

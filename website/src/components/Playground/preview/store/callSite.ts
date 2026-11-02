@@ -1,6 +1,6 @@
 import { createContext, use } from 'react';
 
-import { wrapCalls } from './attribution';
+import { isPublicMethod, wrapCalls } from './attribution';
 import {
   userEvent,
   type Caller,
@@ -58,7 +58,7 @@ export function withMethodNames<C extends object>(controller: C): C {
   let wrapped = named.get(controller);
   if (!wrapped) {
     wrapped = wrapCalls(controller, (name, call) => {
-      if (typeof name !== 'string' || name.startsWith('_')) return call();
+      if (!isPublicMethod(name)) return call();
       const outer = method;
       method = name;
       try {
@@ -151,8 +151,19 @@ type LocateLine = (line: number) => CallerSource | undefined;
 /** Who is dispatching right now: while a hook renders, it and its
  * component (the event a render runs within is the action's that caused
  * it, not this one's); otherwise the user event being handled. With
- * `locate`, also the line of the reader's code that dispatched it */
-export function callerNow(locate?: LocateLine): Caller | undefined {
+ * `locate`, also the line of the reader's code that dispatched it.
+ *
+ * @param fromManager a manager of the code's is dispatching: only its line
+ * counts, as the hook, Controller method or event on hand belong to what
+ * set the manager off */
+export function callerNow(
+  locate?: LocateLine,
+  fromManager?: boolean,
+): Caller | undefined {
+  if (fromManager) {
+    const source = locate && sourceOf(evaluatedFrames(deepStack()), locate);
+    return source && { source };
+  }
   const frames = calling || locate ? evaluatedFrames(deepStack()) : [];
   const source = locate && sourceOf(frames, locate);
   const component =
