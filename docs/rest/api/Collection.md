@@ -701,6 +701,9 @@ updates without network requests. For network-based mutations, see [RestEndpoint
 
 A creation schema that places new item(s) at the _end_ of this collection.
 
+An item that was deleted and then added back shows once: its old id is dropped first. Other ids are added again even
+if the list already holds them, like `Array.push()`.
+
 ```ts
 // Add a new todo to the end of the list (local only, no network request)
 ctrl.set(getTodos.schema.push, { userId: '1' }, { id: '999', title: 'New Todo' });
@@ -709,6 +712,8 @@ ctrl.set(getTodos.schema.push, { userId: '1' }, { id: '999', title: 'New Todo' }
 ### unshift
 
 A creation schema that places new item(s) at the _start_ of this collection.
+
+Like [push](#push), it drops the old id of an item that was deleted and then added back.
 
 ```ts
 // Add a new todo to the beginning of the list (local only)

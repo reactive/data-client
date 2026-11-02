@@ -12,6 +12,8 @@ const HooksPlayground = ({
   defaultActionsBy,
   row = false,
   demo = false,
+  before,
+  beforeLabel,
   fixtures = [],
   defaultTab,
   renderCount,
@@ -28,6 +30,8 @@ const HooksPlayground = ({
       defaultActionsBy={defaultActionsBy}
       row={row}
       demo={demo}
+      before={before}
+      beforeLabel={beforeLabel}
       hidden={hidden ?? inHiddenTab}
       fixtures={fixtures}
       getInitialInterceptorData={getInitialInterceptorData}

@@ -203,3 +203,22 @@ small {
     opacity: 0.6 !important;
   }
 }
+
+/* Blog: the recent-posts list takes 2 of 12 columns instead of 3, so the
+   post gets 8 (760px at a 1280px window): room for side-by-side demos with
+   lines still short enough to read. Infima stacks the columns below 997px */
+@media (min-width: 997px) {
+  .blog-wrapper .container > .row > aside.col--3 {
+    --ifm-col-width: calc(2 / 12 * 100%);
+  }
+  .blog-wrapper .container > .row > main.col--7 {
+    --ifm-col-width: calc(8 / 12 * 100%);
+  }
+}
+
+/* A video in a page sized by its `width` attribute shrinks to fit a narrow
+   column instead of pushing the page wider than the screen */
+.markdown video {
+  max-width: 100%;
+  height: auto;
+}

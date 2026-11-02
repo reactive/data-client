@@ -10,7 +10,7 @@ import {
 
 import styles from './styles.module.css';
 
-interface TabItem {
+export interface TabItem {
   key: string;
   label: ReactNode;
   title?: string;

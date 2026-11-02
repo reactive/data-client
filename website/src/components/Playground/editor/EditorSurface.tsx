@@ -17,7 +17,7 @@ import { createMissingModels } from '../monaco/models';
 import { allowTopLevelAwait } from '../monaco/topLevelAwait';
 import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
-import TabList from '../TabList';
+import TabList, { type TabItem } from '../TabList';
 import type { Layout } from '../types';
 import type { CodeDocument, CodeModel } from './codeModel';
 import type { InteractiveEditorProps } from './InteractiveEditor';
@@ -40,7 +40,12 @@ export interface EditorSurfaceProps extends CodeModel {
   /** The code runs as an async function, so its files may `await` at the
    * top level */
   topLevelAwait?: boolean;
+  /** A tab before the files' that leaves them (a `before` replay's, which
+   * the code shows in place of: ../index.tsx) */
+  leadTab?: LeadTab;
 }
+
+type LeadTab = Pick<TabItem, 'label' | 'onSelect'>;
 
 export default function EditorSurface({
   documents,
@@ -51,6 +56,7 @@ export default function EditorSurface({
   covered = false,
   reveal,
   topLevelAwait = false,
+  leadTab,
 }: EditorSurfaceProps) {
   const id = useModelId();
   useEffect(() => {
@@ -110,8 +116,9 @@ export default function EditorSurface({
   // file is a label, never a tab
   const tabbed = documents.filter(document => !document.col);
   const tabs =
-    !cards && (tabbed.length > 1 || tabbed[0]?.title) ?
+    !cards && (tabbed.length > 1 || tabbed[0]?.title || leadTab) ?
       <EditorTabs
+        lead={leadTab}
         documents={documents}
         closedList={closedList}
         onClick={handleTabSwitch}
@@ -286,12 +293,14 @@ function FileCard({
 }
 
 function EditorTabs({
+  lead,
   documents,
   closedList,
   onClick,
   compact,
   subtabs,
 }: {
+  lead?: LeadTab;
   documents: readonly CodeDocument[];
   closedList: readonly boolean[];
   onClick: (index: number) => void;
@@ -315,12 +324,15 @@ function EditorTabs({
     >
       <TabList
         label={translate({ id: 'playground.files', message: 'Files' })}
-        tabs={tabs.map(({ document, index }) => ({
-          key: `${document.path}:${index}`,
-          label: document.title,
-          selected: !closedList[index],
-          onSelect: () => onClick(index),
-        }))}
+        tabs={[
+          ...(lead ? [{ key: 'lead', selected: false, ...lead }] : []),
+          ...tabs.map(({ document, index }) => ({
+            key: `${document.path}:${index}`,
+            label: document.title,
+            selected: !closedList[index],
+            onSelect: () => onClick(index),
+          })),
+        ]}
       />
     </Header>
   );

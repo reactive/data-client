@@ -1576,6 +1576,19 @@ div.fixtureJson + div.fixtureJson {
   overflow-wrap: anywhere;
 }
 
+/* A behavior change (`before`, ../index.tsx): the replay's folder where
+   the code goes until its end screen's Show code shows the code in its
+   place. Under
+   the preview's rules (.row > .previewWrapper) it is drawn as the preview's
+   folder; it holds no Store, and ends at its own sheet */
+.row[data-comparing]:not([data-code]) > .playgroundTextEdit,
+.row[data-comparing][data-code] > .beforeFolder {
+  display: none;
+}
+.row > .previewWrapper.beforeFolder {
+  z-index: 1;
+}
+
 /* Side by side when the playground itself has enough width (docs sidebar
    no longer forces an incorrect stack on homepage/blog): a grid, the file
    tabs' row over the code card, the folder beside the card, and the folder's
@@ -1612,6 +1625,19 @@ div.fixtureJson + div.fixtureJson {
       :has(.tabControls, > .previewWrapper)
     ) {
     grid-template-rows: 0 auto;
+  }
+  /* the replay and the app, a column each */
+  .playgroundContainer.row:not(.stacked)[data-comparing]:not([data-code]) {
+    --pg-preview-col: calc((100cqw - var(--pg-gap)) / 2);
+  }
+  .row:not(.stacked) > .previewWrapper.beforeFolder {
+    grid-area: 1 / 1 / 3 / 2;
+    position: relative;
+    align-self: start;
+    max-height: none;
+  }
+  .row:not(.stacked) > .previewWrapper.beforeFolder::before {
+    inset: var(--pg-row) 0 0;
   }
   .row:not(.stacked) > .playgroundTextEdit {
     grid-area: 1 / 1 / 3 / 2;
@@ -1892,6 +1918,10 @@ div.fixtureJson + div.fixtureJson {
   }
   .row > .previewWrapper {
     overflow: visible;
+  }
+  /* a `before` replay: the code's place, above the app */
+  .row > .previewWrapper.beforeFolder {
+    grid-area: 1 / 1 / 2 / 2;
   }
   /* the layer is the code's rows; the gap below it stays in view, and
      nothing past that (the drawer parked behind the folder) */
@@ -2490,6 +2520,13 @@ div.fixtureJson + div.fixtureJson {
     white-space: nowrap;
   }
 }
+/* A `before` replay's label (../BeforeFolder.tsx): the live label, its dot
+   hollow and muted: a recording, not the app you use */
+.beforeLabel::before {
+  background: none;
+  box-shadow: inset 0 0 0 1.5px currentColor;
+  opacity: 0.7;
+}
 /* A playground with a demo (autorun/DemoLabel): the label replays it, and
    its dot breathes while it plays */
 .demoLabel {
@@ -2579,6 +2616,90 @@ div.fixtureJson + div.fixtureJson {
     background-color: var(--pg-tab-hover-bg);
     color: var(--pg-tab-hover);
   }
+}
+/* A `before` replay's end screen (./BeforeFolder.tsx), over its app like a
+   video's: a light dim that keeps the result readable, and its buttons in
+   the middle. Gone while the replay plays */
+.endScreen {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--ifm-background-color) 40%, transparent);
+  transition:
+    opacity var(--motion-smooth),
+    visibility var(--motion-smooth);
+}
+.beforeFolder:not([data-ended]) .endScreen {
+  opacity: 0;
+  visibility: hidden;
+}
+/* one capsule, its buttons split by a rule: a video player's controls,
+   dark in either theme */
+.endControls {
+  display: inline-flex;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(18 22 32 / 82%);
+  backdrop-filter: blur(6px);
+  box-shadow:
+    0 6px 20px rgb(0 0 0 / 25%),
+    0 0 0 1px rgb(255 255 255 / 10%);
+}
+:root[data-theme='dark'] .endControls {
+  /* a step above the dark page, edged in light, so it stands off it */
+  background: rgb(66 74 92 / 92%);
+  box-shadow:
+    0 6px 24px rgb(0 0 0 / 55%),
+    0 0 0 1px rgb(255 255 255 / 28%);
+}
+.endButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  height: 2.75rem;
+  padding: 0 1.15rem;
+  color: #fff;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: background-color var(--motion-snappy);
+}
+.endButton + .endButton::before {
+  content: '';
+  position: absolute;
+  inset: 25% auto 25% 0;
+  width: 1px;
+  background: rgb(255 255 255 / 25%);
+}
+.endButton:focus-visible {
+  outline: 2px solid var(--ifm-color-primary-light);
+  outline-offset: -2px;
+}
+@media (hover: hover) {
+  .endButton:hover {
+    background-color: rgb(255 255 255 / 10%);
+  }
+}
+.endButton:active {
+  background-color: rgb(255 255 255 / 16%);
+}
+/* the demo plays for the watcher: the folder's handles wait with the end
+   screen (unless it opened the Store) */
+.row[data-comparing] > .storeHost .drawerTabs {
+  transition:
+    opacity var(--motion-smooth),
+    visibility var(--motion-smooth);
+}
+.row:has(> .beforeFolder:not([data-ended]))
+  > .storeHost:not([data-open])
+  .drawerTabs {
+  opacity: 0;
+  visibility: hidden;
 }
 /* at the header's end (stacked, the drawer's tabs follow it, but for
    narrow), its icon on the content's edge */

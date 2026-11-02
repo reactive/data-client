@@ -50,7 +50,7 @@ export default function PreviewWrapper({
   return (
     <div className={styles.previewWrapper} ref={ref}>
       <Header className={styles.previewHeader}>
-        {code ?
+        {code && layout === 'demo' ?
           <span
             className={clsx(styles.swap, styles.titleSwap, styles.labelSwap)}
             data-swapped={code.shown || undefined}
@@ -286,9 +286,9 @@ interface Props {
   /** Mock responses to inspect over the result, from a network icon in the
    * header: previewed on hover, pinned open by a click or tap */
   fixtures?: React.ReactNode;
-  /** Demo layout: the code's toggle joins the header's controls, and while
-   * the code shows in the result's place the header names it ("Editor") in
-   * the label's */
+  /** The demo layout's: the code's toggle joins the header's controls, and
+   * the code shows in the result's place, so meanwhile the header names it
+   * ("Editor") in the label's */
   code?: CodeControl;
   /** Where the app's router opens, if it has one: its controls show there
    * while the app loads */

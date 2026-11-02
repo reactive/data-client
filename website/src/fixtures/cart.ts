@@ -24,7 +24,7 @@ const products = {
 };
 
 // $48: one more filter pack crosses the $50 free shipping line
-const initialItems = {
+export const initialItems = {
   'house-blend': {
     id: 'house-blend',
     product: products['house-blend'],
@@ -33,7 +33,7 @@ const initialItems = {
   mug: { id: 'mug', product: products.mug, quantity: 1 },
   filters: { id: 'filters', product: products.filters, quantity: 1 },
 };
-type CartItemData = (typeof initialItems)[keyof typeof initialItems];
+export type CartItemData = (typeof initialItems)[keyof typeof initialItems];
 type CartInterceptorState = { items: Record<string, CartItemData> };
 
 export const getInitialInterceptorData = (): CartInterceptorState => ({

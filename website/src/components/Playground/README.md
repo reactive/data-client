@@ -150,6 +150,15 @@ preview header's toggle in every layout.
   The result stays mounted so app state survives; both share
   `--pg-demo-min` so toggling doesn't move the page. The Code toggle ends an
   `autoRun`.
+- `before` (implies `row`; not with `demo`): a behavior change, side by side. `BeforeFolder.tsx`
+  draws the replay as a folder like the preview's in the code's place, half
+  the width (above the app when narrow). The replay is inert: the preview's
+  `autoRun` plays in it too (`mirrorStage` in `preview/autorun/stage.ts`),
+  restarting it (`BEFORE_RESTART`) on each run, until it ends
+  (`BEFORE_END`). Meanwhile the folder's handles hide. Between runs, an end
+  screen over the replay offers Play/Replay (`DEMO_REPLAY`, as the Live
+  Preview label does) and Show code, which shows the code in the replay's
+  place; a tab named for the replay, before the files', brings it back.
 - A `row` with no folder (`../TypeScriptEditor.tsx`) is the tabs and the
   code card alone; `row={false}` is a stacked one's code (several open
   files are cards). A lone file is a tab only if it has a title; untitled,
@@ -324,9 +333,9 @@ hang under it on a line.
 | `segmented`                                | a filter's 2-4 choices on a track; `aria-pressed` marks the pick, a pill slides |
 | `field` (a `label`)                        | its name over the `input` or `textarea` it holds                                |
 | `search` (a `label`)                       | `input type="search"`, `button.clear`; `aria-busy` spins its magnifier          |
-| `cancel` (`<CancelButton />`)              | a row's remove button                                                           |
+| `cancel` (`<CancelButton />`)              | a row's remove button; `label` names what it removes                            |
 | `skeleton`                                 | a value still loading; `<Loading />`, the default fallback, draws a page        |
-| `toaster`, `toast`                         | notifications: render `<Toaster />`, call `toast.success()` or `toast.error()`  |
+| `toaster`, `toast`                         | notifications: `<Toaster />`, `toast.success/error/info()`; `action`: Undo      |
 | `boardColumn`                              | a kanban column                                                                 |
 | `upvote` (a button)                        | an upvote with its count; empty, the arrow alone                                |
 | `stats` (a `dl`)                           | figures side by side, each large over its label; a lone one fills the row       |

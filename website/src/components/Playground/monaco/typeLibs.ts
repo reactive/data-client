@@ -187,7 +187,7 @@ const EXPORT_LIST = /^export\s*\{([^}]*)\}\s*;/gm;
 const PREVIEW_SCOPE_DECLARATIONS = `declare function render(component:JSX.Element):void;
         declare function uuid(): string;
         declare function CurrentTime(props: {}):JSX.Element;
-        declare function CancelButton(props: { onClick?: () => void }):JSX.Element;
+        declare function CancelButton(props: { onClick?: () => void; label?: string }):JSX.Element;
         declare function Avatar(props: { src: string; size?: number }):JSX.Element;
         declare function Formatted({ downColor, formatter, formatterFn, timeout, transition, transitionLength, upColor, value, stylePrefix, }: NumberProps):JSX.Element
         /** @deprecated Kept for translated pages: use <label className="field"> around an input, or label.search */
@@ -206,7 +206,9 @@ const PREVIEW_SCOPE_DECLARATIONS = `declare function render(component:JSX.Elemen
         declare function useReorderItem(key: unknown, options?: { onDrop?: (value: any) => unknown }): React.RefCallback<HTMLElement>;
         /** Ref making its element a group of the nearest \`<Reorder>\` to drag items into, standing for the id \`value\` (handed to the item's \`onDrop\`); a drop lands in the group, not at a place in it */
         declare function useDropGroup(value: string | number | null | undefined): React.RefCallback<HTMLElement>;
-        declare const toast: { success(message: string): void; error(message: string): void };
+        declare const toast: { success(message: string, action?: ToastAction): void; error(message: string, action?: ToastAction): void; info(message: string, action?: ToastAction): void };
+        /** A button on a toast (Undo); pressing it also dismisses the toast */
+        declare interface ToastAction { label: string; onClick: () => void }
         declare function ErrorMessage(props: { error: Error & { status?: number }; resetErrorBoundary?: () => void; className?: string }):JSX.Element;
         declare function randomFloatInRange(min: number, max: number, decimals?: number): number;
         declare function mockFetch<T>(getResponse: (...args: any[]) => T, name?: string, delay?: number): (...args: any[]) => Promise<T>;

@@ -10,8 +10,14 @@ import type { ShowStore } from '../store/storeView';
  * never `focus()`, which would take the page's focus from the reader.
  *
  * The pointer lives in a layer appended to `root`, removed by `end()`.
+ * Without `scroll`, it never scrolls the page to a target: `mirrorStage`
+ * scrolls to both stages' at once.
  */
-export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
+export function createStage(
+  root: HTMLElement,
+  showStore: ShowStore,
+  { scroll = true } = {},
+): Stage {
   const layer = document.createElement('div');
   layer.className = styles.layer;
   root.append(layer);
@@ -114,7 +120,7 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
     point(el) {
       // root only bounds the walk: the scrollers inside it do the moving
       revealIn(root, el);
-      revealOnPage(el);
+      if (scroll) revealOnPage(el);
       pointedAt = el;
       return glide(el);
     },
@@ -196,26 +202,81 @@ function scopeOf(root: HTMLElement, scope: Scope) {
     case 'store':
       return root.querySelector<HTMLElement>('[data-store-panel]');
     default:
-      return root.querySelector<HTMLElement>('.playground-preview');
+      // the app's: a playground's own, not its `before` replay's
+      // (../../BeforeFolder.tsx), which is a stage of its own
+      return root.querySelector<HTMLElement>(
+        root.hasAttribute('data-before') ?
+          '.playground-preview'
+        : '.playground-preview:not([data-before] *)',
+      );
   }
+}
+
+/** Acts on `main` and, step for step, on what the same target finds in
+ * `twin` (a `before` replay, ../../BeforeFolder.tsx): the twin's pointer
+ * glides and presses in time with the main one. What only the main stage
+ * has (the Store, a target the twin lacks) plays there alone */
+export function mirrorStage(main: Stage, twin: Stage): Stage {
+  let mirrored: HTMLElement | null = null;
+  return {
+    find(target) {
+      const el = main.find(target);
+      mirrored = el && twin.find(target);
+      return el;
+    },
+    point(el) {
+      if (mirrored) twin.point(mirrored);
+      const gliding = main.point(el);
+      // the watcher compares the two: both in view (neither stage scrolls
+      // the page itself)
+      revealOnPage(el, mirrored);
+      return gliding;
+    },
+    click(el) {
+      if (mirrored) twin.click(mirrored);
+      main.click(el);
+    },
+    append(el, text) {
+      if (mirrored) twin.append(mirrored, text);
+      main.append(el, text);
+    },
+    store: main.store,
+    end() {
+      twin.end();
+      main.end();
+    },
+  };
 }
 
 /** Scrolls the page to `el` if it's out of sight past one edge (the Store
  * opens above the preview on a phone; replay brings the preview back), clear
  * of the sticky navbar. Past both edges, it already fills the view, so it
  * stays put. The pointer is placed relative to the page, so it scrolls
- * along. */
-export function revealOnPage(el: HTMLElement) {
+ * along.
+ *
+ * With `more` (a `before` replay's, stacked over the preview on a phone),
+ * it shows both as one span: centered if it fits under the navbar, else
+ * from its top, the first a watcher reads. */
+export function revealOnPage(el: HTMLElement, more?: HTMLElement | null) {
   const navbar = document.querySelector('.navbar')?.getBoundingClientRect();
-  const { top, bottom } = el.getBoundingClientRect();
   // a navbar hidden on scroll reports a bottom above the viewport
-  const above = top < Math.max(0, navbar?.bottom ?? 0);
-  const below = bottom > innerHeight;
-  if (above !== below)
-    el.scrollIntoView({
-      block: 'center',
-      behavior: prefersReducedMotion() ? 'instant' : 'smooth',
-    });
+  const clear = Math.max(0, navbar?.bottom ?? 0);
+  const boxes = (more ? [el, more] : [el]).map(each =>
+    each.getBoundingClientRect(),
+  );
+  const top = Math.min(...boxes.map(box => box.top));
+  const bottom = Math.max(...boxes.map(box => box.bottom));
+  if (top < clear === bottom > innerHeight) return;
+  const behavior = prefersReducedMotion() ? 'instant' : 'smooth';
+  if (!more) return el.scrollIntoView({ block: 'center', behavior });
+  const room = innerHeight - clear;
+  window.scrollBy({
+    top:
+      bottom - top <= room ?
+        (top + bottom - clear - innerHeight) / 2
+      : top - clear,
+    behavior,
+  });
 }
 
 // jsdom lacks checkVisibility

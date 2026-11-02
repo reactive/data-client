@@ -496,7 +496,7 @@ function LogsIcon() {
 }
 
 /** Angle brackets around a slash */
-function CodeIcon({ className }: { className?: string }) {
+export function CodeIcon({ className }: { className?: string }) {
   return (
     <svg
       className={className}

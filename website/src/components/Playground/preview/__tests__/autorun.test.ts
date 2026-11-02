@@ -11,7 +11,7 @@ import {
   type Stage,
 } from '../autorun/player';
 import type { AutoRunScript } from '../autorun/script';
-import { createStage } from '../autorun/stage';
+import { createStage, mirrorStage, revealOnPage } from '../autorun/stage';
 import { isReaderInput, useAutoRun } from '../autorun/useAutoRun';
 
 function fakeStage(
@@ -453,6 +453,67 @@ describe('stage', () => {
     stage.end();
     jest.runAllTimers();
     expect(layer.isConnected).toBe(false);
+  });
+});
+
+describe('mirrorStage', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('acts on the `before` replay step for step, the app apart', () => {
+    const root = document.createElement('div');
+    root.innerHTML = `
+      <div data-before>
+        <div class="playground-preview"><button>Undo</button></div>
+      </div>
+      <div class="playground-preview"><button>Undo</button><b>Only</b></div>`;
+    document.body.append(root);
+    const before = root.querySelector<HTMLElement>('[data-before]')!;
+    const [twinButton, appButton] = root.querySelectorAll('button');
+    const stage = mirrorStage(
+      createStage(root, () => {}),
+      createStage(before, () => {}, { scroll: false }),
+    );
+    const clicked: Element[] = [];
+    root.addEventListener('click', e => clicked.push(e.target as Element));
+
+    // the app's own, never the replay's
+    expect(stage.find('button')).toBe(appButton);
+    stage.click(appButton);
+    expect(clicked).toEqual([twinButton, appButton]);
+
+    // what the replay lacks plays in the app alone
+    const only = stage.find('b')!;
+    stage.click(only);
+    expect(clicked.slice(2)).toEqual([only]);
+  });
+});
+
+describe('revealOnPage', () => {
+  const box = (top: number, bottom: number) => {
+    const el = document.createElement('div');
+    el.getBoundingClientRect = () => ({ top, bottom }) as DOMRect;
+    return el;
+  };
+  beforeEach(() => (window.scrollBy = jest.fn()));
+
+  it('shows a `before` replay with its preview as one span', () => {
+    // fits: centered
+    revealOnPage(box(500, 700), box(750, 900));
+    expect(window.scrollBy).toHaveBeenLastCalledWith({
+      top: (500 + 900 - innerHeight) / 2,
+      behavior: 'smooth',
+    });
+    // taller than the view (stacked, on a phone): from its top
+    revealOnPage(box(650, 1200), box(100, 600));
+    expect(window.scrollBy).toHaveBeenLastCalledWith({
+      top: 100,
+      behavior: 'smooth',
+    });
+    // already filling the view: stays put
+    revealOnPage(box(-10, 400), box(450, innerHeight + 10));
+    expect(window.scrollBy).toHaveBeenCalledTimes(2);
   });
 });
 

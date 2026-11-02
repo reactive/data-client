@@ -2,10 +2,12 @@
 /// <reference types="@docusaurus/module-type-aliases" />
 /// <reference types="@docusaurus/theme-classic" />
 
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
 import Playground from '..';
+import BeforeFolder from '../BeforeFolder';
+import { BEFORE_END } from '../types';
 
 // a phone: the live preview loads (not a bot), with the react-live editor
 jest.mock('../userAgent', () => ({ isBot: false, isMobileOrBot: () => true }));
@@ -122,5 +124,64 @@ describe("row layout: the Store on the preview's folder", () => {
     expect(html.indexOf('aria-label="Store"')).toBeGreaterThan(
       html.indexOf('the app'),
     );
+  });
+});
+
+describe('row layout: a `before` replay', () => {
+  test('its end screen shows the code in its place, and its tab brings it back', () => {
+    const { container } = render(
+      <Playground before={<div>the old app</div>} beforeLabel="v0.18">
+        {APP}
+      </Playground>,
+    );
+    const row = container.querySelector('[data-comparing]')!;
+    expect(row.hasAttribute('data-code')).toBe(false);
+    // no autoRun: nothing to play
+    expect(screen.queryByRole('button', { name: /play/i })).toBeNull();
+    const show = screen.getByRole('button', { name: 'Show code' });
+    expect(show.closest('[data-before]')).not.toBeNull();
+    show.focus();
+    fireEvent.click(show);
+    expect(row.hasAttribute('data-code')).toBe(true);
+    // the replay's tab leads the files'; focus moved on from the hidden
+    // button to the file showing
+    const tab = screen.getByRole('tab', { name: 'v0.18' });
+    expect(tab.getAttribute('aria-selected')).toBe('false');
+    expect(document.activeElement?.getAttribute('aria-selected')).toBe('true');
+    fireEvent.click(tab);
+    expect(row.hasAttribute('data-code')).toBe(false);
+    expect(document.activeElement).toBe(show);
+  });
+  test('its end screen hears an end sent as the demo mounts beside it', async () => {
+    jest.useFakeTimers();
+    // the demo's preview, mounting in the same commit (its chunk already
+    // loaded), says at once that it won't play (reduced motion, or played)
+    const Demo = () => (
+      <div
+        ref={el => {
+          el?.parentElement
+            ?.querySelector('[data-before]')
+            ?.dispatchEvent(new Event(BEFORE_END));
+        }}
+      />
+    );
+    const { container } = render(
+      <div data-playground>
+        <BeforeFolder
+          label="v0.18"
+          replayable
+          onShowCode={() => {}}
+          showCodeRef={React.createRef()}
+        >
+          the old app
+        </BeforeFolder>
+        <Demo />
+      </div>,
+    );
+    await act(() => jest.runAllTimersAsync());
+    expect(
+      container.querySelector('[data-before]')!.hasAttribute('data-ended'),
+    ).toBe(true);
+    jest.useRealTimers();
   });
 });

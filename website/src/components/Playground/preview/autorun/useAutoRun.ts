@@ -2,8 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { createPlayer } from './player';
 import type { AutoRunScript } from './script';
-import { createStage, revealOnPage } from './stage';
+import { createStage, mirrorStage, revealOnPage } from './stage';
 import { prefersReducedMotion } from '../../../motion';
+import { BEFORE_END, BEFORE_RESTART, DEMO_REPLAY } from '../../types';
 import type { ShowStore } from '../store/storeView';
 
 /** Plays `script` in the playground (`[data-playground]`) around the
@@ -27,16 +28,32 @@ export function useAutoRun(
   showStore: ShowStore,
 ) {
   const [player] = useState(createPlayer);
-  // read when a run starts, so `watch` and `replay` keep their identity
-  const latest = useRef({ script, showStore });
-  latest.current = { script, showStore };
+  // read when a run starts (or a Replay button asks for one), so `watch`
+  // and `replay` keep their identity; set once `replay` is, below
+  const latest = useRef<{
+    script: AutoRunScript | undefined;
+    showStore: ShowStore;
+    replay?: () => void;
+  }>({ script, showStore });
   const preview = useRef<HTMLElement | null>(null);
 
   const start = useCallback(() => {
     const { script, showStore } = latest.current;
     const playground = playgroundOf(preview.current);
-    if (script && playground)
-      player.play(script, createStage(playground, showStore));
+    if (!script || !playground) return;
+    // a `before` replay plays the same script beside it, from the start;
+    // the pair scrolls into view as one (`mirrorStage`)
+    const before = beforeOf(playground);
+    before?.dispatchEvent(new Event(BEFORE_RESTART));
+    void player.play(
+      script,
+      before ?
+        mirrorStage(
+          createStage(playground, showStore, { scroll: false }),
+          createStage(before, showStore, { scroll: false }),
+        )
+      : createStage(playground, showStore),
+    );
   }, [player]);
 
   // ends a run with the preview; an idle player stays idle
@@ -58,11 +75,25 @@ export function useAutoRun(
       const syncPaused = () =>
         player.setPaused(!(previewShown || aroundShown) || document.hidden);
 
+      // a `before` replay shows its end screen once the demo is over, or
+      // won't start by itself
+      const before = beforeOf(playground);
+      const syncBefore = () => {
+        const state = player.getState();
+        if (
+          state === 'done' ||
+          (state === 'idle' && !startsByItself(latest.current.script))
+        )
+          before?.dispatchEvent(new Event(BEFORE_END));
+      };
       const onInput = (event: Event) => {
         if (!isReaderInput(event)) return;
         if (latest.current.script) played.add(latest.current.script);
         player.stop();
+        syncBefore();
       };
+      syncBefore();
+      const unsubscribe = player.subscribe(syncBefore);
       const observer = new IntersectionObserver(
         entries => {
           // a late callback may hold several per element: the last is current
@@ -75,15 +106,12 @@ export function useAutoRun(
           syncPaused();
           const { script } = latest.current;
           // shown: only a fresh observation of the preview starts it;
-          // idle: never over a run, even if the script changed identity;
-          // played: a script starts by itself once per page load
+          // idle: never over a run, even if the script changed identity
           if (
             shown &&
             previewShown &&
-            script &&
             player.getState() === 'idle' &&
-            !played.has(script) &&
-            !prefersReducedMotion()
+            startsByItself(script)
           ) {
             played.add(script);
             start();
@@ -93,13 +121,18 @@ export function useAutoRun(
       );
       observer.observe(playground);
       observer.observe(el);
+      // a `before` replay's Replay button
+      const onReplay = () => latest.current.replay?.();
       for (const type of INPUT)
         playground.addEventListener(type, onInput, true);
+      playground.addEventListener(DEMO_REPLAY, onReplay);
       document.addEventListener('visibilitychange', syncPaused);
       return () => {
+        unsubscribe();
         observer.disconnect();
         for (const type of INPUT)
           playground.removeEventListener(type, onInput, true);
+        playground.removeEventListener(DEMO_REPLAY, onReplay);
         document.removeEventListener('visibilitychange', syncPaused);
       };
     },
@@ -113,18 +146,24 @@ export function useAutoRun(
     // start() takes over from a run in progress: playing aborts it
     reset();
     // the reader asked to watch: bring it into view, which it plays in
-    if (preview.current) revealOnPage(preview.current);
+    // (with its `before` replay, which it plays beside)
+    const before = beforeOf(playgroundOf(preview.current));
+    if (preview.current)
+      revealOnPage(preview.current, ...(before ? [before] : []));
     // the demo shows the Store opening, if it does
     if (script?.some(step => 'store' in step && step.store === 'open'))
       showStore(false);
     start();
   }, [reset, start]);
+  latest.current = { script, showStore, replay };
 
   return { player, watch, replay };
 }
 
 const playgroundOf = (el: HTMLElement | null) =>
   el?.closest<HTMLElement>('[data-playground]');
+const beforeOf = (playground: HTMLElement | null | undefined) =>
+  playground?.querySelector<HTMLElement>('[data-before]');
 
 /** Scripts that played by themselves, or that the reader took over or
  * replayed: the playground remounts (say, the page's framework switched
@@ -132,6 +171,12 @@ const playgroundOf = (el: HTMLElement | null) =>
  * Per page load (client-side navigation keeps it); replaying is the label's
  * job. */
 const played = new WeakSet<AutoRunScript>();
+/** A script starts by itself once per page load, and never under reduced
+ * motion */
+const startsByItself = (
+  script: AutoRunScript | undefined,
+): script is AutoRunScript =>
+  !!script && !played.has(script) && !prefersReducedMotion();
 
 /** The reader's own press, tap or key, which takes over: not the demo's
  * (untrusted) events or controls, and not a touch, which may start a scroll
