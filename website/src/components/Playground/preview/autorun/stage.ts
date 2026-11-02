@@ -10,8 +10,8 @@ import type { ShowStore } from '../store/storeView';
  * never `focus()`, which would take the page's focus from the reader.
  *
  * The pointer lives in a layer appended to `root`, removed by `end()`.
- * Without `scroll`, it never scrolls the page to a target (a twin's, which
- * the main stage's moves bring into view).
+ * Without `scroll`, it never scrolls the page to a target: `mirrorStage`
+ * scrolls to both stages' at once.
  */
 export function createStage(
   root: HTMLElement,
@@ -229,7 +229,7 @@ export function mirrorStage(main: Stage, twin: Stage): Stage {
       const gliding = main.point(el);
       // the watcher compares the two: both in view (neither stage scrolls
       // the page itself)
-      revealOnPage(el, ...(mirrored ? [mirrored] : []));
+      revealOnPage(el, mirrored);
       return gliding;
     },
     click(el) {
@@ -255,18 +255,20 @@ export function mirrorStage(main: Stage, twin: Stage): Stage {
  * along.
  *
  * With `more` (a `before` replay's, stacked over the preview on a phone),
- * it shows them all as one span: centered if it fits under the navbar,
- * else from its top, the first a watcher reads. */
-export function revealOnPage(el: HTMLElement, ...more: HTMLElement[]) {
+ * it shows both as one span: centered if it fits under the navbar, else
+ * from its top, the first a watcher reads. */
+export function revealOnPage(el: HTMLElement, more?: HTMLElement | null) {
   const navbar = document.querySelector('.navbar')?.getBoundingClientRect();
   // a navbar hidden on scroll reports a bottom above the viewport
   const clear = Math.max(0, navbar?.bottom ?? 0);
-  const boxes = [el, ...more].map(each => each.getBoundingClientRect());
+  const boxes = (more ? [el, more] : [el]).map(each =>
+    each.getBoundingClientRect(),
+  );
   const top = Math.min(...boxes.map(box => box.top));
   const bottom = Math.max(...boxes.map(box => box.bottom));
   if (top < clear === bottom > innerHeight) return;
   const behavior = prefersReducedMotion() ? 'instant' : 'smooth';
-  if (!more.length) return el.scrollIntoView({ block: 'center', behavior });
+  if (!more) return el.scrollIntoView({ block: 'center', behavior });
   const room = innerHeight - clear;
   window.scrollBy({
     top:

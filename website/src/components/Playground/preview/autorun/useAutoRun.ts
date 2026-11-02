@@ -44,22 +44,16 @@ export function useAutoRun(
     // a `before` replay plays the same script beside it, from the start;
     // the pair scrolls into view as one (`mirrorStage`)
     const before = beforeOf(playground);
-    if (!before)
-      return void player.play(script, createStage(playground, showStore));
-    before.dispatchEvent(new Event(BEFORE_RESTART));
-    void player
-      .play(
-        script,
+    before?.dispatchEvent(new Event(BEFORE_RESTART));
+    void player.play(
+      script,
+      before ?
         mirrorStage(
           createStage(playground, showStore, { scroll: false }),
           createStage(before, showStore, { scroll: false }),
-        ),
-      )
-      // over, unless a newer run took its place
-      .then(() => {
-        if (player.getState() === 'done')
-          before.dispatchEvent(new Event(BEFORE_END));
-      });
+        )
+      : createStage(playground, showStore),
+    );
   }, [player]);
 
   // ends a run with the preview; an idle player stays idle
@@ -81,20 +75,25 @@ export function useAutoRun(
       const syncPaused = () =>
         player.setPaused(!(previewShown || aroundShown) || document.hidden);
 
-      // a `before` replay waits for the demo to show its end screen: tell
-      // it when the demo never started and now won't by itself
-      const wontStart = () => {
-        if (player.getState() === 'idle')
-          beforeOf(playground)?.dispatchEvent(new Event(BEFORE_END));
+      // a `before` replay shows its end screen once the demo is over, or
+      // won't start by itself
+      const before = beforeOf(playground);
+      const syncBefore = () => {
+        const state = player.getState();
+        if (
+          state === 'done' ||
+          (state === 'idle' && !startsByItself(latest.current.script))
+        )
+          before?.dispatchEvent(new Event(BEFORE_END));
       };
       const onInput = (event: Event) => {
         if (!isReaderInput(event)) return;
         if (latest.current.script) played.add(latest.current.script);
-        wontStart();
         player.stop();
+        syncBefore();
       };
-      if (played.has(latest.current.script) || prefersReducedMotion())
-        wontStart();
+      syncBefore();
+      const unsubscribe = player.subscribe(syncBefore);
       const observer = new IntersectionObserver(
         entries => {
           // a late callback may hold several per element: the last is current
@@ -107,15 +106,12 @@ export function useAutoRun(
           syncPaused();
           const { script } = latest.current;
           // shown: only a fresh observation of the preview starts it;
-          // idle: never over a run, even if the script changed identity;
-          // played: a script starts by itself once per page load
+          // idle: never over a run, even if the script changed identity
           if (
             shown &&
             previewShown &&
-            script &&
             player.getState() === 'idle' &&
-            !played.has(script) &&
-            !prefersReducedMotion()
+            startsByItself(script)
           ) {
             played.add(script);
             start();
@@ -132,6 +128,7 @@ export function useAutoRun(
       playground.addEventListener(DEMO_REPLAY, onReplay);
       document.addEventListener('visibilitychange', syncPaused);
       return () => {
+        unsubscribe();
         observer.disconnect();
         for (const type of INPUT)
           playground.removeEventListener(type, onInput, true);
@@ -174,6 +171,12 @@ const beforeOf = (playground: HTMLElement | null | undefined) =>
  * Per page load (client-side navigation keeps it); replaying is the label's
  * job. */
 const played = new WeakSet<AutoRunScript>();
+/** A script starts by itself once per page load, and never under reduced
+ * motion */
+const startsByItself = (
+  script: AutoRunScript | undefined,
+): script is AutoRunScript =>
+  !!script && !played.has(script) && !prefersReducedMotion();
 
 /** The reader's own press, tap or key, which takes over: not the demo's
  * (untrusted) events or controls, and not a touch, which may start a scroll

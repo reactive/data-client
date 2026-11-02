@@ -33,7 +33,7 @@ export default function BeforeFolder({
   replayable: boolean;
   onShowCode: () => void;
   /** The Show code button, which takes focus back from the code */
-  showCodeRef?: React.Ref<HTMLButtonElement>;
+  showCodeRef: React.Ref<HTMLButtonElement>;
   children: React.ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -43,15 +43,20 @@ export default function BeforeFolder({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    // the latest restart or end: a restart outdates an end still settling
+    // the latest run: a restart outdates an end still settling
     let latest = 0;
+    // once per run: the reader's input ends an idle demo again and again
+    let ending = false;
     const restart = () => {
       latest++;
+      ending = false;
       setRun(n => n + 1);
       setEnded(false);
     };
     const end = async () => {
-      const mine = ++latest;
+      if (ending) return;
+      ending = true;
+      const mine = latest;
       await settled(el.closest('[data-playground]') ?? el);
       if (mine === latest) setEnded(true);
     };

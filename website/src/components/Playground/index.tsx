@@ -87,8 +87,8 @@ export interface PlaygroundProps<T = any> {
   demo?: boolean;
   /** A behavior change, side by side (it implies `row`): an app replaying
    * the old behavior, in a folder like the preview's where the code goes.
-   * The code waits behind a Code toggle in the preview's header and takes
-   * the replay's place once shown. `autoRun` plays in both at once */
+   * Its end screen's Show code puts the code in its place, and the replay's
+   * tab before the files' brings it back. `autoRun` plays in both at once */
   before?: React.ReactNode;
   /** The replay's label, in its header (default "Before") */
   beforeLabel?: string;
@@ -236,13 +236,10 @@ export default function Playground<T>({
   // the other (the selected file's tab, or Show code)
   const showCodeButton = useRef<HTMLButtonElement>(null);
   const focusSwapped = useRef(false);
-  const swapCode = useCallback(
-    (shown: boolean) => {
-      focusSwapped.current = !!container?.contains(document.activeElement);
-      setCodeShown(shown);
-    },
-    [container],
-  );
+  const swapCode = (shown: boolean) => {
+    focusSwapped.current = !!container?.contains(document.activeElement);
+    setCodeShown(shown);
+  };
   useLayoutEffect(() => {
     if (!focusSwapped.current) return;
     focusSwapped.current = false;
@@ -256,7 +253,7 @@ export default function Playground<T>({
         ) ?? code?.querySelector<HTMLElement>('[role="tab"]'))
       : showCodeButton.current;
     to?.focus();
-  }, [codeShown, container]);
+  }, [codeShown]);
   const beforeName =
     beforeLabel ?? translate({ id: 'playground.before', message: 'Before' });
 

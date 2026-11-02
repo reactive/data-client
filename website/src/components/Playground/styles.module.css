@@ -1577,7 +1577,8 @@ div.fixtureJson + div.fixtureJson {
 }
 
 /* A behavior change (`before`, ../index.tsx): the replay's folder where
-   the code goes until the Code toggle shows the code in its place. Under
+   the code goes until its end screen's Show code shows the code in its
+   place. Under
    the preview's rules (.row > .previewWrapper) it is drawn as the preview's
    folder; it holds no Store, and ends at its own sheet */
 .row[data-comparing]:not([data-code]) > .playgroundTextEdit,

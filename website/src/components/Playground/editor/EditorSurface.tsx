@@ -17,7 +17,7 @@ import { createMissingModels } from '../monaco/models';
 import { allowTopLevelAwait } from '../monaco/topLevelAwait';
 import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
-import TabList from '../TabList';
+import TabList, { type TabItem } from '../TabList';
 import type { Layout } from '../types';
 import type { CodeDocument, CodeModel } from './codeModel';
 import type { InteractiveEditorProps } from './InteractiveEditor';
@@ -45,10 +45,7 @@ export interface EditorSurfaceProps extends CodeModel {
   leadTab?: LeadTab;
 }
 
-interface LeadTab {
-  label: React.ReactNode;
-  onSelect: () => void;
-}
+type LeadTab = Pick<TabItem, 'label' | 'onSelect'>;
 
 export default function EditorSurface({
   documents,
