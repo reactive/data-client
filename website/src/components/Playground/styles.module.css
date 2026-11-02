@@ -1826,9 +1826,36 @@ div.fixtureJson + div.fixtureJson {
   /* by the preview's foot, its curve clear of the corner's: open, they
      stay level with that foot, however far the Store runs on below */
   .drawerTabs {
+    --pg-tabs-foot: calc(
+      var(--pg-preview-gap, 0px) + 2 * var(--pg-card-radius)
+    );
     right: 100%;
-    bottom: calc(var(--pg-preview-gap, 0px) + 2 * var(--pg-card-radius));
+    bottom: var(--pg-tabs-foot);
     flex-direction: column;
+    transition: bottom var(--pg-store-snappy);
+  }
+  /* unless the Store's header (the moment's label, the timeline) pushes its
+     sheet's top (--store-sheet-top, ./preview/store/StorePanel.tsx) below
+     where they'd start: then they move down the sheet's edge, on past the
+     preview's foot as the sheet does, their curve clear of its corner, as
+     far as the drawer's foot */
+  .row > .storeHost[data-open] .drawerTabs {
+    bottom: max(
+      2 * var(--pg-card-radius),
+      min(
+        var(--pg-tabs-foot),
+        100% - var(--store-sheet-top, 0px) - 2 * var(--pg-tab-length) - 3 *
+          var(--pg-card-radius)
+      )
+    );
+  }
+  /* shut, they sit on the preview's edge: tall enough for both, each
+     curve clear of a corner (the foot's below) */
+  .row:not(.stacked) .playgroundResult {
+    min-height: max(
+      var(--pg-result-min, 0px),
+      2 * var(--pg-tab-length) + 4 * var(--pg-card-radius)
+    );
   }
   /* its shadow cut at the edge it joins; the selected one reaches a pixel
      into its sheet, so its paper covers the seam */
@@ -2692,6 +2719,7 @@ div.fixtureJson + div.fixtureJson {
    screen (unless it opened the Store) */
 .row[data-comparing] > .storeHost .drawerTabs {
   transition:
+    bottom var(--pg-store-snappy),
     opacity var(--motion-smooth),
     visibility var(--motion-smooth);
 }

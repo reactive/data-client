@@ -103,6 +103,35 @@ import { Why } from './Why';
 import Unfold from '../../Unfold';
 import { InspectorContext, tabLabel } from '../inspector';
 
+/** How far down the folder's `drawer` the Store's `sheet` starts, as
+ * `--store-sheet-top` on the drawer: the scrubber's row, then the moment's
+ * label and the expanded timeline as they show, push it down, and the
+ * drawer's tabs follow it there rather than stick out beside the header
+ * (.drawerTabs in ../../styles.module.css) */
+function useSheetTop(
+  drawer: HTMLElement | null,
+  sheet: React.RefObject<HTMLElement | null>,
+) {
+  useLayoutEffect(() => {
+    const el = sheet.current;
+    if (!drawer || !el || typeof ResizeObserver === 'undefined') return;
+    // the sheet fills the drawer under the header, so a header growing
+    // shrinks it; the drawer too, for when both grow by the same
+    const measure = () =>
+      drawer.style.setProperty(
+        '--store-sheet-top',
+        `${el.getBoundingClientRect().top - drawer.getBoundingClientRect().top}px`,
+      );
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    observer.observe(drawer);
+    return () => {
+      observer.disconnect();
+      drawer.style.removeProperty('--store-sheet-top');
+    };
+  }, [drawer, sheet]);
+}
+
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
 /** What an action alone opens under, first that shows as a group */
@@ -112,12 +141,16 @@ export default function StorePanel({
   registry,
   history: id,
   quickLookHost = null,
+  drawer = null,
 }: {
   registry: SchemaRegistry;
   /** Whose actions to show (see `ActionLog`) */
   history: number;
   /** Where the quick look goes: the drawer its tabs are on */
   quickLookHost?: HTMLElement | null;
+  /** The folder's drawer this Store is on, whose tabs keep beside its sheet
+   * (`useSheetTop`) */
+  drawer?: HTMLElement | null;
 }) {
   const live = useContext(StateContext);
   const { log } = registry;
@@ -371,6 +404,7 @@ export default function StorePanel({
   const narrow = width < NARROW_WIDTH;
   const covered = narrow && timelineMounted;
   const content = useRef<HTMLDivElement>(null);
+  useSheetTop(drawer, content);
   // as it changes: focus left under the sheet moves to the ▾, and lost as
   // it closes goes to the level; an action shown from the sheet takes focus
   // once it is uncovered

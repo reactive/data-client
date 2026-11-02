@@ -63,6 +63,7 @@ function StoreInspector({
         registry={registry}
         history={history}
         quickLookHost={onPanel ? panelEl : quickLookHost}
+        drawer={folder ? host : null}
       />
     : null;
   if (folder) {
