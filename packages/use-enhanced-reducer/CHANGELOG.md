@@ -1,5 +1,13 @@
 # @data-client/use-enhanced-reducer
 
+## 0.1.15
+
+### Patch Changes
+
+- [#4209](https://github.com/reactive/data-client/pull/4209) [`b4899d0`](https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169) Thanks [@renovate](https://github.com/apps/renovate)! - Support `@babel/runtime` 8
+
+  Apps on Babel 8 now share their `@babel/runtime` with Data Client instead of installing a second copy. Apps on Babel 7 keep working unchanged.
+
 ## 0.1.14
 
 ### Patch Changes
