@@ -12,9 +12,7 @@ const files = (path: string, value: string): CodeDocument[] => [
 
 /** Runs `program` with `scope`, as react-live does */
 function run(program: string, scope: Record<string, unknown>) {
-  new Function(...Object.keys(scope), program)(
-    ...Object.values(scope),
-  );
+  new Function(...Object.keys(scope), program)(...Object.values(scope));
 }
 
 describe('useCodeManagers', () => {
