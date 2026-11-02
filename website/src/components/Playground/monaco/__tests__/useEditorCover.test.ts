@@ -7,17 +7,25 @@ import { whenPainted } from '../whenPainted';
 
 jest.mock('../whenPainted', () => ({ whenPainted: jest.fn(() => jest.fn()) }));
 
-/** An editor whose text `focus()` gains */
+/** An editor the reader can `focus()`, `type()` in or `click()` */
 function fakeEditor() {
-  let onFocus = () => {};
+  const listeners: Record<string, () => void> = {};
+  const on = (event: string) => (listener: () => void) => {
+    listeners[event] = listener;
+    return { dispose: () => delete listeners[event] };
+  };
   const editor = {
-    onDidFocusEditorText: (listener: () => void) => {
-      onFocus = listener;
-      return { dispose: () => (onFocus = () => {}) };
-    },
+    onDidFocusEditorText: on('focus'),
+    onKeyDown: on('type'),
+    onMouseDown: on('click'),
     onDidDispose: () => ({ dispose: jest.fn() }),
   } as unknown as Monaco.editor.ICodeEditor;
-  return Object.assign(editor, { focus: () => act(() => onFocus()) });
+  const fire = (event: string) => () => act(() => listeners[event]?.());
+  return Object.assign(editor, {
+    focus: fire('focus'),
+    type: fire('type'),
+    click: fire('click'),
+  });
 }
 
 /** Ends `editor`'s whenPainted wait, as when it has painted */
@@ -83,4 +91,16 @@ describe('useEditorCover', () => {
       jest.mocked(whenPainted).mock.calls.some(([e]) => e === late[0]),
     ).toBe(false);
   });
+
+  test.each(['type', 'click'] as const)(
+    'goes at once when the reader uses an autoFocused editor (%s)',
+    action => {
+      const { result } = renderHook(() => useEditorCover());
+      const panes = [fakeEditor()];
+      act(() => result.current.revealWhenPainted(panes));
+      expect(result.current.covered).toBe(true);
+      panes[0][action]();
+      expect(result.current.covered).toBe(false);
+    },
+  );
 });
