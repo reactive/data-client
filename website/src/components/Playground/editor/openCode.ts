@@ -13,5 +13,7 @@ export interface CodeOpener {
   /** Where each name is first declared (a class, function or variable) */
   readonly declared: ReadonlyMap<string, CodeTarget>;
   readonly open: (target: CodeTarget) => void;
+  /** The text of the file at `path` */
+  readonly code?: (path: string) => string | undefined;
 }
 export const CodeOpenerContext = createContext<CodeOpener | null>(null);

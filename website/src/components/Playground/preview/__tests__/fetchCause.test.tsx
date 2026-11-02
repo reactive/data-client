@@ -16,12 +16,19 @@ import {
   waitFor,
 } from '@testing-library/react';
 import React, { Suspense } from 'react';
+import { transform } from 'sucrase';
 
 import { Link, Router } from '../router';
 import { actionRowsOf, groupEntries } from '../store/actionGroups';
 import { findEntry, type LogEntry } from '../store/actionLog';
-import { asHook, callerNow, evaluatedFrames } from '../store/callSite';
+import {
+  asHook,
+  callerNow,
+  evaluatedFrames,
+  withMethodNames,
+} from '../store/callSite';
 import { userEvent } from '../store/fetchCause';
+import { documentLine, joinDocuments, scopeBlock } from '../transformCode';
 import { interactionsOf, rootEvent } from '../store/interactions';
 import SchemaRegistry from '../store/schemaRegistry';
 
@@ -82,6 +89,9 @@ const getFlaky = new Endpoint(
 );
 /** As the preview's scope gives it to the code */
 const useSuspenseNamed = asHook('useSuspense', useSuspense);
+const useControllerNamed = asHook('useController', () =>
+  withMethodNames(useController()),
+);
 
 function ShowPost() {
   const post = useSuspenseNamed(getPost, { id: '1' });
@@ -102,7 +112,9 @@ function mount(view: React.ReactNode = <ShowPost />) {
   const managers = [log.head, registry, ...log.track([network]), log.tail];
   const ref: { ctrl?: Controller } = {};
   function Buttons() {
-    const ctrl = (ref.ctrl = useController());
+    // the code's, naming its methods; the test's own calls name none
+    const ctrl = useControllerNamed();
+    ref.ctrl = useController();
     return (
       <>
         <button onClick={() => ctrl.fetch(updatePost, { id: '1' })}>
@@ -239,6 +251,7 @@ describe('why a fetch happened', () => {
     );
     expect(mutation?.reason).toBe('mutation');
     expect(mutation?.caller).toEqual({
+      method: 'fetch',
       event: { type: 'click', target: 'Save post', at: expect.any(Number) },
     });
   });
@@ -413,6 +426,8 @@ describe('actions by interaction', () => {
 
 describe('callSite', () => {
   it('reads the code’s functions from V8 and SpiderMonkey stacks', () => {
+    // Jest runs on V8, whose `new Function` bodies start on line 3: the
+    // lines are counted from the program's first line
     const v8 = [
       'Error',
       '    at callerNow (http://localhost/main.js:10:5)',
@@ -420,13 +435,56 @@ describe('callSite', () => {
       '    at ShowTime (eval at evalCode (http://localhost/x.js:1:2), <anonymous>:12:30)',
       '    at renderWithHooks (http://localhost/react-dom.js:1:1)',
     ].join('\n');
-    expect(evaluatedFrames(v8)).toEqual(['useFetch', 'ShowTime']);
+    expect(evaluatedFrames(v8)).toEqual([
+      { name: 'useFetch', line: 2 },
+      { name: 'ShowTime', line: 10 },
+    ]);
     const firefox = [
       'callerNow@http://localhost/main.js:10:5',
       'ShowTime@http://localhost/x.js line 2 > Function:12:30',
       'renderWithHooks@http://localhost/react-dom.js:1:1',
     ].join('\n');
-    expect(evaluatedFrames(firefox)).toEqual(['ShowTime']);
+    expect(evaluatedFrames(firefox)).toEqual([{ name: 'ShowTime', line: 10 }]);
+  });
+
+  it('finds the line of the playground’s code that dispatched', () => {
+    const documents = [
+      {
+        path: 'api.ts',
+        value: `import { thing } from 'lib';
+export const save = (id: string) => dispatch(id);`,
+      },
+      {
+        path: 'Demo.tsx',
+        value: `import { save } from './api';
+
+type Props = { id: string };
+export default function Demo({ id }: Props) {
+  const label = <b>
+    {id}
+  </b>;
+  return [label, dispatch(id), save(id)];
+}
+render(Demo({ id: '1' }));`,
+      },
+    ];
+    const sources: unknown[] = [];
+    const dispatch = () =>
+      sources.push(callerNow(line => documentLine(documents, line))?.source);
+    // as the live preview runs it (react-live with TypeScript, noInline)
+    const program = transform(scopeBlock(joinDocuments(documents)), {
+      transforms: ['jsx', 'typescript', 'imports'],
+      production: true,
+    }).code;
+    new Function('React', 'dispatch', 'render', program)(
+      React,
+      dispatch,
+      () => {},
+    );
+    expect(sources).toEqual([
+      { path: 'Demo.tsx', line: 8 },
+      { path: 'api.ts', line: 2 },
+    ]);
   });
 
   it('names no caller outside a hook or a user event', () => {

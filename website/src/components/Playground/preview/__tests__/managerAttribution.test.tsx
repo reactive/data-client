@@ -1105,6 +1105,48 @@ describe('Store panel pipeline', () => {
     expect(open).toHaveBeenLastCalledWith(target);
   });
 
+  it('opens the line of code that sent an action', async () => {
+    const open = jest.fn();
+    const source = { path: 'src/Demo.tsx', line: 14 };
+    const registry = new SchemaRegistry({
+      trimEvery: 1,
+      caller: () => ({ source }),
+    });
+    const { ctrl } = connectStore(
+      registry,
+      [new NetworkManager()],
+      <CodeOpenerContext.Provider
+        value={{
+          declared: new Map(),
+          open,
+          code: path =>
+            path === source.path ?
+              Array.from({ length: 20 }, (_, i) => `  line${i + 1}();`).join(
+                '\n',
+              )
+            : undefined,
+        }}
+      >
+        <InspectedPanel registry={registry} history={0} />
+      </CodeOpenerContext.Provider>,
+    );
+    await act(async () => {
+      await ctrl().fetch(getTicker);
+    });
+    openActions();
+    fireEvent.click(listed()[0]);
+    const link = await screen.findByRole('button', {
+      name: 'Open Demo.tsx:14 in the code',
+    });
+    expect(link.textContent).toBe('Demo.tsx:14');
+    // hovered, the lines around it, their indent gone
+    expect(link.nextElementSibling?.textContent).toBe(
+      '12line12();13line13();14line14();15line15();16line16();',
+    );
+    fireEvent.click(link);
+    expect(open).toHaveBeenCalledWith(source);
+  });
+
   it("draws an action's path: who sent it and where it stopped", async () => {
     const { ctrl } = mount(
       [new StreamManager(), new NetworkManager()],

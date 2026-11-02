@@ -11,7 +11,7 @@ import { v4 as uuid } from 'uuid';
 
 import * as designSystem from '../DesignSystem';
 import { Link, ROUTER, Router, useNavigate } from './router';
-import { withHookNames } from './store/callSite';
+import { withHookNames, withMethodNames } from './store/callSite';
 
 function randomFloatInRange(min: number, max: number, decimals: number) {
   return parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
@@ -31,10 +31,14 @@ function mockFetch<T>(
   return fetch;
 }
 
-// every hook is named while it runs, so the Store inspector can credit
-// the ones that dispatch (a fetch, a subscribe)
+// every hook and Controller method is named while it runs, so the Store
+// inspector can credit the ones that dispatch (a fetch, a subscribe)
 export const previewScope = {
-  ...withHookNames({ ...rhReact, ...rhReactNext }),
+  ...withHookNames({
+    ...rhReact,
+    ...rhReactNext,
+    useController: () => withMethodNames(rhReact.useController()),
+  }),
   ...graphql,
   ...rest,
   use,

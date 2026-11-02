@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { LiveProvider } from 'react-live';
 
 import DemoLabel from './autorun/DemoLabel';
@@ -17,7 +17,7 @@ import type { LogOptions } from './store/actionLog';
 import { callerNow } from './store/callSite';
 import SchemaRegistry from './store/schemaRegistry';
 import type { ShowStore } from './store/storeView';
-import { joinDocuments } from './transformCode';
+import { documentLine, joinDocuments } from './transformCode';
 import { useCodeManagers } from './useCodeManagers';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
 
@@ -71,10 +71,19 @@ export default function LivePreview<T>({
     remount,
     ...handlers
   } = usePreviewReset(code);
+  // the files the running code came from, for the registry made once
+  const documentsRef = useRef(documents);
+  documentsRef.current = documents;
   // outlives remounts, so a restored store keeps its schemas and actions
   const [registry] = useState(
-    // credits the app's actions to the hook, component or event sending them
-    () => new SchemaRegistry({ caller: callerNow, ...actionLog }),
+    // credits the app's actions to the hook, component or event sending
+    // them, and the line of the code that did
+    () =>
+      new SchemaRegistry({
+        caller: () =>
+          callerNow(line => documentLine(documentsRef.current, line)),
+        ...actionLog,
+      }),
   );
   const managers = useCodeManagers(documents, remount);
   const demo = useAutoRun(autoRun, reset, showStore);

@@ -205,8 +205,16 @@ export default function Playground<T>({
       )),
     [documents],
   );
+  // read as a link shows, so an edit alone renders no link
+  const documentsRef = useRef(documents);
+  documentsRef.current = documents;
   const codeOpener = useMemo<CodeOpener>(
-    () => ({ declared, open: openCode }),
+    () => ({
+      declared,
+      open: openCode,
+      code: path =>
+        documentsRef.current.find(document => document.path === path)?.value,
+    }),
     [declared, openCode],
   );
 
