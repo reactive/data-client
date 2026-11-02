@@ -5,6 +5,7 @@ const AutoPlayVideo = ({
   type = 'video/mp4',
   alt,
   children,
+  style,
   ...props
 }: React.VideoHTMLAttributes<HTMLVideoElement> & {
   type?: string;
@@ -64,6 +65,8 @@ const AutoPlayVideo = ({
         loop
         aria-label={alt}
         {...props}
+        // a `width` sets its size on wide screens; it shrinks to fit narrow ones
+        style={{ maxWidth: '100%', height: 'auto', ...style }}
       >
         {children ?? <source src={src} type={type} />}
         {alt}
