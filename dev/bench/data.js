@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793565074174,
+  "lastUpdate": 1793582225949,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -138737,6 +138737,324 @@ window.BENCHMARK_DATA = {
             "name": "setMany 500 batch",
             "value": 2746,
             "range": "±0.35%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "6c0d662843b5eb1a6d4dd719e7038e2637b6ec83",
+          "message": "fix(endpoint): Apply Collection updates to a newer stored list (#4566)\n\n* fix: Collection updates apply to a newer stored list\n\nAn older push/unshift added at the wrong end and duplicated items the\nnewer list had; an older remove/move emptied the list (REACT-20).\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* docs: Regenerate skill references for Collection docs\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* test: Cover Union refs and older list responses in Collection reorder\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* enhance: Simplify Collection reorder merges\n\nisShallowEqual no longer matches two id-less members, so addWithStore\nreuses removeMerge.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* fix(rest): Append an older getPage response to a newer stored list\n\nA page whose request started before a list refetch put its items at the\nstart of the list, because Collection's mergeWithStore swapped the merge.\npaginatedMerge already skips ids the stored list has, so a page now\nalways merges into the stored list.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* docs: Describe getPage's merge with a refetched list\n\n- RestEndpoint getPage docs say a page adds to the end of the current\n  list and skips items it has, even after a refetch.\n- Release blog draft lists the Collection and getPage race fix.\n- paginatedMergeWithStore's comment names the swap it prevents.\n- rest declares @data-client/normalizr, which its new test imports.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* docs(endpoint): Say why Values adders keep the Collection merge swap\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* enhance: Simplify Collection reorder tests and pagination merge\n\n- Tests start from the newer list directly, and the skip test covers\n  each refetch timing as its own case.\n- paginatedMergeWithStore calls this.merge, like removeWithStore.\n- removeMerge names its params by role, since addWithStore calls it\n  with the incoming list first.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* enhance: Check string refs with includes() in Collection dedupes\n\naddWithStore and CreateDropper ask whether a list has a ref. For a\nstring ref that is a plain ===, so the native includes() replaces a\nclosure per stored item: the dedupe step runs about 2x faster on a\n100-item list. removeMerge keeps its loop, which measured faster for\nremoving one ref from a long list.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* internal: Name Collection ref helpers for what they compare\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* internal: Build Collection removers like adders\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n* docs(blog): Group Collection update changes in one section\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_015gC38VCqJFH8PMKWL49Le5\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-02T01:08:26Z",
+          "tree_id": "ac96fee5fd09d22a4427bdc8cb296c61650217de",
+          "url": "https://github.com/reactive/data-client/commit/6c0d662843b5eb1a6d4dd719e7038e2637b6ec83"
+        },
+        "date": 1793582222054,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 425,
+            "range": "±4.60%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 384,
+            "range": "±1.12%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 347,
+            "range": "±3.14%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 912,
+            "range": "±0.31%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 228,
+            "range": "±6.84%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 223,
+            "range": "±4.59%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 993,
+            "range": "±0.33%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 740,
+            "range": "±0.19%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 1028,
+            "range": "±0.34%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1398,
+            "range": "±0.11%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 648,
+            "range": "±6.54%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 6819,
+            "range": "±0.53%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 3113,
+            "range": "±0.14%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 59369,
+            "range": "±1.64%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 5956,
+            "range": "±2.99%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 221,
+            "range": "±7.22%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 6696,
+            "range": "±0.13%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 6622,
+            "range": "±1.06%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 5033,
+            "range": "±1.53%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 7567,
+            "range": "±0.38%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 4011,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 6278,
+            "range": "±0.90%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 6211,
+            "range": "±1.72%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1567,
+            "range": "±0.67%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 4160,
+            "range": "±11.12%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 40125,
+            "range": "±0.55%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 4401,
+            "range": "±3.56%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 8438632,
+            "range": "±0.90%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 193,
+            "range": "±8.35%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 3408,
+            "range": "±1.34%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 2860,
+            "range": "±0.24%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 4148,
+            "range": "±4.25%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 2730,
+            "range": "±0.17%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 4955,
+            "range": "±1.75%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 420,
+            "range": "±0.34%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 252,
+            "range": "±0.24%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 270,
+            "range": "±0.20%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 920,
+            "range": "±1.70%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 147,
+            "range": "±0.55%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 3420,
+            "range": "±0.61%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 14.84,
+            "range": "±0.76%",
+            "unit": "ops/sec",
+            "extra": "41 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 1340,
+            "range": "±3.20%",
             "unit": "ops/sec",
             "extra": "95 samples"
           }
