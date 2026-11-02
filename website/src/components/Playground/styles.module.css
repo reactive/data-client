@@ -2387,10 +2387,10 @@ div.fixtureJson + div.fixtureJson {
   --diff-label-color: rgba(191, 199, 213, 0.9);
   --diff-label-font: 600 12.5px / 30px var(--ifm-font-family-base);
   --diff-label-tracking: 0.01em;
-  /* each label's dot: its pane's color in the diff */
+  /* each label's dot, in its pane's color in the diff */
+  --diff-dot-size: 7px;
   --diff-before: #f07178;
   --diff-after: #c3e88d;
-  --diff-dot-size: 7px;
   --diff-inset: 10px;
   --diff-gutter: 10px;
 }
@@ -2427,7 +2427,7 @@ div.fixtureJson + div.fixtureJson {
   display: inline-block;
   width: var(--diff-dot-size);
   height: var(--diff-dot-size);
-  margin: 0 var(--diff-dot-size) 1px 0;
+  margin: 0 7px 1px 0;
   border-radius: 50%;
   background: var(--diff-before);
 }
