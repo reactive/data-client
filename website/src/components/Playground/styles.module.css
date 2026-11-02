@@ -1571,7 +1571,7 @@ div.fixtureJson + div.fixtureJson {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .diffCover :global(.prism-code) {
-  padding: 0 14px 0 var(--diff-inset) !important;
+  padding: 0 14px var(--diff-gutter) var(--diff-inset) !important;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -2378,8 +2378,9 @@ div.fixtureJson + div.fixtureJson {
 
 /* The diff editor's look, shared with the panes DiffEditor draws before it
    (../DiffEditor.module.css .staticDiff) so the two stay one picture: its
-   Before/After labels (a dot in each pane's diff color), the code's inset (Monaco's line decorations)
-   and the space above the code */
+   Before/After labels (a dot in each pane's diff color), the code's inset
+   (Monaco's line decorations) and the space above and below the code
+   (useAutoHeight's gutter) */
 .standaloneEditor {
   --diff-label-height: 30px;
   --diff-label-rule: 1px solid rgba(255, 255, 255, 0.06);
@@ -2390,7 +2391,7 @@ div.fixtureJson + div.fixtureJson {
   --diff-before: #f07178;
   --diff-after: #c3e88d;
   --diff-inset: 10px;
-  --diff-top: 10px;
+  --diff-gutter: 10px;
 }
 /* the frame keeps its rounded corners; hovers render outside it
    (monaco/useOverflowWidgets.ts) */
@@ -2409,7 +2410,7 @@ div.fixtureJson + div.fixtureJson {
 }
 /* Match the space below the last line, in the code's color */
 .playgroundContainer.standaloneEditor .diffLabels + .playgroundEditor {
-  padding-top: var(--diff-top);
+  padding-top: var(--diff-gutter);
   background: var(--monoco-code-background);
 }
 .diffLabels > span {

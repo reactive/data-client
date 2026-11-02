@@ -9,9 +9,9 @@
 }
 
 /* The server-rendered diff, and what shows where Monaco never runs: titled
-   CodeBlocks. Where the diff editor will take over (a fine pointer: the
-   desktops isMobileOrBot lets Monaco run on), they are drawn as it first
-   draws them (DiffEditorMonaco: labels over two panes, the code as its
+   CodeBlocks. Where the diff editor will most likely take over (a fine
+   pointer; isMobileOrBot, which decides, reads the user agent, unknown
+   here), they are drawn as it first draws them (DiffEditorMonaco: labels over two panes, the code as its
    cover's), so a hard refresh keeps one layout from the first paint.
    Elsewhere the editor's frame drops out and the CodeBlocks lay out as
    ever */
@@ -63,7 +63,7 @@
   }
   /* the code, as the editor's cover (.diffCover) */
   .staticDiff :global(.prism-code) {
-    padding: var(--diff-top) 14px 0 var(--diff-inset);
+    padding: var(--diff-gutter) 14px var(--diff-gutter) var(--diff-inset);
   }
   .staticDiff :global(.prism-code) > code {
     padding: 0;

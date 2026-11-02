@@ -32,6 +32,7 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
   const { covered, coverRef, revealWhenPainted } = useEditorCover();
   // hovers out of the frame, which clips to its rounded corners
   const overflowWidgets = useOverflowWidgets();
+  const mountOverflowWidgets = overflowWidgets.handleMount;
   // stable: new options would reset the glyph margin handleDiffMount removes
   const diffOptions = useMemo(
     () => ({ ...DIFF_OPTIONS, ...overflowWidgets.options }),
@@ -44,19 +45,22 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
     (editor: MonacoDiffEditor) => {
       handleMount(editor);
       const panes = [editor.getOriginalEditor(), editor.getModifiedEditor()];
-      panes.forEach(overflowWidgets.handleMount);
+      panes.forEach(mountOverflowWidgets);
       // Side-by-side forces a glyph margin on the original pane; nothing
       // renders there in this read-only diff, so it only indents the code
       panes[0].updateOptions({ glyphMargin: false });
-      // reveal the diff whole: its marks and the blank rows that line the
-      // panes up come with its first computation, maybe after the tokens
-      if (editor.getLineChanges()) revealWhenPainted(panes);
-      else {
-        const diffed = editor.onDidUpdateDiff(() => {
-          diffed.dispose();
-          revealWhenPainted(panes);
-        });
-      }
+      // Reveal the diff whole: its marks and the blank rows that line the
+      // panes up come with its first computation, maybe after the tokens.
+      // Bounded, in case that never reports
+      const reveal = () => {
+        diffReady.dispose();
+        clearTimeout(diffTimeout);
+        revealWhenPainted(panes);
+      };
+      const diffReady = editor.onDidUpdateDiff(reveal);
+      const diffTimeout = setTimeout(reveal, DIFF_WAIT_MS);
+      editor.onDidDispose(() => clearTimeout(diffTimeout));
+      if (editor.getLineChanges()) reveal();
       const updateOffsets = () => {
         const left = editor.getContainerDomNode().getBoundingClientRect().left;
         const next = panes.map(
@@ -95,7 +99,7 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
         );
       });
     },
-    [handleMount, overflowWidgets, revealWhenPainted, sides],
+    [handleMount, mountOverflowWidgets, revealWhenPainted, sides],
   );
 
   return (
@@ -167,6 +171,9 @@ export type DiffMonacoProps = {
   fallback: React.ReactNode;
   sides: readonly [DiffSide, DiffSide];
 };
+
+/** Longest the cover waits for the first diff before it waits on the panes */
+const DIFF_WAIT_MS = 6000;
 
 const DIFF_OPTIONS: editor.IDiffEditorConstructionOptions = {
   ...options,
