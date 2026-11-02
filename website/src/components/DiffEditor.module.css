@@ -8,6 +8,72 @@
   color: var(--ifm-color-emphasis-800);
 }
 
+/* The server-rendered diff, and what shows where Monaco never runs: titled
+   CodeBlocks. Where the diff editor will take over (a fine pointer: the
+   desktops isMobileOrBot lets Monaco run on), they are drawn as it first
+   draws them (DiffEditorMonaco: labels over two panes, the code as its
+   cover's), so a hard refresh keeps one layout from the first paint.
+   Elsewhere the editor's frame drops out and the CodeBlocks lay out as
+   ever */
+@media not all and (hover: hover) and (pointer: fine) {
+  .frame {
+    display: contents;
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .staticDiff {
+    /* the CodeBlocks lie flat in the frame, in the editor's type */
+    --ifm-global-shadow-lw: none;
+    --ifm-code-border-radius: 0;
+    --ifm-code-font-size: 13px;
+    --ifm-pre-line-height: 19px;
+  }
+  .staticDiff > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 0;
+  }
+  .staticDiff :global(.theme-code-block) {
+    margin: 0;
+  }
+  /* each title, as the editor's labels (.diffLabels) */
+  .staticDiff :global(.theme-code-block) > :first-child:not(:last-child) {
+    height: var(--diff-label-height);
+    padding: 0 var(--diff-inset);
+    border-bottom: var(--diff-label-rule);
+    color: var(--diff-label-color);
+    font: var(--diff-label-font);
+    letter-spacing: var(--diff-label-tracking);
+  }
+  .staticDiff
+    :global(.theme-code-block)
+    > :first-child:not(:last-child)::before {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin: 0 7px 1px 0;
+    border-radius: 50%;
+    background: var(--diff-before);
+  }
+  .staticDiff
+    :global(.theme-code-block)
+    + :global(.theme-code-block)
+    > :first-child:not(:last-child)::before {
+    background: var(--diff-after);
+  }
+  /* the code, as the editor's cover (.diffCover) */
+  .staticDiff :global(.prism-code) {
+    padding: var(--diff-top) 14px 0 var(--diff-inset);
+  }
+  .staticDiff :global(.prism-code) > code {
+    padding: 0;
+  }
+  /* CodeBlock's copy and wrap buttons; the editor has none */
+  .staticDiff :global(.prism-code) + * {
+    display: none;
+  }
+}
+
 .callouts {
   list-style: none;
   /* The editor and fallback carry their own bottom margin; tuck under it */

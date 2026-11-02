@@ -42,7 +42,12 @@ function fakeEditor(width: number, value = 'code') {
       dom.append(line);
     });
   };
-  return { editor, draw, resize, focus: () => onFocus() };
+  return {
+    editor,
+    draw,
+    resize,
+    focus: () => onFocus(),
+  };
 }
 
 describe('whenPainted', () => {
@@ -99,12 +104,28 @@ describe('whenPainted', () => {
     expect(done).toHaveBeenCalledTimes(1);
   });
 
-  test('regardless, after a while', () => {
+  test('a while after its first colored token, though the rest stay plain', () => {
+    const { editor, draw } = fakeEditor(600);
+    draw([['mtk1'], ['mtk1']]);
+    const done = jest.fn();
+    whenPainted(editor, done);
+    // its tokenizer still loading
+    jest.advanceTimersByTime(10000);
+    expect(done).not.toHaveBeenCalled();
+
+    draw([['mtk5'], ['mtk1']]);
+    jest.advanceTimersByTime(5900);
+    expect(done).not.toHaveBeenCalled();
+    jest.advanceTimersByTime(200);
+    expect(done).toHaveBeenCalledTimes(1);
+  });
+
+  test('regardless, after a long while', () => {
     const { editor, draw } = fakeEditor(600);
     draw([['mtk1']]);
     const done = jest.fn();
     whenPainted(editor, done);
-    jest.advanceTimersByTime(5900);
+    jest.advanceTimersByTime(19900);
     expect(done).not.toHaveBeenCalled();
     jest.advanceTimersByTime(200);
     expect(done).toHaveBeenCalledTimes(1);
