@@ -508,6 +508,10 @@ render(Demo({ id: '1' }));`,
         return callerNow()?.method;
       }
 
+      get alias() {
+        return this.set;
+      }
+
       // a getter over a method stays the getter
       get flush() {
         return 'flushed';
@@ -520,6 +524,9 @@ render(Demo({ id: '1' }));`,
     expect(ctrl.fetch()).toBe('fetch');
     expect(ctrl._dispatch()).toBeUndefined();
     expect(ctrl.flush).toBe('flushed');
+    // one function by two names is named as called (`dispatch`, `_dispatch`)
+    expect(ctrl.set()).toBe('set');
+    expect(ctrl.alias()).toBe('alias');
     // one wrapper per controller, so it stays one dependency
     expect(withMethodNames(mocked)).toBe(ctrl);
     expect(withMethodNames(new Mocked())).not.toBe(ctrl);

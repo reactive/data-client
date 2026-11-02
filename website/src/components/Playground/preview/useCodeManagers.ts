@@ -2,9 +2,10 @@ import { useCallback, useMemo, useState } from 'react';
 
 import ManagerHost, { managersVersion } from './managers';
 import { previewScope } from './scope';
-import transformCode, {
+import {
   documentLine,
   layoutOf,
+  scopeBlock,
   type DocumentSpan,
 } from './transformCode';
 import type { PreviewSnapshot } from './usePreviewReset';
@@ -23,20 +24,24 @@ export function useCodeManagers(
   remount: (snapshot: PreviewSnapshot) => void,
 ) {
   const version = useMemo(() => managersVersion(documents), [documents]);
-  const layout = useMemo(() => layoutOf(documents), [documents]);
+  // a string, so equal files keep the transform the same
+  const layout = useMemo(
+    () => JSON.stringify(layoutOf(documents)),
+    [documents],
+  );
   // outlives remounts, so a new store gets the last registered getManagers()
   const host = useMemo(() => new ManagerHost(remount), [remount]);
-  const [files] = useState(() => new RunningFiles(layout));
+  const [files] = useState(() => new RunningFiles(layoutOf(documents)));
   const scope = useMemo(
     () => ({
       ...previewScope,
       [RUN_START]: files.start,
       [REGISTER_MANAGERS]: (
         getManagers: Parameters<ManagerHost['register']>[0],
-        managersSource: string,
+        codeVersion: string,
       ) => {
-        files.ran();
-        host.register(getManagers, managersSource);
+        files.complete();
+        host.register(getManagers, codeVersion);
       },
       [RUN_END]: files.end,
     }),
@@ -45,9 +50,8 @@ export function useCodeManagers(
   // changes only along with the code, so it never re-runs the code by itself
   const transformWithManagers = useCallback(
     (code: string) =>
-      // the try block is the scope block (see `scopeBlock`), opened on the
-      // code's first line, so its lines keep their numbers
-      `${RUN_START}(${JSON.stringify(layout)});try{${transformCode(code + managersTrailer(version))}\n}finally{${RUN_END}()}`,
+      // the scope block is the try's, opened on the code's first line
+      `${RUN_START}(${layout});try${scopeBlock(code + managersTrailer(version))}finally{${RUN_END}()}`,
     [version, layout],
   );
   return {
@@ -75,7 +79,7 @@ class RunningFiles {
   };
 
   /** The evaluating code ran to its end */
-  readonly ran = () => {
+  readonly complete = () => {
     if (this.running) this.last = this.running;
   };
 

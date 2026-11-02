@@ -231,17 +231,18 @@ export function wrapCalls<T extends object>(
   object: T,
   around: (name: PropertyKey, call: () => unknown) => unknown,
 ): T {
-  const wrapped = new WeakMap<object, AnyFn>();
+  // by name, as one function can have two (`dispatch` is `_dispatch`)
+  const wrapped = new Map<PropertyKey, { value: AnyFn; call: AnyFn }>();
   return new Proxy(object, {
     get(target, key) {
       const value: unknown = Reflect.get(target, key, target);
       if (typeof value !== 'function') return value;
       // the same function each read, until the object's changes
-      const cached = wrapped.get(value);
-      if (cached) return cached;
+      const cached = wrapped.get(key);
+      if (cached?.value === value) return cached.call;
       const call = (...args: unknown[]) =>
         around(key, () => value.apply(target, args));
-      wrapped.set(value, call);
+      wrapped.set(key, { value: value as AnyFn, call });
       return call;
     },
   });

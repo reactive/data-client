@@ -6,6 +6,8 @@ import { useCodeManagers } from '../useCodeManagers';
 
 jest.mock('../scope', () => ({ previewScope: {} }));
 
+const noop = () => undefined;
+
 const files = (path: string, value: string): CodeDocument[] => [
   { path, value, collapsed: false, language: 'tsx' },
 ];
@@ -18,7 +20,7 @@ function run(program: string, scope: Record<string, unknown>) {
 describe('useCodeManagers', () => {
   it('locates lines in the files of the code that runs', () => {
     const { result, rerender } = renderHook(
-      ({ documents }) => useCodeManagers(documents, () => {}),
+      ({ documents }) => useCodeManagers(documents, noop),
       { initialProps: { documents: files('First.tsx', 'const a = 1;') } },
     );
     const { locate } = result.current;
@@ -43,5 +45,16 @@ describe('useCodeManagers', () => {
     // an edit that throws keeps running the code before it
     expect(() => runCode('Broken.tsx', 'throw new Error();')).toThrow();
     expect(locate(1)?.path).toBe('Second.tsx');
+  });
+
+  it('keeps the transform while the files are equal', () => {
+    const { result, rerender } = renderHook(
+      ({ documents }) => useCodeManagers(documents, noop),
+      { initialProps: { documents: files('Demo.tsx', 'const a = 1;') } },
+    );
+    const { transformCode } = result.current;
+    // react-live re-runs the code when its transform changes
+    rerender({ documents: files('Demo.tsx', 'const a = 1;') });
+    expect(result.current.transformCode).toBe(transformCode);
   });
 });
