@@ -27,7 +27,7 @@ Define um mapeamento de objeto simples cujos valores precisam ser normalizados e
 
 #### Uso {#usage}
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],

@@ -460,7 +460,7 @@ reinicia el estado local del componente.
   <button @click="reload">Reload</button>
   <Suspense timeout="0">
     <ArticleName :key="remountKey" :id="id" />
-    <template #fallback>Loading...</template>
+    <template #fallback><Loading /></template>
   </Suspense>
 </template>
 ```
@@ -682,6 +682,16 @@ toma la entrada del schema que envuelve, ya que `set()` normaliza ese schema en 
 
 ```ts
 ctrl.set(TodoResource.getList.schema, [{ id: '5', completed: true }]);
+```
+
+[Collection.push](/rest/api/Collection#push) y [unshift](/rest/api/Collection#unshift) reciben los args de la Collection,
+que eligen las listas a las que se agrega, y una fila o una lista de filas.
+
+```ts
+ctrl.set(TodoResource.getList.schema.push, { userId: '1' }, [
+  { id: '6', title: 'Buy milk' },
+  { id: '7', title: 'Walk dog' },
+]);
 ```
 
 :::note Unions

@@ -10,6 +10,7 @@ sidebar_label: 分页
 import StackBlitz from '@site/src/components/StackBlitz';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import PaginationDemo from '../../core/shared/\_pagination.mdx';
+import { validatorFixtures } from '@site/src/fixtures/validators';
 
 # Rest 分页
 
@@ -44,12 +45,12 @@ export const PostResource = resource({
 
 ### 直接使用 RestEndpoint {#using-restendpoint-directly}
 
-下面我们使用 [cosmos 验证者列表](https://rest.cosmos.directory/stargaze/cosmos/staking/v1beta1/validators)来探索一个真实的示例。
+下面我们使用 [Cosmos Hub 验证者列表](https://rest.cosmos.directory/cosmoshub/cosmos/staking/v1beta1/validators)来探索一个真实的示例。
 
 由于验证者只有一个 Endpoint，我们使用 [RestEndpoint](../api/RestEndpoint.md) 而不是 [resource](../api/resource.md)。借助 [Collections](../api/Collection.md) 和 [paginationField](../api/RestEndpoint.md#paginationfield)，我们可以调用 [RestEndpoint.getPage](../api/RestEndpoint.md#getpage)，
 将下一页验证者追加到列表中。
 
-<FrameworkPlayground defaultOpen="n" row>
+<FrameworkPlayground defaultOpen="n" row fixtures={validatorFixtures}>
 
 ```ts title="Validator" {47-51} collapsed
 import { Collection, Entity, RestEndpoint, schema } from '@data-client/rest';
@@ -71,7 +72,7 @@ export class Validator extends Entity {
   };
   unbonding_height = '0';
   unbonding_time = Temporal.Instant.fromEpochMilliseconds(0);
-  comission = {
+  commission = {
     commission_rates: { rate: 0, max_rate: 0, max_change_rate: 0 },
     update_time: Temporal.Instant.fromEpochMilliseconds(0),
   };
@@ -83,7 +84,7 @@ export class Validator extends Entity {
 
   static schema = {
     unbonding_time: Temporal.Instant.from,
-    comission: {
+    commission: {
       commission_rates: {
         rate: Number,
         max_rate: Number,
@@ -96,7 +97,7 @@ export class Validator extends Entity {
 
 export const getValidators = new RestEndpoint({
   urlPrefix: 'https://rest.cosmos.directory',
-  path: '/stargaze/cosmos/staking/v1beta1/validators',
+  path: '/cosmoshub/cosmos/staking/v1beta1/validators',
   searchParams: {} as { 'pagination.limit': string },
   paginationField: 'pagination.key',
   schema: {

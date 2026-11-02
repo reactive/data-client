@@ -17,7 +17,7 @@ import AgentOnly from '@site/src/components/AgentOnly';
 
 <SiteOnly>
 
-## 使用你的编程智能体进行设置 {#agent-setup}
+## 编程智能体设置 {#agent-setup}
 
 <SetupTabs />
 

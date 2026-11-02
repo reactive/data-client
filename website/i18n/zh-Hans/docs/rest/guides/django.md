@@ -6,6 +6,7 @@ sidebar_label: Django 集成
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
+import { myPostFixtures } from '@site/src/fixtures/my-posts';
 
 # Django 集成
 
@@ -16,7 +17,7 @@ Django 通过[要求请求中带有 'X-CSRFToken' 请求头](https://docs.django
 此外，Django 的认证使用 [cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)，因此我们需要发送凭据（[fetch credentials](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#sending_a_request_with_credentials_included)）。如果你使用的
 认证方式不是默认的 'django.contrib.auth'，请参阅[认证指南](./auth.md)获取更多示例。
 
-<EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'X-CSRFToken': 'xyz', 'Cookie': 'session=abc;'}}} status={200} response={{  "id": "1","title": "this post"}}>
+<EndpointPlayground fixtures={myPostFixtures} setup="const document = { cookie: 'csrftoken=xyz' };">
 
 ```ts title="getCookie" collapsed
 export default function getCookie(name): string {
@@ -77,7 +78,7 @@ export const MyResource = resource({
 
 ```ts title="Usage" column
 import { MyResource } from './MyResource';
-MyResource.get({ id: 1 });
+MyResource.partialUpdate({ id: 1 }, { title: 'Signing in with cookies' });
 ```
 
 </EndpointPlayground>

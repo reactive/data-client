@@ -113,10 +113,12 @@ import { getUpdated } from './getUpdated';
 export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
-    <div className="listItem">
-      <span className="meta">API time for {id}</span>
-      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
-    </div>
+    <>
+      <h2>
+        <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'medium' })}</time>
+      </h2>
+      <span className="meta">Fetched for page {id}</span>
+    </>
   );
 }
 ```
@@ -124,17 +126,17 @@ export default function TimePage({ id }: { id: string }) {
 ```tsx title="Navigator" layout collapsed docs-only
 export default function Navigator({ children }) {
   return (
-    <div>
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Server time</h1>
+        <CurrentTime />
+      </header>
       <nav>
         <Link to="/time/1">First</Link>
         <Link to="/time/2">Second</Link>
       </nav>
       {children}
-      <div className="listItem">
-        <span className="meta">Current time</span>
-        <CurrentTime />
-      </div>
-    </div>
+    </>
   );
 }
 ```
@@ -153,36 +155,33 @@ export default function Navigator({ children }) {
 </script>
 
 <template>
-  <div class="listItem">
-    <span class="meta">API time for {{ id }}</span>
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-  </div>
+  <h2>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'medium' }) }}</time>
+  </h2>
+  <span class="meta">Fetched for page {{ id }}</span>
 </template>
 ```
 
 ```html title="Navigator.vue" layout collapsed docs-only
 <template>
-  <div>
-    <nav>
-      <RouterLink to="/time/1">First</RouterLink>
-      <RouterLink to="/time/2">Second</RouterLink>
-    </nav>
-    <RouterView v-slot="{ Component, route }">
-      <!-- :key remounts TimePage so it suspends for the new id -->
-      <Suspense timeout="0">
-        <component
-          :is="Component"
-          :key="route.fullPath"
-          :id="route.params.id"
-        />
-        <template #fallback><Loading /></template>
-      </Suspense>
-    </RouterView>
-    <div class="listItem">
-      <span class="meta">Current time</span>
-      <CurrentTime />
-    </div>
-  </div>
+  <header class="appHeader">
+    <h1 class="appTitle">Server time</h1>
+  </header>
+  <nav>
+    <RouterLink to="/time/1">First</RouterLink>
+    <RouterLink to="/time/2">Second</RouterLink>
+  </nav>
+  <RouterView v-slot="{ Component, route }">
+    <!-- :key remounts TimePage so it suspends for the new id -->
+    <Suspense timeout="0">
+      <component
+        :is="Component"
+        :key="route.fullPath"
+        :id="route.params.id"
+      />
+      <template #fallback><Loading /></template>
+    </Suspense>
+  </RouterView>
 </template>
 ```
 
@@ -301,10 +300,12 @@ import { getUpdated } from './getUpdated';
 export default function TimePage({ id }: { id: string }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
   return (
-    <div className="listItem">
-      <span className="meta">API time for {id}</span>
-      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
-    </div>
+    <>
+      <h2>
+        <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'medium' })}</time>
+      </h2>
+      <span className="meta">Fetched for page {id}</span>
+    </>
   );
 }
 ```
@@ -312,17 +313,17 @@ export default function TimePage({ id }: { id: string }) {
 ```tsx title="Navigator" layout collapsed docs-only
 export default function Navigator({ children }) {
   return (
-    <div>
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Server time</h1>
+        <CurrentTime />
+      </header>
       <nav>
         <Link to="/time/1">First</Link>
         <Link to="/time/2">Second</Link>
       </nav>
       {children}
-      <div className="listItem">
-        <span className="meta">Current time</span>
-        <CurrentTime />
-      </div>
-    </div>
+    </>
   );
 }
 ```
@@ -341,36 +342,33 @@ export default function Navigator({ children }) {
 </script>
 
 <template>
-  <div class="listItem">
-    <span class="meta">API time for {{ id }}</span>
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-  </div>
+  <h2>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'medium' }) }}</time>
+  </h2>
+  <span class="meta">Fetched for page {{ id }}</span>
 </template>
 ```
 
 ```html title="Navigator.vue" layout collapsed docs-only
 <template>
-  <div>
-    <nav>
-      <RouterLink to="/time/1">First</RouterLink>
-      <RouterLink to="/time/2">Second</RouterLink>
-    </nav>
-    <RouterView v-slot="{ Component, route }">
-      <!-- :key remounts TimePage so it suspends for the new id -->
-      <Suspense timeout="0">
-        <component
-          :is="Component"
-          :key="route.fullPath"
-          :id="route.params.id"
-        />
-        <template #fallback><Loading /></template>
-      </Suspense>
-    </RouterView>
-    <div class="listItem">
-      <span class="meta">Current time</span>
-      <CurrentTime />
-    </div>
-  </div>
+  <header class="appHeader">
+    <h1 class="appTitle">Server time</h1>
+  </header>
+  <nav>
+    <RouterLink to="/time/1">First</RouterLink>
+    <RouterLink to="/time/2">Second</RouterLink>
+  </nav>
+  <RouterView v-slot="{ Component, route }">
+    <!-- :key remounts TimePage so it suspends for the new id -->
+    <Suspense timeout="0">
+      <component
+        :is="Component"
+        :key="route.fullPath"
+        :id="route.params.id"
+      />
+      <template #fallback><Loading /></template>
+    </Suspense>
+  </RouterView>
 </template>
 ```
 
@@ -515,13 +513,22 @@ export const lastUpdated = new RestEndpoint({
 
 :::react
 
-```tsx title="ShowTime" collapsed
-import { useSuspense, useController } from '@data-client/react';
+```tsx title="TimeList" collapsed
+import { AsyncBoundary, useSuspense } from '@data-client/react';
 import { lastUpdated } from './api/lastUpdated';
 
-export default function ShowTime({ id }: { id: string }) {
+const ids = ['1', '2', '3'];
+
+export default function TimeList() {
+  return ids.map(id => (
+    <AsyncBoundary key={id} fallback={<TimeSkeleton id={id} />}>
+      <TimeRow id={id} />
+    </AsyncBoundary>
+  ));
+}
+
+function TimeRow({ id }: { id: string }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
-  const ctrl = useController();
   return (
     <div className="listItem">
       <b>{id}</b>
@@ -529,10 +536,8 @@ export default function ShowTime({ id }: { id: string }) {
     </div>
   );
 }
-```
 
-```tsx title="Loading" collapsed
-export default function Loading({ id }: { id: string }) {
+function TimeSkeleton({ id }: { id: string }) {
   return (
     <div className="listItem">
       <b>{id}</b>
@@ -543,26 +548,15 @@ export default function Loading({ id }: { id: string }) {
 ```
 
 ```tsx title="Demo"
-import { AsyncBoundary, useController } from '@data-client/react';
-
+import { useController } from '@data-client/react';
 import { lastUpdated } from './api/lastUpdated';
-import ShowTime from './ShowTime';
-import Loading from './Loading';
+import TimeList from './TimeList';
 
 function Demo() {
   const ctrl = useController();
   return (
     <div>
-      <AsyncBoundary fallback={<Loading id="1" />}>
-        <ShowTime id="1" />
-      </AsyncBoundary>
-      <AsyncBoundary fallback={<Loading id="2" />}>
-        <ShowTime id="2" />
-      </AsyncBoundary>
-      <AsyncBoundary fallback={<Loading id="3" />}>
-        <ShowTime id="3" />
-      </AsyncBoundary>
-
+      <TimeList />
       <div className="buttonGroup">
         <button onClick={() => ctrl.expireAll(lastUpdated)}>
           Expire All
@@ -598,24 +592,35 @@ render(<Demo />);
 </template>
 ```
 
+```html title="TimeList.vue" collapsed
+<script setup lang="ts">
+  import ShowTime from './ShowTime.vue';
+
+  const ids = ['1', '2', '3'];
+</script>
+
+<template>
+  <Suspense v-for="id in ids" :key="id">
+    <ShowTime :id="id" />
+    <template #fallback>
+      <div class="listItem"><b>{{ id }}</b><span class="skeleton" /></div>
+    </template>
+  </Suspense>
+</template>
+```
+
 ```html title="Demo.vue"
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
   import { lastUpdated } from './api/lastUpdated';
-  import ShowTime from './ShowTime.vue';
+  import TimeList from './TimeList.vue';
 
   const ctrl = useController();
 </script>
 
 <template>
   <div>
-    <Suspense v-for="id in ['1', '2', '3']" :key="id">
-      <ShowTime :id="id" />
-      <template #fallback>
-        <div class="listItem"><b>{{ id }}</b><span class="skeleton" /></div>
-      </template>
-    </Suspense>
-
+    <TimeList />
     <div class="buttonGroup">
       <button @click="ctrl.expireAll(lastUpdated)">Expire All</button>
       <button @click="ctrl.fetch(lastUpdated, { id: '1' })">
@@ -685,13 +690,22 @@ export const lastUpdated = new RestEndpoint({
 
 :::react
 
-```tsx title="ShowTime" collapsed
-import { useSuspense, useController } from '@data-client/react';
+```tsx title="TimeList" collapsed
+import { AsyncBoundary, useSuspense } from '@data-client/react';
 import { lastUpdated } from './api/lastUpdated';
 
-export default function ShowTime({ id }: { id: string }) {
+const ids = ['1', '2', '3'];
+
+export default function TimeList() {
+  return ids.map(id => (
+    <AsyncBoundary key={id} fallback={<TimeSkeleton id={id} />}>
+      <TimeRow id={id} />
+    </AsyncBoundary>
+  ));
+}
+
+function TimeRow({ id }: { id: string }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
-  const ctrl = useController();
   return (
     <div className="listItem">
       <b>{id}</b>
@@ -699,10 +713,8 @@ export default function ShowTime({ id }: { id: string }) {
     </div>
   );
 }
-```
 
-```tsx title="Loading" collapsed
-export default function Loading({ id }: { id: string }) {
+function TimeSkeleton({ id }: { id: string }) {
   return (
     <div className="listItem">
       <b>{id}</b>
@@ -713,33 +725,20 @@ export default function Loading({ id }: { id: string }) {
 ```
 
 ```tsx title="Demo"
-import { AsyncBoundary, useController } from '@data-client/react';
-
+import { useController } from '@data-client/react';
 import { lastUpdated } from './api/lastUpdated';
-import ShowTime from './ShowTime';
-import Loading from './Loading';
+import TimeList from './TimeList';
 
 function Demo() {
   const ctrl = useController();
   return (
     <div>
-      <AsyncBoundary fallback={<Loading id="1" />}>
-        <ShowTime id="1" />
-      </AsyncBoundary>
-      <AsyncBoundary fallback={<Loading id="2" />}>
-        <ShowTime id="2" />
-      </AsyncBoundary>
-      <AsyncBoundary fallback={<Loading id="3" />}>
-        <ShowTime id="3" />
-      </AsyncBoundary>
-
+      <TimeList />
       <div className="buttonGroup">
         <button onClick={() => ctrl.invalidateAll(lastUpdated)}>
           Invalidate All
         </button>
-        <button
-          onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}
-        >
+        <button onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}>
           Invalidate First
         </button>
       </div>
@@ -770,26 +769,39 @@ render(<Demo />);
 </template>
 ```
 
+```html title="TimeList.vue" collapsed
+<script setup lang="ts">
+  import ShowTime from './ShowTime.vue';
+
+  const ids = ['1', '2', '3'];
+</script>
+
+<template>
+  <Suspense v-for="id in ids" :key="id">
+    <ShowTime :id="id" />
+    <template #fallback>
+      <div class="listItem"><b>{{ id }}</b><span class="skeleton" /></div>
+    </template>
+  </Suspense>
+</template>
+```
+
 ```html title="Demo.vue"
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
   import { lastUpdated } from './api/lastUpdated';
-  import ShowTime from './ShowTime.vue';
+  import TimeList from './TimeList.vue';
 
   const ctrl = useController();
 </script>
 
 <template>
   <div>
-    <Suspense v-for="id in ['1', '2', '3']" :key="id">
-      <ShowTime :id="id" />
-      <template #fallback>
-        <div class="listItem"><b>{{ id }}</b><span class="skeleton" /></div>
-      </template>
-    </Suspense>
-
+    <TimeList />
     <div class="buttonGroup">
-      <button @click="ctrl.invalidateAll(lastUpdated)">Invalidate All</button>
+      <button @click="ctrl.invalidateAll(lastUpdated)">
+        Invalidate All
+      </button>
       <button @click="ctrl.invalidate(lastUpdated, { id: '1' })">
         Invalidate First
       </button>
@@ -835,7 +847,7 @@ delay: () => 150,
 >
 
 ```ts title="api/lastUpdated" collapsed
-import { Entity, RestEndpoint } from '@data-client/rest';
+import { Entity, Invalidate, RestEndpoint } from '@data-client/rest';
 import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
@@ -851,37 +863,61 @@ export const lastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   schema: TimedEntity,
 });
-```
 
-:::react
+export const InvalidateTimedEntity = new Invalidate(TimedEntity);
 
-```tsx title="TimePage" collapsed
-import { useSuspense } from '@data-client/react';
-import { lastUpdated } from './api/lastUpdated';
-
-export default function TimePage({ id }) {
-  const { updatedAt } = useSuspense(lastUpdated, { id });
-  return (
-    <div className="listItem">
-      <span className="meta">API time for {id}</span>
-      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}</time>
-    </div>
-  );
-}
-```
-
-```tsx title="ShowTime"
-import { Invalidate, RestEndpoint } from '@data-client/rest';
-import { AsyncBoundary, useController, useLoading } from '@data-client/react';
-import { TimedEntity } from './api/lastUpdated';
-import TimePage from './TimePage';
-
-const InvalidateTimedEntity = new Invalidate(TimedEntity);
 export const deleteLastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   method: 'DELETE',
   schema: InvalidateTimedEntity,
 });
+```
+
+:::react
+
+```tsx title="ServerTime" collapsed
+import { AsyncBoundary, useSuspense } from '@data-client/react';
+import { lastUpdated } from './api/lastUpdated';
+
+export default function ServerTime({ id }: { id: string }) {
+  return (
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Server time</h1>
+        <CurrentTime />
+      </header>
+      <section>
+        <AsyncBoundary
+          fallback={
+            <h2>
+              <span className="skeleton" />
+            </h2>
+          }
+        >
+          <TimeReadout id={id} />
+        </AsyncBoundary>
+      </section>
+    </>
+  );
+}
+
+function TimeReadout({ id }: { id: string }) {
+  const { updatedAt } = useSuspense(lastUpdated, { id });
+  return (
+    <h2>
+      <time>{updatedAt.toLocaleString('en-US', { timeStyle: 'medium' })}</time>
+    </h2>
+  );
+}
+```
+
+```tsx title="ShowTime"
+import { useController, useLoading } from '@data-client/react';
+import {
+  InvalidateTimedEntity,
+  deleteLastUpdated,
+} from './api/lastUpdated';
+import ServerTime from './ServerTime';
 
 function ShowTime() {
   const ctrl = useController();
@@ -891,31 +927,14 @@ function ShowTime() {
   );
   return (
     <div>
-      <AsyncBoundary
-        fallback={
-          <div className="listItem">
-            <span className="meta">API time for 1</span>
-            <span className="skeleton" />
-          </div>
-        }
-      >
-        <TimePage id="1" />
-      </AsyncBoundary>
-      <div className="listItem">
-        <span className="meta">Current time</span>
-        <CurrentTime />
-      </div>
+      <ServerTime id="1" />
       <div className="buttonGroup">
         <button onClick={handleDelete} aria-busy={loadingDelete}>
           Invalidate
         </button>
         <button
           onClick={() =>
-            ctrl.setResponse(
-              deleteLastUpdated,
-              { id: '1' },
-              { id: '1' },
-            )
+            ctrl.setResponse(deleteLastUpdated, { id: '1' }, { id: '1' })
           }
         >
           Invalidate (without fetching DELETE)
@@ -946,26 +965,42 @@ render(<ShowTime />);
 </script>
 
 <template>
-  <div class="listItem">
-    <span class="meta">API time for {{ id }}</span>
-    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
-  </div>
+  <h2>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'medium' }) }}</time>
+  </h2>
+</template>
+```
+
+```html title="ServerTime.vue" collapsed
+<script setup lang="ts">
+  import TimePage from './TimePage.vue';
+
+  defineProps<{ id: string }>();
+</script>
+
+<template>
+  <header class="appHeader">
+    <h1 class="appTitle">Server time</h1>
+  </header>
+  <section>
+    <Suspense>
+      <TimePage :id="id" />
+      <template #fallback>
+        <h2><span class="skeleton" /></h2>
+      </template>
+    </Suspense>
+  </section>
 </template>
 ```
 
 ```html title="ShowTime.vue"
 <script setup lang="ts">
-  import { Invalidate, RestEndpoint } from '@data-client/rest';
   import { useController, useLoading } from '@data-client/vue';
-  import { TimedEntity } from './api/lastUpdated';
-  import TimePage from './TimePage.vue';
-
-  const InvalidateTimedEntity = new Invalidate(TimedEntity);
-  const deleteLastUpdated = new RestEndpoint({
-    path: '/api/currentTime/:id',
-    method: 'DELETE',
-    schema: InvalidateTimedEntity,
-  });
+  import {
+    InvalidateTimedEntity,
+    deleteLastUpdated,
+  } from './api/lastUpdated';
+  import ServerTime from './ServerTime.vue';
 
   const ctrl = useController();
   const [handleDelete, loadingDelete] = useLoading(() =>
@@ -975,15 +1010,7 @@ render(<ShowTime />);
 
 <template>
   <div>
-    <Suspense>
-      <TimePage id="1" />
-      <template #fallback>
-        <div class="listItem">
-          <span class="meta">API time for 1</span>
-          <span class="skeleton" />
-        </div>
-      </template>
-    </Suspense>
+    <ServerTime id="1" />
     <div class="buttonGroup">
       <button @click="handleDelete" :aria-busy="loadingDelete">
         Invalidate

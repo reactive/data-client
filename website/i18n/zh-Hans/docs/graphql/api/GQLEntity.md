@@ -334,7 +334,7 @@ static createIfValid(props): AbstractInstanceType<this> | undefined {
 定义[关联 Entity](/rest/guides/relational-data) 成员，或者
 Date、BigNumber 这类[字段反序列化](/rest/guides/network-transform#deserializing-fields)。
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<HooksPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: getPost,
 args: [{ id: '123' }],

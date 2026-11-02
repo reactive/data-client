@@ -65,7 +65,7 @@ o multiplicar dos números.
 
 En este caso, simplemente usa el [static schema](../api/Entity.md#schema) con [Temporal.Instant](https://tc39.es/proposal-temporal/) y [BigNumber](https://github.com/MikeMcl/bignumber.js)
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/price/:exchangePair'}),
 args: [{ exchangePair: 'btc-usd' }],
@@ -114,12 +114,19 @@ function PricePage() {
     exchangePair: 'btc-usd',
   });
   return (
-    <div>
-      ${currentPrice.price.toFormat(2)} as of{' '}
-      <time>
-        {currentPrice.updatedAt.toLocaleString('en-US', { dateStyle: 'medium' })}
-      </time>
-    </div>
+    <dl className="stats">
+      <div>
+        <dt>
+          {currentPrice.exchangePair.toUpperCase()}, as of{' '}
+          <time>
+            {currentPrice.updatedAt.toLocaleString('en-US', {
+              dateStyle: 'medium',
+            })}
+          </time>
+        </dt>
+        <dd>${currentPrice.price.toFormat(2)}</dd>
+      </div>
+    </dl>
   );
 }
 render(<PricePage />);
@@ -140,12 +147,17 @@ render(<PricePage />);
 </script>
 
 <template>
-  <div>
-    ${{ currentPrice.price.toFormat(2) }} as of
-    <time>
-      {{ currentPrice.updatedAt.toLocaleString('en-US', { dateStyle: 'medium' }) }}
-    </time>
-  </div>
+  <dl class="stats">
+    <div>
+      <dt>
+        {{ currentPrice.exchangePair.toUpperCase() }}, as of
+        <time>
+          {{ currentPrice.updatedAt.toLocaleString('en-US', { dateStyle: 'medium' }) }}
+        </time>
+      </dt>
+      <dd>${{ currentPrice.price.toFormat(2) }}</dd>
+    </div>
+  </dl>
 </template>
 ```
 
@@ -280,13 +292,17 @@ import { getTicker } from './Ticker';
 function AssetPrice({ productId }: Props) {
   const ticker = useLive(getTicker, { productId });
   return (
-    <center>
-      {productId}{' '}
-      <NumberFlow
-        value={ticker.price}
-        format={{ style: 'currency', currency: 'USD' }}
-      />
-    </center>
+    <dl className="stats">
+      <div>
+        <dt>{productId}</dt>
+        <dd>
+          <NumberFlow
+            value={ticker.price}
+            format={{ style: 'currency', currency: 'USD' }}
+          />
+        </dd>
+      </div>
+    </dl>
   );
 }
 interface Props {
@@ -313,13 +329,17 @@ render(<AssetPrice productId="BTC-USD" />);
 </script>
 
 <template>
-  <div style="text-align: center">
-    {{ productId }}
-    <NumberFlow
-      :value="ticker.price"
-      :format="{ style: 'currency', currency: 'USD' }"
-    />
-  </div>
+  <dl class="stats">
+    <div>
+      <dt>{{ productId }}</dt>
+      <dd>
+        <NumberFlow
+          :value="ticker.price"
+          :format="{ style: 'currency', currency: 'USD' }"
+        />
+      </dd>
+    </div>
+  </dl>
 </template>
 ```
 

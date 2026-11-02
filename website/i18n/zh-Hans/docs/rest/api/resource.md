@@ -12,9 +12,11 @@ description: Resource 是一组 RestEndpoint 的集合，它们通过共享同�
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import StackBlitz from '@site/src/components/StackBlitz';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
+import { groupPostFixtures } from '@site/src/fixtures/group-posts';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import DeleteProcess from './\_DeleteProcess.mdx';
 import CollectionLists from '@site/src/components/CollectionLists';
+import MethodInfo from '@site/src/components/MethodInfo';
 
 # Resource
 
@@ -291,9 +293,11 @@ const PostResource = resource({
 
 ### get {#get}
 
+<MethodInfo>
+
 获取单个 Entity。
 
-<EndpointPlayground input="/react/posts/1" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={{  "id": "1","group": "react","title": "this post",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -333,13 +337,17 @@ PostResource.get({
 |  path  | [path](#path)     |
 | schema | [schema](#schema) |
 
+</MethodInfo>
+
 通常与 [useSuspense()](/docs/api/useSuspense)、[Controller.invalidate](/docs/api/Controller#invalidate)、[Controller.expireAll](/docs/api/Controller#expireAll) 一起使用
 
 ### getList {#getlist}
 
+<MethodInfo>
+
 获取 Entity 列表。
 
-<EndpointPlayground input="/react/posts?author=clara" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={[{ "id": "1","group": "react","title": "this post",author: 'clara',}]}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -381,6 +389,8 @@ PostResource.getList({
 | paginationField | [paginationField](#paginationfield)                  |
 |     schema      | [new Collection(\[schema\])](./Collection.md) |
 
+</MethodInfo>
+
 <!-- prettier-ignore-start -->
 ```ts
 resource({ path: '/:first/:second' }).getList.path === '/:first';
@@ -395,10 +405,12 @@ resource({ path: '/:owner/*path' }).getList.path === '/:owner';
 
 ### getList.push {#push}
 
+<MethodInfo>
+
 [RestEndpoint.push](./RestEndpoint.md#push) 会创建一个新的 Entity，并将其添加到 getList 的末尾。如果想放在开头，
 请改用 [getList.unshift](#unshift)。将数组作为 body 传入即可一次创建多个。
 
-<EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'},body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -440,13 +452,17 @@ PostResource.getList.push(
 |     body     | [body](#body)                               |
 |    schema    | getList.[schema.push](./Collection.md#push) |
 
+</MethodInfo>
+
 通常与 [Controller.fetch](/docs/api/Controller#fetch) 一起使用
 
 ### getList.unshift {#unshift}
 
+<MethodInfo>
+
 [RestEndpoint.unshift](./RestEndpoint.md#unshift) 会创建一个新的 Entity，并将其添加到 getList 的开头。
 
-<EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -488,15 +504,19 @@ PostResource.getList.unshift(
 |     body     | [body](#body)                                     |
 |    schema    | getList.[schema.unshift](./Collection.md#unshift) |
 
+</MethodInfo>
+
 通常与 [Controller.fetch](/docs/api/Controller#fetch) 一起使用
 
 ### getList.getPage {#getpage}
+
+<MethodInfo>
 
 [RestEndpoint.getPage](./RestEndpoint.md#getpage) 会获取另一[页](../guides/pagination.md#infinite-scrolling)数据并追加到 getList 中，同时确保没有重复项。
 
 只有指定了 [paginationField](#paginationfield) 时才会提供此成员。
 
-<EndpointPlayground input="/react/posts?author=clara&page=2" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={[{ "id": "5","group": "react","title": "second page",author: 'clara',}]}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -540,16 +560,20 @@ PostResource.getList.getPage({
 | paginationField | [paginationField](#paginationfield)                 |
 |     schema      | [getList.schema.addWith](./Collection.md#addWith) |
 
+</MethodInfo>
+
 args: `PathToArgs(shortenPath(path)) & searchParams & \{ [paginationField]: string | number \}`
 
 通常与 [Controller.fetch](/docs/api/Controller#fetch) 一起使用
 
 ### getList.move {#move}
 
+<MethodInfo>
+
 [RestEndpoint.move](./RestEndpoint.md#move) 会在 [Collections](./Collection.md) 之间移动 Entity：将其从
 与旧状态匹配的 collection 中移除，并添加到与 body 中新值相匹配的 collection 中。
 
-<EndpointPlayground input="/react/posts/1" init={{method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "group": "vue" })}} status={200} response={{  "id": "1","group": "vue","title": "this post",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -590,13 +614,17 @@ PostResource.getList.move(
 |     body     | [body](#body)                               |
 |    schema    | getList.[schema.move](./Collection.md#move) |
 
+</MethodInfo>
+
 通常与 [Controller.fetch](/docs/api/Controller#fetch) 一起使用
 
 ### update {#update}
 
+<MethodInfo>
+
 更新一个 Entity。
 
-<EndpointPlayground input="/react/posts/1" init={{method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "updated title", author: 'clara' })}} status={200} response={{  "id": "1","group": "react","title": "updated title",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -637,13 +665,17 @@ PostResource.update(
 |  body  | [body](#body)     |
 | schema | [schema](#schema) |
 
+</MethodInfo>
+
 通常与 [Controller.fetch](/docs/api/Controller#fetch) 一起使用
 
 ### partialUpdate {#partialupdate}
 
+<MethodInfo>
+
 更新 Entity 的部分字段。
 
-<EndpointPlayground input="/react/posts/1" init={{method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "updated title" })}} status={200} response={{  "id": "1","group": "react","title": "updated title",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -684,13 +716,17 @@ PostResource.partialUpdate(
 |  body  | [body](#body)     |
 | schema | [schema](#schema) |
 
+</MethodInfo>
+
 通常与 [Controller.fetch](/docs/api/Controller#fetch) 一起使用
 
 ### delete {#delete}
 
+<MethodInfo>
+
 删除一个 Entity。
 
-<EndpointPlayground input="/react/posts/1" init={{method: 'DELETE', headers: {'Content-Type': 'application/json', }}} status={200} response={{ "id": "1" }}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -727,6 +763,8 @@ PostResource.delete({ group: 'react', id: '1' });
 |  path   | [path](#path)                                    |
 | schema  | [new Invalidate(schema)](./Invalidate.md) |
 | process | <DeleteProcess />                                |
+
+</MethodInfo>
 
 通常与 [Controller.fetch](/docs/api/Controller#fetch) 一起使用
 

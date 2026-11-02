@@ -2,7 +2,6 @@
 title: Abortando fetch
 ---
 
-import HooksPlayground from '@site/src/components/HooksPlayground';
 import UseCancelling from '../../core/shared/\_useCancelling.mdx';
 
 O [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) oferece uma nova maneira de cancelar
@@ -10,11 +9,12 @@ fetches que deixaram de ser relevantes. Ele pode ser conectado ao fetch por meio
 
 ## Cancelando ao mudar os parâmetros {#cancelling-on-params-change}
 
-Às vezes o usuário pode preencher um campo que afeta os resultados de uma chamada de rede.
-Se for um campo de texto, ele pode digitar muito rápido, gerando um grande número de requisições de rede.
+Quando os parâmetros mudam rapidamente, como um leitor percorrendo uma caixa de entrada, cada mensagem por que ele passa inicia um download.
+Cada resposta é armazenada sob seus próprios parâmetros, então uma resposta atrasada nunca substitui o que está na tela. Mas os
+downloads que ele deixou para trás continuam, dividindo uma conexão lenta com o que ele realmente quer.
 
-Usar [useCancelling()](/docs/api/useCancelling) cancela automaticamente as requisições em andamento se os parâmetros
-mudarem antes que a requisição seja resolvida.
+[useCancelling()](/docs/api/useCancelling) aborta a requisição em andamento assim que os parâmetros mudam, de modo que
+a mensagem em que o leitor para é baixada sozinha.
 
 <UseCancelling />
 

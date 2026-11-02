@@ -10,6 +10,7 @@ sidebar_label: Paginación
 import StackBlitz from '@site/src/components/StackBlitz';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import PaginationDemo from '../../core/shared/\_pagination.mdx';
+import { validatorFixtures } from '@site/src/fixtures/validators';
 
 # Paginación REST
 
@@ -44,12 +45,12 @@ Desplázate hasta el final de la vista previa y haz clic en _"Load more"_ para a
 
 ### Usar RestEndpoint directamente {#using-restendpoint-directly}
 
-Aquí exploramos un ejemplo del mundo real usando la [lista de validadores de cosmos](https://rest.cosmos.directory/stargaze/cosmos/staking/v1beta1/validators).
+Aquí exploramos un ejemplo del mundo real usando la [lista de validadores de Cosmos Hub](https://rest.cosmos.directory/cosmoshub/cosmos/staking/v1beta1/validators).
 
 Como los validadores solo tienen un Endpoint, usamos [RestEndpoint](../api/RestEndpoint.md) en lugar de [resource](../api/resource.md). Con [Collections](../api/Collection.md) y [paginationField](../api/RestEndpoint.md#paginationfield), podemos llamar a [RestEndpoint.getPage](../api/RestEndpoint.md#getpage)
 para añadir la siguiente página de validadores a nuestra lista.
 
-<FrameworkPlayground defaultOpen="n" row>
+<FrameworkPlayground defaultOpen="n" row fixtures={validatorFixtures}>
 
 ```ts title="Validator" {47-51} collapsed
 import { Collection, Entity, RestEndpoint, schema } from '@data-client/rest';
@@ -71,7 +72,7 @@ export class Validator extends Entity {
   };
   unbonding_height = '0';
   unbonding_time = Temporal.Instant.fromEpochMilliseconds(0);
-  comission = {
+  commission = {
     commission_rates: { rate: 0, max_rate: 0, max_change_rate: 0 },
     update_time: Temporal.Instant.fromEpochMilliseconds(0),
   };
@@ -83,7 +84,7 @@ export class Validator extends Entity {
 
   static schema = {
     unbonding_time: Temporal.Instant.from,
-    comission: {
+    commission: {
       commission_rates: {
         rate: Number,
         max_rate: Number,
@@ -96,7 +97,7 @@ export class Validator extends Entity {
 
 export const getValidators = new RestEndpoint({
   urlPrefix: 'https://rest.cosmos.directory',
-  path: '/stargaze/cosmos/staking/v1beta1/validators',
+  path: '/cosmoshub/cosmos/staking/v1beta1/validators',
   searchParams: {} as { 'pagination.limit': string },
   paginationField: 'pagination.key',
   schema: {

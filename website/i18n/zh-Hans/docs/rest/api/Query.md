@@ -10,6 +10,7 @@ sidebar_label: Query
 import { RestEndpoint } from '@data-client/rest';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import SortDemo from '../shared/\_SortDemo.mdx';
+import { assigneeFixtures, getInitialInterceptorData } from '@site/src/fixtures/assignees';
 
 # Query
 
@@ -40,7 +41,7 @@ Reactive Data Client 应有的高性能和引用相等性保证。
 
 ### 聚合 {#aggregates}
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],
@@ -140,7 +141,10 @@ render(<UsersPage />);
 
 ### 使用 groupBy 聚合重新组织数据 {#groupby}
 
-<FrameworkPlayground>
+<FrameworkPlayground
+fixtures={assigneeFixtures}
+getInitialInterceptorData={getInitialInterceptorData}
+>
 
 ```ts title="resources/User" collapsed
 import { Entity, resource } from '@data-client/rest';
@@ -238,7 +242,7 @@ function TodosPage() {
   if (!todosByUser) return <div>Todos not found</div>;
   return (
     <div>
-      {Object.keys(todosByUser).slice(5).map(userId => (
+      {Object.keys(todosByUser).map(userId => (
         <TodoByUser
           key={userId}
           userId={userId}
@@ -307,7 +311,7 @@ render(<TodosPage />);
   <div v-if="!todosByUser">Todos not found</div>
   <div v-else>
     <TodoByUser
-      v-for="userId in Object.keys(todosByUser).slice(5)"
+      v-for="userId in Object.keys(todosByUser)"
       :key="userId"
       :userId="userId"
       :todos="todosByUser[userId]"
@@ -324,7 +328,7 @@ render(<TodosPage />);
 
 `Query` 可以接受 [Object Schema](/rest/api/Object)，从而跨多种 Entity 类型进行连接。这让你可以在单个查询中组合来自不同 Entity 的数据。
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/tickers/:product_id'}),
 args: [{ product_id: 'BTC-USD' }],
@@ -374,6 +378,7 @@ export const StatsResource = resource({
 ```tsx title="PriceDisplay"
 import { Query } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
 import { TickerResource, Ticker } from './resources/Ticker';
 import { StatsResource, Stats } from './resources/Stats';
 
@@ -389,12 +394,20 @@ function PriceDisplay({ productId }: { productId: string }) {
   const price = useQuery(queryPrice, { product_id: productId });
   
   return (
-    <div>
-      Price:{' '}
-      {price === undefined ?
-        <span className="skeleton" />
-      : `$${price}`}
-    </div>
+    <dl className="stats">
+      <div>
+        <dt>{productId}</dt>
+        <dd>
+          {price === undefined ?
+            <span className="skeleton" />
+          : <NumberFlow
+              value={price}
+              format={{ style: 'currency', currency: 'USD' }}
+            />
+          }
+        </dd>
+      </div>
+    </dl>
   );
 }
 
@@ -420,6 +433,7 @@ render(<PriceDisplay productId="BTC-USD" />);
 
 <script setup lang="ts">
   import { useQuery, useFetch } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
 
   const props = defineProps<{ productId: string }>();
   useFetch(TickerResource.get, () => ({ product_id: props.productId }));
@@ -428,11 +442,19 @@ render(<PriceDisplay productId="BTC-USD" />);
 </script>
 
 <template>
-  <div>
-    Price:
-    <span v-if="price === undefined" class="skeleton" />
-    <template v-else>${{ price }}</template>
-  </div>
+  <dl class="stats">
+    <div>
+      <dt>{{ productId }}</dt>
+      <dd>
+        <span v-if="price === undefined" class="skeleton" />
+        <NumberFlow
+          v-else
+          :value="price"
+          :format="{ style: 'currency', currency: 'USD' }"
+        />
+      </dd>
+    </div>
+  </dl>
 </template>
 ```
 

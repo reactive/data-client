@@ -220,12 +220,19 @@ const incrementInterceptor = {
 
 当你想使用自定义 [getRequestInit()](/rest/api/RestEndpoint#getRequestInit) 中生成的 body 时，这会很有用
 
+它可以返回一个 promise，例如用来模拟缓慢的服务器。`init.signal` 是该 fetch 的
+[AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)（即 endpoint 的 `signal`），因此
+fetch 被中止时，interceptor 可以停止等待。
+
 ### delay: number {#delay}
 
 resolve promise 之前要等待的毫秒数。在模拟竞态条件时
 这会很有用。
 
 如果传入的是函数，则使用其返回值作为毫秒数。
+
+在延迟期间中止该 fetch 的 [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
+会以 `AbortError` reject 它，与 `fetch()` 的行为一致。
 
 ### delayCollapse: boolean {#delayCollapse}
 

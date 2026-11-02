@@ -25,7 +25,7 @@ Recupera todas as entidades no cache como um Array.
 
 Para descrever um array simples de um único tipo de entidade:
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],

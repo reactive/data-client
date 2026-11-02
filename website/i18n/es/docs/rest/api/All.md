@@ -25,7 +25,7 @@ Obtiene todas las entities de la caché como un Array.
 
 Para describir un array simple de un único tipo de entity:
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],

@@ -460,7 +460,7 @@ function ArticleName({ id }: { id: string }) {
   <button @click="reload">Reload</button>
   <Suspense timeout="0">
     <ArticleName :key="remountKey" :id="id" />
-    <template #fallback>Loading...</template>
+    <template #fallback><Loading /></template>
   </Suspense>
 </template>
 ```
@@ -683,6 +683,16 @@ value 的类型由 schema 决定：[Entity](/rest/api/Entity) 接收其字段（
 
 ```ts
 ctrl.set(TodoResource.getList.schema, [{ id: '5', completed: true }]);
+```
+
+[Collection.push](/rest/api/Collection#push) 和 [unshift](/rest/api/Collection#unshift) 接收该 Collection 的参数（用于选出要添加到的列表），
+以及一行或一组行。
+
+```ts
+ctrl.set(TodoResource.getList.schema.push, { userId: '1' }, [
+  { id: '6', title: 'Buy milk' },
+  { id: '7', title: 'Walk dog' },
+]);
 ```
 
 :::note Unions

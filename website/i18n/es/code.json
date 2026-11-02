@@ -954,8 +954,8 @@
     "message": "retraso"
   },
   "agentPrompt.prompt": {
-    "message": "Configura `@data-client/{framework}` y úsalo para todos los datos de la API. Primero instala su skill de configuración: `{command}`, y luego síguela.",
-    "description": "Prompt readers copy into their coding agent; {command} is the shell command the agent runs. Keep the backticks around package names and the command: they keep each on one line."
+    "message": "Configura `@data-client/{framework}` y úsalo para todos los datos de la API. Primero instala su skill de configuración: `{command}`, luego lee `{skillFile}` y síguela.",
+    "description": "Prompt readers copy into their coding agent; {command} is the shell command the agent runs and {skillFile} the file it then reads. Keep the backticks around package names and the command: they keep each on one line."
   },
   "agentPrompt.copy": {
     "message": "Copiar el prompt para tu agente de programación",
@@ -988,5 +988,39 @@
   "setupTabs.cursorNewChat": {
     "message": "Luego, en un chat nuevo:",
     "description": "Between Cursor's plugin install prompt and its setup prompt"
+  },
+  "methodInfo.inherited": {
+    "message": "de resource()"
+  },
+  "demo.protocol": {
+    "message": "Protocolo"
+  },
+  "http.json": {
+    "message": "json",
+    "description": "Chip for the content-type: application/json header"
+  },
+  "http.credentials.omit": {
+    "message": "sin cookies",
+    "description": "Chip for fetch's credentials: 'omit' option"
+  },
+  "http.credentials": {
+    "message": "cookies",
+    "description": "Chip for fetch's credentials option, which sends the browser's cookies"
+  },
+  "playground.files": {
+    "message": "Archivos"
+  },
+  "playground.inFlight": {
+    "message": "{count} fetch en curso|{count} fetches en curso",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.actions.hide": {
+    "message": "Ocultar acciones"
+  },
+  "playground.actions.show": {
+    "message": "Mostrar acciones"
+  },
+  "playground.actions": {
+    "message": "Acciones"
   }
 }

@@ -6,6 +6,10 @@ sidebar_label: Invalidate
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { RestEndpoint } from '@data-client/rest';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
+import {
+  deleteManyFixtures,
+  deleteManyEmptyFixtures,
+} from '@site/src/fixtures/bulk-delete-posts';
 
 # Invalidate
 
@@ -31,7 +35,7 @@ new Invalidate(entityMap, schemaAttribute)
 
 ## Uso {#usage}
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],
@@ -135,17 +139,7 @@ Aquí agregamos otro endpoint para eliminar varias entities a la vez envolviendo
 `Invalidate` en un array. `Data Client` puede entonces usar `invalidate` en cada
 entity de la respuesta.
 
-<EndpointPlayground
-input="/posts"
-init={
-  {
-    method: 'DELETE',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(['5', '13', '7']),
-  }
-}
-status={200}
-response={[{ id: '5' }, { id: '13' }, { id: '7' }]}>
+<EndpointPlayground fixtures={deleteManyFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -157,7 +151,7 @@ export default class Post extends Entity {
 }
 ```
 
-```typescript title="Resource" {9}
+```typescript title="Resource" {9-10,13-15}
 import { resource, Invalidate } from '@data-client/rest';
 import Post from './Post';
 
@@ -166,34 +160,28 @@ export const PostResource = resource({
   path: '/posts/:id',
 }).extend('deleteMany', {
   path: '/posts',
-  body: [] as string[],
+  searchParams: {} as { ids: string[] },
+  body: undefined,
   method: 'DELETE',
   schema: [new Invalidate(Post)],
+  searchToString({ ids }) {
+    return `ids=${ids.join(',')}`;
+  },
 });
 ```
 
 ```typescript title="Usage" column
 import { PostResource } from './Resource';
-PostResource.deleteMany(['5', '13', '7']);
+PostResource.deleteMany({ ids: ['5', '13', '7'] });
 ```
 
 </EndpointPlayground>
 
 A veces nuestro backend no devuelve nada para 'DELETE'. En este
 caso, podemos usar [process](./RestEndpoint.md#process) para construir
-una respuesta utilizable a partir del argumento `body`.
+una respuesta utilizable a partir de los `ids` enviados.
 
-<EndpointPlayground
-input="/posts"
-init={
-  {
-    method: 'DELETE',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(['5', '13', '7']),
-  }
-}
-status={204}
-response={undefined}>
+<EndpointPlayground fixtures={deleteManyEmptyFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -205,7 +193,7 @@ export default class Post extends Entity {
 }
 ```
 
-```typescript title="Resource" {10-13}
+```typescript title="Resource" {9-10,13-19}
 import { resource, Invalidate } from '@data-client/rest';
 import Post from './Post';
 
@@ -214,19 +202,23 @@ export const PostResource = resource({
   path: '/posts/:id',
 }).extend('deleteMany', {
   path: '/posts',
-  body: [] as string[],
+  searchParams: {} as { ids: string[] },
+  body: undefined,
   method: 'DELETE',
   schema: [new Invalidate(Post)],
-  process(value, body) {
-    // use the body payload to inform which entities to delete
-    return body.map(id => ({ id }));
-  }
+  searchToString({ ids }) {
+    return `ids=${ids.join(',')}`;
+  },
+  process(value, { ids }) {
+    // use the ids sent to inform which entities to delete
+    return ids.map(id => ({ id }));
+  },
 });
 ```
 
 ```typescript title="Usage" column
 import { PostResource } from './Resource';
-PostResource.deleteMany(['5', '13', '7']);
+PostResource.deleteMany({ ids: ['5', '13', '7'] });
 ```
 
 </EndpointPlayground>

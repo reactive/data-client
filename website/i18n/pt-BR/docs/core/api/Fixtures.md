@@ -220,12 +220,19 @@ const incrementInterceptor = {
 
 Isso pode ser útil quando você quer usar o body gerado em um [getRequestInit()](/rest/api/RestEndpoint#getRequestInit) personalizado
 
+Pode retornar uma promise, por exemplo para simular um servidor lento. `init.signal` é o
+[AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) do fetch (o `signal` do endpoint), então o
+interceptor pode parar de esperar quando o fetch for abortado.
+
 ### delay: number {#delay}
 
 É o número de milissegundos a aguardar antes de resolver a promise. Pode ser útil
 ao simular condições de corrida.
 
 Quando uma função é enviada, seu valor de retorno é usado como o número de milissegundos.
+
+Abortar o [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) do fetch durante o delay
+o rejeita com um `AbortError`, como o `fetch()` faria.
 
 ### delayCollapse: boolean {#delayCollapse}
 

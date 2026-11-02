@@ -151,9 +151,10 @@ Passado para `normalize()`.
 | `mergeEntity(schema, pk, entity)`      | Armazena uma entity por meio de seu ciclo de vida de merge                                             |
 | `setEntity(schema, pk, entity, meta?)` | Armazena uma entity, substituindo o que havia                                               |
 | `invalidate(schema, pk)`               | Marca uma entity como inválida, suspendendo os componentes que dependem dela                              |
+| `INVALID`                              | O que `getEntity()` retorna para uma entity invalidada                                  |
 | `checkLoop(key, pk, input)`            | `true` quando esta entrada já foi normalizada como (key, pk) nesta chamada; pare a recursão |
 
-`getEntity` até `invalidate` só são necessários para
+`getEntity` até `INVALID` só são necessários para
 [schemas semelhantes a entity](#entity-like-schemas).
 
 ### IDenormalizeDelegate {#idenormalizedelegate}

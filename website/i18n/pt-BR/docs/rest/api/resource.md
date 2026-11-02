@@ -12,9 +12,11 @@ description: Resources são uma coleção de RestEndpoints que operam sobre dado
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import StackBlitz from '@site/src/components/StackBlitz';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
+import { groupPostFixtures } from '@site/src/fixtures/group-posts';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import DeleteProcess from './\_DeleteProcess.mdx';
 import CollectionLists from '@site/src/components/CollectionLists';
+import MethodInfo from '@site/src/components/MethodInfo';
 
 # Resource
 
@@ -291,9 +293,11 @@ const PostResource = resource({
 
 ### get {#get}
 
+<MethodInfo>
+
 Obtém uma única entity.
 
-<EndpointPlayground input="/react/posts/1" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={{  "id": "1","group": "react","title": "this post",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -333,13 +337,17 @@ PostResource.get({
 |  path  | [path](#path)     |
 | schema | [schema](#schema) |
 
+</MethodInfo>
+
 Normalmente usado com [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate), [Controller.expireAll](/docs/api/Controller#expireAll)
 
 ### getList {#getlist}
 
+<MethodInfo>
+
 Obtém uma lista de entities.
 
-<EndpointPlayground input="/react/posts?author=clara" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={[{ "id": "1","group": "react","title": "this post",author: 'clara',}]}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -381,6 +389,8 @@ PostResource.getList({
 | paginationField | [paginationField](#paginationfield)                  |
 |     schema      | [new Collection(\[schema\])](./Collection.md) |
 
+</MethodInfo>
+
 <!-- prettier-ignore-start -->
 ```ts
 resource({ path: '/:first/:second' }).getList.path === '/:first';
@@ -395,10 +405,12 @@ Normalmente usado com [useSuspense()](/docs/api/useSuspense), [Controller.invali
 
 ### getList.push {#push}
 
+<MethodInfo>
+
 [RestEndpoint.push](./RestEndpoint.md#push) cria uma nova entity e a adiciona ao final de getList. Use [getList.unshift](#unshift)
 para colocá-la no início. Passe um array como body para criar várias de uma só vez.
 
-<EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'},body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -440,13 +452,17 @@ PostResource.getList.push(
 |     body     | [body](#body)                               |
 |    schema    | getList.[schema.push](./Collection.md#push) |
 
+</MethodInfo>
+
 Normalmente usado com [Controller.fetch](/docs/api/Controller#fetch)
 
 ### getList.unshift {#unshift}
 
+<MethodInfo>
+
 [RestEndpoint.unshift](./RestEndpoint.md#unshift) cria uma nova entity e a adiciona ao início de getList.
 
-<EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -488,15 +504,19 @@ PostResource.getList.unshift(
 |     body     | [body](#body)                                     |
 |    schema    | getList.[schema.unshift](./Collection.md#unshift) |
 
+</MethodInfo>
+
 Normalmente usado com [Controller.fetch](/docs/api/Controller#fetch)
 
 ### getList.getPage {#getpage}
+
+<MethodInfo>
 
 [RestEndpoint.getPage](./RestEndpoint.md#getpage) obtém outra [página](../guides/pagination.md#infinite-scrolling), acrescentando-a a getList e garantindo que não haja duplicatas.
 
 Este membro só está disponível quando [paginationField](#paginationfield) é especificado.
 
-<EndpointPlayground input="/react/posts?author=clara&page=2" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={[{ "id": "5","group": "react","title": "second page",author: 'clara',}]}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -540,16 +560,20 @@ PostResource.getList.getPage({
 | paginationField | [paginationField](#paginationfield)                 |
 |     schema      | [getList.schema.addWith](./Collection.md#addWith) |
 
+</MethodInfo>
+
 args: `PathToArgs(shortenPath(path)) & searchParams & \{ [paginationField]: string | number \}`
 
 Normalmente usado com [Controller.fetch](/docs/api/Controller#fetch)
 
 ### getList.move {#move}
 
+<MethodInfo>
+
 [RestEndpoint.move](./RestEndpoint.md#move) move uma entity entre [Collections](./Collection.md), removendo-a das
 collections que correspondem ao seu estado antigo e adicionando-a às collections que correspondem aos novos valores do body.
 
-<EndpointPlayground input="/react/posts/1" init={{method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "group": "vue" })}} status={200} response={{  "id": "1","group": "vue","title": "this post",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -590,13 +614,17 @@ PostResource.getList.move(
 |     body     | [body](#body)                               |
 |    schema    | getList.[schema.move](./Collection.md#move) |
 
+</MethodInfo>
+
 Normalmente usado com [Controller.fetch](/docs/api/Controller#fetch)
 
 ### update {#update}
 
+<MethodInfo>
+
 Atualiza uma entity.
 
-<EndpointPlayground input="/react/posts/1" init={{method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "updated title", author: 'clara' })}} status={200} response={{  "id": "1","group": "react","title": "updated title",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -637,13 +665,17 @@ PostResource.update(
 |  body  | [body](#body)     |
 | schema | [schema](#schema) |
 
+</MethodInfo>
+
 Normalmente usado com [Controller.fetch](/docs/api/Controller#fetch)
 
 ### partialUpdate {#partialupdate}
 
+<MethodInfo>
+
 Atualiza um subconjunto de campos de uma entity.
 
-<EndpointPlayground input="/react/posts/1" init={{method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "updated title" })}} status={200} response={{  "id": "1","group": "react","title": "updated title",author: 'clara',}}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -684,13 +716,17 @@ PostResource.partialUpdate(
 |  body  | [body](#body)     |
 | schema | [schema](#schema) |
 
+</MethodInfo>
+
 Normalmente usado com [Controller.fetch](/docs/api/Controller#fetch)
 
 ### delete {#delete}
 
+<MethodInfo>
+
 Exclui uma entity.
 
-<EndpointPlayground input="/react/posts/1" init={{method: 'DELETE', headers: {'Content-Type': 'application/json', }}} status={200} response={{ "id": "1" }}>
+<EndpointPlayground fixtures={groupPostFixtures}>
 
 ```typescript title="Post" collapsed
 import { Entity } from '@data-client/rest';
@@ -727,6 +763,8 @@ PostResource.delete({ group: 'react', id: '1' });
 |  path   | [path](#path)                                    |
 | schema  | [new Invalidate(schema)](./Invalidate.md) |
 | process | <DeleteProcess />                                |
+
+</MethodInfo>
 
 Normalmente usado com [Controller.fetch](/docs/api/Controller#fetch)
 

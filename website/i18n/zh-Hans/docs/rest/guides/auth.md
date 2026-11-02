@@ -5,7 +5,9 @@ sidebar_label: 身份验证
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import PlaygroundTabs from '@site/src/components/PlaygroundTabs';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
+import { myPostFixtures } from '@site/src/fixtures/my-posts';
 
 所有网络请求都会经过你在 [RestEndpoint](../api/RestEndpoint.md) 中
 可选定义的 [getRequestInit](../api/RestEndpoint.md#getRequestInit)。
@@ -14,7 +16,7 @@ import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 
 下面是一个通过发送 [fetch credentials](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#sending_a_request_with_credentials_included) 实现简单 [cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies) 认证的示例：
 
-<EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'Cookie': 'session=abc;'}}} status={200} response={{  "id": "1","title": "this post"}}>
+<EndpointPlayground fixtures={myPostFixtures}>
 
 ```ts title="AuthdEndpoint" {9}
 import { RestEndpoint, type RestGenerics } from '@data-client/rest';
@@ -58,7 +60,7 @@ MyResource.get({ id: 1 });
 
 ## Access Token 或 JWT {#access-tokens-or-jwt}
 
-<Tabs
+<PlaygroundTabs
 defaultValue="static"
 values={[
 { label: 'static member', value: 'static' },
@@ -67,7 +69,7 @@ values={[
 ]}>
 <TabItem value="static">
 
-<EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'Access-Token': 'mytoken'}}} status={200} response={{  "id": "1","title": "this post"}}>
+<EndpointPlayground fixtures={myPostFixtures} setup="AuthdEndpoint.accessToken = 'mytoken';">
 
 ```ts title="login" collapsed
 export const login = async (data: FormData) =>
@@ -157,7 +159,7 @@ MyResource.get({ id: 1 });
 </TabItem>
 <TabItem value="async">
 
-<EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'Access-Token': 'mytoken'}}} status={200} response={{  "id": "1","title": "this post"}}>
+<EndpointPlayground fixtures={myPostFixtures} setup="setAuthToken('mytoken');">
 
 ```ts title="login" collapsed
 export const login = async (data: FormData) =>
@@ -252,7 +254,7 @@ MyResource.get({ id: 1 });
 </TabItem>
 <TabItem value="function">
 
-<EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'Access-Token': 'mytoken'}}} status={200} response={{  "id": "1","title": "this post"}}>
+<EndpointPlayground fixtures={myPostFixtures} setup="setAuthToken('mytoken');">
 
 ```ts title="login" collapsed
 export const login = async (data: FormData) =>
@@ -344,7 +346,7 @@ MyResource.get({ id: 1 });
 </EndpointPlayground>
 
 </TabItem>
-</Tabs>
+</PlaygroundTabs>
 
 ## 从 :react[React Context]:vue[provide/inject] 获取认证头 {#auth-headers-from-react-context}
 

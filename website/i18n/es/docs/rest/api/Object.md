@@ -27,7 +27,7 @@ Los `Objects` tienen miembros conocidos estáticamente. Para Objects sin límite
 
 #### Uso {#usage}
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],

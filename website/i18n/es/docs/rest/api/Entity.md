@@ -263,7 +263,7 @@ class User extends Entity {
 Define miembros de [entities relacionadas](/rest/guides/relational-data), o la
 [deserialización de campos](/rest/guides/network-transform#deserializing-fields) como Date y BigNumber.
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/posts/:id'}),
 args: [{ id: '123' }],

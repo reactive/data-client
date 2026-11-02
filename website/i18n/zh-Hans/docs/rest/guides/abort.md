@@ -2,7 +2,6 @@
 title: 中止请求
 ---
 
-import HooksPlayground from '@site/src/components/HooksPlayground';
 import UseCancelling from '../../core/shared/\_useCancelling.mdx';
 
 [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) 提供了一种新方式，用于取消那些已不再相关的请求。
@@ -10,11 +9,12 @@ import UseCancelling from '../../core/shared/\_useCancelling.mdx';
 
 ## 参数变化时取消 {#cancelling-on-params-change}
 
-有时用户可以填写某个字段，而这个字段会影响网络请求的结果。
-如果这是一个文本输入框，用户可能输入得很快，从而产生大量网络请求。
+当参数快速变化时，比如读者快速浏览收件箱，他们经过的每一封邮件都会开始一次下载。
+每个响应都按各自的参数存储，因此迟到的响应永远不会替换屏幕上的内容。但被他们抛在身后的
+下载仍会继续，与他们真正想要的那次下载争用缓慢的网络连接。
 
-使用 [useCancelling()](/docs/api/useCancelling) 时，如果参数在请求完成之前发生变化，
-进行中的请求会被自动取消。
+[useCancelling()](/docs/api/useCancelling) 会在参数一变化时就中止进行中的请求，因此
+读者停留的那封邮件可以独自下载。
 
 <UseCancelling />
 

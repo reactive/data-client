@@ -27,6 +27,31 @@ o que significa que você pode acabar cancelando um fetch com o qual outro compo
 
 :::
 
+## Cancelar vs Debounce {#cancel-vs-debounce}
+
+Use `useCancelling()` quando o usuário para em cada valor, como uma lista que ele percorre com as setas. Ele faz o fetch
+imediatamente e aborta o fetch anterior.
+
+Use [useDebounce()](./useDebounce.md) quando o usuário digita. Ele espera até a digitação parar, então envia
+menos requisições.
+
+Para uma busca, use os dois:
+
+```tsx
+import {
+  useCancelling,
+  useDebounce,
+  useSuspense,
+} from '@data-client/react';
+import { searchIssues } from './resources/Issue';
+
+function IssueList({ query }: { query: string }) {
+  const [q] = useDebounce(query, 200);
+  const { items } = useSuspense(useCancelling(searchIssues, { q }), { q });
+  // ...
+}
+```
+
 ## Tipos {#types}
 
 ```typescript

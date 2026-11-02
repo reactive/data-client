@@ -26,6 +26,31 @@ import UseCancelling from '../shared/\_useCancelling.mdx';
 
 :::
 
+## 取消与防抖 {#cancel-vs-debounce}
+
+当用户会在每个值上停留时使用 `useCancelling()`，比如用方向键逐项浏览的列表。它会立即获取，
+并中止上一次的 fetch。
+
+当用户在输入时使用 [useDebounce()](./useDebounce.md)。它会等到输入停止，因此发出的请求
+更少。
+
+对于搜索，两者一起使用：
+
+```tsx
+import {
+  useCancelling,
+  useDebounce,
+  useSuspense,
+} from '@data-client/react';
+import { searchIssues } from './resources/Issue';
+
+function IssueList({ query }: { query: string }) {
+  const [q] = useDebounce(query, 200);
+  const { items } = useSuspense(useCancelling(searchIssues, { q }), { q });
+  // ...
+}
+```
+
 ## 类型 {#types}
 
 ```typescript

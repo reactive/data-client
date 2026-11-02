@@ -12,7 +12,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
-import Grid from '@site/src/components/Grid';
+import { todoByIdFixtures } from '@site/src/fixtures/todos';
 import Link from '@docusaurus/Link';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import CollectionLists from '@site/src/components/CollectionLists';
@@ -120,7 +120,7 @@ Todas las opciones se admiten como argumentos del constructor, de [extend](#exte
 
 ### La obtención más simple {#simplest-retrieval}
 
-<Grid>
+<EndpointPlayground fixtures={todoByIdFixtures}>
 
 ```ts
 const getTodo = new RestEndpoint({
@@ -128,11 +128,11 @@ const getTodo = new RestEndpoint({
 });
 ```
 
-```ts
+```ts title="Usage" column
 const todo = await getTodo({ id: 1 });
 ```
 
-</Grid>
+</EndpointPlayground>
 
 ### Compartir configuración {#configuration-sharing}
 
@@ -350,6 +350,10 @@ valor enviado no importa. El valor `undefined` se puede usar para 'deshabilitar'
 <TypeScriptEditor>
 
 ```ts path=body.ts
+interface TodoInterface {
+  title: string;
+  completed: boolean;
+}
 export const update = new RestEndpoint({
   path: '/:id',
   method: 'PUT',
@@ -468,41 +472,32 @@ searchToString(searchParams) {
 
 Para codificar objetos complejos en los searchParams, puedes usar la librería [qs](https://github.com/ljharb/qs).
 
-```typescript
-import { RestEndpoint, RestGenerics } from '@data-client/rest';
-import qs from 'qs';
+<EndpointPlayground>
 
-class QSEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
-  searchToString(searchParams) {
-    // highlight-next-line
-    return qs.stringify(searchParams);
-  }
-}
-```
-
-<EndpointPlayground input="/foo?a%5Bb%5D=c" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}}>
-
-```typescript title="QSEndpoint" collapsed {7}
-import { RestEndpoint, RestGenerics } from '@data-client/rest';
+```typescript title="QSEndpoint" {8}
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 import qs from 'qs';
 
 export default class QSEndpoint<
   O extends RestGenerics = any,
 > extends RestEndpoint<O> {
-  searchToString(searchParams) {
+  searchToString(searchParams: Record<string, any>) {
     return qs.stringify(searchParams);
   }
 }
 ```
 
-```typescript title="getFoo"
+```typescript title="getFoo" collapsed
 import QSEndpoint from './QSEndpoint';
 
-const getFoo = new QSEndpoint({
+export const getFoo = new QSEndpoint({
   path: '/foo',
   searchParams: {} as { a: Record<string, string> },
 });
+```
 
+```typescript title="Usage" column
+import { getFoo } from './getFoo';
 getFoo({ a: { b: 'c' } });
 ```
 
@@ -624,7 +619,7 @@ y [body](#body).
 
 El **valor real no se usa** de ninguna manera; esto solo determina el [tipado](#typing).
 
-<EndpointPlayground input="https://site.com/cool?isReact=true" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}}>
+<EndpointPlayground>
 
 ```typescript title="getFoo"
 import { RestEndpoint } from '@data-client/rest';
@@ -646,7 +641,7 @@ usa** de ninguna manera; esto solo determina el [tipado](#typing).
 
 Solo lo usan los endpoints con un método que utiliza body: 'POST', 'PUT', 'PATCH'.
 
-<EndpointPlayground input="https://site.com/cool" init={{method: 'POST', body: '{ "url": "/" }', headers: {'Content-Type': 'application/json'}}}>
+<EndpointPlayground>
 
 ```ts {6}
 import { RestEndpoint } from '@data-client/rest';
@@ -720,7 +715,7 @@ para determinar `sideEffect` y si el endpoint debe usar un payload `body`. Estab
 
 `GET` es 'de solo lectura'; los demás métodos implican sideEffects.
 
-`GET` y `DELETE` no tienen `body` por defecto.
+`GET` y `DELETE` no tienen `body` por defecto. Define [body](#body) en un endpoint `DELETE` para enviar uno.
 
 :::tip[Cómo afecta method a los parámetros de la función]
 
@@ -1074,8 +1069,9 @@ const newUser = await ctrl.fetch(
   { username: 'newuser', email: 'new@example.com' },
 );
 
-// Send an array to create several at once; they're added to the end in order
-await ctrl.fetch(
+// Send an array to create several at once; they're added to the end in order,
+// and it resolves the created Users as an array
+const [ana, bo] = await ctrl.fetch(
   UserResource.getList.push,
   { group: 'five' },
   [{ username: 'ana' }, { username: 'bo' }],

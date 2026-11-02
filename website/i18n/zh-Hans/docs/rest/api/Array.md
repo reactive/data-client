@@ -41,7 +41,7 @@ _注意：同样的行为也可以用简写语法定义：`[ mySchema ]`_
 
 描述由单一 Entity 类型组成的简单数组：
 
-<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],

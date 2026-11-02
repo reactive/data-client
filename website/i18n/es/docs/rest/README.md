@@ -8,12 +8,13 @@ hide_title: true
 ---
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
-import Link from '@docusaurus/Link';
+import PlaygroundTabs from '@site/src/components/PlaygroundTabs';
+import SiteOnly from '@site/src/components/SiteOnly';
+import AgentOnly from '@site/src/components/AgentOnly';
 
 <PkgTabs pkgs="@data-client/rest" />
 
@@ -23,8 +24,9 @@ Los [Resources](./api/resource.md) son una colección de `methods` (métodos) pa
 Los [RestEndpoint](./api/RestEndpoint.md) son los [_métodos_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) sobre
 esos datos.
 
-<Tabs
+<PlaygroundTabs
 defaultValue="Class"
+label="Definición de Entity"
 values={[
 { label: 'Class', value: 'Class' },
 { label: 'Mixin', value: 'Mixin' },
@@ -129,7 +131,7 @@ export const ArticleResource = resource({
 
 </TabItem>
 
-</Tabs>
+</PlaygroundTabs>
 
 [Entity](./api/Entity.md) es un tipo de schema que [tiene una clave primaria (pk)](/docs/concepts/normalization). Esto es lo que nos permite
 [evitar la duplicación de estado](https://react.dev/learn/choosing-the-state-structure#principles-for-structuring-state), que
@@ -340,29 +342,29 @@ Si usas TypeScript (opcional), se requiere la versión 4.0 o superior.
 
 :::
 
-## Agent Skills de REST {#rest-agent-skills}
+## Configuración con agente de programación {#agent-setup}
 
-import SkillTabs from '@site/src/components/SkillTabs';
+<SiteOnly>
 
-<SkillTabs repo="reactive/data-client" skills={['data-client-schema', 'data-client-rest-setup', 'data-client-rest']} />
-
-Después, migra ejecutándola en el chat de tu agente:
+Pega esto en el chat de tu agente:
 
 ```prompt
-/data-client-rest-setup
+Use `@data-client/rest` endpoints for this app's REST APIs, without changing how components load or store data. Install the REST setup skill first: `npx skills add reactive/data-client --skill data-client-rest-setup -y`, then read `.agents/skills/data-client-rest-setup/SKILL.md` and follow it.
 ```
 
-<div style={{ textAlign: 'center' }}>
-<Link className="button button--secondary button--sm" to="https://skills.sh/reactive/data-client/data-client-rest"><img src={useBaseUrl('/img/anthropic.svg')} alt="REST Codegen Skill" style={{
-          height: '1em',
-          verticalAlign: '-0.125em',
-          display: 'inline',
-        }}
-/> REST Codegen Skill</Link>
-</div>
+</SiteOnly>
 
-### Migrar desde Axios {#migrating-from-axios}
+<AgentOnly>
 
-El skill `data-client-rest-setup` detecta automáticamente el uso de axios y aplica la migración de axios, incluyendo el [codemod](./guides/axios-migration.md#codemod), la conversión de interceptores y la migración del manejo de errores.
+Para agregar endpoints de `@data-client/rest` sin cambiar cómo la aplicación carga o almacena los datos, instala la skill de configuración de REST
+desde la raíz del proyecto:
 
-Consulta la [guía de migración de Axios](./guides/axios-migration.md) completa para ver ejemplos paso a paso, una tabla de referencia rápida y un codemod independiente.
+```bash
+npx skills add reactive/data-client --skill data-client-rest-setup -y
+```
+
+Luego lee `.agents/skills/data-client-rest-setup/SKILL.md` y síguela.
+
+</AgentOnly>
+
+La skill detecta axios y sigue la [guía de migración de Axios](./guides/axios-migration.md).
