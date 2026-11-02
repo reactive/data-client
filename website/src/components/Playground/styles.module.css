@@ -1576,6 +1576,21 @@ div.fixtureJson + div.fixtureJson {
   overflow-wrap: anywhere;
 }
 
+/* A behavior change (`before`, ../index.tsx): the replay's folder where
+   the code goes until the Code toggle shows the code in its place. Under
+   the preview's rules (.row > .previewWrapper) it is drawn as the preview's
+   folder; it holds no Store, and ends at its own sheet */
+.row[data-comparing]:not([data-code]) > .playgroundTextEdit,
+.row[data-comparing][data-code] > .beforeFolder {
+  display: none;
+}
+.row > .previewWrapper.beforeFolder {
+  z-index: 1;
+}
+.row > .previewWrapper.beforeFolder::after {
+  background: var(--pg-panel);
+}
+
 /* Side by side when the playground itself has enough width (docs sidebar
    no longer forces an incorrect stack on homepage/blog): a grid, the file
    tabs' row over the code card, the folder beside the card, and the folder's
@@ -1612,6 +1627,19 @@ div.fixtureJson + div.fixtureJson {
       :has(.tabControls, > .previewWrapper)
     ) {
     grid-template-rows: 0 auto;
+  }
+  /* the replay and the app, a column each */
+  .playgroundContainer.row:not(.stacked)[data-comparing]:not([data-code]) {
+    --pg-preview-col: calc((100cqw - var(--pg-gap)) / 2);
+  }
+  .row:not(.stacked) > .previewWrapper.beforeFolder {
+    grid-area: 1 / 1 / 3 / 2;
+    position: relative;
+    align-self: start;
+    max-height: none;
+  }
+  .row:not(.stacked) > .previewWrapper.beforeFolder::before {
+    inset: var(--pg-row) 0 0;
   }
   .row:not(.stacked) > .playgroundTextEdit {
     grid-area: 1 / 1 / 3 / 2;
@@ -1892,6 +1920,10 @@ div.fixtureJson + div.fixtureJson {
   }
   .row > .previewWrapper {
     overflow: visible;
+  }
+  /* a `before` replay: the code's place, above the app */
+  .row > .previewWrapper.beforeFolder {
+    grid-area: 1 / 1 / 2 / 2;
   }
   /* the layer is the code's rows; the gap below it stays in view, and
      nothing past that (the drawer parked behind the folder) */
@@ -2448,6 +2480,23 @@ div.fixtureJson + div.fixtureJson {
     clip-path: inset(50%);
     white-space: nowrap;
   }
+}
+/* A `before` replay's label (../BeforeFolder.tsx): the live label's
+   shape, its dot hollow and muted: a recording, not the app you use */
+.beforeLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.beforeLabel::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+  margin-inline-start: 3px;
+  box-shadow: inset 0 0 0 1.5px currentColor;
+  opacity: 0.7;
 }
 /* A playground with a demo (autorun/DemoLabel): the label replays it, and
    its dot breathes while it plays */

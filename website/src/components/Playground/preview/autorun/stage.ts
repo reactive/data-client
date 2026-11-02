@@ -10,8 +10,14 @@ import type { ShowStore } from '../store/storeView';
  * never `focus()`, which would take the page's focus from the reader.
  *
  * The pointer lives in a layer appended to `root`, removed by `end()`.
+ * Without `scroll`, it never scrolls the page to a target (a twin's, which
+ * the main stage's moves bring into view).
  */
-export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
+export function createStage(
+  root: HTMLElement,
+  showStore: ShowStore,
+  { scroll = true } = {},
+): Stage {
   const layer = document.createElement('div');
   layer.className = styles.layer;
   root.append(layer);
@@ -114,7 +120,7 @@ export function createStage(root: HTMLElement, showStore: ShowStore): Stage {
     point(el) {
       // root only bounds the walk: the scrollers inside it do the moving
       revealIn(root, el);
-      revealOnPage(el);
+      if (scroll) revealOnPage(el);
       pointedAt = el;
       return glide(el);
     },
@@ -196,8 +202,46 @@ function scopeOf(root: HTMLElement, scope: Scope) {
     case 'store':
       return root.querySelector<HTMLElement>('[data-store-panel]');
     default:
-      return root.querySelector<HTMLElement>('.playground-preview');
+      // the app's: a playground's own, not its `before` replay's
+      // (../../BeforeFolder.tsx), which is a stage of its own
+      return root.querySelector<HTMLElement>(
+        root.hasAttribute('data-before') ?
+          '.playground-preview'
+        : '.playground-preview:not([data-before] *)',
+      );
   }
+}
+
+/** Acts on `main` and, step for step, on what the same target finds in
+ * `twin` (a `before` replay, ../../BeforeFolder.tsx): the twin's pointer
+ * glides and presses in time with the main one. What only the main stage
+ * has (the Store, a target the twin lacks) plays there alone */
+export function mirrorStage(main: Stage, twin: Stage): Stage {
+  let mirrored: HTMLElement | null = null;
+  return {
+    find(target) {
+      const el = main.find(target);
+      mirrored = el && twin.find(target);
+      return el;
+    },
+    point(el) {
+      if (mirrored) twin.point(mirrored);
+      return main.point(el);
+    },
+    click(el) {
+      if (mirrored) twin.click(mirrored);
+      main.click(el);
+    },
+    append(el, text) {
+      if (mirrored) twin.append(mirrored, text);
+      main.append(el, text);
+    },
+    store: main.store,
+    end() {
+      twin.end();
+      main.end();
+    },
+  };
 }
 
 /** Scrolls the page to `el` if it's out of sight past one edge (the Store

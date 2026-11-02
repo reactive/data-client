@@ -38,3 +38,7 @@ export interface PreviewProps<T = any> {
   fixtures: FixtureOrInterceptor<T>[];
   getInitialInterceptorData?: () => T;
 }
+
+/** Dispatched on a `before` replay (./BeforeFolder.tsx) as a demo's run
+ * starts (./preview/autorun/useAutoRun.ts): it starts over */
+export const BEFORE_RESTART = 'playground:beforerestart';

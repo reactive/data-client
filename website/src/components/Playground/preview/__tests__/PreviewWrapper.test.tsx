@@ -42,10 +42,7 @@ describe('PreviewWrapper fixtures', () => {
 describe('PreviewWrapper label', () => {
   test("names the code in the label's place while it shows", () => {
     const { rerender } = render(
-      <PreviewWrapper
-        layout="stacked"
-        code={{ shown: false, toggle: () => {} }}
-      >
+      <PreviewWrapper layout="demo" code={{ shown: false, toggle: () => {} }}>
         <div>result</div>
       </PreviewWrapper>,
     );
@@ -59,7 +56,7 @@ describe('PreviewWrapper label', () => {
     expect(editor.getAttribute('aria-hidden')).toBe('true');
 
     rerender(
-      <PreviewWrapper layout="stacked" code={{ shown: true, toggle: () => {} }}>
+      <PreviewWrapper layout="demo" code={{ shown: true, toggle: () => {} }}>
         <div>result</div>
       </PreviewWrapper>,
     );
@@ -67,6 +64,16 @@ describe('PreviewWrapper label', () => {
       'true',
     );
     expect(editor.getAttribute('aria-hidden')).toBe('false');
+  });
+
+  test("keeps the label beside the code (a row's `before` replay)", () => {
+    render(
+      <PreviewWrapper layout="row" code={{ shown: true, toggle: () => {} }}>
+        <div>result</div>
+      </PreviewWrapper>,
+    );
+    expect(screen.getByRole('button', { name: 'Code' })).toBeTruthy();
+    expect(screen.queryByText('Editor')).toBeNull();
   });
 
   test('is the label alone where the code never shows', () => {

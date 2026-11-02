@@ -2,8 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { createPlayer } from './player';
 import type { AutoRunScript } from './script';
-import { createStage, revealOnPage } from './stage';
+import { createStage, mirrorStage, revealOnPage } from './stage';
 import { prefersReducedMotion } from '../../../motion';
+import { BEFORE_RESTART } from '../../types';
 import type { ShowStore } from '../store/storeView';
 
 /** Plays `script` in the playground (`[data-playground]`) around the
@@ -35,8 +36,17 @@ export function useAutoRun(
   const start = useCallback(() => {
     const { script, showStore } = latest.current;
     const playground = playgroundOf(preview.current);
-    if (script && playground)
-      player.play(script, createStage(playground, showStore));
+    if (!script || !playground) return;
+    const stage = createStage(playground, showStore);
+    // a `before` replay plays the same script beside it, from the start
+    const before = playground.querySelector<HTMLElement>('[data-before]');
+    if (before) before.dispatchEvent(new Event(BEFORE_RESTART));
+    player.play(
+      script,
+      before ?
+        mirrorStage(stage, createStage(before, showStore, { scroll: false }))
+      : stage,
+    );
   }, [player]);
 
   // ends a run with the preview; an idle player stays idle

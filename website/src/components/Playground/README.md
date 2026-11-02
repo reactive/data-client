@@ -150,6 +150,12 @@ preview header's toggle in every layout.
   The result stays mounted so app state survives; both share
   `--pg-demo-min` so toggling doesn't move the page. The Code toggle ends an
   `autoRun`.
+- `before` (a `row` only): a behavior change, side by side. `BeforeFolder.tsx`
+  draws the replay as a folder like the preview's in the code's place, half
+  the width (above the app when narrow); the code waits behind the header's
+  Code toggle and replaces it once shown. The replay is inert: the preview's
+  `autoRun` plays in it too (`mirrorStage` in `preview/autorun/stage.ts`),
+  restarting it (`BEFORE_RESTART`) on each run.
 - A `row` with no folder (`../TypeScriptEditor.tsx`) is the tabs and the
   code card alone; `row={false}` is a stacked one's code (several open
   files are cards). A lone file is a tab only if it has a title; untitled,
