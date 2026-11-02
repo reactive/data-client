@@ -2100,6 +2100,7 @@ button.tlMark:hover {
 /* a sender's parts, spaced */
 .whySender {
   display: inline-flex;
+  max-width: 100%;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0 0.6em;

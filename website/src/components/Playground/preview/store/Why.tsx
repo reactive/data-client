@@ -102,7 +102,13 @@ export function Why({ entries }: { entries: readonly LogEntry[] }) {
         )}
         {cause && (
           <WhyStep at={cause}>
-            <CauseLink entry={cause} />
+            <span className={styles.whySender}>
+              <CauseLink entry={cause} />
+              {/* who sent it, as its own view's chain names them */}
+              {(cause.caller || cause.origin) && (
+                <Sender entry={cause} n={1} />
+              )}
+            </span>
           </WhyStep>
         )}
         {named && (
