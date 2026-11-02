@@ -44,8 +44,8 @@ export function measure(items: Items): Positions {
  * `translate` only, on the compositor), so an item React put under another
  * parent travels there too. An item inside another that moves rides along
  * with it, and only travels the rest of the way itself; a key `before` lacks
- * fades in, marked `data-arrived` for a style that calls attention to it
- * (unless an item moves in with it, or it takes the exact spot of a key
+ * fades in, marked `data-arrived` (inside `[data-mark-arrivals]`) for a
+ * style that calls attention to it (unless an item moves in with it, or it takes the exact spot of a key
  * that just left: the same item under a new id, like an optimistic create
  * the server answered, which carries on that key's arrival). A key that
  * left fades out where it was, as the others glide into its place. Items
@@ -127,8 +127,10 @@ function sinceArrival(el: HTMLElement) {
   if (at !== undefined) return performance.now() - Number(at);
 }
 
-/** Fades `el` in, and marks it; `elapsed` (ms) picks up an arrival the
- * item made under the key it replaces, so it doesn't start over or cut off */
+/** Fades `el` in, and marks it inside `[data-mark-arrivals]` (where no one
+ * watching caused the change, so it needs pointing out); `elapsed` (ms)
+ * picks up an arrival the item made under the key it replaces, so it
+ * doesn't start over or cut off */
 function arrive(
   el: HTMLElement,
   timing: KeyframeAnimationOptions,
@@ -136,6 +138,7 @@ function arrive(
 ) {
   if (typeof el.animate !== 'function') return;
   el.animate(ARRIVE, timing).currentTime = elapsed;
+  if (!elapsed && !el.closest('[data-mark-arrivals]')) return;
   // the style calling attention to it starts as far in
   if (elapsed) el.style.animationDelay = `${-elapsed}ms`;
   // until that style is over (a move restarts a CSS animation)

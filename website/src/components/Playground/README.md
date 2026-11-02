@@ -364,7 +364,9 @@ group, beside the `assignee` picker). These are the site's own motion
 `autoRun` (a `Step[]`, `preview/autorun/script.ts`) plays the first time 60%
 of the preview (or viewport) is in view, never under reduced motion. The
 "Live Preview" label becomes its replay control (`DemoLabel`). `player.ts`
-owns timing, `stage.ts` the DOM, `useAutoRun.ts` connects them.
+owns timing, `stage.ts` the DOM, `useAutoRun.ts` connects them. While it
+plays, the playground carries `data-mark-arrivals`, so rows it brings into a
+`<Reorder>` light up for the watcher; rows the reader adds don't.
 
 Writing a script:
 

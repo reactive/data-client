@@ -15,6 +15,8 @@ const animations: {
 }[] = [];
 beforeEach(() => {
   animations.length = 0;
+  // as while a demo autoplays
+  document.body.toggleAttribute('data-mark-arrivals', true);
   jest
     .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
     .mockImplementation(function (this: HTMLElement) {
@@ -34,6 +36,7 @@ beforeEach(() => {
   };
 });
 afterEach(() => {
+  document.body.removeAttribute('data-mark-arrivals');
   jest.restoreAllMocks();
   delete (window as any).matchMedia;
   delete (HTMLElement.prototype as any).animate;
@@ -249,6 +252,19 @@ it('marks a new key data-arrived until the style calling attention to it ends', 
   // when it arrived
   expect(x.dataset.arrived).toBe('1000');
   x.dispatchEvent(new Event('animationend'));
+  expect(x.dataset.arrived).toBeUndefined();
+});
+
+it('fades in a new key unmarked outside [data-mark-arrivals] (the reader caused it)', () => {
+  document.body.removeAttribute('data-mark-arrivals');
+  const { rerender, getByTestId } = render(
+    <Board groups={[{ name: 'a', y: 0, rows: [] }]} />,
+  );
+  rerender(
+    <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
+  );
+  const x = getByTestId('x');
+  expect(startOf(x)).toEqual({ opacity: 0 });
   expect(x.dataset.arrived).toBeUndefined();
 });
 
