@@ -69,8 +69,8 @@ export function reorder(
     HTMLElement,
     { offset: Point; velocity: Point; spring: Spring; was: Point; at: Point }
   >();
-  const arrivals: HTMLElement[] = [];
-  const handovers: [el: HTMLElement, arrived: number][] = [];
+  // with how far into its arrival it already is (the key it replaces)
+  const arrivals: [el: HTMLElement, elapsed?: number][] = [];
   const left = [...before]
     .filter(([key]) => !items.has(key))
     .map(([, position]) => position);
@@ -78,8 +78,8 @@ export function reorder(
     const was = before.get(key);
     if (!was) {
       const spot = takeSpot(left, positionOf(el));
-      if (!spot) arrivals.push(el);
-      else if (spot.arrived !== undefined) handovers.push([el, spot.arrived]);
+      if (!spot) arrivals.push([el]);
+      else if (spot.arrived !== undefined) arrivals.push([el, spot.arrived]);
       continue;
     }
     const at = positionOf(el);
@@ -109,23 +109,21 @@ export function reorder(
   // an arrival holding an item that moves in (a row into a group that
   // wasn't there) shows at once, or its fade would hide that item's glide
   const fades = arrivals.filter(
-    el => !glides.some(({ el: item }) => el.contains(item)),
+    ([el]) => !glides.some(({ el: item }) => el.contains(item)),
   );
   for (const position of left) leave(position);
-  if (!fades.length && !handovers.length) return;
+  if (!fades.length) return;
   const timing = springEasing(spring);
-  for (const el of fades) arrive(el, timing);
-  for (const [el, arrived] of handovers) arrive(el, timing, arrived);
+  for (const [el, elapsed] of fades) arrive(el, timing, elapsed);
 }
 
 const ARRIVE: Keyframe[] = [{ opacity: 0 }, { opacity: 1 }];
 
-/** When each arriving item arrived (`performance.now()`) */
-const arrivedAt = new WeakMap<HTMLElement, number>();
+/** ms since `el` arrived, while it still calls attention to that
+ * (`data-arrived` holds when, in `performance.now()` time) */
 function sinceArrival(el: HTMLElement) {
-  const at = arrivedAt.get(el);
-  if (at === undefined || el.dataset.arrived === undefined) return;
-  return performance.now() - at;
+  const at = el.dataset.arrived;
+  if (at !== undefined) return performance.now() - Number(at);
 }
 
 /** Fades `el` in, and marks it; `elapsed` (ms) picks up an arrival the
@@ -136,15 +134,15 @@ function arrive(
   elapsed = 0,
 ) {
   if (typeof el.animate !== 'function') return;
-  arrivedAt.set(el, performance.now() - elapsed);
-  el.animate(ARRIVE, timing);
-  // until the style that calls attention to it is over (a move restarts a
-  // CSS animation)
-  el.dataset.arrived = '';
-  if (elapsed)
-    for (const animation of el.getAnimations?.() ?? [])
-      animation.currentTime = elapsed;
-  const over = () => delete el.dataset.arrived;
+  el.animate(ARRIVE, timing).currentTime = elapsed;
+  // the style calling attention to it starts as far in
+  if (elapsed) el.style.animationDelay = `${-elapsed}ms`;
+  // until that style is over (a move restarts a CSS animation)
+  el.dataset.arrived = String(performance.now() - elapsed);
+  const over = () => {
+    delete el.dataset.arrived;
+    el.style.removeProperty('animation-delay');
+  };
   el.addEventListener('animationend', over, { once: true });
   el.addEventListener('animationcancel', over, { once: true });
 }

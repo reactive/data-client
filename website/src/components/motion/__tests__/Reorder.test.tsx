@@ -11,6 +11,7 @@ const animations: {
   el: Element;
   keyframes: Keyframe[];
   finish: () => void;
+  animation: Animation;
 }[] = [];
 beforeEach(() => {
   animations.length = 0;
@@ -22,13 +23,14 @@ beforeEach(() => {
   HTMLElement.prototype.animate = function (keyframes: any) {
     let finish!: () => void;
     const finished = new Promise<void>(resolve => (finish = resolve));
-    animations.push({ el: this, keyframes, finish });
-    return {
+    const animation = {
       playState: 'running',
       currentTime: null,
       finished,
       cancel() {},
     } as unknown as Animation;
+    animations.push({ el: this, keyframes, finish, animation });
+    return animation;
   };
 });
 afterEach(() => {
@@ -243,7 +245,7 @@ it('marks a new key data-arrived until the style calling attention to it ends', 
     <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
   );
   const x = getByTestId('x');
-  expect(x.dataset.arrived).toBe('');
+  expect(x.dataset.arrived).toBeDefined();
   x.dispatchEvent(new Event('animationend'));
   expect(x.dataset.arrived).toBeUndefined();
 });
@@ -300,16 +302,17 @@ it('carries on the arrival of a key whose spot it takes, so its highlight does n
     <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'temp', y: 10 }] }]} />,
   );
   now.mockReturnValue(1300);
-  const resumed: Partial<Animation>[] = [{}, {}];
-  HTMLElement.prototype.getAnimations = () => resumed as Animation[];
   rerender(
     <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
   );
-  delete (HTMLElement.prototype as any).getAnimations;
   const x = getByTestId('x');
-  expect(x.dataset.arrived).toBe('');
-  expect(startOf(x)).toEqual({ opacity: 0 });
-  expect(resumed.map(animation => animation.currentTime)).toEqual([300, 300]);
+  expect(x.dataset.arrived).toBe('1000');
+  const fade = animations.find(({ el }) => el === x);
+  expect(fade?.keyframes[0]).toEqual({ opacity: 0 });
+  expect(fade?.animation.currentTime).toBe(300);
+  expect(x.style.animationDelay).toBe('-300ms');
+  x.dispatchEvent(new Event('animationend'));
+  expect(x.style.animationDelay).toBe('');
 });
 
 it('fades in a new key away from where a key left', () => {
