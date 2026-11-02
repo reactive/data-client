@@ -53,7 +53,7 @@ export type TodoData = Pick<Todo, 'id' | 'userId' | 'title' | 'completed'>;
  * built from these. */
 export type TodoServer = Record<number, TodoData | null>;
 
-/** New todos get ids after jsonplaceholder's 200 */
+/** jsonplaceholder's last todo id */
 const LAST_SEEDED_ID = 200;
 
 /** Adds the `todos` this server hasn't seen. It keeps its own copy of the
@@ -102,7 +102,7 @@ export const todoEndpointFixtures: Interceptor<TodoServer>[] = [
     async response(...args: Parameters<typeof TodoResource.getList.push>) {
       const todo = {
         ...(await TodoResource.getList.push(...args)),
-        // after every id the server has, so todos list in creation order
+        // after every id, stored or jsonplaceholder's, so todos list in creation order
         id: Math.max(...Object.keys(this).map(Number), LAST_SEEDED_ID) + 1,
       };
       this[todo.id] = todo;
@@ -112,8 +112,9 @@ export const todoEndpointFixtures: Interceptor<TodoServer>[] = [
   {
     endpoint: TodoResource.delete,
     response({ id }: Parameters<typeof TodoResource.delete>[0]) {
-      this[Number(id)] = null;
-      return { id: Number(id) };
+      const pk = Number(id);
+      this[pk] = null;
+      return { id: pk };
     },
     delay: 150,
   },

@@ -34,7 +34,6 @@ const fixtures: Interceptor<TodoServer>[] = [
         const result = todos[i];
         if (result.status === 'fulfilled')
           rememberTodos(this, result.value.slice(0, 3));
-        // the server's copies, so changes survive a refetch
         user.todos = todosOf(this, user.id);
       });
       return users;
