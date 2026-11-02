@@ -2390,6 +2390,7 @@ div.fixtureJson + div.fixtureJson {
   /* each label's dot: its pane's color in the diff */
   --diff-before: #f07178;
   --diff-after: #c3e88d;
+  --diff-dot-size: 7px;
   --diff-inset: 10px;
   --diff-gutter: 10px;
 }
@@ -2424,9 +2425,9 @@ div.fixtureJson + div.fixtureJson {
 .diffLabels > span::before {
   content: '';
   display: inline-block;
-  width: 7px;
-  height: 7px;
-  margin: 0 7px 1px 0;
+  width: var(--diff-dot-size);
+  height: var(--diff-dot-size);
+  margin: 0 var(--diff-dot-size) 1px 0;
   border-radius: 50%;
   background: var(--diff-before);
 }

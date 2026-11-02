@@ -49,9 +49,9 @@
     > :first-child:not(:last-child)::before {
     content: '';
     display: inline-block;
-    width: 7px;
-    height: 7px;
-    margin: 0 7px 1px 0;
+    width: var(--diff-dot-size);
+    height: var(--diff-dot-size);
+    margin: 0 var(--diff-dot-size) 1px 0;
     border-radius: 50%;
     background: var(--diff-before);
   }

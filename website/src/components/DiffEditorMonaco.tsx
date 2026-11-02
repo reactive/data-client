@@ -31,12 +31,12 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
 
   const { covered, coverRef, revealWhenPainted } = useEditorCover();
   // hovers out of the frame, which clips to its rounded corners
-  const overflowWidgets = useOverflowWidgets();
-  const mountOverflowWidgets = overflowWidgets.handleMount;
+  const { options: overflowOptions, handleMount: mountOverflowWidgets } =
+    useOverflowWidgets();
   // stable: new options would reset the glyph margin handleDiffMount removes
   const diffOptions = useMemo(
-    () => ({ ...DIFF_OPTIONS, ...overflowWidgets.options }),
-    [overflowWidgets.options],
+    () => ({ ...DIFF_OPTIONS, ...overflowOptions }),
+    [overflowOptions],
   );
 
   // Left edge of each pane's code, so labels line up with the first column
@@ -50,18 +50,8 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
       // renders there in this read-only diff, so it only indents the code
       panes[0].updateOptions({ glyphMargin: false });
       // Reveal the diff whole: its marks and the blank rows that line the
-      // panes up come with its first computation, maybe after the tokens.
-      // Bounded, in case that never reports; Monaco's own computation gives
-      // up and reports sooner (maxComputationTime, 5 s by default)
-      const reveal = () => {
-        diffReady.dispose();
-        clearTimeout(diffTimeout);
-        revealWhenPainted(panes);
-      };
-      const diffReady = editor.onDidUpdateDiff(reveal);
-      const diffTimeout = setTimeout(reveal, DIFF_WAIT_MS);
-      editor.onDidDispose(() => clearTimeout(diffTimeout));
-      if (editor.getLineChanges()) reveal();
+      // panes up come with its first computation, maybe after the tokens
+      whenDiffComputed(editor, () => revealWhenPainted(panes));
       const updateOffsets = () => {
         const left = editor.getContainerDomNode().getBoundingClientRect().left;
         const next = panes.map(
@@ -173,7 +163,24 @@ export type DiffMonacoProps = {
   sides: readonly [DiffSide, DiffSide];
 };
 
-/** Longest the cover waits for the first diff before it waits on the panes */
+/**
+ * Calls `done` once `editor` has computed its first diff, or `DIFF_WAIT_MS`
+ * after mount in case that never reports. Monaco gives up computing after
+ * maxComputationTime (5 s by default), counted from when its worker starts,
+ * and reports then; the wait counts from mount, so a slow worker start can
+ * end it first
+ */
+function whenDiffComputed(editor: MonacoDiffEditor, done: () => void) {
+  if (editor.getLineChanges()) return done();
+  const finish = () => {
+    computed.dispose();
+    clearTimeout(timeout);
+    done();
+  };
+  const computed = editor.onDidUpdateDiff(finish);
+  const timeout = setTimeout(finish, DIFF_WAIT_MS);
+  editor.onDidDispose(() => clearTimeout(timeout));
+}
 const DIFF_WAIT_MS = 6000;
 
 const DIFF_OPTIONS: editor.IDiffEditorConstructionOptions = {
