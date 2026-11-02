@@ -10,7 +10,7 @@ const WIDTH = 420;
 const TOP = 22;
 const HEIGHT = 226;
 
-const OPS = ['push', 'unshift', 'remove', 'move'] as const;
+const OPS = ['push', 'unshift', 'remove', 'move', 'getPage'] as const;
 type Op = (typeof OPS)[number];
 type User = '1' | '2';
 
@@ -39,6 +39,10 @@ const LISTS: List[] = [
 
 /** The todo each operation creates, removes or moves */
 const TODO = { id: '9', userId: '1' as User };
+/** getTodos' paginationField: getPage's lists leave it out of their pk */
+const PAGINATION_FIELD = 'page';
+/** How many todos getPage's page brings, one chip each */
+const PAGE_SIZE = 2;
 /** push and unshift's arguments */
 const CREATE: Record<string, string>[] = [
   { userId: TODO.userId },
@@ -47,12 +51,14 @@ const CREATE: Record<string, string>[] = [
 /**
  * Each operation's arguments: search params, then the body. move drops
  * searchParams and getTodos' path has no params, so its body is its only one.
+ * getPage has no body.
  */
 const CALLS: Record<Op, Record<string, string>[]> = {
   push: CREATE,
   unshift: CREATE,
   remove: [{ userId: TODO.userId }, { id: TODO.id }],
   move: [{ id: TODO.id, userId: '2' }],
+  getPage: [{ userId: TODO.userId, [PAGINATION_FIELD]: '2' }],
 };
 
 /**
@@ -64,6 +70,18 @@ const CALLS: Record<Op, Record<string, string>[]> = {
 function matches(key: Record<string, string>, args: Record<string, string>[]) {
   return Object.entries(key).every(
     ([k, value]) => `${args[0][k]}` === value || `${args[1]?.[k]}` === value,
+  );
+}
+
+/**
+ * getPage's rule, from paginated() in @data-client/rest: the page goes to the
+ * one list whose pk is its params without the paginationField, so a list's key
+ * must equal them exactly.
+ */
+function samePk(key: Record<string, string>, params: Record<string, string>) {
+  const { [PAGINATION_FIELD]: _, ...rest } = params;
+  return (
+    Object.keys(key).length === Object.keys(rest).length && matches(key, [rest])
   );
 }
 
@@ -85,7 +103,9 @@ function slot(list: number, index: number): [number, number] {
 /** Everything a run of one operation shows, from the filter rule above */
 function scene(op: Op) {
   const args = CALLS[op];
-  const match = LISTS.map(list => matches(list.key, args));
+  const match = LISTS.map(list =>
+    op === 'getPage' ? samePk(list.key, args[0]) : matches(list.key, args),
+  );
   // where the todo already sits: at the end of the lists its values match
   const existing = LISTS.map(list => matches(list.key, [TODO]));
   const fromCall: [number, number] = [WIDTH / 2 - ROW.w / 2, CALL_Y + 6];
@@ -117,6 +137,19 @@ function scene(op: Op) {
         }
         break;
       }
+      case 'getPage':
+        // the page's todos append after the list's, stacked as they come in
+        if (match[i]) {
+          for (let k = 0; k < PAGE_SIZE; k++) {
+            const from: [number, number] = [
+              fromCall[0],
+              fromCall[1] + ROW.pitch * k,
+            ];
+            const to = slot(i, list.rows.length + k);
+            chips.push({ user, motion: 'arrive', from, to });
+          }
+        }
+        break;
     }
   });
   return { match, chips, shifts: op === 'unshift' ? match : [] };
@@ -138,7 +171,7 @@ export default function CollectionLists({ float }: { float?: boolean }) {
           aria-label={translate({
             id: 'collectionLists.label',
             message:
-              'Three lists cached in the store from getTodos({ userId: 1 }), getTodos({ userId: 2 }) and getTodos(). A todo with userId 1 that push or unshift creates joins the userId 1 list and the unfiltered list, at the end or the start, and never the userId 2 list, because a list gets an item only when every argument it was fetched with appears in the call. remove takes it out of the same lists; move takes it out of the userId 1 list and into the userId 2 list, and the unfiltered list keeps it',
+              'Three lists cached in the store from getTodos({ userId: 1 }), getTodos({ userId: 2 }) and getTodos(). A todo with userId 1 that push or unshift creates joins the userId 1 list and the unfiltered list, at the end or the start, and never the userId 2 list, because a list gets an item only when every argument it was fetched with appears in the call. remove takes it out of the same lists; move takes it out of the userId 1 list and into the userId 2 list, and the unfiltered list keeps it. getPage({ userId: 1, page: 2 }) appends the next page only to the userId 1 list, because it leaves page out and joins the one list fetched with exactly the remaining arguments',
             description:
               'Accessible label of the collection lists diagram on the Collection page',
           })}
@@ -290,9 +323,18 @@ function Args({ value }: { value: Record<string, string> }) {
       {entries.map(([k, v], i) => (
         <React.Fragment key={k}>
           {i > 0 && ', '}
-          {`${k}: `}
-          <tspan className={k === 'userId' ? styles[`user${v}`] : undefined}>
-            {v}
+          {/* the paginationField is left out of the pk, so it fades as the lists are compared */}
+          <tspan
+            className={
+              k === PAGINATION_FIELD ?
+                clsx(styles.anim, styles.cursor)
+              : undefined
+            }
+          >
+            {`${k}: `}
+            <tspan className={k === 'userId' ? styles[`user${v}`] : undefined}>
+              {v}
+            </tspan>
           </tspan>
         </React.Fragment>
       ))}
@@ -322,7 +364,7 @@ function Tabs({ op, onChange }: { op: Op; onChange: (op: Op) => void }) {
         id: 'collectionLists.operation',
         message: 'Operation',
         description:
-          'Label of the push / unshift / remove / move switch on the collection lists diagram',
+          'Label of the push / unshift / remove / move / getPage switch on the collection lists diagram',
       })}
     >
       {OPS.map(o => (
