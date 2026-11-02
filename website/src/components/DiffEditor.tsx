@@ -1,4 +1,5 @@
 import CodeBlock from '@theme/CodeBlock';
+import clsx from 'clsx';
 import React, { useMemo } from 'react';
 
 import styles from './DiffEditor.module.css';
@@ -6,6 +7,7 @@ import DiffEditorChooser from './DiffEditorChooser';
 import Grid from './Grid';
 import { calloutMarker, parseCallouts } from './Playground/editor/callouts';
 import { parseCodeDocuments } from './Playground/editor/codeModel';
+import playground from './Playground/styles.module.css';
 import { useHasIntersected } from './useHasIntersected';
 
 export default function DiffEditor({ children, caption }: Props) {
@@ -33,14 +35,28 @@ export default function DiffEditor({ children, caption }: Props) {
     };
   }, [children]);
 
+  // Titled CodeBlocks, in the diff editor's frame where it will run (see
+  // .staticDiff), so the first paint already has its layout
   const fallback = (
-    <Grid wrap>
-      {sides.map(({ language, title, staticValue }, i) => (
-        <CodeBlock key={i} language={language} title={title}>
-          {staticValue}
-        </CodeBlock>
-      ))}
-    </Grid>
+    <div className={clsx(playground.playgroundQueryContainer, styles.frame)}>
+      <div
+        className={clsx(
+          playground.playgroundContainer,
+          playground.standaloneEditor,
+          playground.diffFrame,
+          styles.frame,
+          styles.staticDiff,
+        )}
+      >
+        <Grid wrap>
+          {sides.map(({ language, title, staticValue }, i) => (
+            <CodeBlock key={i} language={language} title={title}>
+              {staticValue}
+            </CodeBlock>
+          ))}
+        </Grid>
+      </div>
+    </div>
   );
 
   // Caption and callouts render outside the editor so they are always in the

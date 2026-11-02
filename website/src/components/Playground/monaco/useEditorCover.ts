@@ -7,25 +7,49 @@ import { prefersReducedMotion, springEasing, springs } from '../../motion';
 /**
  * The code as the page first drew it, kept over Monaco until each of
  * `editors` shows the same (laid out and highlighted, see whenPainted), then
- * faded out; at once when one gains focus. Render the cover while `covered`,
- * with `coverRef`, and call `revealWhenPainted` from the editor's onMount.
+ * faded out; at once when the reader focuses, presses a key in or clicks
+ * one (not on autoFocus alone, which would show it unhighlighted). Render
+ * the cover while `covered`, with `coverRef`, and call `revealWhenPainted`
+ * from the editor's onMount.
  */
 export default function useEditorCover() {
   const [covered, setCovered] = useState(true);
   const coverRef = useRef<HTMLDivElement>(null);
   const revealWhenPainted = useCallback(
-    (editors: Monaco.editor.ICodeEditor[]) => {
-      let waiting = editors.length;
-      const stops = editors.map(editor =>
-        whenPainted(editor, () => {
-          // whenPainted ends on focus too: a click on any pane shows the editor
-          waiting -= 1;
-          if (waiting > 0 && !editor.hasTextFocus()) return;
-          stops.forEach(stop => stop());
-          fadeOut(coverRef.current, () => setCovered(false));
-        }),
-      );
-      editors.forEach((editor, i) => editor.onDidDispose(stops[i]));
+    (
+      editors: Monaco.editor.ICodeEditor[],
+      /** holds off the paint wait until it calls `start` */
+      after: (start: () => void) => void = start => start(),
+    ) => {
+      let ended = false;
+      let stops: (() => void)[] = [];
+      function end() {
+        ended = true;
+        stops.forEach(stop => stop());
+        interactions.forEach(interaction => interaction.dispose());
+      }
+      function reveal() {
+        end();
+        fadeOut(coverRef.current, () => setCovered(false));
+      }
+      // the reader using any pane shows the editor, whatever is pending: an
+      // autoFocused one has focus already, so its keys and clicks count too
+      const interactions = editors.flatMap(editor => [
+        editor.onDidFocusEditorText(reveal),
+        editor.onKeyDown(reveal),
+        editor.onMouseDown(reveal),
+      ]);
+      editors.forEach(editor => editor.onDidDispose(end));
+      after(() => {
+        if (ended) return;
+        let waiting = editors.length;
+        stops = editors.map(editor =>
+          whenPainted(editor, () => {
+            waiting -= 1;
+            if (!waiting) reveal();
+          }),
+        );
+      });
     },
     [],
   );

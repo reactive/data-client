@@ -7,16 +7,11 @@ import { whenPainted } from '../whenPainted';
  * list of token classes */
 function fakeEditor(width: number, value = 'code') {
   const dom = document.createElement('div');
-  let onFocus = () => {};
   let onLayout = () => {};
   const editor = {
     getLayoutInfo: () => ({ width }),
     getDomNode: () => dom,
     getModel: () => ({ getValue: () => value }),
-    onDidFocusEditorText: (listener: () => void) => {
-      onFocus = listener;
-      return { dispose: () => (onFocus = () => {}) };
-    },
     onDidLayoutChange: (listener: () => void) => {
       onLayout = listener;
       return { dispose: () => (onLayout = () => {}) };
@@ -42,7 +37,11 @@ function fakeEditor(width: number, value = 'code') {
       dom.append(line);
     });
   };
-  return { editor, draw, resize, focus: () => onFocus() };
+  return {
+    editor,
+    draw,
+    resize,
+  };
 }
 
 describe('whenPainted', () => {
@@ -89,34 +88,39 @@ describe('whenPainted', () => {
     expect(done).toHaveBeenCalledTimes(1);
   });
 
-  test('at once when it gains focus', () => {
-    const { editor, focus } = fakeEditor(600);
-    const done = jest.fn();
-    whenPainted(editor, done);
-    focus();
-    expect(done).toHaveBeenCalledTimes(1);
-    frames(4);
-    expect(done).toHaveBeenCalledTimes(1);
-  });
-
-  test('regardless, after a while', () => {
+  test('a while after its first colored token, though the rest stay plain', () => {
     const { editor, draw } = fakeEditor(600);
-    draw([['mtk1']]);
+    draw([['mtk1'], ['mtk1']]);
     const done = jest.fn();
     whenPainted(editor, done);
+    // its tokenizer still loading
+    jest.advanceTimersByTime(10000);
+    expect(done).not.toHaveBeenCalled();
+
+    draw([['mtk5'], ['mtk1']]);
     jest.advanceTimersByTime(5900);
     expect(done).not.toHaveBeenCalled();
     jest.advanceTimersByTime(200);
     expect(done).toHaveBeenCalledTimes(1);
   });
 
+  test('regardless, after a long while', () => {
+    const { editor, draw } = fakeEditor(600);
+    draw([['mtk1']]);
+    const done = jest.fn();
+    whenPainted(editor, done);
+    jest.advanceTimersByTime(19900);
+    expect(done).not.toHaveBeenCalled();
+    jest.advanceTimersByTime(200);
+    expect(done).toHaveBeenCalledTimes(1);
+  });
+
   test('never once cancelled', () => {
-    const { editor, draw, focus } = fakeEditor(600);
+    const { editor, draw } = fakeEditor(600);
     draw([['mtk5']]);
     const done = jest.fn();
     whenPainted(editor, done)();
     frames(4);
-    focus();
     expect(done).not.toHaveBeenCalled();
   });
 });
