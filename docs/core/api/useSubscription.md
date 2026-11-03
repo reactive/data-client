@@ -244,7 +244,8 @@ export default function PricePanel({ symbol }: { symbol: string }) {
 ```
 
 A hidden `<Activity>` keeps `MasterPrice` and its state, but stops its Effects. If no other component subscribes to the
-price, polling stops. When shown, polling resumes. If the last fetch is older than [pollFrequency](/rest/api/RestEndpoint#pollfrequency), it fetches at once.
+price, polling stops. When shown, polling resumes. If the last fetch is older than
+[pollFrequency](/rest/api/RestEndpoint#pollfrequency), it fetches at once.
 
 A hidden `<Activity>` still renders. So `useSuspense()` fetches the price before the panel opens, and the panel opens
 without a loading state.
