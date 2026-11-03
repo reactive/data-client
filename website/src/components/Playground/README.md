@@ -76,14 +76,14 @@ Gotchas:
 
 `hidden` (unselected protocol tabs): every tab stays mounted, so all
 sources are in the HTML. The editor latches interactive on first show, so
-undo and go-to-definition survive tab switches. The live preview mounts on
-first show; after that, while its tab is unselected, its app and Store tree
-hide in an `<Activity>` (`preview/Preview.tsx` says why it sits there), so
-switching back finds its store, log, Store and component state as left.
-While hidden, the app's Effects (its subscriptions, polling) pause, but the
-managers, including any from `getManagers()`, keep running. The row Store
-folder stays mounted, hidden by the container's `.hidden` (an `<Activity>`
-would detach `setStoreHost`). The homepage passes `hidden`; in MDX,
+undo and go-to-definition survive tab switches. The live preview also
+mounts on first show. After that, a hidden tab keeps it in an `<Activity>`,
+with its store, log and app state. Its managers keep running; only the app's
+Effects pause. Keep that `<Activity>` where it is in `preview/Preview.tsx`:
+above `DataProvider`, a response that lands while hidden is dropped; above
+react-live's `LiveProvider`, each show remounts the app. The row Store folder
+is outside it, because an `<Activity>` would detach `setStoreHost`; the
+container's `.hidden` hides it. The homepage passes `hidden`; in MDX,
 `PlaygroundTabs` sets it through `PlaygroundHiddenContext`
 (`hiddenContext.ts`) for every playground under an unselected tab, nested
 groups included. An explicit prop wins. `TypeScriptEditor` in one of those
