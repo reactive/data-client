@@ -105,8 +105,8 @@ export default memo(StoreInspector);
  * code and shut again in CSS (`data-open`, see .storeHost in
  * ../styles.module.css): the tree stays shown until the sweep has shut,
  * then hides (an `<Activity>`, so reopening finds it as it was left) and
- * leaves the layout, with the toggle that shut it held in place on screen,
- * as `Reveal` does for the Store beside the result */
+ * leaves the layout, with the playground whose toggle shut it held in place
+ * on screen, as `Reveal` does for the Store beside the result */
 function FolderPanel({
   open,
   host,

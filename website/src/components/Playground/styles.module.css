@@ -920,7 +920,7 @@ div.playgroundTextEdit > .playgroundHeader {
 .storeTab::after,
 .stacked .storeHeaderToggle[aria-pressed='true']::before,
 .stacked .storeHeaderToggle[aria-pressed='true']::after,
-.row:not(.stacked):has(> .storeHost .storePanel[data-visible])::after,
+.row:not(.stacked):has(> .storeHost[data-open])::after,
 .stacked .playgroundResult:has(> .storePanel[data-visible])::after {
   content: '';
   position: absolute;
@@ -1715,7 +1715,6 @@ div.fixtureJson + div.fixtureJson {
   }
   .row:not(.stacked):has(> .storeHost[data-open])::before {
     bottom: 0;
-    left: 0;
     right: calc(var(--pg-preview-col) + var(--pg-gap));
     visibility: visible;
     transition:
@@ -1725,7 +1724,8 @@ div.fixtureJson + div.fixtureJson {
   .row:not(.stacked) > .previewWrapper::before {
     transition: left var(--pg-store-drawer);
   }
-  .row:not(.stacked):has(> .storeHost[data-open]) > .previewWrapper::before {
+  .row:not(.stacked):has(> .storeHost[data-open]) > .previewWrapper::before,
+  .row:not(.stacked):has(> .storeHost[data-open])::before {
     left: 0;
   }
   .row:not(.stacked):has(> .storeHost .storePanel[data-visible])
@@ -1767,8 +1767,9 @@ div.fixtureJson + div.fixtureJson {
   }
   /* and the strip between the two sheets, ending at the preview's foot,
      curves into the Store's sheet's edge, as a tab does into its card;
-     hidden as the drawer starts to shut (below) */
-  .row:not(.stacked):has(> .storeHost .storePanel[data-visible])::after {
+     open only, so it goes as the drawer starts to shut: the sheet's edge
+     it curves into leaves at once */
+  .row:not(.stacked):has(> .storeHost[data-open])::after {
     --pg-fillet-at: 100% 100%;
     --pg-fillet-r: var(--pg-foot-curve);
     /* a pixel on under the sheet's edge */
@@ -1777,12 +1778,6 @@ div.fixtureJson + div.fixtureJson {
     /* over the preview's shadow (a grid item, it stacks by its z-index) */
     z-index: 2;
     height: var(--pg-fillet-r);
-  }
-  /* hidden as the drawer starts to shut: the sheet's edge it curves into
-     leaves at once, though the Store leaves the layout (and the fillet
-     with it) only once the slide has settled */
-  .row:not(.stacked):has(> .storeHost:not([data-open]))::after {
-    visibility: hidden;
   }
   /* under it, the code card's own shadow would deepen the Store's, and the
      file tabs would show past the Store header's inset */
@@ -1811,6 +1806,9 @@ div.fixtureJson + div.fixtureJson {
     --pg-host-fold: calc(var(--pg-host-out) + var(--pg-fold));
     --pg-host-fold-head: calc(var(--pg-host-fold) + var(--pg-head-run));
     --pg-host-foot: calc(100% + var(--store-cap));
+    /* the preview's foot, from the top (--pg-preview-end, measured);
+       until it's measured (the loading page), the same end from the gap */
+    --pg-preview-foot: var(--pg-preview-end, 100% - var(--pg-preview-gap, 0px));
     margin-left: calc(-1 * var(--pg-host-out));
     overflow-x: clip;
     /* below, room for a quick look past a short playground's foot: at
@@ -1829,9 +1827,7 @@ div.fixtureJson + div.fixtureJson {
      the gap; open, or for a quick look (which may run on past that foot),
      it drops at once */
   .row:not(.stacked) > .storeHost:not([data-open], :has([data-quick-look])) {
-    --pg-host-foot: calc(
-      var(--pg-preview-end, 100% - var(--pg-preview-gap, 0px))
-    );
+    --pg-host-foot: calc(var(--pg-preview-foot));
     transition: clip-path var(--pg-store-smooth);
   }
   /* the drawer: the code's column and the gap, edge to edge, its handle
@@ -1864,13 +1860,11 @@ div.fixtureJson + div.fixtureJson {
   }
   /* by the preview's foot, its curve clear of the corner's: open, they
      stay level with that foot, however far the Store runs on below. Placed
-     from the row's top (--pg-preview-end), they stay still as the Store's
-     layer grows or shrinks below them, opening and shutting; until it's
-     measured (the loading page), the same end from the gap */
+     from the row's top (--pg-preview-foot), they stay still as the Store's
+     layer grows or shrinks below them, opening and shutting */
   .drawerTabs {
     --pg-tabs-top: calc(
-      var(--pg-preview-end, 100% - var(--pg-preview-gap, 0px)) -
-        var(--pg-tabs-span) - 2 * var(--pg-card-radius)
+      var(--pg-preview-foot) - var(--pg-tabs-span) - 2 * var(--pg-card-radius)
     );
     right: 100%;
     top: var(--pg-tabs-top);
