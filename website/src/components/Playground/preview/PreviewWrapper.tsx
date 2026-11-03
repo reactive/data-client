@@ -148,13 +148,13 @@ export function PreviewHeaderControls({
   );
 }
 
-/** Row layout: how far the row runs on below the app's sheet with its foot
- * (the wrapper's ::after) at full reach, as `--pg-preview-gap` on the row:
- * the preview's folder ends there, and the open Store runs on past it. And
- * that end from the row's top, as `--pg-preview-end`: what's placed by it
- * stays put as the row grows or shrinks below it.
- * Measured against the row, which that end never moves. Before the page
- * hydrates, styles.module.css derives it for the loading page */
+/** Row layout: where the preview's folder ends, at the app's sheet with its
+ * foot (the wrapper's ::after) at full reach; the open Store runs on past
+ * it. On the row, as `--pg-preview-gap`, the distance from the row's
+ * bottom, and as `--pg-preview-end`, from its top: the Store's tabs sit by
+ * that one, so they stay still as the Store's layer (the whole row) grows
+ * or shrinks below them. Before the page hydrates, styles.module.css
+ * derives both for the loading page */
 function usePreviewGap(result: HTMLElement | null) {
   useLayoutEffect(() => {
     const wrapper = result?.parentElement;
