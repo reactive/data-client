@@ -13,6 +13,7 @@ vue_description: Async rendering of remotely triggered data mutations. useSuspen
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
 import UseLive from '../shared/\_useLive.mdx';
@@ -125,6 +126,9 @@ stale. useLive() will also sub/unsub with focus/unfocus respectively.
 
 :::
 
+In a hidden [`<Activity>`](https://react.dev/reference/react/Activity), useLive() unsubscribes. It subscribes
+again when shown. [Example](#pause-hidden-tabs)
+
 ::::
 
 ## Types
@@ -188,5 +192,125 @@ milliseconds.
 :::react
 
 <StackBlitz app="nextjs" file="resources/Ticker.ts,components/AssetPrice.tsx" initialpath="/crypto" view="both" />
+
+:::
+
+:::react
+
+### Pause hidden tabs
+
+Keep tabs mounted in [`<Activity>`](https://react.dev/reference/react/Activity). Only the shown tab polls.
+
+<HooksPlayground row>
+
+```typescript title="Ticker" collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
+
+export class Ticker extends Entity {
+  product_id = '';
+  trade_id = 0;
+  price = 0;
+  size = '0';
+  time = Temporal.Instant.fromEpochMilliseconds(0);
+  bid = '0';
+  ask = '0';
+  volume = '';
+
+  pk(): string {
+    return this.product_id;
+  }
+  static key = 'Ticker';
+
+  static schema = {
+    price: Number,
+    time: Temporal.Instant.from,
+  };
+}
+
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
+  pollFrequency: 2000,
+});
+```
+
+```tsx title="AssetPrice" collapsed
+import { useLive } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { getTicker } from './Ticker';
+
+export default function AssetPrice({ productId }: Props) {
+  const ticker = useLive(getTicker, { productId });
+  return (
+    <dl className="stats">
+      <div>
+        <dt>{productId}</dt>
+        <dd>
+          <NumberFlow
+            value={ticker.price}
+            format={{ style: 'currency', currency: 'USD' }}
+          />
+        </dd>
+      </div>
+    </dl>
+  );
+}
+interface Props {
+  productId: string;
+}
+```
+
+```tsx title="Markets" {25-30}
+import React from 'react';
+import AssetPrice from './AssetPrice';
+
+const products = ['BTC-USD', 'ETH-USD', 'SOL-USD'];
+
+function Markets() {
+  const [shown, setShown] = React.useState(products[0]);
+  return (
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Markets</h1>
+        <div className="segmented" role="group" aria-label="Product">
+          {products.map(productId => (
+            <button
+              key={productId}
+              aria-pressed={productId === shown}
+              onClick={() => setShown(productId)}
+            >
+              {productId.split('-')[0]}
+            </button>
+          ))}
+        </div>
+      </header>
+      {products.map(productId => (
+        <React.Activity
+          key={productId}
+          mode={productId === shown ? 'visible' : 'hidden'}
+        >
+          <AssetPrice productId={productId} />
+        </React.Activity>
+      ))}
+    </>
+  );
+}
+render(<Markets />);
+```
+
+</HooksPlayground>
+
+A hidden tab keeps its state, but its Effects stop. So `useLive()` unsubscribes and polling stops. When shown, it
+subscribes again. If the last fetch is older than [pollFrequency](/rest/api/RestEndpoint#pollfrequency), it fetches at
+once.
+
+Hidden tabs still render, so each one fetches its price once. Switching tabs shows a price at once, with no loading
+state.
 
 :::

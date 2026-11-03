@@ -60,6 +60,9 @@ function MasterPrice({ symbol }: { symbol: string }) {
 >
 > When using React Navigation, useSubscription() will sub/unsub with focus/unfocus respectively.
 
+In a hidden [`<Activity>`](https://react.dev/reference/react/Activity), useSubscription() unsubscribes. It
+subscribes again when shown. [Example](#pause-while-hidden)
+
 ## Types
 
 ```typescript
@@ -104,6 +107,44 @@ if other components are still subscribed the data updates will still be active.
 
 [useIntersectionObserver()](https://usehooks.com/useintersectionobserver) uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant. [ref](https://react.dev/reference/react/useRef) allows
 us to access the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model).
+
+### Pause while hidden
+
+To hide UI, such as a closed panel or an inactive tab, wrap it in [`<Activity>`](https://react.dev/reference/react/Activity).
+`MasterPrice` needs no change.
+
+```tsx title="PricePanel.tsx" {18-20}
+import { Activity, useState } from 'react';
+import { useSuspense, useSubscription } from '@data-client/react';
+import { getPrice } from 'api/Price';
+
+function MasterPrice({ symbol }: { symbol: string }) {
+  const price = useSuspense(getPrice, { symbol });
+  useSubscription(getPrice, { symbol });
+  return <div>{price.price}</div>;
+}
+
+export default function PricePanel({ symbol }: { symbol: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <section>
+      <button onClick={() => setOpen(!open)}>
+        {open ? 'Hide' : 'Show'} price
+      </button>
+      <Activity mode={open ? 'visible' : 'hidden'}>
+        <MasterPrice symbol={symbol} />
+      </Activity>
+    </section>
+  );
+}
+```
+
+A hidden `<Activity>` keeps `MasterPrice` and its state, but stops its Effects. So `useSubscription()` unsubscribes and
+polling stops. When shown, it subscribes again. If the last fetch is older than
+[pollFrequency](https://dataclient.io/rest/api/RestEndpoint#pollfrequency), it fetches at once.
+
+A hidden `<Activity>` still renders its content. So `useSuspense()` fetches the price once before the panel opens, and
+the panel opens without a loading state.
 
 ### Crypto prices (websockets)
 
