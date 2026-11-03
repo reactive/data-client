@@ -1,5 +1,6 @@
 import GlobalCache from './globalCache.js';
 import WeakDependencyMap from './WeakDependencyMap.js';
+import type { KeepReads } from './WeakDependencyMap.js';
 import buildQueryKey from '../buildQueryKey.js';
 import { GetEntityCache, getEntityCaches } from './entitiesCache.js';
 import { MemoPolicy } from './Policy.js';
@@ -23,6 +24,12 @@ export default class MemoCache {
   declare protected _getCache: GetEntityCache;
   /** Caches the final denormalized form based on input, entities */
   protected endpoints: EndpointsCache = new WeakDependencyMap<EntityPath>();
+  /** Results read per store `entities`, until that store commits. */
+  private reads = new WeakMap<object, KeepReads>();
+  /** `entities` from the latest `commit`; reads with it are kept right away. */
+  private committedEntities: object | undefined = undefined;
+  /** Whether that store had no optimistic updates. */
+  private committedSettled = true;
   /** Caches the queryKey based on schema, args, and any used entities or indexes */
   protected queryKeys: Map<string, WeakDependencyMap<QueryPath>> = new Map();
 
@@ -56,11 +63,51 @@ export default class MemoCache {
     }
     const getEntity = this.policy.getEntities(entities);
 
-    return getUnvisit(
+    const tracks = typeof entities === 'object' && entities !== null;
+    const cache = new GlobalCache(
       getEntity,
-      new GlobalCache(getEntity, this._getCache, this.endpoints, args),
+      this._getCache,
+      this.endpoints,
       args,
-    )(schema, input);
+      tracks,
+    );
+    const result = getUnvisit(getEntity, cache, args)(schema, input);
+    // the result's own entry: in the endpoints tier, or the top-level
+    // entity's map when the input is a pk (single-entity endpoints, queries)
+    const tracked = cache.tracked;
+    if (tracked) {
+      if (entities === this.committedEntities) {
+        tracked.keepLast(this.committedSettled);
+      } else {
+        let reads = this.reads.get(entities);
+        if (!reads) this.reads.set(entities, (reads = new Map()));
+        tracked.trackLast(reads);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Marks `entities` as the committed store version.
+   *
+   * Every result already read with `entities` is kept through later one-off
+   * reads (such as each retry of a pending transition, which builds new
+   * entities), and so is every later read with the same `entities`.
+   *
+   * Call it once a render of that store has committed. `DataProvider` calls
+   * it from an effect, which never runs for a discarded render. Without it,
+   * results are kept by recency alone.
+   *
+   * @param entities The `entities` of the committed state, by reference.
+   * @param settled Whether that state has no optimistic updates.
+   */
+  commit(entities: object, settled = true): void {
+    this.committedEntities = entities;
+    this.committedSettled = settled;
+    const reads = this.reads.get(entities);
+    if (!reads) return;
+    this.reads.delete(entities);
+    this.endpoints.keep(reads, settled);
   }
 
   /** Compute denormalized form maintaining referential equality for same inputs */

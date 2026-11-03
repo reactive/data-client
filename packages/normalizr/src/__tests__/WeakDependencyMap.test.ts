@@ -111,7 +111,7 @@ describe('WeakDependencyMap', () => {
     ).toBeUndefined();
   });
 
-  it('keeps four entries, never evicting the one the store flipped back to', () => {
+  it('keeps the two most recent entries, plus the one the store flipped back to', () => {
     const wem = new WeakDependencyMap<EntityPath>();
     const [b2, b3, b4, b5, b6] = [[2], [3], [4], [5], [6]];
     const withB = (entity: object) =>
@@ -121,20 +121,17 @@ describe('WeakDependencyMap', () => {
     setB(b, 'b');
     setB(b2, 'b2');
     setB(b3, 'b3');
+    // the first entry is pinned until a flip; b2 is the third most recent
     setB(b4, 'b4');
-    // full: the least recently used goes, except the first entry, kept until a flip
-    setB(b5, 'b5');
     expect(wem.get(a, withB(b2))[0]).toBeUndefined();
     expect(wem.get(a, withB(b))[0]).toBe('b');
 
-    // reading b3 back after newer entries makes it the kept one instead;
-    // most recently used now: b3, b, b5, b4
+    // reading b3 back after newer entries pins it instead of b
     expect(wem.get(a, withB(b3))[0]).toBe('b3');
-    setB(b6, 'b6');
+    setB(b5, 'b5');
     expect(wem.get(a, withB(b4))[0]).toBeUndefined();
-    setB(b4, 'b4 again');
-    // most recently used: b4, b6, b3 (kept), b, b5; b5 goes
-    expect(wem.get(a, withB(b5))[0]).toBeUndefined();
+    setB(b6, 'b6');
+    expect(wem.get(a, withB(b))[0]).toBeUndefined();
     expect(wem.get(a, withB(b3))[0]).toBe('b3');
   });
 
@@ -177,6 +174,22 @@ describe('WeakDependencyMap', () => {
     expect(depKey(null)).not.toBe(depKey(INVALID));
     expect(depKey(1)).toBe(depKey(1));
     expect(depKey(1)).not.toBe(depKey(2));
+  });
+
+  it('records hits and writes only when asked to track', () => {
+    // an untracked call must not hold its entry: the per-entity maps live as
+    // long as the entity cache, so it would keep every entity they cached
+    const getEntity = MemoPolicy.getEntities(state);
+    for (const track of [false, true]) {
+      const wem = new WeakDependencyMap<EntityPath>();
+      wem.set([depA, depB], 'value', [], undefined, track);
+      const reads = new Map<object, object>();
+      wem.trackLast(reads);
+      expect(reads.size).toBe(track ? 1 : 0);
+      wem.get(a, getEntity, [], track);
+      wem.trackLast(reads);
+      expect(reads.size).toBe(track ? 1 : 0);
+    }
   });
 
   it('considers empty key list invalid', () => {
@@ -459,7 +472,7 @@ describe('WeakDependencyMap eviction', () => {
 
     it('evicts inside an argsKey child as at the root', () => {
       const wem = new WeakDependencyMap<EntityPath>();
-      const [b2, b3, b4, b5, b6] = [[2], [3], [4], [5], [6]];
+      const [b2, b3, b4, b5] = [[2], [3], [4], [5]];
       const b = [1];
       const one = [{ portfolio: 'P' }];
       const setB = (entity: object, value: string) =>
@@ -469,14 +482,13 @@ describe('WeakDependencyMap eviction', () => {
       setB(b2, 'b2');
       setB(b3, 'b3');
       setB(b4, 'b4');
-      setB(b5, 'b5');
       expect(get(b2)).toBeUndefined();
       expect(get(b)).toBe('b');
       expect(get(b3)).toBe('b3');
-      setB(b6, 'b6');
+      setB(b5, 'b5');
       expect(get(b4)).toBeUndefined();
       setB(b4, 'b4 again');
-      expect(get(b5)).toBeUndefined();
+      expect(get(b)).toBeUndefined();
       expect(get(b3)).toBe('b3');
     });
   });

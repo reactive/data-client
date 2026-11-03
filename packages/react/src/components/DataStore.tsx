@@ -42,6 +42,15 @@ function DataStore({
   // only run once everything is prepared
   useEffect(mgrEffect, [mgrEffect]);
 
+  // Effects only run for committed renders: tell the memo which store
+  // version committed, so pending-transition renders can't evict its results.
+  useEffect(() => {
+    controller.memo.commit?.(
+      optimisticState.entities,
+      state.optimistic.length === 0,
+    );
+  }, [controller, optimisticState, state]);
+
   return (
     <StateContext.Provider value={optimisticState}>
       <UniversalSuspense fallback={<BackupLoading />}>
