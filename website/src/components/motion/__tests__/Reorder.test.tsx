@@ -225,17 +225,7 @@ it('does not mark a nudge too small to cross anything', () => {
   expect(getByTestId('x').dataset.traveling).toBeUndefined();
 });
 
-it('fades in a key it has not seen', () => {
-  const { rerender, getByTestId } = render(
-    <Board groups={[{ name: 'a', y: 0, rows: [] }]} />,
-  );
-  rerender(
-    <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
-  );
-  expect(startOf(getByTestId('x'))).toEqual({ opacity: 0 });
-});
-
-it('marks a new key data-arrived until the style calling attention to it ends', () => {
+it('shows a new key at once outside [data-mark-arrivals] (the reader caused it)', () => {
   const { rerender, getByTestId } = render(
     <Board groups={[{ name: 'a', y: 0, rows: [] }]} />,
   );
@@ -243,73 +233,99 @@ it('marks a new key data-arrived until the style calling attention to it ends', 
     <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
   );
   const x = getByTestId('x');
-  expect(x.dataset.arrived).toBe('');
-  x.dispatchEvent(new Event('animationend'));
+  expect(startOf(x)).toBeUndefined();
   expect(x.dataset.arrived).toBeUndefined();
 });
 
-it('fades out a key that left where it was, out of the flow, then removes it', async () => {
-  const { rerender, getByTestId, container } = render(
-    <Board
-      groups={[
-        {
-          name: 'a',
-          y: 0,
-          rows: [
-            { id: 'gone', y: 10 },
-            { id: 'x', y: 40 },
-          ],
-        },
-      ]}
-    />,
-  );
-  const gone = getByTestId('gone');
-  rerender(
-    <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
-  );
-  // back in its list, out of the flow and out of reach
-  expect(gone.parentElement).toBe(getByTestId('a'));
-  expect(gone.inert).toBe(true);
-  expect(gone.style.position).toBe('absolute');
-  const fade = animations.find(({ el }) => el === gone);
-  expect(fade?.keyframes.at(-1)?.opacity).toBe(0);
-  // the one taking its place glides there under it
-  expect(startOf(getByTestId('x'))?.translate).toBe('0px 30px');
+describe('inside [data-mark-arrivals] (a demo autoplaying)', () => {
+  beforeEach(() => document.body.toggleAttribute('data-mark-arrivals', true));
+  afterEach(() => document.body.removeAttribute('data-mark-arrivals'));
+  it('fades in a key it has not seen', () => {
+    const { rerender, getByTestId } = render(
+      <Board groups={[{ name: 'a', y: 0, rows: [] }]} />,
+    );
+    rerender(
+      <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
+    );
+    expect(startOf(getByTestId('x'))).toEqual({ opacity: 0 });
+  });
 
-  fade?.finish();
-  await Promise.resolve();
-  expect(container.contains(gone)).toBe(false);
-});
+  it('marks a new key data-arrived until the style calling attention to it ends', () => {
+    const { rerender, getByTestId } = render(
+      <Board groups={[{ name: 'a', y: 0, rows: [] }]} />,
+    );
+    rerender(
+      <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
+    );
+    const x = getByTestId('x');
+    expect(x.dataset.arrived).toBe('');
+    x.dispatchEvent(new Event('animationend'));
+    expect(x.dataset.arrived).toBeUndefined();
+  });
 
-it('shows a new key at once in the spot a key just left (an id the server assigned)', () => {
-  const { rerender, getByTestId } = render(
-    <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'temp', y: 10 }] }]} />,
-  );
-  rerender(
-    <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
-  );
-  expect(startOf(getByTestId('x'))).toBeUndefined();
-});
+  it('fades out a key that left where it was, out of the flow, then removes it', async () => {
+    const { rerender, getByTestId, container } = render(
+      <Board
+        groups={[
+          {
+            name: 'a',
+            y: 0,
+            rows: [
+              { id: 'gone', y: 10 },
+              { id: 'x', y: 40 },
+            ],
+          },
+        ]}
+      />,
+    );
+    const gone = getByTestId('gone');
+    rerender(
+      <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
+    );
+    // back in its list, out of the flow and out of reach
+    expect(gone.parentElement).toBe(getByTestId('a'));
+    expect(gone.inert).toBe(true);
+    expect(gone.style.position).toBe('absolute');
+    const fade = animations.find(({ el }) => el === gone);
+    expect(fade?.keyframes.at(-1)?.opacity).toBe(0);
+    // the one taking its place glides there under it
+    expect(startOf(getByTestId('x'))?.translate).toBe('0px 30px');
 
-it('fades in a new key away from where a key left', () => {
-  const { rerender, getByTestId } = render(
-    <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'gone', y: 10 }] }]} />,
-  );
-  rerender(
-    <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 40 }] }]} />,
-  );
-  expect(startOf(getByTestId('x'))).toEqual({ opacity: 0 });
-});
+    fade?.finish();
+    await Promise.resolve();
+    expect(container.contains(gone)).toBe(false);
+  });
 
-it('shows a new group at once when an item moves into it, so its glide shows', () => {
-  const { rerender, getByTestId } = render(
-    <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
-  );
-  rerender(
-    <Board groups={[{ name: 'b', y: 0, rows: [{ id: 'x', y: 40 }] }]} />,
-  );
-  expect(startOf(getByTestId('b'))).toBeUndefined();
-  expect(startOf(getByTestId('x'))?.translate).toBe('0px -30px');
+  it('shows a new key at once in the spot a key just left (an id the server assigned)', () => {
+    const { rerender, getByTestId } = render(
+      <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'temp', y: 10 }] }]} />,
+    );
+    rerender(
+      <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
+    );
+    expect(startOf(getByTestId('x'))).toBeUndefined();
+  });
+
+  it('fades in a new key away from where a key left', () => {
+    const { rerender, getByTestId } = render(
+      <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'gone', y: 10 }] }]} />,
+    );
+    rerender(
+      <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 40 }] }]} />,
+    );
+    expect(startOf(getByTestId('x'))).toEqual({ opacity: 0 });
+  });
+
+  it('shows a new group at once when an item moves into it, so its glide shows', () => {
+    const { rerender, getByTestId } = render(
+      <Board groups={[{ name: 'a', y: 0, rows: [{ id: 'x', y: 10 }] }]} />,
+    );
+    rerender(
+      <Board groups={[{ name: 'b', y: 0, rows: [{ id: 'x', y: 40 }] }]} />,
+    );
+    expect(startOf(getByTestId('b'))).toBeUndefined();
+    expect(startOf(getByTestId('x'))?.translate).toBe('0px -30px');
+  });
 });
 
 it('only animates when layoutDependency changes', () => {

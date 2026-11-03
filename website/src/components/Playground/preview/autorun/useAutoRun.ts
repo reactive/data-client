@@ -92,8 +92,17 @@ export function useAutoRun(
         player.stop();
         syncBefore();
       };
-      syncBefore();
-      const unsubscribe = player.subscribe(syncBefore);
+      // while it plays, `<Reorder>` marks the rows it brings so a watcher
+      // sees where they land; rows the reader brings stay unmarked
+      const sync = () => {
+        syncBefore();
+        playground.toggleAttribute(
+          'data-mark-arrivals',
+          player.getState() === 'playing',
+        );
+      };
+      sync();
+      const unsubscribe = player.subscribe(sync);
       const observer = new IntersectionObserver(
         entries => {
           // a late callback may hold several per element: the last is current
@@ -129,6 +138,7 @@ export function useAutoRun(
       document.addEventListener('visibilitychange', syncPaused);
       return () => {
         unsubscribe();
+        playground.removeAttribute('data-mark-arrivals');
         observer.disconnect();
         for (const type of INPUT)
           playground.removeEventListener(type, onInput, true);

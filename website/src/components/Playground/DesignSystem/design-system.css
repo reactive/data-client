@@ -239,9 +239,10 @@ div.playground-preview h1:first-child {
   box-shadow: var(--ds-raised-shadow);
   transition: box-shadow var(--motion-snappy);
 }
-/* a row a change just brought (`<Reorder>` marks it `data-arrived`) lights
-   up in the accent, then settles, so someone watching (not the one who
-   clicked) sees where it landed */
+/* a row an autoplaying demo just brought (`<Reorder>` marks it
+   `data-arrived` while the demo plays) lights up in the accent, then
+   settles, so someone watching sees where it landed. A row the reader
+   brings isn't marked: they know where it went */
 .playground-preview .listItem[data-arrived] {
   animation: ds-arrive 1.6s ease-out;
 }

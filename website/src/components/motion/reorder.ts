@@ -41,8 +41,9 @@ export function measure(items: Items): Positions {
  * `translate` only, on the compositor), so an item React put under another
  * parent travels there too. An item inside another that moves rides along
  * with it, and only travels the rest of the way itself; a key `before` lacks
- * fades in, marked `data-arrived` for a style that calls attention to it
- * (unless an item moves in with it, or it takes the exact spot of a key
+ * just shows, except inside `[data-mark-arrivals]` (where no one watching
+ * caused the change): there it fades in, marked `data-arrived` for a style
+ * that calls attention to it (unless an item moves in with it, or it takes the exact spot of a key
  * that just left: the same item under a new id, like an optimistic create
  * the server answered). A key that left fades out where it was, as the
  * others glide into its place. Items crossing the others (going past one,
@@ -103,7 +104,9 @@ export function reorder(
   // an arrival holding an item that moves in (a row into a group that
   // wasn't there) shows at once, or its fade would hide that item's glide
   const fades = arrivals.filter(
-    el => !glides.some(({ el: item }) => el.contains(item)),
+    el =>
+      el.closest('[data-mark-arrivals]') &&
+      !glides.some(({ el: item }) => el.contains(item)),
   );
   for (const position of left) leave(position);
   if (!fades.length) return;
