@@ -1697,21 +1697,24 @@ div.fixtureJson + div.fixtureJson {
   }
   /* the Store's sheet below the preview: shut, it narrows to the fold
      (where the drawer's clip cuts the sheet) as the sheet slides past it,
-     and is hidden once that slide has finished (visibility, delayed by the
-     drawer's duration), so no sliver of its shadow is left until the Store
-     leaves the layout. Open, it shows at once */
+     rises with the clip's foot (.storeHost), and is hidden once that slide
+     has finished (visibility, delayed by the drawer's duration), so no
+     sliver of its shadow is left until the Store leaves the layout. Open,
+     it shows at once */
   .row:not(.stacked)::before {
     top: calc(100% - var(--pg-preview-gap, 0px));
-    bottom: 0;
+    bottom: calc(100% - var(--pg-preview-gap, 0px));
     right: calc(100% - var(--pg-fold));
     border-radius: 0 0 var(--pg-card-radius) var(--pg-card-radius);
     visibility: hidden;
     transition:
       left var(--pg-store-drawer),
       right var(--pg-store-drawer),
+      bottom var(--pg-store-smooth),
       visibility 0s var(--pg-store-drawer);
   }
   .row:not(.stacked):has(> .storeHost[data-open])::before {
+    bottom: 0;
     left: 0;
     right: calc(var(--pg-preview-col) + var(--pg-gap));
     visibility: visible;
@@ -1808,6 +1811,7 @@ div.fixtureJson + div.fixtureJson {
     --pg-host-out: 4rem;
     --pg-host-fold: calc(var(--pg-host-out) + var(--pg-fold));
     --pg-host-fold-head: calc(var(--pg-host-fold) + var(--pg-head-run));
+    --pg-host-foot: calc(100% + var(--store-cap));
     margin-left: calc(-1 * var(--pg-host-out));
     overflow-x: clip;
     /* below, room for a quick look past a short playground's foot: at
@@ -1817,9 +1821,18 @@ div.fixtureJson + div.fixtureJson {
       var(--pg-host-fold-head) -4rem,
       var(--pg-host-fold-head) var(--pg-row),
       var(--pg-host-fold) var(--pg-row),
-      var(--pg-host-fold) calc(100% + var(--store-cap)),
-      0 calc(100% + var(--store-cap))
+      var(--pg-host-fold) var(--pg-host-foot),
+      0 var(--pg-host-foot)
     );
+  }
+  /* shut, the clip's foot rises to the preview's, so the sheet's last
+     strip below it (the drawer's slide ends slowly) doesn't linger there in
+     the gap; open, it drops at once */
+  .row:not(.stacked) > .storeHost:not([data-open]) {
+    --pg-host-foot: calc(
+      var(--pg-preview-end, 100% - var(--pg-preview-gap, 0px))
+    );
+    transition: clip-path var(--pg-store-smooth);
   }
   /* the drawer: the code's column and the gap, edge to edge, its handle
      out past the playground's edge; the Store scrolls within the row's
