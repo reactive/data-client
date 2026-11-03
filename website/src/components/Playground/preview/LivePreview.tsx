@@ -1,4 +1,4 @@
-import { Activity, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { LiveProvider } from 'react-live';
 
 import DemoLabel from './autorun/DemoLabel';
@@ -99,8 +99,6 @@ export default function LivePreview<T>({
     [restored, getInitialInterceptorData],
   );
 
-  // the <Activity> sits inside LiveProvider, whose code-running Effect
-  // would otherwise re-run on each show and remount the app, losing its state
   return (
     <LiveProvider
       key={key}
@@ -110,55 +108,54 @@ export default function LivePreview<T>({
       noInline
       scope={managers.scope}
     >
-      <Activity mode={hidden ? 'hidden' : 'visible'}>
-        <PreviewWrapper
-          ref={demo.watch}
-          layout={layout}
-          label={
-            autoRun ?
-              <DemoLabel player={demo.player} onPlay={demo.replay} />
-            : undefined
-          }
-          fixtures={fixtureContent}
-          code={codeControl}
-          routerStart={routerStart}
-          headerControls={
-            <PreviewHeaderControls
-              layout={layout}
-              badge={
-                <>
-                  {inFlightCount.badge}
-                  {badge}
-                </>
-              }
-              storeOpen={storeOpen}
-              toggleStore={toggleStore}
-              reset={reset}
-            />
-          }
-        >
-          <Preview
-            key={storeKey}
-            storeOpen={storeOpen}
-            storeMoves={storeMoves}
-            toggleStore={toggleStore}
+      <PreviewWrapper
+        ref={demo.watch}
+        layout={layout}
+        label={
+          autoRun ?
+            <DemoLabel player={demo.player} onPlay={demo.replay} />
+          : undefined
+        }
+        fixtures={fixtureContent}
+        code={codeControl}
+        routerStart={routerStart}
+        headerControls={
+          <PreviewHeaderControls
             layout={layout}
-            storeHost={storeHost}
-            narrow={narrow}
-            fixtures={fixtures}
-            getInitialInterceptorData={getInterceptorData}
-            onCommit={onCommit}
-            observer={inFlightCount.manager}
-            initialState={restored?.state}
-            registry={registry}
-            history={history}
-            replacedHistory={replacedHistory}
-            managerHost={managers.host}
-            onReset={reset}
-            {...handlers}
+            badge={
+              <>
+                {inFlightCount.badge}
+                {badge}
+              </>
+            }
+            storeOpen={storeOpen}
+            toggleStore={toggleStore}
+            reset={reset}
           />
-        </PreviewWrapper>
-      </Activity>
+        }
+      >
+        <Preview
+          key={storeKey}
+          storeOpen={storeOpen}
+          storeMoves={storeMoves}
+          toggleStore={toggleStore}
+          layout={layout}
+          storeHost={storeHost}
+          narrow={narrow}
+          hidden={hidden}
+          fixtures={fixtures}
+          getInitialInterceptorData={getInterceptorData}
+          onCommit={onCommit}
+          observer={inFlightCount.manager}
+          initialState={restored?.state}
+          registry={registry}
+          history={history}
+          replacedHistory={replacedHistory}
+          managerHost={managers.host}
+          onReset={reset}
+          {...handlers}
+        />
+      </PreviewWrapper>
     </LiveProvider>
   );
 }

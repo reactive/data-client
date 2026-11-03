@@ -1,6 +1,7 @@
 import { DataProvider, type Manager, type State } from '@data-client/react';
 import { MockResolver } from '@data-client/test/browser';
 import React, {
+  Activity,
   memo,
   useState,
   lazy,
@@ -35,9 +36,12 @@ function Preview<T>({
   replacedHistory,
   managerHost,
   onInteract,
+  hidden,
   ...errorProps
 }: PreviewProps<T> &
   PreviewErrorProps & {
+    /** Its tab is unselected: the app hides, paused, in an `<Activity>` */
+    hidden: boolean;
     /** Called on every React commit of the live result (enables a `<Profiler>`) */
     onCommit?: ProfilerOnRenderCallback;
     /** Watches actions before the code's managers (e.g. `inFlight`) */
@@ -85,27 +89,33 @@ function Preview<T>({
         getInitialInterceptorData={getInitialInterceptorData}
       >
         <ManagersSync host={managerHost} />
-        <MotionGroup layoutDependency={storeMoves}>
-          <div
-            className={previewSurfaceClassName}
-            onPointerDownCapture={onInteract}
-            onKeyDownCapture={onInteract}
-          >
-            <Boundary fallback={<PendingSheet />}>
-              <PreviewBlockLazy onCommit={onCommit} {...errorProps} />
-            </Boundary>
-            <ManagerError host={managerHost} />
-          </div>
-          <StoreInspector
-            open={storeOpen}
-            toggle={toggleStore}
-            registry={registry}
-            history={history}
-            layout={layout}
-            host={storeHost}
-            narrow={narrow}
-          />
-        </MotionGroup>
+        {/* under the store, so its managers keep running (a response that
+            lands while hidden still resolves) while the app's Effects
+            pause; and under react-live's LiveProvider, whose Effect would
+            re-run on each show and remount the app */}
+        <Activity mode={hidden ? 'hidden' : 'visible'}>
+          <MotionGroup layoutDependency={storeMoves}>
+            <div
+              className={previewSurfaceClassName}
+              onPointerDownCapture={onInteract}
+              onKeyDownCapture={onInteract}
+            >
+              <Boundary fallback={<PendingSheet />}>
+                <PreviewBlockLazy onCommit={onCommit} {...errorProps} />
+              </Boundary>
+              <ManagerError host={managerHost} />
+            </div>
+            <StoreInspector
+              open={storeOpen}
+              toggle={toggleStore}
+              registry={registry}
+              history={history}
+              layout={layout}
+              host={storeHost}
+              narrow={narrow}
+            />
+          </MotionGroup>
+        </Activity>
       </MockResolver>
     </DataProvider>
   );
