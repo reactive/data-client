@@ -8,7 +8,7 @@ import {
 } from '@data-client/react';
 import type { Controller } from '@data-client/react';
 import {
-  createMessageChain,
+  measureMessageStream,
   moveItemIsReady,
   renderBenchApp,
   useBenchState,
@@ -28,7 +28,7 @@ import {
   FIXTURE_USERS_BY_LOGIN,
   TICKER_STRIP_SYMBOLS,
 } from '@shared/data';
-import { setCurrentIssues } from '@shared/refStability';
+import { noteListViewRender, setCurrentIssues } from '@shared/refStability';
 import {
   UserResource,
   IssueResource,
@@ -66,6 +66,7 @@ const benchGC = new BenchGCPolicy();
 
 /** Renders issues from the list endpoint (models rendering a list fetch response). */
 function ListView({ count, limit }: { count: number; limit?: number }) {
+  noteListViewRender();
   const { data: issues } = useDLE(IssueResource.getList, { count });
   if (!issues) return null;
   const list = issues as Issue[];
@@ -144,7 +145,7 @@ function TickerCard({ symbol }: { symbol: string }) {
   return <TickerRow ticker={ticker as Ticker} />;
 }
 
-/** Strip of the first tickers; each row reads its own ticker. */
+/** Strip of the first tickers; each card reads its own ticker. */
 function TickerStrip() {
   return (
     <div data-ticker-strip>
@@ -330,26 +331,24 @@ function BenchmarkHarness() {
     [controller, measureMount, setListViewCount, waitForElement, setComplete],
   );
 
+  /**
+   * Timed: each message's `ctrl.set()` until its promise resolves, which
+   * happens in DataStore's effect after React commits the new state.
+   */
   const streamTickers = useCallback(
-    (messages: number) => {
-      // Build every batch and the channel before measureUpdate starts timing.
-      const { batches, sentinelSymbol, sentinelPrice } = buildTickerStream(
+    async (messages: number) => {
+      // Untimed: build every batch before the first message.
+      const { batches, finalRendered } = buildTickerStream(
         ++tickerStreamVersion,
         messages,
       );
-      const send = createMessageChain(batches.length, i => {
-        controller.set([TickerEntity], batches[i]);
-      });
-      const container = containerRef.current!;
-      const sentinelSelector = `[data-ticker="${sentinelSymbol}"] [data-price]`;
-      const expected = sentinelPrice.toFixed(2);
-      measureUpdate(
-        send,
-        () =>
-          container.querySelector(sentinelSelector)?.textContent === expected,
+      await measureMessageStream(batches.length, i =>
+        controller.set([TickerEntity], batches[i]),
       );
+      setComplete();
+      return { finalRendered };
     },
-    [measureUpdate, controller, containerRef],
+    [controller, setComplete],
   );
 
   const resetStore = useCallback(

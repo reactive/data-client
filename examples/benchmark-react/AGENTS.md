@@ -34,7 +34,7 @@ Filtering: `yarn bench --lib data-client --size small --action update`
 
 `BASE_SCENARIOS` in `bench/scenarios.ts` × `LIBRARIES` via `flatMap`. `onlyLibs` restricts to specific libs. CI runs data-client hot-path only (no memory/startup/deterministic). Memory is opt-in locally (`--action memory`). Convergent timing uses single page load with adaptive iterations and early stopping on statistical convergence. Ref-stability scenarios run once (deterministic count, not ops/s).
 
-**Ticker stream** (data-client only): `initTickerStream` is the untimed pre-mount. `streamTickers` builds every batch and the `MessageChannel` before `measureUpdate` starts timing, so the time covers only the store writes, renders and hops. `issueRowRenders` comes from `getRefStabilityReport()`; `captureRefSnapshot()` resets it, and `IssueRow` counts itself with a function call so React Compiler still compiles it.
+**Ticker stream** (data-client only): `initTickerStream` is the untimed pre-mount. `streamTickers` builds every batch first, then calls `measureMessageStream` (`benchHarness.tsx`), not `measureUpdate`. Each message is a `MessageChannel` task; its window runs from `ctrl.set()` until the returned promise resolves (`usePromisifiedDispatch` resolves it in `DataStore`'s effect after commit). The next message is posted after the window ends, so gaps and hops are untimed and React cannot merge messages. It records `update-duration` = sum of windows, plus `update-message-worst` / `update-message-p95`, which the runner reports as `-worst-message` / `-p95-message` via `Scenario.extraMeasures` (local only; too coarse for CI). `sumReactCommits` makes `(react commit)` the sum of all commits, not `findLast`. `issueRowRenders` / `listViewRenders` come from `getRefStabilityReport()`; `captureRefSnapshot()` resets them, and `IssueRow` / `ListView` count themselves with a function call so React Compiler still compiles them. `validate.ts` asserts one `ListView` render per message (and one Profiler commit per message if any were recorded; `onRender` fires only in a `--env profile` build, and not for store-driven commits), and that each rendered ticker shows its last update.
 
 ## Update Data Flow
 
@@ -65,7 +65,7 @@ Filtering: `yarn bench --lib data-client --size small --action update`
 | `data-issue-number` | components → runner/harness | Item identity assertion |
 | `data-title` | components → lib views | Text content assertion |
 | `data-state-list` | lib views → harness | Move-item verification |
-| `data-ticker` | components → lib views | Ticker-stream sentinel (`[data-price]` text) |
+| `data-ticker` | components → validate | Ticker-stream final values (`[data-price]`, `[data-volume]` text) |
 
 ## Environment Variables
 

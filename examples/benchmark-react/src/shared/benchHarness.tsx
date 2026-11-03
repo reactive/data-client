@@ -20,42 +20,58 @@ export function waitForPaint(): Promise<void> {
 }
 
 /**
- * Prepare a chain of `count` messages, each delivered in its own task (like
- * websocket messages). Each message carries only its index; `onMessage(i)`
- * runs, then the next index is posted. Returns the function that sends the
- * first message.
+ * Deliver `count` messages, each in its own task like websocket messages, and
+ * time each one. `send(i)` applies message i and returns a promise that
+ * resolves when the update has settled. Each message's time runs from the
+ * `send(i)` call until that promise resolves. The next message is posted
+ * after that, through a `MessageChannel`, so the time between messages is
+ * not counted. Prepare all message data before calling this.
+ *
+ * Records these `performance.measure` entries:
+ * - `stream-message`: one per message.
+ * - `update-duration`: the sum of the message times.
+ * - `update-message-worst`: the longest message time.
+ * - `update-message-p95`: the 95th-percentile message time (nearest rank).
  */
-export function createMessageChain(
+export function measureMessageStream(
   count: number,
-  onMessage: (i: number) => void,
-  onDone?: () => void,
-): () => void {
-  const { port1, port2 } = new MessageChannel();
-  port1.onmessage = (e: MessageEvent<number>) => {
-    const i = e.data;
-    onMessage(i);
-    if (i + 1 < count) {
-      port2.postMessage(i + 1);
-    } else {
+  send: (i: number) => Promise<unknown>,
+): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const durations: number[] = [];
+    let firstStart = 0;
+    const { port1, port2 } = new MessageChannel();
+    port1.onmessage = async (e: MessageEvent<number>) => {
+      const i = e.data;
+      try {
+        const start = performance.now();
+        await send(i);
+        const end = performance.now();
+        if (i === 0) firstStart = start;
+        durations.push(end - start);
+        performance.measure('stream-message', { start, end });
+      } catch (err) {
+        port1.close();
+        reject(err);
+        return;
+      }
+      if (i + 1 < count) {
+        port2.postMessage(i + 1);
+        return;
+      }
       port1.close();
-      onDone?.();
-    }
-  };
-  return () => port2.postMessage(0);
-}
-
-/** Time a `createMessageChain` of `messages` empty handlers, in ms. */
-export function measureDispatchOverhead(messages: number): Promise<number> {
-  return new Promise<number>(resolve => {
-    let start = 0;
-    const send = createMessageChain(
-      messages,
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      () => {},
-      () => resolve(performance.now() - start),
-    );
-    start = performance.now();
-    send();
+      const sorted = [...durations].sort((a, b) => a - b);
+      const record = (name: string, duration: number) =>
+        performance.measure(name, { start: firstStart, duration });
+      record(
+        'update-duration',
+        durations.reduce((a, b) => a + b, 0),
+      );
+      record('update-message-worst', sorted[sorted.length - 1]);
+      record('update-message-p95', sorted[Math.ceil(sorted.length * 0.95) - 1]);
+      resolve();
+    };
+    port2.postMessage(0);
   });
 }
 
@@ -384,7 +400,6 @@ export function useBenchState() {
       setNetworkSim,
       flushPendingMutations,
       setRenderLimit,
-      measureDispatchOverhead,
       resetStore: resetStoreNoop,
       ...libraryActions,
     } as BenchAPI;

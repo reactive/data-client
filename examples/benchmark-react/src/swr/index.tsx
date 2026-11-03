@@ -16,7 +16,7 @@ import {
   FIXTURE_ISSUES_BY_NUMBER,
   sortByTitle,
 } from '@shared/data';
-import { setCurrentIssues } from '@shared/refStability';
+import { noteListViewRender, setCurrentIssues } from '@shared/refStability';
 import { UserResource, IssueResource } from '@shared/resources';
 import type { Issue } from '@shared/types';
 import React, { useCallback, useMemo, useRef } from 'react';
@@ -80,6 +80,7 @@ function PinnedStrip({ numbers }: { numbers: number[] }) {
 }
 
 function ListView({ count, limit }: { count: number; limit?: number }) {
+  noteListViewRender();
   const { data: issues } = useSWR<Issue[]>(`issues:${count}`, fetcher);
   if (!issues) return null;
   setCurrentIssues(issues);

@@ -9,6 +9,8 @@ export interface RefStabilityReport {
   userRefChanged: number;
   /** IssueRow renders since the snapshot. 0 = no row re-rendered. */
   issueRowRenders: number;
+  /** ListView renders since the snapshot. With issueRowRenders 0, shows the list re-rendered but skipped its rows. */
+  listViewRenders: number;
 }
 
 /**
@@ -55,10 +57,12 @@ export interface BenchAPI {
   updateEntityMultiView?(id: number): void;
   /** Mount the issue list (count issues) and a ticker strip, with all tickers in the store. data-client only. */
   initTickerStream?(count: number): Promise<void>;
-  /** Apply every ticker once, in `messages` batches, one batch per task (like websocket messages). data-client only. */
-  streamTickers?(messages: number): void;
-  /** Time `messages` MessageChannel hops with empty handlers, in ms: the dispatch cost inside streamTickers. */
-  measureDispatchOverhead?(messages: number): Promise<number>;
+  /**
+   * Send `messages` ticker batches, one per task (like websocket messages), each after the previous one settles.
+   * Records update-duration (sum of per-message times), update-message-worst and update-message-p95.
+   * Resolves with the last update of each rendered ticker. data-client only.
+   */
+  streamTickers?(messages: number): Promise<{ finalRendered: Ticker[] }>;
   /** Trigger store garbage collection (data-client only). Used by memory scenarios to flush unreferenced data before heap measurement. */
   triggerGC?(): void;
   /** Cap DOM rendering to the first N items while keeping all data in the store. */
@@ -178,4 +182,11 @@ export interface Scenario {
   renderLimit?: number;
   /** If set, scenario applies only to these libs; dropped when any selected library is not listed. */
   onlyLibs?: string[];
+  /**
+   * Also report these measures from each iteration, as `<name>-<suffix>` entries in ops/s.
+   * Maps suffix to `performance.measure` name, e.g. { 'worst-message': 'update-message-worst' }.
+   */
+  extraMeasures?: Record<string, string>;
+  /** Report the sum of all React commits in the iteration as `(react commit)`, not the last one. For durations that are sums. */
+  sumReactCommits?: boolean;
 }

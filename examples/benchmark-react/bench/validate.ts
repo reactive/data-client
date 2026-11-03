@@ -427,7 +427,7 @@ test(
 // ── streamTickers ────────────────────────────────────────────────────────
 
 test(
-  'streamTickers updates every rendered ticker',
+  'streamTickers applies every message, one commit each',
   async (page, lib) => {
     if (
       !(await page.evaluate(
@@ -435,13 +435,7 @@ test(
       ))
     )
       return;
-
-    const getVolumes = () =>
-      page.evaluate(() =>
-        [...document.querySelectorAll('[data-ticker] [data-volume]')].map(
-          el => el.textContent,
-        ),
-      );
+    const MESSAGES = 50;
 
     await clearComplete(page);
     await page.evaluate(
@@ -449,31 +443,85 @@ test(
       TEST_ISSUE_COUNT,
     );
     await waitForComplete(page);
-    const before = await getVolumes();
+    const stripSize = await page.evaluate(
+      () => document.querySelectorAll('[data-ticker]').length,
+    );
     assert(
-      before.length === 20,
+      stripSize === 20,
       lib,
       'streamTickers strip',
-      `expected 20 rendered tickers, got ${before.length}`,
+      `expected 20 rendered tickers, got ${stripSize}`,
     );
 
-    await page.evaluate(() => window.__BENCH__!.captureRefSnapshot());
+    // Count only the stream: the initial mount also records commits.
+    await page.evaluate(() => {
+      performance.clearMeasures();
+      window.__BENCH__!.captureRefSnapshot();
+    });
     await clearComplete(page);
-    await page.evaluate(() => window.__BENCH__!.streamTickers!(50));
+    const { finalRendered } = await page.evaluate(
+      (n: number) => window.__BENCH__!.streamTickers!(n),
+      MESSAGES,
+    );
     await waitForComplete(page);
 
-    const after = await getVolumes();
-    const unchanged = after.filter((v, i) => v === before[i]).length;
-    assert(
-      unchanged === 0,
-      lib,
-      'streamTickers updates',
-      `${unchanged} of 20 rendered tickers unchanged when data-bench-complete fired`,
+    // Every rendered ticker shows its last update from the stream.
+    const shown = await page.evaluate(() =>
+      Object.fromEntries(
+        [...document.querySelectorAll<HTMLElement>('[data-ticker]')].map(el => [
+          el.dataset.ticker!,
+          `${el.querySelector('[data-price]')?.textContent} ${el.querySelector('[data-volume]')?.textContent}`,
+        ]),
+      ),
     );
+    const stale = finalRendered.filter(
+      t => shown[t.symbol] !== `${t.price.toFixed(2)} ${t.volume}`,
+    );
+    assert(
+      stale.length === 0,
+      lib,
+      'streamTickers final values',
+      `${stale.length} of ${finalRendered.length} rendered tickers do not show their last update: ` +
+        stale.map(t => t.symbol).join(', '),
+    );
+
+    const counts = await page.evaluate(() => ({
+      messages: performance.getEntriesByName('stream-message').length,
+      commits: performance.getEntriesByName('react-commit-update').length,
+    }));
     const r = await page.evaluate(() =>
       window.__BENCH__!.getRefStabilityReport(),
     );
-    process.stderr.write(`    issueRowRenders=${r.issueRowRenders}\n`);
+    process.stderr.write(
+      `    messages=${counts.messages} commits=${counts.commits} ` +
+        `listViewRenders=${r.listViewRenders} issueRowRenders=${r.issueRowRenders}\n`,
+    );
+    assert(
+      counts.messages === MESSAGES,
+      lib,
+      'streamTickers messages',
+      `expected ${MESSAGES} settled messages, got ${counts.messages}`,
+    );
+    // One commit per message: React did not merge messages into one render.
+    // Only a profiling build (--env profile) calls the Profiler, and even then
+    // it skips store-driven commits (see README), so check only when recorded.
+    if (counts.commits > 0) {
+      assert(
+        counts.commits === MESSAGES,
+        lib,
+        'streamTickers commits',
+        `expected ${MESSAGES} React commits, one per message, got ${counts.commits}`,
+      );
+    }
+    // One ListView render per message also shows React did not merge
+    // messages. With 0 row renders, it shows the rows were skipped, not that
+    // the list never rendered.
+    assert(
+      r.listViewRenders === MESSAGES,
+      lib,
+      'streamTickers ListView renders',
+      `expected ${MESSAGES} ListView renders, one per message, got ${r.listViewRenders}`,
+    );
     // Without React Compiler, every store write re-renders the list's rows.
     // Set REACT_COMPILER=false here too when validating a build:no-compiler build.
     if (process.env.REACT_COMPILER !== 'false') {

@@ -3,6 +3,7 @@ import type { Issue, RefStabilityReport, User } from './types';
 let currentIssues: Issue[] = [];
 let snapshotRefs: Map<number, { issue: Issue; user: User }> | null = null;
 let issueRowRenders = 0;
+let listViewRenders = 0;
 
 /**
  * Count one IssueRow render. Called from IssueRow's body; a call (not an
@@ -10,6 +11,11 @@ let issueRowRenders = 0;
  */
 export function noteIssueRowRender(): void {
   issueRowRenders++;
+}
+
+/** Count one ListView render. Called from ListView's body, like noteIssueRowRender. */
+export function noteListViewRender(): void {
+  listViewRenders++;
 }
 
 /**
@@ -21,11 +27,12 @@ export function setCurrentIssues(issues: Issue[]): void {
 }
 
 /**
- * Build a snapshot from current issues and reset the IssueRow render count.
+ * Build a snapshot from current issues and reset the render counts.
  * Call after mount, before running an update.
  */
 export function captureSnapshot(): void {
   issueRowRenders = 0;
+  listViewRenders = 0;
   snapshotRefs = new Map();
   for (const issue of currentIssues) {
     snapshotRefs.set(issue.number, { issue, user: issue.user });
@@ -43,6 +50,7 @@ export function getReport(): RefStabilityReport {
       userRefUnchanged: 0,
       userRefChanged: 0,
       issueRowRenders,
+      listViewRenders,
     };
   }
 
@@ -73,5 +81,6 @@ export function getReport(): RefStabilityReport {
     userRefUnchanged,
     userRefChanged,
     issueRowRenders,
+    listViewRenders,
   };
 }

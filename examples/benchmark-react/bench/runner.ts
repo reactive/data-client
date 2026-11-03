@@ -10,7 +10,11 @@ import type {
   Page,
 } from 'playwright';
 
-import { collectMeasures, getMeasureDuration } from './measure.js';
+import {
+  collectMeasures,
+  getMeasureDuration,
+  sumMeasureDurations,
+} from './measure.js';
 import { collectHeapUsed } from './memory.js';
 import { formatReport, type BenchmarkResult } from './report.js';
 import {
@@ -163,12 +167,15 @@ interface ScenarioResult {
   value: number;
   reactCommit?: number;
   traceDuration?: number;
+  /** Durations of `scenario.extraMeasures`, by suffix. */
+  extras?: Record<string, number>;
 }
 
 interface ScenarioSamples {
   value: number[];
   reactCommit: number[];
   trace: number[];
+  extras: Record<string, number[]>;
 }
 
 // ---------------------------------------------------------------------------
@@ -299,7 +306,12 @@ async function runIteration(
     subIdx: number;
     shouldTrace: boolean;
   },
-): Promise<{ duration: number; reactCommit: number; traceDuration?: number }> {
+): Promise<{
+  duration: number;
+  reactCommit: number;
+  traceDuration?: number;
+  extras?: Record<string, number>;
+}> {
   const { isMountLike, mountCount, networkSim, subIdx, shouldTrace } = opts;
 
   if (subIdx > 0) {
@@ -402,9 +414,20 @@ async function runIteration(
     isMountLike ?
       getMeasureDuration(measures, 'mount-duration')
     : getMeasureDuration(measures, 'update-duration');
-  const reactCommit = getMeasureDuration(measures, 'react-commit-update');
+  const reactCommit =
+    scenario.sumReactCommits ?
+      sumMeasureDurations(measures, 'react-commit-update')
+    : getMeasureDuration(measures, 'react-commit-update');
+  const extras =
+    scenario.extraMeasures &&
+    Object.fromEntries(
+      Object.entries(scenario.extraMeasures).map(([suffix, name]) => [
+        suffix,
+        getMeasureDuration(measures, name),
+      ]),
+    );
 
-  return { duration, reactCommit, traceDuration };
+  return { duration, reactCommit, traceDuration, extras };
 }
 
 // ---------------------------------------------------------------------------
@@ -515,20 +538,29 @@ async function runScenario(
   const durations: number[] = [];
   const commitTimes: number[] = [];
   const traceDurations: number[] = [];
+  const extraDurations: Record<string, number[]> = {};
   const traceSubIdx = Math.floor(ops / 2);
 
   for (let subIdx = 0; subIdx < ops; subIdx++) {
     const shouldTrace = USE_TRACE && subIdx === traceSubIdx;
-    const { duration, reactCommit, traceDuration } = await runIteration(
+    const { duration, reactCommit, traceDuration, extras } = await runIteration(
       page,
       harness,
       bench,
       scenario,
-      { isMountLike, mountCount, networkSim, subIdx, shouldTrace },
+      {
+        isMountLike,
+        mountCount,
+        networkSim,
+        subIdx,
+        shouldTrace,
+      },
     );
     durations.push(duration);
     if (reactCommit > 0) commitTimes.push(reactCommit);
     if (traceDuration != null) traceDurations.push(traceDuration);
+    for (const [suffix, ms] of Object.entries(extras ?? {}))
+      (extraDurations[suffix] ??= []).push(ms);
   }
 
   await bench.dispose();
@@ -537,6 +569,12 @@ async function runScenario(
     reactCommit: commitTimes.length > 0 ? simpleMedian(commitTimes) : undefined,
     traceDuration:
       traceDurations.length > 0 ? simpleMedian(traceDurations) : undefined,
+    extras: Object.fromEntries(
+      Object.entries(extraDurations).map(([suffix, arr]) => [
+        suffix,
+        simpleMedian(arr),
+      ]),
+    ),
   };
 }
 
@@ -591,12 +629,18 @@ async function runScenarioConvergent(
     }
 
     const shouldTrace = USE_TRACE && subIdx === traceSubIdx;
-    const { duration, reactCommit, traceDuration } = await runIteration(
+    const { duration, reactCommit, traceDuration, extras } = await runIteration(
       page,
       harness,
       bench,
       scenario,
-      { isMountLike, mountCount, networkSim, subIdx, shouldTrace },
+      {
+        isMountLike,
+        mountCount,
+        networkSim,
+        subIdx,
+        shouldTrace,
+      },
     );
 
     if (isWarmup) continue;
@@ -606,6 +650,7 @@ async function runScenarioConvergent(
       value: duration,
       reactCommit: reactCommit > 0 ? reactCommit : undefined,
       traceDuration,
+      extras,
     });
 
     if (
@@ -779,6 +824,8 @@ function recordResult(
   s.value.push(result.value);
   s.reactCommit.push(result.reactCommit ?? NaN);
   s.trace.push(result.traceDuration ?? NaN);
+  for (const suffix of Object.keys(scenario.extraMeasures ?? {}))
+    (s.extras[suffix] ??= []).push(result.extras?.[suffix] ?? NaN);
 }
 
 function warmupCount(scenario: Scenario): number {
@@ -890,7 +937,7 @@ async function main() {
 
   const samples = new Map<string, ScenarioSamples>();
   for (const s of SCENARIOS_TO_RUN) {
-    samples.set(s.name, { value: [], reactCommit: [], trace: [] });
+    samples.set(s.name, { value: [], reactCommit: [], trace: [], extras: {} });
   }
 
   const { browser, closeBenchBrowser } = await launchBenchChromium();
@@ -1082,6 +1129,22 @@ async function main() {
         unit: 'ops/s',
         value: Math.round(rcMedian * 100) / 100,
         range: rcRange,
+      });
+    }
+
+    // Extra measures from the same iterations, in ops/s so bigger is better
+    for (const [suffix, values] of Object.entries(s.extras)) {
+      const exOps = values
+        .slice(warmup)
+        .filter(x => !Number.isNaN(x))
+        .map(msToOps);
+      if (exOps.length === 0) continue;
+      const { median: exMedian, range: exRange } = computeStats(exOps, 0);
+      report.push({
+        name: `${scenario.name}-${suffix}`,
+        unit: 'ops/s',
+        value: Math.round(exMedian * 100) / 100,
+        range: exRange,
       });
     }
 

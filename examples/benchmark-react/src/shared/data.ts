@@ -238,34 +238,40 @@ export const TICKER_STRIP_SYMBOLS = FIXTURE_TICKERS.slice(
   TICKER_STRIP_SIZE,
 ).map(t => t.symbol);
 
-/** The update for one ticker in stream round `version` (1, 2, ...). */
-function tickTicker(base: Ticker, i: number, version: number): Ticker {
-  // ±1% around the base price; differs every round for every ticker
-  const move = (((i * 31 + version * 17) % 201) - 100) / 10000;
+/** Rendered tickers in each stream message. */
+const RENDERED_PER_MESSAGE = 2;
+/** Tickers the strip doesn't render, in each stream message. */
+const UNRENDERED_PER_MESSAGE = 8;
+
+/**
+ * The update for one ticker at stream step `step`. Steps increase with every
+ * message, so each update shows a new volume.
+ */
+function tickTicker(base: Ticker, i: number, step: number): Ticker {
+  // ±1% around the base price
+  const move = (((i * 31 + step * 17) % 201) - 100) / 10000;
   const price = round2(base.price * (1 + move));
   return {
     symbol: base.symbol,
     price,
     change: round2(move * 100),
-    volume: base.volume + version * 100 + (i % 100),
-    time: base.time + version * 1000,
+    volume: base.volume + step * 100 + (i % 100),
+    time: base.time + step * 1000,
   };
 }
 
 export interface TickerStream {
-  /** One batch per message; every ticker appears in exactly one batch. */
+  /** One batch per message. */
   batches: Ticker[][];
-  /** Rendered ticker updated last; the stream is done when its price shows. */
-  sentinelSymbol: string;
-  sentinelPrice: number;
+  /** The last update of each rendered ticker, in strip order. */
+  finalRendered: Ticker[];
 }
 
 /**
- * Build round `version` of the ticker stream: every ticker updated once,
- * split across `messages` batches. Most batches only touch tickers the strip
- * doesn't render; every 10th batch, counting back from the last, also carries
- * a share of the rendered tickers. The last batch ends with the sentinel: a
- * rendered ticker whose price is unique to this round.
+ * Build round `version` (1, 2, ...) of the ticker stream: `messages` batches
+ * of 10 ticker updates. Each batch has 2 rendered tickers, which rotate
+ * through the strip so that each one updates repeatedly, and 8 tickers the
+ * strip doesn't render, which rotate through the rest.
  */
 export function buildTickerStream(
   version: number,
@@ -273,40 +279,25 @@ export function buildTickerStream(
   tickers: Ticker[] = FIXTURE_TICKERS,
   renderedCount = TICKER_STRIP_SIZE,
 ): TickerStream {
-  const perMessage = Math.ceil(tickers.length / messages);
-  const isHot = (m: number) => (messages - 1 - m) % 10 === 0;
-  let hotCount = 0;
-  for (let m = 0; m < messages; m++) if (isHot(m)) hotCount++;
-  const renderedPerHot = Math.ceil(renderedCount / hotCount);
-
-  let nextRendered = 0;
-  let nextCold = renderedCount;
+  const unrenderedCount = tickers.length - renderedCount;
+  const finalRendered: Ticker[] = tickers.slice(0, renderedCount);
   const batches: Ticker[][] = [];
   for (let m = 0; m < messages; m++) {
-    const indices: number[] = [];
-    const rendered =
-      isHot(m) ? Math.min(renderedPerHot, renderedCount - nextRendered) : 0;
-    while (
-      indices.length < perMessage - rendered &&
-      nextCold < tickers.length
-    ) {
-      indices.push(nextCold++);
+    const step = version * messages + m;
+    const batch: Ticker[] = [];
+    for (let r = 0; r < RENDERED_PER_MESSAGE; r++) {
+      const i = (m * RENDERED_PER_MESSAGE + r) % renderedCount;
+      finalRendered[i] = tickTicker(tickers[i], i, step);
+      batch.push(finalRendered[i]);
     }
-    // rendered tickers last, so the final one in the stream is the sentinel
-    for (let r = 0; r < rendered; r++) indices.push(nextRendered++);
-    batches.push(indices.map(i => tickTicker(tickers[i], i, version)));
+    for (let u = 0; u < UNRENDERED_PER_MESSAGE; u++) {
+      const i =
+        renderedCount + ((m * UNRENDERED_PER_MESSAGE + u) % unrenderedCount);
+      batch.push(tickTicker(tickers[i], i, step));
+    }
+    batches.push(batch);
   }
-
-  const sentinel = tickers[renderedCount - 1];
-  const last = batches[batches.length - 1];
-  if (last[last.length - 1]?.symbol !== sentinel.symbol) {
-    throw new Error(
-      `buildTickerStream: ${messages} messages leave no rendered ticker in the last batch`,
-    );
-  }
-  const sentinelPrice = round2(sentinel.price + version / 100);
-  last[last.length - 1] = { ...last[last.length - 1], price: sentinelPrice };
-  return { batches, sentinelSymbol: sentinel.symbol, sentinelPrice };
+  return { batches, finalRendered };
 }
 
 /**

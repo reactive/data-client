@@ -196,6 +196,19 @@ const BASE_SCENARIOS: BaseScenario[] = [
     preMountAction: 'initTickerStream',
     size: 'large',
     onlyLibs: ['data-client'],
+    // update-duration is the sum of 50 per-message times
+    sumReactCommits: true,
+    // Local only: the worst message takes ~1 ms and performance.now() steps by
+    // 0.1 ms (the page is not cross-origin isolated), so these vary about ±6%
+    // and miss CI's 3% target.
+    ...(process.env.CI ?
+      {}
+    : {
+        extraMeasures: {
+          'worst-message': 'update-message-worst',
+          'p95-message': 'update-message-p95',
+        },
+      }),
   },
   {
     nameSuffix: 'ticker-stream-issue-row-renders',
@@ -246,11 +259,9 @@ export const LIBRARIES = [
 export const SCENARIOS: Scenario[] = LIBRARIES.flatMap(lib =>
   BASE_SCENARIOS.filter(
     base => !base.onlyLibs || base.onlyLibs.includes(lib),
-  ).map(
-    ({ nameSuffix, onlyLibs, ...rest }): Scenario => ({
-      name: `${lib}: ${nameSuffix}`,
-      ...rest,
-      ...(onlyLibs ? { onlyLibs: [...onlyLibs] } : {}),
-    }),
-  ),
+  ).map(({ nameSuffix, onlyLibs, ...rest }): Scenario => ({
+    name: `${lib}: ${nameSuffix}`,
+    ...rest,
+    ...(onlyLibs ? { onlyLibs: [...onlyLibs] } : {}),
+  })),
 );

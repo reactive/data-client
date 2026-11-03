@@ -99,8 +99,8 @@ export function PinnedCardView({ issue }: { issue: Issue }) {
 }
 
 /**
- * Cheap row of the ticker strip. Only the ticker-stream scenarios render it;
- * each library reads every row's ticker by symbol.
+ * Cheap row of the ticker strip. Only data-client implements the ticker-stream
+ * scenarios; its TickerCard reads each row's ticker by symbol.
  */
 export function TickerRow({ ticker }: { ticker: Ticker }) {
   return (

@@ -16,7 +16,7 @@ import {
   FIXTURE_ISSUES_BY_NUMBER,
   sortByTitle,
 } from '@shared/data';
-import { setCurrentIssues } from '@shared/refStability';
+import { noteListViewRender, setCurrentIssues } from '@shared/refStability';
 import { IssueResource, UserResource } from '@shared/resources';
 import type { Issue } from '@shared/types';
 import React, {
@@ -108,6 +108,7 @@ function ListView({
   limit?: number;
   refetchKey: number;
 }) {
+  noteListViewRender();
   const [issues, setIssues] = useState<Issue[] | null>(null);
   useEffect(() => {
     IssueResource.getList({ count }).then(setIssues);

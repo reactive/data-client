@@ -30,3 +30,13 @@ export function getMeasureDuration(
   const m = measures.findLast(x => x.name === name);
   return m?.duration ?? 0;
 }
+
+/** Sum the durations of every measure named `name`. */
+export function sumMeasureDurations(
+  measures: PerformanceMeasure[],
+  name: string,
+): number {
+  let sum = 0;
+  for (const m of measures) if (m.name === name) sum += m.duration;
+  return sum;
+}
