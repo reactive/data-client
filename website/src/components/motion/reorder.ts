@@ -16,8 +16,6 @@ export interface Position {
   parent: HTMLElement | null;
   width: number;
   height: number;
-  /** ms since it arrived, while it still calls attention to that */
-  arrived?: number;
 }
 export type Positions = ReadonlyMap<unknown, Position>;
 
@@ -33,7 +31,6 @@ export function measure(items: Items): Positions {
       parent: el.parentElement,
       width,
       height,
-      arrived: sinceArrival(el),
     });
   }
   return positions;
@@ -43,15 +40,14 @@ export function measure(items: Items): Positions {
  * Glides each item from where `before` saw its key to where it is now (FLIP,
  * `translate` only, on the compositor), so an item React put under another
  * parent travels there too. An item inside another that moves rides along
- * with it, and only travels the rest of the way itself. A key `before`
- * lacks just shows, except inside `[data-mark-arrivals]`: there it fades in,
- * marked `data-arrived` for a style that calls attention to it (unless an
- * item moves in with it). A key taking the exact spot of a key that just
- * left (the same item under a new id, like an optimistic create the server
- * answered) carries on that key's arrival, if it had one. A key that left
- * fades out where it was, as the others glide into its place. Items
- * crossing the others (going past one, not only into a gap) are
- * `data-traveling` until they land. `own` gives some keys their own spring
+ * with it, and only travels the rest of the way itself; a key `before` lacks
+ * just shows, except inside `[data-mark-arrivals]` (where no one watching
+ * caused the change): there it fades in, marked `data-arrived` for a style
+ * that calls attention to it (unless an item moves in with it, or it takes the exact spot of a key
+ * that just left: the same item under a new id, like an optimistic create
+ * the server answered). A key that left fades out where it was, as the
+ * others glide into its place. Items crossing the others (going past one,
+ * not only into a gap) are `data-traveling` until they land. `own` gives some keys their own spring
  * (an item the reader dropped settles quicker). Layout-agnostic: it reads
  * only where items are on screen.
  */
@@ -71,17 +67,14 @@ export function reorder(
     HTMLElement,
     { offset: Point; velocity: Point; spring: Spring; was: Point; at: Point }
   >();
-  // with the ms since the key it replaces arrived, carried on
-  const arrivals: [el: HTMLElement, elapsed?: number][] = [];
+  const arrivals: HTMLElement[] = [];
   const left = [...before]
     .filter(([key]) => !items.has(key))
     .map(([, position]) => position);
   for (const [key, el] of items) {
     const was = before.get(key);
     if (!was) {
-      const spot = takeSpot(left, positionOf(el));
-      if (!spot) arrivals.push([el]);
-      else if (spot.arrived !== undefined) arrivals.push([el, spot.arrived]);
+      if (!takeSpot(left, positionOf(el))) arrivals.push(el);
       continue;
     }
     const at = positionOf(el);
@@ -111,45 +104,25 @@ export function reorder(
   // an arrival holding an item that moves in (a row into a group that
   // wasn't there) shows at once, or its fade would hide that item's glide
   const fades = arrivals.filter(
-    ([el]) => !glides.some(({ el: item }) => el.contains(item)),
+    el =>
+      el.closest('[data-mark-arrivals]') &&
+      !glides.some(({ el: item }) => el.contains(item)),
   );
   for (const position of left) leave(position);
   if (!fades.length) return;
   const timing = springEasing(spring);
-  for (const [el, elapsed] of fades) arrive(el, timing, elapsed);
+  for (const el of fades) arrive(el, timing);
 }
 
 const ARRIVE: Keyframe[] = [{ opacity: 0 }, { opacity: 1 }];
 
-/** ms since `el` arrived, while it still calls attention to that
- * (`data-arrived` holds when, in `performance.now()` time) */
-function sinceArrival(el: HTMLElement) {
-  const at = el.dataset.arrived;
-  if (at !== undefined) return performance.now() - Number(at);
-}
-
-/** Fades `el` in and marks it inside `[data-mark-arrivals]`, where no one
- * watching caused the change, so it needs pointing out. Elsewhere the
- * reader did, and it just shows. `elapsed` (ms) carries on the arrival of
- * the key it replaces, wherever it is now, so it doesn't start over or cut
- * off */
-function arrive(
-  el: HTMLElement,
-  timing: KeyframeAnimationOptions,
-  elapsed = 0,
-) {
+function arrive(el: HTMLElement, timing: KeyframeAnimationOptions) {
   if (typeof el.animate !== 'function') return;
-  // a carried-on arrival goes on even if the demo has stopped since
-  if (!elapsed && !el.closest('[data-mark-arrivals]')) return;
-  el.animate(ARRIVE, timing).currentTime = elapsed;
-  // the style calling attention to it starts as far in
-  if (elapsed) el.style.animationDelay = `${-elapsed}ms`;
-  // until that style is over (a move restarts a CSS animation)
-  el.dataset.arrived = String(performance.now() - elapsed);
-  const over = () => {
-    delete el.dataset.arrived;
-    if (elapsed) el.style.removeProperty('animation-delay');
-  };
+  el.animate(ARRIVE, timing);
+  // until the style that calls attention to it is over (a move restarts a
+  // CSS animation)
+  el.dataset.arrived = '';
+  const over = () => delete el.dataset.arrived;
   el.addEventListener('animationend', over, { once: true });
   el.addEventListener('animationcancel', over, { once: true });
 }
@@ -245,13 +218,14 @@ function land(el: HTMLElement) {
 
 const distance = ({ x, y }: Point) => Math.hypot(x, y);
 
-/** The one of `spots` that was at `at`, if any (removing it, so it's taken
+/** Whether `at` is where one of `spots` was (removing it, so it's taken
  * once) */
 function takeSpot(spots: Position[], at: Point) {
   const i = spots.findIndex(
     ({ at: spot }) => distance({ x: spot.x - at.x, y: spot.y - at.y }) <= NUDGE,
   );
-  if (i !== -1) return spots.splice(i, 1)[0];
+  if (i !== -1) spots.splice(i, 1);
+  return i !== -1;
 }
 
 function positionOf(el: HTMLElement): Point {
