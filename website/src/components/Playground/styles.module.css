@@ -1767,7 +1767,7 @@ div.fixtureJson + div.fixtureJson {
   }
   /* and the strip between the two sheets, ending at the preview's foot,
      curves into the Store's sheet's edge, as a tab does into its card;
-     shut, hidden with that sheet once the drawer has slid (as above) */
+     hidden as the drawer starts to shut (below) */
   .row:not(.stacked):has(> .storeHost .storePanel[data-visible])::after {
     --pg-fillet-at: 100% 100%;
     --pg-fillet-r: var(--pg-foot-curve);
@@ -1778,12 +1778,11 @@ div.fixtureJson + div.fixtureJson {
     z-index: 2;
     height: var(--pg-fillet-r);
   }
-  /* hidden once the drawer's slide has finished, as the sheet's shadow is,
-     though the Store leaves the layout (and the fillet with it) only a
-     commit later */
+  /* hidden as the drawer starts to shut: the sheet's edge it curves into
+     leaves at once, though the Store leaves the layout (and the fillet
+     with it) only once the slide has settled */
   .row:not(.stacked):has(> .storeHost:not([data-open]))::after {
     visibility: hidden;
-    transition: visibility 0s var(--pg-store-drawer);
   }
   /* under it, the code card's own shadow would deepen the Store's, and the
      file tabs would show past the Store header's inset */
