@@ -305,12 +305,7 @@ async function runIteration(
     subIdx: number;
     shouldTrace: boolean;
   },
-): Promise<{
-  duration: number;
-  reactCommit: number;
-  traceDuration?: number;
-  extras?: Record<string, number>;
-}> {
+): Promise<ScenarioResult> {
   const { isMountLike, mountCount, networkSim, subIdx, shouldTrace } = opts;
 
   if (subIdx > 0) {
@@ -433,7 +428,12 @@ async function runIteration(
       ),
     );
 
-  return { duration, reactCommit, traceDuration, extras };
+  return {
+    value: duration,
+    reactCommit: reactCommit > 0 ? reactCommit : undefined,
+    traceDuration,
+    extras,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -545,32 +545,24 @@ async function runScenario(
 
   // --- Sub-iteration loop ---
   const ops = effectiveOpsPerRound(scenario);
-  const durations: number[] = [];
-  const commitTimes: number[] = [];
-  const traceDurations: number[] = [];
+  const results: ScenarioResult[] = [];
   const traceSubIdx = Math.floor(ops / 2);
 
   for (let subIdx = 0; subIdx < ops; subIdx++) {
     const shouldTrace = USE_TRACE && subIdx === traceSubIdx;
-    const { duration, reactCommit, traceDuration } = await runIteration(
-      page,
-      harness,
-      bench,
-      scenario,
-      { isMountLike, mountCount, networkSim, subIdx, shouldTrace },
+    results.push(
+      await runIteration(page, harness, bench, scenario, {
+        isMountLike,
+        mountCount,
+        networkSim,
+        subIdx,
+        shouldTrace,
+      }),
     );
-    durations.push(duration);
-    if (reactCommit > 0) commitTimes.push(reactCommit);
-    if (traceDuration != null) traceDurations.push(traceDuration);
   }
 
   await bench.dispose();
-  return {
-    value: simpleMedian(durations),
-    reactCommit: commitTimes.length > 0 ? simpleMedian(commitTimes) : undefined,
-    traceDuration:
-      traceDurations.length > 0 ? simpleMedian(traceDurations) : undefined,
-  };
+  return medianResult(results);
 }
 
 // ---------------------------------------------------------------------------
@@ -624,23 +616,18 @@ async function runScenarioConvergent(
     }
 
     const shouldTrace = USE_TRACE && subIdx === traceSubIdx;
-    const { duration, reactCommit, traceDuration, extras } = await runIteration(
-      page,
-      harness,
-      bench,
-      scenario,
-      { isMountLike, mountCount, networkSim, subIdx, shouldTrace },
-    );
+    const result = await runIteration(page, harness, bench, scenario, {
+      isMountLike,
+      mountCount,
+      networkSim,
+      subIdx,
+      shouldTrace,
+    });
 
     if (isWarmup) continue;
 
-    measurementValues.push(duration);
-    results.push({
-      value: duration,
-      reactCommit: reactCommit > 0 ? reactCommit : undefined,
-      traceDuration,
-      extras,
-    });
+    measurementValues.push(result.value);
+    results.push(result);
 
     if (
       measureIdx + 1 >= config.minMeasurement &&
@@ -690,6 +677,29 @@ function simpleMedian(arr: number[]): number {
   return sorted.length % 2 === 0 ?
       (sorted[mid - 1] + sorted[mid]) / 2
     : sorted[mid];
+}
+
+/** Median of each series across `results`; optional series without values stay undefined. */
+function medianResult(results: ScenarioResult[]): ScenarioResult {
+  const optionalMedian = (values: (number | undefined)[]) => {
+    const defined = values.filter((v): v is number => v != null);
+    return defined.length > 0 ? simpleMedian(defined) : undefined;
+  };
+  const suffixes = Object.keys(results[0]?.extras ?? {});
+  return {
+    value: simpleMedian(results.map(r => r.value)),
+    reactCommit: optionalMedian(results.map(r => r.reactCommit)),
+    traceDuration: optionalMedian(results.map(r => r.traceDuration)),
+    extras:
+      suffixes.length > 0 ?
+        Object.fromEntries(
+          suffixes.map(suffix => [
+            suffix,
+            simpleMedian(results.map(r => r.extras![suffix])),
+          ]),
+        )
+      : undefined,
+  };
 }
 
 function shuffle<T>(arr: T[]): T[] {

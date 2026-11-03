@@ -42,7 +42,8 @@ const OBSERVE_MUTATIONS: MutationObserverInit = {
  * for which `isReady()` holds. React commits atomically, so for an update the
  * first mutation is its commit. Calls `onEnd(start, end)` from that
  * MutationObserver callback. The observer is attached before the start time
- * is read, so attaching it is not timed.
+ * is read, so attaching it is not timed. If `fn()` throws, the observer is
+ * disconnected and the error is rethrown.
  */
 function timeToMutation<T>(
   container: Element,
@@ -59,7 +60,14 @@ function timeToMutation<T>(
   });
   observer.observe(container, OBSERVE_MUTATIONS);
   const start = performance.now();
-  return { result: fn(), start, cancel: () => observer.disconnect() };
+  let result: T;
+  try {
+    result = fn();
+  } catch (err) {
+    observer.disconnect();
+    throw err;
+  }
+  return { result, start, cancel: () => observer.disconnect() };
 }
 
 /** Check whether an issue has moved to the target state list and left the source. */
@@ -175,24 +183,33 @@ export function useBenchState() {
   const measureUpdate = useCallback(
     (fn: () => unknown, isReady?: () => boolean) => {
       const container = containerRef.current!;
-      const record = (start: number, end: number) =>
-        performance.measure('update-duration', { start, end });
+      const record = (from: number, to: number) =>
+        performance.measure('update-duration', { start: from, end: to });
+      // Replaced by timeToMutation's values once it returns.
+      let start = performance.now();
+      let cancel: (() => void) | undefined;
       const timer = setTimeout(() => {
-        update.cancel();
-        record(update.start, performance.now());
+        cancel?.();
+        record(start, performance.now());
         container.setAttribute('data-bench-timeout', 'true');
         setComplete();
       }, 30000);
-      const update = timeToMutation(
-        container,
-        fn,
-        (start, end) => {
-          record(start, end);
-          clearTimeout(timer);
-          setComplete();
-        },
-        isReady,
-      );
+      try {
+        ({ start, cancel } = timeToMutation(
+          container,
+          fn,
+          (from, to) => {
+            record(from, to);
+            clearTimeout(timer);
+            setComplete();
+          },
+          isReady,
+        ));
+      } catch (err) {
+        // Else the timer completes a later iteration on this page.
+        clearTimeout(timer);
+        throw err;
+      }
     },
     [setComplete],
   );
@@ -221,17 +238,20 @@ export function useBenchState() {
       return new Promise<void>((resolve, reject) => {
         const { port1, port2 } = new MessageChannel();
         let cancelMessage: (() => void) | undefined;
-        const stop = () => {
-          clearTimeout(timer);
+        const close = () => {
           cancelMessage?.();
           port1.close();
         };
         const timer = setTimeout(() => {
-          stop();
+          close();
           container.setAttribute('data-bench-timeout', 'true');
           setComplete();
           resolve();
         }, 30000);
+        const stop = () => {
+          clearTimeout(timer);
+          close();
+        };
         port1.onmessage = async (e: MessageEvent<number>) => {
           const i = e.data;
           try {
