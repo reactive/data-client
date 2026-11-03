@@ -14,6 +14,14 @@ import { denormalize as objectDenormalize } from '../schemas/Object.js';
 const isBlankPk = (pk: unknown) =>
   pk === undefined || pk === '' || pk === 'undefined';
 
+/** What a missing, `null` or `INVALID` entity denormalizes to. */
+const nonObjectValue = (
+  schema: EntityInterface,
+  entity: unknown,
+  delegate: IDenormalizeDelegate,
+): any =>
+  typeof entity === 'symbol' ? schema.denormalize(entity, delegate) : entity;
+
 const getUnvisitEntity = (
   getEntity: DenormGetEntity,
   cache: Cache,
@@ -32,9 +40,7 @@ const getUnvisitEntity = (
       // be looked up, so they aren't dependencies. There is nothing worth
       // caching, so only the dependency is recorded.
       if (path && !isBlankPk(path.pk)) cache.dependOn(path, entity);
-      return typeof entity === 'symbol' ?
-          schema.denormalize(entity, delegate)
-        : (entity as any);
+      return nonObjectValue(schema, entity, delegate);
     }
 
     let pk: string | number | undefined =
