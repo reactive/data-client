@@ -232,21 +232,27 @@ type KeyFn = (args: readonly any[]) => string | undefined;
  *
  * Useful as a memoization cache for flat/normalized stores.
  *
- * Object dependencies are weakly referenced (via `WeakMap`), allowing
- * automatic garbage collection when the dependency is no longer used.
- * String-keyed dependencies (used by `argsKey`) sit on a `Map` keyed by the
- * value returned from `path(args)`, branching on a stable function reference.
+ * Only the first dependency is a `WeakMap` key, so a cached value is
+ * collected with it. The rest are stored on the entry and compared by
+ * identity on `get`. Keeping one level of `WeakMap` matters: garbage
+ * collectors resolve nested `WeakMap`s one level per marking pass, and
+ * Hermes rescans every `WeakMap` entry in the heap on each pass, so a chain
+ * as long as the dependency list stalls every old-generation collection.
+ *
+ * String-keyed dependencies (used by `argsKey`) branch on a `Map` keyed by
+ * the value `path(args)` returns, so each argument set keeps its own entries
+ * and a lookup only checks its own. A node keeps one branch per `argsKey`
+ * function: which one a computation reaches first can depend on the
+ * entities before it (a missing entity skips its nested `argsKey`).
+ *
+ * Invariants every change must keep: "Memo invariants" in
+ * `packages/normalizr/AGENTS.md`.
  */
 declare class WeakDependencyMap<Path, K extends object = object, V = any> {
     private readonly next;
-    private nextPath;
-    /** Sticky: true once any function-typed (`argsKey`) dep has been stored.
-     * Lets `get` pick the entity-only fast path when no schema in this map
-     * uses `argsKey` — avoids a polymorphic `typeof` branch per walk step. */
+    /** Sticky: true once any function-typed (`argsKey`) dep has been stored. */
     private hasStr;
     get(entity: K, getDependency: GetDependency<Path, K | symbol>, args?: readonly any[]): readonly [undefined, undefined] | readonly [V, Path[]];
-    /** Slow path: dep chain may interleave entity and `argsKey`-style deps. */
-    private _getMixed;
     set(dependencies: Dep<Path>[], value: V, args?: readonly any[], 
     /** Optional consumer-facing journey returned to `get()` callers verbatim.
      * Defaults to `dependencies.map(d => d.path)`. Pass an explicit array to
