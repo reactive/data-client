@@ -111,9 +111,9 @@ describe('WeakDependencyMap', () => {
     ).toBeUndefined();
   });
 
-  it('keeps three entries, never evicting the one the store flipped back to', () => {
+  it('keeps four entries, never evicting the one the store flipped back to', () => {
     const wem = new WeakDependencyMap<EntityPath>();
-    const [b2, b3, b4, b5] = [[2], [3], [4], [5]];
+    const [b2, b3, b4, b5, b6] = [[2], [3], [4], [5], [6]];
     const withB = (entity: object) =>
       MemoPolicy.getEntities({ ...state, B: { '2': entity } });
     const setB = (entity: object, value: string) =>
@@ -121,19 +121,20 @@ describe('WeakDependencyMap', () => {
     setB(b, 'b');
     setB(b2, 'b2');
     setB(b3, 'b3');
-    // full: the least recently used goes, except the first entry, kept until a flip
     setB(b4, 'b4');
+    // full: the least recently used goes, except the first entry, kept until a flip
+    setB(b5, 'b5');
     expect(wem.get(a, withB(b2))[0]).toBeUndefined();
     expect(wem.get(a, withB(b))[0]).toBe('b');
 
     // reading b3 back after newer entries makes it the kept one instead;
-    // most recently used now: b3, b, b4
+    // most recently used now: b3, b, b5, b4
     expect(wem.get(a, withB(b3))[0]).toBe('b3');
-    setB(b5, 'b5');
+    setB(b6, 'b6');
     expect(wem.get(a, withB(b4))[0]).toBeUndefined();
     setB(b4, 'b4 again');
-    // most recently used: b4, b5, b3 (kept), b; b goes
-    expect(wem.get(a, withB(b))[0]).toBeUndefined();
+    // most recently used: b4, b6, b3 (kept), b, b5; b5 goes
+    expect(wem.get(a, withB(b5))[0]).toBeUndefined();
     expect(wem.get(a, withB(b3))[0]).toBe('b3');
   });
 
@@ -458,7 +459,7 @@ describe('WeakDependencyMap eviction', () => {
 
     it('evicts inside an argsKey child as at the root', () => {
       const wem = new WeakDependencyMap<EntityPath>();
-      const [b2, b3, b4, b5] = [[2], [3], [4], [5]];
+      const [b2, b3, b4, b5, b6] = [[2], [3], [4], [5], [6]];
       const b = [1];
       const one = [{ portfolio: 'P' }];
       const setB = (entity: object, value: string) =>
@@ -468,13 +469,14 @@ describe('WeakDependencyMap eviction', () => {
       setB(b2, 'b2');
       setB(b3, 'b3');
       setB(b4, 'b4');
+      setB(b5, 'b5');
       expect(get(b2)).toBeUndefined();
       expect(get(b)).toBe('b');
       expect(get(b3)).toBe('b3');
-      setB(b5, 'b5');
+      setB(b6, 'b6');
       expect(get(b4)).toBeUndefined();
       setB(b4, 'b4 again');
-      expect(get(b)).toBeUndefined();
+      expect(get(b5)).toBeUndefined();
       expect(get(b3)).toBe('b3');
     });
   });

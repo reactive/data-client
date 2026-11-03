@@ -233,7 +233,7 @@ export interface Dep<Path> {
 const EMPTY = [undefined, undefined] as const;
 
 /** Entries kept per (first dependency, `argsKey` results). */
-const MAX_ENTRIES = 3;
+const MAX_ENTRIES = 4;
 
 /** Nodes under one first dependency that may gain a second `argsKey` branch. */
 const MAX_FORKS = 8;
