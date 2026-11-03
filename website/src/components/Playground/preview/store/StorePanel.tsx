@@ -55,7 +55,7 @@ import { sameStage, shownChain, stagesOf, type Stage } from './attribution';
 import { NARROW_WIDTH } from './columns';
 import { diffModel, type RowDiff } from './diffModel';
 import { ListView, RecordLevel, type Header } from './DiveViews';
-import { flash, slide, useWidth, type Scroller } from './dom';
+import { flash, slide, useSheetTop, useWidth, type Scroller } from './dom';
 import {
   buildModel,
   findRow,
@@ -112,12 +112,16 @@ export default function StorePanel({
   registry,
   history: id,
   quickLookHost = null,
+  layer = null,
 }: {
   registry: SchemaRegistry;
   /** Whose actions to show (see `ActionLog`) */
   history: number;
   /** Where the quick look goes: the drawer its tabs are on */
   quickLookHost?: HTMLElement | null;
+  /** The folder's layer this Store's drawer is on, whose tabs keep beside
+   * its sheet (`useSheetTop`) */
+  layer?: HTMLElement | null;
 }) {
   const live = useContext(StateContext);
   const { log } = registry;
@@ -371,6 +375,7 @@ export default function StorePanel({
   const narrow = width < NARROW_WIDTH;
   const covered = narrow && timelineMounted;
   const content = useRef<HTMLDivElement>(null);
+  useSheetTop(layer, content);
   // as it changes: focus left under the sheet moves to the ▾, and lost as
   // it closes goes to the level; an action shown from the sheet takes focus
   // once it is uncovered

@@ -15,7 +15,7 @@ import { storeOnFolder, type Layout, type PreviewProps } from '../types';
 import { QuickLookHost, useQuickLookShown } from './inspector';
 import type SchemaRegistry from './store/schemaRegistry';
 import StorePanel from './store/StorePanel';
-import { heldToggle, StoreToggle } from './StoreToggle';
+import { heldPlayground, StoreToggle } from './StoreToggle';
 
 function StoreInspector({
   toggle,
@@ -63,6 +63,8 @@ function StoreInspector({
         registry={registry}
         history={history}
         quickLookHost={onPanel ? panelEl : quickLookHost}
+        // the drawer (`host`) sits in the folder's layer (../index.tsx)
+        layer={folder ? (host?.parentElement ?? null) : null}
       />
     : null;
   if (folder) {
@@ -89,7 +91,7 @@ function StoreInspector({
       <Reveal
         show={open}
         className={styles.storePanel}
-        hold={heldToggle}
+        hold={heldPlayground}
         active={quickLookShown}
       >
         {tree}
@@ -103,8 +105,8 @@ export default memo(StoreInspector);
  * code and shut again in CSS (`data-open`, see .storeHost in
  * ../styles.module.css): the tree stays shown until the sweep has shut,
  * then hides (an `<Activity>`, so reopening finds it as it was left) and
- * leaves the layout, with the toggle that shut it held in place on screen,
- * as `Reveal` does for the Store beside the result */
+ * leaves the layout, with the playground whose toggle shut it held in place
+ * on screen, as `Reveal` does for the Store beside the result */
 function FolderPanel({
   open,
   host,
@@ -132,7 +134,7 @@ function FolderPanel({
     const frame = requestAnimationFrame(() => {
       Promise.allSettled(host.getAnimations().map(a => a.finished)).then(() => {
         if (reopened) return;
-        const held = heldToggle();
+        const held = heldPlayground();
         if (held) blockElementScrollPositionUntilNextRender(held);
         setShut(true);
       });

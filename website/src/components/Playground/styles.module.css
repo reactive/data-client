@@ -439,6 +439,8 @@ div.playgroundTextEdit > .playgroundHeader {
   --pg-tab-width: 2.5rem;
   --pg-tab-length: 3rem;
   --pg-tab-back: 0.5rem;
+  /* their column: both, and the gap between (.drawerTabs) */
+  --pg-tabs-span: calc(2 * var(--pg-tab-length) + var(--pg-card-radius));
   --pg-tab-pulled: color-mix(in srgb, var(--pg-stage), var(--pg-panel));
   --pg-tab-lift: drop-shadow(
     0 1px 3px color-mix(in srgb, var(--pg-shadow) 45%, transparent)
@@ -918,7 +920,7 @@ div.playgroundTextEdit > .playgroundHeader {
 .storeTab::after,
 .stacked .storeHeaderToggle[aria-pressed='true']::before,
 .stacked .storeHeaderToggle[aria-pressed='true']::after,
-.row:not(.stacked):has(> .storeHost .storePanel[data-visible])::after,
+.row:not(.stacked):has(> .storeHost[data-open])::after,
 .stacked .playgroundResult:has(> .storePanel[data-visible])::after {
   content: '';
   position: absolute;
@@ -1693,19 +1695,38 @@ div.fixtureJson + div.fixtureJson {
     inset-block: var(--pg-row) var(--pg-preview-gap, 0px);
     right: 0;
   }
+  /* the Store's sheet below the preview: shut, it narrows to the fold
+     (where the drawer's clip cuts the sheet) as the sheet slides past it,
+     rises with the clip's foot (.storeHost), and is hidden once that slide
+     has finished (visibility, delayed by the drawer's duration), so no
+     sliver of its shadow is left until the Store leaves the layout. Open,
+     it shows at once */
   .row:not(.stacked)::before {
     top: calc(100% - var(--pg-preview-gap, 0px));
+    bottom: var(--pg-preview-gap, 0px);
+    right: calc(100% - var(--pg-fold));
+    border-radius: 0 0 var(--pg-card-radius) var(--pg-card-radius);
+    visibility: hidden;
+    transition:
+      left var(--pg-store-drawer),
+      right var(--pg-store-drawer),
+      bottom var(--pg-store-smooth),
+      visibility 0s var(--pg-store-drawer);
+  }
+  .row:not(.stacked):has(> .storeHost[data-open])::before {
     bottom: 0;
     right: calc(var(--pg-preview-col) + var(--pg-gap));
-    border-radius: 0 0 var(--pg-card-radius) var(--pg-card-radius);
+    visibility: visible;
+    transition:
+      left var(--pg-store-drawer),
+      right var(--pg-store-drawer);
+  }
+  .row:not(.stacked) > .previewWrapper::before {
+    transition: left var(--pg-store-drawer);
   }
   .row:not(.stacked):has(> .storeHost[data-open]) > .previewWrapper::before,
   .row:not(.stacked):has(> .storeHost[data-open])::before {
     left: 0;
-  }
-  .row:not(.stacked) > .previewWrapper::before,
-  .row:not(.stacked)::before {
-    transition: left var(--pg-store-drawer);
   }
   .row:not(.stacked):has(> .storeHost .storePanel[data-visible])
     > .previewWrapper {
@@ -1745,8 +1766,10 @@ div.fixtureJson + div.fixtureJson {
     );
   }
   /* and the strip between the two sheets, ending at the preview's foot,
-     curves into the Store's sheet's edge, as a tab does into its card */
-  .row:not(.stacked):has(> .storeHost .storePanel[data-visible])::after {
+     curves into the Store's sheet's edge, as a tab does into its card;
+     open only, so it goes as the drawer starts to shut: the sheet's edge
+     it curves into leaves at once */
+  .row:not(.stacked):has(> .storeHost[data-open])::after {
     --pg-fillet-at: 100% 100%;
     --pg-fillet-r: var(--pg-foot-curve);
     /* a pixel on under the sheet's edge */
@@ -1782,6 +1805,10 @@ div.fixtureJson + div.fixtureJson {
     --pg-host-out: 4rem;
     --pg-host-fold: calc(var(--pg-host-out) + var(--pg-fold));
     --pg-host-fold-head: calc(var(--pg-host-fold) + var(--pg-head-run));
+    --pg-host-foot: calc(100% + var(--store-cap));
+    /* the preview's foot, from the top (--pg-preview-end, measured);
+       until it's measured (the loading page), the same end from the gap */
+    --pg-preview-foot: var(--pg-preview-end, 100% - var(--pg-preview-gap, 0px));
     margin-left: calc(-1 * var(--pg-host-out));
     overflow-x: clip;
     /* below, room for a quick look past a short playground's foot: at
@@ -1791,9 +1818,17 @@ div.fixtureJson + div.fixtureJson {
       var(--pg-host-fold-head) -4rem,
       var(--pg-host-fold-head) var(--pg-row),
       var(--pg-host-fold) var(--pg-row),
-      var(--pg-host-fold) calc(100% + var(--store-cap)),
-      0 calc(100% + var(--store-cap))
+      var(--pg-host-fold) var(--pg-host-foot),
+      0 var(--pg-host-foot)
     );
+  }
+  /* shut, the clip's foot rises to the preview's, so the sheet's last
+     strip below it (the drawer's slide ends slowly) doesn't linger there in
+     the gap; open, or for a quick look (which may run on past that foot),
+     it drops at once */
+  .row:not(.stacked) > .storeHost:not([data-open], :has([data-quick-look])) {
+    --pg-host-foot: calc(var(--pg-preview-foot));
+    transition: clip-path var(--pg-store-smooth);
   }
   /* the drawer: the code's column and the gap, edge to edge, its handle
      out past the playground's edge; the Store scrolls within the row's
@@ -1824,11 +1859,50 @@ div.fixtureJson + div.fixtureJson {
     --store-head-ink: 0;
   }
   /* by the preview's foot, its curve clear of the corner's: open, they
-     stay level with that foot, however far the Store runs on below */
+     stay level with that foot, however far the Store runs on below. Placed
+     from the row's top (--pg-preview-foot), they stay still as the Store's
+     layer grows or shrinks below them, opening and shutting */
   .drawerTabs {
+    --pg-tabs-top: calc(
+      var(--pg-preview-foot) - var(--pg-tabs-span) - 2 * var(--pg-card-radius)
+    );
     right: 100%;
-    bottom: calc(var(--pg-preview-gap, 0px) + 2 * var(--pg-card-radius));
+    top: var(--pg-tabs-top);
     flex-direction: column;
+    transition: top var(--pg-store-snappy);
+  }
+  /* unless the Store's header (the moment's label, the timeline) pushes its
+     sheet's top (--store-sheet-top, ./preview/store/dom.ts useSheetTop)
+     below where they'd start: then they move down the sheet's edge, their
+     curve clear of its corner (2 radii), on past the preview's foot as the
+     sheet does, and no nearer the drawer's foot than they'd sit at the
+     preview's (2 radii) */
+  .row:not(.stacked) > .storeHost[data-open] .drawerTabs {
+    top: min(
+      100% - var(--pg-tabs-span) - 2 * var(--pg-card-radius),
+      max(
+        var(--pg-tabs-top),
+        var(--store-sheet-top, 0px) + 2 * var(--pg-card-radius)
+      )
+    );
+  }
+  /* and the Store keeps that room for them under its header, however tall
+     the timeline: 2 radii above them and 2 below (over the rule for every
+     layout's, --store-min) */
+  .row:not(.stacked) > .storeHost:has(.storePanel[data-visible]) {
+    min-height: max(
+      var(--store-min),
+      var(--store-sheet-top, 0px) + var(--pg-tabs-span) + 4 *
+        var(--pg-card-radius)
+    );
+  }
+  /* shut, they sit on the preview's edge: 2 radii clear of its top corner
+     and of its foot's, the foot (1 radius) below the result */
+  .row:not(.stacked) .playgroundResult {
+    min-height: max(
+      var(--pg-result-min, 0px),
+      var(--pg-tabs-span) + 3 * var(--pg-card-radius)
+    );
   }
   /* its shadow cut at the edge it joins; the selected one reaches a pixel
      into its sheet, so its paper covers the seam */
@@ -2692,6 +2766,7 @@ div.fixtureJson + div.fixtureJson {
    screen (unless it opened the Store) */
 .row[data-comparing] > .storeHost .drawerTabs {
   transition:
+    top var(--pg-store-snappy),
     opacity var(--motion-smooth),
     visibility var(--motion-smooth);
 }
