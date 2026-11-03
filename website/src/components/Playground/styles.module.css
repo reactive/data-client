@@ -1827,8 +1827,9 @@ div.fixtureJson + div.fixtureJson {
   }
   /* shut, the clip's foot rises to the preview's, so the sheet's last
      strip below it (the drawer's slide ends slowly) doesn't linger there in
-     the gap; open, it drops at once */
-  .row:not(.stacked) > .storeHost:not([data-open]) {
+     the gap; open, or for a quick look (which may run on past that foot),
+     it drops at once */
+  .row:not(.stacked) > .storeHost:not([data-open], :has([data-quick-look])) {
     --pg-host-foot: calc(
       var(--pg-preview-end, 100% - var(--pg-preview-gap, 0px))
     );
