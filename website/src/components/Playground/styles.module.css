@@ -920,7 +920,7 @@ div.playgroundTextEdit > .playgroundHeader {
 .storeTab::after,
 .stacked .storeHeaderToggle[aria-pressed='true']::before,
 .stacked .storeHeaderToggle[aria-pressed='true']::after,
-.row:not(.stacked):has(> .storeHost .storePanel[data-visible])::after,
+.row:not(.stacked):has(> .storeHost[data-open])::after,
 .stacked .playgroundResult:has(> .storePanel[data-visible])::after {
   content: '';
   position: absolute;
@@ -1695,19 +1695,37 @@ div.fixtureJson + div.fixtureJson {
     inset-block: var(--pg-row) var(--pg-preview-gap, 0px);
     right: 0;
   }
+  /* shut, none: it narrows to the fold, where the drawer's clip cuts the
+     sheet, and is gone once the sheet has slid past it, not left (a sliver,
+     its shadow) until the Store leaves the layout */
   .row:not(.stacked)::before {
     top: calc(100% - var(--pg-preview-gap, 0px));
     bottom: 0;
-    right: calc(var(--pg-preview-col) + var(--pg-gap));
+    right: calc(100% - var(--pg-fold));
     border-radius: 0 0 var(--pg-card-radius) var(--pg-card-radius);
+    visibility: hidden;
   }
   .row:not(.stacked):has(> .storeHost[data-open]) > .previewWrapper::before,
   .row:not(.stacked):has(> .storeHost[data-open])::before {
     left: 0;
   }
-  .row:not(.stacked) > .previewWrapper::before,
-  .row:not(.stacked)::before {
+  .row:not(.stacked):has(> .storeHost[data-open])::before {
+    right: calc(var(--pg-preview-col) + var(--pg-gap));
+    visibility: visible;
+  }
+  .row:not(.stacked) > .previewWrapper::before {
     transition: left var(--pg-store-drawer);
+  }
+  .row:not(.stacked)::before {
+    transition:
+      left var(--pg-store-drawer),
+      right var(--pg-store-drawer),
+      visibility 0s var(--pg-store-drawer);
+  }
+  .row:not(.stacked):has(> .storeHost[data-open])::before {
+    transition:
+      left var(--pg-store-drawer),
+      right var(--pg-store-drawer);
   }
   .row:not(.stacked):has(> .storeHost .storePanel[data-visible])
     > .previewWrapper {
@@ -1747,8 +1765,9 @@ div.fixtureJson + div.fixtureJson {
     );
   }
   /* and the strip between the two sheets, ending at the preview's foot,
-     curves into the Store's sheet's edge, as a tab does into its card */
-  .row:not(.stacked):has(> .storeHost .storePanel[data-visible])::after {
+     curves into the Store's sheet's edge, as a tab does into its card
+     (while open: shut, that edge slides off it) */
+  .row:not(.stacked):has(> .storeHost[data-open])::after {
     --pg-fillet-at: 100% 100%;
     --pg-fillet-r: var(--pg-foot-curve);
     /* a pixel on under the sheet's edge */
