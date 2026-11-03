@@ -80,7 +80,7 @@ const idOf = (o: object) => {
   return id;
 };
 
-/** Every read of the list: entity versions read, result identity, reader. */
+/** Every read of the list: entity versions read, result identity. */
 type Read = { versions: string; data: unknown };
 let reads: Read[] = [];
 const versionsOf = (state: State<unknown>, todos: { id: string }[]) => {
