@@ -95,15 +95,11 @@ export function useSheetTop(
   useLayoutEffect(() => {
     const el = sheet.current;
     if (!layer || !el || typeof ResizeObserver === 'undefined') return;
-    // only when it moved: the sheet resizes for much else (the row, the
-    // layer growing for this very write)
-    let top = NaN;
-    const write = () => {
-      const next = startOf(el, 'y') - startOf(layer, 'y');
-      if (next === top) return;
-      top = next;
-      layer.style.setProperty('--store-sheet-top', `${next}px`);
-    };
+    const write = () =>
+      layer.style.setProperty(
+        '--store-sheet-top',
+        `${startOf(el, 'y') - startOf(layer, 'y')}px`,
+      );
     write();
     // the sheet fills the layer under the header, so a header growing
     // shrinks it. Written a frame later: the layer growing to keep room
