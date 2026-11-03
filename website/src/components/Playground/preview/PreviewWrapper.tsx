@@ -150,7 +150,9 @@ export function PreviewHeaderControls({
 
 /** Row layout: how far the row runs on below the app's sheet with its foot
  * (the wrapper's ::after) at full reach, as `--pg-preview-gap` on the row:
- * the preview's folder ends there, and the open Store runs on past it.
+ * the preview's folder ends there, and the open Store runs on past it. And
+ * that end from the row's top, as `--pg-preview-end`: what's placed by it
+ * stays put as the row grows or shrinks below it.
  * Measured against the row, which that end never moves. Before the page
  * hydrates, styles.module.css derives it for the loading page */
 function usePreviewGap(result: HTMLElement | null) {
@@ -162,11 +164,13 @@ function usePreviewGap(result: HTMLElement | null) {
     const measure = () => {
       const foot =
         parseFloat(getComputedStyle(wrapper, '::after').maxHeight) || 0;
-      const gap =
-        row.getBoundingClientRect().bottom -
-        result.getBoundingClientRect().bottom -
-        foot;
-      row.style.setProperty('--pg-preview-gap', `${Math.max(0, gap)}px`);
+      const box = row.getBoundingClientRect();
+      const gap = Math.max(
+        0,
+        box.bottom - result.getBoundingClientRect().bottom - foot,
+      );
+      row.style.setProperty('--pg-preview-gap', `${gap}px`);
+      row.style.setProperty('--pg-preview-end', `${box.height - gap}px`);
     };
     const observer = new ResizeObserver(measure);
     observer.observe(row);
@@ -174,6 +178,7 @@ function usePreviewGap(result: HTMLElement | null) {
     return () => {
       observer.disconnect();
       row.style.removeProperty('--pg-preview-gap');
+      row.style.removeProperty('--pg-preview-end');
     };
   }, [result]);
 }

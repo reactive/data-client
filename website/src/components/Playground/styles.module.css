@@ -1826,15 +1826,18 @@ div.fixtureJson + div.fixtureJson {
     --store-head-ink: 0;
   }
   /* by the preview's foot, its curve clear of the corner's: open, they
-     stay level with that foot, however far the Store runs on below */
+     stay level with that foot, however far the Store runs on below. From
+     the top (--pg-preview-end), which the layer growing or shrinking below
+     them never moves, so they don't ride it as the Store comes and goes */
   .drawerTabs {
-    --pg-tabs-foot: calc(
-      var(--pg-preview-gap, 0px) + 2 * var(--pg-card-radius)
+    --pg-tabs-top: calc(
+      var(--pg-preview-end, 100% - var(--pg-preview-gap, 0px)) -
+        var(--pg-tabs-span) - 2 * var(--pg-card-radius)
     );
     right: 100%;
-    bottom: var(--pg-tabs-foot);
+    top: var(--pg-tabs-top);
     flex-direction: column;
-    transition: bottom var(--pg-store-snappy);
+    transition: top var(--pg-store-snappy);
   }
   /* unless the Store's header (the moment's label, the timeline) pushes its
      sheet's top (--store-sheet-top, ./preview/store/dom.ts useSheetTop)
@@ -1843,12 +1846,11 @@ div.fixtureJson + div.fixtureJson {
      sheet does, and no nearer the drawer's foot than they'd sit at the
      preview's (2 radii) */
   .row:not(.stacked) > .storeHost[data-open] .drawerTabs {
-    bottom: max(
-      2 * var(--pg-card-radius),
-      min(
-        var(--pg-tabs-foot),
-        100% - var(--store-sheet-top, 0px) - var(--pg-tabs-span) - 2 *
-          var(--pg-card-radius)
+    top: min(
+      100% - var(--pg-tabs-span) - 2 * var(--pg-card-radius),
+      max(
+        var(--pg-tabs-top),
+        var(--store-sheet-top, 0px) + 2 * var(--pg-card-radius)
       )
     );
   }
@@ -2732,7 +2734,7 @@ div.fixtureJson + div.fixtureJson {
    screen (unless it opened the Store) */
 .row[data-comparing] > .storeHost .drawerTabs {
   transition:
-    bottom var(--pg-store-snappy),
+    top var(--pg-store-snappy),
     opacity var(--motion-smooth),
     visibility var(--motion-smooth);
 }
