@@ -82,7 +82,7 @@ export default class WeakDependencyMap<
      * payoff. The array becomes a shared reference held by every subsequent
      * cache hit; callers MUST NOT mutate it. */
     journey?: Path[],
-  ) {
+  ): void {
     if (dependencies.length < 1) throw new KeySize();
     const root = depKey(dependencies[0].entity) as K;
     let node = this.next.get(root);
