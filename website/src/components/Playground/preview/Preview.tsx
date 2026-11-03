@@ -89,10 +89,11 @@ function Preview<T>({
         getInitialInterceptorData={getInitialInterceptorData}
       >
         <ManagersSync host={managerHost} />
-        {/* under the store, so its managers keep running (a response that
-            lands while hidden still resolves) while the app's Effects
-            pause; and under react-live's LiveProvider, whose Effect would
-            re-run on each show and remount the app */}
+        {/* the app and its Store tree hide here, under DataProvider, so its
+            managers keep running (a response that lands while hidden still
+            resolves) while the app's Effects pause; and under react-live's
+            LiveProvider, whose Effect would re-run on each show and remount
+            the app */}
         <Activity mode={hidden ? 'hidden' : 'visible'}>
           <MotionGroup layoutDependency={storeMoves}>
             <div

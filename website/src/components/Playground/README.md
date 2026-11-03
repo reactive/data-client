@@ -76,16 +76,13 @@ Gotchas:
 
 `hidden` (unselected protocol tabs): every tab stays mounted, so all
 sources are in the HTML. The editor latches interactive on first show, so
-undo and go-to-definition survive tab switches; the live preview mounts on
-first show, then its app hides in an `<Activity>` while its tab is
-unselected, so switching back finds its store, log, Store and component
-state as left (the app's Effects, such as subscriptions and polling, pause while hidden).
-The `<Activity>` sits in `preview/Preview.tsx`, under the
-`DataProvider`: its managers keep running, so a response that lands while
-hidden still resolves (cleaned up, `NetworkManager` would drop it and leave
-the request pending). It is also under react-live's `LiveProvider`, whose
-code-running Effect would re-run on each show and remount the app. The row Store folder stays
-mounted with it, hidden by the container's `.hidden` (an `<Activity>`
+undo and go-to-definition survive tab switches. The live preview mounts on
+first show; after that, while its tab is unselected, its app and Store tree
+hide in an `<Activity>` (`preview/Preview.tsx` says why it sits there), so
+switching back finds its store, log, Store and component state as left.
+While hidden, the app's Effects (its subscriptions, polling) pause, but the
+managers, including any from `getManagers()`, keep running. The row Store
+folder stays mounted, hidden by the container's `.hidden` (an `<Activity>`
 would detach `setStoreHost`). The homepage passes `hidden`; in MDX,
 `PlaygroundTabs` sets it through `PlaygroundHiddenContext`
 (`hiddenContext.ts`) for every playground under an unselected tab, nested
