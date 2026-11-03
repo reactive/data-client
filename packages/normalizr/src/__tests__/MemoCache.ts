@@ -6,9 +6,11 @@ import {
   CoolerArticle,
   IndexedUser,
   FirstUnion,
+  Article,
 } from '__tests__/new';
 
 import { fromJSState } from './immutable.test';
+import { INVALID } from '../denormalize/symbol';
 import { IQueryDelegate } from '../interface';
 import MemoCache from '../memo/MemoCache';
 import { MemoPolicy as POJOPolicy } from '../memo/Policy';
@@ -1061,5 +1063,57 @@ describe('MemoCache', () => {
           .data,
       ).toBeUndefined();
     });
+  });
+});
+
+describe('MemoCache nested entity dependencies', () => {
+  const article = { id: '1', title: 't', author: '2' };
+  const bob = { id: '2', username: 'bob' };
+
+  it.each([
+    ['missing', {}],
+    ['INVALID', { '2': INVALID }],
+    ['null', { '2': null }],
+  ])(
+    'a %s child is a dependency: the parent recomputes once it is set',
+    (_, users) => {
+      const memo = new MemoCache();
+      const first = memo.denormalize(Article, '1', {
+        Article: { '1': article },
+        User: users,
+      });
+      expect((first.data as any).author?.username).toBeUndefined();
+      const second = memo.denormalize(Article, '1', {
+        Article: { '1': article },
+        User: { '2': bob },
+      });
+      expect((second.data as any).author?.username).toBe('bob');
+    },
+  );
+
+  it('a blank child id is not a dependency', () => {
+    const memo = new MemoCache();
+    const entities = {
+      Article: { '1': { ...article, author: '' } },
+      User: {},
+    };
+    const first = memo.denormalize(Article, '1', entities);
+    expect((first.data as any).author).toBeUndefined();
+    const second = memo.denormalize(Article, '1', {
+      ...entities,
+      User: { '2': bob },
+    });
+    expect(second.data).toBe(first.data);
+  });
+
+  it('stays cached while the child stays INVALID', () => {
+    const memo = new MemoCache();
+    const entities = { Article: { '1': article }, User: { '2': INVALID } };
+    const first = memo.denormalize(Article, '1', entities);
+    const second = memo.denormalize(Article, '1', {
+      ...entities,
+      User: { ...entities.User },
+    });
+    expect(second.data).toBe(first.data);
   });
 });

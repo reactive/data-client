@@ -21,6 +21,7 @@ yarn workspace example-benchmark start [suite-name] [filter]
 ```
 
 Both arguments are optional:
+
 - **No arguments**: runs `normalizr` + `core` suites with all benchmarks
 - **Suite only**: `yarn start normalizr` runs all benchmarks in that suite
 - **Suite + filter**: `yarn start normalizr denormalize` runs only benchmarks containing "denormalize"
@@ -35,6 +36,7 @@ Both arguments are optional:
 - `entity` - benchmarks various entity-specific operations
 - `core` - benchmarks entire operations using [Controller](https://dataclient.io/docs/api/Controller)
 - `normalizr` - benchmarks just normalize/denormalize
+  - `denormalizeLong nested 25% missing|null|INVALID` (and `withCache`) - the project list with every 4th nested `BuildTypeDescription` missing from the store, `null`, or `INVALID`; those are still tracked as memo dependencies
 - `spread` - degenerate-case writes where spread cost scales with store size (single-entity `setResponse` into 1k/10k/100k entity stores, 10k cached endpoint keys, collection push onto 10k items, invalidateAll/expireAll). One case (`setOneEntity in 10k entity store`) is tracked over time in CI via `.github/workflows/benchmark-spread.yml`; the rest are manual-only.
 - `micro` - isolated microbenchmarks for testing specific operations
 - `old-normalizr` - runs equivalent benchmarks using the normalizr package

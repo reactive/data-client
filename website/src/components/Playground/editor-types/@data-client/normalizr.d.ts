@@ -285,7 +285,7 @@ declare class WeakDependencyMap<Path, K extends object = object, V = any> {
     get(entity: K, getDependency: GetDependency<Path, K | symbol>, args?: readonly any[]): readonly [undefined, undefined] | readonly [V, Path[]];
     /** Slow path: dep chain may interleave entity and `argsKey`-style deps. */
     private _getMixed;
-    set(dependencies: Dep<Path, K>[], value: V, args?: readonly any[], 
+    set(dependencies: Dep<Path>[], value: V, args?: readonly any[], 
     /** Optional consumer-facing journey returned to `get()` callers verbatim.
      * Defaults to `dependencies.map(d => d.path)`. Pass an explicit array to
      * skip the per-write `.map(...)` and (more importantly) to skip per-hit
@@ -298,9 +298,9 @@ declare class WeakDependencyMap<Path, K extends object = object, V = any> {
     get hasStringDeps(): boolean;
 }
 type GetDependency<Path, K = object | symbol> = (lookup: Path) => K | undefined;
-interface Dep<Path, K = object> {
+interface Dep<Path> {
     path: Path | KeyFn;
-    entity: K | undefined;
+    entity: unknown;
 }
 
 declare const normalize: <S extends Schema = Schema, E extends Record<string, Record<string, any> | undefined> = Record<string, Record<string, any>>, R = NormalizeNullable<S>>(schema: S | undefined, input: any, args?: readonly any[], { entities, indexes, entitiesMeta }?: StoreData<E>, meta?: NormalizeMeta) => NormalizedSchema<E, R>;
