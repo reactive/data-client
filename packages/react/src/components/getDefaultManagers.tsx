@@ -19,7 +19,7 @@ let getDefaultManagers: ({
 }?: GetManagersOptions) => Manager[] = ({
   networkManager,
   subscriptionManager = PollingSubscription,
-} = {}) =>
+}: GetManagersOptions = {}) =>
   subscriptionManager === null ?
     [constructManager(NetworkManager, networkManager)]
   : [
