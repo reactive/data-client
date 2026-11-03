@@ -78,10 +78,12 @@ Gotchas:
 sources are in the HTML. The editor latches interactive on first show, so
 undo and go-to-definition survive tab switches. The live preview also
 mounts on first show. After that, a hidden tab keeps it in an `<Activity>`,
-with its store, log and app state. Its managers keep running; only the app's
-Effects pause. Keep that `<Activity>` where it is in `preview/Preview.tsx`:
-above `DataProvider`, a response that lands while hidden is dropped; above
-react-live's `LiveProvider`, each show remounts the app. The row Store folder
+with its store, log and app state. Its managers, including any from
+`getManagers()`, keep running; only the app's Effects pause. Keep that
+`<Activity>` inside `DataProvider` and react-live's `LiveProvider`
+(`preview/Preview.tsx`): wrapping `DataProvider`, it drops a response that
+lands while hidden; wrapping `LiveProvider`, each show remounts the app. The
+row Store folder
 is outside it, because an `<Activity>` would detach `setStoreHost`; the
 container's `.hidden` hides it. The homepage passes `hidden`; in MDX,
 `PlaygroundTabs` sets it through `PlaygroundHiddenContext`

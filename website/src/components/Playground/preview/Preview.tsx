@@ -89,8 +89,9 @@ function Preview<T>({
         getInitialInterceptorData={getInitialInterceptorData}
       >
         <ManagersSync host={managerHost} />
-        {/* a hidden tab's app and Store tree; keep it under DataProvider
-            and LiveProvider (README: `hidden`) */}
+        {/* a hidden tab's app and Store tree. Inside DataProvider, so a
+            response that lands while hidden resolves; inside LiveProvider,
+            so a show doesn't remount the app (README: `hidden`) */}
         <Activity mode={hidden ? 'hidden' : 'visible'}>
           <MotionGroup layoutDependency={storeMoves}>
             <div
