@@ -7,6 +7,7 @@ import React from 'react';
 
 import Playground from '..';
 import BeforeFolder from '../BeforeFolder';
+import { blocked } from '../testing/docusaurusThemeCommonInternal';
 import { BEFORE_END } from '../types';
 
 // a phone: the live preview loads (not a bot), with the react-live editor
@@ -52,6 +53,16 @@ describe("row layout: the Store on the preview's folder", () => {
     expect(folder.hasAttribute('data-open')).toBe(false);
     expect(document.activeElement).toBe(handle);
     expect(container.querySelector('textarea')!.closest('[inert]')).toBeNull();
+  });
+
+  test('opening and shutting hold the playground in place, not the handle (which rides the preview foot as the Store grows)', () => {
+    const { container } = render(<Playground row>{APP}</Playground>);
+    const playground = container.querySelector('[data-playground]');
+    const handle = screen.getByRole('tab', { name: 'Store' });
+    blocked.length = 0;
+    fireEvent.click(handle);
+    fireEvent.click(handle);
+    expect(blocked).toEqual([playground, playground]);
   });
 
   test('the file tabs go inert under the Store with the code', () => {

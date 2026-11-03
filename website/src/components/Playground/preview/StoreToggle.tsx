@@ -33,13 +33,13 @@ import StoreIcon from '../StoreIcon';
 import styles from '../styles.module.css';
 
 // one for the page: closing a Store closes every playground's in its group
-let clicked: HTMLElement | undefined;
+let held: HTMLElement | undefined;
 /** The playground whose Store toggle the reader clicked last, while on the
  * page: held in place on screen as its Store opens, and as the Stores it
  * closed slide out and leave the layout. The playground, not the toggle:
  * the Store grows it downward, so holding its top keeps the page still,
  * where a drawer tab riding its foot would scroll the page by the growth */
-export const heldToggle = () => (clicked?.isConnected ? clicked : undefined);
+export const heldPlayground = () => (held?.isConnected ? held : undefined);
 
 /** Opens the drawer on tab `to` (the one showing, unless named), or shuts
  * it when that one shows */
@@ -57,7 +57,7 @@ const inspectOf = (choice: string | null | undefined) =>
 
 /** Store open state, persisted per `groupId` with the tab it shows;
  * toggling keeps the page from scrolling, also as each Store it closes
- * leaves the layout (`heldToggle`). `showStore` opens or closes it for a
+ * leaves the layout (`heldPlayground`). `showStore` opens or closes it for a
  * demo without persisting, until the reader toggles it; opening it in a
  * view shows that view (`demoView`) while the Store stays open, until the
  * reader picks one. */
@@ -99,10 +99,11 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
   // shut, it shows that one
   const toggle = useCallback(
     (event: { currentTarget: HTMLElement }, to = latestTab.current) => {
-      clicked =
+      // (a toggle outside a playground: only in a test's lone render)
+      held =
         event.currentTarget.closest<HTMLElement>('[data-playground]') ??
         event.currentTarget;
-      blockElementScrollPositionUntilNextRender(clicked);
+      blockElementScrollPositionUntilNextRender(held);
       const shut = open && to === latestTab.current;
       setChoice(shut ? 'n' : to);
       setLastTab(to);
@@ -117,7 +118,7 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
   // tab, sliding the drawer open if it was shut (a quick look's link)
   const select = useCallback(
     (to: Inspect) => {
-      clicked = undefined;
+      held = undefined;
       setChoice(to);
       setLastTab(to);
       quickLook.close();
@@ -129,10 +130,10 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
     [setChoice, quickLook],
   );
   // a demo's open or close is no reader's click: forget the last one, so it
-  // doesn't pin a toggle the reader clicked earlier
+  // doesn't hold a playground the reader toggled earlier
   const showStore = useCallback<ShowStore>(
     (demoOpen, view, demoTab) => {
-      clicked = undefined;
+      held = undefined;
       quickLook.close();
       if (demoOpen !== latestOpen.current) setMoves(n => n + 1);
       // opening the actions, as their handle does, it shows their list

@@ -15,7 +15,7 @@ import { storeOnFolder, type Layout, type PreviewProps } from '../types';
 import { QuickLookHost, useQuickLookShown } from './inspector';
 import type SchemaRegistry from './store/schemaRegistry';
 import StorePanel from './store/StorePanel';
-import { heldToggle, StoreToggle } from './StoreToggle';
+import { heldPlayground, StoreToggle } from './StoreToggle';
 
 function StoreInspector({
   toggle,
@@ -91,7 +91,7 @@ function StoreInspector({
       <Reveal
         show={open}
         className={styles.storePanel}
-        hold={heldToggle}
+        hold={heldPlayground}
         active={quickLookShown}
       >
         {tree}
@@ -134,7 +134,7 @@ function FolderPanel({
     const frame = requestAnimationFrame(() => {
       Promise.allSettled(host.getAnimations().map(a => a.finished)).then(() => {
         if (reopened) return;
-        const held = heldToggle();
+        const held = heldPlayground();
         if (held) blockElementScrollPositionUntilNextRender(held);
         setShut(true);
       });
