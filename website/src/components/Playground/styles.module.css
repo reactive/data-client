@@ -1775,8 +1775,9 @@ div.fixtureJson + div.fixtureJson {
     z-index: 2;
     height: var(--pg-fillet-r);
   }
-  /* until then (the Store leaves the layout a commit after the slide has
-     finished), the same delayed hide as the sheet's shadow */
+  /* hidden once the drawer's slide has finished, as the sheet's shadow is,
+     though the Store leaves the layout (and the fillet with it) only a
+     commit later */
   .row:not(.stacked):has(> .storeHost:not([data-open]))::after {
     visibility: hidden;
     transition: visibility 0s var(--pg-store-drawer);
