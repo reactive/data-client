@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { Activity, useEffect, useMemo, useState } from 'react';
 import { LiveProvider } from 'react-live';
 
 import DemoLabel from './autorun/DemoLabel';
@@ -33,6 +33,8 @@ export interface LivePreviewProps<T> extends PreviewProps<T> {
   showStore: ShowStore;
   /** Demo layout: the code in the result's place, and its toggle (../index.tsx) */
   code?: CodeControl;
+  /** Its tab is unselected: the app stays mounted, paused (../index.tsx) */
+  hidden?: boolean;
 }
 
 export default function LivePreview<T>({
@@ -52,6 +54,7 @@ export default function LivePreview<T>({
   autoRun,
   showStore,
   code: codeControl,
+  hidden = false,
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
@@ -84,6 +87,10 @@ export default function LivePreview<T>({
       }),
   );
   const demo = useAutoRun(autoRun, reset, showStore);
+  // a run never plays on in a hidden tab
+  useEffect(() => {
+    if (hidden) demo.player.stop();
+  }, [hidden, demo.player]);
   const getInterceptorData = useMemo(
     () =>
       restored ?
@@ -92,6 +99,8 @@ export default function LivePreview<T>({
     [restored, getInitialInterceptorData],
   );
 
+  // the <Activity> sits inside LiveProvider, whose code-running Effect
+  // would otherwise re-run on each show and remount the app, losing its state
   return (
     <LiveProvider
       key={key}
@@ -101,53 +110,55 @@ export default function LivePreview<T>({
       noInline
       scope={managers.scope}
     >
-      <PreviewWrapper
-        ref={demo.watch}
-        layout={layout}
-        label={
-          autoRun ?
-            <DemoLabel player={demo.player} onPlay={demo.replay} />
-          : undefined
-        }
-        fixtures={fixtureContent}
-        code={codeControl}
-        routerStart={routerStart}
-        headerControls={
-          <PreviewHeaderControls
-            layout={layout}
-            badge={
-              <>
-                {inFlightCount.badge}
-                {badge}
-              </>
-            }
-            storeOpen={storeOpen}
-            toggleStore={toggleStore}
-            reset={reset}
-          />
-        }
-      >
-        <Preview
-          key={storeKey}
-          storeOpen={storeOpen}
-          storeMoves={storeMoves}
-          toggleStore={toggleStore}
+      <Activity mode={hidden ? 'hidden' : 'visible'}>
+        <PreviewWrapper
+          ref={demo.watch}
           layout={layout}
-          storeHost={storeHost}
-          narrow={narrow}
-          fixtures={fixtures}
-          getInitialInterceptorData={getInterceptorData}
-          onCommit={onCommit}
-          observer={inFlightCount.manager}
-          initialState={restored?.state}
-          registry={registry}
-          history={history}
-          replacedHistory={replacedHistory}
-          managerHost={managers.host}
-          onReset={reset}
-          {...handlers}
-        />
-      </PreviewWrapper>
+          label={
+            autoRun ?
+              <DemoLabel player={demo.player} onPlay={demo.replay} />
+            : undefined
+          }
+          fixtures={fixtureContent}
+          code={codeControl}
+          routerStart={routerStart}
+          headerControls={
+            <PreviewHeaderControls
+              layout={layout}
+              badge={
+                <>
+                  {inFlightCount.badge}
+                  {badge}
+                </>
+              }
+              storeOpen={storeOpen}
+              toggleStore={toggleStore}
+              reset={reset}
+            />
+          }
+        >
+          <Preview
+            key={storeKey}
+            storeOpen={storeOpen}
+            storeMoves={storeMoves}
+            toggleStore={toggleStore}
+            layout={layout}
+            storeHost={storeHost}
+            narrow={narrow}
+            fixtures={fixtures}
+            getInitialInterceptorData={getInterceptorData}
+            onCommit={onCommit}
+            observer={inFlightCount.manager}
+            initialState={restored?.state}
+            registry={registry}
+            history={history}
+            replacedHistory={replacedHistory}
+            managerHost={managers.host}
+            onReset={reset}
+            {...handlers}
+          />
+        </PreviewWrapper>
+      </Activity>
     </LiveProvider>
   );
 }

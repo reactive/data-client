@@ -17,7 +17,8 @@ import styles from './PlaygroundTabs.module.css';
  * each hold a playground or a standalone editor. Takes the same props and
  * `<TabItem>` children, so `groupId` choices stay in sync with every other
  * tab group. Unselected tabs' playgrounds stay mounted but run hidden
- * (PlaygroundHiddenContext), so edits survive switching back.
+ * (PlaygroundHiddenContext), so edits and each preview's store survive
+ * switching back.
  * `label` names the switch; it defaults to "Protocol". */
 export default function PlaygroundTabs({
   label,

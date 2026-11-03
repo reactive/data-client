@@ -92,6 +92,25 @@ describe('hidden playground (an unselected homepage tab)', () => {
     // nor the row's Store folder
     expect(html).not.toContain('aria-label="Store"');
   });
+
+  test('its preview mounts on first show and is kept, hidden, after', () => {
+    const tab = (hidden: boolean) => (
+      <Playground row hidden={hidden}>
+        {fences()}
+      </Playground>
+    );
+    const { rerender } = render(tab(true));
+    expect(screen.queryByText('Live Preview')).toBeNull();
+
+    rerender(tab(false));
+    const preview = screen.getByText('Live Preview');
+
+    // switching away keeps the same preview, not a new one
+    rerender(tab(true));
+    expect(preview.isConnected).toBe(true);
+    rerender(tab(false));
+    expect(screen.getByText('Live Preview')).toBe(preview);
+  });
 });
 
 describe('folded fixtures', () => {
