@@ -332,8 +332,8 @@ function BenchmarkHarness() {
   );
 
   /**
-   * Timed: each message's `ctrl.set()` until its promise resolves, which
-   * happens in DataStore's effect after React commits the new state.
+   * Timed: each message's `ctrl.set()` until React commits it to the DOM.
+   * Waiting for the promise (DataStore's effect) is untimed.
    */
   const streamTickers = useCallback(
     async (messages: number) => {
@@ -342,13 +342,13 @@ function BenchmarkHarness() {
         ++tickerStreamVersion,
         messages,
       );
-      await measureMessageStream(batches.length, i =>
+      await measureMessageStream(batches.length, containerRef.current!, i =>
         controller.set([TickerEntity], batches[i]),
       );
       setComplete();
       return { finalRendered };
     },
-    [controller, setComplete],
+    [controller, setComplete, containerRef],
   );
 
   const resetStore = useCallback(

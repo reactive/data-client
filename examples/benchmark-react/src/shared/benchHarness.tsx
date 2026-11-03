@@ -23,9 +23,12 @@ export function waitForPaint(): Promise<void> {
  * Deliver `count` messages, each in its own task like websocket messages, and
  * time each one. `send(i)` applies message i and returns a promise that
  * resolves when the update has settled. Each message's time runs from the
- * `send(i)` call until that promise resolves. The next message is posted
- * after that, through a `MessageChannel`, so the time between messages is
- * not counted. Prepare all message data before calling this.
+ * `send(i)` call until its commit changes the DOM in `container` (the
+ * MutationObserver callback after the commit), so React's passive-effect
+ * scheduling is not counted. Every message must change the DOM. The next
+ * message is posted after the promise resolves, through a `MessageChannel`,
+ * so React can't merge messages and the time between messages is not
+ * counted. Prepare all message data before calling this.
  *
  * Records these `performance.measure` entries:
  * - `stream-message`: one per message.
@@ -35,30 +38,44 @@ export function waitForPaint(): Promise<void> {
  */
 export function measureMessageStream(
   count: number,
+  container: Element,
   send: (i: number) => Promise<unknown>,
 ): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     const durations: number[] = [];
     let firstStart = 0;
+    let start = -1;
+    let end = -1;
+    const observer = new MutationObserver(() => {
+      if (start >= 0 && end < 0) end = performance.now();
+    });
+    observer.observe(container, OBSERVE_MUTATIONS);
     const { port1, port2 } = new MessageChannel();
+    const fail = (err: unknown) => {
+      observer.disconnect();
+      port1.close();
+      reject(err);
+    };
     port1.onmessage = async (e: MessageEvent<number>) => {
       const i = e.data;
       try {
-        const start = performance.now();
+        end = -1;
+        start = performance.now();
         await send(i);
-        const end = performance.now();
+        if (end < 0) throw new Error(`message ${i} changed no DOM`);
         if (i === 0) firstStart = start;
         durations.push(end - start);
         performance.measure('stream-message', { start, end });
+        start = -1;
       } catch (err) {
-        port1.close();
-        reject(err);
+        fail(err);
         return;
       }
       if (i + 1 < count) {
         port2.postMessage(i + 1);
         return;
       }
+      observer.disconnect();
       port1.close();
       const sorted = [...durations].sort((a, b) => a - b);
       const record = (name: string, duration: number) =>
