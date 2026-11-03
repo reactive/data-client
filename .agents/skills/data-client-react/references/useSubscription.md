@@ -110,8 +110,8 @@ us to access the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document
 
 ### Pause while hidden
 
-To hide UI, such as a closed panel or an inactive tab, wrap it in [`<Activity>`](https://react.dev/reference/react/Activity).
-`MasterPrice` needs no change.
+To hide a panel or tab, wrap it in [`<Activity>`](https://react.dev/reference/react/Activity). `MasterPrice` needs
+no change.
 
 ```tsx title="PricePanel.tsx" {18-20}
 import { Activity, useState } from 'react';
@@ -139,12 +139,11 @@ export default function PricePanel({ symbol }: { symbol: string }) {
 }
 ```
 
-A hidden `<Activity>` keeps `MasterPrice` and its state, but stops its Effects. So `useSubscription()` unsubscribes and
-polling stops. When shown, it subscribes again. If the last fetch is older than
-[pollFrequency](https://dataclient.io/rest/api/RestEndpoint#pollfrequency), it fetches at once.
+A hidden `<Activity>` keeps `MasterPrice` and its state, but stops its Effects, so polling stops. When shown, polling
+resumes. If the last fetch is older than [pollFrequency](https://dataclient.io/rest/api/RestEndpoint#pollfrequency), it fetches at once.
 
-A hidden `<Activity>` still renders its content. So `useSuspense()` fetches the price once before the panel opens, and
-the panel opens without a loading state.
+A hidden `<Activity>` still renders. So `useSuspense()` fetches the price before the panel opens, and the panel opens
+without a loading state.
 
 ### Crypto prices (websockets)
 

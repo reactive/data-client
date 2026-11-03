@@ -306,11 +306,10 @@ render(<Markets />);
 
 </HooksPlayground>
 
-A hidden tab keeps its state, but its Effects stop. So `useLive()` unsubscribes and polling stops. When shown, it
-subscribes again. If the last fetch is older than [pollFrequency](/rest/api/RestEndpoint#pollfrequency), it fetches at
-once.
+A hidden tab keeps its state, but its Effects stop, so polling stops. When shown, polling resumes. If the last fetch
+is older than [pollFrequency](/rest/api/RestEndpoint#pollfrequency), it fetches at once.
 
-Hidden tabs still render, so each one fetches its price once. Switching tabs shows a price at once, with no loading
+Hidden tabs still render, so every tab fetches its price before it shows. Switching tabs shows a price with no loading
 state.
 
 :::
