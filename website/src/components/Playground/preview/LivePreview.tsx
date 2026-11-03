@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { LiveProvider } from 'react-live';
 
 import DemoLabel from './autorun/DemoLabel';
@@ -33,6 +33,8 @@ export interface LivePreviewProps<T> extends PreviewProps<T> {
   showStore: ShowStore;
   /** Demo layout: the code in the result's place, and its toggle (../index.tsx) */
   code?: CodeControl;
+  /** Its tab is unselected: the app stays mounted, paused (../index.tsx) */
+  hidden?: boolean;
 }
 
 export default function LivePreview<T>({
@@ -52,6 +54,7 @@ export default function LivePreview<T>({
   autoRun,
   showStore,
   code: codeControl,
+  hidden = false,
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
@@ -84,6 +87,10 @@ export default function LivePreview<T>({
       }),
   );
   const demo = useAutoRun(autoRun, reset, showStore);
+  // a run never plays on in a hidden tab
+  useEffect(() => {
+    if (hidden) demo.player.stop();
+  }, [hidden, demo.player]);
   const getInterceptorData = useMemo(
     () =>
       restored ?
@@ -135,6 +142,7 @@ export default function LivePreview<T>({
           layout={layout}
           storeHost={storeHost}
           narrow={narrow}
+          hidden={hidden}
           fixtures={fixtures}
           getInitialInterceptorData={getInterceptorData}
           onCommit={onCommit}

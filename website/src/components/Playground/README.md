@@ -47,7 +47,7 @@ nothing else: DOM size counts against the page.
 | Code not yet shown (`hidden` tab, a `demo`'s code)    | Plain `<pre>` text; highlighted once it shows                                                                                                                          |
 | Collapsed file                                        | Nothing, unless the element has `ssr` (a prop, not a metastring): then plain text                                                                                      |
 | Preview                                               | `PreviewLoading`: frame, `PendingSheet`, Store toggle. Same for bots and while the chunk loads                                                                         |
-| Preview and row Store folder of a `hidden` playground | Nothing; they mount when it shows                                                                                                                                      |
+| Preview and row Store folder of a `hidden` playground | Nothing; they mount when it first shows                                                                                                                                |
 | Store tree                                            | Never: it loads with the live preview                                                                                                                                  |
 | Folded fixtures                                       | The toggle only. Rows render once pointer, focus or a click reaches the playground (`WhenNear`, `index.tsx`: survives the preview's remounts, re-renders nothing else) |
 
@@ -74,10 +74,17 @@ Gotchas:
   its last line. Never give Monaco's container zero width while it mounts:
   it lays out one letter per line.
 
-`hidden` (unselected protocol tabs): every tab stays mounted, so all
-sources are in the HTML. The editor latches interactive on first show, so
-undo and go-to-definition survive tab switches; the live preview unmounts
-while hidden, so its store resets. The homepage passes `hidden`; in MDX,
+`hidden` (unselected protocol tabs): every tab stays mounted, so all sources
+are in the HTML. The editor latches interactive on first show, so undo and
+go-to-definition survive tab switches. The live preview also mounts on first
+show. After that, a hidden tab keeps it in an `<Activity>`, with its store,
+log and app state. Its managers, including any from `getManagers()`, keep
+running; only the app's Effects pause. Keep that `<Activity>` inside
+`DataProvider` and react-live's `LiveProvider` (`preview/Preview.tsx`).
+Outside `DataProvider`, a response that lands while hidden is dropped;
+outside `LiveProvider`, each show remounts the app. The row Store folder
+stays out of the `<Activity>`, which would detach `setStoreHost`; the
+container's `.hidden` hides it. The homepage passes `hidden`; in MDX,
 `PlaygroundTabs` sets it through `PlaygroundHiddenContext`
 (`hiddenContext.ts`) for every playground under an unselected tab, nested
 groups included. An explicit prop wins. `TypeScriptEditor` in one of those

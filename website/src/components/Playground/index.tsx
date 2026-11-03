@@ -1,6 +1,7 @@
 import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, {
+  Activity,
   lazy,
   useCallback,
   useDeferredValue,
@@ -92,7 +93,8 @@ export interface PlaygroundProps<T = any> {
   before?: React.ReactNode;
   /** The replay's label, in its header (default "Before") */
   beforeLabel?: string;
-  /** Inactive (e.g. unselected Demo tab): no Monaco until first shown, no preview */
+  /** Inactive (e.g. unselected Demo tab): static code and no preview until
+   * first shown; then the preview is kept, paused (README: `hidden`) */
   hidden?: boolean;
   fixtures?: FixtureOrInterceptor<T>[];
   getInitialInterceptorData?: () => T;
@@ -295,10 +297,13 @@ export default function Playground<T>({
   // the live preview has loaded (a `before` replay's is on its end screen)
   const code: CodeControl | undefined =
     demo ? { shown: codeShown, toggle: toggleCode } : undefined;
-  // Live preview only while visible — unmounts when hidden (resets store);
-  // hidden, not even its frame is in the HTML
+  // Live preview from its first show (hidden till then, not even its frame
+  // is in the HTML), then kept, its app in an `<Activity>` (README: `hidden`)
+  const [kept, setKept] = useState(!hidden);
+  if (!hidden && !kept) setKept(true);
+  const activity = hidden ? 'hidden' : 'visible';
   const preview =
-    hidden ? null : (
+    kept ?
       <Boundary
         fallback={
           <InspectorContext.Provider value={inspector}>
@@ -324,6 +329,7 @@ export default function Playground<T>({
                   layout={layout}
                   storeHost={storeHost}
                   narrow={narrow}
+                  hidden={hidden}
                   fixtures={fixtures}
                   getInitialInterceptorData={getInitialInterceptorData}
                   renderCount={renderCount}
@@ -339,7 +345,7 @@ export default function Playground<T>({
           </ActionsByContext.Provider>
         </DemoViewContext.Provider>
       </Boundary>
-    );
+    : null;
 
   return (
     <div
@@ -371,23 +377,27 @@ export default function Playground<T>({
             {editor}
           </>
         : <>
-            {comparing && !hidden ?
-              <BeforeFolder
-                label={beforeName}
-                replayable={!!autoRun}
-                onShowCode={() => swapCode(true)}
-                showCodeRef={showCodeButton}
-              >
-                {before}
-              </BeforeFolder>
+            {comparing && kept ?
+              <Activity mode={activity}>
+                <BeforeFolder
+                  label={beforeName}
+                  replayable={!!autoRun}
+                  onShowCode={() => swapCode(true)}
+                  showCodeRef={showCodeButton}
+                >
+                  {before}
+                </BeforeFolder>
+              </Activity>
             : null}
             {editor}
             {preview}
           </>
         }
         {/* stacked shows it only while narrow (styles.module.css), so the
-            server's HTML has it for a phone */}
-        {!demo && !hidden ?
+            server's HTML has it for a phone. Not in an <Activity>: hiding
+            would detach setStoreHost, taking the kept preview's Store from
+            its host; the container's .hidden hides it */}
+        {!demo && kept ?
           <div
             id={storeId}
             className={styles.storeHost}

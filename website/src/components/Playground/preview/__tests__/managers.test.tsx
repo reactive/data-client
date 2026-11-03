@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 /// <reference types="@docusaurus/module-type-aliases" />
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import LivePreview from '../LivePreview';
@@ -37,8 +37,9 @@ export default function getManagers() {
 const appDoc = (text: string) => `render(<div>${text}</div>);`;
 
 function renderPlayground(documents: string[]) {
-  const props = (docs: string[]) => {
+  const props = (docs: string[], hidden = false) => {
     return {
+      hidden,
       groupId: 'test',
       documents: docs.map(value => ({ value }) as any),
       storeOpen: false,
@@ -55,7 +56,8 @@ function renderPlayground(documents: string[]) {
   const result = render(<LivePreview {...props(documents)} />);
   return {
     ...result,
-    edit: (docs: string[]) => result.rerender(<LivePreview {...props(docs)} />),
+    edit: (docs: string[], hidden?: boolean) =>
+      result.rerender(<LivePreview {...props(docs, hidden)} />),
   };
 }
 
@@ -97,6 +99,26 @@ render(<App />);`;
     expect(log).toEqual(['fetch', 'init a', 'cleanup a', 'init b']),
   );
   expect(await screen.findByText('data')).toBeTruthy();
+});
+
+it('hidden (an unselected tab), keeps its managers and app, and a response that lands meanwhile', async () => {
+  const app = `const ep = new Endpoint(() => new Promise(resolve => { managerLog.push('fetch'); globalThis.resolveFetch = resolve; }), { name: 'ep' });
+function App() { return <div>{useSuspense(ep)}</div>; }
+render(<App />);`;
+  const docs = [managerDoc('a'), app];
+  const { edit } = renderPlayground(docs);
+  await waitFor(() => expect(log).toEqual(['fetch', 'init a']));
+
+  edit(docs, true);
+  await act(async () => (globalThis as any).resolveFetch('data'));
+  edit(docs, false);
+  const shown = await screen.findByText('data');
+  expect(log).toEqual(['fetch', 'init a']);
+
+  edit(docs, true);
+  edit(docs, false);
+  expect(await screen.findByText('data')).toBe(shown);
+  expect(log).toEqual(['fetch', 'init a']);
 });
 
 it('keeps the managers it has when the new code fails', async () => {
