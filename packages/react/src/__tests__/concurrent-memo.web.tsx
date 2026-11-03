@@ -500,7 +500,7 @@ describeConcurrent.each([1, 2])(
       expect(avoidableMisses(reads)).toBe(0);
     });
 
-    it('ten optimistic updates rolled back, after earlier flips moved what the memo keeps', async () => {
+    it('ten optimistic updates rolled back, after a transition committed and two later writes', async () => {
       mount(consumers);
       beginTransition('5', 'X');
       for (let i = 0; i < 3; i++) writeNote(i);

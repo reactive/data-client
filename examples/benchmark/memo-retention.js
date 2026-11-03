@@ -1,17 +1,15 @@
 /**
- * Worst cases for the memo cache: where caching less could cost reads or memory.
+ * What the memo cache keeps, in degenerate access patterns:
  *
- * - store flips: one result read against K store snapshots in turn, as when
- *   overlapping optimistic updates or several pending transitions each render
- *   a different snapshot. Reports how many reads hit and time per read.
- * - retained memory: heap the memo holds beyond the store itself, after a run
- *   of updates. Entity churn (every row replaced) is the worst case.
- * - argsKey buckets: one list read under N different `argsKey` values (a
- *   portfolio app switching between N portfolios), all cached, and the heap
- *   the memo holds for them.
+ * - snapshots in turn: one list read against K store snapshots in rotation,
+ *   each differing by one row. Reports how many reads hit, and time per read.
+ * - retained heap: heap the memo holds beyond the store itself, after a run of
+ *   updates that replace entities (every row, in the worst case).
+ * - argsKey values in turn: one Scalar list read under N `argsKey` values in
+ *   rotation. Reports how many reads hit, and the heap the memo holds.
  *
  * Local-only; not part of CI benchmark tracking. Run with:
- *   yarn workspace example-benchmark start:memo-tradeoffs [filter]
+ *   yarn workspace example-benchmark start:memo-retention [filter]
  */
 import vm from 'node:vm';
 import v8 from 'v8';
@@ -45,7 +43,7 @@ function timeit(fn, ms = 400) {
 const rows = [];
 const want = name => !filter || name.includes(filter);
 
-// --- store flips -------------------------------------------------------------
+// --- snapshots in turn ---------------------------------------------------------
 
 const ROWS = 700;
 const stockArgs = [{ portfolio: 'A' }];
@@ -62,7 +60,7 @@ const base = normalize(
   meta(),
 );
 
-/** Snapshot i changes one row's price, like one more optimistic update. */
+/** Snapshot i changes one more row's name than snapshot i - 1. */
 function snapshots(k) {
   const out = [base];
   for (let i = 1; i < k; i++) {
@@ -83,7 +81,7 @@ function snapshots(k) {
 }
 
 for (const k of [1, 2, 3, 4, 8]) {
-  const name = `store flips: ${ROWS}-row list read against ${k} snapshots in turn`;
+  const name = `snapshots in turn: ${ROWS}-row list read against ${k} snapshots`;
   if (!want(name)) continue;
   const states = snapshots(k);
   const memo = new MemoCache();
@@ -114,7 +112,7 @@ for (const k of [1, 2, 3, 4, 8]) {
   });
 }
 
-// --- retained memory ----------------------------------------------------------
+// --- retained heap -------------------------------------------------------------
 
 class Ticker extends Entity {
   symbol = '';
@@ -186,7 +184,7 @@ const tickerRows = (tick, count) =>
 
 const memoryCases = [
   {
-    name: `retained: ${SYMBOLS} symbols join tickers, 500 tickers x 60 ticks`,
+    name: `retained heap: ${SYMBOLS} symbols join tickers, 500 tickers x 60 ticks`,
     run(memo) {
       const schema = { symbols: [MarketSymbol] };
       let store = normalize(schema, { symbols: symbolRows });
@@ -201,7 +199,7 @@ const memoryCases = [
     },
   },
   ...[1000, 10000].map(n => ({
-    name: `retained: ${n}-row list refetched (every row replaced) x 20`,
+    name: `retained heap: ${n}-row list refetched (every row replaced) x 20`,
     run(memo) {
       let store;
       for (let t = 0; t < 20; t++) {
@@ -226,10 +224,10 @@ for (const { name, run } of memoryCases) {
   });
 }
 
-// --- argsKey buckets ------------------------------------------------------------
+// --- argsKey values in turn -----------------------------------------------------
 
 for (const n of [1, 10, 100, 1000]) {
-  const name = `argsKey buckets: ${ROWS}-row Scalar list read under ${n} portfolios in turn`;
+  const name = `argsKey values in turn: ${ROWS}-row Scalar list read under ${n} portfolios`;
   if (!want(name)) continue;
   const portfolios = Array.from({ length: n }, (_, i) => [
     { portfolio: `p${i}` },

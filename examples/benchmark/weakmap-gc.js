@@ -1,5 +1,7 @@
 /**
- * WeakMap (ephemeron) pressure from memoized denormalization.
+ * WeakMap marking cost of one old-generation GC, after memoized
+ * denormalization: live WeakMap entries, Hermes marking passes, and entry
+ * visits (passes x entries), plus V8's own full-GC time.
  *
  * Hermes resolves WeakMap entries in the stop-the-world end of every
  * old-generation collection (`HadesGC::markWeakMapEntrySlots`): it rescans
@@ -14,11 +16,13 @@
  * on any engine, each scenario takes a V8 heap snapshot and replays Hermes's
  * marking loop on it.
  *
- * Each scenario mirrors a live screen: a large endpoint whose entities join
- * frequently written entities, or a short list that streams new rows.
+ * Scenarios: a 3,736-entity endpoint whose entities join 500 entities
+ * written each tick; the same endpoint with no join; a 100-row list that
+ * prepends 3 rows per write; and a 50-level nested chain whose deepest entity
+ * changes each tick.
  *
  * Local-only; not part of CI benchmark tracking. Run with:
- *   yarn workspace example-benchmark start:ephemerons [filter]
+ *   yarn workspace example-benchmark start:weakmap-gc [filter]
  */
 import { readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -144,7 +148,7 @@ function replayHermesMarking() {
 
 function readSnapshot() {
   const file = v8.writeHeapSnapshot(
-    join(tmpdir(), `ephemerons-${process.pid}.heapsnapshot`),
+    join(tmpdir(), `weakmap-gc-${process.pid}.heapsnapshot`),
   );
   try {
     return readFileSync(file, 'utf8');
