@@ -37,6 +37,9 @@ Both arguments are optional:
 - `core` - benchmarks entire operations using [Controller](https://dataclient.io/docs/api/Controller)
 - `normalizr` - benchmarks just normalize/denormalize
   - `denormalizeLong nested 25% missing|null|INVALID` (and `withCache`) - the project list with every 4th nested `BuildTypeDescription` missing from the store, `null`, or `INVALID`; those are still tracked as memo dependencies
+  - `denormalizeLong withCache update first|last row` - steady state: each op builds a new `entities` with one project replaced, then reads the cached list; the changed row is first or last in the list
+  - `denormalizeLong Scalar` (cold) and `denormalizeLong Scalar withCache update one cell` - the 700-row `Scalar` list in a new `MemoCache`, and read again after each op replaces one `Scalar` cell
+  - `denormalizeLong two Scalars, 25% Stocks missing` (and `withCache`) - a `Holding` list with two `Scalar` lenses (one through its `Stock`); two stores missing different Stocks are read in turn, so list nodes keep more than one `argsKey` branch
 - `spread` - degenerate-case writes where spread cost scales with store size (single-entity `setResponse` into 1k/10k/100k entity stores, 10k cached endpoint keys, collection push onto 10k items, invalidateAll/expireAll). One case (`setOneEntity in 10k entity store`) is tracked over time in CI via `.github/workflows/benchmark-spread.yml`; the rest are manual-only.
 - `micro` - isolated microbenchmarks for testing specific operations
 - `old-normalizr` - runs equivalent benchmarks using the normalizr package
@@ -81,6 +84,49 @@ and reports per scenario: approximate bytes allocated per operation, GC event
 counts (minor/major/other) and total GC pause during the loop, and retained
 heap after a full GC (should be ~0; nonzero indicates actual retention).
 Local-only — not tracked in CI.
+
+### WeakMap (ephemeron) pressure
+
+Memoization keys cached values on entities through `WeakMap`s. How much a
+collection costs for those depends on the engine, so measure the worst case
+with:
+
+```bash
+yarn start:ephemerons [filter]
+```
+
+Each scenario takes a V8 heap snapshot and replays Hermes's marking loop on
+it. It reports the live `WeakMap` entries, how many marking passes Hermes
+would need, and their product, which is the number of entry visits in one
+Hermes old-generation pause. It also reports V8's own full-GC time. The
+scenarios mirror a live market screen: a 3,736-symbol endpoint whose symbols
+join streaming tickers, and a 100-row trade tape that prepends prints. A
+50-level Department/Building chain whose deepest Building changes every tick
+measures passes against nesting depth.
+Local-only — not tracked in CI.
+
+How engines resolve `WeakMap` entries during a major collection:
+
+| Engine | Algorithm | Where it runs | Cost for N nested entries |
+| --- | --- | --- | --- |
+| Hermes (React Native) | Repeats a scan of every `WeakMap` entry slot in the heap until a pass marks nothing new (`HadesGC::markWeakMapEntrySlots`). No key → value index. | Stop-the-world, on the JS thread, at the end of every old-gen collection | passes ≈ N + 1, each visiting every slot: quadratic |
+| V8 (Node, Chrome) | The same fixpoint for at most `--ephemeron-fixpoint-iterations` (default 10) passes, then a linear algorithm over a key → values map (`MarkTransitiveClosureLinear` in `mark-compact.cc`) | Major GC; most marking is concurrent | linear |
+
+So a structure that V8 collects in milliseconds can stall Hermes for seconds:
+one pass per level of nesting, and every pass rescans every `WeakMap` entry in
+the app, not only the memo's own. Keep `WeakMap` nesting shallow.
+
+### Memo cache worst cases
+
+```bash
+yarn start:memo-tradeoffs [filter]
+```
+
+Measures where caching fewer versions could cost reads or memory: one list
+read against several store snapshots in turn (hit rate and time per read),
+heap the memo keeps beyond the store after a run of updates, and one list read
+under many `argsKey` values (hit rate and heap held). Local-only — not tracked
+in CI.
 
 ### Profiling
 
