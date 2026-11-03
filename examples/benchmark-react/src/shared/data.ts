@@ -195,9 +195,9 @@ export const FIXTURE_USERS_BY_LOGIN = new Map(
 // ── TICKERS ─────────────────────────────────────────────────────────────
 
 /** Tickers in the store for the ticker-stream scenarios. */
-export const TICKER_COUNT = 500;
+const TICKER_COUNT = 500;
 /** Tickers the strip renders (the first N of the list). */
-export const TICKER_STRIP_SIZE = 20;
+const TICKER_STRIP_SIZE = 20;
 
 const TICKER_BASE_TIME = Date.UTC(2026, 0, 2, 14, 30);
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -216,7 +216,7 @@ function round2(n: number): number {
 }
 
 /** Deterministic tickers: prices 5.00–999.99, no randomness. */
-export function generateTickers(count: number): Ticker[] {
+function generateTickers(count: number): Ticker[] {
   const tickers: Ticker[] = [];
   for (let i = 0; i < count; i++) {
     tickers.push({
@@ -230,13 +230,18 @@ export function generateTickers(count: number): Ticker[] {
   return tickers;
 }
 
-export const FIXTURE_TICKERS = generateTickers(TICKER_COUNT);
+let fixtureTickers: Ticker[] | undefined;
 
-/** Symbols of the tickers the strip renders. */
-export const TICKER_STRIP_SYMBOLS = FIXTURE_TICKERS.slice(
-  0,
-  TICKER_STRIP_SIZE,
-).map(t => t.symbol);
+/** All tickers in the store, generated on first use. */
+export function getFixtureTickers(): Ticker[] {
+  return (fixtureTickers ??= generateTickers(TICKER_COUNT));
+}
+
+/** Symbols of the tickers the strip renders (the first of the list). */
+export const TICKER_STRIP_SYMBOLS = Array.from(
+  { length: TICKER_STRIP_SIZE },
+  (_, i) => tickerSymbol(i),
+);
 
 /** Rendered tickers in each stream message. */
 const RENDERED_PER_MESSAGE = 2;
@@ -276,23 +281,23 @@ export interface TickerStream {
 export function buildTickerStream(
   version: number,
   messages: number,
-  tickers: Ticker[] = FIXTURE_TICKERS,
-  renderedCount = TICKER_STRIP_SIZE,
 ): TickerStream {
-  const unrenderedCount = tickers.length - renderedCount;
-  const finalRendered: Ticker[] = tickers.slice(0, renderedCount);
+  const tickers = getFixtureTickers();
+  const unrenderedCount = TICKER_COUNT - TICKER_STRIP_SIZE;
+  const finalRendered: Ticker[] = tickers.slice(0, TICKER_STRIP_SIZE);
   const batches: Ticker[][] = [];
   for (let m = 0; m < messages; m++) {
     const step = version * messages + m;
     const batch: Ticker[] = [];
     for (let r = 0; r < RENDERED_PER_MESSAGE; r++) {
-      const i = (m * RENDERED_PER_MESSAGE + r) % renderedCount;
+      const i = (m * RENDERED_PER_MESSAGE + r) % TICKER_STRIP_SIZE;
       finalRendered[i] = tickTicker(tickers[i], i, step);
       batch.push(finalRendered[i]);
     }
     for (let u = 0; u < UNRENDERED_PER_MESSAGE; u++) {
       const i =
-        renderedCount + ((m * UNRENDERED_PER_MESSAGE + u) % unrenderedCount);
+        TICKER_STRIP_SIZE +
+        ((m * UNRENDERED_PER_MESSAGE + u) % unrenderedCount);
       batch.push(tickTicker(tickers[i], i, step));
     }
     batches.push(batch);

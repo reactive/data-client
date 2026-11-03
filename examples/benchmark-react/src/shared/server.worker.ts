@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 
-import { FIXTURE_USERS, FIXTURE_ISSUES, FIXTURE_TICKERS } from './data';
+import { FIXTURE_USERS, FIXTURE_ISSUES, getFixtureTickers } from './data';
 import type { Issue, Label, Ticker, User } from './types';
 
 declare const self: DedicatedWorkerGlobalScope;
@@ -107,7 +107,7 @@ function fetchIssueList(params?: { count?: number; state?: string }): Issue[] {
 }
 
 function fetchTickerList(): Ticker[] {
-  return FIXTURE_TICKERS;
+  return getFixtureTickers();
 }
 
 // ── CREATE ───────────────────────────────────────────────────────────────

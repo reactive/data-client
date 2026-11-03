@@ -16,7 +16,8 @@ import {
   FIXTURE_ISSUES_BY_NUMBER,
   sortByTitle,
 } from '@shared/data';
-import { noteListViewRender, setCurrentIssues } from '@shared/refStability';
+import { setCurrentIssues } from '@shared/refStability';
+import { noteListViewRender } from '@shared/renderCounts';
 import { UserResource, IssueResource } from '@shared/resources';
 import type { Issue } from '@shared/types';
 import React, { useCallback, useMemo, useRef } from 'react';

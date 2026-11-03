@@ -72,6 +72,17 @@ type BaseScenario = Omit<Scenario, 'name' | 'category'> & {
   category: NonNullable<Scenario['category']>;
 };
 
+/** The ticker stream, shared by its timing and row-render scenarios. */
+const TICKER_STREAM = {
+  action: 'streamTickers',
+  args: [200],
+  category: 'hotPath',
+  mountCount: 1000,
+  renderLimit: 100,
+  preMountAction: 'initTickerStream',
+  onlyLibs: ['data-client'],
+} satisfies Omit<BaseScenario, 'nameSuffix'>;
+
 const BASE_SCENARIOS: BaseScenario[] = [
   {
     nameSuffix: 'getlist-100',
@@ -187,40 +198,27 @@ const BASE_SCENARIOS: BaseScenario[] = [
     onlyLibs: ['data-client'],
   },
   {
+    ...TICKER_STREAM,
     nameSuffix: 'update-ticker-stream',
-    action: 'streamTickers',
-    args: [50],
-    category: 'hotPath',
-    mountCount: 1000,
-    renderLimit: 100,
-    preMountAction: 'initTickerStream',
     size: 'large',
-    onlyLibs: ['data-client'],
-    // update-duration is the sum of 50 per-message times
-    sumReactCommits: true,
-    // Local only: the worst message takes ~1 ms and performance.now() steps by
+    durationMeasure: { measure: 'stream-message', aggregate: 'sum' },
+    // Not in CI: the worst message takes ~1 ms and performance.now() steps by
     // 0.1 ms (the page is not cross-origin isolated), so these vary about ±6%
     // and miss CI's 3% target.
-    ...(process.env.CI ?
-      {}
-    : {
-        extraMeasures: {
-          'worst-message': 'update-message-worst',
-          'p95-message': 'update-message-p95',
-        },
-      }),
+    extraMeasures: {
+      'worst-message': {
+        measure: 'stream-message',
+        aggregate: 'max',
+        ci: false,
+      },
+      'p95-message': { measure: 'stream-message', aggregate: 'p95', ci: false },
+    },
   },
   {
+    ...TICKER_STREAM,
     nameSuffix: 'ticker-stream-issue-row-renders',
-    action: 'streamTickers',
-    args: [50],
     resultMetric: 'issueRowRenders',
-    category: 'hotPath',
-    mountCount: 1000,
-    renderLimit: 100,
-    preMountAction: 'initTickerStream',
     deterministic: true,
-    onlyLibs: ['data-client'],
   },
   {
     nameSuffix: 'unshift-item',

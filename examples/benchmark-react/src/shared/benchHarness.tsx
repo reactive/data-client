@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 
 import { FIXTURE_ISSUES } from './data';
 import { captureSnapshot, getReport } from './refStability';
+import { getRenderCounts, resetRenderCounts } from './renderCounts';
 import {
   flushPendingMutations,
   seedIssueList,
@@ -17,79 +18,6 @@ export function afterPaint(fn: () => void): void {
 
 export function waitForPaint(): Promise<void> {
   return new Promise<void>(r => afterPaint(r));
-}
-
-/**
- * Deliver `count` messages, each in its own task like websocket messages, and
- * time each one. `send(i)` applies message i and returns a promise that
- * resolves when the update has settled. Each message's time runs from the
- * `send(i)` call until its commit changes the DOM in `container` (the
- * MutationObserver callback after the commit), so React's passive-effect
- * scheduling is not counted. Every message must change the DOM. The next
- * message is posted after the promise resolves, through a `MessageChannel`,
- * so React can't merge messages and the time between messages is not
- * counted. Prepare all message data before calling this.
- *
- * Records these `performance.measure` entries:
- * - `stream-message`: one per message.
- * - `update-duration`: the sum of the message times.
- * - `update-message-worst`: the longest message time.
- * - `update-message-p95`: the 95th-percentile message time (nearest rank).
- */
-export function measureMessageStream(
-  count: number,
-  container: Element,
-  send: (i: number) => Promise<unknown>,
-): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
-    const durations: number[] = [];
-    let firstStart = 0;
-    let start = -1;
-    let end = -1;
-    const observer = new MutationObserver(() => {
-      if (start >= 0 && end < 0) end = performance.now();
-    });
-    observer.observe(container, OBSERVE_MUTATIONS);
-    const { port1, port2 } = new MessageChannel();
-    const fail = (err: unknown) => {
-      observer.disconnect();
-      port1.close();
-      reject(err);
-    };
-    port1.onmessage = async (e: MessageEvent<number>) => {
-      const i = e.data;
-      try {
-        end = -1;
-        start = performance.now();
-        await send(i);
-        if (end < 0) throw new Error(`message ${i} changed no DOM`);
-        if (i === 0) firstStart = start;
-        durations.push(end - start);
-        performance.measure('stream-message', { start, end });
-        start = -1;
-      } catch (err) {
-        fail(err);
-        return;
-      }
-      if (i + 1 < count) {
-        port2.postMessage(i + 1);
-        return;
-      }
-      observer.disconnect();
-      port1.close();
-      const sorted = [...durations].sort((a, b) => a - b);
-      const record = (name: string, duration: number) =>
-        performance.measure(name, { start: firstStart, duration });
-      record(
-        'update-duration',
-        durations.reduce((a, b) => a + b, 0),
-      );
-      record('update-message-worst', sorted[sorted.length - 1]);
-      record('update-message-p95', sorted[Math.ceil(sorted.length * 0.95) - 1]);
-      resolve();
-    };
-    port2.postMessage(0);
-  });
 }
 
 export function onProfilerRender(
@@ -108,6 +36,31 @@ const OBSERVE_MUTATIONS: MutationObserverInit = {
   subtree: true,
   characterData: true,
 };
+
+/**
+ * Time from right before `fn()` until the first DOM mutation in `container`
+ * for which `isReady()` holds. React commits atomically, so for an update the
+ * first mutation is its commit. Calls `onEnd(start, end)` from that
+ * MutationObserver callback. The observer is attached before the start time
+ * is read, so attaching it is not timed.
+ */
+function timeToMutation<T>(
+  container: Element,
+  fn: () => T,
+  onEnd: (start: number, end: number) => void,
+  isReady?: () => boolean,
+): { result: T; start: number; cancel: () => void } {
+  const observer = new MutationObserver(() => {
+    if (!isReady || isReady()) {
+      const end = performance.now();
+      observer.disconnect();
+      onEnd(start, end);
+    }
+  });
+  observer.observe(container, OBSERVE_MUTATIONS);
+  const start = performance.now();
+  return { result: fn(), start, cancel: () => observer.disconnect() };
+}
 
 /** Check whether an issue has moved to the target state list and left the source. */
 export function moveItemIsReady(
@@ -139,7 +92,8 @@ type LibraryActions = Pick<BenchAPI, 'updateEntity' | 'updateUser'> &
  * Shared benchmark harness state, measurement helpers, and API registration.
  *
  * Standard BenchAPI actions (init, unmountAll, mountUnmountCycle,
- * getRenderedCount, captureRefSnapshot, getRefStabilityReport) are provided
+ * getRenderedCount, captureRefSnapshot, getRefStabilityReport,
+ * resetRenderCounts, getRenderCounts) are provided
  * as defaults via `registerAPI`. Libraries only need to supply their
  * specific actions and any overrides.
  *
@@ -221,25 +175,96 @@ export function useBenchState() {
   const measureUpdate = useCallback(
     (fn: () => unknown, isReady?: () => boolean) => {
       const container = containerRef.current!;
-      const observer = new MutationObserver(() => {
-        if (!isReady || isReady()) {
-          performance.mark('update-end');
-          performance.measure('update-duration', 'update-start', 'update-end');
-          observer.disconnect();
-          clearTimeout(timer);
-          setComplete();
-        }
-      });
-      observer.observe(container, OBSERVE_MUTATIONS);
+      const record = (start: number, end: number) =>
+        performance.measure('update-duration', { start, end });
       const timer = setTimeout(() => {
-        observer.disconnect();
-        performance.mark('update-end');
-        performance.measure('update-duration', 'update-start', 'update-end');
+        update.cancel();
+        record(update.start, performance.now());
         container.setAttribute('data-bench-timeout', 'true');
         setComplete();
       }, 30000);
-      performance.mark('update-start');
-      fn();
+      const update = timeToMutation(
+        container,
+        fn,
+        (start, end) => {
+          record(start, end);
+          clearTimeout(timer);
+          setComplete();
+        },
+        isReady,
+      );
+    },
+    [setComplete],
+  );
+
+  /**
+   * Send `count` messages, each in its own task like websocket messages, and
+   * time each one like `measureUpdate`: from right before `send(i)` until the
+   * first DOM mutation in the container, which is the message's commit. So
+   * React's passive-effect scheduling is not timed. Records one
+   * `stream-message` measure per message; the runner aggregates them.
+   *
+   * `send(i)` applies message i. A library port must make it return a promise
+   * that resolves after that update has committed (data-client's
+   * `controller.set()` resolves from its store effect). The next message is
+   * posted through a `MessageChannel` only after that promise resolves, so
+   * React cannot merge messages, and the wait and the time between messages
+   * are not timed. Every message must change the DOM. Build all message data
+   * before calling this.
+   *
+   * Sets data-bench-complete when done, and also data-bench-timeout if the
+   * stream takes more than 30 s.
+   */
+  const measureMessageStream = useCallback(
+    (count: number, send: (i: number) => Promise<unknown>): Promise<void> => {
+      const container = containerRef.current!;
+      return new Promise<void>((resolve, reject) => {
+        const { port1, port2 } = new MessageChannel();
+        let cancelMessage: (() => void) | undefined;
+        const stop = () => {
+          clearTimeout(timer);
+          cancelMessage?.();
+          port1.close();
+        };
+        const timer = setTimeout(() => {
+          stop();
+          container.setAttribute('data-bench-timeout', 'true');
+          setComplete();
+          resolve();
+        }, 30000);
+        port1.onmessage = async (e: MessageEvent<number>) => {
+          const i = e.data;
+          try {
+            let end = -1;
+            const message = timeToMutation(
+              container,
+              () => send(i),
+              (_, commitTime) => {
+                end = commitTime;
+              },
+            );
+            cancelMessage = message.cancel;
+            await message.result;
+            if (end < 0) throw new Error(`message ${i} changed no DOM`);
+            performance.measure('stream-message', {
+              start: message.start,
+              end,
+            });
+          } catch (err) {
+            stop();
+            reject(err);
+            return;
+          }
+          if (i + 1 < count) {
+            port2.postMessage(i + 1);
+            return;
+          }
+          stop();
+          setComplete();
+          resolve();
+        };
+        port2.postMessage(0);
+      });
     },
     [setComplete],
   );
@@ -413,6 +438,8 @@ export function useBenchState() {
       getRenderedCount,
       captureRefSnapshot,
       getRefStabilityReport,
+      resetRenderCounts,
+      getRenderCounts,
       setNetworkDelay,
       setNetworkSim,
       flushPendingMutations,
@@ -447,6 +474,7 @@ export function useBenchState() {
 
     measureMount,
     measureUpdate,
+    measureMessageStream,
     waitForElement,
     setComplete,
     completeResolveRef,

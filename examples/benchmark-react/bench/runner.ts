@@ -11,9 +11,9 @@ import type {
 } from 'playwright';
 
 import {
+  aggregateMeasures,
   collectMeasures,
   getMeasureDuration,
-  sumMeasureDurations,
 } from './measure.js';
 import { collectHeapUsed } from './memory.js';
 import { formatReport, type BenchmarkResult } from './report.js';
@@ -182,18 +182,17 @@ interface ScenarioSamples {
 // Scenario classification and helpers
 // ---------------------------------------------------------------------------
 
-const REF_STABILITY_METRICS = [
+/** Metrics read once after the action, from the ref-stability report or the render counts. */
+const COUNT_METRICS = [
   'issueRefChanged',
   'userRefChanged',
   'issueRowRenders',
 ] as const;
 
-function isRefStabilityScenario(scenario: Scenario): scenario is Scenario & {
-  resultMetric: (typeof REF_STABILITY_METRICS)[number];
+function isCountScenario(scenario: Scenario): scenario is Scenario & {
+  resultMetric: (typeof COUNT_METRICS)[number];
 } {
-  return (REF_STABILITY_METRICS as readonly unknown[]).includes(
-    scenario.resultMetric,
-  );
+  return (COUNT_METRICS as readonly unknown[]).includes(scenario.resultMetric);
 }
 
 function isConvergentScenario(scenario: Scenario): boolean {
@@ -201,7 +200,7 @@ function isConvergentScenario(scenario: Scenario): boolean {
     !scenario.deterministic &&
     scenario.category !== 'memory' &&
     scenario.resultMetric !== 'heapDelta' &&
-    !isRefStabilityScenario(scenario)
+    !isCountScenario(scenario)
   );
 }
 
@@ -410,21 +409,28 @@ async function runIteration(
   }
 
   const measures = await collectMeasures(page);
+  const { durationMeasure } = scenario;
   const duration =
-    isMountLike ?
-      getMeasureDuration(measures, 'mount-duration')
-    : getMeasureDuration(measures, 'update-duration');
-  const reactCommit =
-    scenario.sumReactCommits ?
-      sumMeasureDurations(measures, 'react-commit-update')
-    : getMeasureDuration(measures, 'react-commit-update');
+    durationMeasure ?
+      aggregateMeasures(
+        measures,
+        durationMeasure.measure,
+        durationMeasure.aggregate,
+      )
+    : getMeasureDuration(
+        measures,
+        isMountLike ? 'mount-duration' : 'update-duration',
+      );
+  const reactCommit = getMeasureDuration(measures, 'react-commit-update');
   const extras =
     scenario.extraMeasures &&
     Object.fromEntries(
-      Object.entries(scenario.extraMeasures).map(([suffix, name]) => [
-        suffix,
-        getMeasureDuration(measures, name),
-      ]),
+      Object.entries(scenario.extraMeasures).map(
+        ([suffix, { measure, aggregate }]) => [
+          suffix,
+          aggregateMeasures(measures, measure, aggregate),
+        ],
+      ),
     );
 
   return { duration, reactCommit, traceDuration, extras };
@@ -485,16 +491,19 @@ async function runScenario(
   }
 
   const { isMountLike, isUpdate } = classifyAction(scenario);
-  const isRefStability = isRefStabilityScenario(scenario);
+  const isCount = isCountScenario(scenario);
   const mountCount = scenario.mountCount ?? 100;
 
-  if (isUpdate || isRefStability) {
+  if (isUpdate || isCount) {
     await runPreMount(page, harness, bench, scenario, networkSim);
   }
 
-  // --- Ref stability (deterministic, single run, early return) ---
-  if (isRefStability) {
-    await (bench as any).evaluate((api: any) => api.captureRefSnapshot());
+  // --- Counts (deterministic, single run, early return) ---
+  if (isCount) {
+    await (bench as any).evaluate((api: any) => {
+      api.captureRefSnapshot();
+      api.resetRenderCounts();
+    });
 
     await harness.evaluate(el => {
       el.removeAttribute('data-bench-complete');
@@ -526,9 +535,10 @@ async function runScenario(
       );
     }
 
-    const report = await (bench as any).evaluate((api: any) =>
-      api.getRefStabilityReport(),
-    );
+    const report = await (bench as any).evaluate((api: any) => ({
+      ...api.getRefStabilityReport(),
+      ...api.getRenderCounts(),
+    }));
     await bench.dispose();
     return { value: report[scenario.resultMetric!] as number };
   }
@@ -538,29 +548,20 @@ async function runScenario(
   const durations: number[] = [];
   const commitTimes: number[] = [];
   const traceDurations: number[] = [];
-  const extraDurations: Record<string, number[]> = {};
   const traceSubIdx = Math.floor(ops / 2);
 
   for (let subIdx = 0; subIdx < ops; subIdx++) {
     const shouldTrace = USE_TRACE && subIdx === traceSubIdx;
-    const { duration, reactCommit, traceDuration, extras } = await runIteration(
+    const { duration, reactCommit, traceDuration } = await runIteration(
       page,
       harness,
       bench,
       scenario,
-      {
-        isMountLike,
-        mountCount,
-        networkSim,
-        subIdx,
-        shouldTrace,
-      },
+      { isMountLike, mountCount, networkSim, subIdx, shouldTrace },
     );
     durations.push(duration);
     if (reactCommit > 0) commitTimes.push(reactCommit);
     if (traceDuration != null) traceDurations.push(traceDuration);
-    for (const [suffix, ms] of Object.entries(extras ?? {}))
-      (extraDurations[suffix] ??= []).push(ms);
   }
 
   await bench.dispose();
@@ -569,12 +570,6 @@ async function runScenario(
     reactCommit: commitTimes.length > 0 ? simpleMedian(commitTimes) : undefined,
     traceDuration:
       traceDurations.length > 0 ? simpleMedian(traceDurations) : undefined,
-    extras: Object.fromEntries(
-      Object.entries(extraDurations).map(([suffix, arr]) => [
-        suffix,
-        simpleMedian(arr),
-      ]),
-    ),
   };
 }
 
@@ -634,13 +629,7 @@ async function runScenarioConvergent(
       harness,
       bench,
       scenario,
-      {
-        isMountLike,
-        mountCount,
-        networkSim,
-        subIdx,
-        shouldTrace,
-      },
+      { isMountLike, mountCount, networkSim, subIdx, shouldTrace },
     );
 
     if (isWarmup) continue;
@@ -806,13 +795,30 @@ function reportV8Logs(): void {
 }
 
 function scenarioUnit(scenario: Scenario): string {
-  if (isRefStabilityScenario(scenario)) return 'count';
+  if (isCountScenario(scenario)) return 'count';
   if (scenario.resultMetric === 'heapDelta') return 'bytes';
   return 'ops/s';
 }
 
 function msToOps(ms: number): number {
   return ms > 0 ? 1000 / ms : 0;
+}
+
+/** Report the median of `msSamples` in ops/s, skipping NaN (missing) samples; nothing when none remain. */
+function pushOpsEntry(
+  report: BenchmarkResult[],
+  name: string,
+  msSamples: number[],
+): void {
+  const ops = msSamples.filter(x => !Number.isNaN(x)).map(msToOps);
+  if (ops.length === 0) return;
+  const { median, range } = computeStats(ops, 0);
+  report.push({
+    name,
+    unit: 'ops/s',
+    value: Math.round(median * 100) / 100,
+    range,
+  });
 }
 
 function recordResult(
@@ -1118,48 +1124,23 @@ async function main() {
     });
 
     // React commit times (only meaningful for duration-based scenarios)
-    const reactSamples = s.reactCommit
-      .slice(warmup)
-      .filter(x => !Number.isNaN(x));
-    if (reactSamples.length > 0 && !scenario.resultMetric) {
-      const rcOps = reactSamples.map(msToOps);
-      const { median: rcMedian, range: rcRange } = computeStats(rcOps, 0);
-      report.push({
-        name: `${scenario.name} (react commit)`,
-        unit: 'ops/s',
-        value: Math.round(rcMedian * 100) / 100,
-        range: rcRange,
-      });
+    if (!scenario.resultMetric) {
+      pushOpsEntry(
+        report,
+        `${scenario.name} (react commit)`,
+        s.reactCommit.slice(warmup),
+      );
     }
 
-    // Extra measures from the same iterations, in ops/s so bigger is better
+    // Extra measures from the same iterations
     for (const [suffix, values] of Object.entries(s.extras)) {
-      const exOps = values
-        .slice(warmup)
-        .filter(x => !Number.isNaN(x))
-        .map(msToOps);
-      if (exOps.length === 0) continue;
-      const { median: exMedian, range: exRange } = computeStats(exOps, 0);
-      report.push({
-        name: `${scenario.name}-${suffix}`,
-        unit: 'ops/s',
-        value: Math.round(exMedian * 100) / 100,
-        range: exRange,
-      });
+      if (process.env.CI && scenario.extraMeasures?.[suffix]?.ci === false)
+        continue;
+      pushOpsEntry(report, `${scenario.name}-${suffix}`, values.slice(warmup));
     }
 
     // Chrome trace durations (opt-in via BENCH_TRACE=true)
-    const traceSamples = s.trace.slice(warmup).filter(x => !Number.isNaN(x));
-    if (traceSamples.length > 0) {
-      const trOps = traceSamples.map(msToOps);
-      const { median: trMedian, range: trRange } = computeStats(trOps, 0);
-      report.push({
-        name: `${scenario.name} (trace)`,
-        unit: 'ops/s',
-        value: Math.round(trMedian * 100) / 100,
-        range: trRange,
-      });
-    }
+    pushOpsEntry(report, `${scenario.name} (trace)`, s.trace.slice(warmup));
   }
 
   if (BENCH_LABEL) {

@@ -8,7 +8,6 @@ import {
 } from '@data-client/react';
 import type { Controller } from '@data-client/react';
 import {
-  measureMessageStream,
   moveItemIsReady,
   renderBenchApp,
   useBenchState,
@@ -28,7 +27,8 @@ import {
   FIXTURE_USERS_BY_LOGIN,
   TICKER_STRIP_SYMBOLS,
 } from '@shared/data';
-import { noteListViewRender, setCurrentIssues } from '@shared/refStability';
+import { setCurrentIssues } from '@shared/refStability';
+import { noteListViewRender } from '@shared/renderCounts';
 import {
   UserResource,
   IssueResource,
@@ -168,8 +168,8 @@ function BenchmarkHarness() {
     pinnedNumbers,
     renderLimit,
     containerRef,
-    measureMount,
     measureUpdate,
+    measureMessageStream,
     waitForElement,
     setComplete,
     setListViewCount,
@@ -321,14 +321,13 @@ function BenchmarkHarness() {
   const initTickerStream = useCallback(
     async (count: number) => {
       await controller.fetch(TickerResource.getList);
-      await measureMount(() => setListViewCount(count), {
-        signalComplete: false,
-      });
+      setListViewCount(count);
+      await waitForElement('[data-bench-item]');
       setShowTickerStrip(true);
       await waitForElement('[data-ticker]');
       setComplete();
     },
-    [controller, measureMount, setListViewCount, waitForElement, setComplete],
+    [controller, setListViewCount, waitForElement, setComplete],
   );
 
   /**
@@ -342,13 +341,12 @@ function BenchmarkHarness() {
         ++tickerStreamVersion,
         messages,
       );
-      await measureMessageStream(batches.length, containerRef.current!, i =>
+      await measureMessageStream(batches.length, i =>
         controller.set([TickerEntity], batches[i]),
       );
-      setComplete();
       return { finalRendered };
     },
-    [controller, setComplete, containerRef],
+    [controller, measureMessageStream],
   );
 
   const resetStore = useCallback(

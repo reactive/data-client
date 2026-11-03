@@ -116,17 +116,21 @@ const versionsOf = (state: State<unknown>, todos: { id: string }[]) => {
   return todos.map(todo => idOf(table[todo.id])).join(',');
 };
 
-function List() {
-  const todos = useSuspense(getTodoList);
-  const state = useCacheState();
-  const read: Read = {
-    versions: versionsOf(state, todos),
-    data: todos,
-    who: 'render',
-  };
+/** Record a render's read, and record it as committed if React commits that render. */
+function useRecordRead(read: Read) {
   reads.push(read);
   useEffect(() => {
     committed.push(read);
+  });
+}
+
+function List() {
+  const todos = useSuspense(getTodoList);
+  const state = useCacheState();
+  useRecordRead({
+    versions: versionsOf(state, todos),
+    data: todos,
+    who: 'render',
   });
   return <div>{todos.length}</div>;
 }
@@ -136,7 +140,7 @@ function ProjectView() {
   const state = useCacheState();
   const table = (key: string, pk: string) =>
     idOf((state.entities[key] as Record<string, object>)[pk]);
-  reads.push({
+  useRecordRead({
     versions: `p${table(Project.key, 'p')}:o${table(Owner.key, 'o')}`,
     data: project,
   });
@@ -289,9 +293,11 @@ beforeEach(() => {
   note = 100;
 });
 
-// A committed render that gets a new object for entity versions an earlier
-// committed render already showed re-runs its effects, memos and children
-// for unchanged data.
+// Committed renders never get a new object for entity versions an earlier
+// commit already showed. Such a miss re-runs the consumer's effects, memos
+// and children for unchanged data. An implementation may tolerate misses on
+// reads React throws away (uncommitted renders), but not on committed ones,
+// so this holds for every test whatever misses it allows in `reads`.
 afterEach(() => {
   expect(avoidableMisses(committed)).toBe(0);
 });

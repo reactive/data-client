@@ -1,5 +1,8 @@
 import type { Page } from 'playwright';
 
+import { sortedP95 } from './stats.js';
+import type { MeasureAggregate } from '../src/shared/types.js';
+
 export interface PerformanceMeasure {
   name: string;
   duration: number;
@@ -31,12 +34,20 @@ export function getMeasureDuration(
   return m?.duration ?? 0;
 }
 
-/** Sum the durations of every measure named `name`. */
-export function sumMeasureDurations(
+/** Combine the durations of every measure named `name` (0 when there are none). */
+export function aggregateMeasures(
   measures: PerformanceMeasure[],
   name: string,
+  aggregate: MeasureAggregate,
 ): number {
-  let sum = 0;
-  for (const m of measures) if (m.name === name) sum += m.duration;
-  return sum;
+  const durations = measures.filter(m => m.name === name).map(m => m.duration);
+  if (durations.length === 0) return 0;
+  switch (aggregate) {
+    case 'sum':
+      return durations.reduce((a, b) => a + b, 0);
+    case 'max':
+      return Math.max(...durations);
+    case 'p95':
+      return sortedP95(durations.sort((a, b) => a - b));
+  }
 }

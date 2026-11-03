@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { noteIssueRowRender } from './refStability';
+import { noteIssueRowRender } from './renderCounts';
 import type { Issue, Ticker, User } from './types';
 
 export const DOUBLE_LIST_STYLE = { display: 'flex', gap: 8 } as const;
@@ -99,8 +99,8 @@ export function PinnedCardView({ issue }: { issue: Issue }) {
 }
 
 /**
- * Cheap row of the ticker strip. Only data-client implements the ticker-stream
- * scenarios; its TickerCard reads each row's ticker by symbol.
+ * One ticker: symbol, price, percent change and volume. Kept cheap so a ticker
+ * update costs little render work. `data-ticker` holds the symbol.
  */
 export function TickerRow({ ticker }: { ticker: Ticker }) {
   return (

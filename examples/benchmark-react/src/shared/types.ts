@@ -7,9 +7,13 @@ export interface RefStabilityReport {
   issueRefChanged: number;
   userRefUnchanged: number;
   userRefChanged: number;
-  /** IssueRow renders since the snapshot. 0 = no row re-rendered. */
+}
+
+/** Component render counts since the last `resetRenderCounts()`. */
+export interface RenderCounts {
+  /** IssueRow renders. 0 = no row re-rendered. */
   issueRowRenders: number;
-  /** ListView renders since the snapshot. With issueRowRenders 0, shows the list re-rendered but skipped its rows. */
+  /** ListView renders. With issueRowRenders 0, shows the list re-rendered but skipped its rows. */
   listViewRenders: number;
 }
 
@@ -33,6 +37,8 @@ export interface BenchAPI {
   getRenderedCount(): number;
   captureRefSnapshot(): void;
   getRefStabilityReport(): RefStabilityReport;
+  resetRenderCounts(): void;
+  getRenderCounts(): RenderCounts;
   /** Legacy ids-based mount; optional — prefer init. */
   mount?(count: number): void;
   /** For memory scenarios: mount n issues, unmount, repeat cycles times; resolves when done. */
@@ -59,7 +65,7 @@ export interface BenchAPI {
   initTickerStream?(count: number): Promise<void>;
   /**
    * Send `messages` ticker batches, one per task (like websocket messages), each after the previous one settles.
-   * Records update-duration (sum of per-message times), update-message-worst and update-message-p95.
+   * Records one `stream-message` measure per message; the runner aggregates them.
    * Resolves with the last update of each rendered ticker. data-client only.
    */
   streamTickers?(messages: number): Promise<{ finalRendered: Ticker[] }>;
@@ -164,7 +170,7 @@ export interface Scenario {
   name: string;
   action: keyof BenchAPI;
   args: unknown[];
-  /** Which value to report; default 'duration'. Ref-stability use issueRefChanged/userRefChanged/issueRowRenders; memory use heapDelta. */
+  /** Which value to report; default 'duration'. Count scenarios use issueRefChanged/userRefChanged/issueRowRenders; memory use heapDelta. */
   resultMetric?: ResultMetric;
   /** hotPath (default) = run in CI. memory = heap delta. startup = page load metrics. */
   category?: ScenarioCategory;
@@ -182,11 +188,25 @@ export interface Scenario {
   renderLimit?: number;
   /** If set, scenario applies only to these libs; dropped when any selected library is not listed. */
   onlyLibs?: string[];
+  /** Duration of each iteration from all its `measure` entries, instead of the last `update-duration` / `mount-duration`. */
+  durationMeasure?: AggregatedMeasure;
   /**
-   * Also report these measures from each iteration, as `<name>-<suffix>` entries in ops/s.
-   * Maps suffix to `performance.measure` name, e.g. { 'worst-message': 'update-message-worst' }.
+   * Also report these from each iteration, as `<name>-<suffix>` entries in ops/s.
+   * Maps suffix to an aggregated measure, e.g. { 'worst-message': { measure: 'stream-message', aggregate: 'max' } }.
    */
-  extraMeasures?: Record<string, string>;
-  /** Report the sum of all React commits in the iteration as `(react commit)`, not the last one. For durations that are sums. */
-  sumReactCommits?: boolean;
+  extraMeasures?: Record<
+    string,
+    AggregatedMeasure & {
+      /** false = not reported in CI. */
+      ci?: boolean;
+    }
+  >;
+}
+
+/** How to combine every `performance.measure` entry of one name in an iteration. */
+export type MeasureAggregate = 'sum' | 'max' | 'p95';
+
+export interface AggregatedMeasure {
+  measure: string;
+  aggregate: MeasureAggregate;
 }

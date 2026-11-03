@@ -14,6 +14,7 @@
 import { chromium } from 'playwright';
 import type { Page } from 'playwright';
 
+import { collectMeasures } from './measure.js';
 import { LIBRARIES } from './scenarios.js';
 
 const BASE_URL =
@@ -231,7 +232,10 @@ test('updateUser propagates to DOM', async (page, _lib) => {
 test('ref-stability after updateEntity', async (page, lib) => {
   await initAndWaitForIssues(page);
 
-  await page.evaluate(() => window.__BENCH__!.captureRefSnapshot());
+  await page.evaluate(() => {
+    window.__BENCH__!.captureRefSnapshot();
+    window.__BENCH__!.resetRenderCounts();
+  });
 
   await clearComplete(page);
   await page.evaluate(() => window.__BENCH__!.updateEntity(1));
@@ -260,11 +264,14 @@ test('ref-stability after updateEntity', async (page, lib) => {
     `expected ≥1 issueRefChanged, got ${r.issueRefChanged}. ` +
       `setCurrentIssues may not have been called with updated data before measurement.`,
   );
+  const { issueRowRenders } = await page.evaluate(() =>
+    window.__BENCH__!.getRenderCounts(),
+  );
   assert(
-    r.issueRowRenders >= 1,
+    issueRowRenders >= 1,
     lib,
-    'ref-stability row renders',
-    `expected ≥1 issueRowRenders after updating a rendered issue, got ${r.issueRowRenders}. ` +
+    'row renders after updateEntity',
+    `expected ≥1 issueRowRenders after updating a rendered issue, got ${issueRowRenders}. ` +
       `IssueRow may not call noteIssueRowRender().`,
   );
   process.stderr.write(
@@ -427,7 +434,7 @@ test(
 // ── streamTickers ────────────────────────────────────────────────────────
 
 test(
-  'streamTickers applies every message, one commit each',
+  'streamTickers applies every message, one render each',
   async (page, lib) => {
     if (
       !(await page.evaluate(
@@ -435,7 +442,7 @@ test(
       ))
     )
       return;
-    const MESSAGES = 50;
+    const MESSAGES = 200;
 
     await clearComplete(page);
     await page.evaluate(
@@ -452,11 +459,21 @@ test(
       'streamTickers strip',
       `expected 20 rendered tickers, got ${stripSize}`,
     );
+    const mounted = await page.evaluate(() =>
+      window.__BENCH__!.getRenderCounts(),
+    );
+    assert(
+      mounted.listViewRenders >= 1,
+      lib,
+      'streamTickers ListView mounted',
+      `expected ≥1 ListView renders after initTickerStream, got ${mounted.listViewRenders}. ` +
+        `ListView may not call noteListViewRender().`,
+    );
 
-    // Count only the stream: the initial mount also records commits.
+    // Count only the stream, not the initial mount.
     await page.evaluate(() => {
       performance.clearMeasures();
-      window.__BENCH__!.captureRefSnapshot();
+      window.__BENCH__!.resetRenderCounts();
     });
     await clearComplete(page);
     const { finalRendered } = await page.evaluate(
@@ -485,43 +502,24 @@ test(
         stale.map(t => t.symbol).join(', '),
     );
 
-    const counts = await page.evaluate(() => ({
-      messages: performance.getEntriesByName('stream-message').length,
-      commits: performance.getEntriesByName('react-commit-update').length,
-    }));
-    const r = await page.evaluate(() =>
-      window.__BENCH__!.getRefStabilityReport(),
-    );
+    const messages = (await collectMeasures(page)).filter(
+      m => m.name === 'stream-message',
+    ).length;
+    const r = await page.evaluate(() => window.__BENCH__!.getRenderCounts());
     process.stderr.write(
-      `    messages=${counts.messages} commits=${counts.commits} ` +
+      `    messages=${messages} ` +
         `listViewRenders=${r.listViewRenders} issueRowRenders=${r.issueRowRenders}\n`,
     );
     assert(
-      counts.messages === MESSAGES,
+      messages === MESSAGES,
       lib,
       'streamTickers messages',
-      `expected ${MESSAGES} settled messages, got ${counts.messages}`,
+      `expected ${MESSAGES} settled messages, got ${messages}`,
     );
-    // One commit per message: React did not merge messages into one render.
-    // Only a profiling build (--env profile) calls the Profiler, and even then
-    // it skips store-driven commits (see README), so check only when recorded.
-    if (counts.commits > 0) {
-      assert(
-        counts.commits === MESSAGES,
-        lib,
-        'streamTickers commits',
-        `expected ${MESSAGES} React commits, one per message, got ${counts.commits}`,
-      );
-    }
-    // One ListView render per message also shows React did not merge
-    // messages. With 0 row renders, it shows the rows were skipped, not that
-    // the list never rendered.
-    assert(
-      r.listViewRenders === MESSAGES,
-      lib,
-      'streamTickers ListView renders',
-      `expected ${MESSAGES} ListView renders, one per message, got ${r.listViewRenders}`,
-    );
+    // ListView renders during the stream are logged, not asserted: a
+    // per-entity subscription would rightly stop ListView re-rendering. One
+    // render per message is shown by the message count above, since a
+    // message whose commit changes no DOM fails the stream.
     // Without React Compiler, every store write re-renders the list's rows.
     // Set REACT_COMPILER=false here too when validating a build:no-compiler build.
     if (process.env.REACT_COMPILER !== 'false') {
