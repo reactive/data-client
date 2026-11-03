@@ -1703,7 +1703,7 @@ div.fixtureJson + div.fixtureJson {
      it shows at once */
   .row:not(.stacked)::before {
     top: calc(100% - var(--pg-preview-gap, 0px));
-    bottom: calc(100% - var(--pg-preview-gap, 0px));
+    bottom: var(--pg-preview-gap, 0px);
     right: calc(100% - var(--pg-fold));
     border-radius: 0 0 var(--pg-card-radius) var(--pg-card-radius);
     visibility: hidden;
