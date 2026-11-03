@@ -30,6 +30,26 @@ class Note extends Entity {
   text = '';
 }
 
+/** A single-entity read whose nested child changes while the parent object stays. */
+class Owner extends Entity {
+  id = '';
+  name = '';
+}
+class Project extends Entity {
+  id = '';
+  owner = Owner.fromJS();
+  static schema = { owner: Owner };
+}
+const getProject = new Endpoint(
+  ({ id }: { id: string }) =>
+    Promise.resolve({ id, owner: { id: 'o', name: 'v1' } }),
+  { schema: Project, name: 'getProject' },
+);
+const getOwner = new Endpoint(
+  ({ id }: { id: string }) => Promise.resolve({ id, name: id }),
+  { schema: Owner, name: 'getOwner' },
+);
+
 const ROWS = 50;
 const rows = (): TodoItem[] =>
   Array.from({ length: ROWS }, (_, i) => ({ id: `${i}`, title: `${i}` }));
@@ -80,8 +100,8 @@ const idOf = (o: object) => {
   return id;
 };
 
-/** Every read of the list: entity versions read, result identity. */
-type Read = { versions: string; data: unknown };
+/** Every read of the list: entity versions read, result identity, reader. */
+type Read = { versions: string; data: unknown; who: string };
 let reads: Read[] = [];
 const versionsOf = (state: State<unknown>, todos: { id: string }[]) => {
   const table = (state.entities[Todo.key] ?? {}) as Record<string, object>;
@@ -94,8 +114,22 @@ function List() {
   reads.push({
     versions: versionsOf(state, todos),
     data: todos,
+    who: 'render',
   });
   return <div>{todos.length}</div>;
+}
+
+function ProjectView() {
+  const project = useSuspense(getProject, { id: 'p' });
+  const state = useCacheState();
+  const table = (key: string, pk: string) =>
+    idOf((state.entities[key] as Record<string, object>)[pk]);
+  reads.push({
+    versions: `p${table(Project.key, 'p')}:o${table(Owner.key, 'o')}`,
+    data: project,
+    who: 'project',
+  });
+  return <div>{project.owner.name}</div>;
 }
 
 function Detail({ id }: { id: string }) {
@@ -108,7 +142,13 @@ let startTransition: (fn: () => void) => void;
 let showDetail: (id: string) => void;
 let typeText: (text: string) => void;
 
-function App({ consumers }: { consumers: number }) {
+function App({
+  consumers,
+  project = false,
+}: {
+  consumers: number;
+  project?: boolean;
+}) {
   controller = useController();
   const [detail, setDetail] = useState<string[]>([]);
   const [text, setText] = useState('');
@@ -124,6 +164,7 @@ function App({ consumers }: { consumers: number }) {
         {Array.from({ length: consumers }, (_, i) => (
           <List key={i} />
         ))}
+        {project && <ProjectView />}
       </Suspense>
       <Suspense fallback={<p>loading detail</p>}>
         {detail.map(id => (
@@ -138,7 +179,7 @@ function App({ consumers }: { consumers: number }) {
 function readRaw() {
   const state = controller.getState();
   const { data } = controller.getResponse(getTodoList, state);
-  reads.push({ versions: versionsOf(state, data as any), data });
+  reads.push({ versions: versionsOf(state, data as any), data, who: 'raw' });
 }
 
 /** Reads of versions already read before, that got a different result. */
@@ -164,16 +205,21 @@ function flipBacks(list: Read[]) {
   return flips;
 }
 
-function mount(consumers: number) {
+function mount(consumers: number, project = false) {
   return render(
     <DataProvider
       initialState={mockInitialState([
         { endpoint: getTodoList, args: [], response: rows() },
+        {
+          endpoint: getProject,
+          args: [{ id: 'p' }],
+          response: { id: 'p', owner: { id: 'o', name: 'v1' } },
+        },
       ])}
       devButton={null}
       managers={noDevManagers}
     >
-      <App consumers={consumers} />
+      <App consumers={consumers} project={project} />
     </DataProvider>,
   );
 }
@@ -219,6 +265,17 @@ const rollBack = (id: string, title: string) =>
   settle(updateKey(id, title), new Error('rejected'));
 const resolveOptimistic = (id: string, title: string) =>
   settle(updateKey(id, title), { id, title });
+
+/** Settles optimistic update `i`: every third resolves, the rest roll back. */
+const settleOptimistic = (i: number) =>
+  i % 3 === 0 ? resolveOptimistic(`${i}`, `o${i}`) : rollBack(`${i}`, `o${i}`);
+
+/** Out of order: odd indices ascending, then even indices descending. */
+const scrambled = (n: number) => [
+  ...Array.from({ length: n }, (_, i) => i).filter(i => i % 2),
+  ...Array.from({ length: n }, (_, i) => n - 1 - i).filter(i => i % 2 === 0),
+];
+let note = 100;
 
 describeConcurrent.each([1, 2])(
   'memoization under concurrent rendering, %i consumer(s)',
@@ -318,6 +375,8 @@ describeConcurrent.each([1, 2])(
       for (let i = 0; i < 3; i++) act(() => typeText(`b${i}`));
       await finishTransition('Y');
       expect(flipBacks(reads)).toBeGreaterThan(0);
+      // Typing re-renders are served by useSuspense's useMemo and never
+      // reach the memo, so the memo must keep the new rows on its own.
       expect(avoidableMisses(reads)).toBe(0);
     });
 
@@ -366,6 +425,270 @@ describeConcurrent.each([1, 2])(
       for (let i = 0; i < 3; i++) act(() => typeText(`a${i}`));
       await finishTransition('X');
       expect(flipBacks(reads)).toBeGreaterThan(0);
+      // Typing re-renders are served by useSuspense's useMemo and never
+      // reach the memo, so the memo must keep the new rows on its own.
+      expect(avoidableMisses(reads)).toBe(0);
+    });
+
+    it('a single-entity read whose nested child each transition retry rewrites', async () => {
+      mount(consumers, true);
+      const writeOwner = (name: string) => {
+        controller.setResponse(getOwner, { id: 'o' }, { id: 'o', name });
+      };
+      act(() => writeOwner('v2'));
+      act(() => writeOwner('v3'));
+      act(() => {
+        startTransition(() => {
+          writeOwner('from transition');
+          showDetail('X');
+        });
+      });
+      for (let i = 0; i < 3; i++) act(() => typeText(`a${i}`));
+      await finishTransition('X');
+      const projectReads = reads.filter(r => r.who === 'project');
+      // a pk input: the memo must keep the top-level entity's own entry
+      expect(avoidableMisses(projectReads)).toBe(0);
+      expect(avoidableMisses(reads.filter(r => r.who !== 'project'))).toBe(0);
+    });
+
+    // Optimistic updates stack: each one rebuilds the entities it touches on
+    // every store change, so only the store from before all of them can be
+    // read again. However many are in flight, settling the last one must
+    // return to that result, and the list must show the right rows.
+
+    const SCRAMBLED = [3, 7, 1, 9, 0, 5, 2, 8, 4, 6];
+
+    /** `n` optimistic edits to rows 10.., with an unrelated write after each. */
+    function beginMany(n: number) {
+      for (let i = 0; i < n; i++) {
+        beginOptimistic(`${10 + i}`, `optimistic ${i}`);
+        writeNote(100 + i);
+      }
+    }
+
+    /** Titles the latest render showed. */
+    function lastTitles() {
+      const last = [...reads].reverse().find(r => r.who === 'render');
+      return (last?.data as { title: string }[]).map(todo => todo.title);
+    }
+
+    it('ten optimistic updates in flight, rolled back out of order', async () => {
+      mount(consumers);
+      beginMany(10);
+      for (const i of SCRAMBLED) {
+        await rollBack(`${10 + i}`, `optimistic ${i}`);
+        writeNote(200 + i);
+      }
+      expect(lastTitles()).toEqual(rows().map(row => row.title));
+      expect(avoidableMisses(reads)).toBe(0);
+    });
+
+    it('ten optimistic updates in flight, half resolved and half rolled back', async () => {
+      mount(consumers);
+      beginMany(10);
+      for (const i of SCRAMBLED) {
+        if (i % 2) await rollBack(`${10 + i}`, `optimistic ${i}`);
+        else await resolveOptimistic(`${10 + i}`, `optimistic ${i}`);
+        writeNote(200 + i);
+      }
+      expect(lastTitles()).toEqual(
+        rows().map(({ id, title }) => {
+          const i = Number(id) - 10;
+          return i >= 0 && i < 10 && i % 2 === 0 ? `optimistic ${i}` : title;
+        }),
+      );
+      expect(avoidableMisses(reads)).toBe(0);
+    });
+
+    it('ten optimistic updates rolled back, after earlier flips moved what the memo keeps', async () => {
+      mount(consumers);
+      beginTransition('5', 'X');
+      for (let i = 0; i < 3; i++) writeNote(i);
+      await finishTransition('X');
+      readRaw();
+      writeNote(3);
+      readRaw();
+      beginMany(10);
+      for (const i of SCRAMBLED) {
+        await rollBack(`${10 + i}`, `optimistic ${i}`);
+        readRaw();
+      }
+      expect(avoidableMisses(reads)).toBe(0);
+    });
+
+    it('ten optimistic updates rolled back while a transition is pending', async () => {
+      mount(consumers);
+      beginMany(5);
+      beginTransition('5', 'X');
+      for (let i = 5; i < 10; i++) {
+        beginOptimistic(`${10 + i}`, `optimistic ${i}`);
+        writeNote(100 + i);
+      }
+      for (const i of SCRAMBLED) await rollBack(`${10 + i}`, `optimistic ${i}`);
+      await finishTransition('X');
+      expect(avoidableMisses(reads)).toBe(0);
+    });
+
+    it('fifty optimistic updates in flight still settle to the right rows', async () => {
+      mount(consumers);
+      for (let i = 0; i < 50; i++)
+        beginOptimistic(`${i % ROWS}`, `optimistic ${i}`);
+      for (let i = 49; i >= 0; i -= 2)
+        await rollBack(`${i % ROWS}`, `optimistic ${i}`);
+      for (let i = 0; i < 50; i += 2)
+        await rollBack(`${i % ROWS}`, `optimistic ${i}`);
+      writeNote(0);
+      expect(lastTitles()).toEqual(rows().map(row => row.title));
+      expect(avoidableMisses(reads)).toBe(0);
+    });
+
+    // Many store versions in flight at once. Every version stays readable
+    // until its update settles, so each is a candidate to be read back.
+
+    it.each([2, 4, 8])(
+      '%i layered optimistic updates, settled out of order',
+      async n => {
+        mount(consumers);
+        for (let i = 0; i < n; i++) {
+          beginOptimistic(`${i}`, `o${i}`);
+          writeNote(note++);
+          readRaw();
+        }
+        for (const i of scrambled(n)) {
+          await settleOptimistic(i);
+          writeNote(note++);
+          readRaw();
+        }
+        expect(flipBacks(reads)).toBeGreaterThan(0);
+        expect(avoidableMisses(reads)).toBe(0);
+      },
+    );
+
+    it.each([2, 3, 5])(
+      '%i overlapping transitions, finished in reverse',
+      async k => {
+        mount(consumers);
+        for (let t = 0; t < k; t++) {
+          beginTransition(`${20 + t}`, `T${t}`);
+          act(() => typeText(`t${t}a`));
+          writeNote(note++);
+          act(() => typeText(`t${t}b`));
+        }
+        for (let t = k - 1; t >= 0; t--) {
+          await finishTransition(`T${t}`);
+          act(() => typeText(`done${t}`));
+          writeNote(note++);
+          readRaw();
+        }
+        expect(flipBacks(reads)).toBeGreaterThan(0);
+        expect(avoidableMisses(reads)).toBe(0);
+      },
+    );
+
+    it.each([
+      [4, 2],
+      [8, 3],
+      [8, 5],
+    ])(
+      '%i optimistic updates and %i transitions, interleaved',
+      async (n, k) => {
+        mount(consumers);
+        const steps = Math.max(n, k);
+        for (let s = 0; s < steps; s++) {
+          if (s < n) beginOptimistic(`${s}`, `o${s}`);
+          writeNote(note++);
+          if (s < k) beginTransition(`${20 + s}`, `T${s}`);
+          act(() => typeText(`s${s}`));
+          readRaw();
+        }
+        const order = scrambled(n);
+        for (let s = 0; s < steps; s++) {
+          if (s < order.length) await settleOptimistic(order[s]);
+          act(() => typeText(`u${s}`));
+          if (s < k) await finishTransition(`T${k - 1 - s}`);
+          writeNote(note++);
+          readRaw();
+        }
+        expect(flipBacks(reads)).toBeGreaterThan(0);
+        expect(avoidableMisses(reads)).toBe(0);
+      },
+    );
+  },
+);
+/** Deterministic PRNG, so a bad seed can be replayed. */
+const prng = (seed: number) => () =>
+  (seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 2 ** 32;
+
+type Opt = { id: string; title: string };
+
+/** Settles one in-flight optimistic update: roll back, resolve as guessed,
+ * or resolve with data the guess didn't predict. */
+async function settleRandom(opt: Opt, x: number) {
+  const key = updateKey(opt.id, opt.title);
+  if (x < 1 / 3) await settle(key, new Error('rejected'));
+  else if (x < 2 / 3) await settle(key, { id: opt.id, title: opt.title });
+  else await settle(key, { id: opt.id, title: `server ${opt.title}` });
+}
+
+/** Enough seeds to cover many interleavings; each runs in milliseconds. */
+const SEEDS = Array.from({ length: 50 }, (_, i) => i + 1);
+
+// Random interleavings of everything above, many store versions in flight.
+// Every version stays readable until its update settles, so no read of a
+// version already read may get a new result.
+describeConcurrent.each([1, 2, 3])(
+  'memoization under random concurrent churn, %i consumer(s)',
+  consumers => {
+    beforeEach(() => {
+      reads = [];
+      for (const key of Object.keys(pending)) delete pending[key];
+    });
+
+    it.each(SEEDS)('seed %i', async seed => {
+      mount(consumers);
+      const r = prng(seed);
+      const opts: Opt[] = [];
+      const trans: string[] = [];
+      let o = 0;
+      let t = 0;
+      for (let step = 0; step < 100; step++) {
+        const x = r();
+        if (x < 0.22 && opts.length < 16) {
+          // few rows, so updates often layer on the same row
+          const opt = {
+            id: `${Math.floor(r() * 3)}`,
+            title: `s${seed}o${o++}`,
+          };
+          beginOptimistic(opt.id, opt.title);
+          opts.push(opt);
+        } else if (x < 0.32 && trans.length < 8) {
+          const id = `s${seed}T${t++}`;
+          beginTransition(`${Math.floor(r() * 4)}`, id);
+          trans.push(id);
+        } else if (x < 0.47 && opts.length) {
+          const [opt] = opts.splice(Math.floor(r() * opts.length), 1);
+          await settleRandom(opt, r());
+        } else if (x < 0.57 && trans.length) {
+          const [id] = trans.splice(Math.floor(r() * trans.length), 1);
+          await finishTransition(id);
+        } else if (x < 0.72) {
+          act(() => typeText(`s${seed}k${step}`));
+        } else if (x < 0.82) {
+          writeNote(note++);
+        } else {
+          readRaw();
+        }
+      }
+      while (opts.length || trans.length) {
+        if (opts.length && (!trans.length || r() < 0.5)) {
+          const [opt] = opts.splice(Math.floor(r() * opts.length), 1);
+          await settleRandom(opt, r());
+        } else {
+          const [id] = trans.splice(Math.floor(r() * trans.length), 1);
+          await finishTransition(id);
+        }
+        readRaw();
+      }
       expect(avoidableMisses(reads)).toBe(0);
     });
   },
