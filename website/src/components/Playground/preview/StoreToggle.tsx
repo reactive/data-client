@@ -34,8 +34,11 @@ import styles from '../styles.module.css';
 
 // one for the page: closing a Store closes every playground's in its group
 let clicked: HTMLElement | undefined;
-/** The Store toggle the reader clicked last, while on the page: held in place
- * on screen as the Stores it closed slide out and leave the layout */
+/** The playground whose Store toggle the reader clicked last, while on the
+ * page: held in place on screen as its Store opens, and as the Stores it
+ * closed slide out and leave the layout. The playground, not the toggle:
+ * the Store grows it downward, so holding its top keeps the page still,
+ * where a drawer tab riding its foot would scroll the page by the growth */
 export const heldToggle = () => (clicked?.isConnected ? clicked : undefined);
 
 /** Opens the drawer on tab `to` (the one showing, unless named), or shuts
@@ -96,7 +99,9 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
   // shut, it shows that one
   const toggle = useCallback(
     (event: { currentTarget: HTMLElement }, to = latestTab.current) => {
-      clicked = event.currentTarget;
+      clicked =
+        event.currentTarget.closest<HTMLElement>('[data-playground]') ??
+        event.currentTarget;
       blockElementScrollPositionUntilNextRender(clicked);
       const shut = open && to === latestTab.current;
       setChoice(shut ? 'n' : to);
