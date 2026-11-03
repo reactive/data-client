@@ -82,10 +82,9 @@ with its store, log and app state. Its managers, including any from
 `getManagers()`, keep running; only the app's Effects pause. Keep that
 `<Activity>` inside `DataProvider` and react-live's `LiveProvider`
 (`preview/Preview.tsx`): wrapping `DataProvider`, it drops a response that
-lands while hidden; wrapping `LiveProvider`, each show remounts the app. The
-row Store folder
-is outside it, because an `<Activity>` would detach `setStoreHost`; the
-container's `.hidden` hides it. The homepage passes `hidden`; in MDX,
+lands while hidden; wrapping `LiveProvider`, each show remounts the app.
+The row Store folder is outside it, because an `<Activity>` would detach
+`setStoreHost`; the container's `.hidden` hides it. The homepage passes `hidden`; in MDX,
 `PlaygroundTabs` sets it through `PlaygroundHiddenContext`
 (`hiddenContext.ts`) for every playground under an unselected tab, nested
 groups included. An explicit prop wins. `TypeScriptEditor` in one of those
