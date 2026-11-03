@@ -14,14 +14,6 @@ import { denormalize as objectDenormalize } from '../schemas/Object.js';
 const isBlankPk = (pk: unknown) =>
   pk === undefined || pk === '' || pk === 'undefined';
 
-/** What a missing, `null` or `INVALID` entity denormalizes to. */
-const nonObjectValue = (
-  schema: EntityInterface,
-  entity: unknown,
-  delegate: IDenormalizeDelegate,
-): any =>
-  typeof entity === 'symbol' ? schema.denormalize(entity, delegate) : entity;
-
 const getUnvisitEntity = (
   getEntity: DenormGetEntity,
   cache: Cache,
@@ -32,16 +24,17 @@ const getUnvisitEntity = (
     entityOrId: Record<string, any> | string,
   ): object | undefined | typeof INVALID {
     const inputIsId = typeof entityOrId !== 'object';
-    const entity =
-      inputIsId ? getEntity({ key: schema.key, pk: entityOrId }) : entityOrId;
+    const path = inputIsId ? { key: schema.key, pk: entityOrId } : undefined;
+    const entity = path ? getEntity(path) : entityOrId;
     if (typeof entity !== 'object' || entity === null) {
       // A missing, null or INVALID entity is still a dependency of anything
       // nested above it, so those recompute once it changes. Blank ids can't
-      // be looked up, so they aren't dependencies.
-      // Only the dependency is needed: there is nothing worth caching.
-      if (inputIsId && !isBlankPk(entityOrId))
-        cache.dependOn(entityOrId, schema, entity);
-      return nonObjectValue(schema, entity, delegate);
+      // be looked up, so they aren't dependencies. There is nothing worth
+      // caching, so only the dependency is recorded.
+      if (path && !isBlankPk(path.pk)) cache.dependOn(path, entity);
+      return typeof entity === 'symbol' ?
+          schema.denormalize(entity, delegate)
+        : (entity as any);
     }
 
     let pk: string | number | undefined =

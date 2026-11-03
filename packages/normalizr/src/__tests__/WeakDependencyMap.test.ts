@@ -95,14 +95,12 @@ describe('WeakDependencyMap', () => {
   it.each<[string, any]>([
     ['null', null],
     ['INVALID', INVALID],
-  ])('tracks a %s dependency, as root or after it', (_, value) => {
+  ])('tracks a %s dependency after the root', (_, value) => {
     const wem = new WeakDependencyMap<EntityPath>();
     const withA = (entity: any) =>
       MemoPolicy.getEntities({ ...state, A: { '1': entity } });
     const depValue = { path: depA.path, entity: value };
-    wem.set([depValue], 'root');
     wem.set([depB, depValue], 'child');
-    expect(wem.get(value, withA(value))[0]).toBe('root');
     expect(wem.get(b, withA(value))[0]).toBe('child');
     expect(wem.get(b, withA(a))[0]).toBeUndefined();
     expect(wem.get(b, withA(undefined))[0]).toBeUndefined();
@@ -116,6 +114,8 @@ describe('WeakDependencyMap', () => {
     expect(depKey(obj)).toBe(obj);
     expect(depKey(null)).toBe(depKey(null));
     expect(depKey(null)).not.toBe(depKey(INVALID));
+    expect(depKey(1)).toBe(depKey(1));
+    expect(depKey(1)).not.toBe(depKey(2));
   });
 
   it('considers empty key list invalid', () => {

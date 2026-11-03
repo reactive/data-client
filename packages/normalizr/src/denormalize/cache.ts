@@ -19,7 +19,7 @@ export default interface Cache {
   };
   /** Records an entity that isn't an object (missing, `null` or `INVALID`)
    * as a dependency of the surrounding entity-cache frame. */
-  dependOn(pk: string, schema: EntityInterface, entity: unknown): void;
+  dependOn(path: EntityPath, entity: unknown): void;
   /** Records `fn(args)` as a memoization dimension for the surrounding
    * entity-cache frame and returns the value. */
   argsKey(fn: KeyFn): string | undefined;

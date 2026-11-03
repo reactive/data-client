@@ -56,7 +56,7 @@ export default class WeakDependencyMap<
     getDependency: GetDependency<Path, K | symbol>,
     args: readonly any[] = [],
   ) {
-    let curLink = this.next.get(depKey(entity) as K);
+    let curLink = this.next.get(entity);
     if (!curLink) return EMPTY;
     if (this.hasStr) return this._getMixed(curLink, getDependency, args);
     while (curLink.nextPath) {
@@ -91,7 +91,7 @@ export default class WeakDependencyMap<
   }
 
   set(
-    dependencies: Dep<Path, K>[],
+    dependencies: Dep<Path>[],
     value: V,
     args: readonly any[] = [],
     /** Optional consumer-facing journey returned to `get()` callers verbatim.
@@ -144,9 +144,9 @@ export type GetDependency<Path, K = object | symbol> = (
   lookup: Path,
 ) => K | undefined;
 
-export interface Dep<Path, K = object> {
+export interface Dep<Path> {
   path: Path | KeyFn;
-  entity: K | undefined;
+  entity: unknown;
 }
 
 const EMPTY = [undefined, undefined] as const;

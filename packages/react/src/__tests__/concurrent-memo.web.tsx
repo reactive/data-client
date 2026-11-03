@@ -81,7 +81,7 @@ const idOf = (o: object) => {
 };
 
 /** Every read of the list: entity versions read, result identity, reader. */
-type Read = { versions: string; data: unknown; who: string };
+type Read = { versions: string; data: unknown };
 let reads: Read[] = [];
 const versionsOf = (state: State<unknown>, todos: { id: string }[]) => {
   const table = (state.entities[Todo.key] ?? {}) as Record<string, object>;
@@ -94,7 +94,6 @@ function List() {
   reads.push({
     versions: versionsOf(state, todos),
     data: todos,
-    who: 'render',
   });
   return <div>{todos.length}</div>;
 }
@@ -139,7 +138,7 @@ function App({ consumers }: { consumers: number }) {
 function readRaw() {
   const state = controller.getState();
   const { data } = controller.getResponse(getTodoList, state);
-  reads.push({ versions: versionsOf(state, data as any), data, who: 'raw' });
+  reads.push({ versions: versionsOf(state, data as any), data });
 }
 
 /** Reads of versions already read before, that got a different result. */
@@ -163,18 +162,6 @@ function flipBacks(list: Read[]) {
     last = versions;
   }
   return flips;
-}
-
-function trace(name: string) {
-  if (!process.env.MEMO_TRACE) return;
-  const label = new Map<string, number>();
-  const seq = reads.map(r => {
-    if (!label.has(r.versions)) label.set(r.versions, label.size);
-    return `${r.who === 'raw' ? 'R' : ''}v${label.get(r.versions)}:d${idOf(r.data as object)}`;
-  });
-  console.log(
-    `${name}: ${reads.length} reads, ${label.size} versions, ${flipBacks(reads)} flip-backs, ${avoidableMisses(reads)} avoidable misses\n${seq.join(' ')}`,
-  );
 }
 
 function mount(consumers: number) {
@@ -252,7 +239,6 @@ describeConcurrent.each([1, 2])(
       for (let i = 0; i < 5; i++) act(() => typeText(`typed ${i}`));
       await finishTransition('X');
       expect(getByTestId('pending').textContent).toBe('false');
-      trace('typing');
       expect(flipBacks(reads)).toBeGreaterThan(0);
       expect(avoidableMisses(reads)).toBe(0);
     });
@@ -263,7 +249,6 @@ describeConcurrent.each([1, 2])(
       for (let i = 0; i < 5; i++) writeNote(i);
       expect(getByTestId('pending').textContent).toBe('true');
       await finishTransition('X');
-      trace('other entity writes');
       expect(flipBacks(reads)).toBeGreaterThan(0);
       expect(avoidableMisses(reads)).toBe(0);
     });
@@ -277,7 +262,6 @@ describeConcurrent.each([1, 2])(
         act(() => writeTodo('7', `urgent ${i}`));
       }
       await finishTransition('X');
-      trace('listed row writes');
       expect(avoidableMisses(reads)).toBe(0);
     });
 
@@ -290,7 +274,6 @@ describeConcurrent.each([1, 2])(
       await finishTransition('X');
       writeNote(5);
       await finishTransition('Y');
-      trace('two transitions');
       expect(avoidableMisses(reads)).toBe(0);
     });
 
@@ -304,7 +287,6 @@ describeConcurrent.each([1, 2])(
       writeNote(2);
       await rollBack('4', 'B');
       writeNote(3);
-      trace('optimistic out of order');
       expect(flipBacks(reads)).toBeGreaterThan(0);
       expect(avoidableMisses(reads)).toBe(0);
     });
@@ -319,7 +301,6 @@ describeConcurrent.each([1, 2])(
       for (let i = 4; i < 7; i++) writeNote(i);
       await finishTransition('X');
       writeNote(7);
-      trace('optimistic during transition');
       expect(avoidableMisses(reads)).toBe(0);
     });
 
@@ -336,7 +317,6 @@ describeConcurrent.each([1, 2])(
       beginTransition('6', 'Y');
       for (let i = 0; i < 3; i++) act(() => typeText(`b${i}`));
       await finishTransition('Y');
-      trace('second transition');
       expect(flipBacks(reads)).toBeGreaterThan(0);
       expect(avoidableMisses(reads)).toBe(0);
     });
@@ -356,7 +336,6 @@ describeConcurrent.each([1, 2])(
       writeNote(2);
       readRaw();
       await rollBack('4', 'B');
-      trace('raw reads across a resolved mutation');
       expect(flipBacks(reads)).toBeGreaterThan(0);
       expect(avoidableMisses(reads)).toBe(0);
     });
@@ -371,7 +350,6 @@ describeConcurrent.each([1, 2])(
       beginTransition('6', 'Y');
       for (let i = 3; i < 8; i++) writeNote(i);
       await finishTransition('Y');
-      trace('other entity writes during a second transition');
       expect(flipBacks(reads)).toBeGreaterThan(0);
       expect(avoidableMisses(reads)).toBe(0);
     });
@@ -387,7 +365,6 @@ describeConcurrent.each([1, 2])(
       beginTransition('5', 'X');
       for (let i = 0; i < 3; i++) act(() => typeText(`a${i}`));
       await finishTransition('X');
-      trace('typing after two committed writes');
       expect(flipBacks(reads)).toBeGreaterThan(0);
       expect(avoidableMisses(reads)).toBe(0);
     });

@@ -40,19 +40,17 @@ const dataValues = {
 };
 const valuesState = normalize(ProjectSchemaValues, dataValues);
 
-/** `entities` with every 4th nested BuildTypeDescription missing, or set to
- * `hole`. Those are still dependencies of the projects that nest them. */
+/** `entities` with every 4th nested BuildTypeDescription set to `hole`. Those
+ * are still dependencies of the projects that nest them. */
 function withNestedHoles(hole) {
   const buildTypes = { ...entities.BuildTypeDescription };
   Object.keys(buildTypes).forEach((id, i) => {
-    if (i % 4) return;
-    if (hole === 'missing') delete buildTypes[id];
-    else buildTypes[id] = hole;
+    if (i % 4 === 0) buildTypes[id] = hole;
   });
   return { ...entities, BuildTypeDescription: buildTypes };
 }
 const nestedHoles = [
-  ['missing', withNestedHoles('missing')],
+  ['missing', withNestedHoles(undefined)],
   ['null', withNestedHoles(null)],
   ['INVALID', withNestedHoles(INVALID)],
 ];
