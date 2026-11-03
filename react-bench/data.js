@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793582122088,
+  "lastUpdate": 1793679942638,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -12035,6 +12035,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 208.33,
             "range": "± 8.1%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7365cd715de8d4e7aec8a478454be529b58b3dee",
+          "message": "fix(normalizr): Track INVALID and null nested entities as memo dependencies (#4460)\n\n* fix(normalizr): Track INVALID and null nested entities as memo dependencies\n\nunvisitEntity returned early for a nested entity whose stored value was\nINVALID or null, without recording it as a dependency. A cached parent\nkept returning its old result after that entity became valid again.\nBoth now go through cache.getEntity like a missing entity does, keyed by\ndepKey(), which gives each non-object value a stable object stand-in.\n\nDocuments the memo invariants in packages/normalizr/AGENTS.md, with the\ntwo accepted limitations, and adds a scoped agent rule pointing at them.\nAdds a ReactDOM test that counts memo misses under concurrent rendering.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* docs(blog): Note the INVALID/null memo dependency fix\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* refactor(normalizr): Record non-object nested entities in one branch\n\nunvisitEntity handled missing, null and INVALID nested entities in three\nnear-identical branches. One branch now records all three, and\nWeakDependencyMap maps its root key through depKey(), so callers pass the\nraw value. Tests reuse the shared Article and makeGetTodo fixtures.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* refactor(normalizr): Keep depKey with WeakDependencyMap; tidy memo tests\n\n- depKey lives in WeakDependencyMap, its only user\n- unvisitEntity handles all non-object entities in one block\n- WeakDependencyMap tests null and INVALID dependencies directly\n- concurrent-memo test helpers: updateKey, versionsOf(state)\n- AGENTS.md: invariant 1 without implementation names; MAX_ENTITY_DEPTH\n- memo-invariants rule also applies to normalizr schemas\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* test(normalizr): Cover blank nested ids in unvisitEntity\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* fix(normalizr): Key function dependencies by themselves in depKey\n\nEntity classes are functions, and buildQueryKey records them as the\nfirst dependency. depKey gave them a stand-in in a module-level Map,\nwhich kept every queried schema alive. Functions are valid WeakMap keys.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* refactor(normalizr): Drop UNDEF; one blank-id check in unvisitEntity\n\n- depKey's stand-in Map already covers undefined, so UNDEF.ts goes\n- unvisitEntity: no value closure; isBlankPk shared by both branches\n- tests: rows hold the store table; one settle() for held requests\n- memo-invariants rule just points at AGENTS.md\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* bench: Measure nested missing, null and INVALID entities\n\nEvery 4th nested BuildTypeDescription in the project list is missing from\nthe store, null, or INVALID, cold and withCache. Each is now a memo\ndependency of the project that nests it. Export INVALID from the bundle.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* perf(normalizr): Fixed depKey stand-ins for undefined, null and INVALID\n\ndepKey runs on every memo dependency. Looking up undefined, null and\nINVALID in a Map made cached reads of lists with missing, null or INVALID\nchildren up to 33% slower than master; fixed objects need no lookup.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* perf(normalizr): Record non-object children as plain dependencies\n\nA missing, null or INVALID child only needs its dependency recorded; its\nvalue is not worth caching. Skip the entity cache (closure, cache entry,\narrays) and push the dependency directly.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* chore: Format dependOn\n\n* refactor(normalizr): Simplify non-object memo dependencies\n\nReuse the lookup path as the dependency path, skip depKey for root keys\n(always objects), inline a single-use helper, and drop test tracing.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* docs(react): Match the Read comment in the memo tests\n\n* perf(normalizr): Keep the non-object value helper out of unvisitEntity\n\nInlining it put the rarely taken INVALID branch in the hot function: V8\ndeopted on it during warm-up, and cached reads ran 1-7% slower.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* chore: Regenerate website editor types\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* chore: Update only the editor types this PR changes\n\nThe previous regeneration used a local TypeScript that drops declarations.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+          "timestamp": "2026-11-03T04:19:24Z",
+          "tree_id": "6affd02ddc86eb9e84dbc785be385a023aea4bff",
+          "url": "https://github.com/reactive/data-client/commit/7365cd715de8d4e7aec8a478454be529b58b3dee"
+        },
+        "date": 1793679939814,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 215.08,
+            "range": "± 7.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 74.63,
+            "range": "± 2.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 434.78,
+            "range": "± 6.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 434.78,
+            "range": "± 6.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 66.45,
+            "range": "± 8.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 400,
+            "range": "± 8.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 392.31,
+            "range": "± 6.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 19.43,
+            "range": "± 9.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 98.05,
+            "range": "± 10.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 60.24,
+            "range": "± 5.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 333.33,
+            "range": "± 2.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 513.16,
+            "range": "± 9.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 238.1,
+            "range": "± 6.9%",
             "unit": "ops/s"
           }
         ]
