@@ -1,37 +1,20 @@
 /**
- * WeakMap marking cost of one old-generation GC, after memoized
- * denormalization: live WeakMap entries, Hermes marking passes, and entry
- * visits (passes x entries), plus V8's own full-GC time.
+ * WeakMap marking cost of one old-generation GC after memoized
+ * denormalization. Prints, per scenario: WeakMaps made, entries set, live
+ * WeakMap entries, Hermes marking passes, Hermes entry visits per GC
+ * (passes x live entries), run time, and V8's own full-GC time.
+ * README.md explains how Hermes and V8 differ here.
  *
- * Hermes resolves WeakMap entries in the stop-the-world end of every
- * old-generation collection (`HadesGC::markWeakMapEntrySlots`): it rescans
- * every WeakMap entry slot in the heap, repeating until a pass marks nothing
- * new. A value reachable only through N nested WeakMap entries needs N
- * passes, so one collection costs passes x slots entry visits, on the JS
- * thread.
- *
- * V8 (Node, Chrome) runs the same fixpoint for at most
- * `--ephemeron-fixpoint-iterations` (10) passes, then switches to a linear
- * key -> values algorithm, so its pause stays small. To get the Hermes cost
- * on any engine, each scenario takes a V8 heap snapshot and replays Hermes's
- * marking loop on it.
- *
- * Scenarios: a 3,736-entity endpoint whose entities join 500 entities
- * written each tick; the same endpoint with no join; a 100-row list that
- * prepends 3 rows per write; and a 50-level nested chain whose deepest entity
- * changes each tick.
- *
- * Local-only; not part of CI benchmark tracking. Run with:
- *   yarn workspace example-benchmark start:weakmap-gc [filter]
+ * Run with:
+ *   yarn workspace example-benchmark diag:weakmap-gc [filter]
  */
 import { readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import vm from 'node:vm';
 import v8 from 'v8';
 
-v8.setFlagsFromString('--expose_gc');
-const gc = vm.runInNewContext('gc');
+import { createMatcher } from '../filter.js';
+import { gc } from '../gc.js';
 
 // Count what the library creates. Installed before the bundle loads so its
 // `new WeakMap()` calls see it.
@@ -51,9 +34,10 @@ class CountingWeakMap extends NativeWeakMap {
 }
 globalThis.WeakMap = CountingWeakMap;
 
-const { Entity, normalize, MemoCache } = await import('./dist/index.js');
-// after the bundle, so a static import doesn't load it before CountingWeakMap
-const { Department, buildBidirectionalChain } = await import('./schemas.js');
+// Dynamic imports, so the bundle loads after CountingWeakMap is installed
+const { Entity, normalize, MemoCache } = await import('../dist/index.js');
+const { Department, buildBidirectionalChain } = await import('../schemas.js');
+const { SYMBOLS, symbolsJoinTickers } = await import('./market.js');
 
 const EPHEMERON =
   /part of key \(.*? @(\d+)\) -> value \(.*? @(\d+)\) pair in WeakMap \(table @(\d+)\)/;
@@ -92,20 +76,25 @@ function replayHermesMarking() {
   }
   firstEdge[nodeCount] = edges.length;
 
+  // string index -> [table, key, value] node ids, for ephemeron edge names
+  const ephemeronNames = new Map();
+  strings.forEach((name, i) => {
+    const m = EPHEMERON.exec(name);
+    if (m) ephemeronNames.set(i, [+m[3], +m[1], +m[2]]);
+  });
+
   // Ephemeron pairs show up as labelled edges; they are not strong.
   const ephemeronEdge = new Uint8Array(edges.length / EF);
   const entries = new Map();
   for (let e = 0; e < edges.length; e += EF) {
-    const type = edges[e];
-    if (!named.has(type)) continue;
-    const m = EPHEMERON.exec(strings[edges[e + nameField]]);
-    if (!m) continue;
+    if (!named.has(edges[e])) continue;
+    const pair = ephemeronNames.get(edges[e + nameField]);
+    if (!pair) continue;
     ephemeronEdge[e / EF] = 1;
-    entries.set(`${m[3]}:${m[1]}`, [
-      indexById.get(+m[3]),
-      indexById.get(+m[1]),
-      indexById.get(+m[2]),
-    ]);
+    entries.set(
+      `${pair[0]}:${pair[1]}`,
+      pair.map(id => indexById.get(id)),
+    );
   }
   const slots = [...entries.values()].filter(s =>
     s.every(i => i !== undefined),
@@ -157,35 +146,6 @@ function readSnapshot() {
   }
 }
 
-// --- schemas shaped like native-binance's market data ----------------------
-
-class Ticker extends Entity {
-  symbol = '';
-  last = 0;
-  eventTime = 0;
-  pk() {
-    return this.symbol;
-  }
-
-  static key = 'Ticker';
-}
-
-class MarketSymbol extends Entity {
-  symbol = '';
-  baseAsset = '';
-  quoteAsset = '';
-  ticker = undefined;
-  pk() {
-    return this.symbol;
-  }
-
-  static key = 'Symbol';
-  static schema = { ticker: Ticker };
-  static process(input) {
-    return { ...input, ticker: input.symbol };
-  }
-}
-
 class PlainSymbol extends Entity {
   symbol = '';
   baseAsset = '';
@@ -207,50 +167,20 @@ class Trade extends Entity {
   static key = 'Trade';
 }
 
-const SYMBOLS = 3736;
 const TICKERS_PER_TICK = 500;
 const TICKS = 60;
 const TAPE = 100;
 const PRINTS_PER_FLUSH = 3;
 const FLUSHES = 600;
 
-const symbolRows = Array.from({ length: SYMBOLS }, (_, i) => ({
-  symbol: `S${i}USDT`,
-  baseAsset: `S${i}`,
-  quoteAsset: 'USDT',
-}));
-const tickerRows = (tick, count) =>
-  Array.from({ length: count }, (_, i) => ({
-    symbol: `S${(tick * 7919 + i * 31) % SYMBOLS}USDT`,
-    last: tick + i,
-    eventTime: tick,
-  }));
-
-/** One reader of a 3,736-symbol endpoint while tickers stream (one write per tick). */
-function exchangeInfo(symbolSchema, streaming) {
+/** Runs `read(memo)` with a new memo, and keeps the memo next to what it returns. */
+function withMemo(read) {
   const memo = new MemoCache();
-  const schema = { symbols: [symbolSchema] };
-  let store = normalize(schema, { symbols: symbolRows });
-  const input = store.result;
-  store = normalize([Ticker], tickerRows(0, SYMBOLS), [], store);
-  for (let tick = 1; tick <= TICKS; tick++) {
-    if (streaming) {
-      store = normalize(
-        [Ticker],
-        tickerRows(tick, TICKERS_PER_TICK),
-        [],
-        store,
-      );
-    }
-    memo.denormalize(schema, input, store.entities);
-  }
-  // The store keeps the endpoint's normalized result alive, and the memo is keyed by it.
-  return { memo, store, input };
+  return { memo, ...read(memo) };
 }
 
 /** A 100-row tape that prepends prints on each flush. */
-function tradeTape() {
-  const memo = new MemoCache();
+function tradeTape(memo) {
   let store = normalize([Trade], []);
   let rows = [];
   let next = 0;
@@ -262,15 +192,14 @@ function tradeTape() {
     store = normalize([Trade], rows, [], store);
     memo.denormalize([Trade], store.result, store.entities);
   }
-  return { memo, store };
+  return { store };
 }
 
 const CHAIN = 50;
 
 /** A Department -> Building -> Department chain `CHAIN` Departments deep whose
  * deepest Building is replaced on every tick, so every level recomputes. */
-function deepChain() {
-  const memo = new MemoCache();
+function deepChain(memo) {
   const { entities: first, result } = buildBidirectionalChain(CHAIN);
   let entities = first;
   const leaf = `bldg-${CHAIN - 1}`;
@@ -284,27 +213,34 @@ function deepChain() {
     };
     memo.denormalize(Department, result, entities);
   }
-  return { memo, entities, result };
+  return { entities, result };
 }
 
+const want = createMatcher(process.argv[2]);
 const scenarios = [
   {
-    name: `exchangeInfo: ${SYMBOLS} symbols join tickers, ${TICKERS_PER_TICK} tickers x ${TICKS} ticks`,
-    fn: () => exchangeInfo(MarketSymbol, true),
+    name: `${SYMBOLS} symbols join tickers, ${TICKERS_PER_TICK} tickers x ${TICKS} ticks`,
+    read: memo =>
+      symbolsJoinTickers(memo, { ticks: TICKS, perTick: TICKERS_PER_TICK }),
   },
   {
-    name: `exchangeInfo: ${SYMBOLS} symbols, no join, ${TICKS} reads`,
-    fn: () => exchangeInfo(PlainSymbol, false),
+    name: `${SYMBOLS} symbols, no join, ${TICKS} reads`,
+    read: memo =>
+      symbolsJoinTickers(memo, {
+        symbolSchema: PlainSymbol,
+        ticks: TICKS,
+        perTick: 0,
+      }),
   },
   {
     name: `trade tape: ${TAPE} rows, ${PRINTS_PER_FLUSH} prints x ${FLUSHES} flushes`,
-    fn: tradeTape,
+    read: tradeTape,
   },
   {
     name: `deep chain: ${CHAIN} Departments deep, deepest Building replaced x ${TICKS} ticks`,
-    fn: deepChain,
+    read: deepChain,
   },
-].filter(s => !process.argv[2] || s.name.includes(process.argv[2]));
+].filter(s => want(s.name));
 
 const rows = [];
 const baseline = replayHermesMarking();
@@ -316,12 +252,12 @@ rows.push({
   passes: baseline.passes,
   'Hermes visits/GC': baseline.visits,
 });
-for (const { name, fn } of scenarios) {
+for (const { name, read } of scenarios) {
   gc();
   created = 0;
   entriesSet = 0;
   const start = performance.now();
-  globalThis.kept = fn();
+  globalThis.kept = withMemo(read);
   const ms = performance.now() - start;
   // One full collection with the run's garbage still in the heap.
   const gcStart = performance.now();

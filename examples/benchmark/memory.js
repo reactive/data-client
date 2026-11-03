@@ -18,25 +18,13 @@
  *   yarn workspace example-benchmark start:memory [filter]
  */
 import { PerformanceObserver, constants } from 'node:perf_hooks';
-import vm from 'node:vm';
-import v8 from 'v8';
 
+import { fullGC, heapUsed } from './gc.js';
 import { buildScenarios } from './spread-scenarios.js';
-
-v8.setFlagsFromString('--expose_gc');
-const gc = vm.runInNewContext('gc');
-
-// v8.getHeapStatistics() avoids the /proc rss read that process.memoryUsage() does
-const heapUsed = () => v8.getHeapStatistics().used_heap_size;
 
 // heapUsed() itself allocates; sample less often to reduce its effect on
 // allocated/op and GC counts for cheap scenarios.
 const SAMPLE_INTERVAL = 10;
-
-function fullGC() {
-  gc();
-  gc();
-}
 
 async function measure(name, fn, iterations, warmup = 25) {
   for (let i = 0; i < warmup; i++) fn();
