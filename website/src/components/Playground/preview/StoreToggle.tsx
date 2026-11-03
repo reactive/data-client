@@ -99,11 +99,10 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
   // shut, it shows that one
   const toggle = useCallback(
     (event: { currentTarget: HTMLElement }, to = latestTab.current) => {
-      // (a toggle outside a playground: only in a test's lone render)
       held =
         event.currentTarget.closest<HTMLElement>('[data-playground]') ??
-        event.currentTarget;
-      blockElementScrollPositionUntilNextRender(held);
+        undefined;
+      if (held) blockElementScrollPositionUntilNextRender(held);
       const shut = open && to === latestTab.current;
       setChoice(shut ? 'n' : to);
       setLastTab(to);
