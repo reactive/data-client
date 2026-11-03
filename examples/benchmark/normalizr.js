@@ -297,6 +297,8 @@ export default function addNormlizrSuite(suite, filter) {
       printStatus(ProjectWithBuildTypesDescription.prototype.pk);
       printStatus(Entity.merge);
       printStatus(Entity.validate);
+      printStatus(WeakDependencyMap.prototype.get);
+      printStatus(WeakDependencyMap.prototype.set);
     }
   });
 }
