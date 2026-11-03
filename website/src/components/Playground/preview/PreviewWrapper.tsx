@@ -154,7 +154,7 @@ export function PreviewHeaderControls({
  * bottom, and as `--pg-preview-end`, from its top: the Store's tabs sit by
  * that one, so they stay still as the Store's layer (the whole row) grows
  * or shrinks below them. Before the page hydrates, styles.module.css
- * derives both for the loading page */
+ * derives the gap for the loading page, and the end from it */
 function usePreviewGap(result: HTMLElement | null) {
   useLayoutEffect(() => {
     const wrapper = result?.parentElement;

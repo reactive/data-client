@@ -1675,7 +1675,6 @@ div.fixtureJson + div.fixtureJson {
       0px,
       100% - var(--pg-row) - var(--pg-pending-sheet) - var(--pg-card-radius)
     );
-    --pg-preview-end: calc(100% - var(--pg-preview-gap));
   }
   .row:not(.stacked) .sheet[aria-busy] {
     height: var(--pg-pending-sheet);
@@ -1829,10 +1828,12 @@ div.fixtureJson + div.fixtureJson {
   /* by the preview's foot, its curve clear of the corner's: open, they
      stay level with that foot, however far the Store runs on below. Placed
      from the row's top (--pg-preview-end), they stay still as the Store's
-     layer grows or shrinks below them, opening and shutting */
+     layer grows or shrinks below them, opening and shutting; until it's
+     measured (the loading page), the same end from the gap */
   .drawerTabs {
     --pg-tabs-top: calc(
-      var(--pg-preview-end) - var(--pg-tabs-span) - 2 * var(--pg-card-radius)
+      var(--pg-preview-end, 100% - var(--pg-preview-gap, 0px)) -
+        var(--pg-tabs-span) - 2 * var(--pg-card-radius)
     );
     right: 100%;
     top: var(--pg-tabs-top);
