@@ -506,20 +506,21 @@ test(
       m => m.name === 'stream-message',
     ).length;
     const r = await page.evaluate(() => window.__BENCH__!.getRenderCounts());
+    // ListView renders during the stream are logged, not asserted: a
+    // per-entity subscription would rightly stop ListView re-rendering.
     process.stderr.write(
       `    messages=${messages} ` +
         `listViewRenders=${r.listViewRenders} issueRowRenders=${r.issueRowRenders}\n`,
     );
+    // One render per message: a message whose commit changes no DOM fails
+    // the stream, so every counted message committed on its own.
     assert(
       messages === MESSAGES,
       lib,
       'streamTickers messages',
       `expected ${MESSAGES} settled messages, got ${messages}`,
     );
-    // ListView renders during the stream are logged, not asserted: a
-    // per-entity subscription would rightly stop ListView re-rendering. One
-    // render per message is shown by the message count above, since a
-    // message whose commit changes no DOM fails the stream.
+
     // Without React Compiler, every store write re-renders the list's rows.
     // Set REACT_COMPILER=false here too when validating a build:no-compiler build.
     if (process.env.REACT_COMPILER !== 'false') {
