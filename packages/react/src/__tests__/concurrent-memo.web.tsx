@@ -10,7 +10,13 @@ import { mockInitialState } from '@data-client/test';
 import { act, render } from '@testing-library/react';
 import { makeGetTodo, Todo } from '__tests__/concurrentFixtures';
 import type { TodoItem } from '__tests__/concurrentFixtures';
-import React, { Suspense, useState, useTransition, version } from 'react';
+import React, {
+  Suspense,
+  useEffect,
+  useState,
+  useTransition,
+  version,
+} from 'react';
 
 import useCacheState from '../hooks/useCacheState';
 
@@ -103,6 +109,8 @@ const idOf = (o: object) => {
  * for list renders. */
 type Read = { versions: string; data: unknown; who?: 'render' };
 let reads: Read[] = [];
+/** The reads of renders React committed, in commit order. */
+let committed: Read[] = [];
 const versionsOf = (state: State<unknown>, todos: { id: string }[]) => {
   const table = (state.entities[Todo.key] ?? {}) as Record<string, object>;
   return todos.map(todo => idOf(table[todo.id])).join(',');
@@ -111,10 +119,14 @@ const versionsOf = (state: State<unknown>, todos: { id: string }[]) => {
 function List() {
   const todos = useSuspense(getTodoList);
   const state = useCacheState();
-  reads.push({
+  const read: Read = {
     versions: versionsOf(state, todos),
     data: todos,
     who: 'render',
+  };
+  reads.push(read);
+  useEffect(() => {
+    committed.push(read);
   });
   return <div>{todos.length}</div>;
 }
@@ -272,8 +284,16 @@ let note = 100;
 
 beforeEach(() => {
   reads = [];
+  committed = [];
   for (const key of Object.keys(pending)) delete pending[key];
   note = 100;
+});
+
+// A committed render that gets a new object for entity versions an earlier
+// committed render already showed re-runs its effects, memos and children
+// for unchanged data.
+afterEach(() => {
+  expect(avoidableMisses(committed)).toBe(0);
 });
 
 describeConcurrent.each([1, 2])(
