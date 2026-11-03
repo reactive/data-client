@@ -98,7 +98,11 @@ export function PinnedCardView({ issue }: { issue: Issue }) {
   );
 }
 
-function TickerRow({ ticker }: { ticker: Ticker }) {
+/**
+ * Cheap row of the ticker strip. Only the ticker-stream scenarios render it;
+ * each library reads every row's ticker by symbol.
+ */
+export function TickerRow({ ticker }: { ticker: Ticker }) {
   return (
     <span data-ticker={ticker.symbol}>
       <span data-symbol>{ticker.symbol}</span>
@@ -106,26 +110,6 @@ function TickerRow({ ticker }: { ticker: Ticker }) {
       <span data-change>{ticker.change.toFixed(2)}</span>
       <span data-volume>{ticker.volume}</span>
     </span>
-  );
-}
-
-/**
- * Cheap strip of the first `limit` tickers. Only the ticker-stream scenarios
- * render it. Rows whose ticker kept its reference skip re-rendering.
- */
-export function TickerStrip({
-  tickers,
-  limit,
-}: {
-  tickers: Ticker[];
-  limit: number;
-}) {
-  return (
-    <div data-ticker-strip>
-      {tickers.slice(0, limit).map(ticker => (
-        <TickerRow key={ticker.symbol} ticker={ticker} />
-      ))}
-    </div>
   );
 }
 

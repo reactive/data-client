@@ -474,6 +474,16 @@ test(
       window.__BENCH__!.getRefStabilityReport(),
     );
     process.stderr.write(`    issueRowRenders=${r.issueRowRenders}\n`);
+    // Without React Compiler, every store write re-renders the list's rows.
+    // Set REACT_COMPILER=false here too when validating a build:no-compiler build.
+    if (process.env.REACT_COMPILER !== 'false') {
+      assert(
+        r.issueRowRenders === 0,
+        lib,
+        'streamTickers row renders',
+        `expected 0 IssueRow renders during the ticker stream, got ${r.issueRowRenders}`,
+      );
+    }
   },
   { onlyLibs: ['data-client'] },
 );

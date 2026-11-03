@@ -232,6 +232,12 @@ export function generateTickers(count: number): Ticker[] {
 
 export const FIXTURE_TICKERS = generateTickers(TICKER_COUNT);
 
+/** Symbols of the tickers the strip renders. */
+export const TICKER_STRIP_SYMBOLS = FIXTURE_TICKERS.slice(
+  0,
+  TICKER_STRIP_SIZE,
+).map(t => t.symbol);
+
 /** The update for one ticker in stream round `version` (1, 2, ...). */
 function tickTicker(base: Ticker, i: number, version: number): Ticker {
   // ±1% around the base price; differs every round for every ticker

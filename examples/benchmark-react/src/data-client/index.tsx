@@ -3,6 +3,7 @@ import {
   GCPolicy,
   useController,
   useDLE,
+  useQuery,
   useSuspense,
 } from '@data-client/react';
 import type { Controller } from '@data-client/react';
@@ -18,14 +19,14 @@ import {
   PINNED_STRIP_STYLE,
   PinnedCardView,
   PlainIssueList,
-  TickerStrip,
+  TickerRow,
 } from '@shared/components';
 import {
   buildTickerStream,
   FIXTURE_USERS,
   FIXTURE_ISSUES_BY_NUMBER,
   FIXTURE_USERS_BY_LOGIN,
-  TICKER_STRIP_SIZE,
+  TICKER_STRIP_SYMBOLS,
 } from '@shared/data';
 import { setCurrentIssues } from '@shared/refStability';
 import {
@@ -136,11 +137,21 @@ function PinnedStrip({ numbers }: { numbers: number[] }) {
   );
 }
 
-/** Renders the first tickers of the full ticker list. */
-function TickerStripView() {
-  const tickers = useSuspense(TickerResource.getList);
+/** Reads one ticker from the store by symbol. */
+function TickerCard({ symbol }: { symbol: string }) {
+  const ticker = useQuery(TickerEntity, { symbol });
+  if (!ticker) return null;
+  return <TickerRow ticker={ticker as Ticker} />;
+}
+
+/** Strip of the first tickers; each row reads its own ticker. */
+function TickerStrip() {
   return (
-    <TickerStrip tickers={tickers as Ticker[]} limit={TICKER_STRIP_SIZE} />
+    <div data-ticker-strip>
+      {TICKER_STRIP_SYMBOLS.map(symbol => (
+        <TickerCard key={symbol} symbol={symbol} />
+      ))}
+    </div>
   );
 }
 
@@ -381,11 +392,7 @@ function BenchmarkHarness() {
           <PinnedStrip numbers={pinnedNumbers} />
         </React.Suspense>
       )}
-      {showTickerStrip && (
-        <React.Suspense fallback={<div>Loading tickers...</div>}>
-          <TickerStripView />
-        </React.Suspense>
-      )}
+      {showTickerStrip && <TickerStrip />}
     </div>
   );
 }
