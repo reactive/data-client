@@ -43,6 +43,8 @@ All implementations share presentational components, fixture data, fetch functio
 - **Update user (scaling)** (`update-user`, `update-user-10000`) — Update one shared user with 1,000 or 10,000 mounted issues to test subscriber scaling.
 - **Ref-stability** (`ref-stability-issue-changed`, `ref-stability-user-changed`) — Count of components that received a **new** object reference after an update (unit: count; smaller is better).
 - **Invalidate and resolve** (`invalidate-and-resolve`) — data-client only; invalidates a cached endpoint and immediately re-resolves. Measures Suspense boundary round-trip.
+- **Ticker stream** (`update-ticker-stream`) — data-client only. The store holds 500 tickers and the 1,000-issue list (100 rendered). A strip renders the first 20 tickers. 50 messages arrive through a `MessageChannel`, one task each, like websocket messages. Each message applies 10 ticker updates with one `ctrl.set([TickerEntity], batch)`, so every ticker updates once. Five messages touch rendered tickers. The time runs from the first message until the sentinel price from the last message shows in the strip. The batches and the channel are built before the timer starts. The time includes 50 `MessageChannel` hops; `window.__BENCH__.measureDispatchOverhead(50)` times those hops alone.
+- **Ticker stream row renders** (`ticker-stream-issue-row-renders`) — Count of `IssueRow` renders during the ticker stream (unit: count; expected 0). In the React Compiler build, the issue list keeps its reference, so no row re-renders. This count is deterministic, so it runs locally and not in CI.
 
 **With network (local comparison)**
 
@@ -110,6 +112,7 @@ CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported mar
 
 - **Higher is better** for throughput (ops/s). **Lower is better** for ref-stability counts and heap delta (bytes).
 - **Ref-stability:** `issueRefChanged` and `userRefChanged` count how many components received a new object reference. Normalized caches preserve referential equality for unchanged entities; query-keyed caches typically create new references on each cache write.
+- **Row renders:** `issueRowRenders` counts `IssueRow` renders after the ref snapshot. Updates to unrelated entities, such as the ticker stream, should not re-render any row.
 - **React commit:** Reported as `(react commit)` suffix entries. These measure React Profiler `actualDuration` and isolate React reconciliation cost from layout/paint.
 - **Report viewer:** Toggle the "Base metrics", "React commit", and "Trace" checkboxes to filter the comparison table. Use "Load history" to compare multiple runs over time.
 
@@ -213,8 +216,8 @@ The path filter skips `packages/rest/src` and most of `packages/endpoint/src`, s
    Scenarios are classified as `small` or `large` based on their cost:
 
    - **Small** (convergent: 8 warmup + 10–60 measurement iterations): `getlist-100`, `update-entity`, `invalidate-and-resolve`, `unshift-item`, `delete-item`
-   - **Small** (deterministic, single run): `ref-stability-*`
-   - **Large** (convergent: 5 warmup + 10–50 measurement iterations): `getlist-500`, `getlist-500-sorted`, `update-user`, `update-user-10000`, `update-entity-sorted`, `update-entity-multi-view`, `list-detail-switch-10`
+   - **Small** (deterministic, single run): `ref-stability-*`, `ticker-stream-issue-row-renders`
+   - **Large** (convergent: 5 warmup + 10–50 measurement iterations): `getlist-500`, `getlist-500-sorted`, `update-user`, `update-user-10000`, `update-entity-sorted`, `update-entity-multi-view`, `list-detail-switch-10`, `update-ticker-stream`
    - **Memory** (opt-in, 1 warmup + 3 measurement rounds): `memory-mount-unmount-cycle` — run with `--action memory`
 
    Timing scenarios use convergent mode (single page load, inline convergence per scenario). Each group uses its own warmup/measurement config. Use `--size` to run only one group.

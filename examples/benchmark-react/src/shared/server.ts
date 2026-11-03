@@ -1,4 +1,4 @@
-import type { Issue, Label, User } from './types';
+import type { Issue, Label, Ticker, User } from './types';
 
 // ── WORKER SETUP ─────────────────────────────────────────────────────────
 
@@ -65,6 +65,10 @@ export function fetchIssueList(params?: {
   state?: string;
 }): Promise<Issue[]> {
   return sendRequest('fetchIssueList', params);
+}
+
+export function fetchTickerList(): Promise<Ticker[]> {
+  return sendRequest('fetchTickerList');
 }
 
 // ── CREATE ───────────────────────────────────────────────────────────────

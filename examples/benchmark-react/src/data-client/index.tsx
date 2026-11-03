@@ -7,6 +7,7 @@ import {
 } from '@data-client/react';
 import type { Controller } from '@data-client/react';
 import {
+  createMessageChain,
   moveItemIsReady,
   renderBenchApp,
   useBenchState,
@@ -17,23 +18,29 @@ import {
   PINNED_STRIP_STYLE,
   PinnedCardView,
   PlainIssueList,
+  TickerStrip,
 } from '@shared/components';
 import {
+  buildTickerStream,
   FIXTURE_USERS,
   FIXTURE_ISSUES_BY_NUMBER,
   FIXTURE_USERS_BY_LOGIN,
+  TICKER_STRIP_SIZE,
 } from '@shared/data';
 import { setCurrentIssues } from '@shared/refStability';
 import {
   UserResource,
   IssueResource,
   sortedIssuesEndpoint,
+  TickerEntity,
+  TickerResource,
 } from '@shared/resources';
 import { patchIssue } from '@shared/server';
-import type { Issue } from '@shared/types';
-import React, { useCallback, useRef } from 'react';
+import type { Issue, Ticker } from '@shared/types';
+import React, { useCallback, useRef, useState } from 'react';
 
 let mutationCounter = 0;
+let tickerStreamVersion = 0;
 
 /** GCPolicy with no interval (won't fire during timing scenarios) and instant
  *  expiry so an explicit sweep() collects all unreferenced data immediately. */
@@ -129,6 +136,14 @@ function PinnedStrip({ numbers }: { numbers: number[] }) {
   );
 }
 
+/** Renders the first tickers of the full ticker list. */
+function TickerStripView() {
+  const tickers = useSuspense(TickerResource.getList);
+  return (
+    <TickerStrip tickers={tickers as Ticker[]} limit={TICKER_STRIP_SIZE} />
+  );
+}
+
 function BenchmarkHarness() {
   const controller = useController();
   const {
@@ -141,9 +156,14 @@ function BenchmarkHarness() {
     pinnedNumbers,
     renderLimit,
     containerRef,
+    measureMount,
     measureUpdate,
+    waitForElement,
+    setComplete,
+    setListViewCount,
     registerAPI,
   } = useBenchState();
+  const [showTickerStrip, setShowTickerStrip] = useState(false);
 
   const updateEntity = useCallback(
     (number: number) => {
@@ -285,6 +305,42 @@ function BenchmarkHarness() {
     [measureUpdate, controller, containerRef],
   );
 
+  /** Untimed setup: all tickers in the store, issue list and strip mounted. */
+  const initTickerStream = useCallback(
+    async (count: number) => {
+      await controller.fetch(TickerResource.getList);
+      await measureMount(() => setListViewCount(count), {
+        signalComplete: false,
+      });
+      setShowTickerStrip(true);
+      await waitForElement('[data-ticker]');
+      setComplete();
+    },
+    [controller, measureMount, setListViewCount, waitForElement, setComplete],
+  );
+
+  const streamTickers = useCallback(
+    (messages: number) => {
+      // Build every batch and the channel before measureUpdate starts timing.
+      const { batches, sentinelSymbol, sentinelPrice } = buildTickerStream(
+        ++tickerStreamVersion,
+        messages,
+      );
+      const send = createMessageChain(batches.length, i => {
+        controller.set([TickerEntity], batches[i]);
+      });
+      const container = containerRef.current!;
+      const sentinelSelector = `[data-ticker="${sentinelSymbol}"] [data-price]`;
+      const expected = sentinelPrice.toFixed(2);
+      measureUpdate(
+        send,
+        () =>
+          container.querySelector(sentinelSelector)?.textContent === expected,
+      );
+    },
+    [measureUpdate, controller, containerRef],
+  );
+
   const resetStore = useCallback(
     () => controller.resetEntireStore(),
     [controller],
@@ -298,6 +354,8 @@ function BenchmarkHarness() {
     unshiftItem,
     deleteEntity,
     moveItem,
+    initTickerStream,
+    streamTickers,
     triggerGC: () => benchGC.sweep(),
     resetStore,
   });
@@ -321,6 +379,11 @@ function BenchmarkHarness() {
       {pinnedNumbers.length > 0 && (
         <React.Suspense fallback={<div>Loading pinned...</div>}>
           <PinnedStrip numbers={pinnedNumbers} />
+        </React.Suspense>
+      )}
+      {showTickerStrip && (
+        <React.Suspense fallback={<div>Loading tickers...</div>}>
+          <TickerStripView />
         </React.Suspense>
       )}
     </div>

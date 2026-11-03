@@ -6,6 +6,7 @@ import {
   fetchIssue as serverFetchIssue,
   fetchUser as serverFetchUser,
   fetchIssueList as serverFetchIssueList,
+  fetchTickerList as serverFetchTickerList,
   createIssue as serverCreateIssue,
   updateIssue as serverUpdateIssue,
   deleteIssue as serverDeleteIssue,
@@ -150,6 +151,30 @@ export const UserResource = resource({
   }),
   delete: Base.delete.extend({
     fetch: serverDeleteUser as any,
+  }),
+}));
+
+export class TickerEntity extends Entity {
+  symbol = '';
+  price = 0;
+  change = 0;
+  volume = 0;
+  time = 0;
+
+  pk() {
+    return this.symbol;
+  }
+
+  static key = 'TickerEntity';
+}
+
+export const TickerResource = resource({
+  path: '/tickers/:symbol',
+  schema: TickerEntity,
+}).extend(Base => ({
+  getList: Base.getList.extend({
+    fetch: serverFetchTickerList as any,
+    dataExpiryLength: Infinity,
   }),
 }));
 

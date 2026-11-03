@@ -62,7 +62,7 @@ export const CONVERGENT_CONFIG: Record<ScenarioSize, ConvergentProfile> = {
 
 export const ACTION_GROUPS: Record<string, (keyof BenchAPI)[]> = {
   mount: ['init', 'initDoubleList', 'mountSortedView', 'listDetailSwitch'],
-  update: ['updateEntity', 'updateUser'],
+  update: ['updateEntity', 'updateUser', 'streamTickers'],
   mutation: ['unshiftItem', 'deleteEntity', 'invalidateAndResolve', 'moveItem'],
   memory: ['mountUnmountCycle'],
 };
@@ -184,6 +184,29 @@ const BASE_SCENARIOS: BaseScenario[] = [
     category: 'hotPath',
     mountCount: 1000,
     renderLimit: 100,
+    onlyLibs: ['data-client'],
+  },
+  {
+    nameSuffix: 'update-ticker-stream',
+    action: 'streamTickers',
+    args: [50],
+    category: 'hotPath',
+    mountCount: 1000,
+    renderLimit: 100,
+    preMountAction: 'initTickerStream',
+    size: 'large',
+    onlyLibs: ['data-client'],
+  },
+  {
+    nameSuffix: 'ticker-stream-issue-row-renders',
+    action: 'streamTickers',
+    args: [50],
+    resultMetric: 'issueRowRenders',
+    category: 'hotPath',
+    mountCount: 1000,
+    renderLimit: 100,
+    preMountAction: 'initTickerStream',
+    deterministic: true,
     onlyLibs: ['data-client'],
   },
   {

@@ -7,6 +7,8 @@ export interface RefStabilityReport {
   issueRefChanged: number;
   userRefUnchanged: number;
   userRefChanged: number;
+  /** IssueRow renders since the snapshot. 0 = no row re-rendered. */
+  issueRowRenders: number;
 }
 
 /**
@@ -51,6 +53,12 @@ export interface BenchAPI {
   initMultiView?(count: number): void;
   /** Update an entity that appears in list + detail + pinned views; waits for all three to reflect the change. */
   updateEntityMultiView?(id: number): void;
+  /** Mount the issue list (count issues) and a ticker strip, with all tickers in the store. data-client only. */
+  initTickerStream?(count: number): Promise<void>;
+  /** Apply every ticker once, in `messages` batches, one batch per task (like websocket messages). data-client only. */
+  streamTickers?(messages: number): void;
+  /** Time `messages` MessageChannel hops with empty handlers, in ms: the dispatch cost inside streamTickers. */
+  measureDispatchOverhead?(messages: number): Promise<number>;
   /** Trigger store garbage collection (data-client only). Used by memory scenarios to flush unreferenced data before heap measurement. */
   triggerGC?(): void;
   /** Cap DOM rendering to the first N items while keeping all data in the store. */
@@ -115,6 +123,16 @@ export interface Issue {
   closedAt: string | null;
 }
 
+export interface Ticker {
+  symbol: string;
+  price: number;
+  /** Percent change from the open. */
+  change: number;
+  volume: number;
+  /** Epoch ms of the last trade. */
+  time: number;
+}
+
 export type ScenarioAction =
   | { action: 'init'; args: [number] }
   | { action: 'updateEntity'; args: [number] }
@@ -129,6 +147,7 @@ export type ResultMetric =
   | 'duration'
   | 'issueRefChanged'
   | 'userRefChanged'
+  | 'issueRowRenders'
   | 'heapDelta';
 
 /** hotPath = JS only, included in CI. memory = heap delta, not CI. startup = page load metrics, not CI. */
@@ -141,7 +160,7 @@ export interface Scenario {
   name: string;
   action: keyof BenchAPI;
   args: unknown[];
-  /** Which value to report; default 'duration'. Ref-stability use issueRefChanged/userRefChanged; memory use heapDelta. */
+  /** Which value to report; default 'duration'. Ref-stability use issueRefChanged/userRefChanged/issueRowRenders; memory use heapDelta. */
   resultMetric?: ResultMetric;
   /** hotPath (default) = run in CI. memory = heap delta. startup = page load metrics. */
   category?: ScenarioCategory;

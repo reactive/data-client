@@ -19,6 +19,46 @@ export function waitForPaint(): Promise<void> {
   return new Promise<void>(r => afterPaint(r));
 }
 
+/**
+ * Prepare a chain of `count` messages, each delivered in its own task (like
+ * websocket messages). Each message carries only its index; `onMessage(i)`
+ * runs, then the next index is posted. Returns the function that sends the
+ * first message.
+ */
+export function createMessageChain(
+  count: number,
+  onMessage: (i: number) => void,
+  onDone?: () => void,
+): () => void {
+  const { port1, port2 } = new MessageChannel();
+  port1.onmessage = (e: MessageEvent<number>) => {
+    const i = e.data;
+    onMessage(i);
+    if (i + 1 < count) {
+      port2.postMessage(i + 1);
+    } else {
+      port1.close();
+      onDone?.();
+    }
+  };
+  return () => port2.postMessage(0);
+}
+
+/** Time a `createMessageChain` of `messages` empty handlers, in ms. */
+export function measureDispatchOverhead(messages: number): Promise<number> {
+  return new Promise<number>(resolve => {
+    let start = 0;
+    const send = createMessageChain(
+      messages,
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      () => {},
+      () => resolve(performance.now() - start),
+    );
+    start = performance.now();
+    send();
+  });
+}
+
 export function onProfilerRender(
   _id: string,
   phase: 'mount' | 'update' | 'nested-update',
@@ -344,6 +384,7 @@ export function useBenchState() {
       setNetworkSim,
       flushPendingMutations,
       setRenderLimit,
+      measureDispatchOverhead,
       resetStore: resetStoreNoop,
       ...libraryActions,
     } as BenchAPI;

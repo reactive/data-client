@@ -175,14 +175,17 @@ interface ScenarioSamples {
 // Scenario classification and helpers
 // ---------------------------------------------------------------------------
 
-const REF_STABILITY_METRICS = ['issueRefChanged', 'userRefChanged'] as const;
+const REF_STABILITY_METRICS = [
+  'issueRefChanged',
+  'userRefChanged',
+  'issueRowRenders',
+] as const;
 
 function isRefStabilityScenario(scenario: Scenario): scenario is Scenario & {
   resultMetric: (typeof REF_STABILITY_METRICS)[number];
 } {
-  return (
-    scenario.resultMetric === 'issueRefChanged' ||
-    scenario.resultMetric === 'userRefChanged'
+  return (REF_STABILITY_METRICS as readonly unknown[]).includes(
+    scenario.resultMetric,
   );
 }
 

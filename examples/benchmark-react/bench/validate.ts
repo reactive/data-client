@@ -260,6 +260,13 @@ test('ref-stability after updateEntity', async (page, lib) => {
     `expected ≥1 issueRefChanged, got ${r.issueRefChanged}. ` +
       `setCurrentIssues may not have been called with updated data before measurement.`,
   );
+  assert(
+    r.issueRowRenders >= 1,
+    lib,
+    'ref-stability row renders',
+    `expected ≥1 issueRowRenders after updating a rendered issue, got ${r.issueRowRenders}. ` +
+      `IssueRow may not call noteIssueRowRender().`,
+  );
   process.stderr.write(
     `    issueRefChanged=${r.issueRefChanged} userRefChanged=${r.userRefChanged}\n`,
   );
@@ -413,6 +420,60 @@ test(
     await clearComplete(page);
     await page.evaluate(() => window.__BENCH__!.invalidateAndResolve!(1));
     await waitForComplete(page, 15000);
+  },
+  { onlyLibs: ['data-client'] },
+);
+
+// ── streamTickers ────────────────────────────────────────────────────────
+
+test(
+  'streamTickers updates every rendered ticker',
+  async (page, lib) => {
+    if (
+      !(await page.evaluate(
+        () => typeof window.__BENCH__?.streamTickers === 'function',
+      ))
+    )
+      return;
+
+    const getVolumes = () =>
+      page.evaluate(() =>
+        [...document.querySelectorAll('[data-ticker] [data-volume]')].map(
+          el => el.textContent,
+        ),
+      );
+
+    await clearComplete(page);
+    await page.evaluate(
+      (n: number) => window.__BENCH__!.initTickerStream!(n),
+      TEST_ISSUE_COUNT,
+    );
+    await waitForComplete(page);
+    const before = await getVolumes();
+    assert(
+      before.length === 20,
+      lib,
+      'streamTickers strip',
+      `expected 20 rendered tickers, got ${before.length}`,
+    );
+
+    await page.evaluate(() => window.__BENCH__!.captureRefSnapshot());
+    await clearComplete(page);
+    await page.evaluate(() => window.__BENCH__!.streamTickers!(50));
+    await waitForComplete(page);
+
+    const after = await getVolumes();
+    const unchanged = after.filter((v, i) => v === before[i]).length;
+    assert(
+      unchanged === 0,
+      lib,
+      'streamTickers updates',
+      `${unchanged} of 20 rendered tickers unchanged when data-bench-complete fired`,
+    );
+    const r = await page.evaluate(() =>
+      window.__BENCH__!.getRefStabilityReport(),
+    );
+    process.stderr.write(`    issueRowRenders=${r.issueRowRenders}\n`);
   },
   { onlyLibs: ['data-client'] },
 );

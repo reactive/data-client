@@ -1,6 +1,7 @@
 import React from 'react';
 
-import type { Issue, User } from './types';
+import { noteIssueRowRender } from './refStability';
+import type { Issue, Ticker, User } from './types';
 
 export const DOUBLE_LIST_STYLE = { display: 'flex', gap: 8 } as const;
 
@@ -61,6 +62,7 @@ const STATE_ICONS: Record<string, string> = {
  * that don't still re-execute the expensive UserView on every render.
  */
 export function IssueRow({ issue }: { issue: Issue }) {
+  noteIssueRowRender();
   const labelStr = issue.labels.map(l => l.name).join(', ');
   return (
     <div data-issue-number={issue.number} data-bench-item>
@@ -92,6 +94,37 @@ export function PinnedCardView({ issue }: { issue: Issue }) {
       <UserView user={issue.user} />
       <span data-state>{STATE_ICONS[issue.state] ?? issue.state}</span>
       <span data-comments>{issue.comments}</span>
+    </div>
+  );
+}
+
+function TickerRow({ ticker }: { ticker: Ticker }) {
+  return (
+    <span data-ticker={ticker.symbol}>
+      <span data-symbol>{ticker.symbol}</span>
+      <span data-price>{ticker.price.toFixed(2)}</span>
+      <span data-change>{ticker.change.toFixed(2)}</span>
+      <span data-volume>{ticker.volume}</span>
+    </span>
+  );
+}
+
+/**
+ * Cheap strip of the first `limit` tickers. Only the ticker-stream scenarios
+ * render it. Rows whose ticker kept its reference skip re-rendering.
+ */
+export function TickerStrip({
+  tickers,
+  limit,
+}: {
+  tickers: Ticker[];
+  limit: number;
+}) {
+  return (
+    <div data-ticker-strip>
+      {tickers.slice(0, limit).map(ticker => (
+        <TickerRow key={ticker.symbol} ticker={ticker} />
+      ))}
     </div>
   );
 }

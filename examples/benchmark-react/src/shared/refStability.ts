@@ -2,6 +2,15 @@ import type { Issue, RefStabilityReport, User } from './types';
 
 let currentIssues: Issue[] = [];
 let snapshotRefs: Map<number, { issue: Issue; user: User }> | null = null;
+let issueRowRenders = 0;
+
+/**
+ * Count one IssueRow render. Called from IssueRow's body; a call (not an
+ * inline `++` on a module variable) so React Compiler still compiles IssueRow.
+ */
+export function noteIssueRowRender(): void {
+  issueRowRenders++;
+}
 
 /**
  * Store the current issues array. Called from ListView during render.
@@ -12,9 +21,11 @@ export function setCurrentIssues(issues: Issue[]): void {
 }
 
 /**
- * Build a snapshot from current issues. Call after mount, before running an update.
+ * Build a snapshot from current issues and reset the IssueRow render count.
+ * Call after mount, before running an update.
  */
 export function captureSnapshot(): void {
+  issueRowRenders = 0;
   snapshotRefs = new Map();
   for (const issue of currentIssues) {
     snapshotRefs.set(issue.number, { issue, user: issue.user });
@@ -31,6 +42,7 @@ export function getReport(): RefStabilityReport {
       issueRefChanged: 0,
       userRefUnchanged: 0,
       userRefChanged: 0,
+      issueRowRenders,
     };
   }
 
@@ -60,5 +72,6 @@ export function getReport(): RefStabilityReport {
     issueRefChanged,
     userRefUnchanged,
     userRefChanged,
+    issueRowRenders,
   };
 }

@@ -1,4 +1,4 @@
-import type { Issue, Label, User } from './types';
+import type { Issue, Label, Ticker, User } from './types';
 
 /** Sort issues by title, optionally limiting to the first `limit` results. */
 export function sortByTitle<T extends { title: string }>(
@@ -191,6 +191,117 @@ export const FIXTURE_ISSUES_BY_NUMBER = new Map(
 export const FIXTURE_USERS_BY_LOGIN = new Map(
   FIXTURE_USERS.map(u => [u.login, u]),
 );
+
+// ── TICKERS ─────────────────────────────────────────────────────────────
+
+/** Tickers in the store for the ticker-stream scenarios. */
+export const TICKER_COUNT = 500;
+/** Tickers the strip renders (the first N of the list). */
+export const TICKER_STRIP_SIZE = 20;
+
+const TICKER_BASE_TIME = Date.UTC(2026, 0, 2, 14, 30);
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+/** Unique 3-letter symbol for index i (AAA, BAA, ... ZZZ). */
+function tickerSymbol(i: number): string {
+  return (
+    LETTERS[i % 26] +
+    LETTERS[Math.floor(i / 26) % 26] +
+    LETTERS[Math.floor(i / 676) % 26]
+  );
+}
+
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+
+/** Deterministic tickers: prices 5.00–999.99, no randomness. */
+export function generateTickers(count: number): Ticker[] {
+  const tickers: Ticker[] = [];
+  for (let i = 0; i < count; i++) {
+    tickers.push({
+      symbol: tickerSymbol(i),
+      price: round2(5 + ((i * 7919) % 99500) / 100),
+      change: 0,
+      volume: 10000 + ((i * 104729) % 990000),
+      time: TICKER_BASE_TIME,
+    });
+  }
+  return tickers;
+}
+
+export const FIXTURE_TICKERS = generateTickers(TICKER_COUNT);
+
+/** The update for one ticker in stream round `version` (1, 2, ...). */
+function tickTicker(base: Ticker, i: number, version: number): Ticker {
+  // ±1% around the base price; differs every round for every ticker
+  const move = (((i * 31 + version * 17) % 201) - 100) / 10000;
+  const price = round2(base.price * (1 + move));
+  return {
+    symbol: base.symbol,
+    price,
+    change: round2(move * 100),
+    volume: base.volume + version * 100 + (i % 100),
+    time: base.time + version * 1000,
+  };
+}
+
+export interface TickerStream {
+  /** One batch per message; every ticker appears in exactly one batch. */
+  batches: Ticker[][];
+  /** Rendered ticker updated last; the stream is done when its price shows. */
+  sentinelSymbol: string;
+  sentinelPrice: number;
+}
+
+/**
+ * Build round `version` of the ticker stream: every ticker updated once,
+ * split across `messages` batches. Most batches only touch tickers the strip
+ * doesn't render; every 10th batch, counting back from the last, also carries
+ * a share of the rendered tickers. The last batch ends with the sentinel: a
+ * rendered ticker whose price is unique to this round.
+ */
+export function buildTickerStream(
+  version: number,
+  messages: number,
+  tickers: Ticker[] = FIXTURE_TICKERS,
+  renderedCount = TICKER_STRIP_SIZE,
+): TickerStream {
+  const perMessage = Math.ceil(tickers.length / messages);
+  const isHot = (m: number) => (messages - 1 - m) % 10 === 0;
+  let hotCount = 0;
+  for (let m = 0; m < messages; m++) if (isHot(m)) hotCount++;
+  const renderedPerHot = Math.ceil(renderedCount / hotCount);
+
+  let nextRendered = 0;
+  let nextCold = renderedCount;
+  const batches: Ticker[][] = [];
+  for (let m = 0; m < messages; m++) {
+    const indices: number[] = [];
+    const rendered =
+      isHot(m) ? Math.min(renderedPerHot, renderedCount - nextRendered) : 0;
+    while (
+      indices.length < perMessage - rendered &&
+      nextCold < tickers.length
+    ) {
+      indices.push(nextCold++);
+    }
+    // rendered tickers last, so the final one in the stream is the sentinel
+    for (let r = 0; r < rendered; r++) indices.push(nextRendered++);
+    batches.push(indices.map(i => tickTicker(tickers[i], i, version)));
+  }
+
+  const sentinel = tickers[renderedCount - 1];
+  const last = batches[batches.length - 1];
+  if (last[last.length - 1]?.symbol !== sentinel.symbol) {
+    throw new Error(
+      `buildTickerStream: ${messages} messages leave no rendered ticker in the last batch`,
+    );
+  }
+  const sentinelPrice = round2(sentinel.price + version / 100);
+  last[last.length - 1] = { ...last[last.length - 1], price: sentinelPrice };
+  return { batches, sentinelSymbol: sentinel.symbol, sentinelPrice };
+}
 
 /**
  * Generate fresh issues/users with distinct IDs for bulk ingestion scenarios.

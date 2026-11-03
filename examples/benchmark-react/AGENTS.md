@@ -34,6 +34,8 @@ Filtering: `yarn bench --lib data-client --size small --action update`
 
 `BASE_SCENARIOS` in `bench/scenarios.ts` × `LIBRARIES` via `flatMap`. `onlyLibs` restricts to specific libs. CI runs data-client hot-path only (no memory/startup/deterministic). Memory is opt-in locally (`--action memory`). Convergent timing uses single page load with adaptive iterations and early stopping on statistical convergence. Ref-stability scenarios run once (deterministic count, not ops/s).
 
+**Ticker stream** (data-client only): `initTickerStream` is the untimed pre-mount. `streamTickers` builds every batch and the `MessageChannel` before `measureUpdate` starts timing, so the time covers only the store writes, renders and hops. `issueRowRenders` comes from `getRefStabilityReport()`; `captureRefSnapshot()` resets it, and `IssueRow` counts itself with a function call so React Compiler still compiles it.
+
 ## Update Data Flow
 
 1. Runner calls `window.__BENCH__.updateEntity(1)`
@@ -63,6 +65,7 @@ Filtering: `yarn bench --lib data-client --size small --action update`
 | `data-issue-number` | components → runner/harness | Item identity assertion |
 | `data-title` | components → lib views | Text content assertion |
 | `data-state-list` | lib views → harness | Move-item verification |
+| `data-ticker` | components → lib views | Ticker-stream sentinel (`[data-price]` text) |
 
 ## Environment Variables
 

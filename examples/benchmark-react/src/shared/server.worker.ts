@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 
-import { FIXTURE_USERS, FIXTURE_ISSUES } from './data';
-import type { Issue, Label, User } from './types';
+import { FIXTURE_USERS, FIXTURE_ISSUES, FIXTURE_TICKERS } from './data';
+import type { Issue, Label, Ticker, User } from './types';
 
 declare const self: DedicatedWorkerGlobalScope;
 
@@ -104,6 +104,10 @@ function fetchIssueList(params?: { count?: number; state?: string }): Issue[] {
     return issue;
   });
   return issues;
+}
+
+function fetchTickerList(): Ticker[] {
+  return FIXTURE_TICKERS;
 }
 
 // ── CREATE ───────────────────────────────────────────────────────────────
@@ -244,6 +248,7 @@ const methods: Record<string, (params: any) => unknown> = {
   fetchIssue,
   fetchUser,
   fetchIssueList,
+  fetchTickerList,
   createIssue,
   updateIssue,
   updateUser,
