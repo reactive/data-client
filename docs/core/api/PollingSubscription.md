@@ -10,7 +10,7 @@ resource.
 
 - Pauses when offline.
 - Immediately fetches when online status returns.
-- Fetches a new subscription at once if its data is older than the interval. Otherwise, it fetches when the interval since that fetch ends.
+- When polling starts, fetches at once if the data is older than the interval. Otherwise, it fetches when the interval since that fetch ends.
 
 :::info implements
 

@@ -89,7 +89,7 @@ When using React Navigation, useSubscription() will sub/unsub with focus/unfocus
 
 :::
 
-In a hidden [`<Activity>`](https://react.dev/reference/react/Activity), useSubscription() unsubscribes. It
+In a hidden [`<Activity>`](https://react.dev/reference/react/Activity), `useSubscription()` unsubscribes. It
 subscribes again when shown. [Example](#pause-while-hidden)
 
 ::::
@@ -243,8 +243,8 @@ export default function PricePanel({ symbol }: { symbol: string }) {
 }
 ```
 
-A hidden `<Activity>` keeps `MasterPrice` and its state, but stops its Effects, so polling stops. When shown, polling
-resumes. If the last fetch is older than [pollFrequency](/rest/api/RestEndpoint#pollfrequency), it fetches at once.
+A hidden `<Activity>` keeps `MasterPrice` and its state, but stops its Effects. If no other component subscribes to the
+price, polling stops. When shown, polling resumes. If the last fetch is older than [pollFrequency](/rest/api/RestEndpoint#pollfrequency), it fetches at once.
 
 A hidden `<Activity>` still renders. So `useSuspense()` fetches the price before the panel opens, and the panel opens
 without a loading state.

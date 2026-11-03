@@ -126,7 +126,7 @@ stale. useLive() will also sub/unsub with focus/unfocus respectively.
 
 :::
 
-In a hidden [`<Activity>`](https://react.dev/reference/react/Activity), useLive() unsubscribes. It subscribes
+In a hidden [`<Activity>`](https://react.dev/reference/react/Activity), `useLive()` unsubscribes. It subscribes
 again when shown. [Example](#pause-hidden-tabs)
 
 ::::
@@ -306,7 +306,8 @@ render(<Markets />);
 
 </HooksPlayground>
 
-A hidden tab keeps its state, but its Effects stop, so polling stops. When shown, polling resumes. If the last fetch
+A hidden tab keeps its state, but its Effects stop. If no other component subscribes to its price, polling stops. When
+shown, polling resumes. If the last fetch
 is older than [pollFrequency](/rest/api/RestEndpoint#pollfrequency), it fetches at once.
 
 Hidden tabs still render, so every tab fetches its price before it shows. Switching tabs shows a price with no loading
