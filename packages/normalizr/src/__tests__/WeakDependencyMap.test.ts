@@ -123,14 +123,12 @@ describe('WeakDependencyMap', () => {
     setB(b3, 'b3');
     // the first entry is pinned until a flip; b2 is the third most recent
     setB(b4, 'b4');
-    // full: the least recently used goes, except the first entry, kept until a flip
-    setB(b5, 'b5');
     expect(wem.get(a, withB(b2))[0]).toBeUndefined();
     expect(wem.get(a, withB(b))[0]).toBe('b');
 
     // reading b3 back after newer entries pins it instead of b
     expect(wem.get(a, withB(b3))[0]).toBe('b3');
-    setB(b6, 'b6');
+    setB(b5, 'b5');
     expect(wem.get(a, withB(b4))[0]).toBeUndefined();
     setB(b6, 'b6');
     expect(wem.get(a, withB(b))[0]).toBeUndefined();

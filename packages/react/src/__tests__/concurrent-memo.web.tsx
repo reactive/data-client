@@ -100,8 +100,8 @@ const idOf = (o: object) => {
   return id;
 };
 
-/** Every read of the list: entity versions read, result identity. */
-type Read = { versions: string; data: unknown };
+/** Every read of the list: entity versions read, result identity, reader. */
+type Read = { versions: string; data: unknown; who: string };
 let reads: Read[] = [];
 const versionsOf = (state: State<unknown>, todos: { id: string }[]) => {
   const table = (state.entities[Todo.key] ?? {}) as Record<string, object>;
@@ -114,6 +114,7 @@ function List() {
   reads.push({
     versions: versionsOf(state, todos),
     data: todos,
+    who: 'render',
   });
   return <div>{todos.length}</div>;
 }
@@ -178,7 +179,7 @@ function App({
 function readRaw() {
   const state = controller.getState();
   const { data } = controller.getResponse(getTodoList, state);
-  reads.push({ versions: versionsOf(state, data as any), data });
+  reads.push({ versions: versionsOf(state, data as any), data, who: 'raw' });
 }
 
 /** Reads of versions already read before, that got a different result. */
@@ -202,18 +203,6 @@ function flipBacks(list: Read[]) {
     last = versions;
   }
   return flips;
-}
-
-function trace(name: string) {
-  if (!process.env.MEMO_TRACE) return;
-  const label = new Map<string, number>();
-  const seq = reads.map(r => {
-    if (!label.has(r.versions)) label.set(r.versions, label.size);
-    return `${r.who === 'raw' ? 'R' : ''}v${label.get(r.versions)}:d${idOf(r.data as object)}`;
-  });
-  console.log(
-    `${name}: ${reads.length} reads, ${label.size} versions, ${flipBacks(reads)} flip-backs, ${avoidableMisses(reads)} avoidable misses\n${seq.join(' ')}`,
-  );
 }
 
 function mount(consumers: number, project = false) {
@@ -457,7 +446,6 @@ describeConcurrent.each([1, 2])(
       for (let i = 0; i < 3; i++) act(() => typeText(`a${i}`));
       await finishTransition('X');
       const projectReads = reads.filter(r => r.who === 'project');
-      trace('single-entity read');
       // a pk input: commit pins the top-level entity's own entry
       expect(avoidableMisses(projectReads)).toBe(0);
       expect(avoidableMisses(reads.filter(r => r.who !== 'project'))).toBe(0);
@@ -491,7 +479,6 @@ describeConcurrent.each([1, 2])(
         await rollBack(`${10 + i}`, `optimistic ${i}`);
         writeNote(200 + i);
       }
-      trace('ten optimistic rolled back');
       expect(lastTitles()).toEqual(rows().map(row => row.title));
       expect(avoidableMisses(reads)).toBe(0);
     });
@@ -504,7 +491,6 @@ describeConcurrent.each([1, 2])(
         else await resolveOptimistic(`${10 + i}`, `optimistic ${i}`);
         writeNote(200 + i);
       }
-      trace('ten optimistic resolved or rolled back');
       expect(lastTitles()).toEqual(
         rows().map(({ id, title }) => {
           const i = Number(id) - 10;
@@ -527,7 +513,6 @@ describeConcurrent.each([1, 2])(
         await rollBack(`${10 + i}`, `optimistic ${i}`);
         readRaw();
       }
-      trace('ten optimistic after flips');
       expect(avoidableMisses(reads)).toBe(0);
     });
 
@@ -541,7 +526,6 @@ describeConcurrent.each([1, 2])(
       }
       for (const i of SCRAMBLED) await rollBack(`${10 + i}`, `optimistic ${i}`);
       await finishTransition('X');
-      trace('ten optimistic during a transition');
       expect(avoidableMisses(reads)).toBe(0);
     });
 
@@ -554,9 +538,80 @@ describeConcurrent.each([1, 2])(
       for (let i = 0; i < 50; i += 2)
         await rollBack(`${i % ROWS}`, `optimistic ${i}`);
       writeNote(0);
-      trace('fifty optimistic');
       expect(lastTitles()).toEqual(rows().map(row => row.title));
       expect(avoidableMisses(reads)).toBe(0);
     });
+
+    // Many store versions in flight at once. Every version stays readable
+    // until its update settles, so each is a candidate to be read back.
+
+    it.each([2, 4, 8])(
+      '%i layered optimistic updates, settled out of order',
+      async n => {
+        mount(consumers);
+        for (let i = 0; i < n; i++) {
+          beginOptimistic(`${i}`, `o${i}`);
+          writeNote(note++);
+          readRaw();
+        }
+        for (const i of scrambled(n)) {
+          await settleOptimistic(i);
+          writeNote(note++);
+          readRaw();
+        }
+        expect(flipBacks(reads)).toBeGreaterThan(0);
+        expect(avoidableMisses(reads)).toBe(0);
+      },
+    );
+
+    it.each([2, 3, 5])(
+      '%i overlapping transitions, finished in reverse',
+      async k => {
+        mount(consumers);
+        for (let t = 0; t < k; t++) {
+          beginTransition(`${20 + t}`, `T${t}`);
+          act(() => typeText(`t${t}a`));
+          writeNote(note++);
+          act(() => typeText(`t${t}b`));
+        }
+        for (let t = k - 1; t >= 0; t--) {
+          await finishTransition(`T${t}`);
+          act(() => typeText(`done${t}`));
+          writeNote(note++);
+          readRaw();
+        }
+        expect(flipBacks(reads)).toBeGreaterThan(0);
+        expect(avoidableMisses(reads)).toBe(0);
+      },
+    );
+
+    it.each([
+      [4, 2],
+      [8, 3],
+      [8, 5],
+    ])(
+      '%i optimistic updates and %i transitions, interleaved',
+      async (n, k) => {
+        mount(consumers);
+        const steps = Math.max(n, k);
+        for (let s = 0; s < steps; s++) {
+          if (s < n) beginOptimistic(`${s}`, `o${s}`);
+          writeNote(note++);
+          if (s < k) beginTransition(`${20 + s}`, `T${s}`);
+          act(() => typeText(`s${s}`));
+          readRaw();
+        }
+        const order = scrambled(n);
+        for (let s = 0; s < steps; s++) {
+          if (s < order.length) await settleOptimistic(order[s]);
+          act(() => typeText(`u${s}`));
+          if (s < k) await finishTransition(`T${k - 1 - s}`);
+          writeNote(note++);
+          readRaw();
+        }
+        expect(flipBacks(reads)).toBeGreaterThan(0);
+        expect(avoidableMisses(reads)).toBe(0);
+      },
+    );
   },
 );

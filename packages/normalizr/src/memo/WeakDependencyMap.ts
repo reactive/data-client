@@ -72,7 +72,7 @@ export default class WeakDependencyMap<
     /** record the hit for `trackLast()`/`keepLast()` */
     track = false,
   ) {
-    const root = this.next.get(depKey(entity) as K);
+    const root = this.next.get(entity);
     const node = root && find(root, getDependency, args);
     if (!node) return EMPTY;
     const entry = node.entries[0];
@@ -96,7 +96,7 @@ export default class WeakDependencyMap<
     journey?: Path[],
     /** record the write for `trackLast()`/`keepLast()` */
     track = false,
-  ) {
+  ): void {
     if (dependencies.length < 1) throw new KeySize();
     const root = depKey(dependencies[0].entity) as K;
     let node = this.next.get(root);
