@@ -33,7 +33,7 @@ import StoreIcon from '../StoreIcon';
 import styles from '../styles.module.css';
 
 // one for the page: closing a Store closes every playground's in its group
-let held: HTMLElement | undefined;
+let held: HTMLElement | null = null;
 /** The playground whose Store toggle the reader clicked last, while on the
  * page: held in place on screen as its Store opens, and as the Stores it
  * closed slide out and leave the layout. The playground, not the toggle:
@@ -99,9 +99,8 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
   // shut, it shows that one
   const toggle = useCallback(
     (event: { currentTarget: HTMLElement }, to = latestTab.current) => {
-      held =
-        event.currentTarget.closest<HTMLElement>('[data-playground]') ??
-        undefined;
+      // every toggle is in a playground, but for a test's lone render
+      held = event.currentTarget.closest<HTMLElement>('[data-playground]');
       if (held) blockElementScrollPositionUntilNextRender(held);
       const shut = open && to === latestTab.current;
       setChoice(shut ? 'n' : to);
@@ -117,7 +116,7 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
   // tab, sliding the drawer open if it was shut (a quick look's link)
   const select = useCallback(
     (to: Inspect) => {
-      held = undefined;
+      held = null;
       setChoice(to);
       setLastTab(to);
       quickLook.close();
@@ -132,7 +131,7 @@ export function useStoreOpen(groupId: string, defaultOpen: InspectorOpen) {
   // doesn't hold a playground the reader toggled earlier
   const showStore = useCallback<ShowStore>(
     (demoOpen, view, demoTab) => {
-      held = undefined;
+      held = null;
       quickLook.close();
       if (demoOpen !== latestOpen.current) setMoves(n => n + 1);
       // opening the actions, as their handle does, it shows their list
