@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793582225949,
+  "lastUpdate": 1793680113250,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -139057,6 +139057,366 @@ window.BENCHMARK_DATA = {
             "range": "±3.20%",
             "unit": "ops/sec",
             "extra": "95 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7365cd715de8d4e7aec8a478454be529b58b3dee",
+          "message": "fix(normalizr): Track INVALID and null nested entities as memo dependencies (#4460)\n\n* fix(normalizr): Track INVALID and null nested entities as memo dependencies\n\nunvisitEntity returned early for a nested entity whose stored value was\nINVALID or null, without recording it as a dependency. A cached parent\nkept returning its old result after that entity became valid again.\nBoth now go through cache.getEntity like a missing entity does, keyed by\ndepKey(), which gives each non-object value a stable object stand-in.\n\nDocuments the memo invariants in packages/normalizr/AGENTS.md, with the\ntwo accepted limitations, and adds a scoped agent rule pointing at them.\nAdds a ReactDOM test that counts memo misses under concurrent rendering.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* docs(blog): Note the INVALID/null memo dependency fix\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* refactor(normalizr): Record non-object nested entities in one branch\n\nunvisitEntity handled missing, null and INVALID nested entities in three\nnear-identical branches. One branch now records all three, and\nWeakDependencyMap maps its root key through depKey(), so callers pass the\nraw value. Tests reuse the shared Article and makeGetTodo fixtures.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* refactor(normalizr): Keep depKey with WeakDependencyMap; tidy memo tests\n\n- depKey lives in WeakDependencyMap, its only user\n- unvisitEntity handles all non-object entities in one block\n- WeakDependencyMap tests null and INVALID dependencies directly\n- concurrent-memo test helpers: updateKey, versionsOf(state)\n- AGENTS.md: invariant 1 without implementation names; MAX_ENTITY_DEPTH\n- memo-invariants rule also applies to normalizr schemas\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* test(normalizr): Cover blank nested ids in unvisitEntity\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* fix(normalizr): Key function dependencies by themselves in depKey\n\nEntity classes are functions, and buildQueryKey records them as the\nfirst dependency. depKey gave them a stand-in in a module-level Map,\nwhich kept every queried schema alive. Functions are valid WeakMap keys.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* refactor(normalizr): Drop UNDEF; one blank-id check in unvisitEntity\n\n- depKey's stand-in Map already covers undefined, so UNDEF.ts goes\n- unvisitEntity: no value closure; isBlankPk shared by both branches\n- tests: rows hold the store table; one settle() for held requests\n- memo-invariants rule just points at AGENTS.md\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* bench: Measure nested missing, null and INVALID entities\n\nEvery 4th nested BuildTypeDescription in the project list is missing from\nthe store, null, or INVALID, cold and withCache. Each is now a memo\ndependency of the project that nests it. Export INVALID from the bundle.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* perf(normalizr): Fixed depKey stand-ins for undefined, null and INVALID\n\ndepKey runs on every memo dependency. Looking up undefined, null and\nINVALID in a Map made cached reads of lists with missing, null or INVALID\nchildren up to 33% slower than master; fixed objects need no lookup.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* perf(normalizr): Record non-object children as plain dependencies\n\nA missing, null or INVALID child only needs its dependency recorded; its\nvalue is not worth caching. Skip the entity cache (closure, cache entry,\narrays) and push the dependency directly.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* chore: Format dependOn\n\n* refactor(normalizr): Simplify non-object memo dependencies\n\nReuse the lookup path as the dependency path, skip depKey for root keys\n(always objects), inline a single-use helper, and drop test tracing.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* docs(react): Match the Read comment in the memo tests\n\n* perf(normalizr): Keep the non-object value helper out of unvisitEntity\n\nInlining it put the rarely taken INVALID branch in the hot function: V8\ndeopted on it during warm-up, and cached reads ran 1-7% slower.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* chore: Regenerate website editor types\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* chore: Update only the editor types this PR changes\n\nThe previous regeneration used a local TypeScript that drops declarations.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+          "timestamp": "2026-11-03T04:19:24Z",
+          "tree_id": "6affd02ddc86eb9e84dbc785be385a023aea4bff",
+          "url": "https://github.com/reactive/data-client/commit/7365cd715de8d4e7aec8a478454be529b58b3dee"
+        },
+        "date": 1793680109992,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 430,
+            "range": "±5.34%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 393,
+            "range": "±0.31%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 355,
+            "range": "±2.04%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 905,
+            "range": "±0.79%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 241,
+            "range": "±7.13%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 225,
+            "range": "±5.59%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1035,
+            "range": "±1.47%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing",
+            "value": 265,
+            "range": "±6.09%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null",
+            "value": 276,
+            "range": "±6.22%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID",
+            "value": 281,
+            "range": "±6.12%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 742,
+            "range": "±1.21%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 1035,
+            "range": "±0.17%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1355,
+            "range": "±0.71%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 592,
+            "range": "±6.79%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 7218,
+            "range": "±0.12%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 3299,
+            "range": "±0.83%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 53804,
+            "range": "±0.42%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 5569,
+            "range": "±2.16%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 220,
+            "range": "±7.72%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 6455,
+            "range": "±1.28%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 6529,
+            "range": "±0.98%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing withCache",
+            "value": 6324,
+            "range": "±0.97%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null withCache",
+            "value": 6475,
+            "range": "±0.66%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID withCache",
+            "value": 6503,
+            "range": "±0.60%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 5458,
+            "range": "±0.81%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 5232,
+            "range": "±0.11%",
+            "unit": "ops/sec",
+            "extra": "100 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 4284,
+            "range": "±0.44%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 5444,
+            "range": "±0.63%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 5750,
+            "range": "±1.15%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1510,
+            "range": "±0.10%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 4162,
+            "range": "±10.30%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 45002,
+            "range": "±1.80%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 5000,
+            "range": "±4.14%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 10310946,
+            "range": "±0.48%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 203,
+            "range": "±10.51%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 3854,
+            "range": "±1.84%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 2890,
+            "range": "±0.20%",
+            "unit": "ops/sec",
+            "extra": "100 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 5163,
+            "range": "±2.94%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 3390,
+            "range": "±0.54%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 5503,
+            "range": "±2.43%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 442,
+            "range": "±0.19%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 252,
+            "range": "±0.70%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 268,
+            "range": "±0.20%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 890,
+            "range": "±0.95%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 143,
+            "range": "±1.07%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 3748,
+            "range": "±0.45%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 14.59,
+            "range": "±0.70%",
+            "unit": "ops/sec",
+            "extra": "40 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 1449,
+            "range": "±3.92%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
           }
         ]
       }
