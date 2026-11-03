@@ -1696,10 +1696,10 @@ div.fixtureJson + div.fixtureJson {
     right: 0;
   }
   /* the Store's sheet below the preview: shut, it narrows to the fold
-     (where the drawer's clip cuts the sheet) as the sheet slides past it;
-     then, a drawer's slide after the Store shut, it's hidden (the delayed
-     visibility), so no sliver of its shadow is left until the Store leaves
-     the layout. Open, it shows at once */
+     (where the drawer's clip cuts the sheet) as the sheet slides past it,
+     and is hidden once that slide has finished (visibility, delayed by the
+     drawer's duration), so no sliver of its shadow is left until the Store
+     leaves the layout. Open, it shows at once */
   .row:not(.stacked)::before {
     top: calc(100% - var(--pg-preview-gap, 0px));
     bottom: 0;
@@ -1775,6 +1775,8 @@ div.fixtureJson + div.fixtureJson {
     z-index: 2;
     height: var(--pg-fillet-r);
   }
+  /* until then (the Store leaves the layout a commit after the slide has
+     finished), the same delayed hide as the sheet's shadow */
   .row:not(.stacked):has(> .storeHost:not([data-open]))::after {
     visibility: hidden;
     transition: visibility 0s var(--pg-store-drawer);
