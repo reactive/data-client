@@ -1245,15 +1245,21 @@ div.playground-preview h1:first-child {
   /* above the pill, which its transform lifts over unpositioned siblings */
   position: relative;
   margin: 0;
-  /* trimmed to the caps, so the padding centers them on the pill. Stated
-     outright: Firefox carries the sheet's first-line trim into a header's
-     buttons, which lifted their caps and shortened the pill */
-  padding: 8.5px 12px;
-  text-box: trim-both cap alphabetic;
+  padding: 4px 12px;
   border: 0;
   border-radius: 999px;
   background: none;
   color: var(--ds-text-muted);
+}
+/* trimmed to the caps, so even padding (half of the 26px pill less the
+   caps) centers them. Stated outright: Firefox carries the sheet's
+   first-line trim into a header's buttons, which lifted their caps and
+   shortened the pill */
+@supports (text-box: trim-both cap alphabetic) {
+  .playground-preview .segmented > button {
+    padding-block: 8.5px;
+    text-box: trim-both cap alphabetic;
+  }
 }
 .playground-preview .segmented > button[aria-pressed='true'] {
   color: var(--ds-text);
