@@ -13,36 +13,56 @@ When using the default [polling subscriptions](https://dataclient.io/docs/api/Po
 
 ## Usage
 
-```typescript title="api/Price"
-import { RestEndpoint, Entity } from '@data-client/rest';
+```typescript title="Ticker" {23}
+import { Entity, RestEndpoint } from '@data-client/rest';
 
-export class Price extends Entity {
-  symbol = '';
-  price = '0.0';
-  // ...
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
 
   pk() {
-    return this.symbol;
+    return this.product_id;
   }
+  static key = 'Ticker';
+
+  static schema = { price: Number };
 }
 
-export const getPrice = new RestEndpoint({
-  urlPrefix: 'http://test.com',
-  path: '/price/:symbol',
-  schema: Price,
-  pollFrequency: 5000,
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
+  pollFrequency: 2000,
 });
 ```
 
-```tsx title="MasterPrice" {6}
+```tsx title="AssetPrice" {7}
 import { useSuspense, useSubscription } from '@data-client/react';
-import { getPrice } from 'api/Price';
+import NumberFlow from '@number-flow/react';
+import { getTicker } from './Ticker';
 
-function MasterPrice({ symbol }: { symbol: string }) {
-  const price = useSuspense(getPrice, { symbol });
-  useSubscription(getPrice, { symbol });
-  // ...
+function AssetPrice({ productId }: { productId: string }) {
+  const ticker = useSuspense(getTicker, { productId });
+  useSubscription(getTicker, { productId });
+  return (
+    <dl className="stats">
+      <div>
+        <dt>{productId}</dt>
+        <dd>
+          <NumberFlow
+            value={ticker.price}
+            format={{ style: 'currency', currency: 'USD' }}
+          />
+        </dd>
+      </div>
+    </dl>
+  );
 }
+render(<AssetPrice productId="BTC-USD" />);
 ```
 
 ## Behavior
@@ -59,6 +79,9 @@ function MasterPrice({ symbol }: { symbol: string }) {
 > **Info: React Native**
 >
 > When using React Navigation, useSubscription() will sub/unsub with focus/unfocus respectively.
+
+In a hidden [`<Activity>`](https://react.dev/reference/react/Activity), `useSubscription()` unsubscribes. It
+subscribes again when shown. [Example](#pause-while-hidden)
 
 ## Types
 
@@ -84,26 +107,191 @@ function useSubscription<
 
 ### Only subscribe while element is visible
 
-```tsx title="MasterPrice.tsx" {9}
-import { useIntersectionObserver } from '@uidotdev/usehooks';
-import { useSuspense, useSubscription } from '@data-client/react';
-import { getPrice } from 'api/Price';
+```typescript title="Ticker"
+import { Entity, RestEndpoint } from '@data-client/rest';
 
-function MasterPrice({ symbol }: { symbol: string }) {
-  const price = useSuspense(getPrice, { symbol });
-  const [ref, entry] = useIntersectionObserver();
-  // null params means don't subscribe
-  useSubscription(getPrice, entry?.isIntersecting ? { symbol } : null);
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
 
-  return <div ref={ref}>{price.price}</div>;
+  pk() {
+    return this.product_id;
+  }
+  static key = 'Ticker';
+
+  static schema = { price: Number };
 }
+
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
+  pollFrequency: 2000,
+});
+```
+
+```tsx title="useInView"
+import React from 'react';
+
+/** Whether the element is on screen */
+export function useInView<T extends Element>() {
+  const ref = React.useRef<T>(null);
+  const [inView, setInView] = React.useState(false);
+  React.useEffect(() => {
+    // one callback can hold several entries: the last is current
+    const observer = new IntersectionObserver(entries =>
+      entries.forEach(entry => setInView(entry.isIntersecting)),
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+  return [ref, inView] as const;
+}
+```
+
+```tsx title="Watchlist" {9-10}
+import { useSuspense, useSubscription } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { getTicker } from './Ticker';
+import { useInView } from './useInView';
+
+function AssetRow({ productId }: { productId: string }) {
+  const ticker = useSuspense(getTicker, { productId });
+  const [ref, inView] = useInView<HTMLDivElement>();
+  // null args means don't subscribe
+  useSubscription(getTicker, inView ? { productId } : null);
+  return (
+    <div className="listItem" ref={ref}>
+      <h4>{productId}</h4>
+      <NumberFlow
+        className="value"
+        value={ticker.price}
+        format={{ style: 'currency', currency: 'USD' }}
+      />
+    </div>
+  );
+}
+
+const products = [
+  'BTC-USD',
+  'ETH-USD',
+  'SOL-USD',
+  'BCH-USD',
+  'LTC-USD',
+  'AAVE-USD',
+  'AVAX-USD',
+  'LINK-USD',
+];
+render(
+  <>
+    <header className="appHeader">
+      <h1 className="appTitle">Watchlist</h1>
+    </header>
+    <div className="list scroll">
+      {products.map(productId => (
+        <AssetRow key={productId} productId={productId} />
+      ))}
+    </div>
+  </>,
+);
 ```
 
 When `null` is sent as the second argument, the subscription is deactivated. Of course,
 if other components are still subscribed the data updates will still be active.
 
-[useIntersectionObserver()](https://usehooks.com/useintersectionobserver) uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant. [ref](https://react.dev/reference/react/useRef) allows
-us to access the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model).
+`useInView()` uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API),
+which is very performant. Hooks such as [useIntersectionObserver()](https://usehooks.com/useintersectionobserver) do
+the same.
+
+### Pause while hidden
+
+To hide a panel or tab, wrap it in [`<Activity>`](https://react.dev/reference/react/Activity). `AssetPrice` needs
+no change.
+
+```typescript title="Ticker"
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
+
+  pk() {
+    return this.product_id;
+  }
+  static key = 'Ticker';
+
+  static schema = { price: Number };
+}
+
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
+  pollFrequency: 2000,
+});
+```
+
+```tsx title="AssetPrice"
+import { useSuspense, useSubscription } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { getTicker } from './Ticker';
+
+export default function AssetPrice({ productId }: { productId: string }) {
+  const ticker = useSuspense(getTicker, { productId });
+  useSubscription(getTicker, { productId });
+  return (
+    <dl className="stats">
+      <div>
+        <dt>{productId}</dt>
+        <dd>
+          <NumberFlow
+            value={ticker.price}
+            format={{ style: 'currency', currency: 'USD' }}
+          />
+        </dd>
+      </div>
+    </dl>
+  );
+}
+```
+
+```tsx title="PricePanel" {14-16}
+import React from 'react';
+import AssetPrice from './AssetPrice';
+
+function PricePanel({ productId }: { productId: string }) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Prices</h1>
+        <button aria-expanded={open} onClick={() => setOpen(!open)}>
+          {open ? 'Hide' : 'Show'} price
+        </button>
+      </header>
+      <React.Activity mode={open ? 'visible' : 'hidden'}>
+        <AssetPrice productId={productId} />
+      </React.Activity>
+    </>
+  );
+}
+render(<PricePanel productId="BTC-USD" />);
+```
+
+A hidden `<Activity>` keeps `AssetPrice` and its state, but stops its Effects. If no other component subscribes to the
+price, polling stops. When shown, polling resumes. If the last fetch is older than
+[pollFrequency](https://dataclient.io/rest/api/RestEndpoint#pollfrequency), it fetches at once.
+
+A hidden `<Activity>` still renders. So `useSuspense()` fetches the price before the panel opens, and the panel opens
+without a loading state.
 
 ### Crypto prices (websockets)
 

@@ -13,37 +13,59 @@ When using the default [polling subscriptions](https://dataclient.io/vue/api/Pol
 
 ## Usage
 
-```typescript title="api/Price"
-import { RestEndpoint, Entity } from '@data-client/rest';
+```typescript title="Ticker" {23}
+import { Entity, RestEndpoint } from '@data-client/rest';
 
-export class Price extends Entity {
-  symbol = '';
-  price = '0.0';
-  // ...
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
 
   pk() {
-    return this.symbol;
+    return this.product_id;
   }
+  static key = 'Ticker';
+
+  static schema = { price: Number };
 }
 
-export const getPrice = new RestEndpoint({
-  urlPrefix: 'http://test.com',
-  path: '/price/:symbol',
-  schema: Price,
-  pollFrequency: 5000,
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
+  pollFrequency: 2000,
 });
 ```
 
-```html title="MasterPrice.vue" {7}
+```html title="AssetPrice.vue" {10}
 <script setup lang="ts">
   import { useSuspense, useSubscription } from '@data-client/vue';
-  import { getPrice } from 'api/Price';
+  import NumberFlow from '@number-flow/vue';
+  import { getTicker } from './Ticker';
 
-  const props = defineProps<{ symbol: string }>();
-  const price = await useSuspense(getPrice, () => ({ symbol: props.symbol }));
-  useSubscription(getPrice, () => ({ symbol: props.symbol }));
-  // ...
+  const props = defineProps<{ productId: string }>();
+  const ticker = await useSuspense(getTicker, () => ({
+    productId: props.productId,
+  }));
+  useSubscription(getTicker, () => ({ productId: props.productId }));
 </script>
+
+<template>
+  <dl class="stats">
+    <div>
+      <dt>{{ productId }}</dt>
+      <dd>
+        <NumberFlow
+          :value="ticker.price"
+          :format="{ style: 'currency', currency: 'USD' }"
+        />
+      </dd>
+    </div>
+  </dl>
+</template>
 ```
 
 ## Behavior
@@ -81,26 +103,65 @@ follow prop or route changes, so use a getter or `computed` when an argument can
 
 ### Only subscribe while element is visible
 
-```html title="MasterPrice.vue" {12-15}
+```typescript title="Ticker"
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
+
+  pk() {
+    return this.product_id;
+  }
+  static key = 'Ticker';
+
+  static schema = { price: Number };
+}
+
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
+  pollFrequency: 2000,
+});
+```
+
+```html title="AssetRow.vue" {14-20}
 <script setup lang="ts">
   import { computed, useTemplateRef } from 'vue';
   import { useElementVisibility } from '@vueuse/core';
   import { useSuspense, useSubscription } from '@data-client/vue';
-  import { getPrice } from 'api/Price';
+  import NumberFlow from '@number-flow/vue';
+  import { getTicker } from './Ticker';
 
-  const props = defineProps<{ symbol: string }>();
-  const price = await useSuspense(getPrice, () => ({ symbol: props.symbol }));
+  const props = defineProps<{ productId: string }>();
+  const ticker = await useSuspense(getTicker, () => ({
+    productId: props.productId,
+  }));
   const el = useTemplateRef('el');
   const isVisible = useElementVisibility(el);
-  // null params means don't subscribe
+  // null args means don't subscribe
   useSubscription(
-    getPrice,
-    computed(() => (isVisible.value ? { symbol: props.symbol } : null)),
+    getTicker,
+    computed(() =>
+      isVisible.value ? { productId: props.productId } : null,
+    ),
   );
 </script>
 
 <template>
-  <div ref="el">{{ price.price }}</div>
+  <div ref="el" class="listItem">
+    <h4>{{ productId }}</h4>
+    <NumberFlow
+      class="value"
+      :value="ticker.price"
+      :format="{ style: 'currency', currency: 'USD' }"
+    />
+  </div>
 </template>
 ```
 

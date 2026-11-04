@@ -10,7 +10,7 @@ resource.
 
 - Pauses when offline.
 - Immediately fetches when online status returns.
-- Immediately fetches any new subscriptions.
+- On the first subscription, fetches when the data is one interval old. If the data is older, fetches at once.
 
 :::info implements
 

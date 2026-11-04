@@ -334,6 +334,7 @@ hang under it on a line.
 | `appHeader` + `appTitle`                   | the app's top bar and wordmark                                                  |
 | `card`                                     | a group (no box: the sheet is the card)                                         |
 | `list`, `listItem` (`nogap`, `spaced`)     | rows; checkbox rows highlight and fade when done; `aria-busy` fades stale rows  |
+| `list scroll`                              | a list that scrolls in its own box, a few rows tall (a watchlist)               |
 | `meta`                                     | secondary text; last in a `listItem`, it sits at the row's end                  |
 | `value`                                    | a row's figure (a price); last in a `listItem`, at the row's end, tabular       |
 | `byline`, `author` (`Avatar` takes `size`) | who wrote something                                                             |
