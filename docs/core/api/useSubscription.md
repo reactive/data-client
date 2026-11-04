@@ -224,12 +224,13 @@ import React from 'react';
 
 /** Whether the element is on screen */
 export function useInView<T extends Element>() {
+  const ref = React.useRef<T>(null);
   const [inView, setInView] = React.useState(false);
-  const ref = React.useCallback((element: T) => {
+  React.useEffect(() => {
     const observer = new IntersectionObserver(([entry]) =>
       setInView(entry.isIntersecting),
     );
-    observer.observe(element);
+    if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
   }, []);
   return [ref, inView] as const;
