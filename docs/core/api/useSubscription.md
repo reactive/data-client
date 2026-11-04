@@ -472,7 +472,7 @@ export const getTicker = new RestEndpoint({
 });
 ```
 
-```ts title="StreamManager" {18-27}
+```ts title="StreamManager" {19-28}
 import type { Controller, Manager, Middleware } from '@data-client/react';
 import { actionTypes } from '@data-client/react';
 import { Ticker } from './Ticker';
@@ -486,6 +486,7 @@ export default class StreamManager implements Manager {
   /** Latest message per product, waiting to be written */
   protected buffer: Record<string, object> = {};
   protected flushTimeout: ReturnType<typeof setTimeout> | undefined;
+  protected reconnectTimeout: ReturnType<typeof setTimeout> | undefined;
 
   middleware: Middleware = controller => {
     this.controller = controller;
@@ -516,11 +517,19 @@ export default class StreamManager implements Manager {
       // one store update per 50ms, however fast the feed
       this.flushTimeout ??= setTimeout(this.flush, 50);
     };
+    // a dropped connection opens a new socket, which resubscribes
+    this.socket.onclose = () => {
+      this.reconnectTimeout = setTimeout(() => this.init(), 1000);
+    };
   }
 
   cleanup() {
-    clearTimeout(this.flushTimeout);
+    this.socket.onclose = null;
     this.socket.close();
+    clearTimeout(this.reconnectTimeout);
+    clearTimeout(this.flushTimeout);
+    this.flushTimeout = undefined;
+    this.buffer = {};
   }
 
   protected flush = () => {
@@ -628,7 +637,7 @@ render(<Markets />);
 
 </HooksPlayground>
 
-A production app also reconnects after the socket closes. See the [coin app example](https://github.com/reactive/data-client/tree/master/examples/coin-app)
-for a complete `StreamManager`.
+The [coin app example](https://github.com/reactive/data-client/tree/master/examples/coin-app) has a complete
+`StreamManager`, with backoff between reconnects.
 
 :::
