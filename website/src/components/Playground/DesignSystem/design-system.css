@@ -1245,7 +1245,11 @@ div.playground-preview h1:first-child {
   /* above the pill, which its transform lifts over unpositioned siblings */
   position: relative;
   margin: 0;
-  padding: 4px 12px;
+  /* trimmed to the caps, so the padding centers them on the pill. Stated
+     outright: Firefox carries the sheet's first-line trim into a header's
+     buttons, which lifted their caps and shortened the pill */
+  padding: 8.5px 12px;
+  text-box: trim-both cap alphabetic;
   border: 0;
   border-radius: 999px;
   background: none;
