@@ -208,8 +208,26 @@ div.playground-preview h1:first-child {
    rounded band reaching past its text, and a checkbox row lights up under
    the pointer and fades once checked */
 .playground-preview .list {
+  /* how far each row's band reaches past its text */
+  --ds-row-bleed: var(--ds-space-3);
   margin-bottom: var(--ds-space-4);
   transition: opacity var(--motion-snappy);
+}
+/* a list that scrolls in its own box (a watchlist), a few rows tall. Its
+   padding holds the rows' bleed, which would otherwise overflow sideways
+   and scroll; above and below, rows fade out as they scroll past */
+.playground-preview .list.scroll {
+  max-height: 12.5rem;
+  margin: calc(-1 * var(--ds-row-bleed)) calc(-1 * var(--ds-row-bleed))
+    calc(var(--ds-space-4) - var(--ds-row-bleed));
+  padding: var(--ds-row-bleed);
+  overflow-y: auto;
+  mask-image: linear-gradient(
+    transparent,
+    #000 var(--ds-row-bleed) calc(100% - var(--ds-row-bleed)),
+    transparent
+  );
+  overscroll-behavior: contain;
 }
 /* rows that are about to be replaced (a search's results while its query is
    still being typed): faded until the new ones land. The transition sits on
@@ -219,8 +237,8 @@ div.playground-preview h1:first-child {
 }
 .playground-preview .list > .listItem {
   align-items: center;
-  margin: 0 calc(-1 * var(--ds-space-3));
-  padding: var(--ds-space-2) var(--ds-space-3);
+  margin: 0 calc(-1 * var(--ds-row-bleed));
+  padding: var(--ds-space-2) var(--ds-row-bleed);
   border-radius: var(--ds-radius-sm);
   transition: background-color var(--motion-snappy);
 }

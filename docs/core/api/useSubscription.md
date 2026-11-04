@@ -7,7 +7,8 @@ description: Keeps data fresh, but only when component is active. Supports polli
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
-import StackBlitz from '@site/src/components/StackBlitz';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import HooksPlayground from '@site/src/components/HooksPlayground';
 import VueArgs from '../shared/\_vueArgs.mdx';
 
 # useSubscription()
@@ -25,57 +26,97 @@ When using the default [polling subscriptions](./PollingSubscription), frequency
 
 ## Usage
 
-```typescript title="api/Price"
-import { RestEndpoint, Entity } from '@data-client/rest';
+<FrameworkPlayground row>
 
-export class Price extends Entity {
-  symbol = '';
-  price = '0.0';
-  // ...
+```typescript title="Ticker" {23} collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
 
   pk() {
-    return this.symbol;
+    return this.product_id;
   }
+  static key = 'Ticker';
+
+  static schema = { price: Number };
 }
 
-export const getPrice = new RestEndpoint({
-  urlPrefix: 'http://test.com',
-  path: '/price/:symbol',
-  schema: Price,
-  pollFrequency: 5000,
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
+  pollFrequency: 2000,
 });
 ```
 
 :::react
 
-```tsx title="MasterPrice" {6}
+```tsx title="AssetPrice" {7}
 import { useSuspense, useSubscription } from '@data-client/react';
-import { getPrice } from 'api/Price';
+import NumberFlow from '@number-flow/react';
+import { getTicker } from './Ticker';
 
-function MasterPrice({ symbol }: { symbol: string }) {
-  const price = useSuspense(getPrice, { symbol });
-  useSubscription(getPrice, { symbol });
-  // ...
+function AssetPrice({ productId }: { productId: string }) {
+  const ticker = useSuspense(getTicker, { productId });
+  useSubscription(getTicker, { productId });
+  return (
+    <dl className="stats">
+      <div>
+        <dt>{productId}</dt>
+        <dd>
+          <NumberFlow
+            value={ticker.price}
+            format={{ style: 'currency', currency: 'USD' }}
+          />
+        </dd>
+      </div>
+    </dl>
+  );
 }
+render(<AssetPrice productId="BTC-USD" />);
 ```
 
 :::
 
 :::vue
 
-```html title="MasterPrice.vue" {7}
+```html title="AssetPrice.vue" {10}
 <script setup lang="ts">
   import { useSuspense, useSubscription } from '@data-client/vue';
-  import { getPrice } from 'api/Price';
+  import NumberFlow from '@number-flow/vue';
+  import { getTicker } from './Ticker';
 
-  const props = defineProps<{ symbol: string }>();
-  const price = await useSuspense(getPrice, () => ({ symbol: props.symbol }));
-  useSubscription(getPrice, () => ({ symbol: props.symbol }));
-  // ...
+  const props = defineProps<{ productId: string }>();
+  const ticker = await useSuspense(getTicker, () => ({
+    productId: props.productId,
+  }));
+  useSubscription(getTicker, () => ({ productId: props.productId }));
 </script>
+
+<template>
+  <dl class="stats">
+    <div>
+      <dt>{{ productId }}</dt>
+      <dd>
+        <NumberFlow
+          :value="ticker.price"
+          :format="{ style: 'currency', currency: 'USD' }"
+        />
+      </dd>
+    </div>
+  </dl>
+</template>
 ```
 
 :::
+
+</FrameworkPlayground>
 
 ## Behavior
 
@@ -147,59 +188,152 @@ function useSubscription(
 
 ### Only subscribe while element is visible
 
+<FrameworkPlayground row>
+
+```typescript title="Ticker" collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
+
+  pk() {
+    return this.product_id;
+  }
+  static key = 'Ticker';
+
+  static schema = { price: Number };
+}
+
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
+  pollFrequency: 2000,
+});
+```
+
 :::react
 
-```tsx title="MasterPrice.tsx" {9}
-import { useIntersectionObserver } from '@uidotdev/usehooks';
-import { useSuspense, useSubscription } from '@data-client/react';
-import { getPrice } from 'api/Price';
+```tsx title="useInView" collapsed
+import React from 'react';
 
-function MasterPrice({ symbol }: { symbol: string }) {
-  const price = useSuspense(getPrice, { symbol });
-  const [ref, entry] = useIntersectionObserver();
-  // null params means don't subscribe
-  useSubscription(getPrice, entry?.isIntersecting ? { symbol } : null);
-
-  return <div ref={ref}>{price.price}</div>;
+/** Whether the element is on screen */
+export function useInView<T extends Element>() {
+  const [inView, setInView] = React.useState(false);
+  const ref = React.useCallback((element: T) => {
+    const observer = new IntersectionObserver(([entry]) =>
+      setInView(entry.isIntersecting),
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+  return [ref, inView] as const;
 }
+```
+
+```tsx title="Watchlist" {9-10}
+import { useSuspense, useSubscription } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { getTicker } from './Ticker';
+import { useInView } from './useInView';
+
+function AssetRow({ productId }: { productId: string }) {
+  const ticker = useSuspense(getTicker, { productId });
+  const [ref, inView] = useInView<HTMLDivElement>();
+  // null args means don't subscribe
+  useSubscription(getTicker, inView ? { productId } : null);
+  return (
+    <div className="listItem" ref={ref}>
+      <h4>{productId}</h4>
+      <NumberFlow
+        className="value"
+        value={ticker.price}
+        format={{ style: 'currency', currency: 'USD' }}
+      />
+    </div>
+  );
+}
+
+const products = [
+  'BTC-USD',
+  'ETH-USD',
+  'SOL-USD',
+  'BCH-USD',
+  'LTC-USD',
+  'AAVE-USD',
+  'AVAX-USD',
+  'LINK-USD',
+];
+render(
+  <>
+    <header className="appHeader">
+      <h1 className="appTitle">Watchlist</h1>
+    </header>
+    <div className="list scroll">
+      {products.map(productId => (
+        <AssetRow key={productId} productId={productId} />
+      ))}
+    </div>
+  </>,
+);
 ```
 
 :::
 
 :::vue
 
-```html title="MasterPrice.vue" {12-15}
+```html title="AssetRow.vue" {14-20}
 <script setup lang="ts">
   import { computed, useTemplateRef } from 'vue';
   import { useElementVisibility } from '@vueuse/core';
   import { useSuspense, useSubscription } from '@data-client/vue';
-  import { getPrice } from 'api/Price';
+  import NumberFlow from '@number-flow/vue';
+  import { getTicker } from './Ticker';
 
-  const props = defineProps<{ symbol: string }>();
-  const price = await useSuspense(getPrice, () => ({ symbol: props.symbol }));
+  const props = defineProps<{ productId: string }>();
+  const ticker = await useSuspense(getTicker, () => ({
+    productId: props.productId,
+  }));
   const el = useTemplateRef('el');
   const isVisible = useElementVisibility(el);
-  // null params means don't subscribe
+  // null args means don't subscribe
   useSubscription(
-    getPrice,
-    computed(() => (isVisible.value ? { symbol: props.symbol } : null)),
+    getTicker,
+    computed(() =>
+      isVisible.value ? { productId: props.productId } : null,
+    ),
   );
 </script>
 
 <template>
-  <div ref="el">{{ price.price }}</div>
+  <div ref="el" class="listItem">
+    <h4>{{ productId }}</h4>
+    <NumberFlow
+      class="value"
+      :value="ticker.price"
+      :format="{ style: 'currency', currency: 'USD' }"
+    />
+  </div>
 </template>
 ```
 
 :::
+
+</FrameworkPlayground>
 
 When `null` is sent as the second argument, the subscription is deactivated. Of course,
 if other components are still subscribed the data updates will still be active.
 
 :::react
 
-[useIntersectionObserver()](https://usehooks.com/useintersectionobserver) uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant. [ref](https://react.dev/reference/react/useRef) allows
-us to access the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model).
+`useInView()` uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API),
+which is very performant. Hooks such as [useIntersectionObserver()](https://usehooks.com/useintersectionobserver) do
+the same.
 
 :::
 
@@ -214,36 +348,88 @@ us to access the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document
 
 ### Pause while hidden
 
-To hide a panel or tab, wrap it in [`<Activity>`](https://react.dev/reference/react/Activity). `MasterPrice` needs
+To hide a panel or tab, wrap it in [`<Activity>`](https://react.dev/reference/react/Activity). `AssetPrice` needs
 no change.
 
-```tsx title="PricePanel.tsx" {18-20}
-import { Activity, useState } from 'react';
-import { useSuspense, useSubscription } from '@data-client/react';
-import { getPrice } from 'api/Price';
+<HooksPlayground row>
 
-function MasterPrice({ symbol }: { symbol: string }) {
-  const price = useSuspense(getPrice, { symbol });
-  useSubscription(getPrice, { symbol });
-  return <div>{price.price}</div>;
+```typescript title="Ticker" collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
+
+  pk() {
+    return this.product_id;
+  }
+  static key = 'Ticker';
+
+  static schema = { price: Number };
 }
 
-export default function PricePanel({ symbol }: { symbol: string }) {
-  const [open, setOpen] = useState(false);
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
+  pollFrequency: 2000,
+});
+```
+
+```tsx title="AssetPrice" collapsed
+import { useSuspense, useSubscription } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { getTicker } from './Ticker';
+
+export default function AssetPrice({ productId }: { productId: string }) {
+  const ticker = useSuspense(getTicker, { productId });
+  useSubscription(getTicker, { productId });
   return (
-    <section>
-      <button onClick={() => setOpen(!open)}>
-        {open ? 'Hide' : 'Show'} price
-      </button>
-      <Activity mode={open ? 'visible' : 'hidden'}>
-        <MasterPrice symbol={symbol} />
-      </Activity>
-    </section>
+    <dl className="stats">
+      <div>
+        <dt>{productId}</dt>
+        <dd>
+          <NumberFlow
+            value={ticker.price}
+            format={{ style: 'currency', currency: 'USD' }}
+          />
+        </dd>
+      </div>
+    </dl>
   );
 }
 ```
 
-A hidden `<Activity>` keeps `MasterPrice` and its state, but stops its Effects. If no other component subscribes to the
+```tsx title="PricePanel" {14-16}
+import React from 'react';
+import AssetPrice from './AssetPrice';
+
+function PricePanel({ productId }: { productId: string }) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Prices</h1>
+        <button aria-expanded={open} onClick={() => setOpen(!open)}>
+          {open ? 'Hide' : 'Show'} price
+        </button>
+      </header>
+      <React.Activity mode={open ? 'visible' : 'hidden'}>
+        <AssetPrice productId={productId} />
+      </React.Activity>
+    </>
+  );
+}
+render(<PricePanel productId="BTC-USD" />);
+```
+
+</HooksPlayground>
+
+A hidden `<Activity>` keeps `AssetPrice` and its state, but stops its Effects. If no other component subscribes to the
 price, polling stops. When shown, polling resumes. If the last fetch is older than
 [pollFrequency](/rest/api/RestEndpoint#pollfrequency), it fetches at once.
 
@@ -252,9 +438,197 @@ without a loading state.
 
 ### Crypto prices (websockets)
 
-We implemented our own `StreamManager` to handle our custom websocket protocol. Here we listen to the [subscribe/unsubscribe
-actions](./Actions.md#subscribe) sent by `useSubscription` to ensure we only listen to updates for components that are rendered.
+`StreamManager` streams [Coinbase's ticker channel](https://docs.cdp.coinbase.com/exchange/websocket-feed/channels#ticker-channel).
+It listens to the [subscribe and unsubscribe actions](./Actions.md#subscribe) that `useSubscription()` sends, so it
+streams only the products that rendered components use. Switch products to see it unsubscribe from one and subscribe
+to the next.
 
-<StackBlitz app="coin-app" file="src/resources/StreamManager.ts,src/resources/Ticker.ts,src/pages/Home/AssetPrice.tsx" height="600" />
+<HooksPlayground defaultTab="StreamManager" row>
+
+```typescript title="Ticker" collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
+
+  pk() {
+    return this.product_id;
+  }
+  static key = 'Ticker';
+
+  static schema = { price: Number };
+}
+
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
+  // no pollFrequency: StreamManager pushes updates
+});
+```
+
+```ts title="StreamManager" {18-27}
+import type { Controller, Manager, Middleware } from '@data-client/react';
+import { actionTypes } from '@data-client/react';
+import { Ticker } from './Ticker';
+
+/** Streams Coinbase's ticker channel for the products in use */
+export default class StreamManager implements Manager {
+  declare protected controller: Controller;
+  declare protected socket: WebSocket;
+  /** Subscribers per product */
+  protected subscribers = new Map<string, number>();
+  /** Latest message per product, waiting to be written */
+  protected buffer: Record<string, object> = {};
+  protected flushTimeout: ReturnType<typeof setTimeout> | undefined;
+
+  middleware: Middleware = controller => {
+    this.controller = controller;
+    return next => action => {
+      if (
+        (action.type === actionTypes.SUBSCRIBE ||
+          action.type === actionTypes.UNSUBSCRIBE) &&
+        action.endpoint.schema === Ticker
+      ) {
+        const { productId } = action.args[0];
+        if (action.type === actionTypes.SUBSCRIBE) this.add(productId);
+        else this.remove(productId);
+        // the stream replaces polling, so the action stops here
+        return Promise.resolve();
+      }
+      return next(action);
+    };
+  };
+
+  init() {
+    this.socket = new WebSocket('wss://ws-feed.exchange.coinbase.com');
+    this.socket.onopen = () =>
+      this.send('subscribe', [...this.subscribers.keys()]);
+    this.socket.onmessage = event => {
+      const message = JSON.parse(event.data);
+      if (message.type !== 'ticker') return;
+      this.buffer[message.product_id] = message;
+      // one store update per 50ms, however fast the feed
+      this.flushTimeout ??= setTimeout(this.flush, 50);
+    };
+  }
+
+  cleanup() {
+    clearTimeout(this.flushTimeout);
+    this.socket.close();
+  }
+
+  protected flush = () => {
+    this.flushTimeout = undefined;
+    this.controller.set([Ticker], Object.values(this.buffer));
+    this.buffer = {};
+  };
+
+  protected add(productId: string) {
+    const count = this.subscribers.get(productId) ?? 0;
+    this.subscribers.set(productId, count + 1);
+    if (count === 0) this.send('subscribe', [productId]);
+  }
+
+  protected remove(productId: string) {
+    const count = this.subscribers.get(productId) ?? 0;
+    if (count > 1) {
+      this.subscribers.set(productId, count - 1);
+    } else {
+      this.subscribers.delete(productId);
+      this.send('unsubscribe', [productId]);
+    }
+  }
+
+  /** Before the socket opens, onopen sends every subscription */
+  protected send(
+    type: 'subscribe' | 'unsubscribe',
+    product_ids: string[],
+  ) {
+    if (this.socket?.readyState !== WebSocket.OPEN || !product_ids.length)
+      return;
+    this.socket.send(
+      JSON.stringify({ type, product_ids, channels: ['ticker'] }),
+    );
+  }
+}
+```
+
+```ts title="getManagers" collapsed
+import { getDefaultManagers } from '@data-client/react';
+import StreamManager from './StreamManager';
+
+// passed to <DataProvider managers={getManagers()}>
+export default function getManagers() {
+  return [new StreamManager(), ...getDefaultManagers()];
+}
+```
+
+```tsx title="AssetPrice" collapsed
+import { useSuspense, useSubscription } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { getTicker } from './Ticker';
+
+export default function AssetPrice({ productId }: { productId: string }) {
+  const ticker = useSuspense(getTicker, { productId });
+  useSubscription(getTicker, { productId });
+  return (
+    <dl className="stats">
+      <div>
+        <dt>{productId}</dt>
+        <dd>
+          <NumberFlow
+            value={ticker.price}
+            format={{ style: 'currency', currency: 'USD' }}
+          />
+        </dd>
+      </div>
+    </dl>
+  );
+}
+```
+
+```tsx title="Markets" collapsed
+import React from 'react';
+import AssetPrice from './AssetPrice';
+
+const products = ['BTC-USD', 'ETH-USD', 'SOL-USD'];
+
+function Markets() {
+  const [shown, setShown] = React.useState(products[0]);
+  return (
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Markets</h1>
+        <div className="segmented" role="group" aria-label="Product">
+          {products.map(productId => (
+            <button
+              key={productId}
+              aria-pressed={productId === shown}
+              onClick={() =>
+                React.startTransition(() => setShown(productId))
+              }
+            >
+              {productId.split('-')[0]}
+            </button>
+          ))}
+        </div>
+      </header>
+      <AssetPrice productId={shown} />
+    </>
+  );
+}
+render(<Markets />);
+```
+
+</HooksPlayground>
+
+A production app also reconnects after the socket closes. See the [coin app example](https://github.com/reactive/data-client/tree/master/examples/coin-app)
+for a complete `StreamManager`.
 
 :::
