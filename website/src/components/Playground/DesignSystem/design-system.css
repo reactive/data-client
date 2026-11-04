@@ -185,17 +185,6 @@ div.playground-preview h1:first-child {
 .playground-preview .appHeader button {
   margin: 0;
 }
-/* a plain button in the header trims itself to its caps and gets the
-   trimmed leading (half of 1.4em less the 0.7em caps) back as padding: the
-   same height, its text centered. Stated outright, as the segmented
-   control's is: Firefox carries the sheet's first-line trim into it, which
-   lifted its text */
-@supports (text-box: trim-both cap alphabetic) {
-  .playground-preview .appHeader button:where(:not([class]), .primary) {
-    padding-block: calc(var(--ds-control-pad-y) + 0.35em);
-    text-box: trim-both cap alphabetic;
-  }
-}
 
 /* A card: a group of content (a post list, a comment thread) with no box of
    its own: the app's surface (the floating sheet the frame gives it, see
@@ -393,7 +382,7 @@ div.playground-preview h1:first-child {
 /* Rows that open something (an inbox's messages): the whole row is the
    button, with the open one (`aria-current`) washed in the accent */
 .playground-preview .list > button.listItem {
-  width: calc(100% + 2 * var(--ds-space-3));
+  width: calc(100% + 2 * var(--ds-row-bleed));
   border: 0;
   background: none;
   color: inherit;
@@ -1273,20 +1262,23 @@ div.playground-preview h1:first-child {
 .playground-preview .segmented > button {
   /* above the pill, which its transform lifts over unpositioned siblings */
   position: relative;
+  --ds-control-pad-y: 4px;
   margin: 0;
-  padding: 4px 12px;
+  padding: var(--ds-control-pad-y) 12px;
   border: 0;
   border-radius: 999px;
   background: none;
   color: var(--ds-text-muted);
 }
-/* trimmed to the caps, with the trimmed leading (half of 1.4em less the
-   0.7em caps) added to the padding, so the pill keeps its height and the
-   caps sit centered. Stated outright: Firefox carries the sheet's
-   first-line trim into a header's buttons, which lifted their text */
+/* a header's buttons (plain ones, a segmented control's) trim themselves to
+   their caps and get the trimmed leading (half of 1.4em less the 0.7em
+   caps) back as padding: the same height, the caps centered. After both
+   base rules, which set the padding. Stated outright: Firefox carries the
+   sheet's first-line trim into them, which lifted their text */
 @supports (text-box: trim-both cap alphabetic) {
-  .playground-preview .segmented > button {
-    padding-block: calc(4px + 0.35em);
+  .playground-preview
+    :is(.appHeader button:where(:not([class]), .primary), .segmented > button) {
+    padding-block: calc(var(--ds-control-pad-y) + 0.35em);
     text-box: trim-both cap alphabetic;
   }
 }

@@ -205,27 +205,17 @@ Keep tabs mounted in [`<Activity>`](https://react.dev/reference/react/Activity).
 
 ```typescript title="Ticker" collapsed
 import { Entity, RestEndpoint } from '@data-client/rest';
-import { Temporal } from 'temporal-polyfill';
 
 export class Ticker extends Entity {
   product_id = '';
-  trade_id = 0;
   price = 0;
-  size = '0';
-  time = Temporal.Instant.fromEpochMilliseconds(0);
-  bid = '0';
-  ask = '0';
-  volume = '';
 
-  pk(): string {
+  pk() {
     return this.product_id;
   }
   static key = 'Ticker';
 
-  static schema = {
-    price: Number,
-    time: Temporal.Instant.from,
-  };
+  static schema = { price: Number };
 }
 
 export const getTicker = new RestEndpoint({

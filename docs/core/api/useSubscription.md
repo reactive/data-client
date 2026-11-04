@@ -228,8 +228,9 @@ export function useInView<T extends Element>() {
   const ref = React.useRef<T>(null);
   const [inView, setInView] = React.useState(false);
   React.useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) =>
-      setInView(entry.isIntersecting),
+    // one callback can hold several entries: the last is current
+    const observer = new IntersectionObserver(entries =>
+      entries.forEach(entry => setInView(entry.isIntersecting)),
     );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
