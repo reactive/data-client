@@ -5,7 +5,10 @@ import { FIXTURE_ISSUES } from './data';
 import { captureSnapshot, getReport } from './refStability';
 import { getRenderCounts, resetRenderCounts } from './renderCounts';
 import {
+  checkIssueListJSON,
   flushPendingMutations,
+  holdMutationReplies,
+  releaseMutationReplies,
   seedIssueList,
   setNetworkDelay,
   setNetworkSim,
@@ -42,8 +45,9 @@ const OBSERVE_MUTATIONS: MutationObserverInit = {
  * for which `isReady()` holds. React commits atomically, so for an update the
  * first mutation is its commit. Calls `onEnd(start, end)` from that
  * MutationObserver callback. The observer is attached before the start time
- * is read, so attaching it is not timed. If `fn()` throws, the observer is
- * disconnected and the error is rethrown.
+ * is read, so attaching it is not timed, and the end time is read before
+ * `isReady()` runs. If `fn()` throws, the observer is disconnected and the
+ * error is rethrown.
  */
 function timeToMutation<T>(
   container: Element,
@@ -52,11 +56,10 @@ function timeToMutation<T>(
   isReady?: () => boolean,
 ): { result: T; start: number; cancel: () => void } {
   const observer = new MutationObserver(() => {
-    if (!isReady || isReady()) {
-      const end = performance.now();
-      observer.disconnect();
-      onEnd(start, end);
-    }
+    const end = performance.now();
+    if (isReady && !isReady()) return;
+    observer.disconnect();
+    onEnd(start, end);
   });
   observer.observe(container, OBSERVE_MUTATIONS);
   const start = performance.now();
@@ -108,7 +111,18 @@ type LibraryActions = Pick<BenchAPI, 'updateEntity' | 'updateUser'> &
  * `registerAPI` uses a Proxy so adding new BenchAPI methods never requires
  * updating dependency arrays or registration boilerplate.
  */
-export function useBenchState() {
+export function useBenchState({
+  optimisticMutations = false,
+}: {
+  /**
+   * The library commits every `measureUpdate` mutation before the server
+   * replies. The worker then holds mutation replies until the window ends;
+   * otherwise a reply that wins the race to the main thread is processed
+   * inside the window. Never set this for a library whose update windows wait
+   * for the reply: they would time out.
+   */
+  optimisticMutations?: boolean;
+} = {}) {
   const [listViewCount, setListViewCount] = useState<number | undefined>();
   const [showSortedView, setShowSortedView] = useState(false);
   const [sortedViewCount, setSortedViewCount] = useState<number | undefined>();
@@ -121,13 +135,24 @@ export function useBenchState() {
   const [renderLimit, setRenderLimit] = useState<number | undefined>();
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
+  const completeWaiterRef = useRef<(() => void) | null>(null);
   const apiRef = useRef<BenchAPI>(null as any);
 
   const setComplete = useCallback(() => {
     completeResolveRef.current?.();
     completeResolveRef.current = null;
+    completeWaiterRef.current?.();
+    completeWaiterRef.current = null;
     containerRef.current?.setAttribute('data-bench-complete', 'true');
   }, []);
+
+  const whenComplete = useCallback(
+    () =>
+      new Promise<void>(resolve => {
+        completeWaiterRef.current = resolve;
+      }),
+    [],
+  );
 
   /**
    * Measure a mount action via MutationObserver. Ends when expected content
@@ -146,12 +171,14 @@ export function useBenchState() {
           if (signalComplete) setComplete();
           resolve();
         };
+        const record = (end: number) =>
+          performance.measure('mount-duration', { start, end });
         const observer = new MutationObserver(() => {
+          const end = performance.now();
           if (
             container.querySelector('[data-bench-item], [data-sorted-list]')
           ) {
-            performance.mark('mount-end');
-            performance.measure('mount-duration', 'mount-start', 'mount-end');
+            record(end);
             observer.disconnect();
             clearTimeout(timer);
             done();
@@ -160,12 +187,11 @@ export function useBenchState() {
         observer.observe(container, OBSERVE_MUTATIONS);
         const timer = setTimeout(() => {
           observer.disconnect();
-          performance.mark('mount-end');
-          performance.measure('mount-duration', 'mount-start', 'mount-end');
+          record(performance.now());
           container.setAttribute('data-bench-timeout', 'true');
           done();
         }, 30000);
-        performance.mark('mount-start');
+        const start = performance.now();
         fn();
       });
     },
@@ -185,12 +211,16 @@ export function useBenchState() {
       const container = containerRef.current!;
       const record = (from: number, to: number) =>
         performance.measure('update-duration', { start: from, end: to });
+      const release =
+        optimisticMutations ? releaseMutationReplies : () => undefined;
+      if (optimisticMutations) holdMutationReplies();
       // Replaced by timeToMutation's values once it returns.
       let start = performance.now();
       let cancel: (() => void) | undefined;
       const timer = setTimeout(() => {
         cancel?.();
         record(start, performance.now());
+        release();
         container.setAttribute('data-bench-timeout', 'true');
         setComplete();
       }, 30000);
@@ -200,6 +230,7 @@ export function useBenchState() {
           fn,
           (from, to) => {
             record(from, to);
+            release();
             clearTimeout(timer);
             setComplete();
           },
@@ -208,10 +239,11 @@ export function useBenchState() {
       } catch (err) {
         // Else the timer completes a later iteration on this page.
         clearTimeout(timer);
+        release();
         throw err;
       }
     },
-    [setComplete],
+    [setComplete, optimisticMutations],
   );
 
   /**
@@ -368,6 +400,43 @@ export function useBenchState() {
     [measureMount, setSortedViewCount, setShowSortedView],
   );
 
+  /**
+   * Time one navigation step: from right before `fn()` until a commit shows
+   * `selector`, skipping earlier commits such as a loading state. Records one
+   * `nav-step` measure.
+   */
+  const measureNavStep = useCallback((fn: () => void, selector: string) => {
+    const container = containerRef.current!;
+    return new Promise<void>((resolve, reject) => {
+      let cancel: (() => void) | undefined;
+      const timer = setTimeout(() => {
+        cancel?.();
+        container.setAttribute('data-bench-timeout', 'true');
+        resolve();
+      }, 30000);
+      try {
+        ({ cancel } = timeToMutation(
+          container,
+          fn,
+          (start, end) => {
+            clearTimeout(timer);
+            performance.measure('nav-step', { start, end });
+            resolve();
+          },
+          () => container.querySelector(selector) != null,
+        ));
+      } catch (err) {
+        clearTimeout(timer);
+        reject(err);
+      }
+    });
+  }, []);
+
+  /**
+   * Timed: each step from its state change until the next view commits,
+   * summed by the runner. The time between steps (the observer callback and
+   * any frame) is not timed.
+   */
   const listDetailSwitch = useCallback(
     async (navigations: number, seedCount: number) => {
       await seedIssueList(FIXTURE_ISSUES.slice(0, seedCount));
@@ -383,18 +452,18 @@ export function useBenchState() {
       setShowSortedView(true);
       await waitForElement('[data-sorted-list]');
 
-      performance.mark('mount-start');
+      const container = containerRef.current!;
       for (let i = 0; i < navigations; i++) {
-        setShowSortedView(false);
-        setDetailIssueNumber(i + 2);
-        await waitForElement('[data-detail-view]');
-
-        setDetailIssueNumber(null);
-        setShowSortedView(true);
-        await waitForElement('[data-sorted-list]');
+        await measureNavStep(() => {
+          setShowSortedView(false);
+          setDetailIssueNumber(i + 2);
+        }, '[data-detail-view]');
+        await measureNavStep(() => {
+          setDetailIssueNumber(null);
+          setShowSortedView(true);
+        }, '[data-sorted-list]');
+        if (container.hasAttribute('data-bench-timeout')) break;
       }
-      performance.mark('mount-end');
-      performance.measure('mount-duration', 'mount-start', 'mount-end');
       setComplete();
     },
     [
@@ -402,6 +471,7 @@ export function useBenchState() {
       setShowSortedView,
       setDetailIssueNumber,
       waitForElement,
+      measureNavStep,
       setComplete,
     ],
   );
@@ -464,6 +534,8 @@ export function useBenchState() {
       setNetworkSim,
       flushPendingMutations,
       setRenderLimit,
+      whenComplete,
+      checkIssueListJSON,
       resetStore: resetStoreNoop,
       ...libraryActions,
     } as BenchAPI;

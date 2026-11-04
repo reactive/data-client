@@ -26,11 +26,15 @@ worker.onmessage = (e: MessageEvent) => {
   }
 };
 
-function sendRequest<T>(method: string, params?: any): Promise<T> {
+function sendRequest<T>(
+  method: string,
+  params?: any,
+  mutation = false,
+): Promise<T> {
   const id = nextId++;
   return new Promise<T>((resolve, reject) => {
     pending.set(id, { resolve, reject });
-    worker.postMessage({ id, method, params });
+    worker.postMessage({ id, method, params, mutation });
   });
 }
 
@@ -39,7 +43,7 @@ function sendRequest<T>(method: string, params?: any): Promise<T> {
 const pendingMutations = new Set<Promise<unknown>>();
 
 function sendMutation<T>(method: string, params?: any): Promise<T> {
-  const p = sendRequest<T>(method, params);
+  const p = sendRequest<T>(method, params, true);
   pendingMutations.add(p);
   p.finally(() => pendingMutations.delete(p));
   return p;
@@ -148,4 +152,21 @@ export function setNetworkSim(
     method: 'setNetworkSim',
     params: { config },
   });
+}
+
+/**
+ * Keep mutation replies in the worker until `releaseMutationReplies()`. These
+ * are control messages with no reply, so nothing reaches the main thread.
+ */
+export function holdMutationReplies(): void {
+  worker.postMessage({ method: 'holdMutationReplies' });
+}
+
+export function releaseMutationReplies(): void {
+  worker.postMessage({ method: 'releaseMutationReplies' });
+}
+
+/** For validation: see `checkIssueListJSON` in the worker. */
+export function checkIssueListJSON(): Promise<string | null> {
+  return sendRequest('checkIssueListJSON');
 }

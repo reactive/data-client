@@ -7,6 +7,8 @@ import {
   useSuspense,
 } from '@data-client/react';
 import type { Controller } from '@data-client/react';
+import React, { useCallback, useRef, useState } from 'react';
+
 import {
   moveItemIsReady,
   renderBenchApp,
@@ -38,7 +40,6 @@ import {
 } from '@shared/resources';
 import { patchIssue } from '@shared/server';
 import type { Issue, Ticker } from '@shared/types';
-import React, { useCallback, useRef, useState } from 'react';
 
 let mutationCounter = 0;
 let tickerStreamVersion = 0;
@@ -174,7 +175,7 @@ function BenchmarkHarness() {
     setComplete,
     setListViewCount,
     registerAPI,
-  } = useBenchState();
+  } = useBenchState({ optimisticMutations: true });
   const [showTickerStrip, setShowTickerStrip] = useState(false);
 
   const updateEntity = useCallback(

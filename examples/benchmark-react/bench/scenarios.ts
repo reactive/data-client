@@ -7,41 +7,13 @@ export const NETWORK_SIM_CONFIG = {
   recordsPerMs: 20,
 };
 
-export interface RunProfile {
-  warmup: number;
-  minMeasurement: number;
-  maxMeasurement: number;
-  /** Stop early when 95% CI margin is within this % of the median. */
-  targetMarginPct: number;
-  /** Sub-iterations per page visit; median of N is returned as one sample. */
-  opsPerRound: number;
-}
-
-const defaultOpsPerRound = parseInt(process.env.BENCH_OPS_PER_ROUND ?? '5', 10);
-
-export const RUN_CONFIG: Record<ScenarioSize, RunProfile> = {
-  small: {
-    warmup: 2,
-    minMeasurement: 5,
-    maxMeasurement: 20,
-    targetMarginPct: process.env.CI ? 2 : 6,
-    opsPerRound: defaultOpsPerRound,
-  },
-  large: {
-    warmup: 1,
-    minMeasurement: 5,
-    maxMeasurement: 15,
-    targetMarginPct: process.env.CI ? 3 : 10,
-    opsPerRound: defaultOpsPerRound,
-  },
-};
-
 /** Config for convergent (single-page) timing scenarios where each
  *  sub-iteration is an individual sample and convergence is checked inline. */
 export interface ConvergentProfile {
   warmup: number;
   minMeasurement: number;
   maxMeasurement: number;
+  /** Stop early when 95% CI margin is within this % of the median. */
   targetMarginPct: number;
 }
 
@@ -158,7 +130,6 @@ const BASE_SCENARIOS: BaseScenario[] = [
     renderLimit: 100,
     preMountAction: 'mountSortedView',
     size: 'large',
-    opsPerRound: 9,
   },
   {
     nameSuffix: 'update-entity-multi-view',
@@ -177,7 +148,7 @@ const BASE_SCENARIOS: BaseScenario[] = [
     category: 'hotPath',
     size: 'large',
     renderLimit: 100,
-    opsPerRound: 5,
+    durationMeasure: { measure: 'nav-step', aggregate: 'sum' },
   },
   {
     nameSuffix: 'update-user-10000',

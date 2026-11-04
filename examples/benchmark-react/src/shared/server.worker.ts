@@ -10,18 +10,40 @@ declare const self: DedicatedWorkerGlobalScope;
 let networkDelayMs = 0;
 let networkSim: { baseLatencyMs: number; recordsPerMs: number } | null = null;
 
-function respond(id: number, _method: string, value: unknown) {
-  const json = JSON.stringify(value);
-  const recordCount = Array.isArray(value) ? value.length : 1;
+/** A reply body that is already JSON. */
+class JSONReply {
+  constructor(
+    readonly json: string,
+    readonly recordCount: number,
+  ) {}
+}
+
+/** While true, mutation replies wait in `heldReplies` until release. */
+let holdMutations = false;
+const heldReplies: (() => void)[] = [];
+
+function deliver(post: () => void, mutation: boolean) {
+  if (mutation && holdMutations) heldReplies.push(post);
+  else post();
+}
+
+function respond(id: number, value: unknown, mutation: boolean) {
+  const isReply = value instanceof JSONReply;
+  const json = isReply ? value.json : JSON.stringify(value);
+  const recordCount =
+    isReply ? value.recordCount
+    : Array.isArray(value) ? value.length
+    : 1;
   const delay =
     networkSim ?
       networkSim.baseLatencyMs +
       Math.ceil(recordCount / networkSim.recordsPerMs)
     : networkDelayMs;
+  const post = () => self.postMessage({ id, result: json });
   if (delay <= 0) {
-    self.postMessage({ id, result: json });
+    deliver(post, mutation);
   } else {
-    setTimeout(() => self.postMessage({ id, result: json }), delay);
+    setTimeout(() => deliver(post, mutation), delay);
   }
 }
 
@@ -90,20 +112,97 @@ function fetchUser({ login }: { login: string }): User {
   return user;
 }
 
-function fetchIssueList(params?: { count?: number; state?: string }): Issue[] {
-  let issues: Issue[] =
+type IssueListParams = { count?: number; state?: string } | undefined;
+
+function selectIssues(params: IssueListParams): Issue[] {
+  const issues =
     params?.state ? (stateIndex.get(params.state) ?? []) : masterList;
-  if (params?.count) {
-    issues = issues.slice(0, params.count);
+  return params?.count ? issues.slice(0, params.count) : issues;
+}
+
+/** The issue's author as currently stored; issues keep the user they were saved with. */
+function latestUser(issue: Issue): User {
+  return (
+    (issue.user?.login ? userStore.get(issue.user.login) : undefined) ??
+    issue.user
+  );
+}
+
+/**
+ * Each stored issue's JSON, with the user it was serialized with. Mutations
+ * replace issue and user objects, so a stale entry never matches. This keeps
+ * the server's serialization out of list fetches; the client still parses
+ * every reply.
+ */
+const issueJSONCache = new WeakMap<Issue, { user: User; json: string }>();
+
+function issueJSON(issue: Issue): string {
+  const user = latestUser(issue);
+  let cached = issueJSONCache.get(issue);
+  if (cached?.user !== user) {
+    cached = {
+      user,
+      json: JSON.stringify(user === issue.user ? issue : { ...issue, user }),
+    };
+    issueJSONCache.set(issue, cached);
   }
-  issues = issues.map(issue => {
-    if (issue.user?.login) {
-      const latest = userStore.get(issue.user.login);
-      if (latest && latest !== issue.user) return { ...issue, user: latest };
+  return cached.json;
+}
+
+function fetchIssueList(params?: IssueListParams): JSONReply {
+  const issues = selectIssues(params);
+  return new JSONReply(`[${issues.map(issueJSON).join(',')}]`, issues.length);
+}
+
+/**
+ * For validation: apply each kind of mutation and compare the list replies
+ * with a fresh serialization. Returns the first mismatch, or null.
+ */
+function checkIssueListJSON(): string | null {
+  const steps: [string, () => unknown][] = [
+    ['initial', () => undefined],
+    [
+      'updateUser',
+      () => updateUser({ login: latestUser(masterList[0]).login, name: 'x' }),
+    ],
+    [
+      'updateIssue',
+      () => updateIssue({ number: masterList[1].number, title: 'x' }),
+    ],
+    [
+      'move',
+      () =>
+        updateIssue({
+          number: masterList[2].number,
+          state: masterList[2].state === 'open' ? 'closed' : 'open',
+        }),
+    ],
+    ['patchIssue', () => patchIssue(masterList[3].number, { title: 'y' })],
+    [
+      'createIssue',
+      () => createIssue({ title: 'x', user: latestUser(masterList[0]) }),
+    ],
+    ['deleteIssue', () => deleteIssue({ number: masterList[4].number })],
+  ];
+  const lists: IssueListParams[] = [
+    undefined,
+    { state: 'open' },
+    { count: 10 },
+  ];
+  for (const [name, step] of steps) {
+    step();
+    for (const params of lists) {
+      const fresh = JSON.stringify(
+        selectIssues(params).map(issue => {
+          const user = latestUser(issue);
+          return user === issue.user ? issue : { ...issue, user };
+        }),
+      );
+      if (fetchIssueList(params).json !== fresh)
+        return `after ${name}, list ${JSON.stringify(params)} differs`;
     }
-    return issue;
-  });
-  return issues;
+  }
+  return null;
 }
 
 function fetchTickerList(): Ticker[] {
@@ -258,6 +357,14 @@ const methods: Record<string, (params: any) => unknown> = {
   patchIssue: ({ number, patch }: { number: number; patch: Partial<Issue> }) =>
     patchIssue(number, patch),
   seedIssueList: ({ issues }: { issues: Issue[] }) => seedIssueList(issues),
+  checkIssueListJSON,
+  holdMutationReplies: () => {
+    holdMutations = true;
+  },
+  releaseMutationReplies: () => {
+    holdMutations = false;
+    for (const post of heldReplies.splice(0)) post();
+  },
   setNetworkDelay: ({ ms }: { ms: number }) => {
     networkDelayMs = ms;
     networkSim = null;
@@ -271,14 +378,20 @@ const methods: Record<string, (params: any) => unknown> = {
   },
 };
 
+/** Messages without an `id` are control messages and get no reply. */
 self.onmessage = (e: MessageEvent) => {
-  const { id, method, params } = e.data as {
-    id: number;
+  const { id, method, params, mutation } = e.data as {
+    id?: number;
     method: string;
     params: any;
+    mutation?: boolean;
   };
 
   const fn = methods[method];
+  if (id === undefined) {
+    fn?.(params);
+    return;
+  }
   if (!fn) {
     respondError(id, `Unknown method: ${method}`);
     return;
@@ -286,7 +399,7 @@ self.onmessage = (e: MessageEvent) => {
 
   try {
     const result = fn(params);
-    respond(id, method, result === undefined ? null : result);
+    respond(id, result === undefined ? null : result, !!mutation);
   } catch (err) {
     respondError(id, err instanceof Error ? err.message : String(err));
   }

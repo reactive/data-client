@@ -20,7 +20,6 @@ import { formatReport, type BenchmarkResult } from './report.js';
 import {
   SCENARIOS,
   LIBRARIES,
-  RUN_CONFIG,
   CONVERGENT_CONFIG,
   ACTION_GROUPS,
   NETWORK_SIM_CONFIG,
@@ -40,7 +39,6 @@ function parseArgs(): {
   actions?: string[];
   scenario?: string;
   networkSim: boolean;
-  opsPerRound?: number;
 } {
   const argv = process.argv.slice(2);
   const get = (flag: string, envVar: string): string | undefined => {
@@ -54,7 +52,6 @@ function parseArgs(): {
   const actionRaw = get('--action', 'BENCH_ACTION');
   const scenarioRaw = get('--scenario', 'BENCH_SCENARIO');
   const networkSimRaw = get('--network-sim', 'BENCH_NETWORK_SIM');
-  const opsRaw = get('--ops-per-round', 'BENCH_OPS_PER_ROUND');
 
   const libs = libRaw ? libRaw.split(',').map(s => s.trim()) : undefined;
   const size = sizeRaw === 'small' || sizeRaw === 'large' ? sizeRaw : undefined;
@@ -62,7 +59,6 @@ function parseArgs(): {
     actionRaw ? actionRaw.split(',').map(s => s.trim()) : undefined;
   const networkSim =
     networkSimRaw != null ? networkSimRaw !== 'false' : !process.env.CI;
-  const opsPerRound = opsRaw ? parseInt(opsRaw, 10) : undefined;
 
   return {
     libs,
@@ -70,7 +66,6 @@ function parseArgs(): {
     actions,
     scenario: scenarioRaw,
     networkSim,
-    opsPerRound,
   };
 }
 
@@ -78,7 +73,6 @@ function filterScenarios(scenarios: Scenario[]): {
   filtered: Scenario[];
   libraries: string[];
   networkSim: boolean;
-  opsPerRound?: number;
 } {
   const {
     libs,
@@ -86,7 +80,6 @@ function filterScenarios(scenarios: Scenario[]): {
     actions,
     scenario: scenarioFilter,
     networkSim,
-    opsPerRound,
   } = parseArgs();
 
   const libraries = libs ?? (process.env.CI ? ['data-client'] : [...LIBRARIES]);
@@ -140,7 +133,7 @@ function filterScenarios(scenarios: Scenario[]): {
       !s.onlyLibs?.length || libraries.every(lib => s.onlyLibs!.includes(lib)),
   );
 
-  return { filtered, libraries, networkSim, opsPerRound };
+  return { filtered, libraries, networkSim };
 }
 
 // ---------------------------------------------------------------------------
@@ -230,6 +223,12 @@ async function setupBenchPage(
     timeout: 120000,
     state: 'attached',
   });
+  // Without isolation, performance.now() steps by 0.1 ms instead of 5 µs.
+  if (!(await page.evaluate(() => crossOriginIsolated))) {
+    throw new Error(
+      `${BASE_URL} is not cross-origin isolated: serve it with the COOP/COEP headers in serve.json (yarn preview does)`,
+    );
+  }
 
   const harness = page.locator('[data-bench-harness]');
   await harness.waitFor({ state: 'attached' });
@@ -290,6 +289,58 @@ async function runPreMount(
     performance.clearMarks();
     performance.clearMeasures();
   });
+}
+
+/**
+ * Call `api[action](...args)` and wait in the page until the harness signals
+ * completion. One `evaluate` awaits the harness promise, so Playwright sends
+ * nothing to the page while the action is timed (`waitForSelector` polls the
+ * page from its first moment). Rejects if the action rejects, or on timeout.
+ */
+async function runAction(
+  page: Page,
+  harness: Locator,
+  bench: any,
+  action: string,
+  args: unknown[],
+  { networkSim }: { networkSim: boolean },
+): Promise<void> {
+  const timeoutMs = networkSim ? 60000 : 10000;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () =>
+        reject(new Error(`${action} did not complete within ${timeoutMs} ms`)),
+      timeoutMs,
+    );
+  });
+  try {
+    await Promise.race([
+      bench.evaluate(
+        (api: any, { action, args }: { action: string; args: unknown[] }) => {
+          const complete: Promise<void> = api.whenComplete();
+          const result = api[action](...args);
+          // Settle on completion; also reject if an async action rejects.
+          return Promise.race([
+            complete,
+            Promise.resolve(result).then(() => complete),
+          ]);
+        },
+        { action, args },
+      ),
+      timeout,
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+  const timedOut = await harness.evaluate(el =>
+    el.hasAttribute('data-bench-timeout'),
+  );
+  if (timedOut) {
+    throw new Error(
+      `Harness timeout: MutationObserver did not detect expected DOM update within 30 s`,
+    );
+  }
 }
 
 /** Run one timed iteration: cleanup, invoke action, wait, collect measures. */
@@ -362,26 +413,9 @@ async function runIteration(
     scenario.action === 'deleteEntity' ?
       [Math.min(subIdx + 1, mountCount)]
     : scenario.args;
-  await (bench as any).evaluate(
-    (api: any, { action, args }: { action: string; args: unknown[] }) => {
-      api[action](...args);
-    },
-    { action: scenario.action, args: actionArgs },
-  );
-
-  const completeTimeout = networkSim ? 60000 : 10000;
-  await page.waitForSelector('[data-bench-complete]', {
-    timeout: completeTimeout,
-    state: 'attached',
+  await runAction(page, harness, bench, scenario.action, actionArgs, {
+    networkSim,
   });
-  const timedOut = await harness.evaluate(el =>
-    el.hasAttribute('data-bench-timeout'),
-  );
-  if (timedOut) {
-    throw new Error(
-      `Harness timeout: MutationObserver did not detect expected DOM update within 30 s`,
-    );
-  }
 
   await (bench as any).evaluate((api: any) => api.flushPendingMutations());
 
@@ -490,79 +524,38 @@ async function runScenario(
     return { value: heapAfter - heapBefore };
   }
 
-  const { isMountLike, isUpdate } = classifyAction(scenario);
-  const isCount = isCountScenario(scenario);
-  const mountCount = scenario.mountCount ?? 100;
-
-  if (isUpdate || isCount) {
-    await runPreMount(page, harness, bench, scenario, networkSim);
-  }
-
-  // --- Counts (deterministic, single run, early return) ---
-  if (isCount) {
-    await (bench as any).evaluate((api: any) => {
-      api.captureRefSnapshot();
-      api.resetRenderCounts();
-    });
-
-    await harness.evaluate(el => {
-      el.removeAttribute('data-bench-complete');
-      el.removeAttribute('data-bench-timeout');
-    });
-    await page.evaluate(() => {
-      performance.clearMarks();
-      performance.clearMeasures();
-    });
-
-    await (bench as any).evaluate(
-      (api: any, { action, args }: { action: string; args: unknown[] }) => {
-        api[action](...args);
-      },
-      { action: scenario.action, args: scenario.args },
-    );
-
-    const completeTimeout = networkSim ? 60000 : 10000;
-    await page.waitForSelector('[data-bench-complete]', {
-      timeout: completeTimeout,
-      state: 'attached',
-    });
-    const timedOut = await harness.evaluate(el =>
-      el.hasAttribute('data-bench-timeout'),
-    );
-    if (timedOut) {
-      throw new Error(
-        `Harness timeout: MutationObserver did not detect expected DOM update within 30 s`,
-      );
-    }
-
-    const report = await (bench as any).evaluate((api: any) => ({
-      ...api.getRefStabilityReport(),
-      ...api.getRenderCounts(),
-    }));
-    await bench.dispose();
-    return { value: report[scenario.resultMetric!] as number };
-  }
-
-  // --- Sub-iteration loop ---
-  const ops = effectiveOpsPerRound(scenario);
-  const results: ScenarioResult[] = [];
-  const traceSubIdx = Math.floor(ops / 2);
-
-  for (let subIdx = 0; subIdx < ops; subIdx++) {
-    const shouldTrace = USE_TRACE && subIdx === traceSubIdx;
-    results.push(
-      await runIteration(page, harness, bench, scenario, {
-        isMountLike,
-        mountCount,
-        networkSim,
-        subIdx,
-        shouldTrace,
-      }),
+  if (!isCountScenario(scenario)) {
+    throw new Error(
+      `${scenario.name}: timing scenarios run in runScenarioConvergent`,
     );
   }
 
+  // --- Counts (deterministic, single run) ---
+  await runPreMount(page, harness, bench, scenario, networkSim);
+  await (bench as any).evaluate((api: any) => {
+    api.captureRefSnapshot();
+    api.resetRenderCounts();
+  });
+
+  await harness.evaluate(el => {
+    el.removeAttribute('data-bench-complete');
+    el.removeAttribute('data-bench-timeout');
+  });
+  await page.evaluate(() => {
+    performance.clearMarks();
+    performance.clearMeasures();
+  });
+
+  await runAction(page, harness, bench, scenario.action, scenario.args, {
+    networkSim,
+  });
+
+  const report = await (bench as any).evaluate((api: any) => ({
+    ...api.getRefStabilityReport(),
+    ...api.getRenderCounts(),
+  }));
   await bench.dispose();
-  return medianResult(results);
+  return { value: report[scenario.resultMetric] as number };
 }
 
 // ---------------------------------------------------------------------------
@@ -604,7 +597,11 @@ async function runScenarioConvergent(
     const measureIdx = subIdx - config.warmup;
 
     // Periodic double-GC to prevent heap pressure accumulation on long runs
-    if (cdp && subIdx > 0 && subIdx % CONVERGENT_GC_INTERVAL === 0) {
+    if (
+      cdp &&
+      subIdx > 0 &&
+      (scenario.gcBeforeEachIteration || subIdx % CONVERGENT_GC_INTERVAL === 0)
+    ) {
       try {
         await cdp.send('HeapProfiler.collectGarbage');
       } catch {}
@@ -661,46 +658,6 @@ async function runScenarioConvergent(
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-function effectiveOpsPerRound(scenario: Scenario): number {
-  if (scenario.deterministic) return 1;
-  if (scenario.category === 'memory') return 1;
-  return (
-    scenario.opsPerRound ?? RUN_CONFIG[scenario.size ?? 'small'].opsPerRound
-  );
-}
-
-function simpleMedian(arr: number[]): number {
-  if (arr.length === 0) return 0;
-  const sorted = [...arr].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 === 0 ?
-      (sorted[mid - 1] + sorted[mid]) / 2
-    : sorted[mid];
-}
-
-/** Median of each series across `results`; optional series without values stay undefined. */
-function medianResult(results: ScenarioResult[]): ScenarioResult {
-  const optionalMedian = (values: (number | undefined)[]) => {
-    const defined = values.filter((v): v is number => v != null);
-    return defined.length > 0 ? simpleMedian(defined) : undefined;
-  };
-  const suffixes = Object.keys(results[0]?.extras ?? {});
-  return {
-    value: simpleMedian(results.map(r => r.value)),
-    reactCommit: optionalMedian(results.map(r => r.reactCommit)),
-    traceDuration: optionalMedian(results.map(r => r.traceDuration)),
-    extras:
-      suffixes.length > 0 ?
-        Object.fromEntries(
-          suffixes.map(suffix => [
-            suffix,
-            simpleMedian(results.map(r => r.extras![suffix])),
-          ]),
-        )
-      : undefined,
-  };
-}
 
 function shuffle<T>(arr: T[]): T[] {
   const out = [...arr];
@@ -844,11 +801,9 @@ function recordResult(
     (s.extras[suffix] ??= []).push(result.extras?.[suffix] ?? NaN);
 }
 
+/** Leading samples to drop: memory rounds start with a warmup; convergent runs drop theirs in place. */
 function warmupCount(scenario: Scenario): number {
-  if (scenario.deterministic) return 0;
-  if (scenario.category === 'memory') return MEMORY_WARMUP;
-  if (isConvergentScenario(scenario)) return 0;
-  return RUN_CONFIG[scenario.size ?? 'small'].warmup;
+  return scenario.category === 'memory' ? MEMORY_WARMUP : 0;
 }
 
 /** Run each scenario once per matching library (one browser context per lib). */
@@ -858,11 +813,9 @@ async function runRound(
   libs: string[],
   networkSim: boolean,
   samples: Map<string, ScenarioSamples>,
-  opts: { shuffleLibs?: boolean; showProgress?: boolean } = {},
+  opts: { shuffleLibs?: boolean } = {},
 ): Promise<void> {
   const orderedLibs = opts.shuffleLibs ? shuffle([...libs]) : libs;
-  let done = 0;
-  const total = scenarios.length;
 
   for (const lib of orderedLibs) {
     let libScenarios = scenarios.filter(s => s.name.startsWith(`${lib}:`));
@@ -884,8 +837,6 @@ async function runRound(
       } catch {}
       await page.waitForTimeout(400);
 
-      done++;
-      const prefix = opts.showProgress ? `[${done}/${total}] ` : '';
       try {
         const result = await runScenario(page, lib, scenario, networkSim);
         recordResult(samples, scenario, result);
@@ -899,11 +850,11 @@ async function runRound(
             ` (commit ${msToOps(result.reactCommit).toFixed(2)} ops/s)`
           : '';
         process.stderr.write(
-          `  ${prefix}${scenario.name}: ${displayValue}${commitSuffix}\n`,
+          `  ${scenario.name}: ${displayValue}${commitSuffix}\n`,
         );
       } catch (err) {
         console.error(
-          `  ${prefix}${scenario.name} FAILED:`,
+          `  ${scenario.name} FAILED:`,
           err instanceof Error ? err.message : err,
         );
       }
@@ -923,13 +874,7 @@ async function main() {
     filtered: SCENARIOS_TO_RUN,
     libraries,
     networkSim,
-    opsPerRound,
   } = filterScenarios(SCENARIOS);
-
-  if (opsPerRound != null) {
-    RUN_CONFIG.small.opsPerRound = opsPerRound;
-    RUN_CONFIG.large.opsPerRound = opsPerRound;
-  }
 
   if (networkSim) {
     process.stderr.write('Network simulation: ON\n');
@@ -1033,62 +978,6 @@ async function main() {
 
       await cdp.detach().catch(() => {});
       await context.close();
-    }
-  }
-
-  // Outer-loop adaptive rounds for any remaining non-convergent, non-deterministic scenarios
-  for (const [size, scenarios] of sizeGroups) {
-    const { warmup, minMeasurement, maxMeasurement, targetMarginPct } =
-      RUN_CONFIG[size];
-    const outerLoopScenarios = scenarios.filter(
-      s => !deterministicNames.has(s.name) && !isConvergentScenario(s),
-    );
-    if (outerLoopScenarios.length === 0) continue;
-
-    const maxRounds = warmup + maxMeasurement;
-    const converged = new Set<string>();
-
-    for (let round = 0; round < maxRounds; round++) {
-      const isMeasure = round >= warmup;
-      const phase = isMeasure ? 'measure' : 'warmup';
-      const phaseRound = isMeasure ? round - warmup + 1 : round + 1;
-      const phaseTotal = isMeasure ? maxMeasurement : warmup;
-      const active = outerLoopScenarios.filter(s => !converged.has(s.name));
-      if (active.length === 0) break;
-
-      process.stderr.write(
-        `\n── ${size} round ${round + 1}/${maxRounds} (${phase} ${phaseRound}/${phaseTotal}, ${active.length}/${outerLoopScenarios.length} active) ──\n`,
-      );
-
-      await runRound(browser, active, libraries, networkSim, samples, {
-        shuffleLibs: true,
-        showProgress: true,
-      });
-
-      if (isMeasure) {
-        for (const scenario of active) {
-          if (
-            isConverged(
-              samples.get(scenario.name)!.value,
-              warmup,
-              targetMarginPct,
-              minMeasurement,
-            )
-          ) {
-            converged.add(scenario.name);
-            const nMeasured = samples.get(scenario.name)!.value.length - warmup;
-            process.stderr.write(
-              `  [converged] ${scenario.name} after ${nMeasured} measurements\n`,
-            );
-          }
-        }
-        if (converged.size === outerLoopScenarios.length) {
-          process.stderr.write(
-            `\n── All ${size} outer-loop scenarios converged, stopping early ──\n`,
-          );
-          break;
-        }
-      }
     }
   }
 
