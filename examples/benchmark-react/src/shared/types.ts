@@ -188,8 +188,6 @@ export interface Scenario {
   deterministic?: boolean;
   /** Cap DOM rendering to first N items while keeping all data in the store. */
   renderLimit?: number;
-  /** Force GC before every iteration, not every 8th: for iterations that allocate enough to trigger GC inside their own windows. */
-  gcBeforeEachIteration?: boolean;
   /** If set, scenario applies only to these libs; dropped when any selected library is not listed. */
   onlyLibs?: string[];
   /** Duration of each iteration from all its `measure` entries, instead of the last `update-duration` / `mount-duration`. */

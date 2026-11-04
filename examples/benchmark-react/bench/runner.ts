@@ -562,15 +562,12 @@ async function runScenario(
 // Convergent scenario runner (single page load, inline stat-sig convergence)
 // ---------------------------------------------------------------------------
 
-const CONVERGENT_GC_INTERVAL = 8;
-
 async function runScenarioConvergent(
   page: Page,
   lib: string,
   scenario: Scenario,
   networkSim: boolean,
   config: ConvergentProfile,
-  cdp?: CDPSession,
 ): Promise<ScenarioResult[]> {
   const { harness, bench } = await setupBenchPage(
     page,
@@ -595,22 +592,6 @@ async function runScenarioConvergent(
   for (let subIdx = 0; subIdx < totalMax; subIdx++) {
     const isWarmup = subIdx < config.warmup;
     const measureIdx = subIdx - config.warmup;
-
-    // Periodic double-GC to prevent heap pressure accumulation on long runs
-    if (
-      cdp &&
-      subIdx > 0 &&
-      (scenario.gcBeforeEachIteration || subIdx % CONVERGENT_GC_INTERVAL === 0)
-    ) {
-      try {
-        await cdp.send('HeapProfiler.collectGarbage');
-      } catch {}
-      await page.waitForTimeout(30);
-      try {
-        await cdp.send('HeapProfiler.collectGarbage');
-      } catch {}
-      await page.waitForTimeout(50);
-    }
 
     const shouldTrace = USE_TRACE && subIdx === traceSubIdx;
     const result = await runIteration(page, harness, bench, scenario, {
@@ -963,7 +944,6 @@ async function main() {
             scenario,
             networkSim,
             config,
-            cdp,
           );
           for (const result of results) {
             recordResult(samples, scenario, result);

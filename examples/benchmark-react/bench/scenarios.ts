@@ -8,7 +8,10 @@ export const NETWORK_SIM_CONFIG = {
 };
 
 /** Config for convergent (single-page) timing scenarios where each
- *  sub-iteration is an individual sample and convergence is checked inline. */
+ *  sub-iteration is an individual sample and convergence is checked inline.
+ *  Short windows keep getting faster for about 30 iterations as V8 optimizes,
+ *  so warmup covers that. The runner forces GC only before each scenario: a
+ *  forced GC inside the loop made the next few iterations up to 3x slower. */
 export interface ConvergentProfile {
   warmup: number;
   minMeasurement: number;
@@ -19,13 +22,13 @@ export interface ConvergentProfile {
 
 export const CONVERGENT_CONFIG: Record<ScenarioSize, ConvergentProfile> = {
   small: {
-    warmup: 8,
+    warmup: 40,
     minMeasurement: 10,
     maxMeasurement: 60,
     targetMarginPct: process.env.CI ? 2 : 6,
   },
   large: {
-    warmup: 5,
+    warmup: 25,
     minMeasurement: 10,
     maxMeasurement: 50,
     targetMarginPct: process.env.CI ? 3 : 10,
@@ -173,9 +176,8 @@ const BASE_SCENARIOS: BaseScenario[] = [
     nameSuffix: 'update-ticker-stream',
     size: 'large',
     durationMeasure: { measure: 'stream-message', aggregate: 'sum' },
-    // Not in CI: the worst message takes ~1 ms and performance.now() steps by
-    // 0.1 ms (the page is not cross-origin isolated), so these vary about ±6%
-    // and miss CI's 3% target.
+    // Not in CI: one message per iteration decides each, so they vary about
+    // ±7% (p95) and ±14% (worst), more than CI's 3% target.
     extraMeasures: {
       'worst-message': {
         measure: 'stream-message',

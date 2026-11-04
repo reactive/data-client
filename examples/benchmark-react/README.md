@@ -11,10 +11,12 @@ The repo has two benchmark suites:
 
 ## Methodology
 
-- **What we measure:** Wall-clock time from triggering an action (e.g. `init(100)` or `updateUser('user0')`) until a MutationObserver detects the expected DOM change in the benchmark container. The ticker stream is the exception: it sums per-message windows (see below). Optionally we also record React Profiler commit duration and, with `BENCH_TRACE=true`, Chrome trace duration.
+- **What we measure:** Wall-clock time from triggering an action (e.g. `init(100)` or `updateUser('user0')`) until a MutationObserver detects the expected DOM change in the benchmark container. Two scenarios sum several windows instead: the ticker stream (one per message) and `list-detail-switch-10` (one per step). The runner waits for the result inside the page, so it sends nothing to the page while an action is timed. Optionally we also record React Profiler commit duration and, with `BENCH_TRACE=true`, Chrome trace duration.
+- **Timer resolution:** `yarn preview` serves the apps with COOP/COEP headers (`serve.json`). The page is then cross-origin isolated, so `performance.now()` resolves to 5 µs instead of 0.1 ms. The runner fails on a page that is not isolated.
+- **Simulated server:** The server caches each issue's JSON, so building a list reply costs almost nothing; the client still parses every reply. data-client commits its mutations optimistically, before the server replies, so the worker holds mutation replies until each data-client update window ends. Without the hold, a reply that reached the main thread before React rendered was processed inside the window (in CI there is no simulated latency). The other libraries wait for the reply inside their windows, so their replies are never held.
 - **Why:** Scenarios are chosen to exercise areas where caching strategies differ: shared-entity updates, referential stability, and derived-view memoization. See [js-framework-benchmark "How the duration is measured"](https://github.com/krausest/js-framework-benchmark/wiki/How-the-duration-is-measured) for a similar timeline-based approach.
 - **Statistical:** Warmup runs are discarded; we report median and 95% CI (as percentage of median). Timing scenarios (navigation and mutation) use **convergent mode**: a single page load per scenario, with warmup iterations followed by adaptive measurement iterations where each iteration produces one sample and convergence is checked inline. This eliminates page-reload overhead between samples for faster, lower-variance results. Deterministic scenarios (ref-stability) run once. Memory scenarios use a separate outer loop with a fresh page per round.
-- **No CPU throttling:** Runs at native speed with more samples for statistical significance rather than artificial slowdown. Convergent timing scenarios use 8 warmup + up to 60 measurement iterations (small) or 5 warmup + up to 50 (large). Early stopping triggers when 95% CI margin drops below the target percentage (2% small / 3% large in CI). CI pins the benchmark to dedicated CPU cores via `taskset` to reduce scheduling noise.
+- **No CPU throttling:** Runs at native speed with more samples for statistical significance rather than artificial slowdown. Convergent timing scenarios use 40 warmup + up to 60 measurement iterations (small) or 25 warmup + up to 50 (large); short windows keep getting faster for about 30 iterations as V8 optimizes. Garbage collection is forced before each scenario, not between its iterations: a forced collection made the next few iterations up to 3× slower. Early stopping triggers when 95% CI margin drops below the target percentage (2% small / 3% large in CI). CI pins the benchmark to dedicated CPU cores via `taskset` to reduce scheduling noise.
 
 ## Comparison philosophy
 
@@ -42,12 +44,13 @@ All implementations share presentational components, fixture data, fetch functio
 - **Update entity multi-view** (`update-entity-multi-view`) — Update one issue that appears simultaneously in a list, a detail panel, and a pinned-cards strip. Normalized caches propagate via a single store write; query-keyed caches invalidate and refetch each query.
 - **Update user (scaling)** (`update-user`, `update-user-10000`) — Update one shared user with 1,000 or 10,000 mounted issues to test subscriber scaling.
 - **Ref-stability** (`ref-stability-issue-changed`, `ref-stability-user-changed`) — Count of components that received a **new** object reference after an update (unit: count; smaller is better).
+- **List-detail switch** (`list-detail-switch-10`) — Mount a 1,000-issue sorted list (100 rendered), then switch to an issue's detail view and back ten times. Each step is timed from its state change until the commit that shows the next view; a loading state does not end the step. The runner reports the sum of the 20 steps. The time between steps is not timed.
 - **Invalidate and resolve** (`invalidate-and-resolve`) — data-client only; invalidates a cached endpoint and immediately re-resolves. Measures Suspense boundary round-trip.
 - **Ticker stream** (`update-ticker-stream`) — data-client only. This models a websocket feed. The store holds 500 tickers and the 1,000-issue list (100 rendered). A strip renders 20 tickers, and each `TickerCard` reads its ticker with `useQuery(TickerEntity, { symbol })`. The harness sends 200 messages. Each message applies 10 ticker updates with one `ctrl.set([TickerEntity], batch)`: 2 rendered tickers, which rotate through the strip so each one updates about 20 times, and 8 of the 480 tickers the strip does not render.
   - **What is timed:** each message has its own window. The window starts right before `ctrl.set()` and ends at the first DOM mutation after it, which is React's commit of that message (the same window as the other update scenarios). The harness records one `stream-message` measure per window, and the runner reports their sum.
   - **What is not timed:** building the batches, which happens before the first message, React's passive-effect scheduling, and the time between messages. The harness posts the next message through a `MessageChannel` only after the `ctrl.set()` promise resolves, which happens in `DataStore`'s effect after the commit. So each message runs in a new task and gets its own render.
   - **What the number shows today:** each `ctrl.set()` wakes every store consumer. All 20 `TickerCard`s (`useQuery`) and the `ListView` (`useDLE`) re-render, because `useCacheState` reads the whole store state from context. React Compiler then skips each `IssueRow` whose issue reference did not change. So this is a baseline: a future per-entity subscription, which re-renders only the changed tickers, would show as a faster time.
-- **Ticker stream worst and p95 message** (`update-ticker-stream-worst-message`, `update-ticker-stream-p95-message`) — The longest window and the 95th-percentile window from the same iterations (the runner computes both from the `stream-message` measures; p95 is the same percentile the runner uses everywhere). These show stutter: one slow message that the sum hides. They use ops/s (1000 ÷ ms) like the other timings, so bigger is better. They run locally and not in CI: the worst message takes about 1 ms, and `performance.now()` steps by 0.1 ms because the page is not cross-origin isolated. So these vary by about ±6%, more than CI's 3% target.
+- **Ticker stream worst and p95 message** (`update-ticker-stream-worst-message`, `update-ticker-stream-p95-message`) — The longest window and the 95th-percentile window from the same iterations (the runner computes both from the `stream-message` measures; p95 is the same percentile the runner uses everywhere). These show stutter: one slow message that the sum hides. They use ops/s (1000 ÷ ms) like the other timings, so bigger is better. They run locally and not in CI: one message per iteration decides each, so they vary by about ±7% (p95) and ±14% (worst), more than CI's 3% target.
 - **Ticker stream row renders** (`ticker-stream-issue-row-renders`) — Count of `IssueRow` renders during the ticker stream (unit: count; expected 0). In the React Compiler build, the issue list keeps its reference, so no row re-renders. This count is deterministic, so it runs locally and not in CI.
 
 **With network (local comparison)**
@@ -67,13 +70,12 @@ All implementations share presentational components, fixture data, fetch functio
 
 Illustrative **relative** results with **baseline = 100%** (plain React useState/useEffect, no data library). For **throughput** rows, each value is (library ops/s ÷ baseline ops/s) × 100 — **higher is faster**. For **ref-stability** rows, the ratio uses the “refs changed” count — **lower is fewer components that saw a new object reference**. Figures are rounded from the **Latest measured results** table below (network simulation on); absolute ops/s will vary by machine, but **library-to-library ratios** are usually similar.
 
-| Category | Scenarios (representative) | data-client | tanstack-query | swr | baseline |
-|---|---|---:|---:|---:|---:|
-| Navigation | `getlist-100`, `getlist-500`, `getlist-500-sorted` | ~98% | ~99% | ~99% | **100%** |
-| Navigation | `list-detail-switch-10` | **~2381%** | ~225% | ~218% | 100% |
-| Mutations | `update-entity`, `update-user`, `update-entity-sorted`, `update-entity-multi-view`, `unshift-item`, `delete-item`, `move-item` | **~8672%** | ~97% | ~99% | 100% |
-| Scaling (10k items) | `update-user-10000` | **~9290%** | ~96% | ~100% | 100% |
-
+| Category            | Scenarios (representative)                                                                                                     | data-client | tanstack-query |   swr | baseline |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------: | -------------: | ----: | -------: |
+| Navigation          | `getlist-100`, `getlist-500`, `getlist-500-sorted`                                                                             |        ~98% |           ~99% |  ~99% | **100%** |
+| Navigation          | `list-detail-switch-10`                                                                                                        |  **~2381%** |          ~225% | ~218% |     100% |
+| Mutations           | `update-entity`, `update-user`, `update-entity-sorted`, `update-entity-multi-view`, `unshift-item`, `delete-item`, `move-item` |  **~8672%** |           ~97% |  ~99% |     100% |
+| Scaling (10k items) | `update-user-10000`                                                                                                            |  **~9290%** |           ~96% | ~100% |     100% |
 
 ## Latest measured results (network simulation on)
 
@@ -83,32 +85,32 @@ Run: **2026-03-22**, Linux (WSL2), `yarn build:benchmark-react`, static preview 
 
 This run used commit [`57b2f97`](https://github.com/reactive/data-client/commit/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05) (TanStack Query 5.62.7, SWR 2.4.1, React 19.2.3) with the convergent settings of that time: 5 warmup + 5–50 samples at ±8% (small), 3 warmup + 5–40 samples at ±12% (large). Full details: [Benchmark methodology](./METHODOLOGY.md).
 
-| Scenario | data-client | tanstack-query | swr | baseline |
-|---|---:|---:|---:|---:|
-| **Navigation** | | | | |
-| `getlist-100` | 20.45 ± 2.3% | 20.62 ± 0.8% | 20.73 ± 0.2% | 20.73 ± 0.5% |
-| `getlist-500` | 12.53 ± 2.8% | 12.80 ± 0.2% | 12.71 ± 0.3% | 12.84 ± 0.2% |
-| `getlist-500-sorted` | 12.92 ± 5.1% | 12.93 ± 1.1% | 12.90 ± 0.7% | 13.16 ± 3.6% |
-| `list-detail-switch-10` | 17.38 ± 8.7% | 1.64 ± 1.7% | 1.59 ± 1.4% | 0.73 ± 0.1% |
-| **Mutations** | | | | |
-| `update-entity` | 666.67 ± 9.0% | 6.98 ± 0.4% | 7.09 ± 0.4% | 7.23 ± 0.8% |
-| `update-user` | 801.28 ± 9.4% | 7.04 ± 0.5% | 7.18 ± 0.1% | 7.24 ± 1.3% |
-| `update-entity-sorted` | 625.00 ± 10.8% | 7.10 ± 0.0% | 7.10 ± 1.2% | 7.29 ± 0.9% |
-| `update-entity-multi-view` | 645.83 ± 7.6% | 7.14 ± 0.2% | 7.16 ± 0.1% | 7.29 ± 0.3% |
-| `update-user-10000` | 144.93 ± 1.7% | 1.49 ± 0.6% | 1.56 ± 1.7% | 1.56 ± 1.5% |
-| `unshift-item` | 465.37 ± 3.6% | 6.90 ± 0.4% | 7.18 ± 0.2% | 7.21 ± 0.3% |
-| `delete-item` | 833.33 ± 6.0% | 6.93 ± 0.1% | 7.17 ± 0.7% | 7.19 ± 0.7% |
-| `move-item` | 333.33 ± 8.9% | 6.76 ± 0.6% | 6.99 ± 0.3% | 6.97 ± 0.2% |
+| Scenario                   |    data-client | tanstack-query |          swr |     baseline |
+| -------------------------- | -------------: | -------------: | -----------: | -----------: |
+| **Navigation**             |                |                |              |              |
+| `getlist-100`              |   20.45 ± 2.3% |   20.62 ± 0.8% | 20.73 ± 0.2% | 20.73 ± 0.5% |
+| `getlist-500`              |   12.53 ± 2.8% |   12.80 ± 0.2% | 12.71 ± 0.3% | 12.84 ± 0.2% |
+| `getlist-500-sorted`       |   12.92 ± 5.1% |   12.93 ± 1.1% | 12.90 ± 0.7% | 13.16 ± 3.6% |
+| `list-detail-switch-10`    |   17.38 ± 8.7% |    1.64 ± 1.7% |  1.59 ± 1.4% |  0.73 ± 0.1% |
+| **Mutations**              |                |                |              |              |
+| `update-entity`            |  666.67 ± 9.0% |    6.98 ± 0.4% |  7.09 ± 0.4% |  7.23 ± 0.8% |
+| `update-user`              |  801.28 ± 9.4% |    7.04 ± 0.5% |  7.18 ± 0.1% |  7.24 ± 1.3% |
+| `update-entity-sorted`     | 625.00 ± 10.8% |    7.10 ± 0.0% |  7.10 ± 1.2% |  7.29 ± 0.9% |
+| `update-entity-multi-view` |  645.83 ± 7.6% |    7.14 ± 0.2% |  7.16 ± 0.1% |  7.29 ± 0.3% |
+| `update-user-10000`        |  144.93 ± 1.7% |    1.49 ± 0.6% |  1.56 ± 1.7% |  1.56 ± 1.5% |
+| `unshift-item`             |  465.37 ± 3.6% |    6.90 ± 0.4% |  7.18 ± 0.2% |  7.21 ± 0.3% |
+| `delete-item`              |  833.33 ± 6.0% |    6.93 ± 0.1% |  7.17 ± 0.7% |  7.19 ± 0.7% |
+| `move-item`                |  333.33 ± 8.9% |    6.76 ± 0.6% |  6.99 ± 0.3% |  6.97 ± 0.2% |
 
 [Measured on a Ryzen 9 7950X; 64 GB RAM; Ubuntu (WSL2); Node 24.12.0; Chromium (Playwright)]
 
 ## Expected variance
 
-| Category | Scenarios | Typical run-to-run spread |
-|---|---|---|
-| **Stable** | `getlist-*`, `update-entity`, `update-entity-sorted`, `ref-stability-*` | <2% |
-| **Moderate** | `update-user-*`, `update-entity-multi-view`, `list-detail-switch-10`, `move-item` | 2-4% |
-| **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes | 5-15% |
+| Category     | Scenarios                                                                         | Typical run-to-run spread |
+| ------------ | --------------------------------------------------------------------------------- | ------------------------- |
+| **Stable**   | `getlist-*`, `update-entity`, `update-entity-sorted`, `ref-stability-*`           | <2%                       |
+| **Moderate** | `update-user-*`, `update-entity-multi-view`, `list-detail-switch-10`, `move-item` | 2-4%                      |
+| **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes              | 5-15%                     |
 
 CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported margins should not exceed 5%. Regressions >5% on stable scenarios or >10% on moderate scenarios are worth investigating.
 
@@ -124,10 +126,10 @@ CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported mar
 
 The "Benchmark React", "Benchmark", and "Benchmark Spread" PR comments compare one GitHub runner against the last master run on another, so runner speed alone can shift a whole run by up to ~1.7×. The thresholds above and the comment's ± ranges hold only within one machine.
 
-| Comment shows | Do |
-|---|---|
+| Comment shows                                                                                                 | Do                    |
+| ------------------------------------------------------------------------------------------------------------- | --------------------- |
 | Every suite shifts together, React and Node comments disagree, or "Build packages" time moved with the scores | Treat as runner noise |
-| Only suites on code the PR changes shift | Run an A/B |
+| Only suites on code the PR changes shift                                                                      | Run an A/B            |
 
 A/B: build base and PR in separate worktrees (`yarn build:benchmark-react` or `yarn build:benchmark`); for React, serve each with `BENCH_PORT=<port> yarn workspace example-benchmark-react preview`. Alternate base and PR for 5+ rounds (`CI=true BENCH_PORT=<port> yarn bench` or `yarn workspace example-benchmark start <suite> [filter]`) and compare medians; interleaving cancels machine drift.
 
@@ -136,7 +138,7 @@ The path filter skips `packages/rest/src` and most of `packages/endpoint/src`, s
 ## Adding a new library
 
 1. Add a new app under `src/<lib>/index.tsx` (e.g. `src/urql/index.tsx`).
-2. Implement the `BenchAPI` interface on `window.__BENCH__`: `init`, `updateEntity`, `updateUser`, `unmountAll`, `getRenderedCount`, `captureRefSnapshot`, `getRefStabilityReport`, and optionally `mountUnmountCycle`, `mountSortedView`. Use the shared presentational `IssuesRow` from `@shared/components` and fixtures from `@shared/data`. The harness (`useBenchState`) provides default `init`, `unmountAll`, `mountUnmountCycle`, `getRenderedCount`, and ref-stability and render-count methods; libraries only need to supply `updateEntity`, `updateUser`, and any overrides.
+2. Implement the `BenchAPI` interface on `window.__BENCH__`: `init`, `updateEntity`, `updateUser`, `unmountAll`, `getRenderedCount`, `captureRefSnapshot`, `getRefStabilityReport`, and optionally `mountUnmountCycle`, `mountSortedView`. Use the shared presentational `IssuesRow` from `@shared/components` and fixtures from `@shared/data`. The harness (`useBenchState`) provides default `init`, `unmountAll`, `mountUnmountCycle`, `getRenderedCount`, and ref-stability and render-count methods; libraries only need to supply `updateEntity`, `updateUser`, and any overrides. If every update the library times with `measureUpdate` commits before the server replies (optimistic updates), call `useBenchState({ optimisticMutations: true })`.
 3. Add the library to `LIBRARIES` in `bench/scenarios.ts`.
 4. Add a webpack entry in `webpack.config.cjs` for the new app and an `HtmlWebpackPlugin` entry so the app is served at `/<lib>/`.
 5. Add the dependency to `package.json` and run `yarn install`.
@@ -189,12 +191,12 @@ The path filter skips `packages/rest/src` and most of `packages/endpoint/src`, s
 
    The runner supports CLI flags (with env var fallbacks) to select a subset of scenarios:
 
-   | CLI flag | Env var | Description |
-   |---|---|---|
-   | `--lib <names>` | `BENCH_LIB` | Comma-separated library names (e.g. `data-client,swr`) |
-   | `--size <small\|large>` | `BENCH_SIZE` | Run only `small` (cheap, full rigor) or `large` (expensive, reduced runs) scenarios |
-   | `--action <group\|action>` | `BENCH_ACTION` | Filter by action group (`mount`, `update`, `mutation`, `memory`) or exact action name. Memory is **not run by default**; use `--action memory` to include. |
-   | `--scenario <pattern>` | `BENCH_SCENARIO` | Substring filter on scenario name |
+   | CLI flag                   | Env var          | Description                                                                                                                                                |
+   | -------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | `--lib <names>`            | `BENCH_LIB`      | Comma-separated library names (e.g. `data-client,swr`)                                                                                                     |
+   | `--size <small\|large>`    | `BENCH_SIZE`     | Run only `small` (cheap, full rigor) or `large` (expensive, reduced runs) scenarios                                                                        |
+   | `--action <group\|action>` | `BENCH_ACTION`   | Filter by action group (`mount`, `update`, `mutation`, `memory`) or exact action name. Memory is **not run by default**; use `--action memory` to include. |
+   | `--scenario <pattern>`     | `BENCH_SCENARIO` | Substring filter on scenario name                                                                                                                          |
 
    CLI flags take precedence over env vars. Examples:
 
