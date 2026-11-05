@@ -248,8 +248,8 @@ function transformImports(
         return hasLiveReference(j, root, s.local.name, importPath.scope);
       return axiosStillUsed || s.type !== 'ImportDefaultSpecifier';
     });
-    // axios's own names left after the calls convert, which keep axios installed;
-    // a runtime read also gets a TODO naming its replacement where it's read
+    // axios's own names left after the calls convert, which keep axios installed
+    // (markLeftovers also marks each runtime read with its replacement)
     const keptNames = remaining.filter(isKnown).map(s => s.local.name);
 
     if (!remaining.length) {
@@ -287,19 +287,22 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
   // classes whose urlPrefix came from a baseURL
   const prefixedClasses = new Set();
 
+  const isCreate = init =>
+    init &&
+    init.type === 'CallExpression' &&
+    init.callee &&
+    init.callee.type === 'MemberExpression' &&
+    init.callee.object.type === 'Identifier' &&
+    init.callee.object.name === axiosLocalName &&
+    init.callee.property.type === 'Identifier' &&
+    init.callee.property.name === 'create';
+  // each class then takes its client's place: after the siblings it can
+  // read, before the ones that can use it
+  splitDeclarations(j, root, declarator => isCreate(declarator.init));
+
   root.find(j.VariableDeclarator).forEach(declPath => {
     const init = declPath.node.init;
-    if (!init || init.type !== 'CallExpression') return;
-    if (
-      !init.callee ||
-      init.callee.type !== 'MemberExpression' ||
-      init.callee.object.type !== 'Identifier' ||
-      init.callee.object.name !== axiosLocalName ||
-      init.callee.property.type !== 'Identifier' ||
-      init.callee.property.name !== 'create'
-    ) {
-      return;
-    }
+    if (!isCreate(init)) return;
 
     const varName =
       declPath.node.id.type === 'Identifier' ? declPath.node.id.name : null;
@@ -435,28 +438,14 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
         : classDecl;
       markOptions(classStatement);
 
-      const { declarations } = variableDecl;
-      const index = declarations.indexOf(declPath.node);
-      const before = declarations.slice(0, index);
-      const after = declarations.slice(index + 1);
-      // the class can read the declarators before it, and those after can use it
-      if (!before.length && !after.length) {
+      if (variableDecl.declarations.length === 1) {
         j(statementPath).replaceWith(classStatement);
-      } else if (!before.length) {
-        variableDecl.declarations = after;
-        j(statementPath).insertBefore(classStatement);
       } else {
-        variableDecl.declarations = before;
-        const rest = [];
-        if (after.length) {
-          const afterDecl = j.variableDeclaration(variableDecl.kind, after);
-          rest.push(
-            statementPath.node.type === 'ExportNamedDeclaration' ?
-              j.exportNamedDeclaration(afterDecl)
-            : afterDecl,
-          );
-        }
-        j(statementPath).insertAfter([classStatement, ...rest]);
+        // a declaration that isn't a statement, like a `for` initializer
+        variableDecl.declarations = variableDecl.declarations.filter(
+          declaration => declaration !== declPath.node,
+        );
+        j(statementPath).insertBefore(classStatement);
       }
     } else {
       markOptions(classDecl);
@@ -466,6 +455,27 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
   });
 
   return { dirty, createToClass, prefixedClasses };
+}
+
+/** Splits each statement declaring several variables, one of which passes `test`, into one statement per variable */
+function splitDeclarations(j, root, test) {
+  root
+    .find(j.VariableDeclaration)
+    .filter(
+      p => p.node.declarations.length > 1 && p.node.declarations.some(test),
+    )
+    .forEach(p => {
+      const exported = p.parent.node.type === 'ExportNamedDeclaration';
+      const statement = exported ? p.parent : p;
+      // only a statement in a block or the program can become several
+      if (typeof statement.name !== 'number') return;
+      const pieces = p.node.declarations.map(declarator => {
+        const decl = j.variableDeclaration(p.node.kind, [declarator]);
+        return exported ? j.exportNamedDeclaration(decl) : decl;
+      });
+      pieces[0].comments = statement.node.comments;
+      j(statement).replaceWith(pieces);
+    });
 }
 
 // --- 2b. Instances imported from another file ---

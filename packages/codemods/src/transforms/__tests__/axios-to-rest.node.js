@@ -425,6 +425,33 @@ export const users = new ApiEndpoint({
       `,
       'defines the class between the declarators it reads and those that use it',
     );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+// clients
+export const x = 1, a = axios.create({ baseURL: '/a' }), y = 2, b = axios.create({ baseURL: '/b' });
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+
+// clients
+export const x = 1;
+
+export class AEndpoint extends RestEndpoint {
+  urlPrefix = '/a';
+}
+
+export const y = 2;
+
+export class BEndpoint extends RestEndpoint {
+  urlPrefix = '/b';
+}
+      `,
+      'converts two clients declared in one statement',
+    );
   });
 
   // ── Direct method call transforms ──────────────────────────────────
