@@ -7,9 +7,10 @@ on:
     branches:
       - master
     paths: &paths
-      # Inputs of checkBrowserSnippets.mjs: the page, the checker and the
-      # docs renderer it reads the page with, and the packages its test app
-      # bundles from source
+      # What the snippets run against: the page, the checker (and the docs
+      # renderer it reads the page with), the packages its test app bundles
+      # from source, and their dependencies. The renderer's other inputs
+      # (other pages, skill manifests) are left to regenerate's build:skills
       - 'docs/core/_agents/devtools-debugging.md'
       - 'website/framework-docs/**'
       - '!website/framework-docs/**/*.test.mjs'
@@ -21,7 +22,11 @@ on:
       - 'packages/endpoint/src/**'
       - 'packages/normalizr/src/**'
       - '!packages/**/__tests__/**'
+      # Playwright, esbuild and React come from the lockfile, React's
+      # version from the root resolutions
+      - 'package.json'
       - 'website/package.json'
+      - 'yarn.lock'
       - '.github/workflows/browser-snippets.yml'
       - '.github/actions/website-install/**'
   pull_request:
