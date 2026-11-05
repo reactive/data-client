@@ -28,16 +28,15 @@ type BodyPart<B, ListBody extends boolean> =
  * Fixed lengths since TS < 4.2 has no leading-rest tuples. Indexes instead of `infer`, which
  * TS < 4.2 fails to resolve here while inferring a call, losing the list signatures */
 type BodyArgs<A, ListBody extends boolean> =
-  A extends readonly [any] ?
-    [BodyPart<A[0], ListBody>] extends [never] ?
-      never
-    : readonly [BodyPart<A[0], ListBody>]
-  : A extends readonly [any, any] ?
-    [BodyPart<A[1], ListBody>] extends [never] ?
-      never
-    : readonly [A[0], BodyPart<A[1], ListBody>]
+  A extends readonly [any] ? BodyTuple<[], A[0], ListBody>
+  : A extends readonly [any, any] ? BodyTuple<[A[0]], A[1], ListBody>
   : ListBody extends true ? never
   : A;
+
+/** Params followed by the narrowed body; never when the body has no such members */
+type BodyTuple<Params extends readonly any[], B, ListBody extends boolean> =
+  [BodyPart<B, ListBody>] extends [never] ? never
+  : readonly [...Params, BodyPart<B, ListBody>];
 
 /** Rest args longer than any endpoint call's, so a signature using them is skipped by arity instead of reporting errors */
 type NoCall = readonly [
@@ -83,7 +82,7 @@ export interface ControllerFetch {
    */
   <E extends (...args: any) => any>(
     endpoint: E,
-    // a single (or `any`) body on an endpoint that adds to a list;
+    // a non-list (or `any`) body, or none, on an endpoint that adds to a list;
     // other endpoints skip this signature by arity, so their errors stay those of the last one
     ...args: AdderArgs<E, false>
   ): Promise<SchemaResult<E>>;
