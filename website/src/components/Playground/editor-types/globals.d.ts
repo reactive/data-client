@@ -1898,7 +1898,9 @@ type AddEndpoint<F extends FetchFunction = FetchFunction, S extends Schema | und
     method: 'POST';
 }>;
 /** One call signature for item bodies and one for list bodies, so Controller.fetch() can resolve a list body as a list */
-type AdderFetch<UrlParams, Body, Resolve> = RestFetch<UrlParams, Exclude<Body, readonly any[]>, Resolve> | ([Extract<Body, readonly any[]>] extends [never] ? never : RestFetch<UrlParams, Extract<Body, readonly any[]>, Resolve>);
+type AdderFetch<UrlParams, Body, Resolve> = [
+    Extract<Body, readonly any[]>
+] extends [never] ? RestFetch<UrlParams, Body, Resolve> : RestFetch<UrlParams, Exclude<Body, readonly any[]>, Resolve> | RestFetch<UrlParams, Extract<Body, readonly any[]>, Resolve>;
 type RemoveEndpoint<F extends FetchFunction = FetchFunction, S extends Schema | undefined = any, O extends {
     path: string;
     body: any;
@@ -1995,7 +1997,7 @@ type RestType<UrlParams = any, Body = any, S extends Schema | undefined = Schema
 } = {
     path: string;
     paginationField: string;
-}> = IfTypeScriptLooseNull<RestInstance<RestFetch<UrlParams, Body, R>, S, M, O>, BodyBranch<Body, RestTypeWithBody<UrlParams, S, M, Exclude<Body, null | undefined>, R, O>, RestTypeNoBody<UrlParams, S, M, R, O>>>;
+}> = IfTypeScriptLooseNull<RestInstance<RestFetch<UrlParams, Body, R>, S, M, O>, BodyKind<Body> extends 'none' ? RestTypeNoBody<UrlParams, S, M, R, O> : BodyKind<Body> extends 'required' ? RestTypeWithBody<UrlParams, S, M, Body, R, O> : RestTypeWithBody<UrlParams, S, M, NonNullBody<Body>, R, O> | RestTypeNoBody<UrlParams, S, M, R, O>>;
 type RestTypeWithBody<UrlParams = any, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined, Body = any, R = any, O extends {
     path: string;
     body?: any;
@@ -2013,17 +2015,20 @@ type RestTypeNoBody<UrlParams = any, S extends Schema | undefined = Schema | und
     body: undefined;
 }> = RestInstance<ParamFetchNoBody<UrlParams, R>, S, M, O>;
 /** Simple parameters, and body fetch functions */
-type RestFetch<UrlParams, Body = {}, Resolve = any> = IfTypeScriptLooseNull<ParamFetchNoBody<UrlParams, Resolve> | ParamFetchWithBody<UrlParams, Body, Resolve>, BodyBranch<Body, ParamFetchWithBody<UrlParams, Exclude<Body, null | undefined>, Resolve>, ParamFetchNoBody<UrlParams, Resolve>>>;
-/** WithBody for a body, plus NoBody when Body may be null or undefined (or is `any`);
- * only NoBody when Body is only null, undefined or `unknown`.
+type RestFetch<UrlParams, Body = {}, Resolve = any> = IfTypeScriptLooseNull<ParamFetchNoBody<UrlParams, Resolve> | ParamFetchWithBody<UrlParams, Body, Resolve>, BodyKind<Body> extends 'none' ? ParamFetchNoBody<UrlParams, Resolve> : BodyKind<Body> extends 'required' ? ParamFetchWithBody<UrlParams, Body, Resolve> : ParamFetchWithBody<UrlParams, NonNullBody<Body>, Resolve> | ParamFetchNoBody<UrlParams, Resolve>>;
+type NonNullBody<Body> = Exclude<Body, null | undefined>;
+/** Which call signatures a body type gets: 'none' (only null, undefined or `unknown`),
+ * 'required', or 'optional' (may be null or undefined, or is `any`): both.
  *
  * Checks Body as a whole (not distributively), so a union body like `A | B` stays one
  * `(body: A | B)` signature instead of `((body: A) => R) | ((body: B) => R)`, which no
- * `A | B` value can call.
+ * `A | B` value can call. Callers branch on the result so only the taken signatures are built.
  */
-type BodyBranch<Body, WithBody, NoBody> = [
-    Exclude<Body, null | undefined>
-] extends [never] ? NoBody : [Exclude<Body, null | undefined>] extends [{}] ? WithBody | ([Extract<Body, null | undefined>] extends [never] ? never : NoBody) : NoBody;
+type BodyKind<Body> = [
+    NonNullBody<Body>
+] extends [never] ? 'none' : [NonNullBody<Body>] extends [{}] ? [
+    Extract<Body, null | undefined>
+] extends [never] ? 'required' : 'optional' : 'none';
 type ParamFetchWithBody<P, B = {}, R = any> = P extends undefined ? (this: EndpointInstanceInterface, body: B) => Promise<R> : {} extends P ? keyof P extends never ? (this: EndpointInstanceInterface, body: B) => Promise<R> : ((this: EndpointInstanceInterface, params: P, body: B) => Promise<R>) | ((this: EndpointInstanceInterface, body: B) => Promise<R>) : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>;
 type ParamFetchNoBody<P, R = any> = P extends undefined ? (this: EndpointInstanceInterface) => Promise<R> : {} extends P ? keyof P extends never ? (this: EndpointInstanceInterface) => Promise<R> : ((this: EndpointInstanceInterface, params: P) => Promise<R>) | ((this: EndpointInstanceInterface) => Promise<R>) : (this: EndpointInstanceInterface, params: P) => Promise<R>;
 type ParamToArgs<P> = P extends undefined ? [] : {} extends P ? keyof P extends never ? [

@@ -302,6 +302,9 @@ mockInitialState([...fixtures${i}, typed${i}]);
   return s;
 };
 
+// 12. path types vs their frozen pre-#4173 implementation (a type error is a mismatch)
+scen.patheq = patheq;
+
 // 13. RestEndpoint bodies: union (REACT-6), optional, non-object and extend()ed, called directly and through ctrl.fetch()
 scen.bodies = () => {
   let s = `import { RestEndpoint } from '@data-client/rest';
@@ -322,9 +325,6 @@ export function use${i}() {
 `;
   return s;
 };
-
-// 12. path types vs their frozen pre-#4173 implementation (a type error is a mismatch)
-scen.patheq = patheq;
 
 /** Writes scenarios/<name>/ for the named fixtures (all when empty); returns the names */
 export function generate(only = []) {
