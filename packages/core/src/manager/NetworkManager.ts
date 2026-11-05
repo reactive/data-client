@@ -114,7 +114,7 @@ export default class NetworkManager implements Manager {
     delete this.cleanupDate;
   }
 
-  /** On unmount, or when React <Activity> hides the provider; fetches in flight still resolve */
+  /** When the provider unmounts or is hidden (like by React <Activity>); fetches in flight still resolve */
   cleanup() {
     this.cleanupDate = Date.now();
   }

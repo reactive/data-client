@@ -1161,7 +1161,7 @@ declare class NetworkManager implements Manager {
     middleware: Middleware;
     /** On mount */
     init(): void;
-    /** On unmount, or when React <Activity> hides the provider; fetches in flight still resolve */
+    /** When the provider unmounts or is hidden (like by React <Activity>); fetches in flight still resolve */
     cleanup(): void;
     /** Used by DevtoolsManager to determine whether to log an action */
     skipLogging(action: ActionTypes): boolean;
