@@ -558,7 +558,7 @@ for (const locale of locales) {
       console.log(`  still English (if intended: --same ${id})`);
     for (const id of result.outdated)
       console.log(
-        `  translates other English (run prepare, then translate it; or keep it: --same ${id})`,
+        `  translates other English (run prepare, then translate it): ${id}`,
       );
     for (const problem of result.problems) console.error(`  ✗ ${problem}`);
     failed ||= result.problems.length > 0;
