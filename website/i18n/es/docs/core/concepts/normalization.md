@@ -24,7 +24,7 @@ endpoint se hayan usado.
   poster={useBaseUrl('/videos/docs/normalization-poster.jpg')}
   duration="1:54"
   volume={0.5}
-  alt="Dos endpoints devuelven tres copias del mismo usuario. La normalización guarda cada entity una sola vez en una tabla indexada por id, la desnormalización sigue los ids para reconstruir cada respuesta, y un solo cambio de nombre actualiza todas las vistas. Cambiar el nombre de un usuario con 10.000 filas en pantalla reconstruye 30 objetos en lugar de 10.000."
+  alt="Dos endpoints devuelven tres copias del mismo usuario. La normalización guarda cada entity una sola vez en una tabla indexada por id, la desnormalización sigue los ids para reconstruir cada respuesta, y un solo cambio de nombre actualiza todas las vistas. Con 10.000 posts en el store, cambiar el nombre de un usuario reconstruye 30 objetos en lugar de 10.000, y en el benchmark ese cambio de nombre tarda menos de seis milisegundos."
 >
   <source
     src={useBaseUrl('/videos/docs/normalization.webm')}
