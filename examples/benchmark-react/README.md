@@ -72,38 +72,38 @@ Illustrative **relative** results with **baseline = 100%** (plain React useState
 
 | Category | Scenarios (representative) | data-client | tanstack-query | swr | baseline |
 |---|---|---:|---:|---:|---:|
-| Navigation | `getlist-100`, `getlist-500`, `getlist-500-sorted` | ~98% | ~99% | ~99% | **100%** |
-| Navigation | `list-detail-switch-10` | **~2381%** | ~225% | ~218% | 100% |
-| Mutations | `update-entity`, `update-user`, `update-entity-sorted`, `update-entity-multi-view`, `unshift-item`, `delete-item`, `move-item` | **~8672%** | ~97% | ~99% | 100% |
-| Scaling (10k items) | `update-user-10000` | **~9290%** | ~96% | ~100% | 100% |
+| Navigation | `getlist-100`, `getlist-500`, `getlist-500-sorted` | ~99% | **~100%** | **~100%** | **100%** |
+| Navigation | `list-detail-switch-10` | **~6381%** | ~302% | ~299% | 100% |
+| Mutations | `update-entity`, `update-user`, `update-entity-sorted`, `update-entity-multi-view`, `unshift-item`, `delete-item`, `move-item` | **~12484%** | ~99% | ~99% | 100% |
+| Scaling (10k items) | `update-user-10000` | **~10516%** | ~97% | ~100% | 100% |
 
 
 ## Latest measured results (network simulation on)
 
 Median ops/s per scenario; range is approximate 95% CI margin from the runner (`stats.ts`). **Network simulation** uses response-size-based delays (`NETWORK_SIM_CONFIG` in `bench/scenarios.ts`: 40 ms base latency + 1 ms per 20 records) so list refetches after an author update pay extra latency compared to normalized propagation.
 
-Run: **2026-03-22**, Linux (WSL2), `yarn build:benchmark-react`, static preview + `env -u CI npx tsx bench/runner.ts --network-sim true` (all libraries; memory scenarios not included). Numbers are **machine-specific**; use them for relative comparison between libraries, not as absolutes.
+Run: **2026-11-05**, Linux (WSL2), `yarn build:benchmark-react`, `yarn preview` + `env -u CI npx tsx bench/runner.ts --network-sim true`, twice (all libraries; memory scenarios not included). Each value is the median of the two runs; each range is the mean of their margins. Numbers are **machine-specific**; use them for relative comparison between libraries, not as absolutes.
 
-This run used commit [`57b2f97`](https://github.com/reactive/data-client/commit/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05) (TanStack Query 5.62.7, SWR 2.4.1, React 19.2.3) with the convergent settings of that time: 5 warmup + 5–50 samples at ±8% (small), 3 warmup + 5–40 samples at ±12% (large). Full details: [Benchmark methodology](./METHODOLOGY.md).
+This run used master after [#4580](https://github.com/reactive/data-client/pull/4580) (TanStack Query 5.96.2, SWR 2.5.1, React 19.3.1) with the current convergent settings: 40 warmup + 10–60 samples at ±6% (small), 25 warmup + 10–50 samples at ±10% (large). The charts on the docs site still come from the earlier run in [Benchmark methodology](./METHODOLOGY.md).
 
 | Scenario | data-client | tanstack-query | swr | baseline |
 |---|---:|---:|---:|---:|
 | **Navigation** | | | | |
-| `getlist-100` | 20.45 ± 2.3% | 20.62 ± 0.8% | 20.73 ± 0.2% | 20.73 ± 0.5% |
-| `getlist-500` | 12.53 ± 2.8% | 12.80 ± 0.2% | 12.71 ± 0.3% | 12.84 ± 0.2% |
-| `getlist-500-sorted` | 12.92 ± 5.1% | 12.93 ± 1.1% | 12.90 ± 0.7% | 13.16 ± 3.6% |
-| `list-detail-switch-10` | 17.38 ± 8.7% | 1.64 ± 1.7% | 1.59 ± 1.4% | 0.73 ± 0.1% |
+| `getlist-100` | 21.12 ± 0.5% | 21.36 ± 0.3% | 21.34 ± 0.3% | 21.37 ± 0.2% |
+| `getlist-500` | 13.70 ± 0.4% | 13.88 ± 0.7% | 13.89 ± 0.4% | 13.89 ± 0.5% |
+| `getlist-500-sorted` | 13.50 ± 0.4% | 13.75 ± 0.7% | 13.73 ± 0.6% | 13.76 ± 0.4% |
+| `list-detail-switch-10` | 47.22 ± 9.7% | 2.24 ± 0.7% | 2.21 ± 1.1% | 0.74 ± 0.2% |
 | **Mutations** | | | | |
-| `update-entity` | 666.67 ± 9.0% | 6.98 ± 0.4% | 7.09 ± 0.4% | 7.23 ± 0.8% |
-| `update-user` | 801.28 ± 9.4% | 7.04 ± 0.5% | 7.18 ± 0.1% | 7.24 ± 1.3% |
-| `update-entity-sorted` | 625.00 ± 10.8% | 7.10 ± 0.0% | 7.10 ± 1.2% | 7.29 ± 0.9% |
-| `update-entity-multi-view` | 645.83 ± 7.6% | 7.14 ± 0.2% | 7.16 ± 0.1% | 7.29 ± 0.3% |
-| `update-user-10000` | 144.93 ± 1.7% | 1.49 ± 0.6% | 1.56 ± 1.7% | 1.56 ± 1.5% |
-| `unshift-item` | 465.37 ± 3.6% | 6.90 ± 0.4% | 7.18 ± 0.2% | 7.21 ± 0.3% |
-| `delete-item` | 833.33 ± 6.0% | 6.93 ± 0.1% | 7.17 ± 0.7% | 7.19 ± 0.7% |
-| `move-item` | 333.33 ± 8.9% | 6.76 ± 0.6% | 6.99 ± 0.3% | 6.97 ± 0.2% |
+| `update-entity` | 1367.15 ± 5.7% | 7.33 ± 0.3% | 7.29 ± 0.2% | 7.42 ± 0.2% |
+| `update-user` | 1442.51 ± 11.1% | 7.33 ± 0.4% | 7.45 ± 0.3% | 7.45 ± 0.3% |
+| `update-entity-sorted` | 829.49 ± 5.0% | 7.31 ± 0.3% | 7.28 ± 0.4% | 7.40 ± 0.3% |
+| `update-entity-multi-view` | 837.74 ± 7.8% | 7.33 ± 0.4% | 7.29 ± 0.3% | 7.44 ± 0.3% |
+| `update-user-10000` | 174.04 ± 4.4% | 1.60 ± 0.3% | 1.66 ± 0.2% | 1.65 ± 0.2% |
+| `unshift-item` | 598.18 ± 5.8% | 7.32 ± 0.2% | 7.42 ± 0.2% | 7.42 ± 0.2% |
+| `delete-item` | 860.68 ± 5.3% | 7.29 ± 0.3% | 7.39 ± 0.3% | 7.38 ± 0.3% |
+| `move-item` | 542.07 ± 6.0% | 7.13 ± 0.7% | 7.34 ± 0.3% | 7.33 ± 0.5% |
 
-[Measured on a Ryzen 9 7950X; 64 GB RAM; Ubuntu (WSL2); Node 24.12.0; Chromium (Playwright)]
+[Measured on a Ryzen 9 7950X; 64 GB RAM; Ubuntu (WSL2); Node 26.12.1; Chromium (Playwright 1.64.0)]
 
 ## Expected variance
 

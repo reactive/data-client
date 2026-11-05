@@ -65,6 +65,7 @@ Filtering: `yarn bench --lib data-client --size small --action update`
 | `data-issue-number` | components → runner/harness | Item identity assertion |
 | `data-title` | components → lib views | Text content assertion |
 | `data-state-list` | lib views → harness | Move-item verification |
+| `data-issue-list` | components → harness | List rows, as distinct from detail and pinned rows |
 | `data-ticker` | components → validate | Ticker-stream final values (`[data-price]`, `[data-volume]` text) |
 
 ## Environment Variables
