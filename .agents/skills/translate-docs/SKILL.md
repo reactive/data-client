@@ -18,7 +18,7 @@ English in `docs/` and `website/blog/` is the only source. `website/translate/tr
    - `removed`: translations it deleted because their page is no longer translated; commit the deletion.
    - `ui`: UI strings (navbar, footer, sidebar labels) still in English. Each `id` is `<json file>#<key>`; translate the `message` of that key in the file. `previous` is its translation of older English, to update.
 2. Translate, following the rules below. Write each page to its `translation` path; create folders as needed.
-3. Before committing, `node website/translate/translate.mjs finalize`. It checks every changed translation against its English, adds heading anchors, and records the English it translates in `website/translate/lock/<locale>.json`. Fix each `✗` problem it prints and run it again until it passes. A UI string that should read the same as English (a product name) is accepted with `--same <id>`.
+3. Before committing, `node website/translate/translate.mjs finalize`. It checks every changed translation against its English, adds heading anchors, and records the English it translates in `website/translate/lock/<locale>.json`. Fix each `✗` problem it prints and run it again until it passes. A UI string that should read the same as English (a product name) is accepted with `--same <id>`. A UI string listed as translating older English needs `prepare` first; if its translation still fits the new English, accept it with `--same <id>`.
 4. Commit the translations, the UI JSON files and the lock together.
 
 ## Weekly run

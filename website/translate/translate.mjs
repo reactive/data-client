@@ -293,6 +293,8 @@ async function prepare(locale, english) {
       // a translation of older English shows English until it is redone
       const previous = key in done ? target[key]?.message : undefined;
       target[key] = { message, description };
+      // so `finalize` tells its new translation from the old one
+      delete done[key];
       ui.push({
         id: uiId(locale, file, key),
         message,
@@ -361,10 +363,6 @@ function translationProblems(english, content, file) {
   }
 }
 
-/** A locale's committed UI strings in one of its files */
-const committedUI = (locale, file) =>
-  JSON.parse(blob(`HEAD:${translationOf(file, locale)}`) ?? '{}');
-
 /**
  * Accepts translations written since `prepare`: checks each changed page
  * against its English, pins its heading anchors and records the English it
@@ -407,11 +405,10 @@ async function finalize(locale, english) {
 
   const localized = uiFiles(locale);
   const untranslated = [];
-  const stale = [];
+  const outdated = [];
   for (const [file, messages] of Object.entries(english)) {
     if (files.length && !named.includes(file)) continue;
     const done = (lock.ui[file] ??= {});
-    let committed;
     for (const [key, { message }] of Object.entries(messages)) {
       const text = localized[file]?.[key]?.message;
       if (done[key] === message || typeof text !== 'string') continue;
@@ -421,14 +418,10 @@ async function finalize(locale, english) {
           untranslated.push(id);
           continue;
         }
-        // unchanged since the commit, so still the translation of the English
-        // the lock records (`prepare` puts the new English in its place)
+        // `prepare` unlocks a string when it puts its new English in place
         if (key in done) {
-          committed ??= committedUI(locale, file);
-          if (text === committed[key]?.message) {
-            stale.push(id);
-            continue;
-          }
+          outdated.push(id);
+          continue;
         }
       }
       const problem = uiProblem(locale, text, message);
@@ -440,7 +433,7 @@ async function finalize(locale, english) {
     }
   }
   writeLock(locale, lock);
-  return { accepted, untranslated, stale, problems };
+  return { accepted, untranslated, outdated, problems };
 }
 
 /**
@@ -535,9 +528,9 @@ for (const locale of locales) {
     for (const id of result.accepted) console.log(`  ✓ ${id}`);
     for (const id of result.untranslated)
       console.log(`  still English (if intended: --same ${id})`);
-    for (const id of result.stale)
+    for (const id of result.outdated)
       console.log(
-        `  unchanged since English changed (run prepare; if already redone: --same ${id})`,
+        `  translates older English (run prepare; if it still fits: --same ${id})`,
       );
     for (const problem of result.problems) console.error(`  ✗ ${problem}`);
     failed ||= result.problems.length > 0;
