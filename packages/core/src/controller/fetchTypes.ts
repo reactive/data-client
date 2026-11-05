@@ -23,8 +23,10 @@ type BodyPart<B, ListBody extends boolean> =
 
 /** Each args member ending in a body, (body) or (params, body) like RestEndpoint's, with the body
  * narrowed to its list or non-list members; never when it has none. Other args are kept as the
- * non-list signatures. Fixed lengths since TS < 4.2 has no leading-rest tuples */
-// indexes instead of infer: TS < 4.2 resolves an infer here to NoCall during a call's inference
+ * non-list signatures.
+ *
+ * Fixed lengths since TS < 4.2 has no leading-rest tuples. Indexes instead of `infer`, which
+ * TS < 4.2 fails to resolve here while inferring a call, losing the list signatures */
 type BodyArgs<A, ListBody extends boolean> =
   A extends readonly [any] ?
     [BodyPart<A[0], ListBody>] extends [never] ?
@@ -52,11 +54,11 @@ type NoCall = readonly [
 ];
 
 /** Adds an all-never twin of each args member, so a union that would collapse to one member
- * still reports errors over all args, like the endpoint's own (split by body) union does */
+ * still reports errors over all args, like the endpoint's own union of signatures does */
 type KeepUnion<A> = A | { readonly [K in keyof A]: never };
 
-/** Args of an endpoint whose schema adds to a list (like Collection.push) and has
- * call signatures with list bodies (like RestEndpoint.push); NoCall for every other endpoint
+/** Args of an endpoint whose schema adds to a list (like Collection.push) and whose
+ * body can be a list (like RestEndpoint.push); NoCall for every other endpoint
  *
  * ListBody: true for the signatures with a list body, false for the rest */
 type AdderArgs<E extends (...args: any) => any, ListBody extends boolean> =

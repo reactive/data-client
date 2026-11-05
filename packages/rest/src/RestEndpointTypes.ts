@@ -769,7 +769,7 @@ export type RestType<
   BodyKind<Body> extends 'none' ? RestTypeNoBody<UrlParams, S, M, R, O>
   : BodyKind<Body> extends 'required' ?
     RestTypeWithBody<UrlParams, S, M, Body, R, O>
-  : | RestTypeWithBody<UrlParams, S, M, NonNullBody<Body>, R, O>
+  : | RestTypeWithBody<UrlParams, S, M, DefinedBody<Body>, R, O>
     | RestTypeNoBody<UrlParams, S, M, R, O>
 >;
 
@@ -809,13 +809,14 @@ export type RestFetch<
   BodyKind<Body> extends 'none' ? ParamFetchNoBody<UrlParams, Resolve>
   : BodyKind<Body> extends 'required' ?
     ParamFetchWithBody<UrlParams, Body, Resolve>
-  : | ParamFetchWithBody<UrlParams, NonNullBody<Body>, Resolve>
+  : | ParamFetchWithBody<UrlParams, DefinedBody<Body>, Resolve>
     | ParamFetchNoBody<UrlParams, Resolve>
 >;
 
 /** Body members that mean "no body" */
 type NoBodyMember = null | undefined | void;
-type NonNullBody<Body> = Exclude<Body, NoBodyMember>;
+/** Body without its no-body members */
+type DefinedBody<Body> = Exclude<Body, NoBodyMember>;
 /** Which call signatures a body type gets: 'none' (only null, undefined, void or `unknown`),
  * 'required', or 'optional' (may be null, undefined or void, or is `any`): both.
  *
@@ -824,8 +825,8 @@ type NonNullBody<Body> = Exclude<Body, NoBodyMember>;
  * `A | B` value can call. Callers branch on the result so only the taken signatures are built.
  */
 type BodyKind<Body> =
-  [NonNullBody<Body>] extends [never] ? 'none'
-  : [NonNullBody<Body>] extends [{}] ?
+  [DefinedBody<Body>] extends [never] ? 'none'
+  : [DefinedBody<Body>] extends [{}] ?
     [Extract<Body, NoBodyMember>] extends [never] ?
       'required'
     : 'optional'
