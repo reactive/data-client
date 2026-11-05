@@ -171,7 +171,6 @@ export default class NetworkManager implements Manager {
     const throttle = !action.endpoint.sideEffect;
     // A provider remounted with this manager binds a new store; responses for the old one are dropped
     const controller = this.controller;
-    const isBound = () => controller === this.controller;
 
     const deferedFetch = () => {
       let promise = action.endpoint(...action.args);
@@ -195,7 +194,7 @@ export default class NetworkManager implements Manager {
       }
       promise = promise
         .then(response => {
-          if (!isBound()) return response;
+          if (controller !== this.controller) return response;
           let lastReset = this.getLastReset();
 
           /* istanbul ignore else */
@@ -218,7 +217,10 @@ export default class NetworkManager implements Manager {
         })
         .catch(error => {
           // don't update state with promises started before last clear
-          if (isBound() && fetchedAt >= this.getLastReset()) {
+          if (
+            controller === this.controller &&
+            fetchedAt >= this.getLastReset()
+          ) {
             controller.resolve(action.endpoint, {
               args: action.args,
               response: error,
