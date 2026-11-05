@@ -134,15 +134,15 @@ class ApiEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
 
 const getPostEndpoint = new ApiEndpoint({ path: '/posts/:id' });
 
-export async function getPost(id: string) {
-  const res = await getPostEndpoint({ id });
-  return res;
-}
-
 const createPostEndpoint = new ApiEndpoint({
   path: '/posts',
   method: 'POST',
 });
+
+export async function getPost(id: string) {
+  const res = await getPostEndpoint({ id });
+  return res;
+}
 
 export async function createPost(body: { title: string }) {
   const data = await createPostEndpoint(body);

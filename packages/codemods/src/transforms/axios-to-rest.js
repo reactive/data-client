@@ -1300,19 +1300,16 @@ function functionName(path) {
 }
 
 /**
- * For a call inside a function: the module statement holding it and the
- * nearest named function. Null outside any function, where the endpoint is
- * built once anyway.
+ * For a call inside a function: the nearest named function. Null outside any
+ * function, where the endpoint is built once anyway.
  */
 function hoistSite(j, callPath) {
   const fns = [];
-  let p = callPath;
-  for (; p.parent.node.type !== 'Program'; p = p.parent)
+  for (let p = callPath.parent; p; p = p.parent)
     if (j.Function.check(p.node)) fns.push(p);
   if (!fns.length) return null;
   const named = fns.find(f => toIdentifier(functionName(f)));
   return {
-    statement: p.node,
     fn: named && named.node,
     fnName: named && toIdentifier(functionName(named)),
     start: callPath.node.start,
@@ -1340,10 +1337,18 @@ function classStatementIndex(body, className) {
  * Moves each endpoint a function builds into a module `const`, so it's built
  * once and can take a `schema` or go to `useSuspense()` later. It's named
  * after its function, or by method and path when a function has several.
+ * They go right after the imports (or the class they extend), since a
+ * function declaration can run before its own statement.
  */
 function hoistEndpoints(j, root, hoists) {
   if (!hoists.length) return;
   const program = root.get().node.program;
+  const afterImports =
+    program.body.findLastIndex(
+      s =>
+        s.type === 'ImportDeclaration' ||
+        s.type === 'TSImportEqualsDeclaration',
+    ) + 1;
   const taken = new Set(
     root
       .find(j.Identifier)
@@ -1381,12 +1386,10 @@ function hoistEndpoints(j, root, hoists) {
       addTodo(j, decl, message, anchor);
     }
 
-    // after the class it extends, which isn't defined before its statement
-    let index = program.body.indexOf(hoist.statement);
-    if (className) {
-      const classIndex = classStatementIndex(program.body, className);
-      if (classIndex >= index) index = classIndex + 1;
-    }
+    const index = Math.max(
+      afterImports,
+      className ? classStatementIndex(program.body, className) + 1 : 0,
+    );
     if (!inserts.has(index)) inserts.set(index, []);
     inserts.get(index).push(decl);
   }
