@@ -97,6 +97,8 @@ export default class NetworkManager implements Manager {
             }
           });
         case RESET: {
+          // a replaced store's reset must not clear the bound store's fetches
+          if (controller !== this.controller) return next(action);
           // take snapshot of rejectors at this point in time
           // we must use Array.from since iteration does not freeze state at this point in time
           const fetches = Array.from(this.fetching.values());

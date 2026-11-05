@@ -1,7 +1,7 @@
 import { Endpoint } from '@data-client/endpoint';
 import { Article, ArticleResource } from '__tests__/new';
 
-import { SET_RESPONSE } from '../../actionTypes';
+import { RESET, SET_RESPONSE } from '../../actionTypes';
 import { createFetch } from '../../controller/actions';
 import Controller from '../../controller/Controller';
 import NetworkManager from '../../manager/NetworkManager';
@@ -430,6 +430,18 @@ describe('NetworkManager', () => {
       expect(old.dispatch).not.toHaveBeenCalled();
       expect(current.dispatch).not.toHaveBeenCalled();
       expect(mgr.allSettled()).toBeUndefined();
+    });
+
+    it("ignores a replaced store's reset", async () => {
+      const mgr = new NetworkManager();
+      const old = bind(mgr);
+      const current = bind(mgr);
+      const action = createFetch(endpoint, { args: [{ id: 5 }] });
+      current.handle(action);
+
+      await old.handle({ type: RESET, date: Date.now() });
+      expect(mgr.allSettled()).toBeDefined();
+      mgr.cleanup();
     });
 
     it('does not settle a fetch with a response to an older one', async () => {
