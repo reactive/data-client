@@ -111,7 +111,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/reactive/data-client.git",
+    "url": "git+https://github.com/reactive/data-client.git",
     "directory": "packages/normalizr"
   },
   "bugs": {
