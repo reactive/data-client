@@ -91,6 +91,24 @@ export async function singleBody() {
   expectType<Todo>()(fromAnyParams, true);
 }
 
+export async function unionBody() {
+  type TodoInput = { title: string } & (
+    { userId: number; email: null } | { userId: null; email: string }
+  );
+  const UnionResource = resource({
+    path: '/todos/:id',
+    schema: Todo,
+    body: {} as TodoInput,
+  });
+  const input = {} as TodoInput;
+  const pushed = await ctrl.fetch(UnionResource.getList.push, input);
+  expectType<Todo>()(pushed, true);
+  const pushedList = await ctrl.fetch(UnionResource.getList.push, [input]);
+  expectType<Todo[]>()(pushedList, true);
+  UnionResource.getList.push(input);
+  UnionResource.getList.unshift([input, input]);
+}
+
 export function badArgs() {
   // @ts-expect-error not a Todo field
   ctrl.fetch(TodoResource.getList.push, { titel: 'a' });

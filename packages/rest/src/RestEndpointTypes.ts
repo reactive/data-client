@@ -560,7 +560,7 @@ export type AddEndpoint<
     searchParams?: any;
   } = { path: string; body: any },
 > = RestInstanceBase<
-  RestFetch<
+  AdderFetch<
     'searchParams' extends keyof O ?
       [O['searchParams']] extends [undefined] ?
         PathArgs<Exclude<O['path'], undefined>>
@@ -573,6 +573,11 @@ export type AddEndpoint<
   true,
   Omit<O, 'method'> & { method: 'POST' }
 >;
+/** One call signature for item bodies and one for list bodies, so Controller.fetch() can resolve a list body as a list */
+type AdderFetch<UrlParams, Body, Resolve> =
+  | RestFetch<UrlParams, Exclude<Body, readonly any[]>, Resolve>
+  | ([Extract<Body, readonly any[]>] extends [never] ? never
+    : RestFetch<UrlParams, Extract<Body, readonly any[]>, Resolve>);
 export type RemoveEndpoint<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = any,
@@ -766,8 +771,11 @@ export type RestType<
   } = { path: string; paginationField: string },
 > = IfTypeScriptLooseNull<
   RestInstance<RestFetch<UrlParams, Body, R>, S, M, O>,
-  Body extends {} ? RestTypeWithBody<UrlParams, S, M, Body, R, O>
-  : RestTypeNoBody<UrlParams, S, M, R, O>
+  BodyBranch<
+    Body,
+    RestTypeWithBody<UrlParams, S, M, Exclude<Body, null | undefined>, R, O>,
+    RestTypeNoBody<UrlParams, S, M, R, O>
+  >
 >;
 
 export type RestTypeWithBody<
@@ -803,9 +811,26 @@ export type RestFetch<
 > = IfTypeScriptLooseNull<
   | ParamFetchNoBody<UrlParams, Resolve>
   | ParamFetchWithBody<UrlParams, Body, Resolve>,
-  Body extends {} ? ParamFetchWithBody<UrlParams, Body, Resolve>
-  : ParamFetchNoBody<UrlParams, Resolve>
+  BodyBranch<
+    Body,
+    ParamFetchWithBody<UrlParams, Exclude<Body, null | undefined>, Resolve>,
+    ParamFetchNoBody<UrlParams, Resolve>
+  >
 >;
+
+/** WithBody for a body, plus NoBody when Body may be null or undefined (or is `any`);
+ * only NoBody when Body is only null, undefined or `unknown`.
+ *
+ * Checks Body as a whole (not distributively), so a union body like `A | B` stays one
+ * `(body: A | B)` signature instead of `((body: A) => R) | ((body: B) => R)`, which no
+ * `A | B` value can call.
+ */
+type BodyBranch<Body, WithBody, NoBody> =
+  [Exclude<Body, null | undefined>] extends [never] ? NoBody
+  : [Exclude<Body, null | undefined>] extends [{}] ?
+    | WithBody
+    | ([Extract<Body, null | undefined>] extends [never] ? never : NoBody)
+  : NoBody;
 
 export type ParamFetchWithBody<P, B = {}, R = any> =
   // we must always allow undefined in a union and give it a type without params
