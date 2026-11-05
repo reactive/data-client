@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793720681025,
+  "lastUpdate": 1793906983716,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -139775,6 +139775,366 @@ window.BENCHMARK_DATA = {
             "name": "setMany 500 batch",
             "value": 1924,
             "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3b75fc9c47d26714afc58d8851a1d07aeab542a6",
+          "message": "fix(rest): Accept a union body type in RestEndpoint calls (#4591)\n\n* fix(rest): Accept a union body type in RestEndpoint calls\n\nA distributive Body extends {} split a union body into one signature per\nmember, which no value of the whole union could call. BodyBranch checks\nthe body as a whole and still splits off nullish members. push/unshift\nkeep separate item and list signatures so Controller.fetch() still\nresolves a list body as a list.\n\nAdds a 'bodies' typeperf scenario and type tests.\n\nFixes REACT-6\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* refactor(rest): Build only the taken body signatures\n\nBodyKind returns a tag so RestFetch and RestType instantiate only the\nsignatures they use, and AdderFetch skips the split when the body has no\nlist member. Lowers instantiations in every typeperf scenario.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* fix(core): Find list bodies by body position in Controller.fetch()\n\nController.fetch() detected list bodies only on endpoints whose call\nsignatures were split by body, which the union body fix stopped doing.\nIt now narrows each signature's body to its list or item members, so\nhand-built adder endpoints and resource().create resolve a list body as\na list, and AdderFetch is no longer needed. Bodies unioned with void\nstay optional.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* docs(blog): Say list bodies on adder endpoints resolve an array\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* docs(blog): Scope the list result type to push and unshift schemas\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* refactor: Name body helpers for what they hold, refresh stale type docs\n\nDefinedBody (was NonNullBody) also drops void. AdderArgs and KeepUnion\ndocs no longer describe endpoints as split by body. unionBody tests use\ntop-level it() like the sibling type tests.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* refactor(core): Share the body tuple builder in Controller.fetch() types\n\nBodyTuple builds (body) and (params, body) the same way, and the item\noverload's comment now says it also takes calls with no body.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* chore(typeperf): Re-record budget\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* docs(blog): Show the cast a union body no longer needs\n\nAlso say which adder endpoints the item overload of Controller.fetch() covers.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* docs(blog): Say the union body error was the old behavior\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-05T19:21:07Z",
+          "tree_id": "17eb6c57b659d1dea94facc3784d99d20b2f1b92",
+          "url": "https://github.com/reactive/data-client/commit/3b75fc9c47d26714afc58d8851a1d07aeab542a6"
+        },
+        "date": 1793906980817,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 735,
+            "range": "±1.61%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 603,
+            "range": "±2.15%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 538,
+            "range": "±3.48%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 1616,
+            "range": "±0.69%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 310,
+            "range": "±6.73%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 288,
+            "range": "±5.62%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1784,
+            "range": "±1.83%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing",
+            "value": 328,
+            "range": "±6.00%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null",
+            "value": 313,
+            "range": "±4.62%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID",
+            "value": 337,
+            "range": "±6.18%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 1196,
+            "range": "±2.02%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 1690,
+            "range": "±1.51%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 2446,
+            "range": "±1.20%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 951,
+            "range": "±6.18%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 8666,
+            "range": "±0.70%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 5319,
+            "range": "±1.11%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 92609,
+            "range": "±1.91%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 9651,
+            "range": "±5.37%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 323,
+            "range": "±7.43%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 12488,
+            "range": "±1.40%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 12985,
+            "range": "±0.30%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing withCache",
+            "value": 11880,
+            "range": "±1.20%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null withCache",
+            "value": 11759,
+            "range": "±1.61%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID withCache",
+            "value": 11578,
+            "range": "±0.67%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 8841,
+            "range": "±0.32%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 8316,
+            "range": "±0.34%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 5704,
+            "range": "±1.25%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 11758,
+            "range": "±1.58%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 10080,
+            "range": "±5.70%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 2832,
+            "range": "±1.27%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 6587,
+            "range": "±10.47%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 70664,
+            "range": "±1.23%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 7128,
+            "range": "±5.36%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 18396493,
+            "range": "±0.78%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 291,
+            "range": "±10.66%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 5686,
+            "range": "±1.19%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 4448,
+            "range": "±2.35%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 8001,
+            "range": "±2.14%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 6359,
+            "range": "±1.78%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 8345,
+            "range": "±3.74%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 748,
+            "range": "±0.41%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 416,
+            "range": "±0.81%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 443,
+            "range": "±1.87%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 1630,
+            "range": "±0.57%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 207,
+            "range": "±2.25%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 5859,
+            "range": "±1.29%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 20.48,
+            "range": "±2.22%",
+            "unit": "ops/sec",
+            "extra": "38 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 2605,
+            "range": "±1.96%",
             "unit": "ops/sec",
             "extra": "96 samples"
           }
