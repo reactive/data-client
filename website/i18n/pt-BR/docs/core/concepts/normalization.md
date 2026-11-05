@@ -24,7 +24,7 @@ endpoint eles foram usados.
   poster={useBaseUrl('/videos/docs/normalization-poster.jpg')}
   duration="1:55"
   volume={0.5}
-  alt="Dois endpoints retornam três cópias do mesmo usuário. A normalização armazena cada entity uma única vez em uma tabela indexada por id, a desnormalização segue os ids para reconstruir cada resposta, e uma única renomeação atualiza todas as visualizações. Com 10.000 posts no store, renomear um usuário reconstrói 30 objetos em vez de 10.000, e no benchmark essa renomeação leva menos de seis milissegundos."
+  alt="Dois endpoints retornam três cópias do mesmo usuário. A normalização armazena cada entity uma única vez em uma tabela indexada por id, a desnormalização segue os ids para reconstruir cada resposta, e uma única renomeação atualiza todas as visualizações. Renomear um usuário que escreveu 30 de 10.000 posts reconstrói 30 objetos em vez de 10.000. No benchmark, com 10.000 posts no store, renomear um usuário leva menos de seis milissegundos."
 >
   <source
     src={useBaseUrl('/videos/docs/normalization.webm')}
