@@ -42,7 +42,7 @@ All implementations share presentational components, fixture data, fetch functio
 - **Update entity** (`update-entity`) — Time to update one issue and propagate to the UI (unit: ops/s).
 - **Update entity sorted** (`update-entity-sorted`) — After mounting a sorted view, update one entity. data-client's `Query` memoization avoids re-sorting when sort keys are unchanged.
 - **Update entity multi-view** (`update-entity-multi-view`) — Update one issue that appears simultaneously in a list, a detail panel, and a pinned-cards strip. Normalized caches propagate via a single store write; query-keyed caches invalidate and refetch each query.
-- **Update user (scaling)** (`update-user`, `update-user-10000`) — Update one shared user with 1,000 or 10,000 mounted issues to test subscriber scaling.
+- **Update user (scaling)** (`update-user`, `update-user-10000`) — Rename one shared user with 1,000 or 10,000 issues stored and 100 rendered, to test how updates scale with store size.
 - **Ref-stability** (`ref-stability-issue-changed`, `ref-stability-user-changed`) — Count of components that received a **new** object reference after an update (unit: count; smaller is better).
 - **List-detail switch** (`list-detail-switch-10`) — Mount a 1,000-issue sorted list (100 rendered), then switch to an issue's detail view and back ten times. Each step is timed from its state change until the commit that shows the next view; a loading state does not end the step. The runner reports the sum of the 20 steps. The time between steps is not timed.
 - **Invalidate and resolve** (`invalidate-and-resolve`) — data-client only; invalidates a cached endpoint and immediately re-resolves. Measures Suspense boundary round-trip.
