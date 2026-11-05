@@ -8,8 +8,8 @@ yourself, change it, or point it at your own workload.
 ## Summary
 
 - The charts come from two local runs on **2026-11-05** at commit
-  [`fde2da8`](https://github.com/reactive/data-client/commit/fde2da82122096f24b92e789722469271918b5c3) (master after
-  [#4580](https://github.com/reactive/data-client/pull/4580), plus the harness fix in
+  [`5b184aa`](https://github.com/reactive/data-client/commit/5b184aa085a7ea0e54f82400475c52392935ca8a) (master with the harness fixes in
+  [#4580](https://github.com/reactive/data-client/pull/4580) and
   [#4584](https://github.com/reactive/data-client/pull/4584)).
 - Each simulated request costs **40 ms + 1 ms per 20 records**.
   Most of the gap comes from requests Data Client doesn't wait for or repeat:
@@ -25,7 +25,7 @@ yourself, change it, or point it at your own workload.
 | | |
 |---|---|
 | Date | 2026-11-05 |
-| Commit | [`fde2da8`](https://github.com/reactive/data-client/commit/fde2da82122096f24b92e789722469271918b5c3) |
+| Commit | [`5b184aa`](https://github.com/reactive/data-client/commit/5b184aa085a7ea0e54f82400475c52392935ca8a) |
 | CPU | AMD Ryzen 9 7950X |
 | Memory | 64 GB |
 | OS | Ubuntu on WSL2 (Windows host) |
@@ -66,10 +66,10 @@ the gap. They require writing each cache update by hand for every query an entit
 which is the work normalization does for you.
 
 See the implementations in
-[`src/data-client`](https://github.com/reactive/data-client/blob/fde2da82122096f24b92e789722469271918b5c3/examples/benchmark-react/src/data-client/index.tsx),
-[`src/tanstack-query`](https://github.com/reactive/data-client/blob/fde2da82122096f24b92e789722469271918b5c3/examples/benchmark-react/src/tanstack-query/index.tsx),
-[`src/swr`](https://github.com/reactive/data-client/blob/fde2da82122096f24b92e789722469271918b5c3/examples/benchmark-react/src/swr/index.tsx) and
-[`src/baseline`](https://github.com/reactive/data-client/blob/fde2da82122096f24b92e789722469271918b5c3/examples/benchmark-react/src/baseline/index.tsx).
+[`src/data-client`](https://github.com/reactive/data-client/blob/5b184aa085a7ea0e54f82400475c52392935ca8a/examples/benchmark-react/src/data-client/index.tsx),
+[`src/tanstack-query`](https://github.com/reactive/data-client/blob/5b184aa085a7ea0e54f82400475c52392935ca8a/examples/benchmark-react/src/tanstack-query/index.tsx),
+[`src/swr`](https://github.com/reactive/data-client/blob/5b184aa085a7ea0e54f82400475c52392935ca8a/examples/benchmark-react/src/swr/index.tsx) and
+[`src/baseline`](https://github.com/reactive/data-client/blob/5b184aa085a7ea0e54f82400475c52392935ca8a/examples/benchmark-react/src/baseline/index.tsx).
 
 ## What is measured
 
@@ -101,7 +101,7 @@ but no run without it was published.
 
 Other scenarios (initial list load, sorted views, create, delete, move, multi-view) are in the
 table below. Scenario definitions are in
-[`bench/scenarios.ts`](https://github.com/reactive/data-client/blob/fde2da82122096f24b92e789722469271918b5c3/examples/benchmark-react/bench/scenarios.ts).
+[`bench/scenarios.ts`](https://github.com/reactive/data-client/blob/5b184aa085a7ea0e54f82400475c52392935ca8a/examples/benchmark-react/bench/scenarios.ts).
 
 ## Sampling and statistics
 
@@ -181,7 +181,7 @@ You need Node 22.18+ or 24.11+ and a Linux, macOS or WSL machine that can run Pl
 git clone https://github.com/reactive/data-client.git
 cd data-client
 # Optional: match the published run's code and versions
-git checkout fde2da82122096f24b92e789722469271918b5c3
+git checkout 5b184aa085a7ea0e54f82400475c52392935ca8a
 yarn install
 yarn build:benchmark-react
 yarn workspace example-benchmark-react preview &
