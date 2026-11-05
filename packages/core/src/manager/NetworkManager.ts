@@ -162,6 +162,8 @@ export default class NetworkManager implements Manager {
   protected handleFetch(action: FetchAction) {
     const { resolve, reject, fetchedAt } = action.meta;
     const throttle = !action.endpoint.sideEffect;
+    // the response belongs to the store that fetched it, even if this manager is bound to a new one
+    const controller = this.controller;
 
     const deferedFetch = () => {
       let promise = action.endpoint(...action.args);
@@ -197,7 +199,7 @@ export default class NetworkManager implements Manager {
 
           // don't update state with promises started before last clear
           if (fetchedAt >= lastReset) {
-            this.controller.resolve(action.endpoint, {
+            controller.resolve(action.endpoint, {
               args: action.args,
               response,
               fetchedAt,
@@ -209,7 +211,7 @@ export default class NetworkManager implements Manager {
           const lastReset = this.getLastReset();
           // don't update state with promises started before last clear
           if (fetchedAt >= lastReset) {
-            this.controller.resolve(action.endpoint, {
+            controller.resolve(action.endpoint, {
               args: action.args,
               response: error,
               fetchedAt,

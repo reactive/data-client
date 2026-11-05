@@ -184,4 +184,27 @@ describe('<DataProvider> remounted with the same managers', () => {
     await get.resolve(1, 'new');
     expect(container.textContent).toBe('new');
   });
+
+  it('keeps a late response from the unmounted store out of the new one', async () => {
+    const get = deferred(CoolerArticleResource.get);
+    const managers = getManagers();
+    const tree = (
+      <DataProvider managers={managers} devButton={null}>
+        <Suspense fallback="loading">
+          <Article endpoint={get.endpoint} />
+        </Suspense>
+      </DataProvider>
+    );
+    const first = render(tree);
+    await wait(0);
+    first.unmount();
+
+    const { container } = render(tree);
+    await wait(0);
+    expect(get.pending).toHaveLength(2);
+    await get.resolve(0, 'old');
+    expect(container.textContent).toBe('loading');
+    await get.resolve(1, 'new');
+    expect(container.textContent).toBe('new');
+  });
 });
