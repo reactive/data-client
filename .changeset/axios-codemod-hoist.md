@@ -25,5 +25,6 @@ export async function getPost(id: string) {
 }
 ```
 
-Axios types the file still names, like `AxiosRequestConfig` in a helper's signature, keep their import, so the file
-still type checks. A `// TODO(data-client):` comment on the import marks them to replace before you uninstall axios.
+Axios names the file still uses, like `AxiosRequestConfig` in a helper's signature or `AxiosError` in a `catch`, keep
+their import, so the file still type checks. A `// TODO(data-client):` comment on the import marks them to replace
+before you uninstall axios.

@@ -128,6 +128,7 @@ function isRead(path, { types = true } = {}) {
     !parent.computed
   )
     return false;
+  // `ns.Name` and enum members name a member, like the keys below
   if (parent.type === 'TSQualifiedName' && parent.right === path.node)
     return false;
   if (parent.type === 'TSEnumMember' && parent.id === path.node) return false;
@@ -149,8 +150,8 @@ function readsOf(j, within, name, scope, options) {
     .filter(p => p.scope.lookup(name) === scope && isRead(p, options));
 }
 
-function hasLiveReference(j, root, localName, importScope, options) {
-  return readsOf(j, root, localName, importScope, options).size() > 0;
+function hasLiveReference(j, root, localName, importScope) {
+  return readsOf(j, root, localName, importScope).size() > 0;
 }
 
 function ensureRestImports(j, root, names) {
@@ -239,9 +240,8 @@ function transformImports(
     const isRuntime = s =>
       s.type === 'ImportSpecifier' &&
       AXIOS_RUNTIME_IMPORTS.has(specName(s.imported));
-    const isLive = (s, options) =>
-      hasLiveReference(j, root, s.local.name, importPath.scope, options);
-
+    const isLive = s =>
+      hasLiveReference(j, root, s.local.name, importPath.scope);
     const isKnown = s => isType(s) || isRuntime(s);
 
     // a name stays while code still reads it, even as a type; tsc fails without it
@@ -249,10 +249,8 @@ function transformImports(
       if (isKnown(s)) return isLive(s);
       return axiosStillUsed || s.type !== 'ImportDefaultSpecifier';
     });
-    // the names a remove-axios TODO lists; runtime uses of the others are marked where they're read
-    const keptTypes = remaining
-      .filter(s => isType(s) || (isRuntime(s) && !isLive(s, { types: false })))
-      .map(s => s.local.name);
+    // axios's own names left after the calls convert, which keep axios installed
+    const keptNames = remaining.filter(isKnown).map(s => s.local.name);
 
     if (!remaining.length) {
       j(importPath).remove();
@@ -263,12 +261,11 @@ function transformImports(
       decl.specifiers = remaining;
       dirty = true;
     }
-    // with the calls converted, these types can be what keeps axios installed
-    if (keptTypes.length && !axiosStillUsed) {
+    if (keptNames.length && !axiosStillUsed) {
       addTodo(
         j,
         decl,
-        `replace axios's ${keptTypes.map(n => `\`${n}\``).join(', ')}, then remove this import`,
+        `replace axios's ${keptNames.map(n => `\`${n}\``).join(', ')}, then remove this import`,
         'remove-axios',
       );
       dirty = true;
@@ -444,7 +441,7 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
         variableDecl.declarations = variableDecl.declarations.filter(
           declaration => declaration !== declPath.node,
         );
-        j(statementPath).insertBefore(classStatement);
+        j(statementPath).insertAfter(classStatement);
       }
     } else {
       markOptions(classDecl);

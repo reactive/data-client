@@ -52,6 +52,7 @@ const source = CancelToken.source();
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): replace axios's \`CancelToken\`, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
 import { CancelToken } from 'axios';
 // TODO(data-client): use an \`AbortSignal\` instead of \`CancelToken\`: https://dataclient.io/rest/guides/axios-migration#cancellation
 const source = CancelToken.source();
@@ -74,6 +75,7 @@ try {
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): replace axios's \`AxiosError\`, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
 import { AxiosError } from 'axios';
 try {
   throw new Error('x');
@@ -129,6 +131,7 @@ if (err instanceof AxiosError) {
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): replace axios's \`CancelToken\`, \`AxiosError\`, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
 import { CancelToken, AxiosError } from 'axios';
 // TODO(data-client): use an \`AbortSignal\` instead of \`CancelToken\`: https://dataclient.io/rest/guides/axios-migration#cancellation
 const source = CancelToken.source();
@@ -151,6 +154,7 @@ if (err instanceof Err) {
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): replace axios's \`Err\`, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
 import { AxiosError as Err } from 'axios';
 // TODO(data-client): check \`NetworkError\` instead of \`AxiosError\`: https://dataclient.io/rest/guides/axios-migration#error-handling
 if (err instanceof Err) {
@@ -310,12 +314,12 @@ const result = api.get('/users');
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+const other = 123;
 
 class ApiEndpoint extends RestEndpoint {
   urlPrefix = '/api';
 }
 
-const other = 123;
 // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new ApiEndpoint({
   path: '/users'
@@ -333,12 +337,11 @@ const other = 123, api = axios.create({ baseURL: 'https://api.example.com' });
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+const other = 123;
 
 class ApiEndpoint extends RestEndpoint {
   urlPrefix = 'https://api.example.com';
 }
-
-const other = 123;
       `,
       'preserves sibling declarators when axios.create is not the first declarator',
     );
@@ -353,18 +356,50 @@ const result = api.get('/users');
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+export const other = 123;
 
 export class ApiEndpoint extends RestEndpoint {
   urlPrefix = '/api';
 }
 
-export const other = 123;
 // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new ApiEndpoint({
   path: '/users'
 })();
       `,
       'preserves exported sibling declarators when axios.create shares a declaration',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const baseURL = '/api', api = axios.create({ baseURL });
+export async function getUsers() {
+  const { data } = await api.get('/users');
+  return data;
+}
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+const baseURL = '/api';
+
+// TODO(data-client): make sure \`urlPrefix\` has no trailing \`/\`, since every path starts with one: https://dataclient.io/rest/guides/axios-migration#base-endpoint
+class ApiEndpoint extends RestEndpoint {
+  urlPrefix = baseURL;
+}
+
+const getUsersEndpoint = new ApiEndpoint({
+  path: '/users'
+});
+
+export async function getUsers() {
+  const data = await getUsersEndpoint();
+  return data;
+}
+      `,
+      'defines the class and its endpoints after the config declared beside it',
     );
   });
 
@@ -2066,13 +2101,16 @@ export const load = () => loadEndpoint();
     tsTest(
       `
 import axios, { AxiosResponse } from 'axios';
-export type Shape = { AxiosResponse: number; AxiosResponse2(): void };
+export type Shape = { AxiosResponse: number };
+export type Methods = { AxiosResponse(): void };
 export type Qualified = Other.AxiosResponse;
 export enum Kind { AxiosResponse = 1 }
 export class Holder {
   AxiosResponse = 1;
-  AxiosResponse2(a: string): void;
-  AxiosResponse2() {}
+}
+export class Overloads {
+  AxiosResponse(a: string): void;
+  AxiosResponse() {}
 }
 export const store = { AxiosResponse() {} };
 export const load = () => axios.get('/users').then(res => res.data);
@@ -2084,13 +2122,16 @@ const loadEndpoint = new RestEndpoint({
   path: '/users'
 });
 
-export type Shape = { AxiosResponse: number; AxiosResponse2(): void };
+export type Shape = { AxiosResponse: number };
+export type Methods = { AxiosResponse(): void };
 export type Qualified = Other.AxiosResponse;
 export enum Kind { AxiosResponse = 1 }
 export class Holder {
   AxiosResponse = 1;
-  AxiosResponse2(a: string): void;
-  AxiosResponse2() {}
+}
+export class Overloads {
+  AxiosResponse(a: string): void;
+  AxiosResponse() {}
 }
 export const store = { AxiosResponse() {} };
 export const load = () => loadEndpoint();
