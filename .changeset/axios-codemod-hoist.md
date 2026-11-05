@@ -2,7 +2,7 @@
 '@data-client/codemods': patch
 ---
 
-`axios-to-rest` builds each endpoint once and keeps the axios types your code still uses
+Fix `axios-to-rest` building a new endpoint on every call and dropping axios types your code still uses
 
 An axios call inside a function now calls an endpoint the module defines once, named after the function, instead of
 building a new endpoint on every call. Add a `schema` to that `const` later, or pass it to `useSuspense()`:

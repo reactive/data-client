@@ -2065,6 +2065,49 @@ export const load = () => loadEndpoint();
 
     tsTest(
       `
+import axios, { AxiosResponse } from 'axios';
+export type Shape = { AxiosResponse: number };
+export const load = () => axios.get('/users').then(res => res.data);
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+
+const loadEndpoint = new RestEndpoint({
+  path: '/users'
+});
+
+export type Shape = { AxiosResponse: number };
+export const load = () => loadEndpoint();
+      `,
+      'drops a type that only a property key spells',
+    );
+
+    tsTest(
+      `
+import axios from 'axios';
+import fs = require('fs');
+export function load() {
+  return axios.get('/users');
+}
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+import fs = require('fs');
+
+const loadEndpoint = new RestEndpoint({
+  path: '/users'
+});
+
+export function load() {
+  // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+  return loadEndpoint();
+}
+      `,
+      'puts endpoints after an import-equals declaration',
+    );
+
+    tsTest(
+      `
 import axios, { AxiosError } from 'axios';
 export function message(error: AxiosError) {
   return error.message;

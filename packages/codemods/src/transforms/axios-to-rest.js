@@ -106,6 +106,17 @@ const TYPE_POSITIONS = new Set([
   'TSImportType',
 ]);
 
+// nodes whose non-computed `key` names a member rather than reading a binding
+const KEYED = new Set([
+  'ObjectProperty',
+  'Property',
+  'ClassProperty',
+  'ClassMethod',
+  'ObjectMethod',
+  'TSPropertySignature',
+  'TSMethodSignature',
+]);
+
 /** Whether an Identifier reads its binding, rather than naming an import, property or key */
 function isRead(path, { types = true } = {}) {
   const parent = path.parent.node;
@@ -117,7 +128,7 @@ function isRead(path, { types = true } = {}) {
   )
     return false;
   if (
-    (parent.type === 'ObjectProperty' || parent.type === 'Property') &&
+    KEYED.has(parent.type) &&
     parent.key === path.node &&
     !parent.computed &&
     !parent.shorthand
@@ -227,13 +238,15 @@ function transformImports(
     const isLive = (s, options) =>
       hasLiveReference(j, root, s.local.name, importPath.scope, options);
 
-    // a type stays while code still names it; tsc fails without it
+    const isKnown = s => isType(s) || isRuntime(s);
+
+    // a name stays while code still reads it, even as a type; tsc fails without it
     const remaining = decl.specifiers.filter(s => {
-      if (isType(s) || isRuntime(s)) return isLive(s);
+      if (isKnown(s)) return isLive(s);
       return axiosStillUsed || s.type !== 'ImportDefaultSpecifier';
     });
     const keptTypes = remaining
-      .filter(s => isType(s) || (isRuntime(s) && !isLive(s, { types: false })))
+      .filter(s => isKnown(s) && !isLive(s, { types: false }))
       .map(s => s.local.name);
 
     if (!remaining.length) {
@@ -1300,20 +1313,17 @@ function functionName(path) {
 }
 
 /**
- * For a call inside a function: the nearest named function. Null outside any
- * function, where the endpoint is built once anyway.
+ * The nearest function around a call that has a name, as `{ fn, fnName }`
+ * (both null when none does); null when the call is in no function, where
+ * its endpoint is built once anyway.
  */
-function hoistSite(j, callPath) {
+function enclosingFunction(j, callPath) {
   const fns = [];
   for (let p = callPath.parent; p; p = p.parent)
-    if (j.Function.check(p.node)) fns.push(p);
+    if (j.Function.check(p.node))
+      fns.push({ fn: p.node, fnName: toIdentifier(functionName(p)) });
   if (!fns.length) return null;
-  const named = fns.find(f => toIdentifier(functionName(f)));
-  return {
-    fn: named && named.node,
-    fnName: named && toIdentifier(functionName(named)),
-    start: callPath.node.start,
-  };
+  return fns.find(f => f.fnName) || { fn: null, fnName: null };
 }
 
 /** camelCase identifier from text like `get-post` or `/users/:id/posts` */
@@ -1324,31 +1334,38 @@ function toIdentifier(text) {
   return /^\d/.test(name) ? '_' + name : name;
 }
 
-function classStatementIndex(body, className) {
-  return body.findIndex(s => {
-    const decl = s.declaration || s;
-    return (
-      decl.type === 'ClassDeclaration' && decl.id && decl.id.name === className
-    );
-  });
+/**
+ * Where a module-level endpoint goes: after the imports, and after the class
+ * it extends when the module declares it. Not just above its function, since
+ * a function declaration can run before its own statement.
+ */
+function insertionIndex(body, className) {
+  const importsEnd =
+    body.findLastIndex(
+      s =>
+        s.type === 'ImportDeclaration' ||
+        s.type === 'TSImportEqualsDeclaration',
+    ) + 1;
+  const classEnd =
+    body.findIndex(s => {
+      const decl = s.declaration || s;
+      return (
+        decl.type === 'ClassDeclaration' &&
+        decl.id &&
+        decl.id.name === className
+      );
+    }) + 1;
+  return Math.max(importsEnd, classEnd);
 }
 
 /**
  * Moves each endpoint a function builds into a module `const`, so it's built
  * once and can take a `schema` or go to `useSuspense()` later. It's named
  * after its function, or by method and path when a function has several.
- * They go right after the imports (or the class they extend), since a
- * function declaration can run before its own statement.
  */
 function hoistEndpoints(j, root, hoists) {
   if (!hoists.length) return;
   const program = root.get().node.program;
-  const afterImports =
-    program.body.findLastIndex(
-      s =>
-        s.type === 'ImportDeclaration' ||
-        s.type === 'TSImportEqualsDeclaration',
-    ) + 1;
   const taken = new Set(
     root
       .find(j.Identifier)
@@ -1358,24 +1375,20 @@ function hoistEndpoints(j, root, hoists) {
   const perFunction = new Map();
   for (const { fn } of hoists)
     if (fn) perFunction.set(fn, (perFunction.get(fn) || 0) + 1);
+  // its function's name when it's the function's only endpoint
+  const endpointName = ({ fn, fnName, method, path }) =>
+    uniqueName(
+      (fn && perFunction.get(fn) === 1 ?
+        fnName
+      : toIdentifier(`${method} ${path.replace(/:\w+/g, '')}`)) + 'Endpoint',
+      taken,
+    );
 
   // body index -> declarations to insert there, in source order
   const inserts = new Map();
   for (const hoist of hoists.sort((a, b) => a.start - b.start)) {
-    const {
-      fn,
-      fnName,
-      method,
-      path,
-      node: call,
-      className,
-      unknownOptions,
-    } = hoist;
-    const base =
-      fn && perFunction.get(fn) === 1 ?
-        fnName
-      : toIdentifier(`${method} ${path.replace(/:\w+/g, '')}`);
-    const name = uniqueName(base + 'Endpoint', taken);
+    const { node: call, className, unknownOptions } = hoist;
+    const name = endpointName(hoist);
 
     const decl = j.variableDeclaration('const', [
       j.variableDeclarator(j.identifier(name), call.callee),
@@ -1386,10 +1399,7 @@ function hoistEndpoints(j, root, hoists) {
       addTodo(j, decl, message, anchor);
     }
 
-    const index = Math.max(
-      afterImports,
-      className ? classStatementIndex(program.body, className) + 1 : 0,
-    );
+    const index = insertionIndex(program.body, className);
     if (!inserts.has(index)) inserts.set(index, []);
     inserts.get(index).push(decl);
   }
@@ -1471,12 +1481,21 @@ function transformDirectCalls(
     }
 
     // the endpoint's options are literals, so it can move to module scope
-    // when its class is declared there too
+    // when the instance it's called on is module-level too
     const site =
-      (!className || callBindingScope.isGlobal) && hoistSite(j, callPath);
+      (!className || callBindingScope.isGlobal) &&
+      enclosingFunction(j, callPath);
     if (site) {
       const { node, method, path, unknownOptions } = result;
-      hoists.push({ ...site, node, method, path, unknownOptions, className });
+      hoists.push({
+        ...site,
+        start: callPath.node.start,
+        node,
+        method,
+        path,
+        unknownOptions,
+        className,
+      });
     }
     j(callPath).replaceWith(result.node);
     // a hoisted endpoint gets this TODO itself
