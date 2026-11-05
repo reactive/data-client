@@ -72,14 +72,17 @@ To read more about middlewares, see the [redux documentation](https://redux.js.o
 Called with initial state after provider is mounted. Can be useful to run setup at start that
 relies on state actually existing.
 
-init() can run again after cleanup(), for the same store: in React, a provider hidden by
-[`<Activity>`](https://react.dev/reference/react/Activity) runs cleanup() and runs init() when shown.
-
 ### cleanup()
 
-Provides any cleanup of dangling resources after manager is no longer in use. In React, it also runs when
-[`<Activity>`](https://react.dev/reference/react/Activity) hides the provider, which keeps its store. So stop
-timers and connections, but keep state about the store (like requests in flight), and restart in init().
+Provides any cleanup of dangling resources after manager is no longer in use.
+
+:::react
+
+A provider hidden by [`<Activity>`](https://react.dev/reference/react/Activity) runs cleanup() but keeps its store,
+and runs init() again when shown. So in cleanup() stop timers and connections, but keep state about the store (like
+requests in flight), and restart in init().
+
+:::
 
 ## Adding managers to Reactive Data Client {#adding}
 

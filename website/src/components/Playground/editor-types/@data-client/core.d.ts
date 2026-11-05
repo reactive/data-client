@@ -1149,6 +1149,10 @@ declare class NetworkManager implements Manager {
     readonly dataExpiryLength: number;
     readonly errorExpiryLength: number;
     protected controller: Controller;
+    /** When cleanup() last ran, until the next init()
+     *
+     * @deprecated No longer read: responses that land after cleanup() are still resolved.
+     */
     cleanupDate?: number;
     constructor({ dataExpiryLength, errorExpiryLength }?: {
         dataExpiryLength?: number | undefined;
@@ -1157,7 +1161,7 @@ declare class NetworkManager implements Manager {
     middleware: Middleware;
     /** On mount */
     init(): void;
-    /** Ensures all promises are completed by rejecting remaining. */
+    /** On unmount, or when React <Activity> hides the provider; fetches in flight still resolve */
     cleanup(): void;
     /** Used by DevtoolsManager to determine whether to log an action */
     skipLogging(action: ActionTypes): boolean;

@@ -52,6 +52,10 @@ relies on state actually existing.
 
 Provides any cleanup of dangling resources after manager is no longer in use.
 
+A provider hidden by [`<Activity>`](https://react.dev/reference/react/Activity) runs cleanup() but keeps its store,
+and runs init() again when shown. So in cleanup() stop timers and connections, but keep state about the store (like
+requests in flight), and restart in init().
+
 ## Adding managers to Reactive Data Client {#adding}
 
 Use the [managers](https://dataclient.io/docs/api/DataProvider#managers) prop of [DataProvider](https://dataclient.io/docs/api/DataProvider). Be
