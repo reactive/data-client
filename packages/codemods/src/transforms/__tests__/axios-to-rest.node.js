@@ -2046,6 +2046,32 @@ export const load = () => loadEndpoint();
 
     tsTest(
       `
+import axios, { AxiosError } from 'axios';
+export function message(error: AxiosError) {
+  return error.message;
+}
+export const load = () => axios.get('/users');
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): replace axios's \`AxiosError\` type, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
+import { AxiosError } from 'axios';
+export function message(error: AxiosError) {
+  return error.message;
+}
+
+const loadEndpoint = new RestEndpoint({
+  path: '/users'
+});
+
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+export const load = () => loadEndpoint();
+      `,
+      'keeps AxiosError used only as a type, and marks it like one',
+    );
+
+    tsTest(
+      `
 import axios from 'axios';
 import type { AxiosRequestConfig } from 'axios';
 export const config: AxiosRequestConfig = {};

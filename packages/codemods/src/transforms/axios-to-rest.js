@@ -47,6 +47,14 @@ const HTTP_METHODS = new Set(['get', 'post', 'put', 'patch', 'delete']);
 
 // --- Helpers ---
 
+/** `base`, or `base2`, `base3`... when `taken` has it; adds the result to `taken` */
+function uniqueName(base, taken) {
+  let name = base;
+  for (let n = 2; taken.has(name); n++) name = base + n;
+  taken.add(name);
+  return name;
+}
+
 function capitalize(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
@@ -126,8 +134,8 @@ function readsOf(j, within, name, scope, options) {
     .filter(p => p.scope.lookup(name) === scope && isRead(p, options));
 }
 
-function hasLiveReference(j, root, localName, importScope) {
-  return readsOf(j, root, localName, importScope).size() > 0;
+function hasLiveReference(j, root, localName, importScope, options) {
+  return readsOf(j, root, localName, importScope, options).size() > 0;
 }
 
 function ensureRestImports(j, root, names) {
@@ -213,26 +221,20 @@ function transformImports(
       s.importKind === 'type' ||
       (s.type === 'ImportSpecifier' &&
         AXIOS_TYPE_IMPORTS.has(specName(s.imported)));
+    const isRuntime = s =>
+      s.type === 'ImportSpecifier' &&
+      AXIOS_RUNTIME_IMPORTS.has(specName(s.imported));
     const isLive = (s, options) =>
-      readsOf(j, root, s.local.name, importPath.scope, options).size() > 0;
-    // a type stays while code still names it; tsc fails without it
-    const keptTypes = [];
+      hasLiveReference(j, root, s.local.name, importPath.scope, options);
 
+    // a type stays while code still names it; tsc fails without it
     const remaining = decl.specifiers.filter(s => {
-      if (isType(s)) {
-        if (!isLive(s)) return false;
-        keptTypes.push(s.local.name);
-        return true;
-      }
-      if (axiosStillUsed) return true;
-      if (s.type === 'ImportDefaultSpecifier') return false;
-      if (
-        s.type === 'ImportSpecifier' &&
-        AXIOS_RUNTIME_IMPORTS.has(specName(s.imported))
-      )
-        return isLive(s, { types: false });
-      return true;
+      if (isType(s) || isRuntime(s)) return isLive(s);
+      return axiosStillUsed || s.type !== 'ImportDefaultSpecifier';
     });
+    const keptTypes = remaining
+      .filter(s => isType(s) || (isRuntime(s) && !isLive(s, { types: false })))
+      .map(s => s.local.name);
 
     if (!remaining.length) {
       j(importPath).remove();
@@ -904,10 +906,7 @@ function toPath(j, urlArg) {
     const source = isPure(expr) ? j(expr).toSource() : undefined;
     let name = source && shared.get(source);
     if (!name) {
-      const base = memberName(expr) || 'param';
-      name = base;
-      for (let n = 2; taken.has(name); n++) name = base + n;
-      taken.add(name);
+      name = uniqueName(memberName(expr) || 'param', taken);
       if (source) shared.set(source, name);
       args.push(
         j.objectProperty.from({
@@ -930,6 +929,17 @@ function toPath(j, urlArg) {
   }
 
   return { path, urlPrefix, args, query };
+}
+
+/** The name of a non-computed key, or null */
+function keyName(node) {
+  if (node.computed) return null;
+  const { key } = node;
+  if (key.type === 'Identifier') return key.name;
+  if (key.type === 'PrivateName') return key.id.name;
+  if (key.type === 'StringLiteral' || key.type === 'Literal')
+    return String(key.value);
+  return null;
 }
 
 function propKey(prop) {
@@ -1275,17 +1285,6 @@ function buildCall(j, callPath, className, prefixed, isTS) {
 
 // --- 3b. Build each endpoint once, at module scope ---
 
-/** The name of a non-computed key, or null */
-function keyName(node) {
-  if (node.computed) return null;
-  const { key } = node;
-  if (key.type === 'Identifier') return key.name;
-  if (key.type === 'PrivateName') return key.id.name;
-  if (key.type === 'StringLiteral' || key.type === 'Literal')
-    return String(key.value);
-  return null;
-}
-
 /** What a function is called: its own name, its key, or what it's assigned to */
 function functionName(path) {
   const { node } = path;
@@ -1306,24 +1305,23 @@ function functionName(path) {
  * built once anyway.
  */
 function hoistSite(j, callPath) {
-  let inFunction = false;
-  let fn = null;
-  let fnName = null;
+  const fns = [];
   let p = callPath;
-  for (; p.parent.node.type !== 'Program'; p = p.parent) {
-    if (!j.Function.check(p.node)) continue;
-    inFunction = true;
-    if (fn) continue;
-    fnName = toIdentifier(functionName(p) || '');
-    if (fnName) fn = p.node;
-  }
-  if (!inFunction) return null;
-  return { statement: p.node, fn, fnName, start: callPath.node.start };
+  for (; p.parent.node.type !== 'Program'; p = p.parent)
+    if (j.Function.check(p.node)) fns.push(p);
+  if (!fns.length) return null;
+  const named = fns.find(f => toIdentifier(functionName(f)));
+  return {
+    statement: p.node,
+    fn: named && named.node,
+    fnName: named && toIdentifier(functionName(named)),
+    start: callPath.node.start,
+  };
 }
 
 /** camelCase identifier from text like `get-post` or `/users/:id/posts` */
 function toIdentifier(text) {
-  const words = text.split(/[^A-Za-z0-9_$]+/).filter(Boolean);
+  const words = (text || '').split(/[^A-Za-z0-9_$]+/).filter(Boolean);
   if (!words.length) return null;
   const name = words[0] + words.slice(1).map(capitalize).join('');
   return /^\d/.test(name) ? '_' + name : name;
@@ -1343,16 +1341,15 @@ function classStatementIndex(body, className) {
  * once and can take a `schema` or go to `useSuspense()` later. It's named
  * after its function, or by method and path when a function has several.
  */
-function hoistEndpoints(j, root, hoists, reserved) {
+function hoistEndpoints(j, root, hoists) {
   if (!hoists.length) return;
   const program = root.get().node.program;
-  const taken = new Set([
-    ...reserved,
-    ...root
+  const taken = new Set(
+    root
       .find(j.Identifier)
       .nodes()
       .map(n => n.name),
-  ]);
+  );
   const perFunction = new Map();
   for (const { fn } of hoists)
     if (fn) perFunction.set(fn, (perFunction.get(fn) || 0) + 1);
@@ -1373,9 +1370,7 @@ function hoistEndpoints(j, root, hoists, reserved) {
       fn && perFunction.get(fn) === 1 ?
         fnName
       : toIdentifier(`${method} ${path.replace(/:\w+/g, '')}`);
-    let name = base + 'Endpoint';
-    for (let n = 2; taken.has(name); n++) name = base + 'Endpoint' + n;
-    taken.add(name);
+    const name = uniqueName(base + 'Endpoint', taken);
 
     const decl = j.variableDeclaration('const', [
       j.variableDeclarator(j.identifier(name), call.callee),
@@ -1476,7 +1471,10 @@ function transformDirectCalls(
     // when its class is declared there too
     const site =
       (!className || callBindingScope.isGlobal) && hoistSite(j, callPath);
-    if (site) hoists.push({ ...site, ...result, className });
+    if (site) {
+      const { node, method, path, unknownOptions } = result;
+      hoists.push({ ...site, node, method, path, unknownOptions, className });
+    }
     j(callPath).replaceWith(result.node);
     // a hoisted endpoint gets this TODO itself
     if (!site && result.unknownOptions.length) {
@@ -1521,13 +1519,7 @@ function transformDirectCalls(
     }
     dirty = true;
   }
-  // names the imports and renamed instances will take
-  const reserved = ['RestEndpoint', 'RestGenerics'];
-  for (const scopes of createToClass.values())
-    reserved.push(...scopes.values());
-  hoistEndpoints(j, root, hoists, reserved);
-
-  return { dirty, marked };
+  return { dirty, marked, hoists };
 }
 
 // --- 4. Mark what's left for a person or agent ---
@@ -1750,6 +1742,8 @@ module.exports = function transformer(fileInfo, api) {
         : ['RestEndpoint'],
       ) || dirty;
   }
+  // last, so the names the imports and renamed instances took are taken
+  hoistEndpoints(j, root, calls.hoists);
 
   return dirty ? root.toSource({ quote: 'single' }) : source;
 };
