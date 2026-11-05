@@ -10,7 +10,9 @@ on:
       # What the snippets run against: the page, the checker (and the docs
       # renderer it reads the page with), the packages its test app bundles
       # from source, and their dependencies. The renderer's other inputs
-      # (other pages, skill manifests) are left to regenerate's build:skills
+      # (other pages, skill and plugin manifests) and the install's own
+      # inputs are left to the checks that own them (regenerate, agent-rules,
+      # website)
       - 'docs/core/_agents/devtools-debugging.md'
       - 'website/framework-docs/**'
       - '!website/framework-docs/**/*.test.mjs'
@@ -21,6 +23,7 @@ on:
       - 'packages/rest/src/**'
       - 'packages/endpoint/src/**'
       - 'packages/normalizr/src/**'
+      - 'packages/use-enhanced-reducer/src/**'
       - '!packages/**/__tests__/**'
       # Playwright, esbuild and React come from the lockfile, React's
       # version from the root resolutions
