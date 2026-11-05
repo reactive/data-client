@@ -278,24 +278,21 @@ export function useBenchState({
       return new Promise<void>((resolve, reject) => {
         const { port1, port2 } = new MessageChannel();
         let cancelMessage: (() => void) | undefined;
-        const close = () => {
+        const stop = () => {
+          clearTimeout(timer);
           cancelMessage?.();
           port1.close();
         };
         const timer = setTimeout(() => {
-          close();
+          stop();
           container.setAttribute('data-bench-timeout', 'true');
           setComplete();
           resolve();
         }, HARNESS_TIMEOUT_MS);
-        const stop = () => {
-          clearTimeout(timer);
-          close();
-        };
         port1.onmessage = async (e: MessageEvent<number>) => {
           const i = e.data;
           try {
-            let end = -1;
+            let end: number | undefined;
             const message = timeToMutation(
               container,
               () => send(i),
@@ -305,7 +302,8 @@ export function useBenchState({
             );
             cancelMessage = message.cancel;
             await message.result;
-            if (end < 0) throw new Error(`message ${i} changed no DOM`);
+            if (end === undefined)
+              throw new Error(`message ${i} changed no DOM`);
             performance.measure('stream-message', {
               start: message.start,
               end,

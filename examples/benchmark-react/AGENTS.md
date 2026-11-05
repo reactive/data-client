@@ -53,28 +53,28 @@ Filtering: `yarn bench --lib data-client --size small --action update`
 
 ## Data Attributes
 
-| Attribute             | Flow                        | Purpose                                                           |
-| --------------------- | --------------------------- | ----------------------------------------------------------------- |
-| `data-app-ready`      | harness → runner            | `__BENCH__` available                                             |
-| `data-bench-harness`  | lib → runner                | Container for MutationObserver                                    |
-| `data-bench-complete` | harness → runner            | Iteration finished                                                |
-| `data-bench-timeout`  | harness → runner            | 30s timeout (error)                                               |
-| `data-bench-item`     | components → harness        | Mount detection                                                   |
-| `data-sorted-list`    | lib views → harness         | Sorted-view mount detection                                       |
-| `data-detail-view`    | lib views → harness         | Multi-view detection                                              |
-| `data-issue-number`   | components → runner/harness | Item identity assertion                                           |
-| `data-title`          | components → lib views      | Text content assertion                                            |
-| `data-state-list`     | lib views → harness         | Move-item verification                                            |
-| `data-ticker`         | components → validate       | Ticker-stream final values (`[data-price]`, `[data-volume]` text) |
+| Attribute | Flow | Purpose |
+|---|---|---|
+| `data-app-ready` | harness → runner | `__BENCH__` available |
+| `data-bench-harness` | lib → runner | Container for MutationObserver |
+| `data-bench-complete` | harness → runner | Iteration finished |
+| `data-bench-timeout` | harness → runner | 30s timeout (error) |
+| `data-bench-item` | components → harness | Mount detection |
+| `data-sorted-list` | lib views → harness | Sorted-view mount detection |
+| `data-detail-view` | lib views → harness | Multi-view detection |
+| `data-issue-number` | components → runner/harness | Item identity assertion |
+| `data-title` | components → lib views | Text content assertion |
+| `data-state-list` | lib views → harness | Move-item verification |
+| `data-ticker` | components → validate | Ticker-stream final values (`[data-price]`, `[data-volume]` text) |
 
 ## Environment Variables
 
-| Variable               | Effect                                                                     |
-| ---------------------- | -------------------------------------------------------------------------- |
-| `CI`                   | data-client hot-path only; tighter convergence                             |
-| `REACT_COMPILER=false` | Disables React Compiler at build                                           |
-| `BENCH_LABEL=<tag>`    | Appends `[<tag>]` to result names                                          |
-| `BENCH_PORT`           | Preview port (default 5173)                                                |
-| `BENCH_TRACE=true`     | Chrome tracing for duration scenarios                                      |
-| `BENCH_V8_TRACE=true`  | Launch Chromium with `--trace-opt --trace-deopt`; output to `v8-trace.log` |
-| `BENCH_V8_DEOPT=true`  | Launch Chromium with `--prof`; V8 logs to `v8-logs/`                       |
+| Variable | Effect |
+|---|---|
+| `CI` | data-client hot-path only; tighter convergence |
+| `REACT_COMPILER=false` | Disables React Compiler at build |
+| `BENCH_LABEL=<tag>` | Appends `[<tag>]` to result names |
+| `BENCH_PORT` | Preview port (default 5173) |
+| `BENCH_TRACE=true` | Chrome tracing for duration scenarios |
+| `BENCH_V8_TRACE=true` | Launch Chromium with `--trace-opt --trace-deopt`; output to `v8-trace.log` |
+| `BENCH_V8_DEOPT=true` | Launch Chromium with `--prof`; V8 logs to `v8-logs/` |

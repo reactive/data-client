@@ -489,11 +489,6 @@ async function runScenario(
     api.resetRenderCounts();
   });
 
-  await page.evaluate(() => {
-    performance.clearMarks();
-    performance.clearMeasures();
-  });
-
   await runAction(
     bench,
     scenario.action,
@@ -696,21 +691,26 @@ function msToOps(ms: number): number {
   return ms > 0 ? 1000 / ms : 0;
 }
 
-/** Report the median of `msSamples` in ops/s, skipping NaN (missing) samples; nothing when none remain. */
+/** Report the median of `samples` and its margin; nothing when there are none. */
+function pushEntry(
+  report: BenchmarkResult[],
+  name: string,
+  unit: string,
+  samples: number[],
+): void {
+  if (samples.length === 0) return;
+  const { median, range } = computeStats(samples, 0);
+  report.push({ name, unit, value: Math.round(median * 100) / 100, range });
+}
+
+/** `pushEntry` in ops/s from durations in ms, skipping NaN (missing) samples. */
 function pushOpsEntry(
   report: BenchmarkResult[],
   name: string,
   msSamples: number[],
 ): void {
-  const ops = msSamples.filter(x => !Number.isNaN(x)).map(msToOps);
-  if (ops.length === 0) return;
-  const { median, range } = computeStats(ops, 0);
-  report.push({
-    name,
-    unit: 'ops/s',
-    value: Math.round(median * 100) / 100,
-    range,
-  });
+  const ms = msSamples.filter(x => !Number.isNaN(x));
+  pushEntry(report, name, 'ops/s', ms.map(msToOps));
 }
 
 function recordResult(
@@ -917,16 +917,13 @@ async function main() {
     if (s.value.length <= warmup) continue;
 
     const unit = scenarioUnit(scenario);
-    const isOps = unit === 'ops/s';
-    const statSamples =
-      isOps ? s.value.slice(warmup).map(msToOps) : s.value.slice(warmup);
-    const { median, range } = computeStats(statSamples, 0);
-    report.push({
-      name: scenario.name,
+    const values = s.value.slice(warmup);
+    pushEntry(
+      report,
+      scenario.name,
       unit,
-      value: Math.round(median * 100) / 100,
-      range,
-    });
+      unit === 'ops/s' ? values.map(msToOps) : values,
+    );
 
     // React commit times (only meaningful for duration-based scenarios)
     if (!scenario.resultMetric) {

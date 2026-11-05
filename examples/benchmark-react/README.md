@@ -70,12 +70,13 @@ All implementations share presentational components, fixture data, fetch functio
 
 Illustrative **relative** results with **baseline = 100%** (plain React useState/useEffect, no data library). For **throughput** rows, each value is (library ops/s ÷ baseline ops/s) × 100 — **higher is faster**. For **ref-stability** rows, the ratio uses the “refs changed” count — **lower is fewer components that saw a new object reference**. Figures are rounded from the **Latest measured results** table below (network simulation on); absolute ops/s will vary by machine, but **library-to-library ratios** are usually similar.
 
-| Category            | Scenarios (representative)                                                                                                     | data-client | tanstack-query |   swr | baseline |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------: | -------------: | ----: | -------: |
-| Navigation          | `getlist-100`, `getlist-500`, `getlist-500-sorted`                                                                             |        ~98% |           ~99% |  ~99% | **100%** |
-| Navigation          | `list-detail-switch-10`                                                                                                        |  **~2381%** |          ~225% | ~218% |     100% |
-| Mutations           | `update-entity`, `update-user`, `update-entity-sorted`, `update-entity-multi-view`, `unshift-item`, `delete-item`, `move-item` |  **~8672%** |           ~97% |  ~99% |     100% |
-| Scaling (10k items) | `update-user-10000`                                                                                                            |  **~9290%** |           ~96% | ~100% |     100% |
+| Category | Scenarios (representative) | data-client | tanstack-query | swr | baseline |
+|---|---|---:|---:|---:|---:|
+| Navigation | `getlist-100`, `getlist-500`, `getlist-500-sorted` | ~98% | ~99% | ~99% | **100%** |
+| Navigation | `list-detail-switch-10` | **~2381%** | ~225% | ~218% | 100% |
+| Mutations | `update-entity`, `update-user`, `update-entity-sorted`, `update-entity-multi-view`, `unshift-item`, `delete-item`, `move-item` | **~8672%** | ~97% | ~99% | 100% |
+| Scaling (10k items) | `update-user-10000` | **~9290%** | ~96% | ~100% | 100% |
+
 
 ## Latest measured results (network simulation on)
 
@@ -85,32 +86,32 @@ Run: **2026-03-22**, Linux (WSL2), `yarn build:benchmark-react`, static preview 
 
 This run used commit [`57b2f97`](https://github.com/reactive/data-client/commit/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05) (TanStack Query 5.62.7, SWR 2.4.1, React 19.2.3) with the convergent settings of that time: 5 warmup + 5–50 samples at ±8% (small), 3 warmup + 5–40 samples at ±12% (large). Full details: [Benchmark methodology](./METHODOLOGY.md).
 
-| Scenario                   |    data-client | tanstack-query |          swr |     baseline |
-| -------------------------- | -------------: | -------------: | -----------: | -----------: |
-| **Navigation**             |                |                |              |              |
-| `getlist-100`              |   20.45 ± 2.3% |   20.62 ± 0.8% | 20.73 ± 0.2% | 20.73 ± 0.5% |
-| `getlist-500`              |   12.53 ± 2.8% |   12.80 ± 0.2% | 12.71 ± 0.3% | 12.84 ± 0.2% |
-| `getlist-500-sorted`       |   12.92 ± 5.1% |   12.93 ± 1.1% | 12.90 ± 0.7% | 13.16 ± 3.6% |
-| `list-detail-switch-10`    |   17.38 ± 8.7% |    1.64 ± 1.7% |  1.59 ± 1.4% |  0.73 ± 0.1% |
-| **Mutations**              |                |                |              |              |
-| `update-entity`            |  666.67 ± 9.0% |    6.98 ± 0.4% |  7.09 ± 0.4% |  7.23 ± 0.8% |
-| `update-user`              |  801.28 ± 9.4% |    7.04 ± 0.5% |  7.18 ± 0.1% |  7.24 ± 1.3% |
-| `update-entity-sorted`     | 625.00 ± 10.8% |    7.10 ± 0.0% |  7.10 ± 1.2% |  7.29 ± 0.9% |
-| `update-entity-multi-view` |  645.83 ± 7.6% |    7.14 ± 0.2% |  7.16 ± 0.1% |  7.29 ± 0.3% |
-| `update-user-10000`        |  144.93 ± 1.7% |    1.49 ± 0.6% |  1.56 ± 1.7% |  1.56 ± 1.5% |
-| `unshift-item`             |  465.37 ± 3.6% |    6.90 ± 0.4% |  7.18 ± 0.2% |  7.21 ± 0.3% |
-| `delete-item`              |  833.33 ± 6.0% |    6.93 ± 0.1% |  7.17 ± 0.7% |  7.19 ± 0.7% |
-| `move-item`                |  333.33 ± 8.9% |    6.76 ± 0.6% |  6.99 ± 0.3% |  6.97 ± 0.2% |
+| Scenario | data-client | tanstack-query | swr | baseline |
+|---|---:|---:|---:|---:|
+| **Navigation** | | | | |
+| `getlist-100` | 20.45 ± 2.3% | 20.62 ± 0.8% | 20.73 ± 0.2% | 20.73 ± 0.5% |
+| `getlist-500` | 12.53 ± 2.8% | 12.80 ± 0.2% | 12.71 ± 0.3% | 12.84 ± 0.2% |
+| `getlist-500-sorted` | 12.92 ± 5.1% | 12.93 ± 1.1% | 12.90 ± 0.7% | 13.16 ± 3.6% |
+| `list-detail-switch-10` | 17.38 ± 8.7% | 1.64 ± 1.7% | 1.59 ± 1.4% | 0.73 ± 0.1% |
+| **Mutations** | | | | |
+| `update-entity` | 666.67 ± 9.0% | 6.98 ± 0.4% | 7.09 ± 0.4% | 7.23 ± 0.8% |
+| `update-user` | 801.28 ± 9.4% | 7.04 ± 0.5% | 7.18 ± 0.1% | 7.24 ± 1.3% |
+| `update-entity-sorted` | 625.00 ± 10.8% | 7.10 ± 0.0% | 7.10 ± 1.2% | 7.29 ± 0.9% |
+| `update-entity-multi-view` | 645.83 ± 7.6% | 7.14 ± 0.2% | 7.16 ± 0.1% | 7.29 ± 0.3% |
+| `update-user-10000` | 144.93 ± 1.7% | 1.49 ± 0.6% | 1.56 ± 1.7% | 1.56 ± 1.5% |
+| `unshift-item` | 465.37 ± 3.6% | 6.90 ± 0.4% | 7.18 ± 0.2% | 7.21 ± 0.3% |
+| `delete-item` | 833.33 ± 6.0% | 6.93 ± 0.1% | 7.17 ± 0.7% | 7.19 ± 0.7% |
+| `move-item` | 333.33 ± 8.9% | 6.76 ± 0.6% | 6.99 ± 0.3% | 6.97 ± 0.2% |
 
 [Measured on a Ryzen 9 7950X; 64 GB RAM; Ubuntu (WSL2); Node 24.12.0; Chromium (Playwright)]
 
 ## Expected variance
 
-| Category     | Scenarios                                                                         | Typical run-to-run spread |
-| ------------ | --------------------------------------------------------------------------------- | ------------------------- |
-| **Stable**   | `getlist-*`, `update-entity`, `update-entity-sorted`, `ref-stability-*`           | <2%                       |
-| **Moderate** | `update-user-*`, `update-entity-multi-view`, `list-detail-switch-10`, `move-item` | 2-4%                      |
-| **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes              | 5-15%                     |
+| Category | Scenarios | Typical run-to-run spread |
+|---|---|---|
+| **Stable** | `getlist-*`, `update-entity`, `update-entity-sorted`, `ref-stability-*` | <2% |
+| **Moderate** | `update-user-*`, `update-entity-multi-view`, `list-detail-switch-10`, `move-item` | 2-4% |
+| **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes | 5-15% |
 
 CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported margins should not exceed 5%. Regressions >5% on stable scenarios or >10% on moderate scenarios are worth investigating.
 
@@ -126,10 +127,10 @@ CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported mar
 
 The "Benchmark React", "Benchmark", and "Benchmark Spread" PR comments compare one GitHub runner against the last master run on another, so runner speed alone can shift a whole run by up to ~1.7×. The thresholds above and the comment's ± ranges hold only within one machine.
 
-| Comment shows                                                                                                 | Do                    |
-| ------------------------------------------------------------------------------------------------------------- | --------------------- |
+| Comment shows | Do |
+|---|---|
 | Every suite shifts together, React and Node comments disagree, or "Build packages" time moved with the scores | Treat as runner noise |
-| Only suites on code the PR changes shift                                                                      | Run an A/B            |
+| Only suites on code the PR changes shift | Run an A/B |
 
 A/B: build base and PR in separate worktrees (`yarn build:benchmark-react` or `yarn build:benchmark`); for React, serve each with `BENCH_PORT=<port> yarn workspace example-benchmark-react preview`. Alternate base and PR for 5+ rounds (`CI=true BENCH_PORT=<port> yarn bench` or `yarn workspace example-benchmark start <suite> [filter]`) and compare medians; interleaving cancels machine drift.
 
@@ -191,12 +192,12 @@ The path filter skips `packages/rest/src` and most of `packages/endpoint/src`, s
 
    The runner supports CLI flags (with env var fallbacks) to select a subset of scenarios:
 
-   | CLI flag                   | Env var          | Description                                                                                                                                                |
-   | -------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-   | `--lib <names>`            | `BENCH_LIB`      | Comma-separated library names (e.g. `data-client,swr`)                                                                                                     |
-   | `--size <small\|large>`    | `BENCH_SIZE`     | Run only `small` (cheap, full rigor) or `large` (expensive, reduced runs) scenarios                                                                        |
-   | `--action <group\|action>` | `BENCH_ACTION`   | Filter by action group (`mount`, `update`, `mutation`, `memory`) or exact action name. Memory is **not run by default**; use `--action memory` to include. |
-   | `--scenario <pattern>`     | `BENCH_SCENARIO` | Substring filter on scenario name                                                                                                                          |
+   | CLI flag | Env var | Description |
+   |---|---|---|
+   | `--lib <names>` | `BENCH_LIB` | Comma-separated library names (e.g. `data-client,swr`) |
+   | `--size <small\|large>` | `BENCH_SIZE` | Run only `small` (cheap, full rigor) or `large` (expensive, reduced runs) scenarios |
+   | `--action <group\|action>` | `BENCH_ACTION` | Filter by action group (`mount`, `update`, `mutation`, `memory`) or exact action name. Memory is **not run by default**; use `--action memory` to include. |
+   | `--scenario <pattern>` | `BENCH_SCENARIO` | Substring filter on scenario name |
 
    CLI flags take precedence over env vars. Examples:
 

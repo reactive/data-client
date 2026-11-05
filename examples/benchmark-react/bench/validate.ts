@@ -436,12 +436,6 @@ test(
 test(
   'streamTickers applies every message, one render each',
   async (page, lib) => {
-    if (
-      !(await page.evaluate(
-        () => typeof window.__BENCH__?.streamTickers === 'function',
-      ))
-    )
-      return;
     const MESSAGES = 200;
 
     await clearComplete(page);
@@ -640,11 +634,9 @@ test('listDetailSwitch completes with correct DOM transitions', async (page, lib
   );
 
   // One nav-step per step: 5 navigations, each to the detail and back.
-  const navSteps = await page.evaluate(
-    () =>
-      performance.getEntriesByType('measure').filter(m => m.name === 'nav-step')
-        .length,
-  );
+  const navSteps = (await collectMeasures(page)).filter(
+    m => m.name === 'nav-step',
+  ).length;
   assert(
     navSteps === 10,
     lib,
