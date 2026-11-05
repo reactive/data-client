@@ -721,9 +721,9 @@ This means the corresponding optimistic update will no longer be applies.
 This is used in [NetworkManager](https://dataclient.io/docs/api/NetworkManager), and should be used when
 processing fetch requests.
 
-Pass the `fetchedAt` of the fetch action being resolved (`action.meta.fetchedAt`). A response whose
-`fetchedAt` is before the last [resetEntireStore()](#resetEntireStore) is dropped, and it doesn't settle a
-request for the same key that was sent after it.
+Pass the `fetchedAt` of the fetch action being resolved (`action.meta.fetchedAt`). A response is dropped
+when its `fetchedAt` is before the last [resetEntireStore()](#resetEntireStore). It also doesn't settle an
+in-flight request for the same key with a later `fetchedAt`.
 
 ### subscribe(endpoint, ...args) {#subscribe}
 
