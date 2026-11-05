@@ -23,3 +23,5 @@ Now a hidden `DataProvider` keeps its store working: responses and other updates
 A `DataProvider` remounted with the same `managers` also no longer waits on a request the unmounted one started.
 
 On React 18 and later, an action dispatched after a `DataProvider` really unmounts now reaches its managers, and React ignores the update. Its promise no longer resolves, so don't `await` controller calls after unmount. React 16 and 17 still drop these actions.
+
+`NetworkManager.cleanupDate` is deprecated: nothing reads it now. Delete code that reads or sets it.
