@@ -1,20 +1,20 @@
 {
   "instantiations": {
-    "resources": 148350,
-    "bigEntity": 13986,
-    "union": 18864,
-    "paths": 351990,
+    "resources": 145985,
+    "bigEntity": 14031,
+    "union": 18909,
+    "paths": 352025,
     "nested": 3001,
-    "vue": 48980,
-    "schemas": 198281,
-    "typical": 14859,
+    "vue": 49025,
+    "schemas": 197676,
+    "typical": 14893,
     "setValues": 26058,
     "setInvalidate": 7360,
     "setUpdaters": 66048,
     "redux": 12984,
     "fixtures": 74868,
     "patheq": 934395,
-    "bodies": 148798
+    "bodies": 148833
   },
   "typescript": "7.0.2"
 }
