@@ -1,3 +1,6 @@
+import { Entity } from '@data-client/endpoint';
+
+import resource from '../src/resource';
 import RestEndpoint from '../src/RestEndpoint';
 
 // e.g. a zod discriminated union, or `A & (B | C)` input types
@@ -5,6 +8,9 @@ type Input = { email: string } & (
   { teamId: string; teamName: null } | { teamId: null; teamName: string }
 );
 declare const input: Input;
+class Team extends Entity {
+  id = '';
+}
 
 describe('RestEndpoint union body', () => {
   it('accepts a value of the whole union', () => {
@@ -62,5 +68,28 @@ describe('RestEndpoint union body', () => {
     });
     saveOne({ id: '1' }, input);
     saveOne({ id: '1' });
+  });
+
+  it('keeps a body unioned with void optional', () => {
+    const save = new RestEndpoint({
+      path: '/save',
+      method: 'POST',
+      body: {} as { name: string } | void,
+    });
+    save({ name: 'a' });
+    save();
+  });
+
+  it('accepts the union in resource() mutations', () => {
+    const TeamResource = resource({
+      path: '/teams/:id',
+      schema: Team,
+      body: {} as Input,
+    });
+    TeamResource.update({ id: '1' }, input);
+    TeamResource.partialUpdate({ id: '1' }, { email: 'a' });
+    TeamResource.getList.push(input);
+    // @ts-expect-error body is required
+    TeamResource.update({ id: '1' });
   });
 });

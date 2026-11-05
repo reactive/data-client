@@ -560,7 +560,7 @@ export type AddEndpoint<
     searchParams?: any;
   } = { path: string; body: any },
 > = RestInstanceBase<
-  AdderFetch<
+  RestFetch<
     'searchParams' extends keyof O ?
       [O['searchParams']] extends [undefined] ?
         PathArgs<Exclude<O['path'], undefined>>
@@ -573,12 +573,6 @@ export type AddEndpoint<
   true,
   Omit<O, 'method'> & { method: 'POST' }
 >;
-/** One call signature for item bodies and one for list bodies, so Controller.fetch() can resolve a list body as a list */
-type AdderFetch<UrlParams, Body, Resolve> =
-  [Extract<Body, readonly any[]>] extends [never] ?
-    RestFetch<UrlParams, Body, Resolve>
-  : | RestFetch<UrlParams, Exclude<Body, readonly any[]>, Resolve>
-    | RestFetch<UrlParams, Extract<Body, readonly any[]>, Resolve>;
 export type RemoveEndpoint<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = any,
@@ -819,9 +813,11 @@ export type RestFetch<
     | ParamFetchNoBody<UrlParams, Resolve>
 >;
 
-type NonNullBody<Body> = Exclude<Body, null | undefined>;
-/** Which call signatures a body type gets: 'none' (only null, undefined or `unknown`),
- * 'required', or 'optional' (may be null or undefined, or is `any`): both.
+/** Body members that mean "no body" */
+type NoBodyMember = null | undefined | void;
+type NonNullBody<Body> = Exclude<Body, NoBodyMember>;
+/** Which call signatures a body type gets: 'none' (only null, undefined, void or `unknown`),
+ * 'required', or 'optional' (may be null, undefined or void, or is `any`): both.
  *
  * Checks Body as a whole (not distributively), so a union body like `A | B` stays one
  * `(body: A | B)` signature instead of `((body: A) => R) | ((body: B) => R)`, which no
@@ -830,7 +826,7 @@ type NonNullBody<Body> = Exclude<Body, null | undefined>;
 type BodyKind<Body> =
   [NonNullBody<Body>] extends [never] ? 'none'
   : [NonNullBody<Body>] extends [{}] ?
-    [Extract<Body, null | undefined>] extends [never] ?
+    [Extract<Body, NoBodyMember>] extends [never] ?
       'required'
     : 'optional'
   : 'none';

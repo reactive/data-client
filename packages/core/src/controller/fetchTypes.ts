@@ -16,9 +16,26 @@ import type { EndpointUpdateFunction } from './types.js';
 // https://github.com/microsoft/TypeScript/issues/26043
 // https://github.com/microsoft/TypeScript/issues/40179
 
-/** Args ending in a list body: (body) or (params, body), like RestEndpoint's.
- * Fixed lengths since TS < 4.2 has no leading-rest tuples */
-type ListBodyArgs = readonly [readonly any[]] | readonly [any, readonly any[]];
+/** Body members that are lists (ListBody true) or not (false) */
+type BodyPart<B, ListBody extends boolean> =
+  ListBody extends true ? Extract<B, readonly any[]>
+  : Exclude<B, readonly any[]>;
+
+/** Each args member ending in a body, (body) or (params, body) like RestEndpoint's, with the body
+ * narrowed to its list or non-list members; never when it has none. Other args are kept as the
+ * non-list signatures. Fixed lengths since TS < 4.2 has no leading-rest tuples */
+// indexes instead of infer: TS < 4.2 resolves an infer here to NoCall during a call's inference
+type BodyArgs<A, ListBody extends boolean> =
+  A extends readonly [any] ?
+    [BodyPart<A[0], ListBody>] extends [never] ?
+      never
+    : readonly [BodyPart<A[0], ListBody>]
+  : A extends readonly [any, any] ?
+    [BodyPart<A[1], ListBody>] extends [never] ?
+      never
+    : readonly [A[0], BodyPart<A[1], ListBody>]
+  : ListBody extends true ? never
+  : A;
 
 /** Rest args longer than any endpoint call's, so a signature using them is skipped by arity instead of reporting errors */
 type NoCall = readonly [
@@ -44,12 +61,9 @@ type KeepUnion<A> = A | { readonly [K in keyof A]: never };
  * ListBody: true for the signatures with a list body, false for the rest */
 type AdderArgs<E extends (...args: any) => any, ListBody extends boolean> =
   E extends { schema: { _denormalizeList(): any } } ?
-    [Extract<Parameters<E>, ListBodyArgs>] extends [never] ?
+    [BodyArgs<Parameters<E>, true>] extends [never] ?
       NoCall
-    : KeepUnion<
-        ListBody extends true ? Extract<Parameters<E>, ListBodyArgs>
-        : Exclude<Parameters<E>, ListBodyArgs>
-      >
+    : KeepUnion<BodyArgs<Parameters<E>, ListBody>>
   : NoCall;
 
 /** Resolved value of a (union member) endpoint: its schema's, or its own when it has none */

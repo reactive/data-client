@@ -1892,15 +1892,11 @@ type AddEndpoint<F extends FetchFunction = FetchFunction, S extends Schema | und
 } = {
     path: string;
     body: any;
-}> = RestInstanceBase<AdderFetch<'searchParams' extends keyof O ? [
+}> = RestInstanceBase<RestFetch<'searchParams' extends keyof O ? [
     O['searchParams']
 ] extends [undefined] ? PathArgs<Exclude<O['path'], undefined>> : O['searchParams'] & PathArgs<Exclude<O['path'], undefined>> : PathArgs<Exclude<O['path'], undefined>>, O['body'], ResolveType<F>>, S, true, Omit<O, 'method'> & {
     method: 'POST';
 }>;
-/** One call signature for item bodies and one for list bodies, so Controller.fetch() can resolve a list body as a list */
-type AdderFetch<UrlParams, Body, Resolve> = [
-    Extract<Body, readonly any[]>
-] extends [never] ? RestFetch<UrlParams, Body, Resolve> : RestFetch<UrlParams, Exclude<Body, readonly any[]>, Resolve> | RestFetch<UrlParams, Extract<Body, readonly any[]>, Resolve>;
 type RemoveEndpoint<F extends FetchFunction = FetchFunction, S extends Schema | undefined = any, O extends {
     path: string;
     body: any;
@@ -2016,9 +2012,11 @@ type RestTypeNoBody<UrlParams = any, S extends Schema | undefined = Schema | und
 }> = RestInstance<ParamFetchNoBody<UrlParams, R>, S, M, O>;
 /** Simple parameters, and body fetch functions */
 type RestFetch<UrlParams, Body = {}, Resolve = any> = IfTypeScriptLooseNull<ParamFetchNoBody<UrlParams, Resolve> | ParamFetchWithBody<UrlParams, Body, Resolve>, BodyKind<Body> extends 'none' ? ParamFetchNoBody<UrlParams, Resolve> : BodyKind<Body> extends 'required' ? ParamFetchWithBody<UrlParams, Body, Resolve> : ParamFetchWithBody<UrlParams, NonNullBody<Body>, Resolve> | ParamFetchNoBody<UrlParams, Resolve>>;
-type NonNullBody<Body> = Exclude<Body, null | undefined>;
-/** Which call signatures a body type gets: 'none' (only null, undefined or `unknown`),
- * 'required', or 'optional' (may be null or undefined, or is `any`): both.
+/** Body members that mean "no body" */
+type NoBodyMember = null | undefined | void;
+type NonNullBody<Body> = Exclude<Body, NoBodyMember>;
+/** Which call signatures a body type gets: 'none' (only null, undefined, void or `unknown`),
+ * 'required', or 'optional' (may be null, undefined or void, or is `any`): both.
  *
  * Checks Body as a whole (not distributively), so a union body like `A | B` stays one
  * `(body: A | B)` signature instead of `((body: A) => R) | ((body: B) => R)`, which no
@@ -2027,7 +2025,7 @@ type NonNullBody<Body> = Exclude<Body, null | undefined>;
 type BodyKind<Body> = [
     NonNullBody<Body>
 ] extends [never] ? 'none' : [NonNullBody<Body>] extends [{}] ? [
-    Extract<Body, null | undefined>
+    Extract<Body, NoBodyMember>
 ] extends [never] ? 'required' : 'optional' : 'none';
 type ParamFetchWithBody<P, B = {}, R = any> = P extends undefined ? (this: EndpointInstanceInterface, body: B) => Promise<R> : {} extends P ? keyof P extends never ? (this: EndpointInstanceInterface, body: B) => Promise<R> : ((this: EndpointInstanceInterface, params: P, body: B) => Promise<R>) | ((this: EndpointInstanceInterface, body: B) => Promise<R>) : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>;
 type ParamFetchNoBody<P, R = any> = P extends undefined ? (this: EndpointInstanceInterface) => Promise<R> : {} extends P ? keyof P extends never ? (this: EndpointInstanceInterface) => Promise<R> : ((this: EndpointInstanceInterface, params: P) => Promise<R>) | ((this: EndpointInstanceInterface) => Promise<R>) : (this: EndpointInstanceInterface, params: P) => Promise<R>;
