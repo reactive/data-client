@@ -8,7 +8,7 @@ import {
 import { act, render } from '@testing-library/react';
 import { CoolerArticleResource } from '__tests__/new';
 import nock from 'nock';
-import React, { useContext, Suspense, StrictMode } from 'react';
+import React, { useContext, Suspense, StrictMode, version } from 'react';
 
 import { ControllerContext, StateContext } from '../../context';
 import { useController, useSuspense } from '../../hooks';
@@ -216,16 +216,24 @@ describe('<DataProvider />', () => {
     expect(msg).toBeDefined();
     unmount();
     expect(debugspy).not.toHaveBeenCalled();
-    await injector.controller.setResponse(
+    errorSpy.mockClear();
+    const promise = injector.controller.setResponse(
       endpoint,
       { id: 5 },
       { id: 5, title: 'hi' },
     );
-    expect(debugspy).toHaveBeenCalled();
-    expect(debugspy.mock.calls[0]).toMatchInlineSnapshot(`
-      [
-        "Action dispatched after unmount. This will be ignored.",
-      ]
-    `);
+    if (version.startsWith('16') || version.startsWith('17')) {
+      // these versions warn about updates after unmount, so the store drops them
+      await promise;
+      expect(debugspy.mock.calls[0]).toMatchInlineSnapshot(`
+        [
+          "Action dispatched after unmount. This will be ignored.",
+        ]
+      `);
+    } else {
+      // newer React ignores updates to unmounted components on its own
+      await act(() => new Promise(resolve => setTimeout(resolve, 0)));
+      expect(errorSpy).not.toHaveBeenCalled();
+    }
   });
 });

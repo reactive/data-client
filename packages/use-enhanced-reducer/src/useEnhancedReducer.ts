@@ -1,5 +1,6 @@
 'use client';
 import React, {
+  version,
   useReducer,
   useMemo,
   useRef,
@@ -61,10 +62,12 @@ export default function useEnhancedReducer<R extends React.Reducer<any, any>>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatchWithPromise, ...middlewares]);
 
-  // dispatching after unmount should be ignored - even by other middlewares
-  // using a ref allows symmetric implementation of dispatch indirection to ensure
-  // calling useEffect() multiple times has no adverse effects
+  // React 16 and 17 warn about updates to unmounted components, so ignore dispatches after unmount there,
+  // even in other middlewares. Newer React ignores those updates on its own, and runs Effect cleanup
+  // when <Activity> hides a component that stays mounted, whose store must keep taking dispatches.
+  // Using a ref keeps this symmetric, so running the Effect again has no adverse effects.
   useEffect(() => {
+    if (!LegacyReact) return;
     protectedDispatchRef.current = outerDispatchRef.current;
     return () => {
       /* istanbul ignore else */
@@ -84,6 +87,9 @@ export default function useEnhancedReducer<R extends React.Reducer<any, any>>(
 
   return [state, outerDispatch, getState];
 }
+
+/* istanbul ignore next */
+const LegacyReact = version.startsWith('16') || version.startsWith('17');
 
 const compose = (fns: ((...args: any) => any)[]) => (initial: any) =>
   fns.reduceRight((v, f) => f(v), initial);

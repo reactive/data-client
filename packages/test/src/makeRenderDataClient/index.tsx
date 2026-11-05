@@ -90,7 +90,6 @@ export default function makeRenderDataHook(
     const managers = [nm, sm];
     const cleanup = () => {
       activeCleanups.delete(cleanup);
-      nm.cleanupDate = Infinity;
       if ((nm as any)['rejectors'])
         Object.values((nm as any)['rejectors'] as Record<string, any>).forEach(
           rej => {

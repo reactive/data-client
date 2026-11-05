@@ -80,9 +80,8 @@ go-to-definition survive tab switches. The live preview also mounts on first
 show. After that, a hidden tab keeps it in an `<Activity>`, with its store,
 log and app state. Its managers, including any from `getManagers()`, keep
 running; only the app's Effects pause. Keep that `<Activity>` inside
-`DataProvider` and react-live's `LiveProvider` (`preview/Preview.tsx`).
-Outside `DataProvider`, a response that lands while hidden is dropped;
-outside `LiveProvider`, each show remounts the app. The row Store folder
+`DataProvider`, so the managers stay running, and inside react-live's
+`LiveProvider` (`preview/Preview.tsx`), so a show doesn't remount the app. The row Store folder
 stays out of the `<Activity>`, which would detach `setStoreHost`; the
 container's `.hidden` hides it. The homepage passes `hidden`; in MDX,
 `PlaygroundTabs` sets it through `PlaygroundHiddenContext`

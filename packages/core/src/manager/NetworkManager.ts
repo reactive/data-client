@@ -38,6 +38,10 @@ export default class NetworkManager implements Manager {
   declare readonly dataExpiryLength: number;
   declare readonly errorExpiryLength: number;
   protected controller: Controller = new Controller();
+  /** When cleanup() last ran, until the next init()
+   *
+   * @deprecated No longer read: responses that land after cleanup() are still resolved.
+   */
   declare cleanupDate?: number;
 
   constructor({ dataExpiryLength = 60000, errorExpiryLength = 1000 } = {}) {
@@ -46,6 +50,9 @@ export default class NetworkManager implements Manager {
   }
 
   middleware: Middleware = controller => {
+    // A new store (like a remounted provider sharing this manager) must not reuse
+    // the old store's fetches: their commits never come, so they never settle.
+    if (controller !== this.controller) this.clearAll();
     this.controller = controller;
     return next => action => {
       switch (action.type) {
@@ -107,10 +114,12 @@ export default class NetworkManager implements Manager {
     delete this.cleanupDate;
   }
 
-  /** Ensures all promises are completed by rejecting remaining. */
+  /** On unmount, or when React <Activity> hides the provider
+   *
+   * Fetches in flight still resolve: a hidden provider keeps its store,
+   * and the store ignores dispatches after a real unmount.
+   */
   cleanup() {
-    // ensure no dispatches after unmount
-    // this must be reversible (done in init) so useEffect() remains symmetric
     this.cleanupDate = Date.now();
   }
 
@@ -143,7 +152,6 @@ export default class NetworkManager implements Manager {
   }
 
   protected getLastReset() {
-    if (this.cleanupDate) return this.cleanupDate;
     return this.controller.getState().lastReset;
   }
 

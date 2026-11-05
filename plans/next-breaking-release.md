@@ -46,3 +46,10 @@ Type and API cleanups deferred because they would break users or mixed package v
 
 - **Remove the `core`, `react`, `vue` and `migrations` entries** from `.claude-plugin/marketplace.json`, along with their lockstep test in `.claude-plugin/marketplace.test.mjs`.
   - Breaks: Claude Code users who still have an old plugin name installed stop getting updates. Migration: `claude plugin install data-client@data-client`, then uninstall the old one.
+
+## NetworkManager `cleanupDate`
+
+`NetworkManager.cleanupDate` (`packages/core/src/manager/NetworkManager.ts`) is marked `@deprecated`: responses that land after `cleanup()` are resolved now, so nothing reads it. `cleanup()` and `init()` still set and delete it for code that reads it.
+
+- **Remove `cleanupDate`** and its writes in `cleanup()` and `init()`.
+  - Breaks: `NetworkManager` subclasses or tests that read or assign `cleanupDate`. Migration: delete those lines; they had no effect.
