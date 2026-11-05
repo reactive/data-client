@@ -162,13 +162,22 @@ const sortKeys = object =>
   Object.fromEntries(
     Object.entries(object).sort(([a], [b]) => a.localeCompare(b)),
   );
-function writeLock(locale, lock) {
-  for (const file of Object.keys(lock.ui))
-    if (!Object.keys(lock.ui[file]).length) delete lock.ui[file];
+function writeLock(locale, { docs, ui, pending = {} }) {
+  for (const strings of [ui, pending])
+    for (const file of Object.keys(strings))
+      if (!Object.keys(strings[file]).length) delete strings[file];
   fs.mkdirSync(path.dirname(lockFile(locale)), { recursive: true });
   fs.writeFileSync(
     lockFile(locale),
-    `${JSON.stringify({ docs: sortKeys(lock.docs), ui: sortKeys(lock.ui) }, null, 2)}\n`,
+    `${JSON.stringify(
+      {
+        docs: sortKeys(docs),
+        ui: sortKeys(ui),
+        ...(Object.keys(pending).length && { pending: sortKeys(pending) }),
+      },
+      null,
+      2,
+    )}\n`,
   );
 }
 
@@ -279,22 +288,37 @@ async function prepare(locale, english) {
   for (const [file, messages] of Object.entries(english)) {
     const target = (localized[file] ??= {});
     const done = (lock.ui[file] ??= {});
+    const pending = ((lock.pending ??= {})[file] ??= {});
     for (const key of Object.keys(target))
       if (!(key in messages)) delete target[key];
-    for (const key of Object.keys(done))
-      if (!(key in messages)) delete done[key];
+    for (const strings of [done, pending])
+      for (const key of Object.keys(strings))
+        if (!(key in messages)) delete strings[key];
     for (const [key, { message, description }] of Object.entries(messages)) {
-      if (done[key] === message && target[key]) continue;
+      if (done[key] === message && target[key] && !(key in pending)) continue;
       // Docusaurus ships translations of its theme's own strings
-      if (!(key in done) && target[key] && target[key].message !== message) {
+      if (
+        !(key in done) &&
+        !(key in pending) &&
+        target[key] &&
+        target[key].message !== message
+      ) {
         done[key] = message;
+        continue;
+      }
+      const id = uiId(locale, file, key);
+      // English already put in place: keep the translation in progress
+      if (pending[key] === message && target[key]) {
+        ui.push({ id, message, description });
         continue;
       }
       // a translation of older English shows English until it is redone
       const previous = key in done ? target[key]?.message : undefined;
       target[key] = { message, description };
+      // `finalize` accepts a translation of this English only
+      pending[key] = message;
       ui.push({
-        id: uiId(locale, file, key),
+        id,
         message,
         description,
         ...(previous !== undefined && { previous }),
@@ -364,14 +388,16 @@ function translationProblems(english, content, file) {
 /**
  * Accepts translations written since `prepare`: checks each changed page
  * against its English, pins its heading anchors and records the English it
- * now translates; then records UI strings that were translated
+ * now translates; then records UI strings that were translated. Named files
+ * (pages, or UI files like website/i18n/es/code.json) limit it to those.
  */
 async function finalize(locale, english) {
   const lock = readLock(locale);
   const wanted = wantedSources(locale);
+  const named = files.map(file => sourceArg(file, locale));
   const pages =
     files.length ?
-      files.map(file => sourceArg(file, locale))
+      named.filter(file => !(file in english))
     : [
         ...new Set([
           ...changedTranslations(locale),
@@ -401,26 +427,43 @@ async function finalize(locale, english) {
 
   const localized = uiFiles(locale);
   const untranslated = [];
+  const outdated = [];
   for (const [file, messages] of Object.entries(english)) {
+    if (files.length && !named.includes(file)) continue;
     const done = (lock.ui[file] ??= {});
+    const pending = ((lock.pending ??= {})[file] ??= {});
     for (const [key, { message }] of Object.entries(messages)) {
       const text = localized[file]?.[key]?.message;
-      if (done[key] === message || typeof text !== 'string') continue;
+      if (
+        (done[key] === message && !(key in pending)) ||
+        typeof text !== 'string'
+      )
+        continue;
       const id = uiId(locale, file, key);
       if (text === message && !options.same.includes(id)) {
         untranslated.push(id);
+        continue;
+      }
+      // a translation of other English: `prepare` puts this one in place
+      if (
+        text !== message &&
+        (key in done || key in pending) &&
+        pending[key] !== message
+      ) {
+        outdated.push(id);
         continue;
       }
       const problem = uiProblem(locale, text, message);
       if (problem) problems.push(`${id}: ${problem}`);
       else {
         done[key] = message;
+        delete pending[key];
         accepted.push(id);
       }
     }
   }
   writeLock(locale, lock);
-  return { accepted, untranslated, problems };
+  return { accepted, untranslated, outdated, problems };
 }
 
 /**
@@ -515,6 +558,10 @@ for (const locale of locales) {
     for (const id of result.accepted) console.log(`  ✓ ${id}`);
     for (const id of result.untranslated)
       console.log(`  still English (if intended: --same ${id})`);
+    for (const id of result.outdated)
+      console.log(
+        `  translates other English (run prepare, then translate ${id})`,
+      );
     for (const problem of result.problems) console.error(`  ✗ ${problem}`);
     failed ||= result.problems.length > 0;
   } else {
