@@ -57,6 +57,13 @@ export default class NetworkManager implements Manager {
     return next => action => {
       switch (action.type) {
         case FETCH:
+          // From a store a remounted provider replaced: send it, but keep its response out of the new store
+          if (controller !== this.controller) {
+            action
+              .endpoint(...action.args)
+              .then(action.meta.resolve, action.meta.reject);
+            return Promise.resolve();
+          }
           this.handleFetch(action);
           // This is the only case that causes any state change
           // It's important to intercept other fetches as we don't want to trigger reducers during
@@ -164,6 +171,7 @@ export default class NetworkManager implements Manager {
     const throttle = !action.endpoint.sideEffect;
     // A provider remounted with this manager binds a new store; responses for the old one are dropped
     const controller = this.controller;
+    const isBound = () => controller === this.controller;
 
     const deferedFetch = () => {
       let promise = action.endpoint(...action.args);
@@ -187,7 +195,7 @@ export default class NetworkManager implements Manager {
       }
       promise = promise
         .then(response => {
-          if (controller !== this.controller) return response;
+          if (!isBound()) return response;
           let lastReset = this.getLastReset();
 
           /* istanbul ignore else */
@@ -210,10 +218,7 @@ export default class NetworkManager implements Manager {
         })
         .catch(error => {
           // don't update state with promises started before last clear
-          if (
-            controller === this.controller &&
-            fetchedAt >= this.getLastReset()
-          ) {
+          if (isBound() && fetchedAt >= this.getLastReset()) {
             controller.resolve(action.endpoint, {
               args: action.args,
               response: error,

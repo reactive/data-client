@@ -143,6 +143,27 @@ describeIfActivity('<Activity> above <DataProvider>', () => {
     expect(ctrl.getState().optimistic).toHaveLength(0);
   });
 
+  it('keeps a response that lands after a reset while hidden out of the store', async () => {
+    const get = deferred(CoolerArticleResource.get);
+    const { container, hide, show } = renderTabs(
+      <Article endpoint={get.endpoint} />,
+    );
+    await wait(0);
+
+    await hide();
+    act(() => {
+      ctrl.resetEntireStore();
+    });
+    await get.resolve(0, 'old');
+    await show();
+
+    // the reset cleared the store, so it fetches again instead of showing the old response
+    expect(container.textContent).toBe('loading');
+    expect(get.pending.length).toBeGreaterThan(1);
+    for (let n = 1; n < get.pending.length; n++) await get.resolve(n, 'new');
+    expect(container.textContent).toBe('new');
+  });
+
   it('resumes polling after showing', async () => {
     let calls = 0;
     const endpoint = CoolerArticleResource.get.extend({
@@ -226,4 +247,33 @@ describe('<DataProvider> remounted with the same managers', () => {
       expect(container.textContent).toBe('new');
     },
   );
+
+  it('sends a fetch from the unmounted store without writing it to the new one', async () => {
+    const get = deferred(CoolerArticleResource.get);
+    const managers = getManagers();
+    const first = render(
+      <DataProvider managers={managers} devButton={null}>
+        <Fetcher />
+      </DataProvider>,
+    );
+    const oldCtrl = ctrl;
+    first.unmount();
+
+    const { container } = render(
+      <DataProvider managers={managers} devButton={null}>
+        <Suspense fallback="loading">
+          <Article endpoint={get.endpoint} />
+        </Suspense>
+      </DataProvider>,
+    );
+    await wait(0);
+    const old = oldCtrl.fetch(get.endpoint, { id: 5 });
+    await wait(0);
+    expect(get.pending).toHaveLength(2);
+    await get.resolve(1, 'old');
+    await expect(old).resolves.toMatchObject({ title: 'old' });
+    expect(container.textContent).toBe('loading');
+    await get.resolve(0, 'new');
+    expect(container.textContent).toBe('new');
+  });
 });

@@ -38,9 +38,11 @@ export default function createReducer(controller: Controller): ReducerType {
       case FETCH:
         return fetchReducer(state, action);
 
-      case OPTIMISTIC:
-      // eslint-disable-next-line no-fallthrough
       case SET_RESPONSE:
+        // started before the last reset; its manager can miss a reset that hasn't committed yet
+        if (action.meta.fetchedAt < state.lastReset) return state;
+      // eslint-disable-next-line no-fallthrough
+      case OPTIMISTIC:
         return setResponseReducer(state, action, controller);
 
       case SET:
