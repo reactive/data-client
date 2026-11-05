@@ -50,9 +50,9 @@ export async function listBody() {
     { title: 'a' },
   ]);
   expectType<Todo[]>()(unshifted, true);
-  // create (deprecated) keeps resolving one item; getList.push is its typed replacement
+  // create (deprecated) resolves the list it sends too, like any endpoint with an adder schema
   const created = await ctrl.fetch(TodoResource.create, [{ title: 'a' }]);
-  expectType<Todo>()(created, true);
+  expectType<Todo[]>()(created, true);
   const withParams = await ctrl.fetch(
     TodoResource.getList.push,
     { userId: 1 },
@@ -89,6 +89,39 @@ export async function singleBody() {
     untyped,
   );
   expectType<Todo>()(fromAnyParams, true);
+}
+
+export async function unionBody() {
+  type TodoInput = { title: string } & (
+    { userId: number; email: null } | { userId: null; email: string }
+  );
+  const UnionResource = resource({
+    path: '/todos/:id',
+    schema: Todo,
+    body: {} as TodoInput,
+  });
+  const input = {} as TodoInput;
+  const pushed = await ctrl.fetch(UnionResource.getList.push, input);
+  expectType<Todo>()(pushed, true);
+  const pushedList = await ctrl.fetch(UnionResource.getList.push, [input]);
+  expectType<Todo[]>()(pushedList, true);
+  UnionResource.getList.push(input);
+  UnionResource.getList.unshift([input, input]);
+  UnionResource.getList.push({} as TodoInput | TodoInput[]);
+}
+
+export async function customAdder() {
+  // a hand-built endpoint with an adder schema, not resource()'s getList.push
+  const addTodos = new RestEndpoint({
+    path: '/todos',
+    method: 'POST',
+    schema: new Collection([Todo]).push,
+    body: {} as Partial<Todo> | Partial<Todo>[],
+  });
+  const many = await ctrl.fetch(addTodos, [{ title: 'a' }]);
+  expectType<Todo[]>()(many, true);
+  const one = await ctrl.fetch(addTodos, { title: 'a' });
+  expectType<Todo>()(one, true);
 }
 
 export function badArgs() {

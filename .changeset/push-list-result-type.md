@@ -21,7 +21,7 @@ const [milk, dog] = await ctrl.fetch(TodoResource.getList.push, [
 ]);
 ```
 
-The deprecated `resource().create` keeps typing its result as one item; use `getList.push` to get the array type.
+This applies to any endpoint whose schema adds to a Collection (like `Collection.push`) and whose body can be a list, including the deprecated `resource().create`.
 
 [ctrl.set()](https://dataclient.io/docs/api/Controller#set) with [Collection.push](https://dataclient.io/rest/api/Collection#push) or `unshift` now takes the Collection's args, which pick the lists it adds to, and accepts a list of items as well as one. Before, it took the Entity's fields, so args that matched no list compiled and silently added nothing. An updater function (`previous => value`) is now a TypeScript error there, since adders have no previous value and it never ran. Called without args, the default filter now adds only to lists with no filter keys, instead of throwing and dropping the write when a filtered list exists.
 

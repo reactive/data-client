@@ -494,9 +494,19 @@ type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends R
     [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
 };
 
-/** Args ending in a list body: (body) or (params, body), like RestEndpoint's.
- * Fixed lengths since TS < 4.2 has no leading-rest tuples */
-type ListBodyArgs = readonly [readonly any[]] | readonly [any, readonly any[]];
+/** Body members that are lists (ListBody true) or not (false) */
+type BodyPart<B, ListBody extends boolean> = ListBody extends true ? Extract<B, readonly any[]> : Exclude<B, readonly any[]>;
+/** Each args member ending in a body, (body) or (params, body) like RestEndpoint's, with the body
+ * narrowed to its list or non-list members; never when it has none. Other args are kept as the
+ * non-list signatures.
+ *
+ * Fixed lengths since TS < 4.2 has no leading-rest tuples. Indexes instead of `infer`, which
+ * TS < 4.2 fails to resolve here while inferring a call, losing the list signatures */
+type BodyArgs<A, ListBody extends boolean> = A extends readonly [any] ? BodyTuple<[], A[0], ListBody> : A extends readonly [any, any] ? BodyTuple<[A[0]], A[1], ListBody> : ListBody extends true ? never : A;
+/** Params followed by the narrowed body; never when the body has no such members */
+type BodyTuple<Params extends readonly any[], B, ListBody extends boolean> = [
+    BodyPart<B, ListBody>
+] extends [never] ? never : readonly [...Params, BodyPart<B, ListBody>];
 /** Rest args longer than any endpoint call's, so a signature using them is skipped by arity instead of reporting errors */
 type NoCall = readonly [
     never,
@@ -511,12 +521,12 @@ type NoCall = readonly [
     never
 ];
 /** Adds an all-never twin of each args member, so a union that would collapse to one member
- * still reports errors over all args, like the endpoint's own (split by body) union does */
+ * still reports errors over all args, like the endpoint's own union of signatures does */
 type KeepUnion<A> = A | {
     readonly [K in keyof A]: never;
 };
-/** Args of an endpoint whose schema adds to a list (like Collection.push) and has
- * call signatures with list bodies (like RestEndpoint.push); NoCall for every other endpoint
+/** Args of an endpoint whose schema adds to a list (like Collection.push) and whose
+ * body can be a list (like RestEndpoint.push); NoCall for every other endpoint
  *
  * ListBody: true for the signatures with a list body, false for the rest */
 type AdderArgs<E extends (...args: any) => any, ListBody extends boolean> = E extends {
@@ -524,8 +534,8 @@ type AdderArgs<E extends (...args: any) => any, ListBody extends boolean> = E ex
         _denormalizeList(): any;
     };
 } ? [
-    Extract<Parameters<E>, ListBodyArgs>
-] extends [never] ? NoCall : KeepUnion<ListBody extends true ? Extract<Parameters<E>, ListBodyArgs> : Exclude<Parameters<E>, ListBodyArgs>> : NoCall;
+    BodyArgs<Parameters<E>, true>
+] extends [never] ? NoCall : KeepUnion<BodyArgs<Parameters<E>, ListBody>> : NoCall;
 /** Resolved value of a (union member) endpoint: its schema's, or its own when it has none */
 type SchemaResult<E extends (...args: any) => any> = E extends {
     schema: infer S;

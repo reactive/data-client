@@ -43,6 +43,7 @@ When a count drops more than 10% below its budget, the check says so; re-record 
 | setUpdaters | `ctrl.set()` updaters spreading `prev` on a 30-member Union |
 | redux | `prepareStore()`'s store passed to react-redux's `Provider` and `ExternalDataProvider` |
 | fixtures | 100 sets of `@data-client/test` fixtures (mutable and `as const` args) and interceptors passed to `MockResolver` and `mockInitialState()` |
+| bodies | 100 RestEndpoints with union, optional, non-object and `extend()`ed bodies, called directly and through `ctrl.fetch()` |
 | setInvalidate | `ctrl.set()` single and batch Invalidate rows on a 30-member Union and big Entity |
 | patheq | path types against [patheq/orig.ts](./patheq/orig.ts) on fixed-seed fuzzed paths |
 

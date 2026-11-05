@@ -1,19 +1,20 @@
 {
   "instantiations": {
-    "resources": 166411,
-    "bigEntity": 14285,
-    "union": 19446,
-    "paths": 354487,
+    "resources": 145985,
+    "bigEntity": 14031,
+    "union": 18909,
+    "paths": 352025,
     "nested": 3001,
-    "vue": 49341,
-    "schemas": 205973,
-    "typical": 14744,
-    "setValues": 26027,
-    "setInvalidate": 7325,
-    "setUpdaters": 66031,
+    "vue": 49025,
+    "schemas": 197676,
+    "typical": 14893,
+    "setValues": 26058,
+    "setInvalidate": 7360,
+    "setUpdaters": 66048,
     "redux": 12984,
-    "fixtures": 77150,
-    "patheq": 934395
+    "fixtures": 74868,
+    "patheq": 934395,
+    "bodies": 148833
   },
   "typescript": "7.0.2"
 }

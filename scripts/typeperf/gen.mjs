@@ -305,6 +305,27 @@ mockInitialState([...fixtures${i}, typed${i}]);
 // 12. path types vs their frozen pre-#4173 implementation (a type error is a mismatch)
 scen.patheq = patheq;
 
+// 13. RestEndpoint bodies: union (REACT-6), optional, non-object and extend()ed, called directly and through ctrl.fetch()
+scen.bodies = () => {
+  let s = `import { RestEndpoint } from '@data-client/rest';
+import { useController } from '@data-client/react';
+`;
+  for (let i = 0; i < 100 * N; i++)
+    s += `type In${i} = { email: string; n${i}: number } & ({ teamId: string; teamName: null } | { teamId: null; teamName: string });
+declare const in${i}: In${i};
+export const reg${i} = new RestEndpoint({ path: '/register${i}', method: 'POST', body: {} as In${i} });
+export const join${i} = new RestEndpoint({ path: '/teams/:id/m${i}', method: 'POST', body: {} as In${i} | undefined });
+export const up${i} = new RestEndpoint({ path: '/up${i}/:id', method: 'PUT', body: {} as FormData | Blob });
+export const ext${i} = join${i}.extend({ body: {} as { a${i}: string } | { b${i}: number } });
+export function use${i}() {
+  const ctrl = useController();
+  reg${i}(in${i}); join${i}({ id: '${i}' }, in${i}); join${i}({ id: '${i}' }); up${i}({ id: '${i}' }, new Blob()); ext${i}({ id: '${i}' }, { a${i}: 'x' });
+  ctrl.fetch(reg${i}, in${i}); ctrl.fetch(join${i}, { id: '${i}' }, in${i}); ctrl.fetch(ext${i}, { id: '${i}' }, { b${i}: 1 });
+}
+`;
+  return s;
+};
+
 /** Writes scenarios/<name>/ for the named fixtures (all when empty); returns the names */
 export function generate(only = []) {
   const names = Object.keys(scen).filter(n => !only.length || only.includes(n));

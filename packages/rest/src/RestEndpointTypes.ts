@@ -766,8 +766,11 @@ export type RestType<
   } = { path: string; paginationField: string },
 > = IfTypeScriptLooseNull<
   RestInstance<RestFetch<UrlParams, Body, R>, S, M, O>,
-  Body extends {} ? RestTypeWithBody<UrlParams, S, M, Body, R, O>
-  : RestTypeNoBody<UrlParams, S, M, R, O>
+  BodyKind<Body> extends 'none' ? RestTypeNoBody<UrlParams, S, M, R, O>
+  : BodyKind<Body> extends 'required' ?
+    RestTypeWithBody<UrlParams, S, M, Body, R, O>
+  : | RestTypeWithBody<UrlParams, S, M, DefinedBody<Body>, R, O>
+    | RestTypeNoBody<UrlParams, S, M, R, O>
 >;
 
 export type RestTypeWithBody<
@@ -803,9 +806,31 @@ export type RestFetch<
 > = IfTypeScriptLooseNull<
   | ParamFetchNoBody<UrlParams, Resolve>
   | ParamFetchWithBody<UrlParams, Body, Resolve>,
-  Body extends {} ? ParamFetchWithBody<UrlParams, Body, Resolve>
-  : ParamFetchNoBody<UrlParams, Resolve>
+  BodyKind<Body> extends 'none' ? ParamFetchNoBody<UrlParams, Resolve>
+  : BodyKind<Body> extends 'required' ?
+    ParamFetchWithBody<UrlParams, Body, Resolve>
+  : | ParamFetchWithBody<UrlParams, DefinedBody<Body>, Resolve>
+    | ParamFetchNoBody<UrlParams, Resolve>
 >;
+
+/** Body members that mean "no body" */
+type NoBodyMember = null | undefined | void;
+/** Body without its no-body members */
+type DefinedBody<Body> = Exclude<Body, NoBodyMember>;
+/** Which call signatures a body type gets: 'none' (only null, undefined, void or `unknown`),
+ * 'required', or 'optional' (may be null, undefined or void, or is `any`): both.
+ *
+ * Checks Body as a whole (not distributively), so a union body like `A | B` stays one
+ * `(body: A | B)` signature instead of `((body: A) => R) | ((body: B) => R)`, which no
+ * `A | B` value can call. Callers branch on the result so only the taken signatures are built.
+ */
+type BodyKind<Body> =
+  [DefinedBody<Body>] extends [never] ? 'none'
+  : [DefinedBody<Body>] extends [{}] ?
+    [Extract<Body, NoBodyMember>] extends [never] ?
+      'required'
+    : 'optional'
+  : 'none';
 
 export type ParamFetchWithBody<P, B = {}, R = any> =
   // we must always allow undefined in a union and give it a type without params
