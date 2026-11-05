@@ -10,17 +10,23 @@ query strings and bodies as arguments, and reads the body where the code read `.
 
 ```ts
 // before the codemod
-const res = await api.get<Post>(`/posts/${id}`, { params: { expand: 'author' } });
-return res.data;
+export async function getPost(id: string) {
+  const res = await api.get<Post>(`/posts/${id}`, { params: { expand: 'author' } });
+  return res.data;
+}
 ```
 
 ```ts
 // after the codemod
-const res = await (new ApiEndpoint({
+const getPostEndpoint = new ApiEndpoint({
   path: '/posts/:id',
   searchParams: {} as Record<string, unknown>,
-})({ id, expand: 'author' }) as Promise<Post>);
-return res;
+});
+
+export async function getPost(id: string) {
+  const res = await (getPostEndpoint({ id, expand: 'author' }) as Promise<Post>);
+  return res;
+}
 ```
 
 Calls through an `axios.create()` instance that another file exports, like `import { api } from './client'`, are

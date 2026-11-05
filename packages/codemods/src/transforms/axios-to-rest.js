@@ -47,6 +47,14 @@ const HTTP_METHODS = new Set(['get', 'post', 'put', 'patch', 'delete']);
 
 // --- Helpers ---
 
+/** `base`, or `base2`, `base3`... when `taken` has it; adds the result to `taken` */
+function uniqueName(base, taken) {
+  let name = base;
+  for (let n = 2; taken.has(name); n++) name = base + n;
+  taken.add(name);
+  return name;
+}
+
 function capitalize(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
@@ -98,6 +106,18 @@ const TYPE_POSITIONS = new Set([
   'TSImportType',
 ]);
 
+// nodes whose non-computed `key` names a member rather than reading a binding
+const KEYED = new Set([
+  'ObjectProperty',
+  'Property',
+  'ClassProperty',
+  'ClassMethod',
+  'ObjectMethod',
+  'TSPropertySignature',
+  'TSMethodSignature',
+  'TSDeclareMethod',
+]);
+
 /** Whether an Identifier reads its binding, rather than naming an import, property or key */
 function isRead(path, { types = true } = {}) {
   const parent = path.parent.node;
@@ -108,8 +128,12 @@ function isRead(path, { types = true } = {}) {
     !parent.computed
   )
     return false;
+  // `ns.Name` and enum members name a member, like the keys below
+  if (parent.type === 'TSQualifiedName' && parent.right === path.node)
+    return false;
+  if (parent.type === 'TSEnumMember' && parent.id === path.node) return false;
   if (
-    (parent.type === 'ObjectProperty' || parent.type === 'Property') &&
+    KEYED.has(parent.type) &&
     parent.key === path.node &&
     !parent.computed &&
     !parent.shorthand
@@ -128,10 +152,6 @@ function readsOf(j, within, name, scope, options) {
 
 function hasLiveReference(j, root, localName, importScope) {
   return readsOf(j, root, localName, importScope).size() > 0;
-}
-
-function hasRuntimeReference(j, root, localName, importScope) {
-  return readsOf(j, root, localName, importScope, { types: false }).size() > 0;
 }
 
 function ensureRestImports(j, root, names) {
@@ -210,57 +230,45 @@ function transformImports(
   }
 
   root.find(j.ImportDeclaration).forEach(importPath => {
-    if (importPath.node.source.value !== 'axios') return;
+    const decl = importPath.node;
+    if (decl.source.value !== 'axios') return;
+    const isType = s =>
+      decl.importKind === 'type' ||
+      s.importKind === 'type' ||
+      (s.type === 'ImportSpecifier' &&
+        AXIOS_TYPE_IMPORTS.has(specName(s.imported)));
+    const isRuntime = s =>
+      s.type === 'ImportSpecifier' &&
+      AXIOS_RUNTIME_IMPORTS.has(specName(s.imported));
+    const isKnown = s => isType(s) || isRuntime(s);
 
-    if (importPath.node.importKind === 'type') {
-      j(importPath).remove();
-      dirty = true;
-      return;
-    }
-
-    if (axiosStillUsed) {
-      // axios stays, but drop the types nothing reads anymore
-      const used = importPath.node.specifiers.filter(s => {
-        if (s.type !== 'ImportSpecifier') return true;
-        const importedName = specName(s.imported);
-        if (s.importKind !== 'type' && !AXIOS_TYPE_IMPORTS.has(importedName))
-          return true;
-        const localName = (s.local && s.local.name) || importedName;
-        return hasLiveReference(j, root, localName, importPath.scope);
-      });
-      if (used.length !== importPath.node.specifiers.length) {
-        importPath.node.specifiers = used;
-        dirty = true;
-      }
-      return;
-    }
-
-    const specs = importPath.node.specifiers;
-    const remaining = specs.filter(s => {
-      if (s.type === 'ImportDefaultSpecifier') return false;
-      if (s.type === 'ImportSpecifier' && s.importKind === 'type') return false;
-      if (s.type === 'ImportSpecifier' && s.imported) {
-        const importedName = specName(s.imported);
-        const localName = (s.local && s.local.name) || importedName;
-
-        if (AXIOS_RUNTIME_IMPORTS.has(importedName)) {
-          return hasRuntimeReference(j, root, localName, importPath.scope);
-        }
-        if (AXIOS_TYPE_IMPORTS.has(importedName)) {
-          return false;
-        }
-      }
-      return true;
+    // a name stays while code still reads it, even as a type; tsc fails without it
+    const remaining = decl.specifiers.filter(s => {
+      if (isKnown(s))
+        return hasLiveReference(j, root, s.local.name, importPath.scope);
+      return axiosStillUsed || s.type !== 'ImportDefaultSpecifier';
     });
+    // axios's own names left after the calls convert, which keep axios installed
+    const keptNames = remaining.map(s => s.local.name);
 
     if (!remaining.length) {
       j(importPath).remove();
       dirty = true;
       return;
     }
-
-    importPath.node.specifiers = remaining;
-    dirty = true;
+    if (remaining.length !== decl.specifiers.length) {
+      decl.specifiers = remaining;
+      dirty = true;
+    }
+    if (keptNames.length && !axiosStillUsed) {
+      addTodo(
+        j,
+        decl,
+        `replace axios's ${keptNames.map(n => `\`${n}\``).join(', ')}, then remove this import`,
+        'remove-axios',
+      );
+      dirty = true;
+    }
   });
 
   return dirty;
@@ -278,19 +286,23 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
   // classes whose urlPrefix came from a baseURL
   const prefixedClasses = new Set();
 
+  const isCreate = init =>
+    init &&
+    init.type === 'CallExpression' &&
+    init.callee.type === 'MemberExpression' &&
+    init.callee.object.type === 'Identifier' &&
+    init.callee.object.name === axiosLocalName &&
+    memberName(init.callee) === 'create';
+  // a class can't share a statement, and taking its client's place keeps it
+  // after the variables it can read and before the ones that can use it
+  splitDeclarations(j, root, declarator => isCreate(declarator.init));
+
   root.find(j.VariableDeclarator).forEach(declPath => {
     const init = declPath.node.init;
-    if (!init || init.type !== 'CallExpression') return;
-    if (
-      !init.callee ||
-      init.callee.type !== 'MemberExpression' ||
-      init.callee.object.type !== 'Identifier' ||
-      init.callee.object.name !== axiosLocalName ||
-      init.callee.property.type !== 'Identifier' ||
-      init.callee.property.name !== 'create'
-    ) {
-      return;
-    }
+    if (!isCreate(init)) return;
+    const { statement, wrap } = statementOf(j, declPath.parent);
+    // like a `for` initializer, where no class can go
+    if (!inStatementList(statement)) return;
 
     const varName =
       declPath.node.id.type === 'Identifier' ? declPath.node.id.name : null;
@@ -412,36 +424,63 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
       addTodo(j, node, message, anchor);
     };
 
-    const parentPath = declPath.parent;
-    if (parentPath.node.type === 'VariableDeclaration') {
-      const variableDeclPath = parentPath;
-      const variableDecl = variableDeclPath.node;
-      const statementPath =
-        variableDeclPath.parent.node.type === 'ExportNamedDeclaration' ?
-          variableDeclPath.parent
-        : variableDeclPath;
-      const classStatement =
-        statementPath.node.type === 'ExportNamedDeclaration' ?
-          j.exportNamedDeclaration(classDecl)
-        : classDecl;
-      markOptions(classStatement);
-
-      if (variableDecl.declarations.length === 1) {
-        j(statementPath).replaceWith(classStatement);
-      } else {
-        variableDecl.declarations = variableDecl.declarations.filter(
-          declaration => declaration !== declPath.node,
-        );
-        j(statementPath).insertBefore(classStatement);
-      }
-    } else {
-      markOptions(classDecl);
-      j(declPath).replaceWith(classDecl);
-    }
+    const classStatement = wrap(classDecl);
+    markOptions(classStatement);
+    replaceStatement(j, statement, [classStatement]);
     dirty = true;
   });
 
   return { dirty, createToClass, prefixedClasses };
+}
+
+/** The statement holding a declaration (its `export` when exported), and a function wrapping a node the same way */
+function statementOf(j, declarationPath) {
+  const exported =
+    declarationPath.parent.node.type === 'ExportNamedDeclaration';
+  return {
+    statement: exported ? declarationPath.parent : declarationPath,
+    wrap: node => (exported ? j.exportNamedDeclaration(node) : node),
+  };
+}
+
+/** Whether a statement is in a block or the program, where other statements can join it */
+function inStatementList(statement) {
+  return typeof statement.name === 'number';
+}
+
+/** Replaces a statement with `nodes`, keeping the comments above it */
+function replaceStatement(j, statement, nodes) {
+  nodes[0].comments = [
+    ...(statement.node.comments || []),
+    ...(nodes[0].comments || []),
+  ];
+  j(statement).replaceWith(nodes);
+}
+
+/** Gives each declarator that passes `test` its own statement, keeping the ones between grouped */
+function splitDeclarations(j, root, test) {
+  root
+    .find(j.VariableDeclaration)
+    .filter(
+      p => p.node.declarations.length > 1 && p.node.declarations.some(test),
+    )
+    .forEach(p => {
+      const { statement, wrap } = statementOf(j, p);
+      if (!inStatementList(statement)) return;
+      const groups = [];
+      let grouping = false;
+      for (const declarator of p.node.declarations) {
+        const passes = test(declarator);
+        if (grouping && !passes) groups[groups.length - 1].push(declarator);
+        else groups.push([declarator]);
+        grouping = !passes;
+      }
+      replaceStatement(
+        j,
+        statement,
+        groups.map(group => wrap(j.variableDeclaration(p.node.kind, group))),
+      );
+    });
 }
 
 // --- 2b. Instances imported from another file ---
@@ -588,13 +627,24 @@ function responseInterceptorTargets(j, root) {
 function exportedInstances(j, file) {
   if (exportedInstanceCache.has(file)) return exportedInstanceCache.get(file);
   const found = new Map();
-  exportedInstanceCache.set(file, found);
+  // what the module imports or re-exports at runtime, to spot an import cycle
+  const imports = [];
+  const entry = { instances: found, imports };
+  exportedInstanceCache.set(file, entry);
   let root;
   try {
     root = j(fs.readFileSync(file, 'utf8'));
   } catch {
-    return found;
+    return entry;
   }
+  for (const node of root.get().node.program.body)
+    if (
+      node.source &&
+      typeof node.source.value === 'string' &&
+      node.importKind !== 'type' &&
+      node.exportKind !== 'type'
+    )
+      imports.push(node.source.value);
   // exported name -> local binding
   const exportsOf = new Map();
   root.find(j.ExportNamedDeclaration).forEach(p => {
@@ -676,18 +726,30 @@ function exportedInstances(j, file) {
           intercepted,
         });
   }
-  return found;
+  return entry;
+}
+
+/** Whether the module `file`, with these `imports`, imports `target` */
+function importsFile(file, imports, target) {
+  const resolved = nodePath.resolve(target);
+  return imports.some(spec => resolveModule(file, spec) === resolved);
 }
 
 // imports of axios instances from the project's own modules; renames each
 // import to the instance's class once the caller has converted the calls
 function importedInstances(j, root, filePath) {
-  const createToClass = new Map();
-  const prefixedClasses = new Set();
-  const intercepted = new Set();
-  const renames = [];
-  if (!filePath)
-    return { createToClass, prefixedClasses, intercepted, renames };
+  const result = {
+    createToClass: new Map(),
+    prefixedClasses: new Set(),
+    intercepted: new Set(),
+    // classes from a client module that imports this one, so they aren't
+    // defined yet while this module loads
+    cyclic: new Set(),
+    renames: [],
+  };
+  if (!filePath) return result;
+  const { createToClass, prefixedClasses, intercepted, cyclic, renames } =
+    result;
   const taken = getExistingClassNames(j, root);
   root
     .find(j.ImportDeclaration)
@@ -698,8 +760,9 @@ function importedInstances(j, root, filePath) {
     .forEach(importPath => {
       const file = resolveModule(filePath, importPath.node.source.value);
       if (!file) return;
-      const instances = exportedInstances(j, file);
+      const { instances, imports } = exportedInstances(j, file);
       if (!instances.size) return;
+      const inCycle = importsFile(file, imports, filePath);
       for (const s of importPath.node.specifiers || []) {
         if (s.importKind === 'type') continue;
         const imported =
@@ -720,6 +783,7 @@ function importedInstances(j, root, filePath) {
         createToClass.set(local, new Map([[scope, className]]));
         if (prefixed) prefixedClasses.add(className);
         if (instance.intercepted) intercepted.add(local);
+        if (inCycle) cyclic.add(className);
         renames.push({
           declaration: importPath.node,
           specifier: s,
@@ -728,7 +792,7 @@ function importedInstances(j, root, filePath) {
         });
       }
     });
-  return { createToClass, prefixedClasses, intercepted, renames };
+  return result;
 }
 
 // --- 3. Transform direct axios/instance method calls ---
@@ -912,10 +976,7 @@ function toPath(j, urlArg) {
     const source = isPure(expr) ? j(expr).toSource() : undefined;
     let name = source && shared.get(source);
     if (!name) {
-      const base = memberName(expr) || 'param';
-      name = base;
-      for (let n = 2; taken.has(name); n++) name = base + n;
-      taken.add(name);
+      name = uniqueName(memberName(expr) || 'param', taken);
       if (source) shared.set(source, name);
       args.push(
         j.objectProperty.from({
@@ -940,13 +1001,20 @@ function toPath(j, urlArg) {
   return { path, urlPrefix, args, query };
 }
 
+/** The name of a non-computed key, or null */
+function keyName(node) {
+  if (node.computed) return null;
+  const { key } = node;
+  if (key.type === 'Identifier') return key.name;
+  if (key.type === 'PrivateName') return key.id.name;
+  if (key.type === 'StringLiteral' || key.type === 'Literal')
+    return String(key.value);
+  return null;
+}
+
 function propKey(prop) {
   if (prop.type !== 'ObjectProperty' && prop.type !== 'Property') return null;
-  if (prop.computed) return null;
-  if (prop.key.type === 'Identifier') return prop.key.name;
-  if (prop.key.type === 'StringLiteral' || prop.key.type === 'Literal')
-    return String(prop.key.value);
-  return null;
+  return keyName(prop);
 }
 
 /**
@@ -1276,6 +1344,8 @@ function buildCall(j, callPath, className, prefixed, isTS) {
 
   return {
     node: j.callExpression(endpoint, invokeArgs),
+    method: methodName,
+    path: url.path,
     // the response type the axios call was given
     responseType: isTS && typeArgs && typeArgs.params[0],
     unknownOptions,
@@ -1283,16 +1353,128 @@ function buildCall(j, callPath, className, prefixed, isTS) {
   };
 }
 
+// --- 3b. Build each endpoint once, at module scope ---
+
+/** What a function is called: its own name, its key, or what it's assigned to */
+function functionName(path) {
+  const { node } = path;
+  if (node.id) return node.id.name;
+  if (node.key) return keyName(node);
+  const parent = path.parent.node;
+  if (parent.type === 'VariableDeclarator')
+    return parent.id.type === 'Identifier' ? parent.id.name : null;
+  if (parent.type === 'AssignmentExpression' && parent.right === node)
+    return memberName(parent.left);
+  if (parent.value === node && parent.key) return keyName(parent);
+  return null;
+}
+
+/**
+ * The nearest function around a call that has a name, as `{ fn, fnName }`
+ * (both null when none does); null when the call is in no function, where
+ * its endpoint is built once anyway.
+ */
+function enclosingFunction(j, callPath) {
+  const fns = [];
+  for (let p = callPath.parent; p; p = p.parent)
+    if (j.Function.check(p.node))
+      fns.push({ fn: p.node, fnName: toIdentifier(functionName(p)) });
+  if (!fns.length) return null;
+  return fns.find(f => f.fnName) || { fn: null, fnName: null };
+}
+
+/** camelCase identifier from text like `get-post` or `/users/:id/posts` */
+function toIdentifier(text) {
+  const words = (text || '').split(/[^A-Za-z0-9_$]+/).filter(Boolean);
+  if (!words.length) return null;
+  const name = words[0] + words.slice(1).map(capitalize).join('');
+  return /^\d/.test(name) ? '_' + name : name;
+}
+
+/**
+ * Where a module-level endpoint goes: after the imports, and after the class
+ * it extends when the module declares it. Not just above its function, since
+ * a function declaration can run before its own statement.
+ */
+function insertionIndex(body, className) {
+  const importsEnd =
+    body.findLastIndex(
+      s =>
+        s.type === 'ImportDeclaration' ||
+        s.type === 'TSImportEqualsDeclaration',
+    ) + 1;
+  const classEnd =
+    body.findIndex(s => {
+      const decl = s.declaration || s;
+      return (
+        decl.type === 'ClassDeclaration' &&
+        decl.id &&
+        decl.id.name === className
+      );
+    }) + 1;
+  return Math.max(importsEnd, classEnd);
+}
+
+/**
+ * Moves each endpoint a function builds into a module `const`, so it's built
+ * once and can take a `schema` or go to `useSuspense()` later. It's named
+ * after its function, or by method and path when a function has several.
+ */
+function hoistEndpoints(j, root, hoists) {
+  if (!hoists.length) return;
+  const program = root.get().node.program;
+  const taken = new Set(
+    root
+      .find(j.Identifier)
+      .nodes()
+      .map(n => n.name),
+  );
+  const perFunction = new Map();
+  for (const { fn } of hoists)
+    if (fn) perFunction.set(fn, (perFunction.get(fn) || 0) + 1);
+  // its function's name when it's the function's only endpoint
+  const endpointName = ({ fn, fnName, method, path }) =>
+    uniqueName(
+      (fn && perFunction.get(fn) === 1 ?
+        fnName
+      : toIdentifier(`${method} ${path.replace(/:\w+/g, '')}`)) + 'Endpoint',
+      taken,
+    );
+
+  // body index -> declarations to insert there, in source order
+  const inserts = new Map();
+  for (const hoist of hoists.sort((a, b) => a.start - b.start)) {
+    const { node: call, className, unknownOptions } = hoist;
+    const name = endpointName(hoist);
+
+    const decl = j.variableDeclaration('const', [
+      j.variableDeclarator(j.identifier(name), call.callee),
+    ]);
+    call.callee = j.identifier(name);
+    if (unknownOptions.length) {
+      const [message, anchor] = optionsTodo(unknownOptions, `\`${name}\``);
+      addTodo(j, decl, message, anchor);
+    }
+
+    const index = insertionIndex(program.body, className);
+    if (!inserts.has(index)) inserts.set(index, []);
+    inserts.get(index).push(decl);
+  }
+  for (const index of [...inserts.keys()].sort((a, b) => b - a))
+    program.body.splice(index, 0, ...inserts.get(index));
+}
+
 function transformDirectCalls(
   j,
   root,
   axiosLocalName,
   axiosImportScope,
-  { createToClass, prefixedClasses, intercepted: importedIntercepted },
+  { createToClass, prefixedClasses, intercepted: importedIntercepted, cyclic },
   isTS,
 ) {
   let dirty = false;
   let marked = false;
+  const hoists = [];
   const callTargets = new Set([axiosLocalName, ...createToClass.keys()]);
   // a response interceptor can change what `.data` refers to (often the
   // body's own `data` field, after `response => response.data`)
@@ -1355,8 +1537,27 @@ function transformDirectCalls(
       continue;
     }
 
+    // the endpoint's options are literals, so it can move to module scope
+    // when the instance it's called on is module-level too, and its class is
+    // defined before this module runs
+    const site =
+      (!className || (callBindingScope.isGlobal && !cyclic.has(className))) &&
+      enclosingFunction(j, callPath);
+    if (site) {
+      const { node, method, path, unknownOptions } = result;
+      hoists.push({
+        ...site,
+        start: callPath.node.start,
+        node,
+        method,
+        path,
+        unknownOptions,
+        className,
+      });
+    }
     j(callPath).replaceWith(result.node);
-    if (result.unknownOptions.length) {
+    // a hoisted endpoint gets this TODO itself
+    if (!site && result.unknownOptions.length) {
       const [message, anchor] = optionsTodo(result.unknownOptions);
       markTodo(j, callPath, message, anchor);
     }
@@ -1398,8 +1599,7 @@ function transformDirectCalls(
     }
     dirty = true;
   }
-
-  return { dirty, marked };
+  return { dirty, marked, hoists };
 }
 
 // --- 4. Mark what's left for a person or agent ---
@@ -1573,6 +1773,7 @@ module.exports = function transformer(fileInfo, api) {
   for (const className of imported.prefixedClasses)
     createResult.prefixedClasses.add(className);
   createResult.intercepted = imported.intercepted;
+  createResult.cyclic = imported.cyclic;
 
   const calls = transformDirectCalls(
     j,
@@ -1622,6 +1823,8 @@ module.exports = function transformer(fileInfo, api) {
         : ['RestEndpoint'],
       ) || dirty;
   }
+  // last, so the names the imports and renamed instances took are taken
+  hoistEndpoints(j, root, calls.hoists);
 
   return dirty ? root.toSource({ quote: 'single' }) : source;
 };

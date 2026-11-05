@@ -62,7 +62,7 @@ your source folders, never the repo root:
 npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/
 ```
 
-Each axios call becomes a call to an endpoint. Path params, `params` and the body become its arguments, and it resolves to the body, so `.data` goes away.
+Each axios call becomes a call to an endpoint, built once at module level. Path params, `params` and the body become its arguments, and it resolves to the body, so `.data` goes away.
 
 ```ts title="Before"
 import axios from 'axios';
@@ -87,15 +87,20 @@ class ApiEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
   urlPrefix = 'https://api.example.com';
 }
 
+const getPostEndpoint = new ApiEndpoint({ path: '/posts/:id' });
+
+const createPostEndpoint = new ApiEndpoint({
+  path: '/posts',
+  method: 'POST',
+});
+
 export async function getPost(id: string) {
-  const res = await new ApiEndpoint({ path: '/posts/:id' })({ id });
+  const res = await getPostEndpoint({ id });
   return res;
 }
 
 export async function createPost(body: { title: string }) {
-  const data = await new ApiEndpoint({ path: '/posts', method: 'POST' })(
-    body,
-  );
+  const data = await createPostEndpoint(body);
   return data;
 }
 ```
@@ -103,6 +108,11 @@ export async function createPost(body: { title: string }) {
 What it can't convert, such as interceptors, `timeout`, `isAxiosError()` or a function that returns the axios
 response to its callers, gets a `// TODO(data-client):` comment linking the section below that covers it. Search for
 `TODO(data-client)` and resolve each one as you go through the next steps.
+
+Endpoints the codemod moves to module level are built when their module loads. It keeps them in their function when
+the module that defines the base class imports their file, but it can't see a longer import cycle. If one exists, that
+import runs first and fails with `Cannot access 'ApiEndpoint' before initialization`. Break the import cycle, or move
+those endpoints into the module that defines the base class.
 
 If the project wraps axios in its own class or function and never calls `axios.get()` or `.post()` directly, or only
 calls `axios(config)`, the codemod has little to do. Skip it and start at [step 3](#base-endpoint).
