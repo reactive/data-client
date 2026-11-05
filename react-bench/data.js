@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793854263848,
+  "lastUpdate": 1793891546877,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -12245,6 +12245,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 396.83,
             "range": "± 2.1%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "5b184aa085a7ea0e54f82400475c52392935ca8a",
+          "message": "internal(bench): Wait for every multi-view; refresh README results (#4584)\n\ninitMultiView signaled completion when the first row appeared, which\ncan be the detail or a pinned row. With network simulation on, the list\nand most pinned cards were still loading, so the first update raced\ntheir initial fetches: TanStack Query timed out and data-client's\nmulti-view number swung between runs. The old waitForSelector polling\nhid this by adding a delay. Lists now carry data-issue-list, and the\nsetup waits for the list, the detail and all 10 pinned cards.\n\nREADME: new four-library results (network simulation on) on master\nafter #4580, and the relative table derived from them.\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-05T15:05:12Z",
+          "tree_id": "27541f766ed7320d95dc4dbc4099210c282065dc",
+          "url": "https://github.com/reactive/data-client/commit/5b184aa085a7ea0e54f82400475c52392935ca8a"
+        },
+        "date": 1793891543495,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 267.74,
+            "range": "± 3.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 73.48,
+            "range": "± 2.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 619.2,
+            "range": "± 1.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 597.91,
+            "range": "± 3.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 66.88,
+            "range": "± 3.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 404.45,
+            "range": "± 1.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 468.41,
+            "range": "± 2.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 12.25,
+            "range": "± 7.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 103.52,
+            "range": "± 0.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 81.47,
+            "range": "± 2.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-ticker-stream",
+            "value": 12.24,
+            "range": "± 1.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 298.51,
+            "range": "± 4.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 483.09,
+            "range": "± 4.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 284.09,
+            "range": "± 1.9%",
             "unit": "ops/s"
           }
         ]
