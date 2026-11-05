@@ -19,17 +19,26 @@ function deferred<E extends { extend: (options: any) => any }>(
   options: object = {},
 ) {
   const pending: ((value: any) => void)[] = [];
+  const rejects: ((error: any) => void)[] = [];
   const endpoint: E = base.extend({
     ...options,
     fetch() {
-      return new Promise(resolve => pending.push(resolve));
+      return new Promise((resolve, reject) => {
+        pending.push(resolve);
+        rejects.push(reject);
+      });
     },
   });
   /** Resolves the nth fetch with an article titled `title` */
   const resolve = (n: number, title: string) =>
     act(async () => pending[n]({ id: 5, title, content: 'x' }));
-  return { endpoint, pending, resolve };
+  /** Rejects the nth fetch */
+  const reject = (n: number) =>
+    act(async () => rejects[n](new Error('old store')));
+  return { endpoint, pending, resolve, reject };
 }
+
+type Deferred = ReturnType<typeof deferred>;
 
 let ctrl: ReturnType<typeof useController>;
 function Article({ endpoint }: { endpoint: typeof CoolerArticleResource.get }) {
@@ -185,30 +194,36 @@ describe('<DataProvider> remounted with the same managers', () => {
     expect(container.textContent).toBe('new');
   });
 
-  it('keeps a late response from the unmounted store out of the new one', async () => {
-    const get = deferred(CoolerArticleResource.get);
-    const managers = getManagers();
-    const tree = (
-      <DataProvider managers={managers} devButton={null}>
-        <Suspense fallback="loading">
-          <Article endpoint={get.endpoint} />
-        </Suspense>
-      </DataProvider>
-    );
-    const first = render(tree);
-    await wait(0);
-    first.unmount();
+  it.each([
+    ['response', (get: Deferred) => get.resolve(0, 'old')],
+    ['error', (get: Deferred) => get.reject(0)],
+  ])(
+    'keeps a late %s from the unmounted store out of the new one',
+    async (_, settleOld) => {
+      const get = deferred(CoolerArticleResource.get);
+      const managers = getManagers();
+      const tree = (
+        <DataProvider managers={managers} devButton={null}>
+          <Suspense fallback="loading">
+            <Article endpoint={get.endpoint} />
+          </Suspense>
+        </DataProvider>
+      );
+      const first = render(tree);
+      await wait(0);
+      first.unmount();
 
-    const { container } = render(tree);
-    await wait(0);
-    expect(get.pending).toHaveLength(2);
-    await get.resolve(0, 'old');
-    expect(container.textContent).toBe('loading');
-    // the old response neither settles the new store's fetch nor triggers a refetch
-    await wait(0);
-    expect(container.textContent).toBe('loading');
-    expect(get.pending).toHaveLength(2);
-    await get.resolve(1, 'new');
-    expect(container.textContent).toBe('new');
-  });
+      const { container } = render(tree);
+      await wait(0);
+      expect(get.pending).toHaveLength(2);
+      await settleOld(get);
+      expect(container.textContent).toBe('loading');
+      // the old fetch neither settles the new store's fetch nor triggers a refetch
+      await wait(0);
+      expect(container.textContent).toBe('loading');
+      expect(get.pending).toHaveLength(2);
+      await get.resolve(1, 'new');
+      expect(container.textContent).toBe('new');
+    },
+  );
 });

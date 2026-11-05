@@ -57,7 +57,7 @@ export default class NetworkManager implements Manager {
     return next => action => {
       switch (action.type) {
         case FETCH:
-          this.handleFetch(action, controller);
+          this.handleFetch(action);
           // This is the only case that causes any state change
           // It's important to intercept other fetches as we don't want to trigger reducers during
           // render - so we need to stop 'readonly' fetches which can be triggered in render
@@ -147,8 +147,8 @@ export default class NetworkManager implements Manager {
     }
   }
 
-  protected getLastReset(controller: Controller = this.controller) {
-    return controller.getState().lastReset;
+  protected getLastReset() {
+    return this.controller.getState().lastReset;
   }
 
   /** Called when middleware intercepts 'rdc/fetch' action.
@@ -159,15 +159,11 @@ export default class NetworkManager implements Manager {
    * Uses throttle endpoints without sideEffects. This is valuable
    * for ensures mutation requests always go through.
    */
-  protected handleFetch(
-    action: FetchAction,
-    // the store that dispatched it; its response goes there even after this manager binds a new one.
-    // Overrides should pass it on to super.handleFetch(). The default only serves older callers.
-    /* istanbul ignore next */
-    controller: Controller = this.controller,
-  ) {
+  protected handleFetch(action: FetchAction) {
     const { resolve, reject, fetchedAt } = action.meta;
     const throttle = !action.endpoint.sideEffect;
+    // A provider remounted with this manager binds a new store; responses for the old one are dropped
+    const controller = this.controller;
 
     const deferedFetch = () => {
       let promise = action.endpoint(...action.args);
@@ -191,7 +187,8 @@ export default class NetworkManager implements Manager {
       }
       promise = promise
         .then(response => {
-          let lastReset = this.getLastReset(controller);
+          if (controller !== this.controller) return response;
+          let lastReset = this.getLastReset();
 
           /* istanbul ignore else */
           if (process.env.NODE_ENV !== 'production' && isNaN(lastReset)) {
@@ -212,9 +209,11 @@ export default class NetworkManager implements Manager {
           return response;
         })
         .catch(error => {
-          const lastReset = this.getLastReset(controller);
           // don't update state with promises started before last clear
-          if (fetchedAt >= lastReset) {
+          if (
+            controller === this.controller &&
+            fetchedAt >= this.getLastReset()
+          ) {
             controller.resolve(action.endpoint, {
               args: action.args,
               response: error,
