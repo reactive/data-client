@@ -12,6 +12,9 @@ import { ReducerAction } from './ReducerAction.js';
 import { Middleware, Dispatch } from './types.js';
 import usePromisifiedDispatch from './usePromisifiedDispatch.js';
 
+/* istanbul ignore next */
+const LegacyReact = version.startsWith('16') || version.startsWith('17');
+
 export const unsetDispatch = () => {
   throw new Error(
     `Dispatching while constructing your middleware is not allowed. ` +
@@ -62,10 +65,8 @@ export default function useEnhancedReducer<R extends React.Reducer<any, any>>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatchWithPromise, ...middlewares]);
 
-  // React 16 and 17 warn about updates to unmounted components, so ignore dispatches after unmount there,
-  // even in other middlewares. Newer React ignores those updates on its own, and runs Effect cleanup
-  // when <Activity> hides a component that stays mounted, whose store must keep taking dispatches.
-  // Using a ref keeps this symmetric, so running the Effect again has no adverse effects.
+  // React 16/17 warn about updates after unmount, so drop dispatches there (even in other middlewares).
+  // Newer React ignores them itself, and a provider hidden by <Activity> must keep dispatching.
   useEffect(() => {
     if (!LegacyReact) return;
     protectedDispatchRef.current = outerDispatchRef.current;
@@ -87,9 +88,6 @@ export default function useEnhancedReducer<R extends React.Reducer<any, any>>(
 
   return [state, outerDispatch, getState];
 }
-
-/* istanbul ignore next */
-const LegacyReact = version.startsWith('16') || version.startsWith('17');
 
 const compose = (fns: ((...args: any) => any)[]) => (initial: any) =>
   fns.reduceRight((v, f) => f(v), initial);

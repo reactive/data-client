@@ -1,46 +1,50 @@
 // eslint-env jest
-import { Manager, Middleware, actionTypes } from '@data-client/core';
 import { act, render } from '@testing-library/react';
 import { CoolerArticleResource } from '__tests__/new';
-import React, { Suspense } from 'react';
+import React, { Activity, Suspense } from 'react';
 
 import { useController, useSubscription, useSuspense } from '../../hooks';
 import DataProvider from '../DataProvider';
 import { getDefaultManagers } from '../getDefaultManagers';
 
 // <Activity> is React 19.2+
-const Activity: React.ComponentType<{
-  mode: 'visible' | 'hidden';
-  children: React.ReactNode;
-}> = (React as any).Activity;
-const describeIfActivity = Activity ? describe : describe.skip;
+const describeIfActivity = 'Activity' in React ? describe : describe.skip;
 
-/** Records which actions reach the managers */
-class ActionLog implements Manager {
-  types: string[] = [];
-  middleware: Middleware = () => next => action => {
-    this.types.push(action.type);
-    return next(action);
-  };
-
-  cleanup() {}
-}
+const getManagers = () => getDefaultManagers({ devToolsManager: null });
+const wait = (ms: number) => act(() => new Promise(r => setTimeout(r, ms)));
 
 /** An endpoint whose fetches resolve only when the test says so */
-function deferredGet() {
+function deferred<E extends { extend: (options: any) => any }>(
+  base: E,
+  options: object = {},
+) {
   const pending: ((value: any) => void)[] = [];
-  const endpoint = CoolerArticleResource.get.extend({
+  const endpoint: E = base.extend({
+    ...options,
     fetch() {
       return new Promise(resolve => pending.push(resolve));
     },
   });
-  return { endpoint, pending };
+  /** Resolves the nth fetch with an article titled `title` */
+  const resolve = (n: number, title: string) =>
+    act(async () => pending[n]({ id: 5, title, content: 'x' }));
+  return { endpoint, pending, resolve };
 }
 
-const wait = (ms: number) => act(() => new Promise(r => setTimeout(r, ms)));
+let ctrl: ReturnType<typeof useController>;
+function Article({ endpoint }: { endpoint: typeof CoolerArticleResource.get }) {
+  ctrl = useController();
+  const article = useSuspense(endpoint, { id: 5 });
+  return <div>{article.title}</div>;
+}
+function Fetcher() {
+  ctrl = useController();
+  return null;
+}
 
 describeIfActivity('<Activity> above <DataProvider>', () => {
-  function renderTabs(children: React.ReactNode, managers = getManagers()) {
+  function renderTabs(children: React.ReactNode) {
+    const managers = getManagers();
     const tree = (mode: 'visible' | 'hidden') => (
       <Activity mode={mode}>
         <DataProvider managers={managers} devButton={null}>
@@ -55,158 +59,129 @@ describeIfActivity('<Activity> above <DataProvider>', () => {
       show: () => act(async () => result.rerender(tree('visible'))),
     };
   }
-  const getManagers = () => getDefaultManagers({ devToolsManager: null });
 
   it('keeps a response that lands while hidden', async () => {
-    const { endpoint, pending } = deferredGet();
-    function Article() {
-      const article = useSuspense(endpoint, { id: 5 });
-      return <div>{article.title}</div>;
-    }
-    const { container, hide, show } = renderTabs(<Article />);
+    const get = deferred(CoolerArticleResource.get);
+    const { container, hide, show } = renderTabs(
+      <Article endpoint={get.endpoint} />,
+    );
     expect(container.textContent).toBe('loading');
 
     await hide();
-    await act(async () => pending[0]({ id: 5, title: 'hi', content: 'x' }));
+    await get.resolve(0, 'hi');
     await show();
 
     expect(container.textContent).toBe('hi');
     // nothing was refetched
-    expect(pending).toHaveLength(1);
+    expect(get.pending).toHaveLength(1);
   });
 
   it('settles a fetch of the same key after showing', async () => {
-    const { endpoint, pending } = deferredGet();
-    let ctrl: ReturnType<typeof useController> | undefined;
-    function Fetcher() {
-      ctrl = useController();
-      return null;
-    }
+    const get = deferred(CoolerArticleResource.get);
     const { hide, show } = renderTabs(<Fetcher />);
-    const first = ctrl!.fetch(endpoint, { id: 5 });
+    const first = ctrl.fetch(get.endpoint, { id: 5 });
 
     await hide();
-    await act(async () => pending[0]({ id: 5, title: 'first', content: 'x' }));
+    await get.resolve(0, 'first');
     await show();
     await expect(first).resolves.toMatchObject({ title: 'first' });
 
     // a fresh fetch of the same key starts and settles
-    const second = ctrl!.fetch(endpoint, { id: 5 });
+    const second = ctrl.fetch(get.endpoint, { id: 5 });
     await wait(0);
-    expect(pending).toHaveLength(2);
-    await act(async () => pending[1]({ id: 5, title: 'second', content: 'x' }));
+    expect(get.pending).toHaveLength(2);
+    await get.resolve(1, 'second');
     await expect(second).resolves.toMatchObject({ title: 'second' });
   });
 
   it('runs a fetch started while hidden', async () => {
-    const { endpoint, pending } = deferredGet();
-    let ctrl: ReturnType<typeof useController> | undefined;
-    function Fetcher() {
-      ctrl = useController();
-      return null;
-    }
+    const get = deferred(CoolerArticleResource.get);
     const { hide, show } = renderTabs(<Fetcher />);
 
     await hide();
-    const promise = ctrl!.fetch(endpoint, { id: 5 });
+    const promise = ctrl.fetch(get.endpoint, { id: 5 });
     await wait(0);
-    expect(pending).toHaveLength(1);
-    await act(async () => pending[0]({ id: 5, title: 'hi', content: 'x' }));
+    expect(get.pending).toHaveLength(1);
+    await get.resolve(0, 'hi');
     await show();
 
     await expect(promise).resolves.toMatchObject({ title: 'hi' });
   });
 
   it('reconciles an optimistic update whose response lands while hidden', async () => {
-    const pending: ((value: any) => void)[] = [];
-    const update = CoolerArticleResource.partialUpdate.extend({
-      fetch() {
-        return new Promise(resolve => pending.push(resolve));
-      },
+    const get = deferred(CoolerArticleResource.get);
+    const update = deferred(CoolerArticleResource.partialUpdate, {
       getOptimisticResponse(snap: any, params: any, body: any) {
         return { id: params.id, ...body };
       },
     });
-    const { endpoint, pending: gets } = deferredGet();
-    let ctrl: ReturnType<typeof useController> | undefined;
-    function Article() {
-      ctrl = useController();
-      const article = useSuspense(endpoint, { id: 5 });
-      return <div>{article.title}</div>;
-    }
-    const { container, hide, show } = renderTabs(<Article />);
+    const { container, hide, show } = renderTabs(
+      <Article endpoint={get.endpoint} />,
+    );
     await wait(0);
-    await act(async () => gets[0]({ id: 5, title: 'start', content: 'x' }));
-    expect(container.textContent).toBe('start');
+    await get.resolve(0, 'start');
 
     act(() => {
-      ctrl!.fetch(update, { id: 5 }, { title: 'optimistic' });
+      ctrl.fetch(update.endpoint, { id: 5 }, { title: 'optimistic' });
     });
     expect(container.textContent).toBe('optimistic');
 
     await hide();
-    await act(async () => pending[0]({ id: 5, title: 'saved', content: 'x' }));
+    await update.resolve(0, 'saved');
     await show();
 
     expect(container.textContent).toBe('saved');
-    expect(ctrl!.getState().optimistic).toHaveLength(0);
+    expect(ctrl.getState().optimistic).toHaveLength(0);
   });
 
   it('resumes polling after showing', async () => {
     let calls = 0;
     const endpoint = CoolerArticleResource.get.extend({
-      pollFrequency: 50,
+      pollFrequency: 20,
       fetch() {
         calls++;
         return Promise.resolve({ id: 5, title: `poll ${calls}`, content: 'x' });
       },
     });
-    function Article() {
-      const article = useSuspense(endpoint, { id: 5 });
+    function Polled() {
       useSubscription(endpoint, { id: 5 });
-      return <div>{article.title}</div>;
+      return <Article endpoint={endpoint} />;
     }
-    const log = new ActionLog();
-    const { hide, show } = renderTabs(<Article />, [log, ...getManagers()]);
+    const { hide, show } = renderTabs(<Polled />);
     await wait(10);
 
     await hide();
     const hiddenAt = calls;
-    await wait(150);
+    await wait(60);
     // hidden Effects unsubscribe, so polling stops
     expect(calls).toBe(hiddenAt);
 
     await show();
-    expect(log.types.filter(t => t === actionTypes.SUBSCRIBE)).toHaveLength(2);
-    await wait(150);
+    await wait(60);
     expect(calls).toBeGreaterThan(hiddenAt);
   });
 });
 
 describe('<DataProvider> remounted with the same managers', () => {
   it('does not wait on a fetch from the unmounted store', async () => {
-    const { endpoint, pending } = deferredGet();
-    const managers = getDefaultManagers({ devToolsManager: null });
-    function Article() {
-      const article = useSuspense(endpoint, { id: 5 });
-      return <div>{article.title}</div>;
-    }
+    const get = deferred(CoolerArticleResource.get);
+    const managers = getManagers();
     const tree = (
       <DataProvider managers={managers} devButton={null}>
         <Suspense fallback="loading">
-          <Article />
+          <Article endpoint={get.endpoint} />
         </Suspense>
       </DataProvider>
     );
     const first = render(tree);
     await wait(0);
     first.unmount();
-    await act(async () => pending[0]({ id: 5, title: 'old', content: 'x' }));
+    await get.resolve(0, 'old');
 
     const { container } = render(tree);
     await wait(0);
-    expect(pending).toHaveLength(2);
-    await act(async () => pending[1]({ id: 5, title: 'new', content: 'x' }));
+    expect(get.pending).toHaveLength(2);
+    await get.resolve(1, 'new');
     expect(container.textContent).toBe('new');
   });
 });

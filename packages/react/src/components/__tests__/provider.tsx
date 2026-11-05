@@ -8,13 +8,14 @@ import {
 import { act, render } from '@testing-library/react';
 import { CoolerArticleResource } from '__tests__/new';
 import nock from 'nock';
-import React, { useContext, Suspense, StrictMode, version } from 'react';
+import React, { useContext, Suspense, StrictMode } from 'react';
 
 import { ControllerContext, StateContext } from '../../context';
 import { useController, useSuspense } from '../../hooks';
 import { payload } from '../../test-fixtures';
 import DataProvider from '../DataProvider';
 import { getDefaultManagers } from '../getDefaultManagers';
+import { LegacyReact } from '../LegacyReact';
 
 describe('<DataProvider />', () => {
   let errorSpy: jest.SpyInstance;
@@ -222,7 +223,7 @@ describe('<DataProvider />', () => {
       { id: 5 },
       { id: 5, title: 'hi' },
     );
-    if (version.startsWith('16') || version.startsWith('17')) {
+    if (LegacyReact) {
       // these versions warn about updates after unmount, so the store drops them
       await promise;
       expect(debugspy.mock.calls[0]).toMatchInlineSnapshot(`
