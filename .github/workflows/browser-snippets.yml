@@ -1,0 +1,57 @@
+name: browser-snippets
+# Runs the agents' browser debugging snippets (docs/core/_agents/devtools-debugging.md)
+# in Chromium with yarn check:browser-snippets. Not a required check: it runs
+# only when its inputs change, so most PRs never start it.
+on:
+  push:
+    branches:
+      - master
+    paths: &paths
+      # Inputs of checkBrowserSnippets.mjs: the page, the checker and the
+      # docs renderer it reads the page with, and the packages its test app
+      # bundles from source
+      - 'docs/core/_agents/devtools-debugging.md'
+      - 'website/framework-docs/**'
+      - '!website/framework-docs/**/*.test.mjs'
+      - '!website/framework-docs/**/*.md'
+      - 'website/scripts/workspaceSources.mjs'
+      - 'packages/core/src/**'
+      - 'packages/react/src/**'
+      - 'packages/rest/src/**'
+      - 'packages/endpoint/src/**'
+      - 'packages/normalizr/src/**'
+      - '!packages/**/__tests__/**'
+      - 'website/package.json'
+      - '.github/workflows/browser-snippets.yml'
+      - '.github/actions/website-install/**'
+  pull_request:
+    branches:
+      - master
+    paths: *paths
+
+concurrency:
+  group: browser-snippets-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: browser-snippets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Install packages
+        uses: ./.github/actions/website-install
+      - name: Run the agents' browser debugging snippets
+        # The runner image's Chrome, with its system libraries already
+        # installed: Playwright's browser download and apt install-deps cost
+        # time and stall on slow Ubuntu mirrors
+        env:
+          CHROMIUM_PATH: /usr/bin/google-chrome
+        run: yarn check:browser-snippets
