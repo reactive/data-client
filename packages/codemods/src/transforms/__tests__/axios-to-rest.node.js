@@ -669,7 +669,7 @@ const data = (await axios.get('/users')) as AxiosResponse<User>;
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
-// TODO(data-client): replace axios's \`AxiosResponse\` type, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
+// TODO(data-client): replace axios's \`AxiosResponse\`, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
 import { AxiosResponse } from 'axios';
 // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const data = (await new RestEndpoint({
@@ -740,7 +740,7 @@ import type { AxiosResponse } from 'axios';
 const x: AxiosResponse = {};
       `,
       `
-// TODO(data-client): replace axios's \`AxiosResponse\` type, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
+// TODO(data-client): replace axios's \`AxiosResponse\`, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
 import type { AxiosResponse } from 'axios';
 const x: AxiosResponse = {};
       `,
@@ -852,7 +852,7 @@ const x: AxiosResponse<User> = result;
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
-// TODO(data-client): replace axios's \`AxiosResponse\` type, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
+// TODO(data-client): replace axios's \`AxiosResponse\`, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
 import { AxiosResponse } from 'axios';
 // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new RestEndpoint({
@@ -2016,7 +2016,7 @@ export async function getUser(id: string) {
       `,
       `
 import { RestEndpoint, RestGenerics } from '@data-client/rest';
-// TODO(data-client): replace axios's \`AxiosRequestConfig\` type, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
+// TODO(data-client): replace axios's \`AxiosRequestConfig\`, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
 import { AxiosRequestConfig } from 'axios';
 
 class ApiEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
@@ -2050,7 +2050,7 @@ export const load = () => axios.get('/users').then(res => res.data);
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
-// TODO(data-client): replace axios's \`AxiosRequestConfig\` type, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
+// TODO(data-client): replace axios's \`AxiosRequestConfig\`, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
 import type { AxiosRequestConfig } from 'axios';
 
 const loadEndpoint = new RestEndpoint({
@@ -2066,7 +2066,15 @@ export const load = () => loadEndpoint();
     tsTest(
       `
 import axios, { AxiosResponse } from 'axios';
-export type Shape = { AxiosResponse: number };
+export type Shape = { AxiosResponse: number; AxiosResponse2(): void };
+export type Qualified = Other.AxiosResponse;
+export enum Kind { AxiosResponse = 1 }
+export class Holder {
+  AxiosResponse = 1;
+  AxiosResponse2(a: string): void;
+  AxiosResponse2() {}
+}
+export const store = { AxiosResponse() {} };
 export const load = () => axios.get('/users').then(res => res.data);
       `,
       `
@@ -2076,10 +2084,40 @@ const loadEndpoint = new RestEndpoint({
   path: '/users'
 });
 
-export type Shape = { AxiosResponse: number };
+export type Shape = { AxiosResponse: number; AxiosResponse2(): void };
+export type Qualified = Other.AxiosResponse;
+export enum Kind { AxiosResponse = 1 }
+export class Holder {
+  AxiosResponse = 1;
+  AxiosResponse2(a: string): void;
+  AxiosResponse2() {}
+}
+export const store = { AxiosResponse() {} };
 export const load = () => loadEndpoint();
       `,
-      'drops a type that only a property key spells',
+      'drops a type that only member keys and qualified names spell',
+    );
+
+    tsTest(
+      `
+import axios, { AxiosHeaders } from 'axios';
+export const headers = new AxiosHeaders();
+export const load = () => axios.get('/users');
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): replace axios's \`AxiosHeaders\`, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
+import { AxiosHeaders } from 'axios';
+
+const loadEndpoint = new RestEndpoint({
+  path: '/users'
+});
+
+export const headers = new AxiosHeaders();
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+export const load = () => loadEndpoint();
+      `,
+      'marks a listed axios name that code still constructs',
     );
 
     tsTest(
@@ -2116,7 +2154,7 @@ export const load = () => axios.get('/users');
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
-// TODO(data-client): replace axios's \`AxiosError\` type, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
+// TODO(data-client): replace axios's \`AxiosError\`, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
 import { AxiosError } from 'axios';
 
 const loadEndpoint = new RestEndpoint({

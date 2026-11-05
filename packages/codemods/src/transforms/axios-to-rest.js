@@ -115,6 +115,7 @@ const KEYED = new Set([
   'ObjectMethod',
   'TSPropertySignature',
   'TSMethodSignature',
+  'TSDeclareMethod',
 ]);
 
 /** Whether an Identifier reads its binding, rather than naming an import, property or key */
@@ -127,6 +128,9 @@ function isRead(path, { types = true } = {}) {
     !parent.computed
   )
     return false;
+  if (parent.type === 'TSQualifiedName' && parent.right === path.node)
+    return false;
+  if (parent.type === 'TSEnumMember' && parent.id === path.node) return false;
   if (
     KEYED.has(parent.type) &&
     parent.key === path.node &&
@@ -245,8 +249,9 @@ function transformImports(
       if (isKnown(s)) return isLive(s);
       return axiosStillUsed || s.type !== 'ImportDefaultSpecifier';
     });
+    // the names a remove-axios TODO lists; runtime uses of the others are marked where they're read
     const keptTypes = remaining
-      .filter(s => isKnown(s) && !isLive(s, { types: false }))
+      .filter(s => isType(s) || (isRuntime(s) && !isLive(s, { types: false })))
       .map(s => s.local.name);
 
     if (!remaining.length) {
@@ -263,7 +268,7 @@ function transformImports(
       addTodo(
         j,
         decl,
-        `replace axios's ${keptTypes.map(n => `\`${n}\``).join(', ')} ${keptTypes.length > 1 ? 'types' : 'type'}, then remove this import`,
+        `replace axios's ${keptTypes.map(n => `\`${n}\``).join(', ')}, then remove this import`,
         'remove-axios',
       );
       dirty = true;
