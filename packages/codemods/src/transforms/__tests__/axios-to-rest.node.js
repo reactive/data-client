@@ -314,12 +314,12 @@ const result = api.get('/users');
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
-const other = 123;
 
 class ApiEndpoint extends RestEndpoint {
   urlPrefix = '/api';
 }
 
+const other = 123;
 // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new ApiEndpoint({
   path: '/users'
@@ -356,12 +356,12 @@ const result = api.get('/users');
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
-export const other = 123;
 
 export class ApiEndpoint extends RestEndpoint {
   urlPrefix = '/api';
 }
 
+export const other = 123;
 // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new ApiEndpoint({
   path: '/users'
@@ -400,6 +400,30 @@ export async function getUsers() {
 }
       `,
       'defines the class and its endpoints after the config declared beside it',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+export const baseURL = '/api', api = axios.create({ baseURL }), users = api.get('/users');
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+export const baseURL = '/api';
+
+// TODO(data-client): make sure \`urlPrefix\` has no trailing \`/\`, since every path starts with one: https://dataclient.io/rest/guides/axios-migration#base-endpoint
+export class ApiEndpoint extends RestEndpoint {
+  urlPrefix = baseURL;
+}
+
+// TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+export const users = new ApiEndpoint({
+  path: '/users'
+})();
+      `,
+      'defines the class between the declarators it reads and those that use it',
     );
   });
 

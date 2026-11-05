@@ -240,16 +240,16 @@ function transformImports(
     const isRuntime = s =>
       s.type === 'ImportSpecifier' &&
       AXIOS_RUNTIME_IMPORTS.has(specName(s.imported));
-    const isLive = s =>
-      hasLiveReference(j, root, s.local.name, importPath.scope);
     const isKnown = s => isType(s) || isRuntime(s);
 
     // a name stays while code still reads it, even as a type; tsc fails without it
     const remaining = decl.specifiers.filter(s => {
-      if (isKnown(s)) return isLive(s);
+      if (isKnown(s))
+        return hasLiveReference(j, root, s.local.name, importPath.scope);
       return axiosStillUsed || s.type !== 'ImportDefaultSpecifier';
     });
-    // axios's own names left after the calls convert, which keep axios installed
+    // axios's own names left after the calls convert, which keep axios installed;
+    // a runtime read also gets a TODO naming its replacement where it's read
     const keptNames = remaining.filter(isKnown).map(s => s.local.name);
 
     if (!remaining.length) {
@@ -435,13 +435,28 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
         : classDecl;
       markOptions(classStatement);
 
-      if (variableDecl.declarations.length === 1) {
+      const { declarations } = variableDecl;
+      const index = declarations.indexOf(declPath.node);
+      const before = declarations.slice(0, index);
+      const after = declarations.slice(index + 1);
+      // the class can read the declarators before it, and those after can use it
+      if (!before.length && !after.length) {
         j(statementPath).replaceWith(classStatement);
+      } else if (!before.length) {
+        variableDecl.declarations = after;
+        j(statementPath).insertBefore(classStatement);
       } else {
-        variableDecl.declarations = variableDecl.declarations.filter(
-          declaration => declaration !== declPath.node,
-        );
-        j(statementPath).insertAfter(classStatement);
+        variableDecl.declarations = before;
+        const rest = [];
+        if (after.length) {
+          const afterDecl = j.variableDeclaration(variableDecl.kind, after);
+          rest.push(
+            statementPath.node.type === 'ExportNamedDeclaration' ?
+              j.exportNamedDeclaration(afterDecl)
+            : afterDecl,
+          );
+        }
+        j(statementPath).insertAfter([classStatement, ...rest]);
       }
     } else {
       markOptions(classDecl);

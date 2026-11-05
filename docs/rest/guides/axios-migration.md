@@ -156,9 +156,10 @@ What it can't convert, such as interceptors, `timeout`, `isAxiosError()` or a fu
 response to its callers, gets a `// TODO(data-client):` comment linking the section below that covers it. Search for
 `TODO(data-client)` and resolve each one as you go through the next steps.
 
-Endpoints are now built when their module loads. If the module that defines the base class imports a module that
-builds endpoints from it, that import runs first and fails with `Cannot access 'ApiEndpoint' before initialization`.
-Break the import cycle, or move those endpoints into the module that defines the base class.
+Endpoints the codemod moves to module level are built when their module loads. If the module that defines the base
+class imports a module that builds endpoints from it, that import runs first and fails with
+`Cannot access 'ApiEndpoint' before initialization`. Break the import cycle, or move those endpoints into the module
+that defines the base class.
 
 If the project wraps axios in its own class or function and never calls `axios.get()` or `.post()` directly, or only
 calls `axios(config)`, the codemod has little to do. Skip it and start at [step 3](#base-endpoint).
