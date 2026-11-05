@@ -84,7 +84,7 @@ Median ops/s per scenario; range is approximate 95% CI margin from the runner (`
 
 Run: **2026-11-05**, Linux (WSL2), `yarn build:benchmark-react`, `yarn preview` + `env -u CI npx tsx bench/runner.ts --network-sim true`, twice (all libraries; memory scenarios not included). Each value is the median of the two runs; each range is the mean of their margins. Numbers are **machine-specific**; use them for relative comparison between libraries, not as absolutes.
 
-This run used master after [#4580](https://github.com/reactive/data-client/pull/4580) (TanStack Query 5.96.2, SWR 2.5.1, React 19.3.1) with the current convergent settings: 40 warmup + 10–60 samples at ±6% (small), 25 warmup + 10–50 samples at ±10% (large). The charts on the docs site still come from the earlier run in [Benchmark methodology](./METHODOLOGY.md).
+This run used master after [#4580](https://github.com/reactive/data-client/pull/4580) (TanStack Query 5.96.2, SWR 2.5.1, React 19.3.1) with the current convergent settings: 40 warmup + 10–60 samples at ±6% (small), 25 warmup + 10–50 samples at ±10% (large). The charts on the docs site come from this run; [Benchmark methodology](./METHODOLOGY.md) has the details.
 
 | Scenario | data-client | tanstack-query | swr | baseline |
 |---|---:|---:|---:|---:|

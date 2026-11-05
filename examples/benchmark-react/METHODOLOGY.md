@@ -7,44 +7,45 @@ yourself, change it, or point it at your own workload.
 
 ## Summary
 
-- The charts come from one local run on **2026-03-22** at commit
-  [`57b2f97`](https://github.com/reactive/data-client/commit/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05).
+- The charts come from two local runs on **2026-11-05** at commit
+  [`fde2da8`](https://github.com/reactive/data-client/commit/fde2da82122096f24b92e789722469271918b5c3) (master after
+  [#4580](https://github.com/reactive/data-client/pull/4580), plus the harness fix in
+  [#4584](https://github.com/reactive/data-client/pull/4584)). Each value is the median of the two runs.
 - Each simulated request costs **40 ms + 1 ms per 20 records**.
   Most of the gap comes from requests Data Client doesn't wait for or repeat:
   - Navigation renders detail views from entities already in the list response.
   - Mutations update the store [optimistically](https://dataclient.io/docs/getting-started/mutations) in one write.
   - The other libraries wait for the mutation response, then invalidate and refetch.
 - Ratios on the [Performance page](https://dataclient.io/docs/concepts/performance) are relative to the plain React baseline.
-  Against TanStack Query and SWR directly, navigation is **10.6x** and **10.9x**, and the
-  `update-entity` mutation is **95.5x** and **94x**.
+  Against TanStack Query and SWR directly, navigation is **21.1x** and **21.4x**, and the
+  `update-entity` mutation is **186.5x** and **187.5x**.
 
 ## Environment
 
 | | |
 |---|---|
-| Date | 2026-03-22 |
-| Commit | [`57b2f97`](https://github.com/reactive/data-client/commit/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05) |
+| Date | 2026-11-05 |
+| Commit | [`fde2da8`](https://github.com/reactive/data-client/commit/fde2da82122096f24b92e789722469271918b5c3) |
 | CPU | AMD Ryzen 9 7950X |
 | Memory | 64 GB |
 | OS | Ubuntu on WSL2 (Windows host) |
-| Node | 24.12.0 |
-| Browser | Headless Chromium bundled with Playwright 1.58.2 |
+| Node | 26.12.1 |
+| Browser | Headless Chromium bundled with Playwright 1.64.0 |
 | CPU throttling | None |
 | Build | Webpack production build with React Compiler enabled for all four apps |
 
-The run was on a developer workstation, not an isolated machine. The exact Chromium version and
-WSL kernel were not recorded. The runner and dependencies have changed since; the charts have not been
-re-measured. See the [README](./README.md#methodology)
+The runs were on a developer workstation, not an isolated machine. The exact Chromium version and
+WSL kernel were not recorded. See the [README](./README.md#methodology)
 for how the benchmark runs today.
 
 ### Library versions
 
 | Library | Version |
 |---|---|
-| `@data-client/react` | Workspace source at the commit above (0.15.7) |
-| `@tanstack/react-query` | 5.62.7 |
-| `swr` | 2.4.1 |
-| `react` / `react-dom` | 19.2.3 |
+| `@data-client/react` | Workspace source at the commit above (0.18.1) |
+| `@tanstack/react-query` | 5.96.2 |
+| `swr` | 2.5.1 |
+| `react` / `react-dom` | 19.3.1 |
 
 ## How each library is configured
 
@@ -65,15 +66,17 @@ the gap. They require writing each cache update by hand for every query an entit
 which is the work normalization does for you.
 
 See the implementations in
-[`src/data-client`](https://github.com/reactive/data-client/blob/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05/examples/benchmark-react/src/data-client/index.tsx),
-[`src/tanstack-query`](https://github.com/reactive/data-client/blob/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05/examples/benchmark-react/src/tanstack-query/index.tsx),
-[`src/swr`](https://github.com/reactive/data-client/blob/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05/examples/benchmark-react/src/swr/index.tsx) and
-[`src/baseline`](https://github.com/reactive/data-client/blob/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05/examples/benchmark-react/src/baseline/index.tsx).
+[`src/data-client`](https://github.com/reactive/data-client/blob/fde2da82122096f24b92e789722469271918b5c3/examples/benchmark-react/src/data-client/index.tsx),
+[`src/tanstack-query`](https://github.com/reactive/data-client/blob/fde2da82122096f24b92e789722469271918b5c3/examples/benchmark-react/src/tanstack-query/index.tsx),
+[`src/swr`](https://github.com/reactive/data-client/blob/fde2da82122096f24b92e789722469271918b5c3/examples/benchmark-react/src/swr/index.tsx) and
+[`src/baseline`](https://github.com/reactive/data-client/blob/fde2da82122096f24b92e789722469271918b5c3/examples/benchmark-react/src/baseline/index.tsx).
 
 ## What is measured
 
 Each sample is the wall-clock time from triggering an action until a `MutationObserver` sees the
 expected change in the DOM. That covers the fetch, cache update, React render and DOM commit.
+Data Client's optimistic mutations render before the server replies, so the worker holds their
+replies until the window ends; the other libraries wait for the reply inside their windows.
 Throughput is reported as operations per second (`1000 / ms`).
 
 ### Simulated network
@@ -98,12 +101,12 @@ but no run without it was published.
 
 Other scenarios (initial list load, sorted views, create, delete, move, multi-view) are in the
 table below. Scenario definitions are in
-[`bench/scenarios.ts`](https://github.com/reactive/data-client/blob/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05/examples/benchmark-react/bench/scenarios.ts).
+[`bench/scenarios.ts`](https://github.com/reactive/data-client/blob/fde2da82122096f24b92e789722469271918b5c3/examples/benchmark-react/bench/scenarios.ts).
 
 ## Sampling and statistics
 
 - Each library gets a fresh browser context, and each scenario a fresh page load. Libraries run one
-  after another, and garbage collection is forced before every scenario and every 15 iterations.
+  after another, and garbage collection is forced before every scenario, not between its iterations.
 - Within that page, the scenario repeats: warmup iterations are discarded, then measured iterations
   continue until the 95% confidence interval falls within a target, or a cap is hit.
   Navigation and list-load iterations clear the library's cache first; mutation iterations reuse
@@ -111,8 +114,8 @@ table below. Scenario definitions are in
 
   | Scenario size | Warmup iterations (discarded) | Measured samples | Stop when 95% CI within |
   |---|---|---|---|
-  | Small (`getlist-100`, `update-entity`, `unshift-item`, `delete-item`, `move-item`) | 5 | 5 to 50 | ±8% |
-  | Large (everything else, including navigation and 10k scaling) | 3 | 5 to 40 | ±12% |
+  | Small (`getlist-100`, `update-entity`, `unshift-item`, `delete-item`, `move-item`) | 40 | 10 to 60 | ±6% |
+  | Large (everything else, including navigation and 10k scaling) | 25 | 10 to 50 | ±10% |
 
 - Outliers beyond 1.5× the interquartile range are trimmed. The result is the median of the rest.
   The margin is Student's t critical value times a robust standard error (scaled median absolute
@@ -122,25 +125,26 @@ table below. Scenario definitions are in
 ## Results
 
 Median operations per second, higher is better. The ± value is the 95% CI margin as a percentage
-of the median. Time per operation is `1000 ÷ ops/s`.
+of the median. Each value is the median of two runs, and each margin the mean of their margins.
+Time per operation is `1000 ÷ ops/s`.
 
 | Scenario | Data Client | TanStack Query | SWR | Baseline |
 |---|---:|---:|---:|---:|
 | **Navigation** | | | | |
-| `getlist-100` | 20.45 ± 2.3% | 20.62 ± 0.8% | 20.73 ± 0.2% | 20.73 ± 0.5% |
-| `getlist-500` | 12.53 ± 2.8% | 12.80 ± 0.2% | 12.71 ± 0.3% | 12.84 ± 0.2% |
-| `getlist-500-sorted` | 12.92 ± 5.1% | 12.93 ± 1.1% | 12.90 ± 0.7% | 13.16 ± 3.6% |
-| `list-detail-switch-10` | 17.38 ± 8.7% | 1.64 ± 1.7% | 1.59 ± 1.4% | 0.73 ± 0.1% |
+| `getlist-100` | 21.12 ± 0.5% | 21.36 ± 0.3% | 21.34 ± 0.3% | 21.37 ± 0.2% |
+| `getlist-500` | 13.70 ± 0.4% | 13.88 ± 0.7% | 13.89 ± 0.4% | 13.89 ± 0.5% |
+| `getlist-500-sorted` | 13.50 ± 0.4% | 13.75 ± 0.7% | 13.73 ± 0.6% | 13.76 ± 0.4% |
+| `list-detail-switch-10` | 47.22 ± 9.7% | 2.24 ± 0.7% | 2.21 ± 1.1% | 0.74 ± 0.2% |
 | **Mutations** | | | | |
-| `update-entity` | 666.67 ± 9.0% | 6.98 ± 0.4% | 7.09 ± 0.4% | 7.23 ± 0.8% |
-| `update-user` | 801.28 ± 9.4% | 7.04 ± 0.5% | 7.18 ± 0.1% | 7.24 ± 1.3% |
-| `update-entity-sorted` | 625.00 ± 10.8% | 7.10 ± 0.0% | 7.10 ± 1.2% | 7.29 ± 0.9% |
-| `update-entity-multi-view` | 645.83 ± 7.6% | 7.14 ± 0.2% | 7.16 ± 0.1% | 7.29 ± 0.3% |
-| `unshift-item` | 465.37 ± 3.6% | 6.90 ± 0.4% | 7.18 ± 0.2% | 7.21 ± 0.3% |
-| `delete-item` | 833.33 ± 6.0% | 6.93 ± 0.1% | 7.17 ± 0.7% | 7.19 ± 0.7% |
-| `move-item` | 333.33 ± 8.9% | 6.76 ± 0.6% | 6.99 ± 0.3% | 6.97 ± 0.2% |
+| `update-entity` | 1367.15 ± 5.7% | 7.33 ± 0.3% | 7.29 ± 0.2% | 7.42 ± 0.2% |
+| `update-user` | 1442.51 ± 11.1% | 7.33 ± 0.4% | 7.45 ± 0.3% | 7.45 ± 0.3% |
+| `update-entity-sorted` | 829.49 ± 5.0% | 7.31 ± 0.3% | 7.28 ± 0.4% | 7.40 ± 0.3% |
+| `update-entity-multi-view` | 837.74 ± 7.8% | 7.33 ± 0.4% | 7.29 ± 0.3% | 7.44 ± 0.3% |
+| `unshift-item` | 598.18 ± 5.8% | 7.32 ± 0.2% | 7.42 ± 0.2% | 7.42 ± 0.2% |
+| `delete-item` | 860.68 ± 5.3% | 7.29 ± 0.3% | 7.39 ± 0.3% | 7.38 ± 0.3% |
+| `move-item` | 542.07 ± 6.0% | 7.13 ± 0.7% | 7.34 ± 0.3% | 7.33 ± 0.5% |
 | **Scaling** | | | | |
-| `update-user-10000` | 144.93 ± 1.7% | 1.49 ± 0.6% | 1.56 ± 1.7% | 1.56 ± 1.5% |
+| `update-user-10000` | 174.04 ± 4.4% | 1.60 ± 0.3% | 1.66 ± 0.2% | 1.65 ± 0.2% |
 
 ### Chart values
 
@@ -148,15 +152,15 @@ The chart shows Data Client ÷ baseline for one scenario per group.
 
 | Chart group | Scenario | Data Client | TanStack Query | SWR | Data Client vs TanStack Query | Data Client vs SWR |
 |---|---|---:|---:|---:|---:|---:|
-| Cached Navigation | `list-detail-switch-10` | 57.5 ms (23.8×) | 610 ms (2.25×) | 629 ms (2.18×) | 10.6× | 10.9× |
-| Mutations | `update-entity` | 1.5 ms (92.2×) | 143 ms (0.97×) | 141 ms (0.98×) | 95.5× | 94.0× |
-| Scaling (10k) | `update-user-10000` | 6.9 ms (92.9×) | 671 ms (0.96×) | 641 ms (1.00×) | 97.3× | 92.9× |
+| Cached Navigation | `list-detail-switch-10` | 21.2 ms (63.8×) | 446 ms (3.03×) | 452 ms (2.99×) | 21.1× | 21.4× |
+| Mutations | `update-entity` | 0.73 ms (184.3×) | 136 ms (0.99×) | 137 ms (0.98×) | 186.5× | 187.5× |
+| Scaling (10k) | `update-user-10000` | 5.7 ms (105.5×) | 625 ms (0.97×) | 602 ms (1.01×) | 108.8× | 104.8× |
 
-Baseline times were 1,370 ms, 138 ms and 641 ms. Navigation times cover all ten round trips.
+Baseline times were 1,351 ms, 135 ms and 606 ms. Navigation times cover all ten round trips.
 
-Across the seven mutation scenarios, Data Client ranged from **48×** (`move-item`) to **116×**
-(`delete-item`) faster than the baseline. On the initial list loads, all four libraries were
-within 3% of each other.
+Across the seven mutation scenarios, Data Client ranged from **74×** (`move-item`) to **194×**
+(`update-user`) faster than the baseline. On the initial list loads, all four libraries were
+within 2% of each other.
 
 ## How to read these numbers
 
@@ -171,13 +175,13 @@ within 3% of each other.
 
 ## Reproduce it
 
-You need Node 22+ and a Linux, macOS or WSL machine that can run Playwright's Chromium.
+You need Node 22.18+ or 24.11+ and a Linux, macOS or WSL machine that can run Playwright's Chromium.
 
 ```bash
 git clone https://github.com/reactive/data-client.git
 cd data-client
 # Optional: match the published run's code and versions
-git checkout 57b2f975c81e9fa9d4d9d2f36dbc93e719549e05
+git checkout fde2da82122096f24b92e789722469271918b5c3
 yarn install
 yarn build:benchmark-react
 yarn workspace example-benchmark-react preview &

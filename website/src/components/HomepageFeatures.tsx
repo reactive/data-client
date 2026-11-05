@@ -56,21 +56,21 @@ const featureList: FeatureItem[] = [
           navigation: (
             <Link to="/docs/concepts/performance">
               <Translate id="homepage.features.performance.navigation">
-                24x faster
+                64x faster
               </Translate>
             </Link>
           ),
           mutations: (
             <Link to="/docs/concepts/performance">
               <Translate id="homepage.features.performance.mutations">
-                Mutations 92x
+                Mutations 184x
               </Translate>
             </Link>
           ),
         }}
       >
         {
-          'Navigation {navigation} than React baseline, 10x faster than TanStack Query and SWR. {mutations} faster than TanStack Query, SWR and React baseline.'
+          'Navigation {navigation} than React baseline, 21x faster than TanStack Query and SWR. {mutations} faster than TanStack Query, SWR and React baseline.'
         }
       </Translate>
     ),
