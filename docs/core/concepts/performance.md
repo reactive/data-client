@@ -37,7 +37,7 @@ sources={{
 
 - **Cached Navigation**: Navigating between a full list and items in the list ten times.[^nav]
 - **Mutation Propagation**: One store write updates every view that references the entity.[^mutation]
-- **Scaling**: Mutations with 10k items in the list rendered.[^scaling]
+- **Scaling**: Renaming one user with 10k items stored and 100 rendered.[^scaling]
 
 These benchmarks measure the framework's impact within the larger system. That
 makes them most useful as comparisons between approaches, rather than as
