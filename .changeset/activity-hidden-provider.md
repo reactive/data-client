@@ -24,4 +24,4 @@ A `DataProvider` remounted with the same `managers` also no longer waits on a re
 
 On React 18 and later, an action dispatched after a `DataProvider` really unmounts now reaches its managers, and React ignores the update. Its promise no longer resolves, so don't `await` controller calls after unmount. React 16 and 17 still drop these actions.
 
-[NetworkManager](https://dataclient.io/docs/api/NetworkManager)`.cleanupDate` is deprecated: nothing reads it now. Delete code that reads or sets it.
+[`NetworkManager.cleanupDate`](https://dataclient.io/docs/api/NetworkManager) is deprecated: nothing reads it now. Delete code that reads or sets it.

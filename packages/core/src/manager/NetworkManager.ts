@@ -161,7 +161,9 @@ export default class NetworkManager implements Manager {
    */
   protected handleFetch(
     action: FetchAction,
-    // the store that dispatched it; its response goes there even after this manager binds a new one
+    // the store that dispatched it; its response goes there even after this manager binds a new one.
+    // Overrides should pass it on to super.handleFetch(). The default only serves older callers.
+    /* istanbul ignore next */
     controller: Controller = this.controller,
   ) {
     const { resolve, reject, fetchedAt } = action.meta;
