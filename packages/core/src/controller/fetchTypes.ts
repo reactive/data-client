@@ -82,7 +82,7 @@ export interface ControllerFetch {
    */
   <E extends (...args: any) => any>(
     endpoint: E,
-    // a non-list (or `any`) body, or none, on an endpoint that adds to a list;
+    // a non-list (or `any`) body, or none, on an endpoint that adds to a list and whose body can be a list;
     // other endpoints skip this signature by arity, so their errors stay those of the last one
     ...args: AdderArgs<E, false>
   ): Promise<SchemaResult<E>>;
