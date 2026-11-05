@@ -850,7 +850,7 @@ processing fetch requests.
 
 Pass the `fetchedAt` of the fetch action being resolved (`action.meta.fetchedAt`). A response whose
 `fetchedAt` is before the last [resetEntireStore()](#resetEntireStore) is dropped, and it doesn't settle a
-newer fetch of the same key.
+request for the same key that was sent after it.
 
 ### subscribe(endpoint, ...args) {#subscribe}
 

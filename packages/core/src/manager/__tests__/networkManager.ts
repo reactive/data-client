@@ -413,7 +413,7 @@ describe('NetworkManager', () => {
       const dispatch = jest.fn((_action: any) => Promise.resolve());
       const controller = new Controller({ dispatch, getState });
       const next = jest.fn((_action: any) => Promise.resolve());
-      return { dispatch, handle: mgr.middleware(controller)(next) };
+      return { dispatch, next, handle: mgr.middleware(controller)(next) };
     };
 
     it('sends a fetch from a replaced store without writing it to the new one', async () => {
@@ -439,7 +439,10 @@ describe('NetworkManager', () => {
       const action = createFetch(endpoint, { args: [{ id: 5 }] });
       current.handle(action);
 
-      await old.handle({ type: RESET, date: Date.now() });
+      const reset = { type: RESET, date: Date.now() } as const;
+      await old.handle(reset);
+      expect(old.next).toHaveBeenCalledWith(reset);
+      // the bound store's fetch is still in flight
       expect(mgr.allSettled()).toBeDefined();
       mgr.cleanup();
     });
