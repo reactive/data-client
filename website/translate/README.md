@@ -24,7 +24,7 @@ node website/translate/translate.mjs prepare        # --json for tools, --locale
 # ...translate what it lists...
 
 # check changed translations, pin heading anchors, record them in the lock
-node website/translate/translate.mjs finalize       # or name the files to accept
+node website/translate/translate.mjs finalize       # or name the files to accept (pages, or UI files like website/i18n/es/code.json)
 
 # preview
 cd website && yarn start --locale es
@@ -35,7 +35,7 @@ cd website && yarn start --locale es
 - **Data files**: the blog's `tags.yml` and `authors.yml` are translated like pages, at `website/i18n/<locale>/blog/` (`DATA_FIELDS` in `localeDocs.js`). Only tag `label`/`description` and author `title` values may change; keys, permalinks and everything else must match English.
 - **Anchors**: `finalize` gives every heading the `{#id}` of its English heading, so `#links` keep working.
 - **Partials**: a locale's pages bring along the `_partials` they import from their own docs folder.
-- **UI strings**: Docusaurus' own theme strings come translated; `prepare` lists the site's strings still in English, and `finalize` records translated ones (placeholders like `{count}` must survive).
+- **UI strings**: Docusaurus' own theme strings come translated; `prepare` lists the site's strings still in English, and `finalize` records translated ones (placeholders like `{count}` must survive). When a string's English changes, `prepare` puts the new English in place of its translation; until then `finalize` leaves the old translation unrecorded and lists it as stale.
 - **CI**: `check` (in `site-preview.yml`) fails when a translation isn't finalized, is in the lock but missing, or no longer has the structure of the English it records. A translation behind English is fine; it is listed again by the next `prepare`.
 
 ## Adding a locale or pages

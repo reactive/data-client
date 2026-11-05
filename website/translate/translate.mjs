@@ -361,17 +361,23 @@ function translationProblems(english, content, file) {
   }
 }
 
+/** A locale's committed UI strings in one of its files */
+const committedUI = (locale, file) =>
+  JSON.parse(blob(`HEAD:${translationOf(file, locale)}`) ?? '{}');
+
 /**
  * Accepts translations written since `prepare`: checks each changed page
  * against its English, pins its heading anchors and records the English it
- * now translates; then records UI strings that were translated
+ * now translates; then records UI strings that were translated. Named files
+ * (pages, or UI files like website/i18n/es/code.json) limit it to those.
  */
 async function finalize(locale, english) {
   const lock = readLock(locale);
   const wanted = wantedSources(locale);
+  const named = files.map(file => sourceArg(file, locale));
   const pages =
     files.length ?
-      files.map(file => sourceArg(file, locale))
+      named.filter(file => !(file in english))
     : [
         ...new Set([
           ...changedTranslations(locale),
@@ -401,15 +407,29 @@ async function finalize(locale, english) {
 
   const localized = uiFiles(locale);
   const untranslated = [];
+  const stale = [];
   for (const [file, messages] of Object.entries(english)) {
+    if (files.length && !named.includes(file)) continue;
     const done = (lock.ui[file] ??= {});
+    let committed;
     for (const [key, { message }] of Object.entries(messages)) {
       const text = localized[file]?.[key]?.message;
       if (done[key] === message || typeof text !== 'string') continue;
       const id = uiId(locale, file, key);
-      if (text === message && !options.same.includes(id)) {
-        untranslated.push(id);
-        continue;
+      if (!options.same.includes(id)) {
+        if (text === message) {
+          untranslated.push(id);
+          continue;
+        }
+        // unchanged since the commit, so still the translation of the English
+        // the lock records (`prepare` puts the new English in its place)
+        if (key in done) {
+          committed ??= committedUI(locale, file);
+          if (text === committed[key]?.message) {
+            stale.push(id);
+            continue;
+          }
+        }
       }
       const problem = uiProblem(locale, text, message);
       if (problem) problems.push(`${id}: ${problem}`);
@@ -420,7 +440,7 @@ async function finalize(locale, english) {
     }
   }
   writeLock(locale, lock);
-  return { accepted, untranslated, problems };
+  return { accepted, untranslated, stale, problems };
 }
 
 /**
@@ -515,6 +535,10 @@ for (const locale of locales) {
     for (const id of result.accepted) console.log(`  ✓ ${id}`);
     for (const id of result.untranslated)
       console.log(`  still English (if intended: --same ${id})`);
+    for (const id of result.stale)
+      console.log(
+        `  unchanged since English changed (run prepare; if already redone: --same ${id})`,
+      );
     for (const problem of result.problems) console.error(`  ✗ ${problem}`);
     failed ||= result.problems.length > 0;
   } else {
