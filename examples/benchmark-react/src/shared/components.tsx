@@ -1,6 +1,7 @@
 import React from 'react';
 
-import type { Issue, User } from './types';
+import { noteIssueRowRender } from './renderCounts';
+import type { Issue, Ticker, User } from './types';
 
 export const DOUBLE_LIST_STYLE = { display: 'flex', gap: 8 } as const;
 
@@ -61,6 +62,7 @@ const STATE_ICONS: Record<string, string> = {
  * that don't still re-execute the expensive UserView on every render.
  */
 export function IssueRow({ issue }: { issue: Issue }) {
+  noteIssueRowRender();
   const labelStr = issue.labels.map(l => l.name).join(', ');
   return (
     <div data-issue-number={issue.number} data-bench-item>
@@ -93,6 +95,21 @@ export function PinnedCardView({ issue }: { issue: Issue }) {
       <span data-state>{STATE_ICONS[issue.state] ?? issue.state}</span>
       <span data-comments>{issue.comments}</span>
     </div>
+  );
+}
+
+/**
+ * One ticker: symbol, price, percent change and volume. Kept cheap so a ticker
+ * update costs little render work. `data-ticker` holds the symbol.
+ */
+export function TickerRow({ ticker }: { ticker: Ticker }) {
+  return (
+    <span data-ticker={ticker.symbol}>
+      <span data-symbol>{ticker.symbol}</span>
+      <span data-price>{ticker.price.toFixed(2)}</span>
+      <span data-change>{ticker.change.toFixed(2)}</span>
+      <span data-volume>{ticker.volume}</span>
+    </span>
   );
 }
 

@@ -1,4 +1,4 @@
-import type { Issue, Label, User } from './types';
+import type { Issue, Label, Ticker, User } from './types';
 
 /** Sort issues by title, optionally limiting to the first `limit` results. */
 export function sortByTitle<T extends { title: string }>(
@@ -191,6 +191,119 @@ export const FIXTURE_ISSUES_BY_NUMBER = new Map(
 export const FIXTURE_USERS_BY_LOGIN = new Map(
   FIXTURE_USERS.map(u => [u.login, u]),
 );
+
+// ── TICKERS ─────────────────────────────────────────────────────────────
+
+/** Tickers in the store for the ticker-stream scenarios. */
+const TICKER_COUNT = 500;
+/** Tickers the strip renders (the first N of the list). */
+const TICKER_STRIP_SIZE = 20;
+
+const TICKER_BASE_TIME = Date.UTC(2026, 0, 2, 14, 30);
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+/** Unique 3-letter symbol for index i (AAA, BAA, ... ZZZ). */
+function tickerSymbol(i: number): string {
+  return (
+    LETTERS[i % 26] +
+    LETTERS[Math.floor(i / 26) % 26] +
+    LETTERS[Math.floor(i / 676) % 26]
+  );
+}
+
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+
+/** Deterministic tickers: prices 5.00–999.99, no randomness. */
+function generateTickers(count: number): Ticker[] {
+  const tickers: Ticker[] = [];
+  for (let i = 0; i < count; i++) {
+    tickers.push({
+      symbol: tickerSymbol(i),
+      price: round2(5 + ((i * 7919) % 99500) / 100),
+      change: 0,
+      volume: 10000 + ((i * 104729) % 990000),
+      time: TICKER_BASE_TIME,
+    });
+  }
+  return tickers;
+}
+
+let fixtureTickers: Ticker[] | undefined;
+
+/** All tickers in the store, generated on first use. */
+export function getFixtureTickers(): Ticker[] {
+  return (fixtureTickers ??= generateTickers(TICKER_COUNT));
+}
+
+/** Symbols of the tickers the strip renders (the first of the list). */
+export const TICKER_STRIP_SYMBOLS = Array.from(
+  { length: TICKER_STRIP_SIZE },
+  (_, i) => tickerSymbol(i),
+);
+
+/** Rendered tickers in each stream message. */
+const RENDERED_PER_MESSAGE = 2;
+/** Tickers the strip doesn't render, in each stream message. */
+const UNRENDERED_PER_MESSAGE = 8;
+
+/**
+ * The update for one ticker at stream step `step`. Steps increase with every
+ * message, so each update shows a new volume.
+ */
+function tickTicker(base: Ticker, i: number, step: number): Ticker {
+  // ±1% around the base price
+  const move = (((i * 31 + step * 17) % 201) - 100) / 10000;
+  const price = round2(base.price * (1 + move));
+  return {
+    symbol: base.symbol,
+    price,
+    change: round2(move * 100),
+    volume: base.volume + step * 100 + (i % 100),
+    time: base.time + step * 1000,
+  };
+}
+
+export interface TickerStream {
+  /** One batch per message. */
+  batches: Ticker[][];
+  /** The last update of each rendered ticker, in strip order. */
+  finalRendered: Ticker[];
+}
+
+/**
+ * Build round `version` (1, 2, ...) of the ticker stream: `messages` batches
+ * of 10 ticker updates. Each batch has 2 rendered tickers, which rotate
+ * through the strip so that each one updates repeatedly, and 8 tickers the
+ * strip doesn't render, which rotate through the rest.
+ */
+export function buildTickerStream(
+  version: number,
+  messages: number,
+): TickerStream {
+  const tickers = getFixtureTickers();
+  const unrenderedCount = TICKER_COUNT - TICKER_STRIP_SIZE;
+  const finalRendered: Ticker[] = tickers.slice(0, TICKER_STRIP_SIZE);
+  const batches: Ticker[][] = [];
+  for (let m = 0; m < messages; m++) {
+    const step = version * messages + m;
+    const batch: Ticker[] = [];
+    for (let r = 0; r < RENDERED_PER_MESSAGE; r++) {
+      const i = (m * RENDERED_PER_MESSAGE + r) % TICKER_STRIP_SIZE;
+      finalRendered[i] = tickTicker(tickers[i], i, step);
+      batch.push(finalRendered[i]);
+    }
+    for (let u = 0; u < UNRENDERED_PER_MESSAGE; u++) {
+      const i =
+        TICKER_STRIP_SIZE +
+        ((m * UNRENDERED_PER_MESSAGE + u) % unrenderedCount);
+      batch.push(tickTicker(tickers[i], i, step));
+    }
+    batches.push(batch);
+  }
+  return { batches, finalRendered };
+}
 
 /**
  * Generate fresh issues/users with distinct IDs for bulk ingestion scenarios.

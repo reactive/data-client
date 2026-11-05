@@ -3,9 +3,12 @@ import {
   GCPolicy,
   useController,
   useDLE,
+  useQuery,
   useSuspense,
 } from '@data-client/react';
 import type { Controller } from '@data-client/react';
+import React, { useCallback, useRef, useState } from 'react';
+
 import {
   moveItemIsReady,
   renderBenchApp,
@@ -17,23 +20,29 @@ import {
   PINNED_STRIP_STYLE,
   PinnedCardView,
   PlainIssueList,
+  TickerRow,
 } from '@shared/components';
 import {
+  buildTickerStream,
   FIXTURE_USERS,
   FIXTURE_ISSUES_BY_NUMBER,
   FIXTURE_USERS_BY_LOGIN,
+  TICKER_STRIP_SYMBOLS,
 } from '@shared/data';
 import { setCurrentIssues } from '@shared/refStability';
+import { noteListViewRender } from '@shared/renderCounts';
 import {
   UserResource,
   IssueResource,
   sortedIssuesEndpoint,
+  TickerEntity,
+  TickerResource,
 } from '@shared/resources';
 import { patchIssue } from '@shared/server';
-import type { Issue } from '@shared/types';
-import React, { useCallback, useRef } from 'react';
+import type { Issue, Ticker } from '@shared/types';
 
 let mutationCounter = 0;
+let tickerStreamVersion = 0;
 
 /** GCPolicy with no interval (won't fire during timing scenarios) and instant
  *  expiry so an explicit sweep() collects all unreferenced data immediately. */
@@ -58,6 +67,7 @@ const benchGC = new BenchGCPolicy();
 
 /** Renders issues from the list endpoint (models rendering a list fetch response). */
 function ListView({ count, limit }: { count: number; limit?: number }) {
+  noteListViewRender();
   const { data: issues } = useDLE(IssueResource.getList, { count });
   if (!issues) return null;
   const list = issues as Issue[];
@@ -129,6 +139,24 @@ function PinnedStrip({ numbers }: { numbers: number[] }) {
   );
 }
 
+/** Reads one ticker from the store by symbol. */
+function TickerCard({ symbol }: { symbol: string }) {
+  const ticker = useQuery(TickerEntity, { symbol });
+  if (!ticker) return null;
+  return <TickerRow ticker={ticker as Ticker} />;
+}
+
+/** Strip of the first tickers; each card reads its own ticker. */
+function TickerStrip() {
+  return (
+    <div data-ticker-strip>
+      {TICKER_STRIP_SYMBOLS.map(symbol => (
+        <TickerCard key={symbol} symbol={symbol} />
+      ))}
+    </div>
+  );
+}
+
 function BenchmarkHarness() {
   const controller = useController();
   const {
@@ -142,8 +170,13 @@ function BenchmarkHarness() {
     renderLimit,
     containerRef,
     measureUpdate,
+    measureMessageStream,
+    waitForElement,
+    setComplete,
+    setListViewCount,
     registerAPI,
-  } = useBenchState();
+  } = useBenchState({ optimisticMutations: true });
+  const [showTickerStrip, setShowTickerStrip] = useState(false);
 
   const updateEntity = useCallback(
     (number: number) => {
@@ -285,6 +318,38 @@ function BenchmarkHarness() {
     [measureUpdate, controller, containerRef],
   );
 
+  /** Untimed setup: all tickers in the store, issue list and strip mounted. */
+  const initTickerStream = useCallback(
+    async (count: number) => {
+      await controller.fetch(TickerResource.getList);
+      setListViewCount(count);
+      await waitForElement('[data-bench-item]');
+      setShowTickerStrip(true);
+      await waitForElement('[data-ticker]');
+      setComplete();
+    },
+    [controller, setListViewCount, waitForElement, setComplete],
+  );
+
+  /**
+   * Timed: each message's `ctrl.set()` until React commits it to the DOM.
+   * Waiting for the promise (DataStore's effect) is untimed.
+   */
+  const streamTickers = useCallback(
+    async (messages: number) => {
+      // Untimed: build every batch before the first message.
+      const { batches, finalRendered } = buildTickerStream(
+        ++tickerStreamVersion,
+        messages,
+      );
+      await measureMessageStream(batches.length, i =>
+        controller.set([TickerEntity], batches[i]),
+      );
+      return { finalRendered };
+    },
+    [controller, measureMessageStream],
+  );
+
   const resetStore = useCallback(
     () => controller.resetEntireStore(),
     [controller],
@@ -298,6 +363,8 @@ function BenchmarkHarness() {
     unshiftItem,
     deleteEntity,
     moveItem,
+    initTickerStream,
+    streamTickers,
     triggerGC: () => benchGC.sweep(),
     resetStore,
   });
@@ -323,6 +390,7 @@ function BenchmarkHarness() {
           <PinnedStrip numbers={pinnedNumbers} />
         </React.Suspense>
       )}
+      {showTickerStrip && <TickerStrip />}
     </div>
   );
 }

@@ -9,6 +9,14 @@ export interface RefStabilityReport {
   userRefChanged: number;
 }
 
+/** Component render counts since the last `resetRenderCounts()`. */
+export interface RenderCounts {
+  /** IssueRow renders. 0 = no row re-rendered. */
+  issueRowRenders: number;
+  /** ListView renders. With issueRowRenders 0, shows the list re-rendered but skipped its rows. */
+  listViewRenders: number;
+}
+
 /**
  * Benchmark API interface exposed by each library app on window.__BENCH__
  */
@@ -29,6 +37,8 @@ export interface BenchAPI {
   getRenderedCount(): number;
   captureRefSnapshot(): void;
   getRefStabilityReport(): RefStabilityReport;
+  resetRenderCounts(): void;
+  getRenderCounts(): RenderCounts;
   /** Legacy ids-based mount; optional — prefer init. */
   mount?(count: number): void;
   /** For memory scenarios: mount n issues, unmount, repeat cycles times; resolves when done. */
@@ -51,10 +61,22 @@ export interface BenchAPI {
   initMultiView?(count: number): void;
   /** Update an entity that appears in list + detail + pinned views; waits for all three to reflect the change. */
   updateEntityMultiView?(id: number): void;
+  /** Mount the issue list (count issues) and a ticker strip, with all tickers in the store. data-client only. */
+  initTickerStream?(count: number): Promise<void>;
+  /**
+   * Send `messages` ticker batches, one per task (like websocket messages), each after the previous one settles.
+   * Records one `stream-message` measure per message; the runner aggregates them.
+   * Resolves with the last update of each rendered ticker. data-client only.
+   */
+  streamTickers?(messages: number): Promise<{ finalRendered: Ticker[] }>;
   /** Trigger store garbage collection (data-client only). Used by memory scenarios to flush unreferenced data before heap measurement. */
   triggerGC?(): void;
   /** Cap DOM rendering to the first N items while keeping all data in the store. */
   setRenderLimit?(n: number | undefined): void;
+  /** Resolves when the harness next signals completion. Call it before starting the action. */
+  whenComplete(): Promise<void>;
+  /** For validation: apply each kind of server mutation and check that list replies match a fresh serialization. Returns the first mismatch, or null. */
+  checkIssueListJSON(): Promise<string | null>;
   /** Clear client-side cache/store so the next mount triggers a fresh fetch. Called between sub-iterations for mount scenarios. */
   resetStore?(): void;
 }
@@ -115,6 +137,16 @@ export interface Issue {
   closedAt: string | null;
 }
 
+export interface Ticker {
+  symbol: string;
+  price: number;
+  /** Percent change from the open. */
+  change: number;
+  volume: number;
+  /** Epoch ms of the last trade. */
+  time: number;
+}
+
 export type ScenarioAction =
   | { action: 'init'; args: [number] }
   | { action: 'updateEntity'; args: [number] }
@@ -129,6 +161,7 @@ export type ResultMetric =
   | 'duration'
   | 'issueRefChanged'
   | 'userRefChanged'
+  | 'issueRowRenders'
   | 'heapDelta';
 
 /** hotPath = JS only, included in CI. memory = heap delta, not CI. startup = page load metrics, not CI. */
@@ -141,7 +174,7 @@ export interface Scenario {
   name: string;
   action: keyof BenchAPI;
   args: unknown[];
-  /** Which value to report; default 'duration'. Ref-stability use issueRefChanged/userRefChanged; memory use heapDelta. */
+  /** Which value to report; default 'duration'. Count scenarios use issueRefChanged/userRefChanged/issueRowRenders; memory use heapDelta. */
   resultMetric?: ResultMetric;
   /** hotPath (default) = run in CI. memory = heap delta. startup = page load metrics. */
   category?: ScenarioCategory;
@@ -153,10 +186,29 @@ export interface Scenario {
   preMountAction?: keyof BenchAPI;
   /** Result is deterministic (zero variance); run exactly once with no warmup. */
   deterministic?: boolean;
-  /** Override the default sub-iterations per page visit for this scenario. */
-  opsPerRound?: number;
   /** Cap DOM rendering to first N items while keeping all data in the store. */
   renderLimit?: number;
   /** If set, scenario applies only to these libs; dropped when any selected library is not listed. */
   onlyLibs?: string[];
+  /** Duration of each iteration from all its `measure` entries, instead of the last `update-duration` / `mount-duration`. */
+  durationMeasure?: AggregatedMeasure;
+  /**
+   * Also report these from each iteration, as `<name>-<suffix>` entries in ops/s.
+   * Maps suffix to an aggregated measure, e.g. { 'worst-message': { measure: 'stream-message', aggregate: 'max' } }.
+   */
+  extraMeasures?: Record<
+    string,
+    AggregatedMeasure & {
+      /** false = not reported in CI. */
+      ci?: boolean;
+    }
+  >;
+}
+
+/** How to combine every `performance.measure` entry of one name in an iteration. */
+export type MeasureAggregate = 'sum' | 'max' | 'p95';
+
+export interface AggregatedMeasure {
+  measure: string;
+  aggregate: MeasureAggregate;
 }

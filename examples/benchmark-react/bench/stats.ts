@@ -117,6 +117,13 @@ export function isConverged(
   return (margin / Math.abs(median)) * 100 <= targetMarginPct;
 }
 
+/** 95th percentile of samples sorted ascending (0 when empty). */
+export function sortedP95(sorted: number[]): number {
+  return (
+    sorted[Math.min(Math.floor(sorted.length * 0.95), sorted.length - 1)] ?? 0
+  );
+}
+
 /**
  * Compute median, p95, and approximate 95% confidence interval from samples.
  * Discards warmup runs, then trims IQR outliers for median and CI
@@ -138,8 +145,7 @@ export function computeStats(
   const sorted = [...measured].sort((a, b) => a - b);
   const clean = trimOutliers(sorted);
   const median = sortedMedian(clean);
-  const p95Idx = Math.floor(sorted.length * 0.95);
-  const p95 = sorted[Math.min(p95Idx, sorted.length - 1)] ?? median;
+  const p95 = sortedP95(sorted);
   const margin = ciMargin(clean);
   const pct = median !== 0 ? (margin / Math.abs(median)) * 100 : 0;
   return {

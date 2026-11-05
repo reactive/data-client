@@ -14,6 +14,7 @@
 import { chromium } from 'playwright';
 import type { Page } from 'playwright';
 
+import { collectMeasures } from './measure.js';
 import { LIBRARIES } from './scenarios.js';
 
 const BASE_URL =
@@ -231,7 +232,10 @@ test('updateUser propagates to DOM', async (page, _lib) => {
 test('ref-stability after updateEntity', async (page, lib) => {
   await initAndWaitForIssues(page);
 
-  await page.evaluate(() => window.__BENCH__!.captureRefSnapshot());
+  await page.evaluate(() => {
+    window.__BENCH__!.captureRefSnapshot();
+    window.__BENCH__!.resetRenderCounts();
+  });
 
   await clearComplete(page);
   await page.evaluate(() => window.__BENCH__!.updateEntity(1));
@@ -259,6 +263,16 @@ test('ref-stability after updateEntity', async (page, lib) => {
     'ref-stability changed',
     `expected ≥1 issueRefChanged, got ${r.issueRefChanged}. ` +
       `setCurrentIssues may not have been called with updated data before measurement.`,
+  );
+  const { issueRowRenders } = await page.evaluate(() =>
+    window.__BENCH__!.getRenderCounts(),
+  );
+  assert(
+    issueRowRenders >= 1,
+    lib,
+    'row renders after updateEntity',
+    `expected ≥1 issueRowRenders after updating a rendered issue, got ${issueRowRenders}. ` +
+      `IssueRow may not call noteIssueRowRender().`,
   );
   process.stderr.write(
     `    issueRefChanged=${r.issueRefChanged} userRefChanged=${r.userRefChanged}\n`,
@@ -417,6 +431,104 @@ test(
   { onlyLibs: ['data-client'] },
 );
 
+// ── streamTickers ────────────────────────────────────────────────────────
+
+test(
+  'streamTickers applies every message, one render each',
+  async (page, lib) => {
+    const MESSAGES = 200;
+
+    await clearComplete(page);
+    await page.evaluate(
+      (n: number) => window.__BENCH__!.initTickerStream!(n),
+      TEST_ISSUE_COUNT,
+    );
+    await waitForComplete(page);
+    const stripSize = await page.evaluate(
+      () => document.querySelectorAll('[data-ticker]').length,
+    );
+    assert(
+      stripSize === 20,
+      lib,
+      'streamTickers strip',
+      `expected 20 rendered tickers, got ${stripSize}`,
+    );
+    const mounted = await page.evaluate(() =>
+      window.__BENCH__!.getRenderCounts(),
+    );
+    assert(
+      mounted.listViewRenders >= 1,
+      lib,
+      'streamTickers ListView mounted',
+      `expected ≥1 ListView renders after initTickerStream, got ${mounted.listViewRenders}. ` +
+        `ListView may not call noteListViewRender().`,
+    );
+
+    // Count only the stream, not the initial mount.
+    await page.evaluate(() => {
+      performance.clearMeasures();
+      window.__BENCH__!.resetRenderCounts();
+    });
+    await clearComplete(page);
+    const { finalRendered } = await page.evaluate(
+      (n: number) => window.__BENCH__!.streamTickers!(n),
+      MESSAGES,
+    );
+    await waitForComplete(page);
+
+    // Every rendered ticker shows its last update from the stream.
+    const shown = await page.evaluate(() =>
+      Object.fromEntries(
+        [...document.querySelectorAll<HTMLElement>('[data-ticker]')].map(el => [
+          el.dataset.ticker!,
+          `${el.querySelector('[data-price]')?.textContent} ${el.querySelector('[data-volume]')?.textContent}`,
+        ]),
+      ),
+    );
+    const stale = finalRendered.filter(
+      t => shown[t.symbol] !== `${t.price.toFixed(2)} ${t.volume}`,
+    );
+    assert(
+      stale.length === 0,
+      lib,
+      'streamTickers final values',
+      `${stale.length} of ${finalRendered.length} rendered tickers do not show their last update: ` +
+        stale.map(t => t.symbol).join(', '),
+    );
+
+    const messages = (await collectMeasures(page)).filter(
+      m => m.name === 'stream-message',
+    ).length;
+    const r = await page.evaluate(() => window.__BENCH__!.getRenderCounts());
+    // ListView renders during the stream are logged, not asserted: a
+    // per-entity subscription would rightly stop ListView re-rendering.
+    process.stderr.write(
+      `    messages=${messages} ` +
+        `listViewRenders=${r.listViewRenders} issueRowRenders=${r.issueRowRenders}\n`,
+    );
+    // One render per message: a message whose commit changes no DOM fails
+    // the stream, so every counted message committed on its own.
+    assert(
+      messages === MESSAGES,
+      lib,
+      'streamTickers messages',
+      `expected ${MESSAGES} settled messages, got ${messages}`,
+    );
+
+    // Without React Compiler, every store write re-renders the list's rows.
+    // Set REACT_COMPILER=false here too when validating a build:no-compiler build.
+    if (process.env.REACT_COMPILER !== 'false') {
+      assert(
+        r.issueRowRenders === 0,
+        lib,
+        'streamTickers row renders',
+        `expected 0 IssueRow renders during the ticker stream, got ${r.issueRowRenders}`,
+      );
+    }
+  },
+  { onlyLibs: ['data-client'] },
+);
+
 // ── moveItem ─────────────────────────────────────────────────────────
 
 test('moveItem moves issue between state lists', async (page, lib) => {
@@ -521,17 +633,25 @@ test('listDetailSwitch completes with correct DOM transitions', async (page, lib
     'detail view still in DOM after listDetailSwitch completed',
   );
 
-  const hasMeasure = await page.evaluate(() =>
-    performance
-      .getEntriesByType('measure')
-      .some(m => m.name === 'mount-duration'),
-  );
+  // One nav-step per step: 5 navigations, each to the detail and back.
+  const navSteps = (await collectMeasures(page)).filter(
+    m => m.name === 'nav-step',
+  ).length;
   assert(
-    hasMeasure,
+    navSteps === 10,
     lib,
     'listDetailSwitch measure',
-    'no mount-duration performance measure recorded',
+    `expected 10 nav-step measures, got ${navSteps}`,
   );
+});
+
+// ── server list JSON ─────────────────────────────────────────────────
+
+test('server list replies match a fresh serialization after mutations', async (page, lib) => {
+  const mismatch = await page.evaluate(() =>
+    window.__BENCH__!.checkIssueListJSON(),
+  );
+  assert(mismatch === null, lib, 'server list JSON', mismatch ?? '');
 });
 
 // ── TIMING VALIDATION ────────────────────────────────────────────────

@@ -10,7 +10,13 @@ import { mockInitialState } from '@data-client/test';
 import { act, render } from '@testing-library/react';
 import { makeGetTodo, Todo } from '__tests__/concurrentFixtures';
 import type { TodoItem } from '__tests__/concurrentFixtures';
-import React, { Suspense, useState, useTransition, version } from 'react';
+import React, {
+  Suspense,
+  useEffect,
+  useState,
+  useTransition,
+  version,
+} from 'react';
 
 import useCacheState from '../hooks/useCacheState';
 
@@ -103,15 +109,25 @@ const idOf = (o: object) => {
  * for list renders. */
 type Read = { versions: string; data: unknown; who?: 'render' };
 let reads: Read[] = [];
+/** The reads of renders React committed, in commit order. */
+let committed: Read[] = [];
 const versionsOf = (state: State<unknown>, todos: { id: string }[]) => {
   const table = (state.entities[Todo.key] ?? {}) as Record<string, object>;
   return todos.map(todo => idOf(table[todo.id])).join(',');
 };
 
+/** Record a render's read, and record it as committed if React commits that render. */
+function useRecordRead(read: Read) {
+  reads.push(read);
+  useEffect(() => {
+    committed.push(read);
+  });
+}
+
 function List() {
   const todos = useSuspense(getTodoList);
   const state = useCacheState();
-  reads.push({
+  useRecordRead({
     versions: versionsOf(state, todos),
     data: todos,
     who: 'render',
@@ -124,7 +140,7 @@ function ProjectView() {
   const state = useCacheState();
   const table = (key: string, pk: string) =>
     idOf((state.entities[key] as Record<string, object>)[pk]);
-  reads.push({
+  useRecordRead({
     versions: `p${table(Project.key, 'p')}:o${table(Owner.key, 'o')}`,
     data: project,
   });
@@ -272,8 +288,18 @@ let note = 100;
 
 beforeEach(() => {
   reads = [];
+  committed = [];
   for (const key of Object.keys(pending)) delete pending[key];
   note = 100;
+});
+
+// Committed renders never get a new object for entity versions an earlier
+// commit already showed. Such a miss re-runs the consumer's effects, memos
+// and children for unchanged data. An implementation may tolerate misses on
+// reads React throws away (uncommitted renders), but not on committed ones,
+// so this holds for every test whatever misses it allows in `reads`.
+afterEach(() => {
+  expect(avoidableMisses(committed)).toBe(0);
 });
 
 describeConcurrent.each([1, 2])(

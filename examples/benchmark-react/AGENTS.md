@@ -6,7 +6,7 @@ Browser benchmark comparing `@data-client/react`, TanStack Query, SWR, and plain
 
 ```bash
 yarn build:benchmark-react                           # from repo root
-yarn workspace example-benchmark-react preview &     # serve dist/ on port 5173
+yarn workspace example-benchmark-react preview &     # serve dist/ on port 5173 with COOP/COEP (runner requires isolation)
 cd examples/benchmark-react && yarn bench            # all libs (local) or data-client only (CI)
 ```
 
@@ -14,9 +14,9 @@ Filtering: `yarn bench --lib data-client --size small --action update`
 
 ## Architecture
 
-**Runner → `window.__BENCH__` → React**: `bench/runner.ts` opens `localhost:5173/<lib>/` in Playwright, calls `BenchAPI` methods on `window.__BENCH__`, waits for `[data-bench-complete]` attribute, then collects `performance.measure` entries. This is the only runner↔app channel.
+**Runner → `window.__BENCH__` → React**: `bench/runner.ts` opens `localhost:5173/<lib>/` in Playwright, calls `BenchAPI` methods on `window.__BENCH__` and awaits `whenComplete()` in the same evaluate (the harness also sets `[data-bench-complete]`), then collects `performance.measure` entries. This is the only runner↔app channel.
 
-**Web Worker server**: All "network" goes to an in-memory Worker (`server.worker.ts` via `server.ts` RPC) with configurable latency. Keeps fake-server work off main thread.
+**Web Worker server**: All "network" goes to an in-memory Worker (`server.worker.ts` via `server.ts` RPC) with configurable latency. Keeps fake-server work off main thread. Mutation replies are held during data-client update windows (`optimisticMutations`).
 
 **Shared vs library-specific**: `src/shared/` (harness, components, fixtures, resources, server) is identical across all apps. Each `src/<lib>/index.tsx` only contains data-layer wiring. Divergence from shared code breaks fairness.
 
@@ -34,10 +34,12 @@ Filtering: `yarn bench --lib data-client --size small --action update`
 
 `BASE_SCENARIOS` in `bench/scenarios.ts` × `LIBRARIES` via `flatMap`. `onlyLibs` restricts to specific libs. CI runs data-client hot-path only (no memory/startup/deterministic). Memory is opt-in locally (`--action memory`). Convergent timing uses single page load with adaptive iterations and early stopping on statistical convergence. Ref-stability scenarios run once (deterministic count, not ops/s).
 
+**Ticker stream** (data-client only; timing model in README "Ticker stream"): `initTickerStream` is the untimed pre-mount; `streamTickers` calls `useBenchState().measureMessageStream`, which records one `stream-message` measure per message. The scenario's `durationMeasure` / `extraMeasures` (`bench/scenarios.ts`) tell the runner how to aggregate them (`aggregateMeasures` in `bench/measure.ts`; p95 from `bench/stats.ts`); `ci: false` extras are not reported in CI. Render counts live in `src/shared/renderCounts.ts` (`resetRenderCounts` / `getRenderCounts`); `IssueRow` / `ListView` count themselves with a function call so React Compiler still compiles them.
+
 ## Update Data Flow
 
 1. Runner calls `window.__BENCH__.updateEntity(1)`
-2. `measureUpdate` marks `update-start`, invokes action, `MutationObserver` detects DOM change, marks `update-end` + sets `data-bench-complete`
+2. `measureUpdate` reads `performance.now()`, invokes action, `MutationObserver` detects DOM change, records `update-duration` + sets `data-bench-complete`
 3. Runner reads `performance.measure('update-duration')`
 4. **Core asymmetry**: data-client propagates via one store write; TanStack Query/SWR/baseline invalidate + re-fetch from Worker
 
@@ -63,6 +65,7 @@ Filtering: `yarn bench --lib data-client --size small --action update`
 | `data-issue-number` | components → runner/harness | Item identity assertion |
 | `data-title` | components → lib views | Text content assertion |
 | `data-state-list` | lib views → harness | Move-item verification |
+| `data-ticker` | components → validate | Ticker-stream final values (`[data-price]`, `[data-volume]` text) |
 
 ## Environment Variables
 
