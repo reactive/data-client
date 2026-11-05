@@ -162,13 +162,22 @@ const sortKeys = object =>
   Object.fromEntries(
     Object.entries(object).sort(([a], [b]) => a.localeCompare(b)),
   );
-function writeLock(locale, lock) {
-  for (const file of Object.keys(lock.ui))
-    if (!Object.keys(lock.ui[file]).length) delete lock.ui[file];
+function writeLock(locale, { docs, ui, redo = {} }) {
+  for (const strings of [ui, redo])
+    for (const file of Object.keys(strings))
+      if (!Object.keys(strings[file]).length) delete strings[file];
   fs.mkdirSync(path.dirname(lockFile(locale)), { recursive: true });
   fs.writeFileSync(
     lockFile(locale),
-    `${JSON.stringify({ docs: sortKeys(lock.docs), ui: sortKeys(lock.ui) }, null, 2)}\n`,
+    `${JSON.stringify(
+      {
+        docs: sortKeys(docs),
+        ui: sortKeys(ui),
+        ...(Object.keys(redo).length && { redo: sortKeys(redo) }),
+      },
+      null,
+      2,
+    )}\n`,
   );
 }
 
@@ -279,24 +288,35 @@ async function prepare(locale, english) {
   for (const [file, messages] of Object.entries(english)) {
     const target = (localized[file] ??= {});
     const done = (lock.ui[file] ??= {});
+    const redo = ((lock.redo ??= {})[file] ??= {});
     for (const key of Object.keys(target))
       if (!(key in messages)) delete target[key];
-    for (const key of Object.keys(done))
-      if (!(key in messages)) delete done[key];
+    for (const strings of [done, redo])
+      for (const key of Object.keys(strings))
+        if (!(key in messages)) delete strings[key];
     for (const [key, { message, description }] of Object.entries(messages)) {
-      if (done[key] === message && target[key]) continue;
+      if (done[key] === message && target[key]) {
+        delete redo[key];
+        continue;
+      }
       // Docusaurus ships translations of its theme's own strings
       if (!(key in done) && target[key] && target[key].message !== message) {
         done[key] = message;
         continue;
       }
+      const id = uiId(locale, file, key);
+      // already put back to this English: keep the translation in progress
+      if (redo[key] === message && target[key]) {
+        ui.push({ id, message, description });
+        continue;
+      }
       // a translation of older English shows English until it is redone
       const previous = key in done ? target[key]?.message : undefined;
       target[key] = { message, description };
-      // so `finalize` tells its new translation from the old one
-      delete done[key];
+      // the English `finalize` accepts a redone translation of
+      if (key in done) redo[key] = message;
       ui.push({
-        id: uiId(locale, file, key),
+        id,
         message,
         description,
         ...(previous !== undefined && { previous }),
@@ -409,6 +429,7 @@ async function finalize(locale, english) {
   for (const [file, messages] of Object.entries(english)) {
     if (files.length && !named.includes(file)) continue;
     const done = (lock.ui[file] ??= {});
+    const redo = lock.redo?.[file] ?? {};
     for (const [key, { message }] of Object.entries(messages)) {
       const text = localized[file]?.[key]?.message;
       if (done[key] === message || typeof text !== 'string') continue;
@@ -418,8 +439,8 @@ async function finalize(locale, english) {
           untranslated.push(id);
           continue;
         }
-        // `prepare` unlocks a string when it puts its new English in place
-        if (key in done) {
+        // only `prepare` puts the new English in place of an old translation
+        if (key in done && redo[key] !== message) {
           outdated.push(id);
           continue;
         }
@@ -428,6 +449,7 @@ async function finalize(locale, english) {
       if (problem) problems.push(`${id}: ${problem}`);
       else {
         done[key] = message;
+        delete redo[key];
         accepted.push(id);
       }
     }
@@ -530,7 +552,7 @@ for (const locale of locales) {
       console.log(`  still English (if intended: --same ${id})`);
     for (const id of result.outdated)
       console.log(
-        `  translates older English (run prepare; if it still fits: --same ${id})`,
+        `  translates older English (run prepare to redo it, or keep it as is: --same ${id})`,
       );
     for (const problem of result.problems) console.error(`  ✗ ${problem}`);
     failed ||= result.problems.length > 0;
