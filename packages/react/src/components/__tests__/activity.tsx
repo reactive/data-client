@@ -149,7 +149,8 @@ describeIfActivity('<Activity> above <DataProvider>', () => {
     const { container, hide, show } = renderTabs(
       <Article endpoint={get.endpoint} />,
     );
-    await wait(0);
+    // the reset must come at least 1 ms after the fetch started
+    await wait(2);
 
     await hide();
     act(() => {

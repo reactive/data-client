@@ -403,4 +403,58 @@ describe('NetworkManager', () => {
       }
     });
   });
+
+  describe('remounted provider', () => {
+    const endpoint = new Endpoint(
+      (v: { id: number }) => Promise.resolve({ id: v.id, title: 'hi' }),
+      { schema: Article, name: 'remountEndpoint' },
+    );
+    const bind = (mgr: NetworkManager) => {
+      const dispatch = jest.fn((_action: any) => Promise.resolve());
+      const controller = new Controller({ dispatch, getState });
+      const next = jest.fn((_action: any) => Promise.resolve());
+      return { dispatch, handle: mgr.middleware(controller)(next) };
+    };
+
+    it('sends a fetch from a replaced store without writing it to the new one', async () => {
+      const mgr = new NetworkManager();
+      const old = bind(mgr);
+      const current = bind(mgr);
+      const action = createFetch(endpoint, { args: [{ id: 5 }] });
+
+      await old.handle(action);
+      await expect(action.meta.promise).resolves.toEqual({
+        id: 5,
+        title: 'hi',
+      });
+      expect(old.dispatch).not.toHaveBeenCalled();
+      expect(current.dispatch).not.toHaveBeenCalled();
+      expect(mgr.allSettled()).toBeUndefined();
+    });
+
+    it('does not settle a fetch with a response to an older one', async () => {
+      const mgr = new NetworkManager();
+      const { handle } = bind(mgr);
+      const action = createFetch(endpoint, { args: [{ id: 5 }] });
+      handle(action);
+      const settled = jest.fn();
+      action.meta.promise.then(settled, settled);
+
+      await handle({
+        type: SET_RESPONSE,
+        key: action.key,
+        endpoint,
+        args: [{ id: 5 }],
+        response: { id: 5, title: 'old' },
+        meta: {
+          fetchedAt: action.meta.fetchedAt - 1,
+          date: 0,
+          expiresAt: 0,
+        },
+      } as SetResponseAction);
+      await new Promise(resolve => setTimeout(resolve, 0));
+      expect(settled).not.toHaveBeenCalled();
+      mgr.cleanup();
+    });
+  });
 });

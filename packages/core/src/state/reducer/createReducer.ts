@@ -39,7 +39,9 @@ export default function createReducer(controller: Controller): ReducerType {
         return fetchReducer(state, action);
 
       case SET_RESPONSE:
-        // started before the last reset; its manager can miss a reset that hasn't committed yet
+        // Drop responses to fetches started before the last reset. NetworkManager checks too, but reads
+        // committed state, which can miss a reset (like one while <Activity> hides the provider).
+        // OPTIMISTIC actions are re-applied from state.optimistic, which a reset clears.
         if (action.meta.fetchedAt < state.lastReset) return state;
       // eslint-disable-next-line no-fallthrough
       case OPTIMISTIC:

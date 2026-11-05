@@ -20,7 +20,9 @@ Now a hidden `DataProvider` keeps its store working: responses and other updates
 </Activity>
 ```
 
-A `DataProvider` remounted with the same `managers` also no longer waits on a request the unmounted one started.
+A `DataProvider` remounted with the same `managers` also no longer waits on a request the unmounted one started, and responses for the unmounted one stay out of the new store.
+
+A response to a request started before [`resetEntireStore()`](https://dataclient.io/docs/api/Controller#resetEntireStore) is now always dropped, even when it lands before the reset commits. Custom managers that call `controller.resolve()` should pass a `fetchedAt` from after the last reset.
 
 On React 18 and later, an action dispatched after a `DataProvider` really unmounts now reaches its managers, and React ignores the update. Its promise no longer resolves, so don't `await` controller calls after unmount. React 16 and 17 still drop these actions.
 

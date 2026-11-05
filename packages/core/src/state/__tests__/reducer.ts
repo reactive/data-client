@@ -11,6 +11,7 @@ import {
   SET_RESPONSE,
   SET,
 } from '../../actionTypes';
+import { createSetResponse as createSetResponseAction } from '../../controller/actions';
 import {
   State,
   ActionTypes,
@@ -670,6 +671,18 @@ describe('reducer', () => {
       expect(newState.endpoints).toEqual({});
       expect(newState.meta).toEqual({});
       expect(newState.entities).toEqual({});
+    });
+
+    it('drops a response to a fetch started before the reset', () => {
+      const state = reducer(initialState, { type: RESET, date: 1000 });
+      const response = (fetchedAt: number) =>
+        createSetResponseAction(ArticleResource.get, {
+          args: [{ id: 20 }],
+          response: { id: 20, title: 'hi' },
+          fetchedAt,
+        });
+      expect(reducer(state, response(999))).toBe(state);
+      expect(reducer(state, response(1000)).endpoints).not.toEqual({});
     });
   });
 

@@ -247,9 +247,11 @@ export default class NetworkManager implements Manager {
    * Will resolve the promise associated with set key.
    */
   protected handleSet(action: SetResponseAction) {
-    // this can still turn out to be untrue since this is async
-    if (this.fetching.has(action.key)) {
-      const { reject, resolve } = this.fetching.get(action.key) as FetchingMeta;
+    const fetchMeta = this.fetching.get(action.key);
+    // this can still turn out to be untrue since this is async.
+    // A response to an older fetch (like one before a reset) must not settle a newer one
+    if (fetchMeta && action.meta.fetchedAt >= fetchMeta.fetchedAt) {
+      const { reject, resolve } = fetchMeta;
       if (action.error) {
         reject(action.response);
       } else {
