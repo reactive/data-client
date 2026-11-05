@@ -35,7 +35,7 @@ cd website && yarn start --locale es
 - **Data files**: the blog's `tags.yml` and `authors.yml` are translated like pages, at `website/i18n/<locale>/blog/` (`DATA_FIELDS` in `localeDocs.js`). Only tag `label`/`description` and author `title` values may change; keys, permalinks and everything else must match English.
 - **Anchors**: `finalize` gives every heading the `{#id}` of its English heading, so `#links` keep working.
 - **Partials**: a locale's pages bring along the `_partials` they import from their own docs folder.
-- **UI strings**: Docusaurus' own theme strings come translated; `prepare` lists the site's strings still in English, and `finalize` records translated ones (placeholders like `{count}` must survive). `prepare` notes each English string it puts in place under `redo` in the lock, and `finalize` records a translation only of the English noted there, so a translation of older English is never recorded as current.
+- **UI strings**: Docusaurus' own theme strings come translated; `prepare` lists the site's strings still in English, and `finalize` records translated ones (placeholders like `{count}` must survive). `prepare` notes each English string it puts in place under `pending` in the lock, and `finalize` records a translation only of the English noted there. A translation of older English is recorded only when `--same <id>` keeps it on purpose.
 - **CI**: `check` (in `site-preview.yml`) fails when a translation isn't finalized, is in the lock but missing, or no longer has the structure of the English it records. A translation behind English is fine; it is listed again by the next `prepare`.
 
 ## Adding a locale or pages
