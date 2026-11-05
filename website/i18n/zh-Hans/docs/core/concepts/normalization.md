@@ -21,7 +21,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 <PosterVideo
   poster={useBaseUrl('/videos/docs/normalization-poster.jpg')}
-  duration="1:54"
+  duration="1:55"
   volume={0.5}
   alt="两个 endpoint 返回了同一个用户的三份副本。规范化把每个 entity 只存一次，放在以 id 为键的表中；反规范化顺着 id 重建每个响应；一次重命名就能更新所有视图。store 中有 10,000 篇帖子时，重命名一个用户只需重建 30 个对象，而不是 10,000 个；在 benchmark 中，这次重命名用时不到 6 毫秒。"
 >
