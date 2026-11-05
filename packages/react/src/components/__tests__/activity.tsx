@@ -204,8 +204,9 @@ describe('<DataProvider> remounted with the same managers', () => {
     expect(get.pending).toHaveLength(2);
     await get.resolve(0, 'old');
     expect(container.textContent).toBe('loading');
-    // the new store's fetch is still the one in flight: not settled early, no refetch
+    // the old response neither settles the new store's fetch nor triggers a refetch
     await wait(0);
+    expect(container.textContent).toBe('loading');
     expect(get.pending).toHaveLength(2);
     await get.resolve(1, 'new');
     expect(container.textContent).toBe('new');
