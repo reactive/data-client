@@ -44,11 +44,11 @@ makes them most useful as comparisons between approaches, rather than as
 absolute measurements of an application's overall performance. We use them to
 guide library optimizations and catch performance regressions over time.
 
-[^setup]: Measured 2026-03-22 on a Ryzen 9 7950X (64 GB, Ubuntu on WSL2, Node 24.12.0, headless Chromium from Playwright 1.58.2), each request delayed 40 ms plus 1 ms per 20 records. Medians of 5 to 50 samples per scenario after warmup. [Full methodology](https://github.com/reactive/data-client/blob/master/examples/benchmark-react/METHODOLOGY.md).
-[^config]: TanStack Query 5.62.7 (`staleTime` and `gcTime` set to `Infinity`), SWR 2.4.1 (revalidation on focus, reconnect and stale disabled), React 19.2.3. After a mutation, TanStack Query and SWR wait for the response and then invalidate and refetch; Data Client updates the store optimistically. [Configuration details](https://github.com/reactive/data-client/blob/master/examples/benchmark-react/METHODOLOGY.md#how-each-library-is-configured).
-[^nav]: `list-detail-switch-10`: 57.5 ms for Data Client, 610 ms TanStack Query, 629 ms SWR, 1,370 ms baseline. That is 23.8× the baseline, 10.6× TanStack Query and 10.9× SWR.
-[^mutation]: `update-entity`: 1.5 ms for Data Client, 143 ms TanStack Query, 141 ms SWR, 138 ms baseline. Other mutation scenarios range from 48× to 116× the baseline. [All results](https://github.com/reactive/data-client/blob/master/examples/benchmark-react/METHODOLOGY.md#results).
-[^scaling]: `update-user-10000`: 6.9 ms for Data Client, 671 ms TanStack Query, 641 ms SWR, 641 ms baseline.
+[^setup]: Measured 2026-11-05 on a Ryzen 9 7950X (64 GB, Ubuntu on WSL2, Node 26.12.1, headless Chromium from Playwright 1.64.0), each request delayed 40 ms plus 1 ms per 20 records. Medians of 10 to 60 samples per scenario after warmup, taken as the median of two full runs. [Full methodology](https://github.com/reactive/data-client/blob/master/examples/benchmark-react/METHODOLOGY.md).
+[^config]: TanStack Query 5.96.2 (`staleTime` and `gcTime` set to `Infinity`), SWR 2.5.1 (revalidation on focus, reconnect and stale disabled), React 19.3.1. After a mutation, TanStack Query and SWR wait for the response and then invalidate and refetch; Data Client updates the store optimistically. [Configuration details](https://github.com/reactive/data-client/blob/master/examples/benchmark-react/METHODOLOGY.md#how-each-library-is-configured).
+[^nav]: `list-detail-switch-10`: 21.2 ms for Data Client, 446 ms TanStack Query, 452 ms SWR, 1,351 ms baseline. That is 63.8× the baseline, 21.1× TanStack Query and 21.4× SWR.
+[^mutation]: `update-entity`: 0.73 ms for Data Client, 136 ms TanStack Query, 137 ms SWR, 135 ms baseline. Other mutation scenarios range from 74× to 194× the baseline. [All results](https://github.com/reactive/data-client/blob/master/examples/benchmark-react/METHODOLOGY.md#results).
+[^scaling]: `update-user-10000`: 5.7 ms for Data Client, 625 ms TanStack Query, 602 ms SWR, 606 ms baseline.
 
 ## Normalization benchmarks
 

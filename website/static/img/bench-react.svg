@@ -28,10 +28,10 @@
   <text x="14" y="200" text-anchor="middle" font-size="11" class="axis" transform="rotate(-90,14,200)">&#215; faster than baseline</text>
 
   <text x="58" y="343" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">0</text>
-  <text x="58" y="268.75" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">25&#215;</text>
-  <text x="58" y="197.5" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">50&#215;</text>
-  <text x="58" y="126.25" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">75&#215;</text>
-  <text x="58" y="55" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">100&#215;</text>
+  <text x="58" y="268.75" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">50&#215;</text>
+  <text x="58" y="197.5" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">100&#215;</text>
+  <text x="58" y="126.25" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">150&#215;</text>
+  <text x="58" y="55" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">200&#215;</text>
 
   <line x1="65" x2="700" y1="340" y2="340" class="grid"/>
   <line x1="65" x2="700" y1="268.75" y2="268.75" class="grid" stroke-dasharray="4,3"/>
@@ -39,26 +39,26 @@
   <line x1="65" x2="700" y1="126.25" y2="126.25" class="grid" stroke-dasharray="4,3"/>
   <line x1="65" x2="700" y1="55" y2="55" class="grid" stroke-dasharray="4,3"/>
 
-  <!-- Cached Navigation: DC 23.8x, TQ 2.25x, SWR 2.18x, BL 1x -->
-  <rect x="72.5"  y="272.2"  width="37" height="67.8" rx="3" fill="#3795DE"/>
-  <rect x="114.5" y="333.6"  width="37" height="6.4"  rx="2" fill="#ea580c"/>
-  <rect x="156.5" y="333.8"  width="37" height="6.2"  rx="2" fill="#7c3aed"/>
-  <rect x="198.5" y="335"    width="37" height="5"    rx="2" fill="#94a3b8"/>
-  <text x="91" y="265" text-anchor="middle" font-size="11" font-weight="600" fill="#3795DE">24&#215;</text>
+  <!-- Cached Navigation: DC 63.8x, TQ 3.03x, SWR 2.99x, BL 1x -->
+  <rect x="72.5" y="249.07" width="37" height="90.93" rx="3" fill="#3795DE"/>
+  <rect x="114.5" y="335.69" width="37" height="4.31" rx="2" fill="#ea580c"/>
+  <rect x="156.5" y="335.74" width="37" height="4.26" rx="2" fill="#7c3aed"/>
+  <rect x="198.5" y="337.5" width="37" height="2.5" rx="1" fill="#94a3b8"/>
+  <text x="91" y="242.07" text-anchor="middle" font-size="11" font-weight="600" fill="#3795DE">64&#215;</text>
 
-  <!-- Mutations: DC 92.2x, TQ 0.97x, SWR 0.98x, BL 1x -->
-  <rect x="301"   y="77.2"  width="37" height="262.8" rx="3" fill="#3795DE"/>
-  <rect x="343"   y="337.2" width="37" height="2.8"   rx="1" fill="#ea580c"/>
-  <rect x="385"   y="337.2" width="37" height="2.8"   rx="1" fill="#7c3aed"/>
-  <rect x="427"   y="337.2" width="37" height="2.8"   rx="1" fill="#94a3b8"/>
-  <text x="319.5" y="70" text-anchor="middle" font-size="11" font-weight="600" fill="#3795DE">92&#215;</text>
+  <!-- Mutations: DC 184.3x, TQ 0.99x, SWR 0.98x, BL 1x -->
+  <rect x="301" y="77.44" width="37" height="262.56" rx="3" fill="#3795DE"/>
+  <rect x="343" y="337.5" width="37" height="2.5" rx="1" fill="#ea580c"/>
+  <rect x="385" y="337.5" width="37" height="2.5" rx="1" fill="#7c3aed"/>
+  <rect x="427" y="337.5" width="37" height="2.5" rx="1" fill="#94a3b8"/>
+  <text x="319.5" y="70.44" text-anchor="middle" font-size="11" font-weight="600" fill="#3795DE">184&#215;</text>
 
-  <!-- Scaling (10k): DC 92.9x, TQ 0.96x, SWR 1x, BL 1x -->
-  <rect x="529.5" y="75.2"  width="37" height="264.8" rx="3" fill="#3795DE"/>
-  <rect x="571.5" y="337.3" width="37" height="2.7"   rx="1" fill="#ea580c"/>
-  <rect x="613.5" y="337.2" width="37" height="2.8"   rx="1" fill="#7c3aed"/>
-  <rect x="655.5" y="337.2" width="37" height="2.8"   rx="1" fill="#94a3b8"/>
-  <text x="548" y="68" text-anchor="middle" font-size="11" font-weight="600" fill="#3795DE">93&#215;</text>
+  <!-- Scaling (10k): DC 105.5x, TQ 0.97x, SWR 1.01x, BL 1x -->
+  <rect x="529.5" y="189.69" width="37" height="150.31" rx="3" fill="#3795DE"/>
+  <rect x="571.5" y="337.5" width="37" height="2.5" rx="1" fill="#ea580c"/>
+  <rect x="613.5" y="337.5" width="37" height="2.5" rx="1" fill="#7c3aed"/>
+  <rect x="655.5" y="337.5" width="37" height="2.5" rx="1" fill="#94a3b8"/>
+  <text x="548" y="182.69" text-anchor="middle" font-size="11" font-weight="600" fill="#3795DE">105&#215;</text>
 
   <text x="154" y="360" text-anchor="middle" font-size="12" class="cat">Cached Navigation</text>
   <text x="382.5" y="360" text-anchor="middle" font-size="12" class="cat">Mutations</text>
