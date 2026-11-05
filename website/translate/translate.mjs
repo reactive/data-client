@@ -295,17 +295,19 @@ async function prepare(locale, english) {
       for (const key of Object.keys(strings))
         if (!(key in messages)) delete strings[key];
     for (const [key, { message, description }] of Object.entries(messages)) {
-      if (done[key] === message && target[key]) {
-        delete redo[key];
-        continue;
-      }
+      if (done[key] === message && target[key] && !(key in redo)) continue;
       // Docusaurus ships translations of its theme's own strings
-      if (!(key in done) && target[key] && target[key].message !== message) {
+      if (
+        !(key in done) &&
+        !(key in redo) &&
+        target[key] &&
+        target[key].message !== message
+      ) {
         done[key] = message;
         continue;
       }
       const id = uiId(locale, file, key);
-      // already put back to this English: keep the translation in progress
+      // English already put in place: keep the translation in progress
       if (redo[key] === message && target[key]) {
         ui.push({ id, message, description });
         continue;
@@ -313,8 +315,8 @@ async function prepare(locale, english) {
       // a translation of older English shows English until it is redone
       const previous = key in done ? target[key]?.message : undefined;
       target[key] = { message, description };
-      // the English `finalize` accepts a redone translation of
-      if (key in done) redo[key] = message;
+      // `finalize` accepts a translation of this English only
+      redo[key] = message;
       ui.push({
         id,
         message,
@@ -429,18 +431,19 @@ async function finalize(locale, english) {
   for (const [file, messages] of Object.entries(english)) {
     if (files.length && !named.includes(file)) continue;
     const done = (lock.ui[file] ??= {});
-    const redo = lock.redo?.[file] ?? {};
+    const redo = ((lock.redo ??= {})[file] ??= {});
     for (const [key, { message }] of Object.entries(messages)) {
       const text = localized[file]?.[key]?.message;
-      if (done[key] === message || typeof text !== 'string') continue;
+      if ((done[key] === message && !(key in redo)) || typeof text !== 'string')
+        continue;
       const id = uiId(locale, file, key);
       if (!options.same.includes(id)) {
         if (text === message) {
           untranslated.push(id);
           continue;
         }
-        // only `prepare` puts the new English in place of an old translation
-        if (key in done && redo[key] !== message) {
+        // a translation of other English: `prepare` puts this one in place
+        if ((key in done || key in redo) && redo[key] !== message) {
           outdated.push(id);
           continue;
         }
@@ -552,7 +555,7 @@ for (const locale of locales) {
       console.log(`  still English (if intended: --same ${id})`);
     for (const id of result.outdated)
       console.log(
-        `  translates older English (run prepare to redo it, or keep it as is: --same ${id})`,
+        `  translates other English (run prepare, then translate it; or keep it: --same ${id})`,
       );
     for (const problem of result.problems) console.error(`  ✗ ${problem}`);
     failed ||= result.problems.length > 0;
