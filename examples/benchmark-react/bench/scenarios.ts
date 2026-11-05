@@ -7,53 +7,28 @@ export const NETWORK_SIM_CONFIG = {
   recordsPerMs: 20,
 };
 
-export interface RunProfile {
+/** Config for convergent (single-page) timing scenarios where each
+ *  sub-iteration is an individual sample and convergence is checked inline.
+ *  Short windows keep getting faster for about 30 iterations as V8 optimizes,
+ *  so warmup covers that. The runner forces GC only before each scenario: a
+ *  forced GC inside the loop made the next few iterations up to 3x slower. */
+export interface ConvergentProfile {
   warmup: number;
   minMeasurement: number;
   maxMeasurement: number;
   /** Stop early when 95% CI margin is within this % of the median. */
   targetMarginPct: number;
-  /** Sub-iterations per page visit; median of N is returned as one sample. */
-  opsPerRound: number;
-}
-
-const defaultOpsPerRound = parseInt(process.env.BENCH_OPS_PER_ROUND ?? '5', 10);
-
-export const RUN_CONFIG: Record<ScenarioSize, RunProfile> = {
-  small: {
-    warmup: 2,
-    minMeasurement: 5,
-    maxMeasurement: 20,
-    targetMarginPct: process.env.CI ? 2 : 6,
-    opsPerRound: defaultOpsPerRound,
-  },
-  large: {
-    warmup: 1,
-    minMeasurement: 5,
-    maxMeasurement: 15,
-    targetMarginPct: process.env.CI ? 3 : 10,
-    opsPerRound: defaultOpsPerRound,
-  },
-};
-
-/** Config for convergent (single-page) timing scenarios where each
- *  sub-iteration is an individual sample and convergence is checked inline. */
-export interface ConvergentProfile {
-  warmup: number;
-  minMeasurement: number;
-  maxMeasurement: number;
-  targetMarginPct: number;
 }
 
 export const CONVERGENT_CONFIG: Record<ScenarioSize, ConvergentProfile> = {
   small: {
-    warmup: 8,
+    warmup: 40,
     minMeasurement: 10,
     maxMeasurement: 60,
     targetMarginPct: process.env.CI ? 2 : 6,
   },
   large: {
-    warmup: 5,
+    warmup: 25,
     minMeasurement: 10,
     maxMeasurement: 50,
     targetMarginPct: process.env.CI ? 3 : 10,
@@ -158,7 +133,6 @@ const BASE_SCENARIOS: BaseScenario[] = [
     renderLimit: 100,
     preMountAction: 'mountSortedView',
     size: 'large',
-    opsPerRound: 9,
   },
   {
     nameSuffix: 'update-entity-multi-view',
@@ -177,7 +151,7 @@ const BASE_SCENARIOS: BaseScenario[] = [
     category: 'hotPath',
     size: 'large',
     renderLimit: 100,
-    opsPerRound: 5,
+    durationMeasure: { measure: 'nav-step', aggregate: 'sum' },
   },
   {
     nameSuffix: 'update-user-10000',
@@ -202,9 +176,8 @@ const BASE_SCENARIOS: BaseScenario[] = [
     nameSuffix: 'update-ticker-stream',
     size: 'large',
     durationMeasure: { measure: 'stream-message', aggregate: 'sum' },
-    // Not in CI: the worst message takes ~1 ms and performance.now() steps by
-    // 0.1 ms (the page is not cross-origin isolated), so these vary about ±6%
-    // and miss CI's 3% target.
+    // Not in CI: one message per iteration decides each, so they vary about
+    // ±7% (p95) and ±14% (worst), more than CI's 3% target.
     extraMeasures: {
       'worst-message': {
         measure: 'stream-message',

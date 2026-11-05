@@ -6,7 +6,7 @@
   "scripts": {
     "build": "BROWSERSLIST_ENV=2026 webpack --mode=production",
     "build:no-compiler": "BROWSERSLIST_ENV=2026 REACT_COMPILER=false webpack --mode=production",
-    "preview": "serve dist -l ${BENCH_PORT:-5173} --no-request-logging",
+    "preview": "serve dist -c ../serve.json -l ${BENCH_PORT:-5173} --no-request-logging",
     "bench": "npx tsx bench/runner.ts",
     "bench:no-compiler": "BENCH_LABEL=no-compiler npx tsx bench/runner.ts",
     "bench:small": "npx tsx bench/runner.ts --size small",

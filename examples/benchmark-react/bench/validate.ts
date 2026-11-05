@@ -639,17 +639,27 @@ test('listDetailSwitch completes with correct DOM transitions', async (page, lib
     'detail view still in DOM after listDetailSwitch completed',
   );
 
-  const hasMeasure = await page.evaluate(() =>
-    performance
-      .getEntriesByType('measure')
-      .some(m => m.name === 'mount-duration'),
+  // One nav-step per step: 5 navigations, each to the detail and back.
+  const navSteps = await page.evaluate(
+    () =>
+      performance.getEntriesByType('measure').filter(m => m.name === 'nav-step')
+        .length,
   );
   assert(
-    hasMeasure,
+    navSteps === 10,
     lib,
     'listDetailSwitch measure',
-    'no mount-duration performance measure recorded',
+    `expected 10 nav-step measures, got ${navSteps}`,
   );
+});
+
+// ── server list JSON ─────────────────────────────────────────────────
+
+test('server list replies match a fresh serialization after mutations', async (page, lib) => {
+  const mismatch = await page.evaluate(() =>
+    window.__BENCH__!.checkIssueListJSON(),
+  );
+  assert(mismatch === null, lib, 'server list JSON', mismatch ?? '');
 });
 
 // ── TIMING VALIDATION ────────────────────────────────────────────────

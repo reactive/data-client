@@ -6,7 +6,7 @@ Browser benchmark comparing `@data-client/react`, TanStack Query, SWR, and plain
 
 ```bash
 yarn build:benchmark-react                           # from repo root
-yarn workspace example-benchmark-react preview &     # serve dist/ on port 5173
+yarn workspace example-benchmark-react preview &     # serve dist/ on port 5173 with COOP/COEP (runner requires isolation)
 cd examples/benchmark-react && yarn bench            # all libs (local) or data-client only (CI)
 ```
 
@@ -14,9 +14,9 @@ Filtering: `yarn bench --lib data-client --size small --action update`
 
 ## Architecture
 
-**Runner → `window.__BENCH__` → React**: `bench/runner.ts` opens `localhost:5173/<lib>/` in Playwright, calls `BenchAPI` methods on `window.__BENCH__`, waits for `[data-bench-complete]` attribute, then collects `performance.measure` entries. This is the only runner↔app channel.
+**Runner → `window.__BENCH__` → React**: `bench/runner.ts` opens `localhost:5173/<lib>/` in Playwright, calls `BenchAPI` methods on `window.__BENCH__` and awaits `whenComplete()` in the same evaluate (the harness also sets `[data-bench-complete]`), then collects `performance.measure` entries. This is the only runner↔app channel.
 
-**Web Worker server**: All "network" goes to an in-memory Worker (`server.worker.ts` via `server.ts` RPC) with configurable latency. Keeps fake-server work off main thread.
+**Web Worker server**: All "network" goes to an in-memory Worker (`server.worker.ts` via `server.ts` RPC) with configurable latency. Keeps fake-server work off main thread. Mutation replies are held during data-client update windows (`optimisticMutations`).
 
 **Shared vs library-specific**: `src/shared/` (harness, components, fixtures, resources, server) is identical across all apps. Each `src/<lib>/index.tsx` only contains data-layer wiring. Divergence from shared code breaks fairness.
 
@@ -53,28 +53,28 @@ Filtering: `yarn bench --lib data-client --size small --action update`
 
 ## Data Attributes
 
-| Attribute | Flow | Purpose |
-|---|---|---|
-| `data-app-ready` | harness → runner | `__BENCH__` available |
-| `data-bench-harness` | lib → runner | Container for MutationObserver |
-| `data-bench-complete` | harness → runner | Iteration finished |
-| `data-bench-timeout` | harness → runner | 30s timeout (error) |
-| `data-bench-item` | components → harness | Mount detection |
-| `data-sorted-list` | lib views → harness | Sorted-view mount detection |
-| `data-detail-view` | lib views → harness | Multi-view detection |
-| `data-issue-number` | components → runner/harness | Item identity assertion |
-| `data-title` | components → lib views | Text content assertion |
-| `data-state-list` | lib views → harness | Move-item verification |
-| `data-ticker` | components → validate | Ticker-stream final values (`[data-price]`, `[data-volume]` text) |
+| Attribute             | Flow                        | Purpose                                                           |
+| --------------------- | --------------------------- | ----------------------------------------------------------------- |
+| `data-app-ready`      | harness → runner            | `__BENCH__` available                                             |
+| `data-bench-harness`  | lib → runner                | Container for MutationObserver                                    |
+| `data-bench-complete` | harness → runner            | Iteration finished                                                |
+| `data-bench-timeout`  | harness → runner            | 30s timeout (error)                                               |
+| `data-bench-item`     | components → harness        | Mount detection                                                   |
+| `data-sorted-list`    | lib views → harness         | Sorted-view mount detection                                       |
+| `data-detail-view`    | lib views → harness         | Multi-view detection                                              |
+| `data-issue-number`   | components → runner/harness | Item identity assertion                                           |
+| `data-title`          | components → lib views      | Text content assertion                                            |
+| `data-state-list`     | lib views → harness         | Move-item verification                                            |
+| `data-ticker`         | components → validate       | Ticker-stream final values (`[data-price]`, `[data-volume]` text) |
 
 ## Environment Variables
 
-| Variable | Effect |
-|---|---|
-| `CI` | data-client hot-path only; tighter convergence |
-| `REACT_COMPILER=false` | Disables React Compiler at build |
-| `BENCH_LABEL=<tag>` | Appends `[<tag>]` to result names |
-| `BENCH_PORT` | Preview port (default 5173) |
-| `BENCH_TRACE=true` | Chrome tracing for duration scenarios |
-| `BENCH_V8_TRACE=true` | Launch Chromium with `--trace-opt --trace-deopt`; output to `v8-trace.log` |
-| `BENCH_V8_DEOPT=true` | Launch Chromium with `--prof`; V8 logs to `v8-logs/` |
+| Variable               | Effect                                                                     |
+| ---------------------- | -------------------------------------------------------------------------- |
+| `CI`                   | data-client hot-path only; tighter convergence                             |
+| `REACT_COMPILER=false` | Disables React Compiler at build                                           |
+| `BENCH_LABEL=<tag>`    | Appends `[<tag>]` to result names                                          |
+| `BENCH_PORT`           | Preview port (default 5173)                                                |
+| `BENCH_TRACE=true`     | Chrome tracing for duration scenarios                                      |
+| `BENCH_V8_TRACE=true`  | Launch Chromium with `--trace-opt --trace-deopt`; output to `v8-trace.log` |
+| `BENCH_V8_DEOPT=true`  | Launch Chromium with `--prof`; V8 logs to `v8-logs/`                       |
