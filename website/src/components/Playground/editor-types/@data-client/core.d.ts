@@ -1170,7 +1170,7 @@ declare class NetworkManager implements Manager {
     protected clearAll(): void;
     /** Clear promise state for a given key */
     protected clear(key: string): void;
-    protected getLastReset(): number;
+    protected getLastReset(controller?: Controller): number;
     /** Called when middleware intercepts 'rdc/fetch' action.
      *
      * Will then start a promise for a key and potentially start the network
@@ -1179,7 +1179,7 @@ declare class NetworkManager implements Manager {
      * Uses throttle endpoints without sideEffects. This is valuable
      * for ensures mutation requests always go through.
      */
-    protected handleFetch(action: FetchAction): Promise<any>;
+    protected handleFetch(action: FetchAction, controller?: Controller): Promise<any>;
     /** Called when middleware intercepts a set action.
      *
      * Will resolve the promise associated with set key.

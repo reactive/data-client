@@ -68,22 +68,23 @@ export default function useEnhancedReducer<R extends React.Reducer<any, any>>(
   // React 16/17 warn about updates after unmount, so drop dispatches there (even in other middlewares).
   // Newer React ignores them itself, and a provider hidden by <Activity> must keep dispatching.
   useEffect(() => {
-    if (!LegacyReact) return;
-    protectedDispatchRef.current = outerDispatchRef.current;
-    return () => {
-      /* istanbul ignore else */
-      if (process.env.NODE_ENV !== 'production') {
-        protectedDispatchRef.current = (action: any) => {
-          console.info(
-            'Action dispatched after unmount. This will be ignored.',
-          );
-          console.info(JSON.stringify(action, undefined, 2));
-          return Promise.resolve();
-        };
-      } else {
-        protectedDispatchRef.current = () => Promise.resolve();
-      }
-    };
+    /* istanbul ignore if */
+    if (LegacyReact) {
+      protectedDispatchRef.current = outerDispatchRef.current;
+      return () => {
+        if (process.env.NODE_ENV !== 'production') {
+          protectedDispatchRef.current = (action: any) => {
+            console.info(
+              'Action dispatched after unmount. This will be ignored.',
+            );
+            console.info(JSON.stringify(action, undefined, 2));
+            return Promise.resolve();
+          };
+        } else {
+          protectedDispatchRef.current = () => Promise.resolve();
+        }
+      };
+    }
   }, [outerDispatch]);
 
   return [state, outerDispatch, getState];
