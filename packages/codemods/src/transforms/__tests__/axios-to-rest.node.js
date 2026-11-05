@@ -1905,6 +1905,17 @@ export async function getPost(id: number) {
       );
     });
 
+    it('still hoists when the client module imports only a type from this one', () => {
+      const client = `
+import axios from 'axios';
+import type { Post } from './posts';
+export const api = axios.create({ baseURL: 'https://api.example.com' });
+`;
+      expect(run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts')).toBe(
+        converted,
+      );
+    });
+
     it('converts calls once the client module is rewritten', () => {
       const client = `
 import { RestEndpoint, RestGenerics } from '@data-client/rest';

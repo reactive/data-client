@@ -302,7 +302,7 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
     if (!isCreate(init)) return;
     const { statement, wrap } = statementOf(j, declPath.parent);
     // like a `for` initializer, where no class can go
-    if (!isListed(statement)) return;
+    if (!inStatementList(statement)) return;
 
     const varName =
       declPath.node.id.type === 'Identifier' ? declPath.node.id.name : null;
@@ -444,7 +444,7 @@ function statementOf(j, declarationPath) {
 }
 
 /** Whether a statement is in a block or the program, where other statements can join it */
-function isListed(statement) {
+function inStatementList(statement) {
   return typeof statement.name === 'number';
 }
 
@@ -466,7 +466,7 @@ function splitDeclarations(j, root, test) {
     )
     .forEach(p => {
       const { statement, wrap } = statementOf(j, p);
-      if (!isListed(statement)) return;
+      if (!inStatementList(statement)) return;
       const groups = [];
       let grouping = false;
       for (const declarator of p.node.declarations) {
