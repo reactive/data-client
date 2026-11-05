@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793679942638,
+  "lastUpdate": 1793854263848,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -12137,6 +12137,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 238.1,
             "range": "± 6.9%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "49049befb0bb20f7752e22dba50f486ea8c24eb9",
+          "message": "internal(bench): Add a streaming ticker scenario to the React benchmark (#4580)\n\n* internal(bench): Add ticker streaming scenario\n\nThe store holds 500 tickers next to the 1,000-issue list (100 rendered),\nand a strip renders 20 tickers. update-ticker-stream sends 50 messages\nthrough a MessageChannel, one task each. Each message applies 10 ticker\nupdates with one ctrl.set([TickerEntity], batch). The timer runs from the\nfirst message until the sentinel price shows. Batches are built before\nthe timer starts.\n\nticker-stream-issue-row-renders counts IssueRow renders during the\nstream (expected 0) through a new issueRowRenders ref-stability metric.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* internal(bench): Read each ticker strip row by symbol\n\nEach of the 20 strip rows now reads its ticker with\nuseQuery(TickerEntity, { symbol }) instead of slicing the 500-ticker\nlist. A message that touches no rendered ticker no longer re-renders\nthe strip. The validate test now asserts 0 IssueRow renders during the\nstream unless REACT_COMPILER=false.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* internal(bench): Time each ticker message from send to settle\n\nupdate-ticker-stream now times each message on its own. A window starts\nright before ctrl.set([TickerEntity], batch) and ends when its promise\nresolves, in DataStore's effect after commit. The next message is posted\nthrough a MessageChannel only after that, so React renders once per\nmessage and the gaps between messages are not timed. Batches are still\nbuilt before the first message. update-duration is the sum of the 50\nwindows.\n\nmeasureMessageStream also records the worst and p95 window. Locally, the\nrunner reports them as update-ticker-stream-worst-message and\n-p95-message, in ops/s like the other timings. They stay out of CI: the\nworst window is about 1 ms and performance.now() steps by 0.1 ms, so they\nvary about 6%, more than the 3% target.\n\nEach message now updates 2 rendered tickers, rotating through the strip,\nand 8 others. The sentinel is gone: validate checks that every rendered\nticker shows its last update. A new listViewRenders count shows that the\nlist renders once per message while IssueRow renders stay at 0.\n\nFor this scenario, (react commit) is the sum of all commits in the\niteration (sumReactCommits). Other scenarios keep the last commit.\nmeasureDispatchOverhead is removed, as the hops are no longer timed.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* test(react): Require committed renders to keep result identity\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* internal(bench): End each ticker message window at its DOM commit\n\nReact schedules passive effects in a later task; timing until the ctrl.set()\npromise resolved measured that scheduling more than the update.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* internal(bench): Aggregate ticker message spans in the runner\n\nThe harness now records only one `stream-message` measure per message.\nThe scenario declares how the runner combines them: the duration is\ntheir sum, and the worst and p95 extras use max and p95. The p95 is\nthe one in `bench/stats.ts`. The extras are marked `ci: false`, and\nthe report loop drops them in CI.\n\n- Remove `sumReactCommits`, `sumMeasureDurations` and the commit-count\n  check. The Profiler gives no callback for store-driven commits, so\n  they never produced a value.\n- Move `measureMessageStream` into `useBenchState`. It and\n  `measureUpdate` share one window: start right before the action, end\n  at the first DOM mutation.\n- Move the render counters to `renderCounts.ts`, and name the runner's\n  count scenarios for what they gate.\n- Share one config between the two ticker scenarios, and send 200\n  messages per iteration.\n- Generate the ticker fixture on first use.\n- Validate no longer requires one ListView render per message, so a\n  per-entity subscription does not fail it.\n- concurrent-memo: record committed reads of ProjectView too.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* internal(bench): Place each ticker validate comment by its check\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* internal(bench): Keep extras on both runner paths; fix timer TDZ\n\nrunIteration now returns a ScenarioResult. Both loops keep that object\nwhole, so a new field cannot be lost by one path. runScenario takes the\nmedian of each series, extras included, through medianResult. Before,\nit dropped extras, so a non-convergent scenario with extraMeasures\npublished none.\n\ntimeToMutation disconnects its observer and rethrows when fn() throws.\nmeasureUpdate keeps start and cancel in lets that are declared before\nits timer, and clears the timer when timeToMutation throws, so the\ntimer cannot complete a later iteration on the same page.\nmeasureMessageStream no longer refers to its timer before declaring it.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* internal(bench): Time only library work in React bench windows (#4583)\n\n* internal(bench): Time only library work in React bench windows\n\n- Hold mutation replies in the worker until a data-client update window\n  ends, so a reply that wins the race is not processed inside it\n  (optimisticMutations on useBenchState; other libraries wait for replies).\n- list-detail-switch: sum each step from its state change to the commit\n  that shows the next view, instead of wall time across 20 steps.\n- Serve list replies from per-issue JSON cached in the worker; validate\n  checks them against a fresh serialization after each kind of mutation.\n- Read the end time before the isReady predicate and the mount check.\n- Wait for completion inside one page evaluate instead of polling with\n  waitForSelector during the window.\n- Serve dist with COOP/COEP so performance.now() resolves to 5 us; the\n  runner fails if the page is not cross-origin isolated.\n- Add gcBeforeEachIteration for scenarios.\n- Remove the opsPerRound outer loop, which no scenario reached.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* internal(bench): Stop forcing GC between iterations; warm up longer\n\nA forced GC every 8 iterations made the next few iterations up to 3x\nslower (update-user-10000: about 13 ms instead of 5 ms), and short windows\nkept getting faster for about 30 iterations after the 8-iteration warmup.\nGC is now forced only before each scenario, and warmup is 40 (small) and\n25 (large) iterations. Most CI scenarios now reach their margin target.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* internal(bench): Simplify the React bench harness and runner\n\n- One timedWindow helper (30 s timeout + timeToMutation) backs\n  measureMount, measureUpdate and measureNavStep.\n- runAction now also runs pre-mounts and the memory cycle, clears and\n  reads the harness flags in the same evaluate, and awaits both the\n  completion signal and the action promise. No waitForSelector polling\n  is left in the runner.\n- Worker: withLatestUser replaces three copies of the author merge; the\n  reply hold folds into respond.\n- Runner: isMountLike and forceGC helpers; drop the redundant\n  deterministic-name set and stale comments.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\n\n* internal(bench): Simplify the ticker PR; drop docs table reflow\n\n- README and AGENTS: keep only wording changes; revert the formatter\n  reflow of unrelated tables.\n- Runner: one pushEntry helper for every report row; drop a duplicate\n  clear of performance entries after the pre-mount.\n- Harness: one stop() in measureMessageStream; end is undefined until set.\n- Validate: count nav-step measures with collectMeasures; drop a guard\n  that the test's onlyLibs already covers.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Opus 5.5 (1M context) <noreply@anthropic.com>",
+          "timestamp": "2026-11-05T04:44:30Z",
+          "tree_id": "1d21db76de368684f71ba0067ebb2bef04917bbd",
+          "url": "https://github.com/reactive/data-client/commit/49049befb0bb20f7752e22dba50f486ea8c24eb9"
+        },
+        "date": 1793854260333,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 311.05,
+            "range": "± 5.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 84.98,
+            "range": "± 2.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 867.68,
+            "range": "± 2.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 696.86,
+            "range": "± 2.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 74.38,
+            "range": "± 3.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 529.1,
+            "range": "± 3.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 583.09,
+            "range": "± 1.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 17.01,
+            "range": "± 9.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 148.04,
+            "range": "± 2.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 101.57,
+            "range": "± 2.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-ticker-stream",
+            "value": 12.94,
+            "range": "± 1.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 376.37,
+            "range": "± 6.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 617.28,
+            "range": "± 3.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 396.83,
+            "range": "± 2.1%",
             "unit": "ops/s"
           }
         ]
