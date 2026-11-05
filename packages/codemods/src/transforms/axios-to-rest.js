@@ -249,7 +249,6 @@ function transformImports(
       return axiosStillUsed || s.type !== 'ImportDefaultSpecifier';
     });
     // axios's own names left after the calls convert, which keep axios installed
-    // (markLeftovers also marks each runtime read with its replacement)
     const keptNames = remaining.filter(isKnown).map(s => s.local.name);
 
     if (!remaining.length) {
@@ -290,19 +289,19 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
   const isCreate = init =>
     init &&
     init.type === 'CallExpression' &&
-    init.callee &&
     init.callee.type === 'MemberExpression' &&
     init.callee.object.type === 'Identifier' &&
     init.callee.object.name === axiosLocalName &&
-    init.callee.property.type === 'Identifier' &&
-    init.callee.property.name === 'create';
-  // each class then takes its client's place: after the siblings it can
-  // read, before the ones that can use it
+    memberName(init.callee) === 'create';
+  // a class can't share a statement, and taking its client's place keeps it
+  // after the variables it can read and before the ones that can use it
   splitDeclarations(j, root, declarator => isCreate(declarator.init));
 
   root.find(j.VariableDeclarator).forEach(declPath => {
     const init = declPath.node.init;
     if (!isCreate(init)) return;
+    // still shares its declaration, like a `for` initializer, so no class can go there
+    if (declPath.parent.node.declarations.length > 1) return;
 
     const varName =
       declPath.node.id.type === 'Identifier' ? declPath.node.id.name : null;
@@ -424,40 +423,28 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
       addTodo(j, node, message, anchor);
     };
 
-    const parentPath = declPath.parent;
-    if (parentPath.node.type === 'VariableDeclaration') {
-      const variableDeclPath = parentPath;
-      const variableDecl = variableDeclPath.node;
-      const statementPath =
-        variableDeclPath.parent.node.type === 'ExportNamedDeclaration' ?
-          variableDeclPath.parent
-        : variableDeclPath;
-      const classStatement =
-        statementPath.node.type === 'ExportNamedDeclaration' ?
-          j.exportNamedDeclaration(classDecl)
-        : classDecl;
-      markOptions(classStatement);
-
-      if (variableDecl.declarations.length === 1) {
-        j(statementPath).replaceWith(classStatement);
-      } else {
-        // a declaration that isn't a statement, like a `for` initializer
-        variableDecl.declarations = variableDecl.declarations.filter(
-          declaration => declaration !== declPath.node,
-        );
-        j(statementPath).insertBefore(classStatement);
-      }
-    } else {
-      markOptions(classDecl);
-      j(declPath).replaceWith(classDecl);
-    }
+    const { statement, wrap } = statementOf(j, declPath.parent);
+    const classStatement = wrap(classDecl);
+    classStatement.comments = statement.node.comments;
+    markOptions(classStatement);
+    j(statement).replaceWith(classStatement);
     dirty = true;
   });
 
   return { dirty, createToClass, prefixedClasses };
 }
 
-/** Splits each statement declaring several variables, one of which passes `test`, into one statement per variable */
+/** The statement holding a declaration (its `export` when exported), and a function wrapping a node the same way */
+function statementOf(j, declarationPath) {
+  const exported =
+    declarationPath.parent.node.type === 'ExportNamedDeclaration';
+  return {
+    statement: exported ? declarationPath.parent : declarationPath,
+    wrap: node => (exported ? j.exportNamedDeclaration(node) : node),
+  };
+}
+
+/** Gives each declarator that passes `test` its own statement, keeping the ones between grouped */
 function splitDeclarations(j, root, test) {
   root
     .find(j.VariableDeclaration)
@@ -465,14 +452,18 @@ function splitDeclarations(j, root, test) {
       p => p.node.declarations.length > 1 && p.node.declarations.some(test),
     )
     .forEach(p => {
-      const exported = p.parent.node.type === 'ExportNamedDeclaration';
-      const statement = exported ? p.parent : p;
+      const { statement, wrap } = statementOf(j, p);
       // only a statement in a block or the program can become several
       if (typeof statement.name !== 'number') return;
-      const pieces = p.node.declarations.map(declarator => {
-        const decl = j.variableDeclaration(p.node.kind, [declarator]);
-        return exported ? j.exportNamedDeclaration(decl) : decl;
-      });
+      const groups = [];
+      for (const declarator of p.node.declarations) {
+        const last = groups[groups.length - 1];
+        if (last && !test(declarator) && !test(last[0])) last.push(declarator);
+        else groups.push([declarator]);
+      }
+      const pieces = groups.map(group =>
+        wrap(j.variableDeclaration(p.node.kind, group)),
+      );
       pieces[0].comments = statement.node.comments;
       j(statement).replaceWith(pieces);
     });
@@ -483,6 +474,8 @@ function splitDeclarations(j, root, test) {
 // a client module usually exports `axios.create()` for the rest of the app;
 // jscodeshift runs one file at a time, so read that module to know its class
 const exportedInstanceCache = new Map();
+// file -> the module specifiers it imports or re-exports from
+const importSourcesCache = new Map();
 // an import and a member read that an instance could have
 const INSTANCE_CALL =
   /from\s*['"][\s\S]*\.\s*(?:get|post|put|patch|delete|interceptors|defaults)\b/;
@@ -629,6 +622,13 @@ function exportedInstances(j, file) {
   } catch {
     return found;
   }
+  importSourcesCache.set(
+    file,
+    root
+      .find(j.Node, n => n.source && typeof n.source.value === 'string')
+      .nodes()
+      .map(n => n.source.value),
+  );
   // exported name -> local binding
   const exportsOf = new Map();
   root.find(j.ExportNamedDeclaration).forEach(p => {
@@ -713,15 +713,34 @@ function exportedInstances(j, file) {
   return found;
 }
 
+/** Whether the client module `file` imports `target`, so the two import each other */
+function importsFile(file, target) {
+  const sources = importSourcesCache.get(file) || [];
+  const resolved = nodePath.resolve(target);
+  return sources.some(spec => {
+    const found = resolveModule(file, spec);
+    return found && nodePath.resolve(found) === resolved;
+  });
+}
+
 // imports of axios instances from the project's own modules; renames each
 // import to the instance's class once the caller has converted the calls
 function importedInstances(j, root, filePath) {
   const createToClass = new Map();
   const prefixedClasses = new Set();
   const intercepted = new Set();
+  // classes from a client module that imports this one, so they aren't
+  // defined yet while this module loads
+  const cyclic = new Set();
   const renames = [];
-  if (!filePath)
-    return { createToClass, prefixedClasses, intercepted, renames };
+  const result = {
+    createToClass,
+    prefixedClasses,
+    intercepted,
+    cyclic,
+    renames,
+  };
+  if (!filePath) return result;
   const taken = getExistingClassNames(j, root);
   root
     .find(j.ImportDeclaration)
@@ -734,6 +753,7 @@ function importedInstances(j, root, filePath) {
       if (!file) return;
       const instances = exportedInstances(j, file);
       if (!instances.size) return;
+      const inCycle = importsFile(file, filePath);
       for (const s of importPath.node.specifiers || []) {
         if (s.importKind === 'type') continue;
         const imported =
@@ -754,6 +774,7 @@ function importedInstances(j, root, filePath) {
         createToClass.set(local, new Map([[scope, className]]));
         if (prefixed) prefixedClasses.add(className);
         if (instance.intercepted) intercepted.add(local);
+        if (inCycle) cyclic.add(className);
         renames.push({
           declaration: importPath.node,
           specifier: s,
@@ -762,7 +783,7 @@ function importedInstances(j, root, filePath) {
         });
       }
     });
-  return { createToClass, prefixedClasses, intercepted, renames };
+  return result;
 }
 
 // --- 3. Transform direct axios/instance method calls ---
@@ -1439,7 +1460,7 @@ function transformDirectCalls(
   root,
   axiosLocalName,
   axiosImportScope,
-  { createToClass, prefixedClasses, intercepted: importedIntercepted },
+  { createToClass, prefixedClasses, intercepted: importedIntercepted, cyclic },
   isTS,
 ) {
   let dirty = false;
@@ -1508,9 +1529,10 @@ function transformDirectCalls(
     }
 
     // the endpoint's options are literals, so it can move to module scope
-    // when the instance it's called on is module-level too
+    // when the instance it's called on is module-level too, and its class is
+    // defined before this module runs
     const site =
-      (!className || callBindingScope.isGlobal) &&
+      (!className || (callBindingScope.isGlobal && !cyclic.has(className))) &&
       enclosingFunction(j, callPath);
     if (site) {
       const { node, method, path, unknownOptions } = result;
@@ -1742,6 +1764,7 @@ module.exports = function transformer(fileInfo, api) {
   for (const className of imported.prefixedClasses)
     createResult.prefixedClasses.add(className);
   createResult.intercepted = imported.intercepted;
+  createResult.cyclic = imported.cyclic;
 
   const calls = transformDirectCalls(
     j,

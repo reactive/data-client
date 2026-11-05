@@ -452,6 +452,42 @@ export class BEndpoint extends RestEndpoint {
       `,
       'converts two clients declared in one statement',
     );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+// the API client
+const a = axios.create({ baseURL: '/a' }), b = 1, c = 2;
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+
+// the API client
+class AEndpoint extends RestEndpoint {
+  urlPrefix = '/a';
+}
+
+const b = 1, c = 2;
+      `,
+      'keeps the comment and groups the other variables when the client comes first',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+for (let a = axios.create({ baseURL: '/a' }), i = 0; i < 1; i++) {}
+      `,
+      `
+import axios from 'axios';
+for (// TODO(data-client): replace this axios call with an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
+let a = axios.create({ baseURL: '/a' }), i = 0; i < 1; i++) {}
+      `,
+      'leaves a client in a for initializer alone',
+    );
   });
 
   // ── Direct method call transforms ──────────────────────────────────
@@ -1827,6 +1863,27 @@ export const api = axios.create({ baseURL: 'https://api.example.com' });
 `;
       expect(run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts')).toBe(
         converted,
+      );
+    });
+
+    it('builds endpoints inline when the client module imports this one', () => {
+      const client = `
+import axios from 'axios';
+import { getPost } from './posts';
+export const api = axios.create({ baseURL: 'https://api.example.com' });
+export const preload = () => getPost(1);
+`;
+      expect(run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts')).toBe(
+        `
+import { ApiEndpoint } from './client';
+export async function getPost(id: number) {
+  const res = await (new ApiEndpoint({
+    path: '/posts/:id'
+  })({
+    id
+  }) as Promise<Post>);
+  return res;
+}`.trim(),
       );
     });
 

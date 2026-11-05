@@ -5,7 +5,9 @@
 Fix `axios-to-rest` building a new endpoint on every call and dropping axios types your code still uses
 
 An axios call inside a function now calls an endpoint the module defines once, named after the function, instead of
-building a new endpoint on every call. Add a `schema` to that `const` later, or pass it to `useSuspense()`:
+building a new endpoint on every call. Add a `schema` to that `const` later, or pass it to `useSuspense()`. When the
+client module imports the file back, the endpoint stays in the function, since the client's class isn't defined yet
+while that file loads:
 
 ```ts
 // before the codemod
