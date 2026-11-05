@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793891546877,
+  "lastUpdate": 1793906840842,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -12353,6 +12353,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 284.09,
             "range": "± 1.9%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3b75fc9c47d26714afc58d8851a1d07aeab542a6",
+          "message": "fix(rest): Accept a union body type in RestEndpoint calls (#4591)\n\n* fix(rest): Accept a union body type in RestEndpoint calls\n\nA distributive Body extends {} split a union body into one signature per\nmember, which no value of the whole union could call. BodyBranch checks\nthe body as a whole and still splits off nullish members. push/unshift\nkeep separate item and list signatures so Controller.fetch() still\nresolves a list body as a list.\n\nAdds a 'bodies' typeperf scenario and type tests.\n\nFixes REACT-6\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* refactor(rest): Build only the taken body signatures\n\nBodyKind returns a tag so RestFetch and RestType instantiate only the\nsignatures they use, and AdderFetch skips the split when the body has no\nlist member. Lowers instantiations in every typeperf scenario.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* fix(core): Find list bodies by body position in Controller.fetch()\n\nController.fetch() detected list bodies only on endpoints whose call\nsignatures were split by body, which the union body fix stopped doing.\nIt now narrows each signature's body to its list or item members, so\nhand-built adder endpoints and resource().create resolve a list body as\na list, and AdderFetch is no longer needed. Bodies unioned with void\nstay optional.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* docs(blog): Say list bodies on adder endpoints resolve an array\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* docs(blog): Scope the list result type to push and unshift schemas\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* refactor: Name body helpers for what they hold, refresh stale type docs\n\nDefinedBody (was NonNullBody) also drops void. AdderArgs and KeepUnion\ndocs no longer describe endpoints as split by body. unionBody tests use\ntop-level it() like the sibling type tests.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* refactor(core): Share the body tuple builder in Controller.fetch() types\n\nBodyTuple builds (body) and (params, body) the same way, and the item\noverload's comment now says it also takes calls with no body.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* chore(typeperf): Re-record budget\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* docs(blog): Show the cast a union body no longer needs\n\nAlso say which adder endpoints the item overload of Controller.fetch() covers.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n* docs(blog): Say the union body error was the old behavior\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZDumXWFk8r3j2BZnt5\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-05T19:21:07Z",
+          "tree_id": "17eb6c57b659d1dea94facc3784d99d20b2f1b92",
+          "url": "https://github.com/reactive/data-client/commit/3b75fc9c47d26714afc58d8851a1d07aeab542a6"
+        },
+        "date": 1793906837437,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 290.07,
+            "range": "± 3.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 76.22,
+            "range": "± 1.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 763.36,
+            "range": "± 2.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 607.93,
+            "range": "± 2.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 68.59,
+            "range": "± 2.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 512.82,
+            "range": "± 1.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 649.35,
+            "range": "± 2.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 13.17,
+            "range": "± 8.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 114.73,
+            "range": "± 2.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 87.24,
+            "range": "± 2.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-ticker-stream",
+            "value": 12.47,
+            "range": "± 1.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 347.83,
+            "range": "± 2.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 483.09,
+            "range": "± 1.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 298.73,
+            "range": "± 2.1%",
             "unit": "ops/s"
           }
         ]
