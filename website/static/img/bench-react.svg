@@ -41,8 +41,8 @@
 
   <!-- Cached Navigation: DC 63.8x, TQ 3.03x, SWR 2.99x, BL 1x -->
   <rect x="72.5" y="249.07" width="37" height="90.93" rx="3" fill="#3795DE"/>
-  <rect x="114.5" y="335.69" width="37" height="4.31" rx="1" fill="#ea580c"/>
-  <rect x="156.5" y="335.74" width="37" height="4.26" rx="1" fill="#7c3aed"/>
+  <rect x="114.5" y="335.69" width="37" height="4.31" rx="2" fill="#ea580c"/>
+  <rect x="156.5" y="335.74" width="37" height="4.26" rx="2" fill="#7c3aed"/>
   <rect x="198.5" y="337.5" width="37" height="2.5" rx="1" fill="#94a3b8"/>
   <text x="91" y="242.07" text-anchor="middle" font-size="11" font-weight="600" fill="#3795DE">64&#215;</text>
 

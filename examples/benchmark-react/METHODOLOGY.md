@@ -10,7 +10,7 @@ yourself, change it, or point it at your own workload.
 - The charts come from two local runs on **2026-11-05** at commit
   [`fde2da8`](https://github.com/reactive/data-client/commit/fde2da82122096f24b92e789722469271918b5c3) (master after
   [#4580](https://github.com/reactive/data-client/pull/4580), plus the harness fix in
-  [#4584](https://github.com/reactive/data-client/pull/4584)). Each value is the median of the two runs.
+  [#4584](https://github.com/reactive/data-client/pull/4584)).
 - Each simulated request costs **40 ms + 1 ms per 20 records**.
   Most of the gap comes from requests Data Client doesn't wait for or repeat:
   - Navigation renders detail views from entities already in the list response.
