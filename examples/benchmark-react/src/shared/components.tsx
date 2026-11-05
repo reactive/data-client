@@ -125,7 +125,7 @@ export function PlainIssueList({
   const visible =
     limit && issues.length > limit ? issues.slice(0, limit) : issues;
   return (
-    <div>
+    <div data-issue-list>
       {visible.map(issue => (
         <IssueRow key={issue.number} issue={issue} />
       ))}

@@ -475,15 +475,20 @@ export function useBenchState({
     async (n: number) => {
       await seedIssueList(FIXTURE_ISSUES.slice(0, n));
 
+      const pinned = Array.from({ length: 10 }, (_, i) => i + 1);
       setDetailIssueNumber(1);
-      setPinnedNumbers(Array.from({ length: 10 }, (_, i) => i + 1));
+      setPinnedNumbers(pinned);
 
       await measureMount(() => setListViewCount(n), {
         signalComplete: false,
       });
 
+      // The mount can end on the detail or a pinned row, so wait for the
+      // list and every view; else an update would race their first fetches.
+      await waitForElement('[data-issue-list] [data-bench-item]');
       await waitForElement('[data-detail-view]');
-      await waitForElement('[data-pinned-number]');
+      for (const number of pinned)
+        await waitForElement(`[data-pinned-number="${number}"]`);
       setComplete();
     },
     [
