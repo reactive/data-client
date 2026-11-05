@@ -98,6 +98,7 @@ const x = 1;
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): replace axios's \`isAxiosError\`, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
 import { isAxiosError } from 'axios';
 const x = 1;
       `,
@@ -113,6 +114,7 @@ const x = 1;
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): replace axios's \`spreadValues\`, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
 import { spread as spreadValues } from 'axios';
 const x = 1;
       `,
@@ -486,7 +488,22 @@ import axios from 'axios';
 for (// TODO(data-client): replace this axios call with an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
 let a = axios.create({ baseURL: '/a' }), i = 0; i < 1; i++) {}
       `,
-      'leaves a client in a for initializer alone',
+      'marks a client in a for initializer instead of converting it',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+for (let a = axios.create({ baseURL: '/a' }); a; ) {}
+      `,
+      `
+import axios from 'axios';
+for (// TODO(data-client): replace this axios call with an endpoint: https://dataclient.io/rest/guides/axios-migration#call-sites
+let a = axios.create({ baseURL: '/a' }); a; ) {}
+      `,
+      'marks a lone client in a for initializer instead of converting it',
     );
   });
 
@@ -845,6 +862,7 @@ const result = axios.get('/users');
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+// TODO(data-client): replace axios's \`isAxiosError\`, then remove this import: https://dataclient.io/rest/guides/axios-migration#remove-axios
 import { isAxiosError } from 'axios';
 // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
 const result = new RestEndpoint({

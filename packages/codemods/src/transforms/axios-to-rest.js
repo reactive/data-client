@@ -249,7 +249,7 @@ function transformImports(
       return axiosStillUsed || s.type !== 'ImportDefaultSpecifier';
     });
     // axios's own names left after the calls convert, which keep axios installed
-    const keptNames = remaining.filter(isKnown).map(s => s.local.name);
+    const keptNames = remaining.map(s => s.local.name);
 
     if (!remaining.length) {
       j(importPath).remove();
@@ -300,8 +300,9 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
   root.find(j.VariableDeclarator).forEach(declPath => {
     const init = declPath.node.init;
     if (!isCreate(init)) return;
-    // still shares its declaration, like a `for` initializer, so no class can go there
-    if (declPath.parent.node.declarations.length > 1) return;
+    const { statement, wrap } = statementOf(j, declPath.parent);
+    // like a `for` initializer, where no class can go
+    if (!isListed(statement)) return;
 
     const varName =
       declPath.node.id.type === 'Identifier' ? declPath.node.id.name : null;
@@ -423,11 +424,9 @@ function transformAxiosCreate(j, root, axiosLocalName, isTS) {
       addTodo(j, node, message, anchor);
     };
 
-    const { statement, wrap } = statementOf(j, declPath.parent);
     const classStatement = wrap(classDecl);
-    classStatement.comments = statement.node.comments;
     markOptions(classStatement);
-    j(statement).replaceWith(classStatement);
+    replaceStatement(j, statement, [classStatement]);
     dirty = true;
   });
 
@@ -444,6 +443,20 @@ function statementOf(j, declarationPath) {
   };
 }
 
+/** Whether a statement is in a block or the program, where other statements can join it */
+function isListed(statement) {
+  return typeof statement.name === 'number';
+}
+
+/** Replaces a statement with `nodes`, keeping the comments above it */
+function replaceStatement(j, statement, nodes) {
+  nodes[0].comments = [
+    ...(statement.node.comments || []),
+    ...(nodes[0].comments || []),
+  ];
+  j(statement).replaceWith(nodes);
+}
+
 /** Gives each declarator that passes `test` its own statement, keeping the ones between grouped */
 function splitDeclarations(j, root, test) {
   root
@@ -453,19 +466,20 @@ function splitDeclarations(j, root, test) {
     )
     .forEach(p => {
       const { statement, wrap } = statementOf(j, p);
-      // only a statement in a block or the program can become several
-      if (typeof statement.name !== 'number') return;
+      if (!isListed(statement)) return;
       const groups = [];
+      let grouping = false;
       for (const declarator of p.node.declarations) {
-        const last = groups[groups.length - 1];
-        if (last && !test(declarator) && !test(last[0])) last.push(declarator);
+        const passes = test(declarator);
+        if (grouping && !passes) groups[groups.length - 1].push(declarator);
         else groups.push([declarator]);
+        grouping = !passes;
       }
-      const pieces = groups.map(group =>
-        wrap(j.variableDeclaration(p.node.kind, group)),
+      replaceStatement(
+        j,
+        statement,
+        groups.map(group => wrap(j.variableDeclaration(p.node.kind, group))),
       );
-      pieces[0].comments = statement.node.comments;
-      j(statement).replaceWith(pieces);
     });
 }
 
@@ -474,8 +488,6 @@ function splitDeclarations(j, root, test) {
 // a client module usually exports `axios.create()` for the rest of the app;
 // jscodeshift runs one file at a time, so read that module to know its class
 const exportedInstanceCache = new Map();
-// file -> the module specifiers it imports or re-exports from
-const importSourcesCache = new Map();
 // an import and a member read that an instance could have
 const INSTANCE_CALL =
   /from\s*['"][\s\S]*\.\s*(?:get|post|put|patch|delete|interceptors|defaults)\b/;
@@ -615,20 +627,24 @@ function responseInterceptorTargets(j, root) {
 function exportedInstances(j, file) {
   if (exportedInstanceCache.has(file)) return exportedInstanceCache.get(file);
   const found = new Map();
-  exportedInstanceCache.set(file, found);
+  // what the module imports or re-exports at runtime, to spot an import cycle
+  const imports = [];
+  const entry = { instances: found, imports };
+  exportedInstanceCache.set(file, entry);
   let root;
   try {
     root = j(fs.readFileSync(file, 'utf8'));
   } catch {
-    return found;
+    return entry;
   }
-  importSourcesCache.set(
-    file,
-    root
-      .find(j.Node, n => n.source && typeof n.source.value === 'string')
-      .nodes()
-      .map(n => n.source.value),
-  );
+  for (const node of root.get().node.program.body)
+    if (
+      node.source &&
+      typeof node.source.value === 'string' &&
+      node.importKind !== 'type' &&
+      node.exportKind !== 'type'
+    )
+      imports.push(node.source.value);
   // exported name -> local binding
   const exportsOf = new Map();
   root.find(j.ExportNamedDeclaration).forEach(p => {
@@ -710,37 +726,30 @@ function exportedInstances(j, file) {
           intercepted,
         });
   }
-  return found;
+  return entry;
 }
 
-/** Whether the client module `file` imports `target`, so the two import each other */
-function importsFile(file, target) {
-  const sources = importSourcesCache.get(file) || [];
+/** Whether the module `file`, with these `imports`, imports `target` */
+function importsFile(file, imports, target) {
   const resolved = nodePath.resolve(target);
-  return sources.some(spec => {
-    const found = resolveModule(file, spec);
-    return found && nodePath.resolve(found) === resolved;
-  });
+  return imports.some(spec => resolveModule(file, spec) === resolved);
 }
 
 // imports of axios instances from the project's own modules; renames each
 // import to the instance's class once the caller has converted the calls
 function importedInstances(j, root, filePath) {
-  const createToClass = new Map();
-  const prefixedClasses = new Set();
-  const intercepted = new Set();
-  // classes from a client module that imports this one, so they aren't
-  // defined yet while this module loads
-  const cyclic = new Set();
-  const renames = [];
   const result = {
-    createToClass,
-    prefixedClasses,
-    intercepted,
-    cyclic,
-    renames,
+    createToClass: new Map(),
+    prefixedClasses: new Set(),
+    intercepted: new Set(),
+    // classes from a client module that imports this one, so they aren't
+    // defined yet while this module loads
+    cyclic: new Set(),
+    renames: [],
   };
   if (!filePath) return result;
+  const { createToClass, prefixedClasses, intercepted, cyclic, renames } =
+    result;
   const taken = getExistingClassNames(j, root);
   root
     .find(j.ImportDeclaration)
@@ -751,9 +760,9 @@ function importedInstances(j, root, filePath) {
     .forEach(importPath => {
       const file = resolveModule(filePath, importPath.node.source.value);
       if (!file) return;
-      const instances = exportedInstances(j, file);
+      const { instances, imports } = exportedInstances(j, file);
       if (!instances.size) return;
-      const inCycle = importsFile(file, filePath);
+      const inCycle = importsFile(file, imports, filePath);
       for (const s of importPath.node.specifiers || []) {
         if (s.importKind === 'type') continue;
         const imported =
