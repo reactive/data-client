@@ -62,7 +62,7 @@ your source folders, never the repo root:
 npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/
 ```
 
-Each axios call becomes a call to an endpoint. Path params, `params` and the body become its arguments, and it resolves to the body, so `.data` goes away.
+Each axios call becomes a call to an endpoint, built once at module level. Path params, `params` and the body become its arguments, and it resolves to the body, so `.data` goes away.
 
 ```ts title="Before"
 import axios from 'axios';
@@ -87,15 +87,20 @@ class ApiEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
   urlPrefix = 'https://api.example.com';
 }
 
+const getPostEndpoint = new ApiEndpoint({ path: '/posts/:id' });
+
 export async function getPost(id: string) {
-  const res = await new ApiEndpoint({ path: '/posts/:id' })({ id });
+  const res = await getPostEndpoint({ id });
   return res;
 }
 
+const createPostEndpoint = new ApiEndpoint({
+  path: '/posts',
+  method: 'POST',
+});
+
 export async function createPost(body: { title: string }) {
-  const data = await new ApiEndpoint({ path: '/posts', method: 'POST' })(
-    body,
-  );
+  const data = await createPostEndpoint(body);
   return data;
 }
 ```

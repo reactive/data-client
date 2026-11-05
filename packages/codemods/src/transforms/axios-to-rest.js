@@ -130,10 +130,6 @@ function hasLiveReference(j, root, localName, importScope) {
   return readsOf(j, root, localName, importScope).size() > 0;
 }
 
-function hasRuntimeReference(j, root, localName, importScope) {
-  return readsOf(j, root, localName, importScope, { types: false }).size() > 0;
-}
-
 function ensureRestImports(j, root, names) {
   // `import type` can't bring in the RestEndpoint value
   const restImports = root
@@ -210,46 +206,31 @@ function transformImports(
   }
 
   root.find(j.ImportDeclaration).forEach(importPath => {
-    if (importPath.node.source.value !== 'axios') return;
+    const decl = importPath.node;
+    if (decl.source.value !== 'axios') return;
+    const isType = s =>
+      decl.importKind === 'type' ||
+      s.importKind === 'type' ||
+      (s.type === 'ImportSpecifier' &&
+        AXIOS_TYPE_IMPORTS.has(specName(s.imported)));
+    const isLive = (s, options) =>
+      readsOf(j, root, s.local.name, importPath.scope, options).size() > 0;
+    // a type stays while code still names it; tsc fails without it
+    const keptTypes = [];
 
-    if (importPath.node.importKind === 'type') {
-      j(importPath).remove();
-      dirty = true;
-      return;
-    }
-
-    if (axiosStillUsed) {
-      // axios stays, but drop the types nothing reads anymore
-      const used = importPath.node.specifiers.filter(s => {
-        if (s.type !== 'ImportSpecifier') return true;
-        const importedName = specName(s.imported);
-        if (s.importKind !== 'type' && !AXIOS_TYPE_IMPORTS.has(importedName))
-          return true;
-        const localName = (s.local && s.local.name) || importedName;
-        return hasLiveReference(j, root, localName, importPath.scope);
-      });
-      if (used.length !== importPath.node.specifiers.length) {
-        importPath.node.specifiers = used;
-        dirty = true;
+    const remaining = decl.specifiers.filter(s => {
+      if (isType(s)) {
+        if (!isLive(s)) return false;
+        keptTypes.push(s.local.name);
+        return true;
       }
-      return;
-    }
-
-    const specs = importPath.node.specifiers;
-    const remaining = specs.filter(s => {
+      if (axiosStillUsed) return true;
       if (s.type === 'ImportDefaultSpecifier') return false;
-      if (s.type === 'ImportSpecifier' && s.importKind === 'type') return false;
-      if (s.type === 'ImportSpecifier' && s.imported) {
-        const importedName = specName(s.imported);
-        const localName = (s.local && s.local.name) || importedName;
-
-        if (AXIOS_RUNTIME_IMPORTS.has(importedName)) {
-          return hasRuntimeReference(j, root, localName, importPath.scope);
-        }
-        if (AXIOS_TYPE_IMPORTS.has(importedName)) {
-          return false;
-        }
-      }
+      if (
+        s.type === 'ImportSpecifier' &&
+        AXIOS_RUNTIME_IMPORTS.has(specName(s.imported))
+      )
+        return isLive(s, { types: false });
       return true;
     });
 
@@ -258,9 +239,20 @@ function transformImports(
       dirty = true;
       return;
     }
-
-    importPath.node.specifiers = remaining;
-    dirty = true;
+    if (remaining.length !== decl.specifiers.length) {
+      decl.specifiers = remaining;
+      dirty = true;
+    }
+    // with the calls converted, these types can be what keeps axios installed
+    if (keptTypes.length && !axiosStillUsed) {
+      addTodo(
+        j,
+        decl,
+        `replace axios's ${keptTypes.map(n => `\`${n}\``).join(', ')} ${keptTypes.length > 1 ? 'types' : 'type'}, then remove this import`,
+        'remove-axios',
+      );
+      dirty = true;
+    }
   });
 
   return dirty;
@@ -942,11 +934,7 @@ function toPath(j, urlArg) {
 
 function propKey(prop) {
   if (prop.type !== 'ObjectProperty' && prop.type !== 'Property') return null;
-  if (prop.computed) return null;
-  if (prop.key.type === 'Identifier') return prop.key.name;
-  if (prop.key.type === 'StringLiteral' || prop.key.type === 'Literal')
-    return String(prop.key.value);
-  return null;
+  return keyName(prop);
 }
 
 /**
@@ -1276,11 +1264,139 @@ function buildCall(j, callPath, className, prefixed, isTS) {
 
   return {
     node: j.callExpression(endpoint, invokeArgs),
+    method: methodName,
+    path: url.path,
     // the response type the axios call was given
     responseType: isTS && typeArgs && typeArgs.params[0],
     unknownOptions,
     todos,
   };
+}
+
+// --- 3b. Build each endpoint once, at module scope ---
+
+/** The name of a non-computed key, or null */
+function keyName(node) {
+  if (node.computed) return null;
+  const { key } = node;
+  if (key.type === 'Identifier') return key.name;
+  if (key.type === 'PrivateName') return key.id.name;
+  if (key.type === 'StringLiteral' || key.type === 'Literal')
+    return String(key.value);
+  return null;
+}
+
+/** What a function is called: its own name, its key, or what it's assigned to */
+function functionName(path) {
+  const { node } = path;
+  if (node.id) return node.id.name;
+  if (node.key) return keyName(node);
+  const parent = path.parent.node;
+  if (parent.type === 'VariableDeclarator')
+    return parent.id.type === 'Identifier' ? parent.id.name : null;
+  if (parent.type === 'AssignmentExpression' && parent.right === node)
+    return memberName(parent.left);
+  if (parent.value === node && parent.key) return keyName(parent);
+  return null;
+}
+
+/**
+ * For a call inside a function: the module statement holding it and the
+ * nearest named function. Null outside any function, where the endpoint is
+ * built once anyway.
+ */
+function hoistSite(j, callPath) {
+  let inFunction = false;
+  let fn = null;
+  let fnName = null;
+  let p = callPath;
+  for (; p.parent.node.type !== 'Program'; p = p.parent) {
+    if (!j.Function.check(p.node)) continue;
+    inFunction = true;
+    if (fn) continue;
+    fnName = toIdentifier(functionName(p) || '');
+    if (fnName) fn = p.node;
+  }
+  if (!inFunction) return null;
+  return { statement: p.node, fn, fnName, start: callPath.node.start };
+}
+
+/** camelCase identifier from text like `get-post` or `/users/:id/posts` */
+function toIdentifier(text) {
+  const words = text.split(/[^A-Za-z0-9_$]+/).filter(Boolean);
+  if (!words.length) return null;
+  const name = words[0] + words.slice(1).map(capitalize).join('');
+  return /^\d/.test(name) ? '_' + name : name;
+}
+
+function classStatementIndex(body, className) {
+  return body.findIndex(s => {
+    const decl = s.declaration || s;
+    return (
+      decl.type === 'ClassDeclaration' && decl.id && decl.id.name === className
+    );
+  });
+}
+
+/**
+ * Moves each endpoint a function builds into a module `const`, so it's built
+ * once and can take a `schema` or go to `useSuspense()` later. It's named
+ * after its function, or by method and path when a function has several.
+ */
+function hoistEndpoints(j, root, hoists, reserved) {
+  if (!hoists.length) return;
+  const program = root.get().node.program;
+  const taken = new Set([
+    ...reserved,
+    ...root
+      .find(j.Identifier)
+      .nodes()
+      .map(n => n.name),
+  ]);
+  const perFunction = new Map();
+  for (const { fn } of hoists)
+    if (fn) perFunction.set(fn, (perFunction.get(fn) || 0) + 1);
+
+  // body index -> declarations to insert there, in source order
+  const inserts = new Map();
+  for (const hoist of hoists.sort((a, b) => a.start - b.start)) {
+    const {
+      fn,
+      fnName,
+      method,
+      path,
+      node: call,
+      className,
+      unknownOptions,
+    } = hoist;
+    const base =
+      fn && perFunction.get(fn) === 1 ?
+        fnName
+      : toIdentifier(`${method} ${path.replace(/:\w+/g, '')}`);
+    let name = base + 'Endpoint';
+    for (let n = 2; taken.has(name); n++) name = base + 'Endpoint' + n;
+    taken.add(name);
+
+    const decl = j.variableDeclaration('const', [
+      j.variableDeclarator(j.identifier(name), call.callee),
+    ]);
+    call.callee = j.identifier(name);
+    if (unknownOptions.length) {
+      const [message, anchor] = optionsTodo(unknownOptions, `\`${name}\``);
+      addTodo(j, decl, message, anchor);
+    }
+
+    // after the class it extends, which isn't defined before its statement
+    let index = program.body.indexOf(hoist.statement);
+    if (className) {
+      const classIndex = classStatementIndex(program.body, className);
+      if (classIndex >= index) index = classIndex + 1;
+    }
+    if (!inserts.has(index)) inserts.set(index, []);
+    inserts.get(index).push(decl);
+  }
+  for (const index of [...inserts.keys()].sort((a, b) => b - a))
+    program.body.splice(index, 0, ...inserts.get(index));
 }
 
 function transformDirectCalls(
@@ -1293,6 +1409,7 @@ function transformDirectCalls(
 ) {
   let dirty = false;
   let marked = false;
+  const hoists = [];
   const callTargets = new Set([axiosLocalName, ...createToClass.keys()]);
   // a response interceptor can change what `.data` refers to (often the
   // body's own `data` field, after `response => response.data`)
@@ -1355,8 +1472,14 @@ function transformDirectCalls(
       continue;
     }
 
+    // the endpoint's options are literals, so it can move to module scope
+    // when its class is declared there too
+    const site =
+      (!className || callBindingScope.isGlobal) && hoistSite(j, callPath);
+    if (site) hoists.push({ ...site, ...result, className });
     j(callPath).replaceWith(result.node);
-    if (result.unknownOptions.length) {
+    // a hoisted endpoint gets this TODO itself
+    if (!site && result.unknownOptions.length) {
       const [message, anchor] = optionsTodo(result.unknownOptions);
       markTodo(j, callPath, message, anchor);
     }
@@ -1398,6 +1521,11 @@ function transformDirectCalls(
     }
     dirty = true;
   }
+  // names the imports and renamed instances will take
+  const reserved = ['RestEndpoint', 'RestGenerics'];
+  for (const scopes of createToClass.values())
+    reserved.push(...scopes.values());
+  hoistEndpoints(j, root, hoists, reserved);
 
   return { dirty, marked };
 }
