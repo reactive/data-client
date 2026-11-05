@@ -2,13 +2,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { chromium } from 'playwright';
-import type {
-  Browser,
-  BrowserServer,
-  CDPSession,
-  Locator,
-  Page,
-} from 'playwright';
+import type { Browser, BrowserServer, CDPSession, Page } from 'playwright';
 
 import {
   aggregateMeasures,
@@ -188,25 +182,23 @@ function isCountScenario(scenario: Scenario): scenario is Scenario & {
   return (COUNT_METRICS as readonly unknown[]).includes(scenario.resultMetric);
 }
 
-function isConvergentScenario(scenario: Scenario): boolean {
+/** Mount-like actions build their own view; the rest update a pre-mounted one. */
+function isMountLike(scenario: Scenario): boolean {
   return (
-    !scenario.deterministic &&
-    scenario.category !== 'memory' &&
-    scenario.resultMetric !== 'heapDelta' &&
-    !isCountScenario(scenario)
-  );
-}
-
-function classifyAction(scenario: Scenario): {
-  isMountLike: boolean;
-  isUpdate: boolean;
-} {
-  const isMountLike =
     scenario.action === 'init' ||
     scenario.action === 'mountSortedView' ||
     scenario.action === 'initDoubleList' ||
-    scenario.action === 'listDetailSwitch';
-  return { isMountLike, isUpdate: !isMountLike };
+    scenario.action === 'listDetailSwitch'
+  );
+}
+
+/** Two GCs before a scenario, so allocations from the last one don't carry over. */
+async function forceGC(cdp: CDPSession, page: Page): Promise<void> {
+  // Best effort: a failed collection only adds variance.
+  await cdp.send('HeapProfiler.collectGarbage').catch(() => undefined);
+  await page.waitForTimeout(100);
+  await cdp.send('HeapProfiler.collectGarbage').catch(() => undefined);
+  await page.waitForTimeout(400);
 }
 
 async function setupBenchPage(
@@ -214,7 +206,7 @@ async function setupBenchPage(
   lib: string,
   scenario: Scenario,
   networkSim: boolean,
-): Promise<{ harness: Locator; bench: any }> {
+): Promise<any> {
   await page.goto(`${BASE_URL}/${lib}/`, {
     waitUntil: 'networkidle',
     timeout: 120000,
@@ -230,8 +222,7 @@ async function setupBenchPage(
     );
   }
 
-  const harness = page.locator('[data-bench-harness]');
-  await harness.waitFor({ state: 'attached' });
+  await page.locator('[data-bench-harness]').waitFor({ state: 'attached' });
 
   const bench = await page.evaluateHandle('window.__BENCH__');
   if (await bench.evaluate(b => b == null))
@@ -252,60 +243,44 @@ async function setupBenchPage(
     );
   }
 
-  return { harness, bench };
+  return bench;
 }
 
 async function runPreMount(
   page: Page,
-  harness: Locator,
   bench: any,
   scenario: Scenario,
   networkSim: boolean,
 ): Promise<void> {
-  const preMountAction = scenario.preMountAction ?? 'init';
-  const mountCount = scenario.mountCount ?? 100;
-  await harness.evaluate(el => {
-    el.removeAttribute('data-bench-complete');
-    el.removeAttribute('data-bench-timeout');
-  });
-  await (bench as any).evaluate(
-    (api: any, [action, n]: [string, number]) => api[action](n),
-    [preMountAction, mountCount],
+  await runAction(
+    bench,
+    scenario.preMountAction ?? 'init',
+    [scenario.mountCount ?? 100],
+    actionTimeoutMs(networkSim),
   );
-  const preMountTimeout = networkSim ? 60000 : 10000;
-  await page.waitForSelector('[data-bench-complete]', {
-    timeout: preMountTimeout,
-    state: 'attached',
-  });
-  const preMountTimedOut = await harness.evaluate(el =>
-    el.hasAttribute('data-bench-timeout'),
-  );
-  if (preMountTimedOut) {
-    throw new Error(
-      `Harness timeout during pre-mount (${preMountAction}): did not complete within 30 s`,
-    );
-  }
   await page.evaluate(() => {
     performance.clearMarks();
     performance.clearMeasures();
   });
 }
 
+function actionTimeoutMs(networkSim: boolean): number {
+  return networkSim ? 60000 : 10000;
+}
+
 /**
  * Call `api[action](...args)` and wait in the page until the harness signals
- * completion. One `evaluate` awaits the harness promise, so Playwright sends
- * nothing to the page while the action is timed (`waitForSelector` polls the
- * page from its first moment). Rejects if the action rejects, or on timeout.
+ * completion and the action's own promise (if any) settles. One `evaluate`
+ * awaits both, so Playwright sends nothing to the page while the action is
+ * timed (`waitForSelector` polls the page from its first moment). Rejects if
+ * the action rejects, on timeout, or if the harness timed out.
  */
 async function runAction(
-  page: Page,
-  harness: Locator,
   bench: any,
   action: string,
   args: unknown[],
-  { networkSim }: { networkSim: boolean },
+  timeoutMs: number,
 ): Promise<void> {
-  const timeoutMs = networkSim ? 60000 : 10000;
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<never>((_, reject) => {
     timer = setTimeout(
@@ -314,17 +289,19 @@ async function runAction(
       timeoutMs,
     );
   });
+  let timedOut: boolean;
   try {
-    await Promise.race([
+    timedOut = await Promise.race([
       bench.evaluate(
-        (api: any, { action, args }: { action: string; args: unknown[] }) => {
-          const complete: Promise<void> = api.whenComplete();
-          const result = api[action](...args);
-          // Settle on completion; also reject if an async action rejects.
-          return Promise.race([
-            complete,
-            Promise.resolve(result).then(() => complete),
-          ]);
+        async (
+          api: any,
+          { action, args }: { action: string; args: unknown[] },
+        ) => {
+          const harness = document.querySelector('[data-bench-harness]')!;
+          harness.removeAttribute('data-bench-complete');
+          harness.removeAttribute('data-bench-timeout');
+          await Promise.all([api.whenComplete(), api[action](...args)]);
+          return harness.hasAttribute('data-bench-timeout');
         },
         { action, args },
       ),
@@ -333,12 +310,9 @@ async function runAction(
   } finally {
     clearTimeout(timer);
   }
-  const timedOut = await harness.evaluate(el =>
-    el.hasAttribute('data-bench-timeout'),
-  );
   if (timedOut) {
     throw new Error(
-      `Harness timeout: MutationObserver did not detect expected DOM update within 30 s`,
+      `Harness timeout during ${action}: MutationObserver did not detect expected DOM update within 30 s`,
     );
   }
 }
@@ -346,7 +320,6 @@ async function runAction(
 /** Run one timed iteration: cleanup, invoke action, wait, collect measures. */
 async function runIteration(
   page: Page,
-  harness: Locator,
   bench: any,
   scenario: Scenario,
   opts: {
@@ -392,10 +365,6 @@ async function runIteration(
     performance.clearMarks();
     performance.clearMeasures();
   });
-  await harness.evaluate(el => {
-    el.removeAttribute('data-bench-complete');
-    el.removeAttribute('data-bench-timeout');
-  });
 
   let cdpTracing: CDPSession | undefined;
   const traceChunks: object[] = [];
@@ -413,9 +382,12 @@ async function runIteration(
     scenario.action === 'deleteEntity' ?
       [Math.min(subIdx + 1, mountCount)]
     : scenario.args;
-  await runAction(page, harness, bench, scenario.action, actionArgs, {
-    networkSim,
-  });
+  await runAction(
+    bench,
+    scenario.action,
+    actionArgs,
+    actionTimeoutMs(networkSim),
+  );
 
   await (bench as any).evaluate((api: any) => api.flushPendingMutations());
 
@@ -471,7 +443,7 @@ async function runIteration(
 }
 
 // ---------------------------------------------------------------------------
-// Scenario runner (memory, ref-stability, and legacy inner loop)
+// Scenario runner (memory and count scenarios)
 // ---------------------------------------------------------------------------
 
 async function runScenario(
@@ -480,14 +452,9 @@ async function runScenario(
   scenario: Scenario,
   networkSim: boolean,
 ): Promise<ScenarioResult> {
-  const { harness, bench } = await setupBenchPage(
-    page,
-    lib,
-    scenario,
-    networkSim,
-  );
+  const bench = await setupBenchPage(page, lib, scenario, networkSim);
 
-  // --- Memory path (unchanged, always ops=1) ---
+  // --- Memory ---
   const isMemory =
     scenario.action === 'mountUnmountCycle' &&
     scenario.resultMetric === 'heapDelta';
@@ -499,22 +466,7 @@ async function runScenario(
       // best-effort
     }
     const heapBefore = await collectHeapUsed(memoryCdp);
-    await (bench as any).evaluate(async (api: any, a: unknown[]) => {
-      if (api.mountUnmountCycle)
-        await api.mountUnmountCycle(...(a as [number, number]));
-    }, scenario.args);
-    await page.waitForSelector('[data-bench-complete]', {
-      timeout: 60000,
-      state: 'attached',
-    });
-    const timedOut = await harness.evaluate(el =>
-      el.hasAttribute('data-bench-timeout'),
-    );
-    if (timedOut) {
-      throw new Error(
-        `Harness timeout during mountUnmountCycle: a cycle did not complete within 30 s`,
-      );
-    }
+    await runAction(bench, 'mountUnmountCycle', scenario.args, 60000);
     await (bench as any).evaluate((api: any) => {
       if (api.triggerGC) api.triggerGC();
     });
@@ -531,24 +483,23 @@ async function runScenario(
   }
 
   // --- Counts (deterministic, single run) ---
-  await runPreMount(page, harness, bench, scenario, networkSim);
+  await runPreMount(page, bench, scenario, networkSim);
   await (bench as any).evaluate((api: any) => {
     api.captureRefSnapshot();
     api.resetRenderCounts();
   });
 
-  await harness.evaluate(el => {
-    el.removeAttribute('data-bench-complete');
-    el.removeAttribute('data-bench-timeout');
-  });
   await page.evaluate(() => {
     performance.clearMarks();
     performance.clearMeasures();
   });
 
-  await runAction(page, harness, bench, scenario.action, scenario.args, {
-    networkSim,
-  });
+  await runAction(
+    bench,
+    scenario.action,
+    scenario.args,
+    actionTimeoutMs(networkSim),
+  );
 
   const report = await (bench as any).evaluate((api: any) => ({
     ...api.getRefStabilityReport(),
@@ -569,18 +520,11 @@ async function runScenarioConvergent(
   networkSim: boolean,
   config: ConvergentProfile,
 ): Promise<ScenarioResult[]> {
-  const { harness, bench } = await setupBenchPage(
-    page,
-    lib,
-    scenario,
-    networkSim,
-  );
-  const { isMountLike, isUpdate } = classifyAction(scenario);
+  const bench = await setupBenchPage(page, lib, scenario, networkSim);
+  const mountLike = isMountLike(scenario);
   const mountCount = scenario.mountCount ?? 100;
 
-  if (isUpdate) {
-    await runPreMount(page, harness, bench, scenario, networkSim);
-  }
+  if (!mountLike) await runPreMount(page, bench, scenario, networkSim);
 
   const totalMax = config.warmup + config.maxMeasurement;
   const results: ScenarioResult[] = [];
@@ -594,8 +538,8 @@ async function runScenarioConvergent(
     const measureIdx = subIdx - config.warmup;
 
     const shouldTrace = USE_TRACE && subIdx === traceSubIdx;
-    const result = await runIteration(page, harness, bench, scenario, {
-      isMountLike,
+    const result = await runIteration(page, bench, scenario, {
+      isMountLike: mountLike,
       mountCount,
       networkSim,
       subIdx,
@@ -808,15 +752,7 @@ async function runRound(
     const cdp = await context.newCDPSession(page);
 
     for (const scenario of libScenarios) {
-      // Double-GC before each scenario to reduce variance from prior allocations
-      try {
-        await cdp.send('HeapProfiler.collectGarbage');
-      } catch {}
-      await page.waitForTimeout(100);
-      try {
-        await cdp.send('HeapProfiler.collectGarbage');
-      } catch {}
-      await page.waitForTimeout(400);
+      await forceGC(cdp, page);
 
       try {
         const result = await runScenario(page, lib, scenario, networkSim);
@@ -888,7 +824,6 @@ async function main() {
   }
 
   // Deterministic scenarios: run once, no warmup
-  const deterministicNames = new Set<string>();
   const deterministicScenarios = mainScenarios.filter(s => s.deterministic);
   if (deterministicScenarios.length > 0) {
     process.stderr.write(
@@ -901,14 +836,12 @@ async function main() {
       networkSim,
       samples,
     );
-    for (const s of deterministicScenarios) deterministicNames.add(s.name);
   }
 
   // Convergent timing scenarios: single page load with inline convergence
   for (const [size, scenarios] of sizeGroups) {
-    const convergentScenarios = scenarios.filter(
-      s => !deterministicNames.has(s.name) && isConvergentScenario(s),
-    );
+    // Every deterministic scenario is a count scenario.
+    const convergentScenarios = scenarios.filter(s => !s.deterministic);
     if (convergentScenarios.length === 0) continue;
 
     const config = CONVERGENT_CONFIG[size];
@@ -927,14 +860,7 @@ async function main() {
       const cdp = await context.newCDPSession(page);
 
       for (const scenario of libScenarios) {
-        try {
-          await cdp.send('HeapProfiler.collectGarbage');
-        } catch {}
-        await page.waitForTimeout(100);
-        try {
-          await cdp.send('HeapProfiler.collectGarbage');
-        } catch {}
-        await page.waitForTimeout(400);
+        await forceGC(cdp, page);
 
         process.stderr.write(`  ${scenario.name}...\n`);
         try {

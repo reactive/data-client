@@ -22,11 +22,6 @@ class JSONReply {
 let holdMutations = false;
 const heldReplies: (() => void)[] = [];
 
-function deliver(post: () => void, mutation: boolean) {
-  if (mutation && holdMutations) heldReplies.push(post);
-  else post();
-}
-
 function respond(id: number, value: unknown, mutation: boolean) {
   const isReply = value instanceof JSONReply;
   const json = isReply ? value.json : JSON.stringify(value);
@@ -40,11 +35,10 @@ function respond(id: number, value: unknown, mutation: boolean) {
       Math.ceil(recordCount / networkSim.recordsPerMs)
     : networkDelayMs;
   const post = () => self.postMessage({ id, result: json });
-  if (delay <= 0) {
-    deliver(post, mutation);
-  } else {
-    setTimeout(() => deliver(post, mutation), delay);
-  }
+  const send = () =>
+    mutation && holdMutations ? heldReplies.push(post) : post();
+  if (delay <= 0) send();
+  else setTimeout(send, delay);
 }
 
 function respondError(id: number, message: string) {
@@ -99,11 +93,7 @@ rebuildPositionIndex();
 function fetchIssue({ number }: { number: number }): Issue {
   const issue = issueStore.get(number);
   if (!issue) throw new Error(`No data for issue:${number}`);
-  if (issue.user?.login) {
-    const latest = userStore.get(issue.user.login);
-    if (latest && latest !== issue.user) return { ...issue, user: latest };
-  }
-  return issue;
+  return withLatestUser(issue);
 }
 
 function fetchUser({ login }: { login: string }): User {
@@ -128,6 +118,11 @@ function latestUser(issue: Issue): User {
   );
 }
 
+/** The issue as served: with its author as currently stored. */
+function withLatestUser(issue: Issue, user = latestUser(issue)): Issue {
+  return user === issue.user ? issue : { ...issue, user };
+}
+
 /**
  * Each stored issue's JSON, with the user it was serialized with. Mutations
  * replace issue and user objects, so a stale entry never matches. This keeps
@@ -142,7 +137,7 @@ function issueJSON(issue: Issue): string {
   if (cached?.user !== user) {
     cached = {
       user,
-      json: JSON.stringify(user === issue.user ? issue : { ...issue, user }),
+      json: JSON.stringify(withLatestUser(issue, user)),
     };
     issueJSONCache.set(issue, cached);
   }
@@ -193,10 +188,7 @@ function checkIssueListJSON(): string | null {
     step();
     for (const params of lists) {
       const fresh = JSON.stringify(
-        selectIssues(params).map(issue => {
-          const user = latestUser(issue);
-          return user === issue.user ? issue : { ...issue, user };
-        }),
+        selectIssues(params).map(issue => withLatestUser(issue)),
       );
       if (fetchIssueList(params).json !== fresh)
         return `after ${name}, list ${JSON.stringify(params)} differs`;

@@ -73,6 +73,45 @@ function timeToMutation<T>(
   return { result, start, cancel: () => observer.disconnect() };
 }
 
+/** How long the harness waits for a window to end before giving up. */
+const HARNESS_TIMEOUT_MS = 30000;
+
+/**
+ * `timeToMutation` that gives up after `HARNESS_TIMEOUT_MS`: it then sets
+ * data-bench-timeout and calls `onTimeout(start)` instead of `onEnd`.
+ */
+function timedWindow(
+  container: Element,
+  fn: () => unknown,
+  isReady: (() => boolean) | undefined,
+  onEnd: (start: number, end: number) => void,
+  onTimeout: (start: number) => void,
+): void {
+  // Replaced by timeToMutation's values once it returns.
+  let start = performance.now();
+  let cancel: (() => void) | undefined;
+  const timer = setTimeout(() => {
+    cancel?.();
+    container.setAttribute('data-bench-timeout', 'true');
+    onTimeout(start);
+  }, HARNESS_TIMEOUT_MS);
+  try {
+    ({ start, cancel } = timeToMutation(
+      container,
+      fn,
+      (from, to) => {
+        clearTimeout(timer);
+        onEnd(from, to);
+      },
+      isReady,
+    ));
+  } catch (err) {
+    // Else the timer completes a later iteration on this page.
+    clearTimeout(timer);
+    throw err;
+  }
+}
+
 /** Check whether an issue has moved to the target state list and left the source. */
 export function moveItemIsReady(
   containerRef: React.RefObject<HTMLDivElement | null>,
@@ -119,7 +158,7 @@ export function useBenchState({
    * replies. The worker then holds mutation replies until the window ends;
    * otherwise a reply that wins the race to the main thread is processed
    * inside the window. Never set this for a library whose update windows wait
-   * for the reply: they would time out.
+   * for a mutation reply: they would time out.
    */
   optimisticMutations?: boolean;
 } = {}) {
@@ -167,32 +206,20 @@ export function useBenchState({
     (fn: () => unknown, { signalComplete = true } = {}): Promise<void> => {
       const container = containerRef.current!;
       return new Promise<void>(resolve => {
-        const done = () => {
+        const done = (start: number, end: number) => {
+          performance.measure('mount-duration', { start, end });
           if (signalComplete) setComplete();
           resolve();
         };
-        const record = (end: number) =>
-          performance.measure('mount-duration', { start, end });
-        const observer = new MutationObserver(() => {
-          const end = performance.now();
-          if (
-            container.querySelector('[data-bench-item], [data-sorted-list]')
-          ) {
-            record(end);
-            observer.disconnect();
-            clearTimeout(timer);
-            done();
-          }
-        });
-        observer.observe(container, OBSERVE_MUTATIONS);
-        const timer = setTimeout(() => {
-          observer.disconnect();
-          record(performance.now());
-          container.setAttribute('data-bench-timeout', 'true');
-          done();
-        }, 30000);
-        const start = performance.now();
-        fn();
+        timedWindow(
+          container,
+          fn,
+          () =>
+            container.querySelector('[data-bench-item], [data-sorted-list]') !=
+            null,
+          done,
+          start => done(start, performance.now()),
+        );
       });
     },
     [setComplete],
@@ -209,37 +236,18 @@ export function useBenchState({
   const measureUpdate = useCallback(
     (fn: () => unknown, isReady?: () => boolean) => {
       const container = containerRef.current!;
-      const record = (from: number, to: number) =>
-        performance.measure('update-duration', { start: from, end: to });
-      const release =
-        optimisticMutations ? releaseMutationReplies : () => undefined;
-      if (optimisticMutations) holdMutationReplies();
-      // Replaced by timeToMutation's values once it returns.
-      let start = performance.now();
-      let cancel: (() => void) | undefined;
-      const timer = setTimeout(() => {
-        cancel?.();
-        record(start, performance.now());
-        release();
-        container.setAttribute('data-bench-timeout', 'true');
+      const done = (start: number, end: number) => {
+        performance.measure('update-duration', { start, end });
+        if (optimisticMutations) releaseMutationReplies();
         setComplete();
-      }, 30000);
+      };
+      if (optimisticMutations) holdMutationReplies();
       try {
-        ({ start, cancel } = timeToMutation(
-          container,
-          fn,
-          (from, to) => {
-            record(from, to);
-            release();
-            clearTimeout(timer);
-            setComplete();
-          },
-          isReady,
-        ));
+        timedWindow(container, fn, isReady, done, start =>
+          done(start, performance.now()),
+        );
       } catch (err) {
-        // Else the timer completes a later iteration on this page.
-        clearTimeout(timer);
-        release();
+        if (optimisticMutations) releaseMutationReplies();
         throw err;
       }
     },
@@ -279,7 +287,7 @@ export function useBenchState({
           container.setAttribute('data-bench-timeout', 'true');
           setComplete();
           resolve();
-        }, 30000);
+        }, HARNESS_TIMEOUT_MS);
         const stop = () => {
           clearTimeout(timer);
           close();
@@ -340,7 +348,7 @@ export function useBenchState({
       const timer = setTimeout(() => {
         observer.disconnect();
         resolve();
-      }, 30000);
+      }, HARNESS_TIMEOUT_MS);
     });
   }, []);
 
@@ -407,28 +415,17 @@ export function useBenchState({
    */
   const measureNavStep = useCallback((fn: () => void, selector: string) => {
     const container = containerRef.current!;
-    return new Promise<void>((resolve, reject) => {
-      let cancel: (() => void) | undefined;
-      const timer = setTimeout(() => {
-        cancel?.();
-        container.setAttribute('data-bench-timeout', 'true');
-        resolve();
-      }, 30000);
-      try {
-        ({ cancel } = timeToMutation(
-          container,
-          fn,
-          (start, end) => {
-            clearTimeout(timer);
-            performance.measure('nav-step', { start, end });
-            resolve();
-          },
-          () => container.querySelector(selector) != null,
-        ));
-      } catch (err) {
-        clearTimeout(timer);
-        reject(err);
-      }
+    return new Promise<void>(resolve => {
+      timedWindow(
+        container,
+        fn,
+        () => container.querySelector(selector) != null,
+        (start, end) => {
+          performance.measure('nav-step', { start, end });
+          resolve();
+        },
+        () => resolve(),
+      );
     });
   }, []);
 
