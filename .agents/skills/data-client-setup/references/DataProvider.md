@@ -148,6 +148,8 @@ List of [Manager](https://dataclient.io/docs/api/Manager)s use. This is the main
 
 [getDefaultManagers()](./getDefaultManagers.md) can be used to extend the default managers.
 
+On React Native, [CommitGateManager](https://dataclient.io/docs/api/CommitGateManager) is added first unless `managers` already includes it.
+
 Default Production:
 
 ```typescript

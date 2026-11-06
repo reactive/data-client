@@ -7,3 +7,4 @@ export {
   NetworkManager,
 } from '@data-client/core';
 export { default as IdlingNetworkManager } from './IdlingNetworkManager.js';
+export { default as CommitGateManager } from './CommitGateManager.js';

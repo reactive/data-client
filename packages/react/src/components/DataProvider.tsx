@@ -14,6 +14,7 @@ import type { JSX } from 'react';
 import DataStore from './DataStore.js';
 import type { DevToolsPosition } from './DevToolsButton.js';
 import { getDefaultManagers } from './getDefaultManagers.js';
+import platformManagers from './platformManagers.js';
 import { SSR } from './LegacyReact.js';
 import { renderDevButton } from './renderDevButton.js';
 import { ControllerContext } from '../context.js';
@@ -50,8 +51,9 @@ export default function DataProvider({
     controllerRef.current = new Controller({ gcPolicy: gcRef.current });
   //TODO: bind all methods so destructuring works
 
-  const managersRef: React.RefObject<Manager[]> = useRef<any>(managers);
-  if (!managersRef.current) managersRef.current = getDefaultManagers();
+  const managersRef: React.RefObject<Manager[]> = useRef<any>(undefined);
+  if (!managersRef.current)
+    managersRef.current = platformManagers(managers ?? getDefaultManagers());
 
   // run in a useEffect in DataStore
   // eslint-disable-next-line react-hooks/exhaustive-deps
