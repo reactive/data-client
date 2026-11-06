@@ -5,6 +5,36 @@ import { EntityPath } from '../interface';
 import { MemoPolicy } from '../memo/Policy';
 import WeakDependencyMap, { depKey } from '../memo/WeakDependencyMap';
 
+/** Values the React Native memo keeps per first dependency and `argsKey`
+ * results (`MAX_ENTRIES` in WeakDependencyMap.native.ts). */
+const MAX_ENTRIES = 6;
+
+/** Checks the eviction rule: when full, the least recently used value goes,
+ * except the kept one (the first value, until a read flips back to an older
+ * one). So a value that is not kept misses after `MAX_ENTRIES - 1` newer ones. */
+function expectEviction(
+  setB: (entity: object, value: string) => void,
+  get: (entity: object) => unknown,
+) {
+  const v = Array.from({ length: MAX_ENTRIES + 2 }, (_, i) => [i]);
+  for (let i = 0; i < MAX_ENTRIES; i++) setB(v[i], `v${i}`);
+  // full: v1 goes, not v0, which is kept until a flip
+  setB(v[MAX_ENTRIES], 'new');
+  expect(get(v[1])).toBeUndefined();
+  expect(get(v[0])).toBe('v0');
+
+  // reading v2 back after newer values makes it the kept one instead
+  expect(get(v[2])).toBe('v2');
+  // least recently used now: v3
+  setB(v[MAX_ENTRIES + 1], 'newer');
+  expect(get(v[3])).toBeUndefined();
+  setB(v[3], 'v3 again');
+  // least recently used now: v4; v2 stays though older
+  expect(get(v[4])).toBeUndefined();
+  expect(get(v[2])).toBe('v2');
+  expect(get(v[MAX_ENTRIES - 1])).toBe(`v${MAX_ENTRIES - 1}`);
+}
+
 describe('WeakDependencyMap', () => {
   const a = { hi: '5' };
   const b = [1, 2, 3];
@@ -111,31 +141,33 @@ describe('WeakDependencyMap', () => {
     ).toBeUndefined();
   });
 
-  it('keeps four entries, never evicting the one the store flipped back to', () => {
+  it(`keeps ${MAX_ENTRIES} entries, never evicting the one the store flipped back to`, () => {
     const wem = new WeakDependencyMap<EntityPath>();
-    const [b2, b3, b4, b5, b6] = [[2], [3], [4], [5], [6]];
-    const withB = (entity: object) =>
-      MemoPolicy.getEntities({ ...state, B: { '2': entity } });
-    const setB = (entity: object, value: string) =>
-      wem.set([depA, { ...depB, entity }], value);
-    setB(b, 'b');
-    setB(b2, 'b2');
-    setB(b3, 'b3');
-    setB(b4, 'b4');
-    // full: the least recently used goes, except the first entry, kept until a flip
-    setB(b5, 'b5');
-    expect(wem.get(a, withB(b2))[0]).toBeUndefined();
-    expect(wem.get(a, withB(b))[0]).toBe('b');
+    expectEviction(
+      (entity, value) => wem.set([depA, { ...depB, entity }], value),
+      entity =>
+        wem.get(a, MemoPolicy.getEntities({ ...state, B: { '2': entity } }))[0],
+    );
+  });
 
-    // reading b3 back after newer entries makes it the kept one instead;
-    // most recently used now: b3, b, b5, b4
-    expect(wem.get(a, withB(b3))[0]).toBe('b3');
-    setB(b6, 'b6');
-    expect(wem.get(a, withB(b4))[0]).toBeUndefined();
-    setB(b4, 'b4 again');
-    // most recently used: b4, b6, b3 (kept), b, b5; b5 goes
-    expect(wem.get(a, withB(b5))[0]).toBeUndefined();
-    expect(wem.get(a, withB(b3))[0]).toBe('b3');
+  it(`a value that is not kept survives ${MAX_ENTRIES - 2} newer ones, not ${MAX_ENTRIES - 1}`, () => {
+    for (const newer of [MAX_ENTRIES - 2, MAX_ENTRIES - 1]) {
+      const wem = new WeakDependencyMap<EntityPath>();
+      const withB = (entity: object) =>
+        MemoPolicy.getEntities({ ...state, B: { '2': entity } });
+      const setB = (entity: object, value: string) =>
+        wem.set([depA, { ...depB, entity }], value);
+      const kept = ['kept'];
+      const committed = ['committed'];
+      setB(kept, 'kept');
+      setB(committed, 'committed');
+      // one-off versions, such as each render of a pending transition
+      for (let i = 0; i < newer; i++) setB([i], `one-off ${i}`);
+      expect(wem.get(a, withB(committed))[0]).toBe(
+        newer < MAX_ENTRIES - 1 ? 'committed' : undefined,
+      );
+      expect(wem.get(a, withB(kept))[0]).toBe('kept');
+    }
   });
 
   it('keeps a re-read value while one-off values come and go', () => {
@@ -459,25 +491,12 @@ describe('WeakDependencyMap eviction', () => {
 
     it('evicts inside an argsKey child as at the root', () => {
       const wem = new WeakDependencyMap<EntityPath>();
-      const [b2, b3, b4, b5, b6] = [[2], [3], [4], [5], [6]];
-      const b = [1];
       const one = [{ portfolio: 'P' }];
-      const setB = (entity: object, value: string) =>
-        wem.set([rootDep, fn(portfolio), dep(entity)], value, one);
-      const get = (entity: object) => wem.get(root, withB(entity), one)[0];
-      setB(b, 'b');
-      setB(b2, 'b2');
-      setB(b3, 'b3');
-      setB(b4, 'b4');
-      setB(b5, 'b5');
-      expect(get(b2)).toBeUndefined();
-      expect(get(b)).toBe('b');
-      expect(get(b3)).toBe('b3');
-      setB(b6, 'b6');
-      expect(get(b4)).toBeUndefined();
-      setB(b4, 'b4 again');
-      expect(get(b5)).toBeUndefined();
-      expect(get(b3)).toBe('b3');
+      expectEviction(
+        (entity, value) =>
+          wem.set([rootDep, fn(portfolio), dep(entity)], value, one),
+        entity => wem.get(root, withB(entity), one)[0],
+      );
     });
   });
 
