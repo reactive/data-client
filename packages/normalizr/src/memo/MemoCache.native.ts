@@ -1,6 +1,5 @@
 import GlobalCache from './globalCache.native.js';
-import WeakDependencyMap from './WeakDependencyMap.native.js';
-import type { KeepReads } from './WeakDependencyMap.native.js';
+import WeakDependencyMap, { keep } from './WeakDependencyMap.native.js';
 import buildQueryKey from '../buildQueryKey.js';
 import { GetEntityCache, getEntityCaches } from './entitiesCache.js';
 import { MemoPolicy } from './Policy.js';
@@ -28,12 +27,15 @@ export default class MemoCache {
   declare protected _getCache: GetEntityCache;
   /** Caches the final denormalized form based on input, entities */
   protected endpoints = new WeakDependencyMap<EntityPath>();
-  /** Results read per store `entities`, until that store commits. */
-  private reads = new WeakMap<object, KeepReads>();
+  /** Results read per store `entities`, until that store commits: each
+   * result's node and entry, at most `MAX_PENDING` per store, newest last. */
+  private reads = new WeakMap<object, Map<unknown, unknown>>();
   /** `entities` from the latest `commit`; reads with it are kept right away. */
   private committedEntities: object | undefined = undefined;
   /** Whether that store had no optimistic updates. */
   private committedSettled = true;
+  /** One per `commit`, so `keep()` walks each entry once per commit. */
+  private gen = 0;
   /** Caches the queryKey based on schema, args, and any used entities or indexes */
   protected queryKeys: Map<string, WeakDependencyMap<QueryPath>> = new Map();
 
@@ -67,28 +69,36 @@ export default class MemoCache {
     }
     const getEntity = this.policy.getEntities(entities);
 
-    const tracks = typeof entities === 'object' && entities !== null;
     const cache = new GlobalCache(
       getEntity,
       this._getCache,
       this.endpoints,
       args,
-      tracks,
     );
     const result = getUnvisit(getEntity, cache, args)(schema, input);
-    // the result's own entry: in the endpoints tier, or the top-level
-    // entity's map when the input is a pk (single-entity endpoints, queries)
-    const tracked = cache.tracked;
-    if (tracked) {
-      if (entities === this.committedEntities) {
-        tracked.keepLast(this.committedSettled);
-      } else {
-        let reads = this.reads.get(entities);
-        if (!reads) this.reads.set(entities, (reads = new Map()));
-        tracked.trackLast(reads);
-      }
-    }
+    this.track(entities, cache.records);
     return result;
+  }
+
+  /** Pins `records` (node and entry pairs) if `entities` is committed, or
+   * remembers them until it commits. */
+  private track(entities: unknown, records: unknown[]): void {
+    if (!records.length || typeof entities !== 'object' || entities === null)
+      return;
+    if (entities === this.committedEntities) {
+      for (let i = 0; i < records.length; i += 2)
+        keep(records[i], records[i + 1], this.committedSettled, this.gen);
+      return;
+    }
+    let reads = this.reads.get(entities);
+    if (!reads) this.reads.set(entities, (reads = new Map()));
+    for (let i = 0; i < records.length; i += 2) {
+      // one per node, the last read wins
+      reads.delete(records[i]);
+      reads.set(records[i], records[i + 1]);
+      // a store that never commits must not keep results alive without bound
+      if (reads.size > MAX_PENDING) reads.delete(reads.keys().next().value);
+    }
   }
 
   /**
@@ -102,16 +112,20 @@ export default class MemoCache {
    * it from an effect, which never runs for a discarded render. Without it,
    * results are kept by recency alone.
    *
+   * Every nested value in a kept result is kept too, so a later read of one
+   * of its entities gets the same object.
+   *
    * @param entities The `entities` of the committed state, by reference.
    * @param settled Whether that state has no optimistic updates.
    */
   commit(entities: object, settled = true): void {
     this.committedEntities = entities;
     this.committedSettled = settled;
+    this.gen++;
     const reads = this.reads.get(entities);
     if (!reads) return;
     this.reads.delete(entities);
-    this.endpoints.keep(reads, settled);
+    for (const [node, entry] of reads) keep(node, entry, settled, this.gen);
   }
 
   /** Compute denormalized form maintaining referential equality for same inputs */
@@ -160,10 +174,15 @@ export default class MemoCache {
     }
 
     const baseDelegate = new this.policy.QueryDelegate(state);
+    // committed renders keep their query key too, or the result they pinned
+    // is looked up with a new input
+    const records: unknown[] = [];
     // eslint-disable-next-line prefer-const
     let [value, paths] = queryCache.get(
       schema as any,
       getDependency(baseDelegate),
+      undefined,
+      records,
     );
 
     // paths undefined is the only way to truly tell nothing was found (the value could have actually been undefined)
@@ -171,11 +190,16 @@ export default class MemoCache {
       const [delegate, dependencies] = baseDelegate.tracked(schema);
 
       value = buildQueryKey(delegate)(schema, args);
-      queryCache.set(dependencies, value);
+      queryCache.set(dependencies, value, undefined, undefined, records);
     }
+    this.track(state.entities, records);
     return value;
   }
 }
+
+/** Results remembered per uncommitted store; past this, the oldest go. A
+ * render reads one result per hook, so this is far above any one screen. */
+const MAX_PENDING = 256;
 
 type StateInterface = {
   entities:
