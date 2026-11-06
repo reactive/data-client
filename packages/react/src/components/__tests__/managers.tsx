@@ -71,25 +71,14 @@ describe('<DataProvider managers={() => [...]} />', () => {
     expect(container.textContent).toBe('loaded');
     expect(warn).not.toHaveBeenCalled();
   });
-
-  it('warns when a remounted store reuses an array of Managers', async () => {
-    const managers = getDefaultManagers({ devToolsManager: null });
-    const { rerender } = render(tree(managers as any));
-    await wait();
-    rerender(tree(managers as any, 'b'));
-    await wait();
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('is used by more than one store'),
-    );
-  });
 });
 
 describe('<TestExternalDataProvider />', () => {
-  it('fetches in StrictMode with an array of Managers', async () => {
+  it('fetches in StrictMode', async () => {
     const { container } = render(
       <StrictMode>
         <TestExternalDataProvider
-          managers={getDefaultManagers({ devToolsManager: null })}
+          managers={() => getDefaultManagers({ devToolsManager: null })}
           initialState={initialState}
           Controller={Controller}
           devButton={null}

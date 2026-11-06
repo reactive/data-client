@@ -104,7 +104,7 @@ function mount(preview?: React.ReactNode, limit?: number) {
     return null;
   }
   const ui = (history: number) => (
-    <DataProvider managers={managers} devButton={null}>
+    <DataProvider managers={() => managers} devButton={null}>
       <Grab />
       {preview}
       <InspectedPanel registry={registry} history={history} />

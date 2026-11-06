@@ -3,7 +3,6 @@ import { MockResolver } from '@data-client/test/browser';
 import React, {
   Activity,
   memo,
-  useState,
   lazy,
   type ProfilerOnRenderCallback,
 } from 'react';
@@ -58,9 +57,9 @@ function Preview<T>({
     /** User pointer/keyboard input inside the result */
     onInteract: () => void;
   }) {
-  // DataProvider keeps its first managers, so build them once per mount
+  // DataProvider calls this once for each store
   // (create() runs the code's getManagers() and clears the last error)
-  const [managers] = useState<Manager[]>(() => {
+  const createManagers = (): Manager[] => {
     const { managers, network, reportFor } = managerHost.create();
     const log = registry.log.connect(history, replacedHistory, action =>
       network.skipLogging(action),
@@ -74,12 +73,12 @@ function Preview<T>({
       ...log.track(managers, reportFor),
       log.tail,
     ];
-  });
+  };
 
   return (
     // devButton: getDefaultManagers() includes DevToolsManager in development
     <DataProvider
-      managers={managers}
+      managers={createManagers}
       initialState={initialState}
       devButton={null}
     >

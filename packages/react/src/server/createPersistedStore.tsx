@@ -7,7 +7,6 @@ import {
   initialState,
   createReducer,
   applyManager,
-  createManagers,
   initManager,
 } from '@data-client/core';
 import { useSyncExternalStore } from 'react';
@@ -18,13 +17,11 @@ import SSRDataProvider from './SSRDataProvider.js';
 import { NetworkManager as ReactNetworkManager } from '../managers/index.js';
 
 export default function createPersistedStore(
-  managersOption?: (() => Manager[]) | Manager[],
+  createManagers: () => Manager[] = () => [new ReactNetworkManager()],
   hasDevManager: boolean = true,
 ) {
   const controller = new Controller();
-  const managers = createManagers(
-    managersOption ?? (() => [new ReactNetworkManager()]),
-  );
+  const managers = createManagers();
   const networkManager: NetworkManager = managers.find(
     m => m instanceof NetworkManager,
   ) as any;

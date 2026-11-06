@@ -163,7 +163,7 @@ describeConcurrent('concurrent probe controls', () => {
       <DataProvider
         initialState={stateAB}
         devButton={null}
-        managers={getDefaultManagers({ devToolsManager: null })}
+        managers={() => getDefaultManagers({ devToolsManager: null })}
       >
         <Suspense fallback={<p>loading A</p>}>
           <TodoView id="A" />

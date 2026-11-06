@@ -49,7 +49,7 @@ describe('createDataClient', () => {
     );
     const customManagers = [customNetworkManager, customSubscriptionManager];
 
-    const provider = createDataClient({ managers: customManagers });
+    const provider = createDataClient({ managers: () => customManagers });
 
     expect(provider.controller).toBeInstanceOf(Controller);
     expect(provider.stateRef).toBeDefined();
@@ -165,7 +165,7 @@ describe('createDataClient', () => {
 
     const customManager = new CustomManager();
     const provider = createDataClient({
-      managers: [customManager],
+      managers: () => [customManager],
       app: mockApp,
     });
     provider.start();

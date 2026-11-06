@@ -56,13 +56,6 @@ A function that returns the [Managers](./Manager.md) to use. This is the main ex
 It runs once for each store, so each `DataProvider` gets its own Managers. Define it at module level, and
 [add your own Managers](./Manager.md#adding) with [getDefaultManagers()](./getDefaultManagers.md).
 
-:::warning[Deprecated]
-
-An array of Managers still works, but every store that uses it shares the same instances. See
-[Manager lifetimes](./Manager.md#lifetimes).
-
-:::
-
 Default Production:
 
 ```typescript

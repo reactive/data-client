@@ -26,13 +26,6 @@ Type and API cleanups deferred because they would break users or mixed package v
 - **Remove `waitForNextUpdate`** from `renderDataCompose()`'s return value, along with the `resolveNextUpdate` bookkeeping in its test component.
   - Breaks: tests that destructure or call `waitForNextUpdate()`. Migration: `await result` for a Promise result; after changing props or calling the controller, `await allSettled()`.
 
-## Managers array
-
-[#4601](https://github.com/reactive/data-client/pull/4601) made `managers` take a function that runs once per store. An array is still accepted and marked deprecated, and a dev warning fires only when its instances move to a second store after starting.
-
-- **Drop `Manager[]`** from `DataProvider`'s `managers` prop, Vue `ProvideOptions.managers`, `prepareStore()`, `createPersistedStore()` and `mountDataClient()`, so `createManagers()` only calls the function. Remove `warnIfShared` and `startedWith` in `packages/core/src/manager/applyManager.ts`, and the deprecated third argument of `initManager()`.
-  - Breaks: code that passes an array. Migration: wrap it, `managers={() => [...]}` (the v0.19 blog already recommends this).
-
 ## React Native 0.80
 
 `@data-client/endpoint` and `@data-client/rest` ship React Native builds ([#4595](https://github.com/reactive/data-client/pull/4595)) only for `consistentSerialize.native.ts` and `paramsToString.native.ts`, which catch `URLSearchParams.sort()` throwing before React Native 0.80 (REACT-24).

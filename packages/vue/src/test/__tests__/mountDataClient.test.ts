@@ -171,7 +171,7 @@ describe('mountDataClient', () => {
       const { allSettled, controller, cleanup } = mountDataClient(
         TestComponent,
         {
-          managers: [new NetworkManager()],
+          managers: () => [new NetworkManager()],
           resolverFixtures: [
             {
               endpoint: CoolerArticleResource.get,

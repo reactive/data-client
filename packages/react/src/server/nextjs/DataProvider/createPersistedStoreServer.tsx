@@ -17,9 +17,11 @@ import { PromiseifyMiddleware } from '../../redux/index.js';
 import { createStore, applyMiddleware } from '../../redux/redux.js';
 import SSRDataProvider from '../../SSRDataProvider.js';
 
-export default function createPersistedStore(managers?: Manager[]) {
+export default function createPersistedStore(
+  createManagers: () => Manager[] = () => [new ReactNetworkManager()],
+) {
   const controller = new Controller();
-  managers = managers ?? [new ReactNetworkManager()];
+  const managers = createManagers();
   const networkManager: NetworkManager = managers.find(
     m => m instanceof NetworkManager,
   ) as any;
@@ -89,8 +91,7 @@ export default function createPersistedStore(managers?: Manager[]) {
 
 /** Whether the client's managers include DevToolsManager; caches the answer for each managers function */
 const devToolsFound = new WeakMap<() => Manager[], boolean>();
-function includesDevTools(managers: (() => Manager[]) | Manager[]) {
-  if (typeof managers !== 'function') return managers.some(isDevTools);
+function includesDevTools(managers: () => Manager[]) {
   let found = devToolsFound.get(managers);
   if (found === undefined)
     devToolsFound.set(managers, (found = managers().some(isDevTools)));

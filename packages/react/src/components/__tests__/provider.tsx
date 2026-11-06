@@ -113,7 +113,7 @@ describe('<DataProvider />', () => {
     rerender(<DataProvider>{chil}</DataProvider>);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
-    const managers: any[] = [new NetworkManager()];
+    const managers = () => [new NetworkManager()];
     rerender(<DataProvider managers={managers}>{chil}</DataProvider>);
     expect(count).toBe(1);
     curDisp = dispatch;
@@ -192,7 +192,7 @@ describe('<DataProvider />', () => {
       };
     }
     const injector = new InjectorManager();
-    const managers = [injector, ...getDefaultManagers()];
+    const managers = () => [injector, ...getDefaultManagers()];
     let resolve: (r: any) => void = () => {};
     const endpoint = CoolerArticleResource.get.extend({
       fetch() {

@@ -56,7 +56,7 @@ function Fetcher() {
 /** A DataProvider with a Suspense boundary around `children` */
 function provider(managers: Manager[], children: React.ReactNode) {
   return (
-    <DataProvider managers={managers} devButton={null}>
+    <DataProvider managers={() => managers} devButton={null}>
       <Suspense fallback="loading">{children}</Suspense>
     </DataProvider>
   );

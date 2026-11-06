@@ -1,5 +1,4 @@
 import NetworkManager from './NetworkManager.js';
-import { warnIfShared } from './warnIfShared.js';
 import type Controller from '../controller/Controller.js';
 import { Manager } from '../types.js';
 
@@ -27,9 +26,6 @@ export default function applyManager(
       if (i === 0) {
         controller.bindMiddleware(api);
       }
-      /* istanbul ignore else */
-      if (process.env.NODE_ENV !== 'production')
-        warnIfShared(manager, controller);
       // controller is a superset of the middleware API
       return manager.middleware(controller as any);
     };

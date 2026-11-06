@@ -179,7 +179,7 @@ export default class CustomSubsManager implements Manager {
 
 ## Usage
 
-Pass a function that returns the managers, defined at module level; it runs once per store. Create each Manager inside the function: an instance made outside it, or an array of Managers (deprecated), is shared by every store.
+Pass a function that returns the managers, defined at module level; it runs once per store. Create each Manager inside the function: an instance made outside it is shared by every store.
 
 List custom managers before `...getDefaultManagers()`. Actions pass through managers in array order, and NetworkManager (one of the defaults) resolves each FETCH itself instead of passing it on (only optimistic mutations continue), so a manager listed after it misses most fetches:
 

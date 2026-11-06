@@ -4,9 +4,9 @@
 '@data-client/vue': minor
 ---
 
-Give each store its own [Managers](https://dataclient.io/docs/api/Manager#lifetimes): `managers` takes a function
+BREAKING: `managers` is a function, so each store gets its own [Managers](https://dataclient.io/docs/api/Manager#lifetimes)
 
-[DataProvider](https://dataclient.io/docs/api/DataProvider#managers) and [DataClientPlugin](https://dataclient.io/docs/api/DataClientPlugin#managers) call it once for each store, so a remounted `DataProvider` gets new Managers. Define it at module level:
+[DataProvider](https://dataclient.io/docs/api/DataProvider#managers), [DataClientPlugin](https://dataclient.io/docs/api/DataClientPlugin#managers) and `prepareStore()` call it once for each store, so a remounted `DataProvider` gets new Managers. Arrays are no longer accepted. Define the function at module level:
 
 ```tsx title="Before"
 const managers = [new MyManager(), ...getDefaultManagers()];
@@ -20,7 +20,7 @@ const managers = () => [new MyManager(), ...getDefaultManagers()];
 <DataProvider managers={managers}>
 ```
 
-An array of Managers is deprecated, because every store that uses it shares the same instances. A Manager instance that moves to a second store after the first one started logs a warning in development.
+`npx @data-client/codemods v0.19 src/` converts arrays, `getDefaultManagers()` and Vue's plugin options.
 
 A Manager's code lives at one of three lifetimes:
 
@@ -32,7 +32,7 @@ A Manager's code lives at one of three lifetimes:
 
 So a constructor only stores its options. React can construct Managers for a store it then discards, so a constructor must not open anything.
 
-[`init(state)`](https://dataclient.io/docs/api/Manager#init) now gets the store's current state, including when Managers resume after `cleanup()`. Before, it got the initial state. `initManager()`'s third argument is ignored, so custom providers can drop it.
+[`init(state)`](https://dataclient.io/docs/api/Manager#init) now gets the store's current state, including when Managers resume after `cleanup()`. Before, it got the initial state. `initManager()` no longer takes a third argument, so custom providers drop it.
 
 [DevToolsManager](https://dataclient.io/docs/api/DevToolsManager) connects to the Redux DevTools extension in `init()` instead of its constructor, so Managers React discards never connect. Stores mounted at the same time show under their own name in the extension, like `'Data Client: My App (2)'`.
 

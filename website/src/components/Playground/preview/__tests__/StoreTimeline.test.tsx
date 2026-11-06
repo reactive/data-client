@@ -51,7 +51,7 @@ function mount(limit?: number) {
   }
   render(
     <DataProvider
-      managers={[log.head, registry, new NetworkManager(), log.tail]}
+      managers={() => [log.head, registry, new NetworkManager(), log.tail]}
       devButton={null}
     >
       <Grab />

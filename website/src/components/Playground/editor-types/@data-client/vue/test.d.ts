@@ -9,8 +9,8 @@ interface RenderDataClientOptions<P = any> {
     initialFixtures?: readonly Fixture[];
     resolverFixtures?: readonly (Fixture | Interceptor)[];
     getInitialInterceptorData?: () => any;
-    /** Returns new Managers for this mount. An array (deprecated) is shared by every mount that uses it. */
-    managers?: (() => Manager[]) | Manager[];
+    /** Returns new Managers for this mount */
+    managers?: () => Manager[];
     initialState?: State<unknown>;
     gcPolicy?: GCInterface;
     wrapper?: any;

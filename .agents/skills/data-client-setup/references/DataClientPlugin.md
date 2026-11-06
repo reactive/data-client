@@ -52,11 +52,6 @@ app.use(DataClientPlugin, {
 });
 ```
 
-> **Warning: Deprecated**
->
-> An array of Managers still works, but every app that uses it shares the same instances. See
-> [Manager lifetimes](https://dataclient.io/vue/api/Manager#lifetimes).
-
 Default Production:
 
 ```typescript

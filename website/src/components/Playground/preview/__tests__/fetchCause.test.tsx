@@ -133,7 +133,7 @@ function mount(view: React.ReactNode = <ShowPost />) {
     );
   }
   render(
-    <DataProvider managers={managers} devButton={null}>
+    <DataProvider managers={() => managers} devButton={null}>
       <Buttons />
       <Suspense fallback="loading">{view}</Suspense>
     </DataProvider>,

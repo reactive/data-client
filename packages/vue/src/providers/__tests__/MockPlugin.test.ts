@@ -428,7 +428,7 @@ describe('MockPlugin', () => {
     const wrapper = mount(TestComponent, {
       global: {
         plugins: [
-          [DataClientPlugin, { managers: customManagers }],
+          [DataClientPlugin, { managers: () => customManagers }],
           [MockPlugin, { fixtures: [] }],
         ],
       },

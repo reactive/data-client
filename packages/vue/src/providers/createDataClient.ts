@@ -2,7 +2,6 @@ import {
   initialState as defaultState,
   Controller as DataController,
   applyManager,
-  createManagers,
   initManager,
   createReducer,
   GCPolicy,
@@ -17,11 +16,9 @@ import { getDefaultManagers } from './getDefaultManagers.js';
 /** Options for `app.use(DataClientPlugin, options)` */
 export interface ProvideOptions {
   /** Returns new Managers; called once for each app.
-   *
-   * An array (deprecated) shares its Managers with every app that uses it.
    * @see https://dataclient.io/docs/api/DataClientPlugin#managers
    */
-  managers?: (() => Manager[]) | Manager[];
+  managers?: () => Manager[];
   initialState?: State<unknown>;
   Controller?: new (props: { gcPolicy: GCInterface }) => DataController;
   gcPolicy?: GCInterface;
@@ -56,7 +53,7 @@ export function createDataClient(
 
   // stable singletons for this provider scope
   const controller = new Controller({ gcPolicy });
-  const managers = createManagers(options.managers ?? getDefaultManagers);
+  const managers = (options.managers ?? getDefaultManagers)();
   const baseInitial = options.initialState ?? (defaultState as State<unknown>);
 
   // init managers (run on mount/unmount)

@@ -4,7 +4,6 @@ import {
   Controller as DataController,
   actionTypes,
   applyManager,
-  createManagers,
   initManager,
 } from '@data-client/core';
 import type { State, Manager, GCInterface } from '@data-client/core';
@@ -24,11 +23,9 @@ import GCPolicy from '../state/GCPolicy.js';
 export interface ProviderProps {
   children: React.ReactNode;
   /** Returns new Managers; called once for each store.
-   *
-   * An array (deprecated) shares its Managers with every store that uses it.
    * @see https://dataclient.io/docs/api/DataProvider#managers
    */
-  managers?: (() => Manager[]) | Manager[];
+  managers?: () => Manager[];
   initialState?: State<unknown>;
   Controller?: new (props: { gcPolicy: GCInterface }) => DataController;
   gcPolicy?: GCInterface;
@@ -58,7 +55,7 @@ export default function DataProvider({
 
   const managersRef: React.RefObject<Manager[]> = useRef<any>(undefined);
   if (!managersRef.current)
-    managersRef.current = createManagers(managers ?? getDefaultManagers);
+    managersRef.current = (managers ?? getDefaultManagers)();
 
   // run in a useEffect in DataStore
   // eslint-disable-next-line react-hooks/exhaustive-deps

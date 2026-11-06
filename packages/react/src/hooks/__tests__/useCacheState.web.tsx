@@ -52,7 +52,7 @@ const getTodo = new Endpoint(
   { schema: Todo, name: 'getTodo', pollFrequency: 60000 },
 );
 
-const noDevManagers = getDefaultManagers({ devToolsManager: null });
+const noDevManagers = () => getDefaultManagers({ devToolsManager: null });
 
 const stateA = mockInitialState([
   {

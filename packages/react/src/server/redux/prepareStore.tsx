@@ -5,7 +5,6 @@ import {
   ActionTypes,
   createReducer,
   applyManager,
-  createManagers,
   GCInterface,
 } from '@data-client/core';
 
@@ -20,14 +19,14 @@ export function prepareStore<
   R extends ReducersMapObject<any, ActionTypes> = {},
 >(
   initialState: DeepPartialWithUnknown<State<any>>,
-  /** Returns new Managers for this store. An array (deprecated) is shared by every store that uses it. */
-  managersOption: (() => Manager[]) | Manager[],
+  /** Returns new Managers for this store */
+  createManagers: () => Manager[],
   Ctrl: new (props: { gcPolicy: GCInterface }) => Controller,
   reducers: R = {} as any,
   middlewares: Middleware[] = [] as any,
   gcPolicy: GCInterface = new GCPolicy(),
 ) {
-  const managers = createManagers(managersOption);
+  const managers = createManagers();
   const selector = (s: { dataclient: State<unknown> }) => s.dataclient;
   const controller = new Ctrl({ gcPolicy });
   const reducer = createReducer(controller);

@@ -153,11 +153,6 @@ A function that returns the [Managers](https://dataclient.io/docs/api/Manager) t
 It runs once for each store, so each `DataProvider` gets its own Managers. Define it at module level, and
 [add your own Managers](https://dataclient.io/docs/api/Manager#adding) with [getDefaultManagers()](https://dataclient.io/docs/api/getDefaultManagers).
 
-> **Warning: Deprecated**
->
-> An array of Managers still works, but every store that uses it shares the same instances. See
-> [Manager lifetimes](https://dataclient.io/docs/api/Manager#lifetimes).
-
 Default Production:
 
 ```typescript

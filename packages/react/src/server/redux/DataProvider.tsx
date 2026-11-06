@@ -62,8 +62,8 @@ export default function TestExternalDataProvider({
 
 interface Props {
   children: React.ReactNode;
-  /** Returns new Managers; called once for each store. An array (deprecated) is shared by every store that uses it. */
-  managers: (() => Manager[]) | Manager[];
+  /** Returns new Managers; called once for each store */
+  managers: () => Manager[];
   initialState: State<unknown>;
   Controller: new (props: { gcPolicy: GCInterface }) => Controller;
   gcPolicy?: GCInterface;

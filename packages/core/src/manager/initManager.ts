@@ -1,6 +1,5 @@
 import type Controller from '../controller/Controller.js';
-import { Manager, State } from '../types.js';
-import { markStarted } from './warnIfShared.js';
+import { Manager } from '../types.js';
 
 /** Returns an Effect that starts `managers` and returns their cleanup.
  *
@@ -10,15 +9,10 @@ import { markStarted } from './warnIfShared.js';
 export default function initManager(
   managers: Manager[],
   controller: Controller,
-  /** @deprecated Ignored: `init()` gets `controller.getState()` */
-  initialState?: State<unknown>,
 ) {
   return () => {
     const state = controller.getState();
     managers.forEach(manager => {
-      /* istanbul ignore else */
-      if (process.env.NODE_ENV !== 'production')
-        markStarted(manager, controller);
       manager.init?.(state);
     });
     controller.gcPolicy.init(controller);

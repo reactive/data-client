@@ -54,7 +54,7 @@ const fetchTodo = jest.fn(
 );
 const getTodo = makeGetTodo(fetchTodo, { pollFrequency: 60000 });
 const stateA = mockTodoState(getTodo, ['A']);
-const noDevManagers = getDefaultManagers({ devToolsManager: null });
+const noDevManagers = () => getDefaultManagers({ devToolsManager: null });
 
 function TodoView({ id }: { id: string }) {
   const todo = useSuspense(getTodo, { id });

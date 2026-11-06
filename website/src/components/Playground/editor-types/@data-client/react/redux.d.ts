@@ -207,8 +207,8 @@ interface Middleware<
 }
 
 declare function prepareStore<R extends ReducersMapObject<any, ActionTypes> = {}>(initialState: DeepPartialWithUnknown<State<any>>, 
-/** Returns new Managers for this store. An array (deprecated) is shared by every store that uses it. */
-managersOption: (() => Manager[]) | Manager[], Ctrl: new (props: {
+/** Returns new Managers for this store */
+createManagers: () => Manager[], Ctrl: new (props: {
     gcPolicy: GCInterface;
 }) => Controller, reducers?: R, middlewares?: Middleware[], gcPolicy?: GCInterface): {
     selector: (s: {
@@ -238,8 +238,8 @@ type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left
 declare function TestExternalDataProvider({ children, managers, initialState, Controller, gcPolicy, devButton, }: Props$1): React.JSX.Element;
 interface Props$1 {
     children: React.ReactNode;
-    /** Returns new Managers; called once for each store. An array (deprecated) is shared by every store that uses it. */
-    managers: (() => Manager[]) | Manager[];
+    /** Returns new Managers; called once for each store */
+    managers: () => Manager[];
     initialState: State<unknown>;
     Controller: new (props: {
         gcPolicy: GCInterface;

@@ -61,13 +61,6 @@ app.use(DataClientPlugin, {
 });
 ```
 
-:::warning[Deprecated]
-
-An array of Managers still works, but every app that uses it shares the same instances. See
-[Manager lifetimes](./Manager.md#lifetimes).
-
-:::
-
 Default Production:
 
 ```typescript

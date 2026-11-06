@@ -80,8 +80,7 @@ app.use(DataClientPlugin, { managers });
 app.mount('#app');
 ```
 
-Define the function at module level: it holds only config. An array of Managers is deprecated, because every store
-that uses it shares the same instances.
+Define the function at module level: it holds only config.
 
 Actions pass through managers in array order. List custom managers before the defaults: [NetworkManager](https://dataclient.io/vue/api/NetworkManager)
 resolves most FETCH actions itself instead of passing them on.
