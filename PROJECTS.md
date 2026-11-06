@@ -22,6 +22,10 @@ project follow `.agents/projects/setup.md`.
 | Strong model | latest Fable (`fable`) | strongest model offered |
 | Fast model | Haiku (`haiku`) | fastest model offered |
 | Mid model | Sonnet (`sonnet`) | a mid-tier model |
+| user-kit skill | skill `user-kit:<name>` | `/<name>` (no plugin prefix) |
+| user-kit workflow | Workflow tool, `user-kit:<name>` | none: run its steps as subagents |
+
+The `ntucker/user-kit` plugin is installed in every project environment.
 
 ## Models
 
@@ -49,7 +53,7 @@ project follow `.agents/projects/setup.md`.
 6. After every push, run the post-push review: in Claude Code, workflow `user-kit:post-push-review`
    (Workflow tool) with
    `{ range: "<sha before push>..HEAD", goals: "<project goal>", repo: "<checkout path>" }`
-   (`repo` when data-client is not the working directory). Elsewhere, run fast-model reviewers in
+   (`repo` when data-client is not the working directory). In Cursor, run fast-model subagents in
    parallel for goals, repo rules, engineering, adversarial, reuse and React data flow. Verify each
    finding; fix real ones, reject the rest with a reason. Do not launch them while the person is
    actively writing in your thread: subagents can pick up the message and reply in your name.
