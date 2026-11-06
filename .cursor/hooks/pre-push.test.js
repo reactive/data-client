@@ -48,10 +48,10 @@ function write(root, file, content = 'const n = 1;\n') {
 }
 
 /** the reason the hook denies `git push`, if it does */
-function push(root, command = 'git push') {
+function push(root, command = 'git push', env = {}) {
   const out = execFileSync(process.execPath, [hook], {
     cwd: root,
-    env: { ...process.env, CURSOR_PROJECT_DIR: root },
+    env: { ...process.env, CURSOR_PROJECT_DIR: root, ...env },
     input: JSON.stringify({
       hook_event_name: 'PreToolUse',
       tool_input: { command },
@@ -61,6 +61,13 @@ function push(root, command = 'git push') {
   return out && JSON.parse(out).hookSpecificOutput.permissionDecisionReason;
 }
 
+/** commits the working tree as master */
+function commitMaster(git) {
+  git('add', '-A');
+  git('commit', '-m', 'master');
+  git('update-ref', 'refs/remotes/origin/master', 'HEAD');
+}
+
 const held =
   '`eslint --fix` changed files this push would include. Commit them, then push again:\nsrc/changed.ts';
 
@@ -68,9 +75,7 @@ const held =
  * still generated on disk, and src/changed.ts is added */
 function untrackGenerated(root, git) {
   write(root, 'src/generated.ts');
-  git('add', '-A');
-  git('commit', '-m', 'master');
-  git('update-ref', 'refs/remotes/origin/master', 'HEAD');
+  commitMaster(git);
   git('rm', '--cached', 'src/generated.ts');
   fs.appendFileSync(path.join(root, '.gitignore'), 'src/generated.ts\n');
   write(root, 'src/changed.ts');
@@ -95,9 +100,7 @@ test('an ignored file the push commits untracking is not linted', () => {
 test('a pending fix to a file the push deletes does not hold it', () => {
   withRepo((root, git) => {
     write(root, 'src/fixed.ts');
-    git('add', '-A');
-    git('commit', '-m', 'master');
-    git('update-ref', 'refs/remotes/origin/master', 'HEAD');
+    commitMaster(git);
     fs.appendFileSync(path.join(root, 'src/fixed.ts'), 'edit;\n');
     git('commit', '-am', 'branch');
     assert.match(push(root), /src\/fixed\.ts/);
@@ -114,9 +117,7 @@ function breakingBranch(root, git) {
     fs.readFileSync(path.join(__dirname, '../../scripts/breaking-evals.mjs')),
   );
   fs.mkdirSync(path.join(root, '.agents/skills/demo'), { recursive: true });
-  git('add', '-A');
-  git('commit', '-m', 'master');
-  git('update-ref', 'refs/remotes/origin/master', 'HEAD');
+  commitMaster(git);
   write(
     root,
     '.changeset/drop-old.md',
@@ -237,9 +238,7 @@ test('a blank no-agent-impact reason holds the push', () => {
 function skillBranch(root, git, skillMd) {
   write(root, 'website/framework-docs/skillReferences.mjs', '');
   write(root, '.agents/skills/a/SKILL.md', 'old\n');
-  git('add', '-A');
-  git('commit', '-m', 'master');
-  git('update-ref', 'refs/remotes/origin/master', 'HEAD');
+  commitMaster(git);
   write(root, '.agents/skills/a/SKILL.md', skillMd);
 }
 
@@ -285,5 +284,127 @@ test('a generated SKILL.md the generator deleted holds the push', () => {
       push(root, 'git commit -m x --allow-empty && git push'),
       /aren't committed[\s\S]*\.agents\/skills\/a\/SKILL\.md/,
     );
+  });
+});
+
+test('pushes anywhere in the command are checked', () => {
+  withRepo((root, git) => {
+    untrackGenerated(root, git);
+    git('commit', '-m', 'branch');
+    for (const command of [
+      'for i in 1 2 3 4; do git push -u origin b && break; sleep 2; done',
+      'timeout 60 git push',
+      'GIT_TERMINAL_PROMPT=0 git push',
+      'if ! git push; then sleep 2; fi',
+    ]) {
+      assert.equal(push(root, command), held, command);
+    }
+    for (const command of ['git stash push', 'git commit -m "then git push"']) {
+      assert.equal(push(root, command), '', command);
+    }
+  });
+});
+
+/** a branch changing a package; `yarn copy:websitetypes` is a stub that
+ * copies the package source's first line (not the fake eslint's) to the
+ * editor types */
+function typesBranch(root, git) {
+  write(root, 'scripts/copywebsitetypes.sh', '');
+  write(root, 'packages/core/src/index.ts', '1\n');
+  write(root, 'website/src/components/Playground/editor-types/core.d.ts', '');
+  commitMaster(git);
+  const bin = path.join(root, 'node_modules', '.fake-bin');
+  write(
+    root,
+    'node_modules/.fake-bin/yarn',
+    `#!/bin/sh\nhead -n 1 packages/core/src/index.ts > website/src/components/Playground/editor-types/core.d.ts\n`,
+  );
+  fs.chmodSync(path.join(bin, 'yarn'), 0o755);
+  return { PATH: `${bin}${path.delimiter}${process.env.PATH}` };
+}
+
+const typesHeld = /Playground editor types[^]*editor-types\/core\.d\.ts/;
+
+test('uncommitted editor types from a package change hold the push', () => {
+  withRepo((root, git) => {
+    const env = typesBranch(root, git);
+    write(root, 'packages/core/src/index.ts', '2\n');
+    assert.match(push(root, 'git commit -am edit && git push', env), typesHeld);
+  });
+});
+
+test('editor types committed with the package change do not hold the push', () => {
+  withRepo((root, git) => {
+    const env = typesBranch(root, git);
+    write(root, 'packages/core/src/index.ts', '2\n');
+    git('commit', '-am', 'edit');
+    write(
+      root,
+      'website/src/components/Playground/editor-types/core.d.ts',
+      '2\n',
+    );
+    git('commit', '-am', 'types');
+    assert.doesNotMatch(push(root, 'git push', env), typesHeld);
+  });
+});
+
+test('package tests do not regenerate editor types', () => {
+  withRepo((root, git) => {
+    const env = typesBranch(root, git);
+    write(root, 'packages/core/src/__tests__/a.ts', '');
+    git('add', '-A');
+    git('commit', '-m', 't');
+    // the stub would write index.ts's `1` to the empty core.d.ts if it ran
+    assert.doesNotMatch(push(root, 'git push', env), typesHeld);
+  });
+});
+
+test('a tsconfig change regenerates editor types', () => {
+  withRepo((root, git) => {
+    const env = typesBranch(root, git);
+    write(root, 'packages/core/tsconfig.json', '{}\n');
+    git('add', '-A');
+    git('commit', '-m', 'tsconfig');
+    assert.match(push(root, 'git push', env), typesHeld);
+  });
+});
+
+/** the reason the hook holds a push of a tsconfig change when the stub
+ * `yarn` is `script` */
+function failedGenerator(script) {
+  let reason;
+  withRepo((root, git) => {
+    const env = typesBranch(root, git);
+    write(root, 'node_modules/.fake-bin/yarn', `#!/bin/sh\n${script}\n`);
+    write(root, 'packages/core/tsconfig.json', '{}\n');
+    git('add', '-A');
+    git('commit', '-m', 'tsconfig');
+    reason = push(root, 'git push', env);
+  });
+  return reason;
+}
+
+test('a generator that fails with no output holds the push', () => {
+  assert.match(
+    failedGenerator('exit 1'),
+    /`yarn copy:websitetypes` found problems[^]*Command failed/,
+  );
+});
+
+test('a failed generator reports both stdout and stderr', () => {
+  const reason = failedGenerator(
+    'echo "a.ts(1,1): error TS2322"; echo "warning: x" >&2; exit 1',
+  );
+  assert.match(reason, /warning: x/);
+  assert.match(reason, /error TS2322/);
+});
+
+test('an .mts package source regenerates editor types', () => {
+  withRepo((root, git) => {
+    const env = typesBranch(root, git);
+    write(root, 'packages/core/src/a.mts', 'export {};\n');
+    git('add', '-A');
+    git('commit', '-m', 'mts');
+    assert.match(push(root, 'git push', env), typesHeld);
   });
 });
