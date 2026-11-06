@@ -1,8 +1,10 @@
 import BackupLoading from './BackupLoading.js';
+import ClientStore from './ClientStore.js';
 import DataProvider from './DataProvider.js';
 import { getDefaultManagers } from './getDefaultManagers.js';
 import UniversalSuspense from './UniversalSuspense.js';
 export type { ProviderProps } from './DataProvider.js';
+export type { ClientStoreOptions } from './ClientStore.js';
 export type { DevToolsPosition } from './DevToolsButton.js';
 
 export {
@@ -10,6 +12,7 @@ export {
   BackupLoading,
   UniversalSuspense,
   getDefaultManagers,
+  ClientStore,
 };
 export { default as CacheProvider } from './DataProvider.js';
 export { default as AsyncBoundary } from './AsyncBoundary.js';

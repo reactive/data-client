@@ -90,7 +90,7 @@ export default function createPersistedStore(managers?: Manager[]) {
 
 type ProviderProps = Omit<
   Partial<ComponentProps<typeof DataProvider>>,
-  'initialState'
+  'initialState' | 'store'
 > & {
   children: React.ReactNode;
   initPromise: Promise<State<any>>;
