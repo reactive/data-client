@@ -19,6 +19,7 @@ function fakeEditor() {
     onKeyDown: on('key'),
     onMouseDown: on('click'),
     onDidDispose: () => ({ dispose() {} }),
+    getLayoutInfo: () => ({ width: 600 }),
   } as unknown as Monaco.editor.ICodeEditor;
   const fire = (event: string) => () => act(() => listeners[event]?.());
   return Object.assign(editor, {

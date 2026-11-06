@@ -972,7 +972,7 @@ div.playground-preview h1:first-child {
 /* A quantity stepper (a cart row's): − count + in one edge, the count
    between its two buttons; hover and press as an upvote's. With one button
    (Add, at none) it keeps the same width, so a row doesn't shift. In a row
-   the text before it takes the slack, and a trailing `meta` (a line's
+   it goes to the end, after the text, and a trailing `meta` (a line's
    price) keeps one width so the rows' prices align */
 .playground-preview .stepper {
   --stepper-button: 28px;
@@ -1021,11 +1021,15 @@ div.playground-preview h1:first-child {
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
-.playground-preview .listItem:has(> .stepper) > :first-child {
-  flex: 1;
+/* No :has() here: `.listItem:has(> .stepper) > :first-child { flex: 1 }`
+   made Chrome restyle the whole page on any DOM change anywhere (each
+   Monaco render, each keystroke) */
+.playground-preview .listItem > .stepper {
+  margin-left: auto;
 }
-.playground-preview .listItem:has(> .stepper) > .meta:last-child {
+.playground-preview .listItem > .stepper ~ .meta:last-child {
   min-width: 4rem;
+  margin-left: 0;
   text-align: right;
 }
 /* A meter (progress toward free shipping): a thin rounded track a step

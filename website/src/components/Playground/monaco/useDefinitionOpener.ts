@@ -13,7 +13,7 @@ interface OpenRequest {
  * Lands cross-file go to definition in this editor, and lines asked for by
  * `reveal` (each new object, once). Opening only asks for this editor's tab
  * (`onOpen`); the selection and focus wait until the tab is visible, since
- * a display:none editor can't take focus.
+ * a hidden editor can't take focus.
  */
 export default function useDefinitionOpener({
   isVisible,
@@ -44,10 +44,11 @@ export default function useDefinitionOpener({
 
   useEffect(() => {
     if (!request || !isVisible) return;
-    // Wait a frame so display:none → block layout has applied
+    // Wait a frame so the shown tab's styles have applied
     const id = requestAnimationFrame(() => {
       const { editor, target } = request;
-      // automaticLayout hasn't measured the just-shown tab yet
+      // a frame's callbacks run before its resize observers: lay out now in
+      // case the shown tab's width changed (a folded card opening)
       editor.layout();
       if (target && 'startLineNumber' in target) editor.setSelection(target);
       else if (target) editor.setPosition(target);

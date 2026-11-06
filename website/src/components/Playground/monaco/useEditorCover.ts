@@ -1,6 +1,8 @@
 import type * as Monaco from 'monaco-editor';
 import { useCallback, useRef, useState } from 'react';
 
+import { hasLayoutWidth } from './useAutoHeight';
+import { holdIdle } from './whenIdle';
 import { whenPainted } from './whenPainted';
 import { prefersReducedMotion, springEasing, springs } from '../../motion';
 
@@ -21,9 +23,13 @@ export default function useEditorCover() {
       /** holds off the paint wait until it calls `start` */
       after: (start: () => void) => void = start => start(),
     ) => {
+      // deferred work (whenIdle) waits for the shown editors' first paint;
+      // a hidden one (no width yet) waits for that work, so doesn't hold it
+      const release = editors.some(hasLayoutWidth) ? holdIdle() : undefined;
       let ended = false;
       let stops: (() => void)[] = [];
       function end() {
+        release?.();
         ended = true;
         stops.forEach(stop => stop());
         interactions.forEach(interaction => interaction.dispose());

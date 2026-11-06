@@ -233,15 +233,24 @@ function TextEditTab({
       <StaticEditor code={editorProps.code} language={editorProps.language} />
     : <pre>{editorProps.code}</pre>;
 
+  // A tab not yet shown is display:none until its editor has mounted and the
+  // page is idle; from then (or once shown) a hidden tab keeps the shown
+  // file's width (styles.tabHidden), so its editor lays out and highlights
+  // out of sight and shows at once. Never at load: that would hold up the
+  // shown files.
+  const [laidOut, setLaidOut] = useState(!hidden);
+  if (!hidden && !laidOut) setLaidOut(true);
+  const layOut = useCallback(() => setLaidOut(true), []);
   return (
     <div
       className={clsx(styles.playgroundEditor, {
-        [styles.hidden]: hidden,
+        [styles.hidden]: hidden && !laidOut,
+        [styles.tabHidden]: hidden && laidOut,
       })}
     >
       {interactive ?
         <BrowserOnly fallback={staticView}>
-          {() => <Editor {...editorProps} />}
+          {() => <Editor {...editorProps} onMountIdle={layOut} />}
         </BrowserOnly>
       : staticView}
     </div>

@@ -73,6 +73,17 @@ Gotchas:
   lifts once `monaco/whenPainted.ts` sees it laid out and highlighted to
   its last line. Never give Monaco's container zero width while it mounts:
   it lays out one letter per line.
+- After that, a tab switch draws nothing new. Monaco lays out only at a real
+  width (`layoutWhileShown` in `monaco/useAutoHeight.ts`, not
+  `automaticLayout`), so a hidden editor shows again as it was. A file tab
+  not yet shown waits, `display:none`, until its editor has mounted and the
+  shown editors have painted (`monaco/whenIdle.ts`); then it keeps the
+  shown file's width out of sight (`.tabHidden`), so Monaco lays it out and
+  highlights it before it shows.
+- Keep `:has()` out of rules whose last part matches broadly (a bare
+  `:first-child`, `:not(...)`): Chrome then restyles the whole page on
+  every DOM change, which Monaco makes on each render and keystroke. Put a
+  class on the last part, or style from a sibling (`.stepper ~ .meta`).
 
 `hidden` (unselected protocol tabs): every tab stays mounted, so all sources
 are in the HTML. The editor latches interactive on first show, so undo and

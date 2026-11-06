@@ -12,6 +12,7 @@ import useAutoHeight from '../monaco/useAutoHeight';
 import useDefinitionOpener from '../monaco/useDefinitionOpener';
 import useEditorCover from '../monaco/useEditorCover';
 import useOverflowWidgets from '../monaco/useOverflowWidgets';
+import { whenIdle } from '../monaco/whenIdle';
 import PlaygroundLiveEditor from '../PlaygroundLiveEditor';
 import styles from '../styles.module.css';
 import { isMobileOrBot } from '../userAgent';
@@ -33,12 +34,17 @@ export interface InteractiveEditorProps {
   /** Code-fence line ranges to pre-select, e.g. `1-3,5` */
   highlights?: string;
   autoFocus?: boolean;
-  /** Whether this tab is visible; re-measures height when it becomes so */
+  /** Whether this tab is shown: a line asked for (`reveal`, go to
+   * definition) waits for it */
   isFocused?: boolean;
   language: string;
   readOnly?: boolean;
   /** A line to put the cursor on (each new object, once) */
   reveal?: Pick<CodeTarget, 'line'>;
+  /** Runs once the page is next idle after Monaco mounts this editor (never
+   * on mobile, which gets no Monaco). Only the first render's value is
+   * used. */
+  onMountIdle?: () => void;
 }
 
 /**
@@ -58,6 +64,7 @@ function InteractiveEditor({
   language,
   readOnly = false,
   reveal,
+  onMountIdle,
 }: InteractiveEditorProps) {
   const overflowWidgets = useOverflowWidgets();
   const editorOptions = useMemo(
@@ -66,7 +73,6 @@ function InteractiveEditor({
   );
   const { height, handleMount: handleAutoMount } = useAutoHeight({
     initialContentHeight: code.split('\n').length * editorOptions.lineHeight,
-    isFocused,
   });
   const { covered, coverRef, revealWhenPainted } = useEditorCover();
   const handleOpenerMount = useDefinitionOpener({
@@ -91,6 +97,7 @@ function InteractiveEditor({
       handleOpenerMount(editor, monaco);
       overflowWidgets.handleMount(editor);
       revealWhenPainted([editor]);
+      if (onMountIdle) editor.onDidDispose(whenIdle(onMountIdle));
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],

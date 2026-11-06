@@ -4,7 +4,8 @@ import { hasLayoutWidth } from './useAutoHeight';
 
 /**
  * Calls `done` once `editor` shows its code as it will stay: laid out at its
- * box's width (a hidden tab has none; it waits, at no cost, until shown) and
+ * box's width (one mounted under display:none has none; it waits, at no
+ * cost, until shown; a file tab not shown keeps its width) and
  * highlighted (its language's tokenizer can load after it). Checked each
  * frame; Monaco paints in a frame of its own, so it counts once true for two
  * in a row; regardless once colored tokens have shown for `MAX_MS` (code
