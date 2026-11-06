@@ -431,7 +431,7 @@ describe('actions by interaction', () => {
 });
 
 describe('callSite', () => {
-  it('reads the code’s functions from V8 and SpiderMonkey stacks', () => {
+  it('reads the code’s functions from V8, SpiderMonkey and JavaScriptCore stacks', () => {
     // Jest runs on V8, whose `new Function` bodies start on line 3: the
     // lines are counted from the program's first line
     const v8 = [
@@ -451,6 +451,23 @@ describe('callSite', () => {
       'renderWithHooks@http://localhost/react-dom.js:1:1',
     ].join('\n');
     expect(evaluatedFrames(firefox)).toEqual([{ name: 'ShowTime', line: 10 }]);
+    // WebKitGTK 2.52.6: a `new Function` body's frames have no location, an
+    // arrow function no name either
+    const webkit = [
+      '@',
+      'dispatch@http://localhost/main.js:10:5',
+      'useFetch@',
+      'ShowTime@',
+      'anonymous@',
+      'forEach@[native code]',
+      'global code@http://localhost/main.js:13:48',
+    ].join('\n');
+    expect(evaluatedFrames(webkit)).toEqual([
+      { name: '' },
+      { name: 'useFetch' },
+      { name: 'ShowTime' },
+      { name: 'anonymous' },
+    ]);
   });
 
   it('finds the line of the playground’s code that dispatched', () => {
