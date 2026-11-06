@@ -45,8 +45,8 @@ project follow `.agents/projects/setup.md`.
 5. Keep the PR mergeable, but act only on a real conflict with its base. Simple conflicts (lockfiles,
    changelogs, adjacent edits, generated files): hand to a mid-model subagent with branch, base and how
    to validate. Logic conflicts: resolve yourself.
-6. After every push, run the post-push review: in Claude Code, workflow `user-kit:post-push-review` (Workflow tool) with
-   `{ range: "<sha before push>..HEAD", goals: "<project goal>", repo: "<checkout path>" }` (`repo` when
+6. After every push, run the post-push review: in Claude Code, workflow `user-kit:post-push-review`
+   (Workflow tool) with `{ range: "<sha before push>..HEAD", goals: "<project goal>", repo: "<checkout path>" }` (`repo` when
    data-client is not the working directory); elsewhere, fast-model reviewers in
    parallel for goals, repo rules, engineering, adversarial, reuse and React data flow. Verify each
    finding; fix real ones, reject the rest with a reason. Do not launch them while the person is
