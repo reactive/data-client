@@ -26,8 +26,8 @@ project follow `.agents/projects/setup.md`.
 ## Tools
 
 Every project environment should have user-kit's skills and workflows. If one you need is missing,
-use the step's fallback where it names one, and tell the coordinator, who asks the person to install
-user-kit.
+use the fallback its step gives (with none, hold the step), and tell the coordinator, who asks the
+person to install user-kit.
 
 | Tool | Claude project | Cursor Project |
 | --- | --- | --- |
@@ -60,9 +60,9 @@ user-kit.
 6. After every push, run the post-push review. With the Workflow tool, run workflow
    `user-kit:post-push-review` with
    `{ range: "<sha before push>..HEAD", goals: "<project goal>", repo: "<checkout path>" }`
-   (`repo` when data-client is not the working directory). Without the Workflow tool (Cursor, or any
-   agent lacking it), run fast-model subagents in parallel for goals, repo rules, engineering,
-   adversarial, reuse and React data flow. Verify each finding; fix real ones, reject the rest with a
+   (`repo` when data-client is not the working directory). Without the Workflow tool or that
+   workflow (Cursor, or user-kit missing), run fast-model subagents in parallel for goals, repo rules,
+   engineering, adversarial, reuse and React data flow. Verify each finding; fix real ones, reject the rest with a
    reason. Do not launch them while the person is actively writing in your thread: subagents can
    pick up the message and reply in your name.
 7. Once the change is verified correct, run skill "simplify" (Cursor: the same review by hand),
