@@ -1,7 +1,8 @@
 /* global require */
 // Before an agent runs `git push` (Cursor `beforeShellExecution`, Claude Code
-// `PreToolUse` on Bash), regenerates agent skill references and Claude Code's
-// copy of the Cursor rules when the branch touches their inputs, runs
+// `PreToolUse` on Bash), regenerates agent skill references, the playground's
+// editor types and Claude Code's copy of the Cursor rules when the branch
+// touches their inputs, runs
 // `eslint --fix` on the JS/TS files it changes, and holds the push until the
 // result is committed. It also holds breaking (minor or major bump) changesets
 // with neither a skill eval naming them nor a reason in no-agent-impact.json.
@@ -22,11 +23,12 @@ try {
 }
 const command = payload.command ?? payload.tool_input?.command ?? '';
 // a git subcommand as a command (`git push`, `git -C dir push`, `cd x && git
+// push`, a retry loop's `do git push`, `timeout 60 git push`, `VAR=1 git
 // push`); not `git stash push`, `git -c commit.gpgsign=false`, a branch named
 // fix-commit or a commit message mentioning push
 const gitCommand = sub =>
   new RegExp(
-    `(?:^|[;&|(]\\s*)git(?:\\s+-[cC]\\s+\\S+|\\s+--?[\\w-]+(?:=\\S+)?)*\\s+${sub}(?![\\w.-])`,
+    `(?:^|[;&|(]\\s*)(?:(?:do|then|else|if|while|until|!|env|time|timeout\\s+\\S+|\\w+=\\S*)\\s+)*git(?:\\s+-[cC]\\s+\\S+|\\s+--?[\\w-]+(?:=\\S+)?)*\\s+${sub}(?![\\w.-])`,
     'm',
   );
 if (!gitCommand('push').test(command)) process.exit(0);
@@ -90,6 +92,15 @@ function isBundledSkillFile(file) {
   if (!bundledSkills) readManifests();
   return bundledSkills.has(skill);
 }
+/** what `yarn copy:websitetypes` builds the playground's editor types from
+ * (regenerate.yml's paths, less docs and skills) */
+const isEditorTypesInput = file =>
+  (/^packages\/[^/]+\/(src\/|package\.json$)/.test(file) &&
+    !/\/__tests__\//.test(file)) ||
+  /^scripts\/(copywebsitetypes\.sh|strip-dts-comments\.mjs|globals\.ts|rollup-plugins\/)/.test(
+    file,
+  ) ||
+  file === 'yarn.lock';
 const isSkillInput = file =>
   isSkillDoc(file) ||
   /^\.agents\/skills\/[^/]+\/(references\.json|SKILL\.md)$/.test(file) ||
@@ -122,7 +133,8 @@ function regenerate({
   what,
   from,
   script,
-  command = `node ${script}`,
+  argv = ['node', script],
+  command = argv.join(' '),
   isInput,
   outputs = [],
   isOutput = () => true,
@@ -136,9 +148,11 @@ function regenerate({
   if (!fs.existsSync(path.join(projectDir, script))) return [];
   let problems = '';
   try {
-    execFileSync('node', [script], {
+    execFileSync(argv[0], argv.slice(1), {
       cwd: projectDir,
       stdio: ['ignore', 'ignore', 'pipe'],
+      // yarn is a .cmd shim on Windows
+      shell: process.platform === 'win32',
     });
   } catch (err) {
     problems = String(err.stderr ?? '').trim();
@@ -256,6 +270,14 @@ const message = [
     outputs: ['.agents/skills/*/references/*', '.agents/skills/*/SKILL.md'],
     isOutput: file =>
       path.basename(file) !== 'SKILL.md' || isGeneratedSkillMd(file),
+  }),
+  ...regenerate({
+    what: 'Playground editor types',
+    from: 'package type',
+    script: 'scripts/copywebsitetypes.sh',
+    argv: ['yarn', 'copy:websitetypes'],
+    isInput: isEditorTypesInput,
+    outputs: ['website/src/components/Playground/editor-types'],
   }),
   ...regenerate({
     what: 'Claude Code rules',
