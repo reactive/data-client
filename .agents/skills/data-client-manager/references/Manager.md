@@ -52,7 +52,7 @@ relies on state actually existing.
 
 Provides any cleanup of dangling resources after manager is no longer in use.
 
-With [`<Activity>`](https://react.dev/reference/react/Activity) above `DataProvider`, hiding runs cleanup() but keeps
+`DataProvider` usually goes above everything, but with [`<Activity>`](https://react.dev/reference/react/Activity) above it, hiding runs cleanup() but keeps
 the store, and showing runs init() again. So in cleanup() stop timers and connections, but keep state about the store
 (like requests in flight), and restart in init().
 
