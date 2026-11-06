@@ -45,12 +45,13 @@ On the web, a read of entity versions that the memo already saw always returns t
 1. **Uncommitted reads that alternate between store versions.** A version that no committed render read is kept only while it is the newest. Reads that switch between two or more such versions miss each time, for example renders that React discards, or `getResponse()` outside render against a store other than the rendered one. A committed store is pinned, so urgent renders during a pending transition, and rollbacks of optimistic updates, still hit.
 2. **Too many `argsKey` routes.** A first dependency gets more than `MAX_FORKS` (8) extra `argsKey` branches. This happens only when missing entities change which `argsKey` a computation reaches first. The memo then drops every value under that first dependency.
 
-Measured with `packages/react/src/__tests__/concurrent-memo.web.tsx` and the native memo in place of the web one (3,000 random runs on 3 rows with up to 2, or up to 16, optimistic updates in flight, plus the 16 scripted scenarios at 1 and 2 consumers):
+Measured with `packages/react/src/__tests__/concurrent-memo.web.tsx` and the native memo in place of the web one (3,000 random runs on 3 rows with up to 2, or up to 16, optimistic updates in flight, plus the 16 scripted scenarios at 1 and 2 consumers). The runs add a project list whose owner transitions rewrite, and a project detail view mounted at random. A nested miss is a committed list row, detail read or nested owner that gets a new object for an entity version a committed read already showed:
 
-| memo | committed reads that miss (≤2 / ≤16) | all reads that miss (≤2 / ≤16) | scripted scenarios with a miss |
+| memo | committed reads that miss (≤2 / ≤16) | all reads that miss (≤2 / ≤16) | nested committed misses (≤2 / ≤16) |
 | --- | --- | --- | --- |
-| web | 0 / 0 | 0 / 0 | 0 |
-| native | 0 / 0 | 0.19% / 0.87% | 0 |
+| web | 0 / 0 | 0 / 0 | 0 / 0 |
+| native | 0 / 0 | 0.26% / 1.12% | 0 / 0 |
+| native, result entries pinned only | 0 / 0 | 0.26% / 1.12% | 12,828 / 12,976 |
 
 ## Schema-tree traversal pattern
 
