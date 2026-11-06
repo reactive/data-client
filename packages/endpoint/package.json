@@ -124,7 +124,7 @@
     "build:legacy-types": "yarn g:legacy-types 4.8 4.2 4.0",
     "dev": "run build:lib -w",
     "prepare": "run build:lib",
-    "prepack": "run prepare && run build:bundle && run build:legacy:lib && node ../../scripts/pack-skills.mjs",
+    "prepack": "run prepare && run build:native:lib && run build:bundle && run build:legacy:lib && node ../../scripts/pack-skills.mjs",
     "tsc:ci": "yarn g:tsc --project tsconfig.test.json",
     "typecheck": "run tsc:ci"
   },
