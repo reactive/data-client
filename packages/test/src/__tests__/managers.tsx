@@ -49,10 +49,13 @@ describe('renderDataHook() managers', () => {
     await controller.setResponse(getValue, { id: 2 }, { id: 2 });
     expect(types).toContain(actionTypes.SET_RESPONSE);
     expect(allSettled()).toBeUndefined();
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('NetworkManager not found'),
+    );
     warn.mockRestore();
   });
 
-  it('calls the factory once per render', () => {
+  it('calls the factory once per renderDataHook() call', () => {
     const managers = jest.fn(() => [new NetworkManager()]);
     renderDataHook(() => useController(), { managers });
     renderDataHook(() => useController(), { managers });

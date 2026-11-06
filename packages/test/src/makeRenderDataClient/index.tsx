@@ -197,7 +197,7 @@ export type RenderDataHook = (<P, R>(
     initialProps?: P;
     initialFixtures?: readonly Fixture[];
     readonly resolverFixtures?: readonly (Fixture | Interceptor)[];
-    /** Returns the Managers for this render, replacing the default NetworkManager and SubscriptionManager */
+    /** Returns the Managers for each renderDataHook() call, replacing the default NetworkManager and SubscriptionManager */
     managers?: () => Manager[];
     wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
   } & Omit<RenderHookOptions<P>, 'initialProps' | 'wrapper'>,
