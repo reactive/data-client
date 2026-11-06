@@ -7,9 +7,7 @@ import type { Manager } from '../types.js';
  * @see https://dataclient.io/docs/api/Manager#lifetimes
  */
 export default function createManagers(
-  managers: (() => Manager[]) | Manager[] | undefined,
-  getDefaultManagers: () => Manager[],
+  managers: (() => Manager[]) | Manager[],
 ): Manager[] {
-  if (managers === undefined) return getDefaultManagers();
   return typeof managers === 'function' ? managers() : managers;
 }

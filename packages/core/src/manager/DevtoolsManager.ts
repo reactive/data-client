@@ -174,8 +174,10 @@ class DebugStore {
   }
 }
 
-/** Extension connections by name. A connection belongs to the page, so each store's instance shares it. */
+/** Extension connections by `__DC__` key, so a store that replaces another keeps its extension instance */
 const connections = new Map<string, any>();
+const getExtension = (): any =>
+  typeof window !== 'undefined' && (window as any).__REDUX_DEVTOOLS_EXTENSION__;
 
 /** Integrates with https://github.com/reduxjs/redux-devtools
  *
@@ -203,6 +205,7 @@ export default class DevToolsManager implements Manager {
   declare private unsubscribeExtension?: () => void;
   declare skipLogging?: (action: ActionTypes) => boolean;
   declare devtoolsName: string;
+  declare private config: DevToolsConfig;
   maxBufferLength = 100;
 
   constructor(
@@ -210,18 +213,9 @@ export default class DevToolsManager implements Manager {
     skipLogging?: (action: ActionTypes) => boolean,
   ) {
     /* istanbul ignore next */
-    const options = { ...DEFAULT_CONFIG, ...config };
+    this.config = { ...DEFAULT_CONFIG, ...config };
     this.devtoolsName =
-      options.name ?? `Data Client: ${globalThis.document?.title}`;
-    const extension =
-      typeof window !== 'undefined' &&
-      (window as any).__REDUX_DEVTOOLS_EXTENSION__;
-    if (extension) {
-      // React can construct an instance and discard it, so connect once per name
-      if (!connections.has(this.devtoolsName))
-        connections.set(this.devtoolsName, extension.connect(options));
-      this.devTools = connections.get(this.devtoolsName);
-    }
+      this.config.name ?? `Data Client: ${globalThis.document?.title}`;
     // we cut it in half so we should double so we don't lose
     if (config?.maxAge) this.maxBufferLength = config.maxAge * 2;
     if (skipLogging) this.skipLogging = skipLogging;
@@ -240,7 +234,7 @@ export default class DevToolsManager implements Manager {
         // a reused manager starts a fresh log for a new store
         if (controller !== this.controller) this.actionLog = [];
         this.controller = controller;
-        const reducer = this.devTools && createReducer(controller as any);
+        const reducer = getExtension() && createReducer(controller as any);
         let state = controller.getState();
         /** Counts polling subscribers per key, even for actions skipLogging hides */
         const trackPolling = (action: ActionTypes) => {
@@ -333,7 +327,16 @@ export default class DevToolsManager implements Manager {
         actions: this.actionLog,
       });
     }
-    if (process.env.NODE_ENV !== 'production' && this.devTools) {
+    const extension = getExtension();
+    if (process.env.NODE_ENV !== 'production' && extension) {
+      const key = this.registryKey as string;
+      let devTools = connections.get(key);
+      if (!devTools)
+        connections.set(
+          key,
+          (devTools = extension.connect({ ...this.config, name: key })),
+        );
+      this.devTools = devTools;
       // a resumed store keeps its extension history
       if (this.extensionStore !== this.controller) {
         this.extensionStore = this.controller;

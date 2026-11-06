@@ -5,6 +5,7 @@ import {
   ActionTypes,
   createReducer,
   applyManager,
+  createManagers,
   GCInterface,
 } from '@data-client/core';
 
@@ -26,8 +27,7 @@ export function prepareStore<
   middlewares: Middleware[] = [] as any,
   gcPolicy: GCInterface = new GCPolicy(),
 ) {
-  const managers =
-    typeof managersOption === 'function' ? managersOption() : managersOption;
+  const managers = createManagers(managersOption);
   const selector = (s: { dataclient: State<unknown> }) => s.dataclient;
   const controller = new Ctrl({ gcPolicy });
   const reducer = createReducer(controller);

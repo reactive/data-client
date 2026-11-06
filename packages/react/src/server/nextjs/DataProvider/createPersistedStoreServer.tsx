@@ -70,11 +70,7 @@ export default function createPersistedStore(managers?: Manager[]) {
     // only include if they have devtools integrated
     // if managers isn't overridden we know it will by default include DevToolsManager, so set this to true
     // matches the client's DataProvider, which owns the user's managers
-    const hasDevManager =
-      !managers ||
-      (typeof managers === 'function' ? managers() : managers).some(
-        manager => manager instanceof DevToolsManager,
-      );
+    const hasDevManager = !managers || includesDevTools(managers);
     return (
       <SSRDataProvider
         getState={getState}
@@ -90,6 +86,17 @@ export default function createPersistedStore(managers?: Manager[]) {
 
   return [StoreDataProvider, initPromise] as const;
 }
+
+/** Whether the client's managers include DevToolsManager; calls a managers function once per page */
+const devToolsFound = new WeakMap<() => Manager[], boolean>();
+function includesDevTools(managers: (() => Manager[]) | Manager[]) {
+  if (typeof managers !== 'function') return managers.some(isDevTools);
+  let found = devToolsFound.get(managers);
+  if (found === undefined)
+    devToolsFound.set(managers, (found = managers().some(isDevTools)));
+  return found;
+}
+const isDevTools = (manager: Manager) => manager instanceof DevToolsManager;
 
 type ProviderProps = Omit<
   Partial<ComponentProps<typeof DataProvider>>,

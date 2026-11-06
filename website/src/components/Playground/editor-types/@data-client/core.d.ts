@@ -1218,7 +1218,7 @@ initialState?: State<unknown>): () => () => void;
  * that uses it.
  * @see https://dataclient.io/docs/api/Manager#lifetimes
  */
-declare function createManagers(managers: (() => Manager[]) | Manager[] | undefined, getDefaultManagers: () => Manager[]): Manager[];
+declare function createManagers(managers: (() => Manager[]) | Manager[]): Manager[];
 
 declare function createSubscription<E extends EndpointInterface>(endpoint: E, { args }: {
     args: readonly [...Parameters<E>];
@@ -1629,6 +1629,7 @@ declare class DevToolsManager implements Manager {
     private unsubscribeExtension?;
     skipLogging?: (action: ActionTypes) => boolean;
     devtoolsName: string;
+    private config;
     maxBufferLength: number;
     constructor(config?: DevToolsConfig, skipLogging?: (action: ActionTypes) => boolean);
     handleAction(action: any, state: any): void;

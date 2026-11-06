@@ -58,7 +58,7 @@ export default function DataProvider({
 
   const managersRef: React.RefObject<Manager[]> = useRef<any>(undefined);
   if (!managersRef.current)
-    managersRef.current = createManagers(managers, getDefaultManagers);
+    managersRef.current = createManagers(managers ?? getDefaultManagers);
 
   // run in a useEffect in DataStore
   // eslint-disable-next-line react-hooks/exhaustive-deps

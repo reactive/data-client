@@ -16,20 +16,15 @@ function bind(managers: Manager[], controller = new Controller()) {
 describe('createManagers()', () => {
   it('calls a function once for each store', () => {
     const factory = jest.fn(() => [new NetworkManager()]);
-    const first = createManagers(factory, () => []);
-    const second = createManagers(factory, () => []);
+    const first = createManagers(factory);
+    const second = createManagers(factory);
     expect(factory).toHaveBeenCalledTimes(2);
     expect(first[0]).not.toBe(second[0]);
   });
 
-  it('returns the defaults when managers are not given', () => {
-    const defaults = [new NetworkManager()];
-    expect(createManagers(undefined, () => defaults)).toBe(defaults);
-  });
-
   it('returns an array as given', () => {
     const managers = [new NetworkManager()];
-    expect(createManagers(managers, () => [])).toBe(managers);
+    expect(createManagers(managers)).toBe(managers);
   });
 });
 

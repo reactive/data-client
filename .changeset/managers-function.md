@@ -34,6 +34,6 @@ So a constructor only stores its options. React can construct Managers for a sto
 
 [`init(state)`](https://dataclient.io/docs/api/Manager#init) now gets the store's current state, including when Managers resume after `cleanup()`. Before, it got the initial state. `initManager()`'s third argument is ignored, so custom providers can drop it.
 
-[DevToolsManager](https://dataclient.io/docs/api/DevToolsManager) instances with the same `name` share one browser extension connection, so a new store no longer opens another.
+[DevToolsManager](https://dataclient.io/docs/api/DevToolsManager) connects to the Redux DevTools extension in `init()` instead of its constructor. A store that replaces an unmounted one with the same name reuses its extension entry, and stores mounted at the same time get their own, like `'Data Client: My App (2)'`.
 
 Why: [#2791](https://github.com/reactive/data-client/pull/2791) made the default Managers one set per `DataProvider` as a first step toward multiple providers. A custom array still shared its instances, so a remounted `DataProvider` inherited state about the old store.

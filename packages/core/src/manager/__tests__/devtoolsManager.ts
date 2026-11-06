@@ -426,11 +426,43 @@ describe('DevToolsManager with the Redux DevTools extension', () => {
     delete (window as any).__REDUX_DEVTOOLS_EXTENSION__;
   });
 
-  it('shares one connection between instances with the same name', () => {
-    new DevToolsManager({ name: 'shared' });
-    new DevToolsManager({ name: 'shared' });
-    new DevToolsManager({ name: 'other' });
-    expect(connect).toHaveBeenCalledTimes(2);
+  it('connects when started, not when constructed', () => {
+    const manager = new DevToolsManager({ name: 'lazy' });
+    setup(manager);
+    expect(connect).not.toHaveBeenCalled();
+    manager.init(initialState);
+    expect(connect).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'lazy' }),
+    );
+    manager.cleanup();
+  });
+
+  it('reuses the connection when a new store replaces one with the same name', () => {
+    const first = new DevToolsManager({ name: 'replaced' });
+    setup(first);
+    first.init(initialState);
+    first.cleanup();
+    const second = new DevToolsManager({ name: 'replaced' });
+    setup(second);
+    second.init(initialState);
+    expect(connect).toHaveBeenCalledTimes(1);
+    expect(connection.init).toHaveBeenCalledTimes(2);
+    second.cleanup();
+  });
+
+  it('connects each store mounted at the same time under its own name', () => {
+    const a = new DevToolsManager({ name: 'both' });
+    const b = new DevToolsManager({ name: 'both' });
+    setup(a);
+    setup(b);
+    a.init(initialState);
+    b.init(initialState);
+    expect(connect.mock.calls.map(([options]) => options.name)).toEqual([
+      'both',
+      'both (2)',
+    ]);
+    a.cleanup();
+    b.cleanup();
   });
 
   it('listens to the extension only while started', () => {

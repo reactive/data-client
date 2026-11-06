@@ -56,7 +56,7 @@ export function createDataClient(
 
   // stable singletons for this provider scope
   const controller = new Controller({ gcPolicy });
-  const managers = createManagers(options.managers, getDefaultManagers);
+  const managers = createManagers(options.managers ?? getDefaultManagers);
   const baseInitial = options.initialState ?? (defaultState as State<unknown>);
 
   // init managers (run on mount/unmount)

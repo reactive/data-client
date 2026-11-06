@@ -1,6 +1,6 @@
 import type Controller from '../controller/Controller.js';
 import { Manager, State } from '../types.js';
-import { startedStores } from './applyManager.js';
+import { startedWith } from './applyManager.js';
 
 /** Returns an Effect that starts `managers` and returns their cleanup.
  *
@@ -14,9 +14,10 @@ export default function initManager(
   initialState?: State<unknown>,
 ) {
   return () => {
-    if (process.env.NODE_ENV !== 'production') startedStores.add(controller);
     const state = controller.getState();
     managers.forEach(manager => {
+      if (process.env.NODE_ENV !== 'production')
+        startedWith.set(manager, controller);
       manager.init?.(state);
     });
     controller.gcPolicy.init(controller);

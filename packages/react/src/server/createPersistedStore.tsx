@@ -22,9 +22,9 @@ export default function createPersistedStore(
   hasDevManager: boolean = true,
 ) {
   const controller = new Controller();
-  const managers = createManagers(managersOption, () => [
-    new ReactNetworkManager(),
-  ]);
+  const managers = createManagers(
+    managersOption ?? (() => [new ReactNetworkManager()]),
+  );
   const networkManager: NetworkManager = managers.find(
     m => m instanceof NetworkManager,
   ) as any;

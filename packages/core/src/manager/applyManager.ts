@@ -2,23 +2,14 @@ import NetworkManager from './NetworkManager.js';
 import type Controller from '../controller/Controller.js';
 import { Manager } from '../types.js';
 
-/** Development only: the store each Manager instance was last bound to */
-const boundTo = new WeakMap<Manager, Controller>();
-/** Development only: stores whose Managers have started (`init()` ran) */
-export const startedStores = new WeakSet<Controller>();
+/** Development only: the store each Manager instance last started (`init()` ran) with */
+export const startedWith = new WeakMap<Manager, Controller>();
 let warnedShared = false;
 
-/** A Manager instance moving to a new store after its old store started was shared by both */
+/** A Manager instance bound to a new store after it started with another is shared by both */
 function warnIfShared(manager: Manager, controller: Controller) {
-  const previous = boundTo.get(manager);
-  boundTo.set(manager, controller);
-  if (
-    previous === undefined ||
-    previous === controller ||
-    !startedStores.has(previous) ||
-    warnedShared
-  )
-    return;
+  const started = startedWith.get(manager);
+  if (started === undefined || started === controller || warnedShared) return;
   warnedShared = true;
   console.warn(
     `${manager.constructor.name} is used by more than one store, so state about the first store leaks into the next one.
