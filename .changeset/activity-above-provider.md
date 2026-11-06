@@ -6,11 +6,7 @@
 '@data-client/use-enhanced-reducer': patch
 ---
 
-Fix [DataProvider](https://dataclient.io/docs/api/DataProvider) losing work while React [`<Activity>`](https://react.dev/reference/react/Activity) hides it
-
-Hiding a `DataProvider` in `<Activity mode="hidden">` (a tab or keep-alive route) runs its Effect cleanup, which the store treated like an unmount. A response that landed while hidden was dropped, so [useSuspense()](https://dataclient.io/docs/api/useSuspense) could stay suspended forever and an optimistic update never settled. `controller.fetch()` while hidden never resolved, and [useSubscription()](https://dataclient.io/docs/api/useSubscription) stopped polling for good once the provider was shown again.
-
-Now a hidden `DataProvider` keeps its store working: responses and other updates apply while hidden, and promises waiting on them resolve once it is shown. Before, `<Activity>` had to go inside `DataProvider`; now either order works.
+Support React [`<Activity>`](https://react.dev/reference/react/Activity) above [DataProvider](https://dataclient.io/docs/api/DataProvider)
 
 ```tsx
 <Activity mode={tab === 'posts' ? 'visible' : 'hidden'}>
@@ -19,6 +15,8 @@ Now a hidden `DataProvider` keeps its store working: responses and other updates
   </DataProvider>
 </Activity>
 ```
+
+Before, `<Activity>` had to go inside `DataProvider`. Hiding a `DataProvider` dropped responses, so [useSuspense()](https://dataclient.io/docs/api/useSuspense) could stay suspended forever, optimistic updates never settled, `controller.fetch()` never resolved, and [useSubscription()](https://dataclient.io/docs/api/useSubscription) stopped polling for good. Now a hidden `DataProvider` keeps working, and promises resolve once it is shown.
 
 A `DataProvider` remounted with the same `managers` also no longer waits on a request the unmounted one started, and responses for the unmounted one stay out of the new store.
 
