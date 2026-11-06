@@ -110,10 +110,10 @@ jobs:
       - name: Version
         run: |
           yarn changeset:version:beta
-          # with no public package to bump, publishing would skip every
-          # package while reporting success
+          # every packages/* workspace is public: if none was bumped, publishing skips every
+          # package and still reports success
           ! git diff --quiet -- 'packages/*/package.json' ||
-            { echo "::error::No pending changesets bump a published package"; exit 1; }
+            { echo "::error::No pending changesets bump a package under packages/"; exit 1; }
 
       - name: Publish to npm
         run: yarn changeset:publish:beta
