@@ -140,9 +140,9 @@ export default function LoadMore() {
   );
   if (!posts || posts.length % 3 !== 0) return null;
   return (
-    <center>
+    <div className="loadMore">
       <button onClick={nextPage}>{isPending ? '...' : 'Load more'}</button>
-    </center>
+    </div>
   );
 }
 ```
@@ -231,7 +231,7 @@ export default function LoadMore() {
 </script>
 
 <template>
-  <div v-if="canLoadMore" style="text-align: center">
+  <div v-if="canLoadMore" class="loadMore">
     <button @click="nextPage">
       {{ isPending ? '...' : 'Load more' }}
     </button>

@@ -15,6 +15,9 @@
  * do in the editor. Add `nocheck` to a fence's meta to skip an
  * illustrative fragment; other files can still import it.
  *
+ * Demo code (playgrounds and the homepage's `Demo/code`) is also linted for
+ * what the playground design system replaces (`DEMO_LINT`).
+ *
  * Usage: node website/framework-docs/checkExamples.mjs [react|vue]
  */
 import { execFileSync } from 'node:child_process';
@@ -265,6 +268,53 @@ function examplesOf(framework) {
   return examples;
 }
 
+/** Where a row of a fence is in its doc: `docs/x.md:12:3`, or by its title
+ * when the fence has no position */
+const locate = (block, row, column) =>
+  block.line ?
+    `${rel(block.file)}:${block.line + row}:${column}`
+  : `${rel(block.file)} (${titleOf(block) ?? 'CodeBlock'}:${row}:${column})`;
+
+/** Demo code that the playground design system replaces: styling belongs in
+ * its classes (Playground README, "Design system"), and loading states are
+ * skeletons. Only playgrounds: other fences may show other setups (React
+ * Native's `style`) */
+const DEMO_LINT = [
+  [
+    /(?<![\w-])(?::|v-bind:)?style=|<style\b/,
+    'inline style; use a design system class (Playground README, "Design system")',
+  ],
+  [/\bLoading(?:…|\.\.\.)/, '"Loading…" text; show a skeleton (<Loading />)'],
+];
+const DEMO_CODE = path.join(ROOT, 'website/src/components/Demo/code');
+/** Lint findings in some code, by its rows */
+const lint = (code, where) =>
+  code.split('\n').flatMap((line, i) =>
+    DEMO_LINT.flatMap(([pattern, message]) => {
+      const match = line.match(pattern);
+      return match ? [`${where(i + 1, match.index + 1)}: ${message}`] : [];
+    }),
+  );
+/** Lint findings in a framework's playgrounds, and (for React) the homepage demos */
+function lintDemos(framework, examples) {
+  const findings = examples
+    .filter(({ loose }) => !loose)
+    .flatMap(({ blocks }) => blocks)
+    .flatMap(block =>
+      lint(block.raw, (row, column) => locate(block, row, column)),
+    );
+  if (framework === 'react')
+    for (const file of walk(DEMO_CODE).filter(f => /\.tsx?$/.test(f)))
+      findings.push(
+        ...lint(
+          fs.readFileSync(path.join(DEMO_CODE, file), 'utf8'),
+          (row, column) =>
+            `${rel(path.join(DEMO_CODE, file))}:${row}:${column}`,
+        ),
+      );
+  return findings;
+}
+
 /** Type errors in a framework's examples, located in their docs */
 function check(framework, examples) {
   const { compiler, jsx, flags, globals } = FRAMEWORKS[framework];
@@ -404,13 +454,8 @@ function check(framework, examples) {
           .get(written)
           ?.findLast(({ row }) => row <= Number(fileRow));
         if (!segment) return `${rel(written)}:${fileRow}:${column}: ${message}`;
-        const { block } = segment;
         const row = Number(fileRow) - segment.row + 1;
-        const where =
-          block.line ?
-            `${rel(block.file)}:${block.line + row}:${column}`
-          : `${rel(block.file)} (${titleOf(block) ?? 'CodeBlock'}:${row}:${column})`;
-        return `${where}: ${message}`;
+        return `${locate(segment.block, row, column)}: ${message}`;
       }),
   );
 }
@@ -431,6 +476,13 @@ for (const framework of frameworks.length ? frameworks : (
       `${name} examples in the docs don't type-check:\n  ${[...errors].join('\n  ')}`,
     );
   } else console.log(`${examples.length} ${name} examples type-check.`);
+  const findings = lintDemos(framework, examples);
+  if (findings.length) {
+    failed = true;
+    console.error(
+      `${name} demos don't use the design system:\n  ${findings.join('\n  ')}`,
+    );
+  }
 }
 if (failed) {
   console.error('See "Code examples" in website/framework-docs/README.md.');

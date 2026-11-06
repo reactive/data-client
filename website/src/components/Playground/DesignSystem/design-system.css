@@ -1075,8 +1075,9 @@ div.playground-preview h1:first-child {
 .playground-preview .boardColumn .listItem:last-child {
   margin-bottom: 0;
 }
+/* a task's move button, at its row's end */
 .playground-preview .boardColumn button {
-  margin: 0;
+  margin: 0 0 0 auto;
   padding: 0 4px;
   line-height: 1;
   background: none;
@@ -1217,6 +1218,10 @@ div.playground-preview h1:first-child {
 /* in an app header, level with the wordmark */
 .playground-preview .appHeader .buttonGroup {
   margin-top: 0;
+}
+/* A list's Load more: centered under it */
+.playground-preview .loadMore {
+  text-align: center;
 }
 /* A filter's choices (All, Admins, Members) on a track of the well's
    color, in equal segments; the chosen one (`aria-pressed`) in full ink on a
