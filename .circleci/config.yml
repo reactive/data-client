@@ -130,23 +130,25 @@ jobs:
             elif git -c core.quotePath=off diff --no-renames --name-only "${DIFF_RANGE}" > /tmp/ci-changed-files; then
               echo "Changed files:"
               cat /tmp/ci-changed-files
+              # A flag goes false only when grep cleanly proves it; a grep error
+              # (exit 2, e.g. a bad regex) counts as relevant.
+              all_match() { local rc=0; grep -Evq "$1" /tmp/ci-changed-files || rc=$?; [ "${rc}" -eq 1 ]; }
+              any_match() { local rc=0; grep -Eq "$1" /tmp/ci-changed-files || rc=$?; [ "${rc}" -ne 1 ]; }
               # Docs/website/tooling paths; both flags below are denylists over it.
               DOCS_ONLY='website/|docs/|\.changeset/|\.cursor/|\.agents/|\.claude/|\.github/|[^/]+\.md$'
               # Denylist (fail open): only paths provably outside every esmodule
               # job's inputs can skip them, so a new input dir runs by default.
-              if ! grep -Evq "^(${DOCS_ONLY}|\.vscode/|plans/|__tests__/|eslint\.config\.mjs$|jest\.config\.js$|examples/[^/]+\.md$|examples/(benchmark|benchmark-react|coin-app|nextjs|normalizr-github|normalizr-redux|test-bundlesize|vue-todo-app)/)" /tmp/ci-changed-files; then
+              if all_match "^(${DOCS_ONLY}|\.vscode/|plans/|__tests__/|eslint\.config\.mjs$|jest\.config\.js$|examples/[^/]+\.md$|examples/(benchmark|benchmark-react|coin-app|nextjs|normalizr-github|normalizr-redux|test-bundlesize|vue-todo-app)/)"; then
                 echo "No relevant esmodule-related changes; downstream esmodule jobs will halt."
                 ESMODULE_RELEVANT=false
               fi
-              # Docs/website/tooling-only changes can't affect lint, typecheck or
-              # unit tests, except the website paths persisted for the unit tests.
-              yq '.jobs.setup.steps[] | select(tag == "!!map" and has("persist_to_workspace")) | .persist_to_workspace.paths[] | select(test("^project/website/"))' .circleci/config.yml > /tmp/ci-website-tested
-              WEBSITE_TESTED="$(sed -e 's#^project/##' -e 's/[][\\.^$*+?(){}|]/\\&/g' /tmp/ci-website-tested | paste -sd'|')"
-              [ -n "${WEBSITE_TESTED}" ] || { echo "No website test paths found in persist_to_workspace"; exit 1; }
-              echo "Website test inputs: ${WEBSITE_TESTED}"
-              if ! grep -Evq "^(${DOCS_ONLY})" /tmp/ci-changed-files \
-                && ! grep -Eq "^(${WEBSITE_TESTED})/" /tmp/ci-changed-files; then
-                echo "Only docs/website/tooling paths changed; test jobs will halt."
+              # Test jobs read only setup's workspace, so a change inside it always
+              # counts, even under a docs/website path (the Playground tests).
+              yq '.jobs.setup.steps[] | select(tag == "!!map" and has("persist_to_workspace")) | .persist_to_workspace.paths[]' .circleci/config.yml > /tmp/ci-persisted
+              PERSISTED="$(sed -e 's#^project/##' -e 's/[][\\.^$*+?(){}|]/\\&/g' /tmp/ci-persisted | paste -sd'|')"
+              [ -n "${PERSISTED}" ] || { echo "No paths found in persist_to_workspace"; exit 1; }
+              if all_match "^(${DOCS_ONLY})" && ! any_match "^(${PERSISTED})(/|$)"; then
+                echo "Only docs/website/tooling paths outside the workspace changed; test jobs will halt."
                 TESTS_RELEVANT=false
               fi
             else
@@ -214,7 +216,8 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            # explicitly list so we can ignore some directories that are not needed
+            # explicitly list so we can ignore some directories that are not needed;
+            # setup's relevance check counts any change under these as a test input
             # .yarn/cache is left out; see restore-yarn-cache
             - project/.yarn/releases
             - project/.yarn/plugins
@@ -228,7 +231,7 @@ jobs:
             - project/packages
             - project/scripts
             # Website inputs of the unit tests (Playground and motion tests, and the
-            # utils Playground imports); setup's relevance check reads this list.
+            # utils Playground imports)
             - project/website/src/components/Playground
             - project/website/src/components/motion
             - project/website/src/utils

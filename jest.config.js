@@ -81,7 +81,15 @@ const websiteRoots = [
 const reactDomRoots = [
   ...packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
   ...websiteRoots
-    .filter(root => fs.existsSync(path.join(__dirname, root)))
+    .filter(root => {
+      if (fs.existsSync(path.join(__dirname, root))) return true;
+      // On CircleCI, fail rather than silently skip a root setup didn't persist
+      if (process.env.CIRCLECI)
+        throw new Error(
+          `${root} is missing; add it to setup's persist_to_workspace`,
+        );
+      return false;
+    })
     .map(root => `<rootDir>/${root}`),
 ];
 
