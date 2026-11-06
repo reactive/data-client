@@ -31,7 +31,7 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - ci-relevant-v4-{{ .Environment.CIRCLE_WORKFLOW_ID }}
+            - &relevance-cache-key ci-relevant-v4-{{ .Environment.CIRCLE_WORKFLOW_ID }}
       - run:
           name: Skip job if only non-<< parameters.flag >> paths changed
           command: |
@@ -86,8 +86,7 @@ jobs:
             # Fail open: run jobs unless we can prove irrelevance.
             ESMODULE_RELEVANT=true
             TESTS_RELEVANT=true
-            # Empty unless the diff below sets it; save_cache needs the file
-            : > ~/project/.ci-base-tree
+            BASE_TREE=''
 
             # Only the queue and master trust a marker; PR reruns still run
             if [ -f ~/project/.ci-tree-passed ] \
@@ -112,7 +111,8 @@ jobs:
               DIFF_RANGE="origin/${BASE_BRANCH}...HEAD"
               # The tree the diff runs from: if it passed, `tree-passed` can
               # vouch for this tree even when the diff halted jobs
-              git rev-parse "$(git merge-base "origin/${BASE_BRANCH}" HEAD)^{tree}" > ~/project/.ci-base-tree || : > ~/project/.ci-base-tree
+              # (rev-parse prints its argument when it fails, hence the reset)
+              BASE_TREE="$(git rev-parse "$(git merge-base "origin/${BASE_BRANCH}" HEAD)^{tree}")" || BASE_TREE=''
             fi
 
             # Grep a file, not a pipe: CircleCI runs bash with pipefail, so an
@@ -133,11 +133,13 @@ jobs:
                 ESMODULE_RELEVANT=false
               fi
               # Docs/website/tooling-only changes can't affect lint, typecheck or
-              # unit tests. Playground and motion have unit tests, and Playground's
-              # import website/src/utils, so those stay relevant. Keep in step with
-              # the website paths in setup's persist_to_workspace.
+              # unit tests, except the website paths persisted for the unit tests.
+              yq '.jobs.setup.steps[] | select(tag == "!!map" and has("persist_to_workspace")) | .persist_to_workspace.paths[] | select(test("^project/website/"))' .circleci/config.yml > /tmp/ci-website-tested
+              WEBSITE_TESTED="$(sed 's#^project/##' /tmp/ci-website-tested | paste -sd'|')"
+              [ -n "${WEBSITE_TESTED}" ] || { echo "No website test paths found in persist_to_workspace"; exit 1; }
+              echo "Website test inputs: ${WEBSITE_TESTED}"
               if ! grep -Evq "^(${DOCS_ONLY})" /tmp/ci-changed-files \
-                && ! grep -Eq '^website/src/(components/(Playground|motion)|utils)/' /tmp/ci-changed-files; then
+                && ! grep -Eq "^(${WEBSITE_TESTED})/" /tmp/ci-changed-files; then
                 echo "Only docs/website/tooling paths changed; test jobs will halt."
                 TESTS_RELEVANT=false
               fi
@@ -147,15 +149,16 @@ jobs:
 
             echo "${ESMODULE_RELEVANT}" > ~/project/.ci-esmodule-relevant
             echo "${TESTS_RELEVANT}" > ~/project/.ci-tests-relevant
+            echo "${BASE_TREE}" > ~/project/.ci-base-tree
             # Later setup steps read these; the files are for downstream jobs.
             echo "export ESMODULE_RELEVANT=${ESMODULE_RELEVANT} TESTS_RELEVANT=${TESTS_RELEVANT}" >> "${BASH_ENV}"
       - save_cache:
-          key: ci-relevant-v4-{{ .Environment.CIRCLE_WORKFLOW_ID }}
+          key: *relevance-cache-key
           paths:
             - .ci-esmodule-relevant
             - .ci-tests-relevant
             - .ci-tree # tree-passed marks this
-            - .ci-base-tree # empty when setup didn't diff
+            - .ci-base-tree
       - run:
           name: Halt setup if nothing downstream is relevant
           command: |
@@ -218,8 +221,8 @@ jobs:
             - project/node_modules
             - project/packages
             - project/scripts
-            # Playground and motion unit tests, and the utils Playground imports;
-            # rest of website omitted. Keep in step with the tests relevance check.
+            # Website inputs of the unit tests (Playground and motion tests, and the
+            # utils Playground imports); setup's relevance check reads this list.
             - project/website/src/components/Playground
             - project/website/src/components/motion
             - project/website/src/utils
@@ -488,7 +491,7 @@ jobs:
     steps:
       - restore_cache:
           keys:
-            - ci-relevant-v4-{{ .Environment.CIRCLE_WORKFLOW_ID }}
+            - *relevance-cache-key
       - run:
           # So the key below always has a file to hash
           name: Default the diff base tree
@@ -512,7 +515,7 @@ jobs:
               echo "Every job ran and passed."
             # A path-filtered run proves only that the change since the diff
             # base is irrelevant to the halted jobs, so it needs the base's marker
-            elif [ -s .ci-base-tree ] && cmp -s .ci-base-tree .ci-tree-passed; then
+            elif cmp -s .ci-base-tree .ci-tree-passed; then
               echo "Halted jobs passed on base tree $(cat .ci-base-tree), and nothing they read changed since."
             else
               halt "Some jobs halted and the base tree has no marker"
