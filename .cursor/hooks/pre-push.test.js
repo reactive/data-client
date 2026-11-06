@@ -369,16 +369,42 @@ test('a tsconfig change regenerates editor types', () => {
   });
 });
 
-test('a generator that fails with no output holds the push', () => {
+/** the reason the hook holds a push of a tsconfig change when the stub
+ * `yarn` is `script` */
+function failedGenerator(script) {
+  let reason;
   withRepo((root, git) => {
     const env = typesBranch(root, git);
-    write(root, 'node_modules/.fake-bin/yarn', '#!/bin/sh\nexit 1\n');
+    write(root, 'node_modules/.fake-bin/yarn', `#!/bin/sh\n${script}\n`);
     write(root, 'packages/core/tsconfig.json', '{}\n');
     git('add', '-A');
     git('commit', '-m', 'tsconfig');
-    assert.match(
-      push(root, 'git push', env),
-      /`yarn copy:websitetypes` found problems[^]*Command failed/,
-    );
+    reason = push(root, 'git push', env);
+  });
+  return reason;
+}
+
+test('a generator that fails with no output holds the push', () => {
+  assert.match(
+    failedGenerator('exit 1'),
+    /`yarn copy:websitetypes` found problems[^]*Command failed/,
+  );
+});
+
+test('a failed generator reports both stdout and stderr', () => {
+  const reason = failedGenerator(
+    'echo "a.ts(1,1): error TS2322"; echo "warning: x" >&2; exit 1',
+  );
+  assert.match(reason, /warning: x/);
+  assert.match(reason, /error TS2322/);
+});
+
+test('an .mts package source regenerates editor types', () => {
+  withRepo((root, git) => {
+    const env = typesBranch(root, git);
+    write(root, 'packages/core/src/a.mts', 'export {};\n');
+    git('add', '-A');
+    git('commit', '-m', 'mts');
+    assert.match(push(root, 'git push', env), typesHeld);
   });
 });

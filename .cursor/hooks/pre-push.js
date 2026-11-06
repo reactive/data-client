@@ -153,16 +153,18 @@ function regenerate({
     execFileSync(argv[0], argv.slice(1), {
       cwd: projectDir,
       stdio: ['ignore', 'pipe', 'pipe'],
+      maxBuffer: 64 * 1024 * 1024,
       // yarn is a .cmd shim on Windows
       shell: process.platform === 'win32',
     });
   } catch (err) {
     // tsc reports on stdout; a generator that couldn't start (no yarn on
-    // PATH, say) has neither
+    // PATH, say) prints nothing
     problems =
-      String(err.stderr ?? '').trim() ||
-      String(err.stdout ?? '').trim() ||
-      err.message;
+      [err.stderr, err.stdout]
+        .map(out => String(out ?? '').trim())
+        .filter(Boolean)
+        .join('\n') || err.message;
   }
   // includes output generated earlier but never committed
   const uncommitted =
