@@ -69,8 +69,9 @@ decides the kind:
   `npm install @data-client/react@beta`.
 
 npm trusts only `release.yml` to publish (trusted publishing, with provenance),
-so never publish from another workflow file. Maintenance branches release the
-same way; see [scripts/maintenance/README.md](scripts/maintenance/README.md).
+so never publish from another workflow file. A maintenance branch publishes
+through its own copy of `release.yml`, under `latest-<version>` once a newer
+major ships; see [scripts/maintenance/README.md](scripts/maintenance/README.md).
 
 ## Support Requests
 
