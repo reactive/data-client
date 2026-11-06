@@ -147,6 +147,34 @@ export const C = () => <DataProvider managers={getDefaultManagers} />;
       `,
       'leaves functions as they are',
     );
+
+    defineInlineTest(
+      transform,
+      { path: 'App.tsx' },
+      `
+import { DataProvider, getDefaultManagers } from '@data-client/react';
+
+const managers = getDefaultManagers();
+
+export const A = () => (
+  <DataProvider managers={managers}>
+    <ManagerList list={managers} />
+  </DataProvider>
+);
+      `,
+      `
+import { DataProvider, getDefaultManagers } from '@data-client/react';
+
+const managers = getDefaultManagers();
+
+export const A = () => (
+  <DataProvider managers={() => managers}>
+    <ManagerList list={managers} />
+  </DataProvider>
+);
+      `,
+      'keeps a variable another prop reads as an array',
+    );
   });
 
   describe('Vue managers', () => {
@@ -209,6 +237,7 @@ const { store, controller, managers } = prepareStore(
   Controller,
 );
 const start = initManager(managers, controller, initialState);
+const persisted = createPersistedStore([new NetworkManager()]);
       `,
       `
 import { initManager, getDefaultManagers } from '@data-client/react';
@@ -220,8 +249,9 @@ const { store, controller, managers } = prepareStore(
   Controller,
 );
 const start = initManager(managers, controller);
+const persisted = createPersistedStore(() => [new NetworkManager()]);
       `,
-      'converts prepareStore() and drops the third argument of initManager()',
+      'converts prepareStore() and createPersistedStore(), and drops the third argument of initManager()',
     );
   });
 

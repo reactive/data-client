@@ -74,10 +74,10 @@ export function mountDataClient<P = any>(
   );
 
   // Create managers
-  const finalManagers = (
-    managers ??
-    (() => [new NetworkManager(), new SubscriptionManager(PollingSubscription)])
-  )();
+  const finalManagers =
+    managers ? managers() : (
+      [new NetworkManager(), new SubscriptionManager(PollingSubscription)]
+    );
   // allSettled() and cleanup() track the NetworkManager actually in use
   const nm =
     finalManagers.find(

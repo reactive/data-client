@@ -107,29 +107,32 @@ function bindingOf(path) {
 /** Whether every use of a variable is one of the `managers` slots */
 function onlyUsedAsManagers(j, root, binding, slotNodes) {
   const name = binding.node.name;
-  return root
-    .find(j.Identifier, { name })
-    .filter(p => p !== binding && p.node !== binding.node)
-    .filter(p => {
-      const parent = p.parent.node;
-      // object keys and non-computed members are other names
-      if (
-        (parent.type === 'MemberExpression' ||
-          parent.type === 'OptionalMemberExpression') &&
-        parent.property === p.node &&
-        !parent.computed
-      )
-        return false;
-      if (
-        (parent.type === 'ObjectProperty' || parent.type === 'Property') &&
-        parent.key === p.node &&
-        parent.value !== p.node
-      )
-        return false;
-      if (parent.type === 'JSXAttribute') return false;
-      return bindingOf(p) === binding;
-    })
-    .every(p => slotNodes.has(p.node));
+  return (
+    root
+      .find(j.Identifier, { name })
+      .filter(p => p !== binding && p.node !== binding.node)
+      // JSX names like the `managers` attribute are JSXIdentifiers
+      .filter(p => p.node.type === 'Identifier')
+      .filter(p => {
+        const parent = p.parent.node;
+        // object keys and non-computed members are other names
+        if (
+          (parent.type === 'MemberExpression' ||
+            parent.type === 'OptionalMemberExpression') &&
+          parent.property === p.node &&
+          !parent.computed
+        )
+          return false;
+        if (
+          (parent.type === 'ObjectProperty' || parent.type === 'Property') &&
+          parent.key === p.node &&
+          parent.value !== p.node
+        )
+          return false;
+        return bindingOf(p) === binding;
+      })
+      .every(p => slotNodes.has(p.node))
+  );
 }
 
 function toFunctionType(j, typeAnnotation) {

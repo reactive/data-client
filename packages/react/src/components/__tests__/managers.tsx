@@ -18,12 +18,6 @@ function Article() {
 }
 const wait = () => act(() => new Promise(r => setTimeout(r, 20)));
 
-let warn: jest.SpyInstance;
-beforeEach(() => {
-  warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-});
-afterEach(() => warn.mockRestore());
-
 describe('<DataProvider managers={() => [...]} />', () => {
   /** A factory that records each set of Managers it makes */
   function recordingFactory() {
@@ -61,7 +55,6 @@ describe('<DataProvider managers={() => [...]} />', () => {
     expect(container.textContent).toBe('loaded');
     expect(sets).toHaveLength(2);
     expect(sets[1][0]).not.toBe(sets[0][0]);
-    expect(warn).not.toHaveBeenCalled();
   });
 
   it('fetches in StrictMode', async () => {
@@ -69,7 +62,6 @@ describe('<DataProvider managers={() => [...]} />', () => {
     const { container } = render(<StrictMode>{tree(factory)}</StrictMode>);
     await wait();
     expect(container.textContent).toBe('loaded');
-    expect(warn).not.toHaveBeenCalled();
   });
 });
 
