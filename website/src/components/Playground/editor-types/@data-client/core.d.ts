@@ -1149,12 +1149,7 @@ declare class NetworkManager implements Manager {
     readonly dataExpiryLength: number;
     readonly errorExpiryLength: number;
     protected controller: Controller;
-    /** When cleanup() last ran, until the next init()
-     *
-     * It once made responses after cleanup() count as older than the last reset, so they were dropped:
-     * React 16/17 warn about state updates after unmount (#1085). But cleanup() also runs when
-     * <Activity> hides the provider, and dropping those responses lost data. useEnhancedReducer
-     * now handles the React 16/17 warning instead.
+    /** When cleanup() last ran, until the next init(). Still set for code that reads it.
      *
      * @deprecated No longer read: responses that land after cleanup() are still resolved.
      */
@@ -1169,7 +1164,8 @@ declare class NetworkManager implements Manager {
     /** When the provider unmounts or is hidden (like by React <Activity>)
      *
      * Effect cleanup can't tell hiding from unmounting, so fetches in flight still resolve.
-     * After a real unmount, React 18+ ignores the update; useEnhancedReducer drops it on React 16/17.
+     * Responses after cleanup() were once dropped, because React 16/17 warn about state updates
+     * after unmount (#1085). Now React 18+ ignores such an update, and useEnhancedReducer drops it on 16/17.
      */
     cleanup(): void;
     /** Used by DevtoolsManager to determine whether to log an action */

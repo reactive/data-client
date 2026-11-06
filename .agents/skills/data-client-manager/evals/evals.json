@@ -5,11 +5,11 @@
       "id": 1,
       "name": "websocket-snapshot",
       "prompt": "Write src/managers/TickerManager.ts for our exchange websocket (wss://feed.example.com). On connect it sends `{ type: 'snapshot', tickers: [...] }` with ~300 tickers, then `{ type: 'ticker', product_id, price, volume }` one at a time. Get both into the Data Client store so `useQuery(Ticker, { product_id })` updates. Ticker is in src/resources/Ticker.ts:\n\n```ts\nimport { Entity } from '@data-client/rest';\nexport class Ticker extends Entity {\n  product_id = '';\n  price = 0;\n  volume = 0;\n  pk() { return this.product_id; }\n  static key = 'Ticker';\n}\n```",
-      "expected_output": "A Manager that opens the socket in init() or middleware, closes it in cleanup(), writes the snapshot with one controller.set([Ticker], msg.tickers) call, and writes single ticker messages with controller.set(Ticker, { product_id }, msg).",
+      "expected_output": "A Manager that opens the socket in init(), closes it in cleanup(), writes the snapshot with one controller.set([Ticker], msg.tickers) call, and writes single ticker messages with controller.set(Ticker, { product_id }, msg).",
       "files": [],
       "assertions": [
         "The snapshot is written with a single `controller.set([Ticker], tickers)` or `controller.set(new schema.Array(Ticker), tickers)` call that passes the rows and no args.",
-        "The snapshot rows are not written by calling `controller.set(Ticker, \u2026)` once per row (no loop, forEach, or map over rows that calls set).",
+        "The snapshot rows are not written by calling `controller.set(Ticker, …)` once per row (no loop, forEach, or map over rows that calls set).",
         "No endpoint is defined and `setResponse()` is not called to write the snapshot.",
         "No `as any` or other cast is used to make the `controller.set` call typecheck.",
         "The socket is closed in `cleanup()`."
@@ -23,7 +23,7 @@
       "files": [],
       "assertions": [
         "Each flush writes the buffer with a single `controller.set([Ticker], rows)` or `controller.set(new schema.Array(Ticker), rows)` call that passes the rows and no args.",
-        "The flush does not call `controller.set(Ticker, \u2026)` once per buffered row (no loop, forEach, or map over rows that calls set).",
+        "The flush does not call `controller.set(Ticker, …)` once per buffered row (no loop, forEach, or map over rows that calls set).",
         "No endpoint is defined and `setResponse()` is not called to batch the writes.",
         "No `as any` or other cast is used to make the `controller.set` call typecheck.",
         "The flush interval or timer is cleared in `cleanup()`."
@@ -39,7 +39,7 @@
         "The response says the push-only endpoint plus `setResponse()` is not the right way to batch entity writes.",
         "The rewritten flush uses a single `controller.set([Ticker], rows)` or `controller.set(new schema.Array(Ticker), rows)` call that passes the rows and no args.",
         "The rewrite keeps no push-only endpoint and no `setResponse()` call for the batch.",
-        "The rewrite does not call `controller.set(Ticker, \u2026)` once per row.",
+        "The rewrite does not call `controller.set(Ticker, …)` once per row.",
         "No `as any` or other cast is used to make the `controller.set` call typecheck."
       ]
     },

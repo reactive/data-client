@@ -66,7 +66,8 @@ export default function useEnhancedReducer<R extends React.Reducer<any, any>>(
   }, [dispatchWithPromise, ...middlewares]);
 
   // React 16/17 warn about state updates after unmount (#1085), so drop dispatches there (even in other middlewares).
-  // React 18 removed the warning. A provider hidden by <Activity> runs this same cleanup but must keep dispatching.
+  // Only there: React 18 removed the warning, and its Effect cleanup also runs when <Activity> hides a provider,
+  // which must keep dispatching.
   useEffect(() => {
     /* istanbul ignore if */
     if (LegacyReact) {
