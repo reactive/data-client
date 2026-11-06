@@ -28,10 +28,6 @@ commands:
       flag:
         type: enum
         enum: ["esmodule", "tests"]
-      on-missing:
-        type: enum
-        enum: ["continue", "halt"]
-        default: "continue"
     steps:
       - restore_cache:
           keys:
@@ -45,9 +41,6 @@ commands:
               circleci-agent step halt
             elif [ "${FLAG}" = "true" ]; then
               echo "Relevant changes detected; continuing job."
-            elif [ "<< parameters.on-missing >>" = "halt" ]; then
-              echo "No relevance flag found; halting this job."
-              circleci-agent step halt
             else
               echo "No relevance flag found; failing open (continuing job)."
             fi
@@ -115,6 +108,9 @@ jobs:
               # --name-only diffs) without transferring file contents.
               git fetch --force --filter=blob:none origin "${BASE_BRANCH}:refs/remotes/origin/${BASE_BRANCH}" || true
               DIFF_RANGE="origin/${BASE_BRANCH}...HEAD"
+              # The tree the diff runs from: if it passed, `tree-passed` can
+              # vouch for this tree even when the diff halted jobs
+              git rev-parse "$(git merge-base "origin/${BASE_BRANCH}" HEAD)^{tree}" > ~/project/.ci-base-tree || : > ~/project/.ci-base-tree
             fi
 
             # Grep a file, not a pipe: CircleCI runs bash with pipefail, so an
@@ -155,6 +151,7 @@ jobs:
             - .ci-esmodule-relevant
             - .ci-tests-relevant
             - .ci-tree # tree-passed marks this
+            - .ci-base-tree # absent when setup didn't diff
       - run:
           name: Halt setup if nothing downstream is relevant
           command: |
@@ -484,25 +481,46 @@ jobs:
     docker: *docker
     resource_class: small
     steps:
-      # Only vouch for trees whose jobs all ran: a path-filtered run only
-      # proves the change was irrelevant, and missing flags prove nothing
-      - halt-unless-relevant-change:
-          flag: tests
-          on-missing: halt
-      - halt-unless-relevant-change:
-          flag: esmodule
-          on-missing: halt
+      - restore_cache:
+          keys:
+            - ci-relevant-v4-{{ .Environment.CIRCLE_WORKFLOW_ID }}
+      - run:
+          # So the key below always has a file to hash
+          name: Default the diff base tree
+          command: touch ~/project/.ci-base-tree
+      - restore_cache:
+          # Restores the base tree's own marker as .ci-tree-passed, if it passed
+          keys:
+            - ci-passed-v1-{{ checksum ".ci-base-tree" }}
       - run:
           name: Mark tree passed
           command: |
+            cd ~/project
             # Never for fork PRs (CIRCLE_PR_NUMBER is only set on those)
             if [ -n "${CIRCLE_PR_NUMBER:-}" ]; then
               echo "Fork PR; not marking this tree passed."
               circleci-agent step halt
               exit 0
             fi
-            # Fail open: without setup's tree hash, later pipelines just run
-            cp ~/project/.ci-tree ~/project/.ci-tree-passed || circleci-agent step halt
+            TESTS="$(cat .ci-tests-relevant 2>/dev/null)" || TESTS=''
+            ESMODULE="$(cat .ci-esmodule-relevant 2>/dev/null)" || ESMODULE=''
+            # Missing flags or tree hash prove nothing; later pipelines just run
+            if [ ! -s .ci-tree ] || [[ ! "${TESTS}" =~ ^(true|false)$ ]] || [[ ! "${ESMODULE}" =~ ^(true|false)$ ]]; then
+              echo "No relevance flags or tree hash; not marking this tree passed."
+              circleci-agent step halt
+              exit 0
+            elif [ "${TESTS}" = "true" ] && [ "${ESMODULE}" = "true" ]; then
+              echo "Every job ran and passed."
+            # A path-filtered run proves only that the change since the diff
+            # base is irrelevant to the halted jobs, so it needs the base's marker
+            elif [ -s .ci-base-tree ] && [ -s .ci-tree-passed ] && cmp -s .ci-base-tree .ci-tree-passed; then
+              echo "Halted jobs passed on base tree $(cat .ci-base-tree), and nothing they read changed since."
+            else
+              echo "Some jobs halted and the base tree has no marker; not marking this tree passed."
+              circleci-agent step halt
+              exit 0
+            fi
+            cp .ci-tree .ci-tree-passed
       - save_cache:
           key: ci-passed-v1-{{ checksum ".ci-tree" }}
           paths:
