@@ -3,36 +3,47 @@ import { Temporal } from 'temporal-polyfill';
 import { INVALID } from '../denormalize/symbol';
 import { EntityPath } from '../interface';
 import { MemoPolicy } from '../memo/Policy';
-import WeakDependencyMap, { depKey } from '../memo/WeakDependencyMap';
+import WeakDependencyMap, { depKey } from '../memo/WeakDependencyMap.native';
 
-/** Values the React Native memo keeps per first dependency and `argsKey`
- * results (`MAX_ENTRIES` in WeakDependencyMap.native.ts). */
-const MAX_ENTRIES = 6;
-
-/** Checks the eviction rule: when full, the least recently used value goes,
- * except the kept one (the first value, until a read flips back to an older
- * one). So a value that is not kept misses after `MAX_ENTRIES - 1` newer ones. */
+/** Checks the retention rule: a node keeps its newest value, plus the value
+ * a committed render last read and the one a committed render of a store
+ * with no optimistic updates last read. Any other value goes once a newer one
+ * is written. */
 function expectEviction(
+  wem: WeakDependencyMap<EntityPath>,
   setB: (entity: object, value: string) => void,
-  get: (entity: object) => unknown,
+  get: (entity: object, track?: boolean) => unknown,
 ) {
-  const v = Array.from({ length: MAX_ENTRIES + 2 }, (_, i) => [i]);
-  for (let i = 0; i < MAX_ENTRIES; i++) setB(v[i], `v${i}`);
-  // full: v1 goes, not v0, which is kept until a flip
-  setB(v[MAX_ENTRIES], 'new');
-  expect(get(v[1])).toBeUndefined();
-  expect(get(v[0])).toBe('v0');
-
-  // reading v2 back after newer values makes it the kept one instead
-  expect(get(v[2])).toBe('v2');
-  // least recently used now: v3
-  setB(v[MAX_ENTRIES + 1], 'newer');
-  expect(get(v[3])).toBeUndefined();
-  setB(v[3], 'v3 again');
-  // least recently used now: v4; v2 stays though older
-  expect(get(v[4])).toBeUndefined();
-  expect(get(v[2])).toBe('v2');
-  expect(get(v[MAX_ENTRIES - 1])).toBe(`v${MAX_ENTRIES - 1}`);
+  /** Pins the value `entity` reads, as a commit of its store would. */
+  const commit = (entity: object, settled: boolean) => {
+    const reads = new Map<object, object>();
+    get(entity, true);
+    wem.trackLast(reads);
+    wem.keep(reads, settled);
+  };
+  const [v0, v1, v2, v3, v4] = [[0], [1], [2], [3], [4]];
+  setB(v0, 'v0');
+  setB(v1, 'v1');
+  // nothing committed: only the newest stays
+  expect(get(v0)).toBeUndefined();
+  expect(get(v1)).toBe('v1');
+  commit(v1, true);
+  // an optimistic update commits
+  setB(v2, 'v2');
+  commit(v2, false);
+  // one-off values, such as each retry of a pending transition
+  setB(v3, 'v3');
+  setB(v4, 'v4');
+  expect(get(v3)).toBeUndefined();
+  expect(get(v4)).toBe('v4');
+  expect(get(v2)).toBe('v2');
+  expect(get(v1)).toBe('v1');
+  // a settled commit moves both pins, so the older pinned values go
+  commit(v4, true);
+  setB(v0, 'v0 again');
+  expect(get(v1)).toBeUndefined();
+  expect(get(v2)).toBeUndefined();
+  expect(get(v4)).toBe('v4');
 }
 
 describe('WeakDependencyMap', () => {
@@ -141,48 +152,122 @@ describe('WeakDependencyMap', () => {
     ).toBeUndefined();
   });
 
-  it(`keeps ${MAX_ENTRIES} entries, never evicting the one the store flipped back to`, () => {
+  it('keeps the newest value and the ones committed renders read', () => {
     const wem = new WeakDependencyMap<EntityPath>();
     expectEviction(
+      wem,
       (entity, value) => wem.set([depA, { ...depB, entity }], value),
-      entity =>
-        wem.get(a, MemoPolicy.getEntities({ ...state, B: { '2': entity } }))[0],
+      (entity, track) =>
+        wem.get(
+          a,
+          MemoPolicy.getEntities({ ...state, B: { '2': entity } }),
+          [],
+          track,
+        )[0],
     );
   });
 
-  it(`a value that is not kept survives ${MAX_ENTRIES - 2} newer ones, not ${MAX_ENTRIES - 1}`, () => {
-    for (const newer of [MAX_ENTRIES - 2, MAX_ENTRIES - 1]) {
-      const wem = new WeakDependencyMap<EntityPath>();
-      const withB = (entity: object) =>
-        MemoPolicy.getEntities({ ...state, B: { '2': entity } });
-      const setB = (entity: object, value: string) =>
-        wem.set([depA, { ...depB, entity }], value);
-      const kept = ['kept'];
-      const committed = ['committed'];
-      setB(kept, 'kept');
-      setB(committed, 'committed');
-      // one-off versions, such as each render of a pending transition
-      for (let i = 0; i < newer; i++) setB([i], `one-off ${i}`);
-      expect(wem.get(a, withB(committed))[0]).toBe(
-        newer < MAX_ENTRIES - 1 ? 'committed' : undefined,
-      );
-      expect(wem.get(a, withB(kept))[0]).toBe('kept');
-    }
-  });
-
-  it('keeps a re-read value while one-off values come and go', () => {
+  it('keeps a committed value while one-off values come and go', () => {
     // a pending transition: React re-reads the committed store between
     // retries that each build new entities
     const wem = new WeakDependencyMap<EntityPath>();
     const withB = (entity: object) =>
       MemoPolicy.getEntities({ ...state, B: { '2': entity } });
-    wem.set([depA, depB], 'committed');
+    wem.set([depA, depB], 'committed', [], undefined, true);
+    wem.keepLast(true);
     for (let i = 0; i < 5; i++) {
       const retry = [i];
       expect(wem.get(a, withB(retry))[0]).toBeUndefined();
       wem.set([depA, { ...depB, entity: retry }], `retry ${i}`);
       expect(wem.get(a, withB(b))[0]).toBe('committed');
     }
+  });
+
+  describe('commit pins', () => {
+    const withB = (entity: object) =>
+      MemoPolicy.getEntities({ ...state, B: { '2': entity } });
+    const setB = (
+      wem: WeakDependencyMap<EntityPath>,
+      entity: object,
+      value: string,
+      track = false,
+    ) => wem.set([depA, { ...depB, entity }], value, [], undefined, track);
+    /** Pins the entry `entity` reads, as a commit of its store would. */
+    const commit = (
+      wem: WeakDependencyMap<EntityPath>,
+      entity: object,
+      settled: boolean,
+    ) => {
+      const reads = new Map<object, object>();
+      wem.get(a, withB(entity), [], true);
+      wem.trackLast(reads);
+      wem.keep(reads, settled);
+    };
+
+    it('records hits and writes only when asked to track', () => {
+      // an untracked call must not hold its entry: the per-entity maps live
+      // as long as the entity cache, so it would keep every entity they cached
+      for (const track of [false, true]) {
+        const wem = new WeakDependencyMap<EntityPath>();
+        wem.set([depA, depB], 'value', [], undefined, track);
+        const reads = new Map<object, object>();
+        wem.trackLast(reads);
+        expect(reads.size).toBe(track ? 1 : 0);
+        wem.get(a, getEntity, [], track);
+        wem.trackLast(reads);
+        expect(reads.size).toBe(track ? 1 : 0);
+      }
+    });
+
+    it('keeps a committed entry through any number of newer ones', () => {
+      const wem = new WeakDependencyMap<EntityPath>();
+      setB(wem, ['first'], 'first');
+      const committed = ['committed'];
+      setB(wem, committed, 'committed');
+      commit(wem, committed, false);
+      for (let i = 0; i < 5; i++) setB(wem, [i], `one-off ${i}`);
+      expect(wem.get(a, withB(committed))[0]).toBe('committed');
+    });
+
+    it('keepLast pins the entry the latest tracked call wrote', () => {
+      const wem = new WeakDependencyMap<EntityPath>();
+      setB(wem, ['first'], 'first');
+      const committed = ['committed'];
+      setB(wem, committed, 'committed', true);
+      wem.keepLast(true);
+      for (let i = 0; i < 5; i++) setB(wem, [i], `one-off ${i}`);
+      expect(wem.get(a, withB(committed))[0]).toBe('committed');
+    });
+
+    it('does not pin an entry evicted before its commit', () => {
+      const wem = new WeakDependencyMap<EntityPath>();
+      const reads = new Map<object, object>();
+      const committed = ['committed'];
+      setB(wem, ['first'], 'first');
+      setB(wem, committed, 'committed', true);
+      wem.trackLast(reads);
+      for (let i = 0; i < 3; i++) setB(wem, [i], `one-off ${i}`);
+      wem.keep(reads, true);
+      expect(wem.get(a, withB(committed))[0]).toBeUndefined();
+    });
+
+    it('keeps the settled value while optimistic updates commit', () => {
+      // every optimistic update in flight rebuilds the entities it touches,
+      // so when the last settles, the store returns to the settled value
+      const wem = new WeakDependencyMap<EntityPath>();
+      const settled = ['settled'];
+      setB(wem, settled, 'settled');
+      commit(wem, settled, true);
+      const optimistic = Array.from({ length: 5 }, (_, i) => [i]);
+      optimistic.forEach((entity, i) => {
+        setB(wem, entity, `optimistic ${i}`);
+        commit(wem, entity, false);
+      });
+      expect(wem.get(a, withB(settled))[0]).toBe('settled');
+      // older unsettled values go once newer ones are written
+      expect(wem.get(a, withB(optimistic[2]))[0]).toBeUndefined();
+      expect(wem.get(a, withB(optimistic[4]))[0]).toBe('optimistic 4');
+    });
   });
 
   it.each<[string, any]>([
@@ -313,10 +398,21 @@ describe('WeakDependencyMap eviction', () => {
   const withB = (entity: object) =>
     MemoPolicy.getEntities({ A: { '1': root }, B: { '1': entity } });
 
+  /** Writes a value its store's commit pins, as `MemoCache` does for a read
+   * of the latest committed store. */
+  const setCommitted = (
+    wem: WeakDependencyMap<EntityPath>,
+    entity: object,
+    value: string,
+  ) => {
+    wem.set([rootDep, dep(entity)], value, [], undefined, true);
+    wem.keepLast(true);
+  };
+
   it('keeps the committed version after the store moves on to a new one (two epochs)', () => {
     const wem = new WeakDependencyMap<EntityPath>();
     const S0 = { v: 'S0' };
-    wem.set([rootDep, dep(S0)], 'S0');
+    setCommitted(wem, S0, 'S0');
     // epoch 1: pending transition; retries build fresh entities, urgent
     // renders re-read S0. This is the pattern the existing tests cover.
     for (let i = 0; i < 2; i++) {
@@ -327,21 +423,22 @@ describe('WeakDependencyMap eviction', () => {
     }
     // the transition commits: its final render's entities ARE the new store
     const S1 = { v: 'S1' };
-    wem.set([rootDep, dep(S1)], 'S1');
+    setCommitted(wem, S1, 'S1');
     expect(wem.get(root, withB(S1))[0]).toBe('S1');
     // epoch 2: another pending transition builds a fresh entity...
     wem.set([rootDep, dep({ v: 'y0' })], 'y0');
-    // ...and an urgent render re-reads the committed store. S1 is alive and
-    // was read moments ago; the old chain would hit. S0 is dead but pinned.
+    // ...and an urgent render re-reads the committed store
     expect(wem.get(root, withB(S1))[0]).toBe('S1');
+    // S0 is no longer pinned
+    expect(wem.get(root, withB(S0))[0]).toBeUndefined();
   });
 
-  it('a stale entry does not crowd out a version that keeps being read', () => {
+  it('a stale entry does not crowd out a committed version that keeps being read', () => {
     const wem = new WeakDependencyMap<EntityPath>();
     const dead = { v: 'dead' };
     const S = { v: 'S' };
     wem.set([rootDep, dep(dead)], 'dead');
-    wem.set([rootDep, dep(S)], 'S');
+    setCommitted(wem, S, 'S');
     // alternate one-offs with re-reads of S many times; S should earn its keep
     let misses = 0;
     for (let i = 0; i < 10; i++) {
@@ -354,14 +451,14 @@ describe('WeakDependencyMap eviction', () => {
     expect(misses).toBe(0);
   });
 
-  it('a stable version first read after two one-offs is retained', () => {
+  it('a committed version first read after two one-offs is retained', () => {
     // e.g. a list whose first render is inside a pending transition that
     // suspended once (render, ping, render) before any urgent render
     const wem = new WeakDependencyMap<EntityPath>();
     const S = { v: 'S' };
     wem.set([rootDep, dep({ v: 'x0' })], 'x0');
     wem.set([rootDep, dep({ v: 'x1' })], 'x1');
-    wem.set([rootDep, dep(S)], 'S');
+    setCommitted(wem, S, 'S');
     wem.set([rootDep, dep({ v: 'x2' })], 'x2');
     expect(wem.get(root, withB(S))[0]).toBe('S');
   });
@@ -493,9 +590,10 @@ describe('WeakDependencyMap eviction', () => {
       const wem = new WeakDependencyMap<EntityPath>();
       const one = [{ portfolio: 'P' }];
       expectEviction(
+        wem,
         (entity, value) =>
           wem.set([rootDep, fn(portfolio), dep(entity)], value, one),
-        entity => wem.get(root, withB(entity), one)[0],
+        (entity, track) => wem.get(root, withB(entity), one, track)[0],
       );
     });
   });
@@ -513,8 +611,8 @@ describe('WeakDependencyMap eviction', () => {
   });
 
   it('a shorter dependency list at the same root is served when the longer one mismatches', () => {
-    // each entry is checked against its own dependencies, so the older one
-    // still serves reads that never touch C
+    // each entry is checked against its own dependencies, so the older
+    // (committed) one still serves reads that never touch C
     const wem = new WeakDependencyMap<EntityPath>();
     const b = { b: 1 };
     const c = { c: 1 };
@@ -522,7 +620,7 @@ describe('WeakDependencyMap eviction', () => {
       path: { key: 'C', pk: '1' },
       entity,
     });
-    wem.set([rootDep, dep(b)], 'short');
+    setCommitted(wem, b, 'short');
     wem.set([rootDep, dep(b), depC(c)], 'long');
     const both = MemoPolicy.getEntities({
       A: { '1': root },
