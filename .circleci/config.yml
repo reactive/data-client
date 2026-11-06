@@ -3,6 +3,12 @@
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
 version: 2.1
+parameters:
+  full-run:
+    # Set by the daily master schedule (or a manual trigger) to run every job
+    # despite a tree-passed marker, so a path-filter mistake can't hide for long
+    type: boolean
+    default: false
 executors:
   node:
     docker: &docker
@@ -28,14 +34,10 @@ commands:
       flag:
         type: enum
         enum: ["esmodule", "tests"]
-      on-missing:
-        type: enum
-        enum: ["continue", "halt"]
-        default: "continue"
     steps:
       - restore_cache:
           keys:
-            - ci-relevant-v4-{{ .Environment.CIRCLE_WORKFLOW_ID }}
+            - &relevance-cache-key ci-relevant-v4-{{ .Environment.CIRCLE_WORKFLOW_ID }}
       - run:
           name: Skip job if only non-<< parameters.flag >> paths changed
           command: |
@@ -45,9 +47,6 @@ commands:
               circleci-agent step halt
             elif [ "${FLAG}" = "true" ]; then
               echo "Relevant changes detected; continuing job."
-            elif [ "<< parameters.on-missing >>" = "halt" ]; then
-              echo "No relevance flag found; halting this job."
-              circleci-agent step halt
             else
               echo "No relevance flag found; failing open (continuing job)."
             fi
@@ -93,9 +92,10 @@ jobs:
             # Fail open: run jobs unless we can prove irrelevance.
             ESMODULE_RELEVANT=true
             TESTS_RELEVANT=true
+            BASE_TREE=''
 
             # Only the queue and master trust a marker; PR reruns still run
-            if [ -f ~/project/.ci-tree-passed ] \
+            if [ "<< pipeline.parameters.full-run >>" = "false" ] && [ -f ~/project/.ci-tree-passed ] \
               && [[ "${CIRCLE_BRANCH}" == "${BASE_BRANCH}" || "${CIRCLE_BRANCH}" == gh-readonly-queue/* ]]; then
               # Saved by `tree-passed` once every job passed on this exact tree
               echo "Every job already passed on tree $(cat ~/project/.ci-tree); halting all jobs."
@@ -115,6 +115,10 @@ jobs:
               # --name-only diffs) without transferring file contents.
               git fetch --force --filter=blob:none origin "${BASE_BRANCH}:refs/remotes/origin/${BASE_BRANCH}" || true
               DIFF_RANGE="origin/${BASE_BRANCH}...HEAD"
+              # The tree the diff runs from: if it passed, `tree-passed` can
+              # vouch for this tree even when the diff halted jobs
+              # (rev-parse prints its argument when it fails, hence the reset)
+              BASE_TREE="$(git rev-parse "$(git merge-base "origin/${BASE_BRANCH}" HEAD)^{tree}")" || BASE_TREE=''
             fi
 
             # Grep a file, not a pipe: CircleCI runs bash with pipefail, so an
@@ -126,19 +130,25 @@ jobs:
             elif git -c core.quotePath=off diff --no-renames --name-only "${DIFF_RANGE}" > /tmp/ci-changed-files; then
               echo "Changed files:"
               cat /tmp/ci-changed-files
+              # A flag goes false only when grep cleanly proves it; a grep error
+              # (exit 2, e.g. a bad regex) counts as relevant.
+              all_match() { local rc=0; grep -Evq "$1" /tmp/ci-changed-files || rc=$?; [ "${rc}" -eq 1 ]; }
+              any_match() { local rc=0; grep -Eq "$1" /tmp/ci-changed-files || rc=$?; [ "${rc}" -ne 1 ]; }
               # Docs/website/tooling paths; both flags below are denylists over it.
               DOCS_ONLY='website/|docs/|\.changeset/|\.cursor/|\.agents/|\.claude/|\.github/|[^/]+\.md$'
               # Denylist (fail open): only paths provably outside every esmodule
               # job's inputs can skip them, so a new input dir runs by default.
-              if ! grep -Evq "^(${DOCS_ONLY}|\.vscode/|plans/|__tests__/|eslint\.config\.mjs$|jest\.config\.js$|examples/[^/]+\.md$|examples/(benchmark|benchmark-react|coin-app|nextjs|normalizr-github|normalizr-redux|test-bundlesize|vue-todo-app)/)" /tmp/ci-changed-files; then
+              if all_match "^(${DOCS_ONLY}|\.vscode/|plans/|__tests__/|eslint\.config\.mjs$|jest\.config\.js$|examples/[^/]+\.md$|examples/(benchmark|benchmark-react|coin-app|nextjs|normalizr-github|normalizr-redux|test-bundlesize|vue-todo-app)/)"; then
                 echo "No relevant esmodule-related changes; downstream esmodule jobs will halt."
                 ESMODULE_RELEVANT=false
               fi
-              # Docs/website/tooling-only changes can't affect lint, typecheck or
-              # unit tests (Playground and motion have unit tests, so they stay relevant).
-              if ! grep -Evq "^(${DOCS_ONLY})" /tmp/ci-changed-files \
-                && ! grep -Eq '^website/src/components/(Playground|motion)/' /tmp/ci-changed-files; then
-                echo "Only docs/website/tooling paths changed; test jobs will halt."
+              # Test jobs read only setup's workspace, so a change inside it always
+              # counts, even under a docs/website path (the Playground tests).
+              yq '.jobs.setup.steps[] | select(tag == "!!map" and has("persist_to_workspace")) | .persist_to_workspace.paths[]' .circleci/config.yml > /tmp/ci-persisted
+              PERSISTED="$(sed -e 's#^project/##' -e 's/[][\\.^$*+?(){}|]/\\&/g' /tmp/ci-persisted | paste -sd'|')"
+              [ -n "${PERSISTED}" ] || { echo "No paths found in persist_to_workspace"; exit 1; }
+              if all_match "^(${DOCS_ONLY})" && ! any_match "^(${PERSISTED})(/|$)"; then
+                echo "Only docs/website/tooling paths outside the workspace changed; test jobs will halt."
                 TESTS_RELEVANT=false
               fi
             else
@@ -147,14 +157,16 @@ jobs:
 
             echo "${ESMODULE_RELEVANT}" > ~/project/.ci-esmodule-relevant
             echo "${TESTS_RELEVANT}" > ~/project/.ci-tests-relevant
+            echo "${BASE_TREE}" > ~/project/.ci-base-tree
             # Later setup steps read these; the files are for downstream jobs.
             echo "export ESMODULE_RELEVANT=${ESMODULE_RELEVANT} TESTS_RELEVANT=${TESTS_RELEVANT}" >> "${BASH_ENV}"
       - save_cache:
-          key: ci-relevant-v4-{{ .Environment.CIRCLE_WORKFLOW_ID }}
+          key: *relevance-cache-key
           paths:
             - .ci-esmodule-relevant
             - .ci-tests-relevant
             - .ci-tree # tree-passed marks this
+            - .ci-base-tree
       - run:
           name: Halt setup if nothing downstream is relevant
           command: |
@@ -204,7 +216,8 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            # explicitly list so we can ignore some directories that are not needed
+            # explicitly list so we can ignore some directories that are not needed;
+            # setup's relevance check counts any change under these as a test input
             # .yarn/cache is left out; see restore-yarn-cache
             - project/.yarn/releases
             - project/.yarn/plugins
@@ -217,7 +230,8 @@ jobs:
             - project/node_modules
             - project/packages
             - project/scripts
-            # Playground and motion unit tests; rest of website omitted
+            # Website inputs of the unit tests (Playground and motion tests, and the
+            # utils Playground imports)
             - project/website/src/components/Playground
             - project/website/src/components/motion
             - project/website/src/utils
@@ -484,25 +498,38 @@ jobs:
     docker: *docker
     resource_class: small
     steps:
-      # Only vouch for trees whose jobs all ran: a path-filtered run only
-      # proves the change was irrelevant, and missing flags prove nothing
-      - halt-unless-relevant-change:
-          flag: tests
-          on-missing: halt
-      - halt-unless-relevant-change:
-          flag: esmodule
-          on-missing: halt
+      - restore_cache:
+          keys:
+            - *relevance-cache-key
+      - run:
+          # So the key below always has a file to hash
+          name: Default the diff base tree
+          command: touch .ci-base-tree
+      - restore_cache:
+          # Restores the base tree's own marker as .ci-tree-passed, if it passed
+          keys:
+            - ci-passed-v1-{{ checksum ".ci-base-tree" }}
       - run:
           name: Mark tree passed
           command: |
+            halt() { echo "$1; not marking this tree passed."; circleci-agent step halt; exit 0; }
             # Never for fork PRs (CIRCLE_PR_NUMBER is only set on those)
-            if [ -n "${CIRCLE_PR_NUMBER:-}" ]; then
-              echo "Fork PR; not marking this tree passed."
-              circleci-agent step halt
-              exit 0
+            [ -z "${CIRCLE_PR_NUMBER:-}" ] || halt "Fork PR"
+            # Missing or odd flags prove nothing, so fail closed
+            TESTS="$(cat .ci-tests-relevant 2>/dev/null)" || TESTS=''
+            ESMODULE="$(cat .ci-esmodule-relevant 2>/dev/null)" || ESMODULE=''
+            FLAGS="${TESTS} ${ESMODULE}"
+            [[ "${FLAGS}" =~ ^(true|false)\ (true|false)$ ]] && [ -s .ci-tree ] || halt "No relevance flags or tree hash"
+            if [ "${FLAGS}" = "true true" ]; then
+              echo "Every job ran and passed."
+            # A path-filtered run proves only that the change since the diff
+            # base is irrelevant to the halted jobs, so it needs the base's marker
+            elif cmp -s .ci-base-tree .ci-tree-passed; then
+              echo "Halted jobs passed on base tree $(cat .ci-base-tree), and nothing they read changed since."
+            else
+              halt "Some jobs halted and the base tree has no marker"
             fi
-            # Fail open: without setup's tree hash, later pipelines just run
-            cp ~/project/.ci-tree ~/project/.ci-tree-passed || circleci-agent step halt
+            cp .ci-tree .ci-tree-passed
       - save_cache:
           key: ci-passed-v1-{{ checksum ".ci-tree" }}
           paths:
