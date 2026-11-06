@@ -47,9 +47,10 @@ export function depKey(entity: unknown): object {
  * Each node keeps at most three values: the newest, the one a committed
  * render last read, and the one a committed render of a store with no
  * optimistic updates last read (see `keep()`). Usually they are the same
- * value, so a streaming result keeps about one stale copy. The cost: a read
- * can miss where the web build would hit. "React Native memo" in
- * `packages/normalizr/AGENTS.md` lists when.
+ * value, so a streaming result keeps about one stale copy. Each value lists
+ * the entries read to compute it (`children`), so pinning a result pins every
+ * nested value in it. The cost: a read can miss where the web build would
+ * hit. "React Native memo" in `packages/normalizr/AGENTS.md` lists when.
  *
  * String-keyed dependencies (used by `argsKey`) branch on a `Map` keyed by
  * the value `path(args)` returns, so each argument set keeps its own entries
@@ -68,28 +69,19 @@ export default class WeakDependencyMap<
   private readonly next = new WeakMap<K, Node<Path, V>>();
   /** Sticky: true once any function-typed (`argsKey`) dep has been stored. */
   private hasStr = false;
-  /** The entry the latest `get` or `set` with `track` hit or wrote, for
-   * `trackLast()`/`keepLast()`. Only tracked calls record it, and their caller
-   * reads it right away: an entry recorded and never cleared would stay alive
-   * for as long as the map does. */
-  private lastNode: Node<Path, V> | undefined = undefined;
-  private lastEntry: Entry<Path, V> | undefined = undefined;
 
   get(
     entity: K,
     getDependency: GetDependency<Path, K | symbol>,
     args: readonly any[] = [],
-    /** record the hit for `trackLast()`/`keepLast()` */
-    track = false,
+    /** gets the hit's node and entry pushed, for `keep()` */
+    out?: unknown[],
   ) {
     const root = this.next.get(entity);
     const node = root && find(root, getDependency, args);
     if (!node) return EMPTY;
     const entry = node.entries[0];
-    if (track) {
-      this.lastNode = node;
-      this.lastEntry = entry;
-    }
+    if (out) out.push(node, entry);
     return [entry.value, entry.journey] as readonly [V, Path[]];
   }
 
@@ -104,8 +96,10 @@ export default class WeakDependencyMap<
      * payoff. The array becomes a shared reference held by every subsequent
      * cache hit; callers MUST NOT mutate it. */
     journey?: Path[],
-    /** record the write for `trackLast()`/`keepLast()` */
-    track = false,
+    /** gets the new entry's node and entry pushed, for `keep()` */
+    out?: unknown[],
+    /** node and entry pairs read to compute `value`; `keep()` pins them with it */
+    children: unknown[] = NO_CHILDREN,
   ): void {
     if (dependencies.length < 1) throw new KeySize();
     const root = depKey(dependencies[0].entity) as K;
@@ -132,7 +126,7 @@ export default class WeakDependencyMap<
           // Past MAX_FORKS, start this root over instead.
           if (node.branches.length && ++top!.forks > MAX_FORKS) {
             this.next.delete(root);
-            return this.set(dependencies, value, args, journey, track);
+            return this.set(dependencies, value, args, journey, out, children);
           }
           branch = { fn: dep.path as KeyFn, children: new Map() };
           node.branches.push(branch);
@@ -153,15 +147,16 @@ export default class WeakDependencyMap<
       value,
       // we could recompute this on get, but it would have a cost and we optimize for `get`
       journey: journey ?? (dependencies.map(d => d.path) as Path[]),
+      children,
+      gen: 0,
     };
-    if (track) this.lastEntry = entry;
     if (!node) {
       node = newNode(entry);
       this.next.set(root, node);
-      if (track) this.lastNode = node;
+      if (out) out.push(node, entry);
       return;
     }
-    if (track) this.lastNode = node;
+    if (out) out.push(node, entry);
     // A store can flip back to a version it already showed: React renders the
     // committed store between retries of a pending transition, which build new
     // entities each time, and rolling back an optimistic update returns to the
@@ -172,34 +167,6 @@ export default class WeakDependencyMap<
     for (let i = entries.length - 1; i > 0; i--) {
       if (entries[i] !== committed && entries[i] !== settled)
         entries.splice(i, 1);
-    }
-  }
-
-  /** Records the entry the latest `get` hit or `set` wrote into `reads`, to
-   * pass to `keep()` later. One per node (the last read wins), so repeat
-   * reads don't grow it. */
-  trackLast(reads: KeepReads): void {
-    const node = this.lastNode;
-    if (!node) return;
-    (reads as Map<Node<Path, V>, Entry<Path, V>>).set(node, this.lastEntry!);
-    this.lastNode = this.lastEntry = undefined;
-  }
-
-  /** Never evict the entry the latest `get` hit or `set` wrote; see `keep()`. */
-  keepLast(settled: boolean): void {
-    const node = this.lastNode;
-    if (!node) return;
-    pin(node, this.lastEntry!, settled);
-    this.lastNode = this.lastEntry = undefined;
-  }
-
-  /** Never evict these entries: their results were committed. React serves
-   * re-renders of a committed store from hook memos without asking the
-   * cache, so recency alone can't tell a committed result from a one-off
-   * render of a pending transition. */
-  keep(reads: KeepReads, settled: boolean): void {
-    for (const [node, entry] of reads as Map<Node<Path, V>, Entry<Path, V>>) {
-      if (node.entries.includes(entry)) pin(node, entry, settled);
     }
   }
 
@@ -285,9 +252,31 @@ export interface Dep<Path> {
 
 const EMPTY = [undefined, undefined] as const;
 
-/** Opaque record of cached entries read, at most one per node; see
- * `WeakDependencyMap.trackLast()`. */
-export type KeepReads = Map<object, object>;
+/** Pins `entry` (from a `get` or `set` `out` pair) and every entry read to
+ * compute it, as read by a committed render: none is evicted until a later
+ * commit pins another entry on its node. An entry evicted since it was read
+ * goes back. Each entry is walked once per `gen`, so pass a new `gen` per
+ * commit. A loop, not recursion: nested values can go thousands deep.
+ *
+ * @param settled Whether the committed store had no optimistic updates.
+ */
+export function keep(
+  node: unknown,
+  entry: unknown,
+  settled: boolean,
+  gen: number,
+): void {
+  const stack = [node, entry];
+  while (stack.length) {
+    const e = stack.pop() as Entry<unknown, unknown>;
+    const n = stack.pop() as Node<unknown, unknown>;
+    if (e.gen === gen) continue;
+    e.gen = gen;
+    pin(n, e, settled);
+    const { children } = e;
+    for (let i = 0; i < children.length; i++) stack.push(children[i]);
+  }
+}
 
 function pin<Path, V>(
   node: Node<Path, V>,
@@ -296,7 +285,15 @@ function pin<Path, V>(
 ): void {
   node.committed = entry;
   if (settled) node.settled = entry;
+  const { entries } = node;
+  if (!entries.includes(entry)) entries.push(entry);
+  for (let i = entries.length - 1; i > 0; i--) {
+    if (entries[i] !== node.committed && entries[i] !== node.settled)
+      entries.splice(i, 1);
+  }
 }
+
+const NO_CHILDREN: unknown[] = [];
 
 /** Nodes under one first dependency that may gain a second `argsKey` branch. */
 const MAX_FORKS = 8;
@@ -342,6 +339,10 @@ interface Entry<Path, V> {
   readonly keys: unknown[];
   readonly value: V;
   readonly journey: Path[];
+  /** Node and entry pairs read to compute `value`, pinned with it. */
+  readonly children: unknown[];
+  /** The `keep()` generation that last pinned this entry. */
+  gen: number;
 }
 
 class KeySize extends Error {

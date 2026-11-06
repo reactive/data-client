@@ -6,8 +6,9 @@ import type Cache from '../denormalize/cache.js';
 import type { INVALID } from '../denormalize/symbol.js';
 import type { EntityInterface, EntityPath } from '../interface.js';
 
-/** React Native build: `globalCache.ts` plus `track`, which records the
- * result's own memo entry for `MemoCache.commit()`. Keep the two in step. */
+/** React Native build: `globalCache.ts` plus the entries each value was
+ * computed from (`children`), and the result's own entries (`records`) for
+ * `MemoCache.commit()`. Keep the two in step. */
 type EndpointsCache = WeakDependencyMap<EntityPath, object, any>;
 
 const PLACEHOLDER_DEP: Dep<EntityPath> = {
@@ -29,25 +30,22 @@ export default class GlobalCache implements Cache {
   /** Set true once `argsKey` is called for this denormalize frame. Gates
    * function-stripping fast paths in `paths()` / `getResults()`. */
   private _hasArgsKey = false;
-  /** Whether to record the result's own memo entry, in `tracked`. */
-  declare private _track: boolean;
-  /** True until the top-level `getEntity` of a pk input takes it. */
-  private trackTop = false;
-  /** The map whose last entry is this result's, once `_track` recorded it. */
-  tracked: WeakDependencyMap<any, any, any> | undefined = undefined;
+  /** The result's own memo entries, as node and entry pairs for `keep()`:
+   * the endpoints entry, or the top-level entity's for a pk input. */
+  readonly records: unknown[] = [];
+  /** Node and entry pairs read so far by the value being computed. */
+  private children: unknown[] = this.records;
 
   constructor(
     getEntity: DenormGetEntity,
     getCache: GetEntityCache,
     resultCache: EndpointsCache,
     args: readonly any[] = [],
-    track = false,
   ) {
     this._getEntity = getEntity;
     this._getCache = getCache;
     this._resultCache = resultCache;
     this._args = args;
-    this._track = track;
   }
 
   /** Records `fn(args)` as a string-keyed dependency for the surrounding
@@ -72,8 +70,6 @@ export default class GlobalCache implements Cache {
     computeValue: (localCacheKey: Map<string, any>) => void,
   ): object | undefined | typeof INVALID {
     const key = schema.key;
-    const track = this.trackTop;
-    this.trackTop = false;
     // cycleCache is deferred to the branch that actually needs it
     // to avoid unnecessary allocations.
     const localCacheKey = this.getOrCreateLocalCache(key);
@@ -88,9 +84,8 @@ export default class GlobalCache implements Cache {
         entity,
         this._getEntity,
         this._args,
-        track,
+        this.children,
       );
-      if (track) this.tracked = globalCache;
       // TODO: what if this just returned the deps - then we don't need to store them
 
       if (cachePath) {
@@ -117,9 +112,12 @@ export default class GlobalCache implements Cache {
         cycleCacheKey.set(pk, trackingIndex);
         this.dependencies.push({ path: { key, pk }, entity });
 
+        const parent = this.children;
+        const children: unknown[] = (this.children = []);
         /** NON-GLOBAL_CACHE CODE */
         computeValue(localCacheKey);
         /** /END NON-GLOBAL_CACHE CODE */
+        this.children = parent;
 
         cycleCacheKey.delete(pk);
         // if in cycle, use the start of the cycle to track all deps
@@ -131,7 +129,14 @@ export default class GlobalCache implements Cache {
           dependencies: localKey,
           value: localCacheKey.get(pk),
         };
-        globalCache.set(localKey, cacheValue, this._args, undefined, track);
+        globalCache.set(
+          localKey,
+          cacheValue,
+          this._args,
+          undefined,
+          parent,
+          children,
+        );
 
         // start of cycle - reset cycle detection
         if (this.cycleIndex === trackingIndex) {
@@ -180,21 +185,18 @@ export default class GlobalCache implements Cache {
   } {
     if (!cachable) {
       // a pk input: the top-level entity's own entry is the result's
-      this.trackTop = this._track;
-      const data = computeValue();
-      this.trackTop = false;
-      return { data, paths: this.paths() };
+      return { data: computeValue(), paths: this.paths() };
     }
 
     let [data, paths] = this._resultCache.get(
       input,
       this._getEntity,
       this._args,
-      this._track,
+      this.records,
     );
-    if (this._track) this.tracked = this._resultCache;
 
     if (paths === undefined) {
+      const children: unknown[] = (this.children = []);
       data = computeValue();
       // build the consumer-facing subscription list once, here.
       // `paths()` already excludes the input placeholder slot and (when
@@ -210,7 +212,8 @@ export default class GlobalCache implements Cache {
         data,
         this._args,
         paths,
-        this._track,
+        this.records,
+        children,
       );
     }
     // hit branch: `paths` aliases the stored Link.journey — return as-is.
