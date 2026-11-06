@@ -114,6 +114,7 @@ if (process.env.BROWSERSLIST_ENV === '2020') {
   configs.push(typeConfigNext);
 } else {
   // node-friendly (or React Native Jest) commonjs build
+  // Native builds exist only for paramsToString.native.ts: URLSearchParams.sort() throws before RN 0.80 (REACT-24)
   [
     { input: 'src/index.ts', output: pkg.main },
     { input: 'src/next/index.ts', output: 'dist/next.js' },

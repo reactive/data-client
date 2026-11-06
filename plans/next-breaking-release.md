@@ -26,6 +26,13 @@ Type and API cleanups deferred because they would break users or mixed package v
 - **Remove `waitForNextUpdate`** from `renderDataCompose()`'s return value, along with the `resolveNextUpdate` bookkeeping in its test component.
   - Breaks: tests that destructure or call `waitForNextUpdate()`. Migration: `await result` for a Promise result; after changing props or calling the controller, `await allSettled()`.
 
+## React Native 0.80
+
+`@data-client/endpoint` and `@data-client/rest` ship React Native builds ([#4595](https://github.com/reactive/data-client/pull/4595)) only for `consistentSerialize.native.ts` and `paramsToString.native.ts`, which catch `URLSearchParams.sort()` throwing before React Native 0.80 (REACT-24).
+
+- **Delete both `.native.ts` files**, and the native builds and `react-native` export conditions of endpoint and rest.
+  - Breaks: React Native 0.79 and older throw on RestEndpoint URLs with search params. Migration: React Native 0.80 or later.
+
 ## Collection's deleted-entity check
 
 [#4487](https://github.com/reactive/data-client/pull/4487) added `delegate.INVALID` to the normalize delegate. Since endpoint can run with an older `@data-client/normalizr`, `deletedIndexes()` in `packages/endpoint/src/schemas/Collection.ts` returns early when the delegate lacks it, so re-adding a deleted item still shows it twice there.
