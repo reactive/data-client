@@ -16,6 +16,7 @@ export default function initManager(
   return () => {
     const state = controller.getState();
     managers.forEach(manager => {
+      /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production')
         startedWith.set(manager, controller);
       manager.init?.(state);
