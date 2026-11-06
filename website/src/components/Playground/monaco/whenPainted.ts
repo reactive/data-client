@@ -1,6 +1,7 @@
 import type * as Monaco from 'monaco-editor';
 
 import { hasLayoutWidth } from './layout';
+import { holdIdle } from './whenIdle';
 
 /**
  * Calls `done` once `editor` shows its code as it will stay: laid out at its
@@ -11,7 +12,8 @@ import { hasLayoutWidth } from './layout';
  * after layout (no tokenizer). A tokenizer loads on demand, so on a slow
  * machine its tokens can come long after the layout. One mounted hidden has
  * no width and waits, at no cost, until shown; one hidden later keeps its
- * last width (./layout) and goes on. Returns a cancel.
+ * last width (./layout) and goes on. While it is laid out and not yet
+ * painted, deferred work (whenIdle) waits. Returns a cancel.
  */
 export function whenPainted(
   editor: Monaco.editor.ICodeEditor,
@@ -21,9 +23,14 @@ export function whenPainted(
   let coloredAt: number | undefined;
   let streak = 0;
   let frame = 0;
+  let release: (() => void) | undefined;
+  const hold = () => {
+    release ??= holdIdle();
+  };
   const check = () => {
     frame = 0;
     if (!hasLayoutWidth(editor)) return;
+    hold();
     const now = performance.now();
     laidOutAt ??= now;
     if (coloredAt === undefined && editor.getDomNode()?.querySelector(COLORED))
@@ -40,10 +47,13 @@ export function whenPainted(
     if (!frame) frame = requestAnimationFrame(check);
   };
   const layout = editor.onDidLayoutChange(resume);
+  // from now, not the first frame: deferred work could start before it
+  if (hasLayoutWidth(editor)) hold();
   resume();
   const stop = () => {
     cancelAnimationFrame(frame);
     layout.dispose();
+    release?.();
   };
   function finish() {
     stop();

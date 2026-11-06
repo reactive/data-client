@@ -233,21 +233,22 @@ function TextEditTab({
       <StaticEditor code={editorProps.code} language={editorProps.language} />
     : <pre>{editorProps.code}</pre>;
 
-  const { outOfSight, handleMount } = useLayoutOutOfSight();
+  const { outOfSight, handleMount, handlePainted } = useLayoutOutOfSight();
   return (
     <div
-      className={clsx(styles.playgroundEditor, {
-        [styles.hidden]: hidden && !outOfSight,
-        [styles.tabHidden]: hidden && outOfSight,
-      })}
+      className={clsx(
+        styles.playgroundEditor,
+        hidden && (outOfSight ? styles.tabHidden : styles.hidden),
+      )}
     >
       {interactive ?
         <BrowserOnly fallback={staticView}>
           {() => (
             <Editor
               {...editorProps}
-              isFocused={!hidden}
+              isVisible={!hidden}
               onMount={handleMount}
+              onPainted={handlePainted}
             />
           )}
         </BrowserOnly>

@@ -1,7 +1,10 @@
 /// <reference types="jest" />
 import type * as Monaco from 'monaco-editor';
 
+import { holdIdle } from '../whenIdle';
 import { whenPainted } from '../whenPainted';
+
+jest.mock('../whenIdle', () => ({ holdIdle: jest.fn(() => jest.fn()) }));
 
 /** An editor `width` wide; `draw(lines)` renders its view lines, each a
  * list of token classes */
@@ -113,6 +116,43 @@ describe('whenPainted', () => {
     expect(done).not.toHaveBeenCalled();
     jest.advanceTimersByTime(200);
     expect(done).toHaveBeenCalledTimes(1);
+  });
+
+  describe('holds deferred work (whenIdle)', () => {
+    beforeEach(() => jest.mocked(holdIdle).mockClear());
+    const release = () => jest.mocked(holdIdle).mock.results[0]?.value;
+
+    test('from the start when laid out, until done', () => {
+      const { editor, draw } = fakeEditor(600);
+      draw([['mtk5']]);
+      const done = jest.fn();
+      whenPainted(editor, done);
+      expect(holdIdle).toHaveBeenCalledTimes(1);
+      frames(1);
+      expect(release()).not.toHaveBeenCalled();
+      frames(3);
+      expect(done).toHaveBeenCalled();
+      expect(release()).toHaveBeenCalled();
+      expect(holdIdle).toHaveBeenCalledTimes(1);
+    });
+
+    test('not while it has no width, so the work that gives it one can run', () => {
+      const { editor, draw, resize } = fakeEditor(0);
+      draw([['mtk5']]);
+      whenPainted(editor, jest.fn());
+      frames(4);
+      expect(holdIdle).not.toHaveBeenCalled();
+      resize(600);
+      expect(holdIdle).not.toHaveBeenCalled();
+      frames(1);
+      expect(holdIdle).toHaveBeenCalledTimes(1);
+    });
+
+    test('until cancelled', () => {
+      const { editor } = fakeEditor(600);
+      whenPainted(editor, jest.fn())();
+      expect(release()).toHaveBeenCalled();
+    });
   });
 
   test('never once cancelled', () => {
