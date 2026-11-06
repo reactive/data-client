@@ -28,7 +28,8 @@ project follow `.agents/projects/setup.md`.
 - Default for advisors and subagents: strong model. Exceptions:
 - Fast model: post-push reviews, V8 measurement (`.cursor/rules/v8-optimization.mdc`).
 - Mid model: simple merge conflicts.
-- Skill evals: mid model at medium effort for the runs under test, strong model to grade.
+- Skill evals: mid model at medium effort for the runs under test, strong model to
+  grade. Breaking-change evals follow `.cursor/rules/breaking-changes.mdc` instead.
 
 ## PR lifecycle
 
@@ -46,13 +47,14 @@ project follow `.agents/projects/setup.md`.
    changelogs, adjacent edits, generated files): hand to a mid-model subagent with branch, base and how
    to validate. Logic conflicts: resolve yourself.
 6. After every push, run the post-push review: in Claude Code, workflow `user-kit:post-push-review`
-   (Workflow tool) with `{ range: "<sha before push>..HEAD", goals: "<project goal>", repo: "<checkout path>" }` (`repo` when
-   data-client is not the working directory); elsewhere, fast-model reviewers in
+   (Workflow tool) with
+   `{ range: "<sha before push>..HEAD", goals: "<project goal>", repo: "<checkout path>" }`
+   (`repo` when data-client is not the working directory). Elsewhere, run fast-model reviewers in
    parallel for goals, repo rules, engineering, adversarial, reuse and React data flow. Verify each
    finding; fix real ones, reject the rest with a reason. Do not launch them while the person is
    actively writing in your thread: subagents can pick up the message and reply in your name.
-7. Once the change is verified correct, run skill "simplify" (Cursor: the same review by hand), verify its
-   findings, and push the cleanups (a push, so step 6 runs again) before calling the PR done.
+7. Once the change is verified correct, run skill "simplify" (Cursor: the same review by hand),
+   verify its findings, and push the cleanups (a push, so step 6 runs again) before calling the PR done.
 8. A worker's PR ends when it merges, not when it is handed over.
 
 ## PR descriptions
@@ -62,9 +64,10 @@ project follow `.agents/projects/setup.md`.
   only, so Claude Code's Skill tool refuses it.
 - Link Linear tickets by full URL; a bare "Fixes REACT-N" links nowhere on GitHub.
 - Benchmark and typeperf results go in a master / PR / change table naming the unit, never prose.
-- If the PR changes `website/` or `docs/` and CI's docs deploy check posts a preview, give it as
+- If the PR changes `website/` or `docs/`, give the preview
   `https://docs-site-pr-<N>-data-client.vercel.app` right after the PR link, plus direct links to the
-  changed pages (master docs are under `/next/`). Otherwise say "No website changes".
+  changed pages (master docs are under `/next/`). If CI's docs deploy check posts no preview, say so
+  instead. If the PR changes neither, say "No website changes".
 
 ## Follow-ups
 
@@ -95,8 +98,8 @@ app. Tell any agent working in that app not to reinstall them.
 ## Person's machine
 
 Work needing the person's PC (GPU, device or simulator, video renders, Linux Firefox, local tools) runs
-there, in WSL: Claude threads start a Remote Control session (`start_remote_control`); in Cursor, ask the
-coordinator for a local agent.
+there, in WSL: Claude threads start a Remote Control session (`start_remote_control`); in Cursor, ask
+the coordinator for a local agent.
 
 ## Videos
 
@@ -113,5 +116,6 @@ Every project improves this file; don't let a shared rule live in one project's 
 - When a rule here is wrong or out of date, tell the coordinator the same way.
 - The coordinator batches these into one small PR to `PROJECTS.md` (or `.agents/projects/`), tagged
   `internal:`, for the person to review, then deletes the memories it replaced.
-- Rules with at most a one-clause reason; history stays in memory. Keep this file under about 2k tokens; move
-  a section only some tasks need to `.agents/projects/<topic>.md` with a one-line pointer here.
+- Rules with at most a one-clause reason; history stays in memory. Keep this file under about 2k
+  tokens; move a section only some tasks need to `.agents/projects/<topic>.md`, with a one-line
+  pointer here.
