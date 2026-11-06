@@ -160,7 +160,7 @@ symptoms to what to check and links the setup for your browser tool.
 ## Managers
 
 Custom [Managers](https://dataclient.io/docs/api/Manager) allow for global side effect handling.
-This is useful for websockets, SSE, logging, etc. Pass them as a module-level function, so each store gets its own:
+This is useful for websockets, SSE, logging, etc. Pass a module-level function that creates them, so each store gets its own:
 `const managers = () => [new MyManager(), ...getDefaultManagers()];` with
 `app.use(DataClientPlugin, { managers })`
 ([getDefaultManagers](references/getDefaultManagers.md)). Always use the skill "data-client-manager" when writing managers.

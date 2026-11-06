@@ -4,7 +4,7 @@
  * @data-client v0.19 migration codemod
  *
  * Transforms:
- *   1. `managers` arrays → functions that return them, so each store gets its own Managers:
+ *   1. `managers` arrays → functions that return them:
  *      - `<DataProvider managers={...}>` (any JSX element's `managers` attribute)
  *      - `app.use(DataClientPlugin, { managers })`, `[DataClientPlugin, { managers }]`,
  *        `createDataClient({ managers })`, `mountDataClient(component, { managers })`

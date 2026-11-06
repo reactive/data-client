@@ -4,7 +4,7 @@
 '@data-client/vue': minor
 ---
 
-BREAKING: `managers` is a function, so each store gets its own [Managers](https://dataclient.io/docs/api/Manager#lifetimes)
+BREAKING: `managers` is a function that creates each store's [Managers](https://dataclient.io/docs/api/Manager#lifetimes)
 
 [DataProvider](https://dataclient.io/docs/api/DataProvider#managers), [DataClientPlugin](https://dataclient.io/docs/api/DataClientPlugin#managers) and `prepareStore()` call it once for each store, so a remounted `DataProvider` gets new Managers. Arrays are no longer accepted. Define the function at module level:
 
