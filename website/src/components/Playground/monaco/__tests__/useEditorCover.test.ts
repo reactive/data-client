@@ -3,12 +3,14 @@ import { act, renderHook } from '@testing-library/react';
 import type * as Monaco from 'monaco-editor';
 
 import useEditorCover from '../useEditorCover';
+import { holdIdle } from '../whenIdle';
 import { whenPainted } from '../whenPainted';
 
 jest.mock('../whenPainted', () => ({ whenPainted: jest.fn(() => jest.fn()) }));
+jest.mock('../whenIdle', () => ({ holdIdle: jest.fn(() => jest.fn()) }));
 
 /** An editor the reader can `focus()`, `key()` in or `click()` */
-function fakeEditor() {
+function fakeEditor(width = 600) {
   const listeners: Record<string, () => void> = {};
   const on = (event: string) => (listener: () => void) => {
     listeners[event] = listener;
@@ -19,7 +21,7 @@ function fakeEditor() {
     onKeyDown: on('key'),
     onMouseDown: on('click'),
     onDidDispose: () => ({ dispose() {} }),
-    getLayoutInfo: () => ({ width: 600 }),
+    getLayoutInfo: () => ({ width }),
   } as unknown as Monaco.editor.ICodeEditor;
   const fire = (event: string) => () => act(() => listeners[event]?.());
   return Object.assign(editor, {
@@ -38,7 +40,30 @@ function finish(editor: Monaco.editor.ICodeEditor) {
 
 describe('useEditorCover', () => {
   // jsdom has no Element.animate: the cover goes at once
-  beforeEach(() => jest.mocked(whenPainted).mockClear());
+  beforeEach(() => {
+    jest.mocked(whenPainted).mockClear();
+    jest.mocked(holdIdle).mockClear();
+  });
+
+  /** the release of the deferred-work hold the last call took */
+  const lastRelease = () =>
+    jest.mocked(holdIdle).mock.results.at(-1)?.value as jest.Mock;
+
+  test('holds deferred work until the shown editor paints', () => {
+    const { result } = renderHook(() => useEditorCover());
+    const panes = [fakeEditor()];
+    act(() => result.current.revealWhenPainted(panes));
+    expect(holdIdle).toHaveBeenCalledTimes(1);
+    expect(lastRelease()).not.toHaveBeenCalled();
+    finish(panes[0]);
+    expect(lastRelease()).toHaveBeenCalled();
+  });
+
+  test("a hidden editor doesn't hold deferred work", () => {
+    const { result } = renderHook(() => useEditorCover());
+    act(() => result.current.revealWhenPainted([fakeEditor(0)]));
+    expect(holdIdle).not.toHaveBeenCalled();
+  });
 
   test('stays until every editor has painted', () => {
     const { result } = renderHook(() => useEditorCover());

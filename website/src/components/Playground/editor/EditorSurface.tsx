@@ -239,7 +239,8 @@ function TextEditTab({
   // file's width out of sight (styles.tabHidden) until its editor has laid
   // out and highlighted: it then shows at once, kept as it was
   // (layoutWhileShown). Not before the page is idle and the shown editors
-  // have painted (whenIdle), or it would hold them up.
+  // have painted (whenIdle, which useEditorCover holds), or it would hold
+  // them up.
   const [stage, setStage] = useState<'waiting' | 'painting' | 'painted'>(
     'waiting',
   );
@@ -249,7 +250,7 @@ function TextEditTab({
     if (!hasLayoutWidth(editor))
       stops.push(
         whenIdle(() =>
-          setStage(stage => (stage === 'waiting' ? 'painting' : stage)),
+          setStage(prev => (prev === 'waiting' ? 'painting' : prev)),
         ),
       );
     editor.onDidDispose(() => stops.forEach(stop => stop()));
