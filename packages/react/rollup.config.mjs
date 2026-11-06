@@ -131,6 +131,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
       { input: 'src/context.ts', output: nativeContext },
       { input: 'src/index.ts', output: pkg.main },
       { input: 'src/next/index.ts', output: 'dist/next.js' },
+      // @data-client/react/redux: client-side despite the server/ folder
       {
         input: 'src/server/redux/index.ts',
         output: 'dist/server/redux/index.js',
