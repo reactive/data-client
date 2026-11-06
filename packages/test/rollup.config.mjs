@@ -22,6 +22,8 @@ function isExternal(id) {
   return dependencies.some(dep => dep === id || id.startsWith(dep));
 }
 
+// COMPILE_TARGET=native: CommonJS `.native` build for React Native Jest (runs in Node).
+// Metro loads the ESM `native/` build instead.
 function nativeOrNormalPath(path) {
   if (process.env.COMPILE_TARGET !== 'native') return path;
   return path.replace('.js', '.native.js');

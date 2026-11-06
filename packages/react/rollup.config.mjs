@@ -26,7 +26,8 @@ const peers = Object.keys(pkg.peerDependencies);
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node', '.jsx'];
 const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
-// React Native: `.native` sources (see babel.config.js), CommonJS like the node build
+// React Native Jest (runs in Node; does not compile node_modules): `.native` sources
+// (see babel.config.js) as CommonJS for Node. Metro loads the ESM `native/` build instead.
 const isNative = process.env.COMPILE_TARGET === 'native';
 
 function isExternal(id) {
@@ -38,12 +39,33 @@ function isExternal(id) {
     dependencies.some(dep => dep === id || id.startsWith(dep))
   );
 }
-// native entries must share the native index (and its contexts)
+// React contexts must be one instance per app. Metro `import`s the ESM `native/` build and
+// Jest (or a `require()`) loads the CommonJS one, so both load the contexts from this file.
+const nativeContext = 'dist/context.native.js';
+const srcContext = path.resolve('src/context.js');
+const shareNativeContext = {
+  name: 'share-native-context',
+  resolveId(source, importer) {
+    if (
+      importer &&
+      source.endsWith('/context.js') &&
+      path.resolve(path.dirname(importer), source) === srcContext
+    )
+      return { id: srcContext, external: true };
+    return null;
+  },
+};
+// native entries must share the native index and contexts
 function nativePaths(output) {
-  const srcIndex = path.resolve('src/index.js');
-  const relative = path.relative(path.dirname(output), 'dist/index.native.js');
-  const nativeIndex = relative.startsWith('.') ? relative : `./${relative}`;
-  return id => (id === srcIndex ? nativeIndex : id);
+  const relativeTo = file => {
+    const relative = path.relative(path.dirname(output), file);
+    return relative.startsWith('.') ? relative : `./${relative}`;
+  };
+  const targets = {
+    [path.resolve('src/index.js')]: relativeTo('dist/index.native.js'),
+    [srcContext]: relativeTo(nativeContext),
+  };
+  return id => targets[id] ?? id;
 }
 
 const configs = [];
@@ -102,6 +124,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12' && !isNative) {
   });
 } else if (isNative) {
   [
+    { input: 'src/context.ts', output: nativeContext },
     { input: 'src/index.ts', output: 'dist/index.native.js' },
     { input: 'src/next/index.ts', output: 'dist/next.native.js' },
     {
@@ -129,6 +152,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12' && !isNative) {
           babelHelpers: 'runtime',
         }),
         replace({ 'process.env.CJS': 'true', preventAssignment: true }),
+        shareNativeContext,
         resolve({ extensions }),
         commonjs({ extensions }),
       ],

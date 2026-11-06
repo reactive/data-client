@@ -23,7 +23,8 @@ const dependencies = Object.keys(pkg.dependencies).filter(
 const extensions = ['.ts', '.tsx', '.js', '.mjs', '.json', '.node'];
 const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
-// React Native: `.native` sources (see babel.config.js), CommonJS like the node build
+// React Native Jest (runs in Node; does not compile node_modules): `.native` sources
+// (see babel.config.js) as CommonJS for Node. Metro loads the ESM `native/` build instead.
 const isNative = process.env.COMPILE_TARGET === 'native';
 const nativeOrNormalPath = file =>
   isNative ? file.replace(/\.js$/, '.native.js') : file;
@@ -116,7 +117,7 @@ if (process.env.BROWSERSLIST_ENV === '2020') {
   configs.push(typeConfig);
   configs.push(typeConfigNext);
 } else {
-  // node-friendly (or React Native) commonjs build
+  // node-friendly (or React Native Jest) commonjs build
   [
     { input: 'src/index.ts', output: pkg.main },
     { input: 'src/next/index.ts', output: 'dist/next.js' },
