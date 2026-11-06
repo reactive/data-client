@@ -13,13 +13,13 @@ Ask the person for anything you cannot find in the project's settings:
 - Scope: what is in the goal. Library, core or CI work outside it goes to Linear (`PROJECTS.md`,
   "Follow-ups").
 
-## 2. Point every agent at PROJECTS.md
+## 2. Point every agent at `PROJECTS.md`
 
 Add this line to the project instructions. Claude: give the person the text to paste in Project
 settings, Instructions. Cursor: save it in the project's shared files.
 
 > Every agent working on reactive/data-client, at the start of its task: read
-> `https://raw.githubusercontent.com/reactive/data-client/master/PROJECTS.md` (`curl -sL`), or in a
+> `https://raw.githubusercontent.com/reactive/data-client/master/PROJECTS.md` (`curl -fsSL`), or in a
 > data-client checkout `git fetch origin master && git show FETCH_HEAD:PROJECTS.md`, and follow it.
 > This project's instructions win where they differ. Project goal: <goal>.
 
@@ -35,7 +35,7 @@ One file per subject, only what `PROJECTS.md` and the repos don't say:
 - `integration-<app>`: the app's repo, how to install the packed packages (`PROJECTS.md`, "Testing
   against another app"), run, test, and what "working" looks like on that platform.
 - `project-scope`: the goal, what's in and out of scope, and where follow-ups go.
-- Add a fact the turn you learn it; keep history and "why" in memory, not in `PROJECTS.md`.
+- Add a fact in the turn you learn it; keep history and "why" in memory, not in `PROJECTS.md`.
 
 ## 4. Optional setup
 
@@ -51,5 +51,4 @@ before giving it real work.
 
 ## Improving the shared process
 
-`PROJECTS.md`, "Keeping this file current", says how every project feeds rules back. Follow it as
-coordinator: batch the rules workers send you into small PRs.
+Follow `PROJECTS.md`, "Keeping this file current".
