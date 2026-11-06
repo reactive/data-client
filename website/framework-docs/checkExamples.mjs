@@ -304,14 +304,15 @@ function lintDemos(framework, examples) {
       lint(block.raw, (row, column) => locate(block, row, column)),
     );
   if (framework === 'react')
-    for (const file of walk(DEMO_CODE).filter(f => /\.tsx?$/.test(f)))
+    for (const file of walk(DEMO_CODE).filter(f => /\.tsx?$/.test(f))) {
+      const full = path.join(DEMO_CODE, file);
       findings.push(
         ...lint(
-          fs.readFileSync(path.join(DEMO_CODE, file), 'utf8'),
-          (row, column) =>
-            `${rel(path.join(DEMO_CODE, file))}:${row}:${column}`,
+          fs.readFileSync(full, 'utf8'),
+          (row, column) => `${rel(full)}:${row}:${column}`,
         ),
       );
+    }
   return findings;
 }
 
