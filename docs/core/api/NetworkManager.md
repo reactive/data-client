@@ -36,6 +36,13 @@ Arguments represent the default time (in milliseconds) before a resource is cons
 
 ### middleware
 
+Drops a response when its fetch started before the last [resetEntireStore()](./Controller.md#resetEntireStore). An older
+response doesn't settle a newer fetch of the same key.
+
+When `middleware` gets a different controller, the old store unmounted and a new store uses this NetworkManager.
+NetworkManager stops tracking the old store's fetches, so their promises never settle. It also doesn't send fetches from
+the old store.
+
 #### Consumed Actions
 
 - [fetch](./Controller.md#fetch)
@@ -51,6 +58,11 @@ Will initiate network request and then dispatch upon completion.
 #### Dispatched Actions
 
 - [resolve](./Controller.md#resolve)
+
+### cleanup()
+
+Stops nothing. Fetches in flight keep going, and their responses still update the store, because
+[cleanup()](./Manager.md#cleanup) also runs when the store is only hidden, like by `<Activity>`.
 
 ### allSettled(): Promise {#allSettled}
 
@@ -99,9 +111,9 @@ Timestamp when entire store was last reset
 
 ### clear(key) {#clear}
 
-Clear promise state for a given key
+Stops tracking the fetch for a given key, without settling its promise.
 
 ### clearAll() {#clearall}
 
-Ensures all promises are completed by rejecting remaining
+Stops tracking every fetch in flight, without settling their promises.
 

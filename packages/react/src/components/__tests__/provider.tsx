@@ -15,6 +15,7 @@ import { useController, useSuspense } from '../../hooks';
 import { payload } from '../../test-fixtures';
 import DataProvider from '../DataProvider';
 import { getDefaultManagers } from '../getDefaultManagers';
+import { LegacyReact } from '../LegacyReact';
 
 describe('<DataProvider />', () => {
   let errorSpy: jest.SpyInstance;
@@ -216,16 +217,24 @@ describe('<DataProvider />', () => {
     expect(msg).toBeDefined();
     unmount();
     expect(debugspy).not.toHaveBeenCalled();
-    await injector.controller.setResponse(
+    errorSpy.mockClear();
+    const promise = injector.controller.setResponse(
       endpoint,
       { id: 5 },
       { id: 5, title: 'hi' },
     );
-    expect(debugspy).toHaveBeenCalled();
-    expect(debugspy.mock.calls[0]).toMatchInlineSnapshot(`
-      [
-        "Action dispatched after unmount. This will be ignored.",
-      ]
-    `);
+    if (LegacyReact) {
+      // these versions warn about updates after unmount, so the store drops them
+      await promise;
+      expect(debugspy.mock.calls[0]).toMatchInlineSnapshot(`
+        [
+          "Action dispatched after unmount. This will be ignored.",
+        ]
+      `);
+    } else {
+      // newer React ignores updates to unmounted components on its own
+      await act(() => new Promise(resolve => setTimeout(resolve, 0)));
+      expect(errorSpy).not.toHaveBeenCalled();
+    }
   });
 });

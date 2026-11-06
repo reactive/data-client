@@ -1,5 +1,6 @@
 'use client';
 import React, {
+  version,
   useReducer,
   useMemo,
   useRef,
@@ -10,6 +11,9 @@ import React, {
 import { ReducerAction } from './ReducerAction.js';
 import { Middleware, Dispatch } from './types.js';
 import usePromisifiedDispatch from './usePromisifiedDispatch.js';
+
+/* istanbul ignore next */
+const LegacyReact = parseInt(version) < 18;
 
 export const unsetDispatch = () => {
   throw new Error(
@@ -61,25 +65,27 @@ export default function useEnhancedReducer<R extends React.Reducer<any, any>>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatchWithPromise, ...middlewares]);
 
-  // dispatching after unmount should be ignored - even by other middlewares
-  // using a ref allows symmetric implementation of dispatch indirection to ensure
-  // calling useEffect() multiple times has no adverse effects
+  // React 16/17 warn about state updates after unmount (#1085), so drop dispatches there (even in other middlewares).
+  // Only there: React 18 removed the warning, and its Effect cleanup also runs when <Activity> hides a provider,
+  // which must keep dispatching.
   useEffect(() => {
-    protectedDispatchRef.current = outerDispatchRef.current;
-    return () => {
-      /* istanbul ignore else */
-      if (process.env.NODE_ENV !== 'production') {
-        protectedDispatchRef.current = (action: any) => {
-          console.info(
-            'Action dispatched after unmount. This will be ignored.',
-          );
-          console.info(JSON.stringify(action, undefined, 2));
-          return Promise.resolve();
-        };
-      } else {
-        protectedDispatchRef.current = () => Promise.resolve();
-      }
-    };
+    /* istanbul ignore if */
+    if (LegacyReact) {
+      protectedDispatchRef.current = outerDispatchRef.current;
+      return () => {
+        if (process.env.NODE_ENV !== 'production') {
+          protectedDispatchRef.current = (action: any) => {
+            console.info(
+              'Action dispatched after unmount. This will be ignored.',
+            );
+            console.info(JSON.stringify(action, undefined, 2));
+            return Promise.resolve();
+          };
+        } else {
+          protectedDispatchRef.current = () => Promise.resolve();
+        }
+      };
+    }
   }, [outerDispatch]);
 
   return [state, outerDispatch, getState];

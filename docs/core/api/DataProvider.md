@@ -18,6 +18,10 @@ Manages state, providing all context needed to use the hooks. Should be placed a
 in application tree as any usage of the hooks is only possible for components below the provider
 in the React tree.
 
+Prefer placing it above [`<Activity>`](https://react.dev/reference/react/Activity). `<Activity>` above `DataProvider`
+also works, like when a tab or route that `<Activity>` hides has its own `DataProvider`. Hiding it
+[pauses its Managers](./Manager.md#cleanup), so polling stops. Its store keeps applying responses.
+
 <Installation />
 
 ## Props

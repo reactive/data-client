@@ -69,12 +69,32 @@ To read more about middlewares, see the [redux documentation](https://redux.js.o
 
 ### init(state) {#init}
 
-Called with initial state after provider is mounted. Can be useful to run setup at start that
-relies on state actually existing.
+Called when Managers :react[start or resume]:vue[start]. Start timers and connections here.
 
 ### cleanup()
 
-Provides any cleanup of dangling resources after manager is no longer in use.
+Called when Managers :react[pause or stop]:vue[stop]. Stop timers and connections here.
+
+:::react
+
+[DataProvider](./DataProvider.md) calls `init()` and `cleanup()` from an Effect, so they follow the
+[Effect lifecycle](https://react.dev/learn/synchronizing-with-effects#how-to-handle-the-effect-firing-twice-in-development).
+React StrictMode, and [`<Activity>`](https://react.dev/reference/react/Activity) hiding `DataProvider`, pause Managers
+with `cleanup()` and resume them with `init()` on the same store.
+
+While Managers are paused, the store keeps applying actions. Fetches in flight still resolve, and `middleware` still sees
+them. So:
+
+- Don't reset state about the store in `cleanup()`, like fetches in flight.
+- Guard side effects that `cleanup()` stopped, like `this.channel?.postMessage()`.
+- Read the current state with `controller.getState()` in `init()`. Its `state` argument is the initial state, even on
+  resume.
+
+When `middleware` gets a different controller, the old store unmounted. A new store uses the same Manager, like a
+remounted `DataProvider` that shares `managers`. Reset state about the old store there. Don't share Managers between two
+mounted providers.
+
+:::
 
 ## Adding managers to Reactive Data Client {#adding}
 
@@ -138,19 +158,27 @@ export default class CurrentTime extends Entity {
 ```
 
 ```ts title="TimeManager" framework-imports
-import type { Manager, Middleware } from '@data-client/react';
+import type { Controller, Manager, Middleware } from '@data-client/react';
 import CurrentTime from './CurrentTime';
 
 export default class TimeManager implements Manager {
+  declare protected controller: Controller;
   declare protected intervalID?: ReturnType<typeof setInterval>;
 
   middleware: Middleware = controller => {
-    this.intervalID = setInterval(() => {
-      controller.set(CurrentTime, { id: 1 }, { id: 1, time: Date.now() });
-    }, 1000);
-
+    this.controller = controller;
     return next => async action => next(action);
   };
+
+  init() {
+    this.intervalID = setInterval(() => {
+      this.controller.set(
+        CurrentTime,
+        { id: 1 },
+        { id: 1, time: Date.now() },
+      );
+    }, 1000);
+  }
 
   cleanup() {
     clearInterval(this.intervalID);

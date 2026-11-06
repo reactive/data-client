@@ -2,7 +2,11 @@ import { Endpoint } from '@data-client/endpoint';
 import { Article, ArticleResource } from '__tests__/new';
 
 import { SET_RESPONSE } from '../../actionTypes';
-import { createFetch } from '../../controller/actions';
+import {
+  createFetch,
+  createReset,
+  createSetResponse,
+} from '../../controller/actions';
 import Controller from '../../controller/Controller';
 import NetworkManager from '../../manager/NetworkManager';
 import { initialState } from '../../state/reducer/createReducer';
@@ -401,6 +405,101 @@ describe('NetworkManager', () => {
         const { meta } = dispatch.mock.calls[0][0];
         expect(meta.expiresAt - meta.date).toBe(7);
       }
+    });
+  });
+
+  describe('remounted provider', () => {
+    const endpoint = new Endpoint(
+      (v: { id: number }) => Promise.resolve({ id: v.id, title: 'hi' }),
+      { schema: Article, name: 'remountEndpoint' },
+    );
+    const bind = (mgr: NetworkManager, state = getState) => {
+      const dispatch = jest.fn((_action: any) => Promise.resolve());
+      const controller = new Controller({ dispatch, getState: state });
+      const next = jest.fn((_action: any) => Promise.resolve());
+      return { dispatch, next, handle: mgr.middleware(controller)(next) };
+    };
+
+    it('passes on a fetch from an unmounted store using the same manager', async () => {
+      const mgr = new NetworkManager();
+      const old = bind(mgr);
+      const current = bind(mgr);
+      const action = createFetch(endpoint, { args: [{ id: 5 }] });
+
+      await old.handle(action);
+      expect(old.next).toHaveBeenCalledWith(action);
+      expect(current.dispatch).not.toHaveBeenCalled();
+      expect(mgr.allSettled()).toBeUndefined();
+    });
+
+    it('ignores a reset from an unmounted store using the same manager', async () => {
+      const mgr = new NetworkManager();
+      const old = bind(mgr);
+      const current = bind(mgr);
+      const action = createFetch(endpoint, { args: [{ id: 5 }] });
+      current.handle(action);
+
+      const reset = createReset();
+      await old.handle(reset);
+      expect(old.next).toHaveBeenCalledWith(reset);
+      // the bound store's fetch is still in flight
+      expect(mgr.allSettled()).toBeDefined();
+    });
+
+    it("keeps an unmounted store's response from settling the new store's fetch", async () => {
+      const mgr = new NetworkManager();
+      const old = bind(mgr);
+      const current = bind(mgr);
+      const action = createFetch(endpoint, { args: [{ id: 5 }] });
+      current.handle(action);
+      const settled = jest.fn();
+      action.meta.promise.then(settled, settled);
+
+      const response = createSetResponse(endpoint, {
+        args: [{ id: 5 }],
+        response: { id: 5, title: 'old' },
+        fetchedAt: action.meta.fetchedAt,
+      });
+      await old.handle(response);
+      await new Promise(resolve => setTimeout(resolve, 0));
+      expect(old.next).toHaveBeenCalledWith(response);
+      expect(settled).not.toHaveBeenCalled();
+    });
+
+    it('drops an error for a fetch started before the last reset', async () => {
+      const mgr = new NetworkManager();
+      const { dispatch, handle } = bind(mgr, () => ({
+        ...initialState,
+        lastReset: Date.now() + 1000,
+      }));
+      const failing = new Endpoint(
+        (_v: { id: number }) => Promise.reject(new Error('down')),
+        { schema: Article, name: 'failingEndpoint', sideEffect: true },
+      );
+      const action = createFetch(failing, { args: [{ id: 5 }] });
+      handle(action);
+
+      await expect(action.meta.promise).rejects.toThrow('down');
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+
+    it('does not settle a fetch with a response to an older one', async () => {
+      const mgr = new NetworkManager();
+      const { handle } = bind(mgr);
+      const action = createFetch(endpoint, { args: [{ id: 5 }] });
+      handle(action);
+      const settled = jest.fn();
+      action.meta.promise.then(settled, settled);
+
+      await handle(
+        createSetResponse(endpoint, {
+          args: [{ id: 5 }],
+          response: { id: 5, title: 'old' },
+          fetchedAt: action.meta.fetchedAt - 1,
+        }),
+      );
+      await new Promise(resolve => setTimeout(resolve, 0));
+      expect(settled).not.toHaveBeenCalled();
     });
   });
 });

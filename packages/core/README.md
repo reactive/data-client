@@ -126,7 +126,8 @@ Requirements every provider must meet:
 - **The middleware `api.getState()` returns the committed state** (without optimistic updates), since managers and
   `Controller` reason about what the server confirmed. Views read the optimistic overlay (the store's `getState()` here).
 - **Run `initManager()` after the store is ready** (on mount), and call its returned cleanup on unmount. It also starts and
-  stops the `GCPolicy`.
+  stops the `GCPolicy`. Hiding the store (like React `<Activity>`) can run that cleanup, then `initManager()` again on
+  the same store. The store must keep applying actions in between.
 
 ### Bindings: read the store
 

@@ -721,6 +721,9 @@ This means the corresponding optimistic update will no longer be applies.
 This is used in [NetworkManager](https://dataclient.io/docs/api/NetworkManager), and should be used when
 processing fetch requests.
 
+Pass the fetch action's `action.meta.fetchedAt` as `fetchedAt`. Then the store drops responses to fetches started before
+[resetEntireStore()](#resetEntireStore), and an old response doesn't settle a newer fetch of the same key.
+
 ### subscribe(endpoint, ...args) {#subscribe}
 
 Marks a new subscription to a given [Endpoint](https://dataclient.io/rest/api/Endpoint). This should increment the subscription.

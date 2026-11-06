@@ -38,7 +38,6 @@ export default class NetworkManager implements Manager {
   declare readonly dataExpiryLength: number;
   declare readonly errorExpiryLength: number;
   protected controller: Controller = new Controller();
-  declare cleanupDate?: number;
 
   constructor({ dataExpiryLength = 60000, errorExpiryLength = 1000 } = {}) {
     this.dataExpiryLength = dataExpiryLength;
@@ -46,8 +45,13 @@ export default class NetworkManager implements Manager {
   }
 
   middleware: Middleware = controller => {
+    // A new store (like a remounted provider sharing this manager) must not reuse
+    // the old store's fetches: their commits never come, so they never settle.
+    if (controller !== this.controller) this.clearAll();
     this.controller = controller;
     return next => action => {
+      // From an unmounted store using the same manager: keep its actions away from the new store's fetches
+      if (controller !== this.controller) return next(action);
       switch (action.type) {
         case FETCH:
           this.handleFetch(action);
@@ -103,16 +107,15 @@ export default class NetworkManager implements Manager {
   };
 
   /** On mount */
-  init() {
-    delete this.cleanupDate;
-  }
+  init() {}
 
-  /** Ensures all promises are completed by rejecting remaining. */
-  cleanup() {
-    // ensure no dispatches after unmount
-    // this must be reversible (done in init) so useEffect() remains symmetric
-    this.cleanupDate = Date.now();
-  }
+  /** When the provider unmounts or is hidden (like by React <Activity>)
+   *
+   * Effect cleanup can't tell hiding from unmounting, so fetches in flight still resolve.
+   * Responses after cleanup() were once dropped, because React 16/17 warn about state updates
+   * after unmount (#1085). Now React 18+ ignores such an update, and useEnhancedReducer drops it on 16/17.
+   */
+  cleanup() {}
 
   /** Used by DevtoolsManager to determine whether to log an action */
   skipLogging(action: ActionTypes) {
@@ -143,7 +146,6 @@ export default class NetworkManager implements Manager {
   }
 
   protected getLastReset() {
-    if (this.cleanupDate) return this.cleanupDate;
     return this.controller.getState().lastReset;
   }
 
@@ -158,6 +160,8 @@ export default class NetworkManager implements Manager {
   protected handleFetch(action: FetchAction) {
     const { resolve, reject, fetchedAt } = action.meta;
     const throttle = !action.endpoint.sideEffect;
+    // Resolve into the store that started the fetch, even if it unmounted and a new store uses this manager
+    const controller = this.controller;
 
     const deferedFetch = () => {
       let promise = action.endpoint(...action.args);
@@ -193,7 +197,7 @@ export default class NetworkManager implements Manager {
 
           // don't update state with promises started before last clear
           if (fetchedAt >= lastReset) {
-            this.controller.resolve(action.endpoint, {
+            controller.resolve(action.endpoint, {
               args: action.args,
               response,
               fetchedAt,
@@ -202,10 +206,9 @@ export default class NetworkManager implements Manager {
           return response;
         })
         .catch(error => {
-          const lastReset = this.getLastReset();
           // don't update state with promises started before last clear
-          if (fetchedAt >= lastReset) {
-            this.controller.resolve(action.endpoint, {
+          if (fetchedAt >= this.getLastReset()) {
+            controller.resolve(action.endpoint, {
               args: action.args,
               response: error,
               fetchedAt,
@@ -231,9 +234,11 @@ export default class NetworkManager implements Manager {
    * Will resolve the promise associated with set key.
    */
   protected handleSet(action: SetResponseAction) {
-    // this can still turn out to be untrue since this is async
-    if (this.fetching.has(action.key)) {
-      const { reject, resolve } = this.fetching.get(action.key) as FetchingMeta;
+    const fetchMeta = this.fetching.get(action.key);
+    // this can still turn out to be untrue since this is async.
+    // A response to an older fetch (like one before a reset) must not settle a newer one
+    if (fetchMeta && action.meta.fetchedAt >= fetchMeta.fetchedAt) {
+      const { reject, resolve } = fetchMeta;
       if (action.error) {
         reject(action.response);
       } else {

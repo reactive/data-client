@@ -1149,7 +1149,6 @@ declare class NetworkManager implements Manager {
     readonly dataExpiryLength: number;
     readonly errorExpiryLength: number;
     protected controller: Controller;
-    cleanupDate?: number;
     constructor({ dataExpiryLength, errorExpiryLength }?: {
         dataExpiryLength?: number | undefined;
         errorExpiryLength?: number | undefined;
@@ -1157,7 +1156,12 @@ declare class NetworkManager implements Manager {
     middleware: Middleware;
     /** On mount */
     init(): void;
-    /** Ensures all promises are completed by rejecting remaining. */
+    /** When the provider unmounts or is hidden (like by React <Activity>)
+     *
+     * Effect cleanup can't tell hiding from unmounting, so fetches in flight still resolve.
+     * Responses after cleanup() were once dropped, because React 16/17 warn about state updates
+     * after unmount (#1085). Now React 18+ ignores such an update, and useEnhancedReducer drops it on 16/17.
+     */
     cleanup(): void;
     /** Used by DevtoolsManager to determine whether to log an action */
     skipLogging(action: ActionTypes): boolean;

@@ -15,6 +15,13 @@ One concern per Manager; compose many small managers (e.g. transport, subscripti
 
 Every Manager defines a `middleware` property and a `cleanup()` method. A Manager with nothing to intercept passes actions through: `middleware: Middleware = controller => next => async action => next(action);`
 
+Start timers, intervals and connections in `init()`, and stop them in `cleanup()`. `cleanup()` pauses Managers without ending the store: React StrictMode and `<Activity>` hiding `DataProvider` call `cleanup()` and later `init()` on the same store, and actions keep arriving in between. So:
+
+- Keep the controller from `middleware` (`this.controller = controller`) to use in `init()`. Read state there with `this.controller.getState()`: `init(state)` gets the initial state, even on resume.
+- Don't reset state about the store, like fetches in flight, in `cleanup()`.
+- Guard side effects in `middleware` with a field `cleanup()` clears, like `this.channel?.postMessage()`.
+- A different controller in `middleware` means the old store unmounted and a new one uses this Manager: reset state about the old store there.
+
 ## Use cases
 
 Minimal working examples for each use case live in [references/managers.md](references/managers.md) (see the named section) unless another file is linked:
@@ -30,7 +37,7 @@ Minimal working examples for each use case live in [references/managers.md](refe
 | Offline persistence (IndexedDB)             | "Offline persistence" in [managers.md](references/managers.md)                    | debounced IndexedDB write of `controller.getState()` (drop `optimistic` - not cloneable); restore via DataProvider `initialState`. Never use localStorage (blocking) |
 | Websocket/SSE push streams                  | "Middleware data stream" in [managers.md](references/managers.md)                 | `controller.set()` on message; connect in `init()`, close in `cleanup()`                                                                                             |
 | High-frequency streams / snapshots          | "Batching high-frequency updates" in [managers.md](references/managers.md)        | buffer, then one `controller.set([Entity], rows)` per flush                                                                                                          |
-| Polling/interval updates (ticker)           | "Dispatching Actions" in [Manager.md](references/Manager.md); `TimeManager` below | `setInterval` + `controller.set()`                                                                                                                                   |
+| Polling/interval updates (ticker)           | "Dispatching Actions" in [Manager.md](references/Manager.md); `TimeManager` below | `setInterval` in `init()` + `controller.set()`                                                                                                                       |
 | Custom transport subscriptions              | "Reading and Consuming Actions" in [Manager.md](references/Manager.md)            | consume `SUBSCRIBE`/`UNSUBSCRIBE` without calling `next`                                                                                                             |
 | Auth: logout on 401, reset store on deauth  | [LogoutManager.md](references/LogoutManager.md)                                   | `handleLogout(controller)` + `controller.resetEntireStore()`                                                                                                         |
 
@@ -56,19 +63,23 @@ ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.inv
 ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 
 ```ts
-import type { Manager, Middleware } from '@data-client/react'; // or '@data-client/vue'
+import type { Controller, Manager, Middleware } from '@data-client/react'; // or '@data-client/vue'
 import CurrentTime from './CurrentTime';
 
 export default class TimeManager implements Manager {
+  declare protected controller: Controller;
   declare protected intervalID?: ReturnType<typeof setInterval>;
 
   middleware: Middleware = controller => {
-    this.intervalID = setInterval(() => {
-      controller.set(CurrentTime, { id: 1 }, { id: 1, time: Date.now() });
-    }, 1000);
-
+    this.controller = controller;
     return next => async action => next(action);
   };
+
+  init() {
+    this.intervalID = setInterval(() => {
+      this.controller.set(CurrentTime, { id: 1 }, { id: 1, time: Date.now() });
+    }, 1000);
+  }
 
   cleanup() {
     clearInterval(this.intervalID);

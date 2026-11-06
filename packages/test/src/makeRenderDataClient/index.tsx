@@ -90,7 +90,8 @@ export default function makeRenderDataHook(
     const managers = [nm, sm];
     const cleanup = () => {
       activeCleanups.delete(cleanup);
-      nm.cleanupDate = Infinity;
+      // NetworkManager resolves responses that land after cleanup(), so settle in-flight fetches here
+      // to keep them out of the next test.
       if ((nm as any)['rejectors'])
         Object.values((nm as any)['rejectors'] as Record<string, any>).forEach(
           rej => {
