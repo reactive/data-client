@@ -29,30 +29,27 @@ Accepted limitations (intentional; don't "fix"):
 
 ## React Native memo
 
-`src/memo/WeakDependencyMap.native.ts` replaces `WeakDependencyMap.ts` in React Native builds. Both export the same API. Keep them in step: a change to one needs the same change, or a reason it does not apply, in the other.
+In React Native builds, `src/memo/WeakDependencyMap.native.ts`, `MemoCache.native.ts` and `globalCache.native.ts` replace the web files, and `@data-client/react` uses `src/components/DataStore.native.tsx`. Each pair exports the same API (the native `MemoCache` adds `commit()`). Keep them in step: a change to one needs the same change, or a reason it does not apply, in the other.
 
 - **Why.** Hermes resolves nested `WeakMap`s one level per stop-the-world marking pass, and each pass rescans every `WeakMap` entry in the heap. The web memo nests one `WeakMap` per dependency, so a result with N dependencies costs N passes per old-generation collection (0.5–3s freezes with a few thousand entities). The native memo keeps one `WeakMap` level: the first dependency is the key, and the rest are stored on the entry and compared with `===` on `get`. `argsKey` results branch on a `Map`, one branch per `argsKey` fn.
-- **Bounded retention.** Invariant 5 changes on native: a value lives only while its first dependency is reachable, and each (first dependency, `argsKey` results) keeps at most `MAX_ENTRIES` (6) values, most recently used first. One of them is never evicted: the value the store last flipped back to (a read of a value that is not the newest), or the first value until a flip happens. Each entry can hold a whole stale result, so a larger cap costs memory while a large result streams (`memo-tradeoffs` in #4459: about 3.8 MB per entry for 3,736 symbols).
+- **Bounded retention.** Invariant 5 changes on native: a value lives only while its first dependency is reachable, and each (first dependency, `argsKey` results) keeps at most three values: the newest, the one a committed render last read (`committed`), and the one a committed render of a store with no optimistic updates last read (`settled`). Usually they are the same value, so a streaming result keeps about one stale copy. `DataStore.native.tsx` calls `MemoCache.commit(entities, settled)` from an effect, which never runs for a discarded render. `MemoCache` remembers which entries each store's reads used (one per node), and `commit()` pins them through `WeakDependencyMap.keep()`. Reads of the store that already committed pin at once. Without `commit()` (a custom `DataProvider`, or `MemoCache` used directly), only the newest value stays.
 - **Build.** `babel.config.js` rewrites `./x.js` imports to `./x.native.js` when `COMPILE_TARGET=native` and the file exists. `build:native:lib` uses this to make `native/` (ESM, for Metro `import`), and `build:js:native` to make `dist/normalizr.native.js` (CommonJS, for `require`: `@data-client/core` and the React Native Jest preset). The `react-native` export condition is listed before `import` and `require`, because Metro and the React Native Jest preset take the first condition that matches, and they always match `import` or `require`. Both builds load `INVALID` from one CommonJS file, `dist/symbol.native.js` (`build:js:native` overwrites `native/denormalize/symbol.js` to re-export it), so an app that imports normalizr while core requires it has one `INVALID`. Keep other identity-sensitive module state out of the native builds, or share it the same way. `lib/` and `legacy/` also contain `WeakDependencyMap.native.js`, but no web file imports it.
-- **Tests.** `src/__tests__/WeakDependencyMap.native.ts` runs in the ReactNative Jest project, which resolves `.native.ts` first. Keep `MAX_ENTRIES` in that file equal to the source.
+- **Shared state.** The commit bookkeeping lives on each `MemoCache` instance, and pins live on that instance's nodes. Two normalizr copies load in Metro (core requires the CommonJS one, the app imports the ESM one), but the `Controller`'s memo and every entry it pins come from core's copy, so nothing new needs sharing.
+- **Tests.** `src/__tests__/WeakDependencyMap.native.ts`, `src/__tests__/MemoCache.native.ts` and `packages/react/src/components/__tests__/provider.native.tsx` run in the ReactNative Jest project, which resolves `.native.ts` first.
 
 ### When a native read gets a new object
 
-On the web, a read of entity versions that the memo already saw always returns the same object while those entities are alive. On native, it returns a new, equal object in these cases only:
+On the web, a read of entity versions that the memo already saw always returns the same object while those entities are alive. On native, it returns a new, equal object in these cases only. Each costs one recompute; the data is never wrong.
 
-1. **Too many newer versions.** Since the last read of a version, `MAX_ENTRIES - 1` (5) or more other versions of the same result (same first dependency and `argsKey` results) were computed, and the version is not the kept one. In React this needs five or more one-off renders between two reads of one committed store, for example many transition retries or optimistic updates in flight while the committed store is not read.
+1. **Uncommitted reads that alternate between store versions.** A version that no committed render read is kept only while it is the newest. Reads that switch between two or more such versions miss each time, for example renders that React discards, or `getResponse()` outside render against a store other than the rendered one. A committed store is pinned, so urgent renders during a pending transition, and rollbacks of optimistic updates, still hit.
 2. **Too many `argsKey` routes.** A first dependency gets more than `MAX_FORKS` (8) extra `argsKey` branches. This happens only when missing entities change which `argsKey` a computation reaches first. The memo then drops every value under that first dependency.
 
-Measured with `packages/react/src/__tests__/concurrent-memo.web.tsx` and the native memo in place of the web one (3,000 random runs with up to 16 optimistic updates and 8 transitions in flight on 3 rows, plus the scripted scenarios):
+Measured with `packages/react/src/__tests__/concurrent-memo.web.tsx` and the native memo in place of the web one (3,000 random runs on 3 rows with up to 2, or up to 16, optimistic updates in flight, plus the 16 scripted scenarios at 1 and 2 consumers):
 
-| `MAX_ENTRIES` | committed reads that miss | all reads that miss | scripted scenarios with a committed miss |
+| memo | committed reads that miss (≤2 / ≤16) | all reads that miss (≤2 / ≤16) | scripted scenarios with a miss |
 | --- | --- | --- | --- |
-| 4 | 0.027% (157 of 584,584) | 0.28% | 4 |
-| **6** | **0.007% (41 of 584,584)** | **0.13%** | **1** |
-| 8 | 0.003% (15 of 584,584) | 0.075% | 1 |
-| web | 0 | 0 | 0 |
-
-The scripted scenario that still misses at 6 (and at 8, 10 and 12) is "ten optimistic updates rolled back, after a transition committed and two later writes": the kept value is from before the transition, and the ten updates compute more than five versions before the store returns to the committed one. It misses once per reader.
+| web | 0 / 0 | 0 / 0 | 0 |
+| native | 0 / 0 | 0.19% / 0.87% | 0 |
 
 ## Schema-tree traversal pattern
 
