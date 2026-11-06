@@ -74,8 +74,11 @@ export function render18Wrapper<
     ...options,
     wrapper,
   });
+  // enumerable, so spreading the result (`{ ...renderHook() }`) keeps every member
   const ret: RenderHookResult<Result, Props> = Object.create(render18Result, {
+    unmount: { value: render18Result.unmount, enumerable: true },
     result: {
+      enumerable: true,
       value: {
         get current(): any {
           return render18Result.result.current === null ?
@@ -88,15 +91,18 @@ export function render18Wrapper<
       },
     },
     rerender: {
+      enumerable: true,
       value: (props?: any) => {
         renderProps = props;
         render18Result.rerender(props);
       },
     },
     waitFor: {
+      enumerable: true,
       value: waitFor,
     },
     waitForNextUpdate: {
+      enumerable: true,
       value: async (options?: waitForOptions) => {
         const previousCurrent = ret.result.current;
         const prevError = error;

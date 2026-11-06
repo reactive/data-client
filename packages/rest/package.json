@@ -138,10 +138,10 @@
   "scripts": {
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' POLYFILL_TARGETS='chrome>88,safari>14' yarn g:babel --out-dir lib && NODE_ENV=production BROWSERSLIST_ENV='2020' yarn g:rollup",
     "build:legacy:lib": "NODE_ENV=production BROWSERSLIST_ENV='2018' POLYFILL_TARGETS='chrome>80,safari>13,firefox>72' yarn g:babel --out-dir legacy",
-    "build:native:lib": "COMPILE_TARGET=native NODE_ENV=production BROWSERSLIST_ENV='hermes12' yarn g:babel --out-dir native",
+    "build:native:lib": "yarn g:babel-native --extensions '.ts,.tsx,.cts,.js'",
     "build:js:node": "BROWSERSLIST_ENV=node12 yarn g:rollup",
     "build:js:browser": "BROWSERSLIST_ENV=legacy yarn g:rollup",
-    "build:js:native": "COMPILE_TARGET=native BROWSERSLIST_ENV=node12 yarn g:rollup",
+    "build:js:native": "yarn g:rollup-native",
     "build:bundle": "yarn g:runs build:js:\\* && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:clean": "yarn g:clean ts4.0 ts4.1 index.d.ts next.d.ts native",
     "build:legacy-types": "yarn g:legacy-types 4.1 4.0",

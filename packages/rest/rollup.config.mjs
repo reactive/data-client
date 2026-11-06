@@ -11,6 +11,7 @@ import {
   typeConfig,
   typeConfigNext,
   onwarn,
+  nativeOrNormalPath,
   resolveTsAsJs,
 } from 'rollup-plugins';
 
@@ -23,11 +24,6 @@ const dependencies = Object.keys(pkg.dependencies).filter(
 const extensions = ['.ts', '.tsx', '.js', '.mjs', '.json', '.node'];
 const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
-// React Native Jest (runs in Node; does not compile node_modules): `.native` sources
-// (see babel.config.js) as CommonJS for Node. Metro loads the ESM `native/` build instead.
-const isNative = process.env.COMPILE_TARGET === 'native';
-const nativeOrNormalPath = file =>
-  isNative ? file.replace(/\.js$/, '.native.js') : file;
 
 function isExternal(id) {
   return dependencies.some(dep => dep === id || id.startsWith(dep));
@@ -87,7 +83,7 @@ if (process.env.BROWSERSLIST_ENV === '2020') {
       json(),
     ],
   });
-} else if (process.env.BROWSERSLIST_ENV !== 'node12' && !isNative) {
+} else if (process.env.BROWSERSLIST_ENV !== 'node12') {
   //TODO: this needs to use src/index.ts so it doesn't include the wrong polyfills
   // browser-friendly UMD build
   configs.push({

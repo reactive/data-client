@@ -173,16 +173,16 @@
   "scripts": {
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' POLYFILL_TARGETS='chrome>88,safari>14' POLYFILL_TARGETS='chrome>88,safari>14' yarn g:babel --out-dir lib",
     "build:legacy:lib": "NODE_ENV=production BROWSERSLIST_ENV='2018' POLYFILL_TARGETS='chrome>80,safari>13,firefox>72' POLYFILL_TARGETS='chrome>80,safari>13,firefox>72' yarn g:babel --out-dir legacy",
-    "build:native:lib": "COMPILE_TARGET=native NODE_ENV=production BROWSERSLIST_ENV='hermes12' yarn g:babel --out-dir native && echo \"export { StateContext, ControllerContext, StoreContext } from '../dist/context.native.js';\" > native/context.js",
+    "build:native:lib": "yarn g:babel-native --extensions '.ts,.tsx,.cts,.js'",
     "build:js:node": "BROWSERSLIST_ENV=node12 yarn g:rollup",
     "build:js:browser": "BROWSERSLIST_ENV=legacy yarn g:rollup",
-    "build:js:native": "COMPILE_TARGET=native BROWSERSLIST_ENV=node12 yarn g:rollup",
+    "build:js:native": "yarn g:rollup-native",
     "build:bundle": "yarn g:runs build:js:\\* && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:clean": "yarn g:clean index.d.ts next.d.ts native",
     "build": "run build:lib && run build:legacy:lib && run build:native:lib && run build:bundle",
     "dev": "run build:lib -w",
     "prepare": "run build:lib",
-    "prepack": "run prepare && run build:legacy:lib && run build:bundle && node ../../scripts/pack-skills.mjs"
+    "prepack": "run prepare && run build:legacy:lib && run build:native:lib && run build:bundle && node ../../scripts/pack-skills.mjs"
   },
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "funding": "https://github.com/sponsors/ntucker",

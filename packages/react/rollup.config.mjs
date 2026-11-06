@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import {
   babel,
@@ -11,6 +12,8 @@ import {
   typeConfig,
   typeConfigNext,
   onwarn,
+  isNative,
+  nativeOrNormalPath,
 } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
@@ -26,50 +29,49 @@ const peers = Object.keys(pkg.peerDependencies);
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node', '.jsx'];
 const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
-// React Native Jest (runs in Node; does not compile node_modules): `.native` sources
-// (see babel.config.js) as CommonJS for Node. Metro loads the ESM `native/` build instead.
-const isNative = process.env.COMPILE_TARGET === 'native';
 
-function isExternal(id) {
+// Entry files other entries load instead of bundling a copy (src -> dist).
+// React Native: the contexts are one CommonJS file that both the ESM `native/` build (Metro
+// `import`) and `dist/*.native.js` (Jest, `require()`) load, so an app has one set of contexts.
+const nativeContext = 'dist/context.native.js';
+const siblings = Object.fromEntries(
+  Object.entries({
+    'src/index.js': nativeOrNormalPath('dist/index.js'),
+    ...(isNative && { 'src/context.js': nativeContext }),
+  }).map(([src, dist]) => [path.resolve(src), dist]),
+);
+
+function isExternal(id, importer) {
   return (
-    // when we import contexts in our other entry points
-    id === '../../index.js' ||
-    id === '../index.js' ||
+    (importer &&
+      id.startsWith('.') &&
+      path.resolve(path.dirname(importer), id) in siblings) ||
     id === 'react-native' ||
     dependencies.some(dep => dep === id || id.startsWith(dep))
   );
 }
-// React contexts must be one instance per app. Metro `import`s the ESM `native/` build and
-// Jest (or a `require()`) loads the CommonJS one, so both load the contexts from this file.
-const nativeContext = 'dist/context.native.js';
-const srcContext = path.resolve('src/context.js');
-const shareNativeContext = {
-  name: 'share-native-context',
-  resolveId(source, importer) {
-    if (
-      importer &&
-      source.endsWith('/context.js') &&
-      path.resolve(path.dirname(importer), source) === srcContext
-    )
-      return { id: srcContext, external: true };
-    return null;
-  },
-};
-// native entries must share the native index and contexts
-function nativePaths(output) {
-  const relativeTo = file => {
-    const relative = path.relative(path.dirname(output), file);
+/** Require siblings by their dist path, relative to `output` */
+function siblingPaths(output) {
+  return id => {
+    if (!(id in siblings)) return id;
+    const relative = path.relative(path.dirname(output), siblings[id]);
     return relative.startsWith('.') ? relative : `./${relative}`;
   };
-  const targets = {
-    [path.resolve('src/index.js')]: relativeTo('dist/index.native.js'),
-    [srcContext]: relativeTo(nativeContext),
-  };
-  return id => targets[id] ?? id;
 }
+/** native/ (Babel ESM) re-exports the shared contexts */
+const writeNativeContext = {
+  name: 'write-native-context',
+  writeBundle() {
+    fs.mkdirSync('native', { recursive: true });
+    fs.writeFileSync(
+      'native/context.js',
+      `export * from '${path.relative('native', nativeContext)}';\n`,
+    );
+  },
+};
 
 const configs = [];
-if (process.env.BROWSERSLIST_ENV !== 'node12' && !isNative) {
+if (process.env.BROWSERSLIST_ENV !== 'node12') {
   // browser-friendly UMD build
   configs.push({
     input: 'src/index.ts',
@@ -122,58 +124,41 @@ if (process.env.BROWSERSLIST_ENV !== 'node12' && !isNative) {
     input: './lib/server/redux/index.d.ts',
     output: [{ file: 'redux.d.ts', format: 'es' }],
   });
-} else if (isNative) {
-  [
-    { input: 'src/context.ts', output: nativeContext },
-    { input: 'src/index.ts', output: 'dist/index.native.js' },
-    { input: 'src/next/index.ts', output: 'dist/next.native.js' },
-    {
-      input: 'src/server/redux/index.ts',
-      output: 'dist/server/redux/index.native.js',
-    },
-  ].forEach(({ input, output }) => {
+} else {
+  // node-friendly (or React Native Jest) commonjs build
+  (isNative ?
+    [
+      { input: 'src/context.ts', output: nativeContext },
+      { input: 'src/index.ts', output: pkg.main },
+      { input: 'src/next/index.ts', output: 'dist/next.js' },
+      {
+        input: 'src/server/redux/index.ts',
+        output: 'dist/server/redux/index.js',
+      },
+    ]
+  : [
+      { input: 'src/index.ts', output: pkg.main },
+      { input: 'src/next/index.ts', output: 'dist/next.js' },
+      { input: 'src/server/index.ts', output: 'dist/server/index.js' },
+      {
+        input: 'src/server/redux/index.ts',
+        output: 'dist/server/redux/index.js',
+      },
+      { input: 'src/mock/index.ts', output: 'dist/mock.js' },
+    ]
+  ).forEach(({ input, output }) => {
+    const file = output === nativeContext ? output : nativeOrNormalPath(output);
     configs.push({
       input,
       external: isExternal,
       output: [
         {
-          file: output,
+          file,
           format: 'cjs',
           inlineDynamicImports: true,
-          paths: nativePaths(output),
+          paths: siblingPaths(file),
         },
       ],
-      onwarn,
-      plugins: [
-        babel({
-          exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
-          extensions,
-          rootMode: 'upward',
-          babelHelpers: 'runtime',
-        }),
-        replace({ 'process.env.CJS': 'true', preventAssignment: true }),
-        shareNativeContext,
-        resolve({ extensions }),
-        commonjs({ extensions }),
-      ],
-    });
-  });
-} else {
-  // node-friendly commonjs build
-  [
-    { input: 'src/index.ts', output: pkg.main },
-    { input: 'src/next/index.ts', output: 'dist/next.js' },
-    { input: 'src/server/index.ts', output: 'dist/server/index.js' },
-    {
-      input: 'src/server/redux/index.ts',
-      output: 'dist/server/redux/index.js',
-    },
-    { input: 'src/mock/index.ts', output: 'dist/mock.js' },
-  ].forEach(({ input, output }) => {
-    configs.push({
-      input,
-      external: isExternal,
-      output: [{ file: output, format: 'cjs', inlineDynamicImports: true }],
       onwarn,
       plugins: [
         babel({
@@ -185,8 +170,9 @@ if (process.env.BROWSERSLIST_ENV !== 'node12' && !isNative) {
         replace({ 'process.env.CJS': 'true', preventAssignment: true }),
         resolve({ extensions: nativeExtensions }),
         commonjs({ extensions: nativeExtensions }),
+        ...(output === nativeContext ? [writeNativeContext] : []),
         // for nextjs 13 compatibility in node https://nextjs.org/docs/app/building-your-application/rendering
-        banner(() => "'use client';\n"),
+        ...(isNative ? [] : [banner(() => "'use client';\n")]),
       ],
     });
   });
