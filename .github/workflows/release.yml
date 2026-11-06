@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - master
+  # Publishes a snapshot of the chosen branch under npm's `beta` tag, like
+  # 0.19.0-beta-<datetime>-<sha>. It commits nothing. npm trusts only this
+  # workflow file to publish, so betas run here instead of their own file.
+  workflow_dispatch:
 
 # Queue every run instead of cancelling pending ones (red on the branch), in
 # one queue with maintenance branches, so each reads npm's `latest` after the
@@ -18,6 +22,7 @@ permissions:
 jobs:
   release:
     name: Release
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     outputs:
       archive-version: ${{ steps.archive.outputs.version }}
@@ -83,6 +88,35 @@ jobs:
             echo "version=$prev"
             echo "ref=$([ -n "$current" ] && jq -r .ref "$cur" || echo "@data-client/react@$old")"
           } >> "$GITHUB_OUTPUT"
+
+  beta:
+    name: Beta
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+          cache: 'yarn'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Install packages
+        run: ./scripts/ci-install.sh
+
+      - name: Version
+        run: |
+          yarn changeset:version:beta
+          # with no changesets nothing changes, and publishing would skip every
+          # package while reporting success
+          ! git diff --quiet -- 'packages/*/package.json' ||
+            { echo "::error::No changesets to release"; exit 1; }
+
+      - name: Publish to npm
+        run: yarn changeset:publish:beta
 
   docs-archive:
     needs: release
