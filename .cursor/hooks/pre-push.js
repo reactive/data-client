@@ -96,7 +96,7 @@ function isBundledSkillFile(file) {
  * package TypeScript (not tests), tsc config, the copied dependencies and the
  * scripts `scripts/copywebsitetypes.sh` runs */
 const isEditorTypesInput = file =>
-  (/^packages\/[^/]+\/src\/.*\.tsx?$/.test(file) &&
+  (/^packages\/[^/]+\/src\/.*\.[cm]?tsx?$/.test(file) &&
     !/\/__tests__\//.test(file)) ||
   /(^|\/)tsconfig[^/]*\.json$/.test(file) ||
   /^scripts\/(copywebsitetypes\.sh|strip-dts-comments\.mjs|globals\.ts|rollup-plugins\/)/.test(
@@ -152,13 +152,17 @@ function regenerate({
   try {
     execFileSync(argv[0], argv.slice(1), {
       cwd: projectDir,
-      stdio: ['ignore', 'ignore', 'pipe'],
+      stdio: ['ignore', 'pipe', 'pipe'],
       // yarn is a .cmd shim on Windows
       shell: process.platform === 'win32',
     });
   } catch (err) {
-    // a generator that couldn't start (no yarn on PATH, say) has no stderr
-    problems = String(err.stderr || err.message).trim();
+    // tsc reports on stdout; a generator that couldn't start (no yarn on
+    // PATH, say) has neither
+    problems =
+      String(err.stderr ?? '').trim() ||
+      String(err.stdout ?? '').trim() ||
+      err.message;
   }
   // includes output generated earlier but never committed
   const uncommitted =

@@ -358,3 +358,27 @@ test('package tests do not regenerate editor types', () => {
     assert.doesNotMatch(push(root, 'git push', env), typesHeld);
   });
 });
+
+test('a tsconfig change regenerates editor types', () => {
+  withRepo((root, git) => {
+    const env = typesBranch(root, git);
+    write(root, 'packages/core/tsconfig.json', '{}\n');
+    git('add', '-A');
+    git('commit', '-m', 'tsconfig');
+    assert.match(push(root, 'git push', env), typesHeld);
+  });
+});
+
+test('a generator that fails with no output holds the push', () => {
+  withRepo((root, git) => {
+    const env = typesBranch(root, git);
+    write(root, 'node_modules/.fake-bin/yarn', '#!/bin/sh\nexit 1\n');
+    write(root, 'packages/core/tsconfig.json', '{}\n');
+    git('add', '-A');
+    git('commit', '-m', 'tsconfig');
+    assert.match(
+      push(root, 'git push', env),
+      /`yarn copy:websitetypes` found problems[^]*Command failed/,
+    );
+  });
+});
