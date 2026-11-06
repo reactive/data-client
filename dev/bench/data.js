@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793906983716,
+  "lastUpdate": 1793998966688,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -140137,6 +140137,366 @@ window.BENCHMARK_DATA = {
             "range": "±1.96%",
             "unit": "ops/sec",
             "extra": "96 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6855822af2adcb024495a2394bcb7ce7bf7918ac",
+          "message": "fix: Support Activity above DataProvider (#4593)\n\n* fix: Keep DataProvider working while hidden by <Activity>\n\nA hidden <Activity> runs Effect cleanup without unmounting. NetworkManager\ndropped responses that landed after cleanup(), and useEnhancedReducer dropped\nevery dispatch until its Effect ran again, so useSuspense() stayed suspended,\noptimistic updates never settled, controller.fetch() while hidden never\nresolved, and useSubscription() never resubscribed on show.\n\n- NetworkManager resolves responses that land after cleanup(); cleanupDate\n  is deprecated.\n- useEnhancedReducer drops dispatches after unmount only on React 16/17,\n  which warn about them; newer React ignores them itself.\n- NetworkManager drops a previous store's fetches when it is bound to a new\n  controller, so a remount with shared managers doesn't reuse them.\n\nFixes REACT-23\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* internal: Simplify Activity tests; document Manager init/cleanup under Activity\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs(blog): Note DataProvider in <Activity> fix\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* internal: Regenerate editor types and skill references; React-only Manager note\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* fix: Resolve a response only into the store that fetched it\n\nA provider remounted with shared managers could get the unmounted store's\nlate response, which then settled the new store's fetch of the same key.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* internal: Framework-neutral NetworkManager.cleanup() doc\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* internal: Pass the dispatching store's controller into handleFetch; ignore legacy-only guard in coverage\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Announce NetworkManager.cleanupDate deprecation\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* test: Check the new store's fetch isn't settled by the old store's response\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* internal: Tighten remount test assertion; link NetworkManager docs\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* internal: Ignore handleFetch's fallback controller in coverage\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* internal: Drop late responses once a new store binds the NetworkManager\n\nhandleFetch() captures the bound controller and skips the response or\nerror when a remounted provider has bound a new one since. This replaces\nthe controller parameter, so overrides calling super.handleFetch(action)\n(as the docs show) stay safe. Covers late errors as well as responses.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* internal: Keep stale-store fetches and pre-reset responses out of the store\n\n- A FETCH dispatched through a store that a remounted provider replaced\n  still sends its request and resolves the caller, but its response no\n  longer lands in the new store.\n- The reducer drops a SET_RESPONSE whose fetch started before the last\n  reset. NetworkManager reads lastReset from committed state, which a\n  hidden <Activity> doesn't update, so a reset while hidden could be\n  undone by a response landing before show.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* internal: Inline NetworkManager's bound-store check to skip a closure per fetch\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* test: Expect React 16/17 to drop a fetch from the unmounted store\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* internal: Don't settle a fetch with a response to an older one\n\nNetworkManager.handleSet() now resolves the in-flight fetch only when the\nresponse's fetchedAt is at least the fetch's. A pre-reset response the\nreducer drops could otherwise settle a fetch started after the reset.\nAdds core unit tests for that, the stale-store fetch and the reducer's\nreset check, and mentions the reset behavior in the changeset.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* internal: Ignore a replaced store's reset in NetworkManager\n\nA RESET from a store that a remounted provider replaced no longer clears\nthe bound store's in-flight fetches, which would otherwise never settle.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Say which fetchedAt controller.resolve() needs\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Word the resolve() rule around requests sent, not fetches\n\nA fetch deduped onto an in-flight request shares that request's\nresponse, so the rule is about requests sent after the response's own.\nThe replaced-store reset test also checks the reset reaches its store.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: State the resolve() ordering in terms of fetchedAt\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Tighten the controller.resolve() fetchedAt note\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* test: Reuse action creators and share remount setup in the Activity tests\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* test: Share the DataProvider tree between Activity test helpers\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Frame the change as supporting Activity above DataProvider\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Keep recommending DataProvider at the root\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* internal: Add the PR #4593 diagram (removed in the next commit)\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* feat!: Manager.cleanup() no longer means the store is gone\n\nMark the Manager lifecycle change as breaking: a changeset, a v0.19\nmigration section, Manager docs and skill guidance (start timers and\nconnections in init()), and a clock-manager eval.\n\nAdd why-comments for the old cleanupDate and dispatch-drop behavior\n(React 16/17 unmount warning, #1085). Fix docs that assumed cleanup()\nends the store: the cross-tab example opens its channel in init(), and\nNetworkManager.clear()/clearAll() say their promises no longer settle.\n\nRemove the PR diagram; the PR links it by commit.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Fix generated types and the cross-tab example type check\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Address review of the Manager lifecycle change\n\nThe README StreamManager connects in init(), clearAll()/clear() docs say\nthey don't settle promises, the cleanupDate history moves to cleanup(),\nand the websocket eval expects the socket to open in init().\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Describe Manager cleanup() as a pause\n\nRewrite the Manager init()/cleanup() docs around the new invariants: the\nstore keeps applying actions while paused, and a new controller means a\nnew store. Add a NetworkManager cleanup() section on which responses\ncount, and say what hiding a DataProvider pauses.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* fix: Shrink NetworkManager's replaced-store handling\n\nOne check at the top of the middleware passes a replaced store's actions\non, instead of separate FETCH and RESET checks and still-bound checks on\nevery response. A late response resolves into the store that started it;\nthat store's middleware no longer reaches the shared fetches. A replaced\nstore's fetch is no longer sent, like any action to a store that is gone.\n\nDocs: Manager init()/cleanup() follow the Effect lifecycle; fix the\nNetworkManager cleanup() wording and say replaced-store promises never\nsettle.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* feat!: Remove NetworkManager.cleanupDate\n\nNothing reads it since responses after cleanup() are resolved, so remove\nit now instead of in a later release. The changeset and the v0.19\nmigration guide note the removal.\n\nSay \"unmounted store using the same manager\" instead of \"replaced\nstore\". Add tests: an unmounted store's response can't settle the new\nstore's fetch, and an error for a fetch started before a reset is\ndropped.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Split the Manager remount sentence; reuse bind() in the reset error test\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Prefer DataProvider above Activity\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Say when Activity sits above DataProvider\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Tighten Manager lifecycle wording\n\nOne term per concept (Managers pause/resume; fetch, not request),\nresolve the 'store stops' vs 'store keeps applying actions' conflict,\nmove NetworkManager's reset and controller rules under middleware,\nreplace 'keep state' with 'Don't reset state ... in cleanup()', and\nnote init(state) gets the initial state even on resume.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* test: Cover StrictMode remounts and late responses after unmount\n\nGuards what cleanupDate used to protect (#1085, #2096): a response after\na real unmount logs no errors (React 16/17 run in CI), and StrictMode's\ndouble render and Effects keep NetworkManager on the store that renders.\n\nAlso: Vue-safe Manager lifecycle wording, 'now' passes actions in the\nchangeset/blog, and the real reason NetworkManager.cleanup() stops nothing.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Per-framework Manager init/cleanup wording; clearer late-response test\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-06T20:56:21Z",
+          "tree_id": "9954ab56d7bb3064c8c2491bf3a491855b7068b8",
+          "url": "https://github.com/reactive/data-client/commit/6855822af2adcb024495a2394bcb7ce7bf7918ac"
+        },
+        "date": 1793998963446,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 425,
+            "range": "±7.82%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 397,
+            "range": "±1.16%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 366,
+            "range": "±3.77%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 888,
+            "range": "±1.34%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 237,
+            "range": "±6.55%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 220,
+            "range": "±5.41%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 980,
+            "range": "±1.01%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing",
+            "value": 263,
+            "range": "±5.83%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null",
+            "value": 262,
+            "range": "±5.67%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID",
+            "value": 273,
+            "range": "±5.50%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 719,
+            "range": "±0.45%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 967,
+            "range": "±1.08%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1414,
+            "range": "±0.53%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 646,
+            "range": "±6.78%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 6759,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 2997,
+            "range": "±1.17%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 58656,
+            "range": "±0.52%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 5602,
+            "range": "±2.30%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 212,
+            "range": "±6.92%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 6557,
+            "range": "±0.96%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 6566,
+            "range": "±0.21%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing withCache",
+            "value": 6103,
+            "range": "±0.32%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null withCache",
+            "value": 6314,
+            "range": "±0.43%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID withCache",
+            "value": 6206,
+            "range": "±0.25%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 4824,
+            "range": "±0.24%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 5889,
+            "range": "±0.29%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 3473,
+            "range": "±0.18%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 5689,
+            "range": "±0.26%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 5883,
+            "range": "±0.49%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1659,
+            "range": "±0.15%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 4382,
+            "range": "±11.79%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 41115,
+            "range": "±1.98%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 4365,
+            "range": "±3.05%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 9432753,
+            "range": "±0.99%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 198,
+            "range": "±7.16%",
+            "unit": "ops/sec",
+            "extra": "72 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 3482,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 2820,
+            "range": "±4.73%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 4157,
+            "range": "±3.77%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 2902,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 4875,
+            "range": "±0.90%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 441,
+            "range": "±0.21%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 255,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 271,
+            "range": "±0.20%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 914,
+            "range": "±4.91%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 154,
+            "range": "±0.48%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 3497,
+            "range": "±0.84%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 15.59,
+            "range": "±0.59%",
+            "unit": "ops/sec",
+            "extra": "43 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 1357,
+            "range": "±3.70%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
           }
         ]
       }
