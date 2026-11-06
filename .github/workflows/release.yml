@@ -110,10 +110,10 @@ jobs:
       - name: Version
         run: |
           yarn changeset:version:beta
-          # with no changesets nothing changes, and publishing would skip every
+          # with no public package to bump, publishing would skip every
           # package while reporting success
           ! git diff --quiet -- 'packages/*/package.json' ||
-            { echo "::error::No changesets to release"; exit 1; }
+            { echo "::error::No pending changesets bump a published package"; exit 1; }
 
       - name: Publish to npm
         run: yarn changeset:publish:beta
