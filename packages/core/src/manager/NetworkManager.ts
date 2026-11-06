@@ -38,11 +38,6 @@ export default class NetworkManager implements Manager {
   declare readonly dataExpiryLength: number;
   declare readonly errorExpiryLength: number;
   protected controller: Controller = new Controller();
-  /** When cleanup() last ran, until the next init(). Still set for code that reads it.
-   *
-   * @deprecated No longer read: responses that land after cleanup() are still resolved.
-   */
-  declare cleanupDate?: number;
 
   constructor({ dataExpiryLength = 60000, errorExpiryLength = 1000 } = {}) {
     this.dataExpiryLength = dataExpiryLength;
@@ -55,7 +50,7 @@ export default class NetworkManager implements Manager {
     if (controller !== this.controller) this.clearAll();
     this.controller = controller;
     return next => action => {
-      // A store a remounted provider replaced is gone: keep its actions away from the bound store's fetches
+      // From an unmounted store using the same manager: keep its actions away from the new store's fetches
       if (controller !== this.controller) return next(action);
       switch (action.type) {
         case FETCH:
@@ -112,9 +107,7 @@ export default class NetworkManager implements Manager {
   };
 
   /** On mount */
-  init() {
-    delete this.cleanupDate;
-  }
+  init() {}
 
   /** When the provider unmounts or is hidden (like by React <Activity>)
    *
@@ -122,9 +115,7 @@ export default class NetworkManager implements Manager {
    * Responses after cleanup() were once dropped, because React 16/17 warn about state updates
    * after unmount (#1085). Now React 18+ ignores such an update, and useEnhancedReducer drops it on 16/17.
    */
-  cleanup() {
-    this.cleanupDate = Date.now();
-  }
+  cleanup() {}
 
   /** Used by DevtoolsManager to determine whether to log an action */
   skipLogging(action: ActionTypes) {
@@ -169,7 +160,7 @@ export default class NetworkManager implements Manager {
   protected handleFetch(action: FetchAction) {
     const { resolve, reject, fetchedAt } = action.meta;
     const throttle = !action.endpoint.sideEffect;
-    // Resolve into the store that started the fetch, even if a remounted provider replaced it
+    // Resolve into the store that started the fetch, even if it unmounted and a new store uses this manager
     const controller = this.controller;
 
     const deferedFetch = () => {

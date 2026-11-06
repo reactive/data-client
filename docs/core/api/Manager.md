@@ -88,8 +88,8 @@ to fetches in flight still arrive, and `middleware` still sees them. So:
 - Keep state about the store, like requests in flight.
 - Guard side effects that `cleanup()` stopped, like `this.channel?.postMessage()`.
 
-When `middleware` gets a different controller, a new store replaced the old one (like a remounted `DataProvider` that
-shares `managers`). Reset state about the old store there. Don't share Managers between two mounted providers.
+When `middleware` gets a different controller, the old store unmounted and a new store uses the same Manager (like a
+remounted `DataProvider` that shares `managers`). Reset state about the old store there. Don't share Managers between two mounted providers.
 
 :::
 

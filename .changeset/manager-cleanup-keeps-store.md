@@ -44,8 +44,8 @@ cleanup() {
 }
 ```
 
-[NetworkManager](https://dataclient.io/docs/api/NetworkManager) resolves responses that arrive after `cleanup()`. `NetworkManager.cleanupDate` is deprecated: nothing reads it now. Delete code that reads or sets it.
+[NetworkManager](https://dataclient.io/docs/api/NetworkManager) resolves responses that arrive after `cleanup()`. `NetworkManager.cleanupDate` is removed, since nothing reads it now. Delete code that reads or sets it.
 
-On React 18 and later, actions dispatched after a `DataProvider` really unmounts now reach its Managers, so a `fetch()` there is sent. React ignores the store update, so promises that wait for it never resolve: `set()`, `setResponse()`, `resetEntireStore()`, and `fetch()` of an endpoint without `sideEffect`. Don't `await` them after unmount. React 16 and 17 still drop these actions.
+On React 18 and later, actions dispatched after a `DataProvider` really unmounts now reach its Managers, so a `fetch()` there is sent. A `fetch()` from an unmounted store using the same Managers as a new `DataProvider` is not sent. React ignores the store update, so promises that wait for it never resolve: `set()`, `setResponse()`, `resetEntireStore()`, and `fetch()` of an endpoint without `sideEffect`. Don't `await` them after unmount. React 16 and 17 still drop these actions.
 
 Why: `cleanup()` used to stop dispatches because React 16/17 warn about state updates after unmount. React 18 removed that warning, and an Effect cleanup can't tell hiding from unmounting.

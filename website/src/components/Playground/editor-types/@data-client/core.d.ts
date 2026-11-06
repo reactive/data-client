@@ -1149,11 +1149,6 @@ declare class NetworkManager implements Manager {
     readonly dataExpiryLength: number;
     readonly errorExpiryLength: number;
     protected controller: Controller;
-    /** When cleanup() last ran, until the next init(). Still set for code that reads it.
-     *
-     * @deprecated No longer read: responses that land after cleanup() are still resolved.
-     */
-    cleanupDate?: number;
     constructor({ dataExpiryLength, errorExpiryLength }?: {
         dataExpiryLength?: number | undefined;
         errorExpiryLength?: number | undefined;

@@ -60,8 +60,9 @@ can run while the store lives on, like when `<Activity>` hides it.
 A response is dropped when its fetch started before the last [resetEntireStore()](./Controller.md#resetEntireStore). An
 older response doesn't settle a newer fetch of the same key.
 
-When `middleware` gets a new controller, the old store is gone. NetworkManager stops tracking its fetches, so their
-promises never settle, and it doesn't send new fetches from it.
+When `middleware` gets a new controller, the old store unmounted and a new store uses the same NetworkManager.
+NetworkManager stops tracking the old store's fetches, so their promises never settle, and it doesn't send new fetches
+from it.
 
 ### allSettled(): Promise {#allSettled}
 
