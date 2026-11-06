@@ -191,13 +191,10 @@ preview header's toggle in every layout.
 - Collapsed files stay mounted (`display: none`): their Monaco models carry
   cross-file types and edits. Monaco is uncontrolled (`defaultValue`), so
   re-renders never reset the buffer.
-- A tab switch draws nothing new. Monaco lays out only at a real width
-  (`monaco/layout.ts`, in place of `automaticLayout`), so a hidden editor
-  shows again as it was. A file not yet shown can't lay out under
-  `display: none`: once the page is idle and the shown editors have painted
-  (`monaco/whenIdle.ts`), it takes the shown file's width out of sight
-  (`.tabHidden`, `monaco/useLayoutOutOfSight.ts`) until Monaco has laid it
-  out and highlighted it.
+- Keep `automaticLayout` off: `monaco/layout.ts` skips layout at no width,
+  so a hidden editor shows again unchanged. A file mounted hidden lays out
+  out of sight once the page is idle (`monaco/useLayoutOutOfSight.ts`), so
+  its first show also draws nothing new.
 - Handlers passed to `InteractiveEditor` must stay referentially stable, or
   every keystroke re-renders every tab.
 - A file without imports is a script: its names are global. So each
@@ -329,11 +326,10 @@ controls keep an edge). Before restyling a class, grep `docs/` and
 `website/src/components/Demo/code` for its users. Prefer a class or element
 style to a new component.
 
-Keep `:has()` out of rules whose last part matches broadly (a bare
-`:first-child`, `:not(...)`), here and in `styles.module.css`: Chrome then
-restyles the whole page on every DOM change, which Monaco makes on each
-render and keystroke. Put a class on the last part, or style from a sibling
-(`.stepper ~ .meta`).
+Do not put `:has()` in a rule whose last part matches broadly (`:first-child`,
+`:not(...)`): Chrome then restyles the whole page on every DOM change, and
+Monaco changes the DOM on every keystroke. Use a class or a sibling selector
+(`.stepper ~ .meta`) instead.
 
 Styled elements: `h2` (page title), `button` (`primary` fills one;
 `aria-busy` shows pending), text inputs, `nav`, `fieldset`, `progress`,
