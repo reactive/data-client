@@ -18,7 +18,9 @@ const name = 'normalizr';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-const destBase = 'dist/normalizr';
+// React Native: `.native` sources (see babel.config.js), CommonJS like the node build
+const isNative = process.env.COMPILE_TARGET === 'native';
+const destBase = isNative ? 'dist/normalizr.native' : 'dist/normalizr';
 const destExtension = `${isProduction ? '.min' : ''}.js`;
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
 
@@ -32,7 +34,7 @@ function isExternal(id) {
 
 const configs = [];
 
-if (process.env.BROWSERSLIST_ENV !== 'node12') {
+if (process.env.BROWSERSLIST_ENV !== 'node12' && !isNative) {
   if (process.env.NODE_ENV === 'production') {
     configs.push({
       input: 'src/index.ts',
@@ -94,7 +96,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
     });
   }
 } else {
-  // node-friendly commonjs build
+  // node-friendly (or React Native) commonjs build
   configs.push({
     input: 'src/index.ts',
     output: [{ file: `${destBase}${destExtension}`, format: 'cjs' }],
