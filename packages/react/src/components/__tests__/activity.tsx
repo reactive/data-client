@@ -1,4 +1,5 @@
 // eslint-env jest
+import type { Manager } from '@data-client/core';
 import { act, render } from '@testing-library/react';
 import { CoolerArticleResource } from '__tests__/new';
 import React, { Activity, Suspense } from 'react';
@@ -53,15 +54,20 @@ function Fetcher() {
   return null;
 }
 
+/** A DataProvider with a Suspense boundary around `children` */
+function provider(managers: Manager[], children: React.ReactNode) {
+  return (
+    <DataProvider managers={managers} devButton={null}>
+      <Suspense fallback="loading">{children}</Suspense>
+    </DataProvider>
+  );
+}
+
 describeIfActivity('<Activity> above <DataProvider>', () => {
   function renderTabs(children: React.ReactNode) {
     const managers = getManagers();
     const tree = (mode: 'visible' | 'hidden') => (
-      <Activity mode={mode}>
-        <DataProvider managers={managers} devButton={null}>
-          <Suspense fallback="loading">{children}</Suspense>
-        </DataProvider>
-      </Activity>
+      <Activity mode={mode}>{provider(managers, children)}</Activity>
     );
     const result = render(tree('visible'));
     return {
@@ -196,20 +202,19 @@ describeIfActivity('<Activity> above <DataProvider>', () => {
 });
 
 describe('<DataProvider> remounted with the same managers', () => {
-  /** Renders an Article in a DataProvider; every call shares one set of managers */
-  function remountable(endpoint: typeof CoolerArticleResource.get) {
+  /** Returns a function that renders `children` (an Article by default) in a new
+   * DataProvider each call, all sharing one set of managers */
+  function renderWithSharedManagers(
+    endpoint: typeof CoolerArticleResource.get,
+  ) {
     const managers = getManagers();
     return (children: React.ReactNode = <Article endpoint={endpoint} />) =>
-      render(
-        <DataProvider managers={managers} devButton={null}>
-          <Suspense fallback="loading">{children}</Suspense>
-        </DataProvider>,
-      );
+      render(provider(managers, children));
   }
 
   it('does not wait on a fetch from the unmounted store', async () => {
     const get = deferred(CoolerArticleResource.get);
-    const mount = remountable(get.endpoint);
+    const mount = renderWithSharedManagers(get.endpoint);
     const first = mount();
     await wait(0);
     first.unmount();
@@ -229,7 +234,7 @@ describe('<DataProvider> remounted with the same managers', () => {
     'keeps a late %s from the unmounted store out of the new one',
     async (_, settleOld) => {
       const get = deferred(CoolerArticleResource.get);
-      const mount = remountable(get.endpoint);
+      const mount = renderWithSharedManagers(get.endpoint);
       const first = mount();
       await wait(0);
       first.unmount();
@@ -250,7 +255,7 @@ describe('<DataProvider> remounted with the same managers', () => {
 
   it('sends a fetch from the unmounted store without writing it to the new one', async () => {
     const get = deferred(CoolerArticleResource.get);
-    const mount = remountable(get.endpoint);
+    const mount = renderWithSharedManagers(get.endpoint);
     const first = mount(<Fetcher />);
     const oldCtrl = ctrl;
     first.unmount();
