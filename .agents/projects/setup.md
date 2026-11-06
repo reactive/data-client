@@ -35,8 +35,8 @@ One file per subject, only what `PROJECTS.md` and the repos don't say:
 - `integration-<app>`: the app's repo, how to install the packed packages (`PROJECTS.md`, "Testing
   against another app"), run, test, and what "working" looks like on that platform.
 - `project-scope`: the goal, what's in and out of scope, and where follow-ups go.
-- Add a fact in the turn you learn it. Keep history in memory; `PROJECTS.md` holds rules with at most
-  a one-clause reason.
+- Add a fact in the turn you learn it. What goes in `PROJECTS.md` instead: its "Keeping this file
+  current" section.
 
 ## 4. Optional setup
 
