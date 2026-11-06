@@ -3,6 +3,12 @@
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
 version: 2.1
+parameters:
+  full-run:
+    # Set by the daily master schedule (or a manual trigger) to run every job
+    # despite a tree-passed marker, so a path-filter mistake can't hide for long
+    type: boolean
+    default: false
 executors:
   node:
     docker: &docker
@@ -89,7 +95,7 @@ jobs:
             BASE_TREE=''
 
             # Only the queue and master trust a marker; PR reruns still run
-            if [ -f ~/project/.ci-tree-passed ] \
+            if [ "<< pipeline.parameters.full-run >>" = "false" ] && [ -f ~/project/.ci-tree-passed ] \
               && [[ "${CIRCLE_BRANCH}" == "${BASE_BRANCH}" || "${CIRCLE_BRANCH}" == gh-readonly-queue/* ]]; then
               # Saved by `tree-passed` once every job passed on this exact tree
               echo "Every job already passed on tree $(cat ~/project/.ci-tree); halting all jobs."
