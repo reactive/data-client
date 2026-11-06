@@ -44,11 +44,11 @@ To read more about middlewares, see the [redux documentation](https://redux.js.o
 
 ### init(state) {#init}
 
-Called with the initial state after the provider mounts. Start timers and connections here.
+Called with the initial state when the store starts, and again when it resumes. Start timers and connections here.
 
 ### cleanup()
 
-Stop timers and connections here.
+Called when the store stops or pauses. Stop timers and connections here.
 
 ## Adding managers to Reactive Data Client {#adding}
 

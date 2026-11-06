@@ -19,7 +19,8 @@ in application tree as any usage of the hooks is only possible for components be
 in the React tree.
 
 Put it above [`<Activity>`](https://react.dev/reference/react/Activity) too. `<Activity>` above `DataProvider` also
-works, for the rare part of an app that needs its own store.
+works, for the rare part of an app that needs its own store. Hiding it [pauses its Managers](./Manager.md#cleanup), like
+polling, and its store keeps applying responses.
 
 <Installation />
 

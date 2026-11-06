@@ -6,7 +6,7 @@
 
 BREAKING: [Manager.cleanup()](https://dataclient.io/docs/api/Manager#cleanup) no longer means the store is gone
 
-When React [`<Activity>`](https://react.dev/reference/react/Activity) hides a `DataProvider`, it calls each Manager's `cleanup()` but keeps the store. The store keeps applying actions, and showing it calls `init()` again. React StrictMode also calls `cleanup()` then `init()` on the same store. So in a custom Manager:
+`cleanup()` now pauses a Manager. It does not end the store. When React [`<Activity>`](https://react.dev/reference/react/Activity) hides a `DataProvider`, it calls each Manager's `cleanup()` but keeps the store. The store keeps applying actions, and showing it calls `init()` again. React StrictMode also calls `cleanup()` then `init()` on the same store. So in a custom Manager:
 
 - Start timers and connections in `init()`, and stop them in `cleanup()`.
 - Keep state about the store (like requests in flight) in `cleanup()`.

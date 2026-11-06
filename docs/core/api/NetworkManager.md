@@ -52,6 +52,17 @@ Will initiate network request and then dispatch upon completion.
 
 - [resolve](./Controller.md#resolve)
 
+### cleanup()
+
+Fetches in flight keep going. Their responses still resolve and update the store, since [cleanup()](./Manager.md#cleanup)
+only pauses the store.
+
+A response updates the store only when its fetch started after the last
+[resetEntireStore()](./Controller.md#resetEntireStore). An older response doesn't settle a newer fetch of the same key.
+
+When `middleware` gets a new controller, NetworkManager stops tracking the old store's fetches. Their responses don't
+update the new store.
+
 ### allSettled(): Promise {#allSettled}
 
 Resolves once all fetches inflight are complete. Conceptually [Promise.allSettled](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled)

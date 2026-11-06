@@ -69,18 +69,26 @@ To read more about middlewares, see the [redux documentation](https://redux.js.o
 
 ### init(state) {#init}
 
-Called with the initial state after the provider mounts. Start timers and connections here.
+Called with the initial state when the store starts, and again when it resumes. Start timers and connections here.
 
 ### cleanup()
 
-Stop timers and connections here.
+Called when the store stops or pauses. Stop timers and connections here.
 
 :::react
 
-`cleanup()` doesn't mean the store is gone. React StrictMode, and [`<Activity>`](https://react.dev/reference/react/Activity)
-above [DataProvider](./DataProvider.md) hiding it, call `cleanup()` and later `init()` on the same store. The store keeps
-applying actions in between. So keep state about the store (like requests in flight), and expect actions after
-`cleanup()`.
+`cleanup()` pauses a Manager. It does not end the store. React StrictMode, and
+[`<Activity>`](https://react.dev/reference/react/Activity) hiding a [DataProvider](./DataProvider.md), call `cleanup()`
+and later `init()` on the same store.
+
+While paused, the store keeps applying actions. Responses to fetches in flight still arrive, and `middleware` still sees
+them. So:
+
+- Keep state about the store, like requests in flight.
+- Guard side effects that `cleanup()` stopped, like `this.channel?.postMessage()`.
+
+When `middleware` gets a different controller, a new store replaced the old one (like a remounted `DataProvider` that
+shares `managers`). Reset state about the old store there.
 
 :::
 
