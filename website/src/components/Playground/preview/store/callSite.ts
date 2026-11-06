@@ -74,10 +74,13 @@ export function withMethodNames<C extends object>(controller: C): C {
 
 /** A stack frame of code the page evaluated, as the preview runs the
  * reader's code: V8's `at Name (eval at …, <anonymous>:line:col)`,
- * SpiderMonkey's `Name@… > Function:line:col`. Other engines (unchecked:
- * JavaScriptCore) may name only the hook */
+ * SpiderMonkey's `Name@… > Function:line:col`, JavaScriptCore's bare
+ * `Name@`. JavaScriptCore gives evaluated code no location (not even with
+ * a `//# sourceURL`), so Safari's frames name the component but no line.
+ * A dev build's modules are evaluated too (webpack's `eval` devtool), so
+ * there they also match */
 const EVAL_FRAME =
-  /^\s*at (?:async )?(?<v8>[\w$.]+) \(eval at .*?(?:<anonymous>:(?<v8Line>\d+):\d+\))?$|^(?<sm>[\w$.]*)@.*> (?:Function|eval):(?<smLine>\d+):\d+/;
+  /^\s*at (?:async )?(?<v8>[\w$.]+) \(eval at .*?(?:<anonymous>:(?<v8Line>\d+):\d+\))?$|^(?<sm>[\w$.]*)@.*> (?:Function|eval):(?<smLine>\d+):\d+|^(?<jsc>[\w$.]*)@$/;
 
 /** `text`'s function name (empty when anonymous) and line, if it is a frame
  * of evaluated code */
@@ -85,7 +88,7 @@ function evalFrame(text: string) {
   const groups = EVAL_FRAME.exec(text)?.groups;
   return (
     groups && {
-      name: groups.v8 ?? groups.sm,
+      name: groups.v8 ?? groups.sm ?? groups.jsc,
       line: Number(groups.v8Line ?? groups.smLine) || undefined,
     }
   );
