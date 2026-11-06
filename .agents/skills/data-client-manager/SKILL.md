@@ -15,7 +15,12 @@ One concern per Manager; compose many small managers (e.g. transport, subscripti
 
 Every Manager defines a `middleware` property and a `cleanup()` method. A Manager with nothing to intercept passes actions through: `middleware: Middleware = controller => next => async action => next(action);`
 
-Start timers, intervals and connections in `init()`, and stop them in `cleanup()`. `cleanup()` can be followed by `init()` on the same store (React StrictMode, or `<Activity>` hiding and showing `DataProvider`), and actions can still arrive after `cleanup()`, so keep state about the store there. Keep the controller from `middleware` (`this.controller = controller`) to use it in `init()`. Guard side effects in `middleware` with a field `cleanup()` clears, like `this.channel?.postMessage()`.
+Start timers, intervals and connections in `init()`, and stop them in `cleanup()`. `cleanup()` pauses Managers without ending the store: React StrictMode and `<Activity>` hiding `DataProvider` call `cleanup()` and later `init()` on the same store, and actions keep arriving in between. So:
+
+- Keep the controller from `middleware` (`this.controller = controller`) to use in `init()`. Read state there with `this.controller.getState()`: `init(state)` gets the initial state, even on resume.
+- Don't reset state about the store, like fetches in flight, in `cleanup()`.
+- Guard side effects in `middleware` with a field `cleanup()` clears, like `this.channel?.postMessage()`.
+- A different controller in `middleware` means the old store unmounted and a new one uses this Manager: reset state about the old store there.
 
 ## Use cases
 

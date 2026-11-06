@@ -45,22 +45,24 @@ To read more about middlewares, see the [redux documentation](https://redux.js.o
 
 ### init(state) {#init}
 
-Called with the initial state when the store starts. Start timers and connections here.
+Called when Managers start, and again when they resume. Start timers and connections here.
 
 ### cleanup()
 
-Called when the store stops. Stop timers and connections here.
+Called when Managers pause or stop. Stop timers and connections here.
 
-[DataProvider](https://dataclient.io/docs/api/DataProvider) calls `init()` and `cleanup()` from an Effect's setup and cleanup, and keeps the store
-in its state. So they follow the [Effect lifecycle](https://react.dev/learn/synchronizing-with-effects#how-to-handle-the-effect-firing-twice-in-development):
-React StrictMode, and [`<Activity>`](https://react.dev/reference/react/Activity) hiding `DataProvider`, call `cleanup()`
-and later `init()` on the same store.
+[DataProvider](https://dataclient.io/docs/api/DataProvider) calls `init()` and `cleanup()` from an Effect, so they follow the
+[Effect lifecycle](https://react.dev/learn/synchronizing-with-effects#how-to-handle-the-effect-firing-twice-in-development).
+React StrictMode, and [`<Activity>`](https://react.dev/reference/react/Activity) hiding `DataProvider`, pause Managers
+with `cleanup()` and resume them with `init()` on the same store.
 
-So `cleanup()` can pause a Manager without ending the store. While paused, the store keeps applying actions. Responses
-to fetches in flight still arrive, and `middleware` still sees them. So:
+While Managers are paused, the store keeps applying actions. Fetches in flight still resolve, and `middleware` still sees
+them. So:
 
-- Keep state about the store, like requests in flight.
+- Don't reset state about the store in `cleanup()`, like fetches in flight.
 - Guard side effects that `cleanup()` stopped, like `this.channel?.postMessage()`.
+- Read the current state with `controller.getState()` in `init()`. Its `state` argument is the initial state, even on
+  resume.
 
 When `middleware` gets a different controller, the old store unmounted. A new store uses the same Manager, like a
 remounted `DataProvider` that shares `managers`. Reset state about the old store there. Don't share Managers between two

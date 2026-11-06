@@ -9,7 +9,7 @@ BREAKING: [Manager.cleanup()](https://dataclient.io/docs/api/Manager#cleanup) no
 `cleanup()` now pauses a Manager. It does not end the store. `DataProvider` runs `init()` and `cleanup()` like an Effect's [setup and cleanup](https://react.dev/learn/synchronizing-with-effects#how-to-handle-the-effect-firing-twice-in-development). So React StrictMode, and [`<Activity>`](https://react.dev/reference/react/Activity) hiding a `DataProvider`, call `cleanup()` and later `init()` on the same store. The store keeps applying actions in between. In a custom Manager:
 
 - Start timers and connections in `init()`, and stop them in `cleanup()`.
-- Keep state about the store (like requests in flight) in `cleanup()`.
+- Don't reset state about the store, like fetches in flight, in `cleanup()`.
 - Expect actions after `cleanup()`. Guard side effects with a field `cleanup()` clears, like `this.channel?.postMessage()`.
 
 A Manager that started an interval in `middleware` never restarted it after a hide and show:
@@ -46,6 +46,6 @@ cleanup() {
 
 [NetworkManager](https://dataclient.io/docs/api/NetworkManager) resolves responses that arrive after `cleanup()`. `NetworkManager.cleanupDate` is removed, since nothing reads it now. Delete code that reads or sets it.
 
-On React 18 and later, actions dispatched after a `DataProvider` really unmounts now reach its Managers, so a `fetch()` there is sent. A `fetch()` from an unmounted store using the same Managers as a new `DataProvider` is not sent. React ignores the store update, so promises that wait for it never resolve: `set()`, `setResponse()`, `resetEntireStore()`, and `fetch()` of an endpoint without `sideEffect`. Don't `await` them after unmount. React 16 and 17 still drop these actions.
+On React 18 and later, an unmounted `DataProvider` still passes actions to its Managers, so its `fetch()` is sent. When a new `DataProvider` uses the same Managers, a `fetch()` from the unmounted one is not sent. Either way, React ignores the store update, so promises that wait for it never resolve: `set()`, `setResponse()`, `resetEntireStore()`, and `fetch()` of an endpoint without `sideEffect`. Don't `await` them after unmount. React 16 and 17 still drop these actions.
 
 Why: `cleanup()` used to stop dispatches because React 16/17 warn about state updates after unmount. React 18 removed that warning, and an Effect cleanup can't tell hiding from unmounting.

@@ -8,7 +8,7 @@ in the React tree.
 
 Prefer placing it above [`<Activity>`](https://react.dev/reference/react/Activity). `<Activity>` above `DataProvider`
 also works, like when a tab or route that `<Activity>` hides has its own `DataProvider`. Hiding it
-[pauses its Managers](https://dataclient.io/docs/api/Manager#cleanup), like polling, and its store keeps applying responses.
+[pauses its Managers](https://dataclient.io/docs/api/Manager#cleanup), so polling stops. Its store keeps applying responses.
 
 **Web**
 
