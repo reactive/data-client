@@ -54,14 +54,14 @@ Will initiate network request and then dispatch upon completion.
 
 ### cleanup()
 
-Fetches in flight keep going. Their responses still resolve and update the store, since [cleanup()](./Manager.md#cleanup)
-only pauses the store.
+Stops nothing. Fetches in flight keep going, and their responses still update the store. [cleanup()](./Manager.md#cleanup)
+can run while the store lives on, like when `<Activity>` hides it.
 
-A response updates the store only when its fetch started after the last
-[resetEntireStore()](./Controller.md#resetEntireStore). An older response doesn't settle a newer fetch of the same key.
+A response is dropped when its fetch started before the last [resetEntireStore()](./Controller.md#resetEntireStore). An
+older response doesn't settle a newer fetch of the same key.
 
-When `middleware` gets a new controller, NetworkManager stops tracking the old store's fetches. Their responses don't
-update the new store.
+When `middleware` gets a new controller, the old store is gone. NetworkManager stops tracking its fetches, so their
+promises never settle, and it doesn't send new fetches from it.
 
 ### allSettled(): Promise {#allSettled}
 

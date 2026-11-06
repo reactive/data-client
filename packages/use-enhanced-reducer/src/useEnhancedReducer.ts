@@ -13,7 +13,7 @@ import { Middleware, Dispatch } from './types.js';
 import usePromisifiedDispatch from './usePromisifiedDispatch.js';
 
 /* istanbul ignore next */
-const LegacyReact = version.startsWith('16') || version.startsWith('17');
+const LegacyReact = parseInt(version) < 18;
 
 export const unsetDispatch = () => {
   throw new Error(

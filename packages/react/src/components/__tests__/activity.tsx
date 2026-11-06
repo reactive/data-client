@@ -7,7 +7,6 @@ import React, { Activity, Suspense } from 'react';
 import { useController, useSubscription, useSuspense } from '../../hooks';
 import DataProvider from '../DataProvider';
 import { getDefaultManagers } from '../getDefaultManagers';
-import { LegacyReact } from '../LegacyReact';
 
 // <Activity> is React 19.2+
 const describeIfActivity = 'Activity' in React ? describe : describe.skip;
@@ -253,7 +252,7 @@ describe('<DataProvider> remounted with the same managers', () => {
     },
   );
 
-  it('sends a fetch from the unmounted store without writing it to the new one', async () => {
+  it('ignores a fetch from the unmounted store', async () => {
     const get = deferred(CoolerArticleResource.get);
     const mount = renderWithSharedManagers(get.endpoint);
     const first = mount(<Fetcher />);
@@ -262,16 +261,10 @@ describe('<DataProvider> remounted with the same managers', () => {
 
     const { container } = mount();
     await wait(0);
-    const old = oldCtrl.fetch(get.endpoint, { id: 5 });
+    oldCtrl.fetch(get.endpoint, { id: 5 });
     await wait(0);
-    if (LegacyReact) {
-      // React 16/17 drop dispatches after unmount, so it's never sent
-      expect(get.pending).toHaveLength(1);
-    } else {
-      expect(get.pending).toHaveLength(2);
-      await get.resolve(1, 'old');
-      await expect(old).resolves.toMatchObject({ title: 'old' });
-    }
+    // the old store is gone, so its fetch is never sent
+    expect(get.pending).toHaveLength(1);
     expect(container.textContent).toBe('loading');
     await get.resolve(0, 'new');
     expect(container.textContent).toBe('new');

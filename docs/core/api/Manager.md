@@ -69,26 +69,27 @@ To read more about middlewares, see the [redux documentation](https://redux.js.o
 
 ### init(state) {#init}
 
-Called with the initial state when the store starts, and again when it resumes. Start timers and connections here.
+Called with the initial state when the store starts. Start timers and connections here.
 
 ### cleanup()
 
-Called when the store stops or pauses. Stop timers and connections here.
+Called when the store stops. Stop timers and connections here.
 
 :::react
 
-`cleanup()` pauses a Manager. It does not end the store. React StrictMode, and
-[`<Activity>`](https://react.dev/reference/react/Activity) hiding a [DataProvider](./DataProvider.md), call `cleanup()`
+[DataProvider](./DataProvider.md) calls `init()` and `cleanup()` from an Effect's setup and cleanup, and keeps the store
+in its state. So they follow the [Effect lifecycle](https://react.dev/learn/synchronizing-with-effects#how-to-handle-the-effect-firing-twice-in-development):
+React StrictMode, and [`<Activity>`](https://react.dev/reference/react/Activity) hiding `DataProvider`, call `cleanup()`
 and later `init()` on the same store.
 
-While paused, the store keeps applying actions. Responses to fetches in flight still arrive, and `middleware` still sees
-them. So:
+So `cleanup()` can pause a Manager without ending the store. While paused, the store keeps applying actions. Responses
+to fetches in flight still arrive, and `middleware` still sees them. So:
 
 - Keep state about the store, like requests in flight.
 - Guard side effects that `cleanup()` stopped, like `this.channel?.postMessage()`.
 
 When `middleware` gets a different controller, a new store replaced the old one (like a remounted `DataProvider` that
-shares `managers`). Reset state about the old store there.
+shares `managers`). Reset state about the old store there. Don't share Managers between two mounted providers.
 
 :::
 

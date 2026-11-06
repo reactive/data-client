@@ -55,15 +55,10 @@ export default class NetworkManager implements Manager {
     if (controller !== this.controller) this.clearAll();
     this.controller = controller;
     return next => action => {
+      // A store a remounted provider replaced is gone: keep its actions away from the bound store's fetches
+      if (controller !== this.controller) return next(action);
       switch (action.type) {
         case FETCH:
-          // From a store a remounted provider replaced: send it, but keep its response out of the new store
-          if (controller !== this.controller) {
-            action
-              .endpoint(...action.args)
-              .then(action.meta.resolve, action.meta.reject);
-            return Promise.resolve();
-          }
           this.handleFetch(action);
           // This is the only case that causes any state change
           // It's important to intercept other fetches as we don't want to trigger reducers during
@@ -97,8 +92,6 @@ export default class NetworkManager implements Manager {
             }
           });
         case RESET: {
-          // a replaced store's reset must not clear the bound store's fetches
-          if (controller !== this.controller) return next(action);
           // take snapshot of rejectors at this point in time
           // we must use Array.from since iteration does not freeze state at this point in time
           const fetches = Array.from(this.fetching.values());
@@ -176,7 +169,7 @@ export default class NetworkManager implements Manager {
   protected handleFetch(action: FetchAction) {
     const { resolve, reject, fetchedAt } = action.meta;
     const throttle = !action.endpoint.sideEffect;
-    // A provider remounted with this manager binds a new store; responses for the old one are dropped
+    // Resolve into the store that started the fetch, even if a remounted provider replaced it
     const controller = this.controller;
 
     const deferedFetch = () => {
@@ -201,7 +194,6 @@ export default class NetworkManager implements Manager {
       }
       promise = promise
         .then(response => {
-          if (controller !== this.controller) return response;
           let lastReset = this.getLastReset();
 
           /* istanbul ignore else */
@@ -224,10 +216,7 @@ export default class NetworkManager implements Manager {
         })
         .catch(error => {
           // don't update state with promises started before last clear
-          if (
-            controller === this.controller &&
-            fetchedAt >= this.getLastReset()
-          ) {
+          if (fetchedAt >= this.getLastReset()) {
             controller.resolve(action.endpoint, {
               args: action.args,
               response: error,

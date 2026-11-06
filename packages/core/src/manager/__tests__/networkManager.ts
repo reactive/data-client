@@ -420,18 +420,14 @@ describe('NetworkManager', () => {
       return { dispatch, next, handle: mgr.middleware(controller)(next) };
     };
 
-    it('sends a fetch from a replaced store without writing it to the new one', async () => {
+    it("passes a replaced store's fetch on without tracking it", async () => {
       const mgr = new NetworkManager();
       const old = bind(mgr);
       const current = bind(mgr);
       const action = createFetch(endpoint, { args: [{ id: 5 }] });
 
       await old.handle(action);
-      await expect(action.meta.promise).resolves.toEqual({
-        id: 5,
-        title: 'hi',
-      });
-      expect(old.dispatch).not.toHaveBeenCalled();
+      expect(old.next).toHaveBeenCalledWith(action);
       expect(current.dispatch).not.toHaveBeenCalled();
       expect(mgr.allSettled()).toBeUndefined();
     });
