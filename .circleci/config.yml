@@ -492,7 +492,7 @@ jobs:
       - run:
           # So the key below always has a file to hash
           name: Default the diff base tree
-          command: touch ~/project/.ci-base-tree
+          command: touch .ci-base-tree
       - restore_cache:
           # Restores the base tree's own marker as .ci-tree-passed, if it passed
           keys:
@@ -500,30 +500,20 @@ jobs:
       - run:
           name: Mark tree passed
           command: |
-            cd ~/project
+            halt() { echo "$1; not marking this tree passed."; circleci-agent step halt; exit 0; }
             # Never for fork PRs (CIRCLE_PR_NUMBER is only set on those)
-            if [ -n "${CIRCLE_PR_NUMBER:-}" ]; then
-              echo "Fork PR; not marking this tree passed."
-              circleci-agent step halt
-              exit 0
-            fi
-            TESTS="$(cat .ci-tests-relevant 2>/dev/null)" || TESTS=''
-            ESMODULE="$(cat .ci-esmodule-relevant 2>/dev/null)" || ESMODULE=''
-            # Missing flags or tree hash prove nothing; later pipelines just run
-            if [ ! -s .ci-tree ] || [[ ! "${TESTS}" =~ ^(true|false)$ ]] || [[ ! "${ESMODULE}" =~ ^(true|false)$ ]]; then
-              echo "No relevance flags or tree hash; not marking this tree passed."
-              circleci-agent step halt
-              exit 0
-            elif [ "${TESTS}" = "true" ] && [ "${ESMODULE}" = "true" ]; then
+            [ -z "${CIRCLE_PR_NUMBER:-}" ] || halt "Fork PR"
+            # setup writes the tree hash and both flags into one cache entry,
+            # so they arrive together or not at all
+            [ -s .ci-tree ] || halt "No relevance cache"
+            if [ "$(cat .ci-tests-relevant)" = "true" ] && [ "$(cat .ci-esmodule-relevant)" = "true" ]; then
               echo "Every job ran and passed."
             # A path-filtered run proves only that the change since the diff
             # base is irrelevant to the halted jobs, so it needs the base's marker
-            elif [ -s .ci-base-tree ] && [ -s .ci-tree-passed ] && cmp -s .ci-base-tree .ci-tree-passed; then
+            elif [ -s .ci-base-tree ] && cmp -s .ci-base-tree .ci-tree-passed; then
               echo "Halted jobs passed on base tree $(cat .ci-base-tree), and nothing they read changed since."
             else
-              echo "Some jobs halted and the base tree has no marker; not marking this tree passed."
-              circleci-agent step halt
-              exit 0
+              halt "Some jobs halted and the base tree has no marker"
             fi
             cp .ci-tree .ci-tree-passed
       - save_cache:
