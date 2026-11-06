@@ -13,5 +13,4 @@ Support for `@data-client/react` 0.12 through 0.18 is dropped. Upgrade `@data-cl
 ```
 
 [makeRenderDataHook()](https://dataclient.io/docs/api/makeRenderDataHook) now passes `managers` to its Provider as a
-function, so each render gets its own Managers. A custom Provider must accept `managers: () => Manager[]`, as
-`DataProvider` does.
+function, the form 0.19 recommends. A custom Provider must accept `managers: () => Manager[]`, as `DataProvider` does.
