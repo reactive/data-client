@@ -413,9 +413,9 @@ describe('NetworkManager', () => {
       (v: { id: number }) => Promise.resolve({ id: v.id, title: 'hi' }),
       { schema: Article, name: 'remountEndpoint' },
     );
-    const bind = (mgr: NetworkManager) => {
+    const bind = (mgr: NetworkManager, state = getState) => {
       const dispatch = jest.fn((_action: any) => Promise.resolve());
-      const controller = new Controller({ dispatch, getState });
+      const controller = new Controller({ dispatch, getState: state });
       const next = jest.fn((_action: any) => Promise.resolve());
       return { dispatch, next, handle: mgr.middleware(controller)(next) };
     };
@@ -468,19 +468,16 @@ describe('NetworkManager', () => {
 
     it('drops an error for a fetch started before the last reset', async () => {
       const mgr = new NetworkManager();
-      const dispatch = jest.fn((_action: any) => Promise.resolve());
-      const controller = new Controller({
-        dispatch,
-        getState: () => ({ ...initialState, lastReset: Date.now() + 1000 }),
-      });
+      const { dispatch, handle } = bind(mgr, () => ({
+        ...initialState,
+        lastReset: Date.now() + 1000,
+      }));
       const failing = new Endpoint(
         (_v: { id: number }) => Promise.reject(new Error('down')),
         { schema: Article, name: 'failingEndpoint', sideEffect: true },
       );
       const action = createFetch(failing, { args: [{ id: 5 }] });
-      mgr.middleware(controller)(jest.fn((_action: any) => Promise.resolve()))(
-        action,
-      );
+      handle(action);
 
       await expect(action.meta.promise).rejects.toThrow('down');
       expect(dispatch).not.toHaveBeenCalled();
