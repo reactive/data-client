@@ -67,7 +67,7 @@ interface RenderHookResult<Result, Props> {
 declare function makeRenderDataHook(Provider: React.ComponentType<DataProviderProps>): RenderDataHook;
 interface DataProviderProps {
     children: React.ReactNode;
-    managers: Manager[];
+    managers: () => Manager[];
     initialState: State<unknown>;
     Controller: new (props: {
         gcPolicy: GCInterface;

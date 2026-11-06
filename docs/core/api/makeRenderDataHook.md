@@ -21,7 +21,7 @@ as well as in a `<Provider />` context.
 ```typescript
 interface ProviderProps {
   children: React.ReactNode;
-  managers: Manager[];
+  managers: () => Manager[];
   initialState: State<unknown>;
   Controller: new (props: { gcPolicy: GCInterface }) => Controller;
 }

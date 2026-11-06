@@ -31,7 +31,6 @@ Type and API cleanups deferred because they would break users or mixed package v
 [#4601](https://github.com/reactive/data-client/pull/4601) made `managers` take a function that runs once per store. An array is still accepted and marked deprecated, and a dev warning fires only when its instances move to a second store after starting.
 
 - **Drop `Manager[]`** from `DataProvider`'s `managers` prop, Vue `ProvideOptions.managers`, `prepareStore()`, `createPersistedStore()` and `mountDataClient()`, so `createManagers()` only calls the function. Remove `warnIfShared` and `startedWith` in `packages/core/src/manager/applyManager.ts`, and the deprecated third argument of `initManager()`.
-  - Decide first: `@data-client/test`'s `makeRenderDataClient` passes an array to support older `@data-client/react`; switch it to a function once its peer range starts at 0.19.
   - Breaks: code that passes an array. Migration: wrap it, `managers={() => [...]}` (the v0.19 blog already recommends this).
 
 ## React Native 0.80
