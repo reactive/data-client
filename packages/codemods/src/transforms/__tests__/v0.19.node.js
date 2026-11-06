@@ -261,13 +261,15 @@ const persisted = createPersistedStore(() => [new NetworkManager()]);
 import { createPersistedStore } from '@data-client/react';
 
 const [ServerProvider] = createPersistedStore(undefined, false);
+const [CustomProvider] = createPersistedStore(useCustom ? custom : undefined);
       `,
       `
 import { createPersistedStore } from '@data-client/react';
 
 const [ServerProvider] = createPersistedStore(undefined, false);
+const [CustomProvider] = createPersistedStore(useCustom ? () => custom : undefined);
       `,
-      'leaves undefined managers arguments alone',
+      'leaves undefined managers arguments alone, including conditional ones',
     );
   });
 

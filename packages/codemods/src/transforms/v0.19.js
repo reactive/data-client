@@ -159,24 +159,29 @@ function transformManagers(j, root) {
   const slots = findManagerSlots(j, root);
   const slotNodes = new Set(slots.map(({ path }) => path.node));
 
-  slots.forEach(({ path, property }) => {
+  // returns whether it changed the expression at `path`
+  const convert = (path, property) => {
     const node = path.node;
-    if (isFunction(node) || isUndefined(node)) return;
+    if (isFunction(node) || isUndefined(node)) return false;
+    // `cond ? managers : undefined` keeps the defaults when it is undefined
+    if (node.type === 'ConditionalExpression') {
+      const consequent = convert(path.get('consequent'));
+      return convert(path.get('alternate')) || consequent;
+    }
     if (node.type === 'Identifier' && node.name === 'getDefaultManagers')
-      return;
+      return false;
     if (isGetDefaultManagersCall(node) && node.arguments.length === 0) {
       path.replace(j.identifier('getDefaultManagers'));
       if (property) property.shorthand = false;
-      dirty = true;
-      return;
+      return true;
     }
     if (node.type === 'Identifier') {
       const binding = bindingOf(path);
       const declaration = binding?.parent.node;
-      if (declaration?.type === 'FunctionDeclaration') return;
+      if (declaration?.type === 'FunctionDeclaration') return false;
       if (declaration?.type === 'VariableDeclarator') {
         const init = declaration.init;
-        if (init && isFunction(init)) return;
+        if (init && isFunction(init)) return false;
         if (
           init &&
           (init.type === 'ArrayExpression' || isGetDefaultManagersCall(init)) &&
@@ -188,14 +193,17 @@ function transformManagers(j, root) {
               j,
               declaration.id.typeAnnotation,
             );
-          dirty = true;
-          return;
+          return true;
         }
       }
     }
     path.replace(j.arrowFunctionExpression([], node));
     if (property) property.shorthand = false;
-    dirty = true;
+    return true;
+  };
+
+  slots.forEach(({ path, property }) => {
+    if (convert(path, property)) dirty = true;
   });
   return dirty;
 }
