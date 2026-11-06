@@ -39,7 +39,7 @@ export default function createPersistedStore(managers?: Manager[]) {
     initialState as any,
     enhancer,
   );
-  initManager(managers, controller, getState())();
+  initManager(managers, controller)();
 
   const initPromise: Promise<State<any>> = (async () => {
     let firstRender = true;
@@ -69,9 +69,12 @@ export default function createPersistedStore(managers?: Manager[]) {
   }: ProviderProps) => {
     // only include if they have devtools integrated
     // if managers isn't overridden we know it will by default include DevToolsManager, so set this to true
+    // matches the client's DataProvider, which owns the user's managers
     const hasDevManager =
       !managers ||
-      !!managers.find(manager => manager instanceof DevToolsManager);
+      (typeof managers === 'function' ? managers() : managers).some(
+        manager => manager instanceof DevToolsManager,
+      );
     return (
       <SSRDataProvider
         getState={getState}

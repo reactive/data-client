@@ -2,6 +2,31 @@ import NetworkManager from './NetworkManager.js';
 import type Controller from '../controller/Controller.js';
 import { Manager } from '../types.js';
 
+/** Development only: the store each Manager instance was last bound to */
+const boundTo = new WeakMap<Manager, Controller>();
+/** Development only: stores whose Managers have started (`init()` ran) */
+export const startedStores = new WeakSet<Controller>();
+let warnedShared = false;
+
+/** A Manager instance moving to a new store after its old store started was shared by both */
+function warnIfShared(manager: Manager, controller: Controller) {
+  const previous = boundTo.get(manager);
+  boundTo.set(manager, controller);
+  if (
+    previous === undefined ||
+    previous === controller ||
+    !startedStores.has(previous) ||
+    warnedShared
+  )
+    return;
+  warnedShared = true;
+  console.warn(
+    `${manager.constructor.name} is used by more than one store, so state about the first store leaks into the next one.
+Pass managers as a function, so each store gets new instances: managers={() => [...getDefaultManagers(), new MyManager()]}
+See https://dataclient.io/docs/api/Manager#lifetimes`,
+  );
+}
+
 export default function applyManager(
   managers: Manager[],
   controller: Controller,
@@ -26,6 +51,8 @@ export default function applyManager(
       if (i === 0) {
         controller.bindMiddleware(api);
       }
+      if (process.env.NODE_ENV !== 'production')
+        warnIfShared(manager, controller);
       // controller is a superset of the middleware API
       return manager.middleware(controller as any);
     };

@@ -1,14 +1,23 @@
 import type Controller from '../controller/Controller.js';
 import { Manager, State } from '../types.js';
+import { startedStores } from './applyManager.js';
 
+/** Returns an Effect that starts `managers` and returns their cleanup.
+ *
+ * `init()` gets the store's current state, so a Manager resumed after `cleanup()` sees what the store
+ * applied while it was paused.
+ */
 export default function initManager(
   managers: Manager[],
   controller: Controller,
-  initialState: State<unknown>,
+  /** @deprecated Ignored: `init()` gets `controller.getState()` */
+  initialState?: State<unknown>,
 ) {
   return () => {
+    if (process.env.NODE_ENV !== 'production') startedStores.add(controller);
+    const state = controller.getState();
     managers.forEach(manager => {
-      manager.init?.(initialState);
+      manager.init?.(state);
     });
     controller.gcPolicy.init(controller);
     return () => {

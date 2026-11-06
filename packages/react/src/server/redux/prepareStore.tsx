@@ -19,12 +19,15 @@ export function prepareStore<
   R extends ReducersMapObject<any, ActionTypes> = {},
 >(
   initialState: DeepPartialWithUnknown<State<any>>,
-  managers: Manager[],
+  /** Returns new Managers for this store. An array (deprecated) is shared by every store that uses it. */
+  managersOption: (() => Manager[]) | Manager[],
   Ctrl: new (props: { gcPolicy: GCInterface }) => Controller,
   reducers: R = {} as any,
   middlewares: Middleware[] = [] as any,
   gcPolicy: GCInterface = new GCPolicy(),
 ) {
+  const managers =
+    typeof managersOption === 'function' ? managersOption() : managersOption;
   const selector = (s: { dataclient: State<unknown> }) => s.dataclient;
   const controller = new Ctrl({ gcPolicy });
   const reducer = createReducer(controller);
@@ -41,7 +44,7 @@ export function prepareStore<
       ...middlewares,
     ),
   ) as any;
-  return { selector, store, controller };
+  return { selector, store, controller, managers };
 }
 
 // Extension of the DeepPartial type defined by Redux which handles unknown

@@ -57,6 +57,22 @@ describe('createDataClient', () => {
     provider.stop();
   });
 
+  it('calls a managers function once for each data client', () => {
+    const made: NetworkManager[] = [];
+    const factory = jest.fn(() => {
+      made.push(new NetworkManager());
+      return [made[made.length - 1]];
+    });
+
+    const first = createDataClient({ managers: factory });
+    const second = createDataClient({ managers: factory });
+
+    expect(factory).toHaveBeenCalledTimes(2);
+    expect(made[0]).not.toBe(made[1]);
+    first.stop();
+    second.stop();
+  });
+
   it('should create data client with custom initialState', () => {
     const customState: State<unknown> = {
       entities: {},

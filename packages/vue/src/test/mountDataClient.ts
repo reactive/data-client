@@ -5,6 +5,7 @@ import {
   NetworkManager,
   SubscriptionManager,
   PollingSubscription,
+  createManagers,
 } from '@data-client/core';
 import type { GCInterface } from '@data-client/core';
 import type { Interceptor, Fixture } from '@data-client/core/mock';
@@ -23,7 +24,8 @@ export interface RenderDataClientOptions<P = any> {
   initialFixtures?: readonly Fixture[];
   resolverFixtures?: readonly (Fixture | Interceptor)[];
   getInitialInterceptorData?: () => any;
-  managers?: Manager[];
+  /** Returns new Managers for this mount. An array (deprecated) is shared by every mount that uses it. */
+  managers?: (() => Manager[]) | Manager[];
   initialState?: State<unknown>;
   gcPolicy?: GCInterface;
   wrapper?: any;
@@ -73,10 +75,10 @@ export function mountDataClient<P = any>(
   );
 
   // Create managers
-  const finalManagers = managers ?? [
+  const finalManagers = createManagers(managers, () => [
     new NetworkManager(),
     new SubscriptionManager(PollingSubscription),
-  ];
+  ]);
   // allSettled() and cleanup() track the NetworkManager actually in use
   const nm =
     finalManagers.find(
@@ -125,7 +127,7 @@ export function mountDataClient<P = any>(
         [
           DataClientPlugin,
           {
-            managers: finalManagers,
+            managers: () => finalManagers,
             initialState: finalInitialState,
             Controller: MockControllerClass,
             gcPolicy,

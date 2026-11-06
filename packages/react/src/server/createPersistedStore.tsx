@@ -7,6 +7,7 @@ import {
   initialState,
   createReducer,
   applyManager,
+  createManagers,
   initManager,
 } from '@data-client/core';
 import { useSyncExternalStore } from 'react';
@@ -17,11 +18,13 @@ import SSRDataProvider from './SSRDataProvider.js';
 import { NetworkManager as ReactNetworkManager } from '../managers/index.js';
 
 export default function createPersistedStore(
-  managers?: Manager[],
+  managersOption?: (() => Manager[]) | Manager[],
   hasDevManager: boolean = true,
 ) {
   const controller = new Controller();
-  managers = managers ?? [new ReactNetworkManager()];
+  const managers = createManagers(managersOption, () => [
+    new ReactNetworkManager(),
+  ]);
   const networkManager: NetworkManager = managers.find(
     m => m instanceof NetworkManager,
   ) as any;
@@ -37,7 +40,7 @@ export default function createPersistedStore(
     PromiseifyMiddleware,
   );
   const store = createStore(reducer, initialState as any, enhancer);
-  initManager(managers, controller, store.getState())();
+  initManager(managers, controller)();
 
   const selector = (state: any) => state;
 

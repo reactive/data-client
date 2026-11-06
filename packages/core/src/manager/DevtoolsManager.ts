@@ -174,6 +174,9 @@ class DebugStore {
   }
 }
 
+/** Extension connections by name. A connection belongs to the page, so each store's instance shares it. */
+const connections = new Map<string, any>();
+
 /** Integrates with https://github.com/reduxjs/redux-devtools
  *
  * Options: https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md
@@ -194,6 +197,10 @@ export default class DevToolsManager implements Manager {
   /** Actions kept in the log for each key while it polls (development only) */
   declare maxPollingActions: number;
   declare protected controller: Controller;
+  /** The store the extension last got `init()` state from */
+  declare private extensionStore?: Controller;
+  /** Stops the extension's messages; set while started */
+  declare private unsubscribeExtension?: () => void;
   declare skipLogging?: (action: ActionTypes) => boolean;
   declare devtoolsName: string;
   maxBufferLength = 100;
@@ -206,10 +213,15 @@ export default class DevToolsManager implements Manager {
     const options = { ...DEFAULT_CONFIG, ...config };
     this.devtoolsName =
       options.name ?? `Data Client: ${globalThis.document?.title}`;
-    this.devTools =
+    const extension =
       typeof window !== 'undefined' &&
-      (window as any).__REDUX_DEVTOOLS_EXTENSION__ &&
-      (window as any).__REDUX_DEVTOOLS_EXTENSION__.connect(options);
+      (window as any).__REDUX_DEVTOOLS_EXTENSION__;
+    if (extension) {
+      // React can construct an instance and discard it, so connect once per name
+      if (!connections.has(this.devtoolsName))
+        connections.set(this.devtoolsName, extension.connect(options));
+      this.devTools = connections.get(this.devtoolsName);
+    }
     // we cut it in half so we should double so we don't lose
     if (config?.maxAge) this.maxBufferLength = config.maxAge * 2;
     if (skipLogging) this.skipLogging = skipLogging;
@@ -322,8 +334,12 @@ export default class DevToolsManager implements Manager {
       });
     }
     if (process.env.NODE_ENV !== 'production' && this.devTools) {
-      this.devTools.init(state);
-      this.devTools.subscribe((msg: any) => {
+      // a resumed store keeps its extension history
+      if (this.extensionStore !== this.controller) {
+        this.extensionStore = this.controller;
+        this.devTools.init(state);
+      }
+      this.unsubscribeExtension = this.devTools.subscribe((msg: any) => {
         switch (msg.type) {
           case 'START':
             this.started = true;
@@ -351,6 +367,8 @@ export default class DevToolsManager implements Manager {
   /** Ensures all subscriptions are cleaned up. */
   cleanup() {
     if (process.env.NODE_ENV !== 'production') {
+      this.unsubscribeExtension?.();
+      this.unsubscribeExtension = undefined;
       // SubscriptionManager.cleanup() stops polling without dispatching unsubscribes
       this.pollingSubscribers.clear();
       const key = this.registryKey;

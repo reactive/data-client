@@ -402,3 +402,59 @@ describe('DevToolsManager', () => {
     });
   });
 });
+
+describe('DevToolsManager with the Redux DevTools extension', () => {
+  let connection: {
+    init: jest.Mock;
+    subscribe: jest.Mock;
+    send: jest.Mock;
+    unsubscribe: jest.Mock;
+  };
+  let connect: jest.Mock;
+  beforeEach(() => {
+    const unsubscribe = jest.fn();
+    connection = {
+      init: jest.fn(),
+      subscribe: jest.fn(() => unsubscribe),
+      send: jest.fn(),
+      unsubscribe,
+    };
+    connect = jest.fn(() => connection);
+    (window as any).__REDUX_DEVTOOLS_EXTENSION__ = { connect };
+  });
+  afterEach(() => {
+    delete (window as any).__REDUX_DEVTOOLS_EXTENSION__;
+  });
+
+  it('shares one connection between instances with the same name', () => {
+    new DevToolsManager({ name: 'shared' });
+    new DevToolsManager({ name: 'shared' });
+    new DevToolsManager({ name: 'other' });
+    expect(connect).toHaveBeenCalledTimes(2);
+  });
+
+  it('listens to the extension only while started', () => {
+    const manager = new DevToolsManager({ name: 'listens' });
+    const { controller } = setup(manager);
+    manager.init(initialState);
+    expect(connection.subscribe).toHaveBeenCalledTimes(1);
+    manager.cleanup();
+    expect(connection.unsubscribe).toHaveBeenCalledTimes(1);
+    // resumed, like a hidden <Activity> shown again
+    manager.init(controller.getState());
+    expect(connection.subscribe).toHaveBeenCalledTimes(2);
+    expect(connection.init).toHaveBeenCalledTimes(1);
+    manager.cleanup();
+  });
+
+  it('sends the state of each new store to the extension', () => {
+    const manager = new DevToolsManager({ name: 'new store' });
+    setup(manager);
+    manager.init(initialState);
+    manager.cleanup();
+    setup(manager);
+    manager.init(initialState);
+    expect(connection.init).toHaveBeenCalledTimes(2);
+    manager.cleanup();
+  });
+});

@@ -34,6 +34,7 @@ export {
 } from './state/reducer/createReducer.js';
 export { default as applyManager } from './manager/applyManager.js';
 export { default as initManager } from './manager/initManager.js';
+export { default as createManagers } from './manager/createManagers.js';
 
 export { default as Controller } from './controller/Controller.js';
 export type {
