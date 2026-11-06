@@ -13,7 +13,7 @@ export function warnIfShared(manager: Manager, controller: Controller) {
   warned = true;
   console.warn(
     `${manager.constructor.name} is used by more than one store, so state about the first store leaks into the next one.
-Pass managers as a function, so each store gets new instances: managers={() => [...getDefaultManagers(), new MyManager()]}
+Pass managers as a function, so each store gets new instances: managers={() => [new MyManager(), ...getDefaultManagers()]}
 See https://dataclient.io/docs/api/Manager#lifetimes`,
   );
 }
