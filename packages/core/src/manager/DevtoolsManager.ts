@@ -174,8 +174,6 @@ class DebugStore {
   }
 }
 
-/** Extension connections by `__DC__` key, so a store that replaces another keeps its extension instance */
-const connections = new Map<string, any>();
 const getExtension = (): any =>
   typeof window !== 'undefined' && (window as any).__REDUX_DEVTOOLS_EXTENSION__;
 
@@ -329,14 +327,11 @@ export default class DevToolsManager implements Manager {
     }
     const extension = getExtension();
     if (process.env.NODE_ENV !== 'production' && extension) {
-      const key = this.registryKey as string;
-      let devTools = connections.get(key);
-      if (!devTools)
-        connections.set(
-          key,
-          (devTools = extension.connect({ ...this.config, name: key })),
-        );
-      this.devTools = devTools;
+      // connect when first started, so an instance React discards never connects
+      this.devTools ??= extension.connect({
+        ...this.config,
+        name: this.registryKey,
+      });
       // a resumed store keeps its extension history
       if (this.extensionStore !== this.controller) {
         this.extensionStore = this.controller;

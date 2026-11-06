@@ -437,17 +437,19 @@ describe('DevToolsManager with the Redux DevTools extension', () => {
     manager.cleanup();
   });
 
-  it('reuses the connection when a new store replaces one with the same name', () => {
-    const first = new DevToolsManager({ name: 'replaced' });
-    setup(first);
-    first.init(initialState);
-    first.cleanup();
-    const second = new DevToolsManager({ name: 'replaced' });
-    setup(second);
-    second.init(initialState);
-    expect(connect).toHaveBeenCalledTimes(1);
+  it('keeps one connection when resumed, even after another store took its key', () => {
+    const a = new DevToolsManager({ name: 'resumed' });
+    const { controller } = setup(a);
+    a.init(initialState);
+    a.cleanup();
+    const b = new DevToolsManager({ name: 'resumed' });
+    setup(b);
+    b.init(initialState);
+    a.init(controller.getState());
+    expect(connect).toHaveBeenCalledTimes(2);
     expect(connection.init).toHaveBeenCalledTimes(2);
-    second.cleanup();
+    a.cleanup();
+    b.cleanup();
   });
 
   it('connects each store mounted at the same time under its own name', () => {

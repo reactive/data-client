@@ -116,8 +116,7 @@ Cursor's built-in browser, [Chrome DevTools MCP](https://developer.chrome.com/bl
 or [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) to programmatically inspect and interact
 with the store. Each :react[[DataProvider](/docs/api/DataProvider)]:vue[installed [DataClientPlugin](./DataClientPlugin.md)] registers independently, so
 multiple :react[providers]:vue[apps] on the same page are supported. When a name is already taken, the next one
-registers as `'Data Client: My App (2)'`, and so on; set `name` to give each a recognizable key. The Redux DevTools extension lists each store under its key, and a
-store that replaces an unmounted one with the same key reuses its entry. Where there is no `window`, as when
+registers as `'Data Client: My App (2)'`, and so on; set `name` to give each a recognizable key. The Redux DevTools extension lists each store under its key too. Where there is no `window`, as when
 server rendering, a store replaces the previous one with its name instead, since per-request stores are never cleaned up.
 
 The action log keeps up to twice [`maxAge`](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#maxage)
