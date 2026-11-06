@@ -202,7 +202,8 @@ describeIfActivity('<Activity> above <DataProvider>', () => {
 
 describe('<DataProvider> remounted with the same managers', () => {
   /** Returns a function that renders `children` (an Article by default) in a new
-   * DataProvider each call, all sharing one set of managers */
+   * DataProvider each call, all sharing one set of managers. `Wrapper` wraps each
+   * render, like StrictMode */
   function renderWithSharedManagers(
     endpoint: typeof CoolerArticleResource.get,
     Wrapper: React.ElementType = React.Fragment,
@@ -278,17 +279,20 @@ describe('<DataProvider> remounted with the same managers', () => {
     await wait(0);
     await get.resolve(get.pending.length - 1, 'first');
     expect(first.container.textContent).toBe('first');
+    const firstFetches = get.pending.length;
     first.unmount();
 
     const { container } = mount();
     await wait(0);
+    // the new store sends its own fetch
+    expect(get.pending.length).toBeGreaterThan(firstFetches);
     await get.resolve(get.pending.length - 1, 'second');
     expect(container.textContent).toBe('second');
   });
 });
 
 describe('<DataProvider> unmounted with a fetch in flight', () => {
-  it('drops the late response without errors', async () => {
+  it('logs no errors when a response lands after unmount', async () => {
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     try {
       const get = deferred(CoolerArticleResource.get);

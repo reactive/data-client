@@ -69,11 +69,11 @@ To read more about middlewares, see the [redux documentation](https://redux.js.o
 
 ### init(state) {#init}
 
-Called when Managers start. Start timers and connections here.
+Called when Managers :react[start or resume]:vue[start]. Start timers and connections here.
 
 ### cleanup()
 
-Called when Managers stop. Stop timers and connections here.
+Called when Managers :react[pause or stop]:vue[stop]. Stop timers and connections here.
 
 :::react
 
