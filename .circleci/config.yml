@@ -503,10 +503,12 @@ jobs:
             halt() { echo "$1; not marking this tree passed."; circleci-agent step halt; exit 0; }
             # Never for fork PRs (CIRCLE_PR_NUMBER is only set on those)
             [ -z "${CIRCLE_PR_NUMBER:-}" ] || halt "Fork PR"
-            # setup writes the tree hash and both flags into one cache entry,
-            # so they arrive together or not at all
-            [ -s .ci-tree ] || halt "No relevance cache"
-            if [ "$(cat .ci-tests-relevant)" = "true" ] && [ "$(cat .ci-esmodule-relevant)" = "true" ]; then
+            # Missing or odd flags prove nothing, so fail closed
+            TESTS="$(cat .ci-tests-relevant 2>/dev/null)" || TESTS=''
+            ESMODULE="$(cat .ci-esmodule-relevant 2>/dev/null)" || ESMODULE=''
+            FLAGS="${TESTS} ${ESMODULE}"
+            [[ "${FLAGS}" =~ ^(true|false)\ (true|false)$ ]] && [ -s .ci-tree ] || halt "No relevance flags or tree hash"
+            if [ "${FLAGS}" = "true true" ]; then
               echo "Every job ran and passed."
             # A path-filtered run proves only that the change since the diff
             # base is irrelevant to the halted jobs, so it needs the base's marker
