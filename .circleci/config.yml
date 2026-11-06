@@ -135,7 +135,7 @@ jobs:
               # Docs/website/tooling-only changes can't affect lint, typecheck or
               # unit tests, except the website paths persisted for the unit tests.
               yq '.jobs.setup.steps[] | select(tag == "!!map" and has("persist_to_workspace")) | .persist_to_workspace.paths[] | select(test("^project/website/"))' .circleci/config.yml > /tmp/ci-website-tested
-              WEBSITE_TESTED="$(sed 's#^project/##' /tmp/ci-website-tested | paste -sd'|')"
+              WEBSITE_TESTED="$(sed -e 's#^project/##' -e 's/[][\\.^$*+?(){}|]/\\&/g' /tmp/ci-website-tested | paste -sd'|')"
               [ -n "${WEBSITE_TESTED}" ] || { echo "No website test paths found in persist_to_workspace"; exit 1; }
               echo "Website test inputs: ${WEBSITE_TESTED}"
               if ! grep -Evq "^(${DOCS_ONLY})" /tmp/ci-changed-files \
