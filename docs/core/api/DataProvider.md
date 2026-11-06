@@ -29,7 +29,7 @@ also works, like when a tab or route that `<Activity>` hides has its own `DataPr
 ```typescript
 interface ProviderProps {
   children: ReactNode;
-  managers?: Manager[];
+  managers?: () => Manager[];
   initialState?: State<unknown>;
   Controller?: new (props: { gcPolicy: GCInterface }) => Controller;
   gcPolicy?: GCInterface;
@@ -49,11 +49,19 @@ interface ProviderProps {
 Instead of starting with an empty cache, you can provide your own initial state. This can
 be useful for testing, or rehydrating the cache state when using server side rendering.
 
-### managers?: Manager[] {#managers}
+### managers?: () => Manager[] {#managers}
 
-List of [Manager](./Manager.md)s use. This is the main extensibility point of the provider.
+A function that returns the [Managers](./Manager.md) to use. This is the main extensibility point of the provider.
 
-[getDefaultManagers()](./getDefaultManagers.md) can be used to extend the default managers.
+It runs once for each store, so each `DataProvider` gets its own Managers. Define it at module level, and
+[add your own Managers](./Manager.md#adding) with [getDefaultManagers()](./getDefaultManagers.md).
+
+:::warning[Deprecated]
+
+An array of Managers still works, but every store that uses it shares the same instances. See
+[Manager lifetimes](./Manager.md#lifetimes).
+
+:::
 
 Default Production:
 

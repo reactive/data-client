@@ -36,7 +36,11 @@ describe('createManagers()', () => {
 describe('initManager()', () => {
   it("passes the store's current state to init(), including on resume", () => {
     const init = jest.fn();
-    const manager: Manager = { middleware: () => next => next, init, cleanup() {} };
+    const manager: Manager = {
+      middleware: () => next => next,
+      init,
+      cleanup() {},
+    };
     const controller = new Controller();
     let state: any = { entities: {}, version: 1 };
     controller.getState = () => state;

@@ -22,7 +22,7 @@ Logs out based on fetch responses. By default this is triggered by [401 (Unautho
 
 ```ts
 // highlight-next-line
-const managers = [new LogoutManager(), ...getDefaultManagers()];
+const managers = () => [new LogoutManager(), ...getDefaultManagers()];
 ```
 
 </ProviderManagers>
@@ -32,7 +32,7 @@ const managers = [new LogoutManager(), ...getDefaultManagers()];
 ```ts
 import { unAuth } from '../authentication';
 
-const managers = [
+const managers = () => [
   new LogoutManager({
     handleLogout(controller) {
       // call custom unAuth function we defined
@@ -56,7 +56,7 @@ const myDomain = 'http://test.com';
 // highlight-next-line
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
-const managers = [
+const managers = () => [
   new LogoutManager({
     handleLogout(controller) {
       // call custom unAuth function we defined

@@ -21,7 +21,7 @@ import {
 import { createRoot } from 'react-dom/client';
 import App from './App';
 
-const managers = [new LogoutManager(), ...getDefaultManagers()];
+const managers = () => [new LogoutManager(), ...getDefaultManagers()];
 
 createRoot(document.body).render(
   <DataProvider managers={managers}>
@@ -41,7 +41,7 @@ import {
 import { AppRegistry } from 'react-native';
 import App from './App';
 
-const managers = [new LogoutManager(), ...getDefaultManagers()];
+const managers = () => [new LogoutManager(), ...getDefaultManagers()];
 
 const Root = () => (
   <DataProvider managers={managers}>
@@ -58,7 +58,7 @@ AppRegistry.registerComponent('MyApp', () => Root);
 import { LogoutManager, getDefaultManagers } from '@data-client/react';
 import { DataProvider } from '@data-client/react/nextjs';
 
-const managers = [new LogoutManager(), ...getDefaultManagers()];
+const managers = () => [new LogoutManager(), ...getDefaultManagers()];
 
 export default function Provider({
   children,
@@ -93,7 +93,7 @@ import {
   getDefaultManagers,
 } from '@data-client/react';
 
-const managers = [new LogoutManager(), ...getDefaultManagers()];
+const managers = () => [new LogoutManager(), ...getDefaultManagers()];
 
 export default function RootLayout() {
   return (
@@ -111,7 +111,7 @@ export default function RootLayout() {
 ```ts
 import { unAuth } from '../authentication';
 
-const managers = [
+const managers = () => [
   new LogoutManager({
     handleLogout(controller) {
       // call custom unAuth function we defined
@@ -134,7 +134,7 @@ const managers = [
 > const myDomain = 'http://test.com';
 > const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 >
-> const managers = [
+> const managers = () => [
 >   new LogoutManager({
 >     handleLogout(controller) {
 >       // call custom unAuth function we defined

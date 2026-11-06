@@ -28,12 +28,19 @@ export default function TestExternalDataProvider({
       [],
       gcPolicy,
     );
-  const { selector, store, controller, managers: storeManagers } =
-    storeRef.current;
+  const {
+    selector,
+    store,
+    controller,
+    managers: storeManagers,
+  } = storeRef.current;
 
   // this is not handled in ExternalCacheProvider as it doesn't
   // own its managers. Since we are owning them here, we should ensure it happens
-  useEffect(initManager(storeManagers, controller), [storeManagers, controller]);
+  useEffect(initManager(storeManagers, controller), [
+    storeManagers,
+    controller,
+  ]);
 
   // only include if they have devtools integrated
   const hasDevManager = !!storeManagers.find(

@@ -2,7 +2,7 @@
 
 # Manager
 
-`Managers` are singletons that handle global side-effects. Kind of like [watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect) for the central data
+`Managers` handle global side-effects. Kind of like [watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect) for the central data
 store.
 
 The default managers orchestrate the complex asynchronous behavior that Data Client
@@ -24,6 +24,18 @@ interface Manager {
   init?: (state: State<any>) => void;
 }
 ```
+
+## Lifetimes
+
+Each store gets its own Managers. A Manager's code lives at one of three lifetimes:
+
+| Lifetime | Lasts                                                       | Holds                                                      |
+| -------- | ----------------------------------------------------------- | ---------------------------------------------------------- |
+| Config   | the page                                                    | options passed to the constructor, like a URL or callbacks |
+| Store    | one store, from the [managers](#adding) function to unmount | instance fields about the store, like fetches in flight    |
+| Active   | [init()](#init) to [cleanup()](#cleanup)                    | timers, connections and listeners                          |
+
+So a constructor only stores its options.&#x20;
 
 ## Lifecycle
 
@@ -52,8 +64,8 @@ Called when Managers stop. Stop timers and connections here.
 
 ## Adding managers to Reactive Data Client {#adding}
 
-Use the [managers](https://dataclient.io/vue/api/DataClientPlugin#managers) option of [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin). The plugin is
-installed once per app, so managers are created once.
+Pass a function to the [managers](https://dataclient.io/vue/api/DataClientPlugin#managers) option of [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin).
+It runs once for each app.
 
 ```ts title="main.ts"
 import { createApp } from 'vue';
@@ -61,12 +73,15 @@ import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
 import App from './App.vue';
 import MyManager from './MyManager';
 
-const managers = [new MyManager(), ...getDefaultManagers()];
+const managers = () => [new MyManager(), ...getDefaultManagers()];
 
 const app = createApp(App);
 app.use(DataClientPlugin, { managers });
 app.mount('#app');
 ```
+
+Define the function at module level: it holds only config. An array of Managers is deprecated, because every store
+that uses it shares the same instances.
 
 Actions pass through managers in array order. List custom managers before the defaults: [NetworkManager](https://dataclient.io/vue/api/NetworkManager)
 resolves most FETCH actions itself instead of passing them on.

@@ -214,7 +214,7 @@ const app = createApp(App);
 
 app.use(DataClientPlugin, {
   // optional overrides
-  // managers: getDefaultManagers(),
+  // managers: getDefaultManagers,
   // initialState,
   // Controller,
   // gcPolicy,

@@ -206,7 +206,9 @@ interface Middleware<
   ): (next: (action: unknown) => unknown) => (action: unknown) => unknown;
 }
 
-declare function prepareStore<R extends ReducersMapObject<any, ActionTypes> = {}>(initialState: DeepPartialWithUnknown<State<any>>, managers: Manager[], Ctrl: new (props: {
+declare function prepareStore<R extends ReducersMapObject<any, ActionTypes> = {}>(initialState: DeepPartialWithUnknown<State<any>>, 
+/** Returns new Managers for this store. An array (deprecated) is shared by every store that uses it. */
+managersOption: (() => Manager[]) | Manager[], Ctrl: new (props: {
     gcPolicy: GCInterface;
 }) => Controller, reducers?: R, middlewares?: Middleware[], gcPolicy?: GCInterface): {
     selector: (s: {
@@ -216,6 +218,7 @@ declare function prepareStore<R extends ReducersMapObject<any, ActionTypes> = {}
         dataclient: State<unknown>;
     }, UnknownAction, unknown>;
     controller: Controller<_data_client_core.DataClientDispatch>;
+    managers: Manager<ActionTypes>[];
 };
 type DeepPartialWithUnknown<T> = {
     [K in keyof T]?: T[K] extends unknown ? any : T[K] extends object ? DeepPartialWithUnknown<T[K]> : T[K];
@@ -235,7 +238,8 @@ type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left
 declare function TestExternalDataProvider({ children, managers, initialState, Controller, gcPolicy, devButton, }: Props$1): React.JSX.Element;
 interface Props$1 {
     children: React.ReactNode;
-    managers: Manager[];
+    /** Returns new Managers; called once for each store. An array (deprecated) is shared by every store that uses it. */
+    managers: (() => Manager[]) | Manager[];
     initialState: State<unknown>;
     Controller: new (props: {
         gcPolicy: GCInterface;

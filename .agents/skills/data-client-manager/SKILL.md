@@ -6,7 +6,7 @@ license: Apache 2.0
 
 # Guide: Using `@data-client` Managers for global side effects
 
-[Managers](references/managers.md) are singletons that handle global side-effects. Kind of like useEffect() for the central data store.
+[Managers](references/managers.md) handle global side-effects. Kind of like useEffect() for the central data store.
 They interface with the store using [Controller](references/Controller.md), and [redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware) is run in response to [actions](references/Actions.md).
 
 ## Single Responsibility
@@ -15,12 +15,19 @@ One concern per Manager; compose many small managers (e.g. transport, subscripti
 
 Every Manager defines a `middleware` property and a `cleanup()` method. A Manager with nothing to intercept passes actions through: `middleware: Middleware = controller => next => async action => next(action);`
 
-Start timers, intervals and connections in `init()`, and stop them in `cleanup()`. `cleanup()` pauses Managers without ending the store: React StrictMode and `<Activity>` hiding `DataProvider` call `cleanup()` and later `init()` on the same store, and actions keep arriving in between. So:
+Each store gets its own Managers, so code lives at one of three [lifetimes](references/Manager.md#lifetimes):
 
-- Keep the controller from `middleware` (`this.controller = controller`) to use in `init()`. Read state there with `this.controller.getState()`: `init(state)` gets the initial state, even on resume.
+| Lifetime | Lasts                   | Holds                                                                          |
+| -------- | ----------------------- | ------------------------------------------------------------------------------ |
+| Config   | the page                | constructor options, like a URL or callbacks. The constructor only stores them |
+| Store    | one store               | instance fields about the store, like the controller and fetches in flight     |
+| Active   | `init()` to `cleanup()` | timers, intervals, connections and listeners                                   |
+
+`cleanup()` pauses Managers without ending the store: React StrictMode and `<Activity>` hiding `DataProvider` call `cleanup()` and later `init()` on the same store, and actions keep arriving in between. So:
+
+- Keep the controller from `middleware` (`this.controller = controller`) to use in `init()`. `init(state)` gets the store's current state, also on resume.
 - Don't reset state about the store, like fetches in flight, in `cleanup()`.
 - Guard side effects in `middleware` with a field `cleanup()` clears, like `this.channel?.postMessage()`.
-- A different controller in `middleware` means the old store unmounted and a new one uses this Manager: reset state about the old store there.
 
 ## Use cases
 
@@ -172,13 +179,15 @@ export default class CustomSubsManager implements Manager {
 
 ## Usage
 
+Pass a function that returns the managers, defined at module level; it runs once per store. An array of Managers is deprecated, because every store that uses it shares the same instances.
+
 List custom managers before `...getDefaultManagers()`. Actions pass through managers in array order, and NetworkManager (one of the defaults) resolves each FETCH itself instead of passing it on (only optimistic mutations continue), so a manager listed after it misses most fetches:
 
 ```tsx
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
 
-const managers = [new MyManager(), ...getDefaultManagers()];
+const managers = () => [new MyManager(), ...getDefaultManagers()];
 
 createRoot(document.body).render(
   <DataProvider managers={managers}>

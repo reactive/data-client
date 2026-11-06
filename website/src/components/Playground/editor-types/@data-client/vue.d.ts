@@ -149,7 +149,12 @@ type ConstructorArgs<T extends {
 
 /** Options for `app.use(DataClientPlugin, options)` */
 interface ProvideOptions {
-    managers?: Manager[];
+    /** Returns new Managers; called once for each app.
+     *
+     * An array (deprecated) shares its Managers with every app that uses it.
+     * @see https://dataclient.io/docs/api/DataClientPlugin#managers
+     */
+    managers?: (() => Manager[]) | Manager[];
     initialState?: State<unknown>;
     Controller?: new (props: {
         gcPolicy: GCInterface;

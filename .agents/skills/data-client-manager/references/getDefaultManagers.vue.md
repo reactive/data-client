@@ -2,7 +2,9 @@
 
 # getDefaultManagers()
 
-`getDefaultManagers` returns an Array of [Managers](./Manager.vue.md) to be sent to [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin).
+`getDefaultManagers` returns new instances of the default [Managers](./Manager.vue.md). Call it in the
+[managers](https://dataclient.io/vue/api/DataClientPlugin#managers) function, so each store
+gets its own.
 
 This makes it simple to configure and add custom [Managers](./Manager.vue.md), while remaining robust against
 any potential changes to the default managers.
@@ -18,7 +20,7 @@ import { createApp } from 'vue';
 import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
 import App from './App.vue';
 
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // set fallback expiry time to an hour
   networkManager: { dataExpiryLength: 1000 * 60 * 60 },
 });
@@ -74,7 +76,7 @@ A class that implements `SubscriptionConstructable` like [PollingSubscription](h
 For example, we can enable the [trace](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#trace) option to help track down where actions are dispatched from. This has a large performance impact, so it is normally disabled.
 
 ```ts
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   devToolsManager: { trace: true },
 });
 ```
@@ -97,7 +99,7 @@ class LoggingNetworkManager extends NetworkManager {
   }
 }
 
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   networkManager: new LoggingNetworkManager(),
 });
 ```
@@ -107,7 +109,7 @@ const managers = getDefaultManagers({
 Using `null` will remove managers completely. [NetworkManager](https://dataclient.io/vue/api/NetworkManager) cannot be removed this way.
 
 ```ts
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   devToolsManager: null,
   subscriptionManager: null,
 });

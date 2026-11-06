@@ -34,7 +34,7 @@ For example, we can enable the [trace](https://github.com/reduxjs/redux-devtools
 <ProviderManagers imports={['getDefaultManagers']}>
 
 ```ts
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // highlight-next-line
   devToolsManager: { trace: true },
 });
@@ -54,7 +54,7 @@ By default will skip inflight [fetch actions](./Controller.md#fetch)
 
 ```ts
 // production builds leave out DevToolsManager
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // highlight-next-line
   devToolsManager: new DevToolsManager(undefined, () => true),
 });
@@ -72,7 +72,7 @@ filter out specific action types or schemas:
 import { getDefaultManagers, actionTypes } from '@data-client/react';
 import { Ticker } from './resources/Ticker';
 
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   devToolsManager: {
     // Increase latency buffer for high-frequency updates
     latency: 1000,
@@ -128,7 +128,7 @@ responses and the `args` of endpoints without side effects. While an endpoint [p
 <ProviderManagers imports={['getDefaultManagers']}>
 
 ```ts
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // highlight-next-line
   devToolsManager: { maxPollingActions: 10 },
 });

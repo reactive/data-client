@@ -94,7 +94,7 @@ Anansi includes Reactive Data Client automatically.
 ```typescript
 interface ProviderProps {
   children: ReactNode;
-  managers?: Manager[];
+  managers?: () => Manager[];
   initialState?: State<unknown>;
   Controller?: new (props: { gcPolicy: GCInterface }) => Controller;
   gcPolicy?: GCInterface;
@@ -146,11 +146,17 @@ export interface State<T> {
 Instead of starting with an empty cache, you can provide your own initial state. This can
 be useful for testing, or rehydrating the cache state when using server side rendering.
 
-### managers?: Manager\[] {#managers}
+### managers?: () => Manager\[] {#managers}
 
-List of [Manager](https://dataclient.io/docs/api/Manager)s use. This is the main extensibility point of the provider.
+A function that returns the [Managers](https://dataclient.io/docs/api/Manager) to use. This is the main extensibility point of the provider.
 
-[getDefaultManagers()](https://dataclient.io/docs/api/getDefaultManagers) can be used to extend the default managers.
+It runs once for each store, so each `DataProvider` gets its own Managers. Define it at module level, and
+[add your own Managers](https://dataclient.io/docs/api/Manager#adding) with [getDefaultManagers()](https://dataclient.io/docs/api/getDefaultManagers).
+
+> **Warning: Deprecated**
+>
+> An array of Managers still works, but every store that uses it shares the same instances. See
+> [Manager lifetimes](https://dataclient.io/docs/api/Manager#lifetimes).
 
 Default Production:
 

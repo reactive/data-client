@@ -95,7 +95,7 @@ export class StreamManager implements Manager {
   }
 }
 
-// passed to <DataProvider managers={getManagers()}>
+// passed to <DataProvider managers={getManagers}>
 export default function getManagers() {
   return [new StreamManager(), ...getDefaultManagers()];
 }

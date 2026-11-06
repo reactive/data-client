@@ -2,7 +2,7 @@
 
 # Manager
 
-`Managers` are singletons that handle global side-effects. Kind of like [useEffect()](https://react.dev/reference/react/useEffect) for the central data
+`Managers` handle global side-effects. Kind of like [useEffect()](https://react.dev/reference/react/useEffect) for the central data
 store.
 
 The default managers orchestrate the complex asynchronous behavior that Data Client
@@ -24,6 +24,19 @@ interface Manager {
   init?: (state: State<any>) => void;
 }
 ```
+
+## Lifetimes
+
+Each store gets its own Managers. A Manager's code lives at one of three lifetimes:
+
+| Lifetime | Lasts                                                       | Holds                                                      |
+| -------- | ----------------------------------------------------------- | ---------------------------------------------------------- |
+| Config   | the page                                                    | options passed to the constructor, like a URL or callbacks |
+| Store    | one store, from the [managers](#adding) function to unmount | instance fields about the store, like fetches in flight    |
+| Active   | [init()](#init) to [cleanup()](#cleanup)                    | timers, connections and listeners                          |
+
+So a constructor only stores its options. React can construct Managers for a store it then discards, so a
+constructor must not open anything.
 
 ## Lifecycle
 
@@ -61,18 +74,13 @@ them. So:
 
 - Don't reset state about the store in `cleanup()`, like fetches in flight.
 - Guard side effects that `cleanup()` stopped, like `this.channel?.postMessage()`.
-- Read the current state with `controller.getState()` in `init()`. Its `state` argument is the initial state, even on
-  resume.
 
-When `middleware` gets a different controller, the old store unmounted. A new store uses the same Manager, like a
-remounted `DataProvider` that shares `managers`. Reset state about the old store there. Don't share Managers between two
-mounted providers.
+`init()` gets the store's current state, including on resume.
 
 ## Adding managers to Reactive Data Client {#adding}
 
-Use the [managers](https://dataclient.io/docs/api/DataProvider#managers) prop of [DataProvider](https://dataclient.io/docs/api/DataProvider). Be
-sure to hoist to _module level_ or wrap in a _useMemo()_ to ensure they are not recreated. Managers
-have internal state, so it is important to not constantly recreate them.
+Pass a function to the [managers](https://dataclient.io/docs/api/DataProvider#managers) prop of [DataProvider](https://dataclient.io/docs/api/DataProvider). It
+runs once for each store, so a remounted `DataProvider` gets new Managers.
 
 **Web**
 
@@ -82,7 +90,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import MyManager from './MyManager';
 
-const managers = [new MyManager(), ...getDefaultManagers()];
+const managers = () => [new MyManager(), ...getDefaultManagers()];
 
 createRoot(document.body).render(
   <DataProvider managers={managers}>
@@ -99,7 +107,7 @@ import { AppRegistry } from 'react-native';
 import App from './App';
 import MyManager from './MyManager';
 
-const managers = [new MyManager(), ...getDefaultManagers()];
+const managers = () => [new MyManager(), ...getDefaultManagers()];
 
 const Root = () => (
   <DataProvider managers={managers}>
@@ -117,7 +125,7 @@ import { getDefaultManagers } from '@data-client/react';
 import { DataProvider } from '@data-client/react/nextjs';
 import MyManager from './MyManager';
 
-const managers = [new MyManager(), ...getDefaultManagers()];
+const managers = () => [new MyManager(), ...getDefaultManagers()];
 
 export default function Provider({
   children,
@@ -149,7 +157,7 @@ import { Stack } from 'expo-router';
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import MyManager from './MyManager';
 
-const managers = [new MyManager(), ...getDefaultManagers()];
+const managers = () => [new MyManager(), ...getDefaultManagers()];
 
 export default function RootLayout() {
   return (
@@ -161,6 +169,9 @@ export default function RootLayout() {
   );
 }
 ```
+
+Define the function at module level: it holds only config. An array of Managers is deprecated, because every store
+that uses it shares the same instances.
 
 Actions pass through managers in array order. List custom managers before the defaults: [NetworkManager](https://dataclient.io/docs/api/NetworkManager)
 resolves most FETCH actions itself instead of passing them on.

@@ -14,7 +14,7 @@ import ProviderManagers from '../shared/_provider_managers.mdx';
 
 # Manager
 
-`Managers` are singletons that handle global side-effects. Kind of like :react[[useEffect()](https://react.dev/reference/react/useEffect)]:vue[[watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect)] for the central data
+`Managers` handle global side-effects. Kind of like :react[[useEffect()](https://react.dev/reference/react/useEffect)]:vue[[watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect)] for the central data
 store.
 
 The default managers orchestrate the complex asynchronous behavior that <abbr title="Reactive Data Client">Data Client</abbr>
@@ -36,6 +36,19 @@ interface Manager {
   init?: (state: State<any>) => void;
 }
 ```
+
+## Lifetimes
+
+Each store gets its own Managers. A Manager's code lives at one of three lifetimes:
+
+| Lifetime | Lasts                                                       | Holds                                                      |
+| -------- | ----------------------------------------------------------- | ---------------------------------------------------------- |
+| Config   | the page                                                    | options passed to the constructor, like a URL or callbacks |
+| Store    | one store, from the [managers](#adding) function to unmount | instance fields about the store, like fetches in flight    |
+| Active   | [init()](#init) to [cleanup()](#cleanup)                    | timers, connections and listeners                          |
+
+So a constructor only stores its options. :react[React can construct Managers for a store it then discards, so a
+constructor must not open anything.]
 
 ## Lifecycle
 
@@ -87,12 +100,8 @@ them. So:
 
 - Don't reset state about the store in `cleanup()`, like fetches in flight.
 - Guard side effects that `cleanup()` stopped, like `this.channel?.postMessage()`.
-- Read the current state with `controller.getState()` in `init()`. Its `state` argument is the initial state, even on
-  resume.
 
-When `middleware` gets a different controller, the old store unmounted. A new store uses the same Manager, like a
-remounted `DataProvider` that shares `managers`. Reset state about the old store there. Don't share Managers between two
-mounted providers.
+`init()` gets the store's current state, including on resume.
 
 :::
 
@@ -100,16 +109,15 @@ mounted providers.
 
 :::react
 
-Use the [managers](../api/DataProvider.md#managers) prop of [DataProvider](../api/DataProvider.md). Be
-sure to hoist to _module level_ or wrap in a _useMemo()_ to ensure they are not recreated. Managers
-have internal state, so it is important to not constantly recreate them.
+Pass a function to the [managers](../api/DataProvider.md#managers) prop of [DataProvider](../api/DataProvider.md). It
+runs once for each store, so a remounted `DataProvider` gets new Managers.
 
 :::
 
 :::vue
 
-Use the [managers](./DataClientPlugin.md#managers) option of [DataClientPlugin](./DataClientPlugin.md). The plugin is
-installed once per app, so managers are created once.
+Pass a function to the [managers](./DataClientPlugin.md#managers) option of [DataClientPlugin](./DataClientPlugin.md).
+It runs once for each app.
 
 :::
 
@@ -119,10 +127,13 @@ installed once per app, so managers are created once.
 import MyManager from './MyManager';
 
 // highlight-next-line
-const managers = [new MyManager(), ...getDefaultManagers()];
+const managers = () => [new MyManager(), ...getDefaultManagers()];
 ```
 
 </ProviderManagers>
+
+Define the function at module level: it holds only config. An array of Managers is deprecated, because every store
+that uses it shares the same instances.
 
 Actions pass through managers in array order. List custom managers before the defaults: [NetworkManager](./NetworkManager.md)
 resolves most FETCH actions itself instead of passing them on.

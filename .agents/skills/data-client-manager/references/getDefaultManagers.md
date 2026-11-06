@@ -2,7 +2,9 @@
 
 # getDefaultManagers()
 
-`getDefaultManagers` returns an Array of [Managers](./Manager.md) to be sent to [\<DataProvider />](https://dataclient.io/docs/api/DataProvider).
+`getDefaultManagers` returns new instances of the default [Managers](./Manager.md). Call it in the
+[managers](https://dataclient.io/docs/api/DataProvider#managers) function, so each store
+gets its own.
 
 This makes it simple to configure and add custom [Managers](./Manager.md), while remaining robust against
 any potential changes to the default managers.
@@ -20,7 +22,7 @@ import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // set fallback expiry time to an hour
   networkManager: { dataExpiryLength: 1000 * 60 * 60 },
 });
@@ -39,7 +41,7 @@ import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { AppRegistry } from 'react-native';
 import App from './App';
 
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // set fallback expiry time to an hour
   networkManager: { dataExpiryLength: 1000 * 60 * 60 },
 });
@@ -59,7 +61,7 @@ AppRegistry.registerComponent('MyApp', () => Root);
 import { getDefaultManagers } from '@data-client/react';
 import { DataProvider } from '@data-client/react/nextjs';
 
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // set fallback expiry time to an hour
   networkManager: { dataExpiryLength: 1000 * 60 * 60 },
 });
@@ -93,7 +95,7 @@ export default function RootLayout({ children }) {
 import { Stack } from 'expo-router';
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // set fallback expiry time to an hour
   networkManager: { dataExpiryLength: 1000 * 60 * 60 },
 });
@@ -151,7 +153,7 @@ A class that implements `SubscriptionConstructable` like [PollingSubscription](h
 For example, we can enable the [trace](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#trace) option to help track down where actions are dispatched from. This has a large performance impact, so it is normally disabled.
 
 ```ts
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   devToolsManager: { trace: true },
 });
 ```
@@ -163,7 +165,7 @@ Sending manager instances allows us to customize managers using inheritance.
 ```ts
 import { getDefaultManagers, IdlingNetworkManager } from '@data-client/react';
 
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   networkManager: new IdlingNetworkManager(),
 });
 ```
@@ -176,7 +178,7 @@ until animations are complete. This works in web using [requestIdleCallback](htt
 Using `null` will remove managers completely. [NetworkManager](https://dataclient.io/docs/api/NetworkManager) cannot be removed this way.
 
 ```ts
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   devToolsManager: null,
   subscriptionManager: null,
 });

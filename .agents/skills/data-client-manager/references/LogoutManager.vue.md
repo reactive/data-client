@@ -19,7 +19,7 @@ import {
 } from '@data-client/vue';
 import App from './App.vue';
 
-const managers = [new LogoutManager(), ...getDefaultManagers()];
+const managers = () => [new LogoutManager(), ...getDefaultManagers()];
 
 const app = createApp(App);
 app.use(DataClientPlugin, { managers });
@@ -31,7 +31,7 @@ app.mount('#app');
 ```ts
 import { unAuth } from '../authentication';
 
-const managers = [
+const managers = () => [
   new LogoutManager({
     handleLogout(controller) {
       // call custom unAuth function we defined
@@ -54,7 +54,7 @@ const managers = [
 > const myDomain = 'http://test.com';
 > const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 >
-> const managers = [
+> const managers = () => [
 >   new LogoutManager({
 >     handleLogout(controller) {
 >       // call custom unAuth function we defined
