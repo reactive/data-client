@@ -22,10 +22,15 @@ project follow `.agents/projects/setup.md`.
 | Strong model | latest Fable (`fable`) | strongest model offered |
 | Fast model | Haiku (`haiku`) | fastest model offered |
 | Mid model | Sonnet (`sonnet`) | a mid-tier model |
-| user-kit skill | skill `user-kit:<name>` | `/<name>` (no plugin prefix) |
-| user-kit workflow | Workflow tool, `user-kit:<name>` | none: run its steps as subagents |
+
+## Tools
 
 The `ntucker/user-kit` plugin is installed in every project environment.
+
+| Tool | Claude project | Cursor Project |
+| --- | --- | --- |
+| user-kit skill | skill `user-kit:<name>` | `/<name>` (no plugin prefix) |
+| user-kit workflow | Workflow tool, `user-kit:<name>` | none: run its steps as subagents |
 
 ## Models
 
@@ -50,11 +55,11 @@ The `ntucker/user-kit` plugin is installed in every project environment.
 5. Keep the PR mergeable, but act only on a real conflict with its base. Simple conflicts (lockfiles,
    changelogs, adjacent edits, generated files): hand to a mid-model subagent with branch, base and how
    to validate. Logic conflicts: resolve yourself.
-6. After every push, run the post-push review: in Claude Code, workflow `user-kit:post-push-review`
+6. After every push, run the post-push review: with the Workflow tool, `user-kit:post-push-review`
    (Workflow tool) with
    `{ range: "<sha before push>..HEAD", goals: "<project goal>", repo: "<checkout path>" }`
-   (`repo` when data-client is not the working directory). In Cursor, run fast-model subagents in
-   parallel for goals, repo rules, engineering, adversarial, reuse and React data flow. Verify each
+   (`repo` when data-client is not the working directory). Without it (Cursor), run fast-model
+   subagents in parallel for goals, repo rules, engineering, adversarial, reuse and React data flow. Verify each
    finding; fix real ones, reject the rest with a reason. Do not launch them while the person is
    actively writing in your thread: subagents can pick up the message and reply in your name.
 7. Once the change is verified correct, run skill "simplify" (Cursor: the same review by hand),
