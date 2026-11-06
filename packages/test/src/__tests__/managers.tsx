@@ -39,6 +39,8 @@ describe('renderDataHook() managers', () => {
   });
 
   it('works without a NetworkManager', async () => {
+    // applyManager() warns that NetworkManager is missing
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
     const { recorder, types } = makeRecorder();
     const { controller, allSettled } = renderDataHook(() => useController(), {
       managers: () => [recorder],
@@ -47,6 +49,7 @@ describe('renderDataHook() managers', () => {
     await controller.setResponse(getValue, { id: 2 }, { id: 2 });
     expect(types).toContain(actionTypes.SET_RESPONSE);
     expect(allSettled()).toBeUndefined();
+    warn.mockRestore();
   });
 
   it('calls the factory once per render', () => {

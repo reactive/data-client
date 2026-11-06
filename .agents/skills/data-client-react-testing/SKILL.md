@@ -170,7 +170,7 @@ it('should fetch data from API', async () => {
 
 ## Testing Managers
 
-Pass `managers` a function that returns new Managers; it runs once per render. They replace the
+Pass `managers` a function that returns new Managers; it runs once per `renderDataHook()` call. They replace the
 defaults, so include `NetworkManager` when the test fetches. Put your Manager before `NetworkManager` to
 see `fetch` actions: `NetworkManager` handles them without passing them on.
 

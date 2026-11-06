@@ -110,7 +110,7 @@ Function that initializes the `this` attribute for all interceptors.
 
 ### options.managers
 
-Returns the [Managers](https://dataclient.io/docs/api/Manager) for this render. It is called once per render, so each test gets
+Returns the [Managers](https://dataclient.io/docs/api/Manager) for this render. Each `renderDataHook()` call calls it once, so each test gets
 new instances. The result replaces the default [NetworkManager](https://dataclient.io/docs/api/NetworkManager) and
 [SubscriptionManager](https://dataclient.io/docs/api/SubscriptionManager), so include them when the test needs fetching or subscriptions.
 
