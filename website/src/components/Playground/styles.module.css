@@ -942,8 +942,8 @@ div.playgroundTextEdit > .playgroundHeader {
 .hidden {
   display: none;
 }
-/* A file not shown while its editor first lays out (EditorSurface): out of
-   sight and taking no room, but still the shown file's width (unlike
+/* A file not shown while its editor first lays out (useLayoutOutOfSight):
+   out of sight and taking no room, but still the shown file's width (unlike
    display:none), so its editor lays out and highlights before it shows */
 .playgroundEditor.tabHidden {
   height: 0;

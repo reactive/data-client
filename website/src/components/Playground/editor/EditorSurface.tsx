@@ -12,12 +12,10 @@ import React, {
 } from 'react';
 
 import Header from '../Header';
-import { hasLayoutWidth } from '../monaco/layout';
 import { modelPath, useModelId } from '../monaco/modelPath';
 import { createMissingModels } from '../monaco/models';
 import { allowTopLevelAwait } from '../monaco/topLevelAwait';
-import { whenIdle } from '../monaco/whenIdle';
-import { whenPainted } from '../monaco/whenPainted';
+import useLayoutOutOfSight from '../monaco/useLayoutOutOfSight';
 import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
 import TabList, { type TabItem } from '../TabList';
@@ -235,31 +233,12 @@ function TextEditTab({
       <StaticEditor code={editorProps.code} language={editorProps.language} />
     : <pre>{editorProps.code}</pre>;
 
-  // Monaco can't lay out under display:none, so a hidden tab takes the shown
-  // file's width out of sight (styles.tabHidden) until its editor has laid
-  // out and highlighted: it then shows at once, kept as it was
-  // (layoutWhileShown). Not before the page is idle and the shown editors
-  // have painted (whenIdle, which useEditorCover holds), or it would hold
-  // them up.
-  const [stage, setStage] = useState<'waiting' | 'painting' | 'painted'>(
-    'waiting',
-  );
-  const handleMount = useCallback((editor: Monaco.editor.ICodeEditor) => {
-    const stops = [whenPainted(editor, () => setStage('painted'))];
-    // shown, it paints where it is
-    if (!hasLayoutWidth(editor))
-      stops.push(
-        whenIdle(() =>
-          setStage(prev => (prev === 'waiting' ? 'painting' : prev)),
-        ),
-      );
-    editor.onDidDispose(() => stops.forEach(stop => stop()));
-  }, []);
+  const { outOfSight, handleMount } = useLayoutOutOfSight();
   return (
     <div
       className={clsx(styles.playgroundEditor, {
-        [styles.hidden]: hidden && stage !== 'painting',
-        [styles.tabHidden]: hidden && stage === 'painting',
+        [styles.hidden]: hidden && !outOfSight,
+        [styles.tabHidden]: hidden && outOfSight,
       })}
     >
       {interactive ?

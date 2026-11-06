@@ -196,7 +196,8 @@ preview header's toggle in every layout.
   shows again as it was. A file not yet shown can't lay out under
   `display: none`: once the page is idle and the shown editors have painted
   (`monaco/whenIdle.ts`), it takes the shown file's width out of sight
-  (`.tabHidden`) until Monaco has laid it out and highlighted it.
+  (`.tabHidden`, `monaco/useLayoutOutOfSight.ts`) until Monaco has laid it
+  out and highlighted it.
 - Handlers passed to `InteractiveEditor` must stay referentially stable, or
   every keystroke re-renders every tab.
 - A file without imports is a script: its names are global. So each
