@@ -2,7 +2,7 @@
 import type { Manager } from '@data-client/core';
 import { act, render } from '@testing-library/react';
 import { CoolerArticleResource } from '__tests__/new';
-import React, { Activity, Suspense } from 'react';
+import React, { Activity, StrictMode, Suspense } from 'react';
 
 import { useController, useSubscription, useSuspense } from '../../hooks';
 import DataProvider from '../DataProvider';
@@ -205,10 +205,11 @@ describe('<DataProvider> remounted with the same managers', () => {
    * DataProvider each call, all sharing one set of managers */
   function renderWithSharedManagers(
     endpoint: typeof CoolerArticleResource.get,
+    Wrapper: React.ElementType = React.Fragment,
   ) {
     const managers = getManagers();
     return (children: React.ReactNode = <Article endpoint={endpoint} />) =>
-      render(provider(managers, children));
+      render(<Wrapper>{provider(managers, children)}</Wrapper>);
   }
 
   it('does not wait on a fetch from the unmounted store', async () => {
@@ -268,5 +269,39 @@ describe('<DataProvider> remounted with the same managers', () => {
     expect(container.textContent).toBe('loading');
     await get.resolve(0, 'new');
     expect(container.textContent).toBe('new');
+  });
+
+  it('settles fetches in StrictMode, where render and Effects run twice', async () => {
+    const get = deferred(CoolerArticleResource.get);
+    const mount = renderWithSharedManagers(get.endpoint, StrictMode);
+    const first = mount();
+    await wait(0);
+    await get.resolve(get.pending.length - 1, 'first');
+    expect(first.container.textContent).toBe('first');
+    first.unmount();
+
+    const { container } = mount();
+    await wait(0);
+    await get.resolve(get.pending.length - 1, 'second');
+    expect(container.textContent).toBe('second');
+  });
+});
+
+describe('<DataProvider> unmounted with a fetch in flight', () => {
+  it('drops the late response without errors', async () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const get = deferred(CoolerArticleResource.get);
+      const { unmount } = render(
+        provider(getManagers(), <Article endpoint={get.endpoint} />),
+      );
+      await wait(0);
+      unmount();
+      await get.resolve(0, 'late');
+      await wait(0);
+      expect(errorSpy).not.toHaveBeenCalled();
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 });

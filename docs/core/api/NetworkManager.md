@@ -62,7 +62,7 @@ Will initiate network request and then dispatch upon completion.
 ### cleanup()
 
 Stops nothing. Fetches in flight keep going, and their responses still update the store, because
-[cleanup()](./Manager.md#cleanup) can pause Managers while the store lives on.
+[cleanup()](./Manager.md#cleanup) also runs when the store is only hidden, like by `<Activity>`.
 
 ### allSettled(): Promise {#allSettled}
 
