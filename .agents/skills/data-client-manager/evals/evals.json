@@ -9,7 +9,7 @@
       "files": [],
       "assertions": [
         "The snapshot is written with a single `controller.set([Ticker], tickers)` or `controller.set(new schema.Array(Ticker), tickers)` call that passes the rows and no args.",
-        "The snapshot rows are not written by calling `controller.set(Ticker, …)` once per row (no loop, forEach, or map over rows that calls set).",
+        "The snapshot rows are not written by calling `controller.set(Ticker, \u2026)` once per row (no loop, forEach, or map over rows that calls set).",
         "No endpoint is defined and `setResponse()` is not called to write the snapshot.",
         "No `as any` or other cast is used to make the `controller.set` call typecheck.",
         "The socket is closed in `cleanup()`."
@@ -23,7 +23,7 @@
       "files": [],
       "assertions": [
         "Each flush writes the buffer with a single `controller.set([Ticker], rows)` or `controller.set(new schema.Array(Ticker), rows)` call that passes the rows and no args.",
-        "The flush does not call `controller.set(Ticker, …)` once per buffered row (no loop, forEach, or map over rows that calls set).",
+        "The flush does not call `controller.set(Ticker, \u2026)` once per buffered row (no loop, forEach, or map over rows that calls set).",
         "No endpoint is defined and `setResponse()` is not called to batch the writes.",
         "No `as any` or other cast is used to make the `controller.set` call typecheck.",
         "The flush interval or timer is cleared in `cleanup()`."
@@ -39,7 +39,7 @@
         "The response says the push-only endpoint plus `setResponse()` is not the right way to batch entity writes.",
         "The rewritten flush uses a single `controller.set([Ticker], rows)` or `controller.set(new schema.Array(Ticker), rows)` call that passes the rows and no args.",
         "The rewrite keeps no push-only endpoint and no `setResponse()` call for the batch.",
-        "The rewrite does not call `controller.set(Ticker, …)` once per row.",
+        "The rewrite does not call `controller.set(Ticker, \u2026)` once per row.",
         "No `as any` or other cast is used to make the `controller.set` call typecheck."
       ]
     },
@@ -57,6 +57,21 @@
         "The middleware calls `next(action)` for every action, not only fetches, and returns or awaits its result.",
         "The timer starts on `actionTypes.FETCH` and stops when that action's `meta.promise` settles or on the `actionTypes.SET_RESPONSE` with the same `action.key`, not when `next()` of the FETCH returns.",
         "DataProvider receives `managers` that include `...getDefaultManagers()` with the new TimingManager placed before them."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "clock-manager",
+      "changeset": "manager-cleanup-keeps-store",
+      "prompt": "Add src/managers/ClockManager.ts: a Manager that writes the current time to our `CurrentTime` entity (src/resources/CurrentTime.ts: `class CurrentTime extends Entity { id = 0; time = 0; }`) once per second with `controller.set()`, so components can show a live clock with `useQuery(CurrentTime, { id: 1 })`. Also show how to add it to our `DataProvider` in src/index.tsx next to the default managers.",
+      "expected_output": "A class implementing Manager whose `middleware` stores the controller and passes every action to `next(action)`, whose `init()` starts a 1000 ms `setInterval` that calls `this.controller.set(CurrentTime, { id: 1 }, { id: 1, time: Date.now() })`, and whose `cleanup()` clears that interval; plus `managers={[new ClockManager(), ...getDefaultManagers()]}` on DataProvider.",
+      "files": [],
+      "assertions": [
+        "The interval is started in `init()`, not in `middleware`, the constructor, or a field initializer.",
+        "`cleanup()` clears the interval started in `init()`.",
+        "The interval callback writes with a controller kept from `middleware` (for example `this.controller = controller`), not a controller created by the Manager.",
+        "The middleware passes every action to `next(action)` and returns or awaits its result.",
+        "DataProvider receives `managers` that include `...getDefaultManagers()` along with the new ClockManager."
       ]
     }
   ]

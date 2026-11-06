@@ -99,9 +99,9 @@ Timestamp when entire store was last reset
 
 ### clear(key) {#clear}
 
-Clear promise state for a given key
+Stops tracking the fetch for a given key. Its promise no longer settles.
 
 ### clearAll() {#clearall}
 
-Ensures all promises are completed by rejecting remaining
+Stops tracking every fetch in flight. Their promises no longer settle. Runs when `middleware` binds a new store.
 

@@ -16,14 +16,10 @@ Support React [`<Activity>`](https://react.dev/reference/react/Activity) above [
 </Activity>
 ```
 
-Before, `<Activity>` had to go inside `DataProvider`. Hiding a `DataProvider` dropped responses, so [useSuspense()](https://dataclient.io/docs/api/useSuspense) could stay suspended forever, optimistic updates never settled, `controller.fetch()` never resolved, and [useSubscription()](https://dataclient.io/docs/api/useSubscription) stopped polling for good. Now a hidden `DataProvider` keeps working, and promises resolve once it is shown.
+Most apps should still put `DataProvider` at the root, above everything, including `<Activity>`. That still works as before.
 
-For most apps, `DataProvider` should still go at the root, above everything else, including `<Activity>`.
+Before, hiding a `DataProvider` dropped responses, so [useSuspense()](https://dataclient.io/docs/api/useSuspense) could stay suspended forever, optimistic updates never settled, `controller.fetch()` never resolved, and [useSubscription()](https://dataclient.io/docs/api/useSubscription) stopped polling for good. Now a hidden `DataProvider` keeps working, and promises resolve once it is shown.
 
 A `DataProvider` remounted with the same `managers` also no longer waits on a request the unmounted one started, and responses for the unmounted one stay out of the new store.
 
 A response to a request started before [`resetEntireStore()`](https://dataclient.io/docs/api/Controller#resetEntireStore) is now always dropped, even when it lands before the reset commits. A response also no longer settles an in-flight request for the same key that has a later `fetchedAt`; that request waits for its own response. Custom managers that call [`controller.resolve()`](https://dataclient.io/docs/api/Controller#resolve) should pass the `fetchedAt` of the fetch action they are resolving (`action.meta.fetchedAt`).
-
-On React 18 and later, an action dispatched after a `DataProvider` really unmounts now reaches its managers, and React ignores the update. Its promise no longer resolves, so don't `await` controller calls after unmount. React 16 and 17 still drop these actions.
-
-[`NetworkManager.cleanupDate`](https://dataclient.io/docs/api/NetworkManager) is deprecated: nothing reads it now. Delete code that reads or sets it.

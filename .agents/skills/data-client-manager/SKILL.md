@@ -1,6 +1,6 @@
 ---
 name: data-client-manager
-description: "Write @data-client Managers for app-wide side effects and real-time data such as websockets, SSE and polling: code that reacts to every request or to events from outside the app and updates the store. Use one instead of useEffect for behavior that belongs to the whole app, such as error toasts and reporting, logging and analytics, auth failures, refetching on focus or reconnect, and cross-tab sync."
+description: 'Write @data-client Managers for app-wide side effects and real-time data such as websockets, SSE and polling: code that reacts to every request or to events from outside the app and updates the store. Use one instead of useEffect for behavior that belongs to the whole app, such as error toasts and reporting, logging and analytics, auth failures, refetching on focus or reconnect, and cross-tab sync.'
 license: Apache 2.0
 ---
 
@@ -14,6 +14,8 @@ They interface with the store using [Controller](references/Controller.md), and 
 One concern per Manager; compose many small managers (e.g. transport, subscriptions, logging, auth) rather than one large one.
 
 Every Manager defines a `middleware` property and a `cleanup()` method. A Manager with nothing to intercept passes actions through: `middleware: Middleware = controller => next => async action => next(action);`
+
+Start timers, intervals and connections in `init()`, and stop them in `cleanup()`. `cleanup()` can be followed by `init()` on the same store (React StrictMode, or `<Activity>` hiding and showing `DataProvider`), and actions can still arrive after `cleanup()`, so keep state about the store there. Keep the controller from `middleware` (`this.controller = controller`) to use it in `init()`. Guard side effects in `middleware` with a field `cleanup()` clears, like `this.channel?.postMessage()`.
 
 ## Use cases
 
@@ -30,7 +32,7 @@ Minimal working examples for each use case live in [references/managers.md](refe
 | Offline persistence (IndexedDB)             | "Offline persistence" in [managers.md](references/managers.md)                    | debounced IndexedDB write of `controller.getState()` (drop `optimistic` - not cloneable); restore via DataProvider `initialState`. Never use localStorage (blocking) |
 | Websocket/SSE push streams                  | "Middleware data stream" in [managers.md](references/managers.md)                 | `controller.set()` on message; connect in `init()`, close in `cleanup()`                                                                                             |
 | High-frequency streams / snapshots          | "Batching high-frequency updates" in [managers.md](references/managers.md)        | buffer, then one `controller.set([Entity], rows)` per flush                                                                                                          |
-| Polling/interval updates (ticker)           | "Dispatching Actions" in [Manager.md](references/Manager.md); `TimeManager` below | `setInterval` + `controller.set()`                                                                                                                                   |
+| Polling/interval updates (ticker)           | "Dispatching Actions" in [Manager.md](references/Manager.md); `TimeManager` below | `setInterval` in `init()` + `controller.set()`                                                                                                                       |
 | Custom transport subscriptions              | "Reading and Consuming Actions" in [Manager.md](references/Manager.md)            | consume `SUBSCRIBE`/`UNSUBSCRIBE` without calling `next`                                                                                                             |
 | Auth: logout on 401, reset store on deauth  | [LogoutManager.md](references/LogoutManager.md)                                   | `handleLogout(controller)` + `controller.resetEntireStore()`                                                                                                         |
 
@@ -56,19 +58,23 @@ ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.inv
 ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 
 ```ts
-import type { Manager, Middleware } from '@data-client/react'; // or '@data-client/vue'
+import type { Controller, Manager, Middleware } from '@data-client/react'; // or '@data-client/vue'
 import CurrentTime from './CurrentTime';
 
 export default class TimeManager implements Manager {
+  declare protected controller: Controller;
   declare protected intervalID?: ReturnType<typeof setInterval>;
 
   middleware: Middleware = controller => {
-    this.intervalID = setInterval(() => {
-      controller.set(CurrentTime, { id: 1 }, { id: 1, time: Date.now() });
-    }, 1000);
-
+    this.controller = controller;
     return next => async action => next(action);
   };
+
+  init() {
+    this.intervalID = setInterval(() => {
+      this.controller.set(CurrentTime, { id: 1 }, { id: 1, time: Date.now() });
+    }, 1000);
+  }
 
   cleanup() {
     clearInterval(this.intervalID);

@@ -18,6 +18,9 @@ Manages state, providing all context needed to use the hooks. Should be placed a
 in application tree as any usage of the hooks is only possible for components below the provider
 in the React tree.
 
+Put it above [`<Activity>`](https://react.dev/reference/react/Activity) too. `<Activity>` above `DataProvider` also
+works, for the rare part of an app that needs its own store.
+
 <Installation />
 
 ## Props

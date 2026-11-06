@@ -69,18 +69,18 @@ To read more about middlewares, see the [redux documentation](https://redux.js.o
 
 ### init(state) {#init}
 
-Called with initial state after provider is mounted. Can be useful to run setup at start that
-relies on state actually existing.
+Called with the initial state after the provider mounts. Start timers and connections here.
 
 ### cleanup()
 
-Provides any cleanup of dangling resources after manager is no longer in use.
+Stop timers and connections here.
 
 :::react
 
-`DataProvider` usually goes above everything, but with [`<Activity>`](https://react.dev/reference/react/Activity) above it, hiding runs cleanup() but keeps
-the store, and showing runs init() again. So in cleanup() stop timers and connections, but keep state about the store
-(like requests in flight), and restart in init().
+`cleanup()` doesn't mean the store is gone. React StrictMode, and [`<Activity>`](https://react.dev/reference/react/Activity)
+above [DataProvider](./DataProvider.md) hiding it, call `cleanup()` and later `init()` on the same store. The store keeps
+applying actions in between. So keep state about the store (like requests in flight), and expect actions after
+`cleanup()`.
 
 :::
 
@@ -146,19 +146,27 @@ export default class CurrentTime extends Entity {
 ```
 
 ```ts title="TimeManager" framework-imports
-import type { Manager, Middleware } from '@data-client/react';
+import type { Controller, Manager, Middleware } from '@data-client/react';
 import CurrentTime from './CurrentTime';
 
 export default class TimeManager implements Manager {
+  declare protected controller: Controller;
   declare protected intervalID?: ReturnType<typeof setInterval>;
 
   middleware: Middleware = controller => {
-    this.intervalID = setInterval(() => {
-      controller.set(CurrentTime, { id: 1 }, { id: 1, time: Date.now() });
-    }, 1000);
-
+    this.controller = controller;
     return next => async action => next(action);
   };
+
+  init() {
+    this.intervalID = setInterval(() => {
+      this.controller.set(
+        CurrentTime,
+        { id: 1 },
+        { id: 1, time: Date.now() },
+      );
+    }, 1000);
+  }
 
   cleanup() {
     clearInterval(this.intervalID);

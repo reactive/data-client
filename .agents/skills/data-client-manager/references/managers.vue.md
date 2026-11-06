@@ -228,30 +228,38 @@ When a mutation succeeds in one tab, mark data stale in all other tabs using
 
 ```typescript
 import {
+  type Controller,
   type Manager,
   type Middleware,
   actionTypes,
 } from '@data-client/vue';
 
 export default class TabSyncManager implements Manager {
-  protected channel = new BroadcastChannel('data-client');
+  declare protected controller: Controller;
+  declare protected channel?: BroadcastChannel;
 
   middleware: Middleware = controller => {
-    this.channel.onmessage = () =>
-      controller.expireAll({ testKey: () => true });
+    this.controller = controller;
     return next => async action => {
       if (
         action.type === actionTypes.SET_RESPONSE &&
         action.endpoint.sideEffect &&
         !action.error
       )
-        this.channel.postMessage('mutation');
+        this.channel?.postMessage('mutation');
       return next(action);
     };
   };
 
+  init() {
+    this.channel = new BroadcastChannel('data-client');
+    this.channel.onmessage = () =>
+      this.controller.expireAll({ testKey: () => true });
+  }
+
   cleanup() {
-    this.channel.close();
+    this.channel?.close();
+    this.channel = undefined;
   }
 }
 ```
