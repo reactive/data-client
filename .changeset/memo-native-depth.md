@@ -8,4 +8,4 @@ On Hermes, an app that kept reading a large result while its entities updated co
 
 Trade-off: on React Native, the memo keeps at most six versions of each result. A read can get a new (equal) object for data it already returned, when five or more other versions of that result were computed since its last read. This can happen with many optimistic updates or transition retries in flight. In stress tests, 0.007% of committed reads did this. Web builds do not change.
 
-React Native (Metro and the React Native Jest preset) now loads `dist/normalizr.native.js`.
+React Native now loads its own build: `native/` for `import` (Metro) and `dist/normalizr.native.js` for `require` (`@data-client/core` and Jest).
