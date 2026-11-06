@@ -35,8 +35,8 @@ One file per subject, only what `PROJECTS.md` and the repos don't say:
 - `integration-<app>`: the app's repo, how to install the packed packages (`PROJECTS.md`, "Testing
   against another app"), run, test, and what "working" looks like on that platform.
 - `project-scope`: the goal, what's in and out of scope, and where follow-ups go.
-- Add a fact in the turn you learn it. What goes in `PROJECTS.md` instead: its "Keeping this file
-  current" section.
+- Add a fact to project memory in the turn you learn it. Shared process rules go to `PROJECTS.md` per
+  its "Keeping this file current" section; history and "why" stay in memory.
 
 ## 4. Optional setup
 
