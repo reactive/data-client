@@ -1372,7 +1372,7 @@ export const TaskResource = resource({
 
 <template>
   <div class="listItem">
-    <span style="flex: 1">{{ task.title }}</span>
+    <span>{{ task.title }}</span>
     <button @click="handleMove">
       {{ task.status === 'backlog' ? '\u25bc' : '\u25b2' }}
     </button>

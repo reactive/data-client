@@ -129,7 +129,7 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <div v-if="canLoadMore" style="text-align: center">
+  <div v-if="canLoadMore" class="loadMore">
     <button @click="nextPage">
       {{ isPending ? '...' : 'Load more' }}
     </button>

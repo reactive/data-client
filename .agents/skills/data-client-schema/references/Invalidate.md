@@ -50,16 +50,13 @@ function UsersPage() {
   const users = useSuspense(getUsers);
   const ctrl = useController();
   return (
-    <div>
+    <div className="list">
       {users.map(user => (
-        <div key={user.pk()}>
-          {user.name}{' '}
-          <span
-            style={{ cursor: 'pointer' }}
+        <div key={user.pk()} className="listItem nogap">
+          <span>{user.name}</span>
+          <CancelButton
             onClick={() => ctrl.fetch(deleteUser, { id: user.id })}
-          >
-            ❌
-          </span>
+          />
         </div>
       ))}
     </div>

@@ -88,11 +88,11 @@ export default function LoadMore({ cursor }: { cursor: string }) {
     [cursor],
   );
   return (
-    <center>
+    <div className="loadMore">
       <button onClick={loadPage} disabled={isPending}>
         {isPending ? '...' : 'Load more'}
       </button>
-    </center>
+    </div>
   );
 }
 ```
@@ -239,11 +239,11 @@ export default function LoadMore({ next_key, limit }) {
   );
   if (!next_key) return null;
   return (
-    <center>
+    <div className="loadMore">
       <button onClick={handleLoadMore} disabled={isPending}>
         {isPending ? '...' : 'Load more'}
       </button>
-    </center>
+    </div>
   );
 }
 ```
