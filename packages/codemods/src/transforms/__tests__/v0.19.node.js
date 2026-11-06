@@ -253,7 +253,43 @@ const persisted = createPersistedStore(() => [new NetworkManager()]);
       `,
       'converts prepareStore() and createPersistedStore(), and drops the third argument of initManager()',
     );
+
+    defineInlineTest(
+      transform,
+      { path: 'store.ts' },
+      `
+import { createPersistedStore } from '@data-client/react';
+
+const [ServerProvider] = createPersistedStore(undefined, false);
+      `,
+      `
+import { createPersistedStore } from '@data-client/react';
+
+const [ServerProvider] = createPersistedStore(undefined, false);
+      `,
+      'leaves undefined managers arguments alone',
+    );
   });
+
+  defineInlineTest(
+    transform,
+    { path: 'App.tsx' },
+    `
+import { DataProvider, getDefaultManagers } from '@data-client/react';
+
+export const managers = [new MyManager(), ...getDefaultManagers()];
+
+export const App = () => <DataProvider managers={managers} />;
+    `,
+    `
+import { DataProvider, getDefaultManagers } from '@data-client/react';
+
+export const managers = [new MyManager(), ...getDefaultManagers()];
+
+export const App = () => <DataProvider managers={() => managers} />;
+    `,
+    'wraps exported arrays where they are passed, as their importers are',
+  );
 
   defineInlineTest(
     transform,

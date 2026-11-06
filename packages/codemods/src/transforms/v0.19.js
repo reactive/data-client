@@ -11,7 +11,8 @@
  *      - `prepareStore(initialState, managers, ...)`, `createPersistedStore(managers)`
  *      `getDefaultManagers()` becomes `getDefaultManagers`. A variable holding an array literal or
  *      `getDefaultManagers(...)` becomes a function when it is only used as `managers`; other values
- *      are wrapped where they are passed: `managers={() => managers}`.
+ *      are wrapped where they are passed: `managers={() => managers}`. Exported variables are
+ *      wrapped too, since other modules wrap them where they pass them.
  *   2. Drops `initManager()`'s third argument, which 0.19 removed.
  *
  * Usage:
@@ -35,6 +36,11 @@ function hasDataClientImport(j, root) {
 
 const isFunction = node =>
   node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression';
+
+// `undefined` selects the default Managers, so it stays as it is
+const isUndefined = node =>
+  (node.type === 'Identifier' && node.name === 'undefined') ||
+  (node.type === 'UnaryExpression' && node.operator === 'void');
 
 const isGetDefaultManagersCall = node =>
   node.type === 'CallExpression' &&
@@ -107,6 +113,9 @@ function bindingOf(path) {
 /** Whether every use of a variable is one of the `managers` slots */
 function onlyUsedAsManagers(j, root, binding, slotNodes) {
   const name = binding.node.name;
+  // other modules may pass `export const managers` too, and they get wrapped
+  if (binding.parent.parent?.parent?.node.type === 'ExportNamedDeclaration')
+    return false;
   return (
     root
       .find(j.Identifier, { name })
@@ -152,7 +161,7 @@ function transformManagers(j, root) {
 
   slots.forEach(({ path, property }) => {
     const node = path.node;
-    if (isFunction(node)) return;
+    if (isFunction(node) || isUndefined(node)) return;
     if (node.type === 'Identifier' && node.name === 'getDefaultManagers')
       return;
     if (isGetDefaultManagersCall(node) && node.arguments.length === 0) {
