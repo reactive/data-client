@@ -190,7 +190,7 @@ declare function createDataClient(options?: ProvideOptions): ProvidedDataClient;
  *
  * const app = createApp(App);
  * app.use(DataClientPlugin, {
- *   managers: getDefaultManagers(),
+ *   managers: getDefaultManagers,
  *   initialState: customInitialState,
  * });
  * app.mount('#app');

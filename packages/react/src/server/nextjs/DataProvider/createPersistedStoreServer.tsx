@@ -87,7 +87,7 @@ export default function createPersistedStore(managers?: Manager[]) {
   return [StoreDataProvider, initPromise] as const;
 }
 
-/** Whether the client's managers include DevToolsManager; calls a managers function once per page */
+/** Whether the client's managers include DevToolsManager; caches the answer for each managers function */
 const devToolsFound = new WeakMap<() => Manager[], boolean>();
 function includesDevTools(managers: (() => Manager[]) | Manager[]) {
   if (typeof managers !== 'function') return managers.some(isDevTools);

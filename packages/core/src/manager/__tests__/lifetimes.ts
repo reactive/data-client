@@ -76,3 +76,32 @@ describe('Manager shared by two stores', () => {
     expect(warn).toHaveBeenCalledTimes(1);
   });
 });
+
+it('warns when two mounted stores start with the same Managers', () => {
+  const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  jest.isolateModules(() => {
+    // fresh modules, so the once-per-page warning hasn't fired yet
+    const { default: apply } = require('../applyManager');
+    const { default: init } = require('../initManager');
+    const { default: FreshNetworkManager } = require('../NetworkManager');
+    const managers = [new FreshNetworkManager()];
+    const bindFresh = () => {
+      const controller = new Controller();
+      apply(managers, controller).forEach((mw: any) =>
+        mw({
+          getState: controller.getState,
+          dispatch: () => Promise.resolve(),
+        }),
+      );
+      return controller;
+    };
+    // both bind in one render, before either starts
+    const a = bindFresh();
+    const b = bindFresh();
+    init(managers, a)();
+    expect(warn).not.toHaveBeenCalled();
+    init(managers, b)();
+    expect(warn).toHaveBeenCalledTimes(1);
+  });
+  warn.mockRestore();
+});

@@ -39,8 +39,8 @@ Arguments represent the default time (in milliseconds) before a resource is cons
 Drops a response when its fetch started before the last [resetEntireStore()](./Controller.md#resetEntireStore). An older
 response doesn't settle a newer fetch of the same key.
 
-When `middleware` gets a different controller, the old store unmounted and a new store uses this NetworkManager.
-NetworkManager stops tracking the old store's fetches, so their promises never settle. It also doesn't send fetches from
+When `middleware` gets a different controller, a new store uses this NetworkManager, which only happens with a
+deprecated [managers array](./Manager.md#lifetimes). NetworkManager stops tracking the old store's fetches, so their promises never settle. It also doesn't send fetches from
 the old store.
 
 #### Consumed Actions

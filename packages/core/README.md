@@ -110,14 +110,15 @@ function createStore({
       return () => listeners.delete(listener);
     },
     // call once mounted; returns the cleanup for unmount
-    start: initManager(managers, controller, init),
+    start: initManager(managers, controller),
   };
 }
 ```
 
 Requirements every provider must meet:
 
-- **One `Controller`, one set of managers per store**, created once and kept stable. Include `NetworkManager`: it does
+- **One `Controller`, one set of managers per store**, created once and kept stable. Never share Manager instances
+  between stores: if users pass managers, take a function and call it once per store with `createManagers()`. Include `NetworkManager`: it does
   the fetching, and `applyManager()` binds the controller through the first manager, so the list can't be empty. Pass a
   `GCPolicy` to enable garbage collection; the default `ImmortalGCPolicy` keeps everything.
 - **Dispatch must go through the whole middleware chain**, including dispatches managers make themselves, which is why
@@ -222,7 +223,9 @@ app-wide methods.
 
 - `createReducer(controller)`, `initialState`
 - `applyManager(managers, controller)`: managers to redux-compatible middleware
-- `initManager(managers, controller, initialState)`: returns the mount effect, which returns its cleanup
+- `createManagers(managers)`: calls a managers function, so each store gets new instances (returns an array as is)
+- `initManager(managers, controller)`: returns the mount effect, which returns its cleanup. `init()` gets the store's
+  current state
 - [`GCPolicy`](https://dataclient.io/docs/api/DataProvider#gcPolicy), `ImmortalGCPolicy`; types `GCInterface`,
   `GCOptions`, `CreateCountRef`
 - `ExpiryStatus` (`Valid`, `InvalidIfStale`, `Invalid`)

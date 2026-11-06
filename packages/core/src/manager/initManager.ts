@@ -1,6 +1,6 @@
 import type Controller from '../controller/Controller.js';
 import { Manager, State } from '../types.js';
-import { startedWith } from './applyManager.js';
+import { markStarted } from './warnIfShared.js';
 
 /** Returns an Effect that starts `managers` and returns their cleanup.
  *
@@ -18,7 +18,7 @@ export default function initManager(
     managers.forEach(manager => {
       /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production')
-        startedWith.set(manager, controller);
+        markStarted(manager, controller);
       manager.init?.(state);
     });
     controller.gcPolicy.init(controller);

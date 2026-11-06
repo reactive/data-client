@@ -211,7 +211,7 @@ interface RenderDataClientOptions<P = any> {
   /** Initial `this` for interceptors */
   getInitialInterceptorData?: () => any;
   /** Replace the default NetworkManager and SubscriptionManager */
-  managers?: Manager[];
+  managers?: () => Manager[];
   /** Replace the state built from initialFixtures */
   initialState?: State<unknown>;
   gcPolicy?: GCInterface;

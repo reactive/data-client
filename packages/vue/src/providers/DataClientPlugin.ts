@@ -14,7 +14,7 @@ import type { ProvideOptions } from './createDataClient.js';
  *
  * const app = createApp(App);
  * app.use(DataClientPlugin, {
- *   managers: getDefaultManagers(),
+ *   managers: getDefaultManagers,
  *   initialState: customInitialState,
  * });
  * app.mount('#app');

@@ -130,6 +130,7 @@ export function mountDataClient<P = any>(
         [
           DataClientPlugin,
           {
+            // a function, since these instances belong to this store only
             managers: () => finalManagers,
             initialState: finalInitialState,
             Controller: MockControllerClass,
