@@ -24,6 +24,7 @@ on:
       - '.agents/skill-packages.json'
       - 'website/src/components/Playground/editor-types/**'
       - 'website/src/components/Playground/DesignSystem/index.ts'
+      - 'website/src/components/Demo/code/**'
       - 'website/src/components/Playground/monaco/typeCheckFlags.json'
       - 'tsconfig*.json'
       - 'docs/**'

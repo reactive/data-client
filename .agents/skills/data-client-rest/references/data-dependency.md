@@ -121,9 +121,9 @@ export default function LoadMore() {
   );
   if (!posts || posts.length % 3 !== 0) return null;
   return (
-    <center>
+    <div className="loadMore">
       <button onClick={nextPage}>{isPending ? '...' : 'Load more'}</button>
-    </center>
+    </div>
   );
 }
 ```

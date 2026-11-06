@@ -315,7 +315,7 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <div style="text-align: center">
+  <div class="loadMore">
     <button @click="loadPage" :disabled="isPending">
       {{ isPending ? '...' : 'Load more' }}
     </button>

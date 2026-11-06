@@ -86,11 +86,11 @@ export default function LoadMore({ cursor }: { cursor: string }) {
     [cursor],
   );
   return (
-    <center>
+    <div className="loadMore">
       <button onClick={loadPage} disabled={isPending}>
         {isPending ? '...' : 'Load more'}
       </button>
-    </center>
+    </div>
   );
 }
 ```
@@ -150,7 +150,7 @@ render(<PostList />);
 </script>
 
 <template>
-  <div style="text-align: center">
+  <div class="loadMore">
     <button @click="loadPage" :disabled="isPending">
       {{ isPending ? '...' : 'Load more' }}
     </button>

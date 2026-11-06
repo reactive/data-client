@@ -149,11 +149,11 @@ export default function LoadMore({ next_key, limit }) {
   );
   if (!next_key) return null;
   return (
-    <center>
+    <div className="loadMore">
       <button onClick={handleLoadMore} disabled={isPending}>
         {isPending ? '...' : 'Load more'}
       </button>
-    </center>
+    </div>
   );
 }
 ```
@@ -225,7 +225,7 @@ render(<ValidatorList />);
 </script>
 
 <template>
-  <div v-if="next_key" style="text-align: center">
+  <div v-if="next_key" class="loadMore">
     <button @click="handleLoadMore" :disabled="isPending">
       {{ isPending ? '...' : 'Load more' }}
     </button>

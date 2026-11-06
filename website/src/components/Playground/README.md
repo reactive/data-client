@@ -340,6 +340,7 @@ hang under it on a line.
 | `pill`                                     | a label after a name (an admin), in the accent                                  |
 | `assignee` (a `label`)                     | a row's owner: their avatar in a ring; a `select` in it is the picker           |
 | `buttonGroup`                              | segmented actions (Fail Soft, Fail Hard)                                        |
+| `loadMore`                                 | a list's Load more button, centered under it                                    |
 | `segmented`                                | a filter's 2-4 choices on a track; `aria-pressed` marks the pick, a pill slides |
 | `field` (a `label`)                        | its name over the `input` or `textarea` it holds                                |
 | `search` (a `label`)                       | `input type="search"`, `button.clear`; `aria-busy` spins its magnifier          |

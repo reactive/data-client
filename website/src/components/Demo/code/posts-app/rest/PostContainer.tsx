@@ -10,13 +10,7 @@ export default function PostContainer({
   extra?: React.ReactNode;
 }) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        gap: '1em',
-        marginBottom: '10px',
-      }}
-    >
+    <div className="listItem">
       <Avatar src={author.profileImage} />
       <div>
         <h4>{children}</h4>

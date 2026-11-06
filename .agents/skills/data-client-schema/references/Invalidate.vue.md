@@ -52,15 +52,10 @@ export const deleteUser = new RestEndpoint({
 </script>
 
 <template>
-  <div>
-    <div v-for="user in users" :key="user.pk()">
-      {{ user.name }}
-      <span
-        style="cursor: pointer"
-        @click="ctrl.fetch(deleteUser, { id: user.id })"
-      >
-        ❌
-      </span>
+  <div class="list">
+    <div v-for="user in users" :key="user.pk()" class="listItem nogap">
+      <span>{{ user.name }}</span>
+      <CancelButton @click="ctrl.fetch(deleteUser, { id: user.id })" />
     </div>
   </div>
 </template>

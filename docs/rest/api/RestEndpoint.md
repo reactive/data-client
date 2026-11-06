@@ -1264,7 +1264,7 @@ export default function TaskCard({ task }: { task: Task }) {
   const ctrl = useController();
   return (
     <div className="listItem">
-      <span style={{ flex: 1 }}>{task.title}</span>
+      <span>{task.title}</span>
       <button onClick={handleMove}>
         {task.status === 'backlog' ? '\u25bc' : '\u25b2'}
       </button>
@@ -1322,7 +1322,7 @@ render(<TaskBoard />);
 
 <template>
   <div class="listItem">
-    <span style="flex: 1">{{ task.title }}</span>
+    <span>{{ task.title }}</span>
     <button @click="handleMove">
       {{ task.status === 'backlog' ? '\u25bc' : '\u25b2' }}
     </button>

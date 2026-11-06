@@ -88,7 +88,7 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <div style="text-align: center">
+  <div class="loadMore">
     <button @click="loadPage" :disabled="isPending">
       {{ isPending ? '...' : 'Load more' }}
     </button>
@@ -234,7 +234,7 @@ export const getValidators = new RestEndpoint({
 </script>
 
 <template>
-  <div v-if="next_key" style="text-align: center">
+  <div v-if="next_key" class="loadMore">
     <button @click="handleLoadMore" :disabled="isPending">
       {{ isPending ? '...' : 'Load more' }}
     </button>
