@@ -259,7 +259,7 @@ export default class TabSyncManager implements Manager {
 
   cleanup() {
     this.channel?.close();
-    this.channel = undefined;
+    delete this.channel;
   }
 }
 ```
