@@ -86,6 +86,8 @@ jobs:
             # Fail open: run jobs unless we can prove irrelevance.
             ESMODULE_RELEVANT=true
             TESTS_RELEVANT=true
+            # Empty unless the diff below sets it; save_cache needs the file
+            : > ~/project/.ci-base-tree
 
             # Only the queue and master trust a marker; PR reruns still run
             if [ -f ~/project/.ci-tree-passed ] \
@@ -151,7 +153,7 @@ jobs:
             - .ci-esmodule-relevant
             - .ci-tests-relevant
             - .ci-tree # tree-passed marks this
-            - .ci-base-tree # absent when setup didn't diff
+            - .ci-base-tree # empty when setup didn't diff
       - run:
           name: Halt setup if nothing downstream is relevant
           command: |
