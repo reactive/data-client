@@ -133,8 +133,9 @@ jobs:
                 ESMODULE_RELEVANT=false
               fi
               # Docs/website/tooling-only changes can't affect lint, typecheck or
-              # unit tests. Playground and motion have unit tests, and they import
-              # website/src/utils, so those stay relevant (setup's workspace lists all three).
+              # unit tests. Playground and motion have unit tests, and Playground's
+              # import website/src/utils, so those stay relevant. Keep in step with
+              # the website paths in setup's persist_to_workspace.
               if ! grep -Evq "^(${DOCS_ONLY})" /tmp/ci-changed-files \
                 && ! grep -Eq '^website/src/(components/(Playground|motion)|utils)/' /tmp/ci-changed-files; then
                 echo "Only docs/website/tooling paths changed; test jobs will halt."
@@ -217,7 +218,8 @@ jobs:
             - project/node_modules
             - project/packages
             - project/scripts
-            # Playground and motion unit tests; rest of website omitted
+            # Playground and motion unit tests, and the utils Playground imports;
+            # rest of website omitted. Keep in step with the tests relevance check.
             - project/website/src/components/Playground
             - project/website/src/components/motion
             - project/website/src/utils
