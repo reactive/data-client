@@ -25,7 +25,7 @@ project follow `.agents/projects/setup.md`.
 
 ## Tools
 
-Every project environment has user-kit's skills and workflows; how it is installed differs by host.
+Every project environment has user-kit's skills and workflows (`.agents/projects/setup.md` checks).
 
 | Tool | Claude project | Cursor Project |
 | --- | --- | --- |

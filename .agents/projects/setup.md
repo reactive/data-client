@@ -38,14 +38,20 @@ One file per subject, only what `PROJECTS.md` and the repos don't say:
 - Add a fact to project memory in the turn you learn it. Shared process rules go to `PROJECTS.md` per
   its "Keeping this file current" section; history and "why" stay in memory.
 
-## 4. Optional setup
+## 4. Check user-kit
+
+Workers rely on user-kit's skills and workflows (`PROJECTS.md`, "Tools"). Confirm they load in this
+host, for example the `post-push-review` workflow in Claude or a user-kit skill in Cursor. If they
+don't, ask the person to install user-kit for this host; how it installs differs by host.
+
+## 5. Optional setup
 
 - A work queue in the project files (JSON, one item per follow-up, with what it waits on), and a cap on
   how many workers run at once. Ask the person for the cap.
 - Remote Control (Claude) or a local agent (Cursor) on the person's machine, if the integration needs a
   device, simulator or GPU.
 
-## 5. Check it
+## 6. Check it
 
 Start one small worker task. Confirm it read `PROJECTS.md` (ask it to name the post-push review step)
 before giving it real work.
