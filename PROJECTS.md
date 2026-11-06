@@ -26,7 +26,8 @@ project follow `.agents/projects/setup.md`.
 ## Tools
 
 Every project environment should have user-kit's skills and workflows. If one you need is missing,
-tell the coordinator instead of skipping the step.
+use the step's fallback where it names one, and tell the coordinator, who asks the person to install
+user-kit.
 
 | Tool | Claude project | Cursor Project |
 | --- | --- | --- |
