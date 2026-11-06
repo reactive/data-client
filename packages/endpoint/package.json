@@ -33,10 +33,11 @@
   ],
   "sideEffects": [
     "./lib/index.js",
-    "./legacy/index.js"
+    "./legacy/index.js",
+    "./dist/index.native.js"
   ],
   "main": "dist/index.js",
-  "react-native": "legacy/index.js",
+  "react-native": "dist/index.native.js",
   "module": "legacy/index.js",
   "unpkg": "dist/index.umd.min.js",
   "types": "lib/index.d.ts",
@@ -77,11 +78,11 @@
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
+      "react-native": "./dist/index.native.js",
       "module": "./lib/index.js",
       "import": "./node.mjs",
       "require": "./dist/index.js",
       "browser": "./lib/index.js",
-      "react-native": "./lib/index.js",
       "default": "./lib/index.js"
     },
     "./package.json": "./package.json"
@@ -110,6 +111,7 @@
     "build:legacy:lib": "NODE_ENV=production BROWSERSLIST_ENV='2018' POLYFILL_TARGETS='chrome>80,safari>13,firefox>72' yarn g:babel --out-dir legacy",
     "build:js:node": "BROWSERSLIST_ENV=node12 yarn g:rollup && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:js:browser": "BROWSERSLIST_ENV=legacy yarn g:rollup",
+    "build:js:native": "COMPILE_TARGET=native BROWSERSLIST_ENV=hermes12 yarn g:rollup",
     "build:bundle": "yarn g:runs build:js:\\*",
     "build:clean": "yarn g:clean ts4.0 ts4.2 ts4.8",
     "build": "run build:lib && run build:legacy:lib && run build:bundle",

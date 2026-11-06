@@ -27,6 +27,18 @@ function nativeOrNormalPath(path) {
   return path.replace('.js', '.native.js');
 }
 
+// renderHook.cts loads this lazily with require(), which rollup leaves as-is
+const nativeRenderHookWrapped = {
+  name: 'native-render18-hook-wrapped',
+  renderChunk(code) {
+    if (process.env.COMPILE_TARGET !== 'native') return null;
+    return code.replaceAll(
+      "require('./render18HookWrapped.js')",
+      "require('./render18HookWrapped.native.js')",
+    );
+  },
+};
+
 export default [
   // test utils commonjs build
   {
@@ -46,6 +58,7 @@ export default [
         extensions,
         ignore: ['@testing-library/react-hooks', './render18HookWrapped.js'],
       }),
+      nativeRenderHookWrapped,
     ],
   },
   {

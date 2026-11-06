@@ -34,7 +34,7 @@
   ],
   "sideEffects": false,
   "main": "dist/index.js",
-  "react-native": "legacy/browser.js",
+  "react-native": "dist/index.native.js",
   "module": "legacy/browser.js",
   "types": "lib/index.d.ts",
   "typesVersions": {
@@ -53,6 +53,7 @@
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
+      "react-native": "./dist/index.native.js",
       "node": {
         "module": "./lib/index.js",
         "import": "./node.mjs",
@@ -62,7 +63,6 @@
       "import": "./node.mjs",
       "require": "./dist/index.js",
       "browser": "./lib/browser.js",
-      "react-native": "./native/browser.js",
       "default": "./lib/index.js"
     },
     "./browser": {

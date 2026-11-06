@@ -20,13 +20,17 @@ const dependencies = Object.keys(pkg.dependencies).filter(
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
 const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
+// React Native: `.native` sources (see babel.config.js), CommonJS like the node build
+const isNative = process.env.COMPILE_TARGET === 'native';
+const nativeOrNormalPath = file =>
+  isNative ? file.replace(/\.js$/, '.native.js') : file;
 
 function isExternal(id) {
   return dependencies.some(dep => dep === id || id.startsWith(dep));
 }
 
 const configs = [];
-if (process.env.BROWSERSLIST_ENV !== 'node12') {
+if (process.env.BROWSERSLIST_ENV !== 'node12' && !isNative) {
   // browser-friendly UMD build
   configs.push({
     input: 'lib/index.js',
@@ -57,11 +61,11 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
     plugins: [dts()],
   });
 } else {
-  // node-friendly commonjs build
+  // node-friendly (or React Native) commonjs build
   configs.push({
     input: 'src/index.ts',
     external: isExternal,
-    output: [{ file: pkg.main, format: 'cjs' }],
+    output: [{ file: nativeOrNormalPath(pkg.main), format: 'cjs' }],
     onwarn,
     plugins: [
       babel({

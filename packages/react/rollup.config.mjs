@@ -1,3 +1,4 @@
+import path from 'path';
 import {
   babel,
   banner,
@@ -25,18 +26,28 @@ const peers = Object.keys(pkg.peerDependencies);
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node', '.jsx'];
 const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
+// React Native: `.native` sources (see babel.config.js), CommonJS like the node build
+const isNative = process.env.COMPILE_TARGET === 'native';
 
 function isExternal(id) {
   return (
     // when we import contexts in our other entry points
     id === '../../index.js' ||
     id === '../index.js' ||
+    id === 'react-native' ||
     dependencies.some(dep => dep === id || id.startsWith(dep))
   );
 }
+// native entries must share the native index (and its contexts)
+function nativePaths(output) {
+  const srcIndex = path.resolve('src/index.js');
+  const relative = path.relative(path.dirname(output), 'dist/index.native.js');
+  const nativeIndex = relative.startsWith('.') ? relative : `./${relative}`;
+  return id => (id === srcIndex ? nativeIndex : id);
+}
 
 const configs = [];
-if (process.env.BROWSERSLIST_ENV !== 'node12') {
+if (process.env.BROWSERSLIST_ENV !== 'node12' && !isNative) {
   // browser-friendly UMD build
   configs.push({
     input: 'src/index.ts',
@@ -88,6 +99,40 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
     ...typeConfig,
     input: './lib/server/redux/index.d.ts',
     output: [{ file: 'redux.d.ts', format: 'es' }],
+  });
+} else if (isNative) {
+  [
+    { input: 'src/index.ts', output: 'dist/index.native.js' },
+    { input: 'src/next/index.ts', output: 'dist/next.native.js' },
+    {
+      input: 'src/server/redux/index.ts',
+      output: 'dist/server/redux/index.native.js',
+    },
+  ].forEach(({ input, output }) => {
+    configs.push({
+      input,
+      external: isExternal,
+      output: [
+        {
+          file: output,
+          format: 'cjs',
+          inlineDynamicImports: true,
+          paths: nativePaths(output),
+        },
+      ],
+      onwarn,
+      plugins: [
+        babel({
+          exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
+          extensions,
+          rootMode: 'upward',
+          babelHelpers: 'runtime',
+        }),
+        replace({ 'process.env.CJS': 'true', preventAssignment: true }),
+        resolve({ extensions }),
+        commonjs({ extensions }),
+      ],
+    });
   });
 } else {
   // node-friendly commonjs build

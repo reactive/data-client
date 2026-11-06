@@ -23,6 +23,10 @@ const dependencies = Object.keys(pkg.dependencies).filter(
 const extensions = ['.ts', '.tsx', '.js', '.mjs', '.json', '.node'];
 const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
+// React Native: `.native` sources (see babel.config.js), CommonJS like the node build
+const isNative = process.env.COMPILE_TARGET === 'native';
+const nativeOrNormalPath = file =>
+  isNative ? file.replace(/\.js$/, '.native.js') : file;
 
 function isExternal(id) {
   return dependencies.some(dep => dep === id || id.startsWith(dep));
@@ -82,7 +86,7 @@ if (process.env.BROWSERSLIST_ENV === '2020') {
       json(),
     ],
   });
-} else if (process.env.BROWSERSLIST_ENV !== 'node12') {
+} else if (process.env.BROWSERSLIST_ENV !== 'node12' && !isNative) {
   //TODO: this needs to use src/index.ts so it doesn't include the wrong polyfills
   // browser-friendly UMD build
   configs.push({
@@ -112,7 +116,7 @@ if (process.env.BROWSERSLIST_ENV === '2020') {
   configs.push(typeConfig);
   configs.push(typeConfigNext);
 } else {
-  // node-friendly commonjs build
+  // node-friendly (or React Native) commonjs build
   [
     { input: 'src/index.ts', output: pkg.main },
     { input: 'src/next/index.ts', output: 'dist/next.js' },
@@ -120,7 +124,7 @@ if (process.env.BROWSERSLIST_ENV === '2020') {
     configs.push({
       input,
       external: isExternal,
-      output: [{ file: output, format: 'cjs' }],
+      output: [{ file: nativeOrNormalPath(output), format: 'cjs' }],
       onwarn,
       plugins: [
         babel({
