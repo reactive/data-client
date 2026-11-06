@@ -45,15 +45,18 @@ export default function makeRenderDataHook(
       initialFixtures,
       resolverFixtures,
       getInitialInterceptorData = () => ({}) as any,
+      managers: createManagers = defaultManagers,
       ...options
     }: {
       initialProps?: P;
       initialFixtures?: Fixture[];
       resolverFixtures?: (Fixture | Interceptor<T>)[];
       getInitialInterceptorData?: () => T;
+      managers?: () => Manager[];
       wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
     } & Omit<RenderHookOptions<P>, 'initialProps' | 'wrapper'> = {} as any,
   ): RenderDataHookResult<R, P> => {
+    let controller: Controller | undefined;
     /** Wraps dispatches that are typically called declaratively in act() */
     class ActController extends MockController(
       Controller,
@@ -66,6 +69,9 @@ export default function makeRenderDataHook(
     ) {
       constructor(...args: ConstructorParameters<typeof Controller>) {
         super(...args);
+        // the controller DataProvider made, also when no NetworkManager runs
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        controller = this;
         const { setResponse, resolve } = this;
         this.setResponse = (...args) => {
           let promise: any;
@@ -85,18 +91,23 @@ export default function makeRenderDataHook(
     }
 
     // each call renders one store, so its Managers are created here, where cleanup() can reach them
-    const nm = new NetworkManager();
-    const managers = [nm, new SubscriptionManager(PollingSubscription)];
+    const managers = createManagers();
+    // cleanup() and allSettled() track the NetworkManager actually in use
+    const nm = managers.find(
+      (manager): manager is NetworkManager => manager instanceof NetworkManager,
+    );
     const cleanup = () => {
       activeCleanups.delete(cleanup);
-      // NetworkManager resolves responses that land after cleanup(), so settle in-flight fetches here
-      // to keep them out of the next test.
-      nm['fetching'].forEach(({ reject }) => reject());
-      nm['clearAll']();
+      if (nm) {
+        // NetworkManager resolves responses that land after cleanup(), so settle in-flight fetches here
+        // to keep them out of the next test.
+        nm['fetching'].forEach(({ reject }) => reject());
+        nm['clearAll']();
+      }
       managers.forEach(manager => manager.cleanup());
     };
     const allSettled = () => {
-      return nm.allSettled();
+      return nm?.allSettled();
     };
     activeCleanups.add(cleanup);
     renderDataClient.cleanup = cleanup;
@@ -152,7 +163,7 @@ export default function makeRenderDataHook(
     act(() => {
       kickRef.current?.(count => count + 1);
     });
-    ret.controller = nm['controller'];
+    ret.controller = controller;
     ret.cleanup = cleanup;
     ret.allSettled = allSettled;
     return ret;
@@ -160,6 +171,11 @@ export default function makeRenderDataHook(
   renderDataClient.cleanup = () => {};
   renderDataClient.allSettled = () => Promise.allSettled([]);
   return renderDataClient;
+}
+
+/** New instances for each render, so manager state never leaks between tests */
+function defaultManagers(): Manager[] {
+  return [new NetworkManager(), new SubscriptionManager(PollingSubscription)];
 }
 export interface DataProviderProps {
   children: React.ReactNode;
@@ -181,6 +197,8 @@ export type RenderDataHook = (<P, R>(
     initialProps?: P;
     initialFixtures?: readonly Fixture[];
     readonly resolverFixtures?: readonly (Fixture | Interceptor)[];
+    /** Returns the Managers for this render, replacing the default NetworkManager and SubscriptionManager */
+    managers?: () => Manager[];
     wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
   } & Omit<RenderHookOptions<P>, 'initialProps' | 'wrapper'>,
 ) => RenderDataHookResult<R, P>) & {

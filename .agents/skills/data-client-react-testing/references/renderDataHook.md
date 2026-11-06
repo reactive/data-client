@@ -23,6 +23,7 @@ type RenderDataHook = {
       initialFixtures?: Fixture[];
       resolverFixtures?: (Fixture | Interceptor<T>)[];
       getInitialInterceptorData?: () => T;
+      managers?: () => Manager[];
       wrapper?: React.ComponentType;
     },
   ): {
@@ -106,6 +107,42 @@ Works by adding [MockResolver](./MockResolver.md) as a wrapper.
 ### options.getInitialInterceptorData
 
 Function that initializes the `this` attribute for all interceptors.
+
+### options.managers
+
+Returns the [Managers](https://dataclient.io/docs/api/Manager) for this render. It is called once per render, so each test gets
+new instances. The result replaces the default [NetworkManager](https://dataclient.io/docs/api/NetworkManager) and
+[SubscriptionManager](https://dataclient.io/docs/api/SubscriptionManager), so include them when the test needs fetching or subscriptions.
+
+Put a Manager before `NetworkManager` to see `fetch` actions, because `NetworkManager` handles them without
+passing them on.
+
+```ts
+import type { Manager } from '@data-client/react';
+import { NetworkManager, useController } from '@data-client/react';
+import { renderDataHook } from '@data-client/test';
+import { TodoResource } from './resources/Todo';
+
+it('logs every action', async () => {
+  const types: string[] = [];
+  const logger: Manager = {
+    middleware: () => next => action => {
+      types.push(action.type);
+      return next(action);
+    },
+    cleanup() {},
+  };
+  const { controller } = renderDataHook(() => useController(), {
+    managers: () => [logger, new NetworkManager()],
+  });
+  await controller.setResponse(
+    TodoResource.get,
+    { id: 5 },
+    { id: 5, title: 'hi', completed: false },
+  );
+  expect(types).toEqual(['rdc/setresponse']);
+});
+```
 
 ### options.initialProps
 

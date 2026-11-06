@@ -170,25 +170,37 @@ it('should fetch data from API', async () => {
 
 ## Testing Managers
 
+Pass `managers` a function that returns new Managers; it runs once per render. They replace the
+defaults, so include `NetworkManager` when the test fetches. Put your Manager before `NetworkManager` to
+see `fetch` actions: `NetworkManager` handles them without passing them on.
+
 ```typescript
+import { NetworkManager, useController } from '@data-client/react';
+import type { Manager } from '@data-client/react';
+
 it('should handle manager middleware', async () => {
-  const mockManager = {
+  const types: string[] = [];
+  const mockManager: Manager = {
     middleware: (controller) => (next) => async (action) => {
-      if (action.type === 'FETCH') {
-        console.log('Fetch action:', action);
-      }
+      types.push(action.type);
       return next(action);
     },
     cleanup: jest.fn(),
   };
 
-  const { controller } = renderDataHook(
-    () => useController(),
-    { managers: [mockManager] },
-  );
+  const { controller, cleanup } = renderDataHook(() => useController(), {
+    managers: () => [mockManager, new NetworkManager()],
+  });
 
-  await controller.fetch(TodoResource.get, { id: 1 });
-  expect(mockManager.cleanup).not.toHaveBeenCalled();
+  await controller.setResponse(
+    TodoResource.get,
+    { id: 1 },
+    { id: 1, title: 'Test', completed: false },
+  );
+  expect(types).toEqual(['rdc/setresponse']);
+
+  cleanup();
+  expect(mockManager.cleanup).toHaveBeenCalled();
 });
 ```
 

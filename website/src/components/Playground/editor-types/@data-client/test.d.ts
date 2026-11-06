@@ -83,6 +83,8 @@ type RenderDataHook = (<P, R>(callback: (props: P) => R, options?: {
     initialProps?: P;
     initialFixtures?: readonly Fixture[];
     readonly resolverFixtures?: readonly (Fixture | Interceptor)[];
+    /** Returns the Managers for this render, replacing the default NetworkManager and SubscriptionManager */
+    managers?: () => Manager[];
     wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
 } & Omit<RenderHookOptions<P>, 'initialProps' | 'wrapper'>) => RenderDataHookResult<R, P>) & {
     /** @deprecated use per-render cleanup returned from renderDataClient() instead */
