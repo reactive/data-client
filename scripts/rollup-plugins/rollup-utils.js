@@ -37,6 +37,17 @@ export const esnextConfig = {
   plugins: [dts({ respectExternal: true })],
 };
 
+/** React Native build (`yarn g:rollup-native`): compiles `.native` sources (see babel.config.js).
+ * Its CommonJS `dist/*.native.js` output is for React Native Jest, which runs in Node and does not
+ * compile node_modules. Metro loads the ESM `native/` build (`yarn g:babel-native`) instead.
+ */
+export const isNative = process.env.COMPILE_TARGET === 'native';
+
+/** `dist/index.js` -> `dist/index.native.js` in the React Native build */
+export function nativeOrNormalPath(file) {
+  return isNative ? file.replace(/\.js$/, '.native.js') : file;
+}
+
 export function onwarn(warning, warn) {
   // Suppress "use client" warnings
   if (

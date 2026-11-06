@@ -8,6 +8,7 @@ import {
   replace,
   terser,
   onwarn,
+  nativeOrNormalPath,
   resolveTsAsJs,
 } from 'rollup-plugins';
 
@@ -57,11 +58,12 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
     plugins: [dts()],
   });
 } else {
-  // node-friendly commonjs build
+  // node-friendly (or React Native Jest) commonjs build
+  // Native builds exist only for consistentSerialize.native.ts: URLSearchParams.sort() throws before RN 0.80 (REACT-24)
   configs.push({
     input: 'src/index.ts',
     external: isExternal,
-    output: [{ file: pkg.main, format: 'cjs' }],
+    output: [{ file: nativeOrNormalPath(pkg.main), format: 'cjs' }],
     onwarn,
     plugins: [
       babel({

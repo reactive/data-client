@@ -1,6 +1,7 @@
 /lib
 /dist
 /legacy
+/native
 /index.d.ts
 /ts4.0
 /ts4.2

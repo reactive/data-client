@@ -1,4 +1,13 @@
-import { babel, banner, commonjs, resolve, onwarn } from 'rollup-plugins';
+import {
+  babel,
+  banner,
+  commonjs,
+  resolve,
+  replace,
+  onwarn,
+  isNative,
+  nativeOrNormalPath,
+} from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
 
@@ -22,10 +31,8 @@ function isExternal(id) {
   return dependencies.some(dep => dep === id || id.startsWith(dep));
 }
 
-function nativeOrNormalPath(path) {
-  if (process.env.COMPILE_TARGET !== 'native') return path;
-  return path.replace('.js', '.native.js');
-}
+// renderHook.cts loads this lazily with require(), which rollup leaves as-is
+const renderHookWrapped = './render18HookWrapped.js';
 
 export default [
   // test utils commonjs build
@@ -44,8 +51,19 @@ export default [
       resolve({ extensions }),
       commonjs({
         extensions,
-        ignore: ['@testing-library/react-hooks', './render18HookWrapped.js'],
+        ignore: ['@testing-library/react-hooks', renderHookWrapped],
       }),
+      ...(isNative ?
+        [
+          replace({
+            values: {
+              [`require('${renderHookWrapped}')`]: `require('${nativeOrNormalPath(renderHookWrapped)}')`,
+            },
+            delimiters: ['', ''],
+            preventAssignment: false,
+          }),
+        ]
+      : []),
     ],
   },
   {
