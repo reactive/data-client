@@ -7,7 +7,7 @@
 #   Pass additional workspace paths as arguments.
 #
 # Examples:
-#   scripts/ci-install.sh                        # release / beta-release
+#   scripts/ci-install.sh                        # release.yml
 #   scripts/ci-install.sh examples/benchmark     # node benchmark
 set -euo pipefail
 
