@@ -12,9 +12,12 @@ import React, {
 } from 'react';
 
 import Header from '../Header';
+import { hasLayoutWidth } from '../monaco/layout';
 import { modelPath, useModelId } from '../monaco/modelPath';
 import { createMissingModels } from '../monaco/models';
 import { allowTopLevelAwait } from '../monaco/topLevelAwait';
+import { whenIdle } from '../monaco/whenIdle';
+import { whenPainted } from '../monaco/whenPainted';
 import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
 import TabList, { type TabItem } from '../TabList';
@@ -142,7 +145,6 @@ export default function EditorSurface({
         code={document.value}
         path={modelPath(id, document.path)}
         beforeMount={createModels}
-        isFocused={!closedList[index]}
         language={document.language}
         highlights={document.highlights}
         autoFocus={document.autoFocus}
@@ -233,24 +235,41 @@ function TextEditTab({
       <StaticEditor code={editorProps.code} language={editorProps.language} />
     : <pre>{editorProps.code}</pre>;
 
-  // A tab not yet shown is display:none until its editor has mounted and the
-  // page is idle; from then (or once shown) a hidden tab keeps the shown
-  // file's width (styles.tabHidden), so its editor lays out and highlights
-  // out of sight and shows at once. Never at load: that would hold up the
-  // shown files.
-  const [laidOut, setLaidOut] = useState(!hidden);
-  if (!hidden && !laidOut) setLaidOut(true);
-  const layOut = useCallback(() => setLaidOut(true), []);
+  // Monaco can't lay out under display:none, so a hidden tab takes the shown
+  // file's width out of sight (styles.tabHidden) until its editor has laid
+  // out and highlighted: it then shows at once, kept as it was
+  // (layoutWhileShown). Not before the page is idle and the shown editors
+  // have painted (whenIdle), or it would hold them up.
+  const [stage, setStage] = useState<'waiting' | 'painting' | 'painted'>(
+    'waiting',
+  );
+  const handleMount = useCallback((editor: Monaco.editor.ICodeEditor) => {
+    const stops = [whenPainted(editor, () => setStage('painted'))];
+    // shown, it paints where it is
+    if (!hasLayoutWidth(editor))
+      stops.push(
+        whenIdle(() =>
+          setStage(stage => (stage === 'waiting' ? 'painting' : stage)),
+        ),
+      );
+    editor.onDidDispose(() => stops.forEach(stop => stop()));
+  }, []);
   return (
     <div
       className={clsx(styles.playgroundEditor, {
-        [styles.hidden]: hidden && !laidOut,
-        [styles.tabHidden]: hidden && laidOut,
+        [styles.hidden]: hidden && stage !== 'painting',
+        [styles.tabHidden]: hidden && stage === 'painting',
       })}
     >
       {interactive ?
         <BrowserOnly fallback={staticView}>
-          {() => <Editor {...editorProps} onMountIdle={layOut} />}
+          {() => (
+            <Editor
+              {...editorProps}
+              isFocused={!hidden}
+              onMount={handleMount}
+            />
+          )}
         </BrowserOnly>
       : staticView}
     </div>

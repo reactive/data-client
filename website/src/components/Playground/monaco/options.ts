@@ -20,7 +20,7 @@ export const options = {
     '"Roboto Mono",SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace',
   fontSize: 13,
   lineHeight: 19,
-  // useAutoHeight lays the editor out instead, leaving it as it was while
-  // hidden (layoutWhileShown)
+  // ./layout's layoutWhileShown lays the editor out instead, leaving it as
+  // it was while hidden
   automaticLayout: false,
 } as const;

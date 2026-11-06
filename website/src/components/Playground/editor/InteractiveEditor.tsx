@@ -12,7 +12,6 @@ import useAutoHeight from '../monaco/useAutoHeight';
 import useDefinitionOpener from '../monaco/useDefinitionOpener';
 import useEditorCover from '../monaco/useEditorCover';
 import useOverflowWidgets from '../monaco/useOverflowWidgets';
-import { whenIdle } from '../monaco/whenIdle';
 import PlaygroundLiveEditor from '../PlaygroundLiveEditor';
 import styles from '../styles.module.css';
 import { isMobileOrBot } from '../userAgent';
@@ -41,10 +40,10 @@ export interface InteractiveEditorProps {
   readOnly?: boolean;
   /** A line to put the cursor on (each new object, once) */
   reveal?: Pick<CodeTarget, 'line'>;
-  /** Runs once the page is next idle after Monaco mounts this editor (never
-   * on mobile, which gets no Monaco). Only the first render's value is
-   * used. */
-  onMountIdle?: () => void;
+  /** Runs when Monaco has mounted this editor, after this editor's own setup
+   * (never on mobile, which gets no Monaco). Only the first render's value
+   * is used. */
+  onMount?: (editor: Monaco.editor.ICodeEditor) => void;
 }
 
 /**
@@ -64,7 +63,7 @@ function InteractiveEditor({
   language,
   readOnly = false,
   reveal,
-  onMountIdle,
+  onMount,
 }: InteractiveEditorProps) {
   const overflowWidgets = useOverflowWidgets();
   const editorOptions = useMemo(
@@ -97,7 +96,7 @@ function InteractiveEditor({
       handleOpenerMount(editor, monaco);
       overflowWidgets.handleMount(editor);
       revealWhenPainted([editor]);
-      if (onMountIdle) editor.onDidDispose(whenIdle(onMountIdle));
+      onMount?.(editor);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],

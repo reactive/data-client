@@ -73,17 +73,6 @@ Gotchas:
   lifts once `monaco/whenPainted.ts` sees it laid out and highlighted to
   its last line. Never give Monaco's container zero width while it mounts:
   it lays out one letter per line.
-- After that, a tab switch draws nothing new. Monaco lays out only at a real
-  width (`layoutWhileShown` in `monaco/useAutoHeight.ts`, not
-  `automaticLayout`), so a hidden editor shows again as it was. A file tab
-  not yet shown waits, `display:none`, until its editor has mounted and the
-  shown editors have painted (`monaco/whenIdle.ts`); then it keeps the
-  shown file's width out of sight (`.tabHidden`), so Monaco lays it out and
-  highlights it before it shows.
-- Keep `:has()` out of rules whose last part matches broadly (a bare
-  `:first-child`, `:not(...)`): Chrome then restyles the whole page on
-  every DOM change, which Monaco makes on each render and keystroke. Put a
-  class on the last part, or style from a sibling (`.stepper ~ .meta`).
 
 `hidden` (unselected protocol tabs): every tab stays mounted, so all sources
 are in the HTML. The editor latches interactive on first show, so undo and
@@ -202,6 +191,12 @@ preview header's toggle in every layout.
 - Collapsed files stay mounted (`display: none`): their Monaco models carry
   cross-file types and edits. Monaco is uncontrolled (`defaultValue`), so
   re-renders never reset the buffer.
+- A tab switch draws nothing new. Monaco lays out only at a real width
+  (`monaco/layout.ts`, in place of `automaticLayout`), so a hidden editor
+  shows again as it was. A file not yet shown can't lay out under
+  `display: none`: once the page is idle and the shown editors have painted
+  (`monaco/whenIdle.ts`), it takes the shown file's width out of sight
+  (`.tabHidden`) until Monaco has laid it out and highlighted it.
 - Handlers passed to `InteractiveEditor` must stay referentially stable, or
   every keystroke re-renders every tab.
 - A file without imports is a script: its names are global. So each
@@ -219,7 +214,7 @@ preview header's toggle in every layout.
   in page coordinates, so that hook also patches its hover and suggest
   widgets to measure in the viewport, and its context view service to keep
   the menu in the layer; after a `monaco-editor` bump, see [Verify](#verify).
-- A `display: none` editor can't take focus, so `reveal` (go-to-definition,
+- A hidden editor can't take focus, so `reveal` (go-to-definition,
   Store links) waits until the tab shows, and `openCode` closes a covering
   Store in the same render.
 
@@ -332,6 +327,12 @@ one place. Space separates things, not lines: no borders or dividers (form
 controls keep an edge). Before restyling a class, grep `docs/` and
 `website/src/components/Demo/code` for its users. Prefer a class or element
 style to a new component.
+
+Keep `:has()` out of rules whose last part matches broadly (a bare
+`:first-child`, `:not(...)`), here and in `styles.module.css`: Chrome then
+restyles the whole page on every DOM change, which Monaco makes on each
+render and keystroke. Put a class on the last part, or style from a sibling
+(`.stepper ~ .meta`).
 
 Styled elements: `h2` (page title), `button` (`primary` fills one;
 `aria-busy` shows pending), text inputs, `nav`, `fieldset`, `progress`,

@@ -942,10 +942,9 @@ div.playgroundTextEdit > .playgroundHeader {
 .hidden {
   display: none;
 }
-/* A file not shown once its editor may lay out (EditorSurface): out of
+/* A file not shown while its editor first lays out (EditorSurface): out of
    sight and taking no room, but still the shown file's width (unlike
-   display:none), so its editor lays out and highlights before it shows.
-   Showing it then draws nothing new */
+   display:none), so its editor lays out and highlights before it shows */
 .playgroundEditor.tabHidden {
   height: 0;
   /* the code card's own padding would hold it open */

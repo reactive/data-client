@@ -1,7 +1,7 @@
 import type * as Monaco from 'monaco-editor';
 import { useCallback, useRef, useState } from 'react';
 
-import { hasLayoutWidth } from './useAutoHeight';
+import { hasLayoutWidth } from './layout';
 import { holdIdle } from './whenIdle';
 import { whenPainted } from './whenPainted';
 import { prefersReducedMotion, springEasing, springs } from '../../motion';
@@ -29,6 +29,7 @@ export default function useEditorCover() {
       let ended = false;
       let stops: (() => void)[] = [];
       function end() {
+        if (ended) return;
         release?.();
         ended = true;
         stops.forEach(stop => stop());

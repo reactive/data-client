@@ -4,8 +4,8 @@ let scheduled = false;
 
 /**
  * Runs `task` once the page is idle and nothing holds it (holdIdle): one
- * task per idle period, in the order asked, so deferred work never holds up
- * what the reader sees. Returns a cancel.
+ * task per idle period, in the order asked. Starting deferred work this way
+ * spaces it out after what the reader sees. Returns a cancel.
  */
 export function whenIdle(task: () => void): () => void {
   queue.push(task);
