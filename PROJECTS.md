@@ -25,7 +25,7 @@ project follow `.agents/projects/setup.md`.
 
 ## Tools
 
-The `ntucker/user-kit` plugin is installed in every project environment.
+Every project environment has user-kit's skills and workflows; how it is installed differs by host.
 
 | Tool | Claude project | Cursor Project |
 | --- | --- | --- |
