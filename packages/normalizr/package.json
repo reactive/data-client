@@ -27,7 +27,8 @@
   "sideEffects": [
     "./lib/index.js",
     "./legacy/index.js",
-    "./lib/imm.js"
+    "./lib/imm.js",
+    "./dist/normalizr.native.js"
   ],
   "main": "dist/normalizr.js",
   "react-native": "dist/normalizr.native.js",
