@@ -153,21 +153,17 @@ export default class WeakDependencyMap<
     if (!node) {
       node = newNode(entry);
       this.next.set(root, node);
-      if (out) out.push(node, entry);
-      return;
+    } else {
+      // A store can flip back to a version it already showed: React renders
+      // the committed store between retries of a pending transition, which
+      // build new entities each time, and rolling back an optimistic update
+      // returns to the entities from before it. Commits tell which versions
+      // those are (see `keep()`), so keep only the newest entry and the
+      // pinned ones.
+      node.entries.unshift(entry);
+      evictUnpinned(node);
     }
     if (out) out.push(node, entry);
-    // A store can flip back to a version it already showed: React renders the
-    // committed store between retries of a pending transition, which build new
-    // entities each time, and rolling back an optimistic update returns to the
-    // entities from before it. Commits tell which versions those are (see
-    // `keep()`), so keep only the newest entry and the pinned ones.
-    const { entries, committed, settled } = node;
-    entries.unshift(entry);
-    for (let i = entries.length - 1; i > 0; i--) {
-      if (entries[i] !== committed && entries[i] !== settled)
-        entries.splice(i, 1);
-    }
   }
 
   /** True once any `argsKey`-style dep has been written. Consumers can use
@@ -285,10 +281,15 @@ function pin<Path, V>(
 ): void {
   node.committed = entry;
   if (settled) node.settled = entry;
-  const { entries } = node;
-  if (!entries.includes(entry)) entries.push(entry);
+  if (!node.entries.includes(entry)) node.entries.push(entry);
+  evictUnpinned(node);
+}
+
+/** Drops every entry but the first (newest) and the pinned ones. */
+function evictUnpinned<Path, V>(node: Node<Path, V>): void {
+  const { entries, committed, settled } = node;
   for (let i = entries.length - 1; i > 0; i--) {
-    if (entries[i] !== node.committed && entries[i] !== node.settled)
+    if (entries[i] !== committed && entries[i] !== settled)
       entries.splice(i, 1);
   }
 }
