@@ -191,6 +191,10 @@ preview header's toggle in every layout.
 - Collapsed files stay mounted (`display: none`): their Monaco models carry
   cross-file types and edits. Monaco is uncontrolled (`defaultValue`), so
   re-renders never reset the buffer.
+- Keep `automaticLayout` off: `monaco/layout.ts` skips layout at no width,
+  so a hidden editor shows again unchanged. A file mounted hidden lays out
+  out of sight once the page is idle (`monaco/useLayoutOutOfSight.ts`), so
+  its first show also draws nothing new.
 - Handlers passed to `InteractiveEditor` must stay referentially stable, or
   every keystroke re-renders every tab.
 - A file without imports is a script: its names are global. So each
@@ -208,7 +212,7 @@ preview header's toggle in every layout.
   in page coordinates, so that hook also patches its hover and suggest
   widgets to measure in the viewport, and its context view service to keep
   the menu in the layer; after a `monaco-editor` bump, see [Verify](#verify).
-- A `display: none` editor can't take focus, so `reveal` (go-to-definition,
+- A hidden editor can't take focus, so `reveal` (go-to-definition,
   Store links) waits until the tab shows, and `openCode` closes a covering
   Store in the same render.
 
@@ -321,6 +325,11 @@ one place. Space separates things, not lines: no borders or dividers (form
 controls keep an edge). Before restyling a class, grep `docs/` and
 `website/src/components/Demo/code` for its users. Prefer a class or element
 style to a new component.
+
+Do not put `:has()` in a rule whose last part matches broadly (`:first-child`,
+`:not(...)`): Chrome then restyles the whole page on every DOM change, and
+Monaco changes the DOM on every keystroke. Use a class or a sibling selector
+(`.stepper ~ .meta`) instead.
 
 Styled elements: `h2` (page title), `button` (`primary` fills one;
 `aria-busy` shows pending), text inputs, `nav`, `fieldset`, `progress`,

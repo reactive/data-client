@@ -15,6 +15,7 @@ import Header from '../Header';
 import { modelPath, useModelId } from '../monaco/modelPath';
 import { createMissingModels } from '../monaco/models';
 import { allowTopLevelAwait } from '../monaco/topLevelAwait';
+import useLayoutOutOfSight from '../monaco/useLayoutOutOfSight';
 import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
 import TabList, { type TabItem } from '../TabList';
@@ -142,7 +143,6 @@ export default function EditorSurface({
         code={document.value}
         path={modelPath(id, document.path)}
         beforeMount={createModels}
-        isFocused={!closedList[index]}
         language={document.language}
         highlights={document.highlights}
         autoFocus={document.autoFocus}
@@ -233,15 +233,24 @@ function TextEditTab({
       <StaticEditor code={editorProps.code} language={editorProps.language} />
     : <pre>{editorProps.code}</pre>;
 
+  const { outOfSight, handleMount, handlePainted } = useLayoutOutOfSight();
   return (
     <div
-      className={clsx(styles.playgroundEditor, {
-        [styles.hidden]: hidden,
-      })}
+      className={clsx(
+        styles.playgroundEditor,
+        hidden && (outOfSight ? styles.tabHidden : styles.hidden),
+      )}
     >
       {interactive ?
         <BrowserOnly fallback={staticView}>
-          {() => <Editor {...editorProps} />}
+          {() => (
+            <Editor
+              {...editorProps}
+              isVisible={!hidden}
+              onMount={handleMount}
+              onPainted={handlePainted}
+            />
+          )}
         </BrowserOnly>
       : staticView}
     </div>

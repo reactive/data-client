@@ -1,7 +1,7 @@
 import Editor from '@monaco-editor/react';
 import type * as Monaco from 'monaco-editor';
 import rangeParser from 'parse-numeric-range';
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useEffect, useMemo } from 'react';
 
 import '../monaco/setup';
 import { highlightSelections } from '../monaco/highlightSelections';
@@ -33,12 +33,19 @@ export interface InteractiveEditorProps {
   /** Code-fence line ranges to pre-select, e.g. `1-3,5` */
   highlights?: string;
   autoFocus?: boolean;
-  /** Whether this tab is visible; re-measures height when it becomes so */
-  isFocused?: boolean;
+  /** Whether this tab is shown: a line asked for (`reveal`, go to
+   * definition) waits for it */
+  isVisible?: boolean;
   language: string;
   readOnly?: boolean;
   /** A line to put the cursor on (each new object, once) */
   reveal?: Pick<CodeTarget, 'line'>;
+  /** Runs when Monaco has mounted this editor, after this editor's own setup
+   * (never on mobile, which gets no Monaco). Only the first render's value
+   * is used. */
+  onMount?: (editor: Monaco.editor.ICodeEditor) => void;
+  /** Runs once Monaco shows the code as it will stay (its cover has gone) */
+  onPainted?: () => void;
 }
 
 /**
@@ -54,10 +61,12 @@ function InteractiveEditor({
   tabIndex,
   highlights,
   autoFocus = false,
-  isFocused = false,
+  isVisible = false,
   language,
   readOnly = false,
   reveal,
+  onMount,
+  onPainted,
 }: InteractiveEditorProps) {
   const overflowWidgets = useOverflowWidgets();
   const editorOptions = useMemo(
@@ -66,11 +75,13 @@ function InteractiveEditor({
   );
   const { height, handleMount: handleAutoMount } = useAutoHeight({
     initialContentHeight: code.split('\n').length * editorOptions.lineHeight,
-    isFocused,
   });
   const { covered, coverRef, revealWhenPainted } = useEditorCover();
+  useEffect(() => {
+    if (!covered) onPainted?.();
+  }, [covered, onPainted]);
   const handleOpenerMount = useDefinitionOpener({
-    isVisible: isFocused,
+    isVisible,
     onOpen: () => onFocus(tabIndex),
     reveal,
   });
@@ -91,6 +102,7 @@ function InteractiveEditor({
       handleOpenerMount(editor, monaco);
       overflowWidgets.handleMount(editor);
       revealWhenPainted([editor]);
+      onMount?.(editor);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
