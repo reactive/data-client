@@ -59,10 +59,10 @@ The `ntucker/user-kit` plugin is installed in every project environment.
    `user-kit:post-push-review` with
    `{ range: "<sha before push>..HEAD", goals: "<project goal>", repo: "<checkout path>" }`
    (`repo` when data-client is not the working directory). Without the Workflow tool (Cursor, or any
-   agent lacking it), run fast-model subagents in parallel for goals, repo rules, engineering, adversarial, reuse and React data flow.
-   Verify each finding; fix real ones, reject the rest with a reason. Do not launch them while the
-   person is actively writing in your thread: subagents can pick up the message and reply in your
-   name.
+   agent lacking it), run fast-model subagents in parallel for goals, repo rules, engineering,
+   adversarial, reuse and React data flow. Verify each finding; fix real ones, reject the rest with a
+   reason. Do not launch them while the person is actively writing in your thread: subagents can
+   pick up the message and reply in your name.
 7. Once the change is verified correct, run skill "simplify" (Cursor: the same review by hand),
    verify its findings, and push the cleanups (a push, so step 6 runs again) before calling the PR done.
 8. A worker's PR ends when it merges, not when it is handed over.
