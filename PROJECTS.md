@@ -26,8 +26,8 @@ project follow `.agents/projects/setup.md`.
 ## Tools
 
 Every project environment should have user-kit's skills and workflows. If one you need is missing,
-use the fallback its step gives (with none, hold the step), and tell the coordinator, who asks the
-person to install user-kit.
+use the fallback the step that calls it gives; with none, pause that step. Either way, tell the
+coordinator, who asks the person to install user-kit.
 
 | Tool | Claude project | Cursor Project |
 | --- | --- | --- |
@@ -62,9 +62,9 @@ person to install user-kit.
    `{ range: "<sha before push>..HEAD", goals: "<project goal>", repo: "<checkout path>" }`
    (`repo` when data-client is not the working directory). Without the Workflow tool or that
    workflow (Cursor, or user-kit missing), run fast-model subagents in parallel for goals, repo rules,
-   engineering, adversarial, reuse and React data flow. Verify each finding; fix real ones, reject the rest with a
-   reason. Do not launch them while the person is actively writing in your thread: subagents can
-   pick up the message and reply in your name.
+   engineering, adversarial, reuse and React data flow. Verify each finding; fix real ones, reject the
+   rest with a reason. Do not launch them while the person is actively writing in your thread:
+   subagents can pick up the message and reply in your name.
 7. Once the change is verified correct, run skill "simplify" (Cursor: the same review by hand),
    verify its findings, and push the cleanups (a push, so step 6 runs again) before calling the PR done.
 8. A worker's PR ends when it merges, not when it is handed over.
