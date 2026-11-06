@@ -42,8 +42,8 @@ One file per subject, only what `PROJECTS.md` and the repos don't say:
 
 Workers rely on user-kit's skills and workflows (`PROJECTS.md`, "Tools"). Confirm they load in this
 host, for example the `post-push-review` workflow in Claude or a user-kit skill in Cursor. If they
-don't, ask the person to install user-kit for this host, following the install section of user-kit's
-README (`https://github.com/ntucker/user-kit`); the method differs by host.
+don't, ask the person to install user-kit for this host, as user-kit's README
+(`https://github.com/ntucker/user-kit`) describes; the method differs by host.
 
 ## 5. Optional setup
 
