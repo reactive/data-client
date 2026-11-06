@@ -19,23 +19,24 @@ function deferred<E extends { extend: (options: any) => any }>(
   base: E,
   options: object = {},
 ) {
-  const pending: ((value: any) => void)[] = [];
-  const rejects: ((error: any) => void)[] = [];
+  const pending: {
+    resolve: (value: any) => void;
+    reject: (error: any) => void;
+  }[] = [];
   const endpoint: E = base.extend({
     ...options,
     fetch() {
       return new Promise((resolve, reject) => {
-        pending.push(resolve);
-        rejects.push(reject);
+        pending.push({ resolve, reject });
       });
     },
   });
   /** Resolves the nth fetch with an article titled `title` */
   const resolve = (n: number, title: string) =>
-    act(async () => pending[n]({ id: 5, title, content: 'x' }));
+    act(async () => pending[n].resolve({ id: 5, title, content: 'x' }));
   /** Rejects the nth fetch */
   const reject = (n: number) =>
-    act(async () => rejects[n](new Error('old store')));
+    act(async () => pending[n].reject(new Error('old store')));
   return { endpoint, pending, resolve, reject };
 }
 
@@ -195,22 +196,26 @@ describeIfActivity('<Activity> above <DataProvider>', () => {
 });
 
 describe('<DataProvider> remounted with the same managers', () => {
+  /** Renders an Article in a DataProvider; every call shares one set of managers */
+  function remountable(endpoint: typeof CoolerArticleResource.get) {
+    const managers = getManagers();
+    return (children: React.ReactNode = <Article endpoint={endpoint} />) =>
+      render(
+        <DataProvider managers={managers} devButton={null}>
+          <Suspense fallback="loading">{children}</Suspense>
+        </DataProvider>,
+      );
+  }
+
   it('does not wait on a fetch from the unmounted store', async () => {
     const get = deferred(CoolerArticleResource.get);
-    const managers = getManagers();
-    const tree = (
-      <DataProvider managers={managers} devButton={null}>
-        <Suspense fallback="loading">
-          <Article endpoint={get.endpoint} />
-        </Suspense>
-      </DataProvider>
-    );
-    const first = render(tree);
+    const mount = remountable(get.endpoint);
+    const first = mount();
     await wait(0);
     first.unmount();
     await get.resolve(0, 'old');
 
-    const { container } = render(tree);
+    const { container } = mount();
     await wait(0);
     expect(get.pending).toHaveLength(2);
     await get.resolve(1, 'new');
@@ -224,19 +229,12 @@ describe('<DataProvider> remounted with the same managers', () => {
     'keeps a late %s from the unmounted store out of the new one',
     async (_, settleOld) => {
       const get = deferred(CoolerArticleResource.get);
-      const managers = getManagers();
-      const tree = (
-        <DataProvider managers={managers} devButton={null}>
-          <Suspense fallback="loading">
-            <Article endpoint={get.endpoint} />
-          </Suspense>
-        </DataProvider>
-      );
-      const first = render(tree);
+      const mount = remountable(get.endpoint);
+      const first = mount();
       await wait(0);
       first.unmount();
 
-      const { container } = render(tree);
+      const { container } = mount();
       await wait(0);
       expect(get.pending).toHaveLength(2);
       await settleOld(get);
@@ -252,22 +250,12 @@ describe('<DataProvider> remounted with the same managers', () => {
 
   it('sends a fetch from the unmounted store without writing it to the new one', async () => {
     const get = deferred(CoolerArticleResource.get);
-    const managers = getManagers();
-    const first = render(
-      <DataProvider managers={managers} devButton={null}>
-        <Fetcher />
-      </DataProvider>,
-    );
+    const mount = remountable(get.endpoint);
+    const first = mount(<Fetcher />);
     const oldCtrl = ctrl;
     first.unmount();
 
-    const { container } = render(
-      <DataProvider managers={managers} devButton={null}>
-        <Suspense fallback="loading">
-          <Article endpoint={get.endpoint} />
-        </Suspense>
-      </DataProvider>,
-    );
+    const { container } = mount();
     await wait(0);
     const old = oldCtrl.fetch(get.endpoint, { id: 5 });
     await wait(0);

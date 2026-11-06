@@ -1,8 +1,12 @@
 import { Endpoint } from '@data-client/endpoint';
 import { Article, ArticleResource } from '__tests__/new';
 
-import { RESET, SET_RESPONSE } from '../../actionTypes';
-import { createFetch } from '../../controller/actions';
+import { SET_RESPONSE } from '../../actionTypes';
+import {
+  createFetch,
+  createReset,
+  createSetResponse,
+} from '../../controller/actions';
 import Controller from '../../controller/Controller';
 import NetworkManager from '../../manager/NetworkManager';
 import { initialState } from '../../state/reducer/createReducer';
@@ -439,12 +443,11 @@ describe('NetworkManager', () => {
       const action = createFetch(endpoint, { args: [{ id: 5 }] });
       current.handle(action);
 
-      const reset = { type: RESET, date: Date.now() } as const;
+      const reset = createReset();
       await old.handle(reset);
       expect(old.next).toHaveBeenCalledWith(reset);
       // the bound store's fetch is still in flight
       expect(mgr.allSettled()).toBeDefined();
-      mgr.cleanup();
     });
 
     it('does not settle a fetch with a response to an older one', async () => {
@@ -455,21 +458,15 @@ describe('NetworkManager', () => {
       const settled = jest.fn();
       action.meta.promise.then(settled, settled);
 
-      await handle({
-        type: SET_RESPONSE,
-        key: action.key,
-        endpoint,
-        args: [{ id: 5 }],
-        response: { id: 5, title: 'old' },
-        meta: {
+      await handle(
+        createSetResponse(endpoint, {
+          args: [{ id: 5 }],
+          response: { id: 5, title: 'old' },
           fetchedAt: action.meta.fetchedAt - 1,
-          date: 0,
-          expiresAt: 0,
-        },
-      } as SetResponseAction);
+        }),
+      );
       await new Promise(resolve => setTimeout(resolve, 0));
       expect(settled).not.toHaveBeenCalled();
-      mgr.cleanup();
     });
   });
 });

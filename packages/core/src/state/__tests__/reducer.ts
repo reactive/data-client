@@ -11,7 +11,7 @@ import {
   SET_RESPONSE,
   SET,
 } from '../../actionTypes';
-import { createSetResponse as createSetResponseAction } from '../../controller/actions';
+import { createSetResponse } from '../../controller/actions';
 import {
   State,
   ActionTypes,
@@ -676,7 +676,7 @@ describe('reducer', () => {
     it('drops a response to a fetch started before the reset', () => {
       const state = reducer(initialState, { type: RESET, date: 1000 });
       const response = (fetchedAt: number) =>
-        createSetResponseAction(ArticleResource.get, {
+        createSetResponse(ArticleResource.get, {
           args: [{ id: 20 }],
           response: { id: 20, title: 'hi' },
           fetchedAt,
