@@ -273,9 +273,9 @@ export default function EntityMixin<TBase extends Constructor>(
         // member it means 'no entity'. Entity classes are functions; Collections are objects, so
         // `{}` at the top level, in envelopes or in Collections stays an error.
         if (
+          Object.keys(input).length === 0 &&
           typeof parentEntity === 'function' &&
-          !parentEntity.defaults?.[key as string] &&
-          Object.keys(input).length === 0
+          !parentEntity.defaults?.[key as string]
         )
           return undefined;
         // 'creates' conceptually should allow missing PK to make optimistic creates easy

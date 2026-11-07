@@ -430,10 +430,11 @@ class User extends GQLEntity {
 ```
 
 Some APIs send an empty object `{}` instead of `null` for a missing related entity. On an
-optional member like `friend`, `{}` becomes `undefined` instead of failing the whole response,
-and clears a relation already in the store, as `null` does. `{}` on a required member, or a
-nested object that has fields but no primary key, still throws, because that usually means a
-malformed response.
+optional member (one whose default is falsy, like `friend` above), `{}` becomes `undefined`
+instead of failing the whole response. `null` stays `null`. Both clear a relation already in
+the store. `{}` on a required member (default like `[]` or `User.fromJS()`), or a nested
+object that has fields but no primary key, still throws in development, because that usually
+means a malformed response.
 
 ### static indexes?: (keyof this)[] {#indexes}
 
