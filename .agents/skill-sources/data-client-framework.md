@@ -197,6 +197,7 @@ ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 | One endpoint+args | `ctrl.fetch(endpoint, args)` |
 | All cached args of an endpoint | `ctrl.expireAll(endpoint)`: fetching :react[hooks]:vue[composables] refetch; `useCache`/`useQuery` don't |
 | Current data must not show while refetching | `ctrl.invalidate()` / `ctrl.invalidateAll()`:react[: `useSuspense` suspends]:vue[, rendering `useDLE`'s `loading`; mounted `useSuspense` keeps its last data] |
+| A server-computed field of another entity after a mutation (a parent's count or total) | Include that entity in the mutation's response schema, or else `ctrl.fetch(Parent.get, { id })` after the mutation resolves: skill "data-client-schema", reference side-effects (Counts and other server-computed fields). Never pass counts or callbacks between components |
 
 Write many entities without a fetch with one `ctrl.set([Entity], rows)`. Never loop `ctrl.set(Entity, args, row)` per row, and never add an endpoint or `setResponse()` just to batch.
 
