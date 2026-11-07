@@ -4,17 +4,21 @@
 '@data-client/rest': patch
 ---
 
-Share one copy of the library between the main entry and its subpaths in Node
+Hooks see the providers from `@data-client/react/redux` and `/ssr` in Node
 
-In Node (and tools that run on it, like Vitest and Jest), `@data-client/react/redux`, `/ssr`, `/mock` and `/next`,
-and `@data-client/core/mock` could load a second copy of the code the main entry already loaded. Hooks then ignored the providers from those subpaths: a hook inside `@data-client/react/redux`'s
-provider got a different controller than the provider's, and `@data-client/core/mock` ran on its own `Controller`.
-Each subpath now shares the main entry's code under both `import` and `require()`.
+This affects tests and servers that run data-client in Node without a bundler (Vitest, Jest, Node SSR) and import a
+subpath as well as the main entry. Browser bundles don't change.
 
-Measured on the packed packages, before → after:
-- Copies of `Controller` loaded with `@data-client/core/mock` or `@data-client/react/mock`: 2 → 1. React contexts
-  loaded with `@data-client/react/redux` or `/ssr` under `import`: 2 → 1.
-- Code Node loads for the main entry plus a subpath under `import`: react `/redux` 355 → 160 KB, `/ssr` 377 → 155 KB,
-  `/mock` 445 → 149 KB; core `/mock` 411 → 115 KB.
-- CommonJS `dist/`: core 164 → 78 KB, react 120 → 63 KB (React Native build 92 → 58 KB). rest is unchanged.
-- Browser bundles: unchanged (0 bytes).
+- `@data-client/react/redux` and `@data-client/react/ssr`: hooks inside their providers now use that provider's
+  store. Before, under Node `import` (as Vitest runs dependencies), those hooks acted as if no provider was rendered:
+  they logged "It appears you are trying to use Reactive Data Client without a provider", read empty state, and
+  their fetches went nowhere.
+- `@data-client/core/mock` and `@data-client/react/mock`: `MockController` and fixtures now run on your app's
+  `Controller` instead of a second copy.
+- Less code to load: the main entry plus a subpath loads 55-72% less data-client code under Node `import` (react
+  `/redux` 355 → 160 KB, core `/mock` 411 → 115 KB), and 20-25% less for `/mock` under `require()` (Jest), so test
+  files that use them start faster. core's and react's CommonJS
+  builds are about half the size (core 164 → 78 KB, react 120 → 63 KB).
+
+You don't need to change any code. If you worked around this by inlining data-client in Vitest's
+`server.deps.inline`, you can remove that.
