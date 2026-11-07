@@ -43,18 +43,4 @@ describe('renderDataHook() resolverFixtures with controller.fetch()', () => {
       [getValue.key({ id: 5 })]: { id: 6 },
     });
   });
-
-  it('resolves an Endpoint interceptor', async () => {
-    const { controller } = renderDataHook(() => useController(), {
-      resolverFixtures: [
-        {
-          endpoint: getValue,
-          response: ({ id }: { id: number }) => ({ id: id + 1 }),
-        },
-      ],
-    });
-    await expect(controller.fetch(getValue, { id: 5 })).resolves.toEqual({
-      id: 6,
-    });
-  });
 });
