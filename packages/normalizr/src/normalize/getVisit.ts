@@ -4,7 +4,7 @@ import { normalize as objectNormalize } from '../schemas/Object.js';
 
 export const getVisit = (delegate: INormalizeDelegate) => {
   // Tracks the nearest enclosing entity-like schema so nested schemas (e.g.
-  // Scalar) can read their entity context via the 7th arg passed to
+  // Scalar) can read their entity context via the 5th arg passed to
   // schema.normalize. A closure variable is used (rather than a property on
   // `delegate`) because cycling distinct Entity subclasses through a single
   // property pollutes its inline cache and propagates polymorphic access into

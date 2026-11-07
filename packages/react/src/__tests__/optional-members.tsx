@@ -25,15 +25,11 @@ export class Some extends Entity {
 }
 const SomeResource = resource({ path: '/some/:id', schema: Some });
 
-class Author extends Entity {
-  id = '';
-  name = '';
-}
 class Discussion extends Entity {
   id = '';
   title = '';
-  author?: Author = undefined;
-  static schema = { author: Author };
+  author?: Nested = undefined;
+  static schema = { author: Nested };
 }
 const DiscussionResource = resource({
   path: '/discussions/:id',
