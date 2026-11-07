@@ -50,7 +50,10 @@ Keep the app's tests passing after each step; they are the proof that behavior d
 1. **Endpoints and schemas.** Turn each query and mutation function into an endpoint: follow the
    [REST setup](/rest) for the HTTP library the functions call (axios, fetch, ky), then give each endpoint a
    `schema` built from [Entities](/rest/api/Entity). Without a schema nothing is normalized, and you will need to keep
-   every `invalidateQueries` call.
+   every `invalidateQueries` call. Put the Entities and endpoints in one folder every feature may import (such as
+   `src/resources/`), not in each feature's `api/` folder, even when the query hooks lived there: a mutation in one
+   feature often updates another feature's Entity. If lint rules restrict imports between folders
+   (`import/no-restricted-paths`, `eslint-plugin-boundaries`, Nx module boundaries), use a shared layer they allow.
 2. **Provider.** Replace `QueryClientProvider` with `DataProvider` ([Provider](#provider)).
 3. **Reads.** Replace `useQuery()` and `useSuspenseQuery()` with `useSuspense()` in the component that renders the
    data ([Reads](#reads)).
@@ -534,6 +537,7 @@ To sign out on any other 401 response, add [LogoutManager](../api/LogoutManager.
 
 - No file imports `@tanstack/react-query`, and no `queryKey`, `queryOptions` or `useQueryClient` remains.
 - Every endpoint that returns Entities has a `schema`.
+- The linter passes, including its import-boundary rules, and no feature folder defines an Entity.
 - Each `<Suspense>` or `AsyncBoundary` that catches a `useSuspense()` is inside `DataProvider`.
 - The type checker, unit tests and end-to-end tests pass.
 - After a mutation, every page showing that Entity shows the change without a reload. A test that edits an item on
