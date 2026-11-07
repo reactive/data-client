@@ -66,10 +66,28 @@ describe('mergeTokens', () => {
     ]);
   });
 
+  it('keeps whitespace out of a token whose style shows on spaces', () => {
+    expect(
+      merge([tok('marked', 'x'), tok('plain', ' '), tok('marked', 'y')]),
+    ).toEqual([
+      { plain: false, type: 'marked', content: 'x' },
+      { plain: true, type: 'plain', content: ' ' },
+      { plain: false, type: 'marked', content: 'y' },
+    ]);
+  });
+
   it('leaves an empty line as it is', () => {
     const line = [{ types: ['plain'], content: '\n', empty: true }];
     expect(mergeTokens(line, getTokenProps, plain)).toEqual(line);
     expect(isPlainToken(line[0])).toBe(false);
+  });
+
+  it('compares against the plain style it is given', () => {
+    const line = [tok('punctuation', '('), tok('string', "'a'")];
+    expect(mergeTokens(line, getTokenProps, plain)[0].types).toEqual(['plain']);
+    expect(
+      mergeTokens(line, getTokenProps, { color: '#fff' })[0].types,
+    ).toEqual(['punctuation']);
   });
 
   it('keeps the text', () => {

@@ -13,7 +13,8 @@ export default function DetailsWrapper(props: Props) {
       <Details
         {...props}
         // in the click that opens it, so it opens drawn. Details itself
-        // takes onClick; this is its summary test (isInSummary, hasParent)
+        // takes onClick. A click on this details' own summary, as Docusaurus's
+        // Details tests it
         onClickCapture={(event: MouseEvent<HTMLDetailsElement>) => {
           if (
             (event.target as Element).closest('summary')?.parentElement ===

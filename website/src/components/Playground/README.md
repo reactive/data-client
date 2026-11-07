@@ -21,6 +21,7 @@ and `editor/callouts.ts`.
 | Editor chrome, SSR markup                    | `editor/EditorSurface.tsx`, `editor/StaticEditor.tsx`, `editor/InteractiveEditor.tsx`                           |
 | Monaco: types, completions, go-to-definition | `monaco/` (`preloadManifest.ts` and `../editor-types/` are generated)                                           |
 | Code colors                                  | `monaco/theme.ts` (Monaco and server HTML), `monaco/tokenize.ts` (Prism's tokens in Monaco's colors)            |
+| Which languages get Monaco's colors          | `editor/useCodeTheme.ts`                                                                                        |
 | Running the code, scope globals              | `preview/LivePreview.tsx`, `preview/useCodeManagers.ts`, `preview/transformCode.ts`, `preview/scope.ts`         |
 | Preview frame, Store open state and motion   | `preview/PreviewWrapper.tsx`, `preview/StoreToggle.tsx`, `preview/StoreInspector.tsx`                           |
 | Drawer state, demo view, Actions grouping    | `preview/inspector.ts`                                                                                          |

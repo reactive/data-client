@@ -1,8 +1,8 @@
-import { translate } from '@docusaurus/Translate';
 import {
   CodeBlockContextProvider,
   useCodeBlockContext,
 } from '@docusaurus/theme-common/internal';
+import { translate } from '@docusaurus/Translate';
 import type { Props } from '@theme/CodeBlock/Layout';
 import Layout from '@theme-original/CodeBlock/Layout';
 import clsx from 'clsx';

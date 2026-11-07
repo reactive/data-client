@@ -9,8 +9,8 @@ import { HiddenContext } from '../../../components/Playground/hiddenContext';
 
 /** Docusaurus's line with as few elements as draw the same code
  * (mergeTokens; ./Token renders plain text bare). Code not shown yet (an
- * unselected tab, a closed details) is plain text until it shows (Prism
- * still tokenizes it: the saving is the elements). */
+ * unselected tab, a closed details) is plain text until it first shows
+ * (../ latches it). Prism still tokenizes it: the saving is the elements. */
 export default function LineWrapper(props: Props) {
   const { plain } = usePrismTheme();
   const hidden = useContext(HiddenContext);
