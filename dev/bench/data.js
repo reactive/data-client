@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793998966688,
+  "lastUpdate": 1794011349057,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -140497,6 +140497,366 @@ window.BENCHMARK_DATA = {
             "range": "±3.70%",
             "unit": "ops/sec",
             "extra": "95 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "433dcfbe620e4fc4b5257e3b11f520d68fd7e915",
+          "message": "feat!: Give each store its own Managers (managers is a function) (#4601)\n\n* feat: managers accepts a factory, so each store gets its own Managers\n\nDataProvider, the Vue plugin, the SSR store and the redux helpers call it once per store.\nA Manager instance that moves to a second store after the first started now logs a\ndevelopment warning. init() gets the store's current state. DevToolsManager shares one\nextension connection per name and listens only while started. The redux test provider\nbuilds its store in a ref, so StrictMode no longer hangs it.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: managers is a function; document Manager lifetimes\n\nThe Manager page gains a Lifetimes section (config, store, active), and every\nexample passes managers as a module-level function. Arrays are marked deprecated.\nAdds the changeset, the 0.19 blog entry, skills and website types.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* refactor: one createManagers rule; DevToolsManager connects in init()\n\ncreateManagers takes only the managers option, so every caller uses it. The\nshared-instance warning tracks the store each Manager started with. The Next.js\nprovider checks a managers function for DevToolsManager once per page.\nDevToolsManager connects to the extension when started, keyed by its __DC__ key,\nso a discarded instance never connects and concurrent stores keep their own entry.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: link #4601 in the 0.19 blog\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* chore: eval for the managers function; plan array removal\n\nAdds a data-client-manager eval tied to the managers-function changeset whose\nassertions fail on a managers array, updates clock-manager's expected output, and\nlists dropping Manager[] in plans/next-breaking-release.md.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* test: mark dev-only manager bookkeeping branches for coverage\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* fix: each DevToolsManager keeps its own extension connection\n\nSharing a connection by key let a hidden store send actions into the store\nthat took its key, and a resumed store that moved to a new key skipped init().\nEach instance now connects once, lazily in init(), and keeps that connection.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* fix: warn when stores started together share Managers; docs follow-ups\n\nThe shared-instance warning lives in one module and also runs when a Manager\nstarts, so two stores that bind one array in the same render now warn. Docs and\nskills lead with the managers function (React/Vue skills, Vue testing guide,\nredux guide, NetworkManager, core README for custom providers, including\ncreateManagers()).\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* fix: list the custom Manager first in the shared-instance warning\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* pkg(test)!: Require @data-client/react 0.19\n\nmakeRenderDataHook() passes managers to its Provider as a function, so\nthe array fallback for older @data-client/react and the pre-0.16\nNetworkManager bookkeeping are gone.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs(skills): Regenerate makeRenderDataHook reference\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Drop the per-render claim for makeRenderDataHook managers\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* feat!: managers only takes a function\n\nArrays are no longer accepted by DataProvider, DataClientPlugin,\nprepareStore(), createPersistedStore() or mountDataClient(), so\ncreateManagers() and the shared-instance warning are gone.\ninitManager() drops its ignored third argument.\n\nThe new v0.19 codemod converts managers arrays and initManager() calls.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* refactor: Simplify after review of the function-only managers change\n\n- v0.19 codemod: skip JSX attribute names when counting a variable's\n  uses, and test createPersistedStore() and a variable another prop reads\n- Drop the console.warn spy left from the removed shared-array warning\n- mountDataClient(): call the managers function or use the defaults\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* chore(typeperf): Pass getDefaultManagers to prepareStore in the redux scenario\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Say the managers function creates each store's Managers\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* fix(codemods): Keep undefined and exported managers working in v0.19\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* fix(codemods): Wrap each branch of a conditional managers expression\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* refactor(codemods): Simplify the v0.19 codemod\n\nSkip parsing files with no managers names, share isId/isProperty,\nexpand shorthand where a slot is replaced, and drop dead guards.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-07T00:20:09Z",
+          "tree_id": "6abd2eb76e6045279dddcafbf3cb079bf04b4b11",
+          "url": "https://github.com/reactive/data-client/commit/433dcfbe620e4fc4b5257e3b11f520d68fd7e915"
+        },
+        "date": 1794011346546,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 787,
+            "range": "±0.71%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 701,
+            "range": "±0.18%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 609,
+            "range": "±2.82%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 1771,
+            "range": "±0.28%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 408,
+            "range": "±5.99%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 365,
+            "range": "±4.05%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1912,
+            "range": "±0.09%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing",
+            "value": 455,
+            "range": "±4.54%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null",
+            "value": 455,
+            "range": "±3.86%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID",
+            "value": 453,
+            "range": "±4.66%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 1386,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 1990,
+            "range": "±0.41%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 2693,
+            "range": "±0.18%",
+            "unit": "ops/sec",
+            "extra": "101 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 1049,
+            "range": "±5.50%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 10427,
+            "range": "±0.15%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 5974,
+            "range": "±0.25%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 98337,
+            "range": "±0.44%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 9429,
+            "range": "±5.87%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 367,
+            "range": "±5.74%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 12877,
+            "range": "±0.22%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 12810,
+            "range": "±0.70%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing withCache",
+            "value": 12193,
+            "range": "±0.29%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null withCache",
+            "value": 12350,
+            "range": "±0.14%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID withCache",
+            "value": 12403,
+            "range": "±0.15%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 9298,
+            "range": "±0.16%",
+            "unit": "ops/sec",
+            "extra": "100 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 8303,
+            "range": "±0.07%",
+            "unit": "ops/sec",
+            "extra": "100 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 5893,
+            "range": "±0.96%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 11540,
+            "range": "±1.33%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 10293,
+            "range": "±5.21%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 2903,
+            "range": "±0.44%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 7609,
+            "range": "±8.75%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 78081,
+            "range": "±0.95%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 7442,
+            "range": "±5.14%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 20302762,
+            "range": "±0.51%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 346,
+            "range": "±8.38%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 6095,
+            "range": "±2.08%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 4942,
+            "range": "±0.17%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 7859,
+            "range": "±2.51%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 6126,
+            "range": "±0.89%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 8312,
+            "range": "±4.16%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 831,
+            "range": "±0.16%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 462,
+            "range": "±0.08%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 477,
+            "range": "±1.85%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 1648,
+            "range": "±1.56%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 236,
+            "range": "±0.36%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 6344,
+            "range": "±2.80%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 23.86,
+            "range": "±0.67%",
+            "unit": "ops/sec",
+            "extra": "44 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 2928,
+            "range": "±0.16%",
+            "unit": "ops/sec",
+            "extra": "100 samples"
           }
         ]
       }
