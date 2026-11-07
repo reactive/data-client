@@ -55,6 +55,8 @@ export default class MemoCache {
     input: unknown,
     entities: any,
     args: readonly any[] = [],
+    /** the caller's pairs to track with the result's (see `query()`) */
+    records: unknown[] = [],
   ): {
     data: DenormalizeNullable<S> | typeof INVALID;
     paths: EntityPath[];
@@ -77,9 +79,10 @@ export default class MemoCache {
       this._getCache,
       this.endpoints,
       args,
+      records,
     );
     const result = getUnvisit(getEntity, cache, args)(schema, input);
-    this.track(entities, cache.records);
+    this.track(entities, records);
     return result;
   }
 
@@ -147,13 +150,16 @@ export default class MemoCache {
     data: DenormalizeNullable<S> | typeof INVALID;
     paths: EntityPath[];
   } {
-    const input = this.buildQueryKey(schema, args, state, argsKey);
+    // one track() for the query key and the result
+    const records: unknown[] = [];
+    const input = this.queryKey(schema, args, state, argsKey, records);
 
     if (!input) {
+      this.track(state.entities, records);
       return { data: undefined as any, paths: [] };
     }
 
-    return this.denormalize(schema, input, state.entities, args);
+    return this.denormalize(schema, input, state.entities, args, records);
   }
 
   buildQueryKey<S extends Schema>(
@@ -162,6 +168,21 @@ export default class MemoCache {
     state: StateInterface,
     // NOTE: different orders can result in cache busting here; but since it's just a perf penalty we will allow for now
     argsKey: string = JSON.stringify(args),
+  ): NormalizeNullable<S> {
+    const records = this.queryRecords;
+    const value = this.queryKey(schema, args, state, argsKey, records);
+    this.track(state.entities, records);
+    while (records.length) records.pop();
+    return value;
+  }
+
+  /** `buildQueryKey`, pushing its node and entry pair onto `records` */
+  private queryKey<S extends Schema>(
+    schema: S,
+    args: readonly any[],
+    state: StateInterface,
+    argsKey: string,
+    records: unknown[],
   ): NormalizeNullable<S> {
     // This is redundant for buildQueryKey checks, but that was is used for recursion so we still need the checks there
     // TODO: If we make each recursive call include cache lookups, we combine these checks together
@@ -184,7 +205,6 @@ export default class MemoCache {
     const baseDelegate = new this.policy.QueryDelegate(state);
     // committed renders keep their query key too, or the result they pinned
     // is looked up with a new input
-    const records = this.queryRecords;
     // eslint-disable-next-line prefer-const
     let [value, paths] = queryCache.get(
       schema as any,
@@ -200,8 +220,6 @@ export default class MemoCache {
       value = buildQueryKey(delegate)(schema, args);
       queryCache.set(dependencies, value, undefined, undefined, records);
     }
-    this.track(state.entities, records);
-    records.length = 0;
     return value;
   }
 }

@@ -33,16 +33,19 @@ export default class GlobalCache implements Cache {
   private _hasArgsKey = false;
   /** The result's own memo entries, as node and entry pairs for `keep()`:
    * the endpoints entry, or the top-level entity's for a pk input. */
-  readonly records: unknown[] = [];
+  declare private records: unknown[];
   /** Node and entry pairs read so far by the value being computed. */
-  private children: unknown[] = this.records;
+  declare private children: unknown[];
 
   constructor(
     getEntity: DenormGetEntity,
     getCache: GetEntityCache,
     resultCache: EndpointsCache,
-    args: readonly any[] = [],
+    args: readonly any[],
+    records: unknown[],
   ) {
+    this.records = records;
+    this.children = records;
     this._getEntity = getEntity;
     this._getCache = getCache;
     this._resultCache = resultCache;
