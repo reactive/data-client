@@ -7,10 +7,12 @@ import useFetch from '../src/hooks/useFetch';
 import useLive from '../src/hooks/useLive';
 import useSuspense from '../src/hooks/useSuspense';
 
+// RestEndpoints without params accept `{}` as well as no args.
 // Eval for bulletproof-react migration problem P6: `cond ? args : null` must
-// conditionally fetch an endpoint that takes no arguments, written as
-// `cond ? {} : null`. Compile-time only (tsconfig.test.json); each
-// `ts-expect-error` line must keep erroring and every other line must compile.
+// conditionally fetch such an endpoint, written as `cond ? {} : null`, without
+// breaking APIs that take args then more (Controller.getResponse).
+// Compile-time only (tsconfig.test.json); each `ts-expect-error` line must keep
+// erroring and every other line must compile.
 
 declare const cond: boolean;
 type Team = { id: string; name: string };
@@ -49,7 +51,7 @@ const getTeams = new RestEndpoint({
   useSuspense(getTeams, 5);
 };
 
-// Controller methods that take args then state still take state alone
+// Controller methods take `{}` or no args, and still take state alone
 declare const ctrl: Controller;
 declare const state: State<unknown>;
 () => {
