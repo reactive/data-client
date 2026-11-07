@@ -27,10 +27,12 @@
   "sideEffects": [
     "./lib/index.js",
     "./legacy/index.js",
-    "./lib/imm.js"
+    "./lib/imm.js",
+    "./dist/normalizr.native.js",
+    "./native/index.js"
   ],
   "main": "dist/normalizr.js",
-  "react-native": "legacy/index.js",
+  "react-native": "native/index.js",
   "module": "legacy/index.js",
   "types": "lib/index.d.ts",
   "typesVersions": {
@@ -62,11 +64,14 @@
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
+      "react-native": {
+        "import": "./native/index.js",
+        "require": "./dist/normalizr.native.js"
+      },
       "module": "./lib/index.js",
       "import": "./node.mjs",
       "require": "./dist/normalizr.js",
       "browser": "./lib/index.js",
-      "react-native": "./lib/index.js",
       "default": "./lib/index.js"
     },
     "./imm": {
@@ -85,20 +90,23 @@
     "lib",
     "node.mjs",
     "legacy",
+    "native",
     "ts4.1",
     "ts4.0",
     "LICENSE",
     "README.md"
   ],
   "scripts": {
-    "build": "run build:lib && run build:legacy:lib && run build:bundle",
+    "build": "run build:lib && run build:legacy:lib && run build:native:lib && run build:bundle",
     "build:js:development": "BROWSERSLIST_ENV=legacy NODE_ENV=development yarn g:rollup",
     "build:js:production": "BROWSERSLIST_ENV=legacy NODE_ENV=production yarn g:rollup",
     "build:js:node": "BROWSERSLIST_ENV=node12 NODE_ENV=development yarn g:rollup && echo '{\"type\":\"commonjs\"}' > dist/package.json",
+    "build:js:native": "NODE_ENV=development yarn g:rollup-native",
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' POLYFILL_TARGETS='chrome>88,safari>14' yarn g:babel --out-dir lib",
     "build:legacy:lib": "NODE_ENV=production BROWSERSLIST_ENV='2018' POLYFILL_TARGETS='chrome>80,safari>13,firefox>72' yarn g:babel --out-dir legacy",
+    "build:native:lib": "yarn g:babel-native --extensions '.ts,.tsx,.cts,.js'",
     "build:bundle": "yarn g:runs build:js:\\*",
-    "build:clean": "yarn g:clean ts4.0 ts4.1",
+    "build:clean": "yarn g:clean ts4.0 ts4.1 native",
     "build:legacy-types": "yarn g:legacy-types 4.1 4.0",
     "prepack": "run build"
   },

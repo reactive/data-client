@@ -5,6 +5,8 @@ import {
   Controller,
   SetResponseAction,
 } from '@data-client/core';
+import { Endpoint, Entity } from '@data-client/endpoint';
+import { MemoCache } from '@data-client/normalizr';
 import { MockResolver } from '@data-client/test';
 import { act, render, screen } from '@testing-library/react-native';
 import { CoolerArticleResource } from '__tests__/new';
@@ -15,6 +17,7 @@ import { ControllerContext, StateContext } from '../../context';
 import { useController, useSuspense } from '../../hooks';
 import { payload } from '../../test-fixtures';
 import DataProvider from '../DataProvider';
+import type { MemoCommit } from '../DataStore.native';
 
 const { SET_RESPONSE } = actionTypes;
 
@@ -145,5 +148,98 @@ describe('<DataProvider />', () => {
     });
     expect(count).toBe(2);
     expect(state).toMatchSnapshot();
+  });
+  describe('memo commit', () => {
+    class Item extends Entity {
+      id = '';
+      title = '';
+    }
+    let release: (() => void) | undefined;
+    const updateItem = new Endpoint(
+      ({ id, title }: { id: string; title: string }) =>
+        new Promise<{ id: string; title: string }>(resolve => {
+          release = () => resolve({ id, title });
+        }),
+      {
+        schema: Item,
+        sideEffect: true,
+        name: 'updateItem',
+        getOptimisticResponse(_snap, { id, title }) {
+          return { id, title };
+        },
+      },
+    );
+
+    it('commits each committed store, unsettled while optimistic updates are in flight', async () => {
+      const memo = new MemoCache();
+      const commit = jest.spyOn(
+        memo as MemoCache & Required<MemoCommit>,
+        'commit',
+      );
+      class MemoController extends Controller {
+        constructor(options: ConstructorParameters<typeof Controller>[0]) {
+          super({ ...options, memo });
+        }
+      }
+      let ctrl: Controller | undefined;
+      let state: any;
+      function ContextTester() {
+        ctrl = useController();
+        state = useContext(StateContext);
+        return null;
+      }
+      await render(
+        <DataProvider Controller={MemoController} devButton={null}>
+          <ContextTester />
+        </DataProvider>,
+      );
+      expect(commit).toHaveBeenLastCalledWith(state.entities, true);
+      let done: Promise<unknown> | undefined;
+      await act(() => {
+        done = ctrl?.fetch(updateItem, { id: '1', title: 'optimistic' });
+      });
+      // the rendered store holds the optimistic update
+      expect(state.entities.Item['1'].title).toBe('optimistic');
+      expect(commit).toHaveBeenLastCalledWith(state.entities, false);
+      await act(async () => {
+        release?.();
+        await done;
+      });
+      expect(commit).toHaveBeenLastCalledWith(state.entities, true);
+    });
+
+    it('works with a custom memo that has no commit', async () => {
+      const inner = new MemoCache();
+      const memo = {
+        denormalize: inner.denormalize.bind(inner),
+        query: inner.query.bind(inner),
+        buildQueryKey: inner.buildQueryKey.bind(inner),
+      };
+      class MemoController extends Controller {
+        constructor(options: ConstructorParameters<typeof Controller>[0]) {
+          super({ ...options, memo });
+        }
+      }
+      let ctrl: Controller | undefined;
+      function ContextTester() {
+        ctrl = useController();
+        return null;
+      }
+      await render(
+        <DataProvider Controller={MemoController} devButton={null}>
+          <ContextTester />
+        </DataProvider>,
+      );
+      await act(() => {
+        ctrl?.setResponse(
+          CoolerArticleResource.get,
+          { id: 5 },
+          { id: 5, title: 'hi', content: 'more things here' },
+        );
+      });
+      expect(ctrl?.getState().entities).toHaveProperty(
+        CoolerArticleResource.get.schema.key,
+      );
+    });
   });
 });
