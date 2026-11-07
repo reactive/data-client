@@ -129,7 +129,7 @@ export const PostResource = resource({ path: '/posts/:id', schema: Post });
 Return the parent in the comment's create and delete responses, and add it to those endpoints' schemas, the same way
 as the [example above](#example). This needs no extra request. Call `CommentResource.add` and `CommentResource.remove`
 instead of `CommentResource.getList.push` and `CommentResource.delete`, so the
-response's post is stored. (`add` and `remove` are names chosen in `.extend()`; the built-in `create` is deprecated.)
+response's post is stored. (`add` and `remove` are names chosen in [`.extend()`](https://dataclient.io/rest/api/resource#extend); the built-in `create` is deprecated.)
 
 ```typescript title="resources/Comment.ts"
 export const CommentResource = resource({
@@ -158,8 +158,8 @@ After the mutation resolves, fetch the parent's own endpoint, in the code that c
 const ctrl = useController();
 const addComment = async (postId: number, body: Partial<Comment>) => {
   await ctrl.fetch(CommentResource.getList.push, { postId }, body);
-  // the comment is saved; a failed refresh only leaves the count stale
-  ctrl.fetch(PostResource.get, { id: postId }).catch(() => {});
+  // the comment is saved; a failed refresh leaves the count stale until the next fetch
+  ctrl.fetch(PostResource.get, { id: postId }).catch(console.error);
 };
 ```
 
