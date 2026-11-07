@@ -82,7 +82,7 @@ export const TradeResource = resource({
   path: '/trade/:id',
   schema: Trade,
 }).extend(Base => ({
-  create: Base.getList.push.extend({
+  add: Base.getList.push.extend({
     schema: {
       trade: Base.getList.push.schema,
       account: Account,
@@ -91,15 +91,14 @@ export const TradeResource = resource({
 }));
 ```
 
-Now if when we use the [getList.push](https://dataclient.io/rest/api/resource#push) Endpoint generator method,
-we will be happy knowing both the trade and account information will
-be updated in the cache after the `POST` request is complete.
+Now when we call `TradeResource.add` (built from [getList.push](https://dataclient.io/rest/api/resource#push)), both the trade and
+account information update in the cache after the `POST` request is complete.
 
 ```typescript title="CreateTrade.tsx"
 export default function CreateTrade() {
   const ctrl = useController();
   const handleSubmit = payload =>
-    ctrl.fetch(TradeResource.create, payload);
+    ctrl.fetch(TradeResource.add, payload);
   //...
 }
 ```
@@ -129,7 +128,8 @@ export const PostResource = resource({ path: '/posts/:id', schema: Post });
 
 Return the parent in the comment's create and delete responses, and add it to those endpoints' schemas, the same way
 as the [example above](#example). This needs no extra request. Call `CommentResource.add` and `CommentResource.remove`
-in place of `getList.push` and `delete`.
+instead of `CommentResource.getList.push` and `CommentResource.delete`, so the
+response's post is stored. (`add` and `remove` are names chosen in `.extend()`; the built-in `create` is deprecated.)
 
 ```typescript title="resources/Comment.ts"
 export const CommentResource = resource({
@@ -158,11 +158,13 @@ After the mutation resolves, fetch the parent's own endpoint, in the code that c
 const ctrl = useController();
 const addComment = async (postId: number, body: Partial<Comment>) => {
   await ctrl.fetch(CommentResource.getList.push, { postId }, body);
-  await ctrl.fetch(PostResource.get, { id: postId });
+  // the comment is saved; a failed refresh only leaves the count stale
+  ctrl.fetch(PostResource.get, { id: postId }).catch(() => {});
 };
 ```
 
-This costs one extra request, and the count changes when it resolves. It updates the `Post` entity, so lists that
+This costs one extra request, and the count changes when it resolves. Don't await it in the mutation's caller: the
+comment is already saved, so a failed refresh must not report the mutation as failed. It updates the `Post` entity, so lists that
 show the post update too, without refetching the lists. Do not add the
 post to an optimistic response here: the real response lacks it, so the count jumps back until the refetch arrives.
 When the parent has no single-item endpoint, call [`ctrl.expireAll(PostResource.getList)`](https://dataclient.io/docs/api/Controller#expireAll)
