@@ -153,6 +153,8 @@ export default {
   900ms of animation lands inside the measured time.
 - **Check `ready` locators behind overlays.** An open drawer or dialog hides the page from the
   accessibility tree, so `getByRole` cannot see an optimistic update behind it. Use `getByText` there.
+  It also cuts the other way: a `getByRole` wait for `state: 'hidden'` passes at once behind a dialog,
+  before the change happens. Wait for removal with a CSS or text locator.
 
 ## Tests
 

@@ -9,9 +9,9 @@ CPU throttle, mock API latency fixed at 400ms ([`../fixed-latency.patch`](../fix
 | data-client              | the same commit plus `migration.patch` from [#4607](https://github.com/reactive/data-client/pull/4607) @ `daada76`                                                                           |
 | data-client + optimistic | the same commit plus `migration.patch` from [#4607](https://github.com/reactive/data-client/pull/4607) @ `5258d83` (optimistic comment create and delete, discussion update, profile update) |
 
-The commit shown in each report's Setup table is the checkout's own HEAD, so the migrated variants show a
-local commit; the table above names the patch each one applied. These runs predate the working-tree
-fingerprint, so its column is blank.
+Each report's Setup table shows the checkout's own HEAD, its uncommitted-file count and a working-tree
+fingerprint. The optimistic checkout has a local commit; the table above names the patch each variant
+applied.
 
 ## Mutations
 
@@ -19,22 +19,26 @@ Time from submit until the UI shows the change, median of 8 runs (ms).
 
 | Mutation                             | react-query | data-client      | data-client + optimistic |
 | ------------------------------------ | ----------- | ---------------- | ------------------------ |
-| create discussion                    | 1,396       | 1,384            | 1,400                    |
-| update discussion                    | 1,394       | 882              | 112                      |
-| create comment                       | 1,395       | 877              | 130                      |
-| delete comment                       | 1,392       | 875              | 84                       |
-| update profile                       | 1,384       | 880              | 92                       |
-| delete discussion                    | 73          | 73               | 75                       |
-| **sum of 6**                         | **7,032**   | **4,975 (-29%)** | **1,888 (-73%)**         |
+| create discussion                    | 1,412       | 1,421            | 1,417                    |
+| update discussion                    | 1,409       | 899              | 111                      |
+| create comment                       | 1,407       | 888              | 145                      |
+| delete comment                       | 1,401       | 892              | 94                       |
+| update profile                       | 1,399       | 904              | 104                      |
+| delete discussion                    | 1,406       | 897              | 890                      |
+| **sum of 6**                         | **8,431**   | **5,887 (-30%)** | **2,781 (-67%)**         |
 | refetches triggered (requests)       | 6           | 2                | 2                        |
 | stale views after a mutation (views) | 2           | 0                | 0                        |
 
-Data-client saves one round trip on four mutations: react-query refetches after them, data-client
-updates the normalized entity from the mutation response. Optimistic updates remove the remaining round
-trip. Create and delete discussion are not optimistic in either version.
+Data-client saves one round trip on five mutations: react-query refetches before the UI changes,
+data-client updates the normalized entity from the mutation response. Optimistic updates remove the
+remaining round trip. Create and delete discussion are not optimistic in either version.
 
-The optimistic version's slowest interaction is 76ms, against 36 to 48ms in the other two builds, and
-its total blocking time is 10 to 13.5ms against 0. A likely cause is that the optimistic update renders
+An earlier version of these results timed delete discussion at about 73ms in every build. That was the
+click: the confirmation dialog hid the row from the accessibility tree, so the check for the row's removal
+passed at once. The flow now waits for the row itself to go.
+
+The optimistic version's slowest interaction is 76ms, against 40 to 52ms in the other two builds, and
+its total blocking time is 15 to 18ms against 0 to 1. A likely cause is that the optimistic update renders
 inside the click handler's task; no trace confirms it yet.
 
 ## Tokens per feature

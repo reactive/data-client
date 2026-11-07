@@ -173,7 +173,10 @@ export default {
           .click();
       },
       trigger: ({ page }) => confirm(page, 'Delete Discussion'),
-      ready: ({ page, uid }) => row(page, uid).waitFor({ state: 'hidden' }),
+      // A CSS locator, not getByRole: the open dialog hides the row from the accessibility tree, so a
+      // role locator would count it as hidden before the delete finishes.
+      ready: ({ page, uid }) =>
+        page.locator('tr', { hasText: uid }).waitFor({ state: 'hidden' }),
     },
   ],
 };

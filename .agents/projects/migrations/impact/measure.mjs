@@ -68,9 +68,10 @@ for (const v of Object.keys(checkouts)) {
       console.error(`${v}: applied ${patch}`);
     }
   }
-  if (!opt['no-build'] && config.build) {
-    console.error(`${v}: ${config.build}`);
-    execSync(config.build, { cwd: rootOf(v), stdio: 'inherit' });
+  if (!opt['no-build']) {
+    const build = config.build ?? 'npx vite build';
+    console.error(`${v}: ${build}`);
+    execSync(build, { cwd: rootOf(v), stdio: 'inherit' });
   }
 }
 
