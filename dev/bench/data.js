@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794070077805,
+  "lastUpdate": 1794070406623,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -141577,6 +141577,366 @@ window.BENCHMARK_DATA = {
             "range": "±3.29%",
             "unit": "ops/sec",
             "extra": "95 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "855778f93c15b746849a56749b4d05c2402f47f4",
+          "message": "enhance(core): Explain skipped optimistic updates once in development (#4616)\n\n* enhance(core): Explain skipped optimistic updates once in development\n\nWhen getOptimisticResponse() throws or returns a value its schema can't\nnormalize (most often an Entity without its primary key), the console\nerror now names the optimistic update and the fix, and is logged once\nper mutation instead of on every store update.\n\nDocs and the data-client-rest skill say partial Entity responses merge\nwith the cached entity and only need the primary key, and show how to\nread the key from the snapshot when args lack it.\n\nEval for bulletproof-react migration problem P11: the \"partial\nresponses\" tests in integration-optimistic-endpoint.web.tsx.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* docs(blog): Link #4616\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* enhance(core): Address review of the skipped optimistic update message\n\n- One message for thrown and unnormalizable optimistic values, with the\n  primary key named as a common cause, so the try/catch is unchanged\n- Long message text is development only; production keeps\n  \"Error processing\"\n- Docs, skill and changeset say what users see in production too\n- Test the documented { id: user.id, ...body } pattern\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* fix(core): Reuse one optimistic action when a fetch is reduced again\n\nReact 18 StrictMode re-runs reducers, and DevToolsManager reduces each\naction into its own state. Each run of fetchReducer created a new\noptimistic action, so a failed optimistic update was reported once per\ncopy. fetchReducer now keeps one optimistic action per fetch action.\n\nFound by the bulletproof-react migration e2e (React 18.3, StrictMode).\nThe eval now runs the missing-primary-key case with and without\nStrictMode, and a reducer test checks the reuse directly.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* internal(skills): Shorten the optimistic primary-key note in data-client-rest\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* enhance(core): Shorten the skipped optimistic update message\n\nTwo lines name the endpoint, that the UI waits for the server, and the\nlikely cause, followed by the original error. The schema dump is left\nout for optimistic failures in development.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* internal(skills): Name each Entity's key and the return shape in the optimistic note\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* enhance(core): Dedupe skipped optimistic reports in one dev-only place\n\n- Key the once-only report on endpoint key and fetch time, which stay\n  the same when React StrictMode or DevToolsManager re-create the\n  optimistic action, so fetchReducer no longer caches actions in\n  production\n- Message names the fix (read the key with snap.get() or\n  snap.getResponse()) and links the docs\n- Skill note reads the entity from getResponse().data\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* docs: Say the skipped optimistic message gives the likely fix\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* enhance(core): Name a working snapshot call in the skipped optimistic message\n\nTest the once-per-fetch report in core, where React 19 CI doesn't re-create actions.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* enhance(core): Forget an optimistic failure report when its fetch resolves\n\nKeeps dev-only tracking bounded by in-flight fetches instead of the session.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* enhance(core): Point the skipped optimistic hint at a read endpoint with its args\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* enhance(core): Cap dev-only optimistic report tracking instead of clearing on response\n\nClearing on response missed resets and stale DevToolsManager re-applies, and\nadded a check to every response. A size cap stays on the error path.\nThe hint now shows a concrete snapshot read, matching the docs example.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* enhance(core): Evict the oldest optimistic report instead of clearing all\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* internal(core): Test that recent optimistic reports stay deduped past the cap\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* internal(core): Pin the 100-entry report window in the test\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-07T16:40:11Z",
+          "tree_id": "c46d4de37833a655f865a15551b126ff30a35f29",
+          "url": "https://github.com/reactive/data-client/commit/855778f93c15b746849a56749b4d05c2402f47f4"
+        },
+        "date": 1794070403070,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 466,
+            "range": "±0.62%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 418,
+            "range": "±0.45%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 404,
+            "range": "±3.90%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 855,
+            "range": "±0.62%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 267,
+            "range": "±7.32%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 252,
+            "range": "±5.01%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1154,
+            "range": "±0.79%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing",
+            "value": 303,
+            "range": "±5.85%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null",
+            "value": 310,
+            "range": "±5.44%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID",
+            "value": 311,
+            "range": "±5.09%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 793,
+            "range": "±0.47%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 1080,
+            "range": "±0.50%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1539,
+            "range": "±1.66%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 694,
+            "range": "±7.76%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 7735,
+            "range": "±0.52%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 3590,
+            "range": "±1.68%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 62172,
+            "range": "±0.69%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 6850,
+            "range": "±3.92%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 247,
+            "range": "±7.70%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 7651,
+            "range": "±0.67%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 7648,
+            "range": "±0.26%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing withCache",
+            "value": 8289,
+            "range": "±0.28%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null withCache",
+            "value": 7847,
+            "range": "±0.53%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID withCache",
+            "value": 7518,
+            "range": "±0.37%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 5656,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 8027,
+            "range": "±0.19%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 3035,
+            "range": "±0.39%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 5392,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 6960,
+            "range": "±4.33%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1736,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 5285,
+            "range": "±11.65%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 48249,
+            "range": "±1.37%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 4756,
+            "range": "±5.35%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 12053236,
+            "range": "±1.18%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 236,
+            "range": "±8.11%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 4241,
+            "range": "±1.58%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 3208,
+            "range": "±1.92%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 4505,
+            "range": "±6.07%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 2135,
+            "range": "±0.26%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 5214,
+            "range": "±3.29%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 467,
+            "range": "±0.54%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 274,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 291,
+            "range": "±0.21%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 972,
+            "range": "±1.08%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 238,
+            "range": "±1.81%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 3834,
+            "range": "±4.03%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 25.75,
+            "range": "±3.53%",
+            "unit": "ops/sec",
+            "extra": "47 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 1376,
+            "range": "±2.77%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
           }
         ]
       }
