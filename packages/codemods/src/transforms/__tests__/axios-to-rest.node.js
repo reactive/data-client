@@ -2728,15 +2728,17 @@ const [state, setState] = useState(null);
     const node = (args, cwd) =>
       spawnSync(process.execPath, args, { cwd, encoding: 'utf8' });
 
-    /** Runs the codemod's CLI on a copy of the app, and returns that folder */
-    const migrate = app => {
-      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'axios-to-rest-'));
-      fs.cpSync(path.join(evals, app), dir, { recursive: true });
-      // the app's own Prettier, which the codemod formats with
+    /** Gives `dir` this repo's Prettier as its own, which the codemod formats with */
+    const linkPrettier = dir =>
       fs.symlinkSync(
         path.dirname(path.dirname(require.resolve('prettier/package.json'))),
         path.join(dir, 'node_modules'),
       );
+    /** Runs the codemod's CLI on a copy of the app, and returns that folder */
+    const migrate = app => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'axios-to-rest-'));
+      fs.cpSync(path.join(evals, app), dir, { recursive: true });
+      linkPrettier(dir);
       const { status, stderr } = node(
         [
           path.join(__dirname, '../../cli.js'),
@@ -2754,6 +2756,30 @@ const [state, setState] = useState(null);
         .readdirSync(dir, { recursive: true, withFileTypes: true })
         .filter(entry => entry.isFile())
         .map(entry => path.join(entry.parentPath ?? entry.path, entry.name));
+
+    it('still migrates a file when Prettier fails, and reports why', () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'axios-to-rest-'));
+      fs.writeFileSync(path.join(dir, '.prettierrc'), '{ "semi": false,');
+      fs.mkdirSync(path.join(dir, 'src'));
+      fs.writeFileSync(
+        path.join(dir, 'src/api.ts'),
+        "import axios from 'axios';\nexport const load = () => axios.get('/a');\n",
+      );
+      linkPrettier(dir);
+      const { stdout } = node(
+        [
+          path.join(__dirname, '../../cli.js'),
+          'axios-to-rest',
+          '--extensions=ts',
+          'src',
+        ],
+        dir,
+      );
+      const output = fs.readFileSync(path.join(dir, 'src/api.ts'), 'utf8');
+      fs.rmSync(dir, { recursive: true, force: true });
+      expect(stdout).toMatch('not formatted with Prettier');
+      expect(output).toMatch('new RestEndpoint(');
+    });
 
     // P9: alan2207/bulletproof-react@9506629 apps/react-vite
     describe('bulletproof-react', () => {

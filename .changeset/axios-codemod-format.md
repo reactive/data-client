@@ -6,7 +6,8 @@ Fix `axios-to-rest` output that Prettier rejects or that reads the removed axios
 
 When the project uses Prettier, each file it changes is now formatted with the project's own Prettier and config, so a
 formatted project stays formatted. It skips files that weren't formatted before, to keep the diff small, and
-`--prettier=false` turns it off. Without
+`--prettier=false` turns it off. If Prettier fails, for example on a broken config, the file is still migrated and a
+`not formatted with Prettier` report says why. Without
 Prettier, the code it writes uses the quotes and trailing commas the file already uses.
 
 Interceptors and `defaults` set up next to the instance used to stay as they were, reading an `api` that no longer
