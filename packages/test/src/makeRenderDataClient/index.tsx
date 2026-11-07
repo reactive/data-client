@@ -92,6 +92,7 @@ export default function makeRenderDataHook(
       (manager): manager is NetworkManager => manager instanceof NetworkManager,
     );
     if (!nm) {
+      managers.forEach(manager => manager.cleanup());
       throw new Error(
         'renderDataHook(): managers must include a NetworkManager: managers: () => [myManager, new NetworkManager()]',
       );

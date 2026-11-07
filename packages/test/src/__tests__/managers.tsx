@@ -43,6 +43,7 @@ describe('renderDataHook() managers', () => {
     expect(() =>
       renderDataHook(() => useController(), { managers: () => [recorder] }),
     ).toThrow('managers must include a NetworkManager');
+    expect(recorder.cleanup).toHaveBeenCalled();
   });
 
   it('calls the factory once per renderDataHook() call', () => {

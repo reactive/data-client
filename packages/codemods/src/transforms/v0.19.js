@@ -8,7 +8,7 @@
  *      - `<DataProvider managers={...}>` (any JSX element's `managers` attribute)
  *      - `app.use(DataClientPlugin, { managers })`, `[DataClientPlugin, { managers }]`,
  *        `createDataClient({ managers })`, `mountDataClient(component, { managers })`,
- *        `renderDataHook(callback, { managers })`
+ *        `renderDataHook(callback, { managers })` (or `renderDataClient()`)
  *      - `prepareStore(initialState, managers, ...)`, `createPersistedStore(managers)`
  *      `getDefaultManagers()` becomes `getDefaultManagers`. A variable holding an array literal or
  *      `getDefaultManagers(...)` becomes a function when it is only used as `managers`; other values
@@ -28,6 +28,8 @@ const OPTION_CALLS = new Set([
   'createDataClient',
   'mountDataClient',
   'renderDataHook',
+  // makeRenderDataHook() docs name its result renderDataClient()
+  'renderDataClient',
 ]);
 // calls that take managers as a positional argument, and its index
 const POSITIONAL_CALLS = new Map([

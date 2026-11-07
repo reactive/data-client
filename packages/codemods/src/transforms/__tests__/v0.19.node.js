@@ -229,11 +229,13 @@ mountDataClient(Comp, { managers: () => [new NetworkManager()] });
 import { renderDataHook } from '@data-client/test';
 
 renderDataHook(() => useThing(), { managers: [new NetworkManager(), logger] });
+renderDataClient(() => useThing(), { managers: [new NetworkManager()] });
       `,
       `
 import { renderDataHook } from '@data-client/test';
 
 renderDataHook(() => useThing(), { managers: () => [new NetworkManager(), logger] });
+renderDataClient(() => useThing(), { managers: () => [new NetworkManager()] });
       `,
       'converts renderDataHook() managers',
     );
