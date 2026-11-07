@@ -61,10 +61,6 @@ export default class MemoCache {
     data: DenormalizeNullable<S> | typeof INVALID;
     paths: EntityPath[];
   } {
-    // we already vary based on input, so we don't need endpointKey? TODO: verify
-    // if (!this.endpoints[endpointKey])
-    //   this.endpoints[endpointKey] = new WeakDependencyMap<EntityPath>();
-
     // undefined means don't do anything
     if (schema === undefined) {
       return { data: input as any, paths: [] };

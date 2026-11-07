@@ -47,7 +47,7 @@ A schema whose output depends on `args` registers that in `denormalize` with `de
 
 ## React Native memo
 
-With `COMPILE_TARGET=native`, `WeakDependencyMap.native.ts`, `MemoCache.native.ts` and `globalCache.native.ts` replace the web files, and `@data-client/react` uses `DataStore.native.tsx`. Each pair has the same API, except that the native `MemoCache` adds `commit()`. A change to one file of a pair needs the same change in the other, or a reason it does not apply.
+With `COMPILE_TARGET=native`, `WeakDependencyMap.native.ts`, `MemoCache.native.ts` and `globalCache.native.ts` replace the web files, and `@data-client/react` uses `DataStore.native.tsx`. Each pair has the same public API, except that the native `MemoCache` adds `commit()`; internally the native files also pass `out`, `children` and `records` pairs to `keep()`. A change to one file of a pair needs the same change in the other, or a reason it does not apply.
 
 **Why.** Hermes resolves nested `WeakMap`s one level per stop-the-world marking pass, and each pass rescans every `WeakMap` entry. The web memo nests one `WeakMap` per dep, so a deep result stalls old-generation GC for seconds. Native keeps one level: the first dep is the key, the other deps are stored on the entry and compared with `===`, and `argsKey` results branch on a `Map`.
 
@@ -71,7 +71,7 @@ With `COMPILE_TARGET=native`, `WeakDependencyMap.native.ts`, `MemoCache.native.t
 2. More than `MAX_FORKS` (8) extra `argsKey` branches under one first dep. This happens only when missing entities change which `argsKey` comes first; that node is then dropped.
 3. More than 256 reads of one uncommitted store; the earliest lose their buffered pin.
 
-`packages/react/src/__tests__/concurrent-memo.web.tsx` with the native memo, 3,000 random runs: 0 committed and 0 nested committed misses.
+`packages/react/src/__tests__/concurrent-memo.web.tsx` with the native memo: it must report 0 committed and 0 nested committed misses.
 
 **Build.** `babel.config.js` rewrites `./x.js` to `./x.native.js` when `COMPILE_TARGET=native` and that file exists, so a native file cannot import its own web twin. This builds `native/` (ESM, for Metro) and `dist/normalizr.native.js` (CJS, for core and Jest). The `react-native` export condition comes before `import` and `require`, because Metro takes the first match.
 

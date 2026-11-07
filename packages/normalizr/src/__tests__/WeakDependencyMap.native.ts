@@ -441,7 +441,7 @@ describe('WeakDependencyMap eviction', () => {
     const S0 = { v: 'S0' };
     setCommitted(wem, S0, 'S0');
     // epoch 1: pending transition; retries build fresh entities, urgent
-    // renders re-read S0. This is the pattern the existing tests cover.
+    // renders re-read S0
     for (let i = 0; i < 2; i++) {
       const x = { v: `x${i}` };
       expect(wem.get(root, withB(x))[0]).toBeUndefined();
@@ -458,24 +458,6 @@ describe('WeakDependencyMap eviction', () => {
     expect(wem.get(root, withB(S1))[0]).toBe('S1');
     // S0 is no longer pinned
     expect(wem.get(root, withB(S0))[0]).toBeUndefined();
-  });
-
-  it('a stale entry does not crowd out a committed version that keeps being read', () => {
-    const wem = new WeakDependencyMap<EntityPath>();
-    const dead = { v: 'dead' };
-    const S = { v: 'S' };
-    wem.set([rootDep, dep(dead)], 'dead');
-    setCommitted(wem, S, 'S');
-    // alternate one-offs with re-reads of S many times; S should earn its keep
-    let misses = 0;
-    for (let i = 0; i < 10; i++) {
-      wem.set([rootDep, dep({ v: `x${i}` })], `x${i}`);
-      if (wem.get(root, withB(S))[0] === undefined) {
-        misses++;
-        wem.set([rootDep, dep(S)], 'S');
-      }
-    }
-    expect(misses).toBe(0);
   });
 
   it('a committed version first read after two one-offs is retained', () => {

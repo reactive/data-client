@@ -170,17 +170,22 @@ describe('<DataProvider />', () => {
       },
     );
 
+    const controllerWith = (
+      memo: NonNullable<ConstructorParameters<typeof Controller>[0]>['memo'],
+    ) =>
+      class extends Controller {
+        constructor(options: ConstructorParameters<typeof Controller>[0]) {
+          super({ ...options, memo });
+        }
+      };
+
     it('commits each committed store, unsettled while optimistic updates are in flight', async () => {
       const memo = new MemoCache();
       const commit = jest.spyOn(
         memo as MemoCache & Required<MemoCommit>,
         'commit',
       );
-      class MemoController extends Controller {
-        constructor(options: ConstructorParameters<typeof Controller>[0]) {
-          super({ ...options, memo });
-        }
-      }
+      const MemoController = controllerWith(memo);
       let ctrl: Controller | undefined;
       let state: any;
       function ContextTester() {
@@ -215,11 +220,7 @@ describe('<DataProvider />', () => {
         query: inner.query.bind(inner),
         buildQueryKey: inner.buildQueryKey.bind(inner),
       };
-      class MemoController extends Controller {
-        constructor(options: ConstructorParameters<typeof Controller>[0]) {
-          super({ ...options, memo });
-        }
-      }
+      const MemoController = controllerWith(memo);
       let ctrl: Controller | undefined;
       function ContextTester() {
         ctrl = useController();

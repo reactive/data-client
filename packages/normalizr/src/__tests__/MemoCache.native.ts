@@ -37,24 +37,16 @@ describe('MemoCache.commit', () => {
     expect(memo.denormalize([Todo], input, committed).data).toBe(first);
   });
 
-  it('keeps a result first read after its store committed', () => {
-    const memo = new MemoCache();
-    memo.denormalize([Todo], input, store('older'));
-    const committed = store('committed');
-    memo.commit(committed);
-    // a late mount reads the committed store
-    const late = memo.denormalize([Todo], input, committed).data;
-    for (let i = 0; i < 5; i++)
-      memo.denormalize([Todo], input, store(`retry ${i}`));
-    expect(memo.denormalize([Todo], input, committed).data).toBe(late);
-  });
-
-  it('keeps a result first read after an unsettled commit', () => {
+  it.each([
+    ['its store committed', true],
     // optimistic updates were pending when the store committed
+    ['an unsettled commit', false],
+  ])('keeps a result first read after %s', (_, settled) => {
     const memo = new MemoCache();
     memo.denormalize([Todo], input, store('older'));
     const committed = store('committed');
-    memo.commit(committed, false);
+    memo.commit(committed, settled);
+    // a late mount reads the committed store
     const late = memo.denormalize([Todo], input, committed).data;
     for (let i = 0; i < 5; i++)
       memo.denormalize([Todo], input, store(`retry ${i}`));
