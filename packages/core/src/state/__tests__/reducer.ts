@@ -1,6 +1,11 @@
 import { Entity } from '@data-client/endpoint';
 import { INVALID } from '@data-client/normalizr';
-import { ArticleResource, Article, PaginatedArticle } from '__tests__/new';
+import {
+  ArticleResource,
+  Article,
+  PaginatedArticle,
+  OptimisticArticleResource,
+} from '__tests__/new';
 
 import { Controller } from '../..';
 import {
@@ -11,7 +16,7 @@ import {
   SET_RESPONSE,
   SET,
 } from '../../actionTypes';
-import { createSetResponse } from '../../controller/actions';
+import { createFetch, createSetResponse } from '../../controller/actions';
 import {
   State,
   ActionTypes,
@@ -627,6 +632,18 @@ describe('reducer', () => {
       warnspy.mockRestore();
     }
   });
+  it('reducing the same fetch twice adds the same optimistic action', () => {
+    // React StrictMode re-runs reducers, and DevToolsManager reduces actions into its own state
+    const action = createFetch(OptimisticArticleResource.partialUpdate, {
+      args: [{ id: 5 }, { title: 'changed' }],
+    });
+    const first = reducer(initialState, action);
+    const second = reducer(initialState, action);
+    expect(first.optimistic).toHaveLength(1);
+    expect(second.optimistic[0]).toBe(first.optimistic[0]);
+    action.meta.promise.catch(() => {});
+  });
+
   it('other types should do nothing', () => {
     const action: any = {
       type: 'whatever',

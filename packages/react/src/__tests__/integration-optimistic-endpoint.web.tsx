@@ -837,42 +837,49 @@ describe.each([
         expect(errorspy).not.toHaveBeenCalled();
       });
 
-      it('reports a missing primary key once, naming getOptimisticResponse', async () => {
-        mynock
-          .patch('/users/profile')
-          .delay(500)
-          .reply(200, { id: '1', firstName: 'new', bio: 'hi' });
-        const { result, controller } = renderDataClient(() => useCache(getMe), {
-          initialFixtures: [meFixture],
-        });
-        let promise: any;
-        act(() => {
-          promise = controller.fetch(updateProfileNoPk, { firstName: 'new' });
-        });
-        // optimistic update could not apply, so the UI waits for the server
-        expect(result.current?.data?.firstName).toBe('old');
-        // any store update, even to another entity, re-applies the optimistic action
-        for (const title of ['a', 'b']) {
+      it.each([false, true])(
+        'reports a missing primary key once, naming getOptimisticResponse (StrictMode: %s)',
+        async reactStrictMode => {
+          mynock
+            .patch('/users/profile')
+            .delay(500)
+            .reply(200, { id: '1', firstName: 'new', bio: 'hi' });
+          const { result, controller } = renderDataClient(
+            () => useCache(getMe),
+            {
+              initialFixtures: [meFixture],
+              reactStrictMode,
+            } as any,
+          );
+          let promise: any;
           act(() => {
-            controller.setResponse(
-              DiscussionResource.get,
-              { id: '5' },
-              { data: { ...fullDiscussion, title } },
-            );
+            promise = controller.fetch(updateProfileNoPk, { firstName: 'new' });
           });
-        }
-        await act(() => promise);
-        expect(result.current?.data?.firstName).toBe('new');
+          // optimistic update could not apply, so the UI waits for the server
+          expect(result.current?.data?.firstName).toBe('old');
+          // any store update, even to another entity, re-applies the optimistic action
+          for (const title of ['a', 'b']) {
+            act(() => {
+              controller.setResponse(
+                DiscussionResource.get,
+                { id: '5' },
+                { data: { ...fullDiscussion, title } },
+              );
+            });
+          }
+          await act(() => promise);
+          expect(result.current?.data?.firstName).toBe('new');
 
-        expect(errorspy).toHaveBeenCalledTimes(1);
-        const message: string = (errorspy.mock.calls[0][0] as any).message;
-        expect(message).toContain(
-          'Optimistic update skipped for PATCH http://test.com/users/profile',
-        );
-        expect(message).toContain('getOptimisticResponse()');
-        expect(message).toContain('Entity without its primary key');
-        expect(message).toContain("'id' missing");
-      });
+          expect(errorspy).toHaveBeenCalledTimes(1);
+          const message: string = (errorspy.mock.calls[0][0] as any).message;
+          expect(message).toContain(
+            'Optimistic update skipped for PATCH http://test.com/users/profile',
+          );
+          expect(message).toContain('getOptimisticResponse()');
+          expect(message).toContain('Entity without its primary key');
+          expect(message).toContain("'id' missing");
+        },
+      );
 
       it('applies when the primary key comes from the snapshot', async () => {
         mynock
