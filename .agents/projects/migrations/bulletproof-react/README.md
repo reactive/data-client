@@ -42,4 +42,4 @@ The migration kept `yarn.lock` untouched (installed with npm, see problem P10); 
 
 ## Optimistic updates (added after the first measurement)
 
-Comment create and delete, discussion update and profile update are optimistic (`getOptimisticResponse`); the other mutations are not. Main chunk is 165.87 kB gzip with them (165.83 before). Tests: vitest 22/22, playwright 5/5. See problem P11.
+Comment create and delete, discussion update and profile update are optimistic (`getOptimisticResponse`); the other mutations are not. Main chunk is 165.87 kB gzip with them (165.83 before). Tests: vitest 22/22, playwright 5/5. See problem P11 (an optimistic response needs a primary key).

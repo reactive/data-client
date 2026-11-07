@@ -100,12 +100,14 @@ Type: S = skill gap, L = library, D = docs, E = environment (not a data-client f
 - Playwright's bundled browser version differs from the container's preinstalled chromium; used `launchOptions.executablePath`.
 - The app's unit tests assumed react-query-auth's `AuthLoader` always showed a spinner (`waitForLoadingToFinish`); changed it to tolerate no spinner. Migrations of apps with similar test helpers will hit this.
 
-## P11 (S/L, medium): partial optimistic responses fail silently when they omit entity fields
+## P11 (L/S, medium): optimistic response without a primary key fails with a generic console error
 
-- Step: adding optimistic updates (discussion `partialUpdate`, profile update). The first version returned `{ id, ...body }`.
-- Occurred: the UI did not update until the server answered; no error or warning. `Entity.validate()` rejects a response missing fields, and the exception is counted as an endpoint failure instead of a visible error. Spreading the cached entity first (`{ ...snap.get(Discussion, { id }), ...body }`, as `resource({ optimistic: true })` does internally) fixed it.
-- Expected: the skill's `getOptimisticResponse` section says partial updates must include the full entity, or the failure is logged in development.
-- Repro: `getOptimisticResponse(snap, { id }, body) { return { id, ...body }; }` on a `partialUpdate` of an Entity with required fields; submit and watch the UI.
-- Pass: skill text shows the spread pattern for partial updates, or a dev-mode warning names the failed validation; `e2e/tests/optimistic.spec.ts` passes with the documented pattern first time.
+- Step: adding optimistic updates. The profile endpoint (`PATCH /users/profile`) has no `id` in its args, so `getOptimisticResponse(snap, body) { return body; }` returned an Entity without a primary key.
+- Occurred: on master this logged a generic "Error processing" console error on every store update, and the optimistic change did not show. Reading the key from the snapshot (`snap.getResponse(getUser).data.data.id`, then `{ ...user, ...body }`) fixed it.
+- Correction: my first diagnosis (partial responses must spread the cached entity) was wrong. `{ id, ...body }` merges with the cached entity and works for the discussion update (rechecked at 100 ms); the earlier "not optimistic" reading came from a test that queried `getByRole('heading')` behind an open Radix drawer (see the test note below).
+- Expected: a dev-mode error that names `getOptimisticResponse` and the missing primary key, logged once, and skill guidance on reading the key from the snapshot when args lack it.
+- Repro: an Entity-schema endpoint without an `id` path param whose `getOptimisticResponse` returns `{ ...body }`; call it with `ctrl.fetch` and watch the console.
+- Fix: #4616. Eval: the "partial responses" block in `packages/react/src/__tests__/integration-optimistic-endpoint.web.tsx`.
+- Pass: a dev-mode error naming `getOptimisticResponse` and the missing primary key is logged once, and the skill shows how to read the key from the snapshot. I have not run `e2e/tests/optimistic.spec.ts` against #4616's packages.
 
 Test note for P11: `getByRole('heading')` cannot see page content behind an open Radix drawer (aria-hidden), so optimistic UI checks behind a drawer must use `locator`/`getByText`.
