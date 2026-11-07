@@ -3,21 +3,19 @@ import {
   TabsProvider,
   useScrollPositionBlocker,
   useTabsContextValue,
-  type TabItemProps,
   type TabsProps,
 } from '@docusaurus/theme-common/internal';
 import useIsBrowser from '@docusaurus/useIsBrowser';
-import React, { useContext, useRef } from 'react';
+import React, { useRef } from 'react';
 
 import { ProtocolSwitch } from './Demo/ProtocolChoice';
-import { PlaygroundHiddenContext } from './Playground/hiddenContext';
 import styles from './PlaygroundTabs.module.css';
 
 /** Docusaurus `<Tabs>` with the homepage's segmented switch, for tabs that
  * each hold a playground or a standalone editor. Takes the same props and
  * `<TabItem>` children, so `groupId` choices stay in sync with every other
  * tab group. Unselected tabs' playgrounds stay mounted but run hidden
- * (PlaygroundHiddenContext), so edits and each preview's store survive
+ * (PlaygroundHiddenContext, from theme/TabItem), so edits and each preview's store survive
  * switching back.
  * `label` names the switch; it defaults to "Protocol". */
 export default function PlaygroundTabs({
@@ -26,7 +24,6 @@ export default function PlaygroundTabs({
 }: TabsProps & { label?: string }) {
   const isBrowser = useIsBrowser();
   const value = useTabsContextValue(props);
-  const inheritedHidden = useContext(PlaygroundHiddenContext);
   const container = useRef<HTMLDivElement>(null);
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
@@ -46,17 +43,7 @@ export default function PlaygroundTabs({
             value.selectValue(newValue);
           }}
         />
-        {React.Children.map(sanitizeTabsChildren(props.children), item =>
-          React.isValidElement<TabItemProps>(item) ?
-            <PlaygroundHiddenContext.Provider
-              value={
-                inheritedHidden || item.props.value !== value.selectedValue
-              }
-            >
-              {item}
-            </PlaygroundHiddenContext.Provider>
-          : item,
-        )}
+        {sanitizeTabsChildren(props.children)}
       </div>
     </TabsProvider>
   );

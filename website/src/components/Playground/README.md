@@ -83,6 +83,10 @@ Gotchas:
   JSX text, which starts a string in Monaco. The keyword and operator lists
   in `tokenize.ts` are copied from Monaco's grammars; recheck them when
   upgrading Monaco. `monaco/language.ts` lists the languages it covers.
+- Highlighting costs an element per token, most of the elements on a page
+  of code. `editor/mergeTokens.ts` draws the same colors with half of them
+  (whitespace and plain text bare, neighbors that look alike in one span),
+  for `StaticEditor` and the site's code blocks (`theme/CodeBlock/Line`).
 
 `hidden` (unselected protocol tabs): every tab stays mounted, so all sources
 are in the HTML. The editor latches interactive on first show, so undo and
@@ -94,10 +98,12 @@ running; only the app's Effects pause. Keep that `<Activity>` inside
 `LiveProvider` (`preview/Preview.tsx`), so a show doesn't remount the app. The row Store folder
 stays out of the `<Activity>`, which would detach `setStoreHost`; the
 container's `.hidden` hides it. The homepage passes `hidden`; in MDX,
-`PlaygroundTabs` sets it through `PlaygroundHiddenContext`
-(`hiddenContext.ts`) for every playground under an unselected tab, nested
-groups included. An explicit prop wins. `TypeScriptEditor` in one of those
-tabs latches the same way (plain text until first shown).
+`PlaygroundHiddenContext` (`hiddenContext.ts`) sets it for every playground
+under an unselected tab (`theme/TabItem`, so `PlaygroundTabs` and Docusaurus
+`<Tabs>` alike) or a `<details>` not yet opened (`theme/Details`), nested
+ones included. An explicit prop wins. `TypeScriptEditor` there latches the
+same way (plain text until first shown); the site's code blocks are plain
+text while hidden (`theme/CodeBlock/Line`).
 In `row` (not stacked), the result never shrinks below its tallest
 (`useHeightRatchet`), shared by the playgrounds under one
 `data-playground-group` (the homepage's protocol switch, `PlaygroundTabs`),
