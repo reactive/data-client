@@ -6,11 +6,11 @@ import { whenIdle } from '../monaco/whenIdle';
 
 jest.mock('../monaco/whenIdle', () => ({ whenIdle: jest.fn(() => jest.fn()) }));
 
-const runIdle = () => act(() => (whenIdle as jest.Mock).mock.calls.at(-1)[0]());
+const runIdle = () => act(() => jest.mocked(whenIdle).mock.calls[0][0]());
 const cancelIdle = () => jest.mocked(whenIdle).mock.results[0].value;
 
 describe('useHiddenUntilIdle', () => {
-  beforeEach(() => (whenIdle as jest.Mock).mockClear());
+  beforeEach(() => jest.mocked(whenIdle).mockClear());
 
   it('stays hidden until the page is idle, then stays shown', () => {
     const { result, rerender } = renderHook(

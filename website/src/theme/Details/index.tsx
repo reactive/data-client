@@ -17,9 +17,9 @@ export default function DetailsWrapper(props: Props) {
         {...props}
         // opened before the page was idle: draw it in the click that opens
         // it (Details itself takes onClick). Its own summary only, as
-        // Docusaurus's Details checks with isInSummary and hasParent. Nothing
-        // else opens its content (Collapsible keeps it display:none), so
-        // nothing else needs a reveal
+        // Docusaurus's Details checks with isInSummary and hasParent. Once
+        // hydrated, nothing else opens its content (Collapsible keeps it
+        // display:none), so nothing else needs a reveal
         onClickCapture={(event: MouseEvent<HTMLDetailsElement>) => {
           if (
             (event.target as Element).closest('summary')?.parentElement ===
