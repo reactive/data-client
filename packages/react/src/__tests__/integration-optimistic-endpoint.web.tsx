@@ -1,6 +1,6 @@
 import { CacheProvider } from '@data-client/react';
 import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
-import { Endpoint, Entity } from '@data-client/rest';
+import { Endpoint, Entity, resource, RestEndpoint } from '@data-client/rest';
 import { afterEach, jest } from '@jest/globals';
 import {
   OptimisticArticleResource,
@@ -735,6 +735,171 @@ describe.each([
       );
       jest.useRealTimers();
       await renderDataClient.allSettled();
+    });
+
+    // an optimistic Entity only needs its primary key; omitted fields keep their cached values
+    describe('partial responses', () => {
+      let errorspy: jest.Spied<typeof global.console.error>;
+      beforeEach(() => {
+        errorspy = jest
+          .spyOn(global.console, 'error')
+          .mockImplementation(() => {});
+      });
+      afterEach(() => {
+        errorspy.mockRestore();
+      });
+
+      class Discussion extends Entity {
+        id = '';
+        title = '';
+        body = '';
+        teamId = '';
+        static key = 'Discussion';
+      }
+      const fullDiscussion = { id: '5', title: 'old', body: 'b', teamId: 't' };
+      const DiscussionResource = resource({
+        urlPrefix: 'http://test.com',
+        path: '/discussions/:id',
+        schema: Discussion,
+        body: {} as { title: string },
+      }).extend(Base => ({
+        get: Base.get.extend({ schema: { data: Discussion } }),
+        partialUpdate: Base.partialUpdate.extend({
+          getOptimisticResponse(snap, { id }, body) {
+            return { id, ...body };
+          },
+        }),
+      }));
+
+      class User extends Entity {
+        id = '';
+        firstName = '';
+        bio = '';
+        static key = 'User';
+      }
+      const getMe = new RestEndpoint({
+        urlPrefix: 'http://test.com',
+        path: '/auth/me',
+        schema: { data: User },
+      });
+      const updateProfileNoPk = new RestEndpoint({
+        urlPrefix: 'http://test.com',
+        path: '/users/profile',
+        method: 'PATCH',
+        body: {} as { firstName: string },
+        schema: User,
+        getOptimisticResponse(snap, body) {
+          return body;
+        },
+      });
+      const updateProfile = updateProfileNoPk.extend({
+        getOptimisticResponse(snap, body) {
+          const user = snap.getResponse(getMe).data?.data;
+          if (!user) throw snap.abort;
+          return { id: user.id, ...body };
+        },
+      });
+      const meFixture = {
+        endpoint: getMe,
+        args: [] as [],
+        response: { data: { id: '1', firstName: 'old', bio: 'hi' } },
+      };
+
+      it('merges an Entity missing fields with the cached entity', async () => {
+        mynock
+          .patch('/discussions/5')
+          .delay(500)
+          .reply(200, { ...fullDiscussion, title: 'new' });
+        const { result, controller } = renderDataClient(
+          () => useCache(DiscussionResource.get, { id: '5' }),
+          {
+            initialFixtures: [
+              {
+                endpoint: DiscussionResource.get,
+                args: [{ id: '5' }],
+                response: { data: fullDiscussion },
+              },
+            ],
+          },
+        );
+        let promise: any;
+        act(() => {
+          promise = controller.fetch(
+            DiscussionResource.partialUpdate,
+            { id: '5' },
+            { title: 'new' },
+          );
+        });
+        expect(result.current?.data).toEqual(
+          Discussion.fromJS({ ...fullDiscussion, title: 'new' }),
+        );
+        await act(() => promise);
+        expect(errorspy).not.toHaveBeenCalled();
+      });
+
+      it.each([false, true])(
+        'reports a missing primary key once, naming getOptimisticResponse (StrictMode: %s)',
+        async reactStrictMode => {
+          mynock
+            .patch('/users/profile')
+            .delay(500)
+            .reply(200, { id: '1', firstName: 'new', bio: 'hi' });
+          const { result, controller } = renderDataClient(
+            () => useCache(getMe),
+            {
+              initialFixtures: [meFixture],
+              reactStrictMode,
+            } as any,
+          );
+          let promise: any;
+          act(() => {
+            promise = controller.fetch(updateProfileNoPk, { firstName: 'new' });
+          });
+          // optimistic update could not apply, so the UI waits for the server
+          expect(result.current?.data?.firstName).toBe('old');
+          // any store update, even to another entity, re-applies the optimistic action
+          for (const title of ['a', 'b']) {
+            act(() => {
+              controller.setResponse(
+                DiscussionResource.get,
+                { id: '5' },
+                { data: { ...fullDiscussion, title } },
+              );
+            });
+          }
+          await act(() => promise);
+          expect(result.current?.data?.firstName).toBe('new');
+
+          expect(errorspy).toHaveBeenCalledTimes(1);
+          const message: string = (errorspy.mock.calls[0][0] as any).message;
+          expect(message).toContain(
+            'Optimistic update skipped for PATCH http://test.com/users/profile',
+          );
+          expect(message).toContain('getOptimisticResponse()');
+          expect(message).toContain('missing its primary key');
+          expect(message).toContain('snap.getResponse(getMe).data');
+          expect(message).toContain("'id' missing");
+        },
+      );
+
+      it('applies when the primary key comes from the snapshot', async () => {
+        mynock
+          .patch('/users/profile')
+          .delay(500)
+          .reply(200, { id: '1', firstName: 'new', bio: 'hi' });
+        const { result, controller } = renderDataClient(() => useCache(getMe), {
+          initialFixtures: [meFixture],
+        });
+        let promise: any;
+        act(() => {
+          promise = controller.fetch(updateProfile, { firstName: 'new' });
+        });
+        expect(result.current?.data).toEqual(
+          User.fromJS({ id: '1', firstName: 'new', bio: 'hi' }),
+        );
+        await act(() => promise);
+        expect(errorspy).not.toHaveBeenCalled();
+      });
     });
 
     describe('race conditions', () => {
