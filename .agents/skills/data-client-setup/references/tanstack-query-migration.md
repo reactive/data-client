@@ -245,7 +245,8 @@ Decide what to do with each `invalidateQueries()` and `refetchQueries()` call fr
   [envelope example](#envelope-responses): `Base.getList.push.extend({ schema: Issue })`), then call
   `ctrl.expireAll(Resource.getList)`.
 - **Delete**: `resource().delete` removes the Entity from every list. For a custom endpoint, use
-  `schema: new schema.Invalidate(MyEntity)`.
+  `schema: new schema.Invalidate(MyEntity)`. For lists split into numbered pages, also call
+  `ctrl.expireAll(Resource.getList)`: the server's later items move up a page, which the cached pages can't know.
 - **Data the response doesn't include** (a count, another resource's totals): `ctrl.expireAll(endpoint)`, or return
   it in the response ([side effects](https://dataclient.io/rest/guides/side-effects)).
 
