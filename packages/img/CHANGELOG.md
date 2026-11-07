@@ -1,5 +1,38 @@
 # @data-client/img
 
+## 0.19.0
+
+### Minor Changes
+
+- [#4151](https://github.com/reactive/data-client/pull/4151) [`4549122`](https://github.com/reactive/data-client/commit/4549122004244990a564781a61145ae9ea98370e) - BREAKING: Require TypeScript 4.0 or later
+
+  The TypeScript 3.x type declarations are removed. They no longer type-checked on any TypeScript 3.x version, and
+  `@data-client/rest` already required TypeScript 4.0. Upgrade TypeScript to 4.0 or later.
+
+  ```diff title="package.json"
+  - "typescript": "^3.9.0"
+  + "typescript": "^4.0.0"
+  ```
+
+### Patch Changes
+
+- [#4209](https://github.com/reactive/data-client/pull/4209) [`b4899d0`](https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169) Thanks [@renovate](https://github.com/apps/renovate)! - Support `@babel/runtime` 8
+
+  Apps on Babel 8 now share their `@babel/runtime` with Data Client instead of installing a second copy. Apps on Babel 7 keep working unchanged.
+
+- [#4617](https://github.com/reactive/data-client/pull/4617) [`a81df72`](https://github.com/reactive/data-client/commit/a81df72907e7fd84e25a233121a9a2b72ec0d819) - Load the ESM build of `@data-client/img` from Node `import`
+
+  Node's `import` (and tools that run on it, like Vitest) loaded the CommonJS build. It now loads the ESM build;
+  `require()` still gets CommonJS.
+
+- [#4019](https://github.com/reactive/data-client/pull/4019) [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e) Thanks [@renovate](https://github.com/apps/renovate)! - Fix TypeScript 7 module resolution for package exports
+
+  TypeScript 7 requires a `types` condition in `package.json` `exports`. Without it, imports resolved to runtime entrypoints like `node.mjs` and lost declaration files.
+
+- Updated dependencies [[`6855822`](https://github.com/reactive/data-client/commit/6855822af2adcb024495a2394bcb7ce7bf7918ac), [`b475613`](https://github.com/reactive/data-client/commit/b4756135b70e4fb79e9146114a1266b4f7b4a4cb), [`b4899d0`](https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169), [`2c260a9`](https://github.com/reactive/data-client/commit/2c260a97b2d5b482de9de4b960d52b5c7f579777), [`6c0d662`](https://github.com/reactive/data-client/commit/6c0d662843b5eb1a6d4dd719e7038e2637b6ec83), [`33d98f2`](https://github.com/reactive/data-client/commit/33d98f2637172ecda58364bd92ffcec76e656629), [`f343f9d`](https://github.com/reactive/data-client/commit/f343f9d42a12f3ad763fac96362166d3b3156b69), [`46f1f24`](https://github.com/reactive/data-client/commit/46f1f24bcb04824805747ed2a1effe7baece337c), [`a82758c`](https://github.com/reactive/data-client/commit/a82758cd1998e58d7ad280407db28bd84f5d7b18), [`b55696c`](https://github.com/reactive/data-client/commit/b55696c72ad3e73e0a2f50d3751c7104cd4ad9ee), [`c3b8c54`](https://github.com/reactive/data-client/commit/c3b8c54bc3062cf082e67c215310cb98b3a03078), [`3e45bac`](https://github.com/reactive/data-client/commit/3e45bac4bc06e9bfd3a38cc1b2118e5eee126a2e), [`74e67fa`](https://github.com/reactive/data-client/commit/74e67fa2c4f9f104f5b7a49e877a48e5963e4bd2), [`a32740d`](https://github.com/reactive/data-client/commit/a32740d14de86b7006ccc497484dd52c0bc54c23), [`159c963`](https://github.com/reactive/data-client/commit/159c9633679d95427fe4f626aec341c76e4578f8), [`4549122`](https://github.com/reactive/data-client/commit/4549122004244990a564781a61145ae9ea98370e), [`cc57a77`](https://github.com/reactive/data-client/commit/cc57a77d2e563071926f50cb9054516d2ab9101e), [`022f449`](https://github.com/reactive/data-client/commit/022f44950bf687b61f2d349e42ab906071c6fce7), [`47502c6`](https://github.com/reactive/data-client/commit/47502c664df913297fba3e5011a975dfd01c0d8d), [`fc4b015`](https://github.com/reactive/data-client/commit/fc4b015ca0899a2685af881d17f765dce27ffc1a), [`52985a2`](https://github.com/reactive/data-client/commit/52985a22cbc0179d9d9124652a1f2a47727e84b5), [`7b5e2bb`](https://github.com/reactive/data-client/commit/7b5e2bb5ef9e79df6c5c2c586ff5cee242c8481e), [`33d98f2`](https://github.com/reactive/data-client/commit/33d98f2637172ecda58364bd92ffcec76e656629), [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc), [`31b1820`](https://github.com/reactive/data-client/commit/31b182033106d5ce44352481577d3c321e39ebe9), [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc), [`6855822`](https://github.com/reactive/data-client/commit/6855822af2adcb024495a2394bcb7ce7bf7918ac), [`31f3ddb`](https://github.com/reactive/data-client/commit/31f3ddbc178ade2a7f59f7029a54c416df70e003), [`5b1c7b8`](https://github.com/reactive/data-client/commit/5b1c7b8bd385f87e2d5e91a72dfa9b4d3eb4fd53), [`433dcfb`](https://github.com/reactive/data-client/commit/433dcfbe620e4fc4b5257e3b11f520d68fd7e915), [`a403df8`](https://github.com/reactive/data-client/commit/a403df8f22dadb0dbd9a6cf72a65f9187ae63176), [`7365cd7`](https://github.com/reactive/data-client/commit/7365cd715de8d4e7aec8a478454be529b58b3dee), [`5b1c7b8`](https://github.com/reactive/data-client/commit/5b1c7b8bd385f87e2d5e91a72dfa9b4d3eb4fd53), [`33d98f2`](https://github.com/reactive/data-client/commit/33d98f2637172ecda58364bd92ffcec76e656629), [`cb6d9f2`](https://github.com/reactive/data-client/commit/cb6d9f21ae73ab79ac5f1d6aea04f68d7c2c6336), [`855778f`](https://github.com/reactive/data-client/commit/855778f93c15b746849a56749b4d05c2402f47f4), [`ebf3c68`](https://github.com/reactive/data-client/commit/ebf3c6893ed49efd7e1f90b3b7997f8a923ed4b6), [`954b1e9`](https://github.com/reactive/data-client/commit/954b1e9041ba47b39b9ffdd53a55b0b16adc8675), [`17458fb`](https://github.com/reactive/data-client/commit/17458fb27503c6c93b2b8cc9bff72abe372bfbfa), [`4829b10`](https://github.com/reactive/data-client/commit/4829b1033a24f52e2a1d0e5a03532f9cfa4f525f), [`60ce4b5`](https://github.com/reactive/data-client/commit/60ce4b5e2d42dc02c7c783a95e46ecbeb52efe64), [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e), [`7b5e2bb`](https://github.com/reactive/data-client/commit/7b5e2bb5ef9e79df6c5c2c586ff5cee242c8481e), [`378f26d`](https://github.com/reactive/data-client/commit/378f26dcdfa90b49a512c3c9b8f2e0f0df5155d8), [`378f26d`](https://github.com/reactive/data-client/commit/378f26dcdfa90b49a512c3c9b8f2e0f0df5155d8), [`378f26d`](https://github.com/reactive/data-client/commit/378f26dcdfa90b49a512c3c9b8f2e0f0df5155d8), [`c17ca4f`](https://github.com/reactive/data-client/commit/c17ca4f93da2f7f9441c052568edfca1d3e80498)]:
+  - @data-client/react@0.19.0
+  - @data-client/endpoint@0.19.0
+
 ## 0.18.0
 
 ### Patch Changes
