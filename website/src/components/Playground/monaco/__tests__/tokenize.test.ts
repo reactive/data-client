@@ -106,6 +106,12 @@ describe('tokenizers', () => {
   });
 });
 
+test('leaves a script type it has no grammar for plain', () => {
+  // `constructor` is a key of every object, not a MIME type
+  const tokens = tokenizeHtml('<script type="constructor">\nlet x\n</script>');
+  expect(tokens).toContain('\nlet x\n');
+});
+
 describe('monacoPrism', () => {
   test('covers the fence languages Monaco highlights, in any case', () => {
     for (const language of ['ts', 'TSX', 'typescript', 'html', 'json']) {

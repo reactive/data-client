@@ -115,8 +115,8 @@ type LineTokenizer = (
 ) => void;
 
 /**
- * Monaco's languages by the MIME type a `<script>` names. `<style>` (CSS)
- * stays plain: no playground file has one
+ * Monaco's languages by the MIME type a `<script>` names. Monaco's CSS
+ * grammar isn't copied, so a `<style>` block stays plain
  */
 const EMBEDDED: Record<string, Grammar> = {
   'text/javascript': javascript,
