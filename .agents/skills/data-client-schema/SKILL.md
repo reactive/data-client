@@ -10,6 +10,22 @@ Compose [schemas](references/schema.md) to match the JSON an endpoint returns. I
 the app uses (`@data-client/rest`, `@data-client/graphql` or `@data-client/endpoint`; both protocol packages re-export
 endpoint). For GraphQL, extend `GQLEntity` instead of `Entity`; it declares the `id` field used as `pk()`.
 
+### Where schemas live
+
+Put every Entity, and the resources and endpoints that return it, in one folder that all of the app may import, such
+as `src/resources/` (one file per Entity). Never put them in a feature folder (`src/features/<name>/`): Entities
+import each other (`static schema = { author: User }`), and a mutation in one feature often updates another feature's
+Entity (a new comment changes its discussion's `commentCount`). Components and forms stay in their feature.
+
+Before creating the folder, check the lint config for import boundaries (`import/no-restricted-paths` zones,
+`eslint-plugin-boundaries`, Nx `@nx/enforce-module-boundaries`, `no-restricted-imports` patterns). Pick a folder every
+feature may import under those rules (a shared layer such as `src/lib/resources/`), or add the new folder to the shared
+zone. Then run the linter on the changed files.
+
+If an Entity or resource you need sits in another feature's folder and the rules forbid that import, move it to the
+shared folder and update its imports. Never pass callbacks between components, copy the Entity, or disable the rule
+to get around it.
+
 ### Object
 
 - [Entity](references/Entity.md) - represents a single unique object (denormalized)

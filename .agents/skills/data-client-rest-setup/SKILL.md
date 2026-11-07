@@ -98,7 +98,7 @@ If the codebase validates responses with Zod or Yup, keep that by parsing in `pr
 
 ## Next steps
 
-1. Define Entity classes (skill "data-client-schema") and set each endpoint's `schema:`. Without one, responses aren't normalized or cached.
+1. Define Entity classes (skill "data-client-schema") and set each endpoint's `schema:`. Without one, responses aren't normalized or cached. Put Entities, resources and endpoints in one folder every feature may import, not in feature folders, and respect the lint config's import boundaries (skill "data-client-schema", Where schemas live).
 2. Apply skill "data-client-rest" for resource and endpoint patterns.
 3. Only when the user asks to move components onto the store: apply skill "data-client-react" or "data-client-vue".
 

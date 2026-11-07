@@ -46,6 +46,19 @@
         "The mutation response includes the updated post and the endpoint schema adds `post: Post`.",
         "Does not refetch the post or call expireAll/invalidateAll after the mutation."
       ]
+    },
+    {
+      "id": 5,
+      "name": "parent-resource-behind-import-boundary",
+      "prompt": "After a comment is created or deleted, the discussion page's \"N comments\" (from the server-computed `Discussion.commentCount`) must update. Comment mutations run in `src/features/comments/components/` with `ctrl.fetch(createComment, { discussionId }, body)` and `ctrl.fetch(deleteComment, { id })`; their responses contain only the comment and we can't change the API. `Discussion` and `DiscussionResource` are in `src/features/discussions/api/discussion.ts`. ESLint's `import/no-restricted-paths` forbids `src/features/comments` from importing `src/features/discussions`; every feature may import `src/lib`.",
+      "expected_output": "Moves `Discussion` and `DiscussionResource` into a shared folder under `src/lib` (e.g. `src/lib/resources/discussion.ts`), updates their imports, and fetches `DiscussionResource.get` with the comment's `discussionId` after each comment mutation, inside the comments feature.",
+      "files": [],
+      "assertions": [
+        "Moves `Discussion` and `DiscussionResource` out of `src/features/discussions` into a folder under `src/lib` (or another folder every feature may import) and updates the existing imports.",
+        "The comments feature fetches the discussion (`DiscussionResource.get`) after the mutation resolves.",
+        "Does not pass a callback or the count through components or routes.",
+        "Does not disable, loosen or eslint-disable the `import/no-restricted-paths` rule, and does not copy the Entity."
+      ]
     }
   ]
 }

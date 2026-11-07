@@ -24,6 +24,19 @@
         "The notification `subject` still normalizes as `Task`: no new Entity class or key for it, and it is not left unnormalized.",
         "The server and `NotificationResource`'s polling are not changed."
       ]
+    },
+    {
+      "id": 3,
+      "name": "entities-respect-import-boundaries",
+      "prompt": "We're moving this React app from React Query to Data Client. Code is organized as `src/features/<name>/{api,components}` (auth, comments, discussions, teams, users) plus shared `src/lib`, `src/types`, `src/components`. `.eslintrc.cjs` has `import/no-restricted-paths` zones: each feature may import only from itself, `src/app` may import features, and `src/lib`, `src/types`, `src/components` may not import from features or app. Comments and discussions both have an `author` (a user). Today each feature's `api/` folder holds its React Query hooks and types. Define the Entities and resources (`User`, `Team`, `Discussion`, `Comment`) and tell me which file each goes in.",
+      "expected_output": "All four Entities and their resources go in one shared folder every feature may import (e.g. `src/lib/resources/`, or a new folder added to the shared zone), not in `src/features/*/api`. Comment and Discussion import User from that folder.",
+      "files": [],
+      "assertions": [
+        "Every Entity and resource is placed in one shared folder (under `src/lib/` or another folder the zones let every feature import, or a new folder that the answer adds to the shared zone), not in any `src/features/<name>/` folder.",
+        "`Comment` and `Discussion` import `User` from the shared folder, never from `src/features/users`.",
+        "Shared code (`src/lib`, `src/types`) does not import from `src/features` (for example, `src/types` does not re-export Entities from a feature).",
+        "Does not disable or loosen the `import/no-restricted-paths` rule."
+      ]
     }
   ]
 }
