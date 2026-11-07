@@ -643,7 +643,7 @@ describe('reducer', () => {
       expect(errorspy).toHaveBeenCalledTimes(1);
       reducer(initialState, createOptimistic(endpoint, args, 2000));
       expect(errorspy).toHaveBeenCalledTimes(2);
-      // capped: after 100 more reports, the first is forgotten
+      // capped at 100: 100 newer reports evict the oldest
       for (let t = 3000; t < 3100; t++) {
         reducer(initialState, createOptimistic(endpoint, args, t));
       }

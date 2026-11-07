@@ -107,8 +107,7 @@ export function setResponseReducer(
 }
 
 /** Optimistic failures already logged, by key and fetch time (development only).
- * Like filterOptimistic(), key + fetchedAt identifies the fetch. Capped, so a long
- * session can't grow it; clearing at worst repeats a report.
+ * Like filterOptimistic(), key + fetchedAt identifies the fetch.
  */
 const reportedOptimistic = /* @__PURE__ */ new Set<string>();
 /** Records the report; false when this optimistic failure was already reported.
@@ -119,7 +118,9 @@ function claimReport(action: OptimisticAction | SetResponseAction) {
   if (action.type !== OPTIMISTIC) return true;
   const reportKey = `${action.key} ${action.meta.fetchedAt}`;
   if (reportedOptimistic.has(reportKey)) return false;
-  if (reportedOptimistic.size >= 100) reportedOptimistic.clear();
+  // forget the oldest so a long session stays bounded
+  if (reportedOptimistic.size >= 100)
+    reportedOptimistic.delete(reportedOptimistic.values().next().value!);
   reportedOptimistic.add(reportKey);
   return true;
 }
