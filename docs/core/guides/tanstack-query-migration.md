@@ -86,7 +86,7 @@ Keep the app's tests passing after each step; they are the proof that behavior d
 | `isPending`, `error` of a mutation | [useLoading()](../api/useLoading.md): `const [run, isPending, error] = useLoading(fn, deps)` |
 | `isSuccess`, `onSuccess`, `onError` | Code after or around `await ctrl.fetch()` ([Mutations](#mutations)) |
 | `invalidateQueries()` after an update | Delete it, when the response is the updated Entity |
-| `invalidateQueries()` after a create | `ctrl.fetch(Resource.getList.push, body)` (or `unshift`): the new Entity joins every matching list. Needs a [Collection](/rest/api/Collection) in the list's schema, which `resource()` has by default. Lists split into numbered pages: a plain `POST`, then `ctrl.expireAll(Resource.getList)` |
+| `invalidateQueries()` after a create | `ctrl.fetch(Resource.getList.push, body)` (or `unshift`): the new Entity joins every matching list. Needs a [Collection](/rest/api/Collection) in the list's schema: `resource()` has one by default, and an envelope needs it inside, like `results: new Collection([Issue])`. Lists split into numbered pages: a plain `POST`, then `ctrl.expireAll(Resource.getList)` |
 | `invalidateQueries()` after a delete | Delete it: `resource().delete` (or a `schema.Invalidate` schema) removes the Entity from every list |
 | `invalidateQueries()` for data the response doesn't include (counts, totals) | `ctrl.expireAll(endpoint)`: mounted components refetch |
 | `refetchQueries()` | `ctrl.fetch(endpoint, args)` |
@@ -162,6 +162,9 @@ export function IssueTable({ page }: { page: number }) {
   });
   return (
     <table>
+      <caption>
+        Page {pagination.page} of {pagination.pageCount}
+      </caption>
       <tbody>
         {issues.map(issue => (
           <tr key={issue.id}>
@@ -170,9 +173,6 @@ export function IssueTable({ page }: { page: number }) {
           </tr>
         ))}
       </tbody>
-      <caption>
-        Page {pagination.page} of {pagination.pageCount}
-      </caption>
     </table>
   );
 }
@@ -236,9 +236,9 @@ export const useCloseIssue = () => {
     mutationFn: (id: number) => patchIssue(id, { state: 'closed' }),
     onSuccess: issue => {
       queryClient.invalidateQueries({ queryKey: issueKeys.detail(issue.id) });
-      showToast(`Closed #${issue.id}`);
+      toast(`Closed #${issue.id}`);
     },
-    onError: () => showToast('Could not close the issue'),
+    onError: () => toast('Could not close the issue'),
   });
 };
 ```
@@ -463,7 +463,7 @@ export const useSignOut = (onSuccess?: () => void) => {
 };
 ```
 
-Sign-up is `useSignIn()` with the sign-up endpoint and its body type. `AuthLoader` goes away: `useAccount()` suspends
+For sign-up, copy `useSignIn()` as `useSignUp()` with the sign-up endpoint and its body type. `AuthLoader` goes away: `useAccount()` suspends
 to the app's `<Suspense>` boundary until the session loads. These hooks wrap actions, not a data binding, so they are
 worth keeping as hooks.
 
@@ -475,7 +475,7 @@ Call sites change shape:
 
 `useAccount()` needs `/session` to answer a signed-out visitor with no account, as `react-query-auth`'s `userFn` returns
 `null`. Then signed-out pages render, and the refetch after `resetEntireStore()` shows the signed-out state. If the API
-answers 401 instead, catch that status in the session endpoint's `fetchResponse()` and resolve to no account, or the
+answers 401 instead, catch that status in the session endpoint's `fetchResponse()` and return `new Response(JSON.stringify({ account: null }))`, or the
 error reaches the nearest error boundary. To sign out on any other 401 response, add
 [LogoutManager](../api/LogoutManager.md); for token storage, see [authentication](/rest/guides/auth).
 

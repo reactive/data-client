@@ -267,8 +267,8 @@ TanStack Query API in its "API map" rather than working out a replacement, and f
 list. Libraries built on TanStack Query, like `react-query-auth`, are replaced in the same pass.
 Data Client's own `useQuery` reads the store and never fetches, so it is not the replacement for TanStack Query's
 `useQuery`: that is `useSuspense` (or `useDLE`).
-The guide is React only. For `@tanstack/vue-query`, use its "API map" and "Mutations" decisions with skill
-"data-client-vue"'s composables in place of the React hooks.
+The guide is React only. For a Vue app on `@tanstack/vue-query`, tell the user this skill has no Vue migration guide
+yet, and finish setup without replacing it.
 
 ## Verification Checklist
 
