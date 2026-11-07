@@ -47,6 +47,7 @@ Fill in `.github/PULL_REQUEST_TEMPLATE.md`. Its HTML comments are per-section in
 - **Examples**: `examples/todo-app`, `examples/github-app`, `examples/nextjs`
 - **Documentation**: `docs/core/api`, `docs/rest`, `docs/core/guides`
 - **Tests**: `packages/*/src/**/__tests__`
+- **Package entry points**: a package's `exports` is the single list of its entry points. Its CommonJS build (`dist/`) takes every `require` target from it (`nodeEntries` in `scripts/rollup-plugins`), and the build fails unless each has a `<name>.node.mjs` `import` shim re-exporting it, with `module` ahead of `import` (`nodeShims`). Add a subpath by copying a sibling's conditions and shim; the rollup config needs no edit.
 - **Benchmarks**: `examples/benchmark` (Node: core/normalizr/endpoint throughput), `examples/benchmark-react` (browser: React rendering and data-library comparison). See `.cursor/rules/benchmarking.mdc` and each example’s README.
 - **Skills**: `.agents/skills/` (Cursor, Codex, and other agents; `.claude/skills` links to it for Claude Code)
   - `references/*.md` listed in a skill's `references.json` are generated from `docs/`; edit the doc, never the reference. `yarn build:skills` regenerates them (an agent pre-push hook makes sure they are committed) and the `regenerate` CI check fails on drift.

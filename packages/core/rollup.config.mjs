@@ -9,6 +9,8 @@ import {
   typeConfig,
   typeConfigNext,
   onwarn,
+  nodeEntries,
+  nodeShims,
 } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
@@ -58,15 +60,12 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   configs.push({
     // One build so the entries share chunks: `@data-client/core/mock` must use
     // the same Controller as `@data-client/core`, not a bundled copy
-    input: {
-      index: 'src/index.ts',
-      next: 'src/next/index.ts',
-      mock: 'src/mock/index.ts',
-    },
+    input: nodeEntries(pkg),
     external: isExternal,
     output: [{ dir: 'dist', format: 'cjs' }],
     onwarn,
     plugins: [
+      nodeShims(pkg),
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         extensions: nativeExtensions,

@@ -13,6 +13,8 @@ import {
   onwarn,
   nativeOrNormalPath,
   resolveTsAsJs,
+  nodeEntries,
+  nodeShims,
 } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
@@ -115,9 +117,8 @@ if (process.env.BROWSERSLIST_ENV === '2020') {
 } else {
   // node-friendly (or React Native Jest) commonjs build
   // Native builds exist only for paramsToString.native.ts: URLSearchParams.sort() throws before RN 0.80 (REACT-24)
-  // One build so the entries share chunks rather than bundling copies
   configs.push({
-    input: { index: 'src/index.ts', next: 'src/next/index.ts' },
+    input: nodeEntries(pkg),
     external: isExternal,
     output: [
       {
@@ -129,6 +130,7 @@ if (process.env.BROWSERSLIST_ENV === '2020') {
     ],
     onwarn,
     plugins: [
+      nodeShims(pkg),
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         extensions: nativeExtensions,

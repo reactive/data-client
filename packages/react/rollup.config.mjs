@@ -14,6 +14,8 @@ import {
   onwarn,
   isNative,
   nativeOrNormalPath,
+  nodeEntries,
+  nodeShims,
 } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
@@ -113,14 +115,9 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   // contexts the hooks from `@data-client/react` read, not a bundled copy
   configs.push({
     input: {
-      index: 'src/index.ts',
-      next: 'src/next/index.ts',
-      // @data-client/react/redux: client-side despite the server/ folder
-      'server/redux/index': 'src/server/redux/index.ts',
-      ...(isNative ?
-        // its own file: native/context.js loads it (see nativeContext)
-        { [nativeContextEntry]: 'src/context.ts' }
-      : { 'server/index': 'src/server/index.ts', mock: 'src/mock/index.ts' }),
+      ...nodeEntries(pkg),
+      // its own file: native/context.js loads it (see nativeContext)
+      ...(isNative && { [nativeContextEntry]: 'src/context.ts' }),
     },
     external: isExternal,
     output: [
@@ -133,6 +130,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
     ],
     onwarn,
     plugins: [
+      nodeShims(pkg),
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         extensions: nativeExtensions,
