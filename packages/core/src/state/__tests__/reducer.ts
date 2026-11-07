@@ -637,7 +637,7 @@ describe('reducer', () => {
         getOptimisticResponse: (snap, params, body) => body,
       });
       const args = [{ id: 5 }, { title: 'hi' }] as const;
-      // React 18 StrictMode re-creates the action from the same fetch
+      // React 18 StrictMode and DevToolsManager re-create the action from the same fetch
       reducer(initialState, createOptimistic(endpoint, args, 1000));
       reducer(initialState, createOptimistic(endpoint, args, 1000));
       expect(errorspy).toHaveBeenCalledTimes(1);

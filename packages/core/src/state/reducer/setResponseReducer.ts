@@ -133,7 +133,7 @@ function claimReport(action: OptimisticAction | SetResponseAction) {
 function optimisticFailureIntro(key: string) {
   return `Optimistic update skipped for ${key}; the UI will update when the server responds.
 getOptimisticResponse() threw, or returned a value that could not be normalized.
-Often an Entity is missing its primary key: read it from snap.getResponse(endpoint).data.
+Often an Entity is missing its primary key: read it from snap.getResponse(readEndpoint, ...args).data.
 https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse`;
 }
 
