@@ -294,10 +294,11 @@ class User extends Entity {
 }
 ```
 
-An API can mark a missing related entity with `null`, by leaving the member out, or with an
-empty object `{}`. All three mean "no entity" instead of failing the whole response. `{}`
-becomes `undefined`. A nested object that has fields but no primary key still throws, because
-that usually means a malformed response.
+Some APIs send an empty object `{}` instead of `null` for a missing related entity. On an
+optional member like `friend`, `{}` becomes `undefined` instead of failing the whole response,
+and clears a relation already in the store, as `null` does. `{}` on a required member, or a
+nested object that has fields but no primary key, still throws, because that usually means a
+malformed response.
 
 ### static indexes?: (keyof this)\[] {#indexes}
 

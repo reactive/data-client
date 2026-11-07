@@ -169,7 +169,8 @@ describe(`optional members`, () => {
     expect(result.current).toMatchSnapshot();
   });
 
-  // P5 eval (.agents/projects/migrations/bulletproof-react/problems.md)
+  // Eval for migration problem P5 (bulletproof-react, #4607): the API sends
+  // `author: {}` when the author was deleted
   it('should render an empty nested entity ({}) as undefined', () => {
     const { result } = renderDataClient(
       () => {

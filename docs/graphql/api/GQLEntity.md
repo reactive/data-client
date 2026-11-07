@@ -429,6 +429,12 @@ class User extends GQLEntity {
 }
 ```
 
+Some APIs send an empty object `{}` instead of `null` for a missing related entity. On an
+optional member like `friend`, `{}` becomes `undefined` instead of failing the whole response,
+and clears a relation already in the store, as `null` does. `{}` on a required member, or a
+nested object that has fields but no primary key, still throws, because that usually means a
+malformed response.
+
 ### static indexes?: (keyof this)[] {#indexes}
 
 Indexes enable increased performance when doing lookups based on those parameters. Add

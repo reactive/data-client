@@ -269,10 +269,12 @@ export default function EntityMixin<TBase extends Constructor>(
       }
       id = this.pk(processedEntity, parent, key, args);
       if (id === undefined || id === '' || id === 'undefined') {
-        // APIs often send `{}` for a missing relation, so `{}` inside an Entity means 'no entity'.
-        // Elsewhere (top level, envelopes, Collection items) it stays an error.
+        // APIs often send `{}` for a missing relation, so on an optional (falsy default) Entity
+        // member it means 'no entity'. Entity classes are functions; Collections are objects, so
+        // `{}` at the top level, in envelopes or in Collections stays an error.
         if (
           typeof parentEntity === 'function' &&
+          !parentEntity.defaults?.[key as string] &&
           Object.keys(input).length === 0
         )
           return undefined;
