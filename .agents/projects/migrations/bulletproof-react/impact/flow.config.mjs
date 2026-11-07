@@ -10,6 +10,9 @@ const closeToast = async (page, label) => {
 const listReady = ({ page }) =>
   page.getByRole('button', { name: 'Create Discussion' }).waitFor();
 const row = (page, text) => page.getByRole('row', { name: new RegExp(text) });
+// The same row by CSS. An open dialog hides the table from the accessibility tree, so `row` already counts
+// as hidden behind one; wait for removal with this instead.
+const rowElement = (page, text) => page.locator('tr', { hasText: text });
 const submit = page => page.getByRole('button', { name: 'Submit' });
 const confirm = (page, name) =>
   page.getByRole('dialog').getByRole('button', { name });
@@ -173,10 +176,8 @@ export default {
           .click();
       },
       trigger: ({ page }) => confirm(page, 'Delete Discussion'),
-      // A CSS locator, not getByRole: the open dialog hides the row from the accessibility tree, so a
-      // role locator would count it as hidden before the delete finishes.
       ready: ({ page, uid }) =>
-        page.locator('tr', { hasText: uid }).waitFor({ state: 'hidden' }),
+        rowElement(page, uid).waitFor({ state: 'hidden' }),
     },
   ],
 };

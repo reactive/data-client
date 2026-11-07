@@ -6,7 +6,7 @@
 //     [--baseline-label react-query] [--migrated-label data-client]
 //
 // 1. applies config.prep patches to each checkout (skipped when already applied)
-// 2. builds both (config.build) unless --no-build
+// 2. builds both (config.build, default `npx vite build`) unless --no-build
 // 3. serves both (config.serve, {port} replaced) and runs flow.mjs against them
 // 4. runs static.mjs, and feature-cost.mjs when --feature is given (it spends model tokens)
 // 5. writes <out>/impact.json and <out>/impact.md with report.mjs

@@ -29,8 +29,10 @@ Time from submit until the UI shows the change, median of 8 runs (ms).
 | refetches triggered (requests)       | 6           | 2                | 2                        |
 | stale views after a mutation (views) | 2           | 0                | 0                        |
 
-Data-client saves one round trip on five mutations: react-query refetches before the UI changes,
-data-client updates the normalized entity from the mutation response. Optimistic updates remove the
+Data-client saves one round trip on five mutations. On four of them react-query refetches and data-client
+updates the normalized entity from the mutation response, so the refetch never happens. On delete
+discussion both builds refetch the list, but data-client removes the row from the delete response
+without waiting for it. Optimistic updates remove the
 remaining round trip. Create and delete discussion are not optimistic in either version.
 
 An earlier version of these results timed delete discussion at about 73ms in every build. That was the
