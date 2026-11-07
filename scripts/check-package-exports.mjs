@@ -117,7 +117,7 @@ async function lint(pkg, dir) {
   const allowed = [];
   for (const message of messages) {
     if (
-      isCommonJSTypesGap(message) ||
+      isCommonJSTypesGap(pkg, message) ||
       (message.type === 'suggestion' &&
         !ENTRY_POINT_SUGGESTIONS.has(message.code))
     ) {
@@ -152,11 +152,20 @@ async function checkTypes(pkg, tarball) {
   return { errors, allowed };
 }
 
-// The CommonJS-types gap (see isAllowedTypesProblem), as publint reports it
-function isCommonJSTypesGap({ code, args }) {
+// The CommonJS-types gap (see isAllowedTypesProblem), as publint reports it:
+// the `require` condition's types, on a subpath with a top-level `require`.
+// publint paths look like ['exports', '.', 'types']
+function isCommonJSTypesGap(pkg, { code, args, path: [field, subpath] }) {
   return (
-    code === 'EXPORTS_TYPES_INVALID_FORMAT' && args.condition === 'require'
+    code === 'EXPORTS_TYPES_INVALID_FORMAT' &&
+    args.condition === 'require' &&
+    field === 'exports' &&
+    hasRequire(pkg, subpath)
   );
+}
+
+function hasRequire(pkg, subpath) {
+  return Object.hasOwn(pkg.exports?.[subpath] ?? {}, 'require');
 }
 
 function isAllowedTypesProblem(pkg, problem, entrypoints) {
@@ -169,9 +178,7 @@ function isAllowedTypesProblem(pkg, problem, entrypoints) {
     case 'FalseESM':
       return (
         entrypoints.length > 0 &&
-        entrypoints.every(entrypoint =>
-          Object.hasOwn(pkg.exports?.[entrypoint] ?? {}, 'require'),
-        )
+        entrypoints.every(entrypoint => hasRequire(pkg, entrypoint))
       );
     // Exports subpaths with no `require` condition at any level ship only ESM
     // on purpose
