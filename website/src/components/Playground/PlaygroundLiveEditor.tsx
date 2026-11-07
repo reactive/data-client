@@ -6,9 +6,9 @@ import { codePrismTheme } from './monaco/theme';
 import { isMonacoTokenized, monacoPrism } from './monaco/tokenize';
 
 /**
- * react-live's editor. TypeScript gets Monaco's tokens and colors, so it
- * looks the same before and after Monaco takes over; other languages get
- * the site's Prism theme.
+ * react-live's editor. Languages Monaco highlights get Monaco's colors, so
+ * they look the same before and after Monaco takes over; others get the
+ * site's Prism theme.
  */
 function PlaygroundLiveEditor(props: {
   code: string;

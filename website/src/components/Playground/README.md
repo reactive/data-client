@@ -20,7 +20,7 @@ and `editor/callouts.ts`.
 | Fence metastring, file list                  | `editor/codeModel.ts`                                                                                           |
 | Editor chrome, SSR markup                    | `editor/EditorSurface.tsx`, `editor/StaticEditor.tsx`, `editor/InteractiveEditor.tsx`                           |
 | Monaco: types, completions, go-to-definition | `monaco/` (`preloadManifest.ts` and `../editor-types/` are generated)                                           |
-| Code colors                                  | `monaco/theme.ts` (Monaco and server HTML), `monaco/tokenize.ts` (Monaco's tokens without Monaco)               |
+| Code colors                                  | `monaco/theme.ts` (Monaco and server HTML), `monaco/tokenize.ts` (Prism's tokens in Monaco's colors)            |
 | Running the code, scope globals              | `preview/LivePreview.tsx`, `preview/useCodeManagers.ts`, `preview/transformCode.ts`, `preview/scope.ts`         |
 | Preview frame, Store open state and motion   | `preview/PreviewWrapper.tsx`, `preview/StoreToggle.tsx`, `preview/StoreInspector.tsx`                           |
 | Drawer state, demo view, Actions grouping    | `preview/inspector.ts`                                                                                          |
@@ -75,13 +75,12 @@ Gotchas:
   its last line. Never give Monaco's container zero width while it mounts:
   it lays out one letter per line.
 - The static code draws what Monaco will, so the cover lifts unseen:
-  `monaco/tokenize.ts` runs Monaco's own grammars (`monaco/grammars.ts`:
-  TypeScript, and HTML with embedded JavaScript for Vue files; a `<style>`
-  block would stay plain) and JSON tokens, both take colors from
-  `monaco/theme.ts`, and Monaco draws nothing extra (every bracket depth
-  gets the delimiter color; no indent guides). Change colors only in
-  `theme.ts`. After a Monaco upgrade, copy its grammars into `grammars.ts`
-  and regenerate the test fixture (see `monaco/__tests__/tokenize.test.ts`).
+  `monaco/tokenize.ts` colors Prism's tokens as Monaco's grammars do
+  (keywords, capitalized names, operators, HTML tags), both take colors
+  from `monaco/theme.ts`, and Monaco draws nothing extra (every bracket
+  depth gets the delimiter color; no indent guides). Change colors only in
+  `theme.ts`. A few characters can still differ, such as an apostrophe in
+  JSX text, which starts a string in Monaco.
 
 `hidden` (unselected protocol tabs): every tab stays mounted, so all sources
 are in the HTML. The editor latches interactive on first show, so undo and

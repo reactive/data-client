@@ -25,15 +25,14 @@ interface CodeRule {
 
 /**
  * The playground's code colors, by Monaco token. A rule colors its token and
- * the tokens under it (`type` colors `type.identifier.ts`). Monaco uses them,
- * and so does the code the server renders (./tokenize.ts), so the code keeps
- * its colors when Monaco takes over. Light and dark pages share them.
+ * the tokens under it (`type` colors `type.identifier.ts`). The code the
+ * server renders uses the same colors (`codePrismTheme`), so it keeps them
+ * when Monaco takes over. Light and dark pages share them.
  *
- * Monaco also applies its base theme's (vs-dark) rules beneath these, and
- * `tokenClass` knows only these. So every token ./tokenize.ts can emit that
- * a vs-dark rule colors needs a rule here at least as specific: vs-dark's
- * own `number.hex`, `delimiter.html`, `attribute.*`, `metatag.*` and
- * `*.json` rules are why those are listed.
+ * Monaco also applies its base theme's (vs-dark) rules beneath these, so a
+ * token a vs-dark rule colors needs a rule here at least as specific to get
+ * the palette: vs-dark's own `number.hex`, `delimiter.html`, `attribute.*`,
+ * `metatag.*` and `*.json` rules are why those are listed.
  */
 const rules: CodeRule[] = [
   // characters Monaco's grammar doesn't know, like `é` in JSX text
@@ -98,33 +97,22 @@ export function definePrismTheme(monaco: typeof Monaco) {
   });
 }
 
-/** A rule's class in the server-rendered code (`number.hex` → `number-hex`) */
-const classOf = (token: string) => token.replace(/\./g, '-');
+const italic = 'italic' as const;
 
 /**
- * The class of the rule that colors Monaco token `token` (the most specific
- * one, as Monaco picks), or null when none does
+ * The same colors for the code the server renders, by the Prism token types
+ * ./tokenize.ts gives it
  */
-export function tokenClass(token: string): string | null {
-  let best: string | null = null;
-  for (const rule of rules) {
-    if (
-      (token === rule.token || token.startsWith(`${rule.token}.`)) &&
-      (best === null || rule.token.length > best.length)
-    )
-      best = rule.token;
-  }
-  return best && classOf(best);
-}
-
-/** `rules` as a prism-react-renderer theme, for `tokenClass`'s classes */
 export const codePrismTheme: PrismTheme = {
   plain: { color: color.plain, backgroundColor: 'transparent' },
-  styles: rules.map(rule => ({
-    types: [classOf(rule.token)],
-    style: {
-      color: rule.color,
-      ...(rule.italic && { fontStyle: 'italic' as const }),
-    },
-  })),
+  styles: [
+    { types: ['comment'], style: { color: color.comment, fontStyle: italic } },
+    { types: ['keyword'], style: { color: color.keyword, fontStyle: italic } },
+    { types: ['class-name', 'attr-name'], style: { color: color.type } },
+    { types: ['number'], style: { color: color.number } },
+    { types: ['string'], style: { color: color.string } },
+    { types: ['regex'], style: { color: color.regexp } },
+    { types: ['punctuation'], style: { color: color.delimiter } },
+    { types: ['tag'], style: { color: color.tag } },
+  ],
 };

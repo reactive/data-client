@@ -1,134 +1,186 @@
 /// <reference types="jest" />
 
-import { codePrismTheme, tokenClass } from '../theme';
-import {
-  isMonacoTokenized,
-  monacoPrism,
-  type Token,
-  tokenizeHtml,
-  tokenizeJson,
-  tokenizeTs,
-} from '../tokenize';
-// Monaco's own tokens for these snippets: monaco.editor.tokenize(code,
-// language) run in the browser on a page with Monaco loaded. Run it again
-// after a Monaco upgrade, and after adding a snippet
-import monacoTokens from './__fixtures__/monacoTokens.json';
+import { Prism } from 'prism-react-renderer';
 
-type MonacoLines = string[][][];
+import { codePrismTheme } from '../theme';
+import { isMonacoTokenized, monacoPrism } from '../tokenize';
 
-/** The theme class of each character (none for line breaks), from our tokens */
-function classesOf(tokens: Token[]) {
-  return tokens.flatMap(token =>
-    typeof token === 'string' ?
-      [...token].map(() => null)
-    : [...token.content].map(char => (char === '\n' ? null : token.type)),
-  );
+/** Each token's theme type (null for plain) and text, whitespace left out */
+function spans(code: string, language: string) {
+  return monacoPrism
+    .tokenize(code, Prism.languages[language])
+    .map(token =>
+      typeof token === 'string' ?
+        [null, token]
+      : [token.type === 'plain' ? null : token.type, String(token.content)],
+    )
+    .map(([type, text]) => [type, text?.trim()])
+    .filter(([, text]) => text);
 }
 
-/**
- * The theme class of each character, from Monaco's tokens.
- * monaco.editor.tokenize leaves out bracket pair colorization, which draws
- * `{}()` outside comments, strings and regular expressions in the delimiter
- * color (checked on the rendered editor)
- */
-function monacoClassesOf(lines: MonacoLines) {
-  return lines.flatMap((line, i) => [
-    ...(i ? [null] : []),
-    ...line.flatMap(([text, type]) =>
-      [...text].map(char =>
-        /[{}()]/.test(char) && !/^(comment|string|regexp)/.test(type) ?
-          tokenClass('delimiter')
-        : tokenClass(type),
+describe('monacoPrism colors as Monaco does', () => {
+  test('TypeScript keywords, capitalized names and delimiters', () => {
+    expect(
+      spans(
+        'const user: User = await UserResource.get({ id: 1 }); // hi',
+        'tsx',
       ),
-    ),
-  ]);
-}
+    ).toEqual([
+      ['keyword', 'const'],
+      [null, 'user'],
+      ['punctuation', ':'],
+      ['class-name', 'User'],
+      ['punctuation', '='],
+      ['keyword', 'await'],
+      ['class-name', 'UserResource'],
+      ['punctuation', '.'],
+      ['keyword', 'get'],
+      ['punctuation', '('],
+      ['punctuation', '{'],
+      [null, 'id'],
+      ['punctuation', ':'],
+      ['number', '1'],
+      ['punctuation', '}'],
+      ['punctuation', ')'],
+      ['punctuation', ';'],
+      ['comment', '// hi'],
+    ]);
+  });
 
-const cases = (snippets: { code: string; tokens: MonacoLines }[]) =>
-  snippets.map(({ code, tokens }) => [code, tokens] as const);
+  test('symbol runs that are not operators stay plain', () => {
+    expect(spans('!!a => <b /></b>', 'tsx')).toEqual([
+      ['punctuation', '!'],
+      ['punctuation', '!'],
+      [null, 'a'],
+      ['punctuation', '=>'],
+      ['punctuation', '<'],
+      [null, 'b'],
+      [null, '/></'],
+      [null, 'b'],
+      ['punctuation', '>'],
+    ]);
+  });
 
-describe('tokenizers', () => {
-  test.each(cases(monacoTokens.typescript))(
-    'color TypeScript as Monaco does: %s',
-    (code, tokens) => {
-      expect(classesOf(tokenizeTs(code))).toEqual(monacoClassesOf(tokens));
-    },
-  );
+  test('template literals and JSX attributes', () => {
+    expect(spans('<Avatar src="x" alt={`a${b}`} />', 'tsx')).toEqual([
+      ['punctuation', '<'],
+      ['class-name', 'Avatar'],
+      [null, 'src'],
+      ['punctuation', '='],
+      ['string', '"x"'],
+      [null, 'alt'],
+      ['punctuation', '='],
+      ['punctuation', '{'],
+      ['string', '`'],
+      ['string', 'a'],
+      ['punctuation', '${'],
+      [null, 'b'],
+      ['punctuation', '}'],
+      ['string', '`'],
+      ['punctuation', '}'],
+      [null, '/>'],
+    ]);
+  });
 
-  test.each(cases(monacoTokens.html))(
-    'color HTML with embedded JavaScript as Monaco does: %s',
-    (code, tokens) => {
-      expect(classesOf(tokenizeHtml(code))).toEqual(monacoClassesOf(tokens));
-    },
-  );
+  test('HTML with embedded JavaScript, as in Vue files', () => {
+    expect(
+      spans(
+        '<script setup lang="ts">\nlet type = 1;\n</script>\n<p :key="a()">{{ b }}</p>',
+        'html',
+      ),
+    ).toEqual([
+      ['punctuation', '<'],
+      ['tag', 'script'],
+      ['attr-name', 'setup'],
+      ['attr-name', 'lang'],
+      ['punctuation', '='],
+      ['string', '"ts"'],
+      ['punctuation', '>'],
+      // Monaco's JavaScript has no `type` keyword
+      ['keyword', 'let'],
+      [null, 'type'],
+      ['punctuation', '='],
+      ['number', '1'],
+      ['punctuation', ';'],
+      ['punctuation', '</'],
+      ['tag', 'script'],
+      ['punctuation', '>'],
+      ['punctuation', '<'],
+      ['tag', 'p'],
+      [null, ':'],
+      ['attr-name', 'key'],
+      ['punctuation', '='],
+      ['string', '"a'],
+      ['punctuation', '('],
+      ['punctuation', ')'],
+      ['string', '"'],
+      ['punctuation', '>'],
+      ['punctuation', '{'],
+      ['punctuation', '{'],
+      [null, 'b'],
+      ['punctuation', '}'],
+      ['punctuation', '}'],
+      ['punctuation', '</'],
+      ['tag', 'p'],
+      ['punctuation', '>'],
+    ]);
+  });
 
-  test.each(cases(monacoTokens.json))(
-    'color JSON as Monaco does: %s',
-    (code, tokens) => {
-      expect(classesOf(tokenizeJson(code))).toEqual(monacoClassesOf(tokens));
-    },
-  );
-
-  test('leaves a script type it has no grammar for plain', () => {
-    // `constructor` is a key of every object, not a MIME type
-    const tokens = tokenizeHtml(
-      '<script type="constructor">\nlet x\n</script>',
-    );
-    expect(tokens).toContain('\nlet x\n');
+  test('JSON keys plain, values colored', () => {
+    expect(spans('{"a": "b", "c": [1, true]}', 'json')).toEqual([
+      ['punctuation', '{'],
+      [null, '"a"'],
+      ['punctuation', ':'],
+      ['string', '"b"'],
+      ['punctuation', ','],
+      [null, '"c"'],
+      ['punctuation', ':'],
+      ['punctuation', '['],
+      ['number', '1'],
+      ['punctuation', ','],
+      ['keyword', 'true'],
+      ['punctuation', ']'],
+      ['punctuation', '}'],
+    ]);
   });
 
   test.each([
-    ['tokenizeTs', tokenizeTs],
-    ['tokenizeHtml', tokenizeHtml],
-    ['tokenizeJson', tokenizeJson],
-  ])('%s keeps every character', (_, tokenizer) => {
-    for (const { code } of Object.values(monacoTokens).flat()) {
-      expect(
-        tokenizer(code)
-          .map(token => (typeof token === 'string' ? token : token.content))
-          .join(''),
-      ).toBe(code);
-    }
-  });
-});
-
-describe('monacoPrism', () => {
-  test('covers the fence languages Monaco highlights, in any case', () => {
-    for (const language of ['ts', 'TSX', 'typescript', 'html', 'json']) {
-      expect(isMonacoTokenized(language)).toBe(true);
-    }
-    for (const language of ['js', 'bash', 'constructor', 'toString']) {
-      expect(isMonacoTokenized(language)).toBe(false);
-    }
+    ['tsx', 'const a = /x+/g.test(`${b}`); // c\n/* d */'],
+    ['html', '<!-- a --><div class="b">c</div>'],
+    ['json', '{"a": [1, null]}'],
+  ])('keeps every character of %s', (language, code) => {
+    const text = (token: string | Prism.Token): string =>
+      typeof token === 'string' ? token
+      : Array.isArray(token.content) ? token.content.map(text).join('')
+      : text(token.content as string | Prism.Token);
+    expect(
+      monacoPrism.tokenize(code, Prism.languages[language]).map(text).join(''),
+    ).toBe(code);
   });
 
-  test('tokenizes as prism-react-renderer calls it', () => {
-    const grammar = monacoPrism.languages.tsx;
-    expect(monacoPrism.tokenize('const a', grammar)).toEqual(
-      tokenizeTs('const a'),
-    );
-  });
-});
-
-describe('tokenClass', () => {
-  test('picks the most specific rule', () => {
-    expect(tokenClass('type.identifier.ts')).toBe('type');
-    expect(tokenClass('number.hex.ts')).toBe('number-hex');
-    expect(tokenClass('delimiter.html')).toBe('delimiter-html');
-    expect(tokenClass('string.key.json')).toBe('string-key-json');
-    expect(tokenClass('identifier.ts')).toBeNull();
-    expect(tokenClass('')).toBeNull();
-  });
-
-  test('has a theme style for every class', () => {
+  test('gives every type it emits a theme style', () => {
     const types = codePrismTheme.styles.flatMap(style => style.types);
-    for (const token of [
-      'keyword.ts',
-      'number.hex.ts',
-      'comment.doc.ts',
-      'attribute.value.html',
+    for (const type of [
+      'comment',
+      'keyword',
+      'class-name',
+      'attr-name',
+      'number',
+      'string',
+      'regex',
+      'punctuation',
+      'tag',
     ]) {
-      expect(types).toContain(tokenClass(token));
+      expect(types).toContain(type);
     }
   });
+});
+
+test('isMonacoTokenized covers the fence languages Monaco highlights', () => {
+  for (const language of ['ts', 'TSX', 'typescript', 'html', 'json']) {
+    expect(isMonacoTokenized(language)).toBe(true);
+  }
+  for (const language of ['js', 'bash', 'constructor']) {
+    expect(isMonacoTokenized(language)).toBe(false);
+  }
 });

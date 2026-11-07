@@ -18,7 +18,7 @@ runs:
       shell: bash
       run: |
         # Everything scripts/ci-install.sh website reads
-        echo "modules=website-modules-node26-$RUNNER_OS-$RUNNER_ARCH-${{ hashFiles('yarn.lock', '.yarnrc.yml', '.yarn/releases/**', '.yarn/plugins/**', 'scripts/ci-install.sh', 'package.json', 'packages/*/package.json', 'scripts/rollup-plugins/package.json', 'website/package.json', 'website/scripts/generateMonacoPreloads.cjs', 'website/src/components/Playground/monaco/grammars.ts') }}" >> "$GITHUB_OUTPUT"
+        echo "modules=website-modules-node26-$RUNNER_OS-$RUNNER_ARCH-${{ hashFiles('yarn.lock', '.yarnrc.yml', '.yarn/releases/**', '.yarn/plugins/**', 'scripts/ci-install.sh', 'package.json', 'packages/*/package.json', 'scripts/rollup-plugins/package.json', 'website/package.json', 'website/scripts/generateMonacoPreloads.cjs') }}" >> "$GITHUB_OUTPUT"
         echo "libs=website-libs-${{ hashFiles('packages/*/src/**', 'packages/*/package.json', 'packages/*/rollup.config.*', 'scripts/rollup-plugins/**', 'babel.config.js', 'tsconfig*.json', 'packages/*/tsconfig*.json', 'package.json', 'yarn.lock') }}" >> "$GITHUB_OUTPUT"
     # Looks up only, off pull requests, to know whether to save
     - id: modules

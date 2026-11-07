@@ -4,8 +4,7 @@
 
 /**
  * Generates Monaco CDN preload/prefetch path lists from the installed
- * monaco-editor package so content-hashed filenames stay in sync, and checks
- * that the playground's copied Monaco grammars come from that version.
+ * monaco-editor package so content-hashed filenames stay in sync.
  *
  * Invoked from docusaurus.config.ts and the website's postinstall (Node), so
  * the gitignored manifest always matches node_modules. Browser code must import only
@@ -25,10 +24,6 @@ const MONACO_ROOT = path.resolve(VS_ROOT, '../..');
 const MANIFEST_PATH = path.join(
   WEBSITE_ROOT,
   'src/components/Playground/monaco/preloadManifest.ts',
-);
-const GRAMMARS_PATH = path.join(
-  WEBSITE_ROOT,
-  'src/components/Playground/monaco/grammars.ts',
 );
 
 /** @returns {{ monacoVersion: string, preloadPaths: string[], prefetchPaths: string[] }} */
@@ -212,7 +207,6 @@ function validatePathsExist(paths, label) {
 /** @returns {{ monacoVersion: string, preloadPaths: string[], prefetchPaths: string[], wrote: boolean }} */
 function ensureMonacoPreloadManifest() {
   const manifest = computeMonacoPreloadManifest();
-  assertGrammarsMatch(manifest.monacoVersion);
   const source = formatManifestSource(manifest);
   const previous =
     fs.existsSync(MANIFEST_PATH) ?
@@ -224,26 +218,6 @@ function ensureMonacoPreloadManifest() {
   fs.mkdirSync(path.dirname(MANIFEST_PATH), { recursive: true });
   fs.writeFileSync(MANIFEST_PATH, source);
   return { ...manifest, wrote: true };
-}
-
-/**
- * The server-rendered playground code runs copies of Monaco's grammars
- * (grammars.ts), so it shows Monaco's colors only while they come from the
- * installed version
- * @param {string} monacoVersion
- */
-function assertGrammarsMatch(monacoVersion) {
-  const copied = fs
-    .readFileSync(GRAMMARS_PATH, 'utf8')
-    .match(/MONACO_VERSION = '([^']+)'/)?.[1];
-  if (!copied) {
-    throw new Error(`MONACO_VERSION = '…' not found in ${GRAMMARS_PATH}`);
-  }
-  if (copied !== monacoVersion) {
-    throw new Error(
-      `${GRAMMARS_PATH} copies monaco-editor ${copied}, but ${monacoVersion} is installed: copy its grammars again (see the file's header)`,
-    );
-  }
 }
 
 /** @param {{ monacoVersion: string, preloadPaths: string[], prefetchPaths: string[] }} manifest */
