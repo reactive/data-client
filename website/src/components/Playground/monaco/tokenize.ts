@@ -159,7 +159,7 @@ function runGrammar(grammar: Grammar): LineTokenizer {
     let pos = 0;
     if (embedded !== undefined) {
       const leaves = rulesOf(state())
-        .map(rule => (rule.search ? line.search(rule.search) : -1))
+        .flatMap(rule => (rule.search ? [line.search(rule.search)] : []))
         .filter(found => found !== -1);
       pos = leaves.length ? Math.min(...leaves) : line.length;
       if (embedded) embedded(line.slice(0, pos), emit);

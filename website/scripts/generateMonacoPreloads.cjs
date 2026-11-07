@@ -4,7 +4,8 @@
 
 /**
  * Generates Monaco CDN preload/prefetch path lists from the installed
- * monaco-editor package so content-hashed filenames stay in sync.
+ * monaco-editor package so content-hashed filenames stay in sync, and checks
+ * that the playground's copied Monaco grammars come from that version.
  *
  * Invoked from docusaurus.config.ts and the website's postinstall (Node), so
  * the gitignored manifest always matches node_modules. Browser code must import only
@@ -235,6 +236,9 @@ function assertGrammarsMatch(monacoVersion) {
   const copied = fs
     .readFileSync(GRAMMARS_PATH, 'utf8')
     .match(/MONACO_VERSION = '([^']+)'/)?.[1];
+  if (!copied) {
+    throw new Error(`MONACO_VERSION = '…' not found in ${GRAMMARS_PATH}`);
+  }
   if (copied !== monacoVersion) {
     throw new Error(
       `${GRAMMARS_PATH} copies monaco-editor ${copied}, but ${monacoVersion} is installed: copy its grammars again (see the file's header)`,
