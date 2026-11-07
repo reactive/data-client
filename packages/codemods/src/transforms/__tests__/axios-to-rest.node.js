@@ -2028,6 +2028,19 @@ export async function getPost(id: number) {
       );
     });
 
+    it('keeps .data when the rewritten client module commented out its response interceptor', async () => {
+      const client = `
+import axios from 'axios';
+export const api = axios.create();
+api.interceptors.response.use(res => res.data);
+`;
+      const rewritten = await run({ 'client.ts': client }, 'client.ts');
+      expect(rewritten).toMatch('// api.interceptors.response.use(');
+      expect(
+        await run({ 'client.ts': rewritten, 'posts.ts': posts }, 'posts.ts'),
+      ).toMatch('return res.data;');
+    });
+
     it('exports the class where the module exported the instance', async () => {
       const client = `
 import axios from 'axios';
@@ -2683,6 +2696,40 @@ export function save(
 }
       `,
       'matches the quotes and trailing commas the file uses',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+class Items {
+  #id = 1;
+  save(body) {
+    return axios.post(\`/items/\${this.#id}\`, body, { params: { draft: true } });
+  }
+}
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+
+const saveEndpoint = new RestEndpoint({
+  path: '/items/:param',
+  method: 'POST',
+});
+
+class Items {
+  #id = 1;
+  save(body) {
+    // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
+    return saveEndpoint({
+      param: this.#id,
+      draft: true,
+    }, body);
+  }
+}
+      `,
+      'keeps params that only parse inside their class',
     );
 
     defineInlineTest(

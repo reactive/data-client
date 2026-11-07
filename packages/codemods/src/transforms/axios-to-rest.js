@@ -606,9 +606,9 @@ function findModule(fromFile, spec) {
 }
 
 /** Names of the instances whose `.interceptors.response` the module uses */
-function responseInterceptorTargets(j, root) {
-  return new Set(
-    root
+function responseInterceptorTargets(j, root, source = '') {
+  return new Set([
+    ...root
       .find(j.MemberExpression, {
         object: {
           type: 'MemberExpression',
@@ -619,8 +619,13 @@ function responseInterceptorTargets(j, root) {
       })
       .nodes()
       .map(node => node.object.object.name),
-  );
+    // one this codemod commented out, in a module it already rewrote
+    ...[...source.matchAll(COMMENTED_RESPONSE_INTERCEPTOR)].map(m => m[1]),
+  ]);
 }
+
+const COMMENTED_RESPONSE_INTERCEPTOR =
+  /^[ \t]*\/\/ ([A-Za-z_$][\w$]*)\.interceptors\.response\b/gm;
 
 // exported name ('default' for a default export) -> { className, prefixed,
 // intercepted } for each axios instance a module exports, before or after
@@ -632,9 +637,10 @@ function exportedInstances(j, file) {
   const imports = [];
   const entry = { instances: found, imports };
   exportedInstanceCache.set(file, entry);
-  let root;
+  let root, source;
   try {
-    root = j(fs.readFileSync(file, 'utf8'));
+    source = fs.readFileSync(file, 'utf8');
+    root = j(source);
   } catch {
     return entry;
   }
@@ -668,7 +674,7 @@ function exportedInstances(j, file) {
       exportsOf.set('default', decl.id.name);
   });
   // a response interceptor can change what `.data` means at each call
-  const interceptedNames = responseInterceptorTargets(j, root);
+  const interceptedNames = responseInterceptorTargets(j, root, source);
   const intercepts = name => interceptedNames.has(name);
 
   const axiosDefault = root
@@ -1366,8 +1372,13 @@ function oneLineObject(j, properties) {
   const text = `{ ${properties.map(p => j(p).toSource()).join(', ')} }`;
   if (text.includes('\n') || text.length > 50)
     return j.objectExpression(properties);
-  // a parsed node reprints as its source text (unless it was parenthesized)
-  return j(`f(${text})`).find(j.CallExpression).get().node.arguments[0];
+  try {
+    // a parsed node reprints as its source text (unless it was parenthesized)
+    return j(`f(${text})`).find(j.CallExpression).get().node.arguments[0];
+  } catch {
+    // `this.#id` or `super.id` doesn't parse outside its class
+    return j.objectExpression(properties);
+  }
 }
 
 // --- 3b. Build each endpoint once, at module scope ---
