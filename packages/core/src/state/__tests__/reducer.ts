@@ -11,7 +11,7 @@ import {
   SET_RESPONSE,
   SET,
 } from '../../actionTypes';
-import { createSetResponse } from '../../controller/actions';
+import { createOptimistic, createSetResponse } from '../../controller/actions';
 import {
   State,
   ActionTypes,
@@ -625,6 +625,26 @@ describe('reducer', () => {
       expect(warnspy.mock.calls.length).toBe(0);
     } finally {
       warnspy.mockRestore();
+    }
+  });
+  it('reports a failing optimistic update once per fetch', () => {
+    const errorspy = jest
+      .spyOn(global.console, 'error')
+      .mockImplementation(() => {});
+    try {
+      // body has no primary key, so normalizing fails
+      const endpoint = ArticleResource.partialUpdate.extend({
+        getOptimisticResponse: (snap, params, body) => body,
+      });
+      const args = [{ id: 5 }, { title: 'hi' }] as const;
+      // React 18 StrictMode re-creates the action from the same fetch
+      reducer(initialState, createOptimistic(endpoint, args, 1000));
+      reducer(initialState, createOptimistic(endpoint, args, 1000));
+      expect(errorspy).toHaveBeenCalledTimes(1);
+      reducer(initialState, createOptimistic(endpoint, args, 2000));
+      expect(errorspy).toHaveBeenCalledTimes(2);
+    } finally {
+      errorspy.mockRestore();
     }
   });
   it('other types should do nothing', () => {

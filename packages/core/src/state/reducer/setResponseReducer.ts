@@ -106,7 +106,10 @@ export function setResponseReducer(
   }
 }
 
-/** Optimistic failures already logged, by key and fetch time (development only) */
+/** Optimistic failures already logged, by key and fetch time (development only).
+ * Like filterOptimistic(), key + fetchedAt identifies the fetch. Entries are a few
+ * bytes per failed optimistic fetch and live for the session.
+ */
 const reportedOptimistic = /* @__PURE__ */ new Set<string>();
 /** Records the report; false when this optimistic failure was already reported.
  * Optimistic actions are re-applied on every state change, and React StrictMode or
@@ -114,16 +117,16 @@ const reportedOptimistic = /* @__PURE__ */ new Set<string>();
  */
 function claimReport(action: OptimisticAction | SetResponseAction) {
   if (action.type !== OPTIMISTIC) return true;
-  const id = `${action.key} ${action.meta.fetchedAt}`;
-  if (reportedOptimistic.has(id)) return false;
-  reportedOptimistic.add(id);
+  const reportKey = `${action.key} ${action.meta.fetchedAt}`;
+  if (reportedOptimistic.has(reportKey)) return false;
+  reportedOptimistic.add(reportKey);
   return true;
 }
 
 function optimisticFailureIntro(key: string) {
   return `Optimistic update skipped for ${key}; the UI will update when the server responds.
 getOptimisticResponse() threw, or returned a value that could not be normalized.
-Often an Entity is missing its primary key: read it with snap.get() or snap.getResponse().
+Often an Entity is missing its primary key: read it from snap.getResponse(endpoint).data.
 https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse`;
 }
 
