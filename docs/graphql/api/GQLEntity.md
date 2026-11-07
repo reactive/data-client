@@ -429,6 +429,34 @@ class User extends GQLEntity {
 }
 ```
 
+Some APIs send an empty object `{}` instead of `null` for a missing related entity, such as a
+deleted author. `{}` has no primary key, so normalizing it throws `Missing usable primary key`.
+Clear it in the parent's [process()](#process):
+
+```typescript
+class Post extends GQLEntity {
+  author?: User = undefined;
+  static schema = { author: User };
+
+  static process(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+  ) {
+    const processed = super.process(input, parent, key, args);
+    // highlight-start
+    const { author } = processed;
+    if (author && typeof author === 'object' && !Object.keys(author).length)
+      processed.author = undefined;
+    // highlight-end
+    return processed;
+  }
+}
+```
+
+`post.author` is then `undefined`, and a stored author is cleared the same way `null` clears it.
+
 ### static indexes?: (keyof this)[] {#indexes}
 
 Indexes enable increased performance when doing lookups based on those parameters. Add
