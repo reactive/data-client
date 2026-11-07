@@ -158,13 +158,12 @@ After the mutation resolves, fetch the parent's own endpoint, in the code that c
 const ctrl = useController();
 const addComment = async (postId: number, body: Partial<Comment>) => {
   await ctrl.fetch(CommentResource.getList.push, { postId }, body);
-  // the comment is saved; a failed refresh leaves the count stale until the next fetch
   ctrl.fetch(PostResource.get, { id: postId }).catch(console.error);
 };
 ```
 
-This costs one extra request, and the count changes when it resolves. Don't await it in the mutation's caller: the
-comment is already saved, so a failed refresh must not report the mutation as failed. It updates the `Post` entity, so lists that
+This costs one extra request, and the count changes when it resolves. Don't await it: the comment is already saved,
+so a failed refresh must not fail `addComment`. It updates the `Post` entity, so lists that
 show the post update too, without refetching the lists. Do not add the
 post to an optimistic response here: the real response lacks it, so the count jumps back until the refetch arrives.
 When the parent has no single-item endpoint, call [`ctrl.expireAll(PostResource.getList)`](https://dataclient.io/docs/api/Controller#expireAll)
