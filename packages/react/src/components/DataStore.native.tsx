@@ -12,7 +12,7 @@ import UniversalSuspense from './UniversalSuspense.js';
 import { StateContext } from '../context.js';
 
 /** `MemoCache.commit` in React Native normalizr builds; custom memos may omit it. */
-interface MemoCommit {
+export interface MemoCommit {
   commit?(entities: object, settled?: boolean): void;
 }
 

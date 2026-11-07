@@ -36,6 +36,8 @@ export default class MemoCache {
   private committedSettled = true;
   /** One per `commit`, so `keep()` walks each entry once per commit. */
   private gen = 0;
+  /** `buildQueryKey`'s node and entry pair for `track()`; emptied after each use */
+  private queryRecords: unknown[] = [];
   /** Caches the queryKey based on schema, args, and any used entities or indexes */
   protected queryKeys: Map<string, WeakDependencyMap<QueryPath>> = new Map();
 
@@ -119,13 +121,19 @@ export default class MemoCache {
    * @param settled Whether that state has no optimistic updates.
    */
   commit(entities: object, settled = true): void {
+    // a re-render of the same store: its reads are already pinned this `gen`
+    if (
+      entities === this.committedEntities &&
+      settled === this.committedSettled
+    )
+      return;
     this.committedEntities = entities;
     this.committedSettled = settled;
     this.gen++;
     const reads = this.reads.get(entities);
     if (!reads) return;
     this.reads.delete(entities);
-    for (const [node, entry] of reads) keep(node, entry, settled, this.gen);
+    reads.forEach((entry, node) => keep(node, entry, settled, this.gen));
   }
 
   /** Compute denormalized form maintaining referential equality for same inputs */
@@ -176,7 +184,7 @@ export default class MemoCache {
     const baseDelegate = new this.policy.QueryDelegate(state);
     // committed renders keep their query key too, or the result they pinned
     // is looked up with a new input
-    const records: unknown[] = [];
+    const records = this.queryRecords;
     // eslint-disable-next-line prefer-const
     let [value, paths] = queryCache.get(
       schema as any,
@@ -193,6 +201,7 @@ export default class MemoCache {
       queryCache.set(dependencies, value, undefined, undefined, records);
     }
     this.track(state.entities, records);
+    records.length = 0;
     return value;
   }
 }

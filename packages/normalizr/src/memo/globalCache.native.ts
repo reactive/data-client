@@ -1,5 +1,6 @@
 import type { GetEntityCache } from './entitiesCache.js';
 import type { DenormGetEntity } from './types.js';
+import { NO_CHILDREN } from './WeakDependencyMap.native.js';
 import type WeakDependencyMap from './WeakDependencyMap.native.js';
 import type { Dep, KeyFn } from './WeakDependencyMap.native.js';
 import type Cache from '../denormalize/cache.js';
@@ -135,7 +136,7 @@ export default class GlobalCache implements Cache {
           this._args,
           undefined,
           parent,
-          children,
+          children.length ? children : NO_CHILDREN,
         );
 
         // start of cycle - reset cycle detection
@@ -213,10 +214,10 @@ export default class GlobalCache implements Cache {
         this._args,
         paths,
         this.records,
-        children,
+        children.length ? children : NO_CHILDREN,
       );
     }
-    // hit branch: `paths` aliases the stored Link.journey — return as-is.
+    // hit branch: `paths` aliases the stored entry's journey — return as-is.
     // Callers must not mutate it (entityExpiresAt and createCountRef both
     // read-only). The journey-mutation regression test guards this contract.
     return { data, paths };

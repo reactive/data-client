@@ -103,8 +103,12 @@ export default class WeakDependencyMap<
   ): void {
     if (dependencies.length < 1) throw new KeySize();
     const root = depKey(dependencies[0].entity) as K;
-    let node = this.next.get(root);
-    let top = node;
+    let top = this.next.get(root);
+    if (!top) {
+      top = newNode<Path, V>();
+      this.next.set(root, top);
+    }
+    let node = top;
     const paths = new Array<Path | KeyFn>(dependencies.length - 1);
     const keys = new Array<unknown>(dependencies.length - 1);
     for (let i = 1; i < dependencies.length; i++) {
@@ -114,17 +118,13 @@ export default class WeakDependencyMap<
         this.hasStr = true;
         const k = (dep.path as KeyFn)(args) ?? UNDEF_KEY;
         keys[i - 1] = k;
-        if (!node) {
-          node = top = newNode(undefined);
-          this.next.set(root, node);
-        }
         if (!node.branches) node.branches = [];
-        let branch = node.branches.find(b => b.fn === dep.path);
+        let branch = findBranch(node.branches, dep.path as KeyFn);
         if (!branch) {
           // Missing entities change which argsKey comes next, so the routes
           // under one root can multiply, and a lookup searches all of them.
           // Past MAX_FORKS, start this root over instead.
-          if (node.branches.length && ++top!.forks > MAX_FORKS) {
+          if (node.branches.length && ++top.forks > MAX_FORKS) {
             this.next.delete(root);
             return this.set(dependencies, value, args, journey, out, children);
           }
@@ -133,7 +133,7 @@ export default class WeakDependencyMap<
         }
         let child = branch.children.get(k);
         if (!child) {
-          child = newNode(undefined);
+          child = newNode();
           branch.children.set(k, child);
         }
         node = child;
@@ -150,19 +150,13 @@ export default class WeakDependencyMap<
       children,
       gen: 0,
     };
-    if (!node) {
-      node = newNode(entry);
-      this.next.set(root, node);
-    } else {
-      // A store can flip back to a version it already showed: React renders
-      // the committed store between retries of a pending transition, which
-      // build new entities each time, and rolling back an optimistic update
-      // returns to the entities from before it. Commits tell which versions
-      // those are (see `keep()`), so keep only the newest entry and the
-      // pinned ones.
-      node.entries.unshift(entry);
-      evictUnpinned(node);
-    }
+    // A store can flip back to a version it already showed: React renders the
+    // committed store between retries of a pending transition, which build new
+    // entities each time, and rolling back an optimistic update returns to the
+    // entities from before it. Commits tell which versions those are (see
+    // `keep()`), so keep only the newest entry and the pinned ones.
+    node.entries.unshift(entry);
+    evictUnpinned(node);
     if (out) out.push(node, entry);
   }
 
@@ -262,6 +256,7 @@ export function keep(
   settled: boolean,
   gen: number,
 ): void {
+  if ((entry as Entry<unknown, unknown>).gen === gen) return;
   const stack = [node, entry];
   while (stack.length) {
     const e = stack.pop() as Entry<unknown, unknown>;
@@ -294,7 +289,7 @@ function evictUnpinned<Path, V>(node: Node<Path, V>): void {
   }
 }
 
-const NO_CHILDREN: unknown[] = [];
+export const NO_CHILDREN: unknown[] = [];
 
 /** Nodes under one first dependency that may gain a second `argsKey` branch. */
 const MAX_FORKS = 8;
@@ -323,9 +318,17 @@ interface Branch<Path, V> {
   readonly children: Map<string, Node<Path, V>>;
 }
 
-function newNode<Path, V>(entry: Entry<Path, V> | undefined): Node<Path, V> {
+function findBranch<Path, V>(
+  branches: Branch<Path, V>[],
+  fn: KeyFn,
+): Branch<Path, V> | undefined {
+  for (let i = 0; i < branches.length; i++)
+    if (branches[i].fn === fn) return branches[i];
+}
+
+function newNode<Path, V>(): Node<Path, V> {
   return {
-    entries: entry ? [entry] : [],
+    entries: [],
     committed: undefined,
     settled: undefined,
     branches: undefined,

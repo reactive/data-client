@@ -334,8 +334,8 @@ describe('WeakDependencyMap', () => {
 
   describe('argsKey (function-typed) deps', () => {
     // `argFn` is the stable fn reference that doubles as the path key.
-    // `set()` stores `curLink.nextPath = dep.path` (the function itself),
-    // and bucket keys are derived each call from `dep.path(args)`.
+    // `set()` keys a branch by the function itself, and its children by
+    // `dep.path(args)`, derived on each call.
     const argFn = (args: readonly any[]) => args[0]?.userId;
     const depFn = { path: argFn, entity: undefined };
 
@@ -377,9 +377,8 @@ describe('WeakDependencyMap', () => {
     });
 
     it('walks mixed entity + function + entity chains on get', () => {
-      // Exercises _getMixed: the slow path must correctly interleave
-      // function-keyed lookups (nextStr.get) with entity-keyed lookups
-      // (next.get) while traversing one cached chain.
+      // `find()` must follow the argsKey branch, then match the entity
+      // deps on either side of it in one cached entry.
       const wem = new WeakDependencyMap<EntityPath>();
       wem.set([depA, depFn, depB], 'mixed', [{ userId: 'bob' }]);
 
@@ -409,7 +408,7 @@ describe('WeakDependencyMap', () => {
 
     it('overwrites the same (entity, argsKey) cell on re-set', () => {
       // argsKey bucketing is keyed by fn(args), so repeating the same deps
-      // and args must land in the exact same Link — not leak a stale value.
+      // and args must land on the same node — not leak a stale value.
       const wem = new WeakDependencyMap<EntityPath>();
       wem.set([depA, depFn], 'first', [{ userId: 'bob' }]);
       wem.set([depA, depFn], 'second', [{ userId: 'bob' }]);
