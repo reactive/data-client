@@ -65,7 +65,7 @@ For async operations that don't match REST or GraphQL:
 
 | Check `package.json` | Then |
 |----------------------|------|
-| `@tanstack/react-query` or `react-query` | After setup, migrate per [Replacing TanStack Query](#replacing-tanstack-query) |
+| `@tanstack/react-query` or `react-query` (React) | After setup, migrate per [Replacing TanStack Query](#replacing-tanstack-query) |
 
 ### 5. Install the Skills This Project Needs
 
@@ -260,13 +260,15 @@ If multiple protocols are detected, follow each protocol's guide. Each protocol 
 
 ## Replacing TanStack Query
 
-When the app uses TanStack Query, a request to set up or migrate to Data Client includes replacing it: follow
+When a React app uses TanStack Query, a request to set up or migrate to Data Client includes replacing it: follow
 [TanStack Query migration](references/tanstack-query-migration.md) from its "Steps" section. Its step 1 is
-the protocol guide above, so the REST guide's "leave how the app loads data alone" does not apply here. Look up each
+the protocol guide above, so the REST guide's "leave how the app loads and stores data alone" does not apply here. Look up each
 TanStack Query API in its "API map" rather than working out a replacement, and finish with its "Check the migration"
 list. Libraries built on TanStack Query, like `react-query-auth`, are replaced in the same pass.
 Data Client's own `useQuery` reads the store and never fetches, so it is not the replacement for TanStack Query's
 `useQuery`: that is `useSuspense` (or `useDLE`).
+The guide is React only. For `@tanstack/vue-query`, use its "API map" and "Mutations" decisions with skill
+"data-client-vue"'s composables in place of the React hooks.
 
 ## Verification Checklist
 

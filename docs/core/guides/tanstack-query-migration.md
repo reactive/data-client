@@ -5,6 +5,7 @@ sidebar_label: TanStack Query Migration
 ---
 
 import SiteOnly from '@site/src/components/SiteOnly';
+import AgentOnly from '@site/src/components/AgentOnly';
 
 # Migrating from TanStack Query
 
@@ -30,6 +31,17 @@ Migrate this app from TanStack Query to Reactive Data Client. Install the setup 
 The setup skill follows this guide. Review its diff like a teammate's.
 
 </SiteOnly>
+
+<AgentOnly>
+
+To migrate an app from TanStack Query, install the setup skill from the project root, then read
+`.agents/skills/data-client-setup/SKILL.md` and follow it:
+
+```bash
+npx skills add reactive/data-client --skill data-client-setup -y
+```
+
+</AgentOnly>
 
 ## Steps {#steps}
 
@@ -65,16 +77,16 @@ Keep the app's tests passing after each step; they are the proof that behavior d
 | `useQueries()` | [useFetch()](../api/useFetch.md) for each, then React's `use()`: they fetch in parallel |
 | `staleTime` | [dataExpiryLength](../concepts/expiry-policy.md#endpointdataexpirylength) on the endpoint or base class. The default is 60 seconds (TanStack Query's is 0) |
 | `gcTime` | `DataProvider`'s [gcPolicy](../api/DataProvider.md#gcPolicy) |
-| `retry: false` | `errorExpiryLength = Infinity` on the base class. Data Client has no retry loop: an errored request is fetched again only when a component needs it after `errorExpiryLength` (default 1 second) |
+| `retry` | Delete it: Data Client has no retry loop. An errored request is fetched again when a component needs it after `errorExpiryLength` (default 1 second), like TanStack Query's `retry: false` |
 | `refetchInterval` | `pollFrequency` on the endpoint, read with [useLive()](../api/useLive.md) |
 | `refetchOnWindowFocus` | Delete it: Data Client doesn't refetch on window focus |
 | `placeholderData: keepPreviousData` | Change the args inside `startTransition()` (or [useDebounce()](../api/useDebounce.md) for typed input): React keeps showing the current data while the next loads |
-| `initialData` from a list query | Delete it: an Entity the list loaded renders on the detail page without a fetch, when the detail endpoint's schema is that Entity |
+| `initialData` from a list query | Delete it: while the list's data is fresh, an Entity it loaded renders on the detail page without a fetch, when the detail endpoint's schema is that Entity |
 | `useMutation()` | `ctrl.fetch(endpoint, ...args)` in the event handler, from [useController()](../api/useController.md) |
 | `isPending`, `error` of a mutation | [useLoading()](../api/useLoading.md): `const [run, isPending, error] = useLoading(fn, deps)` |
 | `isSuccess`, `onSuccess`, `onError` | Code after or around `await ctrl.fetch()` ([Mutations](#mutations)) |
 | `invalidateQueries()` after an update | Delete it, when the response is the updated Entity |
-| `invalidateQueries()` after a create | `ctrl.fetch(Resource.getList.push, body)` (or `unshift`): the new Entity joins every matching list. Lists split into numbered pages: `ctrl.expireAll(Resource.getList)` |
+| `invalidateQueries()` after a create | `ctrl.fetch(Resource.getList.push, body)` (or `unshift`): the new Entity joins every matching list. Needs a [Collection](/rest/api/Collection) in the list's schema, which `resource()` has by default. Lists split into numbered pages: a plain `POST`, then `ctrl.expireAll(Resource.getList)` |
 | `invalidateQueries()` after a delete | Delete it: `resource().delete` (or a `schema.Invalidate` schema) removes the Entity from every list |
 | `invalidateQueries()` for data the response doesn't include (counts, totals) | `ctrl.expireAll(endpoint)`: mounted components refetch |
 | `refetchQueries()` | `ctrl.fetch(endpoint, args)` |
@@ -100,7 +112,7 @@ fetches. Replace TanStack Query's `useQuery()` with `useSuspense()` or `useDLE()
 ## Provider {#provider}
 
 Put `DataProvider` where `QueryClientProvider` was, and the app's `<Suspense>` boundary inside it.
-`useSuspense()` suspends to the nearest boundary *below* `DataProvider`: a boundary above it never catches.
+`DataProvider` has its own backup boundary, which shows "Uncaught Suspense", so a boundary above `DataProvider` never shows its fallback.
 
 ```tsx title="provider.tsx"
 import { DataProvider } from '@data-client/react';
@@ -114,95 +126,103 @@ export const AppProvider = ({ children }: { children: ReactNode }) => (
 ```
 
 `DataProvider` makes its own store, so there is no client to create. Move `QueryClient` `defaultOptions` to the base
-endpoint class: `staleTime` becomes `dataExpiryLength`, and `retry: false` becomes `errorExpiryLength = Infinity`.
-Delete `refetchOnWindowFocus`.
+endpoint class: `staleTime` becomes `dataExpiryLength`. Delete `retry` and `refetchOnWindowFocus`.
 
 ## Reads {#reads}
 
-Call `useSuspense()` in the component that renders the data, and delete the per-feature `useDiscussions()` hook that
+Call `useSuspense()` in the component that renders the data, and delete the per-feature `useIssues()` hook that
 wrapped `useQuery()`. Two components that ask for the same endpoint and args share one fetch and one store entry, so
 nothing is gained by sharing a hook, and a hook hides what the component depends on.
 
 ```ts title="Before"
-export const getDiscussionsQueryOptions = ({ page }: { page?: number } = {}) =>
-  queryOptions({
-    queryKey: page ? ['discussions', { page }] : ['discussions'],
-    queryFn: () => getDiscussions(page),
-  });
+export const issueKeys = {
+  all: ['issues'] as const,
+  list: (page: number) => [...issueKeys.all, 'list', page] as const,
+  detail: (id: number) => [...issueKeys.all, 'detail', id] as const,
+};
 
-export const useDiscussions = ({ page }: { page?: number }) =>
-  useQuery(getDiscussionsQueryOptions({ page }));
+export const useIssues = (page: number) =>
+  useQuery({ queryKey: issueKeys.list(page), queryFn: () => fetchIssues(page) });
 ```
 
-```tsx title="Before, in DiscussionsList" nocheck
-const discussionsQuery = useDiscussions({ page });
-if (discussionsQuery.isLoading) return <Spinner />;
-const discussions = discussionsQuery.data?.data;
-if (!discussions) return null;
+```tsx title="Before, in IssueTable" nocheck
+const { data, isLoading, isError } = useIssues(page);
+if (isLoading) return <TableSkeleton />;
+if (isError) return <ErrorBanner />;
+return <Table rows={data?.results ?? []} />;
 ```
 
 ```tsx title="After"
 import { useSuspense } from '@data-client/react';
-import { DiscussionResource } from './resources/Discussion';
+import { IssueResource } from './resources/Issue';
 
-export function DiscussionsList({ page }: { page: number }) {
-  const { data: discussions, meta } = useSuspense(DiscussionResource.getList, {
+export function IssueTable({ page }: { page: number }) {
+  const { results: issues, pagination } = useSuspense(IssueResource.getList, {
     page,
   });
   return (
-    <ul>
-      {discussions.map(discussion => (
-        <li key={discussion.id}>{discussion.title}</li>
-      ))}
-    </ul>
+    <table>
+      <tbody>
+        {issues.map(issue => (
+          <tr key={issue.id}>
+            <td>{issue.title}</td>
+            <td>{issue.state}</td>
+          </tr>
+        ))}
+      </tbody>
+      <caption>
+        Page {pagination.page} of {pagination.pageCount}
+      </caption>
+    </table>
   );
 }
 ```
 
-The `isLoading` branch moves to a `<Suspense>` fallback (or an [AsyncBoundary](../api/AsyncBoundary.md), which also
-catches errors) around the component, and the `!data` guard goes away. Keep the app's own spinner as the fallback.
+The `isLoading` branch moves to a `<Suspense>` fallback, and the `isError` branch to an error boundary; an
+[AsyncBoundary](../api/AsyncBoundary.md) is both. Keep the app's own skeleton and error banner as their fallbacks. The
+`?? []` guard goes away, because `useSuspense()` returns only once data is there.
 
 Two `useSuspense()` calls in one component load one after the other. When neither needs the other's data, start both
 with `useFetch()` and read them with `use()`.
 
 ### Envelope responses
 
-When the API wraps responses, like `{ "data": [...], "meta": {...} }`, describe the envelope in the schema instead of
-unwrapping it, so components keep reading `meta`:
+When the API wraps responses, like `{ "results": [...], "pagination": {...} }`, describe the envelope in the schema
+instead of unwrapping it, so components keep reading `pagination`:
 
-```ts title="resources/Discussion.ts"
+```ts title="resources/Issue.ts"
 import { Entity, resource } from '@data-client/rest';
 
-export class Discussion extends Entity {
-  id = '';
+export class Issue extends Entity {
+  id = 0;
   title = '';
-  body = '';
+  state: 'open' | 'closed' = 'open';
+  assignee = '';
 
-  static key = 'Discussion';
+  static key = 'Issue';
 }
 
-interface Meta {
+interface Pagination {
   page: number;
-  total: number;
-  totalPages: number;
+  pageCount: number;
 }
 
-export const DiscussionResource = resource({
-  path: '/discussions/:id',
+export const IssueResource = resource({
+  path: '/issues/:id',
   searchParams: {} as { page?: number },
-  schema: Discussion,
+  schema: Issue,
 }).extend(Base => ({
-  get: Base.get.extend({ schema: { data: Discussion } }),
   getList: Base.getList.extend({
-    schema: { data: [Discussion], meta: {} as Meta },
+    schema: { results: [Issue], pagination: {} as Pagination },
   }),
-  // a plain POST: a new item shifts every numbered page, so callers expire the list
-  create: Base.getList.push.extend({ schema: Discussion }),
+  // a new issue shifts every numbered page, so this POST joins no list: callers expire it
+  create: Base.getList.push.extend({ schema: Issue }),
 }));
 ```
 
-The extra `getList` arguments and `schema` replace the envelope's types; `create` is explained in
-[Mutations](#mutations).
+`searchParams` types the list's `page` argument. `create` reuses the list's `POST`, with the plain `Issue` schema in
+place of the list's Collection; [Mutations](#mutations) says when to use it. When single items
+come wrapped too, like `{ "data": {...} }`, extend `get` the same way: `Base.get.extend({ schema: { data: Issue } })`.
 
 ## Mutations {#mutations}
 
@@ -210,52 +230,51 @@ Call `ctrl.fetch()` where the app called `mutate()`. What `onSuccess` did goes a
 a `catch`. Track pending and error state with `useLoading()`.
 
 ```ts title="Before"
-export const useUpdateDiscussion = ({ mutationConfig }: Options = {}) => {
+export const useCloseIssue = () => {
   const queryClient = useQueryClient();
-  const { onSuccess, ...restConfig } = mutationConfig || {};
   return useMutation({
-    onSuccess: (data, ...args) => {
-      queryClient.refetchQueries({
-        queryKey: getDiscussionQueryOptions(data.id).queryKey,
-      });
-      onSuccess?.(data, ...args);
+    mutationFn: (id: number) => patchIssue(id, { state: 'closed' }),
+    onSuccess: issue => {
+      queryClient.invalidateQueries({ queryKey: issueKeys.detail(issue.id) });
+      showToast(`Closed #${issue.id}`);
     },
-    ...restConfig,
-    mutationFn: updateDiscussion,
+    onError: () => showToast('Could not close the issue'),
   });
 };
 ```
 
 ```tsx title="After"
 import { useController, useLoading } from '@data-client/react';
-import { DiscussionForm } from './DiscussionForm';
-import { DiscussionResource } from './resources/Discussion';
+import { IssueResource } from './resources/Issue';
 
-export function UpdateDiscussion({ id }: { id: string }) {
+export function CloseIssueButton({ id }: { id: number }) {
   const ctrl = useController();
-  const [update, isPending, error] = useLoading(
-    async (data: { title: string; body: string }) => {
-      await ctrl.fetch(DiscussionResource.partialUpdate, { id }, data);
-      toast('Discussion Updated');
-    },
-    [ctrl, id],
-  );
+  const [close, isPending] = useLoading(async () => {
+    try {
+      await ctrl.fetch(IssueResource.partialUpdate, { id }, { state: 'closed' });
+      toast(`Closed #${id}`);
+    } catch {
+      toast('Could not close the issue');
+    }
+  }, [ctrl, id]);
   return (
-    <DiscussionForm onSubmit={update} disabled={isPending} error={error} />
+    <button onClick={close} disabled={isPending}>
+      Close issue
+    </button>
   );
 }
 ```
 
-The `refetchQueries()` call is gone: the response is the updated `Discussion`, so the list and the detail page both
-show the new title. TanStack Query apps usually invalidate the detail key but not every list key, so lists show
-stale data until they expire; after the migration they don't.
+The `invalidateQueries()` call is gone: the response is the updated `Issue`, so the table and the detail page both
+show it closed. TanStack Query apps usually invalidate the detail key but not every list key, so lists show stale
+data until they expire; after the migration they don't.
 
 Decide what to do with each `invalidateQueries()` and `refetchQueries()` call from the response:
 
 - **Response is the changed Entity** (update, partial update): delete the call.
 - **Create**: fetch the list's `push` (or `unshift`) endpoint instead of the plain `POST`. For lists split into
   numbered pages, where a new item shifts every page, add a plain `POST` endpoint (`create` in the
-  [envelope example](#envelope-responses): `Base.getList.push.extend({ schema: Discussion })`), then call
+  [envelope example](#envelope-responses): `Base.getList.push.extend({ schema: Issue })`), then call
   `ctrl.expireAll(Resource.getList)`.
 - **Delete**: `resource().delete` removes the Entity from every list. For a custom endpoint, use
   `schema: new schema.Invalidate(MyEntity)`.
@@ -264,8 +283,9 @@ Decide what to do with each `invalidateQueries()` and `refetchQueries()` call fr
 
 ### Success state
 
-`useLoading()` has no `isSuccess`. When a form or dialog closes on success, close it after the `await`, or keep a
-flag:
+`useLoading()` has no `isSuccess`, and the function it returns never rejects: it stores the error instead. So close a
+form or dialog after `await ctrl.fetch()` inside the function you pass to `useLoading()`, not after calling the
+returned function. To keep a success flag:
 
 ```ts title="useMutate.ts"
 import { useLoading } from '@data-client/react';
@@ -291,101 +311,92 @@ Router loaders that receive the `queryClient` receive the Controller instead. `u
 Controller on every render, so it is safe to create the router from it.
 
 ```ts title="Before"
-export const clientLoader =
+export const issueLoader =
   (queryClient: QueryClient) =>
-  async ({ params }: LoaderFunctionArgs) => {
-    const query = getDiscussionQueryOptions(params.discussionId as string);
-    return (
-      queryClient.getQueryData(query.queryKey) ??
-      (await queryClient.fetchQuery(query))
-    );
-  };
+  ({ params }: LoaderFunctionArgs) =>
+    queryClient.ensureQueryData({
+      queryKey: issueKeys.detail(Number(params.issueId)),
+      queryFn: () => fetchIssue(Number(params.issueId)),
+    });
 ```
 
 ```ts title="After"
 import type { Controller } from '@data-client/react';
-import { DiscussionResource } from './resources/Discussion';
+import { IssueResource } from './resources/Issue';
 
-export const clientLoader =
+export const issueLoader =
   (ctrl: Controller) =>
-  async ({ params }: { params: { discussionId?: string } }) =>
-    ctrl.fetchIfStale(DiscussionResource.get, {
-      id: params.discussionId as string,
-    });
+  ({ params }: { params: { issueId?: string } }) =>
+    ctrl.fetchIfStale(IssueResource.get, { id: Number(params.issueId) });
 ```
 
-`fetchIfStale()` fetches only when the data is missing or stale, which is what `getQueryData() ?? fetchQuery()`,
-`ensureQueryData()` and `prefetchQuery()` do. Use it for hover prefetching too:
-`onMouseEnter={() => ctrl.fetchIfStale(DiscussionResource.get, { id })}`. Load several endpoints with
-`Promise.all()` of `fetchIfStale()` calls.
+`fetchIfStale()` fetches only when the data is missing or stale, which is what `ensureQueryData()`,
+`getQueryData() ?? fetchQuery()` and `prefetchQuery()` do. Use it for hover or focus prefetching too:
+`onMouseEnter={() => ctrl.fetchIfStale(IssueResource.get, { id })}`. Load several endpoints with `Promise.all()` of
+`fetchIfStale()` calls.
 
 ## Infinite queries {#infinite}
 
 `useInfiniteQuery()` keeps an array of pages. Data Client keeps one list: a [Collection](/rest/api/Collection) that each
 new page appends to. Set `paginationField` on the endpoint to get its `getPage` endpoint.
 
-```ts title="resources/Comment.ts"
+```ts title="resources/Note.ts"
 import { Collection, Entity, RestEndpoint } from '@data-client/rest';
 
-export class Comment extends Entity {
-  id = '';
-  body = '';
-  discussionId = '';
+export class Note extends Entity {
+  id = 0;
+  text = '';
+  author = '';
 
-  static key = 'Comment';
+  static key = 'Note';
 }
 
-interface Meta {
-  page: number;
-  totalPages: number;
-}
-
-// every page of one discussion's comments shares one list
-const discussionComments = new Collection([Comment], {
-  argsKey: ({ discussionId }: { discussionId: string }) => ({ discussionId }),
+// every page of one issue's notes shares one list
+const issueNotes = new Collection([Note], {
+  argsKey: ({ issueId }: { issueId: number }) => ({ issueId }),
 });
 
-export const getComments = new RestEndpoint({
-  path: '/comments',
-  searchParams: {} as { discussionId: string; page?: number },
-  schema: { data: discussionComments, meta: {} as Meta },
+export const getNotes = new RestEndpoint({
+  path: '/issues/:issueId/notes',
+  searchParams: {} as { page?: number },
+  schema: { results: issueNotes, nextPage: 0 as number | null },
   paginationField: 'page',
 });
 
-export const createComment = new RestEndpoint({
-  path: '/comments',
+export const addNote = new RestEndpoint({
+  path: '/issues/:issueId/notes',
   method: 'POST',
-  searchParams: {} as { discussionId: string },
-  body: {} as { body: string },
-  schema: discussionComments.push,
+  body: {} as { text: string },
+  schema: issueNotes.push,
 });
 ```
 
-`argsKey` leaves out `page`, so every page and the `push` endpoint find the same list. A new comment appears without
+`argsKey` leaves out `page`, so every page and the `push` endpoint find the same list. A new note appears without
 invalidating anything.
 
-```tsx title="CommentsList.tsx"
+```tsx title="IssueNotes.tsx"
 import { useController, useLoading, useSuspense } from '@data-client/react';
-import { getComments } from './resources/Comment';
+import { getNotes } from './resources/Note';
 
-export function CommentsList({ discussionId }: { discussionId: string }) {
-  const { data: comments, meta } = useSuspense(getComments, { discussionId });
+export function IssueNotes({ issueId }: { issueId: number }) {
+  const { results: notes, nextPage } = useSuspense(getNotes, { issueId });
   const ctrl = useController();
   const [loadMore, isLoadingMore] = useLoading(
-    () =>
-      ctrl.fetch(getComments.getPage, { discussionId, page: meta.page + 1 }),
-    [ctrl, discussionId, meta.page],
+    async (page: number) => ctrl.fetch(getNotes.getPage, { issueId, page }),
+    [ctrl, issueId],
   );
   return (
     <>
       <ul>
-        {comments.map(comment => (
-          <li key={comment.id}>{comment.body}</li>
+        {notes.map(note => (
+          <li key={note.id}>
+            {note.author}: {note.text}
+          </li>
         ))}
       </ul>
-      {meta.page < meta.totalPages && (
-        <button onClick={loadMore} disabled={isLoadingMore}>
-          Load more
+      {nextPage !== null && (
+        <button onClick={() => loadMore(nextPage)} disabled={isLoadingMore}>
+          Show older notes
         </button>
       )}
     </>
@@ -393,62 +404,77 @@ export function CommentsList({ discussionId }: { discussionId: string }) {
 }
 ```
 
-`pages.flatMap()` goes away, `hasNextPage` comes from the response (`meta` here, or a cursor), and
-`isFetchingNextPage` is `useLoading()`'s pending flag. For cursor APIs, see [pagination](/rest/guides/pagination).
+`pages.flatMap()` goes away. What `getNextPageParam` computed and `hasNextPage` reported come from the response
+(`nextPage` here), which `getPage` updates along with the list. `isFetchingNextPage` is `useLoading()`'s pending flag.
+For cursors, see [pagination](/rest/guides/pagination).
 
 ## Auth {#auth}
 
 Libraries like `react-query-auth` give `useUser()`, `useLogin()`, `useLogout()` and `AuthLoader` on top of TanStack
 Query. Rebuild them from endpoints:
 
-```ts title="auth.ts"
+```ts title="session.ts"
 import { useController, useLoading, useSuspense } from '@data-client/react';
 import { Entity, RestEndpoint } from '@data-client/rest';
 
-class User extends Entity {
+class Account extends Entity {
   id = '';
-  email = '';
+  displayName = '';
 
-  static key = 'User';
+  static key = 'Account';
 }
 
-const getMe = new RestEndpoint({ path: '/auth/me', schema: { data: User } });
-const login = new RestEndpoint({
-  path: '/auth/login',
-  method: 'POST',
-  body: {} as { email: string; password: string },
-  schema: { user: User },
+const getSession = new RestEndpoint({
+  path: '/session',
+  schema: { account: Account },
 });
-const logout = new RestEndpoint({ path: '/auth/logout', method: 'POST' });
+const signIn = new RestEndpoint({
+  path: '/session',
+  method: 'POST',
+  body: {} as { username: string; password: string },
+  schema: { account: Account, token: '' },
+});
+const signOut = new RestEndpoint({ path: '/session', method: 'DELETE' });
 
-export const useUser = () => useSuspense(getMe).data;
+export const useAccount = () => useSuspense(getSession).account;
 
-export const useLogin = (onSuccess?: () => void) => {
+export const useSignIn = (onSuccess?: () => void) => {
   const ctrl = useController();
   return useLoading(
-    async (body: { email: string; password: string }) => {
-      const { user } = await ctrl.fetch(login, body);
-      // the signed-in user becomes the current one without refetching
-      await ctrl.setResponse(getMe, { data: user });
+    async (body: { username: string; password: string }) => {
+      const { account } = await ctrl.fetch(signIn, body);
+      // the signed-in account becomes the current one without refetching
+      await ctrl.setResponse(getSession, { account });
       onSuccess?.();
     },
     [ctrl, onSuccess],
   );
 };
 
-export const useLogout = (onSuccess?: () => void) => {
+export const useSignOut = (onSuccess?: () => void) => {
   const ctrl = useController();
   return useLoading(async () => {
-    await ctrl.fetch(logout);
+    await ctrl.fetch(signOut);
     await ctrl.resetEntireStore();
     onSuccess?.();
   }, [ctrl, onSuccess]);
 };
 ```
 
-`useRegister()` is `useLogin()` with the register endpoint and its body type. `AuthLoader` goes away: `useUser()` suspends to the app's `<Suspense>` boundary until the user loads. These hooks wrap
-actions, not a data binding, so they are worth keeping as hooks. `useUser()` returns the user itself where
-`react-query-auth` returned a query, so `user.data` becomes `user`. To sign out on any 401 response, add
+Sign-up is `useSignIn()` with the sign-up endpoint and its body type. `AuthLoader` goes away: `useAccount()` suspends
+to the app's `<Suspense>` boundary until the session loads. These hooks wrap actions, not a data binding, so they are
+worth keeping as hooks.
+
+Call sites change shape:
+
+- `useUser().data` becomes the value itself: `useAccount()`.
+- `useLogin({ onSuccess }).mutate(values)` becomes `const [signIn, isPending] = useSignIn(onSuccess)`, then
+  `signIn(values)`.
+
+`useAccount()` needs `/session` to answer a signed-out visitor with no account, as `react-query-auth`'s `userFn` returns
+`null`. Then signed-out pages render, and the refetch after `resetEntireStore()` shows the signed-out state. If the API
+answers 401 instead, catch that status in the session endpoint's `fetchResponse()` and resolve to no account, or the
+error reaches the nearest error boundary. To sign out on any other 401 response, add
 [LogoutManager](../api/LogoutManager.md); for token storage, see [authentication](/rest/guides/auth).
 
 ## Tests {#tests}
