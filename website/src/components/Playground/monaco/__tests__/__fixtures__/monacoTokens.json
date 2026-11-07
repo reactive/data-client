@@ -515,6 +515,258 @@
       ]
     }
   ],
+  "html": [
+    {
+      "code": "<script setup lang=\"ts\">\n  import { type Company } from './api/Company';\n\n  defineProps<{ companies: readonly Company[] }>();\n  const s: string = `${(value * 100).toFixed(1)}%`; // done\n</script>\n\n<template>\n  <tr v-for=\"c in companies\" :key=\"c.pk()\" @click='select(c)'>\n    <td>{{ c.name }} (x)</td>\n    <span v-if=\"c.shares === undefined\" class=\"skeleton\" />\n    <!-- a (comment) {here} -->\n  </tr>\n</template>",
+      "tokens": [
+        [
+          ["<", "delimiter.html"],
+          ["script", "tag.html"],
+          [" ", ""],
+          ["setup", "attribute.name.html"],
+          [" ", ""],
+          ["lang", "attribute.name.html"],
+          ["=", "delimiter.html"],
+          ["\"ts\"", "attribute.value.html"],
+          [">", "delimiter.html"]
+        ],
+        [
+          ["  ", ""],
+          ["import", "keyword.js"],
+          [" ", ""],
+          ["{", "delimiter.bracket.js"],
+          [" ", ""],
+          ["type", "identifier.js"],
+          [" ", ""],
+          ["Company", "type.identifier.js"],
+          [" ", ""],
+          ["}", "delimiter.bracket.js"],
+          [" ", ""],
+          ["from", "keyword.js"],
+          [" ", ""],
+          ["'./api/Company'", "string.js"],
+          [";", "delimiter.js"]
+        ],
+        [],
+        [
+          ["  ", ""],
+          ["defineProps", "identifier.js"],
+          ["<", "delimiter.angle.js"],
+          ["{", "delimiter.bracket.js"],
+          [" ", ""],
+          ["companies", "identifier.js"],
+          [":", "delimiter.js"],
+          [" ", ""],
+          ["readonly", "identifier.js"],
+          [" ", ""],
+          ["Company", "type.identifier.js"],
+          ["[]", "delimiter.square.js"],
+          [" ", ""],
+          ["}", "delimiter.bracket.js"],
+          [">", "delimiter.angle.js"],
+          ["()", "delimiter.parenthesis.js"],
+          [";", "delimiter.js"]
+        ],
+        [
+          ["  ", ""],
+          ["const", "keyword.js"],
+          [" ", ""],
+          ["s", "identifier.js"],
+          [":", "delimiter.js"],
+          [" ", ""],
+          ["string", "identifier.js"],
+          [" ", ""],
+          ["=", "delimiter.js"],
+          [" ", ""],
+          ["`", "string.js"],
+          ["${", "delimiter.bracket.js"],
+          ["(", "delimiter.parenthesis.js"],
+          ["value", "identifier.js"],
+          [" ", ""],
+          ["*", "delimiter.js"],
+          [" ", ""],
+          ["100", "number.js"],
+          [")", "delimiter.parenthesis.js"],
+          [".", "delimiter.js"],
+          ["toFixed", "identifier.js"],
+          ["(", "delimiter.parenthesis.js"],
+          ["1", "number.js"],
+          [")", "delimiter.parenthesis.js"],
+          ["}", "delimiter.bracket.js"],
+          ["%`", "string.js"],
+          [";", "delimiter.js"],
+          [" ", ""],
+          ["// done", "comment.js"]
+        ],
+        [
+          ["</", "delimiter.html"],
+          ["script", "tag.html"],
+          [">", "delimiter.html"]
+        ],
+        [],
+        [
+          ["<", "delimiter.html"],
+          ["template", "tag.html"],
+          [">", "delimiter.html"]
+        ],
+        [
+          ["  ", ""],
+          ["<", "delimiter.html"],
+          ["tr", "tag.html"],
+          [" ", ""],
+          ["v-for", "attribute.name.html"],
+          ["=", "delimiter.html"],
+          ["\"c in companies\"", "attribute.value.html"],
+          [" :", ""],
+          ["key", "attribute.name.html"],
+          ["=", "delimiter.html"],
+          ["\"c.pk()\"", "attribute.value.html"],
+          [" @", ""],
+          ["click", "attribute.name.html"],
+          ["=", "delimiter.html"],
+          ["'select(c)'", "attribute.value.html"],
+          [">", "delimiter.html"]
+        ],
+        [
+          ["    ", ""],
+          ["<", "delimiter.html"],
+          ["td", "tag.html"],
+          [">", "delimiter.html"],
+          ["{{ c.name }} (x)", ""],
+          ["</", "delimiter.html"],
+          ["td", "tag.html"],
+          [">", "delimiter.html"]
+        ],
+        [
+          ["    ", ""],
+          ["<", "delimiter.html"],
+          ["span", "tag.html"],
+          [" ", ""],
+          ["v-if", "attribute.name.html"],
+          ["=", "delimiter.html"],
+          ["\"c.shares === undefined\"", "attribute.value.html"],
+          [" ", ""],
+          ["class", "attribute.name.html"],
+          ["=", "delimiter.html"],
+          ["\"skeleton\"", "attribute.value.html"],
+          [" ", ""],
+          ["/>", "delimiter.html"]
+        ],
+        [
+          ["    ", ""],
+          ["<!--", "comment.html"],
+          [" a (comment) {here} ", "comment.content.html"],
+          ["-->", "comment.html"]
+        ],
+        [
+          ["  ", ""],
+          ["</", "delimiter.html"],
+          ["tr", "tag.html"],
+          [">", "delimiter.html"]
+        ],
+        [
+          ["</", "delimiter.html"],
+          ["template", "tag.html"],
+          [">", "delimiter.html"]
+        ]
+      ]
+    },
+    {
+      "code": "<!DOCTYPE html>\n<SCRIPT type=\"module\">const a = 1; if (a < 2) {}</SCRIPT><p>Don't {{ x }}</p>\n<script>let b = [1, 2];</script>\n<script type=\"text/x-template\">\n  <div>{{ y }}</div>\n</script>\n<input disabled value=x>",
+      "tokens": [
+        [
+          ["<!DOCTYPE", "metatag.html"],
+          [" html", "metatag.content.html"],
+          [">", "metatag.html"]
+        ],
+        [
+          ["<", "delimiter.html"],
+          ["SCRIPT", "tag.html"],
+          [" ", ""],
+          ["type", "attribute.name.html"],
+          ["=", "delimiter.html"],
+          ["\"module\"", "attribute.value.html"],
+          [">", "delimiter.html"],
+          ["const", "keyword.js"],
+          [" ", ""],
+          ["a", "identifier.js"],
+          [" ", ""],
+          ["=", "delimiter.js"],
+          [" ", ""],
+          ["1", "number.js"],
+          [";", "delimiter.js"],
+          [" ", ""],
+          ["if", "keyword.js"],
+          [" ", ""],
+          ["(", "delimiter.parenthesis.js"],
+          ["a", "identifier.js"],
+          [" ", ""],
+          ["<", "delimiter.angle.js"],
+          [" ", ""],
+          ["2", "number.js"],
+          [")", "delimiter.parenthesis.js"],
+          [" ", ""],
+          ["{}", "delimiter.bracket.js"],
+          ["</", "delimiter.html"],
+          ["SCRIPT", "tag.html"],
+          ["><", "delimiter.html"],
+          ["p", "tag.html"],
+          [">", "delimiter.html"],
+          ["Don't {{ x }}", ""],
+          ["</", "delimiter.html"],
+          ["p", "tag.html"],
+          [">", "delimiter.html"]
+        ],
+        [
+          ["<", "delimiter.html"],
+          ["script", "tag.html"],
+          [">", "delimiter.html"],
+          ["let", "keyword.js"],
+          [" ", ""],
+          ["b", "identifier.js"],
+          [" ", ""],
+          ["=", "delimiter.js"],
+          [" ", ""],
+          ["[", "delimiter.square.js"],
+          ["1", "number.js"],
+          [",", "delimiter.js"],
+          [" ", ""],
+          ["2", "number.js"],
+          ["]", "delimiter.square.js"],
+          [";", "delimiter.js"],
+          ["</", "delimiter.html"],
+          ["script", "tag.html"],
+          [">", "delimiter.html"]
+        ],
+        [
+          ["<", "delimiter.html"],
+          ["script", "tag.html"],
+          [" ", ""],
+          ["type", "attribute.name.html"],
+          ["=", "delimiter.html"],
+          ["\"text/x-template\"", "attribute.value.html"],
+          [">", "delimiter.html"]
+        ],
+        [["  <div>{{ y }}</div>", ""]],
+        [
+          ["</", "delimiter.html"],
+          ["script", "tag.html"],
+          [">", "delimiter.html"]
+        ],
+        [
+          ["<", "delimiter.html"],
+          ["input", "tag.html"],
+          [" ", ""],
+          ["disabled", "attribute.name.html"],
+          [" ", ""],
+          ["value", "attribute.name.html"],
+          ["=", "delimiter.html"],
+          ["x", "attribute.name.html"],
+          [">", "delimiter.html"]
+        ]
+      ]
+    }
+  ],
   "json": [
     {
       "code": "{\n  \"type\": \"rdc/set\",\n  \"meta\": { \"key\": \"PATCH https://x.io/1\", \"n\": -1.5e3 },\n  \"args\": [\"a\", { \"id\": 1 }, true, null],\n  // note\n  \"ok\": false, /* block\n  */ \"x\": 1\n}",

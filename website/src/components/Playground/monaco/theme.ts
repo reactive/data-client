@@ -4,41 +4,61 @@ import type { PrismTheme } from 'prism-react-renderer';
 /** Monaco theme name matching the site's Prism (palenight) code blocks. */
 export const MONACO_THEME = 'prism';
 
-/** Color of code no rule colors */
-const FOREGROUND = '#bfc7d5';
-const PLAIN = FOREGROUND.slice(1);
-const DELIMITER = 'c792ea';
-const STRING = 'b6d986';
-const NUMBER = 'f78c6c';
-const keyword = { foreground: '7da4f6', fontStyle: 'italic' };
+const color = {
+  /** code no rule colors */
+  plain: '#bfc7d5',
+  comment: '#697098',
+  delimiter: '#c792ea',
+  keyword: '#7da4f6',
+  number: '#f78c6c',
+  regexp: '#b46695',
+  string: '#b6d986',
+  tag: '#ff5590',
+  type: '#ffcb6b',
+};
+
+interface CodeRule {
+  token: string;
+  color: string;
+  italic?: boolean;
+}
 
 /**
  * The playground's code colors, by Monaco token. A rule colors its token and
  * the tokens under it (`type` colors `type.identifier.ts`). Monaco uses them,
- * and so does the code the server renders (`tokenize`), so the code keeps
+ * and so does the code the server renders (./tokenize.ts), so the code keeps
  * its colors when Monaco takes over. Light and dark pages share them.
  *
- * Monaco also applies its vs-dark rules under these, which `tokenClass`
- * doesn't know: give every token vs-dark colors that `tokenize` emits a rule
- * here (as `number.hex` and the JSON rules override vs-dark's own).
+ * Monaco also applies its base theme's (vs-dark) rules beneath these, and
+ * `tokenClass` knows only these. So every token ./tokenize.ts can emit that
+ * a vs-dark rule colors needs a rule here at least as specific: vs-dark's
+ * own `number.hex`, `delimiter.html`, `attribute.*`, `metatag.*` and
+ * `*.json` rules are why those are listed.
  */
-const rules: Monaco.editor.ITokenThemeRule[] = [
+const rules: CodeRule[] = [
   // characters Monaco's grammar doesn't know, like `é` in JSX text
-  { token: 'invalid', foreground: PLAIN },
-  { token: 'comment', foreground: '697098', fontStyle: 'italic' },
-  { token: 'number', foreground: NUMBER },
-  { token: 'number.hex', foreground: NUMBER },
-  { token: 'regexp', foreground: 'b46695' },
-  { token: 'string', foreground: STRING },
-  { token: 'keyword', ...keyword },
+  { token: 'invalid', color: color.plain },
+  { token: 'comment', color: color.comment, italic: true },
+  { token: 'number', color: color.number },
+  { token: 'number.hex', color: color.number },
+  { token: 'regexp', color: color.regexp },
+  { token: 'string', color: color.string },
+  { token: 'keyword', color: color.keyword, italic: true },
   // type definitions variables like const X or class X
-  { token: 'type', foreground: 'ffcb6b' },
-  { token: 'delimiter', foreground: DELIMITER },
-  { token: 'tag', foreground: 'FF5590' },
+  { token: 'type', color: color.type },
+  { token: 'delimiter', color: color.delimiter },
+  // HTML, as in Vue files
+  { token: 'tag', color: color.tag },
+  { token: 'delimiter.html', color: color.delimiter },
+  { token: 'attribute.name', color: color.type },
+  { token: 'attribute.value', color: color.string },
+  { token: 'metatag', color: color.tag },
+  { token: 'metatag.html', color: color.tag },
+  { token: 'metatag.content.html', color: color.plain },
   // JSON: keys plain, like a TypeScript object's
-  { token: 'string.key.json', foreground: PLAIN },
-  { token: 'string.value.json', foreground: STRING },
-  { token: 'keyword.json', ...keyword },
+  { token: 'string.key.json', color: color.plain },
+  { token: 'string.value.json', color: color.string },
+  { token: 'keyword.json', color: color.keyword, italic: true },
 ];
 
 // see https://microsoft.github.io/monaco-editor/playground.html for full options
@@ -46,22 +66,26 @@ export function definePrismTheme(monaco: typeof Monaco) {
   monaco.editor.defineTheme(MONACO_THEME, {
     base: 'vs-dark',
     inherit: true,
-    rules,
+    rules: rules.map(rule => ({
+      token: rule.token,
+      foreground: rule.color.slice(1),
+      ...(rule.italic && { fontStyle: 'italic' }),
+    })),
     colors: {
       //'editor.background': '#292d3e',
-      'editor.foreground': FOREGROUND,
+      'editor.foreground': color.plain,
       //'editor.lineHighlightBorder': '#33384d',
       'editor.inactiveSelectionBackground': '#484d5b',
-      // brackets keep the delimiter color at every depth, as `tokenize`
-      // leaves them. Colors, since bracket pair colorization is a model
-      // option that Monaco resets from its own config.
+      // bracket pair colorization stays on (a model option, which Monaco
+      // resets from its own config), but every depth gets the delimiter
+      // color, as ./tokenize.ts draws brackets
       ...Object.fromEntries(
         [1, 2, 3, 4, 5, 6].map(depth => [
           `editorBracketHighlight.foreground${depth}`,
-          `#${DELIMITER}`,
+          color.delimiter,
         ]),
       ),
-      'editorBracketHighlight.unexpectedBracket.foreground': `#${DELIMITER}`,
+      'editorBracketHighlight.unexpectedBracket.foreground': color.delimiter,
       // Diffs: highlight only the changed characters, never whole lines
       'diffEditor.insertedLineBackground': '#00000000',
       'diffEditor.removedLineBackground': '#00000000',
@@ -73,6 +97,9 @@ export function definePrismTheme(monaco: typeof Monaco) {
     },
   });
 }
+
+/** A rule's class in the server-rendered code (`number.hex` → `number-hex`) */
+const classOf = (token: string) => token.replace(/\./g, '-');
 
 /**
  * The class of the rule that colors Monaco token `token` (the most specific
@@ -87,17 +114,17 @@ export function tokenClass(token: string): string | null {
     )
       best = rule.token;
   }
-  return best && best.replace(/\./g, '-');
+  return best && classOf(best);
 }
 
 /** `rules` as a prism-react-renderer theme, for `tokenClass`'s classes */
 export const codePrismTheme: PrismTheme = {
-  plain: { color: FOREGROUND, backgroundColor: 'transparent' },
-  styles: rules.map(({ token, foreground, fontStyle }) => ({
-    types: [token.replace(/\./g, '-')],
+  plain: { color: color.plain, backgroundColor: 'transparent' },
+  styles: rules.map(rule => ({
+    types: [classOf(rule.token)],
     style: {
-      color: `#${foreground}`,
-      ...(fontStyle && { fontStyle: fontStyle as 'italic' }),
+      color: rule.color,
+      ...(rule.italic && { fontStyle: 'italic' as const }),
     },
   })),
 };

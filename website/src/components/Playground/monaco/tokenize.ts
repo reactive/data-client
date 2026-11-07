@@ -1,275 +1,42 @@
 /**
- * Monaco's TypeScript tokenizer (its Monarch grammar), without Monaco, so
- * the code the server renders shows the colors Monaco shows once it takes
- * over (see ./theme.ts). Monaco runs this grammar for `ts` and `tsx` alike:
- * it has no JSX rules, so JSX gets the same tokens here as there.
- *
- * `language` is a copy of `language` in
- * monaco-editor/esm/vs/languages/definitions/typescript/typescript.js
- * (0.57.0), and `tokenize` runs it the way Monaco's Monarch lexer does
- * (esm/vs/editor/standalone/common/monarch/). After a Monaco upgrade, diff
- * that file against this copy.
+ * Monaco's tokens without Monaco, so the code the server renders shows the
+ * colors Monaco shows once it takes over (see ./theme.ts). `runGrammar` runs
+ * the Monarch grammars in ./grammars.ts the way Monaco's Monarch lexer does
+ * (monaco-editor/esm/vs/editor/standalone/common/monarch/), for the parts of
+ * Monarch they use; `tokenizeJson` follows Monaco's JSON tokens.
  */
 import type { Prism } from 'prism-react-renderer';
 
+import * as grammars from './grammars';
 import { tokenClass } from './theme';
 
-type GroupAction = string | { token: string; next?: string };
+/** A Prism-style token: plain text, or text with a type (a theme.ts class) */
+export type Token = string | { type: string; content: string };
+
+interface ActionObject {
+  token: string;
+  next?: string;
+  switchTo?: string;
+  nextEmbedded?: string;
+}
 type Action =
   | string
-  | { token: string; next?: string }
+  | ActionObject
   | { cases: Record<string, string> }
-  | GroupAction[];
-type Rule = [RegExp, Action] | [RegExp, Action, string] | { include: string };
+  | (string | ActionObject)[];
+type Rule = [RegExp, Action?, string?] | { include: string };
+interface Grammar {
+  defaultToken: string;
+  tokenPostfix: string;
+  ignoreCase?: boolean;
+  tokenizer: Record<string, Rule[]>;
+}
 
-/* eslint-disable no-useless-escape -- copied verbatim, to diff against Monaco's */
-const language = {
-  tokenPostfix: '.ts',
-  keywords: [
-    'abstract',
-    'any',
-    'as',
-    'asserts',
-    'bigint',
-    'boolean',
-    'break',
-    'case',
-    'catch',
-    'class',
-    'continue',
-    'const',
-    'constructor',
-    'debugger',
-    'declare',
-    'default',
-    'delete',
-    'do',
-    'else',
-    'enum',
-    'export',
-    'extends',
-    'false',
-    'finally',
-    'for',
-    'from',
-    'function',
-    'get',
-    'if',
-    'implements',
-    'import',
-    'in',
-    'infer',
-    'instanceof',
-    'interface',
-    'is',
-    'keyof',
-    'let',
-    'module',
-    'namespace',
-    'never',
-    'new',
-    'null',
-    'number',
-    'object',
-    'out',
-    'package',
-    'private',
-    'protected',
-    'public',
-    'override',
-    'readonly',
-    'require',
-    'global',
-    'return',
-    'satisfies',
-    'set',
-    'static',
-    'string',
-    'super',
-    'switch',
-    'symbol',
-    'this',
-    'throw',
-    'true',
-    'try',
-    'type',
-    'typeof',
-    'undefined',
-    'unique',
-    'unknown',
-    'var',
-    'void',
-    'while',
-    'with',
-    'yield',
-    'async',
-    'await',
-    'of',
-  ],
-  operators: [
-    '<=',
-    '>=',
-    '==',
-    '!=',
-    '===',
-    '!==',
-    '=>',
-    '+',
-    '-',
-    '**',
-    '*',
-    '/',
-    '%',
-    '++',
-    '--',
-    '<<',
-    '</',
-    '>>',
-    '>>>',
-    '&',
-    '|',
-    '^',
-    '!',
-    '~',
-    '&&',
-    '||',
-    '??',
-    '?',
-    ':',
-    '=',
-    '+=',
-    '-=',
-    '*=',
-    '**=',
-    '/=',
-    '%=',
-    '<<=',
-    '>>=',
-    '>>>=',
-    '&=',
-    '|=',
-    '^=',
-    '@',
-  ],
-  symbols: /[=><!~?:&|+\-*\/\^%]+/,
-  escapes:
-    /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
-  digits: /\d+(_+\d+)*/,
-  octaldigits: /[0-7]+(_+[0-7]+)*/,
-  binarydigits: /[0-1]+(_+[0-1]+)*/,
-  hexdigits: /[[0-9a-fA-F]+(_+[0-9a-fA-F]+)*/,
-  regexpctl: /[(){}\[\]\$\^|\-*+?\.]/,
-  regexpesc:
-    /\\(?:[bBdDfnrstvwWn0\\\/]|@regexpctl|c[A-Z]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4})/,
-  tokenizer: {
-    root: [[/[{}]/, 'delimiter.bracket'], { include: 'common' }],
-    common: [
-      [
-        /#?[a-z_$][\w$]*/,
-        { cases: { '@keywords': 'keyword', '@default': 'identifier' } },
-      ],
-      [/[A-Z][\w\$]*/, 'type.identifier'],
-      { include: '@whitespace' },
-      [
-        /\/(?=([^\\\/]|\\.)+\/([dgimsuy]*)(\s*)(\.|;|,|\)|\]|\}|$))/,
-        { token: 'regexp', next: '@regexp' },
-      ],
-      [/[()\[\]]/, '@brackets'],
-      [/[<>](?!@symbols)/, '@brackets'],
-      [/!(?=([^=]|$))/, 'delimiter'],
-      [/@symbols/, { cases: { '@operators': 'delimiter', '@default': '' } }],
-      [/(@digits)[eE]([\-+]?(@digits))?/, 'number.float'],
-      [/(@digits)\.(@digits)([eE][\-+]?(@digits))?/, 'number.float'],
-      [/0[xX](@hexdigits)n?/, 'number.hex'],
-      [/0[oO]?(@octaldigits)n?/, 'number.octal'],
-      [/0[bB](@binarydigits)n?/, 'number.binary'],
-      [/(@digits)n?/, 'number'],
-      [/[;,.]/, 'delimiter'],
-      [/"([^"\\]|\\.)*$/, 'string.invalid'],
-      [/'([^'\\]|\\.)*$/, 'string.invalid'],
-      [/"/, 'string', '@string_double'],
-      [/'/, 'string', '@string_single'],
-      [/`/, 'string', '@string_backtick'],
-    ],
-    whitespace: [
-      [/[ \t\r\n]+/, ''],
-      [/\/\*\*(?!\/)/, 'comment.doc', '@jsdoc'],
-      [/\/\*/, 'comment', '@comment'],
-      [/\/\/.*$/, 'comment'],
-    ],
-    comment: [
-      [/[^\/*]+/, 'comment'],
-      [/\*\//, 'comment', '@pop'],
-      [/[\/*]/, 'comment'],
-    ],
-    jsdoc: [
-      [/[^\/*]+/, 'comment.doc'],
-      [/\*\//, 'comment.doc', '@pop'],
-      [/[\/*]/, 'comment.doc'],
-    ],
-    regexp: [
-      [
-        /(\{)(\d+(?:,\d*)?)(\})/,
-        [
-          'regexp.escape.control',
-          'regexp.escape.control',
-          'regexp.escape.control',
-        ],
-      ],
-      [
-        /(\[)(\^?)(?=(?:[^\]\\\/]|\\.)+)/,
-        [
-          'regexp.escape.control',
-          { token: 'regexp.escape.control', next: '@regexrange' },
-        ],
-      ],
-      [/(\()(\?:|\?=|\?!)/, ['regexp.escape.control', 'regexp.escape.control']],
-      [/[()]/, 'regexp.escape.control'],
-      [/@regexpctl/, 'regexp.escape.control'],
-      [/[^\\\/]/, 'regexp'],
-      [/@regexpesc/, 'regexp.escape'],
-      [/\\\./, 'regexp.invalid'],
-      [
-        /(\/)([dgimsuy]*)/,
-        [{ token: 'regexp', next: '@pop' }, 'keyword.other'],
-      ],
-    ],
-    regexrange: [
-      [/-/, 'regexp.escape.control'],
-      [/\^/, 'regexp.invalid'],
-      [/@regexpesc/, 'regexp.escape'],
-      [/[^\]]/, 'regexp'],
-      [/\]/, { token: 'regexp.escape.control', next: '@pop' }],
-    ],
-    string_double: [
-      [/[^\\"]+/, 'string'],
-      [/@escapes/, 'string.escape'],
-      [/\\./, 'string.escape.invalid'],
-      [/"/, 'string', '@pop'],
-    ],
-    string_single: [
-      [/[^\\']+/, 'string'],
-      [/@escapes/, 'string.escape'],
-      [/\\./, 'string.escape.invalid'],
-      [/'/, 'string', '@pop'],
-    ],
-    string_backtick: [
-      [/\$\{/, { token: 'delimiter.bracket', next: '@bracketCounting' }],
-      [/[^\\`$]+/, 'string'],
-      [/@escapes/, 'string.escape'],
-      [/\\./, 'string.escape.invalid'],
-      [/`/, 'string', '@pop'],
-    ],
-    bracketCounting: [
-      [/\{/, 'delimiter.bracket', '@bracketCounting'],
-      [/\}/, 'delimiter.bracket', '@pop'],
-      { include: 'common' },
-    ],
-  } satisfies Record<string, Rule[]>,
-};
-/* eslint-enable no-useless-escape */
-
-type State = keyof typeof language.tokenizer;
+// ./grammars.ts copies Monaco's untyped definitions
+const { typescript, javascript, html } = grammars as unknown as Record<
+  'typescript' | 'javascript' | 'html',
+  Grammar
+>;
 
 /** Monarch's default brackets: what `@brackets` names each one */
 const BRACKETS: Record<string, string> = {
@@ -286,37 +53,164 @@ const BRACKETS: Record<string, string> = {
 interface CompiledRule {
   regex: RegExp;
   action: Action;
-  next?: string;
 }
 
-/** Expands `@attr` like Monarch's compileRegExp, anchored at the position */
-function compileRegExp(source: string): RegExp {
-  for (let depth = 0; depth < 5 && source.includes('@'); depth++) {
-    source = source.replace(/@(\w+)/g, (_, attr: string) => {
-      const value = language[attr as keyof typeof language];
-      return `(?:${(value as RegExp).source})`;
-    });
-  }
-  return new RegExp(`^(?:${source})`);
-}
-
-/** Rules per state, with `include`s flattened */
-const rules = {} as Record<State, CompiledRule[]>;
-function compileState(state: State): CompiledRule[] {
-  return language.tokenizer[state].flatMap((rule: Rule): CompiledRule[] => {
-    if (!Array.isArray(rule)) {
-      return compileState(rule.include.replace(/^@/, '') as State);
+/** A grammar's rules per state, `include`s flattened and `@attr`s expanded */
+function compile(grammar: Grammar): Record<string, CompiledRule[]> {
+  const attrs = grammar as unknown as Record<string, unknown>;
+  const flags = grammar.ignoreCase ? 'i' : '';
+  const compileRegExp = (source: string) => {
+    for (let depth = 0; depth < 5 && source.includes('@'); depth++) {
+      source = source.replace(
+        /@(\w+)/g,
+        (_, attr: string) => `(?:${(attrs[attr] as RegExp).source})`,
+      );
     }
-    const [regex, action, next] = rule;
-    return [{ regex: compileRegExp(regex.source), action, next }];
-  });
-}
-for (const state of Object.keys(language.tokenizer) as State[]) {
-  rules[state] = compileState(state);
+    return new RegExp(`^(?:${source})`, flags);
+  };
+  const compileState = (state: string): CompiledRule[] =>
+    grammar.tokenizer[state].flatMap(rule => {
+      if (!Array.isArray(rule)) {
+        return compileState(rule.include.replace(/^@/, ''));
+      }
+      const [regex, action = '', next] = rule;
+      return [
+        {
+          regex: compileRegExp(regex.source),
+          action:
+            next === undefined ? action
+            : typeof action === 'string' ? { token: action, next }
+            : { ...(action as ActionObject), next },
+        },
+      ];
+    });
+  return Object.fromEntries(
+    Object.keys(grammar.tokenizer).map(state => [state, compileState(state)]),
+  );
 }
 
-/** A Prism-style token: plain text, or text with a type (a theme.ts class) */
-export type Token = string | { type: string; content: string };
+/** Tokenizes one line at a time, keeping its state between lines */
+type LineTokenizer = (
+  line: string,
+  emit: (text: string, monacoToken: string) => void,
+) => void;
+
+/** Monaco's languages by the MIME type a `<script>` names */
+const EMBEDDED: Record<string, Grammar> = {
+  'text/javascript': javascript,
+};
+
+/**
+ * Runs `grammar` as Monaco's Monarch lexer does: at each position the first
+ * rule of the current state that matches decides the token and the next
+ * state; with none, one character gets `defaultToken`. Inside an embedded
+ * language, that language's grammar gets each line up to where a rule
+ * (`nextEmbedded: '@pop'`) would leave it.
+ */
+function runGrammar(grammar: Grammar): LineTokenizer {
+  const rules = compile(grammar);
+  const stack = ['root'];
+  /** the embedded language's tokenizer while in one; null for one we lack */
+  let embedded: LineTokenizer | null | undefined;
+  const state = () => stack[stack.length - 1];
+  // `scriptEmbedded.text/javascript` falls back to `scriptEmbedded`'s rules
+  const rulesOf = (name: string): CompiledRule[] =>
+    rules[name] ?? rulesOf(name.slice(0, name.lastIndexOf('.')));
+  /**
+   * Monarch's substituteMatches: `$1` for a group, `$S2` for a state part,
+   * each lowercased in a grammar that ignores case
+   */
+  const substitute = (s: string, match: RegExpMatchArray) => {
+    const parts = [state(), ...state().split('.')];
+    return s.replace(/\$(\d)|\$[sS](\d)/g, (_, group, part) => {
+      const value =
+        group !== undefined ? (match[+group] ?? '') : (parts[+part] ?? '');
+      return grammar.ignoreCase ? value.toLowerCase() : value;
+    });
+  };
+  const fullToken = (token: string) =>
+    token ? token + grammar.tokenPostfix : '';
+
+  const tokenizeLine: LineTokenizer = (line, emit) => {
+    let pos = 0;
+    if (embedded !== undefined) {
+      const leaves = rulesOf(state())
+        .filter(rule => (rule.action as ActionObject).nextEmbedded === '@pop')
+        .map(rule =>
+          line.search(
+            new RegExp(rule.regex.source.slice(4, -1), rule.regex.flags),
+          ),
+        )
+        .filter(found => found !== -1);
+      pos = leaves.length ? Math.min(...leaves) : line.length;
+      if (embedded) embedded(line.slice(0, pos), emit);
+      else emit(line.slice(0, pos), '');
+    }
+    while (pos < line.length) {
+      const rest = line.slice(pos);
+      let rule: CompiledRule | undefined;
+      let match: RegExpMatchArray | null = null;
+      for (rule of rulesOf(state())) {
+        match = rest.match(rule.regex);
+        if (match) break;
+      }
+      if (!rule || !match?.[0]) {
+        emit(line[pos], fullToken(grammar.defaultToken));
+        pos += 1;
+        continue;
+      }
+      const groups = match;
+      const apply = (action: string | ActionObject, text: string) => {
+        if (typeof action === 'string') {
+          emit(
+            text,
+            action === '@brackets' ? BRACKETS[text] : fullToken(action),
+          );
+          return;
+        }
+        if (action.token !== '@rematch') emit(text, fullToken(action.token));
+        const target = action.switchTo ?? action.next;
+        if (target === '@pop') {
+          if (stack.length > 1) stack.pop();
+        } else if (target) {
+          if (action.switchTo) stack.pop();
+          stack.push(substitute(target, groups).replace(/^@/, ''));
+        }
+        if (action.nextEmbedded === '@pop') {
+          embedded = undefined;
+        } else if (action.nextEmbedded) {
+          const language = EMBEDDED[substitute(action.nextEmbedded, groups)];
+          embedded = language ? runGrammar(language) : null;
+        }
+      };
+      const { action } = rule;
+      let consumed = match[0];
+      if (Array.isArray(action)) {
+        // one action per capture group, which together cover the match
+        action.forEach((group, i) => apply(group, groups[i + 1] ?? ''));
+      } else if (typeof action === 'object' && 'cases' in action) {
+        const lists = grammar as unknown as Record<string, string[]>;
+        const key = Object.keys(action.cases).find(
+          key => key !== '@default' && lists[key.slice(1)].includes(consumed),
+        );
+        apply(action.cases[key ?? '@default'], consumed);
+      } else {
+        apply(action, consumed);
+        // @rematch: the next state matches the same text again
+        if (typeof action === 'object' && action.token === '@rematch') {
+          consumed = '';
+        }
+      }
+      pos += consumed.length;
+      if (embedded !== undefined) {
+        // entered an embedded language: it takes the rest of the line
+        tokenizeLine(line.slice(pos), emit);
+        return;
+      }
+    }
+  };
+  return tokenizeLine;
+}
 
 /**
  * Adds `text` to `tokens`, joined to the last token when it has the same
@@ -333,77 +227,44 @@ function pushToken(tokens: Token[], text: string, type: string | null) {
   } else tokens.push({ type, content: text });
 }
 
-/**
- * Splits `code` into tokens as Monaco does, typed by the theme rule that
- * colors each (see tokenClass)
- */
-export function tokenize(code: string): Token[] {
-  const tokens: Token[] = [];
-  const stack: State[] = ['root'];
-  const emit = (text: string, monacoToken: string) =>
-    pushToken(tokens, text, tokenClass(monacoToken));
-  const fullToken = (token: string) =>
-    token ? token + language.tokenPostfix : '';
-  const move = (next: string | undefined) => {
-    if (!next) return;
-    if (next === '@pop') {
-      if (stack.length > 1) stack.pop();
-    } else stack.push(next.replace(/^@/, '') as State);
-  };
+const DELIMITER = tokenClass('delimiter');
 
-  code.split('\n').forEach((line, lineIndex) => {
-    if (lineIndex) pushToken(tokens, '\n', null);
-    let pos = 0;
-    while (pos < line.length) {
-      const rest = line.slice(pos);
-      let rule: CompiledRule | undefined;
-      let match: RegExpMatchArray | null = null;
-      for (rule of rules[stack[stack.length - 1]]) {
-        match = rest.match(rule.regex);
-        if (match) break;
-      }
-      // no rule matched (or one matched nothing): Monarch's defaultToken
-      if (!rule || !match?.[0]) {
-        emit(line[pos], fullToken('invalid'));
-        pos += 1;
-        continue;
-      }
-      const matched = match[0];
-      const { action } = rule;
-      if (Array.isArray(action)) {
-        // one action per capture group, which cover the match
-        action.forEach((group, i) => {
-          const text = match[i + 1] ?? '';
-          if (typeof group === 'string') emit(text, fullToken(group));
-          else {
-            emit(text, fullToken(group.token));
-            move(group.next);
-          }
-        });
-      } else if (typeof action === 'string') {
-        emit(
-          matched,
-          action === '@brackets' ? BRACKETS[matched] : fullToken(action),
-        );
-        move(rule.next);
-      } else if ('cases' in action) {
-        const list = Object.keys(action.cases).find(
-          key =>
-            key !== '@default' &&
-            (
-              language[key.slice(1) as 'keywords' | 'operators'] as string[]
-            ).includes(matched),
-        );
-        emit(matched, fullToken(action.cases[list ?? '@default']));
-      } else {
-        emit(matched, fullToken(action.token));
-        move(action.next);
-      }
-      pos += matched.length;
-    }
+/**
+ * Tokenizes `code` with `grammar`, typed by the theme rule that colors each
+ * token (see tokenClass). Monaco's bracket pair colorization draws HTML's
+ * `{}()` outside comments and strings in the delimiter color (theme.ts), so
+ * they get it here too. (Embedded JavaScript makes them delimiters itself;
+ * its other plain tokens, whitespace and symbols, hold no brackets.)
+ */
+function tokenizeWith(grammar: Grammar, code: string): Token[] {
+  const tokens: Token[] = [];
+  const tokenizeLine = runGrammar(grammar);
+  code.split('\n').forEach((line, i) => {
+    if (i) pushToken(tokens, '\n', null);
+    tokenizeLine(line, (text, monacoToken) => {
+      const type = tokenClass(monacoToken);
+      if (
+        grammar === html &&
+        (monacoToken === '' || monacoToken.endsWith(grammar.tokenPostfix)) &&
+        !monacoToken.startsWith('comment')
+      ) {
+        for (const part of text.split(/([{}()])/)) {
+          pushToken(tokens, part, /^[{}()]$/.test(part) ? DELIMITER : type);
+        }
+      } else pushToken(tokens, text, type);
+    });
   });
   return tokens;
 }
+
+const JSON_PUNCTUATION: Record<string, string> = {
+  '{': 'delimiter.bracket.json',
+  '}': 'delimiter.bracket.json',
+  '[': 'delimiter.array.json',
+  ']': 'delimiter.array.json',
+  ':': 'delimiter.colon.json',
+  ',': 'delimiter.comma.json',
+};
 
 /**
  * Monaco's JSON tokens (monaco-editor/esm/vs/languages/features/json/
@@ -442,7 +303,7 @@ export function tokenizeJson(code: string): Token[] {
     } else if (number) {
       token = 'number.json';
       lastWasColon = false;
-    } else if (['true', 'false', 'null'].includes(word)) {
+    } else if (word === 'true' || word === 'false' || word === 'null') {
       token = 'keyword.json';
       lastWasColon = false;
     } else if (punctuation) {
@@ -450,46 +311,46 @@ export function tokenizeJson(code: string): Token[] {
       if (punctuation === '{' || punctuation === '[') {
         parents.push(punctuation === '{' ? 'object' : 'array');
       } else if (punctuation === '}' || punctuation === ']') parents.pop();
-      token = {
-        '{': 'delimiter.bracket.json',
-        '}': 'delimiter.bracket.json',
-        '[': 'delimiter.array.json',
-        ']': 'delimiter.array.json',
-        ':': 'delimiter.colon.json',
-        ',': 'delimiter.comma.json',
-      }[punctuation] as string;
+      token = JSON_PUNCTUATION[punctuation];
     }
     pushToken(tokens, text, tokenClass(token));
   }
   return tokens;
 }
 
+export const tokenizeTs = (code: string) => tokenizeWith(typescript, code);
+export const tokenizeHtml = (code: string) => tokenizeWith(html, code);
+
+/** Tokenizers by fence language, as Monaco highlights each (./language.ts) */
 const tokenizers: Record<string, (code: string) => Token[]> = {
-  ts: tokenize,
-  tsx: tokenize,
-  typescript: tokenize,
+  ts: tokenizeTs,
+  tsx: tokenizeTs,
+  typescript: tokenizeTs,
+  html: tokenizeHtml,
   json: tokenizeJson,
 };
 
-/**
- * A stand-in for Prism that prism-react-renderer (and react-live's editor)
- * accept as `prism`, tokenizing the languages Monaco highlights as Monaco
- * does
- */
-export const monacoPrism = {
-  languages: tokenizers,
-  tokenize: (code: string, grammar: (code: string) => Token[]) => grammar(code),
-  hooks: {
-    run() {
-      // no Prism plugins to run
-    },
-  },
-} as unknown as typeof Prism;
-
-/** Whether `monacoPrism` tokenizes `language` */
+/** Whether `monacoPrism` tokenizes fence language `language` as Monaco does */
 export function isMonacoTokenized(language: string) {
   return Object.prototype.hasOwnProperty.call(
     tokenizers,
     language.toLowerCase(),
   );
 }
+
+/**
+ * Stands in for Prism as react-live's `prism`: prism-react-renderer's
+ * Highlight lowercases the language, reads `languages[language]` as the
+ * grammar, and calls `tokenize(code, grammar)` between `hooks.run` calls.
+ * Here the "grammar" is the tokenizer.
+ */
+export const monacoPrism = {
+  languages: tokenizers,
+  tokenize: (code: string, tokenizer: (code: string) => Token[]) =>
+    tokenizer(code),
+  hooks: {
+    run() {
+      // no Prism plugins to run
+    },
+  },
+} as unknown as typeof Prism;

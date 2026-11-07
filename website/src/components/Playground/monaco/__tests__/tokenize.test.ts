@@ -1,10 +1,21 @@
 /// <reference types="jest" />
 
+import { MONACO_VERSION } from '../grammars';
+import { MONACO_CDN_VS } from '../preloadManifest';
 import { codePrismTheme, tokenClass } from '../theme';
-import { type Token, tokenize, tokenizeJson } from '../tokenize';
-// Monaco 0.57.0's own tokens for these snippets (monaco.editor.tokenize in
-// the browser): regenerate them after a Monaco upgrade
+import {
+  isMonacoTokenized,
+  monacoPrism,
+  type Token,
+  tokenizeHtml,
+  tokenizeJson,
+  tokenizeTs,
+} from '../tokenize';
+// Monaco's own tokens for these snippets, from monaco.editor.tokenize in the
+// browser: regenerate them with ../grammars.ts after a Monaco upgrade
 import monacoTokens from './__fixtures__/monacoTokens.json';
+
+type MonacoLines = string[][][];
 
 /** The theme class of each character (none for line breaks), from our tokens */
 function classesOf(tokens: Token[]) {
@@ -15,38 +26,68 @@ function classesOf(tokens: Token[]) {
   );
 }
 
-/** The theme class of each character, from Monaco's tokens */
-function monacoClassesOf(lines: string[][][]) {
+/**
+ * The theme class of each character, from Monaco's tokens. `htmlBrackets`:
+ * monaco.editor.tokenize leaves out bracket pair colorization, which draws
+ * HTML's `{}()` outside comments and strings in the delimiter color (checked
+ * on the rendered editor)
+ */
+function monacoClassesOf(lines: MonacoLines, htmlBrackets = false) {
   return lines.flatMap((line, i) => [
     ...(i ? [null] : []),
-    ...line.flatMap(([text, type]) => [...text].map(() => tokenClass(type))),
+    ...line.flatMap(([text, type]) =>
+      [...text].map(char =>
+        (
+          htmlBrackets &&
+          /[{}()]/.test(char) &&
+          !/^(comment|string)/.test(type) &&
+          (type === '' || type.endsWith('.html'))
+        ) ?
+          tokenClass('delimiter')
+        : tokenClass(type),
+      ),
+    ),
   ]);
 }
 
-describe('tokenize', () => {
-  test.each(monacoTokens.typescript.map(({ code, tokens }) => [code, tokens]))(
-    'colors TypeScript as Monaco does: %s',
+const cases = (snippets: { code: string; tokens: MonacoLines }[]) =>
+  snippets.map(({ code, tokens }) => [code, tokens] as const);
+
+describe('tokenizers', () => {
+  test('copy the installed Monaco', () => {
+    // preloadManifest.ts is generated from the installed monaco-editor
+    expect(MONACO_CDN_VS).toContain(`/monaco-editor@${MONACO_VERSION}/`);
+  });
+
+  test.each(cases(monacoTokens.typescript))(
+    'color TypeScript as Monaco does: %s',
     (code, tokens) => {
-      expect(classesOf(tokenize(code as string))).toEqual(
-        monacoClassesOf(tokens as string[][][]),
+      expect(classesOf(tokenizeTs(code))).toEqual(monacoClassesOf(tokens));
+    },
+  );
+
+  test.each(cases(monacoTokens.html))(
+    'color HTML with embedded JavaScript as Monaco does: %s',
+    (code, tokens) => {
+      expect(classesOf(tokenizeHtml(code))).toEqual(
+        monacoClassesOf(tokens, true),
       );
     },
   );
 
-  test.each(monacoTokens.json.map(({ code, tokens }) => [code, tokens]))(
-    'colors JSON as Monaco does: %s',
+  test.each(cases(monacoTokens.json))(
+    'color JSON as Monaco does: %s',
     (code, tokens) => {
-      expect(classesOf(tokenizeJson(code as string))).toEqual(
-        monacoClassesOf(tokens as string[][][]),
-      );
+      expect(classesOf(tokenizeJson(code))).toEqual(monacoClassesOf(tokens));
     },
   );
 
   test.each([
-    ['tokenize', tokenize],
+    ['tokenizeTs', tokenizeTs],
+    ['tokenizeHtml', tokenizeHtml],
     ['tokenizeJson', tokenizeJson],
   ])('%s keeps every character', (_, tokenizer) => {
-    for (const { code } of [...monacoTokens.typescript, ...monacoTokens.json]) {
+    for (const { code } of Object.values(monacoTokens).flat()) {
       expect(
         tokenizer(code)
           .map(token => (typeof token === 'string' ? token : token.content))
@@ -56,10 +97,29 @@ describe('tokenize', () => {
   });
 });
 
+describe('monacoPrism', () => {
+  test('covers the fence languages Monaco highlights, in any case', () => {
+    for (const language of ['ts', 'TSX', 'typescript', 'html', 'json']) {
+      expect(isMonacoTokenized(language)).toBe(true);
+    }
+    for (const language of ['js', 'bash', 'constructor', 'toString']) {
+      expect(isMonacoTokenized(language)).toBe(false);
+    }
+  });
+
+  test('tokenizes as prism-react-renderer calls it', () => {
+    const grammar = monacoPrism.languages.tsx;
+    expect(monacoPrism.tokenize('const a', grammar)).toEqual(
+      tokenizeTs('const a'),
+    );
+  });
+});
+
 describe('tokenClass', () => {
   test('picks the most specific rule', () => {
     expect(tokenClass('type.identifier.ts')).toBe('type');
     expect(tokenClass('number.hex.ts')).toBe('number-hex');
+    expect(tokenClass('delimiter.html')).toBe('delimiter-html');
     expect(tokenClass('string.key.json')).toBe('string-key-json');
     expect(tokenClass('identifier.ts')).toBeNull();
     expect(tokenClass('')).toBeNull();
@@ -67,7 +127,12 @@ describe('tokenClass', () => {
 
   test('has a theme style for every class', () => {
     const types = codePrismTheme.styles.flatMap(style => style.types);
-    for (const token of ['keyword.ts', 'number.hex.ts', 'comment.doc.ts']) {
+    for (const token of [
+      'keyword.ts',
+      'number.hex.ts',
+      'comment.doc.ts',
+      'attribute.value.html',
+    ]) {
       expect(types).toContain(tokenClass(token));
     }
   });
