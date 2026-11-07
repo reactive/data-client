@@ -143,6 +143,46 @@ describe('useLoading()', () => {
     expect(result.current[0]).toBe(wrappedFunc);
   });
 
+  it('should clear error on the next call', async () => {
+    const error = new Error('ack');
+    let shouldReject = true;
+    function fun(value: string) {
+      return new Promise<string>((resolve, reject) =>
+        setTimeout(() => (shouldReject ? reject(error) : resolve(value)), 1000),
+      );
+    }
+    const { result, waitForNextUpdate } = renderHook(() => {
+      return useLoading(fun);
+    });
+    act(() => {
+      result.current[0]('first');
+    });
+    act(() => {
+      jest.advanceTimersByTime(1100);
+    });
+    await waitForNextUpdate();
+    expect(result.current[1]).toBe(false);
+    expect(result.current[2]).toBe(error);
+
+    shouldReject = false;
+    let resolved = '';
+    act(() => {
+      result.current[0]('second').then(value => {
+        resolved = value;
+      });
+    });
+    // cleared as soon as the next call starts
+    expect(result.current[1]).toBe(true);
+    expect(result.current[2]).toBeUndefined();
+    act(() => {
+      jest.advanceTimersByTime(1100);
+    });
+    await waitForNextUpdate();
+    expect(result.current[1]).toBe(false);
+    expect(result.current[2]).toBeUndefined();
+    expect(resolved).toBe('second');
+  });
+
   it('should work in strictmode', async () => {
     const error = new Error('ack');
     function fun(value: string) {

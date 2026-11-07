@@ -3,6 +3,8 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 /**
  * Takes an async function and tracks resolution as a boolean.
  *
+ * If `func` rejects, the error is stored and cleared again on the next call.
+ *
  * @see https://dataclient.io/docs/api/useLoading
  * @param func A function returning a promise
  * @param deps Deps list sent to useCallback()
@@ -34,6 +36,7 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
   const depsList = deps || [func];
   const wrappedFunc = useCallback(async (...args: any) => {
     setLoading(true);
+    setError(undefined);
     let ret;
     try {
       ret = await func(...args);
