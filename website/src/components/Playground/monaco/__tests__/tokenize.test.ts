@@ -2,7 +2,7 @@
 
 import { Prism } from 'prism-react-renderer';
 
-import { isMonacoTokenized } from '../language';
+import { extensionToMonacoLanguage, isMonacoTokenized } from '../language';
 import { codePrismTheme } from '../theme';
 import { monacoPrism } from '../tokenize';
 
@@ -202,4 +202,10 @@ test('isMonacoTokenized covers the fence languages Monaco highlights', () => {
   for (const language of ['bash', 'md', 'constructor']) {
     expect(isMonacoTokenized(language)).toBe(false);
   }
+});
+
+test('extensionToMonacoLanguage gives Monaco ids for any case', () => {
+  expect(extensionToMonacoLanguage('TSX')).toBe('typescript');
+  expect(extensionToMonacoLanguage('JS')).toBe('javascript');
+  expect(extensionToMonacoLanguage('HTML')).toBe('html');
 });

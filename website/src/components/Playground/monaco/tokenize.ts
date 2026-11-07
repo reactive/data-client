@@ -3,8 +3,8 @@
  * server renders keeps its colors when Monaco takes over (see ./theme.ts).
  * Prism still finds strings, comments, numbers and regular expressions, which
  * Monaco colors the same way. The rest is colored here the way Monaco's
- * TypeScript, JavaScript and HTML grammars color it: keywords, capitalized names,
- * operators and brackets, tags. A few characters can still differ (an
+ * TypeScript, JavaScript and HTML grammars color it: keywords, capitalized
+ * names, operators and brackets, tags. A few characters can still differ (an
  * apostrophe in JSX text starts a string in Monaco).
  */
 import { Prism } from 'prism-react-renderer';
