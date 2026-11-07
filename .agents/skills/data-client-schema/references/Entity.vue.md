@@ -299,9 +299,8 @@ class User extends Entity {
 }
 ```
 
-Fix response values that don't fit the schema in the parent's [process()](#process). For example,
-some APIs send `{}` instead of `null` for a missing related entity, which throws
-`Missing usable primary key` because `{}` has no primary key:
+Some APIs send `{}` instead of `null` for a missing related entity. `{}` has no primary key, so
+normalizing it throws `Missing usable primary key`. Clear it in the parent's [process()](#process):
 
 ```typescript
 class Post extends Entity {

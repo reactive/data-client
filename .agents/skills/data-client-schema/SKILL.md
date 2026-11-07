@@ -54,8 +54,8 @@ endpoint). For GraphQL, extend `GQLEntity` instead of `Entity`; it declares the 
 - Override `pk()` only when the primary key ≠ `id`.
 - [`static indexes = ['username' as const]`](references/Entity.md#indexes) to look up by a unique non-pk field with `useQuery(User, { username })`, instead of building lookup `Map`s
 - `pk()` return type is `number | string | undefined`
-- Override `Entity.process(value, parent, key, args)` to adapt input before normalizing: add fields from args/url,
-  or fix values that don't fit the schema, e.g. `{}` for a missing relation ([example](references/Entity.md#optional-members))
+- Override `Entity.process(value, parent, key, args)` to adapt input before normalizing, e.g. add fields from
+  args/url, or clear a nested entity member the API sent as `{}` ([example](references/Entity.md#optional-members))
 - `static schema` (optional) for nested schemas or deserialization functions; it also joins related entities
   client-side, so never merge or 'enrich' data by hand ([relational-data](references/relational-data.md))
   - When designing APIs, prefer nesting entities
