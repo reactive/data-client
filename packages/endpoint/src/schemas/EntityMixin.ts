@@ -268,6 +268,8 @@ export default function EntityMixin<TBase extends Constructor>(
       }
       id = this.pk(processedEntity, parent, key, args);
       if (id === undefined || id === '' || id === 'undefined') {
+        // nested `{}` holds no data; APIs often send it for a missing relation, so treat it like null
+        if (key !== undefined && Object.keys(input).length === 0) return undefined;
         // 'creates' conceptually should allow missing PK to make optimistic creates easy
         if (process.env.NODE_ENV !== 'production' && !visit.creating) {
           let why: string;

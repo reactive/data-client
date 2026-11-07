@@ -294,6 +294,11 @@ class User extends Entity {
 }
 ```
 
+A missing nested entity can arrive as `null`, as `undefined`, or as an empty object `{}`.
+All three normalize to "no entity", so `friend` above keeps no value instead of failing the
+whole response. A nested object with data but no primary key still throws, because that is
+usually a malformed response.
+
 ### static indexes?: (keyof this)\[] {#indexes}
 
 Indexes enable increased performance when doing lookups based on those parameters. Add

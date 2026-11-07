@@ -110,6 +110,54 @@ describe(`${Entity.name} normalization`, () => {
     expect(entities.MyEntity['1']).toBe(secondEntities.MyEntity['1']);
   });
 
+  describe('empty nested object', () => {
+    // APIs often send `{}` for a missing relation (e.g. a deleted author)
+    class User extends Entity {
+      id = '';
+      name = '';
+    }
+    class Discussion extends Entity {
+      id = '';
+      title = '';
+      author?: User = undefined;
+      watchers: User[] = [];
+      static schema = { author: User, watchers: [User] };
+    }
+
+    it('normalizes `{}` like null', () => {
+      const { result, entities } = normalize(Discussion, {
+        id: '1',
+        title: 'hi',
+        author: {},
+        watchers: [{}, { id: '2', name: 'b' }],
+      });
+      expect(result).toBe('1');
+      expect(entities.Discussion['1'].author).toBeUndefined();
+      expect(entities.Discussion['1'].watchers).toEqual([undefined, '2']);
+      expect(entities.User).toEqual({ 2: { id: '2', name: 'b' } });
+
+      const discussion = plainDenormalize(Discussion, result, entities);
+      expect(discussion).toBeInstanceOf(Discussion);
+      expect((discussion as Discussion).author).toBeUndefined();
+      expect((discussion as Discussion).watchers).toEqual([
+        User.fromJS({ id: '2', name: 'b' }),
+      ]);
+    });
+
+    it('still throws for a nested object with data but no pk', () => {
+      expect(() =>
+        normalize(Discussion, { id: '1', author: { name: 'a' } }),
+      ).toThrow('Missing usable primary key');
+    });
+
+    it('still throws for `{}` at the top level', () => {
+      expect(() => normalize(User, {})).toThrow('Missing usable primary key');
+      expect(() => normalize([User], [{}])).toThrow(
+        'Missing usable primary key',
+      );
+    });
+  });
+
   it('should throw a custom error if data does not include pk', () => {
     class MyEntity extends Entity {
       readonly name: string = '';
