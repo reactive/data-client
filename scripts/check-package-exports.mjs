@@ -30,19 +30,16 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const work = path.join(root, 'node_modules/.cache/check-package-exports');
 const packs = path.join(work, 'packs');
 
-// Every package with an exports map gives the `require` condition ESM-format
-// types (lib/*.d.ts under "type": "module") for its CommonJS dist/. Only
-// CommonJS files compiled with TypeScript < 5.8 or `module: node16` see this,
-// and fixing it means publishing a CommonJS copy of every declaration file.
-// arethetypeswrong calls it `FalseESM` (see isAllowedTypesProblem).
+// The CommonJS-types gap (see isAllowedTypesProblem), as publint reports it
 const ALLOWED_PUBLINT = new Set(['EXPORTS_TYPES_INVALID_FORMAT']);
 // Suggestions about entry points fail; other suggestions are only listed
 const ENTRY_POINT_SUGGESTIONS = new Set([
   'HAS_MODULE_BUT_NO_EXPORTS',
   'HAS_ESM_MAIN_BUT_NO_EXPORTS',
 ]);
-// CommonJS interop adds these; `default` counts only when the ESM build has one
-const INTEROP = new Set(['__esModule', 'module.exports', 'default']);
+// Node adds these to CommonJS modules, and on Node 23+ `export *` from one
+// passes `module.exports` on, so they say nothing about the entry point
+const INTEROP = new Set(['__esModule', 'module.exports']);
 
 const packages = fs
   .readdirSync(path.join(root, 'packages'))
@@ -71,9 +68,10 @@ try {
     { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 },
   );
 } catch (error) {
-  // yarn reports a failed prepack on stdout
-  process.stderr.write(`${error.stdout ?? ''}${error.stderr ?? ''}`);
-  console.error(`yarn pack failed: ${error.message}`);
+  // yarn reports a failed prepack on stdout; with no output, yarn never ran
+  if (error.stdout === undefined) console.error(error.message);
+  else console.error(error.stdout, '\n', error.stderr);
+  console.error('yarn pack failed');
   process.exit(1);
 }
 
@@ -157,17 +155,25 @@ async function checkTypes(pkg, tarball) {
 }
 
 function isAllowedTypesProblem(pkg, problem, entrypoints) {
-  const hasRequire = entrypoint =>
-    Object.hasOwn(pkg.exports?.[entrypoint] ?? {}, 'require');
   switch (problem.kind) {
-    // the known CommonJS-types gap, on entry points that `require` dist/
+    // The CommonJS-types gap: every package with an exports map gives its
+    // top-level `require` condition (CommonJS dist/) ESM-format types
+    // (lib/*.d.ts under "type": "module"). Only CommonJS files compiled with
+    // TypeScript < 5.8 or `module: node16` see this, and fixing it means
+    // publishing a CommonJS copy of every declaration file.
     case 'FalseESM':
-      return entrypoints.length > 0 && entrypoints.every(hasRequire);
-    // exports subpaths with no `require` condition ship only ESM on purpose
+      return (
+        entrypoints.length > 0 &&
+        entrypoints.every(entrypoint =>
+          Object.hasOwn(pkg.exports?.[entrypoint] ?? {}, 'require'),
+        )
+      );
+    // Exports subpaths with no `require` condition at any level ship only ESM
+    // on purpose
     case 'CJSResolvesToESM':
       return (
         pkg.exports?.[problem.entrypoint] !== undefined &&
-        !hasRequire(problem.entrypoint)
+        !JSON.stringify(pkg.exports[problem.entrypoint]).includes('"require":')
       );
     default:
       return false;
@@ -216,8 +222,10 @@ function compareExports(expected, actual) {
     ...Object.keys(expected),
     ...Object.keys(actual),
   ])) {
+    if (INTEROP.has(name)) continue;
     if (!(name in expected)) {
-      if (!INTEROP.has(name)) problems.push(`has extra export ${name}`);
+      // CommonJS gets a `default`; it counts only when the ESM build has one
+      if (name !== 'default') problems.push(`has extra export ${name}`);
     } else if (!(name in actual)) {
       problems.push(`is missing export ${name}`);
     } else if (typeof actual[name] !== typeof expected[name]) {
