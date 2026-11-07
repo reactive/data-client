@@ -605,7 +605,11 @@ function findModule(fromFile, spec) {
   return baseUrl ? findFile(nodePath.resolve(baseUrl, spec)) : undefined;
 }
 
-/** Names of the instances whose `.interceptors.response` the module uses */
+/**
+ * Names of the instances whose `.interceptors.response` the module uses, or
+ * that an earlier run of this codemod commented out (found in `source`, since
+ * importers still see the changed `.data`; a module being rewritten has none)
+ */
 function responseInterceptorTargets(j, root, source = '') {
   return new Set([
     ...root
@@ -619,13 +623,14 @@ function responseInterceptorTargets(j, root, source = '') {
       })
       .nodes()
       .map(node => node.object.object.name),
-    // one this codemod commented out, in a module it already rewrote
     ...[...source.matchAll(COMMENTED_RESPONSE_INTERCEPTOR)].map(m => m[1]),
   ]);
 }
 
+// the TODO commentOutStatements puts above it tells it apart from code the
+// author had already disabled
 const COMMENTED_RESPONSE_INTERCEPTOR =
-  /^[ \t]*\/\/ ([A-Za-z_$][\w$]*)\.interceptors\.response\b/gm;
+  /^[ \t]*\/\/ TODO\(data-client\): `([A-Za-z_$][\w$]*)` is the `[\w$]+` class now, so this interceptor is commented out;.*\n[ \t]*\/\/ \1\.interceptors\.response\b/gm;
 
 // exported name ('default' for a default export) -> { className, prefixed,
 // intercepted } for each axios instance a module exports, before or after
@@ -637,10 +642,10 @@ function exportedInstances(j, file) {
   const imports = [];
   const entry = { instances: found, imports };
   exportedInstanceCache.set(file, entry);
-  let root, source;
+  let root, text;
   try {
-    source = fs.readFileSync(file, 'utf8');
-    root = j(source);
+    text = fs.readFileSync(file, 'utf8');
+    root = j(text);
   } catch {
     return entry;
   }
@@ -674,7 +679,7 @@ function exportedInstances(j, file) {
       exportsOf.set('default', decl.id.name);
   });
   // a response interceptor can change what `.data` means at each call
-  const interceptedNames = responseInterceptorTargets(j, root, source);
+  const interceptedNames = responseInterceptorTargets(j, root, text);
   const intercepts = name => interceptedNames.has(name);
 
   const axiosDefault = root

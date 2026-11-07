@@ -2041,6 +2041,20 @@ api.interceptors.response.use(res => res.data);
       ).toMatch('return res.data;');
     });
 
+    it('unwraps .data when the client only has an interceptor the author disabled', async () => {
+      const client = `
+import axios from 'axios';
+export const api = axios.create();
+// api.interceptors.response.use(res => res.data);
+`;
+      const result = await run(
+        { 'client.ts': client, 'posts.ts': posts },
+        'posts.ts',
+      );
+      expect(result).not.toMatch('res.data');
+      expect(result).not.toMatch('response interceptor');
+    });
+
     it('exports the class where the module exported the instance', async () => {
       const client = `
 import axios from 'axios';
