@@ -268,4 +268,22 @@ describe('MemoCache.commit', () => {
     gc();
     expect(results.filter(ref => ref.deref()).length).toBe(0);
   });
+
+  it('keeps a bounded number of reads for a live store that never commits', async () => {
+    // a long-lived store read with many new inputs, and no commit()
+    v8.setFlagsFromString('--expose_gc');
+    const gc = vm.runInNewContext('gc') as () => void;
+    const memo = new MemoCache();
+    const entities = store('never committed');
+    const results: WeakRef<object>[] = [];
+    for (let i = 0; i < 1000; i++) {
+      const { data } = memo.denormalize([Todo], ['1'], entities);
+      results.push(new WeakRef(data as object));
+    }
+    // WeakRef targets stay alive until the current job ends
+    await new Promise(resolve => setTimeout(resolve, 0));
+    gc();
+    expect(results.filter(ref => ref.deref()).length).toBeLessThanOrEqual(256);
+    expect(entities).toBeDefined();
+  });
 });
