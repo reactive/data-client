@@ -163,8 +163,10 @@ function optimisticPartial(schema: Queryable) {
 }
 ```
 
-Partial updates do not send the entire body, so we can use the entity from
-the store to compute the expected response. [Snapshots](https://dataclient.io/vue/api/Snapshot)
+Partial updates do not send the entire body. Fields the expected response leaves out keep their
+cached values, so an Entity only needs its [primary key](https://dataclient.io/rest/api/Entity#pk) and the changed fields.
+Reading the entity from the store lets us [abort](https://dataclient.io/vue/api/Snapshot#abort) when it isn't cached yet,
+instead of showing an Entity made only of the changed fields. [Snapshots](https://dataclient.io/vue/api/Snapshot)
 give us safe access to the existing store value that is robust against any
 race conditions.
 

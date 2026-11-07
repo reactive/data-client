@@ -132,6 +132,18 @@ getOptimisticResponse(snap, { id }) {
 }
 ```
 
+Return each Entity's primary key plus the changed fields; omitted fields keep their cached values. Without
+the key the optimistic update is skipped silently in the UI (the console logs `Optimistic update skipped`).
+When args lack the key (`PATCH /users/profile`), read it from the snapshot:
+
+```ts
+getOptimisticResponse(snap, body) {
+  const { data: user } = snap.getResponse(getMe);
+  if (!user) throw snap.abort;
+  return { id: user.id, ...body };
+}
+```
+
 ---
 
 ### RestEndpoint lifecycle overrides
