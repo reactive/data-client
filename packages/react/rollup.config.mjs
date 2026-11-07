@@ -33,7 +33,7 @@ process.env.NODE_ENV = 'production';
 // React Native: the contexts are one CommonJS file that both the ESM `native/` build (Metro
 // `import`) and `dist/*.native.js` (Jest, `require()`) load, so an app has one set of contexts.
 const nativeContextEntry = 'context';
-const nativeContext = `dist/${nativeContextEntry}.native.js`;
+const nativeContext = nativeOrNormalPath(`dist/${nativeContextEntry}.js`);
 
 function isExternal(id) {
   return (

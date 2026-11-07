@@ -31,7 +31,6 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 // (react, vue...) from the root install
 const work = path.join(root, 'node_modules/.cache/check-package-exports');
 const packs = path.join(work, 'packs');
-const loaderPath = path.join(work, 'loaded.mjs');
 
 // publint suggestions that are about entry points
 const ENTRY_POINT_SUGGESTIONS = new Set([
@@ -58,7 +57,7 @@ registerHooks({
     return result;
   },
 });
-const [call, ...specifiers] = process.argv.slice(2);
+const [call, ...specifiers] = process.argv.slice(1);
 const require = createRequire(import.meta.url);
 for (const specifier of specifiers) {
   if (call === 'import') await import(specifier);
@@ -70,7 +69,6 @@ console.log(JSON.stringify([...loaded]));
 const packages = publishedPackages();
 fs.rmSync(work, { recursive: true, force: true });
 fs.mkdirSync(packs, { recursive: true });
-fs.writeFileSync(loaderPath, LOADER_SOURCE);
 packAll();
 // Unpack them all first, so they load each other rather than the workspaces
 const unpacked = packages.map(unpack);
@@ -361,9 +359,12 @@ async function differentExports(load, rootSpecifier, specifier) {
 // package that loaded files from more than one build folder (lib/, dist/...)
 function mixedBuilds(call, specifiers) {
   const urls = JSON.parse(
-    execFileSync(process.execPath, [loaderPath, call, ...specifiers], {
-      encoding: 'utf8',
-    }),
+    execFileSync(
+      process.execPath,
+      ['--input-type=module', '-e', LOADER_SOURCE, call, ...specifiers],
+      // resolve the specifiers from the unpacked node_modules
+      { cwd: work, encoding: 'utf8' },
+    ),
   );
   const builds = new Map();
   for (const url of urls) {
@@ -400,14 +401,14 @@ function duplicateClasses(dir) {
     // rollup output declares top-level classes at the start of a line
     for (const [, name] of source.matchAll(/^class ([\w$]+)/gm)) {
       const key = `${build} ${name}`;
-      if (!declared.has(key)) declared.set(key, { name, files: [] });
-      declared.get(key).files.push(`dist/${file}`);
+      if (!declared.has(key)) declared.set(key, []);
+      declared.get(key).push(`dist/${file}`);
     }
   }
-  return [...declared.values()]
-    .filter(({ files }) => files.length > 1)
+  return [...declared]
+    .filter(([, files]) => files.length > 1)
     .map(
-      ({ name, files }) =>
-        `class ${name} is bundled into ${files.join(' and ')}`,
+      ([key, files]) =>
+        `class ${key.split(' ')[1]} is bundled into ${files.join(' and ')}`,
     );
 }
