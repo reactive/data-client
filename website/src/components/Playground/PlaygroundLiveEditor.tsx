@@ -2,8 +2,9 @@ import { usePrismTheme } from '@docusaurus/theme-common';
 import React, { memo } from 'react';
 import { Editor } from 'react-live';
 
+import { isMonacoTokenized } from './monaco/language';
 import { codePrismTheme } from './monaco/theme';
-import { isMonacoTokenized, monacoPrism } from './monaco/tokenize';
+import { monacoPrism } from './monaco/tokenize';
 
 /**
  * react-live's editor. Languages Monaco highlights get Monaco's colors, so

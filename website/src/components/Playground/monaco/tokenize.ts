@@ -12,18 +12,18 @@ import { Prism } from 'prism-react-renderer';
 type Token = string | Prism.Token;
 
 // Monaco's keyword lists (monaco-editor/esm/vs/languages/definitions/)
-const JS_KEYWORDS =
+const JS_WORDS =
   'break case catch class continue const constructor debugger default delete do else export extends false finally for from function get if import in instanceof let new null return set static super switch symbol this throw true try typeof undefined var void while with yield async await of'.split(
     ' ',
   );
 const TS_KEYWORDS = new Set([
-  ...JS_KEYWORDS,
+  ...JS_WORDS,
   ...'abstract any as asserts bigint boolean declare enum implements infer interface is keyof module namespace never number object out package private protected public override readonly require global satisfies string type unique unknown'.split(
     ' ',
   ),
 ]);
-/** `<script>` in HTML is JavaScript to Monaco */
-const SCRIPT_KEYWORDS = new Set(JS_KEYWORDS);
+/** JavaScript, also HTML's `<script>` */
+const JS_KEYWORDS = new Set(JS_WORDS);
 /** Symbol runs Monaco colors as operators; any other run stays plain */
 const OPERATORS = new Set(
   '<= >= == != === !== => + - ** * / % ++ -- << </ >> >>> & | ^ ! ~ && || ?? ? : = += -= *= **= /= %= <<= >>= >>>= &= |= ^= @'.split(
@@ -57,7 +57,7 @@ const typed = (type: string, text: string) => new Prism.Token(type, text);
 function lex(code: string, keywords: Set<string>): Token[] {
   const tokens: Token[] = [];
   for (const [text, word, delimiter, symbols] of code.matchAll(
-    /([A-Za-z_$][\w$]*)|([{}()[\];,.]|!(?!=))|([=><!~?:&|+\-*/^%]+)|\s+|./g,
+    /(#?[a-z_$][\w$]*|[A-Z][\w$]*)|([{}()[\];,.]|!(?!=))|([=><!~?:&|+\-*/^%]+)|\s+|./g,
   )) {
     if (word) {
       tokens.push(
@@ -80,7 +80,8 @@ function recolor(stream: Token[], keywords: Set<string>): Token[] {
   const tokens: Token[] = [];
   let code = '';
   const flush = () => {
-    tokens.push(...lex(code, keywords));
+    // a loop, as spreading a long run of tokens overflows the stack
+    for (const token of lex(code, keywords)) tokens.push(token);
     code = '';
   };
   const walk = (token: Token) => {
@@ -127,7 +128,7 @@ function recolorHtml(stream: Token[], inTagName = false): Token[] {
       case 'punctuation':
         return [token];
       case 'script':
-        return recolor([token], SCRIPT_KEYWORDS);
+        return recolor([token], JS_KEYWORDS);
       case 'attr-name': {
         // Vue's `:` and `@` prefixes stay plain
         const [, prefix, name] = textOf(token).match(/^([^\w-]*)([\s\S]*)$/)!;
@@ -158,13 +159,6 @@ function recolorHtml(stream: Token[], inTagName = false): Token[] {
   });
 }
 
-/** Fence languages Monaco highlights (./language.ts) */
-const MONACO_LANGUAGES = new Set(['ts', 'tsx', 'typescript', 'html', 'json']);
-
-/** Whether `monacoPrism` colors fence language `language` as Monaco does */
-export const isMonacoTokenized = (language: string) =>
-  MONACO_LANGUAGES.has(language.toLowerCase());
-
 /**
  * Prism, for react-live's `prism`, with its tokens colored as Monaco does.
  * Use it with ./theme.ts's `codePrismTheme`.
@@ -174,5 +168,13 @@ export const monacoPrism = {
   tokenize: (code: string, grammar: Prism.Grammar) =>
     grammar === Prism.languages.markup ?
       recolorHtml(Prism.tokenize(code, grammar))
-    : recolor(Prism.tokenize(code, grammar), TS_KEYWORDS),
+    : recolor(
+        Prism.tokenize(code, grammar),
+        (
+          grammar === Prism.languages.javascript ||
+            grammar === Prism.languages.jsx
+        ) ?
+          JS_KEYWORDS
+        : TS_KEYWORDS,
+      ),
 } as typeof Prism;

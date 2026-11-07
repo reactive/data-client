@@ -80,7 +80,9 @@ Gotchas:
   from `monaco/theme.ts`, and Monaco draws nothing extra (every bracket
   depth gets the delimiter color; no indent guides). Change colors only in
   `theme.ts`. A few characters can still differ, such as an apostrophe in
-  JSX text, which starts a string in Monaco.
+  JSX text, which starts a string in Monaco. The keyword and operator lists
+  in `tokenize.ts` are copied from Monaco's grammars; recheck them when
+  upgrading Monaco. `monaco/language.ts` lists the languages it covers.
 
 `hidden` (unselected protocol tabs): every tab stays mounted, so all sources
 are in the HTML. The editor latches interactive on first show, so undo and

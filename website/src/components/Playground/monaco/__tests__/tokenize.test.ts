@@ -2,8 +2,9 @@
 
 import { Prism } from 'prism-react-renderer';
 
+import { isMonacoTokenized } from '../language';
 import { codePrismTheme } from '../theme';
-import { isMonacoTokenized, monacoPrism } from '../tokenize';
+import { monacoPrism } from '../tokenize';
 
 /** Each token's theme type (null for plain) and text, whitespace left out */
 function spans(code: string, language: string) {
@@ -44,6 +45,20 @@ describe('monacoPrism colors as Monaco does', () => {
       ['punctuation', ')'],
       ['punctuation', ';'],
       ['comment', '// hi'],
+    ]);
+  });
+
+  test('JavaScript has no TypeScript keywords; private names stay plain', () => {
+    expect(spans('let type; #get', 'js')).toEqual([
+      ['keyword', 'let'],
+      [null, 'type'],
+      ['punctuation', ';'],
+      [null, '#get'],
+    ]);
+    expect(spans('type #Get', 'ts')).toEqual([
+      ['keyword', 'type'],
+      [null, '#'],
+      ['class-name', 'Get'],
     ]);
   });
 
@@ -159,28 +174,25 @@ describe('monacoPrism colors as Monaco does', () => {
   });
 
   test('gives every type it emits a theme style', () => {
-    const types = codePrismTheme.styles.flatMap(style => style.types);
-    for (const type of [
-      'comment',
-      'keyword',
-      'class-name',
-      'attr-name',
-      'number',
-      'string',
-      'regex',
-      'punctuation',
-      'tag',
-    ]) {
-      expect(types).toContain(type);
+    const styled = codePrismTheme.styles.flatMap(style => style.types);
+    const emitted = [
+      ['tsx', 'const a: A = /x/ + `${1}` <B c="d" />; // e'],
+      ['html', '<p :a="b">{{ c }}</p><!-- d --><script>let e = 1</script>'],
+      ['json', '{"a": [1, true, "b"]}'],
+    ].flatMap(([language, code]) =>
+      spans(code, language).map(([type]) => type),
+    );
+    for (const type of new Set(emitted)) {
+      if (type) expect(styled).toContain(type);
     }
   });
 });
 
 test('isMonacoTokenized covers the fence languages Monaco highlights', () => {
-  for (const language of ['ts', 'TSX', 'typescript', 'html', 'json']) {
+  for (const language of ['ts', 'TSX', 'typescript', 'js', 'html', 'json']) {
     expect(isMonacoTokenized(language)).toBe(true);
   }
-  for (const language of ['js', 'bash', 'constructor']) {
+  for (const language of ['bash', 'md', 'constructor']) {
     expect(isMonacoTokenized(language)).toBe(false);
   }
 });
