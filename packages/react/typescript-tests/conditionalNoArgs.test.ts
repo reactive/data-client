@@ -72,20 +72,6 @@ declare const state: State<unknown>;
   getTeams({ page: 1 });
 };
 
-// process() params stay `any` for endpoints that take no args
-new RestEndpoint({
-  path: '/teams',
-  process(value, params: { anything: string }) {
-    return params.anything;
-  },
-});
-const plainTeams = new RestEndpoint({ path: '/teams' });
-plainTeams.extend({
-  process(value, params: { anything: string }) {
-    return params.anything;
-  },
-});
-
 // resource() endpoints with no params also accept `{}`
 const TeamResource = resource({
   path: '/teams/:id',

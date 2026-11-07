@@ -1756,8 +1756,8 @@ type RestEndpointExtendOptions<O extends PartialRestGenerics, E extends {
  * Endpoints that take no args, or `{}` as their only alternative to no args, keep `any`, so process(value, params: any) and similar still compile.
  */
 type ProcessArg<A extends readonly any[], I extends 0 | 1> = [
-    A['length']
-] extends [0] ? any : [A] extends [readonly [params?: EmptyParams]] ? any : A[I];
+    A
+] extends [readonly [params?: EmptyParams]] ? any : A[I];
 type ExtendOmitKeys = KeyofRestEndpoint | keyof PartialRestGenerics | keyof RestEndpointOptions;
 /** Partial<Pick<T, K>> as a single homomorphic mapped type */
 type PartialPick<T, K extends keyof T> = {
