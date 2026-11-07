@@ -183,6 +183,57 @@ describe('useLoading()', () => {
     expect(resolved).toBe('second');
   });
 
+  it('should follow the latest call when calls overlap', async () => {
+    const error = new Error('ack');
+    const settle: Record<string, () => void> = {};
+    function fun(value: string) {
+      return new Promise<string>((resolve, reject) => {
+        settle[value] = () =>
+          value === 'fail' ? reject(error) : resolve(value);
+      });
+    }
+    const { result } = renderHook(() => useLoading(fun));
+    let first: Promise<string>, second: Promise<string>;
+    act(() => {
+      first = result.current[0]('fail');
+    });
+    act(() => {
+      second = result.current[0]('ok');
+    });
+    // latest call resolves first
+    await act(async () => {
+      settle.ok();
+      await second;
+    });
+    expect(result.current[1]).toBe(false);
+    expect(result.current[2]).toBeUndefined();
+    // earlier call rejects afterwards: ignored
+    await act(async () => {
+      settle.fail();
+      await first;
+    });
+    expect(result.current[1]).toBe(false);
+    expect(result.current[2]).toBeUndefined();
+
+    // earlier call settling first keeps loading for the latest call
+    act(() => {
+      first = result.current[0]('a');
+    });
+    act(() => {
+      second = result.current[0]('b');
+    });
+    await act(async () => {
+      settle.a();
+      await first;
+    });
+    expect(result.current[1]).toBe(true);
+    await act(async () => {
+      settle.b();
+      await second;
+    });
+    expect(result.current[1]).toBe(false);
+  });
+
   it('should work in strictmode', async () => {
     const error = new Error('ack');
     function fun(value: string) {

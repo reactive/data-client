@@ -4,6 +4,9 @@ import type { Ref } from 'vue';
 /**
  * Takes an async function and tracks resolution as a boolean.
  *
+ * If `func` rejects, the error is stored and cleared again on the next call.
+ * When calls overlap, `loading` and `error` follow the latest one.
+ *
  * @see https://dataclient.io/docs/api/useLoading
  * @param func A function returning a promise
  * @example
@@ -27,17 +30,21 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
     isMounted.value = false;
   });
 
+  // only the latest call reports its result
+  let latestCall = 0;
+
   // Create the wrapped function directly - no need for computed in Vue
   const wrappedFunc = (async (...args: any) => {
+    const call = ++latestCall;
     loading.value = true;
     error.value = undefined;
     let ret;
     try {
       ret = await func(...args);
     } catch (e: any) {
-      error.value = e;
+      if (call === latestCall) error.value = e;
     } finally {
-      if (isMounted.value) {
+      if (isMounted.value && call === latestCall) {
         loading.value = false;
       }
     }

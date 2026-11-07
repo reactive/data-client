@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
  * Takes an async function and tracks resolution as a boolean.
  *
  * If `func` rejects, the error is stored and cleared again on the next call.
+ * When calls overlap, `loading` and `error` follow the latest one.
  *
  * @see https://dataclient.io/docs/api/useLoading
  * @param func A function returning a promise
@@ -33,17 +34,20 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
       isMountedRef.current = false;
     };
   }, []);
+  // only the latest call reports its result
+  const latestCallRef = useRef(0);
   const depsList = deps || [func];
   const wrappedFunc = useCallback(async (...args: any) => {
+    const call = ++latestCallRef.current;
     setLoading(true);
     setError(undefined);
     let ret;
     try {
       ret = await func(...args);
     } catch (e: any) {
-      setError(e);
+      if (call === latestCallRef.current) setError(e);
     } finally {
-      if (isMountedRef.current) {
+      if (isMountedRef.current && call === latestCallRef.current) {
         setLoading(false);
       }
     }
