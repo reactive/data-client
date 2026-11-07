@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Eval: DataProvider renders under vitest 2 + jsdom with default config. See README.md.
+# Eval: DataProvider renders when Node loads @data-client/react's ESM build. See README.md.
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 repo="$(git -C "$here" rev-parse --show-toplevel)"
@@ -8,7 +8,7 @@ yarn_bin="$repo/$(sed -n 's/^yarnPath: //p' "$repo/.yarnrc.yml")"
 repo_yarn() { node "$yarn_bin" "$@"; }
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
-cp "$here/package.json" "$here/vite.config.js" "$here/provider.test.jsx" "$work"
+cp "$here/package.json" "$here/provider.mjs" "$work"
 
 setup() {
   if [ -n "${DATA_CLIENT_VERSION:-}" ]; then
@@ -41,4 +41,4 @@ if [ "$status" -ne 0 ]; then
   exit 2
 fi
 cd "$work"
-npx vitest run
+node --conditions=module provider.mjs
