@@ -151,8 +151,8 @@ The `isLoading` branch moves to a `<Suspense>` fallback, and the `isError` branc
 [AsyncBoundary](https://dataclient.io/docs/api/AsyncBoundary) is both. Keep the app's own skeleton and error banner as their fallbacks. The
 `?? []` guard goes away, because `useSuspense()` returns only once data is there.
 
-Two `useSuspense()` calls in one component load one after the other; to load them in parallel, see
-[parallel data loading](https://dataclient.io/docs/api/useFetch#parallel-data-loading).
+Two `useSuspense()` calls in one component load one after the other. When neither needs the other's data, start both
+with `useFetch()` and read them with `use()` ([parallel data loading](https://dataclient.io/docs/api/useFetch#parallel-data-loading)).
 
 ### Envelope responses
 
