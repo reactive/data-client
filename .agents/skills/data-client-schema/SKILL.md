@@ -159,5 +159,5 @@ See [partial-entities](references/partial-entities.md) for patterns and examples
 Vue projects: read `<name>.vue.md` instead of `<name>.md` when it exists.
 
 - [computed-properties](references/computed-properties.md) - getters and values derived on an Entity
-- [side-effects](references/side-effects.md) - a mutation response that changes other entities
+- [side-effects](references/side-effects.md) - a mutation that changes other entities, including a parent's count or total
 - [sorting-client-side](references/sorting-client-side.md) - sorting a list from the cache

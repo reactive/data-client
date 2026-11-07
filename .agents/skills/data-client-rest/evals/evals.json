@@ -22,6 +22,30 @@
         "States that both views share one poll at the fastest frequency, so the dashboard speeds up too.",
         "Does not claim the extended endpoint polls independently."
       ]
+    },
+    {
+      "id": 3,
+      "name": "parent-count-after-child-mutation",
+      "prompt": "`Discussion` (an Entity from `DiscussionResource = resource({ path: '/discussions/:id', ... })`) now has a server-computed `commentCount`, shown in the discussions table and on the discussion page. Comments are created with `ctrl.fetch(createComment, { discussionId }, body)` and deleted with `ctrl.fetch(deleteComment, { id })`; their responses contain only the comment and we can't change the API. Keep both counts correct after a comment is created or deleted.",
+      "expected_output": "After each comment mutation resolves, fetches the parent: `ctrl.fetch(DiscussionResource.get, { id: discussionId })`. Explains that normalization updates the table row too.",
+      "files": [],
+      "assertions": [
+        "After the comment mutation resolves, fetches the discussion's single-item endpoint (or expires the discussion endpoints when there is none).",
+        "Does not pass the count or an onCountChange-style callback between components.",
+        "Does not call invalidateAll, resetEntireStore, or refetch the discussions list.",
+        "Does not add the discussion to the comment endpoint's optimistic response."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "parent-count-bundled-response",
+      "prompt": "We own the API. Creating a comment (`POST /posts/:postId/comments`) should update the post's `commentCount` (on the `Post` Entity) everywhere it shows, with no extra request. Change the endpoint definitions and the server response shape as needed.",
+      "expected_output": "The create (and delete) response returns `{ comment, post }`, and the endpoint schemas become `{ comment: <push or Invalidate schema>, post: Post }`.",
+      "files": [],
+      "assertions": [
+        "The mutation response includes the updated post and the endpoint schema adds `post: Post`.",
+        "Does not refetch the post or call expireAll/invalidateAll after the mutation."
+      ]
     }
   ]
 }

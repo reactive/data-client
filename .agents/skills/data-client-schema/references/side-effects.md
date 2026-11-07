@@ -82,7 +82,7 @@ export const TradeResource = resource({
   path: '/trade/:id',
   schema: Trade,
 }).extend(Base => ({
-  create: Base.getList.push.extend({
+  add: Base.getList.push.extend({
     schema: {
       trade: Base.getList.push.schema,
       account: Account,
@@ -91,15 +91,14 @@ export const TradeResource = resource({
 }));
 ```
 
-Now if when we use the [getList.push](https://dataclient.io/rest/api/resource#push) Endpoint generator method,
-we will be happy knowing both the trade and account information will
-be updated in the cache after the `POST` request is complete.
+Now when we call `TradeResource.add` (built from [getList.push](https://dataclient.io/rest/api/resource#push)), both the trade and
+account information update in the cache after the `POST` request is complete.
 
 ```typescript title="CreateTrade.tsx"
 export default function CreateTrade() {
   const ctrl = useController();
   const handleSubmit = payload =>
-    ctrl.fetch(TradeResource.create, payload);
+    ctrl.fetch(TradeResource.add, payload);
   //...
 }
 ```
@@ -109,3 +108,70 @@ export default function CreateTrade() {
 > Feel free to create completely new [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint) methods for any custom
 > endpoints you have. This endpoint tells `Reactive Data Client` how to process any
 > request.
+
+## Counts and other server-computed fields {#server-computed}
+
+Some fields are computed by the server from other data, like a post's `commentCount` or an order's `total`. Creating
+or deleting a comment changes the post's count, but the comment endpoint's response holds only the comment. Update
+the parent `Post` through its Entity, and every list and detail view that shows it updates.
+
+```typescript title="resources/Post.ts"
+export class Post extends Entity {
+  id = 0;
+  title = '';
+  commentCount = 0;
+}
+export const PostResource = resource({ path: '/posts/:id', schema: Post });
+```
+
+### When the API can include the parent
+
+Return the parent in the comment's create and delete responses, and add it to those endpoints' schemas, the same way
+as the [example above](#example). This needs no extra request. Call `CommentResource.add` and `CommentResource.remove`
+instead of `CommentResource.getList.push` and `CommentResource.delete`, so the
+response's post is stored. (`add` and `remove` are names chosen in [`.extend()`](https://dataclient.io/rest/api/resource#extend); the built-in `create` is deprecated.)
+
+```typescript title="resources/Comment.ts"
+export const CommentResource = resource({
+  path: '/posts/:postId/comments/:id',
+  schema: Comment,
+}).extend(Base => ({
+  // response: { comment: {...}, post: { id, commentCount } }
+  add: Base.getList.push.extend({
+    schema: { comment: Base.getList.push.schema, post: Post },
+  }),
+  // response: { comment: { id }, post: { id, commentCount } }
+  remove: Base.delete.extend({
+    schema: { comment: Base.delete.schema, post: Post },
+  }),
+}));
+```
+
+The real response holds the post, so an [optimistic response](https://dataclient.io/rest/guides/optimistic-updates) can include it too:
+`post: { id: postId, commentCount: post.commentCount + 1 }`, with `post` read by `snap.get(Post, { id: postId })`.
+
+### When the API can't change
+
+After the mutation resolves, fetch the parent's own endpoint, in the code that calls the mutation.
+
+```typescript
+const ctrl = useController();
+const addComment = async (postId: number, body: Partial<Comment>) => {
+  await ctrl.fetch(CommentResource.getList.push, { postId }, body);
+  ctrl.fetch(PostResource.get, { id: postId }).catch(console.error);
+};
+```
+
+This costs one extra request, and the count changes when it resolves. Don't await it: the comment is already saved,
+so a failed refresh must not fail `addComment`. It updates the `Post` entity, so lists that
+show the post update too, without refetching the lists. Do not add the
+post to an optimistic response here: the real response lacks it, so the count jumps back until the refetch arrives.
+When the parent has no single-item endpoint, call [`ctrl.expireAll(PostResource.getList)`](https://dataclient.io/docs/api/Controller#expireAll)
+instead; it refetches every mounted list of posts.
+
+### Avoid
+
+- Passing the count, or an `onCountChange` callback, between components. Every view reads the count from the same
+  `Post` entity.
+- `invalidateAll()` or `resetEntireStore()`. They throw away cached data and show loading states again.
+- Counting the loaded comments. With pagination, that is not the total.
