@@ -261,7 +261,8 @@ After setup, verify:
 - [ ] Correct import path used (especially `@data-client/react/nextjs` for NextJS)
 - [ ] No duplicate providers in component tree
 - [ ] Protocol-specific setup completed via its guide
-- [ ] `AGENTS.md` has the Data Client lines, and `git status --short AGENTS.md CLAUDE.md .agents .claude skills-lock.json` lists nothing untracked or uncommitted
+- [ ] `AGENTS.md` has the Data Client lines
+- [ ] `git status --short AGENTS.md CLAUDE.md .agents .claude skills-lock.json` lists nothing untracked or uncommitted
 
 ## Common Issues
 

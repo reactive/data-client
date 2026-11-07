@@ -130,8 +130,9 @@ export const PostResource = resource({ path: '/posts/:id', schema: Post });
 
 ### When the API can include the parent
 
-Return the parent in the comment's create and delete responses, and add it to those endpoints' schemas. This needs no
-extra request.
+Return the parent in the comment's create and delete responses, and add it to those endpoints' schemas, the same way
+as the [example above](#example). This needs no extra request. Call `CommentResource.add` and `CommentResource.remove`
+in place of `getList.push` and `delete`.
 
 ```typescript title="resources/Comment.ts"
 export const CommentResource = resource({
@@ -139,11 +140,11 @@ export const CommentResource = resource({
   schema: Comment,
 }).extend(Base => ({
   // response: { comment: {...}, post: { id, commentCount } }
-  create: Base.getList.push.extend({
+  add: Base.getList.push.extend({
     schema: { comment: Base.getList.push.schema, post: Post },
   }),
   // response: { comment: { id }, post: { id, commentCount } }
-  delete: Base.delete.extend({
+  remove: Base.delete.extend({
     schema: { comment: Base.delete.schema, post: Post },
   }),
 }));
@@ -160,14 +161,15 @@ After the mutation resolves, fetch the parent's own endpoint, in the code that c
 const ctrl = useController();
 const addComment = async (postId: number, body: Partial<Comment>) => {
   await ctrl.fetch(CommentResource.getList.push, { postId }, body);
-  ctrl.fetch(PostResource.get, { id: postId });
+  await ctrl.fetch(PostResource.get, { id: postId });
 };
 ```
 
-That one request updates the `Post` entity, so lists that show the post update too, without a refetch. Do not add the
+This costs one extra request, and the count changes when it resolves. It updates the `Post` entity, so lists that
+show the post update too, without refetching the lists. Do not add the
 post to an optimistic response here: the real response lacks it, so the count jumps back until the refetch arrives.
 When the parent has no single-item endpoint, call [`ctrl.expireAll(PostResource.getList)`](https://dataclient.io/vue/api/Controller#expireAll)
-instead.
+instead; it refetches every mounted list of posts.
 
 ### Avoid
 
