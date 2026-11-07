@@ -34,22 +34,22 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
       isMountedRef.current = false;
     };
   }, []);
-  // only the latest call updates loading and error; every call still returns its result
   const latestCallRef = useRef(0);
   const depsList = deps || [func];
   const wrappedFunc = useCallback(async (...args: any) => {
     const callId = ++latestCallRef.current;
     setLoading(true);
     setError(undefined);
-    let ret;
+    let ret, rejection;
     try {
       ret = await func(...args);
     } catch (e: any) {
-      if (callId === latestCallRef.current) setError(e);
-    } finally {
-      if (isMountedRef.current && callId === latestCallRef.current) {
-        setLoading(false);
-      }
+      rejection = e;
+    }
+    // only the latest call updates loading and error; every call still returns its result
+    if (isMountedRef.current && callId === latestCallRef.current) {
+      setLoading(false);
+      setError(rejection);
     }
     return ret;
     // eslint-disable-next-line react-hooks/exhaustive-deps
