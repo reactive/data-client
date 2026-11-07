@@ -7,5 +7,7 @@
 ```ts
 renderDataHook(() => useThing(), { managers: [new NetworkManager(), logger] });
 // becomes
-renderDataHook(() => useThing(), { managers: () => [new NetworkManager(), logger] });
+renderDataHook(() => useThing(), {
+  managers: () => [new NetworkManager(), logger],
+});
 ```
