@@ -1,4 +1,5 @@
 import { render, waitFor } from '@testing-library/react';
+import React, { Activity } from 'react';
 
 import { renderHook, act } from '../../../../test';
 import useLoading from '../useLoading';
@@ -223,6 +224,39 @@ describe('useLoading()', () => {
       expect(result.current[1]).toBe(false);
     });
   });
+
+  ('Activity' in React ? it : it.skip)(
+    'should keep an error that lands while hidden in <Activity>',
+    async () => {
+      const error = new Error('ack');
+      let rejectCall!: (e: Error) => void;
+      let run!: () => Promise<void>;
+      function Form() {
+        let err: Error | undefined;
+        [run, , err] = useLoading(
+          () => new Promise<void>((_, reject) => (rejectCall = reject)),
+        );
+        return <div>{err ? err.message : 'no error'}</div>;
+      }
+      const tree = (mode: 'visible' | 'hidden') => (
+        <Activity mode={mode}>
+          <Form />
+        </Activity>
+      );
+      const { getByText, rerender } = render(tree('visible'));
+      let call!: Promise<void>;
+      act(() => {
+        call = run();
+      });
+      await act(async () => rerender(tree('hidden')));
+      await act(async () => {
+        rejectCall(error);
+        await call;
+      });
+      await act(async () => rerender(tree('visible')));
+      expect(getByText('ack')).toBeDefined();
+    },
+  );
 
   it('should work in strictmode', async () => {
     const error = new Error('ack');

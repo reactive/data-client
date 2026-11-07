@@ -36,16 +36,16 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
     const callId = ++latestCall;
     loading.value = true;
     error.value = undefined;
-    let ret, rejection;
+    let ret;
+    // only the latest call updates loading and error; every call still returns its result
     try {
       ret = await func(...args);
     } catch (e: any) {
-      rejection = e;
-    }
-    // only the latest call updates loading and error; every call still returns its result
-    if (isMounted && callId === latestCall) {
-      loading.value = false;
-      error.value = rejection;
+      if (callId === latestCall) error.value = e;
+    } finally {
+      if (isMounted && callId === latestCall) {
+        loading.value = false;
+      }
     }
     return ret;
   }) as F;

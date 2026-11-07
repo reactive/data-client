@@ -40,16 +40,17 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
     const callId = ++latestCallRef.current;
     setLoading(true);
     setError(undefined);
-    let ret, rejection;
+    let ret;
+    // only the latest call updates loading and error; every call still returns its result
     try {
       ret = await func(...args);
     } catch (e: any) {
-      rejection = e;
-    }
-    // only the latest call updates loading and error; every call still returns its result
-    if (isMountedRef.current && callId === latestCallRef.current) {
-      setLoading(false);
-      setError(rejection);
+      // not gated on mount: a hidden <Activity> keeps state, so the error must survive to show again
+      if (callId === latestCallRef.current) setError(e);
+    } finally {
+      if (isMountedRef.current && callId === latestCallRef.current) {
+        setLoading(false);
+      }
     }
     return ret;
     // eslint-disable-next-line react-hooks/exhaustive-deps
