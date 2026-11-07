@@ -111,10 +111,7 @@ export const issueKeys = {
 };
 
 export const useIssues = (page: number) =>
-  useQuery({
-    queryKey: issueKeys.list(page),
-    queryFn: () => fetchIssues(page),
-  });
+  useQuery({ queryKey: issueKeys.list(page), queryFn: () => fetchIssues(page) });
 ```
 
 ```tsx title="Before, in IssueTable"
@@ -129,12 +126,9 @@ import { useSuspense } from '@data-client/react';
 import { IssueResource } from './resources/Issue';
 
 export function IssueTable({ page }: { page: number }) {
-  const { results: issues, pagination } = useSuspense(
-    IssueResource.getList,
-    {
-      page,
-    },
-  );
+  const { results: issues, pagination } = useSuspense(IssueResource.getList, {
+    page,
+  });
   return (
     <table>
       <caption>
@@ -210,9 +204,7 @@ export const useCloseIssue = () => {
   return useMutation({
     mutationFn: (id: number) => patchIssue(id, { state: 'closed' }),
     onSuccess: issue => {
-      queryClient.invalidateQueries({
-        queryKey: issueKeys.detail(issue.id),
-      });
+      queryClient.invalidateQueries({ queryKey: issueKeys.detail(issue.id) });
       toast(`Closed #${issue.id}`);
     },
     onError: () => toast('Could not close the issue'),
@@ -228,11 +220,7 @@ export function CloseIssueButton({ id }: { id: number }) {
   const ctrl = useController();
   const [close, isPending] = useLoading(async () => {
     try {
-      await ctrl.fetch(
-        IssueResource.partialUpdate,
-        { id },
-        { state: 'closed' },
-      );
+      await ctrl.fetch(IssueResource.partialUpdate, { id }, { state: 'closed' });
       toast(`Closed #${id}`);
     } catch {
       toast('Could not close the issue');
@@ -361,19 +349,14 @@ export const addNote = new RestEndpoint({
 invalidating anything.
 
 ```tsx title="IssueNotes.tsx"
-import {
-  useController,
-  useLoading,
-  useSuspense,
-} from '@data-client/react';
+import { useController, useLoading, useSuspense } from '@data-client/react';
 import { getNotes } from './resources/Note';
 
 export function IssueNotes({ issueId }: { issueId: number }) {
   const { results: notes, nextPage } = useSuspense(getNotes, { issueId });
   const ctrl = useController();
   const [loadMore, isLoadingMore] = useLoading(
-    async (page: number) =>
-      ctrl.fetch(getNotes.getPage, { issueId, page }),
+    async (page: number) => ctrl.fetch(getNotes.getPage, { issueId, page }),
     [ctrl, issueId],
   );
   return (
@@ -386,10 +369,7 @@ export function IssueNotes({ issueId }: { issueId: number }) {
         ))}
       </ul>
       {nextPage !== null && (
-        <button
-          onClick={() => loadMore(nextPage)}
-          disabled={isLoadingMore}
-        >
+        <button onClick={() => loadMore(nextPage)} disabled={isLoadingMore}>
           Show older notes
         </button>
       )}
@@ -408,11 +388,7 @@ Libraries like `react-query-auth` give `useUser()`, `useLogin()`, `useLogout()` 
 Query. Rebuild them from endpoints:
 
 ```ts title="session.ts"
-import {
-  useController,
-  useLoading,
-  useSuspense,
-} from '@data-client/react';
+import { useController, useLoading, useSuspense } from '@data-client/react';
 import { Entity, RestEndpoint } from '@data-client/rest';
 
 class Account extends Entity {
@@ -512,10 +488,7 @@ To sign out on any other 401 response, add [LogoutManager](https://dataclient.io
   suspends. Wait only when a spinner is present:
 
   ```ts title="test-utils.ts"
-  import {
-    screen,
-    waitForElementToBeRemoved,
-  } from '@testing-library/react';
+  import { screen, waitForElementToBeRemoved } from '@testing-library/react';
 
   const loadingElements = () => screen.queryAllByTestId(/loading/i);
 
