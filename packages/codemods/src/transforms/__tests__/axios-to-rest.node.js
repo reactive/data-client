@@ -2777,7 +2777,14 @@ const [state, setState] = useState(null);
         for (const file of filesIn(path.join(dir, 'src'))) {
           const reads = j(fs.readFileSync(file, 'utf8'))
             .find(j.Identifier, { name: 'api' })
-            .filter(p => p.parent.node.type !== 'ObjectProperty')
+            .filter(({ node, parent }) => {
+              // a key or a property name, not a read of `api`
+              const { key, property, shorthand, computed } = parent.node;
+              return !(
+                (key === node && !shorthand && !computed) ||
+                (property === node && !computed)
+              );
+            })
             .size();
           expect({ file, reads }).toEqual({ file, reads: 0 });
         }

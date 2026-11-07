@@ -1989,7 +1989,7 @@ function transform(fileInfo, api) {
  * Formats the output with the project's own Prettier and config, when it has
  * them and already keeps this file formatted. Recast can't measure line width.
  */
-async function formatLikeProject(output, file, source) {
+async function formatLikeProject(output, file, source, report) {
   if (!file) return output;
   const filepath = nodePath.resolve(file);
   let prettier;
@@ -1999,13 +1999,21 @@ async function formatLikeProject(output, file, source) {
     // no Prettier, or one that can't load here: keep recast's output
     return output;
   }
-  // the CLI reads .editorconfig too
-  const config = await prettier.resolveConfig(filepath, { editorconfig: true });
-  if (!config) return output;
-  const options = { ...config, filepath };
-  // leave files the project doesn't format alone, so the diff stays small
-  if (!(await prettier.check(source, options))) return output;
-  return prettier.format(output, options);
+  try {
+    // the CLI reads .editorconfig too
+    const config = await prettier.resolveConfig(filepath, {
+      editorconfig: true,
+    });
+    if (!config) return output;
+    const options = { ...config, filepath };
+    // leave files the project doesn't format alone, so the diff stays small
+    if (!(await prettier.check(source, options))) return output;
+    return await prettier.format(output, options);
+  } catch (error) {
+    // still migrate the file, and say why it isn't formatted
+    report(`not formatted with Prettier: ${error.message}`);
+    return output;
+  }
 }
 
 module.exports = async function transformer(fileInfo, api, options = {}) {
@@ -2013,7 +2021,7 @@ module.exports = async function transformer(fileInfo, api, options = {}) {
   // --prettier=false keeps recast's output
   return output === fileInfo.source || String(options.prettier) === 'false' ?
       output
-    : formatLikeProject(output, fileInfo.path, fileInfo.source);
+    : formatLikeProject(output, fileInfo.path, fileInfo.source, api.report);
 };
 
 module.exports.parser = 'tsx';
