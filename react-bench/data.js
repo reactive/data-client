@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794011205723,
+  "lastUpdate": 1794062671417,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -12677,6 +12677,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 234.47,
             "range": "± 1.5%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "378f26dcdfa90b49a512c3c9b8f2e0f0df5155d8",
+          "message": "fix: useLoading() clears error on the next call (#4614)\n\n* fix(react): useLoading() clears error on the next call\n\nOnce the wrapped function rejected, error stayed set even after a later\ncall succeeded. Clear it at the start of each call, matching Vue.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCP4nVB4NHKMroQTW6\n\n* docs(blog): Note useLoading() error reset\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCP4nVB4NHKMroQTW6\n\n* internal: Regenerate playground editor types\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCP4nVB4NHKMroQTW6\n\n* fix: useLoading() follows the latest call when calls overlap\n\nAn earlier call that settled after a later one could set error after the\nlater call succeeded, or clear loading while it was still pending.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCP4nVB4NHKMroQTW6\n\n* internal: Split useLoading overlap changeset, clarify names and tests\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCP4nVB4NHKMroQTW6\n\n* internal: One changeset for the useLoading overlap fix\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCP4nVB4NHKMroQTW6\n\n* internal: Link both frameworks' useLoading docs in changeset\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCP4nVB4NHKMroQTW6\n\n* internal: Format useLoading() in changeset title\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCP4nVB4NHKMroQTW6\n\n* internal: Decide useLoading state writes in one place\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCP4nVB4NHKMroQTW6\n\n* fix(react): Keep a useLoading error that lands while hidden in <Activity>\n\nRestores the separate error and loading guards: gating the error on\nmount dropped a rejection that settled while <Activity> was hidden, and\nset loading before error (a React 17 frame with neither).\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCP4nVB4NHKMroQTW6\n\n* fix(react): Clear useLoading loading after a call settles in hidden <Activity>\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCP4nVB4NHKMroQTW6\n\n* fix(react): Drop useLoading mount gate so hidden <Activity> shows the result on first reveal\n\nThe deferred catch-up rendered a stale loading frame after reveal.\nReact 18+ ignores updates to unmounted components; React 16/17 only log\na dev warning.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCP4nVB4NHKMroQTW6\n\n* internal: Note the React 16/17 unmount warning trade-off in useLoading\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCP4nVB4NHKMroQTW6\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-07T14:36:41Z",
+          "tree_id": "8181a0fbe8229dc92b00e6ef9c7ef11b4cfbee76",
+          "url": "https://github.com/reactive/data-client/commit/378f26dcdfa90b49a512c3c9b8f2e0f0df5155d8"
+        },
+        "date": 1794062667395,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 323.13,
+            "range": "± 3.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 83.89,
+            "range": "± 2.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 792.16,
+            "range": "± 1.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 764.82,
+            "range": "± 2.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 74.82,
+            "range": "± 2.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 668.9,
+            "range": "± 3.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 598.8,
+            "range": "± 2.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 14.79,
+            "range": "± 6.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 153.73,
+            "range": "± 3.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 96.62,
+            "range": "± 1.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-ticker-stream",
+            "value": 12.53,
+            "range": "± 1.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 444.94,
+            "range": "± 2.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 599.7,
+            "range": "± 1.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 433.84,
+            "range": "± 2.0%",
             "unit": "ops/s"
           }
         ]
