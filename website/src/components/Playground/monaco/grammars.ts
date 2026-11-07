@@ -3,7 +3,8 @@
  * from monaco-editor/esm/vs/languages/definitions/{typescript,javascript,html}
  * at MONACO_VERSION. ./tokenize.ts runs them the way Monaco does, so the code
  * the server renders gets Monaco's tokens. When monaco-editor changes
- * version, copy them again (a test fails until MONACO_VERSION matches).
+ * version, copy them again: the website's install and build fail until
+ * MONACO_VERSION matches (scripts/generateMonacoPreloads.cjs).
  */
 /* eslint-disable no-useless-escape -- verbatim, to diff against Monaco's */
 

@@ -1,9 +1,5 @@
 /// <reference types="jest" />
 
-import fs from 'fs';
-import path from 'path';
-
-import { MONACO_VERSION } from '../grammars';
 import { codePrismTheme, tokenClass } from '../theme';
 import {
   isMonacoTokenized,
@@ -30,22 +26,17 @@ function classesOf(tokens: Token[]) {
 }
 
 /**
- * The theme class of each character, from Monaco's tokens. `htmlBrackets`:
+ * The theme class of each character, from Monaco's tokens.
  * monaco.editor.tokenize leaves out bracket pair colorization, which draws
- * HTML's `{}()` outside comments and strings in the delimiter color (checked
- * on the rendered editor)
+ * `{}()` outside comments, strings and regular expressions in the delimiter
+ * color (checked on the rendered editor)
  */
-function monacoClassesOf(lines: MonacoLines, htmlBrackets = false) {
+function monacoClassesOf(lines: MonacoLines) {
   return lines.flatMap((line, i) => [
     ...(i ? [null] : []),
     ...line.flatMap(([text, type]) =>
       [...text].map(char =>
-        (
-          htmlBrackets &&
-          /[{}()]/.test(char) &&
-          !/^(comment|string)/.test(type) &&
-          (type === '' || type.endsWith('.html'))
-        ) ?
+        /[{}()]/.test(char) && !/^(comment|string|regexp)/.test(type) ?
           tokenClass('delimiter')
         : tokenClass(type),
       ),
@@ -57,17 +48,6 @@ const cases = (snippets: { code: string; tokens: MonacoLines }[]) =>
   snippets.map(({ code, tokens }) => [code, tokens] as const);
 
 describe('tokenizers', () => {
-  test('copy the installed Monaco', () => {
-    // the lockfile: CI's test job can't resolve monaco-editor
-    const lockfile = fs.readFileSync(
-      path.resolve(__dirname, '../../../../../../yarn.lock'),
-      'utf8',
-    );
-    expect(lockfile).toContain(
-      `resolution: "monaco-editor@npm:${MONACO_VERSION}"`,
-    );
-  });
-
   test.each(cases(monacoTokens.typescript))(
     'color TypeScript as Monaco does: %s',
     (code, tokens) => {
@@ -78,9 +58,7 @@ describe('tokenizers', () => {
   test.each(cases(monacoTokens.html))(
     'color HTML with embedded JavaScript as Monaco does: %s',
     (code, tokens) => {
-      expect(classesOf(tokenizeHtml(code))).toEqual(
-        monacoClassesOf(tokens, true),
-      );
+      expect(classesOf(tokenizeHtml(code))).toEqual(monacoClassesOf(tokens));
     },
   );
 
@@ -90,6 +68,14 @@ describe('tokenizers', () => {
       expect(classesOf(tokenizeJson(code))).toEqual(monacoClassesOf(tokens));
     },
   );
+
+  test('leaves a script type it has no grammar for plain', () => {
+    // `constructor` is a key of every object, not a MIME type
+    const tokens = tokenizeHtml(
+      '<script type="constructor">\nlet x\n</script>',
+    );
+    expect(tokens).toContain('\nlet x\n');
+  });
 
   test.each([
     ['tokenizeTs', tokenizeTs],
@@ -104,12 +90,6 @@ describe('tokenizers', () => {
       ).toBe(code);
     }
   });
-});
-
-test('leaves a script type it has no grammar for plain', () => {
-  // `constructor` is a key of every object, not a MIME type
-  const tokens = tokenizeHtml('<script type="constructor">\nlet x\n</script>');
-  expect(tokens).toContain('\nlet x\n');
 });
 
 describe('monacoPrism', () => {

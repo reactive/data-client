@@ -53,8 +53,8 @@ const BRACKETS: Record<string, string> = {
 interface CompiledRule {
   /** matches at the start of the text */
   regex: RegExp;
-  /** matches anywhere in the text */
-  search: RegExp;
+  /** for a rule that leaves an embedded language: matches anywhere */
+  search?: RegExp;
   action: Action;
 }
 
@@ -95,7 +95,9 @@ function compileRules(grammar: Grammar): Record<string, CompiledRule[]> {
       return [
         {
           regex: new RegExp(`^(?:${source})`, flags),
-          search: new RegExp(source, flags),
+          ...((action as ActionObject).nextEmbedded === '@pop' && {
+            search: new RegExp(source, flags),
+          }),
           action:
             next === undefined ? action
             : typeof action === 'string' ? { token: action, next }
@@ -157,8 +159,7 @@ function runGrammar(grammar: Grammar): LineTokenizer {
     let pos = 0;
     if (embedded !== undefined) {
       const leaves = rulesOf(state())
-        .filter(rule => (rule.action as ActionObject).nextEmbedded === '@pop')
-        .map(rule => line.search(rule.search))
+        .map(rule => (rule.search ? line.search(rule.search) : -1))
         .filter(found => found !== -1);
       pos = leaves.length ? Math.min(...leaves) : line.length;
       if (embedded) embedded(line.slice(0, pos), emit);
@@ -199,9 +200,7 @@ function runGrammar(grammar: Grammar): LineTokenizer {
         } else if (action.nextEmbedded) {
           const mime = substitute(action.nextEmbedded, groups);
           embedded =
-            Object.prototype.hasOwnProperty.call(EMBEDDED, mime) ?
-              runGrammar(EMBEDDED[mime])
-            : null;
+            Object.hasOwn(EMBEDDED, mime) ? runGrammar(EMBEDDED[mime]) : null;
         }
       };
       const { action } = rule;
@@ -252,10 +251,10 @@ const DELIMITER = tokenClass('delimiter');
 
 /**
  * Tokenizes `code` with `grammar`, typed by the theme rule that colors each
- * token (see tokenClass). Monaco's bracket pair colorization draws HTML's
- * `{}()` outside comments and strings in the delimiter color (theme.ts), so
- * they get it here too. (Embedded JavaScript makes them delimiters itself;
- * its other plain tokens, whitespace and symbols, hold no brackets.)
+ * token (see tokenClass). Monaco's bracket pair colorization draws `{}()`
+ * outside comments, strings and regular expressions in the delimiter color
+ * (theme.ts), so they get it here too: in HTML text and tags, the grammars'
+ * own tokens don't.
  */
 function tokenizeWith(grammar: Grammar, code: string): Token[] {
   const tokens: Token[] = [];
@@ -264,15 +263,13 @@ function tokenizeWith(grammar: Grammar, code: string): Token[] {
     if (i) pushToken(tokens, '\n', null);
     tokenizeLine(line, (text, monacoToken) => {
       const type = tokenClass(monacoToken);
-      if (
-        grammar === html &&
-        (monacoToken === '' || monacoToken.endsWith(grammar.tokenPostfix)) &&
-        !/^(comment|string)/.test(monacoToken)
-      ) {
-        for (const part of text.split(/([{}()])/)) {
-          pushToken(tokens, part, /^[{}()]$/.test(part) ? DELIMITER : type);
-        }
-      } else pushToken(tokens, text, type);
+      if (/^(comment|string|regexp)/.test(monacoToken)) {
+        pushToken(tokens, text, type);
+        return;
+      }
+      for (const part of text.split(/([{}()])/)) {
+        pushToken(tokens, part, /^[{}()]$/.test(part) ? DELIMITER : type);
+      }
     });
   });
   return tokens;
@@ -353,10 +350,7 @@ const tokenizers: Record<string, (code: string) => Token[]> = {
 
 /** Whether `monacoPrism` tokenizes fence language `language` as Monaco does */
 export function isMonacoTokenized(language: string) {
-  return Object.prototype.hasOwnProperty.call(
-    tokenizers,
-    language.toLowerCase(),
-  );
+  return Object.hasOwn(tokenizers, language.toLowerCase());
 }
 
 /**

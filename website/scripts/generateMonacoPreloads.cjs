@@ -25,6 +25,10 @@ const MANIFEST_PATH = path.join(
   WEBSITE_ROOT,
   'src/components/Playground/monaco/preloadManifest.ts',
 );
+const GRAMMARS_PATH = path.join(
+  WEBSITE_ROOT,
+  'src/components/Playground/monaco/grammars.ts',
+);
 
 /** @returns {{ monacoVersion: string, preloadPaths: string[], prefetchPaths: string[] }} */
 function computeMonacoPreloadManifest() {
@@ -207,6 +211,7 @@ function validatePathsExist(paths, label) {
 /** @returns {{ monacoVersion: string, preloadPaths: string[], prefetchPaths: string[], wrote: boolean }} */
 function ensureMonacoPreloadManifest() {
   const manifest = computeMonacoPreloadManifest();
+  assertGrammarsMatch(manifest.monacoVersion);
   const source = formatManifestSource(manifest);
   const previous =
     fs.existsSync(MANIFEST_PATH) ?
@@ -218,6 +223,23 @@ function ensureMonacoPreloadManifest() {
   fs.mkdirSync(path.dirname(MANIFEST_PATH), { recursive: true });
   fs.writeFileSync(MANIFEST_PATH, source);
   return { ...manifest, wrote: true };
+}
+
+/**
+ * The server-rendered playground code runs copies of Monaco's grammars
+ * (grammars.ts), so it shows Monaco's colors only while they come from the
+ * installed version
+ * @param {string} monacoVersion
+ */
+function assertGrammarsMatch(monacoVersion) {
+  const copied = fs
+    .readFileSync(GRAMMARS_PATH, 'utf8')
+    .match(/MONACO_VERSION = '([^']+)'/)?.[1];
+  if (copied !== monacoVersion) {
+    throw new Error(
+      `${GRAMMARS_PATH} copies monaco-editor ${copied}, but ${monacoVersion} is installed: copy its grammars again (see the file's header)`,
+    );
+  }
 }
 
 /** @param {{ monacoVersion: string, preloadPaths: string[], prefetchPaths: string[] }} manifest */
