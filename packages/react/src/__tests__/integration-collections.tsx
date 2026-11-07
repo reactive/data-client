@@ -285,6 +285,62 @@ describe.each([
     nock.cleanAll();
   });
 
+  it('getPage and push should share one list inside a { data, meta } envelope', async () => {
+    class Comment extends IDEntity {
+      body = '';
+      static key = 'EnvelopeComment';
+    }
+    const getComments = new RestEndpoint({
+      urlPrefix: 'http://test.com',
+      path: '/comments',
+      searchParams: {} as { discussionId: string; page?: number },
+      paginationField: 'page',
+      schema: {
+        data: new Collection([Comment]),
+        meta: { page: 0, totalPages: 0 },
+      },
+    });
+    const mynock = nock(/.*/).defaultReplyHeaders({
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': 'application/json',
+    });
+    mynock.get(`/comments?discussionId=a`).reply(200, {
+      data: [{ id: '1', body: 'one' }],
+      meta: { page: 1, totalPages: 2 },
+    });
+    mynock.get(`/comments?discussionId=a&page=2`).reply(200, {
+      data: [{ id: '2', body: 'two' }],
+      meta: { page: 2, totalPages: 2 },
+    });
+    mynock
+      .post(`/comments?discussionId=a`)
+      .reply(200, (uri, body: any) => ({ id: '3', ...body }));
+
+    const { result, waitForNextUpdate, controller } = renderDataClient(() =>
+      useSuspense(getComments, { discussionId: 'a' }),
+    );
+    await waitForNextUpdate();
+    expect(result.current.data.map(({ id }) => id)).toEqual(['1']);
+
+    await controller.fetch(getComments.getPage, {
+      discussionId: 'a',
+      page: result.current.meta.page + 1,
+    });
+    expect(result.current.data.map(({ id }) => id)).toEqual(['1', '2']);
+    // meta comes from the latest page
+    expect(result.current.meta.page).toBe(2);
+
+    await act(async () => {
+      await controller.fetch(
+        getComments.push,
+        { discussionId: 'a' },
+        { body: 'three' },
+      );
+    });
+    expect(result.current.data.map(({ id }) => id)).toEqual(['1', '2', '3']);
+    nock.cleanAll();
+  });
+
   it('pagination should ignore undefined values', async () => {
     const mynock = nock(/.*/).defaultReplyHeaders({
       'Access-Control-Allow-Origin': '*',

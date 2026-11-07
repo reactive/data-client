@@ -93,6 +93,8 @@ const deleteTodo = id => ctrl.fetch(TodoResource.delete, { id });
 const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId: 1, page })
 ```
 
+Lists wrapped in an envelope like `{ data: [...], meta }` keep the envelope as the schema, with the Collection inside it: see [Page numbers in an envelope](references/pagination.md#envelope) for `getPage` and `push` on one list.
+
 For more detailed usage, apply the skill "data-client-react" or "data-client-vue".
 
 ---
@@ -196,7 +198,7 @@ For detailed API documentation, see the [references](references/) directory:
 
 **Guides** (refer when user asks about these topics):
 - [auth](references/auth.md) - Authentication headers, tokens, login/logout flows
-- [pagination](references/pagination.md);[_pagination.md](references/_pagination.md) - Cursor/offset pagination, infinite scroll
+- [pagination](references/pagination.md);[_pagination.md](references/_pagination.md) - Cursor/offset pagination, `{ data, meta }` envelopes, infinite scroll
 - [optimistic-updates](references/optimistic-updates.md);[_optimisticTransform.md](references/_optimisticTransform.md) - Instant UI feedback before server response
 - [network-transform](references/network-transform.md) - Transform responses, handle non-standard APIs
 

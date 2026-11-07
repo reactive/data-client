@@ -10,6 +10,25 @@ Prefer placing it above [`<Activity>`](https://react.dev/reference/react/Activit
 also works, like when a tab or route that `<Activity>` hides has its own `DataProvider`. Hiding it
 [pauses its Managers](https://dataclient.io/docs/api/Manager#cleanup), so polling stops. Its store keeps applying responses.
 
+Put your [Suspense boundaries](./data-dependency.md#boundaries), like
+[`<AsyncBoundary>`](./AsyncBoundary.md), inside `DataProvider`. It wraps its children in a backup `<Suspense>`
+that shows "Uncaught Suspense", so a boundary above `DataProvider` never catches a component below it.
+
+```tsx
+import { AsyncBoundary, DataProvider } from '@data-client/react';
+import App from './App';
+
+export default function Root() {
+  return (
+    <DataProvider>
+      <AsyncBoundary fallback={<Loading />}>
+        <App />
+      </AsyncBoundary>
+    </DataProvider>
+  );
+}
+```
+
 **Web**
 
 ```tsx title="index.tsx"

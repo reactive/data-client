@@ -77,6 +77,19 @@
         "`AuthLoader` is removed; loading is left to a Suspense boundary that sits inside `DataProvider`.",
         "No `react-query-auth` or `@tanstack/react-query` import remains in the converted files."
       ]
+    },
+    {
+      "id": 6,
+      "name": "suspense-inside-provider",
+      "source": "Migration of alan2207/bulletproof-react@9506629 (apps/react-vite), problem record in https://github.com/reactive/data-client/pull/4607 (.agents/projects/migrations/bulletproof-react/problems.md) P3",
+      "prompt": "Set up @data-client/react in this Vite app. Its src/main.tsx renders `<React.Suspense fallback={<Spinner />}><ErrorBoundary FallbackComponent={MainErrorFallback}><QueryClientProvider client={queryClient}><App /></QueryClientProvider></ErrorBoundary></React.Suspense>`. Replace React Query's provider with Data Client's; components will call useSuspense().",
+      "expected_output": "DataProvider ends up above the app's Suspense boundary (or an AsyncBoundary is added inside DataProvider), because DataProvider's own backup Suspense would otherwise catch every suspend and show 'Uncaught Suspense'. Library check: the 'should not let a Suspense above DataProvider catch its children' test in packages/react/src/components/__tests__/provider.tsx.",
+      "files": [],
+      "assertions": [
+        "In the result, a `<Suspense>` or `<AsyncBoundary>` is a descendant of `DataProvider` and an ancestor of `<App />`.",
+        "Does not leave `DataProvider` as the only thing between the app's outer `<Suspense>` and `<App />`.",
+        "Says why: a boundary above `DataProvider` never catches suspends below it."
+      ]
     }
   ]
 }
