@@ -294,9 +294,9 @@ class User extends Entity {
 }
 ```
 
-Some APIs send an empty object `{}` instead of `null` for a missing related entity, such as a
-deleted author. `{}` has no primary key, so normalizing it throws `Missing usable primary key`.
-Clear it in the parent's [process()](#process):
+Fix response values that don't fit the schema in the parent's [process()](#process). For example,
+some APIs send `{}` instead of `null` for a missing related entity, which throws
+`Missing usable primary key` because `{}` has no primary key:
 
 ```typescript
 class Post extends Entity {
