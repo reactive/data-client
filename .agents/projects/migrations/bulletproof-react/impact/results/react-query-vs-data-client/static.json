@@ -1,7 +1,7 @@
 {
   "kind": "static",
   "app": "bulletproof-react",
-  "date": "2026-11-07T04:48:43.697Z",
+  "date": "2026-11-07T05:33:09.976Z",
   "metrics": [
     {
       "group": "bundle",
@@ -9,9 +9,9 @@
       "label": "Entry JS, gzip",
       "unit": "kB",
       "lowerIsBetter": true,
-      "baseline": 177.87,
+      "baseline": 177.88,
       "migrated": 161.72,
-      "delta": -16.15,
+      "delta": -16.16,
       "pct": -9.1,
       "verdict": "better"
     },
@@ -21,10 +21,10 @@
       "label": "Entry JS, brotli",
       "unit": "kB",
       "lowerIsBetter": true,
-      "baseline": 153.3,
+      "baseline": 153.46,
       "migrated": 139.03,
-      "delta": -14.27,
-      "pct": -9.3,
+      "delta": -14.43,
+      "pct": -9.4,
       "verdict": "better"
     },
     {
@@ -45,9 +45,9 @@
       "label": "All JS, gzip",
       "unit": "kB",
       "lowerIsBetter": true,
-      "baseline": 232.6,
+      "baseline": 232.59,
       "migrated": 214.92,
-      "delta": -17.68,
+      "delta": -17.67,
       "pct": -7.6,
       "verdict": "better"
     },
@@ -57,10 +57,10 @@
       "label": "All JS, brotli",
       "unit": "kB",
       "lowerIsBetter": true,
-      "baseline": 202.3,
+      "baseline": 202.51,
       "migrated": 186.84,
-      "delta": -15.46,
-      "pct": -7.6,
+      "delta": -15.67,
+      "pct": -7.7,
       "verdict": "better"
     },
     {
@@ -330,7 +330,7 @@
   ],
   "raw": {
     "baseline": {
-      "root": "base/apps/react-vite",
+      "root": "",
       "source": {
         "cats": {
           "app": {
@@ -383,13 +383,13 @@
       "bundle": {
         "entry": {
           "raw": 566151,
-          "gzip": 182143,
-          "brotli": 156975
+          "gzip": 182145,
+          "brotli": 157147
         },
         "total": {
           "raw": 719121,
-          "gzip": 238179,
-          "brotli": 207159
+          "gzip": 238175,
+          "brotli": 207366
         },
         "css": {
           "raw": 43390,
@@ -400,7 +400,7 @@
       }
     },
     "migrated": {
-      "root": "mig/apps/react-vite",
+      "root": "../../../mig/apps/react-vite",
       "source": {
         "cats": {
           "app": {

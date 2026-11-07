@@ -141,8 +141,12 @@ export default {
   deterministic, so a single run shows them. Timings need 10 or more runs.
 - **Write flows that tolerate stale data.** Find rows by an id that does not change, so the before
   build can finish a flow even while it shows stale data. The `fresh` check records the staleness.
-- **Write mutation steps in three parts.** `prepare` opens the form and types the input. `run` only
-  submits, and `ready` waits for the change to show. Then the time measures the data layer, not typing.
+- **Write mutation steps in three parts.** `prepare` opens the form, types the input and ends with
+  `await submitButton.click({ trial: true })`. `run` only submits, and `ready` waits for the change to
+  show. The trial click waits for drawers and dialogs to finish animating; without it, about 900ms of
+  animation lands inside the measured time.
+- **Check `ready` locators behind overlays.** An open drawer or dialog hides the page from the
+  accessibility tree, so `getByRole` cannot see an optimistic update behind it. Use `getByText` there.
 
 ## Tests
 

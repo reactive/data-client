@@ -1,0 +1,18 @@
+{
+  "config": "../data-client/.agents/projects/migrations/bulletproof-react/impact/impact.config.mjs",
+  "prep": ["fixed-latency.patch"],
+  "runs": 8,
+  "cpuThrottle": 4,
+  "node": "v22.23.4",
+  "playwright": "1.65.0",
+  "checkouts": {
+    "baseline": {
+      "commit": "9506629ed003a561c6627735480cce4994244bb4",
+      "uncommittedFiles": 5
+    },
+    "migrated": {
+      "commit": "fb6c863163fbfc202666d745d1596083ef374bc4",
+      "uncommittedFiles": 59
+    }
+  }
+}
