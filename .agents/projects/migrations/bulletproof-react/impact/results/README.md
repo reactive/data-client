@@ -10,7 +10,8 @@ CPU throttle, mock API latency fixed at 400ms ([`../fixed-latency.patch`](../fix
 | data-client + optimistic | the same commit plus `migration.patch` from [#4607](https://github.com/reactive/data-client/pull/4607) @ `5258d83` (optimistic comment create and delete, discussion update, profile update) |
 
 The commit shown in each report's Setup table is the checkout's own HEAD, so the migrated variants show a
-local commit; the table above names the patch each one applied.
+local commit; the table above names the patch each one applied. These runs predate the working-tree
+fingerprint, so its column is blank.
 
 ## Mutations
 

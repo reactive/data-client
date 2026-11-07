@@ -12,7 +12,6 @@ export default {
   // Applied to both checkouts before building: the mock API's random 300-1000ms latency becomes a fixed 400ms.
   prep: ['fixed-latency.patch'],
   build: 'npx vite build --base=/',
-  serve: 'npx vite preview --port {port} --strictPort',
   flow,
   static: {
     include: ['src/**/*.{ts,tsx}', 'e2e/**/*.ts'],

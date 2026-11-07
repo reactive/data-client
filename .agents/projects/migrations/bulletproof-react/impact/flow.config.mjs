@@ -1,5 +1,6 @@
 // Flow section of impact.config.mjs: register, then browse and mutate discussions, comments and the profile.
-// Each mutation step times submit -> UI shows the change, and counts the refetches it triggers.
+// Each mutation step times its trigger click (submit or confirm) until the UI shows the change, and counts
+// the refetches it triggers.
 // Steps with `fresh` check that a view shows data changed elsewhere (stale views).
 
 const closeToast = async (page, label) => {
@@ -12,9 +13,6 @@ const row = (page, text) => page.getByRole('row', { name: new RegExp(text) });
 const submit = page => page.getByRole('button', { name: 'Submit' });
 const confirm = (page, name) =>
   page.getByRole('dialog').getByRole('button', { name });
-// A trial click waits until the button is visible, stable and enabled (drawers and dialogs animate in)
-// without clicking, so the measured step starts at the real click, not during the animation.
-const settled = locator => locator.click({ trial: true });
 
 export default {
   isData: url => url.startsWith('https://api.bulletproofapp.com'),
@@ -51,9 +49,8 @@ export default {
         await page.getByRole('button', { name: 'Create Discussion' }).click();
         await page.getByLabel('Title').fill('title ' + uid);
         await page.getByLabel('Body').fill('body ' + uid);
-        await settled(submit(page));
       },
-      run: ({ page }) => submit(page).click(),
+      trigger: ({ page }) => submit(page),
       ready: ({ page, uid }) => row(page, 'title ' + uid).waitFor(),
     },
     {
@@ -72,9 +69,8 @@ export default {
       async prepare({ page, uid }) {
         await page.getByRole('button', { name: 'Update Discussion' }).click();
         await page.getByLabel('Title').fill('renamed ' + uid);
-        await settled(submit(page));
       },
-      run: ({ page }) => submit(page).click(),
+      trigger: ({ page }) => submit(page),
       // getByText, not getByRole: the open drawer hides the page from the accessibility tree.
       ready: ({ page, uid }) =>
         page
@@ -89,9 +85,8 @@ export default {
         await closeToast(page, 'Discussion Updated');
         await page.getByRole('button', { name: 'Create Comment' }).click();
         await page.getByLabel('Body').fill('comment ' + uid);
-        await settled(submit(page));
       },
-      run: ({ page }) => submit(page).click(),
+      trigger: ({ page }) => submit(page),
       ready: ({ page, uid }) => page.getByText('comment ' + uid).waitFor(),
     },
     {
@@ -103,9 +98,8 @@ export default {
         await page
           .getByText('Are you sure you want to delete this comment?')
           .waitFor();
-        await settled(confirm(page, 'Delete Comment'));
       },
-      run: ({ page }) => confirm(page, 'Delete Comment').click(),
+      trigger: ({ page }) => confirm(page, 'Delete Comment'),
       ready: ({ page, uid }) =>
         page.getByText('comment ' + uid).waitFor({ state: 'hidden' }),
     },
@@ -143,9 +137,8 @@ export default {
       async prepare({ page, uid }) {
         await page.getByRole('button', { name: 'Update Profile' }).click();
         await page.getByLabel('First Name').fill('G' + uid);
-        await settled(submit(page));
       },
-      run: ({ page }) => submit(page).click(),
+      trigger: ({ page }) => submit(page),
       ready: ({ page, uid }) =>
         page
           .getByText('G' + uid)
@@ -178,9 +171,8 @@ export default {
         await row(page, uid)
           .getByRole('button', { name: 'Delete Discussion' })
           .click();
-        await settled(confirm(page, 'Delete Discussion'));
       },
-      run: ({ page }) => confirm(page, 'Delete Discussion').click(),
+      trigger: ({ page }) => confirm(page, 'Delete Discussion'),
       ready: ({ page, uid }) => row(page, uid).waitFor({ state: 'hidden' }),
     },
   ],

@@ -3,8 +3,11 @@
 // compares what the user experiences: requests, redundant fetches, loading states, stale views,
 // mutation-to-UI time, main-thread blocking and cold-load JS cost.
 //
-//   node flow.mjs --config <app>/flow.config.mjs --baseline <url> --migrated <url> \
+//   node flow.mjs --config <app>/impact.config.mjs --baseline <url> --migrated <url> \
 //     [--runs 10] [--cpu 4] [--out flow.json] [--headed]
+//   node flow.mjs --config <app>/impact.config.mjs --from flow.json [--out flow.json]
+//
+// --from recomputes the metric rows from an earlier flow.json's samples without running anything.
 //
 // Playwright is resolved from the current folder (run from the app) or this folder.
 // Set CHROMIUM_PATH to use a specific browser binary.
@@ -15,9 +18,8 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 
-import { sampled } from './utils/metrics.mjs';
+import { metric, sampled } from './utils/metrics.mjs';
 import { loadConfig } from './utils/config.mjs';
-import { compare } from './utils/stats.mjs';
 import { summarizeTrace, TRACE_CATEGORIES } from './utils/trace.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -30,29 +32,36 @@ const { values: opt } = parseArgs({
     cpu: { type: 'string', default: '4' },
     out: { type: 'string', default: 'flow.json' },
     headed: { type: 'boolean', default: false },
-    'skip-landing': { type: 'boolean', default: false },
-    // Recompute summary and metrics from an earlier flow.json's samples without running anything.
     from: { type: 'string' },
   },
 });
 if (!opt.config || (!opt.from && (!opt.baseline || !opt.migrated))) {
   console.error(
-    'usage: flow.mjs --config <flow.config.mjs> --baseline <url> --migrated <url> [--runs N] [--cpu N] [--out file]',
+    'usage: flow.mjs --config <impact.config.mjs> (--baseline <url> --migrated <url> | --from flow.json) [--runs N] [--cpu N] [--out file]',
   );
   process.exit(2);
 }
 
-const require = createRequire(join(process.cwd(), 'noop.js'));
-const pwPath = (() => {
+async function launchBrowser() {
+  let pwPath;
   try {
-    return require.resolve('playwright');
+    pwPath = createRequire(join(process.cwd(), 'noop.js')).resolve(
+      'playwright',
+    );
   } catch {
-    return createRequire(import.meta.url).resolve('playwright');
+    pwPath = createRequire(import.meta.url).resolve('playwright');
   }
-})();
-const pw = await import(pathToFileURL(pwPath).href);
-const { chromium } = pw.default ?? pw;
+  const pw = await import(pathToFileURL(pwPath).href);
+  return (pw.default ?? pw).chromium.launch({
+    headless: !opt.headed,
+    executablePath: process.env.CHROMIUM_PATH || undefined,
+    args: ['--no-sandbox'],
+  });
+}
+
 const config = await loadConfig(resolve(opt.config), 'flow');
+// A step is a navigation unless it says otherwise.
+const steps = config.steps.map(s => ({ kind: 'nav', ...s }));
 const probe = readFileSync(join(here, 'utils/probe.js'), 'utf8');
 const previous = opt.from ? JSON.parse(readFileSync(opt.from, 'utf8')) : null;
 const runs = previous?.runs ?? +opt.runs;
@@ -62,9 +71,18 @@ const variants = {
   migrated: opt.migrated?.replace(/\/$/, ''),
 };
 
-// lowerIsBetter=false for metrics where more is better.
-const HIGHER_IS_BETTER = new Set(['navsWithoutLoading']);
-
+// Step metrics that add up across the flow.
+const SUM_KEYS = [
+  'requests',
+  'reads',
+  'writes',
+  'redundant',
+  'unhashedReads',
+  'loadingShown',
+  'loadingMs',
+  'longTasks',
+  'tbtMs',
+];
 // samples[section][name][metric][variant] = number[]
 const samples = previous?.samples ?? { landing: {}, steps: {}, totals: {} };
 const failures = previous?.failures ?? { baseline: [], migrated: [] };
@@ -79,14 +97,7 @@ const commit = (section, name, metrics, variant) => {
   }
 };
 
-const browser =
-  previous ? null : (
-    await chromium.launch({
-      headless: !opt.headed,
-      executablePath: process.env.CHROMIUM_PATH || undefined,
-      args: ['--no-sandbox'],
-    })
-  );
+const browser = previous ? null : await launchBrowser();
 
 async function newPage() {
   const ctx = await browser.newContext(config.context ?? {});
@@ -158,11 +169,14 @@ function trackNetwork(page) {
     bodies: [],
     seen: new Map(),
   };
+  const entries = new WeakMap();
   page.on('request', r => {
     if (!isData(r.url(), r)) return;
     net.inflight++;
     net.lastActivity = Date.now();
-    net.log.push({ method: r.method(), url: r.url(), redundant: false });
+    const entry = { method: r.method(), redundant: false };
+    entries.set(r, entry);
+    net.log.push(entry);
   });
   const done = r => {
     if (!isData(r.url(), r)) return;
@@ -174,9 +188,7 @@ function trackNetwork(page) {
   page.on('response', res => {
     const req = res.request();
     if (req.method() !== 'GET' || !isData(req.url(), req)) return;
-    const entry = net.log.findLast(
-      e => e.url === req.url() && e.method === 'GET',
-    );
+    const entry = entries.get(req);
     net.bodies.push(
       res
         .body()
@@ -219,58 +231,57 @@ async function flow(base, variant) {
     page,
     base,
     uid: Math.random().toString(36).slice(2, 8),
-    state: {},
   };
   const totals = {
     flowMs: 0,
-    requests: 0,
-    reads: 0,
-    writes: 0,
-    redundant: 0,
-    loadingShown: 0,
-    loadingMs: 0,
-    longTasks: 0,
-    tbtMs: 0,
     staleViews: 0,
     navsWithoutLoading: 0,
     mutationFollowupReads: 0,
     mutationReflectMs: 0,
-    unhashedReads: 0,
     maxInteractionMs: 0,
     cls: 0,
+    ...Object.fromEntries(SUM_KEYS.map(k => [k, 0])),
   };
   try {
     if (config.setup) await config.setup(ctx);
     await net.settle();
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpu });
-    for (const step of config.steps) {
+    for (const step of steps) {
       // Unmeasured: open forms, type input, dismiss toasts.
       if (step.prepare) await step.prepare(ctx);
+      // A trial click waits until the trigger is visible, stable and enabled (drawers and dialogs
+      // animate in) without clicking, so timing starts at the real click, not during the animation.
+      if (step.trigger) await step.trigger(ctx).click({ trial: true });
       const before = net.log.length;
       const [origin0, p0] = await page.evaluate(() => [
         window.__impact.origin,
         performance.now(),
       ]);
       const t0 = Date.now();
-      await step.run(ctx);
+      await (step.run ? step.run(ctx) : step.trigger(ctx).click());
       if (step.ready) await step.ready(ctx);
       const readyMs = Date.now() - t0;
       let freshMs;
       if (step.fresh)
         freshMs = await pollFresh(step, ctx, config.staleTimeoutMs ?? 3000);
       await net.settle();
-      const rec = await page.evaluate(() => ({
-        origin: window.__impact.origin,
-        longtasks: window.__impact.longtasks,
-        events: window.__impact.events,
-        shifts: window.__impact.shifts,
-        loading: window.__impact.flush(),
-      }));
-      // A full page load inside the step resets the page clock; then count from its start.
-      const from = rec.origin === origin0 ? p0 : 0;
-      const inWin = e => e.start >= from;
-      const loading = rec.loading.filter(l => l.end > from);
-      const longtasks = rec.longtasks.filter(inWin);
+      const { from, ...rec } = await page.evaluate(
+        ([origin0, p0]) => {
+          const w = window.__impact;
+          // A full page load inside the step resets the page clock; then count from its start.
+          const from = w.origin === origin0 ? p0 : 0;
+          const inWin = e => e.start >= from;
+          return {
+            from,
+            longtasks: w.longtasks.filter(inWin),
+            events: w.events.filter(inWin),
+            shifts: w.shifts.filter(inWin),
+            loading: w.flush().filter(l => l.end > from),
+          };
+        },
+        [origin0, p0],
+      );
+      const { loading, longtasks } = rec;
       const reqs = net.log.slice(before);
       const m = {
         readyMs,
@@ -286,29 +297,15 @@ async function flow(base, variant) {
         ),
         longTasks: longtasks.length,
         tbtMs: longtasks.reduce((t, l) => t + Math.max(0, l.dur - 50), 0),
-        maxInteractionMs: Math.max(
-          0,
-          ...rec.events.filter(inWin).map(e => e.dur),
-        ),
-        cls: rec.shifts.filter(inWin).reduce((t, s) => t + s.value, 0),
+        maxInteractionMs: Math.max(0, ...rec.events.map(e => e.dur)),
+        cls: rec.shifts.reduce((t, s) => t + s.value, 0),
       };
       if (step.fresh) {
         m.stale = freshMs === null ? 1 : 0;
         if (freshMs !== null) m.freshMs = freshMs;
       }
       stage('steps', step.name, m, variant);
-      for (const k of [
-        'requests',
-        'reads',
-        'writes',
-        'redundant',
-        'unhashedReads',
-        'loadingShown',
-        'loadingMs',
-        'longTasks',
-        'tbtMs',
-      ])
-        totals[k] += m[k];
+      for (const k of SUM_KEYS) totals[k] += m[k];
       totals.flowMs += readyMs;
       totals.maxInteractionMs = Math.max(
         totals.maxInteractionMs,
@@ -320,7 +317,7 @@ async function flow(base, variant) {
         totals.mutationFollowupReads += m.reads;
         totals.mutationReflectMs += readyMs;
       }
-      if ((step.kind ?? 'nav') === 'nav' && m.loadingShown === 0)
+      if (step.kind === 'nav' && m.loadingShown === 0)
         totals.navsWithoutLoading++;
     }
   } finally {
@@ -336,8 +333,7 @@ for (let i = 0; !previous && i < runs; i++) {
     const base = variants[variant];
     staged = [];
     try {
-      if (!opt['skip-landing'])
-        stage('landing', 'cold load', await landing(base), variant);
+      stage('landing', 'cold load', await landing(base), variant);
       stage('totals', 'flow', await flow(base, variant), variant);
       for (const entry of staged) commit(...entry);
       process.stderr.write(`run ${i + 1}/${runs} ${variant} ok\n`);
@@ -351,22 +347,8 @@ for (let i = 0; !previous && i < runs; i++) {
 }
 await browser?.close();
 
-const summarize = section =>
-  Object.fromEntries(
-    Object.entries(section).map(([name, metrics]) => [
-      name,
-      Object.fromEntries(
-        Object.entries(metrics).map(([k, v]) => [
-          k,
-          compare(v.baseline, v.migrated, {
-            lowerIsBetter: !HIGHER_IS_BETTER.has(k),
-          }),
-        ]),
-      ),
-    ]),
-  );
-
-const navs = config.steps.filter(s => (s.kind ?? 'nav') === 'nav').length;
+const navs = steps.filter(s => s.kind === 'nav').length;
+// [label, unit, lowerIsBetter = true]
 const LABELS = {
   landing: {
     readyMs: ['First screen ready', 'ms'],
@@ -394,6 +376,7 @@ const LABELS = {
     navsWithoutLoading: [
       `Navigations with no loading indicator (of ${navs})`,
       'navs',
+      false,
     ],
     loadingShown: ['Loading indicators shown', 'count'],
     loadingMs: ['Loading indicator visible', 'ms'],
@@ -411,39 +394,48 @@ const STEP_METRICS = {
   },
   nav: { readyMs: ['action to ready', 'ms'], reads: ['reads', 'requests'] },
 };
-const metrics = [];
-const row = (group, id, label, unit, section, name, key) => {
+// Failed runs are left out of every other row, so their count is a row of its own.
+const metrics = [
+  metric(
+    'flow',
+    'failedRuns',
+    'Failed runs (left out)',
+    'runs',
+    failures.baseline.length,
+    failures.migrated.length,
+  ),
+];
+const row = (
+  group,
+  id,
+  [label, unit, lowerIsBetter = true],
+  section,
+  name,
+  key,
+) => {
   const v = samples[section][name]?.[key];
-  if (!v) return;
-  const lowerIsBetter = !HIGHER_IS_BETTER.has(key);
-  metrics.push(
-    sampled(
-      group,
-      id,
-      label,
-      unit,
-      compare(v.baseline, v.migrated, { lowerIsBetter }),
-      { lowerIsBetter },
-    ),
-  );
+  if (v)
+    metrics.push(
+      sampled(group, id, label, unit, v.baseline, v.migrated, {
+        lowerIsBetter,
+      }),
+    );
 };
 for (const [section, name, group] of [
   ['totals', 'flow', 'flow'],
   ['landing', 'cold load', 'cold load'],
 ]) {
-  for (const [key, [label, unit]] of Object.entries(LABELS[section]))
-    row(group, key, label, unit, section, name, key);
+  for (const [key, def] of Object.entries(LABELS[section]))
+    row(group, key, def, section, name, key);
 }
-for (const step of config.steps) {
-  const kind = step.kind ?? 'nav';
+for (const step of steps) {
   for (const [key, [label, unit]] of Object.entries(
-    STEP_METRICS[kind] ?? STEP_METRICS.nav,
+    STEP_METRICS[step.kind] ?? STEP_METRICS.nav,
   ))
     row(
-      `${kind} steps`,
+      `${step.kind} steps`,
       `${step.name}.${key}`,
-      `${step.name}: ${label}`,
-      unit,
+      [`${step.name}: ${label}`, unit],
       'steps',
       step.name,
       key,
@@ -452,8 +444,7 @@ for (const step of config.steps) {
     row(
       'stale views',
       `${step.name}.stale`,
-      `${step.name}: stale (1 = yes)`,
-      'median of runs',
+      [`${step.name}: stale (1 = yes)`, 'median of runs'],
       'steps',
       step.name,
       'stale',
@@ -465,19 +456,9 @@ const result = {
   date: new Date().toISOString(),
   runs,
   cpuThrottle: cpu,
-  steps: config.steps.map(s => ({
-    name: s.name,
-    kind: s.kind ?? 'nav',
-    fresh: !!s.fresh,
-  })),
-  navSteps: navs,
+  steps: steps.map(s => ({ name: s.name, kind: s.kind, fresh: !!s.fresh })),
   failures,
   metrics,
-  summary: {
-    landing: summarize(samples.landing),
-    totals: summarize(samples.totals),
-    steps: summarize(samples.steps),
-  },
   samples,
 };
 writeFileSync(opt.out, JSON.stringify(result, null, 1));

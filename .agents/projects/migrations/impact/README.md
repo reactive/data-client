@@ -51,6 +51,9 @@ Every sampled metric reports the median, the interquartile range and a 95% boots
 change. The verdict is "within noise" when that interval includes zero. Before and after runs
 alternate, so drift on the machine affects both equally.
 
+`node flow.mjs --config <impact.config.mjs> --from flow.json` recomputes the rows from saved samples
+without running the browser, for example after a change to the statistics.
+
 ### Static (`static.mjs`)
 
 - Entry and total JS, and CSS, as raw, gzip and brotli sizes. Entry means the scripts and modulepreloads
@@ -68,11 +71,12 @@ Copies each checkout to a temporary folder (node_modules symlinked) and runs
 `claude -p "<prompt>" --permission-mode acceptEdits` with only file tools, type-check and unit-test
 commands allowed. Then it copies in the acceptance files and runs `acceptance`. It records total and
 output tokens, cost, turns, wall time, lines and files changed, and whether the acceptance test passed.
-An errored session counts as a failed acceptance, and its spend stays in the token and cost medians. The report
-lists the agent guidance files (CLAUDE.md, AGENTS.md, skills) each copy contained, because they are part
-of what the agent sees. Tell the agent in the prompt to edit with the Edit and Write tools: shell edits
-(sed -i, scripts) are refused and the run ends with no change. Writes into node_modules reach the source
-checkout through the symlink.
+An errored session counts as a failed acceptance, and its spend stays in the token and cost medians
+when the CLI reported it (a timeout or crash reports none). The report lists the agent guidance files
+(CLAUDE.md, AGENTS.md, skills) each copy contained, because they are part of what the agent sees. The
+prompt gets the tool allowlist appended, because shell edits (sed -i, scripts) are refused and an agent
+that tries them ends with no change. Writes into node_modules reach the source checkout through the
+symlink.
 Pick a feature that touches data the app shows in more than one place; that is where cache design shows.
 
 ## Config
@@ -85,8 +89,8 @@ export default {
   name: 'my-app',
   root: 'apps/web', // folder inside each checkout
   prep: ['fixed-latency.patch'], // optional patches applied to both checkouts
-  build: 'npx vite build',
-  serve: 'npx vite preview --port {port} --strictPort',
+  build: 'npx vite build', // default
+  serve: 'npx vite preview --port {port} --strictPort', // default
   flow: {
     isData: url => url.includes('/api/'), // which requests are data requests
     loading: '[aria-busy=true], .spinner', // loading indicator selector
@@ -102,9 +106,11 @@ export default {
         name: 'rename item',
         kind: 'mutation', // 'nav' (default) or 'mutation'
         prepare: async ({ page }) => {
-          /* open the form; not measured */
+          /* open the form and type; not measured */
         },
-        run: ({ page }) => page.getByRole('button', { name: 'Save' }).click(),
+        // Clicked to start the step, once it is visible, stable and enabled.
+        // Use `run: ctx => ...` instead for an action that is not one click.
+        trigger: ({ page }) => page.getByRole('button', { name: 'Save' }),
         ready: ({ page, uid }) => page.getByText('renamed ' + uid).waitFor(),
       },
       {
@@ -141,10 +147,10 @@ export default {
   deterministic, so a single run shows them. Timings need 10 or more runs.
 - **Write flows that tolerate stale data.** Find rows by an id that does not change, so the before
   build can finish a flow even while it shows stale data. The `fresh` check records the staleness.
-- **Write mutation steps in three parts.** `prepare` opens the form, types the input and ends with
-  `await submitButton.click({ trial: true })`. `run` only submits, and `ready` waits for the change to
-  show. The trial click waits for drawers and dialogs to finish animating; without it, about 900ms of
-  animation lands inside the measured time.
+- **Write mutation steps in three parts.** `prepare` opens the form and types the input, `trigger`
+  returns the submit button, and `ready` waits for the change to show. Before timing starts, the kit
+  trial-clicks the trigger, which waits for drawers and dialogs to finish animating; without that, about
+  900ms of animation lands inside the measured time.
 - **Check `ready` locators behind overlays.** An open drawer or dialog hides the page from the
   accessibility tree, so `getByRole` cannot see an optimistic update behind it. Use `getByText` there.
 

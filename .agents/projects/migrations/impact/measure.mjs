@@ -11,7 +11,8 @@
 // 4. runs static.mjs, and feature-cost.mjs when --feature is given (it spends model tokens)
 // 5. writes <out>/impact.json and <out>/impact.md with report.mjs
 import { execFileSync, execSync, spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createConnection, createServer } from 'node:net';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -85,6 +86,17 @@ const sh = (cmd, cwd) => {
     return null;
   }
 };
+// Fingerprint of the working tree on top of the commit (tracked diff plus untracked files), so two
+// dirty trees can be told apart. null when the checkout is not a git repository.
+function treeDiffSha1(cwd) {
+  const diff = sh('git diff HEAD', cwd);
+  if (diff === null) return null;
+  const hash = createHash('sha1').update(diff);
+  const untracked = sh('git ls-files --others --exclude-standard', cwd) ?? '';
+  for (const f of untracked.split('\n').filter(Boolean).sort())
+    hash.update(f).update(readFileSync(join(cwd, f)));
+  return hash.digest('hex').slice(0, 12);
+}
 const meta = {
   config: relative(process.cwd(), configPath),
   prep: config.prep ?? [],
@@ -100,11 +112,7 @@ const meta = {
       v,
       {
         commit: sh('git rev-parse HEAD', checkouts[v]),
-        // Fingerprint of the working tree on top of the commit, so two dirty trees can be told apart.
-        treeDiffSha1: sh(
-          '{ git diff HEAD; git ls-files --others --exclude-standard | sort | xargs -r sha1sum; } | sha1sum | cut -c1-12',
-          checkouts[v],
-        ),
+        treeDiffSha1: treeDiffSha1(checkouts[v]),
         // Prep patches and the migration itself usually show here; the count says how much.
         uncommittedFiles:
           sh('git status --porcelain', checkouts[v])

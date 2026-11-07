@@ -46,29 +46,32 @@ export const direction = (delta, lowerIsBetter) =>
 
 /**
  * Summarize one metric's samples from both variants.
- * verdict: 'better' | 'worse' | 'noise' | 'same', using lowerIsBetter.
+ * verdict: 'better' | 'worse' | 'noise' | 'same' | 'few runs' | 'changed', using lowerIsBetter.
  */
 export function compare(before, after, { lowerIsBetter = true } = {}) {
   const b = before.filter(Number.isFinite);
   const a = after.filter(Number.isFinite);
-  const mb = median(b);
-  const ma = median(a);
+  const mb = round(median(b));
+  const ma = round(median(a));
   // Verdicts use the same rounding as the printed values, so a change too small to show is never "worse".
-  const delta = round(round(ma) - round(mb));
-  let ci = [delta, delta];
-  if (b.length > 1 && a.length > 1) ci = bootstrapDiff(b, a).map(x => round(x));
+  const delta = round(ma - mb);
+  const ci =
+    b.length > 1 && a.length > 1 ?
+      bootstrapDiff(b, a).map(x => round(x))
+    : [delta, delta];
   let verdict;
   if (delta === 0 && ci[0] === 0 && ci[1] === 0) verdict = 'same';
   // Too few samples for an interval; one run is enough only for counts that never vary.
   else if (b.length < 3 || a.length < 3) verdict = 'few runs';
-  else if (ci[0] <= 0 && ci[1] >= 0) verdict = 'noise';
+  // A printed change of 0 is never a direction, even when the interval excludes 0.
+  else if (delta === 0 || (ci[0] <= 0 && ci[1] >= 0)) verdict = 'noise';
   else verdict = direction(delta, lowerIsBetter);
   return {
-    baseline: round(mb),
-    migrated: round(ma),
-    delta: round(delta),
+    baseline: mb,
+    migrated: ma,
+    delta,
     pct: mb ? round((delta / mb) * 100, 1) : null,
-    ci95: ci.map(x => round(x)),
+    ci95: ci,
     spread: {
       baseline: [round(quantile(b, 0.25)), round(quantile(b, 0.75))],
       migrated: [round(quantile(a, 0.25)), round(quantile(a, 0.75))],

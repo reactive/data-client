@@ -45,14 +45,8 @@ const fmt = x => {
   return String(Math.round(x * 100) / 100);
 };
 const signed = x => (x > 0 ? '+' : '') + fmt(x);
-const VERDICT = {
-  better: 'better',
-  worse: 'worse',
-  noise: 'within noise',
-  same: 'same',
-  changed: 'changed',
-  'few runs': 'needs 3+ runs',
-};
+const verdictText = v =>
+  ({ noise: 'within noise', 'few runs': 'needs 3+ runs' })[v] ?? v;
 
 function cell(m, side) {
   const v = fmt(m[side]);
@@ -69,8 +63,15 @@ function change(m) {
 }
 
 const groups = [...new Set(metrics.map(m => m.group))];
-const B = opt['baseline-label'];
-const M = opt['migrated-label'];
+const LABEL = {
+  baseline: opt['baseline-label'],
+  migrated: opt['migrated-label'],
+};
+const countFailures = failures =>
+  Object.entries(failures ?? {})
+    .filter(([, f]) => f.length)
+    .map(([v, f]) => `${LABEL[v]} ${f.length}`)
+    .join(', ');
 const meta = opt.meta ? JSON.parse(readFileSync(opt.meta, 'utf8')) : null;
 const lines = [`# ${opt.title ?? `${app}: impact report`}`, ''];
 
@@ -81,26 +82,21 @@ if (flow) {
   notes.push(
     `Flow: ${flow.runs} interleaved runs per variant at ${flow.cpuThrottle}x CPU throttle; ${flow.steps.length} steps (${flow.steps.filter(s => s.kind === 'mutation').length} mutations).`,
   );
-  const failed = Object.entries(flow.failures).filter(([, f]) => f.length);
-  if (failed.length)
+  const failed = countFailures(flow.failures);
+  if (failed)
     notes.push(
-      `Failed runs: ${failed.map(([v, f]) => `${v} ${f.length}`).join(', ')}. Every row leaves these runs out, which can favor the variant that fails more.`,
+      `Failed runs: ${failed}. Every row leaves these runs out, which can favor the variant that fails more.`,
     );
 }
 if (feature) {
   notes.push(
     `Feature cost: "${feature.feature}", ${feature.runs.length / 2} runs per variant, model ${feature.model} at ${feature.effort} effort. Errored agent sessions count as failed acceptance; their spend stays in the medians.`,
   );
-  const failed = Object.entries(feature.failures ?? {}).filter(
-    ([, f]) => f.length,
-  );
-  if (failed.length)
-    notes.push(
-      `Errored agent sessions: ${failed.map(([v, f]) => `${v} ${f.length}`).join(', ')}.`,
-    );
+  const failed = countFailures(feature.failures);
+  if (failed) notes.push(`Errored agent sessions: ${failed}.`);
   for (const [v, files] of Object.entries(feature.context ?? {}))
     notes.push(
-      `Agent guidance in the ${v === 'baseline' ? B : M} copy: ${files.length ? files.map(f => `\`${f}\``).join(', ') : 'none'}.`,
+      `Agent guidance in the ${LABEL[v]} copy: ${files.length ? files.map(f => `\`${f}\``).join(', ') : 'none'}.`,
     );
 }
 notes.push(
@@ -116,7 +112,7 @@ if (meta) {
     '| --- | --- | --- | --- |',
     ...Object.entries(meta.checkouts).map(
       ([v, c]) =>
-        `| ${v === 'baseline' ? B : M} | ${c.commit ?? 'not a git checkout'} | ${c.uncommittedFiles ?? '–'} | ${c.treeDiffSha1 ?? '–'} |`,
+        `| ${LABEL[v]} | ${c.commit ?? 'not a git checkout'} | ${c.uncommittedFiles ?? '–'} | ${c.treeDiffSha1 ?? '–'} |`,
     ),
     '',
     `Config \`${meta.config}\`, prep ${meta.prep.map(p => `\`${p}\``).join(', ') || 'none'}, Node ${meta.node}, Playwright ${meta.playwright ?? 'unknown'}.`,
@@ -127,12 +123,12 @@ if (meta) {
 for (const g of groups) {
   lines.push(`## ${g[0].toUpperCase() + g.slice(1)}`, '');
   lines.push(
-    `| Metric | Unit | ${B} | ${M} | Change | Verdict |`,
+    `| Metric | Unit | ${LABEL.baseline} | ${LABEL.migrated} | Change | Verdict |`,
     '| --- | --- | --- | --- | --- | --- |',
   );
   for (const m of metrics.filter(x => x.group === g)) {
     lines.push(
-      `| ${m.label} | ${m.unit} | ${cell(m, 'baseline')} | ${cell(m, 'migrated')} | ${change(m)} | ${VERDICT[m.verdict] ?? m.verdict} |`,
+      `| ${m.label} | ${m.unit} | ${cell(m, 'baseline')} | ${cell(m, 'migrated')} | ${change(m)} | ${verdictText(m.verdict)} |`,
     );
   }
   lines.push('');
@@ -145,7 +141,7 @@ writeFileSync(
       schema: 1,
       app,
       title: opt.title,
-      labels: { baseline: B, migrated: M },
+      labels: LABEL,
       generated: new Date().toISOString(),
       meta,
       inputs: inputs.map(i => ({ file: i.file, kind: i.kind, date: i.date })),

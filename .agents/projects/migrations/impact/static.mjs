@@ -2,13 +2,11 @@
 // Compares two checkouts of an app without running it: bundle size, LoC and decision-point
 // complexity per code category, and how much hand-written data plumbing the app carries.
 //
-//   node static.mjs --config <app>/static.config.mjs --baseline <checkout> --migrated <checkout> \
-//     [--build] [--out static.json]
+//   node static.mjs --config <app>/impact.config.mjs --baseline <checkout> --migrated <checkout> \
+//     [--out static.json]
 //
-// --build runs config.build (default `npx vite build`) in each root first; otherwise it reads
-// the existing dist folder.
-import { execSync } from 'node:child_process';
-import { globSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+// Bundle sizes come from each root's existing dist folder; measure.mjs builds it first.
+import { existsSync, globSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join, relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
@@ -23,20 +21,19 @@ const { values: opt } = parseArgs({
     config: { type: 'string' },
     baseline: { type: 'string' },
     migrated: { type: 'string' },
-    build: { type: 'boolean', default: false },
     out: { type: 'string', default: 'static.json' },
   },
 });
 if (!opt.config || !opt.baseline || !opt.migrated) {
   console.error(
-    'usage: static.mjs --config <static.config.mjs> --baseline <dir> --migrated <dir> [--build] [--out file]',
+    'usage: static.mjs --config <impact.config.mjs> --baseline <dir> --migrated <dir> [--out file]',
   );
   process.exit(2);
 }
 const config = await loadConfig(resolve(opt.config), 'static');
 
 // Patterns that count hand-written data plumbing. Counted in code with comments removed.
-export const PLUMBING = {
+const PLUMBING = {
   useEffect: /\buse(Layout)?Effect\s*\(/g,
   useState: /\buse(State|Reducer)\s*\(/g,
   loadingFlags:
@@ -144,14 +141,20 @@ function scanSource(root) {
   return { cats, importers, complexityAvailable: !!ts };
 }
 
-function sizes(buf) {
-  return {
+// The entry files are also in the total, so each file is compressed once.
+const sizeCache = new Map();
+function sizes(path) {
+  if (sizeCache.has(path)) return sizeCache.get(path);
+  const buf = readFileSync(path);
+  const r = {
     raw: buf.length,
     gzip: gzipSync(buf, { level: 9 }).length,
     brotli: brotliCompressSync(buf, {
       params: { [constants.BROTLI_PARAM_QUALITY]: 11 },
     }).length,
   };
+  sizeCache.set(path, r);
+  return r;
 }
 const add = (a, b) => ({
   raw: a.raw + b.raw,
@@ -162,11 +165,7 @@ const ZERO = { raw: 0, gzip: 0, brotli: 0 };
 
 function scanBundle(root) {
   const dist = join(root, config.dist ?? 'dist');
-  try {
-    statSync(dist);
-  } catch {
-    return null;
-  }
+  if (!existsSync(dist)) return null;
   const exclude = (config.bundleExclude ?? []).map(g => f => matchesGlob(f, g));
   const js = globSync('**/*.{js,mjs}', { cwd: dist }).filter(
     f => !exclude.some(x => x(f)),
@@ -186,24 +185,16 @@ function scanBundle(root) {
   ].map(m => m[1]);
   for (const r of new Set(refs)) {
     try {
-      entry = add(entry, sizes(readFileSync(join(dist, r))));
+      entry = add(entry, sizes(join(dist, r)));
     } catch {}
   }
-  const total = js.reduce(
-    (t, f) => add(t, sizes(readFileSync(join(dist, f)))),
-    ZERO,
-  );
-  const cssTotal = css.reduce(
-    (t, f) => add(t, sizes(readFileSync(join(dist, f)))),
-    ZERO,
-  );
+  const total = js.reduce((t, f) => add(t, sizes(join(dist, f))), ZERO);
+  const cssTotal = css.reduce((t, f) => add(t, sizes(join(dist, f))), ZERO);
   return { entry, total, css: cssTotal, chunks: js.length };
 }
 
 function variant(dir) {
   const root = resolve(dir, config.root ?? '.');
-  if (opt.build)
-    execSync(config.build ?? 'npx vite build', { cwd: root, stdio: 'inherit' });
   return {
     root: relative(process.cwd(), root),
     source: scanSource(root),

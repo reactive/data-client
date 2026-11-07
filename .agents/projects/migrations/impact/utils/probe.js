@@ -45,15 +45,13 @@
     const r = el.getBoundingClientRect();
     return r.width > 0 && r.height > 0;
   };
+  const sel = window.__IMPACT_LOADING__;
   const tick = () => {
-    const sel = window.__IMPACT_LOADING__;
     let on = false;
-    if (sel) {
-      for (const el of document.querySelectorAll(sel)) {
-        if (visible(el)) {
-          on = true;
-          break;
-        }
+    for (const el of document.querySelectorAll(sel)) {
+      if (visible(el)) {
+        on = true;
+        break;
       }
     }
     const now = performance.now();
@@ -64,7 +62,8 @@
     }
     requestAnimationFrame(tick);
   };
-  requestAnimationFrame(tick);
+  // No loading selector configured: nothing to poll.
+  if (sel) requestAnimationFrame(tick);
   rec.flush = () => {
     const out = rec.loading.slice();
     if (since !== null) out.push({ start: since, end: performance.now() });

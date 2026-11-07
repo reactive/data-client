@@ -3,7 +3,7 @@
 // then records its token use, cost, turns and time, checks the result with a hidden acceptance
 // test, and measures the size of the change.
 //
-//   node feature-cost.mjs --config <app>/feature.config.mjs --baseline <checkout> --migrated <checkout> \
+//   node feature-cost.mjs --config <app>/impact.config.mjs --baseline <checkout> --migrated <checkout> \
 //     [--runs 3] [--model sonnet] [--effort medium] [--keep] [--out feature.json]
 //
 // The agent runs in a temporary copy with edits auto-accepted and only the tools in
@@ -26,7 +26,6 @@ import { parseArgs } from 'node:util';
 
 import { sampled } from './utils/metrics.mjs';
 import { loadConfig } from './utils/config.mjs';
-import { compare } from './utils/stats.mjs';
 
 const { values: opt } = parseArgs({
   options: {
@@ -42,7 +41,7 @@ const { values: opt } = parseArgs({
 });
 if (!opt.config || !opt.baseline || !opt.migrated) {
   console.error(
-    'usage: feature-cost.mjs --config <feature.config.mjs> --baseline <dir> --migrated <dir> [--runs N] [--model m] [--effort e]',
+    'usage: feature-cost.mjs --config <impact.config.mjs> --baseline <dir> --migrated <dir> [--runs N] [--model m] [--effort e] [--keep] [--out file]',
   );
   process.exit(2);
 }
@@ -69,7 +68,6 @@ const ALLOWED_TOOLS = config.allowedTools ?? [
   'Bash(grep:*)',
   'Bash(head:*)',
   'Bash(wc:*)',
-  'Bash(npx prettier --check:*)',
 ];
 
 // Agent guidance each copy carries. It is part of what the agent sees, so it is recorded.
@@ -87,6 +85,7 @@ function copyCheckout(src) {
   // Reuse installed dependencies.
   for (const nm of globSync('**/node_modules', {
     cwd: src,
+    // Top-level node_modules folders only, not packages nested inside one.
     exclude: p =>
       String(p.parentPath ? `${p.parentPath}/${p.name}` : p).includes(
         'node_modules/',
@@ -114,7 +113,8 @@ function copyCheckout(src) {
 function runAgent(cwd) {
   const args = [
     '-p',
-    config.prompt,
+    // The agent is told the exact allowlist, so the prompt and the enforcement never disagree.
+    `${config.prompt}\n\nEdit files only with the Edit and Write tools. These are the only tools allowed; anything else is refused: ${ALLOWED_TOOLS.join(', ')}.`,
     '--output-format',
     'json',
     '--model',
@@ -146,7 +146,9 @@ function runAgent(cwd) {
   }
   // Sum across every model the session used (subagents included).
   const models = Object.values(out.modelUsage ?? {});
-  const sum = k => models.reduce((t, m) => t + (m[k] ?? 0), 0);
+  // No usage report (timeout, crash) means unknown spend, not zero: leave it out of the medians.
+  const sum = k =>
+    models.length ? models.reduce((t, m) => t + (m[k] ?? 0), 0) : undefined;
   return {
     ok: !out.is_error && !r.error && r.status === 0,
     wallMs: Date.now() - t0,
@@ -181,7 +183,6 @@ function diffSize(cwd) {
   }
   return {
     linesChanged: added + removed,
-    linesAdded: added,
     filesChanged: files,
   };
 }
@@ -225,10 +226,12 @@ for (let i = 0; i < +opt.runs; i++) {
     const diff = diffSize(cwd);
     const acc = accept(cwd);
     const totalTokens =
-      agent.inputTokens +
-      agent.cacheWriteTokens +
-      agent.cacheReadTokens +
-      agent.outputTokens;
+      agent.inputTokens === undefined ?
+        undefined
+      : agent.inputTokens +
+        agent.cacheWriteTokens +
+        agent.cacheReadTokens +
+        agent.outputTokens;
     // An errored session is a failed feature even if the acceptance test happens to pass.
     const m = { ...agent, ...diff, pass: agent.ok ? acc.pass : 0, totalTokens };
     if (!agent.ok) failures[variant].push(agent.result.slice(0, 300));
@@ -267,9 +270,8 @@ const metrics = ROWS.filter(([k]) => samples[k]).map(
       k,
       label,
       unit,
-      compare(samples[k].baseline, samples[k].migrated, {
-        lowerIsBetter: lower,
-      }),
+      samples[k].baseline,
+      samples[k].migrated,
       { lowerIsBetter: lower },
     ),
 );

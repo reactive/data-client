@@ -3,9 +3,10 @@
 // { group, id, label, unit, lowerIsBetter, baseline, migrated, delta, pct, verdict,
 //   ci95?, spread?, n? }
 //
-// verdict: better | worse | same | noise (CI includes 0) | changed (no preferred direction)
+// verdict: better | worse | same | noise (CI includes 0) | few runs (under 3 per variant)
+//   | changed (no preferred direction)
 
-import { direction, round } from './stats.mjs';
+import { compare, direction, round } from './stats.mjs';
 
 /** A metric measured once per variant (static analysis, token counts of a single run). */
 export function metric(
@@ -34,14 +35,22 @@ export function metric(
   };
 }
 
-/** A metric with repeated samples, from stats.compare(). */
+/** A metric with repeated samples per variant, compared with stats.compare(). */
 export function sampled(
   group,
   id,
   label,
   unit,
-  cmp,
+  before,
+  after,
   { lowerIsBetter = true } = {},
 ) {
-  return { group, id, label, unit, lowerIsBetter, ...cmp };
+  return {
+    group,
+    id,
+    label,
+    unit,
+    lowerIsBetter,
+    ...compare(before, after, { lowerIsBetter }),
+  };
 }
