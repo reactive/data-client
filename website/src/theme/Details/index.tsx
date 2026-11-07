@@ -1,32 +1,30 @@
 import type { Props } from '@theme/Details';
 import Details from '@theme-original/Details';
-import React, { useState, type MouseEvent, type ToggleEvent } from 'react';
+import React, { type MouseEvent } from 'react';
 
-import { HiddenProvider } from '../../components/Playground/hiddenContext';
+import {
+  HiddenProvider,
+  useHiddenUntilIdle,
+} from '../../components/Playground/hiddenContext';
 
-/** A closed `<details>`'s code and playgrounds wait until it first opens
- * (HiddenContext), then stay, so closing never redraws them */
+/** A closed `<details>`'s code and playgrounds wait in the server HTML and
+ * draw once the page is idle (HiddenContext), ready before it opens */
 export default function DetailsWrapper(props: Props) {
-  const [opened, setOpened] = useState(!!props.open);
+  const [hidden, reveal] = useHiddenUntilIdle(!props.open);
   return (
-    <HiddenProvider hidden={!opened}>
+    <HiddenProvider hidden={hidden}>
       <Details
         {...props}
-        // in the click that opens it, so it opens drawn. Details itself
-        // takes onClick. A click on this details' own summary, as Docusaurus's
-        // Details tests it
+        // opened before the page was idle: draw it in the click that opens
+        // it (Details itself takes onClick). Its own summary only, as
+        // Docusaurus's Details checks with isInSummary and hasParent
         onClickCapture={(event: MouseEvent<HTMLDetailsElement>) => {
           if (
             (event.target as Element).closest('summary')?.parentElement ===
             event.currentTarget
           )
-            setOpened(true);
+            reveal();
           props.onClickCapture?.(event);
-        }}
-        // the browser opening it: find in page, a link to inside it
-        onToggle={(event: ToggleEvent<HTMLDetailsElement>) => {
-          if (event.currentTarget.open) setOpened(true);
-          props.onToggle?.(event);
         }}
       />
     </HiddenProvider>

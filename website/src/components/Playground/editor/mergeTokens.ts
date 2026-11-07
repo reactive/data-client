@@ -10,7 +10,8 @@ const UNSEEN_ON_SPACE = new Set(['color', 'fontStyle', 'fontWeight']);
 
 /**
  * A line's tokens, as few as draw the same code: neighbours that look alike
- * join, whitespace joins the token before it, and text in the plain color
+ * join, whitespace joins the token before it when neither style shows on a
+ * space (only color, fontStyle or fontWeight), and text in the plain color
  * becomes a `plain` token (render it as bare text: `isPlainToken`).
  *
  * Highlighting costs an element per token, and most of Prism's tokens are
@@ -63,9 +64,9 @@ interface Appearance {
   unseenOnSpace: boolean;
 }
 
-// A token's style depends only on its types, and one Highlight render has one
-// getTokenProps and plain style: comparing styles once per types per render
-// took the merge from about 10 ms to 1 ms for 4,800 tokens.
+// A token's style depends only on its types, getTokenProps and the plain
+// style, so compare each types once per getTokenProps (one per Highlight
+// render), starting over when the plain style changes.
 const appearances = new WeakMap<
   GetTokenProps,
   { plain: CSSProperties | undefined; byTypes: Map<string, Appearance> }
