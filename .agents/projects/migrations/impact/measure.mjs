@@ -110,20 +110,23 @@ function treeDiffSha1(cwd) {
   }
   return hash.digest('hex').slice(0, 12);
 }
-// Walks up from the app root to the checkout root, so hoisted workspace installs are found but a
-// parent project's node_modules never is. A configured library not installed is recorded as null.
+// Resolves each library the way the build does, walking up from the app root, and records its
+// version; a copy found above the checkout (a parent project's install) is labeled as such.
+// A configured library that resolves nowhere is recorded as null.
 function installedVersions(root, checkout, libs) {
-  const top = resolve(checkout);
+  const inside = dir => !relative(resolve(checkout), dir).startsWith('..');
   const versions = {};
   for (const lib of libs) {
     versions[lib] = null;
     for (let dir = resolve(root); ; dir = dirname(dir)) {
       const pkg = join(dir, 'node_modules', lib, 'package.json');
       if (existsSync(pkg)) {
-        versions[lib] = JSON.parse(readFileSync(pkg, 'utf8')).version;
+        const { version } = JSON.parse(readFileSync(pkg, 'utf8'));
+        versions[lib] =
+          inside(dir) ? version : `${version} (outside the checkout)`;
         break;
       }
-      if (dir === top || dirname(dir) === dir) break;
+      if (dirname(dir) === dir) break;
     }
   }
   return versions;
