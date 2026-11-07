@@ -110,9 +110,10 @@ function treeDiffSha1(cwd) {
   }
   return hash.digest('hex').slice(0, 12);
 }
-// Walks up from the app root, like Node's resolver, so hoisted workspace installs are found.
-// A configured library that is not installed is recorded as null, so its absence shows.
-function installedVersions(root, libs) {
+// Walks up from the app root to the checkout root, so hoisted workspace installs are found but a
+// parent project's node_modules never is. A configured library not installed is recorded as null.
+function installedVersions(root, checkout, libs) {
+  const top = resolve(checkout);
   const versions = {};
   for (const lib of libs) {
     versions[lib] = null;
@@ -122,7 +123,7 @@ function installedVersions(root, libs) {
         versions[lib] = JSON.parse(readFileSync(pkg, 'utf8')).version;
         break;
       }
-      if (dirname(dir) === dir) break;
+      if (dir === top || dirname(dir) === dir) break;
     }
   }
   return versions;
@@ -149,7 +150,11 @@ const meta = {
             ?.split('\n')
             .filter(Boolean).length ?? null,
         // Installed versions of the data libraries the config names, so results say what they measured.
-        dataLibs: installedVersions(rootOf(v), config.static?.dataLibs ?? []),
+        dataLibs: installedVersions(
+          rootOf(v),
+          checkouts[v],
+          config.static?.dataLibs ?? [],
+        ),
       },
     ]),
   ),
