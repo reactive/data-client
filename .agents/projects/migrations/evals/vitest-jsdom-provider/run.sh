@@ -14,10 +14,10 @@ setup() {
   if [ -n "${DATA_CLIENT_VERSION:-}" ]; then
     (cd "$work" && npm pkg set "dependencies.@data-client/react=$DATA_CLIENT_VERSION")
   else
-    # yarn pack's prepack builds core, use-enhanced-reducer and react, and their
-    # bundles need the types. normalizr has no prepack, so build it here.
+    # yarn pack's prepack builds each package's JavaScript (in this order, since
+    # core and react bundle their dependencies' lib/), but not the types
     if [ -z "${SKIP_BUILD:-}" ]; then
-      (cd "$repo" && repo_yarn build:types && repo_yarn workspace @data-client/normalizr run build)
+      (cd "$repo" && repo_yarn build:types)
     fi
     local deps=("dependencies.@data-client/react=file:./react.tgz")
     for p in normalizr core use-enhanced-reducer react; do

@@ -14,7 +14,7 @@ installs them in a temp app (vitest 2.1, vite 5, jsdom 24, React 18, default vit
 - Exit 2: building, packing or installing failed, so the eval did not run. It prints the end of the log.
 - Baseline: `DATA_CLIENT_VERSION=0.18.2 ./run.sh` fails with the error above.
 
-`SKIP_BUILD=1` skips the type and normalizr builds when they are current; `yarn pack` still builds the other three.
+`SKIP_BUILD=1` skips the type build when it is current; `yarn pack` still builds each package's JavaScript.
 
 It is manual, not part of CI: it takes a few minutes and installs from npm. Direct dependencies are pinned exactly;
 their own dependencies resolve at install time.

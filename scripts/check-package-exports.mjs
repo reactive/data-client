@@ -50,6 +50,7 @@ const consumer = await consumerLoaders();
 let failed = false;
 for (const { pkg, dir, tarball } of unpacked) {
   console.log(`\n${pkg.name}`);
+  // Runs every check before combining, so each failure is reported
   const passed = [
     report('publint', await lint(pkg, dir)),
     report('types', await checkTypes(pkg, tarball)),
