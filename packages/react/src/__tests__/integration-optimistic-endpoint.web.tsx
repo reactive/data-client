@@ -876,7 +876,7 @@ describe.each([
             'Optimistic update skipped for PATCH http://test.com/users/profile',
           );
           expect(message).toContain('getOptimisticResponse()');
-          expect(message).toContain('Entity missing its primary key');
+          expect(message).toContain('missing its primary key');
           expect(message).toContain("'id' missing");
         },
       );

@@ -86,7 +86,7 @@ export function setResponseReducer(
   } catch (error: any) {
     if (typeof error === 'object') {
       error.message =
-        action.type === OPTIMISTIC && process.env.NODE_ENV !== 'production' ?
+        process.env.NODE_ENV !== 'production' && action.type === OPTIMISTIC ?
           `${optimisticFailureIntro(action.key)}\n\n${error.message}`
         : `Error processing ${action.key}\n\nFull Schema: ${JSON.stringify(
             action.endpoint.schema,
@@ -106,20 +106,25 @@ export function setResponseReducer(
   }
 }
 
-const reportedOptimistic = /* @__PURE__ */ new WeakSet<OptimisticAction>();
-/** Records the report; false when this optimistic action's failure was already reported.
- * Optimistic actions are re-applied on every state change, so each failure is reported once.
+/** Optimistic failures already logged, by key and fetch time (development only) */
+const reportedOptimistic = /* @__PURE__ */ new Set<string>();
+/** Records the report; false when this optimistic failure was already reported.
+ * Optimistic actions are re-applied on every state change, and React StrictMode or
+ * DevToolsManager can re-create one from the same fetch, so each is reported once.
  */
 function claimReport(action: OptimisticAction | SetResponseAction) {
   if (action.type !== OPTIMISTIC) return true;
-  if (reportedOptimistic.has(action)) return false;
-  reportedOptimistic.add(action);
+  const id = `${action.key} ${action.meta.fetchedAt}`;
+  if (reportedOptimistic.has(id)) return false;
+  reportedOptimistic.add(id);
   return true;
 }
 
 function optimisticFailureIntro(key: string) {
   return `Optimistic update skipped for ${key}; the UI will update when the server responds.
-getOptimisticResponse() threw, or returned a value that could not be normalized (often an Entity missing its primary key).`;
+getOptimisticResponse() threw, or returned a value that could not be normalized.
+Often an Entity is missing its primary key: read it with snap.get() or snap.getResponse().
+https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse`;
 }
 
 function reduceError(

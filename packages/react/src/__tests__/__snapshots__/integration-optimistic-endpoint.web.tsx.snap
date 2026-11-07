@@ -2,14 +2,18 @@
 
 exports[`CacheProvider Optimistic Updates race conditions should error when user error happens 1`] = `
 [Error: Optimistic update skipped for toggle [5]; the UI will update when the server responds.
-getOptimisticResponse() threw, or returned a value that could not be normalized (often an Entity missing its primary key).
+getOptimisticResponse() threw, or returned a value that could not be normalized.
+Often an Entity is missing its primary key: read it with snap.get() or snap.getResponse().
+https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse
 
 this should fail]
 `;
 
 exports[`ExternalDataProvider Optimistic Updates race conditions should error when user error happens 1`] = `
 [Error: Optimistic update skipped for toggle [5]; the UI will update when the server responds.
-getOptimisticResponse() threw, or returned a value that could not be normalized (often an Entity missing its primary key).
+getOptimisticResponse() threw, or returned a value that could not be normalized.
+Often an Entity is missing its primary key: read it with snap.get() or snap.getResponse().
+https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse
 
 this should fail]
 `;
