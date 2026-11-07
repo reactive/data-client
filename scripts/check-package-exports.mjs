@@ -399,7 +399,9 @@ function duplicateSingletons(dir) {
     const build = file.endsWith('.native.js') ? 'native' : 'node';
     const source = fs.readFileSync(path.join(distDir, file), 'utf8');
     // rollup output declares them at the start of a line
-    for (const [, className, contextName] of source.matchAll(SINGLETON)) {
+    for (const [, className, contextName] of source.matchAll(
+      /^(?:class ([\w$]+)|const ([\w$]+) = (?:\/\*#__PURE__\*\/)?[\w$.]*createContext\()/gm,
+    )) {
       const [kind, name] =
         className ? ['class', className] : ['context', contextName];
       const key = `${build} ${kind} ${name}`;
@@ -414,5 +416,3 @@ function duplicateSingletons(dir) {
         `${kind} ${name} is bundled into ${files.join(' and ')}`,
     );
 }
-const SINGLETON =
-  /^(?:class ([\w$]+)|const ([\w$]+) = (?:\/\*#__PURE__\*\/)?[\w$.]*createContext\()/gm;
