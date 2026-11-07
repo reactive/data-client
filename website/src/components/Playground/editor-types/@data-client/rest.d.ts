@@ -2027,7 +2027,7 @@ type BodyKind<Body> = [
 type ParamFetchWithBody<P, B = {}, R = any> = P extends undefined ? (this: EndpointInstanceInterface, body: B) => Promise<R> : {} extends P ? keyof P extends never ? (this: EndpointInstanceInterface, body: B) => Promise<R> : ((this: EndpointInstanceInterface, params: P, body: B) => Promise<R>) | ((this: EndpointInstanceInterface, body: B) => Promise<R>) : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>;
 /** Params of an endpoint with no path or search params: only `{}` */
 type EmptyParams = Record<string, never>;
-type ParamFetchNoBody<P, R = any> = P extends undefined ? (this: EndpointInstanceInterface) => Promise<R> : {} extends P ? keyof P extends never ? (this: EndpointInstanceInterface, params?: EmptyParams) => Promise<R> : ((this: EndpointInstanceInterface, params: P) => Promise<R>) | ((this: EndpointInstanceInterface) => Promise<R>) : (this: EndpointInstanceInterface, params: P) => Promise<R>;
+type ParamFetchNoBody<P, R = any> = P extends undefined ? (this: EndpointInstanceInterface) => Promise<R> : {} extends P ? keyof P extends never ? ((this: EndpointInstanceInterface, params: EmptyParams) => Promise<R>) | ((this: EndpointInstanceInterface) => Promise<R>) : ((this: EndpointInstanceInterface, params: P) => Promise<R>) | ((this: EndpointInstanceInterface) => Promise<R>) : (this: EndpointInstanceInterface, params: P) => Promise<R>;
 type ParamToArgs<P> = P extends undefined ? [] : {} extends P ? keyof P extends never ? [
 ] : [] | [P] : [P];
 type IfTypeScriptLooseNull<Y, N> = 1 | undefined extends 1 ? Y : N;

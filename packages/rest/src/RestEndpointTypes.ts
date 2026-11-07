@@ -856,8 +856,10 @@ export type ParamFetchNoBody<P, R = any> =
   {} extends P ?
     // this safely handles PathArgs with no members that results in a simple `unknown` type
     keyof P extends never ?
-      // `{}` lets hooks take `cond ? {} : null`; RestEndpoint gives it the same key and url as no args
-      (this: EndpointInstanceInterface, params?: EmptyParams) => Promise<R>
+      // `{}` lets hooks take `cond ? {} : null`; RestEndpoint gives it the same key and url as no args.
+      // A union, not `params?:`, so `[...Parameters<E>, state]` (Controller.getResponse) still takes `[state]`
+      | ((this: EndpointInstanceInterface, params: EmptyParams) => Promise<R>)
+      | ((this: EndpointInstanceInterface) => Promise<R>)
     : | ((this: EndpointInstanceInterface, params: P) => Promise<R>)
       | ((this: EndpointInstanceInterface) => Promise<R>)
   : (this: EndpointInstanceInterface, params: P) => Promise<R>;

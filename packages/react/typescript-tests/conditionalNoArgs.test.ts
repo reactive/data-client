@@ -1,3 +1,4 @@
+import type { Controller, State } from '@data-client/core';
 import { RestEndpoint, resource } from '@data-client/rest';
 
 import useCache from '../src/hooks/useCache';
@@ -46,6 +47,19 @@ const getTeams = new RestEndpoint({
   useSuspense(getTeams, cond ? { page: 1 } : null);
   // @ts-expect-error not an object
   useSuspense(getTeams, 5);
+};
+
+// Controller methods that take args then state still take state alone
+declare const ctrl: Controller;
+declare const state: State<unknown>;
+() => {
+  ctrl.getResponse(getTeams, state).data satisfies Team[] | undefined;
+  ctrl.getResponse(getTeams, {}, state);
+  ctrl.getError(getTeams, state);
+  ctrl.fetch(getTeams);
+  ctrl.fetch(getTeams, {});
+  // @ts-expect-error getTeams has no path or search params
+  ctrl.getResponse(getTeams, { page: 1 }, state);
 };
 
 // the endpoint itself
