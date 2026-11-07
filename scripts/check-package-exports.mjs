@@ -276,14 +276,14 @@ async function checkNode(pkg, dir, consumer) {
         const diff = compareExports(expected, await load(specifier));
         if (diff) errors.push(`${call}('${specifier}') ${diff}`);
       } catch (error) {
-        errors.push(threw(call, specifier, error));
+        errors.push(loadError(call, specifier, error));
       }
     }
   }
   return { errors };
 }
 
-function threw(call, specifier, error) {
+function loadError(call, specifier, error) {
   return `${call}('${specifier}') threw ${error.message.split('\n')[0]}`;
 }
 
@@ -334,7 +334,7 @@ async function checkShared(pkg, dir, consumer) {
           );
         }
       } catch (error) {
-        errors.push(threw(call, specifier, error));
+        errors.push(loadError(call, specifier, error));
       }
     }
   }
@@ -359,6 +359,7 @@ async function differentExports(load, rootSpecifier, specifier) {
 // Loads the specifiers in a fresh Node process, and returns each unpacked
 // package that loaded files from more than one build folder (lib/, dist/...)
 function mixedBuilds(call, specifiers) {
+  // written by consumerLoaders()
   const loader = path.join(work, 'loaded.mjs');
   const urls = JSON.parse(
     execFileSync(process.execPath, [loader, call, ...specifiers], {

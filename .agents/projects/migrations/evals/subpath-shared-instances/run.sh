@@ -25,7 +25,11 @@ awk '/^@data-client\//{pkg = $0 ": "} /^  [^ ]/{p = / shared$/; if (p) print pkg
 packages=$(grep -c '^@data-client/' "$log")
 passed=$(grep -c '✓ shared$' "$log")
 expected=$(repo_yarn workspaces list --no-private --json | wc -l)
-if [ "$packages" -eq 0 ] || [ "$expected" -eq 0 ]; then
+if [ "$expected" -eq 0 ]; then
+  echo "Listing the published packages failed: this is not the eval's result" >&2
+  exit 2
+fi
+if [ "$packages" -eq 0 ]; then
   tail -40 "$log"
   echo "The check stopped before any package: this is not the eval's result" >&2
   exit 2

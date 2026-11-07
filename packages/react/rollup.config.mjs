@@ -142,9 +142,8 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
       replace({ 'process.env.CJS': 'true', preventAssignment: true }),
       resolve({ extensions: nativeExtensions }),
       commonjs({ extensions: nativeExtensions }),
-      isNative ? writeNativeContext
-        // for nextjs 13 compatibility in node https://nextjs.org/docs/app/building-your-application/rendering
-      : banner(() => "'use client';\n"),
+      // web: 'use client' for nextjs 13 compatibility in node https://nextjs.org/docs/app/building-your-application/rendering
+      isNative ? writeNativeContext : banner(() => "'use client';\n"),
     ],
   });
 }

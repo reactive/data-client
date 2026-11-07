@@ -24,7 +24,7 @@ Run `./run.sh`. It builds the types, packs every published package through `yarn
    `@data-client/react/redux`'s `ExternalDataProvider` must get that provider's controller.
 
 - Pass: exit 0 (all 11 published packages report a passing `shared` check, and the probe prints `pass` twice).
-- Fail: exit 1. A check that crashes before every package reports also fails.
+- Fail: exit 1. A check that crashes after some packages but before all 11 report also fails.
 - Exit 2: the type build failed, or the check stopped before reporting any package (packing failed), so the eval
   did not run. It prints the end of the log.
 - Baseline: PR #4617's head (`38a9f50`) fails. `shared` fails for core, react and rest, and the probe prints
