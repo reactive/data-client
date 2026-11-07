@@ -171,6 +171,23 @@ describe('monacoPrism colors as Monaco does', () => {
     ]);
   });
 
+  test('code after a fragment is code again', () => {
+    for (const fragment of [
+      '<>a</>',
+      '<div>{c && <>a</>}</div>',
+      '<p>\n  <>\n    a\n  </>\n</p>',
+    ]) {
+      expect(spans(`x = ${fragment};\nif (b) {}`, 'tsx').slice(-6)).toEqual([
+        ['keyword', 'if'],
+        ['punctuation', '('],
+        [null, 'b'],
+        ['punctuation', ')'],
+        ['punctuation', '{'],
+        ['punctuation', '}'],
+      ]);
+    }
+  });
+
   test('HTML with embedded JavaScript, as in Vue files', () => {
     expect(
       spans(
