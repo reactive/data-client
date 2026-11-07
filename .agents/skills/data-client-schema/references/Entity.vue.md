@@ -309,9 +309,15 @@ class Post extends Entity {
   author?: User = undefined;
   static schema = { author: User };
 
-  static process(input: any, parent: any, key: string | undefined, args: any[]) {
+  static process(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+  ) {
     const processed = super.process(input, parent, key, args);
-    if (processed.author && !processed.author.id) processed.author = undefined;
+    if (processed.author && !Object.keys(processed.author).length)
+      processed.author = undefined;
     return processed;
   }
 }

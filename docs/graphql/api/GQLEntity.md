@@ -445,9 +445,10 @@ class Post extends GQLEntity {
     args: any[],
   ) {
     const processed = super.process(input, parent, key, args);
-    // highlight-next-line
-    if (processed.author && !processed.author.id)
+    // highlight-start
+    if (processed.author && !Object.keys(processed.author).length)
       processed.author = undefined;
+    // highlight-end
     return processed;
   }
 }

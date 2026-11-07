@@ -132,7 +132,7 @@ describe(`${Entity.name} normalization`, () => {
         args: any[],
       ) {
         const processed = super.process(input, parent, key, args);
-        if (processed.author && !processed.author.id)
+        if (processed.author && !Object.keys(processed.author).length)
           processed.author = undefined;
         return processed;
       }
@@ -154,6 +154,20 @@ describe(`${Entity.name} normalization`, () => {
       const discussion = plainDenormalize(SafeDiscussion, result, entities);
       expect(discussion).toBeInstanceOf(SafeDiscussion);
       expect((discussion as SafeDiscussion).author).toBeUndefined();
+    });
+
+    it('process() recipe keeps an author whose id is 0', () => {
+      const { entities } = normalize(SafeDiscussion, {
+        id: '1',
+        author: { id: 0, name: 'zero' },
+      });
+      expect(entities.SafeDiscussion['1'].author).toBe('0');
+    });
+
+    it('process() recipe still throws for an author with data but no pk', () => {
+      expect(() =>
+        normalize(SafeDiscussion, { id: '1', author: { name: 'Ann' } }),
+      ).toThrow('Missing usable primary key');
     });
 
     it('process() recipe clears a stored author', () => {
