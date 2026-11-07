@@ -61,7 +61,13 @@ For async operations that don't match REST or GraphQL:
 - Third-party SDK clients (Firebase, Supabase, AWS SDK, etc.)
 - IndexedDB or other local async storage
 
-### 4. Install the Skills This Project Needs
+### 4. Detect a Data-Fetching Library
+
+| Check `package.json` | Then |
+|----------------------|------|
+| `@tanstack/react-query` or `react-query` (React) | After setup, migrate per [Replacing TanStack Query](#replacing-tanstack-query) |
+
+### 5. Install the Skills This Project Needs
 
 Protocol setup guides are bundled in this skill, but defining and using data afterwards is covered by other Data Client skills. Install the ones that match what you detected, skipping any already installed:
 
@@ -252,6 +258,18 @@ Follow [references/data-client-endpoint-setup.md](references/data-client-endpoin
 
 If multiple protocols are detected, follow each protocol's guide. Each protocol package can be installed alongside others.
 
+## Replacing TanStack Query
+
+When a React app uses TanStack Query, a request to set up or migrate to Data Client includes replacing it: follow
+[TanStack Query migration](references/tanstack-query-migration.md) from its "Steps" section. Its step 1 is
+the protocol guide above, so the REST guide's "leave how the app loads and stores data alone" does not apply here. Look up each
+TanStack Query API in its "API map" rather than working out a replacement, and finish with its "Check the migration"
+list. Libraries built on TanStack Query, like `react-query-auth`, are replaced in the same pass.
+Data Client's own `useQuery` reads the store and never fetches, so it is not the replacement for TanStack Query's
+`useQuery`: that is `useSuspense` (or `useDLE`).
+The guide is React only. For a Vue app on `@tanstack/vue-query`, tell the user this skill has no Vue migration guide
+yet, and finish setup without replacing it.
+
 ## Verification Checklist
 
 After setup, verify:
@@ -261,6 +279,7 @@ After setup, verify:
 - [ ] Correct import path used (especially `@data-client/react/nextjs` for NextJS)
 - [ ] No duplicate providers in component tree
 - [ ] Protocol-specific setup completed via its guide
+- [ ] Migrating from TanStack Query: the guide's "Check the migration" list passes
 
 ## Common Issues
 
@@ -301,3 +320,4 @@ For detailed API documentation, see the [references](references/) directory:
 - [REST setup](references/data-client-rest-setup.md) - `@data-client/rest` setup and migration from axios, fetch, ky, superagent or got
 - [GraphQL setup](references/data-client-graphql-setup.md) - `@data-client/graphql` setup
 - [Custom endpoint setup](references/data-client-endpoint-setup.md) - Wrapping other async functions with `@data-client/endpoint`
+- [TanStack Query migration](references/tanstack-query-migration.md) - Replace `useQuery`, `useMutation`, query invalidation and `QueryClient` (React)

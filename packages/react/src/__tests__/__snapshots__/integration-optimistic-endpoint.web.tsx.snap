@@ -1,25 +1,19 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`CacheProvider Optimistic Updates race conditions should error when user error happens 1`] = `
-[Error: Error processing toggle [5]
+[Error: Optimistic update skipped for toggle [5]; the UI will update when the server responds.
+getOptimisticResponse() threw, or returned a value that could not be normalized.
+Often an Entity is missing its primary key: read it from the snapshot, like snap.getResponse(getMe).data.
+https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse
 
-Full Schema: {
-  "key": "Toggle",
-  "schema": {}
-}
-
-Error:
 this should fail]
 `;
 
 exports[`ExternalDataProvider Optimistic Updates race conditions should error when user error happens 1`] = `
-[Error: Error processing toggle [5]
+[Error: Optimistic update skipped for toggle [5]; the UI will update when the server responds.
+getOptimisticResponse() threw, or returned a value that could not be normalized.
+Often an Entity is missing its primary key: read it from the snapshot, like snap.getResponse(getMe).data.
+https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse
 
-Full Schema: {
-  "key": "Toggle",
-  "schema": {}
-}
-
-Error:
 this should fail]
 `;

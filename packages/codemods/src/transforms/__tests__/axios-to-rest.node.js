@@ -1,5 +1,6 @@
 'use strict';
 
+const { spawnSync } = require('child_process');
 const fs = require('fs');
 const {
   applyTransform,
@@ -1444,8 +1445,8 @@ const listEndpoint = new ApiEndpoint({
   path: '/items'
 });
 
-// TODO(data-client): move this interceptor into \`ApiEndpoint\`: https://dataclient.io/rest/guides/axios-migration#base-endpoint
-api.interceptors.response.use(response => response.data);
+// TODO(data-client): \`api\` is the \`ApiEndpoint\` class now, so this interceptor is commented out; move it into \`ApiEndpoint\`: https://dataclient.io/rest/guides/axios-migration#base-endpoint
+// api.interceptors.response.use(response => response.data);
 // TODO(data-client): \`api\` has a response interceptor, so check each \`.data\` read of this call: drop it if it read axios's response, keep it if it reads the body's own field: https://dataclient.io/rest/guides/axios-migration#base-endpoint
 export const list = async () => (await listEndpoint()).data;
       `,
@@ -1829,10 +1830,51 @@ class ApiEndpoint extends RestEndpoint {
   urlPrefix = '/api';
 }
 
-// TODO(data-client): move this interceptor into \`ApiEndpoint\`: https://dataclient.io/rest/guides/axios-migration#base-endpoint
-api.interceptors.request.use(config => config);
+// TODO(data-client): \`api\` is the \`ApiEndpoint\` class now, so this interceptor is commented out; move it into \`ApiEndpoint\`: https://dataclient.io/rest/guides/axios-migration#base-endpoint
+// api.interceptors.request.use(config => config);
       `,
       'marks instance options and interceptors it cannot move',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const api = axios.create({ baseURL: '/api' });
+// unwrap the body
+api.interceptors.response.use(
+  response => response.data,
+  error => Promise.reject(error),
+);
+
+api.defaults.headers.common['X-App'] = 'web';
+export function setToken(token) {
+  api.defaults.headers.common.Authorization = token;
+}
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+
+class ApiEndpoint extends RestEndpoint {
+  urlPrefix = '/api';
+}
+
+// unwrap the body
+// TODO(data-client): \`api\` is the \`ApiEndpoint\` class now, so this interceptor is commented out; move it into \`ApiEndpoint\`: https://dataclient.io/rest/guides/axios-migration#base-endpoint
+// api.interceptors.response.use(
+//   response => response.data,
+//   error => Promise.reject(error),
+// );
+
+// TODO(data-client): \`api\` is the \`ApiEndpoint\` class now, so these defaults are commented out; move them into \`ApiEndpoint\`: https://dataclient.io/rest/guides/axios-migration#base-endpoint
+// api.defaults.headers.common['X-App'] = 'web';
+export function setToken(token) {
+  // TODO(data-client): move these defaults into \`ApiEndpoint\`: https://dataclient.io/rest/guides/axios-migration#base-endpoint
+  api.defaults.headers.common.Authorization = token;
+}
+      `,
+      'comments out module setup on the removed instance, but only marks it inside functions',
     );
   });
 
@@ -1977,6 +2019,43 @@ export async function getPost(id: number) {
       );
     });
 
+    it.each([
+      ['LF', text => text],
+      // a project's formatter may keep CRLF line endings
+      ['CRLF', text => text.replace(/\n/g, '\r\n')],
+    ])(
+      'keeps .data when the rewritten client module (%s) commented out its response interceptor',
+      (_, lineEndings) => {
+        const client = `
+import axios from 'axios';
+export const api = axios.create();
+api.interceptors.response.use(res => res.data);
+`;
+        const rewritten = run({ 'client.ts': client }, 'client.ts');
+        expect(rewritten).toMatch('// api.interceptors.response.use(');
+        expect(
+          run(
+            { 'client.ts': lineEndings(rewritten), 'posts.ts': posts },
+            'posts.ts',
+          ),
+        ).toMatch('return res.data;');
+      },
+    );
+
+    it('unwraps .data when the client only has an interceptor the author disabled', () => {
+      const client = `
+import axios from 'axios';
+export const api = axios.create();
+// api.interceptors.response.use(res => res.data);
+`;
+      const result = run(
+        { 'client.ts': client, 'posts.ts': posts },
+        'posts.ts',
+      );
+      expect(result).not.toMatch('res.data');
+      expect(result).not.toMatch('response interceptor');
+    });
+
     it('exports the class where the module exported the instance', () => {
       const client = `
 import axios from 'axios';
@@ -2049,8 +2128,8 @@ api.defaults.headers.common.X = '1';
       expect(run({ 'client.ts': client, 'setup.ts': source }, 'setup.ts')).toBe(
         `
 import { ApiEndpoint } from './client';
-// TODO(data-client): move these defaults into \`ApiEndpoint\`: https://dataclient.io/rest/guides/axios-migration#base-endpoint
-api.defaults.headers.common.X = '1';`.trim(),
+// TODO(data-client): \`api\` is the \`ApiEndpoint\` class now, so these defaults are commented out; move them into \`ApiEndpoint\`: https://dataclient.io/rest/guides/axios-migration#base-endpoint
+// api.defaults.headers.common.X = '1';`.trim(),
       );
     });
 
@@ -2626,5 +2705,88 @@ const [state, setState] = useState(null);
       `,
       'preserves non-axios imports and code',
     );
+  });
+
+  // ── Migration evals ────────────────────────────────────────────────
+
+  // Each app folder holds files copied unchanged from a real migration, so a
+  // problem record's pass criterion runs on the code that showed it. Records:
+  // .agents/projects/migrations/<app>/problems.md
+  describe('migration evals', () => {
+    const evals = path.join(__dirname, '../../../evals/axios-to-rest');
+    // in child processes, the way people run them
+    const node = (args, cwd) =>
+      spawnSync(process.execPath, args, { cwd, encoding: 'utf8' });
+
+    /** A copy of `src` in a new temp folder */
+    const copyOf = src => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'axios-to-rest-'));
+      fs.cpSync(src, dir, { recursive: true });
+      return dir;
+    };
+    /** Runs the codemod's CLI on a copy of the app, and returns that folder */
+    const migrate = app => {
+      const dir = copyOf(path.join(evals, app));
+      const { status, stderr } = node(
+        [
+          path.join(__dirname, '../../cli.js'),
+          'axios-to-rest',
+          '--extensions=ts,tsx',
+          'src',
+        ],
+        dir,
+      );
+      if (status !== 0) throw new Error(stderr);
+      return dir;
+    };
+    const filesIn = dir =>
+      fs
+        .readdirSync(dir, { recursive: true, withFileTypes: true })
+        .filter(entry => entry.isFile())
+        .map(entry => path.join(entry.parentPath ?? entry.path, entry.name));
+
+    // P9: alan2207/bulletproof-react@9506629 apps/react-vite
+    describe('bulletproof-react', () => {
+      let dir;
+      beforeAll(() => {
+        dir = migrate('bulletproof-react');
+      });
+      afterAll(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+      // the codemod leaves formatting to the project's own fixer
+      it("passes the app's prettier --check after its formatter runs", () => {
+        const prettier = require.resolve('prettier/bin/prettier.cjs');
+        // on a copy, so the other checks still read the codemod's own output
+        const copy = copyOf(dir);
+        let write, check;
+        try {
+          write = node([prettier, '--write', 'src'], copy);
+          check = node([prettier, '--check', 'src'], copy);
+        } finally {
+          fs.rmSync(copy, { recursive: true, force: true });
+        }
+        expect(write.status).toBe(0);
+        expect(check.stdout + check.stderr).not.toMatch(/\[warn\]|\[error\]/);
+        expect(check.status).toBe(0);
+      });
+
+      it('leaves no reads of the removed axios instance', () => {
+        const j = require('jscodeshift').withParser('tsx');
+        for (const file of filesIn(path.join(dir, 'src'))) {
+          const reads = j(fs.readFileSync(file, 'utf8'))
+            .find(j.Identifier, { name: 'api' })
+            .filter(({ node, parent }) => {
+              // a key or a property name, not a read of `api`
+              const { key, property, shorthand, computed } = parent.node;
+              return !(
+                (key === node && !shorthand && !computed) ||
+                (property === node && !computed)
+              );
+            })
+            .size();
+          expect({ file, reads }).toEqual({ file, reads: 0 });
+        }
+      });
+    });
   });
 });

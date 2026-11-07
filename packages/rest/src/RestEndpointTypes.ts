@@ -285,10 +285,10 @@ export type RestEndpointExtendOptions<
 /** Argument I passed to process(), from Parameters<F>.
  * Indexing a union like `[params] | []` or `[params, body] | [body]` (see ParamFetchNoBody/ParamFetchWithBody)
  * merges position-wise, giving `undefined` where some call omits the argument.
- * Endpoints that take no args keep `any`, so process(value, params: any) and similar still compile.
+ * Endpoints that take no args, or `{}` as their only alternative to no args, keep `any`, so process(value, params: any) and similar still compile.
  */
 type ProcessArg<A extends readonly any[], I extends 0 | 1> =
-  [A['length']] extends [0] ? any : A[I];
+  [A] extends [readonly [params?: EmptyParams]] ? any : A[I];
 
 type ExtendOmitKeys =
   KeyofRestEndpoint | keyof PartialRestGenerics | keyof RestEndpointOptions;
@@ -844,19 +844,26 @@ export type ParamFetchWithBody<P, B = {}, R = any> =
       | ((this: EndpointInstanceInterface, body: B) => Promise<R>)
   : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>;
 
+/** Params of an endpoint with no path or search params: only `{}` */
+type EmptyParams = Record<string, never>;
+
 export type ParamFetchNoBody<P, R = any> =
   // we must always allow undefined in a union and give it a type without params
   P extends undefined ? (this: EndpointInstanceInterface) => Promise<R>
   : // even with loose null, this will only be true when all members are optional
   {} extends P ?
-    // this safely handles PathArgs with no members that results in a simple `unknown` type
-    keyof P extends never ?
-      (this: EndpointInstanceInterface) => Promise<R>
-    : | ((this: EndpointInstanceInterface, params: P) => Promise<R>)
-      | ((this: EndpointInstanceInterface) => Promise<R>)
+    // A union, not `params?:`, so `[...Parameters<E>, state]` (Controller.getResponse) still takes `[state]`
+    | ((
+        this: EndpointInstanceInterface,
+        // PathArgs with no members is a simple `unknown`; only `{}` is accepted then, so hooks take
+        // `cond ? {} : null`. RestEndpoint gives `{}` the same key and url as no args.
+        params: keyof P extends never ? EmptyParams : P,
+      ) => Promise<R>)
+    | ((this: EndpointInstanceInterface) => Promise<R>)
   : (this: EndpointInstanceInterface, params: P) => Promise<R>;
 
-// same algorithm, but for Args (aka readonly any[])
+// same algorithm, but for Args (aka readonly any[]). Without params this stays `[]` (unlike ParamFetchNoBody's `{}`):
+// it types a Collection's argsKey, and `{}` or no args give the same Collection key
 export type ParamToArgs<P> =
   P extends undefined ? []
   : {} extends P ?

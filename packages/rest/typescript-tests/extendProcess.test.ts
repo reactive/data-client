@@ -241,6 +241,18 @@ export const noArgs = new RestEndpoint({
     return value;
   },
 });
+// also when params are typed: no-param endpoints accept `{}`, but params stay `any`
+new RestEndpoint({
+  path: '/users',
+  process(value, params: { anything: string }) {
+    return params.anything;
+  },
+});
+new RestEndpoint({ path: '/users' }).extend({
+  process(value, params: { anything: string }) {
+    return params.anything;
+  },
+});
 // generic path, as in a factory function
 export function makeEndpoint<P extends string>(path: P) {
   return [

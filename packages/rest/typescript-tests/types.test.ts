@@ -179,7 +179,6 @@ it('should precisely type function arguments', () => {
     () => requiredSearch({ userId: 'hi' }, { userId: 'hi' });
 
     () => undef();
-    // @ts-expect-error
     () => undef({});
     // @ts-expect-error
     () => undef({ userId: 'hi' });
@@ -187,7 +186,7 @@ it('should precisely type function arguments', () => {
     () => undef(5);
 
     () => noSearch();
-    // @ts-expect-error
+    // `{}` lets `cond ? {} : null` conditionally fetch; same key and url as no args
     () => noSearch({});
     // @ts-expect-error
     () => noSearch({ userId: 'hi' });
@@ -1143,8 +1142,9 @@ it('should handle more open ended type definitions', () => {
     path: '/static/path/here',
   });
   getThing();
-  // @ts-expect-error
   getThing({});
+  // @ts-expect-error
+  getThing({ id: '5' });
   // @ts-expect-error
   getThing(5);
 };

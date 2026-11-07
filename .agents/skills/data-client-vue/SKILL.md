@@ -35,7 +35,7 @@ useFetch(PostResource.get, { id });
 useFetch(CommentResource.getList, { postId: id });
 const post = await useSuspense(PostResource.get, { id });
 const comments = await useSuspense(CommentResource.getList, { postId: id });
-// conditional: null skips fetching and binding
+// conditional: null skips fetching and binding; an endpoint without params takes {}
 const user = await useSuspense(UserResource.get, () => (userId.value ? { id: userId.value } : null));
 ```
 
