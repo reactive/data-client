@@ -151,6 +151,9 @@ us to make error/loading disjoint from data usage.
 Instead we place [\<AsyncBoundary />](./AsyncBoundary.md) to handling loading and error conditions at or above navigational boundaries like **pages,
 routes, or [modals](https://www.appcues.com/blog/modal-dialog-windows)**.
 
+Place them inside [\<DataProvider />](./DataProvider.md): its own backup boundary catches anything below it, so a
+boundary above `DataProvider` never shows.
+
 **React Router**
 
 ```tsx {9,11} title="Dashboard.tsx"

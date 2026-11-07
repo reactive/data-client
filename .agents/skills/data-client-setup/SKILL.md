@@ -209,8 +209,8 @@ createRoot(document.getElementById('root')!).render(
 );
 ```
 
-If the app already wraps its providers in `<Suspense>` (common with React Query or Suspense routers), move that
-boundary, or add an `AsyncBoundary`, inside `DataProvider`. See [Suspense boundary outside DataProvider](#suspense-boundary-outside-dataprovider).
+Keep Suspense boundaries inside `DataProvider`: it has its own backup `<Suspense>`, so one above it (common with React
+Query setups) never catches, and every suspend shows "Uncaught Suspense". Move such a boundary inside.
 
 ### Vue
 
@@ -300,32 +300,6 @@ import { DataProvider } from '@data-client/react';
 ```tsx
 import { DataProvider } from '@data-client/react/nextjs';
 ```
-
-### Suspense boundary outside DataProvider
-
-`DataProvider` wraps its children in a backup `<Suspense>`, so a boundary above it never catches anything below it.
-Every suspending component then shows "Uncaught Suspense. Try adding a suspense boundary", and tests that wait for
-the app's own loading state fail (for example `waitForElementToBeRemoved` reports the element is already removed).
-
-❌ Wrong:
-```tsx
-<Suspense fallback={<Spinner />}>
-  <DataProvider>
-    <App />
-  </DataProvider>
-</Suspense>
-```
-
-✅ Correct:
-```tsx
-<DataProvider>
-  <AsyncBoundary fallback={<Spinner />}>
-    <App />
-  </AsyncBoundary>
-</DataProvider>
-```
-
-Routes and pages can add their own boundaries further down; they only need to be below `DataProvider` too.
 
 ### Provider Not at Root
 

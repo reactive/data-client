@@ -293,27 +293,13 @@ export const getComments = new RestEndpoint({
 });
 ```
 
-```ts
-const comments = await useSuspense(getComments, { discussionId });
-const ctrl = useController();
-// appends the next page to data, and replaces meta with the new page's
-const loadMore = () =>
-  ctrl.fetch(getComments.getPage, {
-    discussionId,
-    page: comments.value.meta.page + 1,
-  });
-// adds a new comment to the same list
-const create = (body: string) =>
-  ctrl.fetch(getComments.push, { discussionId }, { body });
-```
-
-- **Leave the page out of the first fetch.** `getPage` drops the `paginationField` from its args to find the list
-  to extend, so the list is keyed by `{ discussionId }`. A first fetch with `page: 1` makes a different list that
-  `getPage` never extends.
-- **The rest of the envelope follows the latest page.** Each `getPage` response replaces `meta`, so
-  `meta.page < meta.totalPages` tells whether there is more to load.
-- **Creates join the same list.** [push](./RestEndpoint.vue.md#push) sends a `POST` to the same path and adds its
-  response (one `Comment`, not an envelope) to the list whose args match. A separate create endpoint works too: give it
+- **Leave the page out of the first fetch**: `useSuspense(getComments, { discussionId })`. `getPage` drops the
+  `paginationField` from its args to find the list to extend, so a first fetch with `page: 1` makes a different list
+  that `getPage` never extends.
+- **Load more with `getPage`**: `ctrl.fetch(getComments.getPage, { discussionId, page: meta.page + 1 })` appends to
+  `data` and replaces `meta` with the new page's, so `meta.page < meta.totalPages` tells whether there is more.
+- **Creates join the same list**: `ctrl.fetch(getComments.push, { discussionId }, { body })`.
+  [push](./RestEndpoint.vue.md#push) sends a `POST` to the same path and adds its response (one `Comment`, not an envelope) to the list whose args match. A separate create endpoint works too: give it
   `schema: getComments.schema.data.push` and call it with `{ discussionId }`.
 - **Single items use the same envelope.** A detail endpoint returning `{ "data": {...} }` takes
   `schema: { data: Comment }`.

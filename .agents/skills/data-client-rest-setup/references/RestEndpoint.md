@@ -559,7 +559,7 @@ updateSite({ slug: 'cool' }, { url: '/' });
 
 ### paginationField
 
-If specified, will add [getPage](#getpage) method on the `RestEndpoint`. [Pagination guide](./pagination.md). Schema
+If specified, will add [getPage](#getpage) method on the `RestEndpoint`. [Pagination guide](https://dataclient.io/rest/guides/pagination). Schema
 must also contain a [Collection](https://dataclient.io/rest/api/Collection).
 
 ### urlPrefix: string = '' {#urlPrefix}
@@ -1468,12 +1468,12 @@ return (
 A page adds to the end of the current list and skips items the list already has, even when the list was
 refetched while the page loaded.
 
-See [pagination guide](./pagination.md) for more info.
+See [pagination guide](https://dataclient.io/rest/guides/pagination) for more info.
 
 ### paginated(paginationfield) {#paginated}
 
 Creates a new endpoint with an extra `paginationfield` string that will be used to find the specific
-page, to append to this endpoint. See [Infinite Scrolling Pagination](./pagination.md#infinite-scrolling) for more info.
+page, to append to this endpoint. See [Infinite Scrolling Pagination](https://dataclient.io/rest/guides/pagination#infinite-scrolling) for more info.
 
 ```ts
 const getNextPage = getList.paginated('cursor');

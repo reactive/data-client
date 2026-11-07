@@ -427,7 +427,7 @@ Commonly used with [Controller.fetch](https://dataclient.io/docs/api/Controller#
 
 ### getList.getPage {#getpage}
 
-[RestEndpoint.getPage](./RestEndpoint.md#getpage) retrieves another [page](./pagination.md#infinite-scrolling) appending to getList ensuring there are no duplicates.
+[RestEndpoint.getPage](./RestEndpoint.md#getpage) retrieves another [page](https://dataclient.io/rest/guides/pagination#infinite-scrolling) appending to getList ensuring there are no duplicates.
 
 This member is only available when [paginationField](#paginationfield) is specified.
 

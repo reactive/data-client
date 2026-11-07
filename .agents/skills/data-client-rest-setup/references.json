@@ -9,7 +9,6 @@
     "axios-migration.md": "docs/rest/guides/axios-migration.md",
     "django.md": "docs/rest/guides/django.md",
     "hookifyResource.md": "docs/rest/api/hookifyResource.md",
-    "pagination.md": "docs/rest/guides/pagination.md",
     "resource.md": "docs/rest/api/resource.md"
   }
 }
