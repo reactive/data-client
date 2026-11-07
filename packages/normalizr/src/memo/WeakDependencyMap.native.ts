@@ -255,7 +255,9 @@ export function keep(
   gen: number,
 ): void {
   if ((entry as Entry<unknown, unknown>).gen === gen) return;
-  const stack = [node, entry];
+  // keep() never re-enters, so one stack serves every walk; it ends empty
+  const stack = WALK;
+  stack.push(node, entry);
   while (stack.length) {
     const e = stack.pop() as Entry<unknown, unknown>;
     const n = stack.pop() as Node<unknown, unknown>;
@@ -267,11 +269,15 @@ export function keep(
   }
 }
 
+const WALK: unknown[] = [];
+
 function pin<Path, V>(
   node: Node<Path, V>,
   entry: Entry<Path, V>,
   settled: boolean,
 ): void {
+  // already pinned: `set()` keeps a node's entries to the newest and the pins
+  if (node.committed === entry && (!settled || node.settled === entry)) return;
   node.committed = entry;
   if (settled) node.settled = entry;
   if (!node.entries.includes(entry)) node.entries.push(entry);
