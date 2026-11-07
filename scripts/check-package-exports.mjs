@@ -34,7 +34,7 @@ const packs = path.join(work, 'packs');
 // types (lib/*.d.ts under "type": "module") for its CommonJS dist/. Only
 // CommonJS files compiled with TypeScript < 5.8 or `module: node16` see this,
 // and fixing it means publishing a CommonJS copy of every declaration file.
-// Allowed only on exports subpaths with a `require` condition (`FalseESM`).
+// arethetypeswrong calls it `FalseESM` (see isAllowedTypesProblem).
 const ALLOWED_PUBLINT = new Set(['EXPORTS_TYPES_INVALID_FORMAT']);
 // Suggestions about entry points fail; other suggestions are only listed
 const ENTRY_POINT_SUGGESTIONS = new Set([
@@ -61,6 +61,8 @@ try {
       'foreach',
       '--all',
       '--parallel',
+      // bundles inline some dependencies' lib/, which their prepack builds
+      '--topological',
       ...packages.flatMap(pkg => ['--include', pkg.name]),
       'pack',
       '--out',
@@ -70,8 +72,8 @@ try {
   );
 } catch (error) {
   // yarn reports a failed prepack on stdout
-  console.error(error.stdout, error.stderr);
-  console.error('yarn pack failed');
+  process.stderr.write(`${error.stdout ?? ''}${error.stderr ?? ''}`);
+  console.error(`yarn pack failed: ${error.message}`);
   process.exit(1);
 }
 
@@ -143,16 +145,7 @@ async function checkTypes(pkg, tarball) {
     const entrypoints = Object.keys(analysis.entrypoints).filter(entrypoint =>
       problemAffectsEntrypoint(problem, entrypoint, analysis),
     );
-    const requireConditions = entrypoints.map(entrypoint =>
-      hasRequire(pkg.exports?.[entrypoint]),
-    );
-    if (
-      (problem.kind === 'FalseESM' && requireConditions.every(Boolean)) ||
-      // exports subpaths with no `require` condition ship only ESM on purpose
-      (problem.kind === 'CJSResolvesToESM' &&
-        pkg.exports?.[problem.entrypoint] !== undefined &&
-        !hasRequire(pkg.exports[problem.entrypoint]))
-    ) {
+    if (isAllowedTypesProblem(pkg, problem, entrypoints)) {
       allowed.push(problem.kind);
       continue;
     }
@@ -163,12 +156,22 @@ async function checkTypes(pkg, tarball) {
   return { errors, allowed };
 }
 
-// Whether exports conditions have a `require` key at any nesting level
-function hasRequire(conditions) {
-  if (typeof conditions !== 'object' || conditions === null) return false;
-  return Object.entries(conditions).some(
-    ([key, value]) => key === 'require' || hasRequire(value),
-  );
+function isAllowedTypesProblem(pkg, problem, entrypoints) {
+  const hasRequire = entrypoint =>
+    Object.hasOwn(pkg.exports?.[entrypoint] ?? {}, 'require');
+  switch (problem.kind) {
+    // the known CommonJS-types gap, on entry points that `require` dist/
+    case 'FalseESM':
+      return entrypoints.length > 0 && entrypoints.every(hasRequire);
+    // exports subpaths with no `require` condition ship only ESM on purpose
+    case 'CJSResolvesToESM':
+      return (
+        pkg.exports?.[problem.entrypoint] !== undefined &&
+        !hasRequire(problem.entrypoint)
+      );
+    default:
+      return false;
+  }
 }
 
 // Each entry point with the ESM file bundlers load for it: the `default`

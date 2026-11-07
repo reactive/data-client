@@ -499,6 +499,7 @@ jobs:
       - halt-unless-relevant-change:
           flag: esmodule
       # prepack copies skills from .agents/, which setup's workspace leaves out
+      # (persisting it would make skill-only changes rerun every test job)
       - checkout
       - attach_workspace:
           at: ~/
