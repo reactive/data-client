@@ -42,7 +42,7 @@ inside the click handler's task; no trace confirms it yet.
 [`../feature.config.mjs`](../feature.config.mjs) asks an agent (Sonnet, medium effort) to add comment counts
 to the discussions list and page and keep them correct after creating or deleting a comment. A hidden
 e2e test checks the result. 2 runs per variant, so no verdicts yet. These runs used the prompt and tool allowlist at
-`53e9112`, which also allowed `npx prettier --check`; the kit has since removed that and appends the
+[`53e9112`](https://github.com/reactive/data-client/commit/53e9112), which also allowed `npx prettier --check`; the kit has since removed that and appends the
 allowlist to the prompt, so a re-run is not directly comparable.
 
 | Metric (unit)         | react-query | data-client + optimistic |

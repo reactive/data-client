@@ -56,7 +56,7 @@ test('sampled: compares raw samples and keeps the row fields', () => {
 test('compare: a change that prints as 0 is never a direction', () => {
   const b = [1.001, 1.002, 1.003, 1.001];
   const a = [1.004, 1.004, 1.004, 1.004];
-  assert.notEqual(compare(b, a).verdict, 'worse');
+  assert.ok(['same', 'noise'].includes(compare(b, a).verdict));
 });
 
 test('matchesGlob', () => {

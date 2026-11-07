@@ -110,11 +110,13 @@ function copyCheckout(src) {
   return dest;
 }
 
+// The agent is told the exact allowlist, so the prompt and the enforcement never disagree.
+const AGENT_PROMPT = `${config.prompt}\n\nEdit files only with the Edit and Write tools. These are the only tools allowed; anything else is refused: ${ALLOWED_TOOLS.join(', ')}.`;
+
 function runAgent(cwd) {
   const args = [
     '-p',
-    // The agent is told the exact allowlist, so the prompt and the enforcement never disagree.
-    `${config.prompt}\n\nEdit files only with the Edit and Write tools. These are the only tools allowed; anything else is refused: ${ALLOWED_TOOLS.join(', ')}.`,
+    AGENT_PROMPT,
     '--output-format',
     'json',
     '--model',
@@ -283,7 +285,7 @@ writeFileSync(
       app: config.name,
       feature: config.title,
       // The exact conditions, so results from different prompts or tools are never mixed up.
-      prompt: config.prompt,
+      prompt: AGENT_PROMPT,
       allowedTools: ALLOWED_TOOLS,
       model: opt.model,
       effort: opt.effort,
