@@ -14,6 +14,8 @@ const todo = useSuspense(TodoResource.get, { id: 5 });
 const todoList = useSuspense(TodoResource.getList);
 // GET https://jsonplaceholder.typicode.com/todos?userId=1
 const todoListByUser = useSuspense(TodoResource.getList, { userId: 1 });
+// conditional: null skips fetching and binding; an endpoint without params takes {}
+const user = useSuspense(UserResource.get, userId ? { id: userId } : null);
 // subscriptions with polling, websockets or SSE
 const todo = useLive(TodoResource.get, { id: 5 });
 // without fetch
