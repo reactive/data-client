@@ -30,8 +30,6 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const work = path.join(root, 'node_modules/.cache/check-package-exports');
 const packs = path.join(work, 'packs');
 
-// The CommonJS-types gap (see isAllowedTypesProblem), as publint reports it
-const ALLOWED_PUBLINT = new Set(['EXPORTS_TYPES_INVALID_FORMAT']);
 // Suggestions about entry points fail; other suggestions are only listed
 const ENTRY_POINT_SUGGESTIONS = new Set([
   'HAS_MODULE_BUT_NO_EXPORTS',
@@ -119,7 +117,7 @@ async function lint(pkg, dir) {
   const allowed = [];
   for (const message of messages) {
     if (
-      (ALLOWED_PUBLINT.has(message.code) && isRequireSubpath(pkg, message)) ||
+      isCommonJSTypesGap(message) ||
       (message.type === 'suggestion' &&
         !ENTRY_POINT_SUGGESTIONS.has(message.code))
     ) {
@@ -154,11 +152,10 @@ async function checkTypes(pkg, tarball) {
   return { errors, allowed };
 }
 
-// publint paths look like ['exports', '.', 'types']
-function isRequireSubpath(pkg, { path: [field, subpath] }) {
+// The CommonJS-types gap (see isAllowedTypesProblem), as publint reports it
+function isCommonJSTypesGap({ code, args }) {
   return (
-    field === 'exports' &&
-    Object.hasOwn(pkg.exports?.[subpath] ?? {}, 'require')
+    code === 'EXPORTS_TYPES_INVALID_FORMAT' && args.condition === 'require'
   );
 }
 
