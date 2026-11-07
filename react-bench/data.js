@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794069931533,
+  "lastUpdate": 1794070080033,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -13001,6 +13001,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 290.71,
             "range": "± 2.3%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "855778f93c15b746849a56749b4d05c2402f47f4",
+          "message": "enhance(core): Explain skipped optimistic updates once in development (#4616)\n\n* enhance(core): Explain skipped optimistic updates once in development\n\nWhen getOptimisticResponse() throws or returns a value its schema can't\nnormalize (most often an Entity without its primary key), the console\nerror now names the optimistic update and the fix, and is logged once\nper mutation instead of on every store update.\n\nDocs and the data-client-rest skill say partial Entity responses merge\nwith the cached entity and only need the primary key, and show how to\nread the key from the snapshot when args lack it.\n\nEval for bulletproof-react migration problem P11: the \"partial\nresponses\" tests in integration-optimistic-endpoint.web.tsx.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* docs(blog): Link #4616\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* enhance(core): Address review of the skipped optimistic update message\n\n- One message for thrown and unnormalizable optimistic values, with the\n  primary key named as a common cause, so the try/catch is unchanged\n- Long message text is development only; production keeps\n  \"Error processing\"\n- Docs, skill and changeset say what users see in production too\n- Test the documented { id: user.id, ...body } pattern\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* fix(core): Reuse one optimistic action when a fetch is reduced again\n\nReact 18 StrictMode re-runs reducers, and DevToolsManager reduces each\naction into its own state. Each run of fetchReducer created a new\noptimistic action, so a failed optimistic update was reported once per\ncopy. fetchReducer now keeps one optimistic action per fetch action.\n\nFound by the bulletproof-react migration e2e (React 18.3, StrictMode).\nThe eval now runs the missing-primary-key case with and without\nStrictMode, and a reducer test checks the reuse directly.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* internal(skills): Shorten the optimistic primary-key note in data-client-rest\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* enhance(core): Shorten the skipped optimistic update message\n\nTwo lines name the endpoint, that the UI waits for the server, and the\nlikely cause, followed by the original error. The schema dump is left\nout for optimistic failures in development.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* internal(skills): Name each Entity's key and the return shape in the optimistic note\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* enhance(core): Dedupe skipped optimistic reports in one dev-only place\n\n- Key the once-only report on endpoint key and fetch time, which stay\n  the same when React StrictMode or DevToolsManager re-create the\n  optimistic action, so fetchReducer no longer caches actions in\n  production\n- Message names the fix (read the key with snap.get() or\n  snap.getResponse()) and links the docs\n- Skill note reads the entity from getResponse().data\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* docs: Say the skipped optimistic message gives the likely fix\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* enhance(core): Name a working snapshot call in the skipped optimistic message\n\nTest the once-per-fetch report in core, where React 19 CI doesn't re-create actions.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* enhance(core): Forget an optimistic failure report when its fetch resolves\n\nKeeps dev-only tracking bounded by in-flight fetches instead of the session.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* enhance(core): Point the skipped optimistic hint at a read endpoint with its args\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* enhance(core): Cap dev-only optimistic report tracking instead of clearing on response\n\nClearing on response missed resets and stale DevToolsManager re-applies, and\nadded a check to every response. A size cap stays on the error path.\nThe hint now shows a concrete snapshot read, matching the docs example.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* enhance(core): Evict the oldest optimistic report instead of clearing all\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* internal(core): Test that recent optimistic reports stay deduped past the cap\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n* internal(core): Pin the 100-entry report window in the test\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAy299E75fMK3f82QV\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-07T16:40:11Z",
+          "tree_id": "c46d4de37833a655f865a15551b126ff30a35f29",
+          "url": "https://github.com/reactive/data-client/commit/855778f93c15b746849a56749b4d05c2402f47f4"
+        },
+        "date": 1794070075441,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 491.51,
+            "range": "± 4.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 123.08,
+            "range": "± 3.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 1403.53,
+            "range": "± 3.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 1388.96,
+            "range": "± 8.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 106.21,
+            "range": "± 2.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 647.25,
+            "range": "± 2.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 925.95,
+            "range": "± 3.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 31,
+            "range": "± 5.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 205.76,
+            "range": "± 1.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 131.36,
+            "range": "± 3.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-ticker-stream",
+            "value": 20.02,
+            "range": "± 3.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 657.89,
+            "range": "± 3.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 1028.28,
+            "range": "± 6.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 643.09,
+            "range": "± 2.0%",
             "unit": "ops/s"
           }
         ]
