@@ -9,7 +9,7 @@ const html = renderToString(
   createElement(DataProvider, null, createElement('div', null, 'ok')),
 );
 if (!html.includes('>ok<')) {
-  console.error(`DataProvider rendered ${html}`);
+  console.error(`DataProvider did not render its children: ${html}`);
   process.exit(1);
 }
 console.log('DataProvider rendered ok');

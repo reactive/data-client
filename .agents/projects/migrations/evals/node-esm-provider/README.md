@@ -7,7 +7,9 @@ Node picked that package's CommonJS `main`, so the default import was the module
 
 The eval reproduces that resolution without Vitest: `node --conditions=module` resolves `@data-client/react` to its
 ESM build the way Vitest 2 did, and `provider.mjs` server-renders `<DataProvider>`. It installs no test runner or
-bundler, since old Vitest and Vite releases have security advisories.
+bundler, since old Vitest and Vite releases have security advisories. So it is a proxy: it covers the module
+resolution that broke and a server render, not Vitest itself or a client (jsdom) mount. Vitest 3.2 and 5.1 render
+`DataProvider` even on 0.18.2; only Vitest 2's resolution hit the bug.
 
 Run `./run.sh`. It builds `normalizr`, `core`, `use-enhanced-reducer` and `react` in this checkout, packs them, and
 installs them with React 18 in a temp app.
