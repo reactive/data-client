@@ -239,7 +239,7 @@ function bundleSkill(sourceDir, skillDir, out) {
     if (
       name === 'SKILL.md' ||
       name === MANIFEST ||
-      name.startsWith(`evals${path.sep}`) ||
+      name.startsWith('evals/') ||
       sourceGenerated.has(file)
     )
       continue;

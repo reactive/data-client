@@ -285,7 +285,7 @@ describe.each([
     nock.cleanAll();
   });
 
-  it('pagination should work with a page number inside a { data, meta } envelope', async () => {
+  it('getPage and push should share one list inside a { data, meta } envelope', async () => {
     class Comment extends IDEntity {
       body = '';
       static key = 'EnvelopeComment';

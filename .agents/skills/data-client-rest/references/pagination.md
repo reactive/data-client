@@ -332,8 +332,8 @@ export default function CommentList({ discussionId }: { discussionId: string }) 
 - **The rest of the envelope follows the latest page.** Each `getPage` response replaces `meta`, so
   `meta.page < meta.totalPages` tells whether there is more to load.
 - **Creates join the same list.** [push](./RestEndpoint.md#push) sends a `POST` to the same path and adds its
-  response (one `Comment`, not an envelope) to the list whose args match. A separate create endpoint works too, if its
-  `schema` is the same Collection's `.push` and its args are `{ discussionId }`.
+  response (one `Comment`, not an envelope) to the list whose args match. A separate create endpoint works too: give it
+  `schema: getComments.schema.data.push` and call it with `{ discussionId }`.
 - **Single items use the same envelope.** A detail endpoint returning `{ "data": {...} }` takes
   `schema: { data: Comment }`.
 - Don't unwrap the envelope in [process()](./RestEndpoint.md#process) when you need its `meta`; give the
