@@ -10,3 +10,5 @@ problem record they reproduce (`.agents/projects/migrations/<app>/problems.md`).
 
 To add a case, copy the app's files under `src/` with its `tsconfig.json` paths and formatter config, then add a
 `describe` block for it.
+
+The repo's `.gitignore` ignores `lib` folders, so add an app's `src/lib` with `git add -f`.
