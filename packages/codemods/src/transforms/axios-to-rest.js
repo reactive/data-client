@@ -1,7 +1,6 @@
 'use strict';
 
 const fs = require('fs');
-const { createRequire } = require('module');
 const nodePath = require('path');
 
 /**
@@ -1364,10 +1363,7 @@ function buildCall(j, callPath, className, prefixed, isTS) {
   const endpoint = j.newExpression(j.identifier(className || 'RestEndpoint'), [
     j.objectExpression(options),
   ]);
-  const params =
-    !callArgs.length ? null
-    : data ? oneLineObject(j, callArgs)
-    : j.objectExpression(callArgs);
+  const params = callArgs.length ? j.objectExpression(callArgs) : null;
   const invokeArgs = [params, data].filter(Boolean);
 
   return {
@@ -1379,24 +1375,6 @@ function buildCall(j, callPath, className, prefixed, isTS) {
     unknownOptions,
     todos,
   };
-}
-
-/**
- * A short object recast prints on one line, as people write params before a
- * body (recast prints the objects it builds over several lines). Prettier,
- * when it runs, breaks the call if the line is too long.
- */
-function oneLineObject(j, properties) {
-  const text = `{ ${properties.map(p => j(p).toSource()).join(', ')} }`;
-  if (text.includes('\n') || text.length > 50)
-    return j.objectExpression(properties);
-  try {
-    // a parsed node reprints as its source text (unless it was parenthesized)
-    return j(`f(${text})`).find(j.CallExpression).get().node.arguments[0];
-  } catch {
-    // `this.#id` or `super.id` doesn't parse outside its class
-    return j.objectExpression(properties);
-  }
 }
 
 // --- 3b. Build each endpoint once, at module scope ---
@@ -1869,56 +1847,9 @@ function restoreCommentedOut(output, commentedOut) {
   return restored;
 }
 
-// --- Output style ---
-
-/**
- * The quotes and trailing commas the file already uses, so reprinted code
- * matches what its formatter expects. With no sample: single quotes, and
- * trailing commas like Prettier 3's default
- */
-function sourceStyle(j, root, source) {
-  const votes = { single: 0, double: 0 };
-  root.find(j.StringLiteral).forEach(p => {
-    // JSX attributes follow their own setting (jsxSingleQuote)
-    if (p.parent.node.type === 'JSXAttribute') return;
-    const raw = p.node.extra && p.node.extra.raw;
-    if (raw && raw[0] === "'") votes.single++;
-    else if (raw && raw[0] === '"') votes.double++;
-  });
-
-  // [with, without] a trailing comma, among lists whose closing bracket
-  // sits on its own line
-  const commas = { lists: [0, 0], parameters: [0, 0] };
-  const vote = (kind, last, closeIndex) => {
-    if (!last || last.end == null || closeIndex < last.end) return;
-    const between = source.slice(last.end, closeIndex);
-    if (!between.includes('\n')) return;
-    commas[kind][between.includes(',') ? 0 : 1]++;
-  };
-  const voteList = ({ node }, items) =>
-    node.end != null && vote('lists', items[items.length - 1], node.end - 1);
-  root.find(j.ObjectExpression).forEach(p => voteList(p, p.node.properties));
-  root.find(j.ArrayExpression).forEach(p => voteList(p, p.node.elements));
-  root.find(j.Function).forEach(({ node }) => {
-    const last = node.params[node.params.length - 1];
-    if (last && last.type !== 'RestElement')
-      vote('parameters', last, source.indexOf(')', last.end));
-  });
-  const lists = commas.lists[0] >= commas.lists[1];
-  const [withComma, without] = commas.parameters;
-  return {
-    quote: votes.double > votes.single ? 'double' : 'single',
-    trailingComma: {
-      objects: lists,
-      arrays: lists,
-      parameters: withComma || without ? withComma >= without : lists,
-    },
-  };
-}
-
 // --- Main ---
 
-function transform(fileInfo, api) {
+module.exports = function transformer(fileInfo, api) {
   // skip parsing files that neither import axios nor could call an instance
   // imported from another module
   const { source } = fileInfo;
@@ -1932,8 +1863,6 @@ function transform(fileInfo, api) {
     .filter(p => p.node.source.value === 'axios');
   const imported = importedInstances(j, root, fileInfo.path);
   if (!axiosImport.length && !imported.renames.length) return source;
-  // before any edit, while every node still has its source position
-  const printOptions = sourceStyle(j, root, source);
 
   let axiosLocalName = 'axios';
   let axiosImportScope = null;
@@ -2011,47 +1940,8 @@ function transform(fileInfo, api) {
   hoistEndpoints(j, root, calls.hoists);
 
   return dirty ?
-      restoreCommentedOut(root.toSource(printOptions), commentedOut)
+      restoreCommentedOut(root.toSource({ quote: 'single' }), commentedOut)
     : source;
-}
-
-/**
- * Formats the output with the project's own Prettier and config, when it has
- * them and already keeps this file formatted. Recast can't measure line width.
- */
-async function formatLikeProject(output, file, source, report) {
-  if (!file) return output;
-  const filepath = nodePath.resolve(file);
-  let prettier;
-  try {
-    prettier = createRequire(filepath)('prettier');
-  } catch {
-    // no Prettier, or one that can't load here: keep recast's output
-    return output;
-  }
-  try {
-    // the CLI reads .editorconfig too
-    const config = await prettier.resolveConfig(filepath, {
-      editorconfig: true,
-    });
-    if (!config) return output;
-    const options = { ...config, filepath };
-    // leave files the project doesn't format alone, so the diff stays small
-    if (!(await prettier.check(source, options))) return output;
-    return await prettier.format(output, options);
-  } catch (error) {
-    // still migrate the file, and say why it isn't formatted
-    report(`not formatted with Prettier: ${error.message}`);
-    return output;
-  }
-}
-
-module.exports = async function transformer(fileInfo, api, options = {}) {
-  const output = transform(fileInfo, api);
-  // --prettier=false keeps recast's output
-  return output === fileInfo.source || String(options.prettier) === 'false' ?
-      output
-    : formatLikeProject(output, fileInfo.path, fileInfo.source, api.report);
 };
 
 module.exports.parser = 'tsx';

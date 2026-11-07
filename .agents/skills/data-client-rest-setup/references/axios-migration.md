@@ -62,9 +62,8 @@ your source folders, never the repo root:
 npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/
 ```
 
-When the project uses Prettier, it formats each file it changes with the project's Prettier and config, unless the
-file wasn't formatted to begin with. Add `--prettier=false` to skip this. Otherwise it keeps the file's quotes and
-trailing commas; run your formatter on the changed files afterward.
+The codemod doesn't format what it writes. Afterward, run the formatter or lint fixer your project uses on the changed
+files, such as `prettier --write`, `eslint --fix` or `biome check --write`.
 
 Each axios call becomes a call to an endpoint, built once at module level. Path params, `params` and the body become its arguments, and it resolves to the body, so `.data` goes away.
 
