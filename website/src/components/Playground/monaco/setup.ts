@@ -9,6 +9,7 @@
 import { loader } from '@monaco-editor/react';
 
 import { isMobileOrBot } from '../userAgent';
+import { registerJsxColors } from './jsxTokens';
 import { registerImportCompletions } from './navigation';
 import { MONACO_CDN_VS } from './preloadManifest';
 import { injectMonacoResourceHints } from './resourceHints';
@@ -55,6 +56,7 @@ if (typeof window !== 'undefined' && !isMobileOrBot()) {
       customWorkerPath: `data:text/javascript;charset=utf-8,${encodeURIComponent(surfaceWorker)}`,
     });
     definePrismTheme(monaco);
+    registerJsxColors(monaco);
     registerImportCompletions(monaco);
     recheckSiblingsOnChange(monaco);
     ignoreTopLevelAwaitWhereAllowed(monaco);

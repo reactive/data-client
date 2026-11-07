@@ -62,6 +62,15 @@ describe('monacoPrism colors as Monaco does', () => {
     ]);
   });
 
+  test('doc comments', () => {
+    expect(spans('/** a `b` */\nlet c;', 'ts')).toEqual([
+      ['comment', '/** a `b` */'],
+      ['keyword', 'let'],
+      [null, 'c'],
+      ['punctuation', ';'],
+    ]);
+  });
+
   test('symbol runs that are not operators stay plain', () => {
     expect(spans('!!a => <b /></b>', 'tsx')).toEqual([
       ['punctuation', '!'],
@@ -69,9 +78,9 @@ describe('monacoPrism colors as Monaco does', () => {
       [null, 'a'],
       ['punctuation', '=>'],
       ['punctuation', '<'],
-      [null, 'b'],
+      ['tag', 'b'],
       [null, '/></'],
-      [null, 'b'],
+      ['tag', 'b'],
       ['punctuation', '>'],
     ]);
   });
@@ -80,10 +89,10 @@ describe('monacoPrism colors as Monaco does', () => {
     expect(spans('<Avatar src="x" alt={`a${b}`} />', 'tsx')).toEqual([
       ['punctuation', '<'],
       ['class-name', 'Avatar'],
-      [null, 'src'],
+      ['attr-name', 'src'],
       ['punctuation', '='],
       ['string', '"x"'],
-      [null, 'alt'],
+      ['attr-name', 'alt'],
       ['punctuation', '='],
       ['punctuation', '{'],
       ['string', '`'],
@@ -94,6 +103,71 @@ describe('monacoPrism colors as Monaco does', () => {
       ['string', '`'],
       ['punctuation', '}'],
       [null, '/>'],
+    ]);
+  });
+
+  test('JSX tag names, attribute names and text as TypeScript classifies them', () => {
+    expect(
+      spans(
+        '<>\n  <a.B on aria-x="y">Don\'t (for) {c && <i>d</i>}</a.B>\n</>',
+        'tsx',
+      ),
+    ).toEqual([
+      [null, '<>'],
+      ['punctuation', '<'],
+      ['tag', 'a.B'],
+      ['attr-name', 'on'],
+      ['attr-name', 'aria-x'],
+      ['punctuation', '='],
+      ['string', '"y"'],
+      ['punctuation', '>'],
+      // text is plain, but Monaco colors its brackets
+      [null, 'Don'],
+      [null, "'"],
+      [null, 't'],
+      ['punctuation', '('],
+      [null, 'for'],
+      ['punctuation', ')'],
+      ['punctuation', '{'],
+      [null, 'c'],
+      ['punctuation', '&&'],
+      ['punctuation', '<'],
+      ['tag', 'i'],
+      ['punctuation', '>'],
+      [null, 'd'],
+      ['punctuation', '</'],
+      ['tag', 'i'],
+      ['punctuation', '>'],
+      ['punctuation', '}'],
+      ['punctuation', '</'],
+      ['tag', 'a.B'],
+      ['punctuation', '>'],
+      [null, '</>'],
+    ]);
+  });
+
+  test("JSX text's symbols join the tag's symbol run, as in Monaco's grammar", () => {
+    expect(spans('<p><b>x</b>: y=<i /></p>', 'tsx')).toEqual([
+      ['punctuation', '<'],
+      ['tag', 'p'],
+      // `><` is no operator
+      [null, '><'],
+      ['tag', 'b'],
+      ['punctuation', '>'],
+      [null, 'x'],
+      ['punctuation', '</'],
+      ['tag', 'b'],
+      // `>:` is no operator, and `:` is text
+      [null, '>'],
+      [null, ':'],
+      [null, 'y'],
+      // `=<` is no operator, and `=` is text
+      [null, '='],
+      [null, '<'],
+      ['tag', 'i'],
+      [null, '/></'],
+      ['tag', 'p'],
+      ['punctuation', '>'],
     ]);
   });
 

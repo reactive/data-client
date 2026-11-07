@@ -37,6 +37,8 @@ const KEPT: Record<string, string> = {
   'template-punctuation': 'string',
   'interpolation-punctuation': 'punctuation',
   comment: 'comment',
+  // `/** … */`
+  'doc-comment': 'comment',
   regex: 'regex',
   number: 'number',
   // a JSON key, plain like a TypeScript object's
@@ -82,30 +84,143 @@ function lex(code: string, keywords: Set<string>): Token[] {
   return tokens;
 }
 
-/** Prism's tokens with all but the `KEPT` ones lexed again as Monaco does */
-function recolor(stream: Token[], keywords: Set<string>): Token[] {
+/** Brackets of Monaco's TypeScript configuration */
+const TS_BRACKETS = /^[{}()[\]]$/;
+
+/** Consecutive pairs: [a, b, c] → [a, b], [b, c] */
+const pairs = (cuts: number[]) =>
+  cuts.slice(1).map((to, i) => [cuts[i], to] as const);
+
+const isPunctuation = (token: Token | undefined, text: string) =>
+  typeof token === 'object' &&
+  /^(punctuation|operator)$/.test(token.type) &&
+  token.content === text;
+
+/**
+ * Prism's tokens with all but the `KEPT` ones lexed again as Monaco does.
+ * With `jsx`, tag names, attribute names and text get the colors TypeScript
+ * gives Monaco (./jsxTokens.ts).
+ */
+function recolor(stream: Token[], keywords: Set<string>, jsx = false) {
   const tokens: Token[] = [];
   let code = '';
+  /** Where JSX nests: an element's children, a tag's attributes, `{}` code */
+  const nesting: ('children' | 'tag' | 'code')[] = [];
+  /** Where JSX text is in `code`: [from, to] */
+  let text: (readonly [number, number])[] = [];
+  /**
+   * Lexes `code` as Monaco's grammar does, with its JSX text plain as
+   * TypeScript colors it, but for the brackets Monaco still colors
+   */
   const flush = () => {
+    const cuts = text.flat();
+    const inText = (at: number) =>
+      text.some(([from, to]) => at >= from && at < to);
+    let offset = 0;
     // a loop, as spreading a long run of tokens overflows the stack
-    for (const token of lex(code, keywords)) tokens.push(token);
+    for (const token of lex(code, keywords)) {
+      const end = offset + textOf(token).length;
+      const inner = cuts.filter(cut => cut > offset && cut < end);
+      for (const [from, to] of pairs([offset, ...inner, end])) {
+        const part = code.slice(from, to);
+        tokens.push(
+          (
+            typeof token === 'string' ||
+              (inText(from) && !TS_BRACKETS.test(part))
+          ) ?
+            part
+          : typed(token.type, part),
+        );
+      }
+      offset = end;
+    }
     code = '';
+    text = [];
+  };
+  const push = (token: Token) => {
+    flush();
+    tokens.push(token);
+  };
+  /** `<Name attr="value">` or `</Name>`, maybe without a name */
+  const walkTag = (tag: Prism.Token) => {
+    const [head, ...attributes] = contentOf(tag);
+    const [open, name] = contentOf(head as Prism.Token);
+    code += textOf(open);
+    if (name) {
+      const tagName = textOf(name);
+      push(typed(/^[A-Z]/.test(tagName) ? 'class-name' : 'tag', tagName));
+    }
+    nesting.push('tag');
+    for (const part of attributes) {
+      if (typeof part === 'object' && part.type === 'attr-name')
+        push(typed('attr-name', textOf(part)));
+      else walk(part);
+    }
+    nesting.pop();
+    if (textOf(open) === '</') {
+      if (nesting.at(-1) === 'children') nesting.pop();
+    } else if (textOf(attributes.at(-1) ?? '') !== '/>') {
+      nesting.push('children');
+    }
   };
   const walk = (token: Token) => {
+    if (jsx) {
+      if (typeof token === 'object' && token.type === 'tag')
+        return walkTag(token);
+      if (isPunctuation(token, '{')) {
+        nesting.push('code');
+        code += '{';
+        return;
+      }
+      if (isPunctuation(token, '}') && nesting.at(-1) === 'code') {
+        nesting.pop();
+        code += '}';
+        return;
+      }
+      // text: Monaco's grammar reads it with the code around it
+      if (nesting.at(-1) === 'children') {
+        const part = textOf(token);
+        text.push([code.length, code.length + part.length]);
+        code += part;
+        return;
+      }
+    }
     if (typeof token === 'string') {
       code += token;
     } else if (Object.hasOwn(KEPT, token.type)) {
-      flush();
-      tokens.push(typed(KEPT[token.type], textOf(token)));
+      push(typed(KEPT[token.type], textOf(token)));
     } else if (token.type === 'attr-value') {
       // a JSX attribute: `="value"`
       const [equals, value] = splitEquals(token);
       code += equals;
-      flush();
-      tokens.push(typed('string', value));
-    } else contentOf(token).forEach(walk);
+      push(typed('string', value));
+    } else walkAll(contentOf(token));
   };
-  stream.forEach(walk);
+  const walkAll = (list: Token[]) => {
+    for (let i = 0; i < list.length; i++) {
+      if (jsx && isPunctuation(list[i], '<')) {
+        // Prism reads a fragment's `<>` as two operators
+        if (isPunctuation(list[i + 1], '>')) {
+          code += '<>';
+          nesting.push('children');
+          i++;
+          continue;
+        }
+        // and misses a tag right after another's `>`, but finds it when it
+        // reads on from there
+        if (nesting.at(-1) === 'children') {
+          const again = Prism.tokenize(
+            list.slice(i).map(textOf).join(''),
+            Prism.languages.tsx,
+          );
+          if (typeof again[0] === 'object' && again[0].type === 'tag')
+            return walkAll(again);
+        }
+      }
+      walk(list[i]);
+    }
+  };
+  walkAll(stream);
   flush();
   return tokens;
 }
@@ -181,5 +296,9 @@ export const monacoPrism = {
   tokenize: (code: string, grammar: Prism.Grammar) =>
     grammar === Prism.languages.markup ?
       recolorHtml(Prism.tokenize(code, grammar))
-    : recolor(Prism.tokenize(code, grammar), keywordsFor(grammar)),
+    : recolor(
+        Prism.tokenize(code, grammar),
+        keywordsFor(grammar),
+        grammar === Prism.languages.tsx,
+      ),
 } as typeof Prism;

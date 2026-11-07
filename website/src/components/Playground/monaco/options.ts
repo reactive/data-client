@@ -14,6 +14,8 @@ export const options = {
   overviewRulerBorder: false,
   // no indent guides: the code the server renders draws none (./tokenize.ts)
   guides: { indentation: false },
+  // JSX colors (./jsxTokens.ts)
+  'semanticHighlighting.enabled': true,
   // Undocumented see https://github.com/Microsoft/vscode/issues/30795#issuecomment-410998882
   //lineDecorationsWidth: 0,
   //lineNumbersMinChars: 0,

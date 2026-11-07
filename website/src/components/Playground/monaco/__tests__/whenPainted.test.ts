@@ -14,7 +14,7 @@ function fakeEditor(width: number, value = 'code') {
   const editor = {
     getLayoutInfo: () => ({ width }),
     getDomNode: () => dom,
-    getModel: () => ({ getValue: () => value }),
+    getModel: () => ({ getValue: () => value, uri: { path: '/1/a.ts' } }),
     onDidLayoutChange: (listener: () => void) => {
       onLayout = listener;
       return { dispose: () => (onLayout = () => {}) };

@@ -1,11 +1,13 @@
 import type * as Monaco from 'monaco-editor';
 
+import { hasJsxColors } from './jsxTokens';
 import { hasLayoutWidth } from './layout';
 import { holdIdle } from './whenIdle';
 
 /**
  * Calls `done` once `editor` shows its code as it will stay: laid out at its
- * box's width and highlighted (its language's tokenizer can load after it).
+ * box's width and highlighted (its language's tokenizer can load after it,
+ * and JSX colors come from the TypeScript worker after that).
  * Checked each frame; Monaco paints in a frame of its own, so it counts once
  * true for two in a row; regardless once colored tokens have shown for
  * `MAX_MS` (code its tokenizer leaves plain) or none have for `NO_TOKENS_MS`
@@ -67,8 +69,11 @@ const NO_TOKENS_MS = 20000;
 const COLORED = '[class^="mtk"]:not(.mtk1)';
 
 function painted(editor: Monaco.editor.ICodeEditor) {
+  const model = editor.getModel();
   // nothing to highlight (an empty side of a diff)
-  if (!editor.getModel()?.getValue().trim()) return true;
+  if (!model?.getValue().trim()) return true;
+  // JSX colors come from the TypeScript worker, after the grammar's
+  if (!hasJsxColors(model)) return false;
   // Monaco highlights from the top down, drawing the lines it has yet to
   // reach in plain text: once the last line with text is COLORED, all are
   let last: Element | undefined;

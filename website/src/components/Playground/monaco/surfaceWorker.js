@@ -15,6 +15,10 @@
 /** Scope of the modules-only surfaces */
 const MODULES = '';
 
+/** ts.ClassificationType: JSX tag names (open, close, self-closing),
+ * attribute names and text */
+const JSX_CLASSIFICATIONS = new Set([19, 20, 21, 22, 23]);
+
 /** `file:///123/api.ts` → `/123/` (undefined outside a surface) */
 function surfaceOf(fileName) {
   return /^\w+:\/\/(\/\d+\/)/.exec(fileName)?.[1];
@@ -118,5 +122,23 @@ self.customTSWorkerFactory = TypeScriptWorker =>
               serviceFor(fileName)[method](fileName, ...rest)
           : target[method],
       });
+    }
+
+    /** TypeScript's classifications of the JSX in `fileName`: a start,
+     * length and ClassificationType for each tag name, attribute name and
+     * text (see ./jsxTokens.ts) */
+    getJsxSpans(fileName) {
+      const length = this._getScriptText(fileName)?.length;
+      if (!length) return [];
+      const { spans } =
+        this._languageService.getEncodedSyntacticClassifications(fileName, {
+          start: 0,
+          length,
+        });
+      const jsx = [];
+      for (let i = 0; i < spans.length; i += 3)
+        if (JSX_CLASSIFICATIONS.has(spans[i + 2]))
+          jsx.push(spans[i], spans[i + 1], spans[i + 2]);
+      return jsx;
     }
   };
