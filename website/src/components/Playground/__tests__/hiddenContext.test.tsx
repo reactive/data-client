@@ -7,6 +7,7 @@ import { whenIdle } from '../monaco/whenIdle';
 jest.mock('../monaco/whenIdle', () => ({ whenIdle: jest.fn(() => jest.fn()) }));
 
 const runIdle = () => act(() => (whenIdle as jest.Mock).mock.calls.at(-1)[0]());
+const cancelIdle = () => (whenIdle as jest.Mock).mock.results[0].value;
 
 describe('useHiddenUntilIdle', () => {
   beforeEach(() => (whenIdle as jest.Mock).mockClear());
@@ -28,17 +29,15 @@ describe('useHiddenUntilIdle', () => {
       ({ hidden }) => useHiddenUntilIdle(hidden),
       { initialProps: { hidden: true } },
     );
-    const cancel = (whenIdle as jest.Mock).mock.results[0].value;
     rerender({ hidden: false });
     expect(result.current[0]).toBe(false);
-    expect(cancel).toHaveBeenCalled();
+    expect(cancelIdle()).toHaveBeenCalled();
   });
 
   it('stops waiting when unmounted', () => {
     const { unmount } = renderHook(() => useHiddenUntilIdle(true));
-    const cancel = (whenIdle as jest.Mock).mock.results[0].value;
     unmount();
-    expect(cancel).toHaveBeenCalled();
+    expect(cancelIdle()).toHaveBeenCalled();
   });
 
   it('shows at once on reveal', () => {

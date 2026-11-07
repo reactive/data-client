@@ -1,6 +1,6 @@
 import type { Props } from '@theme/Details';
 import Details from '@theme-original/Details';
-import React, { type MouseEvent, type ToggleEvent } from 'react';
+import React, { type MouseEvent } from 'react';
 
 import {
   HiddenProvider,
@@ -17,7 +17,9 @@ export default function DetailsWrapper(props: Props) {
         {...props}
         // opened before the page was idle: draw it in the click that opens
         // it (Details itself takes onClick). Its own summary only, as
-        // Docusaurus's Details checks with isInSummary and hasParent
+        // Docusaurus's Details checks with isInSummary and hasParent. Only a
+        // summary click opens its content: a browser-opened details (find,
+        // a link) keeps it collapsed
         onClickCapture={(event: MouseEvent<HTMLDetailsElement>) => {
           if (
             (event.target as Element).closest('summary')?.parentElement ===
@@ -25,11 +27,6 @@ export default function DetailsWrapper(props: Props) {
           )
             reveal();
           props.onClickCapture?.(event);
-        }}
-        // the browser opening it: find in page, a link to inside it
-        onToggle={(event: ToggleEvent<HTMLDetailsElement>) => {
-          if (event.currentTarget.open) reveal();
-          props.onToggle?.(event);
         }}
       />
     </HiddenProvider>
