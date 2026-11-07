@@ -7,11 +7,14 @@ Node picked that package's CommonJS `main`, so the default import was the module
 
 Run `./run.sh`. It builds `normalizr`, `core`, `use-enhanced-reducer` and `react` in this checkout, packs them,
 installs them in a temp app (vitest 2.1, vite 5, jsdom 24, React 18, default vitest config) and renders
-`<DataProvider>`. `SKIP_BUILD=1` reuses the current build output.
+`<DataProvider>`.
 
 - Pass: exit 0 (the test renders `ok`).
-- Fail: exit 1 (vitest failed). Exit 2 means the build failed, so the eval did not run.
+- Fail: exit 1 (vitest failed).
+- Exit 2: building, packing or installing failed, so the eval did not run. It prints the end of the log.
 - Baseline: `DATA_CLIENT_VERSION=0.18.2 ./run.sh` fails with the error above.
+
+`SKIP_BUILD=1` skips the type and normalizr builds when they are current; `yarn pack` still builds the other three.
 
 It is manual, not part of CI: it takes a few minutes and installs from npm. Direct dependencies are pinned exactly;
 their own dependencies resolve at install time.
