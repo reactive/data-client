@@ -40,7 +40,8 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
     } catch (e: any) {
       if (callId === latestCallRef.current) setError(e);
     } finally {
-      // not gated on mount: a hidden <Activity> keeps state, so the result must land to show again
+      // not gated on mount: a hidden <Activity> keeps state, so the result must land to show again.
+      // After a real unmount this is a no-op on React 18+ and a dev-only warning on 16/17.
       if (callId === latestCallRef.current) setLoading(false);
     }
     return ret;
