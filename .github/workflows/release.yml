@@ -1,4 +1,6 @@
 name: Release
+# A manual run is always a beta: name it so in the run list
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('Beta from {0}', github.ref_name) || '' }}
 
 on:
   push:
@@ -8,6 +10,14 @@ on:
   # 0.19.0-beta-<datetime>-<sha>. It commits nothing. npm trusts only this
   # workflow file to publish, so betas run here instead of their own file.
   workflow_dispatch:
+    inputs:
+      # Never read: the run form shows only inputs, so this one tells whoever
+      # opens it what the button does
+      publish:
+        description: 'A manual run publishes a beta. Stable releases publish when the Version Packages PR merges.'
+        type: choice
+        options:
+          - beta snapshot (npm tag "beta")
 
 # Queue every run instead of cancelling pending ones (red on the branch), in
 # one queue with maintenance branches, so each reads npm's `latest` after the

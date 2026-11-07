@@ -54,6 +54,25 @@ If your idea requires design considerations, it's best to [start a discussion][4
 
 * Submit your pull request!
 
+## Releasing (maintainers)
+
+`.github/workflows/release.yml` publishes every release to npm. What starts it
+decides the kind:
+
+* **Stable:** merging changesets to master opens or updates the "Version
+  Packages" PR. Merging that PR publishes under npm's `latest` tag and creates
+  the GitHub releases.
+* **Beta:** go to Actions, select Release, then Run workflow, and pick the branch
+  (usually master). It publishes the pending changesets as a snapshot, like
+  `0.19.0-beta-<datetime>-<sha>`, under npm's `beta` tag. It commits nothing,
+  and fails if no changesets are pending. Install it with
+  `npm install @data-client/react@beta`.
+
+npm trusts only `release.yml` to publish (trusted publishing, with provenance),
+so never publish from another workflow file. A maintenance branch publishes
+through its own copy of `release.yml`, under `latest-<version>` once a newer
+major ships; see [scripts/maintenance/README.md](scripts/maintenance/README.md).
+
 ## Support Requests
 
 Support is available in our [discord channel][3]
