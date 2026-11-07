@@ -261,10 +261,12 @@ If multiple protocols are detected, follow each protocol's guide. Each protocol 
 ## Replacing TanStack Query
 
 When the app uses TanStack Query, a request to set up or migrate to Data Client includes replacing it: follow
-[references/tanstack-query-migration.md](references/tanstack-query-migration.md) from its "Steps" section. Its step 1 is
+[TanStack Query migration](references/tanstack-query-migration.md) from its "Steps" section. Its step 1 is
 the protocol guide above, so the REST guide's "leave how the app loads data alone" does not apply here. Look up each
 TanStack Query API in its "API map" rather than working out a replacement, and finish with its "Check the migration"
 list. Libraries built on TanStack Query, like `react-query-auth`, are replaced in the same pass.
+Data Client's own `useQuery` reads the store and never fetches, so it is not the replacement for TanStack Query's
+`useQuery`: that is `useSuspense` (or `useDLE`).
 
 ## Verification Checklist
 
