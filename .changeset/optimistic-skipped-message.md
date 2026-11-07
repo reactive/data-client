@@ -6,7 +6,7 @@
 
 Explain skipped optimistic updates in development
 
-When [getOptimisticResponse()](https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse) throws, or returns a value its schema can't normalize, the UI waits for the server instead of updating right away. The development console error now starts with `Optimistic update skipped for <endpoint>` and names the most common fix. It is logged once per mutation (also under React 18 StrictMode), instead of again on every store update until the server responds.
+When [getOptimisticResponse()](https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse) throws, or returns a value its schema can't normalize, the UI waits for the server instead of updating right away. The development console error now starts with `Optimistic update skipped for <endpoint>` and names the most common cause. It is logged once per mutation (also under React 18 StrictMode), instead of again on every store update until the server responds.
 
 The most common cause is an Entity without its primary key. Other fields can be left out; they keep their cached values. When the endpoint's arguments don't include the key, read it from the snapshot:
 

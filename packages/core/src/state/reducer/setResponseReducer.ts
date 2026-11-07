@@ -85,15 +85,14 @@ export function setResponseReducer(
     // reducer must update the state, so in case of processing errors we simply compute the endpoints inline
   } catch (error: any) {
     if (typeof error === 'object') {
-      const intro =
+      error.message =
         action.type === OPTIMISTIC && process.env.NODE_ENV !== 'production' ?
-          optimisticFailureIntro(action.key)
-        : `Error processing ${action.key}`;
-      error.message = `${intro}\n\nFull Schema: ${JSON.stringify(
-        action.endpoint.schema,
-        undefined,
-        2,
-      )}\n\nError:\n${error.message}`;
+          `${optimisticFailureIntro(action.key)}\n\n${error.message}`
+        : `Error processing ${action.key}\n\nFull Schema: ${JSON.stringify(
+            action.endpoint.schema,
+            undefined,
+            2,
+          )}\n\nError:\n${error.message}`;
       if ('response' in action) error.response = action.response;
       error.status = 400;
     }
@@ -119,11 +118,8 @@ function claimReport(action: OptimisticAction | SetResponseAction) {
 }
 
 function optimisticFailureIntro(key: string) {
-  return `Optimistic update skipped for ${key}: getOptimisticResponse() threw, or its value could not be normalized. The UI will not change until the server responds.
-
-A common cause is an Entity without its primary key. Other fields can be left out; they keep their cached values.
-If the endpoint's args do not include the primary key, read it from the snapshot with snap.get() or snap.getResponse().
-Learn more: https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse`;
+  return `Optimistic update skipped for ${key}; the UI will update when the server responds.
+getOptimisticResponse() threw, or returned a value that could not be normalized (often an Entity missing its primary key).`;
 }
 
 function reduceError(
