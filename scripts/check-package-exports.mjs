@@ -47,7 +47,8 @@ const DIFFERENT_ON_PURPOSE = {
 };
 
 // Lists the files a fresh Node process loads for `import`s or `require`s of
-// the specifiers
+// the specifiers (see mixedBuilds)
+const LOADED_SCRIPT = path.join(work, 'loaded.mjs');
 const LOADED = `import { createRequire, registerHooks } from 'node:module';
 const loaded = new Set();
 registerHooks({
@@ -69,6 +70,7 @@ console.log(JSON.stringify([...loaded]));
 const packages = publishedPackages();
 fs.rmSync(work, { recursive: true, force: true });
 fs.mkdirSync(packs, { recursive: true });
+fs.writeFileSync(LOADED_SCRIPT, LOADED);
 packAll();
 // Unpack them all first, so they load each other rather than the workspaces
 const unpacked = packages.map(unpack);
@@ -153,7 +155,6 @@ function unpack(pkg) {
 async function consumerLoaders() {
   const probe = path.join(work, 'probe.mjs');
   fs.writeFileSync(probe, 'export default specifier => import(specifier);\n');
-  fs.writeFileSync(path.join(work, 'loaded.mjs'), LOADED);
   return {
     import: (await import(pathToFileURL(probe))).default,
     require: createRequire(probe),
@@ -359,9 +360,8 @@ async function differentExports(load, rootSpecifier, specifier) {
 // Loads the specifiers in a fresh Node process, and returns each unpacked
 // package that loaded files from more than one build folder (lib/, dist/...)
 function mixedBuilds(call, specifiers) {
-  const loader = path.join(work, 'loaded.mjs');
   const urls = JSON.parse(
-    execFileSync(process.execPath, [loader, call, ...specifiers], {
+    execFileSync(process.execPath, [LOADED_SCRIPT, call, ...specifiers], {
       encoding: 'utf8',
     }),
   );
