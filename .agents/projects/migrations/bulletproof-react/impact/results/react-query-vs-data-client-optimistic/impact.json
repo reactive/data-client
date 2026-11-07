@@ -6,7 +6,7 @@
     "baseline": "react-query",
     "migrated": "data-client + optimistic"
   },
-  "generated": "2026-11-07T05:45:50.845Z",
+  "generated": "2026-11-07T05:52:58.848Z",
   "meta": {
     "config": "../data-client/.agents/projects/migrations/bulletproof-react/impact/impact.config.mjs",
     "prep": ["fixed-latency.patch"],
@@ -29,7 +29,7 @@
     {
       "file": "flow.json",
       "kind": "flow",
-      "date": "2026-11-07T05:39:39.969Z"
+      "date": "2026-11-07T05:52:58.282Z"
     },
     {
       "file": "static.json",
@@ -344,7 +344,7 @@
         "baseline": 8,
         "migrated": 8
       },
-      "verdict": "noise"
+      "verdict": "same"
     },
     {
       "source": "flow",

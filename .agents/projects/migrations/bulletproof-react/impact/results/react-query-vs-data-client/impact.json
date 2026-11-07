@@ -6,7 +6,7 @@
     "baseline": "react-query",
     "migrated": "data-client"
   },
-  "generated": "2026-11-07T05:45:50.793Z",
+  "generated": "2026-11-07T05:52:57.589Z",
   "meta": {
     "config": "../data-client/.agents/projects/migrations/bulletproof-react/impact/impact.config.mjs",
     "prep": ["fixed-latency.patch"],
@@ -29,7 +29,7 @@
     {
       "file": "flow.json",
       "kind": "flow",
-      "date": "2026-11-07T05:33:03.964Z"
+      "date": "2026-11-07T05:52:57.063Z"
     },
     {
       "file": "static.json",
@@ -344,7 +344,7 @@
         "baseline": 8,
         "migrated": 8
       },
-      "verdict": "noise"
+      "verdict": "same"
     },
     {
       "source": "flow",
@@ -465,7 +465,7 @@
       "lowerIsBetter": true,
       "baseline": 517.52,
       "migrated": 490.28,
-      "delta": -27.23,
+      "delta": -27.24,
       "pct": -5.3,
       "ci95": [-106.32, 8.78],
       "spread": {
@@ -509,7 +509,7 @@
       "lowerIsBetter": true,
       "baseline": 782.95,
       "migrated": 717.26,
-      "delta": -65.7,
+      "delta": -65.69,
       "pct": -8.4,
       "ci95": [-184.43, -16.35],
       "spread": {

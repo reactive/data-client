@@ -6,7 +6,7 @@
     "baseline": "data-client",
     "migrated": "data-client + optimistic"
   },
-  "generated": "2026-11-07T05:45:50.893Z",
+  "generated": "2026-11-07T05:53:00.182Z",
   "meta": {
     "config": "../data-client/.agents/projects/migrations/bulletproof-react/impact/impact.config.mjs",
     "prep": ["fixed-latency.patch"],
@@ -29,7 +29,7 @@
     {
       "file": "flow.json",
       "kind": "flow",
-      "date": "2026-11-07T05:45:12.183Z"
+      "date": "2026-11-07T05:52:59.548Z"
     },
     {
       "file": "static.json",
@@ -344,7 +344,7 @@
         "baseline": 8,
         "migrated": 8
       },
-      "verdict": "worse"
+      "verdict": "same"
     },
     {
       "source": "flow",
@@ -465,7 +465,7 @@
       "lowerIsBetter": true,
       "baseline": 498.87,
       "migrated": 521.7,
-      "delta": 22.82,
+      "delta": 22.83,
       "pct": 4.6,
       "ci95": [-30.36, 44.57],
       "spread": {

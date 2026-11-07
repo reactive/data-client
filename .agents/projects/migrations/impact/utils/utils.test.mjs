@@ -29,6 +29,12 @@ test('compare: higher-is-better flips the verdict, and too few runs is flagged',
   );
 });
 
+test('compare: changes below display precision are same, not worse', () => {
+  const cls = [1.1e-4, 1.2e-4, 1.4e-4, 1.7e-4];
+  assert.equal(compare([0, 0, 0, 0], cls).verdict, 'same');
+  assert.equal(compare([0, 0, 0, 0], cls).delta, 0);
+});
+
 test('metric: rounding noise is same, null direction is changed', () => {
   assert.equal(metric('g', 'id', 'l', 'kB', 7.681, 7.6812).verdict, 'same');
   assert.equal(

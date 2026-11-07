@@ -1,7 +1,7 @@
 {
   "kind": "flow",
   "app": "bulletproof-react",
-  "date": "2026-11-07T05:45:12.183Z",
+  "date": "2026-11-07T05:52:59.548Z",
   "runs": 8,
   "cpuThrottle": 4,
   "steps": [
@@ -369,7 +369,7 @@
         "baseline": 8,
         "migrated": 8
       },
-      "verdict": "worse"
+      "verdict": "same"
     },
     {
       "group": "flow",
@@ -484,7 +484,7 @@
       "lowerIsBetter": true,
       "baseline": 498.87,
       "migrated": 521.7,
-      "delta": 22.82,
+      "delta": 22.83,
       "pct": 4.6,
       "ci95": [-30.36, 44.57],
       "spread": {
@@ -1287,7 +1287,7 @@
         "parseCompileMs": {
           "baseline": 498.87,
           "migrated": 521.7,
-          "delta": 22.82,
+          "delta": 22.83,
           "pct": 4.6,
           "ci95": [-30.36, 44.57],
           "spread": {
@@ -1638,7 +1638,7 @@
             "baseline": 8,
             "migrated": 8
           },
-          "verdict": "worse"
+          "verdict": "same"
         }
       }
     },
@@ -2416,7 +2416,7 @@
             "baseline": 8,
             "migrated": 8
           },
-          "verdict": "noise"
+          "verdict": "same"
         }
       },
       "create comment": {
@@ -2610,7 +2610,7 @@
             "baseline": 8,
             "migrated": 8
           },
-          "verdict": "worse"
+          "verdict": "same"
         }
       },
       "delete comment": {

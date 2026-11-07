@@ -5,10 +5,10 @@
 
 ## Setup
 
-| Variant                  | Commit                                   | Uncommitted files |
-| ------------------------ | ---------------------------------------- | ----------------- |
-| data-client              | 9506629ed003a561c6627735480cce4994244bb4 | 58                |
-| data-client + optimistic | fb6c863163fbfc202666d745d1596083ef374bc4 | 59                |
+| Variant                  | Commit                                   | Uncommitted files | Working-tree diff sha1 |
+| ------------------------ | ---------------------------------------- | ----------------- | ---------------------- |
+| data-client              | 9506629ed003a561c6627735480cce4994244bb4 | 58                | –                      |
+| data-client + optimistic | fb6c863163fbfc202666d745d1596083ef374bc4 | 59                | –                      |
 
 Config `../data-client/.agents/projects/migrations/bulletproof-react/impact/impact.config.mjs`, prep `fixed-latency.patch`, Node v22.23.4, Playwright 1.65.0.
 
@@ -29,7 +29,7 @@ Config `../data-client/.agents/projects/migrations/bulletproof-react/impact/impa
 | Loading indicator visible                                 | ms       | 0                   | 0                        | 0                                | same    |
 | Long tasks (>50ms)                                        | count    | 0                   | 1                        | +1                               | worse   |
 | Slowest interaction (input to next paint)                 | ms       | 36 (32–50)          | 76 (64–82)               | +40 (+111%) [+16, +52]           | worse   |
-| Layout shift (CLS sum)                                    | score    | 0                   | 0                        | 0                                | worse   |
+| Layout shift (CLS sum)                                    | score    | 0                   | 0                        | 0                                | same    |
 | Reads the redundancy check could not hash                 | requests | 0                   | 0                        | 0                                | same    |
 | Total blocking time                                       | ms       | 0                   | 10 (4.5–17.8)            | +10 [+3.5, +20]                  | worse   |
 

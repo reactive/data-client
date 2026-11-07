@@ -53,9 +53,10 @@ export function compare(before, after, { lowerIsBetter = true } = {}) {
   const a = after.filter(Number.isFinite);
   const mb = median(b);
   const ma = median(a);
-  const delta = ma - mb;
+  // Verdicts use the same rounding as the printed values, so a change too small to show is never "worse".
+  const delta = round(round(ma) - round(mb));
   let ci = [delta, delta];
-  if (b.length > 1 && a.length > 1) ci = bootstrapDiff(b, a);
+  if (b.length > 1 && a.length > 1) ci = bootstrapDiff(b, a).map(x => round(x));
   let verdict;
   if (delta === 0 && ci[0] === 0 && ci[1] === 0) verdict = 'same';
   // Too few samples for an interval; one run is enough only for counts that never vary.

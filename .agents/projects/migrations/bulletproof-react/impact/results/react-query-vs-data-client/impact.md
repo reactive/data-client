@@ -5,10 +5,10 @@
 
 ## Setup
 
-| Variant     | Commit                                   | Uncommitted files |
-| ----------- | ---------------------------------------- | ----------------- |
-| react-query | 9506629ed003a561c6627735480cce4994244bb4 | 5                 |
-| data-client | 9506629ed003a561c6627735480cce4994244bb4 | 58                |
+| Variant     | Commit                                   | Uncommitted files | Working-tree diff sha1 |
+| ----------- | ---------------------------------------- | ----------------- | ---------------------- |
+| react-query | 9506629ed003a561c6627735480cce4994244bb4 | 5                 | –                      |
+| data-client | 9506629ed003a561c6627735480cce4994244bb4 | 58                | –                      |
 
 Config `../data-client/.agents/projects/migrations/bulletproof-react/impact/impact.config.mjs`, prep `fixed-latency.patch`, Node v22.23.4, Playwright 1.65.0.
 
@@ -29,7 +29,7 @@ Config `../data-client/.agents/projects/migrations/bulletproof-react/impact/impa
 | Loading indicator visible                                 | ms       | 0                   | 0                   | 0                                | same         |
 | Long tasks (>50ms)                                        | count    | 0                   | 0                   | 0                                | same         |
 | Slowest interaction (input to next paint)                 | ms       | 40 (40–48)          | 40 (32–40)          | 0 [-12, 0]                       | within noise |
-| Layout shift (CLS sum)                                    | score    | 0                   | 0                   | 0                                | within noise |
+| Layout shift (CLS sum)                                    | score    | 0                   | 0                   | 0                                | same         |
 | Reads the redundancy check could not hash                 | requests | 0                   | 0                   | 0                                | same         |
 | Total blocking time                                       | ms       | 0                   | 0                   | 0                                | same         |
 

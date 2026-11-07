@@ -1,7 +1,7 @@
 {
   "kind": "flow",
   "app": "bulletproof-react",
-  "date": "2026-11-07T05:39:39.969Z",
+  "date": "2026-11-07T05:52:58.282Z",
   "runs": 8,
   "cpuThrottle": 4,
   "steps": [
@@ -369,7 +369,7 @@
         "baseline": 8,
         "migrated": 8
       },
-      "verdict": "noise"
+      "verdict": "same"
     },
     {
       "group": "flow",
@@ -1638,7 +1638,7 @@
             "baseline": 8,
             "migrated": 8
           },
-          "verdict": "noise"
+          "verdict": "same"
         }
       }
     },
@@ -2610,7 +2610,7 @@
             "baseline": 8,
             "migrated": 8
           },
-          "verdict": "noise"
+          "verdict": "same"
         }
       },
       "delete comment": {

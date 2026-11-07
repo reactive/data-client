@@ -5,33 +5,33 @@
 
 ## Setup
 
-| Variant                  | Commit                                   | Uncommitted files |
-| ------------------------ | ---------------------------------------- | ----------------- |
-| react-query              | 9506629ed003a561c6627735480cce4994244bb4 | 5                 |
-| data-client + optimistic | fb6c863163fbfc202666d745d1596083ef374bc4 | 59                |
+| Variant                  | Commit                                   | Uncommitted files | Working-tree diff sha1 |
+| ------------------------ | ---------------------------------------- | ----------------- | ---------------------- |
+| react-query              | 9506629ed003a561c6627735480cce4994244bb4 | 5                 | –                      |
+| data-client + optimistic | fb6c863163fbfc202666d745d1596083ef374bc4 | 59                | –                      |
 
 Config `../data-client/.agents/projects/migrations/bulletproof-react/impact/impact.config.mjs`, prep `fixed-latency.patch`, Node v22.23.4, Playwright 1.65.0.
 
 ## Flow
 
-| Metric                                                    | Unit     | react-query         | data-client + optimistic | Change                           | Verdict      |
-| --------------------------------------------------------- | -------- | ------------------- | ------------------------ | -------------------------------- | ------------ |
-| Mutation submit to UI updated (sum)                       | ms       | 7,056 (7,048–7,067) | 1,888 (1,869–1,910)      | -5,167 (-73.2%) [-5,196, -5,127] | better       |
-| Reads triggered by mutations                              | requests | 6                   | 2                        | -4 (-66.7%)                      | better       |
-| Stale views (checked views showing old data)              | views    | 2                   | 0                        | -2 (-100%)                       | better       |
-| All steps, action to ready (sum)                          | ms       | 9,904 (9,858–9,915) | 4,671 (4,642–4,718)      | -5,233 (-52.8%) [-5,291, -5,141] | better       |
-| API requests                                              | requests | 15                  | 10                       | -5 (-33.3%)                      | better       |
-| API reads (GET)                                           | requests | 9                   | 4                        | -5 (-55.6%)                      | better       |
-| API writes                                                | requests | 6                   | 6                        | 0                                | same         |
-| Redundant reads (same URL, same payload already received) | requests | 0                   | 0                        | 0                                | same         |
-| Navigations with no loading indicator (of 7)              | navs     | 7                   | 7                        | 0                                | same         |
-| Loading indicators shown                                  | count    | 0                   | 0                        | 0                                | same         |
-| Loading indicator visible                                 | ms       | 0                   | 0                        | 0                                | same         |
-| Long tasks (>50ms)                                        | count    | 0                   | 1                        | +1                               | worse        |
-| Slowest interaction (input to next paint)                 | ms       | 48 (46–56)          | 76 (64–96)               | +28 (+58.3%) [+12, +52]          | worse        |
-| Layout shift (CLS sum)                                    | score    | 0                   | 0                        | 0                                | within noise |
-| Reads the redundancy check could not hash                 | requests | 0                   | 0                        | 0                                | same         |
-| Total blocking time                                       | ms       | 0                   | 13.5 (3.5–32)            | +13.5 [+2, +32]                  | worse        |
+| Metric                                                    | Unit     | react-query         | data-client + optimistic | Change                           | Verdict |
+| --------------------------------------------------------- | -------- | ------------------- | ------------------------ | -------------------------------- | ------- |
+| Mutation submit to UI updated (sum)                       | ms       | 7,056 (7,048–7,067) | 1,888 (1,869–1,910)      | -5,167 (-73.2%) [-5,196, -5,127] | better  |
+| Reads triggered by mutations                              | requests | 6                   | 2                        | -4 (-66.7%)                      | better  |
+| Stale views (checked views showing old data)              | views    | 2                   | 0                        | -2 (-100%)                       | better  |
+| All steps, action to ready (sum)                          | ms       | 9,904 (9,858–9,915) | 4,671 (4,642–4,718)      | -5,233 (-52.8%) [-5,291, -5,141] | better  |
+| API requests                                              | requests | 15                  | 10                       | -5 (-33.3%)                      | better  |
+| API reads (GET)                                           | requests | 9                   | 4                        | -5 (-55.6%)                      | better  |
+| API writes                                                | requests | 6                   | 6                        | 0                                | same    |
+| Redundant reads (same URL, same payload already received) | requests | 0                   | 0                        | 0                                | same    |
+| Navigations with no loading indicator (of 7)              | navs     | 7                   | 7                        | 0                                | same    |
+| Loading indicators shown                                  | count    | 0                   | 0                        | 0                                | same    |
+| Loading indicator visible                                 | ms       | 0                   | 0                        | 0                                | same    |
+| Long tasks (>50ms)                                        | count    | 0                   | 1                        | +1                               | worse   |
+| Slowest interaction (input to next paint)                 | ms       | 48 (46–56)          | 76 (64–96)               | +28 (+58.3%) [+12, +52]          | worse   |
+| Layout shift (CLS sum)                                    | score    | 0                   | 0                        | 0                                | same    |
+| Reads the redundancy check could not hash                 | requests | 0                   | 0                        | 0                                | same    |
+| Total blocking time                                       | ms       | 0                   | 13.5 (3.5–32)            | +13.5 [+2, +32]                  | worse   |
 
 ## Cold load
 
