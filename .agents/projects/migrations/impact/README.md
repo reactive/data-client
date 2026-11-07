@@ -128,6 +128,7 @@ export default {
       ['data', ['src/api/**']],
     ],
     dist: 'dist',
+    // Import counts, and the installed versions recorded in meta.json and the report's Setup table.
     dataLibs: ['@tanstack/react-query', '@data-client/react'],
   },
   feature: {

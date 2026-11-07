@@ -67,6 +67,12 @@ const LABEL = {
   baseline: opt['baseline-label'],
   migrated: opt['migrated-label'],
 };
+// Installed libraries only; meta.json keeps null for the configured ones a checkout lacks.
+const formatLibs = libs =>
+  Object.entries(libs ?? {})
+    .filter(([, ver]) => ver)
+    .map(([lib, ver]) => `${lib} ${ver}`)
+    .join(', ') || 'none found';
 const countFailures = failures =>
   Object.entries(failures ?? {})
     .filter(([, f]) => f.length)
@@ -112,11 +118,7 @@ if (meta) {
     '| --- | --- | --- | --- | --- |',
     ...Object.entries(meta.checkouts).map(
       ([v, c]) =>
-        `| ${LABEL[v]} | ${
-          Object.entries(c.dataLibs ?? {})
-            .map(([l, ver]) => `${l} ${ver}`)
-            .join(', ') || '–'
-        } | ${c.commit ?? 'not a git checkout'} | ${c.uncommittedFiles ?? '–'} | ${c.treeDiffSha1 ?? '–'} |`,
+        `| ${LABEL[v]} | ${formatLibs(c.dataLibs)} | ${c.commit ?? 'not a git checkout'} | ${c.uncommittedFiles ?? '–'} | ${c.treeDiffSha1 ?? '–'} |`,
     ),
     '',
     `Config \`${meta.config}\`, prep ${meta.prep.map(p => `\`${p}\``).join(', ') || 'none'}, Node ${meta.node}, Playwright ${meta.playwright ?? 'unknown'}.`,

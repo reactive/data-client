@@ -13,8 +13,11 @@
    "treeDiffSha1": "2e22615c1c3f",
    "uncommittedFiles": 58,
    "dataLibs": {
+    "@tanstack/react-query": null,
+    "react-query-auth": null,
     "@data-client/react": "0.18.2",
-    "@data-client/rest": "0.18.2"
+    "@data-client/rest": "0.18.2",
+    "axios": null
    }
   },
   "migrated": {
@@ -22,8 +25,11 @@
    "treeDiffSha1": "5f2c80fa6a7d",
    "uncommittedFiles": 59,
    "dataLibs": {
+    "@tanstack/react-query": null,
+    "react-query-auth": null,
     "@data-client/react": "0.18.2",
-    "@data-client/rest": "0.18.2"
+    "@data-client/rest": "0.18.2",
+    "axios": null
    }
   }
  }

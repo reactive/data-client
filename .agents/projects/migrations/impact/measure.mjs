@@ -12,7 +12,7 @@
 // 5. writes <out>/impact.json and <out>/impact.md with report.mjs
 import { execFileSync, execSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createConnection, createServer } from 'node:net';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -110,15 +110,19 @@ function treeDiffSha1(cwd) {
   }
   return hash.digest('hex').slice(0, 12);
 }
+// Walks up from the app root, like Node's resolver, so hoisted workspace installs are found.
+// A configured library that is not installed is recorded as null, so its absence shows.
 function installedVersions(root, libs) {
   const versions = {};
   for (const lib of libs) {
-    try {
-      versions[lib] = JSON.parse(
-        readFileSync(join(root, 'node_modules', lib, 'package.json'), 'utf8'),
-      ).version;
-    } catch {
-      // Not installed in this checkout.
+    versions[lib] = null;
+    for (let dir = resolve(root); ; dir = dirname(dir)) {
+      const pkg = join(dir, 'node_modules', lib, 'package.json');
+      if (existsSync(pkg)) {
+        versions[lib] = JSON.parse(readFileSync(pkg, 'utf8')).version;
+        break;
+      }
+      if (dirname(dir) === dir) break;
     }
   }
   return versions;

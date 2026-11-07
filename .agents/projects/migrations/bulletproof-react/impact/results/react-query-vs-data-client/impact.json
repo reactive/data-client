@@ -6,7 +6,7 @@
   "baseline": "react-query",
   "migrated": "data-client"
  },
- "generated": "2026-11-07T20:29:06.937Z",
+ "generated": "2026-11-07T20:32:23.845Z",
  "meta": {
   "config": "../data-client/.agents/projects/migrations/bulletproof-react/impact/impact.config.mjs",
   "prep": [
@@ -24,6 +24,8 @@
     "dataLibs": {
      "@tanstack/react-query": "5.107.1",
      "react-query-auth": "2.4.3",
+     "@data-client/react": null,
+     "@data-client/rest": null,
      "axios": "1.21.0"
     }
    },
@@ -32,8 +34,11 @@
     "treeDiffSha1": "2e22615c1c3f",
     "uncommittedFiles": 58,
     "dataLibs": {
+     "@tanstack/react-query": null,
+     "react-query-auth": null,
      "@data-client/react": "0.18.2",
-     "@data-client/rest": "0.18.2"
+     "@data-client/rest": "0.18.2",
+     "axios": null
     }
    }
   }

@@ -13,7 +13,8 @@ feature are the ones most likely to change.
 | data-client              | the same commit plus `migration.patch` from [#4607](https://github.com/reactive/data-client/pull/4607) @ `daada76`                                                                           |
 | data-client + optimistic | the same commit plus `migration.patch` from [#4607](https://github.com/reactive/data-client/pull/4607) @ `5258d83` (optimistic comment create and delete, discussion update, profile update) |
 
-Each report's Setup table shows the checkout's own HEAD, its uncommitted-file count and a working-tree
+Each report's Setup table shows the installed data library versions (read from the checkouts after
+these runs, before the kit recorded them), the checkout's own HEAD, its uncommitted-file count and a working-tree
 fingerprint. The optimistic checkout has a local commit; the table above names the patch each variant
 applied.
 
