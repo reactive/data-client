@@ -266,12 +266,14 @@ export function CloseIssueButton({ id }: { id: number }) {
 ```
 
 The `invalidateQueries()` call is gone: the response is the updated `Issue`, so the table and the detail page both
-show it closed. TanStack Query apps usually invalidate the detail key but not every list key, so lists show stale
+show it closed (lists filtered by state need more; see below). TanStack Query apps usually invalidate the detail key but not every list key, so lists show stale
 data until they expire; after the migration they don't.
 
 Decide what to do with each `invalidateQueries()` and `refetchQueries()` call from the response:
 
-- **Response is the changed Entity** (update, partial update): delete the call.
+- **Response is the changed Entity** (update, partial update): delete the call, unless the change moves the Entity
+  between filtered or sorted lists. Closing an issue updates it everywhere, but doesn't remove it from a cached
+  `?state=open` list or add it to a `?state=closed` one; keep those right with `ctrl.expireAll(Resource.getList)`.
 - **Create**: fetch the list's `push` (or `unshift`) endpoint instead of the plain `POST`. For lists split into
   numbered pages, where a new item shifts every page, add a plain `POST` endpoint (`create` in the
   [envelope example](#envelope-responses): `Base.getList.push.extend({ schema: Issue })`), then call
