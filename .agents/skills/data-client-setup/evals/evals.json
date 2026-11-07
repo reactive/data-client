@@ -1,0 +1,82 @@
+{
+  "skill_name": "data-client-setup",
+  "evals": [
+    {
+      "id": 1,
+      "name": "tanstack-full-app-bulletproof-react",
+      "source": "P1 in .agents/projects/migrations/bulletproof-react/problems.md, added by PR #4607 (pinned at 9409e00)",
+      "prompt": "migrate to data-client",
+      "setup": "Clone alan2207/bulletproof-react at 9506629ed003a561c6627735480cce4994244bb4 and work in apps/react-vite (react-query + axios + react-query-auth, MSW mocks, vitest, playwright). Add e2e/tests/stale-list.spec.ts from .agents/projects/migrations/bulletproof-react/migration.patch (reactive/data-client@9409e004346ef5297010f7a88d027657c4e1eb17); it fails on the baseline. Install the skill under test with `npx skills add reactive/data-client --skill data-client-setup -y` from the branch being evaluated. Environment workarounds that are not under test (README and P10 there): `npm install --legacy-peer-deps`, `cp .env.example .env`, Playwright `launchOptions.executablePath` for the preinstalled Chromium. Give the agent no other hints. Run it on the mid model at medium effort.",
+      "expected_output": "A complete migration off TanStack Query whose hook mapping follows the skill's TanStack Query migration guide, with all of the app's checks green.",
+      "files": [],
+      "assertions": [
+        "No file under apps/react-vite/src imports from `@tanstack/react-query`, `@tanstack/react-query-devtools` or `react-query-auth`, and neither package is in package.json.",
+        "`tsc --noEmit`, the vitest suite and the playwright suite (including `e2e/tests/stale-list.spec.ts`) pass.",
+        "The agent read the TanStack Query migration reference (`references/tanstack-query-migration.md`) before converting hooks.",
+        "Reads use `useSuspense` (or `useDLE`), not Data Client's `useQuery`, in the component that renders the data; the per-feature `useXxx()` wrappers around `useQuery` are deleted.",
+        "Router loaders and hover prefetching use `ctrl.fetchIfStale()`.",
+        "The infinite comments list uses one `Collection` with `getPage` for later pages, and creating a comment uses that Collection's `push` without invalidating anything.",
+        "Updating a discussion does not call `expireAll`, `invalidate` or `fetch` on any list endpoint.",
+        "Logout calls `ctrl.resetEntireStore()`; login stores the returned user with `ctrl.setResponse()` on the current-user endpoint."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "tanstack-update-and-create-invalidation",
+      "source": "P1, bulletproof-react",
+      "prompt": "We're replacing TanStack Query with Data Client. `DiscussionResource` (resource() with `path: '/discussions/:id'`, schema `Discussion` Entity; `getList` takes `{ page }` and the list is a table split into numbered pages) is already defined in src/api/discussion.ts. Convert these two hooks and their callers in src/features/discussions/ so they no longer use TanStack Query:\n\n```ts\nexport const useUpdateDiscussion = () => {\n  const queryClient = useQueryClient();\n  return useMutation({\n    mutationFn: ({ id, data }: { id: string; data: { title: string; body: string } }) =>\n      api.patch(`/discussions/${id}`, data),\n    onSuccess: (data) => {\n      queryClient.refetchQueries({ queryKey: ['discussions', data.id] });\n    },\n  });\n};\n\nexport const useCreateDiscussion = () => {\n  const queryClient = useQueryClient();\n  return useMutation({\n    mutationFn: (data: { title: string; body: string }) => api.post('/discussions', data),\n    onSuccess: () => {\n      queryClient.invalidateQueries({ queryKey: ['discussions'] });\n    },\n  });\n};\n```\n\nCallers use `mutation.mutate(values)`, `mutation.isPending` for the submit button, and `mutation.isSuccess` to close the form drawer.",
+      "expected_output": "Mutations go through `ctrl.fetch()` with pending state from `useLoading()`; the update drops its refetch entirely, and the create expires the paginated list.",
+      "files": [],
+      "assertions": [
+        "The update calls `ctrl.fetch(DiscussionResource.partialUpdate, { id }, data)` (or `update`) and does not refetch, expire or invalidate the detail or the list afterwards.",
+        "The create calls `ctrl.fetch(DiscussionResource.create, data)` (or equivalent POST) followed by `ctrl.expireAll(DiscussionResource.getList)`, and does not `push` into a page-numbered list.",
+        "Pending state comes from `useLoading()`; success (to close the drawer) is tracked after the awaited fetch, not from a TanStack field.",
+        "No `useMutation`, `useQueryClient` or query key arrays remain in the converted code."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "tanstack-infinite-query",
+      "source": "P1, bulletproof-react",
+      "prompt": "Replace this TanStack Query infinite list with Data Client. The API is `GET /comments?discussionId=..&page=..` returning `{ data: Comment[], meta: { page: number, totalPages: number } }`, and `POST /comments?discussionId=..` with `{ body }` returns the new Comment. Comment has `id`, `body`, `discussionId`.\n\n```tsx\nexport const getInfiniteCommentsQueryOptions = (discussionId: string) =>\n  infiniteQueryOptions({\n    queryKey: ['comments', discussionId],\n    queryFn: ({ pageParam = 1 }) => getComments({ discussionId, page: pageParam as number }),\n    getNextPageParam: (lastPage) =>\n      lastPage.meta.page === lastPage.meta.totalPages ? undefined : lastPage.meta.page + 1,\n    initialPageParam: 1,\n  });\n\nexport function CommentsList({ discussionId }: { discussionId: string }) {\n  const commentsQuery = useInfiniteQuery(getInfiniteCommentsQueryOptions(discussionId));\n  if (commentsQuery.isLoading) return <Spinner />;\n  const comments = commentsQuery.data?.pages.flatMap((page) => page.data);\n  return (\n    <>\n      <ul>{comments?.map((c) => <li key={c.id}>{c.body}</li>)}</ul>\n      {commentsQuery.hasNextPage && (\n        <button onClick={() => commentsQuery.fetchNextPage()}>\n          {commentsQuery.isFetchingNextPage ? 'Loading' : 'Load more'}\n        </button>\n      )}\n    </>\n  );\n}\n\n// after creating a comment:\nqueryClient.invalidateQueries({ queryKey: getInfiniteCommentsQueryOptions(discussionId).queryKey });\n```",
+      "expected_output": "An endpoint with an envelope schema whose `data` is a Collection keyed only by discussionId, `paginationField: 'page'`, `getPage` for more, and a create endpoint using the Collection's `push`.",
+      "files": [],
+      "assertions": [
+        "The list endpoint's schema is an envelope like `{ data: <Collection of Comment>, meta: ... }` and it sets `paginationField: 'page'`.",
+        "The Collection's `argsKey` (or equivalent) excludes `page`, so all pages and the create endpoint share one list.",
+        "Loading more calls `ctrl.fetch(<endpoint>.getPage, { discussionId, page: meta.page + 1 })`; there is no `pages.flatMap`.",
+        "Creating a comment uses the Collection's `push` as the schema (or `getComments.push`), with no invalidation call.",
+        "The component reads data with `useSuspense`, has no `isLoading` branch, and tracks load-more pending state with `useLoading()`."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "tanstack-loader-prefetch-and-enabled",
+      "source": "P1, bulletproof-react",
+      "prompt": "Finish moving our routes off TanStack Query. `DiscussionResource` (resource() on '/discussions/:id') and `TeamResource.getList` already exist as Data Client endpoints, and `DataProvider` already wraps the app. Convert:\n\n```tsx\n// router.tsx\nexport const AppRouter = () => {\n  const queryClient = useQueryClient();\n  const router = useMemo(() => createAppRouter(queryClient), [queryClient]);\n  return <RouterProvider router={router} />;\n};\n\n// discussion route\nexport const clientLoader = (queryClient: QueryClient) => async ({ params }: LoaderFunctionArgs) => {\n  const query = getDiscussionQueryOptions(params.discussionId as string);\n  return queryClient.getQueryData(query.queryKey) ?? (await queryClient.fetchQuery(query));\n};\n\n// discussions list row\n<Link onMouseEnter={() => queryClient.prefetchQuery(getDiscussionQueryOptions(id))} to={`/discussions/${id}`} />\n\n// register page\nconst teamsQuery = useQuery({ queryKey: ['teams'], queryFn: getTeams, enabled: chooseTeam });\nconst teams = teamsQuery.data?.data;\n```",
+      "expected_output": "The router and loaders take a Controller from useController(); loaders and the hover prefetch use fetchIfStale; the conditional query uses useSuspense with null args.",
+      "files": [],
+      "assertions": [
+        "The router gets the Controller from `useController()` and passes it to the loaders in place of the QueryClient.",
+        "The loader returns or awaits `ctrl.fetchIfStale(DiscussionResource.get, { id: ... })`.",
+        "The hover prefetch calls `ctrl.fetchIfStale(DiscussionResource.get, { id })`.",
+        "The teams read uses `useSuspense` (or `useDLE`) with `null` in place of args when `chooseTeam` is false; it does not use Data Client's `useQuery`, and it does not keep `enabled`."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "tanstack-react-query-auth",
+      "source": "P1, bulletproof-react",
+      "prompt": "Replace react-query-auth with Data Client in src/lib/auth.tsx. Today it is:\n\n```ts\nexport const { useUser, useLogin, useLogout, useRegister, AuthLoader } = configureAuth({\n  userFn: () => api.get('/auth/me').then((r) => r.data),\n  loginFn: async (data: LoginInput) => (await api.post('/auth/login', data)).user,\n  registerFn: async (data: RegisterInput) => (await api.post('/auth/register', data)).user,\n  logoutFn: () => api.post('/auth/logout'),\n});\n```\n\n`/auth/me` returns `{ data: User }`, login and register return `{ user: User, jwt: string }`. `AuthLoader` wraps the app in provider.tsx; components call `useUser().data`, `useLogin({ onSuccess }).mutate(values)` and `useLogout().mutate()`. A `User` Entity exists in src/api/user.ts and an `ApiEndpoint` base class in src/lib/api-client.ts.",
+      "expected_output": "Endpoints for me/login/register/logout; useUser reads with useSuspense; login and register store the user with setResponse on the me endpoint; logout resets the store; AuthLoader is removed in favor of Suspense.",
+      "files": [],
+      "assertions": [
+        "`useUser` reads the current user with `useSuspense` on the `/auth/me` endpoint; it has no loading or `enabled` handling of its own.",
+        "Login and register call `ctrl.fetch` on their endpoints and then write the returned user with `ctrl.setResponse(<me endpoint>, ...)` (or `ctrl.set`) instead of refetching or invalidating.",
+        "Logout calls `ctrl.resetEntireStore()` after the logout request.",
+        "`AuthLoader` is removed; loading is left to a Suspense boundary that sits inside `DataProvider`.",
+        "No `react-query-auth` or `@tanstack/react-query` import remains in the converted files."
+      ]
+    }
+  ]
+}
