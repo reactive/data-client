@@ -1,6 +1,9 @@
 # bulletproof-react: react-query vs data-client with optimistic updates
 
 - Flow: 8 interleaved runs per variant at 4x CPU throttle; 13 steps (6 mutations).
+- Feature cost: "Comment counts that stay in sync", 2 runs per variant, model sonnet at medium effort. Errored agent sessions count as failed acceptance; their spend stays in the medians.
+- Agent guidance in the react-query copy: `AGENTS.md`.
+- Agent guidance in the data-client + optimistic copy: `AGENTS.md`.
 - Sampled rows show median (interquartile range); the change column adds a 95% bootstrap interval in brackets. "Within noise" means that interval includes zero.
 
 ## Setup
@@ -133,3 +136,16 @@ Config `../data-client/.agents/projects/migrations/bulletproof-react/impact/impa
 | files importing @data-client/react    | files | 0           | 19                       | +19          | changed |
 | files importing @data-client/rest     | files | 0           | 5                        | +5           | changed |
 | files importing axios                 | files | 1           | 0                        | -1 (-100%)   | changed |
+
+## Feature cost
+
+| Metric                               | Unit           | react-query               | data-client + optimistic        | Change                                 | Verdict       |
+| ------------------------------------ | -------------- | ------------------------- | ------------------------------- | -------------------------------------- | ------------- |
+| Tokens, all (input + cache + output) | tokens         | 779,816 (777,679–781,954) | 1,156,346 (1,045,666–1,267,026) | +376,530 (+48.3%) [+150,895, +602,165] | needs 3+ runs |
+| Output tokens                        | tokens         | 6,103 (5,610–6,597)       | 11,660 (10,661–12,658)          | +5,557 (+91%) [+2,573, +8,540]         | needs 3+ runs |
+| Cost                                 | USD            | 0.29 (0.28–0.3)           | 0.42 (0.39–0.45)                | +0.12 (+41.6%) [+0.04, +0.21]          | needs 3+ runs |
+| Agent turns                          | turns          | 23 (22–24)                | 38 (32.5–43.5)                  | +15 (+65.2%) [+2, +28]                 | needs 3+ runs |
+| Wall time                            | ms             | 92,328 (86,267–98,388)    | 135,710 (122,566–148,853)       | +43,382 (+47%) [+4,974, +81,790]       | needs 3+ runs |
+| Lines changed (excl. lockfiles)      | lines          | 40.5 (38.8–42.3)          | 78 (76.5–79.5)                  | +37.5 (+92.6%) [+31, +44]              | needs 3+ runs |
+| Files changed                        | files          | 8.5 (8.25–8.75)           | 10.5 (10.3–10.8)                | +2 (+23.5%) [+1, +3]                   | needs 3+ runs |
+| Acceptance passed (1 = yes)          | median of runs | 1                         | 1                               | 0                                      | same          |

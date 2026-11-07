@@ -36,11 +36,32 @@ The optimistic version's slowest interaction is 76ms, against 36 to 48ms in the 
 its total blocking time is 10 to 13.5ms against 0. A likely cause is that the optimistic update renders
 inside the click handler's task; no trace confirms it yet.
 
+## Tokens per feature
+
+[`../feature.config.mjs`](../feature.config.mjs) asks an agent (Sonnet, medium effort) to add comment counts
+to the discussions list and page and keep them correct after creating or deleting a comment. A hidden
+e2e test checks the result. 2 runs per variant, so no verdicts yet.
+
+| Metric (unit)         | react-query | data-client + optimistic |
+| --------------------- | ----------- | ------------------------ |
+| Tokens, all (tokens)  | 779,816     | 1,156,346 (+48%)         |
+| Cost (USD)            | 0.29        | 0.42                     |
+| Agent turns (turns)   | 23          | 38                       |
+| Lines changed (lines) | 40.5        | 78                       |
+| Acceptance passed     | 2 of 2      | 2 of 2                   |
+
+Data-client cost more here, and the diffs show why. Both react-query runs added
+`invalidateQueries({ queryKey: ['discussions'] })` after each comment mutation. The data-client runs had no
+data-client skills in the checkout (the migration committed `skills-lock.json` but not the skill files), and
+neither found a data-client pattern for a server-computed count on a parent entity. One threaded
+`onCountChange` callbacks through four components; the other called `invalidateAll` on the list and refetched
+the discussion. This is a skill gap to fix and re-measure, not a property of the library.
+
 ## Reports
 
 - [react-query vs data-client](react-query-vs-data-client/impact.md)
-- [react-query vs data-client + optimistic](react-query-vs-data-client-optimistic/impact.md)
+- [react-query vs data-client + optimistic](react-query-vs-data-client-optimistic/impact.md) (includes tokens per feature)
 - [data-client vs data-client + optimistic](data-client-vs-data-client-optimistic/impact.md)
 
-Each folder also holds `impact.json` (all rows), `flow.json` and `static.json` (raw samples) and
+Each folder also holds `impact.json` (all rows), `flow.json`, `static.json` and `feature.json` (raw samples) and
 `meta.json`.
