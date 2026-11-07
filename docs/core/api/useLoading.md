@@ -190,10 +190,11 @@ export default function useLoading<
 >(func: F): [F, Ref<boolean>, Ref<Error | undefined>];
 ```
 
-`loading` is `true` while the returned promise is pending. If `func` rejects, the rejection is
-caught and stored in `error`; it is cleared again on the next call.
-
 :::
+
+`loading` is `true` while the returned promise is pending. If `func` rejects, the rejection is
+caught and stored in `error`; it is cleared again on the next call. When calls overlap, `loading` and
+`error` follow the latest call, so an earlier call that settles later doesn't change them.
 
 ## Examples
 

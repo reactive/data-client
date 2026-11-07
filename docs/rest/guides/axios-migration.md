@@ -107,6 +107,9 @@ your source folders, never the repo root:
 npx @data-client/codemods axios-to-rest src/
 ```
 
+The codemod doesn't format what it writes. Afterward, run the formatter or lint fixer your project uses on the changed
+files, such as `prettier --write`, `eslint --fix` or `biome check --write`.
+
 <DiffEditor caption="Each axios call becomes a call to an endpoint, built once at module level. Path params, `params` and the body become its arguments, and it resolves to the body, so `.data` goes away.">
 
 ```ts title="Before"
@@ -167,7 +170,8 @@ calls `axios(config)`, the codemod has little to do. Skip it and start at [step 
 ### 3. Move interceptors into a base endpoint {#base-endpoint}
 
 Axios interceptors and instance config become methods on one `RestEndpoint` subclass that every endpoint extends. The
-codemod creates this class from `axios.create()`; move the interceptors into it.
+codemod creates this class from `axios.create()`. It comments out the module's `api.interceptors` and `api.defaults`
+setup, since `api` no longer exists, and marks each with a `TODO(data-client)`; move each into the class.
 
 <DiffEditor caption="`RestEndpoint` parses JSON itself, so an interceptor that only unwraps `response.data` has nothing left to do.">
 

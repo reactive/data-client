@@ -85,24 +85,52 @@ export function setResponseReducer(
     // reducer must update the state, so in case of processing errors we simply compute the endpoints inline
   } catch (error: any) {
     if (typeof error === 'object') {
-      error.message = `Error processing ${
-        action.key
-      }\n\nFull Schema: ${JSON.stringify(
-        action.endpoint.schema,
-        undefined,
-        2,
-      )}\n\nError:\n${error.message}`;
+      error.message =
+        process.env.NODE_ENV !== 'production' && action.type === OPTIMISTIC ?
+          `${optimisticFailureIntro(action.key)}\n\n${error.message}`
+        : `Error processing ${action.key}\n\nFull Schema: ${JSON.stringify(
+            action.endpoint.schema,
+            undefined,
+            2,
+          )}\n\nError:\n${error.message}`;
       if ('response' in action) error.response = action.response;
       error.status = 400;
     }
 
     // this is not always bubbled up, so let's double sure this doesn't fail silently
     /* istanbul ignore else */
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'production' && claimReport(action)) {
       console.error(error);
     }
     return reduceError(state, action, error);
   }
+}
+
+/** Optimistic failures already logged, by key and fetch time (development only).
+ * Like filterOptimistic(), key + fetchedAt identifies the fetch.
+ */
+const reportedOptimistic = /* @__PURE__ */ new Set<string>();
+/** Records the report; false when this optimistic failure was already reported.
+ * Optimistic actions are re-applied on every state change (also by DevToolsManager),
+ * and React 18 StrictMode can re-create one from the same fetch, so each is reported once
+ * while among the latest 100.
+ */
+function claimReport(action: OptimisticAction | SetResponseAction) {
+  if (action.type !== OPTIMISTIC) return true;
+  const reportKey = `${action.key} ${action.meta.fetchedAt}`;
+  if (reportedOptimistic.has(reportKey)) return false;
+  // bounds memory in long sessions; a Set iterates oldest first
+  if (reportedOptimistic.size >= 100)
+    reportedOptimistic.delete(reportedOptimistic.values().next().value!);
+  reportedOptimistic.add(reportKey);
+  return true;
+}
+
+function optimisticFailureIntro(key: string) {
+  return `Optimistic update skipped for ${key}; the UI will update when the server responds.
+getOptimisticResponse() threw, or returned a value that could not be normalized.
+Often an Entity is missing its primary key: read it from the snapshot, like snap.getResponse(getMe).data.
+https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse`;
 }
 
 function reduceError(

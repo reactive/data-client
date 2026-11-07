@@ -604,10 +604,15 @@ function findModule(fromFile, spec) {
   return baseUrl ? findFile(nodePath.resolve(baseUrl, spec)) : undefined;
 }
 
-/** Names of the instances whose `.interceptors.response` the module uses */
-function responseInterceptorTargets(j, root) {
-  return new Set(
-    root
+/**
+ * Names of the instances whose `.interceptors.response` the module uses.
+ * Once this codemod has rewritten a module, its interceptor is only a comment,
+ * so the TODO it left in the module's `text` is what still marks it; a module
+ * being rewritten has no such TODO yet, so its caller passes no text.
+ */
+function responseInterceptorTargets(j, root, text = '') {
+  return new Set([
+    ...root
       .find(j.MemberExpression, {
         object: {
           type: 'MemberExpression',
@@ -618,6 +623,24 @@ function responseInterceptorTargets(j, root) {
       })
       .nodes()
       .map(node => node.object.object.name),
+    ...[...text.matchAll(commentedResponseInterceptor())].map(m => m[1]),
+  ]);
+}
+
+/**
+ * Matches a response interceptor this codemod commented out, told apart from
+ * code the author had already disabled by the TODO right above it. The TODO is
+ * written with placeholders, escaped, then the placeholders become patterns.
+ */
+function commentedResponseInterceptor() {
+  const todo =
+    `${TODO} ${commentedOutTodo('\0name', '\0class', INSTANCE_SETUP.interceptors)}`
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .replace('\0name', '([A-Za-z_$][\\w$]*)')
+      .replaceAll('\0class', '[\\w$]+');
+  return new RegExp(
+    `^[ \\t]*// ${todo}.*\\r?\\n[ \\t]*// \\1\\.interceptors\\.response\\b`,
+    'gm',
   );
 }
 
@@ -631,9 +654,10 @@ function exportedInstances(j, file) {
   const imports = [];
   const entry = { instances: found, imports };
   exportedInstanceCache.set(file, entry);
-  let root;
+  let root, text;
   try {
-    root = j(fs.readFileSync(file, 'utf8'));
+    text = fs.readFileSync(file, 'utf8');
+    root = j(text);
   } catch {
     return entry;
   }
@@ -667,7 +691,7 @@ function exportedInstances(j, file) {
       exportsOf.set('default', decl.id.name);
   });
   // a response interceptor can change what `.data` means at each call
-  const interceptedNames = responseInterceptorTargets(j, root);
+  const interceptedNames = responseInterceptorTargets(j, root, text);
   const intercepts = name => interceptedNames.has(name);
 
   const axiosDefault = root
@@ -1628,6 +1652,16 @@ const AXIOS_MEMBER_TODOS = {
   ],
 };
 
+/** Instance members that configure it, and how a TODO names that setup */
+const INSTANCE_SETUP = {
+  interceptors: { noun: 'this interceptor', verb: 'is', pronoun: 'it' },
+  defaults: { noun: 'these defaults', verb: 'are', pronoun: 'them' },
+};
+
+function commentedOutTodo(name, className, { noun, verb, pronoun }) {
+  return `\`${name}\` is the \`${className}\` class now, so ${noun} ${verb} commented out; move ${pronoun} into \`${className}\``;
+}
+
 function markLeftovers(
   j,
   root,
@@ -1636,6 +1670,8 @@ function markLeftovers(
   createToClass,
 ) {
   let dirty = false;
+  /** module-level statements that read a removed instance, to their TODO */
+  const commentOut = new Map();
 
   // calls it couldn't convert are marked already
   const isMarkedCall = p => HTTP_METHODS.has(memberOf(p.parent.node, p.node));
@@ -1669,20 +1705,21 @@ function markLeftovers(
           return;
         }
         const member = memberOf(parent, p.node);
-        if (member === 'interceptors') {
-          markTodo(
-            j,
-            p,
-            `move this interceptor into \`${className}\``,
-            'base-endpoint',
-          );
-        } else if (member === 'defaults') {
-          markTodo(
-            j,
-            p,
-            `move these defaults into \`${className}\``,
-            'base-endpoint',
-          );
+        const setup = own(INSTANCE_SETUP, member);
+        if (setup) {
+          // module setup like `api.interceptors.request.use(fn)` would read
+          // the removed instance, so keep it as comments to move by hand
+          const statement = moduleStatement(j, p);
+          if (statement) {
+            commentOut.set(statement, commentedOutTodo(name, className, setup));
+          } else {
+            markTodo(
+              j,
+              p,
+              `move ${setup.noun} into \`${className}\``,
+              'base-endpoint',
+            );
+          }
         } else {
           markTodo(
             j,
@@ -1732,7 +1769,81 @@ function markLeftovers(
       }
     });
 
-  return dirty;
+  return { dirty, commentOut };
+}
+
+/** The module-level expression statement `path` reads in directly, not from a nested function */
+function moduleStatement(j, path) {
+  if (enclosingFunction(j, path)) return null;
+  let p = path;
+  while (p.parent && p.parent.node.type !== 'Program') p = p.parent;
+  return p.parent && p.node.type === 'ExpressionStatement' ? p : null;
+}
+
+const COMMENTED_OUT = '__dataClientCommentedOut';
+
+/**
+ * Swaps each statement for a placeholder that `restoreCommentedOut()` turns
+ * into its source as line comments, under a TODO. Returns what to restore.
+ */
+function commentOutStatements(j, commentOut) {
+  const commentedOut = [];
+  for (const [path, message] of commentOut) {
+    const { node } = path;
+    const comments = node.comments || [];
+    // the saved source leaves out the comments, which stay comments, on the
+    // placeholder
+    node.comments = null;
+    const index = commentedOut.length;
+    commentedOut.push({
+      source: j(node).toSource(),
+      blankAfter: blankLineAfter(path),
+    });
+    node.comments = comments;
+    const placeholder = j.expressionStatement(
+      j.identifier(`${COMMENTED_OUT}${index}`),
+    );
+    addTodo(j, placeholder, message, 'base-endpoint');
+    replaceStatement(j, path, [placeholder]);
+  }
+  return commentedOut;
+}
+
+/** Whether a blank line separates the statement at `path` from the next one */
+function blankLineAfter(path) {
+  const next = path.parent.node.body[path.name + 1];
+  if (!next || !next.loc || !path.node.loc) return true;
+  const first = (next.comments || []).find(c => c.leading && c.loc) || next;
+  return first.loc.start.line - path.node.loc.end.line > 1;
+}
+
+/**
+ * Turns each placeholder `commentOutStatements()` left into the statement's
+ * source as line comments
+ */
+function restoreCommentedOut(output, commentedOut) {
+  if (!commentedOut.length) return output;
+  const restored = output.replace(
+    // recast spaces the placeholder from the next statement with a blank line
+    new RegExp(
+      `^([ \\t]*)${COMMENTED_OUT}(\\d+);?[ \\t]*(\\n(?=[ \\t]*\\n))?`,
+      'gm',
+    ),
+    (_, indent, index, blank) => {
+      const { source, blankAfter } = commentedOut[index];
+      const lines = source
+        .split('\n')
+        .map(line => (line ? `${indent}// ${line}` : `${indent}//`))
+        .join('\n');
+      return blank && blankAfter ? lines + blank : lines;
+    },
+  );
+  // a placeholder left behind would be a ReferenceError at runtime
+  if (restored.includes(COMMENTED_OUT))
+    throw new Error(
+      'axios-to-rest: could not restore a commented-out statement',
+    );
+  return restored;
 }
 
 // --- Main ---
@@ -1785,14 +1896,15 @@ module.exports = function transformer(fileInfo, api) {
   );
   dirty = calls.dirty || calls.marked || dirty;
 
-  dirty =
-    markLeftovers(
-      j,
-      root,
-      axiosLocalName,
-      axiosImportScope,
-      createResult.createToClass,
-    ) || dirty;
+  const leftovers = markLeftovers(
+    j,
+    root,
+    axiosLocalName,
+    axiosImportScope,
+    createResult.createToClass,
+  );
+  dirty = leftovers.dirty || dirty;
+  const commentedOut = commentOutStatements(j, leftovers.commentOut);
 
   // after the calls, which look the instance up by its imported name
   for (const {
@@ -1826,7 +1938,9 @@ module.exports = function transformer(fileInfo, api) {
   // last, so the names the imports and renamed instances took are taken
   hoistEndpoints(j, root, calls.hoists);
 
-  return dirty ? root.toSource({ quote: 'single' }) : source;
+  return dirty ?
+      restoreCommentedOut(root.toSource({ quote: 'single' }), commentedOut)
+    : source;
 };
 
 module.exports.parser = 'tsx';

@@ -100,7 +100,7 @@
     "build:bundle": "yarn g:runs build:js:\\*",
     "build:clean": "yarn g:clean ts4.0 ts4.1",
     "build:legacy-types": "yarn g:legacy-types 4.1 4.0",
-    "prepublishOnly": "run build"
+    "prepack": "run build"
   },
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "funding": "https://github.com/sponsors/ntucker",
