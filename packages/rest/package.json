@@ -110,6 +110,8 @@
         "import": "./native/next/index.js",
         "require": "./dist/next.native.js"
       },
+      "module": "./lib/next/index.js",
+      "import": "./next.node.mjs",
       "require": "./dist/next.js",
       "browser": "./lib/next/index.js",
       "default": "./lib/next/index.js"
@@ -125,6 +127,7 @@
     "dist",
     "lib",
     "node.mjs",
+    "*.node.mjs",
     "legacy",
     "native",
     "ts4.0",

@@ -5,6 +5,8 @@
 //   2. arethetypeswrong: each entry point's types resolve in every TS resolution mode
 //   3. Node: `import()` and `require()` of each entry point give the same exports
 //      as its ESM build (what bundlers load)
+//   4. shared: each subpath shares code with `.` instead of loading a second copy
+//      (a Controller, a React context), so the instances work together
 // Run after `yarn build:types` (packing builds only the JavaScript).
 //
 // Usage: yarn check:package-exports
@@ -38,6 +40,31 @@ const ENTRY_POINT_SUGGESTIONS = new Set([
 // Node adds these to CommonJS modules, and on Node 23+ `export *` from one
 // passes `module.exports` on, so they say nothing about the entry point
 const INTEROP = new Set(['__esModule', 'module.exports']);
+// Subpath exports that share a name with a different export of `.` on purpose
+const DIFFERENT_ON_PURPOSE = {
+  // the Redux-backed provider
+  '@data-client/react/redux': ['DataProvider'],
+};
+
+// Lists the files a fresh Node process loads for `import`s or `require`s of
+// the specifiers
+const LOADED = `import { createRequire, registerHooks } from 'node:module';
+const loaded = new Set();
+registerHooks({
+  resolve(specifier, context, nextResolve) {
+    const result = nextResolve(specifier, context);
+    loaded.add(result.url);
+    return result;
+  },
+});
+const [call, ...specifiers] = process.argv.slice(2);
+const require = createRequire(import.meta.url);
+for (const specifier of specifiers) {
+  if (call === 'import') await import(specifier);
+  else require(specifier);
+}
+console.log(JSON.stringify([...loaded]));
+`;
 
 const packages = publishedPackages();
 fs.rmSync(work, { recursive: true, force: true });
@@ -55,6 +82,7 @@ for (const { pkg, dir, tarball } of unpacked) {
     report('publint', await lint(pkg, dir)),
     report('types', await checkTypes(pkg, tarball)),
     report('node', await checkNode(pkg, dir, consumer)),
+    report('shared', await checkShared(pkg, dir, consumer)),
   ].every(Boolean);
   if (!passed) failed = true;
 }
@@ -275,4 +303,92 @@ function compareExports(expected, actual) {
     }
   }
   return problems.join('; ');
+}
+
+// A subpath that loads a second copy of code `.` also loads breaks at runtime:
+// MockController isn't the app's Controller, a provider fills a context the
+// hooks never read. Subpaths with no `require` condition are ESM-only, for
+// bundlers, which load one build for every entry point.
+async function checkShared(pkg, dir, consumer) {
+  const subpaths = entryPoints(pkg)
+    .map(([subpath]) => subpath)
+    .filter(subpath => subpath !== '.' && hasTopLevelRequire(pkg, subpath));
+  const errors = duplicateClasses(dir);
+  for (const subpath of subpaths) {
+    const specifier = pkg.name + subpath.slice(1);
+    for (const [call, load] of Object.entries(consumer)) {
+      for (const [name, builds] of mixedBuilds(call, [pkg.name, specifier])) {
+        errors.push(
+          `${call}('${pkg.name}') and ${call}('${specifier}') load ${name} from both ${builds.join(' and ')}`,
+        );
+      }
+      const [root, sub] = [await load(pkg.name), await load(specifier)];
+      for (const name of Object.keys(sub)) {
+        if (!(name in root) || INTEROP.has(name) || name === 'default')
+          continue;
+        if (DIFFERENT_ON_PURPOSE[specifier]?.includes(name)) continue;
+        if (sub[name] !== root[name]) {
+          errors.push(
+            `${call}('${specifier}') export ${name} is a different object from ${call}('${pkg.name}')'s`,
+          );
+        }
+      }
+    }
+  }
+  return { errors };
+}
+
+// Loads the specifiers in a fresh Node process, and returns each unpacked
+// package that loaded files from more than one build folder (lib/, dist/...)
+function mixedBuilds(call, specifiers) {
+  const loader = path.join(work, 'loaded.mjs');
+  if (!fs.existsSync(loader)) fs.writeFileSync(loader, LOADED);
+  const urls = JSON.parse(
+    execFileSync(process.execPath, [loader, call, ...specifiers], {
+      encoding: 'utf8',
+    }),
+  );
+  const builds = new Map();
+  for (const url of urls) {
+    if (!url.startsWith('file:')) continue;
+    const file = path.relative(
+      path.join(work, 'node_modules'),
+      fileURLToPath(url),
+    );
+    // @scope/name/<build>/...; files at a package's root are shims
+    const [scope, name, build, ...rest] = file.split(path.sep);
+    if (scope.startsWith('.') || !rest.length) continue;
+    const pkgName = `${scope}/${name}`;
+    if (!builds.has(pkgName)) builds.set(pkgName, new Set());
+    builds.get(pkgName).add(`${build}/`);
+  }
+  return [...builds]
+    .filter(([, set]) => set.size > 1)
+    .map(([name, set]) => [name, [...set]]);
+}
+
+// A class bundled into two CommonJS files of one build: separate rollup
+// builds per entry point each bundle their own copy of shared modules.
+// React Native's dist/*.native.js are a separate build.
+function duplicateClasses(dir) {
+  const declared = new Map();
+  const distDir = path.join(dir, 'dist');
+  if (!fs.existsSync(distDir)) return [];
+  for (const file of fs.readdirSync(distDir, { recursive: true })) {
+    if (!file.endsWith('.js') || file.endsWith('.umd.min.js')) continue;
+    const build = file.endsWith('.native.js') ? 'native' : 'node';
+    const source = fs.readFileSync(path.join(distDir, file), 'utf8');
+    // rollup output declares top-level classes at the start of a line
+    for (const [, name] of source.matchAll(/^class ([\w$]+)/gm)) {
+      const key = `${build} ${name}`;
+      if (!declared.has(key)) declared.set(key, []);
+      declared.get(key).push(`dist/${file}`);
+    }
+  }
+  return [...declared]
+    .filter(([, files]) => files.length > 1)
+    .map(
+      ([key, files]) =>
+        `class ${key.split(' ')[1]} is bundled into ${files.join(' and ')}`,
+    );
 }

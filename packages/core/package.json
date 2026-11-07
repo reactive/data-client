@@ -41,6 +41,8 @@
     },
     "./next": {
       "types": "./lib/next/index.d.ts",
+      "module": "./lib/next/index.js",
+      "import": "./next.node.mjs",
       "require": "./dist/next.js",
       "browser": "./lib/next/index.js",
       "react-native": "./lib/next/index.js",
@@ -48,6 +50,8 @@
     },
     "./mock": {
       "types": "./lib/mock/index.d.ts",
+      "module": "./lib/mock/index.js",
+      "import": "./mock.node.mjs",
       "require": "./dist/mock.js",
       "default": "./lib/mock/index.js"
     },
@@ -62,6 +66,7 @@
     "dist",
     "lib",
     "node.mjs",
+    "*.node.mjs",
     "legacy",
     "LICENSE",
     "README.md",

@@ -120,6 +120,8 @@
         "import": "./native/next/index.js",
         "require": "./dist/next.native.js"
       },
+      "module": "./lib/next/index.js",
+      "import": "./next.node.mjs",
       "require": "./dist/next.js",
       "browser": "./lib/next/index.js",
       "default": "./lib/next/index.js"
@@ -130,6 +132,8 @@
     },
     "./ssr": {
       "types": "./lib/server/index.d.ts",
+      "module": "./lib/server/index.js",
+      "import": "./ssr.node.mjs",
       "require": "./dist/server/index.js",
       "default": "./lib/server/index.js"
     },
@@ -139,12 +143,16 @@
         "import": "./native/server/redux/index.js",
         "require": "./dist/server/redux/index.native.js"
       },
+      "module": "./lib/server/redux/index.js",
+      "import": "./redux.node.mjs",
       "require": "./dist/server/redux/index.js",
       "browser": "./lib/server/redux/index.js",
       "default": "./lib/server/redux/index.js"
     },
     "./mock": {
       "types": "./lib/mock/index.d.ts",
+      "module": "./lib/mock/index.js",
+      "import": "./mock.node.mjs",
       "require": "./dist/mock.js",
       "default": "./lib/mock/index.js"
     },
@@ -161,6 +169,7 @@
     "legacy",
     "native",
     "node.mjs",
+    "*.node.mjs",
     "LICENSE",
     "README.md",
     "skills",

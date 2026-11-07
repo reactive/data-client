@@ -55,28 +55,28 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   configs.push(typeConfigNext);
 } else {
   // node-friendly commonjs build
-  [
-    { input: 'src/index.ts', output: pkg.main },
-    { input: 'src/next/index.ts', output: 'dist/next.js' },
-    { input: 'src/mock/index.ts', output: 'dist/mock.js' },
-  ].forEach(({ input, output }) => {
-    configs.push({
-      input,
-      external: isExternal,
-      output: [{ file: output, format: 'cjs' }],
-      onwarn,
-      plugins: [
-        babel({
-          exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
-          extensions: nativeExtensions,
-          rootMode: 'upward',
-          babelHelpers: 'runtime',
-        }),
-        replace({ 'process.env.CJS': 'true', preventAssignment: true }),
-        resolve({ extensions: nativeExtensions }),
-        commonjs({ extensions: nativeExtensions }),
-      ],
-    });
+  configs.push({
+    // One build so the entries share chunks: `@data-client/core/mock` must use
+    // the same Controller as `@data-client/core`, not a bundled copy
+    input: {
+      index: 'src/index.ts',
+      next: 'src/next/index.ts',
+      mock: 'src/mock/index.ts',
+    },
+    external: isExternal,
+    output: [{ dir: 'dist', format: 'cjs' }],
+    onwarn,
+    plugins: [
+      babel({
+        exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
+        extensions: nativeExtensions,
+        rootMode: 'upward',
+        babelHelpers: 'runtime',
+      }),
+      replace({ 'process.env.CJS': 'true', preventAssignment: true }),
+      resolve({ extensions: nativeExtensions }),
+      commonjs({ extensions: nativeExtensions }),
+    ],
   });
 }
 export default configs;
