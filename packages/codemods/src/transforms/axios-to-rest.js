@@ -606,11 +606,11 @@ function findModule(fromFile, spec) {
 }
 
 /**
- * Names of the instances whose `.interceptors.response` the module uses, or
- * that an earlier run of this codemod commented out (found in `source`, since
- * importers still see the changed `.data`; a module being rewritten has none)
+ * Names of the instances whose `.interceptors.response` the module uses.
+ * Once this codemod has rewritten a module, its interceptor is only a comment,
+ * so the TODO it left in the module's `text` is what still marks it.
  */
-function responseInterceptorTargets(j, root, source = '') {
+function responseInterceptorTargets(j, root, text = '') {
   return new Set([
     ...root
       .find(j.MemberExpression, {
@@ -623,14 +623,9 @@ function responseInterceptorTargets(j, root, source = '') {
       })
       .nodes()
       .map(node => node.object.object.name),
-    ...[...source.matchAll(COMMENTED_RESPONSE_INTERCEPTOR)].map(m => m[1]),
+    ...[...text.matchAll(COMMENTED_RESPONSE_INTERCEPTOR)].map(m => m[1]),
   ]);
 }
-
-// the TODO commentOutStatements puts above it tells it apart from code the
-// author had already disabled
-const COMMENTED_RESPONSE_INTERCEPTOR =
-  /^[ \t]*\/\/ TODO\(data-client\): `([A-Za-z_$][\w$]*)` is the `[\w$]+` class now, so this interceptor is commented out;.*\r?\n[ \t]*\/\/ \1\.interceptors\.response\b/gm;
 
 // exported name ('default' for a default export) -> { className, prefixed,
 // intercepted } for each axios instance a module exports, before or after
@@ -1667,6 +1662,24 @@ const INSTANCE_SETUP = {
   defaults: ['these defaults', 'are commented out', 'them'],
 };
 
+function commentedOutTodo(name, className, [noun, isCommentedOut, pronoun]) {
+  return `\`${name}\` is the \`${className}\` class now, so ${noun} ${isCommentedOut}; move ${pronoun} into \`${className}\``;
+}
+
+// a response interceptor this codemod commented out, told apart from code the
+// author had already disabled by the TODO it puts right above it
+const COMMENTED_RESPONSE_INTERCEPTOR = (() => {
+  const todo =
+    `${TODO} ${commentedOutTodo('\0name', '\0class', INSTANCE_SETUP.interceptors)}`
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .replace('\0name', '([A-Za-z_$][\\w$]*)')
+      .replaceAll('\0class', '[\\w$]+');
+  return new RegExp(
+    `^[ \\t]*// ${todo}.*\\r?\\n[ \\t]*// \\1\\.interceptors\\.response\\b`,
+    'gm',
+  );
+})();
+
 function markLeftovers(
   j,
   root,
@@ -1712,20 +1725,16 @@ function markLeftovers(
         const member = memberOf(parent, p.node);
         const setup = own(INSTANCE_SETUP, member);
         if (setup) {
-          const [noun, isCommentedOut, pronoun] = setup;
           // module setup like `api.interceptors.request.use(fn)` would read
           // the removed instance, so keep it as comments to move by hand
           const statement = moduleStatement(j, p);
           if (statement) {
-            commentOut.set(
-              statement,
-              `\`${name}\` is the \`${className}\` class now, so ${noun} ${isCommentedOut}; move ${pronoun} into \`${className}\``,
-            );
+            commentOut.set(statement, commentedOutTodo(name, className, setup));
           } else {
             markTodo(
               j,
               p,
-              `move ${noun} into \`${className}\``,
+              `move ${setup[0]} into \`${className}\``,
               'base-endpoint',
             );
           }
