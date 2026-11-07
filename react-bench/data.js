@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793998788209,
+  "lastUpdate": 1794011205723,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -12569,6 +12569,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 343.64,
             "range": "± 1.8%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "433dcfbe620e4fc4b5257e3b11f520d68fd7e915",
+          "message": "feat!: Give each store its own Managers (managers is a function) (#4601)\n\n* feat: managers accepts a factory, so each store gets its own Managers\n\nDataProvider, the Vue plugin, the SSR store and the redux helpers call it once per store.\nA Manager instance that moves to a second store after the first started now logs a\ndevelopment warning. init() gets the store's current state. DevToolsManager shares one\nextension connection per name and listens only while started. The redux test provider\nbuilds its store in a ref, so StrictMode no longer hangs it.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: managers is a function; document Manager lifetimes\n\nThe Manager page gains a Lifetimes section (config, store, active), and every\nexample passes managers as a module-level function. Arrays are marked deprecated.\nAdds the changeset, the 0.19 blog entry, skills and website types.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* refactor: one createManagers rule; DevToolsManager connects in init()\n\ncreateManagers takes only the managers option, so every caller uses it. The\nshared-instance warning tracks the store each Manager started with. The Next.js\nprovider checks a managers function for DevToolsManager once per page.\nDevToolsManager connects to the extension when started, keyed by its __DC__ key,\nso a discarded instance never connects and concurrent stores keep their own entry.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: link #4601 in the 0.19 blog\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* chore: eval for the managers function; plan array removal\n\nAdds a data-client-manager eval tied to the managers-function changeset whose\nassertions fail on a managers array, updates clock-manager's expected output, and\nlists dropping Manager[] in plans/next-breaking-release.md.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* test: mark dev-only manager bookkeeping branches for coverage\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* fix: each DevToolsManager keeps its own extension connection\n\nSharing a connection by key let a hidden store send actions into the store\nthat took its key, and a resumed store that moved to a new key skipped init().\nEach instance now connects once, lazily in init(), and keeps that connection.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* fix: warn when stores started together share Managers; docs follow-ups\n\nThe shared-instance warning lives in one module and also runs when a Manager\nstarts, so two stores that bind one array in the same render now warn. Docs and\nskills lead with the managers function (React/Vue skills, Vue testing guide,\nredux guide, NetworkManager, core README for custom providers, including\ncreateManagers()).\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* fix: list the custom Manager first in the shared-instance warning\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* pkg(test)!: Require @data-client/react 0.19\n\nmakeRenderDataHook() passes managers to its Provider as a function, so\nthe array fallback for older @data-client/react and the pre-0.16\nNetworkManager bookkeeping are gone.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs(skills): Regenerate makeRenderDataHook reference\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Drop the per-render claim for makeRenderDataHook managers\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* feat!: managers only takes a function\n\nArrays are no longer accepted by DataProvider, DataClientPlugin,\nprepareStore(), createPersistedStore() or mountDataClient(), so\ncreateManagers() and the shared-instance warning are gone.\ninitManager() drops its ignored third argument.\n\nThe new v0.19 codemod converts managers arrays and initManager() calls.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* refactor: Simplify after review of the function-only managers change\n\n- v0.19 codemod: skip JSX attribute names when counting a variable's\n  uses, and test createPersistedStore() and a variable another prop reads\n- Drop the console.warn spy left from the removed shared-array warning\n- mountDataClient(): call the managers function or use the defaults\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* chore(typeperf): Pass getDefaultManagers to prepareStore in the redux scenario\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* docs: Say the managers function creates each store's Managers\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* fix(codemods): Keep undefined and exported managers working in v0.19\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* fix(codemods): Wrap each branch of a conditional managers expression\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n* refactor(codemods): Simplify the v0.19 codemod\n\nSkip parsing files with no managers names, share isId/isProperty,\nexpand shorthand where a slot is replaced, and drop dead guards.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEPcamHWZzt7VZjvv4\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-07T00:20:09Z",
+          "tree_id": "6abd2eb76e6045279dddcafbf3cb079bf04b4b11",
+          "url": "https://github.com/reactive/data-client/commit/433dcfbe620e4fc4b5257e3b11f520d68fd7e915"
+        },
+        "date": 1794011202341,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 266.71,
+            "range": "± 4.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 73.18,
+            "range": "± 2.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 613.5,
+            "range": "± 1.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 479.62,
+            "range": "± 1.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 66.73,
+            "range": "± 1.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 391.4,
+            "range": "± 1.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 544.96,
+            "range": "± 3.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 12.2,
+            "range": "± 4.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 100.93,
+            "range": "± 1.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 84.67,
+            "range": "± 2.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-ticker-stream",
+            "value": 12.08,
+            "range": "± 2.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 314.22,
+            "range": "± 2.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 430.57,
+            "range": "± 1.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 234.47,
+            "range": "± 1.5%",
             "unit": "ops/s"
           }
         ]
