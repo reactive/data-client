@@ -59,7 +59,7 @@ A [jscodeshift](https://github.com/facebook/jscodeshift) codemod does the mechan
 your source folders, never the repo root:
 
 ```bash
-npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/
+npx @data-client/codemods axios-to-rest src/
 ```
 
 Each axios call becomes a call to an endpoint, built once at module level. Path params, `params` and the body become its arguments, and it resolves to the body, so `.data` goes away.

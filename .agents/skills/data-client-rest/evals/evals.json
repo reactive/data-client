@@ -22,6 +22,21 @@
         "States that both views share one poll at the fastest frequency, so the dashboard speeds up too.",
         "Does not claim the extended endpoint polls independently."
       ]
+    },
+    {
+      "id": 3,
+      "name": "envelope-pagination",
+      "source": "Migration of alan2207/bulletproof-react@9506629 (apps/react-vite), .agents/projects/migrations/bulletproof-react/problems.md P7",
+      "prompt": "Our API returns `GET /comments?discussionId=:id&page=:n` as `{ data: Comment[], meta: { page, total, totalPages } }` and `POST /comments?discussionId=:id` returns the created Comment. Using an `ApiEndpoint extends RestEndpoint` base class and a `Comment` Entity, define the endpoints so a comments list can show page 1, a 'Load more' button appends the next page, and creating a comment adds it to the same list. Show the component code for the list.",
+      "expected_output": "Envelope schema `{ data: new Collection([Comment]), meta: {...} }` with `paginationField: 'page'`; first fetch without `page`; load more with `getComments.getPage` and `page: meta.page + 1`; create with `getComments.push` (or a create endpoint whose schema is the same Collection's `.push` with args `{ discussionId }`). Library check: 'pagination should work with a page number inside a { data, meta } envelope' in packages/react/src/__tests__/integration-collections.tsx.",
+      "files": [],
+      "assertions": [
+        "The list endpoint's schema keeps the envelope, with a `Collection` of `Comment` at `data` and `meta` alongside.",
+        "Sets `paginationField: 'page'` and loads more with `.getPage`, passing the next page from `meta`.",
+        "The first-page `useSuspense` call does not pass `page`.",
+        "Creating a comment uses `getComments.push` or a `.push` of the same Collection instance, with `{ discussionId }` args.",
+        "Does not unwrap `data` in `process()`, and does not refetch or `expireAll` the list after creating."
+      ]
     }
   ]
 }

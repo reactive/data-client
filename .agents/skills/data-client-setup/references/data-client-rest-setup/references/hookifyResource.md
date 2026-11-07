@@ -141,7 +141,7 @@ Commonly used with [Controller.fetch](https://dataclient.io/docs/api/Controller#
 
 ### useGetList().getPage {#getpage}
 
-[getPage](./RestEndpoint.md#getpage) retrieves another [page](https://dataclient.io/rest/guides/pagination#infinite-scrolling) appending to useGetList() ensuring there are no duplicates.
+[getPage](./RestEndpoint.md#getpage) retrieves another [page](./pagination.md#infinite-scrolling) appending to useGetList() ensuring there are no duplicates.
 
 - method: 'GET'
 - args: `shortenPath(path) & { [paginationField]: string | number } & searchParams`

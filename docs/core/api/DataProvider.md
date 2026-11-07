@@ -22,6 +22,18 @@ Prefer placing it above [`<Activity>`](https://react.dev/reference/react/Activit
 also works, like when a tab or route that `<Activity>` hides has its own `DataProvider`. Hiding it
 [pauses its Managers](./Manager.md#cleanup), so polling stops. Its store keeps applying responses.
 
+Put your [Suspense boundaries](../getting-started/data-dependency.md#boundaries), like
+[`<AsyncBoundary>`](./AsyncBoundary.md), inside `DataProvider`. It wraps its children in a backup `<Suspense>`
+that shows "Uncaught Suspense", so a boundary above `DataProvider` never catches a component below it.
+
+```tsx
+<DataProvider>
+  <AsyncBoundary fallback={<Spinner />}>
+    <App />
+  </AsyncBoundary>
+</DataProvider>
+```
+
 <Installation />
 
 ## Props

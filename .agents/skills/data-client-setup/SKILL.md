@@ -74,7 +74,19 @@ Protocol setup guides are bundled in this skill, but defining and using data aft
 | GraphQL | None beyond Always (`data-client-schema` covers `@data-client/graphql`) |
 | Custom async | None beyond Always (`data-client-schema` covers `@data-client/endpoint`) |
 
-In Claude Code, Cursor and Codex, install nothing now: each skill ships inside the `@data-client/*` package it covers, at that package's version. After installing the packages below, link their skills from the project root. It links them into `.agents/skills` and makes sure `.claude/skills` sees them too, whichever of the two folders the project already has:
+Install nothing now: skills must match the package version you install below, not the latest source. After installing
+the packages, read the installed version from the project root:
+
+```bash
+node -p "require('./node_modules/@data-client/react/package.json').version"   # Vue: @data-client/vue
+```
+
+Tell the user which version the skills target (for example "skills match `@data-client/react` 0.18.2"), then take
+the path for that version.
+
+**0.19 or later, in Claude Code, Cursor and Codex**: each skill ships inside the `@data-client/*` package it covers.
+Link them from the project root. It links them into `.agents/skills` and makes sure `.claude/skills` sees them too,
+whichever of the two folders the project already has:
 
 ```bash
 npx --no data-client-skills   # pnpm exec data-client-skills, yarn data-client-skills
@@ -84,19 +96,20 @@ If it reports `Kept .agents/skills/data-client-setup`, that's the copy the skill
 Remove it with `npx skills remove data-client-setup -y` and run the command again, so this skill too follows the
 installed version.
 
-If the command isn't found, or reports that a package ships no skills, the installed packages predate 0.19: install
-the skills with the skills CLI as described below for other agents, and leave the last sentence (the `data-client-skills` command) out of the `AGENTS.md` lines.
+**Before 0.19, or other agents**: install the skills from the release tag of the installed version, with the installer
+that installed this skill. Add `-g` if this skill lives under your home directory rather than the project.
 
-Then add these lines to the project's `AGENTS.md` (create it if missing), using the project's package manager in the command. They tell later agents that Data Client owns the app's server state, so they reach for it and its skills instead of hand-written fetching, and keep the skill links current. Claude Code reads `AGENTS.md` only when the project has no `CLAUDE.md`, so if a `CLAUDE.md` exists, make sure it has an `@AGENTS.md` line. Commit `.agents/skills` and `.claude/skills` with the setup.
+- **Skills CLI**: `npx skills add 'reactive/data-client#%40data-client%2Freact%40<version>' --skill <skill> --skill <skill> -y`. The part after `#` is the tag `@data-client/react@<version>`, URL-encoded because a bare `@` there starts a skill filter. Use `vue` in place of `react` for Vue. Without the `#...` part it installs the latest source, which can describe APIs the installed version lacks.
+- **OpenSkills** (`AGENTS.md` lists skills in an `<available_skills>` block): `npx openskills install reactive/data-client/.agents/skills/<skill>`, once per skill. It installs the latest source, so check APIs it names against the installed version.
+
+This setup skill comes from the latest source too: where it and a skill from the tag disagree about an API, follow the
+tagged skill.
+
+Then add these lines to the project's `AGENTS.md` (create it if missing), using the project's package manager in the command. They tell later agents that Data Client owns the app's server state, so they reach for it and its skills instead of hand-written fetching, and keep the skill links current. Claude Code reads `AGENTS.md` only when the project has no `CLAUDE.md`, so if a `CLAUDE.md` exists, make sure it has an `@AGENTS.md` line. Commit `.agents/skills` and `.claude/skills` with the setup. Before 0.19, leave out the last sentence (the `data-client-skills` command).
 
 ```md
 This app manages server state (fetching, caching, mutations and real-time updates) with Reactive Data Client. Use it for all server data, and read the matching `data-client-*` skill before writing, changing or debugging code that loads or changes data. After adding, removing or upgrading `@data-client/*` packages, run `npx --no data-client-skills` and commit the skill links.
 ```
-
-For other agents, use the installer that installed this skill. For OpenSkills and the skills CLI, add `-g` if this skill lives under your home directory rather than the project.
-
-- **OpenSkills** (`AGENTS.md` lists skills in an `<available_skills>` block): `npx openskills install reactive/data-client/.agents/skills/<skill>`, once per skill.
-- **Otherwise** use the skills CLI: `npx skills add reactive/data-client --skill <skill> --skill <skill> ...`
 
 Skills linked during a session may not load until the next one (Claude Code only picks them up live from a `.claude/skills` folder that existed when the session started, and Cursor fixes its skill list when a chat starts). So for the rest of this session, whenever a task calls for one of them, here or after setup, read its `SKILL.md` directly (`.claude/skills/<skill>/SKILL.md` after linking) unless it's already available by name. The next session loads them on its own.
 
@@ -191,15 +204,20 @@ AppRegistry.registerComponent('MyApp', () => Root);
 Edit entry file (e.g., `index.tsx`, `main.tsx`, or `src/index.tsx`):
 
 ```tsx
-import { DataProvider } from '@data-client/react';
+import { AsyncBoundary, DataProvider } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
 
 createRoot(document.getElementById('root')!).render(
   <DataProvider>
-    <App />
+    <AsyncBoundary fallback={<Spinner />}>
+      <App />
+    </AsyncBoundary>
   </DataProvider>,
 );
 ```
+
+If the app already wraps its providers in `<Suspense>` (common with React Query or Suspense routers), move that
+boundary, or add an `AsyncBoundary`, inside `DataProvider`. See [Suspense boundary outside DataProvider](#suspense-boundary-outside-dataprovider).
 
 ### Vue
 
@@ -260,6 +278,7 @@ After setup, verify:
 - [ ] Provider/Plugin wraps the app at root level
 - [ ] Correct import path used (especially `@data-client/react/nextjs` for NextJS)
 - [ ] No duplicate providers in component tree
+- [ ] React: a `<Suspense>` or `<AsyncBoundary>` is inside `DataProvider`, between it and the components that call `useSuspense()`
 - [ ] Protocol-specific setup completed via its guide
 
 ## Common Issues
@@ -275,6 +294,32 @@ import { DataProvider } from '@data-client/react';
 ```tsx
 import { DataProvider } from '@data-client/react/nextjs';
 ```
+
+### Suspense boundary outside DataProvider
+
+`DataProvider` wraps its children in a backup `<Suspense>`, so a boundary above it never catches anything below it.
+Every suspending component then shows "Uncaught Suspense. Try adding a suspense boundary", and tests that wait for
+the app's own loading state fail (for example `waitForElementToBeRemoved` reports the element is already removed).
+
+❌ Wrong:
+```tsx
+<Suspense fallback={<Spinner />}>
+  <DataProvider>
+    <App />
+  </DataProvider>
+</Suspense>
+```
+
+✅ Correct:
+```tsx
+<DataProvider>
+  <AsyncBoundary fallback={<Spinner />}>
+    <App />
+  </AsyncBoundary>
+</DataProvider>
+```
+
+Routes and pages can add their own boundaries further down; they only need to be below `DataProvider` too.
 
 ### Provider Not at Root
 

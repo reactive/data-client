@@ -427,7 +427,7 @@ Commonly used with [Controller.fetch](https://dataclient.io/vue/api/Controller#f
 
 ### getList.getPage {#getpage}
 
-[RestEndpoint.getPage](./RestEndpoint.vue.md#getpage) retrieves another [page](https://dataclient.io/rest/guides/pagination#infinite-scrolling) appending to getList ensuring there are no duplicates.
+[RestEndpoint.getPage](./RestEndpoint.vue.md#getpage) retrieves another [page](./pagination.vue.md#infinite-scrolling) appending to getList ensuring there are no duplicates.
 
 This member is only available when [paginationField](#paginationfield) is specified.
 
