@@ -24,10 +24,11 @@ const painted = new WeakMap<Monaco.editor.ITextModel, number>();
 
 /** Whether `model` shows its JSX colors, or has none to wait for */
 export const hasJsxColors = (model: Monaco.editor.ITextModel) =>
-  !isTsx(model) || painted.get(model) === model.getVersionId();
+  !takesJsx(model) || painted.get(model) === model.getVersionId();
 
-/** TypeScript parses JSX in .tsx files; the provider serves typescript models */
-const isTsx = (model: Monaco.editor.ITextModel) =>
+/** Whether `model` gets JSX colors: TypeScript parses JSX in .tsx files,
+ * and the provider serves typescript models */
+const takesJsx = (model: Monaco.editor.ITextModel) =>
   model.uri.path.endsWith('.tsx') && model.getLanguageId() === 'typescript';
 
 export function registerJsxColors(monaco: typeof Monaco) {
@@ -36,7 +37,7 @@ export function registerJsxColors(monaco: typeof Monaco) {
     async provideDocumentSemanticTokens(model) {
       const version = model.getVersionId();
       const data: number[] = [];
-      if (isTsx(model)) {
+      if (takesJsx(model)) {
         const getWorker = await monaco.typescript.getTypeScriptWorker();
         const worker = (await getWorker(model.uri)) as unknown as JsxWorker;
         const spans = await worker.getJsxSpans(model.uri.toString());

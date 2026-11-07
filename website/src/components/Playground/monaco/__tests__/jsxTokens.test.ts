@@ -62,6 +62,8 @@ test('JSX spans become one semantic token per line', async () => {
 
 test('files that cannot hold JSX have none to wait for', () => {
   expect(hasJsxColors(fakeModel('<T>x', '/1/a.ts'))).toBe(true);
-  // a diff side named .tsx, shown in the other side's javascript
+});
+
+test("a tsx diff side shown in the other side's javascript has none to wait for", () => {
   expect(hasJsxColors(fakeModel('<a />', '/1/a.tsx', 'javascript'))).toBe(true);
 });

@@ -50,7 +50,10 @@ function fakeEditor(width: number, value = 'code') {
 }
 
 describe('whenPainted', () => {
-  beforeEach(() => jest.useFakeTimers());
+  beforeEach(() => {
+    jest.useFakeTimers();
+    mockJsxColored = true;
+  });
   afterEach(() => jest.useRealTimers());
   const frames = (n: number) => jest.advanceTimersByTime(n * 16);
 
