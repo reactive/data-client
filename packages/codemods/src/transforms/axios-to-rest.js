@@ -630,7 +630,7 @@ function responseInterceptorTargets(j, root, source = '') {
 // the TODO commentOutStatements puts above it tells it apart from code the
 // author had already disabled
 const COMMENTED_RESPONSE_INTERCEPTOR =
-  /^[ \t]*\/\/ TODO\(data-client\): `([A-Za-z_$][\w$]*)` is the `[\w$]+` class now, so this interceptor is commented out;.*\n[ \t]*\/\/ \1\.interceptors\.response\b/gm;
+  /^[ \t]*\/\/ TODO\(data-client\): `([A-Za-z_$][\w$]*)` is the `[\w$]+` class now, so this interceptor is commented out;.*\r?\n[ \t]*\/\/ \1\.interceptors\.response\b/gm;
 
 // exported name ('default' for a default export) -> { className, prefixed,
 // intercepted } for each axios instance a module exports, before or after

@@ -2039,6 +2039,13 @@ api.interceptors.response.use(res => res.data);
       expect(
         await run({ 'client.ts': rewritten, 'posts.ts': posts }, 'posts.ts'),
       ).toMatch('return res.data;');
+      // Prettier keeps a project's `endOfLine: "crlf"`
+      expect(
+        await run(
+          { 'client.ts': rewritten.replace(/\n/g, '\r\n'), 'posts.ts': posts },
+          'posts.ts',
+        ),
+      ).toMatch('return res.data;');
     });
 
     it('unwraps .data when the client only has an interceptor the author disabled', async () => {
