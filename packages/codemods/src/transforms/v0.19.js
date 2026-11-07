@@ -28,7 +28,6 @@ const OPTION_CALLS = new Set([
   'createDataClient',
   'mountDataClient',
   'renderDataHook',
-  'renderDataClient',
 ]);
 // calls that take managers as a positional argument, and its index
 const POSITIONAL_CALLS = new Map([
