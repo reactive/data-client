@@ -3,7 +3,7 @@
 Target: `alan2207/bulletproof-react` @ `9506629ed003a561c6627735480cce4994244bb4`, `apps/react-vite`
 (react-query + axios + react-query-auth, MSW mock API, vitest + playwright).
 Migrated with the `data-client-setup` skill, `@data-client/react|rest|test` 0.18.2, Sonnet 5.5 (medium, no advisor).
-Result: [`migration.patch`](./migration.patch) (`git apply` on the commit above, from `apps/react-vite` root's repo root). Problems found: [`problems.md`](./problems.md).
+Result: [`migration.patch`](./migration.patch) (`git apply` at the repo root of bulletproof-react on the commit above; it includes the new `stale-list.spec.ts`). Problems found: [`problems.md`](./problems.md).
 
 ## Validation (same tests before and after)
 
