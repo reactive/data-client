@@ -132,17 +132,9 @@ getOptimisticResponse(snap, { id }) {
 }
 ```
 
-Return each Entity's primary key plus the changed fields; omitted fields keep their cached values. Without
-the key the UI waits for the server; development builds log `Optimistic update skipped`.
-When args lack the key (`PATCH /users/profile`), read it from the snapshot:
-
-```ts
-getOptimisticResponse(snap, body) {
-  const { data: user } = snap.getResponse(getMe);
-  if (!user) throw snap.abort;
-  return { id: user.id, ...body };
-}
-```
+Return the primary key plus changed fields; omitted fields keep their cached values. Without the key the
+update is skipped (dev logs `Optimistic update skipped`). If args lack it (`PATCH /users/profile`), read it
+from `snap.getResponse(getMe).data`, and `throw snap.abort` when that is missing.
 
 ---
 
