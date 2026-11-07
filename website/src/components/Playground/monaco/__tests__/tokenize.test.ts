@@ -58,12 +58,14 @@ const cases = (snippets: { code: string; tokens: MonacoLines }[]) =>
 
 describe('tokenizers', () => {
   test('copy the installed Monaco', () => {
-    // its entry is min/vs/index.js; `exports` hides package.json
-    const root = path.resolve(require.resolve('monaco-editor'), '../../..');
-    const { version } = JSON.parse(
-      fs.readFileSync(path.join(root, 'package.json'), 'utf8'),
+    // the lockfile: CI's test job can't resolve monaco-editor
+    const lockfile = fs.readFileSync(
+      path.resolve(__dirname, '../../../../../../yarn.lock'),
+      'utf8',
     );
-    expect(version).toBe(MONACO_VERSION);
+    expect(lockfile).toContain(
+      `resolution: "monaco-editor@npm:${MONACO_VERSION}"`,
+    );
   });
 
   test.each(cases(monacoTokens.typescript))(
