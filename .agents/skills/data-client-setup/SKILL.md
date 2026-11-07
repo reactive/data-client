@@ -286,7 +286,7 @@ In Vue, call `app.use(DataClientPlugin)` on the root app before `app.mount()`.
 ## Next Steps
 
 After core setup and protocol-specific setup (in this session, read each skill below from `.claude/skills/<skill>/SKILL.md`):
-1. Define data schemas using `Entity` - see skill "data-client-schema"
+1. Define data schemas using `Entity` - see skill "data-client-schema". Put Entities and resources in one folder every feature may import, never in feature folders, and check the lint config's import boundaries first (its "Where schemas live")
 2. Use hooks like `useSuspense`, `useQuery`, `useController` - see skill "data-client-react" or "data-client-vue"
 3. Define REST resources - see skill "data-client-rest"
 
