@@ -2,7 +2,7 @@
 
 Each folder holds files copied unchanged from an app that a migration ran the codemod on. The "migration evals" tests
 in `src/transforms/__tests__/axios-to-rest.node.js` run the codemod on them and check the pass criterion of the
-problem record they reproduce (`.agents/projects/migrations/<app>/problems.md`, added in #4607).
+problem record they reproduce (`.agents/projects/migrations/<app>/problems.md`, added in [#4607](https://github.com/reactive/data-client/pull/4607)).
 
 | Folder              | Source                                                                                                     | License | Records |
 | ------------------- | ---------------------------------------------------------------------------------------------------------- | ------- | ------- |

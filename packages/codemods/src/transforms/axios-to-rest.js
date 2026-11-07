@@ -1340,7 +1340,10 @@ function buildCall(j, callPath, className, prefixed, isTS) {
   const endpoint = j.newExpression(j.identifier(className || 'RestEndpoint'), [
     j.objectExpression(options),
   ]);
-  const params = callArgs.length ? j.objectExpression(callArgs) : null;
+  const params =
+    !callArgs.length ? null
+    : data ? oneLineObject(j, callArgs)
+    : j.objectExpression(callArgs);
   const invokeArgs = [params, data].filter(Boolean);
 
   return {
@@ -1352,6 +1355,19 @@ function buildCall(j, callPath, className, prefixed, isTS) {
     unknownOptions,
     todos,
   };
+}
+
+/**
+ * A short object recast prints on one line, as people write params before a
+ * body (recast prints the objects it builds over several lines). Prettier,
+ * when it runs, breaks the call if the line is too long.
+ */
+function oneLineObject(j, properties) {
+  const text = `{ ${properties.map(p => j(p).toSource()).join(', ')} }`;
+  if (text.includes('\n') || text.length > 50)
+    return j.objectExpression(properties);
+  // a parsed node reprints as its source text (unless it was parenthesized)
+  return j(`f(${text})`).find(j.CallExpression).get().node.arguments[0];
 }
 
 // --- 3b. Build each endpoint once, at module scope ---
@@ -1768,6 +1784,8 @@ function commentOutStatements(j, commentOut) {
   for (const [path, message] of commentOut) {
     const { node } = path;
     const comments = node.comments || [];
+    // the saved source leaves out the comments, which stay comments, on the
+    // placeholder
     node.comments = null;
     const index = commentedOut.length;
     commentedOut.push({
@@ -1842,13 +1860,13 @@ function sourceStyle(j, root, source) {
   // sits on its own line
   const commas = { lists: [0, 0], parameters: [0, 0] };
   const vote = (kind, last, closeIndex) => {
-    if (!last || last.end == null || !(closeIndex >= last.end)) return;
+    if (!last || last.end == null || closeIndex < last.end) return;
     const between = source.slice(last.end, closeIndex);
     if (!between.includes('\n')) return;
     commas[kind][between.includes(',') ? 0 : 1]++;
   };
   const voteList = ({ node }, items) =>
-    vote('lists', items[items.length - 1], node.end - 1);
+    node.end != null && vote('lists', items[items.length - 1], node.end - 1);
   root.find(j.ObjectExpression).forEach(p => voteList(p, p.node.properties));
   root.find(j.ArrayExpression).forEach(p => voteList(p, p.node.elements));
   root.find(j.Function).forEach(({ node }) => {
@@ -1974,23 +1992,26 @@ function transform(fileInfo, api) {
 async function formatLikeProject(output, file, source) {
   if (!file) return output;
   const filepath = nodePath.resolve(file);
+  let prettier;
   try {
-    const prettier = createRequire(filepath)('prettier');
-    const config = await prettier.resolveConfig(filepath);
-    if (!config) return output;
-    const options = { ...config, filepath };
-    // leave files the project doesn't format alone, so the diff stays small
-    if (!(await prettier.check(source, options))) return output;
-    return await prettier.format(output, options);
+    prettier = createRequire(filepath)('prettier');
   } catch {
     // no Prettier, or one that can't load here: keep recast's output
     return output;
   }
+  // the CLI reads .editorconfig too
+  const config = await prettier.resolveConfig(filepath, { editorconfig: true });
+  if (!config) return output;
+  const options = { ...config, filepath };
+  // leave files the project doesn't format alone, so the diff stays small
+  if (!(await prettier.check(source, options))) return output;
+  return prettier.format(output, options);
 }
 
-module.exports = async function transformer(fileInfo, api) {
+module.exports = async function transformer(fileInfo, api, options = {}) {
   const output = transform(fileInfo, api);
-  return output === fileInfo.source ?
+  // --prettier=false keeps recast's output
+  return output === fileInfo.source || String(options.prettier) === 'false' ?
       output
     : formatLikeProject(output, fileInfo.path, fileInfo.source);
 };

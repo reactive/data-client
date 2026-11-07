@@ -10,7 +10,13 @@ const {
 const os = require('os');
 const path = require('path');
 
-const transform = require('../axios-to-rest');
+const codemod = require('../axios-to-rest');
+
+// Prettier imports ESM that jest can't load, so the migration evals below run
+// the CLI in a child process to cover it
+const transform = (fileInfo, api, options) =>
+  codemod(fileInfo, api, { prettier: false, ...options });
+transform.parser = codemod.parser;
 
 describe('axios-to-rest codemod', () => {
   // ── Import transforms ──────────────────────────────────────────────────
@@ -1565,10 +1571,7 @@ const saveEndpoint = new RestEndpoint({
 });
 
 // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
-const save = (post, body) => saveEndpoint({
-  id: post.id,
-  notify: true,
-}, body);
+const save = (post, body) => saveEndpoint({ id: post.id, notify: true }, body);
       `,
       'splits an absolute url into urlPrefix and passes params with the body',
     );
@@ -2143,9 +2146,9 @@ export const hit = cache.get('posts');
 
   describe('TypeScript files', () => {
     const tsTest = (input, output, name) =>
-      it(name, () => {
-        runInlineTest(transform, {}, { source: input, path: 'api.ts' }, output);
-      });
+      it(name, () =>
+        runInlineTest(transform, {}, { source: input, path: 'api.ts' }, output),
+      );
 
     tsTest(
       `
@@ -2527,9 +2530,7 @@ export const store = {
       id,
     });
   },
-  'save-user': user => saveUserEndpoint({
-    id: user.id,
-  }, user),
+  'save-user': user => saveUserEndpoint({ id: user.id }, user),
 };
 class Repo {
   // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
@@ -2678,10 +2679,7 @@ export function save(
   body
 ) {
   // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
-  return saveEndpoint({
-    id,
-    draft: true
-  }, body);
+  return saveEndpoint({ id, draft: true }, body);
 }
       `,
       'matches the quotes and trailing commas the file uses',
@@ -2741,10 +2739,9 @@ const [state, setState] = useState(null);
       );
       const { status, stderr } = node(
         [
-          require.resolve('jscodeshift/bin/jscodeshift.js'),
-          `--transform=${require.resolve('../axios-to-rest')}`,
+          path.join(__dirname, '../../cli.js'),
+          'axios-to-rest',
           '--extensions=ts,tsx',
-          '--parser=tsx',
           'src',
         ],
         dir,
@@ -2756,7 +2753,7 @@ const [state, setState] = useState(null);
       fs
         .readdirSync(dir, { recursive: true, withFileTypes: true })
         .filter(entry => entry.isFile())
-        .map(entry => path.join(entry.parentPath, entry.name));
+        .map(entry => path.join(entry.parentPath ?? entry.path, entry.name));
 
     // P9: alan2207/bulletproof-react@9506629 apps/react-vite
     describe('bulletproof-react', () => {

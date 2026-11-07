@@ -108,8 +108,8 @@ npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=
 ```
 
 When the project uses Prettier, it formats each file it changes with the project's Prettier and config, unless the
-file wasn't formatted to begin with. Otherwise it keeps the file's quotes and trailing commas; run your formatter on
-the changed files afterward.
+file wasn't formatted to begin with. Add `--prettier=false` to skip this. Otherwise it keeps the file's quotes and
+trailing commas; run your formatter on the changed files afterward.
 
 <DiffEditor caption="Each axios call becomes a call to an endpoint, built once at module level. Path params, `params` and the body become its arguments, and it resolves to the body, so `.data` goes away.">
 
