@@ -4,8 +4,9 @@
 
 Fix `axios-to-rest` output that Prettier rejects or that reads the removed axios instance
 
-The code it writes now uses the quotes and trailing commas the file already uses, and passes path params on one line
-when a body follows them, so a Prettier-formatted project stays formatted.
+When the project uses Prettier, each file it changes is now formatted with the project's own Prettier and config, so a
+formatted project stays formatted. It skips files that weren't formatted before, to keep the diff small. Without
+Prettier, the code it writes uses the quotes and trailing commas the file already uses.
 
 Interceptors and `defaults` set up next to the instance used to stay as they were, reading an `api` that no longer
 exists. They are now commented out under a `TODO(data-client)` that says to move them into the endpoint class:

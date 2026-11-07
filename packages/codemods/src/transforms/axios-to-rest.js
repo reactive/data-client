@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const { createRequire } = require('module');
 const nodePath = require('path');
 
 /**
@@ -1339,12 +1340,7 @@ function buildCall(j, callPath, className, prefixed, isTS) {
   const endpoint = j.newExpression(j.identifier(className || 'RestEndpoint'), [
     j.objectExpression(options),
   ]);
-  const params =
-    !callArgs.length ? null
-      // Prettier breaks every argument around a multi-line object that
-      // isn't the last one, but leaves a one-line object as written
-    : data ? oneLineObject(j, callArgs)
-    : j.objectExpression(callArgs);
+  const params = callArgs.length ? j.objectExpression(callArgs) : null;
   const invokeArgs = [params, data].filter(Boolean);
 
   return {
@@ -1356,18 +1352,6 @@ function buildCall(j, callPath, className, prefixed, isTS) {
     unknownOptions,
     todos,
   };
-}
-
-/**
- * An object literal recast prints on one line, when it fits; recast prints
- * the ones it builds over several lines
- */
-function oneLineObject(j, properties) {
-  const text = `{ ${properties.map(p => j(p).toSource()).join(', ')} }`;
-  if (text.includes('\n') || text.length > 50)
-    return j.objectExpression(properties);
-  // a parsed node reprints as its source text (unless it was parenthesized)
-  return j(`f(${text})`).find(j.CallExpression).get().node.arguments[0];
 }
 
 // --- 3b. Build each endpoint once, at module scope ---
@@ -1645,13 +1629,18 @@ const AXIOS_MEMBER_TODOS = {
   ],
 };
 
+/** Instance members that configure it: [what, how it was handled, pronoun] */
+const INSTANCE_SETUP = {
+  interceptors: ['this interceptor', 'is commented out', 'it'],
+  defaults: ['these defaults', 'are commented out', 'them'],
+};
+
 function markLeftovers(
   j,
   root,
   axiosLocalName,
   axiosImportScope,
   createToClass,
-  commentedOut,
 ) {
   let dirty = false;
   /** module-level statements that read a removed instance, to their TODO */
@@ -1689,24 +1678,22 @@ function markLeftovers(
           return;
         }
         const member = memberOf(parent, p.node);
-        if (member === 'interceptors' || member === 'defaults') {
-          const what =
-            member === 'interceptors' ?
-              ['this interceptor', 'is', 'it']
-            : ['these defaults', 'are', 'them'];
+        const setup = own(INSTANCE_SETUP, member);
+        if (setup) {
+          const [noun, isCommentedOut, pronoun] = setup;
           // module setup like `api.interceptors.request.use(fn)` would read
           // the removed instance, so keep it as comments to move by hand
-          const statement = moduleStatement(p);
+          const statement = moduleStatement(j, p);
           if (statement) {
             commentOut.set(
               statement,
-              `\`${name}\` is the \`${className}\` class now, so ${what[0]} ${what[1]} commented out; move ${what[2]} into \`${className}\``,
+              `\`${name}\` is the \`${className}\` class now, so ${noun} ${isCommentedOut}; move ${pronoun} into \`${className}\``,
             );
           } else {
             markTodo(
               j,
               p,
-              `move ${what[0]} into \`${className}\``,
+              `move ${noun} into \`${className}\``,
               'base-endpoint',
             );
           }
@@ -1759,18 +1746,14 @@ function markLeftovers(
       }
     });
 
-  return commentOut.size ?
-      commentOutStatements(j, commentOut, commentedOut)
-    : dirty;
+  return { dirty, commentOut };
 }
 
 /** The module-level expression statement `path` reads in directly, not from a nested function */
-function moduleStatement(path) {
+function moduleStatement(j, path) {
+  if (enclosingFunction(j, path)) return null;
   let p = path;
-  while (p.parent && p.parent.node.type !== 'Program') {
-    if (/Function|Method/.test(p.node.type)) return null;
-    p = p.parent;
-  }
+  while (p.parent && p.parent.node.type !== 'Program') p = p.parent;
   return p.parent && p.node.type === 'ExpressionStatement' ? p : null;
 }
 
@@ -1778,9 +1761,10 @@ const COMMENTED_OUT = '__dataClientCommentedOut';
 
 /**
  * Swaps each statement for a placeholder that `restoreCommentedOut()` turns
- * into its source as line comments, under a TODO
+ * into its source as line comments, under a TODO. Returns what to restore.
  */
-function commentOutStatements(j, commentOut, commentedOut) {
+function commentOutStatements(j, commentOut) {
+  const commentedOut = [];
   for (const [path, message] of commentOut) {
     const { node } = path;
     const comments = node.comments || [];
@@ -1790,14 +1774,14 @@ function commentOutStatements(j, commentOut, commentedOut) {
       source: j(node).toSource(),
       blankAfter: blankLineAfter(path),
     });
+    node.comments = comments;
     const placeholder = j.expressionStatement(
       j.identifier(`${COMMENTED_OUT}${index}`),
     );
-    placeholder.comments = comments;
     addTodo(j, placeholder, message, 'base-endpoint');
-    path.replace(placeholder);
+    replaceStatement(j, path, [placeholder]);
   }
-  return true;
+  return commentedOut;
 }
 
 /** Whether a blank line separates the statement at `path` from the next one */
@@ -1814,7 +1798,7 @@ function blankLineAfter(path) {
  */
 function restoreCommentedOut(output, commentedOut) {
   if (!commentedOut.length) return output;
-  return output.replace(
+  const restored = output.replace(
     // recast spaces the placeholder from the next statement with a blank line
     new RegExp(
       `^([ \\t]*)${COMMENTED_OUT}(\\d+);?[ \\t]*(\\n(?=[ \\t]*\\n))?`,
@@ -1829,6 +1813,12 @@ function restoreCommentedOut(output, commentedOut) {
       return blank && blankAfter ? lines + blank : lines;
     },
   );
+  // a placeholder left behind would be a ReferenceError at runtime
+  if (restored.includes(COMMENTED_OUT))
+    throw new Error(
+      'axios-to-rest: could not restore a commented-out statement',
+    );
+  return restored;
 }
 
 // --- Output style ---
@@ -1850,37 +1840,37 @@ function sourceStyle(j, root, source) {
 
   // [with, without] a trailing comma, among lists whose closing bracket
   // sits on its own line
-  const commas = { objects: [0, 0], parameters: [0, 0] };
+  const commas = { lists: [0, 0], parameters: [0, 0] };
   const vote = (kind, last, closeIndex) => {
-    if (!last || last.end == null || closeIndex < last.end) return;
+    if (!last || last.end == null || !(closeIndex >= last.end)) return;
     const between = source.slice(last.end, closeIndex);
     if (!between.includes('\n')) return;
     commas[kind][between.includes(',') ? 0 : 1]++;
   };
   const voteList = ({ node }, items) =>
-    node.end != null && vote('objects', items[items.length - 1], node.end - 1);
+    vote('lists', items[items.length - 1], node.end - 1);
   root.find(j.ObjectExpression).forEach(p => voteList(p, p.node.properties));
   root.find(j.ArrayExpression).forEach(p => voteList(p, p.node.elements));
   root.find(j.Function).forEach(({ node }) => {
     const last = node.params[node.params.length - 1];
-    if (!last || last.type === 'RestElement' || last.end == null) return;
-    vote('parameters', last, source.indexOf(')', last.end));
+    if (last && last.type !== 'RestElement')
+      vote('parameters', last, source.indexOf(')', last.end));
   });
-  const objects = commas.objects[0] >= commas.objects[1];
+  const lists = commas.lists[0] >= commas.lists[1];
   const [withComma, without] = commas.parameters;
   return {
     quote: votes.double > votes.single ? 'double' : 'single',
     trailingComma: {
-      objects,
-      arrays: objects,
-      parameters: withComma || without ? withComma >= without : objects,
+      objects: lists,
+      arrays: lists,
+      parameters: withComma || without ? withComma >= without : lists,
     },
   };
 }
 
 // --- Main ---
 
-module.exports = function transformer(fileInfo, api) {
+function transform(fileInfo, api) {
   // skip parsing files that neither import axios nor could call an instance
   // imported from another module
   const { source } = fileInfo;
@@ -1888,15 +1878,14 @@ module.exports = function transformer(fileInfo, api) {
   const j = api.jscodeshift;
   const root = j(source);
   const isTS = /\.[cm]?tsx?$/.test(fileInfo.path || '');
-  // before any edit, while every node still has its source position
-  const printOptions = sourceStyle(j, root, source);
-  const commentedOut = [];
 
   const axiosImport = root
     .find(j.ImportDeclaration)
     .filter(p => p.node.source.value === 'axios');
   const imported = importedInstances(j, root, fileInfo.path);
   if (!axiosImport.length && !imported.renames.length) return source;
+  // before any edit, while every node still has its source position
+  const printOptions = sourceStyle(j, root, source);
 
   let axiosLocalName = 'axios';
   let axiosImportScope = null;
@@ -1931,15 +1920,15 @@ module.exports = function transformer(fileInfo, api) {
   );
   dirty = calls.dirty || calls.marked || dirty;
 
-  dirty =
-    markLeftovers(
-      j,
-      root,
-      axiosLocalName,
-      axiosImportScope,
-      createResult.createToClass,
-      commentedOut,
-    ) || dirty;
+  const leftovers = markLeftovers(
+    j,
+    root,
+    axiosLocalName,
+    axiosImportScope,
+    createResult.createToClass,
+  );
+  dirty = leftovers.dirty || dirty;
+  const commentedOut = commentOutStatements(j, leftovers.commentOut);
 
   // after the calls, which look the instance up by its imported name
   for (const {
@@ -1976,6 +1965,34 @@ module.exports = function transformer(fileInfo, api) {
   return dirty ?
       restoreCommentedOut(root.toSource(printOptions), commentedOut)
     : source;
+}
+
+/**
+ * Formats the output with the project's own Prettier and config, when it has
+ * them and already keeps this file formatted. Recast can't measure line width.
+ */
+async function formatLikeProject(output, file, source) {
+  if (!file) return output;
+  const filepath = nodePath.resolve(file);
+  try {
+    const prettier = createRequire(filepath)('prettier');
+    const config = await prettier.resolveConfig(filepath);
+    if (!config) return output;
+    const options = { ...config, filepath };
+    // leave files the project doesn't format alone, so the diff stays small
+    if (!(await prettier.check(source, options))) return output;
+    return await prettier.format(output, options);
+  } catch {
+    // no Prettier, or one that can't load here: keep recast's output
+    return output;
+  }
+}
+
+module.exports = async function transformer(fileInfo, api) {
+  const output = transform(fileInfo, api);
+  return output === fileInfo.source ?
+      output
+    : formatLikeProject(output, fileInfo.path, fileInfo.source);
 };
 
 module.exports.parser = 'tsx';

@@ -1565,7 +1565,10 @@ const saveEndpoint = new RestEndpoint({
 });
 
 // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
-const save = (post, body) => saveEndpoint({ id: post.id, notify: true }, body);
+const save = (post, body) => saveEndpoint({
+  id: post.id,
+  notify: true,
+}, body);
       `,
       'splits an absolute url into urlPrefix and passes params with the body',
     );
@@ -1844,6 +1847,7 @@ api.interceptors.response.use(
   response => response.data,
   error => Promise.reject(error),
 );
+
 api.defaults.headers.common['X-App'] = 'web';
 export function setToken(token) {
   api.defaults.headers.common.Authorization = token;
@@ -1862,6 +1866,7 @@ class ApiEndpoint extends RestEndpoint {
 //   response => response.data,
 //   error => Promise.reject(error),
 // );
+
 // TODO(data-client): \`api\` is the \`ApiEndpoint\` class now, so these defaults are commented out; move them into \`ApiEndpoint\`: https://dataclient.io/rest/guides/axios-migration#base-endpoint
 // api.defaults.headers.common['X-App'] = 'web';
 export function setToken(token) {
@@ -1911,24 +1916,26 @@ export async function getPost(id: number) {
   return res;
 }`.trim();
 
-    it('converts calls on an instance a client module exports', () => {
+    it('converts calls on an instance a client module exports', async () => {
       const client = `
 import axios from 'axios';
 export const api = axios.create({ baseURL: 'https://api.example.com' });
 `;
-      expect(run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts')).toBe(
-        converted,
-      );
+      expect(
+        await run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts'),
+      ).toBe(converted);
     });
 
-    it('builds endpoints inline when the client module imports this one', () => {
+    it('builds endpoints inline when the client module imports this one', async () => {
       const client = `
 import axios from 'axios';
 import { getPost } from './posts';
 export const api = axios.create({ baseURL: 'https://api.example.com' });
 export const preload = () => getPost(1);
 `;
-      expect(run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts')).toBe(
+      expect(
+        await run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts'),
+      ).toBe(
         `
 import { ApiEndpoint } from './client';
 export async function getPost(id: number) {
@@ -1942,30 +1949,30 @@ export async function getPost(id: number) {
       );
     });
 
-    it('still hoists when the client module imports only a type from this one', () => {
+    it('still hoists when the client module imports only a type from this one', async () => {
       const client = `
 import axios from 'axios';
 import type { Post } from './posts';
 export const api = axios.create({ baseURL: 'https://api.example.com' });
 `;
-      expect(run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts')).toBe(
-        converted,
-      );
+      expect(
+        await run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts'),
+      ).toBe(converted);
     });
 
-    it('converts calls once the client module is rewritten', () => {
+    it('converts calls once the client module is rewritten', async () => {
       const client = `
 import { RestEndpoint, RestGenerics } from '@data-client/rest';
 export class ApiEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
   urlPrefix = 'https://api.example.com';
 }
 `;
-      expect(run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts')).toBe(
-        converted,
-      );
+      expect(
+        await run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts'),
+      ).toBe(converted);
     });
 
-    it('follows an aliased import', () => {
+    it('follows an aliased import', async () => {
       const client = `
 import axios from 'axios';
 export const api = axios.create();
@@ -1976,7 +1983,9 @@ export function listPosts() {
   return http.get('/posts').then(res => res.data);
 }
 `;
-      expect(run({ 'client.ts': client, 'posts.ts': source }, 'posts.ts')).toBe(
+      expect(
+        await run({ 'client.ts': client, 'posts.ts': source }, 'posts.ts'),
+      ).toBe(
         `
 import { ApiEndpoint } from './client';
 
@@ -1990,13 +1999,15 @@ export function listPosts() {
       );
     });
 
-    it('keeps .data when the client module has a response interceptor', () => {
+    it('keeps .data when the client module has a response interceptor', async () => {
       const client = `
 import axios from 'axios';
 export const api = axios.create();
 api.interceptors.response.use(res => res.data);
 `;
-      expect(run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts')).toBe(
+      expect(
+        await run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts'),
+      ).toBe(
         `
 import { ApiEndpoint } from './client';
 
@@ -2014,13 +2025,13 @@ export async function getPost(id: number) {
       );
     });
 
-    it('exports the class where the module exported the instance', () => {
+    it('exports the class where the module exported the instance', async () => {
       const client = `
 import axios from 'axios';
 const api = axios.create({ baseURL: 'https://api.example.com' });
 export { api };
 `;
-      expect(run({ 'client.ts': client }, 'client.ts')).toBe(
+      expect(await run({ 'client.ts': client }, 'client.ts')).toBe(
         `
 import { RestEndpoint, RestGenerics } from '@data-client/rest';
 
@@ -2030,12 +2041,12 @@ class ApiEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
 
 export { ApiEndpoint };`.trim(),
       );
-      expect(run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts')).toBe(
-        converted,
-      );
+      expect(
+        await run({ 'client.ts': client, 'posts.ts': posts }, 'posts.ts'),
+      ).toBe(converted);
     });
 
-    it('imports an aliased export under its alias', () => {
+    it('imports an aliased export under its alias', async () => {
       const client = `
 import axios from 'axios';
 const api = axios.create({ baseURL: 'https://api.example.com' });
@@ -2046,35 +2057,35 @@ export { api as client };
         '{ ApiEndpoint }',
         '{ client as ApiEndpoint }',
       );
-      expect(run({ 'client.ts': client }, 'client.ts')).toMatch(
+      expect(await run({ 'client.ts': client }, 'client.ts')).toMatch(
         /export \{ ApiEndpoint as client \};$/,
       );
       // before and after the client module is rewritten
-      expect(run({ 'client.ts': client, 'posts.ts': source }, 'posts.ts')).toBe(
-        want,
-      );
-      const rewritten = run({ 'client.ts': client }, 'client.ts');
       expect(
-        run({ 'client.ts': rewritten, 'posts.ts': source }, 'posts.ts'),
+        await run({ 'client.ts': client, 'posts.ts': source }, 'posts.ts'),
+      ).toBe(want);
+      const rewritten = await run({ 'client.ts': client }, 'client.ts');
+      expect(
+        await run({ 'client.ts': rewritten, 'posts.ts': source }, 'posts.ts'),
       ).toBe(want);
     });
 
-    it('follows a default export', () => {
+    it('follows a default export', async () => {
       const client = `
 import axios from 'axios';
 const api = axios.create({ baseURL: 'https://api.example.com' });
 export default api;
 `;
       const source = posts.replace('{ api }', 'api');
-      expect(run({ 'client.ts': client }, 'client.ts')).toMatch(
+      expect(await run({ 'client.ts': client }, 'client.ts')).toMatch(
         /export default ApiEndpoint;$/,
       );
-      expect(run({ 'client.ts': client, 'posts.ts': source }, 'posts.ts')).toBe(
-        converted.replace('{ ApiEndpoint }', 'ApiEndpoint'),
-      );
+      expect(
+        await run({ 'client.ts': client, 'posts.ts': source }, 'posts.ts'),
+      ).toBe(converted.replace('{ ApiEndpoint }', 'ApiEndpoint'));
     });
 
-    it('marks what it leaves of an imported instance', () => {
+    it('marks what it leaves of an imported instance', async () => {
       const client = `
 import axios from 'axios';
 export const api = axios.create();
@@ -2083,7 +2094,9 @@ export const api = axios.create();
 import { api } from './client';
 api.defaults.headers.common.X = '1';
 `;
-      expect(run({ 'client.ts': client, 'setup.ts': source }, 'setup.ts')).toBe(
+      expect(
+        await run({ 'client.ts': client, 'setup.ts': source }, 'setup.ts'),
+      ).toBe(
         `
 import { ApiEndpoint } from './client';
 // TODO(data-client): \`api\` is the \`ApiEndpoint\` class now, so these defaults are commented out; move them into \`ApiEndpoint\`: https://dataclient.io/rest/guides/axios-migration#base-endpoint
@@ -2091,7 +2104,7 @@ import { ApiEndpoint } from './client';
       );
     });
 
-    it('resolves tsconfig path aliases', () => {
+    it('resolves tsconfig path aliases', async () => {
       const client = `
 import axios from 'axios';
 export const api = axios.create({ baseURL: 'https://api.example.com' });
@@ -2101,7 +2114,7 @@ export const api = axios.create({ baseURL: 'https://api.example.com' });
   "compilerOptions": { "baseUrl": ".", "paths": { "@/*": ["./*"], }, },
 }`;
       expect(
-        run(
+        await run(
           {
             'tsconfig.json': tsconfig,
             'client.ts': client,
@@ -2112,13 +2125,13 @@ export const api = axios.create({ baseURL: 'https://api.example.com' });
       ).toBe(converted.replace("'./client'", "'@/client'"));
     });
 
-    it('leaves other imports with a get() alone', () => {
+    it('leaves other imports with a get() alone', async () => {
       const source = `
 import { cache } from './cache';
 export const hit = cache.get('posts');
 `;
       expect(
-        run(
+        await run(
           { 'cache.ts': 'export const cache = new Map();\n', 'use.ts': source },
           'use.ts',
         ),
@@ -2514,7 +2527,9 @@ export const store = {
       id,
     });
   },
-  'save-user': user => saveUserEndpoint({ id: user.id }, user),
+  'save-user': user => saveUserEndpoint({
+    id: user.id,
+  }, user),
 };
 class Repo {
   // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
@@ -2663,7 +2678,10 @@ export function save(
   body
 ) {
   // TODO(data-client): this resolves to the response body now, not an axios response, so drop \`.data\` (\`status\` and \`headers\` are gone too): https://dataclient.io/rest/guides/axios-migration#call-sites
-  return saveEndpoint({ id, draft: true }, body);
+  return saveEndpoint({
+    id,
+    draft: true
+  }, body);
 }
       `,
       'matches the quotes and trailing commas the file uses',
@@ -2707,46 +2725,51 @@ const [state, setState] = useState(null);
   // .agents/projects/migrations/<app>/problems.md
   describe('migration evals', () => {
     const evals = path.join(__dirname, '../../../evals/axios-to-rest');
+    // in child processes, the way people run it: Prettier imports ESM that
+    // jest can't load
+    const node = (args, cwd) =>
+      spawnSync(process.execPath, args, { cwd, encoding: 'utf8' });
+
+    /** Runs the codemod's CLI on a copy of the app, and returns that folder */
+    const migrate = app => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'axios-to-rest-'));
+      fs.cpSync(path.join(evals, app), dir, { recursive: true });
+      // the app's own Prettier, which the codemod formats with
+      fs.symlinkSync(
+        path.dirname(path.dirname(require.resolve('prettier/package.json'))),
+        path.join(dir, 'node_modules'),
+      );
+      const { status, stderr } = node(
+        [
+          require.resolve('jscodeshift/bin/jscodeshift.js'),
+          `--transform=${require.resolve('../axios-to-rest')}`,
+          '--extensions=ts,tsx',
+          '--parser=tsx',
+          'src',
+        ],
+        dir,
+      );
+      if (status !== 0) throw new Error(stderr);
+      return dir;
+    };
     const filesIn = dir =>
       fs
-        .readdirSync(dir, { withFileTypes: true })
-        .flatMap(entry =>
-          entry.isDirectory() ?
-            filesIn(path.join(dir, entry.name))
-          : [path.join(dir, entry.name)],
-        );
-    const migrate = app => {
-      const root = path.join(evals, app);
-      return filesIn(path.join(root, 'src')).map(file => ({
-        file: path.relative(root, file),
-        output: applyTransform(
-          transform,
-          {},
-          { path: file, source: fs.readFileSync(file, 'utf8') },
-        ),
-      }));
-    };
+        .readdirSync(dir, { recursive: true, withFileTypes: true })
+        .filter(entry => entry.isFile())
+        .map(entry => path.join(entry.parentPath, entry.name));
 
     // P9: alan2207/bulletproof-react@9506629 apps/react-vite
     describe('bulletproof-react', () => {
-      const app = path.join(evals, 'bulletproof-react');
-      const outputs = migrate('bulletproof-react');
+      let dir;
+      beforeAll(() => {
+        dir = migrate('bulletproof-react');
+      });
+      afterAll(() => fs.rmSync(dir, { recursive: true, force: true }));
 
       it('output passes the app prettier --check', () => {
-        // a child process, since prettier imports ESM that jest can't load
-        const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'axios-to-rest-'));
-        fs.copyFileSync(
-          path.join(app, '.prettierrc'),
-          path.join(dir, '.prettierrc'),
-        );
-        for (const { file, output } of outputs) {
-          fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
-          fs.writeFileSync(path.join(dir, file), output + '\n');
-        }
-        const { status, stdout, stderr } = spawnSync(
-          process.execPath,
+        const { status, stdout, stderr } = node(
           [require.resolve('prettier/bin/prettier.cjs'), '--check', 'src'],
-          { cwd: dir, encoding: 'utf8' },
+          dir,
         );
         expect(stdout + stderr).not.toMatch(/\[warn\]|\[error\]/);
         expect(status).toBe(0);
@@ -2754,8 +2777,8 @@ const [state, setState] = useState(null);
 
       it('leaves no reads of the removed axios instance', () => {
         const j = require('jscodeshift').withParser('tsx');
-        for (const { file, output } of outputs) {
-          const reads = j(output)
+        for (const file of filesIn(path.join(dir, 'src'))) {
+          const reads = j(fs.readFileSync(file, 'utf8'))
             .find(j.Identifier, { name: 'api' })
             .filter(p => p.parent.node.type !== 'ObjectProperty')
             .size();
