@@ -2756,13 +2756,17 @@ const [state, setState] = useState(null);
       // the codemod leaves formatting to the project's own fixer
       it("passes the app's prettier --check after its formatter runs", () => {
         const prettier = require.resolve('prettier/bin/prettier.cjs');
-        expect(node([prettier, '--write', 'src'], dir).status).toBe(0);
-        const { status, stdout, stderr } = node(
-          [prettier, '--check', 'src'],
-          dir,
+        // on a copy, so the other checks still read the codemod's own output
+        const formatted = fs.mkdtempSync(
+          path.join(os.tmpdir(), 'axios-to-rest-'),
         );
-        expect(stdout + stderr).not.toMatch(/\[warn\]|\[error\]/);
-        expect(status).toBe(0);
+        fs.cpSync(dir, formatted, { recursive: true });
+        const write = node([prettier, '--write', 'src'], formatted);
+        const check = node([prettier, '--check', 'src'], formatted);
+        fs.rmSync(formatted, { recursive: true, force: true });
+        expect(write.status).toBe(0);
+        expect(check.stdout + check.stderr).not.toMatch(/\[warn\]|\[error\]/);
+        expect(check.status).toBe(0);
       });
 
       it('leaves no reads of the removed axios instance', () => {
