@@ -175,8 +175,8 @@ render(<PostList />);
 ```
 
 An [Entity](https://dataclient.io/rest/api/Entity) in `expectedResponse` only needs its [primary key](https://dataclient.io/rest/api/Entity#pk) and the fields that
-change: fields it leaves out keep their cached values. Without the primary key the optimistic update is skipped,
-and the UI waits for the server (development builds log why). When the endpoint's arguments don't include the
+change: fields it leaves out keep their cached values. Without the primary key the cached entity doesn't change,
+so the UI waits for the server (development builds log why). When the endpoint's arguments don't include the
 key, like `PATCH /users/profile`, read it from the [snapshot](https://dataclient.io/docs/api/Snapshot):
 
 ```ts

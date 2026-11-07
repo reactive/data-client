@@ -17,7 +17,6 @@ export function setResponseReducer(
   if (action.error) {
     return reduceError(state, action, action.response);
   }
-  let optimisticThrew = false;
   try {
     let response: any;
     // for true set's response is contained in action
@@ -37,7 +36,6 @@ export function setResponseReducer(
         if (e.constructor === AbortOptimistic) {
           return state;
         }
-        optimisticThrew = true;
         throw e;
       }
     } else {
@@ -87,11 +85,11 @@ export function setResponseReducer(
     // reducer must update the state, so in case of processing errors we simply compute the endpoints inline
   } catch (error: any) {
     if (typeof error === 'object') {
-      error.message = `${
-        action.type === OPTIMISTIC ?
-          optimisticFailureIntro(action.key, optimisticThrew)
-        : `Error processing ${action.key}`
-      }\n\nFull Schema: ${JSON.stringify(
+      const intro =
+        action.type === OPTIMISTIC && process.env.NODE_ENV !== 'production' ?
+          optimisticFailureIntro(action.key)
+        : `Error processing ${action.key}`;
+      error.message = `${intro}\n\nFull Schema: ${JSON.stringify(
         action.endpoint.schema,
         undefined,
         2,
@@ -102,29 +100,28 @@ export function setResponseReducer(
 
     // this is not always bubbled up, so let's double sure this doesn't fail silently
     /* istanbul ignore else */
-    if (process.env.NODE_ENV !== 'production' && isFirstReport(action)) {
+    if (process.env.NODE_ENV !== 'production' && claimReport(action)) {
       console.error(error);
     }
     return reduceError(state, action, error);
   }
 }
 
-const reportedOptimistic = new WeakSet<OptimisticAction>();
-/** Optimistic actions are re-applied on every state change, so only report each failure once */
-function isFirstReport(action: OptimisticAction | SetResponseAction) {
+const reportedOptimistic = /* @__PURE__ */ new WeakSet<OptimisticAction>();
+/** Records the report; false when this optimistic action's failure was already reported.
+ * Optimistic actions are re-applied on every state change, so each failure is reported once.
+ */
+function claimReport(action: OptimisticAction | SetResponseAction) {
   if (action.type !== OPTIMISTIC) return true;
   if (reportedOptimistic.has(action)) return false;
   reportedOptimistic.add(action);
   return true;
 }
 
-function optimisticFailureIntro(key: string, threw: boolean) {
-  const skipped = `Optimistic update skipped for ${key}: `;
-  const waits = 'The UI will not change until the server responds.';
-  if (threw) return `${skipped}getOptimisticResponse() threw. ${waits}`;
-  return `${skipped}the value getOptimisticResponse() returned could not be normalized. ${waits}
+function optimisticFailureIntro(key: string) {
+  return `Optimistic update skipped for ${key}: getOptimisticResponse() threw, or its value could not be normalized. The UI will not change until the server responds.
 
-Each Entity in that value needs its primary key; fields it omits keep their cached values.
+A common cause is an Entity without its primary key. Other fields can be left out; they keep their cached values.
 If the endpoint's args do not include the primary key, read it from the snapshot with snap.get() or snap.getResponse().
 Learn more: https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse`;
 }

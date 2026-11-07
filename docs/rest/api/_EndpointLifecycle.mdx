@@ -49,8 +49,8 @@ of [process()](./RestEndpoint.md#process), it must match that type instead.
 <VoteDemo />
 
 An [Entity](./Entity.md) in `expectedResponse` only needs its [primary key](./Entity.md#pk) and the fields that
-change: fields it leaves out keep their cached values. Without the primary key the optimistic update is skipped,
-and the UI waits for the server (development builds log why). When the endpoint's arguments don't include the
+change: fields it leaves out keep their cached values. Without the primary key the cached entity doesn't change,
+so the UI waits for the server (development builds log why). When the endpoint's arguments don't include the
 key, like `PATCH /users/profile`, read it from the [snapshot](/docs/api/Snapshot):
 
 ```ts

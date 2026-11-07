@@ -133,7 +133,7 @@ getOptimisticResponse(snap, { id }) {
 ```
 
 Return each Entity's primary key plus the changed fields; omitted fields keep their cached values. Without
-the key the optimistic update is skipped silently in the UI (the console logs `Optimistic update skipped`).
+the key the UI waits for the server; development builds log `Optimistic update skipped`.
 When args lack the key (`PATCH /users/profile`), read it from the snapshot:
 
 ```ts

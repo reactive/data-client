@@ -1,7 +1,11 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`CacheProvider Optimistic Updates race conditions should error when user error happens 1`] = `
-[Error: Optimistic update skipped for toggle [5]: getOptimisticResponse() threw. The UI will not change until the server responds.
+[Error: Optimistic update skipped for toggle [5]: getOptimisticResponse() threw, or its value could not be normalized. The UI will not change until the server responds.
+
+A common cause is an Entity without its primary key. Other fields can be left out; they keep their cached values.
+If the endpoint's args do not include the primary key, read it from the snapshot with snap.get() or snap.getResponse().
+Learn more: https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse
 
 Full Schema: {
   "key": "Toggle",
@@ -13,7 +17,11 @@ this should fail]
 `;
 
 exports[`ExternalDataProvider Optimistic Updates race conditions should error when user error happens 1`] = `
-[Error: Optimistic update skipped for toggle [5]: getOptimisticResponse() threw. The UI will not change until the server responds.
+[Error: Optimistic update skipped for toggle [5]: getOptimisticResponse() threw, or its value could not be normalized. The UI will not change until the server responds.
+
+A common cause is an Entity without its primary key. Other fields can be left out; they keep their cached values.
+If the endpoint's args do not include the primary key, read it from the snapshot with snap.get() or snap.getResponse().
+Learn more: https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse
 
 Full Schema: {
   "key": "Toggle",

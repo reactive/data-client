@@ -737,7 +737,7 @@ describe.each([
       await renderDataClient.allSettled();
     });
 
-    // Eval for migration problem P11 (bulletproof-react): partial optimistic responses
+    // an optimistic Entity only needs its primary key; omitted fields keep their cached values
     describe('partial responses', () => {
       let errorspy: jest.Spied<typeof global.console.error>;
       beforeEach(() => {
@@ -796,7 +796,7 @@ describe.each([
         getOptimisticResponse(snap, body) {
           const user = snap.getResponse(getMe).data?.data;
           if (!user) throw snap.abort;
-          return { ...user, ...body };
+          return { id: user.id, ...body };
         },
       });
       const meFixture = {
@@ -851,7 +851,7 @@ describe.each([
         });
         // optimistic update could not apply, so the UI waits for the server
         expect(result.current?.data?.firstName).toBe('old');
-        // the optimistic action is re-applied on every state change
+        // any store update, even to another entity, re-applies the optimistic action
         for (const title of ['a', 'b']) {
           act(() => {
             controller.setResponse(
@@ -869,8 +869,8 @@ describe.each([
         expect(message).toContain(
           'Optimistic update skipped for PATCH http://test.com/users/profile',
         );
-        expect(message).toContain('getOptimisticResponse() returned');
-        expect(message).toContain('needs its primary key');
+        expect(message).toContain('getOptimisticResponse()');
+        expect(message).toContain('Entity without its primary key');
         expect(message).toContain("'id' missing");
       });
 
