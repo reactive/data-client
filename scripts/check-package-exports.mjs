@@ -31,6 +31,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 // (react, vue...) from the root install
 const work = path.join(root, 'node_modules/.cache/check-package-exports');
 const packs = path.join(work, 'packs');
+const loaderPath = path.join(work, 'loaded.mjs');
 
 // publint suggestions that are about entry points
 const ENTRY_POINT_SUGGESTIONS = new Set([
@@ -48,8 +49,7 @@ const DIFFERENT_ON_PURPOSE = {
 
 // Lists the files a fresh Node process loads for `import`s or `require`s of
 // the specifiers (see mixedBuilds)
-const LOADED_SCRIPT = path.join(work, 'loaded.mjs');
-const LOADED = `import { createRequire, registerHooks } from 'node:module';
+const LOADER_SOURCE = `import { createRequire, registerHooks } from 'node:module';
 const loaded = new Set();
 registerHooks({
   resolve(specifier, context, nextResolve) {
@@ -70,7 +70,7 @@ console.log(JSON.stringify([...loaded]));
 const packages = publishedPackages();
 fs.rmSync(work, { recursive: true, force: true });
 fs.mkdirSync(packs, { recursive: true });
-fs.writeFileSync(LOADED_SCRIPT, LOADED);
+fs.writeFileSync(loaderPath, LOADER_SOURCE);
 packAll();
 // Unpack them all first, so they load each other rather than the workspaces
 const unpacked = packages.map(unpack);
@@ -361,7 +361,7 @@ async function differentExports(load, rootSpecifier, specifier) {
 // package that loaded files from more than one build folder (lib/, dist/...)
 function mixedBuilds(call, specifiers) {
   const urls = JSON.parse(
-    execFileSync(process.execPath, [LOADED_SCRIPT, call, ...specifiers], {
+    execFileSync(process.execPath, [loaderPath, call, ...specifiers], {
       encoding: 'utf8',
     }),
   );
