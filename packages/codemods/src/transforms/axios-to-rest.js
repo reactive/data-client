@@ -608,7 +608,8 @@ function findModule(fromFile, spec) {
 /**
  * Names of the instances whose `.interceptors.response` the module uses.
  * Once this codemod has rewritten a module, its interceptor is only a comment,
- * so the TODO it left in the module's `text` is what still marks it.
+ * so the TODO it left in the module's `text` is what still marks it; a module
+ * being rewritten has no such TODO yet, so its caller passes no text.
  */
 function responseInterceptorTargets(j, root, text = '') {
   return new Set([
@@ -623,8 +624,25 @@ function responseInterceptorTargets(j, root, text = '') {
       })
       .nodes()
       .map(node => node.object.object.name),
-    ...[...text.matchAll(COMMENTED_RESPONSE_INTERCEPTOR)].map(m => m[1]),
+    ...[...text.matchAll(commentedResponseInterceptor())].map(m => m[1]),
   ]);
+}
+
+/**
+ * Matches a response interceptor this codemod commented out, told apart from
+ * code the author had already disabled by the TODO right above it. The TODO is
+ * written with placeholders, escaped, then the placeholders become patterns.
+ */
+function commentedResponseInterceptor() {
+  const todo =
+    `${TODO} ${commentedOutTodo('\0name', '\0class', INSTANCE_SETUP.interceptors)}`
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .replace('\0name', '([A-Za-z_$][\\w$]*)')
+      .replaceAll('\0class', '[\\w$]+');
+  return new RegExp(
+    `^[ \\t]*// ${todo}.*\\r?\\n[ \\t]*// \\1\\.interceptors\\.response\\b`,
+    'gm',
+  );
 }
 
 // exported name ('default' for a default export) -> { className, prefixed,
@@ -1666,20 +1684,6 @@ function commentedOutTodo(name, className, [noun, isCommentedOut, pronoun]) {
   return `\`${name}\` is the \`${className}\` class now, so ${noun} ${isCommentedOut}; move ${pronoun} into \`${className}\``;
 }
 
-// a response interceptor this codemod commented out, told apart from code the
-// author had already disabled by the TODO it puts right above it
-const COMMENTED_RESPONSE_INTERCEPTOR = (() => {
-  const todo =
-    `${TODO} ${commentedOutTodo('\0name', '\0class', INSTANCE_SETUP.interceptors)}`
-      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      .replace('\0name', '([A-Za-z_$][\\w$]*)')
-      .replaceAll('\0class', '[\\w$]+');
-  return new RegExp(
-    `^[ \\t]*// ${todo}.*\\r?\\n[ \\t]*// \\1\\.interceptors\\.response\\b`,
-    'gm',
-  );
-})();
-
 function markLeftovers(
   j,
   root,
@@ -1725,6 +1729,7 @@ function markLeftovers(
         const member = memberOf(parent, p.node);
         const setup = own(INSTANCE_SETUP, member);
         if (setup) {
+          const [noun] = setup;
           // module setup like `api.interceptors.request.use(fn)` would read
           // the removed instance, so keep it as comments to move by hand
           const statement = moduleStatement(j, p);
@@ -1734,7 +1739,7 @@ function markLeftovers(
             markTodo(
               j,
               p,
-              `move ${setup[0]} into \`${className}\``,
+              `move ${noun} into \`${className}\``,
               'base-endpoint',
             );
           }

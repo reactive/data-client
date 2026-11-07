@@ -2039,7 +2039,15 @@ api.interceptors.response.use(res => res.data);
       expect(
         await run({ 'client.ts': rewritten, 'posts.ts': posts }, 'posts.ts'),
       ).toMatch('return res.data;');
-      // Prettier keeps a project's `endOfLine: "crlf"`
+    });
+
+    it('keeps .data when that rewritten client module has CRLF line endings', async () => {
+      const client = `
+import axios from 'axios';
+export const api = axios.create();
+api.interceptors.response.use(res => res.data);
+`;
+      const rewritten = await run({ 'client.ts': client }, 'client.ts');
       expect(
         await run(
           { 'client.ts': rewritten.replace(/\n/g, '\r\n'), 'posts.ts': posts },
