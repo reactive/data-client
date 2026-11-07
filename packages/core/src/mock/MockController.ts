@@ -134,9 +134,12 @@ export function MockController<
               return result.response;
             };
             if (typeof (replacedAction.endpoint as any).extend === 'function') {
+              // keep the name: Endpoint.extend() otherwise renames to fetch.name, so the response
+              // would be stored under another key and the fetch promise would never resolve
               replacedAction.endpoint = (replacedAction.endpoint as any).extend(
                 {
                   fetch,
+                  name: action.endpoint.name,
                 },
               );
             } else {
