@@ -249,22 +249,23 @@ describe('MemoCache.commit', () => {
     });
   });
 
-  it('remembers a bounded number of results for a store that never commits', async () => {
-    // direct use, or a provider that never calls commit(): fresh inputs read
-    // against one store must not stay alive through the commit bookkeeping
+  it('frees the reads of a store that never commits with that store', async () => {
+    // direct use, or a provider that never calls commit(): results read
+    // against a store must not outlive it through the commit bookkeeping
     v8.setFlagsFromString('--expose_gc');
     const gc = vm.runInNewContext('gc') as () => void;
     const memo = new MemoCache();
-    const entities = store('never committed');
     const results: WeakRef<object>[] = [];
-    for (let i = 0; i < 1000; i++) {
-      const { data } = memo.denormalize([Todo], ['1'], entities);
-      results.push(new WeakRef(data as object));
-    }
-    expect((memo as any).reads.get(entities).size).toBeLessThanOrEqual(256);
+    (() => {
+      const entities = store('never committed');
+      for (let i = 0; i < 1000; i++) {
+        const { data } = memo.denormalize([Todo], ['1'], entities);
+        results.push(new WeakRef(data as object));
+      }
+    })();
     // WeakRef targets stay alive until the current job ends
     await new Promise(resolve => setTimeout(resolve, 0));
     gc();
-    expect(results.filter(r => r.deref()).length).toBeLessThanOrEqual(256);
+    expect(results.filter(ref => ref.deref()).length).toBe(0);
   });
 });
