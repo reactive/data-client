@@ -11,12 +11,21 @@
   "baseline": {
    "commit": "9506629ed003a561c6627735480cce4994244bb4",
    "treeDiffSha1": "b331326d588c",
-   "uncommittedFiles": 5
+   "uncommittedFiles": 5,
+   "dataLibs": {
+    "@tanstack/react-query": "5.107.1",
+    "react-query-auth": "2.4.3",
+    "axios": "1.21.0"
+   }
   },
   "migrated": {
    "commit": "9506629ed003a561c6627735480cce4994244bb4",
    "treeDiffSha1": "2e22615c1c3f",
-   "uncommittedFiles": 58
+   "uncommittedFiles": 58,
+   "dataLibs": {
+    "@data-client/react": "0.18.2",
+    "@data-client/rest": "0.18.2"
+   }
   }
  }
 }

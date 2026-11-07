@@ -6,7 +6,7 @@
   "baseline": "data-client",
   "migrated": "data-client + optimistic"
  },
- "generated": "2026-11-07T06:38:06.788Z",
+ "generated": "2026-11-07T20:29:07.071Z",
  "meta": {
   "config": "../data-client/.agents/projects/migrations/bulletproof-react/impact/impact.config.mjs",
   "prep": [
@@ -20,23 +20,31 @@
    "baseline": {
     "commit": "9506629ed003a561c6627735480cce4994244bb4",
     "treeDiffSha1": "2e22615c1c3f",
-    "uncommittedFiles": 58
+    "uncommittedFiles": 58,
+    "dataLibs": {
+     "@data-client/react": "0.18.2",
+     "@data-client/rest": "0.18.2"
+    }
    },
    "migrated": {
     "commit": "fb6c863163fbfc202666d745d1596083ef374bc4",
     "treeDiffSha1": "5f2c80fa6a7d",
-    "uncommittedFiles": 59
+    "uncommittedFiles": 59,
+    "dataLibs": {
+     "@data-client/react": "0.18.2",
+     "@data-client/rest": "0.18.2"
+    }
    }
   }
  },
  "inputs": [
   {
-   "file": "v3-data-client-vs-data-client-optimistic/flow.json",
+   "file": "data-client-vs-data-client-optimistic/flow.json",
    "kind": "flow",
    "date": "2026-11-07T06:38:02.923Z"
   },
   {
-   "file": "v3-data-client-vs-data-client-optimistic/static.json",
+   "file": "data-client-vs-data-client-optimistic/static.json",
    "kind": "static",
    "date": "2026-11-07T06:38:06.616Z"
   }

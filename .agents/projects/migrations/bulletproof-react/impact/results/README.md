@@ -4,8 +4,8 @@ Measured 2026-11-07 with [`../impact.config.mjs`](../impact.config.mjs), 8 inter
 CPU throttle, mock API latency fixed at 400ms ([`../fixed-latency.patch`](../fixed-latency.patch)).
 
 **These are `@data-client/react` 0.18.2 results.** The migration targets 0.19; all of these get
-re-measured on the 0.19 beta. Mutation timing and refetch counts depend on normalization and should hold.
-Bundle size and tokens per feature are the most likely to change.
+re-measured on the 0.19 beta. None of the numbers are verified on 0.19 yet; bundle size and tokens per
+feature are the ones most likely to change.
 
 | Variant                  | Source                                                                                                                                                                                       |
 | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -66,8 +66,8 @@ allowlist to the prompt, so a re-run is not directly comparable.
 Data-client cost more here, and the diffs show why. Both react-query runs added
 `invalidateQueries({ queryKey: ['discussions'] })` after each comment mutation. The data-client runs had no
 data-client skills in the checkout: the 0.18 install path (`npx skills add`) committed `skills-lock.json`
-but not the skill files. On 0.19 the skills ship in the packages and are symlinked into the app, so this
-gap should not recur. Neither run found a data-client pattern for a server-computed count on a parent entity. One threaded
+but not the skill files. On 0.19 the skills ship in the packages and are symlinked into the app; the beta
+re-run will show whether that closes the gap. Neither run found a data-client pattern for a server-computed count on a parent entity. One threaded
 `onCountChange` callbacks through four components; the other called `invalidateAll` on the list and refetched
 the discussion. This is a skill gap to re-measure on 0.19, not a property of the library.
 

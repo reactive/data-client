@@ -110,6 +110,19 @@ function treeDiffSha1(cwd) {
   }
   return hash.digest('hex').slice(0, 12);
 }
+function installedVersions(root, libs) {
+  const versions = {};
+  for (const lib of libs) {
+    try {
+      versions[lib] = JSON.parse(
+        readFileSync(join(root, 'node_modules', lib, 'package.json'), 'utf8'),
+      ).version;
+    } catch {
+      // Not installed in this checkout.
+    }
+  }
+  return versions;
+}
 const meta = {
   config: relative(process.cwd(), configPath),
   prep: config.prep ?? [],
@@ -131,6 +144,8 @@ const meta = {
           sh('git status --porcelain', checkouts[v])
             ?.split('\n')
             .filter(Boolean).length ?? null,
+        // Installed versions of the data libraries the config names, so results say what they measured.
+        dataLibs: installedVersions(rootOf(v), config.static?.dataLibs ?? []),
       },
     ]),
   ),

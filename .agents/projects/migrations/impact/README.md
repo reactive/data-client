@@ -139,8 +139,8 @@ export default {
 };
 ```
 
-Cache hits are measured from the network: a redundant read is a cache miss a cache could have served.
-That works the same for any data library. In development builds, data-client 0.19 also exposes each
+The kit counts cache misses from the network: a redundant read is a miss that a cache could have served.
+This works the same for any data library. In development builds, data-client 0.19 also exposes each
 store's Controller and recent actions on `globalThis.__DC__`, which could count cache reads directly;
 the kit measures production builds, where it is absent, so it does not use it.
 

@@ -6,7 +6,7 @@
   "baseline": "react-query",
   "migrated": "data-client + optimistic"
  },
- "generated": "2026-11-07T06:32:32.628Z",
+ "generated": "2026-11-07T20:29:06.999Z",
  "meta": {
   "config": "../data-client/.agents/projects/migrations/bulletproof-react/impact/impact.config.mjs",
   "prep": [
@@ -20,28 +20,37 @@
    "baseline": {
     "commit": "9506629ed003a561c6627735480cce4994244bb4",
     "treeDiffSha1": "b331326d588c",
-    "uncommittedFiles": 5
+    "uncommittedFiles": 5,
+    "dataLibs": {
+     "@tanstack/react-query": "5.107.1",
+     "react-query-auth": "2.4.3",
+     "axios": "1.21.0"
+    }
    },
    "migrated": {
     "commit": "fb6c863163fbfc202666d745d1596083ef374bc4",
     "treeDiffSha1": "5f2c80fa6a7d",
-    "uncommittedFiles": 59
+    "uncommittedFiles": 59,
+    "dataLibs": {
+     "@data-client/react": "0.18.2",
+     "@data-client/rest": "0.18.2"
+    }
    }
   }
  },
  "inputs": [
   {
-   "file": "v3-react-query-vs-data-client-optimistic/flow.json",
+   "file": "react-query-vs-data-client-optimistic/flow.json",
    "kind": "flow",
    "date": "2026-11-07T06:32:29.046Z"
   },
   {
-   "file": "v3-react-query-vs-data-client-optimistic/static.json",
+   "file": "react-query-vs-data-client-optimistic/static.json",
    "kind": "static",
    "date": "2026-11-07T06:32:32.487Z"
   },
   {
-   "file": "v3-react-query-vs-data-client-optimistic/feature.json",
+   "file": "react-query-vs-data-client-optimistic/feature.json",
    "kind": "feature",
    "date": "2026-11-07T05:54:35.402Z"
   }

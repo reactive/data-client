@@ -6,7 +6,7 @@
   "baseline": "react-query",
   "migrated": "data-client"
  },
- "generated": "2026-11-07T06:25:49.588Z",
+ "generated": "2026-11-07T20:29:06.937Z",
  "meta": {
   "config": "../data-client/.agents/projects/migrations/bulletproof-react/impact/impact.config.mjs",
   "prep": [
@@ -20,23 +20,32 @@
    "baseline": {
     "commit": "9506629ed003a561c6627735480cce4994244bb4",
     "treeDiffSha1": "b331326d588c",
-    "uncommittedFiles": 5
+    "uncommittedFiles": 5,
+    "dataLibs": {
+     "@tanstack/react-query": "5.107.1",
+     "react-query-auth": "2.4.3",
+     "axios": "1.21.0"
+    }
    },
    "migrated": {
     "commit": "9506629ed003a561c6627735480cce4994244bb4",
     "treeDiffSha1": "2e22615c1c3f",
-    "uncommittedFiles": 58
+    "uncommittedFiles": 58,
+    "dataLibs": {
+     "@data-client/react": "0.18.2",
+     "@data-client/rest": "0.18.2"
+    }
    }
   }
  },
  "inputs": [
   {
-   "file": "v3-react-query-vs-data-client/flow.json",
+   "file": "react-query-vs-data-client/flow.json",
    "kind": "flow",
    "date": "2026-11-07T06:25:45.607Z"
   },
   {
-   "file": "v3-react-query-vs-data-client/static.json",
+   "file": "react-query-vs-data-client/static.json",
    "kind": "static",
    "date": "2026-11-07T06:25:49.450Z"
   }

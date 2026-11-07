@@ -108,11 +108,15 @@ if (meta) {
   lines.push(
     '## Setup',
     '',
-    '| Variant | Commit | Uncommitted files | Working-tree diff sha1 |',
-    '| --- | --- | --- | --- |',
+    '| Variant | Data libraries | Commit | Uncommitted files | Working-tree diff sha1 |',
+    '| --- | --- | --- | --- | --- |',
     ...Object.entries(meta.checkouts).map(
       ([v, c]) =>
-        `| ${LABEL[v]} | ${c.commit ?? 'not a git checkout'} | ${c.uncommittedFiles ?? '–'} | ${c.treeDiffSha1 ?? '–'} |`,
+        `| ${LABEL[v]} | ${
+          Object.entries(c.dataLibs ?? {})
+            .map(([l, ver]) => `${l} ${ver}`)
+            .join(', ') || '–'
+        } | ${c.commit ?? 'not a git checkout'} | ${c.uncommittedFiles ?? '–'} | ${c.treeDiffSha1 ?? '–'} |`,
     ),
     '',
     `Config \`${meta.config}\`, prep ${meta.prep.map(p => `\`${p}\``).join(', ') || 'none'}, Node ${meta.node}, Playwright ${meta.playwright ?? 'unknown'}.`,
