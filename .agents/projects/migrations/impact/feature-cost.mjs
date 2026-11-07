@@ -282,6 +282,9 @@ writeFileSync(
       kind: 'feature',
       app: config.name,
       feature: config.title,
+      // The exact conditions, so results from different prompts or tools are never mixed up.
+      prompt: config.prompt,
+      allowedTools: ALLOWED_TOOLS,
       model: opt.model,
       effort: opt.effort,
       date: new Date().toISOString(),

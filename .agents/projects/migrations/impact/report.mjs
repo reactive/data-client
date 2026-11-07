@@ -90,7 +90,7 @@ if (flow) {
 }
 if (feature) {
   notes.push(
-    `Feature cost: "${feature.feature}", ${feature.runs.length / 2} runs per variant, model ${feature.model} at ${feature.effort} effort. Errored agent sessions count as failed acceptance; their spend stays in the medians.`,
+    `Feature cost: "${feature.feature}", ${feature.runs.length / 2} runs per variant, model ${feature.model} at ${feature.effort} effort. Errored agent sessions count as failed acceptance; their spend stays in the medians when the CLI reported it (a timeout or crash reports none).`,
   );
   const failed = countFailures(feature.failures);
   if (failed) notes.push(`Errored agent sessions: ${failed}.`);

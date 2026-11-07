@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import { matchesGlob } from './glob.mjs';
-import { metric } from './metrics.mjs';
+import { metric, sampled } from './metrics.mjs';
 import { compare } from './stats.mjs';
 import { summarizeTrace } from './trace.mjs';
 
@@ -42,6 +42,21 @@ test('metric: rounding noise is same, null direction is changed', () => {
     'changed',
   );
   assert.equal(metric('g', 'id', 'l', 'kB', 10, 5).pct, -50);
+});
+
+test('sampled: compares raw samples and keeps the row fields', () => {
+  const row = sampled('g', 'id', 'l', 'n', [1, 1, 1], [3, 3, 3], {
+    lowerIsBetter: false,
+  });
+  assert.equal(row.verdict, 'better');
+  assert.equal(row.lowerIsBetter, false);
+  assert.deepEqual([row.group, row.baseline, row.migrated], ['g', 1, 3]);
+});
+
+test('compare: a change that prints as 0 is never a direction', () => {
+  const b = [1.001, 1.002, 1.003, 1.001];
+  const a = [1.004, 1.004, 1.004, 1.004];
+  assert.notEqual(compare(b, a).verdict, 'worse');
 });
 
 test('matchesGlob', () => {

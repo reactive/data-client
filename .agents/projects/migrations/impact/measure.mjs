@@ -81,6 +81,7 @@ const sh = (cmd, cwd) => {
       cwd,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
+      maxBuffer: 1024 * 1024 * 1024,
     }).trim();
   } catch {
     return null;
@@ -93,8 +94,18 @@ function treeDiffSha1(cwd) {
   if (diff === null) return null;
   const hash = createHash('sha1').update(diff);
   const untracked = sh('git ls-files --others --exclude-standard', cwd) ?? '';
-  for (const f of untracked.split('\n').filter(Boolean).sort())
-    hash.update(f).update(readFileSync(join(cwd, f)));
+  for (const f of untracked.split('\n').filter(Boolean).sort()) {
+    // Path and content hashed separately, so a name/content boundary cannot shift.
+    let content = '';
+    try {
+      content = createHash('sha1')
+        .update(readFileSync(join(cwd, f)))
+        .digest('hex');
+    } catch {
+      // Nested repository, dangling symlink or unreadable file: the path alone counts.
+    }
+    hash.update(`\0${f}\0${content}`);
+  }
   return hash.digest('hex').slice(0, 12);
 }
 const meta = {

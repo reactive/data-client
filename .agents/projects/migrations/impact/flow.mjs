@@ -61,7 +61,7 @@ async function launchBrowser() {
 
 const config = await loadConfig(resolve(opt.config), 'flow');
 // A step is a navigation unless it says otherwise.
-const steps = config.steps.map(s => ({ kind: 'nav', ...s }));
+const steps = config.steps.map(s => ({ ...s, kind: s.kind ?? 'nav' }));
 const probe = readFileSync(join(here, 'utils/probe.js'), 'utf8');
 const previous = opt.from ? JSON.parse(readFileSync(opt.from, 'utf8')) : null;
 const runs = previous?.runs ?? +opt.runs;
@@ -265,7 +265,7 @@ async function flow(base, variant) {
       if (step.fresh)
         freshMs = await pollFresh(step, ctx, config.staleTimeoutMs ?? 3000);
       await net.settle();
-      const { from, ...rec } = await page.evaluate(
+      const { from, loading, longtasks, events, shifts } = await page.evaluate(
         ([origin0, p0]) => {
           const w = window.__impact;
           // A full page load inside the step resets the page clock; then count from its start.
@@ -281,7 +281,6 @@ async function flow(base, variant) {
         },
         [origin0, p0],
       );
-      const { loading, longtasks } = rec;
       const reqs = net.log.slice(before);
       const m = {
         readyMs,
@@ -297,8 +296,8 @@ async function flow(base, variant) {
         ),
         longTasks: longtasks.length,
         tbtMs: longtasks.reduce((t, l) => t + Math.max(0, l.dur - 50), 0),
-        maxInteractionMs: Math.max(0, ...rec.events.map(e => e.dur)),
-        cls: rec.shifts.reduce((t, s) => t + s.value, 0),
+        maxInteractionMs: Math.max(0, ...events.map(e => e.dur)),
+        cls: shifts.reduce((t, s) => t + s.value, 0),
       };
       if (step.fresh) {
         m.stale = freshMs === null ? 1 : 0;
