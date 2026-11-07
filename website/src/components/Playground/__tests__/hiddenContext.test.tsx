@@ -7,7 +7,7 @@ import { whenIdle } from '../monaco/whenIdle';
 jest.mock('../monaco/whenIdle', () => ({ whenIdle: jest.fn(() => jest.fn()) }));
 
 const runIdle = () => act(() => (whenIdle as jest.Mock).mock.calls.at(-1)[0]());
-const cancelIdle = () => (whenIdle as jest.Mock).mock.results[0].value;
+const cancelIdle = () => jest.mocked(whenIdle).mock.results[0].value;
 
 describe('useHiddenUntilIdle', () => {
   beforeEach(() => (whenIdle as jest.Mock).mockClear());
