@@ -115,7 +115,8 @@ Function that initializes the `this` attribute for all interceptors.
 
 Returns the [Managers](./Manager.md) to use. Each `renderDataHook()` call calls it once, so each test gets
 new instances. The result replaces the default [NetworkManager](./NetworkManager.md) and
-[SubscriptionManager](./SubscriptionManager.md), so include them when the test needs fetching or subscriptions.
+[SubscriptionManager](./SubscriptionManager.md). It must include a `NetworkManager`; add a `SubscriptionManager`
+when the test needs subscriptions.
 
 Put a Manager before `NetworkManager` to see `fetch` actions, because `NetworkManager` handles them without
 passing them on.

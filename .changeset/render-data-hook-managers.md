@@ -6,7 +6,7 @@ Add `managers` option to [renderDataHook()](https://dataclient.io/docs/api/rende
 
 `renderDataHook()` used to ignore a `managers` option, so a test's Manager never ran. Now pass a function
 that returns new Managers; it runs once per `renderDataHook()` call. They replace the default `NetworkManager` and
-`SubscriptionManager`, so include `NetworkManager` when the test fetches.
+`SubscriptionManager`, and must include a `NetworkManager`.
 
 ```ts
 const { controller } = renderDataHook(() => useController(), {
