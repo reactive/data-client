@@ -9,6 +9,13 @@ import { normalize } from '../normalize/normalize';
 
 // React Native: MemoCache.native.ts, whose memo keeps the newest entry per node
 // plus the ones committed renders read.
+/** Runs a full GC once the current job ends, since WeakRef targets stay alive until then */
+async function collect() {
+  v8.setFlagsFromString('--expose_gc');
+  await new Promise(resolve => setTimeout(resolve, 0));
+  (vm.runInNewContext('gc') as () => void)();
+}
+
 describe('MemoCache.commit', () => {
   class Todo extends Entity {
     id = '';
@@ -252,8 +259,6 @@ describe('MemoCache.commit', () => {
   it('frees the reads of a store that never commits with that store', async () => {
     // direct use, or a provider that never calls commit(): results read
     // against a store must not outlive it through the commit bookkeeping
-    v8.setFlagsFromString('--expose_gc');
-    const gc = vm.runInNewContext('gc') as () => void;
     const memo = new MemoCache();
     const results: WeakRef<object>[] = [];
     (() => {
@@ -263,16 +268,12 @@ describe('MemoCache.commit', () => {
         results.push(new WeakRef(data as object));
       }
     })();
-    // WeakRef targets stay alive until the current job ends
-    await new Promise(resolve => setTimeout(resolve, 0));
-    gc();
+    await collect();
     expect(results.filter(ref => ref.deref()).length).toBe(0);
   });
 
   it('keeps a bounded number of reads for a live store that never commits', async () => {
     // a long-lived store read with many new inputs, and no commit()
-    v8.setFlagsFromString('--expose_gc');
-    const gc = vm.runInNewContext('gc') as () => void;
     const memo = new MemoCache();
     const entities = store('never committed');
     const results: WeakRef<object>[] = [];
@@ -280,9 +281,7 @@ describe('MemoCache.commit', () => {
       const { data } = memo.denormalize([Todo], ['1'], entities);
       results.push(new WeakRef(data as object));
     }
-    // WeakRef targets stay alive until the current job ends
-    await new Promise(resolve => setTimeout(resolve, 0));
-    gc();
+    await collect();
     expect(results.filter(ref => ref.deref()).length).toBeLessThanOrEqual(256);
     expect(entities).toBeDefined();
   });
