@@ -16,7 +16,7 @@ npx --no data-client-skills   # pnpm exec data-client-skills, yarn data-client-s
 
 - If a skill isn't available by name afterwards, read `.claude/skills/<skill>/SKILL.md`.
 - If the command isn't found, the installed version predates 0.19: run `npx skills add reactive/data-client --skill data-client-rest --skill data-client-schema -y` instead.
-- Add this line to `AGENTS.md` (create it if missing; if a `CLAUDE.md` exists, make sure it has an `@AGENTS.md` line), with the project's package manager in the command, and commit `.agents/skills`, `.claude/skills` and `skills-lock.json` (when the skills CLI wrote one) with the change:
+- Add this line to `AGENTS.md` (create it if missing; if a `CLAUDE.md` exists, make sure it has an `@AGENTS.md` line), with the project's package manager in the command, and commit `.agents/skills` and `.claude/skills` with the change (they are symlinks into `node_modules`: commit the links; with the skills CLI, also commit its `skills-lock.json`):
 
 ```md
 After adding, removing or upgrading `@data-client/*` packages, run `npx --no data-client-skills` and commit the skill links.
