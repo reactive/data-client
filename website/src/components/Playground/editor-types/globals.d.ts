@@ -615,7 +615,7 @@ interface IEntityClass<TBase extends Constructor = any> {
      * @see https://dataclient.io/rest/api/Entity#process
      */
     process(input: any, parent: any, key: string | undefined, args: any[]): any;
-    normalize(input: any, parent: any, key: string | undefined, delegate: INormalizeDelegate): any;
+    normalize(input: any, parent: any, key: string | undefined, delegate: INormalizeDelegate, parentEntity?: any): any;
     /** Do any transformations when first receiving input
      *
      * @see https://dataclient.io/rest/api/Entity#validate
