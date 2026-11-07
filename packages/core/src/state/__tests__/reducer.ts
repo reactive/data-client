@@ -648,7 +648,7 @@ describe('reducer', () => {
         reducer(initialState, createOptimistic(endpoint, args, t));
       }
       errorspy.mockClear();
-      reducer(initialState, createOptimistic(endpoint, args, 3050));
+      reducer(initialState, createOptimistic(endpoint, args, 3000));
       expect(errorspy).not.toHaveBeenCalled();
       reducer(initialState, createOptimistic(endpoint, args, 1000));
       expect(errorspy).toHaveBeenCalledTimes(1);

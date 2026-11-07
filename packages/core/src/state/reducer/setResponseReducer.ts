@@ -119,7 +119,7 @@ function claimReport(action: OptimisticAction | SetResponseAction) {
   if (action.type !== OPTIMISTIC) return true;
   const reportKey = `${action.key} ${action.meta.fetchedAt}`;
   if (reportedOptimistic.has(reportKey)) return false;
-  // Sets iterate in insertion order, so this forgets the oldest
+  // bounds memory in long sessions; a Set iterates oldest first
   if (reportedOptimistic.size >= 100)
     reportedOptimistic.delete(reportedOptimistic.values().next().value!);
   reportedOptimistic.add(reportKey);
