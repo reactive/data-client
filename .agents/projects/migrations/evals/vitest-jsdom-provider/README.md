@@ -10,6 +10,10 @@ installs them in a temp app (vitest 2.1, vite 5, jsdom 24, React 18, default vit
 `<DataProvider>`. `SKIP_BUILD=1` reuses the current build output.
 
 - Pass: exit 0 (the test renders `ok`).
+- Fail: exit 1 (vitest failed). Exit 2 means the build failed, so the eval did not run.
 - Baseline: `DATA_CLIENT_VERSION=0.18.2 ./run.sh` fails with the error above.
+
+It is manual, not part of CI: it takes a few minutes and installs from npm. Direct dependencies are pinned exactly;
+their own dependencies resolve at install time.
 
 Vitest 3.2 and 5.1 pass even on 0.18.2, so keep the pinned versions.
