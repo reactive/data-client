@@ -643,6 +643,17 @@ describe('reducer', () => {
       expect(errorspy).toHaveBeenCalledTimes(1);
       reducer(initialState, createOptimistic(endpoint, args, 2000));
       expect(errorspy).toHaveBeenCalledTimes(2);
+      // the response forgets the report, so tracking stays bounded
+      reducer(
+        initialState,
+        createSetResponse(endpoint, {
+          args,
+          response: { id: 5, title: 'hi' },
+          fetchedAt: 1000,
+        }),
+      );
+      reducer(initialState, createOptimistic(endpoint, args, 1000));
+      expect(errorspy).toHaveBeenCalledTimes(3);
     } finally {
       errorspy.mockRestore();
     }

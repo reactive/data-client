@@ -14,6 +14,14 @@ export function setResponseReducer(
   action: OptimisticAction | SetResponseAction,
   controller: Controller,
 ): State<unknown> {
+  // the fetch resolved, so its optimistic action won't be re-applied
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    reportedOptimistic.size &&
+    action.type !== OPTIMISTIC
+  ) {
+    reportedOptimistic.delete(`${action.key} ${action.meta.fetchedAt}`);
+  }
   if (action.error) {
     return reduceError(state, action, action.response);
   }
@@ -107,8 +115,7 @@ export function setResponseReducer(
 }
 
 /** Optimistic failures already logged, by key and fetch time (development only).
- * Like filterOptimistic(), key + fetchedAt identifies the fetch. Entries are a few
- * bytes per failed optimistic fetch and live for the session.
+ * Like filterOptimistic(), key + fetchedAt identifies the fetch; its response removes the entry.
  */
 const reportedOptimistic = /* @__PURE__ */ new Set<string>();
 /** Records the report; false when this optimistic failure was already reported.
