@@ -17,7 +17,8 @@ Monorepo for `@data-client` high performance npm packages.
 - `yarn test` - Run tests (Jest projects: ReactDOM, Node, ReactNative)
 - `yarn lint` / `yarn format` - Linting and formatting
 - `yarn check:typeperf` - Type-check cost budget (CI `typecheck` job); run after `yarn ci:build:types` when changing public types, `--update` to re-record. See `scripts/typeperf/README.md`
-- `yarn check:package-exports` - Packs every published package and checks each entry point with publint, arethetypeswrong, and Node `import()`/`require()` (CI `package-exports` job); run after `yarn build:types` when changing a package's `exports`, `main`, `files` or build output
+- `yarn check:package-exports` - Packs every published package and checks each entry point with publint, arethetypeswrong, Node `import()`/`require()`, and that subpaths share `.`'s code (CI `package-exports` job); run after `yarn build:types` when changing a package's `exports`, `main`, `files` or build output
+- New package subpath: copy a sibling's `exports` conditions and `<name>.node.mjs` shim. core, react, rest and vue build CommonJS entries from `exports` and fail the build on a missing or wrong shim (`nodeEntries`); give another package's first subpath the same setup (`input: nodeEntries(pkg)`, `output: [nodeOutput]`).
 - `yarn copy:websitetypes` - Regenerates the website playground's Monaco types (`website/src/components/Playground/editor-types`, ~10s); commit the result when public types or a copied dependency (`scripts/copywebsitetypes.sh`) change. CI `regenerate` check fails when they're stale
 - `yarn check:doc-examples [react|vue]` - Type-checks the React and Vue code examples in `docs/` (CI `regenerate` check). See "Code examples" in `website/framework-docs/README.md`
 - Website: `yarn workspace rdc-website typecheck` / `yarn lint --quiet 'website/{src,api}/**/*.{js,ts,tsx}'` / `yarn workspace rdc-website build`; dev: `cd website && yarn start:vscode`

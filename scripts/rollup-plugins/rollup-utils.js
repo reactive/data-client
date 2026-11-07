@@ -48,6 +48,63 @@ export function nativeOrNormalPath(file) {
   return isNative ? file.replace(/\.js$/, '.native.js') : file;
 }
 
+/** The CommonJS entries `exports` publishes for this build, as rollup `input`: each `require` target (in the
+ * React Native build, `react-native.require`) from the source its `lib/` build compiles, e.g.
+ * `{ 'server/redux/index': 'src/server/redux/index.ts' }`. Build them all in one rollup build, so entries share
+ * chunks rather than each bundling its own copy of shared code (a second `Controller`, or contexts no hook reads).
+ *
+ * Throws unless each top-level `require` target also loads for Node `import`, through a shim that re-exports it,
+ * with `module` ahead of `import` so bundlers keep `lib/`. Otherwise Node `import` of the subpath falls through to
+ * `lib/` while the main entry loads `dist/`: two copies of shared code. (`react-native.require` targets need no shim:
+ * only React Native Jest loads them, with `require()`.)
+ */
+export function nodeEntries(pkg) {
+  const input = {};
+  for (const [subpath, conditions] of Object.entries(pkg.exports)) {
+    if (typeof conditions.require === 'string')
+      checkNodeShim(subpath, conditions);
+    const target =
+      isNative ? conditions['react-native']?.require : conditions.require;
+    if (typeof target !== 'string') continue;
+    const base = (conditions.module ?? conditions.default)
+      .replace(/^\.\/lib\//, 'src/')
+      .replace(/\.js$/, '');
+    const source = ['.ts', '.tsx'].map(ext => base + ext).find(fs.existsSync);
+    if (!source)
+      throw new Error(`exports['${subpath}']: no ${base}.ts to build`);
+    input[target.replace(/^\.\/dist\//, '').replace(/(\.native)?\.js$/, '')] =
+      source;
+  }
+  return input;
+}
+
+function checkNodeShim(subpath, conditions) {
+  const shim = conditions.import;
+  const expected = `export * from '${conditions.require}';\n`;
+  const keys = Object.keys(conditions);
+  if (typeof shim !== 'string' || !shim.endsWith('.mjs'))
+    throw new Error(
+      `exports['${subpath}'] needs an "import" shim (*.mjs) containing: ${expected}`,
+    );
+  if (!fs.existsSync(shim) || fs.readFileSync(shim, 'utf8') !== expected)
+    throw new Error(`${shim} must contain exactly: ${expected}`);
+  if (
+    !keys.includes('module') ||
+    keys.indexOf('module') > keys.indexOf('import')
+  )
+    throw new Error(
+      `exports['${subpath}'] needs "module" (lib/) ahead of "import"`,
+    );
+}
+
+/** rollup `output` for the `nodeEntries` build; the React Native build writes `*.native.js` beside the Node files */
+export const nodeOutput = {
+  dir: 'dist',
+  format: 'cjs',
+  entryFileNames: nativeOrNormalPath('[name].js'),
+  chunkFileNames: nativeOrNormalPath('[name]-[hash].js'),
+};
+
 export function onwarn(warning, warn) {
   // Suppress "use client" warnings
   if (

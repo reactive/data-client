@@ -14,6 +14,8 @@ import {
   onwarn,
   isNative,
   nativeOrNormalPath,
+  nodeEntries,
+  nodeOutput,
 } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
@@ -30,33 +32,16 @@ const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node', '.jsx'];
 const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
 
-// Entry files other entries load instead of bundling a copy (src -> dist).
 // React Native: the contexts are one CommonJS file that both the ESM `native/` build (Metro
 // `import`) and `dist/*.native.js` (Jest, `require()`) load, so an app has one set of contexts.
-const nativeContext = 'dist/context.native.js';
-const siblings = Object.fromEntries(
-  Object.entries({
-    'src/index.js': nativeOrNormalPath('dist/index.js'),
-    ...(isNative && { 'src/context.js': nativeContext }),
-  }).map(([src, dist]) => [path.resolve(src), dist]),
-);
+const nativeContextEntry = 'context';
+const nativeContext = nativeOrNormalPath(`dist/${nativeContextEntry}.js`);
 
-function isExternal(id, importer) {
+function isExternal(id) {
   return (
-    (importer &&
-      id.startsWith('.') &&
-      path.resolve(path.dirname(importer), id) in siblings) ||
     id === 'react-native' ||
     dependencies.some(dep => dep === id || id.startsWith(dep))
   );
-}
-/** Require siblings by their dist path, relative to `output` */
-function siblingPaths(output) {
-  return id => {
-    if (!(id in siblings)) return id;
-    const relative = path.relative(path.dirname(output), siblings[id]);
-    return relative.startsWith('.') ? relative : `./${relative}`;
-  };
 }
 /** native/ (Babel ESM) re-exports the shared contexts */
 const writeNativeContext = {
@@ -126,56 +111,30 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   });
 } else {
   // node-friendly (or React Native Jest) commonjs build
-  (isNative ?
-    [
-      { input: 'src/context.ts', output: nativeContext },
-      { input: 'src/index.ts', output: pkg.main },
-      { input: 'src/next/index.ts', output: 'dist/next.js' },
-      // @data-client/react/redux: client-side despite the server/ folder
-      {
-        input: 'src/server/redux/index.ts',
-        output: 'dist/server/redux/index.js',
-      },
-    ]
-  : [
-      { input: 'src/index.ts', output: pkg.main },
-      { input: 'src/next/index.ts', output: 'dist/next.js' },
-      { input: 'src/server/index.ts', output: 'dist/server/index.js' },
-      {
-        input: 'src/server/redux/index.ts',
-        output: 'dist/server/redux/index.js',
-      },
-      { input: 'src/mock/index.ts', output: 'dist/mock.js' },
-    ]
-  ).forEach(({ input, output }) => {
-    const file = output === nativeContext ? output : nativeOrNormalPath(output);
-    configs.push({
-      input,
-      external: isExternal,
-      output: [
-        {
-          file,
-          format: 'cjs',
-          inlineDynamicImports: true,
-          paths: siblingPaths(file),
-        },
-      ],
-      onwarn,
-      plugins: [
-        babel({
-          exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
-          extensions: nativeExtensions,
-          rootMode: 'upward',
-          babelHelpers: 'runtime',
-        }),
-        replace({ 'process.env.CJS': 'true', preventAssignment: true }),
-        resolve({ extensions: nativeExtensions }),
-        commonjs({ extensions: nativeExtensions }),
-        ...(output === nativeContext ? [writeNativeContext] : []),
-        // for nextjs 13 compatibility in node https://nextjs.org/docs/app/building-your-application/rendering
-        ...(isNative ? [] : [banner(() => "'use client';\n")]),
-      ],
-    });
+  // One build so the entries share chunks: `@data-client/react/redux` must provide the same
+  // contexts the hooks from `@data-client/react` read, not a bundled copy
+  configs.push({
+    input: {
+      ...nodeEntries(pkg),
+      // its own file: native/context.js loads it (see nativeContext)
+      ...(isNative && { [nativeContextEntry]: 'src/context.ts' }),
+    },
+    external: isExternal,
+    output: [nodeOutput],
+    onwarn,
+    plugins: [
+      babel({
+        exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
+        extensions: nativeExtensions,
+        rootMode: 'upward',
+        babelHelpers: 'runtime',
+      }),
+      replace({ 'process.env.CJS': 'true', preventAssignment: true }),
+      resolve({ extensions: nativeExtensions }),
+      commonjs({ extensions: nativeExtensions }),
+      // web: 'use client' for nextjs 13 compatibility in node https://nextjs.org/docs/app/building-your-application/rendering
+      isNative ? writeNativeContext : banner(() => "'use client';\n"),
+    ],
   });
 }
 export default configs;

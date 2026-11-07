@@ -11,8 +11,9 @@ import {
   typeConfig,
   typeConfigNext,
   onwarn,
-  nativeOrNormalPath,
   resolveTsAsJs,
+  nodeEntries,
+  nodeOutput,
 } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
@@ -115,31 +116,26 @@ if (process.env.BROWSERSLIST_ENV === '2020') {
 } else {
   // node-friendly (or React Native Jest) commonjs build
   // Native builds exist only for paramsToString.native.ts: URLSearchParams.sort() throws before RN 0.80 (REACT-24)
-  [
-    { input: 'src/index.ts', output: pkg.main },
-    { input: 'src/next/index.ts', output: 'dist/next.js' },
-  ].forEach(({ input, output }) => {
-    configs.push({
-      input,
-      external: isExternal,
-      output: [{ file: nativeOrNormalPath(output), format: 'cjs' }],
-      onwarn,
-      plugins: [
-        babel({
-          exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
-          extensions: nativeExtensions,
-          babelHelpers: 'runtime',
-          rootMode: 'upward',
-        }),
-        replace({
-          'process.env.CJS': 'true',
-          preventAssignment: true,
-        }),
-        resolve({ extensions: nativeExtensions }),
-        resolveTsAsJs,
-        commonjs({ extensions: nativeExtensions }),
-      ],
-    });
+  configs.push({
+    input: nodeEntries(pkg),
+    external: isExternal,
+    output: [nodeOutput],
+    onwarn,
+    plugins: [
+      babel({
+        exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
+        extensions: nativeExtensions,
+        babelHelpers: 'runtime',
+        rootMode: 'upward',
+      }),
+      replace({
+        'process.env.CJS': 'true',
+        preventAssignment: true,
+      }),
+      resolve({ extensions: nativeExtensions }),
+      resolveTsAsJs,
+      commonjs({ extensions: nativeExtensions }),
+    ],
   });
 }
 export default configs;
