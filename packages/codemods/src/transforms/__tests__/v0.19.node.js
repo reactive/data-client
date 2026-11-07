@@ -273,41 +273,43 @@ const [CustomProvider] = createPersistedStore(useCustom ? () => custom : undefin
     );
   });
 
-  defineInlineTest(
-    transform,
-    { path: 'App.tsx' },
-    `
+  describe('other cases', () => {
+    defineInlineTest(
+      transform,
+      { path: 'App.tsx' },
+      `
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 
 export const managers = [new MyManager(), ...getDefaultManagers()];
 
 export const App = () => <DataProvider managers={managers} />;
-    `,
-    `
+      `,
+      `
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 
 export const managers = [new MyManager(), ...getDefaultManagers()];
 
 export const App = () => <DataProvider managers={() => managers} />;
-    `,
-    'wraps exported arrays where they are passed, as their importers are',
-  );
+      `,
+      'wraps exported arrays where they are passed, as their importers are',
+    );
 
-  defineInlineTest(
-    transform,
-    { path: 'Other.tsx' },
-    `
+    defineInlineTest(
+      transform,
+      { path: 'Other.tsx' },
+      `
 import { Provider } from 'other-lib';
 
 const managers = [1, 2];
 export const A = () => <Provider managers={managers} />;
-    `,
-    `
+      `,
+      `
 import { Provider } from 'other-lib';
 
 const managers = [1, 2];
 export const A = () => <Provider managers={managers} />;
-    `,
-    'leaves files without @data-client imports alone',
-  );
+      `,
+      'leaves files without @data-client imports alone',
+    );
+  });
 });

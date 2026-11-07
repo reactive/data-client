@@ -20,32 +20,31 @@
  */
 
 const DATA_CLIENT_PREFIX = '@data-client/';
+// every rewrite needs one of these names in the file
+const NAMES = /managers|initManager|prepareStore|createPersistedStore/;
 // calls whose object argument has a `managers` option
 const OPTION_CALLS = new Set(['createDataClient', 'mountDataClient']);
 // calls that take managers as a positional argument, and its index
-const POSITIONAL_CALLS = { prepareStore: 1, createPersistedStore: 0 };
+const POSITIONAL_CALLS = new Map([
+  ['prepareStore', 1],
+  ['createPersistedStore', 0],
+]);
 
-function hasDataClientImport(j, root) {
-  return (
-    root.find(j.ImportDeclaration).filter(p => {
-      const v = p.node.source.value;
-      return typeof v === 'string' && v.startsWith(DATA_CLIENT_PREFIX);
-    }).length > 0
-  );
-}
+const isId = (node, name) => node?.type === 'Identifier' && node.name === name;
+
+const isProperty = node =>
+  node.type === 'ObjectProperty' || node.type === 'Property';
 
 const isFunction = node =>
   node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression';
 
 // `undefined` selects the default Managers, so it stays as it is
 const isUndefined = node =>
-  (node.type === 'Identifier' && node.name === 'undefined') ||
+  isId(node, 'undefined') ||
   (node.type === 'UnaryExpression' && node.operator === 'void');
 
 const isGetDefaultManagersCall = node =>
-  node.type === 'CallExpression' &&
-  node.callee.type === 'Identifier' &&
-  node.callee.name === 'getDefaultManagers';
+  node.type === 'CallExpression' && isId(node.callee, 'getDefaultManagers');
 
 const calleeName = node =>
   node.callee.type === 'Identifier' ? node.callee.name
@@ -57,48 +56,39 @@ const calleeName = node =>
 function findManagerSlots(j, root) {
   const slots = [];
   const optionOf = objectPath => {
-    if (!objectPath || objectPath.node.type !== 'ObjectExpression') return;
+    if (objectPath.node?.type !== 'ObjectExpression') return;
     objectPath.get('properties').each(prop => {
       const { node } = prop;
       if (
-        (node.type === 'ObjectProperty' || node.type === 'Property') &&
+        isProperty(node) &&
         !node.computed &&
-        ((node.key.type === 'Identifier' && node.key.name === 'managers') ||
-          node.key.value === 'managers')
-      ) {
-        // `{ managers }` shorthand becomes `{ managers: managers }` if it is wrapped
-        slots.push({ path: prop.get('value'), property: node });
-      }
+        (isId(node.key, 'managers') || node.key.value === 'managers')
+      )
+        slots.push(prop.get('value'));
     });
   };
 
   root.find(j.JSXAttribute, { name: { name: 'managers' } }).forEach(attr => {
-    const value = attr.node.value;
-    if (value && value.type === 'JSXExpressionContainer')
-      slots.push({ path: attr.get('value', 'expression') });
+    if (attr.node.value?.type === 'JSXExpressionContainer')
+      slots.push(attr.get('value', 'expression'));
   });
 
   root.find(j.CallExpression).forEach(call => {
     const name = calleeName(call.node);
     const args = call.get('arguments');
-    if (
-      name === 'use' &&
-      call.node.arguments[0]?.type === 'Identifier' &&
-      call.node.arguments[0].name === 'DataClientPlugin'
-    ) {
+    if (name === 'use' && isId(call.node.arguments[0], 'DataClientPlugin')) {
       optionOf(args.get(1));
     } else if (OPTION_CALLS.has(name)) {
-      call.node.arguments.forEach((_, i) => optionOf(args.get(i)));
-    } else if (name in POSITIONAL_CALLS) {
-      const i = POSITIONAL_CALLS[name];
-      if (call.node.arguments[i]) slots.push({ path: args.get(i) });
+      args.each(optionOf);
+    } else if (POSITIONAL_CALLS.has(name)) {
+      const i = POSITIONAL_CALLS.get(name);
+      if (call.node.arguments[i]) slots.push(args.get(i));
     }
   });
 
   // app plugins in tests: `plugins: [[DataClientPlugin, { managers }]]`
   root.find(j.ArrayExpression).forEach(array => {
-    const [plugin] = array.node.elements;
-    if (plugin?.type === 'Identifier' && plugin.name === 'DataClientPlugin')
+    if (isId(array.node.elements[0], 'DataClientPlugin'))
       optionOf(array.get('elements', 1));
   });
   return slots;
@@ -110,57 +100,55 @@ function bindingOf(path) {
   return scope?.getBindings()[path.node.name]?.[0];
 }
 
-/** Whether every use of a variable is one of the `managers` slots */
-function onlyUsedAsManagers(j, root, binding, slotNodes) {
-  const name = binding.node.name;
-  // other modules may pass `export const managers` too, and they get wrapped
-  if (binding.parent.parent?.parent?.node.type === 'ExportNamedDeclaration')
-    return false;
+/** Whether `p` names something else, like an object key or a non-computed member */
+function isOtherName(p) {
+  const parent = p.parent.node;
   return (
-    root
-      .find(j.Identifier, { name })
-      .filter(p => p !== binding && p.node !== binding.node)
-      // JSX names like the `managers` attribute are JSXIdentifiers
-      .filter(p => p.node.type === 'Identifier')
-      .filter(p => {
-        const parent = p.parent.node;
-        // object keys and non-computed members are other names
-        if (
-          (parent.type === 'MemberExpression' ||
-            parent.type === 'OptionalMemberExpression') &&
-          parent.property === p.node &&
-          !parent.computed
-        )
-          return false;
-        if (
-          (parent.type === 'ObjectProperty' || parent.type === 'Property') &&
-          parent.key === p.node &&
-          parent.value !== p.node
-        )
-          return false;
-        return bindingOf(p) === binding;
-      })
-      .every(p => slotNodes.has(p.node))
+    ((parent.type === 'MemberExpression' ||
+      parent.type === 'OptionalMemberExpression') &&
+      parent.property === p.node &&
+      !parent.computed) ||
+    (isProperty(parent) && parent.key === p.node && parent.value !== p.node)
   );
 }
 
+/** Whether every use of a variable is one of the `managers` slots */
+function onlyUsedAsManagers(j, root, binding, slotNodes) {
+  // other modules may pass `export const managers` too, and they get wrapped
+  if (binding.parent.parent?.parent?.node.type === 'ExportNamedDeclaration')
+    return false;
+  return root
+    .find(j.Identifier, { name: binding.node.name })
+    .filter(
+      p =>
+        p.node !== binding.node &&
+        // JSX names like the `managers` attribute are JSXIdentifiers
+        p.node.type === 'Identifier' &&
+        !isOtherName(p) &&
+        bindingOf(p) === binding,
+    )
+    .every(p => slotNodes.has(p.node));
+}
+
+/** `: Manager[]` becomes `: () => Manager[]` */
 function toFunctionType(j, typeAnnotation) {
-  if (!typeAnnotation || typeAnnotation.type !== 'TSTypeAnnotation')
-    return typeAnnotation;
-  if (typeAnnotation.typeAnnotation.type === 'TSFunctionType')
-    return typeAnnotation;
   const fn = j.tsFunctionType([]);
   fn.typeAnnotation = j.tsTypeAnnotation(typeAnnotation.typeAnnotation);
   return j.tsTypeAnnotation(fn);
 }
 
+/** Replaces a slot's expression, expanding `{ managers }` shorthand */
+function replace(path, node) {
+  path.replace(node);
+  if (path.parent.node.shorthand) path.parent.node.shorthand = false;
+}
+
 function transformManagers(j, root) {
-  let dirty = false;
   const slots = findManagerSlots(j, root);
-  const slotNodes = new Set(slots.map(({ path }) => path.node));
+  const slotNodes = new Set(slots.map(path => path.node));
 
   // returns whether it changed the expression at `path`
-  const convert = (path, property) => {
+  const convert = path => {
     const node = path.node;
     if (isFunction(node) || isUndefined(node)) return false;
     // `cond ? managers : undefined` keeps the defaults when it is undefined
@@ -168,42 +156,37 @@ function transformManagers(j, root) {
       const consequent = convert(path.get('consequent'));
       return convert(path.get('alternate')) || consequent;
     }
-    if (node.type === 'Identifier' && node.name === 'getDefaultManagers')
-      return false;
+    if (isId(node, 'getDefaultManagers')) return false;
     if (isGetDefaultManagersCall(node) && node.arguments.length === 0) {
-      path.replace(j.identifier('getDefaultManagers'));
-      if (property) property.shorthand = false;
+      replace(path, j.identifier('getDefaultManagers'));
       return true;
     }
-    if (node.type === 'Identifier') {
-      const binding = bindingOf(path);
-      const declaration = binding?.parent.node;
-      if (declaration?.type === 'FunctionDeclaration') return false;
-      if (declaration?.type === 'VariableDeclarator') {
-        const init = declaration.init;
-        if (init && isFunction(init)) return false;
-        if (
-          init &&
-          (init.type === 'ArrayExpression' || isGetDefaultManagersCall(init)) &&
-          onlyUsedAsManagers(j, root, binding, slotNodes)
-        ) {
-          declaration.init = j.arrowFunctionExpression([], init);
-          if (declaration.id.typeAnnotation)
-            declaration.id.typeAnnotation = toFunctionType(
-              j,
-              declaration.id.typeAnnotation,
-            );
-          return true;
-        }
+    const binding = node.type === 'Identifier' && bindingOf(path);
+    const declaration = binding && binding.parent.node;
+    if (declaration?.type === 'FunctionDeclaration') return false;
+    const init = declaration?.type === 'VariableDeclarator' && declaration.init;
+    if (init) {
+      if (isFunction(init)) return false;
+      if (
+        (init.type === 'ArrayExpression' || isGetDefaultManagersCall(init)) &&
+        onlyUsedAsManagers(j, root, binding, slotNodes)
+      ) {
+        declaration.init = j.arrowFunctionExpression([], init);
+        if (declaration.id.typeAnnotation)
+          declaration.id.typeAnnotation = toFunctionType(
+            j,
+            declaration.id.typeAnnotation,
+          );
+        return true;
       }
     }
-    path.replace(j.arrowFunctionExpression([], node));
-    if (property) property.shorthand = false;
+    replace(path, j.arrowFunctionExpression([], node));
     return true;
   };
 
-  slots.forEach(({ path, property }) => {
-    if (convert(path, property)) dirty = true;
+  let dirty = false;
+  slots.forEach(path => {
+    if (convert(path)) dirty = true;
   });
   return dirty;
 }
@@ -222,12 +205,19 @@ function transformInitManager(j, root) {
 }
 
 module.exports = function transformer(fileInfo, api) {
-  // skip parsing files that can't import @data-client
-  if (!fileInfo.source.includes(DATA_CLIENT_PREFIX)) return fileInfo.source;
+  // skip parsing files that have nothing to migrate
+  if (
+    !fileInfo.source.includes(DATA_CLIENT_PREFIX) ||
+    !NAMES.test(fileInfo.source)
+  )
+    return fileInfo.source;
   const j = api.jscodeshift;
   const root = j(fileInfo.source);
 
-  if (!hasDataClientImport(j, root)) return fileInfo.source;
+  const hasDataClientImport = root
+    .find(j.ImportDeclaration)
+    .some(p => String(p.node.source.value).startsWith(DATA_CLIENT_PREFIX));
+  if (!hasDataClientImport) return fileInfo.source;
 
   let dirty = false;
   dirty = transformManagers(j, root) || dirty;
