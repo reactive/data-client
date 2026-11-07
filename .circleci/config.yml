@@ -508,9 +508,6 @@ jobs:
           path: ~/repo
       - run: cp -R --update=none ~/repo/. ~/project/
       - run:
-          # Packs every published package (its prepack builds the JavaScript;
-          # setup built the types), then checks each entry point with publint,
-          # arethetypeswrong, and Node import()/require()
           name: Check published package entry points
           command: yarn run check:package-exports
 

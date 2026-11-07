@@ -21,12 +21,7 @@ const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node', '.jsx'];
 process.env.NODE_ENV = 'production';
 
 function isExternal(id) {
-  return (
-    // when we import contexts in our other entry points
-    id === '../../index.js' ||
-    id === '../index.js' ||
-    dependencies.some(dep => dep === id || id.startsWith(dep))
-  );
+  return dependencies.some(dep => dep === id || id.startsWith(dep));
 }
 
 const configs = [];

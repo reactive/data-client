@@ -42,7 +42,7 @@ const INTEROP = new Set(['__esModule', 'module.exports']);
 const packages = publishedPackages();
 fs.rmSync(work, { recursive: true, force: true });
 fs.mkdirSync(packs, { recursive: true });
-packAll(packages);
+packAll();
 // Unpack them all first, so they load each other rather than the workspaces
 const unpacked = packages.map(unpack);
 const consumer = await consumerLoaders();
@@ -64,16 +64,25 @@ if (failed) {
 }
 console.log('\nAll package entry points passed.');
 
+// The workspaces release publishes (`--no-private`, as in `changeset:publish`)
 function publishedPackages() {
-  return fs
-    .readdirSync(path.join(root, 'packages'))
-    .map(dir => path.join(root, 'packages', dir, 'package.json'))
-    .filter(file => fs.existsSync(file))
-    .map(file => JSON.parse(fs.readFileSync(file, 'utf8')))
-    .filter(pkg => !pkg.private);
+  return execFileSync(
+    'yarn',
+    ['workspaces', 'list', '--no-private', '--json'],
+    {
+      cwd: root,
+      encoding: 'utf8',
+    },
+  )
+    .trim()
+    .split('\n')
+    .map(line => JSON.parse(line).location)
+    .map(location =>
+      JSON.parse(fs.readFileSync(path.join(root, location, 'package.json'))),
+    );
 }
 
-function packAll(packages) {
+function packAll() {
   try {
     execFileSync(
       'yarn',
@@ -81,10 +90,10 @@ function packAll(packages) {
         'workspaces',
         'foreach',
         '--all',
+        '--no-private',
         '--parallel',
         // bundles inline some dependencies' lib/, which their prepack builds
         '--topological',
-        ...packages.flatMap(pkg => ['--include', pkg.name]),
         'pack',
         '--out',
         path.join(packs, '%s.tgz'),
@@ -151,9 +160,7 @@ async function lint(pkg, dir) {
 }
 
 async function checkTypes(pkg, tarball) {
-  const analysis = await checkPackage(
-    createPackageFromTarballData(new Uint8Array(tarball)),
-  );
+  const analysis = await checkPackage(createPackageFromTarballData(tarball));
   const errors = [];
   const allowed = [];
   for (const problem of analysis.problems ?? []) {
@@ -215,10 +222,10 @@ function isAllowedTypesProblem(pkg, problem, entrypoints) {
 }
 
 // Each entry point with the ESM file bundlers load for it: the `default`
-// target of each exports subpath, or `module` when there is no exports map
+// target of each exports subpath. A package with `module` but no exports map
+// already fails publint's HAS_MODULE_BUT_NO_EXPORTS.
 function entryPoints(pkg) {
-  if (!pkg.exports) return pkg.module ? [['.', pkg.module]] : [];
-  return Object.entries(pkg.exports)
+  return Object.entries(pkg.exports ?? {})
     .filter(
       ([subpath]) => subpath !== './package.json' && !subpath.includes('*'),
     )
