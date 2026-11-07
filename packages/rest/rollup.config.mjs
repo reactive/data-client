@@ -115,31 +115,34 @@ if (process.env.BROWSERSLIST_ENV === '2020') {
 } else {
   // node-friendly (or React Native Jest) commonjs build
   // Native builds exist only for paramsToString.native.ts: URLSearchParams.sort() throws before RN 0.80 (REACT-24)
-  [
-    { input: 'src/index.ts', output: pkg.main },
-    { input: 'src/next/index.ts', output: 'dist/next.js' },
-  ].forEach(({ input, output }) => {
-    configs.push({
-      input,
-      external: isExternal,
-      output: [{ file: nativeOrNormalPath(output), format: 'cjs' }],
-      onwarn,
-      plugins: [
-        babel({
-          exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
-          extensions: nativeExtensions,
-          babelHelpers: 'runtime',
-          rootMode: 'upward',
-        }),
-        replace({
-          'process.env.CJS': 'true',
-          preventAssignment: true,
-        }),
-        resolve({ extensions: nativeExtensions }),
-        resolveTsAsJs,
-        commonjs({ extensions: nativeExtensions }),
-      ],
-    });
+  // One build so the entries share chunks rather than bundling copies
+  configs.push({
+    input: { index: 'src/index.ts', next: 'src/next/index.ts' },
+    external: isExternal,
+    output: [
+      {
+        dir: 'dist',
+        format: 'cjs',
+        entryFileNames: nativeOrNormalPath('[name].js'),
+        chunkFileNames: nativeOrNormalPath('[name]-[hash].js'),
+      },
+    ],
+    onwarn,
+    plugins: [
+      babel({
+        exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
+        extensions: nativeExtensions,
+        babelHelpers: 'runtime',
+        rootMode: 'upward',
+      }),
+      replace({
+        'process.env.CJS': 'true',
+        preventAssignment: true,
+      }),
+      resolve({ extensions: nativeExtensions }),
+      resolveTsAsJs,
+      commonjs({ extensions: nativeExtensions }),
+    ],
   });
 }
 export default configs;

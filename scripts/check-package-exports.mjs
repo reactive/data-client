@@ -153,6 +153,7 @@ function unpack(pkg) {
 async function consumerLoaders() {
   const probe = path.join(work, 'probe.mjs');
   fs.writeFileSync(probe, 'export default specifier => import(specifier);\n');
+  fs.writeFileSync(path.join(work, 'loaded.mjs'), LOADED);
   return {
     import: (await import(pathToFileURL(probe))).default,
     require: createRequire(probe),
@@ -275,13 +276,15 @@ async function checkNode(pkg, dir, consumer) {
         const diff = compareExports(expected, await load(specifier));
         if (diff) errors.push(`${call}('${specifier}') ${diff}`);
       } catch (error) {
-        errors.push(
-          `${call}('${specifier}') threw ${error.message.split('\n')[0]}`,
-        );
+        errors.push(threw(call, specifier, error));
       }
     }
   }
   return { errors };
+}
+
+function threw(call, specifier, error) {
+  return `${call}('${specifier}') threw ${error.message.split('\n')[0]}`;
 }
 
 function compareExports(expected, actual) {
@@ -307,9 +310,10 @@ function compareExports(expected, actual) {
 
 // A subpath that loads a second copy of code `.` also loads breaks at runtime:
 // MockController isn't the app's Controller, a provider fills a context the
-// hooks never read. Subpaths with no `require` condition are ESM-only: they
-// are for bundlers (Next.js for react's ./nextjs), and Node `import` still
-// loads them from lib/, so they are not checked.
+// hooks never read. Skips ESM-only subpaths (no `require` condition), which
+// are for bundlers. Known gap: Node `import` loads them from lib/ while `.`
+// loads dist/, so react's ./nextjs DataProvider run unbundled in Node fills
+// contexts that `@data-client/react`'s hooks don't read. Next.js bundles it.
 async function checkShared(pkg, dir, consumer) {
   const subpaths = entryPoints(pkg)
     .map(([subpath]) => subpath)
@@ -330,9 +334,7 @@ async function checkShared(pkg, dir, consumer) {
           );
         }
       } catch (error) {
-        errors.push(
-          `${call}('${specifier}') threw ${error.message.split('\n')[0]}`,
-        );
+        errors.push(threw(call, specifier, error));
       }
     }
   }
@@ -358,7 +360,6 @@ async function differentExports(load, rootSpecifier, specifier) {
 // package that loaded files from more than one build folder (lib/, dist/...)
 function mixedBuilds(call, specifiers) {
   const loader = path.join(work, 'loaded.mjs');
-  if (!fs.existsSync(loader)) fs.writeFileSync(loader, LOADED);
   const urls = JSON.parse(
     execFileSync(process.execPath, [loader, call, ...specifiers], {
       encoding: 'utf8',

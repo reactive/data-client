@@ -16,23 +16,20 @@ if [ -z "${SKIP_BUILD:-}" ] && ! repo_yarn build:types >"$log" 2>&1; then
   echo "Type build failed: this is not the eval's result" >&2
   exit 2
 fi
-# Stale chunks from earlier builds would be packed too
-rm -rf packages/core/dist packages/react/dist packages/rest/dist
 repo_yarn check:package-exports >"$log" 2>&1
 work="$repo/node_modules/.cache/check-package-exports"
-# yarn pack failing is the one way the check stops before any package
-if grep -q '^yarn pack failed' "$log"; then
-  tail -40 "$log"
-  echo "Packing failed: this is not the eval's result" >&2
-  exit 2
-fi
 # The check's other results belong to other evals; this one reads `shared`.
 # Prints each package's `shared` line, and the reasons under a failed one.
 echo "check:package-exports 'shared' results:"
 awk '/^@data-client\//{pkg = $0 ": "} /^  [^ ]/{p = / shared$/; if (p) print pkg $0} p && /^    /' "$log"
 packages=$(grep -c '^@data-client/' "$log")
 passed=$(grep -c '✓ shared$' "$log")
-expected=$(cd "$repo" && repo_yarn workspaces list --no-private --json | wc -l)
+expected=$(repo_yarn workspaces list --no-private --json | wc -l)
+if [ "$packages" -eq 0 ] || [ "$expected" -eq 0 ]; then
+  tail -40 "$log"
+  echo "The check stopped before any package: this is not the eval's result" >&2
+  exit 2
+fi
 shared_failed=0
 if [ "$packages" -ne "$expected" ] || [ "$passed" -ne "$expected" ]; then
   shared_failed=1

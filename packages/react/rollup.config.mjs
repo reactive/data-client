@@ -112,23 +112,16 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   // One build so the entries share chunks: `@data-client/react/redux` must provide the same
   // contexts the hooks from `@data-client/react` read, not a bundled copy
   configs.push({
-    input:
-      isNative ?
-        {
-          // its own file: native/context.js loads it (see nativeContext)
-          [nativeContextEntry]: 'src/context.ts',
-          index: 'src/index.ts',
-          next: 'src/next/index.ts',
-          // @data-client/react/redux: client-side despite the server/ folder
-          'server/redux/index': 'src/server/redux/index.ts',
-        }
-      : {
-          index: 'src/index.ts',
-          next: 'src/next/index.ts',
-          'server/index': 'src/server/index.ts',
-          'server/redux/index': 'src/server/redux/index.ts',
-          mock: 'src/mock/index.ts',
-        },
+    input: {
+      index: 'src/index.ts',
+      next: 'src/next/index.ts',
+      // @data-client/react/redux: client-side despite the server/ folder
+      'server/redux/index': 'src/server/redux/index.ts',
+      ...(isNative ?
+        // its own file: native/context.js loads it (see nativeContext)
+        { [nativeContextEntry]: 'src/context.ts' }
+      : { 'server/index': 'src/server/index.ts', mock: 'src/mock/index.ts' }),
+    },
     external: isExternal,
     output: [
       {
@@ -149,9 +142,9 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
       replace({ 'process.env.CJS': 'true', preventAssignment: true }),
       resolve({ extensions: nativeExtensions }),
       commonjs({ extensions: nativeExtensions }),
-      ...(isNative ? [writeNativeContext] : []),
-      // for nextjs 13 compatibility in node https://nextjs.org/docs/app/building-your-application/rendering
-      ...(isNative ? [] : [banner(() => "'use client';\n")]),
+      isNative ? writeNativeContext
+        // for nextjs 13 compatibility in node https://nextjs.org/docs/app/building-your-application/rendering
+      : banner(() => "'use client';\n"),
     ],
   });
 }
